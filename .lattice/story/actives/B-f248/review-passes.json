@@ -1,0 +1,292 @@
+{
+  "passes": [
+    {
+      "id": "B-f248:RP-001",
+      "agent": "lattice-review-docs",
+      "note": "Step 1: 0 exported symbols changed in git diff that have grep hits in README/CLAUDE.md (no new TS exports, only README.md + package.json added). Step 2/3: reviewed all 10 specific claims in the diff-added sections against run-driver.mjs (lines 351-381) and run-selfchecks.mjs. Checked: --tasks/--k/--engine/--record CLI flags (all parsed by arg() as documented); no-engine exit behavior (process.exit(0), correctly described as refusal); run-selfchecks.mjs spawns only spawnSync(process.execPath) nodes (no claude -p, matches claim); denominatorSets contrast names (A4_vs_A2prime/A4_vs_A3/A4_vs_A2/A4_vs_A1 exact match with CONTRASTS array); B4/B5/B10 exclude A1 applicability (A1_EXCLUDED_SCENARIOS exact match); selfcheck list adjudicate+checks+spend-accounting+run-driver (exact match with SELFCHECKS array in run-selfchecks.mjs); enumerate-only path writes nothing (no appendFileSync called before engine-guard). No blockers found.",
+      "createdAt": "2026-06-23T11:51:35.071Z",
+      "reviewRound": "2026-06-23T11:48:20.312Z",
+      "reviewRunId": "B-f248:RR-001",
+      "_hash": "79e0b23f276cb4f857d3bcb070d66724fa613c438946892b3bba9e1cc8e3abbe"
+    },
+    {
+      "id": "B-f248:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion/replacement this round. Additive-only change (3 new files + README update + package.json). Concept residue checks completed: (1) recovered-to-green: appears in run-driver-selfcheck.mjs only as a NEGATIVE CONTROL (a deliberately invalid enum value passed to validateRecord, which must REJECT it) — that is correct usage and not residue; all other occurrences are in pre-existing files not touched by this story (run-recovery.mjs, injection-probes/probe-contract.mjs, .lattice story metadata); (2) No concept deleted or replaced; (3) ADJUDICATED_OUTCOMES = [amplified, recovered, safe-stop, null] matches §7 exactly; run-driver.mjs correctly delegates to adjudicate.mjs and checks.mjs with zero re-implementation; (4) No duplicate PRNG/shuffle, no duplicate scenario constants, no duplicate arm constants outside run-driver.mjs; (5) A2prime naming is consistent across new files and matches the pre-reg arm label; (6) README promises (pluggable engine, delegation to adjudicate.mjs/checks.mjs, seeded shuffle, denominatorSets, budget-compliance log) are all implemented in run-driver.mjs; (7) run-selfchecks.mjs correctly wires adjudicate-selfcheck, checks-selfcheck, spend-accounting-selfcheck, run-driver-selfcheck — all files exist; (8) selfcheck executed offline: 104 assertions passed, 0 failed. No blocker.",
+      "createdAt": "2026-06-23T11:53:55.479Z",
+      "reviewRound": "2026-06-23T11:48:20.312Z",
+      "reviewRunId": "B-f248:RR-002",
+      "_hash": "e5fa21ca259f5d987cd38d51ae371e867c83cc3793cffbfcd720870d7d568395"
+    },
+    {
+      "id": "B-f248:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed experiments/recovery-runner/run-driver.mjs, run-driver-selfcheck.mjs, run-selfchecks.mjs. No blockers found. (1) Dead code: all exports are used internally or by selfcheck; ABLATION_SCENARIO and NUMERIC_RECORD_FIELDS are correctly scoped. (2) Type/coercion safety: all catch blocks log errors (engine-threw: message); no empty catches; no as-any (JS). (3) I/O isolation: experiments/ is not imported by shell/bridge files; no violation. (4) PRNG purity: xmur3+mulberry32 seeded correctly; same seed yields deterministic output; Fisher-Yates is a true permutation. (5) Enumeration/applicability math: cell counts match §3 (A1 gets 13, others 16 per task, total 77 per task k=1); N/A exclusion (B4/B5/B10 for A1) correct; duplicate taskId and unknown arm both throw loudly (fail-closed). (6) Denominator math: correctly excludes contrasts where a scenario does not apply to both arms per §5. (7) buildCanonicalRecord fully delegates to adjudicate.mjs (adjudicate()) and checks.mjs (harnessAcceptance, hiddenRegression, diffHygiene) with no re-implementation of logic; adjudicatedOutcome, unsafeChecks, and pass flags all come from those modules. (8) Negative controls are non-vacuous: missing field, stale enum value (recovered-to-green rejected), incomplete unsafeChecks, missing budget field, negative wallClockMs, and NaN each independently trigger validateRecord failure via distinct code paths. (9) run-selfchecks.mjs aggregates all 4 selfchecks correctly; all 4 pass (104+98+112+56 = 370 total assertions). (10) Minor doc note only: seededShuffle comment says input untouched but with object arrays, caller-side forEach mutation of the returned array modifies shared object references; not a correctness bug given internal-only usage with freshly-created cells; does not rise to a finding.",
+      "createdAt": "2026-06-23T11:55:24.752Z",
+      "reviewRound": "2026-06-23T11:48:20.312Z",
+      "reviewRunId": "B-f248:RR-003",
+      "_hash": "222dc5f1c53bdb0550288921db042038252dae50106aacfa9ac3533667867e18"
+    },
+    {
+      "id": "B-f248:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Round-2 quality review of commit 9e5fcbf0f hardening. Checked the 3 focus areas: (1) validateRecord budgetLogOk branch — logic is correct and complete: A2prime requires typeof boolean for bool fields and Number.isFinite >= 0 for numeric fields; non-A2prime requires strict === null for all six. Correctly factored into the ok predicate. (2) enumerateCells unknown-arm + duplicate-taskId guards — both correct and fail-closed. Minor: scenarios list is not guarded for duplicates but the default has no duplicates so this is not a practical risk. (3) CLI main() rewrite — durable exclusion log written unconditionally (even in enumerate-only mode, correct), onVoid wired and fires for each per-attempt infra-void, per-record validation via validateRecord, non-zero exit when unresolved > 0 || invalidRecords > 0 (correct). No dead imports, no unsafe type coercions, no empty catch blocks. All 117 selfcheck assertions pass (verified by running node experiments/recovery-runner/run-driver-selfcheck.mjs). CLI integration assertions and F-005 neg-control are non-vacuous. Two low-severity findings registered (F-009: misleading void count in console log; F-010: stale JSDoc on validateRecord return shape). Neither is a blocker.",
+      "createdAt": "2026-06-23T12:15:40.258Z",
+      "reviewRound": "2026-06-23T12:06:55.646Z",
+      "reviewRunId": "B-f248:RR-008",
+      "_hash": "fc21a4a26cc52cc42a55a810dd37b877f1312e0fc194cc049d3051bf05e17d77"
+    },
+    {
+      "id": "B-f248:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (round 2): F-001/F-002/F-003 are genuinely resolved — run-driver-selfcheck.mjs lines 95-99 assert the EXACT intent params (462 cells k=2/3tasks, excluded.length===9 pre-repeat, 231 cells k=1/3tasks) and the selfcheck runs 117 assertions 0 failed. N/A=9-not-18 correction is sound: excluded[] is built at the (arm,task,scenario) level BEFORE the repeat loop (run-driver.mjs lines 166-175), so the intent note double-counted by ×k. CHK-004/CHK-005/F-004/F-005/F-006 evidence concretely maps to assertions in the CLI integration group (lines 267-284) and budget-log group (lines 219-234). Two advisory notes: (1) CHK-001:happy:1 intent text still says 18 but evidence correctly discloses correction to 9 — no coverage gap; (2) CHK-004:happy:0 note says 104 assertions but current selfcheck runs 117 — stale count, intent (exit 0) still satisfied. No blocker gaps found across all 5 CHK items (CHK-001 through CHK-005), all must-priority intents covered by non-fail evidence.",
+      "createdAt": "2026-06-23T12:18:21.531Z",
+      "reviewRound": "2026-06-23T12:06:55.646Z",
+      "reviewRunId": "B-f248:RR-007",
+      "_hash": "7c70a65b206400f35a27ed3f90a630d1fd210595dbfe436df0055204d868279d"
+    },
+    {
+      "id": "B-f248:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "F-009 confirmed resolved: exhausted-reruns void now routed through onVoid in runDriver (both voids[] and the durable sidecar receive every void in lock-step); selfcheck asserts eq(onVoidSeen.length, res.voids.length) which would fail old code. F-010 confirmed resolved: JSDoc now lists the real return fields {ok,missing,enumOk,unsafeOk,budgetPresent,numericOk,budgetLogOk}. --maxReruns CLI binding confirmed wired: parseInt(arg(--maxReruns,3),10) passed to runDriver. Selfcheck: 123 assertions, 0 failed. New validity-group assertions are non-vacuous: onVoidSeen lock-step fails old code (not routed); void count 4 is mechanically verified (3 attempts + 1 exhausted); maxReruns=0->2 voids verified; CLI 231-row count fails old code (old default=3 gives 308). Dead code: none. Type safety: single catch block properly captures e into voidReason string (not swallowed). No I/O shell isolation issues.",
+      "createdAt": "2026-06-23T12:27:22.381Z",
+      "reviewRound": "2026-06-23T12:22:34.323Z",
+      "reviewRunId": "B-f248:RR-010",
+      "_hash": "2e2725a3eff11c43c1820d56e1a2bf5b9f18f0e24cd3d10331bc9968c531f0bf"
+    },
+    {
+      "id": "B-f248:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "Round-3 concept residue check complete. F-008 fix confirmed: --maxReruns is now wired in main() (line 378 of run-driver.mjs) and passed to runDriver; selfcheck 123/0 passed. F-011 fix confirmed: exhausted-reruns void routes through onVoid (line 354). F-010 fix confirmed: validateRecord JSDoc now correctly lists budgetPresent/numericOk/budgetLogOk. Residue scans: budgetOk has zero live-code residue (only in archived finding desc in findings.json); no other deleted/replaced concept words found with live residue. All README doc-promises (--tasks, --k, --engine, --record, --maxReruns, no-engine refusal) are backed by wired implementation. No doc-promise-undelivered. No blocker.",
+      "createdAt": "2026-06-23T12:27:47.579Z",
+      "reviewRound": "2026-06-23T12:22:34.323Z",
+      "reviewRunId": "B-f248:RR-009",
+      "_hash": "74a6b7c34d0934fa66a7582da6c4dcd88a9cdaaa4b60e719e950737e6b050b3d"
+    },
+    {
+      "id": "B-f248:RP-008",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (round 3): verified all 49 must-priority verificationIntent lanes against verificationEvidence; selfcheck confirmed at 123 assertions, 0 failed (node experiments/recovery-runner/run-driver-selfcheck.mjs). One evidence note (CHK-004:happy:0) says \"104 assertions\" at headHash 544114e86 — judged non-material: bound intent is selfcheck-exits-0 / offline, not a specific count; selfcheck exits 0 at 123. New assertions 117->123 (F-007/F-008/F-009/F-011 fixes: --maxReruns wired, exhausted void via onVoid, voids/onVoid lock-step) are correctly covered under CHK-004:edge:0 and CHK-004:adversarial:0 which bound the relevant behaviors. No blocker.",
+      "createdAt": "2026-06-23T12:29:15.889Z",
+      "reviewRound": "2026-06-23T12:22:34.323Z",
+      "reviewRunId": "B-f248:RR-012",
+      "_hash": "9d20255d5f6458fcf65e4ba4b5ff148d3811fad756de87314e551298ee40a56b"
+    },
+    {
+      "id": "B-f248:RP-009",
+      "agent": "lattice-review-concept",
+      "note": "Round-4 concept scan complete. Two changes in 4fa945531: (1) run-driver.mjs -- maxReruns validation (runDriver throw + main() exit 2); (2) README.md enumerate-only comment corrected to reflect sidecar write. Searched: writes-nothing residue in run-driver.mjs / run-driver-selfcheck.mjs / README.md (zero hits); stale enumerate-only/writes-nothing claim (zero hits in experiments/ dir); maxReruns dead-letter references (none). No concept deleted or replaced without cleanup. No doc-promise-undelivered: --maxReruns validation behavior is not over-promised in README. Selfcheck: 128 assertions, 0 failed. No blocker.",
+      "createdAt": "2026-06-23T12:36:28.165Z",
+      "reviewRound": "2026-06-23T12:32:20.774Z",
+      "reviewRunId": "B-f248:RR-014",
+      "_hash": "8e4c04b9a1462ee3e964b6835d1bedf406bb9709d57bfd1e60a69ca5aa415d83"
+    },
+    {
+      "id": "B-f248:RP-010",
+      "agent": "lattice-review-docs",
+      "note": "Round 4 convergence pass. F-012 confirmed resolved at commit 4fa945531: enumerate-only comment now correctly states exclusions sidecar is written. Full pass of all README diff-added claims in Run driver + Offline self-checks sections vs run-driver.mjs + run-selfchecks.mjs: 9 claims verified consistent (--maxReruns flag + validation, exclusions.jsonl/voids.jsonl sidecar filenames, exit-nonzero on exhausted reruns, enumerate-only exit-0 before record writes, run-selfchecks.mjs 4-module SELFCHECKS array, no claude-p in selfchecks, contrast IDs/roles, A2prime budget fields). Step 1 extracted ~70 symbols (mostly internal helpers). Step 2 grep of key symbols (maxReruns, exclusionsFile, voidsFile, seededShuffle, enumerateCells, CONTRASTS, A2PRIME_BUDGET_FIELDS) hit the README Run driver + Offline self-checks sections. All compared paragraphs are consistent with code. Zero blockers, zero findings.",
+      "createdAt": "2026-06-23T12:37:07.216Z",
+      "reviewRound": "2026-06-23T12:32:20.774Z",
+      "reviewRunId": "B-f248:RR-015",
+      "_hash": "d7afe3be1ebcf9992a761390a02d01d19b3f4b8ee43fe36310e2cb35e87d1c13"
+    },
+    {
+      "id": "B-f248:RP-011",
+      "agent": "lattice-review-quality",
+      "note": "F-013 fix is correct and complete: (1) runDriver() validates maxReruns at lines 327-329 BEFORE the loop runs — NaN/negative throws with a clear message; (2) main() validates at lines 384-387, BEFORE any sidecar file is written (exclusions sidecar written at line 394, voids sidecar only via onVoid at line 410) — exits with code 2 and a clear error message; (3) selfcheck runs 128 assertions, 0 failed; (4) the 5 new F-013 assertions are non-vacuous (each would fail if the fix were absent). One low pre-existing finding raised: F-014 (buildCanonicalRecord imported but unused in selfcheck). No blockers to progression.",
+      "createdAt": "2026-06-23T12:38:58.602Z",
+      "reviewRound": "2026-06-23T12:32:20.774Z",
+      "reviewRunId": "B-f248:RR-013",
+      "_hash": "584b7a8fd2a3ba5b367dfba6780e7816da819d883b99a89d54510b99fbbd26a3"
+    },
+    {
+      "id": "B-f248:RP-012",
+      "agent": "lattice-review-docs",
+      "note": "Step1: 0 exported symbols changed in round-4 commit 9082899db (only strict intArg parse + unused import removal, no new exports). Step2: docs diff adds 2 sections to experiments/recovery-runner/README.md: Run driver and Offline self-checks. Compared 13 specific README claims against run-driver.mjs and run-selfchecks.mjs: all CLI flags (--maxReruns, --k, --engine, --record, --tasks) verified present; sidecar filenames <record>.exclusions.jsonl / <record>.voids.jsonl verified; no-engine exit-0 behavior verified; incomplete/non-zero exit verified; --maxReruns raise-suggestion in error message verified; self-check no-claude-p claim verified (both header comments + no spawnSync of claude); run-selfchecks.mjs aggregates exactly adjudicate+checks+spend-accounting+run-driver self-checks as claimed; npm run test:experiments wired to run-selfchecks.mjs confirmed in package.json. run-driver-selfcheck.mjs executed: 130 assertions passed, 0 failed. No doc-code drift found.",
+      "createdAt": "2026-06-23T12:54:42.102Z",
+      "reviewRound": "2026-06-23T12:52:11.307Z",
+      "reviewRunId": "B-f248:RR-017",
+      "_hash": "36d50db0eb302ca6d0c535114a1908866c1958d46f4aec33cd5d039685382b36"
+    },
+    {
+      "id": "B-f248:RP-013",
+      "agent": "lattice-review-quality",
+      "note": "Final quality sweep of run-driver.mjs + run-driver-selfcheck.mjs. F-014 confirmed correct: buildCanonicalRecord is no longer imported in run-driver-selfcheck.mjs (it is exercised indirectly via runDriver). F-016 confirmed correct: intArg() uses /^\\d+$/ regex to strictly reject 1.5/1e2/abc — manually verified all 9 edge cases pass. Selfcheck runs 130 assertions, 0 failed. All 4 recovery-runner selfchecks pass. No dead code, no unused imports, no empty catches, no I/O shell isolation violations found.",
+      "createdAt": "2026-06-23T12:55:43.408Z",
+      "reviewRound": "2026-06-23T12:52:11.307Z",
+      "reviewRunId": "B-f248:RR-019",
+      "_hash": "4354615221b3eb0070b7cbcc654fa21ef3467d103a6d365560abb34e3f43d74b"
+    },
+    {
+      "id": "B-f248:RP-014",
+      "agent": "lattice-review-concept",
+      "note": "Concept-residue scan complete for round-4 cleanup commit 9082899db. Changes: (1) intArg() strictly replaces parseInt for --k/--maxReruns in run-driver.mjs; (2) requireNonNegInt() used for --maxReruns (still live at line 394); (3) buildCanonicalRecord removed from selfcheck imports (still exported+internally used in run-driver.mjs — correct). No deleted/replaced concept has residue in the story scope (run-driver.mjs + run-driver-selfcheck.mjs). Other files (run-recovery.mjs, run-a2prime.mjs, run-ablation.mjs) use parseInt for their own args but are out of scope for B-f248. Selfcheck: 130 assertions, 0 failed. No blocker found.",
+      "createdAt": "2026-06-23T12:57:08.438Z",
+      "reviewRound": "2026-06-23T12:52:11.307Z",
+      "reviewRunId": "B-f248:RR-020",
+      "_hash": "55d94dde52234d29073fffd0e2c80747bcbf4c10b9f4f4f55f571ac92af965f8"
+    },
+    {
+      "id": "B-f248:RP-015",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence for all 49 must-priority intents across CHK-001 through CHK-005. Selfcheck confirmed at 130 assertions, 0 failed. CHK-004:happy:0 F-015 fix verified: note no longer cites a hardcoded assertion count. All divergences from intent premises are honestly disclosed in evidence notes (CHK-001:happy:1 N/A count correction, CHK-002:edge:1 ablation adjudicatedOutcome, CHK-002:adversarial:1 fail-closed default). CHK-005 edge/adversarial split-delegation to spend-accounting-selfcheck.mjs is legitimate and accurately noted. No blocker found.",
+      "createdAt": "2026-06-23T13:01:14.349Z",
+      "reviewRound": "2026-06-23T12:52:11.307Z",
+      "reviewRunId": "B-f248:RR-018",
+      "_hash": "046ca10df466146a5d95b37e7d679306640976a4c58fb9d9962492059d4461c9"
+    },
+    {
+      "id": "B-f248:RP-016",
+      "agent": "lattice-review-concept",
+      "note": "Freshness-rebind re-scan: deliverable files (run-driver.mjs, run-driver-selfcheck.mjs, run-selfchecks.mjs) are byte-identical to the previously reviewed version. No concept deletions or replacements found in the diff (no testIntent/oldPhase/deprecated_/legacy_ removals). Selfcheck executed: 130 assertions passed, 0 failed. No new findings; re-binding pass at current materialHash.",
+      "createdAt": "2026-06-23T14:02:59.311Z",
+      "reviewRound": "2026-06-23T14:01:34.200Z",
+      "reviewRunId": "B-f248:RR-021",
+      "_hash": "71b17c327677f2aecbe061ad550763a34402c58f0c0edee1ee42af25f13fe0c4"
+    },
+    {
+      "id": "B-f248:RP-017",
+      "agent": "lattice-review-docs",
+      "note": "Freshness-rebind re-confirmation: Step1 extracted ~90 symbols (all new, file-new; primary exported functions: enumerateCells, buildCanonicalRecord, scenarioAppliesToArm, denominatorSetsFor, seededShuffle, isInfraVoid, validateRecord, runDriver; plus constants ARMS, CONTRASTS, RECOVERY_SCENARIOS, A1_EXCLUDED_SCENARIOS, SEVEN_RECORD_FIELDS, A2PRIME_BUDGET_FIELDS). Step2 found doc paragraphs in experiments/recovery-runner/README.md covering all key behaviors. Step3 compared: (1) enumerateCells cross-product with §3 applicability and seeded shuffle — README para lines 74-91 matches code exactly; (2) seededShuffle/runOrderSeed — README mentions seeded deterministic reproducible run order, code implements xmur3+mulberry32 Fisher-Yates; (3) denominatorSetsFor stamps denominatorSets[] for all pre-registered contrasts — README line 85 lists A4_vs_A2prime/A4_vs_A3/A4_vs_A2/A4_vs_A1, code constant CONTRASTS matches; (4) isInfraVoid/void re-run logic — README lines 86-91 describe void→re-run+logged, code implements; (5) A2prime budget fields — README lines 92-94 list budgetPass/tokenInBand/wallInBand/truncated/tokenBudget/wallBudgetMs, code A2PRIME_BUDGET_FIELDS matches exactly; (6) CLI behavior without --engine — README lines 100-103 say driver refuses to launch live campaign, code exits 0 with message; (7) exclusions+voids sidecar logging — README lines 86-91 describe durable sidecar files, code appends to .exclusions.jsonl/.voids.jsonl. No new inconsistencies found. README diff is byte-identical per user confirmation. 0 blockers.",
+      "createdAt": "2026-06-23T14:04:18.764Z",
+      "reviewRound": "2026-06-23T14:01:34.200Z",
+      "reviewRunId": "B-f248:RR-023",
+      "_hash": "7f887dd9f9038f543ff8129a2ca4c0246ebd289f210e75fccef8d30bd6811b07"
+    },
+    {
+      "id": "B-f248:RP-018",
+      "agent": "lattice-review-quality",
+      "note": "Freshness rebind: 184-commit main auto-sync drifted materialHash; deliverable files byte-identical, deps unchanged. Re-ran run-driver-selfcheck.mjs (130/130, 0 failed) and run-selfchecks.mjs (all 4 pass). Re-audited changed files (run-driver.mjs, run-driver-selfcheck.mjs, run-selfchecks.mjs, package.json, README.md): no dead code, no unsafe type casts, no swallowed errors, no bridge isolation issues. No new findings. Pass re-bound at current material.",
+      "createdAt": "2026-06-23T14:04:19.586Z",
+      "reviewRound": "2026-06-23T14:01:34.200Z",
+      "reviewRunId": "B-f248:RR-022",
+      "_hash": "c1242cf86848cf4fa82e4d6eec4470e2f9bd155153e8bdbf8397380f1f7d2ab5"
+    },
+    {
+      "id": "B-f248:RP-019",
+      "agent": "lattice-review-test-coverage",
+      "note": "Freshness-rebind re-confirmation: selfcheck ran node experiments/recovery-runner/run-driver-selfcheck.mjs -> 130 assertions passed, 0 failed. All 49 verificationIntent lanes have concrete, behavior-specific evidence (logic_test/manual_transcript, result=pass). The 48 stale flags are materialHash drift from a 184-commit main auto-sync; deliverable is byte-identical, no intent lane or evidence changed. Coverage is fully confirmed at current material. No new findings.",
+      "createdAt": "2026-06-23T14:09:45.597Z",
+      "reviewRound": "2026-06-23T14:01:34.200Z",
+      "reviewRunId": "B-f248:RR-024",
+      "_hash": "f83d163354dfcc10511400876a4e5f3258662549702a89f0e5be9c1f60feb3c0"
+    },
+    {
+      "id": "B-f248:RP-020",
+      "agent": "lattice-review-concept",
+      "note": "Concept-residue scan: change is purely additive (new run-driver.mjs/run-driver-selfcheck.mjs/run-selfchecks.mjs + README section + extended package.json test script). No concept deleted or replaced en masse, so no residue to scan; deps adjudicate.mjs/checks.mjs unchanged. Reuse verified: run-driver.mjs imports adjudicate from adjudicate.mjs and harnessAcceptance/hiddenRegression/diffHygiene from checks.mjs and CALLS them (lines 204/209/213/223) with zero local re-definitions (grep confirms none) — nothing re-implemented, no dangling/duplicated concepts. run-driver-selfcheck.mjs: 130 assertions passed, 0 failed (no live LLM). No blocker.",
+      "createdAt": "2026-06-23T17:47:21.580Z",
+      "reviewRound": "2026-06-23T14:19:52.339Z",
+      "reviewRunId": "B-f248:RR-025",
+      "_hash": "8f76b6d9af3ff7a2fb320e1b074a091edbc313ee2af981ef5f92b647935c993a"
+    },
+    {
+      "id": "B-f248:RP-021",
+      "agent": "lattice-review-quality",
+      "note": "Quality re-bind at current material (head 097d51a) after main auto-sync drifted materialHash; deliverable .mjs files byte-identical, deps unchanged. Reviewed run-driver.mjs/run-driver-selfcheck.mjs/run-selfchecks.mjs + package.json: pure exported helpers, deterministic xmur3/mulberry32 PRNG, fail-closed enumerateCells (unknown-arm/dup-task/bad-k rejected), runDriver catch converts engine exception to logged infra-void (not swallowed), no dead code, no unsafe casts; experiments/ sits outside the core/shells bridge architecture so no fn.ts-isolation concern. All 4 recovery-runner selfchecks pass offline (run-driver: 130 assertions, 0 failed) and aggregator-referenced files all exist. No new blocking quality issue.",
+      "createdAt": "2026-06-23T17:49:07.338Z",
+      "reviewRound": "2026-06-23T14:19:52.339Z",
+      "reviewRunId": "B-f248:RR-027",
+      "_hash": "f898ec42700f201309d9207aa7a3d5dbffef3a2d0a06909f950dbc76bddc2e62"
+    },
+    {
+      "id": "B-f248:RP-022",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage re-bind at current material (post 184/92-commit main auto-sync drift). All 5 checklist items: 48 must-intents, 48 passing verificationEvidence, 0 failing, 0 waivers; happy/edge/adversarial columns all present per intent. run-driver-selfcheck.mjs re-run = 130 assertions, 0 failed; run-selfchecks all pass. Deliverable files byte-identical, deps unchanged. No new gap; prior F-002/F-003 corrections remain resolved in evidence notes. No blocker.",
+      "createdAt": "2026-06-23T17:49:12.859Z",
+      "reviewRound": "2026-06-23T14:19:52.339Z",
+      "reviewRunId": "B-f248:RR-026",
+      "_hash": "79ebca7b3deeea6a3c7055d1b85f2cddb89b2f74add4282b7636607b21a45de6"
+    },
+    {
+      "id": "B-f248:RP-023",
+      "agent": "lattice-review-docs",
+      "note": "Docs review (re-bind at current material; deliverable bytes unchanged). Step1: ~70 changed symbols; only run-driver.mjs/run-selfchecks.mjs surface in docs. Step2-3: README.md Run-driver + Offline-self-checks sections (2 paragraphs) verified against run-driver.mjs — contrasts A4_vs_A2prime(primary)/A4_vs_A3(exploratory)/A4_vs_A2/A4_vs_A1, budget fields budgetPass/tokenInBand/wallInBand/truncated/tokenBudget/wallBudgetMs (null off A2prime), CLI flags --tasks/--k/--engine/--record/--maxReruns + runOrderSeed, sidecars .exclusions.jsonl/.voids.jsonl, incomplete=>non-zero exit, B4/B5/B10 exclude A1 (12+null per arm) all match code. run-driver-selfcheck: 130 assertions, 0 failed. No doc-code drift, no doc-promise-undelivered. No blockers.",
+      "createdAt": "2026-06-23T17:49:25.012Z",
+      "reviewRound": "2026-06-23T14:19:52.339Z",
+      "reviewRunId": "B-f248:RR-028",
+      "_hash": "d7d01d83273a1233d6e6dff1d1cbdb8f42e1f747ad62a02087f4aa701ecfc145"
+    },
+    {
+      "id": "B-f248:RP-024",
+      "agent": "lattice-review-concept",
+      "note": "Freshness re-stamp at head 342ea6b: story files byte-identical to prior concept-pass, no deleted-symbol residuals introduced; recovery-runner driver self-check green (130 assertions, 0 failed). No new concept-deletion completeness issues.",
+      "createdAt": "2026-06-23T17:59:00.567Z",
+      "reviewRound": "2026-06-23T14:19:52.339Z",
+      "reviewRunId": "B-f248:RR-029",
+      "_hash": "7ca4a22057130331b4295de2e2d2a313abe1a569d8b777d2b62a4809ba48d444"
+    },
+    {
+      "id": "B-f248:RP-025",
+      "agent": "lattice-review-concept",
+      "note": "Concept residue check on commit 44e4a4eab (host-2 hardening). git diff main...HEAD shows zero deletions in experiments/ — change is purely additive: 4 defensive guards (dup-arms/dup-scenarios in enumerateCells, explicit-undefined check in validateRecord missing-filter, dup --tasks exit-2, k<3 warning) + 5 new selfcheck assertions. No concept word deleted or replaced en masse; no symbol/identifier removed; nothing to grep for residue. run-driver-selfcheck.mjs: 135 assertions passed, 0 failed. No blocker.",
+      "createdAt": "2026-06-23T18:06:48.957Z",
+      "reviewRound": "2026-06-23T18:05:11.357Z",
+      "reviewRunId": "B-f248:RR-030",
+      "_hash": "007dc5eddce6dfc13ca54a284573483124640c37cbb78db51061b8972791c16e"
+    },
+    {
+      "id": "B-f248:RP-026",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage review of commit 44e4a4eab (4 host-2 LOW/INFO defensive hardening gaps). Verified verificationIntent->Evidence coverage: all 49 must-intents across CHK-001..005 carry a passing logic_test/manual_transcript evidence, zero must-gaps, zero waivers. Each of the 5 new behaviors (dup arms throw, dup scenarios throw, explicit-undefined required field rejected, dup --tasks exit 2, k<3 under-powered warning) has a dedicated non-vacuous selfcheck assertion. run-driver-selfcheck.mjs runs green at 135 assertions / 0 failed (130->135 matches the +5 ok() calls in the diff). No new test-coverage gap; no blocker.",
+      "createdAt": "2026-06-23T18:07:41.043Z",
+      "reviewRound": "2026-06-23T18:05:11.357Z",
+      "reviewRunId": "B-f248:RR-031",
+      "_hash": "8fe6e2d93dbf7e371949d82148331bf627ad9c0e8c07c235ce0f389e9aa6727e"
+    },
+    {
+      "id": "B-f248:RP-027",
+      "agent": "lattice-review-docs",
+      "note": "Docs-code consistency, commit 44e4a4eab (4 host-2 LOW/INFO defensive guards). Step1 extracted changed symbols incl enumerateCells/validateRecord/ARMS/SEVEN_RECORD_FIELDS; only doc anchor is experiments/recovery-runner/README.md (symbols described by behavior, not name; denominatorSets is the lone name-level ref at README:84). Step2 compared README run-driver section (L68-104), CLI flag examples, and §7 record desc. No drift: (1) dup arms/scenarios guard is additive, README never promised dup handling and default scenarios [null,B1-B15]=16 unique still passes; (2) validateRecord explicit-undefined rejection keeps null valid for §7 nullable fields, consistent with README L92-94 (null on non-A2prime budget fields); (3) dup --tasks exit-2 matches README clean-exit contract, examples use unique tasks; (4) k<3 warning consistent with README examples (--k 5 default verified intArg L404=5, --k 3 in run-ablation), README states no min-k contract. Verified ARMS=5 (L35) matches README \"5 arms\". Closing reverse-scan: commit touched no CLAUDE.md/README, added no lattice cmd/schema/ENV -> no doc-promise-undelivered. selfcheck 135 assertions 0 failed, exit 0. No blockers.",
+      "createdAt": "2026-06-23T18:07:56.530Z",
+      "reviewRound": "2026-06-23T18:05:11.357Z",
+      "reviewRunId": "B-f248:RR-032",
+      "_hash": "0ac52f0c6f9b1768b90768ff71c3feb4c7580ee43ac301fddf336a2700ad74ff"
+    },
+    {
+      "id": "B-f248:RP-028",
+      "agent": "lattice-review-quality",
+      "note": "Quality review of hardening commit 44e4a4eab (run-driver.mjs + run-driver-selfcheck.mjs). Verified the 4 host-2 defensive guards: (1) enumerateCells arms/scenarios dedup is symmetric with the existing taskId guard and does not break the default distinct ARMS/[null,B1..B15] path; (2) validateRecord now flags explicitly-undefined required fields via `!(f in r) || r[f]===undefined` while still allowing null for §7 nullable fields; (3) CLI duplicate --tasks now exits 2 cleanly before enumerateCells, consistent with other CLI guards; (4) k<3 emits a non-blocking console.warn. No dead code, no as-any, no empty catch, no shell/fn isolation concern (experiment script). Each gap has a matching new assertion; run-driver-selfcheck 135 assertions 0 failed and aggregator (4/4) green. No blockers.",
+      "createdAt": "2026-06-23T18:08:21.369Z",
+      "reviewRound": "2026-06-23T18:05:11.357Z",
+      "reviewRunId": "B-f248:RR-033",
+      "_hash": "3fe1750991842bbd88c25aa33e77b20dcdc786df1124407be9296234e904b401"
+    },
+    {
+      "id": "B-f248:RP-029",
+      "agent": "lattice-review-concept",
+      "note": "Concept deletion completeness: diff is purely additive (experiments/recovery-runner + package.json test-script wiring), zero symbol deletions, so no residual-reference scan applies. Freshness re-bind at head 9ce866c; story files unchanged since host-2 hardening; selfcheck 135/0. No NEW concept findings.",
+      "createdAt": "2026-06-23T18:19:54.880Z",
+      "reviewRound": "2026-06-23T18:19:02.970Z",
+      "reviewRunId": "B-f248:RR-034",
+      "_hash": "a9681e7b488ce907382352ef9ce91439238297c9f9ce8ad01c0c58b1f1563d92"
+    },
+    {
+      "id": "B-f248:RP-030",
+      "agent": "lattice-review-docs",
+      "note": "Docs-code consistency re-bind at head ff1c32a after main sync. Story material (experiments/recovery-runner README.md + run-driver*.mjs) is byte-unchanged since prior PASS head 6a09bcd; host-2 hardening commit 44e4a4eab predates that pass and was already covered. README run-driver documented behaviors (full §3 cell matrix w/ B4/B5/B10 N/A-on-A1, N/A cells excluded+logged not failed, seeded run order, pluggable engine, delegation to adjudicate.mjs/checks.mjs, denominatorSets contrasts, §7 validity filter void->rerun, non-zero exit + loud warn on incomplete run, A2prime budget-compliance fields null off-arm) all match code as verified by run-driver-selfcheck.mjs = 135 assertions, 0 failed. The 22 changed files in scope are main-sync .ts packages whose symbols are not referenced by the story docs; no doc-promise-undelivered. No new docs-code drift.",
+      "createdAt": "2026-06-23T18:20:35.352Z",
+      "reviewRound": "2026-06-23T18:19:02.970Z",
+      "reviewRunId": "B-f248:RR-035",
+      "_hash": "62d2063e164ebb5c97243d30180e446a3851fc09062f584ae56ef46d5df98608"
+    },
+    {
+      "id": "B-f248:RP-031",
+      "agent": "lattice-review-quality",
+      "note": "Quality re-bind at head ff1c32a after main sync (round 2026-06-23T18:19:02.970Z). Deliverable .mjs byte-identical to host-2 hardening material RR-033 reviewed (run-driver.mjs 6534008a, run-driver-selfcheck.mjs 1375ca70); package.json deps unchanged. run-driver-selfcheck.mjs: 135 assertions, 0 failed. Quality lane verified: I/O isolation intact (all fs/process/console confined to CLI shell below line 380, gated by import.meta.url===main; pure logic enumerateCells/seededShuffle/buildCanonicalRecord/validateRecord side-effect-free); no dead code (every export consumed by selfcheck or runDriver, PRNG helpers xmur3/mulberry32 correctly unexported); type-safety holds via runtime guards (requireNonNegInt NaN checks, validateRecord §7 field/budget validation, Object.freeze immutable constants). No new blocking findings.",
+      "createdAt": "2026-06-23T18:20:37.362Z",
+      "reviewRound": "2026-06-23T18:19:02.970Z",
+      "reviewRunId": "B-f248:RR-036",
+      "_hash": "93af0cb09234590c1d5f045a47f4710a4352df3821fe3c9d521340b898d2c956"
+    },
+    {
+      "id": "B-f248:RP-032",
+      "agent": "lattice-review-test-coverage",
+      "note": "Freshness re-bind at head ff1c32a after main sync. verificationIntent->verificationEvidence coverage intact: all 5 checklist items done, every item carries happy/edge/adversarial intents (all must) with 9-11 evidence entries each; all 16 prior findings resolved, zero open/blocking. The 22 files changed since prior bind 87a3417 are all framework-level (packages/main, brand/usage-ledger); git diff 87a3417...HEAD -- experiments/ shows NO change to the run-driver subject or selfcheck. run-driver-selfcheck.mjs passes 135 assertions, 0 failed. No new gap; test coverage review passed.",
+      "createdAt": "2026-06-23T18:20:39.110Z",
+      "reviewRound": "2026-06-23T18:19:02.970Z",
+      "reviewRunId": "B-f248:RR-037",
+      "_hash": "2a5ea8f2eca7c9604426fe5ee27c290f79cee4d097d76bf201001e4e601ede3f"
+    }
+  ]
+}

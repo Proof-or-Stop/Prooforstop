@@ -1,0 +1,67 @@
+{
+  "principles": [
+    "Pre-reg rev3.1 is the authority — enumeration, applicability, schema and denominator rules mirror §1/§3/§5/§7 exactly.",
+    "Separate orchestration from execution: the driver owns the matrix + record canonicalization; the per-cell engine is injected so the core is deterministic and offline-testable.",
+    "Reuse, do not re-implement: adjudicate.mjs for outcome, checks.mjs for the three pass-flags + unsafe detectors, run-recovery.mjs as the real engine.",
+    "Every emitted record self-describes its denominator-set membership so downstream rates always have a published denominator.",
+    "Fail-closed validity filter: only harness/infra failure voids+re-runs; task-level failures are real outcomes kept."
+  ],
+  "drivers": [
+    "Must match the pre-registered §7 21-field schema and §3 applicability matrix verbatim.",
+    "Selfcheck must run with zero live-model calls (offline, deterministic) yet exercise the same record-assembly path the real campaign uses.",
+    "Must not modify adjudicate/checks/run-recovery behavior nor run the powered campaign in this story."
+  ],
+  "options": [
+    {
+      "name": "injected-engine-driver",
+      "pros": [
+        "Driver core (enumeration/applicability/denominator/canonicalization/validity/seeded-order) unit-tested with a deterministic stub engine — no claude -p",
+        "Real campaign plugs run-recovery as the engine unchanged",
+        "Clean separation, each unit independently testable"
+      ],
+      "cons": [
+        "One extra indirection layer (engine interface) to define"
+      ]
+    },
+    {
+      "name": "extend-run-ablation-inline",
+      "pros": [
+        "No new file; reuse existing arm->runner mapping"
+      ],
+      "cons": [
+        "run-ablation already spawns claude -p so its core cannot be offline-tested without heavy refactor",
+        "Mixes enumeration with live execution — violates the deterministic/offline requirement",
+        "Larger blast radius on a file used by other flows"
+      ]
+    }
+  ],
+  "chosen": "injected-engine-driver",
+  "rationale": "The pre-reg demands a deterministic, offline-testable harness validated before the multi-day compute campaign. Injecting the per-cell engine lets the driver core be fully exercised by a stub (no live model) while the real run plugs run-recovery unchanged; extending run-ablation inline cannot meet the offline-test requirement because it already shells out to claude -p. UNKNOWN-1 resolved: pre-register 4 contrasts and stamp denominatorSets[] = every contrast whose common-cell set contains the run, where membership = (run.arm is one of the two contrast arms) AND (run.scenarioId applies to BOTH arms): A4_vs_A2prime (PRIMARY, H1/H2; all scenarios+null), A4_vs_A3 (EXPLORATORY, H3), A4_vs_A2 (reference), A4_vs_A1 (reference; excludes B4/B5/B10 which are N/A for A1). UNKNOWN-2 resolved: add experiments/recovery-runner/run-selfchecks.mjs aggregator (runs adjudicate+checks+spend-accounting+run-driver selfchecks) + a root npm `test:experiments` script appended to the root test chain — this both satisfies the checklist promise and retroactively wires the three pre-existing experiment selfchecks that were previously standalone.",
+  "preMortem": [
+    {
+      "scenario": "Enumeration miscounts because applicability is applied per-arm wrong",
+      "trigger": "B4/B5/B10 emitted for A1, or the 12 universal scenarios dropped from some arm",
+      "consequence": "Cell matrix wrong -> denominators wrong -> every downstream rate biased",
+      "mitigation": "Selfcheck asserts exact per-arm scenario sets and total cell count against a hand-computed expected value; N/A exclusions logged"
+    },
+    {
+      "scenario": "Emitted record drifts from the §7 schema (missing/renamed field)",
+      "trigger": "Hand-built record object instead of a single canonicalizer",
+      "consequence": "Analysis script + GLMM break or silently misread fields",
+      "mitigation": "Single buildCanonicalRecord() with an explicit 21-field allowlist; selfcheck asserts every record has exactly those keys and adjudicatedOutcome in the §7 enum"
+    },
+    {
+      "scenario": "Validity filter drops a real task-level failure as infra-void",
+      "trigger": "Confusing a model task-failure with a harness/API outage",
+      "consequence": "Survivorship bias inflates success rates",
+      "mitigation": "Void only on an explicit infra-failure signal from the engine result; selfcheck proves task-failure kept and only infra-failure triggers re-run+log"
+    },
+    {
+      "scenario": "Editing root package.json test chain breaks unrelated tests or trips scope/boundary gates",
+      "trigger": "test:experiments added incorrectly or a selfcheck is slow/flaky",
+      "consequence": "npm test red -> done_required fails; or REVIEW scope friction",
+      "mitigation": "Aggregator runs only fast offline node selfchecks; verify full npm test green before REVIEW; package.json edit is within the user-confirmed scope boundary"
+    }
+  ],
+  "timestamp": "2026-06-23T11:19:20.728Z"
+}

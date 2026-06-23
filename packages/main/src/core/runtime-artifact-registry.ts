@@ -39,12 +39,11 @@ export const RUNTIME_ARTIFACT_REGISTRY: RuntimeArtifactRegistryEntry[] = [
   },
   {
     id: 'runtime-activity-log',
-    description: 'Primary Lattice runtime activity log plus migrated legacy Koala activity archive.',
+    description: 'Primary Lattice runtime activity log.',
     matchers: [
       { kind: 'exact', value: '.lattice/activity.jsonl' },
-      { kind: 'exact', value: '.lattice/activity.legacy-koala.jsonl' },
     ],
-    ignorePatterns: ['**/activity.jsonl', '.lattice/activity.legacy-koala.jsonl'],
+    ignorePatterns: ['**/activity.jsonl'],
     materialHash: 'exclude',
     volatile: true,
     repairableTrackedArtifact: true,
@@ -196,8 +195,8 @@ export const RUNTIME_ARTIFACT_REGISTRY: RuntimeArtifactRegistryEntry[] = [
   {
     id: 'runtime-temp',
     description: 'Temporary runtime scratch files and directories.',
-    matchers: [{ kind: 'regexp', value: rx(String.raw`^\.(?:lattice|koala)-tmp-[^/]+(?:/.*)?$`) }],
-    ignorePatterns: ['.lattice-tmp-*', '.koala-tmp-*'],
+    matchers: [{ kind: 'regexp', value: rx(String.raw`^\.lattice-tmp-[^/]+(?:/.*)?$`) }],
+    ignorePatterns: ['.lattice-tmp-*'],
     materialHash: 'exclude',
     volatile: true,
     repairableTrackedArtifact: true,

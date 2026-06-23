@@ -1,0 +1,68 @@
+{
+  "principles": [
+    "No backward-compat: delete the legacy-koala symbols, do not stub or deprecate them.",
+    "Keep the residue gate green throughout; defer flipping/renaming it to story 4.",
+    "Preserve all non-koala behavior; the only intended behavioral change is dropping legacy-koala migration support.",
+    "Update every removed symbol's call sites and tests in the same change so the build and suite stay green."
+  ],
+  "drivers": [
+    "Shared main branch: a broken build or red test would also block the concurrent agent working in this repo.",
+    "assertNoLegacyKoalaWritePath is called from core config loading; its removal must not break loadConfig.",
+    "The koala-residue gate must keep passing this story (story 4 flips it to zero-tolerance)."
+  ],
+  "options": [
+    {
+      "name": "surgical-in-place-deletion",
+      "pros": [
+        "No dead koala symbols left behind",
+        "Lets story 4 flip the gate to zero-tolerance cleanly",
+        "Honors the no-compat directive fully"
+      ],
+      "cons": [
+        "Touches ~15 core files + their tests at once",
+        "Requires careful call-site adjustment in config/dev-memory/activity-log"
+      ]
+    },
+    {
+      "name": "noop-stub-and-deprecate",
+      "pros": [
+        "Smaller blast radius",
+        "Call sites unchanged"
+      ],
+      "cons": [
+        "Retains koala identifiers (violates no-compat)",
+        "Leaves dead code the residue gate would still have to exempt",
+        "User explicitly rejected keeping any compat"
+      ]
+    }
+  ],
+  "chosen": "surgical-in-place-deletion",
+  "rationale": "The user directive is total removal with no compatibility shims; surgical deletion leaves zero legacy-koala symbols so story 4 can flip the gate to zero-tolerance, whereas stubbing would retain koala identifiers and contradict the directive.",
+  "preMortem": [
+    {
+      "scenario": "Removing assertNoLegacyKoalaWritePath breaks config loading",
+      "trigger": "config.loadConfig or handlers/dev-memory relied on the guard's throw for control flow",
+      "consequence": "The CLI fails to load config; every command breaks, also blocking the concurrent agent on shared main",
+      "mitigation": "Inspect every caller before removal; the guard only throws for legacy koala paths that no longer exist, so remove the call and the function together; run the full packages/main test suite plus a live lattice session_brief smoke before dev_finish"
+    },
+    {
+      "scenario": "Removing the legacy activity-log archive reader breaks stale-detection or the activity tail",
+      "trigger": "stale-detector or readActivityLogTail merges activity.legacy-koala.jsonl and assumes the source exists",
+      "consequence": "Stale-detection or telemetry throws or returns wrong data",
+      "mitigation": "Remove the legacy source from the merge cleanly so only the primary activity.jsonl remains; update stale-detector references; rely on the activity-log and stale-detector tests to confirm"
+    },
+    {
+      "scenario": "Tests asserting legacy-koala compat reference removed symbols and fail to compile",
+      "trigger": "storydir-inside-gitroot-suite or managed-assets tests assert assertNoLegacyKoalaWritePath / koala-*.md behavior",
+      "consequence": "tsc or the test suite goes red and the gate blocks advancement",
+      "mitigation": "Delete or retarget those specific compat assertions in the same change; tsc and the test suite must be green before dev_finish"
+    },
+    {
+      "scenario": "The residue gate flips to FAIL after removing the dual-accept regex",
+      "trigger": "Removing (?:koala|lattice) leaves a bare koala token that classify()'s exemptions no longer strip",
+      "consequence": "verify-koala-residue.mjs fails, blocking REVIEW to TEST",
+      "mitigation": "Run node scripts/verify-koala-residue.mjs after each edit and ensure removed-compat lines leave no leftover koala token in product code"
+    }
+  ],
+  "timestamp": "2026-06-23T12:20:24.858Z"
+}

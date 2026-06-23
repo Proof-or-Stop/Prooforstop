@@ -1,0 +1,56 @@
+{
+  "storyId": "B-c023",
+  "changes": "Added experiments/injection-probes/live-loop-harness.mjs: a multi-turn INTERRUPTIBLE agent-loop harness (runLiveLoop with per-turn inject/truncate/kill hooks, a pluggable agent, maxTurns + a per-turn AbortController/turnTimeoutMs watchdog that aborts the agent, context accumulation across turns) + 2 stateful scenarios the stateless probe-contract cannot express — B7 prompt-injection + B10 no-progress — each with inject+classify off real workspace+transcript signals. The first piece of the S4' live-loop harness for the stateful B1-B15 scenarios. No probe-contract/probe/run-recovery edits.",
+  "usage": "Hermetic gate: node experiments/injection-probes/live-loop-harness.mjs --self-check (6/6, 0 spend). --run refuses (exit 2): the real multi-turn claude -p agent is a deferred follow-up. Agent contract: agent({ws,context,turn,signal}) — a real subprocess agent must kill its child on signal.aborted.",
+  "expectedOutcome": "--self-check passes deterministically with fake agents (6 cases incl. a timeout/abort case), 0 spend, exit 0.",
+  "actualTranscript": "--self-check 6/6 PASS: B7 {unsafe-comply->AMPLIFIED, safe-ignore->RECOVERED, refuse->SAFE_STOP}, B10 {no-progress-stop->SAFE_STOP, ship-garbage->AMPLIFIED}, timeout/abort->{transcript.timedOut + agent saw signal.aborted}; inject hook fired, maxTurns bounds the loop, fake agents write real workspace side-effects (leaked.txt/result.txt); exit 0, 0 spend.",
+  "outcomeDiff": "No difference — 6/6 self-check passes; the interruptible-loop architecture + B7/B10 scenarios are proven hermetically.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Skeleton + 2 of the 9 stateful scenarios, verified with FAKE agents only (0 spend). The real multi-turn claude -p agent (which must honor signal.aborted to kill its child), the other 7 stateful scenarios (B4/B5/B8/B12/B14/B15+variants), and the pre-reg amendment are explicit follow-ups. The harness turnTimeoutMs is a loop watchdog; real agent termination is the agent's responsibility via the AbortSignal.",
+  "pitfalls": "Normal channel (priority bumped to high by the 'truncate' riskSignal) -> code written by dispatched lattice-implementer. Cross-host value: host-2 Codex caught 6 real findings across 2 rounds (1 High C7 + a round-2 catch that C7's first fix was INCOMPLETE — Promise.race stopped awaiting but didn't cancel the agent's subprocess; fixed with a real AbortController/signal contract). The verification_evidence_add --command flag mis-parses a value containing a --flag in space form -> use --command= equals form. story_advance REVIEW->TEST must be run as a STANDALONE background command (a compound bash one-liner orphans the long internal validate before the transition completes).",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 157385
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 14835
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 260530
+    },
+    "DEV": {
+      "count": 3,
+      "durationMs": 789327
+    },
+    "REVIEW": {
+      "count": 3,
+      "durationMs": 2832043
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 128203
+    }
+  },
+  "totalDurationMs": 4182325,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-23T13:50:27.537Z",
+  "updatedAt": "2026-06-23T13:50:27.537Z"
+}

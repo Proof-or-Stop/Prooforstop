@@ -1,0 +1,32 @@
+{
+  "storyId": "B-c023",
+  "checkedAt": "2026-06-23T12:42:38.081Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "id": "INIT-001",
+      "severity": "medium",
+      "desc": "background.md Trigger Event uses shorthand labels S1 (B-a1b0 driver), S2 (B-0c07 real arm), and Conversational Texture uses S4 prime build, but none of these labels are defined anywhere in the text — a new reader cannot tell whether S1/S2/S4-prime mean story steps, sprints, or something else in the B1-B15 program labeling scheme"
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-23T12:41:51.885Z",
+      "issues": []
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-06-23T12:42:38.081Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "medium",
+          "desc": "background.md Trigger Event uses shorthand labels S1 (B-a1b0 driver), S2 (B-0c07 real arm), and Conversational Texture uses S4 prime build, but none of these labels are defined anywhere in the text — a new reader cannot tell whether S1/S2/S4-prime mean story steps, sprints, or something else in the B1-B15 program labeling scheme"
+        }
+      ]
+    }
+  ],
+  "_hash": "c6aecea77a031723a8786f368e634d774ce8081657b4e1e52097d301e2adda7e"
+}

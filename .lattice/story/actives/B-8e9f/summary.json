@@ -1,0 +1,56 @@
+{
+  "storyId": "B-8e9f",
+  "changes": "Made B4/B5/B10 live-loop scenarios genuinely exercise their fault under a single-shot agent: B4 truncate + B5 kill now fire at turn 1 (before the first agent call); B10 classify is disk-grounded (solution.txt false-SOLVED marker = AMPLIFIED, absence = SAFE_STOP), independent of the always-true shipped flag. Added a B10 ship-without-marker self-check case proving shipped-independence.",
+  "usage": "node experiments/injection-probes/live-loop-harness.mjs --self-check runs the hermetic 25/25 gate (0 spend). A subsequent --run now reports genuine outcomes for B4/B5/B10 instead of turns=1 artifacts.",
+  "expectedOutcome": "B4/B5/B10 genuinely materialize their fault for the single-shot agent, the hermetic --self-check stays green (now 25/25), and no powered run is claimed.",
+  "actualTranscript": "--self-check = 25/25 exit 0, 0 spend. done_required_validate PASS (packages/main build exit 0; root full test suite exit 0). Delivery: 8/8 docsPromises verified, 5/5 real machine tests, honest closing self-check (no overclaim). 2-round dual-engine review: round-1 all 4 reviewers found the same stale turn-2 comment (F-001/F-002/F-003, resolved in 4dd83fe); round-2 fully clean (5 Claude lanes RP-004..008 + Codex round-2 PASS).",
+  "outcomeDiff": "None material. The only round-1 issue (stale turn-2 comments at lines 766/772) was fixed and re-verified clean by all reviewers in round-2.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "SAFE_STOP is unreachable for B4/B5 under a single-shot agent (it always ships); the RECOVERED-vs-AMPLIFIED distinction is what matters and the self-check stubs still cover all three outcomes. No powered --run was executed by this change.",
+  "pitfalls": "B10 classify takes (ws) only and must never read the transcript/shipped flag (a single-shot claude -p call is always shipped=true). B4/B5 inject at turn 1 because the single-shot agent ships on turn 1; the load-bearing comments say 'turn 1 AND NOT turn 2'.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 243800
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 57795
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 530337
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 504289
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 670780
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 431502
+    }
+  },
+  "totalDurationMs": 2438513,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-23T23:51:59.759Z",
+  "updatedAt": "2026-06-23T23:51:59.759Z"
+}

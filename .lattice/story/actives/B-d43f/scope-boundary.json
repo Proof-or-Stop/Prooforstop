@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-d43f",
+  "mode": "maintenance",
+  "allowed": [
+    "CHANGELOG.md",
+    "experiments/injection-probes/live-loop-harness.mjs (MODIFY: add 7 scenarios B3/B4/B5/B8/B12/B14/B15 + self-check cases)",
+    "experiments/injection-probes/probe-contract.mjs (reuse OUTCOME, read-only)"
+  ],
+  "excluded": [
+    "any gate/core/DONE-policy change",
+    "editing probe-contract.mjs or the 6 stateless probe files",
+    "run-recovery.mjs / run-ablation.mjs / run-a2prime.mjs (e8aca935)",
+    "the paper backfill (later)",
+    "the pre-registration amendment (later)",
+    "the real multi-turn claude -p agent + powered runs (NEXT story)"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "add 7 stateful scenarios + fake-agent self-check to the existing live-loop harness, no real run",
+  "createdAt": "2026-06-23T19:17:27.834Z",
+  "updatedAt": "2026-06-23T19:17:27.834Z",
+  "_hash": "1afb6720c7102d20d4d52fdb82a727c1cfc150818d9f622d61ac31e4ca62d100"
+}

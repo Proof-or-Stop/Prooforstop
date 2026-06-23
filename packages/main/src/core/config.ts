@@ -4,7 +4,7 @@ import { join } from 'path';
 import type { WorkflowProfile } from './types.js';
 import { resolveAuditConfig as _resolveAuditConfig, type AuditConfig } from './audit-config.js';
 import { getCommandLifecyclePolicy, getCommandPolicyEntries, policyAllowedPhaseLabels } from './command-policy.js';
-import { assertNoLegacyKoalaWritePath, LATTICE_STORY_DIR } from './lattice-paths.js';
+import { LATTICE_STORY_DIR } from './lattice-paths.js';
 
 /**
  * audit-config 扩展点（B-9bd9 CHK-004）：
@@ -448,7 +448,6 @@ export function loadConfig(projectRoot?: string): LatticeConfig {
       ...(userConfig.flows || {}),
     },
   };
-  assertNoLegacyKoalaWritePath(_cached.storyDir, 'storyDir');
 
   _cache.set(root, _cached);
   return _cached;

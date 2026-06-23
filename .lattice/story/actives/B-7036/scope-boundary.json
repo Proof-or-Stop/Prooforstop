@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-7036",
+  "mode": "feature",
+  "allowed": [
+    "experiments/recovery-runner/analyze-selfcheck.mjs (new: synthetic-fixture offline assertions)",
+    "experiments/recovery-runner/analyze.mjs (new: validity filter, common-cell denominators, per-arm rates+Wilson CIs, cluster-bootstrap A4-vs-A2prime contrast, BH-FDR, CSV + glmm.R emission)",
+    "experiments/recovery-runner/README.md (document the analysis script)",
+    "experiments/recovery-runner/run-selfchecks.mjs (add analyze-selfcheck to the aggregator)"
+  ],
+  "excluded": [
+    "Building corpus tasks (separate program item)",
+    "Modifying run-driver.mjs/adjudicate.mjs/checks.mjs behavior (reuse contrast defs only)",
+    "Running the formal GLMM in Node (emitted as glmm.R for R; Node computes the bootstrap proxy)",
+    "Running the live powered campaign or generating real run-records (separate multi-day task)"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Continuation of the powered-ablation program per pre-reg rev3.1 sections 5/7/8; operator directed finishing all of infra-(a).",
+  "createdAt": "2026-06-23T18:33:08.349Z",
+  "updatedAt": "2026-06-23T18:33:08.349Z",
+  "_hash": "45464703680a04802d10e472a10726809460e847761b233bd1e56ec3e9317adf"
+}

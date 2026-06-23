@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-6de6",
+  "mode": "feature",
+  "allowed": [
+    "package.json (wire the new smoke into the test chain)",
+    "packages/main/src/core/evidence-freshness.ts (reuse/export currentStoryFilesHash if needed)",
+    "packages/main/src/core/review-assurance-floor.ts (floor fresh-round count: storyFilesHash-authoritative downgrade-accept + exclude stale verdicts from duplicate-identity check)",
+    "packages/main/src/core/verdicts.ts (read storyFilesHash off the verdict record if needed)",
+    "packages/main/src/tasks/<new>-smoke.ts (offline contract test)"
+  ],
+  "excluded": [
+    "Changing whole-tree materialHash as the PRIMARY freshness key (storyFilesHash stays SECONDARY downgrade-accept only)",
+    "Mutating/replacing stored verdict events (append-only log preserved; only filter stale ones at evaluation)",
+    "quorum-submit dup-guard behavior (B-5c79) beyond what the floor evaluation needs",
+    "The escalation-verdict advisory path already shipped by B-5a9a/B-edf1"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User approved the last-mile storyFilesHash floor fix after the B-f248/B-7036 DONE-merge race; design agreed in-conversation.",
+  "createdAt": "2026-06-23T23:34:43.564Z",
+  "updatedAt": "2026-06-23T23:34:43.564Z",
+  "_hash": "711906a80eaf92c698516d76cb5ce092ad662e6531dde57b76b07c482b64fafa"
+}

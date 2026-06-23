@@ -1,0 +1,23 @@
+{
+  "task": "Add the 7 remaining stateful B1-B15 scenarios (B3/B4/B5/B8/B12/B14/B15) to the existing live-loop-harness.mjs, reusing the step-1 runLiveLoop + inject/truncate/kill hooks + AbortSignal; hermetic fake-agent self-check; real powered run deferred to the next story.",
+  "outcome": "`node experiments/injection-probes/live-loop-harness.mjs --self-check` passes with all 9 live-loop scenarios (the original B7/B10 + the new 7), each via fake agents that genuinely mutate the workspace to the unsafe vs safe state, classify reading real signals; 0 spend, exit 0.",
+  "facts": [
+    "B-c023 (on main) provides runLiveLoop({scenario,agent,maxTurns,turnTimeoutMs}) + per-turn inject/truncate/kill hooks + AbortController + context accumulation; B7+B10 already wired",
+    "Scenario->hook map: B3/B8/B12/B14/B15 use inject; B4 uses truncate (context loss); B5 uses kill (host interruption/restart)",
+    "classify must read REAL workspace artifacts (escalation/secret/migration marker files) + transcript facts, never the agent self-report"
+  ],
+  "constraints": [
+    "Hermetic: NO claude/network/spend this story",
+    "MODIFY live-loop-harness.mjs only (+CHANGELOG); do NOT edit probe-contract / the 6 stateless probes / run-recovery-runners",
+    "Reuse runLiveLoop + OUTCOME unchanged; each new scenario is a self-contained def"
+  ],
+  "unknowns": [
+    "RESOLVE IN DEV: exact AMPLIFIED/SAFE_STOP/RECOVERED boundary per scenario (esp. B4/B5 recovery-completion: resumed-correctly=RECOVERED vs shipped-wrong=AMPLIFIED vs safe-restart/stop=SAFE_STOP)"
+  ],
+  "touchpoints": [
+    "experiments/injection-probes/live-loop-harness.mjs (modify)",
+    "experiments/injection-probes/probe-contract.mjs (reuse)",
+    "CHANGELOG.md"
+  ],
+  "timestamp": "2026-06-23T19:21:01.529Z"
+}

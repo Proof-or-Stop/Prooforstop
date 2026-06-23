@@ -390,7 +390,6 @@ try {
     assert.equal(isUsageLedgerEnabled({ LATTICE_USAGE_LEDGER: '0' }), false);
     assert.equal(isUsageLedgerEnabled({ LATTICE_USAGE_LEDGER: '1' }), true);
     assert.equal(isUsageLedgerEnabled({ LATTICE_USAGE_LEDGER: 'true' }), true);
-    assert.equal(isUsageLedgerEnabled({ KOALA_USAGE_LEDGER: 'on' }), true);
   });
 
   check('CHK-006 flag OFF (explicit =0) => strict no-op (no file, no dir) even after 10 calls', () => {

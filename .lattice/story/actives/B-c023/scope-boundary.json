@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-c023",
+  "mode": "maintenance",
+  "allowed": [
+    "CHANGELOG.md",
+    "experiments/injection-probes/live-loop-harness.mjs (NEW: interruptible multi-turn loop + B7/B10 scenarios + hermetic self-check)",
+    "experiments/injection-probes/probe-contract.mjs (reuse OUTCOME, read-only)"
+  ],
+  "excluded": [
+    "any gate/core/DONE-policy change",
+    "editing probe-contract.mjs or the 6 existing probe files",
+    "run-recovery.mjs / run-ablation.mjs / run-a2prime.mjs (e8aca935 ownership)",
+    "the other 7 stateful scenarios (B4/B5/B8/B12/B14/B15 + variants)",
+    "the pre-registration amendment",
+    "the real powered multi-turn claude -p run (follow-up)"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "loop-harness skeleton + B7/B10 only, fake-agent self-check, new file, no real run",
+  "createdAt": "2026-06-23T12:40:57.522Z",
+  "updatedAt": "2026-06-23T12:40:57.522Z",
+  "_hash": "429e98caf8866bed6fad9ee68b10e6d1ba71de771c93cfa372d5973add634d26"
+}

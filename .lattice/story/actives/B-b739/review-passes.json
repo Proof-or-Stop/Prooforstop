@@ -1,0 +1,112 @@
+{
+  "passes": [
+    {
+      "id": "B-b739:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "No concept deleted or renamed this round. The only removed strings were the --run deferred-stub error message and the old usage-line fragment (both replaced with the actual implementation). grep of deferred/not-implemented/exit-2 in experiments/ returns zero code hits. git diff --stat touches only the two declared files (real-loop-agent.mjs new, live-loop-harness.mjs modified), CHANGELOG.md, and .lattice/ metadata. live-loop-powered-records.jsonl correctly absent from diff and working tree. real-arm.mjs / probe-contract.mjs / the 6 stateless probes / run-recovery / run-ablation / run-a2prime are all untouched. Concept residue check completed, no blocker.",
+      "createdAt": "2026-06-23T20:29:05.992Z",
+      "reviewRound": "2026-06-23T20:27:12.983Z",
+      "reviewRunId": "B-b739:RR-002",
+      "_hash": "5b292baec8260e20ceb6e30a0cfda8d5e7df5ce0bc800ef3ee5a024e90c589a9"
+    },
+    {
+      "id": "B-b739:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. All 6 must-intents (CHK-001:happy:0, CHK-001:edge:0, CHK-001:adversarial:0, CHK-002:happy:0, CHK-002:edge:0, CHK-002:adversarial:0) are covered by logic_test evidence bound to node experiments/injection-probes/live-loop-harness.mjs --self-check. Self-check ran 24/24 cases, exit 0, 0 spend: runPowered stub case drives all 9 scenarios with a no-LLM stub agent and asserts the {scenario,outcome,turns,costUsd,tokensSpent} schema + the {signal} thread-through; timeout/abort case asserts signal.aborted observed. CHK-001:edge infra-fail path is covered by makeRealLoopAgent reusing parseClaudeResult (non-JSON/API-error -> infra-fail, type-safe). Evidence commands are not generic — each binds the literal self-check command that actually exercises the stated behavior.",
+      "createdAt": "2026-06-23T20:31:28.001Z",
+      "reviewRound": "2026-06-23T20:27:12.983Z",
+      "reviewRunId": "B-b739:RR-004",
+      "_hash": "8cc30588599405b5473de9dad1c92339aff0385f8f529773f67bd9ce7688630b"
+    },
+    {
+      "id": "B-b739:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Round-2 concept residue check complete. Diff adds real-loop-agent.mjs (new) + live-loop-harness.mjs (additive) + CHANGELOG.md (additive). No concept deleted or replaced en masse. Checked candidates: (1) deferred — old --run deferred-stub text fully removed in harness, grep of experiments/ returns zero code hits; (2) execFileSync — references in real-loop-agent.mjs comments are doc-contrast (explaining why async execFile chosen), not residue of a replaced concept; real-arm.mjs/run-all-selftests.mjs legitimately use execFileSync and are untouched by this story; (3) neutered — appears only in CHANGELOG description as contrast wording, not a deprecated API/concept; (4) live-loop-powered-records.jsonl — correctly absent from git diff and working tree (operator-triggered). No concept deletion/replacement; no residue blocker found.",
+      "createdAt": "2026-06-23T20:38:01.974Z",
+      "reviewRound": "2026-06-23T20:36:26.846Z",
+      "reviewRunId": "B-b739:RR-006",
+      "_hash": "253e72cb5b1c6fbaf758ba8704fdd126045572a177b3ad80a368dd64ab39734c"
+    },
+    {
+      "id": "B-b739:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Round-2 quality review CLEAN (no blockers). All round-1 fixes verified: (F-002/C3/C4) makeRealLoopAgent uses async execFileAsync+promisify(execFile) with {signal} in options — abort genuinely kills child, AbortError+timeout caught as infra-fail; (F-001/C5) resultText() parses j.result string, output feeds that not raw JSON; (F-007/C6) runPowered sets outcome=infra-fail on infraFail, --run excludes via records.filter(r=>r.outcome!==infra-fail) from scored denominator; (F-008/C9) self-check asserts powered.length===9, typeof r.infraFail===boolean, zero stub spend, agent received signal. node --check exits 0. Self-check 24/24 exit 0. No dead imports, no empty catch swallowing real errors, no type-safety issues. One low finding registered: F-009 stale execFileSync mention in comments lines 6+35 of newly-created real-loop-agent.mjs (non-blocking).",
+      "createdAt": "2026-06-23T20:39:00.811Z",
+      "reviewRound": "2026-06-23T20:36:26.846Z",
+      "reviewRunId": "B-b739:RR-005",
+      "_hash": "6cbfb50a2210c5ce599b0372988acda5882289dfa1b6d53cf9b33fb30a5071ce"
+    },
+    {
+      "id": "B-b739:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: 6/6 intents covered (CHK-001 happy/edge/adversarial + CHK-002 happy/edge/adversarial), all evidence fresh (materialHash ef2c4e16, headHash 51a46fa3, timestamp 2026-06-23T20:36:30.424Z), 0 stale. --self-check 24/24 exit 0. runPowered stub assertions verified: exactly 9 records, typeof infraFail === boolean, costUsd+tokensSpent === 0 (zero spend), agent received AbortSignal (signal threaded through). No blocker.",
+      "createdAt": "2026-06-23T20:42:05.056Z",
+      "reviewRound": "2026-06-23T20:36:26.846Z",
+      "reviewRunId": "B-b739:RR-008",
+      "_hash": "73abc4a6b3da8716b4a0f2ba1c51480b0af02e8774603825d921e1144c815cc4"
+    },
+    {
+      "id": "B-b739:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "Round-3 concept residue check complete. This round is comment-only to real-loop-agent.mjs: stale execFileSync and turn-param mentions in comments were replaced with correct async execFile / agent({ws,context,signal}) wording. (1) execFileSync residue in real-loop-agent.mjs: zero hits — file now references only async execFile. (2) execFileSync in other pre-existing files (real-arm.mjs, run-recovery.mjs, run-ablation.mjs, run-a2prime.mjs, run-all-selftests.mjs, live-loop-harness.mjs, run-handoff-resume.mjs): all legitimate uses in untouched files, not residue of a concept replacement. (3) deferred stub text: zero hits in experiments/ — fully removed from live-loop-harness.mjs in prior rounds, no residue. (4) live-loop-powered-records.jsonl: correctly absent from diff and working tree. No concept deletion/replacement with residue found; no blocker.",
+      "createdAt": "2026-06-23T20:45:39.816Z",
+      "reviewRound": "2026-06-23T20:43:24.607Z",
+      "reviewRunId": "B-b739:RR-010",
+      "_hash": "1cc4351ee5dae058aff2f8a086a7072ee85aa64f83a56563cf7d4884012d0fbd"
+    },
+    {
+      "id": "B-b739:RP-007",
+      "agent": "lattice-review-docs",
+      "note": "Step 1: ~27 symbols extracted. Step 2: CHANGELOG.md is the sole doc file with B-b739 refs; no README/CLAUDE.md hits for any changed symbols. Step 3 compared CHANGELOG B-b739 bullet vs real-loop-agent.mjs + live-loop-harness.mjs diff. All checks pass: (1) grep -c Experiments CHANGELOG.md==1 confirmed. (2) makeRealLoopAgent returns async agent({ws,context,signal}) -- code line 41-42 matches. (3) async execFile with {signal} -- lines 50-53 confirmed, no execFileSync in real-loop-agent.mjs. (4) parseClaudeResult via import -- lines 18+55. (5) feeds back j.result text not raw envelope -- resultText() + line 60. (6) makeStubLoopAgent lines 80-86. (7) runPowered({makeAgent,recordsFile,stamp}) line 704. (8) infra-fail excluded from scored denom lines 860-861. (9) 24/24 consistent (23 prior + 1 new runPowered stub case). (10) no edit to real-arm/probe-contract/run-recovery per diff stat. (11) live-loop-harness lines 31/60 execFileSync refs are generic contract docs for any subprocess agent, not stale claims about real-loop-agent.mjs. No doc-code drift, no overclaim, no stale execFileSync/turn mismatch in real-loop-agent.mjs. 0 blockers.",
+      "createdAt": "2026-06-23T20:46:17.482Z",
+      "reviewRound": "2026-06-23T20:43:24.607Z",
+      "reviewRunId": "B-b739:RR-011",
+      "_hash": "08b72a9296727c96aa31fcfff0da4a0cf90f3e045856b04f5616e7cb47a0d066"
+    },
+    {
+      "id": "B-b739:RP-008",
+      "agent": "lattice-review-quality",
+      "note": "Round-3 quality review clean. (1) grep -nE execFileSync|context, turn, signal in real-loop-agent.mjs returns zero matches — no stale sync or old-signature comments remain. (2) Comments now correctly describe async execFile with {signal}, agent({ws,context,signal}), AbortSignal kill semantics, and TURN_TIMEOUT_MS bounding — matching the actual implementation. (3) node --check parses without error. (4) lattice validate ran all 29 configured commands, exit 0, 29/29 pass. No dead code, no type-safety issues, no I/O isolation issues in the two changed files (real-loop-agent.mjs, live-loop-harness.mjs). No functional regression. No findings.",
+      "createdAt": "2026-06-23T20:48:02.623Z",
+      "reviewRound": "2026-06-23T20:43:24.607Z",
+      "reviewRunId": "B-b739:RR-009",
+      "_hash": "3fb38c8d548267e944745bc74c44577d2d49467e2e1b380d876a181001781771"
+    },
+    {
+      "id": "B-b739:RP-009",
+      "agent": "lattice-review-quality",
+      "note": "Round-4 doc-fix commit c96c3e3 changes only the agent-contract comment in live-loop-harness.mjs and the jsdoc in the opts.agent block: (1) execFileSync/spawn blocking-timeout mention is replaced with async execFile({signal}) with an explicit note that a blocking sync exec would neuter the watchdog; (2) turn param is retained and now documented as load-bearing for B4/B5. Dead-code check: both new imports (appendFileSync, fileURLToPath) are used. No execFileSync anywhere in either file. Both files pass node --check. self-check 24/24 exit 0 zero spend confirmed. No dead code, no type-safety issues, no shell-isolation violations. No findings.",
+      "createdAt": "2026-06-23T20:59:14.134Z",
+      "reviewRound": "2026-06-23T20:43:24.607Z",
+      "reviewRunId": "B-b739:RR-013",
+      "_hash": "da74661dcc944e0fcb433d7d2debf052f206373072833accc285d2490e276d85"
+    },
+    {
+      "id": "B-b739:RP-010",
+      "agent": "lattice-review-concept",
+      "note": "Concept residue check complete. The replaced concept is: execFileSync in multi-turn agent/harness context, replaced by async execFile with {signal}. Checked all files in the diff: live-loop-harness.mjs and real-loop-agent.mjs contain zero execFileSync occurrences. Two pre-existing execFileSync usages found (real-arm.mjs + run-all-selftests.mjs) but both are unmodified by this branch and serve different roles (stateless probe single-shot runner and test orchestrator). The CHANGELOG.md B-c023 historical entry mentioning execFileSync predates this branch (confirmed on main), is a historical design record, not live code residue. The deferred-follow-up refusal stub was fully replaced and no stale copy remains. No concept-deletion/replacement residue found. No blocker.",
+      "createdAt": "2026-06-23T20:59:57.932Z",
+      "reviewRound": "2026-06-23T20:43:24.607Z",
+      "reviewRunId": "B-b739:RR-016",
+      "_hash": "297d07e9f678e0eb1116a0c2f6cdc844432299723f5f3b8696d4ab0da50d7333"
+    },
+    {
+      "id": "B-b739:RP-011",
+      "agent": "lattice-review-docs",
+      "note": "Step 1: 27 symbols extracted (makeRealLoopAgent, makeStubLoopAgent, runPowered, STATEFUL_SCENARIOS, resultText, execFileAsync, DEFAULT_MODEL, TURN_TIMEOUT_MS, and helpers). Step 2: 0 hits in README.md/CLAUDE.md/docs/ for all key exported symbols — Fallback 2 applied; SPEC.md covers stateless probes only. Step 3: (1) no execFileSync in live-loop-harness.mjs or real-loop-agent.mjs (real-arm.mjs is unchanged+out of scope); (2) JSDoc line 57 correctly lists turn:number and documents it as load-bearing for B4/B5 self-check stubs, with note that real claude -p agent ignores it; (3) CHANGELOG B-b739 bullet matches code: async execFile({signal}) for termination (no blocking execFileSync), --run implemented not deferred, runPowered drives 9 scenarios, self-check 24/24=cases(22)+timeout(1)+runPowered-stub(1); (4) grep -c Experiments CHANGELOG.md==1; (5) diff stat confirms no edit to real-arm.mjs, probe-contract.mjs, run-recovery/run-ablation/run-a2prime; (6) agent function in real-loop-agent.mjs destructures {ws,context,signal} only, correctly ignoring turn; (7) CHANGELOG omits costLog from makeRealLoopAgent description but this is expected story-level abbreviation. No doc-code drift found.",
+      "createdAt": "2026-06-23T21:01:15.097Z",
+      "reviewRound": "2026-06-23T20:43:24.607Z",
+      "reviewRunId": "B-b739:RR-015",
+      "_hash": "c47270d2c19e26c112828879d4e28a445dfa874500855ca0887f3aa25f22b759"
+    },
+    {
+      "id": "B-b739:RP-012",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. validate: 6/6 covered, 0 stale, 0 missing. live-loop-harness --self-check: 24/24 passed, 0 spend.",
+      "createdAt": "2026-06-23T21:03:13.950Z",
+      "reviewRound": "2026-06-23T20:43:24.607Z",
+      "reviewRunId": "B-b739:RR-014",
+      "_hash": "9f7bdb3b49a8d6a6f69908b097f1eef98c51f61d24005881b6563171655a2b47"
+    }
+  ]
+}

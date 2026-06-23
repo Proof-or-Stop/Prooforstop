@@ -1,0 +1,164 @@
+{
+  "storyId": "B-f248",
+  "checkedAt": "2026-06-23T11:31:56.154Z",
+  "features": [
+    {
+      "feature": "Enumerate 5 arms (A1,A2,A2prime,A3,A4) x tasks x {null-ablation + B1-B15 scenarios} x k repeats",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "B4/B5/B10 applicability exclusion: do NOT emit cells for A1 on those 3 scenarios",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "The other 12 scenarios (B1,B2,B3,B6,B7,B8,B9,B11,B12,B13,B14,B15) apply to ALL arms",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "N/A cells excluded and logged, never counted as failures",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "Seeded randomised run order (runOrderSeed) — deterministic and reproducible",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "k=5 repeats per applicable cell (min k=3)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "STOP rule: run ALL pre-registered cells; no peek-then-stop; only §7 validity filter may void a run",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "Exact 21-field §7 run-record schema",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "adjudicatedOutcome derived via adjudicate.mjs, not re-implemented",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "acceptancePass, hiddenRegressionPass, diffHygienePass and 5 unsafe detectors derived via checks.mjs, not re-implemented",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "§4.2 total-order adjudication: amplified strictly supersedes; recovered-to-green and safe-stop reported separately",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "Per-hypothesis common-cell denominator-set membership assigned per run (denominatorSets[])",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "4 pre-registered contrasts: A4_vs_A2prime (PRIMARY H1/H2), A4_vs_A3 (EXPLORATORY H3), A4_vs_A2 (reference), A4_vs_A1 (reference, excludes B4/B5/B10)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "Pluggable injected per-cell engine: driver core deterministic and offline-testable with no live model calls",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "Validity filter: infra/harness failure voids+re-runs+logs reason; task-level failures kept as real outcomes",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "Offline self-check asserting enumeration count, applicability filtering, denominator-set assignment, schema conformance of every record, void-re-run behaviour, and seeded-order determinism",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "Self-check wired into npm test",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "A2prime per-run budget logging: each run logs pass/fail against ±20% token+wall-clock tolerance constants; token budget binds first on conflict; hard-truncation at upper bound",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "Bare-harness anti-strawman validation: >=25% of pilot tasks solved; pre-registered and frozen bare-harness config (pilot scope)",
+      "covered_by": null,
+      "status": "orphan-suspect",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "Task corpus: N_tasks=24, stratified 8 categories, acceptance scripts harness-owned+read-only+hash-checked, committed+frozen before first run (corpus authorship scope)",
+      "covered_by": null,
+      "status": "orphan-suspect",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "Injection at identical logical point: immediately before first agent action on the task (injection-point enforcement)",
+      "covered_by": null,
+      "status": "orphan-suspect",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    }
+  ],
+  "summary": {
+    "total": 21,
+    "covered": 18,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 3,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "13cfeac6ba4b40a74cd9f29af85c6627466611fe7809fd26e1a660b9e202ce5f",
+  "openQuestions": []
+}

@@ -1,0 +1,301 @@
+{
+  "passes": [
+    {
+      "id": "B-7036:RP-001",
+      "agent": "lattice-review-docs",
+      "note": "Step 1 extracted 0 exported symbols from run-selfchecks.mjs (only internal constant SELFCHECKS array extended) and ~15 exported symbols from analyze.mjs (makeRng, parseRecords, applyValidityFilter, isCommonCell, commonCellKeys, wilson, OUTCOME, perArmRate, clusterBootstrap, twoProportionZ, benjaminiHochberg, costCoMetric, a2primeBudgetCompliance, secondaryDetectors, emitTidyCsv, emitGlmmR, analyze). Step 2 found the referenced paragraphs in experiments/recovery-runner/README.md (Analysis section + aggregator comment update, lines 112-146). Step 3 compared 12 specific claims: CLI flags (--seed/--B/--out/positional records.jsonl), validity filter (void excluded/N/A excluded/task-failures kept), 4-contrast common-cell denominators, Wilson 95% CIs (z=1.96 confirmed), seeded cluster bootstrap primary-only with A1/A2/A3 as reference cells, single BH-FDR over exploratory per-scenario tests only, cost co-metric (tokens+wall-clock), A2prime tolerance-band fail-closed, secondary detectors with honest process-events caveat, H3 EXPLORATORY/compute-not-matched label, tidy CSV + glmm.R lme4::glmer formula (1|task)+(1|scenario)+(1|seed), aggregator listing 5 selfchecks. All 12 claims match the actual code. No blocker found.",
+      "createdAt": "2026-06-23T18:57:37.600Z",
+      "reviewRound": "2026-06-23T18:54:32.461Z",
+      "reviewRunId": "B-7036:RR-002",
+      "_hash": "0a754f503d14297daeccc52566eb70ce2c0664e17b2d7e7c7b17d458ab882f87"
+    },
+    {
+      "id": "B-7036:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Concept residue check complete. This diff is purely additive — new files experiments/recovery-runner/analyze.mjs, analyze-selfcheck.mjs, plus one line in run-selfchecks.mjs and README extensions. The only deleted lines are Lattice story metadata (phase/status fields) and one README line replaced by its expanded version. No concept deletion or en-masse replacement was found. No koala/KOALA_ residue in recovery-runner/. The single old-style name A4_vs_A2 (without prime) in run-driver.mjs is the legitimate reference-contrast arm (A2 vs A4), not a renamed/deleted concept — it has a matching backward-compat comment. Doc-promise check: all README-promised behaviors (validity filter, common-cell denominators, Wilson CIs, seeded cluster bootstrap, BH-FDR, cost co-metric, A2prime tolerance-band, secondary detectors, H3 label, tidy CSV, glmm.R) are implemented in analyze.mjs. CLI flags --seed/--B/--out all implemented. Selfcheck runs: node analyze-selfcheck.mjs → 56 assertions passed, 0 failed; node run-selfchecks.mjs → all 5 selfchecks passed. No concept residue blocker.",
+      "createdAt": "2026-06-23T18:58:30.277Z",
+      "reviewRound": "2026-06-23T18:54:32.461Z",
+      "reviewRunId": "B-7036:RR-003",
+      "_hash": "2da52bf9065b32de4d1df73e50a30fc90a3c24f2456041ab67b257ee03180fff"
+    },
+    {
+      "id": "B-7036:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Statistical correctness audit PASS. Wilson score CI: formula algebraically correct (centre = (p̂ + z²/2n)/(1+z²/n), half uses observed p̂ in variance term — matches standard Wilson/Wikipedia/scipy); verified numerically for 8/10 giving lo≈0.490, hi≈0.943. BH step-up FDR: correct monotone enforcement from largest p down; maxK scan finds the largest i satisfying p_(i)<=i/m*alpha; verified on [0.001,0.04,0.5]→reject 1 and [0.001,0.02,0.9]→reject 2. Cluster bootstrap: correctly resamples whole (task,scenario) clusters with all k repeats (not individual runs); percentile CI uses floor(q*(n-1)) nearest-rank variant — correct; deterministic by seed (xmur3+mulberry32 PRNG); no Math.random/Date.now calls in production code (only in comments). Cluster-vs-run assertion is non-vacuous: 2-cluster opposite-RD fixture gives cluster CI width ~2.0 vs run-level width ~0.62. Two-proportion z-test: standard pooled variance; A&S 7.1.26 normCdf error ~7.5e-8, acceptable for exploratory-only tests. Common-cell denominator: correctly filters runs by scenarioAppliesToArm on both arms. Validity filter: void excluded (not dropped), N/A excluded, task-failures kept. Fail-closed A2prime: missing/false band fields treated as out-of-band. Selfcheck: 56/56 assertions pass, negative control is non-vacuous. Dead import (A2PRIME_BUDGET_FIELDS) and two trivial dead-code items registered as low findings (F-003, F-004, F-005) — none are correctness or type-safety blockers.",
+      "createdAt": "2026-06-23T19:01:01.943Z",
+      "reviewRound": "2026-06-23T18:54:32.461Z",
+      "reviewRunId": "B-7036:RR-001",
+      "_hash": "c6c5bcb29293cd4599d8ee175e5091573abb8c69682ac5184dec1f05cbbfb405"
+    },
+    {
+      "id": "B-7036:RP-004",
+      "agent": "lattice-review-docs",
+      "note": "Step 1: 1 symbol set extracted (secondaryDetectors + terminalStopTypeOf). Step 2: 1 paragraph found in experiments/recovery-runner/README.md (Analysis section, secondary detectors bullet). Step 3: README claims (a) 5 unsafe-per-detector counts always — confirmed, UNSAFE_KEYS has exactly 5 entries and unsafePerDetector is always computed and returned; (b) rollback-fired/human-gate/no-progress-stop individually when terminalStopType/processEvents present — confirmed, terminalStopTypeOf reads those two fields and increments individual counters only when a type is returned; (c) else safe-stop aggregate with explicit note — confirmed, note field always present and explicitly names the aggregate when terminalTypeAvailable=false. No doc-code drift. No blockers.",
+      "createdAt": "2026-06-23T19:08:50.547Z",
+      "reviewRound": "2026-06-23T19:06:19.843Z",
+      "reviewRunId": "B-7036:RR-007",
+      "_hash": "bef3fb4d16d3eec388e5d82e2699b543740b00d262f054e338f2fe3ed8e350cf"
+    },
+    {
+      "id": "B-7036:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 concept-residue check complete. Deleted/replaced concepts from commit 4de4ce33a: (1) unused A2PRIME_BUDGET_FIELDS import in analyze.mjs removed — canonical definition stays in run-driver.mjs, no residue; (2) old Wilson plausibility-range comment replaced by closed-form formula check — grep finds zero residue of old pattern; (3) dead .replace no-op removed — zero residue; (4) old safeStop-superset note replaced by forward-compatible note with individual terminal detectors — zero residue. All new concept words (rollbackFired, humanGate, noProgressStop, terminalTypeAvailable) are self-consistent within analyze.mjs/analyze-selfcheck.mjs and forward-compatible with adjudicate.mjs processEvents. README doc promises fully backed by code (CLI flags --seed/--B/--out implemented; analyze-selfcheck wired into run-selfchecks). Selfcheck output: 61 assertions, 0 failed. No concept deletion incomplete. No blocker.",
+      "createdAt": "2026-06-23T19:09:12.387Z",
+      "reviewRound": "2026-06-23T19:06:19.843Z",
+      "reviewRunId": "B-7036:RR-005",
+      "_hash": "1d158e406af908d384ce080b7c63fa6e9d52b6b3b62af42662713b6bbc4253ab"
+    },
+    {
+      "id": "B-7036:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Round 2 re-audit. All 5 R1 fixes from commit 4de4ce33a verified correct: F-003 (A2PRIME_BUDGET_FIELDS import removed, confirmed absent), F-004 (.replace no-op removed from glmm.R selfcheck regex, now clean /\\(1 ?\\| ?task\\)/), F-005 (kept computed once in main(), reused for CSV emit — no redundant re-filter), F-002 (Wilson selfcheck now compares lo/hi to closed-form reference at 9dp — formula regression guard confirmed), F-001 (secondaryDetectors now reports rollback/human-gate/noProgressStop individually via terminalStopType/processEvents field; when absent, 0 + honest aggregate note). Statistical correctness of analyze.mjs confirmed: Wilson 95% CI formula correct (centre+half derivation matches standard Wilson score); BH step-up rejection count correct for both test cases (1/3 and 2/3); normCdf Abramowitz-Stegun AS7.1.26 accurate (p=0.05 at z=1.96 to 5dp); percentile CI indexing floor(q*(n-1)) gives correct 2.5th/97.5th percentile indices (24/974 for n=1000); cluster bootstrap resamples cluster keys not individual rows (pseudo-replication test passes). analyze-selfcheck.mjs wired into run-selfchecks.mjs line 17, runs as part of npm test:experiments. Full suite: 61 analyze assertions + 135+112+98+56 other assertions = 462 total, 0 failed. No dead imports, no dead code, no swallowed errors found in changed files.",
+      "createdAt": "2026-06-23T19:09:36.303Z",
+      "reviewRound": "2026-06-23T19:06:19.843Z",
+      "reviewRunId": "B-7036:RR-006",
+      "_hash": "bd436a034f248d2ccbe843f68d4b59ce728c920df2911f39d894552fd3801ebb"
+    },
+    {
+      "id": "B-7036:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (round 2): F-001 and F-002 genuinely resolved — secondaryDetectors now reports rollback-fired/human-gate/no-progress-stop individually when terminalStopType/processEvents present (self-check det2 fixture asserts breakdown: [2,1,1,true]); Wilson test now formula-precise vs closed-form at 9dp. analyze-selfcheck.mjs: 61 assertions, 0 failed. All 56 must-priority verificationIntents have valid verificationEvidence with specific notes (no generic pass-only notes). 5 CHK items each show 1:1 intent-to-evidence correspondence. No new findings.",
+      "createdAt": "2026-06-23T19:11:14.890Z",
+      "reviewRound": "2026-06-23T19:06:19.843Z",
+      "reviewRunId": "B-7036:RR-008",
+      "_hash": "c684938aa4678267d6bc9aaac5af09db52979fd930ebbc47ba291d748667af40"
+    },
+    {
+      "id": "B-7036:RP-008",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence for all 56 must intents across CHK-001..CHK-005; analyze-selfcheck ran 65 assertions, 0 failed; glmm.R H1/H2 subset fix (commit 8f72d105f) and terminalStopTypeOf form coverage assertions are non-vacuous (subset(scenario!=null)/subset(scenario==null) + det3 bare-string/{kind}/{event:stop} fixture all verified); no blocker.",
+      "createdAt": "2026-06-23T19:18:33.641Z",
+      "reviewRound": "2026-06-23T19:15:13.779Z",
+      "reviewRunId": "B-7036:RR-012",
+      "_hash": "6bb06dac112c9d9bfcca00e4ae99b273af711bad3e73d4b8038c5189b8b40dc5"
+    },
+    {
+      "id": "B-7036:RP-009",
+      "agent": "lattice-review-concept",
+      "note": "Round 3 concept-residue check complete. Fix commit 8f72d105f addressed F-007 (emitGlmmR single pooled model) and F-008 (terminalStopTypeOf bare-string/kind form). Scanned for residue of: (1) old single-GLMM pattern (one glmer call, pooled completion+notAmplified) — zero hits outside findings.json; (2) old hardcoded `t===rollback||t===human_gate` pattern — zero hits; (3) old `e.type||e.event` (without kind, without bare-string) — zero hits in code; (4) old `typeof r.terminalStopType===string` guard without TERMINAL_STOP_TYPES import — zero hits. TERMINAL_STOP_TYPES imported and used correctly. analyze-selfcheck.mjs: 65 assertions passed, 0 failed. No concept deletion/replacement residue; no doc-promise-undelivered found.",
+      "createdAt": "2026-06-23T19:18:34.850Z",
+      "reviewRound": "2026-06-23T19:15:13.779Z",
+      "reviewRunId": "B-7036:RR-011",
+      "_hash": "bb33f6d9be6ecf3bb653dd3578f0c8bfb3a386f3af071bc7481c7c493d8e3f21"
+    },
+    {
+      "id": "B-7036:RP-010",
+      "agent": "lattice-review-quality",
+      "note": "Round 3 quality review of 8f72d105f fixing F-007 (HIGH) and F-008 (MEDIUM). (1) DEAD CODE: none found — all 7 imported symbols (ARMS, RECOVERY_SCENARIOS, ABLATION_SCENARIO, CONTRASTS, scenarioAppliesToArm, UNSAFE_KEYS, TERMINAL_STOP_TYPES) are used; catch block in parseRecords is intentional (counts skipped, not silent). (2) TYPE SAFETY: no as-any, no empty catch. (3) I/O SHELL ISOLATION: no bridge pattern applies to this experiment-runner module. F-007 FIX CORRECT: emitGlmmR now emits d6 = subset(d, scenario != null) for H1 not-amplified and d5 = subset(d, scenario == null) for H2 completion — disjoint corpora verified; H1 includes (1|scenario) random effect, H2 correctly omits it. F-008 FIX CORRECT: terminalStopTypeOf accepts bare-string events, {type|event|kind} objects, and no_progress alias — aligned with adjudicate.terminalStopEvent for the three live forms; no_progress alias is a superset intentionally (analyze reporting only, not adjudication). All 65 selfcheck assertions pass, all 5 selfchecks green. No regressions. No new findings.",
+      "createdAt": "2026-06-23T19:19:08.860Z",
+      "reviewRound": "2026-06-23T19:15:13.779Z",
+      "reviewRunId": "B-7036:RR-009",
+      "_hash": "e2d96b04d5eacc0f0babb298dd2723764585ccd89fd934b6d38397536e78176a"
+    },
+    {
+      "id": "B-7036:RP-011",
+      "agent": "lattice-review-docs",
+      "note": "F-009 confirmed resolved. Step 1: 0 new exported symbols changed since last review round (d9253eb5a is the only code+doc commit; no new symbol exports beyond matchedCellKeys and emitGlmmR already reviewed). Step 2: README Analysis section (lines 118-149) examined. Step 3: README matched-cell denominator description (lines 125-129) exactly matches matchedCellKeys() implementation in analyze.mjs; README two-disjoint-GLMM description (lines 144-149) exactly matches emitGlmmR() H1/H2 models in analyze.mjs lines 388-419. No doc-code drift found. 0 new findings.",
+      "createdAt": "2026-06-23T19:26:14.472Z",
+      "reviewRound": "2026-06-23T19:24:39.177Z",
+      "reviewRunId": "B-7036:RR-013",
+      "_hash": "47f6b10a058a4c1be6f31f7ecc2908535c2af41d8ea0fb14f90bf39cfcea85b9"
+    },
+    {
+      "id": "B-7036:RP-012",
+      "agent": "lattice-review-quality",
+      "note": "F-010 denominator-bias fix verified correct and complete. matchedCellKeys() correctly computes the intersection of cells where BOTH armA and armB have >=1 kept run. perArmRate now accepts cellKeys param and excludes runs outside the matched set. clusterBootstrap filters to clusters where both A and B arrays are non-empty — dropping arm-only clusters so bootstrap resamples always draw from the same cells. The analyze() function builds matchedFor per contrast using scenarioPredFor (excludes null/ablation scenario) and passes it to all three recoveryRates metrics. No remaining path where one arm is scored over cells the other lacks. selfcheck: 68 assertions passed, 0 failed — including 4 new F-010 assertions that prove matchedCellKeys excludes arm-only cells and that A4 matched n=1 while unmatched (biased) would be n=2. Statistical correctness of the fix is confirmed.",
+      "createdAt": "2026-06-23T19:26:16.010Z",
+      "reviewRound": "2026-06-23T19:24:39.177Z",
+      "reviewRunId": "B-7036:RR-014",
+      "_hash": "7e3d2d743b75698dfc786f2866cc51d9f6a873f9d8813a894fbd88001f51d537"
+    },
+    {
+      "id": "B-7036:RP-013",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion/replacement this round. matchedCellKeys() is a NEW function added alongside (not replacing) commonCellKeys(). commonCellKeys remains the structural-basis denominator (line 110, line 440 reporting). matchedCellKeys is the new rate denominator (lines 147, 436, 441, 459-461, 533). No call site was incorrectly left without cellKeys: completion rate (line 448) is intentionally unpaired; per-scenario exploratory (lines 476-477) naturally has same-denominator by single-scenario restriction. Selfcheck: 68 assertions, 0 failed — confirmed by running node experiments/recovery-runner/analyze-selfcheck.mjs. No residue of any deleted concept found in any .mjs, .md, or .ts file.",
+      "createdAt": "2026-06-23T19:27:05.565Z",
+      "reviewRound": "2026-06-23T19:24:39.177Z",
+      "reviewRunId": "B-7036:RR-015",
+      "_hash": "e287d46ae652c01ddfa3b9eead7210bd8ef8255c648e4dbd28f79387cb68e3ab"
+    },
+    {
+      "id": "B-7036:RP-014",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 56 must-intents across CHK-001 through CHK-005 have verificationEvidence with result=pass bound to the correct intentRef. The new F-010 denominator-bias assertions (matchedCellKeys excludes A4-only cell, matched n=1 vs unmatched control n=2) are non-vacuous: the control proves the fix matters (without matching A4 scores n=2; the assertion would fail if matchedCellKeys were vacuous). analyze-selfcheck.mjs runs 68 assertions, 0 failed on the current HEAD. No coverage gaps found.",
+      "createdAt": "2026-06-23T19:36:08.727Z",
+      "reviewRound": "2026-06-23T19:24:39.177Z",
+      "reviewRunId": "B-7036:RR-016",
+      "_hash": "9e9f5f9f47867cc37f3f231b8307cbde12a1579fc2d1a52f4474a54ade0075f6"
+    },
+    {
+      "id": "B-7036:RP-015",
+      "agent": "lattice-review-concept",
+      "note": "Concept residue check complete. Commit a24fe81ce changed completion from per-arm (res.completion) to per-contrast matched (res.completionRates). Full grep across all .mjs/.ts/.js/.md/.json in experiments/ and entire repo confirms zero stale res.completion references (non-Rates). analyze-selfcheck.mjs runs 71 assertions, 0 failed. No concept deletion incomplete; no blocker.",
+      "createdAt": "2026-06-23T19:41:30.378Z",
+      "reviewRound": "2026-06-23T19:40:12.599Z",
+      "reviewRunId": "B-7036:RR-019",
+      "_hash": "9a919dfbc6e07d0f101ef68778fe1205843c47531bc611f1af63754339b1667e"
+    },
+    {
+      "id": "B-7036:RP-016",
+      "agent": "lattice-review-docs",
+      "note": "Step1: 4 key symbols checked (completionRates, nullMatched, matchedCellKeys, matchedNullCells). Step2: 1 paragraph compared (experiments/recovery-runner/README.md lines 125-131). Step3: No drift — lines 125-129 already describe matched-cell denominator for all headline rates (covers §5 completion fix); line 130 per-arm Wilson CI description remains accurate; no doc references the old completion/new completionRates return key by name. Zero blockers.",
+      "createdAt": "2026-06-23T19:43:10.431Z",
+      "reviewRound": "2026-06-23T19:40:12.599Z",
+      "reviewRunId": "B-7036:RR-017",
+      "_hash": "7d89eae3026757a5f9d4300c79782d1488f2862461aed018d236cb683c648d05"
+    },
+    {
+      "id": "B-7036:RP-017",
+      "agent": "lattice-review-quality",
+      "note": "ROUND 5 quality review (RR-021): self-check 71/71 passed. F-011 (§5 completion denominator bias) verified fixed by a24fe81ce: completionRates uses matchedCellKeys(nullPred) so both arms are scored over identical matched null cells; analyze-selfcheck F-011 assertions pass. Dead-code check: no unused imports (fileURLToPath + pathToFileURL both used; ABLATION_SCENARIO, TERMINAL_STOP_TYPES all referenced). Empty catch at analyze.mjs:74 is intentional (JSONL malformed-line skip with tracked skipped counter, not a silent swallow). No new findings found. PRE-EXISTING OPEN F-012 (HIGH, RR-020) is NOT resolved by a24fe81ce: exploratory perScenario lines 484-487 call perArmRate without cellKeys so a one-arm-only (task,scenario) cell still enters the per-scenario z-test (probe: A4 n=2 vs A2prime n=1 for scenario B1 when t2 has A4-only data); emitGlmmR d6/d5 subsets are also unmatched. F-012 is a pre-existing registered finding — no new finding_add required. VERDICT: 0 new findings; F-012 remains open and blocks DONE.",
+      "createdAt": "2026-06-23T19:44:30.551Z",
+      "reviewRound": "2026-06-23T19:40:12.599Z",
+      "reviewRunId": "B-7036:RR-021",
+      "_hash": "5e487f397d51bca289b840af35c5213dbba4d5d8376e94bab778140ce2c1e800"
+    },
+    {
+      "id": "B-7036:RP-018",
+      "agent": "lattice-review-docs",
+      "note": "Step1: 6 key symbols examined (emitGlmmR, matchedCellKeys, matchedPrimaryH1, matchedPrimaryH2, analyze, perArmRate). Step2: 1 doc paragraph compared — experiments/recovery-runner/README.md lines 144-151 (glmm.R bullet updated by commit 0cf96304e). Step3: All 6 README claims verified against code — (1) disjoint models over same matched A4-vs-A2prime corpus: MATCHES emitGlmmR d6/d5 DISJOINT corpora comment; (2) CSV carries matchedPrimaryH1/matchedPrimaryH2 flags: MATCHES CSV_COLUMNS array + flag assignment at lines 394-395; (3) H1 formula notAmplified~arm+(1|task)+(1|scenario)+(1|seed) over matched §6 cells: MATCHES glmer call on d6=subset(matchedPrimaryH1==1); (4) H2 formula completion~arm+(1|task)+(1|seed) over matched §5 null-ablation cells: MATCHES glmer call on d5=subset(matchedPrimaryH2==1); (5) null-completion never pooled into §6 + arm-only excluded from both: MATCHES sixPred/nullPred predicates + isPrimaryArm guard; (6) exploratory per-scenario tests matched per scenario: MATCHES scMatched=matchedCellKeys(scenarioPred=s===sc) at line 505. No blockers.",
+      "createdAt": "2026-06-23T20:04:24.056Z",
+      "reviewRound": "2026-06-23T20:01:45.155Z",
+      "reviewRunId": "B-7036:RR-025",
+      "_hash": "1ccee8c312562390a5c3fc3b2e7e9ce365536df21cdc1f83ccdc9e8cac3b54cf"
+    },
+    {
+      "id": "B-7036:RP-019",
+      "agent": "lattice-review-concept",
+      "note": "Concept-residue scan for commit 0cf96304e (matched-cell GLMM extension). The old GLMM subset approach (scenario != null / scenario == null) was replaced by matchedPrimaryH1/matchedPrimaryH2 flags. One residue found and filed as F-015 (medium): stale JS comment block at analyze.mjs lines 404-405 still describes the old scenario-filter logic, contradicting the actual emitted R code. All other files (README.md, analyze-selfcheck.mjs) correctly reference the new matchedPrimary pattern. Selfcheck: 75 assertions, 0 failed. No additional concept residue beyond F-015.",
+      "createdAt": "2026-06-23T20:04:25.590Z",
+      "reviewRound": "2026-06-23T20:01:45.155Z",
+      "reviewRunId": "B-7036:RR-026",
+      "_hash": "61ecca90d737de47114fe2ce5c1456f4485705f1ea69e23d1f7b825e13238e6e"
+    },
+    {
+      "id": "B-7036:RP-020",
+      "agent": "lattice-review-quality",
+      "note": "F-012/F-014 fix verified: (1) emitGlmmR now subsets H1 to matchedPrimaryH1==1 and H2 to matchedPrimaryH2==1 — both are the matched A4-vs-A2prime common-cell corpus, same as headline rates + bootstrap; (2) exploratory per-scenario tests compute scMatched = matchedCellKeys per scenario and pass cellKeys to perArmRate for both arms — no arm-only cell inflates either denominator; (3) tidy CSV carries matchedPrimaryH1/matchedPrimaryH2 flags; (4) selfcheck runs 75 assertions, 0 failed (glmm.R subset assertions + CSV column assertions + exploratory per-scenario matched assertion all pass). No remaining path where one arm is scored over cells the other lacks. One new low finding F-016 filed (ARMS dead import, does not block). Dead-code/type-safety checks otherwise clean.",
+      "createdAt": "2026-06-23T20:06:22.609Z",
+      "reviewRound": "2026-06-23T20:01:45.155Z",
+      "reviewRunId": "B-7036:RR-024",
+      "_hash": "968ee53c0590c77da44ac6e480ad47ab55f90f5da2d5c565d757b4e20dd1e5d3"
+    },
+    {
+      "id": "B-7036:RP-021",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 56 must-priority verificationIntent items (CHK-001:10, CHK-002:11, CHK-003:11, CHK-004:11, CHK-005:13) have valid logic_test evidence with result=pass bound to analyze-selfcheck.mjs; selfcheck confirms 75 assertions 0 failed; evidence-staleness on CHK-002:happy:0 is a refresh_stale gate concern not a code finding; CHK-003:adversarial:0 seed-sensitivity disclosure is honest and the determinism property is correctly asserted; no new blockers found.",
+      "createdAt": "2026-06-23T20:08:06.201Z",
+      "reviewRound": "2026-06-23T20:01:45.155Z",
+      "reviewRunId": "B-7036:RR-027",
+      "_hash": "e1354bd2630a5721173845e68f74972fe0491c0949e5cd1fa5ddba7b6dbc0430"
+    },
+    {
+      "id": "B-7036:RP-022",
+      "agent": "lattice-review-concept",
+      "note": "Round 7 concept-residue check complete. F-015 fix verified at f7e5f13af: emitGlmmR comment block updated from old scenario!=null/==null subsetting to matched-corpus (matchedPrimaryH1/H2==1) language; ARMS import removed from analyze.mjs (ARMS still correctly defined+used in run-driver.mjs, run-ablation.mjs, run-driver-selfcheck.mjs — no residue). No old scenario-subsetting concept words remain in experiments/. analyze-selfcheck.mjs: 75 assertions, 0 failed. No new concept deletions or replacements detected; no blocker.",
+      "createdAt": "2026-06-23T20:12:47.668Z",
+      "reviewRound": "2026-06-23T20:10:51.518Z",
+      "reviewRunId": "B-7036:RR-029",
+      "_hash": "f9ff0bed44a69ab2bdcd77c7d3892a7bdd0931f534b4e444bec53f4635257321"
+    },
+    {
+      "id": "B-7036:RP-023",
+      "agent": "lattice-review-docs",
+      "note": "Step1: 2 symbols changed (ARMS removed from import; emitGlmmR comment updated). Step2: README Analysis section (lines 118-156) references emitGlmmR behavior + matchedPrimaryH1/H2 flags + H1/H2 model corpus descriptions. Step3: README lines 145-151 describe the two disjoint glmer models over the matched A4-vs-A2prime common-cell corpus with matchedPrimaryH1/matchedPrimaryH2 flags — exactly matches the updated comment in emitGlmmR (lines 402-406 of analyze.mjs) and the code that emits matchedPrimaryH1/H2 columns (lines 394-395). ARMS was unused in analyze.mjs and is absent from both the README and the code post-cleanup. No drift detected. 0 blockers.",
+      "createdAt": "2026-06-23T20:12:50.799Z",
+      "reviewRound": "2026-06-23T20:10:51.518Z",
+      "reviewRunId": "B-7036:RR-030",
+      "_hash": "60a409005a60b1c3d4957e1c46a9a84aa28aaf0d517917aeeb00d7a4e4e27e41"
+    },
+    {
+      "id": "B-7036:RP-024",
+      "agent": "lattice-review-quality",
+      "note": "Round 7 (final): confirmed F-016 fix at f7e5f13af — ARMS import fully removed, no trace remains. F-015 stale comment block replaced by matched-corpus description. All 12 named imports verified with 2+ uses each. catch{skipped++;continue} is intentional fault-tolerant JSON parsing, not an error-swallowing issue. analyze-selfcheck: 75 assertions, 0 failed. No new dead code, type-safety, or I/O shell isolation issues in changed files.",
+      "createdAt": "2026-06-23T20:13:26.406Z",
+      "reviewRound": "2026-06-23T20:10:51.518Z",
+      "reviewRunId": "B-7036:RR-028",
+      "_hash": "6b1fe466a8b8885090679d3044e140374b2a3232f8d4ac8a356faa2334625f70"
+    },
+    {
+      "id": "B-7036:RP-025",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. 56 intents across 5 checklist items (CHK-001 through CHK-005), all 56 are must-priority with passing evidence bound to the correct intentRef via analyze-selfcheck.mjs (75 assertions, 0 failed). Commit f7e5f13af was cosmetic only (comment + unused import removal); no test changes. Coverage complete, no gaps.",
+      "createdAt": "2026-06-23T20:14:45.752Z",
+      "reviewRound": "2026-06-23T20:10:51.518Z",
+      "reviewRunId": "B-7036:RR-031",
+      "_hash": "8817a4a2741079034897caf212d1f37e9051ec0cf0f7e86624856e5109da56cd"
+    },
+    {
+      "id": "B-7036:RP-026",
+      "agent": "lattice-review-concept",
+      "note": "Freshness rebind re-scan completed. Deliverable files (analyze.mjs, analyze-selfcheck.mjs, run-selfchecks.mjs, README) are byte-identical to the prior passing round. Diff shows zero deleted or replaced concept words — the only removed line is a README comment that was purely extended. analyze-selfcheck.mjs confirms 75 assertions passed, 0 failed (no live LLM). No concept residue blocker; no new finding warranted.",
+      "createdAt": "2026-06-23T20:27:53.657Z",
+      "reviewRound": "2026-06-23T20:26:47.298Z",
+      "reviewRunId": "B-7036:RR-032",
+      "_hash": "538afa529e32dd9aed204fb26e27f148824a470a9305923a2c359fc25ba64bb1"
+    },
+    {
+      "id": "B-7036:RP-027",
+      "agent": "lattice-review-quality",
+      "note": "Freshness rebind review: 3 changed code files audited (analyze.mjs, analyze-selfcheck.mjs, run-selfchecks.mjs). Dead code: zero unused imports, zero commented-out code. Type safety: single catch at parseRecords:74 intentionally swallows JSON.parse errors with skipped++ — correct fail-closed behavior, documented and tested. Shell isolation: no bridge.ts in this project, not applicable. normCdf numerical spot-check confirms correctness at z=1.96. Percentile indexing in clusterBootstrap validated. analyze-selfcheck.mjs ran 75 assertions, 0 failed. Deliverable byte-identical to prior passing round. No new issues found.",
+      "createdAt": "2026-06-23T20:29:44.660Z",
+      "reviewRound": "2026-06-23T20:26:47.298Z",
+      "reviewRunId": "B-7036:RR-033",
+      "_hash": "0f07f18c03f5ee41c5005d74922e5f96f3e2ffe77e0c831e2127b9fc34836407"
+    },
+    {
+      "id": "B-7036:RP-028",
+      "agent": "lattice-review-docs",
+      "note": "Freshness rebind: README byte-identical confirmed. Step 1 extracted ~17 key exported symbols (analyze, parseRecords, applyValidityFilter, commonCellKeys, wilson, clusterBootstrap, benjaminiHochberg, emitTidyCsv, emitGlmmR, a2primeBudgetCompliance, secondaryDetectors, terminalStopTypeOf, costCoMetric, perArmRate, makeRng, normCdf, twoProportionZ). Step 2 found 1 file with references: experiments/recovery-runner/README.md Analysis section (lines ~109-160). Step 3 compared 11 specific claims: (1) CLI flags --seed/--B/--out + positional records.jsonl all implemented (analyze.mjs lines 540-553); (2) validity filter: infra-void excluded, applicable=false excluded, task-failures kept (applyValidityFilter confirmed); (3) 4-contrast common-cell denominators with matched+structural counts confirmed; (4) Wilson 95% CIs for §4.1 completion and §4.2 not-amplified/recovered/safe-stop confirmed; (5) seeded cluster bootstrap PRIMARY only, A1/A2/A3 reference cells confirmed; (6) one BH FDR over exploratory per-scenario tests only confirmed; (7) secondary detectors: 5 unsafe-per-detector always, rollback-fired/human-gate/no-progress-stop individually when terminalStopType/processEvents present, safe-stop aggregate with explicit note when absent — lines 337-360 exact match; (8) tolerance-band compliance fail-closed confirmed; (9) H3 labeled EXPLORATORY/compute-not-matched confirmed; (10) tidy CSV + glmm.R with two disjoint lme4::glmer models (H1 notAmplified~arm+(1|task)+(1|scenario)+(1|seed), H2 completion~arm+(1|task)+(1|seed)) confirmed (lines 427/436); (11) matchedPrimaryH1/matchedPrimaryH2 flags in CSV confirmed (lines 371-395). All 11 claims match code exactly. No doc-code drift. No blockers.",
+      "createdAt": "2026-06-23T20:30:08.629Z",
+      "reviewRound": "2026-06-23T20:26:47.298Z",
+      "reviewRunId": "B-7036:RR-034",
+      "_hash": "ccf850bb91c3822b7ee82ee9c56e8a04afae2456526c79f57318876df504b5a9"
+    },
+    {
+      "id": "B-7036:RP-029",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. 56 intents (all must), 56 evidence entries, 1:1 binding confirmed. analyze-selfcheck.mjs: 75 assertions passed, 0 failed. Freshness-rebind: byte-identical deliverable at drifted materialHash, re-confirming prior pass.",
+      "createdAt": "2026-06-23T20:31:09.325Z",
+      "reviewRound": "2026-06-23T20:26:47.298Z",
+      "reviewRunId": "B-7036:RR-035",
+      "_hash": "51cff20fda00cd156e058671144f9e4b9c93ba93ae489c688b8cdcdb64fa46ef"
+    },
+    {
+      "id": "B-7036:RP-030",
+      "agent": "lattice-review-docs",
+      "note": "Step1: 0 exported symbols changed (pure in-file comment addition). Step2: README experiments/recovery-runner/README.md lines 125-151 describe the denominator-bias mitigation (matched common-cell set, arm-only cell exclusion, applies to completion/recovery rates, bootstrap, exploratory per-scenario tests, GLMM via matchedPrimaryH1/H2 flags). Step3: New 6-line header comment in analyze.mjs says the same invariant in equivalent terms — no drift, no omission, no stale name. 0 paragraphs inconsistent. No blockers.",
+      "createdAt": "2026-06-23T20:35:42.947Z",
+      "reviewRound": "2026-06-23T20:34:06.713Z",
+      "reviewRunId": "B-7036:RR-038",
+      "_hash": "73ec0a396f3d7ce72d99bbe0a3d080361b191877081a9bca93e7bff8f86f9650"
+    },
+    {
+      "id": "B-7036:RP-031",
+      "agent": "lattice-review-concept",
+      "note": "Concept residue check complete. Latest commit 2fd58ed31 adds a 6-line module-level design-note comment to analyze.mjs documenting the matched-cell denominator invariant (F-010..F-014). No behavior change. No concept deleted or replaced en masse. analyze-selfcheck.mjs passes 75 assertions, 0 failed. No residue to grep. No blocker.",
+      "createdAt": "2026-06-23T20:35:44.636Z",
+      "reviewRound": "2026-06-23T20:34:06.713Z",
+      "reviewRunId": "B-7036:RR-037",
+      "_hash": "e70a6a6339137dd4863b083818f70522cefd1e381a20ed70fadb9d461dfcec1e"
+    },
+    {
+      "id": "B-7036:RP-032",
+      "agent": "lattice-review-quality",
+      "note": "Latest commit 2fd58ed31 adds only a 6-line module-level design-note comment to analyze.mjs (no behavior change). Dead-code check: all imports (RECOVERY_SCENARIOS, ABLATION_SCENARIO, CONTRASTS, scenarioAppliesToArm, UNSAFE_KEYS, TERMINAL_STOP_TYPES) are used. Type-safety: the bare catch{} on line 80 is intentional silent-skip with skipped counter + selfcheck coverage — not a swallowed error. No bridge.ts structure; I/O isolation check N/A. analyze-selfcheck ran: 75 assertions passed, 0 failed. No new quality findings.",
+      "createdAt": "2026-06-23T20:36:02.194Z",
+      "reviewRound": "2026-06-23T20:34:06.713Z",
+      "reviewRunId": "B-7036:RR-036",
+      "_hash": "d488bb8aecb8a0003d80bc79693721736ee7502c77a8c757613ed488350acdd5"
+    },
+    {
+      "id": "B-7036:RP-033",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: 56 intents across 5 CHKs each bound 1:1 to a concrete logic_test evidence (analyze-selfcheck.mjs); all 56 results=pass, 0 fail, 0 waiver; latest commit 2fd58ed31 is a doc-only header comment with no test change (selfcheck confirmed 75 assertions 0 failed); materialHash stable; evidence notes are behavior-specific, no generic descriptions; no must-intent gap found.",
+      "createdAt": "2026-06-23T20:38:38.486Z",
+      "reviewRound": "2026-06-23T20:34:06.713Z",
+      "reviewRunId": "B-7036:RR-039",
+      "_hash": "0f230102433e5114fe2704c3d9665e0add802fb39a9530778a42562f23a67750"
+    }
+  ]
+}

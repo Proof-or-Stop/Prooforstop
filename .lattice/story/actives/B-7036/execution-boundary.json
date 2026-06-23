@@ -1,0 +1,37 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-7036",
+  "allowedCommands": [
+    "git diff",
+    "git status",
+    "node --check experiments/recovery-runner/*.mjs",
+    "node experiments/recovery-runner/analyze-selfcheck.mjs",
+    "node experiments/recovery-runner/run-selfchecks.mjs",
+    "npm --prefix packages/main run build",
+    "npm test"
+  ],
+  "allowedTools": [
+    "git",
+    "node",
+    "npm"
+  ],
+  "allowedPaths": [
+    "experiments/recovery-runner"
+  ],
+  "excludedCommands": [
+    "claude -p",
+    "git push",
+    "git reset --hard",
+    "rm -rf"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".lattice",
+    "packages/main/src"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Offline analysis build + self-check only; no live model, no live campaign. Reuse run-driver contrast defs without modifying them. The GLMM runs in R (emitted), not Node.",
+  "createdAt": "2026-06-23T18:33:08.680Z",
+  "updatedAt": "2026-06-23T18:33:08.680Z",
+  "_hash": "5a95a04475008b246ec5ddaa8c2bb724f31cb3a89dc1d2e1c257c07e57a8a3ee"
+}

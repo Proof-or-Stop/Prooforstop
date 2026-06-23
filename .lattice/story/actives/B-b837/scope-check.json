@@ -1,0 +1,171 @@
+{
+  "storyId": "B-b837",
+  "checkedAt": "2026-06-23T12:25:24.947Z",
+  "features": [
+    {
+      "feature": "Remove getMigratedLegacyKoalaActivityLogPath() from activity-log.ts and stop merging the legacy archive into the activity tail",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Remove LATTICE_LEGACY_KOALA_ACTIVITY_LOG constant from lattice-paths.ts",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Remove activity.legacy-koala.jsonl references from runtime-artifact-registry.ts and stale-detector.ts",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Remove KOALA_HARD_BUDGET_TOKENS fallback from dispatch-usage.ts (keep LATTICE_ only)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Remove KOALA_USAGE_LEDGER alias from writer.ts",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Remove KOALA_ entry from the env passlist in dispatch-runner.ts",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Remove isLegacyKoalaWritePath() and containsLegacyKoalaDir() from lattice-paths.ts / prewrite-guard.ts",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Remove assertNoLegacyKoalaWritePath() from lattice-paths.ts and adjust callers (config.ts, handlers/dev-memory.ts)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Remove isGeneratedLegacyKoalaAgentPrompt(), koala:internal LEGACY_INTERNAL_SECTION_RE, legacy-koala-extra asset entry from managed-assets.ts",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Remove cleanupGeneratedLegacyKoalaAgentPrompts() and isGeneratedLegacyKoalaAgentPrompt() from cli-init.ts plus koala:internal stripping",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Collapse INIT_DOC_SECTION_RE (?:koala|lattice) dual-accept regex to lattice-only in managed-assets.ts",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Collapse INIT_DOC_SECTION_RE (?:koala|lattice) dual-accept regex to lattice-only in cli-init.ts",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Collapse (?:koala|lattice)-profile dual-accept regex to lattice-only in claude-md-sync.ts",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Remove or retarget unit/smoke tests asserting legacy-koala compat behavior (e.g. storydir-inside-gitroot-suite assertNoLegacyKoalaWritePath, managed-assets koala-*.md tests, usage-ledger-budget-smoke KOALA_ fallback tests)",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Keep verify-koala-residue.mjs gate passing throughout this story (dead exemptions are harmless; gate is not flipped to zero-tolerance here)",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Build (tsc) stays green after all removals",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Rename koala-<role> process-lane tokens to lattice-<role> (story 3 scope)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Renaming koala-<role> process-lane tokens to lattice-<role> (story 3)",
+      "source": "decisions:decisions/koala-to-lattice-role-naming-execution-plan.md"
+    },
+    {
+      "feature": "Flip verify-koala-residue.mjs to zero-tolerance / scrub docs, experiments, scripts (story 4 scope)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Flipping verify-koala-residue.mjs to zero-tolerance (story 4); Scrubbing docs, experiments, scripts koala references (story 4)",
+      "source": "decisions:decisions/koala-to-lattice-role-naming-execution-plan.md"
+    },
+    {
+      "feature": "Remove legacy managed-block parsing for existing koala:start/end markers (deferred by B-ffa2 non-goal, partially addressed by CHK-003/CHK-004 for koala:internal and dual-accept only)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Renaming koala.config.json (out of this story compat-logic focus); scope-boundary.json excludes docs scrub and gate flip to story 4",
+      "source": "decisions:decisions/koala-to-lattice-role-naming-execution-plan.md"
+    },
+    {
+      "feature": "Keep .lattice/story audit-trail metadata as historical record",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "The .lattice/story audit-trail metadata (kept as historical record)",
+      "source": "description"
+    },
+    {
+      "feature": "Rename koala.config.json handling",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Renaming koala.config.json (out of this story compat-logic focus)",
+      "source": "decisions:decisions/koala-to-lattice-role-naming-execution-plan.md"
+    },
+    {
+      "feature": "KOALA_RESIDUE_* constants in handlers/review-preflight.ts (gate wiring, not compat layer)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Flipping verify-koala-residue.mjs to zero-tolerance (story 4); plan.md CHK-005 grep excludes review-preflight.ts gate wiring",
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 22,
+    "covered": 16,
+    "excluded": 6,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "b111a280e886891e8476a0fc846ed9b4274dc2fc560f3e51a8ce5f35f921ebe7",
+  "openQuestions": []
+}

@@ -1,0 +1,80 @@
+{
+  "storyId": "B-b739",
+  "checkedAt": "2026-06-23T21:22:42.769Z",
+  "reviewRound": "2026-06-23T20:43:24.607Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "CHANGELOG.md#B-b739",
+      "promise": "real-loop-agent.mjs is a NEW file exporting makeRealLoopAgent({model}) returning async agent({ws,context,signal})",
+      "verifiedBy": "diff/grep",
+      "evidence": "experiments/injection-probes/real-loop-agent.mjs new in diff (86 lines); export function makeRealLoopAgent at line 41"
+    },
+    {
+      "docPath": "CHANGELOG.md#B-b739",
+      "promise": "makeRealLoopAgent uses async execFileAsync (promisify(execFile)) with {signal,timeout,maxBuffer}",
+      "verifiedBy": "diff/grep",
+      "evidence": "real-loop-agent.mjs line 20: execFileAsync=promisify(execFile); line 53: {cwd:ws, encoding:utf-8, timeout:TURN_TIMEOUT_MS, maxBuffer:64*1024*1024, signal}"
+    },
+    {
+      "docPath": "CHANGELOG.md#B-b739",
+      "promise": "makeRealLoopAgent reuses parseClaudeResult import and feeds back result TEXT (j.result), not raw JSON envelope",
+      "verifiedBy": "diff/grep",
+      "evidence": "real-loop-agent.mjs line 18: import {parseClaudeResult} from ./real-arm.mjs; line 55: parseClaudeResult(stdout); lines 24-32: resultText() extracts j.result; line 60: output:resultText(stdout)"
+    },
+    {
+      "docPath": "CHANGELOG.md#B-b739",
+      "promise": "makeStubLoopAgent exported for hermetic self-check (no-LLM 0 spend)",
+      "verifiedBy": "diff/grep",
+      "evidence": "real-loop-agent.mjs lines 80-86: export function makeStubLoopAgent(behavior, observed) deterministic no-LLM stub; records observed.gotSignal"
+    },
+    {
+      "docPath": "CHANGELOG.md#B-b739",
+      "promise": "runPowered({makeAgent,recordsFile,stamp}) drives all 9 stateful scenarios via STATEFUL_SCENARIOS=[B7,B10,B3,B4,B5,B8,B12,B14,B15] recording {scenario,outcome,turns,costUsd,tokensSpent,infraFail}",
+      "verifiedBy": "diff/grep",
+      "evidence": "live-loop-harness.mjs line 701: STATEFUL_SCENARIOS=[B7,B10,B3,B4,B5,B8,B12,B14,B15]; lines 708-728: export async function runPowered iterates array collecting all 6 record fields"
+    },
+    {
+      "docPath": "CHANGELOG.md#B-b739",
+      "promise": "infra-fail turn recorded as outcome:infra-fail and EXCLUDED from scored denominator",
+      "verifiedBy": "diff/grep",
+      "evidence": "live-loop-harness.mjs line 719: outcome:infraFail?infra-fail:outcome; lines 864-865: scored=records.filter(r=>r.outcome!==infra-fail)"
+    },
+    {
+      "docPath": "CHANGELOG.md#B-b739",
+      "promise": "--run now executes REAL powered run replacing the refusal stub, appending live-loop-powered-records.jsonl with honest small-N/EXPLORATORY caveat NOT a powered pre-registered result",
+      "verifiedBy": "diff/grep",
+      "evidence": "live-loop-harness.mjs lines 853-872: --run branch imports makeRealLoopAgent, sets recordsFile, calls runPowered, prints caveat; prior exit(2) refusal stub replaced"
+    },
+    {
+      "docPath": "CHANGELOG.md#B-b739",
+      "promise": "hermetic --self-check gains runPowered stub-agent case asserting 9 records with valid schema boolean infraFail zero stub spend threaded {signal} — now 24/24 0 spend",
+      "verifiedBy": "machine-test-run",
+      "evidence": "Executed: node experiments/injection-probes/live-loop-harness.mjs --self-check; output: 24 PASS lines, exit 0, 0 claude/network/cost; runPowered block at lines 815-832 asserts powered.length===9 schema zero-spend observed.gotSignal===true"
+    },
+    {
+      "docPath": "CHANGELOG.md#B-b739",
+      "promise": "The real powered run is operator-triggered; live-loop-powered-records.jsonl is correctly ABSENT; no overclaim that a powered run was executed",
+      "verifiedBy": "filesystem-check",
+      "evidence": "ls experiments/injection-probes/live-loop-powered-records.jsonl -> No such file or directory exit=1; CHANGELOG text: The real powered run is operator-triggered; no powered run results claimed in B-b739 entry"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "node experiments/injection-probes/live-loop-harness.mjs --self-check: 24/24 PASS (9 scenarios B7/B10/B3/B4/B5/B8/B12/B14/B15 each with AMPLIFIED+SAFE_STOP/RECOVERED cases, timeout/abort wiring, runPowered stub 9 records valid schema zero spend signal threaded); exit 0 0 spend"
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "makeRealLoopAgent structural code review: async execFile with {signal,timeout,maxBuffer} at real-loop-agent.mjs line 53; parseClaudeResult import+use; j.result text feedback; AbortSignal honored; costLog push confirmed. No direct hermetic run possible (requires live claude -p)",
+      "waiverReason": "makeRealLoopAgent requires a live claude -p subprocess and cannot run hermetially; structural options verified by direct code read of real-loop-agent.mjs line 53; the makeStubLoopAgent + runPowered stub-case in --self-check verify the harness integration path end-to-end"
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 9 CHANGELOG docsPromises verified in code: new real-loop-agent.mjs (makeRealLoopAgent async execFile signal+timeout+maxBuffer, parseClaudeResult reuse, j.result text feedback, makeStubLoopAgent) and live-loop-harness.mjs additions (runPowered, STATEFUL_SCENARIOS, real --run path, 24/24 --self-check). Machine test ran and passed: 24/24 exit 0 0 spend. Honesty check passes: live-loop-powered-records.jsonl absent, CHANGELOG correctly labels powered run as operator-triggered NOT a pre-registered result — no overclaim."
+  },
+  "_hash": "bcac14b9c7d9ec51fa7d9cb3a15fdf7693b7eb6c585a4a955c6c1e514c548e39"
+}

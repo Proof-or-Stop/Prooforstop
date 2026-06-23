@@ -1,0 +1,60 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-06-23T19:23:37.639Z",
+      "issueCount": 4,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "2 checklist items; please check for missing combined scenarios (e.g., what happens when 7 stateful scenario defs (B3/B4/B5/B8/B12/B14/B15) on the step-1 loop + hermetic --self-check fake-agent cases for all 7 (0 spend) are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 2 high-risk signal(s): Security/Credentials, Data Migration/Destructive. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run lattice story_review_dismiss '{\"storyId\":\"B-d43f\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 1 undigested unknowns: RESOLVE IN DEV: exact AMPLIFIED/SAFE_STOP/RECOVERED boundary per scenario (esp. B4/B5 recovery-completion: resumed-correctly=RECOVERED vs shipped-wrong=AMPLIFIED vs safe-restart/stop=SAFE_STOP)"
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-d43f is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "7333d3a01f0948020980190b5bc6e9dfa43c5df117e4d4e3e0e11c8628b65771"
+    },
+    {
+      "timestamp": "2026-06-23T19:23:38.048Z",
+      "issueCount": 4,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "2 checklist items; please check for missing combined scenarios (e.g., what happens when 7 stateful scenario defs (B3/B4/B5/B8/B12/B14/B15) on the step-1 loop + hermetic --self-check fake-agent cases for all 7 (0 spend) are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 2 high-risk signal(s): Security/Credentials, Data Migration/Destructive. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run lattice story_review_dismiss '{\"storyId\":\"B-d43f\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 1 undigested unknowns: RESOLVE IN DEV: exact AMPLIFIED/SAFE_STOP/RECOVERED boundary per scenario (esp. B4/B5 recovery-completion: resumed-correctly=RECOVERED vs shipped-wrong=AMPLIFIED vs safe-restart/stop=SAFE_STOP)"
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-d43f is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "ec3aac890c657fb54c10b9df8c5bb85e9f21829f922457a32cea904f972e759a"
+    }
+  ]
+}

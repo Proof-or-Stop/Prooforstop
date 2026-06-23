@@ -79,7 +79,7 @@ export function syncProfileSection(claudeMdPath: string, profile: WorkflowProfil
 
   const content = readFileSync(claudeMdPath, 'utf-8');
   const newSection = generateProfileSection(profile);
-  const marker = /<!--\s*(?:koala|lattice)-profile:start\s*-->[\s\S]*?<!--\s*(?:koala|lattice)-profile:end\s*-->/;
+  const marker = /<!--\s*lattice-profile:start\s*-->[\s\S]*?<!--\s*lattice-profile:end\s*-->/;
 
   let updated: string;
   if (marker.test(content)) {
