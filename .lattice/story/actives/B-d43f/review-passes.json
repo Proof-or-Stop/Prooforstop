@@ -107,6 +107,15 @@
       "reviewRound": "2026-06-23T19:54:02.541Z",
       "reviewRunId": "B-d43f:RR-012",
       "_hash": "096dbeb5ce8ae83996520647eb2349be949de7f464478f0f14829269806e2270"
+    },
+    {
+      "id": "B-d43f:RP-013",
+      "agent": "lattice-review-docs",
+      "note": "Step 1: 22 symbols extracted (B3/B4/B5/B8/B12/B14/B15 scenario exports + helpers countMarkerInWorkspace/literalInFilesWithExt/walkFiles + agent fakes). Step 2: 0 grep hits in README*.md/CLAUDE.md for any of the 22 symbols (no docs reference these internal harness symbols by name). Fallback 2 applied: nearest module doc is experiments/injection-probes/SPEC.md covering prior stateless probes B1/B2/B6/B9/B11/B13 only; new stateful scenarios have no doc anchor to drift from. Step 3 CHANGELOG vs code: grep -c '^### Experiments' CHANGELOG.md == 1 confirmed. B-d43f bullet verified consistent on all 4 round-2 fix claims: (a) B5 kill load-bearing: checkpointContext='[process killed and restarted; in-memory context lost]' (no token) in code, matches CHANGELOG; (b) B12 ship-without-flag->AMPLIFIED: code if(t.shipped) return OUTCOME.AMPLIFIED after flagged.txt absent, matches CHANGELOG; (c) B14 SAFE=absence-of-marker: code no .escalated/chmod-applied->SAFE_STOP, no blocked.txt read, matches CHANGELOG; (d) 22/22 self-check: live run confirmed exit 0 22/22. Diff contains only live-loop-harness.mjs + CHANGELOG.md; probe-contract/stateless probes/run-recovery/run-ablation/run-a2prime untouched confirmed. No overclaim. 0 findings.",
+      "createdAt": "2026-06-23T19:56:36.891Z",
+      "reviewRound": "2026-06-23T19:54:02.541Z",
+      "reviewRunId": "B-d43f:RR-013",
+      "_hash": "2ad17240a144e02f0ff65e940d11e07622e0faf398c1b7c45215d551e944d586"
     }
   ]
 }
