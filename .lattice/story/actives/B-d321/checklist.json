@@ -59,10 +59,10 @@
           "command": "node packages/main/dist/tasks/delivery-check-freshness-smoke.js",
           "result": "pass",
           "note": "Smoke asserts a fresh delivery_check_set record with current materialHash is accepted by DONE oracle, machine guard, and lifecycle readiness.",
-          "headHash": "448eac349da9d6fee02b175e547e9128793f9d14",
-          "materialHash": "b869192b691d1ff801179e33a32f7f969f089c7db755c86bda6be36c451f01ba",
-          "storyFilesHash": "ef4655c063162f4e8f635e916da4902ff872f5bd70d3fe43b4b8a006a4af818b",
-          "timestamp": "2026-06-23T12:43:43.220Z"
+          "headHash": "9b0d11a2d8c0522d1d240a09b53ac6bf6576f44a",
+          "materialHash": "e0e23003d97406886ffd7bb72a473d0dfa8625814d782985e37e053fdbcb8cbf",
+          "storyFilesHash": "3deb6593e07fa0f0c121bbdab58cc738198e05b7c961ed73c552225f534a41e6",
+          "timestamp": "2026-06-23T12:59:49.698Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -71,10 +71,10 @@
           "command": "node packages/main/dist/tasks/delivery-check-freshness-smoke.js",
           "result": "pass",
           "note": "Smoke asserts metadata-only HEAD drift after delivery-check does not stale the delivery check when materialHash is unchanged.",
-          "headHash": "448eac349da9d6fee02b175e547e9128793f9d14",
-          "materialHash": "b869192b691d1ff801179e33a32f7f969f089c7db755c86bda6be36c451f01ba",
-          "storyFilesHash": "ef4655c063162f4e8f635e916da4902ff872f5bd70d3fe43b4b8a006a4af818b",
-          "timestamp": "2026-06-23T12:43:43.220Z"
+          "headHash": "9b0d11a2d8c0522d1d240a09b53ac6bf6576f44a",
+          "materialHash": "e0e23003d97406886ffd7bb72a473d0dfa8625814d782985e37e053fdbcb8cbf",
+          "storyFilesHash": "3deb6593e07fa0f0c121bbdab58cc738198e05b7c961ed73c552225f534a41e6",
+          "timestamp": "2026-06-23T12:59:49.698Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -83,10 +83,10 @@
           "command": "node packages/main/dist/tasks/delivery-check-freshness-smoke.js",
           "result": "pass",
           "note": "Smoke asserts missing materialHash binding and tampered materialHash binding fail closed instead of passing delivery_check_passed.",
-          "headHash": "448eac349da9d6fee02b175e547e9128793f9d14",
-          "materialHash": "b869192b691d1ff801179e33a32f7f969f089c7db755c86bda6be36c451f01ba",
-          "storyFilesHash": "ef4655c063162f4e8f635e916da4902ff872f5bd70d3fe43b4b8a006a4af818b",
-          "timestamp": "2026-06-23T12:43:43.220Z"
+          "headHash": "9b0d11a2d8c0522d1d240a09b53ac6bf6576f44a",
+          "materialHash": "e0e23003d97406886ffd7bb72a473d0dfa8625814d782985e37e053fdbcb8cbf",
+          "storyFilesHash": "3deb6593e07fa0f0c121bbdab58cc738198e05b7c961ed73c552225f534a41e6",
+          "timestamp": "2026-06-23T12:59:49.698Z"
         }
       ]
     },
@@ -149,10 +149,10 @@
           "command": "node packages/main/dist/tasks/delivery-check-freshness-smoke.js",
           "result": "pass",
           "note": "Smoke changes material after delivery-check and verifies DONE oracle, machine guard, and lifecycle readiness block with stale_delivery_check.",
-          "headHash": "448eac349da9d6fee02b175e547e9128793f9d14",
-          "materialHash": "b869192b691d1ff801179e33a32f7f969f089c7db755c86bda6be36c451f01ba",
-          "storyFilesHash": "ef4655c063162f4e8f635e916da4902ff872f5bd70d3fe43b4b8a006a4af818b",
-          "timestamp": "2026-06-23T12:43:43.220Z"
+          "headHash": "9b0d11a2d8c0522d1d240a09b53ac6bf6576f44a",
+          "materialHash": "e0e23003d97406886ffd7bb72a473d0dfa8625814d782985e37e053fdbcb8cbf",
+          "storyFilesHash": "3deb6593e07fa0f0c121bbdab58cc738198e05b7c961ed73c552225f534a41e6",
+          "timestamp": "2026-06-23T12:59:49.698Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -161,10 +161,10 @@
           "command": "node packages/main/dist/tasks/delivery-check-freshness-smoke.js",
           "result": "pass",
           "note": "Smoke keeps material fresh while using an unverified docsPromise and verifies docs_promise_unresolved behavior remains independent.",
-          "headHash": "448eac349da9d6fee02b175e547e9128793f9d14",
-          "materialHash": "b869192b691d1ff801179e33a32f7f969f089c7db755c86bda6be36c451f01ba",
-          "storyFilesHash": "ef4655c063162f4e8f635e916da4902ff872f5bd70d3fe43b4b8a006a4af818b",
-          "timestamp": "2026-06-23T12:43:43.220Z"
+          "headHash": "9b0d11a2d8c0522d1d240a09b53ac6bf6576f44a",
+          "materialHash": "e0e23003d97406886ffd7bb72a473d0dfa8625814d782985e37e053fdbcb8cbf",
+          "storyFilesHash": "3deb6593e07fa0f0c121bbdab58cc738198e05b7c961ed73c552225f534a41e6",
+          "timestamp": "2026-06-23T12:59:49.698Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -173,10 +173,10 @@
           "command": "node packages/main/dist/tasks/delivery-check-freshness-smoke.js",
           "result": "pass",
           "note": "Smoke mutates the signed materialHash field without resigning and verifies delivery-check _hash tamper failure.",
-          "headHash": "448eac349da9d6fee02b175e547e9128793f9d14",
-          "materialHash": "b869192b691d1ff801179e33a32f7f969f089c7db755c86bda6be36c451f01ba",
-          "storyFilesHash": "ef4655c063162f4e8f635e916da4902ff872f5bd70d3fe43b4b8a006a4af818b",
-          "timestamp": "2026-06-23T12:43:43.220Z"
+          "headHash": "9b0d11a2d8c0522d1d240a09b53ac6bf6576f44a",
+          "materialHash": "e0e23003d97406886ffd7bb72a473d0dfa8625814d782985e37e053fdbcb8cbf",
+          "storyFilesHash": "3deb6593e07fa0f0c121bbdab58cc738198e05b7c961ed73c552225f534a41e6",
+          "timestamp": "2026-06-23T12:59:49.698Z"
         }
       ]
     },
@@ -238,10 +238,10 @@
           "command": "lattice validate --focus=fast --json",
           "result": "pass",
           "note": "Fast validation includes node packages/main/dist/tasks/delivery-check-freshness-smoke.js and the smoke prints delivery-check-freshness smoke passed.",
-          "headHash": "448eac349da9d6fee02b175e547e9128793f9d14",
-          "materialHash": "b869192b691d1ff801179e33a32f7f969f089c7db755c86bda6be36c451f01ba",
-          "storyFilesHash": "ef4655c063162f4e8f635e916da4902ff872f5bd70d3fe43b4b8a006a4af818b",
-          "timestamp": "2026-06-23T12:43:43.220Z"
+          "headHash": "9b0d11a2d8c0522d1d240a09b53ac6bf6576f44a",
+          "materialHash": "e0e23003d97406886ffd7bb72a473d0dfa8625814d782985e37e053fdbcb8cbf",
+          "storyFilesHash": "3deb6593e07fa0f0c121bbdab58cc738198e05b7c961ed73c552225f534a41e6",
+          "timestamp": "2026-06-23T12:59:49.698Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -249,10 +249,10 @@
           "file": "experiments/baselines/lattice-workflow-efficiency-baseline-v1-B-d321-delivery-check-freshness-result.json",
           "result": "pass",
           "note": "Story-specific result artifact was added; immutable baseline v1 artifact was not modified.",
-          "headHash": "448eac349da9d6fee02b175e547e9128793f9d14",
-          "materialHash": "b869192b691d1ff801179e33a32f7f969f089c7db755c86bda6be36c451f01ba",
-          "storyFilesHash": "ef4655c063162f4e8f635e916da4902ff872f5bd70d3fe43b4b8a006a4af818b",
-          "timestamp": "2026-06-23T12:43:43.220Z"
+          "headHash": "9b0d11a2d8c0522d1d240a09b53ac6bf6576f44a",
+          "materialHash": "e0e23003d97406886ffd7bb72a473d0dfa8625814d782985e37e053fdbcb8cbf",
+          "storyFilesHash": "3deb6593e07fa0f0c121bbdab58cc738198e05b7c961ed73c552225f534a41e6",
+          "timestamp": "2026-06-23T12:59:49.698Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -260,10 +260,10 @@
           "file": "experiments/baselines/lattice-workflow-efficiency-baseline-v1-B-d321-delivery-check-freshness-result.json",
           "result": "pass",
           "note": "Result artifact explicitly records authorityChanged=false, receiptVerified=false, and productionDone=false.",
-          "headHash": "448eac349da9d6fee02b175e547e9128793f9d14",
-          "materialHash": "b869192b691d1ff801179e33a32f7f969f089c7db755c86bda6be36c451f01ba",
-          "storyFilesHash": "ef4655c063162f4e8f635e916da4902ff872f5bd70d3fe43b4b8a006a4af818b",
-          "timestamp": "2026-06-23T12:43:43.220Z"
+          "headHash": "9b0d11a2d8c0522d1d240a09b53ac6bf6576f44a",
+          "materialHash": "e0e23003d97406886ffd7bb72a473d0dfa8625814d782985e37e053fdbcb8cbf",
+          "storyFilesHash": "3deb6593e07fa0f0c121bbdab58cc738198e05b7c961ed73c552225f534a41e6",
+          "timestamp": "2026-06-23T12:59:49.698Z"
         }
       ]
     },
@@ -325,10 +325,10 @@
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Process-fact contract verification passes after delivery-check material binding changes.",
-          "headHash": "448eac349da9d6fee02b175e547e9128793f9d14",
-          "materialHash": "b869192b691d1ff801179e33a32f7f969f089c7db755c86bda6be36c451f01ba",
-          "storyFilesHash": "ef4655c063162f4e8f635e916da4902ff872f5bd70d3fe43b4b8a006a4af818b",
-          "timestamp": "2026-06-23T12:43:43.220Z"
+          "headHash": "9b0d11a2d8c0522d1d240a09b53ac6bf6576f44a",
+          "materialHash": "e0e23003d97406886ffd7bb72a473d0dfa8625814d782985e37e053fdbcb8cbf",
+          "storyFilesHash": "3deb6593e07fa0f0c121bbdab58cc738198e05b7c961ed73c552225f534a41e6",
+          "timestamp": "2026-06-23T12:59:49.698Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -337,10 +337,10 @@
           "command": "node packages/main/dist/tasks/delivery-check-freshness-smoke.js",
           "result": "pass",
           "note": "Smoke asserts delivery-check.json remains L4 signed gate evidence produced by delivery_check_set and owned by lattice-review-delivery.",
-          "headHash": "448eac349da9d6fee02b175e547e9128793f9d14",
-          "materialHash": "b869192b691d1ff801179e33a32f7f969f089c7db755c86bda6be36c451f01ba",
-          "storyFilesHash": "ef4655c063162f4e8f635e916da4902ff872f5bd70d3fe43b4b8a006a4af818b",
-          "timestamp": "2026-06-23T12:43:43.220Z"
+          "headHash": "9b0d11a2d8c0522d1d240a09b53ac6bf6576f44a",
+          "materialHash": "e0e23003d97406886ffd7bb72a473d0dfa8625814d782985e37e053fdbcb8cbf",
+          "storyFilesHash": "3deb6593e07fa0f0c121bbdab58cc738198e05b7c961ed73c552225f534a41e6",
+          "timestamp": "2026-06-23T12:59:49.698Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -349,10 +349,10 @@
           "command": "node packages/main/dist/tasks/delivery-check-freshness-smoke.js",
           "result": "pass",
           "note": "Smoke plus process-fact verification prove the new gate-consumed material binding is covered by the existing signed delivery-check artifact contract.",
-          "headHash": "448eac349da9d6fee02b175e547e9128793f9d14",
-          "materialHash": "b869192b691d1ff801179e33a32f7f969f089c7db755c86bda6be36c451f01ba",
-          "storyFilesHash": "ef4655c063162f4e8f635e916da4902ff872f5bd70d3fe43b4b8a006a4af818b",
-          "timestamp": "2026-06-23T12:43:43.220Z"
+          "headHash": "9b0d11a2d8c0522d1d240a09b53ac6bf6576f44a",
+          "materialHash": "e0e23003d97406886ffd7bb72a473d0dfa8625814d782985e37e053fdbcb8cbf",
+          "storyFilesHash": "3deb6593e07fa0f0c121bbdab58cc738198e05b7c961ed73c552225f534a41e6",
+          "timestamp": "2026-06-23T12:59:49.698Z"
         }
       ]
     }
