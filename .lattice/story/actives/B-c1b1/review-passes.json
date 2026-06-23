@@ -53,6 +53,15 @@
       "reviewRound": "2026-06-23T02:40:13.540Z",
       "reviewRunId": "B-c1b1:RR-011",
       "_hash": "0f1f78efef45bbb3e4b866d01ad0e749f9b57e0517d71097012b5d7edf4abc28"
+    },
+    {
+      "id": "B-c1b1:RP-007",
+      "agent": "lattice-review-docs",
+      "note": "PASS: inspected lifecycle_check smoke diff plus lifecycle_check/done_prepare docs and implementation guidance. The test-only expectation matches host guidance routing missing DONE-required validation through done_prepare, keeps lifecycle_check read-only, and leaves post-DONE finalization/version bumping separate and host-neutral. Targeted npm --prefix packages/main run test:lifecycle-check-smoke passed.",
+      "createdAt": "2026-06-23T02:47:20.786Z",
+      "reviewRound": "2026-06-23T02:40:13.540Z",
+      "reviewRunId": "B-c1b1:RR-013",
+      "_hash": "5a1334c236d650aab27a9550a6bbb862dc34b0f30e281ba06a0d57df86762163"
     }
   ]
 }
