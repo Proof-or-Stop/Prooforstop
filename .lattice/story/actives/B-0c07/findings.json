@@ -1,0 +1,22 @@
+{
+  "findings": [
+    {
+      "id": "B-0c07:F-001",
+      "desc": "doc-code-drift: CHANGELOG.md now has two duplicate ### Experiments headings under ## Unreleased — the B-0c07 entry was prepended with a fresh ### Experiments heading above the existing one rather than inserted beneath it. This creates a malformed changelog structure (two sibling headings of the same name in the same section) that will confuse changelog parsers and readers. No code inconsistency; the content of the entry is accurate.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-23T12:09:54.875Z",
+      "reviewRound": "2026-06-23T12:07:23.828Z",
+      "reviewRunId": "B-0c07:RR-003",
+      "_hash": "a3f70bfcd6c5e0cbf7a9e5401ece3ad7a105a00ea9e74e44edc0c6ceafe3142e",
+      "files": [
+        "CHANGELOG.md"
+      ],
+      "signatureTag": "edge|md|code-drift-changelog",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
