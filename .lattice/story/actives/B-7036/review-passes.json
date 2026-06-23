@@ -242,6 +242,15 @@
       "reviewRound": "2026-06-23T20:26:47.298Z",
       "reviewRunId": "B-7036:RR-033",
       "_hash": "0f07f18c03f5ee41c5005d74922e5f96f3e2ffe77e0c831e2127b9fc34836407"
+    },
+    {
+      "id": "B-7036:RP-028",
+      "agent": "lattice-review-docs",
+      "note": "Freshness rebind: README byte-identical confirmed. Step 1 extracted ~17 key exported symbols (analyze, parseRecords, applyValidityFilter, commonCellKeys, wilson, clusterBootstrap, benjaminiHochberg, emitTidyCsv, emitGlmmR, a2primeBudgetCompliance, secondaryDetectors, terminalStopTypeOf, costCoMetric, perArmRate, makeRng, normCdf, twoProportionZ). Step 2 found 1 file with references: experiments/recovery-runner/README.md Analysis section (lines ~109-160). Step 3 compared 11 specific claims: (1) CLI flags --seed/--B/--out + positional records.jsonl all implemented (analyze.mjs lines 540-553); (2) validity filter: infra-void excluded, applicable=false excluded, task-failures kept (applyValidityFilter confirmed); (3) 4-contrast common-cell denominators with matched+structural counts confirmed; (4) Wilson 95% CIs for §4.1 completion and §4.2 not-amplified/recovered/safe-stop confirmed; (5) seeded cluster bootstrap PRIMARY only, A1/A2/A3 reference cells confirmed; (6) one BH FDR over exploratory per-scenario tests only confirmed; (7) secondary detectors: 5 unsafe-per-detector always, rollback-fired/human-gate/no-progress-stop individually when terminalStopType/processEvents present, safe-stop aggregate with explicit note when absent — lines 337-360 exact match; (8) tolerance-band compliance fail-closed confirmed; (9) H3 labeled EXPLORATORY/compute-not-matched confirmed; (10) tidy CSV + glmm.R with two disjoint lme4::glmer models (H1 notAmplified~arm+(1|task)+(1|scenario)+(1|seed), H2 completion~arm+(1|task)+(1|seed)) confirmed (lines 427/436); (11) matchedPrimaryH1/matchedPrimaryH2 flags in CSV confirmed (lines 371-395). All 11 claims match code exactly. No doc-code drift. No blockers.",
+      "createdAt": "2026-06-23T20:30:08.629Z",
+      "reviewRound": "2026-06-23T20:26:47.298Z",
+      "reviewRunId": "B-7036:RR-034",
+      "_hash": "ccf850bb91c3822b7ee82ee9c56e8a04afae2456526c79f57318876df504b5a9"
     }
   ]
 }
