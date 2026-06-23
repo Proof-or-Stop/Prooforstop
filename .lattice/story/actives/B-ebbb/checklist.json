@@ -242,11 +242,11 @@
           "kind": "manual_transcript",
           "command": "node experiments/recovery-runner/checks-selfcheck.mjs",
           "result": "pass",
-          "note": "selfcheck 'hr null/missing/corrupt-baseline: pass false (no free pass)': null, missing, and non-array baseline all fail-safe to pass false",
-          "headHash": "866df485b50412d54fd8e22fb551dee0ffddeb7f",
-          "materialHash": "3ee68a262f8963f2691d35fbb344b2261c4d52282139b43e837ded77f015b261",
-          "storyFilesHash": "9c823adea15d877392e591760e4dc447c74a37c38c6a266f4cc1f84dc19de8c0",
-          "timestamp": "2026-06-23T10:18:42.575Z"
+          "note": "selfcheck 'hr null/missing/corrupt-baseline + F-A corrupt-entry: pass false (no free pass)': null/missing/non-array baseline AND an array baseline with any id-less entry ([{message:'old'}]) AND an id-less or non-array POST snapshot all fail-closed to hiddenRegressionPass false with newFailures flagging the inability to compute a clean delta — a corrupt entry is never silently dropped (host-2 F-A fix)",
+          "headHash": "a9881124c256079913c925eae001baa5e99753c7",
+          "materialHash": "1149a907742a8b8522aff6bf7d040d09e05107c12c17062480b61c908da49bab",
+          "storyFilesHash": "65a531aa375f44893cd300f4169c3d92054e4c8511a0e5c46c30a91d0611b607",
+          "timestamp": "2026-06-23T10:38:50.715Z"
         },
         {
           "intentRef": "CHK-002:adversarial:2",
