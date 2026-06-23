@@ -200,6 +200,15 @@ group('reporting: §8 cost / §1+§8 A2prime tolerance-band / §4.2 secondary de
   const sd2 = secondaryDetectors(det2);
   eq([sd2.rollbackFired, sd2.humanGate, sd2.noProgressStop, sd2.terminalTypeAvailable], [2, 1, 1, true], 'detectors: terminal type present -> rollback/human-gate/no-progress reported individually (F-001)');
   ok(/derived per run/.test(sd2.note), 'detectors: note reflects per-run terminal-type derivation when available');
+  // F-008: terminalStopTypeOf accepts the SAME forms the adjudicator does — bare-string events,
+  // {kind:...}, and the generic 'stop' token (no-progress) — not just {type|event}.
+  const det3 = [
+    rec('A4', 't1', 'B1', 1, 'safe-stop', { processEvents: ['rollback'] }),               // bare string
+    rec('A4', 't1', 'B1', 2, 'safe-stop', { processEvents: [{ kind: 'human_gate' }] }),    // {kind}
+    rec('A4', 't1', 'B1', 3, 'safe-stop', { processEvents: [{ event: 'stop' }] }),         // {event}='stop' -> no-progress
+  ];
+  const sd3 = secondaryDetectors(det3);
+  eq([sd3.rollbackFired, sd3.humanGate, sd3.noProgressStop], [1, 1, 1], 'detectors: accepts bare-string + {kind} + {event:stop} forms (F-008, adjudicator-aligned)');
 }
 
 // =========================================================================================
@@ -215,6 +224,11 @@ group('emit: tidy CSV + glmm.R');
   const r = emitGlmmR();
   ok(/glmer/.test(r) && /lme4/.test(r) && /\(1 ?\| ?task\)/.test(r), 'emit: glmm.R uses lme4 glmer with task random effect');
   ok(/arm/.test(r) && /A2prime/.test(r), 'emit: glmm.R contrasts arm vs A2prime');
+  // F-007: H1 (not-amplified) fits §6 rows ONLY (scenario != null); H2 (completion) fits null
+  // rows ONLY — null completion cells must NOT pool into the §6 not-amplified model.
+  ok(/subset\(d,\s*scenario\s*!=\s*"null"\)/.test(r), 'emit: glmm.R H1 subsets to §6 cells (scenario != null) (F-007)');
+  ok(/subset\(d,\s*scenario\s*==\s*"null"\)/.test(r), 'emit: glmm.R H2 subsets to §5 null-ablation cells (F-007)');
+  ok(/notAmplified ~ arm/.test(r) && /completion ~ arm/.test(r), 'emit: glmm.R has both H1 not-amplified and H2 completion models');
 }
 
 // =========================================================================================

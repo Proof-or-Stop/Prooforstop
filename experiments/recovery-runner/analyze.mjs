@@ -29,6 +29,7 @@ import {
   ARMS, RECOVERY_SCENARIOS, ABLATION_SCENARIO, CONTRASTS,
   scenarioAppliesToArm, UNSAFE_KEYS,
 } from './run-driver.mjs';
+import { TERMINAL_STOP_TYPES } from './adjudicate.mjs';
 
 // ---------------------------------------------------------------------------
 // Deterministic seeded PRNG (xmur3 + mulberry32) — same family as the driver, so the
@@ -286,11 +287,17 @@ export function a2primeBudgetCompliance(records) {
 // r.terminalStopType, or the first terminal event in an optional r.processEvents array.
 // Returns undefined when the record does not carry terminal-event detail.
 function terminalStopTypeOf(r) {
-  if (typeof r.terminalStopType === 'string') return r.terminalStopType;
+  // accept the same forms adjudicate.mjs.terminalStopEvent accepts: an explicit string field,
+  // a bare-string event token, or an object's type|event|kind — matched against the
+  // adjudicator's TERMINAL_STOP_TYPES (stop | rollback | human_gate). 'no_progress' is accepted
+  // as an alias for the generic 'stop' (a no-progress bounded stop).
+  const isTerminal = (t) => typeof t === 'string' && (TERMINAL_STOP_TYPES.includes(t) || t === 'no_progress');
+  if (isTerminal(r.terminalStopType)) return r.terminalStopType;
   if (Array.isArray(r.processEvents)) {
     for (const e of r.processEvents) {
-      const t = e && (e.type || e.event);
-      if (t === 'rollback' || t === 'human_gate' || t === 'stop' || t === 'no_progress') return t;
+      if (e == null) continue;
+      const t = typeof e === 'string' ? e : (e.type ?? e.event ?? e.kind);
+      if (isTerminal(t)) return t;
     }
   }
   return undefined;
@@ -354,27 +361,40 @@ export function emitTidyCsv(records) {
   return rows.join('\n') + '\n';
 }
 // The formal pre-registered GLMM (§5): arm fixed; task/scenario/seed random. Emitted for R
-// (lme4); the Node cluster bootstrap is the verifiable proxy. The primary outcome column is
-// `notAmplified` (§6 H1); swap to `completion` for the §5 H2 model.
+// (lme4); the Node cluster bootstrap is the verifiable proxy. Two DISTINCT models, each on its
+// own corpus (do NOT pool §5 null-ablation completion cells into the §6 not-amplified model):
+//   H1 (§6): notAmplified ~ arm over the §6 scenario rows (scenario != "null") only.
+//   H2 (§5): completion   ~ arm over the §5 null-ablation rows (scenario == "null") only.
 export function emitGlmmR() {
-  return `# Pre-registered GLMM for the §5/§6 powered ablation (lme4). Run with: Rscript glmm.R <tidy.csv>
-# This is the FORMAL model (the authority); the Node cluster bootstrap in analyze.mjs is the
-# in-Node verifiable proxy for the A4-vs-A2prime contrast.
+  return `# Pre-registered GLMMs for the §5/§6 powered ablation (lme4). Run: Rscript glmm.R <tidy.csv>
+# FORMAL models (the authority); the Node cluster bootstrap in analyze.mjs is the in-Node
+# verifiable proxy for the A4-vs-A2prime contrast. The two hypotheses use DISJOINT corpora:
+# H1 over §6 scenario rows only; H2 over §5 null-ablation rows only (never pooled).
 suppressMessages(library(lme4))
 args <- commandArgs(trailingOnly = TRUE)
 csv <- if (length(args) >= 1) args[1] else "tidy.csv"
 d <- read.csv(csv, stringsAsFactors = FALSE)
-d$arm <- relevel(factor(d$arm), ref = "A2prime")   # contrast A4 vs A2prime (primary)
-d$task <- factor(d$taskId); d$scenario <- factor(ifelse(is.na(d$scenarioId), "null", d$scenarioId))
-d$seed <- factor(d$runOrderSeed)
-d$notAmplified <- as.integer(d$notAmplified == "true" | d$notAmplified == TRUE)
-# H1 (§6): not-amplified ~ arm + (1|task) + (1|scenario) + (1|seed)
-m <- glmer(notAmplified ~ arm + (1|task) + (1|scenario) + (1|seed),
-           data = d, family = binomial,
-           control = glmerControl(optimizer = "bobyqa"))
-print(summary(m))
-cat("\\n# A4-vs-A2prime fixed-effect contrast with 95% CI:\\n")
-print(confint(m, parm = "armA4", method = "Wald"))
+d$scenario <- ifelse(is.na(d$scenarioId) | d$scenarioId == "", "null", as.character(d$scenarioId))
+asInt <- function(x) as.integer(x == "true" | x == TRUE)
+d$notAmplified <- asInt(d$notAmplified); d$completion <- asInt(d$completion)
+d$task <- factor(d$taskId); d$seed <- factor(d$runOrderSeed)
+
+# H1 (§6): not-amplified ~ arm + (1|task)+(1|scenario)+(1|seed), §6 rows ONLY (exclude null cells)
+d6 <- subset(d, scenario != "null")
+d6$arm <- relevel(factor(d6$arm), ref = "A2prime")   # A4 vs A2prime (primary)
+d6$scenario <- factor(d6$scenario)
+m1 <- glmer(notAmplified ~ arm + (1|task) + (1|scenario) + (1|seed),
+            data = d6, family = binomial, control = glmerControl(optimizer = "bobyqa"))
+cat("# H1 (§6 not-amplified), §6 cells only:\\n"); print(summary(m1))
+cat("\\n# H1 A4-vs-A2prime fixed-effect contrast, 95% CI:\\n"); print(confint(m1, parm = "armA4", method = "Wald"))
+
+# H2 (§5): completion ~ arm + (1|task)+(1|seed), NULL-ablation rows ONLY (no scenario effect)
+d5 <- subset(d, scenario == "null")
+d5$arm <- relevel(factor(d5$arm), ref = "A2prime")
+m2 <- glmer(completion ~ arm + (1|task) + (1|seed),
+            data = d5, family = binomial, control = glmerControl(optimizer = "bobyqa"))
+cat("\\n# H2 (§5 completion), null-ablation cells only:\\n"); print(summary(m2))
+cat("\\n# H2 A4-vs-A2prime fixed-effect contrast, 95% CI:\\n"); print(confint(m2, parm = "armA4", method = "Wald"))
 `;
 }
 
