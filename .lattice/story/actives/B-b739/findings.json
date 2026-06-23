@@ -175,6 +175,24 @@
       "resolvedAt": "2026-06-23T20:36:39.684Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-b739:F-009",
+      "desc": "quality-cleanup: real-loop-agent.mjs:6,35 comments say execFileSync but implementation uses async execFileAsync (promisify(execFile)); misleading stale reference in a newly-created file — the whole F-002 fix was switching away from the sync form",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-23T20:38:28.136Z",
+      "reviewRound": "2026-06-23T20:36:26.846Z",
+      "reviewRunId": "B-b739:RR-005",
+      "_hash": "5ccc28f23269680d189b4312b25eaf65c99f0cf13dca3eda927364d2701fb0e0",
+      "files": [
+        "experiments/injection-probes/real-loop-agent.mjs"
+      ],
+      "signatureTag": "missing|mjs|quality-cleanup-real",
+      "signatureTagSource": "auto"
     }
   ]
 }
