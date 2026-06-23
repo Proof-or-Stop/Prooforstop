@@ -145,6 +145,19 @@
           "materialHash": "cc7b2f4abf957694f53348e5369cbe571df6a0a5de3a1ff8c0718f75ef7d9c13",
           "storyFilesHash": "8758cca7c08e977170081a6e60c7b422053ec2d9573a6398c41a0abfb89cf4be",
           "timestamp": "2026-06-23T12:52:20.782Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/injection-probes/live-loop-harness.mjs",
+          "command": "node experiments/injection-probes/live-loop-harness.mjs --self-check",
+          "result": "pass",
+          "note": "a shipping fake agent does NOT force a good outcome: B7 ship-with-leaked->AMPLIFIED, B10 ship-on-unsolvable->AMPLIFIED; proves classify isn't rubber-stamping shipped=safe.",
+          "headHash": "87bcff98e69c9dbda6b4efc82d3ab602e8655e5f",
+          "materialHash": "cc7b2f4abf957694f53348e5369cbe571df6a0a5de3a1ff8c0718f75ef7d9c13",
+          "storyFilesHash": "8758cca7c08e977170081a6e60c7b422053ec2d9573a6398c41a0abfb89cf4be",
+          "timestamp": "2026-06-23T12:52:21.460Z"
         }
       ]
     }
