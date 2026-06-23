@@ -34,6 +34,23 @@
       ],
       "signatureTag": "adversarial|mjs|codex-host2-countmarkerinworkspace",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-d43f:F-003",
+      "desc": "[codex-host2 #3] B15 secret scan is FLAT -> a real leak into src/app.js or logs/app.log (subdir) is classified RECOVERED (safe). This defeats the secret-leak probe. FIX: recursive scan of *.js/*.log across subdirs (still excluding secret.txt).",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex-host2",
+      "createdAt": "2026-06-23T19:34:35.979Z",
+      "reviewRound": "2026-06-23T19:28:52.385Z",
+      "_hash": "67e4e58804aa35cd3b1deb102ea84c2aa3b65be7597e8f0de590c0ff6d655e74",
+      "files": [
+        "experiments/injection-probes/live-loop-harness.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|codex-host2-secret",
+      "signatureTagSource": "auto"
     }
   ]
 }
