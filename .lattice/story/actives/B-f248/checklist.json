@@ -68,16 +68,14 @@
       "verificationEvidence": [
         {
           "intentRef": "CHK-001:happy:0",
-          "kind": "logic_test",
-          "verdict": "success",
-          "file": "experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "kind": "manual_transcript",
           "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
           "result": "pass",
-          "note": "enumeration group now asserts the EXACT intent params: enumerateCells(3 tasks, k=2).cells.length === 462 (A1 13×2 + 4×16×2 per task ×3 tasks). (F-001 resolved: previously only the k=5/2-task=770 example was asserted.)",
-          "headHash": "941d27f5902bc7a2684448831b5b8ea185bd9390",
-          "materialHash": "6d640252b312078708171d83fd256ff16554ef8be15378dcd536dee1d707c79d",
-          "storyFilesHash": "60972945a17fed7f80d2fbebadba0e8de0cf4e7b03310ccc8acfc611d48bafa8",
-          "timestamp": "2026-06-23T13:09:43.514Z"
+          "note": "Post-sync re-confirmation: 130 assertions passed, 0 failed. Story files byte-identical after 184-commit main auto-sync drift. run-selfchecks.mjs also all 4 pass.",
+          "headHash": "9871f1a6c05f501e7a2f2bbf23d921ba4dcc5f31",
+          "materialHash": "7a30efa0f84524ff2f2180b9a6b1f43fd7ef75963268dc30de31716c4c39e829",
+          "storyFilesHash": "a9d6a886ee89d9f21bfcb5788997fcaa89d5bedc685c6e16c60dd43e94d7fd5d",
+          "timestamp": "2026-06-23T13:42:50.426Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
