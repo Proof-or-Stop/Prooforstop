@@ -504,6 +504,17 @@
           "materialHash": "71fd662a6cc4efe4c3dde9ac6c352f3d722e22b76e080754e3bdfe8066ba89fd",
           "storyFilesHash": "64ca7bcb634a24f4d3189c4ccc36f942cb702b845ce2072ba08f8dc6ae82cdce",
           "timestamp": "2026-06-23T14:06:01.945Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:2",
+          "kind": "docs_check",
+          "command": "grep -n isGeneratedLegacyKoalaAgentPrompt packages/main/src/core/managed-assets.ts",
+          "result": "pass",
+          "note": "grep on managed-assets.ts ownedWhen area returns zero hits (exit 1); the build (tsc) compiled clean (exit 0), so no ownedWhen callback references the deleted function — no ReferenceError.",
+          "headHash": "570be9d6eca8d3bda250ed32465c4246f14ef727",
+          "materialHash": "71fd662a6cc4efe4c3dde9ac6c352f3d722e22b76e080754e3bdfe8066ba89fd",
+          "storyFilesHash": "64ca7bcb634a24f4d3189c4ccc36f942cb702b845ce2072ba08f8dc6ae82cdce",
+          "timestamp": "2026-06-23T14:06:02.725Z"
         }
       ]
     },
