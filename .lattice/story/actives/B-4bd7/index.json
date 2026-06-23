@@ -5,7 +5,7 @@
   "description": "Create the baseline reference that future Lattice workflow optimization stories must compare against before claiming improvement.",
   "type": "chore",
   "phase": "INIT",
-  "priority": "high",
+  "priority": "medium",
   "source": "user-approved baseline-first workflow on 2026-06-23",
   "keywords": [
     "baseline",
@@ -21,7 +21,6 @@
       "matched": "incident"
     }
   ],
-  "priorityElevatedFrom": "medium",
   "createdAt": "2026-06-23T03:57:40.398Z",
   "startedAt": "2026-06-23T03:57:40.398Z",
   "endedAt": null,
@@ -34,6 +33,13 @@
       "user": "Harmonygo",
       "sessionId": "sess-7f55c8d5292c7c45",
       "agent": "main"
+    }
+  ],
+  "riskSignalsDismissed": [
+    {
+      "category": "Production/Emergency",
+      "reason": "False positive: this story uses source incident to mean a workflow retrospective anchor from 2026-06-23. It does not modify production code, deploy, run emergency changes, touch credentials, or change Authority behavior.",
+      "at": "2026-06-23T04:00:08.652Z"
     }
   ]
 }
