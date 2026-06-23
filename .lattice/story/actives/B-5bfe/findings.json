@@ -27,7 +27,7 @@
       "desc": "duplicate-selfcheck-test: spend-accounting-selfcheck.mjs:27-29 CHK-001 h0 and h1 have identical code (replayBudgetLoop([{tokens:1},{tokens:1},{tokens:1}],null,null).agentCallCount===3) — h1 claims to test reviewer-call counting separately but exercises no distinct code path from h0; the reviewer-call distinction is untested in the selfcheck",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-23T02:01:09.743Z",
@@ -38,7 +38,11 @@
         "experiments/recovery-runner/spend-accounting-selfcheck.mjs"
       ],
       "signatureTag": "missing|mjs|duplicate-selfcheck-test",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in db47ecc7b: CHK-001 h1 now uses a 4-call executor+reviewer+executor+reviewer vector asserting agentCallCount===4, distinct from h0's count of 3, exercising reviewer-site increment independently",
+      "resolvedAt": "2026-06-23T02:10:52.998Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
