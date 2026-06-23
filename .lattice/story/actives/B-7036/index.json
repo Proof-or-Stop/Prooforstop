@@ -4,7 +4,7 @@
   "title": "Add the section5/6 powered-ablation analysis script: common-cell denominators + per-arm rates + A4-vs-A2prime cluster-bootstrap contrast + FDR + GLMM emission",
   "description": "infra-(a) piece 5 (final infra piece) of the powered-ablation program. The run driver (B-f248) emits section-7 run-records JSONL; what is missing is the deterministic, offline analysis layer that turns those records into the pre-registered readouts. It reads the section-7 JSONL, applies the section-7 validity filter (void becomes excluded as re-run, task-failures kept, N/A excluded), computes the section-5 common-cell denominators for each of the 4 pre-registered contrasts (rates ONLY over cells applicable to BOTH arms), per-arm outcome rates (section-4.1 completion for the null-ablation cells; section-4.2 not-amplified/recovered/safe-stop for the recovery scenarios) with Wilson 95 percent CIs, the PRIMARY A4-vs-A2prime contrast via a seeded cluster bootstrap (resampling task/scenario clusters into a risk-difference plus 95 percent CI accounting for within-cell dependence; the in-Node verifiable proxy for the GLMM), Benjamini-Hochberg FDR over the exploratory per-scenario tests, and the cost co-metric (tokens plus wall-clock per arm). It emits a tidy long-format CSV (one row per run with all factors) plus a glmm.R (lme4 glmer arm fixed plus random task/scenario/seed) for the formal pre-registered GLMM. Everything is deterministic and offline-testable with synthetic fixtures (no live LLM).",
   "type": "feature",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "medium",
   "keywords": [
     "ablation",
@@ -145,6 +145,15 @@
       "user": "Harmonygo",
       "sessionId": "e8aca935-deaf-4f5d-9f33-b3aff7bb35fb",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-23T20:01:45.155Z",
+      "branch": "story/B-7036",
+      "user": "Harmonygo",
+      "sessionId": "e8aca935-deaf-4f5d-9f33-b3aff7bb35fb",
+      "agent": "main"
     }
   ],
   "worktree": {
@@ -152,5 +161,5 @@
     "branch": "story/B-7036",
     "createdAt": "2026-06-23T18:36:10.642Z"
   },
-  "currentReviewRound": "2026-06-23T19:40:12.599Z"
+  "currentReviewRound": "2026-06-23T20:01:45.155Z"
 }
