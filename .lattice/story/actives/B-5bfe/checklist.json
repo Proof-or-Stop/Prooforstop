@@ -233,11 +233,120 @@
           "kind": "manual_transcript",
           "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
           "result": "pass",
-          "note": "No-LLM selfcheck asserts budgetExceeded predicate: token binds first (>= boundary truncates), wall-clock binds only when tokens under budget, no budgets => never truncate. truncated boolean recorded in run object (default false).",
-          "headHash": "e9594c9728e6ef86f57e2b34b123cdc491a81d64",
-          "materialHash": "a83436d998f2507b8c5358a5a8adf84761b86cd9cdad52851f56c8d23d198a3d",
-          "storyFilesHash": "705fab19e5f159b60a5714f2d03c5355d953da82980e8725c3e19a9e3f2974a7",
-          "timestamp": "2026-06-23T01:47:03.586Z"
+          "note": "selfcheck \"CHK-002 h0\": cumulative tokens reaching tokenBudget => truncated true (replayBudgetLoop uses the same budgetExceeded + break the real loop calls at run-recovery.mjs).",
+          "headHash": "d975dcad54573abcafe94935a7e60607575b25bb",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:53:32.199Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck \"CHK-002 h1\": wall-clock reaching wallBudget while tokens under => truncated true.",
+          "headHash": "d975dcad54573abcafe94935a7e60607575b25bb",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:53:32.199Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:2",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck \"CHK-002 h2\": under both budgets across iterations => truncated false, and budgetPass true when actual within band.",
+          "headHash": "d975dcad54573abcafe94935a7e60607575b25bb",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:53:32.199Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:3",
+          "kind": "logic_test",
+          "result": "pass",
+          "note": "budgetPass is computed and written into the run record by run-ablation.mjs line 138 (enriched.budgetPass = budgetPass(run.tokensSpent, medTokens)) then appended at line 140; the boolean correctness of budgetPass() is unit-tested by selfcheck \"CHK-002 h3\" / \"CHK-003 h3\". Field-presence-in-the-jsonl is code-review (logic) since writing the file requires a live ablation run.",
+          "headHash": "d975dcad54573abcafe94935a7e60607575b25bb",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:53:32.199Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck \"CHK-002 e0\": tokens exactly equal to budget => truncated true (>= boundary, not >).",
+          "headHash": "d975dcad54573abcafe94935a7e60607575b25bb",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:53:32.199Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck \"CHK-002 e1\": R=1-style single call over budget => agentCallCount 1 with truncated true on that call.",
+          "headHash": "d975dcad54573abcafe94935a7e60607575b25bb",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:53:32.199Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:2",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck \"CHK-002 e2\": zero tokenBudget => first call immediately truncates (tokens 0 >= budget 0).",
+          "headHash": "d975dcad54573abcafe94935a7e60607575b25bb",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:53:32.199Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:3",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck \"CHK-002 e3\": no budget args => budget mode OFF (both null) => truncated false even at huge spend; buildRunRecord defaults truncated=false. Real loop guards every cap check with budgetMode at run-recovery.mjs.",
+          "headHash": "d975dcad54573abcafe94935a7e60607575b25bb",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:53:32.199Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck \"CHK-002 a0\": tokenBudget=1, wallBudgetMs=1e12 => token binds FIRST, loop stops after the first call regardless of the huge wall budget.",
+          "headHash": "d975dcad54573abcafe94935a7e60607575b25bb",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:53:32.199Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck \"CHK-002 a1\": negative tokenBudget => any tokens>=negative immediately truncates; no infinite loop.",
+          "headHash": "d975dcad54573abcafe94935a7e60607575b25bb",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:53:32.200Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:2",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck \"CHK-002 a2\": elapsed is an accumulated per-call delta; the real loop uses Date.now()-t0 (a monotonic-style delta from a single t0), so wall-clock is skew-immune relative to absolute clock jumps. budgetExceeded operates on the delta.",
+          "headHash": "d975dcad54573abcafe94935a7e60607575b25bb",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:53:32.200Z"
         }
       ]
     },
