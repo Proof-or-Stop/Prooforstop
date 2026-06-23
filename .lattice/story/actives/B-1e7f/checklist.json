@@ -121,9 +121,9 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-23T10:51:26.233Z",
-      "endTime": "2026-06-23T10:51:38.582Z",
+      "endTime": "2026-06-23T10:56:06.926Z",
       "files": {
         "modify": [
           "packages/main/src/core/authority-job-loop-live.ts",
@@ -137,40 +137,16 @@
       },
       "verificationEvidence": [
         {
-          "intentRef": "CHK-002:happy:0",
-          "kind": "logic_test",
-          "file": "packages/main/src/tasks/authority-job-loop-live-smoke.ts",
-          "command": "node packages/main/dist/tasks/authority-job-loop-live-smoke.js",
-          "result": "pass",
-          "note": "Autopilot live job loop asserts claim.storyId=B-auto in the signed jobs/claim payload.",
-          "headHash": "5455adf8951306c9be9dbaf4a372a894ff80bab4",
-          "materialHash": "ef92b55b35d41520fc9d76c3c0f1a61c24619a9553a0c4d5917d8156d97e9b2e",
-          "storyFilesHash": "1c76c5bc5b92c3f6d96a282e720022c7c449c3e79eba54430a60986926ac2384",
-          "timestamp": "2026-06-23T10:51:38.862Z"
-        },
-        {
-          "intentRef": "CHK-002:edge:0",
-          "kind": "logic_test",
-          "file": "packages/main/src/tasks/authority-job-loop-live-smoke.ts",
-          "command": "node packages/main/dist/tasks/authority-job-loop-live-smoke.js",
-          "result": "pass",
-          "note": "Fake server filters a stale B-other queued job by signed claim.storyId and returns the current-story job, which completes instead of mismatch-releasing stale work.",
-          "headHash": "5455adf8951306c9be9dbaf4a372a894ff80bab4",
-          "materialHash": "ef92b55b35d41520fc9d76c3c0f1a61c24619a9553a0c4d5917d8156d97e9b2e",
-          "storyFilesHash": "1c76c5bc5b92c3f6d96a282e720022c7c449c3e79eba54430a60986926ac2384",
-          "timestamp": "2026-06-23T10:51:39.061Z"
-        },
-        {
           "intentRef": "CHK-002:edge:1",
           "kind": "logic_test",
           "file": "packages/main/src/tasks/authority-runner-client-smoke.ts",
           "command": "node packages/main/dist/tasks/authority-runner-client-smoke.js",
           "result": "pass",
-          "note": "Control-plane live runner options carry storyId and the signed claim body includes claim.storyId when story-scoped.",
-          "headHash": "5455adf8951306c9be9dbaf4a372a894ff80bab4",
-          "materialHash": "ef92b55b35d41520fc9d76c3c0f1a61c24619a9553a0c4d5917d8156d97e9b2e",
-          "storyFilesHash": "1c76c5bc5b92c3f6d96a282e720022c7c449c3e79eba54430a60986926ac2384",
-          "timestamp": "2026-06-23T10:51:39.253Z"
+          "note": "Command-level authority_enforce_runner --live path now forwards args.storyId through readLiveRunnerOptions into signed claim.storyId; smoke asserts claim.storyId=B-command and no query/claim.jobId selector leakage.",
+          "headHash": "6686817e03661f2cc78fb7bfe1b05281510cd1ec",
+          "materialHash": "b2856ad0ee6b2a5fd3a61631dc40f75f8878cf5c71a14e01b3c23c3dd4e8a1d7",
+          "storyFilesHash": "ad55ee9c13967188fef73095b6721f7b2af4b988161f336a55c50a87ef02c6cb",
+          "timestamp": "2026-06-23T10:56:07.124Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -178,11 +154,11 @@
           "file": "packages/main/src/tasks/authority-runner-client-smoke.ts",
           "command": "node packages/main/dist/tasks/authority-runner-client-smoke.js",
           "result": "pass",
-          "note": "Positive jobs.available SSE hints still require a signed claim POST; hinted jobIds do not set claim.jobId or create ownership when the signed claim returns no job.",
-          "headHash": "5455adf8951306c9be9dbaf4a372a894ff80bab4",
-          "materialHash": "ef92b55b35d41520fc9d76c3c0f1a61c24619a9553a0c4d5917d8156d97e9b2e",
-          "storyFilesHash": "1c76c5bc5b92c3f6d96a282e720022c7c449c3e79eba54430a60986926ac2384",
-          "timestamp": "2026-06-23T10:51:39.496Z"
+          "note": "The command-level smoke keeps jobs.available jobIds advisory while ownership still requires signed POST /jobs/claim.",
+          "headHash": "6686817e03661f2cc78fb7bfe1b05281510cd1ec",
+          "materialHash": "b2856ad0ee6b2a5fd3a61631dc40f75f8878cf5c71a14e01b3c23c3dd4e8a1d7",
+          "storyFilesHash": "ad55ee9c13967188fef73095b6721f7b2af4b988161f336a55c50a87ef02c6cb",
+          "timestamp": "2026-06-23T10:56:07.293Z"
         }
       ]
     },
