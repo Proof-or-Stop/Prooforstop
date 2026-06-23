@@ -202,6 +202,23 @@
       ],
       "signatureTag": "missing|mjs|driver-jsdoc-comment",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-f248:F-011",
+      "desc": "Exhausted-reruns terminal void is appended to in-memory voids[] but NOT sent through onVoid, so <record>.voids.jsonl never records reason:exhausted-reruns — the incomplete cell (the most important void) is not durably logged, and stdout voids.length over-counts vs the sidecar rows. Violates §7/F-004 durable logging. Fix: route the exhausted-reruns void through onVoid too.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex-host",
+      "createdAt": "2026-06-23T12:19:39.183Z",
+      "reviewRound": "2026-06-23T12:06:55.646Z",
+      "_hash": "46e37cc7a174ea9793f7c48940bc4bae3932d58de21e2fff44b1f695d93f2b41",
+      "files": [
+        "experiments/recovery-runner/run-driver.mjs"
+      ],
+      "signatureTag": "spec-boundary|mjs|exhausted-reruns-terminal",
+      "signatureTagSource": "auto"
     }
   ]
 }
