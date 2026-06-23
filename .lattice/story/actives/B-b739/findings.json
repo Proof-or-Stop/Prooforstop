@@ -211,6 +211,24 @@
       ],
       "signatureTag": "doc-code-drift|mjs|code-drift-real",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-b739:F-011",
+      "desc": "doc-code-drift: real-loop-agent.mjs in-file comments (lines 6 and 35) reference execFileSync as the bounding mechanism but the actual implementation uses async execFileAsync (promisify(execFile)) — execFileSync does not appear anywhere in the implementation",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-23T20:39:08.459Z",
+      "reviewRound": "2026-06-23T20:36:26.846Z",
+      "reviewRunId": "B-b739:RR-007",
+      "_hash": "92598fea4e0e97bdd7c08e78bcac137c22017e02c31824893d2364bfe1e9433f",
+      "files": [
+        "experiments/injection-probes/real-loop-agent.mjs"
+      ],
+      "signatureTag": "doc-code-drift|mjs|code-drift-real",
+      "signatureTagSource": "auto"
     }
   ]
 }
