@@ -1,0 +1,66 @@
+{
+  "storyId": "B-c356",
+  "checkedAt": "2026-06-23T10:03:41.632Z",
+  "features": [
+    {
+      "feature": "CHK-001 quality reviewer template adds job.metadata plus linked run.metadata proof metadata review rule",
+      "covered_by": "understanding.touchpoints[0]; plan.md CHK-001; checklist CHK-001 happy/adversarial; decision chosen prompt-and-smoke-only",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "packages/main/templates/agents/lattice-review-quality.md"
+    },
+    {
+      "feature": "CHK-002 prompt-registry smoke fails closed on job.metadata, linked run.metadata, server-authored proof key phrase, and one-location-insufficient warning",
+      "covered_by": "understanding.touchpoints[1]; plan.md CHK-002; checklist CHK-002 happy/edge/adversarial",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "packages/main/src/tasks/prompt-registry-smoke.ts"
+    },
+    {
+      "feature": "CHK-003 derived baseline comparison result for proofMetadataReviewCoverage references immutable baseline and B-c356 without claiming receipt-backed production proof",
+      "covered_by": "understanding.touchpoints[2]; plan.md CHK-003; checklist CHK-003 happy/edge/adversarial; baseline futureComparisonRules require separate result artifacts",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "experiments/baselines/lattice-workflow-efficiency-baseline-v1-B-c356-proof-metadata-review-coverage-result.json"
+    },
+    {
+      "feature": "Server business logic changes",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "understanding.constraints; checklist CHK-001 context; decision option server-logic-change rejected",
+      "source": "scope/execution boundary"
+    },
+    {
+      "feature": "Provider execution behavior changes",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "understanding.constraints; decision drivers",
+      "source": "scope/execution boundary"
+    },
+    {
+      "feature": "Receipt verification semantics or Authority production completion claims",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "understanding.constraints; plan.md CHK-003 no receipt-backed production proof claim; decision principle separate from receipt-backed proof",
+      "source": "scope/execution boundary"
+    },
+    {
+      "feature": "Immutable baseline JSON rewrite",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "understanding.constraints; plan.md CHK-003 derived comparison result only; checklist CHK-003 edge",
+      "source": "experiments/baselines/lattice-workflow-efficiency-baseline-v1.json"
+    }
+  ],
+  "summary": {
+    "total": 7,
+    "covered": 3,
+    "excluded": 4,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "1c3b6a29544aaf3dd90c02ce6e49df002adc1292b2320ad721a97765e7269ac5",
+  "openQuestions": []
+}

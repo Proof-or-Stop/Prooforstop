@@ -4,7 +4,7 @@
   "title": "Add proof metadata job-and-run review checklist coverage",
   "description": "Baseline item 2 showed that proof metadata spoofing checks were found too late. This story updates Lattice reviewer guidance and regression coverage so server-authored proof keys are reviewed in both job metadata and linked run metadata during the first review cycle.",
   "type": "chore",
-  "phase": "INIT_CHECK",
+  "phase": "PLAN",
   "priority": "medium",
   "keywords": [
     "workflow-efficiency-baseline",
@@ -31,6 +31,15 @@
       "branch": "main",
       "user": "Harmonygo",
       "sessionId": "sess-7f55c8d5292c7c45",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-23T10:01:02.811Z",
+      "branch": "story/B-c356",
+      "user": "Harmonygo",
+      "sessionId": "sess-75b03c051991525c",
       "agent": "main"
     }
   ],
