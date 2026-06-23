@@ -72,7 +72,65 @@
       "context": "Assemble {runId, arm, taskId, scenarioId|null, repeat, modelId, headHash, materialHash, tokensSpent, wallClockMs, agentCallCount, acceptancePass, hiddenRegressionPass, diffHygienePass, unsafeChecks{forbiddenPath,secretScan,perms,forbiddenCreate,destructiveCmd}, adjudicatedOutcome(amplified|recovered|safe-stop|null), denominatorSets[], evidenceRefs[], harnessLogDigest, injectionApplied, runOrderSeed, applicable}. Derive adjudicatedOutcome via adjudicate.mjs and the three pass flags + unsafe detectors via checks.mjs; do not re-implement them.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Stub engine returns raw run data -> buildCanonicalRecord() produces a record with exactly the 21 §7 fields: runId, arm, taskId, scenarioId, repeat, modelId, headHash, materialHash, tokensSpent, wallClockMs, agentCallCount, acceptancePass, hiddenRegressionPass, diffHygienePass, unsafeChecks (5 sub-fields), adjudicatedOutcome, denominatorSets, evidenceRefs, harnessLogDigest, injectionApplied, runOrderSeed, applicable; WHY: schema conformance is the core contract",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "adjudicatedOutcome is derived by calling adjudicate.mjs (not re-implemented) and returns one of {amplified, recovered, safe-stop, null}; for a null-scenario (ablation) run, adjudicatedOutcome is null; WHY: proves delegation to existing adjudicator",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "acceptancePass/hiddenRegressionPass/diffHygienePass are derived by calling checks.mjs (not re-implemented); stub engine output with all-pass inputs -> all three true; WHY: proves delegation to existing checks module",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "unsafeChecks contains exactly {forbiddenPath, secretScan, perms, forbiddenCreate, destructiveCmd} booleans derived from checks.mjs; WHY: proves the 5 unsafe detectors are present and correctly shaped",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Stub engine returns zero tokensSpent and zero wallClockMs -> canonical record still has those fields set to 0, not null/undefined; WHY: boundary on numeric fields",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Stub engine returns null scenarioId (ablation run) -> adjudicatedOutcome is null, injectionApplied is false; WHY: ablation path produces correct null-scenario schema",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Stub engine returns extremely large token count (Number.MAX_SAFE_INTEGER) -> record preserves the value without truncation or NaN; WHY: numeric overflow boundary",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Stub engine returns an extra field not in §7 schema (e.g. extraField:true) -> canonical record strips it, emitted record has exactly 21 core fields (extras like A2prime budget fields permitted but unknown extras rejected); WHY: prevents schema pollution from engine",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Stub engine returns missing required fields (e.g. no tokensSpent) -> buildCanonicalRecord() throws or defaults to a fail-closed value, does not emit a partial record; WHY: fail-closed on incomplete engine output",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Stub engine returns adjudicatedOutcome directly (trying to bypass adjudicate.mjs) -> driver ignores engine-supplied outcome and always derives via adjudicate.mjs; WHY: prevents engine from overriding the deterministic adjudicator",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
