@@ -179,10 +179,18 @@ group('validity-filter: §7 void+re-run vs kept task-failure');
   eq(res.records.length, 1, 'validity: task-level failure is KEPT (not voided)');
   eq(res.voids.length, 0, 'validity: task-level failure produces no void');
   ok(res.records[0].acceptancePass === false, 'validity: kept record reflects the real failure');
-  // persistent infra failure -> exhausted reruns, no record
-  res = await runDriver({ cells: [cellOf('A4', 'B1')], engine: async () => ({ infraVoid: true, voidReason: 'disk-error' }), maxReruns: 2 });
+  // persistent infra failure -> exhausted reruns, no record; the terminal exhausted void is
+  // routed through onVoid too (so it is durably logged) and voids[] == onVoid emissions.
+  const onVoidSeen = [];
+  res = await runDriver({ cells: [cellOf('A4', 'B1')], engine: async () => ({ infraVoid: true, voidReason: 'disk-error' }), maxReruns: 2, onVoid: (v) => onVoidSeen.push(v) });
   eq(res.records.length, 0, 'validity: persistent infra failure yields no record');
   ok(res.voids.some((v) => v.reason === 'exhausted-reruns'), 'validity: exhaustion logged');
+  eq(res.voids.length, 4, 'validity: maxReruns=2 -> 3 attempt voids + 1 exhausted = 4');
+  eq(onVoidSeen.length, res.voids.length, 'validity: every void (incl exhausted) is emitted to onVoid (durably logged)');
+  ok(onVoidSeen.some((v) => v.reason === 'exhausted-reruns'), 'validity: the exhausted-reruns void goes through onVoid (codex F-011 fix)');
+  // maxReruns is honoured: a smaller budget yields fewer attempt voids
+  const r0 = await runDriver({ cells: [cellOf('A4', 'B1')], engine: async () => ({ infraVoid: true, voidReason: 'x' }), maxReruns: 0 });
+  eq(r0.voids.length, 2, 'validity: maxReruns=0 -> 1 attempt void + 1 exhausted = 2 (maxReruns honoured)');
   // engine throwing is treated as infra-void (re-run), never a silent drop
   attempts = 0;
   res = await runDriver({ cells: [cellOf('A4', 'B1')], engine: async () => { attempts++; if (attempts === 1) throw new Error('boom'); return engineResult(); } });
@@ -277,11 +285,17 @@ group('CLI integration: durable §7 logging + non-zero exit on incomplete run (F
   const REC1 = join(TMP, 'incomplete.jsonl');
   const ENGINE = join(TMP, 'always-void-engine.mjs');
   writeFileSync(ENGINE, 'export default async () => ({ infraVoid: true, voidReason: "api-outage" });\n');
-  const r1 = spawnSync(process.execPath, [driverPath, '--engine', ENGINE, '--record', REC1, '--tasks', 'foo', '--k', '1'], { encoding: 'utf8' });
+  const r1 = spawnSync(process.execPath, [driverPath, '--engine', ENGINE, '--record', REC1, '--tasks', 'foo', '--k', '1', '--maxReruns', '1'], { encoding: 'utf8' });
   ok(r1.status === 1, 'CLI: exits non-zero when reruns exhausted (incomplete denominator) (F-004)');
   ok(/INCOMPLETE/.test(`${r1.stdout}${r1.stderr}`), 'CLI: prints a loud INCOMPLETE warning (F-004)');
   ok(existsSync(`${REC1}.voids.jsonl`), 'CLI: void events durably logged to sidecar (F-006)');
-  ok(/api-outage/.test(readFileSync(`${REC1}.voids.jsonl`, 'utf8')), 'CLI: void log records the reason (F-006)');
+  const voidLog = readFileSync(`${REC1}.voids.jsonl`, 'utf8');
+  ok(/api-outage/.test(voidLog), 'CLI: void log records the reason (F-006)');
+  // the terminal exhausted-reruns void must be durably logged too (codex F-011 / claude F-009)
+  ok(/exhausted-reruns/.test(voidLog), 'CLI: exhausted-reruns void is durably logged (F-011)');
+  // --maxReruns is accepted by the CLI (F-007/F-008): with maxReruns=1 each cell logs
+  // (maxReruns+1)=2 attempt voids + 1 exhausted = 3 rows; A1 13 + 4×16 = 77 cells -> 231 rows.
+  ok(voidLog.trim().split('\n').length === 77 * 3, 'CLI: --maxReruns=1 honoured (77 cells × (2 attempts + 1 exhausted) = 231 void rows)');
 }
 
 // =========================================================================================

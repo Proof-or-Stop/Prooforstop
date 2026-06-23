@@ -275,9 +275,11 @@ export function buildCanonicalRecord(cell = {}, engineResult = {}, ctx = {}) {
   return rec;
 }
 
-// validateRecord(rec) -> { ok, missing, enumOk, unsafeOk, budgetOk }
-// Asserts every required §7 field is present, the adjudicated outcome is in the enum, the
-// 5 unsafe keys are present, and the 6 A2prime budget fields are present (null off-arm).
+// validateRecord(rec) -> { ok, missing, enumOk, unsafeOk, budgetPresent, numericOk, budgetLogOk }
+// Asserts: every required §7 field is present (missing/ok); the adjudicated outcome is in the
+// enum (enumOk); the 5 unsafe keys are present (unsafeOk); the 6 A2prime budget fields are
+// present (budgetPresent); numeric spend fields are finite≥0 or null (numericOk); and the §1
+// A2prime budget log is POPULATED for arm A2prime / all-null for every other arm (budgetLogOk).
 // Numeric spend fields that must be a finite, non-negative number when present (null = "not
 // measured" is allowed). A negative/NaN/Infinity value is impossible spend → invalid.
 const NUMERIC_RECORD_FIELDS = Object.freeze(['tokensSpent', 'wallClockMs', 'agentCallCount']);
@@ -343,7 +345,14 @@ export async function runDriver({
       break;
     }
     if (rec) records.push(rec);
-    else voids.push({ cell, attempt: maxReruns + 1, reason: 'exhausted-reruns' });
+    else {
+      // The terminal "exhausted-reruns" void is the MOST important one (an incomplete cell);
+      // route it through onVoid too so it is durably logged, and so voids[] and the durable
+      // sidecar stay in lock-step (every void in voids[] has been emitted to onVoid).
+      const v = { cell, attempt: maxReruns + 1, reason: 'exhausted-reruns' };
+      voids.push(v);
+      if (onVoid) onVoid(v);
+    }
   }
   return { records, voids };
 }
@@ -366,6 +375,7 @@ async function main() {
   const seed = arg('--seed', 'pre-reg');
   const recordFile = arg('--record', join(here, 'ablation-run-records.jsonl'));
   const enginePath = arg('--engine', null);
+  const maxReruns = parseInt(arg('--maxReruns', '3'), 10);
   // Durable §7 sidecar logs: excluded N/A cells + every void/re-run event (with reason).
   const exclusionsFile = `${recordFile}.exclusions.jsonl`;
   const voidsFile = `${recordFile}.voids.jsonl`;
@@ -386,6 +396,7 @@ async function main() {
     cells,
     engine,
     ctx: { seed },
+    maxReruns,
     // §7 — every void/re-run event is durably logged with its reason (onVoid wired).
     onVoid: (v) => appendFileSync(voidsFile, JSON.stringify({ ...v, ts: new Date().toISOString() }) + '\n'),
     onRecord: (rec) => {
