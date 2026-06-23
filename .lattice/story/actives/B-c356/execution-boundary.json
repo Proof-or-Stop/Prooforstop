@@ -12,8 +12,8 @@
   "allowedPaths": [
     "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
     "experiments/baselines/",
-    "packages/main/src/core/prompt-registry.ts",
-    "packages/main/src/tasks/prompt-registry-smoke.ts"
+    "packages/main/src/tasks/prompt-registry-smoke.ts",
+    "packages/main/templates/agents/lattice-review-quality.md"
   ],
   "excludedCommands": [],
   "excludedTools": [],
@@ -22,9 +22,9 @@
     "packages/main/src/core/authority-contracts.ts",
     "packages/main/src/handlers/authority-enforce.ts"
   ],
-  "confirmedBy": "story_create",
-  "confirmationNote": "Only reviewer guidance, prompt smoke, and baseline result artifacts are in scope.",
-  "createdAt": "2026-06-23T09:56:30.572Z",
-  "updatedAt": "2026-06-23T09:56:30.572Z",
-  "_hash": "110f5cf98af361a81115a8db34d7cf718a1ca6e1421ad7bc5609303d7c20e1ad"
+  "confirmedBy": "codex",
+  "confirmationNote": "Boundary repaired before INIT_CHECK to include the actual quality reviewer template source path; scope remains baseline item 2 only.",
+  "createdAt": "2026-06-23T09:58:09.544Z",
+  "updatedAt": "2026-06-23T09:58:09.544Z",
+  "_hash": "70a3300811fe017f099612ab58941b8a1f64125c642cd23fb251b818d2e67d94"
 }

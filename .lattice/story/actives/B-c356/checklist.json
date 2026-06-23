@@ -3,7 +3,7 @@
     {
       "id": "CHK-001",
       "title": "Add job-plus-run proof metadata review guidance",
-      "context": "Update Lattice reviewer guidance so quality review explicitly checks that server-authored proof keys cannot be trusted from either job.metadata or linked run.metadata when those fields are client-controlled or stale. Keep this as review guidance, not Authority Server logic.",
+      "context": "Update Lattice reviewer guidance so quality review explicitly checks that server-authored proof keys cannot be trusted from either job.metadata or linked run.metadata when those fields are client-controlled or stale. Keep this as review guidance, not server business logic.",
       "relatedDocs": [
         "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md"
       ],
@@ -92,7 +92,7 @@
         ],
         "adversarial": [
           {
-            "desc": "The result artifact does not claim that reviewer guidance alone is Authority proof.",
+            "desc": "The result artifact does not claim that reviewer guidance alone is receipt-backed production proof.",
             "type": "docs",
             "priority": "must"
           }
