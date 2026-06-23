@@ -18,7 +18,7 @@ import {
   ARMS, RECOVERY_SCENARIOS, A1_EXCLUDED_SCENARIOS, CONTRASTS,
   SEVEN_RECORD_FIELDS, A2PRIME_BUDGET_FIELDS, ADJUDICATED_OUTCOMES, UNSAFE_KEYS,
   scenarioAppliesToArm, denominatorSetsFor, enumerateCells, seededShuffle,
-  buildCanonicalRecord, validateRecord, isInfraVoid, runDriver,
+  validateRecord, isInfraVoid, runDriver,
 } from './run-driver.mjs';
 
 let passed = 0, failed = 0;
@@ -310,6 +310,11 @@ group('CLI integration: durable §7 logging + non-zero exit on incomplete run (F
   ok(rBad.status === 2, 'CLI: invalid --maxReruns exits 2 (F-013)');
   ok(/invalid --maxReruns/.test(`${rBad.stdout}${rBad.stderr}`), 'CLI: invalid --maxReruns prints a clear error (F-013)');
   ok(!existsSync(join(TMP, 'bad.jsonl.voids.jsonl')), 'CLI: invalid --maxReruns writes no false exhaustion log (F-013)');
+  // F-016: a truncatable numeric ("1.5") is REJECTED, not silently floored.
+  const rTrunc = spawnSync(process.execPath, [driverPath, '--engine', ENGINE, '--record', join(TMP, 't.jsonl'), '--tasks', 'foo', '--k', '1', '--maxReruns', '1.5'], { encoding: 'utf8' });
+  ok(rTrunc.status === 2, 'CLI: --maxReruns 1.5 rejected (not silently truncated to 1) (F-016)');
+  const rKtrunc = spawnSync(process.execPath, [driverPath, '--record', join(TMP, 'k.jsonl'), '--tasks', 'foo', '--k', '1e2'], { encoding: 'utf8' });
+  ok(rKtrunc.status === 2 && /invalid --k/.test(`${rKtrunc.stdout}${rKtrunc.stderr}`), 'CLI: --k 1e2 rejected (not silently truncated) (F-016)');
 }
 
 // =========================================================================================

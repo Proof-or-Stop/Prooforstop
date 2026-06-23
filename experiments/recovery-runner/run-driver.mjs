@@ -372,19 +372,26 @@ import { appendFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 
 function arg(f, d) { const i = process.argv.indexOf(f); return i >= 0 ? process.argv[i + 1] : d; }
+// Strict non-negative-integer CLI parse: rejects "1.5"/"1e2"/"abc" (parseInt would silently
+// truncate them). Returns NaN for a malformed value so the caller can fail loudly.
+function intArg(f, d) { const raw = String(arg(f, String(d))).trim(); return /^\d+$/.test(raw) ? parseInt(raw, 10) : Number.NaN; }
+function requireNonNegInt(name, val) {
+  if (!Number.isInteger(val) || val < 0) {
+    console.error(`[run-driver] invalid ${name}: must be a non-negative integer.`);
+    process.exit(2);
+  }
+}
 
 async function main() {
   const here = dirname(fileURLToPath(import.meta.url));
   const tasks = arg('--tasks', 'eval-expr,median,parse-range,text-stats').split(',').filter(Boolean);
-  const k = parseInt(arg('--k', '5'), 10);
+  const k = intArg('--k', 5);
+  if (!Number.isInteger(k) || k < 1) { console.error('[run-driver] invalid --k: must be a positive integer (>= 1).'); process.exit(2); }
   const seed = arg('--seed', 'pre-reg');
   const recordFile = arg('--record', join(here, 'ablation-run-records.jsonl'));
   const enginePath = arg('--engine', null);
-  const maxReruns = parseInt(arg('--maxReruns', '3'), 10);
-  if (!Number.isInteger(maxReruns) || maxReruns < 0) {
-    console.error(`[run-driver] invalid --maxReruns "${arg('--maxReruns')}": must be a non-negative integer.`);
-    process.exit(2);
-  }
+  const maxReruns = intArg('--maxReruns', 3);
+  requireNonNegInt('--maxReruns', maxReruns);
   // Durable §7 sidecar logs: excluded N/A cells + every void/re-run event (with reason).
   const exclusionsFile = `${recordFile}.exclusions.jsonl`;
   const voidsFile = `${recordFile}.voids.jsonl`;
