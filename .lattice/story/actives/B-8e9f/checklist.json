@@ -120,7 +120,37 @@
       "context": "hermetic gate must pass",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Terminal prints the live-loop-harness self-check pass line (N/N cases) and exits 0 with 0 spend.",
+      "files": {
+        "modify": [
+          "experiments/injection-probes/live-loop-harness.mjs"
+        ],
+        "create": [],
+        "test": [
+          "experiments/injection-probes/live-loop-harness.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "node live-loop-harness.mjs --self-check exits 0 and prints the N/N pass line",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "each scenario still has an AMPLIFIED and a SAFE_STOP/RECOVERED case yielding different outcomes",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "a deliberately wrong stub classification makes --self-check exit 1 (fails closed)",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
