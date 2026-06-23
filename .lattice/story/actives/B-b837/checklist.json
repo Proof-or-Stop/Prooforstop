@@ -717,7 +717,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "logic_test",
+          "command": "npx tsc --noEmit -p packages/main/tsconfig.json",
+          "result": "pass",
+          "note": "Ran tsc --noEmit on the packages/main project; exit 0, zero type errors. (npm --prefix packages/main run build also exit 0.) Build is clean after all removals.",
+          "headHash": "31bba8b048ae1f49ecae365521fc3c6d2d023fdf",
+          "materialHash": "71fd662a6cc4efe4c3dde9ac6c352f3d722e22b76e080754e3bdfe8066ba89fd",
+          "storyFilesHash": "64ca7bcb634a24f4d3189c4ccc36f942cb702b845ce2072ba08f8dc6ae82cdce",
+          "timestamp": "2026-06-23T14:06:43.959Z"
+        }
+      ]
     }
   ]
 }
