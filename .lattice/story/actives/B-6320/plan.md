@@ -25,7 +25,7 @@
 **Owner**: main-agent
 **DependsOn**: CHK-001
 **Files**:
-- Modify: packages/main/src/core/authority-runner.ts, packages/main/src/core/authority-job-loop-live.ts, packages/main/src/handlers/lattice-cli.ts, packages/main/src/core/authority-client.ts, packages/main/src/handlers/verdict.ts, packages/main/src/cli/command-catalog.ts, docs/requirements/decisions/lattice-authority-live-integration.md
+- Modify: packages/main/src/core/authority-runner.ts, packages/main/src/core/authority-job-loop-live.ts, packages/main/src/handlers/lattice-cli.ts, packages/main/src/core/authority-client.ts, packages/main/src/handlers/verdict.ts, packages/main/src/cli/command-catalog.ts, docs/requirements/decisions/lattice-authority-live-integration.md, docs/requirements/decisions/authority-runner-session-evidence-envelope.md
 - Create: none
 - Test: packages/main/src/tasks/authority-runner-client-smoke.ts, packages/main/src/tasks/authority-job-loop-live-smoke.ts, packages/main/src/tasks/authority-enforce-runner-smoke.ts
 
@@ -37,7 +37,8 @@
 **DoneWhen**:
 - Actor-key registration, runner registration, heartbeat, and signed claim payloads carry the same declared provider string.
 - `authority_job_create` no longer rejects a non-enum provider locally before the Authority Server can evaluate policy.
-- `jobs.available` SSE remains only a hint; ownership still requires a signed claim accepted by the server.
+- `jobs.available` SSE is documented and tested as the streaming hint for the same availability/claim contract, not a second interface with separate provider semantics.
+- Ownership still requires a signed claim accepted by the server.
 
 ## CHK-003: Add focused regression tests for non-enum Authority provider declarations
 

@@ -69,9 +69,11 @@
       "evidence": "The doc currently states supported canonical values are codex, claude-code, and gemini, and that invalid provider values fail closed, while B-6320 intends custom declarations to pass local parsing and leave policy rejection to the server.",
       "sourcePointers": [
         "docs/requirements/decisions/authority-runner-session-evidence-envelope.md#Runner Provider Routing",
-        ".lattice/story/actives/B-6320/checklist.json#CHK-001",
-        ".lattice/story/actives/B-6320/plan.md#CHK-001"
-      ]
+        ".lattice/story/actives/B-6320/checklist.json#CHK-002",
+        ".lattice/story/actives/B-6320/plan.md#CHK-002"
+      ],
+      "resolution": "Resolved: yes, docs/requirements/decisions/authority-runner-session-evidence-envelope.md must be updated in B-6320. The old closed enum wording directly contradicts the host-neutral declaration contract and would make later agents reintroduce the local enum failure. This is not scope expansion; it is consistency of logic for the same Authority runner provider declaration behavior.",
+      "resolvedAt": "2026-06-23T02:55:44.169Z"
     }
   ]
 }

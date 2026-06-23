@@ -1,10 +1,11 @@
 {
   "task": "Make Lattice CLI Authority runner flows accept host-neutral provider declarations instead of rejecting non-enum host names locally.",
-  "outcome": "A senior developer can place the server-generated three-file bundle in a project, set LATTICE_AUTHORITY_RUNNER_PROVIDER=codex-cli, claude-code, antigravity, or another host declaration, then run Authority register/heartbeat/SSE/claim/takeover flows without a local unsupported-provider enum error; if the server rejects the declaration, the terminal says it is a server policy or authorization rejection.",
+  "outcome": "A senior developer can place the server-generated three-file bundle in a project, set LATTICE_AUTHORITY_RUNNER_PROVIDER=codex-cli, claude-code, antigravity, or another host declaration, then run Authority register/heartbeat/SSE/claim/takeover flows without a local unsupported-provider enum error; SSE jobs.available is only the streaming hint for the same POST claim/status contract, and if the server rejects the declaration, the terminal says it is a server policy or authorization rejection.",
   "facts": [
     "The blocking local enum is normalizeAuthorityRunnerProvider in packages/main/src/core/authority-mode.ts.",
     "buildAuthorityReadiness, buildAuthorityEnforceRunnerPlan, readLiveRunnerOptions, and buildLiveRunnerOptionsFromEnv consume runnerProviderValid and currently fail before the server can evaluate custom declarations.",
     "authority_job_create also exposes a closed z.enum provider argument, which can block host-neutral queued job routing.",
+    "SSE jobs.available must stay aligned with POST signed claim/status semantics: it is a notification hint, not a separate ownership API.",
     "Server-side provider authorization is already owned by Authority Server story B-e9cb.",
     "SSE jobs.available is only a hint; signed claim remains the ownership boundary."
   ],
@@ -29,7 +30,8 @@
     "packages/main/src/tasks/authority-enforce-runner-smoke.ts",
     "packages/main/src/tasks/authority-runner-client-smoke.ts",
     "packages/main/src/tasks/authority-job-loop-live-smoke.ts",
-    "docs/requirements/decisions/lattice-authority-live-integration.md"
+    "docs/requirements/decisions/lattice-authority-live-integration.md",
+    "docs/requirements/decisions/authority-runner-session-evidence-envelope.md"
   ],
-  "timestamp": "2026-06-23T02:48:20.856Z"
+  "timestamp": "2026-06-23T02:55:44.207Z"
 }
