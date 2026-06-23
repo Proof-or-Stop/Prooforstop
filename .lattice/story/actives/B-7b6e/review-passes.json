@@ -107,6 +107,15 @@
       "reviewRound": "2026-06-23T00:27:47.705Z",
       "reviewRunId": "B-7b6e:RR-013",
       "_hash": "ccbf2042b397849a5754d6d4c07511d5a35497f127d95fd718f8e8b573ded62a"
+    },
+    {
+      "id": "B-7b6e:RP-013",
+      "agent": "lattice-review-quality",
+      "note": "F-008 fix verified: canonicalResult in gate-strength.ts now includes reason:o.reason in the per-probe projection (line 268). Fix is correct and deterministic — reason strings come from reviewer functions whose outputs are stable given a fixed corpus (all three built-in reviewers are pure functions with no randomness). verifyGateStrengthResult doc claim now accurate: together with verifyReceiptBundleOffline it proves both authenticity and that the full result including per-probe justifications is the one attested. Smoke: 12/12 checks pass, exit 0, including the new check-12 (mutated per-probe reason rejected). No dead code, no as-any, no empty catch, all imports used. No quality regressions found.",
+      "createdAt": "2026-06-23T00:29:40.263Z",
+      "reviewRound": "2026-06-23T00:27:47.705Z",
+      "reviewRunId": "B-7b6e:RR-014",
+      "_hash": "6f252d4033d4498728ce5a21bb2a49202cabf7f7c2c9a9d7ae9ea1a936d5bc52"
     }
   ]
 }
