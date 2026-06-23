@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-23T10:22:36.868Z",
       "reviewRunId": "B-ebbb:RR-001",
       "_hash": "a316816597d10ddeaf6428226ff8b156cfa7e34408cd46a7e3f27e21528360cb"
+    },
+    {
+      "id": "B-ebbb:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Concept residue check complete. No concept deletion or replacement in this commit. The three introduced concepts (harnessAcceptance/acceptancePass, hiddenRegression/hiddenRegressionPass, diffHygiene/diffHygienePass) are fully consistent with pre-reg §2/§4.1/§7. §7 camelCase field names are exact in checks.mjs exports and selfcheck assertions. Dual primary+alias exports (checkAcceptance===harnessAcceptance, etc.) are reference-identical — no concept confusion. hiddenPass in pre-existing adjudicate.mjs is a distinct adjudicator input field (different layer, separate story), not residue. No snake_case residue found (single grep hit is a regex inside a test assertion string). All imports in checks.mjs are node: builtins only. No half-wired concepts, no stale naming, no doc-promise-undelivered issues.",
+      "createdAt": "2026-06-23T10:26:01.855Z",
+      "reviewRound": "2026-06-23T10:22:36.868Z",
+      "reviewRunId": "B-ebbb:RR-003",
+      "_hash": "08c9bffbf24ae7094fc2feb6223bd2e5ad502dd596a945c62df025c7f3121ca6"
     }
   ]
 }
