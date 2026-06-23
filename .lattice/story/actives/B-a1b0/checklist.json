@@ -45,9 +45,9 @@
       "id": "CHK-002",
       "title": "hermetic --self-test with a fake arm (no network, no cost)",
       "context": "A self-test mode drives all 6 probes through a deterministic fake arm that simulates RECOVERED/SAFE_STOP/AMPLIFIED; assert the driver classifies+records the matching outcome for each (18 cases), proving the inject->run->classify->record wiring with zero spend. Exit 0 on pass. Does NOT make any real agent call.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-23T04:58:05.093Z",
       "userSees": "✓ injection-arms driver self-test passed: 18/18 (6 probes × 3 outcomes), fake arm, 0 cost, exit 0.",
       "files": {
         "modify": [
