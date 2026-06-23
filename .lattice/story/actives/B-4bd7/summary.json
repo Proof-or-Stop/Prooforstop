@@ -1,0 +1,56 @@
+{
+  "storyId": "B-4bd7",
+  "changes": "Registered the workflow-efficiency baseline decision document and machine-readable baseline JSON; added B-4bd7 as the registration story; fixed reviewer finding F-001 by documenting the JSON createdAt field in the schema section.",
+  "usage": "For future Lattice workflow optimization stories, cite docs/requirements/decisions/lattice-workflow-efficiency-baseline.md and compare against experiments/baselines/lattice-workflow-efficiency-baseline-v1.json before claiming improvement.",
+  "expectedOutcome": "The user can point future Lattice CLI work at the baseline doc and JSON, and require every optimization story to compare against that baseline before claiming a fix.",
+  "actualTranscript": "Registered docs/requirements/decisions/lattice-workflow-efficiency-baseline.md as the workflow-efficiency baseline protocol. Registered experiments/baselines/lattice-workflow-efficiency-baseline-v1.json with six observedBefore/targetAfter dimensions. Verified the baseline JSON parses, registrationStory=B-4bd7, and this story made no runtime optimization changes.",
+  "outcomeDiff": "No difference: the actual transcript confirms the expected baseline anchors and explicitly avoids claiming runtime optimization changes.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "This story registers the baseline only; it does not implement validate timeout, proof metadata checklist, Codex adapter gate, main merge readiness, delivery-check freshness, or DONE summary freshness fixes.",
+  "pitfalls": "Lattice friction encountered: story_create verificationIntent schema requires objects, positional JSON cannot be mixed with owner flags, same-worktree owner lease required forceTakeover after subagent runs, and stale evidence had to be refreshed after the docs fix.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 201014
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 14659
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 431832
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 406747
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 1316954
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 95821
+    }
+  },
+  "totalDurationMs": 2467038,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-23T04:38:47.436Z",
+  "updatedAt": "2026-06-23T04:38:47.436Z"
+}
