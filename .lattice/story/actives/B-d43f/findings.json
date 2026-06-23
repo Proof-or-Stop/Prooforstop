@@ -147,6 +147,21 @@
       "resolvedAt": "2026-06-23T19:41:49.641Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-d43f:F-008",
+      "desc": "dead-code: live-loop-harness.mjs:37 imports statSync from node:fs but statSync is never called anywhere in the file — unused import",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-23T19:43:20.291Z",
+      "reviewRound": "2026-06-23T19:41:45.531Z",
+      "reviewRunId": "B-d43f:RR-006",
+      "_hash": "3545d551b1b52185852752d1c55bbfee03b3ee70fcff46612af94426285a1710",
+      "signatureTag": "missing|unknown|dead-code-live",
+      "signatureTagSource": "auto"
     }
   ]
 }
