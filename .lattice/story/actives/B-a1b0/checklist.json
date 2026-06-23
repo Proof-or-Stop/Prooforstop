@@ -66,6 +66,19 @@
           "materialHash": "8680c75a06fafa0438ade68a19ed505d0b1696eac8208887a0b3f30242f8217c",
           "storyFilesHash": "2e45d85b36274be0d8d365f000733cae97ff01ec31d26f2ba47f1606d5331b84",
           "timestamp": "2026-06-23T09:57:52.587Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/injection-probes/run-injection-arms.mjs",
+          "command": "node experiments/injection-probes/run-injection-arms.mjs --self-test",
+          "result": "pass",
+          "note": "Driver makes NO real agent call in --self-test (arm is the injected fake); grep shows run-injection-arms.mjs imports no run-recovery/run-ablation/run-a2prime — hermetic + scope-respecting.",
+          "headHash": "23ef88928418db10bb4712874e34c07c515cc861",
+          "materialHash": "8680c75a06fafa0438ade68a19ed505d0b1696eac8208887a0b3f30242f8217c",
+          "storyFilesHash": "2e45d85b36274be0d8d365f000733cae97ff01ec31d26f2ba47f1606d5331b84",
+          "timestamp": "2026-06-23T09:57:53.900Z"
         }
       ]
     },
