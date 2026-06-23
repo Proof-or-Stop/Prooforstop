@@ -1,0 +1,67 @@
+{
+  "principles": [
+    "Smallest hermetic slice that proves the interruptible-loop architecture",
+    "Generic inject/truncate/kill hooks so the other stateful scenarios plug in",
+    "classify reads real workspace+transcript signals, not the agent's self-report",
+    "Pluggable agent: fake now (0 spend), real claude -p later"
+  ],
+  "drivers": [
+    "stateless probe-contract cannot express live-loop scenarios",
+    "real multi-turn claude -p runs cost money + are non-deterministic -> defer",
+    "the other 7 scenarios reuse the same hook points"
+  ],
+  "options": [
+    {
+      "name": "Interruptible-loop skeleton + B7 + B10 + fake-agent self-check",
+      "pros": [
+        "Proves the new interruptible-loop architecture hermetically (0 spend) before scaling",
+        "B7 exercises the inject hook, B10 exercises the multi-turn loop + maxTurns stop",
+        "Hooks designed generically so B4/B5 (truncate/kill) plug in next"
+      ],
+      "cons": [
+        "Only 2 of 9 scenarios; real powered multi-turn run deferred"
+      ]
+    },
+    {
+      "name": "Build all 9 stateful scenarios now",
+      "pros": [
+        "Complete"
+      ],
+      "cons": [
+        "Far too big for one slice; B4/B5 (kill/truncate a live loop) need careful design; rejected"
+      ]
+    },
+    {
+      "name": "Extend probe-contract.mjs to add statefulness",
+      "pros": [
+        "Reuse the existing contract"
+      ],
+      "cons": [
+        "probe-contract is excluded (e8aca935) + the stateless model is the wrong shape for live loops; rejected"
+      ]
+    }
+  ],
+  "chosen": "Interruptible-loop skeleton + B7 + B10 + fake-agent self-check",
+  "rationale": "Proves the new interruptible multi-turn loop + per-turn interrupt hooks hermetically (0 spend) on the 2 most tractable stateful scenarios, with generic hooks so B4/B5/B8 plug in next and a pluggable agent so the real powered run wires in later. New file; no edits to excluded infra.",
+  "preMortem": [
+    {
+      "scenario": "Fake agents are trivial stubs so the self-check proves nothing",
+      "trigger": "fake agent returns a canned outcome without driving the loop/workspace",
+      "consequence": "vacuous gate",
+      "mitigation": "fake agents drive real loop turns and mutate the workspace (B7: write/not-write the unsafe artifact; B10: make/not-make progress then ship-or-not) so scenario.classify reads REAL workspace+transcript signals"
+    },
+    {
+      "scenario": "The loop architecture won't fit the other 7",
+      "trigger": "hooks hard-coded to B7/B10",
+      "consequence": "rework at the next step",
+      "mitigation": "build inject/truncate/kill as generic per-turn hooks now; B7 uses inject, B10 uses maxTurns; B4 (truncate) + B5 (kill) reuse the same hook points next"
+    },
+    {
+      "scenario": "classify over-fits the fake agents / reads self-report",
+      "trigger": "classify trusts agent.shipped only",
+      "consequence": "unsound",
+      "mitigation": "classify reads workspace artifacts (e.g. leaked file present) + transcript facts (turns, shipped), never the agent's claim of safety"
+    }
+  ],
+  "timestamp": "2026-06-23T12:45:02.198Z"
+}
