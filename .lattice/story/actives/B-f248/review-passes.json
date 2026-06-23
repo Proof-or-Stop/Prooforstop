@@ -89,6 +89,15 @@
       "reviewRound": "2026-06-23T12:32:20.774Z",
       "reviewRunId": "B-f248:RR-015",
       "_hash": "d7afe3be1ebcf9992a761390a02d01d19b3f4b8ee43fe36310e2cb35e87d1c13"
+    },
+    {
+      "id": "B-f248:RP-011",
+      "agent": "lattice-review-quality",
+      "note": "F-013 fix is correct and complete: (1) runDriver() validates maxReruns at lines 327-329 BEFORE the loop runs — NaN/negative throws with a clear message; (2) main() validates at lines 384-387, BEFORE any sidecar file is written (exclusions sidecar written at line 394, voids sidecar only via onVoid at line 410) — exits with code 2 and a clear error message; (3) selfcheck runs 128 assertions, 0 failed; (4) the 5 new F-013 assertions are non-vacuous (each would fail if the fix were absent). One low pre-existing finding raised: F-014 (buildCanonicalRecord imported but unused in selfcheck). No blockers to progression.",
+      "createdAt": "2026-06-23T12:38:58.602Z",
+      "reviewRound": "2026-06-23T12:32:20.774Z",
+      "reviewRunId": "B-f248:RR-013",
+      "_hash": "584b7a8fd2a3ba5b367dfba6780e7816da819d883b99a89d54510b99fbbd26a3"
     }
   ]
 }
