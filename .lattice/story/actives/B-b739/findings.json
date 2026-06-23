@@ -181,7 +181,7 @@
       "desc": "quality-cleanup: real-loop-agent.mjs:6,35 comments say execFileSync but implementation uses async execFileAsync (promisify(execFile)); misleading stale reference in a newly-created file — the whole F-002 fix was switching away from the sync form",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-23T20:38:28.136Z",
@@ -192,7 +192,11 @@
         "experiments/injection-probes/real-loop-agent.mjs"
       ],
       "signatureTag": "missing|mjs|quality-cleanup-real",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: updated the real-loop-agent.mjs header + JSDoc comments to async execFile/{signal} + agent({ws,context,signal}) (dropped the stale execFileSync/turn mentions). Comment-only; code unchanged; 24/24.",
+      "resolvedAt": "2026-06-23T20:43:28.413Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-b739:F-010",
