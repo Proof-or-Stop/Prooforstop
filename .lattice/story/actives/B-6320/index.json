@@ -4,7 +4,7 @@
   "title": "Support host-neutral Authority runner provider declarations",
   "description": "Allow Lattice CLI Authority runners to declare their host/provider identity without being limited to a small built-in enum, so Codex CLI, Claude Code/Claude CLI, Antigravity, and future agent hosts can register, heartbeat, watch SSE, claim, and handoff/takeover jobs using server policy as the authorization boundary.",
   "type": "feature",
-  "phase": "REVIEW",
+  "phase": "TEST",
   "priority": "high",
   "source": "user-request-2026-06-23",
   "keywords": [
@@ -113,6 +113,15 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-06-23T03:56:19.682Z",
+      "branch": "story/B-6320",
+      "user": "Harmonygo",
+      "sessionId": "sess-c8b7d9fd79733528",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-23T04:06:20.597Z",
       "branch": "story/B-6320",
       "user": "Harmonygo",
       "sessionId": "sess-c8b7d9fd79733528",
