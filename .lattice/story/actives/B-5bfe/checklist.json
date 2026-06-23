@@ -313,7 +313,20 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:4",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "34 assertions pass with NO live LLM invoked (entry guards make both runners import-only; selfcheck confirms no claude -p subprocess). Field names verified exactly tokensSpent/wallClockMs/agentCallCount, snake_case rejected.",
+          "headHash": "cc91f3374833b1722bfbecee4c9046e591d29cf2",
+          "materialHash": "a83436d998f2507b8c5358a5a8adf84761b86cd9cdad52851f56c8d23d198a3d",
+          "storyFilesHash": "705fab19e5f159b60a5714f2d03c5355d953da82980e8725c3e19a9e3f2974a7",
+          "timestamp": "2026-06-23T01:47:15.611Z"
+        }
+      ]
     }
   ]
 }
