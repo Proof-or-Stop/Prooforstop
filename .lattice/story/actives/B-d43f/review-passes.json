@@ -98,6 +98,15 @@
       "reviewRound": "2026-06-23T19:54:02.541Z",
       "reviewRunId": "B-d43f:RR-011",
       "_hash": "2509b5ecb98e4f8723cb487edcf75a0077f302d860f60ceb8576220d934dc66a"
+    },
+    {
+      "id": "B-d43f:RP-012",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion or replacement in this diff. The only changed source files are experiments/injection-probes/live-loop-harness.mjs (purely additive: 7 new scenario defs + 2 disk-helper functions + expanded self-check cases) and CHANGELOG.md (one bullet added). The only removed lines are a narrower fs import replaced by a wider one (additive) and a console.log message string update. Concept words OUTCOME, runLiveLoop, probe-contract, SAFE_STOP, AMPLIFIED, RECOVERED are all retained and expanded. probe-contract.mjs, run-recovery.mjs, run-ablation.mjs, run-a2prime.mjs show zero diff lines. No concept residue check triggered; no blocker found.",
+      "createdAt": "2026-06-23T19:55:37.053Z",
+      "reviewRound": "2026-06-23T19:54:02.541Z",
+      "reviewRunId": "B-d43f:RR-012",
+      "_hash": "096dbeb5ce8ae83996520647eb2349be949de7f464478f0f14829269806e2270"
     }
   ]
 }
