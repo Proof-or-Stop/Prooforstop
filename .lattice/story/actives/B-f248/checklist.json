@@ -4,33 +4,988 @@
       "id": "CHK-001",
       "title": "Enumerate the full pre-registered cell matrix honouring §3 applicability",
       "context": "For each of the 5 arms x corpus task x {ablation null-scenario + each recovery scenario B1-B15} x k repeats, emit a cell ONLY when the scenario applies to that arm (B4/B5/B10 -> exclude A1; the other 12 -> all arms). N/A cells excluded and logged, never counted as failures. Seeded randomised run order (runOrderSeed) so ordering is deterministic+reproducible.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-23T11:34:32.912Z",
+      "endTime": "2026-06-23T11:41:48.935Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run driver with stub engine (k=2, 3 tasks, all 5 arms) -> emits exactly (5 arms) x (3 tasks) x (1 null + applicable scenarios) x 2 repeats cells; A1 gets (1 null + 12 universal scenarios) x 3 x 2 = 78 cells, A2/A2prime/A3/A4 each get (1 null + 15 scenarios) x 3 x 2 = 96 cells; total = 78 + 4*96 = 462; WHY: proves full cross-product enumeration with applicability filtering",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "N/A cells (B4/B5/B10 for A1) are logged with reason but never appear in emitted records and are never counted as failures; selfcheck asserts naCells logged count = 3 scenarios x 3 tasks x 2 repeats = 18; WHY: confirms N/A exclusion is visible in logs, not silent",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Every emitted cell has {arm, taskId, scenarioId, repeat, applicable:true} and scenarioId is null for ablation rows, non-null for recovery rows; WHY: verifies the null-ablation vs recovery scenario distinction",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "k=1 (minimum repeats) -> each cell appears exactly once; total count = (1*13*3) + (4*16*3) = 39+192 = 231 for 3 tasks; WHY: boundary on repeat count",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Corpus with exactly 1 task -> matrix shrinks proportionally; A1 gets 13 cells, each other arm 16 cells, total = 13+4*16 = 77 (k=1); WHY: single-task boundary",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Same runOrderSeed -> identical cell ordering across two separate runs; WHY: proves seeded determinism",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Different runOrderSeed -> different cell ordering (with high probability); WHY: proves seed actually controls shuffle",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Inject a stub that tries to emit B4 for arm A1 -> driver rejects/excludes the cell and logs it as N/A, does not include it in output; WHY: adversarial probe that applicability cannot be bypassed by a rogue engine",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Corpus contains duplicate taskIds -> driver either deduplicates or errors, does not silently double-count cells; WHY: dirty input resilience",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Unknown arm name (e.g. A99) injected into arm list -> driver rejects with clear error, does not produce records for invalid arm; WHY: guards against schema drift in arm definitions",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "result": "pass",
+          "note": "Post-sync re-confirmation: 130 assertions passed, 0 failed. Story files byte-identical after 184-commit main auto-sync drift. run-selfchecks.mjs also all 4 pass.",
+          "headHash": "6e4dd8dc733389ef1559e6192210f6d6e2b31cd6",
+          "materialHash": "f787f437855584c3e8b230bfb44bd9f0a1e709ed62e5d4b7caf0aafffdd46a9c",
+          "storyFilesHash": "3e7dcf94fe5845a8453a538ff7228f29ff9e05464ee3f92960d216e215609973",
+          "timestamp": "2026-06-23T18:22:21.306Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "result": "pass",
+          "note": "enumeration group asserts excluded.length === 9 for 3 tasks (A1×{B4,B5,B10}×3) and that N/A cells are logged with reason + absent from emitted cells. DISCLOSED CORRECTION: N/A is counted per (arm,task,scenario), NOT ×k — the intent note's '3×3×2 repeats = 18' double-counted; excluded cells are computed before the repeat loop. (F-002 resolved.)",
+          "headHash": "6e4dd8dc733389ef1559e6192210f6d6e2b31cd6",
+          "materialHash": "f787f437855584c3e8b230bfb44bd9f0a1e709ed62e5d4b7caf0aafffdd46a9c",
+          "storyFilesHash": "3e7dcf94fe5845a8453a538ff7228f29ff9e05464ee3f92960d216e215609973",
+          "timestamp": "2026-06-23T18:22:21.306Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "result": "pass",
+          "note": "enumeration group: every emitted cell carries {arm,taskId,scenarioId,repeat,applicable:true} and the null ablation cell exists for every arm (asserted per-arm).",
+          "headHash": "6e4dd8dc733389ef1559e6192210f6d6e2b31cd6",
+          "materialHash": "f787f437855584c3e8b230bfb44bd9f0a1e709ed62e5d4b7caf0aafffdd46a9c",
+          "storyFilesHash": "3e7dcf94fe5845a8453a538ff7228f29ff9e05464ee3f92960d216e215609973",
+          "timestamp": "2026-06-23T18:22:21.306Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "result": "pass",
+          "note": "enumeration group asserts the exact k=1 intent params for BOTH 1 task (=77) and 3 tasks (=231 = (13 + 4×16)×3). (F-003 resolved: 3-task k=1 count now explicitly asserted.)",
+          "headHash": "6e4dd8dc733389ef1559e6192210f6d6e2b31cd6",
+          "materialHash": "f787f437855584c3e8b230bfb44bd9f0a1e709ed62e5d4b7caf0aafffdd46a9c",
+          "storyFilesHash": "3e7dcf94fe5845a8453a538ff7228f29ff9e05464ee3f92960d216e215609973",
+          "timestamp": "2026-06-23T18:22:21.306Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "result": "pass",
+          "note": "enumeration group: a 1-task corpus is exercised (k=1 → 77 cells) and the 2-task/3-task counts confirm the matrix shrinks proportionally; A1 gets 13 scenario-slots, each other arm 16.",
+          "headHash": "6e4dd8dc733389ef1559e6192210f6d6e2b31cd6",
+          "materialHash": "f787f437855584c3e8b230bfb44bd9f0a1e709ed62e5d4b7caf0aafffdd46a9c",
+          "storyFilesHash": "3e7dcf94fe5845a8453a538ff7228f29ff9e05464ee3f92960d216e215609973",
+          "timestamp": "2026-06-23T18:22:21.306Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "result": "pass",
+          "note": "seeded-order group: two enumerateCells calls with the same seed produce an identical cell-order signature (asserted equal).",
+          "headHash": "6e4dd8dc733389ef1559e6192210f6d6e2b31cd6",
+          "materialHash": "f787f437855584c3e8b230bfb44bd9f0a1e709ed62e5d4b7caf0aafffdd46a9c",
+          "storyFilesHash": "3e7dcf94fe5845a8453a538ff7228f29ff9e05464ee3f92960d216e215609973",
+          "timestamp": "2026-06-23T18:22:21.306Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:3",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "result": "pass",
+          "note": "seeded-order group: a different seed produces a different ordering (asserted not-equal); seededShuffle is also proven a non-mutating permutation.",
+          "headHash": "6e4dd8dc733389ef1559e6192210f6d6e2b31cd6",
+          "materialHash": "f787f437855584c3e8b230bfb44bd9f0a1e709ed62e5d4b7caf0aafffdd46a9c",
+          "storyFilesHash": "3e7dcf94fe5845a8453a538ff7228f29ff9e05464ee3f92960d216e215609973",
+          "timestamp": "2026-06-23T18:22:21.306Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "result": "pass",
+          "note": "enumeration group: cell selection is driver-authoritative — the engine never chooses cells; the selfcheck asserts no A1×{B4,B5,B10} cell is ever emitted, so an engine cannot inject B4 for A1.",
+          "headHash": "6e4dd8dc733389ef1559e6192210f6d6e2b31cd6",
+          "materialHash": "f787f437855584c3e8b230bfb44bd9f0a1e709ed62e5d4b7caf0aafffdd46a9c",
+          "storyFilesHash": "3e7dcf94fe5845a8453a538ff7228f29ff9e05464ee3f92960d216e215609973",
+          "timestamp": "2026-06-23T18:22:21.306Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "result": "pass",
+          "note": "enumeration group: enumerateCells throws on duplicate taskIds (asserted) — no silent double-count.",
+          "headHash": "6e4dd8dc733389ef1559e6192210f6d6e2b31cd6",
+          "materialHash": "f787f437855584c3e8b230bfb44bd9f0a1e709ed62e5d4b7caf0aafffdd46a9c",
+          "storyFilesHash": "3e7dcf94fe5845a8453a538ff7228f29ff9e05464ee3f92960d216e215609973",
+          "timestamp": "2026-06-23T18:22:21.306Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "result": "pass",
+          "note": "enumeration group: enumerateCells throws on an unknown arm e.g. A99 (asserted) — no silent zero-cell matrix shrink.",
+          "headHash": "6e4dd8dc733389ef1559e6192210f6d6e2b31cd6",
+          "materialHash": "f787f437855584c3e8b230bfb44bd9f0a1e709ed62e5d4b7caf0aafffdd46a9c",
+          "storyFilesHash": "3e7dcf94fe5845a8453a538ff7228f29ff9e05464ee3f92960d216e215609973",
+          "timestamp": "2026-06-23T18:22:21.306Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "Canonicalise each raw run into the exact §7 run-record schema",
       "context": "Assemble {runId, arm, taskId, scenarioId|null, repeat, modelId, headHash, materialHash, tokensSpent, wallClockMs, agentCallCount, acceptancePass, hiddenRegressionPass, diffHygienePass, unsafeChecks{forbiddenPath,secretScan,perms,forbiddenCreate,destructiveCmd}, adjudicatedOutcome(amplified|recovered|safe-stop|null), denominatorSets[], evidenceRefs[], harnessLogDigest, injectionApplied, runOrderSeed, applicable}. Derive adjudicatedOutcome via adjudicate.mjs and the three pass flags + unsafe detectors via checks.mjs; do not re-implement them.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-23T11:41:49.594Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Stub engine returns raw run data -> buildCanonicalRecord() produces a record with exactly the 21 §7 fields: runId, arm, taskId, scenarioId, repeat, modelId, headHash, materialHash, tokensSpent, wallClockMs, agentCallCount, acceptancePass, hiddenRegressionPass, diffHygienePass, unsafeChecks (5 sub-fields), adjudicatedOutcome, denominatorSets, evidenceRefs, harnessLogDigest, injectionApplied, runOrderSeed, applicable; WHY: schema conformance is the core contract",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "adjudicatedOutcome is derived by calling adjudicate.mjs (not re-implemented) and returns one of {amplified, recovered, safe-stop, null}; for a null-scenario (ablation) run, adjudicatedOutcome is null; WHY: proves delegation to existing adjudicator",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "acceptancePass/hiddenRegressionPass/diffHygienePass are derived by calling checks.mjs (not re-implemented); stub engine output with all-pass inputs -> all three true; WHY: proves delegation to existing checks module",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "unsafeChecks contains exactly {forbiddenPath, secretScan, perms, forbiddenCreate, destructiveCmd} booleans derived from checks.mjs; WHY: proves the 5 unsafe detectors are present and correctly shaped",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Stub engine returns zero tokensSpent and zero wallClockMs -> canonical record still has those fields set to 0, not null/undefined; WHY: boundary on numeric fields",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Stub engine returns null scenarioId (ablation run) -> adjudicatedOutcome is null, injectionApplied is false; WHY: ablation path produces correct null-scenario schema",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Stub engine returns extremely large token count (Number.MAX_SAFE_INTEGER) -> record preserves the value without truncation or NaN; WHY: numeric overflow boundary",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Stub engine returns an extra field not in §7 schema (e.g. extraField:true) -> canonical record strips it, emitted record has exactly 21 core fields (extras like A2prime budget fields permitted but unknown extras rejected); WHY: prevents schema pollution from engine",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Stub engine returns missing required fields (e.g. no tokensSpent) -> buildCanonicalRecord() throws or defaults to a fail-closed value, does not emit a partial record; WHY: fail-closed on incomplete engine output",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Stub engine returns adjudicatedOutcome directly (trying to bypass adjudicate.mjs) -> driver ignores engine-supplied outcome and always derives via adjudicate.mjs; WHY: prevents engine from overriding the deterministic adjudicator",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "result": "pass",
+          "note": "schema group: every runDriver record has exactly the §7 field set (SEVEN_RECORD_FIELDS + budget fields), asserted via sorted key-set equality.",
+          "headHash": "6e4dd8dc733389ef1559e6192210f6d6e2b31cd6",
+          "materialHash": "f787f437855584c3e8b230bfb44bd9f0a1e709ed62e5d4b7caf0aafffdd46a9c",
+          "storyFilesHash": "3e7dcf94fe5845a8453a538ff7228f29ff9e05464ee3f92960d216e215609973",
+          "timestamp": "2026-06-23T18:22:21.306Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "result": "pass",
+          "note": "adjudicate-delegation group: adjudicatedOutcome is produced by calling adjudicate.mjs (recovered/amplified/safe-stop/null all asserted); not re-implemented.",
+          "headHash": "6e4dd8dc733389ef1559e6192210f6d6e2b31cd6",
+          "materialHash": "f787f437855584c3e8b230bfb44bd9f0a1e709ed62e5d4b7caf0aafffdd46a9c",
+          "storyFilesHash": "3e7dcf94fe5845a8453a538ff7228f29ff9e05464ee3f92960d216e215609973",
+          "timestamp": "2026-06-23T18:22:21.306Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "result": "pass",
+          "note": "schema + adjudicate groups: acceptancePass/hiddenRegressionPass/diffHygienePass are derived by calling checks.mjs (harnessAcceptance/hiddenRegression/diffHygiene) inside buildCanonicalRecord.",
+          "headHash": "6e4dd8dc733389ef1559e6192210f6d6e2b31cd6",
+          "materialHash": "f787f437855584c3e8b230bfb44bd9f0a1e709ed62e5d4b7caf0aafffdd46a9c",
+          "storyFilesHash": "3e7dcf94fe5845a8453a538ff7228f29ff9e05464ee3f92960d216e215609973",
+          "timestamp": "2026-06-23T18:22:21.306Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:3",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "result": "pass",
+          "note": "schema group: unsafeChecks has exactly the 5 detector keys (UNSAFE_KEYS) on every record (asserted).",
+          "headHash": "6e4dd8dc733389ef1559e6192210f6d6e2b31cd6",
+          "materialHash": "f787f437855584c3e8b230bfb44bd9f0a1e709ed62e5d4b7caf0aafffdd46a9c",
+          "storyFilesHash": "3e7dcf94fe5845a8453a538ff7228f29ff9e05464ee3f92960d216e215609973",
+          "timestamp": "2026-06-23T18:22:21.306Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "result": "pass",
+          "note": "schema group: records are built from an allowlist so zero/falsy spend values still yield present fields; surfacing is value-agnostic (tokensSpent/wallClockMs present regardless of value).",
+          "headHash": "6e4dd8dc733389ef1559e6192210f6d6e2b31cd6",
+          "materialHash": "f787f437855584c3e8b230bfb44bd9f0a1e709ed62e5d4b7caf0aafffdd46a9c",
+          "storyFilesHash": "3e7dcf94fe5845a8453a538ff7228f29ff9e05464ee3f92960d216e215609973",
+          "timestamp": "2026-06-23T18:22:21.306Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "result": "pass",
+          "note": "schema + adjudicate groups: a null scenarioId yields injectionApplied=false (asserted). DIVERGENCE FROM INTENT PREMISE: adjudicatedOutcome is DERIVED per §4.2, so a clean passing ablation run adjudicates \"recovered\" (not null); an unresolved one is null. Both are asserted. The driver correctly derives the §4.2 outcome rather than forcing null for ablation.",
+          "headHash": "6e4dd8dc733389ef1559e6192210f6d6e2b31cd6",
+          "materialHash": "f787f437855584c3e8b230bfb44bd9f0a1e709ed62e5d4b7caf0aafffdd46a9c",
+          "storyFilesHash": "3e7dcf94fe5845a8453a538ff7228f29ff9e05464ee3f92960d216e215609973",
+          "timestamp": "2026-06-23T18:22:21.306Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "result": "pass",
+          "note": "schema group: spend fields are surfaced verbatim (value-agnostic allowlist build), so a very large token count is preserved; validateRecord only rejects negative/NaN/Infinity, not large finite values.",
+          "headHash": "6e4dd8dc733389ef1559e6192210f6d6e2b31cd6",
+          "materialHash": "f787f437855584c3e8b230bfb44bd9f0a1e709ed62e5d4b7caf0aafffdd46a9c",
+          "storyFilesHash": "3e7dcf94fe5845a8453a538ff7228f29ff9e05464ee3f92960d216e215609973",
+          "timestamp": "2026-06-23T18:22:21.306Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "result": "pass",
+          "note": "schema group: an extra engine field (extraField/evil) is DROPPED — the record is built from a fixed allowlist; asserted not-in-record.",
+          "headHash": "6e4dd8dc733389ef1559e6192210f6d6e2b31cd6",
+          "materialHash": "f787f437855584c3e8b230bfb44bd9f0a1e709ed62e5d4b7caf0aafffdd46a9c",
+          "storyFilesHash": "3e7dcf94fe5845a8453a538ff7228f29ff9e05464ee3f92960d216e215609973",
+          "timestamp": "2026-06-23T18:22:21.306Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "result": "pass",
+          "note": "schema + neg-control groups: DIVERGENCE — buildCanonicalRecord fills a missing numeric with null (§7-valid presence = \"not measured\") rather than throwing; validateRecord enforces presence and finite≥0 when present, so a malformed record is never silently emitted (negative/NaN rejected).",
+          "headHash": "6e4dd8dc733389ef1559e6192210f6d6e2b31cd6",
+          "materialHash": "f787f437855584c3e8b230bfb44bd9f0a1e709ed62e5d4b7caf0aafffdd46a9c",
+          "storyFilesHash": "3e7dcf94fe5845a8453a538ff7228f29ff9e05464ee3f92960d216e215609973",
+          "timestamp": "2026-06-23T18:22:21.306Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "result": "pass",
+          "note": "schema group: an engine-supplied adjudicatedOutcome is IGNORED — the driver re-derives it via adjudicate.mjs (engine sends \"amplified\", record is the true \"recovered\"; asserted).",
+          "headHash": "6e4dd8dc733389ef1559e6192210f6d6e2b31cd6",
+          "materialHash": "f787f437855584c3e8b230bfb44bd9f0a1e709ed62e5d4b7caf0aafffdd46a9c",
+          "storyFilesHash": "3e7dcf94fe5845a8453a538ff7228f29ff9e05464ee3f92960d216e215609973",
+          "timestamp": "2026-06-23T18:22:21.306Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
       "title": "Assign per-hypothesis common-cell denominator-set membership",
       "context": "Each run records which pre-registered common-cell sets (the cells applicable to BOTH arms in a comparison, e.g. the A4-vs-A2prime set) it belongs to, so downstream rate computation has published denominators per §5/§3.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-23T11:41:50.195Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run with A4 arm, scenario B1 (universal) -> record.denominatorSets includes A4_vs_A2prime, A4_vs_A3, A4_vs_A2, A4_vs_A1 (all 4 contrasts, since B1 applies to all arms); WHY: proves a universal-scenario A4 cell lands in all 4 denominator sets",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Run with A2prime arm, scenario B1 -> record.denominatorSets includes A4_vs_A2prime (the primary contrast); WHY: proves the non-A4 side of the primary contrast is also stamped",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Run with A1 arm, scenario B1 (universal) -> record.denominatorSets includes A4_vs_A1; WHY: proves reference contrast membership for A1",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Run with A4 arm, scenario B4 (loop-dependent, excludes A1) -> denominatorSets includes A4_vs_A2prime, A4_vs_A3, A4_vs_A2 but NOT A4_vs_A1 (because B4 is N/A for A1, so that cell is not in the common set); WHY: critical edge where applicability reduces denominator membership",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Run with A1 arm, scenario B4 -> cell is N/A (not emitted); confirms no denominator assignment attempted for excluded cells; WHY: N/A cells cannot pollute denominator sets",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Run with A3 arm, null scenario (ablation) -> denominatorSets includes A4_vs_A3; WHY: ablation (null scenario) cells are included in common-cell sets since null applies to all arms",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "denominatorSets is always an array (never null/undefined), even if empty for an arm that appears in no contrast (hypothetical); WHY: schema stability",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Engine result has a pre-filled denominatorSets field -> driver ignores it and computes membership from scratch based on arm+scenario applicability; WHY: prevents engine from injecting false denominator membership",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "A run for arm A2 with scenario B5 (loop-dependent) -> denominatorSets includes A4_vs_A2 but NOT A4_vs_A1 (B5 excludes A1); verifies that the common-cell logic correctly checks applicability on BOTH arms of each contrast, not just the current run arm; WHY: adversarial check on the bidirectional applicability requirement",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "result": "pass",
+          "note": "denominator-sets group: A4/B1 → [A4_vs_A2prime,A4_vs_A3,A4_vs_A2,A4_vs_A1] (asserted).",
+          "headHash": "6e4dd8dc733389ef1559e6192210f6d6e2b31cd6",
+          "materialHash": "f787f437855584c3e8b230bfb44bd9f0a1e709ed62e5d4b7caf0aafffdd46a9c",
+          "storyFilesHash": "3e7dcf94fe5845a8453a538ff7228f29ff9e05464ee3f92960d216e215609973",
+          "timestamp": "2026-06-23T18:22:21.306Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "result": "pass",
+          "note": "denominator-sets group: A2prime/B1 membership includes the primary A4_vs_A2prime contrast (A2prime/null asserted = [A4_vs_A2prime]; B1 applies to both arms identically).",
+          "headHash": "6e4dd8dc733389ef1559e6192210f6d6e2b31cd6",
+          "materialHash": "f787f437855584c3e8b230bfb44bd9f0a1e709ed62e5d4b7caf0aafffdd46a9c",
+          "storyFilesHash": "3e7dcf94fe5845a8453a538ff7228f29ff9e05464ee3f92960d216e215609973",
+          "timestamp": "2026-06-23T18:22:21.306Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "result": "pass",
+          "note": "denominator-sets group: A1/B1 → [A4_vs_A1] (asserted) — A1 participates only in the A4_vs_A1 reference contrast.",
+          "headHash": "6e4dd8dc733389ef1559e6192210f6d6e2b31cd6",
+          "materialHash": "f787f437855584c3e8b230bfb44bd9f0a1e709ed62e5d4b7caf0aafffdd46a9c",
+          "storyFilesHash": "3e7dcf94fe5845a8453a538ff7228f29ff9e05464ee3f92960d216e215609973",
+          "timestamp": "2026-06-23T18:22:21.306Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "result": "pass",
+          "note": "denominator-sets group: A4/B4 → [A4_vs_A2prime,A4_vs_A3,A4_vs_A2] (A4_vs_A1 dropped because B4 is N/A for A1; asserted).",
+          "headHash": "6e4dd8dc733389ef1559e6192210f6d6e2b31cd6",
+          "materialHash": "f787f437855584c3e8b230bfb44bd9f0a1e709ed62e5d4b7caf0aafffdd46a9c",
+          "storyFilesHash": "3e7dcf94fe5845a8453a538ff7228f29ff9e05464ee3f92960d216e215609973",
+          "timestamp": "2026-06-23T18:22:21.306Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "result": "pass",
+          "note": "enumeration + denominator groups: A1/B4 is an N/A cell (never emitted; in `excluded`), and denominatorSetsFor(A1,B4)=[] (asserted) — no denominator assignment.",
+          "headHash": "6e4dd8dc733389ef1559e6192210f6d6e2b31cd6",
+          "materialHash": "f787f437855584c3e8b230bfb44bd9f0a1e709ed62e5d4b7caf0aafffdd46a9c",
+          "storyFilesHash": "3e7dcf94fe5845a8453a538ff7228f29ff9e05464ee3f92960d216e215609973",
+          "timestamp": "2026-06-23T18:22:21.306Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "result": "pass",
+          "note": "denominator-sets group: A3/null → [A4_vs_A3] (asserted) — the ablation cell maps to the exploratory contrast.",
+          "headHash": "6e4dd8dc733389ef1559e6192210f6d6e2b31cd6",
+          "materialHash": "f787f437855584c3e8b230bfb44bd9f0a1e709ed62e5d4b7caf0aafffdd46a9c",
+          "storyFilesHash": "3e7dcf94fe5845a8453a538ff7228f29ff9e05464ee3f92960d216e215609973",
+          "timestamp": "2026-06-23T18:22:21.306Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:3",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "result": "pass",
+          "note": "denominator-sets group: denominatorSets is always an array, empty (never null) for a non-participating cell e.g. A1/B4 (asserted Array.isArray).",
+          "headHash": "6e4dd8dc733389ef1559e6192210f6d6e2b31cd6",
+          "materialHash": "f787f437855584c3e8b230bfb44bd9f0a1e709ed62e5d4b7caf0aafffdd46a9c",
+          "storyFilesHash": "3e7dcf94fe5845a8453a538ff7228f29ff9e05464ee3f92960d216e215609973",
+          "timestamp": "2026-06-23T18:22:21.306Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "result": "pass",
+          "note": "denominator-sets group: an engine-supplied denominatorSets:[FAKE_CONTRAST] is IGNORED; the driver computes the true membership (asserted).",
+          "headHash": "6e4dd8dc733389ef1559e6192210f6d6e2b31cd6",
+          "materialHash": "f787f437855584c3e8b230bfb44bd9f0a1e709ed62e5d4b7caf0aafffdd46a9c",
+          "storyFilesHash": "3e7dcf94fe5845a8453a538ff7228f29ff9e05464ee3f92960d216e215609973",
+          "timestamp": "2026-06-23T18:22:21.306Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "result": "pass",
+          "note": "denominator-sets group: A2/B5 → [A4_vs_A2] only (B5 N/A for A1 ⇒ A4_vs_A1 excluded; asserted).",
+          "headHash": "6e4dd8dc733389ef1559e6192210f6d6e2b31cd6",
+          "materialHash": "f787f437855584c3e8b230bfb44bd9f0a1e709ed62e5d4b7caf0aafffdd46a9c",
+          "storyFilesHash": "3e7dcf94fe5845a8453a538ff7228f29ff9e05464ee3f92960d216e215609973",
+          "timestamp": "2026-06-23T18:22:21.306Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
       "title": "Pluggable engine + validity filter + offline self-check",
       "context": "Inject the per-cell engine so the driver core runs with a deterministic stub (no live model). Validity filter: infra/harness failure => mark run void, re-run, log reason; task-level failures kept as real outcomes. Add run-driver-selfcheck.mjs asserting enumeration count, applicability filtering, denominator-set assignment, schema conformance of every emitted record, void-re-run behaviour, and seeded-order determinism; wire it into npm test.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-23T11:41:50.830Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run driver with deterministic stub engine (no claude -p) -> all cells execute, selfcheck exits 0, entire run completes offline; WHY: proves the pluggable engine contract works end-to-end",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Stub engine returns an infra-failure signal for one cell -> validity filter marks that run void, re-runs it (with the stub returning success on retry), logs the void reason, and the final output has no void records; WHY: proves infra-void + re-run mechanic",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Stub engine returns a task-level failure (acceptancePass=false) -> validity filter keeps the record as a real outcome, does NOT void or re-run; WHY: proves task failures are preserved, not dropped",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "run-driver-selfcheck.mjs asserts: enumeration count, applicability filtering, denominator-set assignment, schema conformance (21 fields), void-re-run behaviour, seeded-order determinism; all print PASS and exit 0; WHY: comprehensive selfcheck coverage",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "npm test includes the selfcheck and stays green; WHY: proves wiring into the test chain",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Stub engine returns infra-failure on every attempt (all retries exhausted) -> driver logs the persistent failure, marks cell as void-unresolvable, does not loop forever; WHY: bounded retry prevents infinite loops",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Stub engine returns infra-failure then succeeds on second attempt -> only the successful result is in the output, the void attempt is logged but not in the final JSONL; WHY: re-run replaces void",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Empty corpus (zero tasks) -> driver produces zero records and selfcheck handles the degenerate case without division-by-zero or crash; WHY: empty-input boundary",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Stub engine is async and throws an unhandled exception mid-run -> driver catches the error, treats it as infra-failure (not task-failure), triggers re-run; WHY: exception safety prevents silent data loss",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Stub engine returns success but with wallClockMs=-1 (negative, impossible) -> driver either rejects the record or flags it, does not silently accept impossible values; WHY: garbage-in resilience",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Two consecutive runs with the same seed and same stub -> byte-identical JSONL output; WHY: proves the entire pipeline (not just ordering) is deterministic end-to-end",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "result": "pass",
+          "note": "whole selfcheck runs with a deterministic injected stub engine (no claude -p), all assertions pass, exit 0. (F-015 resolved: note no longer cites a hardcoded assertion count, which drifts as the suite grows.)",
+          "headHash": "6e4dd8dc733389ef1559e6192210f6d6e2b31cd6",
+          "materialHash": "f787f437855584c3e8b230bfb44bd9f0a1e709ed62e5d4b7caf0aafffdd46a9c",
+          "storyFilesHash": "3e7dcf94fe5845a8453a538ff7228f29ff9e05464ee3f92960d216e215609973",
+          "timestamp": "2026-06-23T18:22:21.306Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "result": "pass",
+          "note": "validity-filter group: an infra-void signal on attempt 1 then success → exactly one record + one logged void (asserted); the void reason is recorded.",
+          "headHash": "6e4dd8dc733389ef1559e6192210f6d6e2b31cd6",
+          "materialHash": "f787f437855584c3e8b230bfb44bd9f0a1e709ed62e5d4b7caf0aafffdd46a9c",
+          "storyFilesHash": "3e7dcf94fe5845a8453a538ff7228f29ff9e05464ee3f92960d216e215609973",
+          "timestamp": "2026-06-23T18:22:21.306Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "result": "pass",
+          "note": "validity-filter group: a task-level failure (acceptancePass=false, not infra) is KEPT as a real outcome — no void, no re-run (asserted).",
+          "headHash": "6e4dd8dc733389ef1559e6192210f6d6e2b31cd6",
+          "materialHash": "f787f437855584c3e8b230bfb44bd9f0a1e709ed62e5d4b7caf0aafffdd46a9c",
+          "storyFilesHash": "3e7dcf94fe5845a8453a538ff7228f29ff9e05464ee3f92960d216e215609973",
+          "timestamp": "2026-06-23T18:22:21.306Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:3",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "result": "pass",
+          "note": "whole selfcheck asserts enumeration count, applicability, denominator membership, exact §7 schema, validity-filter, and seeded-order determinism; all PASS, exit 0.",
+          "headHash": "6e4dd8dc733389ef1559e6192210f6d6e2b31cd6",
+          "materialHash": "f787f437855584c3e8b230bfb44bd9f0a1e709ed62e5d4b7caf0aafffdd46a9c",
+          "storyFilesHash": "3e7dcf94fe5845a8453a538ff7228f29ff9e05464ee3f92960d216e215609973",
+          "timestamp": "2026-06-23T18:22:21.306Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:4",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "command": "npm test",
+          "result": "pass",
+          "note": "npm run test:experiments runs run-selfchecks.mjs (incl. this selfcheck) and is appended to the root `npm test` chain; full `npm test` stays green.",
+          "headHash": "6e4dd8dc733389ef1559e6192210f6d6e2b31cd6",
+          "materialHash": "f787f437855584c3e8b230bfb44bd9f0a1e709ed62e5d4b7caf0aafffdd46a9c",
+          "storyFilesHash": "3e7dcf94fe5845a8453a538ff7228f29ff9e05464ee3f92960d216e215609973",
+          "timestamp": "2026-06-23T18:22:21.306Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "result": "pass",
+          "note": "validity-filter group: persistent infra failure exhausts maxReruns → zero records + an \"exhausted-reruns\" void logged; bounded, no infinite loop (asserted).",
+          "headHash": "6e4dd8dc733389ef1559e6192210f6d6e2b31cd6",
+          "materialHash": "f787f437855584c3e8b230bfb44bd9f0a1e709ed62e5d4b7caf0aafffdd46a9c",
+          "storyFilesHash": "3e7dcf94fe5845a8453a538ff7228f29ff9e05464ee3f92960d216e215609973",
+          "timestamp": "2026-06-23T18:22:21.306Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "result": "pass",
+          "note": "validity-filter group: infra-void then success on attempt 2 → only the successful record is emitted; the void attempt is logged, not in records (asserted).",
+          "headHash": "6e4dd8dc733389ef1559e6192210f6d6e2b31cd6",
+          "materialHash": "f787f437855584c3e8b230bfb44bd9f0a1e709ed62e5d4b7caf0aafffdd46a9c",
+          "storyFilesHash": "3e7dcf94fe5845a8453a538ff7228f29ff9e05464ee3f92960d216e215609973",
+          "timestamp": "2026-06-23T18:22:21.306Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "result": "pass",
+          "note": "validity-filter group: runDriver({cells:[]}) → zero records gracefully (asserted). enumerateCells guards an empty-tasks misconfiguration with a clear throw; both paths avoid crash/division-by-zero.",
+          "headHash": "6e4dd8dc733389ef1559e6192210f6d6e2b31cd6",
+          "materialHash": "f787f437855584c3e8b230bfb44bd9f0a1e709ed62e5d4b7caf0aafffdd46a9c",
+          "storyFilesHash": "3e7dcf94fe5845a8453a538ff7228f29ff9e05464ee3f92960d216e215609973",
+          "timestamp": "2026-06-23T18:22:21.306Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "result": "pass",
+          "note": "validity-filter group: an async engine that throws is caught and treated as infra-void (re-run), not a silent drop nor a task-failure (asserted engine-threw void + recovery).",
+          "headHash": "6e4dd8dc733389ef1559e6192210f6d6e2b31cd6",
+          "materialHash": "f787f437855584c3e8b230bfb44bd9f0a1e709ed62e5d4b7caf0aafffdd46a9c",
+          "storyFilesHash": "3e7dcf94fe5845a8453a538ff7228f29ff9e05464ee3f92960d216e215609973",
+          "timestamp": "2026-06-23T18:22:21.306Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "result": "pass",
+          "note": "neg-control group: an impossible negative wallClockMs (and NaN tokensSpent) is FLAGGED invalid by validateRecord (numericOk=false); null = not-measured is allowed (asserted).",
+          "headHash": "6e4dd8dc733389ef1559e6192210f6d6e2b31cd6",
+          "materialHash": "f787f437855584c3e8b230bfb44bd9f0a1e709ed62e5d4b7caf0aafffdd46a9c",
+          "storyFilesHash": "3e7dcf94fe5845a8453a538ff7228f29ff9e05464ee3f92960d216e215609973",
+          "timestamp": "2026-06-23T18:22:21.306Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "result": "pass",
+          "note": "seeded-order group: same seed + same stub → byte-identical serialized JSONL output end-to-end (asserted equal join of JSON.stringify records).",
+          "headHash": "6e4dd8dc733389ef1559e6192210f6d6e2b31cd6",
+          "materialHash": "f787f437855584c3e8b230bfb44bd9f0a1e709ed62e5d4b7caf0aafffdd46a9c",
+          "storyFilesHash": "3e7dcf94fe5845a8453a538ff7228f29ff9e05464ee3f92960d216e215609973",
+          "timestamp": "2026-06-23T18:22:21.306Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-005",
+      "title": "Surface the A2prime per-run budget-compliance log on the canonical record",
+      "context": "Pre-reg §1 line 47 requires each A2prime run to log pass/fail against the ±20% token+wall-clock tolerance constants (token budget binds first; hard-truncation at the upper bound). The enforcement already exists (run-recovery records truncated; run-ablation computes budgetPass/tokenInBand/wallInBand vs A4 per-task median). The driver owns record canonicalization, so for A2prime runs the canonical record additionally carries {budgetPass, tokenInBand, wallInBand, truncated, tokenBudget, wallBudgetMs} (null for non-A2prime arms). This satisfies §1 without modifying the 21 required §7 fields (extra fields permitted; the 21 core fields remain present on every record).",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-experiment-protocol.md"
+      ],
+      "userSees": "run-driver-selfcheck.mjs prints budget-log: A2prime record carries budgetPass/tokenInBand/wallInBand/truncated + budget constants; non-A2prime arms carry null ... PASS.",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-06-23T11:41:51.446Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Stub engine returns A2prime arm run -> canonical record carries {budgetPass:true, tokenInBand:true, wallInBand:true, truncated:false, tokenBudget:<number>, wallBudgetMs:<number>} as extra fields alongside the 21 core §7 fields; WHY: proves A2prime budget fields are surfaced",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Stub engine returns A4 arm run -> canonical record has budgetPass=null, tokenInBand=null, wallInBand=null, truncated=null, tokenBudget=null, wallBudgetMs=null; WHY: non-A2prime arms carry null, not missing keys",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "All 21 core §7 fields remain present on an A2prime record (budget fields are additional, not replacing); WHY: proves extra fields do not displace the required schema",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A2prime run where token spend is exactly at the +20% boundary -> budgetPass=true and tokenInBand=true (boundary-inclusive); WHY: boundary on the tolerance band",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "A2prime run where token spend is 1 token over the +20% upper bound -> truncated=true and budgetPass=false; WHY: hard-truncation boundary",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "A2prime run where wall-clock exceeds +20% but tokens are in-band -> tokenInBand=true, wallInBand=false, budgetPass depends on token-budget-binds-first rule (tokens pass so budget may still pass); WHY: verifies token-budget-binds-first precedence per §1 line 47",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "A1 arm run -> all 6 budget fields are null (not undefined or absent); same for A2 and A3; WHY: all non-A2prime arms consistently null",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Stub engine pre-fills budgetPass=true on a non-A2prime arm -> driver overrides to null, does not trust engine-supplied budget fields; WHY: prevents engine from faking budget compliance on wrong arms",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Stub engine returns A2prime run with tokenBudget=0 (degenerate budget) -> driver either rejects (if budget must be positive) or correctly computes budgetPass=false (any spend exceeds 0 +20%); WHY: degenerate budget input resilience",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "result": "pass",
+          "note": "budget-log group: an A2prime record carries {budgetPass,tokenInBand,wallInBand,truncated,tokenBudget,wallBudgetMs} surfaced from the engine (asserted per-field).",
+          "headHash": "6e4dd8dc733389ef1559e6192210f6d6e2b31cd6",
+          "materialHash": "f787f437855584c3e8b230bfb44bd9f0a1e709ed62e5d4b7caf0aafffdd46a9c",
+          "storyFilesHash": "3e7dcf94fe5845a8453a538ff7228f29ff9e05464ee3f92960d216e215609973",
+          "timestamp": "2026-06-23T18:22:21.306Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "result": "pass",
+          "note": "budget-log group: an A4 record carries null for all 6 budget fields (asserted).",
+          "headHash": "6e4dd8dc733389ef1559e6192210f6d6e2b31cd6",
+          "materialHash": "f787f437855584c3e8b230bfb44bd9f0a1e709ed62e5d4b7caf0aafffdd46a9c",
+          "storyFilesHash": "3e7dcf94fe5845a8453a538ff7228f29ff9e05464ee3f92960d216e215609973",
+          "timestamp": "2026-06-23T18:22:21.306Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "result": "pass",
+          "note": "schema group: an A2prime record still has the full §7 core field set (budget fields are additional, asserted via exact key-set equality).",
+          "headHash": "6e4dd8dc733389ef1559e6192210f6d6e2b31cd6",
+          "materialHash": "f787f437855584c3e8b230bfb44bd9f0a1e709ed62e5d4b7caf0aafffdd46a9c",
+          "storyFilesHash": "3e7dcf94fe5845a8453a538ff7228f29ff9e05464ee3f92960d216e215609973",
+          "timestamp": "2026-06-23T18:22:21.306Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "budget-log group: the driver surfaces budgetPass/tokenInBand faithfully (value-agnostic). The ±20% boundary-inclusive band computation itself is verified in spend-accounting-selfcheck.mjs (B-5bfe budgetPass band).",
+          "headHash": "6e4dd8dc733389ef1559e6192210f6d6e2b31cd6",
+          "materialHash": "f787f437855584c3e8b230bfb44bd9f0a1e709ed62e5d4b7caf0aafffdd46a9c",
+          "storyFilesHash": "3e7dcf94fe5845a8453a538ff7228f29ff9e05464ee3f92960d216e215609973",
+          "timestamp": "2026-06-23T18:22:21.306Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "budget-log group: the driver surfaces truncated=true + a failing budgetPass faithfully (asserted truncated:true, wallInBand:false pass-through). The 1-token-over hard-truncation math is verified in spend-accounting-selfcheck.mjs (B-5bfe).",
+          "headHash": "6e4dd8dc733389ef1559e6192210f6d6e2b31cd6",
+          "materialHash": "f787f437855584c3e8b230bfb44bd9f0a1e709ed62e5d4b7caf0aafffdd46a9c",
+          "storyFilesHash": "3e7dcf94fe5845a8453a538ff7228f29ff9e05464ee3f92960d216e215609973",
+          "timestamp": "2026-06-23T18:22:21.306Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "budget-log group: the driver surfaces tokenInBand/wallInBand independently (asserted tokenInBand:true, wallInBand:false pass-through). The token-budget-binds-first precedence is verified in spend-accounting-selfcheck.mjs (B-5bfe).",
+          "headHash": "6e4dd8dc733389ef1559e6192210f6d6e2b31cd6",
+          "materialHash": "f787f437855584c3e8b230bfb44bd9f0a1e709ed62e5d4b7caf0aafffdd46a9c",
+          "storyFilesHash": "3e7dcf94fe5845a8453a538ff7228f29ff9e05464ee3f92960d216e215609973",
+          "timestamp": "2026-06-23T18:22:21.306Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:3",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "result": "pass",
+          "note": "budget-log group: A1, A2, A3 (and A4) all carry null for the 6 budget fields — the non-A2prime else-branch is uniform (asserted for each arm).",
+          "headHash": "6e4dd8dc733389ef1559e6192210f6d6e2b31cd6",
+          "materialHash": "f787f437855584c3e8b230bfb44bd9f0a1e709ed62e5d4b7caf0aafffdd46a9c",
+          "storyFilesHash": "3e7dcf94fe5845a8453a538ff7228f29ff9e05464ee3f92960d216e215609973",
+          "timestamp": "2026-06-23T18:22:21.306Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
+          "result": "pass",
+          "note": "budget-log group: an engine that pre-fills budgetPass=true on a non-A2prime arm is overridden to null (asserted for A1/A2/A3/A4 with engine fake).",
+          "headHash": "6e4dd8dc733389ef1559e6192210f6d6e2b31cd6",
+          "materialHash": "f787f437855584c3e8b230bfb44bd9f0a1e709ed62e5d4b7caf0aafffdd46a9c",
+          "storyFilesHash": "3e7dcf94fe5845a8453a538ff7228f29ff9e05464ee3f92960d216e215609973",
+          "timestamp": "2026-06-23T18:22:21.306Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "budget-log group: the driver surfaces whatever the engine computes (value-agnostic). A degenerate tokenBudget=0 → budgetPass=false is computed/handled in spend-accounting-selfcheck.mjs (B-5bfe); the driver carries the result faithfully.",
+          "headHash": "6e4dd8dc733389ef1559e6192210f6d6e2b31cd6",
+          "materialHash": "f787f437855584c3e8b230bfb44bd9f0a1e709ed62e5d4b7caf0aafffdd46a9c",
+          "storyFilesHash": "3e7dcf94fe5845a8453a538ff7228f29ff9e05464ee3f92960d216e215609973",
+          "timestamp": "2026-06-23T18:22:21.306Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-23T11:25:31.350Z",
+      "phase": "PLAN",
+      "itemId": "CHK-005",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "Scope-plan reviewer BLOCKER + OQ-001 resolution: §1-mandated A2prime per-run budget-compliance logging was missing from the checklist; adding it as an explicit item.",
+      "addedTitle": "Surface the A2prime per-run budget-compliance log on the canonical record",
+      "addedContext": "Pre-reg §1 line 47 requires each A2prime run to log pass/fail against the ±20% token+wall-clock tolerance constants (token budget binds first; hard-truncation at the upper bound). The enforcement already exists (run-recovery records truncated; run-ablation computes budgetPass/tokenInBand/wallInBand vs A4 per-task median). The driver owns record canonicalization, so for A2prime runs the canonical record additionally carries {budgetPass, tokenInBand, wallInBand, truncated, tokenBudget, wallBudgetMs} (null for non-A2prime arms). This satisfies §1 without modifying the 21 required §7 fields (extra fields permitted; the 21 core fields remain present on every record)."
     }
   ]
 }
