@@ -628,6 +628,17 @@
           "materialHash": "3ee68a262f8963f2691d35fbb344b2261c4d52282139b43e837ded77f015b261",
           "storyFilesHash": "9c823adea15d877392e591760e4dc447c74a37c38c6a266f4cc1f84dc19de8c0",
           "timestamp": "2026-06-23T10:20:07.148Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:1",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/checks-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck imports only node:assert/crypto/fs/os/path/url builtins + ./checks.mjs (offline guard asserts each checks.mjs import is a node: builtin); no network dep => passes in a no-network clean env, EXIT=0",
+          "headHash": "981f97a11eae5fb7b6a54b54f0f59ee45c5313ed",
+          "materialHash": "3ee68a262f8963f2691d35fbb344b2261c4d52282139b43e837ded77f015b261",
+          "storyFilesHash": "9c823adea15d877392e591760e4dc447c74a37c38c6a266f4cc1f84dc19de8c0",
+          "timestamp": "2026-06-23T10:20:07.665Z"
         }
       ]
     }
