@@ -1,0 +1,77 @@
+{
+  "storyId": "B-6320",
+  "checkedAt": "2026-06-23T02:54:02.686Z",
+  "features": [
+    {
+      "feature": "Provider declaration parsing is host-neutral string metadata with compatibility aliases.",
+      "covered_by": "understanding task/outcome/facts; decision chosen=free-declaration-with-compat-aliases; checklist CHK-001 happy/edge; plan.md CHK-001 DoneWhen",
+      "status": "covered",
+      "excluded_by": "",
+      "source": ".lattice/story/actives/B-6320/understanding.json; .lattice/story/actives/B-6320/decision.json; .lattice/story/actives/B-6320/checklist.json; .lattice/story/actives/B-6320/plan.md"
+    },
+    {
+      "feature": "Provider declaration acceptance remains metadata only and does not bypass API key, actor key, signature, lease, receipt, or server policy gates.",
+      "covered_by": "understanding constraints; checklist CHK-001 adversarial; checklist CHK-003 adversarial; plan.md CHK-001/CHK-003 DoneWhen",
+      "status": "covered",
+      "excluded_by": "",
+      "source": ".lattice/story/actives/B-6320/understanding.json; .lattice/story/actives/B-6320/checklist.json; .lattice/story/actives/B-6320/plan.md"
+    },
+    {
+      "feature": "Declared provider is propagated through register, heartbeat, SSE availability hint, signed claim, and takeover/handoff diagnostics with server rejection surfaced as server policy or authorization failure.",
+      "covered_by": "understanding outcome/touchpoints; checklist CHK-002 happy/adversarial; plan.md CHK-002",
+      "status": "covered",
+      "excluded_by": "",
+      "source": ".lattice/story/actives/B-6320/understanding.json; .lattice/story/actives/B-6320/checklist.json; .lattice/story/actives/B-6320/plan.md"
+    },
+    {
+      "feature": "authority_job_create/command catalog accepts non-enum provider declarations locally and leaves accept/reject to the Authority Server.",
+      "covered_by": "understanding facts; checklist CHK-002 edge and files.modify command-catalog; plan.md CHK-002 DoneWhen",
+      "status": "covered",
+      "excluded_by": "",
+      "source": ".lattice/story/actives/B-6320/understanding.json; .lattice/story/actives/B-6320/checklist.json; .lattice/story/actives/B-6320/plan.md"
+    },
+    {
+      "feature": "Focused regression verification covers happy, edge, and adversarial behavior across status, enforce-runner, client, runner-client, and live job-loop smokes.",
+      "covered_by": "checklist CHK-001/CHK-002/CHK-003 verificationIntent; plan.md Verify sections",
+      "status": "covered",
+      "excluded_by": "",
+      "source": ".lattice/story/actives/B-6320/checklist.json; .lattice/story/actives/B-6320/plan.md"
+    },
+    {
+      "feature": "Out-of-scope expansion into Authority Server policy implementation, remote deployment/secret/operator changes, scheduler rewrite/automatic host selection, or CLI-owned senior bundle generation.",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "scope-boundary excluded; understanding constraints; live-integration current capability baseline",
+      "source": ".lattice/story/actives/B-6320/scope-boundary.json; .lattice/story/actives/B-6320/understanding.json; docs/requirements/decisions/lattice-authority-live-integration.md"
+    },
+    {
+      "feature": "Align referenced runner-session/evidence contract with host-neutral provider declaration semantics.",
+      "covered_by": "",
+      "status": "gap",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/authority-runner-session-evidence-envelope.md still says canonical provider values are codex, claude-code, gemini and invalid provider values fail closed; checklist/plan reference this doc but do not list it in files.modify."
+    }
+  ],
+  "summary": {
+    "total": 7,
+    "covered": 5,
+    "excluded": 1,
+    "gaps": 1,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "b68cddaa6561c5e3c6a9fb077a04d5ed8aa4bb4a9198dc91b6c32e645cae7fe1",
+  "openQuestions": [
+    {
+      "id": "OQ-001",
+      "q": "Should docs/requirements/decisions/authority-runner-session-evidence-envelope.md be added to the story files/plan so the closed-enum runner provider text is updated to match host-neutral declaration behavior?",
+      "evidence": "The doc currently states supported canonical values are codex, claude-code, and gemini, and that invalid provider values fail closed, while B-6320 intends custom declarations to pass local parsing and leave policy rejection to the server.",
+      "sourcePointers": [
+        "docs/requirements/decisions/authority-runner-session-evidence-envelope.md#Runner Provider Routing",
+        ".lattice/story/actives/B-6320/checklist.json#CHK-001",
+        ".lattice/story/actives/B-6320/plan.md#CHK-001"
+      ]
+    }
+  ]
+}
