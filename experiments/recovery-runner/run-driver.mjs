@@ -322,6 +322,11 @@ export async function runDriver({
   if (typeof engine !== 'function') {
     throw new Error('runDriver: engine must be an injected async function');
   }
+  // A non-integer/negative maxReruns would make the attempt loop never run (the engine is
+  // never invoked) and every cell would be falsely logged as exhausted-reruns — reject it.
+  if (!Number.isInteger(maxReruns) || maxReruns < 0) {
+    throw new Error(`runDriver: maxReruns must be a non-negative integer (got ${maxReruns})`);
+  }
   const records = [];
   const voids = [];
   for (const cell of cells) {
@@ -376,6 +381,10 @@ async function main() {
   const recordFile = arg('--record', join(here, 'ablation-run-records.jsonl'));
   const enginePath = arg('--engine', null);
   const maxReruns = parseInt(arg('--maxReruns', '3'), 10);
+  if (!Number.isInteger(maxReruns) || maxReruns < 0) {
+    console.error(`[run-driver] invalid --maxReruns "${arg('--maxReruns')}": must be a non-negative integer.`);
+    process.exit(2);
+  }
   // Durable §7 sidecar logs: excluded N/A cells + every void/re-run event (with reason).
   const exclusionsFile = `${recordFile}.exclusions.jsonl`;
   const voidsFile = `${recordFile}.voids.jsonl`;

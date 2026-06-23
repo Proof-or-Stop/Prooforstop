@@ -94,7 +94,8 @@ a stream of canonical §7 run-records. It:
   non-A2prime arm.
 
 ```sh
-# enumerate the matrix only (NO LLM): prints applicable + N/A cell counts, writes nothing
+# enumerate the matrix only (NO LLM): prints applicable + N/A cell counts and writes the
+# N/A exclusions sidecar (<record>.exclusions.jsonl); no records (no engine ran)
 node run-driver.mjs --tasks eval-expr,median,parse-range,text-stats --k 5
 
 # run for real: supply an engine module exporting `default async (cell, attempt) => result`.

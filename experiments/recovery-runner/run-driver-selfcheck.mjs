@@ -191,6 +191,14 @@ group('validity-filter: §7 void+re-run vs kept task-failure');
   // maxReruns is honoured: a smaller budget yields fewer attempt voids
   const r0 = await runDriver({ cells: [cellOf('A4', 'B1')], engine: async () => ({ infraVoid: true, voidReason: 'x' }), maxReruns: 0 });
   eq(r0.voids.length, 2, 'validity: maxReruns=0 -> 1 attempt void + 1 exhausted = 2 (maxReruns honoured)');
+  // F-013: a NaN/negative maxReruns must be REJECTED (else the loop never runs the engine and
+  // every cell is falsely logged exhausted-reruns).
+  let mrThrew = false;
+  try { await runDriver({ cells: [cellOf('A4', 'B1')], engine: async () => engineResult(), maxReruns: Number.NaN }); } catch { mrThrew = true; }
+  ok(mrThrew, 'validity: runDriver throws on NaN maxReruns (F-013)');
+  mrThrew = false;
+  try { await runDriver({ cells: [cellOf('A4', 'B1')], engine: async () => engineResult(), maxReruns: -1 }); } catch { mrThrew = true; }
+  ok(mrThrew, 'validity: runDriver throws on negative maxReruns (F-013)');
   // engine throwing is treated as infra-void (re-run), never a silent drop
   attempts = 0;
   res = await runDriver({ cells: [cellOf('A4', 'B1')], engine: async () => { attempts++; if (attempts === 1) throw new Error('boom'); return engineResult(); } });
@@ -296,6 +304,12 @@ group('CLI integration: durable §7 logging + non-zero exit on incomplete run (F
   // --maxReruns is accepted by the CLI (F-007/F-008): with maxReruns=1 each cell logs
   // (maxReruns+1)=2 attempt voids + 1 exhausted = 3 rows; A1 13 + 4×16 = 77 cells -> 231 rows.
   ok(voidLog.trim().split('\n').length === 77 * 3, 'CLI: --maxReruns=1 honoured (77 cells × (2 attempts + 1 exhausted) = 231 void rows)');
+  // F-013: an invalid --maxReruns is rejected by the CLI with a clear error + non-zero exit
+  // (never silently runs the matrix with no engine calls / false exhaustion).
+  const rBad = spawnSync(process.execPath, [driverPath, '--engine', ENGINE, '--record', join(TMP, 'bad.jsonl'), '--tasks', 'foo', '--k', '1', '--maxReruns', 'abc'], { encoding: 'utf8' });
+  ok(rBad.status === 2, 'CLI: invalid --maxReruns exits 2 (F-013)');
+  ok(/invalid --maxReruns/.test(`${rBad.stdout}${rBad.stderr}`), 'CLI: invalid --maxReruns prints a clear error (F-013)');
+  ok(!existsSync(join(TMP, 'bad.jsonl.voids.jsonl')), 'CLI: invalid --maxReruns writes no false exhaustion log (F-013)');
 }
 
 // =========================================================================================
