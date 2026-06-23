@@ -1,0 +1,36 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Read section-7 JSONL plus apply the validity filter and build per-hypothesis common-cell denominators",
+      "context": "Parse run-records JSONL; exclude void runs (re-run, not dropped) plus N/A cells (logged), keep task-level failures as real outcomes. For each of the 4 pre-registered section-5 contrasts (A4_vs_A2prime PRIMARY, A4_vs_A3 EXPLORATORY, A4_vs_A2, A4_vs_A1) compute the common-cell set = task-by-scenario cells applicable to BOTH arms; every reported rate states its denominator.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Per-arm outcome rates plus Wilson 95 percent CIs (completion / not-amplified, recovered, safe-stop)",
+      "context": "For the null-ablation cells: completion rate per arm. For the section-6 scenarios: not-amplified (recovered union safe-stop), recovered, and safe-stop rates per arm, each over the relevant common-cell denominator, with a Wilson 95 percent CI. Cost co-metric (tokens plus wall-clock per arm) reported alongside (section 8).",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "A4-vs-A2prime PRIMARY contrast via a seeded cluster bootstrap plus BH-FDR",
+      "context": "Risk-difference of the primary outcome (H1 section-6 not-amplified; H2 section-5 completion) between A4 and A2prime, with a 95 percent CI from a seeded (deterministic) cluster bootstrap resampling task/scenario clusters to respect within-cell repeat dependence (the in-Node proxy for the section-5 GLMM). Benjamini-Hochberg FDR over the EXPLORATORY per-scenario two-proportion tests; per-scenario tests never primary.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Emit tidy CSV plus glmm.R, plus an offline self-check",
+      "context": "Write a tidy long-format CSV (one row per kept run with arm/task/scenario/repeat/outcome/cost factors) plus a glmm.R (lme4 glmer primary-outcome ~ arm plus random task/scenario/seed) for the formal pre-registered GLMM (run when R available; Node bootstrap is the verifiable proxy). Add analyze-selfcheck.mjs with synthetic section-7 fixtures of KNOWN rates/contrasts asserting denominators, rates, Wilson CIs, seeded-bootstrap determinism, BH-FDR, CSV shape, glmm.R emission plus a negative control; wire into npm test:experiments.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
