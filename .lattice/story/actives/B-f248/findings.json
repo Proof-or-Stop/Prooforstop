@@ -17,6 +17,24 @@
       ],
       "signatureTag": "missing|mjs|happy-evidence-command",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-f248:F-002",
+      "desc": "CHK-001:happy:1 evidence note claims \"6 N/A cells\" but the intent requires naCells logged count = 3 scenarios × 3 tasks × 2 repeats = 18. The selfcheck runs 2 tasks k=5, so excluded.length=6 (3 scenarios × 2 tasks × 1, since the task dimension differs). The note does not disclose this mismatch; it simply states a 6-cell count without noting the intent stipulated 18. The 18-count assertion with (3 tasks, k=2) is never present in the selfcheck.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-23T11:57:08.459Z",
+      "reviewRound": "2026-06-23T11:48:20.312Z",
+      "reviewRunId": "B-f248:RR-004",
+      "_hash": "b03a60bd5585944da7064e80f74640503f1a56abc6b7150cfc1d960f2c6591a4",
+      "files": [
+        "experiments/recovery-runner/run-driver-selfcheck.mjs"
+      ],
+      "signatureTag": "missing|mjs|happy-evidence-note",
+      "signatureTagSource": "auto"
     }
   ]
 }
