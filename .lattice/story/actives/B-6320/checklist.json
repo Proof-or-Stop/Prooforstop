@@ -61,7 +61,48 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "authority_enforce_runner --dry-run and live runner diagnostics carry the declared provider through register, heartbeat, jobs stream hint, and signed claim planning; server rejection remains visible as server-side failure, not local enum failure.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/authority-runner.ts",
+          "packages/main/src/core/authority-job-loop-live.ts",
+          "packages/main/src/handlers/lattice-cli.ts",
+          "packages/main/src/core/authority-client.ts",
+          "packages/main/src/handlers/verdict.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "docs/requirements/decisions/lattice-authority-live-integration.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/authority-runner-client-smoke.ts",
+          "packages/main/src/tasks/authority-job-loop-live-smoke.ts",
+          "packages/main/src/tasks/authority-enforce-runner-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Declared provider metadata is sent consistently in actor key registration, runner registration, heartbeat, and signed claim payloads.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "authority_job_create accepts a non-enum provider string locally and leaves accept/reject to the server response.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "SSE jobs.available never grants ownership without the normal signed claim accepted by the server.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
