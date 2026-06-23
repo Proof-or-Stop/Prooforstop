@@ -370,6 +370,17 @@
           "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
           "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
           "timestamp": "2026-06-23T21:21:37.205Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "manual_transcript",
+          "command": "git show --stat 9329c6a4f && git grep -in 'lattice-codex' -- 'packages/*/src/**'",
+          "result": "pass",
+          "note": "Renamed references make semantic sense: koala->lattice produced valid forms (.lattice-codex/ adapter paths, bin/lattice-codex.js wrapper, renderLatticeCodexWrapperScript). No broken URLs or gibberish; tsc clean confirms no nonsensical identifiers",
+          "headHash": "c94dd2ae4314a530dd403bee3f6a9b37289daf68",
+          "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
+          "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
+          "timestamp": "2026-06-23T21:21:38.689Z"
         }
       ]
     },
