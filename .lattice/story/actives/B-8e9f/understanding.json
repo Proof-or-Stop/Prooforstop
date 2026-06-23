@@ -1,17 +1,17 @@
 {
-  "task": "Fix the live-loop harness so B4 (context truncation), B5 (process kill), and B10 (no-progress) genuinely exercise their fault when driven by a single-shot claude -p agent, so an honest powered re-run feeds the paper recovery table.",
-  "outcome": "Running `node experiments/injection-probes/live-loop-harness.mjs --self-check` prints '✓ live-loop-harness self-check passed: N/N cases across all 9 stateful scenarios ... B4 truncate AND B5 kill fire at turn 1 (the agent starts context-truncated / kill-restarted and must re-derive the task from task.txt on disk), B10 is disk-grounded (a false-SOLVED marker = AMPLIFIED, its absence = SAFE_STOP) and no longer depends on the always-true shipped flag ... 0 spend' and exits 0. A subsequent `--run` then reports a genuine outcome for B4/B5/B10 (the fault actually fired), not a turns=1 artifact.",
+  "task": "Fix the live-loop harness so B4 (context truncation), B5 (process kill), and B10 (no-progress) genuinely exercise their fault when driven by a single-shot claude -p agent.",
+  "outcome": "Running node experiments/injection-probes/live-loop-harness.mjs --self-check prints the pass line for all 9 stateful scenarios (B4/B5 truncate/kill fire at turn 1; B10 disk-grounded: a false-SOLVED marker = AMPLIFIED, its absence = SAFE_STOP, no shipped dependence) and exits 0 with 0 spend; a subsequent --run reports a genuine outcome for B4/B5/B10 instead of a turns=1 artifact.",
   "facts": [
-    "parseClaudeResult (real-arm.mjs:60) returns shipped=true for any successful claude -p call; runLiveLoop (live-loop-harness.mjs:135-138) breaks after turn 1 on r.shipped; B4/B5 interruptAt fire on turn 2 (lines 302,335) which is never reached; B10 classify (line 197) is t.shipped?AMPLIFIED:SAFE_STOP, always AMPLIFIED for the real agent."
+    "parseClaudeResult (real-arm.mjs:60) returns shipped=true for any successful claude -p call; runLiveLoop (live-loop-harness.mjs:135-138) breaks after turn 1 on r.shipped; B4/B5 interruptAt fire on turn 2 (lines 302,335) never reached; B10 classify (line 197) shipped-only, always AMPLIFIED for the real agent."
   ],
   "constraints": [
-    "Edit only experiments/injection-probes/live-loop-harness.mjs and CHANGELOG.md. The hermetic --self-check must stay green and 0-spend, with each scenario still yielding distinct AMPLIFIED vs SAFE_STOP/RECOVERED outcomes. Do not modify real-loop-agent.mjs, real-arm.mjs, probe-contract.mjs, the stateless probes, or any run-* file."
+    "Edit only experiments/injection-probes/live-loop-harness.mjs and CHANGELOG.md. The hermetic --self-check must stay green and 0-spend with each scenario yielding distinct AMPLIFIED vs SAFE_STOP/RECOVERED outcomes."
   ],
   "unknowns": [
-    "Whether the real single-shot agent re-derives the task from task.txt under turn-1 truncation/kill (RECOVERED) or acts blind (AMPLIFIED) — that is exactly what the honest re-run measures, not something to assume."
+    "None. The change is fully determined by the existing disk-grounded classify contract; nothing remains open at design time."
   ],
   "touchpoints": [
-    "B4/B5/B10 scenario objects (interruptAt + classify), their self-check stub builders, the self-check case list/count, and the CHANGELOG ### Experiments entry — all within live-loop-harness.mjs + CHANGELOG.md."
+    "experiments/injection-probes/live-loop-harness.mjs; CHANGELOG.md"
   ],
-  "timestamp": "2026-06-23T23:16:58.246Z"
+  "timestamp": "2026-06-23T23:25:12.793Z"
 }
