@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-23T01:55:45.396Z",
       "reviewRunId": "B-5bfe:RR-003",
       "_hash": "b305d26ee55f51db547624aa365e4a6aa9579e6efc91959aea0e04ffb1e98c6b"
+    },
+    {
+      "id": "B-5bfe:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "No blockers. Checked: (a) runMain() refactor — all original logic preserved, reviewCost init correct, function hoisting unchanged; (b) tokensFromUsage sums all four token fields correctly; agentCallCount increments at both agentRun (line 121) and reviewArtifact (line 148); pre-reg §7 field names tokensSpent/wallClockMs/agentCallCount are exact via buildRunRecord spread at line 258; (c) token budget binds first, backward-compatible when null; (d) replayBudgetLoop mirrors real loop increment-then-check-then-break ordering exactly and buildRunRecord is spread into the real record (not a divergent copy). Two low findings registered: stale header comment (F-001) and duplicate selfcheck test case (F-002). Selfcheck passes 50/50 assertions.",
+      "createdAt": "2026-06-23T02:01:23.300Z",
+      "reviewRound": "2026-06-23T01:55:45.396Z",
+      "reviewRunId": "B-5bfe:RR-001",
+      "_hash": "b5320a94a6fadce3a92c61fb31f14e92a3969a9805679370c14c4cd224a821b5"
     }
   ]
 }
