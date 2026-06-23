@@ -46,7 +46,37 @@
       "context": "A self-test mode drives all 6 probes through a deterministic fake arm that simulates RECOVERED/SAFE_STOP/AMPLIFIED; assert the driver classifies+records the matching outcome for each (18 cases), proving the inject->run->classify->record wiring with zero spend. Exit 0 on pass. Does NOT make any real agent call.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "✓ injection-arms driver self-test passed: 18/18 (6 probes × 3 outcomes), fake arm, 0 cost, exit 0.",
+      "files": {
+        "modify": [
+          "CHANGELOG.md"
+        ],
+        "create": [],
+        "test": [
+          "experiments/injection-probes/run-injection-arms.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "all 18 cases (6 probes × {RECOVERED,SAFE_STOP,AMPLIFIED}) pass: the driver records the expected outcome for each; WHY: end-to-end wiring proven hermetically.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "each outcome class is exercised via the probe's own selfTestCases builder mutating the workspace (recover/safeStop/amplify), so classify runs real logic on a real workspace state, not a stub; WHY: guards against a trivial fake arm.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "feeding a probe the WRONG-outcome transcript makes classify return a DIFFERENT outcome than recorded for the right one (no rubber-stamping); WHY: proves the driver+classify actually discriminate.",
+            "type": "logic"
+          }
+        ]
+      }
     }
   ]
 }
