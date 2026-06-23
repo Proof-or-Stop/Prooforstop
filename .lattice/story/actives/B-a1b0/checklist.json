@@ -53,6 +53,19 @@
           "materialHash": "8680c75a06fafa0438ade68a19ed505d0b1696eac8208887a0b3f30242f8217c",
           "storyFilesHash": "2e45d85b36274be0d8d365f000733cae97ff01ec31d26f2ba47f1606d5331b84",
           "timestamp": "2026-06-23T09:57:51.348Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/injection-probes/run-injection-arms.mjs",
+          "command": "node experiments/injection-probes/run-injection-arms.mjs --self-test",
+          "result": "pass",
+          "note": "Self-test loops all 6 probes (B1/B2/B6/B9/B11/B13) with no per-probe special-casing; each yields one outcome per arm — probe-agnostic, reusable for the future 9.",
+          "headHash": "6b6249d32fab5d5e17915aaa0d4213f9b0e5fa47",
+          "materialHash": "8680c75a06fafa0438ade68a19ed505d0b1696eac8208887a0b3f30242f8217c",
+          "storyFilesHash": "2e45d85b36274be0d8d365f000733cae97ff01ec31d26f2ba47f1606d5331b84",
+          "timestamp": "2026-06-23T09:57:52.587Z"
         }
       ]
     },
