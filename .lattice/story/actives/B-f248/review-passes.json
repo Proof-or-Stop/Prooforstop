@@ -107,6 +107,15 @@
       "reviewRound": "2026-06-23T12:52:11.307Z",
       "reviewRunId": "B-f248:RR-017",
       "_hash": "36d50db0eb302ca6d0c535114a1908866c1958d46f4aec33cd5d039685382b36"
+    },
+    {
+      "id": "B-f248:RP-013",
+      "agent": "lattice-review-quality",
+      "note": "Final quality sweep of run-driver.mjs + run-driver-selfcheck.mjs. F-014 confirmed correct: buildCanonicalRecord is no longer imported in run-driver-selfcheck.mjs (it is exercised indirectly via runDriver). F-016 confirmed correct: intArg() uses /^\\d+$/ regex to strictly reject 1.5/1e2/abc — manually verified all 9 edge cases pass. Selfcheck runs 130 assertions, 0 failed. All 4 recovery-runner selfchecks pass. No dead code, no unused imports, no empty catches, no I/O shell isolation violations found.",
+      "createdAt": "2026-06-23T12:55:43.408Z",
+      "reviewRound": "2026-06-23T12:52:11.307Z",
+      "reviewRunId": "B-f248:RR-019",
+      "_hash": "4354615221b3eb0070b7cbcc654fa21ef3467d103a6d365560abb34e3f43d74b"
     }
   ]
 }
