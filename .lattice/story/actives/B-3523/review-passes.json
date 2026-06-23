@@ -89,6 +89,15 @@
       "reviewRound": "2026-06-22T23:51:43.015Z",
       "reviewRunId": "B-3523:RR-011",
       "_hash": "a8d5b51baff684b6f1e04814236c58ed986d31d71e8cd0dcd4818e3b5f629617"
+    },
+    {
+      "id": "B-3523:RP-011",
+      "agent": "lattice-review-docs",
+      "note": "PASS docs review: targeted inspection found no docs/guidance contradiction from the F-002 timeout comments/assertions. validation-executor documents the default per-command wall-clock ceiling, explicit positive timeoutMs override, invalid/unset fallback, exit-124 attribution, and operator guidance to raise lattice.config.json validate.commands[].timeoutMs only for genuinely long commands; validate-command-timeout-smoke and validation-protocol-smoke assert those semantics including no timeout diagnostic on ordinary failures. Active guidance/package surfaces now use @lattice/core/@lattice/lab/@lattice/utils; remaining @lattice-agent/@koala-agent hits are negative assertions, residue detectors, or historical examples, not current guidance.",
+      "createdAt": "2026-06-23T00:15:13.139Z",
+      "reviewRound": "2026-06-23T00:12:15.002Z",
+      "reviewRunId": "B-3523:RR-015",
+      "_hash": "7c5d53d43f035b4eafd245844f8560cd19d10b5e8f8c43b4171dc57408845463"
     }
   ]
 }
