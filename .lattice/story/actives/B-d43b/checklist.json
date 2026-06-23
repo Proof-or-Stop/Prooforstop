@@ -130,6 +130,18 @@
           "materialHash": "aa24d1b9dbad8b374e614b5579cb071003f8e8a0202856c6d7ec6b1b2cf7ff51",
           "storyFilesHash": "b413e6b8e7c259e8423330737a173304dfba7cc2084bd2cc172233b70c5bd6bb",
           "timestamp": "2026-06-23T11:00:15.823Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/codex-adapter-gate-scope-smoke.ts",
+          "command": "node packages/main/dist/tasks/codex-adapter-gate-scope-smoke.js",
+          "result": "pass",
+          "note": "Smoke keeps adapter surfaces required and provider-only text ignored; it does not make Codex workflow namespace commands succeed or weaken verify_codex requirements.",
+          "headHash": "0dca0d0b1ef39e23020870813ff9aa70b683d8b4",
+          "materialHash": "aa24d1b9dbad8b374e614b5579cb071003f8e8a0202856c6d7ec6b1b2cf7ff51",
+          "storyFilesHash": "b413e6b8e7c259e8423330737a173304dfba7cc2084bd2cc172233b70c5bd6bb",
+          "timestamp": "2026-06-23T11:00:16.389Z"
         }
       ]
     },
