@@ -1,6 +1,7 @@
 # Lattice Workflow Efficiency Baseline
 
 Date: 2026-06-23
+Baseline registration story: B-4bd7
 
 ## Purpose
 
@@ -143,6 +144,7 @@ The baseline JSON is intentionally small and stable:
 
 - `schemaVersion`: schema identifier for this baseline family.
 - `baselineId`: immutable baseline name.
+- `registrationStory`: story that registered this immutable baseline.
 - `sourceIncident`: human and commit anchors for the observed run.
 - `observedBefore`: the measured pre-fix or pre-policy behavior.
 - `targetAfter`: expected behavior after focused follow-up fixes.
