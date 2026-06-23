@@ -71,7 +71,7 @@
       "desc": "Exhausted infra-void reruns silently drop the cell + CLI exits 0 (incomplete denominator). After maxReruns infra-void attempts the cell yields no record (only an exhausted-reruns void) and main() exits 0. §7 says infra failures are void+re-run, not missing cells. Fix: CLI surfaces unresolved voids loudly and exits non-zero.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex-host",
       "createdAt": "2026-06-23T12:02:07.625Z",
@@ -81,7 +81,11 @@
         "experiments/recovery-runner/run-driver.mjs"
       ],
       "signatureTag": "spec-boundary|mjs|exhausted-infra-void",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "CLI durably logs exhausted voids + warns INCOMPLETE + exits non-zero; CLI-integration group asserts status=1; commit 9e5fcbf0f",
+      "resolvedAt": "2026-06-23T12:07:19.047Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f248:F-005",
