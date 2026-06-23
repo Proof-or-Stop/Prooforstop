@@ -35,6 +35,25 @@
       ],
       "signatureTag": "missing|mjs|stale-comment-live",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-8e9f:F-003",
+      "desc": "doc-code-drift: the in-file self-check comment block inside selfCheck() at lines 766-776 still reads \"truncate hook on turn 2 empties context\" (line 766) and \"kill hook on turn 2 replaces context\" (line 772), but the B-8e9f fix moved those hooks from turn 2 to turn 1 (B4.interruptAt returns turn===1?truncate, B5.interruptAt returns turn===1?kill). The stale turn-2 wording is a residue from the prior B-d43f comment that was not updated; it contradicts both the scenario code and the CHANGELOG B-8e9f bullet which explicitly describes the turn-1 fix. A reader of the self-check comments gets the wrong mental model of when the fault fires.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-23T23:35:50.507Z",
+      "reviewRound": "2026-06-23T23:33:37.477Z",
+      "reviewRunId": "B-8e9f:RR-003",
+      "_hash": "375ad24faa2bd5843f5052c031a7f411ebe701448afad6ee57a2898e7fa32dbb",
+      "files": [
+        "experiments/injection-probes/live-loop-harness.mjs",
+        "CHANGELOG.md"
+      ],
+      "signatureTag": "doc-code-drift|mjs|code-drift-file",
+      "signatureTagSource": "auto"
     }
   ]
 }
