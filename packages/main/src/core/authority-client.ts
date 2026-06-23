@@ -80,6 +80,7 @@ import {
   loadAuthoritySettings,
   normalizeAuthorityTrustEnv,
   normalizeAuthorityMode,
+  normalizeAuthorityRunnerProvider,
   parseAuthorityMd,
   parseAuthorityTrustEnv,
   resolveAuthorityConfig,
@@ -1527,29 +1528,31 @@ function secondsFromMs(ms: unknown, fallback: number): number {
 }
 
 type ServerProviderResolution =
-  | { ok: true; provider: 'codex' | 'claude-code' | 'gemini' }
+  | { ok: true; provider: string }
   | { ok: false; reason: string };
 
 function serverProviderFromPlan(jobPlan: JobPlan, override?: string): ServerProviderResolution {
-  if (override === 'codex' || override === 'claude-code' || override === 'gemini') return { ok: true, provider: override };
-  const primary = jobPlan.providerPolicy?.primaryProvider;
-  if (primary === 'codex') return { ok: true, provider: 'codex' };
-  if (primary === 'claude') return { ok: true, provider: 'claude-code' };
+  const explicit = normalizeServerProvider(override);
+  if (explicit) return { ok: true, provider: explicit };
+  const primary = jobPlan.providerPolicy?.primaryProvider as string | undefined;
+  const provider = normalizeServerProvider(primary);
+  if (provider) return { ok: true, provider };
   return {
     ok: false,
-    reason: `authority job create requires an explicit real provider (codex/claude-code/gemini); JobPlan primaryProvider=${primary ?? '<missing>'} is not server-runnable`,
+    reason: `authority job create requires an explicit non-fake provider declaration; JobPlan primaryProvider=${primary ?? '<missing>'} is not server-runnable`,
   };
 }
 
-function normalizeServerProvider(value: unknown): 'codex' | 'claude-code' | 'gemini' | null {
-  if (value === 'codex' || value === 'gemini' || value === 'claude-code') return value;
-  if (value === 'claude') return 'claude-code';
-  return null;
+function normalizeServerProvider(value: unknown): string | null {
+  if (typeof value !== 'string' || value.trim().length === 0) return null;
+  const provider = normalizeAuthorityRunnerProvider(value).provider;
+  if (!provider || provider === 'fake') return null;
+  return provider;
 }
 
-function serverProviderList(value: unknown): Array<'codex' | 'claude-code' | 'gemini'> {
+function serverProviderList(value: unknown): string[] {
   if (!Array.isArray(value)) return [];
-  const providers: Array<'codex' | 'claude-code' | 'gemini'> = [];
+  const providers: string[] = [];
   for (const item of value) {
     const provider = normalizeServerProvider(item);
     if (provider && !providers.includes(provider)) providers.push(provider);
@@ -1559,7 +1562,7 @@ function serverProviderList(value: unknown): Array<'codex' | 'claude-code' | 'ge
 
 function serverProviderPolicyFromPlan(
   jobPlan: JobPlan,
-  provider: 'codex' | 'claude-code' | 'gemini',
+  provider: string,
 ): Record<string, unknown> {
   const raw = (jobPlan.providerPolicy ?? {}) as Record<string, unknown>;
   const allowedProviders = serverProviderList(raw.allowedProviders);
@@ -1588,7 +1591,7 @@ function serverStepForAuthority(step: JobPlan['plannedSteps'][number]): Record<s
   };
 }
 
-function jobPolicyFromPlan(jobPlan: JobPlan, provider: 'codex' | 'claude-code' | 'gemini'): {
+function jobPolicyFromPlan(jobPlan: JobPlan, provider: string): {
   stopPolicy: Record<string, unknown>;
   evidencePolicy: Record<string, unknown>;
   receiptPolicy: Record<string, unknown>;
@@ -1844,7 +1847,7 @@ export function loadAuthorityConfig(
 }
 
 export interface AuthorityJobCreateFromPlanOptions extends AuthorityVerdictBackingOptions {
-  provider?: 'codex' | 'claude-code' | 'gemini';
+  provider?: string;
   role?: 'planner' | 'implementer' | 'reviewer' | 'explorer' | 'tester';
   promptRef?: string;
   promptHash?: string;
@@ -1991,7 +1994,7 @@ export function buildAuthorityJobCreateEnvelopeFromPlan(
 
 function buildAuthorityDelegatedJobCreateEnvelopeFromPlan(
   jobPlan: JobPlan,
-  provider: 'codex' | 'claude-code' | 'gemini',
+  provider: string,
   settings: AuthorityConfig,
   options: AuthorityJobCreateFromPlanOptions = {},
 ): Record<string, unknown> | null {

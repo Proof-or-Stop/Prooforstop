@@ -48,7 +48,7 @@ const LIVE_ENV: Record<string, string | undefined> = {
   LATTICE_AUTHORITY_URL: 'https://authority.test',
   LATTICE_AUTHORITY_ACTOR_KEY: keyPair.privateKey,
   LATTICE_AUTHORITY_RUNNER_ID: 'runner-live-1',
-  LATTICE_AUTHORITY_RUNNER_PROVIDER: 'claude',
+  LATTICE_AUTHORITY_RUNNER_PROVIDER: 'antigravity',
   LATTICE_AUTHORITY_PROJECT_ID: 'project-live-1',
   LATTICE_AUTHORITY_SESSION_ID: 'session-live-1',
   LATTICE_AUTHORITY_SERVER_KEY_ID: SERVER_KEY_ID,
@@ -472,9 +472,9 @@ async function main(): Promise<void> {
   assert.equal(actorRegistration?.headers.Authorization, 'Bearer customer-key-canary', 'actor registration carries the customer API key');
   assert.equal(actorRegistration?.headers['X-Lattice-Bootstrap-Token'], 'bootstrap-token-canary', 'bootstrap token uses its dedicated header');
   assert.equal((actorRegistration?.body as any)?.runnerProvider, undefined, 'actor registration body must NOT carry a server-forbidden top-level runnerProvider (B-3157)');
-  assert.equal((actorRegistration?.body as any)?.capabilities?.runnerProvider, 'claude-code', 'actor registration carries the normalized runner provider nested in capabilities');
+  assert.equal((actorRegistration?.body as any)?.capabilities?.runnerProvider, 'antigravity', 'actor registration carries the custom runner provider nested in capabilities');
   const jobClaim = testCalls.find(call => call.path.endsWith('/jobs/claim'));
-  assert.equal((jobClaim?.body as any)?.claim?.provider, 'claude-code', 'job claim routes by normalized runner provider');
+  assert.equal((jobClaim?.body as any)?.claim?.provider, 'antigravity', 'job claim routes by custom runner provider declaration');
   assert.ok(testCalls.every(call => call.headers.Authorization === 'Bearer customer-key-canary'), 'every mutating live call carries the customer API key');
   const jobHeartbeat = testCalls.find(call => call.path.includes('/v1/jobs/job-live-test/heartbeat'));
   assert.equal((jobHeartbeat?.body as any)?.heartbeat?.status, undefined, 'job heartbeat payload must stay Python-compatible and omit unsupported status');

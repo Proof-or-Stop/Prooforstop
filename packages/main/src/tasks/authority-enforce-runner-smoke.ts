@@ -103,15 +103,15 @@ const configuredEnv = {
 }
 
 {
-  const invalid = buildAuthorityEnforceRunnerPlan({ once: true, dryRun: true }, {
+  const custom = buildAuthorityEnforceRunnerPlan({ once: true, dryRun: true }, {
     ...configuredEnv,
-    LATTICE_AUTHORITY_RUNNER_PROVIDER: 'unknown-provider',
+    LATTICE_AUTHORITY_RUNNER_PROVIDER: 'antigravity',
   });
-  assert.equal(invalid.status, 'fail', 'invalid runner provider fails closed');
-  assert.equal(invalid.runnerProvider, null);
-  assert.equal(invalid.runnerProviderValid, false);
-  assert.equal(invalid.runnerProviderInvalidValue, 'unknown-provider');
-  assert(invalid.readinessWarnings.some(warning => warning.includes('LATTICE_AUTHORITY_RUNNER_PROVIDER')));
+  assert.equal(custom.status, 'pass', 'custom runner provider declarations are accepted locally');
+  assert.equal(custom.runnerProvider, 'antigravity');
+  assert.equal(custom.runnerProviderValid, true);
+  assert.equal(custom.runnerProviderInvalidValue, null);
+  assert.deepEqual(custom.readinessWarnings, []);
 }
 
 {

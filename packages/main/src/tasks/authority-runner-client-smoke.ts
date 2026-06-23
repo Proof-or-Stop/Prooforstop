@@ -180,7 +180,7 @@ function pythonHeader() {
   return { actorId: ACTOR_ID, role: 'runner', nonce: NONCE, timestamp: CREATED_AT };
 }
 
-function liveControlPlaneOptions(fetchImpl: AuthorityFetch) {
+function liveControlPlaneOptions(fetchImpl: AuthorityFetch, runnerProvider = 'codex') {
   return {
     baseURL: BASE_URL,
     timeoutMS: DEFAULT_AUTHORITY_TIMEOUT_MS,
@@ -191,7 +191,7 @@ function liveControlPlaneOptions(fetchImpl: AuthorityFetch) {
     actorPrivateKeyEncoding: 'base64' as const,
     runnerId: 'runner-1',
     sessionId: 'session-1',
-    runnerProvider: 'codex' as const,
+    runnerProvider,
     projectId: 'project-1',
     customerApiKey: TEST_AUTH.customerApiKey,
     once: true,
@@ -583,7 +583,7 @@ function eventMessage(events: { step: string; message?: string }[], step: string
     200,
     ': heartbeat\n\nevent: jobs.available\ndata: {"count":2,"jobIds":["job-a","job-b"]}\n\n',
   ));
-  const out = await runLatticeAuthorityControlPlaneOnce(liveControlPlaneOptions(fetch));
+  const out = await runLatticeAuthorityControlPlaneOnce(liveControlPlaneOptions(fetch, 'codex-cli'));
   const events = out.networkEvents ?? [];
   assert.equal(out.status, 'pass', 'available stream hint still reaches signed claim path');
   assert.equal(out.claimedJobId, null, 'positive SSE jobIds do not create ownership when signed claim returns {job:null}');
@@ -600,6 +600,10 @@ function eventMessage(events: { step: string; message?: string }[], step: string
   );
   assert.equal(calls[3].url, `${BASE_URL}/v1/runners/runner-1/jobs/stream`);
   assert.equal(calls[3].headers.Authorization, `Bearer ${TEST_AUTH.customerApiKey}`);
+  assert.equal((calls[0].body as any)?.capabilities?.runnerProvider, 'codex-cli', 'actor key registration carries custom provider declaration in capabilities');
+  assert.equal((calls[1].body as any)?.request?.capabilities?.[0]?.provider, 'codex-cli', 'runner registration carries custom provider capability');
+  assert.equal((calls[2].body as any)?.heartbeat?.capabilities?.[0]?.provider, 'codex-cli', 'runner heartbeat carries custom provider capability');
+  assert.equal((calls[4].body as any)?.claim?.provider, 'codex-cli', 'signed claim carries custom provider declaration');
   assert.equal(events.find(event => event.step === 'jobs_stream')?.ok, true);
   assert.equal(events.find(event => event.step === 'claim_job')?.ok, true, 'SSE available triggers signed claim');
 }
