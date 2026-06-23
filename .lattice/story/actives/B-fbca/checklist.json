@@ -676,6 +676,17 @@
           "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
           "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
           "timestamp": "2026-06-23T21:23:42.954Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "git grep -niE 'koala' -- 'packages/main/src/core/config.ts'",
+          "result": "pass",
+          "note": "Exit 1 / zero hits: case-insensitive sweep of the config file finds no derivative koala identifier (no parseKoalaConfig, KOALA_CONFIG_PATH, etc.) missed by the three named targets; corroborated by the whole-src literal-zero grep",
+          "headHash": "034832ed8681636dc867a3029b5a5d688e001eca",
+          "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
+          "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
+          "timestamp": "2026-06-23T21:23:44.471Z"
         }
       ]
     },
