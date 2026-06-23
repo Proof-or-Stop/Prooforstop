@@ -4,7 +4,7 @@
   "title": "Surface main-sync readiness before late DONE closure",
   "description": "Long-running stories can lose time when main has moved and the branch only discovers merge readiness issues during DONE preparation. This story adds an earlier, read-only readiness signal so reviewers and implementers can sync main before REVIEW or late TEST without changing DONE merge ownership or lifecycle merge boundaries.",
   "type": "chore",
-  "phase": "PLAN",
+  "phase": "DEV",
   "priority": "medium",
   "source": "baseline-item-4",
   "keywords": [
@@ -39,6 +39,15 @@
       "phase": "PLAN",
       "action": "advance",
       "timestamp": "2026-06-23T11:37:57.606Z",
+      "branch": "story/B-4c48",
+      "user": "Harmonygo",
+      "sessionId": "sess-b1b604c86c03d9ec",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-23T11:43:21.241Z",
       "branch": "story/B-4c48",
       "user": "Harmonygo",
       "sessionId": "sess-b1b604c86c03d9ec",
