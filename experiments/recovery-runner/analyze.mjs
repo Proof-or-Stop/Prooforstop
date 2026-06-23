@@ -26,7 +26,7 @@
 // Everything is pure + offline; analyze-selfcheck.mjs exercises it with synthetic fixtures
 // of KNOWN rates/contrasts. No live LLM.
 import {
-  ARMS, RECOVERY_SCENARIOS, ABLATION_SCENARIO, CONTRASTS,
+  RECOVERY_SCENARIOS, ABLATION_SCENARIO, CONTRASTS,
   scenarioAppliesToArm, UNSAFE_KEYS,
 } from './run-driver.mjs';
 import { TERMINAL_STOP_TYPES } from './adjudicate.mjs';
@@ -399,10 +399,11 @@ export function emitTidyCsv(records) {
   return rows.join('\n') + '\n';
 }
 // The formal pre-registered GLMM (§5): arm fixed; task/scenario/seed random. Emitted for R
-// (lme4); the Node cluster bootstrap is the verifiable proxy. Two DISTINCT models, each on its
-// own corpus (do NOT pool §5 null-ablation completion cells into the §6 not-amplified model):
-//   H1 (§6): notAmplified ~ arm over the §6 scenario rows (scenario != "null") only.
-//   H2 (§5): completion   ~ arm over the §5 null-ablation rows (scenario == "null") only.
+// (lme4); the Node cluster bootstrap is the verifiable proxy. Two DISTINCT models, each over
+// the MATCHED A4-vs-A2prime common-cell corpus (matchedPrimaryH1/H2==1) — same matched cells
+// as the headline rates + bootstrap; null completion cells are never pooled into the §6 model:
+//   H1 (§6): notAmplified ~ arm over the matched §6 cells   (matchedPrimaryH1 == 1).
+//   H2 (§5): completion   ~ arm over the matched null cells (matchedPrimaryH2 == 1).
 export function emitGlmmR() {
   return `# Pre-registered GLMMs for the §5/§6 powered ablation (lme4). Run: Rscript glmm.R <tidy.csv>
 # FORMAL models (the authority); the Node cluster bootstrap in analyze.mjs is the in-Node
