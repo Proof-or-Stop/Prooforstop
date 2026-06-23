@@ -12,7 +12,6 @@ export const LATTICE_STORY_DIR = `${LATTICE_DIR}/story/actives`;
 export const LEGACY_DOCS_STORY_DIR = 'docs/story/actives';
 
 export const LATTICE_ACTIVITY_LOG = `${LATTICE_DIR}/activity.jsonl`;
-export const LATTICE_LEGACY_KOALA_ACTIVITY_LOG = `${LATTICE_DIR}/activity.legacy-koala.jsonl`;
 export const LEGACY_DOCS_ACTIVITY_LOG = 'docs/story/activity.jsonl';
 
 export const LATTICE_MAIN_WRITE_LOCK = `${LATTICE_DIR}/locks/main-write.lock`;
