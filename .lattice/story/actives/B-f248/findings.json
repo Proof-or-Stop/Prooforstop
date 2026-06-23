@@ -180,7 +180,7 @@
       "desc": "run-driver.mjs:401 console.log reports voids.length (including exhausted-reruns sentinels) as the count written to voidsFile, but onVoid is only called for per-attempt infra-void events — exhausted-reruns entries are never passed to onVoid and therefore not written to the file. For N cells exhausting maxReruns+1=4 attempts each: the console says N*5 void events -> voidsFile but the file contains only N*4 entries. An operator would expect the reported count to equal the file line count. The cell identity is still recoverable from per-attempt entries in the file (each carries the full cell object), so correctness of downstream analysis is not affected — only the operator-facing count is misleading.",
       "severity": "low",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-23T12:14:53.501Z",
@@ -191,7 +191,11 @@
         "experiments/recovery-runner/run-driver.mjs"
       ],
       "signatureTag": "edge|mjs|driver-console-reports",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "exhausted-reruns void now routed through onVoid; voids[] and sidecar in lock-step; stdout count accurate; commit 8a3ae6d5c",
+      "resolvedAt": "2026-06-23T12:22:40.220Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f248:F-010",
