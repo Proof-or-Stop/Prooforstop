@@ -1,0 +1,76 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add story/job selector fields to runner claim contracts",
+      "context": "Update the CLI runner claim schema/types so signed job claims can carry storyId and jobId in the same shape accepted by the server.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-authority-live-integration.md",
+        "docs/requirements/decisions/authority-runner-session-evidence-envelope.md"
+      ],
+      "userSees": "Signed runner claim payloads can include storyId/jobId without schema rejection.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "JobClaim schema accepts storyId and jobId selectors in signed envelopes.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Existing broad claim envelopes without selectors remain valid for generic runner paths.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Claim selector fields stay inside the signed claim payload rather than becoming unsigned query parameters or SSE hints.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Send storyId from live runner claim paths",
+      "context": "Update autopilot authority job-loop and authority_enforce_runner live claim paths so expected story-bound flows include storyId in the signed claim payload.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-authority-live-integration.md",
+        "docs/requirements/decisions/authority-receipt-cross-repo-live-smoke.md"
+      ],
+      "userSees": "A live runner for story B-current sends claim.storyId=B-current, so stale queued jobs from other stories are skipped by the server.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "autopilot authority live claim includes the requested storyId in the signed claim body.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "authority_enforce_runner live claim includes storyId when the command is story-scoped.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "SSE jobs.available remains advisory; claim ownership still requires signed POST with storyId.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

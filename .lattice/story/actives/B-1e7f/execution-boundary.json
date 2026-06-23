@@ -1,0 +1,32 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-1e7f",
+  "allowedCommands": [
+    "git *",
+    "lattice *",
+    "node *",
+    "npm run *",
+    "pnpm *",
+    "rg *",
+    "sed *"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    ".lattice",
+    "docs/requirements/decisions",
+    "docs/story",
+    "packages/main/src/core",
+    "packages/main/src/tasks"
+  ],
+  "excludedCommands": [
+    "git push *",
+    "rm -rf *"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "story_create",
+  "confirmationNote": "Local CLI story only; no remote publish and no server deployment.",
+  "createdAt": "2026-06-23T10:27:16.448Z",
+  "updatedAt": "2026-06-23T10:27:16.448Z",
+  "_hash": "e38dbd97613c5b47f5b1753cf587300b7d9beb2c349ead551fae24a065d7cac3"
+}
