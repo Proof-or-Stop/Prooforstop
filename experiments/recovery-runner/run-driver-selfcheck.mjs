@@ -82,6 +82,12 @@ group('enumeration: §3 applicability + exact cell/exclusion counts');
   // invalid args throw
   let threw = false; try { enumerateCells({ tasks: [], k: 5 }); } catch { threw = true; } ok(threw, 'enumeration: empty tasks throws');
   threw = false; try { enumerateCells({ tasks: ['t1'], k: 0 }); } catch { threw = true; } ok(threw, 'enumeration: k<1 throws');
+  // CHK-001 adversarial: unknown arm rejected loudly (would otherwise silently shrink the matrix)
+  threw = false; try { enumerateCells({ arms: ['A4', 'A99'], tasks: ['t1'], k: 1 }); } catch { threw = true; } ok(threw, 'enumeration: unknown arm throws (no silent zero-cell shrink)');
+  // CHK-001 adversarial: duplicate taskIds rejected (would double-count cells + corrupt denominators)
+  threw = false; try { enumerateCells({ tasks: ['t1', 't1'], k: 1 }); } catch { threw = true; } ok(threw, 'enumeration: duplicate taskIds throw');
+  // k=1 minimum-repeats count formula (1 task): A1 13 + (A2,A2prime,A3,A4) 16×4 = 77
+  eq(enumerateCells({ tasks: ['t1'], k: 1 }).cells.length, 77, 'enumeration: k=1 single-task count = 77');
 }
 
 // =========================================================================================
@@ -101,6 +107,12 @@ group('schema: every emitted record carries the EXACT §7 field set + budget fie
   // injectionApplied: false for the null ablation cell, true for an injected scenario
   ok(records.find((r) => r.scenarioId === null).injectionApplied === false, 'schema: null ablation cell has injectionApplied=false');
   ok(records.find((r) => r.scenarioId === 'B1' && r.arm === 'A1').injectionApplied === true, 'schema: injected cell has injectionApplied=true');
+  // CHK-002 adversarial: an extra engine field outside §7 is DROPPED (record built from an allowlist)
+  const xRec = (await runDriver({ cells: [cellOf('A4', 'B1')], engine: async () => engineResult({ extraField: true, evil: 'x' }) })).records[0];
+  ok(!('extraField' in xRec) && !('evil' in xRec), 'schema: engine extra fields are dropped (allowlist build)');
+  // CHK-002 adversarial: an engine-supplied adjudicatedOutcome is IGNORED (re-derived via adjudicate.mjs)
+  const oRec = (await runDriver({ cells: [cellOf('A4', 'B1')], engine: async () => engineResult({ adjudicatedOutcome: 'amplified' }) })).records[0];
+  eq(oRec.adjudicatedOutcome, 'recovered', 'schema: engine-supplied adjudicatedOutcome ignored (re-derived as recovered)');
 }
 
 // =========================================================================================
@@ -135,8 +147,13 @@ group('denominator-sets: §5 common-cell membership per contrast');
   eq(denominatorSetsFor('A3', null), ['A4_vs_A3'], 'denom: A3/null only in exploratory contrast');
   eq(denominatorSetsFor('A2', 'B4'), ['A4_vs_A2'], 'denom: A2/B4 in reference contrast');
   eq(denominatorSetsFor('A1', 'B4'), [], 'denom: A1/B4 in nothing (B4 N/A for A1)');
+  eq(denominatorSetsFor('A2', 'B5'), ['A4_vs_A2'], 'denom: A2/B5 in A4_vs_A2 only (B5 N/A for A1)');
+  ok(Array.isArray(denominatorSetsFor('A1', 'B4')), 'denom: always an array (empty, never null)');
   // every contrast id is well-formed
   ok(CONTRASTS.every((c) => c.arms.length === 2 && typeof c.id === 'string'), 'denom: contrasts well-formed');
+  // CHK-003 adversarial: an engine-supplied denominatorSets is IGNORED; the driver computes it
+  const dRec = (await runDriver({ cells: [cellOf('A4', 'B1')], engine: async () => engineResult({ denominatorSets: ['FAKE_CONTRAST'] }) })).records[0];
+  eq(dRec.denominatorSets, ['A4_vs_A2prime', 'A4_vs_A3', 'A4_vs_A2', 'A4_vs_A1'], 'denom: engine-supplied denominatorSets is ignored (driver computes membership)');
 }
 
 // =========================================================================================
@@ -163,6 +180,9 @@ group('validity-filter: §7 void+re-run vs kept task-failure');
   eq(res.records.length, 1, 'validity: thrown engine error re-runs and recovers');
   ok(res.voids.some((v) => /engine-threw/.test(v.reason)), 'validity: thrown error logged as engine-threw');
   ok(isInfraVoid({ infraVoid: true }) === true && isInfraVoid({ acceptancePass: false }) === false, 'validity: isInfraVoid distinguishes infra from task failure');
+  // CHK-004 edge: degenerate empty cell set -> zero records, no crash/division-by-zero
+  res = await runDriver({ cells: [], engine: async () => engineResult() });
+  ok(res.records.length === 0 && res.voids.length === 0, 'validity: empty cell set yields zero records gracefully');
 }
 
 // =========================================================================================
@@ -179,6 +199,11 @@ group('seeded-order: deterministic + reproducible run order');
   const shuffled = seededShuffle(input, 'x');
   eq(input, [1, 2, 3, 4, 5], 'seeded-order: seededShuffle does not mutate input');
   eq(shuffled.slice().sort((x, y) => x - y), [1, 2, 3, 4, 5], 'seeded-order: shuffle is a permutation');
+  // CHK-004 adversarial: same seed + same stub => byte-identical serialized JSONL end-to-end
+  const cells1 = enumerateCells({ tasks: ['t1', 't2'], k: 2, seed: 'fixed' }).cells;
+  const cells2 = enumerateCells({ tasks: ['t1', 't2'], k: 2, seed: 'fixed' }).cells;
+  const jsonl = async (cells) => (await runDriver({ cells, engine: async () => engineResult() })).records.map((r) => JSON.stringify(r)).join('\n');
+  eq(await jsonl(cells1), await jsonl(cells2), 'seeded-order: same seed => byte-identical JSONL output');
 }
 
 // =========================================================================================
@@ -191,9 +216,12 @@ group('budget-log: §1 line 47 A2prime budget-compliance fields');
   eq(a2.truncated, true, 'budget-log: A2prime truncated surfaced');
   eq(a2.tokenBudget, 1200, 'budget-log: A2prime tokenBudget surfaced');
   eq(a2.wallBudgetMs, 2400, 'budget-log: A2prime wallBudgetMs surfaced');
-  // non-A2prime arms carry null for ALL six budget fields
-  const a4 = (await runDriver({ cells: [cellOf('A4', 'B1')], engine: async () => engineResult({ budgetPass: true, tokenInBand: true }) })).records[0];
-  ok(A2PRIME_BUDGET_FIELDS.every((f) => a4[f] === null), 'budget-log: non-A2prime arm carries null for all budget fields (even if engine sends values)');
+  // every non-A2prime arm carries null for ALL six budget fields, even if the engine tries
+  // to fake compliance (adversarial: engine pre-fills budgetPass on the wrong arm).
+  for (const arm of ['A1', 'A2', 'A3', 'A4']) {
+    const r = (await runDriver({ cells: [cellOf(arm, 'B1')], engine: async () => engineResult({ budgetPass: true, tokenInBand: true, truncated: true }) })).records[0];
+    ok(A2PRIME_BUDGET_FIELDS.every((f) => r[f] === null), `budget-log: ${arm} carries null for all budget fields (engine fake ignored)`);
+  }
 }
 
 // =========================================================================================
@@ -210,6 +238,12 @@ group('NEGATIVE CONTROL: validateRecord must REJECT a broken record');
   ok(validateRecord(badUnsafe).ok === false, 'neg-control: incomplete unsafeChecks is REJECTED');
   const noBudget = { ...good }; delete noBudget.budgetPass;
   ok(validateRecord(noBudget).ok === false, 'neg-control: missing budget field is REJECTED');
+  // CHK-004 adversarial: impossible negative spend is flagged invalid (null allowed = "not measured")
+  const negMetric = { ...good, wallClockMs: -1 };
+  const vNeg = validateRecord(negMetric);
+  ok(vNeg.ok === false && vNeg.numericOk === false, 'neg-control: negative wallClockMs is flagged invalid');
+  ok(validateRecord({ ...good, tokensSpent: Number.NaN }).numericOk === false, 'neg-control: NaN tokensSpent is flagged invalid');
+  ok(validateRecord({ ...good, tokensSpent: null, wallClockMs: null, agentCallCount: null }).numericOk === true, 'neg-control: null metrics allowed (not measured)');
 }
 
 // =========================================================================================

@@ -150,6 +150,18 @@ export function enumerateCells({
   if (!Number.isInteger(k) || k < 1) {
     throw new Error('enumerateCells: k must be a positive integer');
   }
+  // Fail-closed on a misconfigured arm list: an unknown arm would silently contribute zero
+  // cells (scenarioAppliesToArm returns false for every scenario), quietly shrinking the
+  // matrix. Reject it loudly instead.
+  const unknownArms = (Array.isArray(arms) ? arms : []).filter((a) => !ARMS.includes(a));
+  if (unknownArms.length) {
+    throw new Error(`enumerateCells: unknown arm(s) ${unknownArms.join(',')} (valid: ${ARMS.join(',')})`);
+  }
+  // Duplicate taskIds would double-count cells and corrupt every per-task denominator —
+  // reject rather than silently duplicate.
+  if (new Set(tasks).size !== tasks.length) {
+    throw new Error('enumerateCells: duplicate taskId(s) are not allowed');
+  }
   const cells = [];
   const excluded = [];
   for (const taskId of tasks) {
@@ -266,13 +278,20 @@ export function buildCanonicalRecord(cell = {}, engineResult = {}, ctx = {}) {
 // validateRecord(rec) -> { ok, missing, enumOk, unsafeOk, budgetOk }
 // Asserts every required §7 field is present, the adjudicated outcome is in the enum, the
 // 5 unsafe keys are present, and the 6 A2prime budget fields are present (null off-arm).
+// Numeric spend fields that must be a finite, non-negative number when present (null = "not
+// measured" is allowed). A negative/NaN/Infinity value is impossible spend → invalid.
+const NUMERIC_RECORD_FIELDS = Object.freeze(['tokensSpent', 'wallClockMs', 'agentCallCount']);
 export function validateRecord(rec) {
   const r = rec || {};
   const missing = SEVEN_RECORD_FIELDS.filter((f) => !(f in r));
   const enumOk = ADJUDICATED_OUTCOMES.includes(r.adjudicatedOutcome);
   const unsafeOk = !!r.unsafeChecks && UNSAFE_KEYS.every((k) => k in r.unsafeChecks);
   const budgetOk = A2PRIME_BUDGET_FIELDS.every((f) => f in r);
-  return { ok: missing.length === 0 && enumOk && unsafeOk && budgetOk, missing, enumOk, unsafeOk, budgetOk };
+  const numericOk = NUMERIC_RECORD_FIELDS.every((f) => r[f] == null || (Number.isFinite(r[f]) && r[f] >= 0));
+  return {
+    ok: missing.length === 0 && enumOk && unsafeOk && budgetOk && numericOk,
+    missing, enumOk, unsafeOk, budgetOk, numericOk,
+  };
 }
 
 // ---------------------------------------------------------------------------
