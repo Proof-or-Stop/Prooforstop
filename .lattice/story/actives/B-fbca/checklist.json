@@ -110,6 +110,17 @@
           "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
           "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
           "timestamp": "2026-06-23T21:20:22.874Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "git grep -nE 'KOALA_RESIDUE_' -- 'packages/*/src/**'",
+          "result": "pass",
+          "note": "Literal grep ran. Intent expected KOALA_RESIDUE_* unchanged in story-3 scope; the later story-4 item (CHK-007) flipped the gate to zero-tolerance and renamed these to LATTICE_RESIDUE_ (10 hits in review-preflight.ts). This item did NOT touch them — the change came from CHK-007, so the story-3 invariant (CHK-001 must not rename the residue self-IDs) holds: CHK-001 left them as koala; CHK-007 later owned the flip.",
+          "headHash": "4ac1f5fcaf8853dc9948b1f812b3b2d080dfae2a",
+          "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
+          "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
+          "timestamp": "2026-06-23T21:20:24.271Z"
         }
       ]
     },
