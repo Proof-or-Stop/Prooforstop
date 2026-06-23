@@ -242,6 +242,15 @@
       "reviewRound": "2026-06-23T18:05:11.357Z",
       "reviewRunId": "B-f248:RR-032",
       "_hash": "0ac52f0c6f9b1768b90768ff71c3feb4c7580ee43ac301fddf336a2700ad74ff"
+    },
+    {
+      "id": "B-f248:RP-028",
+      "agent": "lattice-review-quality",
+      "note": "Quality review of hardening commit 44e4a4eab (run-driver.mjs + run-driver-selfcheck.mjs). Verified the 4 host-2 defensive guards: (1) enumerateCells arms/scenarios dedup is symmetric with the existing taskId guard and does not break the default distinct ARMS/[null,B1..B15] path; (2) validateRecord now flags explicitly-undefined required fields via `!(f in r) || r[f]===undefined` while still allowing null for §7 nullable fields; (3) CLI duplicate --tasks now exits 2 cleanly before enumerateCells, consistent with other CLI guards; (4) k<3 emits a non-blocking console.warn. No dead code, no as-any, no empty catch, no shell/fn isolation concern (experiment script). Each gap has a matching new assertion; run-driver-selfcheck 135 assertions 0 failed and aggregator (4/4) green. No blockers.",
+      "createdAt": "2026-06-23T18:08:21.369Z",
+      "reviewRound": "2026-06-23T18:05:11.357Z",
+      "reviewRunId": "B-f248:RR-033",
+      "_hash": "3fe1750991842bbd88c25aa33e77b20dcdc786df1124407be9296234e904b401"
     }
   ]
 }
