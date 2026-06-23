@@ -158,7 +158,35 @@
       "context": "doc-code consistency",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "The CHANGELOG Experiments entry documents the single-shot fault materialization for B4/B5/B10 (turn-1 + disk-grounded).",
+      "files": {
+        "modify": [
+          "CHANGELOG.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "git diff shows the CHANGELOG Experiments bullet describing B4/B5 turn-1 + B10 disk-grounded",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "the bullet does not overclaim that a powered run was executed",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "grep -c for the Experiments heading stays 1 (no duplicate heading introduced)",
+            "type": "logic"
+          }
+        ]
+      }
     }
   ]
 }
