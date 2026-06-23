@@ -30,9 +30,46 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-23T10:05:35.945Z",
-      "endTime": null
+      "endTime": "2026-06-23T10:15:31.755Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts the quality reviewer prompt contains both job.metadata and linked run.metadata proof metadata review phrases.",
+          "headHash": "d58061b17189f0793c4a0a9c7113ef2e0bf4bf42",
+          "materialHash": "b39f2374b7e8e5db1704eb437c0e3970eaf9f9c674e00d55d78646faaae13092",
+          "storyFilesHash": "8a25f98875cfd1c052283fbe7aeb080fcd4c70b71bd1cb4023b38f10d03530fc",
+          "timestamp": "2026-06-23T10:15:31.974Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "packages/main/templates/agents/lattice-review-quality.md",
+          "result": "pass",
+          "note": "Guidance is narrowly scoped to proof/receipt/provider/run/job metadata semantics and framed as correctness review guidance, not broad optimization or product behavior.",
+          "headHash": "d58061b17189f0793c4a0a9c7113ef2e0bf4bf42",
+          "materialHash": "b39f2374b7e8e5db1704eb437c0e3970eaf9f9c674e00d55d78646faaae13092",
+          "storyFilesHash": "8a25f98875cfd1c052283fbe7aeb080fcd4c70b71bd1cb4023b38f10d03530fc",
+          "timestamp": "2026-06-23T10:15:32.220Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "command": "node packages/main/dist/tasks/prompt-registry-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts the phrase checking only one location is insufficient, rejecting job-only or run-only review coverage.",
+          "headHash": "d58061b17189f0793c4a0a9c7113ef2e0bf4bf42",
+          "materialHash": "b39f2374b7e8e5db1704eb437c0e3970eaf9f9c674e00d55d78646faaae13092",
+          "storyFilesHash": "8a25f98875cfd1c052283fbe7aeb080fcd4c70b71bd1cb4023b38f10d03530fc",
+          "timestamp": "2026-06-23T10:15:32.578Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -132,6 +169,16 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Starting derived baseline result artifact for proofMetadataReviewCoverage.",
+      "agent": "codex"
+    },
+    {
+      "timestamp": "2026-06-23T10:15:31.755Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Committed quality reviewer guidance and post-commit prompt smoke evidence for both job.metadata and linked run.metadata coverage.",
       "agent": "codex"
     }
   ]
