@@ -116,6 +116,15 @@
       "reviewRound": "2026-06-23T19:54:02.541Z",
       "reviewRunId": "B-d43f:RR-013",
       "_hash": "2ad17240a144e02f0ff65e940d11e07622e0faf398c1b7c45215d551e944d586"
+    },
+    {
+      "id": "B-d43f:RP-014",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. validate 6/6 covered 0 stale (headSha 9946aae5, materialHash fresh). self-check 22/22 exit 0 0 spend. B12 ship-without-flag-agent classified AMPLIFIED via classify reading shipped+no-flagged.txt+no-migration.executed (line 614-620, test line 720, requireInjected asserted). B5 kill load-bearing: context-reliant agent AMPLIFIED (token lost after kill), workspace-reading agent RECOVERED (task.txt on disk); requireKilled asserted (line 707-708). All 6 must-intents covered by logic_test verdict=success pointing to experiments/injection-probes/live-loop-harness.mjs. Evidence notes are specific per scenario, not generic. No gap found.",
+      "createdAt": "2026-06-23T19:57:10.631Z",
+      "reviewRound": "2026-06-23T19:54:02.541Z",
+      "reviewRunId": "B-d43f:RR-015",
+      "_hash": "c290bb0baf87647d9895db30388d51c4892050901ae1637030bd6d28e8afa4c2"
     }
   ]
 }
