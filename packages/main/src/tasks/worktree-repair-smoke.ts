@@ -172,7 +172,7 @@ async function assertDoctorRepairCleansAndProtects(): Promise<void> {
 
 // B-097f made agent prompt assets host-neutral single-source: the global
 // link-repair now manages ONLY the canonical @lattice/core package and no
-// longer resolves or rewrites a legacy @koala-agent/core symlink. So when the
+// longer resolves or rewrites a legacy @legacy-agent/core symlink. So when the
 // canonical install is a real directory (not a stale worktree symlink) and the
 // only worktree-pointing symlink is the legacy package, repair correctly returns
 // a sane 'skipped' (NOT a relink, NOT an error): the canonical install is left
@@ -184,7 +184,7 @@ function assertCanonicalOnlyRepairSkipsUnmanagedLegacyLink(): void {
   try {
     const globalRoot = join(root, 'global-node-modules');
     const canonicalPath = join(globalRoot, '@lattice', 'core');
-    const legacyPath = join(globalRoot, '@koala-agent', 'core');
+    const legacyPath = join(globalRoot, '@legacy-agent', 'core');
     const worktreePath = join(root, '.worktrees', 'B-mixed');
     const mainPackagePath = join(root, 'packages', 'main');
 

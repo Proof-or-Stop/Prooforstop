@@ -1112,14 +1112,15 @@ try {
 
   const incompatibleAssetRoot = mkdtempSync(join(tmpdir(), 'lattice-managed-incompatible-'));
   try {
-    mkdirSync(join(incompatibleAssetRoot, 'bin', 'koala.js'), { recursive: true });
-    const result = runManagedAssetCheck(incompatibleAssetRoot, { apply: true, profile: 'core' });
-    const item = result.items.find(entry => entry.relPath === 'bin/koala.js');
+    // An excluded-path runtime asset present as a directory must report INCOMPATIBLE.
+    mkdirSync(join(incompatibleAssetRoot, '.lattice-codex', 'settings.json'), { recursive: true });
+    const result = runManagedAssetCheck(incompatibleAssetRoot, { apply: true, profile: 'codex', assetMode: 'full' });
+    const item = result.items.find(entry => entry.relPath === '.lattice-codex/settings.json');
     assert.equal(item?.status, 'INCOMPATIBLE');
     assert.equal(item?.applied, undefined);
-    assert.equal(result.applied.includes('bin/koala.js'), false, 'INCOMPATIBLE must not be counted as applied');
+    assert.equal(result.applied.includes('.lattice-codex/settings.json'), false, 'INCOMPATIBLE must not be counted as applied');
     const rendered = renderManagedAssetCheck(result);
-    assert.match(rendered, /INCOMPATIBLE bin\/koala\.js/);
+    assert.match(rendered, /INCOMPATIBLE \.lattice-codex\/settings\.json/);
     assert.match(rendered, /action: .*fix manually|action: .*manually/);
   } finally {
     rmSync(incompatibleAssetRoot, { recursive: true, force: true });

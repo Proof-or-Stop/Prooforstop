@@ -97,7 +97,6 @@ try {
   assertExists(globalThinRoot, '.lattice/lattice.json');
   assertExists(globalThinRoot, 'AGENTS.md');
   assertExists(globalThinRoot, 'lattice.config.json');
-  assertAbsent(globalThinRoot, 'koala.config.json');
 
   // AGENTS.md should reference global lattice, not node bin/lattice.js
   const agentsMd = readFileSync(join(globalThinRoot, 'AGENTS.md'), 'utf8');
@@ -117,13 +116,9 @@ try {
   // Forbidden default assets must not exist
   assertAbsent(globalThinRoot, 'bin/lattice.js');
   assertAbsent(globalThinRoot, 'bin/lattice-codex.js');
-  assertAbsent(globalThinRoot, 'bin/koala.js');
-  assertAbsent(globalThinRoot, 'bin/koala-codex.js');
   assertAbsent(globalThinRoot, '.lattice-codex/README.md');
   assertAbsent(globalThinRoot, '.lattice-codex/lattice.json');
-  assertAbsent(globalThinRoot, '.lattice-codex/koala.json');
   assertAbsent(globalThinRoot, '.lattice-codex/agents');
-  assertAbsent(globalThinRoot, 'KOALA.md');
   assertAbsent(globalThinRoot, 'LATTICE.md');
 
   // Global codex verify should pass without local bin shims
@@ -159,9 +154,6 @@ try {
   for (const relPath of ['LATTICE.md', 'AGENTS.md', '.lattice-codex/README.md', '.lattice-codex/lattice.json', 'bin/lattice.js', 'bin/lattice-codex.js']) {
     assertExists(fullRoot, relPath);
   }
-  for (const relPath of ['KOALA.md', '.lattice-codex/koala.json', 'bin/koala.js', 'bin/koala-codex.js']) {
-    assertAbsent(fullRoot, relPath);
-  }
   assertAbsent(fullRoot, '.lattice/lattice.json');
   assertManagedOk(fullRoot, 'full');
 } finally {
@@ -187,16 +179,16 @@ try {
 }
 
 // ─── Test 5: User-owned legacy files survive global-thin init ────────────────
-// Running init on a dir that already has KOALA.md, bin/koala.js, .lattice-codex/koala.json
-// must not delete or overwrite those legacy files.
+// Running init on a dir that already has unmanaged user-owned files must not
+// delete or overwrite those files.
 const preserveRoot = makeRoot('preserve-legacy');
 try {
   const legacyFiles = new Map([
-    ['KOALA.md', '# User legacy guide\n\nDo not delete.\n'],
+    ['GUIDE.md', '# User legacy guide\n\nDo not delete.\n'],
     ['LATTICE.md', '# User old Lattice guide\n\nDo not delete.\n'],
-    ['bin/koala.js', '#!/usr/bin/env node\nconsole.log("user legacy bootstrap");\n'],
-    ['bin/koala-codex.js', '#!/usr/bin/env node\nconsole.log("user legacy codex wrapper");\n'],
-    ['.lattice-codex/koala.json', '{"userOwned":true}\n'],
+    ['bin/legacy-bootstrap.js', '#!/usr/bin/env node\nconsole.log("user legacy bootstrap");\n'],
+    ['bin/legacy-codex.js', '#!/usr/bin/env node\nconsole.log("user legacy codex wrapper");\n'],
+    ['.lattice-codex/legacy.json', '{"userOwned":true}\n'],
   ]);
   for (const [relPath, content] of legacyFiles) writeText(preserveRoot, relPath, content);
   runInit(preserveRoot, []);

@@ -568,7 +568,7 @@ function wholeFile(
   return { id, relPath, kind: 'whole-file', expectedContent, ownedWhen, executable, okWhen };
 }
 
-function isKoalaSelfRepoBootstrap(actual: string, root: string): boolean {
+function isLatticeSelfRepoBootstrap(actual: string, root: string): boolean {
   if (!actual.includes("import { runLocalBootstrap } from './bootstrap-runner.js'")) return false;
   if (!actual.includes('runLocalBootstrap();')) return false;
   const bootstrap = readText(root, 'bin/bootstrap-runner.js');
@@ -628,20 +628,6 @@ function isExpandedLatticeClaudeGuide(actual: string): boolean {
     && actual.includes('Reviewer opt-in')
     && actual.includes('\u6846\u67b6\u81ea\u7701 audit \u914d\u7f6e');
   return english || legacyChinese;
-}
-
-function appendLegacyRuntimeExclusions(defs: ManagedAssetDefinition[]): void {
-  // Legacy denylist: these are the OLD koala-era filenames that the
-  // koala-removal program is enforcing as NOT-allowed in the runtime tree.
-  // The literal `koala*` tokens here are intentional and must remain — they
-  // are the names being denied, not paths being created. Renaming them would
-  // silently disable the denylist for projects that still have these files.
-  defs.push(
-    { id: 'excluded:bin/koala.js', relPath: 'bin/koala.js', kind: 'excluded-path' },
-    { id: 'excluded:bin/koala-codex.js', relPath: 'bin/koala-codex.js', kind: 'excluded-path' },
-    { id: 'excluded:.lattice-codex/koala.json', relPath: '.lattice-codex/koala.json', kind: 'excluded-path' },
-    { id: 'excluded:.codex/koala.json', relPath: '.codex/koala.json', kind: 'excluded-path' },
-  );
 }
 
 export function listManagedAssetDefinitions(
@@ -715,7 +701,6 @@ export function listManagedAssetDefinitions(
         { id: '.claude:settings.json', relPath: '.claude/settings.json', kind: 'claude-settings' },
       );
     }
-    appendLegacyRuntimeExclusions(defs);
     return defs;
   }
 
@@ -733,11 +718,10 @@ export function listManagedAssetDefinitions(
       renderLatticeBootstrapScript(root),
       actual => actual.includes('coreCliEngineCandidates') && actual.includes('runCli'),
       true,
-      isKoalaSelfRepoBootstrap,
+      isLatticeSelfRepoBootstrap,
     ),
     { id: 'gitignore:runtime-artifacts', relPath: '.gitignore', kind: 'gitignore-runtime' },
   ];
-  appendLegacyRuntimeExclusions(defs);
 
   const wantsCodex = profile === 'codex' || profile === 'all';
   const wantsClaude = profile === 'claude' || profile === 'all';
