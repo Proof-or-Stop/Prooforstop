@@ -178,7 +178,63 @@
       "context": "Pure deterministic; zero claude subprocess",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run node --check experiments/recovery-runner/checks.mjs -> exit 0; WHY: syntax validity of the main module",
+            "type": "cli"
+          },
+          {
+            "desc": "Run node --check experiments/recovery-runner/checks-selfcheck.mjs -> exit 0; WHY: syntax validity of the selfcheck file",
+            "type": "cli"
+          },
+          {
+            "desc": "Run node experiments/recovery-runner/checks-selfcheck.mjs -> all assertions pass, exit 0, no subprocess calls to claude/LLM; WHY: the selfcheck suite must be fully offline and all pass",
+            "type": "cli"
+          },
+          {
+            "desc": "Selfcheck includes a PASS case for each of the three checks (acceptance, hidden-regression, diff-hygiene) -> each returns its *Pass:true field; WHY: positive cases verify the checks work on valid input",
+            "type": "cli"
+          },
+          {
+            "desc": "Selfcheck includes a FAIL case: hash-mismatch acceptance script -> checkAcceptance returns hashOk:false, acceptancePass:false; WHY: selfcheck must cover the tampered-script scenario",
+            "type": "cli"
+          },
+          {
+            "desc": "Selfcheck includes a FAIL case: a new failing test not in baseline -> checkHiddenRegression returns hiddenRegressionPass:false; WHY: selfcheck must cover the regression detection scenario",
+            "type": "cli"
+          },
+          {
+            "desc": "Selfcheck includes a FAIL case: out-of-scope diff or junk artifact -> checkDiffHygiene returns diffHygienePass:false; WHY: selfcheck must cover the dirty-diff scenario",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Selfcheck verifies that the section-7 field names (acceptancePass, hiddenRegressionPass, diffHygienePass) are present in check results -> explicit assertion on key names; WHY: selfcheck must guard the schema contract not just pass/fail booleans",
+            "type": "cli"
+          },
+          {
+            "desc": "Run selfcheck in a clean environment with no network -> still passes; WHY: confirms zero external dependencies (pure deterministic)",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Grep checks-selfcheck.mjs for any spawn/exec/fetch/http/claude subprocess calls -> zero matches; WHY: selfcheck must be pure offline -- any LLM or network call is a test-design violation",
+            "type": "cli"
+          },
+          {
+            "desc": "Verify selfcheck does not import or require any module that would transitively invoke a network call or LLM -> import graph is pure Node.js builtins + local modules only; WHY: transitive LLM dependency would violate the offline constraint",
+            "type": "cli"
+          },
+          {
+            "desc": "Temporarily break one check function (e.g. make checkAcceptance always return acceptancePass:true) and run selfcheck -> selfcheck must FAIL (at least one assertion catches the always-true); WHY: selfcheck must actually detect regressions in the checks themselves, not be a rubber stamp",
+            "type": "cli"
+          }
+        ]
+      }
     }
   ]
 }
