@@ -94,7 +94,7 @@
       "desc": "dead-code: analyze.mjs:471 the ternary `res ? applyValidityFilter(recs).kept : []` has an unreachable false branch — analyze() always returns a non-null object so res is always truthy; the empty-array fallback can never execute; the applyValidityFilter call is also a redundant re-filter of already-filtered data (analyze() already applies the filter internally)",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-23T19:00:42.995Z",
@@ -105,7 +105,11 @@
         "experiments/recovery-runner/analyze.mjs"
       ],
       "signatureTag": "missing|mjs|dead-code-analyze",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "main() computes kept once + reuses for CSV emit (removed unreachable branch + redundant re-filter); commit 4de4ce33a",
+      "resolvedAt": "2026-06-23T19:06:27.034Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-7036:F-006",
