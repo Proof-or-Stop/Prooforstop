@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-23T19:06:19.843Z",
       "reviewRunId": "B-7036:RR-007",
       "_hash": "bef3fb4d16d3eec388e5d82e2699b543740b00d262f054e338f2fe3ed8e350cf"
+    },
+    {
+      "id": "B-7036:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 concept-residue check complete. Deleted/replaced concepts from commit 4de4ce33a: (1) unused A2PRIME_BUDGET_FIELDS import in analyze.mjs removed — canonical definition stays in run-driver.mjs, no residue; (2) old Wilson plausibility-range comment replaced by closed-form formula check — grep finds zero residue of old pattern; (3) dead .replace no-op removed — zero residue; (4) old safeStop-superset note replaced by forward-compatible note with individual terminal detectors — zero residue. All new concept words (rollbackFired, humanGate, noProgressStop, terminalTypeAvailable) are self-consistent within analyze.mjs/analyze-selfcheck.mjs and forward-compatible with adjudicate.mjs processEvents. README doc promises fully backed by code (CLI flags --seed/--B/--out implemented; analyze-selfcheck wired into run-selfchecks). Selfcheck output: 61 assertions, 0 failed. No concept deletion incomplete. No blocker.",
+      "createdAt": "2026-06-23T19:09:12.387Z",
+      "reviewRound": "2026-06-23T19:06:19.843Z",
+      "reviewRunId": "B-7036:RR-005",
+      "_hash": "1d158e406af908d384ce080b7c63fa6e9d52b6b3b62af42662713b6bbc4253ab"
     }
   ]
 }
