@@ -54,7 +54,7 @@
       "desc": "serverProviderFromPlan treats an explicit reserved fake provider override the same as no override. normalizeServerProvider(\"fake\") returns null, then serverProviderFromPlan falls through to jobPlan.providerPolicy.primaryProvider, so a real-provider JobPlan plus authority_job_create --provider fake can still sign and POST a real provider job. This silently turns an explicit test-only provider declaration into a live Authority job instead of failing closed. Fix by distinguishing override presence from normalization result: if override is present and invalid/fake, return an error; only fall back to JobPlan primaryProvider when no override was supplied.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-06-23T03:39:52.929Z",
@@ -66,7 +66,11 @@
         "packages/main/src/tasks/authority-client-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|authority-provider-override",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed serverProviderFromPlan so supplied invalid/fake overrides fail closed instead of falling back to JobPlan primaryProvider. Added smoke coverage for codex-primary JobPlan with fake/Fake/FAKE/empty overrides rejecting without POST and absent override still falling back. Verification passed: npm --prefix packages/main run build; node packages/main/dist/tasks/authority-client-smoke.js; node packages/main/dist/tasks/command-catalog-smoke.js.",
+      "resolvedAt": "2026-06-23T03:45:52.777Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
