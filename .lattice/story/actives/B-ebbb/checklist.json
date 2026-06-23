@@ -369,11 +369,11 @@
           "kind": "manual_transcript",
           "command": "node experiments/recovery-runner/checks-selfcheck.mjs",
           "result": "pass",
-          "note": "selfcheck 'dh junk-env / junk-node_modules: pass false reason junk-artifact': .env and node_modules/ flagged as junk EVEN under an allowed path",
-          "headHash": "278a60f04060e0d4d32b51fd9e0fed872d67d892",
-          "materialHash": "3ee68a262f8963f2691d35fbb344b2261c4d52282139b43e837ded77f015b261",
-          "storyFilesHash": "9c823adea15d877392e591760e4dc447c74a37c38c6a266f4cc1f84dc19de8c0",
-          "timestamp": "2026-06-23T10:19:02.618Z"
+          "note": "selfcheck 'dh junk-env / junk-node_modules + F-B mutation-immunity: pass false reason junk-artifact': .env and node_modules/ flagged as junk EVEN under an allowed path; AND the exported DEFAULT_JUNK_PATTERNS is Object.freeze'd while diffHygiene reads a private frozen snapshot, so an in-process mutation (length=0/push/index-write) cannot disable junk detection — the SAME src/.env input scores junk-artifact identically before and after a mutation attempt (host-2 F-B fix)",
+          "headHash": "e4811e71c828ae3a50a348d7ec1e1641486485f9",
+          "materialHash": "1149a907742a8b8522aff6bf7d040d09e05107c12c17062480b61c908da49bab",
+          "storyFilesHash": "65a531aa375f44893cd300f4169c3d92054e4c8511a0e5c46c30a91d0611b607",
+          "timestamp": "2026-06-23T10:38:57.212Z"
         },
         {
           "intentRef": "CHK-003:adversarial:1",
