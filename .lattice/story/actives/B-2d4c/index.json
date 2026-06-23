@@ -1,0 +1,44 @@
+{
+  "storyId": "B-2d4c",
+  "name": "ablation-adjudication-statemachine",
+  "title": "Add the deterministic section-6 outcome adjudication state machine + unsafe-condition detectors",
+  "description": "The powered recovery study needs the pre-registered deterministic adjudicator that classifies each run as amplified / recovered-to-green / safe-stop by a total-order rule, plus the explicit unsafe-condition detectors. The recovery runner currently uses an ad-hoc 3-way classify; this builds the spec-faithful, unit-testable adjudication core.",
+  "type": "feature",
+  "phase": "INIT",
+  "priority": "high",
+  "keywords": [
+    "ablation",
+    "recovery-runner",
+    "adjudication",
+    "experiment"
+  ],
+  "riskSignals": [
+    {
+      "category": "Security/Credentials",
+      "matched": "secret"
+    },
+    {
+      "category": "Data Migration/Destructive",
+      "matched": "destructive"
+    },
+    {
+      "category": "State Machine/Gate",
+      "matched": "state machine"
+    }
+  ],
+  "priorityElevatedFrom": "medium",
+  "createdAt": "2026-06-23T03:57:09.552Z",
+  "startedAt": "2026-06-23T03:57:09.552Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-23T03:57:09.564Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "e8aca935-deaf-4f5d-9f33-b3aff7bb35fb",
+      "agent": "main"
+    }
+  ]
+}
