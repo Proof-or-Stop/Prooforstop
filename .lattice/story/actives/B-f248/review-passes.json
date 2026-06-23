@@ -80,6 +80,15 @@
       "reviewRound": "2026-06-23T12:32:20.774Z",
       "reviewRunId": "B-f248:RR-014",
       "_hash": "8e4c04b9a1462ee3e964b6835d1bedf406bb9709d57bfd1e60a69ca5aa415d83"
+    },
+    {
+      "id": "B-f248:RP-010",
+      "agent": "lattice-review-docs",
+      "note": "Round 4 convergence pass. F-012 confirmed resolved at commit 4fa945531: enumerate-only comment now correctly states exclusions sidecar is written. Full pass of all README diff-added claims in Run driver + Offline self-checks sections vs run-driver.mjs + run-selfchecks.mjs: 9 claims verified consistent (--maxReruns flag + validation, exclusions.jsonl/voids.jsonl sidecar filenames, exit-nonzero on exhausted reruns, enumerate-only exit-0 before record writes, run-selfchecks.mjs 4-module SELFCHECKS array, no claude-p in selfchecks, contrast IDs/roles, A2prime budget fields). Step 1 extracted ~70 symbols (mostly internal helpers). Step 2 grep of key symbols (maxReruns, exclusionsFile, voidsFile, seededShuffle, enumerateCells, CONTRASTS, A2PRIME_BUDGET_FIELDS) hit the README Run driver + Offline self-checks sections. All compared paragraphs are consistent with code. Zero blockers, zero findings.",
+      "createdAt": "2026-06-23T12:37:07.216Z",
+      "reviewRound": "2026-06-23T12:32:20.774Z",
+      "reviewRunId": "B-f248:RR-015",
+      "_hash": "d7afe3be1ebcf9992a761390a02d01d19b3f4b8ee43fe36310e2cb35e87d1c13"
     }
   ]
 }
