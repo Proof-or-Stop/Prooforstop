@@ -98,6 +98,15 @@
       "reviewRound": "2026-06-23T01:50:53.069Z",
       "reviewRunId": "B-e37e:RR-018",
       "_hash": "6e068488e837d44a91f8bbc49a89826cc2f6ad52d7c4c557a8327e2631030624"
+    },
+    {
+      "id": "B-e37e:RP-012",
+      "agent": "lattice-review-docs",
+      "note": "Post-main-merge docs re-review passed: docs/guide.md, docs/requirements/decisions/lattice-authority-live-integration.md, and docs/requirements/decisions/orchestrate-retirement.md consistently document jobs_stream/jobs.available as a notification/diagnostic hint only; empty/error/timeout/malformed/no-SSE paths fall back to the existing signed claim path; stream hints are not leases, receipts, completions, approval, or production authority; authority/full DONE remain gated by verified native gate_decision receipts and multi-host certification as applicable; proofbound remains the canonical active root and Orchestrate remains retired/read-only.",
+      "createdAt": "2026-06-23T01:53:54.016Z",
+      "reviewRound": "2026-06-23T01:50:53.069Z",
+      "reviewRunId": "B-e37e:RR-019",
+      "_hash": "42de98698b2989d3da5e463cadafbbf8c93853dbe88b8b9983e542af180fb7b0"
     }
   ]
 }
