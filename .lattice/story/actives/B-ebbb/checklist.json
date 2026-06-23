@@ -98,6 +98,17 @@
           "materialHash": "3ee68a262f8963f2691d35fbb344b2261c4d52282139b43e837ded77f015b261",
           "storyFilesHash": "9c823adea15d877392e591760e4dc447c74a37c38c6a266f4cc1f84dc19de8c0",
           "timestamp": "2026-06-23T10:16:58.790Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/checks-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck uses scriptPath in OS tmpdir (mkdtempSync) OUTSIDE the agent-editable workspace; harness-owned-path constraint exercised — script lives in a harness dir, only its frozen hash gates execution",
+          "headHash": "7dab8767ed9b027e11e23a8bf47c95be7b0ef013",
+          "materialHash": "3ee68a262f8963f2691d35fbb344b2261c4d52282139b43e837ded77f015b261",
+          "storyFilesHash": "9c823adea15d877392e591760e4dc447c74a37c38c6a266f4cc1f84dc19de8c0",
+          "timestamp": "2026-06-23T10:16:59.315Z"
         }
       ]
     },
