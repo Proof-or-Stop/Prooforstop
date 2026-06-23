@@ -60,7 +60,7 @@
         "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
         "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
       ],
-      "userSees": "lattice validate --focus=fast can prove the main-sync readiness behavior without running the whole suite.",
+      "userSees": "Focused validation prints: \"main-sync-readiness smoke passed\" and lattice validate --focus=fast includes the new smoke command.",
       "excludes": [
         "Do not add a slow full-suite-only regression.",
         "Do not require network or remote git access.",
