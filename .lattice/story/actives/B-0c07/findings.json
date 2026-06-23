@@ -52,6 +52,23 @@
       ],
       "signatureTag": "adversarial|mjs|codex-host2-makerealbarearm",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-0c07:F-004",
+      "desc": "[codex-host2 C3] makeRealBareArm: a JSON API-error at exit 0 (is_error / Overloaded / 529 / API Error) is scored as a real outcome. recovery-runner guards /Overloaded|API Error|529/; this arm does not. FIX: detect is_error / error-text -> infra-fail.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex-host2",
+      "createdAt": "2026-06-23T12:12:34.490Z",
+      "reviewRound": "2026-06-23T12:07:23.828Z",
+      "_hash": "7d51051266d5608dff5bdf6ece8255ccc06d6fb66f3fe7abb3e143965e4e9d7e",
+      "files": [
+        "experiments/injection-probes/real-arm.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|codex-host2-makerealbarearm",
+      "signatureTagSource": "auto"
     }
   ]
 }
