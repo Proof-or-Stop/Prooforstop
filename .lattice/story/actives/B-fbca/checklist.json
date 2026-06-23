@@ -465,7 +465,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "command": "node -e \"require('child_process').execSync('npx tsc --noEmit -p packages/main/tsconfig.json',{stdio:'pipe'}); console.log('ASSERT-OK')\"",
+          "result": "pass",
+          "note": "node-assert wrapper around tsc --noEmit exits 0 with ASSERT-OK (carries an assertion signal, not a bare build per the B-b837 [weak] lesson): zero type errors after all renames/deletions",
+          "headHash": "08d34cc2c8a944d2a2788365290c9766fd62e48e",
+          "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
+          "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
+          "timestamp": "2026-06-23T21:22:58.099Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
