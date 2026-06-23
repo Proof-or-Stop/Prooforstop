@@ -46,7 +46,7 @@ import { checkScopeContract } from './scope-contract.js';
 import { checkSemanticScope, isSemanticContract } from './semantic-scope-gate.js';
 import { isMaterialExcludedPath } from './evidence-freshness.js';
 
-export const REVIEW_SCOPE_BINDING_SALT = 'koala-review-scope-binding-v1';
+export const REVIEW_SCOPE_BINDING_SALT = 'lattice-review-scope-binding-v1';
 
 function uniqSorted(values: readonly string[]): string[] {
   return [...new Set(values.map((v) => v.trim()).filter((v) => v.length > 0))].sort();

@@ -224,7 +224,7 @@ export function buildCanonicalStory(store: StoryStore, root: string, storyId: st
       ...missingArtifactDegradations(warnings),
     ],
     lineage: {
-      source: 'koala-story-store',
+      source: 'lattice-story-store',
       storyDir: store.storyDirRel(),
       worktree: story.worktree ?? null,
       processEvents: events,
