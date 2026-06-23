@@ -1,0 +1,25 @@
+{
+  "findings": [
+    {
+      "id": "B-d321:F-001",
+      "desc": "Existing regression smokes were not updated for delivery-check materialHash binding. Repro: `node packages/main/dist/tasks/flow-stability-smoke.js` fails because the synthetic docsPromise delivery-check at packages/main/src/tasks/flow-stability-smoke.ts:3966 signs without materialHash, so DONE reports `stale delivery-check: delivery-check.json is missing materialHash binding` before the expected docsPromise failure. Additional repros: `node packages/main/dist/tasks/lifecycle-check-smoke.js`, `node packages/main/dist/tasks/review-assurance-floor-smoke.js`, and `node packages/main/dist/tasks/done-preflight-smoke.js` also fail from legacy delivery-check fixtures. Update these fixtures/helpers to record headHash/materialHash and sign with materialHash where they intend a fresh delivery-check, or adjust assertions where stale legacy evidence is intentional.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-23T12:49:54.112Z",
+      "reviewRound": "2026-06-23T12:46:01.524Z",
+      "reviewRunId": "B-d321:RR-002",
+      "_hash": "86ecdfc740af66a704c2065c0605becda31d6443a4ae9a3621cd76c379345e90",
+      "files": [
+        "packages/main/src/tasks/flow-stability-smoke.ts",
+        "packages/main/src/tasks/lifecycle-check-smoke.ts",
+        "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+        "packages/main/src/tasks/done-preflight-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|existing-regression-smokes",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
