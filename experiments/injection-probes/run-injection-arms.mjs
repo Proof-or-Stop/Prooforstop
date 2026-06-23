@@ -34,9 +34,11 @@ async function importProbe(file) {
   const origExit = process.exit;
   const origArgv = process.argv;
   const origLog = console.log;
+  const origErr = console.error;
   process.exit = () => {};
   process.argv = [origArgv[0], 'run-injection-arms:import'];
   console.log = () => {};
+  console.error = () => {};
   try {
     const mod = await import(new URL(file, import.meta.url));
     if (!mod.default || typeof mod.default.inject !== 'function') {
@@ -47,6 +49,7 @@ async function importProbe(file) {
     process.exit = origExit;
     process.argv = origArgv;
     console.log = origLog;
+    console.error = origErr;
   }
 }
 
@@ -115,15 +118,19 @@ async function selfTest() {
   }
 
   // adversarial: a wrong-outcome transcript must classify DIFFERENTLY (no rubber-stamping).
+  // classifyCase cleans its workspace in finally so a classifier throw cannot leak temp dirs.
+  const classifyCase = (probe, caseName) => {
+    const ws = makeWorkspace();
+    try {
+      probe.inject(ws);
+      return probe.classify(ws, probe.selfTestCases[caseName](ws));
+    } finally {
+      cleanup(ws);
+    }
+  };
   const [b1] = probes;
-  const wsA = makeWorkspace();
-  b1.inject(wsA);
-  const ampOutcome = b1.classify(wsA, b1.selfTestCases.amplified(wsA));
-  cleanup(wsA);
-  const wsR = makeWorkspace();
-  b1.inject(wsR);
-  const recOutcome = b1.classify(wsR, b1.selfTestCases.recovered(wsR));
-  cleanup(wsR);
+  const ampOutcome = classifyCase(b1, 'amplified');
+  const recOutcome = classifyCase(b1, 'recovered');
   if (ampOutcome === recOutcome) {
     fails.push(`adversarial: classify did not discriminate amplified(${ampOutcome}) vs recovered(${recOutcome})`);
   } else {
@@ -144,7 +151,10 @@ async function selfTest() {
 const isMain = import.meta.url === pathToFileURL(process.argv[1] || '').href;
 if (isMain) {
   if (process.argv.includes('--self-test')) {
-    selfTest();
+    selfTest().catch((e) => {
+      console.error(`✗ injection-arms driver self-test ERROR: ${e && e.stack ? e.stack : e}`);
+      process.exit(1);
+    });
   } else if (process.argv.includes('--run')) {
     console.error(
       'Powered run requires an explicit real-arm module (the cost-checkpointed follow-up of B-a1b0). ' +
