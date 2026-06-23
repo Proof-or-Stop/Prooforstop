@@ -1,0 +1,34 @@
+{
+  "storyId": "B-6320",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/authority-mode.ts",
+    "packages/main/src/handlers/lattice-cli.ts",
+    "packages/main/src/core/authority-runner.ts",
+    "packages/main/src/core/authority-job-loop-live.ts",
+    "packages/main/src/core/authority-client.ts",
+    "packages/main/src/handlers/verdict.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "docs/requirements/decisions/lattice-authority-live-integration.md",
+    "docs/requirements/decisions/authority-runner-session-evidence-envelope.md",
+    "packages/main/src/tasks/authority-client-smoke.ts",
+    "packages/main/src/tasks/authority-status-smoke.ts",
+    "packages/main/src/tasks/authority-enforce-runner-smoke.ts",
+    "packages/main/src/tasks/authority-runner-client-smoke.ts",
+    "packages/main/src/tasks/authority-job-loop-live-smoke.ts"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/authority-client-smoke.ts",
+    "packages/main/src/tasks/authority-status-smoke.ts",
+    "packages/main/src/tasks/authority-enforce-runner-smoke.ts",
+    "packages/main/src/tasks/authority-runner-client-smoke.ts",
+    "packages/main/src/tasks/authority-job-loop-live-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-23T03:17:14.140Z",
+  "updatedAt": "2026-06-23T03:17:14.140Z"
+}
