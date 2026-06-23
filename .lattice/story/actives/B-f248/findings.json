@@ -290,7 +290,7 @@
       "desc": "quality-cleanup: run-driver-selfcheck.mjs:21 imports buildCanonicalRecord from run-driver.mjs but never calls it directly (exercised only indirectly via runDriver); pre-existing since initial commit but the file is in the changed set",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-23T12:38:20.849Z",
@@ -301,7 +301,11 @@
         "experiments/recovery-runner/run-driver-selfcheck.mjs"
       ],
       "signatureTag": "missing|mjs|quality-cleanup-driver",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "removed unused buildCanonicalRecord import from selfcheck. commit 9082899db.",
+      "resolvedAt": "2026-06-23T12:52:17.745Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f248:F-015",
