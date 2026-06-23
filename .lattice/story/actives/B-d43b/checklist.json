@@ -58,6 +58,18 @@
           "materialHash": "aa24d1b9dbad8b374e614b5579cb071003f8e8a0202856c6d7ec6b1b2cf7ff51",
           "storyFilesHash": "b413e6b8e7c259e8423330737a173304dfba7cc2084bd2cc172233b70c5bd6bb",
           "timestamp": "2026-06-23T11:00:02.635Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/codex-adapter-gate-scope-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/codex-adapter-gate-scope-smoke.js",
+          "result": "pass",
+          "note": "Post-build dist task passed, so the regression covers rebuilt runtime behavior rather than source-only behavior.",
+          "headHash": "28041f890a97f0877e40ee14459be4b11614def0",
+          "materialHash": "aa24d1b9dbad8b374e614b5579cb071003f8e8a0202856c6d7ec6b1b2cf7ff51",
+          "storyFilesHash": "b413e6b8e7c259e8423330737a173304dfba7cc2084bd2cc172233b70c5bd6bb",
+          "timestamp": "2026-06-23T11:00:03.487Z"
         }
       ]
     },
