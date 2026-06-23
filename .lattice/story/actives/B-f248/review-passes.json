@@ -116,6 +116,15 @@
       "reviewRound": "2026-06-23T12:52:11.307Z",
       "reviewRunId": "B-f248:RR-019",
       "_hash": "4354615221b3eb0070b7cbcc654fa21ef3467d103a6d365560abb34e3f43d74b"
+    },
+    {
+      "id": "B-f248:RP-014",
+      "agent": "lattice-review-concept",
+      "note": "Concept-residue scan complete for round-4 cleanup commit 9082899db. Changes: (1) intArg() strictly replaces parseInt for --k/--maxReruns in run-driver.mjs; (2) requireNonNegInt() used for --maxReruns (still live at line 394); (3) buildCanonicalRecord removed from selfcheck imports (still exported+internally used in run-driver.mjs — correct). No deleted/replaced concept has residue in the story scope (run-driver.mjs + run-driver-selfcheck.mjs). Other files (run-recovery.mjs, run-a2prime.mjs, run-ablation.mjs) use parseInt for their own args but are out of scope for B-f248. Selfcheck: 130 assertions, 0 failed. No blocker found.",
+      "createdAt": "2026-06-23T12:57:08.438Z",
+      "reviewRound": "2026-06-23T12:52:11.307Z",
+      "reviewRunId": "B-f248:RR-020",
+      "_hash": "55d94dde52234d29073fffd0e2c80747bcbf4c10b9f4f4f55f571ac92af965f8"
     }
   ]
 }
