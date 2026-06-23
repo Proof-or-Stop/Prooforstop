@@ -4,7 +4,7 @@
   "title": "Add the deterministic section-6 outcome adjudication state machine + unsafe-condition detectors",
   "description": "The powered recovery study needs the pre-registered deterministic adjudicator that classifies each run as amplified / recovered-to-green / safe-stop by a total-order rule, plus the explicit unsafe-condition detectors. The recovery runner currently uses an ad-hoc 3-way classify; this builds the spec-faithful, unit-testable adjudication core.",
   "type": "feature",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "keywords": [
     "ablation",
@@ -29,7 +29,7 @@
   "priorityElevatedFrom": "medium",
   "createdAt": "2026-06-23T03:57:09.552Z",
   "startedAt": "2026-06-23T03:57:09.552Z",
-  "endedAt": null,
+  "endedAt": "2026-06-23T05:00:02.418Z",
   "events": [
     {
       "phase": "INIT",
@@ -102,6 +102,15 @@
       "user": "Harmonygo",
       "sessionId": "e8aca935-deaf-4f5d-9f33-b3aff7bb35fb",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-23T05:00:02.418Z",
+      "branch": "story/B-2d4c",
+      "user": "Harmonygo",
+      "sessionId": "e8aca935-deaf-4f5d-9f33-b3aff7bb35fb",
+      "agent": "main"
     }
   ],
   "riskSignalsDismissed": [
@@ -116,10 +125,5 @@
       "at": "2026-06-23T03:57:24.285Z"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-2d4c",
-    "branch": "story/B-2d4c",
-    "createdAt": "2026-06-23T04:00:17.914Z"
-  },
   "currentReviewRound": "2026-06-23T04:41:14.042Z"
 }
