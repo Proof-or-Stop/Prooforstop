@@ -223,7 +223,7 @@
       "desc": "Denominator-bias fix incomplete: the §5 completion headline per-arm rates still call perArmRate WITHOUT matched cellKeys, so an arm-only null-ablation cell inflates one arm printed completion denominator (the H2 bootstrap + §6 recovery rates were fixed, but the completion display was missed). Fix: compute completion over matched null cells per contrast, mirroring the §6 recoveryRates treatment.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex-host",
       "createdAt": "2026-06-23T19:37:51.243Z",
@@ -233,7 +233,11 @@
         "experiments/recovery-runner/analyze.mjs"
       ],
       "signatureTag": "spec-boundary|mjs|denominator-bias-incomplete",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "completion now reported per contrast over matched null cells (completionRates[c.id][arm], cellKeys=matched null cells); CLI prints per-contrast matched completion. selfcheck asserts an A4-only null cell is excluded (A4 completion n=1 not 2). commit a24fe81ce.",
+      "resolvedAt": "2026-06-23T19:40:17.048Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
