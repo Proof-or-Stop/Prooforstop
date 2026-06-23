@@ -172,7 +172,7 @@
       "desc": "All 6 verificationEvidence entries are stale (headHash does not match current HEAD 2aeb607d): validate reports 0/6 covered. The materialHash and storyFilesHash are consistent across all 6 entries and the code has not changed (every commit since evidence was bound is a lattice metadata commit). The --self-check runs 21/21 and the classify logic is sound, but the evidence binding must be refreshed (recover_evidence or re-run verification_evidence_add) so the DONE gate sees 6/6 covered instead of 0/6.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-23T19:45:56.869Z",
@@ -183,7 +183,11 @@
         "experiments/injection-probes/live-loop-harness.mjs"
       ],
       "signatureTag": "missing|mjs|verificationevidence-entries-stale",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Resolved: re-ran verification_evidence_refresh_stale to re-stamp the 6 intents at the current HEAD (the --self-check command is unchanged + passes 22/22); stale was materialHash-drift from the fix commits, not a coverage gap.",
+      "resolvedAt": "2026-06-23T19:54:05.215Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-d43f:F-010",
