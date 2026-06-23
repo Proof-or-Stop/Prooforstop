@@ -4,11 +4,11 @@
   "title": "Real multi-turn claude -p agent + powered run of the 9 stateful live-loop scenarios",
   "description": "Add a real multi-turn agent for the live-loop harness: a makeRealLoopAgent({model}) that per turn runs claude -p (reusing the B-0c07 parseClaudeResult hardening for non-JSON/API-error/type-safe cost) on {ws, context}, HONORS the AbortSignal (kills its child on signal.aborted, per the B-c023 contract), and returns {actions, shipped, output, costUsd, tokensSpent}; wire live-loop-harness.mjs --run to drive runInjectionLoopArms over the 9 stateful scenarios with this real agent and append a powered-records jsonl. Hermetic --self-check (stub multi-turn agent, 0 spend) verifies the wiring + signal honoring + record schema; the REAL powered run is a cost-gated step the operator triggers. Scenarios/classify unchanged from B-d43f. Modify live-loop-harness.mjs (+ maybe a new real-loop-agent.mjs) + CHANGELOG; do NOT touch probe-contract / the 6 stateless probes / run-recovery/run-ablation/run-a2prime.",
   "type": "feature",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "medium",
   "createdAt": "2026-06-23T20:16:16.625Z",
   "startedAt": "2026-06-23T20:16:16.625Z",
-  "endedAt": null,
+  "endedAt": "2026-06-23T21:26:02.352Z",
   "events": [
     {
       "phase": "INIT",
@@ -99,12 +99,16 @@
       "user": "Harmonygo",
       "sessionId": "2094c029-06be-4ea6-b9eb-bdb694c8c71a",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-23T21:26:02.352Z",
+      "branch": "story/B-b739",
+      "user": "Harmonygo",
+      "sessionId": "2094c029-06be-4ea6-b9eb-bdb694c8c71a",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-b739",
-    "branch": "story/B-b739",
-    "createdAt": "2026-06-23T20:19:12.363Z"
-  },
   "currentReviewRound": "2026-06-23T20:43:24.607Z"
 }
