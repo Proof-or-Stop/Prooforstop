@@ -75,6 +75,23 @@
       ],
       "signatureTag": "doc-code-drift|md|code-drift-changelog",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-b739:F-005",
+      "desc": "[codex-host2 C3/C4] signal honoring inadequate: makeRealLoopAgent uses blocking execFileSync, so the harness Promise.race timer + ac.abort() can't fire mid-call; the child is bounded only by execFileSync's 700s timeout, NOT the AbortSignal (the entry-check only catches already-aborted). FIX: make the agent async via execFile with {signal} so AbortController.abort() actually kills the child + the event loop isn't blocked -> the harness watchdog/turnTimeoutMs become real. (Corroborates quality F-002.)",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex-host2",
+      "createdAt": "2026-06-23T20:33:34.481Z",
+      "reviewRound": "2026-06-23T20:27:12.983Z",
+      "_hash": "47fede4bd82f32460cd503cb29dc9f9faa7d12f9a2b49ef6a779bc13dedb8a90",
+      "files": [
+        "experiments/injection-probes/real-loop-agent.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|codex-host2-signal",
+      "signatureTagSource": "auto"
     }
   ]
 }
