@@ -1,0 +1,20 @@
+{
+  "storyId": "B-c356",
+  "checkedAt": "2026-06-23T10:38:44.141Z",
+  "reviewRound": "2026-06-23T10:24:17.375Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [],
+  "realMachineTests": [
+    {
+      "featureId": "B-c356-delivery",
+      "transcript": "Delivery review verified final diff and evidence: quality reviewer prompt/template and mirrors require both job.metadata and linked run.metadata, reject one-location-only/client-controlled/stale metadata, and do not claim receipt-backed production proof. Fresh node packages/main/dist/tasks/prompt-registry-smoke.js passed. Derived baseline result parsed with requiresBoth=true, claimsReceiptBackedProductionProof=false, immutable baseline unchanged. TEST validate PASS at 2026-06-23T10:34:26.716Z with 9/9 coverage. DONE-required evidence PASS at 2026-06-23T10:35:45.052Z for build and npm test. Transcript diff evidence records expected vs actual match and resolved finding B-c356:F-001."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "lattice-review-delivery reviewed the delivery context, material diff, prompt-registry smoke, derived baseline result, resolved quality finding, TEST validation, DONE-required evidence, and transcript-diff. Delivery scope is satisfied; remaining DONE blockers are branch sync, story summary, and review-assurance floor outside this delivery signature."
+  },
+  "_hash": "efafbea88a4aeccac18754b0816a5f213fa59d771814d813163fd2cbc5a65748"
+}
