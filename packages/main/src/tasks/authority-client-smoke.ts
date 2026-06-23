@@ -1429,10 +1429,11 @@ function authorityEnv(extra: Record<string, string | undefined> = {}): Record<st
 
 // --- E4 bridge: submit a planner JobPlan as a signed server-backed job create ----
 {
-  const capture: { path?: string; body?: string; authorization?: string } = {};
+  const capture: { path?: string; body?: string; authorization?: string; postCount: number } = { postCount: 0 };
   const fetchImpl: AuthorityFetch = async (input, init) => {
     const url = String(input);
     if (url.includes('/v1/jobs') && init.method === 'POST') {
+      capture.postCount += 1;
       capture.path = url;
       capture.body = init.body;
       capture.authorization = init.headers.Authorization;
@@ -1452,13 +1453,44 @@ function authorityEnv(extra: Record<string, string | undefined> = {}): Record<st
     }
     throw Object.assign(new Error(`unexpected fetch ${init.method} ${url}`), { code: 'EUNEXPECTED' });
   };
+  const realProviderJobPlan = authorityCodexJobPlan();
   const blockedFakeProvider = await submitAuthorityJobFromPlan(authorityJobPlan(), {
     env: authorityEnv(),
     fetchImpl,
     cwd: '/repo',
   });
   assert.equal(blockedFakeProvider.ok, false, 'fake provider plans cannot be silently rewritten into server jobs');
-  assert.match(blockedFakeProvider.reason ?? '', /explicit real provider/, 'blocked reason asks for an explicit real provider');
+  assert.match(blockedFakeProvider.reason ?? '', /explicit non-fake provider declaration/, 'blocked reason asks for an explicit non-fake provider declaration');
+  for (const provider of ['fake', 'Fake', 'FAKE', 'fake-provider', 'FAKE_PROVIDER']) {
+    const blockedOverride = await submitAuthorityJobFromPlan(authorityJobPlan(), {
+      env: authorityEnv(),
+      fetchImpl,
+      cwd: '/repo',
+      provider,
+    });
+    assert.equal(blockedOverride.ok, false, `reserved fake provider override is rejected: ${provider}`);
+    assert.match(blockedOverride.reason ?? '', /explicit non-fake provider declaration/, `reserved fake reason asks for a non-fake provider: ${provider}`);
+  }
+  for (const provider of ['fake', 'Fake', 'FAKE', 'fake-provider', 'FAKE_PROVIDER', '', '   ']) {
+    const blockedOverride = await submitAuthorityJobFromPlan(realProviderJobPlan, {
+      env: authorityEnv(),
+      fetchImpl,
+      cwd: '/repo',
+      provider,
+    });
+    assert.equal(blockedOverride.ok, false, `explicit non-server provider override does not fall back to a real primary provider: ${provider || '<empty>'}`);
+    assert.match(blockedOverride.reason ?? '', /explicit non-fake provider declaration/, `explicit non-server override reason asks for a non-fake provider: ${provider || '<empty>'}`);
+  }
+  assert.equal(capture.postCount, 0, 'rejected fake or empty provider overrides never POST a real provider job');
+
+  const fallbackOutcome = await submitAuthorityJobFromPlan(realProviderJobPlan, {
+    env: authorityEnv(),
+    fetchImpl,
+    cwd: '/repo',
+  });
+  assert.equal(fallbackOutcome.ok, true, 'authority job create falls back to JobPlan primaryProvider when no override is supplied');
+  const fallbackSent = JSON.parse(capture.body ?? '{}');
+  assert.equal(fallbackSent.request.provider, 'codex', 'absent override uses the JobPlan primary provider');
 
   const outcome = await submitAuthorityJobFromPlan(authorityJobPlan(), {
     env: authorityEnv(),
@@ -1477,11 +1509,30 @@ function authorityEnv(extra: Record<string, string | undefined> = {}): Record<st
   assert.equal(sent.actorId, 'main-1', 'job create is signed by the configured main actor');
   assert.equal(sent.role, 'main', 'job create uses an Authority job-creator role');
   assert.match(sent.signature, /^[0-9a-f]{128}$/i, 'job create envelope carries an Ed25519 hex signature');
-  assert.equal(sent.request.provider, 'codex', 'explicit provider selects the server-supported Authority provider');
+  assert.equal(sent.request.provider, 'codex', 'explicit provider selects the canonical Authority provider declaration');
   assert.notEqual(sent.request.idempotencyKey, 'idem-1', 'server submission derives a run-scoped idempotency key from the planner key');
   assert.equal(sent.request.metadata.plannerJobCreateIdempotencyKey, 'idem-1', 'metadata preserves the planner idempotency key for audit');
   assert.equal(sent.request.plannedSteps[0].evidenceBinding.ref, 'B-auth:step-fake', 'server plannedSteps use Python-compatible evidenceBinding objects');
   assert.equal(sent.request.metadata.plannedSteps[0].evidenceBinding, 'B-auth:step-fake', 'metadata preserves original CLI plannedSteps for the live runner');
+  const customOutcome = await submitAuthorityJobFromPlan(authorityJobPlan(), {
+    env: authorityEnv(),
+    fetchImpl,
+    cwd: '/repo',
+    provider: 'antigravity',
+  });
+  assert.equal(customOutcome.ok, true, 'custom Authority provider declarations are submitted for server policy evaluation');
+  const customSent = JSON.parse(capture.body ?? '{}');
+  assert.equal(customSent.request.provider, 'antigravity', 'custom provider declaration propagates into the signed job create request');
+  assert.deepEqual(customSent.request.providerPolicy.allowedProviders, ['antigravity'], 'custom provider declaration is added to server providerPolicy');
+  const customSpellingOutcome = await submitAuthorityJobFromPlan(authorityJobPlan(), {
+    env: authorityEnv(),
+    fetchImpl,
+    cwd: '/repo',
+    provider: 'codex-cli',
+  });
+  assert.equal(customSpellingOutcome.ok, true, 'host-neutral custom provider spelling is accepted');
+  const customSpellingSent = JSON.parse(capture.body ?? '{}');
+  assert.equal(customSpellingSent.request.provider, 'codex-cli', 'host-neutral custom provider spelling is preserved');
   const firstRunEnvelope = buildAuthorityJobCreateEnvelopeFromPlan(authorityJobPlan(), {
     env: authorityEnv({ LATTICE_AUTHORITY_SESSION_ID: 'run-a' }),
     cwd: '/repo',
@@ -1636,7 +1687,7 @@ function authorityEnv(extra: Record<string, string | undefined> = {}): Record<st
       assert.equal(envelope.role, 'runner', 'claimability create uses runner actor role');
       assert.equal(request.projectId, 'project-1', 'claimable delegated request carries project id');
       assert.equal(request.storyId, 'B-auth', 'claimable delegated request carries story id');
-      assert.equal(request.provider, 'codex', 'claimable delegated request carries provider');
+      assert.equal(request.provider, 'codex-cli', 'claimable delegated request carries provider');
       assert.equal(request.role, 'implementer', 'claimable delegated request carries job role');
       assert.equal(typeof request.idempotencyKey, 'string', 'claimable delegated request carries idempotency key');
       const job = {
@@ -1662,7 +1713,7 @@ function authorityEnv(extra: Record<string, string | undefined> = {}): Record<st
       const claim = JSON.parse(init.body ?? '{}') as Record<string, unknown>;
       assert.equal(claim.actorId, 'runner-delegated-claimable', 'claim uses the same runner actor that requested delegated create');
       assert.equal(claim.runnerId, 'runner-explicit-claim', 'claim uses configured runner id');
-      assert.deepEqual(claim.capabilities, ['provider:codex'], 'claim asks for the provider capability that was queued');
+      assert.deepEqual(claim.capabilities, ['provider:codex-cli'], 'claim asks for the provider capability that was queued');
       return {
         ok: true,
         status: 200,
@@ -1684,7 +1735,7 @@ function authorityEnv(extra: Record<string, string | undefined> = {}): Record<st
     env,
     fetchImpl,
     cwd: '/repo',
-    provider: 'codex',
+    provider: 'codex-cli',
     role: 'implementer',
   });
   assert.equal(created.ok, true, 'explicit delegated create accepts a claimable job');
@@ -1697,14 +1748,14 @@ function authorityEnv(extra: Record<string, string | undefined> = {}): Record<st
     createdAt: '2026-06-22T00:00:00Z',
     runnerId: 'runner-explicit-claim',
     leaseDurationSeconds: 3600,
-    capabilities: ['provider:codex'],
+    capabilities: ['provider:codex-cli'],
   }, delegatedActor.privateKey).signed;
   const claimed = await client.claimJob('runner-explicit-claim', claim);
   assert.equal(claimed.ok, true, 'runner claim succeeds after explicit delegated create');
   assert.equal(claimed.data?.jobId, 'job-claimable-1', 'runner claims the job created by explicit delegated authority_job_create');
   assert.equal(claimed.data?.runId, 'run-claimable-1', 'runner claim carries the run id returned by delegated create');
   assert.equal(claimed.data?.storyId, 'B-auth', 'runner claim preserves story id');
-  assert.equal(claimed.data?.provider, 'codex', 'runner claim preserves provider');
+  assert.equal(claimed.data?.provider, 'codex-cli', 'runner claim preserves provider');
   assert.equal(queue.length, 0, 'claim consumes the queued explicit delegated job instead of returning no-job');
 }
 
@@ -2641,7 +2692,7 @@ assertAuthorityHandoffFixtureConsumption();
   assert.deepEqual(mdWin.productionInertReasons, ['authority_md_local_test_profile']);
 }
 
-// --- runner provider normalization + fail-closed invalid values -------------
+// --- runner provider normalization + host-neutral declarations -------------
 {
   assert.deepEqual(
     normalizeAuthorityRunnerProvider('claude'),
@@ -2650,16 +2701,18 @@ assertAuthorityHandoffFixtureConsumption();
   );
   assert.equal(normalizeAuthorityRunnerProvider('CLAUDE_CODE').provider, 'claude-code');
   assert.equal(normalizeAuthorityRunnerProvider(undefined).provider, 'codex');
-  const invalid = normalizeAuthorityRunnerProvider('bogus-provider');
-  assert.equal(invalid.valid, false);
-  assert.equal(invalid.invalidValue, 'bogus-provider');
+  assert.equal(normalizeAuthorityRunnerProvider('Fake').provider, 'Fake', 'runner metadata still preserves non-canonical custom spelling');
+  const custom = normalizeAuthorityRunnerProvider('codex-cli');
+  assert.equal(custom.provider, 'codex-cli');
+  assert.equal(custom.valid, true);
+  assert.equal(custom.invalidValue, undefined);
 
   const envWin = resolveAuthorityConfig({
     env: {
       LATTICE_AUTHORITY_MODE: 'enforce',
       LATTICE_AUTHORITY_RUNNER_PROVIDER: 'claude',
     },
-    authorityTrustEnv: { LATTICE_AUTHORITY_RUNNER_PROVIDER: 'gemini' },
+    authorityTrustEnv: { LATTICE_AUTHORITY_RUNNER_PROVIDER: 'antigravity' },
     authorityTrustEnvLoaded: true,
     authorityMd: parseAuthorityMd('runnerProvider: codex'),
     authorityMdLoaded: true,
@@ -2669,24 +2722,24 @@ assertAuthorityHandoffFixtureConsumption();
 
   const trustWin = resolveAuthorityConfig({
     env: { LATTICE_AUTHORITY_MODE: 'enforce' },
-    authorityTrustEnv: { LATTICE_AUTHORITY_RUNNER_PROVIDER: 'gemini' },
+    authorityTrustEnv: { LATTICE_AUTHORITY_RUNNER_PROVIDER: 'antigravity' },
     authorityTrustEnvLoaded: true,
     authorityMd: parseAuthorityMd('runnerProvider: codex'),
     authorityMdLoaded: true,
   });
-  assert.equal(trustWin.runnerProvider, 'gemini', 'trust env provider wins over authority.md');
+  assert.equal(trustWin.runnerProvider, 'antigravity', 'trust env provider wins over authority.md with custom declaration');
   assert.equal(trustWin.runnerProviderSource, 'authority_trust_env');
 
-  const invalidConfig = resolveAuthorityConfig({
+  const customConfig = resolveAuthorityConfig({
     env: {
       LATTICE_AUTHORITY_MODE: 'enforce',
       LATTICE_AUTHORITY_RUNNER_PROVIDER: 'bogus-provider',
     },
   });
-  assert.equal(invalidConfig.runnerProvider, undefined);
-  assert.equal(invalidConfig.runnerProviderValid, false);
-  assert.equal(invalidConfig.runnerProviderSource, 'invalid');
-  assert.equal(invalidConfig.runnerProviderInvalidValue, 'bogus-provider');
+  assert.equal(customConfig.runnerProvider, 'bogus-provider');
+  assert.equal(customConfig.runnerProviderValid, true);
+  assert.equal(customConfig.runnerProviderSource, 'env');
+  assert.equal(customConfig.runnerProviderInvalidValue, undefined);
 }
 
 // --- loadAuthorityConfig derives stable per-process runner/session ids -------
@@ -3127,6 +3180,29 @@ function authorityJobPlan(): JobPlan {
     jobPlanDigest: 'jpd-1',
     status: 'planned',
   };
+}
+
+function authorityCodexJobPlan(): JobPlan {
+  const plan = authorityJobPlan();
+  plan.plannedSteps = [
+    step('step-codex', 'provider.codex', { provider: 'codex' }),
+    ...plan.plannedSteps.slice(1),
+  ];
+  plan.providerPolicy = {
+    primaryProvider: 'codex',
+    allowedProviders: ['codex'],
+    fallbackProviders: [],
+    productionDoneProviders: ['codex'],
+    allowFakeProviderForProductionDone: false,
+    credentialsEnvAllowlist: [],
+    secretRefs: [],
+    providerAvailability: 'fail_closed',
+  };
+  plan.coverageMap = plan.coverageMap.map(item => ({
+    ...item,
+    plannedStepIds: item.plannedStepIds.map(stepId => stepId === 'step-fake' ? 'step-codex' : stepId),
+  }));
+  return plan;
 }
 
 function fakeStore(): PlannerStoreLike {

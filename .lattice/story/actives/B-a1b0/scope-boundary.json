@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-a1b0",
+  "mode": "maintenance",
+  "allowed": [
+    "a hermetic fake-arm self-test for the driver",
+    "CHANGELOG.md",
+    "experiments/injection-probes/probe-contract.mjs (reuse, read-only)",
+    "experiments/injection-probes/run-injection-arms.mjs (NEW powered-run driver)"
+  ],
+  "excluded": [
+    "any gate/core/DONE-policy change",
+    "run-recovery.mjs / run-ablation.mjs / run-a2prime.mjs (e8aca935 session ownership)",
+    "the 6 existing probe files b1/b2/b6/b9/b11/b13 (must stay unchanged)",
+    "the 9 future probes (after pre-reg amendment)",
+    "the actual powered/real-agent run (cost-checkpointed follow-up)",
+    "the pre-registration protocol amendment"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "driver-only, new files, no real run, no probe edits",
+  "createdAt": "2026-06-23T04:44:54.280Z",
+  "updatedAt": "2026-06-23T04:44:54.280Z",
+  "_hash": "269e1663969a1ff175a5d71a07bbb27d6eac943bed4563a9df36c3dce9662f47"
+}

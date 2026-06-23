@@ -1,0 +1,33 @@
+{
+  "storyId": "B-fa24",
+  "name": "create-experiments-tier-c-proof-sum-mjs-exporting-ad",
+  "title": "Create experiments/tier-c-proof/sum.mjs exporting add(a,b)=>a+b and experiments/tier-c-proof/sum",
+  "description": "Create experiments/tier-c-proof/sum.mjs exporting add(a,b)=>a+b and experiments/tier-c-proof/sum.test.mjs asserting add(2,3)===5. Acceptance: node experiments/tier-c-proof/sum.test.mjs exits 0.",
+  "type": "feature",
+  "phase": "DISCARDED",
+  "priority": "high",
+  "createdAt": "2026-06-23T04:18:51.503Z",
+  "startedAt": "2026-06-23T04:18:51.503Z",
+  "endedAt": "2026-06-23T04:20:58.340Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-23T04:18:51.503Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "d5efb245-908a-4b5b-b129-44bcce26a23c",
+      "agent": "main"
+    },
+    {
+      "phase": "DISCARDED",
+      "action": "discard",
+      "timestamp": "2026-06-23T04:20:58.340Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "d5efb245-908a-4b5b-b129-44bcce26a23c",
+      "agent": "main",
+      "reason": "Tier-C re-test; server delegated-job provider still disabled"
+    }
+  ]
+}

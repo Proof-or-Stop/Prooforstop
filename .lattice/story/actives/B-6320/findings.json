@@ -1,0 +1,100 @@
+{
+  "findings": [
+    {
+      "id": "B-6320:F-001",
+      "desc": "Test coverage does not load-bear the authority_job_create provider CLI schema change. The implementation changed command-catalog provider from z.enum([codex, claude-code, gemini]) to z.string().min(1), but the added tests only call submitAuthorityJobFromPlan directly with custom provider strings and inspect signed envelopes. No command catalog or CLI surface smoke asserts that authority_job_create.provider is string/min(1) or invokes the command with a custom provider, so a regression back to the enum would still let the direct submitter tests pass while the actual CLI/tool argument boundary rejects custom provider declarations.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-23T03:21:16.562Z",
+      "reviewRound": "2026-06-23T03:17:34.962Z",
+      "reviewRunId": "B-6320:RR-002",
+      "_hash": "5f03fcc8dc12bda33e1ef78f6521496834137dcb8a1c8deb85eaaa85c4784a4d",
+      "files": [
+        "packages/main/src/cli/command-catalog.ts",
+        "packages/main/src/tasks/authority-client-smoke.ts",
+        "packages/main/src/tasks/command-catalog-smoke.ts",
+        "packages/main/src/tasks/cli-surface-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|test-coverage-load",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Added command-catalog-smoke schema assertions that authority_job_create.provider accepts host-neutral custom declarations codex-cli and antigravity, which would fail under z.enum([codex, claude-code, gemini]). Verified with npm --prefix packages/main run build and node packages/main/dist/tasks/command-catalog-smoke.js.",
+      "resolvedAt": "2026-06-23T03:28:23.261Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-6320:F-002",
+      "desc": "packages/main/src/core/authority-client.ts:1546-1550 only rejects provider === fake after calling normalizeAuthorityRunnerProvider. That normalizer lowercases only known aliases/canonical codex/gemini but preserves unknown raw values (authority-mode.ts:420-426), and the command schema now accepts any non-empty provider string (command-catalog.ts:2227). As a result, authority_job_create --provider Fake or FAKE is treated as a custom non-fake declaration and can be signed/submitted even though the job-create path promises a non-fake provider declaration. Fix by rejecting the reserved fake provider case-insensitively (for example, check raw.trim().toLowerCase().replace(/_/g, -) === fake) before preserving custom provider spelling.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-23T03:22:10.200Z",
+      "reviewRound": "2026-06-23T03:17:34.962Z",
+      "reviewRunId": "B-6320:RR-005",
+      "_hash": "21be31c39cdc93c75e9de632c390a1dddbf6cbf7570c80d16d18169680d9816e",
+      "files": [
+        "packages/main/src/core/authority-client.ts",
+        "packages/main/src/core/authority-mode.ts",
+        "packages/main/src/cli/command-catalog.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-core",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Added case-insensitive reserved fake rejection before preserving custom provider spelling in authority_job_create server provider normalization. Added authority-client-smoke coverage for fake/Fake/FAKE rejection plus codex-cli spelling preservation. Verified with npm --prefix packages/main run build and node packages/main/dist/tasks/authority-client-smoke.js.",
+      "resolvedAt": "2026-06-23T03:28:29.272Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-6320:F-003",
+      "desc": "serverProviderFromPlan treats an explicit reserved fake provider override the same as no override. normalizeServerProvider(\"fake\") returns null, then serverProviderFromPlan falls through to jobPlan.providerPolicy.primaryProvider, so a real-provider JobPlan plus authority_job_create --provider fake can still sign and POST a real provider job. This silently turns an explicit test-only provider declaration into a live Authority job instead of failing closed. Fix by distinguishing override presence from normalization result: if override is present and invalid/fake, return an error; only fall back to JobPlan primaryProvider when no override was supplied.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-23T03:39:52.929Z",
+      "reviewRound": "2026-06-23T03:28:11.885Z",
+      "reviewRunId": "B-6320:RR-006",
+      "_hash": "d807bf4c8173cf1a6ee082601da86999ffe3071528971279f8d75af7532857f3",
+      "files": [
+        "packages/main/src/core/authority-client.ts",
+        "packages/main/src/tasks/authority-client-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|authority-provider-override",
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed serverProviderFromPlan so supplied invalid/fake overrides fail closed instead of falling back to JobPlan primaryProvider. Added smoke coverage for codex-primary JobPlan with fake/Fake/FAKE/empty overrides rejecting without POST and absent override still falling back. Verification passed: npm --prefix packages/main run build; node packages/main/dist/tasks/authority-client-smoke.js; node packages/main/dist/tasks/command-catalog-smoke.js.",
+      "resolvedAt": "2026-06-23T03:45:52.777Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-6320:F-004",
+      "desc": "authority_job_create reserved fake provider rejection still misses the fake-provider runner token. normalizeServerProvider rejects fake case-insensitively, but preserves fake-provider / FAKE_PROVIDER as custom declarations and can sign/POST them. fake-provider is already the internal fake runner provider token in authority-runner, while job create promises an explicit non-fake provider declaration. Fix by treating fake-provider aliases as reserved for server job create as well, without rejecting unrelated custom provider names.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-23T03:53:05.518Z",
+      "reviewRound": "2026-06-23T03:45:44.003Z",
+      "reviewRunId": "B-6320:RR-007",
+      "_hash": "f75f327242a09005cbe8a31cb3ca1c4b9bdcb19033c3e7c6cd075812d8460789",
+      "files": [
+        "packages/main/src/core/authority-client.ts",
+        "packages/main/src/core/authority-runner.ts",
+        "packages/main/src/tasks/authority-client-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|authority-provider-override",
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed server job provider normalization to reserve exact fake-provider aliases with case-insensitive underscore/hyphen matching, while preserving unrelated custom provider declarations. Added authority-client smoke coverage for fake-provider and FAKE_PROVIDER override rejection without POST and no fallback from explicit fake override. Verification passed: npm --prefix packages/main run build; node packages/main/dist/tasks/authority-client-smoke.js; node packages/main/dist/tasks/command-catalog-smoke.js.",
+      "resolvedAt": "2026-06-23T03:56:27.766Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

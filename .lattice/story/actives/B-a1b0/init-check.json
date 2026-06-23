@@ -1,0 +1,52 @@
+{
+  "storyId": "B-a1b0",
+  "checkedAt": "2026-06-23T04:47:08.142Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "id": "INIT-001",
+      "severity": "medium",
+      "desc": "background.md Key Insights says \"reuse the recovery-runner agentRun\" as if agentRun is an importable export, but experiments/recovery-runner/run-recovery.mjs defines agentRun as a local (non-exported) function. An implementer following the background would find no exported agentRun to import; they must either duplicate the logic or refactor run-recovery.mjs to export it."
+    },
+    {
+      "id": "INIT-002",
+      "severity": "low",
+      "desc": "background.md Solution Tradeoffs refers to \"the e8aca935 session\" without explaining what type of identifier e8aca935 is (git commit SHA? Lattice session ID? something else). A new reader cannot verify or look up this reference."
+    },
+    {
+      "id": "INIT-003",
+      "severity": "low",
+      "desc": "background.md Trigger Event mentions \"The paper's tab:recovery\" — this is a LaTeX cross-reference label that a new reader (without access to the paper LaTeX source) cannot locate or verify without additional context."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-23T04:45:53.079Z",
+      "issues": []
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-06-23T04:47:08.142Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "medium",
+          "desc": "background.md Key Insights says \"reuse the recovery-runner agentRun\" as if agentRun is an importable export, but experiments/recovery-runner/run-recovery.mjs defines agentRun as a local (non-exported) function. An implementer following the background would find no exported agentRun to import; they must either duplicate the logic or refactor run-recovery.mjs to export it."
+        },
+        {
+          "id": "INIT-002",
+          "severity": "low",
+          "desc": "background.md Solution Tradeoffs refers to \"the e8aca935 session\" without explaining what type of identifier e8aca935 is (git commit SHA? Lattice session ID? something else). A new reader cannot verify or look up this reference."
+        },
+        {
+          "id": "INIT-003",
+          "severity": "low",
+          "desc": "background.md Trigger Event mentions \"The paper's tab:recovery\" — this is a LaTeX cross-reference label that a new reader (without access to the paper LaTeX source) cannot locate or verify without additional context."
+        }
+      ]
+    }
+  ],
+  "_hash": "353c97a73560156b78377c90d053a86849a8c4bfad6c69365e1269bb0bf6c7d1"
+}

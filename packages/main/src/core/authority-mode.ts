@@ -52,14 +52,14 @@ export const DEFAULT_LATTICE_SENIOR_AUTHORITY_TRUST_ENV_FILE = 'lattice_senior_a
 /** Default senior customer API key sidecar consumed by advanced/live runner handoff. */
 export const DEFAULT_LATTICE_SENIOR_AUTHORITY_CLIENT_ENV_FILE = 'lattice_senior_staging-client.env';
 
-/** Canonical host providers supported by the Authority runner claim route. */
-export type AuthorityRunnerProvider = 'codex' | 'claude-code' | 'gemini';
-
-export const AUTHORITY_RUNNER_PROVIDERS: readonly AuthorityRunnerProvider[] = [
-  'codex',
-  'claude-code',
-  'gemini',
-] as const;
+/**
+ * Host-neutral provider declaration advertised by an Authority runner.
+ *
+ * The CLI treats this as metadata: any non-empty declaration is accepted and
+ * propagated to the Authority Server, whose policy remains the authorization
+ * boundary. The CLI only preserves legacy aliases/defaults for compatibility.
+ */
+export type AuthorityRunnerProvider = string;
 
 export type AuthorityRunnerProviderSource =
   | 'env'
@@ -418,23 +418,17 @@ export function normalizeAuthorityRunnerProvider(value: unknown): AuthorityRunne
     return { provider: 'codex', source: 'default', valid: true };
   }
   const raw = value.trim();
-  const normalized = raw.toLowerCase().replace(/_/g, '-');
-  const provider = normalized === 'claude'
+  const aliasKey = raw.toLowerCase().replace(/_/g, '-');
+  const provider = aliasKey === 'claude' || aliasKey === 'claude-code'
     ? 'claude-code'
-    : normalized;
-  if ((AUTHORITY_RUNNER_PROVIDERS as readonly string[]).includes(provider)) {
-    return {
-      provider: provider as AuthorityRunnerProvider,
-      source: 'env',
-      raw,
-      valid: true,
-    };
-  }
+    : aliasKey === 'codex' || aliasKey === 'gemini'
+      ? aliasKey
+      : raw;
   return {
-    source: 'invalid',
+    provider,
+    source: 'env',
     raw,
-    invalidValue: raw,
-    valid: false,
+    valid: true,
   };
 }
 

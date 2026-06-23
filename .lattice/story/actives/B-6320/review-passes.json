@@ -1,0 +1,94 @@
+{
+  "passes": [
+    {
+      "id": "B-6320:RP-001",
+      "agent": "lattice-review-docs",
+      "note": "Docs review PASS: modified Authority docs and related guide references describe LATTICE_AUTHORITY_RUNNER_PROVIDER as a host-neutral non-empty declaration with server-side authorization; no stale local closed-enum wording found. jobs.available/jobs_stream references describe SSE as a notification/streaming hint before the same signed claim/status path, not a separate ownership or provider-authorization API.",
+      "createdAt": "2026-06-23T03:21:14.491Z",
+      "reviewRound": "2026-06-23T03:17:34.962Z",
+      "reviewRunId": "B-6320:RR-003",
+      "_hash": "dcd0cb83f6b0eb3d77feca4ea8ea8862b7a834fae538ed8cacd429971f0e0fa8"
+    },
+    {
+      "id": "B-6320:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Concept review pass: provider declaration is host-neutral metadata, custom declarations do not mint authorization/receipt/production claims, server policy remains the acceptance boundary, jobs.available SSE remains only a hint before the signed POST claim path, and no story diff expands server policy, scheduler, or bundle generation.",
+      "createdAt": "2026-06-23T03:21:41.404Z",
+      "reviewRound": "2026-06-23T03:17:34.962Z",
+      "reviewRunId": "B-6320:RR-004",
+      "_hash": "ddfb1d5d66a8951e88262fbcbacad7df7916c8f02a162d7d4d7699185684bda8"
+    },
+    {
+      "id": "B-6320:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "PASS at c8284372c: fake/fake-provider overrides fail closed before POST, absent override fallback remains, custom providers propagate, and SSE jobs.available stays advisory while signed claim/status owns the job.",
+      "createdAt": "2026-06-23T04:02:59.249Z",
+      "reviewRound": "2026-06-23T03:56:19.682Z",
+      "reviewRunId": "B-6320:RR-008",
+      "_hash": "60c2a996ba20c0e34a5b3a15f31482e59e4124969a5218c867802e2c9961ec64"
+    },
+    {
+      "id": "B-6320:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "PASS: server job create rejects exact reserved fake and fake-provider aliases with case/underscore normalization, does not over-reject codex-cli or antigravity, and SSE remains non-owning before signed claim/status.",
+      "createdAt": "2026-06-23T04:03:12.132Z",
+      "reviewRound": "2026-06-23T03:56:19.682Z",
+      "reviewRunId": "B-6320:RR-009",
+      "_hash": "0b6860bbb01eb422649463c9d1f69a01fa0e1a4047fe00d1b93d6a8f4a9c19fb"
+    },
+    {
+      "id": "B-6320:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: command-catalog smoke catches closed enum regression; authority-client smoke covers fake/Fake/FAKE/fake-provider/FAKE_PROVIDER/empty override rejection without POST, absent override fallback, and custom provider preservation; runner smokes cover SSE hint plus signed claim propagation.",
+      "createdAt": "2026-06-23T04:03:23.936Z",
+      "reviewRound": "2026-06-23T03:56:19.682Z",
+      "reviewRunId": "B-6320:RR-010",
+      "_hash": "0670f232370444e3dad0c6206ec4d781b24cdcb20d30bdc00838c6a5b59cba6c"
+    },
+    {
+      "id": "B-6320:RP-006",
+      "agent": "lattice-review-docs",
+      "note": "PASS: touched docs remain aligned with implementation: host-neutral provider declarations, server-policy authorization boundary, fake-provider reserved for Authority job create, and jobs.available SSE advisory while signed POST claim/status is authoritative.",
+      "createdAt": "2026-06-23T04:03:38.450Z",
+      "reviewRound": "2026-06-23T03:56:19.682Z",
+      "reviewRunId": "B-6320:RR-011",
+      "_hash": "457cef70f4c3c4a7ef6001d9b42d79fe386b567c0d14586387eccf58ab82117f"
+    },
+    {
+      "id": "B-6320:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "PASS: scope acknowledgement covers only delivery evidence artifacts; no provider/SSE business-code semantics changed; delivery evidence supports user-visible acceptance.",
+      "createdAt": "2026-06-23T04:22:58.582Z",
+      "reviewRound": "2026-06-23T04:17:45.566Z",
+      "reviewRunId": "B-6320:RR-012",
+      "_hash": "31f1f388e2d3a0c9cca985f775698588371ec46d04cb4c7788c16fe518c6dfb7"
+    },
+    {
+      "id": "B-6320:RP-008",
+      "agent": "lattice-review-quality",
+      "note": "PASS: scope ack is narrow; fake and fake-provider rejection remains intact; custom providers remain preserved; no SSE ownership bypass introduced.",
+      "createdAt": "2026-06-23T04:23:05.751Z",
+      "reviewRound": "2026-06-23T04:17:45.566Z",
+      "reviewRunId": "B-6320:RR-013",
+      "_hash": "642d611abdd7d1123494dd42496e9c3f005c439dfd825255334e4e70d65ab1de"
+    },
+    {
+      "id": "B-6320:RP-009",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: tests still cover provider enum regression, reserved fake/fake-provider override rejection without POST, custom provider preservation, and SSE advisory plus signed claim behavior.",
+      "createdAt": "2026-06-23T04:23:14.460Z",
+      "reviewRound": "2026-06-23T04:17:45.566Z",
+      "reviewRunId": "B-6320:RR-014",
+      "_hash": "20a7bc4e21467bd1d96eb15e131eb3762740f8686fcb681f6e802b53a55cd7f3"
+    },
+    {
+      "id": "B-6320:RP-010",
+      "agent": "lattice-review-docs",
+      "note": "PASS: docs and delivery evidence remain aligned with host-neutral provider declarations, server policy boundary, fake-provider reservation, and jobs.available as advisory before signed POST claim/status.",
+      "createdAt": "2026-06-23T04:23:24.396Z",
+      "reviewRound": "2026-06-23T04:17:45.566Z",
+      "reviewRunId": "B-6320:RR-015",
+      "_hash": "9a10a96c72be14fca2cfc8aec8ed897087642f70070460a1189a89290f861720"
+    }
+  ]
+}
