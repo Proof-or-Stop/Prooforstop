@@ -1,0 +1,37 @@
+{
+  "storyId": "B-b837",
+  "name": "koala-compat-layer-removal",
+  "title": "Delete the legacy-koala backward-compat and migration layer from product code (ship-clean story 2)",
+  "description": "koala rebranding is already DONE (the verify-koala-residue gate passes with zero unclassified residue); what remains is a deliberately-retained legacy-koala backward-compat and migration layer. Per the no-compat directive, story 2 deletes that layer from product runtime code: the legacy activity-log reader, the KOALA_ env-var fallbacks, the legacy-koala write-path detection, and the old-koala-artifact cleanup.",
+  "type": "refactor",
+  "phase": "INIT",
+  "priority": "high",
+  "keywords": [
+    "koala",
+    "compat",
+    "legacy",
+    "ship-clean",
+    "migration"
+  ],
+  "riskSignals": [
+    {
+      "category": "Data Migration/Destructive",
+      "matched": "migration"
+    }
+  ],
+  "priorityElevatedFrom": "medium",
+  "createdAt": "2026-06-23T12:11:44.244Z",
+  "startedAt": "2026-06-23T12:11:44.244Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-23T12:11:44.263Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "d45e3804-aa11-4468-a225-e4de0d1999ad",
+      "agent": "main"
+    }
+  ]
+}
