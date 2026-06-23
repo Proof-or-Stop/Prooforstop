@@ -17,6 +17,23 @@
       ],
       "signatureTag": "edge|mjs|quality-cleanup-experiments",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-c023:F-002",
+      "desc": "[codex-host2 C7] await agent() has no timeout/abort -> a hung agent defeats maxTurns, blocks the finally cleanup, and leaks the temp dir until process death (matters for the real claude -p agent). FIX: per-turn timeout (Promise.race) -> on timeout break/abort so finally runs.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex-host2",
+      "createdAt": "2026-06-23T13:00:27.607Z",
+      "reviewRound": "2026-06-23T12:52:23.053Z",
+      "_hash": "5eefd8c637bbc5180c5e826cd809da1478f30297d4379b8af75f72ea71455496",
+      "files": [
+        "experiments/injection-probes/live-loop-harness.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|codex-host2-await",
+      "signatureTagSource": "auto"
     }
   ]
 }
