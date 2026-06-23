@@ -4,11 +4,11 @@
   "title": "Powered-run driver that applies the stateless-safe injection probes to real recovery-runner arms",
   "description": "Build experiments/injection-probes/run-injection-arms.mjs: an arm-agnostic, probe-agnostic powered-run driver that, for each (probe, arm, rep), creates a task workspace from a fixture, applies probe.inject(workspace), runs an agent arm (real via recovery-runner agentRun in powered mode, OR a deterministic FAKE arm in self-test mode), captures transcript {actions:string[], shipped:boolean}, calls probe.classify(workspace, transcript) -> RECOVERED|SAFE_STOP|AMPLIFIED, and appends a run record (probe id, arm, rep, outcome, wall/cost) to a jsonl. Plus a hermetic --self-test that drives all 6 existing probes (B1/B2/B6/B9/B11/B13) through a fake arm simulating each of the 3 outcomes, asserting the driver records the matching outcome end-to-end with ZERO network/cost. The real powered run (real claude -p) is an explicit follow-up step, NOT part of this story.",
   "type": "feature",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "medium",
   "createdAt": "2026-06-23T04:44:30.627Z",
   "startedAt": "2026-06-23T04:44:30.627Z",
-  "endedAt": null,
+  "endedAt": "2026-06-23T10:16:49.780Z",
   "events": [
     {
       "phase": "INIT",
@@ -81,12 +81,16 @@
       "user": "Harmonygo",
       "sessionId": "2094c029-06be-4ea6-b9eb-bdb694c8c71a",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-23T10:16:49.780Z",
+      "branch": "story/B-a1b0",
+      "user": "Harmonygo",
+      "sessionId": "2094c029-06be-4ea6-b9eb-bdb694c8c71a",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-a1b0",
-    "branch": "story/B-a1b0",
-    "createdAt": "2026-06-23T04:48:01.417Z"
-  },
   "currentReviewRound": "2026-06-23T10:04:54.815Z"
 }
