@@ -1,0 +1,55 @@
+{
+  "storyId": "B-add9",
+  "changes": "Tracked the recovery-runner experiment harness CODE under experiments/recovery-runner/ (3 runners run-recovery/a2prime/ablation, per-task fixtures for eval-expr/median/parse-range/text-stats, 2 generic injections) plus a README; excluded the 14 .jsonl run-record data files (they live in the companion paper repo Proofbound-AI/paper).",
+  "usage": "git ls-files experiments/recovery-runner now lists 33 code files + README and zero .jsonl; to re-verify a task, copy its reference-solution.mjs to solution.mjs and run acceptance.mjs + ground-truth.mjs.",
+  "expectedOutcome": "The harness code is version-controlled + gate-reviewed; each task reference-solution passes its acceptance + hidden ground-truth; no .jsonl tracked.",
+  "actualTranscript": "33 files tracked, 0 .jsonl; fixture self-consistency all PASS (eval-expr 20/9, median 8/8, parse-range 11/12, text-stats 6/5); 3 claude review lanes PASS + codex host-2 SHIP, 0 findings; full npm test green.",
+  "outcomeDiff": "expected == actual: code tracked + reviewed, data excluded, fixtures self-consistent.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "The 14 .jsonl run-records are intentionally not tracked here (they are experiment data in the paper repo). The runner end-to-end invokes the host CLI (claude -p); only fixture self-consistency was verified in-gate.",
+  "pitfalls": "Two injection mechanisms coexist: eval-expr uses a drop-in payload-subtle.mjs while median/parse-range use inject()-module payloads (overfit/subtle-wrong-output.mjs) — the latter are NOT drop-in solutions and will fail acceptance if copied directly as solution.mjs.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 157940
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 11221
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 373565
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 703876
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 545451
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 188999
+    }
+  },
+  "totalDurationMs": 1981068,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-22T19:03:12.890Z",
+  "updatedAt": "2026-06-22T19:03:12.890Z"
+}

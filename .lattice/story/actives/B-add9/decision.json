@@ -1,0 +1,67 @@
+{
+  "principles": [
+    "Track reproducible code, not bulky generated data.",
+    "Make the experiment code auditable via the review gate.",
+    "Keep the product repo clean (data lives with the paper)."
+  ],
+  "drivers": [
+    "Auditability of the section-6 experiment code",
+    "Reproducibility (runner regenerates data)",
+    "Avoid dumping experiment output into the product repo"
+  ],
+  "options": [
+    {
+      "name": "code-only-onboard",
+      "pros": [
+        "Auditable code under the gate",
+        "Product repo stays clean",
+        "Reproducible"
+      ],
+      "cons": [
+        "Old run-records not in this repo (they are in the paper repo)"
+      ]
+    },
+    {
+      "name": "code-plus-data-onboard",
+      "pros": [
+        "Everything in one place"
+      ],
+      "cons": [
+        "Dumps 14 bulky .jsonl data files into the product repo",
+        "Data duplicates the paper repo"
+      ]
+    },
+    {
+      "name": "leave-as-scratch",
+      "pros": [
+        "No work"
+      ],
+      "cons": [
+        "Experiment code stays ungated/unauditable, inconsistent with the trust-the-gate thesis"
+      ]
+    }
+  ],
+  "chosen": "code-only-onboard",
+  "rationale": "Tracking the code (plus a README pointing to the paper repo for data) makes the harness auditable and reproducible without polluting the product repo with generated .jsonl run-records.",
+  "preMortem": [
+    {
+      "scenario": "Data accidentally tracked",
+      "trigger": "git add experiments/recovery-runner/ globs in the .jsonl",
+      "consequence": "Bulky data dumped into the product repo",
+      "mitigation": "Add only the explicit non-jsonl code files; verify git ls-files shows no .jsonl"
+    },
+    {
+      "scenario": "Fixtures are inconsistent",
+      "trigger": "A reference-solution does not actually pass its own acceptance/ground-truth",
+      "consequence": "The tracked harness is broken",
+      "mitigation": "CHK-005 runs each reference-solution against acceptance + ground-truth before DONE"
+    },
+    {
+      "scenario": "Verification triggers the expensive LLM loop",
+      "trigger": "Running run-recovery.mjs directly",
+      "consequence": "Slow/costly review",
+      "mitigation": "Verify fixture self-consistency only (reference vs acceptance/ground-truth), never the live loop"
+    }
+  ],
+  "timestamp": "2026-06-22T18:33:36.713Z"
+}

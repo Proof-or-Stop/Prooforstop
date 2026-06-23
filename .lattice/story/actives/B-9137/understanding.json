@@ -1,0 +1,26 @@
+{
+  "task": "Run the existing CJK predicate at authoring time: refuse non-English author artifacts in story_create + background_set/append before persisting, instead of only at the REVIEW->TEST english-artifacts gate.",
+  "outcome": "story_create with CJK in the background or a checklist item is REFUSED with a clear field-named message ('non-English (CJK) text in <field> (<section>):<line> ... [english_artifact_cjk_authoring]') and no story dir is created; background_set with CJK content is refused before writing; an all-English story_create (incl. U+2014 em-dash) succeeds normally. The early check and the REVIEW->TEST gate use the SAME predicate so they always agree.",
+  "facts": [
+    "the canonical CJK predicate is detectCjk(text) exported from packages/main/src/core/cjk-detect.ts (isCjkCodepoint/detectCjk/CJK_RANGES); english-artifact-gate.ts (runEnglishArtifactGate) already uses it for the REVIEW->TEST gate",
+    "story-create.ts (story_create) and background.ts (background_set/background_append) are the author entry points to gate",
+    "reuse detectCjk so the early check and the REVIEW->TEST gate can never disagree — do NOT add a second regex",
+    "em-dash U+2014 and normal ASCII punctuation must NOT be flagged (detectCjk only flags CJK ranges)",
+    "a working host-B reference exists in scratch /tmp/s4-cjkcreate (off old main; re-author here reusing core/cjk-detect.ts)"
+  ],
+  "constraints": [
+    "Scan only author-controlled artifacts (background, checklist title/context/userSees, title, description); never code or runtime files",
+    "Reuse the existing detectCjk predicate (single source of truth); no duplicate regex",
+    "Do not change the REVIEW->TEST gate behavior",
+    "English-only artifacts"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/handlers/story-create.ts",
+    "packages/main/src/handlers/background.ts",
+    "packages/main/src/handlers/english-artifact-gate.ts",
+    "packages/main/src/tasks/english-early-check-smoke.ts",
+    "lattice.config.json"
+  ],
+  "timestamp": "2026-06-22T16:33:53.366Z"
+}

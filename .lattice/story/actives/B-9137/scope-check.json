@@ -1,0 +1,129 @@
+{
+  "storyId": "B-9137",
+  "checkedAt": "2026-06-22T16:35:44.122Z",
+  "features": [
+    {
+      "feature": "Refuse CJK in story_create: background content",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Refuse CJK in story_create: checklist item title, context, userSees",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Refuse CJK in story_create: title and description fields",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Refuse CJK in background_set and background_append before writing",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Reuse existing detectCjk predicate from core/cjk-detect.ts (no duplicate regex)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Early-check predicate must be the SAME as runEnglishArtifactGate (gate-agreement assertion)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Em-dash U+2014 and common ASCII punctuation must NOT be flagged",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Field-named refusal message with section:line and [english_artifact_cjk_authoring] tag",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "On CJK refusal: no story dir is created (story_create is fully aborted)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Scan limited to author-controlled artifacts only; never code or runtime files",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Smoke task (english-early-check-smoke.ts) covering all five sub-cases",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Register smoke in lattice.config.json validate.commands",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Build passes (npm --prefix packages/main run build exits 0) and lifecycle-registry-contract has 0 divergences",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "EXCLUDED: No change to REVIEW->TEST english-artifacts gate behavior",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json excluded: Changing the REVIEW->TEST english-artifacts gate behavior",
+      "source": "description"
+    },
+    {
+      "feature": "EXCLUDED: No scanning of code or runtime files",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json excluded: Scanning code or runtime files (only author-controlled artifacts)",
+      "source": "description"
+    },
+    {
+      "feature": "EXCLUDED: No second/duplicate CJK regex",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json excluded: Adding a second/duplicate CJK regex",
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 16,
+    "covered": 13,
+    "excluded": 3,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "3c9a3e12f4de61be16ab986e66ba8ca01c360050a9e70c3faaa0c3afb4bd8d98",
+  "openQuestions": []
+}

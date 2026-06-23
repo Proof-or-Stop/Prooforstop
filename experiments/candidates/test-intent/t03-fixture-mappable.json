@@ -1,0 +1,40 @@
+{
+  "happy": [
+    {
+      "desc": "input={target:\"test-case-reviewer\",profile:\"reviewer-quality-v1\"} → expect.configPath 存在且 result includes Created experiment",
+      "type": "cli_blackbox",
+      "input": {
+        "target": "test-case-reviewer",
+        "profile": "reviewer-quality-v1"
+      },
+      "expect": {
+        "created": true,
+        "configExists": true
+      }
+    }
+  ],
+  "edge": [
+    {
+      "desc": "input={target:\"test-case-reviewer\"} → expect throws profile required",
+      "type": "cli_blackbox",
+      "input": {
+        "target": "test-case-reviewer"
+      },
+      "expect": {
+        "throws": "profile"
+      }
+    }
+  ],
+  "adversarial": [
+    {
+      "desc": "input={target:\"../docs/story\"} → expect throws unknown target / path rejected",
+      "type": "cli_blackbox",
+      "input": {
+        "target": "../docs/story"
+      },
+      "expect": {
+        "throws": "unknown target"
+      }
+    }
+  ]
+}

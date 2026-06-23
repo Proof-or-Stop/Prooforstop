@@ -1,0 +1,373 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add a duplicate-runId guard in quorum_submit: refuse if a planned runId already has a verdict at the same materialDigest",
+      "context": "packages/main/src/handlers/quorum-submit.ts; place after materialDigest/storyFilesHash are computed and before the emit loop; read existing verdicts via listVerdicts(ctx.root, 'local', storyId)",
+      "status": "done",
+      "startTime": "2026-06-22T18:01:36.868Z",
+      "endTime": "2026-06-22T18:06:59.416Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Call quorum_submit twice at the same materialDigest -> second call throws with a refusal mentioning the colliding runId(s); WHY: proves the guard blocks true no-op duplicate submission",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Call quorum_submit once with fresh reviewer passes at a valid materialDigest -> succeeds and returns emittedCount = rounds*2; WHY: proves the guard does not false-block first-time submission",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Call quorum_submit with rounds=1 then again with rounds=3 at the same materialDigest -> refusal mentions the single overlapping runId (r1) even though r2/r3 are new; WHY: guard checks per-runId, not per-call, so partial overlap still triggers refusal for the colliding subset",
+            "type": "cli",
+            "priority": "should"
+          },
+          {
+            "desc": "listVerdicts returns zero verdicts for a brand-new storyId -> guard passes through without error; WHY: empty-verdict edge case should not accidentally block",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Simulate a corrupted verdict file (non-JSON) in the local verdict directory for the story, then call quorum_submit -> guard either ignores the corrupt entry or throws a clear parse error, never silently skips the guard; WHY: dirty state should not let duplicates through",
+            "type": "cli",
+            "priority": "should"
+          },
+          {
+            "desc": "Call quorum_submit in rapid succession (two calls without material change) -> second call refused even under tight timing; WHY: no TOCTOU window where both calls pass the guard",
+            "type": "cli",
+            "priority": "should"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "Smoke check 'refuses a same-material re-submit and writes no new verdicts' calls quorum_submit twice at the same materialDigest; second call throws /quorum_submit refuses: verdicts already exist for runId/. 11/11 checks pass, exit 0.",
+          "headHash": "197108d63baa8ef47c7849b793ec201664d14bd8",
+          "materialHash": "b51761deb2b3b98c6bfde72a7e6a1dff88054ace65223525fb8f4dc84817f48f",
+          "storyFilesHash": "5415a8f2a97318ede1f61a69df92bdb2d5c8c8c06dc02d2cbed007316cb14b8f",
+          "timestamp": "2026-06-22T18:08:55.058Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "Smoke check 'emits exactly rounds x 2 verdicts after current reviewer passes' proves the guard does not false-block a first-time quorum (emittedCount=6).",
+          "headHash": "197108d63baa8ef47c7849b793ec201664d14bd8",
+          "materialHash": "b51761deb2b3b98c6bfde72a7e6a1dff88054ace65223525fb8f4dc84817f48f",
+          "storyFilesHash": "5415a8f2a97318ede1f61a69df92bdb2d5c8c8c06dc02d2cbed007316cb14b8f",
+          "timestamp": "2026-06-22T18:08:55.058Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-002",
+      "title": "Refusal message names the colliding runId(s) and explains it would duplicate the quorum",
+      "context": "Follow the existing REFUSAL style; no verdicts written on refusal",
+      "status": "done",
+      "startTime": "2026-06-22T18:02:03.794Z",
+      "endTime": "2026-06-22T18:07:00.008Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Trigger duplicate-runId refusal -> error message contains each colliding runId string and the word \"duplicate\"; WHY: operator must see which runId(s) collided to diagnose the double-submit",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Trigger duplicate-runId refusal -> count host_verdict process events and verdict files before and after; counts are identical; WHY: proves no verdicts or side-effects are written on refusal",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Trigger refusal when multiple runIds collide (e.g. rounds=3 re-submitted) -> message lists all 3 colliding runIds, not just the first; WHY: partial reporting would hide the scope of duplication",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "After a refusal (no verdicts written), call listVerdicts and summarizeVerdicts -> results are unchanged from pre-refusal baseline; WHY: ensures the guard truly short-circuits before any emit, not just swallows errors after partial writes",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "Refusal message names the colliding runId(s): 'verdicts already exist for runId(s) ...-q-r1, ...-q-r2, ...-q-r3 at the current material' and states re-submitting would duplicate the quorum.",
+          "headHash": "197108d63baa8ef47c7849b793ec201664d14bd8",
+          "materialHash": "b51761deb2b3b98c6bfde72a7e6a1dff88054ace65223525fb8f4dc84817f48f",
+          "storyFilesHash": "5415a8f2a97318ede1f61a69df92bdb2d5c8c8c06dc02d2cbed007316cb14b8f",
+          "timestamp": "2026-06-22T18:08:55.058Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts hostVerdictEventCount and verdictFileCount are unchanged across the refused same-material re-submit, proving the guard short-circuits before any emit.",
+          "headHash": "197108d63baa8ef47c7849b793ec201664d14bd8",
+          "materialHash": "b51761deb2b3b98c6bfde72a7e6a1dff88054ace65223525fb8f4dc84817f48f",
+          "storyFilesHash": "5415a8f2a97318ede1f61a69df92bdb2d5c8c8c06dc02d2cbed007316cb14b8f",
+          "timestamp": "2026-06-22T18:08:55.058Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "Smoke `refuses a same-material re-submit` asserts verdictFileCount + hostVerdictEventCount unchanged after the refusal (guard short-circuits before any emit). 11/11 pass, exit 0.",
+          "headHash": "30f710eba154f0de9a302cb6b4b558efc217a373",
+          "materialHash": "b51761deb2b3b98c6bfde72a7e6a1dff88054ace65223525fb8f4dc84817f48f",
+          "storyFilesHash": "5415a8f2a97318ede1f61a69df92bdb2d5c8c8c06dc02d2cbed007316cb14b8f",
+          "timestamp": "2026-06-22T18:08:27.232Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-003",
+      "title": "Allow a fresh quorum after the material changes (different materialDigest does not collide)",
+      "context": "The guard keys on (runId, materialDigest), so a re-quorum after a real material change is not blocked",
+      "status": "done",
+      "startTime": "2026-06-22T18:02:04.763Z",
+      "endTime": "2026-06-22T18:07:00.591Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Submit quorum at materialDigest-A, then commit a material change (new file content), re-record reviewer passes, and submit quorum again -> second call succeeds with emittedCount = rounds*2; WHY: proves the guard keys on (runId, materialDigest) and does not false-block after material change",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Submit quorum, change material, re-quorum, then change material AGAIN and re-quorum a third time -> third call also succeeds; WHY: the guard must allow unbounded re-quorum cycles as long as each has a distinct materialDigest",
+            "type": "cli",
+            "priority": "should"
+          },
+          {
+            "desc": "Submit quorum at materialDigest-A, change material to materialDigest-B, re-quorum succeeds, then revert material back to materialDigest-A and attempt re-quorum -> refusal because materialDigest-A runIds already have verdicts; WHY: material revert is semantically a duplicate, guard must catch it",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Submit quorum, then change ONLY non-material files (e.g. .lattice metadata only, no src changes) and re-submit -> if materialDigest is unchanged the guard still refuses; WHY: ensures the guard is truly keyed on materialDigest not on git HEAD or storyFilesHash alone",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "Smoke check 'allows a fresh quorum after a material change' commits a material change, re-records passes, re-submits, and asserts emittedCount=6 with 6 new verdict files — guard keys on (runId, materialDigest), not just runId.",
+          "headHash": "197108d63baa8ef47c7849b793ec201664d14bd8",
+          "materialHash": "b51761deb2b3b98c6bfde72a7e6a1dff88054ace65223525fb8f4dc84817f48f",
+          "storyFilesHash": "5415a8f2a97318ede1f61a69df92bdb2d5c8c8c06dc02d2cbed007316cb14b8f",
+          "timestamp": "2026-06-22T18:08:55.058Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/handlers/quorum-submit.ts",
+          "result": "pass",
+          "note": "Guard predicate is `plannedRunIds.has(verdict.runId) && verdict.materialDigest === materialDigest` — keyed strictly on materialDigest, not git HEAD or storyFilesHash. A non-material change that leaves materialDigest unchanged therefore still refuses (same as the no-change same-material-refuses smoke case).",
+          "headHash": "30f710eba154f0de9a302cb6b4b558efc217a373",
+          "materialHash": "b51761deb2b3b98c6bfde72a7e6a1dff88054ace65223525fb8f4dc84817f48f",
+          "storyFilesHash": "5415a8f2a97318ede1f61a69df92bdb2d5c8c8c06dc02d2cbed007316cb14b8f",
+          "timestamp": "2026-06-22T18:08:27.232Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-004",
+      "title": "Update quorum-submit smoke: restructure rounds-knob case to not collide; add a same-material re-submit-refuses case and a re-quorum-after-material-change-allowed case",
+      "context": "packages/main/src/tasks/quorum-submit-smoke.ts; assert no new verdicts on refusal",
+      "status": "done",
+      "startTime": "2026-06-22T18:02:09.443Z",
+      "endTime": "2026-06-22T18:07:01.167Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run quorum-submit smoke test (npx tsx packages/main/src/tasks/quorum-submit-smoke.ts) -> all checks pass with zero assertion failures; WHY: proves the restructured rounds-knob case no longer collides and the new cases execute",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Inspect smoke test source: a same-material-refuses case exists that calls quorum_submit twice at the same material and asserts a refusal error + zero new verdicts; WHY: proves the refusal path is explicitly tested",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Inspect smoke test source: a re-quorum-after-material-change-allowed case exists that commits a material change between submissions and asserts the second call succeeds; WHY: proves the allow path is explicitly tested",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The restructured rounds-knob case uses distinct materialDigest from the main quorum case (or runs before it) so its runIds do not collide with other test cases; WHY: test isolation prevents false passes from order-dependent state",
+            "type": "logic",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "After the same-material-refuses case, assert that hostVerdictEventCount and verdictFileCount are unchanged from before the refused call; WHY: the smoke test must verify the no-side-effect guarantee, not just the thrown error",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "Restructured smoke runs the rounds-knob case at a fresh materialDigest (no collision) and adds same-material-refuses + fresh-material-allowed cases. All 11 checks pass, exit 0.",
+          "headHash": "197108d63baa8ef47c7849b793ec201664d14bd8",
+          "materialHash": "b51761deb2b3b98c6bfde72a7e6a1dff88054ace65223525fb8f4dc84817f48f",
+          "storyFilesHash": "5415a8f2a97318ede1f61a69df92bdb2d5c8c8c06dc02d2cbed007316cb14b8f",
+          "timestamp": "2026-06-22T18:08:55.058Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "command": "grep -n \"refuses a same-material re-submit\" packages/main/src/tasks/quorum-submit-smoke.ts",
+          "result": "pass",
+          "note": "A same-material-refuses smoke case exists: calls quorum_submit twice at the same material and asserts the refusal error + zero new verdicts.",
+          "headHash": "30f710eba154f0de9a302cb6b4b558efc217a373",
+          "materialHash": "b51761deb2b3b98c6bfde72a7e6a1dff88054ace65223525fb8f4dc84817f48f",
+          "storyFilesHash": "5415a8f2a97318ede1f61a69df92bdb2d5c8c8c06dc02d2cbed007316cb14b8f",
+          "timestamp": "2026-06-22T18:08:27.232Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:2",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "command": "grep -n \"allows a fresh quorum after a material change\" packages/main/src/tasks/quorum-submit-smoke.ts",
+          "result": "pass",
+          "note": "A re-quorum-after-material-change-allowed smoke case exists: commits a material change between submissions and asserts the second call succeeds.",
+          "headHash": "30f710eba154f0de9a302cb6b4b558efc217a373",
+          "materialHash": "b51761deb2b3b98c6bfde72a7e6a1dff88054ace65223525fb8f4dc84817f48f",
+          "storyFilesHash": "5415a8f2a97318ede1f61a69df92bdb2d5c8c8c06dc02d2cbed007316cb14b8f",
+          "timestamp": "2026-06-22T18:08:27.232Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "The same-material-refuses case asserts hostVerdictEventCount and verdictFileCount are unchanged from before the refused call (no-side-effect guarantee). Smoke 11/11 pass.",
+          "headHash": "30f710eba154f0de9a302cb6b4b558efc217a373",
+          "materialHash": "b51761deb2b3b98c6bfde72a7e6a1dff88054ace65223525fb8f4dc84817f48f",
+          "storyFilesHash": "5415a8f2a97318ede1f61a69df92bdb2d5c8c8c06dc02d2cbed007316cb14b8f",
+          "timestamp": "2026-06-22T18:08:27.232Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-005",
+      "title": "Build packages/main + run quorum-submit smoke + full test suite green",
+      "context": "npm --prefix packages/main run build; run the smoke; npm test",
+      "status": "done",
+      "startTime": "2026-06-22T18:04:42.247Z",
+      "endTime": "2026-06-22T18:07:01.780Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm --prefix packages/main run build -> exits 0 with no TypeScript errors; WHY: the new guard code must compile cleanly",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Run quorum-submit smoke (npx tsx packages/main/src/tasks/quorum-submit-smoke.ts) -> exits 0 and prints all-checks-passed summary; WHY: smoke validates the guard + smoke restructuring end-to-end",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "npm test -> exits 0 with all suites passing; WHY: no regressions from the guard addition or smoke restructuring",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Build output in packages/main/dist includes the compiled quorum-submit.js with the guard logic -> file exists and contains the refusal string; WHY: ensures the guard survives TypeScript compilation and is present in the distributable",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Delete packages/main/dist before building, then npm --prefix packages/main run build -> build succeeds from clean state; WHY: ensures no stale .js artifacts mask a compilation failure in the new guard code",
+            "type": "cli",
+            "priority": "should"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "tsc build exits 0 with no TypeScript errors; the new listVerdicts-backed guard compiles cleanly.",
+          "headHash": "197108d63baa8ef47c7849b793ec201664d14bd8",
+          "materialHash": "b51761deb2b3b98c6bfde72a7e6a1dff88054ace65223525fb8f4dc84817f48f",
+          "storyFilesHash": "5415a8f2a97318ede1f61a69df92bdb2d5c8c8c06dc02d2cbed007316cb14b8f",
+          "timestamp": "2026-06-22T18:08:55.058Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:2",
+          "kind": "manual_transcript",
+          "command": "npm test",
+          "result": "pass",
+          "note": "Full suite (test:main-write-lock-coverage ... test:e2e) ran end-to-end: 'ALL PASS', exit 0, no FAIL/assertion/Error lines. No regressions from the guard or smoke restructuring.",
+          "headHash": "197108d63baa8ef47c7849b793ec201664d14bd8",
+          "materialHash": "b51761deb2b3b98c6bfde72a7e6a1dff88054ace65223525fb8f4dc84817f48f",
+          "storyFilesHash": "5415a8f2a97318ede1f61a69df92bdb2d5c8c8c06dc02d2cbed007316cb14b8f",
+          "timestamp": "2026-06-22T18:08:55.058Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "command": "node packages/main/dist/tasks/quorum-submit-smoke.js",
+          "result": "pass",
+          "note": "Smoke runs all 11 checks and exits 0 (validated guard + restructured cases end-to-end).",
+          "headHash": "30f710eba154f0de9a302cb6b4b558efc217a373",
+          "materialHash": "b51761deb2b3b98c6bfde72a7e6a1dff88054ace65223525fb8f4dc84817f48f",
+          "storyFilesHash": "5415a8f2a97318ede1f61a69df92bdb2d5c8c8c06dc02d2cbed007316cb14b8f",
+          "timestamp": "2026-06-22T18:08:27.232Z"
+        }
+      ]
+    }
+  ]
+}

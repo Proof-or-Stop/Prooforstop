@@ -1,0 +1,21 @@
+{"type":"plan_reviewed","round":1,"blockerCount":3,"issueCount":11,"timestamp":"2026-06-22T17:57:59.037Z"}
+{"type":"plan_reviewed","round":2,"blockerCount":3,"issueCount":11,"timestamp":"2026-06-22T17:58:03.931Z"}
+{"type":"plan_reviewed","round":3,"blockerCount":1,"issueCount":9,"timestamp":"2026-06-22T17:58:25.417Z"}
+{"type":"plan_reviewed","round":4,"blockerCount":1,"issueCount":9,"timestamp":"2026-06-22T17:58:30.566Z"}
+{"type":"plan_reviewed","round":5,"blockerCount":0,"issueCount":8,"timestamp":"2026-06-22T18:00:19.592Z"}
+{"type":"dispatch","checklistId":"CHK-001","timestamp":"2026-06-22T18:01:36.869Z"}
+{"type":"dispatch","checklistId":"CHK-002","timestamp":"2026-06-22T18:02:03.794Z"}
+{"type":"dispatch","checklistId":"CHK-003","timestamp":"2026-06-22T18:02:04.763Z"}
+{"type":"dispatch","checklistId":"CHK-004","timestamp":"2026-06-22T18:02:09.444Z"}
+{"type":"dispatch","checklistId":"CHK-005","timestamp":"2026-06-22T18:04:42.247Z"}
+{"type":"subagent_result","checklistId":"CHK-001","success":true,"timestamp":"2026-06-22T18:06:59.416Z"}
+{"type":"subagent_result","checklistId":"CHK-002","success":true,"timestamp":"2026-06-22T18:07:00.008Z"}
+{"type":"subagent_result","checklistId":"CHK-003","success":true,"timestamp":"2026-06-22T18:07:00.592Z"}
+{"type":"subagent_result","checklistId":"CHK-004","success":true,"timestamp":"2026-06-22T18:07:01.167Z"}
+{"type":"subagent_result","checklistId":"CHK-005","success":true,"timestamp":"2026-06-22T18:07:01.780Z"}
+{"type":"review_pass","storyId":"B-5c79","command":"review_pass_set","role":"reviewer","agent":"lattice-review-concept","result":"pass","reviewPassId":"B-5c79:RP-001","timestamp":"2026-06-22T18:10:48.345Z"}
+{"type":"review_pass","storyId":"B-5c79","command":"review_pass_set","role":"reviewer","agent":"lattice-review-quality","result":"pass","reviewPassId":"B-5c79:RP-002","timestamp":"2026-06-22T18:11:13.560Z"}
+{"type":"review_pass","storyId":"B-5c79","command":"review_pass_set","role":"reviewer","agent":"lattice-review-test-coverage","result":"pass","reviewPassId":"B-5c79:RP-003","timestamp":"2026-06-22T18:13:13.134Z"}
+{"type":"host_verdict","mode":"local","verdictId":"verdict-2229aac95fdc099d","runId":"B-5c79-q-r1","hostId":"claude-host","provider":"claude","sessionId":"quorum:B-5c79:claude-host:session","keyId":"quorum:B-5c79:claude-host:key","decision":"pass","materialDigest":"4bc8f106e7789a3020a6f5e690f1788fad71e3b7fcb858333f615ed970f4147d","storyFilesHash":"5415a8f2a97318ede1f61a69df92bdb2d5c8c8c06dc02d2cbed007316cb14b8f","validationDigest":"fec6a2bf803f3204ddf522725230e3139e02464f796053e34549cb23d7695327","promptDigest":"b74f217add25f4edc14efc9e30b5ecfd6559794d53ed74df4c0b2c99056536a4","timestamp":"2026-06-22T18:26:25.237Z"}
+{"type":"host_verdict","mode":"local","verdictId":"verdict-8d2ba0fdcd791b97","runId":"B-5c79-q-r1","hostId":"codex-host","provider":"codex","sessionId":"quorum:B-5c79:codex-host:session","keyId":"quorum:B-5c79:codex-host:key","decision":"pass","materialDigest":"4bc8f106e7789a3020a6f5e690f1788fad71e3b7fcb858333f615ed970f4147d","storyFilesHash":"5415a8f2a97318ede1f61a69df92bdb2d5c8c8c06dc02d2cbed007316cb14b8f","validationDigest":"fec6a2bf803f3204ddf522725230e3139e02464f796053e34549cb23d7695327","promptDigest":"d1d56850ee0822092dbf59cf4eb76d6b943361b2120c81f38a67808617a0752e","timestamp":"2026-06-22T18:26:25.237Z"}
+{"type":"dirty_gate_audit","storyId":"B-5c79","gate":"done-gate","category":"lattice_metadata_changes","pathCount":2,"paths":[".lattice/story/actives/B-5c79/process-events.jsonl",".lattice/story/actives/B-5c79/test-evidence.json"],"reason":"lattice-owned story metadata; auto-committed by B-3506 helper","timestamp":"2026-06-22T18:26:42.366Z"}

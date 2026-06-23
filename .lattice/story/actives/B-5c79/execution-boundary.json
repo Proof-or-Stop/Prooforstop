@@ -1,0 +1,36 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-5c79",
+  "allowedCommands": [
+    "node --test",
+    "node packages/main/dist/tasks/quorum-submit-smoke.js",
+    "npm --prefix packages/main run build",
+    "npm test"
+  ],
+  "allowedTools": [
+    "Edit",
+    "node",
+    "Read",
+    "Write"
+  ],
+  "allowedPaths": [
+    "packages/main/src/handlers/",
+    "packages/main/src/tasks/"
+  ],
+  "excludedCommands": [
+    "git push",
+    "git reset --hard",
+    "rm -rf"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".lattice/",
+    "bin/",
+    "core/"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Modify the quorum_submit handler + smoke test; verify via build + the quorum-submit smoke + full test suite.",
+  "createdAt": "2026-06-22T17:53:07.363Z",
+  "updatedAt": "2026-06-22T17:53:07.363Z",
+  "_hash": "23282ae383b59a3456cac3adb27bce7d0e7d9220ea9428b8dc2f213f5691ad24"
+}

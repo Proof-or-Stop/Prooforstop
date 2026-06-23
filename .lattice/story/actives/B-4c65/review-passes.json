@@ -1,0 +1,58 @@
+{
+  "passes": [
+    {
+      "id": "B-4c65:RP-001",
+      "agent": "lattice-review-docs",
+      "note": "Step1 extracted 30 symbols (ReceiptBundle, ReceiptBundleAssurance, ReceiptBundleBinding, ReceiptBundleDecision, ReceiptBundleEvidence, ReceiptBundleHostVerdict, ReceiptBundleReceipt, ReceiptBundleVerifyContext, ReceiptBundleVerifyReason, ReceiptBundleVerifyResult, buildReceiptBundle, verifyReceiptBundleOffline, RECEIPT_BUNDLE_SCHEMA_VERSION, CURRENT_MATERIAL, HEX_SHA256, N, PrivateKeyBase64, PublicKeyBase64, SignatureBase64, TamperCase, assurance, attacker, authentic, b, binding, cases, clone, command, decision, empty, evidence, forged, lines, matrix, nonEmptyString, okCtx, r, rForged, rStale, receipt, receipts, reject, rejected, sha256Hex, signature, signer, stale, unsigned, unsignedView). Step2 found 1 doc reference: CHANGELOG.md B-4c65 entry. Compared that paragraph against receipt-bundle.ts and receipt-bundle-contract-smoke.ts. All claims verified: binding chain fields (5 fields), check order (7 steps, exact match), 8 tamper classes match the cases[] array exactly, lying-agent cases match, assurance hardwired to local-key-single-host in both builder and verifier, no overclaiming of Authority/cross-host/receiptVerified, honest-scope disclaimer matches code header verbatim, crypto reuse from authority-signing.ts confirmed, smoke registration in lattice.config.json confirmed. digest_mismatch listed as verifier step 5 (accurate) but correctly not listed as a tamper-class test case (also accurate). No blockers.",
+      "createdAt": "2026-06-22T17:31:58.692Z",
+      "reviewRound": "2026-06-22T17:30:11.273Z",
+      "reviewRunId": "B-4c65:RR-002",
+      "_hash": "6f8d0140c4cbace813acca7cc78320a41ca260f19b5d1321d286d38b1d62a753"
+    },
+    {
+      "id": "B-4c65:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Concept-residue check complete. (a) Module fully wired: buildReceiptBundle+verifyReceiptBundleOffline exported from core/receipt-bundle.ts, imported+exercised by receipt-bundle-contract-smoke.ts, smoke registered in lattice.config.json smokeCommands. No CLI/handler wiring expected (deferred to follow-up slice per plan.md). (b) Crypto genuinely reused: receipt-bundle.ts imports signCanonical+verifyCanonical from authority-signing.js; no direct createSign/createVerify/node:crypto for ed25519 anywhere in the new files; smoke imports generateEd25519KeyPair from same module. (c) assurance label consistently applied: ReceiptBundleAssurance type is a single-value union literal, buildReceiptBundle hardcodes local-key-single-host, verifyReceiptBundleOffline hardcodes same; both new files explicitly state NOT the Authority Tier-C strong proof; prohibited claims (receiptVerified/productionDone/authorityDone/fullAuthorityDone) absent from all new code. No concept deletion or replacement found; no residue to grep. 0 findings.",
+      "createdAt": "2026-06-22T17:32:38.671Z",
+      "reviewRound": "2026-06-22T17:30:11.273Z",
+      "reviewRunId": "B-4c65:RR-003",
+      "_hash": "30dea74e53fc2cc9e732b3a37756fda91073cdec8ab04df924b7459c8a2d054b"
+    },
+    {
+      "id": "B-4c65:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence for all 6 intents (CHK-001:happy/edge/adversarial, CHK-002:happy/edge/adversarial). Smoke executed live and confirmed non-vacuous: authentic ACCEPTED (control), all 8 tamper classes (code-byte-flip, evidence-edit, host-verdict-swap, commandSet-change, stale-materialHash, forged-signature, missing-signature, missing-build-proof) REJECTED with exact reason codes, lying-agent (stale+forged) rejected, falseAccept=0, falseReject=0. One low/suspected advisory filed (B-4c65:F-001): CHK-001:edge:0 Authority-fields-absent clause is untestable because Authority fields are not yet in the schema (deferred story); non-blocking.",
+      "createdAt": "2026-06-22T17:33:27.400Z",
+      "reviewRound": "2026-06-22T17:30:11.273Z",
+      "reviewRunId": "B-4c65:RR-004",
+      "_hash": "6dcdeab7e0d3595ff05266cddafa3b5982aeb755a0f20e73f48950fe461cf64e"
+    },
+    {
+      "id": "B-4c65:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Round 2 quality review: build clean (tsc 0 errors). isStrictBundleShape is sound — rejects null/extra-keys/wrong-type/missing-fields/off-union-decision; not over-strict — optional label field absent on a receipt is accepted, empty-string binding hashes pass shape (caught by dedicated binding_incomplete), empty-string signature passes shape (caught by dedicated signature_missing). Check ordering is correct: malformed_bundle(1) → signer_key_mismatch(2) → signature_missing(3) → signature_invalid(4) → semantic checks (5-10). No dead code: all imports used (createPublicKey, signCanonical, verifyCanonical, importPrivateKeyRaw, exportPublicKeyRaw, all type imports). No as-any, no empty catch. No shell isolation violations. Smoke: authentic ACCEPTED + 18 tamper classes REJECTED + 0 false-accept + 0 false-reject + every reason code reached.",
+      "createdAt": "2026-06-22T17:51:34.583Z",
+      "reviewRound": "2026-06-22T17:49:22.575Z",
+      "reviewRunId": "B-4c65:RR-005",
+      "_hash": "efdedb6885a10350cad683bf208cbcc28f30b94095e68fc3c78a7e88a42404f5"
+    },
+    {
+      "id": "B-4c65:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 concept check complete. New reason codes malformed_bundle/signer_key_mismatch/receipt_not_passing: all three are declared in the ReceiptBundleVerifyReason union, all three have distinct return-reject() call sites in verifyReceiptBundleOffline, and the smoke tamper matrix reaches every non-ok reason code (ALL_REASONS exhaustiveness assertion at runtime). No dead/half-built code found. Crypto reuse intact: receipt-bundle.ts imports signCanonical/verifyCanonical/importPrivateKeyRaw/exportPublicKeyRaw exclusively from authority-signing.ts; the sole node:crypto import (createPublicKey) is used only in the publicKeyForPrivateKey key-derivation helper — no reimplementation. Assurance labeling consistent: assurance is hardcoded to local-key-single-host in the type, in buildReceiptBundle, in verifyReceiptBundleOffline, and in all smoke assertions; the file header explicitly states this is NOT Authority Tier-C strong proof; no mislabeling found anywhere in the source tree.",
+      "createdAt": "2026-06-22T17:51:36.094Z",
+      "reviewRound": "2026-06-22T17:49:22.575Z",
+      "reviewRunId": "B-4c65:RR-006",
+      "_hash": "a9c2ac114d7e208f40b8e8aea6cd59848a788d272ab7929ea791d7b84046dcca"
+    },
+    {
+      "id": "B-4c65:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (round 2): smoke re-run confirms authentic ACCEPTED; all 18 tamper classes REJECTED with exact reason codes; every non-ok reason code (stale, signature_invalid, signature_missing, signer_key_mismatch, build_proof_missing, binding_incomplete, digest_mismatch, receipt_not_passing, decision_not_pass, malformed_bundle) exercised; lying-agent stale+forged cases REJECTED; soundness-hole self-checks (exitCode:1, hostVerdicts.push(null)) REJECTED; falseAccept===0, falseReject===0. All 6 verificationIntent entries (CHK-001:happy:0, CHK-001:edge:0, CHK-001:adversarial:0, CHK-002:happy:0, CHK-002:edge:0, CHK-002:adversarial:0) are genuinely covered. Evidence staleness (headHash drift) is a Lattice metadata gate concern, not a coverage gap — main agent must refresh evidence before DONE.",
+      "createdAt": "2026-06-22T17:52:50.325Z",
+      "reviewRound": "2026-06-22T17:49:22.575Z",
+      "reviewRunId": "B-4c65:RR-007",
+      "_hash": "a34dcd093261d39b2edcec285c5670b1bd9bd06a1b446baf21d2695101812bdb"
+    }
+  ]
+}

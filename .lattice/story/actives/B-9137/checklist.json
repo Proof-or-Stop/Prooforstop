@@ -1,0 +1,156 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Reject non-English (CJK) author artifacts at story_create and background_set",
+      "context": "Reuse the EXISTING CJK-detection from packages/main/src/handlers/english-artifact-gate.ts: export a shared containsCJK(text) predicate and call it in story_create (story-create.ts) and background_set/background_append (background.ts) to REFUSE non-English author-controlled content BEFORE it is persisted. story_create scans the author-provided background + each checklist item title/context/userSees + title/description; background_set/append scans the provided content. On CJK, refuse with a clear field-named message (e.g. 'story_create refuses: non-English (CJK) text in background (<section>):<line>. Story artifacts must be English. Found: <snippet>. [english_artifact_cjk_authoring]') and do NOT create the story / write the file. The early check must use the SAME predicate as runEnglishArtifactGate so the at-create check and the REVIEW->TEST gate AGREE. Limit the scan to author-controlled artifacts only; never code or runtime files. Common English punctuation (U+2014 em-dash etc.) must NOT be flagged. Reference impl in scratch /tmp/s4-cjkcreate.",
+      "userSees": "node packages/main/dist/cli.js story_create ... with CJK in the background or a checklist item is REFUSED with 'story_create refuses: non-English (CJK) text in <field> (<section>):<line>. Story artifacts must be English. Found: <snippet>.' and no story dir is created. background_set with CJK content is refused before writing. An all-English story_create (including em-dash) succeeds normally.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "smoke: story_create with CJK in the background is REFUSED and NO story dir is created; WHY: fail at authoring, not at REVIEW->TEST",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "smoke: story_create with CJK in a checklist item title/context is REFUSED (no story dir); WHY: checklist artifacts also gated",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "smoke: an all-English story_create succeeds (incl. U+2014 em-dash NOT flagged as CJK); WHY: no false positive",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "smoke: background_set / background_append with CJK content is REFUSED before writing background.md; WHY: the other author entry point is gated too",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "the at-create check uses the SAME containsCJK predicate as runEnglishArtifactGate (assert agreement); WHY: early check and gate never disagree",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "the scan is limited to author-controlled artifacts and never flags code/runtime files or rejects legitimate English; WHY: no over-reach",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "no second/duplicated CJK regex is introduced — the predicate is exported once and reused; build + lifecycle-registry-contract pass; WHY: single source of truth",
+            "type": "logic",
+            "priority": "should"
+          }
+        ]
+      },
+      "status": "done",
+      "startTime": "2026-06-22T16:37:09.046Z",
+      "endTime": "2026-06-22T16:47:30.806Z",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/story-create.ts",
+          "packages/main/src/handlers/background.ts",
+          "packages/main/src/handlers/english-artifact-gate.ts",
+          "lattice.config.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/english-early-check-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/english-early-check-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/english-early-check-smoke.ts",
+          "command": "node packages/main/dist/tasks/english-early-check-smoke.js",
+          "result": "pass",
+          "note": "Smoke: story_create with CJK in the background is REFUSED (english_artifact_cjk_authoring) and NO story dir is created — fail at authoring, not at REVIEW->TEST.",
+          "headHash": "644b5e6cd3ffe012518642655c57752a88bc38e5",
+          "materialHash": "03a0554e6e06b7fa79810086a60e5c04456916654e24ef8a2f69604fbce61a1f",
+          "storyFilesHash": "5cdcff0c3b10e905341fc89d6745c211cdc7fb82bf25bb2101e6cc4c7810b596",
+          "timestamp": "2026-06-22T16:47:30.367Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/english-early-check-smoke.ts",
+          "command": "node packages/main/dist/tasks/english-early-check-smoke.js",
+          "result": "pass",
+          "note": "Smoke: story_create with CJK in a checklist item title AND context is REFUSED and no story dir is created — checklist artifacts are gated too.",
+          "headHash": "644b5e6cd3ffe012518642655c57752a88bc38e5",
+          "materialHash": "03a0554e6e06b7fa79810086a60e5c04456916654e24ef8a2f69604fbce61a1f",
+          "storyFilesHash": "5cdcff0c3b10e905341fc89d6745c211cdc7fb82bf25bb2101e6cc4c7810b596",
+          "timestamp": "2026-06-22T16:47:30.367Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/english-early-check-smoke.ts",
+          "command": "node packages/main/dist/tasks/english-early-check-smoke.js",
+          "result": "pass",
+          "note": "Smoke: an all-English story_create INCLUDING a U+2014 em-dash SUCCEEDS and persists the em-dash — no false positive (detectCjk only matches CJK ranges; em-dash/smart-quotes/accented-Latin not flagged).",
+          "headHash": "644b5e6cd3ffe012518642655c57752a88bc38e5",
+          "materialHash": "03a0554e6e06b7fa79810086a60e5c04456916654e24ef8a2f69604fbce61a1f",
+          "storyFilesHash": "5cdcff0c3b10e905341fc89d6745c211cdc7fb82bf25bb2101e6cc4c7810b596",
+          "timestamp": "2026-06-22T16:47:30.367Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/english-early-check-smoke.ts",
+          "command": "node packages/main/dist/tasks/english-early-check-smoke.js",
+          "result": "pass",
+          "note": "Smoke: background_set with CJK content is REFUSED before writing — background.md is byte-identical before/after the refused call (the other author entry point is gated too).",
+          "headHash": "644b5e6cd3ffe012518642655c57752a88bc38e5",
+          "materialHash": "03a0554e6e06b7fa79810086a60e5c04456916654e24ef8a2f69604fbce61a1f",
+          "storyFilesHash": "5cdcff0c3b10e905341fc89d6745c211cdc7fb82bf25bb2101e6cc4c7810b596",
+          "timestamp": "2026-06-22T16:47:30.367Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/english-early-check-smoke.ts",
+          "command": "node packages/main/dist/tasks/english-early-check-smoke.js",
+          "result": "pass",
+          "note": "Smoke agreement assertion: across ascii / em-dash / cjk-core / cjk-ext-A, the early check (findFirstEnglishAuthoringViolation), runEnglishArtifactGate, and the shared containsCJK all return the SAME verdict — the at-create check and the REVIEW->TEST gate use the same detectCjk and can never disagree.",
+          "headHash": "644b5e6cd3ffe012518642655c57752a88bc38e5",
+          "materialHash": "03a0554e6e06b7fa79810086a60e5c04456916654e24ef8a2f69604fbce61a1f",
+          "storyFilesHash": "5cdcff0c3b10e905341fc89d6745c211cdc7fb82bf25bb2101e6cc4c7810b596",
+          "timestamp": "2026-06-22T16:47:30.367Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/english-early-check-smoke.ts",
+          "command": "node packages/main/dist/tasks/english-early-check-smoke.js",
+          "result": "pass",
+          "note": "The scan is limited to author-controlled artifacts (background, checklist title/context/userSees, title, description); it does not scan code/runtime files and does not reject legitimate English — confirmed by the all-English+em-dash success case and the scoped hook points.",
+          "headHash": "644b5e6cd3ffe012518642655c57752a88bc38e5",
+          "materialHash": "03a0554e6e06b7fa79810086a60e5c04456916654e24ef8a2f69604fbce61a1f",
+          "storyFilesHash": "5cdcff0c3b10e905341fc89d6745c211cdc7fb82bf25bb2101e6cc4c7810b596",
+          "timestamp": "2026-06-22T16:47:30.367Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/handlers/english-artifact-gate.ts",
+          "command": "node packages/main/dist/tasks/lifecycle-registry-contract.js",
+          "result": "pass",
+          "note": "No second/duplicate CJK regex: the new assertEnglishAuthoringText/containsCJK helpers wrap the existing detectCjk (core/cjk-detect.ts via scanText) that the REVIEW->TEST gate already uses — single source of truth; build 0 and lifecycle-registry-contract 0 divergences.",
+          "headHash": "644b5e6cd3ffe012518642655c57752a88bc38e5",
+          "materialHash": "03a0554e6e06b7fa79810086a60e5c04456916654e24ef8a2f69604fbce61a1f",
+          "storyFilesHash": "5cdcff0c3b10e905341fc89d6745c211cdc7fb82bf25bb2101e6cc4c7810b596",
+          "timestamp": "2026-06-22T16:47:30.367Z"
+        }
+      ]
+    }
+  ]
+}
