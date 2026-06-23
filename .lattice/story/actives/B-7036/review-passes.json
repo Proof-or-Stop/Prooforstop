@@ -152,6 +152,15 @@
       "reviewRound": "2026-06-23T19:40:12.599Z",
       "reviewRunId": "B-7036:RR-021",
       "_hash": "5e487f397d51bca289b840af35c5213dbba4d5d8376e94bab778140ce2c1e800"
+    },
+    {
+      "id": "B-7036:RP-018",
+      "agent": "lattice-review-docs",
+      "note": "Step1: 6 key symbols examined (emitGlmmR, matchedCellKeys, matchedPrimaryH1, matchedPrimaryH2, analyze, perArmRate). Step2: 1 doc paragraph compared — experiments/recovery-runner/README.md lines 144-151 (glmm.R bullet updated by commit 0cf96304e). Step3: All 6 README claims verified against code — (1) disjoint models over same matched A4-vs-A2prime corpus: MATCHES emitGlmmR d6/d5 DISJOINT corpora comment; (2) CSV carries matchedPrimaryH1/matchedPrimaryH2 flags: MATCHES CSV_COLUMNS array + flag assignment at lines 394-395; (3) H1 formula notAmplified~arm+(1|task)+(1|scenario)+(1|seed) over matched §6 cells: MATCHES glmer call on d6=subset(matchedPrimaryH1==1); (4) H2 formula completion~arm+(1|task)+(1|seed) over matched §5 null-ablation cells: MATCHES glmer call on d5=subset(matchedPrimaryH2==1); (5) null-completion never pooled into §6 + arm-only excluded from both: MATCHES sixPred/nullPred predicates + isPrimaryArm guard; (6) exploratory per-scenario tests matched per scenario: MATCHES scMatched=matchedCellKeys(scenarioPred=s===sc) at line 505. No blockers.",
+      "createdAt": "2026-06-23T20:04:24.056Z",
+      "reviewRound": "2026-06-23T20:01:45.155Z",
+      "reviewRunId": "B-7036:RR-025",
+      "_hash": "1ccee8c312562390a5c3fc3b2e7e9ce365536df21cdc1f83ccdc9e8cac3b54cf"
     }
   ]
 }
