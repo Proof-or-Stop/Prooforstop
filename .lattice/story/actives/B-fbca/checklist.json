@@ -836,6 +836,17 @@
           "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
           "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
           "timestamp": "2026-06-23T21:24:23.314Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:2",
+          "kind": "manual_transcript",
+          "command": "git grep -nE '\\.koala/' -- 'packages/*/src/**'",
+          "result": "pass",
+          "note": "Exit 1 / zero hits: no test fixture or mock creates or references a .koala/ directory in expected output — no fixture masks a missed rename or asserts the old path",
+          "headHash": "c5c3df76eb962dafa72d763e6fa5225702e45287",
+          "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
+          "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
+          "timestamp": "2026-06-23T21:24:24.670Z"
         }
       ]
     },
