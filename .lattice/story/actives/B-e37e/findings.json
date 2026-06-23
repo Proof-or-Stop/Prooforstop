@@ -19,6 +19,25 @@
       ],
       "signatureTag": "edge|ts|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-e37e:F-002",
+      "desc": "authority-runner-client-smoke exercises a positive jobs.available SSE hint followed by a signed claim, but the fake claim response is {\"job\":null} and the smoke never asserts out.claimedJobId stays null or that ownership/authority is derived only from the claim response. A regression could populate claimedJobId from SSE jobIds while still preserving the tested GET-before-POST order and claim_job ok event, so CHK-001 adversarial no-overclaim coverage is incomplete. Add an assertion/scenario that positive SSE + null or failed claim does not produce claimedJobId/releasedJobId/authority completion, and only a JobSpec returned by the signed claim can create ownership.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-23T00:43:40.791Z",
+      "reviewRound": "2026-06-23T00:39:56.221Z",
+      "reviewRunId": "B-e37e:RR-001",
+      "_hash": "b402a4573f46566cc80884c416a3f6bb1fa8f2f6df2cba6f559b2ffc13ee4fab",
+      "files": [
+        "packages/main/src/tasks/authority-runner-client-smoke.ts",
+        "packages/main/src/core/authority-runner.ts"
+      ],
+      "signatureTag": "adversarial|ts|authority-runner-client",
+      "signatureTagSource": "auto"
     }
   ]
 }
