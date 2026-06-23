@@ -1,0 +1,101 @@
+{
+  "storyId": "B-6de6",
+  "checkedAt": "2026-06-23T23:53:59.282Z",
+  "features": [
+    {
+      "feature": "Floor storyFilesHash-authoritative downgrade-accept: materialHash drift + storyFilesHash match => count verdict as valid round (valid-with-advisory)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-files-hash-material-drift.md"
+    },
+    {
+      "feature": "Re-attestation advisory is mandatory and must be surfaced (not silently swallowed) on a storyFilesHash-accepted floor pass",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-files-hash-material-drift.md"
+    },
+    {
+      "feature": "Anti-gaming: storyFilesHash mismatch (real story-file change) still stales the floor rounds (found 0); downgrade-accept only forgives unrelated whole-tree drift",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-files-hash-material-drift.md"
+    },
+    {
+      "feature": "Truly-stale verdicts (stale by both materialHash AND storyFilesHash) must be excluded from per-round duplicate-host-identity check",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-files-hash-material-drift.md"
+    },
+    {
+      "feature": "Offline contract/smoke test covering: (a) drift+storyFilesHash-match counts valid with advisory, (b) re-bind not duplicate-poisoned, (c) real story-file change stales rounds, (d) degraded fallback path likewise respects storyFilesHash",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-files-hash-material-drift.md"
+    },
+    {
+      "feature": "storyFilesHash freshness semantics registered in process-fact-registry.ts and process-fact-levels.ts (spec: Process Fact Contract section)",
+      "covered_by": null,
+      "status": "gap",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-files-hash-material-drift.md"
+    },
+    {
+      "feature": "Wire smoke into npm test chain (root package.json)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-files-hash-material-drift.md"
+    },
+    {
+      "feature": "review-escalation.ts eventsWithStoryFilesHashDowngrade exported for floor reuse (single-source-of-truth design, avoids dual implementation drift)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Append-only event log preserved: filter/transform at evaluation time only, never mutate stored verdict events",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-files-hash-material-drift.md"
+    },
+    {
+      "feature": "Missing or uncomputable storyFilesHash must never turn a stale materialHash record into a pass (conservative fallback)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-files-hash-material-drift.md"
+    },
+    {
+      "feature": "Degraded single-host fallback path (floor) also handles storyFilesHash-aware materialHash check consistent with escalation",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Floor and escalation freshness decisions must agree for the same verdict (no drift between paths)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 12,
+    "covered": 11,
+    "excluded": 0,
+    "gaps": 1,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "8957bcc6880f157b18c7369120bc2d82b37833e792eb535ee404121adcd5bea7",
+  "openQuestions": []
+}
