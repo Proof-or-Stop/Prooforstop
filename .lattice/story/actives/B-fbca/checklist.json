@@ -364,6 +364,17 @@
           "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
           "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
           "timestamp": "2026-06-23T21:01:36.469Z"
+        },
+        {
+          "intentRef": "CHK-007:happy:2",
+          "kind": "manual_transcript",
+          "command": "node scripts/verify-lattice-residue.mjs --self-test",
+          "result": "pass",
+          "note": "Exit 0 PASS lattice-residue self-test confirms isResidue() unit tests pass; detection function works correctly",
+          "headHash": "29f6a89c676f2be585bd9c16973bc24febc774f8",
+          "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
+          "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
+          "timestamp": "2026-06-23T21:01:39.112Z"
         }
       ]
     }
