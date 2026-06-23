@@ -69,6 +69,23 @@
       ],
       "signatureTag": "adversarial|mjs|codex-host2-makerealbarearm",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-0c07:F-005",
+      "desc": "[codex-host2 C4] cost/token parsing is type-unsafe: j.total_cost_usd || 0 preserves a string/object (later .toFixed crashes); tokensFromUsage can add non-numbers. FIX: coerce with typeof===number && isFinite guards.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex-host2",
+      "createdAt": "2026-06-23T12:12:35.736Z",
+      "reviewRound": "2026-06-23T12:07:23.828Z",
+      "_hash": "b7e6f01e84fee2e706334e7da83bc9c02844f20967ce7a5ec125a0661628508c",
+      "files": [
+        "experiments/injection-probes/real-arm.mjs"
+      ],
+      "signatureTag": "edge|mjs|codex-host2-cost",
+      "signatureTagSource": "auto"
     }
   ]
 }
