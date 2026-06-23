@@ -1,0 +1,23 @@
+{
+  "findings": [
+    {
+      "id": "B-fbca:F-001",
+      "desc": "CHK-007:edge:1 inject repro is mechanically unsound: the command uses `echo ... > file` (untracked) then runs verify-lattice-residue.mjs, but the gate enumerates files via `git ls-files` which only sees TRACKED files. An untracked inject will NOT appear in git ls-files output and therefore the gate would NOT fail. The note claims the gate exited 1 FAIL, but this cannot be reproduced by the documented command. CHK-004:adversarial:0 demonstrates the correct approach (git add before running the gate). The edge:1 evidence does not actually verify zero-tolerance detection of new untracked koala files.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-23T21:28:43.052Z",
+      "reviewRound": "2026-06-23T21:25:10.665Z",
+      "reviewRunId": "B-fbca:RR-002",
+      "_hash": "321d73111ed8c1fcdcf6c2efa13e53de72c3a8a0b5eb76aa2d8e11bc7f4be012",
+      "files": [
+        "scripts/verify-lattice-residue.mjs",
+        "packages/main/src/handlers/review-preflight.ts"
+      ],
+      "signatureTag": "missing|mjs|edge-inject-repro",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
