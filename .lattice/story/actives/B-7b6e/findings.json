@@ -149,6 +149,23 @@
       "resolvedAt": "2026-06-22T23:55:18.664Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-7b6e:F-008",
+      "desc": "[codex-host2 round-3 #8] verifyGateStrengthResult over-claimed: canonicalResult omitted ProbeOutcome.reason from the digest, so editing a per-probe reason after bundling still returned matches:true (Codex proved it via a runtime probe mutating overfit-lookup's reason). The doc claims it attests 'this result is the one it attests' (full result). FIX: bind reason into canonicalResult so the full result is attested; add a smoke check that a mutated reason is detected.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex-host2",
+      "createdAt": "2026-06-23T00:28:09.158Z",
+      "reviewRound": "2026-06-23T00:27:47.705Z",
+      "_hash": "be1d6929a25ac0ad6da74eacbfd57a355b2d4c807c5b34d1c5d0ba281405e216",
+      "files": [
+        "packages/main/src/core/gate-strength.ts,packages/main/src/tasks/gate-strength-contract-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|codex-host2-round",
+      "signatureTagSource": "auto"
     }
   ]
 }
