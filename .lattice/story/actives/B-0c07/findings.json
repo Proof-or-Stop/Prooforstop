@@ -49,7 +49,7 @@
       "desc": "[codex-host2 C2] makeRealBareArm: non-JSON / malformed claude -p output is scored as a SUCCESSFUL shipped arm (infraFail:false, shipped:true) instead of infra-fail -> a broken response corrupts the catch-rate. FIX: JSON.parse failure -> infra-fail (shipped:false).",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex-host2",
       "createdAt": "2026-06-23T12:12:33.219Z",
@@ -59,7 +59,11 @@
         "experiments/injection-probes/real-arm.mjs"
       ],
       "signatureTag": "adversarial|mjs|codex-host2-makerealbarearm",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: parseClaudeResult returns infra-fail on JSON.parse failure (non-JSON output no longer scored as shipped). Self-check asserts it.",
+      "resolvedAt": "2026-06-23T12:14:08.689Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-0c07:F-004",
