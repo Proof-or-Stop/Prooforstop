@@ -320,6 +320,23 @@
       ],
       "signatureTag": "missing|mjs|happy-evidence-note",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-f248:F-016",
+      "desc": "CLI numeric parsing uses parseInt, so malformed leading-numeric values like --maxReruns 1.5 or --k 1e2 are silently truncated (parseInt(1.5)=1 passes Number.isInteger). Harden: reject values whose raw string is not a clean non-negative integer.",
+      "severity": "low",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex-host",
+      "createdAt": "2026-06-23T12:49:31.373Z",
+      "reviewRound": "2026-06-23T12:32:20.774Z",
+      "_hash": "5b5c3d3a080f111780c4424d079dd46b468d15c533c32f0fdf421844554f3eb1",
+      "files": [
+        "experiments/recovery-runner/run-driver.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|numeric-parsing-uses",
+      "signatureTagSource": "auto"
     }
   ]
 }
