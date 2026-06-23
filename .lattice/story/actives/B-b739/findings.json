@@ -264,6 +264,20 @@
       "resolvedAt": "2026-06-23T20:49:48.361Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-b739:F-013",
+      "desc": "live-loop-harness.mjs agent-contract docs (lines 31/60) recommend execFileSync/spawn blocking timeout to bound the child (the blocking anti-pattern flagged round-1); JSDoc line 56 + agent call line 114 pass a turn param no agent consumes, inconsistent with the real {ws,context,signal}. Fix: narrow contract to {ws,context,signal}, document async execFile(...,{signal}) as the termination mechanism.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex-host2",
+      "createdAt": "2026-06-23T20:55:03.771Z",
+      "reviewRound": "2026-06-23T20:43:24.607Z",
+      "_hash": "a20e0b173ee2dd128418cc05de416c331c532513391f1c433f8a3557b0ba2580",
+      "signatureTag": "doc-code-drift|unknown|live-loop-harness",
+      "signatureTagSource": "auto"
     }
   ]
 }
