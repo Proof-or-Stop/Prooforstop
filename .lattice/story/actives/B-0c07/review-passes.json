@@ -53,6 +53,15 @@
       "reviewRound": "2026-06-23T12:14:05.631Z",
       "reviewRunId": "B-0c07:RR-007",
       "_hash": "15cd125d5a08c80fcac7593198febdd8ffe3843bfa68435acec40601210a6fd3"
+    },
+    {
+      "id": "B-0c07:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: round-2 re-verification confirms all 6 verificationIntents remain genuinely covered. (1) CHK-001:happy/edge/adversarial — all bound to `node experiments/injection-probes/real-arm.mjs --self-check`; self-check run live this round returned PASS, 0 spend, covering: schema correctness, 0-cost stub, infra-fail non-crash (edge), and catch-rate discrimination (adversarial). (2) CHK-002:happy — evidence is committed powered-run-records.jsonl (commit 9d8f5308d, 6 records with real costUsd>0 + tokensSpent>0); not re-run per spec, file integrity confirmed in-tree. (3) CHK-002:edge/adversarial — both covered by --self-check: summarize() tracks infra-fail separately (edge), and CHANGELOG+run output print EXPLORATORY caveat (adversarial/docs). Evidence staleness is metadata-only HEAD drift from 5 finding_resolve + 3 review_pass_set commits containing zero code changes to the evidence files. The 6 parseClaudeResult unit tests added in commit 3bbecc202 strengthen CHK-001/CHK-002 adversarial coverage (C2 non-JSON, C3 api-error, C4 type-safe cost) and do not weaken any prior assertion. No coverage gap found.",
+      "createdAt": "2026-06-23T12:18:33.909Z",
+      "reviewRound": "2026-06-23T12:14:05.631Z",
+      "reviewRunId": "B-0c07:RR-008",
+      "_hash": "e31fabc6721fe1dd18228e453dba0bc1073a239486c95124f9117a33bb963b64"
     }
   ]
 }
