@@ -35,7 +35,19 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Smoke output includes \"GET /v1/runners/runner-1/jobs/stream\" before \"POST /v1/runners/runner-1/jobs/claim\", and the result still reports claim success only after the signed claim response.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/authority-client.ts",
+          "packages/main/src/core/authority-runner.ts",
+          "packages/main/src/tasks/authority-runner-client-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/authority-runner-client-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-002",
