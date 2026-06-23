@@ -192,6 +192,17 @@
           "materialHash": "3ee68a262f8963f2691d35fbb344b2261c4d52282139b43e837ded77f015b261",
           "storyFilesHash": "9c823adea15d877392e591760e4dc447c74a37c38c6a266f4cc1f84dc19de8c0",
           "timestamp": "2026-06-23T10:18:39.286Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/checks-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck 'hr preexisting: pass true (pre-existing failure not new)': baseline=[a] post=[a] => pass true (delta-only semantics)",
+          "headHash": "80dca7ae02d2e8e1b9ab9f3f2c3bffafc04a5736",
+          "materialHash": "3ee68a262f8963f2691d35fbb344b2261c4d52282139b43e837ded77f015b261",
+          "storyFilesHash": "9c823adea15d877392e591760e4dc447c74a37c38c6a266f4cc1f84dc19de8c0",
+          "timestamp": "2026-06-23T10:18:39.792Z"
         }
       ]
     },
