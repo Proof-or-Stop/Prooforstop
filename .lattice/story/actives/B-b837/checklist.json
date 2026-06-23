@@ -294,6 +294,17 @@
           "materialHash": "71fd662a6cc4efe4c3dde9ac6c352f3d722e22b76e080754e3bdfe8066ba89fd",
           "storyFilesHash": "64ca7bcb634a24f4d3189c4ccc36f942cb702b845ce2072ba08f8dc6ae82cdce",
           "timestamp": "2026-06-23T14:05:32.213Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:2",
+          "kind": "docs_check",
+          "command": "grep -rn KOALA_ packages/main/src/core/ packages/main/src/handlers/",
+          "result": "pass",
+          "note": "Ran the literal grep; the only hits are KOALA_RESIDUE_* constants in handlers/review-preflight.ts (the expected story-4 gate wiring exemption). No orphan KOALA_ fallback survives in core/handlers.",
+          "headHash": "22c99941f696e7561261b6268a3546a75d9c2b19",
+          "materialHash": "71fd662a6cc4efe4c3dde9ac6c352f3d722e22b76e080754e3bdfe8066ba89fd",
+          "storyFilesHash": "64ca7bcb634a24f4d3189c4ccc36f942cb702b845ce2072ba08f8dc6ae82cdce",
+          "timestamp": "2026-06-23T14:05:32.965Z"
         }
       ]
     },
