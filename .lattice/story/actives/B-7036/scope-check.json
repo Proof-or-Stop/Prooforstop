@@ -1,0 +1,136 @@
+{
+  "storyId": "B-7036",
+  "checkedAt": "2026-06-23T18:43:41.118Z",
+  "features": [
+    {
+      "feature": "Parse section-7 JSONL run-records (schema: runId, arm, taskId, scenarioId, repeat, modelId, headHash, materialHash, tokensSpent, wallClockMs, agentCallCount, acceptancePass, hiddenRegressionPass, diffHygienePass, unsafeChecks, adjudicatedOutcome, denominatorSets, evidenceRefs, harnessLogDigest, injectionApplied, runOrderSeed, applicable)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "Validity filter: void runs excluded (re-run, not dropped) with reason logged; N/A (applicable=false) cells excluded and logged; task-level failures kept as real outcomes",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "Compute per-hypothesis common-cell denominators for all 4 pre-registered contrasts (A4_vs_A2prime PRIMARY, A4_vs_A3 EXPLORATORY, A4_vs_A2, A4_vs_A1); every rate states its denominator; per-arm applicability exclusion matrix respected (B4/B5/B10 exclude A1)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "Per-arm completion rate for null-ablation (§4.1) cells over common-cell denominator",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "Per-arm not-amplified rate (recovered-to-green union safe-stop) for §6 recovery scenarios",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "Per-arm recovered-to-green rate reported separately from not-amplified (§4.2 split-reporting)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "Per-arm safe-stop rate reported separately from not-amplified (§4.2 split-reporting)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "Wilson 95% CIs on all per-arm rates (completion, not-amplified, recovered, safe-stop)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "Cost co-metric (total tokens + wall-clock per arm) reported alongside every comparison (§4.1 PRIMARY co-metric, §5, §8)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "PRIMARY A4-vs-A2prime contrast via seeded (deterministic) cluster bootstrap resampling task/scenario clusters, reporting risk-difference + 95% CI",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "Benjamini-Hochberg FDR over exploratory per-scenario two-proportion tests (per-scenario tests EXPLORATORY only, never primary)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "Emit tidy long-format CSV (one row per kept run with arm/taskId/scenarioId/repeat/adjudicatedOutcome/tokensSpent/wallClockMs factors)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "Emit glmm.R with lme4 glmer formula (primary_outcome ~ arm + (1|task) + (1|scenario) + (1|seed))",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "Offline self-check (analyze-selfcheck.mjs with synthetic fixtures for all pipelines including negative control) wired into npm test:experiments; entirely deterministic, no live LLM",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "A2prime tolerance-band compliance reporting: share of A2prime runs with budgetPass/tokenInBand/wallInBand true; out-of-band runs flagged; residual compute imbalance visible (§1/§8)",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "§4.2 secondary detectors reported individually from §7 records: rollback-fired, unsafe-action-prevented per detector (5 unsafeChecks keys: forbiddenPath/secretScan/perms/forbiddenCreate/destructiveCmd), no-progress-stop, human-gate-precision",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "H3 (A4-vs-A3 EXPLORATORY) contrast reported compute-normalized: per-arm tokens+wall-clock printed, explicit EXPLORATORY/compute-not-matched label, A4 advantage normalized by spend (§5 H3 caveat)",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    }
+  ],
+  "summary": {
+    "total": 17,
+    "covered": 17,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "e1cb9d7012805d913b677a13c9e19e8bcd1a03c25fd87fa37c804993f728e963",
+  "openQuestions": []
+}

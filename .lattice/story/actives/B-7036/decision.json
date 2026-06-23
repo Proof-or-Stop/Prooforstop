@@ -1,0 +1,67 @@
+{
+  "principles": [
+    "Pre-reg rev3.1 is the authority -- outcomes, common-cell denominators, single BH-FDR, and per-scenario-exploratory-only mirror sections 4/5/7/8 exactly.",
+    "Reuse, do not re-derive: import the driver's CONTRASTS + scenarioAppliesToArm + denominatorSetsFor so analysis denominators match the stamped records; only READ recorded outcomes (never re-score).",
+    "Honest about Node vs R: Node computes the verifiable parts (rates, Wilson CIs, a seeded cluster bootstrap respecting within-cell clustering, BH-FDR); the formal GLMM is emitted as glmm.R, not run in Node.",
+    "Every reported rate states its common-cell denominator; nothing is computed over a non-common cell set.",
+    "Fully deterministic + offline: synthetic section-7 fixtures of known rates/contrasts; seeded bootstrap reproducible."
+  ],
+  "drivers": [
+    "Must match the pre-registered common-cell + outcome + FDR rules verbatim and operate only on recorded section-7 JSONL.",
+    "The contrast CI must respect within-cell repeat dependence (cluster bootstrap), since k repeats per cell are not independent.",
+    "Selfcheck must verify against KNOWN synthetic rates/contrasts with zero live-model calls and a non-vacuous negative control."
+  ],
+  "options": [
+    {
+      "name": "cluster-bootstrap-plus-glmm-r",
+      "pros": [
+        "In-Node contrast CI (cluster bootstrap) is fully verifiable + deterministic",
+        "GLMM emitted as glmm.R = honest about the formal model running in R",
+        "Rates/Wilson CIs/BH-FDR all pure + testable against known fixtures",
+        "Reuses driver contrast defs so denominators are consistent"
+      ],
+      "cons": [
+        "Bootstrap CI is an approximation of the GLMM contrast (documented as a proxy)"
+      ]
+    },
+    {
+      "name": "pure-js-glmm",
+      "pros": [
+        "Single tool, no R dependency"
+      ],
+      "cons": [
+        "A correct GLMM (Laplace/AGQ for binomial mixed models) is hard + unreliable in pure JS",
+        "Would be unverifiable + a likely source of silent statistical error -- violates the honesty principle"
+      ]
+    }
+  ],
+  "chosen": "cluster-bootstrap-plus-glmm-r",
+  "rationale": "The pre-reg requires a GLMM for the primary contrast, but a correct binomial GLMM in pure JS is unreliable and unverifiable. The honest, testable design computes in Node only what Node can verify deterministically -- per-arm rates, Wilson 95pct CIs, BH-FDR, and a SEEDED CLUSTER BOOTSTRAP risk-difference CI that respects within-cell (k-repeat) dependence -- and emits a ready-to-run glmm.R (lme4::glmer primary ~ arm + (1|task)+(1|scenario)+(1|seed)) for the formal model, clearly labeled as the authority while the bootstrap is the in-Node proxy. UNKNOWN-1 resolved: the bootstrap resamples the COMMON-CELL clusters = distinct (task,scenario) pairs WITH ALL their k repeats (cluster bootstrap), so within-cell dependence is preserved; arms are paired within each resampled cell. UNKNOWN-2 resolved: per-scenario exploratory tests use the two-proportion z-test feeding ONE Benjamini-Hochberg FDR (Fisher-exact noted in a comment for very small cells); these are EXPLORATORY only, never the primary readout.",
+  "preMortem": [
+    {
+      "scenario": "Rates computed over the wrong denominator (not common-cell)",
+      "trigger": "Using each arm's own applicable cells instead of the intersection applicable to BOTH contrast arms",
+      "consequence": "Biased headline rates -- the exact denominator-bias the pre-reg warns against",
+      "mitigation": "denominatorSetsFor (driver-shared) decides membership; selfcheck asserts known common-cell counts for A4-vs-A2prime (all scenarios) vs A4-vs-A1 (excludes B4/B5/B10)"
+    },
+    {
+      "scenario": "Bootstrap CI ignores within-cell dependence",
+      "trigger": "Resampling individual runs instead of (task,scenario) clusters",
+      "consequence": "Falsely narrow CI (pseudo-replication) -> overconfident contrast",
+      "mitigation": "Resample whole (task,scenario) clusters with their k repeats; selfcheck asserts a fixture where independent-run resampling would give a narrower CI than the cluster resampling"
+    },
+    {
+      "scenario": "Void/N-A runs leak into rates",
+      "trigger": "Not applying the section-7 validity filter before counting",
+      "consequence": "Survivorship/denominator bias",
+      "mitigation": "Filter excludes infraVoid + applicable=false BEFORE counting; task-failures kept; selfcheck asserts a fixture with void+N/A rows yields the same rates as the cleaned set"
+    },
+    {
+      "scenario": "Seeded bootstrap is non-deterministic",
+      "trigger": "Using Math.random or an unsalted RNG",
+      "consequence": "Non-reproducible CIs -> paper numbers cannot be regenerated",
+      "mitigation": "Seeded PRNG (same xmur3+mulberry32 as the driver); selfcheck asserts two runs with the same seed give byte-identical CI bounds"
+    }
+  ],
+  "timestamp": "2026-06-23T18:37:37.877Z"
+}

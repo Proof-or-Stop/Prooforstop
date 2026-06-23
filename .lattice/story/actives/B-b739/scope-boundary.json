@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-b739",
+  "mode": "maintenance",
+  "allowed": [
+    "CHANGELOG.md",
+    "experiments/injection-probes/live-loop-harness.mjs (MODIFY: --run powered path + self-check)",
+    "experiments/injection-probes/live-loop-powered-records.jsonl (output)",
+    "experiments/injection-probes/probe-contract.mjs (reuse, read-only)",
+    "experiments/injection-probes/real-loop-agent.mjs (NEW: real multi-turn claude -p agent + stub)"
+  ],
+  "excluded": [
+    "any gate/core/DONE-policy change",
+    "editing probe-contract.mjs or the 6 stateless probes",
+    "real-arm.mjs B-0c07 single-shot arm (reuse its parseClaudeResult by re-import or re-impl, do not edit)",
+    "run-recovery.mjs / run-ablation.mjs / run-a2prime.mjs (e8aca935)",
+    "the paper backfill (next)",
+    "the pre-registration amendment (next)"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "real multi-turn agent + powered path + hermetic stub self-check, real run operator-triggered",
+  "createdAt": "2026-06-23T20:16:29.318Z",
+  "updatedAt": "2026-06-23T20:16:29.318Z",
+  "_hash": "ff49849b8fb398ed4600d1ad00597dd5c450d0ad6b0497e3831a968aa8c22b66"
+}

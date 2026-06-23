@@ -1,0 +1,67 @@
+{
+  "principles": [
+    "Hermetic stub gate; real run operator-triggered + honestly labeled",
+    "Reuse B-0c07 parsing + B-c023 signal contract",
+    "New file; no edits to excluded infra or real-arm.mjs",
+    "Per-turn infra-fail recorded, never crashes"
+  ],
+  "drivers": [
+    "the live loop needs a multi-turn agent (real-arm is single-shot)",
+    "the real powered run is costly + non-deterministic -> gate hermetically, trigger separately",
+    "the 9 scenarios + classify are already verified (B-d43f)"
+  ],
+  "options": [
+    {
+      "name": "Real multi-turn agent + --run powered path + hermetic stub self-check",
+      "pros": [
+        "Completes the powered path for the 9 stateful scenarios",
+        "Reuses B-0c07 parseClaudeResult + B-c023 signal contract",
+        "Hermetic stub gate (0 spend); real run operator-triggered + honestly labeled"
+      ],
+      "cons": [
+        "The real powered run itself is non-deterministic small-N exploratory data (next, operator-triggered)"
+      ]
+    },
+    {
+      "name": "Run the 9 powered inline now without a stub gate",
+      "pros": [
+        "Fewer steps"
+      ],
+      "cons": [
+        "No deterministic gate + couples build with the costly run; keep the hermetic stub as the gate"
+      ]
+    },
+    {
+      "name": "Reuse real-arm.mjs single-shot directly",
+      "pros": [
+        "Less code"
+      ],
+      "cons": [
+        "real-arm is single-shot (one claude call); the live loop is multi-turn + must honor signal across turns; needs a distinct multi-turn agent; real-arm.mjs is excluded from edits"
+      ]
+    }
+  ],
+  "chosen": "Real multi-turn agent + --run powered path + hermetic stub self-check",
+  "rationale": "Builds the multi-turn real agent (reusing parseClaudeResult + the signal contract) + the --run path, gated hermetically by a stub multi-turn agent (0 spend); the real powered run is operator-triggered and its records are honestly small-N/exploratory. New file; excluded infra + real-arm untouched.",
+  "preMortem": [
+    {
+      "scenario": "The stub self-check is vacuous (doesn't exercise the --run path)",
+      "trigger": "stub returns canned data",
+      "consequence": "vacuous gate",
+      "mitigation": "the stub multi-turn agent drives real runLiveLoop turns + mutates the workspace per scenario so classify runs real logic; the self-check asserts per-scenario outcomes + that the agent received {signal}"
+    },
+    {
+      "scenario": "signal.aborted not honored by the real agent (orphan child)",
+      "trigger": "execFileSync ignores the signal",
+      "consequence": "hung/orphaned child",
+      "mitigation": "the real agent checks signal.aborted + uses execFileSync timeout to kill the child; the stub self-check asserts a slow stub aborts on signal (the B-c023 timeout/abort case pattern)"
+    },
+    {
+      "scenario": "A claude infra-fail mid-loop corrupts a scenario's outcome",
+      "trigger": "non-JSON/API-error",
+      "consequence": "misclassified",
+      "mitigation": "reuse parseClaudeResult -> infra-fail recorded; the scenario records infra-fail, not a real outcome"
+    }
+  ],
+  "timestamp": "2026-06-23T20:20:04.972Z"
+}

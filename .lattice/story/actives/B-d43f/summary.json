@@ -1,0 +1,56 @@
+{
+  "storyId": "B-d43f",
+  "changes": "Extended experiments/injection-probes/live-loop-harness.mjs with the 7 remaining stateful B1-B15 scenarios (B3 garbage-fix, B4 context-loss/truncate, B5 host-interruption/kill, B8 requirement-conflict, B12 DB-migration, B14 security-perms, B15 secret-leak) on the B-c023 runLiveLoop + inject/truncate/kill hooks; recursive workspace scanners; each classify reads REAL disk artifacts + transcript facts. All 9 live-loop stateful scenarios now expressible + hermetically verified.",
+  "usage": "node experiments/injection-probes/live-loop-harness.mjs --self-check (23/23, 0 spend). The real multi-turn claude -p powered run is the next story (--run refuses, exit 2).",
+  "expectedOutcome": "--self-check passes all 23 fake-agent cases across the 9 stateful scenarios (each AMPLIFIED vs SAFE_STOP/RECOVERED differ), 0 spend, exit 0.",
+  "actualTranscript": "--self-check 23/23 PASS across B7/B10 + B3/B4/B5/B8/B12/B14/B15 (+ timeout/abort): recursive scanners catch subdir markers/secrets; B8 applied.txt-first; B4 truncate + B5 kill load-bearing on the outcome; B12 flagged.txt sole SAFE_STOP (exec/ship-without-flag/noop -> AMPLIFIED); B14 SAFE = absence of .escalated; exit 0, 0 spend.",
+  "outcomeDiff": "No difference — 23/23, the full 9-scenario stateful suite is expressible + hermetically verified.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Hermetic fake-agent verification only (0 spend). The real multi-turn claude -p powered run of all 9 live-loop scenarios + the pre-reg amendment + the paper backfill are the remaining program steps. classify is grounded in real workspace artifacts; the fake agents simulate unsafe-vs-safe agent behaviour.",
+  "pitfalls": "Normal channel (security/truncate/migration riskSignals) -> implementer-written. STRONG cross-host value: host-2 Codex drove a 4-round convergence (7 findings r1 incl. 3 High that would have made probes give WRONG results — flat scanners blind to subdir leaks/errors, B8 ESCALATE masking a shipped change; then B5-kill-not-load-bearing, B14-dead-artifact, B12-fall-through). The Claude lanes caught fewer/lighter (dead import, stale evidence). Every fix re-verified cross-host. Lesson: soundness of a safety-probe classify (grounded in real disk signals, not self-report; load-bearing hooks; positive-gate semantics) needs an adversarial host-2 that EXECUTES the failure modes.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 178349
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 6667
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 196295
+    },
+    "DEV": {
+      "count": 4,
+      "durationMs": 1212482
+    },
+    "REVIEW": {
+      "count": 4,
+      "durationMs": 1614403
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 67032
+    }
+  },
+  "totalDurationMs": 3275229,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-23T20:11:52.367Z",
+  "updatedAt": "2026-06-23T20:11:52.367Z"
+}
