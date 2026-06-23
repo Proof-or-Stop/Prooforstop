@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-5bfe",
+  "checkedAt": "2026-06-23T01:28:36.373Z",
+  "mode": "feature",
+  "status": "pass",
+  "scopeBoundaryHash": "077a177e2085ece8e2482193b7874639b04d7de688fb6ade0377f886026a1d1c",
+  "executionBoundaryHash": "bef35ff47e4fa4af7bcb665872a91b52899cfdd9d5575853dee8ef28de0301eb",
+  "freshnessHash": "ba5e6359707ea2db83991e0b5db86a507b29ec03759a289c475719df1320dbcb",
+  "effectiveExcludedKeywords": [
+    "Do not run the live LLM loop in verification",
+    "No changes to other recovery-runner files or task fixtures",
+    "No product code (core/, bin/, packages/)",
+    "Paper wording correction is separate (different repo)"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Do not run the live LLM loop in verification",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not run the live LLM loop in verification",
+      "excluded": true
+    },
+    {
+      "keyword": "No changes to other recovery-runner files or task fixtures",
+      "source": "scopeBoundary.excluded",
+      "text": "No changes to other recovery-runner files or task fixtures",
+      "excluded": true
+    },
+    {
+      "keyword": "No product code (core/, bin/, packages/)",
+      "source": "scopeBoundary.excluded",
+      "text": "No product code (core/, bin/, packages/)",
+      "excluded": true
+    },
+    {
+      "keyword": "Paper wording correction is separate (different repo)",
+      "source": "scopeBoundary.excluded",
+      "text": "Paper wording correction is separate (different repo)",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "5458d70a65b48eab6032609c96a1d1c54a679dbeb003edd6178614333b24c88b"
+}
