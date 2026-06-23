@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-fbca:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept-deletion completeness check passed. Full grep of packages/main/src, packages/lab/src, packages/utils/src for case-insensitive koala yields ZERO hits. All 8 koala-* salts (koala-review-integrity-v1, koala-review-pass-integrity-v1, koala-review-run-integrity-v1, koala-review-run-workspace-binding-v1, koala-review-scope-binding-v1, koala-scope-check-integrity-v1, koala-finding-integrity-v1, koala-story-store) are absent from product src; the 8 replacement lattice-* salts are confirmed present in their expected files. review-preflight.ts has zero koala references. Remaining koala only in: tests/fixtures (permitted), scripts/verify-lattice-residue.mjs (scanner, permitted), scripts/verify-*.mjs (legacy-alias negative-assertion patterns, outside scan scope). No concept residue blocker found.",
+      "createdAt": "2026-06-23T21:27:11.218Z",
+      "reviewRound": "2026-06-23T21:25:10.665Z",
+      "reviewRunId": "B-fbca:RR-001",
+      "_hash": "dea7a88165634ed240f4e74390337b0e13271f34069ab0925b414ff1162872ab"
+    }
+  ]
+}
