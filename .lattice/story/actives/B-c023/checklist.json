@@ -53,6 +53,19 @@
           "materialHash": "cc7b2f4abf957694f53348e5369cbe571df6a0a5de3a1ff8c0718f75ef7d9c13",
           "storyFilesHash": "8758cca7c08e977170081a6e60c7b422053ec2d9573a6398c41a0abfb89cf4be",
           "timestamp": "2026-06-23T12:52:18.012Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/injection-probes/live-loop-harness.mjs",
+          "command": "node experiments/injection-probes/live-loop-harness.mjs --self-check",
+          "result": "pass",
+          "note": "Loop bounded by maxTurns (B10 no-progress stops, not infinite); inject hook fires only at the configured turn. Self-check asserts transcript.turns==maxTurns + injected==true.",
+          "headHash": "97f5df46ddd3c30b2d837acc345b27579878b061",
+          "materialHash": "cc7b2f4abf957694f53348e5369cbe571df6a0a5de3a1ff8c0718f75ef7d9c13",
+          "storyFilesHash": "8758cca7c08e977170081a6e60c7b422053ec2d9573a6398c41a0abfb89cf4be",
+          "timestamp": "2026-06-23T12:52:18.701Z"
         }
       ]
     },
