@@ -454,7 +454,7 @@ export class AuthorityClient {
       }
 
       if (response.body?.getReader) {
-        return await readRunnerJobsAvailableSseStream(response);
+        return await readRunnerJobsAvailableSseStream(response, controller.signal);
       }
 
       const text = await response.text();
@@ -2815,6 +2815,7 @@ const RUNNER_JOBS_STREAM_PREFIX_BLOCK_LIMIT = 16;
 
 async function readRunnerJobsAvailableSseStream(
   response: AuthorityFetchResponse,
+  signal?: AbortSignal,
 ): Promise<RunnerJobsStreamOutcome> {
   const reader = response.body?.getReader();
   if (!reader) {
@@ -2826,7 +2827,7 @@ async function readRunnerJobsAvailableSseStream(
   let completeBlocksRead = 0;
   try {
     while (true) {
-      const chunk = await reader.read();
+      const chunk = await readAuthorityFetchChunk(reader, signal);
       if (chunk.done) {
         text += decoder.decode();
         return parseRunnerJobsAvailableSse(text, response.status);
@@ -2858,20 +2859,50 @@ async function readRunnerJobsAvailableSseStream(
         };
       }
 
-      if (prefix.remainder.trim().length === 0) {
-        return {
-          kind: 'unavailable',
-          ok: false,
-          status: response.status,
-          message: 'authority runner jobs stream first event block did not contain jobs.available; falling back to signed claim',
-        };
-      }
-
       text = prefix.remainder;
     }
   } finally {
     cancelAuthorityFetchReader(reader);
   }
+}
+
+function readAuthorityFetchChunk(
+  reader: AuthorityFetchBodyReader,
+  signal?: AbortSignal,
+): Promise<{ done: boolean; value?: AuthorityFetchChunk }> {
+  if (!signal) return reader.read();
+  if (signal.aborted) return Promise.reject(authorityFetchAbortError());
+
+  return new Promise((resolve, reject) => {
+    let settled = false;
+    const onAbort = () => {
+      if (settled) return;
+      settled = true;
+      signal.removeEventListener('abort', onAbort);
+      reject(authorityFetchAbortError());
+    };
+    signal.addEventListener('abort', onAbort, { once: true });
+    reader.read().then(
+      chunk => {
+        if (settled) return;
+        settled = true;
+        signal.removeEventListener('abort', onAbort);
+        resolve(chunk);
+      },
+      error => {
+        if (settled) return;
+        settled = true;
+        signal.removeEventListener('abort', onAbort);
+        reject(error);
+      },
+    );
+  });
+}
+
+function authorityFetchAbortError(): Error {
+  const error = new Error('authority request timed out');
+  error.name = 'AbortError';
+  return error;
 }
 
 function decodeAuthorityFetchChunk(value: AuthorityFetchChunk | undefined, decoder: TextDecoder): string {

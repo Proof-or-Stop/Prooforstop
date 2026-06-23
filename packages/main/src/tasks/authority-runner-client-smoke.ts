@@ -604,6 +604,34 @@ function eventMessage(events: { step: string; message?: string }[], step: string
   assert.equal(events.find(event => event.step === 'claim_job')?.ok, true, 'SSE available triggers signed claim');
 }
 
+{
+  const { fetch, calls } = controlPlaneFetch((call) => longLivedSseResponse(
+    200,
+    [
+      ': heartbeat\n\n',
+      'event: jobs.available\ndata: {"count":1,"jobIds":["job-late"]}\n\n',
+    ],
+    call.signal,
+  ));
+  const out = await runLatticeAuthorityControlPlaneOnce(liveControlPlaneOptions(fetch));
+  const events = out.networkEvents ?? [];
+  assert.equal(out.status, 'pass', 'late available stream hint still reaches signed claim path');
+  assert.equal(out.claimedJobId, null, 'late positive SSE jobIds do not create ownership when signed claim returns {job:null}');
+  assert.equal(out.releasedJobId, null, 'late positive SSE jobIds do not release without a claimed job');
+  assert.deepEqual(
+    events.map(event => event.step),
+    ['register_actor_key', 'register_runner', 'runner_heartbeat', 'jobs_stream', 'claim_job'],
+    'late jobs.available stream keeps claim order',
+  );
+  assert.deepEqual(
+    calls.map(call => call.method),
+    ['POST', 'POST', 'POST', 'GET', 'POST'],
+    'late jobs.available stream still performs signed claim POST',
+  );
+  assert.equal(events.find(event => event.step === 'jobs_stream')?.ok, true);
+  assert.equal(events.find(event => event.step === 'claim_job')?.ok, true, 'late SSE available triggers signed claim');
+}
+
 for (const scenario of [
   {
     name: 'empty',
