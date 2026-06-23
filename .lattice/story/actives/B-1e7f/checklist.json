@@ -32,9 +32,9 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-23T10:45:49.062Z",
-      "endTime": null,
+      "endTime": "2026-06-23T10:51:20.909Z",
       "files": {
         "modify": [
           "packages/main/src/core/authority-runner-contracts.ts"
@@ -44,7 +44,45 @@
           "packages/main/src/tasks/authority-runner-contracts-smoke.ts",
           "packages/main/src/tasks/authority-runner-client-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/authority-runner-contracts-smoke.ts",
+          "command": "node packages/main/dist/tasks/authority-runner-contracts-smoke.js",
+          "result": "pass",
+          "note": "JobClaim roundtrip now accepts signed storyId and jobId selectors.",
+          "headHash": "5455adf8951306c9be9dbaf4a372a894ff80bab4",
+          "materialHash": "ef92b55b35d41520fc9d76c3c0f1a61c24619a9553a0c4d5917d8156d97e9b2e",
+          "storyFilesHash": "1c76c5bc5b92c3f6d96a282e720022c7c449c3e79eba54430a60986926ac2384",
+          "timestamp": "2026-06-23T10:51:21.083Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/authority-runner-contracts-smoke.ts",
+          "command": "node packages/main/dist/tasks/authority-runner-contracts-smoke.js",
+          "result": "pass",
+          "note": "Broad JobClaim without storyId/jobId remains schema-valid and roundtrips.",
+          "headHash": "5455adf8951306c9be9dbaf4a372a894ff80bab4",
+          "materialHash": "ef92b55b35d41520fc9d76c3c0f1a61c24619a9553a0c4d5917d8156d97e9b2e",
+          "storyFilesHash": "1c76c5bc5b92c3f6d96a282e720022c7c449c3e79eba54430a60986926ac2384",
+          "timestamp": "2026-06-23T10:51:21.236Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/authority-runner-client-smoke.ts",
+          "command": "node packages/main/dist/tasks/authority-runner-client-smoke.js",
+          "result": "pass",
+          "note": "Story selector is asserted under the signed claim body and not as a jobs/claim query parameter; SSE jobIds are not copied into claim.jobId.",
+          "headHash": "5455adf8951306c9be9dbaf4a372a894ff80bab4",
+          "materialHash": "ef92b55b35d41520fc9d76c3c0f1a61c24619a9553a0c4d5917d8156d97e9b2e",
+          "storyFilesHash": "1c76c5bc5b92c3f6d96a282e720022c7c449c3e79eba54430a60986926ac2384",
+          "timestamp": "2026-06-23T10:51:21.427Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
