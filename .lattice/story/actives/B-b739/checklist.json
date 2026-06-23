@@ -45,9 +45,9 @@
       "id": "CHK-002",
       "title": "--run powered driver + hermetic stub self-check",
       "context": "--run drives the 9 stateful scenarios (B3/B4/B5/B7/B8/B10/B12/B14/B15) via runLiveLoop with the real agent, appends {scenario,outcome,turns,costUsd,tokensSpent} to live-loop-powered-records.jsonl, prints per-scenario outcomes + a summary; honest small-N/exploratory caveat. --self-check (stub agent, 0 spend) verifies the --run wiring + record schema + signal honoring deterministically. The real powered run is operator-triggered (cost-gated).",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-23T20:26:46.964Z",
       "userSees": "✓ --run drives the 9 stateful scenarios via the real agent -> live-loop-powered-records.jsonl (+ small-N/exploratory caveat); --self-check (stub agent, 0 spend) verifies the --run wiring + record schema + signal honoring; the real powered run is operator-triggered.",
       "files": {
         "modify": [
