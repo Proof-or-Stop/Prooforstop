@@ -331,6 +331,17 @@
           }
         ]
       }
+    },
+    {
+      "id": "CHK-007",
+      "title": "Literal zero: delete legacy-koala cleanup + rename and flip the residue gate to lattice",
+      "context": "Delete the ~55 remaining legacy-koala-cleanup lines (cli-init removePathIfExists .claude/skills/koala; managed-assets Koala-brand detection) and remove/adapt the brand-absence-assertion tests. Rename the residue gate to lattice: KOALA_RESIDUE_* in handlers/review-preflight.ts, the koala-residue name in cli-prompts.ts, the script path, and scripts/verify-koala-residue.mjs -> verify-lattice-residue.mjs + its internals; FLIP it to zero-tolerance (any koala in SCAN_ROOTS = FAIL). Acceptance: git grep -i koala -- packages/*/src = 0 (literal zero); the renamed lattice-residue gate PASSes zero-tolerance over packages/*/src. Gate does NOT scan docs/, so docs koala is unaffected.",
+      "relatedDocs": [
+        ".lattice/story/actives/B-fbca/background.md"
+      ],
+      "status": "in_progress",
+      "startTime": "2026-06-23T20:17:40.182Z",
+      "endTime": null
     }
   ]
 }
