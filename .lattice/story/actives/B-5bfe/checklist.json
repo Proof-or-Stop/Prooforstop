@@ -204,7 +204,20 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "No-LLM selfcheck asserts median (odd/even/single/nulls-excluded/empty) and a2primeBudget upper-bound = round(1.2*median) {token,wall}, plus budgetPass ±20% band. run-ablation derives per-TASK A4 median (taskId match) and writes ablation-A2prime-compute-matched.jsonl with budgetPass.",
+          "headHash": "d3220df096e7980b332b8a207c30d51c2de5829d",
+          "materialHash": "a83436d998f2507b8c5358a5a8adf84761b86cd9cdad52851f56c8d23d198a3d",
+          "storyFilesHash": "705fab19e5f159b60a5714f2d03c5355d953da82980e8725c3e19a9e3f2974a7",
+          "timestamp": "2026-06-23T01:47:12.098Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
