@@ -80,6 +80,15 @@
       "reviewRound": "2026-06-23T19:15:13.779Z",
       "reviewRunId": "B-7036:RR-011",
       "_hash": "bb33f6d9be6ecf3bb653dd3578f0c8bfb3a386f3af071bc7481c7c493d8e3f21"
+    },
+    {
+      "id": "B-7036:RP-010",
+      "agent": "lattice-review-quality",
+      "note": "Round 3 quality review of 8f72d105f fixing F-007 (HIGH) and F-008 (MEDIUM). (1) DEAD CODE: none found — all 7 imported symbols (ARMS, RECOVERY_SCENARIOS, ABLATION_SCENARIO, CONTRASTS, scenarioAppliesToArm, UNSAFE_KEYS, TERMINAL_STOP_TYPES) are used; catch block in parseRecords is intentional (counts skipped, not silent). (2) TYPE SAFETY: no as-any, no empty catch. (3) I/O SHELL ISOLATION: no bridge pattern applies to this experiment-runner module. F-007 FIX CORRECT: emitGlmmR now emits d6 = subset(d, scenario != null) for H1 not-amplified and d5 = subset(d, scenario == null) for H2 completion — disjoint corpora verified; H1 includes (1|scenario) random effect, H2 correctly omits it. F-008 FIX CORRECT: terminalStopTypeOf accepts bare-string events, {type|event|kind} objects, and no_progress alias — aligned with adjudicate.terminalStopEvent for the three live forms; no_progress alias is a superset intentionally (analyze reporting only, not adjudication). All 65 selfcheck assertions pass, all 5 selfchecks green. No regressions. No new findings.",
+      "createdAt": "2026-06-23T19:19:08.860Z",
+      "reviewRound": "2026-06-23T19:15:13.779Z",
+      "reviewRunId": "B-7036:RR-009",
+      "_hash": "e2d96b04d5eacc0f0babb298dd2723764585ccd89fd934b6d38397536e78176a"
     }
   ]
 }
