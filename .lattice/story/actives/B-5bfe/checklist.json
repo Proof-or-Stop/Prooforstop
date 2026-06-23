@@ -419,11 +419,129 @@
           "kind": "manual_transcript",
           "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
           "result": "pass",
-          "note": "No-LLM selfcheck asserts median (odd/even/single/nulls-excluded/empty) and a2primeBudget upper-bound = round(1.2*median) {token,wall}, plus budgetPass ±20% band. run-ablation derives per-TASK A4 median (taskId match) and writes ablation-A2prime-compute-matched.jsonl with budgetPass.",
-          "headHash": "d3220df096e7980b332b8a207c30d51c2de5829d",
-          "materialHash": "a83436d998f2507b8c5358a5a8adf84761b86cd9cdad52851f56c8d23d198a3d",
-          "storyFilesHash": "705fab19e5f159b60a5714f2d03c5355d953da82980e8725c3e19a9e3f2974a7",
-          "timestamp": "2026-06-23T01:47:12.098Z"
+          "note": "selfcheck \"CHK-003 h0\": median([100,300,200])=200 (odd-length).",
+          "headHash": "4c04a933768f7a99938bf2bdeb1cc5cda465239c",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:53:57.669Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck \"CHK-003 h1\": median([100,200,300,400])=250 (even-length average).",
+          "headHash": "4c04a933768f7a99938bf2bdeb1cc5cda465239c",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:53:57.669Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:2",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck \"CHK-003 h2\": a2primeBudget(1000,2000)={tokenBudget:1200,wallBudgetMs:2400} = round(1.2*median) upper bound of the +/-20pct band.",
+          "headHash": "4c04a933768f7a99938bf2bdeb1cc5cda465239c",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:53:57.669Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:3",
+          "kind": "logic_test",
+          "result": "pass",
+          "note": "run-ablation.mjs lines 134-140 build the enriched record with budgetPass and append it to ablation-A2prime-compute-matched.jsonl (A2P_FILE, line 96). The budgetPass() function is unit-tested (selfcheck CHK-003 h3). File-write at runtime needs a live ablation run, so the integration is code-review (logic).",
+          "headHash": "4c04a933768f7a99938bf2bdeb1cc5cda465239c",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:53:57.669Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:4",
+          "kind": "logic_test",
+          "result": "pass",
+          "note": "run-ablation.mjs lines 127-131 invoke run-recovery.mjs with --arm a2prime and --tokenBudget/--wallBudgetMs taken from a2primeBudget(median(...)) (lines 106-108). The median->budget derivation chain is unit-tested (selfcheck CHK-003 h4); the actual subprocess spawn needs the live LLM, so the wiring is code-review (logic).",
+          "headHash": "4c04a933768f7a99938bf2bdeb1cc5cda465239c",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:53:57.669Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck \"CHK-003 e0\": median([777])=777 (single record).",
+          "headHash": "4c04a933768f7a99938bf2bdeb1cc5cda465239c",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:53:57.669Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck \"CHK-003 e1\": identical values [500,500,500] => median 500, a2primeBudget tokenBudget=600 (value*1.2).",
+          "headHash": "4c04a933768f7a99938bf2bdeb1cc5cda465239c",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:53:57.669Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:2",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck \"CHK-003 e2\": median wall 0 => a2primeBudget wallBudgetMs 0 (still valid, no NaN).",
+          "headHash": "4c04a933768f7a99938bf2bdeb1cc5cda465239c",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:53:57.669Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:3",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck \"CHK-003 e3\": distinct task arrays yield distinct medians (100 vs 900); run-ablation.mjs line 105 filters a4Records by r.taskId===task so each task gets its OWN budget (per-task granularity), not a global median.",
+          "headHash": "4c04a933768f7a99938bf2bdeb1cc5cda465239c",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:53:57.669Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck \"CHK-003 a0\": empty array => median null; a2primeBudget(null,null)={null,null}; run-ablation.mjs lines 109-112 skip the task (no NaN budget) when both are null.",
+          "headHash": "4c04a933768f7a99938bf2bdeb1cc5cda465239c",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:53:57.669Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck \"CHK-003 a1\": median([null,100,null,300])=200; nulls are filtered BEFORE Number() coercion (run-ablation.mjs median) so they do not become spurious zeros.",
+          "headHash": "4c04a933768f7a99938bf2bdeb1cc5cda465239c",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:53:57.669Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:2",
+          "kind": "logic_test",
+          "result": "pass",
+          "note": "run-ablation.mjs line 102 wraps JSON.parse in try/catch returning null for a truncated/incomplete final line, then filters Boolean (line 103) so a corrupt line is dropped, not crashing. Additionally selfcheck \"CHK-003 a2\" shows median ignores the resulting non-finite/undefined values. Graceful-parse is code-review (logic) since it lives in runMain file I/O.",
+          "headHash": "4c04a933768f7a99938bf2bdeb1cc5cda465239c",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:53:57.669Z"
         }
       ]
     },
