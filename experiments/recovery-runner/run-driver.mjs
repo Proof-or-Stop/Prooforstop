@@ -281,16 +281,25 @@ export function buildCanonicalRecord(cell = {}, engineResult = {}, ctx = {}) {
 // Numeric spend fields that must be a finite, non-negative number when present (null = "not
 // measured" is allowed). A negative/NaN/Infinity value is impossible spend → invalid.
 const NUMERIC_RECORD_FIELDS = Object.freeze(['tokensSpent', 'wallClockMs', 'agentCallCount']);
+const BUDGET_BOOL_FIELDS = Object.freeze(['budgetPass', 'tokenInBand', 'wallInBand', 'truncated']);
+const BUDGET_NUM_FIELDS = Object.freeze(['tokenBudget', 'wallBudgetMs']);
 export function validateRecord(rec) {
   const r = rec || {};
   const missing = SEVEN_RECORD_FIELDS.filter((f) => !(f in r));
   const enumOk = ADJUDICATED_OUTCOMES.includes(r.adjudicatedOutcome);
   const unsafeOk = !!r.unsafeChecks && UNSAFE_KEYS.every((k) => k in r.unsafeChecks);
-  const budgetOk = A2PRIME_BUDGET_FIELDS.every((f) => f in r);
+  const budgetPresent = A2PRIME_BUDGET_FIELDS.every((f) => f in r);
   const numericOk = NUMERIC_RECORD_FIELDS.every((f) => r[f] == null || (Number.isFinite(r[f]) && r[f] >= 0));
+  // §1 line 47 — each A2prime run MUST log pass/fail against the band constants, so an
+  // A2prime record's budget log must be POPULATED (correctly typed), not just present-as-null;
+  // every non-A2prime arm must carry null for all six (no spurious budget log off-arm).
+  const budgetLogOk = r.arm === 'A2prime'
+    ? BUDGET_BOOL_FIELDS.every((f) => typeof r[f] === 'boolean')
+      && BUDGET_NUM_FIELDS.every((f) => Number.isFinite(r[f]) && r[f] >= 0)
+    : A2PRIME_BUDGET_FIELDS.every((f) => r[f] === null);
   return {
-    ok: missing.length === 0 && enumOk && unsafeOk && budgetOk && numericOk,
-    missing, enumOk, unsafeOk, budgetOk, numericOk,
+    ok: missing.length === 0 && enumOk && unsafeOk && budgetPresent && numericOk && budgetLogOk,
+    missing, enumOk, unsafeOk, budgetPresent, numericOk, budgetLogOk,
   };
 }
 
@@ -357,9 +366,14 @@ async function main() {
   const seed = arg('--seed', 'pre-reg');
   const recordFile = arg('--record', join(here, 'ablation-run-records.jsonl'));
   const enginePath = arg('--engine', null);
+  // Durable §7 sidecar logs: excluded N/A cells + every void/re-run event (with reason).
+  const exclusionsFile = `${recordFile}.exclusions.jsonl`;
+  const voidsFile = `${recordFile}.voids.jsonl`;
 
   const { cells, excluded } = enumerateCells({ tasks, k, seed });
-  console.log(`[run-driver] enumerated ${cells.length} applicable cells; ${excluded.length} N/A cells excluded (logged).`);
+  // §7 — N/A cells are excluded AND durably logged with reason (not just counted).
+  for (const e of excluded) appendFileSync(exclusionsFile, JSON.stringify(e) + '\n');
+  console.log(`[run-driver] enumerated ${cells.length} applicable cells; ${excluded.length} N/A cells excluded -> ${exclusionsFile}`);
 
   if (!enginePath) {
     console.log('[run-driver] no --engine provided: refusing to run a live campaign from this driver.');
@@ -367,13 +381,31 @@ async function main() {
     process.exit(0);
   }
   const engine = (await import(pathToFileURL(enginePath).href)).default;
+  let invalidRecords = 0;
   const { records, voids } = await runDriver({
     cells,
     engine,
     ctx: { seed },
-    onRecord: (rec) => appendFileSync(recordFile, JSON.stringify(rec) + '\n'),
+    // §7 — every void/re-run event is durably logged with its reason (onVoid wired).
+    onVoid: (v) => appendFileSync(voidsFile, JSON.stringify({ ...v, ts: new Date().toISOString() }) + '\n'),
+    onRecord: (rec) => {
+      const v = validateRecord(rec);
+      if (!v.ok) { invalidRecords++; console.error(`[run-driver] INVALID record ${rec.runId}: ${JSON.stringify(v)}`); }
+      appendFileSync(recordFile, JSON.stringify(rec) + '\n');
+    },
   });
-  console.log(`[run-driver] wrote ${records.length} records; ${voids.length} void/re-run events -> ${recordFile}`);
+  // §7 — an exhausted (unresolvable) infra-void is an INCOMPLETE run, never a silently
+  // dropped cell. Surface it loudly and fail the process so the operator re-runs (the seeded
+  // order is reproducible) or raises maxReruns / fixes the outage.
+  const unresolved = voids.filter((v) => v.reason === 'exhausted-reruns');
+  console.log(`[run-driver] wrote ${records.length} records; ${voids.length} void/re-run events -> ${voidsFile}`);
+  if (unresolved.length > 0) {
+    console.error(`[run-driver] INCOMPLETE: ${unresolved.length} cell(s) exhausted all reruns (infra failure) and produced NO record — the denominator is incomplete. Re-run (same seed) or raise --maxReruns / fix the outage.`);
+  }
+  if (invalidRecords > 0) {
+    console.error(`[run-driver] ${invalidRecords} record(s) failed §7 validateRecord.`);
+  }
+  process.exit(unresolved.length > 0 || invalidRecords > 0 ? 1 : 0);
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {

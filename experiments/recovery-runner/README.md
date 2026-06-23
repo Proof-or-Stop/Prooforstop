@@ -84,7 +84,11 @@ a stream of canonical §7 run-records. It:
 - stamps `denominatorSets[]` = every pre-registered contrast whose common-cell set contains
   the run (`A4_vs_A2prime` primary, `A4_vs_A3` exploratory, `A4_vs_A2`, `A4_vs_A1`).
 - applies the §7 validity filter: an engine-reported infra/harness failure is **void →
-  re-run + logged**; task-level failures are real outcomes, kept.
+  re-run + logged**; task-level failures are real outcomes, kept. N/A exclusions and every
+  void/re-run event are **durably logged** to `<record>.exclusions.jsonl` /
+  `<record>.voids.jsonl`. If any cell exhausts its reruns the run is **incomplete** — the CLI
+  warns loudly and exits non-zero (re-run with the same seed, or raise `--maxReruns`); an
+  exhausted cell is never silently dropped.
 - for A2prime runs, surfaces the §1 budget-compliance log
   (`budgetPass/tokenInBand/wallInBand/truncated/tokenBudget/wallBudgetMs`); `null` on every
   non-A2prime arm.

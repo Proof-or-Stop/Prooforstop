@@ -8,10 +8,12 @@
 // validity-filter (§7 void+re-run vs kept task-failure), seeded-order determinism, and the
 // A2prime budget-log (§1 line 47). Ends with a NEGATIVE CONTROL proving validateRecord is
 // not vacuous (a deliberately broken record must FAIL).
-import { mkdtempSync, writeFileSync, readFileSync } from 'node:fs';
+import { mkdtempSync, writeFileSync, readFileSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createHash } from 'node:crypto';
+import { spawnSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 import {
   ARMS, RECOVERY_SCENARIOS, A1_EXCLUDED_SCENARIOS, CONTRASTS,
   SEVEN_RECORD_FIELDS, A2PRIME_BUDGET_FIELDS, ADJUDICATED_OUTCOMES, UNSAFE_KEYS,
@@ -88,6 +90,13 @@ group('enumeration: §3 applicability + exact cell/exclusion counts');
   threw = false; try { enumerateCells({ tasks: ['t1', 't1'], k: 1 }); } catch { threw = true; } ok(threw, 'enumeration: duplicate taskIds throw');
   // k=1 minimum-repeats count formula (1 task): A1 13 + (A2,A2prime,A3,A4) 16×4 = 77
   eq(enumerateCells({ tasks: ['t1'], k: 1 }).cells.length, 77, 'enumeration: k=1 single-task count = 77');
+  // EXACT intent params (CHK-001:happy:0 / happy:1 / edge:0) — assert the specific scenarios
+  // the verificationIntent named, not only the k=5/2-task example:
+  eq(enumerateCells({ tasks: ['t1', 't2', 't3'], k: 2 }).cells.length, 462, 'enumeration: 3 tasks k=2 = 462 cells (CHK-001:happy:0 intent params)');
+  // N/A is counted per (arm,task,scenario), NOT ×k: A1×{B4,B5,B10}×3 tasks = 9 (the intent
+  // note that said "×2 repeats = 18" double-counted — excluded cells are pre-repeat).
+  eq(enumerateCells({ tasks: ['t1', 't2', 't3'], k: 2 }).excluded.length, 9, 'enumeration: 3 tasks N/A = 9 (per arm,task,scenario, NOT ×k) (CHK-001:happy:1)');
+  eq(enumerateCells({ tasks: ['t1', 't2', 't3'], k: 1 }).cells.length, 231, 'enumeration: 3 tasks k=1 = 231 cells (CHK-001:edge:0 intent params)');
 }
 
 // =========================================================================================
@@ -244,6 +253,35 @@ group('NEGATIVE CONTROL: validateRecord must REJECT a broken record');
   ok(vNeg.ok === false && vNeg.numericOk === false, 'neg-control: negative wallClockMs is flagged invalid');
   ok(validateRecord({ ...good, tokensSpent: Number.NaN }).numericOk === false, 'neg-control: NaN tokensSpent is flagged invalid');
   ok(validateRecord({ ...good, tokensSpent: null, wallClockMs: null, agentCallCount: null }).numericOk === true, 'neg-control: null metrics allowed (not measured)');
+  // F-005: §1 requires each A2prime run to LOG budget pass/fail — an A2prime record with a
+  // null budget log is REJECTED (presence alone is not enough).
+  const a2null = { ...good, arm: 'A2prime', budgetPass: null, tokenInBand: null, wallInBand: null, truncated: null, tokenBudget: null, wallBudgetMs: null };
+  const vNull = validateRecord(a2null);
+  ok(vNull.ok === false && vNull.budgetLogOk === false, 'neg-control: A2prime with null budget log is REJECTED (§1 log required)');
+  const a2ok = { ...good, arm: 'A2prime', budgetPass: true, tokenInBand: true, wallInBand: true, truncated: false, tokenBudget: 1200, wallBudgetMs: 2400 };
+  ok(validateRecord(a2ok).ok === true, 'neg-control: A2prime with a populated budget log validates');
+  ok(validateRecord({ ...good, budgetPass: true }).budgetLogOk === false, 'neg-control: non-A2prime arm with a spurious non-null budget field is REJECTED');
+}
+
+// =========================================================================================
+group('CLI integration: durable §7 logging + non-zero exit on incomplete run (F-004/F-006)');
+{
+  const driverPath = fileURLToPath(new URL('./run-driver.mjs', import.meta.url));
+  // (1) enumerate-only (no engine) durably logs the N/A exclusions sidecar + exits 0
+  const REC0 = join(TMP, 'enum-only.jsonl');
+  const r0 = spawnSync(process.execPath, [driverPath, '--record', REC0, '--tasks', 'foo', '--k', '1'], { encoding: 'utf8' });
+  ok(r0.status === 0, 'CLI: enumerate-only (no engine) exits 0');
+  ok(existsSync(`${REC0}.exclusions.jsonl`), 'CLI: N/A exclusions durably logged to sidecar (F-006)');
+  ok(/A1/.test(readFileSync(`${REC0}.exclusions.jsonl`, 'utf8')), 'CLI: exclusion log contains the A1 N/A cells with reason');
+  // (2) an always-infra-void engine -> reruns exhausted -> non-zero exit + durable void log
+  const REC1 = join(TMP, 'incomplete.jsonl');
+  const ENGINE = join(TMP, 'always-void-engine.mjs');
+  writeFileSync(ENGINE, 'export default async () => ({ infraVoid: true, voidReason: "api-outage" });\n');
+  const r1 = spawnSync(process.execPath, [driverPath, '--engine', ENGINE, '--record', REC1, '--tasks', 'foo', '--k', '1'], { encoding: 'utf8' });
+  ok(r1.status === 1, 'CLI: exits non-zero when reruns exhausted (incomplete denominator) (F-004)');
+  ok(/INCOMPLETE/.test(`${r1.stdout}${r1.stderr}`), 'CLI: prints a loud INCOMPLETE warning (F-004)');
+  ok(existsSync(`${REC1}.voids.jsonl`), 'CLI: void events durably logged to sidecar (F-006)');
+  ok(/api-outage/.test(readFileSync(`${REC1}.voids.jsonl`, 'utf8')), 'CLI: void log records the reason (F-006)');
 }
 
 // =========================================================================================
