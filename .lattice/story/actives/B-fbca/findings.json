@@ -50,7 +50,7 @@
       "desc": "quality-cleanup: packages/main/src/handlers/story-dispatch.ts:44 normalizeAgentType() is now a no-op pass-through (returns agentType unchanged) after the koala- guard removal — the function wrapper adds no value and can be removed by inlining",
       "severity": "low",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-23T21:33:10.801Z",
@@ -58,7 +58,11 @@
       "reviewRunId": "B-fbca:RR-003",
       "_hash": "484c68fa2953340fcdbdce9d2f7d4c0511dab76862b9b98c5f2ad4fa303a6591",
       "signatureTag": "edge|unknown|quality-cleanup-packages",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Inlined and removed the no-op normalizeAgentType() pass-through in packages/main/src/handlers/story-dispatch.ts. It returned its arg unchanged after the koala- alias normalization was deleted; the 4 call sites (appendDispatchEvent, buildFindingPrompt, buildItemPrompt, dispatch) now reference args.agentType directly, and the two stale 'legacy agentType alias normalization' comments were dropped. tsc --noEmit exit 0; dispatch-run-smoke + lifecycle-dispatch-smoke both pass; residue gate green.",
+      "resolvedAt": "2026-06-23T21:39:26.866Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
