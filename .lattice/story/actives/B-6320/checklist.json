@@ -73,7 +73,48 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Focused smoke tests pass with custom provider declarations, existing codex/claude compatibility, and fail-closed authorization boundaries.",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/authority-client-smoke.ts",
+          "packages/main/src/tasks/authority-status-smoke.ts",
+          "packages/main/src/tasks/authority-enforce-runner-smoke.ts",
+          "packages/main/src/tasks/authority-runner-client-smoke.ts",
+          "packages/main/src/tasks/authority-job-loop-live-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/authority-client-smoke.ts",
+          "packages/main/src/tasks/authority-status-smoke.ts",
+          "packages/main/src/tasks/authority-enforce-runner-smoke.ts",
+          "packages/main/src/tasks/authority-runner-client-smoke.ts",
+          "packages/main/src/tasks/authority-job-loop-live-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Focused smokes prove arbitrary provider declarations are accepted and propagated by CLI Authority flows.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Existing codex default, claude alias, and Antigravity-adjacent behavior remain compatible.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Regression tests prove declaration acceptance does not bypass credentials, signature, lease, or server-policy checks.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
