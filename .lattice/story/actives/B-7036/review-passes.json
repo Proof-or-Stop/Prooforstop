@@ -278,6 +278,15 @@
       "reviewRound": "2026-06-23T20:34:06.713Z",
       "reviewRunId": "B-7036:RR-037",
       "_hash": "e70a6a6339137dd4863b083818f70522cefd1e381a20ed70fadb9d461dfcec1e"
+    },
+    {
+      "id": "B-7036:RP-032",
+      "agent": "lattice-review-quality",
+      "note": "Latest commit 2fd58ed31 adds only a 6-line module-level design-note comment to analyze.mjs (no behavior change). Dead-code check: all imports (RECOVERY_SCENARIOS, ABLATION_SCENARIO, CONTRASTS, scenarioAppliesToArm, UNSAFE_KEYS, TERMINAL_STOP_TYPES) are used. Type-safety: the bare catch{} on line 80 is intentional silent-skip with skipped counter + selfcheck coverage — not a swallowed error. No bridge.ts structure; I/O isolation check N/A. analyze-selfcheck ran: 75 assertions passed, 0 failed. No new quality findings.",
+      "createdAt": "2026-06-23T20:36:02.194Z",
+      "reviewRound": "2026-06-23T20:34:06.713Z",
+      "reviewRunId": "B-7036:RR-036",
+      "_hash": "d488bb8aecb8a0003d80bc79693721736ee7502c77a8c757613ed488350acdd5"
     }
   ]
 }
