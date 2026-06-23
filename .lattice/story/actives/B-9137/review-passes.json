@@ -1,0 +1,31 @@
+{
+  "passes": [
+    {
+      "id": "B-9137:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept/residue/consistency check CLEAN. (1) No duplicate CJK regex: the new containsCJK wraps detectCjk(text).found, findFirstEnglishAuthoringViolation delegates to scanText which calls detectCjk — zero independent CJK range literals in the changed handlers; the 0x3400/0x4f60/0x4fee values in the smoke are fixture assembly via cp() passed INTO containsCJK/findFirstEnglishAuthoringViolation, not a second detector. (2) Refusal message format is consistent: renderEnglishAuthoringRefusal calls renderEnglishArtifactViolations for the source:line:non-English(CJK)-text->preview segment, appends [english_artifact_cjk_authoring] reason code, matching the gate convention. (3) All symbols resolve: detectCjk exported from core/cjk-detect.ts, scanText internal to english-artifact-gate.ts (not re-exported, not a leak), runEnglishArtifactGate/containsCJK/findFirstEnglishAuthoringViolation/assertEnglishAuthoringText all exported and fully cross-referenced. lifecycle-registry-contract.js: 0 divergences. No concept deletion or replacement found.",
+      "createdAt": "2026-06-22T17:16:23.395Z",
+      "reviewRound": "2026-06-22T17:07:19.669Z",
+      "reviewRunId": "B-9137:RR-001",
+      "_hash": "e371bbaa26facfbc72a8467d35992d91d2400404493cbf75d46981da6bf8febc"
+    },
+    {
+      "id": "B-9137:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "All 4 quality checks pass. (1) Pre-persistence ordering: assertEnglishAuthoringText throws before mkdirSync/writeFileSync in both normal path (line 517 before line 624) and from-draft path (line 400-405 before line 482-491); background_set refuses before writeFileSync at line 87; background_append refuses before readFileSync/writeFile at line 117. (2) Dead code and type safety: no unused imports, no `as any` in new code, no empty catch; containsCJK/findFirstEnglishAuthoringViolation/renderEnglishAuthoringRefusal/assertEnglishAuthoringText are all used and typed; storyCreateAuthoringFields uses concrete inline type, not any. (3) No over-reach: storyCreateAuthoringFields arg type takes only title/description/background/checklist; scopeBoundary, keywords, executionBoundary excluded. (4) Build exits 0; smoke passes all 5 cases including no-dir-created assertions and em-dash false-positive guard and gate-agreement proof.",
+      "createdAt": "2026-06-22T17:17:57.751Z",
+      "reviewRound": "2026-06-22T17:07:19.669Z",
+      "reviewRunId": "B-9137:RR-002",
+      "_hash": "6fa197a66ee71410d37687ff9a2639e1bcccf348e3d823284ce6444e11ed6b1d"
+    },
+    {
+      "id": "B-9137:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage review passed: all 7 verificationIntent entries (6 must + 1 should) are backed by valid verificationEvidence with result=pass. Smoke file at english-early-check-smoke.ts exercises each intent directly in code: (happy:0) CJK background refused + no story dir created via filesystem assertion; (happy:1) CJK checklist title/context refused + no dir; (happy:2) all-English+em-dash story_create succeeds, em-dash preserved in index.json and checklist.json, containsCJK returns false; (edge:0) background_set CJK refused + background.md byte-identical before/after via readFileSync comparison; (edge:1) three-way agreement assertion across ascii/em-dash/cjk-core/cjk-ext-A between findFirstEnglishAuthoringViolation, runEnglishArtifactGate, and containsCJK — a genuine cross-function comparison against the real gate, not a re-stated copy; (adversarial:0) scan scoped to author fields only via storyCreateAuthoringFields, confirmed by em-dash success; (adversarial:1) containsCJK wraps detectCjk once in english-artifact-gate.ts with no duplicate regex, lifecycle-registry-contract.js passes. validate 7/7 covered, 0 required missing.",
+      "createdAt": "2026-06-22T17:18:19.864Z",
+      "reviewRound": "2026-06-22T17:07:19.669Z",
+      "reviewRunId": "B-9137:RR-003",
+      "_hash": "5f5d2a68490c483a03f1dcc77e3fff5d88ab74e8be7779b03fe2bfb91e5e341e"
+    }
+  ]
+}

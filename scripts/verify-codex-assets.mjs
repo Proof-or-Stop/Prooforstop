@@ -19,6 +19,8 @@ import {
 } from '../packages/main/dist/init-assets.js';
 import {
   computeCodexAdapterMaterialSnapshot,
+  DEFAULT_CODEX_HEARTBEAT_TIMEOUT_MS,
+  DEFAULT_GLOBAL_FALLBACK_HEARTBEAT_TIMEOUT_MS,
   GLOBAL_CODEX_FALLBACK_COMMAND,
   LOCAL_CODEX_VERIFY_COMMAND,
   LOCAL_INIT_VERIFY_COMMAND,
@@ -48,6 +50,13 @@ if (!result.ok) {
   console.error(renderCodexAdapterChecks(result));
   process.exit(1);
 }
+
+assert(DEFAULT_CODEX_HEARTBEAT_TIMEOUT_MS === 10_000, 'local/default Codex heartbeat timeout should remain conservative');
+assert(DEFAULT_GLOBAL_FALLBACK_HEARTBEAT_TIMEOUT_MS === 30_000, 'global fallback heartbeat timeout should allow real session_brief on large repos');
+assert(
+  DEFAULT_GLOBAL_FALLBACK_HEARTBEAT_TIMEOUT_MS > DEFAULT_CODEX_HEARTBEAT_TIMEOUT_MS,
+  'global fallback heartbeat should have a larger default budget than local wrapper probes',
+);
 
 // CODEX_README_TEMPLATE is lattice-branded (default export); check for lattice wrapper commands
 assert(CODEX_README_TEMPLATE.includes('node bin/lattice-codex.js session_brief'), 'template missing preferred wrapper command');
@@ -174,7 +183,7 @@ assertCheckFails(
   const previousPath = process.env.PATH;
   try {
     mkdirSync(join(dir, 'packages', 'main'), { recursive: true });
-    const fakeGlobalCore = join(fakeGlobalRoot, '@lattice-agent', 'core');
+    const fakeGlobalCore = join(fakeGlobalRoot, '@lattice', 'core');
     mkdirSync(join(fakeGlobalCore, 'bin'), { recursive: true });
     writeFileSync(join(fakeGlobalCore, 'bin', 'lattice'), '#!/bin/sh\nexit 0\n');
     chmodSync(join(fakeGlobalCore, 'bin', 'lattice'), 0o755);

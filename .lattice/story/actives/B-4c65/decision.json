@@ -1,0 +1,67 @@
+{
+  "principles": [
+    "Smallest shippable slice that produces the paper C2 data proof",
+    "Reuse existing sign/verify/digest primitives, don't reimplement",
+    "Honest labeling: local-key single-host ≠ Authority strong proof",
+    "Soundness via an adversarial contract test, not an A/B rate"
+  ],
+  "drivers": [
+    "Authority server signing is unavailable (Tier-C)",
+    "DONE stories only have LOCAL evidence today",
+    "C2 must be adversarially demonstrated, not just described"
+  ],
+  "options": [
+    {
+      "name": "Build a NEW bundle from LOCAL evidence + local-key signature + offline re-verify",
+      "pros": [
+        "Ships without the Authority server (Tier-C unblocked separately)",
+        "Reuses existing digest/sign/verify primitives",
+        "Hermetic, demoable now; contract test = paper C2 proof"
+      ],
+      "cons": [
+        "Local-key signature is weaker than a server-verified receipt — must be labeled honestly"
+      ]
+    },
+    {
+      "name": "Require an Authority-server SIGNED gate-decision proof",
+      "pros": [
+        "Strongest (server-verified)"
+      ],
+      "cons": [
+        "That signing path does NOT exist yet — it is the Tier-C blocker; would make slice 1 unshippable"
+      ]
+    },
+    {
+      "name": "Static source-only check (grep the evidence files)",
+      "pros": [
+        "Trivial"
+      ],
+      "cons": [
+        "Not a real verifier; proves nothing about forgery/freshness; not paper-grade"
+      ]
+    }
+  ],
+  "chosen": "Build a NEW bundle from LOCAL evidence + local-key signature + offline re-verify",
+  "rationale": "Only this option ships now (the server path is the Tier-C blocker), reuses the existing primitives, and yields the adversarial contract-test table that doubles as the paper's C2 data proof. The local-key/single-host scope is labeled honestly; Authority cross-host signing is the explicit follow-up.",
+  "preMortem": [
+    {
+      "scenario": "The local-key signature is read as the Authority strong proof / overclaim",
+      "trigger": "Bundle/verifier output omits the single-host caveat",
+      "consequence": "Paper/demo overclaims past Tier-A",
+      "mitigation": "Verifier output + bundle field explicitly mark 'local-key, single-host; Authority cross-host signing is Tier-C, deferred'"
+    },
+    {
+      "scenario": "The contract test passes vacuously (verifier returns reject for everything, or the authentic case never tested)",
+      "trigger": "Missing the authentic-ACCEPT control or not asserting each tamper flips the verdict",
+      "consequence": "A meaningless green test",
+      "mitigation": "Include an authentic bundle that MUST be ACCEPTED + assert each tamper class moves ACCEPT→REJECT with the correct reason code; assert 0 false-accept AND 0 false-reject"
+    },
+    {
+      "scenario": "Recomputing materialHash from a real git tree is infeasible in a hermetic smoke",
+      "trigger": "Smoke would need a git fixture",
+      "consequence": "Can't test the freshness conjunct hermetically",
+      "mitigation": "Offline verifier takes currentMaterialHash as an input (the caller computes it from the tree, as the gate already does); the contract test feeds a mismatched currentMaterialHash → must REJECT (stale)"
+    }
+  ],
+  "timestamp": "2026-06-22T17:19:57.788Z"
+}

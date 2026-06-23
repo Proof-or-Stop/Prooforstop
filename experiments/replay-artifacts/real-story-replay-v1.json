@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "stories": {
+    "B-e452": {
+      "evidenceQuality": "backfilled",
+      "source": "koala story_get {\"storyId\":\"B-e452\",\"detail\":true} + existing PASS test evidence + historical story metadata",
+      "why": "B-e452 is a real DONE/PASS transcript-diff gate story, but it predates the current summary artifact contract.",
+      "explain": "Backfill preserves the historical artifact gap while recording the observable story outcome: four checklist items tightened user-facing outcome transcripts, defined expected/actual/diff artifact semantics, added TEST/DONE advisory checks, and covered missing/passing transcript paths. The score uses lower-weight backfilled summary and fixture evidence rather than pretending native summary.json existed.",
+      "summary": {
+        "changes": "Tightened user-value validation by requiring outcome transcripts, defining transcript diff artifact semantics, and wiring advisory TEST/DONE checks for missing transcript evidence.",
+        "usage": "Use the transcript-diff gate as replay evidence that a story now distinguishes technical pass from user-facing completion.",
+        "limitations": "Historical story lacks native summary.json and reviewer result artifacts, so replay evidence is explicitly marked backfilled.",
+        "pitfalls": "Do not treat the backfill as original summary evidence; it exists to explain an older artifact gap."
+      },
+      "evidence": {
+        "fixtureCases": 4,
+        "cumulativePassedCases": 4,
+        "hasPhaseStats": false,
+        "hasImplementationReview": false,
+        "totalDurationMs": null
+      }
+    }
+  }
+}

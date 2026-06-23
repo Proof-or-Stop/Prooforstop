@@ -1,0 +1,31 @@
+{
+  "passes": [
+    {
+      "id": "B-5c79:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Additive-only change: no concept deleted or replaced. New symbols (plannedRunIds, duplicateRunIds, materialChangeCounter) appear only in the two touched source files; listVerdicts import is correctly exported from verdicts.ts and imported in all three call sites. Guard keying on (runId, materialDigest) matches the stated intent. Smoke test restructuring is self-consistent (counter ensures distinct digests across repeated commitMaterialChange calls). No orphaned references, no residual dead concepts, no doc-promise-undelivered items detected.",
+      "createdAt": "2026-06-22T18:10:48.345Z",
+      "reviewRound": "2026-06-22T18:08:37.947Z",
+      "reviewRunId": "B-5c79:RR-003",
+      "_hash": "50d8329a637799acb78911fbd48aa86c6960c6bd03d4382fe0774e620caeb389"
+    },
+    {
+      "id": "B-5c79:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Guard reads the same store (listVerdicts ctx.root/local) it gates before submitLocalVerdict writes. No dead code: the outer new Set correctly deduplicates two-host per-runId verdict files before sort. No as-any in handler code; smoke test any is justified for unknown handler return. The module-level materialChangeCounter is safe for single-fixture sequential use. The rounds=N test correctly advances material+passes before submitting to avoid guard collision. No I/O isolation issues. No blockers found.",
+      "createdAt": "2026-06-22T18:11:13.560Z",
+      "reviewRound": "2026-06-22T18:08:37.947Z",
+      "reviewRunId": "B-5c79:RR-001",
+      "_hash": "9f5eed8f3c825cc56a5b67a4a8620002323cc1ce8820112ef7789ea9bbfe2001"
+    },
+    {
+      "id": "B-5c79:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 14 must-priority verificationIntent entries (CHK-001:happy:0/1, CHK-002:happy:0/1, CHK-002:adversarial:0, CHK-003:happy:0, CHK-003:adversarial:0, CHK-004:happy:0/1/2, CHK-004:adversarial:0, CHK-005:happy:0/1/2) are covered by concrete, non-fail verificationEvidence bound to the correct command. Smoke node packages/main/dist/tasks/quorum-submit-smoke.js independently re-run: 11/11 checks pass, exit 0. The 3 required behaviors — (a) same-material re-submit refused with no new verdicts, (b) fresh quorum after material change allowed, (c) rounds-knob case runs at a distinct materialDigest and does not spuriously collide — are each exercised by a named, passing check. 10 should-priority intents are uncovered; all are advisory on the normal channel and none is a blocker. missingRequired=0 per validate.",
+      "createdAt": "2026-06-22T18:13:13.134Z",
+      "reviewRound": "2026-06-22T18:08:37.947Z",
+      "reviewRunId": "B-5c79:RR-002",
+      "_hash": "6fb20b65c2c1ad9a347b0c9fe5f5472d2a8e5351e1a5ce94834365709e387e13"
+    }
+  ]
+}

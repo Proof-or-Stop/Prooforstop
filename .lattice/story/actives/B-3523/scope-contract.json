@@ -1,0 +1,83 @@
+{
+  "storyId": "B-3523",
+  "mode": "enforce",
+  "allowedModify": [
+    "package.json",
+    "package-lock.json",
+    "packages/main/package.json",
+    "packages/main/package-lock.json",
+    "packages/utils/package.json",
+    "packages/utils/package-lock.json",
+    "packages/lab/package.json",
+    "packages/lab/package-lock.json",
+    "packages/main/src/init-assets.ts",
+    "packages/main/src/cli-init.ts",
+    "packages/main/src/cli.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/core/runtime-environment-checks.ts",
+    "packages/main/src/core/rollout-check.ts",
+    "packages/main/src/core/prompt-registry.ts",
+    "packages/main/src/core/runtime-fact-registry.ts",
+    "packages/main/src/core/zod.ts",
+    "packages/main/src/handlers/test-auto.ts",
+    "packages/main/src/handlers/worktree.ts",
+    "packages/utils/src/index.ts",
+    "packages/utils/src/register.ts",
+    "packages/utils/src/tool-defs.ts",
+    "packages/lab/src/index.ts",
+    "packages/lab/src/register.ts",
+    "packages/lab/src/tool-defs.ts",
+    ".githooks/pre-push",
+    "packages/main/src/core/codex-adapter-checks.ts",
+    "packages/main/src/tasks/worktree-repair-smoke.ts",
+    "packages/main/src/tasks/flow-stability-smoke.ts",
+    "packages/main/src/tasks/version-bump-smoke.ts",
+    "packages/main/src/tasks/validation-protocol-smoke.ts",
+    "scripts/verify-runtime-fact-contract.mjs",
+    "scripts/verify-entrypoints.mjs",
+    "scripts/verify-global-lab-entrypoint.mjs",
+    "scripts/verify-koala-residue.mjs",
+    "scripts/verify-*.mjs",
+    "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+    ".codex/hooks/lattice-scope-pretool.cjs",
+    ".claude/hooks/lattice-scope-pretool.cjs",
+    "README.md",
+    "CLAUDE.md",
+    "AGENTS.md",
+    "CHANGELOG.md",
+    "docs/requirements/decisions/authority-client-role.md"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "scripts/verify-global-lab-entrypoint.mjs",
+    "scripts/verify-runtime-fact-contract.mjs",
+    "scripts/verify-entrypoints.mjs",
+    "scripts/verify-koala-residue.mjs",
+    "scripts/verify-codex-assets.mjs",
+    "packages/main/src/tasks/version-bump-smoke.ts",
+    "packages/main/src/tasks/validation-protocol-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "F-001 fix requires package-lock metadata for @lattice/lab and @lattice/utils so dry-run installs validate renamed package dependencies instead of relying on stale manual manifests.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Lattice live_smoke_transcript --write produced this story-scoped evidence artifact to record the user-visible lattice --version transcript for DONE acceptance; it is metadata evidence, not product code expansion.",
+      "timestamp": "2026-06-22T23:51:26.718Z",
+      "paths": [
+        ".lattice/story/actives/B-3523/evidence/live-smoke-transcript.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-3523/evidence/live-smoke-transcript.json"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "df5bba1cfa67ca8f8799135b2546f8763d751af0",
+      "materialHash": "c132c70256b1011810cea159f0f1a2870fc30aa41ad685590b74db5fa6d2b219"
+    }
+  ],
+  "createdAt": "2026-06-22T23:04:09.249Z",
+  "updatedAt": "2026-06-22T23:51:26.718Z"
+}

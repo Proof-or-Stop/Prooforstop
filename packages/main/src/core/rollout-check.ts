@@ -293,7 +293,7 @@ function buildConfigProbe(projectRoot: string): RolloutProbe {
   const hasLatticeWrapper = existsSync(join(projectRoot, 'bin', 'lattice.js'));
   const hasLegacyWrapper = existsSync(join(projectRoot, 'bin', 'koala.js'));
   const hasBinAliases = packageBinHasLattice(mainPackagePath);
-  const isSelfLayout = mainPackageName === '@lattice-agent/core';
+  const isSelfLayout = mainPackageName === '@lattice/core';
   const ok = isSelfLayout
     ? rootPackageVersion === LATTICE_CLI_VERSION && mainPackageVersion === LATTICE_CLI_VERSION && hasLatticeWrapper && !hasLegacyWrapper && hasBinAliases
     : true;

@@ -1,0 +1,54 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-4b21",
+  "allowedCommands": [
+    "git add",
+    "git commit",
+    "git diff",
+    "git log",
+    "git status",
+    "lattice aux_doc_list",
+    "lattice checklist_*",
+    "lattice decision_*",
+    "lattice done_required_validate",
+    "lattice finding_*",
+    "lattice review_*",
+    "lattice session_brief",
+    "lattice story_*",
+    "lattice understanding_*",
+    "lattice validate",
+    "node packages/main/dist/cli.js *",
+    "npm --prefix packages/main run build",
+    "npm --prefix packages/main test",
+    "rg *"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "AGENTS.md",
+    "CLAUDE.md",
+    "docs/requirements/decisions",
+    "package-lock.json",
+    "package.json",
+    "packages/main/package-lock.json",
+    "packages/main/package.json",
+    "packages/main/scripts",
+    "packages/main/src",
+    "packages/main/tests",
+    "scripts"
+  ],
+  "excludedCommands": [
+    "git checkout -- .",
+    "git clean -fd",
+    "git push",
+    "git reset --hard"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".omx"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Use canonical proofbound root and normal Lattice story worktree flow only.",
+  "createdAt": "2026-06-23T01:32:46.030Z",
+  "updatedAt": "2026-06-23T01:32:46.030Z",
+  "_hash": "b12b6f67be11ddd4fb1717ba8e8eb6119ea297fc8ed70159335ad205c155334c"
+}

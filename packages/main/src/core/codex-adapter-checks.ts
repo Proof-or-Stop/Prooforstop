@@ -56,6 +56,11 @@ export const LOCAL_MAIN_VERIFY_COMMAND = 'node bin/lattice.js verify_codex';
 export const GLOBAL_THIN_CODEX_VERIFY_COMMAND = 'lattice codex verify';
 export const LOCAL_INIT_VERIFY_COMMAND = 'lattice init --verify-codex';
 export const GLOBAL_CODEX_FALLBACK_COMMAND = 'LATTICE_ACTIVITY_SOURCE=codex LATTICE_ACTIVITY_RECORD_READONLY=1 LATTICE_CODEX_ENTRYPOINT=global-fallback lattice';
+export const DEFAULT_CODEX_HEARTBEAT_TIMEOUT_MS = 10_000;
+// The global fallback runs the real installed `lattice session_brief`, which can
+// traverse a large repo before writing its heartbeat. Keep local wrapper probes
+// conservative, but give this fallback enough budget for real-world repos.
+export const DEFAULT_GLOBAL_FALLBACK_HEARTBEAT_TIMEOUT_MS = 30_000;
 
 /**
  * Resolve the preferred verify_codex command from available local wrappers.
@@ -642,8 +647,7 @@ function checkGlobalFallback(root: string, checks: CodexAdapterCheck[], executeH
       timeout: 2_000,
     }).trim();
     const globalCoreCandidates = [
-      { path: join(globalRoot, '@lattice-agent', 'core'), label: '@lattice-agent/core' },
-      { path: join(globalRoot, '@koala-agent', 'core'), label: '@koala-agent/core' },
+      { path: join(globalRoot, '@lattice', 'core'), label: '@lattice/core' },
     ];
     const globalCore = globalCoreCandidates.find(candidate => existsSync(candidate.path));
     if (existsSync(currentCore) && globalCore) {
@@ -695,7 +699,8 @@ function checkAuxAvailability(checks: CodexAdapterCheck[], registryNames?: Set<s
 
 export function runCodexAdapterChecks(root: string, options: RunCodexChecksOptions = {}): CodexAdapterCheckResult {
   const checks: CodexAdapterCheck[] = [];
-  const timeoutMs = options.timeoutMs ?? 10_000;
+  const localHeartbeatTimeoutMs = options.timeoutMs ?? DEFAULT_CODEX_HEARTBEAT_TIMEOUT_MS;
+  const globalFallbackHeartbeatTimeoutMs = options.timeoutMs ?? DEFAULT_GLOBAL_FALLBACK_HEARTBEAT_TIMEOUT_MS;
   const executeLocalHeartbeat = options.executeLocalHeartbeat ?? options.executeHeartbeats === true;
   const executeGlobalHeartbeat = options.executeGlobalHeartbeat ?? options.executeHeartbeats === true;
   const agentAssetResolution = resolveAgentAssetResolution(root);
@@ -708,8 +713,8 @@ export function runCodexAdapterChecks(root: string, options: RunCodexChecksOptio
   }
   checkExcludedAssets(root, checks);
   checkCodexNativeHooks(root, checks);
-  checkLocalWrapper(root, checks, executeLocalHeartbeat, timeoutMs);
-  checkGlobalFallback(root, checks, executeGlobalHeartbeat, timeoutMs);
+  checkLocalWrapper(root, checks, executeLocalHeartbeat, localHeartbeatTimeoutMs);
+  checkGlobalFallback(root, checks, executeGlobalHeartbeat, globalFallbackHeartbeatTimeoutMs);
   checkAuxAvailability(checks, options.registryNames);
 
   const hardFailures = checks.filter(check => check.hard && check.status === 'fail');

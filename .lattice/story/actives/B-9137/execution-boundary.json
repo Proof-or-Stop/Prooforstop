@@ -1,0 +1,28 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-9137",
+  "allowedCommands": [
+    "node packages/main/dist/cli.js story_create*",
+    "node packages/main/dist/cli.js validate*",
+    "node packages/main/dist/tasks/english-early-check-smoke.js",
+    "node packages/main/dist/tasks/lifecycle-registry-contract.js",
+    "npm --prefix packages/main run build"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "lattice.config.json",
+    "packages/main/src/core/cjk-detect.ts",
+    "packages/main/src/handlers/background.ts",
+    "packages/main/src/handlers/english-artifact-gate.ts",
+    "packages/main/src/handlers/story-create.ts",
+    "packages/main/src/tasks/english-early-check-smoke.ts"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Shift-left CJK check at authoring, reusing core/cjk-detect.ts.",
+  "createdAt": "2026-06-22T16:33:00.332Z",
+  "updatedAt": "2026-06-22T16:33:00.332Z",
+  "_hash": "e6b8b87200f74eba18ea0665b506a11d3e589a3ed8bb9dcfb7531e6ceb4a5ee6"
+}

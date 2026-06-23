@@ -1,0 +1,22 @@
+{
+  "task": "Bring the recovery-runner experiment harness CODE under version control in Orchestrate through the review gate, excluding the .jsonl run-record data.",
+  "outcome": "`git ls-files experiments/recovery-runner` lists the 32 code files plus README.md and NO .jsonl; running each task's reference-solution against its acceptance + hidden ground-truth prints ACCEPT PASS and GROUND-TRUTH PASS for all 4 tasks (eval-expr, median, parse-range, text-stats).",
+  "facts": [
+    "experiments/recovery-runner/ is currently untracked (git ls-files empty for it); experiments/ otherwise has 65 tracked files.",
+    "32 non-jsonl code files: 3 runners, per-task fixtures for 4 tasks, 2 generic injections.",
+    "Each task has reference-solution.mjs, acceptance.mjs (visible), ground-truth.mjs (hidden), and a passes-test-but-wrong injection payload.",
+    "The runner invokes the host CLI (claude -p) only when run end-to-end; fixture self-consistency does not need the LLM."
+  ],
+  "constraints": [
+    "Only add files under experiments/recovery-runner/ (code + README).",
+    "Do not track the 14 .jsonl run-records (they live in the paper repo).",
+    "Verification must not invoke the live LLM loop."
+  ],
+  "unknowns": [
+    "None blocking."
+  ],
+  "touchpoints": [
+    "experiments/recovery-runner/"
+  ],
+  "timestamp": "2026-06-22T18:33:36.216Z"
+}

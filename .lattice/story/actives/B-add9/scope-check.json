@@ -1,0 +1,59 @@
+{
+  "storyId": "B-add9",
+  "checkedAt": "2026-06-22T18:38:47.833Z",
+  "features": [
+    {
+      "feature": "Track the 3 runners: run-recovery.mjs, run-a2prime.mjs, run-ablation.mjs under experiments/recovery-runner/",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Track per-task fixtures for 4 tasks (eval-expr, median, parse-range, text-stats) with prompt.md, task.json, acceptance.mjs, ground-truth.mjs, reference-solution.mjs, and injection payload(s)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Track 2 generic file-op injections: injections/corrupt-output.mjs and injections/delete-output.mjs",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Add experiments/recovery-runner/README.md explaining the harness and pointing to the paper repo (Proofbound-AI/paper) for run-record data and results",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Exclude .jsonl run-records from version control (data lives in paper repo, not tracked in product repo)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Fixture self-consistency verification: each task reference-solution passes its own acceptance + hidden ground-truth checks for all 4 tasks, without invoking the live LLM loop",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 6,
+    "covered": 6,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "475771962b1b250cb9b208ae2e1e1cb4bcbe1bd15c2cf694f9f8a2f0aade3f81",
+  "openQuestions": []
+}

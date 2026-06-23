@@ -1,0 +1,21 @@
+{
+  "storyId": "B-7b6e",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/receipt-bundle.ts",
+    "lattice.config.json",
+    "CHANGELOG.md"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/gate-strength.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/gate-strength-contract-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-22T23:42:22.058Z",
+  "updatedAt": "2026-06-22T23:42:22.058Z"
+}

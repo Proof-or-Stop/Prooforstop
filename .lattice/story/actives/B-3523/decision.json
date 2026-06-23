@@ -1,0 +1,72 @@
+{
+  "principles": [
+    "Host-neutral Lattice workflow identity must not be branded as a specific agent namespace.",
+    "Package identity, runtime lookup, hooks, and verifiers must agree on one canonical scope.",
+    "Legacy names should be retired from live execution paths without rewriting unrelated historical records."
+  ],
+  "drivers": [
+    "Global lattice currently links through @lattice-agent/core, contradicting product naming.",
+    "pre-push still keys self-host detection on @koala-agent/core, silently skipping the intended gate.",
+    "Generated bootstrap and adapter checks can drift if only package.json is renamed."
+  ],
+  "options": [
+    {
+      "name": "A: Rename live scope to @lattice and update runtime/self-host checks consistently",
+      "pros": [
+        "Matches product identity and host-neutral design.",
+        "Fixes the real package/global link correctness issue.",
+        "Keeps current CLI command surface unchanged while removing misleading npm scope."
+      ],
+      "cons": [
+        "Requires coordinated package-lock, bootstrap, hook, and verifier updates.",
+        "Some historical docs will still mention old names, so acceptance needs an active-guidance boundary."
+      ]
+    },
+    {
+      "name": "B: Keep @lattice-agent and only relabel docs",
+      "pros": [
+        "Smallest code diff.",
+        "Avoids package-lock churn."
+      ],
+      "cons": [
+        "Leaves global package identity wrong.",
+        "Does not fix user-reported correctness issue.",
+        "Keeps Lattice conceptually tied to an agent namespace."
+      ]
+    },
+    {
+      "name": "C: Add @lattice aliases while retaining @lattice-agent as canonical",
+      "pros": [
+        "Could preserve backward compatibility with already generated installs."
+      ],
+      "cons": [
+        "Creates two live package identities.",
+        "Encourages agents/hosts to keep generating stale guidance.",
+        "Violates the boundary that workflow commands and package identity should be host-neutral."
+      ]
+    }
+  ],
+  "chosen": "A: Rename live scope to @lattice and update runtime/self-host checks consistently",
+  "rationale": "Choose A because the defect is a live canonical identity mismatch, not a documentation wording problem. A fixes the package manifests, runtime resolution, hooks, and verifiers as one consistent contract while avoiding arbitrary historical cleanup.",
+  "preMortem": [
+    {
+      "scenario": "Package manifests are renamed but generated bootstrap still searches @lattice-agent/core.",
+      "trigger": "A fresh init or worktree uses bin/lattice.js before local packages are built.",
+      "consequence": "CLI fails or falls back to stale global lattice despite package rename.",
+      "mitigation": "Update init-assets bootstrap candidates and verify-entrypoints assertions to @lattice/core."
+    },
+    {
+      "scenario": "Global npm link still points to the old @lattice-agent/core package after code lands.",
+      "trigger": "User runs bare lattice from another host or retired Orchestrate root.",
+      "consequence": "The visible CLI remains branded through @lattice-agent/core and may use stale handlers.",
+      "mitigation": "After build, unlink old global package and link packages/main as @lattice/core; verify command -v lattice and npm ls -g."
+    },
+    {
+      "scenario": "pre-push continues to skip self-host build+tsc because it checks the wrong package name.",
+      "trigger": "Developer pushes from proofbound after package rename.",
+      "consequence": "A type failure could bypass the local remote-write guard.",
+      "mitigation": "Change .githooks/pre-push self-host name to @lattice/core and verify script text plus relevant runtime verifiers."
+    }
+  ],
+  "timestamp": "2026-06-22T23:02:32.960Z"
+}

@@ -1,0 +1,92 @@
+{
+  "storyId": "B-9137",
+  "name": "cjk-english-check-at-story-create",
+  "title": "Reject non-English (CJK) author artifacts at story_create and background_set (shift-left)",
+  "description": "Workflow-friction fix #4: run the existing english-artifacts CJK predicate at AUTHORING time. Export a shared containsCJK from english-artifact-gate.ts and call it in story_create + background_set/append to refuse non-English author artifacts before persisting, with a field-named message — instead of only catching them at the REVIEW->TEST gate. Reuses the SAME predicate so early check and gate agree; em-dash not flagged.",
+  "type": "feature",
+  "phase": "DONE",
+  "priority": "high",
+  "keywords": [
+    "english-artifacts",
+    "CJK",
+    "story-create",
+    "shift-left",
+    "workflow-friction"
+  ],
+  "riskSignals": [
+    {
+      "category": "State Machine/Gate",
+      "matched": "TEST gate"
+    }
+  ],
+  "priorityElevatedFrom": "medium",
+  "createdAt": "2026-06-22T16:30:14.961Z",
+  "startedAt": "2026-06-22T16:30:14.961Z",
+  "endedAt": "2026-06-22T17:44:57.764Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-22T16:30:14.971Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "d45e3804-aa11-4468-a225-e4de0d1999ad",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-22T16:33:02.295Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "d45e3804-aa11-4468-a225-e4de0d1999ad",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-22T16:33:21.322Z",
+      "branch": "story/B-9137",
+      "user": "Harmonygo",
+      "sessionId": "d45e3804-aa11-4468-a225-e4de0d1999ad",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-22T16:36:20.600Z",
+      "branch": "story/B-9137",
+      "user": "Harmonygo",
+      "sessionId": "d45e3804-aa11-4468-a225-e4de0d1999ad",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-22T17:07:19.669Z",
+      "branch": "story/B-9137",
+      "user": "Harmonygo",
+      "sessionId": "d45e3804-aa11-4468-a225-e4de0d1999ad",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-22T17:21:35.706Z",
+      "branch": "story/B-9137",
+      "user": "Harmonygo",
+      "sessionId": "d45e3804-aa11-4468-a225-e4de0d1999ad",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-22T17:44:57.764Z",
+      "branch": "story/B-9137",
+      "user": "Harmonygo",
+      "sessionId": "d45e3804-aa11-4468-a225-e4de0d1999ad",
+      "agent": "main"
+    }
+  ],
+  "currentReviewRound": "2026-06-22T17:07:19.669Z"
+}

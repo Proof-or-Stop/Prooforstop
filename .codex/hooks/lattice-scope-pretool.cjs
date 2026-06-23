@@ -105,7 +105,7 @@ function findRepoRoot(start) {
 function resolveCli(root) {
   const jsCandidates = [
     path.join(root, 'packages', 'main', 'dist', 'cli.js'),
-    path.join(root, 'node_modules', '@lattice-agent', 'core', 'dist', 'cli.js'),
+    path.join(root, 'node_modules', '@lattice', 'core', 'dist', 'cli.js'),
     path.join(root, 'bin', 'lattice.js'),
   ];
   for (const candidate of jsCandidates) {

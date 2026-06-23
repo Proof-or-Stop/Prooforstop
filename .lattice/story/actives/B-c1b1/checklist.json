@@ -1,0 +1,56 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Identify all DONE-phase deterministic sync writes that can mutate final evidence bindings",
+      "context": "Map the current DONE path for version bump, dist rebuild, package metadata, main sync, story DONE metadata, done-required evidence, review quorum, delivery check, and material hash binding. The target is only real CLI-owned mutations after final evidence, not broad optimization.",
+      "relatedDocs": [
+        "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+        "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+        "docs/requirements/decisions/story-files-hash-material-drift.md",
+        "AGENTS.md#DONE-gate"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Move deterministic DONE sync before final evidence binding or make the final evidence refresh bounded and automatic",
+      "context": "Ensure final evidence is recorded after deterministic CLI sync has completed, or add a narrowly scoped one-pass refresh when stale is caused only by CLI-owned deterministic sync. Do not weaken material hash or storyFilesHash validation.",
+      "relatedDocs": [
+        "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+        "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+        "docs/requirements/decisions/story-files-hash-material-drift.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Add regression coverage for DONE evidence freshness after internal sync",
+      "context": "Create focused tests or smoke coverage that simulates or executes a DONE path with deterministic sync and proves final DONE evidence remains fresh without repeated manual stale refresh. Keep the test scoped to the observed correctness failure.",
+      "relatedDocs": [
+        "docs/dev/test-coverage.md",
+        "docs/requirements/decisions/testing-completeness.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Update diagnostics or runbook text only where behavior changes",
+      "context": "If the CLI gains a bounded auto-refresh or new DONE preflight step, update the user-facing hint or runbook text to describe the behavior. Do not add new host-specific or agent-specific workflow assumptions.",
+      "relatedDocs": [
+        "AGENTS.md",
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

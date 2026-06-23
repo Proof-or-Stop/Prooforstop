@@ -1,0 +1,23 @@
+{
+  "task": "Add a guard so quorum_submit refuses to re-submit a verdict quorum for a runId that already has a verdict at the same materialDigest, while still allowing a fresh quorum after the material changes.",
+  "outcome": "Running quorum_submit a second time for the same story at the same material prints `quorum_submit refuses: verdicts already exist for runId(s) B-xxxx-q-r1, B-xxxx-q-r2, B-xxxx-q-r3 at the current material; re-submitting would duplicate the quorum` and exits non-zero, writing zero new verdict files and zero new host_verdict events; after a real material change (new commit) the same call succeeds and emits a fresh rounds x 2 quorum.",
+  "facts": [
+    "quorum_submit generates deterministic runIds storyId-q-rN and emits verdicts via submitLocalVerdict in a loop (quorum-submit.ts).",
+    "listVerdicts(root,'local',storyId) returns all HostVerdicts (each has runId + materialDigest).",
+    "summarizeVerdicts already counts duplicateVerdicts but the handler never checks before emitting.",
+    "The existing smoke rounds-knob case re-submits overlapping runIds at the same material and so currently exercises the duplication."
+  ],
+  "constraints": [
+    "Only modify the quorum_submit handler + its smoke test.",
+    "No behavior change for the first/legitimate quorum submission.",
+    "Refusal must write no verdicts and no host_verdict process events."
+  ],
+  "unknowns": [
+    "None blocking — guard keys on (runId, materialDigest); placement is after materialDigest is computed."
+  ],
+  "touchpoints": [
+    "packages/main/src/handlers/quorum-submit.ts",
+    "packages/main/src/tasks/quorum-submit-smoke.ts"
+  ],
+  "timestamp": "2026-06-22T17:55:04.380Z"
+}

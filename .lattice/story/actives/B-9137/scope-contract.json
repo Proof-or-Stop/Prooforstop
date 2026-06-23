@@ -1,0 +1,39 @@
+{
+  "storyId": "B-9137",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/handlers/story-create.ts",
+    "packages/main/src/handlers/background.ts",
+    "packages/main/src/handlers/english-artifact-gate.ts",
+    "lattice.config.json"
+  ],
+  "allowedCreate": [
+    "packages/main/src/tasks/english-early-check-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/english-early-check-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [
+    {
+      "actor": "lattice-implementer",
+      "reason": "Register the new english-early-check-smoke.js in lattice.config.json validate.commands so the shift-left CJK smoke runs in the project validate suite — a one-line additive registration of this story's own smoke.",
+      "timestamp": "2026-06-22T16:46:42.176Z",
+      "paths": [
+        "lattice.config.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "lattice.config.json"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "644b5e6cd3ffe012518642655c57752a88bc38e5",
+      "materialHash": "03a0554e6e06b7fa79810086a60e5c04456916654e24ef8a2f69604fbce61a1f"
+    }
+  ],
+  "createdAt": "2026-06-22T16:46:41.919Z",
+  "updatedAt": "2026-06-22T16:46:42.176Z"
+}

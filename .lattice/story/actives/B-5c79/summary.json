@@ -1,0 +1,55 @@
+{
+  "storyId": "B-5c79",
+  "changes": "Added a (runId, materialDigest) duplicate guard to quorum_submit (packages/main/src/handlers/quorum-submit.ts): before the emit loop it reads listVerdicts and refuses if any planned runId (storyId-q-rN) already carries a verdict at the current materialDigest; restructured the smoke test with refuse + allow cases.",
+  "usage": "Run quorum_submit twice for the same story at the same material: the second call now refuses with a message naming the colliding runId(s) and writes no verdicts; after a real material change (new commit) a fresh quorum is allowed.",
+  "expectedOutcome": "A same-material re-submit prints quorum_submit refuses: verdicts already exist for runId(s) <ids> at the current material (<digest>) and exits non-zero, writing zero new verdict files and zero host_verdict events.",
+  "actualTranscript": "quorum-submit smoke 11/11 checks pass (incl. refuses-same-material + allows-after-material-change); live quorum_submit emitted B-5c79-q-r1 on first submission (guard correctly did not block); codex host-2 ran tsc --noEmit + smoke and returned VERDICT: SHIP; full npm test green.",
+  "outcomeDiff": "expected == actual: same-material re-submit refused with no side effects; fresh quorum allowed after material change; both observed in the smoke and in the live run.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Guard keys on (runId, materialDigest); a material revert to a byte-identical digest will still refuse (intended). No change to the deterministic runId scheme.",
+  "pitfalls": "The deterministic runId scheme (storyId-q-rN) means re-running at the same material always collides; to re-quorum, change the material (new commit) or use a fresh review round.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 141169
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 51722
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 378709
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 497793
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 675074
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 485149
+    }
+  },
+  "totalDurationMs": 2229628,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-22T18:27:58.170Z",
+  "updatedAt": "2026-06-22T18:27:58.170Z"
+}

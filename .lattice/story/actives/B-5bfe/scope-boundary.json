@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-5bfe",
+  "mode": "feature",
+  "allowed": [
+    "Modify experiments/recovery-runner/run-ablation.mjs (spend-matched A2-prime arm + A4 median spend computation)",
+    "Modify experiments/recovery-runner/run-recovery.mjs (tokensSpent + agentCallCount accounting + spend-budget truncation mode)"
+  ],
+  "excluded": [
+    "Do not run the live LLM loop in verification",
+    "No changes to other recovery-runner files or task fixtures",
+    "No product code (core/, bin/, packages/)",
+    "Paper wording correction is separate (different repo)"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Operator-confirmed (chose spend-match per the locked pre-registration): implement spend-matched A2-prime + token/wall-clock/agentCallCount accounting.",
+  "createdAt": "2026-06-23T01:28:34.263Z",
+  "updatedAt": "2026-06-23T01:28:34.263Z",
+  "_hash": "077a177e2085ece8e2482193b7874639b04d7de688fb6ade0377f886026a1d1c"
+}

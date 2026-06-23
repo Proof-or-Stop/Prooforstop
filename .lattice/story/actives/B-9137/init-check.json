@@ -1,0 +1,32 @@
+{
+  "storyId": "B-9137",
+  "checkedAt": "2026-06-22T16:31:53.627Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "id": "INIT-001",
+      "severity": "low",
+      "desc": "background.md Conversational Texture uses \"host-B\" jargon without a standalone definition; only a parenthetical \"(codex)\" is provided. A new reader may not know host-A=Claude / host-B=Codex. Not a blocker but marginally reduces standalone readability."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-22T16:31:32.079Z",
+      "issues": []
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-06-22T16:31:53.627Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "low",
+          "desc": "background.md Conversational Texture uses \"host-B\" jargon without a standalone definition; only a parenthetical \"(codex)\" is provided. A new reader may not know host-A=Claude / host-B=Codex. Not a blocker but marginally reduces standalone readability."
+        }
+      ]
+    }
+  ],
+  "_hash": "9a7b61b403f861e147326ada3cdd4a8bed562c475d7934557b0705fa489d0d74"
+}

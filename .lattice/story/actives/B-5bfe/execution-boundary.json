@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-5bfe",
+  "allowedCommands": [
+    "git add",
+    "node"
+  ],
+  "allowedTools": [
+    "Bash",
+    "Edit",
+    "node",
+    "Read",
+    "Write"
+  ],
+  "allowedPaths": [
+    "experiments/recovery-runner/"
+  ],
+  "excludedCommands": [
+    "claude -p",
+    "git push",
+    "git reset --hard",
+    "rm -rf"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    "bin/",
+    "core/",
+    "packages/"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Edit run-recovery.mjs + run-ablation.mjs; verify via no-LLM unit checks (token/wallclock capture, budget truncation, median fn); do not run the live loop.",
+  "createdAt": "2026-06-23T01:28:35.019Z",
+  "updatedAt": "2026-06-23T01:28:35.019Z",
+  "_hash": "bef35ff47e4fa4af7bcb665872a91b52899cfdd9d5575853dee8ef28de0301eb"
+}

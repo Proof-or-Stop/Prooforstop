@@ -1,0 +1,84 @@
+{
+  "storyId": "B-5c79",
+  "name": "quorum-submit-dup-guard",
+  "title": "quorum_submit refuses duplicate verdict submission for an existing runId",
+  "description": "quorum_submit re-emits verdicts on every call under deterministic runIds (storyId-q-rN), so a second invocation at the same material silently appends duplicate verdicts to a runId that already carries a passing quorum. Add a guard that refuses the duplicate while still allowing a fresh quorum after the material changes.",
+  "type": "bug",
+  "phase": "DONE",
+  "priority": "medium",
+  "keywords": [
+    "quorum",
+    "verdict",
+    "duplicate",
+    "review-escalation"
+  ],
+  "createdAt": "2026-06-22T17:50:48.542Z",
+  "startedAt": "2026-06-22T17:50:48.542Z",
+  "endedAt": "2026-06-22T18:27:59.932Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-22T17:50:48.554Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "e8aca935-deaf-4f5d-9f33-b3aff7bb35fb",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-22T17:53:09.723Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "e8aca935-deaf-4f5d-9f33-b3aff7bb35fb",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-22T17:54:01.445Z",
+      "branch": "story/B-5c79",
+      "user": "Harmonygo",
+      "sessionId": "e8aca935-deaf-4f5d-9f33-b3aff7bb35fb",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-22T18:00:20.154Z",
+      "branch": "story/B-5c79",
+      "user": "Harmonygo",
+      "sessionId": "e8aca935-deaf-4f5d-9f33-b3aff7bb35fb",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-22T18:08:37.947Z",
+      "branch": "story/B-5c79",
+      "user": "Harmonygo",
+      "sessionId": "e8aca935-deaf-4f5d-9f33-b3aff7bb35fb",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-22T18:19:53.021Z",
+      "branch": "story/B-5c79",
+      "user": "Harmonygo",
+      "sessionId": "e8aca935-deaf-4f5d-9f33-b3aff7bb35fb",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-22T18:27:59.932Z",
+      "branch": "story/B-5c79",
+      "user": "Harmonygo",
+      "sessionId": "e8aca935-deaf-4f5d-9f33-b3aff7bb35fb",
+      "agent": "main"
+    }
+  ],
+  "currentReviewRound": "2026-06-22T18:08:37.947Z"
+}
