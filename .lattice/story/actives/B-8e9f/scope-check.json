@@ -1,0 +1,122 @@
+{
+  "storyId": "B-8e9f",
+  "checkedAt": "2026-06-23T23:20:03.813Z",
+  "features": [
+    {
+      "feature": "B4 interruptAt fires on turn 1 (not turn 2) returning truncate so the single-shot agent starts with empty context",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "B4 self-check stubs updated to exercise and assert distinct outcomes (RECOVERED vs AMPLIFIED) under turn-1 truncate",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "B4 classify remains disk-grounded on result.txt (no change to classify logic)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "B5 interruptAt fires on turn 1 (not turn 2) returning kill so the single-shot agent starts with the token-less restart marker",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "B5 self-check stubs updated to exercise and assert distinct outcomes (RECOVERED vs AMPLIFIED) under turn-1 kill",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "B5 classify remains disk-grounded on result.txt (no change to classify logic)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "B10 classify redesigned to disk-grounded: false-SOLVED marker on disk yields AMPLIFIED else SAFE_STOP (removes shipped-based dependency on always-true shipped flag)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "B10 self-check stubs updated to match the new disk-grounded classify",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Hermetic --self-check passes green with 0 claude/network/spend after all three scenario changes",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "CHANGELOG.md Experiments section updated to document the B4/B5/B10 harness fix",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Scope bounded to live-loop-harness.mjs and CHANGELOG.md only (no changes to real-loop-agent.mjs, probe-contract.mjs, run-recovery, run-ablation, run-a2prime, or stateless probes)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Pre-registered experiment protocol §3: B4/B5 are loop/checkpoint-dependent scenarios (not applicable to A1); injection occurs at a fixed logical point per scenario",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "Pre-registered experiment protocol §3: B10 repeated-no-progress is loop/checkpoint-dependent; its classification must not produce a vacuous outcome that misrepresents recovery behavior",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "Pre-registered experiment protocol §4.2: adjudicated outcomes must be deterministic and grounded in machine-checkable signals (not agent self-report); classify uses real disk artifacts",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "Pre-registered experiment protocol build gate: the S3 harness must implement §3 applicability + fixed injection point exactly; any deviation amends the pre-registration first",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    }
+  ],
+  "summary": {
+    "total": 15,
+    "covered": 15,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "f0d33b58484f3704796f169e72cc4df2493534445863d0d88e3738b9f214ed5c",
+  "openQuestions": []
+}
