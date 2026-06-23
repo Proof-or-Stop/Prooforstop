@@ -180,6 +180,23 @@
       ],
       "signatureTag": "missing|mjs|verificationevidence-entries-stale",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-d43f:F-010",
+      "desc": "[codex-host2 r2] B5 kill not load-bearing on the OUTCOME: checkpointContext equals the original token-bearing prompt, so even if the kill hook were missing the token stays in context and the result is still RECOVERED (only transcript.killed catches it). FIX: kill must genuinely lose in-context state — checkpointContext is a token-LESS restart marker; the RECOVERED agent re-reads task.txt from the workspace, the AMPLIFIED agent relies on the (now lost) context, so the kill firing flips the outcome.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex-host2",
+      "createdAt": "2026-06-23T19:49:13.117Z",
+      "reviewRound": "2026-06-23T19:41:45.531Z",
+      "_hash": "4f25ce042b91dc36355364d7ca6496bb194f8e454ca69a53b4054b14fe05c5c6",
+      "files": [
+        "experiments/injection-probes/live-loop-harness.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|codex-host2-kill",
+      "signatureTagSource": "auto"
     }
   ]
 }
