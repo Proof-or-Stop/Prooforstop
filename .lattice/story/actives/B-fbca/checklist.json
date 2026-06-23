@@ -907,14 +907,14 @@
         },
         {
           "intentRef": "CHK-007:edge:1",
-          "kind": "manual_transcript",
-          "command": "echo koala-test-token > packages/main/src/__residue_inject_test.ts && node scripts/verify-lattice-residue.mjs; rm -f packages/main/src/__residue_inject_test.ts",
+          "kind": "logic_test",
+          "command": "node scripts/verify-residue-inject-repro.mjs",
           "result": "pass",
-          "note": "Injected koala token into packages/main/src, gate exited 1 FAIL detecting it; reverted. Proves zero-tolerance gate catches new koala introductions",
-          "headHash": "7bd14394ea83722f50e8575f2e98dcc42dc28f0f",
-          "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
-          "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
-          "timestamp": "2026-06-23T21:01:52.259Z"
+          "note": "Corrected (F-001): the residue gate scans git ls-files (TRACKED only), so the old 'echo untracked file then scan' repro could never fail. This script appends a koala token to packages/main/src/index.ts, git add's it (now in ls-files scope), runs verify-lattice-residue.mjs and asserts it EXITS 1 (FAIL caught the tracked inject), then unconditionally reverts (git reset + checkout --) in a finally block and re-asserts the gate returns to EXIT 0 (clean tree). Ran: PASS, exit 0.",
+          "headHash": "ca1fb6844e2dcdb75616489cd8ec47f444df52c1",
+          "materialHash": "e2b4e4183d28b473c9c14e978135cd3fd07ead1e6b9bd75cc2641e9ee301d829",
+          "storyFilesHash": "966ff78c457bd055268f4a6df7823be82d2b30e0b83d4317dc10735e269f22f3",
+          "timestamp": "2026-06-23T21:38:56.385Z"
         },
         {
           "intentRef": "CHK-007:edge:2",
