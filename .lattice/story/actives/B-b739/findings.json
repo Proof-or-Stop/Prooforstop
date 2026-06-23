@@ -193,6 +193,24 @@
       ],
       "signatureTag": "missing|mjs|quality-cleanup-real",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-b739:F-010",
+      "desc": "doc-code-drift: real-loop-agent.mjs file-header comment (line 3) declares agent({ws,context,turn,signal}) but the actual exported function at line 39 destructures only {ws,context,signal} — turn is absent from the real implementation signature",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-23T20:38:54.642Z",
+      "reviewRound": "2026-06-23T20:36:26.846Z",
+      "reviewRunId": "B-b739:RR-007",
+      "_hash": "f0ae1924c48009cab3911593279292355430efbebb8368a3c124394998ca9219",
+      "files": [
+        "experiments/injection-probes/real-loop-agent.mjs"
+      ],
+      "signatureTag": "doc-code-drift|mjs|code-drift-real",
+      "signatureTagSource": "auto"
     }
   ]
 }
