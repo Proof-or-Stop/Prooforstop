@@ -283,6 +283,17 @@
           "materialHash": "71fd662a6cc4efe4c3dde9ac6c352f3d722e22b76e080754e3bdfe8066ba89fd",
           "storyFilesHash": "64ca7bcb634a24f4d3189c4ccc36f942cb702b845ce2072ba08f8dc6ae82cdce",
           "timestamp": "2026-06-23T14:05:31.462Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "logic_test",
+          "command": "node /tmp/b837-env-check.mjs",
+          "result": "pass",
+          "note": "Called isUsageLedgerEnabled({KOALA_USAGE_LEDGER:'0'}); returned true (default-ON), NOT false — stale KOALA_ cannot disable the ledger.",
+          "headHash": "af4728827917cc9c938047cdb0802b1441c1d7a1",
+          "materialHash": "71fd662a6cc4efe4c3dde9ac6c352f3d722e22b76e080754e3bdfe8066ba89fd",
+          "storyFilesHash": "64ca7bcb634a24f4d3189c4ccc36f942cb702b845ce2072ba08f8dc6ae82cdce",
+          "timestamp": "2026-06-23T14:05:32.213Z"
         }
       ]
     },
