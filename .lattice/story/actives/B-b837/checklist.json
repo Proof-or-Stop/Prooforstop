@@ -261,6 +261,17 @@
           "materialHash": "71fd662a6cc4efe4c3dde9ac6c352f3d722e22b76e080754e3bdfe8066ba89fd",
           "storyFilesHash": "64ca7bcb634a24f4d3189c4ccc36f942cb702b845ce2072ba08f8dc6ae82cdce",
           "timestamp": "2026-06-23T14:05:29.997Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "logic_test",
+          "command": "node /tmp/b837-env-check.mjs",
+          "result": "pass",
+          "note": "Called isUsageLedgerEnabled({}); returned true (default-ON) — default-ON behavior survives KOALA_ alias removal.",
+          "headHash": "612417f12e1c7eb840f219918f05d89fc8b54cb7",
+          "materialHash": "71fd662a6cc4efe4c3dde9ac6c352f3d722e22b76e080754e3bdfe8066ba89fd",
+          "storyFilesHash": "64ca7bcb634a24f4d3189c4ccc36f942cb702b845ce2072ba08f8dc6ae82cdce",
+          "timestamp": "2026-06-23T14:05:30.709Z"
         }
       ]
     },
