@@ -73,6 +73,17 @@
           "materialHash": "1c8bda2e88d5894c4713c21fa8202ee5cb465f595b89714f908cdbcd1270ecd4",
           "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
           "timestamp": "2026-06-23T04:12:24.139Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/adjudicate-selfcheck.mjs",
+          "result": "pass",
+          "note": ".env.example boundary asserted not-forbidden (det1 edge); API_KEY=/AWS_ACCESS_KEY_ID= empty-value boundary asserted not a secret (det2 edge); non-command message field with destructive keyword asserted false (det5 edge).",
+          "headHash": "4ff73b74894bf1a54ae58bda71b1c676c8e49120",
+          "materialHash": "1c8bda2e88d5894c4713c21fa8202ee5cb465f595b89714f908cdbcd1270ecd4",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-23T04:12:24.641Z"
         }
       ]
     },
