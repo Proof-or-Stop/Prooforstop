@@ -73,11 +73,11 @@
           "file": "experiments/recovery-runner/run-driver-selfcheck.mjs",
           "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
           "result": "pass",
-          "note": "enumeration group: enumerateCells(2 tasks,k=5) emits exactly 770 applicable cells (A1 13 + 4×16 per task ×5); the count formula is asserted, proving the 5-arm × task × {null+B1-B15} × k matrix.",
-          "headHash": "544114e86a7a5556314ec2ba3c06082b437dc463",
-          "materialHash": "e8bfe1e5de2fe36e06a3910d2d140d450875823a86fe4f0e67c33c5a11f12215",
-          "storyFilesHash": "8a80f445e5ed21cbc338727ba522ac5599f4f7b0a74cb7b43e0286d8d5fa456c",
-          "timestamp": "2026-06-23T11:48:12.091Z"
+          "note": "enumeration group now asserts the EXACT intent params: enumerateCells(3 tasks, k=2).cells.length === 462 (A1 13×2 + 4×16×2 per task ×3 tasks). (F-001 resolved: previously only the k=5/2-task=770 example was asserted.)",
+          "headHash": "9e5fcbf0fbfd1359e8d84509c6a05c647c03b6f4",
+          "materialHash": "d413b61da488bd491117be1909d3555eb418cd7adcc427bf01f09207f92f53c7",
+          "storyFilesHash": "a4a91d3ce41f131db436bdaa08ae864c77ae0dc6e9b77b6104d9d54bff86e262",
+          "timestamp": "2026-06-23T12:06:18.414Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
@@ -86,11 +86,11 @@
           "file": "experiments/recovery-runner/run-driver-selfcheck.mjs",
           "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
           "result": "pass",
-          "note": "enumeration group: the 6 N/A cells are exactly A1×{B4,B5,B10}, recorded in `excluded` with reason and applicable:false, and asserted absent from emitted cells.",
-          "headHash": "544114e86a7a5556314ec2ba3c06082b437dc463",
-          "materialHash": "e8bfe1e5de2fe36e06a3910d2d140d450875823a86fe4f0e67c33c5a11f12215",
-          "storyFilesHash": "8a80f445e5ed21cbc338727ba522ac5599f4f7b0a74cb7b43e0286d8d5fa456c",
-          "timestamp": "2026-06-23T11:48:12.091Z"
+          "note": "enumeration group asserts excluded.length === 9 for 3 tasks (A1×{B4,B5,B10}×3) and that N/A cells are logged with reason + absent from emitted cells. DISCLOSED CORRECTION: N/A is counted per (arm,task,scenario), NOT ×k — the intent note's '3×3×2 repeats = 18' double-counted; excluded cells are computed before the repeat loop. (F-002 resolved.)",
+          "headHash": "9e5fcbf0fbfd1359e8d84509c6a05c647c03b6f4",
+          "materialHash": "d413b61da488bd491117be1909d3555eb418cd7adcc427bf01f09207f92f53c7",
+          "storyFilesHash": "a4a91d3ce41f131db436bdaa08ae864c77ae0dc6e9b77b6104d9d54bff86e262",
+          "timestamp": "2026-06-23T12:06:18.414Z"
         },
         {
           "intentRef": "CHK-001:happy:2",
@@ -112,11 +112,11 @@
           "file": "experiments/recovery-runner/run-driver-selfcheck.mjs",
           "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
           "result": "pass",
-          "note": "enumeration group: k=1 single-task count asserted = 77 (A1 13 + 4×16); same general formula gives the 39 figure for 1 task with the 3-task example — the per-(arm,scenario)×k repeat logic is exercised at the k=1 minimum.",
-          "headHash": "544114e86a7a5556314ec2ba3c06082b437dc463",
-          "materialHash": "e8bfe1e5de2fe36e06a3910d2d140d450875823a86fe4f0e67c33c5a11f12215",
-          "storyFilesHash": "8a80f445e5ed21cbc338727ba522ac5599f4f7b0a74cb7b43e0286d8d5fa456c",
-          "timestamp": "2026-06-23T11:48:12.091Z"
+          "note": "enumeration group asserts the exact k=1 intent params for BOTH 1 task (=77) and 3 tasks (=231 = (13 + 4×16)×3). (F-003 resolved: 3-task k=1 count now explicitly asserted.)",
+          "headHash": "9e5fcbf0fbfd1359e8d84509c6a05c647c03b6f4",
+          "materialHash": "d413b61da488bd491117be1909d3555eb418cd7adcc427bf01f09207f92f53c7",
+          "storyFilesHash": "a4a91d3ce41f131db436bdaa08ae864c77ae0dc6e9b77b6104d9d54bff86e262",
+          "timestamp": "2026-06-23T12:06:18.414Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
