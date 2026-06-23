@@ -143,6 +143,15 @@
       "reviewRound": "2026-06-23T19:40:12.599Z",
       "reviewRunId": "B-7036:RR-017",
       "_hash": "7d89eae3026757a5f9d4300c79782d1488f2862461aed018d236cb683c648d05"
+    },
+    {
+      "id": "B-7036:RP-017",
+      "agent": "lattice-review-quality",
+      "note": "ROUND 5 quality review (RR-021): self-check 71/71 passed. F-011 (§5 completion denominator bias) verified fixed by a24fe81ce: completionRates uses matchedCellKeys(nullPred) so both arms are scored over identical matched null cells; analyze-selfcheck F-011 assertions pass. Dead-code check: no unused imports (fileURLToPath + pathToFileURL both used; ABLATION_SCENARIO, TERMINAL_STOP_TYPES all referenced). Empty catch at analyze.mjs:74 is intentional (JSONL malformed-line skip with tracked skipped counter, not a silent swallow). No new findings found. PRE-EXISTING OPEN F-012 (HIGH, RR-020) is NOT resolved by a24fe81ce: exploratory perScenario lines 484-487 call perArmRate without cellKeys so a one-arm-only (task,scenario) cell still enters the per-scenario z-test (probe: A4 n=2 vs A2prime n=1 for scenario B1 when t2 has A4-only data); emitGlmmR d6/d5 subsets are also unmatched. F-012 is a pre-existing registered finding — no new finding_add required. VERDICT: 0 new findings; F-012 remains open and blocks DONE.",
+      "createdAt": "2026-06-23T19:44:30.551Z",
+      "reviewRound": "2026-06-23T19:40:12.599Z",
+      "reviewRunId": "B-7036:RR-021",
+      "_hash": "5e487f397d51bca289b840af35c5213dbba4d5d8376e94bab778140ce2c1e800"
     }
   ]
 }
