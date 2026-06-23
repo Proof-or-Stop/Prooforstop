@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-8e9f",
+  "allowedCommands": [
+    "git *",
+    "node --check experiments/injection-probes/live-loop-harness.mjs",
+    "node bin/lattice.js *",
+    "node experiments/injection-probes/live-loop-harness.mjs --self-check"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "CHANGELOG.md",
+    "experiments/injection-probes/live-loop-harness.mjs"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek-operator",
+  "confirmationNote": "Harness-only correctness fix: edit live-loop-harness.mjs (B4/B5/B10 scenarios + their self-check stubs) + CHANGELOG. Verify via the hermetic --self-check (0 spend). No network, no real claude calls during DEV.",
+  "createdAt": "2026-06-23T23:15:18.200Z",
+  "updatedAt": "2026-06-23T23:15:18.200Z",
+  "_hash": "f10ad24fe39226e13b1ae4c458e8becd63132606d9a80782c2a8ac5142f07638"
+}

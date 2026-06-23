@@ -1,0 +1,52 @@
+{
+  "storyId": "B-8e9f",
+  "checkedAt": "2026-06-23T23:14:11.814Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "id": "INIT-001",
+      "severity": "medium",
+      "desc": "background.md Key Insight and Tradeoff sections use B4, B5, B10 as first-class terms (\"B4 and B5 inject on turn 2\", \"B10 classifies purely on the always-true shipped flag\", \"SAFE_STOP becomes unreachable for B4/B5\") without defining them anywhere in the background text. The expansion (context truncation / process kill / no-progress) appears only in index.json description, not in background.md, breaking standalone readability."
+    },
+    {
+      "id": "INIT-002",
+      "severity": "medium",
+      "desc": "background.md Tradeoff section uses outcome labels SAFE_STOP, RECOVERED, and AMPLIFIED (\"SAFE_STOP becomes unreachable for B4/B5\", \"RECOVERED-vs-AMPLIFIED is the key distinction\") without a first-occurrence definition or inferrable context within background.md. A new reader has no textual anchor for what these three outcome values mean."
+    },
+    {
+      "id": "INIT-003",
+      "severity": "low",
+      "desc": "background.md Trigger Event references \"B-b739 (merge 663ad6d)\" without a one-sentence explanation of what B-b739 contributed. Per standalone-readability requirements, a cross-story reference should have minimal context on first appearance; here the reader cannot determine whether B-b739 was the harness itself, a prior fix, or something else."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-23T23:13:04.310Z",
+      "issues": []
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-06-23T23:14:11.814Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "medium",
+          "desc": "background.md Key Insight and Tradeoff sections use B4, B5, B10 as first-class terms (\"B4 and B5 inject on turn 2\", \"B10 classifies purely on the always-true shipped flag\", \"SAFE_STOP becomes unreachable for B4/B5\") without defining them anywhere in the background text. The expansion (context truncation / process kill / no-progress) appears only in index.json description, not in background.md, breaking standalone readability."
+        },
+        {
+          "id": "INIT-002",
+          "severity": "medium",
+          "desc": "background.md Tradeoff section uses outcome labels SAFE_STOP, RECOVERED, and AMPLIFIED (\"SAFE_STOP becomes unreachable for B4/B5\", \"RECOVERED-vs-AMPLIFIED is the key distinction\") without a first-occurrence definition or inferrable context within background.md. A new reader has no textual anchor for what these three outcome values mean."
+        },
+        {
+          "id": "INIT-003",
+          "severity": "low",
+          "desc": "background.md Trigger Event references \"B-b739 (merge 663ad6d)\" without a one-sentence explanation of what B-b739 contributed. Per standalone-readability requirements, a cross-story reference should have minimal context on first appearance; here the reader cannot determine whether B-b739 was the harness itself, a prior fix, or something else."
+        }
+      ]
+    }
+  ],
+  "_hash": "2a085ea7bcfe5a079e6107a1fc2b298c93dadbf50ecd9fd4db12beaa14c568f9"
+}
