@@ -1,4 +1,4 @@
-export const CAPABILITY_SCHEMA_VERSION = 'koala.capability_list.v1' as const;
+export const CAPABILITY_SCHEMA_VERSION = 'lattice.capability_list.v1' as const;
 
 export const CAPABILITY_CATEGORIES = [
   'file-edit',
@@ -69,7 +69,7 @@ export interface CapabilityList {
 }
 
 export interface CapabilityProbe {
-  schemaVersion: 'koala.capability_probe.v1';
+  schemaVersion: 'lattice.capability_probe.v1';
   host: string;
   requestedHost: string;
   matchedFallback: boolean;
@@ -501,7 +501,7 @@ export function buildCapabilityProbe(host: string): CapabilityProbe {
   }
 
   return {
-    schemaVersion: 'koala.capability_probe.v1',
+    schemaVersion: 'lattice.capability_probe.v1',
     host: profile.id,
     requestedHost,
     matchedFallback: profile.id !== normalized,

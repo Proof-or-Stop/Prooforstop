@@ -364,25 +364,25 @@ try {
     rmSync(latticeCanonicalRoot, { recursive: true, force: true });
   }
 
-  // Lattice-only config: koala.config.json is no longer an active fallback
+  // Lattice-only config: a non-canonical config file is not an active fallback
   // when lattice.config.json is absent.
   const legacyOnlyRoot = mkdtempSync(join(tmpdir(), 'lattice-validation-legacy-only-'));
   try {
-    writeFileSync(join(legacyOnlyRoot, 'koala.config.json'), JSON.stringify({
+    writeFileSync(join(legacyOnlyRoot, 'other.config.json'), JSON.stringify({
       validate: {
         commands: [
-          { label: 'legacy koala gate', command: 'node', args: ['-e', 'process.stdout.write("legacy-ok")'] },
+          { label: 'legacy gate', command: 'node', args: ['-e', 'process.stdout.write("legacy-ok")'] },
         ],
       },
     }));
     resetConfigCache();
     const legacyDiscovered = configuredValidationCommands(legacyOnlyRoot);
-    assert.equal(legacyDiscovered.length, 0, 'koala.config.json validate.commands must not load as an active config fallback');
+    assert.equal(legacyDiscovered.length, 0, 'a non-canonical config file validate.commands must not load as an active config fallback');
   } finally {
     rmSync(legacyOnlyRoot, { recursive: true, force: true });
   }
 
-  // B-38d6 CHK-002: lattice.config.json and koala.config.json both present →
+  // B-38d6 CHK-002: lattice.config.json and a non-canonical config both present →
   // lattice.config.json wins (canonical) and diagnostic identifies the winner.
   const conflictConfigRoot = mkdtempSync(join(tmpdir(), 'lattice-validation-config-conflict-'));
   try {
@@ -393,17 +393,17 @@ try {
         ],
       },
     }));
-    writeFileSync(join(conflictConfigRoot, 'koala.config.json'), JSON.stringify({
+    writeFileSync(join(conflictConfigRoot, 'other.config.json'), JSON.stringify({
       validate: {
         commands: [
-          { label: 'koala loses gate', command: 'node', args: ['-e', 'process.stdout.write("koala-loses")'] },
+          { label: 'other loses gate', command: 'node', args: ['-e', 'process.stdout.write("other-loses")'] },
         ],
       },
     }));
     resetConfigCache();
     const conflictDiscovered = configuredValidationCommands(conflictConfigRoot);
     assert.equal(conflictDiscovered.length, 1, 'only the canonical lattice.config.json entry must be loaded');
-    assert.equal(conflictDiscovered[0].label, 'lattice wins gate', 'lattice.config.json must win over koala.config.json');
+    assert.equal(conflictDiscovered[0].label, 'lattice wins gate', 'lattice.config.json must win over a non-canonical config');
     const conflictJson = await createVerifierHandlers({
       root: conflictConfigRoot,
       scanRoot: conflictConfigRoot,
@@ -412,7 +412,7 @@ try {
     }).validate({ json: true });
     const conflictResult = JSON.parse(conflictJson);
     assert.match(conflictResult.commands[0].output, /lattice-wins/);
-    assert.doesNotMatch(conflictResult.commands[0].output, /koala-loses/, 'koala.config.json gate must NOT be executed when lattice.config.json is present');
+    assert.doesNotMatch(conflictResult.commands[0].output, /other-loses/, 'a non-canonical config gate must NOT be executed when lattice.config.json is present');
   } finally {
     rmSync(conflictConfigRoot, { recursive: true, force: true });
   }

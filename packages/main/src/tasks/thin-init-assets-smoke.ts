@@ -13,7 +13,7 @@
  * - [CHK-003] Assert global codex verify/doctor passes in a global-thin project.
  * - [CHK-004] Assert pre-existing user-owned legacy assets survive init (no deletion).
  * - [B-4ee0] Global-thin: .lattice/Lattice.md, .lattice/lattice.json, AGENTS.md are canonical defaults.
- * - [B-38d6] Fresh init writes lattice.config.json as canonical config; koala.config.json is no longer an active fallback.
+ * - [B-38d6] Fresh init writes lattice.config.json as the canonical and only active project config.
  */
 
 import assert from 'node:assert/strict';
@@ -85,7 +85,7 @@ function assertGitignoreCoversRegistry(root: string): void {
 
 // ─── Test 1: Fresh default (global-thin) ─────────────────────────────────────
 // No --profile or --asset-mode flags: should produce .lattice/ dir with minimal assets.
-// Forbidden assets: bin/lattice.js, bin/lattice-codex.js, .lattice-codex/README.md, .lattice-codex/lattice.json, KOALA.md.
+// Forbidden assets: bin/lattice.js, bin/lattice-codex.js, .lattice-codex/README.md, .lattice-codex/lattice.json, LATTICE.md.
 const globalThinRoot = makeRoot('global-thin-default');
 try {
   const output = runInit(globalThinRoot, []);

@@ -13,7 +13,7 @@ export function loadLabProjectConfig(root: string): LabProjectConfig {
     fixturesDir: 'tests/fixtures',
     worktreeDir: '.worktrees',
   };
-  const configPath = join(root, 'koala.config.json');
+  const configPath = join(root, 'lattice.config.json');
   if (!existsSync(configPath)) return defaults;
   try {
     const parsed = JSON.parse(readFileSync(configPath, 'utf8')) as Partial<LabProjectConfig>;
