@@ -6,6 +6,7 @@
       ".lattice/story/actives/B-c1b1/checklist.json",
       ".lattice/story/actives/B-c1b1/decision.json",
       ".lattice/story/actives/B-c1b1/done-required-evidence.json",
+      ".lattice/story/actives/B-c1b1/evidence/delivery-context-pack.json",
       ".lattice/story/actives/B-c1b1/evidence/live-smoke-transcript.json",
       ".lattice/story/actives/B-c1b1/evidence/transcript-diff.md",
       ".lattice/story/actives/B-c1b1/findings.json",
@@ -27,7 +28,7 @@
       "packages/main/src/tasks/done-prepare-smoke.ts",
       "packages/main/src/tasks/lifecycle-check-smoke.ts"
     ],
-    "summary": " .lattice/story/actives/B-c1b1/checklist.json       | 344 +++++++++-\n .lattice/story/actives/B-c1b1/decision.json        |  71 ++\n .../actives/B-c1b1/done-required-evidence.json     |  56 ++\n .../B-c1b1/evidence/live-smoke-transcript.json     |  20 +\n .../actives/B-c1b1/evidence/transcript-diff.md     |  34 +\n .lattice/story/actives/B-c1b1/findings.json        | 101 +++\n .lattice/story/actives/B-c1b1/index.json           |  77 ++-\n .lattice/story/actives/B-c1b1/plan.md              |  13 +\n .lattice/story/actives/B-c1b1/process-events.jsonl |  18 +\n .lattice/story/actives/B-c1b1/process-metrics.json | 359 ++++++++++\n .lattice/story/actives/B-c1b1/review-passes.json   |  67 ++\n .lattice/story/actives/B-c1b1/review-runs.json     | 726 +++++++++++++++++++++\n .lattice/story/actives/B-c1b1/review.json          | 175 +++++\n .lattice/story/actives/B-c1b1/scope-check.json     |  45 ++\n .lattice/story/actives/B-c1b1/scope-contract.json  |  22 +\n .lattice/story/actives/B-c1b1/test-evidence.json   | 257 ++++++++\n .lattice/story/actives/B-c1b1/understanding.json   |  26 +\n packages/main/src/core/done-oracle.ts              |  30 +-\n packages/main/src/core/lifecycle-readiness.ts      |   7 +-\n packages/main/src/handlers/done-closure.ts         |  17 +-\n packages/main/src/handlers/done-prepare.ts         |  52 +-\n packages/main/src/tasks/done-prepare-smoke.ts      | 126 +++-\n packages/main/src/tasks/lifecycle-check-smoke.ts   |  18 +-\n 23 files changed, 2622 insertions(+), 39 deletions(-)"
+    "summary": " .lattice/story/actives/B-c1b1/checklist.json       | 344 +++++++++-\n .lattice/story/actives/B-c1b1/decision.json        |  71 ++\n .../actives/B-c1b1/done-required-evidence.json     |  56 ++\n .../B-c1b1/evidence/delivery-context-pack.json     |  89 +++\n .../B-c1b1/evidence/live-smoke-transcript.json     |  20 +\n .../actives/B-c1b1/evidence/transcript-diff.md     |  34 +\n .lattice/story/actives/B-c1b1/findings.json        | 101 +++\n .lattice/story/actives/B-c1b1/index.json           |  77 ++-\n .lattice/story/actives/B-c1b1/plan.md              |  13 +\n .lattice/story/actives/B-c1b1/process-events.jsonl |  20 +\n .lattice/story/actives/B-c1b1/process-metrics.json | 359 ++++++++++\n .lattice/story/actives/B-c1b1/review-passes.json   |  67 ++\n .lattice/story/actives/B-c1b1/review-runs.json     | 726 +++++++++++++++++++++\n .lattice/story/actives/B-c1b1/review.json          | 175 +++++\n .lattice/story/actives/B-c1b1/scope-check.json     |  45 ++\n .lattice/story/actives/B-c1b1/scope-contract.json  |  22 +\n .lattice/story/actives/B-c1b1/test-evidence.json   | 257 ++++++++\n .lattice/story/actives/B-c1b1/understanding.json   |  26 +\n packages/main/src/core/done-oracle.ts              |  30 +-\n packages/main/src/core/lifecycle-readiness.ts      |   7 +-\n packages/main/src/handlers/done-closure.ts         |  17 +-\n packages/main/src/handlers/done-prepare.ts         |  52 +-\n packages/main/src/tasks/done-prepare-smoke.ts      | 126 +++-\n packages/main/src/tasks/lifecycle-check-smoke.ts   |  18 +-\n 24 files changed, 2713 insertions(+), 39 deletions(-)"
   },
   "docsPromises": [
     {
@@ -67,9 +68,9 @@
   "validation": {
     "source": "test-evidence.json",
     "result": "PASS",
-    "timestamp": "2026-06-23T02:51:18.630Z",
-    "headHash": "c4e14e21380d2649097e8d6b1be7a58ee202552f",
-    "materialHash": "a447e4e6c7759639a7079aa9219b9ec5a9d029d455c9d605a1f611a15a61140a",
+    "timestamp": "2026-06-23T03:11:00.931Z",
+    "headHash": "5b26be9f60249c105f0d2cbaf45b0edeb1a46322",
+    "materialHash": "677fc8fe281337181ede2235f15f5be956f6343d448b651a7b8881941aecbf25",
     "storyFilesHash": "a1a70371a8f74db3fcb12af029652cd338174afc52373aa7f8ca8bcd5f9ee843"
   },
   "reviewRound": "2026-06-23T02:40:13.540Z",
