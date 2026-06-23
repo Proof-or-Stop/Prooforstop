@@ -136,6 +136,19 @@
           "materialHash": "3c10b8636d2a619e5ed72f4728287c5dcc88a01beb52c6483c2cd3d8f002889b",
           "storyFilesHash": "8a7d853bcece8260695b2d95beb5edd9d86b647e9fa6e35183fc62b04e5c8544",
           "timestamp": "2026-06-23T20:27:07.972Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/injection-probes/live-loop-harness.mjs",
+          "command": "node experiments/injection-probes/live-loop-harness.mjs --self-check",
+          "result": "pass",
+          "note": "--run is the only path calling the real agent; --self-check makes 0 claude calls; --run prints + records a small-N/exploratory caveat (honest labeling).",
+          "headHash": "35f8e550d26d9011cc7b3e5a1c162491321d18b7",
+          "materialHash": "3c10b8636d2a619e5ed72f4728287c5dcc88a01beb52c6483c2cd3d8f002889b",
+          "storyFilesHash": "8a7d853bcece8260695b2d95beb5edd9d86b647e9fa6e35183fc62b04e5c8544",
+          "timestamp": "2026-06-23T20:27:09.141Z"
         }
       ]
     }
