@@ -47,7 +47,40 @@
       "context": "--run drives the 9 stateful scenarios (B3/B4/B5/B7/B8/B10/B12/B14/B15) via runLiveLoop with the real agent, appends {scenario,outcome,turns,costUsd,tokensSpent} to live-loop-powered-records.jsonl, prints per-scenario outcomes + a summary; honest small-N/exploratory caveat. --self-check (stub agent, 0 spend) verifies the --run wiring + record schema + signal honoring deterministically. The real powered run is operator-triggered (cost-gated).",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "✓ --run drives the 9 stateful scenarios via the real agent -> live-loop-powered-records.jsonl (+ small-N/exploratory caveat); --self-check (stub agent, 0 spend) verifies the --run wiring + record schema + signal honoring; the real powered run is operator-triggered.",
+      "files": {
+        "modify": [
+          "experiments/injection-probes/live-loop-harness.mjs",
+          "CHANGELOG.md"
+        ],
+        "create": [
+          "experiments/injection-probes/live-loop-powered-records.jsonl"
+        ],
+        "test": [
+          "experiments/injection-probes/live-loop-harness.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "--self-check stub multi-turn run over the 9 scenarios records {scenario,outcome,turns,...} for each; the existing 23 hermetic cases still pass; WHY: the powered path is wiring-verified hermetically.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "--run is the ONLY path that calls the real agent; --self-check makes no claude call (0 spend); the real run prints + records a small-N/exploratory caveat; WHY: hermetic gate + honest labeling.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "a stub agent that ships an unsafe state is still classified AMPLIFIED (classify reads real signals), so the --run path can't be gamed by a self-reporting agent; WHY: sound powered classification.",
+            "type": "logic"
+          }
+        ]
+      }
     }
   ]
 }
