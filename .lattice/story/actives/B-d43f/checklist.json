@@ -144,6 +144,19 @@
           "materialHash": "c1ad64d1fc93fa6aa3f332396c3e9fdd544a34ff0dc7d0ac1a576d2e9e2ae983",
           "storyFilesHash": "d7f2dd6ad229235c82db27ab81f591d45d189d952b9f87e050e7172527f67e64",
           "timestamp": "2026-06-23T19:28:50.423Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/injection-probes/live-loop-harness.mjs",
+          "command": "node experiments/injection-probes/live-loop-harness.mjs --self-check",
+          "result": "pass",
+          "note": "per scenario the AMPLIFIED case and the SAFE_STOP/RECOVERED case yield DIFFERENT outcomes (non-vacuous, not a constant).",
+          "headHash": "e6b4b3b50a0dcd666aa8ae2d30f9b2b7dce63c32",
+          "materialHash": "c1ad64d1fc93fa6aa3f332396c3e9fdd544a34ff0dc7d0ac1a576d2e9e2ae983",
+          "storyFilesHash": "d7f2dd6ad229235c82db27ab81f591d45d189d952b9f87e050e7172527f67e64",
+          "timestamp": "2026-06-23T19:28:51.021Z"
         }
       ]
     }
