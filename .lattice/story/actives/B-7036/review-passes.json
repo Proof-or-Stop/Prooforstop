@@ -161,6 +161,15 @@
       "reviewRound": "2026-06-23T20:01:45.155Z",
       "reviewRunId": "B-7036:RR-025",
       "_hash": "1ccee8c312562390a5c3fc3b2e7e9ce365536df21cdc1f83ccdc9e8cac3b54cf"
+    },
+    {
+      "id": "B-7036:RP-019",
+      "agent": "lattice-review-concept",
+      "note": "Concept-residue scan for commit 0cf96304e (matched-cell GLMM extension). The old GLMM subset approach (scenario != null / scenario == null) was replaced by matchedPrimaryH1/matchedPrimaryH2 flags. One residue found and filed as F-015 (medium): stale JS comment block at analyze.mjs lines 404-405 still describes the old scenario-filter logic, contradicting the actual emitted R code. All other files (README.md, analyze-selfcheck.mjs) correctly reference the new matchedPrimary pattern. Selfcheck: 75 assertions, 0 failed. No additional concept residue beyond F-015.",
+      "createdAt": "2026-06-23T20:04:25.590Z",
+      "reviewRound": "2026-06-23T20:01:45.155Z",
+      "reviewRunId": "B-7036:RR-026",
+      "_hash": "61ecca90d737de47114fe2ce5c1456f4485705f1ea69e23d1f7b825e13238e6e"
     }
   ]
 }
