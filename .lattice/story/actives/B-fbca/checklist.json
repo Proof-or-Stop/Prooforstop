@@ -62,7 +62,50 @@
       "context": "core/managed-assets.ts excluded-path entries bin/koala.js / bin/koala-codex.js / .lattice-codex/koala.json (the denylist for old koala binaries); the @koala-agent old-global-install detection in flow-stability-smoke.ts / worktree-repair-smoke.ts / lattice-only-absence-smoke.ts. Remove the detection and its now-moot absence assertions; no old-koala migration support kept.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "git grep bin/koala.js and bin/koala-codex.js in core/managed-assets.ts -> zero hits; the excluded-path denylist entries are removed; WHY: confirms legacy binary denylist is deleted",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "git grep @koala-agent in packages/*/src -> zero hits; the old-global-install detection logic is gone; WHY: confirms old-install migration detection removed",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "flow-stability-smoke.ts, worktree-repair-smoke.ts, lattice-only-absence-smoke.ts still compile and pass after removing the @koala-agent absence assertions -> npm test passes for those files; WHY: deletion of moot assertions must not break the rest of the smoke",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "grep for .lattice-codex/koala.json in managed-assets.ts -> zero hits; WHY: this was part of the denylist alongside the binaries and must also be removed",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "grep for isKoalaSelfRepoBootstrap in packages/*/src -> zero hits OR renamed to lattice equivalent; WHY: if this function was load-bearing self-repo detection, it must be renamed not silently deleted (story understanding unknown #1)",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "verify that removing the absence assertions did not remove UNRELATED assertions from the same smoke files -- diff the smoke files and confirm only koala-related lines were deleted; WHY: bulk deletion can accidentally strip genuine test coverage",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "verify managed-assets.ts still has its non-koala excluded-path entries intact after the koala entries are removed -> the array still contains its other legitimate entries; WHY: deleting array entries can cause off-by-one or accidentally remove neighbors",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
