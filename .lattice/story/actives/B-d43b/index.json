@@ -4,7 +4,7 @@
   "title": "Add Codex adapter evidence gate scope regression coverage",
   "description": "Baseline item 3 requires a measured follow-up proving that ordinary provider text containing Codex does not trigger Codex adapter evidence while actual adapter surfaces still do. The prior source fix exists, so this story adds durable smoke coverage and a derived baseline result artifact rather than broadening adapter behavior.",
   "type": "chore",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "medium",
   "keywords": [
     "workflow-efficiency-baseline",
@@ -24,6 +24,20 @@
       "user": "Harmonygo",
       "sessionId": "sess-7f55c8d5292c7c45",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-23T10:47:53.920Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-7f55c8d5292c7c45",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-d43b",
+    "branch": "story/B-d43b",
+    "createdAt": "2026-06-23T10:47:53.424Z"
+  }
 }
