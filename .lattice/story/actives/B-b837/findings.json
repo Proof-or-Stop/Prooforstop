@@ -1,0 +1,23 @@
+{
+  "findings": [
+    {
+      "id": "B-b837:F-001",
+      "desc": "CHK-005:adversarial:3 command is a non-runnable placeholder: `for f in LEGACY_LOGIC_FILES; do test -f $f; done` iterates over the literal string LEGACY_LOGIC_FILES (one iteration, checks a file named LEGACY_LOGIC_FILES which does not exist) and produces no actual verification of the 11 LEGACY_LOGIC_FILES exemption entries. The intent requires confirming each of the 11 files still exists on disk so no dead exemptions mask future regressions. The note claim (missing-files=0) is factually correct but the recorded command cannot reproduce that result — this is a generic-fallback substitution violating the evidence-must-bind-literal-intent-command contract.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-23T14:14:03.521Z",
+      "reviewRound": "2026-06-23T14:08:20.639Z",
+      "reviewRunId": "B-b837:RR-002",
+      "_hash": "e8614bdde927e49ee7bc9f0812d688dde53f0d99b8ad477b0599f56e9e472e34",
+      "files": [
+        "scripts/verify-koala-residue.mjs",
+        "packages/main/src/handlers/review-preflight.ts"
+      ],
+      "signatureTag": "missing|mjs|adversarial-command-runnable",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
