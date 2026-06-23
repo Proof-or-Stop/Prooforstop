@@ -9,7 +9,7 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md"
       ],
-      "userSees": "delivery-check evidence contains the material binding it reviewed.",
+      "userSees": "\"delivery-check-freshness smoke passed\" and delivery-check.json records materialHash for the reviewed material.",
       "excludes": [
         "Do not change delivery reviewer role ownership or allow the main agent to self-sign delivery-check evidence.",
         "Do not treat local evidence as Authority or production proof."
@@ -39,7 +39,18 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/delivery-check-hash.ts",
+          "packages/main/src/handlers/delivery-check.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/delivery-check-freshness-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-002",
