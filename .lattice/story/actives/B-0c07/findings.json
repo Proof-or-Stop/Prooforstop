@@ -70,7 +70,7 @@
       "desc": "[codex-host2 C3] makeRealBareArm: a JSON API-error at exit 0 (is_error / Overloaded / 529 / API Error) is scored as a real outcome. recovery-runner guards /Overloaded|API Error|529/; this arm does not. FIX: detect is_error / error-text -> infra-fail.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex-host2",
       "createdAt": "2026-06-23T12:12:34.490Z",
@@ -80,7 +80,11 @@
         "experiments/injection-probes/real-arm.mjs"
       ],
       "signatureTag": "adversarial|mjs|codex-host2-makerealbarearm",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: parseClaudeResult flags is_error / non-success subtype / Overloaded|API Error|429|529 result text as infra-fail. Self-check asserts all 3.",
+      "resolvedAt": "2026-06-23T12:14:09.645Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-0c07:F-005",
