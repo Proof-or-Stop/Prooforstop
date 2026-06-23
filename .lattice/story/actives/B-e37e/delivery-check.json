@@ -1,0 +1,46 @@
+{
+  "storyId": "B-e37e",
+  "checkedAt": "2026-06-23T01:41:05.942Z",
+  "reviewRound": "2026-06-23T01:25:31.824Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/guide.md",
+      "promise": "Authority enforce runner may read /v1/runners/{runnerId}/jobs/stream only as a jobs.available notification hint, then always uses the signed claim endpoint; jobs_stream hints, heartbeat, and claim alone are not production authority, and productionDone/receiptVerified stay false until a signature-verified native gate_decision receipt.",
+      "status": "verified",
+      "verifiedBy": "manual doc inspection plus smoke/validate",
+      "evidence": "docs/guide.md documents jobs/stream as a notification hint in enforce mode and states jobs_stream is only a queue notification hint with fallback to signed claim; it also states only a verified native gate_decision receipt can support authorityDone/fullAuthorityDone."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-authority-live-integration.md",
+      "promise": "Live Authority integration treats the jobs stream as diagnostic/hint-only: positive jobs.available is recorded as jobs_stream and still uses signed claim; empty, old/unsupported, HTTP error, timeout, malformed, and non-SSE cases fall back to signed claim. The CLI verifies/consumes server receipts and must not mint receipts or treat stream/claim as approval.",
+      "status": "verified",
+      "verifiedBy": "manual doc inspection plus authority runner client smoke",
+      "evidence": "The decision doc states live mode reads jobs/stream as a jobs.available notification hint and claims through the existing signed claim endpoint; implementation status calls the stream diagnostic only with fallback cases; later status says the jobs stream is not a lease, receipt, completion event, or Authority approval and the CLI never mints receipts."
+    },
+    {
+      "docPath": "docs/requirements/decisions/orchestrate-retirement.md",
+      "promise": "Proofbound is the canonical active root; Orchestrate is retired/read-only, and new Authority runner diagnostics including jobs_stream notification hints belong only in the canonical proofbound workflow, not in retired Orchestrate writes.",
+      "status": "verified",
+      "verifiedBy": "manual doc inspection",
+      "evidence": "The retirement doc declares /Users/jek/Documents/Work/proofbound as canonical active checkout, /Users/jek/Documents/Work/Orchestrate as retired/read-only, and says new jobs_stream diagnostics must not create evidence or runtime writes under the retired Orchestrate root."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "B-e37e-authority-runner-client-smoke",
+      "transcript": "node packages/main/dist/tasks/authority-runner-client-smoke.js -> passed: 8 runner endpoints incl. jobs stream, off-mode performs zero network calls"
+    },
+    {
+      "featureId": "B-e37e-lattice-validate",
+      "transcript": "lattice validate -> PASS (25 configured commands passed)"
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "SSE is hint-only and claim remains authoritative: jobs_stream is recorded before signed claim, positive SSE jobIds do not create ownership, fallback/redaction cases still reach signed claim, and receipt/approval claims remain gated by verified native gate_decision receipts."
+  },
+  "_hash": "f2a84b9be61facf1dcb4222a9b3e010b868bd70caf2088bb1b61e0fcfc334b41"
+}

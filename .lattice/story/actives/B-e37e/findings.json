@@ -1,0 +1,144 @@
+{
+  "findings": [
+    {
+      "id": "B-e37e:F-001",
+      "desc": "packages/main/src/core/authority-client.ts:408-424 buffers the jobs SSE with response.text() before parseRunnerJobsAvailableSse runs, so a normal long-lived text/event-stream body will not surface an early jobs.available event to the runner; it will wait until the body closes or the timeout aborts, then packages/main/src/core/authority-runner.ts:438-456 falls back to claim only after that wait. This keeps the signed claim authority boundary safe, but it means the CLI does not actually consume a persistent /v1/runners/{runnerId}/jobs/stream notification hint promptly; the smoke test only covers a bounded SSE-looking response that closes after the event, not a real long-lived stream.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-23T00:43:34.009Z",
+      "reviewRound": "2026-06-23T00:39:56.221Z",
+      "reviewRunId": "B-e37e:RR-004",
+      "_hash": "ef025c43134cd47834f95b1820cdc3d5abc5a2e5e0815cd758f833c509c0f5da",
+      "files": [
+        "packages/main/src/core/authority-client.ts",
+        "packages/main/src/core/authority-runner.ts",
+        "packages/main/src/tasks/authority-runner-client-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|packages-main-core",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 86a50393d: streamRunnerJobsAvailable now uses bounded body reader and returns on the first classifiable jobs.available event from a long-lived text/event-stream instead of waiting for response.text() close/timeout. Verified by smoke long-lived stream scenario and build.",
+      "resolvedAt": "2026-06-23T00:54:26.651Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-e37e:F-002",
+      "desc": "authority-runner-client-smoke exercises a positive jobs.available SSE hint followed by a signed claim, but the fake claim response is {\"job\":null} and the smoke never asserts out.claimedJobId stays null or that ownership/authority is derived only from the claim response. A regression could populate claimedJobId from SSE jobIds while still preserving the tested GET-before-POST order and claim_job ok event, so CHK-001 adversarial no-overclaim coverage is incomplete. Add an assertion/scenario that positive SSE + null or failed claim does not produce claimedJobId/releasedJobId/authority completion, and only a JobSpec returned by the signed claim can create ownership.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-23T00:43:40.791Z",
+      "reviewRound": "2026-06-23T00:39:56.221Z",
+      "reviewRunId": "B-e37e:RR-001",
+      "_hash": "b402a4573f46566cc80884c416a3f6bb1fa8f2f6df2cba6f559b2ffc13ee4fab",
+      "files": [
+        "packages/main/src/tasks/authority-runner-client-smoke.ts",
+        "packages/main/src/core/authority-runner.ts"
+      ],
+      "signatureTag": "adversarial|ts|authority-runner-client",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 86a50393d: smoke asserts positive SSE jobIds plus signed claim {job:null} leaves claimedJobId and releasedJobId null, proving SSE is not ownership. Verified by authority-runner-client-smoke.",
+      "resolvedAt": "2026-06-23T00:54:27.459Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-e37e:F-003",
+      "desc": "packages/main/src/core/authority-client.ts:413-424 awaits response.text() before parsing SSE. With a real long-lived text/event-stream response that writes event: jobs.available/data {\"count\":1,\"jobIds\":[\"job-1\"]} and keeps the connection open, streamRunnerJobsAvailable returns kind=timeout/status=200 instead of available, so runLatticeAuthorityControlPlaneOnce waits for the timeout before signed claim rather than immediately attempting claim as CHK-001 requires. Repro command used in review: npm --prefix packages/main run build -- --pretty false, then a local node --input-type=module HTTP SSE probe returned {\"kind\":\"timeout\",\"ok\":false,\"status\":200} after the event was sent.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-23T00:44:26.343Z",
+      "reviewRound": "2026-06-23T00:39:56.221Z",
+      "reviewRunId": "B-e37e:RR-002",
+      "_hash": "5d68b7f1b802e11d78d70769d30d81d94676164fd9b6965e6e6d91a97267c7f8",
+      "files": [
+        "packages/main/src/core/authority-client.ts",
+        "packages/main/src/core/authority-runner.ts",
+        "packages/main/src/tasks/authority-runner-client-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|packages-main-core",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 86a50393d: real body-stream SSE is parsed incrementally and returns available promptly; fallback remains for text-only stubs and malformed/timeout cases. Verified with npm --prefix packages/main run build and node packages/main/dist/tasks/authority-runner-client-smoke.js.",
+      "resolvedAt": "2026-06-23T00:54:28.299Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-e37e:F-004",
+      "desc": "packages/main/src/core/authority-client.ts:2845-2867 still stops reading a real long-lived SSE stream after a complete non-jobs.available block when prefix.remainder is empty. A normal stream can send a heartbeat/comment block first and jobs.available later; an inline Node probe against packages/main/dist/core/authority-client.js returned kind=unavailable status=200 with the first-event-block fallback in 1ms for chunks [: heartbeat, then jobs.available 25ms later]. That means 86a50393d only returns promptly when heartbeat and jobs.available are already buffered together, not when jobs.available is the first later classifiable event. The signed-claim ownership boundary remains intact, but the F-001/F-003 incremental long-lived stream fix is incomplete.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-23T00:58:20.073Z",
+      "reviewRound": "2026-06-23T00:54:14.879Z",
+      "reviewRunId": "B-e37e:RR-006",
+      "_hash": "27b5aa7714a337d4f272a6ce30c6b4c78912d8024805c8553c125d660c0cf0ea",
+      "files": [
+        "packages/main/src/core/authority-client.ts",
+        "packages/main/src/tasks/authority-runner-client-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|packages-main-core",
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by f2a04329e: stream reader now ignores heartbeat/comment/non-jobs blocks and continues reading even when remainder is empty, with reads tied to abort signal. Smoke covers standalone heartbeat chunk followed by later jobs.available on non-closing stream.",
+      "resolvedAt": "2026-06-23T01:08:10.995Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-e37e:F-005",
+      "desc": "Round 2 test-coverage gap: the new long-lived stream smoke covers a non-closing body stream only when the first chunk already contains both a complete heartbeat block and the following event: jobs.available line. A normal long-lived SSE stream can flush a standalone heartbeat/comment block first and emit jobs.available later; current readRunnerJobsAvailableSseStream returns unavailable at packages/main/src/core/authority-client.ts:2845-2867 when prefix.remainder is empty after that first block, and the smoke at packages/main/src/tasks/authority-runner-client-smoke.ts:316-339 would not catch it. F-002 no-overclaim is covered by the claimedJobId/releasedJobId null assertions, but stream parsing coverage is still incomplete for heartbeat-first long-lived streams.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-23T00:59:19.556Z",
+      "reviewRound": "2026-06-23T00:54:14.879Z",
+      "reviewRunId": "B-e37e:RR-005",
+      "_hash": "10743a2329b7325af2a9428a7d74b56f891e2cbe9ca3a3714d3ceaaf9592c8fd",
+      "files": [
+        "packages/main/src/core/authority-client.ts",
+        "packages/main/src/tasks/authority-runner-client-smoke.ts"
+      ],
+      "signatureTag": "edge-ts-authority-runner-client",
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by f2a04329e: added smoke coverage for heartbeat-first long-lived SSE where jobs.available arrives in a later chunk; node smoke proves jobs_stream ok and signed claim still happens.",
+      "resolvedAt": "2026-06-23T01:08:11.870Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-e37e:F-006",
+      "desc": "packages/main/src/core/authority-client.ts:2845-2867 returns unavailable as soon as the first complete SSE block lacks jobs.available and prefix.remainder is empty. With a normal native-fetch text/event-stream that writes a standalone heartbeat/comment block (`: heartbeat\\n\\n`) and then writes `event: jobs.available` 50ms later, streamRunnerJobsAvailable returns kind=unavailable in ~18ms before the job event is read, so the runner misses the push hint and falls back to signed claim/polling early. Repro used in review: node --input-type=module local HTTP SSE probe against AuthorityClient with 1000ms timeout; observed {kind:\"unavailable\", status:200, message:\"first event block did not contain jobs.available\"}. The existing smoke keeps heartbeat and partial jobs.available in the same chunk, so it does not cover heartbeat and jobs.available delivered as separate SSE writes.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-23T00:59:45.706Z",
+      "reviewRound": "2026-06-23T00:54:14.879Z",
+      "reviewRunId": "B-e37e:RR-007",
+      "_hash": "073ede5cb06ac2102d45b4896a5fcde3af1392a4eb03016ac58d59d1e02f29a4",
+      "files": [
+        "packages/main/src/core/authority-client.ts",
+        "packages/main/src/tasks/authority-runner-client-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|packages-main-core",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by f2a04329e: readRunnerJobsAvailableSseStream no longer returns unavailable after standalone heartbeat; it continues until jobs.available, stream close, timeout, malformed jobs.available, or configured limits. Verified with npm build and authority-runner-client-smoke.",
+      "resolvedAt": "2026-06-23T01:08:12.838Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

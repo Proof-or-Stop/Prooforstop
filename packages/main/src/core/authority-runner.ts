@@ -26,7 +26,6 @@ import {
   type AuthorityGateEvaluator,
   type PlannedStepsExecutionResult,
 } from './planned-steps-executor.js';
-import type { AuthorityGateDecision } from './authority-client.js';
 import type { MaterialOverlapAuditContract } from './authority-contracts.js';
 import type { AuthorityRunnerProvider } from './authority-mode.js';
 import {
@@ -42,6 +41,13 @@ import {
   type AuthorityJobLoop,
   type FinalizeAuthorityJobResult,
 } from './authority-job-loop.js';
+import {
+  AuthorityClient,
+  type AuthorityFetch,
+  type AuthorityGateDecision,
+  type RunnerJobsStreamOutcome,
+} from './authority-client.js';
+import { redactText } from './evidence-redaction.js';
 
 // Re-export the Stage B job-loop lease/heartbeat surface so callers that already
 // import the runner get the lease lifecycle from one place.
@@ -112,7 +118,7 @@ export interface AuthorityRunnerPlan {
 }
 
 export interface AuthorityRunnerNetworkEvent {
-  step: AuthorityRunnerPlannedStep | 'register_actor_key' | 'release_job';
+  step: AuthorityRunnerPlannedStep | 'register_actor_key' | 'jobs_stream' | 'release_job';
   ok: boolean;
   status?: number;
   message?: string;
@@ -222,14 +228,17 @@ async function postJson(
       ok: response.ok,
       status: response.status,
       body: parsed,
-      message: response.ok ? undefined : `authority server rejected request (${response.status})${text ? `: ${text}` : ''}`,
+      message: response.ok
+        ? undefined
+        : `authority server rejected request (${response.status})${text ? `: ${redactAuthorityRunnerDiagnostic(text, [options.customerApiKey])}` : ''}`,
     };
   } catch (error: any) {
+    const rawMessage = error?.name === 'AbortError'
+      ? 'authority request timed out'
+      : (error?.message || String(error));
     return {
       ok: false,
-      message: error?.name === 'AbortError'
-        ? 'authority request timed out'
-        : (error?.message || String(error)),
+      message: redactAuthorityRunnerDiagnostic(rawMessage, [options.customerApiKey]),
     };
   } finally {
     clearTimeout(timer);
@@ -295,6 +304,42 @@ function eventFromResult(
     status: result.status,
     message: result.message,
   };
+}
+
+function eventFromJobsStream(result: RunnerJobsStreamOutcome): AuthorityRunnerNetworkEvent {
+  return {
+    step: 'jobs_stream',
+    ok: result.ok,
+    status: result.status,
+    message: result.message,
+  };
+}
+
+function redactAuthorityRunnerDiagnostic(
+  text: string,
+  secrets: readonly (string | undefined)[] = [],
+): string {
+  let redacted = redactText(text).text;
+  for (const secret of secrets) {
+    const trimmed = secret?.trim();
+    if (trimmed) redacted = redacted.split(trimmed).join('[REDACTED]');
+  }
+  return redacted
+    .replace(/\bProxy-Authorization\b/gi, '[REDACTED_HEADER]')
+    .replace(/\bAuthorization\b/gi, '[REDACTED_HEADER]')
+    .replace(/\bBearer\b/gi, '[REDACTED_SCHEME]');
+}
+
+async function streamRunnerJobsAvailable(
+  options: LatticeAuthorityLiveRunnerOptions,
+): Promise<RunnerJobsStreamOutcome> {
+  const client = new AuthorityClient(
+    options.baseURL,
+    (options.fetchImpl ?? fetch) as unknown as AuthorityFetch,
+    options.timeoutMS,
+    { customerApiKey: options.customerApiKey },
+  );
+  return client.streamRunnerJobsAvailable(options.runnerId);
 }
 
 export function readActorPrivateKeyFromPath(path: string): string {
@@ -389,6 +434,9 @@ export async function runLatticeAuthorityControlPlaneOnce(
   if (!heartbeat.ok) {
     return { networkEvents: events, claimedJobId: null, releasedJobId: null, status: 'fail', note: 'Live runner stopped at runner heartbeat.' };
   }
+
+  const jobsStream = await streamRunnerJobsAvailable(options);
+  events.push(eventFromJobsStream(jobsStream));
 
   const claim = await postJson(
     options,

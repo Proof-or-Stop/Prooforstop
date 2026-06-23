@@ -750,7 +750,7 @@ export function storyRequiresCodexEvidence(store: StoryStore, storyId: string): 
       ...(story.riskSignals || []).flatMap(signal => [signal.category, signal.matched]),
       ...checklist.items.flatMap(item => [item.title, item.context || '', ...(item.relatedDocs || [])]),
     ].join('\n');
-    return /\bCodex\b|\.lattice-codex|lattice-codex|codex adapter|verify_codex/i.test(haystack);
+    return /(?:\.lattice-codex|lattice-codex|codex adapter|verify_codex|bin\/lattice-codex\.js|\.codex\/hooks(?:\.json)?|lattice codex (?:verify|doctor))/i.test(haystack);
   } catch {
     return false;
   }

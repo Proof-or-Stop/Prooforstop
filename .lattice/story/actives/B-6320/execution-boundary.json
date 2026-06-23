@@ -1,0 +1,49 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-6320",
+  "allowedCommands": [
+    "git branch *",
+    "git diff *",
+    "git log *",
+    "git merge *",
+    "git status *",
+    "git worktree *",
+    "lattice *",
+    "node *",
+    "npm *",
+    "pnpm *",
+    "rg *"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "exec_command",
+    "multi_tool_use.parallel"
+  ],
+  "allowedPaths": [
+    ".lattice/**",
+    "docs/guide.md",
+    "docs/requirements/decisions/**",
+    "package-lock.json",
+    "package.json",
+    "packages/main/dist/**",
+    "packages/main/src/**",
+    "packages/main/test/**",
+    "packages/main/tests/**",
+    "pnpm-lock.yaml"
+  ],
+  "excludedCommands": [
+    "git checkout -- *",
+    "git push *",
+    "git reset --hard *",
+    "omx *"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".omx/**"
+  ],
+  "confirmedBy": "codex",
+  "confirmationNote": "Local-only Lattice worktree development; no remote publish or legacy OMX usage.",
+  "createdAt": "2026-06-23T02:39:35.723Z",
+  "updatedAt": "2026-06-23T02:39:35.723Z",
+  "_hash": "0983fa4ce52415a206132bd23a4f093e179bd9ef7947af9653a31f9bd6f66a66"
+}

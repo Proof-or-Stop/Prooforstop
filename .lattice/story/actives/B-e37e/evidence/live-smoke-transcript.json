@@ -1,0 +1,20 @@
+{
+  "storyId": "B-e37e",
+  "expected": "Smoke output includes \"GET /v1/runners/runner-1/jobs/stream\" before \"POST /v1/runners/runner-1/jobs/claim\", and the result still reports claim success only after the signed claim response.",
+  "actual": {
+    "command": "node packages/main/dist/tasks/authority-runner-client-smoke.js",
+    "exitCode": 0,
+    "stdout": "✓ authority runner client smoke passed: 8 runner endpoints incl. jobs stream, off-mode performs zero network calls\n"
+  },
+  "mode": {
+    "runCommands": true,
+    "writeEvidence": true
+  },
+  "capturedAtIso": "2026-06-23T01:20:59.379Z",
+  "claims": {
+    "authorityDone": false,
+    "productionDone": false
+  },
+  "headHash": "a5c851e825d6d15de993e0ede311e67f754274ca",
+  "materialHash": "127c1a9b23d7bcfac902b9a675b4abd87270678f249909fb601b38b6902e482b"
+}
