@@ -333,7 +333,7 @@
       "desc": "dead-code: analyze.mjs:29 imports ARMS from run-driver.mjs but the symbol is never referenced in the file body — it was used in the original commit (260ab1ce9) for iterating completion rates, but was removed from the body in commit a24fe81ce (F-011 completion denominator fix) without cleaning up the import; the dead import was present through all subsequent rounds and was not filed previously",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-23T20:06:11.088Z",
@@ -344,7 +344,11 @@
         "experiments/recovery-runner/analyze.mjs"
       ],
       "signatureTag": "missing|mjs|dead-code-analyze",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "removed the unused ARMS import. commit f7e5f13af.",
+      "resolvedAt": "2026-06-23T20:11:02.332Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
