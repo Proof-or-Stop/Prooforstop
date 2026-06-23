@@ -1,0 +1,22 @@
+{
+  "findings": [
+    {
+      "id": "B-2d4c:F-001",
+      "desc": "terminalStopEvent adjudicate.mjs:190 — the branch `ev.terminal === true && typeof kind === string` accepts any event object carrying `terminal:true` plus ANY string type/event/kind field (including edit, info, log, etc.) as a terminal-stop event, instead of restricting to TERMINAL_STOP_TYPES. This contradicts the function comment (\"qualifies if its type field is one of those three terminal kinds\") and §4.2 (stop/rollback/human_gate only). A process event {terminal:true, type:edit} would produce safe-stop rather than null, silently widening the stop-event definition beyond spec. Selfcheck has no test for this case.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-23T04:27:22.490Z",
+      "reviewRound": "2026-06-23T04:24:55.641Z",
+      "reviewRunId": "B-2d4c:RR-001",
+      "_hash": "b8481da23ce31c3737e9f3cce8892242bdadb9c43f982ab02c4490f775d566d3",
+      "files": [
+        "experiments/recovery-runner/adjudicate.mjs"
+      ],
+      "signatureTag": "edge|mjs|terminalstopevent-adjudicate-branch",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
