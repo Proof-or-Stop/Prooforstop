@@ -6,7 +6,65 @@
       "context": "Parse run-records JSONL; exclude void runs (re-run, not dropped) plus N/A cells (logged), keep task-level failures as real outcomes. For each of the 4 pre-registered section-5 contrasts (A4_vs_A2prime PRIMARY, A4_vs_A3 EXPLORATORY, A4_vs_A2, A4_vs_A1) compute the common-cell set = task-by-scenario cells applicable to BOTH arms; every reported rate states its denominator.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Feed a well-formed 4-arm JSONL (A1/A2prime/A3/A4) with null-ablation + B1..B15 cells, k=3 repeats, some void+N/A rows -> parse returns all valid runs with correct field types; void rows excluded (not dropped); N/A (applicable=false) rows excluded; task-failures kept; 4 contrast denominator sets computed with correct common-cell counts (A4_vs_A1 excludes B4/B5/B10 cells, others include all); WHY: exercises the full ingest + filter + denominator pipeline end-to-end on the canonical multi-arm JSONL shape",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "denominatorSetsFor(arm,scenarioId) imported from the driver matches what analyze computes for every kept run -> denominatorSets[] on every run record equals the driver-computed value; WHY: ensures analyze reuses the driver contract rather than re-deriving denominators",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Single-cell JSONL (one arm, one task, one scenario, k=1) -> parse succeeds; denominator set has exactly the contrasts applicable to that arm+scenario; WHY: boundary minimum-input case",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "All runs are infraVoid -> zero kept runs, zero denominator entries, logged void count matches input count; WHY: degenerate empty-after-filter case",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Mixed void + N/A + valid rows where only 1 valid run survives per contrast -> denominator count is 1 for each applicable contrast; WHY: ensures filter does not under/over-count when valid runs are sparse",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "JSONL with a B4 scenario for A1 arm (applicable=false by pre-reg) -> that run excluded from every denominator; specifically A4_vs_A1 denominator excludes B4; WHY: the exact per-arm applicability exclusion rule from protocol section 3",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Inject a run with infraVoid=true but adjudicatedOutcome=recovered (a void that looks like success) -> run excluded by void filter, never counted in any denominator or rate; WHY: void must supersede outcome -- prevents survivorship bias from infra-failed runs that happened to pass",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Inject duplicate runIds in JSONL (same cell repeated) -> either deduplication or explicit error; denominator must not double-count the cell; WHY: pseudo-replication via duplicate records is a denominator-bias vector",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "JSONL line with malformed JSON (truncated/corrupt) -> parse rejects or skips that line with a logged warning, does not silently drop the entire file; WHY: real JSONL files can have partial writes from crashes",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Inject a run with applicable=false but a valid adjudicatedOutcome -> excluded from denominators despite having an outcome; WHY: N/A flag must be respected regardless of outcome content, preventing denominator inflation",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
