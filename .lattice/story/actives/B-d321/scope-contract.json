@@ -12,7 +12,12 @@
     "packages/main/src/tasks/flow-stability-smoke.ts",
     "packages/main/src/tasks/lifecycle-check-smoke.ts",
     "packages/main/src/tasks/review-assurance-floor-smoke.ts",
-    "packages/main/src/tasks/done-preflight-smoke.ts"
+    "packages/main/src/tasks/done-preflight-smoke.ts",
+    "packages/main/src/tasks/worktree-authority-smoke.ts",
+    "packages/main/src/tasks/done-prepare-smoke.ts",
+    "packages/main/src/tasks/done-premerge-mainsha-recheck-smoke.ts",
+    "packages/main/src/tasks/done-readiness-flow-benchmark.ts",
+    "packages/main/src/tasks/field-regression-cli-smoke.ts"
   ],
   "allowedCreate": [
     "packages/main/src/tasks/delivery-check-freshness-smoke.ts",
@@ -23,7 +28,12 @@
     "packages/main/src/tasks/flow-stability-smoke.ts",
     "packages/main/src/tasks/lifecycle-check-smoke.ts",
     "packages/main/src/tasks/review-assurance-floor-smoke.ts",
-    "packages/main/src/tasks/done-preflight-smoke.ts"
+    "packages/main/src/tasks/done-preflight-smoke.ts",
+    "packages/main/src/tasks/worktree-authority-smoke.ts",
+    "packages/main/src/tasks/done-prepare-smoke.ts",
+    "packages/main/src/tasks/done-premerge-mainsha-recheck-smoke.ts",
+    "packages/main/src/tasks/done-readiness-flow-benchmark.ts",
+    "packages/main/src/tasks/field-regression-cli-smoke.ts"
   ],
   "protectedFiles": [
     "experiments/baselines/lattice-workflow-efficiency-baseline-v1.json",
@@ -36,8 +46,8 @@
     "DONE summary freshness code for baseline item 6",
     ".omx/**"
   ],
-  "scopeChangeReason": "Expand scope only to fix verified high finding B-d321:F-001: existing regression smoke fixtures must use the new delivery-check materialHash binding when they intend fresh delivery evidence.",
+  "scopeChangeReason": "Expand scope only to fix verified high findings B-d321:F-002 and B-d321:F-003: remaining DONE-ready smoke fixtures must use delivery-check materialHash binding when they intend fresh delivery evidence.",
   "acknowledgements": [],
   "createdAt": "2026-06-23T12:28:49.239Z",
-  "updatedAt": "2026-06-23T12:50:44.718Z"
+  "updatedAt": "2026-06-23T13:08:27.545Z"
 }
