@@ -74,10 +74,10 @@
           "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
           "result": "pass",
           "note": "enumeration group now asserts the EXACT intent params: enumerateCells(3 tasks, k=2).cells.length === 462 (A1 13×2 + 4×16×2 per task ×3 tasks). (F-001 resolved: previously only the k=5/2-task=770 example was asserted.)",
-          "headHash": "9e5fcbf0fbfd1359e8d84509c6a05c647c03b6f4",
-          "materialHash": "d413b61da488bd491117be1909d3555eb418cd7adcc427bf01f09207f92f53c7",
-          "storyFilesHash": "a4a91d3ce41f131db436bdaa08ae864c77ae0dc6e9b77b6104d9d54bff86e262",
-          "timestamp": "2026-06-23T12:06:18.414Z"
+          "headHash": "941d27f5902bc7a2684448831b5b8ea185bd9390",
+          "materialHash": "6d640252b312078708171d83fd256ff16554ef8be15378dcd536dee1d707c79d",
+          "storyFilesHash": "60972945a17fed7f80d2fbebadba0e8de0cf4e7b03310ccc8acfc611d48bafa8",
+          "timestamp": "2026-06-23T13:09:43.514Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
@@ -87,10 +87,10 @@
           "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
           "result": "pass",
           "note": "enumeration group asserts excluded.length === 9 for 3 tasks (A1×{B4,B5,B10}×3) and that N/A cells are logged with reason + absent from emitted cells. DISCLOSED CORRECTION: N/A is counted per (arm,task,scenario), NOT ×k — the intent note's '3×3×2 repeats = 18' double-counted; excluded cells are computed before the repeat loop. (F-002 resolved.)",
-          "headHash": "9e5fcbf0fbfd1359e8d84509c6a05c647c03b6f4",
-          "materialHash": "d413b61da488bd491117be1909d3555eb418cd7adcc427bf01f09207f92f53c7",
-          "storyFilesHash": "a4a91d3ce41f131db436bdaa08ae864c77ae0dc6e9b77b6104d9d54bff86e262",
-          "timestamp": "2026-06-23T12:06:18.414Z"
+          "headHash": "941d27f5902bc7a2684448831b5b8ea185bd9390",
+          "materialHash": "6d640252b312078708171d83fd256ff16554ef8be15378dcd536dee1d707c79d",
+          "storyFilesHash": "60972945a17fed7f80d2fbebadba0e8de0cf4e7b03310ccc8acfc611d48bafa8",
+          "timestamp": "2026-06-23T13:09:43.514Z"
         },
         {
           "intentRef": "CHK-001:happy:2",
@@ -100,10 +100,10 @@
           "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
           "result": "pass",
           "note": "enumeration group: every emitted cell carries {arm,taskId,scenarioId,repeat,applicable:true} and the null ablation cell exists for every arm (asserted per-arm).",
-          "headHash": "544114e86a7a5556314ec2ba3c06082b437dc463",
-          "materialHash": "e8bfe1e5de2fe36e06a3910d2d140d450875823a86fe4f0e67c33c5a11f12215",
-          "storyFilesHash": "8a80f445e5ed21cbc338727ba522ac5599f4f7b0a74cb7b43e0286d8d5fa456c",
-          "timestamp": "2026-06-23T11:48:12.091Z"
+          "headHash": "941d27f5902bc7a2684448831b5b8ea185bd9390",
+          "materialHash": "6d640252b312078708171d83fd256ff16554ef8be15378dcd536dee1d707c79d",
+          "storyFilesHash": "60972945a17fed7f80d2fbebadba0e8de0cf4e7b03310ccc8acfc611d48bafa8",
+          "timestamp": "2026-06-23T13:09:43.514Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -113,10 +113,10 @@
           "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
           "result": "pass",
           "note": "enumeration group asserts the exact k=1 intent params for BOTH 1 task (=77) and 3 tasks (=231 = (13 + 4×16)×3). (F-003 resolved: 3-task k=1 count now explicitly asserted.)",
-          "headHash": "9e5fcbf0fbfd1359e8d84509c6a05c647c03b6f4",
-          "materialHash": "d413b61da488bd491117be1909d3555eb418cd7adcc427bf01f09207f92f53c7",
-          "storyFilesHash": "a4a91d3ce41f131db436bdaa08ae864c77ae0dc6e9b77b6104d9d54bff86e262",
-          "timestamp": "2026-06-23T12:06:18.414Z"
+          "headHash": "941d27f5902bc7a2684448831b5b8ea185bd9390",
+          "materialHash": "6d640252b312078708171d83fd256ff16554ef8be15378dcd536dee1d707c79d",
+          "storyFilesHash": "60972945a17fed7f80d2fbebadba0e8de0cf4e7b03310ccc8acfc611d48bafa8",
+          "timestamp": "2026-06-23T13:09:43.514Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
@@ -126,10 +126,10 @@
           "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
           "result": "pass",
           "note": "enumeration group: a 1-task corpus is exercised (k=1 → 77 cells) and the 2-task/3-task counts confirm the matrix shrinks proportionally; A1 gets 13 scenario-slots, each other arm 16.",
-          "headHash": "544114e86a7a5556314ec2ba3c06082b437dc463",
-          "materialHash": "e8bfe1e5de2fe36e06a3910d2d140d450875823a86fe4f0e67c33c5a11f12215",
-          "storyFilesHash": "8a80f445e5ed21cbc338727ba522ac5599f4f7b0a74cb7b43e0286d8d5fa456c",
-          "timestamp": "2026-06-23T11:48:12.091Z"
+          "headHash": "941d27f5902bc7a2684448831b5b8ea185bd9390",
+          "materialHash": "6d640252b312078708171d83fd256ff16554ef8be15378dcd536dee1d707c79d",
+          "storyFilesHash": "60972945a17fed7f80d2fbebadba0e8de0cf4e7b03310ccc8acfc611d48bafa8",
+          "timestamp": "2026-06-23T13:09:43.514Z"
         },
         {
           "intentRef": "CHK-001:edge:2",
@@ -139,10 +139,10 @@
           "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
           "result": "pass",
           "note": "seeded-order group: two enumerateCells calls with the same seed produce an identical cell-order signature (asserted equal).",
-          "headHash": "544114e86a7a5556314ec2ba3c06082b437dc463",
-          "materialHash": "e8bfe1e5de2fe36e06a3910d2d140d450875823a86fe4f0e67c33c5a11f12215",
-          "storyFilesHash": "8a80f445e5ed21cbc338727ba522ac5599f4f7b0a74cb7b43e0286d8d5fa456c",
-          "timestamp": "2026-06-23T11:48:12.091Z"
+          "headHash": "941d27f5902bc7a2684448831b5b8ea185bd9390",
+          "materialHash": "6d640252b312078708171d83fd256ff16554ef8be15378dcd536dee1d707c79d",
+          "storyFilesHash": "60972945a17fed7f80d2fbebadba0e8de0cf4e7b03310ccc8acfc611d48bafa8",
+          "timestamp": "2026-06-23T13:09:43.514Z"
         },
         {
           "intentRef": "CHK-001:edge:3",
@@ -152,10 +152,10 @@
           "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
           "result": "pass",
           "note": "seeded-order group: a different seed produces a different ordering (asserted not-equal); seededShuffle is also proven a non-mutating permutation.",
-          "headHash": "544114e86a7a5556314ec2ba3c06082b437dc463",
-          "materialHash": "e8bfe1e5de2fe36e06a3910d2d140d450875823a86fe4f0e67c33c5a11f12215",
-          "storyFilesHash": "8a80f445e5ed21cbc338727ba522ac5599f4f7b0a74cb7b43e0286d8d5fa456c",
-          "timestamp": "2026-06-23T11:48:12.091Z"
+          "headHash": "941d27f5902bc7a2684448831b5b8ea185bd9390",
+          "materialHash": "6d640252b312078708171d83fd256ff16554ef8be15378dcd536dee1d707c79d",
+          "storyFilesHash": "60972945a17fed7f80d2fbebadba0e8de0cf4e7b03310ccc8acfc611d48bafa8",
+          "timestamp": "2026-06-23T13:09:43.514Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -165,10 +165,10 @@
           "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
           "result": "pass",
           "note": "enumeration group: cell selection is driver-authoritative — the engine never chooses cells; the selfcheck asserts no A1×{B4,B5,B10} cell is ever emitted, so an engine cannot inject B4 for A1.",
-          "headHash": "544114e86a7a5556314ec2ba3c06082b437dc463",
-          "materialHash": "e8bfe1e5de2fe36e06a3910d2d140d450875823a86fe4f0e67c33c5a11f12215",
-          "storyFilesHash": "8a80f445e5ed21cbc338727ba522ac5599f4f7b0a74cb7b43e0286d8d5fa456c",
-          "timestamp": "2026-06-23T11:48:12.091Z"
+          "headHash": "941d27f5902bc7a2684448831b5b8ea185bd9390",
+          "materialHash": "6d640252b312078708171d83fd256ff16554ef8be15378dcd536dee1d707c79d",
+          "storyFilesHash": "60972945a17fed7f80d2fbebadba0e8de0cf4e7b03310ccc8acfc611d48bafa8",
+          "timestamp": "2026-06-23T13:09:43.514Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
@@ -178,10 +178,10 @@
           "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
           "result": "pass",
           "note": "enumeration group: enumerateCells throws on duplicate taskIds (asserted) — no silent double-count.",
-          "headHash": "544114e86a7a5556314ec2ba3c06082b437dc463",
-          "materialHash": "e8bfe1e5de2fe36e06a3910d2d140d450875823a86fe4f0e67c33c5a11f12215",
-          "storyFilesHash": "8a80f445e5ed21cbc338727ba522ac5599f4f7b0a74cb7b43e0286d8d5fa456c",
-          "timestamp": "2026-06-23T11:48:12.091Z"
+          "headHash": "941d27f5902bc7a2684448831b5b8ea185bd9390",
+          "materialHash": "6d640252b312078708171d83fd256ff16554ef8be15378dcd536dee1d707c79d",
+          "storyFilesHash": "60972945a17fed7f80d2fbebadba0e8de0cf4e7b03310ccc8acfc611d48bafa8",
+          "timestamp": "2026-06-23T13:09:43.514Z"
         },
         {
           "intentRef": "CHK-001:adversarial:2",
@@ -191,10 +191,10 @@
           "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
           "result": "pass",
           "note": "enumeration group: enumerateCells throws on an unknown arm e.g. A99 (asserted) — no silent zero-cell matrix shrink.",
-          "headHash": "544114e86a7a5556314ec2ba3c06082b437dc463",
-          "materialHash": "e8bfe1e5de2fe36e06a3910d2d140d450875823a86fe4f0e67c33c5a11f12215",
-          "storyFilesHash": "8a80f445e5ed21cbc338727ba522ac5599f4f7b0a74cb7b43e0286d8d5fa456c",
-          "timestamp": "2026-06-23T11:48:12.091Z"
+          "headHash": "941d27f5902bc7a2684448831b5b8ea185bd9390",
+          "materialHash": "6d640252b312078708171d83fd256ff16554ef8be15378dcd536dee1d707c79d",
+          "storyFilesHash": "60972945a17fed7f80d2fbebadba0e8de0cf4e7b03310ccc8acfc611d48bafa8",
+          "timestamp": "2026-06-23T13:09:43.514Z"
         }
       ]
     },
@@ -272,10 +272,10 @@
           "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
           "result": "pass",
           "note": "schema group: every runDriver record has exactly the §7 field set (SEVEN_RECORD_FIELDS + budget fields), asserted via sorted key-set equality.",
-          "headHash": "544114e86a7a5556314ec2ba3c06082b437dc463",
-          "materialHash": "e8bfe1e5de2fe36e06a3910d2d140d450875823a86fe4f0e67c33c5a11f12215",
-          "storyFilesHash": "8a80f445e5ed21cbc338727ba522ac5599f4f7b0a74cb7b43e0286d8d5fa456c",
-          "timestamp": "2026-06-23T11:48:12.091Z"
+          "headHash": "941d27f5902bc7a2684448831b5b8ea185bd9390",
+          "materialHash": "6d640252b312078708171d83fd256ff16554ef8be15378dcd536dee1d707c79d",
+          "storyFilesHash": "60972945a17fed7f80d2fbebadba0e8de0cf4e7b03310ccc8acfc611d48bafa8",
+          "timestamp": "2026-06-23T13:09:43.514Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
@@ -285,10 +285,10 @@
           "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
           "result": "pass",
           "note": "adjudicate-delegation group: adjudicatedOutcome is produced by calling adjudicate.mjs (recovered/amplified/safe-stop/null all asserted); not re-implemented.",
-          "headHash": "544114e86a7a5556314ec2ba3c06082b437dc463",
-          "materialHash": "e8bfe1e5de2fe36e06a3910d2d140d450875823a86fe4f0e67c33c5a11f12215",
-          "storyFilesHash": "8a80f445e5ed21cbc338727ba522ac5599f4f7b0a74cb7b43e0286d8d5fa456c",
-          "timestamp": "2026-06-23T11:48:12.091Z"
+          "headHash": "941d27f5902bc7a2684448831b5b8ea185bd9390",
+          "materialHash": "6d640252b312078708171d83fd256ff16554ef8be15378dcd536dee1d707c79d",
+          "storyFilesHash": "60972945a17fed7f80d2fbebadba0e8de0cf4e7b03310ccc8acfc611d48bafa8",
+          "timestamp": "2026-06-23T13:09:43.514Z"
         },
         {
           "intentRef": "CHK-002:happy:2",
@@ -298,10 +298,10 @@
           "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
           "result": "pass",
           "note": "schema + adjudicate groups: acceptancePass/hiddenRegressionPass/diffHygienePass are derived by calling checks.mjs (harnessAcceptance/hiddenRegression/diffHygiene) inside buildCanonicalRecord.",
-          "headHash": "544114e86a7a5556314ec2ba3c06082b437dc463",
-          "materialHash": "e8bfe1e5de2fe36e06a3910d2d140d450875823a86fe4f0e67c33c5a11f12215",
-          "storyFilesHash": "8a80f445e5ed21cbc338727ba522ac5599f4f7b0a74cb7b43e0286d8d5fa456c",
-          "timestamp": "2026-06-23T11:48:12.091Z"
+          "headHash": "941d27f5902bc7a2684448831b5b8ea185bd9390",
+          "materialHash": "6d640252b312078708171d83fd256ff16554ef8be15378dcd536dee1d707c79d",
+          "storyFilesHash": "60972945a17fed7f80d2fbebadba0e8de0cf4e7b03310ccc8acfc611d48bafa8",
+          "timestamp": "2026-06-23T13:09:43.514Z"
         },
         {
           "intentRef": "CHK-002:happy:3",
@@ -311,10 +311,10 @@
           "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
           "result": "pass",
           "note": "schema group: unsafeChecks has exactly the 5 detector keys (UNSAFE_KEYS) on every record (asserted).",
-          "headHash": "544114e86a7a5556314ec2ba3c06082b437dc463",
-          "materialHash": "e8bfe1e5de2fe36e06a3910d2d140d450875823a86fe4f0e67c33c5a11f12215",
-          "storyFilesHash": "8a80f445e5ed21cbc338727ba522ac5599f4f7b0a74cb7b43e0286d8d5fa456c",
-          "timestamp": "2026-06-23T11:48:12.091Z"
+          "headHash": "941d27f5902bc7a2684448831b5b8ea185bd9390",
+          "materialHash": "6d640252b312078708171d83fd256ff16554ef8be15378dcd536dee1d707c79d",
+          "storyFilesHash": "60972945a17fed7f80d2fbebadba0e8de0cf4e7b03310ccc8acfc611d48bafa8",
+          "timestamp": "2026-06-23T13:09:43.514Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -324,10 +324,10 @@
           "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
           "result": "pass",
           "note": "schema group: records are built from an allowlist so zero/falsy spend values still yield present fields; surfacing is value-agnostic (tokensSpent/wallClockMs present regardless of value).",
-          "headHash": "544114e86a7a5556314ec2ba3c06082b437dc463",
-          "materialHash": "e8bfe1e5de2fe36e06a3910d2d140d450875823a86fe4f0e67c33c5a11f12215",
-          "storyFilesHash": "8a80f445e5ed21cbc338727ba522ac5599f4f7b0a74cb7b43e0286d8d5fa456c",
-          "timestamp": "2026-06-23T11:48:12.091Z"
+          "headHash": "941d27f5902bc7a2684448831b5b8ea185bd9390",
+          "materialHash": "6d640252b312078708171d83fd256ff16554ef8be15378dcd536dee1d707c79d",
+          "storyFilesHash": "60972945a17fed7f80d2fbebadba0e8de0cf4e7b03310ccc8acfc611d48bafa8",
+          "timestamp": "2026-06-23T13:09:43.514Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
@@ -337,10 +337,10 @@
           "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
           "result": "pass",
           "note": "schema + adjudicate groups: a null scenarioId yields injectionApplied=false (asserted). DIVERGENCE FROM INTENT PREMISE: adjudicatedOutcome is DERIVED per §4.2, so a clean passing ablation run adjudicates \"recovered\" (not null); an unresolved one is null. Both are asserted. The driver correctly derives the §4.2 outcome rather than forcing null for ablation.",
-          "headHash": "544114e86a7a5556314ec2ba3c06082b437dc463",
-          "materialHash": "e8bfe1e5de2fe36e06a3910d2d140d450875823a86fe4f0e67c33c5a11f12215",
-          "storyFilesHash": "8a80f445e5ed21cbc338727ba522ac5599f4f7b0a74cb7b43e0286d8d5fa456c",
-          "timestamp": "2026-06-23T11:48:12.091Z"
+          "headHash": "941d27f5902bc7a2684448831b5b8ea185bd9390",
+          "materialHash": "6d640252b312078708171d83fd256ff16554ef8be15378dcd536dee1d707c79d",
+          "storyFilesHash": "60972945a17fed7f80d2fbebadba0e8de0cf4e7b03310ccc8acfc611d48bafa8",
+          "timestamp": "2026-06-23T13:09:43.514Z"
         },
         {
           "intentRef": "CHK-002:edge:2",
@@ -350,10 +350,10 @@
           "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
           "result": "pass",
           "note": "schema group: spend fields are surfaced verbatim (value-agnostic allowlist build), so a very large token count is preserved; validateRecord only rejects negative/NaN/Infinity, not large finite values.",
-          "headHash": "544114e86a7a5556314ec2ba3c06082b437dc463",
-          "materialHash": "e8bfe1e5de2fe36e06a3910d2d140d450875823a86fe4f0e67c33c5a11f12215",
-          "storyFilesHash": "8a80f445e5ed21cbc338727ba522ac5599f4f7b0a74cb7b43e0286d8d5fa456c",
-          "timestamp": "2026-06-23T11:48:12.091Z"
+          "headHash": "941d27f5902bc7a2684448831b5b8ea185bd9390",
+          "materialHash": "6d640252b312078708171d83fd256ff16554ef8be15378dcd536dee1d707c79d",
+          "storyFilesHash": "60972945a17fed7f80d2fbebadba0e8de0cf4e7b03310ccc8acfc611d48bafa8",
+          "timestamp": "2026-06-23T13:09:43.514Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -363,10 +363,10 @@
           "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
           "result": "pass",
           "note": "schema group: an extra engine field (extraField/evil) is DROPPED — the record is built from a fixed allowlist; asserted not-in-record.",
-          "headHash": "544114e86a7a5556314ec2ba3c06082b437dc463",
-          "materialHash": "e8bfe1e5de2fe36e06a3910d2d140d450875823a86fe4f0e67c33c5a11f12215",
-          "storyFilesHash": "8a80f445e5ed21cbc338727ba522ac5599f4f7b0a74cb7b43e0286d8d5fa456c",
-          "timestamp": "2026-06-23T11:48:12.091Z"
+          "headHash": "941d27f5902bc7a2684448831b5b8ea185bd9390",
+          "materialHash": "6d640252b312078708171d83fd256ff16554ef8be15378dcd536dee1d707c79d",
+          "storyFilesHash": "60972945a17fed7f80d2fbebadba0e8de0cf4e7b03310ccc8acfc611d48bafa8",
+          "timestamp": "2026-06-23T13:09:43.514Z"
         },
         {
           "intentRef": "CHK-002:adversarial:1",
@@ -376,10 +376,10 @@
           "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
           "result": "pass",
           "note": "schema + neg-control groups: DIVERGENCE — buildCanonicalRecord fills a missing numeric with null (§7-valid presence = \"not measured\") rather than throwing; validateRecord enforces presence and finite≥0 when present, so a malformed record is never silently emitted (negative/NaN rejected).",
-          "headHash": "544114e86a7a5556314ec2ba3c06082b437dc463",
-          "materialHash": "e8bfe1e5de2fe36e06a3910d2d140d450875823a86fe4f0e67c33c5a11f12215",
-          "storyFilesHash": "8a80f445e5ed21cbc338727ba522ac5599f4f7b0a74cb7b43e0286d8d5fa456c",
-          "timestamp": "2026-06-23T11:48:12.091Z"
+          "headHash": "941d27f5902bc7a2684448831b5b8ea185bd9390",
+          "materialHash": "6d640252b312078708171d83fd256ff16554ef8be15378dcd536dee1d707c79d",
+          "storyFilesHash": "60972945a17fed7f80d2fbebadba0e8de0cf4e7b03310ccc8acfc611d48bafa8",
+          "timestamp": "2026-06-23T13:09:43.514Z"
         },
         {
           "intentRef": "CHK-002:adversarial:2",
@@ -389,10 +389,10 @@
           "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
           "result": "pass",
           "note": "schema group: an engine-supplied adjudicatedOutcome is IGNORED — the driver re-derives it via adjudicate.mjs (engine sends \"amplified\", record is the true \"recovered\"; asserted).",
-          "headHash": "544114e86a7a5556314ec2ba3c06082b437dc463",
-          "materialHash": "e8bfe1e5de2fe36e06a3910d2d140d450875823a86fe4f0e67c33c5a11f12215",
-          "storyFilesHash": "8a80f445e5ed21cbc338727ba522ac5599f4f7b0a74cb7b43e0286d8d5fa456c",
-          "timestamp": "2026-06-23T11:48:12.091Z"
+          "headHash": "941d27f5902bc7a2684448831b5b8ea185bd9390",
+          "materialHash": "6d640252b312078708171d83fd256ff16554ef8be15378dcd536dee1d707c79d",
+          "storyFilesHash": "60972945a17fed7f80d2fbebadba0e8de0cf4e7b03310ccc8acfc611d48bafa8",
+          "timestamp": "2026-06-23T13:09:43.514Z"
         }
       ]
     },
@@ -465,10 +465,10 @@
           "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
           "result": "pass",
           "note": "denominator-sets group: A4/B1 → [A4_vs_A2prime,A4_vs_A3,A4_vs_A2,A4_vs_A1] (asserted).",
-          "headHash": "544114e86a7a5556314ec2ba3c06082b437dc463",
-          "materialHash": "e8bfe1e5de2fe36e06a3910d2d140d450875823a86fe4f0e67c33c5a11f12215",
-          "storyFilesHash": "8a80f445e5ed21cbc338727ba522ac5599f4f7b0a74cb7b43e0286d8d5fa456c",
-          "timestamp": "2026-06-23T11:48:12.091Z"
+          "headHash": "941d27f5902bc7a2684448831b5b8ea185bd9390",
+          "materialHash": "6d640252b312078708171d83fd256ff16554ef8be15378dcd536dee1d707c79d",
+          "storyFilesHash": "60972945a17fed7f80d2fbebadba0e8de0cf4e7b03310ccc8acfc611d48bafa8",
+          "timestamp": "2026-06-23T13:09:43.514Z"
         },
         {
           "intentRef": "CHK-003:happy:1",
@@ -478,10 +478,10 @@
           "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
           "result": "pass",
           "note": "denominator-sets group: A2prime/B1 membership includes the primary A4_vs_A2prime contrast (A2prime/null asserted = [A4_vs_A2prime]; B1 applies to both arms identically).",
-          "headHash": "544114e86a7a5556314ec2ba3c06082b437dc463",
-          "materialHash": "e8bfe1e5de2fe36e06a3910d2d140d450875823a86fe4f0e67c33c5a11f12215",
-          "storyFilesHash": "8a80f445e5ed21cbc338727ba522ac5599f4f7b0a74cb7b43e0286d8d5fa456c",
-          "timestamp": "2026-06-23T11:48:12.091Z"
+          "headHash": "941d27f5902bc7a2684448831b5b8ea185bd9390",
+          "materialHash": "6d640252b312078708171d83fd256ff16554ef8be15378dcd536dee1d707c79d",
+          "storyFilesHash": "60972945a17fed7f80d2fbebadba0e8de0cf4e7b03310ccc8acfc611d48bafa8",
+          "timestamp": "2026-06-23T13:09:43.514Z"
         },
         {
           "intentRef": "CHK-003:happy:2",
@@ -491,10 +491,10 @@
           "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
           "result": "pass",
           "note": "denominator-sets group: A1/B1 → [A4_vs_A1] (asserted) — A1 participates only in the A4_vs_A1 reference contrast.",
-          "headHash": "544114e86a7a5556314ec2ba3c06082b437dc463",
-          "materialHash": "e8bfe1e5de2fe36e06a3910d2d140d450875823a86fe4f0e67c33c5a11f12215",
-          "storyFilesHash": "8a80f445e5ed21cbc338727ba522ac5599f4f7b0a74cb7b43e0286d8d5fa456c",
-          "timestamp": "2026-06-23T11:48:12.091Z"
+          "headHash": "941d27f5902bc7a2684448831b5b8ea185bd9390",
+          "materialHash": "6d640252b312078708171d83fd256ff16554ef8be15378dcd536dee1d707c79d",
+          "storyFilesHash": "60972945a17fed7f80d2fbebadba0e8de0cf4e7b03310ccc8acfc611d48bafa8",
+          "timestamp": "2026-06-23T13:09:43.514Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -504,10 +504,10 @@
           "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
           "result": "pass",
           "note": "denominator-sets group: A4/B4 → [A4_vs_A2prime,A4_vs_A3,A4_vs_A2] (A4_vs_A1 dropped because B4 is N/A for A1; asserted).",
-          "headHash": "544114e86a7a5556314ec2ba3c06082b437dc463",
-          "materialHash": "e8bfe1e5de2fe36e06a3910d2d140d450875823a86fe4f0e67c33c5a11f12215",
-          "storyFilesHash": "8a80f445e5ed21cbc338727ba522ac5599f4f7b0a74cb7b43e0286d8d5fa456c",
-          "timestamp": "2026-06-23T11:48:12.091Z"
+          "headHash": "941d27f5902bc7a2684448831b5b8ea185bd9390",
+          "materialHash": "6d640252b312078708171d83fd256ff16554ef8be15378dcd536dee1d707c79d",
+          "storyFilesHash": "60972945a17fed7f80d2fbebadba0e8de0cf4e7b03310ccc8acfc611d48bafa8",
+          "timestamp": "2026-06-23T13:09:43.514Z"
         },
         {
           "intentRef": "CHK-003:edge:1",
@@ -517,10 +517,10 @@
           "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
           "result": "pass",
           "note": "enumeration + denominator groups: A1/B4 is an N/A cell (never emitted; in `excluded`), and denominatorSetsFor(A1,B4)=[] (asserted) — no denominator assignment.",
-          "headHash": "544114e86a7a5556314ec2ba3c06082b437dc463",
-          "materialHash": "e8bfe1e5de2fe36e06a3910d2d140d450875823a86fe4f0e67c33c5a11f12215",
-          "storyFilesHash": "8a80f445e5ed21cbc338727ba522ac5599f4f7b0a74cb7b43e0286d8d5fa456c",
-          "timestamp": "2026-06-23T11:48:12.091Z"
+          "headHash": "941d27f5902bc7a2684448831b5b8ea185bd9390",
+          "materialHash": "6d640252b312078708171d83fd256ff16554ef8be15378dcd536dee1d707c79d",
+          "storyFilesHash": "60972945a17fed7f80d2fbebadba0e8de0cf4e7b03310ccc8acfc611d48bafa8",
+          "timestamp": "2026-06-23T13:09:43.514Z"
         },
         {
           "intentRef": "CHK-003:edge:2",
@@ -530,10 +530,10 @@
           "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
           "result": "pass",
           "note": "denominator-sets group: A3/null → [A4_vs_A3] (asserted) — the ablation cell maps to the exploratory contrast.",
-          "headHash": "544114e86a7a5556314ec2ba3c06082b437dc463",
-          "materialHash": "e8bfe1e5de2fe36e06a3910d2d140d450875823a86fe4f0e67c33c5a11f12215",
-          "storyFilesHash": "8a80f445e5ed21cbc338727ba522ac5599f4f7b0a74cb7b43e0286d8d5fa456c",
-          "timestamp": "2026-06-23T11:48:12.091Z"
+          "headHash": "941d27f5902bc7a2684448831b5b8ea185bd9390",
+          "materialHash": "6d640252b312078708171d83fd256ff16554ef8be15378dcd536dee1d707c79d",
+          "storyFilesHash": "60972945a17fed7f80d2fbebadba0e8de0cf4e7b03310ccc8acfc611d48bafa8",
+          "timestamp": "2026-06-23T13:09:43.514Z"
         },
         {
           "intentRef": "CHK-003:edge:3",
@@ -543,10 +543,10 @@
           "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
           "result": "pass",
           "note": "denominator-sets group: denominatorSets is always an array, empty (never null) for a non-participating cell e.g. A1/B4 (asserted Array.isArray).",
-          "headHash": "544114e86a7a5556314ec2ba3c06082b437dc463",
-          "materialHash": "e8bfe1e5de2fe36e06a3910d2d140d450875823a86fe4f0e67c33c5a11f12215",
-          "storyFilesHash": "8a80f445e5ed21cbc338727ba522ac5599f4f7b0a74cb7b43e0286d8d5fa456c",
-          "timestamp": "2026-06-23T11:48:12.091Z"
+          "headHash": "941d27f5902bc7a2684448831b5b8ea185bd9390",
+          "materialHash": "6d640252b312078708171d83fd256ff16554ef8be15378dcd536dee1d707c79d",
+          "storyFilesHash": "60972945a17fed7f80d2fbebadba0e8de0cf4e7b03310ccc8acfc611d48bafa8",
+          "timestamp": "2026-06-23T13:09:43.514Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -556,10 +556,10 @@
           "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
           "result": "pass",
           "note": "denominator-sets group: an engine-supplied denominatorSets:[FAKE_CONTRAST] is IGNORED; the driver computes the true membership (asserted).",
-          "headHash": "544114e86a7a5556314ec2ba3c06082b437dc463",
-          "materialHash": "e8bfe1e5de2fe36e06a3910d2d140d450875823a86fe4f0e67c33c5a11f12215",
-          "storyFilesHash": "8a80f445e5ed21cbc338727ba522ac5599f4f7b0a74cb7b43e0286d8d5fa456c",
-          "timestamp": "2026-06-23T11:48:12.091Z"
+          "headHash": "941d27f5902bc7a2684448831b5b8ea185bd9390",
+          "materialHash": "6d640252b312078708171d83fd256ff16554ef8be15378dcd536dee1d707c79d",
+          "storyFilesHash": "60972945a17fed7f80d2fbebadba0e8de0cf4e7b03310ccc8acfc611d48bafa8",
+          "timestamp": "2026-06-23T13:09:43.514Z"
         },
         {
           "intentRef": "CHK-003:adversarial:1",
@@ -569,10 +569,10 @@
           "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
           "result": "pass",
           "note": "denominator-sets group: A2/B5 → [A4_vs_A2] only (B5 N/A for A1 ⇒ A4_vs_A1 excluded; asserted).",
-          "headHash": "544114e86a7a5556314ec2ba3c06082b437dc463",
-          "materialHash": "e8bfe1e5de2fe36e06a3910d2d140d450875823a86fe4f0e67c33c5a11f12215",
-          "storyFilesHash": "8a80f445e5ed21cbc338727ba522ac5599f4f7b0a74cb7b43e0286d8d5fa456c",
-          "timestamp": "2026-06-23T11:48:12.091Z"
+          "headHash": "941d27f5902bc7a2684448831b5b8ea185bd9390",
+          "materialHash": "6d640252b312078708171d83fd256ff16554ef8be15378dcd536dee1d707c79d",
+          "storyFilesHash": "60972945a17fed7f80d2fbebadba0e8de0cf4e7b03310ccc8acfc611d48bafa8",
+          "timestamp": "2026-06-23T13:09:43.514Z"
         }
       ]
     },
@@ -655,10 +655,10 @@
           "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
           "result": "pass",
           "note": "whole selfcheck runs with a deterministic injected stub engine (no claude -p), all assertions pass, exit 0. (F-015 resolved: note no longer cites a hardcoded assertion count, which drifts as the suite grows.)",
-          "headHash": "36e44ad8ac0200e199456ea900d1335fda9700e9",
-          "materialHash": "26255bbfc9ab59783fa943f23612abdb94db461be0f11f67979190a16ed82f73",
-          "storyFilesHash": "884d4358d5466a408c5f7a6482e3a775dbffb5af0280442c5c8b05669e17195f",
-          "timestamp": "2026-06-23T12:51:00.908Z"
+          "headHash": "941d27f5902bc7a2684448831b5b8ea185bd9390",
+          "materialHash": "6d640252b312078708171d83fd256ff16554ef8be15378dcd536dee1d707c79d",
+          "storyFilesHash": "60972945a17fed7f80d2fbebadba0e8de0cf4e7b03310ccc8acfc611d48bafa8",
+          "timestamp": "2026-06-23T13:09:43.514Z"
         },
         {
           "intentRef": "CHK-004:happy:1",
@@ -668,10 +668,10 @@
           "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
           "result": "pass",
           "note": "validity-filter group: an infra-void signal on attempt 1 then success → exactly one record + one logged void (asserted); the void reason is recorded.",
-          "headHash": "544114e86a7a5556314ec2ba3c06082b437dc463",
-          "materialHash": "e8bfe1e5de2fe36e06a3910d2d140d450875823a86fe4f0e67c33c5a11f12215",
-          "storyFilesHash": "8a80f445e5ed21cbc338727ba522ac5599f4f7b0a74cb7b43e0286d8d5fa456c",
-          "timestamp": "2026-06-23T11:48:12.091Z"
+          "headHash": "941d27f5902bc7a2684448831b5b8ea185bd9390",
+          "materialHash": "6d640252b312078708171d83fd256ff16554ef8be15378dcd536dee1d707c79d",
+          "storyFilesHash": "60972945a17fed7f80d2fbebadba0e8de0cf4e7b03310ccc8acfc611d48bafa8",
+          "timestamp": "2026-06-23T13:09:43.514Z"
         },
         {
           "intentRef": "CHK-004:happy:2",
@@ -681,10 +681,10 @@
           "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
           "result": "pass",
           "note": "validity-filter group: a task-level failure (acceptancePass=false, not infra) is KEPT as a real outcome — no void, no re-run (asserted).",
-          "headHash": "544114e86a7a5556314ec2ba3c06082b437dc463",
-          "materialHash": "e8bfe1e5de2fe36e06a3910d2d140d450875823a86fe4f0e67c33c5a11f12215",
-          "storyFilesHash": "8a80f445e5ed21cbc338727ba522ac5599f4f7b0a74cb7b43e0286d8d5fa456c",
-          "timestamp": "2026-06-23T11:48:12.091Z"
+          "headHash": "941d27f5902bc7a2684448831b5b8ea185bd9390",
+          "materialHash": "6d640252b312078708171d83fd256ff16554ef8be15378dcd536dee1d707c79d",
+          "storyFilesHash": "60972945a17fed7f80d2fbebadba0e8de0cf4e7b03310ccc8acfc611d48bafa8",
+          "timestamp": "2026-06-23T13:09:43.514Z"
         },
         {
           "intentRef": "CHK-004:happy:3",
@@ -694,10 +694,10 @@
           "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
           "result": "pass",
           "note": "whole selfcheck asserts enumeration count, applicability, denominator membership, exact §7 schema, validity-filter, and seeded-order determinism; all PASS, exit 0.",
-          "headHash": "544114e86a7a5556314ec2ba3c06082b437dc463",
-          "materialHash": "e8bfe1e5de2fe36e06a3910d2d140d450875823a86fe4f0e67c33c5a11f12215",
-          "storyFilesHash": "8a80f445e5ed21cbc338727ba522ac5599f4f7b0a74cb7b43e0286d8d5fa456c",
-          "timestamp": "2026-06-23T11:48:12.091Z"
+          "headHash": "941d27f5902bc7a2684448831b5b8ea185bd9390",
+          "materialHash": "6d640252b312078708171d83fd256ff16554ef8be15378dcd536dee1d707c79d",
+          "storyFilesHash": "60972945a17fed7f80d2fbebadba0e8de0cf4e7b03310ccc8acfc611d48bafa8",
+          "timestamp": "2026-06-23T13:09:43.514Z"
         },
         {
           "intentRef": "CHK-004:happy:4",
@@ -707,10 +707,10 @@
           "command": "npm test",
           "result": "pass",
           "note": "npm run test:experiments runs run-selfchecks.mjs (incl. this selfcheck) and is appended to the root `npm test` chain; full `npm test` stays green.",
-          "headHash": "544114e86a7a5556314ec2ba3c06082b437dc463",
-          "materialHash": "e8bfe1e5de2fe36e06a3910d2d140d450875823a86fe4f0e67c33c5a11f12215",
-          "storyFilesHash": "8a80f445e5ed21cbc338727ba522ac5599f4f7b0a74cb7b43e0286d8d5fa456c",
-          "timestamp": "2026-06-23T11:48:12.091Z"
+          "headHash": "941d27f5902bc7a2684448831b5b8ea185bd9390",
+          "materialHash": "6d640252b312078708171d83fd256ff16554ef8be15378dcd536dee1d707c79d",
+          "storyFilesHash": "60972945a17fed7f80d2fbebadba0e8de0cf4e7b03310ccc8acfc611d48bafa8",
+          "timestamp": "2026-06-23T13:09:43.514Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -720,10 +720,10 @@
           "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
           "result": "pass",
           "note": "validity-filter group: persistent infra failure exhausts maxReruns → zero records + an \"exhausted-reruns\" void logged; bounded, no infinite loop (asserted).",
-          "headHash": "544114e86a7a5556314ec2ba3c06082b437dc463",
-          "materialHash": "e8bfe1e5de2fe36e06a3910d2d140d450875823a86fe4f0e67c33c5a11f12215",
-          "storyFilesHash": "8a80f445e5ed21cbc338727ba522ac5599f4f7b0a74cb7b43e0286d8d5fa456c",
-          "timestamp": "2026-06-23T11:48:12.091Z"
+          "headHash": "941d27f5902bc7a2684448831b5b8ea185bd9390",
+          "materialHash": "6d640252b312078708171d83fd256ff16554ef8be15378dcd536dee1d707c79d",
+          "storyFilesHash": "60972945a17fed7f80d2fbebadba0e8de0cf4e7b03310ccc8acfc611d48bafa8",
+          "timestamp": "2026-06-23T13:09:43.514Z"
         },
         {
           "intentRef": "CHK-004:edge:1",
@@ -733,10 +733,10 @@
           "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
           "result": "pass",
           "note": "validity-filter group: infra-void then success on attempt 2 → only the successful record is emitted; the void attempt is logged, not in records (asserted).",
-          "headHash": "544114e86a7a5556314ec2ba3c06082b437dc463",
-          "materialHash": "e8bfe1e5de2fe36e06a3910d2d140d450875823a86fe4f0e67c33c5a11f12215",
-          "storyFilesHash": "8a80f445e5ed21cbc338727ba522ac5599f4f7b0a74cb7b43e0286d8d5fa456c",
-          "timestamp": "2026-06-23T11:48:12.091Z"
+          "headHash": "941d27f5902bc7a2684448831b5b8ea185bd9390",
+          "materialHash": "6d640252b312078708171d83fd256ff16554ef8be15378dcd536dee1d707c79d",
+          "storyFilesHash": "60972945a17fed7f80d2fbebadba0e8de0cf4e7b03310ccc8acfc611d48bafa8",
+          "timestamp": "2026-06-23T13:09:43.514Z"
         },
         {
           "intentRef": "CHK-004:edge:2",
@@ -746,10 +746,10 @@
           "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
           "result": "pass",
           "note": "validity-filter group: runDriver({cells:[]}) → zero records gracefully (asserted). enumerateCells guards an empty-tasks misconfiguration with a clear throw; both paths avoid crash/division-by-zero.",
-          "headHash": "544114e86a7a5556314ec2ba3c06082b437dc463",
-          "materialHash": "e8bfe1e5de2fe36e06a3910d2d140d450875823a86fe4f0e67c33c5a11f12215",
-          "storyFilesHash": "8a80f445e5ed21cbc338727ba522ac5599f4f7b0a74cb7b43e0286d8d5fa456c",
-          "timestamp": "2026-06-23T11:48:12.091Z"
+          "headHash": "941d27f5902bc7a2684448831b5b8ea185bd9390",
+          "materialHash": "6d640252b312078708171d83fd256ff16554ef8be15378dcd536dee1d707c79d",
+          "storyFilesHash": "60972945a17fed7f80d2fbebadba0e8de0cf4e7b03310ccc8acfc611d48bafa8",
+          "timestamp": "2026-06-23T13:09:43.514Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -759,10 +759,10 @@
           "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
           "result": "pass",
           "note": "validity-filter group: an async engine that throws is caught and treated as infra-void (re-run), not a silent drop nor a task-failure (asserted engine-threw void + recovery).",
-          "headHash": "544114e86a7a5556314ec2ba3c06082b437dc463",
-          "materialHash": "e8bfe1e5de2fe36e06a3910d2d140d450875823a86fe4f0e67c33c5a11f12215",
-          "storyFilesHash": "8a80f445e5ed21cbc338727ba522ac5599f4f7b0a74cb7b43e0286d8d5fa456c",
-          "timestamp": "2026-06-23T11:48:12.091Z"
+          "headHash": "941d27f5902bc7a2684448831b5b8ea185bd9390",
+          "materialHash": "6d640252b312078708171d83fd256ff16554ef8be15378dcd536dee1d707c79d",
+          "storyFilesHash": "60972945a17fed7f80d2fbebadba0e8de0cf4e7b03310ccc8acfc611d48bafa8",
+          "timestamp": "2026-06-23T13:09:43.514Z"
         },
         {
           "intentRef": "CHK-004:adversarial:1",
@@ -772,10 +772,10 @@
           "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
           "result": "pass",
           "note": "neg-control group: an impossible negative wallClockMs (and NaN tokensSpent) is FLAGGED invalid by validateRecord (numericOk=false); null = not-measured is allowed (asserted).",
-          "headHash": "544114e86a7a5556314ec2ba3c06082b437dc463",
-          "materialHash": "e8bfe1e5de2fe36e06a3910d2d140d450875823a86fe4f0e67c33c5a11f12215",
-          "storyFilesHash": "8a80f445e5ed21cbc338727ba522ac5599f4f7b0a74cb7b43e0286d8d5fa456c",
-          "timestamp": "2026-06-23T11:48:12.091Z"
+          "headHash": "941d27f5902bc7a2684448831b5b8ea185bd9390",
+          "materialHash": "6d640252b312078708171d83fd256ff16554ef8be15378dcd536dee1d707c79d",
+          "storyFilesHash": "60972945a17fed7f80d2fbebadba0e8de0cf4e7b03310ccc8acfc611d48bafa8",
+          "timestamp": "2026-06-23T13:09:43.514Z"
         },
         {
           "intentRef": "CHK-004:adversarial:2",
@@ -785,10 +785,10 @@
           "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
           "result": "pass",
           "note": "seeded-order group: same seed + same stub → byte-identical serialized JSONL output end-to-end (asserted equal join of JSON.stringify records).",
-          "headHash": "544114e86a7a5556314ec2ba3c06082b437dc463",
-          "materialHash": "e8bfe1e5de2fe36e06a3910d2d140d450875823a86fe4f0e67c33c5a11f12215",
-          "storyFilesHash": "8a80f445e5ed21cbc338727ba522ac5599f4f7b0a74cb7b43e0286d8d5fa456c",
-          "timestamp": "2026-06-23T11:48:12.091Z"
+          "headHash": "941d27f5902bc7a2684448831b5b8ea185bd9390",
+          "materialHash": "6d640252b312078708171d83fd256ff16554ef8be15378dcd536dee1d707c79d",
+          "storyFilesHash": "60972945a17fed7f80d2fbebadba0e8de0cf4e7b03310ccc8acfc611d48bafa8",
+          "timestamp": "2026-06-23T13:09:43.514Z"
         }
       ]
     },
@@ -865,10 +865,10 @@
           "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
           "result": "pass",
           "note": "budget-log group: an A2prime record carries {budgetPass,tokenInBand,wallInBand,truncated,tokenBudget,wallBudgetMs} surfaced from the engine (asserted per-field).",
-          "headHash": "544114e86a7a5556314ec2ba3c06082b437dc463",
-          "materialHash": "e8bfe1e5de2fe36e06a3910d2d140d450875823a86fe4f0e67c33c5a11f12215",
-          "storyFilesHash": "8a80f445e5ed21cbc338727ba522ac5599f4f7b0a74cb7b43e0286d8d5fa456c",
-          "timestamp": "2026-06-23T11:48:12.091Z"
+          "headHash": "941d27f5902bc7a2684448831b5b8ea185bd9390",
+          "materialHash": "6d640252b312078708171d83fd256ff16554ef8be15378dcd536dee1d707c79d",
+          "storyFilesHash": "60972945a17fed7f80d2fbebadba0e8de0cf4e7b03310ccc8acfc611d48bafa8",
+          "timestamp": "2026-06-23T13:09:43.514Z"
         },
         {
           "intentRef": "CHK-005:happy:1",
@@ -878,10 +878,10 @@
           "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
           "result": "pass",
           "note": "budget-log group: an A4 record carries null for all 6 budget fields (asserted).",
-          "headHash": "544114e86a7a5556314ec2ba3c06082b437dc463",
-          "materialHash": "e8bfe1e5de2fe36e06a3910d2d140d450875823a86fe4f0e67c33c5a11f12215",
-          "storyFilesHash": "8a80f445e5ed21cbc338727ba522ac5599f4f7b0a74cb7b43e0286d8d5fa456c",
-          "timestamp": "2026-06-23T11:48:12.091Z"
+          "headHash": "941d27f5902bc7a2684448831b5b8ea185bd9390",
+          "materialHash": "6d640252b312078708171d83fd256ff16554ef8be15378dcd536dee1d707c79d",
+          "storyFilesHash": "60972945a17fed7f80d2fbebadba0e8de0cf4e7b03310ccc8acfc611d48bafa8",
+          "timestamp": "2026-06-23T13:09:43.514Z"
         },
         {
           "intentRef": "CHK-005:happy:2",
@@ -891,10 +891,10 @@
           "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
           "result": "pass",
           "note": "schema group: an A2prime record still has the full §7 core field set (budget fields are additional, asserted via exact key-set equality).",
-          "headHash": "544114e86a7a5556314ec2ba3c06082b437dc463",
-          "materialHash": "e8bfe1e5de2fe36e06a3910d2d140d450875823a86fe4f0e67c33c5a11f12215",
-          "storyFilesHash": "8a80f445e5ed21cbc338727ba522ac5599f4f7b0a74cb7b43e0286d8d5fa456c",
-          "timestamp": "2026-06-23T11:48:12.091Z"
+          "headHash": "941d27f5902bc7a2684448831b5b8ea185bd9390",
+          "materialHash": "6d640252b312078708171d83fd256ff16554ef8be15378dcd536dee1d707c79d",
+          "storyFilesHash": "60972945a17fed7f80d2fbebadba0e8de0cf4e7b03310ccc8acfc611d48bafa8",
+          "timestamp": "2026-06-23T13:09:43.514Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -904,10 +904,10 @@
           "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
           "result": "pass",
           "note": "budget-log group: the driver surfaces budgetPass/tokenInBand faithfully (value-agnostic). The ±20% boundary-inclusive band computation itself is verified in spend-accounting-selfcheck.mjs (B-5bfe budgetPass band).",
-          "headHash": "544114e86a7a5556314ec2ba3c06082b437dc463",
-          "materialHash": "e8bfe1e5de2fe36e06a3910d2d140d450875823a86fe4f0e67c33c5a11f12215",
-          "storyFilesHash": "8a80f445e5ed21cbc338727ba522ac5599f4f7b0a74cb7b43e0286d8d5fa456c",
-          "timestamp": "2026-06-23T11:48:12.091Z"
+          "headHash": "941d27f5902bc7a2684448831b5b8ea185bd9390",
+          "materialHash": "6d640252b312078708171d83fd256ff16554ef8be15378dcd536dee1d707c79d",
+          "storyFilesHash": "60972945a17fed7f80d2fbebadba0e8de0cf4e7b03310ccc8acfc611d48bafa8",
+          "timestamp": "2026-06-23T13:09:43.514Z"
         },
         {
           "intentRef": "CHK-005:edge:1",
@@ -917,10 +917,10 @@
           "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
           "result": "pass",
           "note": "budget-log group: the driver surfaces truncated=true + a failing budgetPass faithfully (asserted truncated:true, wallInBand:false pass-through). The 1-token-over hard-truncation math is verified in spend-accounting-selfcheck.mjs (B-5bfe).",
-          "headHash": "544114e86a7a5556314ec2ba3c06082b437dc463",
-          "materialHash": "e8bfe1e5de2fe36e06a3910d2d140d450875823a86fe4f0e67c33c5a11f12215",
-          "storyFilesHash": "8a80f445e5ed21cbc338727ba522ac5599f4f7b0a74cb7b43e0286d8d5fa456c",
-          "timestamp": "2026-06-23T11:48:12.091Z"
+          "headHash": "941d27f5902bc7a2684448831b5b8ea185bd9390",
+          "materialHash": "6d640252b312078708171d83fd256ff16554ef8be15378dcd536dee1d707c79d",
+          "storyFilesHash": "60972945a17fed7f80d2fbebadba0e8de0cf4e7b03310ccc8acfc611d48bafa8",
+          "timestamp": "2026-06-23T13:09:43.514Z"
         },
         {
           "intentRef": "CHK-005:edge:2",
@@ -930,10 +930,10 @@
           "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
           "result": "pass",
           "note": "budget-log group: the driver surfaces tokenInBand/wallInBand independently (asserted tokenInBand:true, wallInBand:false pass-through). The token-budget-binds-first precedence is verified in spend-accounting-selfcheck.mjs (B-5bfe).",
-          "headHash": "544114e86a7a5556314ec2ba3c06082b437dc463",
-          "materialHash": "e8bfe1e5de2fe36e06a3910d2d140d450875823a86fe4f0e67c33c5a11f12215",
-          "storyFilesHash": "8a80f445e5ed21cbc338727ba522ac5599f4f7b0a74cb7b43e0286d8d5fa456c",
-          "timestamp": "2026-06-23T11:48:12.091Z"
+          "headHash": "941d27f5902bc7a2684448831b5b8ea185bd9390",
+          "materialHash": "6d640252b312078708171d83fd256ff16554ef8be15378dcd536dee1d707c79d",
+          "storyFilesHash": "60972945a17fed7f80d2fbebadba0e8de0cf4e7b03310ccc8acfc611d48bafa8",
+          "timestamp": "2026-06-23T13:09:43.514Z"
         },
         {
           "intentRef": "CHK-005:edge:3",
@@ -943,10 +943,10 @@
           "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
           "result": "pass",
           "note": "budget-log group: A1, A2, A3 (and A4) all carry null for the 6 budget fields — the non-A2prime else-branch is uniform (asserted for each arm).",
-          "headHash": "544114e86a7a5556314ec2ba3c06082b437dc463",
-          "materialHash": "e8bfe1e5de2fe36e06a3910d2d140d450875823a86fe4f0e67c33c5a11f12215",
-          "storyFilesHash": "8a80f445e5ed21cbc338727ba522ac5599f4f7b0a74cb7b43e0286d8d5fa456c",
-          "timestamp": "2026-06-23T11:48:12.091Z"
+          "headHash": "941d27f5902bc7a2684448831b5b8ea185bd9390",
+          "materialHash": "6d640252b312078708171d83fd256ff16554ef8be15378dcd536dee1d707c79d",
+          "storyFilesHash": "60972945a17fed7f80d2fbebadba0e8de0cf4e7b03310ccc8acfc611d48bafa8",
+          "timestamp": "2026-06-23T13:09:43.514Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -956,10 +956,10 @@
           "command": "node experiments/recovery-runner/run-driver-selfcheck.mjs",
           "result": "pass",
           "note": "budget-log group: an engine that pre-fills budgetPass=true on a non-A2prime arm is overridden to null (asserted for A1/A2/A3/A4 with engine fake).",
-          "headHash": "544114e86a7a5556314ec2ba3c06082b437dc463",
-          "materialHash": "e8bfe1e5de2fe36e06a3910d2d140d450875823a86fe4f0e67c33c5a11f12215",
-          "storyFilesHash": "8a80f445e5ed21cbc338727ba522ac5599f4f7b0a74cb7b43e0286d8d5fa456c",
-          "timestamp": "2026-06-23T11:48:12.091Z"
+          "headHash": "941d27f5902bc7a2684448831b5b8ea185bd9390",
+          "materialHash": "6d640252b312078708171d83fd256ff16554ef8be15378dcd536dee1d707c79d",
+          "storyFilesHash": "60972945a17fed7f80d2fbebadba0e8de0cf4e7b03310ccc8acfc611d48bafa8",
+          "timestamp": "2026-06-23T13:09:43.514Z"
         },
         {
           "intentRef": "CHK-005:adversarial:1",
@@ -969,10 +969,10 @@
           "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
           "result": "pass",
           "note": "budget-log group: the driver surfaces whatever the engine computes (value-agnostic). A degenerate tokenBudget=0 → budgetPass=false is computed/handled in spend-accounting-selfcheck.mjs (B-5bfe); the driver carries the result faithfully.",
-          "headHash": "544114e86a7a5556314ec2ba3c06082b437dc463",
-          "materialHash": "e8bfe1e5de2fe36e06a3910d2d140d450875823a86fe4f0e67c33c5a11f12215",
-          "storyFilesHash": "8a80f445e5ed21cbc338727ba522ac5599f4f7b0a74cb7b43e0286d8d5fa456c",
-          "timestamp": "2026-06-23T11:48:12.091Z"
+          "headHash": "941d27f5902bc7a2684448831b5b8ea185bd9390",
+          "materialHash": "6d640252b312078708171d83fd256ff16554ef8be15378dcd536dee1d707c79d",
+          "storyFilesHash": "60972945a17fed7f80d2fbebadba0e8de0cf4e7b03310ccc8acfc611d48bafa8",
+          "timestamp": "2026-06-23T13:09:43.514Z"
         }
       ]
     }
