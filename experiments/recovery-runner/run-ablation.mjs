@@ -13,8 +13,10 @@
 // tokensSpent and MEDIAN wallClockMs, then run a2prime under the UPPER bound of the ±20%
 // band (tokenBudget = round(1.2*medianTokens), wallBudgetMs = round(1.2*medianWall)); the
 // token budget BINDS FIRST and the runner hard-truncates at that cap. Per run we record
-// budgetPass = (actual tokensSpent within [0.8*medianTokens, 1.2*medianTokens]) which flags
-// under-match (a2prime can stop early before reaching the band). See pre-reg §1/§7/§8.
+// budgetPass = (tokensSpent within [0.8,1.2]*medianTokens) AND (wallClockMs within
+// [0.8,1.2]*medianWall) — pre-reg §47 requires tokens AND wall-clock each within ±20% — plus
+// the per-axis tokenInBand/wallInBand for transparency; this flags under-match (a2prime can
+// stop early before reaching the band on either axis). See pre-reg §1/§7/§8/§47.
 //
 //   node run-ablation.mjs [--tasks parse-range,median,text-stats] [--k 3] [--model sonnet]
 import { execFileSync } from 'node:child_process';
@@ -52,12 +54,19 @@ export function a2primeBudget(medTokens, medWall) {
     wallBudgetMs: medWall == null ? null : Math.round(1.2 * medWall),
   };
 }
-// budgetPass: did the A2-prime run's actual spend land inside the ±20% band? (false flags
-// an under-match where a2prime stopped early below 0.8*median.) Token band is the binding one.
-export function budgetPass(actualTokens, medTokens) {
-  if (medTokens == null || !Number.isFinite(Number(actualTokens))) return false;
-  const t = Number(actualTokens);
-  return t >= 0.8 * medTokens && t <= 1.2 * medTokens;
+// budgetPass: did the A2-prime run's actual spend land inside BOTH ±20% bands? The pre-reg
+// (lattice-experiment-protocol.md §47) requires tokens AND wall-clock EACH within ±20% of
+// A4's per-task median; returns true ONLY if both are in band. (false flags an under-match
+// where a2prime stopped early below 0.8*median on either axis.) NOTE: "token binds first"
+// is the TRUNCATION cap (budgetExceeded), NOT this band check — budgetPass is symmetric and
+// requires both axes. Returns false on any missing median or non-finite actual on either axis.
+export function budgetPass(actualTokens, actualWallMs, medTokens, medWall) {
+  if (medTokens == null || medWall == null) return false;
+  const t = Number(actualTokens), w = Number(actualWallMs);
+  if (!Number.isFinite(t) || !Number.isFinite(w)) return false;
+  const tokenInBand = t >= 0.8 * medTokens && t <= 1.2 * medTokens;
+  const wallInBand = w >= 0.8 * medWall && w <= 1.2 * medWall;
+  return tokenInBand && wallInBand;
 }
 
 function runMain() {
@@ -131,11 +140,18 @@ for (const task of tasks) {
         { encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'], timeout: 800000 });
       const line = readFileSync(tmpRec, 'utf-8').split('\n').filter(Boolean).pop();
       const run = JSON.parse(line);
+      // ±20% band membership per axis (pre-reg §47: tokens AND wall-clock each within ±20%
+      // of A4's per-task median). budgetPass is the AND of both; record each axis for transparency.
+      const tokenInBand = Number.isFinite(Number(run.tokensSpent)) && medTokens != null
+        && Number(run.tokensSpent) >= 0.8 * medTokens && Number(run.tokensSpent) <= 1.2 * medTokens;
+      const wallInBand = Number.isFinite(Number(run.wallClockMs)) && medWall != null
+        && Number(run.wallClockMs) >= 0.8 * medWall && Number(run.wallClockMs) <= 1.2 * medWall;
       const enriched = {
         ...run,
         medianTokens: medTokens, medianWallMs: medWall,
         tokenBudget, wallBudgetMs,
-        budgetPass: budgetPass(run.tokensSpent, medTokens),
+        tokenInBand, wallInBand,
+        budgetPass: budgetPass(run.tokensSpent, run.wallClockMs, medTokens, medWall),
       };
       appendFileSync(A2P_FILE, JSON.stringify(enriched) + '\n');
       console.log(`ok (budgetPass=${enriched.budgetPass}, truncated=${run.truncated})`);

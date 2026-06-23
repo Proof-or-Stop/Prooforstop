@@ -10,9 +10,12 @@
 // taskDir needs task.json (outputFile/promptFile/acceptanceFile), the prompt, and acceptance.
 // injection id resolves to ./injections/<id>.mjs (task-adaptive: acts on task.outputFile).
 //
-// Pure helpers (budgetExceeded, tokensFromUsage) are exported at module scope and the entry
-// point only runs when invoked as a script, so the no-LLM selfcheck can import the helpers
-// without spawning claude or executing the loop.
+// Pure helpers are exported at module scope so the no-LLM selfcheck can import them without
+// spawning claude or executing the loop (the entry point only runs when invoked as a script):
+//   budgetExceeded    — token-binds-first spend-cap truncation predicate
+//   tokensFromUsage   — token capture from a claude -p usage JSON object
+//   replayBudgetLoop  — pure replay of the per-call increment/check/break accounting
+//   buildRunRecord    — assembler for the §7 run-record schema the real loop emits
 
 import { execFileSync } from 'node:child_process';
 import { mkdtempSync, copyFileSync, readFileSync, appendFileSync, existsSync } from 'node:fs';
