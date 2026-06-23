@@ -39,7 +39,22 @@
             "type": "logic"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/injection-probes/run-injection-arms.mjs",
+          "command": "node experiments/injection-probes/run-injection-arms.mjs --self-test",
+          "result": "pass",
+          "note": "Self-test: a fake arm that resolves the fault yields OUTCOME.RECOVERED for that (probe,arm,rep) — proves inject->runArm->classify->record wiring (18/18 incl recovered cases).",
+          "headHash": "d07410867fb8158613becb172f1fec65eef80e02",
+          "materialHash": "8680c75a06fafa0438ade68a19ed505d0b1696eac8208887a0b3f30242f8217c",
+          "storyFilesHash": "2e45d85b36274be0d8d365f000733cae97ff01ec31d26f2ba47f1606d5331b84",
+          "timestamp": "2026-06-23T09:57:51.348Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
