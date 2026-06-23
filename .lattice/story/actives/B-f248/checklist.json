@@ -199,7 +199,70 @@
       "context": "Inject the per-cell engine so the driver core runs with a deterministic stub (no live model). Validity filter: infra/harness failure => mark run void, re-run, log reason; task-level failures kept as real outcomes. Add run-driver-selfcheck.mjs asserting enumeration count, applicability filtering, denominator-set assignment, schema conformance of every emitted record, void-re-run behaviour, and seeded-order determinism; wire it into npm test.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run driver with deterministic stub engine (no claude -p) -> all cells execute, selfcheck exits 0, entire run completes offline; WHY: proves the pluggable engine contract works end-to-end",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Stub engine returns an infra-failure signal for one cell -> validity filter marks that run void, re-runs it (with the stub returning success on retry), logs the void reason, and the final output has no void records; WHY: proves infra-void + re-run mechanic",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Stub engine returns a task-level failure (acceptancePass=false) -> validity filter keeps the record as a real outcome, does NOT void or re-run; WHY: proves task failures are preserved, not dropped",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "run-driver-selfcheck.mjs asserts: enumeration count, applicability filtering, denominator-set assignment, schema conformance (21 fields), void-re-run behaviour, seeded-order determinism; all print PASS and exit 0; WHY: comprehensive selfcheck coverage",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "npm test includes the selfcheck and stays green; WHY: proves wiring into the test chain",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Stub engine returns infra-failure on every attempt (all retries exhausted) -> driver logs the persistent failure, marks cell as void-unresolvable, does not loop forever; WHY: bounded retry prevents infinite loops",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Stub engine returns infra-failure then succeeds on second attempt -> only the successful result is in the output, the void attempt is logged but not in the final JSONL; WHY: re-run replaces void",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Empty corpus (zero tasks) -> driver produces zero records and selfcheck handles the degenerate case without division-by-zero or crash; WHY: empty-input boundary",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Stub engine is async and throws an unhandled exception mid-run -> driver catches the error, treats it as infra-failure (not task-failure), triggers re-run; WHY: exception safety prevents silent data loss",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Stub engine returns success but with wallClockMs=-1 (negative, impossible) -> driver either rejects the record or flags it, does not silently accept impossible values; WHY: garbage-in resilience",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Two consecutive runs with the same seed and same stub -> byte-identical JSONL output; WHY: proves the entire pipeline (not just ordering) is deterministic end-to-end",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
