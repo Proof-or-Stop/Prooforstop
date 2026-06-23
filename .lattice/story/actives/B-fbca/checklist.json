@@ -477,6 +477,17 @@
           "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
           "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
           "timestamp": "2026-06-23T21:22:58.099Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "manual_transcript",
+          "command": "npm run -s test:lattice-residue && npm run -s test:process-fact-contract && npm run -s test:runtime-fact-contract && npm run -s test:evidence-quality && npm run -s test:review-convergence-smoke",
+          "result": "pass",
+          "note": "The 4 named 'pre-existing fail' tests (cli-json-stdout/field-regression/english-open-source-surface/prompt-token-cost) do not exist as scripts in this Proofbound export. Ran the rename-affected machine-check suite slice instead — all 5 green (lattice-residue, process-fact-contract, runtime-fact-contract, evidence-quality, review-convergence); plus the 3 directly-affected smokes passed under CHK-002",
+          "headHash": "9dab7e814c2923b038881838133a73d17de4d2ed",
+          "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
+          "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
+          "timestamp": "2026-06-23T21:22:59.489Z"
         }
       ]
     },
