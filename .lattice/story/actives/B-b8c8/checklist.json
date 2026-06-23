@@ -1,0 +1,36 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "run-recovery.mjs: add an accurate per-run agentCalls counter incremented inside agentRun() (each executor call) and reviewArtifact() (each reviewer call); record agentCalls in the run record",
+      "context": "Arm-agnostic; fixes the reviewRounds undercount. a2prime agentCalls=attempts; a4=attempts+1 gate review; a4b=attempts+reviewer-calls",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "run-ablation.mjs: compute the median A4 (a4b) agentCalls from the A4 records and add the A2-prime arm = a2prime with R = that median (budget-match); record to ablation-A2prime-compute-matched.jsonl",
+      "context": "Recompute median from records that carry the new agentCalls field; label the arm clearly",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Document the budget-match semantics (R = median A4 agent-call count; budget-matched not spend-matched) in the run-ablation.mjs / run-recovery.mjs comments",
+      "context": "So the paper A2-prime claim is precise and not overstated",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Verify without the live LLM: agentCalls increments at both call sites (code-level) and the median computation is correct on synthetic A4 records",
+      "context": "The runner shells out to claude -p, so do a no-LLM unit check of the median function + a read-level check of the two increment sites; do not run the live loop",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
