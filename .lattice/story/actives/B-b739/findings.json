@@ -225,7 +225,7 @@
       "desc": "doc-code-drift: real-loop-agent.mjs in-file comments (lines 6 and 35) reference execFileSync as the bounding mechanism but the actual implementation uses async execFileAsync (promisify(execFile)) — execFileSync does not appear anywhere in the implementation",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-06-23T20:39:08.459Z",
@@ -236,7 +236,11 @@
         "experiments/injection-probes/real-loop-agent.mjs"
       ],
       "signatureTag": "doc-code-drift|mjs|code-drift-real",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: updated the real-loop-agent.mjs header + JSDoc comments to async execFile/{signal} + agent({ws,context,signal}) (dropped the stale execFileSync/turn mentions). Comment-only; code unchanged; 24/24.",
+      "resolvedAt": "2026-06-23T20:43:30.372Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
