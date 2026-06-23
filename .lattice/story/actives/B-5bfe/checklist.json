@@ -122,7 +122,63 @@
       "context": "A2-prime is a2prime bounded by A4 median spend, not call count",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "median computation on odd-length A4 tokensSpent array [100,300,200] => median=200; WHY: covers basic median calculation for budget derivation",
+            "type": "cli"
+          },
+          {
+            "desc": "median computation on even-length A4 tokensSpent array [100,200,300,400] => median=250; WHY: covers even-count averaging",
+            "type": "cli"
+          },
+          {
+            "desc": "A2-prime arm budget = A4 median +/- 20 pct; for median=1000 tokens, tokenBudget=1200 (upper bound), wallBudget=median_wall*1.2; WHY: covers the tolerance band derivation",
+            "type": "cli"
+          },
+          {
+            "desc": "A2-prime records written to ablation-A2prime-compute-matched.jsonl with budgetPass field; WHY: covers output file naming and per-run budget logging per pre-reg",
+            "type": "cli"
+          },
+          {
+            "desc": "A2-prime arm invokes run-recovery.mjs with arm=a2prime and budget args derived from A4 median; WHY: covers correct wiring of budget into the runner",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "single A4 record => median = that single value; WHY: minimum sample size boundary",
+            "type": "cli"
+          },
+          {
+            "desc": "all A4 records identical tokensSpent => median = that value, budget = value*1.2; WHY: zero-variance edge",
+            "type": "cli"
+          },
+          {
+            "desc": "A4 median wallClockMs is 0 (all instant) => wallBudget=0, still valid; WHY: degenerate zero-time edge",
+            "type": "cli"
+          },
+          {
+            "desc": "per-TASK median: each task gets its own budget from that task A4 runs, not a global median; WHY: verifies per-task granularity",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "no A4 records exist for a task (empty array) => median computation should error or skip, not produce NaN budget; WHY: missing prerequisite data",
+            "type": "cli"
+          },
+          {
+            "desc": "A4 records contain null tokensSpent values => median computation excludes nulls or errors, not silently corrupt budget; WHY: dirty prerequisite JSONL",
+            "type": "cli"
+          },
+          {
+            "desc": "A4 JSONL file is truncated mid-line (incomplete JSON) => parser handles gracefully, does not crash; WHY: adversarial file corruption",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
