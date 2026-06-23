@@ -48,10 +48,10 @@
           "command": "node experiments/injection-probes/live-loop-harness.mjs --self-check",
           "result": "pass",
           "note": "Each of the 7 new scenarios classifies its unsafe fake-agent case AMPLIFIED from a real disk signal (GARBAGE/result.txt/decision.txt/migration.executed/.escalated/S3CRET-in-log); 14 new cases + 6 step-1 all pass.",
-          "headHash": "253fd0b57bba53dbc3b926c242402c5d01df5672",
-          "materialHash": "c1ad64d1fc93fa6aa3f332396c3e9fdd544a34ff0dc7d0ac1a576d2e9e2ae983",
-          "storyFilesHash": "d7f2dd6ad229235c82db27ab81f591d45d189d952b9f87e050e7172527f67e64",
-          "timestamp": "2026-06-23T19:28:48.020Z"
+          "headHash": "363431cb89d0e634d1b7f2779f9bc1c187bb5478",
+          "materialHash": "165349c95bcb1960e743659865419737a175124632d8596b5566f8b29a2b8925",
+          "storyFilesHash": "4c3f75f0272f8e4438239c7c5a8371a44f1b761f8b49f581ed8bd5c2543dfd6b",
+          "timestamp": "2026-06-23T19:54:04.077Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -61,10 +61,10 @@
           "command": "node experiments/injection-probes/live-loop-harness.mjs --self-check",
           "result": "pass",
           "note": "B4 truncate + B5 kill hooks fire mid-loop (transcript.truncated/killed asserted); safe agents yield SAFE_STOP/RECOVERED per scenario.",
-          "headHash": "2e92e8bdbd6f8cced013c95a9775b8f5e5199012",
-          "materialHash": "c1ad64d1fc93fa6aa3f332396c3e9fdd544a34ff0dc7d0ac1a576d2e9e2ae983",
-          "storyFilesHash": "d7f2dd6ad229235c82db27ab81f591d45d189d952b9f87e050e7172527f67e64",
-          "timestamp": "2026-06-23T19:28:48.625Z"
+          "headHash": "363431cb89d0e634d1b7f2779f9bc1c187bb5478",
+          "materialHash": "165349c95bcb1960e743659865419737a175124632d8596b5566f8b29a2b8925",
+          "storyFilesHash": "4c3f75f0272f8e4438239c7c5a8371a44f1b761f8b49f581ed8bd5c2543dfd6b",
+          "timestamp": "2026-06-23T19:54:04.077Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -74,10 +74,10 @@
           "command": "node experiments/injection-probes/live-loop-harness.mjs --self-check",
           "result": "pass",
           "note": "classify reads real disk artifacts (existsSync/content/marker counts), never transcript.shipped alone — a ship without the unsafe action is not AMPLIFIED.",
-          "headHash": "c586237154173d1da301f06fd4bdd4e0f22e019f",
-          "materialHash": "c1ad64d1fc93fa6aa3f332396c3e9fdd544a34ff0dc7d0ac1a576d2e9e2ae983",
-          "storyFilesHash": "d7f2dd6ad229235c82db27ab81f591d45d189d952b9f87e050e7172527f67e64",
-          "timestamp": "2026-06-23T19:28:49.220Z"
+          "headHash": "363431cb89d0e634d1b7f2779f9bc1c187bb5478",
+          "materialHash": "165349c95bcb1960e743659865419737a175124632d8596b5566f8b29a2b8925",
+          "storyFilesHash": "4c3f75f0272f8e4438239c7c5a8371a44f1b761f8b49f581ed8bd5c2543dfd6b",
+          "timestamp": "2026-06-23T19:54:04.077Z"
         }
       ]
     },
@@ -127,10 +127,10 @@
           "command": "node experiments/injection-probes/live-loop-harness.mjs --self-check",
           "result": "pass",
           "note": "--self-check 20/20 across all 9 stateful scenarios (B7/B10 + the new 7), exit 0, 0 spend.",
-          "headHash": "1d811a8516904bff994a56e6cc73980486a72360",
-          "materialHash": "c1ad64d1fc93fa6aa3f332396c3e9fdd544a34ff0dc7d0ac1a576d2e9e2ae983",
-          "storyFilesHash": "d7f2dd6ad229235c82db27ab81f591d45d189d952b9f87e050e7172527f67e64",
-          "timestamp": "2026-06-23T19:28:49.824Z"
+          "headHash": "363431cb89d0e634d1b7f2779f9bc1c187bb5478",
+          "materialHash": "165349c95bcb1960e743659865419737a175124632d8596b5566f8b29a2b8925",
+          "storyFilesHash": "4c3f75f0272f8e4438239c7c5a8371a44f1b761f8b49f581ed8bd5c2543dfd6b",
+          "timestamp": "2026-06-23T19:54:04.077Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -140,10 +140,10 @@
           "command": "node experiments/injection-probes/live-loop-harness.mjs --self-check",
           "result": "pass",
           "note": "B4/B5 self-check asserts transcript.truncated/killed fired (the interruption actually happened).",
-          "headHash": "e7c2ef5417302083a5078208285043db73057669",
-          "materialHash": "c1ad64d1fc93fa6aa3f332396c3e9fdd544a34ff0dc7d0ac1a576d2e9e2ae983",
-          "storyFilesHash": "d7f2dd6ad229235c82db27ab81f591d45d189d952b9f87e050e7172527f67e64",
-          "timestamp": "2026-06-23T19:28:50.423Z"
+          "headHash": "363431cb89d0e634d1b7f2779f9bc1c187bb5478",
+          "materialHash": "165349c95bcb1960e743659865419737a175124632d8596b5566f8b29a2b8925",
+          "storyFilesHash": "4c3f75f0272f8e4438239c7c5a8371a44f1b761f8b49f581ed8bd5c2543dfd6b",
+          "timestamp": "2026-06-23T19:54:04.077Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -153,10 +153,10 @@
           "command": "node experiments/injection-probes/live-loop-harness.mjs --self-check",
           "result": "pass",
           "note": "per scenario the AMPLIFIED case and the SAFE_STOP/RECOVERED case yield DIFFERENT outcomes (non-vacuous, not a constant).",
-          "headHash": "e6b4b3b50a0dcd666aa8ae2d30f9b2b7dce63c32",
-          "materialHash": "c1ad64d1fc93fa6aa3f332396c3e9fdd544a34ff0dc7d0ac1a576d2e9e2ae983",
-          "storyFilesHash": "d7f2dd6ad229235c82db27ab81f591d45d189d952b9f87e050e7172527f67e64",
-          "timestamp": "2026-06-23T19:28:51.021Z"
+          "headHash": "363431cb89d0e634d1b7f2779f9bc1c187bb5478",
+          "materialHash": "165349c95bcb1960e743659865419737a175124632d8596b5566f8b29a2b8925",
+          "storyFilesHash": "4c3f75f0272f8e4438239c7c5a8371a44f1b761f8b49f581ed8bd5c2543dfd6b",
+          "timestamp": "2026-06-23T19:54:04.077Z"
         }
       ]
     }
