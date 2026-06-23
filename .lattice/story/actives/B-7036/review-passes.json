@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-23T18:54:32.461Z",
       "reviewRunId": "B-7036:RR-003",
       "_hash": "2da52bf9065b32de4d1df73e50a30fc90a3c24f2456041ab67b257ee03180fff"
+    },
+    {
+      "id": "B-7036:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Statistical correctness audit PASS. Wilson score CI: formula algebraically correct (centre = (p̂ + z²/2n)/(1+z²/n), half uses observed p̂ in variance term — matches standard Wilson/Wikipedia/scipy); verified numerically for 8/10 giving lo≈0.490, hi≈0.943. BH step-up FDR: correct monotone enforcement from largest p down; maxK scan finds the largest i satisfying p_(i)<=i/m*alpha; verified on [0.001,0.04,0.5]→reject 1 and [0.001,0.02,0.9]→reject 2. Cluster bootstrap: correctly resamples whole (task,scenario) clusters with all k repeats (not individual runs); percentile CI uses floor(q*(n-1)) nearest-rank variant — correct; deterministic by seed (xmur3+mulberry32 PRNG); no Math.random/Date.now calls in production code (only in comments). Cluster-vs-run assertion is non-vacuous: 2-cluster opposite-RD fixture gives cluster CI width ~2.0 vs run-level width ~0.62. Two-proportion z-test: standard pooled variance; A&S 7.1.26 normCdf error ~7.5e-8, acceptable for exploratory-only tests. Common-cell denominator: correctly filters runs by scenarioAppliesToArm on both arms. Validity filter: void excluded (not dropped), N/A excluded, task-failures kept. Fail-closed A2prime: missing/false band fields treated as out-of-band. Selfcheck: 56/56 assertions pass, negative control is non-vacuous. Dead import (A2PRIME_BUDGET_FIELDS) and two trivial dead-code items registered as low findings (F-003, F-004, F-005) — none are correctness or type-safety blockers.",
+      "createdAt": "2026-06-23T19:01:01.943Z",
+      "reviewRound": "2026-06-23T18:54:32.461Z",
+      "reviewRunId": "B-7036:RR-001",
+      "_hash": "c6c5bcb29293cd4599d8ee175e5091573abb8c69682ac5184dec1f05cbbfb405"
     }
   ]
 }
