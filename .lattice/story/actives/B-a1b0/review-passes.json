@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-a1b0:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Purely additive commit d07410867: only experiments/injection-probes/run-injection-arms.mjs (new file) + CHANGELOG.md (section heading rename Test-infrastructure -> Experiments, self-contained to that hunk). No domain concept deleted or renamed en masse. The CHANGELOG heading change has zero residue elsewhere in the repo (grepped *.ts/*.md/*.json/*.mjs, excluding node_modules/dist/.git). New exports (runInjectionArms, loadProbes, PROBE_FILES, importProbe) referenced only in the new file; probeCliMain/selfTestCases references outside the new file are all pre-existing legitimate definitions in probe-contract.mjs and the 6 probe files. No orphan/residual concept found; no blocker.",
+      "createdAt": "2026-06-23T09:59:19.375Z",
+      "reviewRound": "2026-06-23T09:58:07.968Z",
+      "reviewRunId": "B-a1b0:RR-001",
+      "_hash": "fdb61f8e53254f0a66a9071a923fbe576ccdabfd110af94107e753884767efd3"
+    }
+  ]
+}
