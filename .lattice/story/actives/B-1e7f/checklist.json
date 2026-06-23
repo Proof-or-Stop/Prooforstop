@@ -155,7 +155,40 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Focused smokes show claim.storyId is sent for B-current and stale other-story queued jobs are not accepted as current-story success.",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/authority-runner-contracts-smoke.ts",
+          "packages/main/src/tasks/authority-job-loop-live-smoke.ts",
+          "packages/main/src/tasks/authority-runner-client-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Focused authority runner contract and live smokes pass after the selector change.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Regression coverage models a stale queued job from another story and proves the current story claim remains story-scoped.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "SSE jobs.available remains advisory in test coverage; signed POST /jobs/claim is still required for ownership.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ],
   "auditLog": [
