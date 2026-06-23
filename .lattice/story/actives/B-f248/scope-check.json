@@ -166,8 +166,12 @@
       "q": "Is A2prime ±20% budget enforcement and per-run pass/fail logging in scope for this driver story, or deferred to the run-ablation/engine layer? The §7 schema does not include a budget-compliance field, but §1 says each A2prime run logs pass/fail against the token+wall-clock constants. CHK-002 covers the §7 schema fields but does not name this logging requirement.",
       "evidence": "§1 A2prime: each run logs pass/fail against these constants. Hard-truncation cap at the upper bound.",
       "sourcePointers": [
-        "docs/requirements/decisions/lattice-experiment-protocol.md:47"
-      ]
+        "docs/requirements/decisions/lattice-experiment-protocol.md",
+        "CHK-005",
+        "CHK-002"
+      ],
+      "resolution": "IN SCOPE for this driver story, surfaced as additional canonical-record fields (not a change to the 21 required §7 fields). Pre-reg §1 line 47 states for A2prime: \"each run logs pass/fail against these constants. Hard-truncation cap at the upper bound.\" The enforcement already lives in run-recovery.mjs (truncated flag, --tokenBudget/--wallBudgetMs) and run-ablation.mjs (budgetPass/tokenInBand/wallInBand vs A4 per-task median, B-5bfe). Since the driver owns canonical per-run record assembly, it must surface this §1-mandated log: A2prime records additionally carry {budgetPass, tokenInBand, wallInBand, truncated, tokenBudget, wallBudgetMs}; non-A2prime arms carry null. §7 lists 21 REQUIRED fields and does not forbid additional fields, so the 21-field core is unchanged and §1 is satisfied — no pre-reg amendment needed. Tracked as new CHK-005.",
+      "resolvedAt": "2026-06-23T11:25:20.976Z"
     }
   ]
 }
