@@ -30,7 +30,7 @@
       "desc": "Test coverage does not prove the new done_prepare recovery path actually resolves missing DONE-required evidence. The new smoke scenario only builds the DONE checklist/runbook and asserts branch-synced-main plus done-required-validation nextCommand values point at lattice done_prepare; it never executes done_prepare for that missing evidence case. Existing DONE-required smoke pre-runs done_required_validate before done_prepare, so it only covers already-present evidence. Meanwhile done_closure maps done-required-validation to done_prepare, but done_prepare only runs ordinary lattice validate before rebuilding done_closure and does not invoke done_required_validate. A missing DONE-required blocker can therefore be routed to a command that rechecks and blocks again, and the current regression coverage would not catch the stale/DONE recovery loop.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-23T02:03:48.522Z",
@@ -45,7 +45,11 @@
         "packages/main/src/core/done-required-validation.ts"
       ],
       "signatureTag": "coverage|done-prepare|done-required-recovery-loop",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed in commit 42929151: done-prepare-smoke now executes done_prepare with missing DONE-required evidence, asserts PASS done-required-evidence.json is written through the existing validator, and asserts failing DONE-required validation blocks at validate with FAIL evidence. Verified by node packages/main/dist/tasks/done-prepare-smoke.js.",
+      "resolvedAt": "2026-06-23T02:21:38.623Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-c1b1:F-003",
