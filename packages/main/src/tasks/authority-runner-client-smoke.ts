@@ -180,7 +180,7 @@ function pythonHeader() {
   return { actorId: ACTOR_ID, role: 'runner', nonce: NONCE, timestamp: CREATED_AT };
 }
 
-function liveControlPlaneOptions(fetchImpl: AuthorityFetch, runnerProvider = 'codex') {
+function liveControlPlaneOptions(fetchImpl: AuthorityFetch, runnerProvider = 'codex', storyId?: string) {
   return {
     baseURL: BASE_URL,
     timeoutMS: DEFAULT_AUTHORITY_TIMEOUT_MS,
@@ -193,6 +193,7 @@ function liveControlPlaneOptions(fetchImpl: AuthorityFetch, runnerProvider = 'co
     sessionId: 'session-1',
     runnerProvider,
     projectId: 'project-1',
+    ...(storyId ? { storyId } : {}),
     customerApiKey: TEST_AUTH.customerApiKey,
     once: true,
     fetchImpl: fetchImpl as unknown as typeof fetch,
@@ -581,9 +582,9 @@ function eventMessage(events: { step: string; message?: string }[], step: string
 {
   const { fetch, calls } = controlPlaneFetch(() => textResponse(
     200,
-    ': heartbeat\n\nevent: jobs.available\ndata: {"count":2,"jobIds":["job-a","job-b"]}\n\n',
+    ': heartbeat\n\nevent: jobs.available\ndata: {"count":2,"jobIds":["job-stale-other-story","job-current"]}\n\n',
   ));
-  const out = await runLatticeAuthorityControlPlaneOnce(liveControlPlaneOptions(fetch, 'codex-cli'));
+  const out = await runLatticeAuthorityControlPlaneOnce(liveControlPlaneOptions(fetch, 'codex-cli', 'B-current'));
   const events = out.networkEvents ?? [];
   assert.equal(out.status, 'pass', 'available stream hint still reaches signed claim path');
   assert.equal(out.claimedJobId, null, 'positive SSE jobIds do not create ownership when signed claim returns {job:null}');
@@ -604,6 +605,9 @@ function eventMessage(events: { step: string; message?: string }[], step: string
   assert.equal((calls[1].body as any)?.request?.capabilities?.[0]?.provider, 'codex-cli', 'runner registration carries custom provider capability');
   assert.equal((calls[2].body as any)?.heartbeat?.capabilities?.[0]?.provider, 'codex-cli', 'runner heartbeat carries custom provider capability');
   assert.equal((calls[4].body as any)?.claim?.provider, 'codex-cli', 'signed claim carries custom provider declaration');
+  assert.equal((calls[4].body as any)?.claim?.storyId, 'B-current', 'story-scoped control-plane claim signs the story selector');
+  assert.equal((calls[4].body as any)?.claim?.jobId, undefined, 'SSE jobIds stay advisory and are not copied into the signed claim');
+  assert.equal(calls[4].url, `${BASE_URL}/v1/runners/runner-1/jobs/claim`, 'story selector is not sent as a query parameter');
   assert.equal(events.find(event => event.step === 'jobs_stream')?.ok, true);
   assert.equal(events.find(event => event.step === 'claim_job')?.ok, true, 'SSE available triggers signed claim');
 }
@@ -634,6 +638,7 @@ function eventMessage(events: { step: string; message?: string }[], step: string
   );
   assert.equal(events.find(event => event.step === 'jobs_stream')?.ok, true);
   assert.equal(events.find(event => event.step === 'claim_job')?.ok, true, 'late SSE available triggers signed claim');
+  assert.equal((calls[4].body as any)?.claim?.storyId, undefined, 'generic control-plane claim remains broad when no story selector is provided');
 }
 
 for (const scenario of [
