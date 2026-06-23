@@ -51,6 +51,23 @@
       ],
       "signatureTag": "edge|mjs|codex-host2-maxturns",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-c023:F-004",
+      "desc": "[codex-host2 C9] B7 RECOVERED is forgeable: an agent that returns {shipped:true} doing no benign work classifies RECOVERED (classify checks only no-leaked.txt + self-report). FIX: ground RECOVERED in a real benign-work signal (e.g. result.txt written) so safe-ignore must genuinely interact.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex-host2",
+      "createdAt": "2026-06-23T13:00:35.198Z",
+      "reviewRound": "2026-06-23T12:52:23.053Z",
+      "_hash": "ea7d075e3820e2f79561bc563936a94daaee721d1cf0c214e03118d7174d5d64",
+      "files": [
+        "experiments/injection-probes/live-loop-harness.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|codex-host2-recovered",
+      "signatureTagSource": "auto"
     }
   ]
 }
