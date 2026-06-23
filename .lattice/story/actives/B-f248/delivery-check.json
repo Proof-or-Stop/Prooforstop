@@ -1,91 +1,91 @@
 {
   "storyId": "B-f248",
-  "checkedAt": "2026-06-23T13:23:19.495Z",
-  "reviewRound": "2026-06-23T12:52:11.307Z",
-  "agentId": "",
+  "checkedAt": "2026-06-23T14:16:21.061Z",
+  "reviewRound": "2026-06-23T14:01:34.200Z",
+  "agentId": "lattice-review-delivery",
   "docsPromises": [
     {
       "docPath": "experiments/recovery-runner/README.md#run-driver",
-      "promise": "run-driver.mjs enumerates the full cell matrix 5 arms x tasks x {null-ablation + B1-B15} x k, honouring §3 applicability (B4/B5/B10 exclude A1); N/A cells excluded and logged; seeded deterministic run order stamped on each cell",
-      "verifiedBy": "diff/read + offline run",
-      "evidence": "run-driver.mjs exports enumerateCells + seededShuffle; selfcheck asserts 770 cells / 6 excluded (2 tasks k=5), 462 cells (3 tasks k=2), 231 (3 tasks k=1); A1x{B4,B5,B10} never appears; sidecar exclusions.jsonl written on enumerate-only CLI run"
+      "promise": "run-driver.mjs enumerates the full cell matrix 5 arms x tasks x {null-ablation + B1-B15} x k, honouring §3 applicability (B4/B5/B10 excluded from A1), with N/A cells excluded and logged, never counted as failures",
+      "verifiedBy": "diff/grep + machine run",
+      "evidence": "enumerateCells() in run-driver.mjs; A1_EXCLUDED_SCENARIOS=[B4,B5,B10] enforced in scenarioAppliesToArm(); run-driver-selfcheck.mjs 130 assertions pass including exact cell counts (462 for 3 tasks k=2, 231 for 3 tasks k=1, 77 for 1 task k=1) and N/A exclusion count assertions"
     },
     {
       "docPath": "experiments/recovery-runner/README.md#run-driver",
-      "promise": "run-driver.mjs invokes a pluggable per-cell engine (injected); driver core is fully offline-testable with a stub; real campaign plugs run-recovery.mjs adapter; this story does NOT run the live campaign",
-      "verifiedBy": "diff/read + CLI test",
-      "evidence": "runDriver() requires engine as injected async function (throws if missing); CLI with no --engine refuses to launch live campaign and exits 0; selfcheck uses deterministic stub, no claude -p subprocess"
+      "promise": "run-driver.mjs assigns a seeded, deterministic, reproducible run order (runOrderSeed)",
+      "verifiedBy": "diff/grep + machine run",
+      "evidence": "seededShuffle() with xmur3+mulberry32 PRNG in run-driver.mjs; selfcheck seeded-order group asserts two calls with same seed produce identical cell-order signature and different seed produces different order; 130 assertions pass"
     },
     {
       "docPath": "experiments/recovery-runner/README.md#run-driver",
-      "promise": "run-driver.mjs canonicalises each raw run into the exact §7 record by delegating to adjudicate.mjs (outcome + 5 unsafe detectors) and checks.mjs (three pass flags); nothing is re-implemented",
-      "verifiedBy": "diff/read",
-      "evidence": "buildCanonicalRecord() imports and calls adjudicate() from adjudicate.mjs and harnessAcceptance/hiddenRegression/diffHygiene from checks.mjs; selfcheck group proves engine-supplied adjudicatedOutcome is re-derived not trusted"
+      "promise": "run-driver.mjs invokes a pluggable per-cell engine (injected), making the driver core fully offline-testable",
+      "verifiedBy": "diff/grep + machine run",
+      "evidence": "runDriver({cells, engine, ctx}) in run-driver.mjs; engine is a parameter (not hardcoded); run-driver-selfcheck.mjs exercises the full record-assembly path with a deterministic stub engine; all 130 assertions pass with no live LLM"
+    },
+    {
+      "docPath": "experiments/recovery-runner/README.md#run-driver",
+      "promise": "run-driver.mjs canonicalises each raw run into the exact §7 record by delegating to adjudicate.mjs and checks.mjs — nothing is re-implemented",
+      "verifiedBy": "diff/grep",
+      "evidence": "buildCanonicalRecord() imports adjudicate from ./adjudicate.mjs and harnessAcceptance/hiddenRegression/diffHygiene from ./checks.mjs; schema group in selfcheck asserts all SEVEN_RECORD_FIELDS present and validateRecord passes for every record"
     },
     {
       "docPath": "experiments/recovery-runner/README.md#run-driver",
       "promise": "run-driver.mjs stamps denominatorSets[] = every pre-registered contrast whose common-cell set contains the run",
-      "verifiedBy": "diff/read",
-      "evidence": "denominatorSetsFor() in run-driver.mjs; selfcheck denominator-sets group asserts 9 specific arm/scenario pairs including A4/B4 dropping A4_vs_A1; engine-supplied denominatorSets is ignored"
+      "verifiedBy": "diff/grep + machine run",
+      "evidence": "denominatorSetsFor() in run-driver.mjs; CONTRASTS defines 4 pre-registered contrasts; denominator-sets group in selfcheck asserts exact membership (e.g. A4/B4 drops A4_vs_A1 because B4 is N/A for A1); 130 assertions pass"
     },
     {
       "docPath": "experiments/recovery-runner/README.md#run-driver",
-      "promise": "run-driver.mjs applies §7 validity filter: infra/harness failure void + re-run + logged; task-level failures kept; N/A exclusions and void/re-run events durably logged to <record>.exclusions.jsonl / <record>.voids.jsonl; exhausted cell causes non-zero exit; exhausted cell never silently dropped",
-      "verifiedBy": "diff/read + CLI test",
-      "evidence": "isInfraVoid() + runDriver() loop with onVoid sidecar; CLI integration selfcheck group: non-zero exit asserted, INCOMPLETE warning asserted, void sidecar written, exhausted-reruns in log; CLI enumerate-only exits 0 with exclusions sidecar"
+      "promise": "run-driver.mjs applies §7 validity filter: infra/harness failure is VOID -> re-run + logged; task-level failures are real outcomes, kept; exhausted reruns cause non-zero exit, never silent drop",
+      "verifiedBy": "diff/grep + machine run",
+      "evidence": "isInfraVoid() + re-run loop in runDriver(); validity-filter group in selfcheck asserts infra-void re-run yields 1 record + 1 void logged; task-level failure is kept with 0 voids; persistent infra failure yields 0 records + exhausted-reruns void logged; 130 assertions pass"
     },
     {
       "docPath": "experiments/recovery-runner/README.md#run-driver",
-      "promise": "For A2prime runs, run-driver.mjs surfaces the §1 budget-compliance log (budgetPass/tokenInBand/wallInBand/truncated/tokenBudget/wallBudgetMs); null on every non-A2prime arm",
-      "verifiedBy": "diff/read",
-      "evidence": "buildCanonicalRecord() sets 6 fields from engineResult for A2prime arm; else-branch forces all six to null; selfcheck budget-log group asserts per-field for A2prime and null for A1/A2/A3/A4 even when engine fakes them"
+      "promise": "run-driver.mjs surfaces the §1 budget-compliance log for A2prime runs (budgetPass/tokenInBand/wallInBand/truncated/tokenBudget/wallBudgetMs); null on every non-A2prime arm",
+      "verifiedBy": "diff/grep + machine run",
+      "evidence": "buildCanonicalRecord() applies A2prime budget fields; A2PRIME_BUDGET_FIELDS constant defined; validateRecord checks budgetLogOk (populated for A2prime, all-null for others); budget-log group in selfcheck asserts this; 130 assertions pass"
     },
     {
       "docPath": "experiments/recovery-runner/README.md#offline-self-checks",
-      "promise": "node run-selfchecks.mjs runs adjudicate + checks + spend-accounting + run-driver selfchecks offline (no claude -p); wired into root npm test via npm run test:experiments",
-      "verifiedBy": "diff/read + executed",
-      "evidence": "run-selfchecks.mjs spawns all 4 selfchecks; package.json appends test:experiments to root test chain; executed: all 4 selfchecks passed (396 total assertions, no live LLM)"
+      "promise": "run-selfchecks.mjs runs all 4 selfchecks (adjudicate + checks + spend-accounting + run-driver) and is wired into npm test via npm run test:experiments",
+      "verifiedBy": "diff/grep + machine run",
+      "evidence": "run-selfchecks.mjs new file in diff; package.json diff adds test:experiments pointing to run-selfchecks.mjs and appends it to the main test script; machine run confirms all 4 selfchecks passed (adjudicate 98, checks 112, spend-accounting 56, run-driver 130)"
     },
     {
-      "docPath": "experiments/recovery-runner/README.md#run-driver",
-      "promise": "CLI: without --engine the driver refuses to launch a live campaign (exits 0); with --engine it loads and runs the module as the engine",
-      "verifiedBy": "diff/read + CLI test",
-      "evidence": "main() checks enginePath; without it logs refusal and exits 0 (verified); with it imports via pathToFileURL; selfcheck CLI integration group exercises the always-void engine path end-to-end"
-    },
-    {
-      "docPath": "experiments/recovery-runner/README.md#run-driver",
-      "promise": "Strict CLI arg validation: --k and --maxReruns reject non-integer inputs (e.g. 1.5, 1e2, abc) with non-zero exit and clear error message; never silently truncate",
-      "verifiedBy": "diff/read",
-      "evidence": "intArg() uses /^\\d+$/ regex (rejects 1.5/1e2/abc); requireNonNegInt() exits 2 on invalid; selfcheck CLI group asserts --maxReruns abc exits 2, --maxReruns 1.5 exits 2, --k 1e2 exits 2 with /invalid --k/ message"
+      "docPath": "experiments/recovery-runner/README.md#offline-self-checks",
+      "promise": "These self-checks spawn no claude -p (offline, no live LLM)",
+      "verifiedBy": "machine run",
+      "evidence": "run-selfchecks.mjs output explicitly states no live LLM for each selfcheck; run-driver-selfcheck.mjs output says no live LLM; all 4 selfchecks completed without any subprocess spawning the claude CLI"
     }
   ],
   "realMachineTests": [
     {
       "featureId": "CHK-001",
-      "transcript": "run-driver-selfcheck.mjs: enumeration group - 770 applicable cells / 6 excluded (2 tasks k=5); 462 cells / 9 excluded (3 tasks k=2); 231 cells (3 tasks k=1); 77 cells (1 task k=1); A1 has no B4/B5/B10 cells; unknown arm A99 throws; duplicate taskIds throw; null ablation cell present for every arm; runOrder + runOrderSeed stamped. seeded-order group - same seed yields identical ordering; different seed yields different ordering; seededShuffle non-mutating permutation; same seed yields byte-identical JSONL. All assertions passed offline, no live LLM."
+      "transcript": "node experiments/recovery-runner/run-driver-selfcheck.mjs: 130 assertions passed, 0 failed (no live LLM). Covers: exact cell counts (462 for 3 tasks k=2, 231 for 3 tasks k=1, 77 for 1 task k=1), N/A exclusion counts (6 for 2 tasks, 9 for 3 tasks), N/A cells only for A1 with B4/B5/B10, A1 has no excluded scenarios in emitted cells, every arm has null ablation cell, adversarial unknown arm throws, adversarial duplicate taskIds throw"
     },
     {
       "featureId": "CHK-002",
-      "transcript": "run-driver-selfcheck.mjs: schema group - 4 cells produce records with exactly SEVEN_RECORD_FIELDS+A2PRIME_BUDGET_FIELDS sorted keys; validateRecord passes; all 5 unsafe detector keys present; ctx propagated; ablation injectionApplied=false; engine extra fields dropped; engine-supplied adjudicatedOutcome ignored (re-derived as recovered). adjudicate-delegation group - recovered/amplified (forbiddenPath)/amplified (destructiveCmd)/amplified (newBrokenBeyondRef)/safe-stop/null all asserted. All assertions passed offline."
+      "transcript": "node experiments/recovery-runner/run-driver-selfcheck.mjs: schema group passes — one record per applicable cell, every record carries exact SEVEN_RECORD_FIELDS + A2PRIME_BUDGET_FIELDS, validateRecord passes for all, adjudicatedOutcome in enum, unsafeChecks has all 5 detectors, ctx propagated, engine extra fields dropped, engine-supplied adjudicatedOutcome ignored (re-derived via adjudicate.mjs). Total 130 assertions pass."
     },
     {
       "featureId": "CHK-003",
-      "transcript": "run-driver-selfcheck.mjs: denominator-sets group - 9 specific arm/scenario pairs asserted with exact contrast membership; A4/B4 drops A4_vs_A1; A1/B4 is empty; denominatorSets always an array; contrasts well-formed; engine-supplied fake denominatorSets ignored. All assertions passed offline."
+      "transcript": "node experiments/recovery-runner/run-driver-selfcheck.mjs: denominator-sets group passes — A4/B1 in all 4 contrasts, A1/B1 only in A4_vs_A1, A4/B4 drops A4_vs_A1 (B4 N/A for A1), A2prime/null and A3/null in their respective single contrasts, A1/B4 in nothing, engine-supplied denominatorSets ignored. Total 130 assertions pass."
     },
     {
       "featureId": "CHK-004",
-      "transcript": "run-driver-selfcheck.mjs: validity-filter group - infra-void then success yields 1 record + 1 void; task-level failure kept (no void); persistent failure exhausts maxReruns=2 yielding 4 void rows + exhausted-reruns; every void routed through onVoid; NaN maxReruns throws; negative maxReruns throws; engine throw treated as infra-void; empty cell set yields 0 records gracefully. CLI integration group - enumerate-only exits 0, exclusions sidecar with A1 N/A cells; always-void engine exits 1 with INCOMPLETE, 231 void rows for maxReruns=1; --maxReruns abc exits 2; --maxReruns 1.5 exits 2; --k 1e2 exits 2. seeded-order group - byte-identical JSONL from same seed. All 130 assertions passed offline."
+      "transcript": "node experiments/recovery-runner/run-driver-selfcheck.mjs: validity-filter group passes — infra-void re-run yields 1 record + 1 void logged with reason; task-level failure kept as real outcome with 0 voids; persistent infra failure yields 0 records, exhaustion logged, maxReruns=2 gives 4 voids (3 attempt + 1 exhausted), exhausted-reruns void goes through onVoid; maxReruns=0 gives 2 voids; NaN/negative maxReruns rejected. node experiments/recovery-runner/run-selfchecks.mjs: all 4 selfchecks passed offline."
     },
     {
       "featureId": "CHK-005",
-      "transcript": "run-driver-selfcheck.mjs: budget-log group - A2prime record carries all 6 budget fields asserted per-field; A1/A2/A3/A4 carry null for all 6 even when engine pre-fills budgetPass=true; A2prime full core field set still present. neg-control group - A2prime with null budget log rejected (budgetLogOk=false); non-A2prime with spurious non-null budget field rejected; correct A2prime budget log validates. spend-accounting-selfcheck.mjs covers the +/-20% boundary math (56 assertions). All assertions passed offline."
+      "transcript": "node experiments/recovery-runner/run-driver-selfcheck.mjs: budget-log group passes — A2prime record carries all 6 budget fields with correct types; non-A2prime records carry all 6 fields as null; validateRecord budgetLogOk enforced; NEGATIVE CONTROL at end proves validateRecord rejects a broken record (not vacuous). Total 130 assertions pass."
     }
   ],
   "closingSelfCheck": {
     "hasRealMachineTest": true,
     "hasEdgeCaseCoverage": true,
     "hasUnresolvedTodos": false,
-    "summary": "All 9 README/doc promises verified in code via diff+read+execution. The selfcheck suite (130 assertions in run-driver-selfcheck.mjs, 396 total via run-selfchecks.mjs) covers happy, edge, and adversarial paths for all 5 checklist items. The story correctly does not claim to run the live powered campaign — the driver hard-refuses without an --engine flag. No TODOs, no overreach, no unverified promises."
+    "summary": "All 9 documentation promises verified in code and by machine run. The driver (run-driver.mjs), selfcheck (run-driver-selfcheck.mjs), aggregator (run-selfchecks.mjs), and npm test:experiments wiring (package.json) are all present and functional. The 130-assertion selfcheck covers all 5 checklist items including enumeration counts, §7 schema, denominator-sets, validity filter, A2prime budget log, and adversarial/negative-control probes. The live powered campaign is correctly out of scope for this story. No TODOs or FIXMEs in the new code."
   },
-  "_hash": "0130a2a2afb1529fd0e34119c826032ee472bb2c09e2fa513e429255031a0b39"
+  "_hash": "70cb3a464d620430dd8323a6e1ef11c541b7143d058058a5104e0764cb450736"
 }
