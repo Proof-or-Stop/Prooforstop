@@ -53,3 +53,8 @@ artifacts. They are not counted as active migrated story worktrees.
 Legacy Orchestrate evidence stays local-only unless it is deliberately curated
 into public-safe documentation. Do not publish raw `.lattice/story/**`,
 authority trust files, local transcripts, or runtime logs to GitHub.
+
+New Lattice Authority runner diagnostics, including `jobs_stream` notification
+hints from `/v1/runners/{runnerId}/jobs/stream`, belong only in the canonical
+proofbound workflow. They must not create new evidence or runtime writes under
+the retired Orchestrate root.

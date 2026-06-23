@@ -33,9 +33,62 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-23T00:19:48.368Z",
+      "endTime": "2026-06-23T01:06:13.868Z",
+      "userSees": "Smoke output includes \"GET /v1/runners/runner-1/jobs/stream\" before \"POST /v1/runners/runner-1/jobs/claim\", and the result still reports claim success only after the signed claim response.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/authority-client.ts",
+          "packages/main/src/core/authority-runner.ts",
+          "packages/main/src/tasks/authority-runner-client-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/authority-runner-client-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/authority-runner-client-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/authority-runner-client-smoke.js",
+          "result": "pass",
+          "note": "Smoke verifies long-lived SSE with standalone heartbeat chunk followed by later jobs.available chunk returns jobs_stream ok and still performs signed claim.",
+          "headHash": "f2a04329eb45fb1e8b0bf9c6e5cf05050ff30671",
+          "materialHash": "127c1a9b23d7bcfac902b9a675b4abd87270678f249909fb601b38b6902e482b",
+          "storyFilesHash": "249c2d5979e6ac182ade80bf2f7a6dee3605a56f82825c0e19e8b3800cfec066",
+          "timestamp": "2026-06-23T01:06:14.271Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/core/authority-client.ts; packages/main/src/tasks/authority-runner-client-smoke.ts",
+          "command": "node packages/main/dist/tasks/authority-runner-client-smoke.js",
+          "result": "pass",
+          "note": "Reader ignores heartbeat/comment/non-jobs blocks and continues until jobs.available, stream close, timeout, malformed event, or configured limits; fallback cases still pass.",
+          "headHash": "f2a04329eb45fb1e8b0bf9c6e5cf05050ff30671",
+          "materialHash": "127c1a9b23d7bcfac902b9a675b4abd87270678f249909fb601b38b6902e482b",
+          "storyFilesHash": "249c2d5979e6ac182ade80bf2f7a6dee3605a56f82825c0e19e8b3800cfec066",
+          "timestamp": "2026-06-23T01:06:14.588Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/authority-runner-client-smoke.ts",
+          "command": "node packages/main/dist/tasks/authority-runner-client-smoke.js",
+          "result": "pass",
+          "note": "Positive SSE jobIds, including late jobs.available, do not create ownership when signed claim returns {job:null}; claimedJobId/releasedJobId remain null.",
+          "headHash": "f2a04329eb45fb1e8b0bf9c6e5cf05050ff30671",
+          "materialHash": "127c1a9b23d7bcfac902b9a675b4abd87270678f249909fb601b38b6902e482b",
+          "storyFilesHash": "249c2d5979e6ac182ade80bf2f7a6dee3605a56f82825c0e19e8b3800cfec066",
+          "timestamp": "2026-06-23T01:06:14.869Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -69,9 +122,62 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-23T00:36:22.609Z",
+      "endTime": "2026-06-23T01:07:39.601Z",
+      "userSees": "Failure diagnostics say \"runner jobs stream unavailable; falling back to signed claim\" and do not contain \"Authorization\", \"Bearer\", or the configured customer API key value.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/authority-client.ts",
+          "packages/main/src/core/authority-runner.ts",
+          "packages/main/src/tasks/authority-runner-client-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/authority-runner-client-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/core/authority-client.ts; packages/main/src/tasks/authority-runner-client-smoke.ts",
+          "command": "node packages/main/dist/tasks/authority-runner-client-smoke.js",
+          "result": "pass",
+          "note": "SSE request still uses configured customer API key source; heartbeat-first stream handling remains provider-neutral and proceeds to signed claim.",
+          "headHash": "f2a04329eb45fb1e8b0bf9c6e5cf05050ff30671",
+          "materialHash": "127c1a9b23d7bcfac902b9a675b4abd87270678f249909fb601b38b6902e482b",
+          "storyFilesHash": "249c2d5979e6ac182ade80bf2f7a6dee3605a56f82825c0e19e8b3800cfec066",
+          "timestamp": "2026-06-23T01:07:39.927Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/authority-runner-client-smoke.ts",
+          "command": "node packages/main/dist/tasks/authority-runner-client-smoke.js",
+          "result": "pass",
+          "note": "Timeout/fallback diagnostics remain redacted; read operations are tied to abort signal and still respect configured timeout.",
+          "headHash": "f2a04329eb45fb1e8b0bf9c6e5cf05050ff30671",
+          "materialHash": "127c1a9b23d7bcfac902b9a675b4abd87270678f249909fb601b38b6902e482b",
+          "storyFilesHash": "249c2d5979e6ac182ade80bf2f7a6dee3605a56f82825c0e19e8b3800cfec066",
+          "timestamp": "2026-06-23T01:07:40.269Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/core/authority-runner.ts; packages/main/src/tasks/authority-runner-client-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/authority-runner-client-smoke.js",
+          "result": "pass",
+          "note": "Runner registration, heartbeat, and signed claim remain required; jobs_stream never bypasses session/claim ownership.",
+          "headHash": "f2a04329eb45fb1e8b0bf9c6e5cf05050ff30671",
+          "materialHash": "127c1a9b23d7bcfac902b9a675b4abd87270678f249909fb601b38b6902e482b",
+          "storyFilesHash": "249c2d5979e6ac182ade80bf2f7a6dee3605a56f82825c0e19e8b3800cfec066",
+          "timestamp": "2026-06-23T01:07:40.577Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -106,9 +212,116 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-23T00:36:49.386Z",
+      "endTime": "2026-06-23T01:07:41.016Z",
+      "userSees": "Docs contain \"runner jobs SSE is a notification hint\" and \"polling/signed claim fallback remains the compatibility path\", and also state canonical work continues under /Users/jek/Documents/Work/proofbound rather than retired Orchestrate.",
+      "files": {
+        "modify": [
+          "docs/guide.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/orchestrate-retirement.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/guide.md; docs/requirements/decisions/lattice-authority-live-integration.md",
+          "command": "rg -n \"jobs_stream|jobs.available|notification hint|signed claim|fallback\" docs/guide.md docs/requirements/decisions/lattice-authority-live-integration.md",
+          "result": "pass",
+          "note": "Docs remain accurate: runner jobs SSE is a notification hint and signed claim remains authority/fallback path.",
+          "headHash": "f2a04329eb45fb1e8b0bf9c6e5cf05050ff30671",
+          "materialHash": "127c1a9b23d7bcfac902b9a675b4abd87270678f249909fb601b38b6902e482b",
+          "storyFilesHash": "249c2d5979e6ac182ade80bf2f7a6dee3605a56f82825c0e19e8b3800cfec066",
+          "timestamp": "2026-06-23T01:07:41.346Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/orchestrate-retirement.md",
+          "command": "rg -n \"proofbound|retired Orchestrate|jobs_stream\" docs/requirements/decisions/orchestrate-retirement.md",
+          "result": "pass",
+          "note": "Docs still keep canonical mutating workflow under proofbound and forbid new jobs_stream writes under retired Orchestrate.",
+          "headHash": "f2a04329eb45fb1e8b0bf9c6e5cf05050ff30671",
+          "materialHash": "127c1a9b23d7bcfac902b9a675b4abd87270678f249909fb601b38b6902e482b",
+          "storyFilesHash": "249c2d5979e6ac182ade80bf2f7a6dee3605a56f82825c0e19e8b3800cfec066",
+          "timestamp": "2026-06-23T01:07:41.642Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/guide.md; docs/requirements/decisions/lattice-authority-live-integration.md",
+          "command": "rg -n \"not evidence of approval|not production authority|notification hint before claim|must not claim\" docs/guide.md docs/requirements/decisions/lattice-authority-live-integration.md",
+          "result": "pass",
+          "note": "Docs still do not overclaim jobs_stream as receipt verification, productionDone, or fullAuthorityDone.",
+          "headHash": "f2a04329eb45fb1e8b0bf9c6e5cf05050ff30671",
+          "materialHash": "127c1a9b23d7bcfac902b9a675b4abd87270678f249909fb601b38b6902e482b",
+          "storyFilesHash": "249c2d5979e6ac182ade80bf2f7a6dee3605a56f82825c0e19e8b3800cfec066",
+          "timestamp": "2026-06-23T01:07:41.950Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-23T00:19:48.368Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Begin CLI SSE hint consumption implementation via implementer subagent per DEV gate."
+    },
+    {
+      "timestamp": "2026-06-23T00:36:14.146Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "CLI SSE hint consumption implemented and verified, including long-lived body timeout fallback."
+    },
+    {
+      "timestamp": "2026-06-23T00:36:22.609Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Record auth, fallback, and host-neutral boundary verification."
+    },
+    {
+      "timestamp": "2026-06-23T00:36:36.705Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Auth, secret redaction, and host-neutral fallback boundaries verified."
+    },
+    {
+      "timestamp": "2026-06-23T00:36:49.386Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Record CLI docs contract verification for jobs stream fallback."
+    },
+    {
+      "timestamp": "2026-06-23T00:37:11.715Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "CLI-facing server dependency and fallback docs verified."
     }
   ]
 }

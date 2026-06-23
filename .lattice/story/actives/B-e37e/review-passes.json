@@ -1,0 +1,112 @@
+{
+  "passes": [
+    {
+      "id": "B-e37e:RP-001",
+      "agent": "lattice-review-docs",
+      "note": "PASS: scoped docs truthfully state jobs_stream/jobs.available is a notification hint only; signed claim remains the authority/compatibility path; productionDone/fullAuthorityDone are not overclaimed; retired Orchestrate is not the mutating root.",
+      "createdAt": "2026-06-23T00:43:06.773Z",
+      "reviewRound": "2026-06-23T00:39:56.221Z",
+      "reviewRunId": "B-e37e:RR-003",
+      "_hash": "6672faf40f0ce97b882fbc160100a99c0d5a30e92a35fca666372a2642170dc9"
+    },
+    {
+      "id": "B-e37e:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: Round 2 test-coverage review verified F-002 and stream parsing coverage. authority-runner-client-smoke covers a long-lived body stream that emits jobs.available and never closes, positive SSE jobIds followed by signed claim {job:null} leaving claimedJobId/releasedJobId null, fallback/redaction cases, and off-mode zero-network behavior. Verified with npm exec -- tsc -p packages/main/tsconfig.json --noEmit and node packages/main/dist/tasks/authority-runner-client-smoke.js.",
+      "createdAt": "2026-06-23T00:58:16.372Z",
+      "reviewRound": "2026-06-23T00:54:14.879Z",
+      "reviewRunId": "B-e37e:RR-005",
+      "_hash": "9e3a6eaf5cb0c85aee3cce3c6f6c1a0b2af1ff026ee696a5a90bb4000f51a09d"
+    },
+    {
+      "id": "B-e37e:RP-003",
+      "agent": "lattice-review-docs",
+      "note": "Round 2 docs review passed: docs/guide.md and lattice-authority-live-integration.md correctly describe jobs_stream/jobs.available as a notification hint only, retain signed claim as the authority path and fallback, avoid productionDone/authorityDone/fullAuthorityDone overclaim, and orchestrate-retirement.md keeps new runner diagnostics out of retired Orchestrate root writes. Verified final behavior against authority-client.ts, authority-runner.ts, command-policy.ts, cli ownership guard, and smoke coverage.",
+      "createdAt": "2026-06-23T00:59:14.055Z",
+      "reviewRound": "2026-06-23T00:54:14.879Z",
+      "reviewRunId": "B-e37e:RR-008",
+      "_hash": "f90ed6b9f92baa88d7021757dee9c319de7041a243c62d29e23c21646908eb74"
+    },
+    {
+      "id": "B-e37e:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Targeted Round 3 quality review of f2a04329e/current HEAD found no medium/high/blocker. Reviewed bounded SSE prefix reader, AbortSignal-wrapped reader.read timeout behavior, heartbeat-first jobs.available handling, cancel/releaseLock cleanup, text fallback, diagnostic redaction, and host-neutral assumptions. Verification: node packages/main/dist/tasks/authority-runner-client-smoke.js passed; npm --prefix packages/main run build -- --noEmit passed.",
+      "createdAt": "2026-06-23T01:10:57.615Z",
+      "reviewRound": "2026-06-23T01:07:50.675Z",
+      "reviewRunId": "B-e37e:RR-009",
+      "_hash": "88176cb829ebe31bab7866cb073af93664c7ae89df8bbd224bc5a16b21b49047"
+    },
+    {
+      "id": "B-e37e:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 3 targeted test-coverage pass for f2a04329e. Verified authority-runner-client-smoke covers standalone heartbeat chunk followed by later jobs.available on a non-closing body, with signed claim still required and claimed/released ids remaining null. Existing fallback, redaction, off-mode, and policy overclaim assertions remain covered. Ran node packages/main/dist/tasks/authority-runner-client-smoke.js: pass.",
+      "createdAt": "2026-06-23T01:11:41.465Z",
+      "reviewRound": "2026-06-23T01:07:50.675Z",
+      "reviewRunId": "B-e37e:RR-012",
+      "_hash": "8565a9342e47cc9842c38d4676be1efbfc3564043ea604d77cb3ff1d0a626f2b"
+    },
+    {
+      "id": "B-e37e:RP-006",
+      "agent": "lattice-review-docs",
+      "note": "Round 3 docs review pass: docs/guide.md lines 62 and 97 document jobs_stream/jobs.available as notification hint only with signed-claim fallback; lattice-authority-live-integration.md lines 84-89, 417-418, and 4374-4375 align with authority-runner.ts lines 438-457 and authority-client.ts lines 403-406/3026-3041; orchestrate-retirement.md lines 5-10 and 57-60 keep proofbound as the mutating root and retired Orchestrate read-only. No medium/high/blocker docs issue.",
+      "createdAt": "2026-06-23T01:11:50.547Z",
+      "reviewRound": "2026-06-23T01:07:50.675Z",
+      "reviewRunId": "B-e37e:RR-013",
+      "_hash": "898daf9d84850166cce91d48e2728a88faf37b5f55245a7ebb58fe90029c6697"
+    },
+    {
+      "id": "B-e37e:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "Round 3 concept review of f2a04329e/current HEAD: heartbeat/comment/non-jobs SSE blocks no longer trigger early fallback; stream reading is bounded by jobs.available, timeout, prefix byte/block limits, close, or malformed jobs.available. Runner still treats SSE as readiness hint only and derives ownership solely from the signed claim response; no overclaim found. Verification: npm --prefix packages/main run build -- --noEmit; temp outDir compile + node authority-runner-client-smoke passed.",
+      "createdAt": "2026-06-23T01:13:46.817Z",
+      "reviewRound": "2026-06-23T01:07:50.675Z",
+      "reviewRunId": "B-e37e:RR-014",
+      "_hash": "783adf7b00cb0951f0ff312d122b45578e302575bc13f5f0423cc9b4ee9511b6"
+    },
+    {
+      "id": "B-e37e:RP-008",
+      "agent": "lattice-review-docs",
+      "note": "Reviewed acknowledged delivery evidence scope: delivery-context-pack/live-smoke transcript are reviewer-visible P5/P6 evidence artifacts, not source/docs expansion or delivery-check signers; transcript diff and docs/code/test changes remain consistent, no blocker.",
+      "createdAt": "2026-06-23T01:29:27.930Z",
+      "reviewRound": "2026-06-23T01:25:31.824Z",
+      "reviewRunId": "B-e37e:RR-015",
+      "_hash": "89a610ceb0dedc3577021c94db1ae5a21ae63ee5688be75ad2711c2f369280fc"
+    },
+    {
+      "id": "B-e37e:RP-009",
+      "agent": "lattice-review-concept",
+      "note": "Post-main-merge concept re-review found no blocker: jobs.available SSE remains a notification hint only, signed claim remains the ownership boundary, fallback is safe, and there is no approval or receipt overclaim.",
+      "createdAt": "2026-06-23T01:52:06.613Z",
+      "reviewRound": "2026-06-23T01:50:53.069Z",
+      "reviewRunId": "B-e37e:RR-016",
+      "_hash": "8171f8b435e4d2a5c9e00a31bd05441d71addcf37141dd1c88981f40eca0be58"
+    },
+    {
+      "id": "B-e37e:RP-010",
+      "agent": "lattice-review-quality",
+      "note": "Post-main-merge quality re-review found no blocker: bounded SSE reader is prefix-limited and abortable, stream failures fall back to signed claim with redacted diagnostics, and SSE jobIds remain hint-only while signed claim owns job state.",
+      "createdAt": "2026-06-23T01:52:07.791Z",
+      "reviewRound": "2026-06-23T01:50:53.069Z",
+      "reviewRunId": "B-e37e:RR-017",
+      "_hash": "f74f3f3f3f30777934b7e636de3c463691cb4b0c31331ffde2f16d529797e5dd"
+    },
+    {
+      "id": "B-e37e:RP-011",
+      "agent": "lattice-review-test-coverage",
+      "note": "No blocker in post-main-merge test-coverage re-review: targeted compiled smoke passed; coverage exercises heartbeat-first long-lived SSE, fallback/redaction paths continuing to signed claim, SSE jobIds not creating ownership, and signed claim/release ownership.",
+      "createdAt": "2026-06-23T01:52:15.155Z",
+      "reviewRound": "2026-06-23T01:50:53.069Z",
+      "reviewRunId": "B-e37e:RR-018",
+      "_hash": "6e068488e837d44a91f8bbc49a89826cc2f6ad52d7c4c557a8327e2631030624"
+    },
+    {
+      "id": "B-e37e:RP-012",
+      "agent": "lattice-review-docs",
+      "note": "Post-main-merge docs re-review passed: docs/guide.md, docs/requirements/decisions/lattice-authority-live-integration.md, and docs/requirements/decisions/orchestrate-retirement.md consistently document jobs_stream/jobs.available as a notification/diagnostic hint only; empty/error/timeout/malformed/no-SSE paths fall back to the existing signed claim path; stream hints are not leases, receipts, completions, approval, or production authority; authority/full DONE remain gated by verified native gate_decision receipts and multi-host certification as applicable; proofbound remains the canonical active root and Orchestrate remains retired/read-only.",
+      "createdAt": "2026-06-23T01:53:54.016Z",
+      "reviewRound": "2026-06-23T01:50:53.069Z",
+      "reviewRunId": "B-e37e:RR-019",
+      "_hash": "42de98698b2989d3da5e463cadafbbf8c93853dbe88b8b9983e542af180fb7b0"
+    }
+  ]
+}

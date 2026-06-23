@@ -1,0 +1,26 @@
+{
+  "task": "Make the Lattice CLI authority runner prefer the runner jobs SSE stream as a notification hint before attempting the existing signed claim path.",
+  "outcome": "After completion, the authority runner smoke prints \"✓ authority runner client smoke passed\" and recorded calls show GET /v1/runners/runner-1/jobs/stream happens before POST /v1/runners/runner-1/jobs/claim when SSE is available; when SSE fails, times out, or returns no jobs, the existing claim path still runs without printing Authorization or customer API key material.",
+  "facts": [
+    "AuthorityClient has runner POST methods for register, heartbeat, claim, lease heartbeat, release, and provider events, but no runner jobs SSE method yet.",
+    "runLatticeAuthorityControlPlaneOnce currently registers actor key, registers runner, sends heartbeat, then immediately calls the signed claim endpoint.",
+    "The server-side B-24aa contract treats jobs.available as a hint only; signed claim remains the ownership transfer.",
+    "proofbound is the canonical mutating root; /Users/jek/Documents/Work/Orchestrate is retired read-only legacy evidence."
+  ],
+  "constraints": [
+    "Do not execute a job, mark authorityDone, mark productionDone, or verify receipts from SSE alone.",
+    "Do not expose raw Authorization headers or customer API keys in diagnostics, logs, or evidence.",
+    "Keep provider handling host-neutral: codex, claude-code, and gemini behavior must flow through runnerProvider configuration, not host-specific shortcuts.",
+    "Fallback to existing polling/claim behavior must remain available for one-shot snapshot, timeout, disconnect, non-SSE response, or server versions without long-lived stream support."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/authority-client.ts",
+    "packages/main/src/core/authority-runner.ts",
+    "packages/main/src/tasks/authority-runner-client-smoke.ts",
+    "docs/guide.md",
+    "docs/requirements/decisions/lattice-authority-live-integration.md",
+    "docs/requirements/decisions/orchestrate-retirement.md"
+  ],
+  "timestamp": "2026-06-23T00:15:12.783Z"
+}

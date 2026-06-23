@@ -7,6 +7,7 @@
 //        POST /v1/actors/{actorId}/keys
 //        POST /v1/runners/register
 //        POST /v1/runners/{runnerId}/heartbeat
+//        GET  /v1/runners/{runnerId}/jobs/stream
 //        POST /v1/runners/{runnerId}/jobs/claim
 //        POST /v1/jobs/{jobId}/heartbeat
 //        POST /v1/jobs/{jobId}/release
@@ -25,7 +26,7 @@
 //      (PD-2 invariant).
 //
 // Visible pass line (consumed by reviewers / DONE summary):
-//   ✓ authority runner client smoke passed: 7 runner endpoints hit, off-mode performs zero network calls
+//   ✓ authority runner client smoke passed: 8 runner endpoints incl. jobs stream, off-mode performs zero network calls
 
 import assert from 'node:assert/strict';
 import {
@@ -58,7 +59,7 @@ import { DEFAULT_AUTHORITY_TIMEOUT_MS } from '../core/authority-mode.js';
 import { runLatticeAuthorityControlPlaneOnce } from '../core/authority-runner.js';
 
 const PASS_LINE =
-  '✓ authority runner client smoke passed: 7 runner endpoints hit, off-mode performs zero network calls';
+  '✓ authority runner client smoke passed: 8 runner endpoints incl. jobs stream, off-mode performs zero network calls';
 
 const NONCE = 'n-1';
 const CREATED_AT = '2026-06-02T18:00:00.000Z';
@@ -79,6 +80,8 @@ function testAuthorityClient(
 interface RecordedCall {
   url: string;
   method: string;
+  headers: Record<string, string>;
+  signal?: AbortSignal;
   body?: unknown;
   bodyText?: string;
 }
@@ -97,7 +100,7 @@ function recordingFetch(handler: (call: RecordedCall) => AuthorityFetchResponse)
         body = init.body;
       }
     }
-    const call: RecordedCall = { url, method: init.method, body, bodyText: init.body };
+    const call: RecordedCall = { url, method: init.method, headers: init.headers, signal: init.signal, body, bodyText: init.body };
     calls.push(call);
     return handler(call);
   };
@@ -109,6 +112,57 @@ function jsonResponse(status: number, body: unknown): AuthorityFetchResponse {
     ok: status >= 200 && status < 300,
     status,
     text: async () => (typeof body === 'string' ? body : JSON.stringify(body)),
+  };
+}
+
+function textResponse(status: number, body: string): AuthorityFetchResponse {
+  return {
+    ok: status >= 200 && status < 300,
+    status,
+    text: async () => body,
+  };
+}
+
+function abortingTextResponse(status: number, message: string): AuthorityFetchResponse {
+  return {
+    ok: status >= 200 && status < 300,
+    status,
+    text: async () => {
+      throw Object.assign(new Error(message), { name: 'AbortError' });
+    },
+  };
+}
+
+function longLivedSseResponse(
+  status: number,
+  chunks: string[],
+  signal?: AbortSignal,
+): AuthorityFetchResponse {
+  const encoder = new TextEncoder();
+  let index = 0;
+  return {
+    ok: status >= 200 && status < 300,
+    status,
+    text: async () => new Promise<string>((_resolve, reject) => {
+      const abort = () => reject(Object.assign(new Error('stream text fallback aborted'), { name: 'AbortError' }));
+      if (signal?.aborted) {
+        abort();
+        return;
+      }
+      signal?.addEventListener('abort', abort, { once: true });
+    }),
+    body: {
+      getReader: () => ({
+        read: async () => {
+          if (index < chunks.length) {
+            return { done: false, value: encoder.encode(chunks[index++]) };
+          }
+          return new Promise<{ done: boolean; value?: Uint8Array }>(() => undefined);
+        },
+        cancel: () => undefined,
+        releaseLock: () => undefined,
+      }),
+    },
   };
 }
 
@@ -124,6 +178,53 @@ function header() {
 
 function pythonHeader() {
   return { actorId: ACTOR_ID, role: 'runner', nonce: NONCE, timestamp: CREATED_AT };
+}
+
+function liveControlPlaneOptions(fetchImpl: AuthorityFetch) {
+  return {
+    baseURL: BASE_URL,
+    timeoutMS: DEFAULT_AUTHORITY_TIMEOUT_MS,
+    actorId: ACTOR_ID,
+    role: 'runner',
+    actorKeyId: 'actor-key-1',
+    actorPrivateKey: KP.privateKey,
+    actorPrivateKeyEncoding: 'base64' as const,
+    runnerId: 'runner-1',
+    sessionId: 'session-1',
+    runnerProvider: 'codex' as const,
+    projectId: 'project-1',
+    customerApiKey: TEST_AUTH.customerApiKey,
+    once: true,
+    fetchImpl: fetchImpl as unknown as typeof fetch,
+  };
+}
+
+function controlPlaneFetch(
+  streamHandler: (call: RecordedCall) => AuthorityFetchResponse,
+): { fetch: AuthorityFetch; calls: RecordedCall[] } {
+  return recordingFetch((call) => {
+    const runnerPath = `${BASE_URL}/v1/runners/${encodeURIComponent('runner-1')}`;
+    if (call.method === 'POST' && call.url === `${BASE_URL}/v1/actors/${encodeURIComponent(ACTOR_ID)}/keys`) {
+      return jsonResponse(200, { ok: true });
+    }
+    if (call.method === 'POST' && call.url === `${BASE_URL}/v1/runners/register`) {
+      return jsonResponse(200, { ok: true });
+    }
+    if (call.method === 'POST' && call.url === `${runnerPath}/heartbeat`) {
+      return jsonResponse(200, { ok: true });
+    }
+    if (call.method === 'GET' && call.url === `${runnerPath}/jobs/stream`) {
+      return streamHandler(call);
+    }
+    if (call.method === 'POST' && call.url === `${runnerPath}/jobs/claim`) {
+      return jsonResponse(200, { job: null });
+    }
+    throw new Error(`unexpected control-plane call: ${call.method} ${call.url}`);
+  });
+}
+
+function eventMessage(events: { step: string; message?: string }[], step: string): string {
+  return events.find(event => event.step === step)?.message ?? '';
 }
 
 // ─── 1. Each runner endpoint method hits expected path EXACTLY ONCE ───────────
@@ -192,7 +293,52 @@ function pythonHeader() {
     RunnerHeartbeatSchema.parse(calls[0].body);
   }
 
-  // 1d. claimJob — JobSpec response shape
+  // 1d. streamRunnerJobsAvailable — authenticated SSE GET hint
+  {
+    const { fetch, calls } = recordingFetch(() => textResponse(
+      200,
+      ': heartbeat\n\nevent: jobs.available\ndata: {"count":1,"jobIds":["job-1"]}\n\n',
+    ));
+    const client = testAuthorityClient(BASE_URL, fetch);
+    const out = await client.streamRunnerJobsAvailable('runner-1');
+    assert.equal(out.kind, 'available', 'jobs stream positive hint');
+    assert.equal(out.ok, true);
+    assert.equal(out.count, 1);
+    assert.deepEqual(out.jobIds, ['job-1']);
+    assert.equal(calls.length, 1);
+    assert.equal(calls[0].method, 'GET');
+    assert.equal(calls[0].url, `${BASE_URL}/v1/runners/runner-1/jobs/stream`);
+    assert.equal(calls[0].body, undefined, 'jobs stream GET sends no body');
+    assert.equal(calls[0].headers.Accept, 'text/event-stream');
+    assert.equal(calls[0].headers.Authorization, `Bearer ${TEST_AUTH.customerApiKey}`);
+  }
+
+  // 1d.2. streamRunnerJobsAvailable — real stream body returns on jobs.available before close
+  {
+    const { fetch, calls } = recordingFetch((call) => longLivedSseResponse(
+      200,
+      [
+        ': heartbeat\n\nevent: jobs.available\n',
+        'data: {"count":1,"jobIds":["job-stream"]}\n\n',
+      ],
+      call.signal,
+    ));
+    const timeoutMS = 1000;
+    const client = testAuthorityClient(BASE_URL, fetch, timeoutMS);
+    const startedAt = Date.now();
+    const out = await client.streamRunnerJobsAvailable('runner-1');
+    const elapsedMS = Date.now() - startedAt;
+    assert.equal(out.kind, 'available', 'long-lived jobs stream positive hint returns before close');
+    assert.equal(out.ok, true);
+    assert.equal(out.count, 1);
+    assert.deepEqual(out.jobIds, ['job-stream']);
+    assert.ok(elapsedMS < 500, `long-lived stream returned promptly (${elapsedMS}ms)`);
+    assert.equal(calls.length, 1);
+    assert.equal(calls[0].method, 'GET');
+    assert.equal(calls[0].url, `${BASE_URL}/v1/runners/runner-1/jobs/stream`);
+  }
+
+  // 1e. claimJob — JobSpec response shape
   {
     const { fetch, calls } = recordingFetch(() => jsonResponse(200, jobSpec));
     const client = testAuthorityClient(BASE_URL, fetch);
@@ -218,7 +364,7 @@ function pythonHeader() {
     assert.equal(out.data, null);
   }
 
-  // 1e. heartbeatJob
+  // 1f. heartbeatJob
   {
     const { fetch, calls } = recordingFetch(() => jsonResponse(200, acceptedReceipt));
     const client = testAuthorityClient(BASE_URL, fetch);
@@ -231,7 +377,7 @@ function pythonHeader() {
     JobLeaseHeartbeatSchema.parse(calls[0].body);
   }
 
-  // 1f. releaseJob
+  // 1g. releaseJob
   {
     const { fetch, calls } = recordingFetch(() => jsonResponse(200, acceptedReceipt));
     const client = testAuthorityClient(BASE_URL, fetch);
@@ -249,7 +395,7 @@ function pythonHeader() {
     assert.equal((calls[0].body as { outcome?: unknown }).outcome, undefined, 'Python release body has no outcome');
   }
 
-  // 1g. submitProviderEvents
+  // 1h. submitProviderEvents
   {
     const { fetch, calls } = recordingFetch(() => jsonResponse(200, acceptedReceipt));
     const client = testAuthorityClient(BASE_URL, fetch);
@@ -431,7 +577,117 @@ function pythonHeader() {
   assert.equal(invoked, 0, 'direct live control-plane helper performs zero network calls without customer key');
 }
 
-// ─── 5. loadRunnerAuthorityClient: env vs override (runtime re-validation) ────
+// ─── 5. Live control-plane reads jobs stream hint, then still signed-claims ──
+{
+  const { fetch, calls } = controlPlaneFetch(() => textResponse(
+    200,
+    ': heartbeat\n\nevent: jobs.available\ndata: {"count":2,"jobIds":["job-a","job-b"]}\n\n',
+  ));
+  const out = await runLatticeAuthorityControlPlaneOnce(liveControlPlaneOptions(fetch));
+  const events = out.networkEvents ?? [];
+  assert.equal(out.status, 'pass', 'available stream hint still reaches signed claim path');
+  assert.equal(out.claimedJobId, null, 'positive SSE jobIds do not create ownership when signed claim returns {job:null}');
+  assert.equal(out.releasedJobId, null, 'no claimed job means there is no release');
+  assert.deepEqual(
+    events.map(event => event.step),
+    ['register_actor_key', 'register_runner', 'runner_heartbeat', 'jobs_stream', 'claim_job'],
+    'control-plane records stream between heartbeat and claim',
+  );
+  assert.deepEqual(
+    calls.map(call => call.method),
+    ['POST', 'POST', 'POST', 'GET', 'POST'],
+    'control-plane calls stream with GET before claim POST',
+  );
+  assert.equal(calls[3].url, `${BASE_URL}/v1/runners/runner-1/jobs/stream`);
+  assert.equal(calls[3].headers.Authorization, `Bearer ${TEST_AUTH.customerApiKey}`);
+  assert.equal(events.find(event => event.step === 'jobs_stream')?.ok, true);
+  assert.equal(events.find(event => event.step === 'claim_job')?.ok, true, 'SSE available triggers signed claim');
+}
+
+{
+  const { fetch, calls } = controlPlaneFetch((call) => longLivedSseResponse(
+    200,
+    [
+      ': heartbeat\n\n',
+      'event: jobs.available\ndata: {"count":1,"jobIds":["job-late"]}\n\n',
+    ],
+    call.signal,
+  ));
+  const out = await runLatticeAuthorityControlPlaneOnce(liveControlPlaneOptions(fetch));
+  const events = out.networkEvents ?? [];
+  assert.equal(out.status, 'pass', 'late available stream hint still reaches signed claim path');
+  assert.equal(out.claimedJobId, null, 'late positive SSE jobIds do not create ownership when signed claim returns {job:null}');
+  assert.equal(out.releasedJobId, null, 'late positive SSE jobIds do not release without a claimed job');
+  assert.deepEqual(
+    events.map(event => event.step),
+    ['register_actor_key', 'register_runner', 'runner_heartbeat', 'jobs_stream', 'claim_job'],
+    'late jobs.available stream keeps claim order',
+  );
+  assert.deepEqual(
+    calls.map(call => call.method),
+    ['POST', 'POST', 'POST', 'GET', 'POST'],
+    'late jobs.available stream still performs signed claim POST',
+  );
+  assert.equal(events.find(event => event.step === 'jobs_stream')?.ok, true);
+  assert.equal(events.find(event => event.step === 'claim_job')?.ok, true, 'late SSE available triggers signed claim');
+}
+
+for (const scenario of [
+  {
+    name: 'empty',
+    stream: () => textResponse(200, 'event: jobs.available\ndata: {"count":0,"jobIds":[]}\n\n'),
+  },
+  {
+    name: 'http_401',
+    stream: () => textResponse(
+      401,
+      `Authorization: Bearer ${TEST_AUTH.customerApiKey}\nraw=${TEST_AUTH.customerApiKey}`,
+    ),
+    assertRedacted: true,
+  },
+  {
+    name: 'timeout',
+    stream: () => {
+      throw Object.assign(new Error(`Bearer ${TEST_AUTH.customerApiKey}`), { name: 'AbortError' });
+    },
+  },
+  {
+    name: 'body_timeout',
+    stream: () => abortingTextResponse(
+      200,
+      `Authorization: Bearer ${TEST_AUTH.customerApiKey}`,
+    ),
+    assertRedacted: true,
+  },
+  {
+    name: 'malformed',
+    stream: () => textResponse(200, 'event: jobs.available\ndata: {not-json}\n\n'),
+  },
+  {
+    name: 'non_sse',
+    stream: () => textResponse(200, '{"legacy":"json-body"}'),
+  },
+]) {
+  const { fetch } = controlPlaneFetch(scenario.stream);
+  const out = await runLatticeAuthorityControlPlaneOnce(liveControlPlaneOptions(fetch));
+  const events = out.networkEvents ?? [];
+  assert.equal(out.status, 'pass', `${scenario.name} stream fallback still reaches signed claim`);
+  assert.deepEqual(
+    events.map(event => event.step),
+    ['register_actor_key', 'register_runner', 'runner_heartbeat', 'jobs_stream', 'claim_job'],
+    `${scenario.name} stream keeps claim order`,
+  );
+  assert.equal(events.find(event => event.step === 'jobs_stream')?.ok, false, `${scenario.name} stream is not an authority success`);
+  assert.equal(events.find(event => event.step === 'claim_job')?.ok, true, `${scenario.name} stream fallback claim succeeds`);
+  if (scenario.assertRedacted) {
+    const message = eventMessage(events, 'jobs_stream');
+    assert.ok(!message.includes('Authorization'), 'jobs_stream message redacts Authorization header name');
+    assert.ok(!message.includes('Bearer'), 'jobs_stream message redacts Bearer scheme');
+    assert.ok(!message.includes(TEST_AUTH.customerApiKey), 'jobs_stream message redacts customer key');
+  }
+}
+
+// ─── 6. loadRunnerAuthorityClient: env vs override (runtime re-validation) ────
 {
   // Empty env → off → refuse
   const gateEmpty = loadRunnerAuthorityClient({});
