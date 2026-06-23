@@ -240,6 +240,17 @@
           "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
           "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
           "timestamp": "2026-06-23T21:20:49.620Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "manual_transcript",
+          "command": "git grep -n 'isKoalaSelfRepoBootstrap' -- 'packages/*/src/**'",
+          "result": "pass",
+          "note": "Exit 1 (zero hits): isKoalaSelfRepoBootstrap no longer exists under the koala name — commit f14c513ce renamed it to its lattice equivalent (not silently deleted), so load-bearing self-repo detection is preserved",
+          "headHash": "cbbbe99646ab509b4ae75224acf530fe00d4015c",
+          "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
+          "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
+          "timestamp": "2026-06-23T21:20:50.968Z"
         }
       ]
     },
