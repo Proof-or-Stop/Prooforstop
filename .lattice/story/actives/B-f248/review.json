@@ -307,6 +307,342 @@
         }
       ],
       "_hash": "ccc6bdaa6c9ace2af5c6e7b0b5b566f8ec4b55325424a13ca32866bfff1ede5e"
+    },
+    {
+      "timestamp": "2026-06-23T11:29:05.139Z",
+      "issueCount": 14,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-004",
+          "message": "CHK-004 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-005",
+          "message": "CHK-005 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "scope_change",
+          "severity": "advisory",
+          "itemId": "CHK-005",
+          "message": "CHK-005 (\"Surface the A2prime per-run budget-compliance log on the canonical record\") was added in PLAN phase: Scope-plan reviewer BLOCKER + OQ-001 resolution: §1-mandated A2prime per-run budget-compliance logging was missing from the checklist; adding it as an explicit item."
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 checklist items; please check for missing combined scenarios (e.g., what happens when Enumerate the full pre-registered cell matrix honouring §3 applicability + Canonicalise each raw run into the exact §7 run-record schema are performed simultaneously?)"
+        },
+        {
+          "type": "touchpoint_mapping_missing",
+          "severity": "advisory",
+          "message": "None of the checklist items have the files field filled in (legacy story compatibility mode); cannot perform coverage validation on understanding.touchpoints. Please list the changed files in files.modify/create/test for at least one item to enable strict touchpoint-to-files validation"
+        },
+        {
+          "type": "missing_plan_md",
+          "severity": "advisory",
+          "message": "plan.md not found. Normal channel recommends writing plan.md to clarify execution order and dependencies"
+        },
+        {
+          "type": "scope_gap",
+          "severity": "blocker",
+          "message": "scope gap: description mentions \"A2prime per-run budget logging: each run logs pass/fail against ±20% token+wall-clock tolerance constants; token budget binds first on conflict; hard-truncation at upper bound\" but there is no corresponding checklist item and it is not excluded"
+        },
+        {
+          "type": "scope_orphan_suspect",
+          "severity": "advisory",
+          "message": "scope feature Bare-harness anti-strawman validation: >=25% of pilot tasks solved; pre-registered and frozen bare-harness config (pilot scope) orphan-suspect: see decisions:decisions/lattice-experiment-protocol.md is not covered by any CHK but is not explicitly excluded, please confirm"
+        },
+        {
+          "type": "scope_orphan_suspect",
+          "severity": "advisory",
+          "message": "scope feature Task corpus: N_tasks=24, stratified 8 categories, acceptance scripts harness-owned+read-only+hash-checked, committed+frozen before first run (corpus authorship scope) orphan-suspect: see decisions:decisions/lattice-experiment-protocol.md is not covered by any CHK but is not explicitly excluded, please confirm"
+        },
+        {
+          "type": "scope_orphan_suspect",
+          "severity": "advisory",
+          "message": "scope feature Injection at identical logical point: immediately before first agent action on the task (injection-point enforcement) orphan-suspect: see decisions:decisions/lattice-experiment-protocol.md is not covered by any CHK but is not explicitly excluded, please confirm"
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-f248 is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "0de7070377ae3073fb12001589ddc8874e9bd412814e3edfced3040fcb67f3ea"
+    },
+    {
+      "timestamp": "2026-06-23T11:29:38.132Z",
+      "issueCount": 14,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-004",
+          "message": "CHK-004 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-005",
+          "message": "CHK-005 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "scope_change",
+          "severity": "advisory",
+          "itemId": "CHK-005",
+          "message": "CHK-005 (\"Surface the A2prime per-run budget-compliance log on the canonical record\") was added in PLAN phase: Scope-plan reviewer BLOCKER + OQ-001 resolution: §1-mandated A2prime per-run budget-compliance logging was missing from the checklist; adding it as an explicit item."
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 checklist items; please check for missing combined scenarios (e.g., what happens when Enumerate the full pre-registered cell matrix honouring §3 applicability + Canonicalise each raw run into the exact §7 run-record schema are performed simultaneously?)"
+        },
+        {
+          "type": "touchpoint_mapping_missing",
+          "severity": "advisory",
+          "message": "None of the checklist items have the files field filled in (legacy story compatibility mode); cannot perform coverage validation on understanding.touchpoints. Please list the changed files in files.modify/create/test for at least one item to enable strict touchpoint-to-files validation"
+        },
+        {
+          "type": "missing_plan_md",
+          "severity": "advisory",
+          "message": "plan.md not found. Normal channel recommends writing plan.md to clarify execution order and dependencies"
+        },
+        {
+          "type": "scope_gap",
+          "severity": "blocker",
+          "message": "scope gap: description mentions \"A2prime per-run budget logging: each run logs pass/fail against ±20% token+wall-clock tolerance constants; token budget binds first on conflict; hard-truncation at upper bound\" but there is no corresponding checklist item and it is not excluded"
+        },
+        {
+          "type": "scope_orphan_suspect",
+          "severity": "advisory",
+          "message": "scope feature Bare-harness anti-strawman validation: >=25% of pilot tasks solved; pre-registered and frozen bare-harness config (pilot scope) orphan-suspect: see decisions:decisions/lattice-experiment-protocol.md is not covered by any CHK but is not explicitly excluded, please confirm"
+        },
+        {
+          "type": "scope_orphan_suspect",
+          "severity": "advisory",
+          "message": "scope feature Task corpus: N_tasks=24, stratified 8 categories, acceptance scripts harness-owned+read-only+hash-checked, committed+frozen before first run (corpus authorship scope) orphan-suspect: see decisions:decisions/lattice-experiment-protocol.md is not covered by any CHK but is not explicitly excluded, please confirm"
+        },
+        {
+          "type": "scope_orphan_suspect",
+          "severity": "advisory",
+          "message": "scope feature Injection at identical logical point: immediately before first agent action on the task (injection-point enforcement) orphan-suspect: see decisions:decisions/lattice-experiment-protocol.md is not covered by any CHK but is not explicitly excluded, please confirm"
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-f248 is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "edf588e76c316bbcd00f053ac2649b2f386d0bc44018400d9e1106bc6facd012"
+    },
+    {
+      "timestamp": "2026-06-23T11:29:47.525Z",
+      "issueCount": 14,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-004",
+          "message": "CHK-004 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-005",
+          "message": "CHK-005 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "scope_change",
+          "severity": "advisory",
+          "itemId": "CHK-005",
+          "message": "CHK-005 (\"Surface the A2prime per-run budget-compliance log on the canonical record\") was added in PLAN phase: Scope-plan reviewer BLOCKER + OQ-001 resolution: §1-mandated A2prime per-run budget-compliance logging was missing from the checklist; adding it as an explicit item."
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 checklist items; please check for missing combined scenarios (e.g., what happens when Enumerate the full pre-registered cell matrix honouring §3 applicability + Canonicalise each raw run into the exact §7 run-record schema are performed simultaneously?)"
+        },
+        {
+          "type": "touchpoint_mapping_missing",
+          "severity": "advisory",
+          "message": "None of the checklist items have the files field filled in (legacy story compatibility mode); cannot perform coverage validation on understanding.touchpoints. Please list the changed files in files.modify/create/test for at least one item to enable strict touchpoint-to-files validation"
+        },
+        {
+          "type": "missing_plan_md",
+          "severity": "advisory",
+          "message": "plan.md not found. Normal channel recommends writing plan.md to clarify execution order and dependencies"
+        },
+        {
+          "type": "scope_gap",
+          "severity": "blocker",
+          "message": "scope gap: description mentions \"A2prime per-run budget logging: each run logs pass/fail against ±20% token+wall-clock tolerance constants; token budget binds first on conflict; hard-truncation at upper bound\" but there is no corresponding checklist item and it is not excluded"
+        },
+        {
+          "type": "scope_orphan_suspect",
+          "severity": "advisory",
+          "message": "scope feature Bare-harness anti-strawman validation: >=25% of pilot tasks solved; pre-registered and frozen bare-harness config (pilot scope) orphan-suspect: see decisions:decisions/lattice-experiment-protocol.md is not covered by any CHK but is not explicitly excluded, please confirm"
+        },
+        {
+          "type": "scope_orphan_suspect",
+          "severity": "advisory",
+          "message": "scope feature Task corpus: N_tasks=24, stratified 8 categories, acceptance scripts harness-owned+read-only+hash-checked, committed+frozen before first run (corpus authorship scope) orphan-suspect: see decisions:decisions/lattice-experiment-protocol.md is not covered by any CHK but is not explicitly excluded, please confirm"
+        },
+        {
+          "type": "scope_orphan_suspect",
+          "severity": "advisory",
+          "message": "scope feature Injection at identical logical point: immediately before first agent action on the task (injection-point enforcement) orphan-suspect: see decisions:decisions/lattice-experiment-protocol.md is not covered by any CHK but is not explicitly excluded, please confirm"
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-f248 is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "0b907fbc8ceda21cb423ea2d0dc40c4be2ef658e4ce887e23ab854a71d3dc62c"
+    },
+    {
+      "timestamp": "2026-06-23T11:30:18.164Z",
+      "issueCount": 14,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-004",
+          "message": "CHK-004 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-005",
+          "message": "CHK-005 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "scope_change",
+          "severity": "advisory",
+          "itemId": "CHK-005",
+          "message": "CHK-005 (\"Surface the A2prime per-run budget-compliance log on the canonical record\") was added in PLAN phase: Scope-plan reviewer BLOCKER + OQ-001 resolution: §1-mandated A2prime per-run budget-compliance logging was missing from the checklist; adding it as an explicit item."
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 checklist items; please check for missing combined scenarios (e.g., what happens when Enumerate the full pre-registered cell matrix honouring §3 applicability + Canonicalise each raw run into the exact §7 run-record schema are performed simultaneously?)"
+        },
+        {
+          "type": "touchpoint_mapping_missing",
+          "severity": "advisory",
+          "message": "None of the checklist items have the files field filled in (legacy story compatibility mode); cannot perform coverage validation on understanding.touchpoints. Please list the changed files in files.modify/create/test for at least one item to enable strict touchpoint-to-files validation"
+        },
+        {
+          "type": "missing_plan_md",
+          "severity": "advisory",
+          "message": "plan.md not found. Normal channel recommends writing plan.md to clarify execution order and dependencies"
+        },
+        {
+          "type": "scope_gap",
+          "severity": "blocker",
+          "message": "scope gap: description mentions \"A2prime per-run budget logging: each run logs pass/fail against ±20% token+wall-clock tolerance constants; token budget binds first on conflict; hard-truncation at upper bound\" but there is no corresponding checklist item and it is not excluded"
+        },
+        {
+          "type": "scope_orphan_suspect",
+          "severity": "advisory",
+          "message": "scope feature Bare-harness anti-strawman validation: >=25% of pilot tasks solved; pre-registered and frozen bare-harness config (pilot scope) orphan-suspect: see decisions:decisions/lattice-experiment-protocol.md is not covered by any CHK but is not explicitly excluded, please confirm"
+        },
+        {
+          "type": "scope_orphan_suspect",
+          "severity": "advisory",
+          "message": "scope feature Task corpus: N_tasks=24, stratified 8 categories, acceptance scripts harness-owned+read-only+hash-checked, committed+frozen before first run (corpus authorship scope) orphan-suspect: see decisions:decisions/lattice-experiment-protocol.md is not covered by any CHK but is not explicitly excluded, please confirm"
+        },
+        {
+          "type": "scope_orphan_suspect",
+          "severity": "advisory",
+          "message": "scope feature Injection at identical logical point: immediately before first agent action on the task (injection-point enforcement) orphan-suspect: see decisions:decisions/lattice-experiment-protocol.md is not covered by any CHK but is not explicitly excluded, please confirm"
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-f248 is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "5fa6a52e16bb9eaa22bdf46d592b8c37d56af14a6be1064170dabc3fee3ef28a"
     }
   ]
 }
