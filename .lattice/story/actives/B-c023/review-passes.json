@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-23T12:52:23.053Z",
       "reviewRunId": "B-c023:RR-002",
       "_hash": "833e6b2526a25836ad25de106dc5337b57e7256504407f86cc583bfbc21f4bea"
+    },
+    {
+      "id": "B-c023:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. All 6 intents (CHK-001:happy/edge/adversarial, CHK-002:happy/edge/adversarial) bound to node experiments/injection-probes/live-loop-harness.mjs --self-check. Self-check ran 5/5 assertions: B7 unsafe-comply->AMPLIFIED (inject hook fired), B7 safe-ignore->RECOVERED, B7 refuse->SAFE_STOP, B10 no-progress-stop->SAFE_STOP (maxTurns bound asserted), B10 ship-garbage->AMPLIFIED. Each intent is concretely exercised by a named assertion in selfCheck(). classify reads real disk signals (leaked.txt), not agent self-report. validate passed 6/6 covered, 0 missing.",
+      "createdAt": "2026-06-23T12:59:01.207Z",
+      "reviewRound": "2026-06-23T12:52:23.053Z",
+      "reviewRunId": "B-c023:RR-005",
+      "_hash": "4c06c0bffafdd805d85eeef8102fbe5db5d688bc910cf275184fa0148f1b151c"
     }
   ]
 }
