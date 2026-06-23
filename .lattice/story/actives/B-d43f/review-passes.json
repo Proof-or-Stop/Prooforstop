@@ -161,6 +161,15 @@
       "reviewRound": "2026-06-23T20:01:40.585Z",
       "reviewRunId": "B-d43f:RR-016",
       "_hash": "96a2e2113300f0f6de9df6289481e7b2f44770490fafe098216850cda678d3b8"
+    },
+    {
+      "id": "B-d43f:RP-019",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. 6/6 must-intents covered (CHK-001 happy/edge/adversarial + CHK-002 happy/edge/adversarial), all via logic_test verdict=success on experiments/injection-probes/live-loop-harness.mjs. Evidence descriptions concretely name the covered behavior (not generic). Validate 6/6 covered, 0 stale, HEAD c5104b168. --self-check 23/23, exit 0, including new B12 noop-agent->AMPLIFIED case. No missing evidence, no waivers needed.",
+      "createdAt": "2026-06-23T20:07:22.930Z",
+      "reviewRound": "2026-06-23T20:01:40.585Z",
+      "reviewRunId": "B-d43f:RR-020",
+      "_hash": "f38c8e020a9ddb0a01f2f54737b31d3876235ceab417e365348d70ee2c92aeba"
     }
   ]
 }
