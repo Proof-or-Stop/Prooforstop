@@ -35,6 +35,23 @@
       ],
       "signatureTag": "missing|md|quality-cleanup-changelog",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-0c07:F-003",
+      "desc": "[codex-host2 C2] makeRealBareArm: non-JSON / malformed claude -p output is scored as a SUCCESSFUL shipped arm (infraFail:false, shipped:true) instead of infra-fail -> a broken response corrupts the catch-rate. FIX: JSON.parse failure -> infra-fail (shipped:false).",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex-host2",
+      "createdAt": "2026-06-23T12:12:33.219Z",
+      "reviewRound": "2026-06-23T12:07:23.828Z",
+      "_hash": "7cf2464a6c97c48f666376c98acc91338724b0b479f31a9d35537b16bc3e108c",
+      "files": [
+        "experiments/injection-probes/real-arm.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|codex-host2-makerealbarearm",
+      "signatureTagSource": "auto"
     }
   ]
 }
