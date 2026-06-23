@@ -1,0 +1,22 @@
+{
+  "task": "Register a reusable workflow-efficiency baseline for six Lattice follow-up fixes before optimizing anything.",
+  "outcome": "The user can point future Lattice CLI work at docs/requirements/decisions/lattice-workflow-efficiency-baseline.md and experiments/baselines/lattice-workflow-efficiency-baseline-v1.json, then require every optimization story to compare against that baseline before claiming a fix.",
+  "facts": [
+    "The baseline decision document exists on local main.",
+    "The baseline JSON exists under experiments/baselines.",
+    "The six dimensions are validate timeout, proof metadata review coverage, Codex adapter gate scope, main merge readiness, delivery-check freshness, and DONE summary freshness.",
+    "INIT reviewers passed with no blockers."
+  ],
+  "constraints": [
+    "Do not implement the six optimization fixes in this story.",
+    "Do not weaken review, evidence freshness, delivery-check, validate, or DONE semantics.",
+    "Do not deploy, push, or publish remote branches.",
+    "Do not use or inspect .omx."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+    "experiments/baselines/lattice-workflow-efficiency-baseline-v1.json"
+  ],
+  "timestamp": "2026-06-23T04:01:38.512Z"
+}

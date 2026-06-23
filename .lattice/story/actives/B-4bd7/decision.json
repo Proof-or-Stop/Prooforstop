@@ -1,0 +1,60 @@
+{
+  "principles": [
+    "Do not optimize for the sake of optimization.",
+    "Do not optimize arbitrarily.",
+    "Only fix real correctness issues.",
+    "Preserve consistency of logic."
+  ],
+  "drivers": [
+    "Future fixes need a stable before/after comparison.",
+    "The baseline story must not change runtime behavior.",
+    "Evidence, review, delivery-check, validate, and DONE semantics must remain stronger than timing goals."
+  ],
+  "options": [
+    {
+      "name": "baseline-registration-only",
+      "pros": [
+        "Creates a stable measurement anchor before behavior changes.",
+        "Keeps future optimization claims auditable.",
+        "Avoids mixing baseline setup with implementation effects."
+      ],
+      "cons": [
+        "Does not immediately reduce runtime or friction."
+      ]
+    },
+    {
+      "name": "implement-six-fixes-now",
+      "pros": [
+        "Could reduce friction sooner if every fix is correct."
+      ],
+      "cons": [
+        "Destroys the clean before/after comparison.",
+        "Increases risk of arbitrary optimization.",
+        "Mixes multiple correctness surfaces into one change."
+      ]
+    }
+  ],
+  "chosen": "baseline-registration-only",
+  "rationale": "Registering the baseline first preserves a clean measurement anchor and keeps future fixes scoped to real correctness issues.",
+  "preMortem": [
+    {
+      "scenario": "Baseline is treated as proof that optimizations are already done.",
+      "trigger": "A future summary overclaims targetAfter as implemented behavior.",
+      "consequence": "Lattice claims process improvements without actual fixes.",
+      "mitigation": "The doc and JSON explicitly separate observedBefore from targetAfter and state that follow-up stories must write separate result artifacts."
+    },
+    {
+      "scenario": "A future story rewrites the baseline instead of comparing against it.",
+      "trigger": "Developer edits lattice-workflow-efficiency-baseline-v1.json after improvements land.",
+      "consequence": "The before/after anchor becomes untrustworthy.",
+      "mitigation": "The doc and JSON declare the original baseline immutable after registration."
+    },
+    {
+      "scenario": "Optimization weakens gates to save time.",
+      "trigger": "A future implementation treats speed as sufficient evidence.",
+      "consequence": "Review, delivery, validate, or DONE claims become less reliable.",
+      "mitigation": "The baseline principles require correctness and consistency before any timing claim."
+    }
+  ],
+  "timestamp": "2026-06-23T04:01:51.344Z"
+}

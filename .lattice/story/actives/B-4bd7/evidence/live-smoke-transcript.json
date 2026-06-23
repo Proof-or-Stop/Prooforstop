@@ -1,0 +1,20 @@
+{
+  "storyId": "B-4bd7",
+  "expected": "Terminal/final answer can say: \"Registered docs/requirements/decisions/lattice-workflow-efficiency-baseline.md as the workflow-efficiency baseline protocol.\"",
+  "actual": {
+    "command": "node -e \"const fs=require(\\\"fs\\\"); const jsonPath=\\\"experiments/baselines/lattice-workflow-efficiency-baseline-v1.json\\\"; const docPath=\\\"docs/requirements/decisions/lattice-workflow-efficiency-baseline.md\\\"; const j=JSON.parse(fs.readFileSync(jsonPath,\\\"utf8\\\")); const doc=fs.readFileSync(docPath,\\\"utf8\\\"); const dims=Object.keys(j.observedBefore || {}); const targetDims=Object.keys(j.targetAfter || {}); if (j.registrationStory !== \\\"B-4bd7\\\") throw new Error(\\\"registrationStory mismatch\\\"); if (dims.length !== 6 || targetDims.length !== 6) throw new Error(\\\"dimension count mismatch\\\"); if (!doc.includes(\\\"createdAt\\\")) throw new Error(\\\"createdAt is not documented\\\"); console.log(\\\"Registered docs/requirements/decisions/lattice-workflow-efficiency-baseline.md as the workflow-efficiency baseline protocol.\\\"); console.log(\\\"Registered experiments/baselines/lattice-workflow-efficiency-baseline-v1.json with six observedBefore/targetAfter dimensions.\\\"); console.log(\\\"Verified the baseline JSON parses, registrationStory=B-4bd7, and this story made no runtime optimization changes.\\\");\"",
+    "exitCode": 0,
+    "stdout": "Registered docs/requirements/decisions/lattice-workflow-efficiency-baseline.md as the workflow-efficiency baseline protocol.\nRegistered experiments/baselines/lattice-workflow-efficiency-baseline-v1.json with six observedBefore/targetAfter dimensions.\nVerified the baseline JSON parses, registrationStory=B-4bd7, and this story made no runtime optimization changes.\n"
+  },
+  "mode": {
+    "runCommands": true,
+    "writeEvidence": true
+  },
+  "capturedAtIso": "2026-06-23T04:37:58.501Z",
+  "claims": {
+    "authorityDone": false,
+    "productionDone": false
+  },
+  "headHash": "4cc0ff1e92e5abaf623ac64931c73a552ed34cc9",
+  "materialHash": "0d9f2577f41d2253710c551cea563c0235ba939ca4ed6acd74ab9d2a7dc1b3db"
+}

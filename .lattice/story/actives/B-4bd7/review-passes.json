@@ -1,0 +1,76 @@
+{
+  "passes": [
+    {
+      "id": "B-4bd7:RP-001",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed git diff main...HEAD for the two scoped baseline artifacts and story evidence. JSON parses, schema/invariant checks pass, immutability and non-arbitrary-optimization wording is present, and no runtime/source behavior files changed.",
+      "createdAt": "2026-06-23T04:16:26.038Z",
+      "reviewRound": "2026-06-23T04:13:10.087Z",
+      "reviewRunId": "B-4bd7:RR-002",
+      "_hash": "eae1b93e76175abff649edd857266507d7330cc4662528f68a7cb1daeb6f983a"
+    },
+    {
+      "id": "B-4bd7:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "reviewed CHK-003: baseline artifacts register an immutable observedBefore/targetAfter comparison only, preserve the four principles, and do not claim the six workflow optimizations are implemented; jq parse, six-dimension invariant check, diff-scope check, and lattice validate passed.",
+      "createdAt": "2026-06-23T04:16:41.766Z",
+      "reviewRound": "2026-06-23T04:13:10.087Z",
+      "reviewRunId": "B-4bd7:RR-001",
+      "_hash": "a0c19ebb9ebca49ea1aeeefb7ad9239dc7443c5ecfefbe6a308d8aba8920af42"
+    },
+    {
+      "id": "B-4bd7:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage review passed: checklist verificationEvidence covers doc path, JSON parse, exact six dimensions in observedBefore/targetAfter, immutable futureComparisonRules, and no runtime source changes.",
+      "createdAt": "2026-06-23T04:20:21.848Z",
+      "reviewRound": "2026-06-23T04:13:10.087Z",
+      "reviewRunId": "B-4bd7:RR-004",
+      "_hash": "225ddfc75314de07250f37f8af04389abc43b63a2029b10e21acefab3a88f049"
+    },
+    {
+      "id": "B-4bd7:RP-004",
+      "agent": "lattice-review-docs",
+      "note": "Docs re-review passed. Step 1 symbols extracted: 0 (pure docs/data diff). Fallback compared 2 changed doc paragraph groups (header metadata and Machine Baseline Schema) plus the full baseline decision doc against experiments/baselines/lattice-workflow-efficiency-baseline-v1.json. No blockers: createdAt and registrationStory are documented as top-level schema fields, the JSON top-level keys remain represented by the schema bullets, observedBefore and targetAfter both contain the same six dimensions, and the doc/JSON describe observed behavior plus future targets without claiming the six optimizations were implemented.",
+      "createdAt": "2026-06-23T04:25:22.006Z",
+      "reviewRound": "2026-06-23T04:23:15.916Z",
+      "reviewRunId": "B-4bd7:RR-005",
+      "_hash": "13554992b2eb1bcf5f8604941da011f4403c800fcfdd83627decc93e97102e38"
+    },
+    {
+      "id": "B-4bd7:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Targeted concept re-review after docs-only commit 800ace6f: the createdAt schema field is now documented; the baseline remains a registration artifact with observedBefore/targetAfter comparison data and future comparison rules only; the four principles are preserved in the philosophical boundaries and futureComparisonRules; the doc and JSON continue to state that the six workflow optimizations are follow-up/non-goals, not implemented by this baseline story.",
+      "createdAt": "2026-06-23T04:27:57.748Z",
+      "reviewRound": "2026-06-23T04:23:15.916Z",
+      "reviewRunId": "B-4bd7:RR-006",
+      "_hash": "7c1014426e28c1903fd502a8684953447e0b0b1c6ae88c48dc49c23f076b33ca"
+    },
+    {
+      "id": "B-4bd7:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Targeted re-review passed: commit 800ace6f adds createdAt to the Machine Baseline Schema; doc bullets now match baseline JSON top-level keys; jq and Node sanity checks passed; immutability, no arbitrary optimization, and no gate weakening wording remains; 800ace6f touches only the decision doc and no runtime files.",
+      "createdAt": "2026-06-23T04:30:25.691Z",
+      "reviewRound": "2026-06-23T04:23:15.916Z",
+      "reviewRunId": "B-4bd7:RR-007",
+      "_hash": "d926cb3e62135b1916ae3678e75386fbb1b006874504b428a69746935a4eb72d"
+    },
+    {
+      "id": "B-4bd7:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified 9/9 must verification intents with current evidence for doc path, JSON parse, exact six dimensions, immutable future comparison rules, and no runtime source changes.",
+      "createdAt": "2026-06-23T04:35:08.232Z",
+      "reviewRound": "2026-06-23T04:23:15.916Z",
+      "reviewRunId": "B-4bd7:RR-008",
+      "_hash": "1d0cba8bbe0f4bdf620bcfc993bf7a95dff068773af783072b6fb32495f900f3"
+    },
+    {
+      "id": "B-4bd7:RP-008",
+      "agent": "lattice-review-quality",
+      "note": "Round 3 targeted quality pass: live-smoke transcript is scoped as local story evidence only, not runtime/source behavior; transcript claims authorityDone=false and productionDone=false with no fullAuthorityDone true claim; changed files are limited to B-4bd7 story metadata plus the baseline doc/JSON; baseline doc and JSON are synchronized for registrationStory, createdAt, six observedBefore/targetAfter dimensions, and immutable future comparison rules.",
+      "createdAt": "2026-06-23T04:47:45.571Z",
+      "reviewRound": "2026-06-23T04:45:27.822Z",
+      "reviewRunId": "B-4bd7:RR-009",
+      "_hash": "6a1ef2c016e869355c9305f87f959adc743e8d14592f8e977d4b9b32993db742"
+    }
+  ]
+}
