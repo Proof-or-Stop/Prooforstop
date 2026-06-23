@@ -145,6 +145,29 @@
         }
       ],
       "_hash": "b3f0e65d0603ae7ac2739296107b57410cff3b66675c4178abe38852b337439f"
+    },
+    {
+      "timestamp": "2026-06-23T02:58:00.700Z",
+      "issueCount": 3,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 checklist items; please check for missing combined scenarios (e.g., what happens when Parse and preserve Authority runner provider declaration as host-neutral metadata + Propagate provider declaration through register, heartbeat, SSE watch, claim, and takeover diagnostics are performed simultaneously?)"
+        },
+        {
+          "type": "scope_gap",
+          "severity": "blocker",
+          "message": "scope gap: description mentions \"Align referenced runner-session/evidence contract with host-neutral provider declaration semantics.\" but there is no corresponding checklist item and it is not excluded"
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-6320 is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "5ae82fd1747f993e386e03dbc3406504d2a41bd9df84158ad10b95866c69f5b5"
     }
   ]
 }
