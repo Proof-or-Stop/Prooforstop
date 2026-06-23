@@ -279,9 +279,9 @@
       "relatedDocs": [
         ".lattice/story/actives/B-1e7f/background.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-23T10:52:03.811Z",
-      "endTime": null,
+      "endTime": "2026-06-23T10:52:14.948Z",
       "userSees": "Focused smokes show claim.storyId is sent for B-current and stale other-story queued jobs are not accepted as current-story success.",
       "files": {
         "modify": [],
@@ -314,7 +314,45 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/authority-runner-contracts-smoke.ts",
+          "command": "npm --prefix packages/main run build; node packages/main/dist/tasks/authority-runner-contracts-smoke.js; node packages/main/dist/tasks/authority-runner-client-smoke.js; node packages/main/dist/tasks/authority-job-loop-live-smoke.js",
+          "result": "pass",
+          "note": "Build plus all three focused authority runner smokes passed after the selector change.",
+          "headHash": "5455adf8951306c9be9dbaf4a372a894ff80bab4",
+          "materialHash": "ef92b55b35d41520fc9d76c3c0f1a61c24619a9553a0c4d5917d8156d97e9b2e",
+          "storyFilesHash": "1c76c5bc5b92c3f6d96a282e720022c7c449c3e79eba54430a60986926ac2384",
+          "timestamp": "2026-06-23T10:52:15.312Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/authority-job-loop-live-smoke.ts",
+          "command": "node packages/main/dist/tasks/authority-job-loop-live-smoke.js",
+          "result": "pass",
+          "note": "Regression models stale B-other queued work and proves the signed B-auto claim receives and completes the current-story job.",
+          "headHash": "5455adf8951306c9be9dbaf4a372a894ff80bab4",
+          "materialHash": "ef92b55b35d41520fc9d76c3c0f1a61c24619a9553a0c4d5917d8156d97e9b2e",
+          "storyFilesHash": "1c76c5bc5b92c3f6d96a282e720022c7c449c3e79eba54430a60986926ac2384",
+          "timestamp": "2026-06-23T10:52:15.543Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/authority-runner-client-smoke.ts",
+          "command": "node packages/main/dist/tasks/authority-runner-client-smoke.js",
+          "result": "pass",
+          "note": "SSE jobs.available remains advisory: signed POST /jobs/claim is still required, and hinted jobIds are not treated as ownership.",
+          "headHash": "5455adf8951306c9be9dbaf4a372a894ff80bab4",
+          "materialHash": "ef92b55b35d41520fc9d76c3c0f1a61c24619a9553a0c4d5917d8156d97e9b2e",
+          "storyFilesHash": "1c76c5bc5b92c3f6d96a282e720022c7c449c3e79eba54430a60986926ac2384",
+          "timestamp": "2026-06-23T10:52:15.737Z"
+        }
+      ]
     }
   ],
   "auditLog": [
