@@ -4,7 +4,7 @@
   "title": "Make the review-assurance-floor fresh-round count storyFilesHash-authoritative so unrelated main merges stop forcing a full quorum re-bind",
   "description": "Last-mile of the storyFilesHash work (B-5a9a/B-edf1). B-5a9a added a secondary storyFilesHash to verdict/evidence records and the evidence-freshness path already downgrade-accepts a stale-whole-tree-materialHash binding when storyFilesHash matches (valid-with-advisory). But the strict review-assurance FLOOR (review-assurance-floor.ts: evaluateHostVerdictRounds) still counts fresh local PASS rounds purely by whole-tree materialHash (currentMaterialHash), so when an unrelated main merge drifts the whole-tree hash, a story's just-submitted quorum host-verdicts are ignored as materialDigest-stale and the floor finds 0 fresh rounds, forcing a full re-bind (re-run all review lanes + re-submit quorum) during a main-quiet window. Two real stories (B-f248, B-7036) burned hours on this race on 2026-06-23. Fix: make the floor's fresh-round counting honor storyFilesHash exactly as the evidence path does (a verdict whose materialHash is stale but whose stored storyFilesHash matches the current story-owned-file state counts as a valid local round, valid-with-advisory, surfacing the re-attestation advisory), and exclude truly-stale verdicts from the per-round duplicate-host-identity check so accumulated prior-submit verdicts cannot poison a round. A real story-file change (storyFilesHash differs) must still correctly stale the rounds (the guard is not gamed).",
   "type": "feature",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "medium",
   "keywords": [
     "review-assurance-floor",
@@ -26,6 +26,20 @@
       "user": "Harmonygo",
       "sessionId": "e8aca935-deaf-4f5d-9f33-b3aff7bb35fb",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-23T23:37:01.465Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "e8aca935-deaf-4f5d-9f33-b3aff7bb35fb",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-6de6",
+    "branch": "story/B-6de6",
+    "createdAt": "2026-06-23T23:37:01.035Z"
+  }
 }
