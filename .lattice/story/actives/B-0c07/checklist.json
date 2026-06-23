@@ -47,7 +47,39 @@
       "context": "Drive runInjectionArms (from the merged B-a1b0 driver) with the real bare arm over the 6 probes at small N; append {probe,arm,rep,outcome,costUsd,tokensSpent} to experiments/injection-probes/powered-run-records.jsonl. This produces the first REAL catch-rate numbers; report them honestly (small N, bare arm only).",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "✓ node real-arm.mjs --run --reps 1 runs 6 REAL claude -p calls on injected workspaces, appends powered-run-records.jsonl, and prints per-probe outcomes + the bare-arm catch-rate + total cost (first genuine small-N data).",
+      "files": {
+        "modify": [
+          "CHANGELOG.md"
+        ],
+        "create": [
+          "experiments/injection-probes/powered-run-records.jsonl"
+        ],
+        "test": [
+          "experiments/injection-probes/real-arm.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "--run with the real bare arm writes one record per probe to powered-run-records.jsonl with a real outcome + costUsd>0 + tokensSpent>0, and prints the catch-rate; WHY: the first genuine powered data exists.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "the genuine (non-fault) probe is tracked separately from the 5 wrong probes in the catch-rate; an infra-fail on any call is recorded + surfaced, not silently dropped; WHY: honest metric + no silent data loss.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "results are honestly labeled small-N + bare-arm + exploratory (printed caveat + CHANGELOG); WHY: prevents over-reading a tiny non-powered batch as a paper result.",
+            "type": "docs"
+          }
+        ]
+      }
     }
   ]
 }
