@@ -15,6 +15,7 @@ import {
 type DoneClosureStatus = 'notRequired' | 'required' | 'passed' | 'blocked';
 type AuthorityImpact = 'none' | 'localOnly' | 'requiresAuthorityReceipt';
 type DoneClosureFormatArgs = { format?: 'text' | 'json'; json?: boolean };
+const DONE_PREPARE_BLOCKER_IDS = new Set(['evidence-freshness', 'done-required-validation', 'branch-synced-main']);
 
 export interface DoneClosureBlocker {
   id: string;
@@ -58,18 +59,28 @@ function rowAuthorityImpact(row: DoneCheckRow): AuthorityImpact {
   return 'none';
 }
 
+function donePrepareCommand(storyId: string): string {
+  return `lattice done_prepare '{"storyId":"${storyId}","mergeMain":true,"refreshStale":true,"validate":true}'`;
+}
+
+function isDonePrepareRecoveryBlocker(row: DoneCheckRow): boolean {
+  return row.blocking && row.status === 'fail' && DONE_PREPARE_BLOCKER_IDS.has(row.id);
+}
+
 function nextCommandForRow(storyId: string, row: DoneCheckRow): string | undefined {
+  if (isDonePrepareRecoveryBlocker(row)) return donePrepareCommand(storyId);
   switch (row.id) {
     case 'test-evidence':
-    case 'evidence-freshness':
     case 'verification-intent-coverage':
       return `lattice validate --story=${storyId} --json`;
+    case 'evidence-freshness':
+    case 'done-required-validation':
+    case 'branch-synced-main':
+      return row.blocking ? row.hint : undefined;
     case 'bugs-fixed':
       return `lattice bug_list '{"storyId":"${storyId}"}'`;
     case 'git-working-tree':
       return 'git status --short';
-    case 'branch-synced-main':
-      return 'git merge main';
     case 'delivery-check':
       return 'lattice delivery_check_set ...';
     case 'story-summary':

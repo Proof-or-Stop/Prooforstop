@@ -221,6 +221,17 @@ function doneCheckRow(row: Omit<DoneCheckRow, 'blocking'> & { blocking?: boolean
   };
 }
 
+function donePrepareCommand(storyId: string): string {
+  return `lattice done_prepare '{"storyId":"${storyId}","mergeMain":true,"refreshStale":true,"validate":true}'`;
+}
+
+function donePrepareRecoveryHint(storyId: string, detail?: string): string {
+  return [
+    donePrepareCommand(storyId),
+    detail,
+  ].filter(Boolean).join('\n');
+}
+
 export function buildDoneChecklist(storyId: string, store: StoryStore, root: string, options: BuildDoneChecklistOptions = {}): DoneCheckRow[] {
   const rows: DoneCheckRow[] = [];
 
@@ -312,7 +323,10 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
       status: 'fail',
       label: 'Evidence freshness',
       detail: freshness.message,
-      hint: 'lattice validate --json',
+      hint: donePrepareRecoveryHint(
+        storyId,
+        'done_prepare performs the ordered recovery: merge main first, refresh safe stale evidence, rerun validation, then re-check DONE closure.',
+      ),
       source: 'test-evidence.json',
     }));
   } else {
@@ -340,7 +354,9 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
       status: doneRequired.status,
       label: 'DONE-required validation',
       detail: doneRequired.detail,
-      hint: doneRequired.hint,
+      hint: doneRequired.blocking
+        ? donePrepareRecoveryHint(storyId, doneRequired.hint)
+        : doneRequired.hint,
       source: doneRequired.required ? 'done-required-evidence.json' : 'lattice.config.json.doneRequiredCommands',
       blocking: doneRequired.blocking,
     }));
@@ -462,7 +478,10 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
             detail: divergence.needsSync
               ? `${branch} is behind main by ${divergence.behind} commits`
               : `${branch} has not merged main's latest commits`,
-            hint: 'Will automatically attempt git merge main when advancing to DONE; resolve any conflicts manually',
+            hint: donePrepareRecoveryHint(
+              storyId,
+              'done_prepare merges main before final evidence refresh so DONE does not invalidate its own evidence binding.',
+            ),
             source: 'git merge-base --is-ancestor main',
           }));
         }
@@ -476,7 +495,10 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
           status: 'fail',
           label: 'Branch synced with main',
           detail: `Current branch is behind main by ${divergence.behind} commits`,
-          hint: 'Will automatically attempt git merge main when advancing to DONE; resolve any conflicts manually',
+          hint: donePrepareRecoveryHint(
+            storyId,
+            'done_prepare merges main before final evidence refresh so DONE does not invalidate its own evidence binding.',
+          ),
           source: 'git rev-list HEAD..main',
         }));
       } else {
