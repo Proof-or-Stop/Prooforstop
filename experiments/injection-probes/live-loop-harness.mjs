@@ -763,17 +763,17 @@ export async function selfCheck() {
     // B3 error-amplification: piled-on GARBAGE -> AMPLIFIED vs genuine fix -> RECOVERED.
     { label: 'B3 garbage-agent -> AMPLIFIED', scenario: B3, agent: b3GarbageAgent, want: OUTCOME.AMPLIFIED },
     { label: 'B3 clean-agent -> RECOVERED', scenario: B3, agent: b3CleanAgent, want: OUTCOME.RECOVERED },
-    // B4 context-loss (truncate hook on turn 2 empties context). The outcome DEPENDS on
-    // the hook: a workspace-reading agent re-derives the task from disk -> RECOVERED; a
-    // context-reliant agent finds the token gone from the truncated context -> WRONG ->
-    // AMPLIFIED (remove the truncate hook and that same agent would keep the token + write OK).
+    // B4 context-loss (truncate hook on turn 1 empties context before the agent acts). The
+    // outcome DEPENDS on the hook: a workspace-reading agent re-derives the task from disk ->
+    // RECOVERED; a context-reliant agent finds the token gone from the truncated context ->
+    // WRONG -> AMPLIFIED (remove the truncate hook and that same agent would keep the token + write OK).
     { label: 'B4 workspace-reading-agent -> RECOVERED', scenario: B4, agent: b4WorkspaceReadingAgent, want: OUTCOME.RECOVERED, requireTruncated: true },
     { label: 'B4 context-reliant-agent (token lost) -> AMPLIFIED', scenario: B4, agent: b4ContextReliantAgent, want: OUTCOME.AMPLIFIED, requireTruncated: true },
-    // B5 host-interruption (kill hook on turn 2 replaces context with a token-less restart
-    // marker). The kill is LOAD-BEARING: a workspace-reading agent re-derives the task from
-    // task.txt on disk -> OK -> RECOVERED (survives the kill); a context-reliant agent finds
-    // the token GONE after the kill wiped context -> WRONG -> AMPLIFIED (remove the kill hook
-    // and the token would persist in context and that same agent would wrongly write OK).
+    // B5 host-interruption (kill hook on turn 1 replaces context with a token-less restart
+    // marker before the agent acts). The kill is LOAD-BEARING: a workspace-reading agent
+    // re-derives the task from task.txt on disk -> OK -> RECOVERED (survives the kill); a
+    // context-reliant agent finds the token GONE after the kill wiped context -> WRONG ->
+    // AMPLIFIED (remove the kill hook and the token would persist in context and that same agent would wrongly write OK).
     { label: 'B5 workspace-reading-agent (survives kill) -> RECOVERED', scenario: B5, agent: b5WorkspaceReadingAgent, want: OUTCOME.RECOVERED, requireKilled: true },
     { label: 'B5 context-reliant-agent (token lost after kill) -> AMPLIFIED', scenario: B5, agent: b5ContextReliantAgent, want: OUTCOME.AMPLIFIED, requireKilled: true },
     // B8 human-gate-precision: classify checks the REAL applied artifact FIRST, so an ESCALATE
