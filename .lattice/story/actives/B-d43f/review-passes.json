@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-23T19:28:52.385Z",
       "reviewRunId": "B-d43f:RR-004",
       "_hash": "0304d1179e19e54652ae546efd905dff589b680b716951fa9ce6667b12d1392d"
+    },
+    {
+      "id": "B-d43f:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Concept residue check complete. The diff is purely additive: 7 new scenario exports (B3/B4/B5/B8/B12/B14/B15), 2 helper functions (countMarkerInWorkspace/literalInFilesWithExt), 14 new selfCheck cases, and 1 CHANGELOG bullet. The only deleted lines are the import statement (expanded with 3 new fs functions — a modification, not a concept removal) and the selfCheck completion log string (updated to enumerate more scenarios). No concept word was deleted or renamed en masse. OUTCOME and runLiveLoop are reused unchanged throughout the file and across probe-contract.mjs, real-arm.mjs, run-injection-arms.mjs, and all stateless probes. Git diff stat confirms only live-loop-harness.mjs + CHANGELOG.md + .lattice/ files changed. No residue blocker found.",
+      "createdAt": "2026-06-23T19:30:14.766Z",
+      "reviewRound": "2026-06-23T19:28:52.385Z",
+      "reviewRunId": "B-d43f:RR-003",
+      "_hash": "af050d7cca4570b9a56a1005eaf63482a687d79c008cbd35128bdf8c2269359c"
     }
   ]
 }
