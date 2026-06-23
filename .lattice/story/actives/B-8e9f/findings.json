@@ -5,7 +5,7 @@
       "desc": "concept-cleanup: B4/B5 turn-1 concept still has 2 stale comments in the self-check case table (lines 766 and 772) saying \"truncate hook on turn 2\" and \"kill hook on turn 2\" respectively — these directly contradict the new turn-1 design and will mislead future developers; must be updated to say turn 1",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-06-23T23:35:18.115Z",
@@ -16,7 +16,11 @@
         "experiments/injection-probes/live-loop-harness.mjs"
       ],
       "signatureTag": "missing|mjs|concept-cleanup-turn",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 4dd83fe3c: updated the self-check case-table comments at lines 766/772 from 'turn 2' to 'turn 1' to match the implementation (B4 truncate + B5 kill fire at turn 1). The remaining 'turn 2' strings (308-309/342-343) are load-bearing comments stating the hook fires at turn 1 AND NOT turn 2. self-check stays 25/25, 0 spend.",
+      "resolvedAt": "2026-06-23T23:39:08.817Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8e9f:F-002",
