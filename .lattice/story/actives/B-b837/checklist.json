@@ -72,6 +72,17 @@
           "materialHash": "71fd662a6cc4efe4c3dde9ac6c352f3d722e22b76e080754e3bdfe8066ba89fd",
           "storyFilesHash": "64ca7bcb634a24f4d3189c4ccc36f942cb702b845ce2072ba08f8dc6ae82cdce",
           "timestamp": "2026-06-23T14:05:04.779Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "logic_test",
+          "command": "node /tmp/b837-activity-check.mjs",
+          "result": "pass",
+          "note": "Called readActivityLogTail(root,50) against a temp root with only .lattice/activity.jsonl (3 entries); returned 3 entries sorted timestamp-descending, no crash.",
+          "headHash": "4fb836fa8417454f6d799c911f7e09c50bc7bc26",
+          "materialHash": "71fd662a6cc4efe4c3dde9ac6c352f3d722e22b76e080754e3bdfe8066ba89fd",
+          "storyFilesHash": "64ca7bcb634a24f4d3189c4ccc36f942cb702b845ce2072ba08f8dc6ae82cdce",
+          "timestamp": "2026-06-23T14:05:05.618Z"
         }
       ]
     },
