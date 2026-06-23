@@ -1,0 +1,19 @@
+{
+  "storyId": "B-c1b1",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/done-oracle.ts",
+    "packages/main/src/handlers/done-closure.ts",
+    "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/done-prepare-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-23T01:58:44.855Z",
+  "updatedAt": "2026-06-23T01:58:44.855Z"
+}
