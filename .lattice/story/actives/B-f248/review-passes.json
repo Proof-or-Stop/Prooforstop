@@ -224,6 +224,15 @@
       "reviewRound": "2026-06-23T18:05:11.357Z",
       "reviewRunId": "B-f248:RR-030",
       "_hash": "007dc5eddce6dfc13ca54a284573483124640c37cbb78db51061b8972791c16e"
+    },
+    {
+      "id": "B-f248:RP-026",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage review of commit 44e4a4eab (4 host-2 LOW/INFO defensive hardening gaps). Verified verificationIntent->Evidence coverage: all 49 must-intents across CHK-001..005 carry a passing logic_test/manual_transcript evidence, zero must-gaps, zero waivers. Each of the 5 new behaviors (dup arms throw, dup scenarios throw, explicit-undefined required field rejected, dup --tasks exit 2, k<3 under-powered warning) has a dedicated non-vacuous selfcheck assertion. run-driver-selfcheck.mjs runs green at 135 assertions / 0 failed (130->135 matches the +5 ok() calls in the diff). No new test-coverage gap; no blocker.",
+      "createdAt": "2026-06-23T18:07:41.043Z",
+      "reviewRound": "2026-06-23T18:05:11.357Z",
+      "reviewRunId": "B-f248:RR-031",
+      "_hash": "8fe6e2d93dbf7e371949d82148331bf627ad9c0e8c07c235ce0f389e9aa6727e"
     }
   ]
 }
