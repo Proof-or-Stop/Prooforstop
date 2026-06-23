@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-23T12:07:23.828Z",
       "reviewRunId": "B-0c07:RR-002",
       "_hash": "65f606b03b5b67f9a7a1cc270dbf61a9add9c75ef81b8359325fbcc72f050f02"
+    },
+    {
+      "id": "B-0c07:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. All 6 must-intents covered (CHK-001:happy/edge/adversarial via logic_test --self-check; CHK-002:happy via manual_transcript powered-run-records.jsonl; CHK-002:edge via logic_test --self-check infra-fail+count invariant; CHK-002:adversarial via docs_check CHANGELOG+caveat). --self-check exit 0 confirmed live. Deliberate split verified: deterministic gate = --self-check; powered data = committed artifact not re-run.",
+      "createdAt": "2026-06-23T12:11:27.810Z",
+      "reviewRound": "2026-06-23T12:07:23.828Z",
+      "reviewRunId": "B-0c07:RR-004",
+      "_hash": "a627fbbe17bc1a775fa9b378745a338fda0e3547af606c01eeec372bb3d8aba7"
     }
   ]
 }
