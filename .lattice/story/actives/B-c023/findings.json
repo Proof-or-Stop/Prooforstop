@@ -144,6 +144,23 @@
       ],
       "signatureTag": "missing|mjs|verificationevidence-entries-stale",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-c023:F-008",
+      "desc": "[codex-host2 round-2 C7-incomplete] the turnTimeoutMs Promise.race stops the LOOP from awaiting, but does NOT cancel the underlying agent() work — a real claude -p child keeps running (orphaned, holding the workspace finally then rm's). FIX: pass an AbortSignal to the agent ({ws,context,turn,signal}); abort it on timeout; document that a real subprocess agent MUST kill its child on signal.aborted (and/or use execFileSync's own timeout). Harness Promise.race is only a loop watchdog; the agent owns real termination.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex-host2",
+      "createdAt": "2026-06-23T13:14:01.510Z",
+      "reviewRound": "2026-06-23T13:05:36.975Z",
+      "_hash": "94bd2d89c7f556803bdec84e22f74efe795c0d1e4a8a313e01826136ca3ac460",
+      "files": [
+        "experiments/injection-probes/live-loop-harness.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|codex-host2-round",
+      "signatureTagSource": "auto"
     }
   ]
 }
