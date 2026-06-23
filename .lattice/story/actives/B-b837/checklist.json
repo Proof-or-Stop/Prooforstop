@@ -6,7 +6,50 @@
       "context": "packages/main/src/core/activity-log.ts and lattice-paths.ts LATTICE_LEGACY_KOALA_ACTIVITY_LOG / activity.legacy-koala.jsonl; stop reading the legacy log.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "grep -r LATTICE_LEGACY_KOALA_ACTIVITY_LOG packages/main/src/ -> zero hits; WHY: the path constant is fully removed from product code",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "grep -r getMigratedLegacyKoalaActivityLogPath packages/main/src/ -> zero hits; WHY: the legacy archive reader function is fully removed",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "readActivityLogTail(projectRoot, 50) with only .lattice/activity.jsonl present -> returns entries sorted desc, no crash; WHY: normal-path still works after legacy source removal",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "readActivityLogTail(projectRoot, 1) when .lattice/activity.jsonl does not exist and legacy-koala.jsonl does not exist -> returns [] without error; WHY: boundary where no log files exist at all must not crash after removing the legacy source",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "stale-detector lastActivityTimestamp(root) with only runtime activity.jsonl (no legacy archive) -> returns correct timestamp from runtime log; WHY: stale-detector was a known consumer of the legacy archive via readActivityLogTail; must still work",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "grep -rn activity.legacy-koala packages/main/src/ -> zero hits outside comments/changelogs; WHY: ensure no orphan string reference to the legacy filename survives that could cause a runtime file-not-found or silent data loss",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "runtime-artifact-registry.ts no longer lists activity.legacy-koala.jsonl in ignorePatterns or exact matches -> confirmed removed; WHY: stale ignore-pattern for a deleted file could mask future file-path collisions",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
