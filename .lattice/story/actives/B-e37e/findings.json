@@ -1,0 +1,24 @@
+{
+  "findings": [
+    {
+      "id": "B-e37e:F-001",
+      "desc": "packages/main/src/core/authority-client.ts:408-424 buffers the jobs SSE with response.text() before parseRunnerJobsAvailableSse runs, so a normal long-lived text/event-stream body will not surface an early jobs.available event to the runner; it will wait until the body closes or the timeout aborts, then packages/main/src/core/authority-runner.ts:438-456 falls back to claim only after that wait. This keeps the signed claim authority boundary safe, but it means the CLI does not actually consume a persistent /v1/runners/{runnerId}/jobs/stream notification hint promptly; the smoke test only covers a bounded SSE-looking response that closes after the event, not a real long-lived stream.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-23T00:43:34.009Z",
+      "reviewRound": "2026-06-23T00:39:56.221Z",
+      "reviewRunId": "B-e37e:RR-004",
+      "_hash": "ef025c43134cd47834f95b1820cdc3d5abc5a2e5e0815cd758f833c509c0f5da",
+      "files": [
+        "packages/main/src/core/authority-client.ts",
+        "packages/main/src/core/authority-runner.ts",
+        "packages/main/src/tasks/authority-runner-client-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|packages-main-core",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
