@@ -143,13 +143,44 @@
       "title": "Update diagnostics or runbook text only where behavior changes",
       "context": "If the CLI gains a bounded auto-refresh or new DONE preflight step, update the user-facing hint or runbook text to describe the behavior. Do not add new host-specific or agent-specific workflow assumptions.",
       "relatedDocs": [
-        "AGENTS.md",
-        "docs/requirements/decisions/story-lifecycle.md",
-        "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md"
+        "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+        "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+        "docs/requirements/decisions/story-lifecycle.md"
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Any updated diagnostic or runbook text stays host-neutral and says done_prepare is the pre-DONE recovery assistant; it does not move version bump, package sync, or dist sync into pre-DONE evidence creation.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Documentation or diagnostic text, if changed, describes done_prepare as a host-neutral Lattice workflow command rather than a Codex- or Claude-specific step.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The docs continue to state or imply that version bump, package sync, dist build, and experience cache refresh are post-DONE effects, not pre-DONE validation material.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No stale guidance recommends manual raw git merge plus separate validate/refresh loops as the preferred DONE recovery path for this class of blocker.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
