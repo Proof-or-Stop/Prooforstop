@@ -1,10 +1,12 @@
 // real-loop-agent.mjs — a REAL multi-turn claude -p agent for the live-loop harness (B-b739).
 //
-// makeRealLoopAgent returns an agent({ws, context, turn, signal}) that runs `claude -p` once
+// makeRealLoopAgent returns an async agent({ws, context, signal}) that runs `claude -p` once
 // per turn on the running `context` in cwd=ws, reuses the B-0c07 parseClaudeResult hardening
-// (non-JSON / API-error -> infra-fail; type-safe cost), and HONORS the B-c023 AbortSignal
-// contract: it checks signal.aborted at entry and bounds the child via execFileSync's own
-// `timeout` (which kills the child) so a hung turn cannot orphan a process or block cleanup.
+// (non-JSON / API-error -> infra-fail; type-safe cost), feeds back the parsed RESULT TEXT (not
+// the raw JSON envelope), and HONORS the B-c023 AbortSignal contract via async execFile with
+// `{signal}`: AbortController.abort() actually kills the child AND the event loop is not blocked,
+// so the harness watchdog/turnTimeoutMs are real (a blocking execFileSync would neuter them);
+// a turn timeout also bounds the child, so a hung turn cannot orphan a process or block cleanup.
 //
 // makeStubLoopAgent returns a deterministic no-LLM agent for the hermetic --self-check (0 spend).
 //
@@ -30,9 +32,10 @@ function resultText(stdout) {
 }
 
 /**
- * Real multi-turn arm: one `claude -p` call per turn on the current context, in the workspace.
- * Honors signal.aborted (skips the call if already aborted) and bounds the child via the
- * execFileSync timeout (which terminates the child — the agent-owns-termination contract).
+ * Real multi-turn arm: one async `claude -p` call per turn on the current context, in the
+ * workspace. Honors the AbortSignal — async execFile with `{signal}` kills the child when the
+ * harness aborts (and the entry-check skips an already-aborted turn); a turn timeout also
+ * terminates the child (the agent-owns-termination contract). Feeds back the parsed result text.
  * Pushes {costUsd, tokensSpent, infraFail} to costLog (if given) in call order.
  */
 export function makeRealLoopAgent({ model = DEFAULT_MODEL, costLog } = {}) {
