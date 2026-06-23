@@ -116,7 +116,7 @@
       "desc": "Codex host-2 returned VERDICT: BLOCK but listed NO specific findings (selfchecks ran 56/56 + 5 pass); the verdict is non-actionable (codex was degraded/rate-limited this session). Re-run host-2 on the post-fix code demanding explicit file:line findings before the verdict; if none, expect SHIP.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex-host",
       "createdAt": "2026-06-23T19:02:33.821Z",
@@ -126,7 +126,11 @@
         "experiments/recovery-runner/analyze.mjs"
       ],
       "signatureTag": "spec-boundary|mjs|codex-host-returned",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "re-running codex host-2 on the fixed code with an explicit list-findings-before-verdict prompt (the prior BLOCK had no specifics)",
+      "resolvedAt": "2026-06-23T19:06:27.558Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
