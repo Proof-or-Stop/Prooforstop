@@ -98,7 +98,7 @@
         "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
         "experiments/baselines/lattice-workflow-efficiency-baseline-v1.json"
       ],
-      "userSees": "The baseline is usable for future comparison while avoiding premature optimization.",
+      "userSees": "Terminal/final answer can say: \"Verified the baseline JSON parses, covers all six dimensions, and this story made no runtime optimization changes.\"",
       "excludes": [
         "Do not claim any of the six follow-up fixes are already implemented by this story."
       ],
@@ -127,7 +127,15 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+          "experiments/baselines/lattice-workflow-efficiency-baseline-v1.json"
+        ],
+        "create": [],
+        "test": []
+      }
     }
   ]
 }
