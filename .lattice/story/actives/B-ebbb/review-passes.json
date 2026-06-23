@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-23T10:22:36.868Z",
       "reviewRunId": "B-ebbb:RR-003",
       "_hash": "08c9bffbf24ae7094fc2feb6223bd2e5ad502dd596a945c62df025c7f3121ca6"
+    },
+    {
+      "id": "B-ebbb:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. All 39 intents (CHK-001 through CHK-005: 7+8+8+4+12) bound to node experiments/recovery-runner/checks-selfcheck.mjs; selfcheck ran offline 99/99 pass, no LLM; validate allPass:true 0 missingRequired; key adversarial assertions confirmed in source: tampered-script-hash runner-not-called (spy 0 calls at line 88), NEW-failure-vs-baseline (hr remove+add line 179-180), path-traversal escape (line 253-254), junk-under-allowed-path (src/.env and src/node_modules lines 232-240); negative control CHK-005:adversarial:2 forced hashOk=true caused 12/99 failures confirming non-vacuous suite.",
+      "createdAt": "2026-06-23T10:31:42.295Z",
+      "reviewRound": "2026-06-23T10:22:36.868Z",
+      "reviewRunId": "B-ebbb:RR-002",
+      "_hash": "57d3c4a0efcbe02492b4a964c0fcfdb92ae283ee7ace47857e2da987478d757f"
     }
   ]
 }
