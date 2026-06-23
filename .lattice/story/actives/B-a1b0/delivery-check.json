@@ -1,0 +1,55 @@
+{
+  "storyId": "B-a1b0",
+  "checkedAt": "2026-06-23T10:14:39.017Z",
+  "reviewRound": "2026-06-23T10:04:54.815Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "CHANGELOG.md#Experiments/B-a1b0",
+      "promise": "arm-agnostic, probe-agnostic runInjectionArms({probes, arms, reps, runArm, recordsFile}) driver — pluggable runArm parameter, never importing run-recovery/run-ablation/run-a2prime",
+      "verifiedBy": "diff + grep",
+      "evidence": "runInjectionArms exported from run-injection-arms.mjs with runArm as required parameter (throws if not a function). grep shows only comment references to run-recovery/run-ablation/run-a2prime (lines 6-7), no import statements for those files."
+    },
+    {
+      "docPath": "CHANGELOG.md#Experiments/B-a1b0",
+      "promise": "hermetic --self-test: 18 cases (6 probes x 3 outcomes) via fake arm + adversarial check, exit 0, zero network, zero cost",
+      "verifiedBy": "real machine execution",
+      "evidence": "node run-injection-arms.mjs --self-test: 18 PASS lines (B1/B2/B6/B9/B11/B13 x recovered/safeStop/amplified) + PASS adversarial discrimination, exit 0. Zero network — driver imports only probe-contract.mjs and node builtins."
+    },
+    {
+      "docPath": "CHANGELOG.md#Experiments/B-a1b0",
+      "promise": "real powered run (real claude -p) deliberately deferred as a cost-checkpointed follow-up; not claimed as delivered",
+      "verifiedBy": "diff + code inspection",
+      "evidence": "--run branch (lines 158-161) issues explicit refusal message and exits code 2. No agentRun or real claude -p implementation exists in the file. Lines 10-11 comment states deliberate design."
+    },
+    {
+      "docPath": "CHANGELOG.md#Experiments/B-a1b0",
+      "promise": "probeCliMain-neutralization: driver patches process.exit/argv/console during dynamic import so probe CLI side-effects are suppressed; upstream fix (add main-guard to probe harness) noted",
+      "verifiedBy": "diff + code inspection",
+      "evidence": "importProbe() (lines 33-54) patches process.exit/process.argv/console.log/console.error before dynamic import and restores in finally. Lines 28-32 document the upstream fix. Accurately described in CHANGELOG."
+    },
+    {
+      "docPath": "CHANGELOG.md#Experiments/B-a1b0",
+      "promise": "no probe file or probe-contract.mjs modified — reused read-only",
+      "verifiedBy": "git diff main...HEAD -- probe files",
+      "evidence": "git diff targeting b1/b2/b6/b9/b11/b13 probe files and probe-contract.mjs returned empty output — zero changes to any probe file."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "node experiments/injection-probes/run-injection-arms.mjs --self-test: 18 PASS (6 probes x 3 outcomes) + adversarial discrimination PASS + exit 0. Covers happy (RECOVERED wiring), edge (all 6 probes loop without per-probe special-casing), adversarial (no arm-import, no network)."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "node experiments/injection-probes/run-injection-arms.mjs --self-test: 18/18 PASS + adversarial PASS + exit 0. selfTestCases builders mutate real workspace so classify() runs real logic. Adversarial: feeding b1 amplified-builder vs recovered-builder yields different outcomes."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 5 CHANGELOG promises verified from code and real execution. Self-test 18/18 + adversarial discrimination confirmed hermetic (exit 0, zero network). Powered run honestly deferred: --run exits code 2 with refusal message, no agentRun present. No probe or probe-contract file modified. No TODO/FIXME/HACK in non-test code."
+  },
+  "_hash": "38317c4ccaa25e93b2794e38f52a23239ffa9d5e2aeb56472e2da553ad069d8c"
+}

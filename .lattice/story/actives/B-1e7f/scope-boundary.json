@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-1e7f",
+  "mode": "custom",
+  "allowed": [
+    "packages/main/src/core/authority-job-loop-live.ts",
+    "packages/main/src/core/authority-runner-contracts.ts",
+    "packages/main/src/core/authority-runner.ts",
+    "packages/main/src/tasks/authority-job-loop-live-smoke.ts",
+    "packages/main/src/tasks/authority-runner-client-smoke.ts",
+    "packages/main/src/tasks/authority-runner-contracts-smoke.ts",
+    "related authority live integration docs only if needed"
+  ],
+  "excluded": [
+    "multi-tenant policy changes",
+    "queue purge/cancel endpoint",
+    "remote push",
+    "server code changes",
+    "staging deployment"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "User asked to continue fixing the stale Authority queue claim mismatch; server story B-28c5 is done and CLI must now send story identity in signed claims.",
+  "createdAt": "2026-06-23T10:27:16.448Z",
+  "updatedAt": "2026-06-23T10:27:16.448Z",
+  "_hash": "c0e7535026703cc6fc930fcc659935ec3314b1cba42d5fe168207a15fbd730f1"
+}

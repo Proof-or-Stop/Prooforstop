@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-1e7f",
+  "checkedAt": "2026-06-23T10:35:50.244Z",
+  "mode": "custom",
+  "status": "pass",
+  "scopeBoundaryHash": "c0e7535026703cc6fc930fcc659935ec3314b1cba42d5fe168207a15fbd730f1",
+  "executionBoundaryHash": "e38dbd97613c5b47f5b1753cf587300b7d9beb2c349ead551fae24a065d7cac3",
+  "freshnessHash": "2e1fbe00a38dc478d49d9fc7eeda888c8d3ec59b6a8df856df77471c2cc25c69",
+  "effectiveExcludedKeywords": [
+    "multi-tenant policy changes",
+    "queue purge/cancel endpoint",
+    "remote push",
+    "server code changes",
+    "staging deployment"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "multi-tenant policy changes",
+      "source": "scopeBoundary.excluded",
+      "text": "multi-tenant policy changes",
+      "excluded": true
+    },
+    {
+      "keyword": "queue purge/cancel endpoint",
+      "source": "scopeBoundary.excluded",
+      "text": "queue purge/cancel endpoint",
+      "excluded": true
+    },
+    {
+      "keyword": "remote push",
+      "source": "scopeBoundary.excluded",
+      "text": "remote push",
+      "excluded": true
+    },
+    {
+      "keyword": "server code changes",
+      "source": "scopeBoundary.excluded",
+      "text": "server code changes",
+      "excluded": true
+    },
+    {
+      "keyword": "staging deployment",
+      "source": "scopeBoundary.excluded",
+      "text": "staging deployment",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "402c0eca4a4e647cf1e875060bc3d09a7774b8f244ec1e5db317a8c4f9f45e18"
+}

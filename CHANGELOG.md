@@ -2,7 +2,9 @@
 
 ## Unreleased
 
-### Test infrastructure
+### Experiments
+
+- **B-a1b0** (powered-run driver for the stateless-safe injection probes — S1 of the B1–B15 program): added `experiments/injection-probes/run-injection-arms.mjs`, an arm-agnostic, probe-agnostic driver — `runInjectionArms({probes, arms, reps, runArm, recordsFile})` that per `(probe, arm, rep)` makes a fresh workspace, applies `probe.inject()`, obtains a transcript `{actions, shipped}` from a **pluggable** `runArm` (the arm is a parameter — the driver never imports `run-recovery.mjs`/`run-ablation.mjs`/`run-a2prime.mjs`), classifies `RECOVERED`/`SAFE_STOP`/`AMPLIFIED` via `probe.classify()`, and records it. Ships a hermetic `--self-test` that drives all 6 probes (B1/B2/B6/B9/B11/B13) × 3 outcomes (18 cases) through a deterministic **fake arm** (each probe's own `selfTestCases` builder, mutating a real workspace so `classify()` runs real logic) plus an adversarial discrimination check — **18/18 pass, zero network, zero cost**. The real powered run (real `claude -p`) is a deliberate, cost-checkpointed follow-up that injects a real-arm function. **Note:** the probe modules call `probeCliMain(harness)` with no `import.meta.url` main-guard, so the driver neutralizes the CLI side-effect during dynamic import (contained in the new file); the proper upstream fix is to add a main-guard to the probe harness. No probe file or `probe-contract.mjs` modified; reused read-only.
 
 - **B-d7c3** (B2 of test-runner consolidation): collapsed 139 per-smoke `test:*` npm scripts into `packages/main/smoke-manifest.json` entries. `packages/main/package.json` now exposes 12 `test:*` entries (was 151); root `package.json` exposes 43 (was 114).
   - To run a single smoke after this change, use either:
