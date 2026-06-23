@@ -92,7 +92,18 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "lattice.config.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/main-sync-readiness-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/main-sync-readiness-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-003",
