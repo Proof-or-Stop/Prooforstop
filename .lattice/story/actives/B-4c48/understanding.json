@@ -5,7 +5,8 @@
     "DONE oracle already has a branch-synced-main row, but it is surfaced late during DONE closure.",
     "B-4bd7 baseline item 4 targets time lost when main sync/conflict awareness arrives too late.",
     "The current story must not add new merge authority or hard REVIEW/TEST blockers.",
-    "Lattice validates through configured command smoke tasks and focused validate can run fast coverage."
+    "Lattice validates through configured command smoke tasks and focused validate can run fast coverage.",
+    "PLAN review resolved the implementation surface to lifecycle-readiness plus session rendering with a new focused smoke."
   ],
   "constraints": [
     "Advisory/read-only only: no phase mutation or merge from the readiness surface.",
@@ -13,17 +14,13 @@
     "Do not touch Authority Server, production receipts, delivery-check freshness, or DONE summary freshness.",
     "Keep regression coverage focused and local, with no network or remote git dependency."
   ],
-  "unknowns": [
-    "Which existing read-only surface is the cleanest place to expose the early warning: session_brief, lifecycle_check, or a shared readiness helper used by both.",
-    "Whether existing fixture helpers can be reused for a compact smoke without adding slow setup."
-  ],
+  "unknowns": [],
   "touchpoints": [
     "packages/main/src/core/lifecycle-readiness.ts",
     "packages/main/src/handlers/session.ts",
-    "packages/main/src/tasks/lifecycle-check-smoke.ts",
     "packages/main/src/tasks/main-sync-readiness-smoke.ts",
     "lattice.config.json",
-    "experiments/baselines/"
+    "experiments/baselines/lattice-workflow-efficiency-baseline-v1-B-4c48-main-sync-readiness-result.json"
   ],
-  "timestamp": "2026-06-23T11:38:14.837Z"
+  "timestamp": "2026-06-23T11:40:03.218Z"
 }

@@ -9,7 +9,7 @@
         "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "userSees": "Before REVIEW or late TEST, Lattice tells the user when the story branch is behind main, that the signal is advisory/read-only, and what command should refresh it.",
+      "userSees": "Session/lifecycle output includes: \"main-sync readiness: story/B-xxxx is behind main by N commits; advisory/read-only; run lattice done_prepare ...\" before DONE closure.",
       "excludes": [
         "Do not change story_advance DONE merge authority.",
         "Do not add a new automatic merge path outside done_prepare/story_advance.",
