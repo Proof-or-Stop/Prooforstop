@@ -61,7 +61,7 @@
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md"
       ],
-      "userSees": "DONE pre-check shows stale delivery-check instead of PASS when source material changed after delivery review.",
+      "userSees": "DONE pre-check prints \"delivery-check: stale\" / \"stale_delivery_check\" after source material changes post-delivery-check.",
       "excludes": [
         "Do not weaken validation, review, summary, or done_prepare gates.",
         "Do not add a dashboard or external server dependency."
@@ -91,7 +91,18 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/core/done-oracle.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/lifecycle-readiness.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/delivery-check-freshness-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-003",
