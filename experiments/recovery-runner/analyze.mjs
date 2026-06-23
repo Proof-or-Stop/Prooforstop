@@ -442,10 +442,18 @@ export function analyze(parsedRecords, { seed = 'pre-reg', bootstrapB = 2000 } =
     };
   }
 
-  // §5 ablation completion (null cells) per arm
+  // §5 ablation completion (null cells), reported per contrast over MATCHED null cells (both
+  // arms have a null-cell run) — same anti-denominator-bias treatment as the §6 recovery rates
+  // (F-011). completionRates[c.id][arm] is the headline; an arm-only null cell is excluded.
   const nullPred = (sc) => sc === ABLATION_SCENARIO;
-  const completion = {};
-  for (const a of ARMS) completion[a] = perArmRate(kept, a, OUTCOME.completion, { scenarioPred: nullPred });
+  const completionRates = {};
+  for (const c of CONTRASTS) {
+    const nullMatched = matchedCellKeys(kept, c.id, c.arms[0], c.arms[1], { scenarioPred: nullPred });
+    completionRates[c.id] = { role: c.role, arms: c.arms, matchedNullCells: [...nullMatched].sort() };
+    for (const a of c.arms) {
+      completionRates[c.id][a] = perArmRate(kept, a, OUTCOME.completion, { scenarioPred: nullPred, cellKeys: nullMatched });
+    }
+  }
 
   // §6 per-arm not-amplified/recovered/safe-stop over each contrast's MATCHED common cells
   // (both arms scored over the SAME cell set → no denominator bias, F-010).
@@ -483,7 +491,7 @@ export function analyze(parsedRecords, { seed = 'pre-reg', bootstrapB = 2000 } =
   return {
     counts: { parsed: (parsedRecords || []).length, kept: kept.length, voided: filtered.voided.length, na: filtered.na.length, skipped: filtered.skipped },
     denominators,
-    completion,
+    completionRates,
     recoveryRates,
     primary,
     exploratory: { perScenario, fdr },
@@ -526,8 +534,12 @@ function main() {
   const res = analyze(recs, { seed, bootstrapB: B });
 
   console.log(`[analyze] parsed ${res.counts.parsed} (kept ${res.counts.kept} / void ${res.counts.voided} / N-A ${res.counts.na} / skipped ${res.counts.skipped})`);
-  console.log(`\n## §5 completion (null ablation cells), per arm — Wilson 95% CI`);
-  for (const a of ARMS) console.log(`  ${a.padEnd(8)} ${pct(res.completion[a])}`);
+  console.log(`\n## §5 completion (null ablation cells) per contrast over MATCHED null cells — Wilson 95% CI`);
+  for (const c of CONTRASTS) {
+    const cr = res.completionRates[c.id];
+    console.log(`  [${c.id}] matched null cells=${cr.matchedNullCells.length}`);
+    for (const a of c.arms) console.log(`    ${a.padEnd(8)} ${pct(cr[a])}`);
+  }
   console.log(`\n## §6 not-amplified per arm over each contrast's common cells (denominator stated)`);
   for (const c of CONTRASTS) {
     console.log(`  [${c.id}] common cells=${res.denominators[c.id].commonCells.length} | matched (both arms have data)=${res.denominators[c.id].matchedCells.length}`);

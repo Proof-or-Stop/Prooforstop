@@ -260,6 +260,16 @@ group('analyze: end-to-end on a known fixture');
   approx(res.recoveryRates.A4_vs_A2prime.A2prime.notAmplified.p, 0.4, 1e-9, 'analyze: A2prime not-amplified 0.4');
   approx(res.primary.h1_notAmplified.riskDiff, 0.4, 1e-9, 'analyze: A4-A2prime risk-diff = 0.4');
   ok(res.denominators.A4_vs_A2prime.commonCells.length === 1, 'analyze: 1 common cell (t1|B1)');
+  // F-011: §5 completion is reported per contrast over MATCHED null cells (an arm-only null
+  // cell is excluded so both arms share the same completion denominator).
+  const compRecs = [
+    rec('A4', 't1', null, 1, 'recovered'), rec('A2prime', 't1', null, 1, null), // matched null cell t1
+    rec('A4', 't2', null, 1, 'recovered'),                                        // A4-ONLY null cell t2
+  ];
+  const cres = analyze(compRecs, { seed: 'pre-reg', bootstrapB: 200 });
+  eq(cres.completionRates.A4_vs_A2prime.matchedNullCells.length, 1, 'analyze: completion matched null cells = 1 (A4-only null cell excluded) (F-011)');
+  eq(cres.completionRates.A4_vs_A2prime.A4.n, 1, 'analyze: A4 completion denominator n=1 over matched null cells, NOT 2 (F-011)');
+  eq(cres.completionRates.A4_vs_A2prime.A2prime.n, 1, 'analyze: A2prime completion denominator n=1 (matched)');
   ok(res.h3.label.includes('EXPLORATORY') && res.h3.label.includes('compute-not-matched'), 'analyze: H3 labeled EXPLORATORY/compute-not-matched');
 }
 
