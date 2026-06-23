@@ -85,7 +85,18 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/core/authority-job-loop-live.ts",
+          "packages/main/src/core/authority-runner.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/authority-job-loop-live-smoke.ts",
+          "packages/main/src/tasks/authority-runner-client-smoke.ts"
+        ]
+      }
     }
   ]
 }
