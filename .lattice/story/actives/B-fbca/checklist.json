@@ -463,6 +463,17 @@
           "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
           "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
           "timestamp": "2026-06-23T21:02:14.854Z"
+        },
+        {
+          "intentRef": "CHK-007:adversarial:4",
+          "kind": "manual_transcript",
+          "command": "npx tsc --noEmit",
+          "result": "pass",
+          "note": "Exit 0 no type errors -- the gate rename + cleanup did not break the build; all renamed/removed identifiers are consistent",
+          "headHash": "fd5849e870da632021133e0a0d9441fb3f7d0c84",
+          "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
+          "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
+          "timestamp": "2026-06-23T21:02:17.478Z"
         }
       ]
     }
