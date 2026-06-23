@@ -56,7 +56,7 @@
       "desc": "Re-review cannot pass: F-001 fixed the four named regression smokes, but coverage is still incomplete for additional DONE-ready smoke fixtures that write delivery-check.json without headHash/materialHash and sign without materialHash. Verified after build: `node packages/main/dist/tasks/done-prepare-smoke.js` fails with DONE prepare BLOCKED due to stale delivery-check missing materialHash binding; `node packages/main/dist/tasks/worktree-authority-smoke.js` fails story_advance DONE with [stale_delivery_check]; `node packages/main/dist/tasks/done-readiness-flow-benchmark.js` fails because the dirty metadata scenario is not closure-ready. Static call sites still show five-argument signDeliveryCheck in done-prepare-smoke.ts:136, worktree-authority-smoke.ts:560, done-premerge-mainsha-recheck-smoke.ts:168, done-readiness-flow-benchmark.ts:443, and field-regression-cli-smoke.ts:1879. Update fresh delivery-check fixtures to persist headHash/materialHash and sign with materialHash, keeping unsigned legacy fixtures only where stale evidence is intentional.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-23T13:07:14.615Z",
@@ -71,7 +71,11 @@
         "packages/main/src/tasks/field-regression-cli-smoke.ts"
       ],
       "signatureTag": "missing|ts|fixture-alignment-incomplete",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fresh synthetic delivery-check fixtures now persist headHash/materialHash and sign with the same materialHash in worktree-authority-smoke, done-prepare-smoke, done-premerge-mainsha-recheck-smoke, done-readiness-flow-benchmark, and field-regression-cli-smoke. Verification passed: npm --prefix packages/main run build; node packages/main/dist/tasks/done-prepare-smoke.js; node packages/main/dist/tasks/worktree-authority-smoke.js; node packages/main/dist/tasks/done-readiness-flow-benchmark.js; node packages/main/dist/tasks/done-premerge-mainsha-recheck-smoke.js; node packages/main/dist/tasks/field-regression-cli-smoke.js; node packages/main/dist/tasks/delivery-check-freshness-smoke.js; lattice validate --focus=fast --json; lattice scope_contract_check --storyId=B-d321 --json.",
+      "resolvedAt": "2026-06-23T13:25:23.837Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
