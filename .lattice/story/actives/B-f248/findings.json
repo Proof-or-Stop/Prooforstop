@@ -184,6 +184,24 @@
       ],
       "signatureTag": "edge|mjs|driver-console-reports",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-f248:F-010",
+      "desc": "run-driver.mjs:278 JSDoc comment for validateRecord says the return type is { ok, missing, enumOk, unsafeOk, budgetOk } but the actual implementation returns { ok, missing, enumOk, unsafeOk, budgetPresent, numericOk, budgetLogOk } — three separate budget-related fields instead of one. The stale budgetOk name does not exist in the returned object. Any caller relying on the documented shape (e.g. destructuring { budgetOk }) would silently get undefined. The selfcheck correctly accesses the real field names (v1.missing, vNull.budgetLogOk, vNeg.numericOk) so tests pass, but the JSDoc is misleading.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-23T12:15:26.032Z",
+      "reviewRound": "2026-06-23T12:06:55.646Z",
+      "reviewRunId": "B-f248:RR-008",
+      "_hash": "b6f1e9d1f03f903832d874c6c7a7d6e391805e01f8e098dd726b6471225789ee",
+      "files": [
+        "experiments/recovery-runner/run-driver.mjs"
+      ],
+      "signatureTag": "missing|mjs|driver-jsdoc-comment",
+      "signatureTagSource": "auto"
     }
   ]
 }
