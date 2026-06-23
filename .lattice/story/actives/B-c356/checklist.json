@@ -173,9 +173,44 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-23T10:05:43.319Z",
-      "endTime": null
+      "endTime": "2026-06-23T10:16:01.460Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "file": "experiments/baselines/lattice-workflow-efficiency-baseline-v1-B-c356-proof-metadata-review-coverage-result.json",
+          "result": "pass",
+          "note": "Result artifact names the baselineId, B-c356 story id, and proofMetadataReviewCoverage dimension; post-commit JSON parse returned pass.",
+          "headHash": "d58061b17189f0793c4a0a9c7113ef2e0bf4bf42",
+          "materialHash": "b39f2374b7e8e5db1704eb437c0e3970eaf9f9c674e00d55d78646faaae13092",
+          "storyFilesHash": "8a25f98875cfd1c052283fbe7aeb080fcd4c70b71bd1cb4023b38f10d03530fc",
+          "timestamp": "2026-06-23T10:16:01.643Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "file": "experiments/baselines/lattice-workflow-efficiency-baseline-v1-B-c356-proof-metadata-review-coverage-result.json",
+          "result": "pass",
+          "note": "Only a derived B-c356 result artifact was added; the immutable baseline JSON file was not modified.",
+          "headHash": "d58061b17189f0793c4a0a9c7113ef2e0bf4bf42",
+          "materialHash": "b39f2374b7e8e5db1704eb437c0e3970eaf9f9c674e00d55d78646faaae13092",
+          "storyFilesHash": "8a25f98875cfd1c052283fbe7aeb080fcd4c70b71bd1cb4023b38f10d03530fc",
+          "timestamp": "2026-06-23T10:16:01.813Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "file": "experiments/baselines/lattice-workflow-efficiency-baseline-v1-B-c356-proof-metadata-review-coverage-result.json",
+          "result": "pass",
+          "note": "Result artifact records claimsReceiptBackedProductionProof=false and says this is not receipt-backed production evidence.",
+          "headHash": "d58061b17189f0793c4a0a9c7113ef2e0bf4bf42",
+          "materialHash": "b39f2374b7e8e5db1704eb437c0e3970eaf9f9c674e00d55d78646faaae13092",
+          "storyFilesHash": "8a25f98875cfd1c052283fbe7aeb080fcd4c70b71bd1cb4023b38f10d03530fc",
+          "timestamp": "2026-06-23T10:16:02.001Z"
+        }
+      ]
     }
   ],
   "auditLog": [
@@ -227,6 +262,16 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Committed prompt registry smoke coverage and post-commit evidence for all proof metadata phrases.",
+      "agent": "codex"
+    },
+    {
+      "timestamp": "2026-06-23T10:16:01.460Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Committed derived baseline comparison result and post-commit JSON parse evidence.",
       "agent": "codex"
     }
   ]
