@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-7036:RP-001",
+      "agent": "lattice-review-docs",
+      "note": "Step 1 extracted 0 exported symbols from run-selfchecks.mjs (only internal constant SELFCHECKS array extended) and ~15 exported symbols from analyze.mjs (makeRng, parseRecords, applyValidityFilter, isCommonCell, commonCellKeys, wilson, OUTCOME, perArmRate, clusterBootstrap, twoProportionZ, benjaminiHochberg, costCoMetric, a2primeBudgetCompliance, secondaryDetectors, emitTidyCsv, emitGlmmR, analyze). Step 2 found the referenced paragraphs in experiments/recovery-runner/README.md (Analysis section + aggregator comment update, lines 112-146). Step 3 compared 12 specific claims: CLI flags (--seed/--B/--out/positional records.jsonl), validity filter (void excluded/N/A excluded/task-failures kept), 4-contrast common-cell denominators, Wilson 95% CIs (z=1.96 confirmed), seeded cluster bootstrap primary-only with A1/A2/A3 as reference cells, single BH-FDR over exploratory per-scenario tests only, cost co-metric (tokens+wall-clock), A2prime tolerance-band fail-closed, secondary detectors with honest process-events caveat, H3 EXPLORATORY/compute-not-matched label, tidy CSV + glmm.R lme4::glmer formula (1|task)+(1|scenario)+(1|seed), aggregator listing 5 selfchecks. All 12 claims match the actual code. No blocker found.",
+      "createdAt": "2026-06-23T18:57:37.600Z",
+      "reviewRound": "2026-06-23T18:54:32.461Z",
+      "reviewRunId": "B-7036:RR-002",
+      "_hash": "0a754f503d14297daeccc52566eb70ce2c0664e17b2d7e7c7b17d458ab882f87"
+    }
+  ]
+}
