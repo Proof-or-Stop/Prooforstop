@@ -53,6 +53,15 @@
       "reviewRound": "2026-06-22T23:43:28.613Z",
       "reviewRunId": "B-7b6e:RR-006",
       "_hash": "fdd19588ca099cfb2ce4c2bc03ae633d805f349afcafe794871f030c00e80612"
+    },
+    {
+      "id": "B-7b6e:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (round 2): all 6 must-intents verified against smoke assertions in gate-strength-contract-smoke.ts (11 checks, exit 0 confirmed). CHK-001:happy:0 -> oracle catchRate 1.0+falseShip 0+falseBlock 0+per-probe reason names defect (lines 80-91). CHK-001:edge:0 -> gateStrengthBundle ACCEPTED offline (lines 125-128). CHK-001:adversarial:0 -> testOnly catchRate 0+falseShip=wrongTotal (lines 63-69). CHK-002:happy:0 -> oracle ships genuine probe (classification=shipped-genuine, lines 90-92). CHK-002:edge:0 -> oracle.catchRate > testOnly.catchRate proves non-vacuous metric (line 95); blockAll==oracle on catchRate proves axis separation (line 97). CHK-002:adversarial:0 -> ACCEPTED offline + tampered=signature_invalid + stale=stale (lines 125-141). Evidence staleness (headHash pre-5b06232aa) is a DONE-gate freshness concern, not a coverage gap; the command and assertions are unchanged post-refactor. No intent is bound to a command that no longer tests it.",
+      "createdAt": "2026-06-23T00:01:44.900Z",
+      "reviewRound": "2026-06-22T23:43:28.613Z",
+      "reviewRunId": "B-7b6e:RR-007",
+      "_hash": "3dbba654ecc79f66ad2abe8f391c7f311f7c733af163c678b3f346065302d641"
     }
   ]
 }
