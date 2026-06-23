@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-23T21:25:10.665Z",
       "reviewRunId": "B-fbca:RR-001",
       "_hash": "dea7a88165634ed240f4e74390337b0e13271f34069ab0925b414ff1162872ab"
+    },
+    {
+      "id": "B-fbca:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Salt consistency: all 8 koala-* salts renamed to lattice-* globally; producers and consumers match in guard-utils/machine/process-fact-registry/reviewer-status/story-review/canonical-story/finding-verify/review-run/review-scope-binding/scope-check; verify scripts updated with matching salt literals; no signer-verifier salt mismatch found. Zero-tolerance gate: verify-lattice-residue.mjs correctly scans packages/*/src only; confirmed 0 brand residue hits on current source. Config renames: idleKoala→idleLattice fully updated in config.ts+stale-detector.ts; koala.config.json→lattice.config.json in lab project-config.ts; .koala/ path references updated to .lattice/. Deleted code: appendLegacyRuntimeExclusions, @koala-agent handling in story-dispatch, normalizeAgentType guard, koala.config.json reader in lab — all deletions have corresponding smoke updates. Imports clean: no dead imports from deleted files found. One low/edge finding registered (normalizeAgentType no-op pass-through). No blockers.",
+      "createdAt": "2026-06-23T21:33:28.714Z",
+      "reviewRound": "2026-06-23T21:25:10.665Z",
+      "reviewRunId": "B-fbca:RR-003",
+      "_hash": "ec76681c6686bc9ffea5ae7ee78a3d93365316df403e9ccb5861b0d93dbb310a"
     }
   ]
 }
