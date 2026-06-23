@@ -1,0 +1,23 @@
+{
+  "findings": [
+    {
+      "id": "B-b739:F-001",
+      "desc": "multi-turn-fidelity: real-loop-agent.mjs:42 sets output=out.slice(0,400) where `out` is the raw JSON envelope from claude -p --output-format json (e.g. {\"subtype\":\"success\",\"result\":\"<agent text>\",\"total_cost_usd\":...}). The harness feeds r.output back as next-turn context on live-loop-harness.mjs:138. So the real multi-turn --run path injects the JSON wrapper metadata as context instead of j.result (the agent actual response text). Fix: parse j.result from the already-parsed object and expose it as output, e.g. `output: p.result ?? p.rawResult ?? out.slice(0,400)` — requires parseClaudeResult to also return the result field, or inline the JSON.parse here.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-23T20:29:56.292Z",
+      "reviewRound": "2026-06-23T20:27:12.983Z",
+      "reviewRunId": "B-b739:RR-001",
+      "_hash": "e73b7d6dda6d0464b22347b198ca4e3f673fd201066d032da7427f6c07cc0114",
+      "files": [
+        "experiments/injection-probes/real-loop-agent.mjs",
+        "experiments/injection-probes/live-loop-harness.mjs"
+      ],
+      "signatureTag": "edge|mjs|multi-turn-fidelity",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
