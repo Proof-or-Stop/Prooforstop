@@ -311,7 +311,7 @@
       "desc": "concept-cleanup: stale glmm.R subset comments at analyze.mjs lines 404-405 still describe the old scenario-filter logic (scenario != \"null\" / scenario == \"null\") that commit 0cf96304e replaced with matchedPrimaryH1/H2 flags; the JS comment block before emitGlmmR() now contradicts the emitted R code, misleading future developers about the actual subsetting method",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-06-23T20:04:02.302Z",
@@ -322,7 +322,11 @@
         "experiments/recovery-runner/analyze.mjs"
       ],
       "signatureTag": "missing|mjs|concept-cleanup-stale",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "emitGlmmR comment block updated to the matched-corpus (matchedPrimaryH1/H2==1) approach. commit f7e5f13af.",
+      "resolvedAt": "2026-06-23T20:11:01.286Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-7036:F-016",
