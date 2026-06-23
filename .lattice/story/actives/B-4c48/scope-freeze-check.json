@@ -1,0 +1,76 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-4c48",
+  "checkedAt": "2026-06-23T11:34:52.694Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "43ad34af55fe8c7fab74204abaf89a24319984942e32ca0c408dece7e3cab2ba",
+  "executionBoundaryHash": "2566acf2e930b4a61da3895a1784af15ed1d1aea9372986eddd06e2e47bc52d4",
+  "freshnessHash": "d0d0b4eba1eab745e7949d7cc02a17c330522704b1fbc9dc4aaec8b8ee69f7b7",
+  "effectiveExcludedKeywords": [
+    "Authority",
+    "Authority Server runtime or receipt contract changes",
+    "customerKeyRef",
+    "delivery-check freshness changes",
+    "DONE merge implementation rewrite",
+    "DONE summary freshness changes",
+    "Layer4",
+    "remote git push or deployment",
+    "repair UX"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Authority",
+      "source": "checklist.excludes",
+      "text": "Do not change story_advance DONE merge authority.",
+      "itemId": "CHK-001",
+      "excluded": true
+    },
+    {
+      "keyword": "Authority",
+      "source": "checklist.excludes",
+      "text": "Do not claim Authority or production proof.",
+      "itemId": "CHK-001",
+      "excluded": true
+    },
+    {
+      "keyword": "Authority",
+      "source": "scopeBoundary.excluded",
+      "text": "Authority Server runtime or receipt contract changes",
+      "excluded": true
+    },
+    {
+      "keyword": "Authority Server runtime or receipt contract changes",
+      "source": "scopeBoundary.excluded",
+      "text": "Authority Server runtime or receipt contract changes",
+      "excluded": true
+    },
+    {
+      "keyword": "delivery-check freshness changes",
+      "source": "scopeBoundary.excluded",
+      "text": "delivery-check freshness changes",
+      "excluded": true
+    },
+    {
+      "keyword": "DONE merge implementation rewrite",
+      "source": "scopeBoundary.excluded",
+      "text": "DONE merge implementation rewrite",
+      "excluded": true
+    },
+    {
+      "keyword": "DONE summary freshness changes",
+      "source": "scopeBoundary.excluded",
+      "text": "DONE summary freshness changes",
+      "excluded": true
+    },
+    {
+      "keyword": "remote git push or deployment",
+      "source": "scopeBoundary.excluded",
+      "text": "remote git push or deployment",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "8be94e325f5089b58b37e49d3945b4d04ff882e93b6bdb095701a2830c57b5c5"
+}

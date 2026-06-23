@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-4c48",
+  "mode": "correctness_fix",
+  "allowed": [
+    ".lattice/story/actives/<storyId>/**",
+    "experiments/baselines/lattice-workflow-efficiency-baseline-v1-*-main-sync-readiness-result.json",
+    "lattice.config.json",
+    "packages/main/src/core/done-oracle.ts",
+    "packages/main/src/core/lifecycle-readiness.ts",
+    "packages/main/src/handlers/session.ts",
+    "packages/main/src/tasks/*lifecycle*smoke*.ts",
+    "packages/main/src/tasks/*main*sync*readiness*.ts"
+  ],
+  "excluded": [
+    "Authority Server runtime or receipt contract changes",
+    "delivery-check freshness changes",
+    "DONE merge implementation rewrite",
+    "DONE summary freshness changes",
+    "remote git push or deployment"
+  ],
+  "confirmedBy": "codex",
+  "confirmationNote": "User approved fixing all six baseline items as separate Lattice stories; this story is limited to baseline item 4 main-sync readiness.",
+  "createdAt": "2026-06-23T11:25:46.183Z",
+  "updatedAt": "2026-06-23T11:25:46.183Z",
+  "_hash": "43ad34af55fe8c7fab74204abaf89a24319984942e32ca0c408dece7e3cab2ba"
+}
