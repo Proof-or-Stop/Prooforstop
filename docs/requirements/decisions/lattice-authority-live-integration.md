@@ -75,10 +75,13 @@ The current codebase now has the core unattended-development loop in place:
   `lattice_staging-client.env`; advanced/live runner handoff may provide the
   `lattice_senior_*` pair. Public CLI code does not generate those files. A
   single server-generated senior bundle may be reused across host providers by
-  setting `LATTICE_AUTHORITY_RUNNER_PROVIDER` on each host (`claude` aliases to
-  `claude-code`); the CLI consumes that value for runner registration,
-  heartbeat, and claim routing without moving server-owned bundle generation
-  into this repository;
+  setting `LATTICE_AUTHORITY_RUNNER_PROVIDER` on each host. The CLI treats the
+  value as a host-neutral non-empty provider declaration, defaults it to
+  `codex`, preserves `claude` / `CLAUDE_CODE` alias compatibility as
+  `claude-code`, and propagates custom declarations such as `codex-cli` or
+  `antigravity` to runner registration, heartbeat, and signed claim routing.
+  Server policy remains the authorization boundary and may reject a declaration
+  before any job is owned;
 - Lattice CLI has a native receipt verifier for Python-shaped
   Lattice Authority receipts;
 - live authority mode can register / heartbeat, read
@@ -794,7 +797,8 @@ Trust rules:
 - `gate_decision` receipts must be verified with Ed25519 over the exact native
   canonical payload;
 - authority status, policy discovery, runner readiness, live heartbeat, and
-  jobs-available stream hints are not evidence of approval.
+  jobs-available stream hints are not evidence of approval; `jobs.available` is
+  only a streaming hint before the same signed POST claim/status contract.
 
 ## Native Signing Contract
 
@@ -1492,6 +1496,12 @@ CLI arguments:
 --maxReviewWaves
 --json
 ```
+
+This `--provider` is the bounded planner/executor step provider, whose local
+executor support remains intentionally closed. It is distinct from
+`LATTICE_AUTHORITY_RUNNER_PROVIDER` and `authority_job_create --provider`, which
+are Authority provider declarations propagated to the server for policy
+evaluation.
 
 Environment:
 
@@ -4371,7 +4381,7 @@ Wave 5: end-to-end, multi-host verification, and deployment.
 | register actor key in development | pass |
 | production registration missing required bootstrap token | fail when server policy requires bootstrap enrollment |
 | live runner no job | pass/no-job |
-| live runner jobs stream available hint | positive `jobs.available` SSE is recorded as `jobs_stream` and the runner still uses signed claim |
+| live runner jobs stream available hint | positive `jobs.available` SSE is recorded as `jobs_stream` and the runner still uses signed claim; the hint is not a separate ownership or provider-authorization API |
 | live runner jobs stream empty/error/timeout/malformed | record diagnostic `jobs_stream` fallback and continue to signed claim |
 | live runner claims no-provider job | release immediately |
 | live runner claims executable job | executor starts bounded loop |

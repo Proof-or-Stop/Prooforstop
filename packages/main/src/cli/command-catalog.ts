@@ -2224,7 +2224,7 @@ Behavior:
   { name: 'authority_job_create', description: 'Submit a planner JobPlan as a queued Lattice Authority job; honors server_delegated senior bundles. Alias: lattice authority job create', schema: {
     jobPlanFile: z.string().optional().describe('JobPlan JSON file produced by lattice planner run/create-job'),
     runId: z.string().optional().describe('Planner run id with a persisted jobPlan'),
-    provider: z.enum(['codex', 'claude-code', 'gemini']).optional().describe('Authority provider for the queued job; required unless the JobPlan explicitly opts into a real provider'),
+    provider: z.string().min(1).optional().describe('Authority provider declaration for the queued job; required unless the JobPlan explicitly opts into a non-fake provider'),
     role: z.enum(['planner', 'implementer', 'reviewer', 'explorer', 'tester']).optional().describe('Authority job role (default implementer)'),
     promptRef: z.string().optional().describe('Prompt reference recorded in the server job'),
     promptHash: z.string().optional().describe('Prompt hash recorded in the server job'),

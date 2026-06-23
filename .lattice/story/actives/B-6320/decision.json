@@ -1,0 +1,73 @@
+{
+  "principles": [
+    "Host identity is declared metadata, not a CLI product enum.",
+    "Server policy and signed claims remain the authorization boundary.",
+    "Keep compatibility aliases only where they preserve existing behavior.",
+    "Change the smallest set of CLI surfaces that currently block real usage."
+  ],
+  "drivers": [
+    "Developers must be able to reuse the same server-issued senior bundle across different agent hosts.",
+    "The CLI must not reject future hosts before the Authority Server can evaluate policy.",
+    "Existing codex, claude, fake, and Antigravity-adjacent behavior must not regress."
+  ],
+  "options": [
+    {
+      "name": "keep-closed-enum",
+      "pros": [
+        "Smallest code diff",
+        "Clear local validation messages"
+      ],
+      "cons": [
+        "Blocks future and custom hosts locally",
+        "Conflicts with host-neutral Authority design",
+        "Forces repeated CLI releases for every new host name"
+      ]
+    },
+    {
+      "name": "free-declaration-with-compat-aliases",
+      "pros": [
+        "Allows Codex CLI, Claude Code, Antigravity, and future hosts to declare themselves",
+        "Preserves claude to claude-code compatibility",
+        "Lets server policy produce the authoritative accept/reject result"
+      ],
+      "cons": [
+        "Requires tests to prove declaration does not imply authorization",
+        "May surface server rejection later instead of local enum rejection"
+      ]
+    },
+    {
+      "name": "server-issued-provider-list-cache",
+      "pros": [
+        "Could validate against server policy earlier",
+        "Might improve diagnostics once policy discovery is stable"
+      ],
+      "cons": [
+        "Adds remote dependency and cache invalidation to a simple declaration path",
+        "Would optimize before fixing the real local correctness blocker"
+      ]
+    }
+  ],
+  "chosen": "free-declaration-with-compat-aliases",
+  "rationale": "Choose free declaration with compatibility aliases because the correctness bug is local pre-policy rejection. The CLI should propagate declared host/provider metadata and leave authorization to the signed server claim path.",
+  "preMortem": [
+    {
+      "scenario": "Custom provider declaration is mistaken for authorization",
+      "trigger": "Code treats runnerProviderValid=true as sufficient proof of capability",
+      "consequence": "A self-declared host could appear trusted without server policy acceptance",
+      "mitigation": "Keep tests and code language explicit: declaration is metadata; API key, actor signature, lease, and server policy still gate claims."
+    },
+    {
+      "scenario": "Existing claude/codex behavior regresses",
+      "trigger": "Changing provider type from closed union to string removes alias/default behavior",
+      "consequence": "Existing senior bundles and smoke tests fail",
+      "mitigation": "Preserve codex default and claude/claude_code alias normalization; update focused smoke assertions."
+    },
+    {
+      "scenario": "Job create accepts arbitrary provider but server rejects with unclear diagnostics",
+      "trigger": "Command-catalog enum is relaxed but error reporting is not clear",
+      "consequence": "Developers think CLI is broken rather than server policy rejecting",
+      "mitigation": "Do not swallow server response; docs and readiness text explain that server policy rejection is authoritative."
+    }
+  ],
+  "timestamp": "2026-06-23T02:48:37.563Z"
+}

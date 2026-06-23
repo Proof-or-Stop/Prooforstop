@@ -1,0 +1,73 @@
+{
+  "storyId": "B-6320",
+  "checkedAt": "2026-06-23T02:58:37.194Z",
+  "features": [
+    {
+      "feature": "Accept host-neutral Authority runner provider declarations instead of rejecting non-enum host names locally",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Propagate declared provider metadata through runner registration",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Propagate declared provider metadata through heartbeat",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Align jobs.available SSE watch with the same provider routing semantics as signed POST claim/status",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Keep signed POST claim accepted by the server as the ownership boundary",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Propagate declared provider metadata through handoff/takeover diagnostics",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Align referenced runner-session/evidence contract with host-neutral provider declaration semantics",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/authority-runner-session-evidence-envelope.md"
+    },
+    {
+      "feature": "Out-of-scope expansion into Authority Server policy implementation, remote deployment/secret/operator changes, scheduler rewrite/automatic host selection, or CLI-owned senior bundle generation",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Story constraints exclude server-side provider authorization, remote/operator changes, scheduler rewrite/automatic host selection, and CLI-owned senior bundle generation.",
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 8,
+    "covered": 7,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "61e745fc791e916e4b372b5c4d735eb410f09455682cfbf73fc362bd4e77b3ed",
+  "openQuestions": []
+}

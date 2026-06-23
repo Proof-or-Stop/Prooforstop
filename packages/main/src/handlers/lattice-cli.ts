@@ -171,9 +171,9 @@ function buildAuthorityReadiness(
 
   if (settings.mode !== 'off' && !runnerProviderValid) {
     warnings.push(
-      `${settings.mode} mode set but LATTICE_AUTHORITY_RUNNER_PROVIDER is invalid (${resolved.runnerProviderInvalidValue ?? 'unset'}); supported values: codex, claude-code, gemini (alias: claude -> claude-code)`,
+      `${settings.mode} mode set but LATTICE_AUTHORITY_RUNNER_PROVIDER could not be resolved (${resolved.runnerProviderInvalidValue ?? 'unset'}); provide a non-empty provider declaration or unset it to use codex`,
     );
-    actions.push('export LATTICE_AUTHORITY_RUNNER_PROVIDER=codex|claude-code|gemini');
+    actions.push('export LATTICE_AUTHORITY_RUNNER_PROVIDER=<provider-declaration>');
   }
 
   if (settings.mode === 'shadow') {
@@ -965,7 +965,7 @@ function readLiveRunnerOptions(
   if (!sessionId) throw new Error('LATTICE_AUTHORITY_SESSION_ID could not be resolved for live runner mode');
   const runnerProvider = settings.runnerProvider;
   if (!settings.runnerProviderValid || !runnerProvider) {
-    throw new Error(`LATTICE_AUTHORITY_RUNNER_PROVIDER is invalid: ${settings.runnerProviderInvalidValue ?? '(empty)'}`);
+    throw new Error(`LATTICE_AUTHORITY_RUNNER_PROVIDER could not be resolved: ${settings.runnerProviderInvalidValue ?? '(empty)'}`);
   }
   const projectId = settings.projectId;
   if (!projectId) throw new Error('LATTICE_AUTHORITY_PROJECT_ID is required for live runner mode');

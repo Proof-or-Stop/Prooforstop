@@ -386,7 +386,7 @@ function refFor(
   assertNoProductionOverclaim(result, 'buildAuthorityStatus enforce-env-complete');
 }
 
-// Invalid provider is visible and fail-closed in status diagnostics.
+// Custom provider declarations are visible locally and left for server policy.
 {
   const env: EnvOverride = {
     ...EMPTY_AUTHORITY_ENV,
@@ -394,15 +394,18 @@ function refFor(
     LATTICE_AUTHORITY_URL: 'https://authority.example',
     LATTICE_AUTHORITY_CUSTOMER_API_KEY: 'customer-key-canary',
     LATTICE_AUTHORITY_ACTOR_KEY: 'fake-key-blob',
-    LATTICE_AUTHORITY_RUNNER_PROVIDER: 'bad-provider',
+    LATTICE_AUTHORITY_RUNNER_PROVIDER: 'codex-cli',
   };
   const result = buildAuthorityStatus({}, env as Record<string, string | undefined>);
-  assert.equal(result.runnerProvider, null);
-  assert.equal(result.runnerProviderValid, false);
-  assert.equal(result.runnerProviderInvalidValue, 'bad-provider');
-  assert.ok(result.readinessWarnings.some(w => w.includes('LATTICE_AUTHORITY_RUNNER_PROVIDER')));
-  assert.equal(result.authorityReady, false, 'invalid provider prevents authorityReady');
-  assertNoProductionOverclaim(result, 'buildAuthorityStatus invalid-provider');
+  assert.equal(result.runnerProvider, 'codex-cli');
+  assert.equal(result.runnerProviderSource, 'env');
+  assert.equal(result.runnerProviderValid, true);
+  assert.equal(result.runnerProviderInvalidValue, null);
+  assert.ok(!result.readinessWarnings.some(w => w.includes('LATTICE_AUTHORITY_RUNNER_PROVIDER')));
+  assert.equal(result.authorityReady, true, 'custom provider declaration is not a local readiness blocker');
+  assert.equal(result.productionDone, false, 'custom provider declaration never claims productionDone');
+  assert.equal(result.receiptVerified, false, 'custom provider declaration never verifies a receipt');
+  assertNoProductionOverclaim(result, 'buildAuthorityStatus custom-provider');
 }
 
 // Receipt-ref status facts are separate: verified / eligible / consumed are not

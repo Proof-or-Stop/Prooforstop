@@ -1,0 +1,93 @@
+{
+  "storyId": "B-6320",
+  "generatedFor": "delivery-review",
+  "diff": {
+    "changedFiles": [
+      ".lattice/story/actives/B-6320/checklist.json",
+      ".lattice/story/actives/B-6320/decision.json",
+      ".lattice/story/actives/B-6320/findings.json",
+      ".lattice/story/actives/B-6320/index.json",
+      ".lattice/story/actives/B-6320/plan.md",
+      ".lattice/story/actives/B-6320/process-events.jsonl",
+      ".lattice/story/actives/B-6320/process-metrics.json",
+      ".lattice/story/actives/B-6320/review-passes.json",
+      ".lattice/story/actives/B-6320/review-runs.json",
+      ".lattice/story/actives/B-6320/review.json",
+      ".lattice/story/actives/B-6320/scope-check.json",
+      ".lattice/story/actives/B-6320/scope-contract.json",
+      ".lattice/story/actives/B-6320/test-evidence.json",
+      ".lattice/story/actives/B-6320/understanding.json",
+      "docs/requirements/decisions/authority-runner-session-evidence-envelope.md",
+      "docs/requirements/decisions/lattice-authority-live-integration.md",
+      "packages/main/src/cli/command-catalog.ts",
+      "packages/main/src/core/authority-client.ts",
+      "packages/main/src/core/authority-job-loop-live.ts",
+      "packages/main/src/core/authority-mode.ts",
+      "packages/main/src/handlers/lattice-cli.ts",
+      "packages/main/src/handlers/verdict.ts",
+      "packages/main/src/tasks/authority-client-smoke.ts",
+      "packages/main/src/tasks/authority-enforce-runner-smoke.ts",
+      "packages/main/src/tasks/authority-job-loop-live-smoke.ts",
+      "packages/main/src/tasks/authority-runner-client-smoke.ts",
+      "packages/main/src/tasks/authority-status-smoke.ts",
+      "packages/main/src/tasks/command-catalog-smoke.ts"
+    ],
+    "summary": " .lattice/story/actives/B-6320/checklist.json       | 246 +++++-\n .lattice/story/actives/B-6320/decision.json        |  73 ++\n .lattice/story/actives/B-6320/findings.json        | 100 +++\n .lattice/story/actives/B-6320/index.json           |  95 ++-\n .lattice/story/actives/B-6320/plan.md              |  63 ++\n .lattice/story/actives/B-6320/process-events.jsonl |  33 +\n .lattice/story/actives/B-6320/process-metrics.json | 358 +++++++++\n .lattice/story/actives/B-6320/review-passes.json   |  58 ++\n .lattice/story/actives/B-6320/review-runs.json     | 830 +++++++++++++++++++++\n .lattice/story/actives/B-6320/review.json          | 191 +++++\n .lattice/story/actives/B-6320/scope-check.json     |  73 ++\n .lattice/story/actives/B-6320/scope-contract.json  |  51 ++\n .lattice/story/actives/B-6320/test-evidence.json   | 197 +++++\n .lattice/story/actives/B-6320/understanding.json   |  37 +\n .../authority-runner-session-evidence-envelope.md  |  24 +-\n .../lattice-authority-live-integration.md          |  22 +-\n packages/main/src/cli/command-catalog.ts           |   2 +-\n packages/main/src/core/authority-client.ts         |  48 +-\n packages/main/src/core/authority-job-loop-live.ts  |   2 +-\n packages/main/src/core/authority-mode.ts           |  38 +-\n packages/main/src/handlers/lattice-cli.ts          |   6 +-\n packages/main/src/handlers/verdict.ts              |   2 +-\n packages/main/src/tasks/authority-client-smoke.ts  | 116 ++-\n .../src/tasks/authority-enforce-runner-smoke.ts    |  14 +-\n .../src/tasks/authority-job-loop-live-smoke.ts     |   6 +-\n .../src/tasks/authority-runner-client-smoke.ts     |  10 +-\n packages/main/src/tasks/authority-status-smoke.ts  |  19 +-\n packages/main/src/tasks/command-catalog-smoke.ts   |  20 +\n 28 files changed, 2621 insertions(+), 113 deletions(-)"
+  },
+  "docsPromises": [
+    {
+      "source": "userSees",
+      "promise": "User sees \"runnerProvider: codex-cli\" and \"runnerProviderValid: true\" instead of \"LATTICE_AUTHORITY_RUNNER_PROVIDER is invalid\"."
+    },
+    {
+      "source": "userSees",
+      "promise": "User sees \"event: jobs.available\" followed by a normal signed \"claim_job\" network event; there is no separate SSE-only ownership success path."
+    },
+    {
+      "source": "userSees",
+      "promise": "User sees \"authority provider declaration smokes passed\" after custom-provider, alias, SSE hint, and signed-claim boundary checks complete."
+    }
+  ],
+  "realMachineTests": {
+    "transcriptDiff": true,
+    "testFiles": [
+      "packages/main/src/tasks/authority-client-smoke.ts",
+      "packages/main/src/tasks/authority-enforce-runner-smoke.ts",
+      "packages/main/src/tasks/authority-job-loop-live-smoke.ts",
+      "packages/main/src/tasks/authority-runner-client-smoke.ts",
+      "packages/main/src/tasks/authority-status-smoke.ts"
+    ],
+    "evidenceCommands": [
+      "node packages/main/dist/tasks/authority-client-smoke.js",
+      "node packages/main/dist/tasks/authority-client-smoke.js && node packages/main/dist/tasks/authority-enforce-runner-smoke.js",
+      "node packages/main/dist/tasks/authority-client-smoke.js && node packages/main/dist/tasks/authority-status-smoke.js && node packages/main/dist/tasks/authority-enforce-runner-smoke.js",
+      "node packages/main/dist/tasks/authority-job-loop-live-smoke.js",
+      "node packages/main/dist/tasks/authority-runner-client-smoke.js",
+      "node packages/main/dist/tasks/authority-runner-client-smoke.js && node packages/main/dist/tasks/authority-job-loop-live-smoke.js",
+      "node packages/main/dist/tasks/authority-status-smoke.js && node packages/main/dist/tasks/authority-enforce-runner-smoke.js",
+      "npm --prefix packages/main run build"
+    ]
+  },
+  "validation": {
+    "source": "test-evidence.json",
+    "result": "PASS",
+    "timestamp": "2026-06-23T04:08:36.194Z",
+    "headHash": "ee6bca5c80c1c7b9d30e276686347ff4ee9be27d",
+    "materialHash": "93a9fe8580bc4d7e3e96578c7f9ca28dc83e78503b414670c72931e748066e90",
+    "storyFilesHash": "45433e85f9116068e404ab184ee11e29b43799461871b8f3e353fab29cd8a7ef"
+  },
+  "reviewRound": "2026-06-23T03:56:19.682Z",
+  "deliveryCheck": {
+    "status": "missing",
+    "ref": null
+  },
+  "waiver": {
+    "status": "none"
+  },
+  "isSigner": false,
+  "claims": {
+    "authorityDone": false,
+    "fullAuthorityDone": false,
+    "productionDone": false
+  }
+}

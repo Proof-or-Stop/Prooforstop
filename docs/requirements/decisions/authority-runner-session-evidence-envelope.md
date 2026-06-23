@@ -60,18 +60,22 @@ Rules:
 ## Runner Provider Routing
 
 `LATTICE_AUTHORITY_RUNNER_PROVIDER` selects the host provider advertised during
-runner registration/heartbeat and sent in the job claim filter. Supported
-canonical values are `codex`, `claude-code`, and `gemini`; the legacy shorthand
-`claude` normalizes to `claude-code`.
+runner registration/heartbeat and sent in the job claim filter. The declaration
+is host-neutral metadata: the CLI accepts any non-empty string, defaults a
+missing value to `codex`, and preserves legacy alias compatibility by
+normalizing `claude` / `CLAUDE_CODE` to `claude-code`.
 
-Invalid provider values fail closed. `authority_status` and
-`authority_enforce_runner --dryRun` must surface the invalid value instead of
-silently falling back to another provider.
+The CLI does not decide whether a custom declaration such as `codex-cli` or
+`antigravity` is authorized. Server policy may reject unsupported declarations
+during registration, heartbeat, or signed claim; that server rejection is the
+authorization boundary. `authority_status` and `authority_enforce_runner
+--dryRun` surface the resolved declaration and provenance without treating the
+declaration as proof of readiness or ownership.
 
 A `no-job` claim means the Authority server had no job matching the runner's
-project/story lease filters and resolved provider. It is not permission to claim
-an unrelated handoff broadly. If a `claude-code` runner gets `no-job`, check the
-server-issued job provider and the runner's
+project/story lease filters and resolved provider declaration. It is not
+permission to claim an unrelated handoff broadly. If a runner gets `no-job`,
+check the server-issued job provider and the runner's
 `LATTICE_AUTHORITY_RUNNER_PROVIDER`; do not bypass the server-side job/story
 selector.
 
