@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-23T09:58:07.968Z",
       "reviewRunId": "B-a1b0:RR-001",
       "_hash": "fdb61f8e53254f0a66a9071a923fbe576ccdabfd110af94107e753884767efd3"
+    },
+    {
+      "id": "B-a1b0:RP-002",
+      "agent": "lattice-review-docs",
+      "note": "Step 1 extracted 3 exported symbols: PROBE_FILES, loadProbes, runInjectionArms. Step 2 found 1 doc paragraph: CHANGELOG.md B-a1b0 Experiments entry. Compared 10 specific claims in that paragraph against experiments/injection-probes/run-injection-arms.mjs — all consistent. (1) runInjectionArms signature matches exactly (line 70). (2) No import of run-recovery/run-ablation/run-a2prime anywhere in file. (3) PROBE_FILES has 6 entries x 3 arms = 18 cases. (4) selfTest drives fake arm zero-cost, adversarial check present (lines 101-131). (5) fake arm = probe.selfTestCases[arm](ws) (line 101). (6) importProbe neutralizes process.exit/argv/console.log during dynamic import (lines 33-50). (7) git stat confirms only CHANGELOG.md and run-injection-arms.mjs changed — no probe files or probe-contract.mjs touched. (8) --run branch defers real powered run with a refusal message (lines 148-153). No overclaims, no mismatches, no blockers.",
+      "createdAt": "2026-06-23T09:59:38.725Z",
+      "reviewRound": "2026-06-23T09:58:07.968Z",
+      "reviewRunId": "B-a1b0:RR-003",
+      "_hash": "8d94b5e7dfbbafd7be36104fbf29e92cd11aa1257b4e80d9dbbc29dc5f4b7db0"
     }
   ]
 }
