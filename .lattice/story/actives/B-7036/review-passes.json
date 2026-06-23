@@ -89,6 +89,15 @@
       "reviewRound": "2026-06-23T19:15:13.779Z",
       "reviewRunId": "B-7036:RR-009",
       "_hash": "e2d96b04d5eacc0f0babb298dd2723764585ccd89fd934b6d38397536e78176a"
+    },
+    {
+      "id": "B-7036:RP-011",
+      "agent": "lattice-review-docs",
+      "note": "F-009 confirmed resolved. Step 1: 0 new exported symbols changed since last review round (d9253eb5a is the only code+doc commit; no new symbol exports beyond matchedCellKeys and emitGlmmR already reviewed). Step 2: README Analysis section (lines 118-149) examined. Step 3: README matched-cell denominator description (lines 125-129) exactly matches matchedCellKeys() implementation in analyze.mjs; README two-disjoint-GLMM description (lines 144-149) exactly matches emitGlmmR() H1/H2 models in analyze.mjs lines 388-419. No doc-code drift found. 0 new findings.",
+      "createdAt": "2026-06-23T19:26:14.472Z",
+      "reviewRound": "2026-06-23T19:24:39.177Z",
+      "reviewRunId": "B-7036:RR-013",
+      "_hash": "47f6b10a058a4c1be6f31f7ecc2908535c2af41d8ea0fb14f90bf39cfcea85b9"
     }
   ]
 }
