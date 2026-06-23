@@ -1,0 +1,58 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Rename all 8 koala-* signature salts to lattice-* via the worktree binary",
+      "context": "koala-review-integrity-v1, koala-review-pass-integrity-v1, koala-review-run-integrity-v1, koala-review-run-workspace-binding-v1, koala-review-scope-binding-v1, koala-scope-check-integrity-v1, koala-finding-integrity-v1, koala-story-store in core/guard-utils.ts, machine.ts, process-fact-registry.ts, reviewer-status.ts, handlers/story-review.ts, canonical-story.ts, finding-verify.ts, review-run.ts, review-scope-binding.ts, handlers/scope-check.ts (+ their smokes). Change the literal salt VALUE; producers and consumers move together; sign this story's gates with the worktree binary.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Delete the legacy-koala detection (drop old-install handling)",
+      "context": "core/managed-assets.ts excluded-path entries bin/koala.js / bin/koala-codex.js / .lattice-codex/koala.json (the denylist for old koala binaries); the @koala-agent old-global-install detection in flow-stability-smoke.ts / worktree-repair-smoke.ts / lattice-only-absence-smoke.ts. Remove the detection and its now-moot absence assertions; no old-koala migration support kept.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Clean the remaining koala-codex / koala-agent and stray koala literals in packages/*/src",
+      "context": "The ~7 files with koala-codex/koala-agent references not covered above, plus any other stray koala comment/string in packages/*/src, except the residue-gate self-identifiers (KOALA_RESIDUE_* in handlers/review-preflight.ts) which are story 4.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Keep build/suite/gate green; confirm zero koala except the deferred gate self-ID",
+      "context": "npx tsc --noEmit clean; packages/main suite green (skip pre-existing fails cli-json-stdout/field-regression/english-open-source-surface/prompt-token-cost); node scripts/verify-koala-residue.mjs still PASS + self-test. Final: git grep -i koala -- 'packages/*/src/**' returns ONLY review-preflight.ts KOALA_RESIDUE_* (story 4); zero salts/legacy-detection/koala-codex/koala-agent remain; docs/experiments and .lattice/story untouched.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Rename koala config fields/filenames to lattice (idleKoala, koala.config.json, koalaConfig)",
+      "context": "~25 hits: the idleKoala config field, koala.config.json filename references, koalaConfig identifiers in packages/*/src. Rename to lattice-named equivalents; under no-compat, do NOT keep a koala.config.json read-fallback — old koala-named config is not migrated (OSS users start fresh).",
+      "relatedDocs": [
+        ".lattice/story/actives/B-fbca/background.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-006",
+      "title": "Rename .koala/ runtime path references to the lattice runtime dir",
+      "context": "~22 hits: .koala/ runtime path string literals/comments (e.g. tool-status.ts .koala/activity.jsonl). Point them at the lattice runtime dir (.lattice/ or the canonical path). Under no-compat, existing .koala/ data is NOT migrated (orphaned for any old install; OSS users start fresh). Verify no code still WRITES to .koala/.",
+      "relatedDocs": [
+        ".lattice/story/actives/B-fbca/background.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

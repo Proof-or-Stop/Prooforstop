@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-fbca",
+  "mode": "feature",
+  "allowed": [
+    "A: rename all 8 koala-* signature salts to lattice-* in packages/*/src (integrity/binding/store)",
+    "B: delete the legacy-koala detection (managed-assets bin/koala*.js + .codex/.lattice-codex koala.json denylist; @koala-agent old-install handling; isKoalaSelfRepoBootstrap)",
+    "C: rename the 4 koala.* schema ids (capability_probe/list, evidence_manifest/inspect) to lattice.*",
+    "D: rename koala config fields/filenames (idleKoala, koala.config.json, koalaConfig) to lattice, no koala read-fallback",
+    "E: rename .koala/ runtime path references to the lattice runtime dir, no data migration",
+    "Update all affected unit/smoke tests"
+  ],
+  "excluded": [
+    ".lattice/story audit-trail metadata (kept as history)",
+    "docs/ and experiments/ koala prose (story 4)",
+    "F: the residue-gate self identifiers KOALA_RESIDUE_*/koala-residue in handlers/review-preflight.ts + scripts/verify-koala-residue.mjs, and the gate zero-tolerance flip (story 4)"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User: 全部一起做 — zero koala in packages/*/src (A salts + B legacy-detection + C schema-ids + D config + E .koala storage), accept in-flight collateral + no-compat (old koala config/storage not migrated). F gate-flip + docs = story 4.",
+  "createdAt": "2026-06-23T19:06:57.580Z",
+  "updatedAt": "2026-06-23T19:06:57.580Z",
+  "_hash": "a1133ff4778219b62d19b3be7055b45a32668a79d00e089ade15b13d7a910dcf"
+}

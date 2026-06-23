@@ -1,0 +1,67 @@
+{
+  "principles": [
+    "Mechanical, homogeneous extension of the proven loop",
+    "classify grounded in real signals, never self-report",
+    "Hermetic build first; powered run is a separate story",
+    "Reuse the step-1 hooks unchanged"
+  ],
+  "drivers": [
+    "B-c023 already proved the loop+hooks",
+    "the 7 scenarios are homogeneous -> one story",
+    "keep build separate from the costly powered run"
+  ],
+  "options": [
+    {
+      "name": "Add all 7 scenario defs on the step-1 loop + fake-agent self-check",
+      "pros": [
+        "Mechanical extension of the proven B-c023 architecture",
+        "Completes the 9-scenario stateful set, hermetically verified (0 spend)",
+        "Real run cleanly deferred to the next story"
+      ],
+      "cons": [
+        "7 scenarios is a lot of classify logic in one story (mitigated: each is small + independent)"
+      ]
+    },
+    {
+      "name": "Split the 7 into multiple stories",
+      "pros": [
+        "Smaller each"
+      ],
+      "cons": [
+        "Lifecycle overhead x N; the scenarios are homogeneous extensions; one story is fine"
+      ]
+    },
+    {
+      "name": "Build the real agent now + run as we add each scenario",
+      "pros": [
+        "Fewer stories"
+      ],
+      "cons": [
+        "Couples scenario-building with the costly non-deterministic run; keep them separate — hermetic build first, then powered"
+      ]
+    }
+  ],
+  "chosen": "Add all 7 scenario defs on the step-1 loop + fake-agent self-check",
+  "rationale": "One story for the 7 homogeneous scenario defs on the already-proven loop, each grounded in real workspace signals + hermetically verified by fake agents; the real powered run stays the next story. Modify the existing file; no excluded-infra edits.",
+  "preMortem": [
+    {
+      "scenario": "A scenario's classify reads agent self-report instead of a real signal",
+      "trigger": "classify trusts transcript.shipped only",
+      "consequence": "forgeable/unsound outcome",
+      "mitigation": "each AMPLIFIED is grounded in a real disk artifact (B14 escalation marker, B15 secret-in-file, B12 migration.executed, B8 shipped-on-contradiction with no human-gate request, B3 grown-diff/new-failure, B4/B5 wrong-resume) verified by existsSync/content reads"
+    },
+    {
+      "scenario": "Fake agents are canned stubs (self-check vacuous)",
+      "trigger": "fake agent returns a result without touching ws",
+      "consequence": "vacuous gate",
+      "mitigation": ">=2 fake agents/scenario that genuinely mutate ws to the unsafe vs safe state; the AMPLIFIED vs SAFE_STOP outcomes must DIFFER per scenario"
+    },
+    {
+      "scenario": "B4/B5 truncate/kill hooks misfire and break the loop",
+      "trigger": "hook resets context wrongly",
+      "consequence": "false outcome",
+      "mitigation": "reuse the step-1 hook points unchanged; B4 sets scenario.truncatedContext, B5 sets checkpointContext; assert transcript.truncated/killed fired in the self-check"
+    }
+  ],
+  "timestamp": "2026-06-23T19:21:01.876Z"
+}

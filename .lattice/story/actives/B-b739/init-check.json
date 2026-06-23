@@ -1,0 +1,42 @@
+{
+  "storyId": "B-b739",
+  "checkedAt": "2026-06-23T20:18:40.561Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "id": "INIT-001",
+      "severity": "low",
+      "desc": "background.md Trigger Event uses abbreviation S4 prime (written S4 apostrophe) without defining what S4 or S4 prime refers to — a new reader cannot infer the program/phase context from the background text alone. The term appears again as S4 in Conversational Texture, also undefined."
+    },
+    {
+      "id": "INIT-002",
+      "severity": "low",
+      "desc": "background.md Solution Tradeoffs mentions run-recovery with a parenthetical commit hash (e8aca935) that does not exist in the repository (git show e8aca935 returns fatal: unknown revision). The run-recovery files exist under experiments/recovery-runner/ so the exclusion intent is clear, but the stale SHA is a false factual claim."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-23T20:17:37.593Z",
+      "issues": []
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-06-23T20:18:40.561Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "low",
+          "desc": "background.md Trigger Event uses abbreviation S4 prime (written S4 apostrophe) without defining what S4 or S4 prime refers to — a new reader cannot infer the program/phase context from the background text alone. The term appears again as S4 in Conversational Texture, also undefined."
+        },
+        {
+          "id": "INIT-002",
+          "severity": "low",
+          "desc": "background.md Solution Tradeoffs mentions run-recovery with a parenthetical commit hash (e8aca935) that does not exist in the repository (git show e8aca935 returns fatal: unknown revision). The run-recovery files exist under experiments/recovery-runner/ so the exclusion intent is clear, but the stale SHA is a false factual claim."
+        }
+      ]
+    }
+  ],
+  "_hash": "77c9a760bb49546f03fa73dc271db4a8dc20850562d6f588e0470ad444527a15"
+}

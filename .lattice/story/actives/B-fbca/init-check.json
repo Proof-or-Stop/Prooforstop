@@ -1,0 +1,36 @@
+{
+  "storyId": "B-fbca",
+  "checkedAt": "2026-06-23T19:09:08.648Z",
+  "reviewRound": "",
+  "agentId": "product-reviewer",
+  "issues": [
+    {
+      "severity": "low",
+      "desc": "CHK-003 still frames its scope as ~7 files, but after subtracting CHK-001 salts, CHK-002 legacy-detection, CHK-005 config, and CHK-006 .koala/ paths, roughly 177 koala hits across 50+ files remain under CHK-003 catch-all. The acceptance criterion in CHK-004 (git grep returns only residue-gate self-IDs) is the real gate and is correct, so this is advisory — but the developer should expect CHK-003 to be the bulk of the work, not a small cleanup."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-06-23T19:08:18.134Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "low",
+          "desc": "background.md Solution Tradeoffs section references B-3f13 as an authority (\"per B-3f13: signing via the global lattice = main's OLD-salt dist would self-reject\") with no one-sentence explanation of what story B-3f13 is; a new reader cannot independently understand the rationale anchor without opening that story."
+        }
+      ]
+    },
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-23T19:09:08.648Z",
+      "issues": [
+        {
+          "severity": "low",
+          "desc": "CHK-003 still frames its scope as ~7 files, but after subtracting CHK-001 salts, CHK-002 legacy-detection, CHK-005 config, and CHK-006 .koala/ paths, roughly 177 koala hits across 50+ files remain under CHK-003 catch-all. The acceptance criterion in CHK-004 (git grep returns only residue-gate self-IDs) is the real gate and is correct, so this is advisory — but the developer should expect CHK-003 to be the bulk of the work, not a small cleanup."
+        }
+      ]
+    }
+  ],
+  "_hash": "8adce3df0c8dd309518353d7bdc06461f2abc0629f4b3d2be9bd0eabbf849e06"
+}
