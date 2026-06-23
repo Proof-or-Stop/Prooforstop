@@ -269,7 +269,7 @@
       "desc": "--maxReruns is parsed (parseInt) but never validated. --maxReruns abc -> NaN; --maxReruns -1 -> negative. Then the runDriver loop attempt<=maxReruns+1 is always false, the engine is NEVER invoked, and every cell is falsely logged reason:exhausted-reruns instead of rejecting the invalid input. Fix: validate maxReruns is a non-negative integer in main() (clear CLI error + non-zero exit) and defensively in runDriver (throw).",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex-host",
       "createdAt": "2026-06-23T12:30:24.130Z",
@@ -279,7 +279,11 @@
         "experiments/recovery-runner/run-driver.mjs"
       ],
       "signatureTag": "adversarial|mjs|maxreruns-parsed-parseint",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "maxReruns validated: main() rejects NaN/negative with exit 2 + clear error; runDriver throws defensively. selfcheck asserts both (runDriver throw on NaN/-1; CLI exit 2 + no false-exhaustion log). commit 4fa945531.",
+      "resolvedAt": "2026-06-23T12:32:26.377Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
