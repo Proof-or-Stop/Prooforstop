@@ -188,6 +188,15 @@
       "reviewRound": "2026-06-23T20:01:45.155Z",
       "reviewRunId": "B-7036:RR-027",
       "_hash": "e1354bd2630a5721173845e68f74972fe0491c0949e5cd1fa5ddba7b6dbc0430"
+    },
+    {
+      "id": "B-7036:RP-022",
+      "agent": "lattice-review-concept",
+      "note": "Round 7 concept-residue check complete. F-015 fix verified at f7e5f13af: emitGlmmR comment block updated from old scenario!=null/==null subsetting to matched-corpus (matchedPrimaryH1/H2==1) language; ARMS import removed from analyze.mjs (ARMS still correctly defined+used in run-driver.mjs, run-ablation.mjs, run-driver-selfcheck.mjs — no residue). No old scenario-subsetting concept words remain in experiments/. analyze-selfcheck.mjs: 75 assertions, 0 failed. No new concept deletions or replacements detected; no blocker.",
+      "createdAt": "2026-06-23T20:12:47.668Z",
+      "reviewRound": "2026-06-23T20:10:51.518Z",
+      "reviewRunId": "B-7036:RR-029",
+      "_hash": "f9ff0bed44a69ab2bdcd77c7d3892a7bdd0931f534b4e444bec53f4635257321"
     }
   ]
 }
