@@ -1,0 +1,29 @@
+{
+  "storyId": "B-6320",
+  "checkedAt": "2026-06-23T02:43:14.728Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-23T02:42:39.267Z",
+      "issues": [
+        {
+          "severity": "medium",
+          "desc": "The simple senior-bundle completion signal is still implicit. The checklist should make the user-observable finish line explicit: a developer can reuse the same server-generated senior bundle across codex-cli, claude-code, Antigravity, or a future host by changing only the host declaration such as LATTICE_AUTHORITY_RUNNER_PROVIDER, including register/heartbeat/SSE/claim/takeover paths, without a new server-side per-host manual setup step beyond normal server policy authorization."
+        },
+        {
+          "severity": "medium",
+          "desc": "A related required doc still says LATTICE_AUTHORITY_RUNNER_PROVIDER is limited to codex, claude-code, and gemini and that invalid provider values fail closed. Because this story exists to replace local closed-enum rejection with host-neutral declaration propagation, the INIT scope should require aligning that doc/diagnostic contract so onboarding users are not told the opposite of the intended product behavior."
+        }
+      ]
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-06-23T02:43:14.728Z",
+      "issues": []
+    }
+  ],
+  "_hash": "be45db327f950d88d7d5460e6f7524d319a8314f705544756e5d7fb8ca14a4f5"
+}
