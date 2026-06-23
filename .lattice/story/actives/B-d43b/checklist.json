@@ -33,7 +33,21 @@
       },
       "status": "done",
       "startTime": "2026-06-23T10:52:58.323Z",
-      "endTime": "2026-06-23T10:56:53.636Z"
+      "endTime": "2026-06-23T10:56:53.636Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/codex-adapter-gate-scope-smoke.ts",
+          "command": "node packages/main/dist/tasks/codex-adapter-gate-scope-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts provider-only Codex prose returns false from storyRequiresCodexEvidence.",
+          "headHash": "e28d6d292e5a2697297e3cea9dd497fd1ec63320",
+          "materialHash": "aa24d1b9dbad8b374e614b5579cb071003f8e8a0202856c6d7ec6b1b2cf7ff51",
+          "storyFilesHash": "b413e6b8e7c259e8423330737a173304dfba7cc2084bd2cc172233b70c5bd6bb",
+          "timestamp": "2026-06-23T10:59:47.798Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
