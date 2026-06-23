@@ -239,6 +239,26 @@
       "resolvedAt": "2026-06-23T12:22:41.269Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-f248:F-012",
+      "desc": "doc-code-drift: README code comment (README.md line 97) says the enumerate-only mode (no --engine) writes nothing, but the code (run-driver.mjs lines 383-386) unconditionally writes <record>.exclusions.jsonl before the no-engine guard; the selfcheck (run-driver-selfcheck.mjs line 282) even asserts the file IS created. The comment should say: writes <record>.exclusions.jsonl (N/A exclusions only).",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-23T12:28:02.507Z",
+      "reviewRound": "2026-06-23T12:22:34.323Z",
+      "reviewRunId": "B-f248:RR-011",
+      "_hash": "03f70acc391c8d6061f67febf124827700c900100ccfd7a3a1c1c3e29620be1a",
+      "files": [
+        "experiments/recovery-runner/README.md",
+        "experiments/recovery-runner/run-driver.mjs",
+        "experiments/recovery-runner/run-driver-selfcheck.mjs"
+      ],
+      "signatureTag": "doc-code-drift|md|code-drift-readme",
+      "signatureTagSource": "auto"
     }
   ]
 }
