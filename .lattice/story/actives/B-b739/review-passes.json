@@ -80,6 +80,24 @@
       "reviewRound": "2026-06-23T20:43:24.607Z",
       "reviewRunId": "B-b739:RR-013",
       "_hash": "da74661dcc944e0fcb433d7d2debf052f206373072833accc285d2490e276d85"
+    },
+    {
+      "id": "B-b739:RP-010",
+      "agent": "lattice-review-concept",
+      "note": "Concept residue check complete. The replaced concept is: execFileSync in multi-turn agent/harness context, replaced by async execFile with {signal}. Checked all files in the diff: live-loop-harness.mjs and real-loop-agent.mjs contain zero execFileSync occurrences. Two pre-existing execFileSync usages found (real-arm.mjs + run-all-selftests.mjs) but both are unmodified by this branch and serve different roles (stateless probe single-shot runner and test orchestrator). The CHANGELOG.md B-c023 historical entry mentioning execFileSync predates this branch (confirmed on main), is a historical design record, not live code residue. The deferred-follow-up refusal stub was fully replaced and no stale copy remains. No concept-deletion/replacement residue found. No blocker.",
+      "createdAt": "2026-06-23T20:59:57.932Z",
+      "reviewRound": "2026-06-23T20:43:24.607Z",
+      "reviewRunId": "B-b739:RR-016",
+      "_hash": "297d07e9f678e0eb1116a0c2f6cdc844432299723f5f3b8696d4ab0da50d7333"
+    },
+    {
+      "id": "B-b739:RP-011",
+      "agent": "lattice-review-docs",
+      "note": "Step 1: 27 symbols extracted (makeRealLoopAgent, makeStubLoopAgent, runPowered, STATEFUL_SCENARIOS, resultText, execFileAsync, DEFAULT_MODEL, TURN_TIMEOUT_MS, and helpers). Step 2: 0 hits in README.md/CLAUDE.md/docs/ for all key exported symbols — Fallback 2 applied; SPEC.md covers stateless probes only. Step 3: (1) no execFileSync in live-loop-harness.mjs or real-loop-agent.mjs (real-arm.mjs is unchanged+out of scope); (2) JSDoc line 57 correctly lists turn:number and documents it as load-bearing for B4/B5 self-check stubs, with note that real claude -p agent ignores it; (3) CHANGELOG B-b739 bullet matches code: async execFile({signal}) for termination (no blocking execFileSync), --run implemented not deferred, runPowered drives 9 scenarios, self-check 24/24=cases(22)+timeout(1)+runPowered-stub(1); (4) grep -c Experiments CHANGELOG.md==1; (5) diff stat confirms no edit to real-arm.mjs, probe-contract.mjs, run-recovery/run-ablation/run-a2prime; (6) agent function in real-loop-agent.mjs destructures {ws,context,signal} only, correctly ignoring turn; (7) CHANGELOG omits costLog from makeRealLoopAgent description but this is expected story-level abbreviation. No doc-code drift found.",
+      "createdAt": "2026-06-23T21:01:15.097Z",
+      "reviewRound": "2026-06-23T20:43:24.607Z",
+      "reviewRunId": "B-b739:RR-015",
+      "_hash": "c47270d2c19e26c112828879d4e28a445dfa874500855ca0887f3aa25f22b759"
     }
   ]
 }
