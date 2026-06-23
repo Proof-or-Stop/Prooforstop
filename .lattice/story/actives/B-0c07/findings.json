@@ -17,6 +17,24 @@
       ],
       "signatureTag": "edge|md|code-drift-changelog",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-0c07:F-002",
+      "desc": "quality-cleanup: CHANGELOG.md:9 duplicate `### Experiments` heading — the B-0c07 patch prepended `### Experiments` before the B-0c07 bullet but the section heading already existed at line 5, producing two consecutive `### Experiments` headings in the Unreleased block",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-23T12:10:32.667Z",
+      "reviewRound": "2026-06-23T12:07:23.828Z",
+      "reviewRunId": "B-0c07:RR-002",
+      "_hash": "ebe0202ed947674945a1b32d324539ae8c348f0b613d72871d736f9eb11b644e",
+      "files": [
+        "CHANGELOG.md"
+      ],
+      "signatureTag": "missing|md|quality-cleanup-changelog",
+      "signatureTagSource": "auto"
     }
   ]
 }
