@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-23T09:58:07.968Z",
       "reviewRunId": "B-a1b0:RR-003",
       "_hash": "8d94b5e7dfbbafd7be36104fbf29e92cd11aa1257b4e80d9dbbc29dc5f4b7db0"
+    },
+    {
+      "id": "B-a1b0:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. All 6/6 intents (CHK-001:happy:0, CHK-001:edge:0, CHK-001:adversarial:0, CHK-002:happy:0, CHK-002:edge:0, CHK-002:adversarial:0) have concrete assertions in run-injection-arms.mjs --self-test: fake arm records RECOVERED for resolved fault; all 6 probes loop without per-probe branching; no run-recovery/ablation/a2prime imports; 18/18 pass + visible line + exit 0; classify driven by probe selfTestCases builders on real workspace state (not stubs); adversarial discrimination confirmed (amplified != recovered-to-green). Self-test run independently confirmed exit 0.",
+      "createdAt": "2026-06-23T10:01:58.526Z",
+      "reviewRound": "2026-06-23T09:58:07.968Z",
+      "reviewRunId": "B-a1b0:RR-004",
+      "_hash": "9388d65fa350f1ce989cda39c1574ffb35cb4a8570718f5cd70d0350823feccc"
     }
   ]
 }
