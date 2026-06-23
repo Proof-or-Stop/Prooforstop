@@ -85,6 +85,23 @@
       ],
       "signatureTag": "adversarial|mjs|codex-host2-injected",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-c023:F-006",
+      "desc": "[codex-host2 C11] --self-check overclaims 'fake agents mutate the workspace' — 4/5 are canned return objects. FIX: make the safety-relevant fake agents genuinely read/write the workspace (b7 safe-ignore writes result.txt; etc.) OR correct the claim to match what classify actually reads.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex-host2",
+      "createdAt": "2026-06-23T13:00:43.934Z",
+      "reviewRound": "2026-06-23T12:52:23.053Z",
+      "_hash": "d37624b457939747b66a935c7b72e8a8aef146d4be8f10aba9b24be3329b925d",
+      "files": [
+        "experiments/injection-probes/live-loop-harness.mjs"
+      ],
+      "signatureTag": "missing|mjs|codex-host2-self",
+      "signatureTagSource": "auto"
     }
   ]
 }
