@@ -1,0 +1,130 @@
+{
+  "passes": [
+    {
+      "id": "B-3523:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept/product-boundary review passed: live package manifests, runtime constants, generated bootstrap paths, hooks, and active guidance use canonical @lattice/core, @lattice/utils, and @lattice/lab; no live @lattice-agent identity or @koala-agent fallback was found. Remaining old-scope strings are anti-regression assertions, historical fixtures, or story metadata rather than active product behavior.",
+      "createdAt": "2026-06-22T23:23:28.129Z",
+      "reviewRound": "2026-06-22T23:21:17.622Z",
+      "reviewRunId": "B-3523:RR-001",
+      "_hash": "bfb1d7d75192bc5cd404903fba3bafa9e6f4a2d1de41ff92807361e5d7b534ab"
+    },
+    {
+      "id": "B-3523:RP-002",
+      "agent": "lattice-review-docs",
+      "note": "Docs/guidance review passed: README.md, CLAUDE.md, authority-client-role.md, done-full-test-gate-execution-plan.md, .claude/.codex scope hooks, and .githooks/pre-push now describe @lattice/core / @lattice/lab as the active canonical packages. Remaining @lattice-agent references are limited to historical CHANGELOG entries or negative verifier assertions, and I found no active guidance claiming historical references were globally cleaned. Verified with node scripts/verify-runtime-fact-contract.mjs and node scripts/verify-global-lab-entrypoint.mjs.",
+      "createdAt": "2026-06-22T23:25:04.294Z",
+      "reviewRound": "2026-06-22T23:21:17.622Z",
+      "reviewRunId": "B-3523:RR-004",
+      "_hash": "be6a4a2cb70cb1a7abb715cb41b1e0747bcae29c964d1eeaeb322e8928dded73"
+    },
+    {
+      "id": "B-3523:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage review passed for all requested refs. Checklist evidence has entries for CHK-001 package names/deps/locks, CHK-002 runtime bootstrap and stale global rejection, CHK-003 pre-push self-host plus old fallback absence, and CHK-004 docs/hooks/global link/retired-root behavior. Reviewer reran package/lock assertions, verify-runtime-fact-contract, verify-entrypoints, verify-global-lab-entrypoint, verify-koala-residue, verify-codex-assets, verify_codex, pre-push self-host build+recursive tsc, flow-stability-smoke, and worktree-repair-smoke. The pre-merge global link currently points to the story worktree as expected; DONE cleanup has source + smoke coverage to relink @lattice/core to main before deleting the worktree.",
+      "createdAt": "2026-06-22T23:25:32.707Z",
+      "reviewRound": "2026-06-22T23:21:17.622Z",
+      "reviewRunId": "B-3523:RR-003",
+      "_hash": "b327ff62550fb27d16e377465e8fa259ce17b10d1ffa3b4566b68fb51ee8c427"
+    },
+    {
+      "id": "B-3523:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "F-001 re-review pass: packages/main, packages/utils, and packages/lab manifests plus locks are coherent on @lattice/* 0.3.65 dependencies; package locks match manifest roots; scripts/verify-global-lab-entrypoint.mjs derives core version from root package.json, asserts retired @lattice-agent/@koala-agent deps absent, and does not introduce host-specific paths or global fallback assumptions. Verified with node scripts/verify-global-lab-entrypoint.mjs versions and a parsed manifest/lock consistency check.",
+      "createdAt": "2026-06-22T23:32:47.731Z",
+      "reviewRound": "2026-06-22T23:31:02.764Z",
+      "reviewRunId": "B-3523:RR-005",
+      "_hash": "045ffbbb977fae6ba5947da0c5ef08ecc85c040e0da8ae20e564f5cc6596c2f9"
+    },
+    {
+      "id": "B-3523:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "F-001 re-review passed: package manifests and locks for root/main/lab/utils are aligned on @lattice scope and 0.3.65 where applicable; main/lab/utils npm install --dry-run and npm ci --dry-run pass; lab/utils/main builds pass; scripts/verify-global-lab-entrypoint.mjs full verifier passes. No blocking quality finding remains.",
+      "createdAt": "2026-06-22T23:33:38.246Z",
+      "reviewRound": "2026-06-22T23:31:02.764Z",
+      "reviewRunId": "B-3523:RR-006",
+      "_hash": "abe6a35b1a95331fcd1009e23c4abcaef4673f0d07c03b4c6ee47d9d86ad36f3"
+    },
+    {
+      "id": "B-3523:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage re-review passed after F-001 fix. Verified CHK-001 package and dependency evidence now asserts @lattice core/utils/lab package versions 0.3.65, inter-package deps @lattice/lab and @lattice/core at 0.3.65, and dry-run package-lock installs for packages/main, packages/lab, and packages/utils. Spot-check commands passed: npm --prefix packages/main install --package-lock-only --dry-run --ignore-scripts; npm --prefix packages/lab install --package-lock-only --dry-run --ignore-scripts; npm --prefix packages/utils install --package-lock-only --dry-run --ignore-scripts; node scripts/verify-global-lab-entrypoint.mjs versions; node scripts/verify-entrypoints.mjs; node scripts/verify-runtime-fact-contract.mjs. CHK-004:happy:2 global relink evidence reports @lattice/core and Lattice CLI 0.3.65, with post-DONE relink caveat. No blocker.",
+      "createdAt": "2026-06-22T23:34:48.956Z",
+      "reviewRound": "2026-06-22T23:31:02.764Z",
+      "reviewRunId": "B-3523:RR-007",
+      "_hash": "8a50a71e86c00ec62d39577d0a06d629cf1ed3a4276d56518f0dc703a0a8a72c"
+    },
+    {
+      "id": "B-3523:RP-007",
+      "agent": "lattice-review-docs",
+      "note": "Docs review round 2 after F-001 fix: inspected package/version/lock/verifier changes around ca6818920. Packages and locks now name @lattice/core, @lattice/lab, @lattice/utils at 0.3.65 where applicable; stale sweep found no docs/prompt current-version claims implying @lattice/lab or @lattice/utils are still 0.3.1. Remaining retired-scope hits are negative verifier assertions. Verifiers passed: verify-global-lab-entrypoint, verify-entrypoints, verify-runtime-fact-contract, verify-codex-assets. No docs blocker.",
+      "createdAt": "2026-06-22T23:37:33.475Z",
+      "reviewRound": "2026-06-22T23:31:02.764Z",
+      "reviewRunId": "B-3523:RR-008",
+      "_hash": "dfdf05d85f3f4beaf2776c615679e7094dd302d34d9dd0b06fb16fc4199b6daa"
+    },
+    {
+      "id": "B-3523:RP-008",
+      "agent": "lattice-review-docs",
+      "note": "Docs review after merge: inspected review_incremental_context (changed scope limited to experiments/recovery-runner/**), recovery-runner README/task prompts/task configs, and scoped scans for retired @lattice-agent/@koala-agent/koala-agent/lattice-agent/omx terms. No docs contradictions with canonical @lattice/core package or lattice CLI guidance; claude -p mention matches experiment runner implementation.",
+      "createdAt": "2026-06-22T23:54:41.953Z",
+      "reviewRound": "2026-06-22T23:51:43.015Z",
+      "reviewRunId": "B-3523:RR-010",
+      "_hash": "784741a6a7326effc0075c16049cbbe703b58c9ae09543948fce42cde4e430db"
+    },
+    {
+      "id": "B-3523:RP-009",
+      "agent": "lattice-review-quality",
+      "note": "Quality merge review clean: experiments/recovery-runner has no @lattice-agent/@koala-agent/lattice-agent/koala-agent/package-runtime references; package.json and lockfile metadata use @lattice/core,@lattice/utils,@lattice/lab; runtime and entrypoint guards passed via verify-runtime-fact-contract, verify-entrypoints, and verify-global-lab-entrypoint all.",
+      "createdAt": "2026-06-22T23:56:36.229Z",
+      "reviewRound": "2026-06-22T23:51:43.015Z",
+      "reviewRunId": "B-3523:RR-009",
+      "_hash": "87d498ec41481fe12d27d9ce49272830c4104f8a3da8a94cd7baf0bbd9868ace"
+    },
+    {
+      "id": "B-3523:RP-010",
+      "agent": "lattice-review-concept",
+      "note": "Concept pass for merge-after-review delta: reviewed incremental context from prior concept pass 4d8e26e to HEAD 2ad0d11. New material is experiments/recovery-runner harness plus B-3523 metadata. Targeted scans found no @lattice-agent/@koala-agent strings in experiments/recovery-runner and no live old-scope dependency or fallback in package/code surfaces. package.json remains lattice, packages/main/package.json remains @lattice/core with bin lattice. Orchestrate/pre-push guard surfaces are unchanged since the prior concept pass and current pre-push self-host detection still keys on @lattice/core. Verified with node scripts/verify-runtime-fact-contract.mjs and node scripts/verify-entrypoints.mjs.",
+      "createdAt": "2026-06-22T23:57:08.459Z",
+      "reviewRound": "2026-06-22T23:51:43.015Z",
+      "reviewRunId": "B-3523:RR-011",
+      "_hash": "a8d5b51baff684b6f1e04814236c58ed986d31d71e8cd0dcd4818e3b5f629617"
+    },
+    {
+      "id": "B-3523:RP-011",
+      "agent": "lattice-review-docs",
+      "note": "PASS docs review: targeted inspection found no docs/guidance contradiction from the F-002 timeout comments/assertions. validation-executor documents the default per-command wall-clock ceiling, explicit positive timeoutMs override, invalid/unset fallback, exit-124 attribution, and operator guidance to raise lattice.config.json validate.commands[].timeoutMs only for genuinely long commands; validate-command-timeout-smoke and validation-protocol-smoke assert those semantics including no timeout diagnostic on ordinary failures. Active guidance/package surfaces now use @lattice/core/@lattice/lab/@lattice/utils; remaining @lattice-agent/@koala-agent hits are negative assertions, residue detectors, or historical examples, not current guidance.",
+      "createdAt": "2026-06-23T00:15:13.139Z",
+      "reviewRound": "2026-06-23T00:12:15.002Z",
+      "reviewRunId": "B-3523:RR-015",
+      "_hash": "7c5d53d43f035b4eafd245844f8560cd19d10b5e8f8c43b4171dc57408845463"
+    },
+    {
+      "id": "B-3523:RP-012",
+      "agent": "lattice-review-quality",
+      "note": "F-002 PASS. packages/main/src/core/codex-adapter-checks.ts:59 defines local default 10s and global fallback default 30s with a scoped rationale; lines 702-717 preserve explicit options.timeoutMs override for both heartbeat paths and otherwise pass 10s only to local wrapper and 30s only to global fallback. runHeartbeat still applies the supplied timeout directly to execFileSync at line 495, so there is no arbitrary broad timeout. scripts/verify-codex-assets.mjs:54-58 asserts the documented defaults. Targeted commands passed: node scripts/verify-codex-assets.mjs; custom node --input-type=module timeout override probe for local and global heartbeats.",
+      "createdAt": "2026-06-23T00:16:07.599Z",
+      "reviewRound": "2026-06-23T00:12:15.002Z",
+      "reviewRunId": "B-3523:RR-013",
+      "_hash": "7862ffc8755133e2909e9b9c9976ed26e928403192ed34c2f5bd14a947589d6e"
+    },
+    {
+      "id": "B-3523:RP-013",
+      "agent": "lattice-review-test-coverage",
+      "note": "F-002 re-review PASS: node bin/lattice.js verify_codex passed 8/8 including Global fallback heartbeat source=codex entrypoint=global-fallback; node scripts/verify-codex-assets.mjs exited 0 with codex assets verified (diagnostic mode 6/8, live heartbeat intentionally not executed there); npm --prefix packages/main run build passed; node scripts/verify-entrypoints.mjs passed ok 28/28. Worktree was clean before recording this pass; RR-018 was refreshed after evidence-producing checks.",
+      "createdAt": "2026-06-23T00:17:04.421Z",
+      "reviewRound": "2026-06-23T00:12:15.002Z",
+      "reviewRunId": "B-3523:RR-018",
+      "_hash": "937e34e45a4dadfeeae9e0447733350f3dfc9fb0ce27fc0ef8f51987f930c961"
+    },
+    {
+      "id": "B-3523:RP-014",
+      "agent": "lattice-review-concept",
+      "note": "Concept PASS. Reviewed only packages/main/src/core/codex-adapter-checks.ts and scripts/verify-codex-assets.mjs. Global package scope remains @lattice via @lattice/core detection, CLI fallback remains lattice, and F-002 only splits default heartbeat budget: local/default stays 10000ms, global fallback default is 30000ms, while options.timeoutMs still overrides both. Verification: node scripts/verify-codex-assets.mjs passed; npm exec -- tsc --noEmit passed from packages/main; synthetic slow global lattice with timeoutMs=50 failed fast, confirming explicit override precedence.",
+      "createdAt": "2026-06-23T00:17:15.817Z",
+      "reviewRound": "2026-06-23T00:12:15.002Z",
+      "reviewRunId": "B-3523:RR-017",
+      "_hash": "b887f345e5b65b1d64efffe8749f79422680d43b5e8efedc1f9706ab612aaf06"
+    }
+  ]
+}

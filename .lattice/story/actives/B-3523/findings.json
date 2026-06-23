@@ -1,0 +1,54 @@
+{
+  "findings": [
+    {
+      "id": "B-3523:F-001",
+      "desc": "Renamed @lattice packages still encode stale 0.3.1 cross-dependencies that do not resolve under the new scope. packages/main depends on @lattice/lab@0.3.1, while lab/utils depend on @lattice/core@0.3.1 even though core is 0.3.65. Dry-run installs fail with E404/ETARGET for @lattice/lab@0.3.1 and @lattice/core@0.3.1, but scripts/verify-global-lab-entrypoint.mjs versions passes because EXPECTED_EXTENSION_VERSION is hard-coded to 0.3.1. This leaves install/publish metadata broken and the verifier blessing the stale manual lock/manifest edits.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-22T23:25:26.921Z",
+      "reviewRound": "2026-06-22T23:21:17.622Z",
+      "reviewRunId": "B-3523:RR-002",
+      "_hash": "9f4b6d649efaa62b6c587c12ce0480c07fccd92f15928bdd8843d2e2eb8a79f5",
+      "files": [
+        "packages/main/package.json",
+        "packages/main/package-lock.json",
+        "packages/lab/package.json",
+        "packages/utils/package.json",
+        "scripts/verify-global-lab-entrypoint.mjs"
+      ],
+      "signatureTag": "missing|json|renamed-lattice-packages",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commit ca6818920: @lattice/core, @lattice/utils, and @lattice/lab now share version 0.3.65; inter-package deps use @lattice/core@0.3.65 and @lattice/lab@0.3.65; packages/main/lab/utils package-lock dry-run installs pass; verify-global-lab-entrypoint now expects 0.3.65.",
+      "resolvedAt": "2026-06-22T23:31:24.841Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-3523:F-002",
+      "desc": "Current CHK-004 Codex adapter verification is not re-attestable after the merge: `node bin/lattice.js verify_codex` exits 1 with hard failure `global-fallback-heartbeat`, and `node scripts/verify-codex-assets.mjs` exits 1 on the same assertion (`global fallback heartbeat should override inherited local-wrapper entrypoint`). The printed fallback heartbeat command itself succeeds when run directly but takes about 20s; `runCodexAdapterChecks` uses a 10s default timeout, so the authoritative verify command times out its embedded session_brief heartbeat. Because CHK-004 evidence explicitly depended on `lattice verify_codex && node scripts/verify-codex-assets.mjs`, test-coverage cannot mark B-3523 clean until this verification path passes or the evidence is updated with an intentional waiver. Package dry-runs, validate, done_required, quorum status, runtime fact/entrypoint/global-lab/koala-residue checks, and experiments/recovery-runner unrelatedness all passed; this finding is limited to the current Codex adapter verification failure.",
+      "severity": "high",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-23T00:01:37.393Z",
+      "reviewRound": "2026-06-22T23:51:43.015Z",
+      "reviewRunId": "B-3523:RR-012",
+      "_hash": "3ce9aa1abe44f110079c738dbf9e7abd325cec23bbe17543a86ea519ea98a502",
+      "files": [
+        "packages/main/src/core/codex-adapter-checks.ts",
+        "packages/main/src/handlers/codex-adapter.ts",
+        "scripts/verify-codex-assets.mjs"
+      ],
+      "signatureTag": "edge|ts|current-codex-adapter",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commit e501cd61b: Codex adapter heartbeat defaults are split so the local wrapper remains 10s while global fallback heartbeat gets a 30s default; explicit timeoutMs still overrides both. Verified with npm --prefix packages/main run build, node bin/lattice.js verify_codex, node scripts/verify-codex-assets.mjs, node scripts/verify-entrypoints.mjs, and node scripts/verify-runtime-fact-contract.mjs.",
+      "resolvedAt": "2026-06-23T00:12:41.478Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

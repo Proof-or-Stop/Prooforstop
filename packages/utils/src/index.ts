@@ -1,8 +1,8 @@
 /**
- * @lattice-agent/utils public entry point
+ * @lattice/utils public entry point
  *
  * Usage (inside a bootstrap script):
- *   import { register, utilsToolDefs } from '@lattice-agent/utils';
+ *   import { register, utilsToolDefs } from '@lattice/utils';
  *   register(registry, ctx);
  *   await runCli({ extraTools: utilsToolDefs });
  */

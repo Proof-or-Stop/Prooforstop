@@ -4,33 +4,449 @@
       "id": "CHK-001",
       "title": "Rename the 3 package.json names + cross-deps @lattice-agent -> @lattice",
       "context": "packages/main/package.json name @lattice-agent/core -> @lattice/core; packages/utils/package.json name @lattice-agent/utils -> @lattice/utils; packages/lab/package.json name @lattice-agent/lab -> @lattice/lab. Update every inter-package dependency entry (utils->@lattice/core, lab->@lattice/core, main->@lattice/lab). Then run a real `npm install` at the repo root so node_modules/@lattice/* workspace symlinks are created (do NOT symlink node_modules in this worktree). Keep the top-level package `name: lattice` and the `lattice` bin unchanged.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-22T23:16:02.538Z",
+      "endTime": "2026-06-22T23:16:10.631Z",
+      "userSees": "Package metadata checks show @lattice/core, @lattice/utils, and @lattice/lab; the root package remains `lattice`, the CLI bin remains `lattice`, and `node bin/lattice.js --version` prints `Lattice CLI 0.3.65`.",
+      "files": {
+        "modify": [
+          "package.json",
+          "package-lock.json",
+          "packages/main/package.json",
+          "packages/main/package-lock.json",
+          "packages/utils/package.json",
+          "packages/utils/package-lock.json",
+          "packages/lab/package.json",
+          "packages/lab/package-lock.json"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-global-lab-entrypoint.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "package.json names are @lattice/core, @lattice/utils, and @lattice/lab with root name still lattice.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "workspace dependency edges use @lattice/lab and @lattice/core, not @lattice-agent/*.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "package-lock.json and packages/main/package-lock.json are regenerated consistently instead of leaving stale package names.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "rg over package manifests finds no live @lattice-agent or @koala-agent package dependency.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "node package/package-lock scope assertion",
+          "result": "pass",
+          "note": "Verified root package remains lattice; packages/main is @lattice/core; packages/utils is @lattice/utils; packages/lab is @lattice/lab; all three Lattice packages are version 0.3.65.",
+          "headHash": "da8cec930dd9b2520e23693364b8ede543373645",
+          "materialHash": "ddc1d5c74a7c59e647c3244c4cd3b083a55b1729d52063152ea488d689da92dc",
+          "storyFilesHash": "be890f162aa0bf02b7837d4f8747349c5bb5f330a82282a26785828318bc4d2a",
+          "timestamp": "2026-06-23T00:13:04.869Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "logic_test",
+          "command": "node package/package-lock scope assertion plus dry-run installs",
+          "result": "pass",
+          "note": "Verified inter-package dependencies: core depends on @lattice/lab@0.3.65; utils and lab depend on @lattice/core@0.3.65; dry-run package-lock installs pass for main/lab/utils.",
+          "headHash": "da8cec930dd9b2520e23693364b8ede543373645",
+          "materialHash": "ddc1d5c74a7c59e647c3244c4cd3b083a55b1729d52063152ea488d689da92dc",
+          "storyFilesHash": "be890f162aa0bf02b7837d4f8747349c5bb5f330a82282a26785828318bc4d2a",
+          "timestamp": "2026-06-23T00:13:04.869Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main install --package-lock-only --dry-run --ignore-scripts && npm --prefix packages/lab install --package-lock-only --dry-run --ignore-scripts && npm --prefix packages/utils install --package-lock-only --dry-run --ignore-scripts",
+          "result": "pass",
+          "note": "Verified package-lock metadata for main/lab/utils resolves after the @lattice rename instead of pointing to unpublished stale 0.3.1 packages.",
+          "headHash": "da8cec930dd9b2520e23693364b8ede543373645",
+          "materialHash": "ddc1d5c74a7c59e647c3244c4cd3b083a55b1729d52063152ea488d689da92dc",
+          "storyFilesHash": "be890f162aa0bf02b7837d4f8747349c5bb5f330a82282a26785828318bc4d2a",
+          "timestamp": "2026-06-23T00:13:04.869Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "rg -n \"@lattice-agent|@koala-agent\" package.json package-lock.json packages/main/package.json packages/main/package-lock.json packages/utils/package.json packages/utils/package-lock.json packages/lab/package.json packages/lab/package-lock.json || true",
+          "result": "pass",
+          "note": "No @lattice-agent or @koala-agent residues were found in live package manifests or package locks.",
+          "headHash": "da8cec930dd9b2520e23693364b8ede543373645",
+          "materialHash": "ddc1d5c74a7c59e647c3244c4cd3b083a55b1729d52063152ea488d689da92dc",
+          "storyFilesHash": "be890f162aa0bf02b7837d4f8747349c5bb5f330a82282a26785828318bc4d2a",
+          "timestamp": "2026-06-23T00:13:04.869Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "Flip the 27 internal imports + self-host name constants to @lattice/core",
       "context": "Rewrite all `from '@lattice-agent/...'` / `require('@lattice-agent/...')` imports (27 in packages/**/src) to `@lattice/...`. Update self-host detection: CANONICAL_CORE_PACKAGE_NAME in runtime-environment-checks.ts, handlers/test-auto.ts, handlers/worktree.ts -> '@lattice/core'; rollout-check.ts `mainPackageName === '@lattice-agent/core'` -> '@lattice/core'; cli-init.ts dev-host import. Rebuild packages (utils then main then lab) tsc-clean; confirm `node bin/lattice.js --version` still resolves and runs under the new scope.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-22T23:16:17.675Z",
+      "endTime": "2026-06-22T23:16:56.131Z",
+      "userSees": "`node bin/lattice.js --version` still prints Lattice CLI 0.3.65 after TypeScript imports, self-host constants, and generated local bootstrap paths use @lattice/core.",
+      "files": {
+        "modify": [
+          "packages/main/src/init-assets.ts",
+          "packages/main/src/cli-init.ts",
+          "packages/main/src/cli.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/core/rollout-check.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/runtime-fact-registry.ts",
+          "packages/main/src/core/zod.ts",
+          "packages/main/src/handlers/test-auto.ts",
+          "packages/main/src/handlers/worktree.ts",
+          "packages/main/src/tasks/version-bump-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "packages/utils/src/index.ts",
+          "packages/utils/src/register.ts",
+          "packages/utils/src/tool-defs.ts",
+          "packages/lab/src/index.ts",
+          "packages/lab/src/register.ts",
+          "packages/lab/src/tool-defs.ts"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-runtime-fact-contract.mjs",
+          "scripts/verify-entrypoints.mjs",
+          "packages/main/src/tasks/version-bump-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "TypeScript source imports and self-host constants use @lattice/core or @lattice/* where they refer to live packages.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Generated bin/lattice.js bootstrap searches node_modules/@lattice/core before global fallback.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "No @lattice-agent/core runtime candidate remains in active bootstrap or runtime fact paths.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A stale global lattice is rejected unless it exposes the required aux_doc_list and verify_codex commands.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && npm --prefix packages/utils run build && npm --prefix packages/lab run build",
+          "result": "pass",
+          "note": "All three TypeScript packages build under @lattice/core, @lattice/utils, and @lattice/lab; live TypeScript imports/constants compile.",
+          "headHash": "da8cec930dd9b2520e23693364b8ede543373645",
+          "materialHash": "ddc1d5c74a7c59e647c3244c4cd3b083a55b1729d52063152ea488d689da92dc",
+          "storyFilesHash": "be890f162aa0bf02b7837d4f8747349c5bb5f330a82282a26785828318bc4d2a",
+          "timestamp": "2026-06-23T00:13:04.869Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "logic_test",
+          "command": "node scripts/verify-entrypoints.mjs",
+          "result": "pass",
+          "note": "Entry point verifier confirms generated local bootstrap searches node_modules/@lattice/core and rejects stale global fallback without required commands.",
+          "headHash": "da8cec930dd9b2520e23693364b8ede543373645",
+          "materialHash": "ddc1d5c74a7c59e647c3244c4cd3b083a55b1729d52063152ea488d689da92dc",
+          "storyFilesHash": "be890f162aa0bf02b7837d4f8747349c5bb5f330a82282a26785828318bc4d2a",
+          "timestamp": "2026-06-23T00:13:04.869Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "rg retired @lattice-agent runtime candidates in active src and verifier files",
+          "result": "pass",
+          "note": "Only anti-regression assertions remain for retired @lattice-agent/core; no live runtime candidate or bootstrap path uses it.",
+          "headHash": "da8cec930dd9b2520e23693364b8ede543373645",
+          "materialHash": "ddc1d5c74a7c59e647c3244c4cd3b083a55b1729d52063152ea488d689da92dc",
+          "storyFilesHash": "be890f162aa0bf02b7837d4f8747349c5bb5f330a82282a26785828318bc4d2a",
+          "timestamp": "2026-06-23T00:13:04.869Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "node scripts/verify-runtime-fact-contract.mjs && node packages/main/dist/tasks/version-bump-smoke.js && node packages/main/dist/tasks/validation-protocol-smoke.js && node bin/lattice.js --version",
+          "result": "pass",
+          "note": "Runtime contract, version-bump fixture, validation-protocol runtime fixture, and local CLI version all pass with @lattice/core.",
+          "headHash": "da8cec930dd9b2520e23693364b8ede543373645",
+          "materialHash": "ddc1d5c74a7c59e647c3244c4cd3b083a55b1729d52063152ea488d689da92dc",
+          "storyFilesHash": "be890f162aa0bf02b7837d4f8747349c5bb5f330a82282a26785828318bc4d2a",
+          "timestamp": "2026-06-23T00:13:04.869Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
       "title": "Fix pre-push self-host check + retire legacy @koala-agent/core global fallback",
       "context": ".githooks/pre-push (lines ~24, ~148): change the self-host package-name check from @koala-agent/core to @lattice/core so the build+tsc gate runs for this repo (update done-full-test-gate-execution-plan.md notes that flag this as pending). codex-adapter-checks.ts globalCoreCandidates: drop the @koala-agent/core entry (and per PLAN decision, optionally the @lattice-agent/core transitional entry), leaving @lattice/core; update worktree-repair-smoke.ts / flow-stability-smoke.ts legacy-fallback fixtures accordingly. Update verify-runtime-fact-contract.mjs / verify-entrypoints.mjs / verify-global-lab-entrypoint.mjs assertions to the @lattice/core canonical name. Keep verify-koala-residue.mjs as the residue checker but ensure it still passes and also guards the absence of a live @lattice-agent scope.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-22T23:17:04.126Z",
+      "endTime": "2026-06-22T23:17:57.788Z",
+      "userSees": "`.githooks/pre-push` identifies this repository as @lattice/core for the self-host build+tsc gate, and global fallback checks no longer search @koala-agent/core.",
+      "files": {
+        "modify": [
+          ".githooks/pre-push",
+          "packages/main/src/core/codex-adapter-checks.ts",
+          "packages/main/src/tasks/worktree-repair-smoke.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "scripts/verify-runtime-fact-contract.mjs",
+          "scripts/verify-entrypoints.mjs",
+          "scripts/verify-global-lab-entrypoint.mjs",
+          "scripts/verify-koala-residue.mjs",
+          "scripts/verify-*.mjs",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-runtime-fact-contract.mjs",
+          "scripts/verify-entrypoints.mjs",
+          "scripts/verify-global-lab-entrypoint.mjs",
+          "scripts/verify-koala-residue.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "pre-push package-name check matches @lattice/core and therefore runs for proofbound self-host pushes.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "global fallback heartbeat candidates include @lattice/core only for live Lattice core resolution.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "@koala-agent/core remains only as a forbidden residue pattern or historical mention, not as a live fallback candidate.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Runtime fact verifier fails if @koala-agent/core fallback or @lattice-agent/core canonical naming is reintroduced.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "node pre-push self-host package assertion",
+          "result": "pass",
+          "note": ".githooks/pre-push checks @lattice/core and no longer checks @koala-agent/core as the self-host package name.",
+          "headHash": "da8cec930dd9b2520e23693364b8ede543373645",
+          "materialHash": "ddc1d5c74a7c59e647c3244c4cd3b083a55b1729d52063152ea488d689da92dc",
+          "storyFilesHash": "be890f162aa0bf02b7837d4f8747349c5bb5f330a82282a26785828318bc4d2a",
+          "timestamp": "2026-06-23T00:13:04.869Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "logic_test",
+          "command": "node scripts/verify-runtime-fact-contract.mjs && node scripts/verify-entrypoints.mjs",
+          "result": "pass",
+          "note": "Runtime facts and generated bootstrap verifier pass with @lattice/core as the live global core package and no live @koala-agent/core fallback.",
+          "headHash": "da8cec930dd9b2520e23693364b8ede543373645",
+          "materialHash": "ddc1d5c74a7c59e647c3244c4cd3b083a55b1729d52063152ea488d689da92dc",
+          "storyFilesHash": "be890f162aa0bf02b7837d4f8747349c5bb5f330a82282a26785828318bc4d2a",
+          "timestamp": "2026-06-23T00:13:04.869Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "rg @koala-agent/core and @lattice-agent/core in runtime/hook/verifier files",
+          "result": "pass",
+          "note": "Remaining old-scope references are anti-regression assertions or a legacy symlink fixture; no live fallback candidate resolves @koala-agent/core.",
+          "headHash": "da8cec930dd9b2520e23693364b8ede543373645",
+          "materialHash": "ddc1d5c74a7c59e647c3244c4cd3b083a55b1729d52063152ea488d689da92dc",
+          "storyFilesHash": "be890f162aa0bf02b7837d4f8747349c5bb5f330a82282a26785828318bc4d2a",
+          "timestamp": "2026-06-23T00:13:04.869Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "node scripts/verify-runtime-fact-contract.mjs && node scripts/verify-global-lab-entrypoint.mjs",
+          "result": "pass",
+          "note": "Verifiers explicitly fail if retired @lattice-agent/core canonical naming or @koala-agent/core dependencies/fallback are reintroduced.",
+          "headHash": "da8cec930dd9b2520e23693364b8ede543373645",
+          "materialHash": "ddc1d5c74a7c59e647c3244c4cd3b083a55b1729d52063152ea488d689da92dc",
+          "storyFilesHash": "be890f162aa0bf02b7837d4f8747349c5bb5f330a82282a26785828318bc4d2a",
+          "timestamp": "2026-06-23T00:13:04.869Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
       "title": "Update hooks + docs to @lattice; run all self-host gates green",
       "context": "Update .codex/hooks + .claude/hooks, README.md, CLAUDE.md, CHANGELOG.md, and the couple of decision docs that name @lattice-agent as the current scope (NOT frozen .lattice/ history or docs/koala/ audits). Acceptance: `git grep -nE '@lattice-agent' -- . ':(exclude).lattice/**'` shows no LIVE current-scope reference (only intentional anti-residue assertions naming it as forbidden, if any, are justified); `git grep '@koala-agent/core'` shows only the residue-checker pattern + anti-residue assertions, no live fallback. Run green: full build + recursive tsc --noEmit, `lattice codex verify`, `lattice rollout check`, the koala-residue + runtime-fact + entrypoints verifiers, and confirm .githooks/pre-push now executes its build+tsc path under @lattice/core.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-22T23:18:04.979Z",
+      "endTime": "2026-06-22T23:20:51.601Z",
+      "userSees": "After build and relink, `command -v lattice`, `lattice --version`, `npm ls -g --depth=0`, and an Orchestrate-root story_create attempt prove the global CLI runs from @lattice/core in proofbound and the retired root still refuses new writes.",
+      "files": {
+        "modify": [
+          ".codex/hooks/lattice-scope-pretool.cjs",
+          ".claude/hooks/lattice-scope-pretool.cjs",
+          "README.md",
+          "CLAUDE.md",
+          "AGENTS.md",
+          "CHANGELOG.md",
+          "docs/requirements/decisions/authority-client-role.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-codex-assets.mjs",
+          "scripts/verify-koala-residue.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Active README/CLAUDE/runtime guidance names @lattice/core as the canonical global package.",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "Codex and Claude hook assets resolve node_modules/@lattice/core rather than @lattice-agent/core.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Global lattice relink resolves through @lattice/core and reports Lattice CLI 0.3.65.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Historical docs may retain old names only when they are clearly historical and not current installation guidance.",
+            "type": "docs",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Running lattice from retired Orchestrate still blocks new story creation and prints Use canonicalRoot: /Users/jek/Documents/Work/proofbound.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "rg active guidance excludes live @lattice-agent package instructions except anti-residue assertions.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "docs_check",
+          "command": "rg retired @lattice-agent names in active guidance; rg @lattice/core in README/CLAUDE/docs/runtime guidance",
+          "result": "pass",
+          "note": "Active README/CLAUDE/runtime/decision guidance names @lattice/core; no active guidance references @lattice-agent/{core,utils,lab}.",
+          "headHash": "da8cec930dd9b2520e23693364b8ede543373645",
+          "materialHash": "ddc1d5c74a7c59e647c3244c4cd3b083a55b1729d52063152ea488d689da92dc",
+          "storyFilesHash": "be890f162aa0bf02b7837d4f8747349c5bb5f330a82282a26785828318bc4d2a",
+          "timestamp": "2026-06-23T00:13:04.869Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "logic_test",
+          "command": "lattice verify_codex && node scripts/verify-codex-assets.mjs",
+          "result": "pass",
+          "note": "Codex verification passed 8/8; Codex and Claude hook assets resolve node_modules/@lattice/core and managed prompt assets match runtime.",
+          "headHash": "da8cec930dd9b2520e23693364b8ede543373645",
+          "materialHash": "ddc1d5c74a7c59e647c3244c4cd3b083a55b1729d52063152ea488d689da92dc",
+          "storyFilesHash": "be890f162aa0bf02b7837d4f8747349c5bb5f330a82282a26785828318bc4d2a",
+          "timestamp": "2026-06-23T00:13:04.869Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:2",
+          "kind": "manual_transcript",
+          "command": "npm link packages/main as @lattice/core; command -v lattice; npm ls -g --depth=0; lattice --version",
+          "result": "pass",
+          "note": "Global lattice bin points to @lattice/core and reports Lattice CLI 0.3.65. During the story it points to the B-3523 worktree; after DONE merge it must be relinked to canonical proofbound main.",
+          "headHash": "da8cec930dd9b2520e23693364b8ede543373645",
+          "materialHash": "ddc1d5c74a7c59e647c3244c4cd3b083a55b1729d52063152ea488d689da92dc",
+          "storyFilesHash": "be890f162aa0bf02b7837d4f8747349c5bb5f330a82282a26785828318bc4d2a",
+          "timestamp": "2026-06-23T00:13:04.869Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "docs_check",
+          "command": "rg active guidance for retired scope plus CHANGELOG historical scan",
+          "result": "pass",
+          "note": "Historical CHANGELOG entries can still mention retired package names; current execution docs and runtime guidance use @lattice/core.",
+          "headHash": "da8cec930dd9b2520e23693364b8ede543373645",
+          "materialHash": "ddc1d5c74a7c59e647c3244c4cd3b083a55b1729d52063152ea488d689da92dc",
+          "storyFilesHash": "be890f162aa0bf02b7837d4f8747349c5bb5f330a82282a26785828318bc4d2a",
+          "timestamp": "2026-06-23T00:13:04.869Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "lattice story_create from /Users/jek/Documents/Work/Orchestrate",
+          "result": "pass",
+          "note": "Retired Orchestrate root rejects mutating story_create and prints Use canonicalRoot: /Users/jek/Documents/Work/proofbound.",
+          "headHash": "da8cec930dd9b2520e23693364b8ede543373645",
+          "materialHash": "ddc1d5c74a7c59e647c3244c4cd3b083a55b1729d52063152ea488d689da92dc",
+          "storyFilesHash": "be890f162aa0bf02b7837d4f8747349c5bb5f330a82282a26785828318bc4d2a",
+          "timestamp": "2026-06-23T00:13:04.869Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:1",
+          "kind": "logic_test",
+          "command": "node scripts/verify-koala-residue.mjs && rg retired package names in active guidance",
+          "result": "pass",
+          "note": "Koala residue gate passes with 0 unclassified; retired @lattice-agent names remain only in anti-regression assertions or historical changelog.",
+          "headHash": "da8cec930dd9b2520e23693364b8ede543373645",
+          "materialHash": "ddc1d5c74a7c59e647c3244c4cd3b083a55b1729d52063152ea488d689da92dc",
+          "storyFilesHash": "be890f162aa0bf02b7837d4f8747349c5bb5f330a82282a26785828318bc4d2a",
+          "timestamp": "2026-06-23T00:13:04.869Z"
+        }
+      ]
     }
   ]
 }

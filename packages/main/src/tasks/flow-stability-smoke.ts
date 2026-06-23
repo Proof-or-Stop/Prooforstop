@@ -2618,7 +2618,7 @@ function assertGlobalLinkRepair(): void {
     const worktree = join(root, 'repo', '.worktrees', 'B-smoke');
     const worktreePackage = join(worktree, 'packages', 'main');
     const mainPackage = join(mainRepo, 'packages', 'main');
-    const globalPackage = join(root, 'global', 'node_modules', '@lattice-agent', 'core');
+    const globalPackage = join(root, 'global', 'node_modules', '@lattice', 'core');
     mkdirSync(worktreePackage, { recursive: true });
     mkdirSync(mainPackage, { recursive: true });
     mkdirSync(dirname(globalPackage), { recursive: true });

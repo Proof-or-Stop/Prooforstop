@@ -23,7 +23,7 @@ import {
   createIsolatedHandlers, createTempStoryFactory, cleanupTempStories, cleanupFixtureDir,
 } from './test-runner-core.js';
 
-const CANONICAL_CORE_PACKAGE_NAME = '@lattice-agent/core';
+const CANONICAL_CORE_PACKAGE_NAME = '@lattice/core';
 
 /**
  * @task B-4b17

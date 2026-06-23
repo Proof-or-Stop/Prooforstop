@@ -300,7 +300,7 @@ async function main() {
   const projectRoot = dirname(binDir);
   const coreCliEngineCandidates = [
     join(projectRoot, 'packages', 'main', 'dist', 'cli-engine.js'),
-    join(projectRoot, 'node_modules', '@lattice-agent', 'core', 'dist', 'cli-engine.js'),
+    join(projectRoot, 'node_modules', '@lattice', 'core', 'dist', 'cli-engine.js'),
     join(${jsString(packageRootAbs)}, 'dist', 'cli-engine.js'),
   ];
 
@@ -322,13 +322,13 @@ async function main() {
   });
   const help = String(probe.stdout || '') + String(probe.stderr || '');
   if (probe.status !== 0 || !help.includes('aux_doc_list') || !help.includes('verify_codex')) {
-    console.error('bin/lattice.js could not find a local @lattice-agent/core CLI engine or a capable global lattice.');
+    console.error('bin/lattice.js could not find a local @lattice/core CLI engine or a capable global lattice.');
     console.error('');
     console.error('Checked local candidates:');
     for (const candidate of coreCliEngineCandidates) console.error(\`  - \${candidate}\`);
     console.error('');
     console.error('Recovery:');
-    console.error('  - Install or update @lattice-agent/core, then rerun: lattice init --verify-codex');
+    console.error('  - Install or update @lattice/core, then rerun: lattice init --verify-codex');
     console.error('  - In the Lattice repository, run: npm run build');
     process.exit(1);
   }
@@ -579,7 +579,7 @@ function findRepoRoot(start) {
 function resolveCli(root) {
   const jsCandidates = [
     path.join(root, 'packages', 'main', 'dist', 'cli.js'),
-    path.join(root, 'node_modules', '@lattice-agent', 'core', 'dist', 'cli.js'),
+    path.join(root, 'node_modules', '@lattice', 'core', 'dist', 'cli.js'),
     path.join(root, 'bin', 'lattice.js'),
   ];
   for (const candidate of jsCandidates) {

@@ -1,0 +1,33 @@
+{
+  "task": "Rename Lattice npm package scope from @lattice-agent to @lattice and keep canonical-root guards working.",
+  "outcome": "When the user runs `lattice --version` and checks the global installation, the binary resolves through @lattice/core from /Users/jek/Documents/Work/proofbound/packages/main; when a host accidentally runs `lattice story_create` inside /Users/jek/Documents/Work/Orchestrate, the CLI refuses and prints `Use canonicalRoot: /Users/jek/Documents/Work/proofbound`.",
+  "facts": [
+    "proofbound main currently exposes @lattice-agent/core as the global package name.",
+    "The user explicitly said Lattice is not an Agent and the package should be @lattice/core.",
+    "Orchestrate is retired and must remain blocked for new Lattice writes.",
+    "Legacy @koala-agent fallback should stay retired rather than revived.",
+    "Active package/runtime guidance must use @lattice/core; purely historical docs may retain old names only when they describe past state and do not guide current execution."
+  ],
+  "constraints": [
+    "Do not add aliases that blur Lattice host-neutral workflow semantics.",
+    "Only fix real correctness issues: package identity, self-host detection, global fallback, and generated bootstrap paths.",
+    "Keep logic consistent across package manifests, runtime checks, hooks, generated templates, and smoke verifiers.",
+    "Do not optimize or rename unrelated historical prose solely for cleanup."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "package.json",
+    "package-lock.json",
+    "packages/main/package.json",
+    "packages/utils/package.json",
+    "packages/lab/package.json",
+    "packages/main/src/core/runtime-environment-checks.ts",
+    "packages/main/src/init-assets.ts",
+    "packages/main/src/core/codex-adapter-checks.ts",
+    ".githooks/pre-push",
+    "scripts/verify-*.mjs",
+    "CLAUDE.md",
+    "AGENTS.md"
+  ],
+  "timestamp": "2026-06-22T23:00:18.234Z"
+}
