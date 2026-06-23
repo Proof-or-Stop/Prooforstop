@@ -25,6 +25,7 @@ import {
   checkAcceptance,
   checkHiddenRegression,
   checkDiffHygiene,
+  DEFAULT_JUNK_PATTERNS,
 } from './checks.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -190,6 +191,32 @@ try {
     eq('hr corrupt-baseline: pass false (no free pass)', rCorrupt.hiddenRegressionPass, false);
   }
 
+  // F-A PIN: a baseline that IS an array but contains an entry with NO derivable id
+  // ([{message:"old"}]) is CORRUPT — it would silently drop from the keyed set, so a clean delta
+  // cannot be computed => fail-safe false. (Fails on old code, which returned true here.)
+  {
+    const r = hiddenRegression({ baselineFailures: [{ message: 'old' }], postFailures: [] });
+    eq('hr F-A corrupt-baseline-entry: pass false (no derivable id => fail-safe)', r.hiddenRegressionPass, false);
+    ok('hr F-A corrupt-baseline-entry: newFailures reflects inability to compute delta', r.newFailures.length > 0);
+  }
+  // F-A PIN: a baseline with a mix of one good + one id-less entry is still corrupt overall.
+  {
+    const r = hiddenRegression({ baselineFailures: [{ id: 'a' }, { message: 'no-id' }], postFailures: ['a'] });
+    eq('hr F-A mixed-corrupt-baseline: pass false', r.hiddenRegressionPass, false);
+  }
+  // F-A PIN: a CORRUPT post entry (no derivable id) must also fail-safe — NOT be silently skipped.
+  // (Fails on old code, which `continue`d past id-less post entries and returned true.)
+  {
+    const r = hiddenRegression({ baselineFailures: ['a'], postFailures: [{ message: 'no-id-here' }] });
+    eq('hr F-A corrupt-post-entry: pass false (id-less post entry fails closed)', r.hiddenRegressionPass, false);
+    ok('hr F-A corrupt-post-entry: newFailures reflects inability to compute delta', r.newFailures.length > 0);
+  }
+  // F-A PIN: a non-array post snapshot is corrupt (coercion must not mask it) => fail-safe.
+  {
+    const r = hiddenRegression({ baselineFailures: ['a'], postFailures: 'not-an-array' });
+    eq('hr F-A non-array-post: pass false (corrupt post snapshot)', r.hiddenRegressionPass, false);
+  }
+
   // ===== (3) diffHygiene ====================================================
   // happy: all changed paths within allowedPaths, no junk => pass true, no violations.
   {
@@ -231,6 +258,39 @@ try {
     const r = diffHygiene({ changedPaths: ['src/.env'], allowedPaths: ['src'] });
     eq('dh junk-env: pass false', r.diffHygienePass, false);
     ok('dh junk-env: reason junk-artifact', r.violations.some((v) => v.path === 'src/.env' && v.reason === 'junk-artifact'));
+  }
+
+  // F-B PIN: external mutation of the EXPORTED DEFAULT_JUNK_PATTERNS must NOT change scoring.
+  // Capture the baseline result for a .env junk path, attempt to neuter the default junk list in
+  // process (length=0 / push), re-run the SAME input, and assert the result is UNCHANGED (still
+  // false). On old code (mutable global read directly by diffHygiene) the second run would flip to
+  // true; on fixed code the frozen private snapshot keeps it false.
+  {
+    const input = { changedPaths: ['src/.env'], allowedPaths: ['src'] };
+    const before = diffHygiene(input);
+    eq('dh F-B before-mutation: pass false (.env junk detected)', before.diffHygienePass, false);
+
+    // (a) the exported array is frozen: a length-mutation throws in strict mode (ES module) — or at
+    // minimum has no effect. Either way scoring must be unaffected. We tolerate the throw.
+    let threwOnLength = false;
+    try { DEFAULT_JUNK_PATTERNS.length = 0; } catch { threwOnLength = true; }
+    let threwOnPush = false;
+    try { DEFAULT_JUNK_PATTERNS.push(/never-match-this-sentinel-xyz/); } catch { threwOnPush = true; }
+    let threwOnIndex = false;
+    try { DEFAULT_JUNK_PATTERNS[0] = /also-overwritten-sentinel/; } catch { threwOnIndex = true; }
+    ok('dh F-B: frozen array rejects mutation (throws in strict mode or no-ops)',
+      threwOnLength || DEFAULT_JUNK_PATTERNS.length > 0);
+    ok('dh F-B: frozen array rejects push (throws or no-ops)',
+      threwOnPush || !DEFAULT_JUNK_PATTERNS.some((re) => String(re).includes('never-match-this-sentinel-xyz')));
+    ok('dh F-B: frozen array rejects index write (throws or no-ops)',
+      threwOnIndex || !String(DEFAULT_JUNK_PATTERNS[0]).includes('also-overwritten-sentinel'));
+
+    // The load-bearing assertion: scoring on the SAME input is unchanged after the mutation attempt.
+    const after = diffHygiene(input);
+    eq('dh F-B after-mutation: pass STILL false (mutation did not affect scoring)', after.diffHygienePass, false);
+    ok('dh F-B after-mutation: .env still flagged junk-artifact',
+      after.violations.some((v) => v.path === 'src/.env' && v.reason === 'junk-artifact'));
+    eq('dh F-B: result identical before/after mutation', before.diffHygienePass, after.diffHygienePass);
   }
 
   // adversarial: node_modules under an allowed path => junk.

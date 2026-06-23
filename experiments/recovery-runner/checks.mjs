@@ -60,7 +60,14 @@ function defaultRunAcceptance() {
 // Default junk / forbidden artifact patterns for diff-hygiene (regex over the normalized path).
 // These are flagged even when the path is technically under an allowed prefix — compiled output,
 // secrets, logs, OS cruft, and dependency trees must never appear in an arm's diff.
-export const DEFAULT_JUNK_PATTERNS = [
+//
+// TAMPER-PROOF: the exported array is Object.freeze'd so an in-process attacker cannot mutate the
+// scorer's defaults (e.g. `DEFAULT_JUNK_PATTERNS.length = 0` to disable junk detection). A frozen
+// array silently ignores length/index writes in sloppy mode and THROWS in strict mode; this module
+// is an ES module (always strict), so any mutation attempt throws rather than altering scoring.
+// Belt-and-suspenders: diffHygiene also takes its OWN internal copy of the defaults each call (see
+// JUNK_PATTERNS_FROZEN below) so it never reads through a reference that could have been swapped.
+export const DEFAULT_JUNK_PATTERNS = Object.freeze([
   /(^|\/)\.env(\.[^/]*)?$/, // .env and .env.* (concrete env / secret files)
   /(^|\/)node_modules(\/|$)/, // dependency tree
   /\.so$/, // shared objects
@@ -75,7 +82,14 @@ export const DEFAULT_JUNK_PATTERNS = [
   /\.tmp$/, // temp files
   /\.swp$/, // vim swap
   /(^|\/)\.DS_Store$/, // mac finder cruft
-];
+]);
+
+// Internal immutable snapshot of the default junk patterns, captured at module load. diffHygiene
+// reads from THIS frozen copy (never the live exported array) when no junkPatterns are supplied, so
+// even if the exported reference were somehow replaced or its (frozen) contents bypassed, scoring is
+// computed from a private, unreachable list. The RegExp objects themselves are non-global (no
+// mutable lastIndex), so no per-call defensive reconstruction is needed for determinism.
+const JUNK_PATTERNS_FROZEN = Object.freeze([...DEFAULT_JUNK_PATTERNS]);
 
 function toRegExp(p) {
   if (p instanceof RegExp) {
@@ -169,27 +183,49 @@ export function harnessAcceptance({ acceptanceScriptPath, expectedHash, runAccep
 // Failures are keyed by test IDENTITY (test id / name), NOT by error message: the SAME test name
 // failing with a different message is the SAME pre-existing failure, not a new regression.
 // newFailures = post-state failures whose id is NOT present in the baseline failure set.
-// hiddenRegressionPass = (newFailures.length === 0) AND the baseline is present/valid.
-// FAIL-SAFE: if baselineFailures is null/missing/corrupted (not an array of identifiable entries),
-// hiddenRegressionPass is false — a corrupted baseline must never give a free pass.
+// hiddenRegressionPass = (newFailures.length === 0) AND both snapshots are present/valid.
+// FAIL-SAFE: if baselineFailures is null/missing/corrupted, hiddenRegressionPass is false — a
+// corrupted baseline must never give a free pass. "Corrupted" means NOT an array, OR an array
+// containing ANY entry with no derivable id (the same id key used to match). A single unidentifiable
+// entry would silently drop out of the keyed set, so a clean delta cannot be computed → fail-safe.
+// The SAME id-derivability rule is applied to postFailures: an unidentifiable post entry is itself a
+// corrupt snapshot (it would silently escape the new-failure count), so it also fail-closes — it is
+// NOT silently skipped. newFailures reflects the inability to compute a clean delta in that case.
 export function hiddenRegression({ baselineFailures, postFailures } = {}) {
   // A valid baseline must be an array (it may be empty: "all tests passed before").
   if (!Array.isArray(baselineFailures)) {
     return { hiddenRegressionPass: false, newFailures: [] };
   }
 
+  // FAIL-SAFE: every baseline entry must yield a derivable id. A single corrupt entry (e.g.
+  // {message:"old"} with no id/name/testId) makes the baseline set unreliable — we cannot know which
+  // failures it was meant to represent — so we refuse to compute a delta and fail closed.
   const baselineIds = new Set();
   for (const f of baselineFailures) {
     const id = failureId(f);
-    if (id !== '') baselineIds.add(id);
+    if (id === '') {
+      return { hiddenRegressionPass: false, newFailures: ['corrupt-baseline-entry'] };
+    }
+    baselineIds.add(id);
   }
 
+  // postFailures must also be an array of identifiable entries. A non-array post snapshot is corrupt;
+  // toArray would coerce it, masking the corruption — so require an array explicitly. (A null/missing
+  // post is allowed and means "no failures": toArray(null) -> [], handled by the array check below.)
+  if (postFailures != null && !Array.isArray(postFailures)) {
+    return { hiddenRegressionPass: false, newFailures: ['corrupt-post-snapshot'] };
+  }
   const post = toArray(postFailures);
+
   const seen = new Set();
   const newFailures = [];
   for (const f of post) {
     const id = failureId(f);
-    if (id === '') continue; // unidentifiable post entry: cannot key it; skip (not counted new)
+    if (id === '') {
+      // FAIL-SAFE: an unidentifiable post entry could be a regression we cannot key — never drop it
+      // silently. Refuse the clean-delta and fail closed.
+      return { hiddenRegressionPass: false, newFailures: ['corrupt-post-entry'] };
+    }
     if (baselineIds.has(id)) continue; // pre-existing failure (any error message) => not new
     if (seen.has(id)) continue; // de-dupe a repeated new id
     seen.add(id);
@@ -232,7 +268,9 @@ function failureId(f) {
 export function diffHygiene({ changedPaths, allowedPaths, junkPatterns } = {}) {
   const paths = toArray(changedPaths).map(asString).filter((p) => p.length > 0);
   const allowed = toArray(allowedPaths).map(toRegExp);
-  const junk = (junkPatterns != null ? toArray(junkPatterns) : DEFAULT_JUNK_PATTERNS).map(toRegExp);
+  // Caller-supplied junkPatterns are honored; otherwise read the PRIVATE frozen snapshot (never the
+  // mutable exported array) so external mutation of DEFAULT_JUNK_PATTERNS cannot change scoring.
+  const junk = (junkPatterns != null ? toArray(junkPatterns) : JUNK_PATTERNS_FROZEN).map(toRegExp);
 
   const violations = [];
   for (const orig of paths) {
