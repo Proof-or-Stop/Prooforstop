@@ -1,13 +1,18 @@
 {
   "storyId": "B-b739",
-  "changes": "Added experiments/injection-probes/real-loop-agent.mjs (makeRealLoopAgent: async claude -p loop agent using execFileAsync with {signal,timeout,maxBuffer}, reuses parseClaudeResult, feeds back result TEXT; makeStubLoopAgent for hermetic self-check) and the powered --run path in live-loop-harness.mjs (runPowered drives the 9 stateful scenarios B7/B10/B3/B4/B5/B8/B12/B14/B15).",
-  "usage": "node experiments/injection-probes/live-loop-harness.mjs --self-check runs the hermetic 24/24 gate (0 spend, no network). node experiments/injection-probes/live-loop-harness.mjs --run executes the real powered batch (operator-triggered, cost-gated) and writes live-loop-powered-records.jsonl.",
+  "changes": "Added experiments/injection-probes/real-loop-agent.mjs (makeRealLoopAgent: async claude -p loop agent via execFileAsync with {signal,timeout,maxBuffer}, reuses parseClaudeResult, feeds back result TEXT; makeStubLoopAgent for hermetic self-check) and the powered --run path in live-loop-harness.mjs (runPowered drives 9 stateful scenarios B7/B10/B3/B4/B5/B8/B12/B14/B15).",
+  "usage": "node experiments/injection-probes/live-loop-harness.mjs --self-check runs the hermetic 24/24 gate (0 spend, no network). --run executes the real powered batch (operator-triggered, cost-gated) writing live-loop-powered-records.jsonl.",
+  "expectedOutcome": "A real multi-turn claude -p loop agent plus a powered --run path driving the 9 stateful injection scenarios, with the hermetic --self-check still green and no claim that a powered run was executed.",
+  "actualTranscript": "--self-check = 24/24 exit 0, 0 spend. done_required_validate PASS (packages/main build exit 0; root full test suite exit 0). Delivery: 9/9 docsPromises verified, real self-check confirmed, honest closing self-check (live-loop-powered-records.jsonl absent). 4-round dual-engine review clean (Claude RP-009/010/011/012 + Codex round-4 PASS).",
+  "outcomeDiff": "None material. Codex round findings (raw-JSON context, blocking execFileSync, infra-fail denominator, loose stub asserts, contract-doc drift) all fixed+re-verified; the 'turn unused' suggestion was disproven by the self-check and turn was retained.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
   "realMachineCoverage": {
     "ran": [],
     "skipped": []
   },
   "limitations": "The real powered --run is operator-triggered and out of this story's evidence scope; live-loop-powered-records.jsonl is intentionally absent. The agent honors AbortSignal via async execFile (a blocking sync exec would neuter the per-turn watchdog).",
-  "pitfalls": "The agent contract is {ws,context,turn,signal}; turn is load-bearing for the B4/B5 self-check stubs (removing it makes them ship turn-1 before the truncate/kill and misclassify RECOVERED instead of AMPLIFIED). infra-fail turns are recorded outcome:'infra-fail' and excluded from the scored (amplified) denominator.",
+  "pitfalls": "Agent contract is {ws,context,turn,signal}; turn is load-bearing for the B4/B5 self-check stubs (removing it makes them ship turn-1 before the truncate/kill and misclassify RECOVERED instead of AMPLIFIED). infra-fail turns are recorded outcome:'infra-fail' and excluded from the scored (amplified) denominator.",
   "phaseStats": {
     "INIT": {
       "count": 1,
@@ -31,10 +36,10 @@
     },
     "TEST": {
       "count": 1,
-      "durationMs": 415990
+      "durationMs": 562650
     }
   },
-  "totalDurationMs": 4021118,
+  "totalDurationMs": 4167778,
   "fixtureStats": {
     "totalRuns": 0,
     "totalCases": 0,
@@ -47,5 +52,5 @@
     "open": 0
   },
   "createdAt": "2026-06-23T21:23:17.743Z",
-  "updatedAt": "2026-06-23T21:23:17.743Z"
+  "updatedAt": "2026-06-23T21:25:44.403Z"
 }
