@@ -20,6 +20,26 @@
       ],
       "signatureTag": "missing|ts|test-coverage-load",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-6320:F-002",
+      "desc": "packages/main/src/core/authority-client.ts:1546-1550 only rejects provider === fake after calling normalizeAuthorityRunnerProvider. That normalizer lowercases only known aliases/canonical codex/gemini but preserves unknown raw values (authority-mode.ts:420-426), and the command schema now accepts any non-empty provider string (command-catalog.ts:2227). As a result, authority_job_create --provider Fake or FAKE is treated as a custom non-fake declaration and can be signed/submitted even though the job-create path promises a non-fake provider declaration. Fix by rejecting the reserved fake provider case-insensitively (for example, check raw.trim().toLowerCase().replace(/_/g, -) === fake) before preserving custom provider spelling.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-23T03:22:10.200Z",
+      "reviewRound": "2026-06-23T03:17:34.962Z",
+      "reviewRunId": "B-6320:RR-005",
+      "_hash": "21be31c39cdc93c75e9de632c390a1dddbf6cbf7570c80d16d18169680d9816e",
+      "files": [
+        "packages/main/src/core/authority-client.ts",
+        "packages/main/src/core/authority-mode.ts",
+        "packages/main/src/cli/command-catalog.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
