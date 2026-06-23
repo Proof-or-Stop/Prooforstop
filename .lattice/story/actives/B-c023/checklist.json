@@ -132,6 +132,19 @@
           "materialHash": "cc7b2f4abf957694f53348e5369cbe571df6a0a5de3a1ff8c0718f75ef7d9c13",
           "storyFilesHash": "8758cca7c08e977170081a6e60c7b422053ec2d9573a6398c41a0abfb89cf4be",
           "timestamp": "2026-06-23T12:52:20.082Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/injection-probes/live-loop-harness.mjs",
+          "command": "node experiments/injection-probes/live-loop-harness.mjs --self-check",
+          "result": "pass",
+          "note": "no-progress fake agent triggers maxTurns stop (SAFE_STOP) not an infinite loop; self-check asserts the bound.",
+          "headHash": "4f97a6f55a76fcd5f623db227da08bb5f87d9c21",
+          "materialHash": "cc7b2f4abf957694f53348e5369cbe571df6a0a5de3a1ff8c0718f75ef7d9c13",
+          "storyFilesHash": "8758cca7c08e977170081a6e60c7b422053ec2d9573a6398c41a0abfb89cf4be",
+          "timestamp": "2026-06-23T12:52:20.782Z"
         }
       ]
     }
