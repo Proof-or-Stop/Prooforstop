@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-23T10:16:12.002Z",
       "reviewRunId": "B-c356:RR-001",
       "_hash": "beff47d073c061a00281ceb345871d6e1b98db995bc6b8e6eed79869a970b1a2"
+    },
+    {
+      "id": "B-c356:RP-003",
+      "agent": "lattice-review-docs",
+      "note": "PASS docs lane. Reviewed changed markdown prompt touchpoints and derived result artifact. External docs do not need broad updates for this narrow reviewer prompt change. Prompt and result artifact stay within correctness-review guidance, require both job.metadata and linked run.metadata, reject one-location/client-controlled/stale metadata, and explicitly avoid receipt-backed production/Authority proof claims. Checks run: rg focused over changed prompt/result files, node packages/main/dist/tasks/prompt-registry-smoke.js, JSON parse of result artifact, git diff --check main...HEAD.",
+      "createdAt": "2026-06-23T10:21:00.458Z",
+      "reviewRound": "2026-06-23T10:16:12.002Z",
+      "reviewRunId": "B-c356:RR-003",
+      "_hash": "b5417ae19883c374db748ea5dc13ddc8ecb7c7d0b07f124ed2430f559b52f15f"
     }
   ]
 }
