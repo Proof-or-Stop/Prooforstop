@@ -239,6 +239,17 @@
           "materialHash": "71fd662a6cc4efe4c3dde9ac6c352f3d722e22b76e080754e3bdfe8066ba89fd",
           "storyFilesHash": "64ca7bcb634a24f4d3189c4ccc36f942cb702b845ce2072ba08f8dc6ae82cdce",
           "timestamp": "2026-06-23T14:05:28.562Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:4",
+          "kind": "logic_test",
+          "command": "node /tmp/b837-env-check.mjs",
+          "result": "pass",
+          "note": "Called isUsageLedgerEnabled({LATTICE_USAGE_LEDGER:'1'}); returned true — LATTICE_ env still controls ledger after KOALA_ alias removal.",
+          "headHash": "bd0c73c75d6606a73ed0448c633d8632c649983f",
+          "materialHash": "71fd662a6cc4efe4c3dde9ac6c352f3d722e22b76e080754e3bdfe8066ba89fd",
+          "storyFilesHash": "64ca7bcb634a24f4d3189c4ccc36f942cb702b845ce2072ba08f8dc6ae82cdce",
+          "timestamp": "2026-06-23T14:05:29.267Z"
         }
       ]
     },
