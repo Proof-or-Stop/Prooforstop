@@ -197,9 +197,9 @@
       "id": "CHK-004",
       "title": "Pluggable engine + validity filter + offline self-check",
       "context": "Inject the per-cell engine so the driver core runs with a deterministic stub (no live model). Validity filter: infra/harness failure => mark run void, re-run, log reason; task-level failures kept as real outcomes. Add run-driver-selfcheck.mjs asserting enumeration count, applicability filtering, denominator-set assignment, schema conformance of every emitted record, void-re-run behaviour, and seeded-order determinism; wire it into npm test.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-23T11:41:50.830Z",
       "verificationIntent": {
         "happy": [
           {
