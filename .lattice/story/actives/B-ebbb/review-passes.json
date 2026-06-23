@@ -1,0 +1,58 @@
+{
+  "passes": [
+    {
+      "id": "B-ebbb:RP-001",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed checks.mjs + checks-selfcheck.mjs (commit 2584c0402). Dead code: none — createHash and readFileSync both used; all 7 selfcheck imports used; no commented-out blocks. Type safety: catch in harnessAcceptance has non-empty body (scriptHash set to empty string); no as-any; no empty swallowing catches. Shell isolation: bridge.ts absent, N/A. Correctness: hash computed BEFORE runAcceptance call (anti-gaming verified by selfcheck calls=0 on mismatch); hiddenRegression keys by id not message; null/corrupt baseline is fail-safe false; normalizePath escape-then-continue always flags path-traversal-escape; DEFAULT_JUNK_PATTERNS all non-global/non-sticky (14 patterns); caller-supplied global/sticky regex stripped in toRegExp() — no lastIndex mutation risk. hashOk as distinct signal correct (3 distinguishable states). Dual export aliases are same function reference. 99/99 selfcheck assertions passed offline. 0 findings.",
+      "createdAt": "2026-06-23T10:25:55.576Z",
+      "reviewRound": "2026-06-23T10:22:36.868Z",
+      "reviewRunId": "B-ebbb:RR-001",
+      "_hash": "a316816597d10ddeaf6428226ff8b156cfa7e34408cd46a7e3f27e21528360cb"
+    },
+    {
+      "id": "B-ebbb:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Concept residue check complete. No concept deletion or replacement in this commit. The three introduced concepts (harnessAcceptance/acceptancePass, hiddenRegression/hiddenRegressionPass, diffHygiene/diffHygienePass) are fully consistent with pre-reg §2/§4.1/§7. §7 camelCase field names are exact in checks.mjs exports and selfcheck assertions. Dual primary+alias exports (checkAcceptance===harnessAcceptance, etc.) are reference-identical — no concept confusion. hiddenPass in pre-existing adjudicate.mjs is a distinct adjudicator input field (different layer, separate story), not residue. No snake_case residue found (single grep hit is a regex inside a test assertion string). All imports in checks.mjs are node: builtins only. No half-wired concepts, no stale naming, no doc-promise-undelivered issues.",
+      "createdAt": "2026-06-23T10:26:01.855Z",
+      "reviewRound": "2026-06-23T10:22:36.868Z",
+      "reviewRunId": "B-ebbb:RR-003",
+      "_hash": "08c9bffbf24ae7094fc2feb6223bd2e5ad502dd596a945c62df025c7f3121ca6"
+    },
+    {
+      "id": "B-ebbb:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. All 39 intents (CHK-001 through CHK-005: 7+8+8+4+12) bound to node experiments/recovery-runner/checks-selfcheck.mjs; selfcheck ran offline 99/99 pass, no LLM; validate allPass:true 0 missingRequired; key adversarial assertions confirmed in source: tampered-script-hash runner-not-called (spy 0 calls at line 88), NEW-failure-vs-baseline (hr remove+add line 179-180), path-traversal escape (line 253-254), junk-under-allowed-path (src/.env and src/node_modules lines 232-240); negative control CHK-005:adversarial:2 forced hashOk=true caused 12/99 failures confirming non-vacuous suite.",
+      "createdAt": "2026-06-23T10:31:42.295Z",
+      "reviewRound": "2026-06-23T10:22:36.868Z",
+      "reviewRunId": "B-ebbb:RR-002",
+      "_hash": "57d3c4a0efcbe02492b4a964c0fcfdb92ae283ee7ace47857e2da987478d757f"
+    },
+    {
+      "id": "B-ebbb:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Round 2 quality review: CLEAN. F-A fix correctly fail-closes on id-less baseline entries (early return instead of silent continue), id-less post entries (early return instead of silent skip), and non-array post (explicit guard before toArray). F-B fix correctly freezes DEFAULT_JUNK_PATTERNS with Object.freeze and diffHygiene reads private JUNK_PATTERNS_FROZEN snapshot — external mutation cannot affect scoring. New selfcheck pins exercise all three F-A branches and the mutation-then-rescore F-B scenario. All 112 assertions pass. No dead code, no unused imports, no type-safety issues, no missing I/O shell isolation concerns in the changed files (checks.mjs / checks-selfcheck.mjs are pure logic, no bridge). Zero findings.",
+      "createdAt": "2026-06-23T10:40:58.443Z",
+      "reviewRound": "2026-06-23T10:39:35.759Z",
+      "reviewRunId": "B-ebbb:RR-004",
+      "_hash": "e0b8e1ff8770f2a8ee5867e925ffa8056ded4eb620314fd1f3d62bb9d043a599"
+    },
+    {
+      "id": "B-ebbb:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 concept review clean. Fix commit a9881124c introduces two concepts: (1) fail-closed hiddenRegression — corrupt baseline/post entries now return hiddenRegressionPass:false instead of silently continuing; old `continue` on id=== is gone with zero residue. (2) tamper-proof DEFAULT_JUNK_PATTERNS — Object.freeze on export + private JUNK_PATTERNS_FROZEN internal snapshot; diffHygiene reads the private copy. Runtime verification confirms: frozen=true, all four fail-closed cases return false, diffHygiene .env detection unchanged. Residue grep for old silent-skip semantics in checks.mjs/checks-selfcheck.mjs shows only explanatory comments (describing old behavior being fixed), not code residue. No other callers of hiddenRegression outside the two checks files. JUNK_PATTERNS_FROZEN is unexported/private. No concept deletion/replacement with lingering residue. No blocker.",
+      "createdAt": "2026-06-23T10:41:03.335Z",
+      "reviewRound": "2026-06-23T10:39:35.759Z",
+      "reviewRunId": "B-ebbb:RR-006",
+      "_hash": "6e0f07788568aa8b71ef4a10edd5485bc3f07ba0c072d8e8fa99e885b968bc8b"
+    },
+    {
+      "id": "B-ebbb:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 39 intents CLI-bound, 0 must-gaps, 0 waivers. Selfcheck 112/112 pass (no LLM). Two new pins verified non-vacuous: CHK-002:adversarial:1 (id-less baseline entry -> fail-closed, real assertions at lines 199-217) and CHK-003:adversarial:0 (DEFAULT_JUNK_PATTERNS mutation -> scoring unchanged, real assertions at lines 271-293). validate allPass true, missingRequired 0.",
+      "createdAt": "2026-06-23T10:52:26.149Z",
+      "reviewRound": "2026-06-23T10:39:35.759Z",
+      "reviewRunId": "B-ebbb:RR-005",
+      "_hash": "8613f7ad64696e61b1691714a95d5d40667dd6b06b8d3faedfcd08e9099197d9"
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "schemaVersion": "lattice.workflow_efficiency_baseline_result.v1",
+  "baselineId": "lattice-workflow-efficiency-baseline-v1",
+  "story": "B-d43b",
+  "baselineDimension": "codexAdapterGateScope",
+  "createdAt": "2026-06-23T10:54:11Z",
+  "result": {
+    "localAdapterGateScopeEvidenceOnly": true,
+    "providerOnlyCodexTextIgnored": true,
+    "adapterSurfaceEvidenceRequired": true,
+    "coveredAdapterSurfaces": [
+      ".lattice-codex",
+      "lattice-codex",
+      "codex adapter",
+      "verify_codex",
+      "bin/lattice-codex.js",
+      ".codex/hooks.json",
+      "lattice codex verify",
+      "lattice codex doctor"
+    ],
+    "authorityChanged": false,
+    "authorityServerContact": false,
+    "receiptVerified": false,
+    "productionDone": false,
+    "claimsAuthorityOrProductionProof": false
+  },
+  "configuration": {
+    "smokeTest": "packages/main/src/tasks/codex-adapter-gate-scope-smoke.ts",
+    "validateCommand": "node packages/main/dist/tasks/codex-adapter-gate-scope-smoke.js",
+    "validateFocus": "fast",
+    "matcherSourceChanged": false,
+    "proofBoundary": "Local adapter gate scope regression evidence only; no Authority or production proof."
+  },
+  "verification": [
+    {
+      "command": "npm --prefix packages/main run build",
+      "status": "PASS"
+    },
+    {
+      "command": "node packages/main/dist/tasks/codex-adapter-gate-scope-smoke.js",
+      "status": "PASS",
+      "observed": "✓ codex adapter gate scope smoke passed: provider-only Codex text ignored; adapter surfaces required"
+    },
+    {
+      "command": "lattice validate --focus=fast --json",
+      "status": "PASS"
+    },
+    {
+      "command": "node -e \"JSON.parse(require('node:fs').readFileSync('experiments/baselines/lattice-workflow-efficiency-baseline-v1-B-d43b-codex-adapter-gate-scope-result.json', 'utf8')); console.log('json parse ok')\"",
+      "status": "PASS",
+      "observed": "json parse ok"
+    },
+    {
+      "command": "git diff --check",
+      "status": "PASS"
+    }
+  ],
+  "immutableBaselineFileModified": false
+}

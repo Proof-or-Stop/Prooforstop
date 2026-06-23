@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-d43b",
+  "allowedCommands": [
+    "lattice done_required_validate --storyId=<storyId> --json",
+    "lattice validate --focus=fast --json",
+    "lattice validate --story=<storyId> --json",
+    "node -e <json-parse-check>",
+    "node packages/main/dist/tasks/codex-adapter-gate-scope-smoke.js",
+    "npm --prefix packages/main run build"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
+    "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+    "experiments/baselines/",
+    "lattice.config.json",
+    "packages/main/src/core/codex-adapter-checks.ts",
+    "packages/main/src/tasks/codex-adapter-gate-scope-smoke.ts"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    "experiments/baselines/lattice-workflow-efficiency-baseline-v1.json",
+    "packages/main/src/core/authority-client.ts",
+    "packages/main/src/core/authority-contracts.ts",
+    "packages/main/src/handlers/authority-enforce.ts"
+  ],
+  "confirmedBy": "codex",
+  "confirmationNote": "Narrow execution boundary for baseline item 3 regression coverage and validation wiring only.",
+  "createdAt": "2026-06-23T10:45:52.376Z",
+  "updatedAt": "2026-06-23T10:45:52.376Z",
+  "_hash": "2e0439d4e4c8d08d1f3ce63a56f7ca9c1a130f90ddc9d3ae733bb5046bcae99c"
+}

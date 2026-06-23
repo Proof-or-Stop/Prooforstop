@@ -1,0 +1,21 @@
+{
+  "storyId": "B-ebbb",
+  "mode": "enforce",
+  "allowedModify": [],
+  "allowedCreate": [
+    "experiments/recovery-runner/checks.mjs",
+    "experiments/recovery-runner/checks-selfcheck.mjs"
+  ],
+  "allowedTest": [
+    "experiments/recovery-runner/checks-selfcheck.mjs"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [
+    "core/**",
+    "packages/**"
+  ],
+  "scopeChangeReason": "scoring-checks module + offline unit test.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-23T10:03:32.229Z",
+  "updatedAt": "2026-06-23T10:03:32.229Z"
+}

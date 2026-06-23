@@ -4,7 +4,7 @@
   "title": "Add proof metadata job-and-run review checklist coverage",
   "description": "Baseline item 2 showed that proof metadata spoofing checks were found too late. This story updates Lattice reviewer guidance and regression coverage so server-authored proof keys are reviewed in both job metadata and linked run metadata during the first review cycle.",
   "type": "chore",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "medium",
   "keywords": [
     "workflow-efficiency-baseline",
@@ -13,7 +13,7 @@
   ],
   "createdAt": "2026-06-23T09:56:30.572Z",
   "startedAt": "2026-06-23T09:56:30.572Z",
-  "endedAt": null,
+  "endedAt": "2026-06-23T10:43:19.594Z",
   "events": [
     {
       "phase": "INIT",
@@ -32,11 +32,70 @@
       "user": "Harmonygo",
       "sessionId": "sess-7f55c8d5292c7c45",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-23T10:01:02.811Z",
+      "branch": "story/B-c356",
+      "user": "Harmonygo",
+      "sessionId": "sess-75b03c051991525c",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-23T10:04:33.299Z",
+      "branch": "story/B-c356",
+      "user": "Harmonygo",
+      "sessionId": "sess-75b03c051991525c",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-23T10:16:12.002Z",
+      "branch": "story/B-c356",
+      "user": "Harmonygo",
+      "sessionId": "sess-75b03c051991525c",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-23T10:22:29.524Z",
+      "branch": "story/B-c356",
+      "user": "Harmonygo",
+      "sessionId": "sess-75b03c051991525c",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-23T10:24:17.375Z",
+      "branch": "story/B-c356",
+      "user": "Harmonygo",
+      "sessionId": "sess-75b03c051991525c",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-23T10:32:30.656Z",
+      "branch": "story/B-c356",
+      "user": "Harmonygo",
+      "sessionId": "sess-75b03c051991525c",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-23T10:43:19.594Z",
+      "branch": "story/B-c356",
+      "user": "Harmonygo",
+      "sessionId": "sess-75b03c051991525c",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-c356",
-    "branch": "story/B-c356",
-    "createdAt": "2026-06-23T10:00:54.539Z"
-  }
+  "currentReviewRound": "2026-06-23T10:24:17.375Z"
 }

@@ -1,0 +1,68 @@
+{
+  "principles": [
+    "Correctness proof over broad optimization",
+    "Adapter evidence gate scope must stay semantic and narrow",
+    "Routine validation should catch regressions without weakening gates",
+    "Local evidence must not be described as Authority or production proof"
+  ],
+  "drivers": [
+    "Baseline dimension 3 requires provider-only Codex text not to trigger adapter evidence",
+    "Actual Codex adapter surfaces must still require verification",
+    "dist is ignored, so test execution must prove rebuilt runtime behavior"
+  ],
+  "options": [
+    {
+      "name": "smoke-and-validation-wiring",
+      "pros": [
+        "Captures the actual regression target directly",
+        "Avoids changing runtime matching when current logic is already correct",
+        "Runs against built dist after build"
+      ],
+      "cons": [
+        "Adds another validation command, so validate has a small extra cost"
+      ]
+    },
+    {
+      "name": "change-runtime-matcher",
+      "pros": [
+        "Could be used if smoke proves source behavior is wrong"
+      ],
+      "cons": [
+        "Risky without evidence because current matcher already appears adapter-surface-only",
+        "Could accidentally weaken adapter evidence requirements"
+      ]
+    },
+    {
+      "name": "documentation-only-result",
+      "pros": [
+        "Fastest to deliver"
+      ],
+      "cons": [
+        "Would not mechanically catch future provider-only false positives or source/dist drift"
+      ]
+    }
+  ],
+  "chosen": "smoke-and-validation-wiring",
+  "rationale": "The narrow smoke plus validation wiring proves the real baseline issue without arbitrary runtime changes, and it keeps adapter surfaces fail-closed.",
+  "preMortem": [
+    {
+      "scenario": "Provider-only fixture accidentally includes an adapter keyword such as verify_codex",
+      "trigger": "The smoke haystack is not carefully separated",
+      "consequence": "The test would falsely claim provider-only text requires no evidence while actually testing adapter text",
+      "mitigation": "Use separate provider-only and adapter-surface cases with explicit expected booleans."
+    },
+    {
+      "scenario": "New smoke imports source instead of rebuilt dist",
+      "trigger": "Test runs ts-node/source directly",
+      "consequence": "A missing rebuild/install step could still escape",
+      "mitigation": "Run npm build first and import from dist task in validation."
+    },
+    {
+      "scenario": "Validation wiring makes full validate materially slower",
+      "trigger": "Smoke does heavy filesystem setup or external commands",
+      "consequence": "It undermines the workflow-efficiency goal",
+      "mitigation": "Use a small in-memory fake store and no network or subprocess calls."
+    }
+  ],
+  "timestamp": "2026-06-23T10:49:11.696Z"
+}

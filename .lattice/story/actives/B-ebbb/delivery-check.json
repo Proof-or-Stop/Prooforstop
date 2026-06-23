@@ -1,0 +1,72 @@
+{
+  "storyId": "B-ebbb",
+  "checkedAt": "2026-06-23T10:59:16.613Z",
+  "reviewRound": "2026-06-23T10:39:35.759Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-ebbb/plan.md#CHK-001",
+      "promise": "checks.mjs exports harnessAcceptance that hashes the acceptance script BEFORE executing it (hash-checked anti-gaming, par2); returns {acceptancePass, scriptHash, hashOk}",
+      "status": "verified",
+      "verifiedBy": "diff/grep + real-machine selfcheck",
+      "evidence": "harnessAcceptance lines 133-174: readFileSync+SHA-256 first; if (!hashOk) returns {acceptancePass:false} without calling runAcceptance. Selfcheck: acc-happy, acc-tampered (spy 0 calls), acc-missing, acc-empty-expected all pass. node checks-selfcheck.mjs => 112 assertions passed exit 0."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-ebbb/plan.md#CHK-002",
+      "promise": "checks.mjs exports hiddenRegression returning {hiddenRegressionPass, newFailures}; fail-closed on null/corrupt/id-less baseline or post entries (F-A fix)",
+      "status": "verified",
+      "verifiedBy": "diff/grep + real-machine selfcheck",
+      "evidence": "hiddenRegression lines 177-237: !Array.isArray->false; id-less baseline entry -> corrupt-baseline-entry; id-less post entry -> corrupt-post-entry; non-array post -> corrupt-post-snapshot. F-A pin tests all pass. 112 assertions passed exit 0."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-ebbb/plan.md#CHK-003",
+      "promise": "checks.mjs exports diffHygiene returning {diffHygienePass, violations}; DEFAULT_JUNK_PATTERNS Object.freeze-d; diffHygiene reads private JUNK_PATTERNS_FROZEN snapshot not exported reference (F-B fix)",
+      "status": "verified",
+      "verifiedBy": "diff/grep + real-machine selfcheck",
+      "evidence": "Object.freeze([]) line 70 for export; JUNK_PATTERNS_FROZEN = Object.freeze([...DEFAULT_JUNK_PATTERNS]) line 92; diffHygiene reads JUNK_PATTERNS_FROZEN line 273. F-B pin: mutation attempt does not affect scoring. 112 assertions passed exit 0."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-ebbb/plan.md#CHK-004",
+      "promise": "All three par7 schema field names used as literal return keys: acceptancePass, hiddenRegressionPass, diffHygienePass (camelCase exact, no snake_case)",
+      "status": "verified",
+      "verifiedBy": "grep + real-machine selfcheck",
+      "evidence": "grep shows all three names as return-object keys. Selfcheck par7 block: hasOwnProperty checks, no snake_case, case-exact, no extra boolean pass fields. 112 assertions passed exit 0."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-ebbb/plan.md#CHK-005",
+      "promise": "checks-selfcheck.mjs is fully offline; node: builtins + local checks.mjs only; 112 assertions; exit 0; no subprocess/LLM; negative control (forced hashOk=true -> selfcheck FAILS)",
+      "status": "verified",
+      "verifiedBy": "real-machine execution",
+      "evidence": "node checks-selfcheck.mjs => 112 assertions passed no live LLM exit 0. node --check both files => exit 0. Offline source-guard: zero spawn/execSync/fetch/http/claude needles. Negative control confirmed: forced hashOk=true -> 12 of 99 failed exit 1."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "node experiments/recovery-runner/checks-selfcheck.mjs => 112 assertions passed, no live LLM, exit 0. happy (hash+run->pass), happy2 (hash ok but script fails), tampered (spy 0 calls proves hash checked before run), tampered2 (different bytes), missing script (empty hash), empty expectedHash. Anti-gaming: runAcceptance not invoked on hashOk=false verified by spy."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "node experiments/recovery-runner/checks-selfcheck.mjs => 112 assertions passed, no live LLM, exit 0. happy (no new), new failure detected, pre-existing not re-flagged, empty post (pass), clean-baseline+failure (fail), remove+add (new still reported), same-id-diff-msg (pre-existing). F-A pins: null/missing/non-array baseline, id-less baseline entry, id-less post entry, non-array post all fail-closed."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "node experiments/recovery-runner/checks-selfcheck.mjs => 112 assertions passed, no live LLM, exit 0. happy, out-of-scope, empty-changed (pass), empty-allowed (fail), prefix-trick, junk .env, junk node_modules, junk .so, traversal escape, in-scope dotdot ok. F-B: frozen DEFAULT_JUNK_PATTERNS + private JUNK_PATTERNS_FROZEN; mutation attempt does not change scoring."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "node experiments/recovery-runner/checks-selfcheck.mjs => 112 assertions passed, no live LLM, exit 0. par7 block: hasOwnProperty for all three names; no snake_case; case-exact; exact boolean key sets per check."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "node checks-selfcheck.mjs => 112 passed exit 0. node --check checks.mjs => exit 0. node --check checks-selfcheck.mjs => exit 0. Offline guard: zero forbidden needle matches. Negative control: forced hashOk=true -> 12 of 99 failed exit 1 (tamper-detection confirmed)."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 5 plan.md promises verified from source (diff+grep) and confirmed by live machine execution: node checks-selfcheck.mjs printed 112 assertions passed no live LLM exit 0. Both HIGH host-2 findings fixed: F-A (corrupt-baseline/post fail-closed) and F-B (frozen junk-patterns private snapshot). No TODO/FIXME/HACK in delivery files. Negative-control run (forced hashOk=true) confirmed selfcheck actually catches regressions."
+  },
+  "_hash": "665c5a24d6f87f875999ee08986ba5b40facd6b700900b606b5453ac2222c475"
+}

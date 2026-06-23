@@ -1,0 +1,36 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Enumerate the full pre-registered cell matrix honouring §3 applicability",
+      "context": "For each of the 5 arms x corpus task x {ablation null-scenario + each recovery scenario B1-B15} x k repeats, emit a cell ONLY when the scenario applies to that arm (B4/B5/B10 -> exclude A1; the other 12 -> all arms). N/A cells excluded and logged, never counted as failures. Seeded randomised run order (runOrderSeed) so ordering is deterministic+reproducible.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Canonicalise each raw run into the exact §7 run-record schema",
+      "context": "Assemble {runId, arm, taskId, scenarioId|null, repeat, modelId, headHash, materialHash, tokensSpent, wallClockMs, agentCallCount, acceptancePass, hiddenRegressionPass, diffHygienePass, unsafeChecks{forbiddenPath,secretScan,perms,forbiddenCreate,destructiveCmd}, adjudicatedOutcome(amplified|recovered|safe-stop|null), denominatorSets[], evidenceRefs[], harnessLogDigest, injectionApplied, runOrderSeed, applicable}. Derive adjudicatedOutcome via adjudicate.mjs and the three pass flags + unsafe detectors via checks.mjs; do not re-implement them.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Assign per-hypothesis common-cell denominator-set membership",
+      "context": "Each run records which pre-registered common-cell sets (the cells applicable to BOTH arms in a comparison, e.g. the A4-vs-A2prime set) it belongs to, so downstream rate computation has published denominators per §5/§3.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Pluggable engine + validity filter + offline self-check",
+      "context": "Inject the per-cell engine so the driver core runs with a deterministic stub (no live model). Validity filter: infra/harness failure => mark run void, re-run, log reason; task-level failures kept as real outcomes. Add run-driver-selfcheck.mjs asserting enumeration count, applicability filtering, denominator-set assignment, schema conformance of every emitted record, void-re-run behaviour, and seeded-order determinism; wire it into npm test.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
