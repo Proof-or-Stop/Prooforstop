@@ -50,7 +50,48 @@
         ],
         "create": [],
         "test": []
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/main-sync-readiness-smoke.ts",
+          "command": "node packages/main/dist/tasks/main-sync-readiness-smoke.js",
+          "result": "pass",
+          "note": "Smoke output main-sync-readiness smoke passed; it exercises session_brief and lifecycle REVIEW readiness for a local branch behind main, including behind count and done_prepare guidance.",
+          "headHash": "fdbdaba8e2aaec007781b6539b96ebecc4fc164a",
+          "materialHash": "57dea98296cf47d1130daf1560e560bf7498814700fd84ea441cb7327e5e2ff0",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-23T11:50:43.716Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/main-sync-readiness-smoke.ts",
+          "command": "node packages/main/dist/tasks/main-sync-readiness-smoke.js",
+          "result": "pass",
+          "note": "Smoke creates a story branch that already contains main and asserts no main-sync readiness warning appears in session_brief or lifecycle REVIEW readiness.",
+          "headHash": "fdbdaba8e2aaec007781b6539b96ebecc4fc164a",
+          "materialHash": "57dea98296cf47d1130daf1560e560bf7498814700fd84ea441cb7327e5e2ff0",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-23T11:50:43.716Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/main-sync-readiness-smoke.ts",
+          "command": "node packages/main/dist/tasks/main-sync-readiness-smoke.js",
+          "result": "pass",
+          "note": "Smoke snapshots phase, story metadata, git HEAD, git status, merge-base, and main-only files before and after readiness checks; REVIEW and TEST reports remain localReady with the advisory row non-blocking.",
+          "headHash": "fdbdaba8e2aaec007781b6539b96ebecc4fc164a",
+          "materialHash": "57dea98296cf47d1130daf1560e560bf7498814700fd84ea441cb7327e5e2ff0",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-23T11:50:43.716Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -103,7 +144,48 @@
         "test": [
           "packages/main/src/tasks/main-sync-readiness-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/main-sync-readiness-smoke.ts",
+          "command": "node packages/main/dist/tasks/main-sync-readiness-smoke.js",
+          "result": "pass",
+          "note": "Focused smoke passes and proves the behind-main advisory appears through the same session/lifecycle readiness surface added for CHK-001.",
+          "headHash": "fdbdaba8e2aaec007781b6539b96ebecc4fc164a",
+          "materialHash": "57dea98296cf47d1130daf1560e560bf7498814700fd84ea441cb7327e5e2ff0",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-23T11:50:43.716Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "lattice.config.json",
+          "command": "lattice validate --focus=fast --json",
+          "result": "pass",
+          "note": "Focused validate passed and included configured validate.commands[7]: node packages/main/dist/tasks/main-sync-readiness-smoke.js; the smoke proves synced branches have no false warning.",
+          "headHash": "fdbdaba8e2aaec007781b6539b96ebecc4fc164a",
+          "materialHash": "57dea98296cf47d1130daf1560e560bf7498814700fd84ea441cb7327e5e2ff0",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-23T11:50:43.716Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/main-sync-readiness-smoke.ts",
+          "command": "node packages/main/dist/tasks/main-sync-readiness-smoke.js",
+          "result": "pass",
+          "note": "Smoke proves the readiness path is read-only and non-blocking: no merge, no phase mutation, unchanged git state, and REVIEW/TEST readiness does not fail solely because the branch is behind main.",
+          "headHash": "fdbdaba8e2aaec007781b6539b96ebecc4fc164a",
+          "materialHash": "57dea98296cf47d1130daf1560e560bf7498814700fd84ea441cb7327e5e2ff0",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-23T11:50:43.716Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -149,7 +231,48 @@
           "experiments/baselines/lattice-workflow-efficiency-baseline-v1-B-4c48-main-sync-readiness-result.json"
         ],
         "test": []
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "experiments/baselines/lattice-workflow-efficiency-baseline-v1-B-4c48-main-sync-readiness-result.json",
+          "command": "node -e JSON.parse(require(node:fs).readFileSync(experiments/baselines/lattice-workflow-efficiency-baseline-v1-B-4c48-main-sync-readiness-result.json,utf8))",
+          "result": "pass",
+          "note": "Result artifact references baselineItem 4, story B-4c48, mainMergeReadiness, and the readiness behavior covered by the smoke.",
+          "headHash": "fdbdaba8e2aaec007781b6539b96ebecc4fc164a",
+          "materialHash": "57dea98296cf47d1130daf1560e560bf7498814700fd84ea441cb7327e5e2ff0",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-23T11:50:43.716Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "experiments/baselines/lattice-workflow-efficiency-baseline-v1.json",
+          "command": "git diff --name-only -- experiments/baselines/lattice-workflow-efficiency-baseline-v1.json",
+          "result": "pass",
+          "note": "Command produced no output, confirming the immutable baseline v1 file remains unchanged while the story writes a separate derived result artifact.",
+          "headHash": "fdbdaba8e2aaec007781b6539b96ebecc4fc164a",
+          "materialHash": "57dea98296cf47d1130daf1560e560bf7498814700fd84ea441cb7327e5e2ff0",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-23T11:50:43.716Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "experiments/baselines/lattice-workflow-efficiency-baseline-v1-B-4c48-main-sync-readiness-result.json",
+          "command": "node -e JSON.parse(require(node:fs).readFileSync(experiments/baselines/lattice-workflow-efficiency-baseline-v1-B-4c48-main-sync-readiness-result.json,utf8))",
+          "result": "pass",
+          "note": "Result artifact explicitly states localLifecycleReadinessCoverageOnly=true, authorityChanged=false, receiptVerified=false, productionDone=false, and claimsAuthorityOrProductionProof=false.",
+          "headHash": "fdbdaba8e2aaec007781b6539b96ebecc4fc164a",
+          "materialHash": "57dea98296cf47d1130daf1560e560bf7498814700fd84ea441cb7327e5e2ff0",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-23T11:50:43.716Z"
+        }
+      ]
     }
   ]
 }
