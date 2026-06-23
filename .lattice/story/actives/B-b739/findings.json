@@ -92,6 +92,23 @@
       ],
       "signatureTag": "adversarial|mjs|codex-host2-signal",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-b739:F-006",
+      "desc": "[codex-host2 C5] multi-turn context feeds RAW claude JSON back: output=out.slice(0,400) is the {subtype,result,total_cost_usd,...} envelope, appended to the next turn's context instead of the agent's result text -> the loop sees JSON metadata, may truncate the real answer. FIX: output = parsed j.result text. (Corroborates quality F-001.)",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex-host2",
+      "createdAt": "2026-06-23T20:33:36.484Z",
+      "reviewRound": "2026-06-23T20:27:12.983Z",
+      "_hash": "0edebef5f3b8daa5ac8987e6ce8328eddd2da88232540bdda713f4ecbd924fbe",
+      "files": [
+        "experiments/injection-probes/real-loop-agent.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|codex-host2-multi",
+      "signatureTagSource": "auto"
     }
   ]
 }
