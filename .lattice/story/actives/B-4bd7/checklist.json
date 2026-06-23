@@ -52,10 +52,10 @@
           "command": "rg -n \"experiments/baselines/lattice-workflow-efficiency-baseline-v1.json|Baseline registration story: B-4bd7\" docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
           "result": "pass",
           "note": "The decision document exists, names the baseline JSON path, and records registration story B-4bd7.",
-          "headHash": "e9747bbb06594342303173b4d2ab73a39de0a434",
-          "materialHash": "0d9f2577f41d2253710c551cea563c0235ba939ca4ed6acd74ab9d2a7dc1b3db",
-          "storyFilesHash": "715d0bdd1120533f244d302d1407db8719dff28f7690d6e82ef698d949e9269b",
-          "timestamp": "2026-06-23T04:23:29.789Z"
+          "headHash": "7d6223c8112f4ff4cb02b05ff232f8153db2bca5",
+          "materialHash": "7d6fe8405b2b0681f7ee51a76008298b4d23588df225f4fbfed0e3bb687bda69",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-23T04:57:19.260Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -64,10 +64,10 @@
           "command": "rg -n \"observedBefore|targetAfter|Machine Baseline Schema\" docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
           "result": "pass",
           "note": "The document separates observed baseline behavior from target follow-up behavior.",
-          "headHash": "e9747bbb06594342303173b4d2ab73a39de0a434",
-          "materialHash": "0d9f2577f41d2253710c551cea563c0235ba939ca4ed6acd74ab9d2a7dc1b3db",
-          "storyFilesHash": "715d0bdd1120533f244d302d1407db8719dff28f7690d6e82ef698d949e9269b",
-          "timestamp": "2026-06-23T04:23:29.789Z"
+          "headHash": "7d6223c8112f4ff4cb02b05ff232f8153db2bca5",
+          "materialHash": "7d6fe8405b2b0681f7ee51a76008298b4d23588df225f4fbfed0e3bb687bda69",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-23T04:57:19.260Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -76,10 +76,10 @@
           "command": "rg -n \"Do not implement the six fixes|Do not change Authority Server|Do not weaken review\" docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
           "result": "pass",
           "note": "Non-goals explicitly block arbitrary optimization, Authority Server changes, and gate weakening.",
-          "headHash": "e9747bbb06594342303173b4d2ab73a39de0a434",
-          "materialHash": "0d9f2577f41d2253710c551cea563c0235ba939ca4ed6acd74ab9d2a7dc1b3db",
-          "storyFilesHash": "715d0bdd1120533f244d302d1407db8719dff28f7690d6e82ef698d949e9269b",
-          "timestamp": "2026-06-23T04:23:29.789Z"
+          "headHash": "7d6223c8112f4ff4cb02b05ff232f8153db2bca5",
+          "materialHash": "7d6fe8405b2b0681f7ee51a76008298b4d23588df225f4fbfed0e3bb687bda69",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-23T04:57:19.260Z"
         }
       ]
     },
@@ -135,10 +135,10 @@
           "command": "jq . experiments/baselines/lattice-workflow-efficiency-baseline-v1.json >/dev/null",
           "result": "pass",
           "note": "The baseline JSON parses successfully.",
-          "headHash": "e9747bbb06594342303173b4d2ab73a39de0a434",
-          "materialHash": "0d9f2577f41d2253710c551cea563c0235ba939ca4ed6acd74ab9d2a7dc1b3db",
-          "storyFilesHash": "715d0bdd1120533f244d302d1407db8719dff28f7690d6e82ef698d949e9269b",
-          "timestamp": "2026-06-23T04:23:29.789Z"
+          "headHash": "7d6223c8112f4ff4cb02b05ff232f8153db2bca5",
+          "materialHash": "7d6fe8405b2b0681f7ee51a76008298b4d23588df225f4fbfed0e3bb687bda69",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-23T04:57:19.260Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -147,10 +147,10 @@
           "command": "node -e <six-dimension invariant check>",
           "result": "pass",
           "note": "registrationStory is B-4bd7 and observedBefore/targetAfter contain exactly the six expected dimensions.",
-          "headHash": "e9747bbb06594342303173b4d2ab73a39de0a434",
-          "materialHash": "0d9f2577f41d2253710c551cea563c0235ba939ca4ed6acd74ab9d2a7dc1b3db",
-          "storyFilesHash": "715d0bdd1120533f244d302d1407db8719dff28f7690d6e82ef698d949e9269b",
-          "timestamp": "2026-06-23T04:23:29.789Z"
+          "headHash": "7d6223c8112f4ff4cb02b05ff232f8153db2bca5",
+          "materialHash": "7d6fe8405b2b0681f7ee51a76008298b4d23588df225f4fbfed0e3bb687bda69",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-23T04:57:19.260Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -159,10 +159,10 @@
           "command": "jq -r .futureComparisonRules[] experiments/baselines/lattice-workflow-efficiency-baseline-v1.json",
           "result": "pass",
           "note": "futureComparisonRules declare the original baseline immutable and require separate result artifacts for future comparisons.",
-          "headHash": "e9747bbb06594342303173b4d2ab73a39de0a434",
-          "materialHash": "0d9f2577f41d2253710c551cea563c0235ba939ca4ed6acd74ab9d2a7dc1b3db",
-          "storyFilesHash": "715d0bdd1120533f244d302d1407db8719dff28f7690d6e82ef698d949e9269b",
-          "timestamp": "2026-06-23T04:23:29.789Z"
+          "headHash": "7d6223c8112f4ff4cb02b05ff232f8153db2bca5",
+          "materialHash": "7d6fe8405b2b0681f7ee51a76008298b4d23588df225f4fbfed0e3bb687bda69",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-23T04:57:19.260Z"
         }
       ]
     },
@@ -220,10 +220,10 @@
           "command": "jq parse plus node six-dimension invariant check",
           "result": "pass",
           "note": "Both parse and six-dimension invariant checks passed.",
-          "headHash": "e9747bbb06594342303173b4d2ab73a39de0a434",
-          "materialHash": "0d9f2577f41d2253710c551cea563c0235ba939ca4ed6acd74ab9d2a7dc1b3db",
-          "storyFilesHash": "715d0bdd1120533f244d302d1407db8719dff28f7690d6e82ef698d949e9269b",
-          "timestamp": "2026-06-23T04:23:29.789Z"
+          "headHash": "7d6223c8112f4ff4cb02b05ff232f8153db2bca5",
+          "materialHash": "7d6fe8405b2b0681f7ee51a76008298b4d23588df225f4fbfed0e3bb687bda69",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-23T04:57:19.260Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -231,10 +231,10 @@
           "command": "git diff --name-only main...HEAD | sort",
           "result": "pass",
           "note": "Changed files are limited to B-4bd7 story metadata plus the baseline document and baseline JSON.",
-          "headHash": "e9747bbb06594342303173b4d2ab73a39de0a434",
-          "materialHash": "0d9f2577f41d2253710c551cea563c0235ba939ca4ed6acd74ab9d2a7dc1b3db",
-          "storyFilesHash": "715d0bdd1120533f244d302d1407db8719dff28f7690d6e82ef698d949e9269b",
-          "timestamp": "2026-06-23T04:23:29.789Z"
+          "headHash": "7d6223c8112f4ff4cb02b05ff232f8153db2bca5",
+          "materialHash": "7d6fe8405b2b0681f7ee51a76008298b4d23588df225f4fbfed0e3bb687bda69",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-23T04:57:19.260Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -242,10 +242,10 @@
           "command": "git diff --name-only main...HEAD | sort",
           "result": "pass",
           "note": "No runtime source files, Authority Server behavior, provider authorization code, delivery-check freshness code, DONE summary code, or validate timeout behavior changed.",
-          "headHash": "e9747bbb06594342303173b4d2ab73a39de0a434",
-          "materialHash": "0d9f2577f41d2253710c551cea563c0235ba939ca4ed6acd74ab9d2a7dc1b3db",
-          "storyFilesHash": "715d0bdd1120533f244d302d1407db8719dff28f7690d6e82ef698d949e9269b",
-          "timestamp": "2026-06-23T04:23:29.789Z"
+          "headHash": "7d6223c8112f4ff4cb02b05ff232f8153db2bca5",
+          "materialHash": "7d6fe8405b2b0681f7ee51a76008298b4d23588df225f4fbfed0e3bb687bda69",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-23T04:57:19.260Z"
         }
       ]
     }
