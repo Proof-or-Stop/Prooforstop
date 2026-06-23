@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-73cf",
+  "mode": "correctness_fix",
+  "allowed": [
+    "Direct docs updates for this validate-cost baseline item",
+    "Focused smoke tests and derived baseline result artifact",
+    "Validate focused/full configuration and handler behavior",
+    "Validate timeout default/config adjustments"
+  ],
+  "excluded": [
+    "Authority Server behavior",
+    "Codex adapter behavior",
+    "delivery-check or DONE summary behavior",
+    "remote push or deployment",
+    "reviewer proof metadata policy"
+  ],
+  "confirmedBy": "codex",
+  "confirmationNote": "User requested fixing the six B-4bd7 baseline issues as separate stories until complete.",
+  "createdAt": "2026-06-23T05:02:00.688Z",
+  "updatedAt": "2026-06-23T05:02:00.688Z",
+  "_hash": "d2e6b0a4adbd0c30d3cb68f128a251770c5c1a37e89ea7daa4f1f167e967484e"
+}

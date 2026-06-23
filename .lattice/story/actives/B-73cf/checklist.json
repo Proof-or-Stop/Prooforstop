@@ -1,0 +1,106 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Define focused/full validation layering without weakening full validation",
+      "context": "Use docs/requirements/decisions/lattice-workflow-efficiency-baseline.md item validateCostAndTimeoutRisk. Add a narrow config/CLI behavior so development can run focused checks while final validation remains full.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md"
+      ],
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A focused validate profile runs a configured subset and reports focused mode clearly.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The default validate path still runs the full configured command set unless focused is explicitly requested.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Focused validation cannot be mistaken for final full validation or DONE-required proof.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Raise validate timeout margin through code and config evidence",
+      "context": "Update timeout defaults only where they protect against false timeout classification; keep per-command timeout attribution and process-group kill behavior.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md"
+      ],
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Default validate command timeout is high enough for the normal full validate envelope and still bounded.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Explicit per-command timeoutMs still overrides the default.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The timeout change does not allow unbounded validation or mask hung commands.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Write post-fix comparison artifact for baseline item 1",
+      "context": "Create a derived result artifact under experiments/baselines/ referencing lattice-workflow-efficiency-baseline-v1; do not rewrite the immutable baseline.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md"
+      ],
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A result artifact references baselineId and this story id.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The immutable baseline file remains unchanged.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The result artifact does not claim reduced wall-clock time as proof by itself.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-73cf",
+  "allowedCommands": [
+    "git *",
+    "lattice checklist_*",
+    "lattice delivery_*",
+    "lattice done_prepare *",
+    "lattice lifecycle_check *",
+    "lattice review_*",
+    "lattice story_*",
+    "lattice summary_*",
+    "lattice validate *",
+    "lattice verification_*",
+    "node packages/main/dist/tasks/*",
+    "npm --prefix packages/main run *",
+    "npm --prefix packages/main run build",
+    "rg *",
+    "sed *"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+    "experiments/baselines/",
+    "lattice.config.json",
+    "packages/main/src/core/validation-executor.ts",
+    "packages/main/src/core/validation-types.ts",
+    "packages/main/src/handlers/verifier.ts",
+    "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+    "packages/main/src/tasks/validate-focused-full-layering-smoke.ts"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".omx/"
+  ],
+  "confirmedBy": "codex",
+  "confirmationNote": "Validate-cost story may run focused build/smoke tests and final Lattice validation only; no deployment or remote push.",
+  "createdAt": "2026-06-23T05:02:00.688Z",
+  "updatedAt": "2026-06-23T05:02:00.688Z",
+  "_hash": "8e0226bf4a966831bd90ef68868c79f44f011652773a763ff6041a46886f71ee"
+}
