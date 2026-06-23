@@ -1,0 +1,45 @@
+{
+  "storyId": "B-c1b1",
+  "checkedAt": "2026-06-23T01:49:13.230Z",
+  "features": [
+    {
+      "feature": "DONE ordering boundary",
+      "covered_by": "plan_get CHK-001 records the boundary: pre-DONE recovery may merge main, refresh stale evidence, and rerun validation; version bump, package sync, dist build, and experience cache refresh stay post-DONE. done-oracle hints say merge main happens before final evidence refresh and do not move post-DONE material mutations into readiness.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan_get CHK-001; checklist_get CHK-001; git diff packages/main/src/core/done-oracle.ts"
+    },
+    {
+      "feature": "ordered done_prepare blocker guidance",
+      "covered_by": "done-oracle routes evidence-freshness, done-required-validation, and branch-synced-main blocking hints to lattice done_prepare with mergeMain, refreshStale, and validate enabled. done-closure maps the same ordering-sensitive blockers to the host-neutral done_prepare nextCommand while leaving unrelated blockers on validate/status/bug commands.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "git diff packages/main/src/core/done-oracle.ts; git diff packages/main/src/handlers/done-closure.ts"
+    },
+    {
+      "feature": "regression smoke coverage",
+      "covered_by": "done-prepare-smoke adds DONE recovery hints route ordering-sensitive blockers through done_prepare, covering a main-ahead story with missing DONE-required evidence and asserting branch sync no longer emits raw git merge main as the primary guidance. The smoke also checks the done closure runbook nextCommand for branch-synced-main and done-required-validation.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "git diff packages/main/src/tasks/done-prepare-smoke.ts"
+    },
+    {
+      "feature": "host-neutral docs/runbook update",
+      "covered_by": "plan_get CHK-004 permits docs or diagnostics only where behavior changes and requires host-neutral Lattice workflow wording. done-closure updates runbook nextCommand output to lattice done_prepare without Codex/Claude host assumptions. done-oracle user-facing hints describe ordered done_prepare recovery in host-neutral Lattice terms.",
+      "status": "covered",
+      "excluded_by": "No markdown doc edit is required by the current plan because the behavior change is represented in diagnostics/runbook output and CHK-004 says docs or diagnostics only where behavior changes.",
+      "source": "plan_get CHK-004; checklist_get CHK-004; git diff packages/main/src/handlers/done-closure.ts; git diff packages/main/src/core/done-oracle.ts"
+    }
+  ],
+  "summary": {
+    "total": 4,
+    "covered": 4,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "4f43a331c7140b13f6ab552e3f3f89173f21f06f1aad75b1402bb679599e6567",
+  "openQuestions": []
+}
