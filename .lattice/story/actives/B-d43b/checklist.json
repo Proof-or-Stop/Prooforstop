@@ -125,11 +125,11 @@
           "file": "lattice.config.json",
           "command": "lattice validate --story=B-d43b --json",
           "result": "pass",
-          "note": "The smoke is wired into the shared validate.commands list, so full story validate will run the same compiled smoke command.",
-          "headHash": "9cd39c8feac2a5c67302342577cc0dc54f461aca",
+          "note": "Full story validate ran 28 configured commands including configured validate.commands[7], node packages/main/dist/tasks/codex-adapter-gate-scope-smoke.js, and passed.",
+          "headHash": "92d70fc926606cf0bc5c27365469fcd77a958b17",
           "materialHash": "aa24d1b9dbad8b374e614b5579cb071003f8e8a0202856c6d7ec6b1b2cf7ff51",
           "storyFilesHash": "b413e6b8e7c259e8423330737a173304dfba7cc2084bd2cc172233b70c5bd6bb",
-          "timestamp": "2026-06-23T11:00:15.823Z"
+          "timestamp": "2026-06-23T11:02:23.434Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
