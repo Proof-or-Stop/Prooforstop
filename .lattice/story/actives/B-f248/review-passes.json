@@ -143,6 +143,15 @@
       "reviewRound": "2026-06-23T14:01:34.200Z",
       "reviewRunId": "B-f248:RR-021",
       "_hash": "71b17c327677f2aecbe061ad550763a34402c58f0c0edee1ee42af25f13fe0c4"
+    },
+    {
+      "id": "B-f248:RP-017",
+      "agent": "lattice-review-docs",
+      "note": "Freshness-rebind re-confirmation: Step1 extracted ~90 symbols (all new, file-new; primary exported functions: enumerateCells, buildCanonicalRecord, scenarioAppliesToArm, denominatorSetsFor, seededShuffle, isInfraVoid, validateRecord, runDriver; plus constants ARMS, CONTRASTS, RECOVERY_SCENARIOS, A1_EXCLUDED_SCENARIOS, SEVEN_RECORD_FIELDS, A2PRIME_BUDGET_FIELDS). Step2 found doc paragraphs in experiments/recovery-runner/README.md covering all key behaviors. Step3 compared: (1) enumerateCells cross-product with §3 applicability and seeded shuffle — README para lines 74-91 matches code exactly; (2) seededShuffle/runOrderSeed — README mentions seeded deterministic reproducible run order, code implements xmur3+mulberry32 Fisher-Yates; (3) denominatorSetsFor stamps denominatorSets[] for all pre-registered contrasts — README line 85 lists A4_vs_A2prime/A4_vs_A3/A4_vs_A2/A4_vs_A1, code constant CONTRASTS matches; (4) isInfraVoid/void re-run logic — README lines 86-91 describe void→re-run+logged, code implements; (5) A2prime budget fields — README lines 92-94 list budgetPass/tokenInBand/wallInBand/truncated/tokenBudget/wallBudgetMs, code A2PRIME_BUDGET_FIELDS matches exactly; (6) CLI behavior without --engine — README lines 100-103 say driver refuses to launch live campaign, code exits 0 with message; (7) exclusions+voids sidecar logging — README lines 86-91 describe durable sidecar files, code appends to .exclusions.jsonl/.voids.jsonl. No new inconsistencies found. README diff is byte-identical per user confirmation. 0 blockers.",
+      "createdAt": "2026-06-23T14:04:18.764Z",
+      "reviewRound": "2026-06-23T14:01:34.200Z",
+      "reviewRunId": "B-f248:RR-023",
+      "_hash": "7f887dd9f9038f543ff8129a2ca4c0246ebd289f210e75fccef8d30bd6811b07"
     }
   ]
 }
