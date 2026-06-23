@@ -1,0 +1,25 @@
+{
+  "findings": [
+    {
+      "id": "B-c1b1:F-001",
+      "desc": "done_closure now classifies done-required-validation as a done_prepare recovery blocker and returns only lattice done_prepare as the nextCommand, but done_prepare never invokes the separate done_required_validate writer. Its validate step calls ordinary lattice validate, then rebuilds done_closure; missing or stale done-required-evidence.json is produced only by done_required_validate. For opted-in doneRequiredCommands this routes the operator into a loop instead of creating post-merge material/storyFilesHash-bound DONE-required evidence, so the ordering-sensitive blocker is not actually recovered by the host-neutral command.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-23T02:02:39.217Z",
+      "reviewRound": "2026-06-23T01:58:59.962Z",
+      "reviewRunId": "B-c1b1:RR-001",
+      "_hash": "ba4b8d39371cfa1baa172d74a618facdf64a5438c1c678b7cdea4d0cf7d9e3ce",
+      "files": [
+        "packages/main/src/handlers/done-closure.ts",
+        "packages/main/src/handlers/done-prepare.ts",
+        "packages/main/src/handlers/done-required-validation.ts",
+        "packages/main/src/core/done-required-validation.ts"
+      ],
+      "signatureTag": "spec-boundary|ts|closure-classifies-required",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
