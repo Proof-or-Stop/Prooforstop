@@ -1,0 +1,56 @@
+{
+  "storyId": "B-7b6e",
+  "changes": "Added packages/main/src/core/gate-strength.ts: a reviewer-agnostic gate-strength self-red-team harness (Probe + STANDING_CORPUS; testOnlyReviewer/blockAllReviewer/oracleReviewer reference reviewers; runGateStrength scoring catchRate+falseBlock vs a hidden ground truth; gateStrengthBundle emitting a B-4c65 ReceiptBundle; verifyGateStrengthResult closing the result<->receipt loop). Added tasks/gate-strength-contract-smoke.ts (11 checks), registered in lattice.config.json validate set, + CHANGELOG entry. receipt-bundle.ts reused unmodified.",
+  "usage": "Run: node packages/main/dist/tasks/gate-strength-contract-smoke.js (hermetic). Programmatic: import { runGateStrength, oracleReviewer, gateStrengthBundle, verifyGateStrengthResult } from core/gate-strength; runGateStrength(reviewer, corpus) -> {catchRate, falseBlock, ...}; gateStrengthBundle(result, id, binding, key) -> offline-verifiable ReceiptBundle.",
+  "expectedOutcome": "The contract smoke prints a passing line: test-only caught 0/N, block-all catchRate 1.0 but falseBlock>0, oracle DOMINATES both, all-genuine/invalid corpus rejected, receipt verifies offline + tamper-evident, result<->receipt loop closed; exit 0.",
+  "actualTranscript": "✓ gate-strength contract smoke passed: test-only caught 0/3 (visible-test gap), block-all catchRate 1.0 but falseBlock 1 (catchRate gameable), oracle DOMINATES both (catchRate 1.0 + falseBlock 0), all-genuine/invalid corpus rejected, receipt verifies offline + tamper-evident, result↔receipt loop closed. (11/11 checks, exit 0; full npm test exit 0.)",
+  "outcomeDiff": "No difference — expected and actual match exactly (11/11 checks pass).",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Hermetic slice 1: the three reviewers are REFERENCE endpoints/oracle (oracleReviewer reads the harness-provided defectKind label, not the artifact). A live claude -p review-lane reviewer (reads the artifact, lands inside the box) and continuous/scheduled running are explicit follow-ups. The receipt binds a digest of the result; verifyGateStrengthResult must be run to confirm a given result matches its receipt. No gate-behavior/DONE-policy/receipt-bundle.ts semantic change.",
+  "pitfalls": "Reviewing then fixing in REVIEW stranded the round-1 review bindings (whole-tree diffPack includes .lattice metadata, so every metadata commit drifts diffPackHash -> review-hash-freshness stale); resolved by refreshing stale evidence + re-binding lanes + relying on the lifecycle-artifact non-blocking rows; REVIEW->TEST then passed. Material-code DONE floor requires 3 local rounds x 2 hosts (autopilot_review_submit verdicts) even when escalation is not-required. Genuine cross-host value: host-2 Codex caught 4 findings (2 High) the 4 Claude lanes missed — catchRate gameability, tamper-evidence over-claim, empty-corpus vacuity, localeCompare non-determinism — plus corroborated the oracle mislabel; all 7 fixed + re-verified by Codex round-2.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 153701
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 7381
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 291676
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 485910
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 1947993
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 357266
+    }
+  },
+  "totalDurationMs": 3243928,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-23T00:21:53.873Z",
+  "updatedAt": "2026-06-23T00:21:53.873Z"
+}
