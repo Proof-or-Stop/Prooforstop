@@ -375,6 +375,17 @@
           "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
           "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
           "timestamp": "2026-06-23T21:01:39.112Z"
+        },
+        {
+          "intentRef": "CHK-007:edge:0",
+          "kind": "manual_transcript",
+          "command": "ls scripts/verify-koala-residue.mjs",
+          "result": "pass",
+          "note": "Exit non-zero, No such file -- old script path no longer exists after git mv; confirms rename was move not copy",
+          "headHash": "ae6c63186232e25e80986984fbf6417501b3ffef",
+          "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
+          "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
+          "timestamp": "2026-06-23T21:01:47.194Z"
         }
       ]
     }
