@@ -161,6 +161,15 @@
       "reviewRound": "2026-06-23T14:01:34.200Z",
       "reviewRunId": "B-f248:RR-022",
       "_hash": "c1242cf86848cf4fa82e4d6eec4470e2f9bd155153e8bdbf8397380f1f7d2ab5"
+    },
+    {
+      "id": "B-f248:RP-019",
+      "agent": "lattice-review-test-coverage",
+      "note": "Freshness-rebind re-confirmation: selfcheck ran node experiments/recovery-runner/run-driver-selfcheck.mjs -> 130 assertions passed, 0 failed. All 49 verificationIntent lanes have concrete, behavior-specific evidence (logic_test/manual_transcript, result=pass). The 48 stale flags are materialHash drift from a 184-commit main auto-sync; deliverable is byte-identical, no intent lane or evidence changed. Coverage is fully confirmed at current material. No new findings.",
+      "createdAt": "2026-06-23T14:09:45.597Z",
+      "reviewRound": "2026-06-23T14:01:34.200Z",
+      "reviewRunId": "B-f248:RR-024",
+      "_hash": "f83d163354dfcc10511400876a4e5f3258662549702a89f0e5be9c1f60feb3c0"
     }
   ]
 }
