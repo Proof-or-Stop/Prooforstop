@@ -170,6 +170,15 @@
       "reviewRound": "2026-06-23T14:01:34.200Z",
       "reviewRunId": "B-f248:RR-024",
       "_hash": "f83d163354dfcc10511400876a4e5f3258662549702a89f0e5be9c1f60feb3c0"
+    },
+    {
+      "id": "B-f248:RP-020",
+      "agent": "lattice-review-concept",
+      "note": "Concept-residue scan: change is purely additive (new run-driver.mjs/run-driver-selfcheck.mjs/run-selfchecks.mjs + README section + extended package.json test script). No concept deleted or replaced en masse, so no residue to scan; deps adjudicate.mjs/checks.mjs unchanged. Reuse verified: run-driver.mjs imports adjudicate from adjudicate.mjs and harnessAcceptance/hiddenRegression/diffHygiene from checks.mjs and CALLS them (lines 204/209/213/223) with zero local re-definitions (grep confirms none) — nothing re-implemented, no dangling/duplicated concepts. run-driver-selfcheck.mjs: 130 assertions passed, 0 failed (no live LLM). No blocker.",
+      "createdAt": "2026-06-23T17:47:21.580Z",
+      "reviewRound": "2026-06-23T14:19:52.339Z",
+      "reviewRunId": "B-f248:RR-025",
+      "_hash": "8f76b6d9af3ff7a2fb320e1b074a091edbc313ee2af981ef5f92b647935c993a"
     }
   ]
 }
