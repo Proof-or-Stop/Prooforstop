@@ -606,6 +606,17 @@
           "materialHash": "3ee68a262f8963f2691d35fbb344b2261c4d52282139b43e837ded77f015b261",
           "storyFilesHash": "9c823adea15d877392e591760e4dc447c74a37c38c6a266f4cc1f84dc19de8c0",
           "timestamp": "2026-06-23T10:19:50.802Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:6",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/checks-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck FAIL cases 'dh out-of-scope: pass false' + 'dh junk-*: pass false': out-of-scope diff and junk artifacts",
+          "headHash": "bee746c96de8e1ba355ae77033c054e08f986915",
+          "materialHash": "3ee68a262f8963f2691d35fbb344b2261c4d52282139b43e837ded77f015b261",
+          "storyFilesHash": "9c823adea15d877392e591760e4dc447c74a37c38c6a266f4cc1f84dc19de8c0",
+          "timestamp": "2026-06-23T10:19:51.409Z"
         }
       ]
     }
