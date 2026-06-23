@@ -1,0 +1,968 @@
+{
+  "command": "lattice validate --story=B-5bfe --json",
+  "output": "{\"provider\":\"lattice-verifier-configured-commands\",\"status\":\"pass\",\"allPass\":true,\"summary\":\"Project validation commands passed\",\"details\":[\"✓ configured validate.commands[0]: npm --prefix packages/main run build\",\"  > @lattice/core@0.3.67 build\",\"  > tsc\",\"✓ configured validate.commands[1]: node packages/main/dist/tasks/authority-client-smoke.js\",\"  GateEvaluateRequestContract materialOverlapAudit schema PASS changedFiles=[] actualFileOverlaps=[]\",\"  materialOverlapAudit.present=true overlapCount=0\",\"  signed DONE gate envelope contains decision.materialOverlapAudit before signature\",\"  actualFileOverlaps preserved count=1\",\"  authority completion loop no-overlap audit default PASS\",\"  authority client smoke passed\",\"✓ configured validate.commands[2]: node packages/main/dist/tasks/authority-completion-smoke.js\",\"  ✓ authority completion smoke passed: completion gate fail-closed (reject/tamper/wrong-key/wrong-story/stale/future), authorityDone+fullAuthorityDone gating, loop end-to-end, lease bridge\",\"✓ configured validate.commands[3]: node packages/main/dist/tasks/review-pass-discard-smoke.js\",\"  ✓ review pass and discard smoke passed\",\"✓ configured validate.commands[4]: node packages/main/dist/tasks/init-window-data-loss-smoke.js\",\"  ✓ init-window data-loss smoke passed: INIT metadata survives concurrent git clean -fd on the shared checkout\",\"✓ configured validate.commands[5]: node packages/main/dist/tasks/validate-command-timeout-smoke.js\",\"  validate-command-timeout smoke passed: 18 assertions\",\"✓ configured validate.commands[6]: node packages/main/dist/tasks/done-required-validation-smoke.js\",\"  done-required-validation smoke passed\",\"✓ configured validate.commands[7]: node packages/main/dist/tasks/done-required-freshness-smoke.js\",\"  done-required-freshness smoke passed\",\"✓ configured validate.commands[8]: node packages/main/dist/tasks/done-required-head-drift-proof.js\",\"  done-required-head-drift-proof passed\",\"  {\",\"    \\\"status\\\": \\\"PASS\\\",\",\"    \\\"proof\\\": \\\"DONE-required metadata-only HEAD drift is non-blocking (deadlock fixed)\\\",\",\"    \\\"rounds\\\": 3,\",\"    \\\"headDriftFreshRounds\\\": 3,\",\"    \\\"materialDriftBlockedRounds\\\": 3,\",\"    \\\"slowCommandMs\\\": 800,\",\"    \\\"averages\\\": {\",\"      \\\"firstRunMs\\\": 1088,\",\"      \\\"postMetadataEvalMs\\\": 60\",\"    },\",\"    \\\"results\\\": [\",\"      {\",\"        \\\"round\\\": 1,\",\"        \\\"firstRunMs\\\": 1087,\",\"        \\\"postMetadataEvalMs\\\": 63,\",\"        \\\"metadataOnlyHeadChanged\\\": true,\",\"        \\\"materialSameAfterMetadataCommit\\\": true,\",\"        \\\"storyFilesSameAfterMetadataCommit\\\": true,\",\"        \\\"postMetadataOk\\\": true,\",\"        \\\"postMetadataBlocking\\\": false,\",\"        \\\"postMetadataReasons\\\": [],\",\"        \\\"materialDriftBlocking\\\": true,\",\"        \\\"materialDriftReasons\\\": [\",\"          \\\"stale-material\\\"\",\"        ]\",\"      },\",\"      {\",\"        \\\"round\\\": 2,\",\"        \\\"firstRunMs\\\": 1094,\",\"        \\\"postMetadataEvalMs\\\": 58,\",\"        \\\"metadataOnlyHeadChanged\\\": true,\",\"        \\\"materialSameAfterMetadataCommit\\\": true,\",\"        \\\"storyFilesSameAfterMetadataCommit\\\": true,\",\"        \\\"postMetadataOk\\\": true,\",\"        \\\"postMetadataBlocking\\\": false,\",\"        \\\"postMetadataReasons\\\": [],\",\"        \\\"materialDriftBlocking\\\": true,\",\"        \\\"materialDriftReasons\\\": [\",\"          \\\"stale-material\\\"\",\"        ]\",\"      },\",\"      {\",\"        \\\"round\\\": 3,\",\"        \\\"firstRunMs\\\": 1083,\",\"        \\\"postMetadataEvalMs\\\": 58,\",\"        \\\"metadataOnlyHeadChanged\\\": true,\",\"        \\\"materialSameAfterMetadataCommit\\\": true,\",\"        \\\"storyFilesSameAfterMetadataCommit\\\": true,\",\"        \\\"postMetadataOk\\\": true,\",\"        \\\"postMetadataBlocking\\\": false,\",\"        \\\"postMetadataReasons\\\": [],\",\"        \\\"materialDriftBlocking\\\": true,\",\"        \\\"materialDriftReasons\\\": [\",\"          \\\"stale-material\\\"\",\"        ]\",\"      }\",\"    ]\",\"  }\",\"✓ configured validate.commands[9]: node packages/main/dist/tasks/version-bump-smoke.js\",\"  version-bump smoke passed: 64 assertions\",\"✓ configured validate.commands[10]: node packages/main/dist/tasks/parallel-decomposition-gate-smoke.js\",\"  parallel-decomposition-gate smoke passed: 32 assertions\",\"✓ configured validate.commands[11]: node packages/main/dist/tasks/parallel-gate-config-smoke.js\",\"  parallel-gate-config smoke passed: 82 assertions\",\"✓ configured validate.commands[12]: node packages/main/dist/tasks/parallel-wave-advisory-smoke.js\",\"  parallel-wave-advisory smoke passed: 56 assertions\",\"✓ configured validate.commands[13]: node packages/main/dist/tasks/parallel-decomposition-gate-integration-smoke.js\",\"  ✓ 1: overlap+block+clean review -> canStartDevGuard FALSE\",\"  ✓ 1: overlap message is non-null\",\"  ✓ 1: overlap message names the block reason\",\"  ✓ 1: overlap message names the peer\",\"  ✓ 1: overlap message names the colliding path\",\"  ✓ 2: disjoint+block+clean -> canStartDevGuard TRUE\",\"  ✓ 2: disjoint -> no parallel-decomposition message\",\"  ✓ 3: overlap under mode=advise -> canStartDevGuard TRUE\",\"  ✓ 3: overlap under mode=advise -> no parallel block message\",\"  ✓ 3: overlap under mode=off -> canStartDevGuard TRUE\",\"  ✓ 3: overlap under mode=off -> no parallel block message\",\"  ✓ 4: broad glob + broadGlobBlocks -> canStartDevGuard FALSE\",\"  ✓ 4: broad glob message names broad_glob_unprovable_parallel\",\"  ✓ 4: broad glob message names the broad glob\",\"  ✓ 5a: unclean review -> canStartDevGuard FALSE\",\"  ✓ 5a: unclean review -> reason names the review blocker (not parallel)\",\"  ✓ 5b: missing review -> canStartDevGuard FALSE\",\"  ✓ 5b: missing review -> reason non-null (review gate)\",\"  ✓ 6: FAIL-OPEN: parallel sub-check throws + clean review -> canStartDevGuard TRUE\",\"  ✓ 6: FAIL-OPEN: getGuardFailureReason returns null for the parallel branch on a gate error\",\"  ✓ 7: parity blocked -> guard FALSE && parallel message present\",\"  ✓ 7: parity clean -> guard TRUE && no parallel message\",\"  ✓ bonus: unreadable peer contract -> canStartDevGuard FALSE\",\"  ✓ bonus: unreadable peer contract -> peer_contract_unreadable_parallel message\",\"  ✓ F-001: light profile (no review required) + overlap -> canStartDevGuard FALSE\",\"  ✓ F-001: light profile -> parallel block message present + names peer\",\"  ✓ F-001: light profile + disjoint (no review) -> canStartDevGuard TRUE\",\"  ✓ F-003: express channel + overlap -> canSkipPlanGuard FALSE (gate not bypassed)\",\"  ✓ F-003: express channel -> getGuardFailureReason renders the parallel block\",\"  ✓ F-003: express channel + disjoint -> canSkipPlanGuard TRUE\",\"  ✓ F-003: express channel FAIL-OPEN (gate throws) -> canSkipPlanGuard TRUE\",\"  ✓ F-002: signed review blockerCount=-1 -> canStartDevGuard FALSE (strict !== 0)\",\"  ✓ F-002: blockerCount=-1 -> getGuardFailureReason names the unresolved blocker(s)\",\"  ✓ F-004: terminal-peer case -> canStartDevGuard FALSE (active peer overlap)\",\"  ✓ F-004: message names the ACTIVE peer\",\"  ✓ F-004: message does NOT name the DONE/terminal peer\",\"  ✓ F-006: REVIEW→DEV rollback + overlap -> canReenterDevGuard FALSE\",\"  ✓ F-006: REVIEW→DEV rollback -> getGuardFailureReason renders the parallel block + names peer\",\"  ✓ F-006: REVIEW→DEV rollback + disjoint -> canReenterDevGuard TRUE\",\"  ✓ F-006: REVIEW→DEV rollback + disjoint -> no parallel message\",\"  ✓ F-006: TEST→DEV rollback + overlap -> canReenterDevGuard FALSE\",\"  ✓ F-006: TEST→DEV rollback -> getGuardFailureReason renders the parallel block + names peer\",\"  ✓ F-006: TEST→DEV rollback + disjoint -> canReenterDevGuard TRUE\",\"  ✓ F-006: TEST→DEV rollback + disjoint -> no parallel message\",\"  ✓ F-006: rollback FAIL-OPEN (gate throws) -> canReenterDevGuard TRUE\",\"  ✓ F-006: rollback FAIL-OPEN -> getGuardFailureReason null for parallel branch\",\"  ✓ F-007: literal-collision -> canStartDevGuard FALSE\",\"  ✓ F-007: message names the LITERAL-collision peer (B-peer)\",\"  ✓ F-007: message cites the literal path, not the wildcard\",\"  ✓ F-007: message does NOT name the tier-2 wildcard-only peer\",\"  parallel-decomposition-gate-integration smoke passed: 50 assertions\",\"✓ configured validate.commands[14]: node packages/main/dist/tasks/adversarial-review-contract-smoke.js\",\"  adversarial-review-contract smoke passed: 29 assertions\",\"✓ configured validate.commands[15]: node packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js\",\"  adversarial-review-lens-runner smoke passed: 96 assertions\",\"✓ configured validate.commands[16]: node packages/main/dist/tasks/adversarial-review-verifier-smoke.js\",\"  adversarial-review-verifier smoke passed: 68 assertions\",\"✓ configured validate.commands[17]: node packages/main/dist/tasks/adversarial-review-critic-smoke.js\",\"  adversarial-review-critic smoke passed: 52 assertions\",\"✓ configured validate.commands[18]: node packages/main/dist/tasks/adversarial-review-round-smoke.js\",\"  adversarial-review-round smoke passed: 77 assertions\",\"✓ configured validate.commands[19]: node packages/main/dist/tasks/material-hash-large-tree-smoke.js\",\"  fixture ls-tree -r -z HEAD byte length: 1116073 (> 1048576 = 1 MiB) across 6000 files\",\"  material-hash-large-tree smoke passed\",\"✓ configured validate.commands[20]: node packages/main/dist/tasks/lifecycle-orchestrate-smoke.js\",\"  lifecycle_orchestrate smoke passed\",\"✓ configured validate.commands[21]: node packages/main/dist/tasks/init-preflight-smoke.js\",\"  init_preflight smoke passed\",\"✓ configured validate.commands[22]: node packages/main/dist/tasks/english-early-check-smoke.js\",\"  ok: story_create refuses CJK background before persistence\",\"  ok: story_create refuses CJK checklist title/context before persistence\",\"  ok: English story_create succeeds with em dash punctuation\",\"  ok: background_set refuses CJK before writing\",\"  ok: early authoring check and english-artifact gate agree on containsCJK\",\"  english-early-check smoke passed\",\"✓ configured validate.commands[23]: node packages/main/dist/tasks/quorum-submit-smoke.js\",\"  ✓ refuses when required reviewer passes are absent and writes no verdicts\",\"    ✓ refuses when reviewer passes are stale and writes no verdicts\",\"    ✓ emits exactly rounds x 2 verdicts after current reviewer passes\",\"    ✓ review_escalation_status and review assurance floor report complete voluntary 3x2 rounds\",\"    ✓ auto-computed materialDigest and storyFilesHash match current helpers\",\"    ✓ hosts are independent by hostId, sessionId, and keyId\",\"    ✓ never sets authorityDone, fullAuthorityDone, or productionDone\",\"    ✓ refuses a same-material re-submit and writes no new verdicts\",\"    ✓ allows a fresh quorum after a material change\",\"    ✓ --rounds=N (N != 3) emits exactly N x 2 verdicts with N runIds\",\"    ✓ rejects non-independent host identity before writing additional verdicts\",\"  ✓ quorum_submit smoke passed (11 checks)\",\"✓ configured validate.commands[24]: node packages/main/dist/tasks/receipt-bundle-contract-smoke.js\",\"  [lying-agent] stale done/pass REJECTED reason=stale\",\"    [lying-agent] forged done/pass REJECTED reason=signature_invalid\",\"    [self-check] receipt exitCode:1 REJECTED reason=receipt_not_passing; hostVerdicts.push(null) REJECTED reason=malformed_bundle\",\"    [ACCEPT] authentic (control)    reason=ok\",\"    [REJECT] code-byte-flip         reason=stale\",\"    [REJECT] evidence-edit          reason=signature_invalid\",\"    [REJECT] host-verdict-swap      reason=signature_invalid\",\"    [REJECT] commandSet-change      reason=signature_invalid\",\"    [REJECT] stale-materialHash     reason=stale\",\"    [REJECT] forged-signature       reason=signature_invalid\",\"    [REJECT] missing-signature      reason=signature_missing\",\"    [REJECT] missing-build-proof    reason=build_proof_missing\",\"    [REJECT] binding-incomplete     reason=binding_incomplete\",\"    [REJECT] digest-malformed       reason=digest_mismatch\",\"    [REJECT] decision-fail          reason=decision_not_pass\",\"    [REJECT] receipt-exit-1         reason=receipt_not_passing\",\"    [REJECT] receipt-exit-neg1      reason=receipt_not_passing\",\"    [REJECT] receipt-empty-cmd      reason=receipt_not_passing\",\"    [REJECT] hostverdict-null       reason=malformed_bundle\",\"    [REJECT] decision-null          reason=malformed_bundle\",\"    [REJECT] extra-key              reason=malformed_bundle\",\"    [REJECT] signer-key-mismatch    reason=signer_key_mismatch\",\"  ✓ receipt-bundle contract smoke passed: authentic ACCEPTED; 18 tamper classes REJECTED (every reason code reached); lying-agent + soundness-hole self-checks rejected; 0 false-accept, 0 false-reject\",\"✓ configured validate.commands[25]: node packages/main/dist/tasks/gate-strength-contract-smoke.js\",\"  ✓ test-only reviewer: catchRate 0, falseShip = wrongTotal (ships every wrong probe)\",\"    ✓ block-all reviewer: catchRate 1.0 BUT falseBlock = genuineTotal (catchRate alone is gameable)\",\"    ✓ oracle reviewer: catchRate 1.0, falseShip 0, falseBlock 0, names each defect\",\"    ✓ oracle DOMINATES: beats test-only on catchRate AND beats block-all on falseBlock\",\"    ✓ runGateStrength REJECTS an all-genuine corpus (catch-rate is undefined)\",\"    ✓ runGateStrength REJECTS a corpus that violates the defectKind<->genuine invariant\",\"    ✓ gate-strength receipt verifies offline (ACCEPTED) against matching materialHash\",\"    ✓ tampering a signed bundle field is REJECTED (signature_invalid)\",\"    ✓ a stale receipt (old materialHash) is REJECTED\",\"    ✓ verifyGateStrengthResult: the authentic result MATCHES the bound digest\",\"    ✓ verifyGateStrengthResult: a result tampered after the fact does NOT match the receipt\",\"    ✓ verifyGateStrengthResult: tampering a per-probe REASON also does NOT match (full result is bound)\",\"  ✓ gate-strength contract smoke passed: test-only caught 0/3 (visible-test gap), block-all catchRate 1.0 but falseBlock 1 (catchRate gameable), oracle DOMINATES both (catchRate 1.0 + falseBlock 0), all-genuine/invalid corpus rejected, receipt verifies offline + tamper-evident, result↔receipt loop closed (full result incl. reasons bound).\",\"Verification intent coverage: 48/48 covered (0 required missing)\",\"  ✓ CHK-001:happy:0 [happy/must/cli] covered via manual_transcript — agentRun call increments agentCallCount by 1 per invocation; after 3 agent calls on synthetic records, agentCallCount === 3; WHY: covers basic counting at the executor call site\",\"  ✓ CHK-001:happy:1 [happy/must/cli] covered via manual_transcript — reviewArtifact call increments agentCallCount by 1; after 2 agent + 1 review calls, agentCallCount === 3; WHY: covers the reviewer call site that was previously undercounted via reviewRounds\",\"  ✓ CHK-001:happy:2 [happy/must/cli] covered via manual_transcript — tokensSpent accumulated from claude JSON usage.input_tokens + usage.output_tokens across all calls; 3 calls with usage {in:100,out:50} each => tokensSpent === 450; WHY: covers token extraction and accumulation\",\"  ✓ CHK-001:happy:3 [happy/must/cli] covered via manual_transcript — wallClockMs is present in output record and is a positive number; WHY: confirms existing field preserved per pre-reg\",\"  ✓ CHK-001:happy:4 [happy/must/cli] covered via manual_transcript — output record contains exact pre-reg section 7 field names: tokensSpent, wallClockMs, agentCallCount; WHY: field-name compliance with locked pre-registration\",\"  ✓ CHK-001:edge:0 [edge/must/cli] covered via manual_transcript — zero-token response (usage.input_tokens=0, usage.output_tokens=0) => tokensSpent accumulates 0, not NaN or undefined; WHY: edge where model returns empty usage\",\"  ✓ CHK-001:edge:1 [edge/must/cli] covered via manual_transcript — missing usage field in claude JSON output => tokensSpent defaults to 0 for that call, not NaN/throw; WHY: defensive against malformed claude output\",\"  ✓ CHK-001:edge:2 [edge/must/cli] covered via manual_transcript — single attempt R=1 succeeds => agentCallCount=1 not 0 or 2; WHY: boundary on minimum call count\",\"  ✓ CHK-001:adversarial:0 [adversarial/must/cli] covered via manual_transcript — claude JSON contains negative token counts => tokensSpent accumulates correctly or implementation-defined; WHY: adversarial malformed data from model API\",\"  ✓ CHK-001:adversarial:1 [adversarial/must/cli] covered via manual_transcript — infra void on first call => agentCallCount reflects only calls actually made not max R; WHY: ensures count is actual not planned\",\"  ✓ CHK-002:happy:0 [happy/must/cli] covered via manual_transcript — when cumulative tokensSpent >= tokenBudget, loop terminates and record.truncated === true; WHY: covers the primary token-binds-first truncation rule\",\"  ✓ CHK-002:happy:1 [happy/must/cli] covered via manual_transcript — when cumulative wallClockMs >= wallBudget and tokens still under budget, loop terminates with truncated=true; WHY: covers wall-clock binding when token is not the constraint\",\"  ✓ CHK-002:happy:2 [happy/must/cli] covered via manual_transcript — when both budgets are NOT exceeded across all R iterations, truncated === false and budgetPass === true; WHY: covers the non-truncation normal completion path\",\"  ✓ CHK-002:happy:3 [happy/must/cli] covered via logic_test — record contains budgetPass field (boolean) reflecting whether the run stayed within budget; WHY: pre-reg requires per-run budget pass/fail logging\",\"  ✓ CHK-002:edge:0 [edge/must/cli] covered via manual_transcript — tokenBudget exactly equals cumulative tokens after final call => truncated should be true (>= not >); WHY: boundary at exact budget match\",\"  ✓ CHK-002:edge:1 [edge/must/cli] covered via manual_transcript — budget mode with R=1 and first call exceeds token budget => single call runs but truncated=true on that call; WHY: minimum-iteration boundary\",\"  ✓ CHK-002:edge:2 [edge/must/cli] covered via manual_transcript — zero tokenBudget => first call immediately triggers truncation; WHY: degenerate budget boundary\",\"  ✓ CHK-002:edge:3 [edge/must/cli] covered via manual_transcript — no budget args provided => budget mode is OFF, no truncation, budgetPass/truncated fields absent or null; WHY: backward compatibility with non-budget runs\",\"  ✓ CHK-002:adversarial:0 [adversarial/must/cli] covered via manual_transcript — token budget is very small (1 token) but wall budget is very large => token binds first, loop stops after first call regardless of wall budget; WHY: verifies token-binds-first precedence under extreme asymmetry\",\"  ✓ CHK-002:adversarial:1 [adversarial/must/cli] covered via manual_transcript — negative tokenBudget value => implementation should reject or treat as immediate truncation, not loop forever; WHY: adversarial invalid input\",\"  ✓ CHK-002:adversarial:2 [adversarial/must/cli] covered via manual_transcript — wall clock jumps due to system clock skew mid-run => wallClockMs still computed correctly via monotonic timing or Date.now delta; WHY: adversarial timing scenario\",\"  ✓ CHK-003:happy:0 [happy/must/cli] covered via manual_transcript — median computation on odd-length A4 tokensSpent array [100,300,200] => median=200; WHY: covers basic median calculation for budget derivation\",\"  ✓ CHK-003:happy:1 [happy/must/cli] covered via manual_transcript — median computation on even-length A4 tokensSpent array [100,200,300,400] => median=250; WHY: covers even-count averaging\",\"  ✓ CHK-003:happy:2 [happy/must/cli] covered via manual_transcript — A2-prime arm budget = A4 median +/- 20 pct; for median=1000 tokens, tokenBudget=1200 (upper bound), wallBudget=median_wall*1.2; WHY: covers the tolerance band derivation\",\"  ✓ CHK-003:happy:3 [happy/must/cli] covered via logic_test — A2-prime records written to ablation-A2prime-compute-matched.jsonl with budgetPass field; WHY: covers output file naming and per-run budget logging per pre-reg\",\"  ✓ CHK-003:happy:4 [happy/must/cli] covered via logic_test — A2-prime arm invokes run-recovery.mjs with arm=a2prime and budget args derived from A4 median; WHY: covers correct wiring of budget into the runner\",\"  ✓ CHK-003:edge:0 [edge/must/cli] covered via manual_transcript — single A4 record => median = that single value; WHY: minimum sample size boundary\",\"  ✓ CHK-003:edge:1 [edge/must/cli] covered via manual_transcript — all A4 records identical tokensSpent => median = that value, budget = value*1.2; WHY: zero-variance edge\",\"  ✓ CHK-003:edge:2 [edge/must/cli] covered via manual_transcript — A4 median wallClockMs is 0 (all instant) => wallBudget=0, still valid; WHY: degenerate zero-time edge\",\"  ✓ CHK-003:edge:3 [edge/must/cli] covered via manual_transcript — per-TASK median: each task gets its own budget from that task A4 runs, not a global median; WHY: verifies per-task granularity\",\"  ✓ CHK-003:adversarial:0 [adversarial/must/cli] covered via manual_transcript — no A4 records exist for a task (empty array) => median computation should error or skip, not produce NaN budget; WHY: missing prerequisite data\",\"  ✓ CHK-003:adversarial:1 [adversarial/must/cli] covered via manual_transcript — A4 records contain null tokensSpent values => median computation excludes nulls or errors, not silently corrupt budget; WHY: dirty prerequisite JSONL\",\"  ✓ CHK-003:adversarial:2 [adversarial/must/cli] covered via logic_test — A4 JSONL file is truncated mid-line (incomplete JSON) => parser handles gracefully, does not crash; WHY: adversarial file corruption\",\"  ✓ CHK-004:happy:0 [happy/must/cli] covered via logic_test — Code comments in run-recovery.mjs and run-ablation.mjs document spend-match semantics (token+wall-clock, not call count; +/-20 pct; token binds first; hard-truncate) and cite the pre-reg; WHY: docs-check item, verified by code review not unit test\",\"  ✓ CHK-004:edge:0 [edge/must/logic] covered via logic_test — the comment names the EXACT pre-reg source (lattice-experiment-protocol.md, the A2-prime row in section 1) and the precise tolerance (plus-or-minus 20 pct of A4 per-task median, token binds first, hard-truncate at upper bound); WHY: a vague comment is not auditable against the locked pre-registration\",\"  ✓ CHK-004:edge:1 [edge/must/logic] covered via logic_test — the comment appears in BOTH run-recovery.mjs (near the budget-truncation logic) AND run-ablation.mjs (near the A2-prime arm setup); WHY: both files implement spend-match behavior and both must be independently traceable to the pre-reg\",\"  ✓ CHK-004:adversarial:0 [adversarial/must/logic] covered via logic_test — the comment does NOT mislabel the match as call-count or claim per-run spend-parity; it must state budget/spend-match (token+wall-clock) precisely; WHY: the whole point of this story is to not reintroduce the compute-confound wording the paper previously got wrong\",\"  ✓ CHK-004:adversarial:1 [adversarial/must/logic] covered via logic_test — the comment does NOT cite a stale pre-reg revision or wrong section number; it must reference the current rev3.1 and section 1 A2-prime row; WHY: adversarial against copy-paste from an older draft that used call-count semantics\",\"  ✓ CHK-005:happy:0 [happy/must/cli] covered via manual_transcript — median function on synthetic A4 records [150,250,200] returns 200; WHY: unit-tests the median helper used to derive A2-prime budget\",\"  ✓ CHK-005:happy:1 [happy/must/cli] covered via manual_transcript — budget-truncation decision: cumTokens=900 vs tokenBudget=1000 => not truncated; cumTokens=1050 vs tokenBudget=1000 => truncated; WHY: unit-tests the core truncation predicate\",\"  ✓ CHK-005:happy:2 [happy/must/cli] covered via manual_transcript — token/wallclock accumulation on 3 synthetic agent-call records => tokensSpent = sum of all input+output tokens, wallClockMs = sum of per-call durations; WHY: unit-tests accumulator logic without live LLM\",\"  ✓ CHK-005:happy:3 [happy/must/cli] covered via manual_transcript — output record field names include tokensSpent, wallClockMs, agentCallCount matching pre-reg section 7 exactly (no camelCase variants like tokens_spent); WHY: schema compliance check\",\"  ✓ CHK-005:happy:4 [happy/must/cli] covered via manual_transcript — no live LLM invocation occurs during the unit test (no claude -p subprocess spawned); WHY: confirms the verification constraint is met\",\"  ✓ CHK-005:edge:0 [edge/must/cli] covered via manual_transcript — accumulation with a single call => tokensSpent = that call tokens, agentCallCount = 1; WHY: minimum-call boundary\",\"  ✓ CHK-005:edge:1 [edge/must/cli] covered via manual_transcript — median of two values [100,200] => 150 (average); WHY: even-count boundary for median\",\"  ✓ CHK-005:edge:2 [edge/must/cli] covered via manual_transcript — budget check at exact boundary: cumTokens === tokenBudget => truncated (>= semantics); WHY: off-by-one boundary\",\"  ✓ CHK-005:adversarial:0 [adversarial/must/cli] covered via manual_transcript — synthetic record with tokensSpent field misspelled as tokens_spent => unit test detects the naming violation against pre-reg section 7; WHY: adversarial schema drift that would break the analysis script\",\"  ✓ CHK-005:adversarial:1 [adversarial/must/cli] covered via manual_transcript — synthetic record missing agentCallCount entirely => unit test flags the omission; WHY: adversarial incomplete schema\"],\"warnings\":[],\"timestamp\":\"2026-06-23T02:00:09.461Z\",\"headSha\":\"f508994c631215a5d7399e0c5bb59c5993db1d19\",\"commands\":[{\"label\":\"configured validate.commands[0]\",\"command\":\"npm\",\"args\":[\"--prefix\",\"packages/main\",\"run\",\"build\"],\"code\":0,\"output\":\"\\n> @lattice/core@0.3.67 build\\n> tsc\\n\\n\",\"durationMs\":21526},{\"label\":\"configured validate.commands[1]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/authority-client-smoke.js\"],\"code\":0,\"output\":\"GateEvaluateRequestContract materialOverlapAudit schema PASS changedFiles=[] actualFileOverlaps=[]\\nmaterialOverlapAudit.present=true overlapCount=0\\nsigned DONE gate envelope contains decision.materialOverlapAudit before signature\\nactualFileOverlaps preserved count=1\\nauthority completion loop no-overlap audit default PASS\\nauthority client smoke passed\\n\",\"durationMs\":706},{\"label\":\"configured validate.commands[2]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/authority-completion-smoke.js\"],\"code\":0,\"output\":\"✓ authority completion smoke passed: completion gate fail-closed (reject/tamper/wrong-key/wrong-story/stale/future), authorityDone+fullAuthorityDone gating, loop end-to-end, lease bridge\\n\",\"durationMs\":595},{\"label\":\"configured validate.commands[3]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/review-pass-discard-smoke.js\"],\"code\":0,\"output\":\"✓ review pass and discard smoke passed\\n\",\"durationMs\":36048},{\"label\":\"configured validate.commands[4]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/init-window-data-loss-smoke.js\"],\"code\":0,\"output\":\"✓ init-window data-loss smoke passed: INIT metadata survives concurrent git clean -fd on the shared checkout\\n\",\"durationMs\":1986},{\"label\":\"configured validate.commands[5]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/validate-command-timeout-smoke.js\"],\"code\":0,\"output\":\"validate-command-timeout smoke passed: 18 assertions\\n\",\"durationMs\":4338},{\"label\":\"configured validate.commands[6]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/done-required-validation-smoke.js\"],\"code\":0,\"output\":\"done-required-validation smoke passed\\n\",\"durationMs\":7412},{\"label\":\"configured validate.commands[7]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/done-required-freshness-smoke.js\"],\"code\":0,\"output\":\"done-required-freshness smoke passed\\n\",\"durationMs\":897},{\"label\":\"configured validate.commands[8]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/done-required-head-drift-proof.js\"],\"code\":0,\"output\":\"done-required-head-drift-proof passed\\n{\\n  \\\"status\\\": \\\"PASS\\\",\\n  \\\"proof\\\": \\\"DONE-required metadata-only HEAD drift is non-blocking (deadlock fixed)\\\",\\n  \\\"rounds\\\": 3,\\n  \\\"headDriftFreshRounds\\\": 3,\\n  \\\"materialDriftBlockedRounds\\\": 3,\\n  \\\"slowCommandMs\\\": 800,\\n  \\\"averages\\\": {\\n    \\\"firstRunMs\\\": 1088,\\n    \\\"postMetadataEvalMs\\\": 60\\n  },\\n  \\\"results\\\": [\\n    {\\n      \\\"round\\\": 1,\\n      \\\"firstRunMs\\\": 1087,\\n      \\\"postMetadataEvalMs\\\": 63,\\n      \\\"metadataOnlyHeadChanged\\\": true,\\n      \\\"materialSameAfterMetadataCommit\\\": true,\\n      \\\"storyFilesSameAfterMetadataCommit\\\": true,\\n      \\\"postMetadataOk\\\": true,\\n      \\\"postMetadataBlocking\\\": false,\\n      \\\"postMetadataReasons\\\": [],\\n      \\\"materialDriftBlocking\\\": true,\\n      \\\"materialDriftReasons\\\": [\\n        \\\"stale-material\\\"\\n      ]\\n    },\\n    {\\n      \\\"round\\\": 2,\\n      \\\"firstRunMs\\\": 1094,\\n      \\\"postMetadataEvalMs\\\": 58,\\n      \\\"metadataOnlyHeadChanged\\\": true,\\n      \\\"materialSameAfterMetadataCommit\\\": true,\\n      \\\"storyFilesSameAfterMetadataCommit\\\": true,\\n      \\\"postMetadataOk\\\": true,\\n      \\\"postMetadataBlocking\\\": false,\\n      \\\"postMetadataReasons\\\": [],\\n      \\\"materialDriftBlocking\\\": true,\\n      \\\"materialDriftReasons\\\": [\\n        \\\"stale-material\\\"\\n      ]\\n    },\\n    {\\n      \\\"round\\\": 3,\\n      \\\"firstRunMs\\\": 1083,\\n      \\\"postMetadataEvalMs\\\": 58,\\n      \\\"metadataOnlyHeadChanged\\\": true,\\n      \\\"materialSameAfterMetadataCommit\\\": true,\\n      \\\"storyFilesSameAfterMetadataCommit\\\": true,\\n      \\\"postMetadataOk\\\": true,\\n      \\\"postMetadataBlocking\\\": false,\\n      \\\"postMetadataReasons\\\": [],\\n      \\\"materialDriftBlocking\\\": true,\\n      \\\"materialDriftReasons\\\": [\\n        \\\"stale-material\\\"\\n      ]\\n    }\\n  ]\\n}\\n\",\"durationMs\":5122},{\"label\":\"configured validate.commands[9]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/version-bump-smoke.js\"],\"code\":0,\"output\":\"version-bump smoke passed: 64 assertions\\n\",\"durationMs\":280},{\"label\":\"configured validate.commands[10]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/parallel-decomposition-gate-smoke.js\"],\"code\":0,\"output\":\"parallel-decomposition-gate smoke passed: 32 assertions\\n\",\"durationMs\":167},{\"label\":\"configured validate.commands[11]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/parallel-gate-config-smoke.js\"],\"code\":0,\"output\":\"parallel-gate-config smoke passed: 82 assertions\\n\",\"durationMs\":216},{\"label\":\"configured validate.commands[12]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/parallel-wave-advisory-smoke.js\"],\"code\":0,\"output\":\"parallel-wave-advisory smoke passed: 56 assertions\\n\",\"durationMs\":219},{\"label\":\"configured validate.commands[13]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/parallel-decomposition-gate-integration-smoke.js\"],\"code\":0,\"output\":\"✓ 1: overlap+block+clean review -> canStartDevGuard FALSE\\n✓ 1: overlap message is non-null\\n✓ 1: overlap message names the block reason\\n✓ 1: overlap message names the peer\\n✓ 1: overlap message names the colliding path\\n✓ 2: disjoint+block+clean -> canStartDevGuard TRUE\\n✓ 2: disjoint -> no parallel-decomposition message\\n✓ 3: overlap under mode=advise -> canStartDevGuard TRUE\\n✓ 3: overlap under mode=advise -> no parallel block message\\n✓ 3: overlap under mode=off -> canStartDevGuard TRUE\\n✓ 3: overlap under mode=off -> no parallel block message\\n✓ 4: broad glob + broadGlobBlocks -> canStartDevGuard FALSE\\n✓ 4: broad glob message names broad_glob_unprovable_parallel\\n✓ 4: broad glob message names the broad glob\\n✓ 5a: unclean review -> canStartDevGuard FALSE\\n✓ 5a: unclean review -> reason names the review blocker (not parallel)\\n✓ 5b: missing review -> canStartDevGuard FALSE\\n✓ 5b: missing review -> reason non-null (review gate)\\n✓ 6: FAIL-OPEN: parallel sub-check throws + clean review -> canStartDevGuard TRUE\\n✓ 6: FAIL-OPEN: getGuardFailureReason returns null for the parallel branch on a gate error\\n✓ 7: parity blocked -> guard FALSE && parallel message present\\n✓ 7: parity clean -> guard TRUE && no parallel message\\n✓ bonus: unreadable peer contract -> canStartDevGuard FALSE\\n✓ bonus: unreadable peer contract -> peer_contract_unreadable_parallel message\\n✓ F-001: light profile (no review required) + overlap -> canStartDevGuard FALSE\\n✓ F-001: light profile -> parallel block message present + names peer\\n✓ F-001: light profile + disjoint (no review) -> canStartDevGuard TRUE\\n✓ F-003: express channel + overlap -> canSkipPlanGuard FALSE (gate not bypassed)\\n✓ F-003: express channel -> getGuardFailureReason renders the parallel block\\n✓ F-003: express channel + disjoint -> canSkipPlanGuard TRUE\\n✓ F-003: express channel FAIL-OPEN (gate throws) -> canSkipPlanGuard TRUE\\n✓ F-002: signed review blockerCount=-1 -> canStartDevGuard FALSE (strict !== 0)\\n✓ F-002: blockerCount=-1 -> getGuardFailureReason names the unresolved blocker(s)\\n✓ F-004: terminal-peer case -> canStartDevGuard FALSE (active peer overlap)\\n✓ F-004: message names the ACTIVE peer\\n✓ F-004: message does NOT name the DONE/terminal peer\\n✓ F-006: REVIEW→DEV rollback + overlap -> canReenterDevGuard FALSE\\n✓ F-006: REVIEW→DEV rollback -> getGuardFailureReason renders the parallel block + names peer\\n✓ F-006: REVIEW→DEV rollback + disjoint -> canReenterDevGuard TRUE\\n✓ F-006: REVIEW→DEV rollback + disjoint -> no parallel message\\n✓ F-006: TEST→DEV rollback + overlap -> canReenterDevGuard FALSE\\n✓ F-006: TEST→DEV rollback -> getGuardFailureReason renders the parallel block + names peer\\n✓ F-006: TEST→DEV rollback + disjoint -> canReenterDevGuard TRUE\\n✓ F-006: TEST→DEV rollback + disjoint -> no parallel message\\n✓ F-006: rollback FAIL-OPEN (gate throws) -> canReenterDevGuard TRUE\\n✓ F-006: rollback FAIL-OPEN -> getGuardFailureReason null for parallel branch\\n✓ F-007: literal-collision -> canStartDevGuard FALSE\\n✓ F-007: message names the LITERAL-collision peer (B-peer)\\n✓ F-007: message cites the literal path, not the wildcard\\n✓ F-007: message does NOT name the tier-2 wildcard-only peer\\nparallel-decomposition-gate-integration smoke passed: 50 assertions\\n\",\"durationMs\":3444},{\"label\":\"configured validate.commands[14]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/adversarial-review-contract-smoke.js\"],\"code\":0,\"output\":\"adversarial-review-contract smoke passed: 29 assertions\\n\",\"durationMs\":151},{\"label\":\"configured validate.commands[15]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/adversarial-review-lens-runner-smoke.js\"],\"code\":0,\"output\":\"adversarial-review-lens-runner smoke passed: 96 assertions\\n\",\"durationMs\":169},{\"label\":\"configured validate.commands[16]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/adversarial-review-verifier-smoke.js\"],\"code\":0,\"output\":\"adversarial-review-verifier smoke passed: 68 assertions\\n\",\"durationMs\":167},{\"label\":\"configured validate.commands[17]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/adversarial-review-critic-smoke.js\"],\"code\":0,\"output\":\"adversarial-review-critic smoke passed: 52 assertions\\n\",\"durationMs\":300},{\"label\":\"configured validate.commands[18]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/adversarial-review-round-smoke.js\"],\"code\":0,\"output\":\"adversarial-review-round smoke passed: 77 assertions\\n\",\"durationMs\":555},{\"label\":\"configured validate.commands[19]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/material-hash-large-tree-smoke.js\"],\"code\":0,\"output\":\"fixture ls-tree -r -z HEAD byte length: 1116073 (> 1048576 = 1 MiB) across 6000 files\\nmaterial-hash-large-tree smoke passed\\n\",\"durationMs\":61417},{\"label\":\"configured validate.commands[20]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/lifecycle-orchestrate-smoke.js\"],\"code\":0,\"output\":\"lifecycle_orchestrate smoke passed\\n\",\"durationMs\":17259},{\"label\":\"configured validate.commands[21]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/init-preflight-smoke.js\"],\"code\":0,\"output\":\"init_preflight smoke passed\\n\",\"durationMs\":1989},{\"label\":\"configured validate.commands[22]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/english-early-check-smoke.js\"],\"code\":0,\"output\":\"ok: story_create refuses CJK background before persistence\\nok: story_create refuses CJK checklist title/context before persistence\\nok: English story_create succeeds with em dash punctuation\\nok: background_set refuses CJK before writing\\nok: early authoring check and english-artifact gate agree on containsCJK\\nenglish-early-check smoke passed\\n\",\"durationMs\":6740},{\"label\":\"configured validate.commands[23]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/quorum-submit-smoke.js\"],\"code\":0,\"output\":\"  ✓ refuses when required reviewer passes are absent and writes no verdicts\\n  ✓ refuses when reviewer passes are stale and writes no verdicts\\n  ✓ emits exactly rounds x 2 verdicts after current reviewer passes\\n  ✓ review_escalation_status and review assurance floor report complete voluntary 3x2 rounds\\n  ✓ auto-computed materialDigest and storyFilesHash match current helpers\\n  ✓ hosts are independent by hostId, sessionId, and keyId\\n  ✓ never sets authorityDone, fullAuthorityDone, or productionDone\\n  ✓ refuses a same-material re-submit and writes no new verdicts\\n  ✓ allows a fresh quorum after a material change\\n  ✓ --rounds=N (N != 3) emits exactly N x 2 verdicts with N runIds\\n  ✓ rejects non-independent host identity before writing additional verdicts\\n\\n✓ quorum_submit smoke passed (11 checks)\\n\",\"durationMs\":36911},{\"label\":\"configured validate.commands[24]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/receipt-bundle-contract-smoke.js\"],\"code\":0,\"output\":\"  [lying-agent] stale done/pass REJECTED reason=stale\\n  [lying-agent] forged done/pass REJECTED reason=signature_invalid\\n  [self-check] receipt exitCode:1 REJECTED reason=receipt_not_passing; hostVerdicts.push(null) REJECTED reason=malformed_bundle\\n  [ACCEPT] authentic (control)    reason=ok\\n  [REJECT] code-byte-flip         reason=stale\\n  [REJECT] evidence-edit          reason=signature_invalid\\n  [REJECT] host-verdict-swap      reason=signature_invalid\\n  [REJECT] commandSet-change      reason=signature_invalid\\n  [REJECT] stale-materialHash     reason=stale\\n  [REJECT] forged-signature       reason=signature_invalid\\n  [REJECT] missing-signature      reason=signature_missing\\n  [REJECT] missing-build-proof    reason=build_proof_missing\\n  [REJECT] binding-incomplete     reason=binding_incomplete\\n  [REJECT] digest-malformed       reason=digest_mismatch\\n  [REJECT] decision-fail          reason=decision_not_pass\\n  [REJECT] receipt-exit-1         reason=receipt_not_passing\\n  [REJECT] receipt-exit-neg1      reason=receipt_not_passing\\n  [REJECT] receipt-empty-cmd      reason=receipt_not_passing\\n  [REJECT] hostverdict-null       reason=malformed_bundle\\n  [REJECT] decision-null          reason=malformed_bundle\\n  [REJECT] extra-key              reason=malformed_bundle\\n  [REJECT] signer-key-mismatch    reason=signer_key_mismatch\\n✓ receipt-bundle contract smoke passed: authentic ACCEPTED; 18 tamper classes REJECTED (every reason code reached); lying-agent + soundness-hole self-checks rejected; 0 false-accept, 0 false-reject\\n\",\"durationMs\":215},{\"label\":\"configured validate.commands[25]\",\"command\":\"node\",\"args\":[\"packages/main/dist/tasks/gate-strength-contract-smoke.js\"],\"code\":0,\"output\":\"  ✓ test-only reviewer: catchRate 0, falseShip = wrongTotal (ships every wrong probe)\\n  ✓ block-all reviewer: catchRate 1.0 BUT falseBlock = genuineTotal (catchRate alone is gameable)\\n  ✓ oracle reviewer: catchRate 1.0, falseShip 0, falseBlock 0, names each defect\\n  ✓ oracle DOMINATES: beats test-only on catchRate AND beats block-all on falseBlock\\n  ✓ runGateStrength REJECTS an all-genuine corpus (catch-rate is undefined)\\n  ✓ runGateStrength REJECTS a corpus that violates the defectKind<->genuine invariant\\n  ✓ gate-strength receipt verifies offline (ACCEPTED) against matching materialHash\\n  ✓ tampering a signed bundle field is REJECTED (signature_invalid)\\n  ✓ a stale receipt (old materialHash) is REJECTED\\n  ✓ verifyGateStrengthResult: the authentic result MATCHES the bound digest\\n  ✓ verifyGateStrengthResult: a result tampered after the fact does NOT match the receipt\\n  ✓ verifyGateStrengthResult: tampering a per-probe REASON also does NOT match (full result is bound)\\n\\n✓ gate-strength contract smoke passed: test-only caught 0/3 (visible-test gap), block-all catchRate 1.0 but falseBlock 1 (catchRate gameable), oracle DOMINATES both (catchRate 1.0 + falseBlock 0), all-genuine/invalid corpus rejected, receipt verifies offline + tamper-evident, result↔receipt loop closed (full result incl. reasons bound).\\n\",\"durationMs\":275}],\"verificationPolicy\":{\"policy\":\"explicit-intent\",\"channel\":\"normal\",\"intentCount\":48,\"reason\":\"verificationIntent entries present (48)\"},\"verificationCoverage\":{\"total\":48,\"required\":48,\"covered\":48,\"missingRequired\":0,\"entries\":[{\"intentRef\":\"CHK-001:happy:0\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"agentRun call increments agentCallCount by 1 per invocation; after 3 agent calls on synthetic records, agentCallCount === 3; WHY: covers basic counting at the executor call site\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"node experiments/recovery-runner/spend-accounting-selfcheck.mjs\",\"result\":\"pass\",\"note\":\"selfcheck \\\"CHK-001 h0\\\": replayBudgetLoop (shared increment-then-check primitive the real loop uses) counts 3 executor calls => agentCallCount 3.\",\"headHash\":\"b148b4d5c0c314ce36bba21a910ea5df83e4559d\",\"materialHash\":\"7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9\",\"storyFilesHash\":\"941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9\",\"timestamp\":\"2026-06-23T01:53:07.291Z\"}},{\"intentRef\":\"CHK-001:happy:1\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"reviewArtifact call increments agentCallCount by 1; after 2 agent + 1 review calls, agentCallCount === 3; WHY: covers the reviewer call site that was previously undercounted via reviewRounds\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:1\",\"kind\":\"manual_transcript\",\"command\":\"node experiments/recovery-runner/spend-accounting-selfcheck.mjs\",\"result\":\"pass\",\"note\":\"selfcheck \\\"CHK-001 h1\\\": every call (executor AND reviewer) increments; 2+1 calls => agentCallCount 3. reviewArtifact() increment is at run-recovery.mjs agentCallCount++ before the reviewer execFileSync.\",\"headHash\":\"b148b4d5c0c314ce36bba21a910ea5df83e4559d\",\"materialHash\":\"7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9\",\"storyFilesHash\":\"941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9\",\"timestamp\":\"2026-06-23T01:53:07.291Z\"}},{\"intentRef\":\"CHK-001:happy:2\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"tokensSpent accumulated from claude JSON usage.input_tokens + usage.output_tokens across all calls; 3 calls with usage {in:100,out:50} each => tokensSpent === 450; WHY: covers token extraction and accumulation\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:2\",\"kind\":\"manual_transcript\",\"command\":\"node experiments/recovery-runner/spend-accounting-selfcheck.mjs\",\"result\":\"pass\",\"note\":\"selfcheck \\\"CHK-001 h2\\\": tokensFromUsage({in:100,out:50})=150 and 3x accumulated=450 (input_tokens+output_tokens summed).\",\"headHash\":\"b148b4d5c0c314ce36bba21a910ea5df83e4559d\",\"materialHash\":\"7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9\",\"storyFilesHash\":\"941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9\",\"timestamp\":\"2026-06-23T01:53:07.291Z\"}},{\"intentRef\":\"CHK-001:happy:3\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"wallClockMs is present in output record and is a positive number; WHY: confirms existing field preserved per pre-reg\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:3\",\"kind\":\"manual_transcript\",\"command\":\"node experiments/recovery-runner/spend-accounting-selfcheck.mjs\",\"result\":\"pass\",\"note\":\"selfcheck \\\"CHK-001 h3\\\": buildRunRecord (the shared builder the real record literal spreads) carries wallClockMs as a positive number.\",\"headHash\":\"b148b4d5c0c314ce36bba21a910ea5df83e4559d\",\"materialHash\":\"7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9\",\"storyFilesHash\":\"941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9\",\"timestamp\":\"2026-06-23T01:53:07.291Z\"}},{\"intentRef\":\"CHK-001:happy:4\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"desc\":\"output record contains exact pre-reg section 7 field names: tokensSpent, wallClockMs, agentCallCount; WHY: field-name compliance with locked pre-registration\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:happy:4\",\"kind\":\"manual_transcript\",\"command\":\"node experiments/recovery-runner/spend-accounting-selfcheck.mjs\",\"result\":\"pass\",\"note\":\"selfcheck \\\"CHK-001 h4\\\": buildRunRecord output has the exact pre-reg section 7 names tokensSpent/wallClockMs/agentCallCount; the real record spreads buildRunRecord(...) at run-recovery.mjs.\",\"headHash\":\"b148b4d5c0c314ce36bba21a910ea5df83e4559d\",\"materialHash\":\"7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9\",\"storyFilesHash\":\"941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9\",\"timestamp\":\"2026-06-23T01:53:07.291Z\"}},{\"intentRef\":\"CHK-001:edge:0\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"zero-token response (usage.input_tokens=0, usage.output_tokens=0) => tokensSpent accumulates 0, not NaN or undefined; WHY: edge where model returns empty usage\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:0\",\"kind\":\"manual_transcript\",\"command\":\"node experiments/recovery-runner/spend-accounting-selfcheck.mjs\",\"result\":\"pass\",\"note\":\"selfcheck \\\"CHK-001 e0\\\": zero usage {in:0,out:0} => tokensFromUsage 0, not NaN/undefined.\",\"headHash\":\"b148b4d5c0c314ce36bba21a910ea5df83e4559d\",\"materialHash\":\"7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9\",\"storyFilesHash\":\"941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9\",\"timestamp\":\"2026-06-23T01:53:07.291Z\"}},{\"intentRef\":\"CHK-001:edge:1\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"missing usage field in claude JSON output => tokensSpent defaults to 0 for that call, not NaN/throw; WHY: defensive against malformed claude output\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:1\",\"kind\":\"manual_transcript\",\"command\":\"node experiments/recovery-runner/spend-accounting-selfcheck.mjs\",\"result\":\"pass\",\"note\":\"selfcheck \\\"CHK-001 e1\\\": JSON with no usage field => tokensFromUsage 0 (defensive default), not NaN/throw.\",\"headHash\":\"b148b4d5c0c314ce36bba21a910ea5df83e4559d\",\"materialHash\":\"7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9\",\"storyFilesHash\":\"941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9\",\"timestamp\":\"2026-06-23T01:53:07.291Z\"}},{\"intentRef\":\"CHK-001:edge:2\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"desc\":\"single attempt R=1 succeeds => agentCallCount=1 not 0 or 2; WHY: boundary on minimum call count\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:edge:2\",\"kind\":\"manual_transcript\",\"command\":\"node experiments/recovery-runner/spend-accounting-selfcheck.mjs\",\"result\":\"pass\",\"note\":\"selfcheck \\\"CHK-001 e2\\\": single call (R=1 style) => agentCallCount 1, not 0 or 2.\",\"headHash\":\"b148b4d5c0c314ce36bba21a910ea5df83e4559d\",\"materialHash\":\"7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9\",\"storyFilesHash\":\"941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9\",\"timestamp\":\"2026-06-23T01:53:07.291Z\"}},{\"intentRef\":\"CHK-001:adversarial:0\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"claude JSON contains negative token counts => tokensSpent accumulates correctly or implementation-defined; WHY: adversarial malformed data from model API\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:0\",\"kind\":\"manual_transcript\",\"command\":\"node experiments/recovery-runner/spend-accounting-selfcheck.mjs\",\"result\":\"pass\",\"note\":\"selfcheck \\\"CHK-001 a0\\\": negative token counts accumulate finitely and deterministically (tokensFromUsage({in:-100,out:50})=-50); implementation-defined per the intent, never NaN/throw.\",\"headHash\":\"b148b4d5c0c314ce36bba21a910ea5df83e4559d\",\"materialHash\":\"7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9\",\"storyFilesHash\":\"941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9\",\"timestamp\":\"2026-06-23T01:53:07.291Z\"}},{\"intentRef\":\"CHK-001:adversarial:1\",\"itemId\":\"CHK-001\",\"lane\":\"adversarial\",\"desc\":\"infra void on first call => agentCallCount reflects only calls actually made not max R; WHY: ensures count is actual not planned\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-001:adversarial:1\",\"kind\":\"manual_transcript\",\"command\":\"node experiments/recovery-runner/spend-accounting-selfcheck.mjs\",\"result\":\"pass\",\"note\":\"selfcheck \\\"CHK-001 a1\\\": a 1-call replay => agentCallCount 1, i.e. count reflects calls actually made not max R (real loop breaks on !a.ok before the next iteration at run-recovery.mjs infraVoid break).\",\"headHash\":\"b148b4d5c0c314ce36bba21a910ea5df83e4559d\",\"materialHash\":\"7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9\",\"storyFilesHash\":\"941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9\",\"timestamp\":\"2026-06-23T01:53:07.291Z\"}},{\"intentRef\":\"CHK-002:happy:0\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"when cumulative tokensSpent >= tokenBudget, loop terminates and record.truncated === true; WHY: covers the primary token-binds-first truncation rule\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"node experiments/recovery-runner/spend-accounting-selfcheck.mjs\",\"result\":\"pass\",\"note\":\"selfcheck \\\"CHK-002 h0\\\": cumulative tokens reaching tokenBudget => truncated true (replayBudgetLoop uses the same budgetExceeded + break the real loop calls at run-recovery.mjs).\",\"headHash\":\"d975dcad54573abcafe94935a7e60607575b25bb\",\"materialHash\":\"7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9\",\"storyFilesHash\":\"941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9\",\"timestamp\":\"2026-06-23T01:53:32.199Z\"}},{\"intentRef\":\"CHK-002:happy:1\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"when cumulative wallClockMs >= wallBudget and tokens still under budget, loop terminates with truncated=true; WHY: covers wall-clock binding when token is not the constraint\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:1\",\"kind\":\"manual_transcript\",\"command\":\"node experiments/recovery-runner/spend-accounting-selfcheck.mjs\",\"result\":\"pass\",\"note\":\"selfcheck \\\"CHK-002 h1\\\": wall-clock reaching wallBudget while tokens under => truncated true.\",\"headHash\":\"d975dcad54573abcafe94935a7e60607575b25bb\",\"materialHash\":\"7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9\",\"storyFilesHash\":\"941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9\",\"timestamp\":\"2026-06-23T01:53:32.199Z\"}},{\"intentRef\":\"CHK-002:happy:2\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"when both budgets are NOT exceeded across all R iterations, truncated === false and budgetPass === true; WHY: covers the non-truncation normal completion path\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:2\",\"kind\":\"manual_transcript\",\"command\":\"node experiments/recovery-runner/spend-accounting-selfcheck.mjs\",\"result\":\"pass\",\"note\":\"selfcheck \\\"CHK-002 h2\\\": under both budgets across iterations => truncated false, and budgetPass true when actual within band.\",\"headHash\":\"d975dcad54573abcafe94935a7e60607575b25bb\",\"materialHash\":\"7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9\",\"storyFilesHash\":\"941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9\",\"timestamp\":\"2026-06-23T01:53:32.199Z\"}},{\"intentRef\":\"CHK-002:happy:3\",\"itemId\":\"CHK-002\",\"lane\":\"happy\",\"desc\":\"record contains budgetPass field (boolean) reflecting whether the run stayed within budget; WHY: pre-reg requires per-run budget pass/fail logging\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:happy:3\",\"kind\":\"logic_test\",\"result\":\"pass\",\"note\":\"budgetPass is computed and written into the run record by run-ablation.mjs line 138 (enriched.budgetPass = budgetPass(run.tokensSpent, medTokens)) then appended at line 140; the boolean correctness of budgetPass() is unit-tested by selfcheck \\\"CHK-002 h3\\\" / \\\"CHK-003 h3\\\". Field-presence-in-the-jsonl is code-review (logic) since writing the file requires a live ablation run.\",\"headHash\":\"d975dcad54573abcafe94935a7e60607575b25bb\",\"materialHash\":\"7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9\",\"storyFilesHash\":\"941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9\",\"timestamp\":\"2026-06-23T01:53:32.199Z\"}},{\"intentRef\":\"CHK-002:edge:0\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"tokenBudget exactly equals cumulative tokens after final call => truncated should be true (>= not >); WHY: boundary at exact budget match\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:0\",\"kind\":\"manual_transcript\",\"command\":\"node experiments/recovery-runner/spend-accounting-selfcheck.mjs\",\"result\":\"pass\",\"note\":\"selfcheck \\\"CHK-002 e0\\\": tokens exactly equal to budget => truncated true (>= boundary, not >).\",\"headHash\":\"d975dcad54573abcafe94935a7e60607575b25bb\",\"materialHash\":\"7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9\",\"storyFilesHash\":\"941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9\",\"timestamp\":\"2026-06-23T01:53:32.199Z\"}},{\"intentRef\":\"CHK-002:edge:1\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"budget mode with R=1 and first call exceeds token budget => single call runs but truncated=true on that call; WHY: minimum-iteration boundary\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:1\",\"kind\":\"manual_transcript\",\"command\":\"node experiments/recovery-runner/spend-accounting-selfcheck.mjs\",\"result\":\"pass\",\"note\":\"selfcheck \\\"CHK-002 e1\\\": R=1-style single call over budget => agentCallCount 1 with truncated true on that call.\",\"headHash\":\"d975dcad54573abcafe94935a7e60607575b25bb\",\"materialHash\":\"7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9\",\"storyFilesHash\":\"941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9\",\"timestamp\":\"2026-06-23T01:53:32.199Z\"}},{\"intentRef\":\"CHK-002:edge:2\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"zero tokenBudget => first call immediately triggers truncation; WHY: degenerate budget boundary\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:2\",\"kind\":\"manual_transcript\",\"command\":\"node experiments/recovery-runner/spend-accounting-selfcheck.mjs\",\"result\":\"pass\",\"note\":\"selfcheck \\\"CHK-002 e2\\\": zero tokenBudget => first call immediately truncates (tokens 0 >= budget 0).\",\"headHash\":\"d975dcad54573abcafe94935a7e60607575b25bb\",\"materialHash\":\"7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9\",\"storyFilesHash\":\"941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9\",\"timestamp\":\"2026-06-23T01:53:32.199Z\"}},{\"intentRef\":\"CHK-002:edge:3\",\"itemId\":\"CHK-002\",\"lane\":\"edge\",\"desc\":\"no budget args provided => budget mode is OFF, no truncation, budgetPass/truncated fields absent or null; WHY: backward compatibility with non-budget runs\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:edge:3\",\"kind\":\"manual_transcript\",\"command\":\"node experiments/recovery-runner/spend-accounting-selfcheck.mjs\",\"result\":\"pass\",\"note\":\"selfcheck \\\"CHK-002 e3\\\": no budget args => budget mode OFF (both null) => truncated false even at huge spend; buildRunRecord defaults truncated=false. Real loop guards every cap check with budgetMode at run-recovery.mjs.\",\"headHash\":\"d975dcad54573abcafe94935a7e60607575b25bb\",\"materialHash\":\"7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9\",\"storyFilesHash\":\"941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9\",\"timestamp\":\"2026-06-23T01:53:32.199Z\"}},{\"intentRef\":\"CHK-002:adversarial:0\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"token budget is very small (1 token) but wall budget is very large => token binds first, loop stops after first call regardless of wall budget; WHY: verifies token-binds-first precedence under extreme asymmetry\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:0\",\"kind\":\"manual_transcript\",\"command\":\"node experiments/recovery-runner/spend-accounting-selfcheck.mjs\",\"result\":\"pass\",\"note\":\"selfcheck \\\"CHK-002 a0\\\": tokenBudget=1, wallBudgetMs=1e12 => token binds FIRST, loop stops after the first call regardless of the huge wall budget.\",\"headHash\":\"d975dcad54573abcafe94935a7e60607575b25bb\",\"materialHash\":\"7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9\",\"storyFilesHash\":\"941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9\",\"timestamp\":\"2026-06-23T01:53:32.199Z\"}},{\"intentRef\":\"CHK-002:adversarial:1\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"negative tokenBudget value => implementation should reject or treat as immediate truncation, not loop forever; WHY: adversarial invalid input\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:1\",\"kind\":\"manual_transcript\",\"command\":\"node experiments/recovery-runner/spend-accounting-selfcheck.mjs\",\"result\":\"pass\",\"note\":\"selfcheck \\\"CHK-002 a1\\\": negative tokenBudget => any tokens>=negative immediately truncates; no infinite loop.\",\"headHash\":\"d975dcad54573abcafe94935a7e60607575b25bb\",\"materialHash\":\"7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9\",\"storyFilesHash\":\"941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9\",\"timestamp\":\"2026-06-23T01:53:32.200Z\"}},{\"intentRef\":\"CHK-002:adversarial:2\",\"itemId\":\"CHK-002\",\"lane\":\"adversarial\",\"desc\":\"wall clock jumps due to system clock skew mid-run => wallClockMs still computed correctly via monotonic timing or Date.now delta; WHY: adversarial timing scenario\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-002:adversarial:2\",\"kind\":\"manual_transcript\",\"command\":\"node experiments/recovery-runner/spend-accounting-selfcheck.mjs\",\"result\":\"pass\",\"note\":\"selfcheck \\\"CHK-002 a2\\\": elapsed is an accumulated per-call delta; the real loop uses Date.now()-t0 (a monotonic-style delta from a single t0), so wall-clock is skew-immune relative to absolute clock jumps. budgetExceeded operates on the delta.\",\"headHash\":\"d975dcad54573abcafe94935a7e60607575b25bb\",\"materialHash\":\"7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9\",\"storyFilesHash\":\"941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9\",\"timestamp\":\"2026-06-23T01:53:32.200Z\"}},{\"intentRef\":\"CHK-003:happy:0\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"median computation on odd-length A4 tokensSpent array [100,300,200] => median=200; WHY: covers basic median calculation for budget derivation\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"node experiments/recovery-runner/spend-accounting-selfcheck.mjs\",\"result\":\"pass\",\"note\":\"selfcheck \\\"CHK-003 h0\\\": median([100,300,200])=200 (odd-length).\",\"headHash\":\"4c04a933768f7a99938bf2bdeb1cc5cda465239c\",\"materialHash\":\"7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9\",\"storyFilesHash\":\"941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9\",\"timestamp\":\"2026-06-23T01:53:57.669Z\"}},{\"intentRef\":\"CHK-003:happy:1\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"median computation on even-length A4 tokensSpent array [100,200,300,400] => median=250; WHY: covers even-count averaging\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:1\",\"kind\":\"manual_transcript\",\"command\":\"node experiments/recovery-runner/spend-accounting-selfcheck.mjs\",\"result\":\"pass\",\"note\":\"selfcheck \\\"CHK-003 h1\\\": median([100,200,300,400])=250 (even-length average).\",\"headHash\":\"4c04a933768f7a99938bf2bdeb1cc5cda465239c\",\"materialHash\":\"7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9\",\"storyFilesHash\":\"941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9\",\"timestamp\":\"2026-06-23T01:53:57.669Z\"}},{\"intentRef\":\"CHK-003:happy:2\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"A2-prime arm budget = A4 median +/- 20 pct; for median=1000 tokens, tokenBudget=1200 (upper bound), wallBudget=median_wall*1.2; WHY: covers the tolerance band derivation\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:2\",\"kind\":\"manual_transcript\",\"command\":\"node experiments/recovery-runner/spend-accounting-selfcheck.mjs\",\"result\":\"pass\",\"note\":\"selfcheck \\\"CHK-003 h2\\\": a2primeBudget(1000,2000)={tokenBudget:1200,wallBudgetMs:2400} = round(1.2*median) upper bound of the +/-20pct band.\",\"headHash\":\"4c04a933768f7a99938bf2bdeb1cc5cda465239c\",\"materialHash\":\"7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9\",\"storyFilesHash\":\"941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9\",\"timestamp\":\"2026-06-23T01:53:57.669Z\"}},{\"intentRef\":\"CHK-003:happy:3\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"A2-prime records written to ablation-A2prime-compute-matched.jsonl with budgetPass field; WHY: covers output file naming and per-run budget logging per pre-reg\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:3\",\"kind\":\"logic_test\",\"result\":\"pass\",\"note\":\"run-ablation.mjs lines 134-140 build the enriched record with budgetPass and append it to ablation-A2prime-compute-matched.jsonl (A2P_FILE, line 96). The budgetPass() function is unit-tested (selfcheck CHK-003 h3). File-write at runtime needs a live ablation run, so the integration is code-review (logic).\",\"headHash\":\"4c04a933768f7a99938bf2bdeb1cc5cda465239c\",\"materialHash\":\"7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9\",\"storyFilesHash\":\"941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9\",\"timestamp\":\"2026-06-23T01:53:57.669Z\"}},{\"intentRef\":\"CHK-003:happy:4\",\"itemId\":\"CHK-003\",\"lane\":\"happy\",\"desc\":\"A2-prime arm invokes run-recovery.mjs with arm=a2prime and budget args derived from A4 median; WHY: covers correct wiring of budget into the runner\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:happy:4\",\"kind\":\"logic_test\",\"result\":\"pass\",\"note\":\"run-ablation.mjs lines 127-131 invoke run-recovery.mjs with --arm a2prime and --tokenBudget/--wallBudgetMs taken from a2primeBudget(median(...)) (lines 106-108). The median->budget derivation chain is unit-tested (selfcheck CHK-003 h4); the actual subprocess spawn needs the live LLM, so the wiring is code-review (logic).\",\"headHash\":\"4c04a933768f7a99938bf2bdeb1cc5cda465239c\",\"materialHash\":\"7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9\",\"storyFilesHash\":\"941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9\",\"timestamp\":\"2026-06-23T01:53:57.669Z\"}},{\"intentRef\":\"CHK-003:edge:0\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"single A4 record => median = that single value; WHY: minimum sample size boundary\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:0\",\"kind\":\"manual_transcript\",\"command\":\"node experiments/recovery-runner/spend-accounting-selfcheck.mjs\",\"result\":\"pass\",\"note\":\"selfcheck \\\"CHK-003 e0\\\": median([777])=777 (single record).\",\"headHash\":\"4c04a933768f7a99938bf2bdeb1cc5cda465239c\",\"materialHash\":\"7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9\",\"storyFilesHash\":\"941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9\",\"timestamp\":\"2026-06-23T01:53:57.669Z\"}},{\"intentRef\":\"CHK-003:edge:1\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"all A4 records identical tokensSpent => median = that value, budget = value*1.2; WHY: zero-variance edge\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:1\",\"kind\":\"manual_transcript\",\"command\":\"node experiments/recovery-runner/spend-accounting-selfcheck.mjs\",\"result\":\"pass\",\"note\":\"selfcheck \\\"CHK-003 e1\\\": identical values [500,500,500] => median 500, a2primeBudget tokenBudget=600 (value*1.2).\",\"headHash\":\"4c04a933768f7a99938bf2bdeb1cc5cda465239c\",\"materialHash\":\"7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9\",\"storyFilesHash\":\"941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9\",\"timestamp\":\"2026-06-23T01:53:57.669Z\"}},{\"intentRef\":\"CHK-003:edge:2\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"A4 median wallClockMs is 0 (all instant) => wallBudget=0, still valid; WHY: degenerate zero-time edge\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:2\",\"kind\":\"manual_transcript\",\"command\":\"node experiments/recovery-runner/spend-accounting-selfcheck.mjs\",\"result\":\"pass\",\"note\":\"selfcheck \\\"CHK-003 e2\\\": median wall 0 => a2primeBudget wallBudgetMs 0 (still valid, no NaN).\",\"headHash\":\"4c04a933768f7a99938bf2bdeb1cc5cda465239c\",\"materialHash\":\"7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9\",\"storyFilesHash\":\"941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9\",\"timestamp\":\"2026-06-23T01:53:57.669Z\"}},{\"intentRef\":\"CHK-003:edge:3\",\"itemId\":\"CHK-003\",\"lane\":\"edge\",\"desc\":\"per-TASK median: each task gets its own budget from that task A4 runs, not a global median; WHY: verifies per-task granularity\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:edge:3\",\"kind\":\"manual_transcript\",\"command\":\"node experiments/recovery-runner/spend-accounting-selfcheck.mjs\",\"result\":\"pass\",\"note\":\"selfcheck \\\"CHK-003 e3\\\": distinct task arrays yield distinct medians (100 vs 900); run-ablation.mjs line 105 filters a4Records by r.taskId===task so each task gets its OWN budget (per-task granularity), not a global median.\",\"headHash\":\"4c04a933768f7a99938bf2bdeb1cc5cda465239c\",\"materialHash\":\"7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9\",\"storyFilesHash\":\"941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9\",\"timestamp\":\"2026-06-23T01:53:57.669Z\"}},{\"intentRef\":\"CHK-003:adversarial:0\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"no A4 records exist for a task (empty array) => median computation should error or skip, not produce NaN budget; WHY: missing prerequisite data\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:0\",\"kind\":\"manual_transcript\",\"command\":\"node experiments/recovery-runner/spend-accounting-selfcheck.mjs\",\"result\":\"pass\",\"note\":\"selfcheck \\\"CHK-003 a0\\\": empty array => median null; a2primeBudget(null,null)={null,null}; run-ablation.mjs lines 109-112 skip the task (no NaN budget) when both are null.\",\"headHash\":\"4c04a933768f7a99938bf2bdeb1cc5cda465239c\",\"materialHash\":\"7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9\",\"storyFilesHash\":\"941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9\",\"timestamp\":\"2026-06-23T01:53:57.669Z\"}},{\"intentRef\":\"CHK-003:adversarial:1\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"A4 records contain null tokensSpent values => median computation excludes nulls or errors, not silently corrupt budget; WHY: dirty prerequisite JSONL\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:1\",\"kind\":\"manual_transcript\",\"command\":\"node experiments/recovery-runner/spend-accounting-selfcheck.mjs\",\"result\":\"pass\",\"note\":\"selfcheck \\\"CHK-003 a1\\\": median([null,100,null,300])=200; nulls are filtered BEFORE Number() coercion (run-ablation.mjs median) so they do not become spurious zeros.\",\"headHash\":\"4c04a933768f7a99938bf2bdeb1cc5cda465239c\",\"materialHash\":\"7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9\",\"storyFilesHash\":\"941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9\",\"timestamp\":\"2026-06-23T01:53:57.669Z\"}},{\"intentRef\":\"CHK-003:adversarial:2\",\"itemId\":\"CHK-003\",\"lane\":\"adversarial\",\"desc\":\"A4 JSONL file is truncated mid-line (incomplete JSON) => parser handles gracefully, does not crash; WHY: adversarial file corruption\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-003:adversarial:2\",\"kind\":\"logic_test\",\"result\":\"pass\",\"note\":\"run-ablation.mjs line 102 wraps JSON.parse in try/catch returning null for a truncated/incomplete final line, then filters Boolean (line 103) so a corrupt line is dropped, not crashing. Additionally selfcheck \\\"CHK-003 a2\\\" shows median ignores the resulting non-finite/undefined values. Graceful-parse is code-review (logic) since it lives in runMain file I/O.\",\"headHash\":\"4c04a933768f7a99938bf2bdeb1cc5cda465239c\",\"materialHash\":\"7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9\",\"storyFilesHash\":\"941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9\",\"timestamp\":\"2026-06-23T01:53:57.669Z\"}},{\"intentRef\":\"CHK-004:happy:0\",\"itemId\":\"CHK-004\",\"lane\":\"happy\",\"desc\":\"Code comments in run-recovery.mjs and run-ablation.mjs document spend-match semantics (token+wall-clock, not call count; +/-20 pct; token binds first; hard-truncate) and cite the pre-reg; WHY: docs-check item, verified by code review not unit test\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:happy:0\",\"kind\":\"logic_test\",\"result\":\"pass\",\"note\":\"run-recovery.mjs header comment (the spend budget + accounting helpers block) and run-ablation.mjs header comment (the A2-prime compute-matched arm block) both document: spend-match on token+wall-clock NOT call count, +/-20pct band, token binds first, hard-truncate at upper bound.\",\"headHash\":\"e4f90f642841e4644374e46264097f8ab756dc5c\",\"materialHash\":\"7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9\",\"storyFilesHash\":\"941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9\",\"timestamp\":\"2026-06-23T01:54:36.651Z\"}},{\"intentRef\":\"CHK-004:edge:0\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"the comment names the EXACT pre-reg source (lattice-experiment-protocol.md, the A2-prime row in section 1) and the precise tolerance (plus-or-minus 20 pct of A4 per-task median, token binds first, hard-truncate at upper bound); WHY: a vague comment is not auditable against the locked pre-registration\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:edge:0\",\"kind\":\"logic_test\",\"result\":\"pass\",\"note\":\"Both files name the EXACT source: \\\"lattice-experiment-protocol.md rev3.1 §1 (the A2-prime row)\\\" and cite +/-20pct of A4 per-task median, token binds first, hard-truncate at the upper bound (run-recovery.mjs budgetExceeded comment + truncated-flag comment; run-ablation.mjs header + a2primeBudget comment).\",\"headHash\":\"e4f90f642841e4644374e46264097f8ab756dc5c\",\"materialHash\":\"7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9\",\"storyFilesHash\":\"941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9\",\"timestamp\":\"2026-06-23T01:54:36.651Z\"}},{\"intentRef\":\"CHK-004:edge:1\",\"itemId\":\"CHK-004\",\"lane\":\"edge\",\"desc\":\"the comment appears in BOTH run-recovery.mjs (near the budget-truncation logic) AND run-ablation.mjs (near the A2-prime arm setup); WHY: both files implement spend-match behavior and both must be independently traceable to the pre-reg\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:edge:1\",\"kind\":\"logic_test\",\"result\":\"pass\",\"note\":\"The semantics appear in BOTH files: run-recovery.mjs near budgetExceeded() and the in-loop truncation checks (the \\\"Spend-budget hard-truncation cap (A2-prime)\\\" comments), and run-ablation.mjs near the A2-prime arm setup (header + the \\\"A2-prime compute-matched arm\\\" section comment). Each is independently traceable to the pre-reg.\",\"headHash\":\"e4f90f642841e4644374e46264097f8ab756dc5c\",\"materialHash\":\"7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9\",\"storyFilesHash\":\"941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9\",\"timestamp\":\"2026-06-23T01:54:36.651Z\"}},{\"intentRef\":\"CHK-004:adversarial:0\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"the comment does NOT mislabel the match as call-count or claim per-run spend-parity; it must state budget/spend-match (token+wall-clock) precisely; WHY: the whole point of this story is to not reintroduce the compute-confound wording the paper previously got wrong\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:adversarial:0\",\"kind\":\"logic_test\",\"result\":\"pass\",\"note\":\"Comments explicitly say \\\"matched on SPEND (total tokens + wall-clock), NOT on call count\\\" (run-recovery.mjs) and \\\"spend-matched ... NOT by call count\\\" (run-ablation.mjs); they describe a budget/cap, never per-run spend-parity, so the prior compute-confound wording is not reintroduced.\",\"headHash\":\"e4f90f642841e4644374e46264097f8ab756dc5c\",\"materialHash\":\"7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9\",\"storyFilesHash\":\"941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9\",\"timestamp\":\"2026-06-23T01:54:36.651Z\"}},{\"intentRef\":\"CHK-004:adversarial:1\",\"itemId\":\"CHK-004\",\"lane\":\"adversarial\",\"desc\":\"the comment does NOT cite a stale pre-reg revision or wrong section number; it must reference the current rev3.1 and section 1 A2-prime row; WHY: adversarial against copy-paste from an older draft that used call-count semantics\",\"type\":\"logic\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-004:adversarial:1\",\"kind\":\"logic_test\",\"result\":\"pass\",\"note\":\"Comments cite the CURRENT revision \\\"rev3.1\\\" and \\\"§1 (the A2-prime row)\\\" + \\\"§7\\\" in both files; no stale revision or wrong section number. Verified against the authority doc header (Status rev3.1) and §1 A2-prime row / §7 schema.\",\"headHash\":\"e4f90f642841e4644374e46264097f8ab756dc5c\",\"materialHash\":\"7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9\",\"storyFilesHash\":\"941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9\",\"timestamp\":\"2026-06-23T01:54:36.651Z\"}},{\"intentRef\":\"CHK-005:happy:0\",\"itemId\":\"CHK-005\",\"lane\":\"happy\",\"desc\":\"median function on synthetic A4 records [150,250,200] returns 200; WHY: unit-tests the median helper used to derive A2-prime budget\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:happy:0\",\"kind\":\"manual_transcript\",\"command\":\"node experiments/recovery-runner/spend-accounting-selfcheck.mjs\",\"result\":\"pass\",\"note\":\"selfcheck \\\"CHK-005 h0\\\": median([150,250,200])=200.\",\"headHash\":\"e4f90f642841e4644374e46264097f8ab756dc5c\",\"materialHash\":\"7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9\",\"storyFilesHash\":\"941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9\",\"timestamp\":\"2026-06-23T01:54:36.651Z\"}},{\"intentRef\":\"CHK-005:happy:1\",\"itemId\":\"CHK-005\",\"lane\":\"happy\",\"desc\":\"budget-truncation decision: cumTokens=900 vs tokenBudget=1000 => not truncated; cumTokens=1050 vs tokenBudget=1000 => truncated; WHY: unit-tests the core truncation predicate\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:happy:1\",\"kind\":\"manual_transcript\",\"command\":\"node experiments/recovery-runner/spend-accounting-selfcheck.mjs\",\"result\":\"pass\",\"note\":\"selfcheck \\\"CHK-005 h1\\\": budgetExceeded(900,...,1000)=false; budgetExceeded(1050,...,1000)=true.\",\"headHash\":\"e4f90f642841e4644374e46264097f8ab756dc5c\",\"materialHash\":\"7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9\",\"storyFilesHash\":\"941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9\",\"timestamp\":\"2026-06-23T01:54:36.651Z\"}},{\"intentRef\":\"CHK-005:happy:2\",\"itemId\":\"CHK-005\",\"lane\":\"happy\",\"desc\":\"token/wallclock accumulation on 3 synthetic agent-call records => tokensSpent = sum of all input+output tokens, wallClockMs = sum of per-call durations; WHY: unit-tests accumulator logic without live LLM\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:happy:2\",\"kind\":\"manual_transcript\",\"command\":\"node experiments/recovery-runner/spend-accounting-selfcheck.mjs\",\"result\":\"pass\",\"note\":\"selfcheck \\\"CHK-005 h2\\\": replayBudgetLoop over 3 synthetic calls => tokensSpent 300 (sum of per-call tokens); per-call ms summed for wallclock.\",\"headHash\":\"e4f90f642841e4644374e46264097f8ab756dc5c\",\"materialHash\":\"7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9\",\"storyFilesHash\":\"941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9\",\"timestamp\":\"2026-06-23T01:54:36.651Z\"}},{\"intentRef\":\"CHK-005:happy:3\",\"itemId\":\"CHK-005\",\"lane\":\"happy\",\"desc\":\"output record field names include tokensSpent, wallClockMs, agentCallCount matching pre-reg section 7 exactly (no camelCase variants like tokens_spent); WHY: schema compliance check\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:happy:3\",\"kind\":\"manual_transcript\",\"command\":\"node experiments/recovery-runner/spend-accounting-selfcheck.mjs\",\"result\":\"pass\",\"note\":\"selfcheck \\\"CHK-005 h3\\\": buildRunRecord has tokensSpent/wallClockMs/agentCallCount and NOT tokens_spent (no snake_case variant).\",\"headHash\":\"e4f90f642841e4644374e46264097f8ab756dc5c\",\"materialHash\":\"7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9\",\"storyFilesHash\":\"941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9\",\"timestamp\":\"2026-06-23T01:54:36.651Z\"}},{\"intentRef\":\"CHK-005:happy:4\",\"itemId\":\"CHK-005\",\"lane\":\"happy\",\"desc\":\"no live LLM invocation occurs during the unit test (no claude -p subprocess spawned); WHY: confirms the verification constraint is met\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:happy:4\",\"kind\":\"manual_transcript\",\"command\":\"node experiments/recovery-runner/spend-accounting-selfcheck.mjs\",\"result\":\"pass\",\"note\":\"selfcheck \\\"CHK-005 h4\\\": all imported helpers (budgetExceeded/tokensFromUsage/replayBudgetLoop/buildRunRecord/median/a2primeBudget/budgetPass) are pure; the selfcheck spawns zero child processes (no claude -p), confirmed by its final line and by entry-guards making both runners import-only.\",\"headHash\":\"e4f90f642841e4644374e46264097f8ab756dc5c\",\"materialHash\":\"7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9\",\"storyFilesHash\":\"941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9\",\"timestamp\":\"2026-06-23T01:54:36.652Z\"}},{\"intentRef\":\"CHK-005:edge:0\",\"itemId\":\"CHK-005\",\"lane\":\"edge\",\"desc\":\"accumulation with a single call => tokensSpent = that call tokens, agentCallCount = 1; WHY: minimum-call boundary\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:edge:0\",\"kind\":\"manual_transcript\",\"command\":\"node experiments/recovery-runner/spend-accounting-selfcheck.mjs\",\"result\":\"pass\",\"note\":\"selfcheck \\\"CHK-005 e0\\\": single call => tokensSpent=that call (250), agentCallCount=1.\",\"headHash\":\"e4f90f642841e4644374e46264097f8ab756dc5c\",\"materialHash\":\"7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9\",\"storyFilesHash\":\"941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9\",\"timestamp\":\"2026-06-23T01:54:36.652Z\"}},{\"intentRef\":\"CHK-005:edge:1\",\"itemId\":\"CHK-005\",\"lane\":\"edge\",\"desc\":\"median of two values [100,200] => 150 (average); WHY: even-count boundary for median\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:edge:1\",\"kind\":\"manual_transcript\",\"command\":\"node experiments/recovery-runner/spend-accounting-selfcheck.mjs\",\"result\":\"pass\",\"note\":\"selfcheck \\\"CHK-005 e1\\\": median([100,200])=150 (even-count average).\",\"headHash\":\"e4f90f642841e4644374e46264097f8ab756dc5c\",\"materialHash\":\"7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9\",\"storyFilesHash\":\"941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9\",\"timestamp\":\"2026-06-23T01:54:36.652Z\"}},{\"intentRef\":\"CHK-005:edge:2\",\"itemId\":\"CHK-005\",\"lane\":\"edge\",\"desc\":\"budget check at exact boundary: cumTokens === tokenBudget => truncated (>= semantics); WHY: off-by-one boundary\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:edge:2\",\"kind\":\"manual_transcript\",\"command\":\"node experiments/recovery-runner/spend-accounting-selfcheck.mjs\",\"result\":\"pass\",\"note\":\"selfcheck \\\"CHK-005 e2\\\": budgetExceeded at exact boundary cumTokens===tokenBudget => true (>= semantics).\",\"headHash\":\"e4f90f642841e4644374e46264097f8ab756dc5c\",\"materialHash\":\"7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9\",\"storyFilesHash\":\"941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9\",\"timestamp\":\"2026-06-23T01:54:36.652Z\"}},{\"intentRef\":\"CHK-005:adversarial:0\",\"itemId\":\"CHK-005\",\"lane\":\"adversarial\",\"desc\":\"synthetic record with tokensSpent field misspelled as tokens_spent => unit test detects the naming violation against pre-reg section 7; WHY: adversarial schema drift that would break the analysis script\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:adversarial:0\",\"kind\":\"manual_transcript\",\"command\":\"node experiments/recovery-runner/spend-accounting-selfcheck.mjs\",\"result\":\"pass\",\"note\":\"selfcheck \\\"CHK-005 a0\\\": a record using tokens_spent is flagged (missing the canonical tokensSpent field) — naming violation detected against pre-reg §7.\",\"headHash\":\"e4f90f642841e4644374e46264097f8ab756dc5c\",\"materialHash\":\"7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9\",\"storyFilesHash\":\"941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9\",\"timestamp\":\"2026-06-23T01:54:36.652Z\"}},{\"intentRef\":\"CHK-005:adversarial:1\",\"itemId\":\"CHK-005\",\"lane\":\"adversarial\",\"desc\":\"synthetic record missing agentCallCount entirely => unit test flags the omission; WHY: adversarial incomplete schema\",\"type\":\"cli\",\"priority\":\"must\",\"status\":\"covered\",\"evidence\":{\"intentRef\":\"CHK-005:adversarial:1\",\"kind\":\"manual_transcript\",\"command\":\"node experiments/recovery-runner/spend-accounting-selfcheck.mjs\",\"result\":\"pass\",\"note\":\"selfcheck \\\"CHK-005 a1\\\": a record missing agentCallCount is flagged (hasOwnProperty false) — incomplete schema detected.\",\"headHash\":\"e4f90f642841e4644374e46264097f8ab756dc5c\",\"materialHash\":\"7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9\",\"storyFilesHash\":\"941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9\",\"timestamp\":\"2026-06-23T01:54:36.652Z\"}}]}}",
+  "result": "PASS",
+  "timestamp": "2026-06-23T02:00:18.631Z",
+  "headHash": "e18eac763b3bde57182e3852922ba9161ab8f654",
+  "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+  "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+  "verificationCoverage": {
+    "total": 48,
+    "required": 48,
+    "covered": 48,
+    "missingRequired": 0,
+    "entries": [
+      {
+        "intentRef": "CHK-001:happy:0",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "agentRun call increments agentCallCount by 1 per invocation; after 3 agent calls on synthetic records, agentCallCount === 3; WHY: covers basic counting at the executor call site",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck \"CHK-001 h0\": replayBudgetLoop (shared increment-then-check primitive the real loop uses) counts 3 executor calls => agentCallCount 3.",
+          "headHash": "b148b4d5c0c314ce36bba21a910ea5df83e4559d",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:53:07.291Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:happy:1",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "reviewArtifact call increments agentCallCount by 1; after 2 agent + 1 review calls, agentCallCount === 3; WHY: covers the reviewer call site that was previously undercounted via reviewRounds",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck \"CHK-001 h1\": every call (executor AND reviewer) increments; 2+1 calls => agentCallCount 3. reviewArtifact() increment is at run-recovery.mjs agentCallCount++ before the reviewer execFileSync.",
+          "headHash": "b148b4d5c0c314ce36bba21a910ea5df83e4559d",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:53:07.291Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:happy:2",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "tokensSpent accumulated from claude JSON usage.input_tokens + usage.output_tokens across all calls; 3 calls with usage {in:100,out:50} each => tokensSpent === 450; WHY: covers token extraction and accumulation",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck \"CHK-001 h2\": tokensFromUsage({in:100,out:50})=150 and 3x accumulated=450 (input_tokens+output_tokens summed).",
+          "headHash": "b148b4d5c0c314ce36bba21a910ea5df83e4559d",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:53:07.291Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:happy:3",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "wallClockMs is present in output record and is a positive number; WHY: confirms existing field preserved per pre-reg",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:3",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck \"CHK-001 h3\": buildRunRecord (the shared builder the real record literal spreads) carries wallClockMs as a positive number.",
+          "headHash": "b148b4d5c0c314ce36bba21a910ea5df83e4559d",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:53:07.291Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:happy:4",
+        "itemId": "CHK-001",
+        "lane": "happy",
+        "desc": "output record contains exact pre-reg section 7 field names: tokensSpent, wallClockMs, agentCallCount; WHY: field-name compliance with locked pre-registration",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:happy:4",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck \"CHK-001 h4\": buildRunRecord output has the exact pre-reg section 7 names tokensSpent/wallClockMs/agentCallCount; the real record spreads buildRunRecord(...) at run-recovery.mjs.",
+          "headHash": "b148b4d5c0c314ce36bba21a910ea5df83e4559d",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:53:07.291Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:0",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "zero-token response (usage.input_tokens=0, usage.output_tokens=0) => tokensSpent accumulates 0, not NaN or undefined; WHY: edge where model returns empty usage",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck \"CHK-001 e0\": zero usage {in:0,out:0} => tokensFromUsage 0, not NaN/undefined.",
+          "headHash": "b148b4d5c0c314ce36bba21a910ea5df83e4559d",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:53:07.291Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:1",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "missing usage field in claude JSON output => tokensSpent defaults to 0 for that call, not NaN/throw; WHY: defensive against malformed claude output",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck \"CHK-001 e1\": JSON with no usage field => tokensFromUsage 0 (defensive default), not NaN/throw.",
+          "headHash": "b148b4d5c0c314ce36bba21a910ea5df83e4559d",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:53:07.291Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:edge:2",
+        "itemId": "CHK-001",
+        "lane": "edge",
+        "desc": "single attempt R=1 succeeds => agentCallCount=1 not 0 or 2; WHY: boundary on minimum call count",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:edge:2",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck \"CHK-001 e2\": single call (R=1 style) => agentCallCount 1, not 0 or 2.",
+          "headHash": "b148b4d5c0c314ce36bba21a910ea5df83e4559d",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:53:07.291Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:0",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "claude JSON contains negative token counts => tokensSpent accumulates correctly or implementation-defined; WHY: adversarial malformed data from model API",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck \"CHK-001 a0\": negative token counts accumulate finitely and deterministically (tokensFromUsage({in:-100,out:50})=-50); implementation-defined per the intent, never NaN/throw.",
+          "headHash": "b148b4d5c0c314ce36bba21a910ea5df83e4559d",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:53:07.291Z"
+        }
+      },
+      {
+        "intentRef": "CHK-001:adversarial:1",
+        "itemId": "CHK-001",
+        "lane": "adversarial",
+        "desc": "infra void on first call => agentCallCount reflects only calls actually made not max R; WHY: ensures count is actual not planned",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck \"CHK-001 a1\": a 1-call replay => agentCallCount 1, i.e. count reflects calls actually made not max R (real loop breaks on !a.ok before the next iteration at run-recovery.mjs infraVoid break).",
+          "headHash": "b148b4d5c0c314ce36bba21a910ea5df83e4559d",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:53:07.291Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:0",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "when cumulative tokensSpent >= tokenBudget, loop terminates and record.truncated === true; WHY: covers the primary token-binds-first truncation rule",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck \"CHK-002 h0\": cumulative tokens reaching tokenBudget => truncated true (replayBudgetLoop uses the same budgetExceeded + break the real loop calls at run-recovery.mjs).",
+          "headHash": "d975dcad54573abcafe94935a7e60607575b25bb",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:53:32.199Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:1",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "when cumulative wallClockMs >= wallBudget and tokens still under budget, loop terminates with truncated=true; WHY: covers wall-clock binding when token is not the constraint",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck \"CHK-002 h1\": wall-clock reaching wallBudget while tokens under => truncated true.",
+          "headHash": "d975dcad54573abcafe94935a7e60607575b25bb",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:53:32.199Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:2",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "when both budgets are NOT exceeded across all R iterations, truncated === false and budgetPass === true; WHY: covers the non-truncation normal completion path",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:2",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck \"CHK-002 h2\": under both budgets across iterations => truncated false, and budgetPass true when actual within band.",
+          "headHash": "d975dcad54573abcafe94935a7e60607575b25bb",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:53:32.199Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:happy:3",
+        "itemId": "CHK-002",
+        "lane": "happy",
+        "desc": "record contains budgetPass field (boolean) reflecting whether the run stayed within budget; WHY: pre-reg requires per-run budget pass/fail logging",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:happy:3",
+          "kind": "logic_test",
+          "result": "pass",
+          "note": "budgetPass is computed and written into the run record by run-ablation.mjs line 138 (enriched.budgetPass = budgetPass(run.tokensSpent, medTokens)) then appended at line 140; the boolean correctness of budgetPass() is unit-tested by selfcheck \"CHK-002 h3\" / \"CHK-003 h3\". Field-presence-in-the-jsonl is code-review (logic) since writing the file requires a live ablation run.",
+          "headHash": "d975dcad54573abcafe94935a7e60607575b25bb",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:53:32.199Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:0",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "tokenBudget exactly equals cumulative tokens after final call => truncated should be true (>= not >); WHY: boundary at exact budget match",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck \"CHK-002 e0\": tokens exactly equal to budget => truncated true (>= boundary, not >).",
+          "headHash": "d975dcad54573abcafe94935a7e60607575b25bb",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:53:32.199Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:1",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "budget mode with R=1 and first call exceeds token budget => single call runs but truncated=true on that call; WHY: minimum-iteration boundary",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck \"CHK-002 e1\": R=1-style single call over budget => agentCallCount 1 with truncated true on that call.",
+          "headHash": "d975dcad54573abcafe94935a7e60607575b25bb",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:53:32.199Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:2",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "zero tokenBudget => first call immediately triggers truncation; WHY: degenerate budget boundary",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:2",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck \"CHK-002 e2\": zero tokenBudget => first call immediately truncates (tokens 0 >= budget 0).",
+          "headHash": "d975dcad54573abcafe94935a7e60607575b25bb",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:53:32.199Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:edge:3",
+        "itemId": "CHK-002",
+        "lane": "edge",
+        "desc": "no budget args provided => budget mode is OFF, no truncation, budgetPass/truncated fields absent or null; WHY: backward compatibility with non-budget runs",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:edge:3",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck \"CHK-002 e3\": no budget args => budget mode OFF (both null) => truncated false even at huge spend; buildRunRecord defaults truncated=false. Real loop guards every cap check with budgetMode at run-recovery.mjs.",
+          "headHash": "d975dcad54573abcafe94935a7e60607575b25bb",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:53:32.199Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:0",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "token budget is very small (1 token) but wall budget is very large => token binds first, loop stops after first call regardless of wall budget; WHY: verifies token-binds-first precedence under extreme asymmetry",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck \"CHK-002 a0\": tokenBudget=1, wallBudgetMs=1e12 => token binds FIRST, loop stops after the first call regardless of the huge wall budget.",
+          "headHash": "d975dcad54573abcafe94935a7e60607575b25bb",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:53:32.199Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:1",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "negative tokenBudget value => implementation should reject or treat as immediate truncation, not loop forever; WHY: adversarial invalid input",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck \"CHK-002 a1\": negative tokenBudget => any tokens>=negative immediately truncates; no infinite loop.",
+          "headHash": "d975dcad54573abcafe94935a7e60607575b25bb",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:53:32.200Z"
+        }
+      },
+      {
+        "intentRef": "CHK-002:adversarial:2",
+        "itemId": "CHK-002",
+        "lane": "adversarial",
+        "desc": "wall clock jumps due to system clock skew mid-run => wallClockMs still computed correctly via monotonic timing or Date.now delta; WHY: adversarial timing scenario",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-002:adversarial:2",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck \"CHK-002 a2\": elapsed is an accumulated per-call delta; the real loop uses Date.now()-t0 (a monotonic-style delta from a single t0), so wall-clock is skew-immune relative to absolute clock jumps. budgetExceeded operates on the delta.",
+          "headHash": "d975dcad54573abcafe94935a7e60607575b25bb",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:53:32.200Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:0",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "median computation on odd-length A4 tokensSpent array [100,300,200] => median=200; WHY: covers basic median calculation for budget derivation",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck \"CHK-003 h0\": median([100,300,200])=200 (odd-length).",
+          "headHash": "4c04a933768f7a99938bf2bdeb1cc5cda465239c",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:53:57.669Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:1",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "median computation on even-length A4 tokensSpent array [100,200,300,400] => median=250; WHY: covers even-count averaging",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck \"CHK-003 h1\": median([100,200,300,400])=250 (even-length average).",
+          "headHash": "4c04a933768f7a99938bf2bdeb1cc5cda465239c",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:53:57.669Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:2",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "A2-prime arm budget = A4 median +/- 20 pct; for median=1000 tokens, tokenBudget=1200 (upper bound), wallBudget=median_wall*1.2; WHY: covers the tolerance band derivation",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:2",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck \"CHK-003 h2\": a2primeBudget(1000,2000)={tokenBudget:1200,wallBudgetMs:2400} = round(1.2*median) upper bound of the +/-20pct band.",
+          "headHash": "4c04a933768f7a99938bf2bdeb1cc5cda465239c",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:53:57.669Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:3",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "A2-prime records written to ablation-A2prime-compute-matched.jsonl with budgetPass field; WHY: covers output file naming and per-run budget logging per pre-reg",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:3",
+          "kind": "logic_test",
+          "result": "pass",
+          "note": "run-ablation.mjs lines 134-140 build the enriched record with budgetPass and append it to ablation-A2prime-compute-matched.jsonl (A2P_FILE, line 96). The budgetPass() function is unit-tested (selfcheck CHK-003 h3). File-write at runtime needs a live ablation run, so the integration is code-review (logic).",
+          "headHash": "4c04a933768f7a99938bf2bdeb1cc5cda465239c",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:53:57.669Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:happy:4",
+        "itemId": "CHK-003",
+        "lane": "happy",
+        "desc": "A2-prime arm invokes run-recovery.mjs with arm=a2prime and budget args derived from A4 median; WHY: covers correct wiring of budget into the runner",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:happy:4",
+          "kind": "logic_test",
+          "result": "pass",
+          "note": "run-ablation.mjs lines 127-131 invoke run-recovery.mjs with --arm a2prime and --tokenBudget/--wallBudgetMs taken from a2primeBudget(median(...)) (lines 106-108). The median->budget derivation chain is unit-tested (selfcheck CHK-003 h4); the actual subprocess spawn needs the live LLM, so the wiring is code-review (logic).",
+          "headHash": "4c04a933768f7a99938bf2bdeb1cc5cda465239c",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:53:57.669Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:0",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "single A4 record => median = that single value; WHY: minimum sample size boundary",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck \"CHK-003 e0\": median([777])=777 (single record).",
+          "headHash": "4c04a933768f7a99938bf2bdeb1cc5cda465239c",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:53:57.669Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:1",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "all A4 records identical tokensSpent => median = that value, budget = value*1.2; WHY: zero-variance edge",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck \"CHK-003 e1\": identical values [500,500,500] => median 500, a2primeBudget tokenBudget=600 (value*1.2).",
+          "headHash": "4c04a933768f7a99938bf2bdeb1cc5cda465239c",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:53:57.669Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:2",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "A4 median wallClockMs is 0 (all instant) => wallBudget=0, still valid; WHY: degenerate zero-time edge",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:2",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck \"CHK-003 e2\": median wall 0 => a2primeBudget wallBudgetMs 0 (still valid, no NaN).",
+          "headHash": "4c04a933768f7a99938bf2bdeb1cc5cda465239c",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:53:57.669Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:edge:3",
+        "itemId": "CHK-003",
+        "lane": "edge",
+        "desc": "per-TASK median: each task gets its own budget from that task A4 runs, not a global median; WHY: verifies per-task granularity",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:edge:3",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck \"CHK-003 e3\": distinct task arrays yield distinct medians (100 vs 900); run-ablation.mjs line 105 filters a4Records by r.taskId===task so each task gets its OWN budget (per-task granularity), not a global median.",
+          "headHash": "4c04a933768f7a99938bf2bdeb1cc5cda465239c",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:53:57.669Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:0",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "no A4 records exist for a task (empty array) => median computation should error or skip, not produce NaN budget; WHY: missing prerequisite data",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck \"CHK-003 a0\": empty array => median null; a2primeBudget(null,null)={null,null}; run-ablation.mjs lines 109-112 skip the task (no NaN budget) when both are null.",
+          "headHash": "4c04a933768f7a99938bf2bdeb1cc5cda465239c",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:53:57.669Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:1",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "A4 records contain null tokensSpent values => median computation excludes nulls or errors, not silently corrupt budget; WHY: dirty prerequisite JSONL",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck \"CHK-003 a1\": median([null,100,null,300])=200; nulls are filtered BEFORE Number() coercion (run-ablation.mjs median) so they do not become spurious zeros.",
+          "headHash": "4c04a933768f7a99938bf2bdeb1cc5cda465239c",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:53:57.669Z"
+        }
+      },
+      {
+        "intentRef": "CHK-003:adversarial:2",
+        "itemId": "CHK-003",
+        "lane": "adversarial",
+        "desc": "A4 JSONL file is truncated mid-line (incomplete JSON) => parser handles gracefully, does not crash; WHY: adversarial file corruption",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-003:adversarial:2",
+          "kind": "logic_test",
+          "result": "pass",
+          "note": "run-ablation.mjs line 102 wraps JSON.parse in try/catch returning null for a truncated/incomplete final line, then filters Boolean (line 103) so a corrupt line is dropped, not crashing. Additionally selfcheck \"CHK-003 a2\" shows median ignores the resulting non-finite/undefined values. Graceful-parse is code-review (logic) since it lives in runMain file I/O.",
+          "headHash": "4c04a933768f7a99938bf2bdeb1cc5cda465239c",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:53:57.669Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:happy:0",
+        "itemId": "CHK-004",
+        "lane": "happy",
+        "desc": "Code comments in run-recovery.mjs and run-ablation.mjs document spend-match semantics (token+wall-clock, not call count; +/-20 pct; token binds first; hard-truncate) and cite the pre-reg; WHY: docs-check item, verified by code review not unit test",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "result": "pass",
+          "note": "run-recovery.mjs header comment (the spend budget + accounting helpers block) and run-ablation.mjs header comment (the A2-prime compute-matched arm block) both document: spend-match on token+wall-clock NOT call count, +/-20pct band, token binds first, hard-truncate at upper bound.",
+          "headHash": "e4f90f642841e4644374e46264097f8ab756dc5c",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:54:36.651Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:edge:0",
+        "itemId": "CHK-004",
+        "lane": "edge",
+        "desc": "the comment names the EXACT pre-reg source (lattice-experiment-protocol.md, the A2-prime row in section 1) and the precise tolerance (plus-or-minus 20 pct of A4 per-task median, token binds first, hard-truncate at upper bound); WHY: a vague comment is not auditable against the locked pre-registration",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "result": "pass",
+          "note": "Both files name the EXACT source: \"lattice-experiment-protocol.md rev3.1 §1 (the A2-prime row)\" and cite +/-20pct of A4 per-task median, token binds first, hard-truncate at the upper bound (run-recovery.mjs budgetExceeded comment + truncated-flag comment; run-ablation.mjs header + a2primeBudget comment).",
+          "headHash": "e4f90f642841e4644374e46264097f8ab756dc5c",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:54:36.651Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:edge:1",
+        "itemId": "CHK-004",
+        "lane": "edge",
+        "desc": "the comment appears in BOTH run-recovery.mjs (near the budget-truncation logic) AND run-ablation.mjs (near the A2-prime arm setup); WHY: both files implement spend-match behavior and both must be independently traceable to the pre-reg",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:edge:1",
+          "kind": "logic_test",
+          "result": "pass",
+          "note": "The semantics appear in BOTH files: run-recovery.mjs near budgetExceeded() and the in-loop truncation checks (the \"Spend-budget hard-truncation cap (A2-prime)\" comments), and run-ablation.mjs near the A2-prime arm setup (header + the \"A2-prime compute-matched arm\" section comment). Each is independently traceable to the pre-reg.",
+          "headHash": "e4f90f642841e4644374e46264097f8ab756dc5c",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:54:36.651Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:adversarial:0",
+        "itemId": "CHK-004",
+        "lane": "adversarial",
+        "desc": "the comment does NOT mislabel the match as call-count or claim per-run spend-parity; it must state budget/spend-match (token+wall-clock) precisely; WHY: the whole point of this story is to not reintroduce the compute-confound wording the paper previously got wrong",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "result": "pass",
+          "note": "Comments explicitly say \"matched on SPEND (total tokens + wall-clock), NOT on call count\" (run-recovery.mjs) and \"spend-matched ... NOT by call count\" (run-ablation.mjs); they describe a budget/cap, never per-run spend-parity, so the prior compute-confound wording is not reintroduced.",
+          "headHash": "e4f90f642841e4644374e46264097f8ab756dc5c",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:54:36.651Z"
+        }
+      },
+      {
+        "intentRef": "CHK-004:adversarial:1",
+        "itemId": "CHK-004",
+        "lane": "adversarial",
+        "desc": "the comment does NOT cite a stale pre-reg revision or wrong section number; it must reference the current rev3.1 and section 1 A2-prime row; WHY: adversarial against copy-paste from an older draft that used call-count semantics",
+        "type": "logic",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-004:adversarial:1",
+          "kind": "logic_test",
+          "result": "pass",
+          "note": "Comments cite the CURRENT revision \"rev3.1\" and \"§1 (the A2-prime row)\" + \"§7\" in both files; no stale revision or wrong section number. Verified against the authority doc header (Status rev3.1) and §1 A2-prime row / §7 schema.",
+          "headHash": "e4f90f642841e4644374e46264097f8ab756dc5c",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:54:36.651Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:happy:0",
+        "itemId": "CHK-005",
+        "lane": "happy",
+        "desc": "median function on synthetic A4 records [150,250,200] returns 200; WHY: unit-tests the median helper used to derive A2-prime budget",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck \"CHK-005 h0\": median([150,250,200])=200.",
+          "headHash": "e4f90f642841e4644374e46264097f8ab756dc5c",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:54:36.651Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:happy:1",
+        "itemId": "CHK-005",
+        "lane": "happy",
+        "desc": "budget-truncation decision: cumTokens=900 vs tokenBudget=1000 => not truncated; cumTokens=1050 vs tokenBudget=1000 => truncated; WHY: unit-tests the core truncation predicate",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:happy:1",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck \"CHK-005 h1\": budgetExceeded(900,...,1000)=false; budgetExceeded(1050,...,1000)=true.",
+          "headHash": "e4f90f642841e4644374e46264097f8ab756dc5c",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:54:36.651Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:happy:2",
+        "itemId": "CHK-005",
+        "lane": "happy",
+        "desc": "token/wallclock accumulation on 3 synthetic agent-call records => tokensSpent = sum of all input+output tokens, wallClockMs = sum of per-call durations; WHY: unit-tests accumulator logic without live LLM",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:happy:2",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck \"CHK-005 h2\": replayBudgetLoop over 3 synthetic calls => tokensSpent 300 (sum of per-call tokens); per-call ms summed for wallclock.",
+          "headHash": "e4f90f642841e4644374e46264097f8ab756dc5c",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:54:36.651Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:happy:3",
+        "itemId": "CHK-005",
+        "lane": "happy",
+        "desc": "output record field names include tokensSpent, wallClockMs, agentCallCount matching pre-reg section 7 exactly (no camelCase variants like tokens_spent); WHY: schema compliance check",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:happy:3",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck \"CHK-005 h3\": buildRunRecord has tokensSpent/wallClockMs/agentCallCount and NOT tokens_spent (no snake_case variant).",
+          "headHash": "e4f90f642841e4644374e46264097f8ab756dc5c",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:54:36.651Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:happy:4",
+        "itemId": "CHK-005",
+        "lane": "happy",
+        "desc": "no live LLM invocation occurs during the unit test (no claude -p subprocess spawned); WHY: confirms the verification constraint is met",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:happy:4",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck \"CHK-005 h4\": all imported helpers (budgetExceeded/tokensFromUsage/replayBudgetLoop/buildRunRecord/median/a2primeBudget/budgetPass) are pure; the selfcheck spawns zero child processes (no claude -p), confirmed by its final line and by entry-guards making both runners import-only.",
+          "headHash": "e4f90f642841e4644374e46264097f8ab756dc5c",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:54:36.652Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:edge:0",
+        "itemId": "CHK-005",
+        "lane": "edge",
+        "desc": "accumulation with a single call => tokensSpent = that call tokens, agentCallCount = 1; WHY: minimum-call boundary",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck \"CHK-005 e0\": single call => tokensSpent=that call (250), agentCallCount=1.",
+          "headHash": "e4f90f642841e4644374e46264097f8ab756dc5c",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:54:36.652Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:edge:1",
+        "itemId": "CHK-005",
+        "lane": "edge",
+        "desc": "median of two values [100,200] => 150 (average); WHY: even-count boundary for median",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:edge:1",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck \"CHK-005 e1\": median([100,200])=150 (even-count average).",
+          "headHash": "e4f90f642841e4644374e46264097f8ab756dc5c",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:54:36.652Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:edge:2",
+        "itemId": "CHK-005",
+        "lane": "edge",
+        "desc": "budget check at exact boundary: cumTokens === tokenBudget => truncated (>= semantics); WHY: off-by-one boundary",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:edge:2",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck \"CHK-005 e2\": budgetExceeded at exact boundary cumTokens===tokenBudget => true (>= semantics).",
+          "headHash": "e4f90f642841e4644374e46264097f8ab756dc5c",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:54:36.652Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:adversarial:0",
+        "itemId": "CHK-005",
+        "lane": "adversarial",
+        "desc": "synthetic record with tokensSpent field misspelled as tokens_spent => unit test detects the naming violation against pre-reg section 7; WHY: adversarial schema drift that would break the analysis script",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck \"CHK-005 a0\": a record using tokens_spent is flagged (missing the canonical tokensSpent field) — naming violation detected against pre-reg §7.",
+          "headHash": "e4f90f642841e4644374e46264097f8ab756dc5c",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:54:36.652Z"
+        }
+      },
+      {
+        "intentRef": "CHK-005:adversarial:1",
+        "itemId": "CHK-005",
+        "lane": "adversarial",
+        "desc": "synthetic record missing agentCallCount entirely => unit test flags the omission; WHY: adversarial incomplete schema",
+        "type": "cli",
+        "priority": "must",
+        "status": "covered",
+        "evidence": {
+          "intentRef": "CHK-005:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck \"CHK-005 a1\": a record missing agentCallCount is flagged (hasOwnProperty false) — incomplete schema detected.",
+          "headHash": "e4f90f642841e4644374e46264097f8ab756dc5c",
+          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
+          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
+          "timestamp": "2026-06-23T01:54:36.652Z"
+        }
+      }
+    ]
+  }
+}

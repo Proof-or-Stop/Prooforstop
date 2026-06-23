@@ -1,0 +1,22 @@
+{
+  "findings": [
+    {
+      "id": "B-5bfe:F-001",
+      "desc": "stale-header-comment: run-recovery.mjs:13 header comment lists only budgetExceeded/tokensFromUsage as exported pure helpers but omits replayBudgetLoop and buildRunRecord, which are also exported at module scope and imported by the selfcheck — comment should enumerate all four exports",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-23T02:00:59.169Z",
+      "reviewRound": "2026-06-23T01:55:45.396Z",
+      "reviewRunId": "B-5bfe:RR-001",
+      "_hash": "148bc14cab42472ffef8e89a830712f03e9498bfcbc9341440dc6b61bb77b723",
+      "files": [
+        "experiments/recovery-runner/run-recovery.mjs"
+      ],
+      "signatureTag": "missing|mjs|stale-header-comment",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
