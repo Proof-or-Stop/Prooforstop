@@ -1545,6 +1545,7 @@ function serverProviderFromPlan(jobPlan: JobPlan, override?: string): ServerProv
 
 function normalizeServerProvider(value: unknown): string | null {
   if (typeof value !== 'string' || value.trim().length === 0) return null;
+  if (value.trim().toLowerCase().replace(/_/g, '-') === 'fake') return null;
   const provider = normalizeAuthorityRunnerProvider(value).provider;
   if (!provider || provider === 'fake') return null;
   return provider;

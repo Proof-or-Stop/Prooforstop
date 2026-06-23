@@ -1459,6 +1459,16 @@ function authorityEnv(extra: Record<string, string | undefined> = {}): Record<st
   });
   assert.equal(blockedFakeProvider.ok, false, 'fake provider plans cannot be silently rewritten into server jobs');
   assert.match(blockedFakeProvider.reason ?? '', /explicit non-fake provider declaration/, 'blocked reason asks for an explicit non-fake provider declaration');
+  for (const provider of ['fake', 'Fake', 'FAKE']) {
+    const blockedOverride = await submitAuthorityJobFromPlan(authorityJobPlan(), {
+      env: authorityEnv(),
+      fetchImpl,
+      cwd: '/repo',
+      provider,
+    });
+    assert.equal(blockedOverride.ok, false, `reserved fake provider override is rejected: ${provider}`);
+    assert.match(blockedOverride.reason ?? '', /explicit non-fake provider declaration/, `reserved fake reason asks for a non-fake provider: ${provider}`);
+  }
 
   const outcome = await submitAuthorityJobFromPlan(authorityJobPlan(), {
     env: authorityEnv(),
@@ -1492,6 +1502,15 @@ function authorityEnv(extra: Record<string, string | undefined> = {}): Record<st
   const customSent = JSON.parse(capture.body ?? '{}');
   assert.equal(customSent.request.provider, 'antigravity', 'custom provider declaration propagates into the signed job create request');
   assert.deepEqual(customSent.request.providerPolicy.allowedProviders, ['antigravity'], 'custom provider declaration is added to server providerPolicy');
+  const customSpellingOutcome = await submitAuthorityJobFromPlan(authorityJobPlan(), {
+    env: authorityEnv(),
+    fetchImpl,
+    cwd: '/repo',
+    provider: 'codex-cli',
+  });
+  assert.equal(customSpellingOutcome.ok, true, 'host-neutral custom provider spelling is accepted');
+  const customSpellingSent = JSON.parse(capture.body ?? '{}');
+  assert.equal(customSpellingSent.request.provider, 'codex-cli', 'host-neutral custom provider spelling is preserved');
   const firstRunEnvelope = buildAuthorityJobCreateEnvelopeFromPlan(authorityJobPlan(), {
     env: authorityEnv({ LATTICE_AUTHORITY_SESSION_ID: 'run-a' }),
     cwd: '/repo',
@@ -2660,6 +2679,7 @@ assertAuthorityHandoffFixtureConsumption();
   );
   assert.equal(normalizeAuthorityRunnerProvider('CLAUDE_CODE').provider, 'claude-code');
   assert.equal(normalizeAuthorityRunnerProvider(undefined).provider, 'codex');
+  assert.equal(normalizeAuthorityRunnerProvider('Fake').provider, 'Fake', 'runner metadata still preserves non-canonical custom spelling');
   const custom = normalizeAuthorityRunnerProvider('codex-cli');
   assert.equal(custom.provider, 'codex-cli');
   assert.equal(custom.valid, true);
