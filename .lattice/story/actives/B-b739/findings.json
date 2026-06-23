@@ -118,7 +118,7 @@
       "desc": "[codex-host2 C5] multi-turn context feeds RAW claude JSON back: output=out.slice(0,400) is the {subtype,result,total_cost_usd,...} envelope, appended to the next turn's context instead of the agent's result text -> the loop sees JSON metadata, may truncate the real answer. FIX: output = parsed j.result text. (Corroborates quality F-001.)",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex-host2",
       "createdAt": "2026-06-23T20:33:36.484Z",
@@ -128,7 +128,11 @@
         "experiments/injection-probes/real-loop-agent.mjs"
       ],
       "signatureTag": "adversarial|mjs|codex-host2-multi",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in the B-b739 fix commit: async execFile+{signal} (real abort/non-blocking), result-text context, infra-fail excluded from the tally, tightened stub assertions, CHANGELOG signatures corrected. Self-check 24/24.",
+      "resolvedAt": "2026-06-23T20:36:37.345Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-b739:F-007",
