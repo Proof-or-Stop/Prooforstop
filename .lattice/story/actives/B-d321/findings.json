@@ -5,7 +5,7 @@
       "desc": "Existing regression smokes were not updated for delivery-check materialHash binding. Repro: `node packages/main/dist/tasks/flow-stability-smoke.js` fails because the synthetic docsPromise delivery-check at packages/main/src/tasks/flow-stability-smoke.ts:3966 signs without materialHash, so DONE reports `stale delivery-check: delivery-check.json is missing materialHash binding` before the expected docsPromise failure. Additional repros: `node packages/main/dist/tasks/lifecycle-check-smoke.js`, `node packages/main/dist/tasks/review-assurance-floor-smoke.js`, and `node packages/main/dist/tasks/done-preflight-smoke.js` also fail from legacy delivery-check fixtures. Update these fixtures/helpers to record headHash/materialHash and sign with materialHash where they intend a fresh delivery-check, or adjust assertions where stale legacy evidence is intentional.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-23T12:49:54.112Z",
@@ -19,7 +19,11 @@
         "packages/main/src/tasks/done-preflight-smoke.ts"
       ],
       "signatureTag": "missing|ts|existing-regression-smokes",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Updated the four existing regression smoke fixtures to persist headHash/materialHash on synthetic fresh delivery-check records and sign with materialHash. Verified with npm --prefix packages/main run build; node packages/main/dist/tasks/flow-stability-smoke.js; node packages/main/dist/tasks/lifecycle-check-smoke.js; node packages/main/dist/tasks/review-assurance-floor-smoke.js; node packages/main/dist/tasks/done-preflight-smoke.js; node packages/main/dist/tasks/delivery-check-freshness-smoke.js; lattice validate --focus=fast --json; lattice scope_contract_check --storyId=B-d321.",
+      "resolvedAt": "2026-06-23T12:57:41.923Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
