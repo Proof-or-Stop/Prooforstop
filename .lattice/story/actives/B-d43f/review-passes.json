@@ -80,6 +80,15 @@
       "reviewRound": "2026-06-23T19:41:45.531Z",
       "reviewRunId": "B-d43f:RR-006",
       "_hash": "92ab50495c722ca41639961087fdd7435db9d6f90e751bcbbbd1c8c6ef152c83"
+    },
+    {
+      "id": "B-d43f:RP-010",
+      "agent": "lattice-review-channel",
+      "note": "Normal channel (riskSignals: Security/Credentials + Data Migration/Destructive). All 2 CHKs (CHK-001, CHK-002) have corresponding dispatch + subagent_result events in process-events.jsonl (CHK-001 dispatched 2026-06-23T19:24:55Z, result 2026-06-23T19:26:02Z; CHK-002 dispatched 2026-06-23T19:26:02Z, result 2026-06-23T19:28:02Z). Business code (7 scenarios + round-2/round-3 fix commits) was written by dispatched lattice-implementer subagents, not the main agent. Channel constraint satisfied.",
+      "createdAt": "2026-06-23T19:55:23.592Z",
+      "reviewRound": "2026-06-23T19:54:02.541Z",
+      "reviewRunId": "B-d43f:RR-014",
+      "_hash": "d33a488d1e9dd229095c04832f8b73b27364d3c4636d6c18c9c8dfae1bba85d3"
     }
   ]
 }
