@@ -1,13 +1,17 @@
 {
   "storyId": "B-f248",
-  "changes": "Added experiments/recovery-runner/run-driver.mjs — the §5/§6 powered-ablation RUN DRIVER (infra-(a) piece 4): enumerates the full pre-registered cell matrix (5 arms × tasks × {null-ablation + B1-B15} × k) honoring §3 applicability (B4/B5/B10 exclude A1; null + the other 12 apply to all arms) with seeded reproducible order; canonicalizes each raw run into the EXACT §7 record by delegating to adjudicate.mjs + checks.mjs (no re-implementation); stamps denominatorSets[] per the 4 pre-registered §5 contrasts; applies the §7 validity filter (infra-void => re-run + durable log; task-failure kept), durably logs N/A exclusions + void events to sidecars, exits non-zero on incomplete runs; surfaces the §1 A2prime budget log (null off-arm); strict integer CLI parsing. Plus run-driver-selfcheck.mjs (130 offline assertions) and run-selfchecks.mjs aggregator wired into npm test via test:experiments.",
-  "usage": "node experiments/recovery-runner/run-driver.mjs --tasks <ids> --k 5 enumerates the matrix (writes the N/A exclusions sidecar; no engine ran). Supply --engine <module.mjs> exporting default async (cell,attempt)=>rawResult to run the campaign. Verify offline: node experiments/recovery-runner/run-driver-selfcheck.mjs (130 assertions) or npm run test:experiments.",
+  "changes": "Added experiments/recovery-runner/run-driver.mjs — the §5/§6 powered-ablation RUN DRIVER (infra-(a) piece 4): enumerates the full pre-registered cell matrix (5 arms × tasks × {null-ablation + B1-B15} × k) honoring §3 applicability (B4/B5/B10 exclude A1), seeded reproducible order; canonicalizes each raw run into the EXACT §7 record by delegating to adjudicate.mjs + checks.mjs; stamps denominatorSets per the 4 §5 contrasts; §7 validity filter (infra-void→re-run+durable sidecar log, task-failure kept, exhausted→non-zero exit); §1 A2prime budget log; strict int CLI parse + dup arms/scenarios/tasks guards (host-2 hardening). Plus run-driver-selfcheck.mjs (135 offline assertions) + run-selfchecks.mjs aggregator wired into root npm test via test:experiments.",
+  "usage": "node experiments/recovery-runner/run-driver.mjs --tasks <ids> --k 5 enumerates the matrix (writes the N/A exclusions sidecar; no engine ran). Supply --engine <module.mjs> exporting default async (cell,attempt)=>rawResult to run the campaign. Verify offline: node experiments/recovery-runner/run-driver-selfcheck.mjs (135 assertions) or npm run test:experiments.",
+  "expectedOutcome": "Operator runs `node experiments/recovery-runner/run-driver-selfcheck.mjs` and sees labeled groups (enumeration / schema / adjudicate delegation / denominator-sets / validity-filter / seeded-order / budget-log / negative-control / CLI-integration) ending in `✓ run-driver-selfcheck: 135 assertions passed, 0 failed (no live LLM)` exit 0; `npm run test:experiments` runs all 4 recovery-runner selfchecks green; the no-engine CLI prints the applicable + N/A cell counts and refuses to launch a live campaign.",
+  "actualTranscript": "node experiments/recovery-runner/run-driver-selfcheck.mjs => 135 assertions passed, 0 failed (no live LLM), exit 0. node experiments/recovery-runner/run-selfchecks.mjs => all 4 selfchecks pass (adjudicate 98 + checks 112 + spend-accounting 56 + run-driver 135). node run-driver.mjs --tasks eval-expr,median,parse-range,text-stats --k 5 => enumerated 1540 applicable cells; 12 N/A cells excluded (logged); refuses live campaign without --engine. Full npm test exit 0.",
+  "outcomeDiff": "No difference — expected and actual match exactly (135/0 assertions, 4/4 selfchecks, 1540 cells/12 N/A, no-engine refusal all as expected).",
+  "acceptanceVerdict": "accepted",
   "realMachineCoverage": {
     "ran": [],
     "skipped": []
   },
-  "limitations": "Builds and self-tests the driver only; does NOT run the live multi-day powered campaign (separate task) — without --engine the CLI refuses to run live. The A2prime ±20% band COMPUTATION lives in run-ablation/spend-accounting (B-5bfe); the driver only surfaces the band result faithfully.",
-  "pitfalls": "The engine adapter MUST signal infraVoid:true ONLY for harness/API outages (never for task-level failures) or survivorship bias inflates success rates. A2prime engine results MUST populate the budget log (null fails validateRecord). materialHash drifts on every metadata commit — refresh stale verificationEvidence before TEST/DONE.",
+  "limitations": "Builds + self-tests the driver only; does NOT run the live multi-day powered campaign (separate task) — without --engine the CLI refuses to run live. The A2prime ±20% band COMPUTATION lives in run-ablation/spend-accounting (B-5bfe); the driver only surfaces the band result faithfully.",
+  "pitfalls": "DONE merge was hard-won: the DONE pre-check auto-syncs an actively-advancing main, drifting whole-tree materialHash and staling the quorum/reviewer passes (storyFilesHash tolerance is advisory, not honored by the strict DONE floor). Recovery: wait for main to quiesce, re-bind 4 review lanes + host-2 via the HOST claude CLI (in-app subagent dispatch was 529-overloaded; codex rate-limited — use claude -p directly), quorum_submit with DISTINCT keyA/keyB/sessionA/sessionB (same-vendor 2-host needs distinct identity or rounds are invalid), then refresh_stale→TEST→delivery→done_required→DONE while main stays quiet. The B-5c79 dup-guard blocks re-submit at the same material — needs a genuine material change (we used the 4 host-2 LOW fixes). Kill stray node procs before done_required (50-proc pileup makes it die).",
   "phaseStats": {
     "INIT": {
       "count": 1,
@@ -22,19 +26,19 @@
       "durationMs": 919430
     },
     "DEV": {
-      "count": 5,
-      "durationMs": 1760789
+      "count": 9,
+      "durationMs": 1970361
     },
     "REVIEW": {
-      "count": 5,
-      "durationMs": 4573074
+      "count": 9,
+      "durationMs": 19275587
     },
     "TEST": {
-      "count": 1,
-      "durationMs": 374227
+      "count": 4,
+      "durationMs": 3714426
     }
   },
-  "totalDurationMs": 7906392,
+  "totalDurationMs": 26158676,
   "fixtureStats": {
     "totalRuns": 0,
     "totalCases": 0,
@@ -47,5 +51,5 @@
     "open": 0
   },
   "createdAt": "2026-06-23T13:24:08.868Z",
-  "updatedAt": "2026-06-23T13:24:08.868Z"
+  "updatedAt": "2026-06-23T18:28:21.151Z"
 }
