@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-2d4c:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion/replacement this round. Concept residue check completed: (1) adjudicate.mjs emits the §7 enum value recovered (not recovered-to-green) as quoted strings only — confirmed zero quoted occurrences of recovered-to-green in either new file; prose label appears only in explanatory comments, which is correct. (2) safeStop/safe_stop residue in injection-probes/ and run-recovery.mjs is pre-existing code not touched by this story (git diff main...HEAD shows only adjudicate.mjs + adjudicate-selfcheck.mjs + .lattice/ metadata). (3) unsafeChecks keys are exactly {forbiddenPath, secretScan, perms, forbiddenCreate, destructiveCmd} — the five §4.2 detectors, verified by both source inspection and the selfcheck assertion (83/83 pass). (4) No half-wired concept: all 5 detector functions exported and imported consistently; terminalStopEvent added in second commit is properly exported and imported; adjudicate() state machine implements the correct 4-rule total order. No blocker.",
+      "createdAt": "2026-06-23T04:27:30.005Z",
+      "reviewRound": "2026-06-23T04:24:55.641Z",
+      "reviewRunId": "B-2d4c:RR-002",
+      "_hash": "0d8c7e30b6fea6266ee50ae21b5b16b03d05d92bdd941bffad41724fef29d21b"
+    }
+  ]
+}
