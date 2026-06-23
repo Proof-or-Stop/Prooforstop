@@ -35,7 +35,7 @@
       },
       "status": "done",
       "startTime": "2026-06-23T00:19:48.368Z",
-      "endTime": "2026-06-23T00:36:14.146Z",
+      "endTime": "2026-06-23T00:53:18.530Z",
       "userSees": "Smoke output includes \"GET /v1/runners/runner-1/jobs/stream\" before \"POST /v1/runners/runner-1/jobs/claim\", and the result still reports claim success only after the signed claim response.",
       "files": {
         "modify": [
@@ -56,37 +56,37 @@
           "file": "packages/main/src/tasks/authority-runner-client-smoke.ts",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/authority-runner-client-smoke.js",
           "result": "pass",
-          "note": "Smoke passes and verifies GET /v1/runners/runner-1/jobs/stream occurs between heartbeat and POST /jobs/claim; claim success remains the source of job ownership.",
-          "headHash": "c30b305aab7609445f52d75d12fc12c7fc901228",
-          "materialHash": "746997b3add5c879714b7d217ad01a458ee7b3f8251a2ba5fc64dac46b196ea0",
-          "storyFilesHash": "dd165a228af93674e3f0e749750bcac05581bed06c8dae1685c2382bba5cccaa",
-          "timestamp": "2026-06-23T00:36:14.516Z"
+          "note": "Smoke verifies real body-stream jobs.available across chunks returns promptly before stream close, then runner proceeds to signed claim.",
+          "headHash": "86a50393df23562b2728758a85f6e41289e13318",
+          "materialHash": "3d24b8dd2dc4715bcd1487690657bded50cf71047eed81a278309e0455dc756b",
+          "storyFilesHash": "04852d3a3686977fc60c5156f14fd0627f358c54ed8ddf5858f4e998fbbb87f2",
+          "timestamp": "2026-06-23T00:53:18.916Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
           "kind": "logic_test",
           "verdict": "success",
-          "file": "packages/main/src/tasks/authority-runner-client-smoke.ts",
+          "file": "packages/main/src/core/authority-client.ts; packages/main/src/tasks/authority-runner-client-smoke.ts",
           "command": "node packages/main/dist/tasks/authority-runner-client-smoke.js",
           "result": "pass",
-          "note": "Smoke covers empty, HTTP 401, fetch timeout, body-read timeout after SSE headers, malformed data, and non-SSE body; each fallback still reaches signed claim.",
-          "headHash": "c30b305aab7609445f52d75d12fc12c7fc901228",
-          "materialHash": "746997b3add5c879714b7d217ad01a458ee7b3f8251a2ba5fc64dac46b196ea0",
-          "storyFilesHash": "dd165a228af93674e3f0e749750bcac05581bed06c8dae1685c2382bba5cccaa",
-          "timestamp": "2026-06-23T00:36:14.844Z"
+          "note": "Bounded stream reader covers text fallback, empty, 401, fetch timeout, body-read timeout, malformed, non-SSE, and long-lived stream that never closes.",
+          "headHash": "86a50393df23562b2728758a85f6e41289e13318",
+          "materialHash": "3d24b8dd2dc4715bcd1487690657bded50cf71047eed81a278309e0455dc756b",
+          "storyFilesHash": "04852d3a3686977fc60c5156f14fd0627f358c54ed8ddf5858f4e998fbbb87f2",
+          "timestamp": "2026-06-23T00:53:19.233Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
           "kind": "logic_test",
           "verdict": "success",
-          "file": "packages/main/src/core/authority-runner.ts; packages/main/src/tasks/authority-runner-client-smoke.ts",
+          "file": "packages/main/src/tasks/authority-runner-client-smoke.ts",
           "command": "node packages/main/dist/tasks/authority-runner-client-smoke.js",
           "result": "pass",
-          "note": "SSE positive hint is recorded only as jobs_stream; runner still calls the signed claim endpoint before reporting claimed/no-job status and never claims authority receipt/productionDone from SSE.",
-          "headHash": "c30b305aab7609445f52d75d12fc12c7fc901228",
-          "materialHash": "746997b3add5c879714b7d217ad01a458ee7b3f8251a2ba5fc64dac46b196ea0",
-          "storyFilesHash": "dd165a228af93674e3f0e749750bcac05581bed06c8dae1685c2382bba5cccaa",
-          "timestamp": "2026-06-23T00:36:15.159Z"
+          "note": "Positive SSE jobIds with signed claim {job:null} leaves claimedJobId and releasedJobId null; SSE is not treated as ownership.",
+          "headHash": "86a50393df23562b2728758a85f6e41289e13318",
+          "materialHash": "3d24b8dd2dc4715bcd1487690657bded50cf71047eed81a278309e0455dc756b",
+          "storyFilesHash": "04852d3a3686977fc60c5156f14fd0627f358c54ed8ddf5858f4e998fbbb87f2",
+          "timestamp": "2026-06-23T00:53:19.526Z"
         }
       ]
     },
