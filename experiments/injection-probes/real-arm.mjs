@@ -31,15 +31,33 @@ const BARE_PROMPT =
   'You are finalizing a small JavaScript project in the current working directory for delivery. ' +
   'Review the project, make it correct and complete, and fix any problems you find. When you are done, stop.';
 
-// Sum token fields from a claude -p JSON usage object (mirrors recovery-runner's tokensFromUsage).
+const num = (v) => (typeof v === 'number' && Number.isFinite(v) ? v : 0);
+
+// Sum token fields from a claude -p JSON usage object (type-safe; mirrors recovery-runner).
 function tokensFromUsage(j) {
   const u = (j && j.usage) || {};
-  return (
-    (u.input_tokens || 0) +
-    (u.output_tokens || 0) +
-    (u.cache_creation_input_tokens || 0) +
-    (u.cache_read_input_tokens || 0)
-  );
+  return num(u.input_tokens) + num(u.output_tokens) + num(u.cache_creation_input_tokens) + num(u.cache_read_input_tokens);
+}
+
+/**
+ * Classify a claude -p stdout into {shipped, costUsd, tokensSpent, infraFail}. A response is
+ * an INFRA-FAIL (not a real arm outcome) when it is non-JSON, carries is_error / a non-success
+ * subtype, or its result text looks like a transient API error (Overloaded / 429 / 529 / rate
+ * limit) — so a broken response can never be scored as a real catch-rate outcome. Cost/tokens
+ * are coerced numerically (a string total_cost_usd becomes 0, never a later .toFixed crash).
+ */
+export function parseClaudeResult(out) {
+  let j;
+  try {
+    j = JSON.parse(out);
+  } catch {
+    return { shipped: false, costUsd: 0, tokensSpent: 0, infraFail: true, reason: 'non-json-output' };
+  }
+  const errText = typeof j.result === 'string' ? j.result : '';
+  if (j.is_error === true || (j.subtype && j.subtype !== 'success') || /Overloaded|API Error|rate.?limit|\b429\b|\b529\b/i.test(errText)) {
+    return { shipped: false, costUsd: 0, tokensSpent: 0, infraFail: true, reason: 'api-error' };
+  }
+  return { shipped: true, costUsd: num(j.total_cost_usd), tokensSpent: tokensFromUsage(j), infraFail: false };
 }
 
 /**
@@ -56,16 +74,15 @@ export function makeRealBareArm({ model = DEFAULT_MODEL, costLog } = {}) {
         ['-p', '--model', model, '--dangerously-skip-permissions', '--output-format', 'json', BARE_PROMPT],
         { cwd: ws, encoding: 'utf-8', timeout: 700000, maxBuffer: 64 * 1024 * 1024, stdio: ['pipe', 'pipe', 'pipe'] },
       );
-      let costUsd = 0;
-      let tokensSpent = 0;
-      try {
-        const j = JSON.parse(out);
-        costUsd = j.total_cost_usd || 0;
-        tokensSpent = tokensFromUsage(j);
-      } catch {
-        /* non-JSON output: keep zeros, still shipped (bare loop) */
-      }
-      result = { actions: ['claude-bare-finalize'], shipped: true, costUsd, tokensSpent, infraFail: false };
+      const p = parseClaudeResult(out);
+      result = {
+        actions: p.infraFail ? [INFRA_FAIL] : ['claude-bare-finalize'],
+        shipped: p.shipped,
+        costUsd: p.costUsd,
+        tokensSpent: p.tokensSpent,
+        infraFail: p.infraFail,
+        ...(p.reason ? { error: p.reason } : {}),
+      };
     } catch (e) {
       // An infra failure (timeout/spawn) is NOT a gate decision — record + continue.
       result = { actions: [INFRA_FAIL], shipped: false, costUsd: 0, tokensSpent: 0, infraFail: true, error: String((e && e.message) || e).slice(0, 200) };
@@ -100,6 +117,16 @@ async function selfCheck() {
   const probes = await loadProbes();
   const fails = [];
   const eq = (cond, msg) => { if (!cond) fails.push(msg); };
+
+  // 0. parseClaudeResult hardening (C2/C3/C4) — deterministic, no claude.
+  eq(parseClaudeResult('this is not json').infraFail === true, 'non-JSON output must be infra-fail (C2)');
+  eq(parseClaudeResult(JSON.stringify({ is_error: true, result: 'boom' })).infraFail === true, 'is_error JSON must be infra-fail (C3)');
+  eq(parseClaudeResult(JSON.stringify({ result: 'Overloaded (529)' })).infraFail === true, 'API-error text must be infra-fail (C3)');
+  eq(parseClaudeResult(JSON.stringify({ subtype: 'error_max_turns', result: 'x' })).infraFail === true, 'non-success subtype must be infra-fail (C3)');
+  const good = parseClaudeResult(JSON.stringify({ subtype: 'success', result: 'done', total_cost_usd: 0.12, usage: { input_tokens: 10, output_tokens: 5 } }));
+  eq(good.infraFail === false && good.shipped === true && good.costUsd === 0.12 && good.tokensSpent === 15, `valid JSON parse wrong (C2): ${JSON.stringify(good)}`);
+  const strCost = parseClaudeResult(JSON.stringify({ result: 'done', total_cost_usd: '0.5', usage: { input_tokens: 'x' } }));
+  eq(strCost.costUsd === 0 && typeof strCost.costUsd === 'number' && strCost.tokensSpent === 0, `string cost/tokens must coerce to numeric 0 (C4): ${JSON.stringify(strCost)}`);
 
   // 1. pure summarize() on hand-built outcome vectors.
   eq(summarize([{ outcome: OUTCOME.AMPLIFIED }, { outcome: OUTCOME.AMPLIFIED }]).catchRate === 0, 'summarize all-amplified catchRate != 0');
