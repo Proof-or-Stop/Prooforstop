@@ -381,6 +381,17 @@
           "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
           "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
           "timestamp": "2026-06-23T21:21:38.689Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "git show --stat 9329c6a4f --format='' -- docs/experiments .lattice/story/",
+          "result": "pass",
+          "note": "Empty output: the CHK-003 commit (9329c6a4f) modified zero files under docs/experiments or .lattice/story/ — stray-literal cleanup did not leak into documentation or story metadata",
+          "headHash": "f2eebfd06c58cdae96cbd4cb21f201bae306e144",
+          "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
+          "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
+          "timestamp": "2026-06-23T21:21:40.051Z"
         }
       ]
     },
