@@ -1,5 +1,5 @@
 /**
- * Registration entry point for @lattice-agent/utils.
+ * Registration entry point for @lattice/utils.
  * A bootstrap script calls register(registry, ctx) to inject all auxiliary
  * handlers into the main package's Registry.
  */

@@ -1,0 +1,33 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-4c65",
+  "allowedCommands": [
+    "git *",
+    "grep *",
+    "node bin/lattice.js *",
+    "node packages/main/dist/*",
+    "npm --prefix packages/main run build*"
+  ],
+  "allowedTools": [
+    "Bash",
+    "Edit",
+    "Grep",
+    "Read",
+    "Write"
+  ],
+  "allowedPaths": [
+    "CHANGELOG.md",
+    "lattice.config.json",
+    "packages/main/src/core/authority-gate-receipt-verifier.ts",
+    "packages/main/src/core/authority-gate-receipts.ts",
+    "packages/main/src/core/receipt-bundle.ts",
+    "packages/main/src/tasks/receipt-bundle-contract-smoke.ts"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "createdAt": "2026-06-22T17:12:15.237Z",
+  "updatedAt": "2026-06-22T17:12:15.237Z",
+  "_hash": "fb88a7776942a3f32ef90185af5812291e489ee59b92a0da902aeafb66d6c2e1"
+}

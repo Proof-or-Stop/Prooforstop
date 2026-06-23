@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-5c79",
+  "checkedAt": "2026-06-22T17:53:07.813Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "dcac67bda071472a0bf4e1a844728a119312beb699b770713b0de9d686426b8a",
+  "executionBoundaryHash": "23282ae383b59a3456cac3adb27bce7d0e7d9220ea9428b8dc2f213f5691ad24",
+  "freshnessHash": "741f1d5bec6144fdf1de37708a1767cc0430509b9c8a09e7ca964911ba48d031",
+  "effectiveExcludedKeywords": [
+    "Authority",
+    "customerKeyRef",
+    "Layer4",
+    "No behavior change for a first/legitimate quorum submission",
+    "No changes to core/verdicts.ts or other handlers",
+    "No changes to the runId scheme or escalation/floor logic",
+    "repair UX"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "No behavior change for a first/legitimate quorum submission",
+      "source": "scopeBoundary.excluded",
+      "text": "No behavior change for a first/legitimate quorum submission",
+      "excluded": true
+    },
+    {
+      "keyword": "No changes to core/verdicts.ts or other handlers",
+      "source": "scopeBoundary.excluded",
+      "text": "No changes to core/verdicts.ts or other handlers",
+      "excluded": true
+    },
+    {
+      "keyword": "No changes to the runId scheme or escalation/floor logic",
+      "source": "scopeBoundary.excluded",
+      "text": "No changes to the runId scheme or escalation/floor logic",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "3ba7893ab4af6852becde7f016aa905e9acf5a28db07ad63989543d251a6e3d8"
+}

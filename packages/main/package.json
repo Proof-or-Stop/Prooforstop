@@ -1,5 +1,5 @@
 {
-  "name": "@lattice-agent/core",
+  "name": "@lattice/core",
   "publishConfig": {
     "registry": "https://npm.pkg.github.com"
   },
@@ -7,7 +7,7 @@
     "type": "git",
     "directory": "packages/main"
   },
-  "version": "0.3.65",
+  "version": "0.3.66",
   "description": "通用项目开发框架 — AI-driven Story 工作流 CLI",
   "type": "module",
   "main": "dist/index.js",
@@ -69,7 +69,7 @@
     "usage-ledger-report": "node dist/tasks/usage-ledger-report.js"
   },
   "dependencies": {
-    "@lattice-agent/lab": "0.3.1",
+    "@lattice/lab": "0.3.65",
     "ws": "^8.20.0",
     "xstate": "^5.30.0",
     "zod": "^4.4.3"

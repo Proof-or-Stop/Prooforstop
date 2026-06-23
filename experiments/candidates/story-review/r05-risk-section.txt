@@ -1,0 +1,19 @@
+# r05-risk-section Risk Section
+
+Summary:
+issueCount=3
+blockerCount=1
+intentCoverage=8/9
+
+RiskSignals:
+- gate/state machine risk
+- requires decision/preMortem
+
+Blocker:
+- missing_intent CHK-003
+
+Actionable _hint:
+Fix missing testIntent and rerun story_review.
+
+_reviewPrompt:
+Please inspect testIntent, riskSignals, decision, preMortem.

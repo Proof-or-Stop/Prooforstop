@@ -1,0 +1,76 @@
+{
+  "storyId": "B-add9",
+  "checkedAt": "2026-06-22T19:01:59.921Z",
+  "reviewRound": "2026-06-22T18:50:58.440Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-add9/plan.md#CHK-001",
+      "promise": "Three runners (run-recovery.mjs, run-a2prime.mjs, run-ablation.mjs) are tracked under experiments/recovery-runner/",
+      "status": "verified",
+      "verifiedBy": "git ls-files diff",
+      "evidence": "git ls-files shows all three files: experiments/recovery-runner/run-recovery.mjs, run-a2prime.mjs, run-ablation.mjs present in diff and tracked"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-add9/plan.md#CHK-002",
+      "promise": "Per-task fixtures for eval-expr, median, parse-range, text-stats are tracked — each with prompt.md, task.json, acceptance.mjs, ground-truth.mjs, reference-solution.mjs, and injection payloads",
+      "status": "verified",
+      "verifiedBy": "git ls-files diff",
+      "evidence": "git ls-files shows 26 task fixture files across all 4 task dirs; all required files present per dir listing"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-add9/plan.md#CHK-003",
+      "promise": "Generic file-op injections injections/corrupt-output.mjs and injections/delete-output.mjs are tracked",
+      "status": "verified",
+      "verifiedBy": "git ls-files diff",
+      "evidence": "Both files present in git ls-files output and in the diff: experiments/recovery-runner/injections/corrupt-output.mjs, delete-output.mjs"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-add9/plan.md#CHK-004",
+      "promise": "README.md explains the harness (arms, tasks, hidden ground-truth) and points to Proofbound-AI/paper for run-records; no .jsonl run-records are tracked",
+      "status": "verified",
+      "verifiedBy": "file read + git ls-files",
+      "evidence": "README.md read in full — explains arms (a2prime/a4/a4b), 4 tasks, hidden ground-truth, and states data lives in Proofbound-AI/paper. git ls-files experiments/recovery-runner/*.jsonl = 0; find for *.jsonl = empty"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-add9/plan.md#CHK-005",
+      "promise": "For each of the 4 tasks, copying reference-solution.mjs to solution.mjs and running acceptance.mjs and ground-truth.mjs both print PASS; no live LLM required",
+      "status": "verified",
+      "verifiedBy": "real-machine execution",
+      "evidence": "eval-expr: ACCEPT PASS 20 checks / GROUND-TRUTH PASS 9 checks; median: ACCEPT PASS 8 / GROUND-TRUTH PASS 8; parse-range: ACCEPT PASS 11 / GROUND-TRUTH PASS 12; text-stats: ACCEPT PASS 6 / GROUND-TRUTH PASS 5. All 4 tasks pass both checks."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-005",
+      "transcript": "eval-expr: ACCEPT PASS 20 checks, GROUND-TRUTH PASS 9 held-out checks; median: ACCEPT PASS 8 checks, GROUND-TRUTH PASS 8 checks; parse-range: ACCEPT PASS 11 checks, GROUND-TRUTH PASS 12 checks; text-stats: ACCEPT PASS 6 checks, GROUND-TRUTH PASS 5 checks. All 4 reference-solutions pass both visible acceptance and hidden ground-truth without LLM invocation."
+    },
+    {
+      "featureId": "CHK-001",
+      "transcript": "git ls-files confirms run-recovery.mjs (167 lines), run-a2prime.mjs (81 lines), run-ablation.mjs (47 lines) are tracked; diff shows complete file additions with no TODO/FIXME markers.",
+      "waiverReason": ""
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "git ls-files shows 26 fixture files across 4 task dirs. Structural check: each task dir contains prompt.md, task.json, acceptance.mjs, ground-truth.mjs, reference-solution.mjs, and at least one injection payload. No solution.mjs tracked.",
+      "waiverReason": ""
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "git ls-files confirms injections/corrupt-output.mjs (16 lines) and injections/delete-output.mjs (16 lines) present; both are generic file-op helpers (no task-specific logic).",
+      "waiverReason": ""
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "README.md read in full (73 lines): describes 3 arms, 4 tasks, hidden ground-truth concept, task dir layout, injections, and explicitly states .jsonl data lives in Proofbound-AI/paper. git ls-files *.jsonl = 0 confirmed.",
+      "waiverReason": ""
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 5 plan promises independently verified: 33 files tracked (exactly as claimed), zero .jsonl tracked, README accurately describes the harness and paper-repo data split. Real-machine test for CHK-005 run freshly: all 4 tasks produced ACCEPT PASS + GROUND-TRUTH PASS (eval-expr 20+9, median 8+8, parse-range 11+12, text-stats 6+5). Edge-case coverage is intrinsic — acceptance tests exercise boundary inputs, ground-truth tests use held-out cases that differ from visible ones (the whole experimental point). No TODO/FIXME markers found in any tracked file."
+  },
+  "_hash": "7cd748788df05234d4240122193561c4dbcf2005607a4daaa3ef4636b4a47a28"
+}

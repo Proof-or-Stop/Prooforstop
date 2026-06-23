@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-4c65",
+  "checkedAt": "2026-06-22T17:12:15.660Z",
+  "mode": "maintenance",
+  "status": "pass",
+  "scopeBoundaryHash": "7d1e0bc8a777b2e30e2652fc01ce75b8b634279885d3f7fbd72bf52606c5578d",
+  "executionBoundaryHash": "fb88a7776942a3f32ef90185af5812291e489ee59b92a0da902aeafb66d6c2e1",
+  "freshnessHash": "c2bbf9e566352e89ea0931aa873c40b9aabcff799344f7d6e741eb394f1f0bad",
+  "effectiveExcludedKeywords": [
+    "A new user-facing CLI verb (follow-up; slice 1 delivers the core lib + contract test only)",
+    "Any change to gate behavior, DONE policy, or unrelated code",
+    "Authority cross-host signed verdicts / server signing (Tier-C follow-up, out of scope)"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "A new user-facing CLI verb (follow-up; slice 1 delivers the core lib + contract test only)",
+      "source": "scopeBoundary.excluded",
+      "text": "A new user-facing CLI verb (follow-up; slice 1 delivers the core lib + contract test only)",
+      "excluded": true
+    },
+    {
+      "keyword": "Any change to gate behavior, DONE policy, or unrelated code",
+      "source": "scopeBoundary.excluded",
+      "text": "Any change to gate behavior, DONE policy, or unrelated code",
+      "excluded": true
+    },
+    {
+      "keyword": "Authority cross-host signed verdicts / server signing (Tier-C follow-up, out of scope)",
+      "source": "scopeBoundary.excluded",
+      "text": "Authority cross-host signed verdicts / server signing (Tier-C follow-up, out of scope)",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "b0ff2f6029cb8ec25afcd581f652aea458c61ecabd575954a734c1170af6b3ca"
+}

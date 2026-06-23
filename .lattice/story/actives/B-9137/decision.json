@@ -1,0 +1,67 @@
+{
+  "principles": [
+    "Shift-left: fail non-English author artifacts at the moment of authoring, not at the REVIEW->TEST gate",
+    "Reuse the existing detectCjk predicate so early check and gate always agree",
+    "Scan only author-controlled artifacts; never code/runtime files",
+    "Precise field-named refusal message"
+  ],
+  "drivers": [
+    "The english-artifacts gate only runs at REVIEW->TEST -> wasted round-trip (happened on B-191c)",
+    "A duplicate CJK regex would let the early check and the gate drift",
+    "Must not over-reach into code/runtime files"
+  ],
+  "options": [
+    {
+      "name": "Call detectCjk in story_create + background_set/append",
+      "pros": [
+        "Reuses the single canonical predicate (no drift)",
+        "Fails at authoring with a precise message",
+        "Minimal: two author entry points + a smoke"
+      ],
+      "cons": [
+        "Touches two handlers + adds a small refusal helper"
+      ]
+    },
+    {
+      "name": "Add a new containsCJK to english-artifact-gate.ts",
+      "pros": [
+        "Co-located with the gate"
+      ],
+      "cons": [
+        "core/cjk-detect.ts already IS the canonical predicate; adding another export is redundant"
+      ]
+    },
+    {
+      "name": "Leave it at the REVIEW->TEST gate only",
+      "pros": [
+        "No code"
+      ],
+      "cons": [
+        "The wasted-round-trip friction persists"
+      ]
+    }
+  ],
+  "chosen": "Call detectCjk in story_create + background_set/append",
+  "rationale": "core/cjk-detect.ts detectCjk is already the canonical CJK predicate used by the REVIEW->TEST gate; calling it at the author entry points (story_create + background_set/append) shifts the failure left with zero risk of drift between the early check and the gate, and the smallest blast radius.",
+  "preMortem": [
+    {
+      "scenario": "The early check and the REVIEW->TEST gate disagree (early rejects content the gate would pass, or vice versa)",
+      "trigger": "Using a different/duplicate CJK predicate at authoring time",
+      "consequence": "A story that passes story_create still fails the gate, or legitimate English is wrongly refused",
+      "mitigation": "Reuse the EXACT detectCjk from core/cjk-detect.ts (the gate uses it too); a smoke asserts agreement — content the early check rejects is exactly content runEnglishArtifactGate would flag"
+    },
+    {
+      "scenario": "A false positive flags legitimate English (em-dash, smart quotes) and blocks normal story_create",
+      "trigger": "Over-broad detection",
+      "consequence": "Operators cannot create normal English stories",
+      "mitigation": "detectCjk only matches CJK unicode ranges; a smoke asserts an all-English story_create incl. U+2014 em-dash succeeds"
+    },
+    {
+      "scenario": "The scan over-reaches into code/runtime content",
+      "trigger": "Scanning fields beyond author-controlled artifacts",
+      "consequence": "Spurious refusals on code-bearing fields",
+      "mitigation": "Limit the scan to background + checklist title/context/userSees + title/description only; a smoke asserts the scope"
+    }
+  ],
+  "timestamp": "2026-06-22T16:33:53.578Z"
+}

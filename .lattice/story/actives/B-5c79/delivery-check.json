@@ -1,0 +1,44 @@
+{
+  "storyId": "B-5c79",
+  "checkedAt": "2026-06-22T18:23:07.949Z",
+  "reviewRound": "2026-06-22T18:08:37.947Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-5c79/plan.md",
+      "promise": "Guard in quorum_submit handler refuses a runId with an existing verdict at the same materialDigest, while allowing a fresh quorum after a material change; smoke test updated with refuses + allows cases.",
+      "status": "verified",
+      "verifiedBy": "diff + grep + live smoke run",
+      "evidence": "quorum-submit.ts lines 283-296: guard reads listVerdicts, filters by (runId, materialDigest), throws with colliding runId list. quorum-submit-smoke.ts lines 281-328: two new checks verify refuses+allows. Smoke ran exit 0, 11/11 checks passed."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "node packages/main/dist/tasks/quorum-submit-smoke.js exit 0, 11/11 checks. Check refuses a same-material re-submit: assert.throws /quorum_submit refuses: verdicts already exist for runId/; emits correctly on first submit (emittedCount=6)."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Smoke check refuses a same-material re-submit asserts hostVerdictEventCount and verdictFileCount unchanged after refusal — no side-effects written. Refusal message names colliding runIds (-q-r1,-q-r2,-q-r3). 11/11 pass."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Smoke check allows a fresh quorum after a material change commits real material change (counter-incremented content), re-records reviewer passes, re-submits, asserts emittedCount=6 and 6 new verdict files. 11/11 pass."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Smoke restructured: rounds-knob case preceded by commitMaterialChange+recordReviewerPasses to avoid collision. New refuses and allows cases present in source (grep confirmed lines 281, 306). 11/11 pass exit 0."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "Smoke ran from compiled dist node packages/main/dist/tasks/quorum-submit-smoke.js exit 0 11/11. Build and full suite evidence recorded in checklist verificationEvidence at materialHash b51761de."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 5 checklist items delivered and verified. Guard in quorum-submit.ts correctly refuses duplicate-materialDigest verdicts while allowing fresh-material re-quorum. Smoke independently ran exit 0 11/11 checks covering: same-material refuses + no side-effects, fresh-material allows, rounds isolation. No TODOs or unverified promises found."
+  },
+  "_hash": "4161cf10ae8ae5b681960a6000a3607a363fb4023a58b31c17c751f94b54eb6a"
+}

@@ -1,0 +1,180 @@
+{
+  "findings": [
+    {
+      "id": "B-4c65:F-001",
+      "desc": "CHK-001:edge:0 second clause — tolerates a bundle whose optional Authority fields are absent — has no concrete assertion. ReceiptBundle has no Authority fields (deferred), so the verifier trivially never fails on them, but no test case constructs a bundle with Authority fields present vs absent to assert the tolerance. The assurance-label half (r.assurance === local-key-single-host) IS asserted. Gap is untestable in this story; intent clause should reference the follow-up story.",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "suspected",
+      "uncertaintyReason": "The ReceiptBundle type has no Authority fields (explicitly deferred to a follow-up story), so it is ambiguous whether the intent clause refers to the current schema or the future one. The assurance-labeling half of CHK-001:edge:0 is fully covered. Untestable until Authority fields are added.",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-22T17:33:12.030Z",
+      "reviewRound": "2026-06-22T17:30:11.273Z",
+      "reviewRunId": "B-4c65:RR-004",
+      "_hash": "6056a50fdeedd88b2e442ea411d7f3cc70b3b973f70579aac1410399a8b9c69b",
+      "files": [
+        "packages/main/src/tasks/receipt-bundle-contract-smoke.ts",
+        "packages/main/src/core/receipt-bundle.ts"
+      ],
+      "signatureTag": "missing|ts|edge-second-clause",
+      "signatureTagSource": "auto",
+      "resolvedReason": "adversarial:0/edge:0 — Authority-fields-absent clause is untestable because Authority fields are deferred to a follow-up slice (out of scope); the assurance-label half of the intent IS covered by the smoke (asserts assurance==='local-key-single-host'). Audit-only low.",
+      "resolvedAt": "2026-06-22T17:49:29.774Z",
+      "resolutionType": "accepted_risk",
+      "resolveEvidenceStrength": "medium"
+    },
+    {
+      "id": "B-4c65:F-002",
+      "desc": "missing-test-coverage: receipt-bundle-contract-smoke.ts covers 8 tamper classes but omits a case for reason=digest_mismatch — step 5 of verifyReceiptBundleOffline (HEX_SHA256 check on outputDigest) is never exercised; a re-signed bundle with a malformed outputDigest would trigger it but no such case exists in cases[]",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-22T17:33:16.369Z",
+      "reviewRound": "2026-06-22T17:30:11.273Z",
+      "reviewRunId": "B-4c65:RR-001",
+      "_hash": "0b8b49b06d19f889c140c519ab6621016590afe1a4c6dc337139953986fdea40",
+      "files": [
+        "packages/main/src/tasks/receipt-bundle-contract-smoke.ts",
+        "packages/main/src/core/receipt-bundle.ts"
+      ],
+      "signatureTag": "missing|ts|missing-test-coverage",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in b7ad42391: smoke now has a digest_mismatch tamper case (re-signed bundle with a non-hex outputDigest) reaching the digest check.",
+      "resolvedAt": "2026-06-22T17:49:27.530Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-4c65:F-003",
+      "desc": "missing-test-coverage: receipt-bundle-contract-smoke.ts has no tamper case for reason=decision_not_pass — the verifier step 7 (bundle.decision !== pass) is untested; a properly re-signed bundle with decision=fail would be required to prove that check fires; the lying-agent section only exercises stale and signature_invalid",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-22T17:33:23.145Z",
+      "reviewRound": "2026-06-22T17:30:11.273Z",
+      "reviewRunId": "B-4c65:RR-001",
+      "_hash": "361f0c03591fe34a213de3e8c5d0024c8cfd32707ba9c90d455ba56b2ed7d82c",
+      "files": [
+        "packages/main/src/tasks/receipt-bundle-contract-smoke.ts",
+        "packages/main/src/core/receipt-bundle.ts"
+      ],
+      "signatureTag": "missing|ts|missing-test-coverage",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in b7ad42391: smoke now has a decision_not_pass tamper case (re-signed decision:'fail') reaching the decision check.",
+      "resolvedAt": "2026-06-22T17:49:28.341Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-4c65:F-004",
+      "desc": "type-safety: receipt-bundle.ts:62 ReceiptBundleDecision = 'pass' | 'fail' | 'blocked' | string collapses to plain string because string is a supertype of all string literals — the literal union members are dead at type level, TypeScript will accept any string without warning, eliminating compile-time protection on decision values",
+      "severity": "low",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-22T17:33:28.749Z",
+      "reviewRound": "2026-06-22T17:30:11.273Z",
+      "reviewRunId": "B-4c65:RR-001",
+      "_hash": "ba80f62911472ff660d16d77b15e567ddb1c590161bad547db981012bbbbb441",
+      "files": [
+        "packages/main/src/core/receipt-bundle.ts"
+      ],
+      "signatureTag": "edge|ts|type-safety-receipt",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in b7ad42391: ReceiptBundleDecision tightened to 'pass'|'fail'|'blocked' (dropped the | string collapse).",
+      "resolvedAt": "2026-06-22T17:49:29.061Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "medium"
+    },
+    {
+      "id": "B-4c65:F-005",
+      "desc": "Canonicalization drops JSON null: normalizeSigningJson (authority-signing.ts:62) omits null + null array entries, so a post-signature mutation like hostVerdicts.push(null) (or nulling a field) still verifies and returns accepted:true — the signature does not cover all accepted JSON values. Fix: reject any null/extra/non-schema value before accepting (validate the bundle shape strictly), or canonicalize preserving null + array positions. Add this tamper case to the smoke. (Codex host-2; proven by runtime probe.)",
+      "severity": "critical",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "codex-host2",
+      "createdAt": "2026-06-22T17:37:40.383Z",
+      "reviewRound": "2026-06-22T17:30:11.273Z",
+      "_hash": "c1b5fe4f275bfbf72cfd2294317a01e4e05ad26fcb7d0e21ddf723e5fa1fe6f8",
+      "files": [
+        "packages/main/src/core/receipt-bundle.ts"
+      ],
+      "signatureTag": "adversarial|ts|canonicalization-drops-json",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in b7ad42391: added isStrictBundleShape (rejects null/null-array-entries/extra-keys/wrong-type) running before accept → malformed_bundle. hostVerdicts.push(null) after signing now REJECTED (independently re-verified). Smoke adds the null-push tamper case.",
+      "resolvedAt": "2026-06-22T17:49:24.340Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-4c65:F-006",
+      "desc": "Check order: verifier interprets signed fields BEFORE verifying the signature — a post-signature binding.materialHash mutation returns reason=stale and a blanked headHash returns binding_incomplete, both BEFORE signature_invalid. Fix: verify signature presence + verifyCanonical over the unsigned view FIRST, then run semantic checks over the now-trusted fields. (Codex host-2.)",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "codex-host2",
+      "createdAt": "2026-06-22T17:37:40.967Z",
+      "reviewRound": "2026-06-22T17:30:11.273Z",
+      "_hash": "8165b64b035ad449a8eaa05119c2521688fad22ab51cede656004f0ea75f6e74",
+      "files": [
+        "packages/main/src/core/receipt-bundle.ts"
+      ],
+      "signatureTag": "adversarial|ts|check-order-verifier",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in b7ad42391: verifyReceiptBundleOffline now checks signature_missing + signature_invalid (verifyCanonical over unsigned view) BEFORE any semantic check (stale/binding/receipts/decision).",
+      "resolvedAt": "2026-06-22T17:49:25.109Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-4c65:F-007",
+      "desc": "signerPublicKey is signed as data but never proven to equal the verifying key: a bundle signed with the trusted private key but carrying a different signerPublicKey is accepted. Fix: in buildReceiptBundle derive/validate the public key, and in verifyReceiptBundleOffline require bundle.signerPublicKey === context.publicKey. (Codex host-2.)",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "codex-host2",
+      "createdAt": "2026-06-22T17:37:41.523Z",
+      "reviewRound": "2026-06-22T17:30:11.273Z",
+      "_hash": "86cad207a867a959f7ed5c95a72fa69f688b1f9bee2189d3d33a2c5783644411",
+      "files": [
+        "packages/main/src/core/receipt-bundle.ts"
+      ],
+      "signatureTag": "adversarial|ts|signerpublickey-signed-data",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in b7ad42391: buildReceiptBundle DERIVES signerPublicKey from the private key; verifier requires bundle.signerPublicKey===context.publicKey (signer_key_mismatch) and verifies against context.publicKey. Smoke adds signer-key-mismatch case.",
+      "resolvedAt": "2026-06-22T17:49:25.982Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-4c65:F-008",
+      "desc": "Receipt semantics too weak: a signed bundle with decision:'pass' but a receipt exitCode:1 / exitCode:-1 / empty command is accepted as ok — existing DONE validation treats nonzero receipt exit codes as blocking. Fix: require each receipt to have a non-empty command, exitCode===0, and a valid digest (new reason code, e.g. receipt_not_passing); add smoke cases. (Codex host-2; proven by runtime probe.)",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "codex-host2",
+      "createdAt": "2026-06-22T17:37:42.077Z",
+      "reviewRound": "2026-06-22T17:30:11.273Z",
+      "_hash": "c41ec1631b4a14f671b812c48118ccee001c92a4fe42bbbe078d830bfcdf4b7e",
+      "files": [
+        "packages/main/src/core/receipt-bundle.ts"
+      ],
+      "signatureTag": "adversarial|ts|receipt-semantics-weak",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in b7ad42391: each receipt must have non-empty command + integer exitCode===0 + sha256-hex outputDigest → receipt_not_passing. exitCode:1 / -1 / empty-command now REJECTED (independently re-verified). Smoke adds the cases.",
+      "resolvedAt": "2026-06-22T17:49:26.677Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

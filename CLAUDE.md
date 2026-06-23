@@ -189,7 +189,7 @@ export async function createApp() {
 
 ```typescript
 // core/debug.ts
-import { devHost } from '@lattice-agent/core/dev-host';
+import { devHost } from '@lattice/core/dev-host';
 import { createApp } from './app.js';
 import { GameMachine } from './machines/game/machine.js';
 
@@ -1012,7 +1012,7 @@ pre-push hook 的核心设计约束：**不调用旧 CLI alias**。原因：hook
 - **Lattice 自举仓检测**：
   1. `$REPO_ROOT/packages/main/package.json` 文件存在——不存在则非 Lattice 仓，立即 `exit 0`（对非 Lattice 仓零摩擦）
   2. **`node` 可用性检测**：用 `command -v node` 探测。`node` 缺失时 **fail-closed**——无法判断本仓是否 Lattice 自举仓，向 stderr 打印明确警告并 `exit 1` 拒绝 push（不静默 `exit 0`，否则 tsc gate 会被无声绕过）
-  3. 用 `node` 解析 package.json 的 `name` 字段，为 `@lattice-agent/core` 才继续；否则非 Lattice 自身，立即 `exit 0`
+  3. 用 `node` 解析 package.json 的 `name` 字段，为 `@lattice/core` 才继续；否则非 Lattice 自身，立即 `exit 0`
   注意本仓是扁平布局 `packages/main`，不是嵌套布局
 - **先构建 `packages/main`**：`npm --prefix packages/main run build`。原因是 `packages/utils` 的源码 import `packages/main/dist` 的编译产物，若 `dist` 不存在，递归 tsc 跑到 `packages/utils` 会因找不到模块而 FAIL。`npm run build` 即 tsc（非 Lattice CLI 命令，符合约束）。构建失败 → push 被拒
 - **递归 tsc**：`find` REPO_ROOT 下所有 `tsconfig.json`（排除黑名单目录 `node_modules / dist / build / .worktrees / .git`），对每个所在目录跑 `npx tsc --noEmit -p <dir>`。覆盖面与 `validate --lint` 递归扫子包对齐，消除 B-9bd9 的单根 tsconfig 子包盲区

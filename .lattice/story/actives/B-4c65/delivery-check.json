@@ -1,0 +1,81 @@
+{
+  "storyId": "B-4c65",
+  "checkedAt": "2026-06-22T18:05:42.642Z",
+  "reviewRound": "2026-06-22T17:49:22.575Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "CHANGELOG.md#B-4c65",
+      "promise": "Added packages/main/src/core/receipt-bundle.ts with buildReceiptBundle + verifyReceiptBundleOffline",
+      "verifiedBy": "diff/grep",
+      "evidence": "receipt-bundle.ts is a new 478-line file exporting buildReceiptBundle and verifyReceiptBundleOffline; confirmed in git diff"
+    },
+    {
+      "docPath": "CHANGELOG.md#B-4c65",
+      "promise": "offline/no-server verifier — NO network/server/FS access inside verifyReceiptBundleOffline",
+      "verifiedBy": "source code review",
+      "evidence": "verifyReceiptBundleOffline has no import of fs/http/https/fetch; all verification is in-memory crypto only"
+    },
+    {
+      "docPath": "CHANGELOG.md#B-4c65",
+      "promise": "Crypto REUSED from core/authority-signing.ts (signCanonical/verifyCanonical) — no crypto reimplemented",
+      "verifiedBy": "diff/grep",
+      "evidence": "receipt-bundle.ts imports signCanonical, verifyCanonical, importPrivateKeyRaw, exportPublicKeyRaw from ./authority-signing.js; no native crypto reimplementation"
+    },
+    {
+      "docPath": "CHANGELOG.md#B-4c65",
+      "promise": "local-key/ed25519-SIGNED bundle with binding chain (headHash, materialHash, storyFilesHash, policyHash, commandSetHash) + receipt identities + host verdicts + decision",
+      "verifiedBy": "diff/grep",
+      "evidence": "ReceiptBundle interface has all 5 binding fields, receipts array, hostVerdicts array, decision field — all bound into signature via signCanonical"
+    },
+    {
+      "docPath": "CHANGELOG.md#B-4c65",
+      "promise": "assurance hardwired to local-key-single-host — explicitly NOT Authority Tier-C strong proof",
+      "verifiedBy": "source code review",
+      "evidence": "assurance hardwired to local-key-single-host in both buildReceiptBundle and verifyReceiptBundleOffline; ReceiptBundleAssurance is a single-member string literal union"
+    },
+    {
+      "docPath": "CHANGELOG.md#B-4c65",
+      "promise": "Authority integration DEFERRED; do not claim receiptVerified/productionDone/authorityDone from a local-key bundle",
+      "verifiedBy": "diff/grep source code + CHANGELOG text",
+      "evidence": "CHANGELOG HONEST SCOPE block present. receipt-bundle.ts file-header repeats deferral. No receiptVerified/productionDone/authorityDone flag set in diff."
+    },
+    {
+      "docPath": "CHANGELOG.md#B-4c65",
+      "promise": "Added receipt-bundle-contract-smoke.ts (hermetic, no network): authentic bundle ACCEPTED + every tamper class REJECTED + falseAccept===0 + falseReject===0",
+      "verifiedBy": "real-machine execution",
+      "evidence": "node packages/main/dist/tasks/receipt-bundle-contract-smoke.js executed during delivery review: 1 ACCEPT (authentic), 18 REJECT lines, exit 0, 0 false-accept, 0 false-reject"
+    },
+    {
+      "docPath": "CHANGELOG.md#B-4c65",
+      "promise": "Smoke registered in lattice.config.json validate.commands",
+      "verifiedBy": "diff/grep",
+      "evidence": "lattice.config.json diff adds receipt-bundle-contract-smoke.js to validate.commands array"
+    },
+    {
+      "docPath": "CHANGELOG.md#B-4c65",
+      "promise": "Verifier runs ordered distinctly-coded checks (binding_incomplete through decision_not_pass); accepted=true only when all pass",
+      "status": "waived",
+      "verifiedBy": "source code review",
+      "evidence": "UNDER-CLAIM NOTE: CHANGELOG check-order lists 7 checks but code implements 10 (malformed_bundle + signer_key_mismatch + receipt_not_passing added by Codex host-2 findings F-005/F-007/F-008 after CHANGELOG drafted). Order in CHANGELOG is also stale vs actual code. This is an under-documentation of actual defenses, NOT an over-claim — code is stronger than documented.",
+      "waiverReason": "Under-claim only: code implements 10 ordered checks vs 7 listed in CHANGELOG. Additional defenses (malformed_bundle, signer_key_mismatch, receipt_not_passing) were added by Codex host-2 review findings after entry was written. No Authority over-claim exists. All checks confirmed passing in real-machine smoke."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "npm --prefix packages/main run build (tsc, exit 0); node packages/main/dist/tasks/receipt-bundle-contract-smoke.js: [ACCEPT] authentic reason=ok, self-check exitCode:1 REJECTED receipt_not_passing, hostVerdicts.push(null) REJECTED malformed_bundle, exit 0. No false-reject on authentic bundle."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Same smoke: 18 REJECT lines covering all 10 non-ok reason codes — malformed_bundle (3), stale (2), signature_missing (1), signature_invalid (4), signer_key_mismatch (1), digest_mismatch (1), receipt_not_passing (3), build_proof_missing (1), decision_not_pass (1), binding_incomplete (1). Lying-agent stale+forged REJECTED. falseAccept=0, falseReject=0, exit 0."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 8 CHANGELOG core promises are delivered in code. CHANGELOG check-order listing is under-documented (3 extra defenses added by Codex host-2 after CHANGELOG drafted — under-claim, not over-claim). Real machine smoke confirms authentic ACCEPTED + 18 tamper classes REJECTED + 0 false-accept/false-reject (exit 0). No Authority over-claim. Genuine 2-host Codex round-1 FAIL (F-005 critical + F-006/F-008 high) verified in findings.json with agent=codex-host2; all fixed and re-verified in round 2. Limitation honestly recorded: single-host/local-key only, CLI verb and real on-disk bundle deferred."
+  },
+  "_hash": "1601fe1749e534df6460794d59a2133103b5b4a010cda0af8643d029cea57d64"
+}

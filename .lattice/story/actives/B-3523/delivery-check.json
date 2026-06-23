@@ -1,0 +1,61 @@
+{
+  "storyId": "B-3523",
+  "checkedAt": "2026-06-22T23:49:38.801Z",
+  "reviewRound": "2026-06-22T23:31:02.764Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "README.md#runtime-scan",
+      "promise": "Active README runtime guidance promises the global core runtime fact is @lattice/core, the project-local lattice bin remains the CLI entrypoint, and external-reference policy remains advisory only.",
+      "status": "verified",
+      "verifiedBy": "diff/grep + package metadata check",
+      "evidence": "README.md now names @lattice/core for globalCoreRealpath. Live package check shows root package lattice@0.3.65 and packages/main @lattice/core@0.3.65 with bin lattice -> dist/cli.js."
+    },
+    {
+      "docPath": "README.md#lab-extension",
+      "promise": "Active README package guidance promises a globally installed lattice package is canonically @lattice/core and auto-enables @lattice/lab when resolvable while preserving ordinary core commands.",
+      "status": "verified",
+      "verifiedBy": "diff/grep + checklist evidence",
+      "evidence": "README.md names @lattice/core and @lattice/lab. CHK-001/CHK-004 evidence covers package metadata, dry-run installs, npm link, command -v lattice, npm ls -g --depth=0, and lattice --version."
+    },
+    {
+      "docPath": "CLAUDE.md#dev-host-and-pre-push",
+      "promise": "Active CLAUDE guidance promises starter devHost imports use @lattice/core and the self-host pre-push boundary checks packages/main name @lattice/core before running build plus recursive tsc.",
+      "status": "verified",
+      "verifiedBy": "diff/grep",
+      "evidence": "CLAUDE.md import example changed to @lattice/core/dev-host, and .githooks/pre-push checks PKG_NAME != @lattice/core before the self-host build plus tsc gate."
+    },
+    {
+      "docPath": "docs/requirements/decisions/authority-client-role.md + docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+      "promise": "Decision docs promise the ordinary Lattice CLI workflow client is @lattice/core, and pre-push is scoped to the @lattice/core self-host package boundary rather than retired @koala-agent or @lattice-agent names.",
+      "status": "verified",
+      "verifiedBy": "diff/grep + runtime verifier evidence",
+      "evidence": "Decision docs now name @lattice/core. Runtime code uses CANONICAL_CORE_PACKAGE_NAME = @lattice/core, global fallback candidates only include @lattice/core, and verifier scripts assert retired @lattice-agent/core and @koala-agent/core are not live runtime fallbacks."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Package rename verified by package/package-lock scope assertions, dry-run package-lock installs for main/lab/utils, and rg residue check. Live package read shows lattice@0.3.65 root, @lattice/core@0.3.65 with bin lattice, @lattice/utils@0.3.65, @lattice/lab@0.3.65, and no @lattice-agent or @koala-agent residues in package manifests or locks. Merge-after validate PASS at 2026-06-22T23:45:24.161Z on HEAD b4389f0430e2681e542bbf95e04e30ffb966cfb7."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Runtime/import rename verified by npm builds for main/utils/lab, node scripts/verify-entrypoints.mjs, node scripts/verify-runtime-fact-contract.mjs, version-bump smoke, validation-protocol smoke, and node bin/lattice.js --version. live-smoke-transcript.json records lattice --version exit 0 with Lattice CLI 0.3.65 at materialHash c132c70256b1011810cea159f0f1a2870fc30aa41ad685590b74db5fa6d2b219."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Pre-push and fallback retirement verified by pre-push self-host package assertion, runtime fact contract, entrypoint verifier, global lab entrypoint verifier, and grep of runtime/hook/verifier files. .githooks/pre-push gates @lattice/core, codex global fallback candidates only include @lattice/core, and retired @koala-agent/core / @lattice-agent/core appear only in anti-regression assertions. done_required_validate PASS from 2026-06-22T23:42:39.062Z to 2026-06-22T23:43:12.265Z with packages/main build PASS and root npm test PASS on the same HEAD/material hash."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Docs/hooks/self-host delivery verified by active guidance grep, lattice verify_codex plus node scripts/verify-codex-assets.mjs, npm link packages/main as @lattice/core with command -v lattice, npm ls -g --depth=0, lattice --version, retired Orchestrate-root story_create smoke, and node scripts/verify-koala-residue.mjs. quorum_submit evidence exists in .lattice/activity.jsonl at 2026-06-22T23:45:48.865Z with 3 rounds across claude-cli-host-a and codex-cli-host-b, and process-events record six local host_verdict pass rows for materialDigest c132c70256b1011810cea159f0f1a2870fc30aa41ad685590b74db5fa6d2b219."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery promises are verified against active docs, package/runtime files, and machine evidence. Coverage includes package metadata, installs, builds, runtime entrypoints, pre-push boundary, retired fallback residue checks, global CLI smoke, retired-root smoke, DONE-required validation, merge-after validation, and 3x2 quorum evidence. A separate scope-contract path violation remains for .lattice/story/actives/B-3523/evidence/live-smoke-transcript.json and should be acknowledged or fixed before DONE, but it is not a delivery-promise failure."
+  },
+  "_hash": "782e6544e5f2de4f0d2fe95bc2d3e37b2d4353d080cd9677085dc516b783f1de"
+}

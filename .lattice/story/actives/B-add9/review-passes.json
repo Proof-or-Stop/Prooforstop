@@ -1,0 +1,31 @@
+{
+  "passes": [
+    {
+      "id": "B-add9:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Additive onboarding only — no concepts deleted or replaced. All static imports use node: built-ins only. Dynamic injection import guarded by existsSync before loading (no dead path). run-ablation.mjs references run-recovery.mjs via join(here,...) and file is present. No .jsonl data files exist in the harness dir; code only appends to them at runtime (no read). README accurately says data lives in Proofbound-AI/paper and does not claim data is present. Ground-truth guarded by existsSync. Concept residue check: no deletions/replacements to search for (purely additive). No blocker found.",
+      "createdAt": "2026-06-22T18:53:12.792Z",
+      "reviewRound": "2026-06-22T18:50:58.440Z",
+      "reviewRunId": "B-add9:RR-003",
+      "_hash": "8999a06de888b8de1fd32453eb4fd9d39142328a6548f5b74c2d709d13c1615a"
+    },
+    {
+      "id": "B-add9:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 5 CHK items have must-priority verificationEvidence with concrete intentRefs and non-fail results; independently re-ran fixture self-consistency for all 4 tasks (eval-expr, median, parse-range, text-stats) — ACCEPT PASS + GROUND-TRUTH PASS each; git ls-files experiments/recovery-runner/*.jsonl is empty; README.md is tracked; no must-gap found.",
+      "createdAt": "2026-06-22T18:53:44.620Z",
+      "reviewRound": "2026-06-22T18:50:58.440Z",
+      "reviewRunId": "B-add9:RR-002",
+      "_hash": "18196de7678833368c47f155cc7066b397aebe4924aab8eab698d77e27de2ecb"
+    },
+    {
+      "id": "B-add9:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed all onboarded experiment files (run-recovery.mjs, run-a2prime.mjs, run-ablation.mjs, injections/, tasks/*/acceptance.mjs + ground-truth.mjs + reference-solution.mjs + injection payloads, README.md). No dead code: all imports are used across all runners. No secrets. No broken requires: all pathToFileURL + dynamic import paths are correctly constructed. No type-safety issues (pure JS harness). No shell-isolation concern (no bridge.ts in scope). README accurately describes the layout, arms, and data-elsewhere policy. The two injection mechanisms (drop-in payload-subtle.mjs for eval-expr vs inject()-module payloads for median/parse-range) are correctly noted as intentional harness design, not a defect. text-stats has subtle-wrong-output.mjs only (no overfit/payload-subtle) which is consistent with the README using / (or) phrasing. No misleading content found.",
+      "createdAt": "2026-06-22T18:54:31.665Z",
+      "reviewRound": "2026-06-22T18:50:58.440Z",
+      "reviewRunId": "B-add9:RR-001",
+      "_hash": "cec65b9c8a6acb8bde229981de951545e05095e80513b4542763feddaaaf8576"
+    }
+  ]
+}

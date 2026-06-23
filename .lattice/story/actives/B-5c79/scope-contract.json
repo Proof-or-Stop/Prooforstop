@@ -1,0 +1,20 @@
+{
+  "storyId": "B-5c79",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/handlers/quorum-submit.ts",
+    "packages/main/src/tasks/quorum-submit-smoke.ts"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/quorum-submit-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [
+    "packages/main/src/core/verdicts.ts"
+  ],
+  "scopeChangeReason": "Small guard in the quorum_submit handler + its smoke test.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-22T17:55:05.628Z",
+  "updatedAt": "2026-06-22T17:55:05.628Z"
+}

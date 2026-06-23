@@ -1,0 +1,115 @@
+{
+  "storyId": "B-4c65",
+  "checkedAt": "2026-06-22T17:22:48.393Z",
+  "features": [
+    {
+      "feature": "New core/receipt-bundle.ts with buildReceiptBundle function (export a DONE story LOCAL gate evidence — materialHash/headHash/storyFilesHash + policyHash/commandSetHash + per-command exit/output digests + host verdicts — into a self-contained bundle signed with a local ed25519 key)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "verifyReceiptBundleOffline function (re-check binding/freshness/signature/digests with NO Authority-server dependency) in core/receipt-bundle.ts",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Reuse/extend core/authority-gate-receipt-verifier.ts primitives (verifyAuthorityGateReceiptProof, gateDecisionDigest, etc.) — must not reimplement existing digest/sign/verify",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Verifier output explicitly labels result as single-host / local-key (not Authority strong proof) — honest scope labeling per decision.json preMortem",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Offline verifier takes currentMaterialHash as an input parameter (caller-supplied, not recomputed from git tree inside the verify call) — freshness conjunct enforced offline",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Adversarial tamper-class contract test smoke tasks/receipt-bundle-contract-smoke.ts — every tamper class rejected (code byte-flip, evidence JSON edit, host-verdict swap, commandSet change, stale materialHash, forged/missing signature, missing build proof)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Authentic bundle ACCEPTED in contract test (control case against a block-everything verifier — 0 false-reject)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "0 false-accept assertion in contract test",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Lying-agent negative case: stale or forged done/pass claim REJECTED with precise reason",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Contract smoke registered in lattice.config.json",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "CHANGELOG.md entry",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Authority cross-host signed verdicts / server signing (Tier-C, deferred follow-up)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json excluded: Authority cross-host signed verdicts / server signing (Tier-C follow-up, out of scope)",
+      "source": "decisions:decisions/authority-session-receipt-gate-execution.md"
+    },
+    {
+      "feature": "New user-facing CLI verb for receipt-bundle (follow-up)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json excluded: A new user-facing CLI verb (follow-up; slice 1 delivers the core lib + contract test only)",
+      "source": "description"
+    },
+    {
+      "feature": "Any change to gate behavior or DONE policy",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json excluded: Any change to gate behavior, DONE policy, or unrelated code",
+      "source": "decisions:decisions/lifecycle-gate-receipt-consumption.md"
+    }
+  ],
+  "summary": {
+    "total": 14,
+    "covered": 11,
+    "excluded": 3,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "cda4dca27e049b6551b54da47efd35131b4c0c0b6ad4412149a2c2155c182f30",
+  "openQuestions": []
+}

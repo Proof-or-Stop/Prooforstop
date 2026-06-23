@@ -1,0 +1,49 @@
+{
+  "storyId": "B-9137",
+  "checkedAt": "2026-06-22T17:25:00.245Z",
+  "reviewRound": "2026-06-22T17:07:19.669Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-9137/checklist.json#CHK-001.userSees",
+      "promise": "story_create with CJK in background or checklist item is REFUSED with [english_artifact_cjk_authoring] tag and no story dir is created; background_set with CJK is refused before writing; all-English story_create (incl. em-dash) succeeds",
+      "status": "verified",
+      "verifiedBy": "direct-cli-test via english-early-check-smoke.js + code review of english-artifact-gate.ts",
+      "evidence": "Smoke (a): story_create with CJK background refused, no story dir created. Smoke (b): story_create with CJK checklist title/context refused, no dir. Smoke (c): all-English + em-dash succeeds, persists em-dash. Smoke (d): background_set refused before writing background.md. [english_artifact_cjk_authoring] tag confirmed at english-artifact-gate.ts line 275. renderEnglishAuthoringRefusal includes field name."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-9137/checklist.json#CHK-001.context (single source of truth)",
+      "promise": "early check uses the SAME detectCjk predicate as runEnglishArtifactGate with no duplicate regex",
+      "status": "verified",
+      "verifiedBy": "grep and code review of english-artifact-gate.ts plus smoke agreement check (e)",
+      "evidence": "detectCjk defined only in core/cjk-detect.ts line 58 and imported into english-artifact-gate.ts line 27. containsCJK wraps detectCjk.found. No CJK regex literal found in any changed file. Smoke check (e) asserts findFirstEnglishAuthoringViolation / runEnglishArtifactGate / containsCJK all agree on ascii/em-dash/cjk-core/cjk-ext-A."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-9137/checklist.json#CHK-001.context (scope limit)",
+      "promise": "scan is limited to author-controlled artifacts (title, description, background, checklist text) and never scans code or runtime files",
+      "status": "verified",
+      "verifiedBy": "code review of storyCreateAuthoringFields in story-create.ts and assertEnglishAuthoringText call sites in background.ts",
+      "evidence": "storyCreateAuthoringFields() enumerates only: title, description, background with section refinement, checklist[N].title/context/userSees. background.ts calls assertEnglishAuthoringText only on args.content for background_set and background_append. No paths scan scope boundaries or runtime files."
+    },
+    {
+      "docPath": "lattice.config.json#validate.commands (english-early-check-smoke inclusion)",
+      "promise": "english-early-check-smoke.js is registered in validate commands so it runs on every lattice validate",
+      "status": "verified",
+      "verifiedBy": "lattice validate output confirms validate.commands[22] ran english-early-check-smoke.js with PASS",
+      "evidence": "lattice validate output: configured validate.commands[22]: node packages/main/dist/tasks/english-early-check-smoke.js — all 5 ok lines printed, smoke passed. Intent coverage 7/7 all covered."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "english-early-check-smoke.js 5 checks all passed: (a) story_create refuses CJK background before persistence, no story dir created; (b) story_create refuses CJK checklist title AND context, no story dir created; (c) all-English story_create with U+2014 em-dash succeeds, em-dash preserved in index.json and checklist.json, containsCJK returns false for em-dash; (d) background_set refuses CJK before writing, background.md byte-identical before/after refused call; (e) agreement assertion across 4 candidates, findFirstEnglishAuthoringViolation/runEnglishArtifactGate/containsCJK all return identical verdicts. lattice validate 24/24 commands pass, intent coverage 7/7. lifecycle-registry-contract PASS 0 divergences."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 4 docs promises verified by code inspection and real machine execution. Smoke task (5 checks) passes end-to-end in a temp git repo covering CJK refusal in background, CJK refusal in checklist fields, em-dash false-positive guard, background_set refusal before file write, and cross-predicate agreement. No duplicate CJK regex introduced. Scope is strictly author prose. lattice validate 24/24 and intent 7/7 all green."
+  },
+  "_hash": "a9bc84a794b65da1ae9fcc290b9b81054d62484fc8b3536d5bd3a7d139985527"
+}

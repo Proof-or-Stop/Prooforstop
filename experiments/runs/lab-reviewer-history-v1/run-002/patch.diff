@@ -1,0 +1,37 @@
+diff --git a/.claude/agents/test-case-reviewer.md b/.claude/agents/test-case-reviewer.md
+index 6290568..babda35 100644
+--- a/.claude/agents/test-case-reviewer.md
++++ b/.claude/agents/test-case-reviewer.md
+@@ -1,7 +1,7 @@
+ ---
+ name: test-case-reviewer
+ description: 逐条审核 testIntent 覆盖情况，记录 results，转告主 agent
+-model: sonnet
++model: claude-opus-4-6
+ tools:
+   - Read
+   - Bash
+@@ -47,11 +47,20 @@ koala testintent_check '{"storyId":"<STORY_ID>"}'
+ 
+ 查看历史 results 作为上下文（了解之前审过什么、主 agent 回复了什么）。
+ 
+-**轮次上限**：统计 results 中 `role="reviewer"` 的记录，按 `time` 分组为轮次（同一批次的 time 相近视为同一轮）。**如果已有 5 轮或以上 reviewer 记录，停止审核**，直接输出：
++**5 轮 cap（segment-aware，硬门禁）**：CLI 现在自动 enforce 这个上限。`testintent_record` 写入前会从末尾倒数 reviewer/author 条目（遇到 `role="human-resume"` 标记停止），当前段累计 ≥ 5 时直接拒绝写入并返回错误。
++
++你不需要手动判断轮次——直接调 `testintent_record` 即可。如果 CLI 返回 `已达 5 轮 cap`，把错误**原样转告主 agent**，并提示：
+ ```
+-⚠ 已达 5 轮审核上限。当前通过率 X/Y。请人类裁决剩余未通过项。
++⚠ 第 X 条 testIntent 已达 5 轮 cap。当前段无法继续审核。
++
++正确反应:
++1. 优先反思：5 轮还没共识说明 testIntent 描述本身或 checklist 拆解可能有问题
++2. 实在需要继续：让人类调 koala testintent_resume 显式开新段（必须 human:true + reason ≥ 5 字符）
++
++你（reviewer）和主 agent 都不能自己调 testintent_resume——CLI 会拒绝 human:false。
+ ```
+-然后将 `testintent_check` 返回的完整内容转告主 agent，**不再记录新的 results**。
++
++注意：reviewer 看到 `role="human-resume"` 记录时表示**人类已经介入开了新段**，cap 重置，正常继续审即可。
+ 
+ **重要：每轮审核必须重新验证所有条目**，不管上一轮结果是 pass 还是 fail。代码可能已经改动，之前通过的 case 可能不再通过。
+ 

@@ -1,0 +1,1 @@
+{"happy":[{"desc":"run create → expect config exists","type":"cli_blackbox","input":{"target":"x"},"expect":{"exists":true}}],"edge":[{"desc":"missing profile → expect validation error","type":"cli_blackbox","expect":{"throws":"profile"}}],"adversarial":[{"desc":"malicious path target → expect rejected","type":"cli_blackbox","expect":{"throws":"unknown target"}}]}

@@ -1,0 +1,84 @@
+{
+  "storyId": "B-add9",
+  "name": "onboard-recovery-runner",
+  "title": "Track the recovery-runner experiment harness in Orchestrate (code review + audit trail)",
+  "description": "The recovery-runner experiment harness that produces the paper's reflection-loop/recovery evidence is untracked scratch in Orchestrate. Bring its CODE under version control through the review gate so it is auditable; the run-record .jsonl data stays in the paper repo.",
+  "type": "chore",
+  "phase": "DONE",
+  "priority": "medium",
+  "keywords": [
+    "experiments",
+    "recovery-runner",
+    "onboarding",
+    "harness"
+  ],
+  "createdAt": "2026-06-22T18:30:11.822Z",
+  "startedAt": "2026-06-22T18:30:11.822Z",
+  "endedAt": "2026-06-22T19:05:03.110Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-22T18:30:11.838Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "e8aca935-deaf-4f5d-9f33-b3aff7bb35fb",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-22T18:32:49.778Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "e8aca935-deaf-4f5d-9f33-b3aff7bb35fb",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-22T18:33:00.999Z",
+      "branch": "story/B-add9",
+      "user": "Harmonygo",
+      "sessionId": "e8aca935-deaf-4f5d-9f33-b3aff7bb35fb",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-22T18:39:14.564Z",
+      "branch": "story/B-add9",
+      "user": "Harmonygo",
+      "sessionId": "e8aca935-deaf-4f5d-9f33-b3aff7bb35fb",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-22T18:50:58.440Z",
+      "branch": "story/B-add9",
+      "user": "Harmonygo",
+      "sessionId": "e8aca935-deaf-4f5d-9f33-b3aff7bb35fb",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-22T19:00:03.891Z",
+      "branch": "story/B-add9",
+      "user": "Harmonygo",
+      "sessionId": "e8aca935-deaf-4f5d-9f33-b3aff7bb35fb",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-22T19:05:03.110Z",
+      "branch": "story/B-add9",
+      "user": "Harmonygo",
+      "sessionId": "e8aca935-deaf-4f5d-9f33-b3aff7bb35fb",
+      "agent": "main"
+    }
+  ],
+  "currentReviewRound": "2026-06-22T18:50:58.440Z"
+}

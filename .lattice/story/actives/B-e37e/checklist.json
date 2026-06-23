@@ -40,7 +40,7 @@
     {
       "id": "CHK-002",
       "title": "Preserve auth, retry, and host-neutral provider boundaries",
-      "context": "Ensure Authorization/customer-key handling, runner provider configuration, reconnect/backoff, and diagnostics stay consistent with authority_enforce_runner and autopilot authority paths.",
+      "context": "Ensure Authorization/customer-key handling, runner provider configuration, reconnect/backoff, and diagnostics stay consistent with authority_enforce_runner and autopilot authority paths. SSE auth failures, diagnostics, logs, and verification evidence must never expose raw Authorization headers or customer API keys.",
       "relatedDocs": [
         "docs/requirements/decisions/authority-client-role.md",
         "docs/requirements/decisions/authority-runner-session-evidence-envelope.md",
@@ -56,14 +56,14 @@
         ],
         "edge": [
           {
-            "desc": "401/403/404/server-unavailable stream failures produce a clear readiness/fallback diagnostic and continue through the configured safe fallback path where appropriate.",
+            "desc": "401/403/404/server-unavailable stream failures produce a clear readiness/fallback diagnostic and continue through the configured safe fallback path where appropriate, without printing raw Authorization headers or customer API keys.",
             "type": "cli",
             "priority": "must"
           }
         ],
         "adversarial": [
           {
-            "desc": "Provider-specific or host-specific assumptions cannot bypass runner registration, heartbeat, session binding, claim ownership, or the existing execution boundaries.",
+            "desc": "Provider-specific or host-specific assumptions cannot bypass runner registration, heartbeat, session binding, claim ownership, existing execution boundaries, or secret redaction for Authorization/customer API key material.",
             "type": "logic",
             "priority": "must"
           }

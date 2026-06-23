@@ -1,0 +1,55 @@
+{
+  "storyId": "B-4c65",
+  "changes": "Added core/receipt-bundle.ts (buildReceiptBundle + verifyReceiptBundleOffline — a local-key-signed, offline, no-server receipt verifier with strict shape check, signature-first ordering, signerPublicKey binding, and receipt exitCode==0 enforcement) + a 18-class adversarial tamper contract-test smoke. Authority cross-host signing deferred.",
+  "usage": "Run node packages/main/dist/tasks/receipt-bundle-contract-smoke.js — it builds an authentic bundle (ACCEPTED) and runs every tamper class (all REJECTED) with 0 false-accept/false-reject. The contract-test matrix is the paper's C2 (anti-forgery/freshness binding) data proof.",
+  "expectedOutcome": "Authentic bundle ACCEPTED; every tamper class REJECTED with the correct reason code; 0 false-accept, 0 false-reject; assurance=local-key-single-host (not Authority strong proof).",
+  "actualTranscript": "build clean; smoke prints authentic ACCEPTED + 18 tamper classes REJECTED (all 10 reason codes reached) + lying-agent + soundness self-checks rejected + 0 false-accept/0 false-reject, exit 0. Independently replayed: exitCode:1/empty-cmd -> receipt_not_passing, hostVerdicts.push(null) -> malformed_bundle, signerPublicKey swap -> signer_key_mismatch, authentic -> ok.",
+  "outcomeDiff": "No difference. Soundness holes Codex host-2 found in round 1 (incl. a critical) were fixed and re-verified by Codex in round 2.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Single-host / local-key signing only (honestly labeled, NOT the Authority Tier-C strong proof); Authority cross-host signed verdicts and a user-facing CLI verb are deferred follow-ups. Artifacts in the contract test fit in memory; building a bundle from a real on-disk DONE story + recomputing materialHash from the actual git tree is the CLI-verb follow-up.",
+  "pitfalls": "Do NOT relabel assurance as Authority/strong-proof. The verifier requires each receipt exitCode===0 + non-empty command + sha256 digest, signerPublicKey===trusted key, and rejects any null/extra field (malformed_bundle) — these defenses (found by Codex host-2) must not be weakened. Verify signature BEFORE trusting signed fields.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 426717
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 54225
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 301775
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 1037668
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 991723
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 191014
+    }
+  },
+  "totalDurationMs": 3003122,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-22T18:01:10.083Z",
+  "updatedAt": "2026-06-22T18:01:10.083Z"
+}

@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-5c79",
+  "mode": "correctness_fix",
+  "allowed": [
+    "Modify packages/main/src/handlers/quorum-submit.ts (add duplicate-runId guard)",
+    "Modify packages/main/src/tasks/quorum-submit-smoke.ts (test coverage for the guard)"
+  ],
+  "excluded": [
+    "No behavior change for a first/legitimate quorum submission",
+    "No changes to core/verdicts.ts or other handlers",
+    "No changes to the runId scheme or escalation/floor logic"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Operator-confirmed: small guard in the quorum_submit handler + its smoke test.",
+  "createdAt": "2026-06-22T17:53:07.001Z",
+  "updatedAt": "2026-06-22T17:53:07.001Z",
+  "_hash": "dcac67bda071472a0bf4e1a844728a119312beb699b770713b0de9d686426b8a"
+}

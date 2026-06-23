@@ -450,7 +450,7 @@ checks.push(() => {
     assertNotIncludes(generatedWrapper, "spawnSync('koala'", 'generated Codex wrapper should not delegate directly to global koala');
     assertIncludes(generatedWrapper, 'lattice init --verify-codex', 'generated Codex wrapper recovery hint');
     assertIncludes(generatedBootstrap, 'coreCliEngineCandidates', 'generated local bootstrap candidate list');
-    assertIncludes(generatedBootstrap, "node_modules', '@lattice-agent', 'core'", 'generated local bootstrap should search local @lattice-agent/core first');
+    assertIncludes(generatedBootstrap, "node_modules', '@lattice', 'core'", 'generated local bootstrap should search local @lattice/core first');
     assertNotIncludes(generatedBootstrap, "@koala-agent", 'generated local bootstrap should not search @koala-agent/core fallback');
     assertNotIncludes(generatedBootstrap, 'bin/koala.js', 'generated local bootstrap should not mention bin/koala.js');
     assertNotIncludes(generatedBootstrap, "spawnSync('koala'", 'generated local bootstrap should not delegate to global koala');

@@ -1,0 +1,52 @@
+{
+  "storyId": "B-5c79",
+  "checkedAt": "2026-06-22T17:59:59.276Z",
+  "features": [
+    {
+      "feature": "Duplicate-runId guard in quorum_submit: refuse if a planned runId already has a verdict at the same materialDigest",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Refusal message names the colliding runId(s), explains it would duplicate the quorum, and writes no verdicts on refusal",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Fresh quorum after material change (different materialDigest) is allowed — guard keys on (runId, materialDigest) not just runId",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Smoke test coverage: restructured rounds-knob case (no collision); same-material re-submit refuses case; re-quorum-after-material-change-allowed case",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Build packages/main and run quorum-submit smoke plus full test suite green",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 5,
+    "covered": 5,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "9858b84bf65f72c1b379af546cbb0328d8362409df90d58e8c1ad13831c68401",
+  "openQuestions": []
+}

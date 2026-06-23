@@ -888,7 +888,7 @@ try {
     const report = runRuntimeEnvironmentChecks(projectLocalRuntimeRoot, {
       commandResolver: () => localBin,
       globalNpmRootResolver: () => null,
-      corePackageRoot: join(projectLocalRuntimeRoot, 'node_modules', '@lattice-agent', 'core'),
+      corePackageRoot: join(projectLocalRuntimeRoot, 'node_modules', '@lattice', 'core'),
     });
     assertRuntimeModeShape(report.runtimeMode);
     assert.equal(report.runtimeMode.mode, 'project-local-package');
@@ -928,7 +928,7 @@ try {
     const report = runRuntimeEnvironmentChecks(latticeConflictRuntimeRoot, {
       commandResolver: () => otherCli,
       globalNpmRootResolver: () => null,
-      corePackageRoot: join(latticeConflictRuntimeRoot, 'node_modules', '@lattice-agent', 'core'),
+      corePackageRoot: join(latticeConflictRuntimeRoot, 'node_modules', '@lattice', 'core'),
     });
     assertRuntimeModeShape(report.runtimeMode);
     assert.equal(report.runtimeMode.mode, 'diagnostic-only');
