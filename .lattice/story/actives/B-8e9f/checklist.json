@@ -44,7 +44,37 @@
       "context": "interruptAt(1) returns kill; classify disk-grounded on result.txt",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "--self-check prints a B5 case where kill fires at turn 1 (token-less marker); disk-reading stub -> RECOVERED and context-reliant stub -> AMPLIFIED appear as DIFFERENT outcomes.",
+      "files": {
+        "modify": [
+          "experiments/injection-probes/live-loop-harness.mjs"
+        ],
+        "create": [],
+        "test": [
+          "experiments/injection-probes/live-loop-harness.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "B5 interruptAt(1)=kill replaces context with the token-less marker; a stub re-deriving from task.txt writes OK -> RECOVERED",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "a context-reliant stub finds the token gone and writes wrong -> AMPLIFIED",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "without the turn-1 kill the original token-bearing prompt persists and AMPLIFIED cannot be produced",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
