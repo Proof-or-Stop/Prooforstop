@@ -4,7 +4,7 @@
   "title": "Add explicit focused/full validate layering and safer timeout defaults for workflow efficiency baseline item 1",
   "description": "B-4bd7 registered the workflow-efficiency baseline after B-e9cb showed that full validation was expensive and a too-tight timeout could create false failure pressure. This story fixes only the validate-cost dimension by making focused validation explicit for development/review while preserving the final full validation requirement.",
   "type": "bug",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "keywords": [
     "workflow-efficiency-baseline",
@@ -24,6 +24,20 @@
       "user": "Harmonygo",
       "sessionId": "sess-7f55c8d5292c7c45",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-23T05:02:42.556Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-7f55c8d5292c7c45",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-73cf",
+    "branch": "story/B-73cf",
+    "createdAt": "2026-06-23T05:02:42.148Z"
+  }
 }
