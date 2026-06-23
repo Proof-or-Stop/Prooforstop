@@ -1,0 +1,42 @@
+{
+  "storyId": "B-2d4c",
+  "checkedAt": "2026-06-23T03:58:58.691Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "id": "INIT-001",
+      "severity": "low",
+      "desc": "background.md Conversational Texture says \"The operator chose to build the powered-ablation infrastructure (option a) in honest pieces rather than fake the multi-day run\" — the label \"(option a)\" is never defined in the background document. A new reader cannot identify what options were on the table or what option b/c were. The surrounding sentence is still intelligible (the chosen path is clear), but the label is an unexplained artifact from the main-agent conversation."
+    },
+    {
+      "id": "INIT-002",
+      "severity": "medium",
+      "desc": "background.md Key Insights and CHK-002 use the outcome label \\\"recovered-to-green\\\" (matching pre-reg §4.2), but the pre-reg §7 run-record schema lists the same outcome value as \\\"recovered\\\" (adjudicatedOutcome(amplified|recovered|safe-stop|null)). CHK-003 instructs the implementer to use \\\"exact pre-reg section 7 field names\\\", but does not resolve whether the §7 enum value \\\"recovered\\\" or the §4.2 label \\\"recovered-to-green\\\" is canonical. The background does not flag this intra-document discrepancy, leaving the implementer uncertain which string adjudicate.mjs should emit — a mismatch will silently break analysis-script joins."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-23T03:58:49.494Z",
+      "issues": []
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-06-23T03:58:58.691Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "low",
+          "desc": "background.md Conversational Texture says \"The operator chose to build the powered-ablation infrastructure (option a) in honest pieces rather than fake the multi-day run\" — the label \"(option a)\" is never defined in the background document. A new reader cannot identify what options were on the table or what option b/c were. The surrounding sentence is still intelligible (the chosen path is clear), but the label is an unexplained artifact from the main-agent conversation."
+        },
+        {
+          "id": "INIT-002",
+          "severity": "medium",
+          "desc": "background.md Key Insights and CHK-002 use the outcome label \\\"recovered-to-green\\\" (matching pre-reg §4.2), but the pre-reg §7 run-record schema lists the same outcome value as \\\"recovered\\\" (adjudicatedOutcome(amplified|recovered|safe-stop|null)). CHK-003 instructs the implementer to use \\\"exact pre-reg section 7 field names\\\", but does not resolve whether the §7 enum value \\\"recovered\\\" or the §4.2 label \\\"recovered-to-green\\\" is canonical. The background does not flag this intra-document discrepancy, leaving the implementer uncertain which string adjudicate.mjs should emit — a mismatch will silently break analysis-script joins."
+        }
+      ]
+    }
+  ],
+  "_hash": "01baca8313ab2eb71abe2187adb71487b7b810f327bbdd38b80d21f4748c33c7"
+}

@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-2d4c",
+  "allowedCommands": [
+    "git add",
+    "node"
+  ],
+  "allowedTools": [
+    "Bash",
+    "Edit",
+    "node",
+    "Read",
+    "Write"
+  ],
+  "allowedPaths": [
+    "experiments/recovery-runner/"
+  ],
+  "excludedCommands": [
+    "claude -p",
+    "git push",
+    "git reset --hard",
+    "rm -rf"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    "bin/",
+    "core/",
+    "packages/"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Create adjudicate.mjs + adjudicate-selfcheck.mjs; verify via node --check + the no-LLM selfcheck.",
+  "createdAt": "2026-06-23T04:00:16.978Z",
+  "updatedAt": "2026-06-23T04:00:16.978Z",
+  "_hash": "e23e7b9c405a72a3fe01d80281c0b94eef9689683a65c63dd560cb62c92284d0"
+}
