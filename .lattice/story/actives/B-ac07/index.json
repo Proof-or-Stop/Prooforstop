@@ -1,0 +1,51 @@
+{
+  "storyId": "B-ac07",
+  "name": "koala-lane-token-rename",
+  "title": "Rename neutral koala-<role> process-lane/agent tokens to lattice-<role> (ship-clean story 3)",
+  "description": "Story 3 of the no-compat koala-removal pass: rename the neutral koala-<role> process-lane and agent identifier tokens (koala-codex, koala-agent, koala-storydir, etc.) to lattice-<role> across product code + tests, with producers and consumers changed atomically. The koala-review-integrity-v1 signature salt is explicitly deferred (salt-rename collateral + active in-flight stories); docs/experiments and the gate flip are story 4.",
+  "type": "refactor",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "keywords": [
+    "koala",
+    "lane-token",
+    "rename",
+    "ship-clean",
+    "dispatch"
+  ],
+  "riskSignals": [
+    {
+      "category": "Security/Credentials",
+      "matched": "token"
+    }
+  ],
+  "priorityElevatedFrom": "medium",
+  "createdAt": "2026-06-23T17:47:18.838Z",
+  "startedAt": "2026-06-23T17:47:18.838Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-23T17:47:18.848Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "d45e3804-aa11-4468-a225-e4de0d1999ad",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-23T17:50:18.114Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "d45e3804-aa11-4468-a225-e4de0d1999ad",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-ac07",
+    "branch": "story/B-ac07",
+    "createdAt": "2026-06-23T17:50:17.716Z"
+  }
+}

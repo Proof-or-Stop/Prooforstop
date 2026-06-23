@@ -1,0 +1,49 @@
+{
+  "findings": [
+    {
+      "id": "B-b837:F-001",
+      "desc": "CHK-005:adversarial:3 command is a non-runnable placeholder: `for f in LEGACY_LOGIC_FILES; do test -f $f; done` iterates over the literal string LEGACY_LOGIC_FILES (one iteration, checks a file named LEGACY_LOGIC_FILES which does not exist) and produces no actual verification of the 11 LEGACY_LOGIC_FILES exemption entries. The intent requires confirming each of the 11 files still exists on disk so no dead exemptions mask future regressions. The note claim (missing-files=0) is factually correct but the recorded command cannot reproduce that result — this is a generic-fallback substitution violating the evidence-must-bind-literal-intent-command contract.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-23T14:14:03.521Z",
+      "reviewRound": "2026-06-23T14:08:20.639Z",
+      "reviewRunId": "B-b837:RR-002",
+      "_hash": "e8614bdde927e49ee7bc9f0812d688dde53f0d99b8ad477b0599f56e9e472e34",
+      "files": [
+        "scripts/verify-koala-residue.mjs",
+        "packages/main/src/handlers/review-preflight.ts"
+      ],
+      "signatureTag": "missing|mjs|adversarial-command-runnable",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Replaced the placeholder command 'for f in LEGACY_LOGIC_FILES; do test -f $f; done' (which iterated the literal string and verified nothing) with a real runnable check at /tmp/b837-deadexempt-check.mjs. It parses the actual LEGACY_LOGIC_FILES Set out of scripts/verify-koala-residue.mjs (11 entries) and for each asserts the file exists on disk and still contains a koala token, failing if any allowlist path is dead. Re-bound CHK-005:adversarial:3 with command='node /tmp/b837-deadexempt-check.mjs' kind=logic_test result=pass (11 parsed, missing=0, dead=0; negative-tested to exit 1 on an injected missing path). No product code changed.",
+      "resolvedAt": "2026-06-23T14:20:40.176Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-b837:F-002",
+      "desc": "CHK-003:edge:1 intent requires runtime invocation of the dev-memory handler with a valid storyDir, but the evidence is a docs_check (grep -n assertNoLegacyKoalaWritePath packages/main/src/handlers/dev-memory.ts) that only confirms static absence of the deleted guard — no handler is actually called. The note bridges to tsc being clean, but the tsc evidence is bound to CHK-005:happy:0, not to this intentRef. The intent says priority=must and specifies the handler must succeed with a valid storyDir; a grep confirming zero guard references does not concretely correspond to calling the handler and observing it succeed.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-23T14:14:56.676Z",
+      "reviewRound": "2026-06-23T14:08:20.639Z",
+      "reviewRunId": "B-b837:RR-002",
+      "_hash": "1fc5ac2907b5fbe69396aa819fff46b610a0dfd07ab022036664414b4263aa44",
+      "files": [
+        "packages/main/src/handlers/dev-memory.ts"
+      ],
+      "signatureTag": "missing|ts|edge-intent-requires",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Replaced the static grep evidence (which only confirmed absence of the assertNoLegacyKoalaWritePath reference, never invoking the handler) with a real runtime check at /tmp/b837-devmemory-runtime-check.mjs. It imports the compiled dev-memory handler, builds a real HandlerContext, seeds an entry, and invokes createDevMemoryHandlers(ctx).dev_memory_finish({storyId,storyDir}) with a storyDir containing a '.koala' segment — the exact input the removed guard rejected — asserting it returns without throwing and writes the candidate file. Re-bound CHK-003:edge:1 with command='node /tmp/b837-devmemory-runtime-check.mjs' kind=logic_test result=pass. Confirmed discriminating: the old guard's containsLegacyKoalaDir returns true for this storyDir, so it would have thrown. No product code changed.",
+      "resolvedAt": "2026-06-23T14:20:46.237Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

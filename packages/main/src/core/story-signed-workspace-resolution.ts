@@ -351,9 +351,8 @@ export function evaluateStoryDirInsideGitRoot(
  * unresolvable condition separately.
  *
  * TOTAL: never throws, no console output. Its throwing internals — notably
- * loadConfig() which calls assertNoLegacyKoalaWritePath() and THROWS for a
- * legacy LATTICE_DIR storyDir — are wrapped in an internal try/catch that
- * degrades to the same safe non-violation (`ok: true`,
+ * loadConfig() and git probing / path math — are wrapped in an internal
+ * try/catch that degrades to the same safe non-violation (`ok: true`,
  * `reason: 'gitroot-unresolved'`) on any internal error, so the advisory
  * callers (story_create, session_brief) can rely on the guarantee.
  */
@@ -367,11 +366,10 @@ export function evaluateStoryDirConfigInsideGitRoot(
   opts: EvaluateStoryDirConfigInsideGitRootOptions,
 ): StoryDirInsideGitRootResult {
   const metadataRoot = canonicalPath(opts.metadataRoot);
-  // Everything that can throw lives inside this try: loadConfig() calls
-  // assertNoLegacyKoalaWritePath(config.storyDir) (lattice-paths.ts), which
-  // THROWS for a legacy LATTICE_DIR storyDir; git probing / path math can also
-  // surface unexpected errors. The advisory callers (story_create stderr,
-  // session_brief) treat this helper as never-throwing, so on ANY internal
+  // Everything that can throw lives inside this try: loadConfig() and git
+  // probing / path math can surface unexpected errors. The advisory callers
+  // (story_create stderr, session_brief) treat this helper as never-throwing,
+  // so on ANY internal
   // error fall back to a safe non-violation result (the same shape an
   // unresolvable gitRoot returns) rather than propagate. This keeps the
   // "never throws" guarantee accurate without silently fabricating a

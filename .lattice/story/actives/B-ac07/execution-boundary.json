@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-ac07",
+  "allowedCommands": [
+    "git",
+    "grep",
+    "node",
+    "npm run build",
+    "npm test",
+    "npx tsc"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "packages/lab/src",
+    "packages/main/src",
+    "packages/utils/src",
+    "scripts"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".lattice/story",
+    "docs",
+    "experiments"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Story 3 renames koala-<role> lane tokens in product code + scripts + tests. Residue gate run read-only; not modified (story 4).",
+  "createdAt": "2026-06-23T17:50:16.859Z",
+  "updatedAt": "2026-06-23T17:50:16.859Z",
+  "_hash": "7179e3e6185136ce68fde3d4bd6341a96eeed9dffa5e66652d379ed311597f74"
+}

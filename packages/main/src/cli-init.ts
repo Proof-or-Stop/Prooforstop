@@ -58,7 +58,7 @@ const HOOK_FILES = ['log-tools.cjs', LATTICE_SCOPE_PRETOOL_HOOK_FILE, ENGLISH_ON
 
 // 通过 lattice init 调用时 argv[2]='init'，跳过；直接运行 init entrypoint 时 argv[2] 是目标目录
 const initArgs = process.argv[2] === 'init' ? process.argv.slice(3) : process.argv.slice(2);
-const INIT_DOC_SECTION_RE = /<!--\s*(?:koala|lattice):start\s*-->[\s\S]*?<!--\s*(?:koala|lattice):end\s*-->/;
+const INIT_DOC_SECTION_RE = /<!--\s*lattice:start\s*-->[\s\S]*?<!--\s*lattice:end\s*-->/;
 const GITIGNORE_RUNTIME_BLOCK_RE = new RegExp(
   `${escapeRegExp(LATTICE_RUNTIME_IGNORE_BLOCK_START)}[\\s\\S]*?${escapeRegExp(LATTICE_RUNTIME_IGNORE_BLOCK_END)}`,
 );
@@ -322,7 +322,7 @@ function writeExecutable(relPath: string, content: string): boolean {
 function extractManagedSection(content: string): string {
   const match = content.match(INIT_DOC_SECTION_RE);
   if (!match) return content;
-  return match[0].replace(/<!--\s*koala:internal:start\s*-->[\s\S]*?<!--\s*koala:internal:end\s*-->\n?/g, '');
+  return match[0];
 }
 
 function hasManagedMarkers(content: string): boolean {
@@ -421,30 +421,6 @@ function removeWholeFileIfGenerated(relPath: string, label: string, expectedCont
   if (!expectedContents.some(expected => actual === (expected.endsWith('\n') ? expected : `${expected}\n`))) return;
   unlinkSync(full);
   console.log(`  ↻ ${label} (removed generated file for profile cleanup)`);
-}
-
-function isGeneratedLegacyKoalaAgentPrompt(file: string, actual: string): boolean {
-  return /^koala-[^/\\]+\.md$/.test(file)
-    && (actual.includes('<!-- lattice:start -->')
-      || actual.includes('<!-- lattice:start-slot -->')
-      || /^\s*name:\s*koala-/m.test(actual));
-}
-
-function cleanupGeneratedLegacyKoalaAgentPrompts(agentDir: string) {
-  if (!existsSync(agentDir)) return;
-  for (const file of listAgentPromptFiles(agentDir)) {
-    if (!/^koala-[^/\\]+\.md$/.test(file)) continue;
-    const full = join(agentDir, file);
-    let actual = '';
-    try {
-      actual = readFileSync(full, 'utf-8');
-    } catch {
-      continue;
-    }
-    if (!isGeneratedLegacyKoalaAgentPrompt(file, actual)) continue;
-    unlinkSync(full);
-    console.log(`  - .claude/agents/${file} (removed generated legacy Koala prompt)`);
-  }
 }
 
 function cleanupEmptyDirChain(relDir: string) {
@@ -892,9 +868,6 @@ if (wantsClaude) {
 console.log('\n[5/6] 同步 agent 适配器（全局 thin-shim 单一源）...');
 const agentDstDir = join(targetDir, '.claude', 'agents');
 if (wantsClaude && agentTemplateDir) {
-  // 仍然清理项目内历史遗留的 legacy koala-*.md（迁移到全局前的卫生）。
-  cleanupGeneratedLegacyKoalaAgentPrompts(agentDstDir);
-
   // 确保全局源就绪：为 CLI 包 templates/agents 下每个 *.md 在 ~/.claude/agents
   // 生成 thin-shim（保留 tools 沙箱、不含正文）。全局不可写时抛明确错误，
   // 不静默回退 project-local。

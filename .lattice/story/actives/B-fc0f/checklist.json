@@ -1,0 +1,36 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Diagnose and fix the cli-json-stdout-contract-smoke hang (killed at the 300s ceiling)",
+      "context": "packages/main/src/tasks/cli-json-stdout-contract-smoke.ts hangs and is re-run in every npm test / lattice validate pass (~5min each). Find WHY it never exits (subprocess/stdin wait) and fix the hang or make it fail-fast. DO NOT just raise/skip the timeout — that would mask a real CLI json-stdout contract hang (the CLI not terminating is itself a product bug). Side-effect of muting: hides a real non-termination defect.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Fix field-regression-cli-smoke stale background-section headers",
+      "context": "packages/main/src/tasks/field-regression-cli-smoke.ts (~line 1636) builds a story_create background with '## Key Insight' / '## Trade-offs' / '## Conversation Texture', which the current background-validator rejects (needs '## Key Insights' / '## Solution Tradeoffs' / '## Conversational Texture'), so story_create exits 1 → fails on main. Update ONLY the 3 section headers; keep the hotfix-priority-elevation assertion intact (deleting the test loses that coverage).",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Surface missing binding fields at autopilot_review_submit time (no silent ignore)",
+      "context": "autopilot_review_submit accepts a verdict (decision:pass) but if it omits promptDigest/validationDigest the verdict is silently moved to review_escalation_status.degradedFallback.ignoredVerdicts (reason: 'missing binding field(s)') → 0/3 valid rounds with no error at submit. Add a loud submit-time warning + explicit missing-field list (or a --strict error / extend quorum_submit to emit a valid degraded 3x1 single-host round). Side-effect: a hard reject could break automation submitting partial verdicts — prefer warning/opt-in strict.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Triage the other pre-existing main smoke failures",
+      "context": "On main (independent of any story): english-open-source-surface and prompt-token-cost exit 1; global-agents-init is a flake (passes on retry and on direct invocation). Determine if each is a real regression or a stale fixture; fix or document. Low risk; investigation item.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "storyId": "B-fc0f",
+  "name": "workflow-friction-bugs-from-b837",
+  "title": "Fix slow/flaky validate-battery smokes + silent floor-verdict ignore (workflow friction found during B-b837)",
+  "description": "B-b837's ~2.5h lifecycle was dominated by repeated time loss, not feature work. This story parks the root-cause bugs (a hanging smoke re-run in every validate pass, stale test fixtures, and a silent floor-verdict ignore) for another host to fix. Each item records what fixing it could break.",
+  "type": "bug",
+  "phase": "INIT",
+  "priority": "high",
+  "keywords": [
+    "smoke-timeout",
+    "validate-battery",
+    "flaky-test",
+    "review-escalation",
+    "workflow-friction"
+  ],
+  "riskSignals": [
+    {
+      "category": "Security/Credentials",
+      "matched": "token"
+    },
+    {
+      "category": "Validation Framework",
+      "matched": "lattice validate"
+    },
+    {
+      "category": "Production/Emergency",
+      "matched": "hotfix"
+    }
+  ],
+  "priorityElevatedFrom": "medium",
+  "createdAt": "2026-06-23T17:41:49.916Z",
+  "startedAt": "2026-06-23T17:41:49.916Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-23T17:41:49.927Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "d45e3804-aa11-4468-a225-e4de0d1999ad",
+      "agent": "main"
+    }
+  ]
+}

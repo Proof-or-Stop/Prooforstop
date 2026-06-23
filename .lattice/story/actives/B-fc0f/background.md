@@ -1,0 +1,11 @@
+## Trigger Event
+During story B-b837 (DONE 2026-06-23, merge 45493afc2) a post-mortem of the 2h31m lifecycle showed the time was lost to repeated re-runs of a hanging smoke and to floor-verdict trial-and-error, not to the actual 12-file refactor. Capturing the root causes here so another host can fix them; left at INIT.
+
+## Key Insights
+The single biggest amplifier is cli-json-stdout-contract-smoke.ts, which HANGS and is killed at the run-all-smokes 300s per-test ceiling; because npm test / lattice validate run the full battery, it is paid ~5min on EVERY validate pass (DEV implementer, evidence-binding, and each manual suite run = ~5 invocations ~= 25min in one story). Two more pre-existing smokes fail on main independently (field-regression-cli stale background headers; english-open-source-surface / prompt-token-cost), and global-agents-init is a flake (passes on retry/direct run). Separately, autopilot_review_submit SILENTLY drops host verdicts that omit binding fields (promptDigest/validationDigest) into ignoredVerdicts, so review_escalation_status shows 0/3 valid rounds while each submit reported decision:pass — the operator only discovers the missing-field reason by inspecting ignoredVerdicts.
+
+## Solution Tradeoffs
+For the hanging smoke, the fix MUST diagnose why it hangs (a subprocess that never exits / waits on stdin) and fix the hang or make the test fail-fast — NOT merely raise/skip the timeout, which would hide a real CLI json-stdout-contract hang (a product defect: the CLI not terminating). For the floor-verdict ignore, prefer a loud submit-time warning + explicit missing-field list (or a --strict error / extending quorum_submit to support the degraded 3x1 single-host path) over a silent hard reject that could break existing automation submitting partial verdicts. For the stale-fixture smokes, change only the fixture (e.g. the 3 background section headers), never the test's real assertion.
+
+## Conversational Texture
+The user asked to record these bugs as a parked story (including what fixing each could break) and let another host fix them, while the main agent stays focused on the koala-removal story series. Acceptance: the validate battery no longer pays a multi-minute hang on every pass, the pre-existing main failures are triaged, and floor-verdict submission surfaces missing binding fields up front.

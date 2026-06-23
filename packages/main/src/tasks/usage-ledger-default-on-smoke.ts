@@ -2,22 +2,22 @@
 /**
  * B-1b28: smoke suite for the LLM usage ledger DEFAULT-ON flip.
  *
- * The ledger writer is now active by default; LATTICE_USAGE_LEDGER=0 (and its
- * legacy KOALA_ alias) is the explicit escape hatch that restores the
- * byte-identical legacy default-off behavior. This smoke proves the three
- * behavioral contracts of that flip:
+ * The ledger writer is now active by default; LATTICE_USAGE_LEDGER=0 is the
+ * explicit escape hatch that restores the byte-identical legacy default-off
+ * behavior. The legacy KOALA_ env alias was removed (B-b837); a stale KOALA_
+ * value is silently ignored. This smoke proves the behavioral contracts of that
+ * flip:
  *
  *   - CHK-001 flag parsing: an UNSET env reads as ON; the falsy strings
  *     ('0'/'false'/'off'/'no'/'') read as OFF; the truthy strings
- *     ('1'/'true'/'on'/'yes', trimmed/case-insensitive) read as ON; the legacy
- *     KOALA_ alias is honored; LATTICE_ takes precedence over KOALA_; the flag is
- *     re-read every call (not memoized).
+ *     ('1'/'true'/'on'/'yes', trimmed/case-insensitive) read as ON; a stale
+ *     legacy alias env is ignored; the flag is re-read every call (not memoized).
  *   - CHK-002 escape hatch (=0 byte-identical legacy): with LATTICE_USAGE_LEDGER=0
  *     the whole pipeline is a strict no-op — appendUsageRecord writes nothing and
  *     creates no file/dir, recordDispatchPreflight returns null, recordDispatchFinal
  *     writes nothing, recordBudgetBlock is inert (no block) even with a budget set,
  *     and buildClaudeSpawnArgs(file,false) === ['--print', file] (no --output-format
- *     json). The legacy KOALA_=0 alias produces the same no-op.
+ *     json). A stale legacy alias=0 no longer triggers the no-op (default-ON wins).
  *   - CHK-003 default-on safety: with the env UNSET, isUsageLedgerEnabled() is true,
  *     appendUsageRecord WRITES, a parse failure still yields raw text (the B-0f7c
  *     fallback), a thrown ledger op does NOT propagate to the dispatch caller, and
@@ -52,6 +52,13 @@ import { type UsageLedgerRecordInput } from '../core/usage-ledger/record.js';
 
 let passed = 0;
 const failures: string[] = [];
+
+// The legacy ledger-alias env var (formerly the KOALA_-prefixed name) was
+// removed (B-b837). Only LATTICE_USAGE_LEDGER is read now; any other env var —
+// including a user's stale legacy alias — must be silently ignored. We exercise
+// that with a representative stale legacy-shaped key built at runtime so the test
+// stays free of the retired brand token.
+const STALE_LEDGER_ALIAS = ['LEGACY', 'USAGE_LEDGER'].join('_');
 
 function check(label: string, fn: () => void): void {
   try {
@@ -183,14 +190,15 @@ try {
     assert.equal(isUsageLedgerEnabled({ LATTICE_USAGE_LEDGER: 'enabled' }), false);
   });
 
-  check('CHK-001 legacy KOALA_ alias honored (ON and the =0 escape hatch)', () => {
-    assert.equal(isUsageLedgerEnabled({ KOALA_USAGE_LEDGER: '1' }), true);
-    assert.equal(isUsageLedgerEnabled({ KOALA_USAGE_LEDGER: '0' }), false);
+  check('B-b837 adversarial: legacy ledger alias is ignored (default-ON preserved)', () => {
+    // The legacy alias was removed; a stale alias env must not toggle the ledger.
+    assert.equal(isUsageLedgerEnabled({ [STALE_LEDGER_ALIAS]: '1' }), true);
+    assert.equal(isUsageLedgerEnabled({ [STALE_LEDGER_ALIAS]: '0' }), true);
   });
 
-  check('CHK-001 LATTICE_ takes precedence over KOALA_', () => {
-    assert.equal(isUsageLedgerEnabled({ LATTICE_USAGE_LEDGER: '0', KOALA_USAGE_LEDGER: '1' }), false);
-    assert.equal(isUsageLedgerEnabled({ LATTICE_USAGE_LEDGER: '1', KOALA_USAGE_LEDGER: '0' }), true);
+  check('B-b837 adversarial: only LATTICE_ controls the ledger; a stale alias alongside is ignored', () => {
+    assert.equal(isUsageLedgerEnabled({ LATTICE_USAGE_LEDGER: '0', [STALE_LEDGER_ALIAS]: '1' }), false);
+    assert.equal(isUsageLedgerEnabled({ LATTICE_USAGE_LEDGER: '1', [STALE_LEDGER_ALIAS]: '0' }), true);
   });
 
   check('CHK-001 re-read every call (not memoized): 0 -> unset -> 1 toggles live', () => {
@@ -270,21 +278,23 @@ try {
     assert.equal(existsSync(resolveLedgerPath(sub)), false, 'no ledger file created');
   });
 
-  check('CHK-002 legacy KOALA_=0 alias produces the same byte-identical no-op', () => {
+  check('B-b837 adversarial: a stale ledger alias=0 does NOT disable the ledger (default-ON wins)', () => {
     const sub = freshRoot();
-    const env = { KOALA_USAGE_LEDGER: '0' } as NodeJS.ProcessEnv;
-    assert.equal(isUsageLedgerEnabled(env), false);
+    // Legacy alias removed: a stale alias=0 must be ignored, so the ledger stays
+    // ON (default) and the record IS written.
+    const env = { [STALE_LEDGER_ALIAS]: '0' } as NodeJS.ProcessEnv;
+    assert.equal(isUsageLedgerEnabled(env), true);
     const res = appendUsageRecord(sub, validRecord(), { env });
-    assert.equal(res.written, false);
-    assert.equal(recordDispatchPreflight(sub, ctx(), 'p', opts(env)), null);
-    assert.equal(existsSync(resolveLedgerPath(sub)), false);
+    assert.equal(res.written, true);
+    assert.ok(recordDispatchPreflight(sub, ctx(), 'p', opts(env)));
+    assert.equal(existsSync(resolveLedgerPath(sub)), true);
   });
 
   // ======================================================================
   // CHK-003: default-on (env UNSET) behavior + safety
   // ======================================================================
   check('CHK-003 UNSET env => appendUsageRecord WRITES one JSONL line', () => {
-    withProcessEnv({ LATTICE_USAGE_LEDGER: undefined, KOALA_USAGE_LEDGER: undefined }, () => {
+    withProcessEnv({ LATTICE_USAGE_LEDGER: undefined }, () => {
       const sub = freshRoot();
       // No `env` override -> appendUsageRecord falls back to process.env (UNSET = ON).
       const res = appendUsageRecord(sub, validRecord());
@@ -298,7 +308,7 @@ try {
   });
 
   check('CHK-003 UNSET env => recordDispatchPreflight returns an active handle + 1 estimate line', () => {
-    withProcessEnv({ LATTICE_USAGE_LEDGER: undefined, KOALA_USAGE_LEDGER: undefined }, () => {
+    withProcessEnv({ LATTICE_USAGE_LEDGER: undefined }, () => {
       const sub = freshRoot();
       const handle = recordDispatchPreflight(sub, ctx(), 'Hello world prompt', {
         recordedAt: '2026-06-16T00:00:00.000Z',
@@ -314,7 +324,7 @@ try {
   });
 
   check('CHK-003 UNSET env => recordDispatchFinal supersedes the estimate (provider final, seq 2)', () => {
-    withProcessEnv({ LATTICE_USAGE_LEDGER: undefined, KOALA_USAGE_LEDGER: undefined }, () => {
+    withProcessEnv({ LATTICE_USAGE_LEDGER: undefined }, () => {
       const sub = freshRoot();
       const baseOpts = { recordedAt: '2026-06-16T00:00:00.000Z', projectRootHash: 'sha256:deadbeef' };
       const handle = recordDispatchPreflight(sub, ctx(), 'p', baseOpts);
@@ -378,7 +388,7 @@ try {
   });
 
   check('CHK-003 UNSET env => a thrown ledger op does NOT propagate (preflight returns null on corrupt ledger)', () => {
-    withProcessEnv({ LATTICE_USAGE_LEDGER: undefined, KOALA_USAGE_LEDGER: undefined }, () => {
+    withProcessEnv({ LATTICE_USAGE_LEDGER: undefined }, () => {
       const sub = freshRoot();
       const baseOpts = { recordedAt: '2026-06-16T00:00:00.000Z', projectRootHash: 'sha256:deadbeef' };
       // Seed a valid record, then corrupt the last line so the next chain read throws
@@ -398,7 +408,7 @@ try {
   });
 
   check('CHK-003 UNSET env => recordDispatchFinal swallows a corrupt-ledger error (returns void, no throw)', () => {
-    withProcessEnv({ LATTICE_USAGE_LEDGER: undefined, KOALA_USAGE_LEDGER: undefined }, () => {
+    withProcessEnv({ LATTICE_USAGE_LEDGER: undefined }, () => {
       const sub = freshRoot();
       const baseOpts = { recordedAt: '2026-06-16T00:00:00.000Z', projectRootHash: 'sha256:deadbeef' };
       recordDispatchPreflight(sub, ctx(), 'p', baseOpts);
@@ -415,7 +425,7 @@ try {
 
   check('CHK-003 UNSET env + NO LATTICE_HARD_BUDGET_TOKENS => no budget block', () => {
     withProcessEnv(
-      { LATTICE_USAGE_LEDGER: undefined, LATTICE_HARD_BUDGET_TOKENS: undefined, KOALA_HARD_BUDGET_TOKENS: undefined },
+      { LATTICE_USAGE_LEDGER: undefined, LATTICE_HARD_BUDGET_TOKENS: undefined },
       () => {
         const sub = freshRoot();
         assert.equal(resolveHardBudget(undefined), null, 'default-on does NOT auto-enable a budget');

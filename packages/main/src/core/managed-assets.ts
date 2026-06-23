@@ -179,8 +179,7 @@ interface ManagedAssetPathInfo {
 }
 
 const MANIFEST_REL_PATH = '.lattice/managed-assets.json';
-const INIT_DOC_SECTION_RE = /<!--\s*(?:koala|lattice):start\s*-->[\s\S]*?<!--\s*(?:koala|lattice):end\s*-->/;
-const LEGACY_INTERNAL_SECTION_RE = /<!--\s*koala:internal:start\s*-->[\s\S]*?<!--\s*koala:internal:end\s*-->\n?/g;
+const INIT_DOC_SECTION_RE = /<!--\s*lattice:start\s*-->[\s\S]*?<!--\s*lattice:end\s*-->/;
 
 function packageRoot(): string {
   return join(dirname(fileURLToPath(import.meta.url)), '..', '..');
@@ -322,7 +321,7 @@ function removeLegacyScopePretoolHookIfGenerated(root: string, host: 'claude' | 
 function extractManagedSection(content: string): string {
   const match = content.match(INIT_DOC_SECTION_RE);
   if (!match) return normalizeContent(content);
-  return match[0].replace(LEGACY_INTERNAL_SECTION_RE, '');
+  return match[0];
 }
 
 function hasManagedMarkers(content: string): boolean {
@@ -377,13 +376,6 @@ function isManagedPrompt(actual: string, file: string): boolean {
     || actual.includes(`name: ${base}`)
     || actual.includes('name: koala-')
     || actual.includes('Koala');
-}
-
-function isGeneratedLegacyKoalaAgentPrompt(actual: string, file: string): boolean {
-  return /^koala-[^/\\]+\.md$/.test(file)
-    && (actual.includes('<!-- lattice:start -->')
-      || actual.includes('<!-- lattice:start-slot -->')
-      || /^\s*name:\s*koala-/m.test(actual));
 }
 
 function hasHookCommand(entries: unknown, command: string): boolean {
@@ -824,17 +816,6 @@ export function listManagedAssetDefinitions(
           content,
           actual => isManagedPrompt(actual, file),
         ));
-      }
-      if (existsSync(join(projectRoot, '.claude', 'agents'))) {
-        for (const file of listAgentPromptFiles(join(projectRoot, '.claude', 'agents'))) {
-          if (expected.has(file) || !/^koala-[^/\\]+\.md$/.test(file)) continue;
-          defs.push({
-            id: `.claude/agents:legacy-koala-extra:${file}`,
-            relPath: `.claude/agents/${file}`,
-            kind: 'remove-extra',
-            ownedWhen: actual => isGeneratedLegacyKoalaAgentPrompt(actual, file),
-          });
-        }
       }
     }
     const hooks = hookTemplateDir(root);
