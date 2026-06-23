@@ -56,6 +56,25 @@
       ],
       "signatureTag": "doc-code-drift|md|code-drift-changelog",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-b739:F-004",
+      "desc": "doc-code-drift: CHANGELOG B-b739 bullet describes runPowered signature as runPowered({makeAgent, recordsFile}) but the actual exported function signature in live-loop-harness.mjs line 704 is runPowered({ makeAgent, recordsFile, stamp = '' }) — the optional stamp parameter with default '' is omitted from the docs description.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-23T20:31:42.775Z",
+      "reviewRound": "2026-06-23T20:27:12.983Z",
+      "reviewRunId": "B-b739:RR-003",
+      "_hash": "8315f8b1db64a5d88eccd085dc640a53dfe9f219d7e382e2b3985901d146dd0a",
+      "files": [
+        "CHANGELOG.md",
+        "experiments/injection-probes/live-loop-harness.mjs"
+      ],
+      "signatureTag": "doc-code-drift|md|code-drift-changelog",
+      "signatureTagSource": "auto"
     }
   ]
 }
