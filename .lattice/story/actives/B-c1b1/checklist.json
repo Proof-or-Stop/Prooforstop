@@ -91,9 +91,9 @@
         "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-23T01:58:11.079Z",
       "userSees": "DONE readiness output routes ordering-sensitive blockers to one host-neutral recovery command: lattice done_prepare with mergeMain, refreshStale, and validate enabled, followed by the normal story_advance DONE path.",
       "files": {
         "modify": [
@@ -127,7 +127,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/done-prepare-smoke.js",
+          "result": "pass",
+          "note": "The smoke test includes DONE recovery hints route ordering-sensitive blockers through done_prepare, proving evidence-freshness, done-required-validation, and branch-synced-main converge on the ordered recovery command.",
+          "headHash": "bcaa67743a7c9e8d282c8f50b2a66ff294123e8d",
+          "materialHash": "fd5804a5d1a0249f80f820d6d4f18ee5519690ef568511b492c4e1048cccee14",
+          "storyFilesHash": "1f1d2e12436ca0ba79d8da49ed210a90acbc739c9d9e3e2382d7fc80afdf72fe",
+          "timestamp": "2026-06-23T01:58:11.647Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "rg -n \"donePrepareRecoveryHint|done-required-validation|doneRequired.hint\" packages/main/src/core/done-oracle.ts",
+          "result": "pass",
+          "note": "Blocking DONE-required validation now prefixes done_prepare while preserving the original doneRequired.hint detail, so the reason text is not lost.",
+          "headHash": "bcaa67743a7c9e8d282c8f50b2a66ff294123e8d",
+          "materialHash": "fd5804a5d1a0249f80f820d6d4f18ee5519690ef568511b492c4e1048cccee14",
+          "storyFilesHash": "1f1d2e12436ca0ba79d8da49ed210a90acbc739c9d9e3e2382d7fc80afdf72fe",
+          "timestamp": "2026-06-23T01:58:12.116Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "rg -n \"test-evidence|verification-intent-coverage|evidence-freshness|done-required-validation|branch-synced-main\" packages/main/src/handlers/done-closure.ts",
+          "result": "pass",
+          "note": "Runbook mapping keeps test-evidence and verification-intent-coverage on validate, while only evidence-freshness, done-required-validation, and branch-synced-main route to done_prepare.",
+          "headHash": "bcaa67743a7c9e8d282c8f50b2a66ff294123e8d",
+          "materialHash": "fd5804a5d1a0249f80f820d6d4f18ee5519690ef568511b492c4e1048cccee14",
+          "storyFilesHash": "1f1d2e12436ca0ba79d8da49ed210a90acbc739c9d9e3e2382d7fc80afdf72fe",
+          "timestamp": "2026-06-23T01:58:12.442Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -223,6 +258,15 @@
       "timestamp": "2026-06-23T01:57:50.455Z",
       "phase": "DEV",
       "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Implementation was committed in 29c959848 and verification completed."
+    },
+    {
+      "timestamp": "2026-06-23T01:58:11.079Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
       "action": "update",
       "from": "pending",
       "to": "done",
