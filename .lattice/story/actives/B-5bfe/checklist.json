@@ -461,11 +461,11 @@
           "intentRef": "CHK-003:happy:4",
           "kind": "logic_test",
           "result": "pass",
-          "note": "run-ablation.mjs lines 127-131 invoke run-recovery.mjs with --arm a2prime and --tokenBudget/--wallBudgetMs taken from a2primeBudget(median(...)) (lines 106-108). The median->budget derivation chain is unit-tested (selfcheck CHK-003 h4); the actual subprocess spawn needs the live LLM, so the wiring is code-review (logic).",
-          "headHash": "4c04a933768f7a99938bf2bdeb1cc5cda465239c",
-          "materialHash": "7c91c2aaadf8379a7de71f0756b7e1bc5d7ab073b88f4b60da613f24c41e9ad9",
-          "storyFilesHash": "941128965cee4d506e357cd1babda33f5b2a18e19f2b825ceaa08c3a2679acd9",
-          "timestamp": "2026-06-23T01:53:57.669Z"
+          "note": "run-ablation.mjs lines 138-140 invoke run-recovery.mjs with --arm a2prime and --tokenBudget/--wallBudgetMs taken from a2primeBudget(median(...)) (line 124, derived from per-task A4 medTokens/medWall). The median->budget derivation chain is unit-tested (selfcheck CHK-003 h4); the per-task A4 median wall-clock (medWall) is also what feeds budgetPass's wall-clock band check at line 154. The actual subprocess spawn needs the live LLM, so the wiring is code-review (logic).",
+          "headHash": "24505f65db69ef17690688a98c20b583d42c8ce6",
+          "materialHash": "fe8f60767b7d89ffe45c3de10f2ea90614f0c3e6beaad1a523cffbcb621496da",
+          "storyFilesHash": "c6690196b461b90a5b1d05abbe7efffd39a2c35278fcc4a6d7544d1323f378a9",
+          "timestamp": "2026-06-23T02:08:37.877Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
