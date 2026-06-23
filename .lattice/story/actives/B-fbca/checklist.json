@@ -60,9 +60,9 @@
       "id": "CHK-002",
       "title": "Delete the legacy-koala detection (drop old-install handling)",
       "context": "core/managed-assets.ts excluded-path entries bin/koala.js / bin/koala-codex.js / .lattice-codex/koala.json (the denylist for old koala binaries); the @koala-agent old-global-install detection in flow-stability-smoke.ts / worktree-repair-smoke.ts / lattice-only-absence-smoke.ts. Remove the detection and its now-moot absence assertions; no old-koala migration support kept.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-23T19:22:56.691Z",
-      "endTime": null,
+      "endTime": "2026-06-23T19:27:20.915Z",
       "verificationIntent": {
         "happy": [
           {
