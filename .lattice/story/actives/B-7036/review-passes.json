@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-23T18:54:32.461Z",
       "reviewRunId": "B-7036:RR-002",
       "_hash": "0a754f503d14297daeccc52566eb70ce2c0664e17b2d7e7c7b17d458ab882f87"
+    },
+    {
+      "id": "B-7036:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Concept residue check complete. This diff is purely additive — new files experiments/recovery-runner/analyze.mjs, analyze-selfcheck.mjs, plus one line in run-selfchecks.mjs and README extensions. The only deleted lines are Lattice story metadata (phase/status fields) and one README line replaced by its expanded version. No concept deletion or en-masse replacement was found. No koala/KOALA_ residue in recovery-runner/. The single old-style name A4_vs_A2 (without prime) in run-driver.mjs is the legitimate reference-contrast arm (A2 vs A4), not a renamed/deleted concept — it has a matching backward-compat comment. Doc-promise check: all README-promised behaviors (validity filter, common-cell denominators, Wilson CIs, seeded cluster bootstrap, BH-FDR, cost co-metric, A2prime tolerance-band, secondary detectors, H3 label, tidy CSV, glmm.R) are implemented in analyze.mjs. CLI flags --seed/--B/--out all implemented. Selfcheck runs: node analyze-selfcheck.mjs → 56 assertions passed, 0 failed; node run-selfchecks.mjs → all 5 selfchecks passed. No concept residue blocker.",
+      "createdAt": "2026-06-23T18:58:30.277Z",
+      "reviewRound": "2026-06-23T18:54:32.461Z",
+      "reviewRunId": "B-7036:RR-003",
+      "_hash": "2da52bf9065b32de4d1df73e50a30fc90a3c24f2456041ab67b257ee03180fff"
     }
   ]
 }
