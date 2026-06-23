@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-23T21:40:55.519Z",
       "reviewRunId": "B-fbca:RR-006",
       "_hash": "dfd92fca4c0e078c5a250009b7209e541ea7d7253ccbbdc96ba95978c347ad6f"
+    },
+    {
+      "id": "B-fbca:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Code quality, dead-code/broken-import, and salt-consistency review PASSED with zero findings. (1) Salt consistency: all 8 koala-* salts renamed to lattice-* across ALL producers and consumers (guard-utils.ts, machine.ts, reviewer-status.ts, story-review.ts, finding-verify.ts, review-run.ts, review-scope-binding.ts, scope-check.ts, canonical-story.ts, process-fact-registry.ts, parallel-decomposition-gate-integration-smoke.ts, verify-done-merge-preflight.mjs, verify-main-branch-runtime-health.mjs, verify-runtime-reviewer-contract.mjs, verify-testintent-null-gates.mjs); verify-salt-rename.mjs confirms: all 8 salts koala-=0 / lattice->=1. (2) Zero-tolerance gate: verify-lattice-residue.mjs scans packages/*/src only (tighter scope than old koala gate), 0 brand residue hits confirmed by live run. (3) Dead code: normalizeAgentType was a no-op (only threw for koala-* input, which is now never generated); inlining is correct. appendLegacyRuntimeExclusions fully deleted and its callers updated. LegacySessionSource union narrowed (koala-env removed with its normalizeSessionSource branch). koala.config.json load removed in project-config.ts. (4) Broken imports: no imports from deleted files (cli-engine-branding-smoke.ts, dev-memory-legacy-read-smoke.ts); the stale allowlist entry in english-open-source-surface-smoke.ts line 118 is pre-existing (not in this diff) and functionally harmless (never matches). (5) Config field rename: idleKoala→idleLattice fully updated in config.ts and stale-detector.ts with all usages updated. (6) Path renames: .koala/ references removed from source; docs/framework-audit path updated consistently in audit.ts, evidence-freshness.ts, lattice-baseline-smoke.ts, verification-freshness-smoke.ts.",
+      "createdAt": "2026-06-23T21:48:43.833Z",
+      "reviewRound": "2026-06-23T21:40:55.519Z",
+      "reviewRunId": "B-fbca:RR-005",
+      "_hash": "be901f6f201f1a241ff470644534c640d46921f54ca9587872ea7c328554dfc6"
     }
   ]
 }
