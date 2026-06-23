@@ -1,0 +1,92 @@
+{
+  "storyId": "B-1e7f",
+  "generatedFor": "delivery-review",
+  "diff": {
+    "changedFiles": [
+      ".lattice/story/actives/B-1e7f/checklist.json",
+      ".lattice/story/actives/B-1e7f/decision.json",
+      ".lattice/story/actives/B-1e7f/done-required-evidence.json",
+      ".lattice/story/actives/B-1e7f/evidence/live-smoke-transcript.json",
+      ".lattice/story/actives/B-1e7f/findings.json",
+      ".lattice/story/actives/B-1e7f/index.json",
+      ".lattice/story/actives/B-1e7f/plan.md",
+      ".lattice/story/actives/B-1e7f/process-events.jsonl",
+      ".lattice/story/actives/B-1e7f/process-metrics.json",
+      ".lattice/story/actives/B-1e7f/review-passes.json",
+      ".lattice/story/actives/B-1e7f/review-runs.json",
+      ".lattice/story/actives/B-1e7f/review.json",
+      ".lattice/story/actives/B-1e7f/scope-check.json",
+      ".lattice/story/actives/B-1e7f/scope-contract.json",
+      ".lattice/story/actives/B-1e7f/summary.json",
+      ".lattice/story/actives/B-1e7f/test-evidence.json",
+      ".lattice/story/actives/B-1e7f/understanding.json",
+      "packages/main/src/cli/command-catalog.ts",
+      "packages/main/src/core/authority-job-loop-live.ts",
+      "packages/main/src/core/authority-runner-contracts.ts",
+      "packages/main/src/core/authority-runner.ts",
+      "packages/main/src/handlers/lattice-cli.ts",
+      "packages/main/src/tasks/authority-enforce-runner-smoke.ts",
+      "packages/main/src/tasks/authority-job-loop-live-smoke.ts",
+      "packages/main/src/tasks/authority-runner-client-smoke.ts",
+      "packages/main/src/tasks/authority-runner-contracts-smoke.ts"
+    ],
+    "summary": " .lattice/story/actives/B-1e7f/checklist.json       | 322 +++++++++++++++-\n .lattice/story/actives/B-1e7f/decision.json        |  69 ++++\n .../actives/B-1e7f/done-required-evidence.json     |  56 +++\n .../B-1e7f/evidence/live-smoke-transcript.json     |  21 ++\n .lattice/story/actives/B-1e7f/findings.json        |  29 ++\n .lattice/story/actives/B-1e7f/index.json           |  59 ++-\n .lattice/story/actives/B-1e7f/plan.md              |  59 +++\n .lattice/story/actives/B-1e7f/process-events.jsonl |  28 ++\n .lattice/story/actives/B-1e7f/process-metrics.json | 359 ++++++++++++++++++\n .lattice/story/actives/B-1e7f/review-passes.json   |  49 +++\n .lattice/story/actives/B-1e7f/review-runs.json     | 406 +++++++++++++++++++++\n .lattice/story/actives/B-1e7f/review.json          | 198 ++++++++++\n .lattice/story/actives/B-1e7f/scope-check.json     |  59 +++\n .lattice/story/actives/B-1e7f/scope-contract.json  |  24 ++\n .lattice/story/actives/B-1e7f/summary.json         |  56 +++\n .lattice/story/actives/B-1e7f/test-evidence.json   | 290 +++++++++++++++\n .lattice/story/actives/B-1e7f/understanding.json   |  28 ++\n packages/main/src/cli/command-catalog.ts           |   2 +\n packages/main/src/core/authority-job-loop-live.ts  |  21 +-\n .../main/src/core/authority-runner-contracts.ts    |   3 +\n packages/main/src/core/authority-runner.ts         |   2 +\n packages/main/src/handlers/lattice-cli.ts          |  28 +-\n .../src/tasks/authority-enforce-runner-smoke.ts    |  27 +-\n .../src/tasks/authority-job-loop-live-smoke.ts     |  70 +++-\n .../src/tasks/authority-runner-client-smoke.ts     |  45 ++-\n .../src/tasks/authority-runner-contracts-smoke.ts  |  17 +-\n 26 files changed, 2287 insertions(+), 40 deletions(-)"
+  },
+  "docsPromises": [
+    {
+      "source": "userSees",
+      "promise": "Signed runner claim payloads can include storyId/jobId without schema rejection."
+    },
+    {
+      "source": "userSees",
+      "promise": "A live runner for story B-current sends claim.storyId=B-current and the stale queued job mismatch scenario is covered by regression evidence."
+    },
+    {
+      "source": "userSees",
+      "promise": "Implementation keeps selectors inside signed claim payloads; no queue purge or retry workaround is added."
+    },
+    {
+      "source": "userSees",
+      "promise": "Focused smokes show claim.storyId is sent for B-current and stale other-story queued jobs are not accepted as current-story success."
+    }
+  ],
+  "realMachineTests": {
+    "transcriptDiff": true,
+    "testFiles": [
+      "packages/main/src/tasks/authority-job-loop-live-smoke.ts",
+      "packages/main/src/tasks/authority-runner-client-smoke.ts",
+      "packages/main/src/tasks/authority-runner-contracts-smoke.ts"
+    ],
+    "evidenceCommands": [
+      "node packages/main/dist/tasks/authority-job-loop-live-smoke.js",
+      "node packages/main/dist/tasks/authority-runner-client-smoke.js",
+      "node packages/main/dist/tasks/authority-runner-client-smoke.js && node packages/main/dist/tasks/authority-job-loop-live-smoke.js",
+      "node packages/main/dist/tasks/authority-runner-contracts-smoke.js",
+      "npm --prefix packages/main run build && node packages/main/dist/tasks/authority-enforce-runner-smoke.js && node packages/main/dist/tasks/authority-runner-client-smoke.js",
+      "npm --prefix packages/main run build && node packages/main/dist/tasks/authority-job-loop-live-smoke.js",
+      "npm --prefix packages/main run build; node packages/main/dist/tasks/authority-runner-contracts-smoke.js; node packages/main/dist/tasks/authority-runner-client-smoke.js; node packages/main/dist/tasks/authority-job-loop-live-smoke.js"
+    ]
+  },
+  "validation": {
+    "source": "test-evidence.json",
+    "result": "PASS",
+    "timestamp": "2026-06-23T11:27:32.661Z",
+    "headHash": "bbc7357e2439b7c9fb5f0d70e545b13f4988b0df",
+    "materialHash": "ff308f0b43e94a807b3995ca75c0fb9090b4cabdf7821e5a52f03222b7d6ce11",
+    "storyFilesHash": "432526a9863defc17025cf3a8ee01707112f3a7ac725611cdbee5bd495b6ce8d"
+  },
+  "reviewRound": "2026-06-23T11:12:04.812Z",
+  "deliveryCheck": {
+    "status": "missing",
+    "ref": null
+  },
+  "waiver": {
+    "status": "none"
+  },
+  "isSigner": false,
+  "claims": {
+    "authorityDone": false,
+    "fullAuthorityDone": false,
+    "productionDone": false
+  }
+}
