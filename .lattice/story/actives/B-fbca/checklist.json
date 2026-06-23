@@ -781,6 +781,17 @@
           "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
           "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
           "timestamp": "2026-06-23T21:24:16.571Z"
+        },
+        {
+          "intentRef": "CHK-006:happy:2",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/runtime-owned-agent-assets-smoke.js",
+          "result": "pass",
+          "note": "Smoke that reads from the runtime dir passes (PASS runtime-owned-agent-assets-smoke) — reads from the new .lattice/ path work end-to-end",
+          "headHash": "32a458158893a1c814e96e09a3c1a52e791b720e",
+          "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
+          "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
+          "timestamp": "2026-06-23T21:24:17.913Z"
         }
       ]
     },
