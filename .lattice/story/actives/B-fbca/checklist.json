@@ -397,6 +397,17 @@
           "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
           "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
           "timestamp": "2026-06-23T21:01:52.259Z"
+        },
+        {
+          "intentRef": "CHK-007:edge:2",
+          "kind": "manual_transcript",
+          "command": "grep -i KOALA_RESIDUE packages/main/src/handlers/review-preflight.ts",
+          "result": "pass",
+          "note": "Zero hits for KOALA_RESIDUE in review-preflight.ts -- the old identifiers are fully renamed to LATTICE_RESIDUE",
+          "headHash": "4431e8a81eec74e2516eafe1a965c0e156390ed5",
+          "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
+          "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
+          "timestamp": "2026-06-23T21:01:54.813Z"
         }
       ]
     }
