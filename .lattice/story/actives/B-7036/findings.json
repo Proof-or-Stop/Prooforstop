@@ -90,6 +90,23 @@
       ],
       "signatureTag": "missing|mjs|dead-code-analyze",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-7036:F-006",
+      "desc": "Codex host-2 returned VERDICT: BLOCK but listed NO specific findings (selfchecks ran 56/56 + 5 pass); the verdict is non-actionable (codex was degraded/rate-limited this session). Re-run host-2 on the post-fix code demanding explicit file:line findings before the verdict; if none, expect SHIP.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex-host",
+      "createdAt": "2026-06-23T19:02:33.821Z",
+      "reviewRound": "2026-06-23T18:54:32.461Z",
+      "_hash": "fb5008398d69de5b53f20ad8118035b78d6bf17cb3697a299242ba3691fdef5f",
+      "files": [
+        "experiments/recovery-runner/analyze.mjs"
+      ],
+      "signatureTag": "spec-boundary|mjs|codex-host-returned",
+      "signatureTagSource": "auto"
     }
   ]
 }
