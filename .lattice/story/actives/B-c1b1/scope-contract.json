@@ -10,12 +10,13 @@
   ],
   "allowedCreate": [],
   "allowedTest": [
-    "packages/main/src/tasks/done-prepare-smoke.ts"
+    "packages/main/src/tasks/done-prepare-smoke.ts",
+    "packages/main/src/tasks/lifecycle-check-smoke.ts"
   ],
   "protectedFiles": [],
   "explicitExcludes": [],
-  "scopeChangeReason": "Verified REVIEW findings B-c1b1:F-001/F-002 require done_prepare to execute DONE-required validation, and B-c1b1:F-003 requires lifecycle_check DONE recovery mapping to match done_closure.",
+  "scopeChangeReason": "Verified REVIEW finding B-c1b1:F-004 requires updating stale lifecycle_check smoke expectations for DONE-required recovery now routed through done_prepare.",
   "acknowledgements": [],
   "createdAt": "2026-06-23T01:58:44.855Z",
-  "updatedAt": "2026-06-23T02:06:28.940Z"
+  "updatedAt": "2026-06-23T02:31:16.152Z"
 }
