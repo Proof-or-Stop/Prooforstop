@@ -1,0 +1,22 @@
+{
+  "findings": [
+    {
+      "id": "B-d43f:F-001",
+      "desc": "dead-code + misleading comment: live-loop-harness.mjs:249 errCount > 1 branch in B3.classify is unreachable because countMarkerInWorkspace is a flat scan (readdirSync at ws root only) and setup writes the SYNTAX_ERR file into src/broken.js (a subdirectory) which statSync().isFile() on the directory entry skips. classify therefore sees baseline errCount=0 (not 1 as the comment claims), so errCount > 1 requires a real agent to write 2+ root-level SYNTAX_ERR files -- a threshold the self-check never exercises. AMPLIFIED in all current test cases is reached only via the GARBAGE branch; errCount > 1 is dead code. The comment on line 246 (Setup wrote exactly 1 SYNTAX_ERR marker) is wrong from classify perspective; classify sees 0. Fix: either make countMarkerInWorkspace recursive to scan src/, or change comment and condition to reflect the actual flat-scan baseline of 0 (i.e. errCount > 0).",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-23T19:32:41.247Z",
+      "reviewRound": "2026-06-23T19:28:52.385Z",
+      "reviewRunId": "B-d43f:RR-001",
+      "_hash": "3449fe67379ba914e19980b8a3d63b37c116850780f891a852f62a565162a328",
+      "files": [
+        "experiments/injection-probes/live-loop-harness.mjs"
+      ],
+      "signatureTag": "edge|mjs|dead-code-misleading",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
