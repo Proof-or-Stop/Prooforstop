@@ -1429,10 +1429,11 @@ function authorityEnv(extra: Record<string, string | undefined> = {}): Record<st
 
 // --- E4 bridge: submit a planner JobPlan as a signed server-backed job create ----
 {
-  const capture: { path?: string; body?: string; authorization?: string } = {};
+  const capture: { path?: string; body?: string; authorization?: string; postCount: number } = { postCount: 0 };
   const fetchImpl: AuthorityFetch = async (input, init) => {
     const url = String(input);
     if (url.includes('/v1/jobs') && init.method === 'POST') {
+      capture.postCount += 1;
       capture.path = url;
       capture.body = init.body;
       capture.authorization = init.headers.Authorization;
@@ -1452,6 +1453,7 @@ function authorityEnv(extra: Record<string, string | undefined> = {}): Record<st
     }
     throw Object.assign(new Error(`unexpected fetch ${init.method} ${url}`), { code: 'EUNEXPECTED' });
   };
+  const realProviderJobPlan = authorityCodexJobPlan();
   const blockedFakeProvider = await submitAuthorityJobFromPlan(authorityJobPlan(), {
     env: authorityEnv(),
     fetchImpl,
@@ -1469,6 +1471,26 @@ function authorityEnv(extra: Record<string, string | undefined> = {}): Record<st
     assert.equal(blockedOverride.ok, false, `reserved fake provider override is rejected: ${provider}`);
     assert.match(blockedOverride.reason ?? '', /explicit non-fake provider declaration/, `reserved fake reason asks for a non-fake provider: ${provider}`);
   }
+  for (const provider of ['fake', 'Fake', 'FAKE', '', '   ']) {
+    const blockedOverride = await submitAuthorityJobFromPlan(realProviderJobPlan, {
+      env: authorityEnv(),
+      fetchImpl,
+      cwd: '/repo',
+      provider,
+    });
+    assert.equal(blockedOverride.ok, false, `explicit non-server provider override does not fall back to a real primary provider: ${provider || '<empty>'}`);
+    assert.match(blockedOverride.reason ?? '', /explicit non-fake provider declaration/, `explicit non-server override reason asks for a non-fake provider: ${provider || '<empty>'}`);
+  }
+  assert.equal(capture.postCount, 0, 'rejected fake or empty provider overrides never POST a real provider job');
+
+  const fallbackOutcome = await submitAuthorityJobFromPlan(realProviderJobPlan, {
+    env: authorityEnv(),
+    fetchImpl,
+    cwd: '/repo',
+  });
+  assert.equal(fallbackOutcome.ok, true, 'authority job create falls back to JobPlan primaryProvider when no override is supplied');
+  const fallbackSent = JSON.parse(capture.body ?? '{}');
+  assert.equal(fallbackSent.request.provider, 'codex', 'absent override uses the JobPlan primary provider');
 
   const outcome = await submitAuthorityJobFromPlan(authorityJobPlan(), {
     env: authorityEnv(),
@@ -3158,6 +3180,29 @@ function authorityJobPlan(): JobPlan {
     jobPlanDigest: 'jpd-1',
     status: 'planned',
   };
+}
+
+function authorityCodexJobPlan(): JobPlan {
+  const plan = authorityJobPlan();
+  plan.plannedSteps = [
+    step('step-codex', 'provider.codex', { provider: 'codex' }),
+    ...plan.plannedSteps.slice(1),
+  ];
+  plan.providerPolicy = {
+    primaryProvider: 'codex',
+    allowedProviders: ['codex'],
+    fallbackProviders: [],
+    productionDoneProviders: ['codex'],
+    allowFakeProviderForProductionDone: false,
+    credentialsEnvAllowlist: [],
+    secretRefs: [],
+    providerAvailability: 'fail_closed',
+  };
+  plan.coverageMap = plan.coverageMap.map(item => ({
+    ...item,
+    plannedStepIds: item.plannedStepIds.map(stepId => stepId === 'step-fake' ? 'step-codex' : stepId),
+  }));
+  return plan;
 }
 
 function fakeStore(): PlannerStoreLike {

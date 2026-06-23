@@ -1532,8 +1532,15 @@ type ServerProviderResolution =
   | { ok: false; reason: string };
 
 function serverProviderFromPlan(jobPlan: JobPlan, override?: string): ServerProviderResolution {
-  const explicit = normalizeServerProvider(override);
-  if (explicit) return { ok: true, provider: explicit };
+  if (override !== undefined) {
+    const explicit = normalizeServerProvider(override);
+    if (explicit) return { ok: true, provider: explicit };
+    const display = typeof override === 'string' && override.trim().length > 0 ? override : '<empty>';
+    return {
+      ok: false,
+      reason: `authority job create requires an explicit non-fake provider declaration; provider override=${display} is not server-runnable`,
+    };
+  }
   const primary = jobPlan.providerPolicy?.primaryProvider as string | undefined;
   const provider = normalizeServerProvider(primary);
   if (provider) return { ok: true, provider };
