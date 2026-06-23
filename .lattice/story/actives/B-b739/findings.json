@@ -203,7 +203,7 @@
       "desc": "doc-code-drift: real-loop-agent.mjs file-header comment (line 3) declares agent({ws,context,turn,signal}) but the actual exported function at line 39 destructures only {ws,context,signal} — turn is absent from the real implementation signature",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-06-23T20:38:54.642Z",
@@ -214,7 +214,11 @@
         "experiments/injection-probes/real-loop-agent.mjs"
       ],
       "signatureTag": "doc-code-drift|mjs|code-drift-real",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed: updated the real-loop-agent.mjs header + JSDoc comments to async execFile/{signal} + agent({ws,context,signal}) (dropped the stale execFileSync/turn mentions). Comment-only; code unchanged; 24/24.",
+      "resolvedAt": "2026-06-23T20:43:29.392Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-b739:F-011",
