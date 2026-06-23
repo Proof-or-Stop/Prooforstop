@@ -88,6 +88,17 @@
           "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
           "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
           "timestamp": "2026-06-23T21:20:20.052Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/canonical-story-export-smoke.js",
+          "result": "pass",
+          "note": "Worktree binary signs+verifies a canonical story export end-to-end after the rename (smoke passed) — worktree build uses the new salts consistently, no stale dist cache",
+          "headHash": "b9c5ee916a8dafc266d25e545569c7ddb583801d",
+          "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
+          "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
+          "timestamp": "2026-06-23T21:20:21.481Z"
         }
       ]
     },
