@@ -18,6 +18,24 @@
       ],
       "signatureTag": "missing|mjs|happy-partial-coverage",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-7036:F-002",
+      "desc": "CHK-002:happy:2 precision gap: the intent requires Wilson CI bounds to match the textbook Wilson formula to 6+ decimal places against a known-good reference value. The evidence asserts wilson(8,10) with range checks (lo<0.8<hi, lo>0.4, hi<0.99) and approx(p, 0.8, 1e-9), which verifies the formula is not wildly wrong but does not compute the closed-form textbook CI bounds and compare them to 6 decimal places. WHY the intent specifies this: verifies CI computation correctness against a known-good reference, not just plausibility. The actual test is plausibility-level, not formula-precision-level.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-23T18:58:27.431Z",
+      "reviewRound": "2026-06-23T18:54:32.461Z",
+      "reviewRunId": "B-7036:RR-004",
+      "_hash": "5ef03675852034753c7772d71634500a72eb4caf4b015a100ace325d947f18c8",
+      "files": [
+        "experiments/recovery-runner/analyze-selfcheck.mjs"
+      ],
+      "signatureTag": "missing|mjs|happy-precision-intent",
+      "signatureTagSource": "auto"
     }
   ]
 }
