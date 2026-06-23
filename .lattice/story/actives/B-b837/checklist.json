@@ -795,6 +795,17 @@
           "materialHash": "71fd662a6cc4efe4c3dde9ac6c352f3d722e22b76e080754e3bdfe8066ba89fd",
           "storyFilesHash": "64ca7bcb634a24f4d3189c4ccc36f942cb702b845ce2072ba08f8dc6ae82cdce",
           "timestamp": "2026-06-23T14:06:48.738Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "docs_check",
+          "command": "grep -rn LegacyKoala packages/main/src/",
+          "result": "pass",
+          "note": "Ran the literal grep; zero hits (exit 1) — no CamelCase LegacyKoala symbol remains in product source. (review-preflight.ts uses KOALA_RESIDUE_*, not LegacyKoala.) No dead import/ReferenceError.",
+          "headHash": "41c2f874d488114e3314c0539d1c171bd130d82a",
+          "materialHash": "71fd662a6cc4efe4c3dde9ac6c352f3d722e22b76e080754e3bdfe8066ba89fd",
+          "storyFilesHash": "64ca7bcb634a24f4d3189c4ccc36f942cb702b845ce2072ba08f8dc6ae82cdce",
+          "timestamp": "2026-06-23T14:06:49.505Z"
         }
       ]
     }
