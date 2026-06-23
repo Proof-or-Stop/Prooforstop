@@ -18,6 +18,24 @@
       ],
       "signatureTag": "missing|mjs|edge-inject-repro",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-fbca:F-002",
+      "desc": "CHK-001:adversarial:1 evidence command is pseudocode, not a real runnable command: `node -e '...HMAC sign(old koala-finding-integrity-v1) vs verify(new lattice-finding-integrity-v1); assert accepted===false'` contains a `...` ellipsis placeholder and is not executable as written. The note claims ASSERT-OK, but the command cannot produce that output. The underlying fact (different HMAC salts reject cross-salt verification) is sound, but the evidence is not backed by a concrete reproducible command. As a logic_test evidence entry, a minimal concrete Node.js assertion (e.g. using crypto.createHmac with the two different salts and asserting the digests differ) is required.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-23T21:28:50.445Z",
+      "reviewRound": "2026-06-23T21:25:10.665Z",
+      "reviewRunId": "B-fbca:RR-002",
+      "_hash": "bd7c3b58198be3d999db69e8806adb1ba519acdd1b7d49c97069049357517768",
+      "files": [
+        "packages/main/src/core/guard-utils.ts"
+      ],
+      "signatureTag": "missing|ts|adversarial-evidence-command",
+      "signatureTagSource": "auto"
     }
   ]
 }
