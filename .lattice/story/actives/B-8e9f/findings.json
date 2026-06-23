@@ -27,7 +27,7 @@
       "desc": "stale-comment: live-loop-harness.mjs:766,772 self-check inline comments still say \"truncate hook on turn 2\" and \"kill hook on turn 2\" but the implementation now fires these hooks at turn 1; a reader sees the opposite of the actual behavior",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-23T23:35:46.770Z",
@@ -38,7 +38,11 @@
         "experiments/injection-probes/live-loop-harness.mjs"
       ],
       "signatureTag": "missing|mjs|stale-comment-live",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 4dd83fe3c: updated the self-check case-table comments at lines 766/772 from 'turn 2' to 'turn 1' to match the implementation (B4 truncate + B5 kill fire at turn 1). The remaining 'turn 2' strings (308-309/342-343) are load-bearing comments stating the hook fires at turn 1 AND NOT turn 2. self-check stays 25/25, 0 spend.",
+      "resolvedAt": "2026-06-23T23:39:09.542Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8e9f:F-003",
