@@ -1,0 +1,37 @@
+{
+  "task": "Delete the legacy-koala backward-compat and migration layer from product runtime code under packages/*/src, keeping the build and tests green and the residue gate still passing.",
+  "outcome": "After this story, a maintainer who runs `git grep -nE 'LegacyKoala|KOALA_[A-Z_]+|legacy-koala' -- 'packages/*/src/**/*.ts'` (excluding the residue-gate wiring in review-preflight.ts, which is story 4) sees zero matches; `npm --prefix packages/main test` passes with no failures; and `node scripts/verify-koala-residue.mjs` still prints 'PASS koala-residue: 0 unclassified'. The legacy koala migration support is gone: no legacy activity-log archive reader, no KOALA_ env-var fallbacks, no legacy-koala write-path guard, no koala:internal / koala-*.md managed-asset handling, and no koala-or-lattice dual-accept.",
+  "facts": [
+    "koala rebranding to the lattice/LATTICE_ naming is already DONE; node scripts/verify-koala-residue.mjs prints PASS koala-residue: 0 unclassified.",
+    "The legacy-koala compat logic lives mainly in packages/main/src: lattice-paths.ts (LATTICE_LEGACY_KOALA_ACTIVITY_LOG, containsLegacyKoalaDir, assertNoLegacyKoalaWritePath), activity-log.ts (getMigratedLegacyKoalaActivityLogPath + reading the legacy archive), prewrite-guard.ts (isLegacyKoalaWritePath), config.ts and handlers/dev-memory.ts (callers of assertNoLegacyKoalaWritePath), core/managed-assets.ts (koala|lattice dual-accept regex, koala:internal markers, isGeneratedLegacyKoalaAgentPrompt, koala-*.md handling), usage-ledger/dispatch-usage.ts (KOALA_HARD_BUDGET_TOKENS), usage-ledger/writer.ts (KOALA_USAGE_LEDGER), dispatch-runner.ts (KOALA_ env passlist entry), runtime-artifact-registry.ts and stale-detector.ts (references to activity.legacy-koala.jsonl).",
+    "assertNoLegacyKoalaWritePath / containsLegacyKoalaDir guard against writing into a legacy koala directory and are called from config.loadConfig and dev-memory; removing them removes a now-moot migration safety guard.",
+    "KOALA_HARD_BUDGET_TOKENS and KOALA_USAGE_LEDGER are env-var fallbacks where the LATTICE_ variable already takes precedence.",
+    "The KOALA_RESIDUE_* gate wiring in handlers/review-preflight.ts and scripts/verify-koala-residue.mjs IS the residue gate itself; flipping/renaming it is deferred to story 4 and is out of scope here."
+  ],
+  "constraints": [
+    "Keep tsc build and the packages/main test/smoke suite green.",
+    "Keep the residue gate passing during this story; do NOT flip or rename it (story 4).",
+    "Do not touch .lattice/story audit metadata, docs, scripts, experiments, or the koala-<role> lane tokens (other stories / kept history).",
+    "No backward-compat shims kept (explicit user directive: total removal)."
+  ],
+  "unknowns": [
+    "Which unit/smoke tests assert the legacy-koala compat behavior and must be deleted vs retargeted (e.g. storydir-inside-gitroot-suite assertNoLegacyKoalaWritePath assertions).",
+    "Whether any caller of assertNoLegacyKoalaWritePath (config.loadConfig, dev-memory) relies on its throw for control flow and needs adjustment when the guard is removed.",
+    "Whether the legacy activity-log archive reader is consumed by stale-detector / activity-tail readers in a way that needs a clean removal rather than a stubbed empty source."
+  ],
+  "touchpoints": [
+    "packages/main/src/core/lattice-paths.ts",
+    "packages/main/src/core/activity-log.ts",
+    "packages/main/src/core/prewrite-guard.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/handlers/dev-memory.ts",
+    "packages/main/src/core/managed-assets.ts",
+    "packages/main/src/core/usage-ledger/dispatch-usage.ts",
+    "packages/main/src/core/usage-ledger/writer.ts",
+    "packages/main/src/core/dispatch-runner.ts",
+    "packages/main/src/core/runtime-artifact-registry.ts",
+    "packages/main/src/core/stale-detector.ts",
+    "packages/main/src/**/*.test.ts (legacy-koala assertions)"
+  ],
+  "timestamp": "2026-06-23T12:20:24.443Z"
+}
