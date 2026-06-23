@@ -5,7 +5,7 @@
       "desc": "stale-header-comment: run-recovery.mjs:13 header comment lists only budgetExceeded/tokensFromUsage as exported pure helpers but omits replayBudgetLoop and buildRunRecord, which are also exported at module scope and imported by the selfcheck — comment should enumerate all four exports",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-23T02:00:59.169Z",
@@ -16,7 +16,11 @@
         "experiments/recovery-runner/run-recovery.mjs"
       ],
       "signatureTag": "missing|mjs|stale-header-comment",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in db47ecc7b: header comment now enumerates all four exported helpers (budgetExceeded, tokensFromUsage, replayBudgetLoop, buildRunRecord)",
+      "resolvedAt": "2026-06-23T02:10:46.950Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5bfe:F-002",
