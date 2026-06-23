@@ -1,0 +1,59 @@
+{
+  "storyId": "B-1e7f",
+  "checkedAt": "2026-06-23T10:44:16.129Z",
+  "features": [
+    {
+      "feature": "JobClaim contract accepts optional signed selectors storyId and jobId while preserving broad generic claims",
+      "covered_by": "CHK-001, CHK-003, plan CHK-001/CHK-003, packages/main/src/core/authority-runner-contracts.ts, packages/main/src/tasks/authority-runner-contracts-smoke.ts, packages/main/src/tasks/authority-runner-client-smoke.ts",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "Plan goal/constraints and CHK-001 contract scope"
+    },
+    {
+      "feature": "Autopilot/live authority job loop sends storyId inside signed claim payload when story-scoped",
+      "covered_by": "CHK-002, CHK-003, plan CHK-002, packages/main/src/core/authority-job-loop-live.ts, packages/main/src/tasks/authority-job-loop-live-smoke.ts",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "Plan CHK-002 live claim path coverage"
+    },
+    {
+      "feature": "authority_enforce_runner live path sends storyId inside signed claim payload when story-scoped",
+      "covered_by": "CHK-002, CHK-003, plan CHK-002, packages/main/src/core/authority-runner.ts, packages/main/src/tasks/authority-runner-client-smoke.ts",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "Plan CHK-002 authority_enforce_runner coverage"
+    },
+    {
+      "feature": "Focused smokes cover stale queued job from another story and reject mismatched claimed job as current-story success",
+      "covered_by": "CHK-002, CHK-004, plan CHK-002/CHK-004, packages/main/src/tasks/authority-job-loop-live-smoke.ts, packages/main/src/tasks/authority-runner-client-smoke.ts",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "Intended regression scope and verification rollup"
+    },
+    {
+      "feature": "SSE jobs.available remains advisory and ownership still requires signed POST /jobs/claim",
+      "covered_by": "CHK-002, CHK-004, plan Constraints/CHK-002/CHK-004, packages/main/src/tasks/authority-runner-client-smoke.ts, packages/main/src/tasks/authority-job-loop-live-smoke.ts",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "Plan constraints and advisory-SSE verification intent"
+    },
+    {
+      "feature": "Authority Server changes, queue purge/cancel endpoints, retry-loop workaround, and new multi-tenant behavior",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "Plan Constraints and CHK-003; decision rejects server-queue-purge-or-cancel and client-release-and-retry-on-mismatch; scope contract allows only three CLI core files and three smoke files",
+      "source": "Plan constraints, decision tradeoffs, and enforced scope contract"
+    }
+  ],
+  "summary": {
+    "total": 6,
+    "covered": 5,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "eb4902337b3a7cde8336be5f3971fb44a1f0a0ffdafbec44fd564bcf36ac77e0",
+  "openQuestions": []
+}

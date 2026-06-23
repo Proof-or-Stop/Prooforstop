@@ -1,0 +1,76 @@
+{
+  "passes": [
+    {
+      "id": "B-1e7f:RP-001",
+      "agent": "lattice-review-quality",
+      "note": "Quality review passed: inspected committed diff for story-scoped Authority live runner claim propagation, command-level fetchImpl injection, and focused smoke coverage; no blocking maintainability issues found.",
+      "createdAt": "2026-06-23T11:02:21.091Z",
+      "reviewRound": "2026-06-23T10:58:43.608Z",
+      "reviewRunId": "B-1e7f:RR-002",
+      "_hash": "a5266f709ba37a9d24d5edaaf4faeeb1e7bb90834273576fedfd9d1c07f55e96"
+    },
+    {
+      "id": "B-1e7f:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage review passed: contract smoke covers signed storyId/jobId selectors plus broad compatibility; live job-loop smoke covers stale other-story queue filtering by signed storyId; runner client smoke covers authority_enforce_runner live command path; evidence_plan reports all refs fresh.",
+      "createdAt": "2026-06-23T11:02:21.818Z",
+      "reviewRound": "2026-06-23T10:58:43.608Z",
+      "reviewRunId": "B-1e7f:RR-003",
+      "_hash": "310b9027e9a9988bfafb14c7e0d23a74c75e22befa2fcc8db3bd127b951201a7"
+    },
+    {
+      "id": "B-1e7f:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Quality review passed after inspecting HEAD diff for command catalog schema, story-scoped signed claim plumbing, and focused authority smoke style; build plus authority enforce runner/contracts/client/job-loop-live smokes passed.",
+      "createdAt": "2026-06-23T11:19:36.532Z",
+      "reviewRound": "2026-06-23T11:12:04.812Z",
+      "reviewRunId": "B-1e7f:RR-005",
+      "_hash": "cf1e6f96ceb61f2372b38f853171d87eaf5dbfc95f50db0262d9caf68d98d647"
+    },
+    {
+      "id": "B-1e7f:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "PASS: F-001 resolved. Public authority_enforce_runner schema now preserves --live and --storyId through CLI validation; live runner paths put storyId only in signed claim.storyId while claim URL and SSE remain selector-free. Targeted smokes and no-emit type-check passed.",
+      "createdAt": "2026-06-23T11:19:38.053Z",
+      "reviewRound": "2026-06-23T11:12:04.812Z",
+      "reviewRunId": "B-1e7f:RR-004",
+      "_hash": "638d3b21310e1f5fdf320a433af3cf40efa70e0a23503e6ab425f7d0d9fd5cda"
+    },
+    {
+      "id": "B-1e7f:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage verified: fresh evidence covers all required intents; authority_enforce_runner parser/catalog smoke exercises --live --storyId through CLI validation, and existing smokes cover signed claim.storyId semantics plus stale other-story queue behavior.",
+      "createdAt": "2026-06-23T11:20:24.436Z",
+      "reviewRound": "2026-06-23T11:12:04.812Z",
+      "reviewRunId": "B-1e7f:RR-006",
+      "_hash": "a095e1ae87c081aecdb8bd0ac8a0a226e2dbfd5187999b16acf3eb494c693064"
+    },
+    {
+      "id": "B-1e7f:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage covers real CLI parser/catalog path, signed story-scoped claims, stale queue mismatch avoidance, broad-claim compatibility, and live-smoke delivery evidence.",
+      "createdAt": "2026-06-23T11:41:40.284Z",
+      "reviewRound": "2026-06-23T11:38:30.518Z",
+      "reviewRunId": "B-1e7f:RR-008",
+      "_hash": "134cd43ea969ceef6256f3eed2081922a619b79b672f2a8dfae7684128078aa6"
+    },
+    {
+      "id": "B-1e7f:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "Concept pass: signed story-scoped claim selectors are in the claim payload, SSE hints remain advisory, and delivery/live-smoke evidence scope is acknowledged without Authority overclaim.",
+      "createdAt": "2026-06-23T11:41:49.749Z",
+      "reviewRound": "2026-06-23T11:38:30.518Z",
+      "reviewRunId": "B-1e7f:RR-009",
+      "_hash": "cf6ea9cd7c1431b248ff9da9d3a83ab2a9dc3b4a2d454ed236587fdb92790452"
+    },
+    {
+      "id": "B-1e7f:RP-008",
+      "agent": "lattice-review-quality",
+      "note": "Quality review passed: story-scoped signed claim forwarding, stale queue handling, optional storyId behavior, and live runner parser coverage look sound.",
+      "createdAt": "2026-06-23T11:42:40.107Z",
+      "reviewRound": "2026-06-23T11:38:30.518Z",
+      "reviewRunId": "B-1e7f:RR-007",
+      "_hash": "bed720a2a6a9c7ac3e2ccda89196451dd43c3e91178be33bd2d6dc80a6ca895f"
+    }
+  ]
+}

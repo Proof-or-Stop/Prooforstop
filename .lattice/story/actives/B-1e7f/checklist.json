@@ -32,9 +32,57 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-23T10:45:49.062Z",
+      "endTime": "2026-06-23T10:51:20.909Z",
+      "files": {
+        "modify": [
+          "packages/main/src/core/authority-runner-contracts.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/authority-runner-contracts-smoke.ts",
+          "packages/main/src/tasks/authority-runner-client-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/authority-runner-contracts-smoke.ts",
+          "command": "node packages/main/dist/tasks/authority-runner-contracts-smoke.js",
+          "result": "pass",
+          "note": "JobClaim roundtrip now accepts signed storyId and jobId selectors.",
+          "headHash": "dd5bacf2ab48c4c9c9a4a05eb9db62b2940c64d4",
+          "materialHash": "ff3d1e52fb3476443e0bc1412e3bbfb293ee3033bb13e09360b3d05047fb9f15",
+          "storyFilesHash": "432526a9863defc17025cf3a8ee01707112f3a7ac725611cdbee5bd495b6ce8d",
+          "timestamp": "2026-06-23T11:12:34.131Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/authority-runner-contracts-smoke.ts",
+          "command": "node packages/main/dist/tasks/authority-runner-contracts-smoke.js",
+          "result": "pass",
+          "note": "Broad JobClaim without storyId/jobId remains schema-valid and roundtrips.",
+          "headHash": "dd5bacf2ab48c4c9c9a4a05eb9db62b2940c64d4",
+          "materialHash": "ff3d1e52fb3476443e0bc1412e3bbfb293ee3033bb13e09360b3d05047fb9f15",
+          "storyFilesHash": "432526a9863defc17025cf3a8ee01707112f3a7ac725611cdbee5bd495b6ce8d",
+          "timestamp": "2026-06-23T11:12:34.131Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/authority-runner-client-smoke.ts",
+          "command": "node packages/main/dist/tasks/authority-runner-client-smoke.js",
+          "result": "pass",
+          "note": "Story selector is asserted under the signed claim body and not as a jobs/claim query parameter; SSE jobIds are not copied into claim.jobId.",
+          "headHash": "dd5bacf2ab48c4c9c9a4a05eb9db62b2940c64d4",
+          "materialHash": "ff3d1e52fb3476443e0bc1412e3bbfb293ee3033bb13e09360b3d05047fb9f15",
+          "storyFilesHash": "432526a9863defc17025cf3a8ee01707112f3a7ac725611cdbee5bd495b6ce8d",
+          "timestamp": "2026-06-23T11:12:34.131Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -73,9 +121,271 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-23T10:51:26.233Z",
+      "endTime": "2026-06-23T10:56:06.926Z",
+      "files": {
+        "modify": [
+          "packages/main/src/core/authority-job-loop-live.ts",
+          "packages/main/src/core/authority-runner.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/authority-job-loop-live-smoke.ts",
+          "packages/main/src/tasks/authority-runner-client-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/authority-enforce-runner-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/authority-enforce-runner-smoke.js && node packages/main/dist/tasks/authority-runner-client-smoke.js",
+          "result": "pass",
+          "note": "Parser/catalog smoke now proves authority_enforce_runner preserves --live and --storyId=B-current through the real CLI validation boundary; runner client smoke proves the resulting live command args place storyId inside signed claim.storyId with no URL query selector.",
+          "headHash": "dd5bacf2ab48c4c9c9a4a05eb9db62b2940c64d4",
+          "materialHash": "ff3d1e52fb3476443e0bc1412e3bbfb293ee3033bb13e09360b3d05047fb9f15",
+          "storyFilesHash": "432526a9863defc17025cf3a8ee01707112f3a7ac725611cdbee5bd495b6ce8d",
+          "timestamp": "2026-06-23T11:12:34.131Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/authority-runner-client-smoke.ts",
+          "command": "node packages/main/dist/tasks/authority-runner-client-smoke.js",
+          "result": "pass",
+          "note": "The command-level smoke keeps jobs.available jobIds advisory while ownership still requires signed POST /jobs/claim.",
+          "headHash": "dd5bacf2ab48c4c9c9a4a05eb9db62b2940c64d4",
+          "materialHash": "ff3d1e52fb3476443e0bc1412e3bbfb293ee3033bb13e09360b3d05047fb9f15",
+          "storyFilesHash": "432526a9863defc17025cf3a8ee01707112f3a7ac725611cdbee5bd495b6ce8d",
+          "timestamp": "2026-06-23T11:12:34.131Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/authority-job-loop-live-smoke.ts",
+          "command": "node packages/main/dist/tasks/authority-job-loop-live-smoke.js",
+          "result": "pass",
+          "note": "Autopilot authority live job loop smoke asserts signed claim.storyId=B-auto for the requested story in the jobs/claim payload.",
+          "headHash": "dd5bacf2ab48c4c9c9a4a05eb9db62b2940c64d4",
+          "materialHash": "ff3d1e52fb3476443e0bc1412e3bbfb293ee3033bb13e09360b3d05047fb9f15",
+          "storyFilesHash": "432526a9863defc17025cf3a8ee01707112f3a7ac725611cdbee5bd495b6ce8d",
+          "timestamp": "2026-06-23T11:12:34.131Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/authority-job-loop-live-smoke.ts",
+          "command": "node packages/main/dist/tasks/authority-job-loop-live-smoke.js",
+          "result": "pass",
+          "note": "Regression models a stale B-other queued job and proves signed claim.storyId filters to the current B-auto job instead of accepting mismatched work.",
+          "headHash": "dd5bacf2ab48c4c9c9a4a05eb9db62b2940c64d4",
+          "materialHash": "ff3d1e52fb3476443e0bc1412e3bbfb293ee3033bb13e09360b3d05047fb9f15",
+          "storyFilesHash": "432526a9863defc17025cf3a8ee01707112f3a7ac725611cdbee5bd495b6ce8d",
+          "timestamp": "2026-06-23T11:12:34.131Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-003",
+      "title": "Implement Send story-scoped Authority job claims from the CLI live runner",
+      "context": "Story description source: The Authority Server now supports signed storyId/jobId selectors so a runner does not lease stale queued jobs from discarded or unrelated stories.. ReadinessReport(REVIEW) highlighted: checklist_items_not_done, missing_verification_evidence.",
+      "relatedDocs": [
+        ".lattice/story/actives/B-1e7f/background.md"
+      ],
+      "status": "done",
+      "startTime": "2026-06-23T10:51:44.606Z",
+      "endTime": "2026-06-23T10:51:54.787Z",
+      "userSees": "Implementation keeps selectors inside signed claim payloads; no queue purge or retry workaround is added.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/authority-runner-contracts.ts",
+          "packages/main/src/core/authority-job-loop-live.ts",
+          "packages/main/src/core/authority-runner.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/authority-runner-contracts-smoke.ts",
+          "packages/main/src/tasks/authority-job-loop-live-smoke.ts",
+          "packages/main/src/tasks/authority-runner-client-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The implementation adds storyId to signed live claim payloads for story-scoped authority flows.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Existing generic broad claim construction remains valid when no story selector is available.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The implementation does not replace the fix with queue purge, cancel endpoint, retry loop, or unsigned selector metadata.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/authority-job-loop-live.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/authority-job-loop-live-smoke.js",
+          "result": "pass",
+          "note": "Implementation sends storyId inside signed live claim payloads for story-scoped autopilot authority flows, including delegated follow-up claims.",
+          "headHash": "dd5bacf2ab48c4c9c9a4a05eb9db62b2940c64d4",
+          "materialHash": "ff3d1e52fb3476443e0bc1412e3bbfb293ee3033bb13e09360b3d05047fb9f15",
+          "storyFilesHash": "432526a9863defc17025cf3a8ee01707112f3a7ac725611cdbee5bd495b6ce8d",
+          "timestamp": "2026-06-23T11:12:34.131Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/authority-runner-contracts-smoke.ts",
+          "command": "node packages/main/dist/tasks/authority-runner-contracts-smoke.js",
+          "result": "pass",
+          "note": "Generic broad JobClaim construction remains valid when no story selector is available.",
+          "headHash": "dd5bacf2ab48c4c9c9a4a05eb9db62b2940c64d4",
+          "materialHash": "ff3d1e52fb3476443e0bc1412e3bbfb293ee3033bb13e09360b3d05047fb9f15",
+          "storyFilesHash": "432526a9863defc17025cf3a8ee01707112f3a7ac725611cdbee5bd495b6ce8d",
+          "timestamp": "2026-06-23T11:12:34.131Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/authority-runner-client-smoke.ts",
+          "command": "node packages/main/dist/tasks/authority-runner-client-smoke.js && node packages/main/dist/tasks/authority-job-loop-live-smoke.js",
+          "result": "pass",
+          "note": "Fix uses signed claim.storyId; tests assert no selector query params, no SSE jobId authority, and no queue purge/cancel/retry workaround.",
+          "headHash": "dd5bacf2ab48c4c9c9a4a05eb9db62b2940c64d4",
+          "materialHash": "ff3d1e52fb3476443e0bc1412e3bbfb293ee3033bb13e09360b3d05047fb9f15",
+          "storyFilesHash": "432526a9863defc17025cf3a8ee01707112f3a7ac725611cdbee5bd495b6ce8d",
+          "timestamp": "2026-06-23T11:12:34.131Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-004",
+      "title": "Verify Send story-scoped Authority job claims from the CLI live runner",
+      "context": "Plan happy, edge, and adversarial checks for: The CLI live runner still sends broad signed claims in its live paths, which can reproduce claimed-job-story-mismatch when old queued jobs remain on the server.. ReadinessReport(REVIEW) highlighted: checklist_items_not_done, missing_verification_evidence.",
+      "relatedDocs": [
+        ".lattice/story/actives/B-1e7f/background.md"
+      ],
+      "status": "done",
+      "startTime": "2026-06-23T10:52:03.811Z",
+      "endTime": "2026-06-23T10:52:14.948Z",
+      "userSees": "Focused smokes show claim.storyId is sent for B-current and stale other-story queued jobs are not accepted as current-story success.",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/authority-runner-contracts-smoke.ts",
+          "packages/main/src/tasks/authority-job-loop-live-smoke.ts",
+          "packages/main/src/tasks/authority-runner-client-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Focused authority runner contract and live smokes pass after the selector change.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Regression coverage models a stale queued job from another story and proves the current story claim remains story-scoped.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "SSE jobs.available remains advisory in test coverage; signed POST /jobs/claim is still required for ownership.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/authority-runner-contracts-smoke.ts",
+          "command": "npm --prefix packages/main run build; node packages/main/dist/tasks/authority-runner-contracts-smoke.js; node packages/main/dist/tasks/authority-runner-client-smoke.js; node packages/main/dist/tasks/authority-job-loop-live-smoke.js",
+          "result": "pass",
+          "note": "Build plus all three focused authority runner smokes passed after the selector change.",
+          "headHash": "dd5bacf2ab48c4c9c9a4a05eb9db62b2940c64d4",
+          "materialHash": "ff3d1e52fb3476443e0bc1412e3bbfb293ee3033bb13e09360b3d05047fb9f15",
+          "storyFilesHash": "432526a9863defc17025cf3a8ee01707112f3a7ac725611cdbee5bd495b6ce8d",
+          "timestamp": "2026-06-23T11:12:34.131Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/authority-job-loop-live-smoke.ts",
+          "command": "node packages/main/dist/tasks/authority-job-loop-live-smoke.js",
+          "result": "pass",
+          "note": "Regression models stale B-other queued work and proves the signed B-auto claim receives and completes the current-story job.",
+          "headHash": "dd5bacf2ab48c4c9c9a4a05eb9db62b2940c64d4",
+          "materialHash": "ff3d1e52fb3476443e0bc1412e3bbfb293ee3033bb13e09360b3d05047fb9f15",
+          "storyFilesHash": "432526a9863defc17025cf3a8ee01707112f3a7ac725611cdbee5bd495b6ce8d",
+          "timestamp": "2026-06-23T11:12:34.131Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/authority-runner-client-smoke.ts",
+          "command": "node packages/main/dist/tasks/authority-runner-client-smoke.js",
+          "result": "pass",
+          "note": "SSE jobs.available remains advisory: signed POST /jobs/claim is still required, and hinted jobIds are not treated as ownership.",
+          "headHash": "dd5bacf2ab48c4c9c9a4a05eb9db62b2940c64d4",
+          "materialHash": "ff3d1e52fb3476443e0bc1412e3bbfb293ee3033bb13e09360b3d05047fb9f15",
+          "storyFilesHash": "432526a9863defc17025cf3a8ee01707112f3a7ac725611cdbee5bd495b6ce8d",
+          "timestamp": "2026-06-23T11:12:34.131Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-23T10:40:12.123Z",
+      "phase": "PLAN",
+      "itemId": "CHK-003",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "plan_skeleton --write generated an initial PLAN skeleton from StoryReadinessReport",
+      "addedTitle": "Implement Send story-scoped Authority job claims from the CLI live runner",
+      "addedContext": "Story description source: The Authority Server now supports signed storyId/jobId selectors so a runner does not lease stale queued jobs from discarded or unrelated stories.. ReadinessReport(REVIEW) highlighted: checklist_items_not_done, missing_verification_evidence."
+    },
+    {
+      "timestamp": "2026-06-23T10:40:12.190Z",
+      "phase": "PLAN",
+      "itemId": "CHK-004",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "plan_skeleton --write generated an initial PLAN skeleton from StoryReadinessReport",
+      "addedTitle": "Verify Send story-scoped Authority job claims from the CLI live runner",
+      "addedContext": "Plan happy, edge, and adversarial checks for: The CLI live runner still sends broad signed claims in its live paths, which can reproduce claimed-job-story-mismatch when old queued jobs remain on the server.. ReadinessReport(REVIEW) highlighted: checklist_items_not_done, missing_verification_evidence."
+    },
+    {
+      "timestamp": "2026-06-23T10:53:17.863Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Acceptance review found authority_enforce_runner --live command path was not forwarding args.storyId into live runner options."
     }
   ]
 }

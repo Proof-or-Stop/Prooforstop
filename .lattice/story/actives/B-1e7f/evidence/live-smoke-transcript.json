@@ -1,0 +1,21 @@
+{
+  "storyId": "B-1e7f",
+  "expected": "Signed runner claim payloads can include storyId/jobId without schema rejection.",
+  "actual": {
+    "command": "node packages/main/dist/tasks/authority-enforce-runner-smoke.js",
+    "exitCode": 0,
+    "stdout": "✓ authority enforce runner smoke passed: dry-run planned register/heartbeat/claim without provider execution; claimed-job plannedSteps consumed through the bounded executor with authority DONE gated by a verified receipt\n",
+    "stderr": "[0.0s] running authority_enforce_runner...\n[0.0s] authority_enforce_runner done\n"
+  },
+  "mode": {
+    "runCommands": true,
+    "writeEvidence": true
+  },
+  "capturedAtIso": "2026-06-23T11:29:21.771Z",
+  "claims": {
+    "authorityDone": false,
+    "productionDone": false
+  },
+  "headHash": "bbc7357e2439b7c9fb5f0d70e545b13f4988b0df",
+  "materialHash": "ff308f0b43e94a807b3995ca75c0fb9090b4cabdf7821e5a52f03222b7d6ce11"
+}
