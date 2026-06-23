@@ -5,7 +5,7 @@
       "desc": "doc-code-drift: The Machine Baseline Schema section says the baseline JSON is intentionally small and stable and then lists top-level fields, but it omits createdAt even though experiments/baselines/lattice-workflow-efficiency-baseline-v1.json has createdAt at line 5. Document createdAt or make the schema list explicitly non-exhaustive so the decision doc stays synchronized with the JSON.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-06-23T04:20:36.446Z",
@@ -17,7 +17,11 @@
         "experiments/baselines/lattice-workflow-efficiency-baseline-v1.json"
       ],
       "signatureTag": "missing|md|code-drift-machine",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit 800ace6f documents the top-level createdAt field in the Machine Baseline Schema. Focused verification: rg -n \"createdAt|Machine Baseline Schema\" docs/requirements/decisions/lattice-workflow-efficiency-baseline.md shows the createdAt bullet, and git diff --check passed.",
+      "resolvedAt": "2026-06-23T04:23:28.612Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
