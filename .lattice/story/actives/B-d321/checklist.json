@@ -111,7 +111,7 @@
       "relatedDocs": [
         "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md"
       ],
-      "userSees": "A focused validate command proves baseline item 5 is fixed and documents the before/after result.",
+      "userSees": "`lattice validate --focus=fast --json` includes delivery-check-freshness-smoke and the smoke prints \"delivery-check-freshness smoke passed\".",
       "excludes": [
         "Do not edit the immutable baseline v1 artifact.",
         "Do not broaden this into DONE summary freshness; that remains baseline item 6."
@@ -141,7 +141,19 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "lattice.config.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/delivery-check-freshness-smoke.ts",
+          "experiments/baselines/lattice-workflow-efficiency-baseline-v1-B-d321-delivery-check-freshness-result.json"
+        ],
+        "test": [
+          "packages/main/src/tasks/delivery-check-freshness-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-004",
