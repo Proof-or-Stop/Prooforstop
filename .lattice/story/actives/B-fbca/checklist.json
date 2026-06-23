@@ -554,6 +554,17 @@
           "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
           "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
           "timestamp": "2026-06-23T21:23:07.768Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:2",
+          "kind": "manual_transcript",
+          "command": "git grep -nE 'koala-review-integrity-v1|koala-review-pass-integrity-v1|koala-review-run-integrity-v1|koala-review-run-workspace-binding-v1|koala-review-scope-binding-v1|koala-scope-check-integrity-v1|koala-finding-integrity-v1|koala-story-store' -- 'packages/*/dist/**'",
+          "result": "pass",
+          "note": "Exit 1 / zero hits: no old koala-* salt strings survive in the committed dist/ output — no stale dist cache could re-introduce old salts at runtime",
+          "headHash": "8ca5299d4b673bef8362c73dd5ef1d7f63fb2e20",
+          "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
+          "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
+          "timestamp": "2026-06-23T21:23:09.178Z"
         }
       ]
     },
