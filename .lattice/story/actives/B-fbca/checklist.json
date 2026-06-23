@@ -54,7 +54,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "git grep -nE 'koala-review-integrity-v1|koala-review-pass-integrity-v1|koala-review-run-integrity-v1|koala-review-run-workspace-binding-v1|koala-review-scope-binding-v1|koala-scope-check-integrity-v1|koala-finding-integrity-v1|koala-story-store' -- 'packages/*/src/**'",
+          "result": "pass",
+          "note": "Exit 1 (zero hits): all 8 old koala-* salt VALUES fully removed from packages/*/src",
+          "headHash": "4ebb80369091079e108822a28cead7cf4fea463a",
+          "materialHash": "1762d4433bb4855199b91fd6e91a5ab36b02a15ff7ad96cceb881f72ab4d74b9",
+          "storyFilesHash": "a437c6445908cf4f6bbe5eccb1728d2c58c415440aba8eb87a9b185ede708ebd",
+          "timestamp": "2026-06-23T21:19:58.731Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
