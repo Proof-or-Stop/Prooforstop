@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-23T00:54:14.879Z",
       "reviewRunId": "B-e37e:RR-005",
       "_hash": "9e3a6eaf5cb0c85aee3cce3c6f6c1a0b2af1ff026ee696a5a90bb4000f51a09d"
+    },
+    {
+      "id": "B-e37e:RP-003",
+      "agent": "lattice-review-docs",
+      "note": "Round 2 docs review passed: docs/guide.md and lattice-authority-live-integration.md correctly describe jobs_stream/jobs.available as a notification hint only, retain signed claim as the authority path and fallback, avoid productionDone/authorityDone/fullAuthorityDone overclaim, and orchestrate-retirement.md keeps new runner diagnostics out of retired Orchestrate root writes. Verified final behavior against authority-client.ts, authority-runner.ts, command-policy.ts, cli ownership guard, and smoke coverage.",
+      "createdAt": "2026-06-23T00:59:14.055Z",
+      "reviewRound": "2026-06-23T00:54:14.879Z",
+      "reviewRunId": "B-e37e:RR-008",
+      "_hash": "f90ed6b9f92baa88d7021757dee9c319de7041a243c62d29e23c21646908eb74"
     }
   ]
 }
