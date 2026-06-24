@@ -84,7 +84,34 @@
       "context": "Remove or resolve implementation-review old command code, legacy intent-coverage residue, zod bridge half-surface, and generic verifier API files only where import/search evidence proves they are unreachable. Preserve lattice serve and starter devHost-related files.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "scripts/verify-orphan-surface.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "High-confidence unreachable legacy files are removed or otherwise retired without reviving obsolete commands.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Dynamic serve/starter support files remain present and buildable.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "implementation_review_result_get remains an unknown command, proving the old unsigned review path was not restored.",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
