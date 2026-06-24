@@ -46,7 +46,37 @@
       "context": "Expose a root npm script such as test:orphan-surface that can run after build or against source as a lightweight CI correctness check.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "package.json",
+          "packages/main/package.json"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-orphan-surface.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm run test:orphan-surface invokes the detector and exits successfully on the current repository.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The package-level script also exposes the detector so CI can run it from either root or packages/main.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The script fails non-zero if the detector reports a command/handler surface mismatch.",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
