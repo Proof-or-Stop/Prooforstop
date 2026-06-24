@@ -49,9 +49,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-24T13:25:16.111Z",
-      "endTime": null,
+      "endTime": "2026-06-24T13:32:37.562Z",
       "userSees": "User sees: \"authority-receipt-ref production-completion remains allowed as evidence but productionDoneEligible=false.\"",
       "files": {
         "modify": [
@@ -81,7 +81,42 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "if rg -n \"productionDoneEligible: true\" packages/main/src/core/proof-admissibility.ts; then exit 1; else echo no local productionDoneEligible true; fi",
+          "result": "pass",
+          "note": "No local proof-admissibility policy can set productionDoneEligible true after authority-receipt-ref demotion.",
+          "headHash": "36d0d5a8ebf34caa32ba8d5808e83227e0e284c9",
+          "materialHash": "5cc8fc3c312db6940d74e58dcb390b5823b78a89c6ec66749dc9aad5bd2c2a48",
+          "storyFilesHash": "7310f4ead675e1ea32af2b108822bde528e414767ca23feda77413feeac022e7",
+          "timestamp": "2026-06-24T13:32:37.817Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/proof-admissibility-smoke.js",
+          "result": "pass",
+          "note": "Smoke proves authority-receipt object remains diagnostic-status only and authority-receipt-ref has productionDoneEligible=false.",
+          "headHash": "36d0d5a8ebf34caa32ba8d5808e83227e0e284c9",
+          "materialHash": "5cc8fc3c312db6940d74e58dcb390b5823b78a89c6ec66749dc9aad5bd2c2a48",
+          "storyFilesHash": "7310f4ead675e1ea32af2b108822bde528e414767ca23feda77413feeac022e7",
+          "timestamp": "2026-06-24T13:32:38.094Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/proof-admissibility-smoke.js",
+          "result": "pass",
+          "note": "Negative production controls still cover DONE-required, review-run, offline bundle, handoff, legacy, and authority-receipt overread paths.",
+          "headHash": "36d0d5a8ebf34caa32ba8d5808e83227e0e284c9",
+          "materialHash": "5cc8fc3c312db6940d74e58dcb390b5823b78a89c6ec66749dc9aad5bd2c2a48",
+          "storyFilesHash": "7310f4ead675e1ea32af2b108822bde528e414767ca23feda77413feeac022e7",
+          "timestamp": "2026-06-24T13:32:38.271Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
