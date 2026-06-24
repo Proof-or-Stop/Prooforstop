@@ -18,6 +18,25 @@
       ],
       "signatureTag": "missing|md|code-drift-experiments",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-e67f:F-002",
+      "desc": "doc-code-drift: experiments/recovery-runner/README.md line 112 shows the run-selfchecks.mjs comment as 'adjudicate + checks + spend-accounting + run-driver + analyze selfchecks' (5 items). After this story, run-selfchecks.mjs SELFCHECKS array has 6 entries with corpus-selfcheck.mjs added (confirmed in code). The README comment is stale and does not mention corpus-selfcheck.mjs, misrepresenting the scope of 'npm test'.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-24T10:20:25.722Z",
+      "reviewRound": "2026-06-24T10:16:50.255Z",
+      "reviewRunId": "B-e67f:RR-003",
+      "_hash": "6781faf41aadb2f80c50af49ce14154c0540271cf7b9833b3423facf09b3ab72",
+      "files": [
+        "experiments/recovery-runner/README.md",
+        "experiments/recovery-runner/run-selfchecks.mjs"
+      ],
+      "signatureTag": "missing|md|code-drift-experiments",
+      "signatureTagSource": "auto"
     }
   ]
 }
