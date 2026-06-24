@@ -51,7 +51,7 @@
       "desc": "Probe Contract table in repro-first-story-intake-experiment.md omits two optional fields that exist in ReproProbePayload and affect the artifact digest when supplied: `baselineHeadHash?` and `materialHash?`. Both are present in core/repro-intake.ts (CreateProbeInput), handlers/repro-intake.ts (ReproProbeArgs), and core/evidence/types.ts (ReproProbePayload). The table presents itself as comprehensive (| Field | Meaning |) but omits these two optional fields entirely, so a caller reading only the docs would not know these fields exist or that they are included in the digest canonical subject.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-06-24T04:32:31.744Z",
@@ -63,7 +63,11 @@
         "packages/main/src/core/evidence/types.ts"
       ],
       "signatureTag": "missing|md|probe-contract-table",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commit 1c1ce4724: Probe Contract now documents optional baselineHeadHash and materialHash fields, matching ReproProbePayload/CreateProbeInput/ReproProbeArgs. This is a docs-only correction to keep caller-facing contract aligned with implemented digest subject.",
+      "resolvedAt": "2026-06-24T04:33:50.519Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
