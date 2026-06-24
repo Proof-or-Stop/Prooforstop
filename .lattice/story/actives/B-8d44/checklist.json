@@ -23,7 +23,14 @@
       "context": "For each cell: mkdtemp a fresh ws, copy the task's prompt + (for the agent) the editable files, resolve the task by cell.taskId under tasksDir; if cell.scenarioId != null, apply the injection at the pre-reg §3 fixed point (immediately before the first agent action, per run-driver's injectionApplied semantics) via the task's subtle-wrong-output.mjs inject(ws,task) (or the scenario module). Ablation cells (scenarioId null) apply no injection. Record injectionApplied + the acceptance script path/hash.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "experiments/recovery-runner/live-engine.mjs"
+        ],
+        "create": [],
+        "test": []
+      }
     },
     {
       "id": "CHK-003",
