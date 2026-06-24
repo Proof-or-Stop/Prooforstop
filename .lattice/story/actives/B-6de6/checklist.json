@@ -46,6 +46,15 @@
             "type": "cli"
           }
         ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/core/review-assurance-floor.ts",
+          "packages/main/src/core/review-escalation.ts",
+          "packages/main/src/core/evidence-freshness.ts"
+        ],
+        "create": [],
+        "test": []
       }
     },
     {
@@ -171,6 +180,61 @@
           }
         ]
       }
+    },
+    {
+      "id": "CHK-005",
+      "title": "Register the review-assurance floor as a storyFilesHash-freshness consumer in the process-fact contract",
+      "context": "scope-plan review found that docs/requirements/decisions/story-files-hash-material-drift.md section Process Fact Contract requires the storyFilesHash-freshness semantics to be registered. They already exist as runtime:story_files_hash_freshness_gate (process-fact-levels.ts:308) with the correct semantics, but its gateConsumer enumeration names review runs, verification evidence, and review escalation records, and does NOT yet name the review-assurance floor, which this story makes a new consumer. Update the gateConsumer text in process-fact-levels.ts (and the parallel registry entry text in process-fact-registry.ts if applicable) to include the review assurance floor DONE freshness gate, and confirm node scripts/verify-process-fact-contract.mjs still passes. No new process fact is introduced: the host_verdict and fallback producers (quorum_submit, autopilot_review_submit, review_escalation_fallback_set) already register storyFilesHash and already name the review assurance floor DONE gate as a consumer.",
+      "relatedDocs": [
+        ".lattice/story/actives/B-6de6/background.md"
+      ],
+      "userSees": "node scripts/verify-process-fact-contract.mjs prints 'Process fact contract verified' (exit 0) and the runtime:story_files_hash_freshness_gate entry gateConsumer names the review assurance floor DONE freshness gate.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "After updating the gateConsumer text, node scripts/verify-process-fact-contract.mjs prints Process fact contract verified and exits 0; WHY: the contract verifier is the gate that proves the registration is consistent",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The producer entries quorum_submit, autopilot_review_submit, and review_escalation_fallback_set that already name the review assurance floor DONE gate remain consistent with the updated runtime:story_files_hash_freshness_gate consumer text; WHY: avoids contradictory consumer enumerations across producer and runtime entries",
+            "type": "manual"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No new process fact name or category is silently introduced and the registered semantics still require story-owned file changes to invalidate the binding while only forgiving unrelated whole-tree materialHash drift with a re-attestation advisory; WHY: prevents the registration change from weakening the contract or masking a new fact",
+            "type": "manual"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-23T23:58:45.426Z",
+      "phase": "PLAN",
+      "itemId": "CHK-005",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "scope-plan reviewer found a spec-required process-fact contract registration gap: the review-assurance floor's new consumption of the storyFilesHash freshness rule must be reflected in the registered gateConsumer enumeration.",
+      "addedTitle": "Register the review-assurance floor as a storyFilesHash-freshness consumer in the process-fact contract",
+      "addedContext": "scope-plan review found that docs/requirements/decisions/story-files-hash-material-drift.md section Process Fact Contract requires the storyFilesHash-freshness semantics to be registered. They already exist as runtime:story_files_hash_freshness_gate (process-fact-levels.ts:308) with the correct semantics, but its gateConsumer enumeration names review runs, verification evidence, and review escalation records, and does NOT yet name the review-assurance floor, which this story makes a new consumer. Update the gateConsumer text in process-fact-levels.ts (and the parallel registry entry text in process-fact-registry.ts if applicable) to include the review assurance floor DONE freshness gate, and confirm node scripts/verify-process-fact-contract.mjs still passes. No new process fact is introduced: the host_verdict and fallback producers (quorum_submit, autopilot_review_submit, review_escalation_fallback_set) already register storyFilesHash and already name the review assurance floor DONE gate as a consumer."
     }
   ]
 }

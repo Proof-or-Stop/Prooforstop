@@ -99,10 +99,36 @@ storyFilesHash mismatch still stales the rounds.
 
 Done when: the new smoke passes from `dist`, `npm test` includes it, and the full build is clean.
 
+## CHK-005 — Register the review-assurance floor as a storyFilesHash-freshness consumer in the process-fact contract
+
+**Files:** `packages/main/src/core/process-fact-levels.ts`,
+`packages/main/src/core/process-fact-registry.ts`, `scripts/verify-process-fact-contract.mjs`
+(run only).
+
+Found by the PLAN scope review against `docs/requirements/decisions/story-files-hash-material-drift.md`
+§ "Process Fact Contract". The freshness semantics are ALREADY registered as
+`runtime:story_files_hash_freshness_gate` (process-fact-levels.ts:308) with the correct rule
+(accept whole-tree drift only when storyFilesHash matches + re-attestation advisory; reject
+story-file changes / legacy records). No new process fact is introduced — the host_verdict and
+fallback producers (`quorum_submit`, `autopilot_review_submit`, `review_escalation_fallback_set`)
+already register `storyFilesHash` and already name the review assurance floor DONE gate.
+
+Steps:
+1. Update the `gateConsumer` enumeration of `runtime:story_files_hash_freshness_gate` in
+   `process-fact-levels.ts` to include the review assurance floor DONE freshness gate (currently
+   it names review runs, verification evidence, and review escalation records only).
+2. If `process-fact-registry.ts` carries parallel consumer text for the same gate, keep it
+   consistent.
+3. Run `node scripts/verify-process-fact-contract.mjs` and confirm it still prints
+   "Process fact contract verified" (exit 0).
+
+Done when: the freshness-gate entry names the floor as a consumer and the contract verifier passes.
+
 ## Verification
 
 - `npm --prefix packages/main run build`
 - `node packages/main/dist/tasks/review-assurance-floor-storyfileshash-smoke.js`
 - `node packages/main/dist/tasks/review-assurance-floor-smoke.js` (regression: existing floor smoke)
 - `node packages/main/dist/tasks/review-escalation-smoke.js` (regression: escalation unchanged)
+- `node scripts/verify-process-fact-contract.mjs` (CHK-005: contract still verified)
 - `npm test` (full suite, includes the new smoke)
