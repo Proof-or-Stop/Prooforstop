@@ -148,7 +148,46 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees `proof-admissibility smoke passed`, process fact verification stays green, and the new test command is available from package scripts.",
+      "files": {
+        "modify": [
+          "packages/main/package.json",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/registry.ts"
+        ],
+        "create": [
+          "packages/main/src/tasks/proof-admissibility-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/proof-admissibility-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "`npm --prefix packages/main run test:proof-admissibility` prints `proof-admissibility smoke passed` after build.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "`node scripts/verify-process-fact-contract.mjs` remains green after registering any new command/process fact introduced by this story.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Smoke includes negative controls proving non-production scopes cannot satisfy productionDone and missing/unknown definitions fail closed.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
