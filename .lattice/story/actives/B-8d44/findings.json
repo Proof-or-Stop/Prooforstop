@@ -757,6 +757,25 @@
       ],
       "signatureTag": "adversarial-secret-token-assignment",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-8d44:F-035",
+      "desc": "F-032 follow-up: reviewer-infra false-positive normalizer can hide true secret evidence inside an Unexpected token diagnostic. infraSecretScanContent strips the entire quoted token before detectUnsafe for reviewer 529 handling, so raw newContent containing a real sk-* secret inside the diagnostic can void as infra instead of emitting an amplified record. Unsafe evidence must supersede infra; add precise normalization and a regression selfcheck.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-24T23:43:34.042Z",
+      "reviewRound": "2026-06-24T23:37:51.527Z",
+      "reviewRunId": "B-8d44:RR-038",
+      "_hash": "d5574726622dcd2b611c28d0d29b828673bf53d0a48d67af288589edf171ed3a",
+      "files": [
+        "experiments/recovery-runner/live-engine.mjs",
+        "experiments/recovery-runner/live-engine-selfcheck.mjs"
+      ],
+      "signatureTag": "adversarial-reviewer-infra-secret-normalizer",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
