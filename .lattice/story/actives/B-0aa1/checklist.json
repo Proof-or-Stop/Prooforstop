@@ -135,9 +135,9 @@
         "docs/requirements/decisions/repro-first-story-intake-experiment.md",
         "docs/evidence/evidence-platform-architecture.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-24T04:17:19.403Z",
       "userSees": "lattice --help lists the new repro-first commands and each command returns JSON/text with artifactId, digest, and candidate scope fields.",
       "files": {
         "modify": [
@@ -176,7 +176,21 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/handlers/repro-intake.ts",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "9 handlers registered in registry.ts; command-catalog.ts schemas compile clean",
+          "headHash": "be77fa954750ca8d77dfaac62fbe52c60461a0d7",
+          "materialHash": "30bd1828d818594f03f863a6ea80dac3c0012ac667812c625556957db43f23e1",
+          "storyFilesHash": "214a4d712d3db85052732add2534548a4ac429c74de2afddb50dc39941b70a01",
+          "timestamp": "2026-06-24T04:17:19.563Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
