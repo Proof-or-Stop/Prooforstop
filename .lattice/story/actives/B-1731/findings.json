@@ -115,8 +115,8 @@
       ],
       "signatureTag": "adversarial|ts|direct-story-create",
       "signatureTagSource": "auto",
-      "resolvedReason": "Fixed in 888401f4e: reproFirstBypassReason is rejected before persistence when story_create directly targets lifecycle phases beyond intake; bypass is now limited to IDEA/INIT intake and cannot materialize a repro-first-required story directly into DEV/REVIEW/TEST/DONE. Verified by npm --prefix packages/main run build and npm run test:repro-evidence-binding-dev-gate; smoke ok 9 blocks direct DEV bypass before persistence.",
-      "resolvedAt": "2026-06-24T22:29:34.543Z",
+      "resolvedReason": "Fixed in HEAD: story_create now rejects reproFirstBypassReason for repro-first-required direct lifecycle phases beyond IDEA/INIT before persistence, preventing direct DEV/REVIEW/TEST/DONE materialization without accepted binding. Verified in this session with: npm --prefix packages/main run build; node packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js (ok 9/15 direct lifecycle bypass blocks before persistence); node packages/main/dist/tasks/repro-first-candidate-smoke.js; node scripts/verify-process-fact-contract.mjs >/tmp/b1731-process-fact-3.log && tail -n 8 /tmp/b1731-process-fact-3.log.",
+      "resolvedAt": "2026-06-24T22:30:40.785Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
     },
