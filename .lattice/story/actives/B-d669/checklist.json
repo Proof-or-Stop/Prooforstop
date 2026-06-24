@@ -7,9 +7,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/lifecycle-artifact-scope.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-24T14:23:32.058Z",
-      "endTime": null,
+      "endTime": "2026-06-24T14:23:36.742Z",
       "files": {
         "modify": [
           "packages/main/src/core/lifecycle-registry.ts"
@@ -43,7 +43,42 @@
           }
         ]
       },
-      "userSees": "Scope gate output classifies .lattice/story/actives/<storyId>/evidence/live-smoke-transcript.json as lifecycle_artifact instead of out_of_scope."
+      "userSees": "Scope gate output classifies .lattice/story/actives/<storyId>/evidence/live-smoke-transcript.json as lifecycle_artifact instead of out_of_scope.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/scope-contract-smoke.js",
+          "result": "pass",
+          "note": "Smoke runner passes and includes live-smoke-transcript as a TEST lifecycle artifact.",
+          "headHash": "a3a4c2115053e3468d6386ff7d7efdb960d4720f",
+          "materialHash": "9c876e7ddba55eba9762f7634cd40e9da656a43e72203655705d1d7fec06a6e2",
+          "storyFilesHash": "bd28fbc198e139cd88d20f6e569c79b497829de4ce1a20811e84894a5a5ce210",
+          "timestamp": "2026-06-24T14:23:36.982Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/scope-contract-smoke.js",
+          "result": "pass",
+          "note": "No broad evidence/ path allowlist is introduced by this registration.",
+          "headHash": "a3a4c2115053e3468d6386ff7d7efdb960d4720f",
+          "materialHash": "9c876e7ddba55eba9762f7634cd40e9da656a43e72203655705d1d7fec06a6e2",
+          "storyFilesHash": "bd28fbc198e139cd88d20f6e569c79b497829de4ce1a20811e84894a5a5ce210",
+          "timestamp": "2026-06-24T14:23:37.177Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/scope-contract-smoke.js",
+          "result": "pass",
+          "note": "Command output remains path-specific for same-story evidence/live-smoke-transcript.json only.",
+          "headHash": "a3a4c2115053e3468d6386ff7d7efdb960d4720f",
+          "materialHash": "9c876e7ddba55eba9762f7634cd40e9da656a43e72203655705d1d7fec06a6e2",
+          "storyFilesHash": "bd28fbc198e139cd88d20f6e569c79b497829de4ce1a20811e84894a5a5ce210",
+          "timestamp": "2026-06-24T14:23:37.351Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
