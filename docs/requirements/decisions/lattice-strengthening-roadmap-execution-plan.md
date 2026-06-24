@@ -314,7 +314,7 @@ B-997b ships the hard-scope slice only:
   `blocking=false`; it still cannot satisfy summary, delivery, review,
   validation, or DONE gates by itself.
 - Registered runtime artifacts are accepted only through the runtime artifact
-  registry row family `scope.runtime_artifact:*`. Unknown `.lattice`, `.koala`,
+  registry row family `scope.runtime_artifact:*`. Unknown `.lattice`, `.lattice`,
   story metadata, source, or fixture paths continue to fall through normal scope
   enforcement and fail closed when undeclared.
 - A valid DEV/REVIEW acknowledgement does not convert a scope expansion into a
@@ -381,7 +381,7 @@ Expected evidence:
 
 Blockers:
 
-- Scope model exempts a whole directory such as `.lattice/`, `.koala/`, or
+- Scope model exempts a whole directory such as `.lattice/`, `.lattice/`, or
   `docs/` without filename-aware classification.
 - Scope gate and renderer duplicate rules instead of sharing one classifier.
 - Missing exclusions are treated as advisory for high-risk stories.

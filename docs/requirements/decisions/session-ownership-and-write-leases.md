@@ -28,7 +28,7 @@ Current implementation resolves `sessionId` through the owner-session facade:
 `LATTICE_SESSION_ID` (`sessionSource: explicit-env`) → host adapter bridge
 (`host-adapter`) → local generated token fallback (`generated-token`) →
 `deriveLocalSessionId(hostname, worktree-root, ppid)` (`derived-ppid`). Legacy
-lease labels such as `koala-env` and `claude-code-env` remain readable and are
+lease labels such as `lattice-env` and `claude-code-env` remain readable and are
 normalized on read. The id is a local process-coordination id, never a
 cryptographic identity; ppid is only the degraded last-resort fallback because
 each tool call can spawn a fresh parent process under some hosts.

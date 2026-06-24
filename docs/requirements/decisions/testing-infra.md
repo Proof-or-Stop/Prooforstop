@@ -37,7 +37,7 @@ User-value acceptance can only be approximated, not disguised as a fully automat
 `lattice validate` is the project-level validation entry point, and cannot assume every project has a TypeScript `validate.ts`. Execution priority:
 
 1. When the project root has `validate.ts` / `validate.js` / `validate.mts`, execute via the original D/M/F verifier path.
-2. Otherwise, read the **project config**: canonical `lattice.config.json` is the only active config file. Legacy `koala.config.json` is ignored by the active loader, so its `validate.command` or `validate.commands` are not executed.
+2. Otherwise, read the **project config**: canonical `lattice.config.json` is the only active config file. Legacy `lattice.config.json` is ignored by the active loader, so its `validate.command` or `validate.commands` are not executed.
 3. Otherwise, auto-discover the standard command by project type: `npm test`, `python -m pytest`, `go test ./...`, `cargo test`, `mvn test`, `gradle test`.
    - **Swift / Package.swift is not in the auto-fallback list**: the Mac Native App is retired and is no longer a current product entry point; to run `swift test`, you must explicitly declare a `validate.commands` entry in `lattice.config.json`.
 4. When no validation entry is still found, return `warn/skip`, and do not misjudge a non-TS project such as Python/Go/C++ as a failure; a project that needs a hard gate must explicitly configure a validation command.

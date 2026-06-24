@@ -132,7 +132,7 @@ Lattice Authority, not a stub or alternate port.
 Commands:
 
 ```bash
-cd /Users/jek/Documents/Work/Koala/cord-team
+cd /Users/jek/Documents/Work/Lattice/cord-team
 
 export CORD_TEAM_ENV=production
 export CORD_TEAM_SERVER_HOST=127.0.0.1

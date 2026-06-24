@@ -322,7 +322,7 @@ When multiple methods of a module/class share one fixture, **each case must be a
 ### ❌ Do not put dispatch routing fields in input
 
 ```json
-// ❌ Wrong: scenario/method are dispatch-framework fields, koala does not recognize them
+// ❌ Wrong: scenario/method are dispatch-framework fields, lattice does not recognize them
 { "input": { "scenario": "send_no_adapter", "method": "sendRoomMessage", "content": "Hello" } }
 
 // ✅ Correct: use a top-level fn + clean input
@@ -335,10 +335,10 @@ For existing dispatch-style fixtures, batch-process them with the conversion scr
 
 ```bash
 # Convert the entire fixtures directory
-node /path/to/koala/scripts/convert-fixtures.cjs tests/fixtures
+node /path/to/lattice/scripts/convert-fixtures.cjs tests/fixtures
 
 # Convert a single file
-node /path/to/koala/scripts/convert-fixtures.cjs tests/fixtures/application/agent-service-facade.json
+node /path/to/lattice/scripts/convert-fixtures.cjs tests/fixtures/application/agent-service-facade.json
 ```
 
 Conversion rules:
@@ -418,7 +418,7 @@ A case with `browser: true` in the fixture is executed by the `browser_test` MCP
 | `assert` | `selector`, `contains` | Assert the DOM text content (auto-polls, default 3s timeout) |
 | `screenshot` | `saveTo` | Take a screenshot and save it to tests/screenshots/ |
 | `wait` | `ms` | Wait (use assert instead where possible) |
-| `call` | `code`(fn name), `text`(args JSON) | Call a function registered in __koala_modules |
+| `call` | `code`(fn name), `text`(args JSON) | Call a function registered in __lattice_modules |
 | `trace` | none | Get the window.__trace call chain |
 
 ### How to Run

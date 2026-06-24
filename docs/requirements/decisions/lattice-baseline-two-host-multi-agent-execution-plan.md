@@ -46,7 +46,7 @@ arbitrary source-aligned cross-language redevelopment -> equivalent DONE
 ```
 
 Those broader claims require the baseline suite and success-rate reporting
-defined in `docs/koala/legacy/root-markdown/Lattice-baseline.md` (archived from repository root).
+defined in `docs/lattice/legacy/root-markdown/Lattice-baseline.md` (archived from repository root).
 
 ## Non-Negotiable Boundaries
 
@@ -100,7 +100,7 @@ Inputs:
 
 - current git diff;
 - `docs/requirements/decisions/lattice-authority-remote-evidence-bundle.md`;
-- `docs/koala/legacy/root-markdown/Lattice-baseline.md` (archived from repository root);
+- `docs/lattice/legacy/root-markdown/Lattice-baseline.md` (archived from repository root);
 - current package scripts.
 
 Required commands:

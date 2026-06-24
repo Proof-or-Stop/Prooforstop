@@ -1,7 +1,7 @@
 # Lattice Parallel Wave
 
 Parallel Wave is a collection-level scheduling and recovery projection for
-multi-story Koala delivery. It reads existing Canonical Story v0 projections,
+multi-story Lattice delivery. It reads existing Canonical Story v0 projections,
 host capability profiles, story dependency metadata, and shared hotspot hints,
 then emits a wave plan that helps operators decide which stories can proceed in
 parallel worktrees.
@@ -33,13 +33,13 @@ gates. Each JSON surface keeps the non-authority boundary explicit with
   active story collection degrades selected stories to local planning-only
   guidance until every active worktree projection can be collected. Actual
   material file overlaps are local scheduling degradations only.
-- Merge order is guidance for sequencing integration. It does not replace Koala
+- Merge order is guidance for sequencing integration. It does not replace Lattice
   lifecycle gates.
 
 ## Commands
 
 Lattice CLI 0.3.5 is the primary product entrypoint for these commands. The
-legacy `koala` alias remains compatible.
+legacy `lattice` alias remains compatible.
 
 `parallel_wave_create` creates a wave projection from story refs, or from active
 stories when refs are omitted. Optional `output` writes JSON with no overwrite.
@@ -183,14 +183,14 @@ boundary.
 4. Integrate capability, degradation, evidence, and merge-order guidance.
 5. Add smoke coverage for candidates, blockers, policy registration, L0 fact
    levels, and no-overwrite behavior.
-6. Record validation evidence after build, smoke, scope, and Koala validation.
+6. Record validation evidence after build, smoke, scope, and Lattice validation.
 
 ## Authority Boundary
 
 Parallel Wave can make work safer to schedule, resume, and merge, but it cannot
 make work done. A wave artifact, handoff pack, local JSON file, missing receipt,
 conditional receipt capability, or unverified receipt ref cannot satisfy DONE or
-production authority. Production completion still requires the normal Koala
+production authority. Production completion still requires the normal Lattice
 gates and a verified receipt-backed authority flow.
 
 Every `buildParallelReport` output has `authority.productionDone=false`,

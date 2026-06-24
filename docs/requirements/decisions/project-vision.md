@@ -11,7 +11,7 @@ truth (source of truth for requirements) → story (execution plan) → code (de
 ## Design Principles
 
 - **CLI / MCP tool driven**: All project management operations are performed through Lattice commands or MCP tools. The AI executes the workflow through structured entry points rather than documentation conventions.
-- **Active entry point**: `lattice` is the 0.3.5 active product entry. Runtime checks, wrappers, generated assets, and docs do not accept `koala` as an active compatibility alias.
+- **Active entry point**: `lattice` is the 0.3.5 active product entry. Runtime checks, wrappers, generated assets, and docs do not accept `lattice` as an active compatibility alias.
 - **Structured comments as metadata**: The `@task`/`@flow`/`@test` comments in the code are living documentation of project status, and can be scanned and validated by tools.
 - **Separation of the source of truth**: Requirement decisions (docs/requirements/decisions/) are separated from execution plans (Story) to avoid circular dependencies.
 - **CLI-first host migration**: Mac App provider/config dashboard functionality is expressed through CLI surfaces such as `host_*`, `lattice_config_doctor`, `rollout_check`, `authority_status`, and `conduit_*`; the Mac App retains only an optional/dashboard/archive role.

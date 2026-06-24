@@ -28,7 +28,7 @@ or something else to prepare the Story and executable plan.
 The existing Python implementation lives at the legacy repository path:
 
 ```text
-/Users/jek/Documents/Work/Koala/cord-team
+/Users/jek/Documents/Work/Lattice/cord-team
 ```
 
 The product and server name is **Lattice Authority**. The repository path and
@@ -172,7 +172,7 @@ Implemented (current tested surface):
   record evidence only as a local `planner_execution` process event;
 - verdict surface (M16, multi-host final verification): local
   `autopilot review submit|status` stay LOCAL-storage backed (verdict JSON under
-  `.koala/`) and never set authority flags. The authority commands
+  `.lattice/`) and never set authority flags. The authority commands
   `authority verdict submit|list` and `authority job status`
   (`packages/main/src/core/verdicts.ts`, `handlers/verdict.ts`) are now
   SERVER-backed when authority config is present — `resolveAuthorityVerdictBacking`
@@ -684,7 +684,7 @@ LATTICE_AUTHORITY_RECEIPT_MAX_AGE_MS
 LATTICE_AUTHORITY_RECEIPT_CLOCK_SKEW_MS
 ```
 
-Legacy `KOALA_AUTHORITY_*` client variables remain aliases for compatibility.
+Legacy `LATTICE_AUTHORITY_*` client variables remain aliases for compatibility.
 When both names are present, `LATTICE_AUTHORITY_*` wins.
 
 Canonical Lattice Authority server names:
@@ -1210,7 +1210,7 @@ Rules:
 - initial worktree creation must go through `lattice story_advance
   --storyId=<story> --phase=INIT_CHECK`;
 - refuse to edit outside the configured project/worktree boundary;
-- never directly edit `.koala/story`, `.lattice/story`, `docs/story`, or test
+- never directly edit `.lattice/story`, `.lattice/story`, `docs/story`, or test
   fixture JSON;
 - preserve unrelated dirty user changes;
 - capture git status before and after each mutating step;
@@ -3682,7 +3682,7 @@ Non-goals:
 Localhost live verification prerequisites:
 
 - Python Lattice Authority is started from
-  `/Users/jek/Documents/Work/Koala/cord-team`;
+  `/Users/jek/Documents/Work/Lattice/cord-team`;
 - the server listens on `http://localhost:6789/`;
 - `/v1/authority/policy` returns a server key whose `publicKeyHex` is pinned in
   `LATTICE_AUTHORITY_LIVE_PUBLIC_KEY`;
@@ -3698,7 +3698,7 @@ Localhost live verification prerequisites:
 Recommended localhost server setup evidence:
 
 ```bash
-cd /Users/jek/Documents/Work/Koala/cord-team
+cd /Users/jek/Documents/Work/Lattice/cord-team
 
 # The default package entrypoint uses port 8765. For the final hard evidence,
 # run the same app explicitly on the Lattice local Authority default.

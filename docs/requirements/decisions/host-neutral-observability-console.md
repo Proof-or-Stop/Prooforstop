@@ -5,7 +5,7 @@
 > Data source: it may **only** be consumed via `lattice ... --format=json` (L0 commands); the underlying backing store (worktree / Story store / activity.jsonl) is a backing store and is **not read as JSON directly**.
 > Red line: it is entirely an **L0 read-only projection**, never claims production DONE, and the authority recognizes only receipt-backed evidence.
 > Maturity: the M1-M3 data capabilities are ready (the CLI is fully there); the M4 projection is feasible but the Thread/Trajectory schema is not first-classed; **M5 depends on B-2522's receipt-backed verifier (the README makes clear the enforce path is not yet end-to-end)**; the M6 parallel/wave/dispatch data plane already exists.
-> Naming note: the repository's existing `lattice dashboard` is a **terminal-resident real-time story-progress board**, which is not the same thing as this document's multi-page read-only console; existing commands still have `koala` naming residue, which is a follow-up outside this proposal.
+> Naming note: the repository's existing `lattice dashboard` is a **terminal-resident real-time story-progress board**, which is not the same thing as this document's multi-page read-only console; existing commands still have `lattice` naming residue, which is a follow-up outside this proposal.
 
 ---
 
@@ -44,10 +44,10 @@ Each row of the table below anchors to **code or a CLI that already exists** in 
 
 ```
 backing store (for understanding only, the adapter is forbidden to read it directly)
-├── Story store          .koala/story/actives/B-xxx/{index.json, checklist.json,
+├── Story store          .lattice/story/actives/B-xxx/{index.json, checklist.json,
 │                          process-events.jsonl, delivery-check.json, test-evidence.json}
 ├── Worktree on-site      .worktrees/B-xxx/  + authority:{main|worktree} + mirror:{phase}
-└── Global heartbeat      .koala/activity.jsonl / docs/story/activity.jsonl
+└── Global heartbeat      .lattice/activity.jsonl / docs/story/activity.jsonl
 
 The only authoritative way to read ── CLI L0 projection (the adapter consumes only this layer's --format=json)
     ├── session_brief / status              → ⚠ currently 【only returns Markdown, no --format=json】, see §2.1(0)

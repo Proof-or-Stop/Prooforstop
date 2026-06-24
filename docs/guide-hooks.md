@@ -24,7 +24,7 @@ Lattice initialization merges a Claude Code `UserPromptSubmit` hook into `.claud
 }
 ```
 
-This hook is only a soft reminder: it locates the repository from the hook JSON's `cwd`, `CLAUDE_PROJECT_DIR`, or the current cwd, reads the legacy `.koala/activity.jsonl` mirror, `docs/story/activity.jsonl`, and the story-scoped `docs/story/actives/*/activity.jsonl`, and looks for the most recent `session_brief` heartbeat. By default, anything within 60 minutes is treated as fresh and the hook stays silent; when the most recent heartbeat is older than 60 minutes or there is no fresh record, it prints:
+This hook is only a soft reminder: it locates the repository from the hook JSON's `cwd`, `CLAUDE_PROJECT_DIR`, or the current cwd, reads the legacy `.lattice/activity.jsonl` mirror, `docs/story/activity.jsonl`, and the story-scoped `docs/story/actives/*/activity.jsonl`, and looks for the most recent `session_brief` heartbeat. By default, anything within 60 minutes is treated as fresh and the hook stays silent; when the most recent heartbeat is older than 60 minutes or there is no fresh record, it prints:
 
 ```text
 Run lattice session_brief first to restore context
@@ -101,7 +101,7 @@ Each hook command receives the full `process.env` through `child_process.spawn`,
 
 ## Behavior Contract
 
-1. **Non-blocking failure**: a hook exiting non-zero, throwing, or not being found never blocks the main command. It prints a `[lattice-hook] failed (exit N): <stage> <cmd>` warning to stderr and appends a `category=hook:exec` health issue to the legacy runtime health path `~/.koala/health.jsonl`.
+1. **Non-blocking failure**: a hook exiting non-zero, throwing, or not being found never blocks the main command. It prints a `[lattice-hook] failed (exit N): <stage> <cmd>` warning to stderr and appends a `category=hook:exec` health issue to the legacy runtime health path `~/.lattice/health.jsonl`.
 2. **30-second timeout**: each hook command is timed independently and receives `SIGKILL` after 30 seconds. It prints `[lattice-hook] timeout (30s): ...` to stderr, with health category `hook:timeout`.
 3. **stdout limit**: a hook's stdout is echoed to stderr only for the first 200 characters, to avoid polluting the main command's JSON output (this matters most for postCommand: an agent piping into jq does not want hook notes mixed into the JSON).
 4. **Sequential execution**: commands within the same stage are awaited serially in array order, each one waiting for the previous to finish. preCommand fully completes before the handler runs; postCommand fully completes before `process.exit(0)`.
@@ -192,7 +192,7 @@ Mind the shell escaping—this is fine for simple cases, but for anything comple
 `lattice doctor` now also aggregates `hook:*` health issues, which together with the `stale-detector`'s stderr warnings form Lattice's "self-observation" system:
 
 - stale-detector: proactively prints soft reminders before each command runs (phase stuck / item stuck in_progress / idle lattice / open bug overdue)
-- hook: spawns user scripts at event points, leaving a trail in the legacy runtime health path `~/.koala/health.jsonl`
+- hook: spawns user scripts at event points, leaving a trail in the legacy runtime health path `~/.lattice/health.jsonl`
 - doctor: aggregates the health status of both
 
 See `core/stale-detector.ts` and `core/hooks.ts` for details.

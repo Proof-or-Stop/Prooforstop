@@ -8,7 +8,7 @@ Root Markdown should not become a catch-all. New durable docs, especially agent-
 
 - `docs/requirements/decisions/` for policy, boundary, and decision records.
 - `docs/guide.md` or a nearby `docs/guide-*.md` file for operational how-to material.
-- `docs/koala/` or a dedicated archive area for historical reports and legacy material that is no longer the active source of truth.
+- `docs/lattice/` or a dedicated archive area for historical reports and legacy material that is no longer the active source of truth.
 
 ## Root Markdown Cleanup Inventory
 
@@ -20,17 +20,17 @@ Before story B-7f61 executed the cleanup, this repository had 17 root-level Mark
 | `CLAUDE.md` | Claude-facing root instruction entrypoint | Stay root host-specific compatibility asset | Root | Keep as a Claude Code-specific root entrypoint and compatibility asset by filename contract. Update in place when project workflow changes. |
 | `README.md` | Human-facing repository entrypoint | Stay root | Root | Keep as the first landing page for the repo. |
 | `CHANGELOG.md` | Human release history | Stay root compatibility asset | Root | Keep while release history is still consumed from the repository root. |
-| `KOALA.md` | Legacy Koala-named guide | Retirement target | Active guide material to `docs/guide.md` or `docs/guide-*.md`; historical material to `docs/koala/legacy/root-markdown/KOALA.md` only if retention is needed | Retire the root path. Do not keep it at root. Update references, then delete or use only a temporary migration stub. |
+| `LATTICE.md` | Legacy Lattice-named guide | Retirement target | Active guide material to `docs/guide.md` or `docs/guide-*.md`; historical material to `docs/lattice/legacy/root-markdown/LATTICE.md` only if retention is needed | Retire the root path. Do not keep it at root. Update references, then delete or use only a temporary migration stub. |
 | `jek.md` | User-owned local bootstrap note | Stay root | Root | Keep in place as user-owned content. Agents must not migrate, rewrite, archive, or retire it unless the user explicitly asks. |
-| `koala-project-overview.md` | Duplicate project overview | Move / merge candidate | `docs/requirements/decisions/project-vision.md` | Merge into the canonical overview, then leave only a short compatibility stub if external references still exist. |
+| `lattice-project-overview.md` | Duplicate project overview | Move / merge candidate | `docs/requirements/decisions/project-vision.md` | Merge into the canonical overview, then leave only a short compatibility stub if external references still exist. |
 | `Lattice-baseline.md` | Legacy baseline policy doc | Move / merge candidate | `docs/requirements/decisions/lattice-baseline-two-host-multi-agent-execution-plan.md` | Merge policy that is still active into the canonical baseline decision; archive duplicated historical text. |
-| `Lattice-Capability-Claim-baseline.md` | Legacy capability boundary doc | Retirement / archive candidate | `docs/koala/legacy/root-markdown/Lattice-Capability-Claim-baseline.md` only if historical retention is needed | Do not keep root compatibility. Do not create an active replacement that claims capability readiness. |
+| `Lattice-Capability-Claim-baseline.md` | Legacy capability boundary doc | Retirement / archive candidate | `docs/lattice/legacy/root-markdown/Lattice-Capability-Claim-baseline.md` only if historical retention is needed | Do not keep root compatibility. Do not create an active replacement that claims capability readiness. |
 | `Lattice-Engineering-baseline.md` | Legacy engineering baseline doc | Move / merge candidate | `docs/requirements/decisions/unlock-layer2-ENG-suite.md` | Merge active Layer 2 engineering baseline material into the existing Layer 2 decision. |
 | `Lattice-Engineering-Baseline-Unlock-Execution-Plan.md` | Legacy execution plan doc | Move / merge candidate | `docs/requirements/decisions/unlock-layer2-ENG-suite.md` | Fold durable execution-plan details into the Layer 2 decision; mark superseded evidence inside that decision when needed. |
 | `Lattice-Layer2-Proof-Bridge-Execution-Plan.md` | Legacy execution plan doc | Move / merge candidate | `docs/requirements/decisions/unlock-layer2-ENG-suite.md` | Merge only the bridge rules that remain current; do not duplicate Layer 2 proof claims. |
 | `Lattice-Loop-Engineering-baseline.md` | Legacy loop-engineering doc | Move / merge candidate | `docs/requirements/decisions/unlock-layer3-loop-engineering-suite.md` | Merge active Loop Engineering baseline material into the Layer 3 decision. |
 | `Lattice-Parallel-Development-Capability.md` | Legacy parallel-development capability doc | Move / merge candidate | `docs/requirements/decisions/lattice-parallel-wave.md` | Merge reusable parallel-development policy into the existing parallel-wave decision. |
-| `Lattice-Production-Safety-baseline.md` | Legacy production-safety baseline doc | Retirement / archive candidate | `docs/koala/legacy/root-markdown/Lattice-Production-Safety-baseline.md` only if historical retention is needed | Do not keep root compatibility. Do not create an active replacement that claims Production Safety readiness. |
+| `Lattice-Production-Safety-baseline.md` | Legacy production-safety baseline doc | Retirement / archive candidate | `docs/lattice/legacy/root-markdown/Lattice-Production-Safety-baseline.md` only if historical retention is needed | Do not keep root compatibility. Do not create an active replacement that claims Production Safety readiness. |
 | `Lattice-Review-reflection-loop.md` | Legacy review-loop doc | Move / merge candidate | `docs/requirements/decisions/unlock-layer3-loop-engineering-suite.md` | Merge active reflection-loop rules into the Layer 3 truth source. |
 | `Lattice-lifecycle-memory-Evolving.md` | Legacy lifecycle-memory doc | Move / merge candidate | `docs/requirements/decisions/dev-memory.md` and `docs/requirements/decisions/lifecycle-artifact-scope.md` | Split durable memory policy from runtime artifact scope before moving. |
 
@@ -43,7 +43,7 @@ Only root files that satisfy one of these conditions should remain at the reposi
 3. They are a release-history or bootstrap artifact that existing tooling already treats as root-owned.
 4. They are explicitly user-owned local bootstrap notes.
 
-In practice, the final allowed root Markdown set is `README.md`, `AGENTS.md`, `CLAUDE.md`, `CHANGELOG.md`, and `jek.md`. `KOALA.md` is a retirement target and must not remain at root after cleanup. Anything else should be treated as a migration or retirement candidate, not a new permanent root doc.
+In practice, the final allowed root Markdown set is `README.md`, `AGENTS.md`, `CLAUDE.md`, `CHANGELOG.md`, and `jek.md`. `LATTICE.md` is a retirement target and must not remain at root after cleanup. Anything else should be treated as a migration or retirement candidate, not a new permanent root doc.
 
 ## Migration Order
 
@@ -57,7 +57,7 @@ Use a staged order so references stay valid throughout the cutover:
 
 Recommended file order:
 
-1. `koala-project-overview.md`
+1. `lattice-project-overview.md`
 2. The `Lattice-*.md` files with classified target homes, in dependency order from broad policy to narrower execution notes:
    - `Lattice-baseline.md`
    - `Lattice-Engineering-baseline.md`
@@ -68,7 +68,7 @@ Recommended file order:
    - `Lattice-Review-reflection-loop.md`
    - `Lattice-lifecycle-memory-Evolving.md`
 3. The retirement targets:
-   - `KOALA.md`
+   - `LATTICE.md`
    - `Lattice-Capability-Claim-baseline.md`
    - `Lattice-Production-Safety-baseline.md`
 
@@ -109,12 +109,12 @@ If the old path is only a filename contract and the canonical doc is already in 
 
 ## Migration Status
 
-As of story B-7f61, all 12 non-allowed root Markdown files have been archived to `docs/koala/legacy/root-markdown/`. The remaining root Markdown set is: `README.md`, `AGENTS.md`, `CLAUDE.md`, `CHANGELOG.md`, `jek.md`. File references in the inventory table above are now historical lineage only.
+As of story B-7f61, all 12 non-allowed root Markdown files have been archived to `docs/lattice/legacy/root-markdown/`. The remaining root Markdown set is: `README.md`, `AGENTS.md`, `CLAUDE.md`, `CHANGELOG.md`, `jek.md`. File references in the inventory table above are now historical lineage only.
 
 ## Scope Boundary Audit
 
 - Root Markdown cleanup was executed in story B-7f61.
-- All 12 migration/retirement candidates were moved to `docs/koala/legacy/root-markdown/`.
+- All 12 migration/retirement candidates were moved to `docs/lattice/legacy/root-markdown/`.
 - This guide does not unlock Production Safety.
 - This guide does not assert unattended readiness or authority readiness.
 - This guide does not claim any new global capability.
