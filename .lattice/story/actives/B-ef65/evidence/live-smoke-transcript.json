@@ -1,0 +1,20 @@
+{
+  "storyId": "B-ef65",
+  "expected": "After the implementation build, the terminal shows TypeScript build success and validate/done_required_validate use the same story-scoped validation execution lock without changing unrelated workflow commands.",
+  "actual": {
+    "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js",
+    "exitCode": 0,
+    "stdout": "validate-execution-lock smoke passed: 9 assertions\n"
+  },
+  "mode": {
+    "runCommands": true,
+    "writeEvidence": true
+  },
+  "capturedAtIso": "2026-06-24T01:50:18.406Z",
+  "claims": {
+    "authorityDone": false,
+    "productionDone": false
+  },
+  "headHash": "90e12eee9b5c3bbf031afcde6c8117004cb86e8f",
+  "materialHash": "3f8297ef2c1455363ee6e07c00f63e97a1a3bf45bb2f3b4a4f539776bae8bd67"
+}
