@@ -50,7 +50,39 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "proof-admissibility smoke rejects unsupported verifierVersion and accepts the current verifierVersion.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/proof-admissibility.ts",
+          "packages/main/src/core/proof-admissibility-gates.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/proof-admissibility-smoke.ts",
+          "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Current verifierVersion is accepted when all other admissibility checks pass.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Missing verifierVersion fails closed with missing_required_field when direct evaluator checks omit it.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Unsupported verifierVersion fails closed with unsupported_verifier_version and cannot be productionDone eligible.",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
