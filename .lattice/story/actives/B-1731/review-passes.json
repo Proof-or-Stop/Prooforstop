@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-24T22:17:36.825Z",
       "reviewRunId": "B-1731:RR-010",
       "_hash": "2cc6f5739fe0b6f7e8155e9730fe176bc023dd640ce87bf7e3dcd8e5ace7b95e"
+    },
+    {
+      "id": "B-1731:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "Targeted re-review after F-002: inspected packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts and covered implementation paths for story_create preflight/fromDraft/bypass, lifecycle PLAN/DEV/express gates, session_brief rendering, config modes, accepted/stale binding validation, and process fact registration. npm --prefix packages/main run build passed; npm run test:repro-evidence-binding-dev-gate passed with 21 ok cases; node scripts/verify-process-fact-contract.mjs passed. No verification coverage blocker found.",
+      "createdAt": "2026-06-24T22:23:16.727Z",
+      "reviewRound": "2026-06-24T22:17:36.825Z",
+      "reviewRunId": "B-1731:RR-007",
+      "_hash": "cfa96b7f6e81f61cb94c5f8fd5d07ab466310af7c25465a5a522f7f8cae8b30e"
     }
   ]
 }
