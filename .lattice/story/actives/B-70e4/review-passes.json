@@ -62,6 +62,15 @@
       "reviewRound": "2026-06-24T02:45:40.407Z",
       "reviewRunId": "B-70e4:RR-009",
       "_hash": "c1b498f4fd9cf353c4b4070c27bb6fef9f02d0613f22ba6d17b541bf1c78ab1d"
+    },
+    {
+      "id": "B-70e4:RP-008",
+      "agent": "lattice-review-quality",
+      "note": "ec451a7d is clean. (1) resolveAuthorityClientAuth second param is AuthorityCustomerApiKeyLoadOptions where every field is optional, so both {cwd} and {} are valid; tsc --noEmit confirms zero type errors. (2) Conditional cwd?{cwd}:{} is correct: avoids passing cwd:undefined which would shadow the options.cwd??process.cwd() default and resolve nothing; the {} path falls back naturally to process.cwd() matching old behavior — backward compatible. (3) When auth comes from an env VALUE (LATTICE_AUTHORITY_CUSTOMER_API_KEY inline), resolveAuthorityCustomerApiKey returns early before cwd is ever read — the new cwd argument is irrelevant and harmless. (4) Scope is strictly the auth resolution line (line 208); baseURL and loadAuthoritySettings are untouched as the commit message states. (5) Caller site (line 273) passes ctx.root, matching the existing runAuthorityEnforcePolicy({cwd:ctx.root}) pattern at line 334 — consistent with established convention. No dead code, no unsafe any, no empty catch, no shell-isolation violation. No findings.",
+      "createdAt": "2026-06-24T03:28:39.980Z",
+      "reviewRound": "2026-06-24T03:27:22.420Z",
+      "reviewRunId": "B-70e4:RR-010",
+      "_hash": "e237cce193a62e5101596c07139943bd06e7373b88b4d5721d17995cc7a783c7"
     }
   ]
 }
