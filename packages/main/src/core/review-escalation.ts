@@ -147,6 +147,7 @@ export interface ReviewEscalationReport {
 
 export interface EvaluateReviewEscalationArgs {
   projectRoot: string;
+  gitCwd?: string;
   storyId?: string;
   store?: Pick<StoryStore, 'readStory' | 'readFindings' | 'readProcessEvents'>;
   story?: StoryInfo;
@@ -432,12 +433,13 @@ export function evaluateReviewEscalation(args: EvaluateReviewEscalationArgs): Re
   const story = readStory(args);
   const findings = readFindings(args);
   const events = readEvents(args);
+  const gitCwd = args.gitCwd ?? args.projectRoot;
   const firstReviewRound = uniqueReviewRounds(story, findings)[0] ?? null;
   const countableProblems = findings
     .map(finding => countableFinding(finding, firstReviewRound))
     .filter((problem): problem is CountableFirstRoundProblem => problem !== null);
-  const materialHash = args.materialHash ?? currentMaterialHash(args.projectRoot) ?? null;
-  const storyFilesHash = args.storyFilesHash ?? currentStoryFilesHash(args.projectRoot) ?? null;
+  const materialHash = args.materialHash ?? currentMaterialHash(gitCwd, 'HEAD', args.projectRoot) ?? null;
+  const storyFilesHash = args.storyFilesHash ?? currentStoryFilesHash(gitCwd, 'HEAD', args.projectRoot) ?? null;
   const explicitHighRiskPolicy = evaluateExplicitHighRiskPolicy(events, materialHash);
   const thresholdRequired = countableProblems.length >= REVIEW_ESCALATION_TRIGGER_PROBLEM_COUNT;
   const required = thresholdRequired || explicitHighRiskPolicy.required;

@@ -750,6 +750,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
   {
     const escalation = evaluateReviewEscalation({
       projectRoot: root,
+      gitCwd,
       storyId,
       store,
     });
