@@ -56,7 +56,39 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Semantic proof tamper cases reject edits to reason, verdict, schema, null, extra keys, story/head/material binding, and digest/signature subjects.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/proof-admissibility.ts"
+        ],
+        "create": [
+          "packages/main/src/core/proof-admissibility-binding.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Canonical payload helper produces stable digest for valid proof payloads with supported schema/verifier/contract versions.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Null, missing, and extra proof fields fail strict shape before trust.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Changing reason, verdict, story id, head hash, material hash, or semantic fields changes digest or fails verification.",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
