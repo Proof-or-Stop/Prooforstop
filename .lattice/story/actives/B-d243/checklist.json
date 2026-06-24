@@ -199,6 +199,17 @@
           "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
           "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
           "timestamp": "2026-06-24T11:20:21.873Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/delivery-check-freshness-smoke.js",
+          "result": "pass",
+          "note": "delivery-check-hash.ts:158-172: the advisory branch requires deliveryCheck.storyFilesHash to be truthy (line 158), then computes currentStoryFilesHash (line 159) and checks \"storyFilesHash && storyFilesHash === deliveryCheck.storyFilesHash\" (line 160). If currentStoryFilesHash is empty/undefined (HEAD on main, no story branch), the && short-circuits to false, so the advisory branch is never entered and the function falls through to the strict stale return at line 173-180. The smoke legacy case (line 366-393) exercises the missing-materialHash path; logic inspection confirms the currentStoryFilesHash=empty case also stays strict.",
+          "headHash": "ad2baddc2ba129c61df63d138c9da7db5a948c72",
+          "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
+          "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
+          "timestamp": "2026-06-24T11:20:26.619Z"
         }
       ]
     },
