@@ -78,6 +78,52 @@
         }
       ],
       "_hash": "0ac5e0fa99b14576ae5a73a4507db5e04592f0db025fe0ac85bc6e4738c3883c"
+    },
+    {
+      "timestamp": "2026-06-24T13:24:29.851Z",
+      "issueCount": 3,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "4 checklist items; please check for missing combined scenarios (e.g., what happens when Classify Authority production receipt core dependency + Demote production receipt eligibility in local admissibility are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 1 high-risk signal(s): Production/Emergency. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run lattice story_review_dismiss '{\"storyId\":\"B-91f3\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-91f3 is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "91fc87580f7bf6bcc3901fc8f860887f4a7ef8d9d787a4b1e915f50e8c432f1d"
+    },
+    {
+      "timestamp": "2026-06-24T13:24:34.491Z",
+      "issueCount": 3,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "4 checklist items; please check for missing combined scenarios (e.g., what happens when Classify Authority production receipt core dependency + Demote production receipt eligibility in local admissibility are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 1 high-risk signal(s): Production/Emergency. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run lattice story_review_dismiss '{\"storyId\":\"B-91f3\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-91f3 is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "c50a76695af33ad13fbdbc93fca353a1e429bb4ab7619c9f685437a8154ba864"
     }
   ]
 }
