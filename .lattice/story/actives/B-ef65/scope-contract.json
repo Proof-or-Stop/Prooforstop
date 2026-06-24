@@ -1,0 +1,20 @@
+{
+  "storyId": "B-ef65",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/handlers/verifier.ts",
+    "packages/main/src/handlers/done-required-validation.ts"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/validation-execution-lock.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/validate-execution-lock-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-24T01:11:57.002Z",
+  "updatedAt": "2026-06-24T01:11:57.002Z"
+}

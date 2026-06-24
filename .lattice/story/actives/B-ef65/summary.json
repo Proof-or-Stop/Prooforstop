@@ -1,0 +1,48 @@
+{
+  "storyId": "B-ef65",
+  "changes": "Implemented a story-scoped validate execution lock for Lattice validation paths: validate and done_required_validate share one per-story/worktree execution lock, with a focused smoke covering same-story exclusion, unrelated-story concurrency, stale lock recovery, reviewer/delivery non-blocking behavior, story_advance internal validate, reentrancy, and done_required_validate sharing.",
+  "usage": "Build with npm --prefix packages/utils run build and npm --prefix packages/main run build, then run node packages/main/dist/tasks/validate-execution-lock-smoke.js. The expected visible output is validate-execution-lock smoke passed: 8 assertions.",
+  "expectedOutcome": "node packages/main/dist/tasks/validate-execution-lock-smoke.js prints validate-execution-lock smoke passed: 8 assertions, proving the already-spiked validate lock behavior survives the formal story path.",
+  "actualTranscript": "As of 2026-06-24T01:13:19Z: npm --prefix packages/utils run build passed; npm --prefix packages/main run build passed; node packages/main/dist/tasks/validate-execution-lock-smoke.js printed validate-execution-lock smoke passed: 8 assertions; node packages/main/dist/tasks/validate-command-timeout-smoke.js printed validate-command-timeout smoke passed: 18 assertions. Final DONE timestamp pending.",
+  "outcomeDiff": "No implementation-output difference so far; final DONE elapsed-time record is still pending until the closing gate.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "This story only fixes validate execution locking. It does not implement owner lease redesign, global validate serialization, Authority server behavior, or host-specific Codex/Claude behavior. DONE elapsed time will be updated before final closure.",
+  "pitfalls": "Experiment friction so far: canonical root started dirty; story_create required a long four-section background; high-risk auto-elevation triggered from story_advance wording; INIT_CHECK required scope/execution/freeze/init-review artifacts; worktree needed node_modules symlinks; PLAN review initially had 11 blockers for missing verificationIntent, plan.md, and scope_check; execution_boundary rejected an absolute blocked path; verificationIntent type manual_transcript was invalid and had to be manual; same-worktree owner lease briefly blocked scope_contract_init_from_plan; smoke initially needed packages/utils dist to be built first. Start timestamp: 2026-06-24T01:02:46Z. Draft timestamp: 2026-06-24T01:13:19Z.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 99627
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 14225
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 221980
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 276984
+    }
+  },
+  "totalDurationMs": 612816,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-24T01:13:30.908Z",
+  "updatedAt": "2026-06-24T01:13:30.908Z"
+}
