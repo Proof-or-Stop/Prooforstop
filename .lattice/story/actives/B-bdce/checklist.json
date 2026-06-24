@@ -67,7 +67,55 @@
       "context": "Update the rendered-hint byte-output assertions in packages/main/src/tasks/verification-freshness-smoke.ts ONLY (it imports renderEvidenceStaleHint at line 13 and asserts the block at ~487-565, incl. the extractStaleBlock helper at ~593 that hardcodes a fixed line-count slice — grow it for the added drift-class + done_prepare lines). Add the red/spike regression assertions: the rendered hint contains `done_prepare` AND a drift-classification token (storyFilesHash/story-owned/whole-tree/unrelated) so dropping either line FAILs. NOTE: tasks/flow-stability-smoke.ts only uses findStaleEvidence (unchanged) and is OUT OF SCOPE — do not edit it. Run verification-freshness-smoke green.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm run smoke:freshness (verification-freshness-smoke.ts) passes green after the extractStaleBlock line-count slice is grown to accommodate the new done_prepare + drift-class lines; WHY: confirms the byte-equality assertions match the enriched renderer output",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "The smoke asserts that the rendered hint contains the substring `done_prepare` (regression anchor for CHK-001 done_prepare line); WHY: red/spike regression — dropping the done_prepare line from the renderer makes the smoke FAIL",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "The smoke asserts that the rendered hint contains a drift-classification token (one of: storyFilesHash / story-owned / whole-tree / unrelated); WHY: red/spike regression — dropping the drift-class line from the renderer makes the smoke FAIL",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "extractStaleBlock in the smoke correctly extracts the full enriched block (marker + meaning + run-to-recover + refresh_stale + validate + done_prepare + drift-class) with the updated line count; the extracted block still equals renderEvidenceStaleHint output byte-for-byte; WHY: the extraction helper must grow with the renderer",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "flow-stability-smoke.ts is NOT edited and still passes (it only uses findStaleEvidence, not renderEvidenceStaleHint); WHY: out-of-scope guard — this story must not break the flow-stability smoke",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "If the done_prepare line is removed from renderEvidenceStaleHint but the smoke is NOT updated, the smoke fails (the new assertion catches the missing line); WHY: the regression assertion is a true red test — it detects removal of the done_prepare line",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "If the drift-classification line is removed from renderEvidenceStaleHint but the smoke is NOT updated, the smoke fails (the new assertion catches the missing drift token); WHY: the regression assertion is a true red test — it detects removal of the drift-class line",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "The byte-equality assertions across the 3 surfaces (session_brief / story_advance / validate hint) continue to hold after the smoke update — if a surface drifts from the renderer the smoke catches it; WHY: preMortem #2 cross-surface byte-identity is still enforced after adding new lines",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
