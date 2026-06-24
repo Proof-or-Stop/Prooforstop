@@ -1,0 +1,130 @@
+{
+  "passes": [
+    {
+      "id": "B-e67f:RP-001",
+      "agent": "lattice-review-quality",
+      "note": "All quality checks passed. corpus-selfcheck.mjs: correct per-task scratch isolation (each task gets its own rmSync+mkdirSync subdirectory), no cross-task leakage; ACCEPT PASS / GROUND-TRUTH PASS / GROUND-TRUTH FAIL regex assertions correct; inline-payload path (text-stats no separate payload-subtle.mjs) handled correctly via the canonical inject() interface; empty catch in run() is not a swallow — it captures e.stdout+e.stderr and re-exposes via issue strings; stratification check is complete (24 tasks, 8 categories, all in [2,5]); run-selfchecks.mjs wiring correct (6th entry, hard-fails on corpus failure). No harness files modified. Live run: 24/24 tasks PASS, full run-selfchecks suite 6/6 pass. No dead code, no unused imports, no unnecessary any-casts. No network/LLM calls.",
+      "createdAt": "2026-06-24T10:20:27.375Z",
+      "reviewRound": "2026-06-24T10:16:50.255Z",
+      "reviewRunId": "B-e67f:RR-002",
+      "_hash": "a947e63ee4787fadce59eb669c8e4b1bd78fbb807dc3a14c1b9b33393d942615"
+    },
+    {
+      "id": "B-e67f:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Concept/quality audit of 24-task stratified corpus: PASS. Checked 6 diverse tasks across all major categories (cv=contract-validation, dp=dep-upgrade, cl=CLI-feature, tr=test-repair, rf=refactor, du=doc-update, bf=bug-fix). For each: (a) prompt.md is genuinely blind — no hint of omitted bug class; (b) payload bug is one buried, non-obvious change (wrong parity index, missing prerelease branch, off-by-one in string vs index, per-char instead of per-run hyphenation, missing subtractive pairs in TABLE, emit literal backslash-brace instead of bare brace); (c) acceptance is structurally blind to the bug input class (even-length only, no prerelease, single-char shorts, single separators, encode avoids 40/90/400/900, no escaped-open-brace); (d) ground-truth is disjoint and machine-verified to catch the bug while controls pass on both reference and payload. Runtime checks confirm: reference passes both acceptance+ground-truth; payload passes acceptance and fails ground-truth for all 6 tasks. Corpus structure: 8 categories x 24 tasks (3+3+3+3+4+3+2+3), pre-reg §2 says approximately 3 each — satisfied. All 24 tasks have required files (7 per task; text-stats uses inline payload in subtle-wrong-output.mjs rather than separate payload-subtle.mjs, which is a valid design variant). No concept/quality blocker found.",
+      "createdAt": "2026-06-24T10:21:23.695Z",
+      "reviewRound": "2026-06-24T10:16:50.255Z",
+      "reviewRunId": "B-e67f:RR-004",
+      "_hash": "6245a69b04ea7accd6f2ab47cbfb7b035d894864c77c791657ce35cd52af29a9"
+    },
+    {
+      "id": "B-e67f:RP-003",
+      "agent": "lattice-review-docs",
+      "note": "Step 1: no new exported TS/JS symbols in diff (harness mjs + README fix). Step 2/3: verified all 4 sub-claims. (a) 24-task/8-category table in README lines 25-45 matches actual tasks dir exactly: 24 entries, 8 categories with correct per-category counts. (b) run-selfchecks.mjs SELFCHECKS array has exactly 6 entries matching README comment (6) at line 133; corpus-selfcheck.mjs is entry 6. (c) payload-subtle.mjs present in exactly 21 tasks (20 stratified plus eval-expr); text-stats inline-only confirmed; median and parse-range have overfit-output.mjs confirmed -- all consistent with README lines 58-62. (d) No remaining doc-code drift found. No blockers.",
+      "createdAt": "2026-06-24T10:36:53.898Z",
+      "reviewRound": "2026-06-24T10:16:50.255Z",
+      "reviewRunId": "B-e67f:RR-007",
+      "_hash": "21d3cf6eea71753aa062fa0399fd3c3264a5addfba00d14e8e01563807281790"
+    },
+    {
+      "id": "B-e67f:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 concept re-attestation: (1) fix commit d0f7d97cc confirmed to touch ONLY corpus-selfcheck.mjs + README.md — all 140 task fixture files unchanged. (2) Task corpus verified: 24 tasks in 8 categories (bf:3, feature:4, rf:3, tr:3, du:2, dp:3, cv:3, cl:3 = 24) exactly matching README table and task.json type fields. (3) Selfcheck hardening verified: F-004 (7th file enforcement), F-005 (stray file guard), F-006 (negative-control self-test — all 5 controls must fire or exit 1), F-007 (inject sandbox tamper-proof via harness sha256 snapshot), F-008 (reentrant mkdtemp scratch + rmSync cleanup) all implemented. Exit gate requires allTasksOk AND stratOk AND controlsOk. No concept deletion or replacement found; no weakening of task quality.",
+      "createdAt": "2026-06-24T10:36:58.322Z",
+      "reviewRound": "2026-06-24T10:16:50.255Z",
+      "reviewRunId": "B-e67f:RR-008",
+      "_hash": "1be19758fcf25d2d699abea327039e27b3fcb2d4085e158cabc86d91c5496b33"
+    },
+    {
+      "id": "B-e67f:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "round 2 test coverage review passed: F-003 fixed (CHK-001:edge:0 now bound to literal git diff --stat main...HEAD for the 4 legacy dirs; empty diff confirmed by live re-run); F-004 fixed (corpus-selfcheck.mjs lines 112-117 enforce payload-subtle.mjs when subtle-wrong-output.mjs references it; negative-control nc-nopayload guard fires); F-005 fixed (lines 119-125 reject any file outside CONTRACT_FILES + LEGACY_ALLOWLIST; nc-stray guard fires); F-006 fixed (8 genuine negative-control synthetic corpora in a temp dir invoke the real validateTask/validateStratification and assert REJECTION — not prose assertions; live run prints 'negative-control self-test: 8/8 guards fire'; F-007 sha256 tamper-snapshot and pristine re-copy verified non-tautological via INJECT_TAMPER vs INJECT_CORRECT exercising opposite logic paths); overall corpus-selfcheck 24/24 tasks pass the full invariant, exit 0.",
+      "createdAt": "2026-06-24T10:38:48.069Z",
+      "reviewRound": "2026-06-24T10:16:50.255Z",
+      "reviewRunId": "B-e67f:RR-005",
+      "_hash": "760e3c00253086a51af99ae8caa74539fef3b6c9bbd1aa697b5182d172ab826b"
+    },
+    {
+      "id": "B-e67f:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Round 2 re-attestation: corpus-selfcheck.mjs fix round (d0f7d97cc) hardened correctly. (1) SHA-256 tamper-assert: snapshot taken before import()+inject(), comparison correct, defense-in-depth re-copy after check — sound (Control 2 verifies it live). (2) mkdtempSync scratch: SCRATCH is top-level unique per run, ncRoot is sub-dir of SCRATCH, both cleaned — ncRoot by rmSync on line 385 in happy path, SCRATCH by the outer finally block on line 437 covering both throw and normal exit. (3) Eight negative-control cases: all non-tautological, isolated scratch dirs, no shared state; all 8/8 guards fire live. (4) No dead module-level imports in corpus-selfcheck.mjs — all 9 named imports are used. One unused import of readFileSync exists inside the HARNESS_ACCEPT template string literal (line 248) but that is cosmetic dead code in a synthetic fixture string, not in the reviewed module itself, and has no correctness or maintainability impact. (5) No as-any, no empty catch, fully offline/deterministic, no network calls. (6) Fix commit only touched corpus-selfcheck.mjs + README.md — no harness/task regressions. Live runs: 24/24 tasks + stratification OK + 8/8 guards fire + 6/6 selfchecks pass.",
+      "createdAt": "2026-06-24T10:39:06.390Z",
+      "reviewRound": "2026-06-24T10:16:50.255Z",
+      "reviewRunId": "B-e67f:RR-006",
+      "_hash": "a9c5631dea238712c7ca1c40e7b1f5f4be3ea3ab06dca61fab5f58b9bb8dbdfb"
+    },
+    {
+      "id": "B-e67f:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "Round 3 concept re-attest: dedb8d0c68 is confirmed to touch only experiments/recovery-runner/corpus-selfcheck.mjs (1 file, 116 additions / 9 deletions). All 24 task fixtures in experiments/recovery-runner/tasks/ are unchanged since commit 6e76b13b8; git diff dedb8d0c68 -- tasks/ is empty. No concept deletion or replacement: F-007 is retained and extended (not removed), F-008 is retained, F-009 and F-010 are newly added guards — none replaces a prior concept term wholesale. The hardened selfcheck (in-memory harness cache + source sha256 assert + sanitized child env) strictly strengthens anti-gaming; no task fixture weakened. 0 new findings.",
+      "createdAt": "2026-06-24T10:49:21.287Z",
+      "reviewRound": "2026-06-24T10:16:50.255Z",
+      "reviewRunId": "B-e67f:RR-011",
+      "_hash": "1ccd80b9285691a1efa7adda6a390558359d2cbe5b442da78c27ab0560fbab3d"
+    },
+    {
+      "id": "B-e67f:RP-008",
+      "agent": "lattice-review-docs",
+      "note": "Step 1: 60+ symbols extracted from dedb8d0c68 (all corpus-selfcheck.mjs internals — sanitizedEnv, cachedAccept, sha256, INJECT_SOURCE_TAMPER, INJECT_ENV_SPOOF, etc). Step 2: README refs corpus-selfcheck at lines 44-45, 133-135 — 2 paragraphs compared. Step 3: git show --stat confirms only corpus-selfcheck.mjs changed (README unchanged). README describes corpus-selfcheck as asserting per-task reference/injection invariant + stratification + negative-control guards; F-009/F-010 harden the negative-control guard internals (in-memory cache, sha256 source assertion, sanitized env) — all within the abstraction boundary the README already describes. No new symbols are exported. No doc-promised behavior was added without code. No doc-code drift found. Round-2 PASS verdict stands unchanged.",
+      "createdAt": "2026-06-24T10:49:27.194Z",
+      "reviewRound": "2026-06-24T10:16:50.255Z",
+      "reviewRunId": "B-e67f:RR-010",
+      "_hash": "bace609b22e48ce7323c8d6bab6b0e894278f6e9243156ef61199c62c1c90492"
+    },
+    {
+      "id": "B-e67f:RP-009",
+      "agent": "lattice-review-quality",
+      "note": "Round 3 quality re-attest of corpus-selfcheck.mjs (commit dedb8d0c68, F-009/F-010 fixes only). Dead code: all imports used; PRISTINE_NODE_OPTIONS + void idiom is intentional documentation (not dead code). Type safety: three catch blocks all push to issues or return structured output — no silent swallowing. I/O shell isolation: no bridge.ts in this project, not applicable. Tests: 24/24 tasks pass, 10/10 negative-control guards fire, 6/6 run-selfchecks pass. No quality blockers found.",
+      "createdAt": "2026-06-24T10:49:55.722Z",
+      "reviewRound": "2026-06-24T10:16:50.255Z",
+      "reviewRunId": "B-e67f:RR-009",
+      "_hash": "26cdb2c8fbcfcb18fc1c56d533b639e3cc9f66b575407fc2d5ca6dc6ece73b4a"
+    },
+    {
+      "id": "B-e67f:RP-010",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (round 3 re-attest): verified 28/28 verificationIntents across CHK-001 through CHK-004 (happy/edge/adversarial) are covered by valid verificationEvidence with result=pass. Live corpus-selfcheck run: 24/24 tasks pass full invariant, stratification OK 8 categories, 10/10 negative-control guards fire (controls 9+10 confirmed: INJECT_SOURCE_TAMPER replicates F-009 source-dir-harness tamper and INJECT_ENV_SPOOF replicates F-010 NODE_OPTIONS preload spoof — both guards reject their synthetic exploit as expected). Controls 9 and 10 are genuine (non-tautological): control 9 mutates the source ground-truth.mjs and confirms the source-tamper-hash check catches it; control 10 sets NODE_OPTIONS=--require evil-hook and confirms the sanitized child env neutralizes the hook so the correct solution passes GT rather than being spoofed to fail. One low finding B-e67f:F-014 filed for stale evidence-note guard count (notes say 8/8, live script runs 10/10) — documentation drift only, no must-intent unexecuted, no blocker.",
+      "createdAt": "2026-06-24T10:55:31.930Z",
+      "reviewRound": "2026-06-24T10:16:50.255Z",
+      "reviewRunId": "B-e67f:RR-014",
+      "_hash": "6b572db17a9ad62c64af2df1bb48cb5e9334080292accd80345e0108165e2177"
+    },
+    {
+      "id": "B-e67f:RP-011",
+      "agent": "lattice-review-quality",
+      "note": "Round 4 re-attest: commit 4f0433a26 is doc/comment-only (28 lines added, all prose/comments in README.md and corpus-selfcheck.mjs header). Threat-model block accurately characterizes accepted-risk boundary for F-011/F-012/F-013 (in-process self-authored corpus scope). No logic change. corpus-selfcheck 24/24 + 10/10 guards fire. No new findings.",
+      "createdAt": "2026-06-24T11:18:54.138Z",
+      "reviewRound": "2026-06-24T10:16:50.255Z",
+      "reviewRunId": "B-e67f:RR-015",
+      "_hash": "c9bf4ac9d99cd59797112e48006c107d674aa50ca7c01ffb3d1128b6e6c1594f"
+    },
+    {
+      "id": "B-e67f:RP-012",
+      "agent": "lattice-review-concept",
+      "note": "Round 4 final re-attest. Commit 4f0433a26 is doc-only: adds threat-model comment block to corpus-selfcheck.mjs header (+18 lines, comments only) and matching README note (+10 lines). No logic change, no concept deletion or replacement detected. Corpus unchanged: 24 task directories under experiments/recovery-runner/tasks/ across 8 categories (bf/cl/cv/dp/du/eval-expr/median/parse-range/rf/text-stats/tr). Concept residue check: no concept words were deleted or replaced in this commit. No new issue found. Round-3 PASS stands. No blocker.",
+      "createdAt": "2026-06-24T11:18:58.755Z",
+      "reviewRound": "2026-06-24T10:16:50.255Z",
+      "reviewRunId": "B-e67f:RR-016",
+      "_hash": "c981060fde7535bd23dcd20d1bdaadedf3f795815e899939286f732e3fcef092"
+    },
+    {
+      "id": "B-e67f:RP-013",
+      "agent": "lattice-review-docs",
+      "note": "Round 4 re-attest: 0 symbols extracted from diff (doc-only commit 4f0433a26 adds Threat model block). Compared 2 paragraphs: (1) README.md Offline self-checks / Threat model section (lines 140-148), (2) corpus-selfcheck.mjs ## Threat model block (lines 34-49). All claims consistent: self-authored corpus / accidental violations purpose — accurate; F-007–F-010 closed — code implements sha256 scratch-tamper (F-007), unique mkdtemp (F-008), in-memory harness cache + source-dir hash guard (F-009), sanitizedEnv stripping NODE_OPTIONS (F-010); F-011/F-012/F-013 accepted out-of-threat-model — both README and code label all three as accepted_risk with identical rationale; real-execution-isolation remediation description is a faithful summary; 10 negative controls count matches Controls 1-10 in runNegativeControls(); 24 tasks / EXPECTED_TOTAL=24 consistent. No doc-code drift found. No blockers.",
+      "createdAt": "2026-06-24T11:19:15.769Z",
+      "reviewRound": "2026-06-24T10:16:50.255Z",
+      "reviewRunId": "B-e67f:RR-017",
+      "_hash": "69a2d4f3f29f5d170a506c487033b809353415f7f2ce2024010b6ac69ac3a2c5"
+    },
+    {
+      "id": "B-e67f:RP-014",
+      "agent": "lattice-review-test-coverage",
+      "note": "round 4 final re-attest: corpus-selfcheck 24/24 + 10/10 confirmed live. All 28 verificationIntents (priority=should, no must-intents) have valid verificationEvidence with result=pass and matching intentRefs. F-014 is addressed: CHK-002:edge:0 and CHK-002:adversarial:0 evidence notes now say 10/10. Commit 4f0433a26 is doc-only (threat-model comment block + README note, insertions only, no logic change verified via git show). Open findings F-015/F-016/F-017 are codex-host-2 adversarial bypass re-filings accepted out-of-threat-model under operator decision (same three vectors as resolved F-011/F-012/F-013); they are not verificationIntent coverage gaps. No new blocker found. Test coverage review passed.",
+      "createdAt": "2026-06-24T11:35:09.494Z",
+      "reviewRound": "2026-06-24T10:16:50.255Z",
+      "reviewRunId": "B-e67f:RR-018",
+      "_hash": "a03c3a58baed5d3a14f5e51938add9bcfbacd54d5349507447797ec701f94c9c"
+    }
+  ]
+}

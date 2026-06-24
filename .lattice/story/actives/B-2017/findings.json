@@ -1,0 +1,27 @@
+{
+  "findings": [
+    {
+      "id": "B-2017:F-001",
+      "desc": "scripts/verify-orphan-surface.mjs:101-110 marks any `const x = createXHandlers(ctx);` as a directly registered factory. packages/main/src/registry.ts:196-200 has one legitimate const/manual-register case, but the detector does not verify that the const result is ever passed to registry.register/registry.registerBatch. In-memory probe of the detector regex on `const orphanHandlers = createOrphanHandlers(ctx); return registry;` produced {registered:[createOrphanHandlers], unregisteredFactories:[]}. That means the CHK-001/CHK-002 adversarial red case can go green for a future handler factory instantiated but never exposed, so the detector does not fully cover orphan handler recurrence.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-24T11:15:31.222Z",
+      "reviewRound": "2026-06-24T11:10:52.928Z",
+      "reviewRunId": "B-2017:RR-004",
+      "_hash": "68099c9635708cda7a7c41b8058c8b22188ce542e43baa51a279d950588e6cb2",
+      "files": [
+        "scripts/verify-orphan-surface.mjs",
+        "packages/main/src/registry.ts"
+      ],
+      "signatureTag": "adversarial|mjs|scripts-verify-orphan",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 355899148 by changing the detector to count const-created handler factories as registered only when the const is consumed by registry.register/registerBatch/registerBatchMissing. Added runSelfTest coverage proving createOrphanHandlers instantiated but unregistered remains unregistered. Verified npm run test:orphan-surface, npm --prefix packages/main run test:orphan-surface, and npm --prefix packages/main run build all pass.",
+      "resolvedAt": "2026-06-24T11:18:55.980Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}
