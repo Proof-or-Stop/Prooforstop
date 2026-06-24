@@ -415,7 +415,20 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/delivery-check-freshness-smoke.js",
+          "result": "pass",
+          "note": "delivery-check-freshness-smoke.ts:253-302 (advisory case): line 258-264 asserts currentStoryFilesHash is non-empty and differs from main (story-branch topology). Lines 269-278 create non-story whole-tree drift via unrelated main merge. Line 286 asserts ok:true (advisory pass). Line 288 asserts advisory===EXPECTED_ADVISORY (the exact pinned wording, line 250-251). Line 293 asserts the DONE row.detail includes the LITERAL advisory text \"— ADVISORY: whole-tree materialHash drift detected...\". The smoke exits 0 with \"delivery-check-freshness smoke passed\" confirming the entire suite including this case.",
+          "headHash": "63753874d3909c7bdd2db8f91877b557d4a033f2",
+          "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
+          "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
+          "timestamp": "2026-06-24T11:21:37.056Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
