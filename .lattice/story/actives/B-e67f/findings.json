@@ -73,7 +73,7 @@
       "desc": "CHK-001:happy:1 evidence does not cover payload-subtle.mjs presence: the intent states \"all 7 contract files exist (task.json, prompt.md, acceptance.mjs, reference-solution.mjs, ground-truth.mjs, payload-subtle.mjs, subtle-wrong-output.mjs)\" but corpus-selfcheck.mjs intentionally excludes payload-subtle.mjs from its REQUIRED array (line 47-58) because 3 of the 24 tasks use inline payloads instead; the bound evidence command (node corpus-selfcheck.mjs) would pass even if payload-subtle.mjs were absent from a new task dir, silently under-counting the 7-file contract.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-24T10:24:30.615Z",
@@ -84,7 +84,11 @@
         "experiments/recovery-runner/corpus-selfcheck.mjs"
       ],
       "signatureTag": "missing|mjs|happy-evidence-cover",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "corpus-selfcheck now requires payload-subtle.mjs for every task whose subtle-wrong-output.mjs references it (7-file contract for new tasks); negative-control proves the guard fires. Commit d0f7d97cc.",
+      "resolvedAt": "2026-06-24T10:34:42.292Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-e67f:F-005",
