@@ -36,6 +36,24 @@
       ],
       "signatureTag": "missing|ts|happy-intent-delivery",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-d243:F-003",
+      "desc": "CHK-001:edge:1, CHK-002:edge:1, CHK-002:adversarial:2, CHK-003:edge:1: evidence kind=logic_test but command= node packages/main/dist/tasks/delivery-check-freshness-smoke.js. The kind field declares this is a logic (static code) inspection, but the command field points to the smoke binary. A reviewer cannot determine from the evidence record whether the claim is backed by a live smoke execution (which would be manual_transcript) or a code-reading argument (which should have a grep/cat command, not the smoke binary). This ambiguity undermines auditability: if the smoke were to regress, these entries would still record kind=logic_test and could be mistaken for independent static proof rather than smoke-dependent evidence.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-24T11:31:29.123Z",
+      "reviewRound": "2026-06-24T11:25:45.889Z",
+      "reviewRunId": "B-d243:RR-003",
+      "_hash": "6d37f3ef16f55dc31945ccf6629802a9c4bf711ebcb41159d30c61f1e13df5f8",
+      "files": [
+        "packages/main/src/tasks/delivery-check-freshness-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|edge-edge-adversarial",
+      "signatureTagSource": "auto"
     }
   ]
 }
