@@ -131,6 +131,24 @@
       ],
       "signatureTag": "edge|mjs|edge-live-engine",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-8d44:F-008",
+      "desc": "CHK-003:happy:3 lacks concrete evidence: intent requires that A3 calls reviewArtifact EXACTLY ONCE (not iterated). The selfcheck runs A3 in the clean loop and confirms adjudicatedOutcome=recovered, but no assertion counts how many times reviewArtifact is invoked. The stub reviewArtifact increments ctx.counters.agentCallCount, so a post-loop assertion like eq(rec.agentCallCount, 2, 'A3: one agent call + one review call') would be sufficient, but it does not exist in live-engine-selfcheck.mjs. All evidence for this intent carries the same boilerplate note that does not name a concrete assertion for the exactly-one semantics.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-24T12:58:17.059Z",
+      "reviewRound": "2026-06-24T12:50:13.876Z",
+      "reviewRunId": "B-8d44:RR-002",
+      "_hash": "ad5e02a86827f77c7b99b03a48d0379122b177f02028ffe980253b60d1623b7e",
+      "files": [
+        "experiments/recovery-runner/live-engine-selfcheck.mjs"
+      ],
+      "signatureTag": "missing|mjs|happy-lacks-concrete",
+      "signatureTagSource": "auto"
     }
   ]
 }
