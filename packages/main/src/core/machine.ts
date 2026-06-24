@@ -474,7 +474,7 @@ export function canStartDevGuard(context: StoryMachineContext): boolean {
     const config = loadConfig(context.projectRoot);
     const story = context.store.readStory(context.storyId);
     const policy = resolveWorkflowPolicy(config, story);
-    if (evaluateStoryEvidenceBindingGate(context.projectRoot, context.store, context.storyId, { mode: 'enforce' }).blocking) return false;
+    if (evaluateStoryEvidenceBindingGate(context.projectRoot, context.store, context.storyId).blocking) return false;
     // F-001: ONLY the review-record checks are gated on requireStoryReview. The parallel
     // sub-check below must run on EVERY door into DEV (it used to be skipped when review was
     // not required, which made the hard block bypassable). The early `return true` is gone.
@@ -505,7 +505,7 @@ export function canEnterPlanGuard(context: StoryMachineContext): boolean {
   try {
     const story = context.store.readStory(context.storyId);
     if (story.phase !== 'IDEA') return true;
-    return !evaluateStoryEvidenceBindingGate(context.projectRoot, context.store, context.storyId, { mode: 'enforce' }).blocking;
+    return !evaluateStoryEvidenceBindingGate(context.projectRoot, context.store, context.storyId).blocking;
   } catch {
     return false;
   }
@@ -521,7 +521,7 @@ export function canSkipPlanGuard(context: StoryMachineContext): boolean {
     if (!policy.quickPath.allowRiskSignals && story.riskSignals && story.riskSignals.length > 0) return false;
     const cl = context.store.readChecklist(context.storyId);
     if (cl.items.length > policy.quickPath.maxChecklistItems) return false;
-    if (evaluateStoryEvidenceBindingGate(context.projectRoot, context.store, context.storyId, { mode: 'enforce' }).blocking) return false;
+    if (evaluateStoryEvidenceBindingGate(context.projectRoot, context.store, context.storyId).blocking) return false;
     // F-003: the INIT_CHECK→DEV express channel is ALSO a door into DEV, so it must enforce the
     // SAME parallel hard-block (otherwise an express story bypasses the gate). Shared FAIL-OPEN
     // wrapper: a gate/config infra error must never strand the express channel.
@@ -895,7 +895,7 @@ export function getGuardFailureReason(
   if (targetPhase === 'PLAN') {
     const story = store.readStory(storyId);
     if (story.phase !== 'IDEA') return null;
-    const reproGate = evaluateStoryEvidenceBindingGate(projectRoot ?? process.cwd(), store, storyId, { mode: 'enforce' });
+    const reproGate = evaluateStoryEvidenceBindingGate(projectRoot ?? process.cwd(), store, storyId);
     return formatStoryEvidenceBindingGateFailure('PLAN', storyId, reproGate);
   }
 
@@ -943,7 +943,7 @@ export function getGuardFailureReason(
     }
 
     if (!isRollbackDoor) {
-      const reproGate = evaluateStoryEvidenceBindingGate(projectRoot ?? process.cwd(), store, storyId, { mode: 'enforce' });
+      const reproGate = evaluateStoryEvidenceBindingGate(projectRoot ?? process.cwd(), store, storyId);
       const reproGateFailure = formatStoryEvidenceBindingGateFailure('DEV', storyId, reproGate);
       if (reproGateFailure) return reproGateFailure;
     }

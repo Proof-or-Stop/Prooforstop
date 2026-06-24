@@ -298,10 +298,10 @@ export function evaluateStoryEvidenceBindingGate(
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     return resultFor({
-      ok: mode !== 'enforce',
+      ok: true,
       required: true,
       mode,
-      reasonCode: 'stale_story_evidence_binding',
+      reasonCode: 'repro_first_preflight_engine_error',
       details: [`repro_first_preflight_engine_error: story-evidence-binding artifacts could not be read: ${message}`],
     });
   }

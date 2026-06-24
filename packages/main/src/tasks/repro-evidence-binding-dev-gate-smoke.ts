@@ -12,11 +12,14 @@
  */
 
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
+import { existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 
 import { resetConfigCache } from '../core/config.js';
+import { computeDraftCheckHash } from '../core/draft-check-hash.js';
 import { writeArtifact } from '../core/evidence/artifact-store.js';
 import { StoryStore } from '../core/store.js';
 import {
@@ -35,7 +38,9 @@ import {
   reviewRegressionMatrix,
 } from '../core/repro-intake.js';
 import type { ChecklistData, StoryInfo, StoryPhase } from '../core/types.js';
+import { computeChecklistHash } from '../handlers/init-check.js';
 import { createReproIntakeHandlers } from '../handlers/repro-intake.js';
+import { createSessionHandlers } from '../handlers/session.js';
 import { createStoryCreateHandlers } from '../handlers/story-create.js';
 
 const NOW = '2026-06-24T12:00:00.000Z';
@@ -105,6 +110,36 @@ const noFileChecklist: ChecklistData = {
 function writeStory(store: StoryStore, storyId: string, phase: StoryPhase, checklist: ChecklistData): void {
   store.writeStory(storyId, story(storyId, phase));
   store.writeChecklist(storyId, checklist);
+}
+
+function writeDraft(root: string, draftName: string, checklist: ChecklistData, overrides: Partial<StoryInfo> = {}): void {
+  const draftDir = join(root, 'docs', 'story', 'drafts', draftName);
+  mkdirSync(draftDir, { recursive: true });
+  const index = {
+    name: draftName,
+    title: overrides.title ?? `${draftName} draft story`,
+    description: overrides.description ?? 'Synthetic draft for repro-first fromDraft preflight smoke.',
+    type: overrides.type ?? 'feature',
+    priority: overrides.priority ?? 'medium',
+    ...(overrides.keywords ? { keywords: overrides.keywords } : {}),
+  };
+  writeFileSync(join(draftDir, 'index.json'), JSON.stringify(index, null, 2) + '\n', 'utf8');
+  writeFileSync(join(draftDir, 'background.md'), validBackground + '\n', 'utf8');
+  writeFileSync(join(draftDir, 'checklist.json'), JSON.stringify(checklist, null, 2) + '\n', 'utf8');
+  const backgroundHash = createHash('sha256').update(validBackground + '\n').digest('hex');
+  const checklistHash = computeChecklistHash(checklist.items.map(item => ({
+    title: item.title,
+    context: item.context ?? '',
+  })));
+  const draftCheck = {
+    draftName,
+    checkedAt: NOW,
+    reviewRound: '',
+    agentId: 'repro-binding-smoke',
+    issues: [],
+    _hash: computeDraftCheckHash(draftName, backgroundHash, index.title, index.description, checklistHash, ''),
+  };
+  writeFileSync(join(draftDir, 'draft-check.json'), JSON.stringify(draftCheck, null, 2) + '\n', 'utf8');
 }
 
 async function bindAcceptedRepro(root: string, storyId: string): Promise<string> {
@@ -219,6 +254,61 @@ await check('IDEA->PLAN no-file checklist passes without binding', async () => {
   });
 });
 
+await check('lifecycle repro-first gates respect warn mode as diagnostic-only', async () => {
+  await withRoot((root, store) => {
+    const planStory = 'B-warn-plan';
+    writeStory(store, planStory, 'IDEA', fileChecklist);
+    assert.equal(canSendStoryEventWithoutSnapshotCan(planStory, store, 'IDEA', 'PLAN', root), true);
+    assert.equal(getGuardFailureReason(planStory, store, 'PLAN', root), null);
+
+    const devStory = 'B-warn-dev';
+    writeStory(store, devStory, 'PLAN', fileChecklist);
+    assert.equal(canSendStoryEventWithoutSnapshotCan(devStory, store, 'PLAN', 'START', root), true);
+    assert.equal(getGuardFailureReason(devStory, store, 'DEV', root), null);
+
+    const expressStory = 'B-warn-express';
+    writeStory(store, expressStory, 'INIT_CHECK', fileChecklist);
+    assert.equal(canSendStoryEventWithoutSnapshotCan(expressStory, store, 'INIT_CHECK', 'START', root), true);
+    assert.equal(getGuardFailureReason(expressStory, store, 'DEV', root), null);
+  }, 'warn');
+});
+
+await check('lifecycle repro-first gates respect off mode as disabled', async () => {
+  await withRoot((root, store) => {
+    const storyId = 'B-off-plan';
+    writeStory(store, storyId, 'IDEA', fileChecklist);
+    const result = evaluateStoryEvidenceBindingGate(root, store, storyId);
+    assert.equal(result.mode, 'off');
+    assert.equal(result.required, false);
+    assert.equal(canSendStoryEventWithoutSnapshotCan(storyId, store, 'IDEA', 'PLAN', root), true);
+    assert.equal(getGuardFailureReason(storyId, store, 'PLAN', root), null);
+  }, 'off');
+});
+
+await check('engine errors fail open and surface in session_brief', async () => {
+  await withRoot((root, store) => {
+    const storyId = 'B-engine-error';
+    writeStory(store, storyId, 'PLAN', fileChecklist);
+    write(root, '.lattice/evidence/refs/by-id', 'not a directory');
+    const result = evaluateStoryEvidenceBindingGate(root, store, storyId);
+    assert.equal(result.reasonCode, 'repro_first_preflight_engine_error');
+    assert.equal(result.ok, true);
+    assert.equal(result.blocking, false);
+    assert.match(result.details.join('\n'), /repro_first_preflight_engine_error/);
+
+    execFileSync('git', ['init'], { cwd: root, stdio: 'ignore' });
+    execFileSync('git', ['config', 'user.email', 'smoke@example.invalid'], { cwd: root, stdio: 'ignore' });
+    execFileSync('git', ['config', 'user.name', 'Smoke Test'], { cwd: root, stdio: 'ignore' });
+    write(root, '.gitkeep', 'init\n');
+    execFileSync('git', ['add', '.gitkeep'], { cwd: root, stdio: 'ignore' });
+    execFileSync('git', ['commit', '-m', 'init'], { cwd: root, stdio: 'ignore' });
+    execFileSync('git', ['checkout', '-b', `story/${storyId}`], { cwd: root, stdio: 'ignore' });
+    const brief = createSessionHandlers({ root, store, scanRoot: join(root, 'packages/main') }).session_brief({ concise: false });
+    assert.match(brief, /## Repro-first intake/);
+    assert.match(brief, /reproFirst: engine-error; mode=enforce/);
+  });
+});
+
 await check('story_create enforce blocks file-declaring story without binding before persistence', async () => {
   await withRoot((root, store) => {
     const handlers = createStoryCreateHandlers({ root, store, scanRoot: join(root, 'packages/main') });
@@ -239,6 +329,92 @@ await check('story_create enforce blocks file-declaring story without binding be
       /missing_story_evidence_binding/,
     );
     assert.deepEqual(store.listStoryIds(), [], 'blocked story_create must not persist story metadata');
+  });
+});
+
+await check('story_create enforce blocks bug-story classifier without binding before persistence', async () => {
+  await withRoot((root, store) => {
+    const handlers = createStoryCreateHandlers({ root, store, scanRoot: join(root, 'packages/main') });
+    assert.throws(
+      () => handlers.story_create({
+        name: 'bug-preflight-enforce-block',
+        title: 'Bug preflight enforce block',
+        description: 'Exercise repro-first preflight on bug story intake without declared files.',
+        type: 'bug',
+        priority: 'medium',
+        background: validBackground,
+      }),
+      /classifier: bug_story/,
+    );
+    assert.deepEqual(store.listStoryIds(), [], 'blocked bug story_create must not persist story metadata');
+  });
+});
+
+await check('story_create enforce blocks high-risk code-verifiable classifier without binding before persistence', async () => {
+  await withRoot((root, store) => {
+    const handlers = createStoryCreateHandlers({ root, store, scanRoot: join(root, 'packages/main') });
+    assert.throws(
+      () => handlers.story_create({
+        name: 'high-risk-preflight-enforce-block',
+        title: 'High-risk preflight enforce block',
+        description: 'Change state machine gate behavior for a synthetic lifecycle guard.',
+        type: 'feature',
+        priority: 'medium',
+        background: validBackground,
+      }),
+      /classifier: high_risk_code_verifiable/,
+    );
+    assert.deepEqual(store.listStoryIds(), [], 'blocked high-risk story_create must not persist story metadata');
+  });
+});
+
+await check('story_create fromDraft enforce blocks before story persistence or draft deletion', async () => {
+  await withRoot((root, store) => {
+    const draftName = 'draft-preflight-enforce-block';
+    writeDraft(root, draftName, fileChecklist);
+    const handlers = createStoryCreateHandlers({ root, store, scanRoot: join(root, 'packages/main') });
+    assert.throws(
+      () => handlers.story_create({ fromDraft: draftName } as any),
+      /missing_story_evidence_binding/,
+    );
+    assert.deepEqual(store.listStoryIds(), [], 'blocked fromDraft must not persist story metadata');
+    assert.equal(existsSync(join(root, 'docs', 'story', 'drafts', draftName, 'index.json')), true, 'blocked fromDraft must not delete source draft');
+  });
+});
+
+await check('story_create fromDraft warn mode diagnoses missing binding but does not block', async () => {
+  await withRoot((root, store) => {
+    const draftName = 'draft-preflight-warn';
+    writeDraft(root, draftName, fileChecklist);
+    const handlers = createStoryCreateHandlers({ root, store, scanRoot: join(root, 'packages/main') });
+    const output = handlers.story_create({ fromDraft: draftName } as any);
+    const storyId = output.match(/B-[a-z0-9]+/i)?.[0];
+    assert.ok(storyId, 'warn-mode fromDraft should create a story id');
+    assert.equal(existsSync(join(root, 'docs', 'story', 'drafts', draftName, 'index.json')), false, 'successful warn-mode fromDraft should delete source draft');
+    const result = evaluateStoryEvidenceBindingGate(root, store, storyId);
+    assert.equal(result.mode, 'warn');
+    assert.equal(result.required, true);
+    assert.equal(result.blocking, false);
+    assert.equal(result.reasonCode, 'missing_story_evidence_binding');
+  }, 'warn');
+});
+
+await check('story_create fromDraft supports explicit repro-first bypass reason', async () => {
+  await withRoot((root, store) => {
+    const draftName = 'draft-preflight-bypass';
+    writeDraft(root, draftName, fileChecklist);
+    const handlers = createStoryCreateHandlers({ root, store, scanRoot: join(root, 'packages/main') });
+    const output = handlers.story_create({
+      fromDraft: draftName,
+      reproFirstBypassReason: 'Emergency non-reproducible intake accepted by human operator for this smoke.',
+    } as any);
+    const storyId = output.match(/B-[a-z0-9]+/i)?.[0];
+    assert.ok(storyId, 'bypassed fromDraft should create a story id');
+    assert.equal(store.listStoryIds().length, 1, 'bypassed fromDraft should persist exactly one story');
+    assert.equal(existsSync(join(root, 'docs', 'story', 'drafts', draftName, 'index.json')), false, 'successful fromDraft should delete source draft');
+    const gate = evaluateStoryEvidenceBindingGate(root, store, storyId);
+    assert.equal(gate.required, true);
+    assert.equal(gate.blocking, true, 'bypass only permits intake; lifecycle gates still require binding');
   });
 });
 
