@@ -135,9 +135,9 @@
       "id": "CHK-004",
       "title": "Add offline floor<->escalation freshness-root equivalence smoke + plain-repo regression",
       "context": "New packages/main/src/tasks/review-escalation-freshness-root-smoke.ts: under BOTH plain and wrapper-root layouts assert floor.materialHash === escalation.materialHash and escalation.{materialHash,storyFilesHash} === currentMaterialHash/currentStoryFilesHash(gitCwd,'HEAD',projectRoot); add a RED-documenting assertion that escalation without gitCwd diverges (null) in wrapper-root, plus a plain-repo no-change regression. Wire an npm script and into the npm test chain.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-24T01:47:54.299Z",
       "verificationIntent": {
         "happy": [
           {
