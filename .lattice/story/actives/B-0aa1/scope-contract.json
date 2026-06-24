@@ -41,8 +41,33 @@
         "TEST_live_smoke_transcript",
         "user_value_acceptance"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Required scope extension discovered by DONE-required root full test suite: newly registered repro-first CLI commands must be represented in command policy, process fact levels, and default phase allowlist so process-fact-contract remains complete while keeping candidate evidence explicitly non-DONE/non-Authority.",
+      "timestamp": "2026-06-24T05:02:29.078Z",
+      "paths": [
+        "packages/main/src/core/command-policy.ts",
+        "packages/main/src/core/config.ts",
+        "packages/main/src/core/process-fact-levels.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/command-policy.ts",
+        "packages/main/src/core/config.ts",
+        "packages/main/src/core/process-fact-levels.ts"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "427067c557bd1c4e09297e2ab9bf51d576e18770",
+      "materialHash": "c94a87927ab37a8174cc0218189518c8b4339d7f9f329bb21834f9363beb9889",
+      "anchors": [
+        "DONE_required_root_npm_test",
+        "process_fact_contract",
+        "candidate_only_boundary"
+      ]
     }
   ],
   "createdAt": "2026-06-24T04:23:11.268Z",
-  "updatedAt": "2026-06-24T04:49:49.127Z"
+  "updatedAt": "2026-06-24T05:02:29.078Z"
 }
