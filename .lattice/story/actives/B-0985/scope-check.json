@@ -1,27 +1,27 @@
 {
   "storyId": "B-0985",
-  "checkedAt": "2026-06-24T09:58:38.755Z",
+  "checkedAt": "2026-06-24T10:00:42.500Z",
   "features": [
     {
-      "feature": "M0 proof surface inventory docs plus machine-readable surface map",
-      "covered_by": "CHK-001; plan.md CHK-001",
+      "feature": "M0 proof surface inventory docs plus machine-readable surface map covering every M0 surface named by the plan: done-required evidence, delivery/final-report evidence, review runs/passes/findings, Authority receipt refs, offline receipt bundles, handoff packs/receipts, host verdicts/dispatch reports, local/shadow Authority status, usage-ledger authority evidence, and B-0aa1 repro/spike/regression candidate artifacts",
+      "covered_by": "CHK-001; plan.md CHK-001; CHK-001 verificationIntent.happy requires every M0 surface named in docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
       "status": "covered",
       "excluded_by": "",
-      "source": "checklist_get CHK-001; plan_get CHK-001"
+      "source": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md M0 lines 139-179; checklist_get CHK-001"
     },
     {
       "feature": "M1 shared proof admissibility domain and registry with canonical scopes, roles, consumers, claims, producer boundaries, reason codes, and fail-closed definitions",
       "covered_by": "CHK-002; plan.md CHK-002",
       "status": "covered",
       "excluded_by": "",
-      "source": "checklist_get CHK-002; decision chosen option A"
+      "source": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md M1 lines 181-216; checklist_get CHK-002; decision chosen option A"
     },
     {
       "feature": "Caller-facing classification/evaluation helper for proof-looking artifacts including productionDone denial for candidate, diagnostic, legacy, local-key, quorum, and receipt-only inputs",
       "covered_by": "CHK-003; plan.md CHK-003",
       "status": "covered",
       "excluded_by": "",
-      "source": "checklist_get CHK-003; plan_get CHK-003"
+      "source": "checklist_get CHK-003; plan_get CHK-003; docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md Target Rule scope table"
     },
     {
       "feature": "Smoke coverage and process fact registration for the MVP classifier/registry path",
@@ -34,8 +34,8 @@
       "feature": "Future hard-fail REVIEW/TEST/DONE/Authority gate rollout",
       "covered_by": "",
       "status": "excluded",
-      "excluded_by": "plan.md Scope: classification-only; plan.md Non-goals; decision option A",
-      "source": "plan_get Scope and Non-goals; decision_get chosen A"
+      "excluded_by": "plan.md Scope: classification-only; plan.md Non-goals; decision option A; hard-fail rollout is plan M7, not M0/M1",
+      "source": "plan_get Scope and Non-goals; decision_get chosen A; docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md M4/M7"
     },
     {
       "feature": "Authority Server changes, actor/key/job/provider/receipt production execution, and production authority completion claims",
@@ -45,41 +45,29 @@
       "source": "understanding_get constraints; docs/requirements/decisions/authority-client-role.md"
     },
     {
-      "feature": "Metadata sanitizer enforcement, handoff schema migration, legacy repair command, and signed receipt format migration",
+      "feature": "Metadata sanitizer enforcement, handoff schema migration/integration, legacy repair/migration command, and signed receipt format migration",
       "covered_by": "",
       "status": "excluded",
-      "excluded_by": "plan.md Non-goals",
-      "source": "plan_get Non-goals"
+      "excluded_by": "plan.md Non-goals; these are later M2/M5/M6/M7 slices rather than M0/M1",
+      "source": "plan_get Non-goals; docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md milestones M2/M5/M6/M7"
     },
     {
       "feature": "Traceability to the referenced proof-admissibility hardening execution plan and exhaustive validation of the M0 surface list named by that plan",
-      "covered_by": "",
-      "status": "gap",
+      "covered_by": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md is now present; CHK-001 explicitly requires inventory of every M0 surface named by the plan and machine-checkable inventory output",
+      "status": "covered",
       "excluded_by": "",
-      "source": "checklist relatedDocs and plan scope reference docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md, but rg --files/sed could not find that file in the worktree"
+      "source": "aux_doc_list shows proof-admissibility-hardening-execution-plan.md; scope_question_resolve recorded OQ-001 resolution; checklist_get CHK-001"
     }
   ],
   "summary": {
     "total": 8,
-    "covered": 4,
+    "covered": 5,
     "excluded": 3,
-    "gaps": 1,
+    "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
   "reviewRound": "",
-  "_hash": "9aa9ff4f2059c401b7151dd7f55e4d447b2fd8ea2d12f95f9d3e96424f91e3de",
-  "openQuestions": [
-    {
-      "id": "OQ-001",
-      "q": "Where is docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md, or should the story relatedDocs/plan source be updated to the actual canonical plan? Without it, the reviewer cannot independently verify that CHK-001 includes every M0 surface named by the plan.",
-      "evidence": "The checklist and plan both cite docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md; sed and rg --files in /Users/jek/Documents/Work/proofbound/.worktrees/B-0985 report no such file. docs/evidence/evidence-platform-architecture.md only says the next admissibility-hardening story can add claim policies and waterlines, but does not enumerate this storys M0/M1 plan.",
-      "sourcePointers": [
-        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
-        "CHK-001"
-      ],
-      "resolution": "Resolved by bringing the user-selected source document docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md into the B-0985 worktree. The document now exists in the story branch and can be used to verify that CHK-001 covers the M0 surface inventory named in the plan.",
-      "resolvedAt": "2026-06-24T09:59:29.557Z"
-    }
-  ]
+  "_hash": "12c84bc013a5eee7573f4af780397bffb5aac0b3b26d6bd80faec4b69de42e39",
+  "openQuestions": []
 }
