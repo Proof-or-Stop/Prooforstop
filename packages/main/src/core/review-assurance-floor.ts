@@ -15,6 +15,8 @@ import type { BugData, Finding, ProcessEvent, StoryInfo, TestEvidenceData, Under
 import type { StoryStore } from './store.js';
 import {
   buildProofAdmissibilityDiagnostic,
+  proofAdmissibilityBlockingReason,
+  resolveProofAdmissibilityMode,
   type ProofAdmissibilityDiagnostic,
 } from './proof-admissibility-gates.js';
 
@@ -570,14 +572,35 @@ export function evaluateReviewAssuranceFloor(args: EvaluateReviewAssuranceFloorA
   // downgrade pass and the degraded fallback record so the storyFilesHash
   // drift-acceptance signal is never swallowed (mirrors review-escalation).
   const advisories = [...downgradeAdvisories, ...(fallback?.advisories ?? [])];
+  const proofAdmissibility = buildProofAdmissibilityDiagnostic({
+    artifactKind: 'review-run',
+    artifactId: storyId ? `${storyId}:review-assurance-floor` : 'review-assurance-floor',
+    consumer: 'REVIEW',
+    claim: 'review-pass',
+    mode: resolveProofAdmissibilityMode(args.projectRoot),
+    checks: {
+      schemaVersion: 'lattice.review_run.v1',
+      strictShapeValid: true,
+      semanticDigestValid: ok,
+      signatureOrReceiptBindingValid: fullOk,
+      temporalAndMaterialBindingValid: ok,
+      subjectMatches: true,
+      producerBoundaryTrusted: true,
+    },
+  });
+  const proofBlockReason = highRiskRequired
+    ? proofAdmissibilityBlockingReason(proofAdmissibility)
+    : null;
+  if (proofBlockReason) reasons.push(proofBlockReason);
+  const effectiveOk = ok && !proofBlockReason;
 
   return {
     schemaVersion: 'lattice.review_assurance_floor.v1',
     ...(storyId ? { storyId } : {}),
-    ok,
+    ok: effectiveOk,
     required: true,
     requiredAssurance,
-    assuranceLevel: ok
+    assuranceLevel: effectiveOk
       ? (highRiskRequired ? (fullOk ? 'full-3x2' : 'degraded-single-host') : requiredRounds === REVIEW_ASSURANCE_FLOOR_FAILURE_REQUIRED_ROUNDS ? 'degraded-single-host' : 'local-one-round')
       : 'missing',
     materialHash,
@@ -607,21 +630,7 @@ export function evaluateReviewAssuranceFloor(args: EvaluateReviewAssuranceFloorA
     authorityDone: false,
     fullAuthorityDone: false,
     productionDone: false,
-    proofAdmissibility: buildProofAdmissibilityDiagnostic({
-      artifactKind: 'review-run',
-      artifactId: storyId ? `${storyId}:review-assurance-floor` : 'review-assurance-floor',
-      consumer: 'REVIEW',
-      claim: 'review-pass',
-      checks: {
-        schemaVersion: 'lattice.review_run.v1',
-        strictShapeValid: true,
-        semanticDigestValid: ok,
-        signatureOrReceiptBindingValid: fullOk,
-        temporalAndMaterialBindingValid: ok,
-        subjectMatches: true,
-        producerBoundaryTrusted: true,
-      },
-    }),
+    proofAdmissibility,
     reasons,
     ...(advisories.length > 0 ? { advisories } : {}),
   };

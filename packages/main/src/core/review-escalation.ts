@@ -26,6 +26,8 @@ import type { Finding, ProcessEvent, StoryInfo } from './types.js';
 import type { StoryStore } from './store.js';
 import {
   buildProofAdmissibilityDiagnostic,
+  proofAdmissibilityBlockingReason,
+  resolveProofAdmissibilityMode,
   type ProofAdmissibilityDiagnostic,
 } from './proof-admissibility-gates.js';
 
@@ -459,6 +461,7 @@ export function evaluateReviewEscalation(args: EvaluateReviewEscalationArgs): Re
     artifactId: args.storyId ? `${args.storyId}:review-escalation` : 'review-escalation',
     consumer: 'REVIEW',
     claim: 'review-pass',
+    mode: resolveProofAdmissibilityMode(args.projectRoot),
     checks: {
       schemaVersion: 'lattice.review_run.v1',
       strictShapeValid: true,
@@ -469,6 +472,7 @@ export function evaluateReviewEscalation(args: EvaluateReviewEscalationArgs): Re
       producerBoundaryTrusted: true,
     },
   });
+  const proofBlockReason = proofAdmissibilityBlockingReason(proofAdmissibility);
   const trigger = {
     firstReviewRound,
     requiredProblemCount: REVIEW_ESCALATION_TRIGGER_PROBLEM_COUNT,
@@ -561,9 +565,14 @@ export function evaluateReviewEscalation(args: EvaluateReviewEscalationArgs): Re
     if (!degradedRoundsOk) reasons.push(`degraded fallback has ${degradedRounds.validRounds.length}/${REVIEW_ESCALATION_REQUIRED_ROUNDS} valid single-host rounds`);
   }
 
+  const effectiveOk = (fullOk || degradedOk) && !proofBlockReason;
+  const effectiveReasons = proofBlockReason
+    ? [...reasons, proofBlockReason]
+    : reasons;
+
   return {
     schemaVersion: 'lattice.review_escalation_status.v1',
-    ok: fullOk || degradedOk,
+    ok: effectiveOk,
     required: true,
     trigger,
     materialHash,
@@ -589,7 +598,7 @@ export function evaluateReviewEscalation(args: EvaluateReviewEscalationArgs): Re
     fullAuthorityDone: false,
     productionDone: false,
     proofAdmissibility,
-    reasons,
+    reasons: effectiveReasons,
   };
 }
 

@@ -10,6 +10,8 @@ import {
 
 export type ProofAdmissibilityMode = 'warn' | 'enforce';
 
+export const PROOF_ADMISSIBILITY_ENFORCE_BLOCK_REASON = 'proof_admissibility_blocked' as const;
+
 export interface ProofAdmissibilityDiagnostic {
   artifactId?: string;
   artifactKind: string;
@@ -25,10 +27,10 @@ export interface ProofAdmissibilityDiagnostic {
 
 export function resolveProofAdmissibilityMode(projectRoot?: string): ProofAdmissibilityMode {
   if (!projectRoot) return 'warn';
-  const config = loadConfig(projectRoot) as unknown as Record<string, unknown>;
+  const config = loadConfig(projectRoot);
   const proof = config.proofAdmissibility;
   if (!proof || typeof proof !== 'object') return 'warn';
-  const mode = (proof as { mode?: unknown }).mode;
+  const mode = proof.mode;
   return mode === 'enforce' ? 'enforce' : 'warn';
 }
 
@@ -60,4 +62,11 @@ export function formatProofAdmissibilityDiagnostic(diagnostic: ProofAdmissibilit
   const status = diagnostic.allowed ? 'allowed' : diagnostic.blocking ? 'blocked' : 'warning';
   const reasons = diagnostic.reasons.length ? diagnostic.reasons.join(', ') : 'none';
   return `${status}: ${id}${diagnostic.artifactKind} scope=${diagnostic.scope} consumer=${diagnostic.consumer} claim=${diagnostic.claim} reasons=${reasons}; remediation=${diagnostic.remediation.join(' | ')}`;
+}
+
+export function proofAdmissibilityBlockingReason(diagnostic: ProofAdmissibilityDiagnostic): string | null {
+  if (!diagnostic.blocking) return null;
+  const reasons = diagnostic.reasons.length > 0 ? diagnostic.reasons.join(',') : 'inadmissible';
+  const remediation = diagnostic.remediation[0] ?? 'Regenerate admissible proof for this consumer.';
+  return `${PROOF_ADMISSIBILITY_ENFORCE_BLOCK_REASON}: ${diagnostic.artifactKind} cannot satisfy ${diagnostic.consumer}/${diagnostic.claim} in enforce mode (${reasons}); ${remediation}`;
 }

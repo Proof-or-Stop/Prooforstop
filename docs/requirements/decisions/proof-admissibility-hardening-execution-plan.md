@@ -56,8 +56,8 @@ modifiable by, an untrusted boundary.
 Implementation boundary:
 
 - Use the shared `EvidenceRuntime` facade.
-- Register proof surfaces through `ArtifactDefinition`.
-- Evaluate gate claims through `ClaimPolicy`.
+- Register proof surfaces through `ProofSurfaceDefinition`.
+- Evaluate gate claims through `ProofClaimPolicy`.
 - Store artifacts and ledger streams under `.lattice/evidence/`.
 - Keep existing strong verifiers, but connect them through adapters instead of
   rewriting them in the first migration slice.

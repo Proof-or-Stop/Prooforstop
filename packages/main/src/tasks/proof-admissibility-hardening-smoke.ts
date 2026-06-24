@@ -6,6 +6,9 @@
  */
 
 import assert from 'node:assert/strict';
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import {
   parseProviderEventsEnvelope,
   parseRunnerRegistration,
@@ -28,12 +31,110 @@ import {
   buildHandoffAdmissibilitySummary,
 } from '../core/proof-admissibility-handoff.js';
 import {
+  evaluateProofAdmissibility,
+  PROOF_ADMISSIBILITY_CONTRACT_VERSION,
+  type AdmissibilityReasonCode,
+} from '../core/proof-admissibility.js';
+import {
   classifyLegacyProofEvidence,
 } from '../core/proof-admissibility-legacy.js';
 import {
   findReservedProofMetadataKeys,
   sanitizeCallerProofMetadata,
 } from '../core/proof-admissibility-metadata.js';
+import {
+  REVIEW_ESCALATION_EXPLICIT_HIGH_RISK_POLICY_EVENT,
+  REVIEW_ESCALATION_EXPLICIT_HIGH_RISK_POLICY_PREDICATE,
+  evaluateReviewEscalation,
+} from '../core/review-escalation.js';
+import {
+  evaluateReviewAssuranceFloor,
+} from '../core/review-assurance-floor.js';
+
+function withProofMode<T>(mode: 'warn' | 'enforce', fn: (root: string) => T): T {
+  const root = mkdtempSync(join(tmpdir(), `proof-admissibility-${mode}-`));
+  const config = {
+    scanRoot: 'packages/main',
+    rootDir: 'src',
+    outDir: 'packages/main/dist',
+    testsDir: 'packages/main/tests',
+    fixturesDir: 'packages/main/tests/fixtures',
+    storyDir: '.lattice/story/actives',
+    requirementsDir: 'docs/requirements',
+    storyPrefix: 'B',
+    proofAdmissibility: { mode },
+  };
+  writeFileSync(join(root, 'lattice.config.json'), `${JSON.stringify(config, null, 2)}\n`);
+  try {
+    return fn(root);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+function expectAdmissibilityReason(result: { reasons: readonly AdmissibilityReasonCode[] }, reason: AdmissibilityReasonCode, label: string): void {
+  assert.ok(result.reasons.includes(reason), `${label}: expected ${reason}, got ${result.reasons.join(', ')}`);
+}
+
+function matrixCase(label: string, checks: Record<string, unknown>, reason: AdmissibilityReasonCode): void {
+  const result = evaluateProofAdmissibility({
+    artifactKind: 'authority-receipt-ref',
+    consumer: 'AUTHORITY_GATE_DECISION',
+    claim: 'production-completion',
+    checks: {
+      contractVersion: PROOF_ADMISSIBILITY_CONTRACT_VERSION,
+      schemaVersion: 'lattice.authority_receipt_refs.v1',
+      strictShapeValid: true,
+      semanticDigestValid: true,
+      signatureOrReceiptBindingValid: true,
+      temporalAndMaterialBindingValid: true,
+      subjectMatches: true,
+      producerBoundaryTrusted: true,
+      ...checks,
+    },
+  });
+  assert.equal(result.allowed, false, `${label} must reject proof`);
+  assert.equal(result.productionDoneEligible, false, `${label} must not be productionDone eligible`);
+  expectAdmissibilityReason(result, reason, label);
+}
+
+function hostVerdicts(rounds: number, hostsPerRound: number, materialHash: string) {
+  const events: Record<string, unknown>[] = [];
+  for (let round = 1; round <= rounds; round++) {
+    for (let host = 1; host <= hostsPerRound; host++) {
+      events.push({
+        type: 'host_verdict',
+        verdictId: `V-${round}-${host}`,
+        runId: `round-${round}`,
+        hostId: `host-${host}`,
+        sessionId: `session-${round}-${host}`,
+        keyId: `key-${round}-${host}`,
+        decision: 'pass',
+        materialDigest: materialHash,
+        validationDigest: `validation-${round}-${host}`,
+        promptDigest: `prompt-${round}-${host}`,
+      });
+    }
+  }
+  return events;
+}
+
+function highRiskPolicyEvent(materialHash: string): Record<string, unknown> {
+  return {
+    type: REVIEW_ESCALATION_EXPLICIT_HIGH_RISK_POLICY_EVENT,
+    predicate: REVIEW_ESCALATION_EXPLICIT_HIGH_RISK_POLICY_PREDICATE,
+    requires3x2: true,
+    policyId: 'POL-M7',
+    policyVersion: 'proof-admissibility-hardening.v1',
+    riskClass: 'lifecycle-gate',
+    sourcePolicyRef: 'docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md',
+    rolloutStage: 'enforce',
+    degradedFallbackAllowed: false,
+    issuer: 'smoke',
+    issuedAt: '2026-06-24T00:00:00.000Z',
+    materialHash,
+  };
+}
 
 function validBindingPayload(overrides: Record<string, unknown> = {}): Record<string, unknown> {
   return {
@@ -227,6 +328,115 @@ function validGateProof(overrides: Record<string, unknown> = {}): Record<string,
     },
   });
   assert.equal(enforced.blocking, true, 'M7 enforce mode blocks high-risk inadmissible proof consumer');
+}
+
+{
+  const materialHash = 'material-m7';
+  const processEvents = [
+    highRiskPolicyEvent(materialHash),
+    ...hostVerdicts(3, 2, materialHash),
+  ];
+  withProofMode('warn', (root) => {
+    const report = evaluateReviewEscalation({
+      projectRoot: root,
+      storyId: 'B-0405',
+      processEvents: processEvents as any,
+      materialHash,
+      storyFilesHash: 'story-files-m7',
+    });
+    assert.equal(report.required, true, 'M7 warn review escalation is a high-risk consumer');
+    assert.equal(report.fullQuorum.ok, true, 'M7 warn review escalation has local quorum');
+    assert.equal(report.proofAdmissibility.allowed, false, 'M7 warn review escalation surfaces inadmissible proof diagnostic');
+    assert.equal(report.proofAdmissibility.blocking, false, 'M7 warn review escalation diagnostic is warn-only');
+    assert.equal(report.ok, true, 'M7 warn review escalation remains warn-only');
+  });
+  withProofMode('enforce', (root) => {
+    const report = evaluateReviewEscalation({
+      projectRoot: root,
+      storyId: 'B-0405',
+      processEvents: processEvents as any,
+      materialHash,
+      storyFilesHash: 'story-files-m7',
+    });
+    assert.equal(report.fullQuorum.ok, true, 'M7 enforce review escalation local quorum still passes');
+    assert.equal(report.proofAdmissibility.blocking, true, 'M7 enforce review escalation diagnostic blocks');
+    assert.equal(report.ok, false, 'M7 enforce review escalation rejects inadmissible proof');
+    assert.ok(report.reasons.some(reason => reason.startsWith('proof_admissibility_blocked:')), 'M7 enforce review escalation reports stable proof block reason');
+  });
+
+  const degradedEvents = [
+    {
+      type: 'review_escalation_fallback',
+      fallbackId: 'REF-M7',
+      eligibility: 'explicit-human-approval',
+      reason: 'Explicit smoke approval for degraded fallback coverage in enforce-mode proof test.',
+      evidenceRefs: ['smoke:evidence'],
+      materialHash,
+      storyFilesHash: 'story-files-m7',
+      assuranceLevel: 'degraded-single-host',
+    },
+    ...hostVerdicts(3, 1, materialHash),
+  ];
+  withProofMode('warn', (root) => {
+    const report = evaluateReviewAssuranceFloor({
+      projectRoot: root,
+      storyId: 'B-0405',
+      changedFiles: ['packages/main/src/core/phase-gate.ts'],
+      processEvents: degradedEvents as any,
+      materialHash,
+      storyFilesHash: 'story-files-m7',
+    });
+    assert.equal(report.requiredAssurance, 'three-round-two-hosts-or-degraded-single-host', 'M7 warn floor is high-risk');
+    assert.equal(report.degradedFallback.ok, true, 'M7 warn floor degraded fallback passes locally');
+    assert.equal(report.proofAdmissibility.allowed, false, 'M7 warn floor surfaces inadmissible proof diagnostic');
+    assert.equal(report.proofAdmissibility.blocking, false, 'M7 warn floor diagnostic is warn-only');
+    assert.equal(report.ok, true, 'M7 warn floor remains warn-only');
+  });
+  withProofMode('enforce', (root) => {
+    const report = evaluateReviewAssuranceFloor({
+      projectRoot: root,
+      storyId: 'B-0405',
+      changedFiles: ['packages/main/src/core/phase-gate.ts'],
+      processEvents: degradedEvents as any,
+      materialHash,
+      storyFilesHash: 'story-files-m7',
+    });
+    assert.equal(report.degradedFallback.ok, true, 'M7 enforce floor degraded fallback still passes locally');
+    assert.equal(report.proofAdmissibility.blocking, true, 'M7 enforce floor diagnostic blocks');
+    assert.equal(report.ok, false, 'M7 enforce floor rejects inadmissible proof');
+    assert.ok(report.reasons.some(reason => reason.startsWith('proof_admissibility_blocked:')), 'M7 enforce floor reports stable proof block reason');
+  });
+
+  const warnHandoff = buildHandoffAdmissibilitySummary({
+    fromHost: 'codex',
+    toHost: 'claude-code',
+    admissibleProofRefs: ['authority-ref-unverified'],
+    mode: 'warn',
+  });
+  assert.equal(warnHandoff.blocked, false, 'M7 warn handoff proof refs remain diagnostic-only');
+  assert.equal(warnHandoff.diagnostics.some(diagnostic => diagnostic.allowed === false), true, 'M7 warn handoff records inadmissible proof ref');
+
+  const enforceHandoff = buildHandoffAdmissibilitySummary({
+    fromHost: 'codex',
+    toHost: 'claude-code',
+    admissibleProofRefs: ['authority-ref-unverified'],
+    mode: 'enforce',
+  });
+  assert.equal(enforceHandoff.blocked, true, 'M7 enforce handoff rejects inadmissible proof ref consumption');
+  assert.ok(enforceHandoff.reasons.some(reason => reason.startsWith('proof_admissibility_blocked:')), 'M7 enforce handoff reports stable proof block reason');
+}
+
+{
+  matrixCase('M7 wrong story id', { storyMatches: false }, 'story_mismatch');
+  matrixCase('M7 wrong target phase', { gatePhaseMatches: false }, 'gate_phase_mismatch');
+  matrixCase('M7 wrong key id', { signatureOrReceiptBindingValid: false }, 'signature_invalid');
+  matrixCase('M7 bad signature', { signatureOrReceiptBindingValid: false }, 'signature_invalid');
+  matrixCase('M7 stale current-state green', { hashTupleFresh: false }, 'stale_hash_tuple');
+  matrixCase('M7 red/green command mismatch', { redGreenCommandsMatch: false }, 'red_green_command_mismatch');
+  matrixCase('M7 candidate mutation', { semanticDigestValid: false }, 'digest_mismatch');
+  matrixCase('M7 bootstrap noise', { bootstrapNoiseRejected: false }, 'bootstrap_noise');
+  matrixCase('M7 matrix-gap policy exception', { matrixGapWaived: false }, 'matrix_gap_unwaived');
+  matrixCase('M7 command-spec digest mismatch', { commandSpecDigestValid: false }, 'command_spec_digest_mismatch');
 }
 
 {

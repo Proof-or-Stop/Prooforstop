@@ -1,5 +1,6 @@
 import {
   buildProofAdmissibilityDiagnostic,
+  proofAdmissibilityBlockingReason,
   type ProofAdmissibilityDiagnostic,
   type ProofAdmissibilityMode,
 } from './proof-admissibility-gates.js';
@@ -19,6 +20,8 @@ export interface HandoffAdmissibilitySummary {
   authorityDone: false;
   fullAuthorityDone: false;
   productionDone: false;
+  blocked: boolean;
+  reasons: string[];
   diagnostics: ProofAdmissibilityDiagnostic[];
 }
 
@@ -34,6 +37,42 @@ export function buildHandoffAdmissibilitySummary(args: {
   const evidenceCandidate = [...new Set(args.evidenceRefs ?? [])].sort();
   const diagnosticReceipt = [...new Set(args.receiptRefs ?? [])].sort();
   const admissibleProofRef = [...new Set(args.admissibleProofRefs ?? [])].sort();
+  const mode = args.mode ?? 'warn';
+  const diagnostics = [
+    buildProofAdmissibilityDiagnostic({
+      artifactKind: 'handoff-pack',
+      artifactId: `${args.fromHost}->${args.toHost}`,
+      consumer: 'HANDOFF',
+      claim: 'diagnostic-status',
+      mode,
+      checks: {
+        schemaVersion: 'lattice.handoff.v1',
+        strictShapeValid: true,
+        semanticDigestValid: true,
+        subjectMatches: true,
+        producerBoundaryTrusted: true,
+      },
+    }),
+    ...admissibleProofRef.map(ref => buildProofAdmissibilityDiagnostic({
+      artifactKind: 'authority-receipt-ref',
+      artifactId: ref,
+      consumer: 'HANDOFF',
+      claim: 'production-completion',
+      mode,
+      checks: {
+        schemaVersion: 'lattice.authority_receipt_refs.v1',
+        strictShapeValid: true,
+        semanticDigestValid: true,
+        signatureOrReceiptBindingValid: false,
+        temporalAndMaterialBindingValid: true,
+        subjectMatches: true,
+        producerBoundaryTrusted: true,
+      },
+    })),
+  ];
+  const reasons = diagnostics
+    .map(proofAdmissibilityBlockingReason)
+    .filter((reason): reason is string => Boolean(reason));
   return {
     schemaVersion: 'lattice.handoff_admissibility_summary.v1',
     hostIdentity: {
@@ -49,21 +88,8 @@ export function buildHandoffAdmissibilitySummary(args: {
     authorityDone: false,
     fullAuthorityDone: false,
     productionDone: false,
-    diagnostics: [
-      buildProofAdmissibilityDiagnostic({
-        artifactKind: 'handoff-pack',
-        artifactId: `${args.fromHost}->${args.toHost}`,
-        consumer: 'HANDOFF',
-        claim: 'diagnostic-status',
-        mode: args.mode ?? 'warn',
-        checks: {
-          schemaVersion: 'lattice.handoff.v1',
-          strictShapeValid: true,
-          semanticDigestValid: true,
-          subjectMatches: true,
-          producerBoundaryTrusted: true,
-        },
-      }),
-    ],
+    blocked: reasons.length > 0,
+    reasons,
+    diagnostics,
   };
 }
