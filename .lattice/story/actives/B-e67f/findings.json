@@ -278,6 +278,20 @@
       ],
       "signatureTag": "missing|mjs|adversarial-edge-evidence",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-e67f:F-015",
+      "desc": "PATH spoof: sanitizedEnv() copies live process.env (keeps PATH) and run() invokes bare 'node', so a gamed inject() can prepend a fake node to PATH and spoof the post-inject harness children. Confirmed: synthetic 24-task gamed corpus exits 0 with 24/24 + 10/10. Same-process inject() with arbitrary code execution cannot be fully contained by env-key stripping; needs absolute node path + minimal PATH or real process isolation.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex-host-2",
+      "createdAt": "2026-06-24T10:57:18.191Z",
+      "reviewRound": "2026-06-24T10:16:50.255Z",
+      "_hash": "83bd2ac3f2b94ec2306530ab63c504fa460d7c4472e51a912cc88a29ebefab3c",
+      "signatureTag": "adversarial|unknown|path-spoof-sanitizedenv",
+      "signatureTagSource": "auto"
     }
   ]
 }
