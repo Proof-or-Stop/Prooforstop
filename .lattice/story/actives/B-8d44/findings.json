@@ -671,7 +671,7 @@
       "desc": "Clean reviewer infra/529 can be misclassified as amplified when the already-produced legitimate artifact trips a detector false positive. The real eval-expr reference solution triggers secretScan, and live-engine.mjs uses detectUnsafe over the full changed content before deciding whether reviewer infra should void. A clean reviewer overload after a valid eval-expr solution can therefore produce an amplified record instead of an infra void.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-24T22:54:49.266Z",
@@ -684,7 +684,11 @@
         "experiments/recovery-runner/tasks/eval-expr/reference-solution.mjs"
       ],
       "signatureTag": "adversarial|mjs|clean-reviewer-infra",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commits 9cfc189 and 2075080: reviewer infra/529 keeps the known eval-expr parser diagnostic secretScan false positive as an infraVoid, while executor/unknown infra and real secret-like content still supersede infra and emits amplified. Verified by live-engine-selfcheck F-031 pins, ad hoc secret-before-infra probe returning records=1/outcome=amplified/secretScan=true, run-selfchecks 7/7, npm run test:experiments, and full lattice validate 30/30 pass.",
+      "resolvedAt": "2026-06-24T23:17:39.345Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
