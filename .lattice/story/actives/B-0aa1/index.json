@@ -4,7 +4,7 @@
   "title": "Implement Repro-first candidate-only evidence intake MVP",
   "description": "Implement the first runtime slice of docs/requirements/decisions/repro-first-story-intake-experiment.md using the shared evidence architecture baseline. Scope is candidate-only MVP: immutable repro/spike artifacts, ReproReview, StoryEvidenceBinding, RedGreenRelation records, thin CLI commands, and smoke coverage. Gate consumption/admissibility enforce mode remains a later integration story.",
   "type": "feature",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "high",
   "createdAt": "2026-06-24T04:03:12.044Z",
   "startedAt": "2026-06-24T04:03:12.044Z",
@@ -45,11 +45,21 @@
       "user": "Harmonygo",
       "sessionId": "sess-5aee94fd1351997f",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-24T04:23:29.058Z",
+      "branch": "story/B-0aa1",
+      "user": "Harmonygo",
+      "sessionId": "sess-5aee94fd1351997f",
+      "agent": "main"
     }
   ],
   "worktree": {
     "path": ".worktrees/B-0aa1",
     "branch": "story/B-0aa1",
     "createdAt": "2026-06-24T04:06:02.130Z"
-  }
+  },
+  "currentReviewRound": "2026-06-24T04:23:29.058Z"
 }
