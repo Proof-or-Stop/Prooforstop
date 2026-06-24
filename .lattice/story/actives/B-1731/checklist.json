@@ -273,9 +273,9 @@
       "id": "CHK-004",
       "title": "Hermetic smoke covering the verification matrix; register",
       "context": "check+counter smoke (explicit literals) covering: type=bug no candidate -> warn (mode=warn) and block (mode=enforce) with next command; story_create_from_repro with accepted target-bug repro-review -> pass; candidate present but repro-review missing -> repro_first_candidate_unreviewed; reviewer class bootstrap-noise -> repro_first_reviewed_class_not_target_bug; spike path accepted -> pass; doc-only chore -> allow; bypassReproFirst.reason -> allow + repro-first-bypass artifact + session_brief; classifier throws -> allow + repro_first_preflight_engine_error (fail-open); mode=off -> allow always. Register the smoke in the validate command set / package test script.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-24T22:00:37.290Z",
-      "endTime": "2026-06-24T22:00:26.348Z",
+      "endTime": "2026-06-24T22:00:59.381Z",
       "relatedDocs": [
         "docs/requirements/decisions/repro-first-story-intake-experiment.md"
       ],
