@@ -96,7 +96,12 @@
       "userSees": "When a code-touched story lacks accepted repro evidence, the terminal prints Cannot enter PLAN or Cannot enter DEV with missing_story_evidence_binding and the recovery command hint.",
       "files": {
         "modify": [
-          "packages/main/src/core/machine.ts"
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/repro-evidence-binding-gate.ts",
+          "packages/main/src/core/repro-intake.ts",
+          "packages/main/src/core/evidence/types.ts",
+          "packages/main/src/handlers/story-create.ts",
+          "packages/main/src/handlers/repro-intake.ts"
         ],
         "create": [],
         "test": [
