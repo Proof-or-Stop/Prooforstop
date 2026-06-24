@@ -306,6 +306,20 @@
       "_hash": "c938a36c33b51561c0c3007ee80337e5b56ddb133a776816132ac67aa7b99a57",
       "signatureTag": "adversarial|unknown|toctou-inject-spawn",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-e67f:F-017",
+      "desc": "Harness-aware solution: the injected solution.mjs can read process.argv[1] (the running harness script path), behave CORRECTLY under acceptance.mjs and intentionally FAIL only under ground-truth.mjs — no harness/env/PATH tamper. Confirmed: gamed corpus exits 0 with 24/24 + 10/10. FUNDAMENTALLY unblockable by any in-process check: the candidate is arbitrary code; soundness vs a malicious task author requires not letting the solution distinguish the two harnesses (or full isolation) — a different design. NOTE: irrelevant to THIS corpus, whose 20 payloads are genuine self-authored subtle bugs (concept lane + codex spot-checks confirmed), not harness-fingerprinting code.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex-host-2",
+      "createdAt": "2026-06-24T10:57:19.112Z",
+      "reviewRound": "2026-06-24T10:16:50.255Z",
+      "_hash": "cf412f1e70a1b780d30bfdb6ee5760ff9d09e9c4871e895bc59f79047f4af836",
+      "signatureTag": "adversarial|unknown|harness-aware-solution",
+      "signatureTagSource": "auto"
     }
   ]
 }
