@@ -101,7 +101,7 @@
       "desc": "Direct story_create with phase=DEV/TEST/DONE plus reproFirstBypassReason still bypasses the repro-first lifecycle gate. In the direct-phase branch, story-create.ts:923-935 renders the preflight with the bypass reason, then story-create.ts:936-955 persists phase: args.phase immediately. The bypass is non-blocking by construction in repro-evidence-binding-gate.ts:108-114, while machine.ts:895-899 only checks PLAN when the story starts in IDEA and machine.ts:945-948 only checks transitions into DEV. Result: in enforce mode a code-verifiable/bug story can be materialized directly as DEV, TEST, or DONE without an accepted story-evidence-binding, contradicting the promise that bypass only permits story creation and later PLAN/DEV gates still require binding. Fix by rejecting reproFirstBypassReason on direct phases at or beyond PLAN/DEV, forcing bypassed creates to stop in INIT/IDEA, or applying the same binding predicate before persisting direct lifecycle phases.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-06-24T22:23:07.790Z",
@@ -114,7 +114,11 @@
         "packages/main/src/core/machine.ts"
       ],
       "signatureTag": "adversarial|ts|direct-story-create",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 888401f4e: reproFirstBypassReason is rejected before persistence when story_create directly targets lifecycle phases beyond intake; bypass is now limited to IDEA/INIT intake and cannot materialize a repro-first-required story directly into DEV/REVIEW/TEST/DONE. Verified by npm --prefix packages/main run build and npm run test:repro-evidence-binding-dev-gate; smoke ok 9 blocks direct DEV bypass before persistence.",
+      "resolvedAt": "2026-06-24T22:29:34.543Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-1731:F-006",
