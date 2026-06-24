@@ -163,11 +163,11 @@
           "verdict": "success",
           "command": "node packages/main/dist/tasks/review-escalation-freshness-root-smoke.js",
           "result": "pass",
-          "note": "WRAPPER-ROOT real-StoryStore case directly invokes canFinishGuard(context) (machine.ts:639 call site) under wrapper-root without throwing, and asserts evaluateReviewEscalation with the EXACT machine expression (context.gitCwd ?? resolveGitCwd({...})) yields materialHash===floor===currentMaterialHash(gitRoot,HEAD,metaRoot).",
-          "headHash": "9582eea5b32c8f6e5fdf3d4edfbde7160ac269ef",
-          "materialHash": "bf11e2787952eba78f5b5be9aac6141262e66b01506fe330190cca302911a265",
-          "storyFilesHash": "01f563bac61d564f2665aaefb7ad09bdff5a9da0663f4c4b6829c25fe265d3f2",
-          "timestamp": "2026-06-24T02:11:32.456Z"
+          "note": "GENUINE guard (F-003 fix): DONE-ready wrapper-root fixture (PASS test-evidence + signed delivery-check + escalation-required policy + 3x2 host verdicts bound to currentMaterialHash(gitRoot)) makes canFinishGuard(machine.ts:639) DEPEND on escalation reading the resolved gitCwd. Asserts canFinishGuard({gitCwd:gitRoot})===true; revert-proven: removing the gitCwd from machine.ts:639 makes the smoke FAIL (canFinishGuard false!==true).",
+          "headHash": "605c398545f75c1d0835c3ec74491f65366cb017",
+          "materialHash": "5ea477107f985a817c39a9e0942229ee3ba9a814d1aef603f90e00962d2c2450",
+          "storyFilesHash": "7784e8c70618dff62a6bba7fb755940aeec0db8906cfe110265d068c5d703acf",
+          "timestamp": "2026-06-24T02:38:27.346Z"
         },
         {
           "intentRef": "CHK-002:happy:2",
@@ -175,11 +175,11 @@
           "verdict": "success",
           "command": "node packages/main/dist/tasks/review-escalation-freshness-root-smoke.js",
           "result": "pass",
-          "note": "WRAPPER-ROOT real-StoryStore case directly invokes getGuardFailureReason(storyId,store,'DONE',metaRoot,gitRoot) (machine.ts:1145 call site) under wrapper-root without throwing; the machine-expression evaluator check confirms the same gitCwd-resolved materialHash/storyFilesHash as the floor.",
-          "headHash": "9582eea5b32c8f6e5fdf3d4edfbde7160ac269ef",
-          "materialHash": "bf11e2787952eba78f5b5be9aac6141262e66b01506fe330190cca302911a265",
-          "storyFilesHash": "01f563bac61d564f2665aaefb7ad09bdff5a9da0663f4c4b6829c25fe265d3f2",
-          "timestamp": "2026-06-24T02:11:32.456Z"
+          "note": "GENUINE guard (F-003 fix): in the same DONE-ready wrapper-root fixture, asserts getGuardFailureReason(storyId,store,'DONE',metaRoot,gitRoot)===null (machine.ts:1145) and buildDoneChecklist review-escalation row status==='pass' with gitRoot vs 'fail' with metaRoot (done-oracle.ts:751). Reverting the escalation gitCwd plumbing flips these, so the call sites are genuinely guarded.",
+          "headHash": "605c398545f75c1d0835c3ec74491f65366cb017",
+          "materialHash": "5ea477107f985a817c39a9e0942229ee3ba9a814d1aef603f90e00962d2c2450",
+          "storyFilesHash": "7784e8c70618dff62a6bba7fb755940aeec0db8906cfe110265d068c5d703acf",
+          "timestamp": "2026-06-24T02:38:27.346Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
