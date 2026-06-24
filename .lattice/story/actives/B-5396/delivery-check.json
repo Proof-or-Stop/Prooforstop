@@ -1,0 +1,119 @@
+{
+  "storyId": "B-5396",
+  "checkedAt": "2026-06-24T13:24:13.985Z",
+  "headHash": "2915c0ffaf5fd931d1c6fa1f0c3e876f1517fd37",
+  "materialHash": "fb47ead375fd2acb5a72ee555cfbe3046b01b3a3f109f90c3aca72b7e4c7b723",
+  "storyFilesHash": "afb7734f7c06ecedf010399648480ba902bd4e1e8221b5d6e01766e6d925b050",
+  "reviewRound": "2026-06-24T13:08:02.474Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "CLAUDE.md#Host-DONE-convergence-drift-handling",
+      "promise": "Section heading \"Host DONE convergence / drift handling\" added to CLAUDE.md",
+      "status": "verified",
+      "verifiedBy": "grep -c Host DONE convergence CLAUDE.md",
+      "evidence": "diff confirms +**Host DONE convergence / drift handling...**; grep -c returns 1; section appears exactly once"
+    },
+    {
+      "docPath": "CLAUDE.md#rule-1",
+      "promise": "Rule 1: TEST->DONE must run lattice done_prepare --storyId=B-xxxx --mergeMain --refreshStale --validate before story_advance DONE",
+      "status": "verified",
+      "verifiedBy": "diff inspection + grep -cF lattice done_prepare CLAUDE.md",
+      "evidence": "diff shows numbered rule present; grep -cF returns 2 (command line + --help reference); exact flag form --mergeMain --refreshStale --validate present"
+    },
+    {
+      "docPath": "CLAUDE.md#rule-2",
+      "promise": "Rule 2: Host does not self-judge freshness; reads done_prepare / freshness-reader classification",
+      "status": "verified",
+      "verifiedBy": "diff inspection",
+      "evidence": "diff line: Host 不自判 freshness: 读 done_prepare / freshness-reader 的分类结果，不要拿原始 hash 自己判 pass"
+    },
+    {
+      "docPath": "CLAUDE.md#rule-3",
+      "promise": "Rule 3: headHash-only drift is usually metadata/provenance movement, not a strong rerun signal",
+      "status": "verified",
+      "verifiedBy": "diff inspection",
+      "evidence": "diff line: headHash-only drift 通常是 metadata / provenance 移动，不是强重跑信号"
+    },
+    {
+      "docPath": "CLAUDE.md#rule-4-verbatim-1",
+      "promise": "Rule 4 + VERBATIM paragraph 1 (materialHash-only drift + storyFilesHash unchanged = unrelated whole-tree drift; downgrade to re-attestation advisory)",
+      "status": "verified",
+      "verifiedBy": "grep -F materialHash-only drift with unchanged storyFilesHash is usually unrelated whole-tree drift CLAUDE.md",
+      "evidence": "exact verbatim blockquote text matched in both CLAUDE.md and AGENTS.md"
+    },
+    {
+      "docPath": "CLAUDE.md#rule-5",
+      "promise": "Rule 5: storyFilesHash drift is the strong story-owned material signal; review pass / quorum / delivery may need re-binding (reviewer-pass strict; floor/escalation/delivery-check downgrade on storyFilesHash-unchanged)",
+      "status": "verified",
+      "verifiedBy": "diff inspection",
+      "evidence": "diff line present with full consumer-dependent downgrade language"
+    },
+    {
+      "docPath": "CLAUDE.md#rule-6",
+      "promise": "Rule 6: done_prepare automates merge/refresh/validate/next-action but does NOT bypass related drift",
+      "status": "verified",
+      "verifiedBy": "diff inspection",
+      "evidence": "diff line: done_prepare 不是万能豁免: 它能自动化 merge / refresh / validate / next-action，但跳不过 related drift"
+    },
+    {
+      "docPath": "CLAUDE.md#rule-7-verbatim-2",
+      "promise": "Rule 7 + VERBATIM paragraph 2: metadata-only dirty handling governed by done_prepare/lifecycle_check; see B-9dfb once merged; host must not manually bypass cleanTree",
+      "status": "verified",
+      "verifiedBy": "grep -F Metadata-only dirty handling is governed by done_prepare/lifecycle_check; see B-9dfb once merged CLAUDE.md",
+      "evidence": "exact verbatim blockquote text matched in both CLAUDE.md and AGENTS.md"
+    },
+    {
+      "docPath": "CLAUDE.md#decision-doc-refs",
+      "promise": "All 4 decision-doc references present: proof-admissibility-hardening-execution-plan, story-files-hash-material-drift, done-prepare-automation-execution-plan, review-assurance-floor-execution-plan",
+      "status": "verified",
+      "verifiedBy": "grep -oE pattern CLAUDE.md | sort -u | wc -l = 4; ls docs/requirements/decisions/",
+      "evidence": "grep returned 4/4 in both files; all 4 decision docs confirmed to exist on disk"
+    },
+    {
+      "docPath": "AGENTS.md#Host-DONE-convergence-drift-handling",
+      "promise": "Identical section mirrored into AGENTS.md (same 7 rules + 2 VERBATIM paragraphs + 4 decision-doc refs)",
+      "status": "verified",
+      "verifiedBy": "diff <(sed -n /Host DONE convergence/,/manually bypass cleanTree/p CLAUDE.md) <(sed -n /Host DONE convergence/,/manually bypass cleanTree/p AGENTS.md)",
+      "evidence": "diff produced no output - sections are byte-identical; grep -c returns 1 in each file (no duplication)"
+    },
+    {
+      "docPath": "CLAUDE.md AGENTS.md#cite-not-restate",
+      "promise": "Section cites decision docs as source-of-truth rather than restating their full rule sets (docs-drift prevention)",
+      "status": "verified",
+      "verifiedBy": "diff inspection + logic review",
+      "evidence": "Section intro explicitly states rules are a projection (投影) and decision docs are the source of truth; rules are 1-2 line pointers not restatements"
+    },
+    {
+      "docPath": "CLAUDE.md AGENTS.md#no-novel-rules",
+      "promise": "Exactly 7 enumerated rules, no novel policy invented beyond checklist spec",
+      "status": "verified",
+      "verifiedBy": "diff inspection: count numbered items in extracted section",
+      "evidence": "Extracted section has exactly items 1-7 matching checklist spec; no item 8 or extra content"
+    },
+    {
+      "docPath": "CLAUDE.md AGENTS.md#no-behavior-claims",
+      "promise": "Section contains no CLI behavior claims (what command X produces output Y) beyond referencing existing docs/help",
+      "status": "verified",
+      "verifiedBy": "diff inspection",
+      "evidence": "Commands referenced only as procedural steps or automation entry points; no output-format claims or promises of specific CLI behavior"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "docs-only story; grep -c Host DONE convergence CLAUDE.md=1; grep -cF lattice done_prepare CLAUDE.md=2; both VERBATIM paragraphs confirmed by exact-string grep; 4/4 decision-doc refs confirmed present; lattice done_prepare --dryRun parsed --mergeMain --refreshStale --validate flag form; lattice validate passed (test-evidence.json written). Markdown-only: grep/docs-check is appropriate machine verification"
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "docs-only mirror item; diff of extracted sections (CLAUDE.md vs AGENTS.md) empty = byte-identical; grep -c returns 1 in each file; all 4 decision-doc refs confirmed; both VERBATIM paragraphs confirmed. No testable runtime surface for a docs-mirror item"
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 13 docs promises independently verified from git diff and live file reads. Both CLAUDE.md and AGENTS.md carry the identical 7-rule + 2-VERBATIM + 4-decision-doc-ref section; sections are byte-identical (diff empty); both VERBATIM paragraphs match exactly; all 4 referenced decision docs exist on disk. This is a docs-only story: grep/docs-check transcript is the appropriate machine evidence. No TODOs, no novel rules, no CLI behavior claims. F-001 (false-positive about flag form) previously resolved by quality reviewer after empirical disproof. Delivery is complete and honest."
+  },
+  "_hash": "2592f519992cdcbcde56eb29bc56e69f93eb2d09632e0532cb5db2a9ef4e321f"
+}
