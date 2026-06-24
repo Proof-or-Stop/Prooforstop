@@ -33,7 +33,7 @@ export const FLOW_FACT_POLICIES = [
     consumerGate: 'storyMachine.canPassReview REVIEW to TEST gate',
     artifactCommand: 'review_run_start',
     semantics: ['flow-policy', 'review-run', 'schema-contract', 'gate-evidence'],
-    rationale: 'Current REVIEW findings and passes only count when bound to the latest signed reviewer run for that lane.',
+    rationale: 'Current REVIEW PASS evidence counts when its bound reviewer run is material- and scope-fresh in the current round; id-recency (being the latest run on the lane) is NOT required. FINDING evidence keeps the latest-run binding so an open finding bound to a non-latest run still surfaces (kind-aware review-run binding; see review-run-binding-race.md).',
   },
   {
     name: 'flow-policy:review-pass',

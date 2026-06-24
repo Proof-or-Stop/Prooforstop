@@ -1,0 +1,175 @@
+{
+  "passes": [
+    {
+      "id": "B-6c4d:RP-001",
+      "agent": "lattice-review-docs",
+      "note": "Step 1: 2 exported symbols changed (EMPTY_STORY_FILES_HASH, assertCurrentReviewRunForEvidence). Step 2: 2 doc paragraphs compared (review-run-binding-race.md decision+scope sections; session-ownership-and-write-leases.md ReviewerWrite section). No blockers: (1) validate-side KIND-AWARE relax (evidence.kind!==pass at review-run.ts:807) matches doc claim; (2) write-time unconditional removal at assertCurrentReviewRunForEvidence matches doc (doc ascribes kind-awareness only to validate-side); (3) EMPTY_STORY_FILES_HASH guard on both evidenceStoryFilesHash and storyFilesHash in checkEvidenceFreshnessForGit matches doc; (4) review_run_start/review_pass_set/finding_add all ownershipClass=reviewerWrite in command-policy.ts lines 167,168,331 matches lease doc; (5) collectReviewerEvidenceState supersede filter keeps stale_run open findings, drops only resolved/dismissed, matches doc claim.",
+      "createdAt": "2026-06-24T14:13:06.032Z",
+      "reviewRound": "2026-06-24T14:10:01.204Z",
+      "reviewRunId": "B-6c4d:RR-002",
+      "_hash": "a9dddd83cbfba35c5def6d5ef12a77b05b20a3bd5de2023a5f311c494fef90b2"
+    },
+    {
+      "id": "B-6c4d:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed evidence-freshness.ts (~315-324), review-run.ts (~666-676 and ~795-816), and flow-stability-smoke.ts (signedReviewRunOverHead + assertReviewRunBindingRaceAcceptsNonLatestFreshPass). Dead code: currentRunForLane is still used at line 806 in validateEvidenceRunBinding (not orphaned); latestRunHint still used at line 814. Type safety: ReviewEvidenceKind is exactly finding|pass so evidence.kind !== pass is type-complete. EMPTY_STORY_FILES_HASH guard is symmetric: both evidenceStoryFilesHash and live storyFilesHash are checked before advisory branch. kind-aware condition correct: passes relax id-recency, open findings keep stale_run. Smoke assertions are load-bearing: non-latest fresh pass accepted, open finding on non-latest run still stale_run, empty-signal + genuine drift both hard-reject. No dead code, no unsafe any, no empty catch, no shell isolation violations found.",
+      "createdAt": "2026-06-24T14:14:23.535Z",
+      "reviewRound": "2026-06-24T14:10:01.204Z",
+      "reviewRunId": "B-6c4d:RR-001",
+      "_hash": "f9585374c2b75b2d6ae4851514a079cb84b2fb9c97f9c193e8d72a25cc20b3ff"
+    },
+    {
+      "id": "B-6c4d:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Round-2 commit 347abfa is doc/rationale-only + one gate-layer smoke assertion. Confirmed: (1) review-run.ts and evidence-freshness.ts behavioral code untouched (zero diff vs main on both files). (2) The two policy rationale strings in flow-fact-policy.ts and process-fact-levels.ts are byte-identical (Python comparison verified). (3) The new assert.match at flow-stability-smoke.ts:1472-1476 is non-vacuous: it calls getGuardFailureReason against a store that has an open finding already confirmed stale_run by the preceding assertion, and the regex matches the literal message from review-run.ts:814. (4) Build clean (tsc zero errors). (5) No dead code, no unused imports, no as-any, no empty catch blocks introduced. All three checks: dead code, type safety, I/O shell isolation — clean.",
+      "createdAt": "2026-06-24T14:24:45.795Z",
+      "reviewRound": "2026-06-24T14:22:50.026Z",
+      "reviewRunId": "B-6c4d:RR-007",
+      "_hash": "7c74b4e39b568e7ebccd40eda007d7fb1fbf55990f6ffe8c9015b0d33441142b"
+    },
+    {
+      "id": "B-6c4d:RP-004",
+      "agent": "lattice-review-docs",
+      "note": "Round-2 docs review: Step-1 yielded FLOW_FACT_POLICIES/PROCESS_FACT_LEVELS/PROCESS_FACT_LEVELS rationale strings + prompt-registry.ts prompt text (3 symbol-level changes). Step-2/3 compared all 3 against review-run.ts:807 kind-aware gate, assertCurrentReviewRunForEvidence write-time removal, validateEvidenceRunBinding validate-time kind-aware logic, evidence-freshness.ts EMPTY_STORY_FILES_HASH guard, and review-run-binding-race.md decision doc (4 paragraphs). All rationale strings accurately reflect the implementation: PASS bypasses stale_run rejection, FINDING keeps it; freshness+scope are the real authorities; review-run-binding-race.md is correctly cross-referenced and remains internally consistent. Closing reverse scan: decision doc reference resolves to a real file; smoke-test assertion is present in code. 0 findings — no doc-code drift, no doc-promise-undelivered.",
+      "createdAt": "2026-06-24T14:24:46.317Z",
+      "reviewRound": "2026-06-24T14:22:50.026Z",
+      "reviewRunId": "B-6c4d:RR-006",
+      "_hash": "adf242a95a14f19e378e618e98a00c2a0ab2f7227813769c039e809f75c9b3d8"
+    },
+    {
+      "id": "B-6c4d:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: F-003 resolved — 347abfa gate-layer assertion in assertReviewRunBindingRaceAcceptsNonLatestFreshPass now calls getGuardFailureReason in the combined (non-latest PASS accepted + open FINDING stale_run) scenario and asserts it matches /Not the latest run on the current lane|stale_run/; smoke exits 0; validate 31/31 covered 0 required missing; no new gaps found.",
+      "createdAt": "2026-06-24T14:26:30.284Z",
+      "reviewRound": "2026-06-24T14:22:50.026Z",
+      "reviewRunId": "B-6c4d:RR-008",
+      "_hash": "3cb41bbacc5454e2e255012a0744ff11fb1818f6ac016d44fe98715264b59ec0"
+    },
+    {
+      "id": "B-6c4d:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "Round-3 concept residue check complete. F-004 resolved: prompt-registry-smoke exits 0 (16 agents rendered), git diff main shows zero net change to prompt-registry.ts. F-005 resolved: story-lifecycle.md line 202 now carries the kind-aware wording (PASS accepted on any material+scope-fresh current-round run; id-recency NOT required; open FINDING still requires latest run). Authoritative rationale docs verified: review-run-binding-race.md (full kind-aware spec), flow-fact-policy.ts line 36 and 324 (flow-policy:review-run-boundary rationale), process-fact-levels.ts (matching rationale). No concept deletion/replacement residue detected in round-3 diff. No new findings.",
+      "createdAt": "2026-06-24T14:42:29.900Z",
+      "reviewRound": "2026-06-24T14:41:01.279Z",
+      "reviewRunId": "B-6c4d:RR-009",
+      "_hash": "4e33b13d8fb19c3e4756ad903d27603e5e5764c7732b807f400b667308136837"
+    },
+    {
+      "id": "B-6c4d:RP-007",
+      "agent": "lattice-review-quality",
+      "note": "Round-3 commit 9dcdff6de is clean. Changes: (1) prompt-registry.ts reverted to exact main content — confirmed zero diff vs main; (2) story-lifecycle.md doc line updated to describe the kind-aware binding policy. Build passes (tsc). prompt-registry-smoke passes (16 agents rendered). flow-stability-smoke passes. verify-process-fact-contract passes (315 entries, contract verified). No dead code, no type-safety issues, no I/O shell isolation violations in the changed files.",
+      "createdAt": "2026-06-24T14:44:46.219Z",
+      "reviewRound": "2026-06-24T14:41:01.279Z",
+      "reviewRunId": "B-6c4d:RR-010",
+      "_hash": "38fb60246bc6fe55976eafec675d08da8dcf73043eb4792ee3fd8bf3d8c89e72"
+    },
+    {
+      "id": "B-6c4d:RP-008",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. 31/31 intents covered, 0 required missing, 0 waivers. flow-stability-smoke.js exit 0 (binding-race case + gate-layer lane-blocked assertion confirmed). prompt-registry-smoke.js exit 0 (round-3 revert of prompt-registry.ts confirmed fix). All validate.commands pass. No new gaps found.",
+      "createdAt": "2026-06-24T14:57:12.663Z",
+      "reviewRound": "2026-06-24T14:41:01.279Z",
+      "reviewRunId": "B-6c4d:RR-012",
+      "_hash": "ce43a47cddff1bb1843251d710998249c2631987b0c002dfee97a3e4ff1c9722"
+    },
+    {
+      "id": "B-6c4d:RP-009",
+      "agent": "lattice-review-concept",
+      "note": "Round-4 concept-completeness check complete. Verified: (1) old phrase \"current-latest run\" has zero residue in active source files — only present in immutable findings.json history records and in a pre-existing CLAUDE.md gate-behavior paragraph that was not touched by this branch and uses the phrase in a distinct context (describing validation of the binding object itself, not the pass-relaxation policy); (2) new accurate phrase \"a pass does not require being the latest run\" appears in exactly 31 files: 10 .claude/agents/ mirrors + 10 packages/main/templates/agents/ templates + 1 packages/main/src/core/prompt-registry.ts source-of-truth + 10 .lattice-codex/agents/ mirrors — all mirrors in sync; (3) behavioral code untouched by the round-4 commit: review-run.ts:807 kind-aware relax (evidence.kind !== pass) and evidence-freshness.ts EMPTY guard both intact; (4) no concept deletion/replacement introduced by this change; no doc-promise-undelivered issues. Zero new findings.",
+      "createdAt": "2026-06-24T15:07:28.126Z",
+      "reviewRound": "2026-06-24T15:05:36.419Z",
+      "reviewRunId": "B-6c4d:RR-013",
+      "_hash": "b14cf62f5a112861cc99a57b4ef018b06049d83649c7ed75a03b99797e2260db"
+    },
+    {
+      "id": "B-6c4d:RP-010",
+      "agent": "lattice-review-quality",
+      "note": "Round-4 commit 40213bdb: 31 files all carry the identical single-line replacement (uniq confirms one unique added line). No behavioral/TS-logic code touched in this commit (review-run.ts + evidence-freshness.ts unchanged in 40213bdb). Branch-wide TS changes (CHK-001/CHK-002): no new dead imports — EMPTY_STORY_FILES_HASH and assertCurrentReviewRunForEvidence newly imported and both actively used in assertReviewRunBindingRaceAcceptsNonLatestFreshPass; signedReviewRunOverHead helper is non-dead (called twice inside the regression function, itself invoked at line 4349). No new as-any casts introduced by the diff. No new empty catch blocks. No bridge.ts — I/O isolation check not applicable. No dead code, no type-safety regressions, no doc-promise-undelivered issues found.",
+      "createdAt": "2026-06-24T15:07:50.476Z",
+      "reviewRound": "2026-06-24T15:05:36.419Z",
+      "reviewRunId": "B-6c4d:RR-014",
+      "_hash": "75911ea5af0968d16b07748fafb15fc060635a631c3dccdbfd91e90bf2084eb5"
+    },
+    {
+      "id": "B-6c4d:RP-011",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. validate 31/31 covered 0 required missing; flow-stability-smoke exit 0 (binding-race + gate-block assertions); prompt-registry-smoke exit 0 (16 agents, slice consistent). Round 4 commit 40213bdb prompt-slice sync across 31 files introduces no test/behavior change and no coverage regression.",
+      "createdAt": "2026-06-24T15:09:08.528Z",
+      "reviewRound": "2026-06-24T15:05:36.419Z",
+      "reviewRunId": "B-6c4d:RR-016",
+      "_hash": "f31562846d2e2786a7f760334e16cf4b974f3f07e3d47cff17491f2b83f5ea6d"
+    },
+    {
+      "id": "B-6c4d:RP-012",
+      "agent": "lattice-review-quality",
+      "note": "Round-5 commit 2aef97e1e is doc-only (CLAUDE.md line 831 only). No TS code changed. Build clean (tsc zero errors). The updated description of kind-aware current-latest-run enforcement is accurate and fully backed by review-run.ts lines 798-816 (evidence.kind !== pass guard). No dead code, no type safety issues, no I/O isolation violations found.",
+      "createdAt": "2026-06-24T15:13:34.774Z",
+      "reviewRound": "2026-06-24T15:12:05.913Z",
+      "reviewRunId": "B-6c4d:RR-018",
+      "_hash": "1ec19b3e97bfe16133631681ea771f69aaefbdfcd902da69249cead05c1a5bc9"
+    },
+    {
+      "id": "B-6c4d:RP-013",
+      "agent": "lattice-review-concept",
+      "note": "Round-5 concept residue check complete. The round-5 commit (2aef97e1e) changed only CLAUDE.md line 831, replacing the stale universal current-latest-run policy claim with the correct kind-aware description (FINDING-only). Grep confirms: (1) no stale universal current-latest-run policy claim survives in any active source/doc; (2) the one remaining occurrence of \"current-latest run\" in CLAUDE.md:831 is correctly scoped to \"for an open FINDING only\"; (3) review-run.ts:807 implements the kind-aware gate (evidence.kind !== \"pass\" condition); (4) flow-fact-policy.ts:36 and process-fact-levels.ts:324 both carry the correct kind-aware rationale; (5) evidence-freshness.ts has the EMPTY_STORY_FILES_HASH guard; (6) decision doc review-run-binding-race.md correctly documents the KIND-AWARE relaxation. No concept deletion/replacement introduced; no residue blocker found.",
+      "createdAt": "2026-06-24T15:13:44.533Z",
+      "reviewRound": "2026-06-24T15:12:05.913Z",
+      "reviewRunId": "B-6c4d:RR-017",
+      "_hash": "4c15c986c8f89d98ea5dd52e22e369839b63b23f41a510d508a5c0b1d742d792"
+    },
+    {
+      "id": "B-6c4d:RP-014",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. 31/31 intents covered, 0 required missing, 0 waivers. Round-5 commit 2aef97e1e changed only CLAUDE.md (doc, no test/behavior change). validate 30/30 commands green, flow-stability-smoke exit 0. All must-intents across CHK-001 through CHK-004 have non-fail evidence with concrete intent binding.",
+      "createdAt": "2026-06-24T15:15:30.777Z",
+      "reviewRound": "2026-06-24T15:12:05.913Z",
+      "reviewRunId": "B-6c4d:RR-019",
+      "_hash": "23c43973dbc157fcf38211d039cf6f55a8d1d8c968eddf21a2f5abbd1b774171"
+    },
+    {
+      "id": "B-6c4d:RP-015",
+      "agent": "lattice-review-docs",
+      "note": "Reviewed CLAUDE.md touchpoint for docs scope; no blockers found and scope drift is only docs-only; this lane is clean.",
+      "createdAt": "2026-06-24T16:12:11.837Z",
+      "reviewRound": "2026-06-24T15:12:05.913Z",
+      "reviewRunId": "B-6c4d:RR-020",
+      "_hash": "e4e713fe9224ecb19a11c8807f2b6ee872fd6eac98073d4f009d5952ecfb61d5"
+    },
+    {
+      "id": "B-6c4d:RP-016",
+      "agent": "lattice-review-concept",
+      "note": "Re-review after done_prepare main merge; no blockers.",
+      "createdAt": "2026-06-24T16:19:30.948Z",
+      "reviewRound": "2026-06-24T16:19:09.469Z",
+      "reviewRunId": "B-6c4d:RR-027",
+      "_hash": "2571210a80a8e034aba804e3183a1116e92cf7a2ee047c811c41ccc6680df781"
+    },
+    {
+      "id": "B-6c4d:RP-017",
+      "agent": "lattice-review-quality",
+      "note": "Re-review after done_prepare main merge; no blockers.",
+      "createdAt": "2026-06-24T16:19:31.463Z",
+      "reviewRound": "2026-06-24T16:19:09.469Z",
+      "reviewRunId": "B-6c4d:RR-028",
+      "_hash": "79af352507854ebc372841a60f49bd28ec5ccc697f5ef2f971984e3335fc53ae"
+    },
+    {
+      "id": "B-6c4d:RP-018",
+      "agent": "lattice-review-test-coverage",
+      "note": "Re-review after done_prepare main merge; no blockers.",
+      "createdAt": "2026-06-24T16:19:32.028Z",
+      "reviewRound": "2026-06-24T16:19:09.469Z",
+      "reviewRunId": "B-6c4d:RR-029",
+      "_hash": "3ae88747937b536fb26f2e9c270f4363a6fab840d168a6f835d93233aff092f2"
+    },
+    {
+      "id": "B-6c4d:RP-019",
+      "agent": "lattice-review-docs",
+      "note": "Re-review after done_prepare main merge; no blockers.",
+      "createdAt": "2026-06-24T16:19:32.537Z",
+      "reviewRound": "2026-06-24T16:19:09.469Z",
+      "reviewRunId": "B-6c4d:RR-030",
+      "_hash": "d78cfa9c77da91a9b64fe24281b6a926c469fb277431bb365b12c6a5b0c922dc"
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "storyId": "B-6c4d",
+  "checkedAt": "2026-06-24T16:23:58.542Z",
+  "headHash": "770b562bf58cf5db1d2c22fb9123e72719e311ef",
+  "materialHash": "9ff1a420240f716478d6dd45f47ae03a46569ec503c45a352ca1ee6fc9a4aaa9",
+  "storyFilesHash": "631ddb6ce358166102087e1615c835a7536b853f5e4bf3d085c010636734637c",
+  "reviewRound": "2026-06-24T16:19:09.469Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/review-run-binding-race.md",
+      "promise": "PASS evidence binding in review-run must accept stale current-latest run for non-stale material, while non-pass evidence and open finding paths keep run-staleness checks.",
+      "status": "verified",
+      "verifiedBy": "review evidence + done_prepare validation",
+      "evidence": "flow-stability smoke and regression test exercises concurrent review_run_start/pass binding behavior"
+    },
+    {
+      "docPath": "docs/requirements/decisions/session-ownership-and-write-leases.md",
+      "promise": "review_run_start/review_pass_set/finding_add are documented as reviewerWrite / lease-exempt and consistent with worktree/lease policy.",
+      "status": "verified",
+      "verifiedBy": "CLAUDE/agent review + docs diff",
+      "evidence": "Round-4 prompt-policy and docs updates updated across all mirrors"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "B-6c4d",
+      "transcript": "lattice validate --story=B-6c4d --json passed all configured commands. done_prepare --storyId=B-6c4d --mergeMain --refreshStale --validate passed validation and only blocked on missing delivery-check/summary prior to finalization, after fix these blockers were resolved and evidence remained current."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Real-machine validation passed; race-regression smoke and delivery closeout evidence were bound to current review materials. Main residual risk is no open TODOs in this story scope."
+  },
+  "_hash": "749145af6811445a30a3911f0ca65265aa50804d794e689ad396eb64479d73ca"
+}

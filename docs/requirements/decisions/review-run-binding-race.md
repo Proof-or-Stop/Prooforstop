@@ -1,0 +1,21 @@
+# Review-Run Binding Race — relax id-recency, keep material/scope/empty-hash guards
+
+## Problem
+When reviewer lanes run in parallel, or a reviewer retries review_run_start, a second run_start on the same (storyId, lane) in the same reviewRound mints a newer reviewRunId. currentRunForLane (review-run.ts) returns the newest-by-recency run, and any review_pass_set / finding_add bound to the ORIGINAL run is hard-rejected — at write time by assertCurrentReviewRunForEvidence (review-run.ts:669-672, "is not the current latest reviewer run") and at validate time by validateEvidenceRunBinding (review-run.ts:794-804, issue 'stale_run') — purely because a newer run exists, even though the bound run is still in the current round and still material- and scope-fresh. This empties the lane's valid-pass set and stalls quorum_submit (handlers/quorum-submit.ts), which forced a whole fresh REVIEW round during B-70e4. reviewerWrite is lease-exempt (command-policy.ts) and review_run_start vs review_pass_set/finding_add hold DISTINCT mkdir locks, so the owner lease never serialized these writers; B-77ed only raised the lock budget to 30s, which does not address the false-reject.
+
+## Decision
+Remove the id-recency rejection: a non-latest run is ACCEPTED when it is still material-fresh and scope-fresh, and rejected only by the existing freshness and scope checks (stale-by-material/scope, never stale-merely-by-id). The validate-side relax is KIND-AWARE: the 'stale_run' issue is dropped only for evidence.kind === 'pass' (so a material-fresh non-latest PASS becomes valid), but KEPT for findings so an older OPEN finding is still surfaced and not hidden by a newer pass on the same lane (collectReviewerEvidenceState supersedes it only once the finding is resolved/dismissed). This is conditioned on a mandatory soundness guard added to checkEvidenceFreshnessForGit: the storyFilesHash drift-advisory downgrade must treat EMPTY_STORY_FILES_HASH (sha256 of an empty story-owned diff) as no-signal on BOTH the stored and the live side and fall through to strict materialHash, exactly as delivery-check-hash.ts:184-188 already does. The lease-contract doc (session-ownership-and-write-leases.md) is reconciled doc-only.
+
+## Why id-recency is redundant
+Both surviving checks compare the run's CAPTURED SNAPSHOT against the LIVE current state, never run-1 against run-2: checkEvidenceFreshnessForGit reads currentMaterialHash / currentStoryFilesHash from live HEAD; compareScopeBinding re-digests the live contract and the live main...HEAD diff pack. A second run_start changes only the reviewRunId, not what was reviewed; two same-round runs that captured the same tree are byte-identical to the live comparison. Round, lane, signature (verifyReviewRun), and workspace-binding checks all still fire.
+
+## The one real hole and its guard
+The adversarial soundness review found that the storyFilesHash drift-advisory branch — the sole path where whole-tree material drift does not hard-reject — lacked the EMPTY_STORY_FILES_HASH no-signal guard. currentStoryFilesHash returns a truthy sha256('') for an empty story diff; under relax, a same-round run captured with an empty story diff could ride the advisory under arbitrary whole-tree drift while a newer run captured the real current state. The mandatory EMPTY guard closes this for all checkEvidenceFreshnessForGit callers.
+
+## Rejected alternatives
+- keep-strict: preserves the quorum-blocking false-reject for a check that adds no soundness.
+- unify-lock-A alone: does NOT fix the race — a legitimate later run_start still invalidates an earlier fresh pass under strict id-recency; it only narrows the interleave window. Deferred as an optional follow-up.
+- blanket relax (both kinds) without the EMPTY guard and without kind-awareness: unsound under empty-set storyFilesHash drift, AND it hides open findings behind a newer pass. Both were caught by a red->spike->story spike plus the adversarial design review, which is why the validate-side relax is kind-aware and the EMPTY guard is mandatory.
+
+## Scope
+Both review-run.ts call sites (assertCurrentReviewRunForEvidence write-time and validateEvidenceRunBinding validate-time); the EMPTY_STORY_FILES_HASH guard in checkEvidenceFreshnessForGit (evidence-freshness.ts, all callers); and the lease-doc reconciliation.

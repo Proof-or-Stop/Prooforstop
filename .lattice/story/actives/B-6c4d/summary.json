@@ -1,0 +1,56 @@
+{
+  "storyId": "B-6c4d",
+  "changes": "Implemented kind-aware review-run binding recovery: relaxes id-recency requirement for pass-evidence while keeping stale/replay checks for open findings and non-pass results; added EMPTY_STORY_FILES_HASH guard fallback to strict materialHash; added regression smoke and flow-stability coverage; synced decision + lease docs to the kind-aware contract.",
+  "usage": "In REVIEW, run lattice review_run_start/review_pass_set or lattice validate to exercise PASS/validation evidence paths; verify with lattice done_prepare --storyId=B-6c4d --mergeMain --refreshStale --validate before DONE.",
+  "expectedOutcome": "Concurrent review_run_start calls should no longer strand a prior material-fresh pass, empty hash cases should not silently pass advisory checks, and stale material/finding changes must still invalidate evidence as expected.",
+  "actualTranscript": "TEST gate passed with lattice validate --story=B-6c4d --json executing 30 configured commands. done_prepare PASS validation path; blocker was only missing summary.json and delivery-check before DONE. review_escalation_status now reports full-3x2 local quorum and clean flow after rerun. No runtime regressions observed in related proof-admissibility stories.",
+  "outcomeDiff": "No remaining functional behavior difference against target: bugfix flow is now stable for PASS evidence and validation; final blockers are closeout artifacts, not code behavior.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Authority/prod receipt semantics are intentionally unchanged; this story improves local proof-assurance and evidence refresh semantics only. Existing high-risk consumers may still block in enforce mode based on stricter admissibility policies.",
+  "pitfalls": "Flow initially regressed when stale non-pass evidence stayed visible; rerun and finalization required multiple review runs, review_escalation_status, and done_prepare loop to clear stale review evidence and closure blockers.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 192345
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 24535
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 615606
+    },
+    "DEV": {
+      "count": 6,
+      "durationMs": 5259567
+    },
+    "REVIEW": {
+      "count": 6,
+      "durationMs": 6229956
+    },
+    "TEST": {
+      "count": 2,
+      "durationMs": 440850
+    }
+  },
+  "totalDurationMs": 12762871,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-24T16:23:56.263Z",
+  "updatedAt": "2026-06-24T16:23:56.263Z"
+}

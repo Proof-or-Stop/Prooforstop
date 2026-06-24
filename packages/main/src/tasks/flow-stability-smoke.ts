@@ -28,7 +28,7 @@ import {
 } from '../core/dirty-gate-policy.js';
 import { evaluateDeclaredArtifactReferences } from '../core/declared-artifact-gate.js';
 import { createArtifactDeclareHandlers } from '../handlers/artifact-declare.js';
-import { checkEvidenceFreshnessForGit, currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
+import { EMPTY_STORY_FILES_HASH, checkEvidenceFreshnessForGit, currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { signDeliveryCheck } from '../core/delivery-check-hash.js';
 import { signFinding, signReviewPass, verifyFinding, verifyReviewPass } from '../core/finding-verify.js';
 import { autoCommitStoryMetadata, AUTO_COMMIT_METADATA_PREFIX } from '../core/auto-commit-metadata.js';
@@ -66,7 +66,7 @@ import {
   lifecycleCommandsByPhase,
   lifecycleResolvedCommandsForPhase,
 } from '../core/lifecycle-registry.js';
-import { buildReviewRunWorkspaceBinding, collectReviewerEvidenceState, signReviewRun, verifyReviewRun } from '../core/review-run.js';
+import { assertCurrentReviewRunForEvidence, buildReviewRunWorkspaceBinding, collectReviewerEvidenceState, signReviewRun, verifyReviewRun } from '../core/review-run.js';
 import { summarizeReviewerStatus } from '../core/reviewer-status.js';
 import { StoryStore } from '../core/store.js';
 import type { ChecklistData, Finding, ReviewRun, StoryInfo, TestEvidenceData } from '../core/types.js';
@@ -1335,6 +1335,191 @@ function assertSupersededReviewPassDoesNotBlockLatestReviewerRun(): void {
       'resolved stale findings should be superseded by a newer valid pass for the same lane',
     );
     assert.equal(getGuardFailureReason(storyId, store, 'TEST', root), null);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+// B-6c4d regression — the review-run-binding race (friction #2). A second
+// review_run_start on a lane (concurrent / retried) mints a newer reviewRunId
+// over the SAME material tree; a pass bound to the FIRST run must NOT be
+// rejected purely because a newer run exists. The freshness (material /
+// storyFilesHash, with the EMPTY-set no-signal guard) + scope checks remain the
+// real staleness authorities. This also pins the kind-aware relax: an OPEN
+// finding on a non-latest run STILL surfaces (stale_run), and genuine material
+// drift / empty-signal runs still hard-reject.
+// Build a signed review run captured against the CURRENT git head + material,
+// binding the secondary storyFilesHash signal so freshness can exercise both the
+// material and storyFilesHash paths. No workspaceBinding: this regression targets
+// the id-recency + freshness authorities, not split-root workspace resolution, so
+// the run stays workspace-binding-exempt (validateRunWorkspaceBinding passes when
+// run.workspaceBinding is absent), matching a metadata-git-root reviewer run.
+function signedReviewRunOverHead(
+  root: string,
+  storyId: string,
+  agent: string,
+  reviewRound: string,
+  reviewRunId: string,
+  startedAt: string,
+): ReviewRun {
+  const headHash = currentGitHead(root)!;
+  const materialHash = currentMaterialHash(root)!;
+  const storyFilesHash = currentStoryFilesHash(root) ?? undefined;
+  return {
+    reviewRunId,
+    storyId,
+    agent,
+    lane: agent,
+    reviewRound,
+    startedAt,
+    headHash,
+    materialHash,
+    promptHash: '',
+    ...(storyFilesHash ? { storyFilesHash } : {}),
+    _hash: signReviewRun(storyId, reviewRunId, agent, agent, reviewRound, startedAt, headHash, materialHash, '', undefined, undefined, storyFilesHash),
+  };
+}
+
+function assertReviewRunBindingRaceAcceptsNonLatestFreshPass(): void {
+  const root = mkdtempSync(join(tmpdir(), 'lattice-review-run-binding-race-'));
+  try {
+    write(root, 'lattice.config.json', JSON.stringify({
+      scanRoot: 'packages/main',
+      rootDir: 'src',
+      testsDir: 'packages/main/tests',
+      fixturesDir: 'packages/main/tests/fixtures',
+      storyDir: '.lattice/story/actives',
+      requirementsDir: 'docs/requirements',
+      workflow: { profile: 'balanced' },
+    }));
+    write(root, 'packages/main/src/base.ts', 'export const base = 1;\n');
+    git(root, ['init']);
+    git(root, ['config', 'user.email', 'flow@example.invalid']);
+    git(root, ['config', 'user.name', 'Flow Stability Smoke']);
+    git(root, ['checkout', '-B', 'main']);
+    git(root, ['add', '.']);
+    git(root, ['commit', '-m', 'base']);
+    git(root, ['checkout', '-B', 'story/B-smoke']);
+    write(root, 'packages/main/src/story.ts', 'export const story = 1;\n');
+    git(root, ['add', '.']);
+    git(root, ['commit', '-m', 'story change']);
+    resetConfigCache();
+
+    const storyId = 'B-smoke';
+    const agent = 'lattice-review-concept';
+    const now = '2026-06-24T12:00:00.000Z';
+    const reviewRound = '2026-06-24T12:01:00.000Z';
+    const story: StoryInfo = {
+      storyId,
+      name: 'flow-stability-smoke',
+      title: 'Flow stability smoke',
+      description: 'Synthetic story for the review-run binding race.',
+      type: 'chore',
+      phase: 'REVIEW',
+      priority: 'medium',
+      createdAt: now,
+      startedAt: now,
+      endedAt: null,
+      currentReviewRound: reviewRound,
+      events: [{ phase: 'REVIEW', action: 'advance', timestamp: reviewRound }],
+    };
+    const checklist: ChecklistData = {
+      items: [{ id: 'CHK-001', title: 'item', context: 'ctx', status: 'done', startTime: now, endTime: now }],
+    };
+    const store = new StoryStore(root);
+    store.writeStory(storyId, story);
+    store.writeChecklist(storyId, checklist);
+
+    // Two review runs on ONE lane, SAME round + SAME material tree: run1 (older)
+    // then run2 (newer). This is the concurrent/retried review_run_start race.
+    const run1Id = `${storyId}:RR-001`;
+    const run2Id = `${storyId}:RR-002`;
+    const run1 = signedReviewRunOverHead(root, storyId, agent, reviewRound, run1Id, '2026-06-24T11:00:00.000Z');
+    const run2 = signedReviewRunOverHead(root, storyId, agent, reviewRound, run2Id, '2026-06-24T11:05:00.000Z');
+    assert.notEqual(run1.storyFilesHash, EMPTY_STORY_FILES_HASH, 'story-branch run must carry a non-empty storyFilesHash');
+    assert.ok(run1.storyFilesHash, 'story-branch run must carry a storyFilesHash');
+    store.writeReviewRuns(storyId, { runs: [run1, run2] });
+
+    // CORE: a PASS bound to the NON-latest run1 (material+scope fresh) is ACCEPTED.
+    // Pre-fix this threw "is not the current latest reviewer run".
+    const accepted = assertCurrentReviewRunForEvidence(store, story, root, agent, run1Id);
+    assert.equal(accepted.reviewRunId, run1Id, 'non-latest material-fresh run must be accepted by assertCurrentReviewRunForEvidence');
+
+    // And collectReviewerEvidenceState must NOT flag that pass as an invalid stale_run.
+    store.writeReviewPasses(storyId, {
+      passes: [makeReviewPass(storyId, agent, reviewRound, '063', run1Id)],
+    });
+    const passState = collectReviewerEvidenceState(store, storyId, root);
+    assert.equal(
+      passState.invalid.some(issue => issue.kind === 'pass' && issue.code === 'stale_run' && issue.agent === agent),
+      false,
+      'a material-fresh pass bound to a non-latest run must not be an invalid stale_run',
+    );
+
+    // KIND-AWARE: an OPEN finding bound to the non-latest run1 STILL surfaces as stale_run
+    // (it is not silently relaxed by the pass relax — open findings must keep blocking).
+    const openFinding = {
+      ...makeFinding(storyId, agent, reviewRound, '064', run1Id),
+      status: 'open' as const,
+    };
+    store.writeFindings(storyId, { findings: [openFinding] });
+    const findingState = collectReviewerEvidenceState(store, storyId, root);
+    assert.equal(
+      findingState.invalid.some(issue => issue.kind === 'finding' && issue.code === 'stale_run' && issue.agent === agent),
+      true,
+      'kind-aware relax must keep stale_run for an OPEN finding bound to a non-latest run',
+    );
+    assert.match(
+      getGuardFailureReason(storyId, store, 'TEST', root) ?? '',
+      /Not the latest run on the current lane|stale_run/,
+      'open finding still blocks the gate even though the pass is accepted',
+    );
+    store.writeFindings(storyId, { findings: [] });
+
+    // GUARD B: an empty-set-storyFilesHash run on a drifted material tree must
+    // STILL hard-reject — the EMPTY_STORY_FILES_HASH no-signal guard must not let
+    // the drift advisory ride an empty story diff. Build run3 against the CURRENT
+    // (pre-drift) head but with the empty-set storyFilesHash (the value a HEAD==main
+    // run carries), so after the material drift below its material is stale while
+    // its storyFilesHash carries no real vouching signal. Constructed before the
+    // drift commit so its headHash/materialHash match the captured tree.
+    const emptyRunId = `${storyId}:RR-003`;
+    const emptyHead = currentGitHead(root)!;
+    const emptyMaterial = currentMaterialHash(root)!;
+    const emptyRun: ReviewRun = {
+      reviewRunId: emptyRunId,
+      storyId,
+      agent,
+      lane: agent,
+      reviewRound,
+      startedAt: '2026-06-24T11:10:00.000Z',
+      headHash: emptyHead,
+      materialHash: emptyMaterial,
+      promptHash: '',
+      storyFilesHash: EMPTY_STORY_FILES_HASH,
+      _hash: signReviewRun(storyId, emptyRunId, agent, agent, reviewRound, '2026-06-24T11:10:00.000Z', emptyHead, emptyMaterial, '', undefined, undefined, EMPTY_STORY_FILES_HASH),
+    };
+    assert.equal(emptyRun.storyFilesHash, EMPTY_STORY_FILES_HASH, 'empty-signal run must carry the empty-set storyFilesHash');
+    store.writeReviewRuns(storyId, { runs: [run1, run2, emptyRun] });
+
+    // GUARD A: genuine material drift makes both run1 (real story diff) AND the
+    // empty-signal run3 stale → hard-reject, never advisory. Committing the story
+    // metadata + drift onto the current story branch keeps store.readStory usable
+    // (no branch switch, so the story files never leave the working tree).
+    write(root, 'packages/main/src/story.ts', 'export const story = 2; // drift\n');
+    git(root, ['add', '-A']);
+    git(root, ['commit', '-m', 'material drift']);
+    const story2 = store.readStory(storyId);
+    assert.throws(
+      () => assertCurrentReviewRunForEvidence(store, story2, root, agent, run1Id),
+      /stale/i,
+      'a genuinely material-drifted run1 (non-empty storyFilesHash) must still hard-reject',
+    );
+    assert.throws(
+      () => assertCurrentReviewRunForEvidence(store, story2, root, agent, emptyRunId),
+      /stale/i,
+      'an empty-set-storyFilesHash run on a drifted material tree must still hard-reject (EMPTY no-signal guard)',
+    );
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -4161,6 +4346,7 @@ assertVerificationEvidenceStoryFilesHashDowngradesUnrelatedDrift();
 assertTestEvidenceStoryFilesHashDowngradesActiveDoneFreshness();
 assertReviewPreflightSurfacesStoryFilesHashAdvisories();
 assertSupersededReviewPassDoesNotBlockLatestReviewerRun();
+assertReviewRunBindingRaceAcceptsNonLatestFreshPass();
 assertLegacyReviewEvidenceWithoutCurrentRoundStaysReadable();
 assertNonReviewerFindingsDoNotCountAsReviewerEvidence();
 assertStoryAdvanceGuardIgnoresMainAgentDevFindings();
