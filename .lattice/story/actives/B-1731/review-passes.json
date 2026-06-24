@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-24T22:29:16.791Z",
       "reviewRunId": "B-1731:RR-014",
       "_hash": "d5fb1e1535b5e6278ee976a96e110badbfafaa674ef85ba875eeb15ed8df1830"
+    },
+    {
+      "id": "B-1731:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Concept re-review clean at HEAD e0c641d. Checked story_create direct-phase bypass guard, fromDraft preflight before persistence/deletion, story_create_from_repro accepted-review binding path, repro_first_preflight_engine_error fail-open/session_brief surfacing, malformed binding stale diagnostics, and IDEA->PLAN/PLAN->DEV/INIT_CHECK->DEV lifecycle boundaries. Targeted verification passed: npm --prefix packages/main run test:repro-evidence-binding-dev-gate (25 checks).",
+      "createdAt": "2026-06-24T22:35:02.225Z",
+      "reviewRound": "2026-06-24T22:29:16.791Z",
+      "reviewRunId": "B-1731:RR-018",
+      "_hash": "48e1c58ac90aa7b42ce55ef76f5a38005f335c11a3b7be4c5fd06fce1c13c4b8"
     }
   ]
 }
