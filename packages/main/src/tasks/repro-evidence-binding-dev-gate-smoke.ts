@@ -812,6 +812,101 @@ await check('gate rejects rejected spike review as stale', async () => {
   });
 });
 
+await check('gate rejects contradictory spike review status when verdict is rejected', async () => {
+  await withRoot((root, store) => {
+    const storyId = 'B-contradictory-spike-review';
+    writeStory(store, storyId, 'PLAN', fileChecklist);
+    const { probe, review, spike } = createReviewedProbeAndSpike(root, 'cand-contradictory-spike-review');
+    const spikeReview = writeArtifact(root, {
+      artifactKind: 'spike-review',
+      evidenceScope: 'evidence-candidate',
+      subjectBinding: { candidateId: probe.payload.candidateId, probeId: probe.artifactId, spikeId: spike.artifactId },
+      producer: 'repro-intake-service',
+      payload: {
+        spikeId: spike.artifactId,
+        spikeDigest: spike.artifactDigest,
+        verdict: 'rejected',
+        status: 'accepted',
+        notes: 'Legacy status must not override a rejected spike review verdict.',
+      } as any,
+    });
+    writeArtifact(root, {
+      artifactKind: 'story-evidence-binding',
+      evidenceScope: 'evidence-candidate',
+      subjectBinding: { candidateId: probe.payload.candidateId, probeId: probe.artifactId, storyId },
+      producer: 'repro-intake-service',
+      payload: {
+        storyId,
+        candidateId: probe.payload.candidateId,
+        probeId: probe.artifactId,
+        probeDigest: probe.artifactDigest,
+        reviewId: review.artifactId,
+        reviewDigest: review.artifactDigest,
+        spikeId: spike.artifactId,
+        spikeDigest: spike.artifactDigest,
+        spikeReviewId: spikeReview.artifactId,
+        spikeReviewDigest: spikeReview.artifactDigest,
+        derivedChecklistRefs: [],
+        derivedVerificationIntentRefs: [],
+        note: 'Synthetic invalid spike binding with contradictory spike review status.',
+      },
+    });
+    const gate = evaluateStoryEvidenceBindingGate(root, store, storyId);
+    assert.equal(gate.blocking, true);
+    assert.equal(gate.reasonCode, 'stale_story_evidence_binding');
+    const details = gate.details.join('\n');
+    assert.match(details, /spike_review_not_confirmed/);
+    assert.match(details, /verdict=rejected, status=accepted, expected verdict=confirmed/);
+  });
+});
+
+await check('gate rejects status-only accepted spike review without confirmed verdict', async () => {
+  await withRoot((root, store) => {
+    const storyId = 'B-status-only-spike-review';
+    writeStory(store, storyId, 'PLAN', fileChecklist);
+    const { probe, review, spike } = createReviewedProbeAndSpike(root, 'cand-status-only-spike-review');
+    const spikeReview = writeArtifact(root, {
+      artifactKind: 'spike-review',
+      evidenceScope: 'evidence-candidate',
+      subjectBinding: { candidateId: probe.payload.candidateId, probeId: probe.artifactId, spikeId: spike.artifactId },
+      producer: 'repro-intake-service',
+      payload: {
+        spikeId: spike.artifactId,
+        spikeDigest: spike.artifactDigest,
+        status: 'accepted',
+        notes: 'Legacy status-only acceptance must not satisfy the spike review contract.',
+      } as any,
+    });
+    writeArtifact(root, {
+      artifactKind: 'story-evidence-binding',
+      evidenceScope: 'evidence-candidate',
+      subjectBinding: { candidateId: probe.payload.candidateId, probeId: probe.artifactId, storyId },
+      producer: 'repro-intake-service',
+      payload: {
+        storyId,
+        candidateId: probe.payload.candidateId,
+        probeId: probe.artifactId,
+        probeDigest: probe.artifactDigest,
+        reviewId: review.artifactId,
+        reviewDigest: review.artifactDigest,
+        spikeId: spike.artifactId,
+        spikeDigest: spike.artifactDigest,
+        spikeReviewId: spikeReview.artifactId,
+        spikeReviewDigest: spikeReview.artifactDigest,
+        derivedChecklistRefs: [],
+        derivedVerificationIntentRefs: [],
+        note: 'Synthetic invalid spike binding with status-only accepted spike review.',
+      },
+    });
+    const gate = evaluateStoryEvidenceBindingGate(root, store, storyId);
+    assert.equal(gate.blocking, true);
+    assert.equal(gate.reasonCode, 'stale_story_evidence_binding');
+    const details = gate.details.join('\n');
+    assert.match(details, /spike_review_not_confirmed/);
+    assert.match(details, /status=accepted, expected verdict=confirmed/);
+  });
+});
+
 await check('gate rejects mismatched spike review as stale', async () => {
   await withRoot((root, store) => {
     const storyId = 'B-mismatched-spike-review';
@@ -885,6 +980,37 @@ await check('PLAN->DEV missing binding is blocked', async () => {
     writeStory(store, storyId, 'PLAN', fileChecklist);
     assert.equal(canSendStoryEventWithoutSnapshotCan(storyId, store, 'PLAN', 'START', root), false);
     assert.match(getGuardFailureReason(storyId, store, 'DEV', root) ?? '', /missing_story_evidence_binding/);
+  });
+});
+
+await check('PLAN->DEV bug-story missing binding diagnostic uses classifier reason', async () => {
+  await withRoot((root, store) => {
+    const storyId = 'B-bug-missing-dev';
+    store.writeStory(storyId, { ...story(storyId, 'PLAN'), type: 'bug' });
+    store.writeChecklist(storyId, noFileChecklist);
+    assert.equal(canSendStoryEventWithoutSnapshotCan(storyId, store, 'PLAN', 'START', root), false);
+    const reason = getGuardFailureReason(storyId, store, 'DEV', root) ?? '';
+    assert.match(reason, /classifier=bug_story/);
+    assert.match(reason, /story\.type=bug/);
+    assert.doesNotMatch(reason, /checklist declares files\.modify\/create\/test/);
+  });
+});
+
+await check('PLAN->DEV high-risk missing binding diagnostic uses classifier reason', async () => {
+  await withRoot((root, store) => {
+    const storyId = 'B-high-risk-missing-dev';
+    store.writeStory(storyId, {
+      ...story(storyId, 'PLAN'),
+      priority: 'high',
+      riskSignals: [{ category: 'State Machine/Gate', matched: 'gate' }],
+    });
+    store.writeChecklist(storyId, noFileChecklist);
+    assert.equal(canSendStoryEventWithoutSnapshotCan(storyId, store, 'PLAN', 'START', root), false);
+    const reason = getGuardFailureReason(storyId, store, 'DEV', root) ?? '';
+    assert.match(reason, /classifier=high_risk_code_verifiable/);
+    assert.match(reason, /priority=high/);
+    assert.match(reason, /riskSignals=State Machine\/Gate:gate/);
+    assert.doesNotMatch(reason, /checklist declares files\.modify\/create\/test/);
   });
 });
 

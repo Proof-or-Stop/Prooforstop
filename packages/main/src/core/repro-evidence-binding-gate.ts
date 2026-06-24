@@ -40,6 +40,8 @@ export interface StoryEvidenceBindingGateResult {
   mode: ReproFirstPreflightMode;
   reasonCode: StoryEvidenceBindingGateReasonCode | null;
   details: string[];
+  requirementReason?: ReproFirstRequirementReason;
+  requirementDetails?: string[];
   bindingArtifactId?: string;
 }
 
@@ -163,8 +165,8 @@ function readBoundArtifact<TPayload>(
   }
 }
 
-function isAcceptedSpikeReview(payload: SpikeReviewPayload & { status?: string }): boolean {
-  return payload.verdict === 'confirmed' || payload.status === 'accepted';
+function isAcceptedSpikeReview(payload: SpikeReviewPayload): boolean {
+  return payload.verdict === 'confirmed';
 }
 
 function validateBindingCandidate(
@@ -283,7 +285,7 @@ function validateBindingCandidate(
           if (spikeReviewPayload.spikeId !== payload.spikeId) details.push(`${spikeReview.artifactId}: spikeReview payload.spikeId does not match binding spikeId`);
           if (spikeReviewPayload.spikeDigest !== payload.spikeDigest) details.push(`${spikeReview.artifactId}: spikeReview payload.spikeDigest does not match binding spikeDigest`);
           if (!isAcceptedSpikeReview(spikeReviewPayload)) {
-            details.push(`${spikeReview.artifactId}: spike_review_not_confirmed verdict=${spikeReviewPayload.verdict}, status=${spikeReviewPayload.status ?? '(missing)'}, expected verdict=confirmed or status=accepted`);
+            details.push(`${spikeReview.artifactId}: spike_review_not_confirmed verdict=${spikeReviewPayload.verdict}, status=${spikeReviewPayload.status ?? '(missing)'}, expected verdict=confirmed`);
           }
         }
       }
@@ -344,7 +346,15 @@ export function evaluateStoryEvidenceBindingGate(
 
   const classification = classifyReproFirstRequirement(story, checklist);
   if (!classification.required) {
-    return resultFor({ ok: true, required: false, mode, reasonCode: null, details: classification.details });
+    return resultFor({
+      ok: true,
+      required: false,
+      mode,
+      reasonCode: null,
+      details: classification.details,
+      requirementReason: classification.reason,
+      requirementDetails: classification.details,
+    });
   }
 
   let bindings: EvidenceArtifact<StoryEvidenceBindingPayload>[];
@@ -369,6 +379,8 @@ export function evaluateStoryEvidenceBindingGate(
       mode,
       reasonCode: 'missing_story_evidence_binding',
       details: ['repro_first_required_no_candidate: no story-evidence-binding candidate artifact is bound to this story', ...classification.details],
+      requirementReason: classification.reason,
+      requirementDetails: classification.details,
     });
   }
 
@@ -382,6 +394,8 @@ export function evaluateStoryEvidenceBindingGate(
         mode,
         reasonCode: null,
         details: [`bound-accepted: ${binding.artifactId}`],
+        requirementReason: classification.reason,
+        requirementDetails: classification.details,
         bindingArtifactId: binding.artifactId,
       });
     }
@@ -394,7 +408,42 @@ export function evaluateStoryEvidenceBindingGate(
     mode,
     reasonCode: 'stale_story_evidence_binding',
     details: staleDetails.length > 0 ? staleDetails : ['bound story-evidence-binding artifact is stale or invalid'],
+    requirementReason: classification.reason,
+    requirementDetails: classification.details,
   });
+}
+
+function describeRequirement(result: StoryEvidenceBindingGateResult): string {
+  const details = result.requirementDetails?.filter(detail => detail.trim().length > 0) ?? [];
+  return `classifier=${result.requirementReason ?? 'unknown'}${details.length > 0 ? `; ${details.join('; ')}` : ''}`;
+}
+
+function describeRequirementSubject(result: StoryEvidenceBindingGateResult): string {
+  switch (result.requirementReason) {
+    case 'file_declarations':
+      return 'the checklist declares files.modify/create/test';
+    case 'bug_story':
+      return 'story.type=bug';
+    case 'high_risk_code_verifiable':
+      return 'the story has code-verifiable high-risk signals';
+    case 'bypass_eligible_no_files':
+      return 'the story is not repro-first required';
+    default:
+      return 'the repro-first classifier requires accepted repro evidence';
+  }
+}
+
+function describeRequirementRemediation(result: StoryEvidenceBindingGateResult): string {
+  switch (result.requirementReason) {
+    case 'file_declarations':
+      return 'Create this code-changing story from accepted repro evidence with story_create_from_repro, or remove files.modify/create/test for non-code work.';
+    case 'bug_story':
+      return 'Create this bug story from accepted repro evidence with story_create_from_repro, or change the story type only if this is not actually bug work.';
+    case 'high_risk_code_verifiable':
+      return 'Create this high-risk code-verifiable story from accepted repro evidence with story_create_from_repro, or dismiss/adjust false-positive risk signals before entering lifecycle work.';
+    default:
+      return 'Create the story from accepted repro evidence with story_create_from_repro, or correct the classifier inputs before entering lifecycle work.';
+  }
 }
 
 export function formatStoryEvidenceBindingGateFailure(
@@ -403,11 +452,12 @@ export function formatStoryEvidenceBindingGateFailure(
   result: StoryEvidenceBindingGateResult,
 ): string | null {
   if (result.ok || !result.reasonCode) return null;
-  const filesPhrase = 'story checklist declares files.modify/create/test';
+  const requirementSubject = describeRequirementSubject(result);
+  const classifier = describeRequirement(result);
   const lead = result.reasonCode === 'missing_story_evidence_binding'
-    ? `Cannot enter ${targetPhase}: ${filesPhrase}, but no valid story-evidence-binding candidate artifact is bound to ${storyId}. [missing_story_evidence_binding]`
-    : `Cannot enter ${targetPhase}: ${filesPhrase}, but the bound story-evidence-binding candidate artifact is stale or invalid for ${storyId}. [stale_story_evidence_binding]`;
+    ? `Cannot enter ${targetPhase}: ${requirementSubject}, but no valid story-evidence-binding candidate artifact is bound to ${storyId}. [missing_story_evidence_binding]`
+    : `Cannot enter ${targetPhase}: ${requirementSubject}, but the bound story-evidence-binding candidate artifact is stale or invalid for ${storyId}. [stale_story_evidence_binding]`;
   const details = result.details.slice(0, 6).map(detail => `  - ${detail}`).join('\n');
-  return `${lead}${details ? `\n${details}` : ''}\n` +
-    `→ Create this code-changing story from accepted repro evidence with story_create_from_repro, or remove files.modify/create/test for non-code work.`;
+  return `${lead}\n  - ${classifier}${details ? `\n${details}` : ''}\n` +
+    `→ ${describeRequirementRemediation(result)}`;
 }
