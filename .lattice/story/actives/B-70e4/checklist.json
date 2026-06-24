@@ -131,7 +131,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm run --prefix packages/main test:authority-receipt-proof-auth",
+          "result": "pass",
+          "note": "authority-enforce.ts:206-207 shows loadProof calls resolveAuthorityClientAuth(process.env) and passes the result as the 4th arg to new AuthorityClient(baseURL, fetch, timeout, auth). This ensures the client carries the LATTICE_AUTHORITY_CUSTOMER_API_KEY. The deterministic regression smoke at authority-receipt-proof-auth-smoke.ts:32-41 directly verifies the AuthorityClient constructor with auth sends Bearer — and the loadProof code path uses the same constructor pattern. Test exits 0 with PASS.",
+          "headHash": "9fc7ac2ffc2a84c12466d942688c6985bc80f0d1",
+          "materialHash": "96adaa007e8f7ddafa1d445c9f905d262eb90f4da087c701fec35f3474287e79",
+          "storyFilesHash": "3bb033bf48d472daad32daea22503c5bbbef2c03c79374e5fe0665781999041e",
+          "timestamp": "2026-06-24T01:19:46.078Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
