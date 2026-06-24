@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "Engine factory skeleton + run-driver --engine wiring",
       "context": "New experiments/recovery-runner/live-engine.mjs exporting makeLiveEngine({agentRun, reviewArtifact, model, tasksDir, budgets}) -> async (cell, attempt) => engineResult. Default agentRun/reviewArtifact = live claude -p (reuse run-recovery.mjs helpers). The module's default export (or a thin CLI shim) is loadable by run-driver.mjs --engine. Returns {infraVoid:true, voidReason} on claude overload/529/exec error.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-24T12:27:24.548Z",
-      "endTime": null,
+      "endTime": "2026-06-24T12:44:19.323Z",
       "files": {
         "modify": [
           "experiments/recovery-runner/run-recovery.mjs"
