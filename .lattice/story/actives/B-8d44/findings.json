@@ -509,7 +509,7 @@
       "desc": "dead-code: live-engine.mjs:447 declares `const artifactExists = existsSync(join(ws, task.outputFile))` but the variable is never read — neither in `refusedShip` nor in `terminalStopEvent` nor in the result object. The comment says A4 no-artifact qualifies as a terminal stop, suggesting artifactExists was intended as a guard but was omitted from the condition.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-24T13:36:34.723Z",
@@ -520,7 +520,11 @@
         "experiments/recovery-runner/live-engine.mjs"
       ],
       "signatureTag": "missing|mjs|dead-code-live",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Removed the dead 'artifactExists' local; A4 no-artifact semantics unchanged (verified). Commit 63c1a70b7.",
+      "resolvedAt": "2026-06-24T14:05:50.446Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8d44:F-025",
