@@ -1,0 +1,73 @@
+{
+  "storyId": "B-d321",
+  "checkedAt": "2026-06-23T12:30:34.432Z",
+  "features": [
+    {
+      "feature": "CHK-001 Bind delivery-check artifacts to reviewed material",
+      "covered_by": "Checklist requires delivery_check_set to record current materialHash/headHash and include material binding in integrity hash; plan steps 1-2 extend DeliveryCheckData/signing and record current material binding; verification covers fresh current-material acceptance, metadata-only non-stale behavior, and missing/tampered binding rejection.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist_get CHK-001; plan_get Chosen Contract/Implementation Steps"
+    },
+    {
+      "feature": "CHK-002 Fail closed when material changes after delivery-check",
+      "covered_by": "Checklist requires DONE oracle, machine guard, and lifecycle readiness to classify post-review material drift as stale_delivery_check; plan step 3 adds a shared freshness predicate consumed by those gates; verification covers material-drift stale blocking, docsPromise behavior, and tamper failure.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist_get CHK-002; plan_get Implementation Steps/Verification"
+    },
+    {
+      "feature": "CHK-003 Add focused regression smoke and baseline result artifact",
+      "covered_by": "Checklist requires a focused delivery-check freshness smoke and derived baseline item 5 result artifact; plan steps 4-6 add the smoke, wire fast focus in lattice.config.json, and add a derived B-d321 baseline result without modifying immutable v1; verification requires authorityChanged=false, receiptVerified=false, and productionDone=false in the result.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist_get CHK-003; plan_get Implementation Steps/Verification"
+    },
+    {
+      "feature": "CHK-004 Verify process-fact registry and artifact contract coverage for delivery-check binding",
+      "covered_by": "Checklist requires either registry/artifact contract coverage or explicit proof existing delivery-check L4 contract covers the new binding; understanding records current process-fact coverage is artifact/provenance level while field-level binding belongs in DeliveryCheckData, integrity hash, and focused smoke coverage; scope contract protects process-fact registry files and plan verifies the existing artifact contract path with scripts/verify-process-fact-contract.mjs.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist_get CHK-004; understanding_get facts; scope_contract_show protectedFiles; plan_get Verification"
+    },
+    {
+      "feature": "Authority Server changes",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "Plan Out Of Scope says no Authority Server changes; CHK-002 excludes external server dependency; baseline non-goals exclude Authority Server business logic.",
+      "source": "plan_get Out Of Scope; checklist_get CHK-002; docs/requirements/decisions/lattice-workflow-efficiency-baseline.md"
+    },
+    {
+      "feature": "Production receipts or receipt-backed claims",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "Plan Out Of Scope says no production or receipt-backed claims; CHK-001 excludes treating local evidence as Authority or production proof; baseline non-goals exclude treating local/non-authority evidence as Authority proof.",
+      "source": "plan_get Out Of Scope; checklist_get CHK-001; docs/requirements/decisions/lattice-workflow-efficiency-baseline.md"
+    },
+    {
+      "feature": "Delivery reviewer role relaxation",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "Plan Out Of Scope says no delivery reviewer role relaxation; CHK-001 excludes changing delivery reviewer role ownership or main-agent self-signing; decision principles preserve delivery reviewer role separation.",
+      "source": "plan_get Out Of Scope; checklist_get CHK-001; decision_get principles"
+    },
+    {
+      "feature": "DONE summary freshness baseline item 6",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "Plan Out Of Scope says no DONE summary freshness changes and leaves it to baseline item 6; CHK-003 excludes broadening into DONE summary freshness; baseline lists DONE summary freshness as separate issue 6.",
+      "source": "plan_get Out Of Scope; checklist_get CHK-003; docs/requirements/decisions/lattice-workflow-efficiency-baseline.md"
+    }
+  ],
+  "summary": {
+    "total": 8,
+    "covered": 4,
+    "excluded": 4,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "11048f3845647cf220080529ef2b0c611e09fec606468c743d5bfb8bd5095b4e",
+  "openQuestions": []
+}

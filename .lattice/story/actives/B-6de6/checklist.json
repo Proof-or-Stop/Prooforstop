@@ -1,0 +1,669 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Make the floor fresh-round count storyFilesHash-authoritative (valid-with-advisory)",
+      "context": "In review-assurance-floor.ts evaluateHostVerdictRounds (+ the fallback/degraded paths), when a host verdict's materialHash != current materialHash but its stored storyFilesHash == currentStoryFilesHash(gitCwd,'HEAD',projectRoot), count it as a VALID local round (not ignored), attach the whole-tree-drift re-attestation advisory, and surface it as valid-with-advisory (mirroring evidence-freshness.ts ~305). Reuse currentStoryFilesHash; do not invent a new hash. A verdict with no storyFilesHash, or whose storyFilesHash differs, stays stale/ignored.",
+      "status": "done",
+      "startTime": "2026-06-24T00:06:35.933Z",
+      "endTime": "2026-06-24T00:08:19.946Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Submit host_verdict at materialHash=X with storyFilesHash=S, then drift materialHash to Y while storyFilesHash stays S => evaluateReviewAssuranceFloor reports ok=true, localRounds.validRounds.length >= 1, and advisories[] contains re-attestation advisory string; WHY: covers the core downgrade-accept path that is the entire point of this story",
+            "type": "cli"
+          },
+          {
+            "desc": "Two host verdicts in different runIds at stale materialHash X, both with storyFilesHash=S matching current => both rounds counted valid (validRounds.length >= 2); WHY: verifies multi-round downgrade-accept not just single-round",
+            "type": "cli"
+          },
+          {
+            "desc": "Verdict at current materialHash (no drift) with matching storyFilesHash => ok=true, NO advisory emitted; WHY: ensures the downgrade path is not triggered when material is already fresh",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Verdict has storyFilesHash=undefined (old pre-storyFilesHash verdict) and materialHash is stale => verdict stays ignored (found 0), no crash; WHY: backward compat with verdicts recorded before storyFilesHash was stored",
+            "type": "cli"
+          },
+          {
+            "desc": "currentStoryFilesHash returns null (no story files tracked) and materialHash drifted => verdict stays stale (found 0), function does not crash; WHY: guards the null-storyFilesHash-at-floor edge",
+            "type": "cli"
+          },
+          {
+            "desc": "Degraded single-host fallback record materialHash stale but storyFilesHash matches => fallback.record.valid=true with advisory (not a stale reason); WHY: ensures fallbackRecordFromEvent 4-arg path mirrors escalation",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Verdict storyFilesHash=sfh-DIFFERENT (different from current sfh-S) and materialHash also stale => verdict stays ignored, floor reports found 0, ok=false; WHY: anti-gaming inverse control -- a real story-file change must not be forgiven by the downgrade",
+            "type": "cli"
+          },
+          {
+            "desc": "Attacker submits verdict with storyFilesHash matching current but materialDigest also matches current (not stale) => no advisory emitted, round valid normally; WHY: ensures advisory only fires on actual drift, not on fresh-material submissions",
+            "type": "cli"
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/core/review-assurance-floor.ts",
+          "packages/main/src/core/review-escalation.ts",
+          "packages/main/src/core/evidence-freshness.ts"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/review-assurance-floor-storyfileshash-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-assurance-floor-storyfileshash-smoke.js",
+          "result": "pass",
+          "note": "smoke check (a): drift to MATERIAL_Y with storyFilesHash=S unchanged => ok=true, validRounds>=1, re-attestation advisory present",
+          "headHash": "3b7abef09e3cb8d88e94c421e65bf037956681fa",
+          "materialHash": "243ad0fda632f5b2f019304fcf58bfc50be538f15e86e2ac06f183bba6cd40dc",
+          "storyFilesHash": "0b55b38f343c07f597df4fa331f4bb46d1ee39682468d6b79a8a1f6c2d748979",
+          "timestamp": "2026-06-24T01:20:36.392Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/review-assurance-floor-storyfileshash-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-assurance-floor-storyfileshash-smoke.js",
+          "result": "pass",
+          "note": "smoke check 'two verdicts in different runIds both stale-material X matching S => validRounds>=2 (both downgraded)'",
+          "headHash": "3b7abef09e3cb8d88e94c421e65bf037956681fa",
+          "materialHash": "243ad0fda632f5b2f019304fcf58bfc50be538f15e86e2ac06f183bba6cd40dc",
+          "storyFilesHash": "0b55b38f343c07f597df4fa331f4bb46d1ee39682468d6b79a8a1f6c2d748979",
+          "timestamp": "2026-06-24T01:20:36.392Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/review-assurance-floor-storyfileshash-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-assurance-floor-storyfileshash-smoke.js",
+          "result": "pass",
+          "note": "smoke baseline check: no drift + matching storyFilesHash => ok=true and NO advisory (downgrade fires only on actual drift)",
+          "headHash": "3b7abef09e3cb8d88e94c421e65bf037956681fa",
+          "materialHash": "243ad0fda632f5b2f019304fcf58bfc50be538f15e86e2ac06f183bba6cd40dc",
+          "storyFilesHash": "0b55b38f343c07f597df4fa331f4bb46d1ee39682468d6b79a8a1f6c2d748979",
+          "timestamp": "2026-06-24T01:20:36.392Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/review-assurance-floor-storyfileshash-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-assurance-floor-storyfileshash-smoke.js",
+          "result": "pass",
+          "note": "smoke check 'legacy verdict storyFilesHash=undefined + stale material => verdict ignored, found 0, ok=false'",
+          "headHash": "3b7abef09e3cb8d88e94c421e65bf037956681fa",
+          "materialHash": "243ad0fda632f5b2f019304fcf58bfc50be538f15e86e2ac06f183bba6cd40dc",
+          "storyFilesHash": "0b55b38f343c07f597df4fa331f4bb46d1ee39682468d6b79a8a1f6c2d748979",
+          "timestamp": "2026-06-24T01:20:36.392Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/review-assurance-floor-storyfileshash-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-assurance-floor-storyfileshash-smoke.js",
+          "result": "pass",
+          "note": "smoke check 'currentStoryFilesHash null (arg omitted) + material drift => effectiveEvents unchanged, verdict stale, found 0, no crash'",
+          "headHash": "3b7abef09e3cb8d88e94c421e65bf037956681fa",
+          "materialHash": "243ad0fda632f5b2f019304fcf58bfc50be538f15e86e2ac06f183bba6cd40dc",
+          "storyFilesHash": "0b55b38f343c07f597df4fa331f4bb46d1ee39682468d6b79a8a1f6c2d748979",
+          "timestamp": "2026-06-24T01:20:36.392Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/review-assurance-floor-storyfileshash-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-assurance-floor-storyfileshash-smoke.js",
+          "result": "pass",
+          "note": "smoke check (d): degraded fallback materialHash stale but storyFilesHash matches => record.valid=true with advisory (not a stale reason)",
+          "headHash": "3b7abef09e3cb8d88e94c421e65bf037956681fa",
+          "materialHash": "243ad0fda632f5b2f019304fcf58bfc50be538f15e86e2ac06f183bba6cd40dc",
+          "storyFilesHash": "0b55b38f343c07f597df4fa331f4bb46d1ee39682468d6b79a8a1f6c2d748979",
+          "timestamp": "2026-06-24T01:20:36.392Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/review-assurance-floor-storyfileshash-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-assurance-floor-storyfileshash-smoke.js",
+          "result": "pass",
+          "note": "smoke check (c): storyFilesHash differs (S2) + material stale => verdict ignored, validRounds=0, ok=false",
+          "headHash": "3b7abef09e3cb8d88e94c421e65bf037956681fa",
+          "materialHash": "243ad0fda632f5b2f019304fcf58bfc50be538f15e86e2ac06f183bba6cd40dc",
+          "storyFilesHash": "0b55b38f343c07f597df4fa331f4bb46d1ee39682468d6b79a8a1f6c2d748979",
+          "timestamp": "2026-06-24T01:20:36.392Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/review-assurance-floor-storyfileshash-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-assurance-floor-storyfileshash-smoke.js",
+          "result": "pass",
+          "note": "smoke baseline: materialDigest equals current (not stale) => no advisory emitted",
+          "headHash": "3b7abef09e3cb8d88e94c421e65bf037956681fa",
+          "materialHash": "243ad0fda632f5b2f019304fcf58bfc50be538f15e86e2ac06f183bba6cd40dc",
+          "storyFilesHash": "0b55b38f343c07f597df4fa331f4bb46d1ee39682468d6b79a8a1f6c2d748979",
+          "timestamp": "2026-06-24T01:20:36.392Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-002",
+      "title": "Exclude truly-stale verdicts from the per-round duplicate-host-identity check",
+      "context": "So an accumulated prior-submit verdict (stale by both materialHash AND storyFilesHash) cannot create a 'duplicate host/session/key identity' invalid round that forces a brand-new-material re-bind. Only freshness-valid verdicts (current materialHash OR storyFilesHash-matching) participate in a round's identity/validity evaluation; stale ones are filtered out before the duplicate check.",
+      "status": "done",
+      "startTime": "2026-06-24T00:09:53.173Z",
+      "endTime": "2026-06-24T00:11:47.248Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "After CHK-001 downgrade: submit two verdicts in same runId -- one fresh (storyFilesHash-matching, materialHash stale, gets downgraded to current) and one truly-stale (both materialHash AND storyFilesHash differ) => the truly-stale verdict is in ignoredVerdicts and the round has exactly 1 passing host (no duplicate-identity error); WHY: the core by-construction claim -- truly-stale verdicts must be filtered before duplicate-identity check",
+            "type": "cli"
+          },
+          {
+            "desc": "Re-bind scenario: prior round verdicts accumulated at materialHash-OLD + storyFilesHash-OLD (truly stale), new round verdicts at materialHash-X + storyFilesHash-S (downgraded to current) => validRounds contains the new round, old verdicts ignored, no duplicate-identity invalid round created; WHY: real-world re-bind after genuine story change followed by whole-tree drift",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Three accumulated verdicts from three different eras: (1) truly-stale (both hashes differ), (2) storyFilesHash-matching (downgraded), (3) current materialHash -- all share same hostId/sessionId/keyId but different runIds => 2 valid rounds from (2)+(3), verdict (1) ignored, no duplicate-identity; WHY: stresses the filter-before-identity-check across three freshness states",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Two truly-stale verdicts with SAME hostId/sessionId/keyId in SAME runId (both materialHash and storyFilesHash differ) => both ignored, round does NOT appear as invalid with duplicate-identity reason; WHY: ensures that even multiple stale duplicates in same round cannot poison the identity check",
+            "type": "cli"
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/core/review-assurance-floor.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/review-assurance-floor-storyfileshash-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/review-assurance-floor-storyfileshash-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-assurance-floor-storyfileshash-smoke.js",
+          "result": "pass",
+          "note": "smoke check (b): one downgraded + one truly-stale (both hashes differ) same runId/identity => round valid, no duplicate-identity reason",
+          "headHash": "3b7abef09e3cb8d88e94c421e65bf037956681fa",
+          "materialHash": "243ad0fda632f5b2f019304fcf58bfc50be538f15e86e2ac06f183bba6cd40dc",
+          "storyFilesHash": "0b55b38f343c07f597df4fa331f4bb46d1ee39682468d6b79a8a1f6c2d748979",
+          "timestamp": "2026-06-24T01:20:36.392Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/review-assurance-floor-storyfileshash-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-assurance-floor-storyfileshash-smoke.js",
+          "result": "pass",
+          "note": "smoke dedicated cross-runId re-bind check: prior runId 'round-old' truly-stale (W/S_OLD) + new runId 'round-new' downgraded (X/S) at current Y/S => validRounds.length===1 (only round-new), old verdict ignored, no duplicate-identity reason",
+          "headHash": "3b7abef09e3cb8d88e94c421e65bf037956681fa",
+          "materialHash": "243ad0fda632f5b2f019304fcf58bfc50be538f15e86e2ac06f183bba6cd40dc",
+          "storyFilesHash": "0b55b38f343c07f597df4fa331f4bb46d1ee39682468d6b79a8a1f6c2d748979",
+          "timestamp": "2026-06-24T01:20:36.392Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/review-assurance-floor-storyfileshash-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-assurance-floor-storyfileshash-smoke.js",
+          "result": "pass",
+          "note": "smoke check 'three eras (truly-stale, downgraded, current) same identity different runIds => 2 valid rounds, truly-stale ignored, no duplicate-identity'",
+          "headHash": "3b7abef09e3cb8d88e94c421e65bf037956681fa",
+          "materialHash": "243ad0fda632f5b2f019304fcf58bfc50be538f15e86e2ac06f183bba6cd40dc",
+          "storyFilesHash": "0b55b38f343c07f597df4fa331f4bb46d1ee39682468d6b79a8a1f6c2d748979",
+          "timestamp": "2026-06-24T01:20:36.392Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/review-assurance-floor-storyfileshash-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-assurance-floor-storyfileshash-smoke.js",
+          "result": "pass",
+          "note": "smoke check 'two truly-stale verdicts same identity same runId => both ignored before the duplicate check, no duplicate-identity-invalid round, validRounds=0'",
+          "headHash": "3b7abef09e3cb8d88e94c421e65bf037956681fa",
+          "materialHash": "243ad0fda632f5b2f019304fcf58bfc50be538f15e86e2ac06f183bba6cd40dc",
+          "storyFilesHash": "0b55b38f343c07f597df4fa331f4bb46d1ee39682468d6b79a8a1f6c2d748979",
+          "timestamp": "2026-06-24T01:20:36.392Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-003",
+      "title": "Anti-gaming + advisory correctness preserved",
+      "context": "A real story-owned-file change (storyFilesHash differs) MUST still stale the floor rounds (the storyFilesHash downgrade-accept only forgives unrelated whole-tree drift). The re-attestation advisory must be surfaced (not silently swallowed) on a storyFilesHash-accepted floor pass, consistent with B-edf1's escalation-row advisory.",
+      "status": "done",
+      "startTime": "2026-06-24T00:09:53.636Z",
+      "endTime": "2026-06-24T00:11:47.736Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Floor pass via storyFilesHash downgrade => report.advisories is a non-empty array containing the re-attestation advisory string matching pattern /materialDigest drift accepted.*storyFilesHash matches.*re-attestation/; WHY: advisory surfacing is the core requirement -- it must not be swallowed",
+            "type": "cli"
+          },
+          {
+            "desc": "Degraded fallback record with storyFilesHash match => fallback.record.advisories contains the materialHash-stale-but-storyFilesHash-matches advisory AND fallback.record.reasons does NOT contain materialHash is stale; WHY: the fallback mirror of escalation 4-arg pattern",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Multiple verdicts downgraded in same evaluation => advisories array has one advisory per downgraded verdict (not deduplicated); WHY: ensures each downgraded verdict is individually surfaced for audit trail",
+            "type": "cli"
+          },
+          {
+            "desc": "Fallback record with storyFilesHash mismatch => fallback.record.reasons contains materialHash is stale and fallback.record.valid is false; WHY: inverse control on the fallback path",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Real story-file change (storyFilesHash differs S->S-prime) with materialHash also drifted => floor reports ok=false, found 0 fresh rounds, reasons include stale material message; WHY: anti-gaming -- a genuine story-owned-file change MUST stale the rounds regardless of how many verdicts exist",
+            "type": "cli"
+          },
+          {
+            "desc": "Advisory must not appear when storyFilesHash mismatch causes stale (no downgrade triggered) => advisories is empty/absent on a stale-round floor failure; WHY: advisory only fires on accepted-drift, never on rejected-drift; silent swallowing would be caught if advisory appeared where it should not",
+            "type": "cli"
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/core/review-assurance-floor.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/review-assurance-floor-storyfileshash-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/review-assurance-floor-storyfileshash-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-assurance-floor-storyfileshash-smoke.js",
+          "result": "pass",
+          "note": "smoke now asserts the FULL three-part advisory pattern /materialDigest drift accepted.*storyFilesHash matches.*re-attestation/ against report.advisories on an accepted-drift pass",
+          "headHash": "3b7abef09e3cb8d88e94c421e65bf037956681fa",
+          "materialHash": "243ad0fda632f5b2f019304fcf58bfc50be538f15e86e2ac06f183bba6cd40dc",
+          "storyFilesHash": "0b55b38f343c07f597df4fa331f4bb46d1ee39682468d6b79a8a1f6c2d748979",
+          "timestamp": "2026-06-24T01:20:36.392Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/review-assurance-floor-storyfileshash-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-assurance-floor-storyfileshash-smoke.js",
+          "result": "pass",
+          "note": "smoke check (d): fallback record carries the materialHash-stale-but-storyFilesHash-matches advisory and reasons do NOT contain 'materialHash is stale'",
+          "headHash": "3b7abef09e3cb8d88e94c421e65bf037956681fa",
+          "materialHash": "243ad0fda632f5b2f019304fcf58bfc50be538f15e86e2ac06f183bba6cd40dc",
+          "storyFilesHash": "0b55b38f343c07f597df4fa331f4bb46d1ee39682468d6b79a8a1f6c2d748979",
+          "timestamp": "2026-06-24T01:20:36.392Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/review-assurance-floor-storyfileshash-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-assurance-floor-storyfileshash-smoke.js",
+          "result": "pass",
+          "note": "smoke check 'multiple downgraded verdicts => advisories filtered by /storyFilesHash matches/ has length 2 (one per verdict, not deduplicated)'",
+          "headHash": "3b7abef09e3cb8d88e94c421e65bf037956681fa",
+          "materialHash": "243ad0fda632f5b2f019304fcf58bfc50be538f15e86e2ac06f183bba6cd40dc",
+          "storyFilesHash": "0b55b38f343c07f597df4fa331f4bb46d1ee39682468d6b79a8a1f6c2d748979",
+          "timestamp": "2026-06-24T01:20:36.392Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/review-assurance-floor-storyfileshash-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-assurance-floor-storyfileshash-smoke.js",
+          "result": "pass",
+          "note": "smoke check (d) second: fallback storyFilesHash mismatch => record.reasons contains 'materialHash is stale' and record.valid=false",
+          "headHash": "3b7abef09e3cb8d88e94c421e65bf037956681fa",
+          "materialHash": "243ad0fda632f5b2f019304fcf58bfc50be538f15e86e2ac06f183bba6cd40dc",
+          "storyFilesHash": "0b55b38f343c07f597df4fa331f4bb46d1ee39682468d6b79a8a1f6c2d748979",
+          "timestamp": "2026-06-24T01:20:36.392Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/review-assurance-floor-storyfileshash-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-assurance-floor-storyfileshash-smoke.js",
+          "result": "pass",
+          "note": "smoke check (c): real story-file change (S->S2) with material drift => ok=false, validRounds=0",
+          "headHash": "3b7abef09e3cb8d88e94c421e65bf037956681fa",
+          "materialHash": "243ad0fda632f5b2f019304fcf58bfc50be538f15e86e2ac06f183bba6cd40dc",
+          "storyFilesHash": "0b55b38f343c07f597df4fa331f4bb46d1ee39682468d6b79a8a1f6c2d748979",
+          "timestamp": "2026-06-24T01:20:36.392Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/review-assurance-floor-storyfileshash-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-assurance-floor-storyfileshash-smoke.js",
+          "result": "pass",
+          "note": "smoke check (c): advisory absent on rejected drift (no /storyFilesHash matches/ when downgrade not triggered)",
+          "headHash": "3b7abef09e3cb8d88e94c421e65bf037956681fa",
+          "materialHash": "243ad0fda632f5b2f019304fcf58bfc50be538f15e86e2ac06f183bba6cd40dc",
+          "storyFilesHash": "0b55b38f343c07f597df4fa331f4bb46d1ee39682468d6b79a8a1f6c2d748979",
+          "timestamp": "2026-06-24T01:20:36.392Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-004",
+      "title": "Offline smoke/contract test + wire into npm test",
+      "context": "Add a smoke (packages/main, in the existing review-assurance / done-* smoke style) asserting: (a) quorum at material X, then an unrelated whole-tree change (materialHash drifts, storyFilesHash unchanged) => floor still counts the rounds valid with the advisory; (b) a re-bind after such drift does not produce duplicate-identity-invalid rounds; (c) inverse control: a real story-file change (storyFilesHash differs) DOES stale the rounds (found 0). Wire into the root npm test chain.",
+      "status": "done",
+      "startTime": "2026-06-24T00:09:54.113Z",
+      "endTime": "2026-06-24T00:11:48.214Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run the new smoke script (node packages/main/dist/tasks/review-assurance-floor-storyfileshash-smoke.js) => exits 0, prints PASS or completion message; WHY: proves the smoke itself passes end-to-end from built dist",
+            "type": "cli"
+          },
+          {
+            "desc": "Run npm test from repo root => exits 0 and output includes the new storyfileshash smoke (grep for the filename or its assertion output); WHY: proves the smoke is wired into the CI test chain",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke assertion (a): quorum at material X, unrelated whole-tree drift (materialHash drifts, storyFilesHash unchanged) => floor ok=true with re-attestation advisory present in output; WHY: the primary acceptance scenario",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke assertion (b): re-bind after drift with accumulated prior verdicts stale by both hashes alongside fresh storyFilesHash-matching verdicts => no duplicate-identity-invalid round in output; WHY: locks the by-construction claim from CHK-002",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke assertion (c): real story-file change (storyFilesHash differs) => found 0 fresh rounds, ok=false in output; WHY: inverse control anti-gaming assertion",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke assertion (d): degraded single-host fallback with storyFilesHash match => fallback valid with advisory, and with storyFilesHash mismatch => fallback invalid with materialHash-stale reason; WHY: the fallback path coverage",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Existing floor smoke (review-assurance-floor-smoke.js) still passes after changes => exits 0; WHY: regression guard -- the storyFilesHash change must not break the pre-existing floor smoke",
+            "type": "cli"
+          },
+          {
+            "desc": "Existing escalation smoke (review-escalation-smoke.js) still passes after the one-word export change => exits 0; WHY: regression guard -- adding export to eventsWithStoryFilesHashDowngrade must not alter escalation behavior",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Build packages/main (npm --prefix packages/main run build) succeeds with zero TypeScript errors before running any smoke => exits 0; WHY: compilation gate -- if the types are wrong (e.g. advisories field not on ReviewAssuranceFloorReport) the build fails before any test",
+            "type": "cli"
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "package.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/review-assurance-floor-storyfileshash-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/review-assurance-floor-storyfileshash-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/review-assurance-floor-storyfileshash-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-assurance-floor-storyfileshash-smoke.js",
+          "result": "pass",
+          "note": "new smoke runs from dist and exits 0 with 'review-assurance-floor storyFilesHash smoke passed' (12 checks)",
+          "headHash": "3b7abef09e3cb8d88e94c421e65bf037956681fa",
+          "materialHash": "243ad0fda632f5b2f019304fcf58bfc50be538f15e86e2ac06f183bba6cd40dc",
+          "storyFilesHash": "0b55b38f343c07f597df4fa331f4bb46d1ee39682468d6b79a8a1f6c2d748979",
+          "timestamp": "2026-06-24T01:20:36.392Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "package.json",
+          "command": "npm test",
+          "result": "pass",
+          "note": "npm test (full root suite) exits 0; chain includes test:review-assurance-floor-storyfileshash-smoke (verified in /tmp/b6de6-npmtest.log)",
+          "headHash": "3b7abef09e3cb8d88e94c421e65bf037956681fa",
+          "materialHash": "243ad0fda632f5b2f019304fcf58bfc50be538f15e86e2ac06f183bba6cd40dc",
+          "storyFilesHash": "0b55b38f343c07f597df4fa331f4bb46d1ee39682468d6b79a8a1f6c2d748979",
+          "timestamp": "2026-06-24T01:20:36.392Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/review-assurance-floor-storyfileshash-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-assurance-floor-storyfileshash-smoke.js",
+          "result": "pass",
+          "note": "smoke assertion (a): quorum at X + unrelated whole-tree drift (storyFilesHash unchanged) => ok=true with re-attestation advisory",
+          "headHash": "3b7abef09e3cb8d88e94c421e65bf037956681fa",
+          "materialHash": "243ad0fda632f5b2f019304fcf58bfc50be538f15e86e2ac06f183bba6cd40dc",
+          "storyFilesHash": "0b55b38f343c07f597df4fa331f4bb46d1ee39682468d6b79a8a1f6c2d748979",
+          "timestamp": "2026-06-24T01:20:36.392Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:3",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/review-assurance-floor-storyfileshash-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-assurance-floor-storyfileshash-smoke.js",
+          "result": "pass",
+          "note": "smoke assertion (b): re-bind with accumulated truly-stale prior verdicts + fresh downgraded verdicts => no duplicate-identity-invalid round",
+          "headHash": "3b7abef09e3cb8d88e94c421e65bf037956681fa",
+          "materialHash": "243ad0fda632f5b2f019304fcf58bfc50be538f15e86e2ac06f183bba6cd40dc",
+          "storyFilesHash": "0b55b38f343c07f597df4fa331f4bb46d1ee39682468d6b79a8a1f6c2d748979",
+          "timestamp": "2026-06-24T01:20:36.392Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:4",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/review-assurance-floor-storyfileshash-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-assurance-floor-storyfileshash-smoke.js",
+          "result": "pass",
+          "note": "smoke assertion (c): real story-file change (storyFilesHash differs) => found 0 fresh rounds, ok=false",
+          "headHash": "3b7abef09e3cb8d88e94c421e65bf037956681fa",
+          "materialHash": "243ad0fda632f5b2f019304fcf58bfc50be538f15e86e2ac06f183bba6cd40dc",
+          "storyFilesHash": "0b55b38f343c07f597df4fa331f4bb46d1ee39682468d6b79a8a1f6c2d748979",
+          "timestamp": "2026-06-24T01:20:36.392Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:5",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/review-assurance-floor-storyfileshash-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-assurance-floor-storyfileshash-smoke.js",
+          "result": "pass",
+          "note": "smoke assertion (d): degraded single-host fallback storyFilesHash match => valid with advisory; mismatch => invalid with materialHash-stale reason",
+          "headHash": "3b7abef09e3cb8d88e94c421e65bf037956681fa",
+          "materialHash": "243ad0fda632f5b2f019304fcf58bfc50be538f15e86e2ac06f183bba6cd40dc",
+          "storyFilesHash": "0b55b38f343c07f597df4fa331f4bb46d1ee39682468d6b79a8a1f6c2d748979",
+          "timestamp": "2026-06-24T01:20:36.392Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-assurance-floor-smoke.js",
+          "result": "pass",
+          "note": "regression: existing review-assurance-floor smoke still passes (10 checks), exit 0",
+          "headHash": "3b7abef09e3cb8d88e94c421e65bf037956681fa",
+          "materialHash": "243ad0fda632f5b2f019304fcf58bfc50be538f15e86e2ac06f183bba6cd40dc",
+          "storyFilesHash": "0b55b38f343c07f597df4fa331f4bb46d1ee39682468d6b79a8a1f6c2d748979",
+          "timestamp": "2026-06-24T01:20:36.392Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/review-escalation-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-escalation-smoke.js",
+          "result": "pass",
+          "note": "regression: review-escalation smoke still passes (15 checks), exit 0 (one-word export did not change escalation behavior)",
+          "headHash": "3b7abef09e3cb8d88e94c421e65bf037956681fa",
+          "materialHash": "243ad0fda632f5b2f019304fcf58bfc50be538f15e86e2ac06f183bba6cd40dc",
+          "storyFilesHash": "0b55b38f343c07f597df4fa331f4bb46d1ee39682468d6b79a8a1f6c2d748979",
+          "timestamp": "2026-06-24T01:20:36.392Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/core/review-assurance-floor.ts",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "tsc build clean, exit 0 (advisories field typed on ReviewAssuranceFloorReport; effectiveEvents threading type-checks)",
+          "headHash": "3b7abef09e3cb8d88e94c421e65bf037956681fa",
+          "materialHash": "243ad0fda632f5b2f019304fcf58bfc50be538f15e86e2ac06f183bba6cd40dc",
+          "storyFilesHash": "0b55b38f343c07f597df4fa331f4bb46d1ee39682468d6b79a8a1f6c2d748979",
+          "timestamp": "2026-06-24T01:20:36.392Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-005",
+      "title": "Register the review-assurance floor as a storyFilesHash-freshness consumer in the process-fact contract",
+      "context": "scope-plan review found that docs/requirements/decisions/story-files-hash-material-drift.md section Process Fact Contract requires the storyFilesHash-freshness semantics to be registered. They already exist as runtime:story_files_hash_freshness_gate (process-fact-levels.ts:308) with the correct semantics, but its gateConsumer enumeration names review runs, verification evidence, and review escalation records, and does NOT yet name the review-assurance floor, which this story makes a new consumer. Update the gateConsumer text in process-fact-levels.ts (and the parallel registry entry text in process-fact-registry.ts if applicable) to include the review assurance floor DONE freshness gate, and confirm node scripts/verify-process-fact-contract.mjs still passes. No new process fact is introduced: the host_verdict and fallback producers (quorum_submit, autopilot_review_submit, review_escalation_fallback_set) already register storyFilesHash and already name the review assurance floor DONE gate as a consumer.",
+      "relatedDocs": [
+        ".lattice/story/actives/B-6de6/background.md"
+      ],
+      "userSees": "node scripts/verify-process-fact-contract.mjs prints 'Process fact contract verified' (exit 0) and the runtime:story_files_hash_freshness_gate entry gateConsumer names the review assurance floor DONE freshness gate.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "After updating the gateConsumer text, node scripts/verify-process-fact-contract.mjs prints Process fact contract verified and exits 0; WHY: the contract verifier is the gate that proves the registration is consistent",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The producer entries quorum_submit, autopilot_review_submit, and review_escalation_fallback_set that already name the review assurance floor DONE gate remain consistent with the updated runtime:story_files_hash_freshness_gate consumer text; WHY: avoids contradictory consumer enumerations across producer and runtime entries",
+            "type": "manual"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No new process fact name or category is silently introduced and the registered semantics still require story-owned file changes to invalidate the binding while only forgiving unrelated whole-tree materialHash drift with a re-attestation advisory; WHY: prevents the registration change from weakening the contract or masking a new fact",
+            "type": "manual"
+          }
+        ]
+      },
+      "status": "done",
+      "startTime": "2026-06-24T00:08:25.612Z",
+      "endTime": "2026-06-24T00:09:45.538Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "verifier prints 'Process fact contract verified', exit 0 after the gateConsumer update",
+          "headHash": "3b7abef09e3cb8d88e94c421e65bf037956681fa",
+          "materialHash": "243ad0fda632f5b2f019304fcf58bfc50be538f15e86e2ac06f183bba6cd40dc",
+          "storyFilesHash": "0b55b38f343c07f597df4fa331f4bb46d1ee39682468d6b79a8a1f6c2d748979",
+          "timestamp": "2026-06-24T01:20:36.392Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "the verifier validates the whole runtime/registry set; producer entries (quorum_submit, autopilot_review_submit, review_escalation_fallback_set) that already name the review assurance floor remain consistent with the updated freshness-gate consumer text",
+          "headHash": "3b7abef09e3cb8d88e94c421e65bf037956681fa",
+          "materialHash": "243ad0fda632f5b2f019304fcf58bfc50be538f15e86e2ac06f183bba6cd40dc",
+          "storyFilesHash": "0b55b38f343c07f597df4fa331f4bb46d1ee39682468d6b79a8a1f6c2d748979",
+          "timestamp": "2026-06-24T01:20:36.392Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/core/process-fact-levels.ts",
+          "command": "git diff main...HEAD -- packages/main/src/core/process-fact-levels.ts",
+          "result": "pass",
+          "note": "git diff shows ONLY the runtime:story_files_hash_freshness_gate gateConsumer enumeration extended to add the review assurance floor; no new fact name/category introduced; semantics still require story-owned file changes to invalidate and only forgive whole-tree drift with a re-attestation advisory",
+          "headHash": "3b7abef09e3cb8d88e94c421e65bf037956681fa",
+          "materialHash": "243ad0fda632f5b2f019304fcf58bfc50be538f15e86e2ac06f183bba6cd40dc",
+          "storyFilesHash": "0b55b38f343c07f597df4fa331f4bb46d1ee39682468d6b79a8a1f6c2d748979",
+          "timestamp": "2026-06-24T01:20:36.392Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-23T23:58:45.426Z",
+      "phase": "PLAN",
+      "itemId": "CHK-005",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "scope-plan reviewer found a spec-required process-fact contract registration gap: the review-assurance floor's new consumption of the storyFilesHash freshness rule must be reflected in the registered gateConsumer enumeration.",
+      "addedTitle": "Register the review-assurance floor as a storyFilesHash-freshness consumer in the process-fact contract",
+      "addedContext": "scope-plan review found that docs/requirements/decisions/story-files-hash-material-drift.md section Process Fact Contract requires the storyFilesHash-freshness semantics to be registered. They already exist as runtime:story_files_hash_freshness_gate (process-fact-levels.ts:308) with the correct semantics, but its gateConsumer enumeration names review runs, verification evidence, and review escalation records, and does NOT yet name the review-assurance floor, which this story makes a new consumer. Update the gateConsumer text in process-fact-levels.ts (and the parallel registry entry text in process-fact-registry.ts if applicable) to include the review assurance floor DONE freshness gate, and confirm node scripts/verify-process-fact-contract.mjs still passes. No new process fact is introduced: the host_verdict and fallback producers (quorum_submit, autopilot_review_submit, review_escalation_fallback_set) already register storyFilesHash and already name the review assurance floor DONE gate as a consumer."
+    }
+  ]
+}

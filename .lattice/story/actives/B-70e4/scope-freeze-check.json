@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-70e4",
+  "checkedAt": "2026-06-24T00:58:23.076Z",
+  "mode": "maintenance",
+  "status": "pass",
+  "scopeBoundaryHash": "3f3672e2423d0f4c5e2d142c462f83fd310ed4321f6d0beb5916c91717dff6bd",
+  "executionBoundaryHash": "6ef2c9c2b49fb1acd0b2a566e533a5c2af3dfca78c4e14b3785013a7c1f27c82",
+  "freshnessHash": "a946a48dc11811e7d9d0fd067c2cf96123adf382c27c82e3730c252db7d1c972",
+  "effectiveExcludedKeywords": [
+    "No change to how proofs are produced server-side",
+    "No changes to other CLI handlers, commands, or the gate-decision policy/evidence model",
+    "No changes to the Lattice Authority server (read-only)"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "No change to how proofs are produced server-side",
+      "source": "scopeBoundary.excluded",
+      "text": "No change to how proofs are produced server-side",
+      "excluded": true
+    },
+    {
+      "keyword": "No changes to other CLI handlers, commands, or the gate-decision policy/evidence model",
+      "source": "scopeBoundary.excluded",
+      "text": "No changes to other CLI handlers, commands, or the gate-decision policy/evidence model",
+      "excluded": true
+    },
+    {
+      "keyword": "No changes to the Lattice Authority server (read-only)",
+      "source": "scopeBoundary.excluded",
+      "text": "No changes to the Lattice Authority server (read-only)",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "17e4817c66a5ffa3a28593e03a0d61f3d02c38031852b7e5149c0cdfe085f59d"
+}

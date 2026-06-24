@@ -136,13 +136,17 @@ function runLatticeExpectFail(
 
 function writeDoneGateEvidence(store: StoryStore, root: string, storyId: string): void {
   const now = '2026-06-18T10:00:00.000Z';
+  const headHash = currentGitHead(root);
+  const materialHash = currentMaterialHash(root);
+  assert.ok(headHash, 'done premerge mainsha recheck fixture must have git HEAD for delivery-check freshness');
+  assert.ok(materialHash, 'done premerge mainsha recheck fixture must have materialHash for delivery-check freshness');
   store.writeTestEvidence(storyId, {
     command: 'done-premerge-mainsha-recheck-smoke',
     output: JSON.stringify({ allPass: true, summary: 'done premerge mainsha recheck smoke passed' }),
     result: 'PASS',
     timestamp: now,
-    headHash: currentGitHead(root),
-    materialHash: currentMaterialHash(root),
+    headHash,
+    materialHash,
     verificationCoverage: { total: 0, required: 0, covered: 0, missingRequired: 0, entries: [] },
   });
 
@@ -160,12 +164,14 @@ function writeDoneGateEvidence(store: StoryStore, root: string, storyId: string)
   store.writeDeliveryCheck(storyId, {
     storyId,
     checkedAt: now,
+    headHash,
+    materialHash,
     reviewRound: '',
     agentId: 'lattice-review-delivery',
     docsPromises,
     realMachineTests,
     closingSelfCheck,
-    _hash: signDeliveryCheck(storyId, docsPromises, realMachineTests, closingSelfCheck, ''),
+    _hash: signDeliveryCheck(storyId, docsPromises, realMachineTests, closingSelfCheck, '', materialHash),
   });
 }
 

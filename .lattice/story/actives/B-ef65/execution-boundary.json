@@ -1,0 +1,43 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-ef65",
+  "allowedCommands": [
+    "git cherry-pick/cherry-pick-equivalent from local proof branch commits bac345a80 8248dc50d 5c643b627",
+    "lattice story_advance for B-ef65 lifecycle gates",
+    "lattice validate --story=B-ef65 --json",
+    "node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+    "node packages/main/dist/tasks/validate-execution-lock-smoke.js",
+    "npm --prefix packages/main run build"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "git",
+    "lattice",
+    "shell"
+  ],
+  "allowedPaths": [
+    ".lattice/story/actives/B-ef65",
+    "packages/main/src/core/validation-execution-lock.ts",
+    "packages/main/src/handlers/done-required-validation.ts",
+    "packages/main/src/handlers/verifier.ts",
+    "packages/main/src/tasks/validate-execution-lock-smoke.ts"
+  ],
+  "excludedCommands": [
+    "editing unrelated active story metadata",
+    "git clean -fd outside temporary fixtures",
+    "git push",
+    "git reset --hard",
+    "remote Authority mutation"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".omx",
+    "docs/story",
+    "unrelated-.lattice-story-actives"
+  ],
+  "confirmedBy": "codex-main",
+  "confirmationNote": "Formal story delivery reuses already-proven local commits and records workflow friction; no host-specific namespace or global owner-lease changes. Absolute Orchestrate path is excluded by operator instruction but not encoded here because execution boundary accepts only safe relative paths.",
+  "createdAt": "2026-06-24T01:04:21.877Z",
+  "updatedAt": "2026-06-24T01:04:21.877Z",
+  "_hash": "e22bbdd2bf1c333a5d63bf2007dcc7d7356a272ffe8a9d000e1ad051e1085055"
+}

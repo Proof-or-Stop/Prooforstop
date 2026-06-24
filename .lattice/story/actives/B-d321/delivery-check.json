@@ -1,0 +1,61 @@
+{
+  "storyId": "B-d321",
+  "checkedAt": "2026-06-24T00:00:55.330Z",
+  "reviewRound": "2026-06-23T13:25:02.476Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "checklist:userSees",
+      "promise": "delivery-check-freshness smoke passed and delivery-check.json records materialHash for the reviewed material.",
+      "status": "verified",
+      "verifiedBy": "live_smoke_transcript",
+      "evidence": "lattice live_smoke_transcript --storyId=B-d321 --capture=\"node packages/main/dist/tasks/delivery-check-freshness-smoke.js\" --write captured exitCode 0 and stdout delivery-check-freshness smoke passed."
+    },
+    {
+      "docPath": "checklist:userSees",
+      "promise": "DONE pre-check reports stale_delivery_check after source material changes post-delivery-check.",
+      "status": "verified",
+      "verifiedBy": "delivery-check-freshness-smoke",
+      "evidence": "node packages/main/dist/tasks/delivery-check-freshness-smoke.js passed material changes after delivery-check are stale across DONE consumers."
+    },
+    {
+      "docPath": "lattice.config.json",
+      "promise": "lattice validate --focus=fast --json includes delivery-check-freshness-smoke and the smoke prints delivery-check-freshness smoke passed.",
+      "status": "verified",
+      "verifiedBy": "validate --focus=fast",
+      "evidence": "lattice validate --focus=fast --json passed and ran node packages/main/dist/tasks/delivery-check-freshness-smoke.js."
+    },
+    {
+      "docPath": "process-fact-registry",
+      "promise": "node scripts/verify-process-fact-contract.mjs passes and delivery-check.json remains L4 gate evidence produced by delivery_check_set.",
+      "status": "verified",
+      "verifiedBy": "process fact contract plus smoke",
+      "evidence": "node scripts/verify-process-fact-contract.mjs passed; delivery-check-freshness smoke asserted delivery-check L4 signed gate evidence."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "node packages/main/dist/tasks/delivery-check-freshness-smoke.js exitCode 0: fresh delivery_check_set records materialHash, metadata-only drift remains fresh, missing/tampered binding fails closed."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "node packages/main/dist/tasks/delivery-check-freshness-smoke.js exitCode 0: material changes after delivery-check are stale across DONE oracle, machine guard, and lifecycle readiness; docsPromise validation remains independent."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "lattice validate --focus=fast --json exitCode 0: configured fast validation ran delivery-check-freshness-smoke and printed delivery-check-freshness smoke passed."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "node scripts/verify-process-fact-contract.mjs exitCode 0 and smoke assertions keep delivery-check.json as L4 signed gate evidence from delivery_check_set."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery review checked diff, context pack, live smoke transcript, fast/full validate results, and process-fact contract; no unresolved delivery blocker remains."
+  },
+  "_hash": "92fa26af319bf296aa765cf771933e7d279869db3b726762d02c7a7cc3e5175c"
+}

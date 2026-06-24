@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-6de6",
+  "checkedAt": "2026-06-23T23:34:44.462Z",
+  "mode": "feature",
+  "status": "pass",
+  "scopeBoundaryHash": "711906a80eaf92c698516d76cb5ce092ad662e6531dde57b76b07c482b64fafa",
+  "executionBoundaryHash": "b11c68ab92b15ec21b82f1d74a61b1c746ac4c85d8454c17550df3bf40258469",
+  "freshnessHash": "63ea9fa5b56a122f3092403165b8bc638766f99ce16c919f2af2726ae6cfc812",
+  "effectiveExcludedKeywords": [
+    "Changing whole-tree materialHash as the PRIMARY freshness key (storyFilesHash stays SECONDARY downgrade-accept only)",
+    "Mutating/replacing stored verdict events (append-only log preserved; only filter stale ones at evaluation)",
+    "quorum-submit dup-guard behavior (B-5c79) beyond what the floor evaluation needs",
+    "The escalation-verdict advisory path already shipped by B-5a9a/B-edf1"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Changing whole-tree materialHash as the PRIMARY freshness key (storyFilesHash stays SECONDARY downgrade-accept only)",
+      "source": "scopeBoundary.excluded",
+      "text": "Changing whole-tree materialHash as the PRIMARY freshness key (storyFilesHash stays SECONDARY downgrade-accept only)",
+      "excluded": true
+    },
+    {
+      "keyword": "Mutating/replacing stored verdict events (append-only log preserved; only filter stale ones at evaluation)",
+      "source": "scopeBoundary.excluded",
+      "text": "Mutating/replacing stored verdict events (append-only log preserved; only filter stale ones at evaluation)",
+      "excluded": true
+    },
+    {
+      "keyword": "quorum-submit dup-guard behavior (B-5c79) beyond what the floor evaluation needs",
+      "source": "scopeBoundary.excluded",
+      "text": "quorum-submit dup-guard behavior (B-5c79) beyond what the floor evaluation needs",
+      "excluded": true
+    },
+    {
+      "keyword": "The escalation-verdict advisory path already shipped by B-5a9a/B-edf1",
+      "source": "scopeBoundary.excluded",
+      "text": "The escalation-verdict advisory path already shipped by B-5a9a/B-edf1",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "a555f08b7132947122b26ea6e61cde6744c2d86214b7ef310e7e34227216bb44"
+}

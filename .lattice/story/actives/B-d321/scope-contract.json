@@ -1,0 +1,53 @@
+{
+  "storyId": "B-d321",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/types.ts",
+    "packages/main/src/core/delivery-check-hash.ts",
+    "packages/main/src/handlers/delivery-check.ts",
+    "packages/main/src/core/done-oracle.ts",
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/core/lifecycle-readiness.ts",
+    "lattice.config.json",
+    "packages/main/src/tasks/flow-stability-smoke.ts",
+    "packages/main/src/tasks/lifecycle-check-smoke.ts",
+    "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+    "packages/main/src/tasks/done-preflight-smoke.ts",
+    "packages/main/src/tasks/worktree-authority-smoke.ts",
+    "packages/main/src/tasks/done-prepare-smoke.ts",
+    "packages/main/src/tasks/done-premerge-mainsha-recheck-smoke.ts",
+    "packages/main/src/tasks/done-readiness-flow-benchmark.ts",
+    "packages/main/src/tasks/field-regression-cli-smoke.ts"
+  ],
+  "allowedCreate": [
+    "packages/main/src/tasks/delivery-check-freshness-smoke.ts",
+    "experiments/baselines/lattice-workflow-efficiency-baseline-v1-B-d321-delivery-check-freshness-result.json"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/delivery-check-freshness-smoke.ts",
+    "packages/main/src/tasks/flow-stability-smoke.ts",
+    "packages/main/src/tasks/lifecycle-check-smoke.ts",
+    "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+    "packages/main/src/tasks/done-preflight-smoke.ts",
+    "packages/main/src/tasks/worktree-authority-smoke.ts",
+    "packages/main/src/tasks/done-prepare-smoke.ts",
+    "packages/main/src/tasks/done-premerge-mainsha-recheck-smoke.ts",
+    "packages/main/src/tasks/done-readiness-flow-benchmark.ts",
+    "packages/main/src/tasks/field-regression-cli-smoke.ts"
+  ],
+  "protectedFiles": [
+    "experiments/baselines/lattice-workflow-efficiency-baseline-v1.json",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/process-fact-levels.ts"
+  ],
+  "explicitExcludes": [
+    "Authority Server files",
+    "deployment files",
+    "DONE summary freshness code for baseline item 6",
+    ".omx/**"
+  ],
+  "scopeChangeReason": "Expand scope only to fix verified high findings B-d321:F-002 and B-d321:F-003: remaining DONE-ready smoke fixtures must use delivery-check materialHash binding when they intend fresh delivery evidence.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-23T12:28:49.239Z",
+  "updatedAt": "2026-06-23T13:08:27.545Z"
+}

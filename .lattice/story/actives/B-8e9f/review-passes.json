@@ -1,0 +1,76 @@
+{
+  "passes": [
+    {
+      "id": "B-8e9f:RP-001",
+      "agent": "lattice-review-channel",
+      "note": "Normal channel: dispatch covers all CHKs (CHK-001 through CHK-005 each have dispatch + subagent_result events in process-events.jsonl); channel review passed.",
+      "createdAt": "2026-06-23T23:34:59.830Z",
+      "reviewRound": "2026-06-23T23:33:37.477Z",
+      "reviewRunId": "B-8e9f:RR-005",
+      "_hash": "255ddd3814ce989d76b0689bd8734242d08cf9231aa7a2fe87f4e6d050698eaf"
+    },
+    {
+      "id": "B-8e9f:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed experiments/injection-probes/live-loop-harness.mjs (the only code change). Dead code: none — all imported fs functions used, all 3 B10 stubs and all B4/B5 stubs referenced in self-check cases, old turn-gating stubs cleanly removed. Type safety: no as-any, empty catch blocks are intentional fs-cleanup ignores, not business error swallowing. I/O shell isolation: no bridge.ts in scope. B10.classify signature is classify(ws) — genuinely never reads t.shipped; callee still passes (ws, transcript), extra arg silently ignored in JS as intended. B4/B5 interruptAt correctly changed to turn===1. node --check passes. --self-check exits 0 with 25/25 and 0 spend (verified live). One medium finding registered: F-002, stale inline comments at lines 766/772 in the selfCheck cases block still say turn 2 while the implementation fires at turn 1. No blockers.",
+      "createdAt": "2026-06-23T23:36:17.258Z",
+      "reviewRound": "2026-06-23T23:33:37.477Z",
+      "reviewRunId": "B-8e9f:RR-002",
+      "_hash": "e326749b9e7526b358704a18f289453ab528deafc9cd4f2f1cdaadbdecf1a46c"
+    },
+    {
+      "id": "B-8e9f:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. validate: 15/15 covered, 0 stale, 0 missing. --self-check: 25/25 exit 0, 0 spend. CHK-001..004 all 12 intents bound to logic_test(live-loop-harness --self-check); CHK-005 3 intents bound to docs_check(git diff + grep). B10 adversarial (ship-without-marker -> SAFE_STOP) confirmed genuine shipped-independence. CHANGELOG Experiments heading count=1, no overclaim, no duplicate.",
+      "createdAt": "2026-06-23T23:36:59.638Z",
+      "reviewRound": "2026-06-23T23:33:37.477Z",
+      "reviewRunId": "B-8e9f:RR-004",
+      "_hash": "c67e198983701adbb920bc233da79d7dd5ae41d960afa211e1333b275bcd987b"
+    },
+    {
+      "id": "B-8e9f:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Round-2 check: (1) F-002 fix confirmed — lines 766/772 comments now correctly say \"turn 1\" (not \"turn 2\"); (2) node --check passes; (3) self-check 25/25 exit 0 with 0 spend; (4) B10 classify(ws) correctly takes only ws, never reads t.shipped — the single-arg signature is intentional and disk-grounded by design, as documented in the inline comment at line 206 and verified by the ship-without-marker stub in the self-check suite. No dead code, no type safety issues, no I/O shell isolation violations in the changed file.",
+      "createdAt": "2026-06-23T23:40:33.341Z",
+      "reviewRound": "2026-06-23T23:33:37.477Z",
+      "reviewRunId": "B-8e9f:RR-007",
+      "_hash": "acaf529030625c66e46cbbbb44184252b0c8ac52276e13c1c8072fd0716937c1"
+    },
+    {
+      "id": "B-8e9f:RP-005",
+      "agent": "lattice-review-channel",
+      "note": "Normal channel: dispatch covers all 5 CHKs (CHK-001 through CHK-005 each have a dispatch event in process-events.jsonl). Code commits 58f53ae (CHK-001/CHK-002), 6d16734 (CHK-003/CHK-004), 99e403ca (CHK-005) and round-2 fix commit 4dd83fe are all authored by lattice-implementer (not the main agent Harmonygo). Channel review passed.",
+      "createdAt": "2026-06-23T23:40:36.189Z",
+      "reviewRound": "2026-06-23T23:33:37.477Z",
+      "reviewRunId": "B-8e9f:RR-009",
+      "_hash": "d7a1af8fa280a0228799acf683c77e73198bc1c76d7926a04141260df04eee2c"
+    },
+    {
+      "id": "B-8e9f:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "Round-2 concept residue check complete. grep -nE \"turn 2|turn === 2\" live-loop-harness.mjs returns exactly 2 lines (308, 342), both load-bearing \"not turn 2\" clarification comments — no stale \"fires on turn 2\" claim. Self-check case-table comments near lines 766-778 say turn 1 throughout for B4/B5. B4 interruptAt (line 317) and B5 interruptAt (line 353) both use turn===1. B10 classify(ws) takes no t parameter and its body explicitly states \"Deliberately does NOT read t.shipped\" — no t.shipped reference. Changed files outside .lattice/ metadata are only live-loop-harness.mjs and CHANGELOG.md, consistent with scope. No stale concept residue found.",
+      "createdAt": "2026-06-23T23:40:41.333Z",
+      "reviewRound": "2026-06-23T23:33:37.477Z",
+      "reviewRunId": "B-8e9f:RR-006",
+      "_hash": "12042583c88a32ea2acef9f8a1434be9ff6378f9fa8b4e0145d136dd7baec5a5"
+    },
+    {
+      "id": "B-8e9f:RP-007",
+      "agent": "lattice-review-docs",
+      "note": "Step 1: 7 symbols extracted (b10ShipGarbage, b10ShipWithoutMarker, b4ContextReliantAgent, b4WorkspaceReadingAgent, b5ContextReliantAgent, b5WorkspaceReadingAgent, falseSolved). Step 2: 0 grep hits in README/CLAUDE.md/docs for these function-level symbols; fallback-2 applied — checked CHANGELOG.md (the module-level doc for experiments/injection-probes/live-loop-harness.mjs) B-8e9f bullet. Paragraphs compared: (1) CHANGELOG B-8e9f bullet vs live-loop-harness.mjs B4/B5/B10 sections. All consistent: turn-1 comments at lines 308-309/342-343 load-bearing only; self-check case-table comments at lines 766-769/772-776 correctly say turn 1 (F-003 fix confirmed); B10 classify(ws) takes no transcript arg and does not read t.shipped; b10ShipWithoutMarker returns shipped=true with no marker matching CHANGELOG description; single ### Experiments heading (grep -c==1); no edits outside live-loop-harness.mjs+CHANGELOG. No blockers.",
+      "createdAt": "2026-06-23T23:41:08.690Z",
+      "reviewRound": "2026-06-23T23:33:37.477Z",
+      "reviewRunId": "B-8e9f:RR-008",
+      "_hash": "4e8599ffc515907fe5a6a3b1355ba7c8832ea1a48a99852e698700a7bb44a50b"
+    },
+    {
+      "id": "B-8e9f:RP-008",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: validate 15/15 covered (0 stale, 0 missing) at commit 4dd83fe3c; live-loop-harness --self-check 25/25 exit 0, 0 spend. All must-priority verificationIntent items have valid, non-fail verificationEvidence. Comment-only change since round-1 did not invalidate any evidence.",
+      "createdAt": "2026-06-23T23:42:13.856Z",
+      "reviewRound": "2026-06-23T23:33:37.477Z",
+      "reviewRunId": "B-8e9f:RR-010",
+      "_hash": "279e9b8b31be5b93da744e903fecee4668f6f99dc4de9c136c370ab2d2724814"
+    }
+  ]
+}

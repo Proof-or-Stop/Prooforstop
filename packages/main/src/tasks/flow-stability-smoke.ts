@@ -3963,15 +3963,21 @@ function assertDoneOracleSameSource(): void {
       promise: 'Document the flow-stability delivery assertion.',
       status: 'unverified' as const,
     }];
+    const deliveryHeadHash = currentGitHead(root);
+    const deliveryMaterialHash = currentMaterialHash(root);
+    assert.ok(deliveryHeadHash, 'smoke repo must have git HEAD for delivery-check freshness');
+    assert.ok(deliveryMaterialHash, 'smoke repo must have material hash for delivery-check freshness');
     store.writeDeliveryCheck(storyId, {
       storyId,
       checkedAt: '2026-05-15T12:31:00.000Z',
+      headHash: deliveryHeadHash,
+      materialHash: deliveryMaterialHash,
       reviewRound,
       agentId: 'lattice-review-delivery',
       docsPromises,
       realMachineTests,
       closingSelfCheck,
-      _hash: signDeliveryCheck(storyId, docsPromises, realMachineTests, closingSelfCheck, reviewRound),
+      _hash: signDeliveryCheck(storyId, docsPromises, realMachineTests, closingSelfCheck, reviewRound, deliveryMaterialHash),
     });
     const unverifiedDocsRows = buildDoneChecklist(storyId, store, root);
     const unverifiedDocsRow = new Map(unverifiedDocsRows.map(r => [r.id, r])).get('delivery-check');

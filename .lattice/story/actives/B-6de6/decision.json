@@ -1,0 +1,78 @@
+{
+  "principles": [
+    "Single source of truth: the floor reuses the exact escalation downgrade helper so the two freshness paths can never drift apart (the very failure class this story prevents).",
+    "Conservative secondary key: whole-tree materialHash stays PRIMARY; storyFilesHash only forgives unrelated whole-tree drift, never a real story-owned-file change.",
+    "Append-only integrity: transform events at evaluation time; never mutate or replace stored verdict events.",
+    "Surface, do not swallow: a storyFilesHash-accepted floor pass must carry the re-attestation advisory, consistent with B-edf1.",
+    "Minimal blast radius: do not alter the shared evaluateHostVerdictRounds or any escalation behavior; the only escalation edit is exposing an existing helper."
+  ],
+  "drivers": [
+    "Floor and escalation must make the SAME freshness decision for the same verdict, so the floor must reuse the canonical eventsWithStoryFilesHashDowngrade rather than carry a second copy.",
+    "Anti-gaming must hold: a storyFilesHash mismatch still stales the rounds, and the re-attestation advisory must be surfaced.",
+    "Scope cannot be amended from PLAN (scope_boundary_set is INIT-only), so prefer the path inside the execution boundary (packages/main/src/core) and document the discovered one-word review-escalation.ts export."
+  ],
+  "options": [
+    {
+      "name": "Reuse the canonical escalation downgrade helper",
+      "pros": [
+        "Floor and escalation provably agree (one implementation of the downgrade-accept), eliminating the drift this story exists to prevent.",
+        "Minimal diff: add export to eventsWithStoryFilesHashDowngrade (floor already imports from review-escalation.js) + wire the floor to pre-transform events and mirror escalation 3-arg latestFallbackRecord / 4-arg fallbackRecordFromEvent.",
+        "Gap 2 is satisfied for free: stale-by-material verdicts are routed to ignoredVerdicts before the duplicate-identity check, and a both-hash-stale verdict is never downgraded.",
+        "Append-only log preserved; anti-gaming preserved (storyFilesHash-differs stays stale)."
+      ],
+      "cons": [
+        "Touches review-escalation.ts with a one-word export not named in the scope-boundary descriptive allowed list (but within the execution boundary and an existing floor->escalation import edge).",
+        "Floor and escalation keep separate fallbackRecordFromEvent copies (pre-existing duplication; the downgrade logic itself is shared)."
+      ]
+    },
+    {
+      "name": "Reimplement a floor-local downgrade",
+      "pros": [
+        "Stays strictly inside the scope-boundary named files (no review-escalation.ts edit)."
+      ],
+      "cons": [
+        "Creates a SECOND implementation of the downgrade-accept, so the floor and escalation can drift, which is exactly the bug class this story exists to prevent.",
+        "A quality reviewer would correctly flag the duplication; violates single-source-of-truth."
+      ]
+    },
+    {
+      "name": "Centralize storyFilesHash into the shared evaluateHostVerdictRounds",
+      "pros": [
+        "One central place for both floor and escalation."
+      ],
+      "cons": [
+        "Changes escalations already-shipped behavior (regression risk; escalation already downgrades via event-rewrite, so this double-applies or conflicts).",
+        "Largest blast radius; escalation smokes could break; over-reaches the floor-only intent."
+      ]
+    }
+  ],
+  "chosen": "Reuse the canonical escalation downgrade helper",
+  "rationale": "The escalation path already implements the correct, reviewed downgrade-accept (eventsWithStoryFilesHashDowngrade + the 4-arg fallbackRecordFromEvent that turns a stale materialHash with matching storyFilesHash into an advisory instead of a reason). The floor's only bug is that it never applies that transform and uses the 2-arg fallback record. Reusing the identical helper guarantees the floor and escalation make the same freshness decision for the same verdict, eliminating drift, which is precisely the failure mode this story addresses, at the cost of a one-word export. Option B (reimplement) would create the dual-implementation drift we want to avoid; Option C (centralize into evaluateHostVerdictRounds) would change escalation's shipped behavior and double the downgrade. Checklist item 2 (truly-stale verdicts excluded from the duplicate-identity check) is satisfied by construction: stale-by-material verdicts are routed to ignoredVerdicts before the duplicate check, and a both-hash-stale verdict is never downgraded. The degraded single-host fallback path is mirrored to escalation's storyFilesHash-aware records so the high-risk floor stays consistent. Advisories are surfaced via a new ReviewAssuranceFloorReport.advisories field mirroring ReviewEscalationReport.advisories.",
+  "preMortem": [
+    {
+      "scenario": "Reviewer flags the review-escalation.ts edit as out-of-scope expansion.",
+      "trigger": "The scope-boundary allowed list does not name review-escalation.ts.",
+      "consequence": "A REVIEW finding or scope challenge stalls the story.",
+      "mitigation": "The edit is a one-word export of an existing helper the floor already imports (existing dependency edge), fully within the execution boundary (packages/main/src/core), and documented as a planning discovery in understanding+decision; Option B was explicitly rejected for creating drift."
+    },
+    {
+      "scenario": "A real story-owned-file change is wrongly forgiven (anti-gaming hole).",
+      "trigger": "storyFilesHash is computed over the wrong path set or compared loosely.",
+      "consequence": "A buggy change merges on stale review evidence.",
+      "mitigation": "Reuse currentStoryFilesHash unchanged; the downgrade triggers only on exact storyFilesHash equality; smoke (c) asserts a story-file change yields found-0 fresh rounds."
+    },
+    {
+      "scenario": "The re-attestation advisory is silently swallowed.",
+      "trigger": "Advisories are computed but never placed on the floor report or rendered.",
+      "consequence": "Operators lose the B-edf1 re-attestation signal on a downgrade-accepted pass.",
+      "mitigation": "Add advisories to ReviewAssuranceFloorReport (mirroring ReviewEscalationReport) and assert the advisory string is present in smoke (a)."
+    },
+    {
+      "scenario": "A re-bind after drift still produces duplicate-identity-invalid rounds.",
+      "trigger": "Accumulated prior-submit verdicts share host/session/key identity with new ones.",
+      "consequence": "The operator is forced into a brand-new-material re-bind (the original hours-long pain).",
+      "mitigation": "With the downgrade in place the original verdicts survive drift so no re-bind is forced; truly-stale (both-hash) old verdicts are ignored and never enter the duplicate check; smoke (b) locks this."
+    }
+  ],
+  "timestamp": "2026-06-23T23:51:25.303Z"
+}

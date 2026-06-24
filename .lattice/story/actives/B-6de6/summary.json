@@ -1,0 +1,56 @@
+{
+  "storyId": "B-6de6",
+  "changes": "review-assurance floor (packages/main/src/core/review-assurance-floor.ts) now honors storyFilesHash as a SECONDARY downgrade-accept by reusing escalation's canonical eventsWithStoryFilesHashDowngrade (one-word export in review-escalation.ts): a host verdict stale by whole-tree materialHash but with a matching storyFilesHash counts as a valid local round with a re-attestation advisory. The advisory is now surfaced in the DONE checklist render (done-oracle.ts floor row) and the floor failure formatter; ReviewAssuranceFloorReport gained a storyFilesHash field. process-fact-levels.ts registers the floor as a storyFilesHash-freshness consumer.",
+  "usage": "Automatic at the DONE review-assurance-floor gate: after an unrelated main merge drifts the whole-tree materialHash (story-owned files unchanged), the floor keeps a story's already-submitted local PASS rounds valid (no forced quorum re-bind) and prints 'materialDigest drift accepted because storyFilesHash matches; re-attestation advisory required'. Offline: node packages/main/dist/tasks/review-assurance-floor-storyfileshash-smoke.js",
+  "expectedOutcome": "After unrelated whole-tree materialHash drift with storyFilesHash unchanged, the floor reports ok=true with validRounds>=1 and a re-attestation advisory, instead of 'review assurance floor requires N fresh local PASS round(s); found 0'; a real story-owned-file change (storyFilesHash differs) still reports found 0.",
+  "actualTranscript": "review-assurance-floor-storyfileshash-smoke (14 checks) passes: (a) drift+storyFilesHash-match => ok=true, validRounds>=1, advisory present; (c) real story-file change => found 0, ok=false; (d) degraded fallback mirrors the same rule; done-escalation-drift-advisory-smoke (7 checks) confirms the floor row advisory appears in the rendered DONE checklist. npm test green; verify-process-fact-contract.mjs verified.",
+  "outcomeDiff": "No difference from the planned outcome. Additionally, genuine 2-host REVIEW (4 claude lanes + codex host-2) found 6 findings in round 1: 5 fixed (incl. codex-host-2 HIGH F-005 'advisory swallowed at the DONE render layer' and F-006 'advisory not on the failure path'), 1 accepted_risk (F-002 escalation wrapper-root freshness-root, deferred to a follow-up story); round 2 clean both hosts (codex SHIP).",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "F-002 (accepted_risk): escalation still computes its freshness root from projectRoot while the floor uses gitCwd; under wrapper-root layouts the two can diverge. The shared downgrade helper is identical and the floor's root is correct; the escalation root-alignment is tracked as a dedicated follow-up story. No change to the shared evaluateHostVerdictRounds; whole-tree materialHash remains the PRIMARY key.",
+  "pitfalls": "The DONE-merge auto-sync drifts the whole-tree materialHash on every pre-check (the exact race this story fixes) — and because B-6de6's own fix is not merged yet, B-6de6's DONE faces the old behavior: submit the escalation quorum + attempt DONE in a main-quiet window. The escalation quorum path is already storyFilesHash-tolerant (B-edf1) so it survives drift when story files are unchanged; the old floor is not. Genuine 2-host: codex host-2 (gpt-5.5, xhigh) caught the load-bearing CX-1/F-005 that all four same-vendor claude lanes missed — the advisory was computed but invisible at the DONE render, exactly the B-edf1 bug class for the escalation row.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 166078
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 18148
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 1551755
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 1078090
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 2074311
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 476301
+    }
+  },
+  "totalDurationMs": 5364695,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-24T01:03:40.070Z",
+  "updatedAt": "2026-06-24T01:03:40.070Z"
+}

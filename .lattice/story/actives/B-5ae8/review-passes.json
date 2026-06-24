@@ -1,0 +1,49 @@
+{
+  "passes": [
+    {
+      "id": "B-5ae8:RP-001",
+      "agent": "lattice-review-quality",
+      "note": "All 3 check items clean. (1) Dead code: none — one-line truncatedContext value replacement + comment, no unused imports or variables. (2) Type safety: no as-any, no empty catch. (3) Shell isolation: N/A. (4) Comment/value consistency: block comment (lines 299-313) and inline comment (lines 319-322) both correctly describe the value as NON-EMPTY and token-less; the actual value at line 323 matches exactly. (5) self-check: 25/25 exit 0, 0 spend, live-verified. (6) node --check: syntax OK. (7) CHANGELOG: single Experiments heading, new bullet accurately describes the fix without overclaiming a powered run. (8) Closing self-check: no doc-promise-undelivered gaps found.",
+      "createdAt": "2026-06-24T00:14:20.533Z",
+      "reviewRound": "2026-06-24T00:12:56.813Z",
+      "reviewRunId": "B-5ae8:RR-001",
+      "_hash": "aae458b7eefc4a6c532c3ecb34db3848d7302759478e6469a06848fb7d2172a0"
+    },
+    {
+      "id": "B-5ae8:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Concept residue check complete. Replaced concept: truncatedContext empty-string (was ''). Grep across all .mjs/.ts/.js/.json/.md in worktree for [truncatedContext: ''] returns ZERO matches. The one surviving truncatedContext reference (line 323) holds the new non-empty marker. No task token TASK-WRITE-OK appears on any truncatedContext line (grep count=0). B5 checkpointContext is untouched. Code changes confined to live-loop-harness.mjs and CHANGELOG.md as declared. No concept residue, no blocker.",
+      "createdAt": "2026-06-24T00:14:25.675Z",
+      "reviewRound": "2026-06-24T00:12:56.813Z",
+      "reviewRunId": "B-5ae8:RR-002",
+      "_hash": "d4e45ec9c21f37f890cb183026a718593f2f89e7ebe953e03404f0a248a4485b"
+    },
+    {
+      "id": "B-5ae8:RP-003",
+      "agent": "lattice-review-docs",
+      "note": "Step 1: 0 exported TS/JS symbols in diff (mjs changes use no export declarations). Step 2: only doc hit is lattice-experiment-protocol.md line 81, a table label with no truncatedContext description — no drift possible. Step 3: B4 inline comment correctly describes NON-EMPTY token-LESS marker, consistent with the new truncatedContext value in code; CHANGELOG B-5ae8 bullet accurately describes the change with no powered-run claim; grep -c '^### Experiments' CHANGELOG.md==1 confirmed; diff stat shows no edits outside live-loop-harness.mjs + CHANGELOG + story metadata. Closing self-check: all doc promises delivered in code. 0 blockers.",
+      "createdAt": "2026-06-24T00:14:43.956Z",
+      "reviewRound": "2026-06-24T00:12:56.813Z",
+      "reviewRunId": "B-5ae8:RR-003",
+      "_hash": "6edc89bd6cbceb99f286f72a951fbcacf3812feb254775ad9e5d2515513bf304"
+    },
+    {
+      "id": "B-5ae8:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verificationIntent↔verificationEvidence coverage confirmed 9/9 fresh (0 stale, 0 missing); all 9 intents are must/logic or must/docs with non-generic commands bound to specific behaviors; self-check confirmed 25/25 exit 0 0-spend; B4 RECOVERED and AMPLIFIED cases confirmed non-infra-fail in stub path; no blocker found.",
+      "createdAt": "2026-06-24T00:17:30.459Z",
+      "reviewRound": "2026-06-24T00:12:56.813Z",
+      "reviewRunId": "B-5ae8:RR-005",
+      "_hash": "47acd2fd7c73b646a548b4da16b1aa231f07481edbf416442483197a2fe30b12"
+    },
+    {
+      "id": "B-5ae8:RP-005",
+      "agent": "lattice-review-channel",
+      "note": "Normal channel: dispatch covers all CHKs. Worktree process-events.jsonl contains dispatch + subagent_result(success:true) for CHK-001, CHK-002, CHK-003. Git commits 4afd78bae (CHK-001) and 0cf053e20 (CHK-003) authored by lattice-implementer. Channel review passed.",
+      "createdAt": "2026-06-24T00:20:53.260Z",
+      "reviewRound": "2026-06-24T00:12:56.813Z",
+      "reviewRunId": "B-5ae8:RR-004",
+      "_hash": "13efe5a5c1d78847685503ec56767a4c5a96b41a2d6eaa177c4534647a6ed6ee"
+    }
+  ]
+}

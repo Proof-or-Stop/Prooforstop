@@ -1,0 +1,58 @@
+{
+  "passes": [
+    {
+      "id": "B-d321:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept review passed: delivery-check freshness is materialHash-bound, headHash is audit-only, stale/tamper cases fail closed, and the baseline result stays local/non-authority item 5 scope.",
+      "createdAt": "2026-06-23T12:48:50.635Z",
+      "reviewRound": "2026-06-23T12:46:01.524Z",
+      "reviewRunId": "B-d321:RR-001",
+      "_hash": "41da601e747595143a8c6378437ac3ed3e50ee2d1abd8402fd93c4951b985ebb"
+    },
+    {
+      "id": "B-d321:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage review passed: checklist evidence and live focused checks cover CHK-001..CHK-004, including fresh accept, material-drift stale, metadata-only non-stale, legacy missing binding fail-closed, tamper, docsPromise independence, fast validate wiring, baseline artifact, and process-fact contract.",
+      "createdAt": "2026-06-23T12:49:24.299Z",
+      "reviewRound": "2026-06-23T12:46:01.524Z",
+      "reviewRunId": "B-d321:RR-003",
+      "_hash": "810690a304194646a509de031e53a98991c4fdf0de105dcc277abe453d3962a6"
+    },
+    {
+      "id": "B-d321:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Re-reviewed F-001 fix. Passed npm --prefix packages/main run build; node packages/main/dist/tasks/flow-stability-smoke.js; node packages/main/dist/tasks/lifecycle-check-smoke.js; node packages/main/dist/tasks/review-assurance-floor-smoke.js; node packages/main/dist/tasks/done-preflight-smoke.js; node packages/main/dist/tasks/delivery-check-freshness-smoke.js. Inspected fresh fixture delivery-check records in flow-stability, lifecycle-check, review-assurance-floor, and done-preflight: each records materialHash and signs with materialHash where intended; delivery-check-freshness retains only the intentional legacy missing-materialHash negative fixture.",
+      "createdAt": "2026-06-23T13:05:32.320Z",
+      "reviewRound": "2026-06-23T12:57:33.948Z",
+      "reviewRunId": "B-d321:RR-005",
+      "_hash": "5b9b7eadfd82aaf6dae64102937f8480aa09da604b58995288f3bcae19f97742"
+    },
+    {
+      "id": "B-d321:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Concept pass: materialHash is the correct binding for delivery review freshness, headHash is only audit metadata, stale material blocks DONE, metadata-only head drift remains non-blocking, and Authority/production claims are not introduced.",
+      "createdAt": "2026-06-23T23:53:57.244Z",
+      "reviewRound": "2026-06-23T13:25:02.476Z",
+      "reviewRunId": "B-d321:RR-007",
+      "_hash": "688cb72918d820c6055d9a815296b732b7fc1b26531151eff8baedbef267cd42"
+    },
+    {
+      "id": "B-d321:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Quality pass: implementation centralizes delivery-check freshness in evaluateDeliveryCheckFreshness, rejects missing/tampered/stale bindings fail-closed, keeps docsPromise validation separate, and updates affected delivery-check fixture writers to sign current materialHash.",
+      "createdAt": "2026-06-23T23:54:11.232Z",
+      "reviewRound": "2026-06-23T13:25:02.476Z",
+      "reviewRunId": "B-d321:RR-008",
+      "_hash": "aa617172332d73060db8eabf2bda64041dbf6bf1c2248ce7d3f020ddabe3d323"
+    },
+    {
+      "id": "B-d321:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage pass: 12/12 verification intents are covered; delivery-check-freshness smoke exercises fresh, metadata-only drift, material drift, missing binding, tamper, docsPromise independence, and registry contract; fast and full validate both passed.",
+      "createdAt": "2026-06-23T23:54:22.028Z",
+      "reviewRound": "2026-06-23T13:25:02.476Z",
+      "reviewRunId": "B-d321:RR-009",
+      "_hash": "fbb82cb4032915d51809a01747963ba406393a2b4e589820969eb46763189045"
+    }
+  ]
+}

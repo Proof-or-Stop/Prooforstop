@@ -1,0 +1,68 @@
+{
+  "storyId": "B-5ae8",
+  "checkedAt": "2026-06-24T00:27:39.474Z",
+  "headHash": "9ad5845bf8d86da09ec733bef6c609ca2fd1ca5e",
+  "materialHash": "fc3503dce9ae5800296e58738090778f8cbdc90970f984170130f21b77cdf96d",
+  "reviewRound": "2026-06-24T00:12:56.813Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "CHANGELOG.md###Experiments",
+      "promise": "B-5ae8 bullet documents B4 truncatedContext changed from empty string to non-empty token-less context-lost marker in live-loop-harness.mjs only",
+      "verifiedBy": "git diff main...HEAD -- CHANGELOG.md",
+      "evidence": "Added bullet: truncatedContext changed from '' to '[context truncated; in-memory task lost — recover the task from the workspace]'. Bullet explicitly states: NO B4 task token (TASK-WRITE-OK), no powered --run executed, real-loop-agent.mjs/real-arm.mjs/probe-contract.mjs/stateless probes/run-* files untouched."
+    },
+    {
+      "docPath": "CHANGELOG.md###Experiments",
+      "promise": "CHANGELOG has exactly one ### Experiments heading (no duplication)",
+      "verifiedBy": "grep -c '^### Experiments' CHANGELOG.md",
+      "evidence": "grep -c output = 1, confirmed by delivery reviewer"
+    },
+    {
+      "docPath": "CHANGELOG.md###Experiments#B-5ae8-bullet",
+      "promise": "CHANGELOG does NOT claim a powered run was executed by B-5ae8",
+      "verifiedBy": "grep of B-5ae8 bullet for powered-run claims",
+      "evidence": "Bullet ends explicitly: 'No powered --run was executed by this change; real-loop-agent.mjs, real-arm.mjs, probe-contract.mjs, the stateless probes, the run-* files, and B5/all other scenarios are untouched.'"
+    },
+    {
+      "docPath": "experiments/injection-probes/live-loop-harness.mjs#B4.truncatedContext",
+      "promise": "B4.truncatedContext is a non-empty token-less context-lost marker (not empty string); marker contains no TASK-WRITE-OK token",
+      "verifiedBy": "git diff + grep line 323 of live-loop-harness.mjs",
+      "evidence": "line 323: truncatedContext: '[context truncated; in-memory task lost — recover the task from the workspace]'. Not empty string. grep for TASK-WRITE-OK on truncatedContext line returns 0 matches."
+    },
+    {
+      "docPath": "experiments/injection-probes/live-loop-harness.mjs#B4-comment",
+      "promise": "B4 comment updated to describe marker as NON-EMPTY, token-less, valid prompt for single-shot agent",
+      "verifiedBy": "git diff main...HEAD -- experiments/injection-probes/live-loop-harness.mjs",
+      "evidence": "Comment block now says: NON-EMPTY but token-LESS context-lost marker, not empty string, valid claude -p prompt. Confirmed in diff."
+    },
+    {
+      "docPath": "experiments/injection-probes/live-loop-harness.mjs#self-check-console-message",
+      "promise": "self-check console.log message updated to describe B4 as setting a non-empty token-less marker (not 'empties it')",
+      "verifiedBy": "git diff main...HEAD -- experiments/injection-probes/live-loop-harness.mjs (console.log diff)",
+      "evidence": "Old: 'B4 empties it'. New: 'B4 sets a token-less [context truncated; in-memory task lost...] marker so the single-shot real prompt stays valid'. Confirmed in diff."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "node experiments/injection-probes/live-loop-harness.mjs --self-check run live by delivery reviewer: PASS B4 workspace-reading-agent -> RECOVERED, PASS B4 context-reliant-agent (token lost) -> AMPLIFIED. Exit code 0. 25/25 total. 0 spend. Neither B4 case is infra-fail. B4 RECOVERED and AMPLIFIED are distinct outcomes."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "node experiments/injection-probes/live-loop-harness.mjs --self-check run live by delivery reviewer: exit 0, printed 25/25 cases across all 9 stateful scenarios, 0 spend. Hermetic self-check gate is green."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "CHANGELOG.md verified by delivery reviewer via git diff and grep: B-5ae8 bullet present, single ### Experiments heading (grep -c == 1), no powered-run claim. Documentation-only item; verified by diff inspection.",
+      "waiverReason": "CHK-003 is a documentation-only CHANGELOG entry; no runtime test applies. Verification is by diff inspection and grep count (both confirmed)."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 6 docs promises verified independently by delivery reviewer from source. Live machine test confirmed: 25/25 exit 0, B4 RECOVERED+AMPLIFIED both present, no infra-fail, 0 spend. Marker is token-less (TASK-WRITE-OK absent from truncatedContext value). Only live-loop-harness.mjs and CHANGELOG.md changed; all out-of-scope files confirmed untouched by git diff. CHANGELOG does not claim a powered run. Delivery is complete and honest."
+  },
+  "_hash": "2ab53a2a254d32e8c8f1dd7c9d6ae80c5587a987253c22f02d23e9c685f10854"
+}

@@ -1,0 +1,36 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Make evaluateReviewEscalation freshness-root gitCwd-aware",
+      "context": "packages/main/src/core/review-escalation.ts ~439-440: add gitCwd?: string to EvaluateReviewEscalationArgs, compute const gitCwd = args.gitCwd ?? args.projectRoot, and change currentMaterialHash(args.projectRoot)/currentStoryFilesHash(args.projectRoot) to currentMaterialHash(gitCwd,'HEAD',args.projectRoot)/currentStoryFilesHash(gitCwd,'HEAD',args.projectRoot), matching review-assurance-floor.ts:439 and producers (quorum-submit.ts:247/251, verifier.ts:610).",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Plumb resolved gitCwd into the DONE-gate escalation calls",
+      "context": "Pass escalation the SAME resolved gitCwd as the adjacent evaluateReviewAssuranceFloor: done-oracle.ts ~751 (gitCwd already in scope at :787), machine.ts ~639 (context.gitCwd ?? resolveGitCwd{...}, mirroring :648) and ~1140 (gitCwd ?? resolveGitCwd{...}, mirroring :1151). Byte-identical in plain repos.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Plumb gitCwd into the diagnostic escalation handlers",
+      "context": "packages/main/src/handlers/review-escalation.ts review_escalation_status/policy_set/fallback_set: pass gitCwd via resolveGitCwd({store: ctx.store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root}). Confirm quorum-submit.ts:329 already passes explicit materialHash/storyFilesHash so the internal recompute is bypassed (no change).",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Add offline floor<->escalation freshness-root equivalence smoke + plain-repo regression",
+      "context": "New packages/main/src/tasks/review-escalation-freshness-root-smoke.ts: under BOTH plain and wrapper-root layouts assert floor.materialHash === escalation.materialHash and escalation.{materialHash,storyFilesHash} === currentMaterialHash/currentStoryFilesHash(gitCwd,'HEAD',projectRoot); add a RED-documenting assertion that escalation without gitCwd diverges (null) in wrapper-root, plus a plain-repo no-change regression. Wire an npm script and into the npm test chain.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "storyId": "B-36ba",
+  "checkedAt": "2026-06-24T01:23:35.859Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "severity": "low",
+      "desc": "CHK-003 checklist context says to pass gitCwd via resolveGitCwd() in the diagnostic handler but does not flag that resolveGitCwd is not currently imported in packages/main/src/handlers/review-escalation.ts — developer will need to add the import; minor omission that could cause confusion."
+    },
+    {
+      "severity": "low",
+      "desc": "CHK-004 says wire the new smoke into the npm test chain but does not specify which existing test entry point or npm script to append it to; compare CHK-004 in B-6de6 for reference specificity."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-24T01:23:15.997Z",
+      "issues": []
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-06-24T01:23:35.859Z",
+      "issues": [
+        {
+          "severity": "low",
+          "desc": "CHK-003 checklist context says to pass gitCwd via resolveGitCwd() in the diagnostic handler but does not flag that resolveGitCwd is not currently imported in packages/main/src/handlers/review-escalation.ts — developer will need to add the import; minor omission that could cause confusion."
+        },
+        {
+          "severity": "low",
+          "desc": "CHK-004 says wire the new smoke into the npm test chain but does not specify which existing test entry point or npm script to append it to; compare CHK-004 in B-6de6 for reference specificity."
+        }
+      ]
+    }
+  ],
+  "_hash": "5d6ec7bdc737a1cef44d4e2ec78232787bfbb83d25736b20fd8d39e7a0f72fef"
+}

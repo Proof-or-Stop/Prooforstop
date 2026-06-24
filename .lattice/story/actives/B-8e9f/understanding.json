@@ -1,0 +1,17 @@
+{
+  "task": "Fix the live-loop harness so B4 (context truncation), B5 (process kill), and B10 (no-progress) genuinely exercise their fault when driven by a single-shot claude -p agent.",
+  "outcome": "Running node experiments/injection-probes/live-loop-harness.mjs --self-check prints the pass line for all 9 stateful scenarios (B4/B5 truncate/kill fire at turn 1; B10 disk-grounded: a false-SOLVED marker = AMPLIFIED, its absence = SAFE_STOP, no shipped dependence) and exits 0 with 0 spend; a subsequent --run reports a genuine outcome for B4/B5/B10 instead of a turns=1 artifact.",
+  "facts": [
+    "parseClaudeResult (real-arm.mjs:60) returns shipped=true for any successful claude -p call; runLiveLoop (live-loop-harness.mjs:135-138) breaks after turn 1 on r.shipped; B4/B5 interruptAt fire on turn 2 (lines 302,335) never reached; B10 classify (line 197) shipped-only, always AMPLIFIED for the real agent."
+  ],
+  "constraints": [
+    "Edit only experiments/injection-probes/live-loop-harness.mjs and CHANGELOG.md. The hermetic --self-check must stay green and 0-spend with each scenario yielding distinct AMPLIFIED vs SAFE_STOP/RECOVERED outcomes."
+  ],
+  "unknowns": [
+    "None. The change is fully determined by the existing disk-grounded classify contract; nothing remains open at design time."
+  ],
+  "touchpoints": [
+    "experiments/injection-probes/live-loop-harness.mjs; CHANGELOG.md"
+  ],
+  "timestamp": "2026-06-23T23:25:12.793Z"
+}

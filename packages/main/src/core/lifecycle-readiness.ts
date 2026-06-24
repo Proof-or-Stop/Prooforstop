@@ -624,9 +624,9 @@ function classifyDoneRow(storyId: string, row: DoneCheckRow): Pick<StoryReadines
     case 'related-docs':
       return { source: 'storyMachine', owner: 'host', category: 'advisory', code: row.status === 'pass' ? 'related_docs_touched' : 'related_docs_advisory', nextCommand: next };
     case 'delivery-check':
-      if (/missing/.test(lowerDetail)) return { source: 'delivery', owner: 'delivery-reviewer', category: 'missing', code: 'missing_delivery_check', nextCommand: next };
       if (/hash mismatch|stale/.test(lowerDetail)) return { source: 'delivery', owner: 'delivery-reviewer', category: 'stale', code: 'stale_delivery_check', nextCommand: next };
-      if (/docspromise|docs promise|unverified/.test(lowerDetail)) return { source: 'delivery', owner: 'delivery-reviewer', category: 'blocking', code: 'docs_promise_unresolved', nextCommand: next };
+      if (/missing/.test(lowerDetail)) return { source: 'delivery', owner: 'delivery-reviewer', category: 'missing', code: 'missing_delivery_check', nextCommand: next };
+      if (row.status !== 'pass' && /docspromise|docs promise|unverified/.test(lowerDetail)) return { source: 'delivery', owner: 'delivery-reviewer', category: 'blocking', code: 'docs_promise_unresolved', nextCommand: next };
       return { source: 'delivery', owner: 'delivery-reviewer', category: row.status === 'pass' ? 'advisory' : 'blocking', code: row.status === 'pass' ? 'delivery_check_passed' : 'delivery_check_blocking', nextCommand: next };
     case 'story-summary':
       if (/no summary/.test(lowerDetail)) return { source: 'storyMachine', owner: 'host', category: row.blocking ? 'missing' : 'advisory', code: 'missing_story_summary', nextCommand: next };
@@ -910,6 +910,8 @@ export function buildStoryReadinessReport(input: BuildStoryReadinessReportInput)
       deliveryCheckRef: deliveryCheck ? {
         source: 'delivery-check.json',
         checkedAt: deliveryCheck.checkedAt,
+        headHash: deliveryCheck.headHash ?? null,
+        materialHash: deliveryCheck.materialHash ?? null,
         reviewRound: deliveryCheck.reviewRound,
         hash: deliveryCheck._hash ?? null,
       } : null,

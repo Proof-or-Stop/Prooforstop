@@ -1,0 +1,43 @@
+{
+  "storyId": "B-ef65",
+  "name": "formalize-validate-execution-lock-red-spike",
+  "title": "Formalize validate execution lock from red/spike evidence",
+  "description": "Formal story delivery for the already-proven validate execution lock fix. Red evidence exists in bac345a80, green implementation exists in 8248dc50d, and non-regression coverage exists in 5c643b627. This experiment measures how long a story takes after the problem and solution are already proven, while recording workflow friction from story to DONE.",
+  "type": "bug",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "riskSignals": [
+    {
+      "category": "State Machine/Gate",
+      "matched": "story_advance"
+    }
+  ],
+  "createdAt": "2026-06-24T01:03:18.092Z",
+  "startedAt": "2026-06-24T01:03:18.092Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-24T01:03:18.092Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-7f55c8d5292c7c45",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-24T01:04:57.719Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-7f55c8d5292c7c45",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-ef65",
+    "branch": "story/B-ef65",
+    "createdAt": "2026-06-24T01:04:57.262Z"
+  }
+}

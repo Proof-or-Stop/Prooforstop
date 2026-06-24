@@ -1,0 +1,94 @@
+{
+  "passes": [
+    {
+      "id": "B-6de6:RP-001",
+      "agent": "lattice-review-docs",
+      "note": "Step 1: 4 symbols extracted (eventsWithStoryFilesHashDowngrade, evaluateReviewAssuranceFloor, ReviewAssuranceFloorFallbackRecord, ReviewAssuranceFloorReport). Step 2: 7 doc paragraphs compared across process-fact-levels.ts gateConsumer/rationale, verify-process-fact-contract.mjs line field, story-files-hash-material-drift.md §Process Fact Contract, review-assurance-floor.ts B-6de6 comments, plan.md CHK-001..005, smoke test advisory assertions. All consistent: (1) gateConsumer text accurately enumerates the floor as a consumer; (2) rationale three conditions (accept/advisory/reject) match code; (3) verifier line string matches exactly (Python confirmed); (4) decision doc §Process Fact Contract satisfied by updated registration; (5) B-6de6 code comments neither over- nor under-claim vs actual behavior; (6) advisory string emitted by fallbackRecordFromEvent and eventsWithStoryFilesHashDowngrade both contain storyFilesHash matches satisfying smoke /storyFilesHash matches/ regex. No blockers found.",
+      "createdAt": "2026-06-24T00:24:27.064Z",
+      "reviewRound": "2026-06-24T00:21:09.458Z",
+      "reviewRunId": "B-6de6:RR-004",
+      "_hash": "28ebcd9c82f6cd9beb625d9c175e6d5440687dd093a2907a5f9b2f0f604cf1f8"
+    },
+    {
+      "id": "B-6de6:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Dead code: none. Type safety: all new fields (advisories?, storyFilesHash?, string|null threading) are correctly typed with no unsafe casts or any. I/O isolation: no bridge violations. Correctness: (1) effectiveEvents computed once and threaded to all three evaluateHostVerdictRounds calls and latestFallbackRecord — no raw readEvents() reuse after the computation block; (2) fallbackRecordFromEvent applies the identical 4-arg/3-arg storyFilesHash downgrade-accept pattern from review-escalation.ts:225/350 — null expectedStoryFilesHash and empty-string storyFilesHash both correctly fall through to materialHash stale; (3) advisories merged from downgradeAdvisories + fallback.advisories with no double-counting (eventsWithStoryFilesHashDowngrade only touches host_verdict, not review_escalation_fallback); (4) advisories only emitted when non-empty via the conditional spread; (5) the new export of eventsWithStoryFilesHashDowngrade is a one-word change with no behavioral impact on escalation; (6) smoke assertions are meaningful, deterministic, and genuinely offline for all paths except the null-storyFilesHash test (3) which makes a harmless failing git call to /tmp and falls back to null as designed; (7) process-fact-levels.ts rationale and verify-process-fact-contract.mjs line field are consistent with the implementation.",
+      "createdAt": "2026-06-24T00:25:29.621Z",
+      "reviewRound": "2026-06-24T00:21:09.458Z",
+      "reviewRunId": "B-6de6:RR-002",
+      "_hash": "608c2ba398d78a31b1f4cfc3c5b44fd08784f890f565e9b8b004fa59fbb42fe4"
+    },
+    {
+      "id": "B-6de6:RP-003",
+      "agent": "lattice-review-docs",
+      "note": "Step 1 extracted 0 exported symbols from git diff main...HEAD (all story code changes are in the single fix commit 5389c13e4 which modifies only internal exports in done-oracle.ts and review-assurance-floor.ts). Step 2/3 directly compared the 4 files named in the review prompt: (1) done-oracle.ts floor row comment accurately mirrors the escalation row comment — no over/under-claim, advisory-append logic matches stated behavior; (2) review-assurance-floor.ts storyFilesHash? field added to ReviewAssuranceFloorReport interface and populated in return, formatReviewAssuranceFloorFailure storyFilesHash+advisories lines match their comments; (3) node scripts/verify-process-fact-contract.mjs exits 0 and prints Process fact contract verified, runtime:story_files_hash_freshness_gate gateConsumer at line 308 names the review assurance floor DONE freshness gate exactly matching CHK-005 userSees; (4) plan.md CHK-003 done-when advisory pattern and CHK-005 userSees both match actual smoke/verifier output. All 14 storyFilesHash smoke checks and all 7 done-escalation-drift-advisory smoke checks pass. No doc-code inconsistency found.",
+      "createdAt": "2026-06-24T00:47:04.695Z",
+      "reviewRound": "2026-06-24T00:21:09.458Z",
+      "reviewRunId": "B-6de6:RR-007",
+      "_hash": "4d6a0eaf11ef135fa2427d7d791af9b508d19f23674277f0f3715f2baaed8b3a"
+    },
+    {
+      "id": "B-6de6:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 concept and completeness review complete. No new findings. (1) F-001 fix verified: storyFilesHash added to ReviewAssuranceFloorReport + EvaluateReviewAssuranceFloorArgs + ReviewAssuranceFloorFallbackRecord interfaces, and formatReviewAssuranceFloorFailure surfaces storyFilesHash in its diagnostic lines. (2) F-005 fix verified: done-oracle.ts floor row now appends floor.advisories to floorDetail when floor.ok is true; the failure path surfaces advisories via formatReviewAssuranceFloorFailure. No PASS case drops the advisory. (3) Anti-gaming invariant intact: eventsWithStoryFilesHashDowngrade (now exported from review-escalation.ts) only downgrades when materialDigest != currentMaterialHash AND storyFilesHash matches; the function short-circuits on materialDigest == currentMaterialHash (no spurious advisory) and on storyFilesHash mismatch (no acceptance). (4) Whole-tree-materialHash-primary invariant holds: storyFilesHash is strictly secondary, only accepted via the re-attestation advisory path. (5) process-fact-levels.ts rationale and verify-process-fact-contract.mjs contract string updated consistently. (6) Two smokes registered in package.json test suite and cover the key cases: unrelated drift accepted with advisory, real story-file change rejected (anti-gaming), fallback downgrade-accept, clean no-drift carries no advisory, and the done-oracle floor row advisory surfacing (scenario A and B). (7) No deleted/replaced concept words with residue found.",
+      "createdAt": "2026-06-24T00:47:31.742Z",
+      "reviewRound": "2026-06-24T00:21:09.458Z",
+      "reviewRunId": "B-6de6:RR-005",
+      "_hash": "d5e679c23455406df0e354ef9052382fe26928cc4c2a61cc9945553c05ce883e"
+    },
+    {
+      "id": "B-6de6:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "round-2 test-coverage review passed: F-003 fix verified (dedicated cross-runId re-bind check at smoke line 202-224, asserting ignoredVerdicts + round-new identity, CHK-002:happy:1 re-bound); F-004 fix verified (full three-part /materialDigest drift accepted.*storyFilesHash matches.*re-attestation/ pattern in (a) line 139-146 and dedicated (a2) check line 153-165, CHK-003:happy:0 re-bound); F-005 floor DONE-render advisory verified (done-escalation-drift-advisory-smoke.ts checks at line 290-312 and 366-373, 7/7 pass); all 30 must-intents have concrete non-generic evidence in the 14-check storyfileshash smoke (passes) and 7-check done-escalation-drift smoke (passes); validate freshness gap (28 stale) is an evidence-freshness staleness issue not a test coverage gap.",
+      "createdAt": "2026-06-24T00:47:52.135Z",
+      "reviewRound": "2026-06-24T00:21:09.458Z",
+      "reviewRunId": "B-6de6:RR-008",
+      "_hash": "1e8a98d419e2d5ec4617869e28984875d111d82c3ec66a08b9a7e37dc5f71e5f"
+    },
+    {
+      "id": "B-6de6:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Round 2 quality review passed. Checked: (1) dead code — no unused imports or commented-out blocks in changed files; currentStoryFilesHash and eventsWithStoryFilesHashDowngrade are both imported and used; (2) type safety — no as-any casts, no empty catch blocks; storyFilesHash?: string|null on ReviewAssuranceFloorReport and interface are correct; normalizeString returns empty string for undefined event.storyFilesHash, making the fallback advisory guard safe; (3) done-oracle.ts floor advisory guard floor.ok && floor.advisories?.length is correct — only appends on pass path, parallel to escalation row, no behavior change when no advisories; fail path surfaces advisories via formatReviewAssuranceFloorFailure hint which also guards report.advisories?.length; (4) formatReviewAssuranceFloorFailure correctly appends accepted-drift advisories on the fail path without duplication; (5) new smoke review-assurance-floor-storyfileshash-smoke.ts is fully offline, deterministic, non-tautological, and would fail if the fix were reverted (checks (a), (a2), (c) cover the happy/anti-gaming/control paths); (6) done-escalation-drift-advisory-smoke.ts new checks (A) and (B) for the floor row are deterministic and symmetric to the pre-existing escalation row checks; (7) I/O isolation not applicable (no bridge.ts); (8) process-fact-levels.ts rationale update and verify-process-fact-contract.mjs expected line are consistent with each other. No blockers found.",
+      "createdAt": "2026-06-24T00:48:12.770Z",
+      "reviewRound": "2026-06-24T00:21:09.458Z",
+      "reviewRunId": "B-6de6:RR-006",
+      "_hash": "cdcb2ecf04c307d0ebf8f18c003527215979094274d5a19adc9e30f7ae2bd639"
+    },
+    {
+      "id": "B-6de6:RP-007",
+      "agent": "lattice-review-quality",
+      "note": "Round 3 re-attestation after main-merge. Build clean (tsc 0 errors). Smoke 1: 14/14 passed. Smoke 2: 7/7 passed. B-6de6 source changes (review-assurance-floor.ts effectiveEvents+storyFilesHash+advisories; done-oracle.ts floor advisory append; review-escalation.ts export; process-fact-levels.ts gateConsumer) are byte-intact post-merge. Main merged commit abb2875a5 only touched unrelated B-ef65 story metadata — zero overlap with B-6de6 source regions. No dead code, no type-safety issues, no I/O isolation violations. Zero new findings.",
+      "createdAt": "2026-06-24T01:10:41.706Z",
+      "reviewRound": "2026-06-24T01:08:47.974Z",
+      "reviewRunId": "B-6de6:RR-009",
+      "_hash": "6dadb16896c7aecb2a468a609a8249dd3b530854f0329a9e7dfca58014aa955e"
+    },
+    {
+      "id": "B-6de6:RP-008",
+      "agent": "lattice-review-concept",
+      "note": "Round 3 re-attestation after main-merge. The three merges from main introduced only .lattice/story/actives/ metadata for unrelated stories (B-5ae8, B-70e4, B-ef65) — zero source-code changes from main. B-6de6 own code is byte-identical to round 2: (1) review-assurance-floor.ts storyFilesHash secondary downgrade-accept with advisory collection at lines 507-591, plus advisories surfaced in formatReviewAssuranceFloorFailure at lines 719-724; (2) done-oracle.ts floor advisory append at lines 801-802 (PASS render); (3) eventsWithStoryFilesHashDowngrade exported from review-escalation.ts and imported correctly by review-assurance-floor.ts; (4) process-fact-levels.ts gateConsumer extended (not deleted); (5) verify-process-fact-contract.mjs line string extended to match; (6) latestFallbackRecord signature updated to 3 params with no stale call sites. No concept deleted or replaced. No residue to grep for. Concept complete: advisory surfaced at DONE render + failure formatter; whole-tree materialHash primary, storyFilesHash secondary downgrade-accept. No new issues introduced by the merge.",
+      "createdAt": "2026-06-24T01:11:26.825Z",
+      "reviewRound": "2026-06-24T01:08:47.974Z",
+      "reviewRunId": "B-6de6:RR-010",
+      "_hash": "2080920e78c4951644500f6e4d3b8d10f9a12fda85d0c08dc95b15ffdac6d4b2"
+    },
+    {
+      "id": "B-6de6:RP-009",
+      "agent": "lattice-review-docs",
+      "note": "Round 3 re-attestation clean. Step 1: 36 symbols extracted from git diff main...HEAD. Step 2: 1 primary paragraph compared (runtime:story_files_hash_freshness_gate entry in process-fact-levels.ts at line 308). Step 3: (a) process-fact-levels.ts gateConsumer at line 308 exactly matches verify-process-fact-contract.mjs line 302 expected text word-for-word — both read REVIEW/TEST/DONE freshness gates for review runs, verification evidence, review escalation records, and the review assurance floor DONE freshness gate; (b) node scripts/verify-process-fact-contract.mjs exits 0 with Process fact contract verified; (c) B-6de6 code comments in review-assurance-floor.ts (lines 507-510, 549-551, 623-625) accurately describe behavior in the surrounding code; (d) done-oracle.ts storyFilesHash references at lines 188/761/796 are consistent with calling checkEvidenceFreshnessForGit with the storyFilesHash arg; (e) plan.md CHK-005 done-when condition (gateConsumer names the floor + verifier passes) is satisfied; (f) process-fact-registry.ts line 135 uses tag array (no consumer text) and lines 439/446/460 already name the review assurance floor gate. The only main-merge delta was an unrelated commit; no B-6de6 story-owned files changed. No inconsistency introduced.",
+      "createdAt": "2026-06-24T01:11:41.318Z",
+      "reviewRound": "2026-06-24T01:08:47.974Z",
+      "reviewRunId": "B-6de6:RR-012",
+      "_hash": "06026a5114548ecd02dc7350b3e4ce194a55c97113b15a683a57fa05e83f4458"
+    },
+    {
+      "id": "B-6de6:RP-010",
+      "agent": "lattice-review-test-coverage",
+      "note": "round 3 re-attestation: both smokes run clean after main-merge (14 checks + 7 checks). CHK-002:happy:1 cross-runId re-bind check present at smoke line 202. CHK-003:happy:0 three-part advisory pattern /materialDigest drift accepted.*storyFilesHash matches.*re-attestation/ present at smoke lines 144/163. done-escalation-drift-advisory-smoke floor-row assertions present at lines 290/299/366. All 20 intent refs (must) covered by logic_test evidence result=pass. No gap introduced by the main-merge storyFilesHash drift. Test coverage review passed.",
+      "createdAt": "2026-06-24T01:14:21.943Z",
+      "reviewRound": "2026-06-24T01:08:47.974Z",
+      "reviewRunId": "B-6de6:RR-011",
+      "_hash": "f36bf99ffb761cd65bc04b050c2f246c263d2dc091a61b2db682cacf3dc7ebf6"
+    }
+  ]
+}
