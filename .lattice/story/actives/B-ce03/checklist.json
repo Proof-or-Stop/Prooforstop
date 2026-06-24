@@ -162,9 +162,9 @@
       "id": "CHK-003",
       "title": "Port regression smokes and benchmark assertions",
       "context": "Bring over focused smoke coverage for metadata-only dirt, dirty source blockers, unsafe renames, failed done-required evidence, and lifecycle_check localReady semantics.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-24T13:09:07.398Z",
       "verificationIntent": {
         "happy": [
           {
@@ -198,7 +198,42 @@
           "packages/main/src/tasks/done-prepare-smoke.ts",
           "packages/main/src/tasks/lifecycle-check-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/done-prepare-smoke.js && node packages/main/dist/tasks/lifecycle-check-smoke.js",
+          "result": "pass",
+          "note": "Both smokes passed; done_prepare covers metadata-only dirty PASS and lifecycle_check covers DONE-ready localReady true.",
+          "headHash": "c715c7573d0c64849ad5e381b100576dd95fb3e5",
+          "materialHash": "d3c7b4dd7324ecf797b04994398543e4af7f669b6fbb35bc0023a29183e92fc0",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-24T13:09:07.579Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/done-prepare-smoke.js",
+          "result": "pass",
+          "note": "Smoke passed blocker coverage for dirty source and metadata/source/owner-lease rename boundaries.",
+          "headHash": "c715c7573d0c64849ad5e381b100576dd95fb3e5",
+          "materialHash": "d3c7b4dd7324ecf797b04994398543e4af7f669b6fbb35bc0023a29183e92fc0",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-24T13:09:07.757Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/done-readiness-flow-benchmark.js --rounds=1 --slow-ms=1",
+          "result": "pass",
+          "note": "Benchmark passed and asserted metadata-only done-required-evidence dirt does not regress to blockedAt cleanTree while closure precondition is ready.",
+          "headHash": "c715c7573d0c64849ad5e381b100576dd95fb3e5",
+          "materialHash": "d3c7b4dd7324ecf797b04994398543e4af7f669b6fbb35bc0023a29183e92fc0",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-24T13:09:07.897Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
