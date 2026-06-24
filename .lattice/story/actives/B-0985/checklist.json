@@ -57,7 +57,42 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees a shared proof admissibility registry in core code with canonical scopes, roles, consumers, claims, temporal roles, producer boundaries, and reason codes.",
+      "files": {
+        "modify": [
+          "docs/evidence/evidence-platform-architecture.md"
+        ],
+        "create": [
+          "packages/main/src/core/proof-admissibility.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/proof-admissibility-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The core registry exposes canonical EvidenceScope, ArtifactRole, ClaimKind, ArtifactConsumerKind, TemporalRole, ProofProducerBoundary, and stable reason-code types.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Unknown artifact kinds and unsupported schema/scope combinations fail closed with structured reason codes rather than defaulting to strong proof.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "authority-receipt and production-gate-decision remain distinct registry entries with different productionDone eligibility.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
