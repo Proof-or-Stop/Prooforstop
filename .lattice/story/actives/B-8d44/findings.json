@@ -51,7 +51,7 @@
       "desc": "experiments/recovery-runner/live-engine.mjs:331, experiments/recovery-runner/run-driver.mjs:216, experiments/recovery-runner/adjudicate.mjs:254: scenario cells use the post-injection hidden failure as the hiddenRegression baseline, then adjudicate recovered from acceptancePass && hiddenRegressionPass. Trigger verified with a no-LLM A2prime/B1 median stub that shipped the same visible-pass hidden-failing injected fault: acceptancePass=true, hiddenRegressionPass=true, adjudicatedOutcome=recovered. This overcounts unresolved injected faults as recovery.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-24T12:54:09.658Z",
@@ -64,7 +64,11 @@
         "experiments/recovery-runner/adjudicate.mjs"
       ],
       "signatureTag": "adversarial|mjs|experiments-recovery-runner",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "CRITICAL: hidden-regression baseline is now the CLEAN pre-injection reference for ablation AND scenario cells; an UNRESOLVED injected fault is a NEW hidden failure => amplified (was wrongly recovered); a genuinely-fixed fault => recovered. adjudicate.mjs unchanged (fix within its locked contract). Proven vs codex's exact trigger (9/9). Commit c6506637b.",
+      "resolvedAt": "2026-06-24T13:15:32.756Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8d44:F-004",
