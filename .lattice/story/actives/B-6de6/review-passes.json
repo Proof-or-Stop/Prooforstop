@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-24T00:21:09.458Z",
       "reviewRunId": "B-6de6:RR-007",
       "_hash": "4d6a0eaf11ef135fa2427d7d791af9b508d19f23674277f0f3715f2baaed8b3a"
+    },
+    {
+      "id": "B-6de6:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 concept and completeness review complete. No new findings. (1) F-001 fix verified: storyFilesHash added to ReviewAssuranceFloorReport + EvaluateReviewAssuranceFloorArgs + ReviewAssuranceFloorFallbackRecord interfaces, and formatReviewAssuranceFloorFailure surfaces storyFilesHash in its diagnostic lines. (2) F-005 fix verified: done-oracle.ts floor row now appends floor.advisories to floorDetail when floor.ok is true; the failure path surfaces advisories via formatReviewAssuranceFloorFailure. No PASS case drops the advisory. (3) Anti-gaming invariant intact: eventsWithStoryFilesHashDowngrade (now exported from review-escalation.ts) only downgrades when materialDigest != currentMaterialHash AND storyFilesHash matches; the function short-circuits on materialDigest == currentMaterialHash (no spurious advisory) and on storyFilesHash mismatch (no acceptance). (4) Whole-tree-materialHash-primary invariant holds: storyFilesHash is strictly secondary, only accepted via the re-attestation advisory path. (5) process-fact-levels.ts rationale and verify-process-fact-contract.mjs contract string updated consistently. (6) Two smokes registered in package.json test suite and cover the key cases: unrelated drift accepted with advisory, real story-file change rejected (anti-gaming), fallback downgrade-accept, clean no-drift carries no advisory, and the done-oracle floor row advisory surfacing (scenario A and B). (7) No deleted/replaced concept words with residue found.",
+      "createdAt": "2026-06-24T00:47:31.742Z",
+      "reviewRound": "2026-06-24T00:21:09.458Z",
+      "reviewRunId": "B-6de6:RR-005",
+      "_hash": "d5e679c23455406df0e354ef9052382fe26928cc4c2a61cc9945553c05ce883e"
     }
   ]
 }
