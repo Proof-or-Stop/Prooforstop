@@ -295,6 +295,24 @@
       ],
       "signatureTag": "missing|ts|fresh-skip-path",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-1731:F-014",
+      "desc": "Fresh skip trusts test-evidence result=PASS without parsing stored validate output for allPass/allPassed=true. An internally inconsistent artifact such as result PASS plus output allPass=false would be consumed as proof by REVIEW->TEST.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-24T23:55:16.734Z",
+      "reviewRound": "2026-06-24T23:48:36.362Z",
+      "reviewRunId": "B-1731:RR-037",
+      "_hash": "bbb12ce1b01f5eca0d1118e22bf9933eee8b966dbd37e1a9a18a36b3efd8bf02",
+      "files": [
+        "packages/main/src/handlers/phase-gates.ts"
+      ],
+      "signatureTag": "edge|ts|fresh-skip-trusts",
+      "signatureTagSource": "auto"
     }
   ]
 }
