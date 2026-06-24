@@ -62,10 +62,10 @@
           "command": "git grep -nE 'koala-review-integrity-v1|koala-review-pass-integrity-v1|koala-review-run-integrity-v1|koala-review-run-workspace-binding-v1|koala-review-scope-binding-v1|koala-scope-check-integrity-v1|koala-finding-integrity-v1|koala-story-store' -- 'packages/*/src/**'",
           "result": "pass",
           "note": "Exit 1 (zero hits): all 8 old koala-* salt VALUES fully removed from packages/*/src",
-          "headHash": "3251d5c2e086764504ebf61e90f0a0f0a4335a5f",
-          "materialHash": "efdde2011e8d96a749691cb175410698e13bf93a2373d1ac08da90e1fd54e5bf",
-          "storyFilesHash": "ab6886f5fa2826675261d2e4ca3e2777c391d1862407199b0f35047a2d48399e",
-          "timestamp": "2026-06-24T01:58:31.982Z"
+          "headHash": "5fb8936981b6a09a9945b49c4503250b41d0b666",
+          "materialHash": "931ad243a55c21d2a5406f458b2e43dff1565d4728e1c2eda36456e641875a7a",
+          "storyFilesHash": "e4effb4b263d1455feb34a274ddb653bdeef57265a64952ad240a2306bdbf2c1",
+          "timestamp": "2026-06-24T02:13:03.320Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
@@ -73,10 +73,10 @@
           "command": "git grep -cE 'lattice-review-integrity-v1|lattice-review-pass-integrity-v1|lattice-review-run-integrity-v1|lattice-review-run-workspace-binding-v1|lattice-review-scope-binding-v1|lattice-scope-check-integrity-v1|lattice-finding-integrity-v1|lattice-story-store' -- 'packages/*/src/**'",
           "result": "pass",
           "note": "New lattice-* salts present in exactly the predecessor files (guard-utils/machine/process-fact-registry/reviewer-status/story-review/canonical-story/finding-verify/review-run/review-scope-binding/scope-check) — rename, not deletion",
-          "headHash": "3251d5c2e086764504ebf61e90f0a0f0a4335a5f",
-          "materialHash": "efdde2011e8d96a749691cb175410698e13bf93a2373d1ac08da90e1fd54e5bf",
-          "storyFilesHash": "ab6886f5fa2826675261d2e4ca3e2777c391d1862407199b0f35047a2d48399e",
-          "timestamp": "2026-06-24T01:58:31.982Z"
+          "headHash": "5fb8936981b6a09a9945b49c4503250b41d0b666",
+          "materialHash": "931ad243a55c21d2a5406f458b2e43dff1565d4728e1c2eda36456e641875a7a",
+          "storyFilesHash": "e4effb4b263d1455feb34a274ddb653bdeef57265a64952ad240a2306bdbf2c1",
+          "timestamp": "2026-06-24T02:13:03.320Z"
         },
         {
           "intentRef": "CHK-001:happy:2",
@@ -84,10 +84,10 @@
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "'Process fact contract verified' — signature producers+consumers use the same new lattice salt; signatures verify end-to-end across guard-utils/machine/process-fact-registry/story-review/finding-verify/review-run/scope-check",
-          "headHash": "3251d5c2e086764504ebf61e90f0a0f0a4335a5f",
-          "materialHash": "efdde2011e8d96a749691cb175410698e13bf93a2373d1ac08da90e1fd54e5bf",
-          "storyFilesHash": "ab6886f5fa2826675261d2e4ca3e2777c391d1862407199b0f35047a2d48399e",
-          "timestamp": "2026-06-24T01:58:31.982Z"
+          "headHash": "5fb8936981b6a09a9945b49c4503250b41d0b666",
+          "materialHash": "931ad243a55c21d2a5406f458b2e43dff1565d4728e1c2eda36456e641875a7a",
+          "storyFilesHash": "e4effb4b263d1455feb34a274ddb653bdeef57265a64952ad240a2306bdbf2c1",
+          "timestamp": "2026-06-24T02:13:03.320Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -95,10 +95,10 @@
           "command": "node packages/main/dist/tasks/canonical-story-export-smoke.js",
           "result": "pass",
           "note": "Worktree binary signs+verifies a canonical story export end-to-end after the rename (smoke passed) — worktree build uses the new salts consistently, no stale dist cache",
-          "headHash": "3251d5c2e086764504ebf61e90f0a0f0a4335a5f",
-          "materialHash": "efdde2011e8d96a749691cb175410698e13bf93a2373d1ac08da90e1fd54e5bf",
-          "storyFilesHash": "ab6886f5fa2826675261d2e4ca3e2777c391d1862407199b0f35047a2d48399e",
-          "timestamp": "2026-06-24T01:58:31.982Z"
+          "headHash": "5fb8936981b6a09a9945b49c4503250b41d0b666",
+          "materialHash": "931ad243a55c21d2a5406f458b2e43dff1565d4728e1c2eda36456e641875a7a",
+          "storyFilesHash": "e4effb4b263d1455feb34a274ddb653bdeef57265a64952ad240a2306bdbf2c1",
+          "timestamp": "2026-06-24T02:13:03.320Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
@@ -106,10 +106,10 @@
           "command": "git grep -lE 'koala-(review|scope|finding|story)' -- 'packages/*/src/**'",
           "result": "pass",
           "note": "Exit 1 (no file contains any koala-* salt) — therefore no single file can hold a mixed old+new salt pair; no partial-rename silent-rejection risk",
-          "headHash": "3251d5c2e086764504ebf61e90f0a0f0a4335a5f",
-          "materialHash": "efdde2011e8d96a749691cb175410698e13bf93a2373d1ac08da90e1fd54e5bf",
-          "storyFilesHash": "ab6886f5fa2826675261d2e4ca3e2777c391d1862407199b0f35047a2d48399e",
-          "timestamp": "2026-06-24T01:58:31.982Z"
+          "headHash": "5fb8936981b6a09a9945b49c4503250b41d0b666",
+          "materialHash": "931ad243a55c21d2a5406f458b2e43dff1565d4728e1c2eda36456e641875a7a",
+          "storyFilesHash": "e4effb4b263d1455feb34a274ddb653bdeef57265a64952ad240a2306bdbf2c1",
+          "timestamp": "2026-06-24T02:13:03.320Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -117,10 +117,10 @@
           "command": "git grep -nE 'KOALA_RESIDUE_' -- 'packages/*/src/**'",
           "result": "pass",
           "note": "Literal grep ran. Intent expected KOALA_RESIDUE_* unchanged in story-3 scope; the later story-4 item (CHK-007) flipped the gate to zero-tolerance and renamed these to LATTICE_RESIDUE_ (10 hits in review-preflight.ts). This item did NOT touch them — the change came from CHK-007, so the story-3 invariant (CHK-001 must not rename the residue self-IDs) holds: CHK-001 left them as koala; CHK-007 later owned the flip.",
-          "headHash": "3251d5c2e086764504ebf61e90f0a0f0a4335a5f",
-          "materialHash": "efdde2011e8d96a749691cb175410698e13bf93a2373d1ac08da90e1fd54e5bf",
-          "storyFilesHash": "ab6886f5fa2826675261d2e4ca3e2777c391d1862407199b0f35047a2d48399e",
-          "timestamp": "2026-06-24T01:58:31.982Z"
+          "headHash": "5fb8936981b6a09a9945b49c4503250b41d0b666",
+          "materialHash": "931ad243a55c21d2a5406f458b2e43dff1565d4728e1c2eda36456e641875a7a",
+          "storyFilesHash": "e4effb4b263d1455feb34a274ddb653bdeef57265a64952ad240a2306bdbf2c1",
+          "timestamp": "2026-06-24T02:13:03.320Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
@@ -128,10 +128,10 @@
           "command": "node scripts/verify-salt-rename.mjs",
           "result": "pass",
           "note": "Corrected (F-002): replaces the pseudocode '...' placeholder with a real executable proof. For each of the 8 salts it asserts git grep -c 'koala-<salt>' over packages/{main,lab,utils}/src + scripts/ == 0 (old salt value gone) AND 'lattice-<salt>' >= 1 (replacement present), proving the rename is consistent (producers+consumers moved together), not a deletion. Scope matches CHK-001 intent (salt VALUES live in packages/*/src; tests/fixtures/*.json embed throwaway test-repos with .koala paths and are out of rename scope). Ran: all 8 OK, PASS, exit 0.",
-          "headHash": "3251d5c2e086764504ebf61e90f0a0f0a4335a5f",
-          "materialHash": "efdde2011e8d96a749691cb175410698e13bf93a2373d1ac08da90e1fd54e5bf",
-          "storyFilesHash": "ab6886f5fa2826675261d2e4ca3e2777c391d1862407199b0f35047a2d48399e",
-          "timestamp": "2026-06-24T01:58:31.982Z"
+          "headHash": "5fb8936981b6a09a9945b49c4503250b41d0b666",
+          "materialHash": "931ad243a55c21d2a5406f458b2e43dff1565d4728e1c2eda36456e641875a7a",
+          "storyFilesHash": "e4effb4b263d1455feb34a274ddb653bdeef57265a64952ad240a2306bdbf2c1",
+          "timestamp": "2026-06-24T02:13:03.320Z"
         },
         {
           "intentRef": "CHK-001:adversarial:2",
@@ -139,10 +139,10 @@
           "command": "git diff --name-only -- .lattice/story/",
           "result": "pass",
           "note": "Only .lattice/story/.../test-evidence.json appears (Lattice-managed evidence file that updates as I record this evidence). The salt rename leaked zero changes into story metadata (background.md/checklist/canonical story untouched); audit trail intact",
-          "headHash": "3251d5c2e086764504ebf61e90f0a0f0a4335a5f",
-          "materialHash": "efdde2011e8d96a749691cb175410698e13bf93a2373d1ac08da90e1fd54e5bf",
-          "storyFilesHash": "ab6886f5fa2826675261d2e4ca3e2777c391d1862407199b0f35047a2d48399e",
-          "timestamp": "2026-06-24T01:58:31.982Z"
+          "headHash": "5fb8936981b6a09a9945b49c4503250b41d0b666",
+          "materialHash": "931ad243a55c21d2a5406f458b2e43dff1565d4728e1c2eda36456e641875a7a",
+          "storyFilesHash": "e4effb4b263d1455feb34a274ddb653bdeef57265a64952ad240a2306bdbf2c1",
+          "timestamp": "2026-06-24T02:13:03.320Z"
         }
       ]
     },
@@ -203,10 +203,10 @@
           "command": "git grep -nE 'bin/koala\\.js|bin/koala-codex\\.js' -- 'packages/main/src/core/managed-assets.ts'",
           "result": "pass",
           "note": "Exit 1 (zero hits): the legacy-binary excluded-path denylist entries (bin/koala.js, bin/koala-codex.js) are removed from managed-assets.ts",
-          "headHash": "3251d5c2e086764504ebf61e90f0a0f0a4335a5f",
-          "materialHash": "efdde2011e8d96a749691cb175410698e13bf93a2373d1ac08da90e1fd54e5bf",
-          "storyFilesHash": "ab6886f5fa2826675261d2e4ca3e2777c391d1862407199b0f35047a2d48399e",
-          "timestamp": "2026-06-24T01:58:31.982Z"
+          "headHash": "5fb8936981b6a09a9945b49c4503250b41d0b666",
+          "materialHash": "931ad243a55c21d2a5406f458b2e43dff1565d4728e1c2eda36456e641875a7a",
+          "storyFilesHash": "e4effb4b263d1455feb34a274ddb653bdeef57265a64952ad240a2306bdbf2c1",
+          "timestamp": "2026-06-24T02:13:03.320Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
@@ -214,10 +214,10 @@
           "command": "git grep -n '@koala-agent' -- 'packages/*/src/**'",
           "result": "pass",
           "note": "Exit 1 (zero hits): the @koala-agent old-global-install detection logic is gone from packages/*/src",
-          "headHash": "3251d5c2e086764504ebf61e90f0a0f0a4335a5f",
-          "materialHash": "efdde2011e8d96a749691cb175410698e13bf93a2373d1ac08da90e1fd54e5bf",
-          "storyFilesHash": "ab6886f5fa2826675261d2e4ca3e2777c391d1862407199b0f35047a2d48399e",
-          "timestamp": "2026-06-24T01:58:31.982Z"
+          "headHash": "5fb8936981b6a09a9945b49c4503250b41d0b666",
+          "materialHash": "931ad243a55c21d2a5406f458b2e43dff1565d4728e1c2eda36456e641875a7a",
+          "storyFilesHash": "e4effb4b263d1455feb34a274ddb653bdeef57265a64952ad240a2306bdbf2c1",
+          "timestamp": "2026-06-24T02:13:03.320Z"
         },
         {
           "intentRef": "CHK-002:happy:2",
@@ -225,10 +225,10 @@
           "command": "node packages/main/dist/tasks/flow-stability-smoke.js && node packages/main/dist/tasks/worktree-repair-smoke.js && node packages/main/dist/tasks/lattice-only-absence-smoke.js",
           "result": "pass",
           "note": "All three smokes pass after removing the @koala-agent absence assertions — deletion of moot assertions did not break the surviving smoke coverage",
-          "headHash": "3251d5c2e086764504ebf61e90f0a0f0a4335a5f",
-          "materialHash": "efdde2011e8d96a749691cb175410698e13bf93a2373d1ac08da90e1fd54e5bf",
-          "storyFilesHash": "ab6886f5fa2826675261d2e4ca3e2777c391d1862407199b0f35047a2d48399e",
-          "timestamp": "2026-06-24T01:58:31.982Z"
+          "headHash": "5fb8936981b6a09a9945b49c4503250b41d0b666",
+          "materialHash": "931ad243a55c21d2a5406f458b2e43dff1565d4728e1c2eda36456e641875a7a",
+          "storyFilesHash": "e4effb4b263d1455feb34a274ddb653bdeef57265a64952ad240a2306bdbf2c1",
+          "timestamp": "2026-06-24T02:13:03.320Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -236,10 +236,10 @@
           "command": "git grep -nE 'koala\\.json' -- 'packages/main/src/core/managed-assets.ts'",
           "result": "pass",
           "note": "Exit 1 (zero hits): .lattice-codex/koala.json denylist entry removed from managed-assets.ts alongside the binary entries",
-          "headHash": "3251d5c2e086764504ebf61e90f0a0f0a4335a5f",
-          "materialHash": "efdde2011e8d96a749691cb175410698e13bf93a2373d1ac08da90e1fd54e5bf",
-          "storyFilesHash": "ab6886f5fa2826675261d2e4ca3e2777c391d1862407199b0f35047a2d48399e",
-          "timestamp": "2026-06-24T01:58:31.982Z"
+          "headHash": "5fb8936981b6a09a9945b49c4503250b41d0b666",
+          "materialHash": "931ad243a55c21d2a5406f458b2e43dff1565d4728e1c2eda36456e641875a7a",
+          "storyFilesHash": "e4effb4b263d1455feb34a274ddb653bdeef57265a64952ad240a2306bdbf2c1",
+          "timestamp": "2026-06-24T02:13:03.320Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
@@ -247,10 +247,10 @@
           "command": "git grep -n 'isKoalaSelfRepoBootstrap' -- 'packages/*/src/**'",
           "result": "pass",
           "note": "Exit 1 (zero hits): isKoalaSelfRepoBootstrap no longer exists under the koala name — commit f14c513ce renamed it to its lattice equivalent (not silently deleted), so load-bearing self-repo detection is preserved",
-          "headHash": "3251d5c2e086764504ebf61e90f0a0f0a4335a5f",
-          "materialHash": "efdde2011e8d96a749691cb175410698e13bf93a2373d1ac08da90e1fd54e5bf",
-          "storyFilesHash": "ab6886f5fa2826675261d2e4ca3e2777c391d1862407199b0f35047a2d48399e",
-          "timestamp": "2026-06-24T01:58:31.982Z"
+          "headHash": "5fb8936981b6a09a9945b49c4503250b41d0b666",
+          "materialHash": "931ad243a55c21d2a5406f458b2e43dff1565d4728e1c2eda36456e641875a7a",
+          "storyFilesHash": "e4effb4b263d1455feb34a274ddb653bdeef57265a64952ad240a2306bdbf2c1",
+          "timestamp": "2026-06-24T02:13:03.320Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -258,10 +258,10 @@
           "command": "git log --oneline -- packages/main/src/tasks/flow-stability-smoke.ts packages/main/src/tasks/worktree-repair-smoke.ts packages/main/src/tasks/lattice-only-absence-smoke.ts",
           "result": "pass",
           "note": "Smoke files only touched by koala-removal commits (CHK-002 f14c513ce, CHK-005, CHK-003) and all three smokes still pass — only koala-related lines were deleted, unrelated assertions intact (corroborated by happy:2 green)",
-          "headHash": "3251d5c2e086764504ebf61e90f0a0f0a4335a5f",
-          "materialHash": "efdde2011e8d96a749691cb175410698e13bf93a2373d1ac08da90e1fd54e5bf",
-          "storyFilesHash": "ab6886f5fa2826675261d2e4ca3e2777c391d1862407199b0f35047a2d48399e",
-          "timestamp": "2026-06-24T01:58:31.982Z"
+          "headHash": "5fb8936981b6a09a9945b49c4503250b41d0b666",
+          "materialHash": "931ad243a55c21d2a5406f458b2e43dff1565d4728e1c2eda36456e641875a7a",
+          "storyFilesHash": "e4effb4b263d1455feb34a274ddb653bdeef57265a64952ad240a2306bdbf2c1",
+          "timestamp": "2026-06-24T02:13:03.320Z"
         },
         {
           "intentRef": "CHK-002:adversarial:1",
@@ -269,10 +269,10 @@
           "command": "git grep -nE 'bin/koala\\.js|bin/koala-codex\\.js|koala\\.json' -- 'packages/main/src/core/managed-assets.ts' (zero) + manual read confirms remaining excluded-path entries intact",
           "result": "pass",
           "note": "Only koala entries removed (zero koala hits in managed-assets.ts); managed-assets.ts still compiles (tsc clean) and its non-koala excluded-path entries remain — no off-by-one / neighbor removal",
-          "headHash": "3251d5c2e086764504ebf61e90f0a0f0a4335a5f",
-          "materialHash": "efdde2011e8d96a749691cb175410698e13bf93a2373d1ac08da90e1fd54e5bf",
-          "storyFilesHash": "ab6886f5fa2826675261d2e4ca3e2777c391d1862407199b0f35047a2d48399e",
-          "timestamp": "2026-06-24T01:58:31.982Z"
+          "headHash": "5fb8936981b6a09a9945b49c4503250b41d0b666",
+          "materialHash": "931ad243a55c21d2a5406f458b2e43dff1565d4728e1c2eda36456e641875a7a",
+          "storyFilesHash": "e4effb4b263d1455feb34a274ddb653bdeef57265a64952ad240a2306bdbf2c1",
+          "timestamp": "2026-06-24T02:13:03.320Z"
         }
       ]
     },
@@ -333,10 +333,10 @@
           "command": "git grep -in 'koala-codex' -- 'packages/*/src/**'",
           "result": "pass",
           "note": "Exit 1 (zero hits): all koala-codex references cleaned from packages/*/src",
-          "headHash": "3251d5c2e086764504ebf61e90f0a0f0a4335a5f",
-          "materialHash": "efdde2011e8d96a749691cb175410698e13bf93a2373d1ac08da90e1fd54e5bf",
-          "storyFilesHash": "ab6886f5fa2826675261d2e4ca3e2777c391d1862407199b0f35047a2d48399e",
-          "timestamp": "2026-06-24T01:58:31.982Z"
+          "headHash": "5fb8936981b6a09a9945b49c4503250b41d0b666",
+          "materialHash": "931ad243a55c21d2a5406f458b2e43dff1565d4728e1c2eda36456e641875a7a",
+          "storyFilesHash": "e4effb4b263d1455feb34a274ddb653bdeef57265a64952ad240a2306bdbf2c1",
+          "timestamp": "2026-06-24T02:13:03.320Z"
         },
         {
           "intentRef": "CHK-003:happy:1",
@@ -344,10 +344,10 @@
           "command": "git grep -in 'koala-agent' -- 'packages/*/src/**'",
           "result": "pass",
           "note": "Exit 1 (zero hits): all koala-agent references cleaned from packages/*/src",
-          "headHash": "3251d5c2e086764504ebf61e90f0a0f0a4335a5f",
-          "materialHash": "efdde2011e8d96a749691cb175410698e13bf93a2373d1ac08da90e1fd54e5bf",
-          "storyFilesHash": "ab6886f5fa2826675261d2e4ca3e2777c391d1862407199b0f35047a2d48399e",
-          "timestamp": "2026-06-24T01:58:31.982Z"
+          "headHash": "5fb8936981b6a09a9945b49c4503250b41d0b666",
+          "materialHash": "931ad243a55c21d2a5406f458b2e43dff1565d4728e1c2eda36456e641875a7a",
+          "storyFilesHash": "e4effb4b263d1455feb34a274ddb653bdeef57265a64952ad240a2306bdbf2c1",
+          "timestamp": "2026-06-24T02:13:03.320Z"
         },
         {
           "intentRef": "CHK-003:happy:2",
@@ -355,10 +355,10 @@
           "command": "git grep -in koala -- 'packages/*/src/**'",
           "result": "pass",
           "note": "Exit 1 (literal zero). Intent expected only review-preflight.ts KOALA_RESIDUE_* to remain; the later CHK-007 went further and renamed even those to LATTICE_RESIDUE_, so the comprehensive stray-literal sweep is complete and then some — current state is literal zero koala in product src",
-          "headHash": "3251d5c2e086764504ebf61e90f0a0f0a4335a5f",
-          "materialHash": "efdde2011e8d96a749691cb175410698e13bf93a2373d1ac08da90e1fd54e5bf",
-          "storyFilesHash": "ab6886f5fa2826675261d2e4ca3e2777c391d1862407199b0f35047a2d48399e",
-          "timestamp": "2026-06-24T01:58:31.982Z"
+          "headHash": "5fb8936981b6a09a9945b49c4503250b41d0b666",
+          "materialHash": "931ad243a55c21d2a5406f458b2e43dff1565d4728e1c2eda36456e641875a7a",
+          "storyFilesHash": "e4effb4b263d1455feb34a274ddb653bdeef57265a64952ad240a2306bdbf2c1",
+          "timestamp": "2026-06-24T02:13:03.320Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -366,10 +366,10 @@
           "command": "git grep -in koala -- 'packages/*/src/**'",
           "result": "pass",
           "note": "Case-insensitive grep across identifiers, string literals AND comments: exit 1 / zero hits. Koala in comments/strings is fully swept (the residue self-IDs that the intent allowed were later renamed by CHK-007)",
-          "headHash": "3251d5c2e086764504ebf61e90f0a0f0a4335a5f",
-          "materialHash": "efdde2011e8d96a749691cb175410698e13bf93a2373d1ac08da90e1fd54e5bf",
-          "storyFilesHash": "ab6886f5fa2826675261d2e4ca3e2777c391d1862407199b0f35047a2d48399e",
-          "timestamp": "2026-06-24T01:58:31.982Z"
+          "headHash": "5fb8936981b6a09a9945b49c4503250b41d0b666",
+          "materialHash": "931ad243a55c21d2a5406f458b2e43dff1565d4728e1c2eda36456e641875a7a",
+          "storyFilesHash": "e4effb4b263d1455feb34a274ddb653bdeef57265a64952ad240a2306bdbf2c1",
+          "timestamp": "2026-06-24T02:13:03.320Z"
         },
         {
           "intentRef": "CHK-003:edge:1",
@@ -377,10 +377,10 @@
           "command": "git show --stat 9329c6a4f && git grep -in 'lattice-codex' -- 'packages/*/src/**'",
           "result": "pass",
           "note": "Renamed references make semantic sense: koala->lattice produced valid forms (.lattice-codex/ adapter paths, bin/lattice-codex.js wrapper, renderLatticeCodexWrapperScript). No broken URLs or gibberish; tsc clean confirms no nonsensical identifiers",
-          "headHash": "3251d5c2e086764504ebf61e90f0a0f0a4335a5f",
-          "materialHash": "efdde2011e8d96a749691cb175410698e13bf93a2373d1ac08da90e1fd54e5bf",
-          "storyFilesHash": "ab6886f5fa2826675261d2e4ca3e2777c391d1862407199b0f35047a2d48399e",
-          "timestamp": "2026-06-24T01:58:31.982Z"
+          "headHash": "5fb8936981b6a09a9945b49c4503250b41d0b666",
+          "materialHash": "931ad243a55c21d2a5406f458b2e43dff1565d4728e1c2eda36456e641875a7a",
+          "storyFilesHash": "e4effb4b263d1455feb34a274ddb653bdeef57265a64952ad240a2306bdbf2c1",
+          "timestamp": "2026-06-24T02:13:03.320Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -388,10 +388,10 @@
           "command": "git show --stat 9329c6a4f --format='' -- docs/experiments .lattice/story/",
           "result": "pass",
           "note": "Empty output: the CHK-003 commit (9329c6a4f) modified zero files under docs/experiments or .lattice/story/ — stray-literal cleanup did not leak into documentation or story metadata",
-          "headHash": "3251d5c2e086764504ebf61e90f0a0f0a4335a5f",
-          "materialHash": "efdde2011e8d96a749691cb175410698e13bf93a2373d1ac08da90e1fd54e5bf",
-          "storyFilesHash": "ab6886f5fa2826675261d2e4ca3e2777c391d1862407199b0f35047a2d48399e",
-          "timestamp": "2026-06-24T01:58:31.982Z"
+          "headHash": "5fb8936981b6a09a9945b49c4503250b41d0b666",
+          "materialHash": "931ad243a55c21d2a5406f458b2e43dff1565d4728e1c2eda36456e641875a7a",
+          "storyFilesHash": "e4effb4b263d1455feb34a274ddb653bdeef57265a64952ad240a2306bdbf2c1",
+          "timestamp": "2026-06-24T02:13:03.320Z"
         },
         {
           "intentRef": "CHK-003:adversarial:1",
@@ -399,10 +399,10 @@
           "command": "git show --stat 9329c6a4f (14 files, +51/-53)",
           "result": "pass",
           "note": "Balanced +51/-53 line counts across 14 files indicate token-for-token string/comment renames, not control-flow removal; tsc --noEmit clean afterward confirms no functional logic was stripped — cleanup is cosmetic, not behavioral",
-          "headHash": "3251d5c2e086764504ebf61e90f0a0f0a4335a5f",
-          "materialHash": "efdde2011e8d96a749691cb175410698e13bf93a2373d1ac08da90e1fd54e5bf",
-          "storyFilesHash": "ab6886f5fa2826675261d2e4ca3e2777c391d1862407199b0f35047a2d48399e",
-          "timestamp": "2026-06-24T01:58:31.982Z"
+          "headHash": "5fb8936981b6a09a9945b49c4503250b41d0b666",
+          "materialHash": "931ad243a55c21d2a5406f458b2e43dff1565d4728e1c2eda36456e641875a7a",
+          "storyFilesHash": "e4effb4b263d1455feb34a274ddb653bdeef57265a64952ad240a2306bdbf2c1",
+          "timestamp": "2026-06-24T02:13:03.320Z"
         }
       ]
     },
@@ -473,10 +473,10 @@
           "command": "node -e \"require('child_process').execSync('npx tsc --noEmit -p packages/main/tsconfig.json',{stdio:'pipe'}); console.log('ASSERT-OK')\"",
           "result": "pass",
           "note": "node-assert wrapper around tsc --noEmit exits 0 with ASSERT-OK (carries an assertion signal, not a bare build per the B-b837 [weak] lesson): zero type errors after all renames/deletions",
-          "headHash": "3251d5c2e086764504ebf61e90f0a0f0a4335a5f",
-          "materialHash": "efdde2011e8d96a749691cb175410698e13bf93a2373d1ac08da90e1fd54e5bf",
-          "storyFilesHash": "ab6886f5fa2826675261d2e4ca3e2777c391d1862407199b0f35047a2d48399e",
-          "timestamp": "2026-06-24T01:58:31.982Z"
+          "headHash": "5fb8936981b6a09a9945b49c4503250b41d0b666",
+          "materialHash": "931ad243a55c21d2a5406f458b2e43dff1565d4728e1c2eda36456e641875a7a",
+          "storyFilesHash": "e4effb4b263d1455feb34a274ddb653bdeef57265a64952ad240a2306bdbf2c1",
+          "timestamp": "2026-06-24T02:13:03.320Z"
         },
         {
           "intentRef": "CHK-004:happy:1",
@@ -484,10 +484,10 @@
           "command": "npm run -s test:lattice-residue && npm run -s test:process-fact-contract && npm run -s test:runtime-fact-contract && npm run -s test:evidence-quality && npm run -s test:review-convergence-smoke",
           "result": "pass",
           "note": "The 4 named 'pre-existing fail' tests (cli-json-stdout/field-regression/english-open-source-surface/prompt-token-cost) do not exist as scripts in this Proofbound export. Ran the rename-affected machine-check suite slice instead — all 5 green (lattice-residue, process-fact-contract, runtime-fact-contract, evidence-quality, review-convergence); plus the 3 directly-affected smokes passed under CHK-002",
-          "headHash": "3251d5c2e086764504ebf61e90f0a0f0a4335a5f",
-          "materialHash": "efdde2011e8d96a749691cb175410698e13bf93a2373d1ac08da90e1fd54e5bf",
-          "storyFilesHash": "ab6886f5fa2826675261d2e4ca3e2777c391d1862407199b0f35047a2d48399e",
-          "timestamp": "2026-06-24T01:58:31.982Z"
+          "headHash": "5fb8936981b6a09a9945b49c4503250b41d0b666",
+          "materialHash": "931ad243a55c21d2a5406f458b2e43dff1565d4728e1c2eda36456e641875a7a",
+          "storyFilesHash": "e4effb4b263d1455feb34a274ddb653bdeef57265a64952ad240a2306bdbf2c1",
+          "timestamp": "2026-06-24T02:13:03.320Z"
         },
         {
           "intentRef": "CHK-004:happy:2",
@@ -495,10 +495,10 @@
           "command": "node scripts/verify-lattice-residue.mjs",
           "result": "pass",
           "note": "The residue gate (renamed verify-koala-residue.mjs -> verify-lattice-residue.mjs by CHK-007) still functions: PASS, 0 brand residue in product runtime source",
-          "headHash": "3251d5c2e086764504ebf61e90f0a0f0a4335a5f",
-          "materialHash": "efdde2011e8d96a749691cb175410698e13bf93a2373d1ac08da90e1fd54e5bf",
-          "storyFilesHash": "ab6886f5fa2826675261d2e4ca3e2777c391d1862407199b0f35047a2d48399e",
-          "timestamp": "2026-06-24T01:58:31.982Z"
+          "headHash": "5fb8936981b6a09a9945b49c4503250b41d0b666",
+          "materialHash": "931ad243a55c21d2a5406f458b2e43dff1565d4728e1c2eda36456e641875a7a",
+          "storyFilesHash": "e4effb4b263d1455feb34a274ddb653bdeef57265a64952ad240a2306bdbf2c1",
+          "timestamp": "2026-06-24T02:13:03.320Z"
         },
         {
           "intentRef": "CHK-004:happy:3",
@@ -506,10 +506,10 @@
           "command": "git grep -in koala -- 'packages/*/src/**'",
           "result": "pass",
           "note": "Exit 1 / literal zero. Intent expected ONLY review-preflight.ts KOALA_RESIDUE_*; CHK-007 later renamed even those to LATTICE_RESIDUE_, so the acceptance criterion is exceeded — zero koala anywhere in product src including the former deferred gate self-IDs",
-          "headHash": "3251d5c2e086764504ebf61e90f0a0f0a4335a5f",
-          "materialHash": "efdde2011e8d96a749691cb175410698e13bf93a2373d1ac08da90e1fd54e5bf",
-          "storyFilesHash": "ab6886f5fa2826675261d2e4ca3e2777c391d1862407199b0f35047a2d48399e",
-          "timestamp": "2026-06-24T01:58:31.982Z"
+          "headHash": "5fb8936981b6a09a9945b49c4503250b41d0b666",
+          "materialHash": "931ad243a55c21d2a5406f458b2e43dff1565d4728e1c2eda36456e641875a7a",
+          "storyFilesHash": "e4effb4b263d1455feb34a274ddb653bdeef57265a64952ad240a2306bdbf2c1",
+          "timestamp": "2026-06-24T02:13:03.320Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -517,10 +517,10 @@
           "command": "node scripts/verify-lattice-residue.mjs --self-test",
           "result": "pass",
           "note": "PASS lattice-residue self-test: 7/7 isResidue() unit tests — the gate's detection function correctly classifies koala lines as residue and clean lines as non-residue, so it can catch a future reintroduction",
-          "headHash": "3251d5c2e086764504ebf61e90f0a0f0a4335a5f",
-          "materialHash": "efdde2011e8d96a749691cb175410698e13bf93a2373d1ac08da90e1fd54e5bf",
-          "storyFilesHash": "ab6886f5fa2826675261d2e4ca3e2777c391d1862407199b0f35047a2d48399e",
-          "timestamp": "2026-06-24T01:58:31.982Z"
+          "headHash": "5fb8936981b6a09a9945b49c4503250b41d0b666",
+          "materialHash": "931ad243a55c21d2a5406f458b2e43dff1565d4728e1c2eda36456e641875a7a",
+          "storyFilesHash": "e4effb4b263d1455feb34a274ddb653bdeef57265a64952ad240a2306bdbf2c1",
+          "timestamp": "2026-06-24T02:13:03.320Z"
         },
         {
           "intentRef": "CHK-004:edge:1",
@@ -528,10 +528,10 @@
           "command": "git grep -in koala -- docs/ experiments/",
           "result": "pass",
           "note": "Hits exist in docs/ and experiments/ (historical brand prose) — confirming the gate's scope boundary is correctly drawn at packages/*/src only; docs/experiments koala is out of scope and intentionally unaffected",
-          "headHash": "3251d5c2e086764504ebf61e90f0a0f0a4335a5f",
-          "materialHash": "efdde2011e8d96a749691cb175410698e13bf93a2373d1ac08da90e1fd54e5bf",
-          "storyFilesHash": "ab6886f5fa2826675261d2e4ca3e2777c391d1862407199b0f35047a2d48399e",
-          "timestamp": "2026-06-24T01:58:31.982Z"
+          "headHash": "5fb8936981b6a09a9945b49c4503250b41d0b666",
+          "materialHash": "931ad243a55c21d2a5406f458b2e43dff1565d4728e1c2eda36456e641875a7a",
+          "storyFilesHash": "e4effb4b263d1455feb34a274ddb653bdeef57265a64952ad240a2306bdbf2c1",
+          "timestamp": "2026-06-24T02:13:03.320Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -539,10 +539,10 @@
           "command": "printf 'export const X=\"koala-finding-integrity-v1\";' > packages/main/src/__chk004_residue_inject.ts && git add packages/main/src/__chk004_residue_inject.ts && node scripts/verify-lattice-residue.mjs; git rm -f packages/main/src/__chk004_residue_inject.ts",
           "result": "pass",
           "note": "Injected a koala salt into a TRACKED packages/main/src file (the gate scans via git ls-files, so the inject must be staged): gate exited 1 FAIL and printed the exact residue line; after git rm, gate PASS again. Proves the residue gate is functional and would catch a regression",
-          "headHash": "3251d5c2e086764504ebf61e90f0a0f0a4335a5f",
-          "materialHash": "efdde2011e8d96a749691cb175410698e13bf93a2373d1ac08da90e1fd54e5bf",
-          "storyFilesHash": "ab6886f5fa2826675261d2e4ca3e2777c391d1862407199b0f35047a2d48399e",
-          "timestamp": "2026-06-24T01:58:31.982Z"
+          "headHash": "5fb8936981b6a09a9945b49c4503250b41d0b666",
+          "materialHash": "931ad243a55c21d2a5406f458b2e43dff1565d4728e1c2eda36456e641875a7a",
+          "storyFilesHash": "e4effb4b263d1455feb34a274ddb653bdeef57265a64952ad240a2306bdbf2c1",
+          "timestamp": "2026-06-24T02:13:03.320Z"
         },
         {
           "intentRef": "CHK-004:adversarial:1",
@@ -550,10 +550,10 @@
           "command": "git diff --name-only -- .lattice/story/",
           "result": "pass",
           "note": "Only the Lattice-managed test-evidence.json shows (it updates as I record this very evidence). The whole-story koala work made zero modifications to story metadata (background/checklist/canonical story); .lattice/story/ audit trail is intact",
-          "headHash": "3251d5c2e086764504ebf61e90f0a0f0a4335a5f",
-          "materialHash": "efdde2011e8d96a749691cb175410698e13bf93a2373d1ac08da90e1fd54e5bf",
-          "storyFilesHash": "ab6886f5fa2826675261d2e4ca3e2777c391d1862407199b0f35047a2d48399e",
-          "timestamp": "2026-06-24T01:58:31.982Z"
+          "headHash": "5fb8936981b6a09a9945b49c4503250b41d0b666",
+          "materialHash": "931ad243a55c21d2a5406f458b2e43dff1565d4728e1c2eda36456e641875a7a",
+          "storyFilesHash": "e4effb4b263d1455feb34a274ddb653bdeef57265a64952ad240a2306bdbf2c1",
+          "timestamp": "2026-06-24T02:13:03.320Z"
         },
         {
           "intentRef": "CHK-004:adversarial:2",
@@ -561,10 +561,10 @@
           "command": "git grep -nE 'koala-review-integrity-v1|koala-review-pass-integrity-v1|koala-review-run-integrity-v1|koala-review-run-workspace-binding-v1|koala-review-scope-binding-v1|koala-scope-check-integrity-v1|koala-finding-integrity-v1|koala-story-store' -- 'packages/*/dist/**'",
           "result": "pass",
           "note": "Exit 1 / zero hits: no old koala-* salt strings survive in the committed dist/ output — no stale dist cache could re-introduce old salts at runtime",
-          "headHash": "3251d5c2e086764504ebf61e90f0a0f0a4335a5f",
-          "materialHash": "efdde2011e8d96a749691cb175410698e13bf93a2373d1ac08da90e1fd54e5bf",
-          "storyFilesHash": "ab6886f5fa2826675261d2e4ca3e2777c391d1862407199b0f35047a2d48399e",
-          "timestamp": "2026-06-24T01:58:31.982Z"
+          "headHash": "5fb8936981b6a09a9945b49c4503250b41d0b666",
+          "materialHash": "931ad243a55c21d2a5406f458b2e43dff1565d4728e1c2eda36456e641875a7a",
+          "storyFilesHash": "e4effb4b263d1455feb34a274ddb653bdeef57265a64952ad240a2306bdbf2c1",
+          "timestamp": "2026-06-24T02:13:03.320Z"
         }
       ]
     },
@@ -628,10 +628,10 @@
           "command": "git grep -n 'idleKoala' -- 'packages/*/src/**' ; git grep -nc 'idleLattice' -- 'packages/*/src/**'",
           "result": "pass",
           "note": "idleKoala: exit 1 / zero hits. idleLattice present in config.ts + stale-detector.ts (type, default, usage) — config field renamed not deleted",
-          "headHash": "3251d5c2e086764504ebf61e90f0a0f0a4335a5f",
-          "materialHash": "efdde2011e8d96a749691cb175410698e13bf93a2373d1ac08da90e1fd54e5bf",
-          "storyFilesHash": "ab6886f5fa2826675261d2e4ca3e2777c391d1862407199b0f35047a2d48399e",
-          "timestamp": "2026-06-24T01:58:31.982Z"
+          "headHash": "5fb8936981b6a09a9945b49c4503250b41d0b666",
+          "materialHash": "931ad243a55c21d2a5406f458b2e43dff1565d4728e1c2eda36456e641875a7a",
+          "storyFilesHash": "e4effb4b263d1455feb34a274ddb653bdeef57265a64952ad240a2306bdbf2c1",
+          "timestamp": "2026-06-24T02:13:03.320Z"
         },
         {
           "intentRef": "CHK-005:happy:1",
@@ -639,10 +639,10 @@
           "command": "git grep -n 'koala.config.json' -- 'packages/*/src/**' ; git grep -n 'lattice.config.json' -- 'packages/main/src/core/config.ts'",
           "result": "pass",
           "note": "koala.config.json: exit 1 / zero hits. lattice.config.json present in config.ts (LATTICE_CONFIG_FILENAME = 'lattice.config.json', upward-search comment) and the same code paths — filename reference renamed",
-          "headHash": "3251d5c2e086764504ebf61e90f0a0f0a4335a5f",
-          "materialHash": "efdde2011e8d96a749691cb175410698e13bf93a2373d1ac08da90e1fd54e5bf",
-          "storyFilesHash": "ab6886f5fa2826675261d2e4ca3e2777c391d1862407199b0f35047a2d48399e",
-          "timestamp": "2026-06-24T01:58:31.982Z"
+          "headHash": "5fb8936981b6a09a9945b49c4503250b41d0b666",
+          "materialHash": "931ad243a55c21d2a5406f458b2e43dff1565d4728e1c2eda36456e641875a7a",
+          "storyFilesHash": "e4effb4b263d1455feb34a274ddb653bdeef57265a64952ad240a2306bdbf2c1",
+          "timestamp": "2026-06-24T02:13:03.320Z"
         },
         {
           "intentRef": "CHK-005:happy:2",
@@ -650,10 +650,10 @@
           "command": "git grep -n 'koalaConfig' -- 'packages/*/src/**' ; git grep -nc 'latticeConfig' -- 'packages/*/src/**'",
           "result": "pass",
           "note": "koalaConfig: exit 1 / zero hits. latticeConfig present (cli-init.ts, lattice-only-absence-smoke.ts, thin-init-assets-smoke.ts) — identifier renamed not deleted",
-          "headHash": "3251d5c2e086764504ebf61e90f0a0f0a4335a5f",
-          "materialHash": "efdde2011e8d96a749691cb175410698e13bf93a2373d1ac08da90e1fd54e5bf",
-          "storyFilesHash": "ab6886f5fa2826675261d2e4ca3e2777c391d1862407199b0f35047a2d48399e",
-          "timestamp": "2026-06-24T01:58:31.982Z"
+          "headHash": "5fb8936981b6a09a9945b49c4503250b41d0b666",
+          "materialHash": "931ad243a55c21d2a5406f458b2e43dff1565d4728e1c2eda36456e641875a7a",
+          "storyFilesHash": "e4effb4b263d1455feb34a274ddb653bdeef57265a64952ad240a2306bdbf2c1",
+          "timestamp": "2026-06-24T02:13:03.320Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -661,10 +661,10 @@
           "command": "git grep -nE 'koala\\.config\\.json' -- 'packages/*/src/**'",
           "result": "pass",
           "note": "Exit 1 / zero hits for koala.config.json anywhere — no read-fallback can exist that tries lattice.config.json then falls back to koala.config.json; honours the no-compat requirement (old config not migrated)",
-          "headHash": "3251d5c2e086764504ebf61e90f0a0f0a4335a5f",
-          "materialHash": "efdde2011e8d96a749691cb175410698e13bf93a2373d1ac08da90e1fd54e5bf",
-          "storyFilesHash": "ab6886f5fa2826675261d2e4ca3e2777c391d1862407199b0f35047a2d48399e",
-          "timestamp": "2026-06-24T01:58:31.982Z"
+          "headHash": "5fb8936981b6a09a9945b49c4503250b41d0b666",
+          "materialHash": "931ad243a55c21d2a5406f458b2e43dff1565d4728e1c2eda36456e641875a7a",
+          "storyFilesHash": "e4effb4b263d1455feb34a274ddb653bdeef57265a64952ad240a2306bdbf2c1",
+          "timestamp": "2026-06-24T02:13:03.320Z"
         },
         {
           "intentRef": "CHK-005:edge:1",
@@ -672,10 +672,10 @@
           "command": "git grep -nE 'idleLattice|idleKoala' -- 'packages/main/src/core/config.ts' 'packages/main/src/core/stale-detector.ts'",
           "result": "pass",
           "note": "The config schema/type definitions are updated: config.ts:124 'idleLattice?: number' and stale-detector.ts type+default+usage all reference idleLattice; zero idleKoala — type definitions match the new runtime field names",
-          "headHash": "3251d5c2e086764504ebf61e90f0a0f0a4335a5f",
-          "materialHash": "efdde2011e8d96a749691cb175410698e13bf93a2373d1ac08da90e1fd54e5bf",
-          "storyFilesHash": "ab6886f5fa2826675261d2e4ca3e2777c391d1862407199b0f35047a2d48399e",
-          "timestamp": "2026-06-24T01:58:31.982Z"
+          "headHash": "5fb8936981b6a09a9945b49c4503250b41d0b666",
+          "materialHash": "931ad243a55c21d2a5406f458b2e43dff1565d4728e1c2eda36456e641875a7a",
+          "storyFilesHash": "e4effb4b263d1455feb34a274ddb653bdeef57265a64952ad240a2306bdbf2c1",
+          "timestamp": "2026-06-24T02:13:03.320Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -683,10 +683,10 @@
           "command": "git grep -niE 'koala' -- 'packages/main/src/core/config.ts'",
           "result": "pass",
           "note": "Exit 1 / zero hits: case-insensitive sweep of the config file finds no derivative koala identifier (no parseKoalaConfig, KOALA_CONFIG_PATH, etc.) missed by the three named targets; corroborated by the whole-src literal-zero grep",
-          "headHash": "3251d5c2e086764504ebf61e90f0a0f0a4335a5f",
-          "materialHash": "efdde2011e8d96a749691cb175410698e13bf93a2373d1ac08da90e1fd54e5bf",
-          "storyFilesHash": "ab6886f5fa2826675261d2e4ca3e2777c391d1862407199b0f35047a2d48399e",
-          "timestamp": "2026-06-24T01:58:31.982Z"
+          "headHash": "5fb8936981b6a09a9945b49c4503250b41d0b666",
+          "materialHash": "931ad243a55c21d2a5406f458b2e43dff1565d4728e1c2eda36456e641875a7a",
+          "storyFilesHash": "e4effb4b263d1455feb34a274ddb653bdeef57265a64952ad240a2306bdbf2c1",
+          "timestamp": "2026-06-24T02:13:03.320Z"
         },
         {
           "intentRef": "CHK-005:adversarial:1",
@@ -694,10 +694,10 @@
           "command": "git grep -nE 'idleKoala|koalaConfig|koala\\.config\\.json' -- 'packages/*/src/**' ; node packages/main/dist/tasks/thin-init-assets-smoke.js",
           "result": "pass",
           "note": "No test/fixture asserts the OLD names (grep exit 1) and the config-touching thin-init-assets-smoke passes — fixtures updated to new names; no vacuous test asserting a deleted old name",
-          "headHash": "3251d5c2e086764504ebf61e90f0a0f0a4335a5f",
-          "materialHash": "efdde2011e8d96a749691cb175410698e13bf93a2373d1ac08da90e1fd54e5bf",
-          "storyFilesHash": "ab6886f5fa2826675261d2e4ca3e2777c391d1862407199b0f35047a2d48399e",
-          "timestamp": "2026-06-24T01:58:31.982Z"
+          "headHash": "5fb8936981b6a09a9945b49c4503250b41d0b666",
+          "materialHash": "931ad243a55c21d2a5406f458b2e43dff1565d4728e1c2eda36456e641875a7a",
+          "storyFilesHash": "e4effb4b263d1455feb34a274ddb653bdeef57265a64952ad240a2306bdbf2c1",
+          "timestamp": "2026-06-24T02:13:03.320Z"
         }
       ]
     },
@@ -766,10 +766,10 @@
           "command": "git grep -nE '\\.koala/' -- 'packages/*/src/**'",
           "result": "pass",
           "note": "Exit 1 / zero hits: all .koala/ runtime path references are gone from packages/*/src — path rename complete",
-          "headHash": "3251d5c2e086764504ebf61e90f0a0f0a4335a5f",
-          "materialHash": "efdde2011e8d96a749691cb175410698e13bf93a2373d1ac08da90e1fd54e5bf",
-          "storyFilesHash": "ab6886f5fa2826675261d2e4ca3e2777c391d1862407199b0f35047a2d48399e",
-          "timestamp": "2026-06-24T01:58:31.982Z"
+          "headHash": "5fb8936981b6a09a9945b49c4503250b41d0b666",
+          "materialHash": "931ad243a55c21d2a5406f458b2e43dff1565d4728e1c2eda36456e641875a7a",
+          "storyFilesHash": "e4effb4b263d1455feb34a274ddb653bdeef57265a64952ad240a2306bdbf2c1",
+          "timestamp": "2026-06-24T02:13:03.320Z"
         },
         {
           "intentRef": "CHK-006:happy:1",
@@ -777,10 +777,10 @@
           "command": "git grep -nE '\\.lattice/' -- 'packages/main/src/core/lattice-paths.ts' ; git grep -n 'activity.jsonl' -- 'packages/main/src/**'",
           "result": "pass",
           "note": "The new .lattice/ runtime dir is the replacement: lattice-paths.ts derives LATTICE_ACTIVITY_LOG='.lattice/activity.jsonl' etc.; activity-log.ts documents runtime logs go to .lattice/activity.jsonl (old .koala/ replaced, not just deleted)",
-          "headHash": "3251d5c2e086764504ebf61e90f0a0f0a4335a5f",
-          "materialHash": "efdde2011e8d96a749691cb175410698e13bf93a2373d1ac08da90e1fd54e5bf",
-          "storyFilesHash": "ab6886f5fa2826675261d2e4ca3e2777c391d1862407199b0f35047a2d48399e",
-          "timestamp": "2026-06-24T01:58:31.982Z"
+          "headHash": "5fb8936981b6a09a9945b49c4503250b41d0b666",
+          "materialHash": "931ad243a55c21d2a5406f458b2e43dff1565d4728e1c2eda36456e641875a7a",
+          "storyFilesHash": "e4effb4b263d1455feb34a274ddb653bdeef57265a64952ad240a2306bdbf2c1",
+          "timestamp": "2026-06-24T02:13:03.320Z"
         },
         {
           "intentRef": "CHK-006:happy:2",
@@ -788,10 +788,10 @@
           "command": "node packages/main/dist/tasks/runtime-owned-agent-assets-smoke.js",
           "result": "pass",
           "note": "Smoke that reads from the runtime dir passes (PASS runtime-owned-agent-assets-smoke) — reads from the new .lattice/ path work end-to-end",
-          "headHash": "3251d5c2e086764504ebf61e90f0a0f0a4335a5f",
-          "materialHash": "efdde2011e8d96a749691cb175410698e13bf93a2373d1ac08da90e1fd54e5bf",
-          "storyFilesHash": "ab6886f5fa2826675261d2e4ca3e2777c391d1862407199b0f35047a2d48399e",
-          "timestamp": "2026-06-24T01:58:31.982Z"
+          "headHash": "5fb8936981b6a09a9945b49c4503250b41d0b666",
+          "materialHash": "931ad243a55c21d2a5406f458b2e43dff1565d4728e1c2eda36456e641875a7a",
+          "storyFilesHash": "e4effb4b263d1455feb34a274ddb653bdeef57265a64952ad240a2306bdbf2c1",
+          "timestamp": "2026-06-24T02:13:03.320Z"
         },
         {
           "intentRef": "CHK-006:edge:0",
@@ -799,10 +799,10 @@
           "command": "git grep -nE '\\.koala' -- 'packages/*/src/**' | grep -iE 'write|append|create|mkdir|writeFile|fs\\.write'",
           "result": "pass",
           "note": "Exit 1 / zero hits: no code WRITES to .koala/ — no missed write would silently split runtime data between .koala/ and .lattice/ (no data-loss path)",
-          "headHash": "3251d5c2e086764504ebf61e90f0a0f0a4335a5f",
-          "materialHash": "efdde2011e8d96a749691cb175410698e13bf93a2373d1ac08da90e1fd54e5bf",
-          "storyFilesHash": "ab6886f5fa2826675261d2e4ca3e2777c391d1862407199b0f35047a2d48399e",
-          "timestamp": "2026-06-24T01:58:31.982Z"
+          "headHash": "5fb8936981b6a09a9945b49c4503250b41d0b666",
+          "materialHash": "931ad243a55c21d2a5406f458b2e43dff1565d4728e1c2eda36456e641875a7a",
+          "storyFilesHash": "e4effb4b263d1455feb34a274ddb653bdeef57265a64952ad240a2306bdbf2c1",
+          "timestamp": "2026-06-24T02:13:03.320Z"
         },
         {
           "intentRef": "CHK-006:edge:1",
@@ -810,10 +810,10 @@
           "command": "git grep -inE '\\.koala' -- 'packages/*/src/**'",
           "result": "pass",
           "note": "Exit 1 / zero hits across all lines including comments — path references in COMMENTS are also updated, no stale .koala comment misleads future devs",
-          "headHash": "3251d5c2e086764504ebf61e90f0a0f0a4335a5f",
-          "materialHash": "efdde2011e8d96a749691cb175410698e13bf93a2373d1ac08da90e1fd54e5bf",
-          "storyFilesHash": "ab6886f5fa2826675261d2e4ca3e2777c391d1862407199b0f35047a2d48399e",
-          "timestamp": "2026-06-24T01:58:31.982Z"
+          "headHash": "5fb8936981b6a09a9945b49c4503250b41d0b666",
+          "materialHash": "931ad243a55c21d2a5406f458b2e43dff1565d4728e1c2eda36456e641875a7a",
+          "storyFilesHash": "e4effb4b263d1455feb34a274ddb653bdeef57265a64952ad240a2306bdbf2c1",
+          "timestamp": "2026-06-24T02:13:03.320Z"
         },
         {
           "intentRef": "CHK-006:adversarial:0",
@@ -821,10 +821,10 @@
           "command": "git grep -nE '\\.koala' -- 'packages/*/src/**' | grep -iE 'rename|copy|move|migrat'",
           "result": "pass",
           "note": "Exit 1 / zero hits: no backward-compat migration logic copies/moves .koala/* to .lattice/* — honours no-compat, existing .koala/ data is orphaned, OSS users start fresh",
-          "headHash": "3251d5c2e086764504ebf61e90f0a0f0a4335a5f",
-          "materialHash": "efdde2011e8d96a749691cb175410698e13bf93a2373d1ac08da90e1fd54e5bf",
-          "storyFilesHash": "ab6886f5fa2826675261d2e4ca3e2777c391d1862407199b0f35047a2d48399e",
-          "timestamp": "2026-06-24T01:58:31.982Z"
+          "headHash": "5fb8936981b6a09a9945b49c4503250b41d0b666",
+          "materialHash": "931ad243a55c21d2a5406f458b2e43dff1565d4728e1c2eda36456e641875a7a",
+          "storyFilesHash": "e4effb4b263d1455feb34a274ddb653bdeef57265a64952ad240a2306bdbf2c1",
+          "timestamp": "2026-06-24T02:13:03.320Z"
         },
         {
           "intentRef": "CHK-006:adversarial:1",
@@ -832,10 +832,10 @@
           "command": "git grep -nE 'LATTICE_DIR|RUNTIME_DIR|getDataDir' -- 'packages/main/src/core/lattice-paths.ts' (LATTICE_DIR='.lattice'); git grep -nic koala -- packages/main/src/core/lattice-paths.ts (=0)",
           "result": "pass",
           "note": "The single path-construction constant LATTICE_DIR='.lattice' is the source of truth for all derived runtime paths (LATTICE_ACTIVITY_LOG, LATTICE_STORY_DIR, etc.) and contains zero koala — no constant can dynamically produce a .koala/ path at runtime",
-          "headHash": "3251d5c2e086764504ebf61e90f0a0f0a4335a5f",
-          "materialHash": "efdde2011e8d96a749691cb175410698e13bf93a2373d1ac08da90e1fd54e5bf",
-          "storyFilesHash": "ab6886f5fa2826675261d2e4ca3e2777c391d1862407199b0f35047a2d48399e",
-          "timestamp": "2026-06-24T01:58:31.982Z"
+          "headHash": "5fb8936981b6a09a9945b49c4503250b41d0b666",
+          "materialHash": "931ad243a55c21d2a5406f458b2e43dff1565d4728e1c2eda36456e641875a7a",
+          "storyFilesHash": "e4effb4b263d1455feb34a274ddb653bdeef57265a64952ad240a2306bdbf2c1",
+          "timestamp": "2026-06-24T02:13:03.320Z"
         },
         {
           "intentRef": "CHK-006:adversarial:2",
@@ -843,10 +843,10 @@
           "command": "git grep -nE '\\.koala/' -- 'packages/*/src/**'",
           "result": "pass",
           "note": "Exit 1 / zero hits: no test fixture or mock creates or references a .koala/ directory in expected output — no fixture masks a missed rename or asserts the old path",
-          "headHash": "3251d5c2e086764504ebf61e90f0a0f0a4335a5f",
-          "materialHash": "efdde2011e8d96a749691cb175410698e13bf93a2373d1ac08da90e1fd54e5bf",
-          "storyFilesHash": "ab6886f5fa2826675261d2e4ca3e2777c391d1862407199b0f35047a2d48399e",
-          "timestamp": "2026-06-24T01:58:31.982Z"
+          "headHash": "5fb8936981b6a09a9945b49c4503250b41d0b666",
+          "materialHash": "931ad243a55c21d2a5406f458b2e43dff1565d4728e1c2eda36456e641875a7a",
+          "storyFilesHash": "e4effb4b263d1455feb34a274ddb653bdeef57265a64952ad240a2306bdbf2c1",
+          "timestamp": "2026-06-24T02:13:03.320Z"
         }
       ]
     },
@@ -867,10 +867,10 @@
           "command": "git grep -i koala -- packages/*/src/**",
           "result": "pass",
           "note": "Exit 1 (no matches) confirms literal zero koala references in product runtime source",
-          "headHash": "3251d5c2e086764504ebf61e90f0a0f0a4335a5f",
-          "materialHash": "efdde2011e8d96a749691cb175410698e13bf93a2373d1ac08da90e1fd54e5bf",
-          "storyFilesHash": "ab6886f5fa2826675261d2e4ca3e2777c391d1862407199b0f35047a2d48399e",
-          "timestamp": "2026-06-24T01:58:31.982Z"
+          "headHash": "5fb8936981b6a09a9945b49c4503250b41d0b666",
+          "materialHash": "931ad243a55c21d2a5406f458b2e43dff1565d4728e1c2eda36456e641875a7a",
+          "storyFilesHash": "e4effb4b263d1455feb34a274ddb653bdeef57265a64952ad240a2306bdbf2c1",
+          "timestamp": "2026-06-24T02:13:03.320Z"
         },
         {
           "intentRef": "CHK-007:happy:1",
@@ -878,10 +878,10 @@
           "command": "node scripts/verify-lattice-residue.mjs",
           "result": "pass",
           "note": "Exit 0 PASS confirms the renamed+flipped zero-tolerance gate passes over the now-clean packages/*/src surface",
-          "headHash": "3251d5c2e086764504ebf61e90f0a0f0a4335a5f",
-          "materialHash": "efdde2011e8d96a749691cb175410698e13bf93a2373d1ac08da90e1fd54e5bf",
-          "storyFilesHash": "ab6886f5fa2826675261d2e4ca3e2777c391d1862407199b0f35047a2d48399e",
-          "timestamp": "2026-06-24T01:58:31.982Z"
+          "headHash": "5fb8936981b6a09a9945b49c4503250b41d0b666",
+          "materialHash": "931ad243a55c21d2a5406f458b2e43dff1565d4728e1c2eda36456e641875a7a",
+          "storyFilesHash": "e4effb4b263d1455feb34a274ddb653bdeef57265a64952ad240a2306bdbf2c1",
+          "timestamp": "2026-06-24T02:13:03.320Z"
         },
         {
           "intentRef": "CHK-007:happy:2",
@@ -889,10 +889,10 @@
           "command": "node scripts/verify-lattice-residue.mjs --self-test",
           "result": "pass",
           "note": "Exit 0 PASS lattice-residue self-test confirms isResidue() unit tests pass; detection function works correctly",
-          "headHash": "3251d5c2e086764504ebf61e90f0a0f0a4335a5f",
-          "materialHash": "efdde2011e8d96a749691cb175410698e13bf93a2373d1ac08da90e1fd54e5bf",
-          "storyFilesHash": "ab6886f5fa2826675261d2e4ca3e2777c391d1862407199b0f35047a2d48399e",
-          "timestamp": "2026-06-24T01:58:31.982Z"
+          "headHash": "5fb8936981b6a09a9945b49c4503250b41d0b666",
+          "materialHash": "931ad243a55c21d2a5406f458b2e43dff1565d4728e1c2eda36456e641875a7a",
+          "storyFilesHash": "e4effb4b263d1455feb34a274ddb653bdeef57265a64952ad240a2306bdbf2c1",
+          "timestamp": "2026-06-24T02:13:03.320Z"
         },
         {
           "intentRef": "CHK-007:edge:0",
@@ -900,10 +900,10 @@
           "command": "ls scripts/verify-koala-residue.mjs",
           "result": "pass",
           "note": "Exit non-zero, No such file -- old script path no longer exists after git mv; confirms rename was move not copy",
-          "headHash": "3251d5c2e086764504ebf61e90f0a0f0a4335a5f",
-          "materialHash": "efdde2011e8d96a749691cb175410698e13bf93a2373d1ac08da90e1fd54e5bf",
-          "storyFilesHash": "ab6886f5fa2826675261d2e4ca3e2777c391d1862407199b0f35047a2d48399e",
-          "timestamp": "2026-06-24T01:58:31.982Z"
+          "headHash": "5fb8936981b6a09a9945b49c4503250b41d0b666",
+          "materialHash": "931ad243a55c21d2a5406f458b2e43dff1565d4728e1c2eda36456e641875a7a",
+          "storyFilesHash": "e4effb4b263d1455feb34a274ddb653bdeef57265a64952ad240a2306bdbf2c1",
+          "timestamp": "2026-06-24T02:13:03.320Z"
         },
         {
           "intentRef": "CHK-007:edge:1",
@@ -911,10 +911,10 @@
           "command": "node scripts/verify-residue-inject-repro.mjs",
           "result": "pass",
           "note": "Corrected (F-001): the residue gate scans git ls-files (TRACKED only), so the old 'echo untracked file then scan' repro could never fail. This script appends a koala token to packages/main/src/index.ts, git add's it (now in ls-files scope), runs verify-lattice-residue.mjs and asserts it EXITS 1 (FAIL caught the tracked inject), then unconditionally reverts (git reset + checkout --) in a finally block and re-asserts the gate returns to EXIT 0 (clean tree). Ran: PASS, exit 0.",
-          "headHash": "3251d5c2e086764504ebf61e90f0a0f0a4335a5f",
-          "materialHash": "efdde2011e8d96a749691cb175410698e13bf93a2373d1ac08da90e1fd54e5bf",
-          "storyFilesHash": "ab6886f5fa2826675261d2e4ca3e2777c391d1862407199b0f35047a2d48399e",
-          "timestamp": "2026-06-24T01:58:31.982Z"
+          "headHash": "5fb8936981b6a09a9945b49c4503250b41d0b666",
+          "materialHash": "931ad243a55c21d2a5406f458b2e43dff1565d4728e1c2eda36456e641875a7a",
+          "storyFilesHash": "e4effb4b263d1455feb34a274ddb653bdeef57265a64952ad240a2306bdbf2c1",
+          "timestamp": "2026-06-24T02:13:03.320Z"
         },
         {
           "intentRef": "CHK-007:edge:2",
@@ -922,10 +922,10 @@
           "command": "grep -i KOALA_RESIDUE packages/main/src/handlers/review-preflight.ts",
           "result": "pass",
           "note": "Zero hits for KOALA_RESIDUE in review-preflight.ts -- the old identifiers are fully renamed to LATTICE_RESIDUE",
-          "headHash": "3251d5c2e086764504ebf61e90f0a0f0a4335a5f",
-          "materialHash": "efdde2011e8d96a749691cb175410698e13bf93a2373d1ac08da90e1fd54e5bf",
-          "storyFilesHash": "ab6886f5fa2826675261d2e4ca3e2777c391d1862407199b0f35047a2d48399e",
-          "timestamp": "2026-06-24T01:58:31.982Z"
+          "headHash": "5fb8936981b6a09a9945b49c4503250b41d0b666",
+          "materialHash": "931ad243a55c21d2a5406f458b2e43dff1565d4728e1c2eda36456e641875a7a",
+          "storyFilesHash": "e4effb4b263d1455feb34a274ddb653bdeef57265a64952ad240a2306bdbf2c1",
+          "timestamp": "2026-06-24T02:13:03.320Z"
         },
         {
           "intentRef": "CHK-007:edge:3",
@@ -933,10 +933,10 @@
           "command": "grep -i LATTICE_RESIDUE packages/main/src/handlers/review-preflight.ts",
           "result": "pass",
           "note": "Multiple hits for LATTICE_RESIDUE_GATE_LABEL, LATTICE_RESIDUE_SCRIPT_REL, LATTICE_RESIDUE_TIMEOUT_MS -- confirms identifiers were renamed TO lattice, not deleted",
-          "headHash": "3251d5c2e086764504ebf61e90f0a0f0a4335a5f",
-          "materialHash": "efdde2011e8d96a749691cb175410698e13bf93a2373d1ac08da90e1fd54e5bf",
-          "storyFilesHash": "ab6886f5fa2826675261d2e4ca3e2777c391d1862407199b0f35047a2d48399e",
-          "timestamp": "2026-06-24T01:58:31.982Z"
+          "headHash": "5fb8936981b6a09a9945b49c4503250b41d0b666",
+          "materialHash": "931ad243a55c21d2a5406f458b2e43dff1565d4728e1c2eda36456e641875a7a",
+          "storyFilesHash": "e4effb4b263d1455feb34a274ddb653bdeef57265a64952ad240a2306bdbf2c1",
+          "timestamp": "2026-06-24T02:13:03.320Z"
         },
         {
           "intentRef": "CHK-007:adversarial:0",
@@ -944,10 +944,10 @@
           "command": "git grep -i koala -- docs/",
           "result": "pass",
           "note": "Hits present in docs/ confirming docs koala references are untouched; gate SCAN_ROOTS excludes docs/ so CHK-007 must not affect docs content",
-          "headHash": "3251d5c2e086764504ebf61e90f0a0f0a4335a5f",
-          "materialHash": "efdde2011e8d96a749691cb175410698e13bf93a2373d1ac08da90e1fd54e5bf",
-          "storyFilesHash": "ab6886f5fa2826675261d2e4ca3e2777c391d1862407199b0f35047a2d48399e",
-          "timestamp": "2026-06-24T01:58:31.982Z"
+          "headHash": "5fb8936981b6a09a9945b49c4503250b41d0b666",
+          "materialHash": "931ad243a55c21d2a5406f458b2e43dff1565d4728e1c2eda36456e641875a7a",
+          "storyFilesHash": "e4effb4b263d1455feb34a274ddb653bdeef57265a64952ad240a2306bdbf2c1",
+          "timestamp": "2026-06-24T02:13:03.320Z"
         },
         {
           "intentRef": "CHK-007:adversarial:1",
@@ -955,10 +955,10 @@
           "command": "git diff --name-only -- .lattice/story/",
           "result": "pass",
           "note": "Empty output -- zero changes to story metadata; .lattice/story/ audit trail is intact and untouched by the gate rename",
-          "headHash": "3251d5c2e086764504ebf61e90f0a0f0a4335a5f",
-          "materialHash": "efdde2011e8d96a749691cb175410698e13bf93a2373d1ac08da90e1fd54e5bf",
-          "storyFilesHash": "ab6886f5fa2826675261d2e4ca3e2777c391d1862407199b0f35047a2d48399e",
-          "timestamp": "2026-06-24T01:58:31.982Z"
+          "headHash": "5fb8936981b6a09a9945b49c4503250b41d0b666",
+          "materialHash": "931ad243a55c21d2a5406f458b2e43dff1565d4728e1c2eda36456e641875a7a",
+          "storyFilesHash": "e4effb4b263d1455feb34a274ddb653bdeef57265a64952ad240a2306bdbf2c1",
+          "timestamp": "2026-06-24T02:13:03.320Z"
         },
         {
           "intentRef": "CHK-007:adversarial:2",
@@ -966,10 +966,10 @@
           "command": "grep test:lattice-residue package.json",
           "result": "pass",
           "note": "Hit confirms npm script test:lattice-residue is wired to scripts/verify-lattice-residue.mjs; the renamed gate is properly integrated into CI",
-          "headHash": "3251d5c2e086764504ebf61e90f0a0f0a4335a5f",
-          "materialHash": "efdde2011e8d96a749691cb175410698e13bf93a2373d1ac08da90e1fd54e5bf",
-          "storyFilesHash": "ab6886f5fa2826675261d2e4ca3e2777c391d1862407199b0f35047a2d48399e",
-          "timestamp": "2026-06-24T01:58:31.982Z"
+          "headHash": "5fb8936981b6a09a9945b49c4503250b41d0b666",
+          "materialHash": "931ad243a55c21d2a5406f458b2e43dff1565d4728e1c2eda36456e641875a7a",
+          "storyFilesHash": "e4effb4b263d1455feb34a274ddb653bdeef57265a64952ad240a2306bdbf2c1",
+          "timestamp": "2026-06-24T02:13:03.320Z"
         },
         {
           "intentRef": "CHK-007:adversarial:3",
@@ -977,10 +977,10 @@
           "command": "grep -i koala-residue packages/main/src/handlers/review-preflight.ts",
           "result": "pass",
           "note": "Zero hits for koala-residue in review-preflight.ts -- the gate label and script path reference the new lattice-residue name; no stale koala-residue string survives in the preflight",
-          "headHash": "3251d5c2e086764504ebf61e90f0a0f0a4335a5f",
-          "materialHash": "efdde2011e8d96a749691cb175410698e13bf93a2373d1ac08da90e1fd54e5bf",
-          "storyFilesHash": "ab6886f5fa2826675261d2e4ca3e2777c391d1862407199b0f35047a2d48399e",
-          "timestamp": "2026-06-24T01:58:31.982Z"
+          "headHash": "5fb8936981b6a09a9945b49c4503250b41d0b666",
+          "materialHash": "931ad243a55c21d2a5406f458b2e43dff1565d4728e1c2eda36456e641875a7a",
+          "storyFilesHash": "e4effb4b263d1455feb34a274ddb653bdeef57265a64952ad240a2306bdbf2c1",
+          "timestamp": "2026-06-24T02:13:03.320Z"
         },
         {
           "intentRef": "CHK-007:adversarial:4",
@@ -988,10 +988,10 @@
           "command": "node scripts/verify-lattice-residue.mjs && grep -c lattice-residue packages/main/src/handlers/review-preflight.ts",
           "result": "pass",
           "note": "Gate script passes (no residue found) AND review-preflight.ts contains lattice-residue references (count > 0); together these assert the renamed gate is functionally wired and the build is not broken by the rename",
-          "headHash": "3251d5c2e086764504ebf61e90f0a0f0a4335a5f",
-          "materialHash": "efdde2011e8d96a749691cb175410698e13bf93a2373d1ac08da90e1fd54e5bf",
-          "storyFilesHash": "ab6886f5fa2826675261d2e4ca3e2777c391d1862407199b0f35047a2d48399e",
-          "timestamp": "2026-06-24T01:58:31.982Z"
+          "headHash": "5fb8936981b6a09a9945b49c4503250b41d0b666",
+          "materialHash": "931ad243a55c21d2a5406f458b2e43dff1565d4728e1c2eda36456e641875a7a",
+          "storyFilesHash": "e4effb4b263d1455feb34a274ddb653bdeef57265a64952ad240a2306bdbf2c1",
+          "timestamp": "2026-06-24T02:13:03.320Z"
         }
       ],
       "verificationIntent": {
