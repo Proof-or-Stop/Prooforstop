@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "Enrich renderEvidenceStaleHint with a done_prepare one-step line + a drift-classification line",
       "context": "packages/main/src/core/evidence-stale-hint.ts renderEvidenceStaleHint: keep the existing stable lines (the EVIDENCE STALE marker + Meaning + `lattice verification_evidence_refresh_stale --storyId=...` + `lattice validate --story=... --json`). ADD (a) a drift-classification line: whole-tree materialHash drift with UNCHANGED story-owned files (storyFilesHash) is usually unrelated/main drift -> refresh, do not re-review; storyFilesHash change = story-owned drift -> re-review/re-quorum; and (b) a one-step recovery line: `lattice done_prepare --storyId=... --mergeMain --refreshStale --validate` for TEST->DONE convergence. The three consuming surfaces (handlers/hints.ts, handlers/session.ts, handlers/transition-orchestrator.ts) call the shared renderer and auto-inherit; do not edit them unless they reconstruct the string. Keep storyId-substitution (no literal <storyId> placeholders, per B-a2f1 preMortem #3).",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-24T14:47:56.372Z",
       "verificationIntent": {
         "happy": [
           {
