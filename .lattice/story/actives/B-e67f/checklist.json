@@ -312,6 +312,42 @@
         "test": [
           "experiments/recovery-runner/run-selfchecks.mjs"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "node experiments/recovery-runner/run-selfchecks.mjs → output includes a line for corpus-selfcheck.mjs with a checkmark + exit 0; WHY: confirms the corpus selfcheck is wired into the aggregator",
+            "type": "cli"
+          },
+          {
+            "desc": "npm test → exits 0 (full suite green including the corpus selfcheck); WHY: confirms the corpus selfcheck runs as part of the standard CI test chain",
+            "type": "cli"
+          },
+          {
+            "desc": "run-selfchecks.mjs SELFCHECKS array now has 6 entries (5 existing + corpus-selfcheck.mjs) → grep the source to confirm; WHY: ensures the aggregator count is correct and no existing selfcheck was accidentally removed",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The 5 existing selfchecks (adjudicate, checks, spend-accounting, run-driver, analyze) still appear in run-selfchecks.mjs output → each gets a checkmark line; WHY: regression guard — wiring the new selfcheck must not drop an existing one",
+            "type": "cli"
+          },
+          {
+            "desc": "If corpus-selfcheck.mjs is temporarily broken (e.g. force exit 1), run-selfchecks.mjs → exits non-zero and reports the corpus-selfcheck failure; WHY: ensures the aggregator does not swallow failures from the new selfcheck",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Remove corpus-selfcheck.mjs from disk but leave it in the SELFCHECKS array, run run-selfchecks.mjs → exits non-zero (missing module error); WHY: ensures the aggregator hard-fails on a missing selfcheck rather than silently skipping it",
+            "type": "cli"
+          },
+          {
+            "desc": "The npm test:experiments script actually invokes run-selfchecks.mjs (not a different entry point) → inspect package.json test:experiments script to confirm it references run-selfchecks.mjs; WHY: prevents a wiring gap where npm test runs a different aggregator that does not include the corpus selfcheck",
+            "type": "cli"
+          }
+        ]
       }
     }
   ]
