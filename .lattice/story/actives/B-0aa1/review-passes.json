@@ -170,6 +170,15 @@
       "reviewRound": "2026-06-24T05:09:01.993Z",
       "reviewRunId": "B-0aa1:RR-025",
       "_hash": "859004cc9a9368662bce6ff28345de0e1957910c44a283f3426cfce4f1659c81"
+    },
+    {
+      "id": "B-0aa1:RP-020",
+      "agent": "lattice-review-concept",
+      "note": "Targeted concept re-review of artifact-store.ts after F-004 fix. PASS: digest subject now built via one shared helper artifactDigestSubject() called by both write path (digestSubject) and verify path (verifyArtifactDigest); grep confirms exactly 2 computeDigest call sites both routing through it, no residual inline construction repo-wide (repro-intake only consumes writeArtifact/verifyArtifactDigest). No orphaned old construction. Write/verify symmetry preserved; content-vs-identity boundary correct (digest excludes artifactId/createdAt/artifactDigest). No conceptual residue.",
+      "createdAt": "2026-06-24T05:11:19.275Z",
+      "reviewRound": "2026-06-24T05:09:01.993Z",
+      "reviewRunId": "B-0aa1:RR-027",
+      "_hash": "00f6bf3747ec7a9044735180d06648444ea293d53fb3fd367d8797d1b579378d"
     }
   ]
 }
