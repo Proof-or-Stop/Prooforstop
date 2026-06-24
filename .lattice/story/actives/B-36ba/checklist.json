@@ -6,7 +6,40 @@
       "context": "packages/main/src/core/review-escalation.ts ~439-440: add gitCwd?: string to EvaluateReviewEscalationArgs, compute const gitCwd = args.gitCwd ?? args.projectRoot, and change currentMaterialHash(args.projectRoot)/currentStoryFilesHash(args.projectRoot) to currentMaterialHash(gitCwd,'HEAD',args.projectRoot)/currentStoryFilesHash(gitCwd,'HEAD',args.projectRoot), matching review-assurance-floor.ts:439 and producers (quorum-submit.ts:247/251, verifier.ts:610).",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "After adding gitCwd? to EvaluateReviewEscalationArgs and changing lines 439-440 to use const gitCwd = args.gitCwd ?? args.projectRoot with currentMaterialHash(gitCwd,\"HEAD\",args.projectRoot)/currentStoryFilesHash(gitCwd,\"HEAD\",args.projectRoot): call evaluateReviewEscalation with gitCwd pointing at the inner git root in a wrapper-root layout -> materialHash and storyFilesHash in the returned report match the values produced by evaluateReviewAssuranceFloor with the same gitCwd. WHY: proves the core fix aligns the freshness-root computation.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "In a plain repo (gitCwd === projectRoot), call evaluateReviewEscalation with and without the gitCwd field -> both produce identical materialHash/storyFilesHash. WHY: confirms backward compatibility (no-op when gitCwd is absent or equals projectRoot).",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Call evaluateReviewEscalation where args.materialHash and args.storyFilesHash are explicitly supplied (pre-computed) -> the function uses the supplied values and never calls currentMaterialHash/currentStoryFilesHash at all (same as before). WHY: verifies the ?? short-circuit on line 439 means callers like quorum-submit that pass explicit hashes are unaffected by the gitCwd plumbing.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Call evaluateReviewEscalation with gitCwd pointing to a directory that is NOT the projectRoot and NOT a git repo -> falls back gracefully (materialHash/storyFilesHash are null) without throwing. WHY: wrapper-root edge where gitCwd resolution might fail.",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "In a wrapper-root layout, call evaluateReviewEscalation WITHOUT gitCwd (old behavior, using only projectRoot where projectRoot is the non-git metadata root) -> materialHash is null or differs from what evaluateReviewAssuranceFloor produces with the correct gitCwd. WHY: red-documents the bug by proving the old code path diverges, validating that the fix is necessary.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

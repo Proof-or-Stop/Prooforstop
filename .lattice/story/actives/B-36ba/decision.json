@@ -1,0 +1,77 @@
+{
+  "principles": [
+    "Single source of truth for the freshness root: escalation resolves gitCwd the SAME way the floor and verdict producers do (gitCwd for the diff, projectRoot/metadataRoot for storyDir-aware exclusion).",
+    "Plain-repo byte-identity: every change is a no-op when gitCwd == projectRoot.",
+    "Minimal blast radius: change the evaluator plus only the callers that already pair escalation with the floor; do not touch floor logic or verdict producers.",
+    "Prove, do not assert: a dedicated offline smoke demonstrates floor==escalation hash equality under both layouts, including a RED-documenting divergence without gitCwd."
+  ],
+  "drivers": [
+    "Wrapper-root correctness: floor<->escalation equivalence at the DONE gate (done-oracle/machine).",
+    "Zero regression in plain repos (the common layout).",
+    "Contained wrapper-root regression risk (the reason this was split from B-6de6)."
+  ],
+  "options": [
+    {
+      "name": "core+gate+handlers",
+      "pros": [
+        "Makes the production DONE gate (done-oracle, machine) AND the operator-facing review_escalation_status/policy/fallback consistent with the floor and verdict producers.",
+        "Mirrors the floor's gitCwd resolution everywhere; resolveGitCwd is fail-safe so all caller edits are byte-identical in plain repos.",
+        "Closes the diagnostic half-gap a reviewer would otherwise flag."
+      ],
+      "cons": [
+        "Touches more files (the three diagnostic handlers) than the strict minimum.",
+        "Slightly larger diff to review."
+      ]
+    },
+    {
+      "name": "core+gate only",
+      "pros": [
+        "Smallest diff that fixes the actual DONE-gate floor<->escalation equivalence bug.",
+        "Lowest surface area."
+      ],
+      "cons": [
+        "review_escalation_status still computes from the wrong root in wrapper-root layouts (a visible half-fix).",
+        "Leaves an inconsistency the codex host-2 reviewer is likely to file."
+      ]
+    },
+    {
+      "name": "core only",
+      "pros": [
+        "Tiny change: just add the gitCwd param and use it in the evaluator."
+      ],
+      "cons": [
+        "Inert in production: callers never pass gitCwd, so the default keeps using projectRoot and the bug is NOT fixed.",
+        "Rejected."
+      ]
+    }
+  ],
+  "chosen": "core+gate+handlers",
+  "rationale": "Option A is the only one that makes the production DONE gate AND the operator-facing review_escalation_status consistent with the floor and producers. resolveGitCwd is fail-safe (returns projectRoot in plain repos), so all caller edits are byte-identical there. Option C is inert (callers never pass gitCwd, bug unfixed); Option B leaves the diagnostic command on the wrong root, a half-fix the codex host-2 reviewer would flag.",
+  "preMortem": [
+    {
+      "scenario": "Plain-repo behavior silently changes.",
+      "trigger": "The new gitCwd default or resolveGitCwd resolves to something other than projectRoot in a plain repo.",
+      "consequence": "Existing review-escalation-smoke / review-assurance-floor-smoke / wrapper-root smokes or npm test regress; stored hashes drift.",
+      "mitigation": "Use gitCwd = args.gitCwd ?? args.projectRoot and resolveGitCwd (fail-safe to projectRoot); add a plain-repo no-change regression to the new smoke; run the full npm test + run-all-smokes."
+    },
+    {
+      "scenario": "Wrapper-root escalation still diverges from the floor after the change.",
+      "trigger": "A caller passes projectRoot as gitCwd, or the (gitCwd, ref, metadataRoot) argument order is swapped.",
+      "consequence": "The bug persists: a host_verdict the floor accepts is still staled by escalation; floor<->escalation equivalence not restored.",
+      "mitigation": "Mirror the floor signature exactly: currentMaterialHash/currentStoryFilesHash(gitCwd,'HEAD',projectRoot); assert floor.materialHash === escalation.materialHash in the wrapper-root smoke; plumb the SAME gitCwd expression the adjacent floor call uses."
+    },
+    {
+      "scenario": "Handler change breaks review_escalation_status when invoked outside a worktree.",
+      "trigger": "resolveGitCwd throws or requires a worktree when status is called from an arbitrary cwd.",
+      "consequence": "review_escalation_status crashes or returns the wrong root for the diagnostic.",
+      "mitigation": "resolveGitCwd is total (try/catch returns projectRoot); keep projectRoot=ctx.root and do not add assertCwdInWorktree; rely on the documented fail-safe."
+    },
+    {
+      "scenario": "Scope creep into the floor logic or a verdict producer.",
+      "trigger": "Temptation to also touch the floor's storyFilesHash or a producer while in this area.",
+      "consequence": "Violates the scope-boundary, collides with B-6de6, and inflates wrapper-root regression risk (the reason this was split out).",
+      "mitigation": "Honor excludedScope; quorum_submit already passes explicit hashes so it needs no change; leave floor storyFilesHash-authoritative work to B-6de6."
+    }
+  ],
+  "timestamp": "2026-06-24T01:28:26.949Z"
+}
