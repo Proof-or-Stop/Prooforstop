@@ -263,4 +263,114 @@ check('baseline: no drift => valid, no re-attestation advisory', () => {
   assert.doesNotMatch((report.advisories ?? []).join('\n'), /storyFilesHash matches/);
 });
 
+// ---------------------------------------------------------------------------
+// Fine-grained verificationIntent coverage (test-coverage lane audit).
+// ---------------------------------------------------------------------------
+
+// CHK-001:happy:1 — two verdicts in DIFFERENT runIds, both stale-material X +
+// matching storyFilesHash S => both rounds downgraded and counted valid.
+check('(1) two different-runId drifted rounds both downgraded valid', () => {
+  const report = evaluate({
+    storyId: STORY_ID,
+    processEvents: [
+      verdict('round-1', 'codex-a', MATERIAL_X, STORY_FILES_S),
+      verdict('round-2', 'codex-b', MATERIAL_X, STORY_FILES_S),
+    ],
+    materialHash: MATERIAL_Y,
+    storyFilesHash: STORY_FILES_S,
+  });
+  assert.equal(report.ok, true);
+  assert.ok(
+    report.localRounds.validRounds.length >= 2,
+    `expected >=2 valid rounds, got ${report.localRounds.validRounds.length}`,
+  );
+});
+
+// CHK-001:edge:0 — legacy verdict WITHOUT storyFilesHash + material stale =>
+// never downgraded, stays ignored, found 0.
+check('(2) legacy verdict (no storyFilesHash) is never downgraded', () => {
+  const report = evaluate({
+    storyId: STORY_ID,
+    processEvents: [verdict('round-1', 'codex-a', MATERIAL_X, undefined)],
+    materialHash: MATERIAL_Y,
+    storyFilesHash: STORY_FILES_S,
+  });
+  assert.equal(report.localRounds.validRounds.length, 0);
+  assert.equal(report.ok, false);
+});
+
+// CHK-001:edge:1 — current storyFilesHash null (arg omitted) + material drifted
+// => effectiveEvents===rawEvents, no downgrade, stale, found 0, no crash.
+check('(3) null current storyFilesHash => no downgrade, stale, no crash', () => {
+  let report!: ReturnType<typeof evaluate>;
+  assert.doesNotThrow(() => {
+    report = evaluate({
+      storyId: STORY_ID,
+      processEvents: [verdict('round-1', 'codex-a', MATERIAL_X, STORY_FILES_S)],
+      materialHash: MATERIAL_Y,
+      // storyFilesHash intentionally omitted (undefined) -> resolves to null
+    });
+  });
+  assert.equal(report.localRounds.validRounds.length, 0);
+  assert.equal(report.ok, false);
+});
+
+// CHK-002:edge:0 — three eras, SAME identity, DIFFERENT runIds: truly-stale (W),
+// downgraded (X->Y), current (Y). 2 valid rounds, truly-stale ignored, no
+// duplicate-identity reason.
+check('(4) three eras same identity diff runIds => 2 valid, no dup-identity', () => {
+  const report = evaluate({
+    storyId: STORY_ID,
+    processEvents: [
+      verdict('round-1', 'codex-a', MATERIAL_W, STORY_FILES_S_OLD), // truly stale
+      verdict('round-2', 'codex-a', MATERIAL_X, STORY_FILES_S), // downgraded
+      verdict('round-3', 'codex-a', MATERIAL_Y, STORY_FILES_S), // current
+    ],
+    materialHash: MATERIAL_Y,
+    storyFilesHash: STORY_FILES_S,
+  });
+  assert.equal(report.localRounds.validRounds.length, 2);
+  const allRoundReasons = [
+    ...report.localRounds.validRounds.flatMap(r => r.reasons),
+    ...report.localRounds.invalidRounds.flatMap(r => r.reasons),
+  ].join('\n');
+  assert.doesNotMatch(allRoundReasons, /duplicate host\/session\/key identity/);
+});
+
+// CHK-002:adversarial:0 — TWO truly-stale verdicts, SAME identity, SAME runId:
+// both ignored before the identity check, no duplicate-identity-invalid round.
+check('(5) two truly-stale dup-identity verdicts => ignored, no dup-identity', () => {
+  const report = evaluate({
+    storyId: STORY_ID,
+    processEvents: [
+      verdict('round-1', 'codex-a', MATERIAL_W, STORY_FILES_S_OLD),
+      verdict('round-1', 'codex-a', MATERIAL_W, STORY_FILES_S_OLD),
+    ],
+    materialHash: MATERIAL_Y,
+    storyFilesHash: STORY_FILES_S,
+  });
+  const allRoundReasons = [
+    ...report.localRounds.validRounds.flatMap(r => r.reasons),
+    ...report.localRounds.invalidRounds.flatMap(r => r.reasons),
+  ].join('\n');
+  assert.doesNotMatch(allRoundReasons, /duplicate host\/session\/key identity/);
+  assert.equal(report.localRounds.validRounds.length, 0);
+});
+
+// CHK-003:edge:0 — multiple downgraded verdicts => one advisory per downgraded
+// verdict (NOT deduplicated), so each is individually auditable.
+check('(6) one advisory per downgraded verdict (not deduplicated)', () => {
+  const report = evaluate({
+    storyId: STORY_ID,
+    processEvents: [
+      verdict('round-1', 'codex-a', MATERIAL_X, STORY_FILES_S),
+      verdict('round-2', 'codex-b', MATERIAL_X, STORY_FILES_S),
+    ],
+    materialHash: MATERIAL_Y,
+    storyFilesHash: STORY_FILES_S,
+  });
+  const matching = (report.advisories ?? []).filter(a => /storyFilesHash matches/.test(a));
+  assert.equal(matching.length, 2, `expected 2 per-verdict advisories, got ${matching.length}`);
+});
+
 console.log(`\nreview-assurance-floor storyFilesHash smoke passed (${passed} checks)`);
