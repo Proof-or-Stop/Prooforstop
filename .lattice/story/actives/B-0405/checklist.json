@@ -349,9 +349,9 @@
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
         "docs/evidence/evidence-platform-architecture.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-24T11:18:20.932Z",
-      "endTime": null,
+      "endTime": "2026-06-24T11:18:27.755Z",
       "userSees": "proofAdmissibility.mode supports warn and enforce; high-risk proof consumers reject inadmissible artifacts in enforce mode; adversarial suite passes; final DONE records 3 rounds x 2 host review assurance.",
       "files": {
         "modify": [
@@ -390,7 +390,31 @@
             "type": "manual"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:proof-admissibility-hardening",
+          "result": "pass",
+          "note": "Hardening smoke covers proofAdmissibility warn/enforce behavior and enforce-mode blocking for high-risk inadmissible proof consumers.",
+          "headHash": "b85537d58a9e6d5c605c52bdec3831f1d883d4e2",
+          "materialHash": "a2dfb8c6a958296b980bae7fb7046305e4b1ccaec6819ddd4e107e22df2dfe95",
+          "storyFilesHash": "4b1a812749cdde4b9b3a991a3726eea23a668aefe4fb71c83666658038cd3299",
+          "timestamp": "2026-06-24T11:18:28.145Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "Package script test:proof-admissibility-hardening compiles and runs from dist.",
+          "headHash": "b85537d58a9e6d5c605c52bdec3831f1d883d4e2",
+          "materialHash": "a2dfb8c6a958296b980bae7fb7046305e4b1ccaec6819ddd4e107e22df2dfe95",
+          "storyFilesHash": "4b1a812749cdde4b9b3a991a3726eea23a668aefe4fb71c83666658038cd3299",
+          "timestamp": "2026-06-24T11:18:28.473Z"
+        }
+      ]
     }
   ]
 }
