@@ -179,6 +179,15 @@
       "reviewRound": "2026-06-24T23:01:14.127Z",
       "reviewRunId": "B-1731:RR-034",
       "_hash": "a28f885055d8a0e92b2d1593ceae16444dedfd7cd0c025455ab5e70a90d1d613"
+    },
+    {
+      "id": "B-1731:RP-021",
+      "agent": "lattice-review-concept",
+      "note": "Concept REVIEW pass after F-009/F-010 fixes. Re-reviewed repro-first boundaries: spike bindings require spike-review payload.verdict=confirmed; legacy status=accepted is diagnostic only and cannot override verdict=rejected or missing verdict; lifecycle diagnostics report classifier-specific reasons for file declarations, bug stories, and high-risk code-verifiable stories; previous repro-first candidate path still passes. Verification run: npm --prefix packages/main run test:repro-evidence-binding-dev-gate; npm --prefix packages/main run test:repro-first-candidate; npm --prefix packages/main run build -- --noEmit; node scripts/verify-process-fact-contract.mjs.",
+      "createdAt": "2026-06-24T23:05:11.728Z",
+      "reviewRound": "2026-06-24T23:01:14.127Z",
+      "reviewRunId": "B-1731:RR-035",
+      "_hash": "410b79fc2b28fd16ff1bf85c5260137dea95bdaa40cfc59679386678282da5cf"
     }
   ]
 }
