@@ -1,0 +1,56 @@
+{
+  "storyId": "B-91f3",
+  "changes": "Demoted Authority receipt refs from local productionDone eligibility, restored checker_error/overall proof diagnostics, and documented the host-neutral proof-admissibility boundary.",
+  "usage": "Use the existing Lattice proof-admissibility smokes and gap_analyze; local CLI evidence may consume Authority receipt refs as evidence/input but not as production completion.",
+  "expectedOutcome": "The local CLI no longer treats Authority receipt refs as production completion, checker failures are visible as overall=error, and proof-admissibility gaps stay at zero high.",
+  "actualTranscript": "npm build and proof-admissibility smokes passed; gap_analyze reported 0 high gaps and 1 unrelated medium annotation gap; four reviewer lanes and delivery reviewer passed.",
+  "outcomeDiff": "No difference between expected and observed story-scoped outcome; global convergence remains outside scope because other active stories exist.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Full Authority production completion remains external/future adapter scope; this story deliberately does not implement Authority server production receipts.",
+  "pitfalls": "A concurrent/older host repeatedly committed minimized diffs that removed checker_error/overall semantics; guard session and revert commits were needed before review could proceed.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 95892
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 8919
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 182111
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 892376
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 1367935
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 146489
+    }
+  },
+  "totalDurationMs": 2693771,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-24T14:04:42.104Z",
+  "updatedAt": "2026-06-24T14:04:42.104Z"
+}
