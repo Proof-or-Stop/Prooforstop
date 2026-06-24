@@ -143,6 +143,17 @@
           "materialHash": "96adaa007e8f7ddafa1d445c9f905d262eb90f4da087c701fec35f3474287e79",
           "storyFilesHash": "3bb033bf48d472daad32daea22503c5bbbef2c03c79374e5fe0665781999041e",
           "timestamp": "2026-06-24T01:19:46.078Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm run --prefix packages/main test:authority-receipt-proof-auth",
+          "result": "pass",
+          "note": "RED/GREEN reasoning: authority-enforce.ts:207 passes auth as 4th arg to AuthorityClient. If removed (old 3-arg constructor), AuthorityClient.auth defaults to {} (no customerApiKey). Then get() at authority-client.ts:677 finds this.auth.customerApiKey undefined, and with authenticated:true it returns the fail-closed error (line 678-683) — the proof fetch never reaches the server. The smoke at authority-receipt-proof-auth-smoke.ts:32 constructs with explicit auth to prove this path works; without auth the test at line 49-55 shows the fail-closed behavior. The two tests together prove the fix is necessary.",
+          "headHash": "45065e75b6496f379911116c8dead0f75ffbe7ea",
+          "materialHash": "96adaa007e8f7ddafa1d445c9f905d262eb90f4da087c701fec35f3474287e79",
+          "storyFilesHash": "3bb033bf48d472daad32daea22503c5bbbef2c03c79374e5fe0665781999041e",
+          "timestamp": "2026-06-24T01:19:51.827Z"
         }
       ]
     },
