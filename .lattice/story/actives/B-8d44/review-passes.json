@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-24T12:50:13.876Z",
       "reviewRunId": "B-8d44:RR-006",
       "_hash": "a9f2c5c88b245d7c77ddada3ae1ae259de0484ae0a5e933b8acc62ee7d192e6d"
+    },
+    {
+      "id": "B-8d44:RP-003",
+      "agent": "lattice-review-docs",
+      "note": "Round 2 re-attestation: Step 1 symbols from diff = {makeLiveEngine, live-engine-selfcheck, run-selfchecks}; Step 2 paragraphs compared = 3 (run-driver section lines 89-144, offline self-checks section lines 132-144, live-engine-selfcheck.mjs description line 141). F-001 fix verified: run-selfchecks.mjs SELFCHECKS array has 7 entries matching README comment (7). F-002 fix verified: README run-driver section now names live-engine.mjs as engine adapter with correct --engine flag; example command updated to ./live-engine.mjs. No new doc-code drift: diff only changes 3 README hunks (all F-001/F-002); three-arms section and run-recovery header note unchanged; F-003/F-004/F-005/F-007 code fixes (fault scoring, evidence accumulation, fail-closed, allowlist) introduce no README claims that contradict the code.",
+      "createdAt": "2026-06-24T13:18:48.965Z",
+      "reviewRound": "2026-06-24T12:50:13.876Z",
+      "reviewRunId": "B-8d44:RR-010",
+      "_hash": "cdf19640bb101bb6a7ef0dabd2c5bb4df0dca3811d49a7b04cb7a4cee2bb6bc7"
     }
   ]
 }
