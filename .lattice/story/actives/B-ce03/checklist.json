@@ -43,7 +43,30 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "lifecycle_check target DONE reports localReady true when all DONE oracle rows are clean and the only missing done_prepare report row is advisory.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "missing done_prepare report remains blocking when DONE oracle rows contain blockers.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "the advisory done_prepare row remains visible in the report so hosts still receive the preflight command instead of silently losing guidance.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
