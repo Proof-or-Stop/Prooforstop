@@ -74,6 +74,26 @@
       "resolvedAt": "2026-06-24T11:32:48.085Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-0405:F-004",
+      "desc": "Test coverage evidence for CHK-001..CHK-006 is stale after the main merge/material hash drift. Current HEAD b1d962e passes npm --prefix packages/main run build, npm --prefix packages/main run test:proof-admissibility-hardening, and node scripts/verify-process-fact-contract.mjs, and the smoke source covers the adversarial matrix, but lattice session_brief still reports 18 stale verification intent(s) and instructs recovery via lattice verification_evidence_refresh_stale --storyId=B-0405 followed by lattice validate --story=B-0405 --json. Until those verificationEvidence bindings are refreshed on current material, the checklist evidence cannot be treated as fresh coverage for REVIEW->TEST.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-24T11:53:24.618Z",
+      "reviewRound": "2026-06-24T11:50:39.023Z",
+      "reviewRunId": "B-0405:RR-016",
+      "_hash": "4c1791ec99afa9fac75e3bb0b1fd44d463ae6d61c1329894a82d2779b469c852",
+      "files": [
+        "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts",
+        "packages/main/src/core/evidence-stale-hint.ts",
+        "packages/main/src/core/verification.ts"
+      ],
+      "signatureTag": "missing|ts|test-coverage-evidence",
+      "signatureTagSource": "auto"
     }
   ]
 }
