@@ -177,7 +177,16 @@
       "context": "In corpus-selfcheck.mjs, read each task.json type and assert: total tasks == 24, exactly 8 distinct categories present (bug-fix/feature/refactor/test-repair/doc-update/dep-upgrade/contract-validation/CLI-feature), and each category has >= 2 tasks (~3 each). Fail if the corpus drifts from the pre-reg §2 spec.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "experiments/recovery-runner/corpus-selfcheck.mjs"
+        ],
+        "create": [],
+        "test": [
+          "experiments/recovery-runner/corpus-selfcheck.mjs"
+        ]
+      }
     },
     {
       "id": "CHK-004",
