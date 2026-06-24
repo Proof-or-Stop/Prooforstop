@@ -9,15 +9,15 @@
     "packages/main/src/core/repro-intake.ts",
     "packages/main/src/core/evidence/types.ts",
     "packages/main/src/handlers/repro-intake.ts",
-    "packages/main/src/core/config.ts",
+    "lattice.config.json",
+    "package.json",
+    "packages/main/package.json",
     "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/config.ts",
     "packages/main/src/core/process-fact-levels.ts",
     "packages/main/src/core/process-fact-registry.ts",
     "packages/main/src/handlers/session.ts",
-    "scripts/verify-process-fact-contract.mjs",
-    "lattice.config.json",
-    "package.json",
-    "packages/main/package.json"
+    "scripts/verify-process-fact-contract.mjs"
   ],
   "allowedCreate": [],
   "allowedTest": [
@@ -25,8 +25,8 @@
   ],
   "protectedFiles": [],
   "explicitExcludes": [],
-  "scopeChangeReason": "Refresh scope contract after aligning all implementation touchpoints for story_create preflight, lifecycle gate, config, process fact, session surfacing, and smoke registration.",
+  "scopeChangeReason": "B-1731 implementation requires config, command policy, process fact registry/verifier, and session_brief surfaces in addition to the original story_create/lifecycle gate files.",
   "acknowledgements": [],
   "createdAt": "2026-06-24T21:50:40.326Z",
-  "updatedAt": "2026-06-24T22:01:42.570Z"
+  "updatedAt": "2026-06-24T22:02:22.888Z"
 }
