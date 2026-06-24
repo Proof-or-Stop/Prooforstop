@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-d243:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept-completeness verified: (1) storyFilesHash is inside the signDeliveryCheck/recomputeDeliveryCheckHash signature domain — integrity check runs before any storyFilesHash-keyed downgrade, so no unsigned-field gate path exists; (2) waiver re-sign path (delivery_waiver_add) correctly threads data.storyFilesHash; legacy fixtures intentionally omit storyFilesHash and fall back to strict — no incomplete wiring; (3) checkCompletedEvidenceSnapshotFreshness (Gate A) carries the B-d243 keep-strict comment and takes no storyFilesHash parameter; done-required-validation.ts (Gate B) has zero diff — not touched; (4) spec amendment (DONE Sub-Gate Bindings, story-files-hash-material-drift.md) is consistent with the code on all stated invariants: signed payload, advisory-only downgrade, storyFilesHash mismatch hard-rejects, missing fallback to strict, stored hash never rebound. No doc-promise-undelivered gap found. Zero findings.",
+      "createdAt": "2026-06-24T11:30:37.850Z",
+      "reviewRound": "2026-06-24T11:25:45.889Z",
+      "reviewRunId": "B-d243:RR-001",
+      "_hash": "aea02094b984365e4d4a2c1ad2e2f24901c50968f42d7782d7ddcb2d95eefce3"
+    }
+  ]
+}
