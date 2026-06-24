@@ -48,10 +48,10 @@
           "command": "node packages/main/dist/tasks/proof-admissibility-smoke.js",
           "result": "pass",
           "note": "Smoke identifies authority-receipt-ref behavior: allowed as evidence/input, overall=pass, but productionDoneEligible=false.",
-          "headHash": "fa4034a4b56dabbc72c65ed74d930ac950066d3d",
-          "materialHash": "e9f533007ce3f1db512664a619362b9013797eb5ace0520de140e21b7b59d9e0",
-          "storyFilesHash": "62d6f7fadcf38077f25d45c929dca6775401ee91385a501392c1426fccc5ef11",
-          "timestamp": "2026-06-24T13:49:28.601Z"
+          "headHash": "bde5045d4f6cbd16231d0ee201e14e651896052e",
+          "materialHash": "59b981902ed16f6602562af122a12d1757b8b623a5629676737ffd6b271b3129",
+          "storyFilesHash": "aac68a1ece18b12fe2c288e31159189c2064984707ac96acc4a12c9d0bb7350b",
+          "timestamp": "2026-06-24T13:51:55.685Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -60,10 +60,10 @@
           "command": "rg -n \"external Authority adapters|Non-goals|Authority-owned receipts are evidence inputs\" docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
           "result": "pass",
           "note": "The plan classifies Authority adapters/server behavior as external/future scope rather than deleting networking or historical readers.",
-          "headHash": "fa4034a4b56dabbc72c65ed74d930ac950066d3d",
-          "materialHash": "e9f533007ce3f1db512664a619362b9013797eb5ace0520de140e21b7b59d9e0",
-          "storyFilesHash": "62d6f7fadcf38077f25d45c929dca6775401ee91385a501392c1426fccc5ef11",
-          "timestamp": "2026-06-24T13:49:28.602Z"
+          "headHash": "bde5045d4f6cbd16231d0ee201e14e651896052e",
+          "materialHash": "59b981902ed16f6602562af122a12d1757b8b623a5629676737ffd6b271b3129",
+          "storyFilesHash": "aac68a1ece18b12fe2c288e31159189c2064984707ac96acc4a12c9d0bb7350b",
+          "timestamp": "2026-06-24T13:51:55.685Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -72,10 +72,10 @@
           "command": "rg -n \"Red/Repro/Spike|red/green|handoff|usage-ledger\" docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
           "result": "pass",
           "note": "The changed plan keeps unrelated handoff, usage-ledger, and red/green semantics as separate proof surfaces rather than rewriting them.",
-          "headHash": "fa4034a4b56dabbc72c65ed74d930ac950066d3d",
-          "materialHash": "e9f533007ce3f1db512664a619362b9013797eb5ace0520de140e21b7b59d9e0",
-          "storyFilesHash": "62d6f7fadcf38077f25d45c929dca6775401ee91385a501392c1426fccc5ef11",
-          "timestamp": "2026-06-24T13:49:28.602Z"
+          "headHash": "bde5045d4f6cbd16231d0ee201e14e651896052e",
+          "materialHash": "59b981902ed16f6602562af122a12d1757b8b623a5629676737ffd6b271b3129",
+          "storyFilesHash": "aac68a1ece18b12fe2c288e31159189c2064984707ac96acc4a12c9d0bb7350b",
+          "timestamp": "2026-06-24T13:51:55.685Z"
         }
       ]
     },
@@ -126,10 +126,10 @@
           "command": "if rg -n \"productionDoneEligible: true\" packages/main/src/core/proof-admissibility.ts; then exit 1; else echo no local productionDoneEligible true; fi",
           "result": "pass",
           "note": "No local proof-admissibility policy can set productionDoneEligible true after authority-receipt-ref demotion.",
-          "headHash": "fa4034a4b56dabbc72c65ed74d930ac950066d3d",
-          "materialHash": "e9f533007ce3f1db512664a619362b9013797eb5ace0520de140e21b7b59d9e0",
-          "storyFilesHash": "62d6f7fadcf38077f25d45c929dca6775401ee91385a501392c1426fccc5ef11",
-          "timestamp": "2026-06-24T13:49:28.602Z"
+          "headHash": "bde5045d4f6cbd16231d0ee201e14e651896052e",
+          "materialHash": "59b981902ed16f6602562af122a12d1757b8b623a5629676737ffd6b271b3129",
+          "storyFilesHash": "aac68a1ece18b12fe2c288e31159189c2064984707ac96acc4a12c9d0bb7350b",
+          "timestamp": "2026-06-24T13:51:55.685Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -137,10 +137,10 @@
           "command": "node packages/main/dist/tasks/proof-admissibility-smoke.js",
           "result": "pass",
           "note": "Smoke proves authority-receipt object remains diagnostic-status only and authority-receipt-ref has productionDoneEligible=false.",
-          "headHash": "fa4034a4b56dabbc72c65ed74d930ac950066d3d",
-          "materialHash": "e9f533007ce3f1db512664a619362b9013797eb5ace0520de140e21b7b59d9e0",
-          "storyFilesHash": "62d6f7fadcf38077f25d45c929dca6775401ee91385a501392c1426fccc5ef11",
-          "timestamp": "2026-06-24T13:49:28.602Z"
+          "headHash": "bde5045d4f6cbd16231d0ee201e14e651896052e",
+          "materialHash": "59b981902ed16f6602562af122a12d1757b8b623a5629676737ffd6b271b3129",
+          "storyFilesHash": "aac68a1ece18b12fe2c288e31159189c2064984707ac96acc4a12c9d0bb7350b",
+          "timestamp": "2026-06-24T13:51:55.685Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -148,10 +148,10 @@
           "command": "node packages/main/dist/tasks/proof-admissibility-smoke.js",
           "result": "pass",
           "note": "Negative production controls still cover DONE-required, review-run, offline bundle, handoff, legacy, and authority-receipt overread paths.",
-          "headHash": "fa4034a4b56dabbc72c65ed74d930ac950066d3d",
-          "materialHash": "e9f533007ce3f1db512664a619362b9013797eb5ace0520de140e21b7b59d9e0",
-          "storyFilesHash": "62d6f7fadcf38077f25d45c929dca6775401ee91385a501392c1426fccc5ef11",
-          "timestamp": "2026-06-24T13:49:28.602Z"
+          "headHash": "bde5045d4f6cbd16231d0ee201e14e651896052e",
+          "materialHash": "59b981902ed16f6602562af122a12d1757b8b623a5629676737ffd6b271b3129",
+          "storyFilesHash": "aac68a1ece18b12fe2c288e31159189c2064984707ac96acc4a12c9d0bb7350b",
+          "timestamp": "2026-06-24T13:51:55.685Z"
         }
       ]
     },
@@ -201,10 +201,10 @@
           "command": "node packages/main/dist/tasks/proof-admissibility-smoke.js && node packages/main/dist/tasks/proof-admissibility-hardening-smoke.js",
           "result": "pass",
           "note": "Smoke tests cover local evidenceScope/admissibility behavior, Authority receipt demotion, and checker-error diagnostic vocabulary.",
-          "headHash": "fa4034a4b56dabbc72c65ed74d930ac950066d3d",
-          "materialHash": "e9f533007ce3f1db512664a619362b9013797eb5ace0520de140e21b7b59d9e0",
-          "storyFilesHash": "62d6f7fadcf38077f25d45c929dca6775401ee91385a501392c1426fccc5ef11",
-          "timestamp": "2026-06-24T13:49:28.602Z"
+          "headHash": "bde5045d4f6cbd16231d0ee201e14e651896052e",
+          "materialHash": "59b981902ed16f6602562af122a12d1757b8b623a5629676737ffd6b271b3129",
+          "storyFilesHash": "aac68a1ece18b12fe2c288e31159189c2064984707ac96acc4a12c9d0bb7350b",
+          "timestamp": "2026-06-24T13:51:55.685Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -213,10 +213,10 @@
           "command": "if rg -n \"[\\p{Han}]\" docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md; then exit 1; else echo no Chinese text remains; fi",
           "result": "pass",
           "note": "Appendix C.1.1/D/E/F/G are normalized to English host-neutral wording.",
-          "headHash": "fa4034a4b56dabbc72c65ed74d930ac950066d3d",
-          "materialHash": "e9f533007ce3f1db512664a619362b9013797eb5ace0520de140e21b7b59d9e0",
-          "storyFilesHash": "62d6f7fadcf38077f25d45c929dca6775401ee91385a501392c1426fccc5ef11",
-          "timestamp": "2026-06-24T13:49:28.602Z"
+          "headHash": "bde5045d4f6cbd16231d0ee201e14e651896052e",
+          "materialHash": "59b981902ed16f6602562af122a12d1757b8b623a5629676737ffd6b271b3129",
+          "storyFilesHash": "aac68a1ece18b12fe2c288e31159189c2064984707ac96acc4a12c9d0bb7350b",
+          "timestamp": "2026-06-24T13:51:55.685Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -225,10 +225,10 @@
           "command": "lattice gap_analyze {\"format\":\"json\"}",
           "result": "pass",
           "note": "gap_analyze reports 0 high gaps after wording changes, proving convergence was not preserved by deleting requirements or weakening controls.",
-          "headHash": "fa4034a4b56dabbc72c65ed74d930ac950066d3d",
-          "materialHash": "e9f533007ce3f1db512664a619362b9013797eb5ace0520de140e21b7b59d9e0",
-          "storyFilesHash": "62d6f7fadcf38077f25d45c929dca6775401ee91385a501392c1426fccc5ef11",
-          "timestamp": "2026-06-24T13:49:28.602Z"
+          "headHash": "bde5045d4f6cbd16231d0ee201e14e651896052e",
+          "materialHash": "59b981902ed16f6602562af122a12d1757b8b623a5629676737ffd6b271b3129",
+          "storyFilesHash": "aac68a1ece18b12fe2c288e31159189c2064984707ac96acc4a12c9d0bb7350b",
+          "timestamp": "2026-06-24T13:51:55.685Z"
         }
       ]
     },
@@ -281,10 +281,10 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proof-admissibility-smoke.js && node packages/main/dist/tasks/proof-admissibility-hardening-smoke.js",
           "result": "pass",
           "note": "Build and both proof-admissibility smokes passed after Authority receipt demotion and checker-error semantics.",
-          "headHash": "fa4034a4b56dabbc72c65ed74d930ac950066d3d",
-          "materialHash": "e9f533007ce3f1db512664a619362b9013797eb5ace0520de140e21b7b59d9e0",
-          "storyFilesHash": "62d6f7fadcf38077f25d45c929dca6775401ee91385a501392c1426fccc5ef11",
-          "timestamp": "2026-06-24T13:49:28.602Z"
+          "headHash": "bde5045d4f6cbd16231d0ee201e14e651896052e",
+          "materialHash": "59b981902ed16f6602562af122a12d1757b8b623a5629676737ffd6b271b3129",
+          "storyFilesHash": "aac68a1ece18b12fe2c288e31159189c2064984707ac96acc4a12c9d0bb7350b",
+          "timestamp": "2026-06-24T13:51:55.685Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -292,10 +292,10 @@
           "command": "lattice gap_analyze {\"format\":\"json\"}",
           "result": "pass",
           "note": "gap_analyze reports 0 high gaps and healthy=true; remaining medium currentDoneMaterialBinding test annotation gap is unrelated to this story.",
-          "headHash": "fa4034a4b56dabbc72c65ed74d930ac950066d3d",
-          "materialHash": "e9f533007ce3f1db512664a619362b9013797eb5ace0520de140e21b7b59d9e0",
-          "storyFilesHash": "62d6f7fadcf38077f25d45c929dca6775401ee91385a501392c1426fccc5ef11",
-          "timestamp": "2026-06-24T13:49:28.602Z"
+          "headHash": "bde5045d4f6cbd16231d0ee201e14e651896052e",
+          "materialHash": "59b981902ed16f6602562af122a12d1757b8b623a5629676737ffd6b271b3129",
+          "storyFilesHash": "aac68a1ece18b12fe2c288e31159189c2064984707ac96acc4a12c9d0bb7350b",
+          "timestamp": "2026-06-24T13:51:55.685Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -303,10 +303,10 @@
           "command": "lattice scope_contract_check {\"storyId\":\"B-91f3\",\"json\":true} && lattice convergence_check {\"format\":\"json\"}",
           "result": "pass",
           "note": "Scope check has only the acknowledged proof-admissibility-gates.ts expansion warning; convergence_check has no high-priority gaps and is blocked only by unrelated unfinished stories outside B-91f3.",
-          "headHash": "fa4034a4b56dabbc72c65ed74d930ac950066d3d",
-          "materialHash": "e9f533007ce3f1db512664a619362b9013797eb5ace0520de140e21b7b59d9e0",
-          "storyFilesHash": "62d6f7fadcf38077f25d45c929dca6775401ee91385a501392c1426fccc5ef11",
-          "timestamp": "2026-06-24T13:49:28.602Z"
+          "headHash": "bde5045d4f6cbd16231d0ee201e14e651896052e",
+          "materialHash": "59b981902ed16f6602562af122a12d1757b8b623a5629676737ffd6b271b3129",
+          "storyFilesHash": "aac68a1ece18b12fe2c288e31159189c2064984707ac96acc4a12c9d0bb7350b",
+          "timestamp": "2026-06-24T13:51:55.685Z"
         }
       ]
     }
