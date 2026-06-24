@@ -197,6 +197,17 @@
             "type": "cli"
           }
         ]
+      },
+      "files": {
+        "modify": [
+          "package.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/review-assurance-floor-storyfileshash-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/review-assurance-floor-storyfileshash-smoke.ts"
+        ]
       }
     },
     {
