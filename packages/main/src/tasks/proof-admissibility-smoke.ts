@@ -61,6 +61,7 @@ function runtimeChecks(value: Record<string, unknown>): RuntimeAdmissibilityChec
   assert.ok(PROOF_PRODUCER_BOUNDARIES.includes('authority-owned'), 'producer boundary dictionary includes authority-owned');
   assert.ok(ADMISSIBILITY_REASON_CODES.includes('local_diagnostic_non_gate'), 'reason dictionary includes local_diagnostic_non_gate');
   assert.ok(ADMISSIBILITY_REASON_CODES.includes('unsupported_verifier_version'), 'reason dictionary includes unsupported_verifier_version');
+  assert.ok(ADMISSIBILITY_REASON_CODES.includes('checker_error'), 'reason dictionary includes checker_error');
 }
 
 {
@@ -98,6 +99,7 @@ function runtimeChecks(value: Record<string, unknown>): RuntimeAdmissibilityChec
     checks: currentValidChecks('lattice.authority_receipt_refs.v1'),
   });
   assert.equal(result.allowed, true, 'authority receipt ref with exact true checks and current contractVersion is allowed as evidence/input');
+  assert.equal(result.overall, 'pass', 'matching production gate decision has pass overall');
   assert.equal(result.productionDoneEligible, false, 'local CLI core never turns authority receipt refs into productionDone eligibility');
   assert.deepEqual(result.reasons, [], 'admissible authority receipt ref evidence has no reasons');
 }

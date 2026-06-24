@@ -81,6 +81,7 @@ export const ADMISSIBILITY_REASON_CODES = [
   'unsupported_schema_version',
   'unsupported_contract_version',
   'unsupported_verifier_version',
+  'checker_error',
   'bad_shape',
   'missing_required_field',
   'unexpected_field',
@@ -120,6 +121,8 @@ export type AdmissibilityReasonCode = typeof ADMISSIBILITY_REASON_CODES[number];
 
 export const PROOF_ADMISSIBILITY_CONTRACT_VERSION = 'lattice.proof_admissibility.v1' as const;
 export const PROOF_ADMISSIBILITY_VERIFIER_VERSION = 'lattice.proof_admissibility_verifier.v1' as const;
+
+export type AdmissibilityOverall = 'pass' | 'warn' | 'fail' | 'error';
 
 export interface ProofClaimPolicy {
   claim: ClaimKind;
@@ -182,6 +185,7 @@ export interface AdmissibilityResult {
   producerBoundary: ProofProducerBoundary | 'unknown';
   consumer: ArtifactConsumerKind;
   claim: ClaimKind;
+  overall: AdmissibilityOverall;
   allowed: boolean;
   productionDoneEligible: boolean;
   reasons: AdmissibilityReasonCode[];
@@ -272,7 +276,7 @@ export const PROOF_SURFACE_REGISTRY = [
     allowedClaims: [
       /**
        * @task B-91f3
-       * @checklist CHK-002
+       * @checklist CHK-001, CHK-002
        * @title Authority receipt refs remain admissible evidence, not local production completion
        * @type feature
        * @priority high
@@ -564,6 +568,7 @@ function defaultResult(input: EvaluateProofAdmissibilityInput): AdmissibilityRes
     producerBoundary: 'unknown',
     consumer: input.consumer,
     claim: input.claim,
+    overall: 'fail',
     allowed: false,
     productionDoneEligible: false,
     reasons: ['missing_required_field'],
@@ -738,6 +743,7 @@ export function evaluateProofAdmissibility(input: EvaluateProofAdmissibilityInpu
   }
 
   const allowed = Boolean(policy) && reasons.length === 0;
+  const overall: AdmissibilityOverall = allowed ? 'pass' : 'fail';
   const productionDoneEligible = allowed && Boolean(policy?.productionDoneEligible) && definition.scope === 'production-gate-decision';
 
   return {
@@ -748,6 +754,7 @@ export function evaluateProofAdmissibility(input: EvaluateProofAdmissibilityInpu
     producerBoundary: definition.producerBoundary,
     consumer: input.consumer,
     claim: input.claim,
+    overall,
     allowed,
     productionDoneEligible,
     reasons,
