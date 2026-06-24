@@ -173,9 +173,9 @@
         "docs/requirements/decisions/repro-first-story-intake-experiment.md",
         "docs/guide-red-spike-story.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-24T01:14:26.035Z",
-      "endTime": null,
+      "endTime": "2026-06-24T01:14:32.617Z",
       "userSees": "Final summary reports elapsed story time and friction points observed from story creation through DONE, including PLAN gate work, worktree dependency setup, review/test evidence, and any stale evidence recovery.",
       "files": {
         "modify": [],
@@ -204,7 +204,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "lattice summary_set --storyId=B-ef65 ...",
+          "result": "pass",
+          "note": "Summary draft records start timestamp 2026-06-24T01:02:46Z, draft timestamp 2026-06-24T01:13:19Z, elapsed 10m13s from CLI output, and the major phase transitions observed so far; final DONE timestamp will be refreshed before closure.",
+          "headHash": "87cbd236ee9629d0e11a919f6ea0a33922966a90",
+          "materialHash": "0614fcd396f9537c9e97728a525dc257eddf70ba61479d1948d9dc68de5c28e4",
+          "storyFilesHash": "5108cbe997bbd760287a964cbe091bde24444e5936640ad1b491ce9f038fbaa4",
+          "timestamp": "2026-06-24T01:14:32.774Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "lattice summary_set --storyId=B-ef65 ...",
+          "result": "pass",
+          "note": "Summary limitations distinguish the validate-lock correctness fix from non-goals such as owner lease redesign, global validate serialization, Authority server behavior, and host-specific behavior.",
+          "headHash": "87cbd236ee9629d0e11a919f6ea0a33922966a90",
+          "materialHash": "0614fcd396f9537c9e97728a525dc257eddf70ba61479d1948d9dc68de5c28e4",
+          "storyFilesHash": "5108cbe997bbd760287a964cbe091bde24444e5936640ad1b491ce9f038fbaa4",
+          "timestamp": "2026-06-24T01:14:32.915Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "lattice summary_set --storyId=B-ef65 ...",
+          "result": "pass",
+          "note": "Summary pitfalls explicitly record dirty canonical root, story_create background schema, high-risk auto-elevation, INIT artifacts, dependency symlinks, PLAN blockers, schema mismatch, same-worktree owner lease takeover friction, and utils dist bootstrap.",
+          "headHash": "87cbd236ee9629d0e11a919f6ea0a33922966a90",
+          "materialHash": "0614fcd396f9537c9e97728a525dc257eddf70ba61479d1948d9dc68de5c28e4",
+          "storyFilesHash": "5108cbe997bbd760287a964cbe091bde24444e5936640ad1b491ce9f038fbaa4",
+          "timestamp": "2026-06-24T01:14:33.053Z"
+        }
+      ]
     }
   ],
   "auditLog": [
@@ -252,6 +287,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Summary draft is saved; recording experiment friction evidence before final DONE update."
+    },
+    {
+      "timestamp": "2026-06-24T01:14:32.617Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Experiment friction and timing draft recorded; will refresh final summary before DONE."
     }
   ]
 }
