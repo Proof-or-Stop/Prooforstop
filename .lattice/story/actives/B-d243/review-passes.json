@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-24T11:48:44.885Z",
       "reviewRunId": "B-d243:RR-006",
       "_hash": "da7245327695d38c23e20f55ad3d4a16fcb6cb4effc02d95ead930fd98e58503"
+    },
+    {
+      "id": "B-d243:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence for all 36 intent entries across CHK-001 through CHK-005. F-002 resolved: CHK-001:happy:2 now has a live dynamic smoke case (delivery_waiver_add re-sign preserves storyFilesHash) that calls the handler and asserts re-signed _hash validates, storyFilesHash preserved, and drift-advisory still fires post-waiver. F-003 resolved: CHK-002:edge:1 re-recorded as manual_transcript (dynamic smoke case); CHK-001:edge:1, CHK-002:adversarial:2, CHK-003:edge:1 re-recorded as logic_test with no misleading smoke command field. F-004 resolved: fresh-path case (delivery_check_set first case) now has assert.doesNotMatch(row.detail, /ADVISORY/) pinned at smoke line 323. Host-2 soundness fix covered: CHK-002:edge:1 evidence records the createMainFixture empty-set case with dynamic execution confirming strict stale, never advisory. Validate reports 36/36 covered, 0 required missing. Smoke exits 0 with 11 named pass lines.",
+      "createdAt": "2026-06-24T11:54:29.603Z",
+      "reviewRound": "2026-06-24T11:48:44.885Z",
+      "reviewRunId": "B-d243:RR-005",
+      "_hash": "bf454129616b5b94d37d75010429eb733a8ea1c40591443679989bc18b812744"
     }
   ]
 }
