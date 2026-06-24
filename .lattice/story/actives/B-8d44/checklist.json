@@ -701,11 +701,11 @@
           "file": "experiments/recovery-runner/live-engine-selfcheck.mjs",
           "command": "node experiments/recovery-runner/live-engine-selfcheck.mjs",
           "result": "pass",
-          "note": "selfcheck CX-A: scenario stub shipping the unresolved hidden-failing payload => adjudicatedOutcome AMPLIFIED (not recovered), clean-baseline fix [F-003]; harness-derived, adapter sets no outcome",
-          "headHash": "e7c7cb649a2b4085f58ddebeecc6a5657aed1a0a",
-          "materialHash": "3fd718981e314e4005dbb660fc2c849d37e85c148bf637f13333d12e9071fd78",
-          "storyFilesHash": "b83319b84e9ea48c8fbfde400ccf325c9784e2f25bbfd781c55928317de159af",
-          "timestamp": "2026-06-24T13:15:28.815Z"
+          "note": "selfcheck asserts an engineResult carrying a bogus adjudicatedOutcome is IGNORED by run-driver; the harness re-derives the correct outcome (amplified) — proves run-driver never reads er.adjudicatedOutcome [F-019]",
+          "headHash": "0b56d23ea6756051e1b10b755bbfab76a4012057",
+          "materialHash": "9389edc0b23f1e84d3256efb8b83b90b50a8f9bd9f64663919aa0e6005b6b3e9",
+          "storyFilesHash": "ebed77dadfaa575d4f92a7c909111313ccc168cd6138f7d29cb2bcecf1fdacad",
+          "timestamp": "2026-06-24T13:33:36.203Z"
         },
         {
           "intentRef": "CHK-004:adversarial:1",
