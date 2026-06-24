@@ -141,6 +141,14 @@
             "priority": "must"
           }
         ]
+      },
+      "userSees": "The done_prepare decision doc states that unchanged pre-existing lifecycle metadata dirt is allowed, while source/material dirt, unsafe renames, failed evidence, and story-owned drift still block.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
       }
     }
   ]
