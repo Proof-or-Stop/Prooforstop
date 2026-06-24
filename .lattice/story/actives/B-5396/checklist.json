@@ -67,7 +67,55 @@
       "context": "Add the same 'Host DONE convergence / drift handling' section to AGENTS.md (Host = codex), keeping it consistent with the CLAUDE.md copy, mirroring the existing parallel-doc convention (the version-bump discipline already appears in both AGENTS.md:122 and CLAUDE.md:392). Same 7 rules + the two VERBATIM wordings + the same 4 decision-doc references. Keep both copies byte-aligned in substance so the docs-drift gate and future readers see one consistent discipline.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "grep -c 'Host DONE convergence' AGENTS.md returns >= 1 -> section heading exists in AGENTS.md; WHY: confirms the mirrored section was added to AGENTS.md",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "grep -F 'materialHash-only drift with unchanged storyFilesHash is usually unrelated whole-tree drift' AGENTS.md returns match -> VERBATIM paragraph 1 present in AGENTS.md; WHY: checklist mandates exact wording, same as CLAUDE.md copy",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "grep -F 'Metadata-only dirty handling is governed by done_prepare/lifecycle_check; see B-9dfb once merged' AGENTS.md returns match -> VERBATIM paragraph 2 present in AGENTS.md; WHY: checklist mandates exact wording, same as CLAUDE.md copy",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "grep -c 'proof-admissibility-hardening-execution-plan' AGENTS.md returns >= 1 AND grep -c 'story-files-hash-material-drift' AGENTS.md returns >= 1 AND grep -c 'done-prepare-automation-execution-plan' AGENTS.md returns >= 1 AND grep -c 'review-assurance-floor-execution-plan' AGENTS.md returns >= 1 -> all 4 decision-doc references present in AGENTS.md; WHY: mirrors the CLAUDE.md reference set",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The AGENTS.md section cites decision docs as source-of-truth rather than restating rules inline -> same cite-not-restate discipline as CLAUDE.md; WHY: docs-drift prevention applies equally to the AGENTS.md copy",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "grep -c 'Host DONE convergence' AGENTS.md equals grep -c 'Host DONE convergence' CLAUDE.md (both exactly 1) -> section appears exactly once in each file, no accidental duplication; WHY: multiple copies within one file would confuse readers",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Extract the new section from CLAUDE.md and AGENTS.md, diff them for substance -> no substantive divergence (trivial formatting/context differences acceptable, but rule content, VERBATIM passages, and decision-doc references must match); WHY: the two copies must be byte-aligned in substance per checklist context to avoid cross-doc inconsistency",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Verify AGENTS.md copy does not contain any CLI behavior claims or new rules not also present in CLAUDE.md -> no solo content in AGENTS.md; WHY: divergence between the two copies is the primary adversarial scenario for a mirror-docs story",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
