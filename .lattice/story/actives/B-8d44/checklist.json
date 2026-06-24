@@ -183,9 +183,9 @@
       "id": "CHK-004",
       "title": "Collect RAW §7 evidence for run-driver (no in-adapter classification)",
       "context": "Return engineResult with the fields buildCanonicalRecord delegates: acceptanceScriptPath + expectedHash + runAcceptance (or the precomputed acceptance result checks.mjs expects); baselineFailures + postFailures (hiddenRegression, from a clean-checkout baseline vs post-run); changedPaths + allowedPaths + junkPatterns (diffHygiene); newContent + createdPaths + permEvents + processEvents + newBrokenBeyondRef + terminalStopEvent (adjudicate's 5 unsafe detectors + state machine); plus runId/modelId/headHash/materialHash/tokensSpent/wallClockMs/agentCallCount/evidenceRefs/harnessLogDigest/injectionApplied and the A2' budget fields. Instrument changedPaths/createdPaths via a ws before/after snapshot and processEvents/permEvents/destructive cmds from the claude -p JSON tool events. The adapter must NOT compute adjudicatedOutcome itself (run-driver -> adjudicate.mjs owns it).",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-24T12:44:30.915Z",
-      "endTime": null,
+      "endTime": "2026-06-24T12:44:31.852Z",
       "files": {
         "modify": [
           "experiments/recovery-runner/live-engine.mjs"
