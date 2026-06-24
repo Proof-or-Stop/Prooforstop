@@ -1,0 +1,54 @@
+{
+  "storyId": "B-ef65",
+  "checkedAt": "2026-06-24T01:41:13.688Z",
+  "headHash": "86e23936a7a20825dfde43f7bdd2cc3dba631fcc",
+  "materialHash": "1b2a9f2c3066b58911422a17526836c9c37018de4dbbcdda8bc510bb4270a30c",
+  "reviewRound": "2026-06-24T01:28:32.015Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-ef65/evidence/delivery-context-pack.json:userSees[0]",
+      "promise": "After the implementation build, the terminal shows TypeScript build success and validate/done_required_validate use the same story-scoped validation execution lock without changing unrelated workflow commands.",
+      "status": "verified",
+      "verifiedBy": "delivery review of diff plus done-required and live smoke evidence",
+      "evidence": "Source diff adds withValidationExecutionLock around lattice validate paths and done_required_validate; done-required evidence at 2026-06-24T01:37:35Z passed packages/main build and npm test; live smoke at 2026-06-24T01:37:31.788Z exited 0 with validate-execution-lock smoke passed: 9 assertions."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-ef65/evidence/delivery-context-pack.json:userSees[1]",
+      "promise": "Running node packages/main/dist/tasks/validate-execution-lock-smoke.js prints `validate-execution-lock smoke passed: 8 assertions` after build.",
+      "status": "waived",
+      "verifiedBy": "delivery review of superseding smoke transcript",
+      "evidence": "The exact 8-count text is obsolete; live smoke transcript shows exit 0 and stdout validate-execution-lock smoke passed: 9 assertions.",
+      "waiverReason": "The exact 8-assertion promise was superseded by the reviewed B-ef65:F-001 fix; the live transcript now proves stronger 9-assertion coverage rather than the old exact output."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-ef65/evidence/delivery-context-pack.json:userSees[2]",
+      "promise": "Final summary reports elapsed story time and friction points observed from story creation through DONE, including PLAN gate work, worktree dependency setup, review/test evidence, and any stale evidence recovery.",
+      "status": "waived",
+      "verifiedBy": "delivery review of summary.json and evidence artifacts",
+      "evidence": "summary.json records totalDurationMs 612816, phase stats for INIT/INIT_CHECK/PLAN/DEV, and pitfalls including dirty root, high-risk auto-elevation, INIT artifacts, worktree node_modules symlinks, PLAN blockers, schema mismatch, owner lease friction, and utils dist bootstrap. It honestly says final DONE timestamp is pending and limitations stay scoped to validate-lock.",
+      "waiverReason": "The exact through-DONE final timestamp cannot be true before DONE; the reviewed summary honestly records observed timing and friction so far and marks the final DONE timestamp as pending instead of overclaiming."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Reviewed live-smoke-transcript.json: node packages/main/dist/tasks/validate-execution-lock-smoke.js exited 0 at 2026-06-24T01:37:31.788Z with stdout validate-execution-lock smoke passed: 9 assertions. Reviewed test-evidence.json: lattice validate --story=B-ef65 --json passed at 2026-06-24T01:36:36.737Z with verification intent coverage 9/9. Reviewed done-required-evidence.json: packages/main build and npm test both PASS."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Reviewed validate-execution-lock-smoke coverage and transcript. The smoke output is 9 assertions after F-001 and covers same-story exclusion, post-command evidence persistence hold, different story/worktree concurrency, stale lock reclaim, reviewer pass writes, delivery_check_set writes, story_advance internal validate, done_required_validate contention, and reentrancy/sibling contention."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Reviewed summary.json and checklist evidence. Summary records elapsed timing/friction and limitations, including dirty root, setup, PLAN blockers, schema mismatch, owner lease friction, and utils build prerequisite. Delivery review confirms the limitations do not claim Authority completion, full Authority completion, production readiness, or unattended readiness beyond this validate-lock story."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery review accepts the validate-lock story evidence. Real machine smoke, routine validate, and done-required validation all passed. The old 8-assertion output and pre-DONE final-timestamp wording are explicitly waived rather than misrepresented; reviewed claims remain scoped to validate execution locking and do not assert Authority, production, or unattended readiness."
+  },
+  "_hash": "17b58548d45aaaaa1d1771139232d9ad2fe00970b8d699817e3fc97dcbbff715"
+}

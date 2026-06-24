@@ -1,0 +1,76 @@
+{
+  "storyId": "B-ef65",
+  "generatedFor": "delivery-review",
+  "diff": {
+    "changedFiles": [
+      ".lattice/story/actives/B-ef65/checklist.json",
+      ".lattice/story/actives/B-ef65/decision.json",
+      ".lattice/story/actives/B-ef65/findings.json",
+      ".lattice/story/actives/B-ef65/index.json",
+      ".lattice/story/actives/B-ef65/plan.md",
+      ".lattice/story/actives/B-ef65/process-events.jsonl",
+      ".lattice/story/actives/B-ef65/process-metrics.json",
+      ".lattice/story/actives/B-ef65/review-passes.json",
+      ".lattice/story/actives/B-ef65/review-runs.json",
+      ".lattice/story/actives/B-ef65/review.json",
+      ".lattice/story/actives/B-ef65/scope-check.json",
+      ".lattice/story/actives/B-ef65/scope-contract.json",
+      ".lattice/story/actives/B-ef65/summary.json",
+      ".lattice/story/actives/B-ef65/test-evidence.json",
+      ".lattice/story/actives/B-ef65/understanding.json",
+      "packages/main/src/core/validation-execution-lock.ts",
+      "packages/main/src/handlers/done-required-validation.ts",
+      "packages/main/src/handlers/verifier.ts",
+      "packages/main/src/tasks/validate-execution-lock-smoke.ts"
+    ],
+    "summary": " .lattice/story/actives/B-ef65/checklist.json       | 278 +++++++++-\n .lattice/story/actives/B-ef65/decision.json        |  74 +++\n .lattice/story/actives/B-ef65/findings.json        |  27 +\n .lattice/story/actives/B-ef65/index.json           |  59 +-\n .lattice/story/actives/B-ef65/plan.md              |  40 ++\n .lattice/story/actives/B-ef65/process-events.jsonl |  16 +\n .lattice/story/actives/B-ef65/process-metrics.json | 360 +++++++++++++\n .lattice/story/actives/B-ef65/review-passes.json   |  49 ++\n .lattice/story/actives/B-ef65/review-runs.json     | 367 +++++++++++++\n .lattice/story/actives/B-ef65/review.json          | 274 ++++++++++\n .lattice/story/actives/B-ef65/scope-check.json     |  93 ++++\n .lattice/story/actives/B-ef65/scope-contract.json  |  20 +\n .lattice/story/actives/B-ef65/summary.json         |  48 ++\n .lattice/story/actives/B-ef65/test-evidence.json   | 200 +++++++\n .lattice/story/actives/B-ef65/understanding.json   |  26 +\n .../main/src/core/validation-execution-lock.ts     | 138 +++++\n .../main/src/handlers/done-required-validation.ts  |  10 +-\n packages/main/src/handlers/verifier.ts             | 304 ++++++-----\n .../src/tasks/validate-execution-lock-smoke.ts     | 591 +++++++++++++++++++++\n 19 files changed, 2839 insertions(+), 135 deletions(-)"
+  },
+  "docsPromises": [
+    {
+      "source": "userSees",
+      "promise": "After the implementation build, the terminal shows TypeScript build success and validate/done_required_validate use the same story-scoped validation execution lock without changing unrelated workflow commands."
+    },
+    {
+      "source": "userSees",
+      "promise": "Running node packages/main/dist/tasks/validate-execution-lock-smoke.js prints `validate-execution-lock smoke passed: 8 assertions` after build."
+    },
+    {
+      "source": "userSees",
+      "promise": "Final summary reports elapsed story time and friction points observed from story creation through DONE, including PLAN gate work, worktree dependency setup, review/test evidence, and any stale evidence recovery."
+    }
+  ],
+  "realMachineTests": {
+    "transcriptDiff": false,
+    "testFiles": [
+      "packages/main/src/tasks/validate-execution-lock-smoke.ts"
+    ],
+    "evidenceCommands": [
+      "lattice summary_set --storyId=B-ef65 ...",
+      "node packages/main/dist/tasks/validate-execution-lock-smoke.js",
+      "node packages/main/dist/tasks/validate-execution-lock-smoke.js && node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+      "npm --prefix packages/main run build && node packages/main/dist/tasks/validate-execution-lock-smoke.js"
+    ]
+  },
+  "validation": {
+    "source": "test-evidence.json",
+    "result": "PASS",
+    "timestamp": "2026-06-24T01:36:36.737Z",
+    "headHash": "86e23936a7a20825dfde43f7bdd2cc3dba631fcc",
+    "materialHash": "1b2a9f2c3066b58911422a17526836c9c37018de4dbbcdda8bc510bb4270a30c",
+    "storyFilesHash": "f1c44983bdb8b2c522889bd6d8922014b05ef37adc11c1a7c8fc1b18736d677c"
+  },
+  "reviewRound": "2026-06-24T01:28:32.015Z",
+  "deliveryCheck": {
+    "status": "missing",
+    "ref": null
+  },
+  "waiver": {
+    "status": "none"
+  },
+  "isSigner": false,
+  "claims": {
+    "authorityDone": false,
+    "fullAuthorityDone": false,
+    "productionDone": false
+  }
+}
