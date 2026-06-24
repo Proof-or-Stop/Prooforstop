@@ -122,7 +122,37 @@
       "context": "Phase 1 must not touch any load-bearing identifier",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "The full test suite passes and no load-bearing identifier changed.",
+      "files": {
+        "modify": [
+          "packages/main/src"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm test exits 0",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "git grep confirms the lattice binary name, @lattice/* package names, .lattice/ paths are byte-unchanged vs main",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "git grep confirms the 122 lattice.*.v1 schema-ids and 15 lattice-* salts are unchanged vs main",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
