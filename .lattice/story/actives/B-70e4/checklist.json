@@ -52,7 +52,40 @@
       "context": "packages/main/src/handlers/authority-enforce.ts: pass resolveAuthorityClientAuth(process.env) as the 4th AuthorityClient arg",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "loadProof({proofPath:\"/v1/receipts/X/proof\", authorityURL:\"http://stub\"}) with LATTICE_AUTHORITY_CUSTOMER_API_KEY set -> the AuthorityClient constructed inside loadProof sends Authorization: Bearer <key> on the proof GET; WHY: proves resolveAuthorityClientAuth(process.env) is passed as the 4th arg so the client carries auth",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "loadProof({proofPath:\"/v1/receipts/X/proof\"}) with LATTICE_AUTHORITY_CUSTOMER_API_KEY unset -> throws/rejects with customer_api_key_unconfigured_fails_closed before any network request; WHY: the 4th-arg fix means the client has an auth object, but with no key it must still fail closed via the get() guard",
+            "type": "cli",
+            "priority": "should"
+          },
+          {
+            "desc": "loadProof({proofPath:\"/v1/receipts/X/proof\"}) when LATTICE_AUTHORITY_URL is unset -> throws with URL-not-set error before constructing the client; WHY: loadProof pre-check on baseURL must not regress when adding the auth arg",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "RED/GREEN: remove the resolveAuthorityClientAuth(process.env) 4th arg from the AuthorityClient constructor in loadProof -> the proof fetch sends NO Authorization header and gets 401; restore -> sends Bearer header; WHY: proves the fix is necessary (the old 3-arg constructor defaults to empty auth)",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Partial-fix scenario: CHK-001 fix applied (authenticated:true) but CHK-002 NOT applied (no auth in loadProof constructor) -> proof fetch still fails 401 because client.auth.customerApiKey is undefined even though get() checks authenticated flag; WHY: the two fixes are jointly necessary -- applying only one is insufficient",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
