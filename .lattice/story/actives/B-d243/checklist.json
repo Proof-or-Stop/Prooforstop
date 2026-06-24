@@ -300,6 +300,17 @@
           "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
           "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
           "timestamp": "2026-06-24T11:20:54.995Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/delivery-check-freshness-smoke.js",
+          "result": "pass",
+          "note": "delivery-check-freshness-smoke.ts:212-244 (first/happy case): deliveryCheckSet writes a fresh delivery-check, materialHash matches (line 226). doneRow returns status=pass (line 228). The row.detail is not explicitly asserted for absence of advisory in this case, but done-oracle.ts:629-630 only appends the advisory suffix when freshness.advisory is truthy; for delivery_check_passed (line 183-190 in delivery-check-hash.ts) no advisory field is set. The advisory-case smoke (line 293) pins EXPECTED_ADVISORY presence; the fresh case has no advisory, so the detail contains only the standard N-docsPromises text. No advisory pollution.",
+          "headHash": "b764e4239650b20e972c63a7b7589d2df3ccf4ab",
+          "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
+          "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
+          "timestamp": "2026-06-24T11:21:03.653Z"
         }
       ]
     },
