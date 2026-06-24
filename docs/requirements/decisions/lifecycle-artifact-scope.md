@@ -45,10 +45,11 @@ order:
      `LATTICE_LIFECYCLE_ARTIFACT_FILENAMES` or a relative path in
      `LATTICE_LIFECYCLE_ARTIFACT_RELATIVE_PATHS` (the closed sets declared in
      `packages/main/src/core/lifecycle-registry.ts`).
-     The relative-path set is intentionally tiny: today it includes the TEST
-     transcript evidence path `evidence/transcript-diff.md` and does not allow
-     arbitrary files under `evidence/`, even when their basename is a known
-     top-level lifecycle filename such as `summary.json`.
+     The relative-path set is intentionally tiny: today it includes only the
+     TEST transcript evidence paths `evidence/transcript-diff.md` and
+     `evidence/live-smoke-transcript.json`. It does not allow arbitrary files
+     under `evidence/`, even when their basename is a known top-level lifecycle
+     filename such as `summary.json`.
    – Legacy story-tree paths under `docs/story/...` resolve as
      `legacy-metadata` for back-compat with PLAN-time files.
 
@@ -119,11 +120,12 @@ Expected row families:
   recognizes these filenames as provenance; INIT_CHECK gate satisfaction still
   requires the machine guard to verify hashes, freshness, pending proposal
   state, excluded keyword hits, and repeat-discard mitigation.
-- A user-value acceptance transcript may write
-  `.lattice/story/actives/<id>/evidence/transcript-diff.md` during TEST as a
-  lifecycle transcript artifact. This exemption is path-specific; sibling files
-  such as `evidence/notes.md` and arbitrary nested evidence still fall through
-  to normal scope enforcement.
+- User-value acceptance transcript commands may write
+  `.lattice/story/actives/<id>/evidence/transcript-diff.md` and
+  `.lattice/story/actives/<id>/evidence/live-smoke-transcript.json` during TEST
+  as lifecycle transcript artifacts. These exemptions are path-specific;
+  sibling files such as `evidence/notes.md` and arbitrary nested evidence still
+  fall through to normal scope enforcement.
 - `scope_contract_acknowledge` is still required for ordinary in-scope file
   expansions (product code, docs, new tests). It is **not** required for
   lifecycle artifacts.
@@ -139,11 +141,11 @@ Expected row families:
 Mechanical evidence lives in:
 
 - `scripts/verify-process-fact-contract.mjs` — asserts the classifier accepts
-  known lifecycle filenames plus `evidence/transcript-diff.md` under a story
-  id, rejects arbitrary files in the retired hidden Proofbound tree and nearby
-  non-transcript evidence files, includes the INIT scope anti-expansion artifact
-  filenames, and rejects ordinary product source files when scope is
-  unacknowledged.
+  known lifecycle filenames plus `evidence/transcript-diff.md` and
+  `evidence/live-smoke-transcript.json` under a story id, rejects arbitrary
+  files in the retired hidden Proofbound tree and nearby non-transcript evidence
+  files, includes the INIT scope anti-expansion artifact filenames, and rejects
+  ordinary product source files when scope is unacknowledged.
 - `scripts/verify-gap-convergence.mjs` — asserts derived `.build` symlink
   loops do not crash `convergence_check` and do not hide real `docs/story` /
   truth-source content.

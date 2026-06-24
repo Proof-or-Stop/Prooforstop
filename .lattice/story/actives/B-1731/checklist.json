@@ -1,0 +1,36 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Task classifier: repro-first-required vs bypass-eligible from type/priority/riskSignals (conservative, warn-on-uncertain)",
+      "context": "New classifier (e.g. in a core helper) deciding repro-first-required (type=bug OR high-risk riskSignal class OR code-verifiable runtime/CLI/gate behavior change) vs bypass-eligible (doc/metadata/registry-only chore, explicit quick-fix flag, low-confidence). Conservative: ambiguous doc/chore -> bypass-eligible; uncertain high-risk -> warn (never block). Pure function over the story-create inputs already available (type, priority, riskSignals, title, description, keywords).",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "STORY_INTAKE preflight in story-create.ts + story_create_from_repro: query proof-admissibility for a bound accepted repro/spike evidence-candidate; warn/block; fail-OPEN; bypass-with-reason",
+      "context": "Add the preflight to packages/main/src/handlers/story-create.ts (and ensure story_create_from_repro passes because it binds the candidate). REUSE proof-admissibility (STORY_INTAKE consumer, evidence-candidate scope). Satisfied = a bound reviewer-accepted candidate: repro path (repro-probe + repro-review reviewedFailureClass=target-bug) OR spike path (spike-record + spike-review). Required+missing -> warn (block under enforce) with exact next command. Wrap the whole preflight in fail-OPEN try/catch (engine error -> allow + repro_first_preflight_engine_error diagnostic). Bypass (bypassReproFirst.reason) always honored, writes a repro-first-bypass local-diagnostic artifact.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Config reproFirstPreflight.mode=off|warn|enforce (warn default) + reason codes + process fact + session_brief surfacing",
+      "context": "Resolve reproFirstPreflight.mode (off|warn|enforce, default warn) mirroring proofAdmissibility.mode. Add reason codes repro_first_required_no_candidate, repro_first_candidate_unreviewed, repro_first_reviewed_class_not_target_bug, repro_first_bypassed, repro_first_preflight_engine_error. Register process fact runtime:repro_first_intake_preflight (STORY_INTAKE consumer), synchronized with the admissibility/process-fact verification script. session_brief shows per active story: reproFirst: bound-accepted | bypassed(reason) | missing.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Hermetic smoke covering the verification matrix; register",
+      "context": "check+counter smoke (explicit literals) covering: type=bug no candidate -> warn (mode=warn) and block (mode=enforce) with next command; story_create_from_repro with accepted target-bug repro-review -> pass; candidate present but repro-review missing -> repro_first_candidate_unreviewed; reviewer class bootstrap-noise -> repro_first_reviewed_class_not_target_bug; spike path accepted -> pass; doc-only chore -> allow; bypassReproFirst.reason -> allow + repro-first-bypass artifact + session_brief; classifier throws -> allow + repro_first_preflight_engine_error (fail-open); mode=off -> allow always. Register the smoke in the validate command set / package test script.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

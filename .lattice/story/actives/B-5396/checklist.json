@@ -4,17 +4,323 @@
       "id": "CHK-001",
       "title": "Add the Host DONE convergence / drift-handling section to CLAUDE.md",
       "context": "Add a new section 'Host DONE convergence / drift handling' to CLAUDE.md covering these rules (a projection of existing mechanisms, with references): (1) TEST->DONE: run `lattice done_prepare --storyId=B-xxxx --mergeMain --refreshStale --validate` BEFORE story_advance DONE, never collide story_advance DONE directly. (2) Host does not self-judge freshness; read the done_prepare / freshness-reader classification, not raw hashes. (3) headHash-only drift is usually metadata/provenance movement, not a strong rerun signal. (4) materialHash-only drift with unchanged storyFilesHash is an unrelated whole-tree drift candidate; per the current consumer contract it may be advisory / re-attestation / refresh rather than full re-quorum -- VERBATIM: 'materialHash-only drift with unchanged storyFilesHash is usually unrelated whole-tree drift. In current warn/advisory paths, Lattice may downgrade this to re-attestation advisory instead of forcing full re-review/quorum. Host must follow done_prepare / freshness-reader output, not self-classify it as pass.' (5) storyFilesHash drift is the strong story-owned-material signal; review pass / quorum / delivery may need re-binding (consumer-dependent: reviewer-pass is strict, floor/escalation/delivery-check downgrade on storyFilesHash-unchanged). (6) done_prepare automates merge/refresh/validate/next-action but does NOT bypass related drift. (7) metadata-only dirty handling -- VERBATIM pointer: 'Metadata-only dirty handling is governed by done_prepare/lifecycle_check; see B-9dfb once merged. Host must not manually bypass cleanTree.' Reference these decision docs (verified to exist): docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md, story-files-hash-material-drift.md, done-prepare-automation-execution-plan.md, review-assurance-floor-execution-plan.md, plus `lattice done_prepare --help`. Do NOT restate the rules from those docs; cite them as the source of truth to avoid docs-drift.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-24T13:08:01.373Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "grep -c 'Host DONE convergence' CLAUDE.md returns >= 1 -> section heading exists; WHY: confirms the required section was added to CLAUDE.md",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "grep -F 'materialHash-only drift with unchanged storyFilesHash is usually unrelated whole-tree drift' CLAUDE.md returns match -> VERBATIM paragraph 1 present; WHY: checklist mandates exact wording for materialHash-only downgrade rule",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "grep -F 'Metadata-only dirty handling is governed by done_prepare/lifecycle_check; see B-9dfb once merged' CLAUDE.md returns match -> VERBATIM paragraph 2 (metadata-only pointer) present; WHY: checklist mandates exact wording for metadata-only pointer",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "grep -c 'proof-admissibility-hardening-execution-plan' CLAUDE.md returns >= 1 AND grep -c 'story-files-hash-material-drift' CLAUDE.md returns >= 1 AND grep -c 'done-prepare-automation-execution-plan' CLAUDE.md returns >= 1 AND grep -c 'review-assurance-floor-execution-plan' CLAUDE.md returns >= 1 -> all 4 decision-doc references present; WHY: the section must cite all 4 verified decision docs",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "grep -F 'lattice done_prepare' CLAUDE.md within the new section returns match -> done_prepare command is mentioned as the automation entry point; WHY: rule (1) requires documenting that hosts run done_prepare before story_advance DONE",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The section cites decision docs as source-of-truth rather than restating their full rule sets inline -> no invented rules or rule restating that could drift from the canonical docs; WHY: story description explicitly says 'Do NOT restate the rules from those docs; cite them as the source of truth to avoid docs-drift'",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Run docs-drift preflight (if available, e.g. lattice validate or git diff --stat on decision docs) to confirm no decision-doc content was duplicated into CLAUDE.md -> preflight stays green; WHY: guards against the exact docs-drift antipattern the story warns about",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Inspect the new section for any CLI behavior claims (e.g., 'this command will ...', 'running X produces Y output') that go beyond referencing existing docs/help -> none found; WHY: story scope is docs-only, no CLI/code/behavior claims allowed; leaked behavior claims would create a maintenance liability",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Verify the section does not introduce NEW rules beyond the 7 enumerated in the checklist context (rules 1-7) -> no novel policy invented; WHY: story description says 'a projection/reference of existing rules, NOT new rules'",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "`grep -n \"Host DONE convergence\" CLAUDE.md` returns the new section header; the section shows the 7 Host DONE-convergence rules, the 2 VERBATIM paragraphs (materialHash-only downgrade / metadata-only B-9dfb pointer), and the 4 decision-doc references.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -c 'Host DONE convergence' CLAUDE.md",
+          "result": "pass",
+          "note": "returns 1 — the new section header is present in CLAUDE.md.",
+          "headHash": "c66edd8410e10f8b2bda929a0c264c2fb4146eac",
+          "materialHash": "fb47ead375fd2acb5a72ee555cfbe3046b01b3a3f109f90c3aca72b7e4c7b723",
+          "storyFilesHash": "afb7734f7c06ecedf010399648480ba902bd4e1e8221b5d6e01766e6d925b050",
+          "timestamp": "2026-06-24T13:07:51.699Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -F 'materialHash-only drift with unchanged storyFilesHash is usually unrelated whole-tree drift' CLAUDE.md",
+          "result": "pass",
+          "note": "VERBATIM paragraph 1 (materialHash-only downgrade, current warn/advisory projection) present in CLAUDE.md.",
+          "headHash": "c66edd8410e10f8b2bda929a0c264c2fb4146eac",
+          "materialHash": "fb47ead375fd2acb5a72ee555cfbe3046b01b3a3f109f90c3aca72b7e4c7b723",
+          "storyFilesHash": "afb7734f7c06ecedf010399648480ba902bd4e1e8221b5d6e01766e6d925b050",
+          "timestamp": "2026-06-24T13:07:51.699Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -F 'Metadata-only dirty handling is governed by done_prepare/lifecycle_check; see B-9dfb once merged' CLAUDE.md",
+          "result": "pass",
+          "note": "VERBATIM paragraph 2 (metadata-only pointer to B-9dfb) present in CLAUDE.md.",
+          "headHash": "c66edd8410e10f8b2bda929a0c264c2fb4146eac",
+          "materialHash": "fb47ead375fd2acb5a72ee555cfbe3046b01b3a3f109f90c3aca72b7e4c7b723",
+          "storyFilesHash": "afb7734f7c06ecedf010399648480ba902bd4e1e8221b5d6e01766e6d925b050",
+          "timestamp": "2026-06-24T13:07:51.699Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:3",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -oE 'proof-admissibility-hardening-execution-plan|story-files-hash-material-drift|done-prepare-automation-execution-plan|review-assurance-floor-execution-plan' CLAUDE.md | sort -u | wc -l",
+          "result": "pass",
+          "note": "all 4 decision-doc references present in CLAUDE.md (4/4).",
+          "headHash": "c66edd8410e10f8b2bda929a0c264c2fb4146eac",
+          "materialHash": "fb47ead375fd2acb5a72ee555cfbe3046b01b3a3f109f90c3aca72b7e4c7b723",
+          "storyFilesHash": "afb7734f7c06ecedf010399648480ba902bd4e1e8221b5d6e01766e6d925b050",
+          "timestamp": "2026-06-24T13:07:51.699Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:4",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -cF 'lattice done_prepare' CLAUDE.md",
+          "result": "pass",
+          "note": "returns 2 — done_prepare is named as the automation entry point (command + done_prepare --help reference).",
+          "headHash": "c66edd8410e10f8b2bda929a0c264c2fb4146eac",
+          "materialHash": "fb47ead375fd2acb5a72ee555cfbe3046b01b3a3f109f90c3aca72b7e4c7b723",
+          "storyFilesHash": "afb7734f7c06ecedf010399648480ba902bd4e1e8221b5d6e01766e6d925b050",
+          "timestamp": "2026-06-24T13:07:51.699Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "CLAUDE.md",
+          "note": "The section cites the 4 decision docs as source-of-truth and states the rules as 1-line projections/pointers; it does not restate the docs' full rule sets inline (cite-not-restate discipline upheld).",
+          "headHash": "c66edd8410e10f8b2bda929a0c264c2fb4146eac",
+          "materialHash": "fb47ead375fd2acb5a72ee555cfbe3046b01b3a3f109f90c3aca72b7e4c7b723",
+          "storyFilesHash": "afb7734f7c06ecedf010399648480ba902bd4e1e8221b5d6e01766e6d925b050",
+          "timestamp": "2026-06-24T13:07:51.699Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "lattice validate --docs-drift --story=B-5396",
+          "result": "pass",
+          "note": "docs-drift validate reports no drift; no decision-doc content was duplicated, command references align with the registry.",
+          "headHash": "c66edd8410e10f8b2bda929a0c264c2fb4146eac",
+          "materialHash": "fb47ead375fd2acb5a72ee555cfbe3046b01b3a3f109f90c3aca72b7e4c7b723",
+          "storyFilesHash": "afb7734f7c06ecedf010399648480ba902bd4e1e8221b5d6e01766e6d925b050",
+          "timestamp": "2026-06-24T13:07:51.699Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "CLAUDE.md",
+          "note": "No CLI behavior claims ('running X produces Y output') in the section; commands (done_prepare/story_advance) are referenced only as the automation entry / ordering, not as behavioral promises.",
+          "headHash": "c66edd8410e10f8b2bda929a0c264c2fb4146eac",
+          "materialHash": "fb47ead375fd2acb5a72ee555cfbe3046b01b3a3f109f90c3aca72b7e4c7b723",
+          "storyFilesHash": "afb7734f7c06ecedf010399648480ba902bd4e1e8221b5d6e01766e6d925b050",
+          "timestamp": "2026-06-24T13:07:51.699Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "CLAUDE.md",
+          "note": "Only the 7 enumerated rules from the checklist context are present; no novel policy invented — each rule is a projection of an existing mechanism with a doc pointer.",
+          "headHash": "c66edd8410e10f8b2bda929a0c264c2fb4146eac",
+          "materialHash": "fb47ead375fd2acb5a72ee555cfbe3046b01b3a3f109f90c3aca72b7e4c7b723",
+          "storyFilesHash": "afb7734f7c06ecedf010399648480ba902bd4e1e8221b5d6e01766e6d925b050",
+          "timestamp": "2026-06-24T13:07:51.699Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "Mirror the parallel Host DONE convergence section into AGENTS.md",
       "context": "Add the same 'Host DONE convergence / drift handling' section to AGENTS.md (Host = codex), keeping it consistent with the CLAUDE.md copy, mirroring the existing parallel-doc convention (the version-bump discipline already appears in both AGENTS.md:122 and CLAUDE.md:392). Same 7 rules + the two VERBATIM wordings + the same 4 decision-doc references. Keep both copies byte-aligned in substance so the docs-drift gate and future readers see one consistent discipline.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-24T13:08:01.873Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "grep -c 'Host DONE convergence' AGENTS.md returns >= 1 -> section heading exists in AGENTS.md; WHY: confirms the mirrored section was added to AGENTS.md",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "grep -F 'materialHash-only drift with unchanged storyFilesHash is usually unrelated whole-tree drift' AGENTS.md returns match -> VERBATIM paragraph 1 present in AGENTS.md; WHY: checklist mandates exact wording, same as CLAUDE.md copy",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "grep -F 'Metadata-only dirty handling is governed by done_prepare/lifecycle_check; see B-9dfb once merged' AGENTS.md returns match -> VERBATIM paragraph 2 present in AGENTS.md; WHY: checklist mandates exact wording, same as CLAUDE.md copy",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "grep -c 'proof-admissibility-hardening-execution-plan' AGENTS.md returns >= 1 AND grep -c 'story-files-hash-material-drift' AGENTS.md returns >= 1 AND grep -c 'done-prepare-automation-execution-plan' AGENTS.md returns >= 1 AND grep -c 'review-assurance-floor-execution-plan' AGENTS.md returns >= 1 -> all 4 decision-doc references present in AGENTS.md; WHY: mirrors the CLAUDE.md reference set",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The AGENTS.md section cites decision docs as source-of-truth rather than restating rules inline -> same cite-not-restate discipline as CLAUDE.md; WHY: docs-drift prevention applies equally to the AGENTS.md copy",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "grep -c 'Host DONE convergence' AGENTS.md equals grep -c 'Host DONE convergence' CLAUDE.md (both exactly 1) -> section appears exactly once in each file, no accidental duplication; WHY: multiple copies within one file would confuse readers",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Extract the new section from CLAUDE.md and AGENTS.md, diff them for substance -> no substantive divergence (trivial formatting/context differences acceptable, but rule content, VERBATIM passages, and decision-doc references must match); WHY: the two copies must be byte-aligned in substance per checklist context to avoid cross-doc inconsistency",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Verify AGENTS.md copy does not contain any CLI behavior claims or new rules not also present in CLAUDE.md -> no solo content in AGENTS.md; WHY: divergence between the two copies is the primary adversarial scenario for a mirror-docs story",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "`grep -n \"Host DONE convergence\" AGENTS.md` returns the mirrored section, substance-aligned with the CLAUDE.md copy (same 7 rules + 2 verbatim paragraphs + 4 references).",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -c 'Host DONE convergence' AGENTS.md",
+          "result": "pass",
+          "note": "returns 1 — the mirrored section header is present in AGENTS.md.",
+          "headHash": "c66edd8410e10f8b2bda929a0c264c2fb4146eac",
+          "materialHash": "fb47ead375fd2acb5a72ee555cfbe3046b01b3a3f109f90c3aca72b7e4c7b723",
+          "storyFilesHash": "afb7734f7c06ecedf010399648480ba902bd4e1e8221b5d6e01766e6d925b050",
+          "timestamp": "2026-06-24T13:07:51.699Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -F 'materialHash-only drift with unchanged storyFilesHash is usually unrelated whole-tree drift' AGENTS.md",
+          "result": "pass",
+          "note": "VERBATIM paragraph 1 present in AGENTS.md (same as CLAUDE.md).",
+          "headHash": "c66edd8410e10f8b2bda929a0c264c2fb4146eac",
+          "materialHash": "fb47ead375fd2acb5a72ee555cfbe3046b01b3a3f109f90c3aca72b7e4c7b723",
+          "storyFilesHash": "afb7734f7c06ecedf010399648480ba902bd4e1e8221b5d6e01766e6d925b050",
+          "timestamp": "2026-06-24T13:07:51.699Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -F 'Metadata-only dirty handling is governed by done_prepare/lifecycle_check; see B-9dfb once merged' AGENTS.md",
+          "result": "pass",
+          "note": "VERBATIM paragraph 2 present in AGENTS.md (same as CLAUDE.md).",
+          "headHash": "c66edd8410e10f8b2bda929a0c264c2fb4146eac",
+          "materialHash": "fb47ead375fd2acb5a72ee555cfbe3046b01b3a3f109f90c3aca72b7e4c7b723",
+          "storyFilesHash": "afb7734f7c06ecedf010399648480ba902bd4e1e8221b5d6e01766e6d925b050",
+          "timestamp": "2026-06-24T13:07:51.699Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:3",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -oE 'proof-admissibility-hardening-execution-plan|story-files-hash-material-drift|done-prepare-automation-execution-plan|review-assurance-floor-execution-plan' AGENTS.md | sort -u | wc -l",
+          "result": "pass",
+          "note": "all 4 decision-doc references present in AGENTS.md (4/4), mirroring CLAUDE.md.",
+          "headHash": "c66edd8410e10f8b2bda929a0c264c2fb4146eac",
+          "materialHash": "fb47ead375fd2acb5a72ee555cfbe3046b01b3a3f109f90c3aca72b7e4c7b723",
+          "storyFilesHash": "afb7734f7c06ecedf010399648480ba902bd4e1e8221b5d6e01766e6d925b050",
+          "timestamp": "2026-06-24T13:07:51.699Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "AGENTS.md",
+          "note": "AGENTS.md section cites the decision docs as source-of-truth rather than restating rules inline (same cite-not-restate discipline as the CLAUDE.md copy).",
+          "headHash": "c66edd8410e10f8b2bda929a0c264c2fb4146eac",
+          "materialHash": "fb47ead375fd2acb5a72ee555cfbe3046b01b3a3f109f90c3aca72b7e4c7b723",
+          "storyFilesHash": "afb7734f7c06ecedf010399648480ba902bd4e1e8221b5d6e01766e6d925b050",
+          "timestamp": "2026-06-24T13:07:51.699Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "test \"$(grep -c 'Host DONE convergence' AGENTS.md)\" = \"$(grep -c 'Host DONE convergence' CLAUDE.md)\"",
+          "result": "pass",
+          "note": "section appears exactly once in each file (both grep -c == 1); no accidental duplication.",
+          "headHash": "c66edd8410e10f8b2bda929a0c264c2fb4146eac",
+          "materialHash": "fb47ead375fd2acb5a72ee555cfbe3046b01b3a3f109f90c3aca72b7e4c7b723",
+          "storyFilesHash": "afb7734f7c06ecedf010399648480ba902bd4e1e8221b5d6e01766e6d925b050",
+          "timestamp": "2026-06-24T13:07:51.699Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "diff <(sed -n '/Host DONE convergence/,/manually bypass cleanTree/p' CLAUDE.md) <(sed -n '/Host DONE convergence/,/manually bypass cleanTree/p' AGENTS.md)",
+          "result": "pass",
+          "note": "the two extracted sections are IDENTICAL (no substantive divergence) — rule content, VERBATIM passages, and decision-doc references all match.",
+          "headHash": "c66edd8410e10f8b2bda929a0c264c2fb4146eac",
+          "materialHash": "fb47ead375fd2acb5a72ee555cfbe3046b01b3a3f109f90c3aca72b7e4c7b723",
+          "storyFilesHash": "afb7734f7c06ecedf010399648480ba902bd4e1e8221b5d6e01766e6d925b050",
+          "timestamp": "2026-06-24T13:07:51.699Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "AGENTS.md",
+          "note": "AGENTS.md copy contains no solo content / no CLI behavior claims / no new rules absent from CLAUDE.md — the section diff is byte-identical, so there is zero divergence.",
+          "headHash": "c66edd8410e10f8b2bda929a0c264c2fb4146eac",
+          "materialHash": "fb47ead375fd2acb5a72ee555cfbe3046b01b3a3f109f90c3aca72b7e4c7b723",
+          "storyFilesHash": "afb7734f7c06ecedf010399648480ba902bd4e1e8221b5d6e01766e6d925b050",
+          "timestamp": "2026-06-24T13:07:51.699Z"
+        }
+      ]
     }
   ]
 }

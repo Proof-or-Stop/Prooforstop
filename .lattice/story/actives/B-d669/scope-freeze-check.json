@@ -1,0 +1,55 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-d669",
+  "checkedAt": "2026-06-24T14:14:21.712Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "2bdf5ed4bd2a2be4f7c8aa56292636dac7e669a9eaf92fa71f6a38e790cad1ac",
+  "executionBoundaryHash": "00d242dcd767005fbbfb90c7b633ac22b0310935d64b7a9824a6b3a277417d88",
+  "freshnessHash": "1804f6d5ca8b8db24fe0b691278db1412d45b9d8e45731eeaf78d0c1c88f5590",
+  "effectiveExcludedKeywords": [
+    "Authority",
+    "customerKeyRef",
+    "Do not change Authority, DONE, productionDone, reviewer quorum, or proof-admissibility rules",
+    "Do not change live_smoke_transcript command behavior beyond scope classification",
+    "Do not weaken cross-story or absolute-path scope checks",
+    "Do not whitelist the whole evidence/ directory",
+    "Layer4",
+    "repair UX"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Authority",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not change Authority, DONE, productionDone, reviewer quorum, or proof-admissibility rules",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not change Authority, DONE, productionDone, reviewer quorum, or proof-admissibility rules",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not change Authority, DONE, productionDone, reviewer quorum, or proof-admissibility rules",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not change live_smoke_transcript command behavior beyond scope classification",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not change live_smoke_transcript command behavior beyond scope classification",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not weaken cross-story or absolute-path scope checks",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not weaken cross-story or absolute-path scope checks",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not whitelist the whole evidence/ directory",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not whitelist the whole evidence/ directory",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "a8ae9967fca328175bf714f2767a056437f0bcf5458ad35a9787562128a3c0c8"
+}

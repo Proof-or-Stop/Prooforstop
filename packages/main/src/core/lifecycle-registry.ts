@@ -303,10 +303,10 @@ export const LIFECYCLE_TRANSITIONS = [
  * @type bugfix
  * @priority high
  * @description
- *   Treat the TEST user-value transcript file as a narrow story-scoped
- *   lifecycle artifact without allowing arbitrary evidence files.
+ *   Treat the TEST user-value transcript files as narrow story-scoped
+ *   lifecycle artifacts without allowing arbitrary evidence files.
  * @changes
- *   - [CHK-001] Register evidence/transcript-diff.md as a closed relative lifecycle artifact path
+ *   - [CHK-001] Register transcript evidence files as closed relative lifecycle artifact paths
  *   - [CHK-002] Keep artifact projections aligned with TEST transcript delivery evidence
  */
 export const LIFECYCLE_ARTIFACTS = [
@@ -333,6 +333,7 @@ export const LIFECYCLE_ARTIFACTS = [
   'eval-evidence.json',
   'process-events.jsonl',
   'evidence/transcript-diff.md',
+  'evidence/live-smoke-transcript.json',
 ] as const;
 
 export type LifecycleArtifact = typeof LIFECYCLE_ARTIFACTS[number];
@@ -390,7 +391,7 @@ export const LIFECYCLE_PHASE_ARTIFACTS = {
     consumes: ['checklist.json', 'findings.json', 'review-passes.json', 'review-runs.json'],
   },
   TEST: {
-    produces: ['test-evidence.json', 'delivery-check.json', 'eval-evidence.json', 'summary.json', 'done-required-evidence.json', 'evidence/transcript-diff.md'],
+    produces: ['test-evidence.json', 'delivery-check.json', 'eval-evidence.json', 'summary.json', 'done-required-evidence.json', 'evidence/transcript-diff.md', 'evidence/live-smoke-transcript.json'],
     consumes: ['test-evidence.json', 'findings.json'],
   },
   DONE: {

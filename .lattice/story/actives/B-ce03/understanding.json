@@ -1,0 +1,26 @@
+{
+  "task": "Port B-9dfb metadata-only dirty DONE readiness behavior into current main without importing stale story metadata.",
+  "outcome": "After this story, a host can run done_prepare on a TEST story that has only pre-existing unchanged Lattice lifecycle metadata dirty and see DONE prepare continue instead of blockedAt: cleanTree; lifecycle_check can show localReady: true when the only missing done_prepare report is advisory.",
+  "facts": [
+    "B-9dfb exists on refs/remotes/orchestrate/main but not current local main.",
+    "The old B-9dfb story/worktree binding is stale and must not be reused.",
+    "The behavior touches done_prepare dirty classification and lifecycle_check done_prepare advisory readiness semantics.",
+    "A target-file diff showed current main has adjacent updates, so the port must be a manual semantic merge rather than a blind checkout."
+  ],
+  "constraints": [
+    "Do not merge orchestrate/main wholesale.",
+    "Do not import .lattice/story/actives/B-9dfb metadata.",
+    "Do not weaken blockers for source/material dirt or failed DONE-required evidence.",
+    "All code changes must happen inside .worktrees/B-ce03."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/handlers/done-prepare.ts",
+    "packages/main/src/core/lifecycle-readiness.ts",
+    "packages/main/src/tasks/done-prepare-smoke.ts",
+    "packages/main/src/tasks/lifecycle-check-smoke.ts",
+    "packages/main/src/tasks/done-readiness-flow-benchmark.ts",
+    "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+  ],
+  "timestamp": "2026-06-24T12:59:15.822Z"
+}

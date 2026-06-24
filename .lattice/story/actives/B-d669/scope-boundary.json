@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-d669",
+  "mode": "correctness_fix",
+  "allowed": [
+    "Add evidence/live-smoke-transcript.json to the closed lifecycle artifact relative-path registry for same-story scope classification only",
+    "Add regression coverage proving live-smoke transcript is allowed while arbitrary sibling evidence files remain blocked",
+    "Update lifecycle artifact scope documentation to name the path-specific live-smoke transcript artifact"
+  ],
+  "excluded": [
+    "Do not change Authority, DONE, productionDone, reviewer quorum, or proof-admissibility rules",
+    "Do not change live_smoke_transcript command behavior beyond scope classification",
+    "Do not weaken cross-story or absolute-path scope checks",
+    "Do not whitelist the whole evidence/ directory"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User authorized completing the ordered fix; scope is limited to the observed TEST lifecycle artifact classification bug.",
+  "createdAt": "2026-06-24T14:14:21.489Z",
+  "updatedAt": "2026-06-24T14:14:21.489Z",
+  "_hash": "2bdf5ed4bd2a2be4f7c8aa56292636dac7e669a9eaf92fa71f6a38e790cad1ac"
+}

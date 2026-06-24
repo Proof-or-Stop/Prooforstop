@@ -1,0 +1,46 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-d669",
+  "allowedCommands": [
+    "git diff --check",
+    "git log --oneline -5",
+    "git status --short --branch",
+    "lattice *",
+    "node packages/main/dist/tasks/live-smoke-transcript-smoke.js",
+    "node packages/main/dist/tasks/scope-contract-smoke.js",
+    "node scripts/verify-process-fact-contract.mjs",
+    "npm --prefix packages/main run build"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "exec_command",
+    "multi_tool_use.parallel"
+  ],
+  "allowedPaths": [
+    "docs/requirements/decisions/lifecycle-artifact-scope.md",
+    "packages/main/package-lock.json",
+    "packages/main/package.json",
+    "packages/main/src/core/lifecycle-registry.ts",
+    "packages/main/src/generated/version.ts",
+    "packages/main/src/tasks/scope-contract-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "excludedCommands": [
+    "git checkout -- *",
+    "git clean -fd *",
+    "git push *",
+    "git reset --hard *",
+    "omx *"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".omx/**",
+    "docs/story/**",
+    "tests/fixtures/**"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "No direct story-file edits. Use Lattice CLI for lifecycle evidence; use apply_patch for source/doc edits.",
+  "createdAt": "2026-06-24T14:14:21.474Z",
+  "updatedAt": "2026-06-24T14:14:21.474Z",
+  "_hash": "00d242dcd767005fbbfb90c7b633ac22b0310935d64b7a9824a6b3a277417d88"
+}

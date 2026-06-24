@@ -1,0 +1,20 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Enrich renderEvidenceStaleHint with a done_prepare one-step line + a drift-classification line",
+      "context": "packages/main/src/core/evidence-stale-hint.ts renderEvidenceStaleHint: keep the existing stable lines (the EVIDENCE STALE marker + Meaning + `lattice verification_evidence_refresh_stale --storyId=...` + `lattice validate --story=... --json`). ADD (a) a drift-classification line: whole-tree materialHash drift with UNCHANGED story-owned files (storyFilesHash) is usually unrelated/main drift -> refresh, do not re-review; storyFilesHash change = story-owned drift -> re-review/re-quorum; and (b) a one-step recovery line: `lattice done_prepare --storyId=... --mergeMain --refreshStale --validate` for TEST->DONE convergence. The three consuming surfaces (handlers/hints.ts, handlers/session.ts, handlers/transition-orchestrator.ts) call the shared renderer and auto-inherit; do not edit them unless they reconstruct the string. Keep storyId-substitution (no literal <storyId> placeholders, per B-a2f1 preMortem #3).",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Update the byte-equality smokes + add the regression assertions",
+      "context": "Update the rendered-hint byte-output assertions in packages/main/src/tasks/verification-freshness-smoke.ts ONLY (it imports renderEvidenceStaleHint at line 13 and asserts the block at ~487-565, incl. the extractStaleBlock helper at ~593 that hardcodes a fixed line-count slice — grow it for the added drift-class + done_prepare lines). Add the red/spike regression assertions: the rendered hint contains `done_prepare` AND a drift-classification token (storyFilesHash/story-owned/whole-tree/unrelated) so dropping either line FAILs. NOTE: tasks/flow-stability-smoke.ts only uses findStaleEvidence (unchanged) and is OUT OF SCOPE — do not edit it. Run verification-freshness-smoke green.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

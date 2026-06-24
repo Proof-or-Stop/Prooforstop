@@ -1,0 +1,55 @@
+{
+  "storyId": "B-d669",
+  "changes": "Mark evidence/live-smoke-transcript.json as a TEST lifecycle artifact and register it in lifecycle-registry scope policy.",
+  "usage": "Run `lattice validate --story=B-d669 --json`; scope gating in REVIEW/TEST now treats this path as a lifecycle artifact.",
+  "expectedOutcome": "Scope classification accepts same-story live-smoke transcript evidence as lifecycle_artifact while blocking arbitrary nested evidence paths.",
+  "actualTranscript": "Ran validate and scope-related smokes successfully in `packages/main/dist/tasks/scope-contract-smoke.js` and `node scripts/verify-process-fact-contract.mjs`; all 30 validation commands passed.",
+  "outcomeDiff": "No functional regressions observed; only scope contract behavior changed to treat evidence/live-smoke-transcript.json as allowed lifecycle evidence in TEST scope.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "No automatic runtime verification for external downstream consumers was executed in this story; only repo-level command validation and scope smoke were run.",
+  "pitfalls": "If future story files under evidence/ adopt other nested transcript paths, they remain blocked unless explicitly added by registry policy; avoid relying on broad evidence/ allowlists.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 108962
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 7575
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 129874
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 429127
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 278910
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 190037
+    }
+  },
+  "totalDurationMs": 1144498,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-24T14:31:51.233Z",
+  "updatedAt": "2026-06-24T14:31:51.233Z"
+}

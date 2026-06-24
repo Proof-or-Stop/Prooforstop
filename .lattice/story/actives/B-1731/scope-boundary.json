@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-1731",
+  "mode": "feature",
+  "allowed": [
+    "new classifier helper (e.g. packages/main/src/core/repro-first-classifier.ts): repro-first-required vs bypass-eligible",
+    "new hermetic smoke for the preflight + register it",
+    "packages/main/src/handlers/story-create.ts: add the STORY_INTAKE repro-first preflight (classify + warn/block + fail-open + bypass-with-reason); ensure story_create_from_repro passes",
+    "proof-admissibility.ts: read-only query reuse for the STORY_INTAKE consumer (no parallel system)",
+    "reason codes + process fact runtime:repro_first_intake_preflight + session_brief surfacing",
+    "reproFirstPreflight.mode config resolution (off|warn|enforce, warn default)"
+  ],
+  "excluded": [
+    "a parallel proof-admissibility manager/store",
+    "Authority/production claims",
+    "enforce rollout / flipping enforce on by default — separate story (warn-first)",
+    "PLAN->DEV backstop and DONE red->regression conversion — separate stories",
+    "the repro-intake downstream commands (repro_probe/story_create_from_repro etc.) — already implemented, not changed"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Repro-first STORY_INTAKE preflight per the implementation spec: warn-first, reuse proof-admissibility STORY_INTAKE+evidence-candidate, fail-open, bypass-with-reason; downstream repro commands + PLAN->DEV/DONE backstops + enforce rollout are out of scope.",
+  "createdAt": "2026-06-24T14:11:16.408Z",
+  "updatedAt": "2026-06-24T14:11:16.408Z",
+  "_hash": "f0ef12261f8ebe43f5c6e1aa17bff3fd9f67eeb6aa69e059c9844b37ba85d9f6"
+}

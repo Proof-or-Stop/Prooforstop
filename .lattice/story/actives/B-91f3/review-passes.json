@@ -1,0 +1,76 @@
+{
+  "passes": [
+    {
+      "id": "B-91f3:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "PASS: Authority receipt demotion is conceptually narrow: local CLI admissibility no longer converts authority-receipt-ref into productionDone eligibility; Authority adapters remain external/compatibility scope.",
+      "createdAt": "2026-06-24T13:59:44.244Z",
+      "reviewRound": "2026-06-24T13:39:27.680Z",
+      "reviewRunId": "B-91f3:RR-005",
+      "_hash": "28bf8c88e645a1abc54f193c98e2d19bbda30152582c4605ac6c8e0fbadc2b7d"
+    },
+    {
+      "id": "B-91f3:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "PASS: Net implementation is scoped to proof-admissibility policy and smoke expectation; checker-error/overall diagnostic changes were removed from final diff; build and smoke pass.",
+      "createdAt": "2026-06-24T13:59:45.220Z",
+      "reviewRound": "2026-06-24T13:39:27.680Z",
+      "reviewRunId": "B-91f3:RR-006",
+      "_hash": "e7e5d42a6c8ce561147736f4a6d1cba817fb600904376c26f805c08be5adff7f"
+    },
+    {
+      "id": "B-91f3:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: npm build, proof-admissibility smoke, proof-admissibility-hardening smoke, gap_analyze, convergence_check, and lattice validate all passed; validate reports 12/12 verification intents covered.",
+      "createdAt": "2026-06-24T13:59:45.914Z",
+      "reviewRound": "2026-06-24T13:39:27.680Z",
+      "reviewRunId": "B-91f3:RR-007",
+      "_hash": "b0a6e0fe0bee0dc720d250fe69f8c889dfe9df8b740eb58cbb89bd300cecc251"
+    },
+    {
+      "id": "B-91f3:RP-004",
+      "agent": "lattice-review-docs",
+      "note": "PASS: proof-admissibility hardening plan now states Authority receipt is evidence/external adapter scope, while local CLI uses admissibilityStatus, assuranceLevel, and evidenceScope as primary vocabulary.",
+      "createdAt": "2026-06-24T13:59:46.606Z",
+      "reviewRound": "2026-06-24T13:39:27.680Z",
+      "reviewRunId": "B-91f3:RR-008",
+      "_hash": "1a69d707e2e59563f2f89dfe4fa8a16d3137e5dc0b52fdc3544c07c0cc0ceea6"
+    },
+    {
+      "id": "B-91f3:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "PASS: concept/scope diff is narrow; Authority receipt refs are evidence/input only, productionDoneEligible=false, Authority/server behavior not deleted, REV-1/5/7/9/11 addressed without unrelated optimization.",
+      "createdAt": "2026-06-24T14:02:10.500Z",
+      "reviewRound": "2026-06-24T13:39:27.680Z",
+      "reviewRunId": "B-91f3:RR-005",
+      "_hash": "8c35e2c71549947762d72886e1979355c6d7808cfe24e25adc3869a454a153d3"
+    },
+    {
+      "id": "B-91f3:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "PASS: code/API changes keep checker errors allowed=false/non-production/non-blocking, no productionDone widening, and diff remains narrowly scoped.",
+      "createdAt": "2026-06-24T14:02:11.286Z",
+      "reviewRound": "2026-06-24T13:39:27.680Z",
+      "reviewRunId": "B-91f3:RR-006",
+      "_hash": "eb7d773bfc419b7933308789c61e51e65d3c293236ab82a895c13973bdc4b2d7"
+    },
+    {
+      "id": "B-91f3:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: proof-admissibility smokes cover Authority receipt ref demotion and hardening smoke covers checker evaluator failure as overall=error allowed=false blocking=false; high-gap closure recorded.",
+      "createdAt": "2026-06-24T14:02:12.094Z",
+      "reviewRound": "2026-06-24T13:39:27.680Z",
+      "reviewRunId": "B-91f3:RR-007",
+      "_hash": "0e15e574b7d8a90ec221572b372afd0a118603eccee946eb72e25f8210d2ce8c"
+    },
+    {
+      "id": "B-91f3:RP-008",
+      "agent": "lattice-review-docs",
+      "note": "PASS: hardening doc has threat model, 11-scope matrix with temporal role, enforce bootstrap safety, English normalization, and checker failure fail-open wording.",
+      "createdAt": "2026-06-24T14:02:13.663Z",
+      "reviewRound": "2026-06-24T13:39:27.680Z",
+      "reviewRunId": "B-91f3:RR-008",
+      "_hash": "6d87aed564a3cf33f54f6d16c5a84fd9f4acd2970a9762d9934431ae0f695f56"
+    }
+  ]
+}
