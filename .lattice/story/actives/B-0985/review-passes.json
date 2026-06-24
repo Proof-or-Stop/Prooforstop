@@ -80,6 +80,15 @@
       "reviewRound": "2026-06-24T10:34:51.359Z",
       "reviewRunId": "B-0985:RR-017",
       "_hash": "83eb058dae1ff8b434cdef2159895f4e17db710a1a0b2b60f7818e9d6fbabb07"
+    },
+    {
+      "id": "B-0985:RP-010",
+      "agent": "lattice-review-concept",
+      "note": "PASS concept: proof admissibility remains fail-closed. In packages/main/src/core/proof-admissibility.ts, only authority-receipt-ref has production-completion with productionDoneEligible=true under production-gate-decision scope, and evaluateProofAdmissibility additionally requires current contractVersion plus schema, strict shape, semantic digest, signature/receipt binding, temporal/material binding, subject, and trusted producer checks before allowed=true. Local/legacy/raw candidate/diagnostic/offline/quorum surfaces remain non-production: done-required, delivery-check, review-run, offline-receipt-bundle, handoff-pack, usage-ledger evidence, repro/spike/red-green/story-binding, and legacy-evidence all have productionDoneEligible=false and fail production-completion overread. Focused verification: npm --prefix packages/main run test:proof-admissibility passed.",
+      "createdAt": "2026-06-24T10:36:30.085Z",
+      "reviewRound": "2026-06-24T10:34:51.359Z",
+      "reviewRunId": "B-0985:RR-015",
+      "_hash": "f6faf4584c7a46ffbd1c1168f8dc6af575158a189fa7202968ed3eea8fb91d31"
     }
   ]
 }
