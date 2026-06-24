@@ -58,7 +58,47 @@
       "context": "evidence-freshness.ts drift-advisory branch (~315): the advisory must fire only when BOTH the stored and live storyFilesHash are non-empty (!== EMPTY_STORY_FILES_HASH); an empty-set hash falls through to strict materialHash. Mirrors delivery-check-hash.ts:184-188, generalized for all callers. Soundness prerequisite for the relax.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "checkEvidenceFreshnessForGit with materialHash drift + BOTH stored and live storyFilesHash non-empty and matching → returns fresh:true with drift advisory warning; WHY: advisory fires correctly when both hashes carry signal",
+            "type": "cli"
+          },
+          {
+            "desc": "checkEvidenceFreshnessForGit with materialHash drift + BOTH stored and live storyFilesHash non-empty but MISMATCHING → returns fresh:false (story-owned files changed); WHY: drift advisory does not accept when story files genuinely changed",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Stored storyFilesHash === EMPTY_STORY_FILES_HASH (sha256 of empty string), live non-empty → drift advisory branch skipped, falls through to strict materialHash → fresh:false; WHY: empty stored hash carries no signal, must not enable advisory",
+            "type": "cli"
+          },
+          {
+            "desc": "Live storyFilesHash === EMPTY_STORY_FILES_HASH, stored non-empty → drift advisory branch skipped, falls through to strict materialHash → fresh:false; WHY: empty live hash (HEAD==main, no story diff) carries no signal",
+            "type": "cli"
+          },
+          {
+            "desc": "BOTH stored AND live storyFilesHash === EMPTY_STORY_FILES_HASH → drift advisory branch skipped, falls through to strict materialHash → fresh:false; WHY: double-empty is the worst no-signal case",
+            "type": "cli"
+          },
+          {
+            "desc": "evidenceStoryFilesHash is null/undefined (legacy evidence without storyFilesHash) → drift advisory branch skipped entirely (existing guard at L315), falls through to strict materialHash; WHY: backward compatibility with legacy evidence",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Attacker crafts evidence with storyFilesHash = EMPTY_STORY_FILES_HASH under whole-tree drift to ride the advisory → guard rejects (falls through to strict materialHash hard-reject); WHY: the exact attack scenario from the pre-mortem — empty-set amplification",
+            "type": "cli"
+          },
+          {
+            "desc": "Attacker sets storyFilesHash to a near-empty but non-EMPTY value (e.g. sha256 of whitespace) → guard passes it through (it is non-empty), advisory branch compares against live hash which differs → fresh:false (not advisory-accepted); WHY: ensures the guard checks the sentinel specifically, not string-falsy",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
