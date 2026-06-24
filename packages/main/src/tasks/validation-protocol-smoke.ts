@@ -8,6 +8,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { executeValidationPlan } from '../core/validation-executor.js';
 import { resetConfigCache } from '../core/config.js';
+import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import {
   configuredValidationCommands,
   createVerifierHandlers,
@@ -26,6 +27,16 @@ const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const cliPath = join(packageRoot, 'cli.js');
 
 const tmp = mkdtempSync(join(tmpdir(), 'lattice-validation-protocol-'));
+
+function gitQuiet(root: string, args: string[]): void {
+  execFileSync('git', args, { cwd: root, stdio: ['ignore', 'ignore', 'ignore'] });
+}
+
+function initSmokeGitRepo(root: string): void {
+  gitQuiet(root, ['init', '--initial-branch=main']);
+  gitQuiet(root, ['config', 'user.name', 'Lattice Smoke']);
+  gitQuiet(root, ['config', 'user.email', 'smoke@example.test']);
+}
 
 function assertRuntimeModeShape(value: any): void {
   assert.ok(value, 'runtimeMode should be present');
@@ -1297,6 +1308,217 @@ try {
   // test-evidence record — never silently advance. Direct gate calls must not
   // stop the actor themselves.
   const { runValidateGate } = await import('../handlers/phase-gates.js');
+
+  const gateFreshRoot = mkdtempSync(join(tmpdir(), 'lattice-validate-gate-fresh-skip-'));
+  try {
+    writeFileSync(join(gateFreshRoot, 'lattice.config.json'), JSON.stringify({
+      scanRoot: 'packages/main',
+      rootDir: 'src',
+      storyDir: '.lattice/story/actives',
+      validate: {
+        commands: [
+          { label: 'would fail if rerun', command: 'node', args: ['-e', 'process.exit(5)'] },
+        ],
+      },
+    }));
+    mkdirSync(join(gateFreshRoot, 'packages/main/src'), { recursive: true });
+    writeFileSync(join(gateFreshRoot, 'packages/main/src/app.ts'), 'export const base = 1;\n');
+    initSmokeGitRepo(gateFreshRoot);
+    gitQuiet(gateFreshRoot, ['add', 'lattice.config.json', 'packages/main/src/app.ts']);
+    gitQuiet(gateFreshRoot, ['commit', '-m', 'seed fresh validate gate smoke']);
+    gitQuiet(gateFreshRoot, ['checkout', '-b', 'story/B-vgate-fresh']);
+    writeFileSync(join(gateFreshRoot, 'packages/main/src/app.ts'), 'export const base = 2;\n');
+    gitQuiet(gateFreshRoot, ['add', 'packages/main/src/app.ts']);
+    gitQuiet(gateFreshRoot, ['commit', '-m', 'story change']);
+    resetConfigCache();
+    const store = new StoryStore(gateFreshRoot);
+    const storyId = 'B-vgate-fresh';
+    const now = '2026-05-16T03:00:00.000Z';
+    store.writeStory(storyId, {
+      storyId, name: 'validate-gate-fresh', title: 'Validate gate fresh skip',
+      description: 'fresh PASS validation evidence skips rerun', type: 'chore', phase: 'TEST',
+      priority: 'medium', createdAt: now, startedAt: now, endedAt: null,
+      currentReviewRound: now, events: [],
+    });
+    const evidence = {
+      command: `lattice validate --story=${storyId} --json`,
+      output: '{"allPass":true,"summary":"already passed"}',
+      result: 'PASS' as const,
+      timestamp: '2026-05-16T03:01:00.000Z',
+      headHash: currentGitHead(gateFreshRoot)!,
+      materialHash: currentMaterialHash(gateFreshRoot, 'HEAD', gateFreshRoot)!,
+      storyFilesHash: currentStoryFilesHash(gateFreshRoot, 'HEAD', gateFreshRoot)!,
+      verificationCoverage: { total: 0, required: 0, covered: 0, missingRequired: 0, entries: [] },
+    };
+    assert.ok(evidence.headHash, 'fresh skip smoke must bind headHash');
+    assert.ok(evidence.materialHash, 'fresh skip smoke must bind materialHash');
+    assert.ok(evidence.storyFilesHash, 'fresh skip smoke must bind storyFilesHash');
+    store.writeTestEvidence(storyId, evidence);
+    gitQuiet(gateFreshRoot, ['add', `.lattice/story/actives/${storyId}`]);
+    gitQuiet(gateFreshRoot, ['commit', '-m', 'record fresh validation evidence']);
+    let stopped = false;
+    const logs: string[] = [];
+    const actor = { stop() { stopped = true; } };
+    await runValidateGate({ store, root: gateFreshRoot, scanRoot: join(gateFreshRoot, 'packages/main'), log: line => logs.push(line) }, storyId, actor);
+    const after = store.readTestEvidence(storyId);
+    assert.equal(stopped, false, 'fresh skip path must leave actor stop to transition-orchestrator');
+    assert.equal(after?.result, 'PASS', 'fresh skip path must preserve the existing PASS result');
+    assert.equal(after?.timestamp, evidence.timestamp, 'fresh skip path must not rewrite test-evidence timestamp');
+    assert.equal(after?.output, evidence.output, 'fresh skip path must not rewrite test-evidence output');
+    assert.ok(
+      logs.some(line => line.includes('existing validation PASS is fresh; skipping lattice validate rerun')),
+      'fresh skip path must log that lattice validate was not rerun',
+    );
+  } finally {
+    rmSync(gateFreshRoot, { recursive: true, force: true });
+    resetConfigCache();
+  }
+
+  const gateLegacyNoCoverageRoot = mkdtempSync(join(tmpdir(), 'lattice-validate-gate-legacy-no-coverage-'));
+  try {
+    writeFileSync(join(gateLegacyNoCoverageRoot, 'lattice.config.json'), JSON.stringify({
+      scanRoot: 'packages/main',
+      rootDir: 'src',
+      storyDir: '.lattice/story/actives',
+      validate: {
+        commands: [
+          { label: 'failing legacy no coverage rerun', command: 'node', args: ['-e', 'process.exit(5)'] },
+        ],
+      },
+    }));
+    mkdirSync(join(gateLegacyNoCoverageRoot, 'packages/main/src'), { recursive: true });
+    writeFileSync(join(gateLegacyNoCoverageRoot, 'packages/main/src/app.ts'), 'export const base = 1;\n');
+    initSmokeGitRepo(gateLegacyNoCoverageRoot);
+    gitQuiet(gateLegacyNoCoverageRoot, ['add', 'lattice.config.json', 'packages/main/src/app.ts']);
+    gitQuiet(gateLegacyNoCoverageRoot, ['commit', '-m', 'seed legacy validation evidence smoke']);
+    gitQuiet(gateLegacyNoCoverageRoot, ['checkout', '-b', 'story/B-vgate-legacy']);
+    writeFileSync(join(gateLegacyNoCoverageRoot, 'packages/main/src/app.ts'), 'export const base = 2;\n');
+    gitQuiet(gateLegacyNoCoverageRoot, ['add', 'packages/main/src/app.ts']);
+    gitQuiet(gateLegacyNoCoverageRoot, ['commit', '-m', 'story change']);
+    resetConfigCache();
+    const store = new StoryStore(gateLegacyNoCoverageRoot);
+    const storyId = 'B-vgate-legacy';
+    const now = '2026-05-16T03:00:00.000Z';
+    store.writeStory(storyId, {
+      storyId, name: 'validate-gate-legacy', title: 'Validate gate legacy no coverage',
+      description: 'strongly bound legacy PASS without verificationCoverage reruns validate', type: 'chore', phase: 'TEST',
+      priority: 'medium', createdAt: now, startedAt: now, endedAt: null,
+      currentReviewRound: now, events: [],
+    });
+    const legacyEvidence = {
+      command: `lattice validate --story=${storyId} --json`,
+      output: '{"allPass":true,"summary":"legacy pass without coverage"}',
+      result: 'PASS' as const,
+      timestamp: '2026-05-16T03:01:00.000Z',
+      headHash: currentGitHead(gateLegacyNoCoverageRoot)!,
+      materialHash: currentMaterialHash(gateLegacyNoCoverageRoot, 'HEAD', gateLegacyNoCoverageRoot)!,
+      storyFilesHash: currentStoryFilesHash(gateLegacyNoCoverageRoot, 'HEAD', gateLegacyNoCoverageRoot)!,
+    };
+    assert.ok(legacyEvidence.headHash, 'legacy no coverage smoke must bind headHash');
+    assert.ok(legacyEvidence.materialHash, 'legacy no coverage smoke must bind materialHash');
+    assert.ok(legacyEvidence.storyFilesHash, 'legacy no coverage smoke must bind storyFilesHash');
+    store.writeTestEvidence(storyId, legacyEvidence);
+    gitQuiet(gateLegacyNoCoverageRoot, ['add', `.lattice/story/actives/${storyId}`]);
+    gitQuiet(gateLegacyNoCoverageRoot, ['commit', '-m', 'record legacy validation evidence']);
+    let stopped = false;
+    const logs: string[] = [];
+    const actor = { stop() { stopped = true; } };
+    await assert.rejects(
+      () => runValidateGate({ store, root: gateLegacyNoCoverageRoot, scanRoot: join(gateLegacyNoCoverageRoot, 'packages/main'), log: line => logs.push(line) }, storyId, actor),
+      /Cannot enter TEST: lattice validate did not pass/,
+      'strongly bound legacy PASS without verificationCoverage must not skip a failing validate rerun',
+    );
+    const after = store.readTestEvidence(storyId);
+    assert.equal(stopped, false, 'legacy no coverage path must leave actor stop to transition-orchestrator');
+    assert.equal(after?.result, 'FAIL', 'legacy PASS without verificationCoverage followed by failing validate must persist FAIL evidence');
+    assert.notEqual(after?.timestamp, legacyEvidence.timestamp, 'legacy no coverage path must rewrite stale-format PASS evidence');
+    assert.ok(
+      logs.some(line => line.includes('missing verificationCoverage from lattice validate')),
+      'legacy no coverage path must log why the existing PASS was not consumed',
+    );
+    assert.ok(
+      !logs.some(line => line.includes('existing validation PASS is fresh; skipping lattice validate rerun')),
+      'legacy no coverage path must not log the fresh skip message',
+    );
+  } finally {
+    rmSync(gateLegacyNoCoverageRoot, { recursive: true, force: true });
+    resetConfigCache();
+  }
+
+  const gateStaleRoot = mkdtempSync(join(tmpdir(), 'lattice-validate-gate-stale-rerun-'));
+  try {
+    writeFileSync(join(gateStaleRoot, 'lattice.config.json'), JSON.stringify({
+      scanRoot: 'packages/main',
+      rootDir: 'src',
+      storyDir: '.lattice/story/actives',
+      validate: {
+        commands: [
+          { label: 'failing stale rerun', command: 'node', args: ['-e', 'process.exit(5)'] },
+        ],
+      },
+    }));
+    mkdirSync(join(gateStaleRoot, 'packages/main/src'), { recursive: true });
+    writeFileSync(join(gateStaleRoot, 'packages/main/src/app.ts'), 'export const base = 1;\n');
+    initSmokeGitRepo(gateStaleRoot);
+    gitQuiet(gateStaleRoot, ['add', 'lattice.config.json', 'packages/main/src/app.ts']);
+    gitQuiet(gateStaleRoot, ['commit', '-m', 'seed stale validate gate smoke']);
+    gitQuiet(gateStaleRoot, ['checkout', '-b', 'story/B-vgate-stale']);
+    writeFileSync(join(gateStaleRoot, 'packages/main/src/app.ts'), 'export const base = 2;\n');
+    gitQuiet(gateStaleRoot, ['add', 'packages/main/src/app.ts']);
+    gitQuiet(gateStaleRoot, ['commit', '-m', 'first story change']);
+    resetConfigCache();
+    const store = new StoryStore(gateStaleRoot);
+    const storyId = 'B-vgate-stale';
+    const now = '2026-05-16T03:00:00.000Z';
+    store.writeStory(storyId, {
+      storyId, name: 'validate-gate-stale', title: 'Validate gate stale rerun',
+      description: 'stale PASS validation evidence reruns validate', type: 'chore', phase: 'TEST',
+      priority: 'medium', createdAt: now, startedAt: now, endedAt: null,
+      currentReviewRound: now, events: [],
+    });
+    const staleEvidence = {
+      command: `lattice validate --story=${storyId} --json`,
+      output: '{"allPass":true,"summary":"old pass"}',
+      result: 'PASS' as const,
+      timestamp: '2026-05-16T03:01:00.000Z',
+      headHash: currentGitHead(gateStaleRoot)!,
+      materialHash: currentMaterialHash(gateStaleRoot, 'HEAD', gateStaleRoot)!,
+      storyFilesHash: currentStoryFilesHash(gateStaleRoot, 'HEAD', gateStaleRoot)!,
+      verificationCoverage: { total: 0, required: 0, covered: 0, missingRequired: 0, entries: [] },
+    };
+    assert.ok(staleEvidence.headHash, 'stale rerun smoke must bind headHash');
+    assert.ok(staleEvidence.materialHash, 'stale rerun smoke must bind materialHash');
+    assert.ok(staleEvidence.storyFilesHash, 'stale rerun smoke must bind storyFilesHash');
+    store.writeTestEvidence(storyId, staleEvidence);
+    gitQuiet(gateStaleRoot, ['add', `.lattice/story/actives/${storyId}`]);
+    gitQuiet(gateStaleRoot, ['commit', '-m', 'record stale validation evidence']);
+    writeFileSync(join(gateStaleRoot, 'packages/main/src/app.ts'), 'export const base = 3;\n');
+    gitQuiet(gateStaleRoot, ['add', 'packages/main/src/app.ts']);
+    gitQuiet(gateStaleRoot, ['commit', '-m', 'second story change']);
+    let stopped = false;
+    const logs: string[] = [];
+    const actor = { stop() { stopped = true; } };
+    await assert.rejects(
+      () => runValidateGate({ store, root: gateStaleRoot, scanRoot: join(gateStaleRoot, 'packages/main'), log: line => logs.push(line) }, storyId, actor),
+      /Cannot enter TEST: lattice validate did not pass/,
+      'stale PASS evidence must not skip a failing validate rerun',
+    );
+    const after = store.readTestEvidence(storyId);
+    assert.equal(stopped, false, 'stale rerun path must leave actor stop to transition-orchestrator');
+    assert.equal(after?.result, 'FAIL', 'stale PASS evidence followed by failing validate must persist FAIL evidence');
+    assert.notEqual(after?.timestamp, staleEvidence.timestamp, 'stale rerun path must rewrite stale PASS evidence');
+    assert.ok(
+      logs.some(line => line.includes('existing validation PASS is stale')),
+      'stale rerun path must log why the existing PASS was not consumed',
+    );
+    assert.ok(
+      !logs.some(line => line.includes('existing validation PASS is fresh; skipping lattice validate rerun')),
+      'stale rerun path must not log the fresh skip message',
+    );
+  } finally {
+    rmSync(gateStaleRoot, { recursive: true, force: true });
+    resetConfigCache();
+  }
 
   const gateFailRoot = mkdtempSync(join(tmpdir(), 'lattice-validate-gate-fail-'));
   try {

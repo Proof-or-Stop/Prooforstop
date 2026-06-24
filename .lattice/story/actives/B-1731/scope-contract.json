@@ -17,17 +17,20 @@
     "packages/main/src/core/process-fact-levels.ts",
     "packages/main/src/core/process-fact-registry.ts",
     "packages/main/src/handlers/session.ts",
-    "scripts/verify-process-fact-contract.mjs"
+    "scripts/verify-process-fact-contract.mjs",
+    "packages/main/src/handlers/phase-gates.ts"
   ],
   "allowedCreate": [],
   "allowedTest": [
     "packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts",
-    "packages/main/src/tasks/repro-first-candidate-smoke.ts"
+    "packages/main/src/tasks/repro-first-candidate-smoke.ts",
+    "packages/main/src/tasks/validation-protocol-smoke.ts",
+    "packages/main/src/tasks/flow-stability-smoke.ts"
   ],
   "protectedFiles": [],
   "explicitExcludes": [],
-  "scopeChangeReason": "F-008 requires spike-review binding coverage in the repro-first candidate smoke because story_create_from_repro now carries spikeReviewId/spikeReviewDigest in the story-evidence-binding contract.",
+  "scopeChangeReason": "Takeover discovered REVIEW-to-TEST lifecycle gate re-runs full validate even when lifecycle_check accepts fresh PASS test-evidence; extend scope to reuse fresh validation evidence and add regression coverage.",
   "acknowledgements": [],
   "createdAt": "2026-06-24T21:50:40.326Z",
-  "updatedAt": "2026-06-24T22:49:11.305Z"
+  "updatedAt": "2026-06-24T23:33:20.820Z"
 }

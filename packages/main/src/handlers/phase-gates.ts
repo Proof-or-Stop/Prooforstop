@@ -32,7 +32,7 @@ import type { ChecklistData, StoryPhase, ReviewLoopIteration, ScopeCheckResult, 
 import { listActiveLoops, deriveLatestLoopRecord } from '../core/review-loop.js';
 import { getStateName, getGuardFailureReason } from '../core/machine.js';
 import { resolveLocalCodexVerifyCommand } from '../core/codex-adapter-checks.js';
-import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
+import { checkEvidenceFreshnessForGit, currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { reportHealthIssue } from '../core/health.js';
 import { loadAuthoritySettings } from '../core/authority-mode.js';
 import {
@@ -526,7 +526,40 @@ export async function runValidateGate(
   _actor: { stop(): void },
 ): Promise<void> {
   const { store } = ctx;
-  ctx.log?.('DEV→TEST gate: running lattice validate --json...');
+  const existingEvidence = store.readTestEvidence(storyId);
+  const validateCommand = `lattice validate --story=${storyId} --json`;
+  let rerunReason = '';
+  if (existingEvidence?.result === 'PASS') {
+    if (existingEvidence.command !== validateCommand) {
+      rerunReason = `existing validation PASS command is not ${validateCommand}`;
+    } else if (!existingEvidence.verificationCoverage) {
+      rerunReason = 'existing validation PASS is missing verificationCoverage from lattice validate';
+    } else if (typeof existingEvidence.verificationCoverage.missingRequired !== 'number') {
+      rerunReason = 'existing validation PASS verificationCoverage is missing missingRequired';
+    } else if (existingEvidence.verificationCoverage.missingRequired !== 0) {
+      rerunReason = `existing validation PASS has ${existingEvidence.verificationCoverage.missingRequired} required verification coverage gap(s)`;
+    } else if (existingEvidence.headHash && existingEvidence.materialHash) {
+      const evidenceGitCwd = resolveGitCwd({ store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
+      const freshness = checkEvidenceFreshnessForGit(
+        evidenceGitCwd,
+        existingEvidence.headHash,
+        existingEvidence.materialHash,
+        ctx.root,
+        existingEvidence.storyFilesHash,
+      );
+      if (freshness.fresh) {
+        ctx.log?.('DEV→TEST gate: existing validation PASS is fresh; skipping lattice validate rerun.');
+        return;
+      }
+      rerunReason = `existing validation PASS is stale (${freshness.reason})`;
+    } else {
+      rerunReason = 'existing validation PASS is missing headHash/materialHash freshness bindings';
+    }
+  }
+
+  ctx.log?.(rerunReason
+    ? `DEV→TEST gate: ${rerunReason}; running lattice validate --json...`
+    : 'DEV→TEST gate: running lattice validate --json...');
   try {
     const { createVerifierHandlers } = await import('./verifier.js');
     const verifierHandlers = createVerifierHandlers(ctx);
@@ -554,7 +587,7 @@ export async function runValidateGate(
     const evidenceMaterialHash = currentMaterialHash(evidenceGitCwd, 'HEAD', ctx.root);
     const evidenceStoryFilesHash = currentStoryFilesHash(evidenceGitCwd, 'HEAD', ctx.root);
     store.writeTestEvidence(storyId, {
-      command: `lattice validate --story=${storyId} --json`,
+      command: validateCommand,
       output: String(jsonResult),
       result: parsed.allPass ? 'PASS' : 'FAIL',
       timestamp: new Date().toISOString(),
@@ -595,7 +628,7 @@ export async function runValidateGate(
     const message = e instanceof Error ? e.message : String(e);
     try {
       store.writeTestEvidence(storyId, {
-        command: `lattice validate --story=${storyId} --json`,
+        command: validateCommand,
         output: `validate execution error: ${message}`,
         result: 'FAIL',
         timestamp: new Date().toISOString(),
