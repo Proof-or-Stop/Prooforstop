@@ -55,7 +55,22 @@
         ],
         "create": [],
         "test": []
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/review-assurance-floor-storyfileshash-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-assurance-floor-storyfileshash-smoke.js",
+          "result": "pass",
+          "note": "smoke check (a): drift to MATERIAL_Y with storyFilesHash=S unchanged => ok=true, validRounds>=1, re-attestation advisory present",
+          "headHash": "444f4f45c0b3980226be58a6263f934e49b0cddd",
+          "materialHash": "2f149db52f337a4f4466fa1a43a8f0dbc8df49ef07e65772f5be61142bd5f85c",
+          "storyFilesHash": "c21f0bf4341b45f8bae934c199fccad218fe04e737720749c66665a41e8540cb",
+          "timestamp": "2026-06-24T00:20:43.503Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
