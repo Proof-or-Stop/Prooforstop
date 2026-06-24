@@ -363,7 +363,7 @@
       "desc": "Evidence notes over-claim: 51 of 94 evidence records share an identical boilerplate note ('live-engine-selfcheck (94 assertions, all 5 arms...) drives the FULL adapter+run-driver with a deterministic stub and asserts this behavior: ...unsafe detectors fire (forbiddenCreate/.env + destructiveCmd/git-push)...'). This note is bound to intents for permChange, no-artifact, baselineFailures=null, numericOk, a4b rejection, injection-throws-infraVoid, out-of-ws snapshot, and A3-review-count — behaviors the selfcheck does NOT assert. The evidence note claims coverage the test does not provide. This is a systematic over-claim: the boilerplate lists behaviors as asserted that are absent from the selfcheck source.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-24T12:59:38.848Z",
@@ -374,7 +374,11 @@
         "experiments/recovery-runner/live-engine-selfcheck.mjs"
       ],
       "signatureTag": "missing|mjs|evidence-notes-claim",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "The 51-record boilerplate over-claim is corrected: the specific edge/adversarial intents (F-006/F-008..F-016 + the 3 codex-fix intents) are re-bound with accurate per-intent notes citing the concrete new assertions; selfcheck now 126 assertions. Commit c6506637b.",
+      "resolvedAt": "2026-06-24T13:15:43.897Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
