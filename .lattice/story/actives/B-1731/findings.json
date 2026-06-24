@@ -5,7 +5,7 @@
       "desc": "packages/main/src/handlers/story-create.ts:413 The fromDraft branch returns before the new repro-first story_create preflight is defined/invoked. It reads draft index/checklist, computes riskSignals, writes the INIT story/checklist, deletes the draft, commits metadata, and returns at line 538 without calling classifyReproFirstRequirement or honoring reproFirstPreflight.mode=enforce. A reviewed draft whose checklist JSON contains files.modify/create/test, or whose index is type=bug / high-risk code-verifiable, can therefore be materialized by story_create --fromDraft without an accepted story-evidence-binding and without reproFirstBypassReason. That violates the pre-story story_create intake contract; later PLAN/DEV gates may catch it, but the creation-time gate is bypassed on this supported story_create surface.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-06-24T22:06:03.897Z",
@@ -16,7 +16,11 @@
         "packages/main/src/handlers/story-create.ts"
       ],
       "signatureTag": "missing|ts|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in fcd3aebb2: story_create --fromDraft now invokes the shared repro-first story_create preflight before story persistence or draft deletion. Verified by npm --prefix packages/main run build and npm run test:repro-evidence-binding-dev-gate; smoke ok 10 blocks fromDraft before persistence/deletion and ok 11 documents explicit bypass as intake-only.",
+      "resolvedAt": "2026-06-24T22:17:57.089Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-1731:F-002",
