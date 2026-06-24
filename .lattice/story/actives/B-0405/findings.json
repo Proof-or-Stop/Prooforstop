@@ -5,7 +5,7 @@
       "desc": "Docs/code naming drift: the hardening plan implementation boundary tells readers to register proof surfaces through `ArtifactDefinition` and evaluate gate claims through `ClaimPolicy` at docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md:58-60, but the current registry exports `ProofSurfaceDefinition` and `ProofClaimPolicy` at packages/main/src/core/proof-admissibility.ts:122-144. This can misdirect follow-up implementation work even though the Authority/production scope rules themselves remain correctly conservative.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-06-24T11:24:17.863Z",
@@ -17,14 +17,18 @@
         "packages/main/src/core/proof-admissibility.ts"
       ],
       "signatureTag": "doc-code-drift|md|docs-code-naming",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Aligned proof admissibility hardening docs to implementation names ProofSurfaceDefinition and ProofClaimPolicy, replacing the stale ArtifactDefinition / ClaimPolicy wording. Verified with npm --prefix packages/main run build; npm --prefix packages/main run test:proof-admissibility; npm --prefix packages/main run test:proof-admissibility-hardening; node scripts/verify-process-fact-contract.mjs.",
+      "resolvedAt": "2026-06-24T11:32:48.168Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-0405:F-002",
       "desc": "M7 adversarial matrix coverage is incomplete. The plan requires executable regressions for wrong story id, wrong target phase, wrong key id, bad signature, stale current-state green, red/green command mismatch, candidate mutation, bootstrap noise, and matrix-gap policy exceptions (docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md:431-447, 560-584). The two proof admissibility suites pass, but packages/main/src/tasks/proof-admissibility-hardening-smoke.ts only covers reserved metadata, semantic tamper, strict shape, diagnostics, legacy classification, handoff overclaim, and enforce blocking; packages/main/src/tasks/proof-admissibility-smoke.ts covers stale material and broad consumer/producer mismatch. In packages/main/src/core/proof-admissibility.ts, several specific reason codes are enumerated but no evaluator branch or test assertion produces story_mismatch, gate_phase_mismatch, red_green_command_mismatch, matrix_gap_unwaived, bootstrap_noise, command_spec_digest_mismatch, or stale_hash_tuple. Commands run: npm --prefix packages/main run build; npm --prefix packages/main run test:proof-admissibility; npm --prefix packages/main run test:proof-admissibility-hardening; node scripts/verify-process-fact-contract.mjs all passed, confirming this is a coverage gap rather than a failing test.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-24T11:24:52.483Z",
@@ -38,14 +42,18 @@
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
       ],
       "signatureTag": "missing|ts|adversarial-matrix-coverage",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Added executable adversarial matrix assertions to proof-admissibility-hardening-smoke. The suite now directly produces and asserts wrong story id -> story_mismatch, wrong target phase -> gate_phase_mismatch, wrong key id/bad signature -> signature_invalid, stale current-state green -> stale_hash_tuple, red/green command mismatch -> red_green_command_mismatch, candidate mutation -> digest_mismatch, bootstrap noise -> bootstrap_noise, matrix gap exception -> matrix_gap_unwaived, and command-spec digest mismatch -> command_spec_digest_mismatch. Verified with npm --prefix packages/main run build; npm --prefix packages/main run test:proof-admissibility; npm --prefix packages/main run test:proof-admissibility-hardening; node scripts/verify-process-fact-contract.mjs.",
+      "resolvedAt": "2026-06-24T11:32:48.115Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-0405:F-003",
       "desc": "M7 enforce rollout is not actually integrated into high-risk gate decisions. The plan requires proofAdmissibility.mode=warn|enforce to enforce Authority receipt consumption, DONE-required evidence, review escalation host verdicts, and handoff proof refs (docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md:422). The implementation defines resolveProofAdmissibilityMode and diagnostic.blocking (packages/main/src/core/proof-admissibility-gates.ts:26,52), but rg shows resolveProofAdmissibilityMode is not called outside its definition, and the touched consumers only attach proofAdmissibility diagnostics to reports without using diagnostic.blocking to fail the gate, e.g. DONE-required returns its existing blocking state while appending proofAdmissibility (packages/main/src/core/done-required-validation.ts:486,600), review assurance appends proofAdmissibility to the report (packages/main/src/core/review-assurance-floor.ts:610), and review escalation does the same (packages/main/src/core/review-escalation.ts:457). The smoke test only proves buildProofAdmissibilityDiagnostic(... mode: enforce) returns blocking=true (packages/main/src/tasks/proof-admissibility-hardening-smoke.ts:215), not that any configured high-risk consumer rejects inadmissible artifacts in enforce mode. This leaves M7 satisfied only as a diagnostic helper, not as gate integration.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-06-24T11:25:16.054Z",
@@ -61,7 +69,11 @@
         "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts"
       ],
       "signatureTag": "missing|md|enforce-rollout-actually",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Implemented config-driven enforce-mode consumption in local high-risk proof consumers: review escalation and review assurance floor now fold blocking proof diagnostics into ok/reasons, handoff proof refs expose blocked/reasons, and configured DONE-required evaluations append stable proof_admissibility_blocked remediation when inadmissible. Added warn/enforce smoke assertions proving warn remains advisory and enforce rejects inadmissible review escalation, review floor, and handoff proof-ref consumption. Verified with npm --prefix packages/main run build; npm --prefix packages/main run test:proof-admissibility; npm --prefix packages/main run test:proof-admissibility-hardening; node scripts/verify-process-fact-contract.mjs.",
+      "resolvedAt": "2026-06-24T11:32:48.085Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
