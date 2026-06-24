@@ -37,6 +37,25 @@
       ],
       "signatureTag": "adversarial|ts|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-0985:F-003",
+      "desc": "Known production-gate-decision artifacts fail open when required proof checks are omitted. In packages/main/src/core/proof-admissibility.ts:536 the evaluator defaults checks to {}, and lines 552-580 only add reasons when optional check fields are explicitly invalid/false. Because allowed is computed as policy && reasons.length === 0 at lines 595-596, evaluateProofAdmissibility({artifactKind:\"authority-receipt-ref\", consumer:\"AUTHORITY_GATE_DECISION\", claim:\"production-completion\"}) returns allowed=true and productionDoneEligible=true with no schema, shape, digest, signature/receipt, subject, producer, or material binding evidence. The smoke tests cover explicit stale/unsupported values and unknown artifact kind at packages/main/src/tasks/proof-admissibility-smoke.ts:119-153, but they do not cover missing checks for a known strong surface. Repro: node --input-type=module -e \"import { evaluateProofAdmissibility } from './packages/main/dist/core/proof-admissibility.js'; console.log(JSON.stringify(evaluateProofAdmissibility({artifactKind:'authority-receipt-ref',consumer:'AUTHORITY_GATE_DECISION',claim:'production-completion'}), null, 2));\" shows allowed=true and productionDoneEligible=true. This violates the story requirement for unknown fail-closed behavior and leaves a negative-control gap for authority-receipt-ref vs production-gate-decision.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-24T10:16:05.542Z",
+      "reviewRound": "2026-06-24T10:13:41.196Z",
+      "reviewRunId": "B-0985:RR-004",
+      "_hash": "31df5baff001f0958e100d6230a125f83204c828c5737ec9a459c31db7b19813",
+      "files": [
+        "packages/main/src/core/proof-admissibility.ts",
+        "packages/main/src/tasks/proof-admissibility-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|known-production-gate",
+      "signatureTagSource": "auto"
     }
   ]
 }
