@@ -143,6 +143,15 @@
       "reviewRound": "2026-06-24T05:02:41.528Z",
       "reviewRunId": "B-0aa1:RR-023",
       "_hash": "b3344d049e29f7d71a9ffa74a700191adaca2c692f34d75bc1617c653333913e"
+    },
+    {
+      "id": "B-0aa1:RP-017",
+      "agent": "lattice-review-concept",
+      "note": "Concept review PASS. Purely additive (0 source deletions) so no deleted-concept residuals. Candidate-only invariant (evidenceScope=evidence-candidate) enforced uniformly across types/core/handlers/command-policy(cannot claim productionDone)/process-fact-levels(L2-L0 non-gate)/config; story_create_from_repro writes binding with no verificationEvidence (smoke section 9). All 9 commands map 1:1 across catalog Zod schema, handler exports, command-policy, process-fact-levels, config globs; enums consistent; no name collisions. Fail-closed paths correct (evaluate: missing accepted review/not_run/cmd mismatch/empty patterns; create-from-repro rejects non red-reviewed target-bug + digest mismatch) verified smoke 10-11. Content-addressed idempotency sound (digest excludes createdAt/artifactId, includes nested commandSpec). Matches docs/evidence/evidence-platform-architecture.md.",
+      "createdAt": "2026-06-24T05:06:30.030Z",
+      "reviewRound": "2026-06-24T05:02:41.528Z",
+      "reviewRunId": "B-0aa1:RR-021",
+      "_hash": "8df9783e449df50d32c2fdef046a431989757b5e8e4947d9fbbcff216086ae89"
     }
   ]
 }
