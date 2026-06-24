@@ -235,6 +235,17 @@
           "materialHash": "96adaa007e8f7ddafa1d445c9f905d262eb90f4da087c701fec35f3474287e79",
           "storyFilesHash": "3bb033bf48d472daad32daea22503c5bbbef2c03c79374e5fe0665781999041e",
           "timestamp": "2026-06-24T01:20:14.801Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:2",
+          "kind": "manual_transcript",
+          "command": "source /Users/jek/Documents/Work/proofbound/lattice_senior_authority_trust.env && export LATTICE_AUTHORITY_CUSTOMER_API_KEY=\"$(cat /Users/jek/Documents/Work/proofbound/lattice_senior_staging-client.env | tr -d '\\n')\" && node packages/main/dist/tasks/authority-live-receipt-ref-gate-smoke.js",
+          "result": "pass",
+          "note": "authority-live-receipt-ref-gate-smoke.ts:222-246 signedTargetGateRequest includes materialOverlapAudit in the signed decision envelope at line 239-241: ...(request.materialOverlapAudit ? { materialOverlapAudit: request.materialOverlapAudit } : {}). Since the DONE buildPhaseGateRequest sets materialOverlapAudit, the signed decision also carries it. The live smoke PASS (Authority accepted with verdict approve/pass at line 834) proves the two sides agree — if materialOverlapAudit were missing from the signed side, the server would reject with a digest mismatch.",
+          "headHash": "0934624f9b6d78881add0edcea915c76f4634fec",
+          "materialHash": "96adaa007e8f7ddafa1d445c9f905d262eb90f4da087c701fec35f3474287e79",
+          "storyFilesHash": "3bb033bf48d472daad32daea22503c5bbbef2c03c79374e5fe0665781999041e",
+          "timestamp": "2026-06-24T01:20:19.705Z"
         }
       ]
     },
