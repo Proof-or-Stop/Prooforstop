@@ -97,7 +97,7 @@
       "desc": "experiments/recovery-runner/live-engine.mjs:286, experiments/recovery-runner/live-engine.mjs:410, experiments/recovery-runner/live-engine.mjs:465, experiments/recovery-runner/run-driver.mjs:428: the default run-driver --engine live-engine.mjs path constructs makeLiveEngine() with no A2prime budgets. Trigger verified with a no-LLM A2prime stub using default/no budgets: record emitted budgetPass=true, tokenInBand=true, wallInBand=true, tokenBudget=0, wallBudgetMs=0 while tokensSpent=100 and no truncation occurred. The powered A2prime arm would not be token/wall matched to A4.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-24T12:54:21.924Z",
@@ -109,7 +109,11 @@
         "experiments/recovery-runner/run-driver.mjs"
       ],
       "signatureTag": "missing|mjs|experiments-recovery-runner",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "A2prime cell with no token+wall budgets => infraVoid fail-closed; never emits budgetPass=true against a 0 budget. Proven. Commit c6506637b.",
+      "resolvedAt": "2026-06-24T13:15:34.166Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8d44:F-006",
