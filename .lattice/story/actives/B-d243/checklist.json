@@ -188,6 +188,17 @@
           "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
           "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
           "timestamp": "2026-06-24T11:20:18.075Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/delivery-check-freshness-smoke.js",
+          "result": "pass",
+          "note": "delivery-check-freshness-smoke.ts:366-393 (legacy case): legacyDeliveryCheck() has no materialHash or storyFilesHash. After a whole-tree drift (merge from main, lines 373-378), evaluateDeliveryCheckFreshness returns ok:false, code stale_delivery_check (lines 381-382). delivery-check-hash.ts:128-136 catches the missing materialHash and returns stale before the storyFilesHash branch (line 158) is reached. Legacy records without storyFilesHash never get the advisory downgrade.",
+          "headHash": "af84ebe24014be8ae4a7ba151810fb87ee9542d8",
+          "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
+          "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
+          "timestamp": "2026-06-24T11:20:21.873Z"
         }
       ]
     },
