@@ -1,0 +1,59 @@
+{
+  "storyId": "B-e67f",
+  "checkedAt": "2026-06-24T11:45:14.252Z",
+  "headHash": "b1651d2d69f98c6de513696a9e203b424c78826f",
+  "materialHash": "3072d54fe5f075ff43ec74758de6d966e26aa36649754cec4ca5498ce59f9241",
+  "reviewRound": "2026-06-24T10:16:50.255Z",
+  "agentId": "",
+  "docsPromises": [
+    {
+      "docPath": "experiments/recovery-runner/README.md#the-24-task-stratified-corpus",
+      "promise": "24 task dirs present across 8 categories (bug-fix:3, feature:4, refactor:3, test-repair:3, doc-update:2, dep-upgrade:3, contract-validation:3, CLI-feature:3)",
+      "verifiedBy": "diff/grep + live run",
+      "evidence": "ls tasks/ returns exactly 24 dirs; corpus-selfcheck.mjs prints stratification OK: 8 categories {bug-fix:3,feature:4,...}; all 24 present in git diff --name-only"
+    },
+    {
+      "docPath": "experiments/recovery-runner/README.md#offline-self-checks",
+      "promise": "corpus-selfcheck.mjs exists, validates per-task reference/injection invariant (accept PASS + ground-truth FAIL after inject) + stratification + 10 negative-control guards for all 24 tasks",
+      "verifiedBy": "diff/grep + live run",
+      "evidence": "corpus-selfcheck.mjs in diff; live run prints 24/24 tasks pass the full invariant, stratification OK, negative-control self-test: 10/10 guards fire, exit 0"
+    },
+    {
+      "docPath": "experiments/recovery-runner/README.md#offline-self-checks",
+      "promise": "run-selfchecks.mjs now runs 6 selfchecks (5 existing + corpus-selfcheck.mjs) wired into npm run test:experiments",
+      "verifiedBy": "diff/grep + live run",
+      "evidence": "SELFCHECKS array has 6 entries; live run: all 6 passed; npm run test:experiments invokes run-selfchecks.mjs (package.json line 93)"
+    },
+    {
+      "docPath": "experiments/recovery-runner/README.md#threat-model--scope",
+      "promise": "Threat model documents accepted out-of-threat-model vectors F-011/F-012/F-013: PATH spoofing, TOCTOU, harness-aware solution; closing requires real execution isolation",
+      "verifiedBy": "diff/grep",
+      "evidence": "README and corpus-selfcheck.mjs header both explicitly document F-011/F-012/F-013 as accepted_risk with rationale; no hidden limitation"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "corpus-selfcheck.mjs enumerates all 24 dirs, checks 7-file contract, stray-file rejection, payload-subtle presence, unique taskId; live run: 24/24 PASS; git diff empty for 4 pre-existing task dirs"
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "corpus-selfcheck.mjs two-phase invariant: reference => ACCEPT PASS + GROUND-TRUTH PASS; inject() via canonical subtle-wrong-output.mjs => ACCEPT PASS + GROUND-TRUTH FAIL; F-007/F-009/F-010 tamper guards active; live run: 24/24 PASS"
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Stratification: total==24, 8 categories each in [2,5]; 10 negative-control self-tests exercise correct-not-caught / harness-tamper / missing-file / stray-file / missing-payload / 25-tasks / unknown-category / wrong-count / source-dir-tamper / env-spoof guards; live run: 10/10 fire"
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "run-selfchecks.mjs SELFCHECKS has 6 entries; npm run test:experiments invokes run-selfchecks.mjs; live run: all 6 selfchecks passed, exit 0"
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 4 checklist items verified by live machine execution. 24/24 tasks pass the full per-task invariant, stratification holds, and 10/10 negative-control guards fire including tamper-proofing guards F-007/F-009/F-010. Threat-model limitations F-011/F-012/F-013 are explicitly documented in README and corpus-selfcheck.mjs, not hidden. No doc promise undelivered."
+  },
+  "_hash": "4925bc5f99053802f3ae5d3a940f18cad30c64cdcb74f482f7a56cc5bf6822a2"
+}
