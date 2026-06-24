@@ -1,6 +1,7 @@
 import { loadConfig } from './config.js';
 import {
   PROOF_ADMISSIBILITY_CONTRACT_VERSION,
+  PROOF_ADMISSIBILITY_VERIFIER_VERSION,
   evaluateProofAdmissibility,
   type AdmissibilityResult,
   type ArtifactConsumerKind,
@@ -39,6 +40,7 @@ export function buildProofAdmissibilityDiagnostic(
 ): ProofAdmissibilityDiagnostic {
   const checks = {
     contractVersion: PROOF_ADMISSIBILITY_CONTRACT_VERSION,
+    verifierVersion: PROOF_ADMISSIBILITY_VERIFIER_VERSION,
     ...(input.checks ?? {}),
   };
   const result = evaluateProofAdmissibility({ ...input, checks });
