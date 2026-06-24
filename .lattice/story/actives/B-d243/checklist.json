@@ -572,6 +572,17 @@
           "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
           "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
           "timestamp": "2026-06-24T11:22:33.111Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:2",
+          "kind": "manual_transcript",
+          "command": "grep -n frozen-ref packages/main/src/core/done-oracle.ts",
+          "result": "pass",
+          "note": "done-oracle.ts:141-149 contains the comment: \"B-d243 (DONE Sub-Gate amendment): storyFilesHash is intentionally NOT applied here. This is a frozen-ref evidence-integrity check (it recomputes materialHash AT the recorded evidence.headHash...) storyFilesHash MUST NOT be wired into it.\" This comment is at lines 141-149, immediately above the checkCompletedEvidenceSnapshotFreshness function definition (line 151). grep confirms the frozen-ref comment exists and is co-located with the function. It prevents future cargo-cult wire-in of storyFilesHash into Gate A.",
+          "headHash": "0234b7b61b2e3361a91b6d548fee4de986e00aff",
+          "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
+          "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
+          "timestamp": "2026-06-24T11:22:39.248Z"
         }
       ]
     }
