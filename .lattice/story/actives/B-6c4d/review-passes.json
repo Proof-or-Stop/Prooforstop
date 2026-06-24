@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-6c4d:RP-001",
+      "agent": "lattice-review-docs",
+      "note": "Step 1: 2 exported symbols changed (EMPTY_STORY_FILES_HASH, assertCurrentReviewRunForEvidence). Step 2: 2 doc paragraphs compared (review-run-binding-race.md decision+scope sections; session-ownership-and-write-leases.md ReviewerWrite section). No blockers: (1) validate-side KIND-AWARE relax (evidence.kind!==pass at review-run.ts:807) matches doc claim; (2) write-time unconditional removal at assertCurrentReviewRunForEvidence matches doc (doc ascribes kind-awareness only to validate-side); (3) EMPTY_STORY_FILES_HASH guard on both evidenceStoryFilesHash and storyFilesHash in checkEvidenceFreshnessForGit matches doc; (4) review_run_start/review_pass_set/finding_add all ownershipClass=reviewerWrite in command-policy.ts lines 167,168,331 matches lease doc; (5) collectReviewerEvidenceState supersede filter keeps stale_run open findings, drops only resolved/dismissed, matches doc claim.",
+      "createdAt": "2026-06-24T14:13:06.032Z",
+      "reviewRound": "2026-06-24T14:10:01.204Z",
+      "reviewRunId": "B-6c4d:RR-002",
+      "_hash": "a9dddd83cbfba35c5def6d5ef12a77b05b20a3bd5de2023a5f311c494fef90b2"
+    }
+  ]
+}
