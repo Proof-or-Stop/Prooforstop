@@ -60,7 +60,114 @@
           }
         ]
       },
-      "userSees": "`grep -n \"Host DONE convergence\" CLAUDE.md` returns the new section header; the section shows the 7 Host DONE-convergence rules, the 2 VERBATIM paragraphs (materialHash-only downgrade / metadata-only B-9dfb pointer), and the 4 decision-doc references."
+      "userSees": "`grep -n \"Host DONE convergence\" CLAUDE.md` returns the new section header; the section shows the 7 Host DONE-convergence rules, the 2 VERBATIM paragraphs (materialHash-only downgrade / metadata-only B-9dfb pointer), and the 4 decision-doc references.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -c 'Host DONE convergence' CLAUDE.md",
+          "result": "pass",
+          "note": "returns 1 — the new section header is present in CLAUDE.md.",
+          "headHash": "c66edd8410e10f8b2bda929a0c264c2fb4146eac",
+          "materialHash": "fb47ead375fd2acb5a72ee555cfbe3046b01b3a3f109f90c3aca72b7e4c7b723",
+          "storyFilesHash": "afb7734f7c06ecedf010399648480ba902bd4e1e8221b5d6e01766e6d925b050",
+          "timestamp": "2026-06-24T13:07:51.699Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -F 'materialHash-only drift with unchanged storyFilesHash is usually unrelated whole-tree drift' CLAUDE.md",
+          "result": "pass",
+          "note": "VERBATIM paragraph 1 (materialHash-only downgrade, current warn/advisory projection) present in CLAUDE.md.",
+          "headHash": "c66edd8410e10f8b2bda929a0c264c2fb4146eac",
+          "materialHash": "fb47ead375fd2acb5a72ee555cfbe3046b01b3a3f109f90c3aca72b7e4c7b723",
+          "storyFilesHash": "afb7734f7c06ecedf010399648480ba902bd4e1e8221b5d6e01766e6d925b050",
+          "timestamp": "2026-06-24T13:07:51.699Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -F 'Metadata-only dirty handling is governed by done_prepare/lifecycle_check; see B-9dfb once merged' CLAUDE.md",
+          "result": "pass",
+          "note": "VERBATIM paragraph 2 (metadata-only pointer to B-9dfb) present in CLAUDE.md.",
+          "headHash": "c66edd8410e10f8b2bda929a0c264c2fb4146eac",
+          "materialHash": "fb47ead375fd2acb5a72ee555cfbe3046b01b3a3f109f90c3aca72b7e4c7b723",
+          "storyFilesHash": "afb7734f7c06ecedf010399648480ba902bd4e1e8221b5d6e01766e6d925b050",
+          "timestamp": "2026-06-24T13:07:51.699Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:3",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -oE 'proof-admissibility-hardening-execution-plan|story-files-hash-material-drift|done-prepare-automation-execution-plan|review-assurance-floor-execution-plan' CLAUDE.md | sort -u | wc -l",
+          "result": "pass",
+          "note": "all 4 decision-doc references present in CLAUDE.md (4/4).",
+          "headHash": "c66edd8410e10f8b2bda929a0c264c2fb4146eac",
+          "materialHash": "fb47ead375fd2acb5a72ee555cfbe3046b01b3a3f109f90c3aca72b7e4c7b723",
+          "storyFilesHash": "afb7734f7c06ecedf010399648480ba902bd4e1e8221b5d6e01766e6d925b050",
+          "timestamp": "2026-06-24T13:07:51.699Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:4",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -cF 'lattice done_prepare' CLAUDE.md",
+          "result": "pass",
+          "note": "returns 2 — done_prepare is named as the automation entry point (command + done_prepare --help reference).",
+          "headHash": "c66edd8410e10f8b2bda929a0c264c2fb4146eac",
+          "materialHash": "fb47ead375fd2acb5a72ee555cfbe3046b01b3a3f109f90c3aca72b7e4c7b723",
+          "storyFilesHash": "afb7734f7c06ecedf010399648480ba902bd4e1e8221b5d6e01766e6d925b050",
+          "timestamp": "2026-06-24T13:07:51.699Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "CLAUDE.md",
+          "note": "The section cites the 4 decision docs as source-of-truth and states the rules as 1-line projections/pointers; it does not restate the docs' full rule sets inline (cite-not-restate discipline upheld).",
+          "headHash": "c66edd8410e10f8b2bda929a0c264c2fb4146eac",
+          "materialHash": "fb47ead375fd2acb5a72ee555cfbe3046b01b3a3f109f90c3aca72b7e4c7b723",
+          "storyFilesHash": "afb7734f7c06ecedf010399648480ba902bd4e1e8221b5d6e01766e6d925b050",
+          "timestamp": "2026-06-24T13:07:51.699Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "lattice validate --docs-drift --story=B-5396",
+          "result": "pass",
+          "note": "docs-drift validate reports no drift; no decision-doc content was duplicated, command references align with the registry.",
+          "headHash": "c66edd8410e10f8b2bda929a0c264c2fb4146eac",
+          "materialHash": "fb47ead375fd2acb5a72ee555cfbe3046b01b3a3f109f90c3aca72b7e4c7b723",
+          "storyFilesHash": "afb7734f7c06ecedf010399648480ba902bd4e1e8221b5d6e01766e6d925b050",
+          "timestamp": "2026-06-24T13:07:51.699Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "CLAUDE.md",
+          "note": "No CLI behavior claims ('running X produces Y output') in the section; commands (done_prepare/story_advance) are referenced only as the automation entry / ordering, not as behavioral promises.",
+          "headHash": "c66edd8410e10f8b2bda929a0c264c2fb4146eac",
+          "materialHash": "fb47ead375fd2acb5a72ee555cfbe3046b01b3a3f109f90c3aca72b7e4c7b723",
+          "storyFilesHash": "afb7734f7c06ecedf010399648480ba902bd4e1e8221b5d6e01766e6d925b050",
+          "timestamp": "2026-06-24T13:07:51.699Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "CLAUDE.md",
+          "note": "Only the 7 enumerated rules from the checklist context are present; no novel policy invented — each rule is a projection of an existing mechanism with a doc pointer.",
+          "headHash": "c66edd8410e10f8b2bda929a0c264c2fb4146eac",
+          "materialHash": "fb47ead375fd2acb5a72ee555cfbe3046b01b3a3f109f90c3aca72b7e4c7b723",
+          "storyFilesHash": "afb7734f7c06ecedf010399648480ba902bd4e1e8221b5d6e01766e6d925b050",
+          "timestamp": "2026-06-24T13:07:51.699Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -117,7 +224,103 @@
           }
         ]
       },
-      "userSees": "`grep -n \"Host DONE convergence\" AGENTS.md` returns the mirrored section, substance-aligned with the CLAUDE.md copy (same 7 rules + 2 verbatim paragraphs + 4 references)."
+      "userSees": "`grep -n \"Host DONE convergence\" AGENTS.md` returns the mirrored section, substance-aligned with the CLAUDE.md copy (same 7 rules + 2 verbatim paragraphs + 4 references).",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -c 'Host DONE convergence' AGENTS.md",
+          "result": "pass",
+          "note": "returns 1 — the mirrored section header is present in AGENTS.md.",
+          "headHash": "c66edd8410e10f8b2bda929a0c264c2fb4146eac",
+          "materialHash": "fb47ead375fd2acb5a72ee555cfbe3046b01b3a3f109f90c3aca72b7e4c7b723",
+          "storyFilesHash": "afb7734f7c06ecedf010399648480ba902bd4e1e8221b5d6e01766e6d925b050",
+          "timestamp": "2026-06-24T13:07:51.699Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -F 'materialHash-only drift with unchanged storyFilesHash is usually unrelated whole-tree drift' AGENTS.md",
+          "result": "pass",
+          "note": "VERBATIM paragraph 1 present in AGENTS.md (same as CLAUDE.md).",
+          "headHash": "c66edd8410e10f8b2bda929a0c264c2fb4146eac",
+          "materialHash": "fb47ead375fd2acb5a72ee555cfbe3046b01b3a3f109f90c3aca72b7e4c7b723",
+          "storyFilesHash": "afb7734f7c06ecedf010399648480ba902bd4e1e8221b5d6e01766e6d925b050",
+          "timestamp": "2026-06-24T13:07:51.699Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -F 'Metadata-only dirty handling is governed by done_prepare/lifecycle_check; see B-9dfb once merged' AGENTS.md",
+          "result": "pass",
+          "note": "VERBATIM paragraph 2 present in AGENTS.md (same as CLAUDE.md).",
+          "headHash": "c66edd8410e10f8b2bda929a0c264c2fb4146eac",
+          "materialHash": "fb47ead375fd2acb5a72ee555cfbe3046b01b3a3f109f90c3aca72b7e4c7b723",
+          "storyFilesHash": "afb7734f7c06ecedf010399648480ba902bd4e1e8221b5d6e01766e6d925b050",
+          "timestamp": "2026-06-24T13:07:51.699Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:3",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -oE 'proof-admissibility-hardening-execution-plan|story-files-hash-material-drift|done-prepare-automation-execution-plan|review-assurance-floor-execution-plan' AGENTS.md | sort -u | wc -l",
+          "result": "pass",
+          "note": "all 4 decision-doc references present in AGENTS.md (4/4), mirroring CLAUDE.md.",
+          "headHash": "c66edd8410e10f8b2bda929a0c264c2fb4146eac",
+          "materialHash": "fb47ead375fd2acb5a72ee555cfbe3046b01b3a3f109f90c3aca72b7e4c7b723",
+          "storyFilesHash": "afb7734f7c06ecedf010399648480ba902bd4e1e8221b5d6e01766e6d925b050",
+          "timestamp": "2026-06-24T13:07:51.699Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "AGENTS.md",
+          "note": "AGENTS.md section cites the decision docs as source-of-truth rather than restating rules inline (same cite-not-restate discipline as the CLAUDE.md copy).",
+          "headHash": "c66edd8410e10f8b2bda929a0c264c2fb4146eac",
+          "materialHash": "fb47ead375fd2acb5a72ee555cfbe3046b01b3a3f109f90c3aca72b7e4c7b723",
+          "storyFilesHash": "afb7734f7c06ecedf010399648480ba902bd4e1e8221b5d6e01766e6d925b050",
+          "timestamp": "2026-06-24T13:07:51.699Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "test \"$(grep -c 'Host DONE convergence' AGENTS.md)\" = \"$(grep -c 'Host DONE convergence' CLAUDE.md)\"",
+          "result": "pass",
+          "note": "section appears exactly once in each file (both grep -c == 1); no accidental duplication.",
+          "headHash": "c66edd8410e10f8b2bda929a0c264c2fb4146eac",
+          "materialHash": "fb47ead375fd2acb5a72ee555cfbe3046b01b3a3f109f90c3aca72b7e4c7b723",
+          "storyFilesHash": "afb7734f7c06ecedf010399648480ba902bd4e1e8221b5d6e01766e6d925b050",
+          "timestamp": "2026-06-24T13:07:51.699Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "diff <(sed -n '/Host DONE convergence/,/manually bypass cleanTree/p' CLAUDE.md) <(sed -n '/Host DONE convergence/,/manually bypass cleanTree/p' AGENTS.md)",
+          "result": "pass",
+          "note": "the two extracted sections are IDENTICAL (no substantive divergence) — rule content, VERBATIM passages, and decision-doc references all match.",
+          "headHash": "c66edd8410e10f8b2bda929a0c264c2fb4146eac",
+          "materialHash": "fb47ead375fd2acb5a72ee555cfbe3046b01b3a3f109f90c3aca72b7e4c7b723",
+          "storyFilesHash": "afb7734f7c06ecedf010399648480ba902bd4e1e8221b5d6e01766e6d925b050",
+          "timestamp": "2026-06-24T13:07:51.699Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "AGENTS.md",
+          "note": "AGENTS.md copy contains no solo content / no CLI behavior claims / no new rules absent from CLAUDE.md — the section diff is byte-identical, so there is zero divergence.",
+          "headHash": "c66edd8410e10f8b2bda929a0c264c2fb4146eac",
+          "materialHash": "fb47ead375fd2acb5a72ee555cfbe3046b01b3a3f109f90c3aca72b7e4c7b723",
+          "storyFilesHash": "afb7734f7c06ecedf010399648480ba902bd4e1e8221b5d6e01766e6d925b050",
+          "timestamp": "2026-06-24T13:07:51.699Z"
+        }
+      ]
     }
   ]
 }
