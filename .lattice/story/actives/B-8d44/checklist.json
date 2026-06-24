@@ -6,7 +6,16 @@
       "context": "New experiments/recovery-runner/live-engine.mjs exporting makeLiveEngine({agentRun, reviewArtifact, model, tasksDir, budgets}) -> async (cell, attempt) => engineResult. Default agentRun/reviewArtifact = live claude -p (reuse run-recovery.mjs helpers). The module's default export (or a thin CLI shim) is loadable by run-driver.mjs --engine. Returns {infraVoid:true, voidReason} on claude overload/529/exec error.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "experiments/recovery-runner/run-recovery.mjs"
+        ],
+        "create": [
+          "experiments/recovery-runner/live-engine.mjs"
+        ],
+        "test": []
+      }
     },
     {
       "id": "CHK-002",
