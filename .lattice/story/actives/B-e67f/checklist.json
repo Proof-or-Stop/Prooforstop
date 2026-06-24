@@ -201,6 +201,46 @@
         "test": [
           "experiments/recovery-runner/corpus-selfcheck.mjs"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "node experiments/recovery-runner/corpus-selfcheck.mjs → prints a PASS line for each of the 24 tasks + final line contains 24/24 tasks pass the full invariant + exit 0; WHY: confirms the per-task contract invariant (reference PASS/PASS + inject PASS/FAIL) holds for all 24 tasks",
+            "type": "cli"
+          },
+          {
+            "desc": "For a representative task (e.g. bf-datediff), the selfcheck reports: reference => acceptance PASS + ground-truth PASS, then inject => acceptance PASS + ground-truth FAIL → per-task line shows PASS; WHY: verifies the two-phase check (reference correctness + inject anti-gaming) actually runs both phases",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Remove one of the 7 contract files from a task dir (e.g. delete bf-lru/ground-truth.mjs), run corpus-selfcheck.mjs → exits non-zero and reports FAIL for bf-lru; WHY: ensures the selfcheck detects incomplete task contracts rather than silently skipping",
+            "type": "cli"
+          },
+          {
+            "desc": "Replace a task reference-solution.mjs with a broken implementation (e.g. always throws), run corpus-selfcheck.mjs → exits non-zero because the reference no longer passes ground-truth; WHY: ensures the selfcheck does not silently pass when the reference solution itself is broken",
+            "type": "cli"
+          },
+          {
+            "desc": "The selfcheck uses the canonical inject() from subtle-wrong-output.mjs (not a separate payload file or hardcoded injection) → inspect the source for dynamic import of subtle-wrong-output.mjs and calling inject(); WHY: validates the same injection path the real run-driver uses, as required by the story",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Tamper with a task subtle-wrong-output.mjs inject() to be a no-op (returns without modifying solution.mjs), run corpus-selfcheck.mjs → exits non-zero because ground-truth still PASSES after inject (the anti-gaming invariant fails: inject must cause ground-truth to FAIL); WHY: catches the critical scenario where a task payload does not actually inject a detectable subtle bug — the corpus would then lack anti-gaming power for that task",
+            "type": "cli"
+          },
+          {
+            "desc": "Add a 25th task dir with valid 7 files but a duplicate taskId (same as eval-expr) in task.json, run corpus-selfcheck.mjs → the selfcheck should still validate per-task invariants for all dirs it finds (not crash on duplicates); if it does not detect the duplicate, CHK-003 stratification will catch the count mismatch; WHY: ensures robustness to adversarial corpus tampering",
+            "type": "cli"
+          },
+          {
+            "desc": "The selfcheck does NOT spawn claude -p or make any network calls → grep the source for claude, fetch, http, net, axios → none found; WHY: the story requires fully offline/deterministic operation; any network call would make the selfcheck non-reproducible",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
