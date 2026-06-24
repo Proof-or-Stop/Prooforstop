@@ -179,6 +179,15 @@
       "reviewRound": "2026-06-24T05:09:01.993Z",
       "reviewRunId": "B-0aa1:RR-027",
       "_hash": "00f6bf3747ec7a9044735180d06648444ea293d53fb3fd367d8797d1b579378d"
+    },
+    {
+      "id": "B-0aa1:RP-021",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage re-review after artifact-store artifactDigestSubject() extraction (commit bac7ed1cf). 12/12 must-intents covered, 0 gaps, 0 waivers. Digest covered (smoke asserts nested commandSpec changes digest); idempotency covered (duplicateProbe asserts same artifactDigest+artifactId, CHK-001:edge:0); verify-path covered transitively (reviewProbe/relation-evaluate pass probeDigest/relationDigest -> verifyArtifactDigest recomputes via the shared artifactDigestSubject, green roundtrip proves write<->verify symmetry). Refactor is pure extraction; product source unchanged since evidence headHash bac7ed1cf. Independently reproduced build green and test:repro-first-candidate smoke green. No new coverage gap; no blocker.",
+      "createdAt": "2026-06-24T05:11:43.449Z",
+      "reviewRound": "2026-06-24T05:09:01.993Z",
+      "reviewRunId": "B-0aa1:RR-026",
+      "_hash": "e10abff4f6181f3da864ff631616028a4cb01e68f7abf90c88d2271984d2f435"
     }
   ]
 }
