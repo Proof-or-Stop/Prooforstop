@@ -44,10 +44,10 @@
           "command": "git grep -ci \"Proofbound\" -- README.md docs",
           "result": "pass",
           "note": "README+docs prose now use the Proofbound brand",
-          "headHash": "9191a0961c259957736651b186986f6baf9b558b",
-          "materialHash": "779af6c360a54d423026454511bd58599682d2a6f24e8fc369eb6745bcb119ca",
-          "storyFilesHash": "301616b144cd289f0938d779c6b75b63b8f34841390dc475a2a5b768bc1889d8",
-          "timestamp": "2026-06-24T12:56:50.668Z"
+          "headHash": "beb4811a4263f34695b4378d3fc0aefb391ca7da",
+          "materialHash": "02393eb6ab83e31eccf5d5e8f0707e451e0b3132df5014f10e7a9274fe0f57bc",
+          "storyFilesHash": "9ff345de735d0aedaa6234217fcc26b49c85b87413fd855c234270e5194badef",
+          "timestamp": "2026-06-24T13:26:16.766Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -56,10 +56,10 @@
           "command": "git grep -c \"\\.lattice/\" -- docs",
           "result": "pass",
           "note": "lowercase .lattice/ paths in docs code-spans unchanged",
-          "headHash": "9191a0961c259957736651b186986f6baf9b558b",
-          "materialHash": "779af6c360a54d423026454511bd58599682d2a6f24e8fc369eb6745bcb119ca",
-          "storyFilesHash": "301616b144cd289f0938d779c6b75b63b8f34841390dc475a2a5b768bc1889d8",
-          "timestamp": "2026-06-24T12:56:50.669Z"
+          "headHash": "beb4811a4263f34695b4378d3fc0aefb391ca7da",
+          "materialHash": "02393eb6ab83e31eccf5d5e8f0707e451e0b3132df5014f10e7a9274fe0f57bc",
+          "storyFilesHash": "9ff345de735d0aedaa6234217fcc26b49c85b87413fd855c234270e5194badef",
+          "timestamp": "2026-06-24T13:26:16.766Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -68,10 +68,10 @@
           "command": "git diff main...HEAD -- docs",
           "result": "pass",
           "note": "no schema-id/salt strings altered in docs",
-          "headHash": "9191a0961c259957736651b186986f6baf9b558b",
-          "materialHash": "779af6c360a54d423026454511bd58599682d2a6f24e8fc369eb6745bcb119ca",
-          "storyFilesHash": "301616b144cd289f0938d779c6b75b63b8f34841390dc475a2a5b768bc1889d8",
-          "timestamp": "2026-06-24T12:56:50.669Z"
+          "headHash": "beb4811a4263f34695b4378d3fc0aefb391ca7da",
+          "materialHash": "02393eb6ab83e31eccf5d5e8f0707e451e0b3132df5014f10e7a9274fe0f57bc",
+          "storyFilesHash": "9ff345de735d0aedaa6234217fcc26b49c85b87413fd855c234270e5194badef",
+          "timestamp": "2026-06-24T13:26:16.766Z"
         }
       ]
     },
@@ -122,10 +122,10 @@
           "command": "npm --prefix packages/main run build",
           "result": "pass",
           "note": "src user-facing string rebrand compiles (tsc exit 0, no identifier touched)",
-          "headHash": "9191a0961c259957736651b186986f6baf9b558b",
-          "materialHash": "779af6c360a54d423026454511bd58599682d2a6f24e8fc369eb6745bcb119ca",
-          "storyFilesHash": "301616b144cd289f0938d779c6b75b63b8f34841390dc475a2a5b768bc1889d8",
-          "timestamp": "2026-06-24T12:56:50.669Z"
+          "headHash": "beb4811a4263f34695b4378d3fc0aefb391ca7da",
+          "materialHash": "02393eb6ab83e31eccf5d5e8f0707e451e0b3132df5014f10e7a9274fe0f57bc",
+          "storyFilesHash": "9ff345de735d0aedaa6234217fcc26b49c85b87413fd855c234270e5194badef",
+          "timestamp": "2026-06-24T13:26:16.766Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -134,10 +134,10 @@
           "command": "git grep -c \"Proofbound\" -- packages/main/src",
           "result": "pass",
           "note": "a --help/banner/product-name string now reads Proofbound",
-          "headHash": "9191a0961c259957736651b186986f6baf9b558b",
-          "materialHash": "779af6c360a54d423026454511bd58599682d2a6f24e8fc369eb6745bcb119ca",
-          "storyFilesHash": "301616b144cd289f0938d779c6b75b63b8f34841390dc475a2a5b768bc1889d8",
-          "timestamp": "2026-06-24T12:56:50.669Z"
+          "headHash": "beb4811a4263f34695b4378d3fc0aefb391ca7da",
+          "materialHash": "02393eb6ab83e31eccf5d5e8f0707e451e0b3132df5014f10e7a9274fe0f57bc",
+          "storyFilesHash": "9ff345de735d0aedaa6234217fcc26b49c85b87413fd855c234270e5194badef",
+          "timestamp": "2026-06-24T13:26:16.766Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -146,10 +146,10 @@
           "command": "npm --prefix packages/main run build",
           "result": "pass",
           "note": "tsc passes => no TypeScript identifier/type changed",
-          "headHash": "9191a0961c259957736651b186986f6baf9b558b",
-          "materialHash": "779af6c360a54d423026454511bd58599682d2a6f24e8fc369eb6745bcb119ca",
-          "storyFilesHash": "301616b144cd289f0938d779c6b75b63b8f34841390dc475a2a5b768bc1889d8",
-          "timestamp": "2026-06-24T12:56:50.669Z"
+          "headHash": "beb4811a4263f34695b4378d3fc0aefb391ca7da",
+          "materialHash": "02393eb6ab83e31eccf5d5e8f0707e451e0b3132df5014f10e7a9274fe0f57bc",
+          "storyFilesHash": "9ff345de735d0aedaa6234217fcc26b49c85b87413fd855c234270e5194badef",
+          "timestamp": "2026-06-24T13:26:16.766Z"
         }
       ]
     },
@@ -199,10 +199,10 @@
           "command": "git grep -l \"Proofbound\" -- package.json packages/main/package.json packages/utils/package.json packages/lab/package.json",
           "result": "pass",
           "note": "package.json description fields mention Proofbound",
-          "headHash": "9191a0961c259957736651b186986f6baf9b558b",
-          "materialHash": "779af6c360a54d423026454511bd58599682d2a6f24e8fc369eb6745bcb119ca",
-          "storyFilesHash": "301616b144cd289f0938d779c6b75b63b8f34841390dc475a2a5b768bc1889d8",
-          "timestamp": "2026-06-24T12:56:50.669Z"
+          "headHash": "beb4811a4263f34695b4378d3fc0aefb391ca7da",
+          "materialHash": "02393eb6ab83e31eccf5d5e8f0707e451e0b3132df5014f10e7a9274fe0f57bc",
+          "storyFilesHash": "9ff345de735d0aedaa6234217fcc26b49c85b87413fd855c234270e5194badef",
+          "timestamp": "2026-06-24T13:26:16.766Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -211,10 +211,10 @@
           "command": "git grep -c \"\\\"name\\\": \\\"@lattice\" -- packages/main/package.json",
           "result": "pass",
           "note": "name fields (@lattice/*) unchanged",
-          "headHash": "9191a0961c259957736651b186986f6baf9b558b",
-          "materialHash": "779af6c360a54d423026454511bd58599682d2a6f24e8fc369eb6745bcb119ca",
-          "storyFilesHash": "301616b144cd289f0938d779c6b75b63b8f34841390dc475a2a5b768bc1889d8",
-          "timestamp": "2026-06-24T12:56:50.669Z"
+          "headHash": "beb4811a4263f34695b4378d3fc0aefb391ca7da",
+          "materialHash": "02393eb6ab83e31eccf5d5e8f0707e451e0b3132df5014f10e7a9274fe0f57bc",
+          "storyFilesHash": "9ff345de735d0aedaa6234217fcc26b49c85b87413fd855c234270e5194badef",
+          "timestamp": "2026-06-24T13:26:16.766Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -223,10 +223,10 @@
           "command": "node -e \"JSON.parse(require(String.fromCharCode(39)+\"fs\"+String.fromCharCode(39)).readFileSync(String.fromCharCode(39)+\"package.json\"+String.fromCharCode(39)))\"",
           "result": "pass",
           "note": "package.json stays valid JSON",
-          "headHash": "9191a0961c259957736651b186986f6baf9b558b",
-          "materialHash": "779af6c360a54d423026454511bd58599682d2a6f24e8fc369eb6745bcb119ca",
-          "storyFilesHash": "301616b144cd289f0938d779c6b75b63b8f34841390dc475a2a5b768bc1889d8",
-          "timestamp": "2026-06-24T12:56:50.669Z"
+          "headHash": "beb4811a4263f34695b4378d3fc0aefb391ca7da",
+          "materialHash": "02393eb6ab83e31eccf5d5e8f0707e451e0b3132df5014f10e7a9274fe0f57bc",
+          "storyFilesHash": "9ff345de735d0aedaa6234217fcc26b49c85b87413fd855c234270e5194badef",
+          "timestamp": "2026-06-24T13:26:16.766Z"
         }
       ]
     },
@@ -275,10 +275,10 @@
           "command": "npm test",
           "result": "pass",
           "note": "full test suite exits 0 after the rebrand",
-          "headHash": "9191a0961c259957736651b186986f6baf9b558b",
-          "materialHash": "779af6c360a54d423026454511bd58599682d2a6f24e8fc369eb6745bcb119ca",
-          "storyFilesHash": "301616b144cd289f0938d779c6b75b63b8f34841390dc475a2a5b768bc1889d8",
-          "timestamp": "2026-06-24T12:56:50.669Z"
+          "headHash": "beb4811a4263f34695b4378d3fc0aefb391ca7da",
+          "materialHash": "02393eb6ab83e31eccf5d5e8f0707e451e0b3132df5014f10e7a9274fe0f57bc",
+          "storyFilesHash": "9ff345de735d0aedaa6234217fcc26b49c85b87413fd855c234270e5194badef",
+          "timestamp": "2026-06-24T13:26:16.766Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -287,10 +287,10 @@
           "command": "git diff main...HEAD -- packages",
           "result": "pass",
           "note": "grep confirms @lattice/.lattice/binary byte-unchanged (keep-list counts identical to baseline)",
-          "headHash": "9191a0961c259957736651b186986f6baf9b558b",
-          "materialHash": "779af6c360a54d423026454511bd58599682d2a6f24e8fc369eb6745bcb119ca",
-          "storyFilesHash": "301616b144cd289f0938d779c6b75b63b8f34841390dc475a2a5b768bc1889d8",
-          "timestamp": "2026-06-24T12:56:50.669Z"
+          "headHash": "beb4811a4263f34695b4378d3fc0aefb391ca7da",
+          "materialHash": "02393eb6ab83e31eccf5d5e8f0707e451e0b3132df5014f10e7a9274fe0f57bc",
+          "storyFilesHash": "9ff345de735d0aedaa6234217fcc26b49c85b87413fd855c234270e5194badef",
+          "timestamp": "2026-06-24T13:26:16.766Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -299,10 +299,10 @@
           "command": "git diff main...HEAD -- packages",
           "result": "pass",
           "note": "122 schema-ids + 15 salts byte-unchanged vs main",
-          "headHash": "9191a0961c259957736651b186986f6baf9b558b",
-          "materialHash": "779af6c360a54d423026454511bd58599682d2a6f24e8fc369eb6745bcb119ca",
-          "storyFilesHash": "301616b144cd289f0938d779c6b75b63b8f34841390dc475a2a5b768bc1889d8",
-          "timestamp": "2026-06-24T12:56:50.669Z"
+          "headHash": "beb4811a4263f34695b4378d3fc0aefb391ca7da",
+          "materialHash": "02393eb6ab83e31eccf5d5e8f0707e451e0b3132df5014f10e7a9274fe0f57bc",
+          "storyFilesHash": "9ff345de735d0aedaa6234217fcc26b49c85b87413fd855c234270e5194badef",
+          "timestamp": "2026-06-24T13:26:16.766Z"
         }
       ]
     },
@@ -349,10 +349,10 @@
           "command": "git diff main...HEAD -- CHANGELOG.md",
           "result": "pass",
           "note": "CHANGELOG entry documents the Phase-1 user-visible rebrand",
-          "headHash": "9191a0961c259957736651b186986f6baf9b558b",
-          "materialHash": "779af6c360a54d423026454511bd58599682d2a6f24e8fc369eb6745bcb119ca",
-          "storyFilesHash": "301616b144cd289f0938d779c6b75b63b8f34841390dc475a2a5b768bc1889d8",
-          "timestamp": "2026-06-24T12:56:50.669Z"
+          "headHash": "beb4811a4263f34695b4378d3fc0aefb391ca7da",
+          "materialHash": "02393eb6ab83e31eccf5d5e8f0707e451e0b3132df5014f10e7a9274fe0f57bc",
+          "storyFilesHash": "9ff345de735d0aedaa6234217fcc26b49c85b87413fd855c234270e5194badef",
+          "timestamp": "2026-06-24T13:26:16.766Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -361,10 +361,10 @@
           "command": "git diff main...HEAD -- CHANGELOG.md",
           "result": "pass",
           "note": "entry states internal identifiers deferred to later phases",
-          "headHash": "9191a0961c259957736651b186986f6baf9b558b",
-          "materialHash": "779af6c360a54d423026454511bd58599682d2a6f24e8fc369eb6745bcb119ca",
-          "storyFilesHash": "301616b144cd289f0938d779c6b75b63b8f34841390dc475a2a5b768bc1889d8",
-          "timestamp": "2026-06-24T12:56:50.669Z"
+          "headHash": "beb4811a4263f34695b4378d3fc0aefb391ca7da",
+          "materialHash": "02393eb6ab83e31eccf5d5e8f0707e451e0b3132df5014f10e7a9274fe0f57bc",
+          "storyFilesHash": "9ff345de735d0aedaa6234217fcc26b49c85b87413fd855c234270e5194badef",
+          "timestamp": "2026-06-24T13:26:16.766Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -373,10 +373,10 @@
           "command": "grep -c \"^### \" CHANGELOG.md",
           "result": "pass",
           "note": "no duplicated heading introduced",
-          "headHash": "9191a0961c259957736651b186986f6baf9b558b",
-          "materialHash": "779af6c360a54d423026454511bd58599682d2a6f24e8fc369eb6745bcb119ca",
-          "storyFilesHash": "301616b144cd289f0938d779c6b75b63b8f34841390dc475a2a5b768bc1889d8",
-          "timestamp": "2026-06-24T12:56:50.669Z"
+          "headHash": "beb4811a4263f34695b4378d3fc0aefb391ca7da",
+          "materialHash": "02393eb6ab83e31eccf5d5e8f0707e451e0b3132df5014f10e7a9274fe0f57bc",
+          "storyFilesHash": "9ff345de735d0aedaa6234217fcc26b49c85b87413fd855c234270e5194badef",
+          "timestamp": "2026-06-24T13:26:16.766Z"
         }
       ]
     }
