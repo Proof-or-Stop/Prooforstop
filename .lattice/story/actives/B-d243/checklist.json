@@ -605,6 +605,17 @@
           "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
           "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
           "timestamp": "2026-06-24T11:22:52.727Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "grep -n storyFilesHash docs/requirements/decisions/story-files-hash-material-drift.md",
+          "result": "pass",
+          "note": "story-files-hash-material-drift.md: Gate A (line 103) says \"Excluded (kept strict)\" and \"storyFilesHash MUST NOT be wired into it\" — NOT downgraded. Gate B (line 101) says \"Kept strict (re-runs)\" — NOT downgraded, no mention of storyFilesHash adoption. Only Gate C (line 99) says \"Adopted with extra guard (signed)\" and explicitly states it downgrades to advisory. grep confirms: Gate A and B sections do NOT claim adopt or downgrade for storyFilesHash. No copy-paste error documenting a nonexistent downgrade.",
+          "headHash": "a00edbae4fbb0ee3623eb6a112b5b57922b97816",
+          "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
+          "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
+          "timestamp": "2026-06-24T11:22:57.291Z"
         }
       ]
     }
