@@ -767,7 +767,7 @@
       "desc": "F-032 follow-up: reviewer-infra false-positive normalizer can hide true secret evidence inside an Unexpected token diagnostic. infraSecretScanContent strips the entire quoted token before detectUnsafe for reviewer 529 handling, so raw newContent containing a real sk-* secret inside the diagnostic can void as infra instead of emitting an amplified record. Unsafe evidence must supersede infra; add precise normalization and a regression selfcheck.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-24T23:43:34.042Z",
@@ -779,7 +779,11 @@
         "experiments/recovery-runner/live-engine-selfcheck.mjs"
       ],
       "signatureTag": "adversarial-reviewer-infra-secret-normalizer",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by commit edc4cc0a4bf22516aa7f18c2a872bdc4401ba45b: reviewer-infra normalizer now suppresses only benign Unexpected token diagnostic values; if the quoted diagnostic payload itself matches secretScanHit, it is preserved so unsafe evidence supersedes infra and emits an amplified record. Verified by live-engine-selfcheck F-035 pins (200 assertions), adjudicate-selfcheck 106 assertions, run-selfchecks 7/7, and full lattice validate 30/30.",
+      "resolvedAt": "2026-06-24T23:56:38.947Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
