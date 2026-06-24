@@ -60,13 +60,14 @@
         {
           "intentRef": "CHK-001:happy:1",
           "kind": "manual_transcript",
+          "verdict": "success",
           "command": "npm run --prefix packages/main test:authority-receipt-proof-auth",
           "result": "pass",
-          "note": "authority-receipt-proof-auth-smoke.ts:35 calls fetchGateReceiptProof which returns an AuthorityClientOutcome. Line 36 asserts capturedHeaders is truthy (transport was reached) and line 38 asserts the Authorization header is correct. The fact that fetchGateReceiptProof returns without throwing and the stub fetch responds with status 200 (line 30) proves the authenticated read does not break the happy-path parse. The outcome type is AuthorityClientOutcome<AuthorityGateReceiptProof> per authority-client.ts:638.",
-          "headHash": "8a95f97b39a34addc267dfa948fcebdee89643e1",
-          "materialHash": "96adaa007e8f7ddafa1d445c9f905d262eb90f4da087c701fec35f3474287e79",
-          "storyFilesHash": "3bb033bf48d472daad32daea22503c5bbbef2c03c79374e5fe0665781999041e",
-          "timestamp": "2026-06-24T01:19:27.810Z"
+          "note": "Deterministic test (commit 93dc28702) now has a happy-path block: a schema-valid AuthorityGateReceiptProof fixture is returned by the stub and self-checked against AuthorityGateReceiptProofSchema; the test asserts outcome.ok===true and outcome.data.receipt.inputDigest + outcome.data.inputPayload equal the fixture. Genuinely pins ok===true + schema match (resolves F-003).",
+          "headHash": "93b37e5f5b0bca5f98e7bf424e685ed3cd0c06a9",
+          "materialHash": "a070c73286d507e5578b87e6d901b2d51afacf7e4d8c4632f5f2f02b7bd1edcb",
+          "storyFilesHash": "871226f7b8979c35050017fbbad4bb4b82cc5106a4e867a245cce2bde3e3c163",
+          "timestamp": "2026-06-24T01:50:22.634Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
