@@ -392,6 +392,17 @@
           "materialHash": "96adaa007e8f7ddafa1d445c9f905d262eb90f4da087c701fec35f3474287e79",
           "storyFilesHash": "3bb033bf48d472daad32daea22503c5bbbef2c03c79374e5fe0665781999041e",
           "timestamp": "2026-06-24T01:21:13.577Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:2",
+          "kind": "logic_test",
+          "command": "npm run --prefix packages/main test:authority-receipt-proof-auth",
+          "result": "pass",
+          "note": "authority-receipt-proof-auth-smoke.ts:52-55 asserts called===false (not just absence of header). The guardFetch stub at line 44-47 sets called=true if ANY request is made. A partial fix that sends an unauthenticated request (no Bearer header) and gets a 401 from the server would still set called=true, causing the assert at line 52-55 to fail. This proves the test enforces true fail-closed semantics: no request at all when no key is configured, not request-then-fail. The test also asserts outcome.ok===false at line 51 to confirm the error outcome.",
+          "headHash": "62d4ade80c0b5ad06cf685ddca47746d4286df7b",
+          "materialHash": "96adaa007e8f7ddafa1d445c9f905d262eb90f4da087c701fec35f3474287e79",
+          "storyFilesHash": "3bb033bf48d472daad32daea22503c5bbbef2c03c79374e5fe0665781999041e",
+          "timestamp": "2026-06-24T01:21:18.333Z"
         }
       ]
     }
