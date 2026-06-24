@@ -206,6 +206,24 @@
       "resolvedAt": "2026-06-24T10:46:39.311Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-e67f:F-011",
+      "desc": "Verified bypass: sanitizedEnv copies live process.env and run() invokes bare node, so inject() can write a fake node executable, prepend its scratch .bin to PATH, and spoof only that task post-inject acceptance/ground-truth children. A synthetic 24-task corpus with correct solutions exited 0 with 24/24 tasks and 10/10 guards. Relevant code: corpus-selfcheck.mjs lines 99-119 and 230-235.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-24T10:53:19.343Z",
+      "reviewRound": "2026-06-24T10:16:50.255Z",
+      "reviewRunId": "B-e67f:RR-013",
+      "_hash": "7b4556a3996d7791f4ddad4100fb72fa88a9c9808f9cc3f72774e9ba1184737d",
+      "files": [
+        "experiments/recovery-runner/corpus-selfcheck.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|verified-bypass-sanitizedenv",
+      "signatureTagSource": "auto"
     }
   ]
 }
