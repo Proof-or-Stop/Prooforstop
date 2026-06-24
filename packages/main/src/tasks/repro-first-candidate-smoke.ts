@@ -98,6 +98,21 @@ section('1. repro_probe — happy path');
     probe.artifactDigest,
     'nested commandSpec values must be included in artifact digest',
   );
+  const duplicateProbe = createProbe(root, {
+    candidateId: 'cand-test-001',
+    taskSummary: 'Validate that auth guard fails on expired token',
+    eligibility: 'Reproducible in dev environment',
+    reason: 'Auth guard regression suspected after B-1234 merge',
+    commandSpec: { command: 'node', args: ['test/auth.js', '--scenario=expired'] },
+    expectedFailure: 'Expected 401 Unauthorized',
+    expectedFailurePattern: 'AuthGuardError.*expired',
+    executionStatus: 'confirmed_failing',
+    observedFailureSummary: 'Request passed with expired token; returned 200',
+    boundedOutputExcerpt: 'GET /api/resource 200 OK (token_exp=past)',
+    producerObservedClass: 'target-bug',
+  });
+  assert.equal(duplicateProbe.artifactDigest, probe.artifactDigest, 'same canonical artifact subject has same digest');
+  assert.equal(duplicateProbe.artifactId, probe.artifactId, 'same canonical artifact subject returns existing artifact id');
 
   process.stdout.write(`  probe: ${probe.artifactId} digest=${probe.artifactDigest.slice(0, 12)}...\n`);
 
@@ -288,6 +303,21 @@ section('1. repro_probe — happy path');
     );
 
     process.stdout.write(`  mismatch eval: pass=${mismatchEval.payload.pass} reasons=${mismatchEval.payload.reasons.join('; ')}\n`);
+
+    const emptyPatternRelation = createRedGreenRelation(root, {
+      probeId: probe.artifactId,
+      baselineCommandSpec: { command: 'node', args: ['test/auth.js', '--scenario=expired'] },
+      baselineExpectedFailurePattern: '',
+      currentCommandSpec: { command: 'node', args: ['test/auth.js', '--scenario=expired'] },
+      currentExpectedFailurePattern: '',
+      description: 'Empty pattern fail-closed test',
+    });
+    const emptyPatternEval = evaluateRedGreenRelation(root, { relationId: emptyPatternRelation.artifactId });
+    assert.equal(emptyPatternEval.payload.pass, false, 'empty failure patterns must fail closed');
+    assert.ok(
+      emptyPatternEval.payload.reasons.some(r => r.includes('expected failure patterns')),
+      'empty-pattern evaluation should explain missing failure patterns',
+    );
   }
 
   // ── 11. repro-rejected blocks story creation ───────────────────────────────

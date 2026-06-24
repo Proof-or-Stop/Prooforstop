@@ -265,7 +265,7 @@ export function createReproIntakeHandlers(ctx: HandlerContext) {
           checklist: storyArgs.checklist,
         });
         // Extract story ID from result string (e.g. "Story B-xxxx created...")
-        const match = String(createResult).match(/B-[a-z0-9]{4}/i);
+        const match = String(createResult).match(/B-[a-z0-9]{4,6}/i);
         if (!match) {
           throw new Error(`repro-intake: could not extract story ID from story_create result: ${createResult}`);
         }
