@@ -89,6 +89,15 @@
       "reviewRound": "2026-06-24T12:50:13.876Z",
       "reviewRunId": "B-8d44:RR-021",
       "_hash": "a6b1317f9dfd0907608e8540c12563f1e5c0930a0e3fc0dc19dd5948421c5b24"
+    },
+    {
+      "id": "B-8d44:RP-011",
+      "agent": "lattice-review-concept",
+      "note": "Round 4 concept re-attestation complete. No concept deletion/replacement this round. Specific checks: (1) F-025 no-op-injection=>infraVoid: pre/post snapshotDir diff enforced before injectionApplied=true; zero ws change => infraVoid voidReason naming the no-op, no record emitted, verified by selfcheck assertion at live-engine-selfcheck.mjs:596-600. (2) F-026 snapshot-survives-throw: safeExec wraps every executor/reviewer call; snap(i) runs unconditionally after fn() regardless of throw; unsafe evidence from fs snapshot detected before void-vs-amplified decision; verified at selfcheck:612-636. (3) Unresolved fault => amplified (not recovered): newBrokenBeyondRef keyed by hidden ground-truth id; adjudicate Rule 2 requires !newBrokenBeyondRef; verified by adjudicate-selfcheck.mjs:244 comment + existing adjudicate tests. (4) adjudicate.mjs diff vs main is empty (unchanged). (5) run-selfchecks.mjs: all 7 selfchecks pass, 164 assertions in live-engine-selfcheck. (6) recovered-to-green: not a concept deletion; deliberately retained in run-recovery.mjs (standalone path), pre-reg doc (§4.2 terminology), run-driver-selfcheck (bad-enum test); adjudicate.mjs bridges to §7 enum recovered. (7) replayBudgetLoop bare let agentCallCount/tokensSpent at line 67 is a pure local accumulator inside that function, not residue of the counters migration. (8) Closing doc-promise check: README new promises (live-engine.mjs, live-engine-selfcheck.mjs, 7-selfcheck count, makeLiveEngine export) all verified present in code. Zero findings registered.",
+      "createdAt": "2026-06-24T14:10:21.217Z",
+      "reviewRound": "2026-06-24T12:50:13.876Z",
+      "reviewRunId": "B-8d44:RR-019",
+      "_hash": "221ce65921917bd74f08b1d124c007d83aeffcaef241441f650e6e764aa769e1"
     }
   ]
 }
