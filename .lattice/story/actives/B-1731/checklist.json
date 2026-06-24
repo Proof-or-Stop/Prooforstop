@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "Task classifier: repro-first-required vs bypass-eligible from type/priority/riskSignals (conservative, warn-on-uncertain)",
       "context": "New classifier (e.g. in a core helper) deciding repro-first-required (type=bug OR high-risk riskSignal class OR code-verifiable runtime/CLI/gate behavior change) vs bypass-eligible (doc/metadata/registry-only chore, explicit quick-fix flag, low-confidence). Conservative: ambiguous doc/chore -> bypass-eligible; uncertain high-risk -> warn (never block). Pure function over the story-create inputs already available (type, priority, riskSignals, title, description, keywords).",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-24T21:39:40.400Z",
-      "endTime": null,
+      "endTime": "2026-06-24T21:59:34.722Z",
       "relatedDocs": [
         "docs/requirements/decisions/repro-first-story-intake-experiment.md",
         "docs/evidence/evidence-platform-architecture.md"
@@ -43,7 +43,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js",
+          "result": "pass",
+          "note": "Smoke ok 1/4/9 proves file-declaring stories are classified repro-first-required and blocked without binding under enforce mode.",
+          "headHash": "b0464c352062d011db627fb5e80f80e52e701991",
+          "materialHash": "ce6a2003a743a29f21740a4b39561fbf8f67a1ad065827ffe7d0d90e39df080e",
+          "storyFilesHash": "532eba9adeead064f0076b0d39e942aba714756d6214dafd7eec4fbaf23776d2",
+          "timestamp": "2026-06-24T21:59:35.008Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js",
+          "result": "pass",
+          "note": "Smoke ok 3 proves no-file checklist stories remain bypass-eligible and get no PLAN guard failure.",
+          "headHash": "b0464c352062d011db627fb5e80f80e52e701991",
+          "materialHash": "ce6a2003a743a29f21740a4b39561fbf8f67a1ad065827ffe7d0d90e39df080e",
+          "storyFilesHash": "532eba9adeead064f0076b0d39e942aba714756d6214dafd7eec4fbaf23776d2",
+          "timestamp": "2026-06-24T21:59:35.286Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js",
+          "result": "pass",
+          "note": "Smoke ok 8 and ok 11 prove unaccepted-review and stale-digest bindings are rejected instead of trusted as bypass metadata.",
+          "headHash": "b0464c352062d011db627fb5e80f80e52e701991",
+          "materialHash": "ce6a2003a743a29f21740a4b39561fbf8f67a1ad065827ffe7d0d90e39df080e",
+          "storyFilesHash": "532eba9adeead064f0076b0d39e942aba714756d6214dafd7eec4fbaf23776d2",
+          "timestamp": "2026-06-24T21:59:35.553Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
