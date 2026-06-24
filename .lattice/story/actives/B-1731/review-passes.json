@@ -161,6 +161,15 @@
       "reviewRound": "2026-06-24T23:01:14.127Z",
       "reviewRunId": "B-1731:RR-033",
       "_hash": "9d0554a38bbf69612594d1a235bd4af8adc5129ed1637b333392370c79aaac6c"
+    },
+    {
+      "id": "B-1731:RP-019",
+      "agent": "lattice-review-quality",
+      "note": "No blocker remains for F-009/F-010 in the scoped files. Inspected packages/main/src/core/repro-evidence-binding-gate.ts and packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts: StoryEvidenceBindingGateResult optional requirement fields now drive classifier-specific missing/stale diagnostics; engine-error remains fail-open and visible; spike-review acceptance now requires verdict=confirmed and rejects rejected/status-only accepted cases. Ran npm --prefix packages/main run build and npx tsx packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts (35 checks passed).",
+      "createdAt": "2026-06-24T23:04:14.441Z",
+      "reviewRound": "2026-06-24T23:01:14.127Z",
+      "reviewRunId": "B-1731:RR-032",
+      "_hash": "86a56011ea87cff6865e74c37845c1887c2b1baf53d70f48f0fe0560ef3c9ae2"
     }
   ]
 }
