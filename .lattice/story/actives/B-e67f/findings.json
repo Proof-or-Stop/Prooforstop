@@ -242,6 +242,24 @@
       ],
       "signatureTag": "adversarial|mjs|verified-bypass-post",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-e67f:F-013",
+      "desc": "Verified bypass: acceptance and ground-truth run as distinguishable child entrypoints, and the injected solution can inspect process.argv[1] to behave correctly under acceptance.mjs and intentionally fail only under ground-truth.mjs. A synthetic 24-task corpus exited 0 with 24/24 tasks and 10/10 guards while each injected solution was harness-aware instead of naturally wrong. Relevant code: corpus-selfcheck.mjs lines 113-119 and 230-235.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-24T10:53:20.813Z",
+      "reviewRound": "2026-06-24T10:16:50.255Z",
+      "reviewRunId": "B-e67f:RR-013",
+      "_hash": "5eb5a25dc575e89d75da210a115c4be34e357a5a88743d80bdf3f1da60be0da5",
+      "files": [
+        "experiments/recovery-runner/corpus-selfcheck.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|verified-bypass-acceptance",
+      "signatureTagSource": "auto"
     }
   ]
 }
