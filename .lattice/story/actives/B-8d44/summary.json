@@ -1,0 +1,56 @@
+{
+  "storyId": "B-8d44",
+  "changes": "Added the recovery-runner live-engine adapter, offline live-engine selfcheck, run-recovery helper wiring, run-selfchecks aggregator entry, and README delivery notes for the new live campaign engine path.",
+  "usage": "Run node experiments/recovery-runner/run-selfchecks.mjs for offline validation, or use run-driver with --engine experiments/recovery-runner/live-engine.mjs for the later live campaign path.",
+  "expectedOutcome": "User sees all recovery-runner selfchecks pass offline, including live-engine coverage for A1, A2, A2prime, A3, and A4, with no live Claude process invoked.",
+  "actualTranscript": "node experiments/recovery-runner/run-selfchecks.mjs exited 0 and printed all 7 recovery-runner selfchecks passed offline, no live LLM; live-engine-selfcheck reported 174 assertions passed across A1, A2, A2prime, A3, and A4.",
+  "outcomeDiff": "No user-visible difference: actual transcript matches the expected offline validation result.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "The actual multi-day live Claude campaign is intentionally a separate later story; this story delivers the engine and offline-verifiable foundation only. Local evidence and 3x2 quorum are Non-authority and do not claim Authority Server completion.",
+  "pitfalls": "Resolution required 28 review findings, a reviewer-visible README scope acknowledgement, stale verification evidence refresh, main merge via done_prepare, and repeated full validate runs. Keep the live campaign separate and do not treat local quorum as Authority proof.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 496247
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 867
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 413180
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 1503318
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 33685107
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 678123
+    }
+  },
+  "totalDurationMs": 36776855,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-24T22:22:57.106Z",
+  "updatedAt": "2026-06-24T22:22:57.106Z"
+}
