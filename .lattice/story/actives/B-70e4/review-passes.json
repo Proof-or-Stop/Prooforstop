@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-24T01:49:03.993Z",
       "reviewRunId": "B-70e4:RR-005",
       "_hash": "0110d50f38c4b9887abd4abb9f2d0ea8ec72fb7011b4a8f499991e9cd496bf14"
+    },
+    {
+      "id": "B-70e4:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (ROUND 2): all must-priority verificationIntents across CHK-001/CHK-002/CHK-003/CHK-004 are covered by valid non-fail evidence. F-003 resolved: CHK-001:happy:1 test now has a genuine schema-valid fixture (VALID_PROOF), asserts happyOutcome.ok===true + receipt.inputDigest + inputPayload, and self-checks the fixture via AuthorityGateReceiptProofSchema.safeParse — confirmed by reading authority-receipt-proof-auth-smoke.ts lines 85-134 and running the test (exit 0, PASS). F-004 resolved: CHK-002:happy:0 re-bound as integration_test with the live staging smoke command that exercises loadProof end-to-end (runAuthorityReceiptVerify -> loadProof -> /v1/receipts/{id}/proof); no longer structural inference. F-005 resolved: CHK-004:edge:0 now has an explicit empty-string block at lines 153-171 asserting emptyOutcome.ok===false AND calledEmpty===false; confirmed in test source and test exit 0. No new blockers found. Missing evidence on should-priority edge intents (CHK-001:edge:0/1, CHK-002:edge:0/1, CHK-003:edge:0) is advisory only for normal channel.",
+      "createdAt": "2026-06-24T02:02:19.807Z",
+      "reviewRound": "2026-06-24T01:49:03.993Z",
+      "reviewRunId": "B-70e4:RR-006",
+      "_hash": "0dada70de3ddd50185626bcc2718fcf085c896402a75d2391e447f2cb106b486"
     }
   ]
 }
