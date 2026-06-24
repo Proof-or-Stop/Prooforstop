@@ -10,6 +10,10 @@ import type {
   DoneRequiredEvidenceStatus,
   ValidationCommand,
 } from './validation-types.js';
+import {
+  buildProofAdmissibilityDiagnostic,
+  type ProofAdmissibilityDiagnostic,
+} from './proof-admissibility-gates.js';
 
 export const DONE_REQUIRED_EVIDENCE_FILE = 'done-required-evidence.json';
 export const DONE_REQUIRED_EVIDENCE_SCHEMA = 'lattice.done-required-evidence' as const;
@@ -51,6 +55,7 @@ export interface DoneRequiredGateEvaluation {
   reasons: string[];
   policy: DoneRequiredPolicy;
   evidence: DoneRequiredEvidenceData | null;
+  proofAdmissibility: ProofAdmissibilityDiagnostic;
 }
 
 function splitShellWords(command: string): string[] {
@@ -478,6 +483,22 @@ export function evaluateDoneRequiredEvidence(args: {
   gitCwd: string;
 }): DoneRequiredGateEvaluation {
   const policy = resolveDoneRequiredPolicy(args.projectRoot);
+  const doneRequiredDiagnostic = (evidence: DoneRequiredEvidenceData | null, ok: boolean): ProofAdmissibilityDiagnostic => buildProofAdmissibilityDiagnostic({
+    artifactKind: 'done-required-evidence',
+    artifactId: DONE_REQUIRED_EVIDENCE_FILE,
+    consumer: 'DONE_REQUIRED',
+    claim: 'done-readiness',
+    checks: {
+      schemaVersion: evidence?.schema === DONE_REQUIRED_EVIDENCE_SCHEMA && evidence?.version === DONE_REQUIRED_EVIDENCE_VERSION
+        ? 'lattice.done_required_evidence.v1'
+        : undefined,
+      strictShapeValid: Boolean(evidence),
+      semanticDigestValid: ok,
+      temporalAndMaterialBindingValid: ok,
+      subjectMatches: evidence ? evidence.storyId === args.storyId : false,
+      producerBoundaryTrusted: Boolean(evidence),
+    },
+  });
   if (!policy.required) {
     return {
       required: false,
@@ -489,6 +510,7 @@ export function evaluateDoneRequiredEvidence(args: {
       reasons: policy.warnings,
       policy,
       evidence: null,
+      proofAdmissibility: doneRequiredDiagnostic(null, false),
     };
   }
   if (policy.configErrors.length > 0) {
@@ -502,6 +524,7 @@ export function evaluateDoneRequiredEvidence(args: {
       reasons: policy.configErrors,
       policy,
       evidence: null,
+      proofAdmissibility: doneRequiredDiagnostic(null, false),
     };
   }
 
@@ -517,6 +540,7 @@ export function evaluateDoneRequiredEvidence(args: {
       reasons: ['missing-artifact'],
       policy,
       evidence: null,
+      proofAdmissibility: doneRequiredDiagnostic(null, false),
     };
   }
 
@@ -559,6 +583,7 @@ export function evaluateDoneRequiredEvidence(args: {
       reasons: uniqueReasons,
       policy,
       evidence,
+      proofAdmissibility: doneRequiredDiagnostic(evidence, false),
     };
   }
 
@@ -572,6 +597,7 @@ export function evaluateDoneRequiredEvidence(args: {
     reasons: [],
     policy,
     evidence,
+    proofAdmissibility: doneRequiredDiagnostic(evidence, true),
   };
 }
 

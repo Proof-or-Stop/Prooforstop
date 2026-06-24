@@ -1,6 +1,8 @@
 # Proof Admissibility Hardening Execution Plan
 
-> Status: execution plan; M0/M1 classification-only MVP implemented by B-0985.
+> Status: execution plan; M0/M1 classification-only MVP implemented by B-0985;
+> M2-M7 hardening implemented by B-0405 in warn-by-default mode with enforce
+> diagnostics for high-risk proof consumers.
 > Date: 2026-06-23.
 > Scope: Proofbound / Lattice CLI evidence, receipt, handoff, and gate-consumption boundaries.
 > Architecture baseline: `docs/evidence/evidence-platform-architecture.md`.
@@ -263,6 +265,11 @@ Exit criteria:
 - No caller-writable metadata path can create a field that is later accepted as
   proof.
 
+B-0405 status: implemented for CLI proof surfaces. Reserved proof-key detection
+and sanitization live in `proof-admissibility-metadata.ts`; caller metadata on
+runner registration, job spec, and provider event envelopes strips nested or
+linked spoof keys while preserving ordinary metadata.
+
 ### M3 - Semantic Binding And Versioned Verification
 
 Goal: prevent partial digest/signature coverage from making edited evidence look
@@ -294,6 +301,12 @@ Exit criteria:
 - Any change to a gate-consumed semantic field changes the digest or fails strict
   shape/signature verification.
 
+B-0405 status: implemented for the CLI hardening slice. Versioned canonical
+binding helpers live in `proof-admissibility-binding.ts`; Authority gate receipt
+proof schemas are strict for strong proof paths, and the hardening smoke covers
+reason/verdict/story/head/material/signature-like tamper plus null/extra/missing
+shape failures.
+
 ### M4 - Gate Integration In Warn Mode
 
 Goal: route REVIEW, TEST, DONE, Authority, handoff, and local review-quorum
@@ -324,6 +337,12 @@ Exit criteria:
 - Every gate report can tell whether it consumed strong proof, local evidence,
   diagnostic evidence, or legacy audit material.
 
+B-0405 status: implemented in warn mode for gate-facing reports. Shared
+diagnostics live in `proof-admissibility-gates.ts`; DONE-required, review
+escalation, review assurance floor, handoff, and Authority receipt-facing
+surfaces report scope/reason/remediation through the shared contract. The
+process fact registry records `runtime:proof_admissibility_gate_diagnostic`.
+
 ### M5 - Legacy Scope And Migration
 
 Goal: preserve old evidence for audit without letting it satisfy stronger proof
@@ -351,6 +370,11 @@ Exit criteria:
 
 - Old evidence remains readable.
 - Old evidence cannot accidentally satisfy a new strong proof gate.
+
+B-0405 status: dry-run diagnostics implemented in
+`proof-admissibility-legacy.ts`. Legacy artifacts are classified as
+`legacy-observed`, `legacy-local-only`, or `legacy-unknown-producer`; all remain
+readable and none are promoted to strong proof.
 
 ### M6 - Host Handoff And Multi-Host Boundary
 
@@ -381,6 +405,12 @@ Exit criteria:
 
 - A new host can tell which inputs are context, which are candidate evidence,
   and which are admissible proof.
+
+B-0405 status: implemented for handoff projections. Handoff summaries separate
+`context`, `evidenceCandidate`, `diagnosticReceipt`, and `admissibleProofRef`,
+carry host/quorum identity, and keep `receiptVerified`, `authorityDone`,
+`fullAuthorityDone`, and `productionDone` false unless a separate matching gate
+consumes verified proof.
 
 ### M7 - Hard-Fail Rollout And Adversarial Regression Suite
 
@@ -430,6 +460,12 @@ Exit criteria:
 - In enforce mode, no inadmissible proof-looking artifact can satisfy a strong
   gate.
 - In warn mode, local development remains usable with clear diagnostics.
+
+B-0405 status: implemented as config-resolved `proofAdmissibility.mode =
+warn|enforce` helper with warn default. The adversarial hardening smoke covers
+reserved-key injection, delegated metadata spoofing, stale/wrong-shape proof
+diagnostics, local/diagnostic handoff receipts, legacy downgrade behavior, and
+enforce-mode blocking for inadmissible high-risk consumers.
 
 ## 7. Dependency Plan
 

@@ -13,6 +13,10 @@ import {
 import { isReviewerAgent } from './review-run.js';
 import type { BugData, Finding, ProcessEvent, StoryInfo, TestEvidenceData, UnderstandingData } from './types.js';
 import type { StoryStore } from './store.js';
+import {
+  buildProofAdmissibilityDiagnostic,
+  type ProofAdmissibilityDiagnostic,
+} from './proof-admissibility-gates.js';
 
 export const REVIEW_ASSURANCE_FLOOR_REQUIRED_ROUNDS = 1;
 export const REVIEW_ASSURANCE_FLOOR_FAILURE_REQUIRED_ROUNDS = 3;
@@ -104,6 +108,7 @@ export interface ReviewAssuranceFloorReport {
   authorityDone: false;
   fullAuthorityDone: false;
   productionDone: false;
+  proofAdmissibility: ProofAdmissibilityDiagnostic;
   reasons: string[];
   advisories?: string[];
   diffError?: string;
@@ -425,6 +430,21 @@ function reportBase(
     authorityDone: false,
     fullAuthorityDone: false,
     productionDone: false,
+    proofAdmissibility: buildProofAdmissibilityDiagnostic({
+      artifactKind: 'review-run',
+      artifactId: 'review-assurance-floor',
+      consumer: 'REVIEW',
+      claim: 'review-pass',
+      checks: {
+        schemaVersion: 'lattice.review_run.v1',
+        strictShapeValid: true,
+        semanticDigestValid: false,
+        signatureOrReceiptBindingValid: false,
+        temporalAndMaterialBindingValid: false,
+        subjectMatches: true,
+        producerBoundaryTrusted: true,
+      },
+    }),
     reasons: [],
     ...overrides,
   };
@@ -587,6 +607,21 @@ export function evaluateReviewAssuranceFloor(args: EvaluateReviewAssuranceFloorA
     authorityDone: false,
     fullAuthorityDone: false,
     productionDone: false,
+    proofAdmissibility: buildProofAdmissibilityDiagnostic({
+      artifactKind: 'review-run',
+      artifactId: storyId ? `${storyId}:review-assurance-floor` : 'review-assurance-floor',
+      consumer: 'REVIEW',
+      claim: 'review-pass',
+      checks: {
+        schemaVersion: 'lattice.review_run.v1',
+        strictShapeValid: true,
+        semanticDigestValid: ok,
+        signatureOrReceiptBindingValid: fullOk,
+        temporalAndMaterialBindingValid: ok,
+        subjectMatches: true,
+        producerBoundaryTrusted: true,
+      },
+    }),
     reasons,
     ...(advisories.length > 0 ? { advisories } : {}),
   };

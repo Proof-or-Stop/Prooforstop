@@ -59,7 +59,13 @@ const PHASE_BY_WIRE_VALUE: Record<string, AuthorityGatePhase> = {
 const RepoSnapshotSchema = z.object({
   headHash: z.string().min(1),
   materialHash: z.string().min(1),
-}).passthrough();
+  baseHash: z.string().nullable().optional(),
+  treeHash: z.string().nullable().optional(),
+  diffHash: z.string().nullable().optional(),
+  manifestHash: z.string().nullable().optional(),
+  dirty: z.boolean().optional(),
+  branchName: z.string().optional(),
+}).strict();
 
 export const AuthorityGateDecisionInputSchema = z.object({
   decisionId: z.string().min(1).optional(),
@@ -72,7 +78,7 @@ export const AuthorityGateDecisionInputSchema = z.object({
   evidenceHashes: z.array(z.string()).optional(),
   requestedByActorId: z.string().min(1),
   requestedAt: z.string().min(1).optional(),
-}).passthrough();
+}).strict();
 
 export const AuthorityGateDecisionSchema = z.object({
   decisionId: z.string().min(1),
@@ -88,12 +94,12 @@ export const AuthorityGateDecisionSchema = z.object({
   producerRunIds: z.array(z.string()).optional(),
   verifierRunIds: z.array(z.string()).optional(),
   runnerSessionIds: z.array(z.string()).optional(),
-}).passthrough();
+}).strict();
 
 export const AuthorityGateDecisionDigestPayloadSchema = z.object({
   decision: AuthorityGateDecisionSchema,
   requestedByActorId: z.string().min(1),
-}).passthrough();
+}).strict();
 
 export const AuthorityGateReceiptProofSchema = z.object({
   schemaVersion: z.literal(AUTHORITY_GATE_RECEIPT_PROOF_SCHEMA_VERSION),
@@ -108,7 +114,7 @@ export const AuthorityGateReceiptProofSchema = z.object({
   serverPublicKeyHex: z.string().min(1),
   serverKeyProfile: z.string().min(1),
   serverKeyProductionInert: z.boolean(),
-}).passthrough();
+}).strict();
 
 export type AuthorityGateDecisionInput = z.infer<typeof AuthorityGateDecisionInputSchema>;
 export type AuthorityGateDecision = z.infer<typeof AuthorityGateDecisionSchema>;
@@ -254,11 +260,12 @@ function normalizeGateRepoDigestInput(repo: AuthorityGateDecisionInput['repo'] |
     ...raw,
     headHash: repo.headHash,
     materialHash: repo.materialHash,
-    baseHash: raw.baseHash ?? null,
-    treeHash: raw.treeHash ?? null,
-    diffHash: raw.diffHash ?? null,
-    manifestHash: raw.manifestHash ?? null,
-    dirty: raw.dirty ?? false,
+    baseHash: typeof raw.baseHash === 'string' || raw.baseHash === null ? raw.baseHash : null,
+    treeHash: typeof raw.treeHash === 'string' || raw.treeHash === null ? raw.treeHash : null,
+    diffHash: typeof raw.diffHash === 'string' || raw.diffHash === null ? raw.diffHash : null,
+    manifestHash: typeof raw.manifestHash === 'string' || raw.manifestHash === null ? raw.manifestHash : null,
+    dirty: typeof raw.dirty === 'boolean' ? raw.dirty : false,
+    ...(typeof raw.branchName === 'string' ? { branchName: raw.branchName } : {}),
   };
 }
 

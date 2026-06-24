@@ -24,6 +24,10 @@ import {
 import { isReviewerAgent } from './review-run.js';
 import type { Finding, ProcessEvent, StoryInfo } from './types.js';
 import type { StoryStore } from './store.js';
+import {
+  buildProofAdmissibilityDiagnostic,
+  type ProofAdmissibilityDiagnostic,
+} from './proof-admissibility-gates.js';
 
 export const REVIEW_ESCALATION_TRIGGER_PROBLEM_COUNT = 2;
 export const REVIEW_ESCALATION_REQUIRED_ROUNDS = 3;
@@ -142,6 +146,7 @@ export interface ReviewEscalationReport {
   authorityDone: false;
   fullAuthorityDone: false;
   productionDone: false;
+  proofAdmissibility: ProofAdmissibilityDiagnostic;
   reasons: string[];
 }
 
@@ -449,6 +454,21 @@ export function evaluateReviewEscalation(args: EvaluateReviewEscalationArgs): Re
     ? eventsWithStoryFilesHashDowngrade(events, materialHash, storyFilesHash, advisories)
     : events;
   const voluntaryLocalRounds = evaluateVoluntaryLocalRounds(effectiveEvents, materialHash);
+  const proofAdmissibility = buildProofAdmissibilityDiagnostic({
+    artifactKind: 'review-run',
+    artifactId: args.storyId ? `${args.storyId}:review-escalation` : 'review-escalation',
+    consumer: 'REVIEW',
+    claim: 'review-pass',
+    checks: {
+      schemaVersion: 'lattice.review_run.v1',
+      strictShapeValid: true,
+      semanticDigestValid: Boolean(materialHash),
+      signatureOrReceiptBindingValid: false,
+      temporalAndMaterialBindingValid: Boolean(materialHash),
+      subjectMatches: true,
+      producerBoundaryTrusted: true,
+    },
+  });
   const trigger = {
     firstReviewRound,
     requiredProblemCount: REVIEW_ESCALATION_TRIGGER_PROBLEM_COUNT,
@@ -482,6 +502,7 @@ export function evaluateReviewEscalation(args: EvaluateReviewEscalationArgs): Re
       authorityDone: false,
       fullAuthorityDone: false,
       productionDone: false,
+      proofAdmissibility,
       reasons: [],
     };
   }
@@ -512,6 +533,7 @@ export function evaluateReviewEscalation(args: EvaluateReviewEscalationArgs): Re
       authorityDone: false,
       fullAuthorityDone: false,
       productionDone: false,
+      proofAdmissibility,
       reasons,
     };
   }
@@ -566,6 +588,7 @@ export function evaluateReviewEscalation(args: EvaluateReviewEscalationArgs): Re
     authorityDone: false,
     fullAuthorityDone: false,
     productionDone: false,
+    proofAdmissibility,
     reasons,
   };
 }
