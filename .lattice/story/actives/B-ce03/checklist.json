@@ -108,7 +108,30 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "done_prepare automation decision doc states that unchanged pre-existing Lattice lifecycle metadata dirt is allowed for preflight/final cleanTree checks.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "the doc also states source/material dirt and unsafe metadata/source renames remain blockers.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "the doc does not claim done_prepare can waive failed DONE-required evidence or storyFilesHash-related material drift.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
