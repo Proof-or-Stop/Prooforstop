@@ -7,9 +7,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-24T13:05:09.895Z",
-      "endTime": null,
+      "endTime": "2026-06-24T13:08:48.906Z",
       "verificationIntent": {
         "happy": [
           {
@@ -42,7 +42,42 @@
         "test": [
           "packages/main/src/tasks/done-prepare-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/done-prepare-smoke.js",
+          "result": "pass",
+          "note": "Smoke passed: same-story pre-existing done-required-evidence metadata remains dirty while done_prepare reports PASS.",
+          "headHash": "9f411885f4db029732973d7b7eb3622ad4e9f131",
+          "materialHash": "d3c7b4dd7324ecf797b04994398543e4af7f669b6fbb35bc0023a29183e92fc0",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-24T13:08:49.152Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/done-prepare-smoke.js",
+          "result": "pass",
+          "note": "Smoke passed: dirty source, metadata-to-source, source-to-metadata, source-to-owner-lease, and other-story metadata scenarios block at cleanTree.",
+          "headHash": "9f411885f4db029732973d7b7eb3622ad4e9f131",
+          "materialHash": "d3c7b4dd7324ecf797b04994398543e4af7f669b6fbb35bc0023a29183e92fc0",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-24T13:08:49.355Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/done-prepare-smoke.js",
+          "result": "pass",
+          "note": "Smoke passed: failed DONE-required lifecycle metadata blocks doneClosure and does not produce DONE prepare PASS.",
+          "headHash": "9f411885f4db029732973d7b7eb3622ad4e9f131",
+          "materialHash": "d3c7b4dd7324ecf797b04994398543e4af7f669b6fbb35bc0023a29183e92fc0",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-24T13:08:49.559Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
