@@ -60,6 +60,24 @@
       "resolvedAt": "2026-06-24T02:41:50.486Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-36ba:F-004",
+      "desc": "quality-cleanup: review-escalation-freshness-root-smoke.ts:88+106 imports from node:fs are split across two separate import statements (line 88: mkdtempSync/mkdirSync/writeFileSync/rmSync; line 106: realpathSync). They should be merged into a single import statement for the same module.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-24T03:10:09.659Z",
+      "reviewRound": "2026-06-24T03:08:08.008Z",
+      "reviewRunId": "B-36ba:RR-011",
+      "_hash": "62fae29188bb0f17a929a1f741cda85f0dfe46dcbb9d7dd520590e99a77aaafe",
+      "files": [
+        "packages/main/src/tasks/review-escalation-freshness-root-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|quality-cleanup-review",
+      "signatureTagSource": "auto"
     }
   ]
 }
