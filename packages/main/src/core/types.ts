@@ -999,7 +999,7 @@ export type ProcessEventType =
   | 'decision_doc_proposal'
   | 'decision_doc_save'
   | 'auxiliary_worktree_cleanup'
-  // B-6bfd CHK-004: Lattice-managed guard session projection lifecycle events.
+  // B-6bfd CHK-004: Proofbound-managed guard session projection lifecycle events.
   | 'guard_session_start'
   | 'guard_session_check';
 
@@ -1665,7 +1665,7 @@ export interface SemanticScopeGateResult {
   summary: string;
 }
 
-// ── Guard Session (B-6bfd CHK-004: Lattice-managed guarded session projection) ──
+// ── Guard Session (B-6bfd CHK-004: Proofbound-managed guarded session projection) ──
 //
 // A guard session is a *projection* of scope protection for a Lattice-dispatched
 // agent. It is NOT a competing session truth source and NOT a write-ownership

@@ -575,7 +575,7 @@ export function lifecycleArtifactsByTransition(): LifecycleTransitionArtifacts[]
 // ── B-b9d0 CHK-001/002: lifecycle artifact scope classifier ──
 //
 // Narrow trust policy for command-generated story metadata. A path is
-// recognized as a Lattice-owned lifecycle artifact only when it lives under a
+// recognized as a Proofbound-owned lifecycle artifact only when it lives under a
 // known story directory prefix, the segment after that prefix is a valid
 // storyId, AND either the top-level terminal filename or relative story-dir
 // path is in a closed set below. Arbitrary JSON / unknown files under active docs/story/

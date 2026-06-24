@@ -1,7 +1,7 @@
 /**
  * @task B-6bfd
  * @checklist CHK-004
- * @title Lattice-managed guarded session projection
+ * @title Proofbound-managed guarded session projection
  * @type feature
  * @priority high
  * @description

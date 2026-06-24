@@ -131,7 +131,7 @@ lattice autopilot run --mode=authority --storyId=B-xxxx --until=DONE \
 
 ### Planner: natural language → Story + plan
 
-`lattice planner ...` is the Lattice-native planner entry point: it turns a one-sentence natural-language requirement into a Proofbound Story draft, checklist, verification intent, and typed `plannedSteps[]` for the autopilot executor to consume. It never hands Story / job / receipt authority to an external framework.
+`lattice planner ...` is the Proofbound-native planner entry point: it turns a one-sentence natural-language requirement into a Proofbound Story draft, checklist, verification intent, and typed `plannedSteps[]` for the autopilot executor to consume. It never hands Story / job / receipt authority to an external framework.
 
 ```bash
 lattice planner draft --request="Add a hello command that prints hi" --json

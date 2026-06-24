@@ -12,7 +12,7 @@
  *   registration guards.
  * @changes
  *   - [CHK-003] Add a core aux_doc_list handler that scans root docs and configured doc dirs
- *   - [CHK-003] Skip Lattice-managed story/fixture runtime directories from relatedDocs candidates
+ *   - [CHK-003] Skip Proofbound-managed story/fixture runtime directories from relatedDocs candidates
  */
 import { existsSync, readdirSync, readFileSync, statSync } from 'fs';
 import { dirname, join, relative } from 'path';

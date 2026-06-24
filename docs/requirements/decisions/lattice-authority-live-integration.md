@@ -15,7 +15,7 @@ It combines two previously separate stages into one coordinated product track:
   authority jobs, execute bounded development steps, upload evidence, request
   gate evaluation, verify the returned receipt, retry or stop safely, and advance
   toward TEST / DONE without human babysitting.
-- **Stage C: Lattice-native planner.** Proofbound must turn a natural-language
+- **Stage C: Proofbound-native planner.** Proofbound must turn a natural-language
   request into a Proofbound Story, verification intent, Authority job, and typed
   `plannedSteps[]` without handing story, job, or receipt authority to an
   external framework.
@@ -589,9 +589,9 @@ For complete unattended development, the product goal extends to:
 
 ```text
 natural language request
--> Lattice-native Story Planner
+-> Proofbound-native Story Planner
 -> Proofbound Story + background + checklist + verification intent
--> Lattice-native Job Planner
+-> Proofbound-native Job Planner
 -> local run plan or Authority job + typed plannedSteps[]
 -> Stage B executor
 -> evidence upload
@@ -1962,7 +1962,7 @@ Stage B is complete when:
 Stage C makes complete unattended development possible from a natural-language
 request. It must generate the Story and Authority job inputs that Stage B needs.
 
-Stage C must be Lattice-native. It may borrow methodology from Superpowers, but
+Stage C must be Proofbound-native. It may borrow methodology from Superpowers, but
 it must produce Proofbound process artifacts and use Proofbound commands.
 
 ### C1. Planner Command Surface
@@ -3511,8 +3511,8 @@ Proofbound CLI must provide:
 - native receipt verification;
 - live runner control-plane client;
 - authority job consumer;
-- Lattice-native Story Planner;
-- Lattice-native Job Planner;
+- Proofbound-native Story Planner;
+- Proofbound-native Job Planner;
 - bounded provider executor;
 - structured evidence uploader;
 - gate evaluation client;

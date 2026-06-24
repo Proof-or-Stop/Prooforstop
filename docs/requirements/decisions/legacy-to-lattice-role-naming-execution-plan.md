@@ -141,7 +141,7 @@ specific read-only legacy migration path requires explicit normalization.
 ### CHK-004 - active docs, audits, and tests
 
 Update active docs and tests that still teach or assert Proofbound role IDs or active
-Lattice-branded validation vocabulary. Preserve or label historical/archive
+Proofbound-branded validation vocabulary. Preserve or label historical/archive
 references instead of performing a blind repository rename. Keep runtime
 compatibility docs accurate for `LATTICE_*`, `.lattice`, old signed salts, and old
 data migration paths.

@@ -371,7 +371,7 @@ npm run test:legacy -- autopilot-execute
 
 ### Planner (natural language → Story + plan)
 
-`lattice planner ...` is the Lattice-native planner surface. It turns a
+`lattice planner ...` is the Proofbound-native planner surface. It turns a
 natural-language request into a Proofbound Story draft, checklist, verification
 intent, and typed `plannedSteps[]` that the autopilot executor can run. It does
 not hand Story, job, or receipt authority to any external framework.
@@ -632,7 +632,7 @@ This checks:
 - in legacy/full prompt mode, whether `.lattice-codex/agents/*.md` still equals the controlled transform result of `.claude/agents/*.md`
 - in legacy/full prompt mode, whether `.lattice-codex/agents` is missing any prompt newly added to `.claude/agents`
 - in registry/thin prompt mode, whether the `promptRegistry` version/hash in `.lattice-codex/lattice.json` matches the package registry and Codex prompt renderability is fine
-- whether `.lattice-codex/lattice.json` declares the Lattice-managed Codex adapter, `activitySource=codex`, the recommended entry points, and the runtime assets that are not generated
+- whether `.lattice-codex/lattice.json` declares the Proofbound-managed Codex adapter, `activitySource=codex`, the recommended entry points, and the runtime assets that are not generated
 - whether `.lattice-codex/README.md` retains the correct Codex fallback entry point
 - whether `README.md` / `AGENTS.md` still contain the key Codex integration notes
 
@@ -740,7 +740,7 @@ node scripts/real-story-replay-benchmark.mjs
 
 ## Claude Code
 
-The Claude Code side still uses the hooks, settings, and skills under `.claude/`. Codex does not consume these Claude runtime configs and does not read `.lattice-codex/settings.json`. What Proofbound generates for Codex is adapter assets: full mode generates the agent prompts from `.claude/agents` into `.lattice-codex/agents` in a fully controlled way; thin mode instead records the package prompt registry's version and material hash in `.lattice-codex/lattice.json`, without requiring local prompt copies. The Codex native PreToolUse hook uses the official lowercase `.codex/hooks.json` and `.codex/hooks/lattice-scope-pretool.cjs`; on a case-insensitive file system it may appear as the `.lattice-codex/hooks` alias. `.lattice-codex/lattice.json` also records the Lattice-managed adapter's recommended entry points, the `source=codex` activity tag, the session environment variables, and the explicitly excluded runtime assets. The Codex-side notes live in:
+The Claude Code side still uses the hooks, settings, and skills under `.claude/`. Codex does not consume these Claude runtime configs and does not read `.lattice-codex/settings.json`. What Proofbound generates for Codex is adapter assets: full mode generates the agent prompts from `.claude/agents` into `.lattice-codex/agents` in a fully controlled way; thin mode instead records the package prompt registry's version and material hash in `.lattice-codex/lattice.json`, without requiring local prompt copies. The Codex native PreToolUse hook uses the official lowercase `.codex/hooks.json` and `.codex/hooks/lattice-scope-pretool.cjs`; on a case-insensitive file system it may appear as the `.lattice-codex/hooks` alias. `.lattice-codex/lattice.json` also records the Proofbound-managed adapter's recommended entry points, the `source=codex` activity tag, the session environment variables, and the explicitly excluded runtime assets. The Codex-side notes live in:
 
 - [AGENTS.md](/Users/jek/Documents/Work/Orchestrate/AGENTS.md:1)
 - [.lattice-codex/README.md](/Users/jek/Documents/Work/Orchestrate/.lattice-codex/README.md:1)

@@ -80,7 +80,7 @@ The target resolver order is:
 
 1. **Explicit canonical env**: a user, wrapper, runner, or host adapter sets
    `LATTICE_SESSION_ID`.
-2. **Host adapter bridge**: a Lattice-owned adapter maps a host-native stable
+2. **Host adapter bridge**: a Proofbound-owned adapter maps a host-native stable
    signal into `LATTICE_SESSION_ID` before core owner-lease code runs.
 3. **Generated-token fallback**: when a host has a session boundary but no
    native stable env, the adapter creates and reuses a local opaque token for

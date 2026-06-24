@@ -1065,7 +1065,7 @@ function assertManagedAssetExpandedDocsAndTrueDrift(): void {
   ): void => {
     const badRoot = mkdtempSync(join(tmpdir(), 'lattice-managed-drift-'));
     try {
-      const badSection = '<!-- lattice:start -->\n# Locally edited guide\nThis is not a Lattice-owned alternate contract.\n<!-- lattice:end -->\n';
+      const badSection = '<!-- lattice:start -->\n# Locally edited guide\nThis is not a Proofbound-owned alternate contract.\n<!-- lattice:end -->\n';
       for (const doc of docs) write(badRoot, doc.relPath, badSection);
       const drift = runManagedAssetCheck(badRoot, { profile: 'all', assetMode });
       const driftById = new Map(drift.items.map(item => [item.id, item]));

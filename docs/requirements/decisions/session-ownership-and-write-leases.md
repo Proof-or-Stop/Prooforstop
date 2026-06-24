@@ -50,7 +50,7 @@ The rollout was designed to prevent these failure modes:
 - Two sessions can mutate the same story metadata and confuse phase or evidence state.
 - Two DONE flows can race on main and leave partial-DONE recovery work.
 - Shared B-META writes such as `gap_log` can duplicate findings.
-- Agents relying on human chat coordination instead of Lattice-enforced ownership.
+- Agents relying on human chat coordination instead of Proofbound-enforced ownership.
 
 Proofbound must allow parallel work while making write authority explicit.
 
