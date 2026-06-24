@@ -82,7 +82,35 @@
       "context": "doc-code consistency",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "In git diff CHANGELOG.md the user sees an added Experiments note: \"B4 truncatedContext is now a non-empty token-less context-lost marker (mirroring B5) so the single-shot agent gets a valid prompt\".",
+      "files": {
+        "modify": [
+          "CHANGELOG.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "git diff shows the CHANGELOG Experiments bullet describing the B4 non-empty marker fix",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "the bullet does not overclaim a powered run was executed",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "grep -c for the Experiments heading stays 1",
+            "type": "logic"
+          }
+        ]
+      }
     }
   ]
 }
