@@ -1,0 +1,87 @@
+{
+  "findings": [
+    {
+      "id": "B-36ba:F-001",
+      "desc": "CHK-003:happy:0, CHK-003:happy:1, CHK-003:happy:2 (all cli/must): each intent explicitly requires invoking the handler (review_escalation_status / policy_set / fallback_set) under a wrapper-root layout and asserting report.materialHash === floor.materialHash. The evidence for all three points to review-escalation-smoke.js, which is a plain-repo-only smoke with no wrapper-root layout setup. The notes acknowledge this by saying evaluation equivalence is proven indirectly via the freshness-root smoke, but that is a transitive proxy argument, not the direct handler+wrapper-root execution the intents prescribe. The `cli/must` intents are not fulfilled by plain-smoke evidence.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-24T02:00:39.897Z",
+      "reviewRound": "2026-06-24T01:51:47.453Z",
+      "reviewRunId": "B-36ba:RR-003",
+      "_hash": "2e0b0354f82ea46a5b185e785d8e43b7dfb61f42543aa2198861361b8106a466",
+      "files": [
+        "packages/main/src/handlers/review-escalation.ts",
+        "packages/main/src/tasks/review-escalation-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|happy-happy-happy",
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-06-24T02:16:00.086Z"
+    },
+    {
+      "id": "B-36ba:F-002",
+      "desc": "CHK-002:happy:1 and CHK-002:happy:2 (both cli/must): each intent requires invoking the DONE-readiness path of StoryMachine (canFinishGuard at machine.ts ~639 and getGuardFailureReason at machine.ts ~1140) under a wrapper-root layout and asserting escalation.materialHash === floor.materialHash. The evidence for both is kind=logic_test (code inspection of machine.ts), not a cli execution under a wrapper-root layout. CHK-002:happy:0 uses done-oracle-wrapper-root-smoke.js which covers the done-oracle.ts call site, but the two machine.ts call sites are only verified by static inspection. The cli/must intents for these two machine.ts paths are not fulfilled by logic_test inspection evidence.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-24T02:00:47.779Z",
+      "reviewRound": "2026-06-24T01:51:47.453Z",
+      "reviewRunId": "B-36ba:RR-003",
+      "_hash": "2d50c9213825c83822842be4baf6adfb76121d5a1d1c44c124c7d090c59561cc",
+      "files": [
+        "packages/main/src/core/machine.ts"
+      ],
+      "signatureTag": "missing|ts|happy-happy-both",
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-06-24T02:16:06.365Z"
+    },
+    {
+      "id": "B-36ba:F-003",
+      "desc": "Host-2 (Codex) review: the machine-guard coverage in review-escalation-freshness-root-smoke.ts is not a genuine regression guard. canFinishGuard / getGuardFailureReason return early (test-evidence/delivery-check gates) before reaching the evaluateReviewEscalation call site, and the escViaMachineExpr assertion tests a COPY of the gitCwd expression outside the guard. Reverting the machine.ts:639/1145 gitCwd plumbing would NOT fail the smoke. Fix: seed a DONE-ready wrapper-root fixture (PASS test-evidence + valid signed delivery-check + escalation-required policy + 3x2 host verdicts bound to currentMaterialHash(gitRoot,HEAD,metaRoot)) so canFinishGuard reaches and DEPENDS on the escalation call; assert canFinishGuard(gitCwd:gitRoot)===true and (gitCwd:metaRoot)===false.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "codex-host2",
+      "createdAt": "2026-06-24T02:26:51.736Z",
+      "reviewRound": "2026-06-24T02:12:19.502Z",
+      "_hash": "0e7b9db1fd81127367a70b92150a415f57b4e7324dfb395caafd368c16145d70",
+      "files": [
+        "packages/main/src/tasks/review-escalation-freshness-root-smoke.ts",
+        "packages/main/src/core/machine.ts"
+      ],
+      "signatureTag": "missing|ts|host-codex-review",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Re-review verified commit 605c39854 added a DONE-ready wrapper-root fixture: PASS test evidence, signed fresh delivery-check, explicit high-risk escalation policy, and 3x2 host verdicts bound to currentMaterialHash(gitRoot,HEAD,metaRoot). Baseline build+smoke passed. Temporarily removing gitCwd from canFinishGuard evaluateReviewEscalation compiled but made review-escalation-freshness-root-smoke fail at the canFinishGuard green assertion; restoring machine.ts made build+smoke pass again. Production machine.ts and done-oracle.ts still thread gitCwd.",
+      "resolvedAt": "2026-06-24T02:41:50.486Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-36ba:F-004",
+      "desc": "quality-cleanup: review-escalation-freshness-root-smoke.ts:88+106 imports from node:fs are split across two separate import statements (line 88: mkdtempSync/mkdirSync/writeFileSync/rmSync; line 106: realpathSync). They should be merged into a single import statement for the same module.",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-24T03:10:09.659Z",
+      "reviewRound": "2026-06-24T03:08:08.008Z",
+      "reviewRunId": "B-36ba:RR-011",
+      "_hash": "62fae29188bb0f17a929a1f741cda85f0dfe46dcbb9d7dd520590e99a77aaafe",
+      "files": [
+        "packages/main/src/tasks/review-escalation-freshness-root-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|quality-cleanup-review",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Cosmetic only: two separate import statements both from 'node:fs' in the smoke test file. Zero runtime/type/maintainability impact (TypeScript and Node treat split same-module imports identically). Deferred rather than fixed because editing the smoke would change storyFilesHash and force a full review re-bind round (3 reviewers + 3x2 host quorum) over the 259-commit post-merge material for a 1-line style preference — disproportionate to the nit.",
+      "resolvedAt": "2026-06-24T03:14:56.219Z",
+      "resolutionType": "accepted_risk",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

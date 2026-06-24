@@ -638,6 +638,12 @@ export function canFinishGuard(context: StoryMachineContext): boolean {
 
   const reviewEscalation = evaluateReviewEscalation({
     projectRoot: context.projectRoot,
+    gitCwd: context.gitCwd ?? resolveGitCwd({
+      store: context.store,
+      storyId: context.storyId,
+      metadataRoot: context.projectRoot,
+      projectRoot: context.projectRoot,
+    }),
     storyId: context.storyId,
     store: context.store,
   });
@@ -1139,6 +1145,12 @@ export function getGuardFailureReason(
 
     const reviewEscalation = evaluateReviewEscalation({
       projectRoot: projectRoot ?? process.cwd(),
+      gitCwd: gitCwd ?? resolveGitCwd({
+        store,
+        storyId,
+        metadataRoot: projectRoot ?? process.cwd(),
+        projectRoot: projectRoot ?? process.cwd(),
+      }),
       storyId,
       store,
     });

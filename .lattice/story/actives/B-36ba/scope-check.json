@@ -1,0 +1,108 @@
+{
+  "storyId": "B-36ba",
+  "checkedAt": "2026-06-24T01:36:24.264Z",
+  "features": [
+    {
+      "feature": "Add gitCwd?: string to EvaluateReviewEscalationArgs and resolve const gitCwd = args.gitCwd ?? args.projectRoot in evaluateReviewEscalation",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Change currentMaterialHash/currentStoryFilesHash calls in evaluateReviewEscalation to use resolved gitCwd (not projectRoot) as the git root, mirroring review-assurance-floor.ts and verdict producers",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Plumb resolved gitCwd into the DONE-gate escalation calls in done-oracle.ts (~751) and machine.ts (~639 and ~1140), mirroring the adjacent evaluateReviewAssuranceFloor calls",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Plumb resolved gitCwd (via resolveGitCwd) into the diagnostic escalation handlers review_escalation_status, review_escalation_policy_set, and review_escalation_fallback_set",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Confirm quorum-submit.ts:329 already passes explicit materialHash/storyFilesHash so its internal recompute is bypassed (no change needed)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Add new offline smoke test proving floor.materialHash === escalation.materialHash under both plain-repo and wrapper-root layouts, with RED-documenting assertion that omitting gitCwd causes divergence",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Wire new smoke into npm test chain (root package.json test:review-escalation-freshness-root script + insertion into root test chain)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Byte-identical behavior in plain repos (gitCwd == projectRoot): every caller edit must be a no-op when gitCwd equals projectRoot",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/three-round-two-host-review-escalation-execution-plan.md"
+    },
+    {
+      "feature": "storyFilesHash must also be computed from the resolved gitCwd (not projectRoot) so floor and escalation agree on both materialHash and storyFilesHash under wrapper-root layouts",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-files-hash-material-drift.md"
+    },
+    {
+      "feature": "Floor freshness logic changes (storyFilesHash-authoritative for floor) are excluded from this story (deferred to B-6de6)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary: Changing the floor freshness logic or making the floor storyFilesHash-authoritative (that is B-6de6 scope)",
+      "source": "decisions:decisions/story-files-hash-material-drift.md"
+    },
+    {
+      "feature": "Verdict-producer stored-hash computation changes (quorum_submit/autopilot_review_submit/verifier) are excluded",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary: Changing whole-tree materialHash as the primary freshness key, or any verdict-producer stored-hash computation",
+      "source": "decisions:decisions/story-files-hash-material-drift.md"
+    },
+    {
+      "feature": "Mutating or replacing stored verdict events (append-only log) is excluded",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary: Mutating or replacing stored verdict events (append-only log preserved)",
+      "source": "decisions:decisions/three-round-two-host-review-escalation-execution-plan.md"
+    },
+    {
+      "feature": "escalation.storyFilesHash must equal currentStoryFilesHash(gitCwd, HEAD, projectRoot) in the smoke test (both hash fields are verified, not just materialHash)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-files-hash-material-drift.md"
+    }
+  ],
+  "summary": {
+    "total": 13,
+    "covered": 10,
+    "excluded": 3,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "d05b05cd2db15e0a7f1d5f40e1fa3e18460e19f3c19b1f0a92eaa5346ac44bbf",
+  "openQuestions": []
+}

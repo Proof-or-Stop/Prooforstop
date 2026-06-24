@@ -1,0 +1,103 @@
+{
+  "passes": [
+    {
+      "id": "B-36ba:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion/replacement residue found. The old single-arg currentMaterialHash(args.projectRoot)/currentStoryFilesHash(args.projectRoot) pattern in evaluateReviewEscalation is fully replaced by the gitCwd-threaded three-arg calls. All DONE-gate call sites (done-oracle.ts:751, machine.ts:639, machine.ts:1146) and all handler entry points (review_escalation_status, policy_set, fallback_set) correctly thread gitCwd. The quorum-submit.ts:329 non-threaded call is correct by design (explicit materialHash/storyFilesHash supplied; internal recompute never reached). No residual production-path uses of the old pattern exist. Byte-identical behavior in plain repos confirmed by default gitCwd=projectRoot. Smoke test auto-discovered by run-all-smokes and wired in both package.json files. Concept residue check completed, no blocker.",
+      "createdAt": "2026-06-24T01:56:06.458Z",
+      "reviewRound": "2026-06-24T01:51:47.453Z",
+      "reviewRunId": "B-36ba:RR-002",
+      "_hash": "0eef6f90ff4653e013e42d58355bf6f486192c545ca0f9d32a5c5c1924ed24e5"
+    },
+    {
+      "id": "B-36ba:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "All 5 changed source files reviewed. Dead code: none. Type safety: clean (tsc --noEmit passes, no as-any, empty catch in resolveGitCwd is intentional fail-safe). I/O isolation: no shell/bridge violation. Correctness: gitCwd?? falls back to projectRoot in all callers — plain-repo behavior is byte-identical; resolveGitCwd is fail-safe returning projectRoot on resolver error; handler storyId types are required strings; machine.ts already imported resolveGitCwd. Smoke test passes both PLAIN and WRAPPER-ROOT cases including RED-documenting assertion. No doc-promise-undelivered findings.",
+      "createdAt": "2026-06-24T01:56:20.403Z",
+      "reviewRound": "2026-06-24T01:51:47.453Z",
+      "reviewRunId": "B-36ba:RR-001",
+      "_hash": "ebe05596cd5a055267a972b53dff7d51f8c08a14a01ab74a9fd50e0e04b1700e"
+    },
+    {
+      "id": "B-36ba:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Concept-residue check complete (round 2, RR-004). The only concept replacements are single-arg currentMaterialHash(args.projectRoot) and currentStoryFilesHash(args.projectRoot) in the escalation path, replaced with 3-arg gitCwd-threaded forms. All 6 production evaluateReviewEscalation call sites (done-oracle.ts:751, machine.ts:639+1146, handlers/review-escalation.ts:66+130+222) now carry gitCwd. quorum-submit.ts:329 is intentionally unchanged per plan (passes explicit materialHash/storyFilesHash, bypassing internal recompute). review-run.ts single-arg calls (captureReviewRunSnapshot) are in a separate non-escalation path with no evaluateReviewEscalation connection — pre-existing pattern, out of scope. Lines 12-13 of review-escalation-freshness-root-smoke.ts are JSDoc documenting the old bug, not active code. No new CLAUDE.md/README promises. No doc-promise-undelivered issues. Zero residual single-arg calls in escalation path. No blocker.",
+      "createdAt": "2026-06-24T02:15:19.001Z",
+      "reviewRound": "2026-06-24T02:12:19.502Z",
+      "reviewRunId": "B-36ba:RR-004",
+      "_hash": "78d905afce0f5c7998f2a448f5af8d0ce40d4bf7216d880ee4c2e70feb17a6d5"
+    },
+    {
+      "id": "B-36ba:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Round-2 re-review of commit 9582eea5b (test-only). Audited packages/main/src/tasks/review-escalation-freshness-root-smoke.ts new third case (WRAPPER-ROOT real StoryStore). Checks: (1) Dead code — all new imports (StoryStore, createReviewEscalationHandlers, HandlerContext, canFinishGuard, getGuardFailureReason, resolveGitCwd, realpathSync, ChecklistData) are used; no commented-out blocks. Split import of realpathSync on line 80 separate from the existing node:fs import on line 67 is a style issue only (no correctness impact). (2) Type safety — HandlerContext cast provides all required fields (store, root, scanRoot); StoryMachineContext object {storyId, store, projectRoot, gitCwd} satisfies the interface; storeStory satisfies StoryInfo (all required fields present); storeChecklist satisfies ChecklistData; getGuardFailureReason called with correct positional args; no as-any casts; catch blocks delegate realpathSync fallback cleanly. (3) I/O shell isolation — no new bridge violations; smoke is a task file, not a shell/ui file. (4) No leaked production changes — diff is exclusively the smoke file. (5) Fixture cleanup — finally block calls rmSync(metaRoot, {recursive:true, force:true}) + resetConfigCache(); temporary git repos in metaRoot/repo are fully cleaned up. (6) Assertions are honest — RED control asserts materialHash===null and notEqual to floorMaterial (cannot trivially pass). (7) Build clean: npm --prefix packages/main run build exits 0. Smoke passes: node packages/main/dist/tasks/review-escalation-freshness-root-smoke.js prints the pass line. 0 findings.",
+      "createdAt": "2026-06-24T02:16:08.945Z",
+      "reviewRound": "2026-06-24T02:12:19.502Z",
+      "reviewRunId": "B-36ba:RR-006",
+      "_hash": "13305b92f871a9e63ab83f45a04c4bb233136b788088574297489972e4fac973"
+    },
+    {
+      "id": "B-36ba:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence across all 4 checklist items. Round-2 direct runtime coverage in the WRAPPER-ROOT (real StoryStore) third case of review-escalation-freshness-root-smoke.ts resolves F-001 (CHK-003:happy:0/1/2 — direct handler invocations) and F-002 (CHK-002:happy:1/2 — direct canFinishGuard/getGuardFailureReason invocations + machine-expression evaluator check). All must-priority intents covered: 0 must-gaps, 0 waivers. Smoke confirmed passing: review-escalation freshness-root smoke passed.",
+      "createdAt": "2026-06-24T02:16:24.327Z",
+      "reviewRound": "2026-06-24T02:12:19.502Z",
+      "reviewRunId": "B-36ba:RR-005",
+      "_hash": "e8c88596360088bb5c28d908616632378516ebd6de8173b0261a8a31dd7b5798"
+    },
+    {
+      "id": "B-36ba:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "Concept residue check complete (round 3). Deleted concept: single-arg currentMaterialHash(args.projectRoot) and currentStoryFilesHash(args.projectRoot) calls on the escalation freshness path. All 3 production files (core/review-escalation.ts, handlers/review-escalation.ts, core/done-oracle.ts) now use multi-arg form with gitCwd threaded. machine.ts canFinishGuard and getGuardFailureReason both resolve gitCwd via resolveGitCwd fallback before passing to evaluateReviewEscalation. quorum-submit intentionally unchanged: it supplies materialHash/storyFilesHash as pre-computed values, bypassing the gitCwd path. Single-arg currentMaterialHash calls in other test files and unrelated production files (lattice-evidence.ts, handlers/verifier.ts, etc.) are outside scope — they do not go through the escalation freshness path. Plain-repo byte-identity preserved: evaluateReviewEscalation defaults gitCwd to args.projectRoot when not supplied. No concept residue found in the escalation freshness path.",
+      "createdAt": "2026-06-24T02:41:28.946Z",
+      "reviewRound": "2026-06-24T02:38:27.797Z",
+      "reviewRunId": "B-36ba:RR-007",
+      "_hash": "2080ec7faedab094a9dc04fd7f16ee2f7d359e291c8b5df113b8947c127bf30a"
+    },
+    {
+      "id": "B-36ba:RP-007",
+      "agent": "lattice-review-quality",
+      "note": "Audited the DONE-ready (F-003) case added in commit 605c39854. No dead code: all imports are used (split node:fs import at lines 88/106 is stylistic, not a correctness issue). No type-safety issues: `as HandlerContext` is test scaffolding with only required fields used; all function signatures match (canFinishGuard, getGuardFailureReason, buildDoneChecklist, signDeliveryCheck). All 4 test cases have finally blocks with rmSync + resetConfigCache. Verdict seeding is correct: 3x2 verdicts with distinct hostId/sessionId/keyId per round satisfy the quorum checker independence requirement. Assertions are non-tautological: GREEN asserts canFinishGuard/getGuardFailureReason/done-oracle row pass with gitCwd=gitRoot; RED asserts done-oracle review-escalation row fails with gitCwd=metaRoot (non-git), isolating the gitCwd dependency. signDeliveryCheck parameters match the function signature exactly. No leaked production code: git show 605c39854 --stat shows only the smoke file changed. Build is clean, smoke passes.",
+      "createdAt": "2026-06-24T02:44:28.614Z",
+      "reviewRound": "2026-06-24T02:38:27.797Z",
+      "reviewRunId": "B-36ba:RR-008",
+      "_hash": "17376565d4b89a18c77b0349b87d17ddd3f84c2606dbd133cf50660ea0fa6f24"
+    },
+    {
+      "id": "B-36ba:RP-008",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. 23/23 required intents covered (0 missing per validate). CHK-001: 5 evidence items cover 2 happy(must), 1 edge(must), 1 edge(should), 1 adversarial(must). CHK-002: 5 evidence items cover 3 happy(must), 1 edge(must), 1 adversarial(must); CHK-002:happy:1/2 now bound to genuine DONE-ready fixture (commit 605c39854) revert-proven against machine.ts:639. CHK-003: 6 evidence items cover 4 happy(must), 1 edge(must), 1 adversarial(must). CHK-004: 7 evidence items cover 3 happy(must), 1 edge(must), 1 edge(should), 1 adversarial(must), 1 adversarial(must). Smoke node packages/main/dist/tasks/review-escalation-freshness-root-smoke.js confirms pass. All evidence has result=pass, verdict=success, non-null notes with concrete behavior described, and headHash binding. No coverage gap remains.",
+      "createdAt": "2026-06-24T03:01:01.391Z",
+      "reviewRound": "2026-06-24T02:38:27.797Z",
+      "reviewRunId": "B-36ba:RR-009",
+      "_hash": "f997689ac3f83488495aa0fc6fde765a239d5e91ebaee25a7fa5ff420344a2ea"
+    },
+    {
+      "id": "B-36ba:RP-009",
+      "agent": "lattice-review-quality",
+      "note": "Round-4 re-bind quality review. Changed files: review-escalation.ts (gitCwd optional param + fallback), handlers/review-escalation.ts (resolveGitCwd import + 3 handler call sites), done-oracle.ts (gitCwd param pass-through), machine.ts (gitCwd ?? resolveGitCwd at canFinishGuard:639 + getGuardFailureReason:1145), review-escalation-freshness-root-smoke.ts (new 875-line smoke), package.json + packages/main/package.json (test chain additions). No dead code, no as-any, no unused imports, no empty catch in diff. The split node:fs import in the smoke file (F-004, low) is a maintainability nit with no correctness impact. No blockers.",
+      "createdAt": "2026-06-24T03:10:18.435Z",
+      "reviewRound": "2026-06-24T03:08:08.008Z",
+      "reviewRunId": "B-36ba:RR-011",
+      "_hash": "182300a67727b057d46456ba310157ae6bbf8532abf8759734d78b6c4bffb810"
+    },
+    {
+      "id": "B-36ba:RP-010",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion or replacement in this story. B-36ba adds the gitCwd parameter to evaluateReviewEscalation and converts single-arg currentMaterialHash/currentStoryFilesHash calls to three-arg form only in the review-escalation path (review-escalation.ts core+handler, machine.ts, done-oracle.ts). The merge commit f38a3933d brought in B-6de6/B-fbca/B-ef65 main changes but introduced zero concept deletions in B-36ba-owned files. All escalation-path call sites confirmed using gitCwd form. No single-arg residue found. Build clean, smoke passed.",
+      "createdAt": "2026-06-24T03:10:30.049Z",
+      "reviewRound": "2026-06-24T03:08:08.008Z",
+      "reviewRunId": "B-36ba:RR-010",
+      "_hash": "bd33f47cef522f78c0a7c6cd09ad4bf8c32efabf14830651f7daa5e9dc8b0b06"
+    },
+    {
+      "id": "B-36ba:RP-011",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence for all 4 checklist items (CHK-001 through CHK-004). Total intent count: 19 (17 must + 2 should). Must-gaps: 0. Waivers: 0. Smoke node packages/main/dist/tasks/review-escalation-freshness-root-smoke.js passes post-merge (merge commit f38a3933d). evidence_plan reports missing=0, fresh=19, rerun=4 (all rerun are logic_test kind with verdict=success, valid per rule 2). No new coverage gaps found.",
+      "createdAt": "2026-06-24T03:13:37.601Z",
+      "reviewRound": "2026-06-24T03:08:08.008Z",
+      "reviewRunId": "B-36ba:RR-012",
+      "_hash": "9ee49dc67a0af296a1c6d78d032213c3ed35eb2818f0eda4cc4fb06ed9b9936a"
+    }
+  ]
+}
