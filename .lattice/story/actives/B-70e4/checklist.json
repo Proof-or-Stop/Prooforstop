@@ -93,7 +93,45 @@
       "context": "packages/main/src/tasks/authority-live-receipt-ref-gate-smoke.ts: DONE enforce gate requires materialOverlapAudit; use buildNoOverlapMaterialOverlapAuditDefault()",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run live smoke (node packages/main/dist/tasks/authority-live-receipt-ref-gate-smoke.js) against staging with auth env vars set -> smoke prints PASS line; WHY: the DONE gate request now includes materialOverlapAudit so Authority accepts it (previously would reject for missing field)",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "buildPhaseGateRequest(ctx, DONE) returns a request object containing materialOverlapAudit with actualFileOverlaps:[] -> the field is present in the gate evaluate payload; WHY: verifies the digest-input side includes the audit so gateInputDigest covers it",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "signedTargetGateRequest(ctx, request) for a DONE request -> the signed decision envelope includes materialOverlapAudit; WHY: the signed decision must match the digest input; omitting it from the signed side would cause a digest mismatch on the Authority server",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "buildPhaseGateRequest(ctx, TEST) -> materialOverlapAudit is NOT added (only DONE needs it) OR is added harmlessly; WHY: TEST gate requests did not previously require this field; adding it only to DONE avoids breaking TEST",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "gateInputDigest mismatch risk: if materialOverlapAudit is added to buildPhaseGateRequest but NOT to signedTargetGateRequest (or vice versa) -> the Authority server rejects with digest mismatch because the two sides disagree on gate input content; WHY: both functions must be updated in lockstep",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "RED/GREEN: remove the materialOverlapAudit from the DONE buildPhaseGateRequest -> live smoke fails because Authority rejects the DONE gate request (missing required field or digest mismatch); restore -> smoke passes; WHY: proves the addition is load-bearing",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
