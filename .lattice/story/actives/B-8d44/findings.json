@@ -618,6 +618,26 @@
       "resolvedAt": "2026-06-24T14:47:07.109Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-8d44:F-029",
+      "desc": "A3 calls reviewArtifact once but does not persist/report the review verdict or findings into the raw engine result/canonical evidence. live-engine.mjs captures reviewVerdict at the A3 review point, but the result object only emits scoring inputs and evidenceRefs; run-driver canonical records have no reviewer verdict/reason fields. This violates the A3 pre-reg contract: exactly one review pass with findings reported, not iterated.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-24T22:54:29.615Z",
+      "reviewRound": "2026-06-24T22:49:33.678Z",
+      "reviewRunId": "B-8d44:RR-034",
+      "_hash": "1e0987e3da7b679fd9200c0d612ff65dade7566358197ea55e42c23bbf9b892a",
+      "files": [
+        "experiments/recovery-runner/live-engine.mjs",
+        "experiments/recovery-runner/run-driver.mjs",
+        "docs/requirements/decisions/lattice-experiment-protocol.md"
+      ],
+      "signatureTag": "missing|mjs|calls-reviewartifact-once",
+      "signatureTagSource": "auto"
     }
   ]
 }
