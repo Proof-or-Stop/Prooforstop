@@ -44,7 +44,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm run --prefix packages/main test:authority-receipt-proof-auth",
+          "result": "pass",
+          "note": "authority-receipt-proof-auth-smoke.ts:32-41 constructs AuthorityClient with customerApiKey=\"cust-key-xyz\", calls fetchGateReceiptProof, and asserts capturedHeaders.Authorization === \"Bearer cust-key-xyz\" (line 38-41). The capturingFetch stub (line 28-31) captures the outgoing headers, proving that authenticated:true in fetchGateReceiptProof (authority-client.ts:646) causes get() to attach the Bearer token. Test exits 0 with PASS.",
+          "headHash": "31643695f5ef340ca631a6ec46b193f1102b35cd",
+          "materialHash": "96adaa007e8f7ddafa1d445c9f905d262eb90f4da087c701fec35f3474287e79",
+          "storyFilesHash": "3bb033bf48d472daad32daea22503c5bbbef2c03c79374e5fe0665781999041e",
+          "timestamp": "2026-06-24T01:19:23.813Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
