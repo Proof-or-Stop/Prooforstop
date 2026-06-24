@@ -352,6 +352,18 @@
           "materialHash": "e0b2db730676982eb59839e40cd4603efd77f86f21b9f04acd7ebde03226ada4",
           "storyFilesHash": "601c0427beb2e38a204e20f373dc04f8eaf99d7ffa210cc893395c594b3b7a23",
           "timestamp": "2026-06-24T23:47:19.378Z"
+        },
+        {
+          "intentRef": "CHK-004:gate-regression:validation-protocol",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/validation-protocol-smoke.js",
+          "result": "pass",
+          "note": "Post-takeover gate regression: validation-protocol smoke proves fresh complete lattice validate evidence skips rerun, legacy PASS without verificationCoverage reruns fail-closed, and stale story-owned PASS reruns/writes FAIL.",
+          "headHash": "be3683400a858d809693677c589312108b8398b7",
+          "materialHash": "e0b2db730676982eb59839e40cd4603efd77f86f21b9f04acd7ebde03226ada4",
+          "storyFilesHash": "601c0427beb2e38a204e20f373dc04f8eaf99d7ffa210cc893395c594b3b7a23",
+          "timestamp": "2026-06-24T23:47:49.226Z"
         }
       ]
     }
