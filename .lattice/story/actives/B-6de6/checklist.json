@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "Make the floor fresh-round count storyFilesHash-authoritative (valid-with-advisory)",
       "context": "In review-assurance-floor.ts evaluateHostVerdictRounds (+ the fallback/degraded paths), when a host verdict's materialHash != current materialHash but its stored storyFilesHash == currentStoryFilesHash(gitCwd,'HEAD',projectRoot), count it as a VALID local round (not ignored), attach the whole-tree-drift re-attestation advisory, and surface it as valid-with-advisory (mirroring evidence-freshness.ts ~305). Reuse currentStoryFilesHash; do not invent a new hash. A verdict with no storyFilesHash, or whose storyFilesHash differs, stays stale/ignored.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-24T00:06:35.933Z",
-      "endTime": null,
+      "endTime": "2026-06-24T00:08:19.946Z",
       "verificationIntent": {
         "happy": [
           {
