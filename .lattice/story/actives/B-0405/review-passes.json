@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-0405:RP-001",
+      "agent": "lattice-review-quality",
+      "note": "Quality review passed. Checked fail-closed evaluator behavior, strict Authority proof schemas, bounded caller-metadata sanitization, warn/enforce diagnostic behavior, handoff/legacy downgrade boundaries, and no local/legacy/handoff promotion to productionDone. Commands passed: npm --prefix packages/main run build; npm --prefix packages/main run test:proof-admissibility-hardening.",
+      "createdAt": "2026-06-24T11:23:58.949Z",
+      "reviewRound": "2026-06-24T11:21:33.431Z",
+      "reviewRunId": "B-0405:RR-001",
+      "_hash": "e2a35d13ff309f3ad8f727512b608facc0439a4c9eb03702afe01172bca4ea37"
+    }
+  ]
+}
