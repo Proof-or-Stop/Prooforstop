@@ -89,6 +89,15 @@
       "reviewRound": "2026-06-24T10:34:51.359Z",
       "reviewRunId": "B-0985:RR-015",
       "_hash": "f6faf4584c7a46ffbd1c1168f8dc6af575158a189fa7202968ed3eea8fb91d31"
+    },
+    {
+      "id": "B-0985:RP-011",
+      "agent": "lattice-review-quality",
+      "note": "Quality review pass: inspected packages/main/src/core/proof-admissibility.ts and packages/main/src/tasks/proof-admissibility-smoke.ts. Required checks fail closed because requireCheck accepts only value === true; missing/null/wrong contractVersion blocks allowed; productionDoneEligible is derived only from allowed policy with production-gate-decision scope. Verified with npm --prefix packages/main run build && node packages/main/dist/tasks/proof-admissibility-smoke.js.",
+      "createdAt": "2026-06-24T10:36:31.445Z",
+      "reviewRound": "2026-06-24T10:34:51.359Z",
+      "reviewRunId": "B-0985:RR-018",
+      "_hash": "544394ee055db14787086bcbfd9f982fc315e2149c934cb005bd5c6ffca774e8"
     }
   ]
 }
