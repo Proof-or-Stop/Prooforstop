@@ -398,6 +398,25 @@
       ],
       "signatureTag": "missing|mjs|edge-lacks-concrete",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-8d44:F-019",
+      "desc": "CHK-004:adversarial:0 evidence note is misbound: intent requires an adversarial probe where the adapter sets adjudicatedOutcome directly and the driver overwrites it (proving single-source-of-truth). The bound note (CX-A) describes a scenario where the adapter sets no outcome (absence test), not a probe where a poisoned er.adjudicatedOutcome is set and then asserted to be ignored. The structural guarantee exists (run-driver.mjs line 260 reads adj.adjudicatedOutcome exclusively, never er.adjudicatedOutcome), but no selfcheck stub returns {adjudicatedOutcome: recovered} while the harness should derive amplified, to prove the overwrite path under adversarial adapter behavior. Evidence note needs rebinding to a test that actually probes the overwrite contract.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-24T13:22:44.733Z",
+      "reviewRound": "2026-06-24T12:50:13.876Z",
+      "reviewRunId": "B-8d44:RR-008",
+      "_hash": "3a322bc90c852d545b5173053e7f809e564c2ae18168949a481362c1d477cb52",
+      "files": [
+        "experiments/recovery-runner/live-engine-selfcheck.mjs",
+        "experiments/recovery-runner/run-driver.mjs"
+      ],
+      "signatureTag": "missing|mjs|adversarial-evidence-note",
+      "signatureTagSource": "auto"
     }
   ]
 }
