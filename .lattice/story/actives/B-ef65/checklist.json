@@ -54,33 +54,33 @@
           "kind": "logic_test",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/validate-execution-lock-smoke.js",
           "result": "pass",
-          "note": "Build passed and validate-execution-lock smoke passed with 8 assertions, including same-story validate lock exclusion before duplicate command body entry.",
-          "headHash": "e742004c2582585077b30e8791f69c2e88388968",
-          "materialHash": "0614fcd396f9537c9e97728a525dc257eddf70ba61479d1948d9dc68de5c28e4",
-          "storyFilesHash": "5108cbe997bbd760287a964cbe091bde24444e5936640ad1b491ce9f038fbaa4",
-          "timestamp": "2026-06-24T01:14:01.995Z"
+          "note": "Post-commit verification passed: TypeScript build succeeded and validate-execution-lock smoke passed with 9 assertions. The implementation now holds the story validation execution lock through command execution, result decoration, and test-evidence persistence for story-scoped non-focus validate writes.",
+          "headHash": "3a054243a2065842641c1162b518685cc2a6dfe9",
+          "materialHash": "1b2a9f2c3066b58911422a17526836c9c37018de4dbbcdda8bc510bb4270a30c",
+          "storyFilesHash": "f1c44983bdb8b2c522889bd6d8922014b05ef37adc11c1a7c8fc1b18736d677c",
+          "timestamp": "2026-06-24T01:26:47.013Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
           "kind": "logic_test",
-          "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js",
+          "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js && node packages/main/dist/tasks/validate-command-timeout-smoke.js",
           "result": "pass",
-          "note": "The smoke includes different-story/worktree concurrency and stale-lock reclaim assertions, proving the lock remains story-scoped and recoverable.",
-          "headHash": "e742004c2582585077b30e8791f69c2e88388968",
-          "materialHash": "0614fcd396f9537c9e97728a525dc257eddf70ba61479d1948d9dc68de5c28e4",
-          "storyFilesHash": "5108cbe997bbd760287a964cbe091bde24444e5936640ad1b491ce9f038fbaa4",
-          "timestamp": "2026-06-24T01:14:02.163Z"
+          "note": "Post-commit smokes passed: validate-execution-lock covers different-story/worktree concurrency and stale-lock reclaim; validate-command-timeout passed 18 assertions, confirming timeout behavior was preserved after moving post-processing inside the lock.",
+          "headHash": "3a054243a2065842641c1162b518685cc2a6dfe9",
+          "materialHash": "1b2a9f2c3066b58911422a17526836c9c37018de4dbbcdda8bc510bb4270a30c",
+          "storyFilesHash": "f1c44983bdb8b2c522889bd6d8922014b05ef37adc11c1a7c8fc1b18736d677c",
+          "timestamp": "2026-06-24T01:26:47.013Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
           "kind": "integration_test",
           "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js",
           "result": "pass",
-          "note": "The smoke includes reviewer pass writes, delivery_check_set writes, story_advance internal validate, reentrancy, and done_required_validate sharing assertions, guarding against collateral blocking or self-deadlock.",
-          "headHash": "e742004c2582585077b30e8791f69c2e88388968",
-          "materialHash": "0614fcd396f9537c9e97728a525dc257eddf70ba61479d1948d9dc68de5c28e4",
-          "storyFilesHash": "5108cbe997bbd760287a964cbe091bde24444e5936640ad1b491ce9f038fbaa4",
-          "timestamp": "2026-06-24T01:14:02.330Z"
+          "note": "Post-commit validate-execution-lock smoke passed with 9 assertions, including the new post-command pre-persistence hold that blocks an overlapping newer validate before command entry, plus reviewer/delivery metadata, story_advance internal validate, done_required_validate sharing, and reentrancy coverage.",
+          "headHash": "3a054243a2065842641c1162b518685cc2a6dfe9",
+          "materialHash": "1b2a9f2c3066b58911422a17526836c9c37018de4dbbcdda8bc510bb4270a30c",
+          "storyFilesHash": "f1c44983bdb8b2c522889bd6d8922014b05ef37adc11c1a7c8fc1b18736d677c",
+          "timestamp": "2026-06-24T01:26:47.013Z"
         }
       ]
     },
@@ -133,11 +133,11 @@
           "file": "packages/main/src/tasks/validate-execution-lock-smoke.ts",
           "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js",
           "result": "pass",
-          "note": "The smoke printed validate-execution-lock smoke passed: 8 assertions and includes the same-story exclusion regression that was red before the lock.",
-          "headHash": "ce351160b71f0068c72ad4972a7266802f787654",
-          "materialHash": "0614fcd396f9537c9e97728a525dc257eddf70ba61479d1948d9dc68de5c28e4",
-          "storyFilesHash": "5108cbe997bbd760287a964cbe091bde24444e5936640ad1b491ce9f038fbaa4",
-          "timestamp": "2026-06-24T01:14:17.620Z"
+          "note": "Post-commit smoke printed validate-execution-lock smoke passed: 9 assertions. It now proves both same-story command exclusion and the post-command evidence persistence window that finding B-ef65:F-001 identified.",
+          "headHash": "3a054243a2065842641c1162b518685cc2a6dfe9",
+          "materialHash": "1b2a9f2c3066b58911422a17526836c9c37018de4dbbcdda8bc510bb4270a30c",
+          "storyFilesHash": "f1c44983bdb8b2c522889bd6d8922014b05ef37adc11c1a7c8fc1b18736d677c",
+          "timestamp": "2026-06-24T01:26:47.013Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -145,11 +145,11 @@
           "file": "packages/main/src/tasks/validate-execution-lock-smoke.ts",
           "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js",
           "result": "pass",
-          "note": "The same smoke covers different-story/worktree concurrency and stale lock cleanup, so the regression is not over-broad.",
-          "headHash": "ce351160b71f0068c72ad4972a7266802f787654",
-          "materialHash": "0614fcd396f9537c9e97728a525dc257eddf70ba61479d1948d9dc68de5c28e4",
-          "storyFilesHash": "5108cbe997bbd760287a964cbe091bde24444e5936640ad1b491ce9f038fbaa4",
-          "timestamp": "2026-06-24T01:14:17.765Z"
+          "note": "Post-commit smoke covers different story/worktree concurrency and stale validation lock reclaim, confirming the evidence persistence fix did not turn validation into a global bottleneck or permanent stale-lock failure.",
+          "headHash": "3a054243a2065842641c1162b518685cc2a6dfe9",
+          "materialHash": "1b2a9f2c3066b58911422a17526836c9c37018de4dbbcdda8bc510bb4270a30c",
+          "storyFilesHash": "f1c44983bdb8b2c522889bd6d8922014b05ef37adc11c1a7c8fc1b18736d677c",
+          "timestamp": "2026-06-24T01:26:47.013Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -157,11 +157,11 @@
           "file": "packages/main/src/tasks/validate-execution-lock-smoke.ts",
           "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js",
           "result": "pass",
-          "note": "The smoke covers reviewer pass, delivery_check_set, and story_advance internal validate non-regression while a validation lock is held.",
-          "headHash": "ce351160b71f0068c72ad4972a7266802f787654",
-          "materialHash": "0614fcd396f9537c9e97728a525dc257eddf70ba61479d1948d9dc68de5c28e4",
-          "storyFilesHash": "5108cbe997bbd760287a964cbe091bde24444e5936640ad1b491ce9f038fbaa4",
-          "timestamp": "2026-06-24T01:14:17.905Z"
+          "note": "Post-commit smoke covers reviewer pass writes, delivery_check_set writes, story_advance internal validate, done_required_validate contention, same-context reentrancy, and sibling contention while the validation lock is held through persistence.",
+          "headHash": "3a054243a2065842641c1162b518685cc2a6dfe9",
+          "materialHash": "1b2a9f2c3066b58911422a17526836c9c37018de4dbbcdda8bc510bb4270a30c",
+          "storyFilesHash": "f1c44983bdb8b2c522889bd6d8922014b05ef37adc11c1a7c8fc1b18736d677c",
+          "timestamp": "2026-06-24T01:26:47.013Z"
         }
       ]
     },
