@@ -170,6 +170,20 @@
       "resolvedAt": "2026-06-24T10:34:44.277Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-e67f:F-009",
+      "desc": "F-007 fix incomplete (source-dir tamper): corpus-selfcheck hashes only the SCRATCH acceptance/ground-truth before/after inject(), but after inject() it re-copies the harness from the MUTABLE task source dir (corpus-selfcheck.mjs:179). A gamed inject() that overwrites its own source-dir ground-truth.mjs to print GROUND-TRUTH FAIL+exit1 defeats the scratch-only guard. Codex confirmed a synthetic 24-task corpus passes 24/24 + 8/8 guards this way. Fix: cache pristine acceptance/ground-truth CONTENT in memory before inject() and write THAT to scratch for the post-inject runs (never re-read the mutable dir), AND hash the SOURCE-DIR harness files before/after inject() and FAIL on source tamper.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex-host-2",
+      "createdAt": "2026-06-24T10:40:53.983Z",
+      "reviewRound": "2026-06-24T10:16:50.255Z",
+      "_hash": "6147a924a113c19e4b0f33ccc3a5291b073f401cbd6ee6ecc3984167b3216f68",
+      "signatureTag": "adversarial|unknown|incomplete-source-tamper",
+      "signatureTagSource": "auto"
     }
   ]
 }
