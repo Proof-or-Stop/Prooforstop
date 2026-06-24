@@ -857,7 +857,9 @@ async function verifyReceiptRef(input: {
     now: new Date().toISOString(),
   });
   if (!result.ok) {
-    const proof = await new AuthorityClient(input.ctx.liveURL).fetchGateReceiptProof(proofPath);
+    const proof = await new AuthorityClient(input.ctx.liveURL, undefined, undefined, {
+      customerApiKey: input.ctx.customerApiKey,
+    }).fetchGateReceiptProof(proofPath);
     const diagnostic = proof.ok && proof.data
       ? {
           failureReason: result.failureReason,
