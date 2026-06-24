@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-2f1a:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "No load-bearing identifier rename detected. Checked: (1) package \"name\" fields — all remain @lattice/lab, @lattice/utils, lattice (root); only \"description\" fields changed. (2) schemaVersion identifiers (lattice.[a-z_]+.v[N]) — zero removals or additions. (3) integrity/binding identifiers — zero matches. (4) @lattice/ npm scopes — no rename to @proofbound. (5) No proofbound.*v[N] schema identifiers introduced. All modifications in this diff are prose/string Lattice->Proofbound replacements in description fields, comments, user-visible help text, and doc/README markdown — within the allowed file set (README.md, CHANGELOG.md, docs/, packages/src+package.json). Concept residue check complete; no blocker.",
+      "createdAt": "2026-06-24T12:40:22.811Z",
+      "reviewRound": "2026-06-24T12:38:48.171Z",
+      "reviewRunId": "B-2f1a:RR-001",
+      "_hash": "7ad00357304d715ac4955e832b80a38bf769135779653e73902083f2e5567b73"
+    }
+  ]
+}
