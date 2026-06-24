@@ -1,0 +1,76 @@
+{
+  "principles": [
+    "Conform to the server contract: the proof endpoint is a protected read, so authenticate it; never weaken server auth",
+    "Fix the real root cause (the unauthenticated fetch), not just the smoke symptom",
+    "Server stays read-only; the change is client-only",
+    "Lock the fix with a deterministic regression test that fails without it"
+  ],
+  "drivers": [
+    "The gate-receipt proof endpoint is a protected Authority read and returns 401 without the customer API key",
+    "The Lattice Authority server is read-only for this story",
+    "The fix must be verifiable both deterministically (CI) and end-to-end against the real staging server"
+  ],
+  "options": [
+    {
+      "name": "fix-both-auth-layers",
+      "pros": [
+        "Fixes the real bug: any authority_receipt_verify --proofPath flow was 401ing, not just this smoke",
+        "Conforms to the protected-read contract",
+        "Minimal, client-only"
+      ],
+      "cons": [
+        "Touches a core handler (authority-enforce) plus the client (authority-client)"
+      ]
+    },
+    {
+      "name": "verify-inline-receipt-only",
+      "pros": [
+        "Avoids the proof-fetch auth path"
+      ],
+      "cons": [
+        "The proofPath fetch is the intended, tested path",
+        "Does not fix the real bug; other proofPath callers still 401",
+        "Changes the smoke verification approach"
+      ]
+    },
+    {
+      "name": "make-proof-endpoint-public",
+      "pros": [
+        "No client change"
+      ],
+      "cons": [
+        "Violates the server-read-only constraint",
+        "Weakens Authority auth; wrong direction"
+      ]
+    }
+  ],
+  "chosen": "fix-both-auth-layers",
+  "rationale": "Fixes the real production bug (any proofPath proof fetch was 401ing), conforms to the server protected-read contract, is minimal and client-only, and keeps the server read-only. The smoke materialOverlapAudit gap is a separate but required fix to reach the proof-fetch path at all.",
+  "preMortem": [
+    {
+      "scenario": "gateInputDigest mismatch",
+      "trigger": "materialOverlapAudit added to the signed decision but not to the digest input",
+      "consequence": "Server recomputes a different gateInputDigest and rejects the gate request",
+      "mitigation": "Add materialOverlapAudit to BOTH buildPhaseGateRequest (digest input) and signedTargetGateRequest (signed decision)"
+    },
+    {
+      "scenario": "Partial auth fix",
+      "trigger": "Only loadProof or only fetchGateReceiptProof is fixed",
+      "consequence": "Proof fetch still sends no Authorization header or fails closed client-side, and 401s",
+      "mitigation": "Fix both layers together: loadProof passes auth and fetchGateReceiptProof requests an authenticated read"
+    },
+    {
+      "scenario": "Vacuous regression test",
+      "trigger": "The new test asserts nothing that depends on the fix",
+      "consequence": "It always passes and never catches the regression, giving false safety",
+      "mitigation": "Confirm the test FAILS without the fix and PASSES with it"
+    },
+    {
+      "scenario": "Flaky live smoke",
+      "trigger": "The live smoke depends on staging credentials and mutates staging",
+      "consequence": "CI noise or non-deterministic failures",
+      "mitigation": "The deterministic test is the CI guard; the live smoke stays env-gated and skips without staging"
+    }
+  ],
+  "timestamp": "2026-06-24T01:02:16.737Z"
+}

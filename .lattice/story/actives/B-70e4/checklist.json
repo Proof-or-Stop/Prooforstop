@@ -6,7 +6,45 @@
       "context": "packages/main/src/core/authority-client.ts: get() only attaches Authorization when authenticated:true; protected /v1/receipts/{id}/proof returns 401 otherwise",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "fetchGateReceiptProof(\"/v1/receipts/test-id/proof\") with a configured customerApiKey -> fetch sends Authorization: Bearer <key> header; WHY: confirms the authenticated:true flag causes get() to attach the Bearer token on the proof endpoint",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "fetchGateReceiptProof returns success when server responds 200 with valid proof JSON -> outcome.ok===true and data matches AuthorityGateReceiptProofSchema; WHY: proves the authenticated read does not break the happy-path parse",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "fetchGateReceiptProof with customerApiKey that has leading/trailing whitespace -> Bearer token is trimmed before sending; WHY: get() trims customerApiKey, whitespace-padded keys from env must not leak raw whitespace into the header",
+            "type": "cli",
+            "priority": "should"
+          },
+          {
+            "desc": "fetchGateReceiptProof when server returns 401 despite correct key -> outcome is http_error with status 401; WHY: ensures transport error taxonomy is preserved for authenticated reads (regression guard against swallowing 401 as success)",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "RED/GREEN: revert the authenticated:true option from the fetchGateReceiptProof call -> the fetch sends NO Authorization header and server returns 401; re-apply fix -> Authorization header is present; WHY: the test must fail without the fix (proves the fix is load-bearing, not a no-op)",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "fetchGateReceiptProof with customerApiKey=undefined (no key configured) -> returns kind:error, ok:false, message contains customer_api_key_unconfigured_fails_closed, and NO network request is made; WHY: fail-closed behavior: an unauthenticated proof fetch must never reach the server",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
