@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-24T01:14:49.288Z",
       "reviewRunId": "B-ef65:RR-005",
       "_hash": "b93cd1fc73c9080d286f845279a31396a7e7b671d489f67112b51ec541f27a3b"
+    },
+    {
+      "id": "B-ef65:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Current-round concept re-review passed. Reviewed F-001 fix scope in packages/main/src/handlers/verifier.ts and packages/main/src/tasks/validate-execution-lock-smoke.ts: lock remains story-scoped and host-neutral, wraps validate command plus decorate/persist test-evidence critical section, and does not expand to owner lease, global coordination, Authority, host adapter, reviewer, or delivery metadata writes. Focused smoke passed: node packages/main/dist/tasks/validate-execution-lock-smoke.js.",
+      "createdAt": "2026-06-24T01:31:38.158Z",
+      "reviewRound": "2026-06-24T01:28:32.015Z",
+      "reviewRunId": "B-ef65:RR-007",
+      "_hash": "adb4aeeeaaf777b3bf4896f6f804d443df33b8b14178586467ec561019da1846"
     }
   ]
 }
