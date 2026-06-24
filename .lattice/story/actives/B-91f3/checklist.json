@@ -51,7 +51,37 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees: \"authority-receipt-ref production-completion remains allowed as evidence but productionDoneEligible=false.\"",
+      "files": {
+        "modify": [
+          "packages/main/src/core/proof-admissibility.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/proof-admissibility-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "authority-receipt-ref no longer makes local production-completion productionDoneEligible.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Authority receipt object itself remains diagnostic-status only and is not promoted.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "DONE-required, local review quorum, offline bundle, handoff, and legacy negative production controls still cannot set productionDone.",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
