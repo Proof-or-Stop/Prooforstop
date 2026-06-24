@@ -4,7 +4,7 @@
   "title": "Close proof admissibility schema contract verifier convergence gaps",
   "description": "Close the five high convergence gaps for proof admissibility by adding missing verifier version support semantics and mapping existing schema/contract checks and reason codes to implementation facts.",
   "type": "bug",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "keywords": [
     "proof-admissibility",
@@ -21,7 +21,7 @@
   ],
   "createdAt": "2026-06-24T12:41:16.558Z",
   "startedAt": "2026-06-24T12:41:16.558Z",
-  "endedAt": null,
+  "endedAt": "2026-06-24T13:18:21.427Z",
   "events": [
     {
       "phase": "INIT",
@@ -76,12 +76,16 @@
       "user": "Harmonygo",
       "sessionId": "sess-7f38b9570baa0d0e",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-24T13:18:21.427Z",
+      "branch": "story/B-fbfb",
+      "user": "Harmonygo",
+      "sessionId": "sess-7f38b9570baa0d0e",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-fbfb",
-    "branch": "story/B-fbfb",
-    "createdAt": "2026-06-24T12:47:39.845Z"
-  },
   "currentReviewRound": "2026-06-24T12:59:26.355Z"
 }
