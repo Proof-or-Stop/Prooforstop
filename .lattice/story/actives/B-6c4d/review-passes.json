@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-24T14:10:01.204Z",
       "reviewRunId": "B-6c4d:RR-002",
       "_hash": "a9dddd83cbfba35c5def6d5ef12a77b05b20a3bd5de2023a5f311c494fef90b2"
+    },
+    {
+      "id": "B-6c4d:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed evidence-freshness.ts (~315-324), review-run.ts (~666-676 and ~795-816), and flow-stability-smoke.ts (signedReviewRunOverHead + assertReviewRunBindingRaceAcceptsNonLatestFreshPass). Dead code: currentRunForLane is still used at line 806 in validateEvidenceRunBinding (not orphaned); latestRunHint still used at line 814. Type safety: ReviewEvidenceKind is exactly finding|pass so evidence.kind !== pass is type-complete. EMPTY_STORY_FILES_HASH guard is symmetric: both evidenceStoryFilesHash and live storyFilesHash are checked before advisory branch. kind-aware condition correct: passes relax id-recency, open findings keep stale_run. Smoke assertions are load-bearing: non-latest fresh pass accepted, open finding on non-latest run still stale_run, empty-signal + genuine drift both hard-reject. No dead code, no unsafe any, no empty catch, no shell isolation violations found.",
+      "createdAt": "2026-06-24T14:14:23.535Z",
+      "reviewRound": "2026-06-24T14:10:01.204Z",
+      "reviewRunId": "B-6c4d:RR-001",
+      "_hash": "f9585374c2b75b2d6ae4851514a079cb84b2fb9c97f9c193e8d72a25cc20b3ff"
     }
   ]
 }
