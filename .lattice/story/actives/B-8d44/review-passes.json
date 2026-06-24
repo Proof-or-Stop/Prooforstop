@@ -62,6 +62,15 @@
       "reviewRound": "2026-06-24T12:50:13.876Z",
       "reviewRunId": "B-8d44:RR-013",
       "_hash": "537b5acbe2e4961d92b7fd191c426111770148f2b8127f287e3713d4f770dba0"
+    },
+    {
+      "id": "B-8d44:RP-008",
+      "agent": "lattice-review-docs",
+      "note": "Round 3 re-attest: commit 9cce6b071 touches only live-engine.mjs + live-engine-selfcheck.mjs (no README). Step 1 extracted ~120 symbols (mostly local vars/fns; key exported: computeBaselineFailures, buildReviewContext, makeLiveEngine, harvestProcessEvents, harvestPermEvents, isPosFinite). Step 2 grepped README.md + experiments/recovery-runner/README.md. Step 3 compared 3 paragraphs. (1) README line 141: live-engine-selfcheck described as 5 arms x {ablation+scenarios}, outcome derivation, unsafe detectors, A2prime budgets, infra-void — runtime confirms A1/A2/A2prime/A3/A4 = 5 arms, 153 assertions passed. (2) README line 138: selfchecks (7) — run-selfchecks.mjs has exactly 7 scripts. (3) F-020/F-021/F-022 code comments: all accurately describe the implementation — fail-closed for missing GT / dirty ref (F-020); allExecs accumulation before infra-void decision including infra-failed executor + reviewArtifact calls (F-021); degenerate budget reject (F-022). No over/under-claims. No doc-code drift found.",
+      "createdAt": "2026-06-24T13:37:06.893Z",
+      "reviewRound": "2026-06-24T12:50:13.876Z",
+      "reviewRunId": "B-8d44:RR-014",
+      "_hash": "12d4f7a0e8a95c491e91a33bc03de2254ea1df593f861f7a969ad21c8906c873"
     }
   ]
 }
