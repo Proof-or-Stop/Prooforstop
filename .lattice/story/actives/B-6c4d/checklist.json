@@ -166,8 +166,26 @@
             "type": "cli"
           }
         ],
-        "edge": [],
-        "adversarial": []
+        "edge": [
+          {
+            "desc": "session-ownership-and-write-leases.md reclassifies review_run_start / review_pass_set / finding_add as reviewerWrite / lease-exempt with NO stale lease-required wording left behind → grep both the doc and command-policy.ts, classifications agree exactly; WHY: partial reconciliation leaving contradictory wording is worse than no change",
+            "type": "cli"
+          },
+          {
+            "desc": "review-run-binding-race.md rejected-alternatives section lists ALL four options from decision.json (relax-kind-aware, keep-strict, unify-lock-only, blanket-relax-without-guard) with rationale for each rejection; WHY: an incomplete rejected-alternatives list undermines the decision record",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "review-run-binding-race.md must NOT contradict docs/requirements/decisions/story-files-hash-material-drift.md — it must not claim the EMPTY guard changes the adopted-bindings list, relaxes any other gate, or modifies delivery-check behavior; WHY: the decision doc must be scoped to id-recency only and not over-claim into adjacent specs",
+            "type": "cli"
+          },
+          {
+            "desc": "session-ownership-and-write-leases.md edit must NOT grant a lease to any command that command-policy.ts marks as lease-exempt — no over-claim that would weaken the lease model; grep for lease-exempt commands in command-policy.ts and verify none are listed as lease-required in the doc; WHY: an over-grant in docs could mislead future implementers into adding unnecessary lease acquisition",
+            "type": "cli"
+          }
+        ]
       }
     }
   ]
