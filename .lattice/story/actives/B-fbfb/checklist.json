@@ -164,9 +164,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-24T12:59:03.383Z",
       "userSees": "User sees: \"gap_analyze no longer reports supportedSchemaVersion/contractVersionSupported reason-code mapping gaps.\"",
       "files": {
         "modify": [
@@ -195,7 +195,43 @@
             "type": "docs"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "rg -n \"supportedSchemaVersion|verifierVersionSupported|contractVersionSupported|unsupported_schema_version|unsupported_contract_version|@task B-fbfb\" packages/main/src/core/proof-admissibility.ts packages/main/src/tasks/proof-admissibility-smoke.ts",
+          "result": "pass",
+          "note": "Scanner-visible B-fbfb annotation contains exact requirement phrases for schema/contract support and reason-code mapping.",
+          "headHash": "d9878b35cf042443a6b1f738a39358d1dcad731c",
+          "materialHash": "00ae1c39b27f61905e8449e698cdaf58e16faa1be9aed828c83f1502dd23bdfc",
+          "storyFilesHash": "54c4365042b338b6ac2d0c827a64115af9e75f2fcd42089262a0bbcd1f5e66a0",
+          "timestamp": "2026-06-24T12:59:03.549Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proof-admissibility-smoke.ts",
+          "command": "node packages/main/dist/tasks/proof-admissibility-smoke.js",
+          "result": "pass",
+          "note": "Existing schema/contract behavior remains stable: unsupported schema and unsupported contract version expectations still pass.",
+          "headHash": "d9878b35cf042443a6b1f738a39358d1dcad731c",
+          "materialHash": "00ae1c39b27f61905e8449e698cdaf58e16faa1be9aed828c83f1502dd23bdfc",
+          "storyFilesHash": "54c4365042b338b6ac2d0c827a64115af9e75f2fcd42089262a0bbcd1f5e66a0",
+          "timestamp": "2026-06-24T12:59:03.701Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "git show --name-only --format= HEAD",
+          "result": "pass",
+          "note": "No gap_analyze source or requirement document was changed; high gaps were closed by implementation facts and tests rather than weakening scanner semantics or deleting requirements.",
+          "headHash": "d9878b35cf042443a6b1f738a39358d1dcad731c",
+          "materialHash": "00ae1c39b27f61905e8449e698cdaf58e16faa1be9aed828c83f1502dd23bdfc",
+          "storyFilesHash": "54c4365042b338b6ac2d0c827a64115af9e75f2fcd42089262a0bbcd1f5e66a0",
+          "timestamp": "2026-06-24T12:59:03.851Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -259,6 +295,15 @@
       "from": "pending",
       "to": "done",
       "reason": "Verifier version support implemented and covered by proof-admissibility smoke."
+    },
+    {
+      "timestamp": "2026-06-24T12:59:03.383Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Schema/contract mapping facts and unchanged behavior verified."
     }
   ]
 }
