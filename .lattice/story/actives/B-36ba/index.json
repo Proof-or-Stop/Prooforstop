@@ -4,7 +4,7 @@
   "title": "Align review-escalation freshness-root to gitCwd so floor and escalation agree under wrapper-root layouts",
   "description": "evaluateReviewEscalation recomputes evidence freshness from args.projectRoot, while the review-assurance-floor and the verdict producers use the resolved gitCwd. In wrapper-root layouts (git root != metadata/project root) escalation reads freshness from the wrong root, so the same host_verdict can be downgrade-accepted by the floor yet read as stale/null by escalation. Make escalation gitCwd-aware and prove floor<->escalation hash equivalence.",
   "type": "bug",
-  "phase": "REVIEW",
+  "phase": "DEV",
   "priority": "high",
   "keywords": [
     "review-escalation",
@@ -70,6 +70,15 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-06-24T01:51:47.453Z",
+      "branch": "story/B-36ba",
+      "user": "Harmonygo",
+      "sessionId": "b0a01b07-dd7a-40ba-a0fe-163497230a65",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-24T02:06:22.884Z",
       "branch": "story/B-36ba",
       "user": "Harmonygo",
       "sessionId": "b0a01b07-dd7a-40ba-a0fe-163497230a65",
