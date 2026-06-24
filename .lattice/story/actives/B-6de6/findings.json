@@ -46,7 +46,7 @@
       "desc": "CHK-002:happy:1 evidence (smoke check (b)) does not cover the stated intent. Intent says: 'prior round verdicts at materialHash-OLD + storyFilesHash-OLD (truly stale), new round verdicts at materialHash-X + storyFilesHash-S (downgraded) => validRounds contains the new round, old verdicts ignored, no duplicate-identity invalid round created' -- i.e., a cross-runId re-bind where prior-era and new-era verdicts are in separate runIds. Smoke check (b) (line 146-169 of review-assurance-floor-storyfileshash-smoke.ts) instead places both verdicts in the SAME runId (round-1/codex-a x2), testing the no-duplicate-identity-within-a-round claim that belongs to CHK-002:happy:0. No check in the 12-check smoke exercises two different runIds where the old runId verdicts are truly-stale and the new runId verdicts are downgraded. The bound evidence note also says 'smoke check (b)', confirming both CHK-002:happy:0 and CHK-002:happy:1 are mapped to the same single check. Per the project rule, an evidence command that does not match the literal intent is a HIGH finding.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-24T00:26:20.430Z",
@@ -57,7 +57,11 @@
         "packages/main/src/tasks/review-assurance-floor-storyfileshash-smoke.ts"
       ],
       "signatureTag": "missing|ts|happy-evidence-smoke",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Added a dedicated cross-runId re-bind smoke check (prior runId truly-stale + new runId downgraded => only the new round valid, old ignored, no duplicate-identity); CHK-002:happy:1 now binds to that check. Commit 5389c13e4.",
+      "resolvedAt": "2026-06-24T00:42:54.032Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-6de6:F-004",
