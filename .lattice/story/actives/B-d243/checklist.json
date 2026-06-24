@@ -311,6 +311,17 @@
           "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
           "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
           "timestamp": "2026-06-24T11:21:03.653Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/delivery-check-freshness-smoke.js",
+          "result": "pass",
+          "note": "delivery-check-freshness-smoke.ts:293 asserts row.detail includes \"— ADVISORY: <text>\". done-oracle.ts:636 constructs detail as \"{docsPromises.length} docsPromises checked{advisorySuffix}\". The advisory is APPENDED (string concatenation) to the existing docsPromises text, not replacing it. The detail contains BOTH the N-docsPromises count AND the advisory. The smoke assertion uses .includes() which confirms the advisory substring is present within the full detail string, which starts with the docsPromises text.",
+          "headHash": "d3364ba8a9aa21339b27e2fd3746d10ab76dc803",
+          "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
+          "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
+          "timestamp": "2026-06-24T11:21:06.667Z"
         }
       ]
     },
