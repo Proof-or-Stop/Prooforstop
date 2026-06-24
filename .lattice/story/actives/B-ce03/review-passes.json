@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-ce03:RP-001",
+      "agent": "lattice-review-docs",
+      "note": "Docs touchpoint reviewed against implementation and targeted smokes. docs/requirements/decisions/done-prepare-automation-execution-plan.md lines 165-193 documents same-story unchanged pre-existing lifecycle metadata allowance, blocks other-story metadata/material/source/runtime/declared/unexpected dirt, blocks unsafe metadata/source/owner-lease renames, and states failed DONE-required evidence blocks doneClosure without PASS. Implementation in packages/main/src/handlers/done-prepare.ts lines 187-240, 685-703, and 934-955 mechanically restricts allowed initial/final dirt to same-story metadata with unchanged signatures. Smoke evidence: node packages/main/dist/tasks/done-prepare-smoke.js passed cases for same-story metadata PASS, other-story metadata block, unsafe rename blocks, failed DONE-required evidence block, storyFilesHash/material drift behavior; node packages/main/dist/tasks/done-readiness-flow-benchmark.js --rounds=1 --slow-ms=1 passed and confirmed metadata-only HEAD drift is allowed while material drift remains blocked. No overclaim found that done_prepare solves storyFilesHash/material drift.",
+      "createdAt": "2026-06-24T13:20:04.572Z",
+      "reviewRound": "2026-06-24T13:16:35.548Z",
+      "reviewRunId": "B-ce03:RR-004",
+      "_hash": "b6a311b2da29bd5f42a330a0132983ec7ed95500abf2ec8c225c531b28e85344"
+    }
+  ]
+}
