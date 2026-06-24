@@ -147,7 +147,39 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Legacy evidence is reported as legacy-observed, legacy-local-only, or legacy-unknown-producer and remains audit-readable while failing strong production proof claims.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/proof-admissibility.ts"
+        ],
+        "create": [
+          "packages/main/src/core/proof-admissibility-legacy.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Legacy artifacts without current contract fields remain readable and return legacy scope classification.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Mechanically upgradable legacy artifacts produce dry-run repair diagnostics without mutating evidence by default.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Legacy evidence cannot satisfy production-completion or Authority receipt claims even if prose says verified.",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
