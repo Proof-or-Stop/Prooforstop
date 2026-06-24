@@ -78,6 +78,17 @@
           "materialHash": "96adaa007e8f7ddafa1d445c9f905d262eb90f4da087c701fec35f3474287e79",
           "storyFilesHash": "3bb033bf48d472daad32daea22503c5bbbef2c03c79374e5fe0665781999041e",
           "timestamp": "2026-06-24T01:19:32.407Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm run --prefix packages/main test:authority-receipt-proof-auth",
+          "result": "pass",
+          "note": "RED/GREEN reasoning: authority-client.ts:646 sets authenticated:true in fetchGateReceiptProof. The get() method at line 676 checks this flag and adds Bearer header only when true. If reverted to authenticated:false/omitted, get() skips the Authorization header (line 685 never reached), so the capturingFetch stub in authority-receipt-proof-auth-smoke.ts:28-31 would capture no Authorization header and the assert at line 38-41 would fail. Restoring authenticated:true re-enables the header. The deterministic test (exit 0, PASS) proves the fix is load-bearing.",
+          "headHash": "42027c0e4fc2b5defe3250b9ca8bb33bd139f982",
+          "materialHash": "96adaa007e8f7ddafa1d445c9f905d262eb90f4da087c701fec35f3474287e79",
+          "storyFilesHash": "3bb033bf48d472daad32daea22503c5bbbef2c03c79374e5fe0665781999041e",
+          "timestamp": "2026-06-24T01:19:41.348Z"
         }
       ]
     },
