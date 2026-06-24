@@ -39,6 +39,7 @@ import {
   type PublicKeyBase64,
   type SignatureBase64,
 } from './authority-signing.js';
+import { sanitizeCallerProofMetadata } from './proof-admissibility-metadata.js';
 
 // ===========================================================================
 // Shared primitives
@@ -569,20 +570,38 @@ function parseOrThrow<T>(schema: z.ZodType<T>, value: unknown, label: string): T
 
 export const parseActorKeyRegistration = (v: unknown) =>
   parseOrThrow(ActorKeyRegistrationSchema, v, 'actor key registration');
-export const parseRunnerRegistration = (v: unknown) =>
-  parseOrThrow(RunnerRegistrationSchema, v, 'runner registration');
+export const parseRunnerRegistration = (v: unknown) => {
+  const parsed = parseOrThrow(RunnerRegistrationSchema, v, 'runner registration');
+  return {
+    ...parsed,
+    ...(parsed.metadata ? { metadata: sanitizeCallerProofMetadata(parsed.metadata).sanitized as Record<string, unknown> } : {}),
+  };
+};
 export const parseRunnerHeartbeat = (v: unknown) =>
   parseOrThrow(RunnerHeartbeatSchema, v, 'runner heartbeat');
 export const parseJobClaim = (v: unknown) =>
   parseOrThrow(JobClaimSchema, v, 'job claim');
-export const parseJobSpec = (v: unknown) =>
-  parseOrThrow(JobSpecSchema, v, 'job spec');
+export const parseJobSpec = (v: unknown) => {
+  const parsed = parseOrThrow(JobSpecSchema, v, 'job spec');
+  return {
+    ...parsed,
+    ...(parsed.metadata ? { metadata: sanitizeCallerProofMetadata(parsed.metadata).sanitized as Record<string, unknown> } : {}),
+  };
+};
 export const parseJobLeaseHeartbeat = (v: unknown) =>
   parseOrThrow(JobLeaseHeartbeatSchema, v, 'job lease heartbeat');
 export const parseJobRelease = (v: unknown) =>
   parseOrThrow(JobReleaseSchema, v, 'job release');
-export const parseProviderEventsEnvelope = (v: unknown) =>
-  parseOrThrow(ProviderEventsEnvelopeSchema, v, 'provider events envelope');
+export const parseProviderEventsEnvelope = (v: unknown) => {
+  const parsed = parseOrThrow(ProviderEventsEnvelopeSchema, v, 'provider events envelope');
+  return {
+    ...parsed,
+    providerEvent: {
+      ...parsed.providerEvent,
+      ...(parsed.providerEvent.metadata ? { metadata: sanitizeCallerProofMetadata(parsed.providerEvent.metadata).sanitized as Record<string, unknown> } : {}),
+    },
+  };
+};
 export const parseAuthorityReceipt = (v: unknown) =>
   parseOrThrow(AuthorityReceiptSchema, v, 'authority receipt');
 

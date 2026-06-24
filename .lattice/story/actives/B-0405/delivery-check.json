@@ -1,0 +1,66 @@
+{
+  "storyId": "B-0405",
+  "checkedAt": "2026-06-24T12:24:16.840Z",
+  "headHash": "f0c3d03c49187d025cfb78ce8d9afef6eb6fb5f4",
+  "materialHash": "557587217494f4a23c83947aad76a35c898e431feddb59fd52ab07d04f6bb201",
+  "storyFilesHash": "660f3d57916ce872fea5fbfe24c913cdbc24ef4c550ce1eb2a11b9a52081f1b6",
+  "reviewRound": "2026-06-24T12:13:00.859Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+      "promise": "M2 strips or rejects reserved proof-looking caller metadata while preserving ordinary metadata.",
+      "status": "verified",
+      "verifiedBy": "checklist evidence + hardening smoke + delivery review",
+      "evidence": "CHK-001 evidence is covered; proof-admissibility-hardening smoke passed in validation; metadata sanitizer/test diff reviewed."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+      "promise": "M3 strict semantic binding rejects version, null, extra, missing, story/head/material, reason/verdict, and digest/signature tamper before trust.",
+      "status": "verified",
+      "verifiedBy": "checklist evidence + hardening smoke + delivery review",
+      "evidence": "CHK-002 evidence is covered; hardening smoke and proof-admissibility smoke passed; binding and Authority proof schema paths reviewed."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+      "promise": "M4 gate integration emits warn/enforce proof-admissibility diagnostics with stable reason codes and remediation hints for high-risk consumers.",
+      "status": "verified",
+      "verifiedBy": "checklist evidence + process fact contract + validation",
+      "evidence": "CHK-003 evidence is covered; verify-process-fact-contract evidence recorded; configured validation passed all 30 commands."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+      "promise": "M5 legacy evidence remains audit-readable but is classified legacy/local/unknown and cannot satisfy strong production or Authority claims.",
+      "status": "verified",
+      "verifiedBy": "checklist evidence + hardening smoke + delivery review",
+      "evidence": "CHK-004 evidence is covered; hardening smoke verifies legacy classifications and non-strong proof behavior."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+      "promise": "M6 handoff and host-boundary outputs separate context, evidenceCandidate, diagnosticReceipt, and admissibleProofRef while keeping receiptVerified, authorityDone, fullAuthorityDone, and productionDone false unless a matching gate consumes verified proof.",
+      "status": "verified",
+      "verifiedBy": "checklist evidence + hardening smoke + review_escalation_status",
+      "evidence": "CHK-005 evidence is covered; handoff summary code reviewed; review_escalation_status reports authorityDone=false fullAuthorityDone=false productionDone=false."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+      "promise": "M7 warn/enforce rollout blocks high-risk inadmissible proof consumers in enforce mode and final material has local 3 rounds x 2 hosts review assurance without Authority productionDone.",
+      "status": "verified",
+      "verifiedBy": "fresh validation + review_escalation_status + process events",
+      "evidence": "lattice validate --story=B-0405 --json passed all 30 configured commands with 18/18 coverage; review_escalation_status reports ok=true assuranceLevel=full-3x2 and authorityDone=false fullAuthorityDone=false productionDone=false for materialHash 557587217494f4a23c83947aad76a35c898e431feddb59fd52ab07d04f6bb201."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "B-0405",
+      "transcript": "Fresh delivery review commands from /Users/jek/Documents/Work/proofbound/.worktrees/B-0405: lattice validate --story=B-0405 --json passed all 30 configured validation commands and reported verification coverage 18/18. lattice review_escalation_status --storyId=B-0405 --json reported ok=true, assuranceLevel=full-3x2, valid rounds B-0405-q-r1/B-0405-q-r2/B-0405-q-r3 with claude-code-cli and codex-cli passing in each round, materialHash 557587217494f4a23c83947aad76a35c898e431feddb59fd52ab07d04f6bb201, authorityDone=false, fullAuthorityDone=false, productionDone=false. transcript-diff.md and checklist evidence match the same local-only/non-Authority boundary."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery check passes for B-0405 M2-M7 local CLI hardening: documented promises are covered by checklist evidence, fresh configured validation, and current full-3x2 local quorum. This attestation is local story assurance only and does not claim Authority receipt verification or productionDone."
+  },
+  "_hash": "099d35146b662adf5f61450362191688b6aa25afdde3d7af05fb76083699ec9a"
+}

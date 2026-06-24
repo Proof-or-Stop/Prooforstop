@@ -1,0 +1,86 @@
+{
+  "principles": [
+    "One shared admissibility vocabulary and evaluator owns proof interpretation.",
+    "Caller-writable metadata must never become proof by naming alone.",
+    "Legacy evidence remains readable but is not silently promoted to strong proof.",
+    "Warn-mode diagnostics must precede broad hard-fail enforcement.",
+    "Every proof rejection needs stable reason codes and remediation hints."
+  ],
+  "drivers": [
+    "Close recurring proof-looking metadata spoof surfaces.",
+    "Reduce future one-off evidence bug fixes by centralizing contract checks.",
+    "Keep local development usable while hardening production proof consumers.",
+    "Satisfy the user request to execute M2-M7 fully with strong verification."
+  ],
+  "options": [
+    {
+      "name": "A: shared admissibility contract with staged warn-to-enforce integration",
+      "pros": [
+        "Reuses B-0985 registry instead of forking logic.",
+        "Allows focused tests for reserved keys, semantic binding, legacy classification, handoff, and gate diagnostics.",
+        "Reduces false-block risk by starting warn-mode and enforcing high-risk paths last."
+      ],
+      "cons": [
+        "Requires touching several core gate seams and writing a broader regression suite.",
+        "May take multiple review rounds because failures in one seam can stale evidence elsewhere."
+      ]
+    },
+    {
+      "name": "B: per-gate hardening patches without shared integration",
+      "pros": [
+        "Each fix can be smaller at first.",
+        "Less immediate refactor pressure on shared core."
+      ],
+      "cons": [
+        "Repeats the same bug class across gates.",
+        "Makes proof behavior harder to audit.",
+        "Does not satisfy the plan goal of a single admissibility contract."
+      ]
+    },
+    {
+      "name": "C: enforce-only switch over the B-0985 classifier",
+      "pros": [
+        "Seems faster and visibly strict."
+      ],
+      "cons": [
+        "High false-block risk because metadata sanitization, semantic binding, legacy labeling, and handoff class split are not ready.",
+        "Could break old evidence readability and normal local development."
+      ]
+    }
+  ],
+  "chosen": "A: shared admissibility contract with staged warn-to-enforce integration",
+  "rationale": "Choose staged shared integration because the bug class is systemic: spoofable metadata, incomplete digest binding, stale/legacy evidence, and local handoff overclaim need one contract and one vocabulary. Warn-mode lets gates expose inadmissible evidence before hard failures, while M7 can enforce only after M2-M6 regression coverage exists.",
+  "preMortem": [
+    {
+      "scenario": "Reserved proof-key sanitizer strips ordinary user metadata.",
+      "trigger": "A broad key match removes benign fields that only contain words like proof or authority.",
+      "consequence": "Existing commands lose display/audit metadata or users see surprising compatibility breaks.",
+      "mitigation": "Sanitize only a narrow registered reserved-key set and add ordinary metadata survival tests."
+    },
+    {
+      "scenario": "Semantic binding tests pass but a gate still consumes an unbound field.",
+      "trigger": "A gate reads a field not listed in the canonical payload helper.",
+      "consequence": "A future edit to reason/verdict/story/material can bypass digest checks.",
+      "mitigation": "Create canonical payload helpers and adversarial tests that mutate every gate-consumed semantic field."
+    },
+    {
+      "scenario": "Warn-mode diagnostics become noisy and hide real blockers.",
+      "trigger": "Every legacy or local diagnostic artifact emits long warnings in normal flows.",
+      "consequence": "Hosts ignore warnings or users perceive the system as broken.",
+      "mitigation": "Classify warnings by consumer/claim and only surface concise scope/reason/remediation rows at gate reports."
+    },
+    {
+      "scenario": "Enforce mode blocks old audit evidence needed for history.",
+      "trigger": "Legacy artifacts lacking new fields are treated as malformed instead of legacy-readable.",
+      "consequence": "Historical stories become impossible to inspect or migrate.",
+      "mitigation": "Implement legacy scopes and dry-run migration diagnostics before enabling hard-fail gates."
+    },
+    {
+      "scenario": "Handoff outputs accidentally imply productionDone after adding proof refs.",
+      "trigger": "A host sees an admissibleProofRef field and treats it as a completed production claim without gate consumption.",
+      "consequence": "Cross-host transfer reintroduces overclaim risk.",
+      "mitigation": "Handoff summaries must split context/candidate/diagnostic/proofRef and keep productionDone=false unless a matching gate consumes a verified receipt."
+    }
+  ],
+  "timestamp": "2026-06-24T11:04:18.128Z"
+}

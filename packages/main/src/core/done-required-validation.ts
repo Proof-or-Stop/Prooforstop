@@ -10,6 +10,12 @@ import type {
   DoneRequiredEvidenceStatus,
   ValidationCommand,
 } from './validation-types.js';
+import {
+  buildProofAdmissibilityDiagnostic,
+  proofAdmissibilityBlockingReason,
+  resolveProofAdmissibilityMode,
+  type ProofAdmissibilityDiagnostic,
+} from './proof-admissibility-gates.js';
 
 export const DONE_REQUIRED_EVIDENCE_FILE = 'done-required-evidence.json';
 export const DONE_REQUIRED_EVIDENCE_SCHEMA = 'lattice.done-required-evidence' as const;
@@ -51,6 +57,7 @@ export interface DoneRequiredGateEvaluation {
   reasons: string[];
   policy: DoneRequiredPolicy;
   evidence: DoneRequiredEvidenceData | null;
+  proofAdmissibility: ProofAdmissibilityDiagnostic;
 }
 
 function splitShellWords(command: string): string[] {
@@ -478,6 +485,41 @@ export function evaluateDoneRequiredEvidence(args: {
   gitCwd: string;
 }): DoneRequiredGateEvaluation {
   const policy = resolveDoneRequiredPolicy(args.projectRoot);
+  const proofMode = resolveProofAdmissibilityMode(args.projectRoot);
+  const doneRequiredDiagnostic = (evidence: DoneRequiredEvidenceData | null, ok: boolean): ProofAdmissibilityDiagnostic => buildProofAdmissibilityDiagnostic({
+    artifactKind: 'done-required-evidence',
+    artifactId: DONE_REQUIRED_EVIDENCE_FILE,
+    consumer: 'DONE_REQUIRED',
+    claim: 'done-readiness',
+    mode: proofMode,
+    checks: {
+      schemaVersion: evidence?.schema === DONE_REQUIRED_EVIDENCE_SCHEMA && evidence?.version === DONE_REQUIRED_EVIDENCE_VERSION
+        ? 'lattice.done_required_evidence.v1'
+        : undefined,
+      strictShapeValid: Boolean(evidence),
+      semanticDigestValid: ok,
+      temporalAndMaterialBindingValid: ok,
+      subjectMatches: evidence ? evidence.storyId === args.storyId : false,
+      producerBoundaryTrusted: Boolean(evidence),
+    },
+  });
+  const withProofBlock = (
+    result: Omit<DoneRequiredGateEvaluation, 'blocking' | 'ok' | 'status'> & Pick<DoneRequiredGateEvaluation, 'ok' | 'status'>,
+  ): DoneRequiredGateEvaluation => {
+    const reason = proofAdmissibilityBlockingReason(result.proofAdmissibility);
+    if (!reason) {
+      return { ...result, blocking: !result.ok && result.status === 'fail' };
+    }
+    return {
+      ...result,
+      ok: false,
+      status: 'fail',
+      blocking: true,
+      detail: result.ok ? reason : result.detail,
+      hint: result.hint ? `${result.hint}\n${reason}` : reason,
+      reasons: [...new Set([...result.reasons, reason])],
+    };
+  };
   if (!policy.required) {
     return {
       required: false,
@@ -489,35 +531,36 @@ export function evaluateDoneRequiredEvidence(args: {
       reasons: policy.warnings,
       policy,
       evidence: null,
+      proofAdmissibility: doneRequiredDiagnostic(null, false),
     };
   }
   if (policy.configErrors.length > 0) {
-    return {
+    return withProofBlock({
       required: true,
       ok: false,
       status: 'fail',
-      blocking: true,
       detail: `malformed DONE-required policy: ${policy.configErrors[0]}`,
       hint: policy.configErrors.join('\n'),
       reasons: policy.configErrors,
       policy,
       evidence: null,
-    };
+      proofAdmissibility: doneRequiredDiagnostic(null, false),
+    });
   }
 
   const evidence = args.store.readDoneRequiredEvidence(args.storyId);
   if (!evidence) {
-    return {
+    return withProofBlock({
       required: true,
       ok: false,
       status: 'fail',
-      blocking: true,
       detail: 'missing done-required-evidence.json',
       hint: `lattice done_required_validate --storyId=${args.storyId}`,
       reasons: ['missing-artifact'],
       policy,
       evidence: null,
-    };
+      proofAdmissibility: doneRequiredDiagnostic(null, false),
+    });
   }
 
   const reasons: string[] = [];
@@ -546,11 +589,10 @@ export function evaluateDoneRequiredEvidence(args: {
 
   const uniqueReasons = [...new Set(reasons)];
   if (uniqueReasons.length > 0) {
-    return {
+    return withProofBlock({
       required: true,
       ok: false,
       status: 'fail',
-      blocking: true,
       detail: uniqueReasons.slice(0, 3).join(', '),
       hint: [
         ...uniqueReasons,
@@ -559,20 +601,21 @@ export function evaluateDoneRequiredEvidence(args: {
       reasons: uniqueReasons,
       policy,
       evidence,
-    };
+      proofAdmissibility: doneRequiredDiagnostic(evidence, false),
+    });
   }
 
-  return {
+  return withProofBlock({
     required: true,
     ok: true,
     status: 'pass',
-    blocking: false,
     detail: `PASS @ ${evidence.endedAt}; ${evidence.receipts.length} required command(s)`,
     hint: evidence.receipts.map(receiptLine).join('\n'),
     reasons: [],
     policy,
     evidence,
-  };
+    proofAdmissibility: doneRequiredDiagnostic(evidence, true),
+  });
 }
 
 export function renderDoneRequiredEvidence(evidence: DoneRequiredEvidenceData): string {
