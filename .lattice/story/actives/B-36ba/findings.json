@@ -38,6 +38,24 @@
       "signatureTag": "missing|ts|happy-happy-both",
       "signatureTagSource": "auto",
       "resolvedAt": "2026-06-24T02:16:06.365Z"
+    },
+    {
+      "id": "B-36ba:F-003",
+      "desc": "Host-2 (Codex) review: the machine-guard coverage in review-escalation-freshness-root-smoke.ts is not a genuine regression guard. canFinishGuard / getGuardFailureReason return early (test-evidence/delivery-check gates) before reaching the evaluateReviewEscalation call site, and the escViaMachineExpr assertion tests a COPY of the gitCwd expression outside the guard. Reverting the machine.ts:639/1145 gitCwd plumbing would NOT fail the smoke. Fix: seed a DONE-ready wrapper-root fixture (PASS test-evidence + valid signed delivery-check + escalation-required policy + 3x2 host verdicts bound to currentMaterialHash(gitRoot,HEAD,metaRoot)) so canFinishGuard reaches and DEPENDS on the escalation call; assert canFinishGuard(gitCwd:gitRoot)===true and (gitCwd:metaRoot)===false.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex-host2",
+      "createdAt": "2026-06-24T02:26:51.736Z",
+      "reviewRound": "2026-06-24T02:12:19.502Z",
+      "_hash": "0e7b9db1fd81127367a70b92150a415f57b4e7324dfb395caafd368c16145d70",
+      "files": [
+        "packages/main/src/tasks/review-escalation-freshness-root-smoke.ts",
+        "packages/main/src/core/machine.ts"
+      ],
+      "signatureTag": "missing|ts|host-codex-review",
+      "signatureTagSource": "auto"
     }
   ]
 }
