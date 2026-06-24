@@ -5,7 +5,7 @@
       "desc": "doc-promise-undelivered: CLAUDE.md:396 and AGENTS.md:126 show `lattice done_prepare --storyId=B-xxxx --mergeMain --refreshStale --validate` (POSIX flag style) but the actual CLI accepts only JSON args: `lattice done_prepare '{\"storyId\":\"B-xxxx\",\"mergeMain\":true,\"refreshStale\":true,\"validate\":true}'`. No --mergeMain / --refreshStale / --validate POSIX flags exist in command-catalog.ts schema or any source; a host following the runbook literally would get an unknown-flag error. Fix: replace the inline example with the JSON invocation style consistent with the rest of the codebase and with session_brief output.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-24T13:10:16.995Z",
@@ -17,7 +17,8 @@
         "AGENTS.md"
       ],
       "signatureTag": "missing|md|promise-undelivered-claude",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-06-24T13:15:56.138Z"
     }
   ]
 }
