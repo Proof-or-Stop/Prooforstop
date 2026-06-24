@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-24T10:16:50.255Z",
       "reviewRunId": "B-e67f:RR-004",
       "_hash": "6245a69b04ea7accd6f2ab47cbfb7b035d894864c77c791657ce35cd52af29a9"
+    },
+    {
+      "id": "B-e67f:RP-003",
+      "agent": "lattice-review-docs",
+      "note": "Step 1: no new exported TS/JS symbols in diff (harness mjs + README fix). Step 2/3: verified all 4 sub-claims. (a) 24-task/8-category table in README lines 25-45 matches actual tasks dir exactly: 24 entries, 8 categories with correct per-category counts. (b) run-selfchecks.mjs SELFCHECKS array has exactly 6 entries matching README comment (6) at line 133; corpus-selfcheck.mjs is entry 6. (c) payload-subtle.mjs present in exactly 21 tasks (20 stratified plus eval-expr); text-stats inline-only confirmed; median and parse-range have overfit-output.mjs confirmed -- all consistent with README lines 58-62. (d) No remaining doc-code drift found. No blockers.",
+      "createdAt": "2026-06-24T10:36:53.898Z",
+      "reviewRound": "2026-06-24T10:16:50.255Z",
+      "reviewRunId": "B-e67f:RR-007",
+      "_hash": "21d3cf6eea71753aa062fa0399fd3c3264a5addfba00d14e8e01563807281790"
     }
   ]
 }
