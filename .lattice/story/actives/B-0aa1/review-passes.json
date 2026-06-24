@@ -125,6 +125,15 @@
       "reviewRound": "2026-06-24T04:50:02.077Z",
       "reviewRunId": "B-0aa1:RR-018",
       "_hash": "cb44902e4764bac9da0dd13ded8fa06eed68d2843bae39e26caf4da3627e8383"
+    },
+    {
+      "id": "B-0aa1:RP-015",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review PASS. Channel=normal (4 items): all 4 checklist items carry happy+edge+adversarial intents, 12/12 priority=must. Recorded coverage: total=12 required=12 covered=12 missingRequired=0 waivers=0; every intent has matching valid evidence (result=pass), not vague broad evidence. Independently reproduced the evidence commands (npm scripts, not owner-gated): (1) npm --prefix packages/main run build -> exit 0; (2) npm --prefix packages/main run test:repro-first-candidate -> \"repro-first candidate smoke passed\" covering 12 intent-specific assertion blocks incl. digest immutability, idempotent-by-digest (CHK-001 edge), evidence-candidate scope, red-green fail-closed mismatch/empty-pattern (CHK-002 edge), and proof story_create_from_repro produces NO verificationEvidence (CHK-002/004 adversarial); (3) npm run test:process-fact-contract -> \"Process fact contract verified\" — covers the repro-intake registry/phase-allowlist process-fact fix (commit 25299dfec). Evidence currency confirmed: diff 25299dfec..HEAD is metadata-only (.lattice/story/actives/B-0aa1/*); evidence materialHash c94a879... matches done-required-evidence.json (status=PASS, reasons=[]). No coverage gaps.",
+      "createdAt": "2026-06-24T05:05:51.732Z",
+      "reviewRound": "2026-06-24T05:02:41.528Z",
+      "reviewRunId": "B-0aa1:RR-020",
+      "_hash": "ce2e373cbdfcd590f473f11fa70726f83be29bdc48fcde2e4714a1157d346c8f"
     }
   ]
 }
