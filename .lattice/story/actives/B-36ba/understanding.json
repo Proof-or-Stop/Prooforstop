@@ -1,0 +1,33 @@
+{
+  "task": "Align evaluateReviewEscalation evidence-freshness root to the resolved gitCwd (currently it uses projectRoot) so the review-assurance-floor and review-escalation agree under wrapper-root layouts.",
+  "outcome": "Running `npm test` prints `review-escalation freshness-root smoke passed` (the new smoke) alongside the existing review-escalation and wrapper-root smokes, and `node scripts/verify-process-fact-contract.mjs` still passes. In a wrapper-root project (git root != metadata root), `lattice review_escalation_status` and the DONE checklist now show the Review-escalation row with the SAME materialHash/storyFilesHash the Review-assurance-floor row uses: a host_verdict the floor downgrade-accepts is no longer reported by escalation as `current material hash is unavailable` or stale. In plain repos the output is byte-identical to before.",
+  "facts": [
+    "review-escalation.ts:439-440 calls currentMaterialHash(args.projectRoot) and currentStoryFilesHash(args.projectRoot), treating projectRoot as the git cwd (single-arg).",
+    "review-assurance-floor.ts:428/439 uses gitCwd = args.gitCwd ?? args.projectRoot and calls currentMaterialHash(gitCwd,HEAD,args.projectRoot).",
+    "Producers store hashes from gitCwd with metadataRoot=projectRoot: quorum-submit.ts:247/251 and verifier.ts:610 (currentStoryFilesHash(gitCwd,HEAD,ctx.root)).",
+    "DONE-gate callers done-oracle.ts:751, machine.ts:639, machine.ts:1140 pass gitCwd to the floor but NOT to escalation.",
+    "quorum-submit.ts:329 passes explicit materialHash+storyFilesHash to evaluateReviewEscalation, so its internal recompute is already bypassed (no change needed there).",
+    "evaluateReviewEscalation computes materialHash/storyFilesHash at lines 439-440 BEFORE the required/not-required branch, so the report always exposes both fields for the equivalence smoke.",
+    "Signatures: currentStoryFilesHash(gitCwd, ref=HEAD, metadataRoot=gitCwd) and currentMaterialHash(gitCwd, ref=HEAD, metadataRoot=gitCwd) (evidence-freshness.ts:199/229).",
+    "RESOLVED unknown: resolveGitCwd (story-signed-workspace-resolution.ts:195) is total/fail-safe — it try/catches resolveStorySignedWorkspace and returns opts.projectRoot on any error or unresolved; no worktree requirement, so it is safe to call from review_escalation_status and is byte-identical in plain repos.",
+    "RESOLVED unknown: wire the new smoke like done-escalation-drift-advisory — add root package.json script test:review-escalation-freshness-root = node packages/main/dist/tasks/review-escalation-freshness-root-smoke.js and insert npm run test:review-escalation-freshness-root into the root test chain; run-all-smokes also auto-discovers *-smoke.js for test:all."
+  ],
+  "constraints": [
+    "Byte-identical behavior in plain repos (gitCwd == projectRoot): every caller edit must be a no-op there.",
+    "No change to floor freshness logic, verdict-producer stored-hash computation, or the append-only verdict log (scope-boundary excluded).",
+    "High-risk lifecycle paths (review-escalation/machine/gate) -> DONE requires full 3x2 host quorum or explicit degraded 3x1 fallback.",
+    "Offline only: all lattice commands run inside the worktree; no network, no claude -p."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/review-escalation.ts",
+    "packages/main/src/core/done-oracle.ts",
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/handlers/review-escalation.ts",
+    "packages/main/src/tasks/review-escalation-freshness-root-smoke.ts (new)",
+    "package.json",
+    "packages/main/package.json",
+    "packages/main/src/core/story-signed-workspace-resolution.ts (resolveGitCwd, reference)"
+  ],
+  "timestamp": "2026-06-24T01:27:28.693Z"
+}

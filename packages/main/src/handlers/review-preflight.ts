@@ -82,23 +82,23 @@ import {
 const ENGLISH_ARTIFACTS_GATE_LABEL =
   'english-artifacts (REVIEW→TEST preflight; standalone: npm run test:legacy -- english-only-guards)';
 
-// B-292d: koala-residue gate — same shape as english-artifacts. Calls the
-// canonical script delivered by B-40eb (`scripts/verify-koala-residue.mjs`).
-// No standalone `validate --koala-residue` flag; standalone re-run is the npm
+// B-292d: lattice-residue gate — same shape as english-artifacts. Calls the
+// canonical script delivered by B-40eb (`scripts/verify-lattice-residue.mjs`).
+// No standalone `validate --lattice-residue` flag; standalone re-run is the npm
 // script that wraps the same script (kept per user sub-decision a3).
-const KOALA_RESIDUE_GATE_LABEL =
-  'koala-residue (REVIEW→TEST preflight; standalone: npm run test:koala-residue)';
-const KOALA_RESIDUE_SCRIPT_REL = 'scripts/verify-koala-residue.mjs';
-const KOALA_RESIDUE_TIMEOUT_MS = 30_000;
+const LATTICE_RESIDUE_GATE_LABEL =
+  'lattice-residue (REVIEW→TEST preflight; standalone: npm run test:lattice-residue)';
+const LATTICE_RESIDUE_SCRIPT_REL = 'scripts/verify-lattice-residue.mjs';
+const LATTICE_RESIDUE_TIMEOUT_MS = 30_000;
 
-interface KoalaResidueGateResult {
+interface LatticeResidueGateResult {
   ok: boolean;
   summary: string;
   details: string[];
 }
 
 /**
- * B-292d: Run the canonical koala-residue script as a preflight gate.
+ * B-292d: Run the canonical lattice-residue script as a preflight gate.
  *
  * Treats exit code 0 as PASS; any non-zero (including timeout / spawn failure)
  * as FAIL. The script's stdout hit list is surfaced verbatim in the gate's
@@ -106,23 +106,23 @@ interface KoalaResidueGateResult {
  *
  * Pre-mortem mitigations:
  *   - D1 (script changes exit semantics): only exit 0 is PASS.
- *   - D2 (subprocess hang): KOALA_RESIDUE_TIMEOUT_MS bounds the call.
+ *   - D2 (subprocess hang): LATTICE_RESIDUE_TIMEOUT_MS bounds the call.
  *   - D3 (false-fail on benign rename): output prints hit lines verbatim so the
  *     operator can extend the script's allowlist via a follow-up story.
  */
-function runKoalaResidueGate(projectRoot: string): KoalaResidueGateResult {
-  const scriptAbs = join(projectRoot, KOALA_RESIDUE_SCRIPT_REL);
+function runLatticeResidueGate(projectRoot: string): LatticeResidueGateResult {
+  const scriptAbs = join(projectRoot, LATTICE_RESIDUE_SCRIPT_REL);
   if (!existsSync(scriptAbs)) {
     return {
       ok: false,
-      summary: `koala-residue gate script missing at ${KOALA_RESIDUE_SCRIPT_REL}`,
+      summary: `lattice-residue gate script missing at ${LATTICE_RESIDUE_SCRIPT_REL}`,
       details: [`expected: ${scriptAbs}`],
     };
   }
   try {
     execFileSync('node', [scriptAbs], {
       cwd: projectRoot,
-      timeout: KOALA_RESIDUE_TIMEOUT_MS,
+      timeout: LATTICE_RESIDUE_TIMEOUT_MS,
       stdio: ['ignore', 'pipe', 'pipe'],
       encoding: 'utf8',
     });
@@ -138,13 +138,13 @@ function runKoalaResidueGate(projectRoot: string): KoalaResidueGateResult {
     if (error.code === 'ETIMEDOUT' || error.signal === 'SIGTERM') {
       return {
         ok: false,
-        summary: `koala-residue gate timed out after ${KOALA_RESIDUE_TIMEOUT_MS}ms`,
+        summary: `lattice-residue gate timed out after ${LATTICE_RESIDUE_TIMEOUT_MS}ms`,
         details: stderr ? [stderr.trim()] : [],
       };
     }
     return {
       ok: false,
-      summary: hits.length > 0 ? `brand residue: ${hits.length} hit(s)` : 'koala-residue gate failed',
+      summary: hits.length > 0 ? `brand residue: ${hits.length} hit(s)` : 'lattice-residue gate failed',
       details: hits.length > 0 ? hits : stderr ? [stderr.trim()] : [],
     };
   }
@@ -180,7 +180,7 @@ export interface PreflightDeps {
 }
 
 export interface PreflightGateEntry {
-  name: 'channel' | 'concept' | 'lint' | 'docs-drift' | 'codex-adapter' | 'english-artifacts' | 'koala-residue' | 'reviewer-evidence';
+  name: 'channel' | 'concept' | 'lint' | 'docs-drift' | 'codex-adapter' | 'english-artifacts' | 'lattice-residue' | 'reviewer-evidence';
   ok: boolean;
   status: string;
   summary: string;
@@ -293,12 +293,10 @@ function conceptReviewerHandledResiduals(
   }
 }
 
-/** Default CLAUDE.md reader: reads root CLAUDE.md + legacy packages/koala/CLAUDE.md if present */
+/** Default CLAUDE.md reader: reads root CLAUDE.md */
 function defaultMdFileReader(projectRoot: string): string[] {
   const candidates = [
     join(projectRoot, 'CLAUDE.md'),
-    // legacy self-hosting layout path the reader still honors if present
-    join(projectRoot, 'packages', 'koala', 'CLAUDE.md'),
   ];
   const contents: string[] = [];
   for (const p of candidates) {
@@ -359,12 +357,12 @@ export function runReviewCliGates(
       commandLabel: ENGLISH_ARTIFACTS_GATE_LABEL,
     });
     gates.push({
-      name: 'koala-residue',
+      name: 'lattice-residue',
       ok: true,
       status: 'skipped',
       summary: 'Express channel does not check CLI gate',
       details: [],
-      commandLabel: KOALA_RESIDUE_GATE_LABEL,
+      commandLabel: LATTICE_RESIDUE_GATE_LABEL,
     });
     if (storyRequiresCodexEvidence(deps.store, storyId)) {
       const codex = summarizeCodexEvidence(deps.store, storyId, deps.projectRoot);
@@ -584,17 +582,17 @@ export function runReviewCliGates(
     commandLabel: ENGLISH_ARTIFACTS_GATE_LABEL,
   });
 
-  // ── koala-residue (B-292d) ──
+  // ── lattice-residue (B-292d) ──
   // Run the canonical B-40eb script as a structured preflight gate.
   // Non-zero exit BLOCKs story_advance to TEST; stdout hit list is surfaced.
-  const koalaResidue = runKoalaResidueGate(deps.projectRoot);
+  const latticeResidue = runLatticeResidueGate(deps.projectRoot);
   gates.push({
-    name: 'koala-residue',
-    ok: koalaResidue.ok,
-    status: koalaResidue.ok ? 'pass' : 'fail',
-    summary: koalaResidue.summary,
-    details: koalaResidue.details,
-    commandLabel: KOALA_RESIDUE_GATE_LABEL,
+    name: 'lattice-residue',
+    ok: latticeResidue.ok,
+    status: latticeResidue.ok ? 'pass' : 'fail',
+    summary: latticeResidue.summary,
+    details: latticeResidue.details,
+    commandLabel: LATTICE_RESIDUE_GATE_LABEL,
   });
 
   if (storyRequiresCodexEvidence(deps.store, storyId)) {

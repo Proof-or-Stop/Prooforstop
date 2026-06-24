@@ -1,0 +1,91 @@
+{
+  "storyId": "B-36ba",
+  "checkedAt": "2026-06-24T03:25:12.818Z",
+  "headHash": "cb4f7d61839d89bc5a141352a7fe8e4472b0d92e",
+  "materialHash": "2da52d1ae30c42be6d9029721bf5cad7cc6c89c5f855acef843572110098d2ea",
+  "reviewRound": "2026-06-24T03:08:08.008Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "plan.md#CHK-001",
+      "promise": "evaluateReviewEscalation accepts gitCwd?: string; resolves const gitCwd = args.gitCwd ?? args.projectRoot; calls currentMaterialHash(gitCwd,HEAD,args.projectRoot) and currentStoryFilesHash(gitCwd,HEAD,args.projectRoot)",
+      "status": "verified",
+      "verifiedBy": "diff/source read",
+      "evidence": "review-escalation.ts line 436: const gitCwd = args.gitCwd ?? args.projectRoot; lines 441-442 call currentMaterialHash/currentStoryFilesHash with (gitCwd,HEAD,args.projectRoot) matching review-assurance-floor.ts exactly"
+    },
+    {
+      "docPath": "plan.md#CHK-002",
+      "promise": "done-oracle.ts ~751 and machine.ts ~639 and ~1145 each pass gitCwd into evaluateReviewEscalation matching the adjacent evaluateReviewAssuranceFloor call",
+      "status": "verified",
+      "verifiedBy": "diff/source read",
+      "evidence": "done-oracle.ts:751-753 passes gitCwd; machine.ts:639-648 passes context.gitCwd ?? resolveGitCwd({...}); machine.ts:1146-1153 passes gitCwd ?? resolveGitCwd({...})"
+    },
+    {
+      "docPath": "plan.md#CHK-003",
+      "promise": "review_escalation_status, review_escalation_policy_set, review_escalation_fallback_set pass gitCwd via resolveGitCwd; secondary freshness probes in fallback_set also use gitCwd; quorum-submit.ts unchanged",
+      "status": "verified",
+      "verifiedBy": "diff/source read",
+      "evidence": "handlers/review-escalation.ts lines 65,77,~167: each computes gitCwd via resolveGitCwd and passes it; fallback_set lines 187,195 use gitCwd for freshness probes; quorum-submit.ts not in diff (passes explicit hashes)"
+    },
+    {
+      "docPath": "plan.md#CHK-004",
+      "promise": "New smoke review-escalation-freshness-root-smoke.ts asserts floor==escalation under PLAIN and WRAPPER-ROOT layouts with RED-documenting no-gitCwd divergence; wired into npm test as test:review-escalation-freshness-root",
+      "status": "verified",
+      "verifiedBy": "diff/source read + direct run + npm test",
+      "evidence": "File at packages/main/src/tasks/review-escalation-freshness-root-smoke.ts (876 lines, 4 test cases: PLAIN/WRAPPER/STORE/DONE-READY); package.json line 38 and root test chain both include test:review-escalation-freshness-root; npm test exits 0; direct run prints review-escalation freshness-root smoke passed"
+    },
+    {
+      "docPath": "checklist#CHK-001-userSees",
+      "promise": "npm --prefix packages/main run build succeeds; node packages/main/dist/tasks/review-escalation-smoke.js still prints pass line",
+      "status": "verified",
+      "verifiedBy": "npm test (covers build and smoke)",
+      "evidence": "npm test exited 0; test:review-escalation path in chain; existing smoke confirmed in transcript-diff.md"
+    },
+    {
+      "docPath": "checklist#CHK-002-userSees",
+      "promise": "done-oracle-wrapper-root-smoke.js passes; DONE checklist review-escalation row uses resolved gitCwd",
+      "status": "verified",
+      "verifiedBy": "npm test",
+      "evidence": "test:done-oracle-wrapper-root in npm test chain; npm test exits 0; done-oracle.ts:751 confirmed to pass gitCwd"
+    },
+    {
+      "docPath": "checklist#CHK-003-userSees",
+      "promise": "review-escalation-smoke.js passes; lattice review_escalation_status computes freshness from resolved gitCwd",
+      "status": "verified",
+      "verifiedBy": "npm test + source read",
+      "evidence": "npm test exits 0; handler lines 65,77,167 confirmed to use resolveGitCwd"
+    },
+    {
+      "docPath": "checklist#CHK-004-userSees",
+      "promise": "review-escalation-freshness-root-smoke.js prints review-escalation freshness-root smoke passed; npm test runs test:review-escalation-freshness-root green",
+      "status": "verified",
+      "verifiedBy": "direct run + npm test",
+      "evidence": "Reviewer directly ran the smoke: output = review-escalation freshness-root smoke passed; npm test exits 0"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "PLAIN: floor.materialHash===escalation.materialHash===currentMaterialHash(root,HEAD,root); WRAPPER: floor.materialHash===escalation.materialHash===currentMaterialHash(repoDir,HEAD,metaRoot); no-gitCwd regression byte-identical for plain repo; WRAPPER RED: no-gitCwd yields null != floor.materialHash; both materialHash and storyFilesHash covered"
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "DONE-READY wrapper-root (F-003): fully-seeded fixture with PASS test-evidence, signed delivery-check, high-risk policy (3x2 required), 3 rounds x 2 PASS verdicts bound to resolved-gitCwd materialHash; canFinishGuard({gitCwd:gitRoot})===true; getGuardFailureReason===null; buildDoneChecklist review-escalation===pass with gitRoot vs fail with metaRoot; revert-proven: removing machine.ts:639 gitCwd flips assertion to failure"
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "STORE real-handlers (F-001): review_escalation_status/policy_set/fallback_set each return materialHash===floorMaterial via real StoryStore under wrapper-root layout; resolveGitCwd resolves to inner gitRoot not metaRoot; RED control: no gitCwd -> null materialHash"
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Smoke passes: review-escalation freshness-root smoke passed. npm test exits 0 with test:review-escalation-freshness-root in chain. Covers PLAIN (happy+regression), WRAPPER (happy+RED), STORE-handlers (F-001), DONE-READY-genuine-guard (F-003). storyFilesHash covered alongside materialHash. Non-required case (findings:[]) still computes non-null hashes."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 8 docsPromises verified from source code, diff inspection, direct smoke run, and npm test (exit 0). New smoke covers 4 cases: plain regression, wrapper-root alignment, real-handler invocation (F-001), and genuine DONE-gate guard (F-003, revert-proven). No TODOs in changed production files. Fix is minimal: 3 core files + 1 handler file + 1 new smoke + npm wiring."
+  },
+  "_hash": "7774e31b7be933dc000107878267c034bedb43fab77d608e455982684548d3af"
+}

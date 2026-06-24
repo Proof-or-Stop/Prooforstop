@@ -148,7 +148,7 @@ function assertClaudeCodeStatus(result: LatticeHostStatus): void {
 
 function buildSemanticEditingProbe(): CapabilityProbe {
   return {
-    schemaVersion: 'koala.capability_probe.v1',
+    schemaVersion: 'lattice.capability_probe.v1',
     host: 'semantic-editor',
     requestedHost: 'semantic-editor',
     matchedFallback: false,

@@ -2,6 +2,7 @@ import type { HandlerContext } from './context.js';
 import { assertCwdInWorktree } from './context.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
+import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import {
   REVIEW_ESCALATION_EXPLICIT_HIGH_RISK_POLICY_EVENT,
   REVIEW_ESCALATION_EXPLICIT_HIGH_RISK_POLICY_PREDICATE,
@@ -61,8 +62,10 @@ function normalizeStringArray(values: unknown): string[] {
 export function createReviewEscalationHandlers(ctx: HandlerContext) {
   return {
     review_escalation_status(args: ReviewEscalationStatusArgs) {
+      const gitCwd = resolveGitCwd({ store: ctx.store, storyId: args.storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
       const report = evaluateReviewEscalation({
         projectRoot: ctx.root,
+        gitCwd,
         storyId: args.storyId,
         store: ctx.store,
       });
@@ -71,6 +74,7 @@ export function createReviewEscalationHandlers(ctx: HandlerContext) {
 
     review_escalation_policy_set(args: ReviewEscalationPolicySetArgs) {
       assertCwdInWorktree(ctx.store, args.storyId);
+      const gitCwd = resolveGitCwd({ store: ctx.store, storyId: args.storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
       const policyVersion = normalizeString(args.policyVersion);
       const sourcePolicyRef = normalizeString(args.sourcePolicyRef);
       const rolloutStage = normalizeString(args.rolloutStage);
@@ -85,9 +89,9 @@ export function createReviewEscalationHandlers(ctx: HandlerContext) {
       if (typeof args.degradedFallbackAllowed !== 'boolean') {
         throw new Error('review_escalation_policy_set: degradedFallbackAllowed must be boolean');
       }
-      const freshMaterialHash = currentMaterialHash(ctx.root);
+      const freshMaterialHash = currentMaterialHash(gitCwd, 'HEAD', ctx.root);
       if (!freshMaterialHash) throw new Error('review_escalation_policy_set: cannot compute current material hash');
-      const freshHeadHash = currentGitHead(ctx.root);
+      const freshHeadHash = currentGitHead(gitCwd);
       if (!freshHeadHash) throw new Error('review_escalation_policy_set: cannot compute current git HEAD');
       const suppliedMaterialHash = normalizeString(args.materialHash);
       if (suppliedMaterialHash && suppliedMaterialHash !== freshMaterialHash) {
@@ -125,6 +129,7 @@ export function createReviewEscalationHandlers(ctx: HandlerContext) {
 
       const report = evaluateReviewEscalation({
         projectRoot: ctx.root,
+        gitCwd,
         storyId: args.storyId,
         store: ctx.store,
       });
@@ -166,6 +171,7 @@ export function createReviewEscalationHandlers(ctx: HandlerContext) {
 
     review_escalation_fallback_set(args: ReviewEscalationFallbackSetArgs) {
       assertCwdInWorktree(ctx.store, args.storyId);
+      const gitCwd = resolveGitCwd({ store: ctx.store, storyId: args.storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
       if (!isReviewEscalationFallbackEligibility(args.eligibility)) {
         throw new Error(`review_escalation_fallback_set: eligibility must be one of ${REVIEW_ESCALATION_FALLBACK_ELIGIBILITIES.join('|')}`);
       }
@@ -178,7 +184,7 @@ export function createReviewEscalationHandlers(ctx: HandlerContext) {
       if (evidenceRefs.length === 0 && !approvalRef) {
         throw new Error('review_escalation_fallback_set: provide at least one evidenceRefs entry or approvalRef');
       }
-      const freshMaterialHash = currentMaterialHash(ctx.root);
+      const freshMaterialHash = currentMaterialHash(gitCwd, 'HEAD', ctx.root);
       if (!freshMaterialHash) {
         throw new Error('review_escalation_fallback_set: cannot compute current material hash');
       }
@@ -186,7 +192,7 @@ export function createReviewEscalationHandlers(ctx: HandlerContext) {
       if (suppliedMaterialHash && suppliedMaterialHash !== freshMaterialHash) {
         throw new Error('review_escalation_fallback_set: supplied materialHash is stale and does not match current material hash');
       }
-      const freshStoryFilesHash = currentStoryFilesHash(ctx.root, 'HEAD', ctx.root);
+      const freshStoryFilesHash = currentStoryFilesHash(gitCwd, 'HEAD', ctx.root);
       const suppliedStoryFilesHash = normalizeString(args.storyFilesHash);
       if (suppliedStoryFilesHash && freshStoryFilesHash && suppliedStoryFilesHash !== freshStoryFilesHash) {
         throw new Error('review_escalation_fallback_set: supplied storyFilesHash is stale and does not match current story-owned file hash');
@@ -215,6 +221,7 @@ export function createReviewEscalationHandlers(ctx: HandlerContext) {
 
       const report = evaluateReviewEscalation({
         projectRoot: ctx.root,
+        gitCwd,
         storyId: args.storyId,
         store: ctx.store,
       });

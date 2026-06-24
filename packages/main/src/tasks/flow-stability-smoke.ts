@@ -2630,7 +2630,7 @@ function assertGlobalLinkRepair(): void {
     assert.equal(resolve(dirname(globalPackage), readlinkSync(globalPackage)), resolve(mainPackage));
 
     const otherPackage = join(root, 'other', 'packages', 'main');
-    const otherGlobalPackage = join(root, 'other-global', 'node_modules', '@koala-agent', 'core');
+    const otherGlobalPackage = join(root, 'other-global', 'node_modules', '@legacy-agent', 'core');
     mkdirSync(otherPackage, { recursive: true });
     mkdirSync(dirname(otherGlobalPackage), { recursive: true });
     symlinkSync(otherPackage, otherGlobalPackage, process.platform === 'win32' ? 'junction' : 'dir');
@@ -2638,14 +2638,14 @@ function assertGlobalLinkRepair(): void {
     assert.equal(skipped.action, 'skipped');
     assert.equal(resolve(dirname(otherGlobalPackage), readlinkSync(otherGlobalPackage)), resolve(otherPackage));
 
-    const normalInstall = join(root, 'normal-global', 'node_modules', '@koala-agent', 'core');
+    const normalInstall = join(root, 'normal-global', 'node_modules', '@legacy-agent', 'core');
     mkdirSync(normalInstall, { recursive: true });
     const normalSkipped = repairGlobalLatticeLinkBeforeWorktreeDelete(worktree, mainRepo, { globalPackagePath: normalInstall });
     assert.equal(normalSkipped.action, 'skipped');
     assert.equal(existsSync(normalInstall), true);
     assert.equal(lstatSync(normalInstall).isDirectory(), true);
 
-    const failingGlobalPackage = join(root, 'failing-global', 'node_modules', '@koala-agent', 'core');
+    const failingGlobalPackage = join(root, 'failing-global', 'node_modules', '@legacy-agent', 'core');
     mkdirSync(dirname(failingGlobalPackage), { recursive: true });
     symlinkSync(worktreePackage, failingGlobalPackage, process.platform === 'win32' ? 'junction' : 'dir');
 
@@ -3319,7 +3319,7 @@ function assertDeclaredArtifactGateHotfix(): void {
       () => handlers.artifact_declare({
         storyId,
         path: '.lattice/story/actives/B-hotfix/index.json',
-        reason: 'attacker tries to declare koala metadata',
+        reason: 'attacker tries to declare lattice metadata',
         relatedIntent: 'CHK-001:happy:0',
       }),
       /classifies as lattice_metadata_changes and cannot be declared/,

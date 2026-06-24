@@ -276,4 +276,4 @@ Lattice CLI + remote Lattice Authority fullAuthorityDone PASS
 
 It does not claim that every future arbitrary project or every cross-language
 redevelopment workload is already proven. Those broader product claims still
-require the separate baseline suite defined in `docs/koala/legacy/root-markdown/Lattice-baseline.md` (archived from repository root).
+require the separate baseline suite defined in `docs/lattice/legacy/root-markdown/Lattice-baseline.md` (archived from repository root).

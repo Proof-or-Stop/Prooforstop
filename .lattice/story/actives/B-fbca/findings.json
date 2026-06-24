@@ -1,0 +1,68 @@
+{
+  "findings": [
+    {
+      "id": "B-fbca:F-001",
+      "desc": "CHK-007:edge:1 inject repro is mechanically unsound: the command uses `echo ... > file` (untracked) then runs verify-lattice-residue.mjs, but the gate enumerates files via `git ls-files` which only sees TRACKED files. An untracked inject will NOT appear in git ls-files output and therefore the gate would NOT fail. The note claims the gate exited 1 FAIL, but this cannot be reproduced by the documented command. CHK-004:adversarial:0 demonstrates the correct approach (git add before running the gate). The edge:1 evidence does not actually verify zero-tolerance detection of new untracked koala files.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-23T21:28:43.052Z",
+      "reviewRound": "2026-06-23T21:25:10.665Z",
+      "reviewRunId": "B-fbca:RR-002",
+      "_hash": "321d73111ed8c1fcdcf6c2efa13e53de72c3a8a0b5eb76aa2d8e11bc7f4be012",
+      "files": [
+        "scripts/verify-lattice-residue.mjs",
+        "packages/main/src/handlers/review-preflight.ts"
+      ],
+      "signatureTag": "missing|mjs|edge-inject-repro",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Re-bound CHK-007:edge:1 to scripts/verify-residue-inject-repro.mjs which git-add's a koala token into a tracked packages/main/src file BEFORE running the gate (so the inject is in git ls-files scope), asserts the gate EXITS 1 catching it, then reverts (git reset+checkout) in a finally and re-asserts EXIT 0. Ran: PASS exit 0.",
+      "resolvedAt": "2026-06-23T21:39:15.678Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-fbca:F-002",
+      "desc": "CHK-001:adversarial:1 evidence command is pseudocode, not a real runnable command: `node -e '...HMAC sign(old koala-finding-integrity-v1) vs verify(new lattice-finding-integrity-v1); assert accepted===false'` contains a `...` ellipsis placeholder and is not executable as written. The note claims ASSERT-OK, but the command cannot produce that output. The underlying fact (different HMAC salts reject cross-salt verification) is sound, but the evidence is not backed by a concrete reproducible command. As a logic_test evidence entry, a minimal concrete Node.js assertion (e.g. using crypto.createHmac with the two different salts and asserting the digests differ) is required.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-23T21:28:50.445Z",
+      "reviewRound": "2026-06-23T21:25:10.665Z",
+      "reviewRunId": "B-fbca:RR-002",
+      "_hash": "bd7c3b58198be3d999db69e8806adb1ba519acdd1b7d49c97069049357517768",
+      "files": [
+        "packages/main/src/core/guard-utils.ts"
+      ],
+      "signatureTag": "missing|ts|adversarial-evidence-command",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Re-bound CHK-001:adversarial:1 to scripts/verify-salt-rename.mjs (replaces the '...' pseudocode). For all 8 salts it asserts git grep -c 'koala-<salt>' over packages/{main,lab,utils}/src + scripts == 0 AND 'lattice-<salt>' >= 1, proving a consistent rename (not deletion). Ran: 8/8 OK, PASS exit 0.",
+      "resolvedAt": "2026-06-23T21:39:20.397Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-fbca:F-003",
+      "desc": "quality-cleanup: packages/main/src/handlers/story-dispatch.ts:44 normalizeAgentType() is now a no-op pass-through (returns agentType unchanged) after the koala- guard removal — the function wrapper adds no value and can be removed by inlining",
+      "severity": "low",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-23T21:33:10.801Z",
+      "reviewRound": "2026-06-23T21:25:10.665Z",
+      "reviewRunId": "B-fbca:RR-003",
+      "_hash": "484c68fa2953340fcdbdce9d2f7d4c0511dab76862b9b98c5f2ad4fa303a6591",
+      "signatureTag": "edge|unknown|quality-cleanup-packages",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Inlined and removed the no-op normalizeAgentType() pass-through in packages/main/src/handlers/story-dispatch.ts. It returned its arg unchanged after the koala- alias normalization was deleted; the 4 call sites (appendDispatchEvent, buildFindingPrompt, buildItemPrompt, dispatch) now reference args.agentType directly, and the two stale 'legacy agentType alias normalization' comments were dropped. tsc --noEmit exit 0; dispatch-run-smoke + lifecycle-dispatch-smoke both pass; residue gate green.",
+      "resolvedAt": "2026-06-23T21:39:26.866Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

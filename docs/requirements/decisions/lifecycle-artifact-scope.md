@@ -4,7 +4,7 @@
 **Scope**: scope-contract enforcement when a Lattice command writes a story-scoped
 metadata artifact during DEV / REVIEW / TEST / DONE.
 
-Legacy Koala path note: the old hidden Koala story tree is intentionally not
+Legacy Lattice path note: the old hidden Lattice story tree is intentionally not
 named here as a runnable path. It is retired and rejected wherever this policy
 describes current lifecycle classification.
 
@@ -13,10 +13,10 @@ describes current lifecycle classification.
 Lattice lifecycle CLI commands (`delivery_check_set`, `summary_set`,
 `scope_contract_set`, `finding_add`, `init_check_set`, …) write metadata files
 under `.lattice/story/actives/<storyId>/` or `docs/story/.../<storyId>/`.
-The retired hidden Koala story tree is no longer a recognized story-dir prefix. These
+The retired hidden Lattice story tree is no longer a recognized story-dir prefix. These
 writes are not implementation work — they are command-generated provenance.
 Before B-b9d0 the scope gate either failed-closed against them (blocking DONE)
-or fell back to a blanket legacy Koala-directory exemption that let arbitrary,
+or fell back to a blanket legacy Lattice-directory exemption that let arbitrary,
 unrelated files in that retired tree pass.
 
 This document fixes the policy in one place: lifecycle artifacts are a
@@ -39,7 +39,7 @@ order:
    – returns a hit only when the path matches:
    – a recognized story-dir prefix (`docs/story/actives/`,
      `.lattice/story/actives/`, or a custom `storyDir`;
-     the retired hidden Koala story tree is not recognized),
+     the retired hidden Lattice story tree is not recognized),
    – followed by a valid storyId segment,
    – followed by either a top-level terminal filename in
      `LATTICE_LIFECYCLE_ARTIFACT_FILENAMES` or a relative path in
@@ -74,10 +74,10 @@ Both reviewers and tests must continue to assert:
 
 - a product source file (e.g. `packages/main/src/handlers/foo.ts`) that is not
   in the contract still fails scope when unacknowledged;
-- an unknown `.koala/foo.json` not registered in the runtime registry and not
+- an unknown `.lattice/foo.json` not registered in the runtime registry and not
   matching the lifecycle filename set still fails scope when unacknowledged;
 - removing or weakening rule (2) — for example reverting to
-  `if (file.startsWith('.koala/')) continue;` — is a regression and must be
+  `if (file.startsWith('.lattice/')) continue;` — is a regression and must be
   flagged by the contract test.
 - an arbitrary `.lattice/foo.json`, nested story evidence note, undeclared
   source file, direct story JSON edit, or direct fixture edit still fails closed
@@ -140,7 +140,7 @@ Mechanical evidence lives in:
 
 - `scripts/verify-process-fact-contract.mjs` — asserts the classifier accepts
   known lifecycle filenames plus `evidence/transcript-diff.md` under a story
-  id, rejects arbitrary files in the retired hidden Koala tree and nearby
+  id, rejects arbitrary files in the retired hidden Lattice tree and nearby
   non-transcript evidence files, includes the INIT scope anti-expansion artifact
   filenames, and rejects ordinary product source files when scope is
   unacknowledged.
@@ -175,14 +175,14 @@ project-local required file. In global-thin mode (the default for new projects),
 and Codex adapter verification resolves the `.lattice/` manifest rather than
 requiring `.lattice-codex/` entries or local bin wrappers. In full/thin modes,
 `.lattice-codex/lattice.json` carries the prompt registry version and material hash.
-Legacy `.lattice-codex/koala.json` files may remain archived or user-owned, but they are
+Legacy `.lattice-codex/lattice.json` files may remain archived or user-owned, but they are
 not active adapter inputs.
 
 The Lattice naming migration is a managed-asset naming contract only. It does
 not promote ordinary CLI output to receipt-backed authority and does not change
 Story lifecycle gates. `lattice` is the only active runtime/product command.
-Fresh init must not generate `KOALA.md`, `.lattice-codex/koala.json`, `bin/koala.js`, or
-`bin/koala-codex.js`; compatibility checks do not treat those paths as active
+Fresh init must not generate `LATTICE.md`, `.lattice-codex/lattice.json`, `bin/lattice.js`, or
+`bin/lattice-codex.js`; compatibility checks do not treat those paths as active
 adapter or runtime inputs. Cleanup may remove a legacy-named asset only
 when its content exactly matches a generated template or manifest; user-owned
 legacy files are preserved.

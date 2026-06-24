@@ -887,7 +887,7 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
      * @priority high
      * @description
      *   Manual `git merge main` inside a story worktree can overwrite the
-     *   story phase if users resolve `.koala/story/actives/<storyId>/index.json`
+     *   story phase if users resolve `.lattice/story/actives/<storyId>/index.json`
      *   with main's version. story_sync_main wraps that operation: current
      *   story metadata conflicts are resolved with `--ours`, while real code
      *   conflicts remain visible and block completion.

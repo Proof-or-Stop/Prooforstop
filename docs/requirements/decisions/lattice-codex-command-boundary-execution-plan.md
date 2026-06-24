@@ -135,7 +135,7 @@ non-document targets; it does not claim they are already cleaned.
   aliases.
 - Do not rename host-neutral Lattice commands.
 - Do not remove Codex adapter diagnostics or verification commands.
-- Do not convert legacy `koala` cleanup into this story unless the exact text
+- Do not convert legacy `lattice` cleanup into this story unless the exact text
   creates the same host-neutral boundary violation.
 - Do not claim Authority, unattended, production, or convergence readiness from
   this documentation and prompt cleanup alone.
@@ -344,7 +344,7 @@ Run at minimum:
 
 ```bash
 npm --prefix packages/main run build
-npm --prefix packages/main run test:legacy-koala-compatibility-smoke
+npm --prefix packages/main run test:legacy-lattice-compatibility-smoke
 npm --prefix packages/main run test:session-brief-prompt-sync-smoke
 node bin/lattice.js validate --story=<storyId> --json
 ```
@@ -366,7 +366,7 @@ Reviewers should check these points:
 4. Runtime `dist` matches source behavior.
 5. Smoke tests cover both positive adapter commands and negative workflow
    namespace commands.
-6. The story does not expand scope into unrelated Koala branding cleanup,
+6. The story does not expand scope into unrelated Lattice branding cleanup,
    Authority readiness, or production claims.
 
 ## Rollback Plan

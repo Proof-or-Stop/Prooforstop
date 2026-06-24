@@ -1,0 +1,56 @@
+{
+  "storyId": "B-36ba",
+  "changes": "core/review-escalation.ts: evaluateReviewEscalation now resolves gitCwd = args.gitCwd ?? args.projectRoot and computes currentMaterialHash/currentStoryFilesHash(gitCwd,'HEAD',args.projectRoot) (was single-arg projectRoot). DONE-gate callers done-oracle.ts:751 and machine.ts:639/1146 + the diagnostic handlers (status/policy_set/fallback_set, incl. their secondary freshness probes) now thread the resolved gitCwd. New offline smoke tasks/review-escalation-freshness-root-smoke.ts proves floor<->escalation hash equivalence (plain + wrapper-root), a RED divergence without gitCwd, and a DONE-ready guard where canFinishGuard/getGuardFailureReason/done-oracle row depend on the escalation gitCwd.",
+  "usage": "lattice review_escalation_status --storyId=<id> (and the DONE checklist) now report the SAME materialHash/storyFilesHash as the review-assurance-floor under wrapper-root layouts. Run: node packages/main/dist/tasks/review-escalation-freshness-root-smoke.js -> 'review-escalation freshness-root smoke passed'.",
+  "expectedOutcome": "npm test green incl. test:review-escalation-freshness-root; node scripts/verify-process-fact-contract.mjs passes; wrapper-root escalation no longer reads null/stale material that the floor accepts; plain repos byte-identical.",
+  "actualTranscript": "review-escalation freshness-root smoke passed; review-escalation smoke passed (15 checks); review-assurance-floor smoke passed (10 checks); done-oracle wrapper-root smoke passed; Process fact contract verified; npm test exit 0. review_escalation_status: countableProblems 2/2, fullQuorum 3/3 rounds x 2 hosts.",
+  "outcomeDiff": "No difference — all expected outputs produced; genuine 2-host review (Claude lanes + Codex host-2) complete with F-001/F-002/F-003 all resolved.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Coverage is offline (synthetic git fixtures exercising the real evaluators/handlers/machine guards), not a live multi-repo wrapper-root deployment. F-004 (cosmetic split node:fs import in the smoke) deferred as accepted_risk to avoid a disproportionate re-bind round.",
+  "pitfalls": "Concurrent main drift (259 commits, incl. B-6de6 floor + B-fbca koala->lattice residue rename) required merging main mid-lifecycle: this changed story-owned files' storyFilesHash and forced a full review re-bind round (round 4) plus re-running the 3x2 quorum over post-merge material. The genuine Codex host-2 review caught F-003 (the machine-guard test wasn't a real regression guard — guards returned early before the escalation call); fixing it needed a full DONE-ready fixture (test-evidence + signed delivery-check + escalation-required policy + 3x2 verdicts) so the guard genuinely depends on the gitCwd. Next person: create worktrees fresh from main and finish fast to minimize drift; resolve evidence freshness via verification_evidence_refresh_stale; the 6 logic-kind lanes legitimately show as 'rerun' in evidence_plan.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 229969
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 14752
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 748024
+    },
+    "DEV": {
+      "count": 4,
+      "durationMs": 1881927
+    },
+    "REVIEW": {
+      "count": 4,
+      "durationMs": 4169328
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 177042
+    }
+  },
+  "totalDurationMs": 7221058,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-24T03:21:40.349Z",
+  "updatedAt": "2026-06-24T03:21:40.349Z"
+}

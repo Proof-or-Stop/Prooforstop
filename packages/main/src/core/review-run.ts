@@ -14,7 +14,7 @@ import {
   type ScopeBindingComparison,
 } from './review-scope-binding.js';
 
-export const REVIEW_RUN_SALT = 'koala-review-run-integrity-v1';
+export const REVIEW_RUN_SALT = 'lattice-review-run-integrity-v1';
 
 export const REVIEW_RUN_LANES = [
   'lattice-review-concept',
@@ -118,7 +118,7 @@ export function resolveReviewPromptHash(prompt?: string, promptHash?: string): s
 }
 
 export const REVIEW_RUN_WORKSPACE_BINDING_SCHEMA_VERSION = 'lattice.review_run_workspace_binding.v1';
-export const REVIEW_RUN_WORKSPACE_BINDING_SALT = 'koala-review-run-workspace-binding-v1';
+export const REVIEW_RUN_WORKSPACE_BINDING_SALT = 'lattice-review-run-workspace-binding-v1';
 
 export interface ReviewRunWorkspaceBindingInput {
   metadataRoot: string;

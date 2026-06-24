@@ -43,7 +43,7 @@ const DEGRADATION_SEVERITIES: readonly DegradationSeverity[] = ['info', 'warn', 
 const list = buildCapabilityList();
 
 // Stable host profiles and category coverage.
-assert.equal(list.schemaVersion, 'koala.capability_list.v1');
+assert.equal(list.schemaVersion, 'lattice.capability_list.v1');
 assert.deepEqual(list.hosts.map(h => h.id), [...EXPECTED_HOSTS]);
 assert.deepEqual(list.categories.map(c => c.id), [...CAPABILITY_CATEGORIES]);
 for (const host of list.hosts) {
@@ -123,7 +123,7 @@ assert.doesNotMatch(text, /fatal=/);
 
 // Productized single-host probe is a diagnostic projection of the same registry.
 const codexProbe = buildCapabilityProbe('codex');
-assert.equal(codexProbe.schemaVersion, 'koala.capability_probe.v1');
+assert.equal(codexProbe.schemaVersion, 'lattice.capability_probe.v1');
 assert.equal(codexProbe.host, 'codex');
 assert.equal(codexProbe.diagnosticOnly, true);
 assert.equal(codexProbe.authorityRules.productionDoneRequiresReceipt, true);
@@ -153,9 +153,9 @@ assert.match(renderCapabilityProbeText(codexProbe), /authorityImpact: diagnostic
 assert.ok(MAIN_TOOLS.some(tool => tool.name === 'capability_list'), 'MAIN_TOOLS exposes capability_list');
 assert.ok(MAIN_TOOLS.some(tool => tool.name === 'capability_probe'), 'MAIN_TOOLS exposes capability_probe');
 {
-  const root = mkdtempSync(join(tmpdir(), 'koala-capability-list-registry-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-capability-list-registry-'));
   try {
-    writeFileSync(join(root, 'koala.config.json'), JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src' }));
+    writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src' }));
     resetConfigCache();
     const store = new StoryStore(root);
     const ctx: HandlerContext = { store, root, scanRoot: join(root, 'packages/main') };
@@ -173,9 +173,9 @@ assert.ok(MAIN_TOOLS.some(tool => tool.name === 'capability_probe'), 'MAIN_TOOLS
 
 // Real CLI JSON path: --format=json must produce parseable JSON on stdout.
 {
-  const root = mkdtempSync(join(tmpdir(), 'koala-capability-list-cli-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-capability-list-cli-'));
   try {
-    writeFileSync(join(root, 'koala.config.json'), JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src' }));
+    writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src' }));
     const here = dirname(fileURLToPath(import.meta.url));
     const cliPath = join(here, '..', 'cli.js');
     const stdout = execFileSync(process.execPath, [cliPath, '--root', root, 'capability_list', '--format=json'], {

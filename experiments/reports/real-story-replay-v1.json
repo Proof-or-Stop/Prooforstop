@@ -51,7 +51,7 @@
     },
     {
       "storyId": "B-57e7",
-      "title": "为 koala-lab 增加 test-intent prompt 质量评分",
+      "title": "为 lattice-lab 增加 test-intent prompt 质量评分",
       "category": "lab scoring profile",
       "beforeProblem": "test-intent prompt quality had no repeatable score.",
       "afterCapability": "Adds test-intent-prompt-quality-v1 with normalizedScore support.",
@@ -99,7 +99,7 @@
     },
     {
       "storyId": "B-990d",
-      "title": "为 Koala 增加面向用户价值的 product-reviewer 验收链路",
+      "title": "为 Lattice 增加面向用户价值的 product-reviewer 验收链路",
       "category": "user value review",
       "beforeProblem": "DONE could be technically green while missing user-facing value evidence.",
       "afterCapability": "Adds product-reviewer advisory checks and outcome transcript quality pressure.",
@@ -130,12 +130,12 @@
       "score": 0.79,
       "evidenceQuality": "backfilled",
       "why": "PASS evidence + backfilled summary evidence + 4 backfilled evidence item(s) + 0 open bugs",
-      "explain": "Score=0.79 from deterministic artifacts: testEvidence 0.25, summary 0.14, fixtures 0.10, bugClosure 0.15, relevance 0.15, artifactDepth 0.00. Native summary is missing, so the score uses explicit backfill metadata (koala story_get {\"storyId\":\"B-e452\",\"detail\":true} + existing PASS test evidence + historical story metadata). Backfill preserves the historical artifact gap while recording the observable story outcome: four checklist items tightened user-facing outcome tra...",
+      "explain": "Score=0.79 from deterministic artifacts: testEvidence 0.25, summary 0.14, fixtures 0.10, bugClosure 0.15, relevance 0.15, artifactDepth 0.00. Native summary is missing, so the score uses explicit backfill metadata (lattice story_get {\"storyId\":\"B-e452\",\"detail\":true} + existing PASS test evidence + historical story metadata). Backfill preserves the historical artifact gap while recording the observable story outcome: four checklist items tightened user-facing outcome tra...",
       "evidence": {
         "testPassed": true,
         "hasSummary": false,
         "hasBackfill": true,
-        "backfillSource": "koala story_get {\"storyId\":\"B-e452\",\"detail\":true} + existing PASS test evidence + historical story metadata",
+        "backfillSource": "lattice story_get {\"storyId\":\"B-e452\",\"detail\":true} + existing PASS test evidence + historical story metadata",
         "fixtureCases": 4,
         "cumulativePassedCases": 4,
         "fixedBugs": 0,
@@ -202,7 +202,7 @@
       "score": 0.98,
       "evidenceQuality": "native",
       "why": "PASS evidence + summary artifact present + 6 fixture case(s) + 0 open bugs + 6 bug(s) fixed",
-      "explain": "Score=0.98 from deterministic artifacts: testEvidence 0.25, summary 0.20, fixtures 0.15, bugClosure 0.15, relevance 0.15, artifactDepth 0.05. Summary says: 把 INIT_CHECK 的 worktree bootstrap 改成共享锁保护的串行临界区，改为只 stage 当前 story metadata 与 koala.config，并在创建 branch/worktree 前后显式校验目标 commit 确实包含 story index。新增...",
+      "explain": "Score=0.98 from deterministic artifacts: testEvidence 0.25, summary 0.20, fixtures 0.15, bugClosure 0.15, relevance 0.15, artifactDepth 0.05. Summary says: 把 INIT_CHECK 的 worktree bootstrap 改成共享锁保护的串行临界区，改为只 stage 当前 story metadata 与 lattice.config，并在创建 branch/worktree 前后显式校验目标 commit 确实包含 story index。新增...",
       "evidence": {
         "testPassed": true,
         "hasSummary": true,

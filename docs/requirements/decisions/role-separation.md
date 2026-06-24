@@ -4,7 +4,7 @@
 
 ## Background
 
-koala currently has only 1.5 actual roles:
+lattice currently has only 1.5 actual roles:
 - **main agent**: the primary driver throughout PLAN / DEV / TEST_CASE / TEST / DONE
 - **test-intent-reviewer**: only reviews the text quality of testIntent
 - **test-case-reviewer**: only reviews fixture design
@@ -23,9 +23,9 @@ This document proposes a **gradual role-separation plan**, not splitting into 4 
 
 ### Why not split into 4 independent agents all at once
 
-1. **The boundary of the "adversarial" role is extremely hard to draw cleanly**. The most common failure mode of an independent red-team agent is not failing to find faults, but finding a pile of generic template faults (what if the disk is full / what if the network goes down), drowning out the truly high-signal risks. koala's existing `riskSignals` + B-5010's `story_review_dismiss` mechanism already prove this indirectly — dismiss exists precisely because story_review has too many false-positives.
+1. **The boundary of the "adversarial" role is extremely hard to draw cleanly**. The most common failure mode of an independent red-team agent is not failing to find faults, but finding a pile of generic template faults (what if the disk is full / what if the network goes down), drowning out the truly high-signal risks. lattice's existing `riskSignals` + B-5010's `story_review_dismiss` mechanism already prove this indirectly — dismiss exists precisely because story_review has too many false-positives.
 2. **4 independent agents = 4 context windows**. Each sub-agent launch is a fresh context, and the context passed between plan → adversarial → implementation → test has to be rebuilt inline in the prompt, so the token cost stacks up linearly. Not worth it under a solo-dev budget.
-3. **koala's existing mechanisms (phase state machine / watchdog / activity.jsonl / signed review / hooks) all assume "one agent is present throughout"**. Splitting into 4 roles at once means all of these mechanisms have to be changed in sync, and the change surface is too large to roll back safely.
+3. **lattice's existing mechanisms (phase state machine / watchdog / activity.jsonl / signed review / hooks) all assume "one agent is present throughout"**. Splitting into 4 roles at once means all of these mechanisms have to be changed in sync, and the change surface is too large to roll back safely.
 4. **Whether the real pain points actually require 4 roles to solve is not yet verified**. If the real root cause is prompt quality or checklist granularity, splitting into more agents will not help.
 
 ### The role that is truly worth making independent
@@ -36,7 +36,7 @@ After tracing the pain points back to their source, **only the "implementation" 
 - Once independent, its tool permissions can be tightened (read/edit code + run tests only; cannot touch phase / cannot touch story metadata)
 - It can run in an independent worktree, naturally isolating side effects
 
-**The "test-verification" role actually does not need an LLM**. koala already has the deterministic script test_auto; the only thing that truly needs LLM judgment is "root-cause analysis when a test fails" — and that is an on-demand diagnostic role, not a resident role.
+**The "test-verification" role actually does not need an LLM**. lattice already has the deterministic script test_auto; the only thing that truly needs LLM judgment is "root-cause analysis when a test fails" — and that is an on-demand diagnostic role, not a resident role.
 
 **The "adversarial" role is implemented in phase 1 using a self-critique mode** (after the plan agent finishes writing the checklist, it switches mental mode and finds faults in its own work). This saves one context cold start compared to an independent agent, and empirically the effect is close; crucially, it **lets us first verify whether the boundary is workable**. If the self-critique data shows that the adversarial output really has value, then we consider splitting out an independent agent.
 
@@ -58,7 +58,7 @@ After tracing the pain points back to their source, **only the "implementation" 
 │  "get it     │        │  "root-cause   │
 │   done"      │        │   analysis"    │
 │  - Read/Edit │        │  - read diff   │
-│  - Bash(koala│        │  - read fail   │
+│  - Bash(lattice│        │  - read fail   │
 │     /node/   │        │    log         │
 │     npm)     │        │  - write       │
 │  - worktree  │        │    bug.json    │
@@ -170,7 +170,7 @@ Wave 3: (conditional on S-12 outcome) S-13
 
 ## Wave 0: Verify the ROI of an Independent Implementer
 
-**Goal**: without changing the koala phase machine or any existing artifact, delegate the actual execution of the two phases DEV + TEST_CASE to an independent sub-agent, and observe the effect on the "shortcut rate" after 2 weeks.
+**Goal**: without changing the lattice phase machine or any existing artifact, delegate the actual execution of the two phases DEV + TEST_CASE to an independent sub-agent, and observe the effect on the "shortcut rate" after 2 weeks.
 
 **What Wave 0 does NOT change**:
 - The phase list stays the same
@@ -193,7 +193,7 @@ Create `.claude/agents/lattice-implementer.md`, defining a CC sub-agent dedicate
 Key design:
 - Tightened permissions: only a subset of Read / Edit / Write / Glob / Grep / Bash. Bash allowlist: `lattice:*`, `node:*`, `npm:*`, `pnpm:*`, `git:(status|diff|log|add|commit)`. Blocklist: `rm`, `git reset --hard`, `git push`, `curl | sh`
 - `permissionMode: acceptEdits` (no confirmation prompt)
-- `isolation: worktree` (automatically reuses koala's worktree-per-story)
+- `isolation: worktree` (automatically reuses lattice's worktree-per-story)
 - The system prompt's mental mode is locked to "get it done", explicitly blocking it from advancing the phase / writing bug.json / modifying checklist metadata
 - The prompt ends with a hard line: "When done, return only a plain-text summary; do not attempt story_advance, and do not decide on your own whether to enter the TEST phase"
 
@@ -207,18 +207,18 @@ The agent's input prompt is constructed by the main agent and must contain:
 **Checklist**
 
 1. **title**: Create the `.claude/agents/lattice-implementer.md` file and its frontmatter
-   **context**: The frontmatter contains `name`, `description`, `whenToUse`, `tools`, `disallowedTools`, `permissionMode: acceptEdits`, `isolation: worktree`, `model: inherit`. whenToUse must make clear "only invoked by the main agent during the DEV / TEST_CASE phase of a koala story, not responding to the user directly"
+   **context**: The frontmatter contains `name`, `description`, `whenToUse`, `tools`, `disallowedTools`, `permissionMode: acceptEdits`, `isolation: worktree`, `model: inherit`. whenToUse must make clear "only invoked by the main agent during the DEV / TEST_CASE phase of a lattice story, not responding to the user directly"
 
 2. **title**: Write the body of the system prompt
    **context**: 5 sections:
-   - "You are the koala implementer" (role anchoring)
+   - "You are the lattice implementer" (role anchoring)
    - "Your sole goal: complete the pending items in the checklist" (mental mode lock)
    - "Strictly blocked" (cannot story_advance / cannot change phase / cannot write bug.json / cannot change a checklist item's testIntent)
    - "Tool usage conventions" (read-before-edit / only one in_progress per item / call update_task_state when done)
    - "Completion conditions and return format" (return a 2-5 line summary, do not be verbose)
 
 3. **title**: Verify CC can load this agent
-   **context**: Launch CC in the koala-agent repo root, run `/agents` or have the main agent call `Agent(subagent_type: "lattice-implementer", description: "smoke", prompt: "echo hello")`, and confirm the agent is recognized and can run
+   **context**: Launch CC in the lattice-agent repo root, run `/agents` or have the main agent call `Agent(subagent_type: "lattice-implementer", description: "smoke", prompt: "echo hello")`, and confirm the agent is recognized and can run
 
 4. **title**: Real-machine smoke: have the implementer make a trivial change
    **context**: On a scratch story, have the implementer create a hello.txt and call update_task_state. Confirm: (a) the file was actually created (b) the checklist item was actually marked done (c) there was no story_advance call (d) the returned summary is concise
@@ -246,7 +246,7 @@ The agent's input prompt is constructed by the main agent and must contain:
 
 **Description**
 
-Make the main agent **naturally inclined to** delegate to the implementer when it enters the DEV or TEST_CASE phase. This story is a refactor of prompts + flow; it **does not modify koala's core code**.
+Make the main agent **naturally inclined to** delegate to the implementer when it enters the DEV or TEST_CASE phase. This story is a refactor of prompts + flow; it **does not modify lattice's core code**.
 
 Two points are changed:
 1. **Add a section about role separation at the top of CLAUDE.md**: tell the main agent that "the code-writing work of DEV and TEST_CASE should be delegated to the lattice-implementer sub-agent"
@@ -255,14 +255,14 @@ Two points are changed:
 Note: **not mandatory**. The main agent may choose not to delegate, because some stories are extremely fine-grained (chore / docs type), where delegating to a sub-agent is more expensive than doing it yourself. Let the main agent judge for itself based on the story's type and priority.
 
 **Why not hardcode delegate at the code level**:
-- koala's core value is "the mechanism does not assume an agent implementation"; hardcoding delegate would bind koala to CC
+- lattice's core value is "the mechanism does not assume an agent implementation"; hardcoding delegate would bind lattice to CC
 - the main agent could be CC, or it could be an observer/Mastra agent (you are currently pursuing both paths)
 - hardcoding would require maintaining two phase machines at once, too heavy
 
 **Checklist**
 
-1. **title**: Add a "sub-agent role separation" subsection at the top of `packages/koala/CLAUDE.md`
-   **context**: Explain that koala supports the implementer sub-agent, and give the trigger conditions: delegate is recommended when story.type is in `[feature, bug, refactor]` and priority >= medium and the checklist item count >= 2. When type is in `[chore, docs]` or the item count < 2, it is faster for the main agent to do it itself
+1. **title**: Add a "sub-agent role separation" subsection at the top of `packages/lattice/CLAUDE.md`
+   **context**: Explain that lattice supports the implementer sub-agent, and give the trigger conditions: delegate is recommended when story.type is in `[feature, bug, refactor]` and priority >= medium and the checklist item count >= 2. When type is in `[chore, docs]` or the item count < 2, it is faster for the main agent to do it itself
 
 2. **title**: Add a delegate suggestion to the hint when story_advance enters DEV
    **context**: In the `story_advance.DEV` hint in `handlers/hints.ts`, append a line: "Recommend Agent(subagent_type='lattice-implementer', description='execute DEV', prompt='story id + pending checklist items + allowed tools')". Only append when story.type/priority/size meets the conditions
@@ -287,8 +287,8 @@ Note: **not mandatory**. The main agent may choose not to delegate, because some
 - A delegate is run end-to-end on a real machine once and written into DOGFOOD-EVIDENCE.md
 
 **Touchpoints**
-- Modify: `packages/koala/CLAUDE.md`
-- Modify: `packages/koala/packages/main/src/handlers/hints.ts`
+- Modify: `packages/lattice/CLAUDE.md`
+- Modify: `packages/lattice/packages/main/src/handlers/hints.ts`
 
 ---
 
@@ -298,7 +298,7 @@ Note: **not mandatory**. The main agent may choose not to delegate, because some
 
 Each record in activity.jsonl is currently `{tool, args, status, at}`. Add a `role` field (`main` / `implementer` / `test-analyst` / `unknown`) so that data analysis can be done at the end of Wave 0.
 
-The source for judging `role`: the environment variable `KOALA_ROLE`. When the main agent delegates to a sub-agent, it stuffs this variable into the sub-agent's env (CC's AgentTool allows passing an environment variable or injecting it via the initialPrompt).
+The source for judging `role`: the environment variable `LATTICE_ROLE`. When the main agent delegates to a sub-agent, it stuffs this variable into the sub-agent's env (CC's AgentTool allows passing an environment variable or injecting it via the initialPrompt).
 
 Note this is best-effort: if the env is not passed, the role field is `unknown`, which does not affect the other fields.
 
@@ -307,19 +307,19 @@ Note this is best-effort: if the env is not passed, the role field is `unknown`,
 **Checklist**
 
 1. **title**: Add a `role` field to activity.ts
-   **context**: Add `role: process.env.KOALA_ROLE || 'unknown'` to the record object in appendActivity. The schema version stays the same (the new field is additive)
+   **context**: Add `role: process.env.LATTICE_ROLE || 'unknown'` to the record object in appendActivity. The schema version stays the same (the new field is additive)
 
 2. **title**: Add the role field to health.ts as well
    **context**: health.jsonl also needs to know which role produced a silent failure. Same env-variable source
 
 3. **title**: Document the env-variable injection in the implementer section of CLAUDE.md
-   **context**: Tell the main agent that when it delegates to a sub-agent, it includes in the prompt `"Your first Bash call after launch is export KOALA_ROLE=implementer"`. This convention is ugly but effective. TODO: change it in the future if the CC Agent tool supports env pass-through
+   **context**: Tell the main agent that when it delegates to a sub-agent, it includes in the prompt `"Your first Bash call after launch is export LATTICE_ROLE=implementer"`. This convention is ugly but effective. TODO: change it in the future if the CC Agent tool supports env pass-through
 
 4. **title**: Add a simple data-analysis script
-   **context**: Create `packages/koala/scripts/wave0-review.sh`, which groups by role and counts the tool frequency, the status=fail ratio, and the average duration of a story in activity.jsonl. Output a readable table
+   **context**: Create `packages/lattice/scripts/wave0-review.sh`, which groups by role and counts the tool frequency, the status=fail ratio, and the average duration of a story in activity.jsonl. Output a readable table
 
 5. **title**: fixture: verify the role field is written correctly
-   **context**: A unit test constructs a call with the KOALA_ROLE env and asserts the written activity.jsonl line contains the corresponding role
+   **context**: A unit test constructs a call with the LATTICE_ROLE env and asserts the written activity.jsonl line contains the corresponding role
 
 **Test directions**
 - happy: env set → both activity.jsonl and health.jsonl record the correct role
@@ -332,10 +332,10 @@ Note this is best-effort: if the env is not passed, the role field is `unknown`,
 - fixture coverage
 
 **Touchpoints**
-- Modify: `packages/koala/packages/main/src/core/activity.ts`
-- Modify: `packages/koala/packages/main/src/core/health.ts`
-- Create: `packages/koala/scripts/wave0-review.sh`
-- Modify: `packages/koala/CLAUDE.md` (env-convention section)
+- Modify: `packages/lattice/packages/main/src/core/activity.ts`
+- Modify: `packages/lattice/packages/main/src/core/health.ts`
+- Create: `packages/lattice/scripts/wave0-review.sh`
+- Modify: `packages/lattice/CLAUDE.md` (env-convention section)
 
 ---
 
@@ -391,7 +391,7 @@ The review result is written into this story's `decision.json`, as the basis for
 **Touchpoints**
 - Create: `docs/story/actives/B-xxxx/review.md`
 - Fill: `docs/story/actives/B-xxxx/decision.json`
-- (if rollback) Modify: `packages/koala/CLAUDE.md`, delete `.claude/agents/lattice-implementer.md`
+- (if rollback) Modify: `packages/lattice/CLAUDE.md`, delete `.claude/agents/lattice-implementer.md`
 
 ---
 
@@ -407,7 +407,7 @@ The review result is written into this story's `decision.json`, as the basis for
 
 **Description**
 
-Current state: test_auto is a koala handler that the main agent calls as an ordinary tool. The problem: the LLM can choose not to call it, call it and selectively read the result, or read it and selectively report.
+Current state: test_auto is a lattice handler that the main agent calls as an ordinary tool. The problem: the LLM can choose not to call it, call it and selectively read the result, or read it and selectively report.
 
 Refactor: turn test_auto into an action that is **triggered automatically** when entering `story_advance --phase TEST`. The main agent does not need to (and cannot) call test_auto explicitly; it can only call story_advance, and test_auto runs as a side effect of the phase transition, with the result written into test-runs.json, and then the phase lands at TEST or falls back to DEV (depending on the result).
 
@@ -434,7 +434,7 @@ Refactor: turn test_auto into an action that is **triggered automatically** when
    **context**: Add a line: "Test execution in the TEST phase is a side effect of story_advance; do not call test_auto separately". Also note that test_auto is still usable in the sub-agent / script scenario
 
 4. **title**: Add an @deprecated tag to the test_auto handler (warn when the main agent calls it)
-   **context**: The handler entry checks `process.env.KOALA_ROLE === 'main'` and console.warns, suggesting "please trigger it indirectly via story_advance". Do not hard-block; keep compatibility
+   **context**: The handler entry checks `process.env.LATTICE_ROLE === 'main'` and console.warns, suggesting "please trigger it indirectly via story_advance". Do not hard-block; keep compatibility
 
 5. **title**: fixture: verify the test execution and fallback during story_advance TEST
    **context**: Construct a scratch story with a passing fixture → story_advance TEST succeeds and enters TEST. Then construct a failing one → story_advance TEST fails, stays at DEV, and returns testResult
@@ -449,11 +449,11 @@ Refactor: turn test_auto into an action that is **triggered automatically** when
 - The fixture covers the three paths pass/fail/empty
 
 **Touchpoints**
-- Modify: `packages/koala/packages/main/src/handlers/story-advance.ts`
-- Modify: `packages/koala/packages/main/src/core/types.ts`
-- Modify: `packages/koala/packages/main/src/handlers/test-runner-core.ts` or `test-auto.ts`
-- Modify: `packages/koala/CLAUDE.md`
-- Create/modify: `packages/koala/packages/main/tests/fixtures/story-advance-test-auto.json`
+- Modify: `packages/lattice/packages/main/src/handlers/story-advance.ts`
+- Modify: `packages/lattice/packages/main/src/core/types.ts`
+- Modify: `packages/lattice/packages/main/src/handlers/test-runner-core.ts` or `test-auto.ts`
+- Modify: `packages/lattice/CLAUDE.md`
+- Create/modify: `packages/lattice/packages/main/tests/fixtures/story-advance-test-auto.json`
 
 ---
 
@@ -478,7 +478,7 @@ The analyst's tightened permissions:
 **Checklist**
 
 1. **title**: Create `.claude/agents/lattice-test-analyst.md`
-   **context**: frontmatter: name, whenToUse="Use when koala test phase fails and needs root cause analysis", tools (Read/Glob/Grep/Bash allowlist), disallowedTools (Edit/Write/NotebookEdit), permissionMode: acceptEdits, isolation: worktree (reuse the story worktree)
+   **context**: frontmatter: name, whenToUse="Use when lattice test phase fails and needs root cause analysis", tools (Read/Glob/Grep/Bash allowlist), disallowedTools (Edit/Write/NotebookEdit), permissionMode: acceptEdits, isolation: worktree (reuse the story worktree)
 
 2. **title**: Write the diagnosis workflow in the system prompt
    **context**: 5 steps: (1) read testResult.firstFailure.stdoutTail (2) git diff HEAD to see recent changes (3) read the source files of the failing cases (4) classify the root cause (5) write bug.json or return a decision. Particularly emphasize: cannot touch code/tests, can only write bug.json
@@ -504,7 +504,7 @@ The analyst's tightened permissions:
 
 **Touchpoints**
 - Create: `.claude/agents/lattice-test-analyst.md`
-- Modify: `packages/koala/packages/main/src/handlers/hints.ts`
+- Modify: `packages/lattice/packages/main/src/handlers/hints.ts`
 - Create: `docs/story/actives/B-xxxx/smoke/analyst-smoke.md`
 
 ---
@@ -529,7 +529,7 @@ Wave 1 introduces the two roles implementer and test-analyst that write artifact
 - the implementer is blocked from writing bug.json (exclusive to test-analyst)
 - test-analyst is blocked from writing test-evidence.json (written by the story_advance script)
 
-These two constraints add a role check at the handler layer: something like `if (role === 'implementer' && handlerName === 'bug_report') throw`. role is read from `process.env.KOALA_ROLE` (already laid down by S-03).
+These two constraints add a role check at the handler layer: something like `if (role === 'implementer' && handlerName === 'bug_report') throw`. role is read from `process.env.LATTICE_ROLE` (already laid down by S-03).
 
 **Checklist**
 
@@ -543,14 +543,14 @@ These two constraints add a role check at the handler layer: something like `if 
    **context**: Add fields as above; use defaults when reading old bug.json
 
 4. **title**: Add a role write-permission check at the handler layer
-   **context**: The `bug_report` handler entry checks KOALA_ROLE. If it is `implementer` then throw `'bug_report is not allowed for role=implementer, delegate back to main for analyst dispatch'`. The `test_auto` entry likewise checks for a non-`main` role
+   **context**: The `bug_report` handler entry checks LATTICE_ROLE. If it is `implementer` then throw `'bug_report is not allowed for role=implementer, delegate back to main for analyst dispatch'`. The `test_auto` entry likewise checks for a non-`main` role
 
 5. **title**: fixture: role-overreach test
-   **context**: Simulate calling bug_report with env KOALA_ROLE=implementer and assert it throws
+   **context**: Simulate calling bug_report with env LATTICE_ROLE=implementer and assert it throws
 
 **Test directions**
 - happy: each role can only write its own artifact
-- edge: when KOALA_ROLE is unset it defaults to 'unknown', allowed under the lenient rule (to avoid deadlocking old sessions)
+- edge: when LATTICE_ROLE is unset it defaults to 'unknown', allowed under the lenient rule (to avoid deadlocking old sessions)
 - adversarial: deliberately forging the env to attempt overreach is blocked
 
 **Acceptance**
@@ -559,9 +559,9 @@ These two constraints add a role check at the handler layer: something like `if 
 - Old stories can still be read compatibly
 
 **Touchpoints**
-- Modify: `packages/koala/packages/main/src/core/types.ts`
-- Modify: `packages/koala/packages/main/src/handlers/bug.ts`
-- Modify: `packages/koala/packages/main/src/handlers/test-runner-core.ts` or `test-auto.ts`
+- Modify: `packages/lattice/packages/main/src/core/types.ts`
+- Modify: `packages/lattice/packages/main/src/handlers/bug.ts`
+- Modify: `packages/lattice/packages/main/src/handlers/test-runner-core.ts` or `test-auto.ts`
 - Create/modify: a role-overreach fixture
 
 ---
@@ -650,10 +650,10 @@ After fault-finding, the main agent switches back to plan mode and decides for e
 - Real-machine verification that the critique output structure is correct
 
 **Touchpoints**
-- Modify: `packages/koala/packages/main/src/cli-prompts.ts`
-- Modify: `packages/koala/packages/main/src/handlers/hints.ts`
-- Modify: `packages/koala/packages/main/src/core/types.ts`
-- Modify: `packages/koala/CLAUDE.md`
+- Modify: `packages/lattice/packages/main/src/cli-prompts.ts`
+- Modify: `packages/lattice/packages/main/src/handlers/hints.ts`
+- Modify: `packages/lattice/packages/main/src/core/types.ts`
+- Modify: `packages/lattice/CLAUDE.md`
 
 ---
 
@@ -685,7 +685,7 @@ Give the critique output a persistence location `docs/story/actives/B-xxxx/plan-
 }
 ```
 
-Two new koala handlers:
+Two new lattice handlers:
 - `plan_critique_record`: called by the main agent in critique mode, appends critiques
 - `plan_critique_resolve`: called by the main agent after switching back to plan mode, marks resolve/dismiss
 
@@ -724,10 +724,10 @@ Two new koala handlers:
 - complete fixture coverage
 
 **Touchpoints**
-- Create: `packages/koala/packages/main/src/handlers/plan-critique.ts`
-- Modify: `packages/koala/packages/main/src/core/types.ts`
-- Modify: `packages/koala/packages/main/src/core/machine.ts`
-- Modify: `packages/koala/packages/main/src/handlers/story-review.ts`
+- Create: `packages/lattice/packages/main/src/handlers/plan-critique.ts`
+- Modify: `packages/lattice/packages/main/src/core/types.ts`
+- Modify: `packages/lattice/packages/main/src/core/machine.ts`
+- Modify: `packages/lattice/packages/main/src/handlers/story-review.ts`
 - Create: fixture file
 
 ---
@@ -791,11 +791,11 @@ The allowed-tools allowlist of the `PLAN_REVIEW` phase:
 - The skip escape hatch has a fixture
 
 **Touchpoints**
-- Modify: `packages/koala/packages/main/src/core/machine.ts`
-- Modify: `packages/koala/packages/main/src/core/types.ts` (PhaseEnum)
-- Modify: `packages/koala/packages/main/src/handlers/story-advance.ts`
-- Modify: `packages/koala/packages/main/src/handlers/hints.ts`
-- Modify: `packages/koala/packages/main/src/cli-engine.ts` (phase-scoped allowed tools)
+- Modify: `packages/lattice/packages/main/src/core/machine.ts`
+- Modify: `packages/lattice/packages/main/src/core/types.ts` (PhaseEnum)
+- Modify: `packages/lattice/packages/main/src/handlers/story-advance.ts`
+- Modify: `packages/lattice/packages/main/src/handlers/hints.ts`
+- Modify: `packages/lattice/packages/main/src/cli-engine.ts` (phase-scoped allowed tools)
 
 ---
 
@@ -854,7 +854,7 @@ Details left blank. The Wave 3 checklist will be filled in when we actually ente
 
 **Description**
 
-Done alongside S-02. Add a layer of role check at the common entry of the koala handler:
+Done alongside S-02. Add a layer of role check at the common entry of the lattice handler:
 
 ```ts
 const ROLE_ARTIFACT_WRITE: Record<string, Set<string>> = {
@@ -865,7 +865,7 @@ const ROLE_ARTIFACT_WRITE: Record<string, Set<string>> = {
 };
 ```
 
-The entry point is before the tool dispatch in `cli-engine.ts`. role is read from the `KOALA_ROLE` env. Overreach → return a clear error.
+The entry point is before the tool dispatch in `cli-engine.ts`. role is read from the `LATTICE_ROLE` env. Overreach → return a clear error.
 
 **Checklist** (omitted, simple structure)
 
@@ -885,7 +885,7 @@ Refactor: when the watchdog reads activity.jsonl, count the role field as well; 
 
 **Description**
 
-Done alongside S-03. Add `KOALA_ROLE` pass-through to the hook env, so the preCommand / postCommand scripts can branch by role.
+Done alongside S-03. Add `LATTICE_ROLE` pass-through to the hook env, so the preCommand / postCommand scripts can branch by role.
 
 **Checklist** (omitted)
 
@@ -973,33 +973,33 @@ After each rollback, a retrospective (review.md) must be written, answering at l
 
 **Do not split into 4 independent agents at once**. Split out the most certain one first (implementer), and use 2 weeks of data to verify whether role isolation can reduce the real pain points. If it can, then make test execution deterministic (Wave 1). If that is OK too, then try the adversarial role with self-critique mode (Wave 2). Only if self-critique is not enough do we consider an independent red-team agent (Wave 3).
 
-Every wave has a mandatory gate story and a rollback playbook. The gate's data decision matters more than the coding itself — that is the step that truly decides what koala looks like.
+Every wave has a mandatory gate story and a rollback playbook. The gate's data decision matters more than the coding itself — that is the step that truly decides what lattice looks like.
 
 ---
 
-## Advisory Read-Only Reviewer Mode (`KOALA_REVIEWER_READONLY=1`)
+## Advisory Read-Only Reviewer Mode (`LATTICE_REVIEWER_READONLY=1`)
 
 Some workflows delegate read-only review to an external Claude/Codex/Gemini process that is
 **not** a normal Lattice gate reviewer. These advisory reviewers should not be able to call
-mutating Koala commands — they are expected to return structured text or JSON findings to the
+mutating Lattice commands — they are expected to return structured text or JSON findings to the
 owner session, which then records evidence through the normal gate.
 
 ### Dispatch rule for owner agents
 
 When an **owner session** launches an advisory external reviewer (Claude/Codex/Gemini), it
-**must** set `KOALA_REVIEWER_READONLY=1` on that spawned process only — not on the owner
+**must** set `LATTICE_REVIEWER_READONLY=1` on that spawned process only — not on the owner
 session itself or on any normal Lattice gate reviewer subagent.
 
 ```bash
 # Correct: sandbox only the advisory process
-KOALA_REVIEWER_READONLY=1 claude --model sonnet ... --prompt "inspect src/ and return JSON findings"
+LATTICE_REVIEWER_READONLY=1 claude --model sonnet ... --prompt "inspect src/ and return JSON findings"
 
 # Wrong: do NOT set this on normal gate reviewers
 # lattice-review-concept, lattice-review-quality, etc. must NOT have this env set
 ```
 
 The owner instructs the advisory reviewer to return structured JSON or plain-text findings and
-**explicitly prohibits** the reviewer from calling any of the following Koala commands:
+**explicitly prohibits** the reviewer from calling any of the following Lattice commands:
 
 - `review_pass_set` — would forge a gate-pass artifact
 - `finding_add` — would forge a signed finding
@@ -1012,7 +1012,7 @@ The owner instructs the advisory reviewer to return structured JSON or plain-tex
 The advisory reviewer must return its findings as structured output (JSON preferred), not call
 any of the above commands itself.
 
-### What KOALA_REVIEWER_READONLY=1 enforces
+### What LATTICE_REVIEWER_READONLY=1 enforces
 
 When set on a spawned reviewer process:
 
@@ -1026,20 +1026,20 @@ When set on a spawned reviewer process:
 
 ### Advisory reviewer output is not gate evidence
 
-A read-only reviewer cannot produce a Koala `review_pass_set` record, a signed `finding_add`
+A read-only reviewer cannot produce a Lattice `review_pass_set` record, a signed `finding_add`
 entry, or any other lifecycle artifact. Owner sessions that receive advisory reviewer output
-must explicitly call the relevant Koala commands themselves to materialize evidence.
+must explicitly call the relevant Lattice commands themselves to materialize evidence.
 
-### If KOALA_REVIEWER_READONLY was omitted
+### If LATTICE_REVIEWER_READONLY was omitted
 
-If an owner session launched an advisory reviewer **without** setting `KOALA_REVIEWER_READONLY=1`,
+If an owner session launched an advisory reviewer **without** setting `LATTICE_REVIEWER_READONLY=1`,
 the owner must treat the reviewer's output as **non-sandboxed advisory text** and apply extra
 scrutiny before recording any evidence:
 
 1. **Do not assume the reviewer only read.** The reviewer may have called mutating commands.
    Check `lattice finding_list`, `lattice story_get`, and relevant artifact files (e.g.
    `review-passes.json`, `init-check.json`) to see if the reviewer wrote anything unexpected.
-2. **Verify each claim independently** using `koala` commands or direct file inspection before
+2. **Verify each claim independently** using `lattice` commands or direct file inspection before
    calling `finding_add`, `review_pass_set`, or `verification_evidence_add`.
 3. **Discard any gate artifacts** (finding hashes, review pass records) that appear to have
    been written by the advisory reviewer directly — re-run or re-record them through the owner.
@@ -1048,25 +1048,25 @@ scrutiny before recording any evidence:
 
 Standard reviewers (`lattice-review-*` subagents in REVIEW phase) need to call `review_run_start`,
 `finding_add`, `review_pass_set`, `init_check_set`, `scope_check_save`, and
-`delivery_check_set`. Setting `KOALA_REVIEWER_READONLY=1` on a normal gate reviewer will block
+`delivery_check_set`. Setting `LATTICE_REVIEWER_READONLY=1` on a normal gate reviewer will block
 all of those calls and break the review lifecycle.
 
 ### When to use
 
-| Situation | Use KOALA_REVIEWER_READONLY=1? |
+| Situation | Use LATTICE_REVIEWER_READONLY=1? |
 |---|---|
 | External Claude/Codex/Gemini asked to inspect code and return text/JSON findings | **Yes** — owner must set it on the spawned process |
 | Normal `lattice-review-concept` / `lattice-review-quality` in REVIEW phase | **No** — reviewer must write gate artifacts |
 | `lattice-evaluator` or `lattice-evaluator-cli` scoring product quality | **No** — evaluator uses normal write path |
 | CI runner doing a read-only docs audit before reporting to owner | **Yes** |
-| Advisory reviewer launched without KOALA_REVIEWER_READONLY set | N/A — treat output as non-sandboxed, verify all claims manually |
+| Advisory reviewer launched without LATTICE_REVIEWER_READONLY set | N/A — treat output as non-sandboxed, verify all claims manually |
 
 ---
 
 ## References
 
-- `docs/requirements/decisions/cc-learnings.md` — the existing koala refactor plan, the predecessor and baseline of this document
+- `docs/requirements/decisions/cc-learnings.md` — the existing lattice refactor plan, the predecessor and baseline of this document
 - `docs/requirements/decisions/task-checklist-cc-style.md` — the CC TodoWrite-style refactor, the source of this document's prompt pattern
 - `CC/src/tools/AgentTool/builtInAgents.ts` — CC's built-in sub-agent definitions, the reference for the implementer/test-analyst agent definitions
-- `packages/koala/packages/main/src/handlers/story-advance.ts` — the B-7eed auto-merge implementation, the basis for the Wave 1 S-05 refactor
-- `packages/koala/packages/main/src/core/machine.ts` — the phase state machine, the place that Wave 2 S-11 will change
+- `packages/lattice/packages/main/src/handlers/story-advance.ts` — the B-7eed auto-merge implementation, the basis for the Wave 1 S-05 refactor
+- `packages/lattice/packages/main/src/core/machine.ts` — the phase state machine, the place that Wave 2 S-11 will change

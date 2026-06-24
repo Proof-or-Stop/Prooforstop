@@ -2,8 +2,8 @@
 
 > **Status**: PD-1 decision recorded — 2026-05-25; PD-2 boundary recorded — 2026-05-27
 > **Stories**: B-4bd4 (PD-1, decision-only; no production code changed), B-7e38 (PD-2, docs + smoke tests only)
-> **Derivation**: `.koala/story/actives/B-4bd4/evidence/authority-client-role-decision.md`
-> **Source audit**: `.koala/story/actives/B-0f04/evidence/cross-end-contract-audit.md` (AUDIT), `.koala/story/actives/B-0f04/evidence/codex-verification.md` (CODEX)
+> **Derivation**: `.lattice/story/actives/B-4bd4/evidence/authority-client-role-decision.md`
+> **Source audit**: `.lattice/story/actives/B-0f04/evidence/cross-end-contract-audit.md` (AUDIT), `.lattice/story/actives/B-0f04/evidence/codex-verification.md` (CODEX)
 
 ---
 
@@ -89,7 +89,7 @@ Lattice CLI 0.3.5 adds receipt-aware status commands for migration visibility:
 - `conduit_explain` / `lattice conduit explain`
 
 These commands are read-only diagnostics. They may report local
-`KOALA_AUTHORITY_MODE`, URL configuration, conduit availability, and supported
+`LATTICE_AUTHORITY_MODE`, URL configuration, conduit availability, and supported
 handoff/evidence surfaces, but they do not submit evidence, claim jobs, register
 actors, run providers, sign envelopes, verify server receipts, or promote local
 DONE to production DONE. Until verified receipt support exists, their JSON
@@ -137,10 +137,10 @@ New readiness JSON fields (both `authority_status` and `conduit_status`):
 |-------|---------|
 | `mode` | Alias of `authorityMode` (`off` / `shadow` / `enforce`). |
 | `localWorkflowUsable` | **Always `true`**. Local lifecycle gates do not depend on remote authority. |
-| `authorityUrlConfigured` | Is `KOALA_AUTHORITY_URL` set to a non-empty value? |
-| `actorKeyConfigured` | Is `KOALA_AUTHORITY_ACTOR_KEY` or `KOALA_AUTHORITY_ACTOR_KEY_PATH` set? (Presence detection only — the CLI does not generate, hold, or sign with actor keys.) |
-| `runnerConfigured` | Is `KOALA_AUTHORITY_RUNNER_ID` set? (Presence detection only.) |
-| `sessionConfigured` | Is `KOALA_AUTHORITY_SESSION_ID` set? (Presence detection only.) |
+| `authorityUrlConfigured` | Is `LATTICE_AUTHORITY_URL` set to a non-empty value? |
+| `actorKeyConfigured` | Is `LATTICE_AUTHORITY_ACTOR_KEY` or `LATTICE_AUTHORITY_ACTOR_KEY_PATH` set? (Presence detection only — the CLI does not generate, hold, or sign with actor keys.) |
+| `runnerConfigured` | Is `LATTICE_AUTHORITY_RUNNER_ID` set? (Presence detection only.) |
+| `sessionConfigured` | Is `LATTICE_AUTHORITY_SESSION_ID` set? (Presence detection only.) |
 | `readinessWarnings` | Actionable strings populated only when `shadow` / `enforce` is configured but prerequisites are missing. Empty when `mode='off'`. |
 | `nextActions` | Suggested env / command fixes for each readiness warning. |
 | `localWorkflowNote` | Reminder that readiness warnings are not global blockers. |
@@ -158,7 +158,7 @@ Constraints preserved by B-b710 (mechanical guard:
 3. **Local workflow is never blocked.** `localWorkflowUsable: true` is a
    compile-time literal; missing enforce prerequisites become
    `readinessWarnings`, not a hard refusal to run lifecycle commands.
-4. **`KOALA_AUTHORITY_ACTOR_KEY` etc. are diagnostic env vars only.** B-b710
+4. **`LATTICE_AUTHORITY_ACTOR_KEY` etc. are diagnostic env vars only.** B-b710
    does not introduce actor-key generation, registration, runner heartbeat,
    job claim, provider execution, envelope signing, or receipt verification.
    Those remain deferred per the Milestone Routing table below.
@@ -509,9 +509,9 @@ guard against future wording changes silently promoting thin-client submissions.
 
 | Source | Role | Location |
 |--------|------|----------|
-| B-0f04 cross-end contract audit | Primary evidence for PD-1 inputs | `.koala/story/actives/B-0f04/evidence/cross-end-contract-audit.md` |
-| B-0f04 Codex PM re-verification | Independent PM confirmation of audit claims | `.koala/story/actives/B-0f04/evidence/codex-verification.md` |
-| B-4bd4 CHK-001 decision inputs | Derivation artifact (terms, citations, fact extraction) | `.koala/story/actives/B-4bd4/evidence/authority-client-role-decision.md` |
+| B-0f04 cross-end contract audit | Primary evidence for PD-1 inputs | `.lattice/story/actives/B-0f04/evidence/cross-end-contract-audit.md` |
+| B-0f04 Codex PM re-verification | Independent PM confirmation of audit claims | `.lattice/story/actives/B-0f04/evidence/codex-verification.md` |
+| B-4bd4 CHK-001 decision inputs | Derivation artifact (terms, citations, fact extraction) | `.lattice/story/actives/B-4bd4/evidence/authority-client-role-decision.md` |
 | B-7e38 Milestone 0 | PD-2 boundary + enforce namespace reserve + handoff | `docs/requirements/decisions/authority-client-role.md` (this file) |
 | B-2522 CHK-002 enforce matrix | In-process smoke proving local/off stays free/local, shadow is warning-only, enforce fake receipt only classifies after receipt verification, enforce missing server fails closed, parallel_report stays non-authoritative with productionDone=false | `packages/main/src/tasks/authority-enforce-matrix-smoke.ts` |
 | Verification Context Pack | Defines locally-landed vs external authority constraints | `docs/requirements/decisions/verification-context-pack.md` |

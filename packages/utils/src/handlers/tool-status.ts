@@ -1,7 +1,7 @@
 /**
  * tool_status — report actual Lattice tool usage
  *
- * The data source is the dual-source activity.jsonl (new path .koala/activity.jsonl + legacy path docs/story/activity.jsonl).
+ * The data source is the dual-source activity.jsonl (runtime path .lattice/activity.jsonl + legacy path docs/story/activity.jsonl).
  * Both CLI calls and the Claude hook write to the new path; the legacy path is read-only for compatibility.
  * Writes no state; pure read-only analysis.
  */
@@ -49,8 +49,8 @@ export function createToolStatusHandlers(ctx: HandlerContext) {
       const limit = args?.limit ?? 20;
       const format = args?.format ?? 'text';
 
-      // Dual-source: new path (.koala/activity.jsonl) + legacy path (docs/story/activity.jsonl)
-      const runtimeLogPath = join(root, '.koala', 'activity.jsonl');
+      // Dual-source: runtime path (.lattice/activity.jsonl) + legacy path (docs/story/activity.jsonl)
+      const runtimeLogPath = join(root, '.lattice', 'activity.jsonl');
       const legacyLogPath = join(root, 'docs', 'story', 'activity.jsonl');
       const logPaths = [runtimeLogPath, legacyLogPath].filter(p => existsSync(p));
 

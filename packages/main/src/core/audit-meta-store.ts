@@ -35,7 +35,7 @@ export function checkMetaStoryAdvanceGuard(storyId: string, _targetPhase: string
     return (
       `Cannot advance meta-story ${storyId}: META stories are containers; cannot advance via story_advance. ` +
       `meta-story only accumulates findings through audit rounds, it does not follow regular phase transitions. ` +
-      `To stop audit, change mode=off in .koala/audit-config.json.`
+      `To stop audit, change mode=off in .lattice/audit-config.json.`
     );
   }
   return null;
@@ -130,7 +130,7 @@ export function recordRound(store: StoryStore, round: number, storyId: string = 
     phase: 'META',
     action: 'advance',
     timestamp: new Date().toISOString(),
-    agent: 'koala-audit',
+    agent: 'lattice-audit',
     reason: `framework audit round ${round}`,
   };
   story.events.push(event);
@@ -178,7 +178,7 @@ export function upsertDrift(
     severity: drift.severity,
     category: 'missing', // audit drift is essentially "promise vs actual" missing, classified as missing
     status: 'open',
-    agent: 'koala-audit',
+    agent: 'lattice-audit',
     createdAt: now,
     reviewRound: roundStr,
     _hash: signFinding(storyId, id, drift.desc, drift.severity, now, roundStr),
@@ -375,7 +375,7 @@ export function appendGapFinding(
     evidenceState: gap.evidenceState,
     ...(gap.uncertaintyReason ? { uncertaintyReason: gap.uncertaintyReason } : {}),
     ...(gap.disprovenEvidence ? { disprovenEvidence: gap.disprovenEvidence } : {}),
-    agent: gap.agent || 'koala-gap-log',
+    agent: gap.agent || 'lattice-gap-log',
     createdAt: now,
     reviewRound: '',
     _hash: signFinding(storyId, id, gap.desc, gap.severity, now, ''),

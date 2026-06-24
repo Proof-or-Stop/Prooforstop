@@ -2376,7 +2376,7 @@ export function loadRunnerAuthorityClient(
 //
 // The `authority verdict submit|list` and `authority job status` commands are
 // SERVER-backed when authority mode is enforce/shadow AND a URL is configured;
-// otherwise they fall back to LOCAL `.koala` verdict storage (preserved verbatim by
+// otherwise they fall back to LOCAL verdict storage (preserved verbatim by
 // the handler). This is the same gate the runner client uses, so off-mode / no-URL
 // callers make zero network calls. The functions below are the server-backed
 // orchestration: receipt-before-verdict ordering, transport, and the

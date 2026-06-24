@@ -109,8 +109,8 @@ export function checkSemanticScope(
 
   for (const hunk of diffPack.hunks) {
     // Story metadata / Lattice internal files are never semantically gated.
-    // Legacy .koala writes are intentionally not exempt after the .lattice
-    // migration; they should surface as path/scope violations.
+    // Only docs/story/ and .lattice/ are exempt; any other runtime path is
+    // intentionally not exempt and should surface as a path/scope violation.
     if (hunk.path.startsWith('docs/story/') || hunk.path.startsWith('.lattice/')) continue;
 
     const anchor = hunkAnchor(hunk);

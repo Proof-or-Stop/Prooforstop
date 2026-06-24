@@ -21,8 +21,8 @@ that reviewers should approve before implementation begins.
 - Do not modify the existing untracked
   `docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md`.
 - Do not touch `docs/story/` or `packages/main/tests/fixtures/`.
-- Do not remove legacy `koala` compatibility semantics as part of translation.
-- Do not hide compatibility terms such as `KOALA_*`, `koala.config.json`, or
+- Do not remove legacy `lattice` compatibility semantics as part of translation.
+- Do not hide compatibility terms such as `LATTICE_*`, `lattice.config.json`, or
   legacy alias documentation when they are still runtime facts.
 
 ## Audit Snapshot
@@ -59,8 +59,8 @@ Allowed exceptions:
 - Historical documents under explicit legacy/archive paths.
 - Tests that intentionally verify backward compatibility with older Chinese
   output during the migration window.
-- Legacy runtime names that are not language text, such as `KOALA_*`,
-  `koala.config.json`, and `koala` as a compatibility alias.
+- Legacy runtime names that are not language text, such as `LATTICE_*`,
+  `lattice.config.json`, and `lattice` as a compatibility alias.
 
 ## English Glossary
 
@@ -658,7 +658,7 @@ M221	529	schema	用户确认允许做的范围条目	Scope entries the user conf
 M222	530	schema	用户确认排除/不做的范围条目	Scope entries the user confirmed as excluded or not to be done.	review-draft
 M223	531	schema	必须为 true：确认这是用户确认过的 INIT scope 边界	Must be true: confirms this is the user-confirmed INIT scope boundary.	review-draft
 M224	532	schema	确认说明或来源摘录	Confirmation note or source excerpt.	review-draft
-M225	533	schema	记录者；默认 KOALA_AGENT/USER/main-agent	Recorded by; defaults to KOALA_AGENT/USER/main-agent.	review-draft
+M225	533	schema	记录者；默认 LATTICE_AGENT/USER/main-agent	Recorded by; defaults to LATTICE_AGENT/USER/main-agent.	review-draft
 M226	535	command-description	INIT 阶段保存执行边界（命令/tool/path allow/block），供 INIT_CHECK anti-expansion gate 消费	Save INIT execution boundaries (command/tool/path allow/block) for the gate	review-draft
 M227	537	schema	允许执行或验证的命令模式	Allowed command patterns for execution or verification.	review-draft
 M228	538	schema	明确禁止的命令模式（alias: excludedCommands）	Explicitly blocked command patterns (alias: excludedCommands).	review-draft
@@ -669,34 +669,34 @@ M232	542	schema	允许访问的相对路径；拒绝 absolute / .. traversal	All
 M233	543	schema	明确禁止访问的相对路径；拒绝 absolute / .. traversal	Explicitly blocked relative paths; rejects absolute paths and .. traversal.	review-draft
 M234	544	schema	明确禁止访问的相对路径	Explicitly blocked relative paths.	review-draft
 M235	545	schema	执行边界补充说明	Additional execution-boundary notes.	review-draft
-M236	546	schema	记录者；默认 KOALA_AGENT/USER/main-agent	Recorded by; defaults to KOALA_AGENT/USER/main-agent.	review-draft
+M236	546	schema	记录者；默认 LATTICE_AGENT/USER/main-agent	Recorded by; defaults to LATTICE_AGENT/USER/main-agent.	review-draft
 M237	548	command-description	INIT 阶段写入 scope freeze check 结果；accepted extension decision 会让旧 freeze evidence stale	Write the INIT scope freeze check result (accepted extensions stale old freeze)	review-draft
 M238	550	schema	可选断言；不能覆盖 core evaluateScopeFreeze 的结果	Optional assertion; cannot override the core evaluateScopeFreeze result.	review-draft
 M239	551	schema	冻结检查说明；也可作为 repeated-discard mitigation 文本	Freeze-check note; can also serve as repeated-discard mitigation text.	review-draft
 M240	552	schema	重复 discarded direction 的缓解说明	Mitigation note for repeated discarded direction.	review-draft
-M241	553	schema	记录者；默认 KOALA_AGENT/USER/main-agent	Recorded by; defaults to KOALA_AGENT/USER/main-agent.	review-draft
+M241	553	schema	记录者；默认 LATTICE_AGENT/USER/main-agent	Recorded by; defaults to LATTICE_AGENT/USER/main-agent.	review-draft
 M242	555	command-description	INIT reviewer 提出 scope extension proposal（只记录 proposal，不接受 scope，不改 checklist）	Propose a scope extension as the INIT reviewer (proposal only)	review-draft
 M243	557	schema	扩展提案叙述；不能作为 accepted scope 生效	Extension proposal narrative; cannot take effect as accepted scope.	review-draft
 M244	558	schema	为什么 reviewer 认为需要扩展	Why the reviewer thinks an extension is needed.	review-draft
-M245	559	schema	提出者；默认 KOALA_AGENT/USER/main-agent	Proposer; defaults to KOALA_AGENT/USER/main-agent.	review-draft
+M245	559	schema	提出者；默认 LATTICE_AGENT/USER/main-agent	Proposer; defaults to LATTICE_AGENT/USER/main-agent.	review-draft
 M246	560	schema	可选关联 finding / issue id	Optional related finding or issue ID.	review-draft
 M247	561	schema	可选证据引用	Optional evidence references.	review-draft
 M248	563	command-description	INIT 阶段显式接受/拒绝 scope extension proposal；accepted 会让旧 freeze evidence stale	Accept/reject a scope extension proposal in INIT (accepted stales old freeze)	review-draft
 M249	565	schema	scope_extension_proposal 返回的 proposal id	Proposal ID returned by scope_extension_proposal.	review-draft
 M250	566	schema	显式裁决	Explicit decision.	review-draft
 M251	567	schema	裁决理由	Decision reason.	review-draft
-M252	568	schema	裁决者；默认 KOALA_AGENT/USER/main-agent	Decider; defaults to KOALA_AGENT/USER/main-agent.	review-draft
+M252	568	schema	裁决者；默认 LATTICE_AGENT/USER/main-agent	Decider; defaults to LATTICE_AGENT/USER/main-agent.	review-draft
 M253	570	command-description	记录一次轻量 review（DEV 阶段每完成一批 item 后调用）	Record one lightweight review (called after each batch of DEV items completes)	review-draft
 M254	572	schema	本次 review 覆盖的 checklist item ID 列表	Checklist item IDs covered by this review.	review-draft
 M255	573	schema	review 备注	Review note.	review-draft
 M256	575	command-description	启动一次当前 REVIEW round 的 reviewer run，并写入 signed review-runs.json	Start a reviewer run for the current REVIEW round; write signed review-runs.json	review-draft
-M257	577	schema	reviewer agent id（如 lattice-review-quality；默认 KOALA_AGENT）	Reviewer agent ID, for example lattice-review-quality; defaults to KOALA_AGENT.	review-draft
+M257	577	schema	reviewer agent id（如 lattice-review-quality；默认 LATTICE_AGENT）	Reviewer agent ID, for example lattice-review-quality; defaults to LATTICE_AGENT.	review-draft
 M258	585	schema	显式 reviewer lane；与 agent 同义，传一个即可	Explicit reviewer lane; synonym for agent, provide only one.	review-draft
 M259	586	schema	reviewer 实际收到的 prompt 文本；若提供会自动计算 promptHash	Prompt text actually received by the reviewer; promptHash is computed automatically when provided.	review-draft
 M260	587	schema	reviewer prompt 的 sha256；若同时传 prompt，必须与 prompt 实际哈希一致	SHA-256 of the reviewer prompt; if prompt is also provided, it must match the actual prompt hash.	review-draft
 M261	588	schema	scope-protected story：reviewer 本轮检查的 verification intent refs（计入 scope binding，可选）	Scope-protected story: verification intent refs reviewed in this run; included in scope binding, optional.	review-draft
 M262	590	command-description	记录 reviewer 已审查且无 blocking finding 的通过凭证	Record a reviewer pass credential (reviewer checked, found no blocking findings)	review-draft
-M263	592	schema	reviewer agent id（如 lattice-review-quality；默认 KOALA_AGENT）	Reviewer agent ID, for example lattice-review-quality; defaults to KOALA_AGENT.	review-draft
+M263	592	schema	reviewer agent id（如 lattice-review-quality；默认 LATTICE_AGENT）	Reviewer agent ID, for example lattice-review-quality; defaults to LATTICE_AGENT.	review-draft
 M264	593	schema	当前 reviewer run id（先调用 review_run_start 获取）	Current reviewer run ID; call review_run_start first.	review-draft
 M265	594	schema	审查范围与无 blocker 理由（≥10 字符）	Review scope and reason there is no blocker (at least 10 characters).	review-draft
 M266	596	command-description	记录 REVIEW reflection loop 开始事件（recording-only，不执行 host/rollback）	Record REVIEW reflection loop start (recording only; no host or rollback)	review-draft
@@ -704,7 +704,7 @@ M267	598	schema	可选 loop id；缺省由 handler 生成	Optional loop ID; defa
 M268	599	schema	可选 REVIEW round；缺省使用 story.currentReviewRound	Optional REVIEW round; defaults to story.currentReviewRound.	review-draft
 M269	600	schema	触发 loop 的结构化来源	Structured source that triggered the loop.	review-draft
 M270	601	schema	人工 rollback 所需引用；只记录，不执行	References required for manual rollback; recorded only, not executed.	review-draft
-M271	602	schema	记录者；默认 KOALA_AGENT/USER/main	Recorded by; defaults to KOALA_AGENT/USER/main.	review-draft
+M271	602	schema	记录者；默认 LATTICE_AGENT/USER/main	Recorded by; defaults to LATTICE_AGENT/USER/main.	review-draft
 M272	603	schema	输出 JSON	Emit JSON.	review-draft
 M273	604	schema	输出格式	Output format.	review-draft
 M274	606	command-description	记录 REVIEW reflection loop 迭代（recording-only，不执行 host/rollback/handoff）	Record a REVIEW reflection iteration (recording only; no host/rollback/handoff)	review-draft
@@ -718,7 +718,7 @@ M281	614	schema	本轮成本/证据/命令记录	Cost, evidence, and command rec
 M282	615	schema	本轮最终决策	Final decision for this iteration.	review-draft
 M283	616	schema	最终决策理由	Final decision reason.	review-draft
 M284	617	schema	下一步建议；只记录，不执行	Suggested next action; recorded only, not executed.	review-draft
-M285	618	schema	记录者；默认 KOALA_AGENT/USER/main	Recorded by; defaults to KOALA_AGENT/USER/main.	review-draft
+M285	618	schema	记录者；默认 LATTICE_AGENT/USER/main	Recorded by; defaults to LATTICE_AGENT/USER/main.	review-draft
 M286	619	schema	输出 JSON	Emit JSON.	review-draft
 M287	620	schema	输出格式	Output format.	review-draft
 M288	622	command-description	读取 REVIEW reflection loop 状态（read-only）	Read REVIEW reflection loop status (read-only)	review-draft
@@ -734,7 +734,7 @@ M297	634	schema	关闭时 material hash	Material hash at close time.	review-draf
 M298	635	schema	已解决证据引用	Resolved evidence references.	review-draft
 M299	636	schema	替代证据引用	Superseding evidence references.	review-draft
 M300	637	schema	关闭原因	Close reason.	review-draft
-M301	638	schema	记录者；默认 KOALA_AGENT/USER/main	Recorded by; defaults to KOALA_AGENT/USER/main.	review-draft
+M301	638	schema	记录者；默认 LATTICE_AGENT/USER/main	Recorded by; defaults to LATTICE_AGENT/USER/main.	review-draft
 M302	639	schema	输出 JSON	Emit JSON.	review-draft
 M303	640	schema	输出格式	Output format.	review-draft
 M304	642	command-description	显示 REVIEW reflection loop 记录策略（read-only）	Show REVIEW reflection loop recording policy (read-only)	review-draft
@@ -910,7 +910,7 @@ M473	1514	schema	来源溯源：分析说明	Source trace: analysis note.	review
 M474	1516	schema	证据状态：默认 suspected；verified 仅当提供结构化 evidence，否则强制降回 suspected	Evidence state: default suspected; verified is allowed only when structured evidence is provided, otherwise it is forced back to suspected.	review-draft
 M475	1517	schema	suspected 时的怀疑理由（可选，缺省自动兜底）	Suspicion reason for suspected state (optional; automatic fallback if omitted).	review-draft
 M476	1518	schema	关联文件路径	Related file paths.	review-draft
-M477	1519	schema	调用者身份（审计字段，默认从 KOALA_AGENT 读）	Caller identity (audit field, defaults from KOALA_AGENT).	review-draft
+M477	1519	schema	调用者身份（审计字段，默认从 LATTICE_AGENT 读）	Caller identity (audit field, defaults from LATTICE_AGENT).	review-draft
 M478	1522	comment	Verifier (Lattice 内建代码验证)	Verifier (Lattice built-in code verification).	review-draft
 M479	1523	command-description	运行项目验证（静态 + 逻辑 + 集成测试）	Run project verification (static, logic, and integration tests)	review-draft
 M480	1524	schema	含真机测试（--full 或 --full=PvE 按名称过滤）	Include real-machine tests (--full or --full=PvE to filter by name).	review-draft
@@ -939,7 +939,7 @@ M502	1555	command-description	添加 finding（lattice-reviewer 发现项）	Add
 M503	1557	schema	发现描述	Finding description.	review-draft
 M504	1558	schema	严重程度	Severity.	review-draft
 M505	1568	schema	分类（legacy category 会归一为 missing）	Category (legacy category is normalized to missing).	review-draft
-M506	1569	schema	调用者身份（可选，默认从 KOALA_AGENT 环境变量读）	Caller identity (optional, defaults from KOALA_AGENT environment variable).	review-draft
+M506	1569	schema	调用者身份（可选，默认从 LATTICE_AGENT 环境变量读）	Caller identity (optional, defaults from LATTICE_AGENT environment variable).	review-draft
 M507	1570	schema	lattice-review-* reviewer 当前 run id（先调用 review_run_start 获取；main finding 可省略）	Current lattice-review-* reviewer run ID (call review_run_start first; main finding may omit this).	review-draft
 M508	1571	schema	关联文件路径（用于 reviewer finding cluster 与溯源）	Related file paths (for reviewer finding clustering and traceability).	review-draft
 M509	1572	comment	B-3fad CHK-001: 证据状态轴。省略时默认 verified（REVIEW 阶段 reviewer finding，保持现有 gate 行为）。	B-3fad CHK-001: evidence state axis. Omitted value defaults to verified for REVIEW-stage reviewer findings, preserving current gate behavior.	review-draft
@@ -1085,7 +1085,7 @@ M648	2152	schema	行数预算（默认 60）	Line budget (default: 60).	review-d
 M649	2153	schema	JSON 格式输出	JSON output format.	review-draft
 M650	2155	command-description	结束会话：active story 中默认写入 story 候选；无 story 时报告/晋升项目条目（不需 story 目录）	Finish the dev-memory session	review-draft
 M651	2156	schema	活动 story ID（如 B-xxx）；省略时 active story 分支会自动推断；Lattice 外部会话可省略	Active story ID, for example B-xxx; omitted value is inferred automatically from the active story branch; optional outside Lattice sessions.	review-draft
-M652	2157	schema	story 目录根路径（默认 <root>/.lattice/story/actives；legacy .koala/story/actives 仍可读）	Story directory root path (default <root>/.lattice/story/actives; legacy .koala/story/actives remains readable).	review-draft
+M652	2157	schema	story 目录根路径（默认 <root>/.lattice/story/actives；legacy .lattice/story/actives 仍可读）	Story directory root path (default <root>/.lattice/story/actives; legacy .lattice/story/actives remains readable).	review-draft
 M653	2158	schema	可选：相关性过滤词	Optional relevance filter query.	review-draft
 M654	2159	schema	无 storyId 时：global=将项目经验晋升到全局 dev-memory；即使在 active story 中也不写 story 候选	When storyId is omitted: global=promote project lessons to global dev-memory; even inside an active story, do not write story candidates.	review-draft
 M655	2161	command-description	会话启动包装器：输出 dev-memory 预飞上下文 + 结束时调 dev_memory_finish 的提醒（不启动外部 agent 二进制；不是生命周期 dev_start，不创建 worktree 或推进 phase）	Start a dev-memory session wrapper	review-draft
@@ -1144,7 +1144,7 @@ M707	2526	comment	测试入口：接受 JSON 描述的 schema（"string"|"number
 M708	2567	comment	下一个参数不是 flag → 当作 value	Next argument is not a flag, so treat it as the value.	review-draft
 M709	2577	comment	key=value (无 -- 前缀，兼容旧格式)	key=value without -- prefix, compatible with legacy format.	review-draft
 M710	2583	comment	忽略无法识别的 positional 参数	Ignore unrecognized positional arguments.	review-draft
-M711	2646	comment	向上查找项目配置（lattice.config.json 优先，koala.config.json 兜底）确定项目根	Walk upward to find project config (prefer lattice.config.json, fall back to koala.config.json) and determine project root.	review-draft
+M711	2646	comment	向上查找项目配置（lattice.config.json 优先，lattice.config.json 兜底）确定项目根	Walk upward to find project config (prefer lattice.config.json, fall back to lattice.config.json) and determine project root.	review-draft
 M712	2867	comment	Runtime enum re-validation (CLAUDE.md「Handler 编码约定」): a missing policy	Runtime enum re-validation (CLAUDE.md Handler coding convention): a missing policy	review-draft
 M713	2943	comment	"Handler 编码约定"): the flag counts as set ONLY for a real boolean `true` or	Handler coding convention: the flag counts as set ONLY for a real boolean true or	review-draft
 M714	3354	comment	runCli — Lattice CLI 运行时入口	runCli: Lattice CLI runtime entry point.	review-draft
@@ -1168,7 +1168,7 @@ M731	3549	comment	JSON body 格式（兼容旧用法）	JSON body format (compat
 M732	3552	cli-output	JSON 解析失败: ${(e as Error).message}\n输入: ${rawArgs[0]}	JSON parse failed: ${(e as Error).message}\nInput: ${rawArgs[0]}	review-draft
 M733	3557	comment	flag 格式解析	Flag-format parsing.	review-draft
 M734	3617	comment	心跳：默认 5 分钟无输出 = 卡死；15 分钟绝对保底。	Heartbeat: by default, 5 minutes without output means stuck; 15 minutes is the absolute safety limit.	review-draft
-M735	3618	comment	可通过 KOALA_IDLE_TIMEOUT_MS / KOALA_MAX_TIMEOUT_MS 覆盖，	Can be overridden with KOALA_IDLE_TIMEOUT_MS / KOALA_MAX_TIMEOUT_MS,	review-draft
+M735	3618	comment	可通过 LATTICE_IDLE_TIMEOUT_MS / LATTICE_MAX_TIMEOUT_MS 覆盖，	Can be overridden with LATTICE_IDLE_TIMEOUT_MS / LATTICE_MAX_TIMEOUT_MS,	review-draft
 M736	3619	comment	真机 smoke 的单轮 LLM 调用偶尔 > 2 分钟（text-adventure 卸载等非确定性 case）。	A single LLM call in real-machine smoke tests can occasionally exceed 2 minutes (non-deterministic cases such as text-adventure uninstall).	review-draft
 M737	3630	cli-output	${cmd} 超过 10 分钟，强制退出	${cmd} exceeded 10 minutes; forcing exit	review-draft
 M738	3634	cli-output	${cmd} 卡死：${IDLE_TIMEOUT / 1000} 秒无输出，强制退出	${cmd} stuck: ${IDLE_TIMEOUT / 1000} seconds without output; forcing exit	review-draft

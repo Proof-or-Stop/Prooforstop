@@ -7,7 +7,7 @@
     "type": "git",
     "directory": "packages/main"
   },
-  "version": "0.3.80",
+  "version": "0.3.82",
   "description": "通用项目开发框架 — AI-driven Story 工作流 CLI",
   "type": "module",
   "main": "dist/index.js",
@@ -42,6 +42,7 @@
     "test:docs-drift-wrapper-root": "node dist/tasks/docs-drift-wrapper-root-smoke.js",
     "test:managed-assets-wrapper-root": "node dist/tasks/managed-assets-wrapper-root-smoke.js",
     "test:done-oracle-wrapper-root": "node dist/tasks/done-oracle-wrapper-root-smoke.js",
+    "test:review-escalation-freshness-root": "node dist/tasks/review-escalation-freshness-root-smoke.js",
     "test:done-required-validation-smoke": "node dist/tasks/done-required-validation-smoke.js",
     "test:done-required-freshness-smoke": "node dist/tasks/done-required-freshness-smoke.js",
     "test:done-required-head-drift-proof": "node dist/tasks/done-required-head-drift-proof.js",

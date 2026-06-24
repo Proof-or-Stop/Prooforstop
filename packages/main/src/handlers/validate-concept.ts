@@ -56,14 +56,12 @@ export const IGNORED_DIRS = [
   'dist',
   '.git',
   '.lattice',
-  '.koala',
   'tmp',
   '.worktrees',
 ];
 
 const IGNORED_PATH_PREFIXES = [
   '.lattice/',
-  '.koala/',
   'docs/story/',
   'tests/fixtures/',
   'packages/main/tests/fixtures/',

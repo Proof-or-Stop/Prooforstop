@@ -4,7 +4,7 @@
   "title": "Achieve zero koala in product runtime code: rename all koala-* salts to lattice-* + remove legacy-koala detection (ship-clean story 3)",
   "description": "Per the user's total-removal directive (no koala anywhere, accept the collateral), drive product runtime code (packages/*/src) to zero koala: rename all 8 koala-* signature salts to lattice-* (init/review/scope/finding integrity + story-store), delete the legacy-koala DETECTION (the bin/koala*.js denylist and @koala-agent old-global-install handling — dropping old-koala migration support), and clean the remaining koala-codex/koala-agent literals. The residue-gate's own koala-residue identifiers (review-preflight.ts + verify-koala-residue.mjs) and docs are story 4.",
   "type": "refactor",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "keywords": [
     "koala",
@@ -29,7 +29,7 @@
   ],
   "createdAt": "2026-06-23T18:57:18.902Z",
   "startedAt": "2026-06-23T18:57:18.902Z",
-  "endedAt": null,
+  "endedAt": "2026-06-24T02:24:38.596Z",
   "events": [
     {
       "phase": "INIT",
@@ -48,11 +48,70 @@
       "user": "Harmonygo",
       "sessionId": "d45e3804-aa11-4468-a225-e4de0d1999ad",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-23T19:09:48.993Z",
+      "branch": "story/B-fbca",
+      "user": "Harmonygo",
+      "sessionId": "d45e3804-aa11-4468-a225-e4de0d1999ad",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-23T19:16:51.269Z",
+      "branch": "story/B-fbca",
+      "user": "Harmonygo",
+      "sessionId": "d45e3804-aa11-4468-a225-e4de0d1999ad",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-23T21:25:10.665Z",
+      "branch": "story/B-fbca",
+      "user": "Harmonygo",
+      "sessionId": "d45e3804-aa11-4468-a225-e4de0d1999ad",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-23T21:40:55.096Z",
+      "branch": "story/B-fbca",
+      "user": "Harmonygo",
+      "sessionId": "d45e3804-aa11-4468-a225-e4de0d1999ad",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-23T21:40:55.519Z",
+      "branch": "story/B-fbca",
+      "user": "Harmonygo",
+      "sessionId": "d45e3804-aa11-4468-a225-e4de0d1999ad",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-23T22:00:25.064Z",
+      "branch": "story/B-fbca",
+      "user": "Harmonygo",
+      "sessionId": "d45e3804-aa11-4468-a225-e4de0d1999ad",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-24T02:24:38.596Z",
+      "branch": "story/B-fbca",
+      "user": "Harmonygo",
+      "sessionId": "2094c029-06be-4ea6-b9eb-bdb694c8c71a",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-fbca",
-    "branch": "story/B-fbca",
-    "createdAt": "2026-06-23T19:09:41.131Z"
-  }
+  "currentReviewRound": "2026-06-23T21:40:55.519Z"
 }

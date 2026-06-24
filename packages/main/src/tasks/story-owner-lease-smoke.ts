@@ -128,11 +128,11 @@ try {
     assert.equal(rBoth.sessionId, 'lattice-override-1', 'LATTICE_SESSION_ID wins over CLAUDE_CODE_SESSION_ID');
     assert.equal(rBoth.sessionSource, 'explicit-env', 'sessionSource is explicit-env when LATTICE_SESSION_ID drives the id');
     // Empty / whitespace-only env values are treated as absent (fall through).
-    const rEmptyKoala = resolveSessionIdentity(
+    const rEmptyOverride = resolveSessionIdentity(
       { LATTICE_SESSION_ID: '   ', CLAUDE_CODE_SESSION_ID: 'claude-sess-AAA' },
       inA,
     );
-    assert.equal(rEmptyKoala.sessionSource, 'host-adapter', 'a whitespace-only LATTICE_SESSION_ID is treated as absent');
+    assert.equal(rEmptyOverride.sessionSource, 'host-adapter', 'a whitespace-only LATTICE_SESSION_ID is treated as absent');
 
     // 1d. Codex, Antigravity/agy, and a fake future host reach the same
     // canonical contract through adapters. Provider labels are diagnostics;
@@ -404,11 +404,6 @@ try {
 
     // Legacy source labels are accepted and normalized so old leases remain
     // compatible while new runtime code uses host-neutral source labels.
-    writeFileSync(leasePath, JSON.stringify({
-      sessionId: 'x', sessionSource: 'koala-env', hostname: 'h', pid: 1, cwd: '/c',
-      command: 'checklist_update', acquiredAt: 't', heartbeatAt: 't',
-    }), 'utf-8');
-    assert.equal(readOwnerLease(storyDir)?.sessionSource, 'explicit-env', 'legacy koala-env source normalizes to explicit-env');
     writeFileSync(leasePath, JSON.stringify({
       sessionId: 'x', sessionSource: 'claude-code-env', hostname: 'h', pid: 1, cwd: '/c',
       command: 'checklist_update', acquiredAt: 't', heartbeatAt: 't',

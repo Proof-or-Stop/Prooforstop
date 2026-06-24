@@ -246,7 +246,7 @@ export function evaluateDirtyGate(
  *
  * Parameters:
  *   - projectRoot: repository root (absolute path)
- *   - storyDirRel: config.storyDir (e.g. ".koala/story/actives")
+ *   - storyDirRel: config.storyDir (e.g. ".lattice/story/actives")
  *   - storyId: story id (e.g. "B-4b22")
  */
 export function defaultAuditWriter(projectRoot: string, storyDirRel: string, storyId: string): AuditWriter {

@@ -46,9 +46,9 @@ Do not implement directly from the highest machine score alone; use this report 
 ```text
 [0.0s] running session_brief...
 [0.2s] session_brief done
-# koala session brief
+# lattice session brief
 
-**Story**: B-ff27 — 用 koala-lab 跑 session_brief 结构化候选实验
+**Story**: B-ff27 — 用 lattice-lab 跑 session_brief 结构化候选实验
 **Phase**: DEV
 
 ## Checklist (0/3 done)
@@ -70,9 +70,9 @@ Do not implement directly from the highest machine score alone; use this report 
 
 ## Git
   recent commits:
-    69654e7 koala: story B-ff27 init
-    ea04165 merge: B-780e 为 koala-lab 增加 session/story review 流程量化 profile
-    78668cd koala: mark B-780e DONE + clear worktree
+    69654e7 lattice: story B-ff27 init
+    ea04165 merge: B-780e 为 lattice-lab 增加 session/story review 流程量化 profile
+    78668cd lattice: mark B-780e DONE + clear worktree
   uncommitted (8):
     M docs/story/actives/B-ff27/checklist.json
      M docs/story/actives/B-ff27/index.json

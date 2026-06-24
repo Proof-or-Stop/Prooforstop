@@ -1,0 +1,56 @@
+{
+  "storyId": "B-fbca",
+  "changes": "Drove packages/*/src to literal zero koala: renamed all 8 koala-* signature salts to lattice-* (review/finding/scope/run integrity + story-store; globally consistent across signers/verifiers incl. 4 verify-*.mjs script fixtures), deleted the legacy-koala detection (bin/koala*.js denylist, @koala-agent old-install handling, isKoalaSelfRepoBootstrap->isLatticeSelfRepoBootstrap), renamed config (idleKoala->idleLattice, koala.config.json->lattice.config.json) + .koala/ runtime paths (->.lattice) + 4 koala.* schema ids, and renamed+flipped the residue gate (verify-koala-residue.mjs->verify-lattice-residue.mjs, KOALA_RESIDUE_*->LATTICE_RESIDUE_*) to zero-tolerance over packages/*/src.",
+  "usage": "No new user command — a ship-clean rename refactor. The residue gate is now 'lattice-residue' (npm run test:lattice-residue) and FAILS on any koala in packages/*/src. In-flight stories signed with the old koala salt must re-run init-check/review/delivery; old koala config/storage is not migrated.",
+  "expectedOutcome": "git grep -i koala -- packages/*/src returns ZERO; node scripts/verify-lattice-residue.mjs PASS; tsc clean.",
+  "actualTranscript": "git grep koala packages/*/src = 0 hits (exit 1); verify-lattice-residue PASS 0 residue + self-test 7/7; tsc exit 0; validate PASS; 58/58 intents fresh; round-2 review 3 lanes PASS.",
+  "outcomeDiff": "No difference — expected and actual match.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Scoped to packages/*/src product code. Remaining koala lives only in the gate SCANNER (must contain the literal to detect it), test fixtures (packages/main/tests/fixtures), and docs/experiments (gate does not scan docs; a later docs story). The salt rename breaks in-flight stories' old-salt signatures (user-accepted).",
+  "pitfalls": "Premise corrected TWICE: koala-<role> were legacy-DETECTION literals + salts, not lane tokens (first re-scope discarded B-ac07). Literal-zero requires deleting legacy-koala cleanup (you can't clean old koala without naming it) + renaming the gate itself. Salt rename must be globally consistent (4 verify scripts + fixtures, else latent verifier mismatch). Finding-fixes drift storyFilesHash -> stale review-run bindings forced a DEV->REVIEW round restart + recover_evidence re-stamp; codex-adapter gate needed 'lattice codex verify'. Degraded 3x1 floor: bind all 4 fields (materialDigest+storyFilesHash+validationDigest+promptDigest).",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 742555
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 7526
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 422276
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 7699819
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 2113976
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 414898
+    }
+  },
+  "totalDurationMs": 11401060,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-23T22:07:19.962Z",
+  "updatedAt": "2026-06-23T22:07:19.962Z"
+}

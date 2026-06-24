@@ -68,7 +68,7 @@ export function createAuxDocHandlers(ctx: HandlerContext) {
   return {
     /**
      * List project docs (for picking relatedDocs in the PLAN phase).
-     * Scans the docDirs from the resolved project config (legacy koala.config.json) (defaults to docs/, requirements/),
+     * Scans the docDirs from the resolved project config (lattice.config.json) (defaults to docs/, requirements/),
      * plus CLAUDE.md / README.md / AGENTS.md at the project root.
      * Extracts the H1 title of each markdown file and groups the output by directory.
      */

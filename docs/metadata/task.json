@@ -11,7 +11,7 @@
       "title": "lattice init 初始化命令",
       "type": "feature",
       "priority": "medium",
-      "description": "在目标项目中初始化 koala 开发框架：\n创建目录、生成 koala.config.json、复制 skill、生成 CLAUDE.md 和 .mcp.json。",
+      "description": "在目标项目中初始化 lattice 开发框架：\n创建目录、生成 lattice.config.json、复制 skill、生成 CLAUDE.md 和 .mcp.json。",
       "changes": [
         "- [ADHOC-002] 新增 cli-init.ts",
         "/"
@@ -45,10 +45,10 @@
       "checklist": [
         "ADHOC-003"
       ],
-      "title": "koala CLI 统一入口",
+      "title": "lattice CLI 统一入口",
       "type": "feature",
       "priority": "high",
-      "description": "统一 CLI 入口：lattice init / koala test / koala lint / lattice serve",
+      "description": "统一 CLI 入口：lattice init / lattice test / lattice lint / lattice serve",
       "changes": [
         "- [ADHOC-003] 新增 cli.ts",
         "/"
@@ -62,12 +62,12 @@
       "checklist": [
         "CHK-001"
       ],
-      "title": "koala.config.json 配置加载",
+      "title": "lattice.config.json 配置加载",
       "type": "feature",
       "priority": "high",
-      "description": "从项目根目录读取 koala.config.json，合并默认值。\n所有路径配置统一从此模块获取。",
+      "description": "从项目根目录读取 lattice.config.json，合并默认值。\n所有路径配置统一从此模块获取。",
       "changes": [
-        "- [CHK-001] 新增 loadConfig / KoalaConfig 类型",
+        "- [CHK-001] 新增 loadConfig / LatticeConfig 类型",
         "/"
       ],
       "sourceFile": "src\\config.ts",
@@ -2126,12 +2126,12 @@
       "checklist": [
         "CHK-001"
       ],
-      "title": "resolveRoot 向上查找 koala.config.json",
+      "title": "resolveRoot 向上查找 lattice.config.json",
       "type": "refactor",
       "priority": "high",
-      "description": "从 cwd 向上查找 koala.config.json 确定项目根",
+      "description": "从 cwd 向上查找 lattice.config.json 确定项目根",
       "changes": [
-        "向上查找 koala.config.json 替代 cwd"
+        "向上查找 lattice.config.json 替代 cwd"
       ],
       "sourceFile": "src/cli.ts",
       "sourceLine": 364,
@@ -2309,7 +2309,7 @@
       "title": "工具处理器注册入口",
       "type": "chore",
       "priority": "medium",
-      "description": "注册所有 koala MCP 工具 handler，含 worktree 门禁相关 handler",
+      "description": "注册所有 lattice MCP 工具 handler，含 worktree 门禁相关 handler",
       "changes": [
         "[CHK-001] 集成 createWorktreeHandlers 包含门禁逻辑"
       ],
