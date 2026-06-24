@@ -56,6 +56,17 @@
           "materialHash": "96adaa007e8f7ddafa1d445c9f905d262eb90f4da087c701fec35f3474287e79",
           "storyFilesHash": "3bb033bf48d472daad32daea22503c5bbbef2c03c79374e5fe0665781999041e",
           "timestamp": "2026-06-24T01:19:23.813Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "command": "npm run --prefix packages/main test:authority-receipt-proof-auth",
+          "result": "pass",
+          "note": "authority-receipt-proof-auth-smoke.ts:35 calls fetchGateReceiptProof which returns an AuthorityClientOutcome. Line 36 asserts capturedHeaders is truthy (transport was reached) and line 38 asserts the Authorization header is correct. The fact that fetchGateReceiptProof returns without throwing and the stub fetch responds with status 200 (line 30) proves the authenticated read does not break the happy-path parse. The outcome type is AuthorityClientOutcome<AuthorityGateReceiptProof> per authority-client.ts:638.",
+          "headHash": "8a95f97b39a34addc267dfa948fcebdee89643e1",
+          "materialHash": "96adaa007e8f7ddafa1d445c9f905d262eb90f4da087c701fec35f3474287e79",
+          "storyFilesHash": "3bb033bf48d472daad32daea22503c5bbbef2c03c79374e5fe0665781999041e",
+          "timestamp": "2026-06-24T01:19:27.810Z"
         }
       ]
     },
