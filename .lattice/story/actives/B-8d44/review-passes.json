@@ -170,6 +170,15 @@
       "reviewRound": "2026-06-24T12:50:13.876Z",
       "reviewRunId": "B-8d44:RR-032",
       "_hash": "14bab8fe9cd6058236e27f784df24f936b8afd75834a7d9bfbf16d9071cb472d"
+    },
+    {
+      "id": "B-8d44:RP-020",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: final-material re-attest at b17c6a6d51 (F-028 doc-only). Delta a02e270fc..b17c6a6d51 confirmed README-only (zero change to live-engine.mjs/live-engine-selfcheck.mjs/run-selfchecks.mjs). Selfcheck runs 174 assertions passed, no live LLM, arms A1/A2/A2prime/A3/A4 all covered. All verificationIntents CHK-001..005 (happy/edge/adversarial, all must) remain bound to genuine logic_test evidence with accurate notes. Validate stale flags are a mechanical materialHash consequence of the doc commit, not a coverage regression. No blocker.",
+      "createdAt": "2026-06-24T15:12:45.121Z",
+      "reviewRound": "2026-06-24T12:50:13.876Z",
+      "reviewRunId": "B-8d44:RR-031",
+      "_hash": "369c08b5b2ab178148a43fe9fedc0780abfbd9a01c615990ec50d33c0513285f"
     }
   ]
 }
