@@ -322,6 +322,17 @@
           "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
           "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
           "timestamp": "2026-06-24T11:21:06.667Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/delivery-check-freshness-smoke.js",
+          "result": "pass",
+          "note": "delivery-check-hash.ts:165 defines the advisory as a hardcoded string literal (no user input, no template interpolation from external sources). done-oracle.ts:630 appends it via template literal \"{advisorySuffix}\" where advisorySuffix is \" — ADVISORY: {advisory}\". Since the advisory text is a fixed string constant in the source code, special characters (newlines, quotes) are not present in the current implementation. If the advisory were to contain such characters, JS string concatenation preserves them faithfully — no truncation or corruption occurs. The smoke pins the exact EXPECTED_ADVISORY text (line 250-251) including semicolons and colons.",
+          "headHash": "688c9a9b486c8eb671c60a5539fcf4c671df928a",
+          "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
+          "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
+          "timestamp": "2026-06-24T11:21:09.122Z"
         }
       ]
     },
