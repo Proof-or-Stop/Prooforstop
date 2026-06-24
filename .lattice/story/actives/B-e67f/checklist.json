@@ -194,7 +194,17 @@
       "context": "Add corpus-selfcheck.mjs to the run-selfchecks.mjs aggregator (it currently runs the 5 harness selfchecks) and ensure it runs via npm run test:experiments / npm test. Confirm the full chain stays green.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "experiments/recovery-runner/run-selfchecks.mjs",
+          "package.json"
+        ],
+        "create": [],
+        "test": [
+          "experiments/recovery-runner/run-selfchecks.mjs"
+        ]
+      }
     }
   ]
 }
