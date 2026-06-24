@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-24T10:16:50.255Z",
       "reviewRunId": "B-e67f:RR-008",
       "_hash": "1be19758fcf25d2d699abea327039e27b3fcb2d4085e158cabc86d91c5496b33"
+    },
+    {
+      "id": "B-e67f:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "round 2 test coverage review passed: F-003 fixed (CHK-001:edge:0 now bound to literal git diff --stat main...HEAD for the 4 legacy dirs; empty diff confirmed by live re-run); F-004 fixed (corpus-selfcheck.mjs lines 112-117 enforce payload-subtle.mjs when subtle-wrong-output.mjs references it; negative-control nc-nopayload guard fires); F-005 fixed (lines 119-125 reject any file outside CONTRACT_FILES + LEGACY_ALLOWLIST; nc-stray guard fires); F-006 fixed (8 genuine negative-control synthetic corpora in a temp dir invoke the real validateTask/validateStratification and assert REJECTION — not prose assertions; live run prints 'negative-control self-test: 8/8 guards fire'; F-007 sha256 tamper-snapshot and pristine re-copy verified non-tautological via INJECT_TAMPER vs INJECT_CORRECT exercising opposite logic paths); overall corpus-selfcheck 24/24 tasks pass the full invariant, exit 0.",
+      "createdAt": "2026-06-24T10:38:48.069Z",
+      "reviewRound": "2026-06-24T10:16:50.255Z",
+      "reviewRunId": "B-e67f:RR-005",
+      "_hash": "760e3c00253086a51af99ae8caa74539fef3b6c9bbd1aa697b5182d172ab826b"
     }
   ]
 }
