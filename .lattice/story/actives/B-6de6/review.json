@@ -82,6 +82,64 @@
         }
       ],
       "_hash": "8feaf9f09327415764ac1d30cd99da962f19cb974974ab50c09b7dfb9fc5a9da"
+    },
+    {
+      "timestamp": "2026-06-24T00:01:12.010Z",
+      "issueCount": 9,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-004",
+          "message": "CHK-004 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "scope_change",
+          "severity": "advisory",
+          "itemId": "CHK-005",
+          "message": "CHK-005 (\"Register the review-assurance floor as a storyFilesHash-freshness consumer in the process-fact contract\") was added in PLAN phase: scope-plan reviewer found a spec-required process-fact contract registration gap: the review-assurance floor's new consumption of the storyFilesHash freshness rule must be reflected in the registered gateConsumer enumeration."
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 checklist items; please check for missing combined scenarios (e.g., what happens when Make the floor fresh-round count storyFilesHash-authoritative (valid-with-advisory) + Exclude truly-stale verdicts from the per-round duplicate-host-identity check are performed simultaneously?)"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 3 undigested unknowns: Whether to surface the re-attestation advisories as a new ReviewAssuranceFloorReport.advisories field (mirroring ReviewEscalationReport.advisories) or fold them into reasons; decide in DEV from how the DONE gate / CLI renders the floor result.; Whether the floor degraded single-host fallback path (fallbackRecordFromEvent line 596, latestFallbackRecord line 615) also needs the storyFilesHash downgrade for its materialHash check to match escalations 3-arg latestFallbackRecord, confirmed by whether the high-risk degraded path is reachable in the floor.; Whether reusing eventsWithStoryFilesHashDowngrade requires only adding export to it in review-escalation.ts given the floor already depends on that module."
+        },
+        {
+          "type": "scope_gap",
+          "severity": "blocker",
+          "message": "scope gap: description mentions \"storyFilesHash freshness semantics registered in process-fact-registry.ts and process-fact-levels.ts (spec: Process Fact Contract section)\" but there is no corresponding checklist item and it is not excluded"
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-6de6 is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "2f69f1f3f01dde641819507a3de2b0ac5f9835e5d702cefef5ee0ffad6ca5785"
     }
   ]
 }
