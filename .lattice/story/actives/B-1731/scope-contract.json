@@ -2,18 +2,25 @@
   "storyId": "B-1731",
   "mode": "enforce",
   "allowedModify": [
-    "packages/main/src/core/machine.ts"
+    "packages/main/src/core/repro-evidence-binding-gate.ts",
+    "packages/main/src/handlers/story-create.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/core/repro-intake.ts",
+    "packages/main/src/core/evidence/types.ts",
+    "packages/main/src/handlers/repro-intake.ts",
+    "lattice.config.json",
+    "package.json",
+    "packages/main/package.json"
   ],
-  "allowedCreate": [
-    "packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts"
-  ],
+  "allowedCreate": [],
   "allowedTest": [
     "packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts"
   ],
   "protectedFiles": [],
   "explicitExcludes": [],
-  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "scopeChangeReason": "Refresh scope contract after expanding B-1731 from lifecycle-only guard to story_create pre-story intake gate plus smoke registration.",
   "acknowledgements": [],
   "createdAt": "2026-06-24T21:50:40.326Z",
-  "updatedAt": "2026-06-24T21:50:40.326Z"
+  "updatedAt": "2026-06-24T22:01:23.604Z"
 }
