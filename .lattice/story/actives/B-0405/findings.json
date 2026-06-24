@@ -39,6 +39,29 @@
       ],
       "signatureTag": "missing|ts|adversarial-matrix-coverage",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-0405:F-003",
+      "desc": "M7 enforce rollout is not actually integrated into high-risk gate decisions. The plan requires proofAdmissibility.mode=warn|enforce to enforce Authority receipt consumption, DONE-required evidence, review escalation host verdicts, and handoff proof refs (docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md:422). The implementation defines resolveProofAdmissibilityMode and diagnostic.blocking (packages/main/src/core/proof-admissibility-gates.ts:26,52), but rg shows resolveProofAdmissibilityMode is not called outside its definition, and the touched consumers only attach proofAdmissibility diagnostics to reports without using diagnostic.blocking to fail the gate, e.g. DONE-required returns its existing blocking state while appending proofAdmissibility (packages/main/src/core/done-required-validation.ts:486,600), review assurance appends proofAdmissibility to the report (packages/main/src/core/review-assurance-floor.ts:610), and review escalation does the same (packages/main/src/core/review-escalation.ts:457). The smoke test only proves buildProofAdmissibilityDiagnostic(... mode: enforce) returns blocking=true (packages/main/src/tasks/proof-admissibility-hardening-smoke.ts:215), not that any configured high-risk consumer rejects inadmissible artifacts in enforce mode. This leaves M7 satisfied only as a diagnostic helper, not as gate integration.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-24T11:25:16.054Z",
+      "reviewRound": "2026-06-24T11:21:33.431Z",
+      "reviewRunId": "B-0405:RR-004",
+      "_hash": "41f3582c8aa67c169624bc5498437136956b90120a4da950d7bd5cee7abab7dd",
+      "files": [
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+        "packages/main/src/core/proof-admissibility-gates.ts",
+        "packages/main/src/core/done-required-validation.ts",
+        "packages/main/src/core/review-assurance-floor.ts",
+        "packages/main/src/core/review-escalation.ts",
+        "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts"
+      ],
+      "signatureTag": "missing|md|enforce-rollout-actually",
+      "signatureTagSource": "auto"
     }
   ]
 }
