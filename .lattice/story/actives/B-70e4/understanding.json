@@ -1,0 +1,31 @@
+{
+  "task": "The Authority gate-receipt proof endpoint /v1/receipts/{id}/proof is a protected read, but authority_receipt_verify --proofPath fetched it unauthenticated and returned 401; separately the live receipt-ref gate smoke omitted the materialOverlapAudit the DONE enforce gate requires.",
+  "outcome": "After this fix, an operator running the maintained live smoke against the staging Authority sees green:\n  $ node packages/main/dist/tasks/authority-live-receipt-ref-gate-smoke.js\n  PASS authority live receipt-ref gate smoke: staging proof fetched, receipt ref written, TEST/DONE gates consumed, negative control blocked\nand the new deterministic regression test:\n  $ npm run test:authority-receipt-proof-auth\n  PASS authority receipt proof auth smoke: proof fetch is authenticated (Bearer) and fail-closed without a key\nThe previous 401 customer_api_key_required on the proof fetch and the DONE gate verdict=fail (missing materialOverlapAudit) no longer occur.",
+  "facts": [
+    "AuthorityClient.get() attaches Authorization only when called with authenticated:true (authority-client.ts ~673)",
+    "fetchGateReceiptProof calls get() without authenticated:true (authority-client.ts 636-649)",
+    "authority-enforce.ts loadProof constructs AuthorityClient with 3 args and no auth (~line 203)",
+    "The DONE enforce gate requires a materialOverlapAudit and it is part of the gateInputDigest (server test_done_enforce_gate_passes_with_empty_material_overlap_audit)",
+    "buildNoOverlapMaterialOverlapAuditDefault returns empty changedFiles and actualFileOverlaps (authority-contracts.ts 811)",
+    "The three-part fix was verified green end-to-end against the real staging Authority via a throwaway spike before this story"
+  ],
+  "constraints": [
+    "The Lattice Authority server stays read-only; no server-side changes",
+    "Client-only change in packages/main",
+    "The new regression test must be deterministic with no live-server dependency",
+    "The live smoke verification needs the staging credentials from the three root config files"
+  ],
+  "unknowns": [
+    "Whether materialOverlapAudit changedFiles may be empty for DONE (resolved via spike: yes; only actualFileOverlaps must be empty)",
+    "Whether passing auth to loadProof alone suffices (resolved via spike: no; fetchGateReceiptProof must also request an authenticated read)"
+  ],
+  "touchpoints": [
+    "packages/main/src/core/authority-client.ts",
+    "packages/main/src/handlers/authority-enforce.ts",
+    "packages/main/src/tasks/authority-live-receipt-ref-gate-smoke.ts",
+    "packages/main/src/tasks/authority-receipt-proof-auth-smoke.ts",
+    "packages/main/package.json",
+    "packages/main/smoke-manifest.json"
+  ],
+  "timestamp": "2026-06-24T01:00:31.648Z"
+}

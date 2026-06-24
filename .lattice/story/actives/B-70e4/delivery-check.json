@@ -1,0 +1,59 @@
+{
+  "storyId": "B-70e4",
+  "checkedAt": "2026-06-24T04:07:58.526Z",
+  "headHash": "f9e303ed963046fada4838afd12e9a252ff4af31",
+  "materialHash": "6389ceaf7ce2dfa0a53285ad09b7e4b13d19c8c4f71c8c2ba173d4d23aa3c781",
+  "reviewRound": "2026-06-24T03:58:40.688Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "plan.md#CHK-001",
+      "promise": "fetchGateReceiptProof passes authenticated:true so get() attaches Authorization: Bearer <customerApiKey>",
+      "verifiedBy": "diff/grep",
+      "evidence": "authority-client.ts line 646: authenticated: true added to fetchGateReceiptProof call; get() at line 676-685 attaches Bearer header when authenticated:true and key is set; fail-closed at line 677-683 when key is absent"
+    },
+    {
+      "docPath": "plan.md#CHK-002",
+      "promise": "loadProof constructs AuthorityClient with resolveAuthorityClientAuth(process.env, {cwd}) as 4th arg so proof fetch is authorized",
+      "verifiedBy": "diff/grep",
+      "evidence": "authority-enforce.ts: resolveAuthorityClientAuth imported (line 18), loadProof signature now accepts cwd? (line 188), auth resolved at line 208 and passed as 4th arg to AuthorityClient; ctx.root threaded from runAuthorityReceiptVerify at line 273"
+    },
+    {
+      "docPath": "plan.md#CHK-003",
+      "promise": "Live smoke sends empty-overlap materialOverlapAudit on DONE gate in both digest input and signed decision (lockstep)",
+      "verifiedBy": "diff/grep",
+      "evidence": "authority-live-receipt-ref-gate-smoke.ts: buildNoOverlapMaterialOverlapAuditDefault imported; buildPhaseGateRequest adds materialOverlapAudit for DONE (lines 213-219); signedTargetGateRequest includes it in signed envelope (lines 239-241); live staging smoke PASS per transcript-diff.md Run 1"
+    },
+    {
+      "docPath": "plan.md#CHK-004",
+      "promise": "New deterministic smoke authority-receipt-proof-auth-smoke.ts registered as package.json script and smoke-manifest entry; asserts Bearer sent with key, ok===true on valid parse, fail-closed for unset and empty-string key",
+      "verifiedBy": "diff/grep",
+      "evidence": "authority-receipt-proof-auth-smoke.ts created (181 lines, 4 assert blocks); package.json test:authority-receipt-proof-auth at line 60; smoke-manifest.json entry authority-receipt-proof-auth at line 427; authority-receipt-proof-smoke.ts updated with test key (regression fix)"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "deterministic smoke: capturingFetch stub asserts capturedHeaders.Authorization === Bearer cust-key-xyz; outcome.ok===true on schema-valid fixture; fail-closed (ok:false, no request) for unset key; red/green: reverting authenticated:true breaks Bearer assertion. PASS line confirmed in transcript-diff.md Run 2."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "live staging smoke: runAuthorityReceiptVerify -> loadProof -> AuthorityClient(auth) -> fetchGateReceiptProof -> https://staging.hostneutral.net succeeds (no 401); PASS line in transcript-diff.md Run 1. Also covered by deterministic smoke: unauthed client -> fail-closed path."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "live staging smoke: DONE gate evaluate accepted by Authority with materialOverlapAudit in both digest input and signed decision; PASS authority live receipt-ref gate smoke line in transcript-diff.md Run 1. Negative control (tampered) blocked."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "npm run --prefix packages/main test:authority-receipt-proof-auth exits 0: PASS authority receipt proof auth smoke: Bearer header sent, happy-path parses ok===true, and fail-closed for both unset and empty-string keys. Script registered in package.json, smoke-manifest.json entry present."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 4 plan promises verified in code from diff (byte-identical to prior review at dac88b335). Re-sign triggered by main-branch re-sync that moved materialHash to 6389ceaf. CHK-001/004: deterministic smoke 4 assertion blocks covering Bearer auth, happy-path schema parse, fail-closed for unset and empty-string keys. CHK-002/003: live staging smoke against https://staging.hostneutral.net, no 401, DONE gate consumed, tampered control blocked. lattice validate allPass:true at headHash f9e303ed / materialHash 6389ceaf."
+  },
+  "_hash": "fc7eb0caa4cf6a3c4a30d823592f0dd415430957894f3ef4ebc7df7d2181863b"
+}

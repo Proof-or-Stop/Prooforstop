@@ -1,0 +1,94 @@
+{
+  "findings": [
+    {
+      "id": "B-70e4:F-001",
+      "desc": "concept-cleanup: fetchGateReceiptProof authentication fix incomplete: authority-live-receipt-ref-gate-smoke.ts:860 still calls new AuthorityClient(input.ctx.liveURL).fetchGateReceiptProof(proofPath) with no auth arg (unauthenticated), while ctx.customerApiKey is available in scope (line 151/170). Since the proof endpoint is protected (401 without auth), this diagnostic fetch will 401 in the same conditions the fix is designed to cure — defeating the diagnostic.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-24T01:24:54.787Z",
+      "reviewRound": "2026-06-24T01:23:41.780Z",
+      "reviewRunId": "B-70e4:RR-001",
+      "_hash": "c49415d842e6f2bcb68a9debd16f3bcd89fb9de993199c92d630c02d421132f4",
+      "files": [
+        "packages/main/src/tasks/authority-live-receipt-ref-gate-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|concept-cleanup-fetchgatereceiptproof",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-70e4:F-002",
+      "desc": "quality-cleanup: authority-live-receipt-ref-gate-smoke.ts:860 constructs AuthorityClient without auth for diagnostic proof fetch, but fetchGateReceiptProof now requires authenticated:true — the rich diagnostic branch (proof.ok && proof.data) at line 861 is permanently dead after this fix because the unauthenticated client will always fail closed (kind:error). The diagnostic should pass ctx.customerApiKey as auth to remain useful.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-24T01:26:44.778Z",
+      "reviewRound": "2026-06-24T01:23:41.780Z",
+      "reviewRunId": "B-70e4:RR-002",
+      "_hash": "93f770d52c0494c95da979d94612c9b6e8a7871505d4551e399588dcfc321367",
+      "signatureTag": "edge|unknown|quality-cleanup-authority",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-70e4:F-003",
+      "desc": "CHK-001:happy:1 evidence note falsely claims schema parse success: the intent requires outcome.ok===true and data matches AuthorityGateReceiptProofSchema, but authority-receipt-proof-auth-smoke.ts line 35 discards the return value of authed.fetchGateReceiptProof() with no assertion on it. The stub body { stub: \"not-a-valid-proof\" } fails AuthorityGateReceiptProofSchema.safeParse() (returns ok:false, kind:error), so the authenticated read actually does NOT produce a valid parsed proof in the test. The evidence note inference chain (\"returns without throwing...proves the happy-path parse\") is false: get() never throws on schema failure, it returns ok:false. No test case verifies outcome.ok===true or that valid proof JSON round-trips through the schema.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-24T01:39:43.680Z",
+      "reviewRound": "2026-06-24T01:23:41.780Z",
+      "reviewRunId": "B-70e4:RR-003",
+      "_hash": "bf0840478447529413431a16e65f0c8d92749ec935f8a6197ab2e8a768682891",
+      "files": [
+        "packages/main/src/tasks/authority-receipt-proof-auth-smoke.ts",
+        "packages/main/src/core/authority-client.ts"
+      ],
+      "signatureTag": "missing|ts|happy-evidence-note",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-70e4:F-004",
+      "desc": "CHK-002:happy:0 evidence only demonstrates the AuthorityClient constructor pattern in isolation; loadProof() itself is never called in the deterministic smoke. The evidence note says \"the loadProof code path uses the same constructor pattern\" — this is a structural inference, not an execution trace. The must-priority intent requires proving that loadProof({proofPath:..., authorityURL:...}) with LATTICE_AUTHORITY_CUSTOMER_API_KEY set actually sends Authorization: Bearer <key>. No test calls loadProof() directly; the fix at authority-enforce.ts:206-207 is only verified by code inspection, not by an executing test that exercises loadProof end-to-end through the auth resolution path.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-24T01:39:52.013Z",
+      "reviewRound": "2026-06-24T01:23:41.780Z",
+      "reviewRunId": "B-70e4:RR-003",
+      "_hash": "a776a317784a28960e6cffcc0cd8b12a66d542061f0cdc5a8481f9dfbf179c86",
+      "files": [
+        "packages/main/src/handlers/authority-enforce.ts",
+        "packages/main/src/tasks/authority-receipt-proof-auth-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|happy-evidence-demonstrates",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-70e4:F-005",
+      "desc": "CHK-004:edge:0 (empty string customerApiKey treated as missing, fail-closed) has no evidence. The should-priority intent explicitly calls out that empty-string env vars are a common misconfiguration that must behave identically to unset. The smoke test only covers customerApiKey=undefined (no 4th arg at line 49); it does not have a test case for new AuthorityClient(..., { customerApiKey: \"\" }). The code does handle this correctly (authority-client.ts:677 uses optional-chain + trim, so \"\" trims to \"\" which is falsy), but the behavior is not pinned by an assertion. Given the security sensitivity (fail-closed auth behavior) this should-priority gap is material.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-24T01:40:01.723Z",
+      "reviewRound": "2026-06-24T01:23:41.780Z",
+      "reviewRunId": "B-70e4:RR-003",
+      "_hash": "9717f408499c679bed5806443d901a18d8cdf026ffbd309a380bbbc0a204ea67",
+      "files": [
+        "packages/main/src/tasks/authority-receipt-proof-auth-smoke.ts",
+        "packages/main/src/core/authority-client.ts"
+      ],
+      "signatureTag": "missing|ts|edge-empty-string",
+      "signatureTagSource": "auto"
+    }
+  ]
+}

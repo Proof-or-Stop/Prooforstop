@@ -1,0 +1,175 @@
+{
+  "passes": [
+    {
+      "id": "B-70e4:RP-001",
+      "agent": "lattice-review-quality",
+      "note": "Quality review of 5 changed source files (+87/-1). Auth fix in authority-client.ts (authenticated:true) and authority-enforce.ts (resolveAuthorityClientAuth) are jointly necessary and correctly implemented. materialOverlapAudit added to buildPhaseGateRequest (DONE only) and forwarded in signedTargetGateRequest — digest consistency maintained. New authority-receipt-proof-auth-smoke.ts is deterministic (no time/random), correctly stubs transport, imports are all used. No dead code, no type safety violations, no empty-catch, no bridge isolation issues. One medium edge finding filed: the pre-existing diagnostic AuthorityClient at live-receipt-ref-gate-smoke.ts:860 is now permanently auth-starved after the fix makes fetchGateReceiptProof fail-closed without a key — the rich diagnostic branch is dead code in the failure path.",
+      "createdAt": "2026-06-24T01:27:54.556Z",
+      "reviewRound": "2026-06-24T01:23:41.780Z",
+      "reviewRunId": "B-70e4:RR-002",
+      "_hash": "25732693c40cf567434613e279bc4d6b7e535a4b9a9fbd2457924c094c552421"
+    },
+    {
+      "id": "B-70e4:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "F-001 RESOLVED: commit 93dc28702 patched authority-live-receipt-ref-gate-smoke.ts:860 to pass { customerApiKey: input.ctx.customerApiKey } as the 4th arg to new AuthorityClient, making the rich diagnostic branch (proof.ok && proof.data) reachable. Full fetchGateReceiptProof grep scan: only two call sites in source code — (1) authority-live-receipt-ref-gate-smoke.ts:862 (now authenticated, fixed), (2) authority-enforce.ts:208 (uses auth-resolved client from loadProof, correct). authority-receipt-proof-smoke.ts:425-431 is a pre-existing unit test outside story scope that tests schema-parse logic with a test stub (discoverPolicy is public, fetchGateReceiptProof there is testing the parser not the live endpoint). authority-live-receipt-ref-gate-smoke.ts:156 discoverPolicy() is a public endpoint not requiring auth. No new concept residue found. Concept check complete — zero blockers.",
+      "createdAt": "2026-06-24T01:56:29.086Z",
+      "reviewRound": "2026-06-24T01:49:03.993Z",
+      "reviewRunId": "B-70e4:RR-004",
+      "_hash": "35b5cd1981c017280dc0b74537f1cc6d722860eabfcdde2cb582d51891e38e93"
+    },
+    {
+      "id": "B-70e4:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "F-002 dead-code confirmed resolved: AuthorityClient now receives customerApiKey in verifyReceiptRef, making proof.ok&&proof.data branch reachable. authority-receipt-proof-auth-smoke.ts: no dead imports, no unused functions, no as-any on observable logic (line-94 cast is redundant but identical to the already-typed Record<string,string>), no random/time/network calls, fixture is schema-validated before use, empty-string key block is genuine (calledEmpty stays false). authority-enforce.ts loadProof: auth now resolved via resolveAuthorityClientAuth. No new quality issues found.",
+      "createdAt": "2026-06-24T01:57:00.979Z",
+      "reviewRound": "2026-06-24T01:49:03.993Z",
+      "reviewRunId": "B-70e4:RR-005",
+      "_hash": "0110d50f38c4b9887abd4abb9f2d0ea8ec72fb7011b4a8f499991e9cd496bf14"
+    },
+    {
+      "id": "B-70e4:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (ROUND 2): all must-priority verificationIntents across CHK-001/CHK-002/CHK-003/CHK-004 are covered by valid non-fail evidence. F-003 resolved: CHK-001:happy:1 test now has a genuine schema-valid fixture (VALID_PROOF), asserts happyOutcome.ok===true + receipt.inputDigest + inputPayload, and self-checks the fixture via AuthorityGateReceiptProofSchema.safeParse — confirmed by reading authority-receipt-proof-auth-smoke.ts lines 85-134 and running the test (exit 0, PASS). F-004 resolved: CHK-002:happy:0 re-bound as integration_test with the live staging smoke command that exercises loadProof end-to-end (runAuthorityReceiptVerify -> loadProof -> /v1/receipts/{id}/proof); no longer structural inference. F-005 resolved: CHK-004:edge:0 now has an explicit empty-string block at lines 153-171 asserting emptyOutcome.ok===false AND calledEmpty===false; confirmed in test source and test exit 0. No new blockers found. Missing evidence on should-priority edge intents (CHK-001:edge:0/1, CHK-002:edge:0/1, CHK-003:edge:0) is advisory only for normal channel.",
+      "createdAt": "2026-06-24T02:02:19.807Z",
+      "reviewRound": "2026-06-24T01:49:03.993Z",
+      "reviewRunId": "B-70e4:RR-006",
+      "_hash": "0dada70de3ddd50185626bcc2718fcf085c896402a75d2391e447f2cb106b486"
+    },
+    {
+      "id": "B-70e4:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Commit a8faba566 is correct and minimal. The single-line change passes { customerApiKey: \"test-customer-key\" } as the 4th arg matching AuthorityClient constructor signature (baseURL, fetchImpl, timeoutMS=undefined, auth). fetchGateReceiptProof calls get() with authenticated:true; without a key get() returns error fails-closed. The mock fetchImpl only asserts input URL and method — it does not assert headers — so the added Authorization header is transparent to the mock. The absolute-URL negative test (line 431) passes \"https://evil.example/proof\" which is rejected by assertServerRelativePath before any auth check, so the same client instance works correctly. No dead code, no unused imports, no type issues, no empty catch. Change is deterministic and minimal.",
+      "createdAt": "2026-06-24T02:47:02.950Z",
+      "reviewRound": "2026-06-24T02:45:40.407Z",
+      "reviewRunId": "B-70e4:RR-008",
+      "_hash": "edf5041b661b9b2349739b9c8e5c3200f386fab01dfdfa099fe00c78b8ec47b3"
+    },
+    {
+      "id": "B-70e4:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "Independently verified all fetchGateReceiptProof call sites in source (grep -rn fetchGateReceiptProof packages/). Exactly 4 behavioral call sites exist: (1) authority-enforce.ts:208 via loadProof — resolveAuthorityClientAuth(process.env) as 4th arg, authenticated, CLEAN; (2) authority-live-receipt-ref-gate-smoke.ts:862 — new AuthorityClient(liveURL, undefined, undefined, { customerApiKey: input.ctx.customerApiKey }), authenticated (fixed in prior round), CLEAN; (3) authority-receipt-proof-smoke.ts:426 — now has { customerApiKey: test-customer-key } as 4th arg per commit a8faba566, CLEAN; (4) authority-receipt-proof-smoke.ts:431 — same authenticated client as line 425, absolute-URL rejection test, CLEAN. The unauthed constructions in authority-receipt-proof-auth-smoke.ts:142/158 are intentional negative-path assertions (assert outcome.ok===false, called===false — fail-closed). No other source file calls fetchGateReceiptProof (evidence-live-wiring-smoke, evidence-upload-loop-smoke, authority-enforce-matrix-smoke, authority-live-python-smoke confirmed zero). No concept residue, no new blocker.",
+      "createdAt": "2026-06-24T02:47:14.944Z",
+      "reviewRound": "2026-06-24T02:45:40.407Z",
+      "reviewRunId": "B-70e4:RR-007",
+      "_hash": "e236710b50f89665ae4d9bdef9eb0e62f43aff33d131cf91f10425722a0e35a8"
+    },
+    {
+      "id": "B-70e4:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (round 3): all 16 must-priority verificationIntents across CHK-001..004 have valid, non-fail evidence bound to headHash a8faba566 (the round-3 HEAD). Round-2 resolutions F-003 (CHK-001:happy:1 schema-match), F-004 (CHK-002:happy:0 live integration), F-005 (CHK-004:edge:0 empty-string) still hold. a8faba566 regression fix (authority-receipt-proof-smoke line 425 customerApiKey) is transitively guarded by CHK-004 deterministic smoke which pins the same behavior. 5 should-priority edge intents remain uncovered but none are must; no blocker found.",
+      "createdAt": "2026-06-24T03:20:52.140Z",
+      "reviewRound": "2026-06-24T02:45:40.407Z",
+      "reviewRunId": "B-70e4:RR-009",
+      "_hash": "c1b498f4fd9cf353c4b4070c27bb6fef9f02d0613f22ba6d17b541bf1c78ab1d"
+    },
+    {
+      "id": "B-70e4:RP-008",
+      "agent": "lattice-review-quality",
+      "note": "ec451a7d is clean. (1) resolveAuthorityClientAuth second param is AuthorityCustomerApiKeyLoadOptions where every field is optional, so both {cwd} and {} are valid; tsc --noEmit confirms zero type errors. (2) Conditional cwd?{cwd}:{} is correct: avoids passing cwd:undefined which would shadow the options.cwd??process.cwd() default and resolve nothing; the {} path falls back naturally to process.cwd() matching old behavior — backward compatible. (3) When auth comes from an env VALUE (LATTICE_AUTHORITY_CUSTOMER_API_KEY inline), resolveAuthorityCustomerApiKey returns early before cwd is ever read — the new cwd argument is irrelevant and harmless. (4) Scope is strictly the auth resolution line (line 208); baseURL and loadAuthoritySettings are untouched as the commit message states. (5) Caller site (line 273) passes ctx.root, matching the existing runAuthorityEnforcePolicy({cwd:ctx.root}) pattern at line 334 — consistent with established convention. No dead code, no unsafe any, no empty catch, no shell-isolation violation. No findings.",
+      "createdAt": "2026-06-24T03:28:39.980Z",
+      "reviewRound": "2026-06-24T03:27:22.420Z",
+      "reviewRunId": "B-70e4:RR-010",
+      "_hash": "e237cce193a62e5101596c07139943bd06e7373b88b4d5721d17995cc7a783c7"
+    },
+    {
+      "id": "B-70e4:RP-009",
+      "agent": "lattice-review-concept",
+      "note": "Concept-completeness check complete for commit ec451a7d. The cwd threading is correct and consistent: (1) loadProof gained a cwd? param and the single call site at runAuthorityReceiptVerify:273 passes ctx.root — ctx.root is the HandlerContext.root:string field, the canonical handler project root. (2) resolveAuthorityClientAuth(process.env, cwd?{cwd}:{}) correctly threads cwd into resolveAuthorityCustomerApiKey which uses options.cwd??process.cwd() for FILE-based key path resolution. (3) No stale process.cwd() bare calls remain in authority-enforce.ts auth-resolution path. (4) loadAuthoritySettings (baseURL) reads only env vars, not files — leaving it without cwd is intentional and correct; confirmed from authority-mode.ts implementation. (5) The two pre-existing resolveAuthorityClientAuth calls in authority-client.ts:2234/2426 already thread options.cwd; not regressed. (6) authority-submit.ts:201 default-param resolveAuthorityClientAuth() is a submission path outside this story scope, not changed. (7) No other handler files call resolveAuthorityClientAuth or loadProof. (8) plan.md CHK-002 DoneWhen promised resolveAuthorityClientAuth(process.env); delivery is a superset (adds cwd threading) — not a doc-promise-undelivered. Story artifacts in .lattice/ referencing the old signature are historical pre-fix descriptions, not source code residue. Zero blockers.",
+      "createdAt": "2026-06-24T03:29:45.850Z",
+      "reviewRound": "2026-06-24T03:27:22.420Z",
+      "reviewRunId": "B-70e4:RR-011",
+      "_hash": "4b19881552795ad2a4d8ae647de5c16454539a372163d9e2a97cd1e2d449c02c"
+    },
+    {
+      "id": "B-70e4:RP-010",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (round 4): all 19 must-priority verificationIntents across CHK-001..004 are covered by valid non-fail evidence bound to headHash ec451a7d (fix commit) / materialHash f232c70 (current round). validate reports 20/25 covered, 0 required missing. Round-2 resolutions F-003 (CHK-001:happy:1 schema-match), F-004 (CHK-002:happy:0 re-bound as integration_test via live staging smoke), F-005 (CHK-004:edge:0 empty-string) all still hold at current HEAD. Commit ec451a7d cwd-threading: the FILE-based customer-key resolution path (LATTICE_AUTHORITY_CUSTOMER_API_KEY_PATH / .lattice/authority.md) is not unit-tested in isolation, but this is an acceptable should-level gap. Reasons: (1) No CHK checklist item declares FILE-based cwd as a must-intent; (2) the inline env VALUE path (early-return in resolveAuthorityCustomerApiKey) is what the deterministic smoke exercises, and quality reviewer RP-008 confirms the cwd conditional is correct and backward-compatible; (3) the live staging smokes (authority-live-receipt-ref-gate-smoke, authority-enforce-matrix-smoke) exercise loadProof end-to-end; (4) the options.cwd??process.cwd() pattern in resolveAuthorityCustomerApiKey is the same pre-existing pattern already tested in other authority-client callers. No blocker found. 5 should-priority edge intents (CHK-001:edge:0/1, CHK-002:edge:0/1, CHK-003:edge:0) remain uncovered but are advisory only for the normal channel.",
+      "createdAt": "2026-06-24T03:32:15.733Z",
+      "reviewRound": "2026-06-24T03:27:22.420Z",
+      "reviewRunId": "B-70e4:RR-012",
+      "_hash": "2401c152010cd58595a3f587e6e0fe809c8e5f64ee90ad9b7441bf167580f672"
+    },
+    {
+      "id": "B-70e4:RP-011",
+      "agent": "lattice-review-concept",
+      "note": "Round 4 concept review: cwd-threading auth fix (ec451a7d) is concept-complete; all fetchGateReceiptProof call sites authenticated; no residual.",
+      "createdAt": "2026-06-24T03:36:09.501Z",
+      "reviewRound": "2026-06-24T03:27:22.420Z",
+      "reviewRunId": "B-70e4:RR-013",
+      "_hash": "02e8da1b96a94f48d2d4993d90304339b54a326d7c69c559719f0525bfee0450"
+    },
+    {
+      "id": "B-70e4:RP-012",
+      "agent": "lattice-review-quality",
+      "note": "Round 4 quality review: ec451a7d cwd-threading is correct/minimal/type-safe; conditional guard avoids cwd:undefined; baseURL scope boundary respected. No blocker.",
+      "createdAt": "2026-06-24T03:36:14.956Z",
+      "reviewRound": "2026-06-24T03:27:22.420Z",
+      "reviewRunId": "B-70e4:RR-014",
+      "_hash": "290429babcba51264e826da90589d5dbb59cfd01ec40486f91b2d260fc2e9a70"
+    },
+    {
+      "id": "B-70e4:RP-013",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 4 test-coverage: all must-priority intents covered with fresh evidence at HEAD; F-003/004/005 resolutions hold; FILE-based cwd path is acceptable should-level gap. No blocker.",
+      "createdAt": "2026-06-24T03:38:06.295Z",
+      "reviewRound": "2026-06-24T03:27:22.420Z",
+      "reviewRunId": "B-70e4:RR-015",
+      "_hash": "2323c82a9a828bec69f33860f826e4d03b4be1443713d276fe0123e6462ae403"
+    },
+    {
+      "id": "B-70e4:RP-014",
+      "agent": "lattice-review-concept",
+      "note": "Round 5 concept review: all proof-fetch auth changes are concept-complete; cwd threaded for file-based auth; no residual or orphaned references. No blocker.",
+      "createdAt": "2026-06-24T03:43:43.461Z",
+      "reviewRound": "2026-06-24T03:43:07.686Z",
+      "reviewRunId": "B-70e4:RR-016",
+      "_hash": "e12c7264c723d2385642070c127490b7a118862526b5fdc9d9af44f8f6b0648f"
+    },
+    {
+      "id": "B-70e4:RP-015",
+      "agent": "lattice-review-quality",
+      "note": "Round 5 quality review: all changes correct/minimal/type-safe/deterministic; no dead code; scope boundaries respected. No blocker.",
+      "createdAt": "2026-06-24T03:43:46.345Z",
+      "reviewRound": "2026-06-24T03:43:07.686Z",
+      "reviewRunId": "B-70e4:RR-017",
+      "_hash": "c74ea4878c27356a2d11a0d1667c838f1973ca11410115db0557c21994a856d3"
+    },
+    {
+      "id": "B-70e4:RP-016",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 5 test-coverage: all must-priority intents covered with fresh HEAD-bound evidence; F-003/004/005 resolutions hold; file-based cwd path acceptable should-level gap. No blocker.",
+      "createdAt": "2026-06-24T03:47:21.601Z",
+      "reviewRound": "2026-06-24T03:43:07.686Z",
+      "reviewRunId": "B-70e4:RR-018",
+      "_hash": "4644c89c203239759d278b24938e48213235676dded19828f7e962365939e480"
+    },
+    {
+      "id": "B-70e4:RP-017",
+      "agent": "lattice-review-concept",
+      "note": "Round 6 concept review at new main base: story diff is the same pure 5-file change; all proof-fetch auth concept-complete; no residual. No blocker.",
+      "createdAt": "2026-06-24T03:59:11.002Z",
+      "reviewRound": "2026-06-24T03:58:40.688Z",
+      "reviewRunId": "B-70e4:RR-019",
+      "_hash": "5c4afbc73b6963367feeb5d992559290c64a9064a044984ca0d610fb163258fc"
+    },
+    {
+      "id": "B-70e4:RP-018",
+      "agent": "lattice-review-quality",
+      "note": "Round 6 quality review at new main base: same correct/minimal/type-safe change; clean build; scope boundaries respected. No blocker.",
+      "createdAt": "2026-06-24T03:59:14.694Z",
+      "reviewRound": "2026-06-24T03:58:40.688Z",
+      "reviewRunId": "B-70e4:RR-020",
+      "_hash": "8c38dc02b59cc2dcd874253ecf7d7caeeb5e841a2a1d8ec1c73cdeb662109148"
+    },
+    {
+      "id": "B-70e4:RP-019",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 6 test-coverage at new main base: all must-priority intents covered with fresh HEAD-bound evidence; F-003/004/005 hold. No blocker.",
+      "createdAt": "2026-06-24T04:04:23.559Z",
+      "reviewRound": "2026-06-24T03:58:40.688Z",
+      "reviewRunId": "B-70e4:RR-021",
+      "_hash": "a0521758389a927de5dab06d88367e143d277203d47692d0f127acfe5bb2a2a6"
+    }
+  ]
+}

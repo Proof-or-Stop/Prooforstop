@@ -641,6 +641,9 @@ export class AuthorityClient {
       proofPath,
       AuthorityGateReceiptProofSchema,
       {
+        // The gate-receipt proof endpoint is a protected Authority read; send the
+        // customer API key (get() adds Authorization only when authenticated).
+        authenticated: true,
         policyOverclaimGuard: false,
         label: 'authority receipt proof response',
         emptyBodyMessage: 'authority receipt proof response body is empty (malformed proof)',

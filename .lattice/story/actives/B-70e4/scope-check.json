@@ -1,0 +1,122 @@
+{
+  "storyId": "B-70e4",
+  "checkedAt": "2026-06-24T01:11:01.346Z",
+  "features": [
+    {
+      "feature": "fetchGateReceiptProof must send Authorization: Bearer header (authenticated read) to /v1/receipts/{id}/proof",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-cli-authority-client-receipt-ref.md"
+    },
+    {
+      "feature": "get() in AuthorityClient must attach Authorization when authenticated:true flag is set",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-authority-customer-api-key-access.md"
+    },
+    {
+      "feature": "Fail-closed behavior: unauthenticated proof fetch must never reach server when customerApiKey is absent",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-authority-customer-api-key-access.md"
+    },
+    {
+      "feature": "loadProof must construct AuthorityClient with resolved auth (4th arg) so the proof GET carries the customer API key",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-cli-authority-client-receipt-ref.md"
+    },
+    {
+      "feature": "Both auth layers (fetchGateReceiptProof flag AND loadProof constructor auth arg) are jointly necessary — partial fix is insufficient",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Live smoke DONE gate request must include materialOverlapAudit in the signed decision envelope (present=true)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/authority-done-material-overlap-audit-cli-fix.md"
+    },
+    {
+      "feature": "materialOverlapAudit must be in both buildPhaseGateRequest (digest input) and signedTargetGateRequest (signed decision) in lockstep",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/authority-done-material-overlap-audit-cli-fix.md"
+    },
+    {
+      "feature": "Empty-overlap materialOverlapAudit ({changedFiles:[],actualFileOverlaps:[]}) is accepted by Authority DONE/enforce gate",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/authority-done-material-overlap-audit-cli-fix.md"
+    },
+    {
+      "feature": "Non-empty actualFileOverlaps must fail closed and not be silently dropped by the CLI",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary excluded general gate handler path (planned-steps-executor.ts, authority-contracts.ts); only the live smoke smoke is in scope for B-70e4",
+      "source": "decisions:decisions/authority-done-material-overlap-audit-cli-fix.md"
+    },
+    {
+      "feature": "GateEvaluateRequestContractSchema and MaterialOverlapAuditContract types added to authority-contracts.ts",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json explicitly excludes authority-contracts.ts and planned-steps-executor.ts; only the live smoke task is in scope",
+      "source": "decisions:decisions/authority-done-material-overlap-audit-cli-fix.md"
+    },
+    {
+      "feature": "Deterministic regression test that pins authenticated proof fetch (Bearer) and fail-closed without key",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Regression test must FAIL without the auth fix and PASS with it (red/green guard)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Regression test uses stub/mock fetch — deterministic, no staging credentials required",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/authority-receipt-cross-repo-live-smoke.md"
+    },
+    {
+      "feature": "New regression test registered as package.json script and smoke-manifest.json entry",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Live smoke passes against real staging Authority (end-to-end PASS line)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/authority-receipt-cross-repo-live-smoke.md"
+    }
+  ],
+  "summary": {
+    "total": 15,
+    "covered": 12,
+    "excluded": 3,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "007bc460eef5e443dc4b820776326066d2171e5b87c08eeaabc095ebabc7d0a7",
+  "openQuestions": []
+}

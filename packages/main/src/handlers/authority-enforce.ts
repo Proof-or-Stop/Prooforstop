@@ -15,6 +15,7 @@ import type { HandlerContext } from './context.js';
 import {
   AuthorityClient,
   loadAuthorityConfig,
+  resolveAuthorityClientAuth,
   type AuthorityConfigLoadOptions,
   type AuthorityFetch,
 } from '../core/authority-client.js';
@@ -184,7 +185,7 @@ function parseProofText(text: string, label: string): unknown {
   }
 }
 
-async function loadProof(args: AuthorityReceiptVerifyArgs): Promise<unknown> {
+async function loadProof(args: AuthorityReceiptVerifyArgs, cwd?: string): Promise<unknown> {
   if (args.proof !== undefined) {
     if (typeof args.proof === 'string') return parseProofText(args.proof, 'proof');
     return args.proof;
@@ -200,7 +201,12 @@ async function loadProof(args: AuthorityReceiptVerifyArgs): Promise<unknown> {
     if (!settings.baseURL) {
       throw new Error('LATTICE_AUTHORITY_URL is not set; proofPath fetch requires an authority server URL.');
     }
-    const client = new AuthorityClient(settings.baseURL, args._fetchImpl, settings.timeoutMS);
+    // The gate-receipt proof endpoint is a protected Authority API; carry the
+    // customer API key so the fetch is authorized (otherwise 401). Resolve the
+    // key against the handler root so FILE-based auth (CUSTOMER_API_KEY_PATH /
+    // .lattice/authority.md) is read from the target project, not process.cwd().
+    const auth = resolveAuthorityClientAuth(process.env, cwd ? { cwd } : {});
+    const client = new AuthorityClient(settings.baseURL, args._fetchImpl, settings.timeoutMS, auth);
     const outcome = await client.fetchGateReceiptProof(args.proofPath);
     if (!outcome.ok) {
       throw new Error(`authority receipt proof fetch failed (${outcome.kind}): ${outcome.message ?? 'unknown error'}`);
@@ -264,7 +270,7 @@ export async function runAuthorityReceiptVerify(
     throw new Error(`authority_receipt_verify requires an existing story index at ${ctx.store.storyDirRel()}/${storyId}/index.json; refusing to create receipt refs for an unknown story.`);
   }
   ctx.store.readStory(storyId);
-  const proofValue = await loadProof(args);
+  const proofValue = await loadProof(args, ctx.root);
   const parsed = AuthorityGateReceiptProofSchema.safeParse(proofValue);
   const proof = parsed.success ? parsed.data : undefined;
   const verification = verifyAuthorityGateReceiptProof(proofValue, {
