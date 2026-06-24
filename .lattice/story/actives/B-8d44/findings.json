@@ -149,6 +149,24 @@
       ],
       "signatureTag": "missing|mjs|happy-lacks-concrete",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-8d44:F-009",
+      "desc": "CHK-003:edge:2 lacks evidence: intent requires asserting that the structured context snapshot passed to A3's single reviewer is IDENTICAL to what A4's reviewer receives (context-equalization). The selfcheck never compares buildReviewContext output between A3 and A4 arms. No assertion of this form exists. The implementation in live-engine.mjs does share the same buildReviewContext() call for both arms, but the selfcheck does not verify this property behaviorally (e.g. by capturing the context arg from both stubs and comparing).",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-24T12:58:25.684Z",
+      "reviewRound": "2026-06-24T12:50:13.876Z",
+      "reviewRunId": "B-8d44:RR-002",
+      "_hash": "b4293d515828fae2e401fbc925c6016f58b4ffe2cf92c6e89f613f9b36feccbf",
+      "files": [
+        "experiments/recovery-runner/live-engine-selfcheck.mjs"
+      ],
+      "signatureTag": "missing|mjs|edge-lacks-evidence",
+      "signatureTagSource": "auto"
     }
   ]
 }
