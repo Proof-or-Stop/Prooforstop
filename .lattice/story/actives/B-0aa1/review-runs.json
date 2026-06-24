@@ -533,6 +533,62 @@
         "bindingHash": "e97cb0c8f9994af2fc7681001e3ebca7461fd04ddb9d18486da080d8c7c3b72f"
       },
       "_hash": "ad3f1c56f0432a8431b4ab082693d5b4cab7b29b00767338160014725ff7e075"
+    },
+    {
+      "reviewRunId": "B-0aa1:RR-010",
+      "storyId": "B-0aa1",
+      "agent": "lattice-review-docs",
+      "lane": "lattice-review-docs",
+      "reviewRound": "2026-06-24T04:33:42.085Z",
+      "startedAt": "2026-06-24T04:34:25.895Z",
+      "headHash": "bf0fde3a140d47455511f377c6e023e93919a1dc",
+      "materialHash": "a7933ba3b66954d21e52866cfb95d101cc03eba34587c69733210a8f8ef9ac4f",
+      "storyFilesHash": "74667f163c69172cf845df651c97481b2b28f438d5ab155cc089ca0c641fef76",
+      "promptHash": "fc799f5fc9def66f8d377ad3bcad610edabbb8935fbd62d4ca34988aedcf99b8",
+      "scopeBinding": {
+        "scopeContractHash": "bf8a2dc59f74ba1e14b018d0f474747297a410e856922db49af50277d1bbcf95",
+        "diffPackHash": "e18dfbbfa0d8dc406d5a18b766438ec2fc05babedfd5770f459c03c99564aee3",
+        "reviewedChangedFiles": [
+          "docs/evidence/evidence-platform-architecture.md",
+          "docs/requirements/decisions/repro-first-story-intake-experiment.md",
+          "packages/main/package.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/evidence/artifact-store.ts",
+          "packages/main/src/core/evidence/types.ts",
+          "packages/main/src/core/repro-intake.ts",
+          "packages/main/src/handlers/repro-intake.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/repro-first-candidate-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "1a3efd67d60a819236a18e302fda4c3267633b3b92ffe2b3443c0647654f9749",
+          "1f25715fa9cbaa2ec0ab1ca51c27e743a41f0aaeef341694cdf26fe1b2821748",
+          "5ec034b089f9dcf00dd8c157dc15fd0ee4e22ba869db5fcc5a60e62800ab1cd3",
+          "6b5a89236e8856ed3f80626d571a6573ccbdd196185f07911e80e8eb34911a02",
+          "9c8b1b276526d2a8b11ecf644ea725c8ef9bb4fb287a8835c0db45c3f244be97",
+          "ad714be07e4e1b947d4444970ea723855c8745eb7d16176b0fc33f370cc6aa95",
+          "b027bada6baab1d14d634da35ab709ba362d651508a1595a6d853158cb5d7394",
+          "b3b8a1206ecf2b85a72169138c4a0809dacef5f45c35262fc9f09c5053c4d5bb",
+          "b86f1aec51b74b7af298901ddafb78f63776d5351cc3cec1a5fcd63951f1aee8",
+          "ca1c13ff80eeb04e151b4ca159ed39f16d3109884827feccbdf85ef232d68ccd",
+          "ed546c4e562d7a15815992ac9057f2326a1b90dea05a3dfbe05b2993b4da3ff1"
+        ],
+        "bindingHash": "dea611d8f7cfa08cd7e814b603c142b75da5e4bea83737533f80c2f974931bea"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0aa1",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0aa1",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0aa1",
+        "workspaceMode": "story-worktree",
+        "headHash": "bf0fde3a140d47455511f377c6e023e93919a1dc",
+        "materialHash": "a7933ba3b66954d21e52866cfb95d101cc03eba34587c69733210a8f8ef9ac4f",
+        "storyFilesHash": "74667f163c69172cf845df651c97481b2b28f438d5ab155cc089ca0c641fef76",
+        "bindingHash": "2f3cf56e75c6db83bd1f7949fdc53ce54cf034900894daae9dcb56f4cf401e47"
+      },
+      "_hash": "a953df3e16f2d50fc8963380d979cc559de369ac0206f33cce5b598d236ab5fb"
     }
   ]
 }
