@@ -5,6 +5,10 @@
     "changedFiles": [
       ".lattice/story/actives/B-ef65/checklist.json",
       ".lattice/story/actives/B-ef65/decision.json",
+      ".lattice/story/actives/B-ef65/delivery-check.json",
+      ".lattice/story/actives/B-ef65/done-required-evidence.json",
+      ".lattice/story/actives/B-ef65/evidence/delivery-context-pack.json",
+      ".lattice/story/actives/B-ef65/evidence/live-smoke-transcript.json",
       ".lattice/story/actives/B-ef65/findings.json",
       ".lattice/story/actives/B-ef65/index.json",
       ".lattice/story/actives/B-ef65/plan.md",
@@ -23,7 +27,7 @@
       "packages/main/src/handlers/verifier.ts",
       "packages/main/src/tasks/validate-execution-lock-smoke.ts"
     ],
-    "summary": " .lattice/story/actives/B-ef65/checklist.json       | 278 +++++++++-\n .lattice/story/actives/B-ef65/decision.json        |  74 +++\n .lattice/story/actives/B-ef65/findings.json        |  27 +\n .lattice/story/actives/B-ef65/index.json           |  59 +-\n .lattice/story/actives/B-ef65/plan.md              |  40 ++\n .lattice/story/actives/B-ef65/process-events.jsonl |  16 +\n .lattice/story/actives/B-ef65/process-metrics.json | 360 +++++++++++++\n .lattice/story/actives/B-ef65/review-passes.json   |  49 ++\n .lattice/story/actives/B-ef65/review-runs.json     | 367 +++++++++++++\n .lattice/story/actives/B-ef65/review.json          | 274 ++++++++++\n .lattice/story/actives/B-ef65/scope-check.json     |  93 ++++\n .lattice/story/actives/B-ef65/scope-contract.json  |  20 +\n .lattice/story/actives/B-ef65/summary.json         |  48 ++\n .lattice/story/actives/B-ef65/test-evidence.json   | 200 +++++++\n .lattice/story/actives/B-ef65/understanding.json   |  26 +\n .../main/src/core/validation-execution-lock.ts     | 138 +++++\n .../main/src/handlers/done-required-validation.ts  |  10 +-\n packages/main/src/handlers/verifier.ts             | 304 ++++++-----\n .../src/tasks/validate-execution-lock-smoke.ts     | 591 +++++++++++++++++++++\n 19 files changed, 2839 insertions(+), 135 deletions(-)"
+    "summary": " .lattice/story/actives/B-ef65/checklist.json       | 278 +++++++++-\n .lattice/story/actives/B-ef65/decision.json        |  74 +++\n .lattice/story/actives/B-ef65/delivery-check.json  |  54 ++\n .../actives/B-ef65/done-required-evidence.json     |  56 ++\n .../B-ef65/evidence/delivery-context-pack.json     |  76 +++\n .../B-ef65/evidence/live-smoke-transcript.json     |  20 +\n .lattice/story/actives/B-ef65/findings.json        |  27 +\n .lattice/story/actives/B-ef65/index.json           |  86 ++-\n .lattice/story/actives/B-ef65/plan.md              |  40 ++\n .lattice/story/actives/B-ef65/process-events.jsonl |  19 +\n .lattice/story/actives/B-ef65/process-metrics.json | 360 +++++++++++++\n .lattice/story/actives/B-ef65/review-passes.json   |  58 ++\n .lattice/story/actives/B-ef65/review-runs.json     | 413 ++++++++++++++\n .lattice/story/actives/B-ef65/review.json          | 274 ++++++++++\n .lattice/story/actives/B-ef65/scope-check.json     |  93 ++++\n .lattice/story/actives/B-ef65/scope-contract.json  |  44 ++\n .lattice/story/actives/B-ef65/summary.json         |  48 ++\n .lattice/story/actives/B-ef65/test-evidence.json   | 200 +++++++\n .lattice/story/actives/B-ef65/understanding.json   |  26 +\n .../main/src/core/validation-execution-lock.ts     | 138 +++++\n .../main/src/handlers/done-required-validation.ts  |  10 +-\n packages/main/src/handlers/verifier.ts             | 304 ++++++-----\n .../src/tasks/validate-execution-lock-smoke.ts     | 591 +++++++++++++++++++++\n 23 files changed, 3154 insertions(+), 135 deletions(-)"
   },
   "docsPromises": [
     {
@@ -54,15 +58,22 @@
   "validation": {
     "source": "test-evidence.json",
     "result": "PASS",
-    "timestamp": "2026-06-24T01:36:36.737Z",
-    "headHash": "86e23936a7a20825dfde43f7bdd2cc3dba631fcc",
-    "materialHash": "1b2a9f2c3066b58911422a17526836c9c37018de4dbbcdda8bc510bb4270a30c",
+    "timestamp": "2026-06-24T01:48:27.998Z",
+    "headHash": "90e12eee9b5c3bbf031afcde6c8117004cb86e8f",
+    "materialHash": "3f8297ef2c1455363ee6e07c00f63e97a1a3bf45bb2f3b4a4f539776bae8bd67",
     "storyFilesHash": "f1c44983bdb8b2c522889bd6d8922014b05ef37adc11c1a7c8fc1b18736d677c"
   },
-  "reviewRound": "2026-06-24T01:28:32.015Z",
+  "reviewRound": "2026-06-24T01:42:49.321Z",
   "deliveryCheck": {
-    "status": "missing",
-    "ref": null
+    "status": "stale",
+    "ref": {
+      "source": "delivery-check.json",
+      "checkedAt": "2026-06-24T01:41:13.688Z",
+      "headHash": "86e23936a7a20825dfde43f7bdd2cc3dba631fcc",
+      "materialHash": "1b2a9f2c3066b58911422a17526836c9c37018de4dbbcdda8bc510bb4270a30c",
+      "reviewRound": "2026-06-24T01:28:32.015Z",
+      "hash": "17b58548d45aaaaa1d1771139232d9ad2fe00970b8d699817e3fc97dcbbff715"
+    }
   },
   "waiver": {
     "status": "none"
