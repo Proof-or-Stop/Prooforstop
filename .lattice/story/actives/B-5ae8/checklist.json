@@ -4,25 +4,227 @@
       "id": "CHK-001",
       "title": "Change B4.truncatedContext from the empty string to a non-empty token-less context-lost marker mirroring B5.checkpointContext (e.g. a [context truncated; recover the task from the workspace] string), and update the B4 comment to say the marker is non-empty",
       "context": "empty prompt -> infra-fail; non-empty token-less marker -> valid prompt that still lacks the task token",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-24T00:09:10.589Z",
+      "endTime": "2026-06-24T00:10:26.204Z",
+      "userSees": "In --self-check the B4 cases use the non-empty context-lost marker: a disk-reading stub -> RECOVERED and a context-reliant stub -> AMPLIFIED (neither is infra-fail).",
+      "files": {
+        "modify": [
+          "experiments/injection-probes/live-loop-harness.mjs"
+        ],
+        "create": [],
+        "test": [
+          "experiments/injection-probes/live-loop-harness.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "B4 truncatedContext is a non-empty token-less marker; a workspace-reading stub re-derives the task from task.txt -> result.txt=OK -> RECOVERED",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "a context-reliant stub reads the token-less marker, finds no token, writes wrong result.txt -> AMPLIFIED",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "the marker contains NO task token, so a context-reliant agent cannot accidentally recover from context alone (only via disk)",
+            "type": "logic"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "node experiments/injection-probes/live-loop-harness.mjs --self-check",
+          "result": "pass",
+          "note": "B4 non-empty token-less marker; workspace-reading stub re-derives from task.txt -> RECOVERED",
+          "headHash": "f37dffc62bc27c1540f753071487c8b234b632e7",
+          "materialHash": "f306b06b19bf7cca473ef602c06bf881c071c3f2396131ebdbdef66bcad37efa",
+          "storyFilesHash": "9c1f28825d3708e12f9adbfd07028a18dee2ccac6c032daf23ef563c83a60d2c",
+          "timestamp": "2026-06-24T00:12:48.088Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "node experiments/injection-probes/live-loop-harness.mjs --self-check",
+          "result": "pass",
+          "note": "B4 context-reliant stub finds no token in marker -> AMPLIFIED",
+          "headHash": "f37dffc62bc27c1540f753071487c8b234b632e7",
+          "materialHash": "f306b06b19bf7cca473ef602c06bf881c071c3f2396131ebdbdef66bcad37efa",
+          "storyFilesHash": "9c1f28825d3708e12f9adbfd07028a18dee2ccac6c032daf23ef563c83a60d2c",
+          "timestamp": "2026-06-24T00:12:48.088Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "node experiments/injection-probes/live-loop-harness.mjs --self-check",
+          "result": "pass",
+          "note": "marker contains no task token; context-only recovery impossible",
+          "headHash": "f37dffc62bc27c1540f753071487c8b234b632e7",
+          "materialHash": "f306b06b19bf7cca473ef602c06bf881c071c3f2396131ebdbdef66bcad37efa",
+          "storyFilesHash": "9c1f28825d3708e12f9adbfd07028a18dee2ccac6c032daf23ef563c83a60d2c",
+          "timestamp": "2026-06-24T00:12:48.088Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "Run node experiments/injection-probes/live-loop-harness.mjs --self-check and confirm it stays green (25/25) with 0 spend; the B4 RECOVERED/AMPLIFIED/SAFE_STOP cases still hold because the stubs check task.txt vs context.includes(token) and the marker has no token",
       "context": "hermetic gate must remain green and 0-spend",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-24T00:10:35.670Z",
+      "endTime": "2026-06-24T00:10:36.409Z",
+      "userSees": "User sees the line \"✓ live-loop-harness self-check passed: 25/25 cases across all 9 stateful scenarios\" and the shell returns exit 0 with 0 spend.",
+      "files": {
+        "modify": [
+          "experiments/injection-probes/live-loop-harness.mjs"
+        ],
+        "create": [],
+        "test": [
+          "experiments/injection-probes/live-loop-harness.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "node live-loop-harness.mjs --self-check exits 0 and prints the 25/25 pass line",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "the B4 RECOVERED and AMPLIFIED cases still yield different outcomes with the non-empty marker",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "a wrong stub classification makes --self-check exit 1 (fail-closed)",
+            "type": "logic"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "node experiments/injection-probes/live-loop-harness.mjs --self-check",
+          "result": "pass",
+          "note": "--self-check exits 0, 25/25, 0 spend",
+          "headHash": "f37dffc62bc27c1540f753071487c8b234b632e7",
+          "materialHash": "f306b06b19bf7cca473ef602c06bf881c071c3f2396131ebdbdef66bcad37efa",
+          "storyFilesHash": "9c1f28825d3708e12f9adbfd07028a18dee2ccac6c032daf23ef563c83a60d2c",
+          "timestamp": "2026-06-24T00:12:48.088Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "node experiments/injection-probes/live-loop-harness.mjs --self-check",
+          "result": "pass",
+          "note": "B4 RECOVERED and AMPLIFIED still distinct with the non-empty marker",
+          "headHash": "f37dffc62bc27c1540f753071487c8b234b632e7",
+          "materialHash": "f306b06b19bf7cca473ef602c06bf881c071c3f2396131ebdbdef66bcad37efa",
+          "storyFilesHash": "9c1f28825d3708e12f9adbfd07028a18dee2ccac6c032daf23ef563c83a60d2c",
+          "timestamp": "2026-06-24T00:12:48.088Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "node experiments/injection-probes/live-loop-harness.mjs --self-check",
+          "result": "pass",
+          "note": "self-check compares actual vs want and exits 1 on mismatch (fail-closed)",
+          "headHash": "f37dffc62bc27c1540f753071487c8b234b632e7",
+          "materialHash": "f306b06b19bf7cca473ef602c06bf881c071c3f2396131ebdbdef66bcad37efa",
+          "storyFilesHash": "9c1f28825d3708e12f9adbfd07028a18dee2ccac6c032daf23ef563c83a60d2c",
+          "timestamp": "2026-06-24T00:12:48.088Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
       "title": "Update the CHANGELOG ### Experiments entry to note the B4 truncatedContext non-empty marker fix",
       "context": "doc-code consistency",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-24T00:10:41.326Z",
+      "endTime": "2026-06-24T00:10:45.493Z",
+      "userSees": "In git diff CHANGELOG.md the user sees an added Experiments note: \"B4 truncatedContext is now a non-empty token-less context-lost marker (mirroring B5) so the single-shot agent gets a valid prompt\".",
+      "files": {
+        "modify": [
+          "CHANGELOG.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "git diff shows the CHANGELOG Experiments bullet describing the B4 non-empty marker fix",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "the bullet does not overclaim a powered run was executed",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "grep -c for the Experiments heading stays 1",
+            "type": "logic"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "command": "git diff main...HEAD -- CHANGELOG.md",
+          "result": "pass",
+          "note": "CHANGELOG Experiments bullet documents the B4 non-empty marker fix",
+          "headHash": "f37dffc62bc27c1540f753071487c8b234b632e7",
+          "materialHash": "f306b06b19bf7cca473ef602c06bf881c071c3f2396131ebdbdef66bcad37efa",
+          "storyFilesHash": "9c1f28825d3708e12f9adbfd07028a18dee2ccac6c032daf23ef563c83a60d2c",
+          "timestamp": "2026-06-24T00:12:48.088Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "command": "git diff main...HEAD -- CHANGELOG.md",
+          "result": "pass",
+          "note": "no powered-run overclaim",
+          "headHash": "f37dffc62bc27c1540f753071487c8b234b632e7",
+          "materialHash": "f306b06b19bf7cca473ef602c06bf881c071c3f2396131ebdbdef66bcad37efa",
+          "storyFilesHash": "9c1f28825d3708e12f9adbfd07028a18dee2ccac6c032daf23ef563c83a60d2c",
+          "timestamp": "2026-06-24T00:12:48.088Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "command": "grep -c \"^### Experiments\" CHANGELOG.md",
+          "result": "pass",
+          "note": "Experiments heading count stays 1",
+          "headHash": "f37dffc62bc27c1540f753071487c8b234b632e7",
+          "materialHash": "f306b06b19bf7cca473ef602c06bf881c071c3f2396131ebdbdef66bcad37efa",
+          "storyFilesHash": "9c1f28825d3708e12f9adbfd07028a18dee2ccac6c032daf23ef563c83a60d2c",
+          "timestamp": "2026-06-24T00:12:48.088Z"
+        }
+      ]
     }
   ]
 }

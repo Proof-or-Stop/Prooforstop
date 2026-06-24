@@ -1,0 +1,57 @@
+{
+  "principles": [
+    "Give the agent under test a valid, non-empty prompt so the scenario measures recovery, not an empty-input error",
+    "Keep the injected fault token-less so recovery must come from disk",
+    "Make the minimal one-line change within the declared scope"
+  ],
+  "drivers": [
+    "B4 truncatedContext is empty, so turn-1 truncation produces an empty claude -p prompt -> infra-fail",
+    "B5 already mirrors the correct non-empty token-less marker pattern and yields a clean result"
+  ],
+  "options": [
+    {
+      "name": "Non-empty token-less context-lost marker for B4 (mirror B5)",
+      "pros": [
+        "one-line change",
+        "valid prompt",
+        "preserves disk-grounded classify and stubs"
+      ],
+      "cons": [
+        "changes the literal injected text"
+      ]
+    },
+    {
+      "name": "Leave B4 empty and accept infra-fail",
+      "pros": [
+        "no change"
+      ],
+      "cons": [
+        "B4 never yields a real outcome",
+        "rejected by the operator"
+      ]
+    }
+  ],
+  "chosen": "Non-empty token-less context-lost marker for B4 (mirror B5)",
+  "rationale": "Mirrors the working B5 pattern, gives the single-shot agent a valid token-less prompt that forces recovery from disk, and keeps the disk-grounded classify + self-check stubs unchanged. Minimal and within scope.",
+  "preMortem": [
+    {
+      "scenario": "new marker accidentally contains the task token",
+      "trigger": "copy-pasting B5 text or task wording into the marker",
+      "consequence": "a context-reliant agent would find the token and the AMPLIFIED case would break",
+      "mitigation": "use a generic token-less [context truncated; recover from the workspace] string with no task token and re-run --self-check"
+    },
+    {
+      "scenario": "self-check B4 cases regress",
+      "trigger": "the stubs read context differently than expected",
+      "consequence": "--self-check fails",
+      "mitigation": "the stubs check task.txt vs context.includes(token); a token-less non-empty marker keeps both paths, verified by re-running --self-check"
+    },
+    {
+      "scenario": "scope creep",
+      "trigger": "touching B5 or other scenarios while editing B4",
+      "consequence": "out-of-scope change flagged in REVIEW",
+      "mitigation": "edit only the B4.truncatedContext value + its comment + CHANGELOG"
+    }
+  ],
+  "timestamp": "2026-06-24T00:04:52.910Z"
+}
