@@ -8,9 +8,9 @@
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
         "docs/evidence/evidence-platform-architecture.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-24T10:08:38.212Z",
-      "endTime": null,
+      "endTime": "2026-06-24T10:08:47.432Z",
       "userSees": "User sees docs/evidence/proof-surface-inventory.md and .json listing each proof-looking surface with scope, producer boundary, consumers, and whether productionDone is allowed.",
       "files": {
         "modify": [
@@ -45,7 +45,45 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "docs/evidence/proof-surface-inventory.md",
+          "command": "node -e \"const fs=require(\\\"fs\\\"); JSON.parse(fs.readFileSync(\\\"docs/evidence/proof-surface-inventory.json\\\",\\\"utf8\\\")); console.log(\\\"proof-surface-inventory json ok\\\")\"",
+          "result": "pass",
+          "note": "Inventory docs and JSON include M0 surfaces, B-0aa1 candidate artifacts, scopes, producer boundaries, consumers, and productionDone eligibility.",
+          "headHash": "5ee9243121f5f47510152cb9e5fa339a9b30c910",
+          "materialHash": "b2d2745fdd0678e902f7917e3e4200fe071ec3c373c70df8e50224e67f42e411",
+          "storyFilesHash": "1182244e6833c24e24ecba68362c64b7d67b270c8e42ec7310e0221d464a874d",
+          "timestamp": "2026-06-24T10:08:47.650Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "docs/evidence/proof-surface-inventory.md",
+          "command": "npm --prefix packages/main run test:proof-admissibility",
+          "result": "pass",
+          "note": "Negative controls deny production claims for evidence-candidate, local-diagnostic, local-key-single-host, local-review-quorum, authority-receipt-only, and legacy surfaces.",
+          "headHash": "5ee9243121f5f47510152cb9e5fa339a9b30c910",
+          "materialHash": "b2d2745fdd0678e902f7917e3e4200fe071ec3c373c70df8e50224e67f42e411",
+          "storyFilesHash": "1182244e6833c24e24ecba68362c64b7d67b270c8e42ec7310e0221d464a874d",
+          "timestamp": "2026-06-24T10:08:47.824Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/evidence/proof-surface-inventory.md",
+          "command": "npm --prefix packages/main run test:proof-admissibility",
+          "result": "pass",
+          "note": "Docs and smoke distinguish raw authority-receipt from gate-consumed production-gate-decision.",
+          "headHash": "5ee9243121f5f47510152cb9e5fa339a9b30c910",
+          "materialHash": "b2d2745fdd0678e902f7917e3e4200fe071ec3c373c70df8e50224e67f42e411",
+          "storyFilesHash": "1182244e6833c24e24ecba68362c64b7d67b270c8e42ec7310e0221d464a874d",
+          "timestamp": "2026-06-24T10:08:47.994Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
