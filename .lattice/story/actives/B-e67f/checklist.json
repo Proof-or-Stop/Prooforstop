@@ -258,6 +258,42 @@
         "test": [
           "experiments/recovery-runner/corpus-selfcheck.mjs"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "node experiments/recovery-runner/corpus-selfcheck.mjs → stdout contains stratification OK: 8 categories with per-category counts summing to 24 + exit 0; WHY: confirms the pre-reg S2 spec (24 tasks / 8 categories) is satisfied",
+            "type": "cli"
+          },
+          {
+            "desc": "The stratification output shows all 8 expected category names (bug-fix, feature, refactor, test-repair, doc-update, dep-upgrade, contract-validation, CLI-feature) → each appears in the output; WHY: ensures no category is missing or misspelled",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Remove one task dir (e.g. rm -rf tasks/bf-datediff) so total drops to 23, run corpus-selfcheck.mjs → exits non-zero and stratification assertion FAILS (total != 24); WHY: catches silent corpus shrinkage",
+            "type": "cli"
+          },
+          {
+            "desc": "Change a task.json type from bug-fix to a 9th unknown category (e.g. security-audit), run corpus-selfcheck.mjs → exits non-zero because there are now only 1 bug-fix task (< 2 minimum) or an unexpected category appears; WHY: catches category drift from the pre-reg",
+            "type": "cli"
+          },
+          {
+            "desc": "Each of the 8 categories has >= 2 tasks → parse the stratification output and verify the minimum count per category is 2; WHY: the pre-reg says ~3 each with >= 2 minimum",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Add a 25th task dir with a valid 7-file contract but category bug-fix, run corpus-selfcheck.mjs → exits non-zero because total is now 25 (not 24); WHY: prevents silent corpus growth that would invalidate the pre-registration N_tasks=24 parameter",
+            "type": "cli"
+          },
+          {
+            "desc": "Rename all 3 bug-fix task dirs type field to feature in their task.json (so feature has 7, bug-fix has 0), run corpus-selfcheck.mjs → exits non-zero because bug-fix category is missing (< 2) and only 7 distinct categories remain; WHY: adversarial category consolidation attack that would bias the ablation toward one category",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
