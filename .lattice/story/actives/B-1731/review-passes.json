@@ -107,6 +107,15 @@
       "reviewRound": "2026-06-24T22:39:02.983Z",
       "reviewRunId": "B-1731:RR-024",
       "_hash": "09637292a45dc3474d6340d2bf658028df51438ea8799699ca60b4eb58e90096"
+    },
+    {
+      "id": "B-1731:RP-013",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage review passed on current HEAD c8e48acb0. Inspected checklist verification intents/evidence plus packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts, packages/main/src/tasks/repro-first-candidate-smoke.ts, scripts/verify-process-fact-contract.mjs, process-fact registry/levels. Ran npm --prefix packages/main run build; node packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js (31 checks: preflight classification, warn/off/enforce, bypass/fromDraft, malformed/stale bindings, direct-phase blocking, spike-review binding); node packages/main/dist/tasks/repro-first-candidate-smoke.js; node scripts/verify-process-fact-contract.mjs. No verified coverage blocker remains.",
+      "createdAt": "2026-06-24T22:53:43.406Z",
+      "reviewRound": "2026-06-24T22:49:32.346Z",
+      "reviewRunId": "B-1731:RR-026",
+      "_hash": "bf9766e4830fc41f46c0f0032930a8471310b47fe7b6b088911c6f4494c1eb3f"
     }
   ]
 }
