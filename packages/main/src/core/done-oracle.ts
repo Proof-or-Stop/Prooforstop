@@ -137,6 +137,17 @@ function gitRefContainsMain(gitCwd: string, ref: string): boolean {
 // metadataRoot (where a custom storyDir is declared), NOT the gitCwd. On a
 // wrapper-root layout with a non-default storyDir, loading config from gitCwd
 // would miss the custom storyDir and wrongly include those paths in the hash.
+//
+// B-d243 (DONE Sub-Gate amendment): storyFilesHash is intentionally NOT applied
+// here. This is a frozen-ref evidence-integrity check (it recomputes
+// materialHash AT the recorded evidence.headHash to verify the stored
+// (headHash, materialHash) pair is self-consistent / untampered), NOT a
+// HEAD-drift freshness check. storyFilesHash computed at the same frozen ref
+// yields no independent signal and an unrelated main merge does not change the
+// tree at the recorded head, so this gate cannot exhibit the whole-tree-drift
+// symptom the drift-advisory downgrade addresses. Wiring storyFilesHash in
+// would be meaningless here; the delivery-check gate is where the downgrade
+// lives.
 function checkCompletedEvidenceSnapshotFreshness(
   gitCwd: string,
   evidence: TestEvidenceData,

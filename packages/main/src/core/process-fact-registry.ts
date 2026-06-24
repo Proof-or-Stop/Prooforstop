@@ -783,7 +783,7 @@ export const PROCESS_FACT_ARTIFACTS = [
     producer: 'handlers/delivery-check',
     consumerGate: 'storyMachine.canFinish DONE gate',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.delivery_check_set,
-    rationale: 'Delivery-check signature is consumed by DONE.',
+    rationale: 'Delivery-check signature is consumed by DONE and folds in storyFilesHash: whole-tree materialHash drift with a matching signed storyFilesHash downgrades to a mandatory re-attestation advisory (delivery_check_drift_advisory), while a story-owned change or missing storyFilesHash stays strict stale.',
   },
   {
     name: 'artifact:review-runs.json',
