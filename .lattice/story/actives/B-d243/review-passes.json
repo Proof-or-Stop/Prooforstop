@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-24T11:25:45.889Z",
       "reviewRunId": "B-d243:RR-001",
       "_hash": "aea02094b984365e4d4a2c1ad2e2f24901c50968f42d7782d7ddcb2d95eefce3"
+    },
+    {
+      "id": "B-d243:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed 7 changed files in packages/main/src. No dead code, no type-as-any, no swallowed errors, no shell isolation violations. Append-only signature payload is correct (legacy records recompute byte-identically). Downgrade branch never rebinds stored hash (store is read-only in evaluateDeliveryCheckFreshness). Smoke test assertions are load-bearing (literal advisory text pinned, non-rebind asserted, guard-blocker pattern exclusion). TypeScript clean. One medium/edge finding filed: missing discriminated union type for advisory field (B-d243:F-001) — advisory is semantically required for delivery_check_drift_advisory code but typed optional, creating a silent-swallow risk on future code paths. Not a current correctness bug (the only code path sets it; test pins it). No blockers.",
+      "createdAt": "2026-06-24T11:30:56.658Z",
+      "reviewRound": "2026-06-24T11:25:45.889Z",
+      "reviewRunId": "B-d243:RR-002",
+      "_hash": "dca4ac9f1bf0892b31ce277523b07b5b4c50170f3ccb23b3f2fbef4031812423"
     }
   ]
 }
