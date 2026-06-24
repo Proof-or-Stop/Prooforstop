@@ -191,7 +191,41 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Handoff and host entry summaries separate context, evidenceCandidate, diagnosticReceipt, and admissibleProofRef while keeping productionDone false unless a matching gate consumes verified proof.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/lattice-handoff.ts",
+          "packages/main/src/handlers/lattice-handoff.ts",
+          "packages/main/src/core/process-fact-levels.ts"
+        ],
+        "create": [
+          "packages/main/src/core/proof-admissibility-handoff.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Handoff summary renders the four artifact classes with scope and remediation hints.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Local quorum host identity fields are present but remain local-review-quorum, not Authority completion.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Diagnostic handoff receipts and host-local outputs cannot set receiptVerified, authorityDone, fullAuthorityDone, or productionDone.",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-006",
