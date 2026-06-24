@@ -116,6 +116,15 @@
       "reviewRound": "2026-06-24T22:49:32.346Z",
       "reviewRunId": "B-1731:RR-026",
       "_hash": "bf9766e4830fc41f46c0f0032930a8471310b47fe7b6b088911c6f4494c1eb3f"
+    },
+    {
+      "id": "B-1731:RP-014",
+      "agent": "lattice-review-test-coverage",
+      "note": "No blocker: coverage is load-bearing after F-008. Inspected repro-evidence-binding gate, repro-intake binding creation, spike review payload fields, handler wiring, validation registration. Ran node packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js: 31/31 passed, including spike accepted/missing/rejected/mismatched cases and previous lifecycle/classifier checks. Ran node scripts/verify-process-fact-contract.mjs: passed with artifact:story-evidence-binding and runtime:repro_first_story_intake_preflight registered.",
+      "createdAt": "2026-06-24T22:54:26.644Z",
+      "reviewRound": "2026-06-24T22:49:32.346Z",
+      "reviewRunId": "B-1731:RR-028",
+      "_hash": "4fd3ec39abb2745998351f678189ef966e1aa981698fa1e531ee9838206c9f35"
     }
   ]
 }
