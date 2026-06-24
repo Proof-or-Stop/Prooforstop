@@ -40,7 +40,68 @@
           }
         ]
       },
-      "userSees": "Running `node packages/main/dist/tasks/review-escalation-smoke.js` still prints its existing pass line and `npm --prefix packages/main run build` succeeds with the new gitCwd? arg on EvaluateReviewEscalationArgs."
+      "userSees": "Running `node packages/main/dist/tasks/review-escalation-smoke.js` still prints its existing pass line and `npm --prefix packages/main run build` succeeds with the new gitCwd? arg on EvaluateReviewEscalationArgs.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/review-escalation-freshness-root-smoke.js",
+          "result": "pass",
+          "note": "WRAPPER case asserts floor.materialHash===escalation.materialHash and ===currentMaterialHash(repoDir,HEAD,metaRoot) with gitCwd=inner repo — proves the core fix aligns the freshness root.",
+          "headHash": "93362fc45a6c4e6fdfda0997d08af08005cb5037",
+          "materialHash": "9f8bfc8d84afc5c215e6ca45ddf422df44015b83c89d85885344c45e56293497",
+          "storyFilesHash": "7f1eb7636b397ca43b9c0623aabec52e49699cbaf1d8a7466a73edd7bf98c2a5",
+          "timestamp": "2026-06-24T01:50:38.270Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/review-escalation-freshness-root-smoke.js",
+          "result": "pass",
+          "note": "PLAIN no-change regression: escalation with gitCwd and without gitCwd yields identical materialHash/storyFilesHash (gitCwd defaults to projectRoot).",
+          "headHash": "93362fc45a6c4e6fdfda0997d08af08005cb5037",
+          "materialHash": "9f8bfc8d84afc5c215e6ca45ddf422df44015b83c89d85885344c45e56293497",
+          "storyFilesHash": "7f1eb7636b397ca43b9c0623aabec52e49699cbaf1d8a7466a73edd7bf98c2a5",
+          "timestamp": "2026-06-24T01:50:38.270Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/core/review-escalation.ts",
+          "note": "Lines 439-440 keep the `args.materialHash ?? ...` / `args.storyFilesHash ?? ...` short-circuit, so callers supplying explicit hashes (e.g. quorum-submit:329) never invoke currentMaterialHash/currentStoryFilesHash; the gitCwd plumbing cannot affect them.",
+          "headHash": "93362fc45a6c4e6fdfda0997d08af08005cb5037",
+          "materialHash": "9f8bfc8d84afc5c215e6ca45ddf422df44015b83c89d85885344c45e56293497",
+          "storyFilesHash": "7f1eb7636b397ca43b9c0623aabec52e49699cbaf1d8a7466a73edd7bf98c2a5",
+          "timestamp": "2026-06-24T01:50:38.270Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/review-escalation-freshness-root-smoke.js",
+          "result": "pass",
+          "note": "WRAPPER RED path runs the freshness probe from a non-git dir (gitCwd defaults to the non-git metaRoot): currentMaterialHash returns undefined and the evaluator yields null WITHOUT throwing — the same graceful git-failure fallback for any non-git gitCwd.",
+          "headHash": "93362fc45a6c4e6fdfda0997d08af08005cb5037",
+          "materialHash": "9f8bfc8d84afc5c215e6ca45ddf422df44015b83c89d85885344c45e56293497",
+          "storyFilesHash": "7f1eb7636b397ca43b9c0623aabec52e49699cbaf1d8a7466a73edd7bf98c2a5",
+          "timestamp": "2026-06-24T01:50:38.270Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/review-escalation-freshness-root-smoke.js",
+          "result": "pass",
+          "note": "WRAPPER RED assertion: escalation WITHOUT gitCwd (projectRoot=non-git metaRoot) -> materialHash null and !== floor.materialHash, red-documenting the pre-fix divergence.",
+          "headHash": "93362fc45a6c4e6fdfda0997d08af08005cb5037",
+          "materialHash": "9f8bfc8d84afc5c215e6ca45ddf422df44015b83c89d85885344c45e56293497",
+          "storyFilesHash": "7f1eb7636b397ca43b9c0623aabec52e49699cbaf1d8a7466a73edd7bf98c2a5",
+          "timestamp": "2026-06-24T01:50:38.270Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -82,7 +143,66 @@
           }
         ]
       },
-      "userSees": "Running `node packages/main/dist/tasks/done-oracle-wrapper-root-smoke.js` passes; in a wrapper-root project the DONE checklist Review-escalation row uses the same resolved gitCwd as the Review-assurance-floor row (no false stale)."
+      "userSees": "Running `node packages/main/dist/tasks/done-oracle-wrapper-root-smoke.js` passes; in a wrapper-root project the DONE checklist Review-escalation row uses the same resolved gitCwd as the Review-assurance-floor row (no false stale).",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/done-oracle-wrapper-root-smoke.js",
+          "result": "pass",
+          "note": "buildDoneChecklist passes under wrapper-root; done-oracle.ts:751 now threads the in-scope gitCwd already used by the adjacent floor row (:785-788). Evaluator-level floor==escalation equivalence proven by review-escalation-freshness-root-smoke.",
+          "headHash": "93362fc45a6c4e6fdfda0997d08af08005cb5037",
+          "materialHash": "9f8bfc8d84afc5c215e6ca45ddf422df44015b83c89d85885344c45e56293497",
+          "storyFilesHash": "7f1eb7636b397ca43b9c0623aabec52e49699cbaf1d8a7466a73edd7bf98c2a5",
+          "timestamp": "2026-06-24T01:50:38.270Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/core/machine.ts",
+          "note": "canFinishGuard escalation call (:639) now passes `context.gitCwd ?? resolveGitCwd({...})`, byte-identical to the adjacent floor call (:646-656). Shared-evaluator equivalence proven by review-escalation-freshness-root-smoke.",
+          "headHash": "93362fc45a6c4e6fdfda0997d08af08005cb5037",
+          "materialHash": "9f8bfc8d84afc5c215e6ca45ddf422df44015b83c89d85885344c45e56293497",
+          "storyFilesHash": "7f1eb7636b397ca43b9c0623aabec52e49699cbaf1d8a7466a73edd7bf98c2a5",
+          "timestamp": "2026-06-24T01:50:38.270Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/core/machine.ts",
+          "note": "getGuardFailureReason escalation call (:1145) now passes `gitCwd ?? resolveGitCwd({...})`, byte-identical to the adjacent floor call (:1151-1156); same evaluator equivalence smoke applies. Both machine.ts call sites fixed.",
+          "headHash": "93362fc45a6c4e6fdfda0997d08af08005cb5037",
+          "materialHash": "9f8bfc8d84afc5c215e6ca45ddf422df44015b83c89d85885344c45e56293497",
+          "storyFilesHash": "7f1eb7636b397ca43b9c0623aabec52e49699cbaf1d8a7466a73edd7bf98c2a5",
+          "timestamp": "2026-06-24T01:50:38.270Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/review-escalation-freshness-root-smoke.js",
+          "result": "pass",
+          "note": "PLAIN no-change regression proves the `gitCwd ?? projectRoot` fallback is byte-identical for plain repos; resolveGitCwd also returns projectRoot when unresolved.",
+          "headHash": "93362fc45a6c4e6fdfda0997d08af08005cb5037",
+          "materialHash": "9f8bfc8d84afc5c215e6ca45ddf422df44015b83c89d85885344c45e56293497",
+          "storyFilesHash": "7f1eb7636b397ca43b9c0623aabec52e49699cbaf1d8a7466a73edd7bf98c2a5",
+          "timestamp": "2026-06-24T01:50:38.270Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/core/machine.ts",
+          "note": "Red-documented by the new smoke WRAPPER RED (escalation without gitCwd -> null/diverges). Structurally, the floor at :646/:1149 passes gitCwd while pre-fix escalation did not, so the DONE gate would have compared divergent hashes.",
+          "headHash": "93362fc45a6c4e6fdfda0997d08af08005cb5037",
+          "materialHash": "9f8bfc8d84afc5c215e6ca45ddf422df44015b83c89d85885344c45e56293497",
+          "storyFilesHash": "7f1eb7636b397ca43b9c0623aabec52e49699cbaf1d8a7466a73edd7bf98c2a5",
+          "timestamp": "2026-06-24T01:50:38.270Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -129,7 +249,79 @@
           }
         ]
       },
-      "userSees": "Running `node packages/main/dist/tasks/review-escalation-smoke.js` passes; `lattice review_escalation_status` and policy/fallback_set compute freshness from the resolved gitCwd instead of the metadata root."
+      "userSees": "Running `node packages/main/dist/tasks/review-escalation-smoke.js` passes; `lattice review_escalation_status` and policy/fallback_set compute freshness from the resolved gitCwd instead of the metadata root.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/review-escalation-smoke.js",
+          "result": "pass",
+          "note": "review-escalation-smoke exercises createReviewEscalationHandlers (status) with no regression; review_escalation_status now computes gitCwd via resolveGitCwd({store,storyId,metadataRoot:ctx.root,projectRoot:ctx.root}) and threads it. Evaluator equivalence proven by the freshness-root smoke.",
+          "headHash": "93362fc45a6c4e6fdfda0997d08af08005cb5037",
+          "materialHash": "9f8bfc8d84afc5c215e6ca45ddf422df44015b83c89d85885344c45e56293497",
+          "storyFilesHash": "7f1eb7636b397ca43b9c0623aabec52e49699cbaf1d8a7466a73edd7bf98c2a5",
+          "timestamp": "2026-06-24T01:50:38.270Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/review-escalation-smoke.js",
+          "result": "pass",
+          "note": "policy_set re-evaluates escalation with the resolved gitCwd; smoke exercises the handler path with no regression.",
+          "headHash": "93362fc45a6c4e6fdfda0997d08af08005cb5037",
+          "materialHash": "9f8bfc8d84afc5c215e6ca45ddf422df44015b83c89d85885344c45e56293497",
+          "storyFilesHash": "7f1eb7636b397ca43b9c0623aabec52e49699cbaf1d8a7466a73edd7bf98c2a5",
+          "timestamp": "2026-06-24T01:50:38.270Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/review-escalation-smoke.js",
+          "result": "pass",
+          "note": "fallback_set re-evaluates escalation with the resolved gitCwd; smoke exercises the handler path with no regression.",
+          "headHash": "93362fc45a6c4e6fdfda0997d08af08005cb5037",
+          "materialHash": "9f8bfc8d84afc5c215e6ca45ddf422df44015b83c89d85885344c45e56293497",
+          "storyFilesHash": "7f1eb7636b397ca43b9c0623aabec52e49699cbaf1d8a7466a73edd7bf98c2a5",
+          "timestamp": "2026-06-24T01:50:38.270Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:3",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/handlers/quorum-submit.ts",
+          "note": "quorum-submit.ts:329-335 passes explicit materialHash+storyFilesHash to evaluateReviewEscalation, bypassing the internal recompute; left unchanged (the commit diff shows no quorum-submit edit).",
+          "headHash": "93362fc45a6c4e6fdfda0997d08af08005cb5037",
+          "materialHash": "9f8bfc8d84afc5c215e6ca45ddf422df44015b83c89d85885344c45e56293497",
+          "storyFilesHash": "7f1eb7636b397ca43b9c0623aabec52e49699cbaf1d8a7466a73edd7bf98c2a5",
+          "timestamp": "2026-06-24T01:50:38.270Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/handlers/review-escalation.ts",
+          "note": "Secondary same-class bug confirmed and FIXED: fallback_set freshness probes (:184 currentMaterialHash, :195 currentStoryFilesHash) and policy_set (:88/:90 currentMaterialHash/currentGitHead) now use the resolved gitCwd instead of ctx.root; byte-identical in plain repos.",
+          "headHash": "93362fc45a6c4e6fdfda0997d08af08005cb5037",
+          "materialHash": "9f8bfc8d84afc5c215e6ca45ddf422df44015b83c89d85885344c45e56293497",
+          "storyFilesHash": "7f1eb7636b397ca43b9c0623aabec52e49699cbaf1d8a7466a73edd7bf98c2a5",
+          "timestamp": "2026-06-24T01:50:38.270Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/review-escalation-freshness-root-smoke.js",
+          "result": "pass",
+          "note": "Red-documented by the new smoke WRAPPER RED (evaluator without gitCwd -> null/diverges); the handlers previously called the evaluator with projectRoot only, so the diagnostic was affected identically.",
+          "headHash": "93362fc45a6c4e6fdfda0997d08af08005cb5037",
+          "materialHash": "9f8bfc8d84afc5c215e6ca45ddf422df44015b83c89d85885344c45e56293497",
+          "storyFilesHash": "7f1eb7636b397ca43b9c0623aabec52e49699cbaf1d8a7466a73edd7bf98c2a5",
+          "timestamp": "2026-06-24T01:50:38.270Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -181,7 +373,95 @@
           }
         ]
       },
-      "userSees": "Running `node packages/main/dist/tasks/review-escalation-freshness-root-smoke.js` prints `review-escalation freshness-root smoke passed`, and `npm test` runs test:review-escalation-freshness-root green."
+      "userSees": "Running `node packages/main/dist/tasks/review-escalation-freshness-root-smoke.js` prints `review-escalation freshness-root smoke passed`, and `npm test` runs test:review-escalation-freshness-root green.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/review-escalation-freshness-root-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-escalation-freshness-root-smoke.js",
+          "result": "pass",
+          "note": "PLAIN case asserts floor.materialHash===escalation.materialHash===currentMaterialHash(root,HEAD,root).",
+          "headHash": "93362fc45a6c4e6fdfda0997d08af08005cb5037",
+          "materialHash": "9f8bfc8d84afc5c215e6ca45ddf422df44015b83c89d85885344c45e56293497",
+          "storyFilesHash": "7f1eb7636b397ca43b9c0623aabec52e49699cbaf1d8a7466a73edd7bf98c2a5",
+          "timestamp": "2026-06-24T01:50:38.270Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/review-escalation-freshness-root-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-escalation-freshness-root-smoke.js",
+          "result": "pass",
+          "note": "WRAPPER case (non-git metaRoot + inner gitRoot) asserts floor==escalation==currentMaterialHash(repoDir,HEAD,metaRoot) end-to-end.",
+          "headHash": "93362fc45a6c4e6fdfda0997d08af08005cb5037",
+          "materialHash": "9f8bfc8d84afc5c215e6ca45ddf422df44015b83c89d85885344c45e56293497",
+          "storyFilesHash": "7f1eb7636b397ca43b9c0623aabec52e49699cbaf1d8a7466a73edd7bf98c2a5",
+          "timestamp": "2026-06-24T01:50:38.270Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "npm test",
+          "result": "pass",
+          "note": "New smoke wired into the root test chain (test:review-escalation-freshness-root inserted after test:done-escalation-drift-advisory); `npm test` exited 0 with the new script executed.",
+          "headHash": "93362fc45a6c4e6fdfda0997d08af08005cb5037",
+          "materialHash": "9f8bfc8d84afc5c215e6ca45ddf422df44015b83c89d85885344c45e56293497",
+          "storyFilesHash": "7f1eb7636b397ca43b9c0623aabec52e49699cbaf1d8a7466a73edd7bf98c2a5",
+          "timestamp": "2026-06-24T01:50:38.270Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/review-escalation-freshness-root-smoke.js",
+          "result": "pass",
+          "note": "Both PLAIN and WRAPPER cases assert escalation.storyFilesHash===currentStoryFilesHash(gitCwd,HEAD,projectRoot) (line 440 of the fix), covering the storyFilesHash hash in addition to materialHash.",
+          "headHash": "93362fc45a6c4e6fdfda0997d08af08005cb5037",
+          "materialHash": "9f8bfc8d84afc5c215e6ca45ddf422df44015b83c89d85885344c45e56293497",
+          "storyFilesHash": "7f1eb7636b397ca43b9c0623aabec52e49699cbaf1d8a7466a73edd7bf98c2a5",
+          "timestamp": "2026-06-24T01:50:38.270Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/review-escalation-freshness-root-smoke.js",
+          "result": "pass",
+          "note": "Story uses findings:[] so escalation.required=false/ok=true, yet materialHash/storyFilesHash are still computed and asserted (the evaluator computes both before the required branch).",
+          "headHash": "93362fc45a6c4e6fdfda0997d08af08005cb5037",
+          "materialHash": "9f8bfc8d84afc5c215e6ca45ddf422df44015b83c89d85885344c45e56293497",
+          "storyFilesHash": "7f1eb7636b397ca43b9c0623aabec52e49699cbaf1d8a7466a73edd7bf98c2a5",
+          "timestamp": "2026-06-24T01:50:38.270Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/review-escalation-freshness-root-smoke.js",
+          "result": "pass",
+          "note": "WRAPPER RED assertion: without gitCwd, materialHash is null and !== floor.materialHash — would catch a revert of the core fix.",
+          "headHash": "93362fc45a6c4e6fdfda0997d08af08005cb5037",
+          "materialHash": "9f8bfc8d84afc5c215e6ca45ddf422df44015b83c89d85885344c45e56293497",
+          "storyFilesHash": "7f1eb7636b397ca43b9c0623aabec52e49699cbaf1d8a7466a73edd7bf98c2a5",
+          "timestamp": "2026-06-24T01:50:38.270Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/review-escalation-freshness-root-smoke.js",
+          "result": "pass",
+          "note": "PLAIN regression: escalation with gitCwd=projectRoot vs without the gitCwd field -> byte-identical materialHash/storyFilesHash, guarding against accidental plain-repo behavior change.",
+          "headHash": "93362fc45a6c4e6fdfda0997d08af08005cb5037",
+          "materialHash": "9f8bfc8d84afc5c215e6ca45ddf422df44015b83c89d85885344c45e56293497",
+          "storyFilesHash": "7f1eb7636b397ca43b9c0623aabec52e49699cbaf1d8a7466a73edd7bf98c2a5",
+          "timestamp": "2026-06-24T01:50:38.270Z"
+        }
+      ]
     }
   ]
 }
