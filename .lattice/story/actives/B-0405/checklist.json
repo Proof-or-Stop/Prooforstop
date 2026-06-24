@@ -52,10 +52,10 @@
           "command": "npm --prefix packages/main run test:proof-admissibility-hardening",
           "result": "pass",
           "note": "Hardening smoke covers reserved proof-key stripping/rejection, nested linked spoof keys, delegated metadata spoofing, and ordinary metadata preservation.",
-          "headHash": "0738519cb6644d5aecfa26f221dc334d06fd5ca7",
-          "materialHash": "a2dfb8c6a958296b980bae7fb7046305e4b1ccaec6819ddd4e107e22df2dfe95",
-          "storyFilesHash": "4b1a812749cdde4b9b3a991a3726eea23a668aefe4fb71c83666658038cd3299",
-          "timestamp": "2026-06-24T11:17:23.100Z"
+          "headHash": "e9befc2c97cce85ee539ad133e17545f685fb216",
+          "materialHash": "c074e77cf9d0d9198cf347d2b26f05ffbb179573e69e3b7bf20317aa976004dc",
+          "storyFilesHash": "9d29f3d2ab521e4ae453f46749610a9c2c1122d5ee44bc31180c2367e885ebf4",
+          "timestamp": "2026-06-24T11:38:39.985Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -63,10 +63,10 @@
           "command": "npm --prefix packages/main run build",
           "result": "pass",
           "note": "TypeScript build passes with metadata sanitizers wired into runner registration, job spec, and provider event parsing.",
-          "headHash": "0738519cb6644d5aecfa26f221dc334d06fd5ca7",
-          "materialHash": "a2dfb8c6a958296b980bae7fb7046305e4b1ccaec6819ddd4e107e22df2dfe95",
-          "storyFilesHash": "4b1a812749cdde4b9b3a991a3726eea23a668aefe4fb71c83666658038cd3299",
-          "timestamp": "2026-06-24T11:17:23.394Z"
+          "headHash": "e9befc2c97cce85ee539ad133e17545f685fb216",
+          "materialHash": "c074e77cf9d0d9198cf347d2b26f05ffbb179573e69e3b7bf20317aa976004dc",
+          "storyFilesHash": "9d29f3d2ab521e4ae453f46749610a9c2c1122d5ee44bc31180c2367e885ebf4",
+          "timestamp": "2026-06-24T11:38:39.985Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -75,10 +75,10 @@
           "command": "npm --prefix packages/main run test:proof-admissibility-hardening",
           "result": "pass",
           "note": "Hardening smoke covers nested/linked metadata reserved-key injection and verifies hostDeclarationDigest/providerAuthorization/receiptVerified/productionDone-style proof keys are not accepted as proof.",
-          "headHash": "2a8e6d1f7f8959bb6ea75efdcb5876021a3db67b",
-          "materialHash": "a2dfb8c6a958296b980bae7fb7046305e4b1ccaec6819ddd4e107e22df2dfe95",
-          "storyFilesHash": "4b1a812749cdde4b9b3a991a3726eea23a668aefe4fb71c83666658038cd3299",
-          "timestamp": "2026-06-24T11:20:47.610Z"
+          "headHash": "e9befc2c97cce85ee539ad133e17545f685fb216",
+          "materialHash": "c074e77cf9d0d9198cf347d2b26f05ffbb179573e69e3b7bf20317aa976004dc",
+          "storyFilesHash": "9d29f3d2ab521e4ae453f46749610a9c2c1122d5ee44bc31180c2367e885ebf4",
+          "timestamp": "2026-06-24T11:38:39.985Z"
         }
       ]
     },
@@ -133,10 +133,10 @@
           "command": "npm --prefix packages/main run test:proof-admissibility-hardening",
           "result": "pass",
           "note": "Hardening smoke covers versioned canonical binding plus reason/verdict/story/head/material/signature-like tamper and null/extra/missing field rejection.",
-          "headHash": "08248526394db3db904a7199f7674bfaff951316",
-          "materialHash": "a2dfb8c6a958296b980bae7fb7046305e4b1ccaec6819ddd4e107e22df2dfe95",
-          "storyFilesHash": "4b1a812749cdde4b9b3a991a3726eea23a668aefe4fb71c83666658038cd3299",
-          "timestamp": "2026-06-24T11:17:37.152Z"
+          "headHash": "e9befc2c97cce85ee539ad133e17545f685fb216",
+          "materialHash": "c074e77cf9d0d9198cf347d2b26f05ffbb179573e69e3b7bf20317aa976004dc",
+          "storyFilesHash": "9d29f3d2ab521e4ae453f46749610a9c2c1122d5ee44bc31180c2367e885ebf4",
+          "timestamp": "2026-06-24T11:38:39.985Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -144,10 +144,10 @@
           "command": "npm --prefix packages/main run test:proof-admissibility",
           "result": "pass",
           "note": "Existing proof admissibility smoke still passes after strict Authority proof schema and binding helper additions.",
-          "headHash": "08248526394db3db904a7199f7674bfaff951316",
-          "materialHash": "a2dfb8c6a958296b980bae7fb7046305e4b1ccaec6819ddd4e107e22df2dfe95",
-          "storyFilesHash": "4b1a812749cdde4b9b3a991a3726eea23a668aefe4fb71c83666658038cd3299",
-          "timestamp": "2026-06-24T11:17:37.484Z"
+          "headHash": "e9befc2c97cce85ee539ad133e17545f685fb216",
+          "materialHash": "c074e77cf9d0d9198cf347d2b26f05ffbb179573e69e3b7bf20317aa976004dc",
+          "storyFilesHash": "9d29f3d2ab521e4ae453f46749610a9c2c1122d5ee44bc31180c2367e885ebf4",
+          "timestamp": "2026-06-24T11:38:39.985Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -156,10 +156,10 @@
           "command": "npm --prefix packages/main run test:proof-admissibility-hardening",
           "result": "pass",
           "note": "Hardening smoke mutates semantic payload fields including reason/verdict/story/head/material-like bindings and verifies digest/strict-shape verification fails closed.",
-          "headHash": "7b83f48fc222f28f0360f035eefa63d16c26be36",
-          "materialHash": "a2dfb8c6a958296b980bae7fb7046305e4b1ccaec6819ddd4e107e22df2dfe95",
-          "storyFilesHash": "4b1a812749cdde4b9b3a991a3726eea23a668aefe4fb71c83666658038cd3299",
-          "timestamp": "2026-06-24T11:20:55.063Z"
+          "headHash": "e9befc2c97cce85ee539ad133e17545f685fb216",
+          "materialHash": "c074e77cf9d0d9198cf347d2b26f05ffbb179573e69e3b7bf20317aa976004dc",
+          "storyFilesHash": "9d29f3d2ab521e4ae453f46749610a9c2c1122d5ee44bc31180c2367e885ebf4",
+          "timestamp": "2026-06-24T11:38:39.985Z"
         }
       ]
     },
@@ -220,10 +220,10 @@
           "command": "npm --prefix packages/main run test:proof-admissibility-hardening",
           "result": "pass",
           "note": "Hardening smoke covers warn-mode diagnostic output with scope, reason code, and remediation for inadmissible gate-facing evidence.",
-          "headHash": "12a3ccad7c9a33ff23cf37f7dbd43816bb09ce6e",
-          "materialHash": "a2dfb8c6a958296b980bae7fb7046305e4b1ccaec6819ddd4e107e22df2dfe95",
-          "storyFilesHash": "4b1a812749cdde4b9b3a991a3726eea23a668aefe4fb71c83666658038cd3299",
-          "timestamp": "2026-06-24T11:17:51.640Z"
+          "headHash": "e9befc2c97cce85ee539ad133e17545f685fb216",
+          "materialHash": "c074e77cf9d0d9198cf347d2b26f05ffbb179573e69e3b7bf20317aa976004dc",
+          "storyFilesHash": "9d29f3d2ab521e4ae453f46749610a9c2c1122d5ee44bc31180c2367e885ebf4",
+          "timestamp": "2026-06-24T11:38:39.985Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -231,10 +231,10 @@
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Process fact registry includes runtime:proof_admissibility_gate_diagnostic and contract verification passes.",
-          "headHash": "12a3ccad7c9a33ff23cf37f7dbd43816bb09ce6e",
-          "materialHash": "a2dfb8c6a958296b980bae7fb7046305e4b1ccaec6819ddd4e107e22df2dfe95",
-          "storyFilesHash": "4b1a812749cdde4b9b3a991a3726eea23a668aefe4fb71c83666658038cd3299",
-          "timestamp": "2026-06-24T11:17:51.994Z"
+          "headHash": "e9befc2c97cce85ee539ad133e17545f685fb216",
+          "materialHash": "c074e77cf9d0d9198cf347d2b26f05ffbb179573e69e3b7bf20317aa976004dc",
+          "storyFilesHash": "9d29f3d2ab521e4ae453f46749610a9c2c1122d5ee44bc31180c2367e885ebf4",
+          "timestamp": "2026-06-24T11:38:39.985Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -243,10 +243,10 @@
           "command": "npm --prefix packages/main run test:proof-admissibility-hardening",
           "result": "pass",
           "note": "Hardening smoke exercises gate diagnostics for local/legacy/diagnostic scopes and verifies stable reason codes plus remediation hints are returned.",
-          "headHash": "9664dbadf03737184b17ed5d407c54eb7bae1e86",
-          "materialHash": "a2dfb8c6a958296b980bae7fb7046305e4b1ccaec6819ddd4e107e22df2dfe95",
-          "storyFilesHash": "4b1a812749cdde4b9b3a991a3726eea23a668aefe4fb71c83666658038cd3299",
-          "timestamp": "2026-06-24T11:21:01.441Z"
+          "headHash": "e9befc2c97cce85ee539ad133e17545f685fb216",
+          "materialHash": "c074e77cf9d0d9198cf347d2b26f05ffbb179573e69e3b7bf20317aa976004dc",
+          "storyFilesHash": "9d29f3d2ab521e4ae453f46749610a9c2c1122d5ee44bc31180c2367e885ebf4",
+          "timestamp": "2026-06-24T11:38:39.985Z"
         }
       ]
     },
@@ -300,10 +300,10 @@
           "command": "npm --prefix packages/main run test:proof-admissibility-hardening",
           "result": "pass",
           "note": "Hardening smoke covers legacy-observed, legacy-local-only, and legacy-unknown-producer classification as readable but non-strong proof.",
-          "headHash": "dea2a71a716de2cd39d9d7baa44d446265f85f19",
-          "materialHash": "a2dfb8c6a958296b980bae7fb7046305e4b1ccaec6819ddd4e107e22df2dfe95",
-          "storyFilesHash": "4b1a812749cdde4b9b3a991a3726eea23a668aefe4fb71c83666658038cd3299",
-          "timestamp": "2026-06-24T11:18:02.160Z"
+          "headHash": "e9befc2c97cce85ee539ad133e17545f685fb216",
+          "materialHash": "c074e77cf9d0d9198cf347d2b26f05ffbb179573e69e3b7bf20317aa976004dc",
+          "storyFilesHash": "9d29f3d2ab521e4ae453f46749610a9c2c1122d5ee44bc31180c2367e885ebf4",
+          "timestamp": "2026-06-24T11:38:39.985Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -312,10 +312,10 @@
           "command": "npm --prefix packages/main run test:proof-admissibility-hardening",
           "result": "pass",
           "note": "Hardening smoke covers legacy dry-run diagnostics and verifies legacy upgrade guidance is reported without mutating historical evidence.",
-          "headHash": "20999fd5b2769a68b4aa9a5ca3c711a9bb9c2076",
-          "materialHash": "a2dfb8c6a958296b980bae7fb7046305e4b1ccaec6819ddd4e107e22df2dfe95",
-          "storyFilesHash": "4b1a812749cdde4b9b3a991a3726eea23a668aefe4fb71c83666658038cd3299",
-          "timestamp": "2026-06-24T11:21:08.013Z"
+          "headHash": "e9befc2c97cce85ee539ad133e17545f685fb216",
+          "materialHash": "c074e77cf9d0d9198cf347d2b26f05ffbb179573e69e3b7bf20317aa976004dc",
+          "storyFilesHash": "9d29f3d2ab521e4ae453f46749610a9c2c1122d5ee44bc31180c2367e885ebf4",
+          "timestamp": "2026-06-24T11:38:39.985Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -324,10 +324,10 @@
           "command": "npm --prefix packages/main run test:proof-admissibility-hardening",
           "result": "pass",
           "note": "Hardening smoke verifies legacy observed/local/unknown evidence remains readable but denies production-completion and Authority receipt claims even if proof-looking prose exists.",
-          "headHash": "68c1b18fb7060c3e2723ad4115b7e482ae2469c3",
-          "materialHash": "a2dfb8c6a958296b980bae7fb7046305e4b1ccaec6819ddd4e107e22df2dfe95",
-          "storyFilesHash": "4b1a812749cdde4b9b3a991a3726eea23a668aefe4fb71c83666658038cd3299",
-          "timestamp": "2026-06-24T11:21:17.609Z"
+          "headHash": "e9befc2c97cce85ee539ad133e17545f685fb216",
+          "materialHash": "c074e77cf9d0d9198cf347d2b26f05ffbb179573e69e3b7bf20317aa976004dc",
+          "storyFilesHash": "9d29f3d2ab521e4ae453f46749610a9c2c1122d5ee44bc31180c2367e885ebf4",
+          "timestamp": "2026-06-24T11:38:39.985Z"
         }
       ]
     },
@@ -383,10 +383,10 @@
           "command": "npm --prefix packages/main run test:proof-admissibility-hardening",
           "result": "pass",
           "note": "Hardening smoke covers handoff context/evidenceCandidate/diagnosticReceipt/admissibleProofRef split and no receiptVerified/authorityDone/fullAuthorityDone/productionDone overclaim.",
-          "headHash": "0fc5b3a16f16f7df351fb8126758fcf2839d43f9",
-          "materialHash": "a2dfb8c6a958296b980bae7fb7046305e4b1ccaec6819ddd4e107e22df2dfe95",
-          "storyFilesHash": "4b1a812749cdde4b9b3a991a3726eea23a668aefe4fb71c83666658038cd3299",
-          "timestamp": "2026-06-24T11:18:15.725Z"
+          "headHash": "e9befc2c97cce85ee539ad133e17545f685fb216",
+          "materialHash": "c074e77cf9d0d9198cf347d2b26f05ffbb179573e69e3b7bf20317aa976004dc",
+          "storyFilesHash": "9d29f3d2ab521e4ae453f46749610a9c2c1122d5ee44bc31180c2367e885ebf4",
+          "timestamp": "2026-06-24T11:38:39.985Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -394,10 +394,10 @@
           "command": "npm --prefix packages/main run build",
           "result": "pass",
           "note": "TypeScript build passes with handoff admissibility summary threaded through pack, inspect, accept, resume, receipt-submit, and dispatch projections.",
-          "headHash": "0fc5b3a16f16f7df351fb8126758fcf2839d43f9",
-          "materialHash": "a2dfb8c6a958296b980bae7fb7046305e4b1ccaec6819ddd4e107e22df2dfe95",
-          "storyFilesHash": "4b1a812749cdde4b9b3a991a3726eea23a668aefe4fb71c83666658038cd3299",
-          "timestamp": "2026-06-24T11:18:16.067Z"
+          "headHash": "e9befc2c97cce85ee539ad133e17545f685fb216",
+          "materialHash": "c074e77cf9d0d9198cf347d2b26f05ffbb179573e69e3b7bf20317aa976004dc",
+          "storyFilesHash": "9d29f3d2ab521e4ae453f46749610a9c2c1122d5ee44bc31180c2367e885ebf4",
+          "timestamp": "2026-06-24T11:38:39.985Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -406,10 +406,10 @@
           "command": "npm --prefix packages/main run test:proof-admissibility-hardening",
           "result": "pass",
           "note": "Hardening smoke verifies diagnostic handoff receipts and host-local outputs keep receiptVerified/authorityDone/fullAuthorityDone/productionDone false.",
-          "headHash": "9994325a6d6806b721d9b380388f71f1a0194ea7",
-          "materialHash": "a2dfb8c6a958296b980bae7fb7046305e4b1ccaec6819ddd4e107e22df2dfe95",
-          "storyFilesHash": "4b1a812749cdde4b9b3a991a3726eea23a668aefe4fb71c83666658038cd3299",
-          "timestamp": "2026-06-24T11:20:29.427Z"
+          "headHash": "e9befc2c97cce85ee539ad133e17545f685fb216",
+          "materialHash": "c074e77cf9d0d9198cf347d2b26f05ffbb179573e69e3b7bf20317aa976004dc",
+          "storyFilesHash": "9d29f3d2ab521e4ae453f46749610a9c2c1122d5ee44bc31180c2367e885ebf4",
+          "timestamp": "2026-06-24T11:38:39.985Z"
         }
       ]
     },
@@ -470,10 +470,10 @@
           "command": "npm --prefix packages/main run test:proof-admissibility-hardening",
           "result": "pass",
           "note": "Hardening smoke covers proofAdmissibility warn/enforce behavior and enforce-mode blocking for high-risk inadmissible proof consumers.",
-          "headHash": "b85537d58a9e6d5c605c52bdec3831f1d883d4e2",
-          "materialHash": "a2dfb8c6a958296b980bae7fb7046305e4b1ccaec6819ddd4e107e22df2dfe95",
-          "storyFilesHash": "4b1a812749cdde4b9b3a991a3726eea23a668aefe4fb71c83666658038cd3299",
-          "timestamp": "2026-06-24T11:18:28.145Z"
+          "headHash": "e9befc2c97cce85ee539ad133e17545f685fb216",
+          "materialHash": "c074e77cf9d0d9198cf347d2b26f05ffbb179573e69e3b7bf20317aa976004dc",
+          "storyFilesHash": "9d29f3d2ab521e4ae453f46749610a9c2c1122d5ee44bc31180c2367e885ebf4",
+          "timestamp": "2026-06-24T11:38:39.985Z"
         },
         {
           "intentRef": "CHK-006:edge:0",
@@ -481,10 +481,10 @@
           "command": "npm --prefix packages/main run build",
           "result": "pass",
           "note": "Package script test:proof-admissibility-hardening compiles and runs from dist.",
-          "headHash": "b85537d58a9e6d5c605c52bdec3831f1d883d4e2",
-          "materialHash": "a2dfb8c6a958296b980bae7fb7046305e4b1ccaec6819ddd4e107e22df2dfe95",
-          "storyFilesHash": "4b1a812749cdde4b9b3a991a3726eea23a668aefe4fb71c83666658038cd3299",
-          "timestamp": "2026-06-24T11:18:28.473Z"
+          "headHash": "e9befc2c97cce85ee539ad133e17545f685fb216",
+          "materialHash": "c074e77cf9d0d9198cf347d2b26f05ffbb179573e69e3b7bf20317aa976004dc",
+          "storyFilesHash": "9d29f3d2ab521e4ae453f46749610a9c2c1122d5ee44bc31180c2367e885ebf4",
+          "timestamp": "2026-06-24T11:38:39.985Z"
         },
         {
           "intentRef": "CHK-006:adversarial:0",
