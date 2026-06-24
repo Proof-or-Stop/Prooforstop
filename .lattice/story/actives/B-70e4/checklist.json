@@ -136,14 +136,15 @@
       "verificationEvidence": [
         {
           "intentRef": "CHK-002:happy:0",
-          "kind": "manual_transcript",
-          "command": "npm run --prefix packages/main test:authority-receipt-proof-auth",
+          "kind": "integration_test",
+          "verdict": "success",
+          "command": "source /Users/jek/Documents/Work/proofbound/lattice_senior_authority_trust.env && export LATTICE_AUTHORITY_CUSTOMER_API_KEY=\"$(cat /Users/jek/Documents/Work/proofbound/lattice_senior_staging-client.env)\" && node packages/main/dist/tasks/authority-live-receipt-ref-gate-smoke.js",
           "result": "pass",
-          "note": "authority-enforce.ts:206-207 shows loadProof calls resolveAuthorityClientAuth(process.env) and passes the result as the 4th arg to new AuthorityClient(baseURL, fetch, timeout, auth). This ensures the client carries the LATTICE_AUTHORITY_CUSTOMER_API_KEY. The deterministic regression smoke at authority-receipt-proof-auth-smoke.ts:32-41 directly verifies the AuthorityClient constructor with auth sends Bearer — and the loadProof code path uses the same constructor pattern. Test exits 0 with PASS.",
-          "headHash": "9fc7ac2ffc2a84c12466d942688c6985bc80f0d1",
-          "materialHash": "96adaa007e8f7ddafa1d445c9f905d262eb90f4da087c701fec35f3474287e79",
-          "storyFilesHash": "3bb033bf48d472daad32daea22503c5bbbef2c03c79374e5fe0665781999041e",
-          "timestamp": "2026-06-24T01:19:46.078Z"
+          "note": "loadProof is exercised end-to-end by the live staging smoke: runAuthorityReceiptVerify -> loadProof builds the AuthorityClient via resolveAuthorityClientAuth(process.env) and fetches the protected /v1/receipts/{id}/proof. Smoke PASS (receiptVerified===true) is execution proof that loadProof sends Bearer auth and the authenticated read succeeds against staging (resolves F-004; no longer mere structural inference).",
+          "headHash": "d6d2bbce97e05ce2aeb63be6085d6a37fddbf8be",
+          "materialHash": "a070c73286d507e5578b87e6d901b2d51afacf7e4d8c4632f5f2f02b7bd1edcb",
+          "storyFilesHash": "871226f7b8979c35050017fbbad4bb4b82cc5106a4e867a245cce2bde3e3c163",
+          "timestamp": "2026-06-24T01:50:23.753Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
