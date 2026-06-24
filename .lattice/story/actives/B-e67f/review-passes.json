@@ -80,6 +80,15 @@
       "reviewRound": "2026-06-24T10:16:50.255Z",
       "reviewRunId": "B-e67f:RR-009",
       "_hash": "26cdb2c8fbcfcb18fc1c56d533b639e3cc9f66b575407fc2d5ca6dc6ece73b4a"
+    },
+    {
+      "id": "B-e67f:RP-010",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (round 3 re-attest): verified 28/28 verificationIntents across CHK-001 through CHK-004 (happy/edge/adversarial) are covered by valid verificationEvidence with result=pass. Live corpus-selfcheck run: 24/24 tasks pass full invariant, stratification OK 8 categories, 10/10 negative-control guards fire (controls 9+10 confirmed: INJECT_SOURCE_TAMPER replicates F-009 source-dir-harness tamper and INJECT_ENV_SPOOF replicates F-010 NODE_OPTIONS preload spoof — both guards reject their synthetic exploit as expected). Controls 9 and 10 are genuine (non-tautological): control 9 mutates the source ground-truth.mjs and confirms the source-tamper-hash check catches it; control 10 sets NODE_OPTIONS=--require evil-hook and confirms the sanitized child env neutralizes the hook so the correct solution passes GT rather than being spoofed to fail. One low finding B-e67f:F-014 filed for stale evidence-note guard count (notes say 8/8, live script runs 10/10) — documentation drift only, no must-intent unexecuted, no blocker.",
+      "createdAt": "2026-06-24T10:55:31.930Z",
+      "reviewRound": "2026-06-24T10:16:50.255Z",
+      "reviewRunId": "B-e67f:RR-014",
+      "_hash": "6b572db17a9ad62c64af2df1bb48cb5e9334080292accd80345e0108165e2177"
     }
   ]
 }
