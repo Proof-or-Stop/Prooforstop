@@ -1,0 +1,27 @@
+{
+  "storyId": "B-0aa1",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/registry.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/package.json"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/evidence/artifact-store.ts",
+    "packages/main/src/core/evidence/types.ts",
+    "docs/evidence/evidence-platform-architecture.md",
+    "packages/main/src/core/repro-intake.ts",
+    "docs/requirements/decisions/repro-first-story-intake-experiment.md",
+    "packages/main/src/handlers/repro-intake.ts",
+    "packages/main/src/tasks/repro-first-candidate-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/repro-first-candidate-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-24T04:23:11.268Z",
+  "updatedAt": "2026-06-24T04:23:11.268Z"
+}
