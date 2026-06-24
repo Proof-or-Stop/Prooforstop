@@ -161,6 +161,15 @@
       "reviewRound": "2026-06-24T05:09:01.993Z",
       "reviewRunId": "B-0aa1:RR-024",
       "_hash": "f5bdb7db567b210b5ff86d9508d74694240f55ef492e1d3c52544f63771b658a"
+    },
+    {
+      "id": "B-0aa1:RP-019",
+      "agent": "lattice-review-docs",
+      "note": "Targeted re-review after artifact-store digest helper refactor (bac7ed1cf). Step 1: 4 changed symbols (ArtifactDigestSubject, artifactDigestSubject, digestSubject, verifyArtifactDigest), all internal/non-exported except verifyArtifactDigest whose signature is unchanged. Step 2: 1 relevant doc paragraph cluster compared (docs/evidence/evidence-platform-architecture.md:35-79); 3 other decision-doc digest hits confirmed unrelated (context-pack/Authority/planner/signing digests). Canonical digest subject in doc lines 67-74 (artifactKind, schemaVersion, producer, evidenceScope, subjectBinding, payload) exactly matches the refactored artifactDigestSubject 6-field helper; refactor only shares the same subject between create+verify, leaving field set, SHA-256 algorithm, idempotency, and envelope shape unchanged. Idempotency note (lines 76-79) still accurate. No doc-promise-undelivered drift. No blockers.",
+      "createdAt": "2026-06-24T05:11:11.274Z",
+      "reviewRound": "2026-06-24T05:09:01.993Z",
+      "reviewRunId": "B-0aa1:RR-025",
+      "_hash": "859004cc9a9368662bce6ff28345de0e1957910c44a283f3426cfce4f1659c81"
     }
   ]
 }
