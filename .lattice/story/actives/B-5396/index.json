@@ -4,7 +4,7 @@
   "title": "Host DONE convergence runbook: document done_prepare and storyFilesHash drift decision rules",
   "description": "Translate the already-built freshness/drift mechanisms (done_prepare, storyFilesHash secondary freshness, review-assurance-floor, delivery-check drift advisory, proof-admissibility) into one explicit Host-facing operating discipline in AGENTS.md and CLAUDE.md, so Hosts stop mis-operating during parallel-story DONE convergence. Docs-only: a projection/reference of existing rules, NOT new rules. No CLI/code, no hash/freshness logic, no gate-strength, no proof-admissibility contract changes.",
   "type": "chore",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "medium",
   "keywords": [
     "host-runbook",
@@ -25,7 +25,7 @@
   ],
   "createdAt": "2026-06-24T12:50:52.832Z",
   "startedAt": "2026-06-24T12:50:52.832Z",
-  "endedAt": null,
+  "endedAt": "2026-06-24T13:27:50.581Z",
   "events": [
     {
       "phase": "INIT",
@@ -80,6 +80,15 @@
       "user": "Harmonygo",
       "sessionId": "b0a01b07-dd7a-40ba-a0fe-163497230a65",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-24T13:27:50.581Z",
+      "branch": "story/B-5396",
+      "user": "Harmonygo",
+      "sessionId": "b0a01b07-dd7a-40ba-a0fe-163497230a65",
+      "agent": "main"
     }
   ],
   "riskSignalsDismissed": [
@@ -89,10 +98,5 @@
       "at": "2026-06-24T12:51:16.248Z"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-5396",
-    "branch": "story/B-5396",
-    "createdAt": "2026-06-24T12:53:52.547Z"
-  },
   "currentReviewRound": "2026-06-24T13:08:02.474Z"
 }
