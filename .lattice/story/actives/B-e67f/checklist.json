@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "Apply the 20 new validated task dirs under experiments/recovery-runner/tasks/",
       "context": "Copy the 20 pre-validated task directories from /tmp/corpus-design/ into experiments/recovery-runner/tasks/ (bug-fix: bf-datediff,bf-mergesorted,bf-lru; refactor: rf-units,rf-roman,rf-money; test-repair: tr-slugify,tr-pluralize,tr-clamp; doc-update: du-interp,du-duration; dep-upgrade: dp-deepmerge,dp-querystring,dp-semver; contract-validation: cv-ipv4,cv-luhn,cv-email; CLI-feature: cl-combined,cl-equals,cl-multi). Each is the full 7-file contract (task.json/prompt.md/acceptance.mjs/reference-solution.mjs/ground-truth.mjs/payload-subtle.mjs/subtle-wrong-output.mjs). Do not modify the existing 4 tasks.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-24T10:09:06.184Z",
-      "endTime": null,
+      "endTime": "2026-06-24T10:09:58.571Z",
       "files": {
         "modify": [],
         "create": [
