@@ -257,6 +257,24 @@
       ],
       "signatureTag": "missing|mjs|adversarial-lacks-evidence",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-8d44:F-015",
+      "desc": "CHK-002:adversarial:0 lacks evidence: intent requires that when injection module inject() throws, the engine returns infraVoid (not a silent ws corruption). In live-engine.mjs line 318-321, the injection call is inside a try/catch that returns infraVoid on any thrown error. The selfcheck never creates a stub injection that throws and verifies the infraVoid result. The entire CHK-002:adversarial:0 evidence note is the same boilerplate that does not enumerate this case.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-24T12:59:17.631Z",
+      "reviewRound": "2026-06-24T12:50:13.876Z",
+      "reviewRunId": "B-8d44:RR-002",
+      "_hash": "e626d890bb9f6bb107ab47650df50ebf4ba53ab620206380697b50559435b2d5",
+      "files": [
+        "experiments/recovery-runner/live-engine-selfcheck.mjs,experiments/recovery-runner/live-engine.mjs"
+      ],
+      "signatureTag": "missing|mjs|adversarial-lacks-evidence",
+      "signatureTagSource": "auto"
     }
   ]
 }
