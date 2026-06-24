@@ -198,7 +198,7 @@
       "desc": "Lifecycle gate diagnostics hardcode a file-declaration cause even when the repro-first classifier required a binding because story.type=bug or high-risk code-verifiable riskSignals. formatStoryEvidenceBindingGateFailure always renders \"story checklist declares files.modify/create/test\" and suggests removing those fields, but classifyReproFirstRequirement also returns required=true for bug_story and high_risk_code_verifiable. The smoke covers story_create messages for those classifiers, but not getGuardFailureReason/PLAN->DEV diagnostics for non-file bug/high-risk stories. Source: packages/main/src/core/repro-evidence-binding-gate.ts:85, packages/main/src/core/repro-evidence-binding-gate.ts:95, packages/main/src/core/repro-evidence-binding-gate.ts:400, packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts:432, packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts:450. Verified otherwise with npm --prefix packages/main run build; node scripts/verify-process-fact-contract.mjs; npm --prefix packages/main run test:repro-first-candidate; node packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-24T22:54:54.015Z",
@@ -210,14 +210,18 @@
         "packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts"
       ],
       "signatureTag": "edge|ts|lifecycle-gate-diagnostics",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 3c96e8443: StoryEvidenceBindingGateResult now carries requirementReason/requirementDetails and lifecycle guard diagnostics render the actual classifier cause for file declarations, bug stories, and high-risk code-verifiable stories instead of always blaming files.modify/create/test. Added PLAN->DEV smoke assertions for bug_story and high_risk_code_verifiable diagnostics. Verified with npm --prefix packages/main run build, node packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js, node packages/main/dist/tasks/repro-first-candidate-smoke.js, node scripts/verify-process-fact-contract.mjs, and scope_contract_check.",
+      "resolvedAt": "2026-06-24T23:01:28.394Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-1731:F-010",
       "desc": "Spike-review binding gate accepts a non-confirmed spike review when payload.status is accepted. Source refs: packages/main/src/core/evidence/types.ts:104 defines SpikeReviewPayload with verdict, not status; packages/main/src/core/repro-evidence-binding-gate.ts:166-168 treats status=accepted as accepted; packages/main/src/core/repro-evidence-binding-gate.ts:271-287 uses that predicate for story-evidence-binding validation. Verified by a temp-root runtime check against built dist: wrote a spike-review artifact with verdict=rejected and status=accepted, bound it in a story-evidence-binding, and evaluateStoryEvidenceBindingGate returned ok=true, blocking=false, reasonCode=null, details=[bound-accepted: ...]. This violates the B-1731 confirmed spike-review binding contract; the gate should require the bound spike-review artifact to have verdict=confirmed (and reject contradictory or legacy status-only accepted values).",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-06-24T22:55:39.530Z",
@@ -230,7 +234,11 @@
         "packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts"
       ],
       "signatureTag": "spec-boundary|ts|spike-review-binding",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 3c96e8443: spike-review gate now requires verdict=confirmed only; legacy status=accepted no longer overrides rejected or missing verdict. Added smoke coverage for rejected verdict plus accepted status and status-only accepted spike reviews. Verified with npm --prefix packages/main run build, node packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js, node packages/main/dist/tasks/repro-first-candidate-smoke.js, node scripts/verify-process-fact-contract.mjs, and scope_contract_check.",
+      "resolvedAt": "2026-06-24T23:01:28.312Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
