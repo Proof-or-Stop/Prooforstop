@@ -9,8 +9,8 @@
         "docs/requirements/decisions/testing-infra.md",
         "docs/guide-red-spike-story.md"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-24T01:13:55.334Z",
       "endTime": null,
       "userSees": "After the implementation build, the terminal shows TypeScript build success and validate/done_required_validate use the same story-scoped validation execution lock without changing unrelated workflow commands.",
       "files": {
@@ -132,6 +132,17 @@
           }
         ]
       }
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-24T01:13:55.334Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Implementation commit 4c26f4d3 is present; recording evidence before marking done."
     }
   ]
 }
