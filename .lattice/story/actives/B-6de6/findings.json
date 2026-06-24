@@ -1,0 +1,129 @@
+{
+  "findings": [
+    {
+      "id": "B-6de6:F-001",
+      "desc": "ReviewAssuranceFloorReport interface and formatReviewAssuranceFloorFailure diagnostic output omit storyFilesHash: the floor declares it mirrors review-escalation, but review-escalation exposes a top-level storyFilesHash:string|null field in its report (consumed in diagnostic lines at review-escalation.ts:586) and floor does not. Callers cannot observe which storyFilesHash the floor computed, and the failure message has no storyFilesHash line. Files: packages/main/src/core/review-assurance-floor.ts:73-111 (ReviewAssuranceFloorReport interface missing storyFilesHash), packages/main/src/core/review-assurance-floor.ts:556-588 (return statement missing storyFilesHash spread), packages/main/src/core/review-assurance-floor.ts:709 (formatReviewAssuranceFloorFailure diagnostic missing storyFilesHash line).",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-24T00:24:57.844Z",
+      "reviewRound": "2026-06-24T00:21:09.458Z",
+      "reviewRunId": "B-6de6:RR-001",
+      "_hash": "c83a7891374fc9d31365316d68c32eb4acd47d329de96e8ccddb0b386c410219",
+      "files": [
+        "packages/main/src/core/review-assurance-floor.ts"
+      ],
+      "signatureTag": "missing|ts|reviewassurancefloorreport-interface-formatreviewassurancefloorfailure",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Added storyFilesHash?: string|null to ReviewAssuranceFloorReport and populated it in the main return; formatReviewAssuranceFloorFailure now prints a storyFilesHash line. Commit 5389c13e4.",
+      "resolvedAt": "2026-06-24T00:42:53.612Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-6de6:F-002",
+      "desc": "currentStoryFilesHash call-site asymmetry between the floor and review-escalation: floor correctly passes (gitCwd, HEAD, args.projectRoot) separating git-cwd from metadataRoot (wrapper-root aware, review-assurance-floor.ts:510), while review-escalation passes only (args.projectRoot) as gitCwd with no metadataRoot separation (review-escalation.ts:440). On a wrapper-root layout where gitCwd != projectRoot the two evaluators compute different storyFilesHash values for the same story, breaking the claim of equivalent downgrade-accept semantics. The floor fix is correct; review-escalation has a pre-existing bug not addressed by this story. No unified helper or comment documents the asymmetry.",
+      "severity": "low",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-24T00:25:09.330Z",
+      "reviewRound": "2026-06-24T00:21:09.458Z",
+      "reviewRunId": "B-6de6:RR-001",
+      "_hash": "c5a254849f214bc47517794b7d48fb6ff0cdf41aa3da2cb73afc076f775c0a33",
+      "files": [
+        "packages/main/src/core/review-escalation.ts",
+        "packages/main/src/core/review-assurance-floor.ts"
+      ],
+      "signatureTag": "edge|ts|currentstoryfileshash-call-site",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Pre-existing escalation wrapper-root root-resolution: review-escalation.ts:439 uses currentStoryFilesHash(projectRoot) while the floor (this story) correctly uses currentStoryFilesHash(gitCwd,'HEAD',projectRoot). The shared eventsWithStoryFilesHashDowngrade helper is identical (downgrade semantics agree); only the caller-supplied freshness root differs, and only under wrapper-root layouts. The scope-boundary explicitly EXCLUDED the escalation advisory path (already shipped by B-5a9a/B-edf1), and changing escalation's freshness root risks wrapper-root regression beyond this story. Independently corroborated by codex host-2. Tracked as a dedicated follow-up story to align escalation's freshness root to gitCwd.",
+      "resolvedAt": "2026-06-24T00:42:55.649Z",
+      "resolutionType": "accepted_risk",
+      "resolveEvidenceStrength": "medium"
+    },
+    {
+      "id": "B-6de6:F-003",
+      "desc": "CHK-002:happy:1 evidence (smoke check (b)) does not cover the stated intent. Intent says: 'prior round verdicts at materialHash-OLD + storyFilesHash-OLD (truly stale), new round verdicts at materialHash-X + storyFilesHash-S (downgraded) => validRounds contains the new round, old verdicts ignored, no duplicate-identity invalid round created' -- i.e., a cross-runId re-bind where prior-era and new-era verdicts are in separate runIds. Smoke check (b) (line 146-169 of review-assurance-floor-storyfileshash-smoke.ts) instead places both verdicts in the SAME runId (round-1/codex-a x2), testing the no-duplicate-identity-within-a-round claim that belongs to CHK-002:happy:0. No check in the 12-check smoke exercises two different runIds where the old runId verdicts are truly-stale and the new runId verdicts are downgraded. The bound evidence note also says 'smoke check (b)', confirming both CHK-002:happy:0 and CHK-002:happy:1 are mapped to the same single check. Per the project rule, an evidence command that does not match the literal intent is a HIGH finding.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-24T00:26:20.430Z",
+      "reviewRound": "2026-06-24T00:21:09.458Z",
+      "reviewRunId": "B-6de6:RR-003",
+      "_hash": "cbd80b6e5491f21edd1faee42393d831baa5e6d4ae86fc95afa4bb1bf0d3a36a",
+      "files": [
+        "packages/main/src/tasks/review-assurance-floor-storyfileshash-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|happy-evidence-smoke",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Added a dedicated cross-runId re-bind smoke check (prior runId truly-stale + new runId downgraded => only the new round valid, old ignored, no duplicate-identity); CHK-002:happy:1 now binds to that check. Commit 5389c13e4.",
+      "resolvedAt": "2026-06-24T00:42:54.032Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-6de6:F-004",
+      "desc": "CHK-003:happy:0 smoke assertion uses a weaker match pattern than the stated intent requires. Intent specifies the advisory must match /materialDigest drift accepted.*storyFilesHash matches.*re-attestation/, but the smoke (line 138 of review-assurance-floor-storyfileshash-smoke.ts) only asserts assert.match(..., /storyFilesHash matches/). The actual advisory text (review-escalation.ts line 422) does contain all three components ('materialDigest drift accepted because storyFilesHash matches; re-attestation advisory required'), but the smoke would pass even if the advisory were reduced to a shorter string containing only 'storyFilesHash matches', without the 'materialDigest drift accepted' prefix or the 're-attestation advisory required' suffix. The evidence therefore does not verify the full advisory content promised by the intent, making the test insufficient to catch future advisory format regressions.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-24T00:26:29.402Z",
+      "reviewRound": "2026-06-24T00:21:09.458Z",
+      "reviewRunId": "B-6de6:RR-003",
+      "_hash": "e7a86bbd76910063f89a91619e761be607a83c37482f1f5f8c143ad6c66bdbef",
+      "files": [
+        "packages/main/src/tasks/review-assurance-floor-storyfileshash-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|happy-smoke-assertion",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Smoke now asserts the full three-part advisory pattern /materialDigest drift accepted.*storyFilesHash matches.*re-attestation/ for CHK-003:happy:0. Commit 5389c13e4.",
+      "resolvedAt": "2026-06-24T00:42:54.450Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-6de6:F-005",
+      "desc": "DONE checklist render swallows the floor re-attestation advisory on PASS rows: done-oracle.ts buildDoneChecklist review-assurance-floor row (~782) prints only assuranceLevel/material code paths/local rounds and does NOT append floor.advisories the way the escalation row (~757-759, B-edf1) does; renderDoneChecklist does not expand hints for pass rows. Trigger: one storyFilesHash-downgraded local PASS round => DONE passes while the mandatory re-attestation advisory is operator-invisible. Fix: mirror the escalation row advisory-append for the floor row.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "codex-host-2",
+      "createdAt": "2026-06-24T00:37:21.028Z",
+      "reviewRound": "2026-06-24T00:21:09.458Z",
+      "_hash": "96555c214881ddd55d7c6258690fee6750513f41f8a51b398f2ff023cc19b859",
+      "signatureTag": "missing|unknown|checklist-render-swallows",
+      "signatureTagSource": "auto",
+      "resolvedReason": "done-oracle.ts floor checklist row now appends floor.advisories to its detail on pass (mirroring the escalation row B-edf1); done-escalation-drift-advisory-smoke.ts extended with floor-row render assertions (PASS+advisory surfaced; PASS+no-advisory). Commit 5389c13e4.",
+      "resolvedAt": "2026-06-24T00:42:54.840Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-6de6:F-006",
+      "desc": "Floor failure diagnostics suppress accepted-drift advisories: formatReviewAssuranceFloorFailure (review-assurance-floor.ts:705-749) never prints report.advisories. Trigger: a downgraded verdict is accepted but the floor still fails for another reason (e.g. failure signals require 3 sticky rounds, only 1 storyFilesHash-matching stale-material round) => report.advisories populated but invisible on the fail path, violating 'advisory always surfaced when drift accepted'. Fix: add accepted-drift advisories + storyFilesHash lines to the failure formatter.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "codex-host-2",
+      "createdAt": "2026-06-24T00:37:21.457Z",
+      "reviewRound": "2026-06-24T00:21:09.458Z",
+      "_hash": "f0b3561a2599dc690b6bc79bf5f7570f2696ea5ef23dc81a6df5a852235ee68c",
+      "signatureTag": "missing|unknown|floor-failure-diagnostics",
+      "signatureTagSource": "auto",
+      "resolvedReason": "formatReviewAssuranceFloorFailure now prints an accepted-drift advisories line so the advisory is surfaced on the FAIL path too. Commit 5389c13e4.",
+      "resolvedAt": "2026-06-24T00:42:55.227Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

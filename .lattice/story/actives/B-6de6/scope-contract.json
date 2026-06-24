@@ -1,0 +1,44 @@
+{
+  "storyId": "B-6de6",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/review-assurance-floor.ts",
+    "packages/main/src/core/review-escalation.ts",
+    "packages/main/src/core/evidence-freshness.ts",
+    "package.json",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts"
+  ],
+  "allowedCreate": [
+    "packages/main/src/tasks/review-assurance-floor-storyfileshash-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/review-assurance-floor-storyfileshash-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "REVIEW finding F-005 (codex host-2, high): the floor re-attestation advisory was swallowed at the DONE render layer. The fix must live in done-oracle.ts (the floor checklist row must append floor.advisories to its detail, exactly mirroring the escalation row B-edf1 added at done-oracle.ts:757-759); review-assurance-floor.ts alone cannot reach the renderer. The render assertion is added to the existing done-escalation-drift-advisory-smoke.ts harness (the only smoke that already renders the DONE checklist) rather than duplicating that harness. Both files are within the execution boundary (packages/main/src/core and packages/main/src/tasks).",
+      "timestamp": "2026-06-24T00:42:19.910Z",
+      "paths": [
+        "packages/main/src/core/done-oracle.ts",
+        "packages/main/src/tasks/done-escalation-drift-advisory-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/done-oracle.ts",
+        "packages/main/src/tasks/done-escalation-drift-advisory-smoke.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "REVIEW",
+      "headHash": "5389c13e4757c3030248664a23e1cf7cc7fa5cd0",
+      "materialHash": "0655d531887e6754df0d70681e02ec253f5f3580aaf08f02149fd4323b210f29"
+    }
+  ],
+  "createdAt": "2026-06-24T00:03:21.112Z",
+  "updatedAt": "2026-06-24T00:42:19.910Z"
+}

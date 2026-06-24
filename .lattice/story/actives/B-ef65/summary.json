@@ -1,0 +1,56 @@
+{
+  "storyId": "B-ef65",
+  "changes": "Implemented a story-scoped validate execution lock for Lattice validation paths. The final fix holds the lock through validation command execution, result decoration, and persistStoryValidationEvidence for story-scoped non-focus validate writes, and done_required_validate shares the same lock. The regression smoke now covers the original same-story contention plus the F-001 post-command evidence persistence race.",
+  "usage": "Run npm --prefix packages/main run build, then run node packages/main/dist/tasks/validate-execution-lock-smoke.js. The expected visible output is validate-execution-lock smoke passed: 9 assertions.",
+  "expectedOutcome": "node packages/main/dist/tasks/validate-execution-lock-smoke.js prints validate-execution-lock smoke passed: 9 assertions, proving same-story validate contention is blocked through evidence persistence while unrelated story/reviewer/delivery paths remain usable.",
+  "actualTranscript": "Closure summary timestamp 2026-06-24T01:58:17Z. Verified outputs: node packages/main/dist/tasks/validate-execution-lock-smoke.js printed validate-execution-lock smoke passed: 9 assertions; node packages/main/dist/tasks/validate-command-timeout-smoke.js printed validate-command-timeout smoke passed: 18 assertions; lattice validate --story=B-ef65 --json passed 30 configured commands with 9/9 verification intent coverage; done_required_validate passed packages/main build plus npm test; delivery-check was re-signed at current materialHash 3f8297ef2c1455363ee6e07c00f63e97a1a3bf45bb2f3b4a4f539776bae8bd67; review assurance floor passed as degraded-single-host local assurance.",
+  "outcomeDiff": "Expected and actual validate-lock smoke match after F-001: 9 assertions. The earlier PLAN userSees text that mentioned 8 assertions was superseded by the reviewed F-001 fix and handled by delivery reviewer waiver rather than pretending exact text matched.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "This story only fixes validate execution locking and local Lattice story closure. It does not implement owner lease redesign, global validate serialization, Authority server behavior, Codex/Claude host-specific behavior, production Authority receipts, fullAuthorityDone, or arbitrary unattended readiness. Review assurance closed with degraded-single-host local evidence because only one local host was available in this experiment.",
+  "pitfalls": "Experiment timing: started 2026-06-24T01:02:46Z; closure summary at 2026-06-24T01:58:17Z; elapsed about 55m31s before final DONE merge. Friction: canonical root started dirty; story_create required four-section background; high-risk auto-elevation triggered from story_advance wording; INIT_CHECK required scope/execution/freeze/init-review artifacts; worktree needed node_modules symlinks; PLAN review initially had 11 blockers for missing verificationIntent, plan.md, and scope_check; execution_boundary rejected absolute blocked paths; verificationIntent type manual_transcript was invalid and had to be manual; same-worktree owner lease repeatedly required careful takeover; packages/utils dist had to be built before smoke; REVIEW found a real high blocker F-001 because the lock did not cover evidence persistence; F-001 fix changed smoke from 8 to 9 assertions; each TEST transition ran 30 configured commands around 90-100s; TEST-generated evidence files were not in the scope registry and required rollback to DEV for scope_contract_acknowledge; review_run_start/review_pass_set are phase-blocked in TEST, so current-material reviewer attempts could inspect but not sign; done_prepare merged main 95 commits and made delivery-check stale; delivery had to be re-signed; review assurance floor required explicit degraded-single-host fallback plus 3 local verdict rounds; review_escalation_status and DONE pre-check rendered different assurance interpretations, so DONE pre-check was treated as authoritative. Key follow-up candidates: register story evidence/*.json as lifecycle artifacts, allow TEST-phase acknowledgement for Lattice-generated closure evidence, clarify review assurance diagnostics, and avoid needless validate reruns after metadata-only phase churn.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 99627
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 14225
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 221980
+    },
+    "DEV": {
+      "count": 3,
+      "durationMs": 952930
+    },
+    "REVIEW": {
+      "count": 3,
+      "durationMs": 854056
+    },
+    "TEST": {
+      "count": 2,
+      "durationMs": 1177754
+    }
+  },
+  "totalDurationMs": 3320572,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-24T01:13:30.908Z",
+  "updatedAt": "2026-06-24T01:58:38.664Z"
+}

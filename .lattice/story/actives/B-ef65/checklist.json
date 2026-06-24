@@ -1,0 +1,301 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Apply the proven story-scoped validate execution lock implementation",
+      "context": "Use the already-proven diff from /Users/jek/Documents/Work/proofbound-validate-lock-proof: add validation-execution-lock, wrap validate command execution, and wrap done_required_validate with the same story lock. Keep the lock story-scoped and host-neutral.",
+      "relatedDocs": [
+        "docs/requirements/decisions/session-ownership-and-write-leases.md",
+        "docs/requirements/decisions/testing-infra.md",
+        "docs/guide-red-spike-story.md"
+      ],
+      "status": "done",
+      "startTime": "2026-06-24T01:13:55.334Z",
+      "endTime": "2026-06-24T01:14:01.825Z",
+      "userSees": "After the implementation build, the terminal shows TypeScript build success and validate/done_required_validate use the same story-scoped validation execution lock without changing unrelated workflow commands.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/handlers/done-required-validation.ts"
+        ],
+        "create": [
+          "packages/main/src/core/validation-execution-lock.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/validate-execution-lock-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A normal story validate command acquires and releases a lock scoped by project, story id, and worktree so same-story duplicate execution cannot overlap.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A different story/worktree can still validate concurrently, and stale validation locks can be reclaimed without blocking future work forever.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Reviewer pass writes, delivery_check_set writes, story_advance internal validate, and done_required_validate are not self-deadlocked or incorrectly blocked by the validate lock.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/validate-execution-lock-smoke.js",
+          "result": "pass",
+          "note": "Post-commit verification passed: TypeScript build succeeded and validate-execution-lock smoke passed with 9 assertions. The implementation now holds the story validation execution lock through command execution, result decoration, and test-evidence persistence for story-scoped non-focus validate writes.",
+          "headHash": "3a054243a2065842641c1162b518685cc2a6dfe9",
+          "materialHash": "1b2a9f2c3066b58911422a17526836c9c37018de4dbbcdda8bc510bb4270a30c",
+          "storyFilesHash": "f1c44983bdb8b2c522889bd6d8922014b05ef37adc11c1a7c8fc1b18736d677c",
+          "timestamp": "2026-06-24T01:26:47.013Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js && node packages/main/dist/tasks/validate-command-timeout-smoke.js",
+          "result": "pass",
+          "note": "Post-commit smokes passed: validate-execution-lock covers different-story/worktree concurrency and stale-lock reclaim; validate-command-timeout passed 18 assertions, confirming timeout behavior was preserved after moving post-processing inside the lock.",
+          "headHash": "3a054243a2065842641c1162b518685cc2a6dfe9",
+          "materialHash": "1b2a9f2c3066b58911422a17526836c9c37018de4dbbcdda8bc510bb4270a30c",
+          "storyFilesHash": "f1c44983bdb8b2c522889bd6d8922014b05ef37adc11c1a7c8fc1b18736d677c",
+          "timestamp": "2026-06-24T01:26:47.013Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js",
+          "result": "pass",
+          "note": "Post-commit validate-execution-lock smoke passed with 9 assertions, including the new post-command pre-persistence hold that blocks an overlapping newer validate before command entry, plus reviewer/delivery metadata, story_advance internal validate, done_required_validate sharing, and reentrancy coverage.",
+          "headHash": "3a054243a2065842641c1162b518685cc2a6dfe9",
+          "materialHash": "1b2a9f2c3066b58911422a17526836c9c37018de4dbbcdda8bc510bb4270a30c",
+          "storyFilesHash": "f1c44983bdb8b2c522889bd6d8922014b05ef37adc11c1a7c8fc1b18736d677c",
+          "timestamp": "2026-06-24T01:26:47.013Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-002",
+      "title": "Carry the red/green validate lock regression smoke into the story worktree",
+      "context": "Reuse validate-execution-lock-smoke as the red-to-green regression. It must cover same story exclusion, different worktree concurrency, reviewer and delivery metadata writes, story_advance internal validate, stale recovery, reentrancy, and done_required_validate sharing the lock.",
+      "relatedDocs": [
+        "docs/guide-red-spike-story.md",
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "status": "done",
+      "startTime": "2026-06-24T01:14:11.183Z",
+      "endTime": "2026-06-24T01:14:17.467Z",
+      "userSees": "Running node packages/main/dist/tasks/validate-execution-lock-smoke.js prints `validate-execution-lock smoke passed: 8 assertions` after build.",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/validate-execution-lock-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The smoke proves same-story validate exclusion with one process holding the validation lock while a second validate attempt is rejected before entering the command body.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The smoke proves different story/worktree validate execution remains concurrent and stale lock cleanup restores availability.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The smoke proves non-validate metadata paths and story_advance internal validate do not become collateral damage of the lock.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/validate-execution-lock-smoke.ts",
+          "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js",
+          "result": "pass",
+          "note": "Post-commit smoke printed validate-execution-lock smoke passed: 9 assertions. It now proves both same-story command exclusion and the post-command evidence persistence window that finding B-ef65:F-001 identified.",
+          "headHash": "3a054243a2065842641c1162b518685cc2a6dfe9",
+          "materialHash": "1b2a9f2c3066b58911422a17526836c9c37018de4dbbcdda8bc510bb4270a30c",
+          "storyFilesHash": "f1c44983bdb8b2c522889bd6d8922014b05ef37adc11c1a7c8fc1b18736d677c",
+          "timestamp": "2026-06-24T01:26:47.013Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/validate-execution-lock-smoke.ts",
+          "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js",
+          "result": "pass",
+          "note": "Post-commit smoke covers different story/worktree concurrency and stale validation lock reclaim, confirming the evidence persistence fix did not turn validation into a global bottleneck or permanent stale-lock failure.",
+          "headHash": "3a054243a2065842641c1162b518685cc2a6dfe9",
+          "materialHash": "1b2a9f2c3066b58911422a17526836c9c37018de4dbbcdda8bc510bb4270a30c",
+          "storyFilesHash": "f1c44983bdb8b2c522889bd6d8922014b05ef37adc11c1a7c8fc1b18736d677c",
+          "timestamp": "2026-06-24T01:26:47.013Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/validate-execution-lock-smoke.ts",
+          "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js",
+          "result": "pass",
+          "note": "Post-commit smoke covers reviewer pass writes, delivery_check_set writes, story_advance internal validate, done_required_validate contention, same-context reentrancy, and sibling contention while the validation lock is held through persistence.",
+          "headHash": "3a054243a2065842641c1162b518685cc2a6dfe9",
+          "materialHash": "1b2a9f2c3066b58911422a17526836c9c37018de4dbbcdda8bc510bb4270a30c",
+          "storyFilesHash": "f1c44983bdb8b2c522889bd6d8922014b05ef37adc11c1a7c8fc1b18736d677c",
+          "timestamp": "2026-06-24T01:26:47.013Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-003",
+      "title": "Record story-to-DONE experiment friction and timing",
+      "context": "This story is an experiment: problem and solution were already proven before story creation. Record any friction such as dirty canonical root, bootstrap/build prerequisites, stale evidence, or DONE gate loops in the final summary.",
+      "relatedDocs": [
+        "docs/requirements/decisions/repro-first-story-intake-experiment.md",
+        "docs/guide-red-spike-story.md"
+      ],
+      "status": "done",
+      "startTime": "2026-06-24T01:14:26.035Z",
+      "endTime": "2026-06-24T01:14:32.617Z",
+      "userSees": "Final summary reports elapsed story time and friction points observed from story creation through DONE, including PLAN gate work, worktree dependency setup, review/test evidence, and any stale evidence recovery.",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The final story summary records the start timestamp, completion timestamp, elapsed time, and major Lattice phase transitions.",
+            "type": "manual",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The summary distinguishes product/code correctness evidence from workflow friction so the experiment does not overstate implementation risk.",
+            "type": "manual",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The summary names any gate loops, stale evidence, dependency bootstrap, owner lease, or reviewer fallback encountered instead of silently hiding process cost.",
+            "type": "manual",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "lattice summary_set --storyId=B-ef65 ...",
+          "result": "pass",
+          "note": "Summary draft records start timestamp 2026-06-24T01:02:46Z, draft timestamp 2026-06-24T01:13:19Z, elapsed 10m13s from CLI output, and the major phase transitions observed so far; final DONE timestamp will be refreshed before closure.",
+          "headHash": "d25e85e1fae5d535370d5e676ea7725d3f8a5657",
+          "materialHash": "1b2a9f2c3066b58911422a17526836c9c37018de4dbbcdda8bc510bb4270a30c",
+          "storyFilesHash": "f1c44983bdb8b2c522889bd6d8922014b05ef37adc11c1a7c8fc1b18736d677c",
+          "timestamp": "2026-06-24T01:28:58.334Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "lattice summary_set --storyId=B-ef65 ...",
+          "result": "pass",
+          "note": "Summary limitations distinguish the validate-lock correctness fix from non-goals such as owner lease redesign, global validate serialization, Authority server behavior, and host-specific behavior.",
+          "headHash": "d25e85e1fae5d535370d5e676ea7725d3f8a5657",
+          "materialHash": "1b2a9f2c3066b58911422a17526836c9c37018de4dbbcdda8bc510bb4270a30c",
+          "storyFilesHash": "f1c44983bdb8b2c522889bd6d8922014b05ef37adc11c1a7c8fc1b18736d677c",
+          "timestamp": "2026-06-24T01:28:58.334Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "lattice summary_set --storyId=B-ef65 ...",
+          "result": "pass",
+          "note": "Summary pitfalls explicitly record dirty canonical root, story_create background schema, high-risk auto-elevation, INIT artifacts, dependency symlinks, PLAN blockers, schema mismatch, same-worktree owner lease takeover friction, and utils dist bootstrap.",
+          "headHash": "d25e85e1fae5d535370d5e676ea7725d3f8a5657",
+          "materialHash": "1b2a9f2c3066b58911422a17526836c9c37018de4dbbcdda8bc510bb4270a30c",
+          "storyFilesHash": "f1c44983bdb8b2c522889bd6d8922014b05ef37adc11c1a7c8fc1b18736d677c",
+          "timestamp": "2026-06-24T01:28:58.334Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-24T01:13:55.334Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Implementation commit 4c26f4d3 is present; recording evidence before marking done."
+    },
+    {
+      "timestamp": "2026-06-24T01:14:01.825Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Code committed in 4c26f4d3 and verified by build plus smoke."
+    },
+    {
+      "timestamp": "2026-06-24T01:14:11.183Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Smoke file is committed in 4c26f4d3; recording regression evidence."
+    },
+    {
+      "timestamp": "2026-06-24T01:14:17.467Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Regression smoke committed and passing."
+    },
+    {
+      "timestamp": "2026-06-24T01:14:26.035Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Summary draft is saved; recording experiment friction evidence before final DONE update."
+    },
+    {
+      "timestamp": "2026-06-24T01:14:32.617Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Experiment friction and timing draft recorded; will refresh final summary before DONE."
+    }
+  ]
+}
