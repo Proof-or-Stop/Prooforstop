@@ -706,6 +706,19 @@
           "materialHash": "9f28b82c91a9d14b0bfcf1aef3a30137f791cf3546df8978a7ad59d8ada25b33",
           "storyFilesHash": "aed6666624846d734a34433306144b48ef4dd03e1dc39ea9ff8f89e19fcf3376",
           "timestamp": "2026-06-24T10:16:47.450Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "package.json",
+          "command": "npm run --silent test:experiments 2>&1 | tail -1",
+          "result": "pass",
+          "note": "package.json test:experiments invokes run-selfchecks.mjs (the aggregator that now includes corpus-selfcheck); npm test => test:experiments => run-selfchecks => corpus-selfcheck, so the new selfcheck is in the CI chain",
+          "headHash": "ba28fbf8454b8fa47e8870993de619d66a3ba0b3",
+          "materialHash": "9f28b82c91a9d14b0bfcf1aef3a30137f791cf3546df8978a7ad59d8ada25b33",
+          "storyFilesHash": "aed6666624846d734a34433306144b48ef4dd03e1dc39ea9ff8f89e19fcf3376",
+          "timestamp": "2026-06-24T10:16:49.643Z"
         }
       ]
     }
