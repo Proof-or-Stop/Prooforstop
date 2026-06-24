@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-91f3",
+  "mode": "custom",
+  "allowed": [
+    "Demote Authority Server production receipt completion from the local proof-admissibility core route",
+    "Keep authorityDone/fullAuthorityDone/productionDone as legacy/external adapter fields that default false",
+    "Update proof-admissibility tests and the hardening decision doc to reflect the local CLI-first boundary",
+    "Use admissibilityStatus, assuranceLevel, and evidenceScope as primary local CLI proof vocabulary"
+  ],
+  "excluded": [
+    "Change Red/Repro/Spike gate behavior",
+    "Change unrelated handoff or usage-ledger receipt semantics",
+    "Delete Authority client networking or server integration files wholesale",
+    "Fix unrelated currentDoneMaterialBinding medium gap",
+    "Remove historical Authority documents outside the proof-admissibility decision doc"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "User approved moving Authority Server production receipt out of the core route after B-fbfb; this story keeps the change narrow to local admissibility semantics.",
+  "createdAt": "2026-06-24T13:19:48.333Z",
+  "updatedAt": "2026-06-24T13:19:48.333Z",
+  "_hash": "c02eaf1e2a39bf842f2bf51da3fad20f3cfcde7b2f7a0f511b3e68aba732cdc6"
+}

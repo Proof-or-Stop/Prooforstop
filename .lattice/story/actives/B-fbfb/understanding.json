@@ -1,0 +1,25 @@
+{
+  "task": "Close the five high proof admissibility convergence gaps without changing unrelated flows.",
+  "outcome": "After this story, the user runs `lattice gap_analyze {\"format\":\"json\"}` and no longer sees the five high proof-admissibility gaps for supportedSchemaVersion, verifierVersionSupported, contractVersionSupported, unsupported_schema_version, or unsupported_contract_version; `lattice convergence_check` reports 0 high-priority gaps for this class.",
+  "facts": [
+    "gap_analyze currently reports 5 high proof-admissibility uncovered_requirement gaps and 1 unrelated medium no_test gap.",
+    "schemaVersion and contractVersion checks already exist in evaluateProofAdmissibility but are not mapped to the scanner-visible requirement wording.",
+    "unsupported_schema_version and unsupported_contract_version reason codes already exist and are returned by mismatch paths.",
+    "verifierVersion is allowed in proof binding payloads but no explicit supported verifier version allowlist was observed.",
+    "The verifierVersionSupported check belongs in the shared proof admissibility evaluator, while buildProofAdmissibilityDiagnostic should inject the current verifier version for normal callers the same way it injects contractVersion."
+  ],
+  "constraints": [
+    "Do not modify Red/Repro/Spike gate behavior in this story.",
+    "Do not perform server production receipt demotion or deletion in this story.",
+    "Do not touch unrelated dirty files or other active stories.",
+    "Keep changes limited to proof-admissibility core, gates, tests/smokes, and scanner-visible annotations if needed."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/proof-admissibility.ts",
+    "packages/main/src/core/proof-admissibility-gates.ts",
+    "packages/main/src/tasks/proof-admissibility-smoke.ts",
+    "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts"
+  ],
+  "timestamp": "2026-06-24T12:52:37.182Z"
+}
