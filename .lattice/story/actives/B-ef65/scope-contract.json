@@ -14,7 +14,31 @@
   "protectedFiles": [],
   "explicitExcludes": [],
   "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "These two files are Lattice-generated TEST/DONE delivery evidence artifacts produced by delivery_context_pack --write and live_smoke_transcript --write for B-ef65; they do not expand product code scope.",
+      "timestamp": "2026-06-24T01:42:32.231Z",
+      "paths": [
+        ".lattice/story/actives/B-ef65/evidence/delivery-context-pack.json",
+        ".lattice/story/actives/B-ef65/evidence/live-smoke-transcript.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-ef65/evidence/delivery-context-pack.json",
+        ".lattice/story/actives/B-ef65/evidence/live-smoke-transcript.json"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "5f8eb431ea01eae732385ee684a60e4e02d22b68",
+      "materialHash": "1b2a9f2c3066b58911422a17526836c9c37018de4dbbcdda8bc510bb4270a30c",
+      "anchors": [
+        "delivery_context_pack",
+        "live_smoke_transcript",
+        "done_delivery_evidence"
+      ]
+    }
+  ],
   "createdAt": "2026-06-24T01:11:57.002Z",
-  "updatedAt": "2026-06-24T01:11:57.002Z"
+  "updatedAt": "2026-06-24T01:42:32.231Z"
 }
