@@ -137,6 +137,17 @@ function gitRefContainsMain(gitCwd: string, ref: string): boolean {
 // metadataRoot (where a custom storyDir is declared), NOT the gitCwd. On a
 // wrapper-root layout with a non-default storyDir, loading config from gitCwd
 // would miss the custom storyDir and wrongly include those paths in the hash.
+//
+// B-d243 (DONE Sub-Gate amendment): storyFilesHash is intentionally NOT applied
+// here. This is a frozen-ref evidence-integrity check (it recomputes
+// materialHash AT the recorded evidence.headHash to verify the stored
+// (headHash, materialHash) pair is self-consistent / untampered), NOT a
+// HEAD-drift freshness check. storyFilesHash computed at the same frozen ref
+// yields no independent signal and an unrelated main merge does not change the
+// tree at the recorded head, so this gate cannot exhibit the whole-tree-drift
+// symptom the drift-advisory downgrade addresses. Wiring storyFilesHash in
+// would be meaningless here; the delivery-check gate is where the downgrade
+// lives.
 function checkCompletedEvidenceSnapshotFreshness(
   gitCwd: string,
   evidence: TestEvidenceData,
@@ -612,11 +623,22 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
           source: 'delivery-check.json.docsPromises',
         }));
       } else {
+        // delivery_check_drift_advisory falls here (not tampered, not stale): the
+        // gate PASSES but the mandatory whole-tree drift advisory is surfaced loudly
+        // on the row detail (never swallowed) so the operator re-attests if needed.
+        // B-d243 F-001: the DeliveryCheckFreshnessResult discriminated union makes
+        // `advisory` a required non-empty string for the drift-advisory variant, so
+        // narrow on the code (not on a `? ''` truthiness swallow) — a
+        // drift_advisory with an empty advisory is now impossible by construction.
+        const advisorySuffix =
+          deliveryCheckFreshness.code === 'delivery_check_drift_advisory'
+            ? ` — ADVISORY: ${deliveryCheckFreshness.advisory}`
+            : '';
         rows.push(doneCheckRow({
           id: 'delivery-check',
           status: 'pass',
           label: 'delivery-check',
-          detail: `${deliveryCheck.docsPromises.length} docsPromises checked`,
+          detail: `${deliveryCheck.docsPromises.length} docsPromises checked${advisorySuffix}`,
           source: 'delivery-check.json.docsPromises',
         }));
       }

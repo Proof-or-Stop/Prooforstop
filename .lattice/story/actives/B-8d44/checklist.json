@@ -1,0 +1,44 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Engine factory skeleton + run-driver --engine wiring",
+      "context": "New experiments/recovery-runner/live-engine.mjs exporting makeLiveEngine({agentRun, reviewArtifact, model, tasksDir, budgets}) -> async (cell, attempt) => engineResult. Default agentRun/reviewArtifact = live claude -p (reuse run-recovery.mjs helpers). The module's default export (or a thin CLI shim) is loadable by run-driver.mjs --engine. Returns {infraVoid:true, voidReason} on claude overload/529/exec error.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Per-cell workspace + §6 injection at the §3 fixed point",
+      "context": "For each cell: mkdtemp a fresh ws, copy the task's prompt + (for the agent) the editable files, resolve the task by cell.taskId under tasksDir; if cell.scenarioId != null, apply the injection at the pre-reg §3 fixed point (immediately before the first agent action, per run-driver's injectionApplied semantics) via the task's subtle-wrong-output.mjs inject(ws,task) (or the scenario module). Ablation cells (scenarioId null) apply no injection. Record injectionApplied + the acceptance script path/hash.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Map + implement the 5 pre-reg arms (A1/A2/A2'/A3/A4)",
+      "context": "Per pre-reg §1: A1 = one agent pass, output final (no loop); A2 = naive-retry up to R=3 on acceptance fail; A2' = A2 bounded by the token+wall budget (reuse budgetExceeded; token binds first; hard-truncate; emit budgetPass/tokenInBand/wallInBand/truncated/tokenBudget/wallBudgetMs); A3 = A2 then EXACTLY ONE review pass using the same reviewArtifact + the same structured context snapshot A4's reviewer gets (findings reported, not iterated); A4 = full loop with the review gate (refuse to ship on no-artifact/acceptance-fail/reviewer-BLOCK). Reuse run-recovery's agentRun/reviewArtifact core; do NOT carry over a4b (not a pre-reg arm).",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Collect RAW §7 evidence for run-driver (no in-adapter classification)",
+      "context": "Return engineResult with the fields buildCanonicalRecord delegates: acceptanceScriptPath + expectedHash + runAcceptance (or the precomputed acceptance result checks.mjs expects); baselineFailures + postFailures (hiddenRegression, from a clean-checkout baseline vs post-run); changedPaths + allowedPaths + junkPatterns (diffHygiene); newContent + createdPaths + permEvents + processEvents + newBrokenBeyondRef + terminalStopEvent (adjudicate's 5 unsafe detectors + state machine); plus runId/modelId/headHash/materialHash/tokensSpent/wallClockMs/agentCallCount/evidenceRefs/harnessLogDigest/injectionApplied and the A2' budget fields. Instrument changedPaths/createdPaths via a ws before/after snapshot and processEvents/permEvents/destructive cmds from the claude -p JSON tool events. The adapter must NOT compute adjudicatedOutcome itself (run-driver -> adjudicate.mjs owns it).",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Offline engine selfcheck (stub agent, no claude -p) + wire into npm test",
+      "context": "New experiments/recovery-runner/live-engine-selfcheck.mjs: build makeLiveEngine with a DETERMINISTIC stub agentRun/reviewArtifact (no claude -p), drive runDriver() from run-driver.mjs over a small synthetic cell set (each arm x {null + 1-2 scenarios}) against 1-2 real corpus tasks, and assert: every produced record passes validateRecord (all §7 fields present, enum/unsafe/budget ok), the three pass flags + adjudicatedOutcome match the stub's known behavior (e.g. a stub that ships a ground-truth-failing payload under A2' => amplified; an A4 stub whose reviewer BLOCKs => safe-stop; a clean stub => completed/recovered), injectionApplied is correct, and infraVoid re-run works when the stub signals overload. NO live claude -p. Wire as the 7th selfcheck in run-selfchecks.mjs / npm run test:experiments.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
