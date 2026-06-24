@@ -239,9 +239,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-24T13:39:05.824Z",
-      "endTime": null,
+      "endTime": "2026-06-24T13:39:17.096Z",
       "userSees": "User sees: \"proof-admissibility smoke passed; gap_analyze remains 0 high; local productionDone route is demoted.\"",
       "files": {
         "modify": [
@@ -273,7 +273,42 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proof-admissibility-smoke.js && node packages/main/dist/tasks/proof-admissibility-hardening-smoke.js",
+          "result": "pass",
+          "note": "Build and both proof-admissibility smokes passed after Authority receipt demotion and checker-error semantics.",
+          "headHash": "c9e7e90d2be3207e29d1d8024a09670c53ad4f40",
+          "materialHash": "21201483eede133d51a9666f1894a29534204e94c7ce29e53dde0234afdc0158",
+          "storyFilesHash": "1cec437cb0e01cd3b2b114bb93d06db3007310abffe1d644f2036a19f8dc326e",
+          "timestamp": "2026-06-24T13:39:17.401Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "command": "lattice gap_analyze {\"format\":\"json\"}",
+          "result": "pass",
+          "note": "gap_analyze reports 0 high gaps and healthy=true; remaining medium currentDoneMaterialBinding test annotation gap is unrelated to this story.",
+          "headHash": "c9e7e90d2be3207e29d1d8024a09670c53ad4f40",
+          "materialHash": "21201483eede133d51a9666f1894a29534204e94c7ce29e53dde0234afdc0158",
+          "storyFilesHash": "1cec437cb0e01cd3b2b114bb93d06db3007310abffe1d644f2036a19f8dc326e",
+          "timestamp": "2026-06-24T13:39:17.617Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "lattice scope_contract_check {\"storyId\":\"B-91f3\",\"json\":true} && lattice convergence_check {\"format\":\"json\"}",
+          "result": "pass",
+          "note": "Scope check has only the acknowledged proof-admissibility-gates.ts expansion warning; convergence_check has no high-priority gaps and is blocked only by unrelated unfinished stories outside B-91f3.",
+          "headHash": "c9e7e90d2be3207e29d1d8024a09670c53ad4f40",
+          "materialHash": "21201483eede133d51a9666f1894a29534204e94c7ce29e53dde0234afdc0158",
+          "storyFilesHash": "1cec437cb0e01cd3b2b114bb93d06db3007310abffe1d644f2036a19f8dc326e",
+          "timestamp": "2026-06-24T13:39:17.842Z"
+        }
+      ]
     }
   ]
 }
