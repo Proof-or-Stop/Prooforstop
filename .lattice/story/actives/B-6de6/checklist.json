@@ -305,7 +305,22 @@
         "test": [
           "packages/main/src/tasks/review-assurance-floor-storyfileshash-smoke.ts"
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/review-assurance-floor-storyfileshash-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-assurance-floor-storyfileshash-smoke.js",
+          "result": "pass",
+          "note": "smoke check (a)/(d): report.advisories is non-empty and contains the re-attestation advisory matching /storyFilesHash matches/",
+          "headHash": "d9481ed44b64e96d8acb30185a84ca764e5dc483",
+          "materialHash": "2f149db52f337a4f4466fa1a43a8f0dbc8df49ef07e65772f5be61142bd5f85c",
+          "storyFilesHash": "c21f0bf4341b45f8bae934c199fccad218fe04e737720749c66665a41e8540cb",
+          "timestamp": "2026-06-24T00:20:52.299Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
