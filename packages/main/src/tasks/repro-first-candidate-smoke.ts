@@ -80,6 +80,25 @@ section('1. repro_probe — happy path');
   const retrieved = readArtifact<ReproProbePayload>(root, probe.artifactId);
   assert.equal(retrieved.payload.taskSummary, probe.payload.taskSummary, 'roundtrip taskSummary');
 
+  const changedNestedCommandProbe = createProbe(root, {
+    candidateId: 'cand-test-001',
+    taskSummary: 'Validate that auth guard fails on expired token',
+    eligibility: 'Reproducible in dev environment',
+    reason: 'Auth guard regression suspected after B-1234 merge',
+    commandSpec: { command: 'node', args: ['different.js'] },
+    expectedFailure: 'Expected 401 Unauthorized',
+    expectedFailurePattern: 'AuthGuardError.*expired',
+    executionStatus: 'confirmed_failing',
+    observedFailureSummary: 'Request passed with expired token; returned 200',
+    boundedOutputExcerpt: 'GET /api/resource 200 OK (token_exp=past)',
+    producerObservedClass: 'target-bug',
+  });
+  assert.notEqual(
+    changedNestedCommandProbe.artifactDigest,
+    probe.artifactDigest,
+    'nested commandSpec values must be included in artifact digest',
+  );
+
   process.stdout.write(`  probe: ${probe.artifactId} digest=${probe.artifactDigest.slice(0, 12)}...\n`);
 
   // ── 2. repro_review_set — red-reviewed ────────────────────────────────────
@@ -263,7 +282,10 @@ section('1. repro_probe — happy path');
 
     const mismatchEval = evaluateRedGreenRelation(root, { relationId: mismatchRelation.artifactId });
     assert.equal(mismatchEval.payload.pass, false, 'mismatch evaluation must fail');
-    assert.ok(mismatchEval.payload.reasons.some(r => r.includes('mismatch') || r.includes('not_run')), 'reasons must mention the failure cause');
+    assert.ok(
+      mismatchEval.payload.reasons.some(r => r.includes('mismatch') || r.includes('not_run') || r.includes('missing red-reviewed')),
+      'reasons must mention the failure cause',
+    );
 
     process.stdout.write(`  mismatch eval: pass=${mismatchEval.payload.pass} reasons=${mismatchEval.payload.reasons.join('; ')}\n`);
   }
@@ -298,7 +320,7 @@ section('1. repro_probe — happy path');
         storyTitle: 'Should not create',
         storyDescription: 'Should not create this story from rejected repro',
       }, async () => 'should-not-reach'),
-      /repro-rejected/,
+      /non-accepted repro review/,
       'rejected repro must block story creation',
     );
     process.stdout.write('  correctly blocked story creation from rejected repro\n');

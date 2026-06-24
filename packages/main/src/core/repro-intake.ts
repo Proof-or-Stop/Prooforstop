@@ -12,6 +12,7 @@ import {
   writeArtifact,
   readArtifact,
   verifyArtifactDigest,
+  listArtifacts,
 } from './evidence/artifact-store.js';
 import type {
   EvidenceArtifact,
@@ -32,6 +33,19 @@ import type {
 
 const CANDIDATE_SCOPE = 'evidence-candidate' as const;
 const PRODUCER = 'repro-intake-service';
+
+function findAcceptedProbeReview(
+  projectRoot: string,
+  probeId: string,
+  probeDigest: string,
+): EvidenceArtifact<ReproReviewPayload> | undefined {
+  return listArtifacts<ReproReviewPayload>(projectRoot, 'repro-review').find(artifact => (
+    artifact.payload.probeId === probeId &&
+    artifact.payload.probeDigest === probeDigest &&
+    artifact.payload.verdict === 'red-reviewed' &&
+    artifact.payload.reviewedFailureClass === 'target-bug'
+  ));
+}
 
 // ---------------------------------------------------------------------------
 // createProbe
@@ -281,8 +295,12 @@ export function evaluateRedGreenRelation(
   const reasons: string[] = [];
   let pass = true;
 
-  // Check probe has been reviewed and not rejected
-  // We scan by candidateId in the ref dir; simplified: just validate probe status
+  const acceptedReview = findAcceptedProbeReview(projectRoot, probe.artifactId, probe.artifactDigest);
+  if (!acceptedReview) {
+    pass = false;
+    reasons.push('missing red-reviewed target-bug repro review for probe');
+  }
+
   if (probe.payload.executionStatus === 'not_run') {
     pass = false;
     reasons.push('probe execution status is not_run — cannot evaluate without observed failure');
@@ -303,7 +321,7 @@ export function evaluateRedGreenRelation(
   }
 
   if (pass) {
-    reasons.push('command specs match and failure patterns are defined');
+    reasons.push(`command specs match, failure patterns are defined, and reviewed repro is accepted (${acceptedReview?.artifactId})`);
   }
 
   const payload: RedGreenEvaluationPayload = {
@@ -394,14 +412,20 @@ export async function createStoryFromRepro(
   const probe = readArtifact<ReproProbePayload>(projectRoot, input.probeId);
   const review = readArtifact<ReproReviewPayload>(projectRoot, input.reviewId);
 
-  // Fail closed: review must not be rejected
-  if (review.payload.verdict === 'repro-rejected') {
-    throw new Error(`repro-intake: cannot create story from rejected repro review (verdict=repro-rejected, reviewId=${input.reviewId})`);
+  // Fail closed: only a red-reviewed target-bug review can create a story from repro.
+  if (review.payload.verdict !== 'red-reviewed' || review.payload.reviewedFailureClass !== 'target-bug') {
+    throw new Error(
+      `repro-intake: cannot create story from non-accepted repro review ` +
+      `(verdict=${review.payload.verdict}, reviewedFailureClass=${review.payload.reviewedFailureClass}, reviewId=${input.reviewId})`,
+    );
   }
 
   // Validate probe digest referenced in review matches
   if (review.payload.probeId !== input.probeId) {
     throw new Error(`repro-intake: review ${input.reviewId} references probe ${review.payload.probeId}, not ${input.probeId}`);
+  }
+  if (review.payload.probeDigest !== probe.artifactDigest) {
+    throw new Error(`repro-intake: review ${input.reviewId} digest ${review.payload.probeDigest} does not match probe ${input.probeId} digest ${probe.artifactDigest}`);
   }
 
   const spikeDigest = input.spikeId
