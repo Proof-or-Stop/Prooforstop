@@ -151,8 +151,8 @@
       "id": "CHK-004",
       "title": "Offline smoke/contract test + wire into npm test",
       "context": "Add a smoke (packages/main, in the existing review-assurance / done-* smoke style) asserting: (a) quorum at material X, then an unrelated whole-tree change (materialHash drifts, storyFilesHash unchanged) => floor still counts the rounds valid with the advisory; (b) a re-bind after such drift does not produce duplicate-identity-invalid rounds; (c) inverse control: a real story-file change (storyFilesHash differs) DOES stale the rounds (found 0). Wire into the root npm test chain.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-24T00:09:54.113Z",
       "endTime": null,
       "verificationIntent": {
         "happy": [
