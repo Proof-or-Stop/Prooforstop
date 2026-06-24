@@ -9,7 +9,7 @@
     {
       "artifactKind": "done-required-evidence",
       "aliases": ["done-required-evidence.json"],
-      "scope": "production-gate-decision",
+      "scope": "local-gate-evidence",
       "artifactRole": "current-verification",
       "temporalRole": "current-state",
       "producerBoundary": "local-runtime-owned",
@@ -18,7 +18,7 @@
       "allowedClaims": ["done-readiness"],
       "productionDoneEligible": false,
       "status": "strong local gate evidence",
-      "whyNotStronger": "Local readiness evidence is not an Authority production completion claim."
+      "whyNotStronger": "Strong local readiness evidence can satisfy DONE readiness policy but is not an Authority production completion claim."
     },
     {
       "artifactKind": "delivery-check",
@@ -226,6 +226,7 @@
     "evidence-candidate cannot satisfy production-completion",
     "local-diagnostic cannot satisfy production-completion even when accepted=true appears in local output",
     "local-key-single-host cannot satisfy production-completion",
+    "local-gate-evidence can satisfy local done-readiness but cannot satisfy production-completion",
     "local-review-quorum cannot satisfy production-completion or Authority completion",
     "legacy-observed cannot satisfy production-completion",
     "authority-receipt cannot satisfy production-completion without a matching production-gate-decision ref"

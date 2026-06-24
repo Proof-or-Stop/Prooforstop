@@ -131,8 +131,8 @@ root, call the Authority Server, or hard-fail lifecycle gates.
 The classifier enforces the scope boundary in code:
 
 - `evidence-candidate`, `local-diagnostic`, `local-key-single-host`,
-  `local-review-quorum`, `legacy-observed`, and raw `authority-receipt` surfaces
-  cannot satisfy `production-completion`;
+  `local-gate-evidence`, `local-review-quorum`, `legacy-observed`, and raw
+  `authority-receipt` surfaces cannot satisfy `production-completion`;
 - `production-gate-decision` is the only scope that can be
   `productionDoneEligible`, and only for a matching consumer/claim with valid
   schema, shape, digest, signature/receipt, subject, and temporal/material

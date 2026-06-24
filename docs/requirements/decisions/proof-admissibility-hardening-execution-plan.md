@@ -98,6 +98,7 @@ Anything else is still useful, but it is not strong proof:
 | `evidence-candidate` | Pre-story or handoff candidate evidence that may inform intake/planning but is not gate proof | No |
 | `local-diagnostic` | Local/shadow CLI output, fake/local receipt, host status, handoff status | No |
 | `local-key-single-host` | Offline signed local bundle from one key/host | No |
+| `local-gate-evidence` | Strong local lifecycle gate readiness evidence | No |
 | `local-review-quorum` | Local 3 round x 2 host verdict over current material | No Authority claim; may satisfy local review escalation |
 | `authority-receipt` | Signature-verified Authority receipt with subject binding | No; it may only be input to a matching gate |
 | `production-gate-decision` | Verified Authority `gate_decision` receipt consumed by the matching gate | Yes, if all policy checks pass |
@@ -1052,6 +1053,7 @@ block unrelated stories merely because they exist in the ledger history.
 - `evidence-candidate`
 - `local-diagnostic`
 - `local-key-single-host`
+- `local-gate-evidence`
 - `local-review-quorum`
 - `authority-receipt`
 - `production-gate-decision`

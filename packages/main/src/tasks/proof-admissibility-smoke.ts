@@ -45,6 +45,7 @@ function currentValidChecks(schemaVersion: string) {
 
 {
   assert.ok(EVIDENCE_SCOPES.includes('production-gate-decision'), 'scope dictionary includes production-gate-decision');
+  assert.ok(EVIDENCE_SCOPES.includes('local-gate-evidence'), 'scope dictionary includes local-gate-evidence');
   assert.ok(ARTIFACT_ROLES.includes('authority-decision'), 'artifact role dictionary includes authority-decision');
   assert.ok(CLAIM_KINDS.includes('production-completion'), 'claim dictionary includes production-completion');
   assert.ok(ARTIFACT_CONSUMER_KINDS.includes('AUTHORITY_GATE_DECISION'), 'consumer dictionary includes AUTHORITY_GATE_DECISION');
@@ -90,6 +91,29 @@ function currentValidChecks(schemaVersion: string) {
   assert.equal(result.allowed, true, 'matching production gate decision is allowed');
   assert.equal(result.productionDoneEligible, true, 'matching production gate decision can be productionDone eligible');
   assert.deepEqual(result.reasons, [], 'happy production gate decision has no reasons');
+}
+
+{
+  const doneRequired = evaluateProofAdmissibility({
+    artifactKind: 'done-required-evidence',
+    consumer: 'DONE_REQUIRED',
+    claim: 'done-readiness',
+    checks: currentValidChecks('lattice.done_required_evidence.v1'),
+  });
+  assert.equal(doneRequired.allowed, true, 'DONE-required evidence can satisfy local done-readiness');
+  assert.equal(doneRequired.scope, 'local-gate-evidence', 'DONE-required evidence is scoped as local gate evidence');
+  assert.equal(doneRequired.productionDoneEligible, false, 'DONE-required evidence is never productionDone eligible');
+
+  const doneRequiredOverread = evaluateProofAdmissibility({
+    artifactKind: 'done-required-evidence',
+    consumer: 'DONE',
+    claim: 'production-completion',
+    checks: currentValidChecks('lattice.done_required_evidence.v1'),
+  });
+  assert.equal(doneRequiredOverread.allowed, false, 'DONE-required evidence cannot satisfy production completion');
+  assert.equal(doneRequiredOverread.productionDoneEligible, false, 'DONE-required evidence cannot set productionDone');
+  expectReason(doneRequiredOverread.reasons, 'artifact_consumer_mismatch', 'DONE-required production claim');
+  expectReason(doneRequiredOverread.reasons, 'producer_owned_required', 'DONE-required production claim');
 }
 
 {

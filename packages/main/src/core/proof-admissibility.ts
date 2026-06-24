@@ -14,6 +14,7 @@ export const EVIDENCE_SCOPES = [
   'evidence-candidate',
   'local-diagnostic',
   'local-key-single-host',
+  'local-gate-evidence',
   'local-review-quorum',
   'authority-receipt',
   'production-gate-decision',
@@ -191,7 +192,7 @@ export const PROOF_SURFACE_REGISTRY = [
   {
     artifactKind: 'done-required-evidence',
     aliases: ['done-required-evidence.json'],
-    scope: 'production-gate-decision',
+    scope: 'local-gate-evidence',
     artifactRole: 'current-verification',
     temporalRole: 'current-state',
     producerBoundary: 'local-runtime-owned',

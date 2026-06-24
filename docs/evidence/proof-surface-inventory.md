@@ -27,6 +27,7 @@ until it has been consumed by the matching gate decision path.
 | `evidence-candidate` | No | Intake/planning candidate evidence. |
 | `local-diagnostic` | No | Local/shadow/diagnostic runtime evidence. |
 | `local-key-single-host` | No | Offline local key bundle from one host. |
+| `local-gate-evidence` | No | Strong local lifecycle readiness evidence, not production authority. |
 | `local-review-quorum` | No | Local review escalation evidence only. |
 | `authority-receipt` | No | Verified receipt input, not a gate-consumed decision. |
 | `production-gate-decision` | Yes, policy-matching only | Matching gate-consumed decision evidence. |
@@ -35,7 +36,7 @@ until it has been consumed by the matching gate decision path.
 
 | Surface | Artifact kind | Scope | Producer boundary | Consumers | Allowed claims | productionDone | Status | Why not stronger |
 |---|---|---|---|---|---|---:|---|---|
-| DONE-required evidence | `done-required-evidence` | `production-gate-decision` | `local-runtime-owned` | `DONE_REQUIRED`, `DONE` | `done-readiness` | No | strong local gate evidence | It is local readiness evidence, not an Authority production completion claim. |
+| DONE-required evidence | `done-required-evidence` | `local-gate-evidence` | `local-runtime-owned` | `DONE_REQUIRED`, `DONE` | `done-readiness` | No | strong local gate evidence | It can satisfy local DONE readiness policy but is not an Authority production completion claim. |
 | Delivery check / final report | `delivery-check` | `local-diagnostic` | `local-runtime-owned` | `REVIEW`, `TEST`, `DONE` | `done-readiness` | No | needs scope label | Local report text can guide review but cannot establish production authority. |
 | Review runs / review passes / findings | `review-run` | `local-review-quorum` | `trusted-reviewer-owned` | `REVIEW` | `review-pass` | No | strong local review evidence | It satisfies local review escalation only, not production completion. |
 | Authority receipt refs | `authority-receipt-ref` | `production-gate-decision` | `authority-owned` | `AUTHORITY_GATE_DECISION`, `TEST`, `DONE` | `production-completion`, `done-readiness` | Yes, only for matching production claim | strong-proof-ready | This is the only current production completion eligible surface when all bindings match. |
@@ -59,6 +60,8 @@ until it has been consumed by the matching gate decision path.
   `productionDone`, even if they contain `accepted=true`.
 - `local-key-single-host` artifacts are local/offline evidence and cannot be
   promoted to Authority proof.
+- `local-gate-evidence` artifacts can satisfy their local lifecycle readiness
+  claim but cannot satisfy `production-completion`.
 - `local-review-quorum` can satisfy local review escalation only.
 - `legacy-observed` artifacts remain audit-readable but are not strong proof.
 - `authority-receipt` must not be confused with `production-gate-decision`.
