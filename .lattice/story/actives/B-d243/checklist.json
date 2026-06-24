@@ -6,7 +6,43 @@
       "context": "Add storyFilesHash?:string to DeliveryCheckData (core/types.ts); add the param to signDeliveryCheck + recomputeDeliveryCheckHash (core/delivery-check-hash.ts); compute currentStoryFilesHash and persist+sign it in delivery_check_set AND the delivery_waiver_add re-sign path (handlers/delivery-check.ts). Legacy records without storyFilesHash must recompute byte-identically.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "signDeliveryCheck with storyFilesHash present produces a signature that covers the storyFilesHash value; recomputeDeliveryCheckHash with the same storyFilesHash reproduces the identical hash -> signature verification passes; WHY: confirms storyFilesHash is actually inside the signed payload",
+            "type": "cli"
+          },
+          {
+            "desc": "delivery_check_set computes currentStoryFilesHash and persists it in the written record alongside the signature -> stored record.storyFilesHash is non-empty and record._hash verifies; WHY: confirms the writer path actually stores and signs the field",
+            "type": "cli"
+          },
+          {
+            "desc": "delivery_waiver_add re-sign path preserves storyFilesHash from the original delivery-check through the waiver re-sign -> re-signed record.storyFilesHash equals original; WHY: confirms the waiver path does not lose the field",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Legacy delivery-check record with no storyFilesHash field -> recomputeDeliveryCheckHash produces byte-identical hash to the original legacy _hash; WHY: append-only signature payload must not break existing records",
+            "type": "cli"
+          },
+          {
+            "desc": "storyFilesHash is empty string (edge vs null/undefined) -> treated as missing (legacy path), not as a valid hash; WHY: empty-string sentinel must not create a forgeable match",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Forged storyFilesHash: attacker edits the stored record to set storyFilesHash to a value that matches currentStoryFilesHash but was NOT in the original signature -> recomputeDeliveryCheckHash returns a hash that does NOT match _hash (tampered); WHY: the core security invariant -- unsigned storyFilesHash must not be a forgeable bypass",
+            "type": "cli"
+          },
+          {
+            "desc": "Attacker removes storyFilesHash from a record that was originally signed WITH it -> recomputeDeliveryCheckHash(without storyFilesHash) differs from _hash (tampered); WHY: field deletion must also break the signature",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
