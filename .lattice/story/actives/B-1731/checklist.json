@@ -86,9 +86,9 @@
       "id": "CHK-002",
       "title": "STORY_INTAKE preflight in story-create.ts + story_create_from_repro: query proof-admissibility for a bound accepted repro/spike evidence-candidate; warn/block; fail-OPEN; bypass-with-reason",
       "context": "Add the preflight to packages/main/src/handlers/story-create.ts (and ensure story_create_from_repro passes because it binds the candidate). REUSE proof-admissibility (STORY_INTAKE consumer, evidence-candidate scope). Satisfied = a bound reviewer-accepted candidate: repro path (repro-probe + repro-review reviewedFailureClass=target-bug) OR spike path (spike-record + spike-review). Required+missing -> warn (block under enforce) with exact next command. Wrap the whole preflight in fail-OPEN try/catch (engine error -> allow + repro_first_preflight_engine_error diagnostic). Bypass (bypassReproFirst.reason) always honored, writes a repro-first-bypass local-diagnostic artifact.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-24T21:59:47.334Z",
       "relatedDocs": [
         "docs/requirements/decisions/repro-first-story-intake-experiment.md",
         "docs/evidence/proof-surface-inventory.md"
@@ -125,7 +125,53 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js",
+          "result": "pass",
+          "note": "Smoke ok 2, ok 10, and ok 13 prove valid story-evidence-binding allows IDEA→PLAN, PLAN→DEV, and INIT_CHECK→DEV express.",
+          "headHash": "171d54b0018d15a398c85429fbf2e4143ce0fdd2",
+          "materialHash": "ce6a2003a743a29f21740a4b39561fbf8f67a1ad065827ffe7d0d90e39df080e",
+          "storyFilesHash": "532eba9adeead064f0076b0d39e942aba714756d6214dafd7eec4fbaf23776d2",
+          "timestamp": "2026-06-24T21:59:47.621Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js",
+          "result": "pass",
+          "note": "Smoke ok 1 and ok 9 prove file-touched stories without binding surface missing_story_evidence_binding before PLAN/DEV.",
+          "headHash": "171d54b0018d15a398c85429fbf2e4143ce0fdd2",
+          "materialHash": "ce6a2003a743a29f21740a4b39561fbf8f67a1ad065827ffe7d0d90e39df080e",
+          "storyFilesHash": "532eba9adeead064f0076b0d39e942aba714756d6214dafd7eec4fbaf23776d2",
+          "timestamp": "2026-06-24T21:59:47.893Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js",
+          "result": "pass",
+          "note": "Smoke ok 8 and ok 11 prove stale digests, unaccepted reviews, and non-target-bug classifications are rejected before PLAN/DEV entry.",
+          "headHash": "171d54b0018d15a398c85429fbf2e4143ce0fdd2",
+          "materialHash": "ce6a2003a743a29f21740a4b39561fbf8f67a1ad065827ffe7d0d90e39df080e",
+          "storyFilesHash": "532eba9adeead064f0076b0d39e942aba714756d6214dafd7eec4fbaf23776d2",
+          "timestamp": "2026-06-24T21:59:48.174Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/repro-first-candidate-smoke.js",
+          "result": "pass",
+          "note": "Existing candidate workflow still creates story-evidence-binding without verificationEvidence after createStoryFromRepro changes.",
+          "headHash": "171d54b0018d15a398c85429fbf2e4143ce0fdd2",
+          "materialHash": "ce6a2003a743a29f21740a4b39561fbf8f67a1ad065827ffe7d0d90e39df080e",
+          "storyFilesHash": "532eba9adeead064f0076b0d39e942aba714756d6214dafd7eec4fbaf23776d2",
+          "timestamp": "2026-06-24T21:59:48.441Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
