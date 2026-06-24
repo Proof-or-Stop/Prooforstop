@@ -177,9 +177,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-24T10:09:06.593Z",
-      "endTime": null,
+      "endTime": "2026-06-24T10:09:14.813Z",
       "userSees": "User sees classifier results that say allowed=false with stable reason codes for candidate, diagnostic, legacy, local-key, and receipt-only inputs, and allowed=true only for matching production-gate-decision policy.",
       "files": {
         "modify": [
@@ -212,7 +212,45 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proof-admissibility-smoke.ts",
+          "command": "npm --prefix packages/main run test:proof-admissibility",
+          "result": "pass",
+          "note": "Smoke verifies a matching authority-receipt-ref production-gate-decision is allowed and productionDoneEligible for production-completion.",
+          "headHash": "b0991b235fb1dc3fbce611166757a0e60df9c93d",
+          "materialHash": "b2d2745fdd0678e902f7917e3e4200fe071ec3c373c70df8e50224e67f42e411",
+          "storyFilesHash": "1182244e6833c24e24ecba68362c64b7d67b270c8e42ec7310e0221d464a874d",
+          "timestamp": "2026-06-24T10:09:15.018Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proof-admissibility-smoke.ts",
+          "command": "npm --prefix packages/main run test:proof-admissibility",
+          "result": "pass",
+          "note": "Smoke verifies local-review-quorum can satisfy REVIEW review-pass while denying DONE/AUTHORITY production-completion.",
+          "headHash": "b0991b235fb1dc3fbce611166757a0e60df9c93d",
+          "materialHash": "b2d2745fdd0678e902f7917e3e4200fe071ec3c373c70df8e50224e67f42e411",
+          "storyFilesHash": "1182244e6833c24e24ecba68362c64b7d67b270c8e42ec7310e0221d464a874d",
+          "timestamp": "2026-06-24T10:09:15.194Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proof-admissibility-smoke.ts",
+          "command": "npm --prefix packages/main run test:proof-admissibility",
+          "result": "pass",
+          "note": "Smoke verifies local diagnostic, raw candidate, legacy, local-key, and authority-receipt-only inputs deny production claims with explicit reason codes.",
+          "headHash": "b0991b235fb1dc3fbce611166757a0e60df9c93d",
+          "materialHash": "b2d2745fdd0678e902f7917e3e4200fe071ec3c373c70df8e50224e67f42e411",
+          "storyFilesHash": "1182244e6833c24e24ecba68362c64b7d67b270c8e42ec7310e0221d464a874d",
+          "timestamp": "2026-06-24T10:09:15.387Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
