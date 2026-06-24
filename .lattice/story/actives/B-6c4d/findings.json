@@ -36,6 +36,24 @@
       ],
       "signatureTag": "missing|ts|promise-undelivered-prompt",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-6c4d:F-003",
+      "desc": "CHK-001:adversarial:2 intent claims \\\"net result lane blocked\\\" but assertReviewRunBindingRaceAcceptsNonLatestFreshPass never calls getGuardFailureReason to assert that the gate actually blocks when a non-latest-run open finding coexists with a non-latest-run pass. The smoke asserts the pass has no stale_run (L1452-1457) and the open finding has stale_run (L1466-1471) separately, but the final \\\"net result lane blocked\\\" claim in the evidence note is not validated by a guard-layer assertion. The link from stale_run-in-invalid to gate-blocks is real but left implicit. The analogous cases in assertSupersededReviewPassDoesNotBlockLatestReviewerRun use getGuardFailureReason (L1313) to close this loop; the binding-race function does not.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-24T14:16:29.071Z",
+      "reviewRound": "2026-06-24T14:10:01.204Z",
+      "reviewRunId": "B-6c4d:RR-004",
+      "_hash": "d9bcb5388774bb364fc6b05beb77042035148368255d9aa3658fd604d2843308",
+      "files": [
+        "packages/main/src/tasks/flow-stability-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|adversarial-intent-claims",
+      "signatureTagSource": "auto"
     }
   ]
 }
