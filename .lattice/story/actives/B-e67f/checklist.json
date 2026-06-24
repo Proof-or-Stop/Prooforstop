@@ -214,16 +214,16 @@
         },
         {
           "intentRef": "CHK-001:edge:0",
-          "kind": "logic_test",
+          "kind": "manual_transcript",
           "verdict": "success",
-          "file": "experiments/recovery-runner/corpus-selfcheck.mjs",
-          "command": "node experiments/recovery-runner/corpus-selfcheck.mjs",
+          "file": "experiments/recovery-runner/tasks",
+          "command": "git diff --stat main...HEAD -- experiments/recovery-runner/tasks/eval-expr experiments/recovery-runner/tasks/median experiments/recovery-runner/tasks/parse-range experiments/recovery-runner/tasks/text-stats",
           "result": "pass",
-          "note": "corpus-selfcheck enumerates all 24 task dirs and asserts the 7-file contract (6 always-present + inline-or-file payload) + well-formed task.json per task; 24/24 pass => the 20 new dirs were applied correctly alongside the existing 4",
-          "headHash": "5090f344d94ec040f1e2508be0d4113e256e1a52",
-          "materialHash": "9f28b82c91a9d14b0bfcf1aef3a30137f791cf3546df8978a7ad59d8ada25b33",
-          "storyFilesHash": "aed6666624846d734a34433306144b48ef4dd03e1dc39ea9ff8f89e19fcf3376",
-          "timestamp": "2026-06-24T10:15:55.093Z"
+          "note": "empty diff => the 4 pre-existing feature tasks are unmodified by this story (also enforced by the scope contract excluding them)",
+          "headHash": "d0f7d97cc47f65185cb5e8af81d279d1b616087c",
+          "materialHash": "03ac2ae4cf90a681ead16a78c7ebfe7f00d258c49a17397a78706c19c1cc25d8",
+          "storyFilesHash": "bf5cea6e9a648fc109da08133396f55860337c7e23ecf5053dd8e144115c43e0",
+          "timestamp": "2026-06-24T10:34:15.698Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
