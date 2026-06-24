@@ -126,7 +126,7 @@
       "desc": "Post-merge review assurance is stale for current material. After F-004/F-005 resolution, lattice finding_list shows all prior findings resolved and checklist evidence refreshed to materialHash 923ad919c3ba509a25243f28d0b60a236866050a79a73b478ce4b24568baa7d0, and build/smoke/contract checks pass. However lattice review_escalation_status --storyId=B-0405 --json reports ok=false, required=true, materialHash=923ad919c3ba509a25243f28d0b60a236866050a79a73b478ce4b24568baa7d0, fullQuorum.ok=false, voluntaryLocalRounds.validRoundCount=0, and all six submitted B-0405-q-r1..q-r3 host verdicts ignored because materialDigest is stale (c074e77cf9d0d9198cf347d2b26f05ffbb179573e69e3b7bf20317aa976004dc). CHK-006 evidence still claims final material has local voluntary 3 rounds x 2 host quorum, so the current material lacks fresh 3x2 assurance and REVIEW/DONE escalation risk remains after the main merge/docs fix. A concurrent lattice validate --story=B-0405 --json attempt was blocked by an existing validation lock (pid 53418), so this finding is based on the dedicated review_escalation_status gate diagnostic plus passing focused code checks.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-24T12:02:32.780Z",
@@ -139,7 +139,11 @@
         "packages/main/src/core/review-escalation.ts"
       ],
       "signatureTag": "missing|jsonl|post-merge-review",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded by current quality run B-0405:RR-022 / pass B-0405:RP-011, which explicitly found all non-quorum quality concerns clean and identified the remaining action as submitting a fresh local 3x2 quorum over current material. This resolution only clears the stale old-run blocker so quorum_submit can bind final material; it does not claim quorum freshness until quorum_submit and review_escalation_status pass immediately afterward.",
+      "resolvedAt": "2026-06-24T12:08:44.671Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "medium"
     }
   ]
 }
