@@ -1,0 +1,59 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-0405",
+  "allowedCommands": [
+    "git diff *",
+    "git log *",
+    "git show *",
+    "git status *",
+    "lattice *",
+    "node packages/main/dist/tasks/*.js",
+    "node scripts/*.mjs",
+    "npm --prefix packages/main run build",
+    "npm --prefix packages/main run test:*",
+    "npm run test:*",
+    "rg *"
+  ],
+  "allowedTools": [
+    "agy",
+    "claude-code-cli",
+    "codex",
+    "git",
+    "lattice",
+    "node",
+    "npm",
+    "rg"
+  ],
+  "allowedPaths": [
+    "docs/evidence",
+    "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+    "package-lock.json",
+    "package.json",
+    "packages/main/package-lock.json",
+    "packages/main/package.json",
+    "packages/main/src/core",
+    "packages/main/src/handlers",
+    "packages/main/src/tasks"
+  ],
+  "excludedCommands": [
+    "git checkout -- *",
+    "git clean -fd *",
+    "git reset --hard *",
+    "omx",
+    "omx *"
+  ],
+  "excludedTools": [
+    "omx"
+  ],
+  "excludedPaths": [
+    ".omx",
+    ".omx/**",
+    "experiments/tier-c-proof/**",
+    "paper/**"
+  ],
+  "confirmedBy": "codex",
+  "confirmationNote": "Execute only proof admissibility hardening work. Do not run omx or touch .omx. Destructive git cleanup is blocked unless explicitly requested by the user.",
+  "createdAt": "2026-06-24T11:02:31.188Z",
+  "updatedAt": "2026-06-24T11:02:31.188Z",
+  "_hash": "e710930f1cc740552ae47101ae6610a343604bc72c74780282d9df6a6d8fc845"
+}
