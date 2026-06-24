@@ -51,6 +51,25 @@
       ],
       "signatureTag": "missing|ts|happy-evidence-note",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-70e4:F-004",
+      "desc": "CHK-002:happy:0 evidence only demonstrates the AuthorityClient constructor pattern in isolation; loadProof() itself is never called in the deterministic smoke. The evidence note says \"the loadProof code path uses the same constructor pattern\" — this is a structural inference, not an execution trace. The must-priority intent requires proving that loadProof({proofPath:..., authorityURL:...}) with LATTICE_AUTHORITY_CUSTOMER_API_KEY set actually sends Authorization: Bearer <key>. No test calls loadProof() directly; the fix at authority-enforce.ts:206-207 is only verified by code inspection, not by an executing test that exercises loadProof end-to-end through the auth resolution path.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-24T01:39:52.013Z",
+      "reviewRound": "2026-06-24T01:23:41.780Z",
+      "reviewRunId": "B-70e4:RR-003",
+      "_hash": "a776a317784a28960e6cffcc0cd8b12a66d542061f0cdc5a8481f9dfbf179c86",
+      "files": [
+        "packages/main/src/handlers/authority-enforce.ts",
+        "packages/main/src/tasks/authority-receipt-proof-auth-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|happy-evidence-demonstrates",
+      "signatureTagSource": "auto"
     }
   ]
 }
