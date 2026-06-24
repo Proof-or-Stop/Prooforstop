@@ -1,0 +1,30 @@
+{
+  "task": "Implement Repro-first candidate-only evidence intake MVP from the decision document.",
+  "outcome": "User runs repro_probe, repro_review_set, spike_record, spike_review_set, red_green_relation_create/evaluate, regression_matrix_review_set, and story_create_from_repro; the terminal prints stable artifact ids, candidate stage summaries, PASS relation results, and a created/bound story id while candidate artifacts are explicitly marked non-production/non-DONE evidence.",
+  "facts": [
+    "The desired workflow is Red/Spike before Story: capture a failing repro and disposable spike evidence before creating the audited delivery story.",
+    "Candidate evidence must not be consumed as DONE or production proof.",
+    "The shared evidence platform document defines immutable evidence artifacts and .lattice/evidence storage.",
+    "Current worktree does not include the new decision docs because they were untracked in main when the worktree was created; this story must add the relevant docs into the branch.",
+    "Command definitions belong in packages/main/src/cli/command-catalog.ts and handlers are registered through packages/main/src/registry.ts.",
+    "story_create_from_repro should call createStoryCreateHandlers(ctx).story_create so existing story_create locks, background validation, dedup, and INIT lifecycle rules stay authoritative."
+  ],
+  "constraints": [
+    "Do not implement full Proof Admissibility enforcement or Authority Server quorum in this story.",
+    "Do not change production DONE gates to consume candidate artifacts.",
+    "Do not use omx or .omx.",
+    "Do not directly edit docs/story or tests/fixtures storage."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/evidence/*",
+    "packages/main/src/core/repro-intake*",
+    "packages/main/src/handlers/repro-intake.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/tasks/repro-first-candidate-smoke.ts",
+    "docs/requirements/decisions/repro-first-story-intake-experiment.md",
+    "docs/evidence/evidence-platform-architecture.md"
+  ],
+  "timestamp": "2026-06-24T04:07:02.377Z"
+}

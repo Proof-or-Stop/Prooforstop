@@ -10,7 +10,44 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "repro_probe stores an immutable candidate-only artifact and prints artifactId, digest, and evidenceScope=candidate-only.",
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/src/core/evidence/artifact-store.ts",
+          "packages/main/src/core/evidence/types.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/repro-first-candidate-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-001:happy:0",
+            "desc": "Creating a candidate artifact writes an immutable digest-addressed object and a stable ref under .lattice/evidence.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-001:edge:0",
+            "desc": "Writing the same artifact payload is idempotent by digest and does not mutate the stored object.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-001:adversarial:0",
+            "desc": "Candidate-only artifacts expose evidenceScope=candidate-only and cannot be classified as production or DONE admissible evidence by this MVP.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

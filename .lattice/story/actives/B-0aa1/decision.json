@@ -1,0 +1,73 @@
+{
+  "principles": [
+    "Candidate repro evidence is useful only before story creation and must remain non-production evidence until later gates consume validated story evidence.",
+    "Reuse existing Lattice lifecycle gates instead of introducing a parallel story lifecycle.",
+    "Make every proof-looking output immutable, digest-addressed, and explicit about its candidate-only scope.",
+    "Keep the first implementation small enough to verify with deterministic smoke tests."
+  ],
+  "drivers": [
+    "Reduce repeated story rework by proving failures and spike paths before formal development.",
+    "Avoid creating another ungoverned metadata surface that could later be mistaken for DONE proof.",
+    "Preserve host-neutral CLI behavior."
+  ],
+  "options": [
+    {
+      "name": "A: local candidate-only evidence service plus thin CLI commands",
+      "pros": [
+        "Matches the decision document MVP",
+        "Keeps candidate artifacts out of production DONE gates",
+        "Can be verified with focused smokes"
+      ],
+      "cons": [
+        "Does not yet provide full admissibility ledger or Authority quorum"
+      ]
+    },
+    {
+      "name": "B: implement full Proof Admissibility contract together with Repro-first",
+      "pros": [
+        "Would provide stronger end-to-end proof semantics immediately"
+      ],
+      "cons": [
+        "Too broad for this story and likely to destabilize existing lifecycle gates"
+      ]
+    },
+    {
+      "name": "C: document-only runbook with no CLI support",
+      "pros": [
+        "Very low implementation risk"
+      ],
+      "cons": [
+        "Does not solve the host-neutral repeatability problem and leaves evidence capture manual"
+      ]
+    }
+  ],
+  "chosen": "A: local candidate-only evidence service plus thin CLI commands",
+  "rationale": "Option A gives the user a real Repro-first workflow now while preserving existing story lifecycle gates and avoiding premature full admissibility enforcement in the same change.",
+  "preMortem": [
+    {
+      "scenario": "Candidate artifacts are later treated as DONE evidence by mistake.",
+      "trigger": "A handler or gate accepts a repro-probe or spike artifact as production proof.",
+      "consequence": "The system could ship based on pre-story exploratory evidence.",
+      "mitigation": "Mark candidate artifacts with evidenceScope=candidate-only and add smoke tests proving they are not production/DONE admissible."
+    },
+    {
+      "scenario": "story_create_from_repro bypasses existing story_create validations.",
+      "trigger": "The new handler writes story files directly instead of calling the existing story_create handler.",
+      "consequence": "New stories could miss background, scope, lock, dedup, or lifecycle metadata protections.",
+      "mitigation": "Reuse createStoryCreateHandlers(ctx).story_create and add a smoke proving a story id is produced through normal story_create output."
+    },
+    {
+      "scenario": "Evidence storage creates mutable or ambiguous proof surfaces.",
+      "trigger": "Artifacts are overwritten by id or lack digest/object separation.",
+      "consequence": "A later host cannot audit what was actually reviewed.",
+      "mitigation": "Store immutable JSON objects by sha256 digest, store refs separately, and include strict candidate stage/status fields in outputs."
+    },
+    {
+      "scenario": "Red test failure is environmental noise rather than the product bug.",
+      "trigger": "The repro artifact records only a failing command without expected failure pattern or bootstrap prerequisite notes.",
+      "consequence": "Teams could create stories from invalid repros and waste time.",
+      "mitigation": "Require expected failure pattern/observed output fields and expose a reviewer status before story creation."
+    }
+  ],
+  "timestamp": "2026-06-24T04:07:18.774Z"
+}
