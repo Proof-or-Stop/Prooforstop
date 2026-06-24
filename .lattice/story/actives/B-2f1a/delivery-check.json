@@ -1,0 +1,122 @@
+{
+  "storyId": "B-2f1a",
+  "checkedAt": "2026-06-24T13:19:07.127Z",
+  "headHash": "069277d8ab4439d01800b9b85ae27ffb7469c6fe",
+  "materialHash": "779af6c360a54d423026454511bd58599682d2a6f24e8fc369eb6745bcb119ca",
+  "storyFilesHash": "301616b144cd289f0938d779c6b75b63b8f34841390dc475a2a5b768bc1889d8",
+  "reviewRound": "2026-06-24T12:38:48.171Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "README.md#heading",
+      "promise": "README heading is Proofbound CLI (not Lattice CLI)",
+      "verifiedBy": "diff",
+      "evidence": "diff shows line 1 changed from # Lattice CLI to # Proofbound CLI",
+      "waiverReason": ""
+    },
+    {
+      "docPath": "README.md#prose",
+      "promise": "README prose uses Proofbound brand instead of Lattice in user-facing text",
+      "verifiedBy": "diff",
+      "evidence": "diff confirms ~20 prose substitutions across README; lattice commands in code spans unchanged",
+      "waiverReason": ""
+    },
+    {
+      "docPath": "packages/main/src/core/lattice-brand.ts",
+      "promise": "LATTICE_PRODUCT_NAME value is Proofbound CLI (not Lattice CLI)",
+      "verifiedBy": "diff",
+      "evidence": "diff: -LATTICE_PRODUCT_NAME = Lattice CLI +LATTICE_PRODUCT_NAME = Proofbound CLI; LATTICE_PRIMARY_BIN = lattice unchanged",
+      "waiverReason": ""
+    },
+    {
+      "docPath": "packages/utils/package.json + packages/lab/package.json",
+      "promise": "package.json description fields mention Proofbound; name fields (@lattice/*) preserved",
+      "verifiedBy": "diff+grep",
+      "evidence": "diff shows description fields updated to Proofbound; git grep confirms name fields @lattice/utils and @lattice/lab unchanged",
+      "waiverReason": ""
+    },
+    {
+      "docPath": "CHANGELOG.md",
+      "promise": "CHANGELOG entry truthfully scopes this as Phase-1 user-visible only, internal identifiers deferred",
+      "verifiedBy": "diff",
+      "evidence": "entry reads: Phase 1 of the Lattice->Proofbound rebrand — user-visible brand only; internal identifiers (lattice binary, @lattice packages, .lattice dir, schema-ids, salts) deferred to later phases",
+      "waiverReason": ""
+    },
+    {
+      "docPath": "keep-list: binary names",
+      "promise": "lattice binary name preserved (bin/lattice.js, bin/lattice-codex.js)",
+      "verifiedBy": "grep",
+      "evidence": "ls bin/ shows lattice.js and lattice-codex.js; LATTICE_PRIMARY_BIN = lattice const unchanged in diff",
+      "waiverReason": ""
+    },
+    {
+      "docPath": "keep-list: @lattice packages",
+      "promise": "@lattice/* package name fields are byte-intact",
+      "verifiedBy": "grep",
+      "evidence": "git grep shows @lattice/core, @lattice/utils, @lattice/lab in all three package.json name fields; no diff to those fields",
+      "waiverReason": ""
+    },
+    {
+      "docPath": "keep-list: schema-ids",
+      "promise": "lattice.*.v1 schema-ids are unchanged",
+      "verifiedBy": "grep",
+      "evidence": "git grep shows lattice.evidence.v1 in evidence/types.ts; diff grep for schema-id changes returns zero lines",
+      "waiverReason": ""
+    },
+    {
+      "docPath": "keep-list: salts",
+      "promise": "lattice-* salt constants are unchanged",
+      "verifiedBy": "grep",
+      "evidence": "lattice-delivery-check-integrity-v1, lattice-review-run-workspace-binding-v1, lattice-review-scope-binding-v1, lattice-init-check-integrity-v1 all present and unchanged in diff",
+      "waiverReason": ""
+    },
+    {
+      "docPath": "keep-list: .lattice paths",
+      "promise": ".lattice/ directory paths are byte-intact",
+      "verifiedBy": "diff",
+      "evidence": "diff shows only descriptive text changes around .lattice paths, not the paths themselves; no .lattice/ path additions in store.ts",
+      "waiverReason": ""
+    },
+    {
+      "docPath": "F-001 resolution",
+      "promise": "git grep for Lattice-(native|owned|enforced|managed|branded) returns zero in README docs and packages/*/src",
+      "verifiedBy": "grep",
+      "evidence": "git grep -nE Lattice-(native|owned|enforced|managed|branded) returns empty — all instances removed from the branch",
+      "waiverReason": ""
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "cli-surface-smoke.ts asserts /Proofbound CLI/ on story_advance help, global help, and lattice version path. command-catalog-smoke.ts asserts Proofbound CLI for story_create, validate, and authority_receipt_verify commands. lattice-cli-migration-smoke.ts asserts --version and version both match /Proofbound CLI/. All assertions passed (npm test exit 0 confirmed).",
+      "waiverReason": ""
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "cli-surface-smoke and lattice-cli-migration-smoke assert Proofbound CLI in --help/banner/version strings; version-bump-smoke asserts LATTICE_PRODUCT_NAME = Proofbound CLI in generated brand file. Covers happy path (brand visible in help) and adversarial (binary name lattice unchanged). All passed.",
+      "waiverReason": ""
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Package description fields in lab and utils updated to Proofbound; name fields confirmed unchanged by grep. Test suite passing at exit 0 confirms package structure intact.",
+      "waiverReason": "Pure metadata description change; test-suite passing at exit 0 confirms package structure integrity"
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "npm test exits 0 (EXIT_CODE=0 verified from full run). Salt constants confirmed by grep (lattice-delivery-check-integrity-v1, lattice-review-run-workspace-binding-v1, etc.). Binary lattice.js confirmed in bin/. Schema-ids lattice.*.v1 unchanged (diff grep returns zero). Covers happy, edge, adversarial paths.",
+      "waiverReason": ""
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "CHANGELOG.md diff verified: entry added under Changed: Phase 1 of the Lattice->Proofbound rebrand — user-visible brand only; internal identifiers deferred.",
+      "waiverReason": "CHANGELOG is a documentation-only artifact; no machine-testable assertion exists for its content beyond verifying the text via diff"
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 11 docsPromises verified. cli-surface-smoke, command-catalog-smoke, lattice-cli-migration-smoke, and version-bump-smoke assert Proofbound CLI brand in --help/banner/version; test suite exits 0. Keep-list (binary, @lattice names, .lattice paths, schema-ids, salts) confirmed byte-intact by grep and diff. F-001 resolved: git grep for Lattice-(native|owned|enforced|managed|branded) returns zero across README, docs, and packages/*/src. CHANGELOG entry correctly scopes Phase-1 as user-visible-only with internal identifiers deferred."
+  },
+  "_hash": "b0dfcc5c3602f947d81092880010dedbe4fdeb7a93ab3de02388ffcf979872a7"
+}
