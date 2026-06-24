@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-0985:RP-001",
+      "agent": "lattice-review-docs",
+      "note": "PASS docs round 2 for prior F-004 at HEAD 1e720ee. The proof inventory now distinguishes the production-consumable surface as artifactKind authority-receipt-ref with scope production-gate-decision, while raw authority-receipt remains input/diagnostic evidence: docs/evidence/proof-surface-inventory.md:16, docs/evidence/proof-surface-inventory.md:42, docs/evidence/proof-surface-inventory.md:43, docs/evidence/proof-surface-inventory.json:52, docs/evidence/proof-surface-inventory.json:66. local-gate-evidence wording is local readiness only and explicitly not production completion: docs/evidence/proof-surface-inventory.md:30, docs/evidence/proof-surface-inventory.md:39, docs/evidence/proof-surface-inventory.md:63, docs/evidence/proof-surface-inventory.json:12, docs/evidence/proof-surface-inventory.json:229. Architecture wording and registry code align with the same boundary: docs/evidence/evidence-platform-architecture.md:133, packages/main/src/core/proof-admissibility.ts:250, packages/main/src/core/proof-admissibility.ts:270, packages/main/src/core/proof-admissibility.ts:660. No docs finding.",
+      "createdAt": "2026-06-24T10:24:09.802Z",
+      "reviewRound": "2026-06-24T10:19:54.578Z",
+      "reviewRunId": "B-0985:RR-008",
+      "_hash": "7ea52f155c46c658399325f7e6153f25542b0123b621817e07becbcde6f1e9a8"
+    }
+  ]
+}
