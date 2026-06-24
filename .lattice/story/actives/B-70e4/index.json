@@ -4,7 +4,7 @@
   "title": "Authenticate the gate-receipt proof fetch (fix 401) and send materialOverlapAudit in the live gate smoke",
   "description": "The Authority gate-receipt proof endpoint /v1/receipts/{id}/proof is a protected read, but authority_receipt_verify --proofPath fetched it unauthenticated and got 401. Two production bugs plus one out-of-date smoke; fix verified green end-to-end against the real staging Authority.",
   "type": "bug",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "high",
   "riskSignals": [
     {
@@ -104,6 +104,15 @@
       "user": "Harmonygo",
       "sessionId": "d5efb245-908a-4b5b-b129-44bcce26a23c",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-24T02:45:40.407Z",
+      "branch": "story/B-70e4",
+      "user": "Harmonygo",
+      "sessionId": "d5efb245-908a-4b5b-b129-44bcce26a23c",
+      "agent": "main"
     }
   ],
   "worktree": {
@@ -111,5 +120,5 @@
     "branch": "story/B-70e4",
     "createdAt": "2026-06-24T00:58:33.290Z"
   },
-  "currentReviewRound": "2026-06-24T01:49:03.993Z"
+  "currentReviewRound": "2026-06-24T02:45:40.407Z"
 }
