@@ -98,13 +98,23 @@ Examples:
 - `checklist_update`
 - `understanding_set`
 - `decision_set`
-- `review_run_start`
-- `review_pass_set`
-- `finding_add` for a normal story
 - `finding_resolve` or `finding_dismiss` for a normal story
 - `validate` when it writes evidence
 - `delivery_check_set`
 - `summary_set`
+
+### ReviewerWrite Gate Evidence Commands
+
+These commands write REVIEW evidence but are `reviewerWrite`, not story-owner
+mutations. Per `packages/main/src/core/command-policy.ts`, `reviewerWrite` is
+exempt from the owner lease; see `review-run-binding-race.md` for why owner-lease
+serialization does not solve the review-run binding race.
+
+Examples:
+
+- `review_run_start`
+- `review_pass_set`
+- `finding_add` for a normal story
 
 ### Main/Shared Mutating Commands
 
