@@ -1,0 +1,51 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add proof surface inventory docs and machine-readable surface map",
+      "context": "Covers plan M0. Inventory current proof-looking surfaces, producer boundaries, binding fields, artifact consumers, and evidence scope. Must include candidate-only Repro artifacts from B-0aa1 and non-authority/local diagnostic surfaces.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+        "docs/evidence/evidence-platform-architecture.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Implement shared proof admissibility domain and registry",
+      "context": "Covers plan M1. Add core module/types for EvidenceScope, TemporalRole, ArtifactRole, ClaimKind, ArtifactConsumerKind, ProofProducerBoundary, reason codes, artifact definitions, and classification result. Must be reusable by future gates and must not create a separate storage root.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+        "docs/evidence/evidence-platform-architecture.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Add classification/evaluation helper for proof-looking artifacts",
+      "context": "Provide a caller-facing API that answers what a surface may prove, whether it is admissible for a consumer/claim, and why not. Include productionDone=false behavior for local diagnostic, candidate, local-key, authority-receipt without matching production gate decision, and legacy scopes.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Add smoke tests and process fact registration for admissibility classification",
+      "context": "Add focused smoke coverage for accepted/denied scopes, stale/material binding cases where applicable, local diagnostic overread prevention, candidate-only Repro surfaces, and registry completeness. Register any new command/task/runtime fact needed by the process fact contract.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+        "docs/evidence/evidence-platform-architecture.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
