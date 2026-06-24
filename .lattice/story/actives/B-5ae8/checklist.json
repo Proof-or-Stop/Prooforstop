@@ -44,7 +44,37 @@
       "context": "hermetic gate must remain green and 0-spend",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees the line \"✓ live-loop-harness self-check passed: 25/25 cases across all 9 stateful scenarios\" and the shell returns exit 0 with 0 spend.",
+      "files": {
+        "modify": [
+          "experiments/injection-probes/live-loop-harness.mjs"
+        ],
+        "create": [],
+        "test": [
+          "experiments/injection-probes/live-loop-harness.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "node live-loop-harness.mjs --self-check exits 0 and prints the 25/25 pass line",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "the B4 RECOVERED and AMPLIFIED cases still yield different outcomes with the non-empty marker",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "a wrong stub classification makes --self-check exit 1 (fail-closed)",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
