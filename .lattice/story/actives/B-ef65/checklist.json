@@ -92,9 +92,9 @@
         "docs/guide-red-spike-story.md",
         "docs/requirements/decisions/testing-infra.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-24T01:14:11.183Z",
-      "endTime": null,
+      "endTime": "2026-06-24T01:14:17.467Z",
       "userSees": "Running node packages/main/dist/tasks/validate-execution-lock-smoke.js prints `validate-execution-lock smoke passed: 8 assertions` after build.",
       "files": {
         "modify": [],
@@ -125,7 +125,45 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/validate-execution-lock-smoke.ts",
+          "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js",
+          "result": "pass",
+          "note": "The smoke printed validate-execution-lock smoke passed: 8 assertions and includes the same-story exclusion regression that was red before the lock.",
+          "headHash": "ce351160b71f0068c72ad4972a7266802f787654",
+          "materialHash": "0614fcd396f9537c9e97728a525dc257eddf70ba61479d1948d9dc68de5c28e4",
+          "storyFilesHash": "5108cbe997bbd760287a964cbe091bde24444e5936640ad1b491ce9f038fbaa4",
+          "timestamp": "2026-06-24T01:14:17.620Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/validate-execution-lock-smoke.ts",
+          "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js",
+          "result": "pass",
+          "note": "The same smoke covers different-story/worktree concurrency and stale lock cleanup, so the regression is not over-broad.",
+          "headHash": "ce351160b71f0068c72ad4972a7266802f787654",
+          "materialHash": "0614fcd396f9537c9e97728a525dc257eddf70ba61479d1948d9dc68de5c28e4",
+          "storyFilesHash": "5108cbe997bbd760287a964cbe091bde24444e5936640ad1b491ce9f038fbaa4",
+          "timestamp": "2026-06-24T01:14:17.765Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/validate-execution-lock-smoke.ts",
+          "command": "node packages/main/dist/tasks/validate-execution-lock-smoke.js",
+          "result": "pass",
+          "note": "The smoke covers reviewer pass, delivery_check_set, and story_advance internal validate non-regression while a validation lock is held.",
+          "headHash": "ce351160b71f0068c72ad4972a7266802f787654",
+          "materialHash": "0614fcd396f9537c9e97728a525dc257eddf70ba61479d1948d9dc68de5c28e4",
+          "storyFilesHash": "5108cbe997bbd760287a964cbe091bde24444e5936640ad1b491ce9f038fbaa4",
+          "timestamp": "2026-06-24T01:14:17.905Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -196,6 +234,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Smoke file is committed in 4c26f4d3; recording regression evidence."
+    },
+    {
+      "timestamp": "2026-06-24T01:14:17.467Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Regression smoke committed and passing."
     }
   ]
 }
