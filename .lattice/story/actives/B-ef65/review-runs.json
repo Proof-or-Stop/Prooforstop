@@ -362,6 +362,52 @@
         "bindingHash": "d9366cbf70f3a547ec9cd52d977e12a3c1257d8d736b83c039b317454095756b"
       },
       "_hash": "23c31f1efe58486089bbbb85ac4f463aa901e80c2c8c29f8841fa27cf58964a3"
+    },
+    {
+      "reviewRunId": "B-ef65:RR-009",
+      "storyId": "B-ef65",
+      "agent": "lattice-review-concept",
+      "lane": "lattice-review-concept",
+      "reviewRound": "2026-06-24T01:42:49.321Z",
+      "startedAt": "2026-06-24T01:43:21.978Z",
+      "headHash": "63640ceab44ca571ce0094294e96a23900bf4f83",
+      "materialHash": "1b2a9f2c3066b58911422a17526836c9c37018de4dbbcdda8bc510bb4270a30c",
+      "storyFilesHash": "f1c44983bdb8b2c522889bd6d8922014b05ef37adc11c1a7c8fc1b18736d677c",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "84f243d9cb6edbecccee1bc87e32562cf8a2f7a360f90171337a5980f6be7a4f",
+        "diffPackHash": "b9b75f4ef90bfddc696c51af07dedc9524b4a51e7578fc0f58df6d5b04c2a70b",
+        "reviewedChangedFiles": [
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/handlers/done-required-validation.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/validate-execution-lock-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "62e47f9ce7f7a1d023bf135df55f51a3546b85081c8637083d0f021cd1344cd5",
+          "a31fa1fcf33622bac3a9d362e438865a54cd489d1c092179ba8e99908a6f9b54",
+          "a4502b1cd4d4ae259bdec70c6a97561833251557e1757dd4e2d33786e20adafc",
+          "ae0823d4b6fe057a3905fb7ea91a8a3489d40af8f46f9e3747640a75f4ab2e85",
+          "b935f20a5adfb8197072c8982eede83093104757c9b8b8daa4fd36143002903e",
+          "cab41092bd1332d7548dd4d28db1b0305b49d176176a7a6379431bd69a632e08",
+          "cc7c9ceab8ee9e9b4980377a2a478c717d6feba65ff26f9ac4d93cd9a339adb0"
+        ],
+        "bindingHash": "5c53aaa087c5998b95de90cfb30dcdd953decb198fa99b3718087bb3ecf6c39d"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-ef65",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-ef65",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-ef65",
+        "workspaceMode": "story-worktree",
+        "headHash": "63640ceab44ca571ce0094294e96a23900bf4f83",
+        "materialHash": "1b2a9f2c3066b58911422a17526836c9c37018de4dbbcdda8bc510bb4270a30c",
+        "storyFilesHash": "f1c44983bdb8b2c522889bd6d8922014b05ef37adc11c1a7c8fc1b18736d677c",
+        "bindingHash": "79160ef5f628b816e9a66abd9d0c2770dbb24a82451f811e7c73c59a0cd0a34f"
+      },
+      "_hash": "af49db2009e50afb0621752c9060270f7bd020f76dcc5dbf4cb744b6abe51032"
     }
   ]
 }
