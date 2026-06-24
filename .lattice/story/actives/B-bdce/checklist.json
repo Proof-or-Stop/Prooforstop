@@ -60,7 +60,116 @@
           }
         ]
       },
-      "userSees": "In a stale-evidence situation the EVIDENCE STALE block (session_brief / `lattice validate` / story_advance pre-check) now also shows a drift-classification line and a `lattice done_prepare --storyId=<id> --mergeMain --refreshStale --validate` one-step line, in addition to the existing refresh_stale + validate lines."
+      "userSees": "In a stale-evidence situation the EVIDENCE STALE block (session_brief / `lattice validate` / story_advance pre-check) now also shows a drift-classification line and a `lattice done_prepare --storyId=<id> --mergeMain --refreshStale --validate` one-step line, in addition to the existing refresh_stale + validate lines.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/verification-freshness-smoke.js",
+          "result": "pass",
+          "note": "smoke asserts renderedBlock.includes(`lattice done_prepare --storyId=${storyId} --mergeMain --refreshStale --validate`) (GAP1) — done_prepare one-step line present.",
+          "headHash": "ecb099e0fbde51de9eed1da5a0dd0481782e7cfd",
+          "materialHash": "2dda7ba7a07eb9f9d55843bbd1a4c69c3ea9b113e6df21b1074897719ee45adc",
+          "storyFilesHash": "0d44ff60f84208c87a7f8946f53d5fa9404ec1b37f6505510384c3837a0a33a7",
+          "timestamp": "2026-06-24T14:49:15.723Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/verification-freshness-smoke.js",
+          "result": "pass",
+          "note": "smoke asserts the drift-class line (GAP2 token regex + includes('Drift class:')) — drift-classification line present.",
+          "headHash": "ecb099e0fbde51de9eed1da5a0dd0481782e7cfd",
+          "materialHash": "2dda7ba7a07eb9f9d55843bbd1a4c69c3ea9b113e6df21b1074897719ee45adc",
+          "storyFilesHash": "0d44ff60f84208c87a7f8946f53d5fa9404ec1b37f6505510384c3837a0a33a7",
+          "timestamp": "2026-06-24T14:49:15.723Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/verification-freshness-smoke.js",
+          "result": "pass",
+          "note": "smoke asserts briefBlock===renderedBlock (session_brief) and validateBlock===renderedBlock (validate hint) — the 3 surfaces auto-inherit byte-identically.",
+          "headHash": "ecb099e0fbde51de9eed1da5a0dd0481782e7cfd",
+          "materialHash": "2dda7ba7a07eb9f9d55843bbd1a4c69c3ea9b113e6df21b1074897719ee45adc",
+          "storyFilesHash": "0d44ff60f84208c87a7f8946f53d5fa9404ec1b37f6505510384c3837a0a33a7",
+          "timestamp": "2026-06-24T14:49:15.723Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/verification-freshness-smoke.js",
+          "result": "pass",
+          "note": "smoke asserts renderEvidenceStaleHint('', stale) === '' — empty storyId leaks nothing.",
+          "headHash": "ecb099e0fbde51de9eed1da5a0dd0481782e7cfd",
+          "materialHash": "2dda7ba7a07eb9f9d55843bbd1a4c69c3ea9b113e6df21b1074897719ee45adc",
+          "storyFilesHash": "0d44ff60f84208c87a7f8946f53d5fa9404ec1b37f6505510384c3837a0a33a7",
+          "timestamp": "2026-06-24T14:49:15.723Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/verification-freshness-smoke.js",
+          "result": "pass",
+          "note": "smoke asserts freshHint (stale=[]) === '' — no-stale guard returns empty.",
+          "headHash": "ecb099e0fbde51de9eed1da5a0dd0481782e7cfd",
+          "materialHash": "2dda7ba7a07eb9f9d55843bbd1a4c69c3ea9b113e6df21b1074897719ee45adc",
+          "storyFilesHash": "0d44ff60f84208c87a7f8946f53d5fa9404ec1b37f6505510384c3837a0a33a7",
+          "timestamp": "2026-06-24T14:49:15.723Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/verification-freshness-smoke.js",
+          "result": "pass",
+          "note": "smoke asserts the existing stable lines remain: EVIDENCE_STALE_MARKER, 'HEAD/material hash binding changed', refresh_stale command, validate command — backward-compat preserved.",
+          "headHash": "ecb099e0fbde51de9eed1da5a0dd0481782e7cfd",
+          "materialHash": "2dda7ba7a07eb9f9d55843bbd1a4c69c3ea9b113e6df21b1074897719ee45adc",
+          "storyFilesHash": "0d44ff60f84208c87a7f8946f53d5fa9404ec1b37f6505510384c3837a0a33a7",
+          "timestamp": "2026-06-24T14:49:15.723Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:3",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/core/evidence-stale-hint.ts",
+          "note": "storyId is interpolated literally via template literal `--storyId=${storyId}` (no escaping); the smoke asserts includes(`--storyId=${storyId}`) with the real storyId.",
+          "headHash": "ecb099e0fbde51de9eed1da5a0dd0481782e7cfd",
+          "materialHash": "2dda7ba7a07eb9f9d55843bbd1a4c69c3ea9b113e6df21b1074897719ee45adc",
+          "storyFilesHash": "0d44ff60f84208c87a7f8946f53d5fa9404ec1b37f6505510384c3837a0a33a7",
+          "timestamp": "2026-06-24T14:49:15.723Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/verification-freshness-smoke.js",
+          "result": "pass",
+          "note": "All 3 surfaces call the shared renderEvidenceStaleHint (no local reconstruction); the smoke's briefBlock===renderedBlock / validateBlock===renderedBlock byte-equality asserts would FAIL if any surface reconstructed/diverged.",
+          "headHash": "ecb099e0fbde51de9eed1da5a0dd0481782e7cfd",
+          "materialHash": "2dda7ba7a07eb9f9d55843bbd1a4c69c3ea9b113e6df21b1074897719ee45adc",
+          "storyFilesHash": "0d44ff60f84208c87a7f8946f53d5fa9404ec1b37f6505510384c3837a0a33a7",
+          "timestamp": "2026-06-24T14:49:15.723Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/verification-freshness-smoke.js",
+          "result": "pass",
+          "note": "smoke asserts !renderedBlock.includes('<storyId>') and !includes('<B-') — no literal placeholder tokens (B-a2f1 preMortem #3).",
+          "headHash": "ecb099e0fbde51de9eed1da5a0dd0481782e7cfd",
+          "materialHash": "2dda7ba7a07eb9f9d55843bbd1a4c69c3ea9b113e6df21b1074897719ee45adc",
+          "storyFilesHash": "0d44ff60f84208c87a7f8946f53d5fa9404ec1b37f6505510384c3837a0a33a7",
+          "timestamp": "2026-06-24T14:49:15.723Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -117,7 +226,103 @@
           }
         ]
       },
-      "userSees": "`node packages/main/dist/tasks/verification-freshness-smoke.js` prints its pass line with the updated byte-equality assertions; the GAP1 (done_prepare) and GAP2 (drift-class token) regression assertions are present."
+      "userSees": "`node packages/main/dist/tasks/verification-freshness-smoke.js` prints its pass line with the updated byte-equality assertions; the GAP1 (done_prepare) and GAP2 (drift-class token) regression assertions are present.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/verification-freshness-smoke.js",
+          "result": "pass",
+          "note": "verification-freshness-smoke passes green after extractStaleBlock was updated from a 5-line to an 8-line slice.",
+          "headHash": "ecb099e0fbde51de9eed1da5a0dd0481782e7cfd",
+          "materialHash": "2dda7ba7a07eb9f9d55843bbd1a4c69c3ea9b113e6df21b1074897719ee45adc",
+          "storyFilesHash": "0d44ff60f84208c87a7f8946f53d5fa9404ec1b37f6505510384c3837a0a33a7",
+          "timestamp": "2026-06-24T14:49:15.723Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/verification-freshness-smoke.js",
+          "result": "pass",
+          "note": "the smoke contains the GAP1 regression anchor: assert.ok(renderedBlock.includes(`lattice done_prepare ...`)).",
+          "headHash": "ecb099e0fbde51de9eed1da5a0dd0481782e7cfd",
+          "materialHash": "2dda7ba7a07eb9f9d55843bbd1a4c69c3ea9b113e6df21b1074897719ee45adc",
+          "storyFilesHash": "0d44ff60f84208c87a7f8946f53d5fa9404ec1b37f6505510384c3837a0a33a7",
+          "timestamp": "2026-06-24T14:49:15.723Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/verification-freshness-smoke.js",
+          "result": "pass",
+          "note": "the smoke contains the GAP2 regression anchor: assert.ok(/storyFilesHash|story-owned|whole-tree|unrelated/.test(renderedBlock)) + includes('Drift class:').",
+          "headHash": "ecb099e0fbde51de9eed1da5a0dd0481782e7cfd",
+          "materialHash": "2dda7ba7a07eb9f9d55843bbd1a4c69c3ea9b113e6df21b1074897719ee45adc",
+          "storyFilesHash": "0d44ff60f84208c87a7f8946f53d5fa9404ec1b37f6505510384c3837a0a33a7",
+          "timestamp": "2026-06-24T14:49:15.723Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/verification-freshness-smoke.js",
+          "result": "pass",
+          "note": "extractStaleBlock now slices markerIdx+8 and the briefBlock/validateBlock byte-equality asserts pass — the full enriched block is extracted.",
+          "headHash": "ecb099e0fbde51de9eed1da5a0dd0481782e7cfd",
+          "materialHash": "2dda7ba7a07eb9f9d55843bbd1a4c69c3ea9b113e6df21b1074897719ee45adc",
+          "storyFilesHash": "0d44ff60f84208c87a7f8946f53d5fa9404ec1b37f6505510384c3837a0a33a7",
+          "timestamp": "2026-06-24T14:49:15.723Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/flow-stability-smoke.js",
+          "result": "pass",
+          "note": "flow-stability-smoke is unedited (git diff shows only evidence-stale-hint.ts + verification-freshness-smoke.ts) and still passes — it only uses findStaleEvidence, not the renderer.",
+          "headHash": "ecb099e0fbde51de9eed1da5a0dd0481782e7cfd",
+          "materialHash": "2dda7ba7a07eb9f9d55843bbd1a4c69c3ea9b113e6df21b1074897719ee45adc",
+          "storyFilesHash": "0d44ff60f84208c87a7f8946f53d5fa9404ec1b37f6505510384c3837a0a33a7",
+          "timestamp": "2026-06-24T14:49:15.723Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "note": "Proven by the red/spike: the RED test (exit 1, before the fix) failed precisely because the done_prepare line was absent; the GAP1 assert directly checks that substring, so removing the line from the renderer makes the assert false and the smoke fail.",
+          "headHash": "ecb099e0fbde51de9eed1da5a0dd0481782e7cfd",
+          "materialHash": "2dda7ba7a07eb9f9d55843bbd1a4c69c3ea9b113e6df21b1074897719ee45adc",
+          "storyFilesHash": "0d44ff60f84208c87a7f8946f53d5fa9404ec1b37f6505510384c3837a0a33a7",
+          "timestamp": "2026-06-24T14:49:15.723Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "note": "Proven by the red/spike: the RED test failed because the drift-class line was absent; the GAP2/'Drift class:' asserts directly check it, so removing the line makes the smoke fail.",
+          "headHash": "ecb099e0fbde51de9eed1da5a0dd0481782e7cfd",
+          "materialHash": "2dda7ba7a07eb9f9d55843bbd1a4c69c3ea9b113e6df21b1074897719ee45adc",
+          "storyFilesHash": "0d44ff60f84208c87a7f8946f53d5fa9404ec1b37f6505510384c3837a0a33a7",
+          "timestamp": "2026-06-24T14:49:15.723Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/verification-freshness-smoke.js",
+          "result": "pass",
+          "note": "the smoke's cross-surface byte-equality asserts (briefBlock===renderedBlock, validateBlock===renderedBlock) continue to hold with the enriched 8-line block.",
+          "headHash": "ecb099e0fbde51de9eed1da5a0dd0481782e7cfd",
+          "materialHash": "2dda7ba7a07eb9f9d55843bbd1a4c69c3ea9b113e6df21b1074897719ee45adc",
+          "storyFilesHash": "0d44ff60f84208c87a7f8946f53d5fa9404ec1b37f6505510384c3837a0a33a7",
+          "timestamp": "2026-06-24T14:49:15.723Z"
+        }
+      ]
     }
   ]
 }
