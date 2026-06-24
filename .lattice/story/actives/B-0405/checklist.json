@@ -67,6 +67,18 @@
           "materialHash": "a2dfb8c6a958296b980bae7fb7046305e4b1ccaec6819ddd4e107e22df2dfe95",
           "storyFilesHash": "4b1a812749cdde4b9b3a991a3726eea23a668aefe4fb71c83666658038cd3299",
           "timestamp": "2026-06-24T11:17:23.394Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts",
+          "command": "npm --prefix packages/main run test:proof-admissibility-hardening",
+          "result": "pass",
+          "note": "Hardening smoke covers nested/linked metadata reserved-key injection and verifies hostDeclarationDigest/providerAuthorization/receiptVerified/productionDone-style proof keys are not accepted as proof.",
+          "headHash": "2a8e6d1f7f8959bb6ea75efdcb5876021a3db67b",
+          "materialHash": "a2dfb8c6a958296b980bae7fb7046305e4b1ccaec6819ddd4e107e22df2dfe95",
+          "storyFilesHash": "4b1a812749cdde4b9b3a991a3726eea23a668aefe4fb71c83666658038cd3299",
+          "timestamp": "2026-06-24T11:20:47.610Z"
         }
       ]
     },
