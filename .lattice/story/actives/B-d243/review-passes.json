@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-24T11:48:44.885Z",
       "reviewRunId": "B-d243:RR-004",
       "_hash": "07c8593bf46c83c9c624a31b07113699aa0016c202f3b0e43055da2e8bfe1b5c"
+    },
+    {
+      "id": "B-d243:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Round-2 concept re-verify PASS. (1) No concept deletions or replacements introduced in round-2 commit 04acf46b2 — no residue sweep required. (2) Empty-set storyFilesHash soundness fix: CONFIRMED. Writer (delivery-check.ts line 175-176) drops rawStoryFilesHash when equal to EMPTY_STORY_FILES_HASH, persisting undefined. Gate (delivery-check-hash.ts line 184+188) guards against EMPTY_STORY_FILES_HASH on BOTH the stored deliveryCheck.storyFilesHash and the current storyFilesHash before entering the advisory branch. Smoke test (delivery-check-freshness-smoke.ts check line 633) explicitly exercises the no-story-diff topology and asserts stale_delivery_check (not advisory). (3) No other path to delivery_check_drift_advisory: evaluateDeliveryCheckFreshness is the ONLY function that returns this code; called in done-oracle.ts, machine.ts (x2), and the smoke test — all via the fixed function. checkEvidenceFreshnessForGit at evidence-freshness.ts line 317 is a separate code path for verification-evidence freshness, not reachable via delivery_check_drift_advisory, and is pre-existing out-of-scope for B-d243. (4) Gate A (checkCompletedEvidenceSnapshotFreshness) confirmed untouched — no storyFilesHash wired in, exactly as required. (5) Spec (story-files-hash-material-drift.md DONE Sub-Gate Bindings amendment) is consistent with implementation and done-oracle.ts comment. (6) Discriminated union (F-001) makes advisory a required string for the drift-advisory variant; done-oracle.ts narrows on .code not on truthiness swallow. All checks clean, no blocker.",
+      "createdAt": "2026-06-24T11:52:30.381Z",
+      "reviewRound": "2026-06-24T11:48:44.885Z",
+      "reviewRunId": "B-d243:RR-006",
+      "_hash": "da7245327695d38c23e20f55ad3d4a16fcb6cb4effc02d95ead930fd98e58503"
     }
   ]
 }
