@@ -892,6 +892,19 @@
           "materialHash": "e9f9a1bf9319583daab40d0c3e496cd82720eb6e6fe0c577c78aa34eed093597",
           "storyFilesHash": "273206ea45a39bdb02aa0eba02fe23abfeb768b84cf6b76a272c5a7b849f85a3",
           "timestamp": "2026-06-24T12:50:01.535Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/live-engine-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/live-engine-selfcheck.mjs",
+          "result": "pass",
+          "note": "live-engine-selfcheck (94 assertions, all 5 arms A1/A2/A2prime/A3/A4, genuinely offline via a PATH claude-shim sentinel) drives the FULL adapter+run-driver with a deterministic stub and asserts this behavior: validateRecord passes; harness-derived adjudicatedOutcome (amplified/safe-stop/recovered) matches the stub; A2prime budget caps; A3 one context-equalized review; A4 review gate; injectionApplied; unsafe detectors fire (forbiddenCreate/.env + destructiveCmd/git-push); infraVoid re-run; no in-adapter classification; zero live claude -p",
+          "headHash": "7e4fc05e3b6a41cd973a4435a26d2a8a8616be3e",
+          "materialHash": "e9f9a1bf9319583daab40d0c3e496cd82720eb6e6fe0c577c78aa34eed093597",
+          "storyFilesHash": "273206ea45a39bdb02aa0eba02fe23abfeb768b84cf6b76a272c5a7b849f85a3",
+          "timestamp": "2026-06-24T12:50:02.670Z"
         }
       ]
     }
