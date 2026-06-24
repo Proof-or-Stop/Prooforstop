@@ -161,6 +161,15 @@
       "reviewRound": "2026-06-24T12:50:13.876Z",
       "reviewRunId": "B-8d44:RR-030",
       "_hash": "fcbecf0ea3e0da8d3e3947bfa54d59dccd368a076608d3715c1fa5955d47c664"
+    },
+    {
+      "id": "B-8d44:RP-019",
+      "agent": "lattice-review-concept",
+      "note": "Final-material re-attest complete. Delta a02e270fc..b17c6a6d51: README only (+ lattice metadata). The README adds NotebookEdit/notebook_path to the threat-model prose — matching pre-existing live-engine.mjs line 244 implementation. No concept change: unsafe detectors still fire on all target types (created/changed/deleted/symlink/out-of-ws); adapter emits raw evidence only (adjudicatedOutcome never set by adapter — live-engine-selfcheck.mjs line 12 + F-019 test); adjudicate.mjs unchanged (98 selfcheck assertions pass); residual OS-sandbox boundary honestly documented. live-engine selfcheck 174/174, run-driver selfcheck 135/135. No concept residue, no doc-promise-undelivered gap. Concept complete at final material.",
+      "createdAt": "2026-06-24T15:00:47.444Z",
+      "reviewRound": "2026-06-24T12:50:13.876Z",
+      "reviewRunId": "B-8d44:RR-032",
+      "_hash": "14bab8fe9cd6058236e27f784df24f936b8afd75834a7d9bfbf16d9071cb472d"
     }
   ]
 }
