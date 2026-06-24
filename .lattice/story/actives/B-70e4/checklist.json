@@ -257,6 +257,17 @@
           "materialHash": "96adaa007e8f7ddafa1d445c9f905d262eb90f4da087c701fec35f3474287e79",
           "storyFilesHash": "3bb033bf48d472daad32daea22503c5bbbef2c03c79374e5fe0665781999041e",
           "timestamp": "2026-06-24T01:20:28.693Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "logic_test",
+          "command": "source /Users/jek/Documents/Work/proofbound/lattice_senior_authority_trust.env && export LATTICE_AUTHORITY_CUSTOMER_API_KEY=\"$(cat /Users/jek/Documents/Work/proofbound/lattice_senior_staging-client.env | tr -d '\\n')\" && node packages/main/dist/tasks/authority-live-receipt-ref-gate-smoke.js",
+          "result": "pass",
+          "note": "RED/GREEN reasoning: authority-live-receipt-ref-gate-smoke.ts:213-219 adds materialOverlapAudit only for targetPhase===DONE. buildGateEvaluateRequest at authority-contracts.ts:879-883 computes gateInputDigest over the full input including materialOverlapAudit. If materialOverlapAudit were removed from the DONE buildPhaseGateRequest, the gateInputDigest would change (missing a field the server requires), causing Authority to reject the DONE gate evaluate request — the live smoke would fail at the assert on line 834. Restoring the field restores the correct digest and the server accepts. The live smoke PASS proves the addition is load-bearing.",
+          "headHash": "6eeef52873bd99be2ff58b48963be7b68883b505",
+          "materialHash": "96adaa007e8f7ddafa1d445c9f905d262eb90f4da087c701fec35f3474287e79",
+          "storyFilesHash": "3bb033bf48d472daad32daea22503c5bbbef2c03c79374e5fe0665781999041e",
+          "timestamp": "2026-06-24T01:20:33.070Z"
         }
       ]
     },
