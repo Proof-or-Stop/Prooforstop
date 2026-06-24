@@ -41,9 +41,9 @@
       "id": "CHK-002",
       "title": "Replace user-facing brand Lattice->Proofbound in packages/*/src user-visible strings (--help text, CLI banner/title, command descriptions, user-facing error messages); do NOT touch identifiers, imports, package names, .lattice paths, schema-ids, salts",
       "context": "only the strings a user reads; not code identifiers",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-24T12:25:21.338Z",
-      "endTime": null,
+      "endTime": "2026-06-24T12:33:51.280Z",
       "userSees": "Running the CLI --help / banner the user sees \"Proofbound\" in the user-facing text instead of \"Lattice\"; the build still compiles.",
       "files": {
         "modify": [
