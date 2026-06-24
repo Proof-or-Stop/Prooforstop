@@ -54,6 +54,33 @@
       ],
       "signatureTag": "missing|ts|adversarial-intent-claims",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-6c4d:F-004",
+      "desc": "doc-promise-undelivered: 10 agent template files in packages/main/templates/agents/ (lattice-evaluator.md, lattice-implementer.md, lattice-review-behavior.md, lattice-review-channel.md, lattice-review-concept.md, lattice-review-delivery.md, lattice-review-docs.md, lattice-review-quality.md, lattice-review-scope-plan.md, lattice-review-story-init.md) still carry the old stale lattice:start block text: \"Review run validation also checks signature, current-latest run, matching reviewRound, and fresh head/material hashes\" — inaccurate after the kind-aware relax; prompt-registry.ts LOAD_BEARING_LATTICE_PROMPT_SLICE was updated but the template .md files were not synced, causing prompt-registry-smoke line 89 to fail (extractLatticeBlock(source) != LOAD_BEARING_LATTICE_PROMPT_SLICE). Deployed mirrors in .claude/agents/ and .lattice-codex/agents/ have the same stale text.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-24T14:26:05.942Z",
+      "reviewRound": "2026-06-24T14:22:50.026Z",
+      "reviewRunId": "B-6c4d:RR-005",
+      "_hash": "d2246925616aec581d3e429029b5be374500ad6c4eab885307dd6abf1322f830",
+      "files": [
+        "packages/main/templates/agents/lattice-evaluator.md",
+        "packages/main/templates/agents/lattice-implementer.md",
+        "packages/main/templates/agents/lattice-review-behavior.md",
+        "packages/main/templates/agents/lattice-review-channel.md",
+        "packages/main/templates/agents/lattice-review-concept.md",
+        "packages/main/templates/agents/lattice-review-delivery.md",
+        "packages/main/templates/agents/lattice-review-docs.md",
+        "packages/main/templates/agents/lattice-review-quality.md",
+        "packages/main/templates/agents/lattice-review-scope-plan.md",
+        "packages/main/templates/agents/lattice-review-story-init.md"
+      ],
+      "signatureTag": "missing|md|promise-undelivered-agent",
+      "signatureTagSource": "auto"
     }
   ]
 }
