@@ -283,6 +283,8 @@ export const PROOF_SURFACE_REGISTRY = [
        * @description
        *   Authority receipt refs may be consumed as compatible evidence/input by Authority-facing adapters.
        *   The local proof-admissibility core must not convert that evidence into a local productionDone claim.
+       * @changes
+       *   - [CHK-002] Set authority-receipt-ref production-completion productionDoneEligible=false for local CLI proof.
        */
       { claim: 'production-completion', consumers: ['AUTHORITY_GATE_DECISION', 'TEST', 'DONE'], productionDoneEligible: false },
       { claim: 'done-readiness', consumers: ['TEST', 'DONE'], productionDoneEligible: false },
