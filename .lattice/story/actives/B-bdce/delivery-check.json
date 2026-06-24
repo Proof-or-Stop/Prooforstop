@@ -1,82 +1,91 @@
 {
   "storyId": "B-bdce",
-  "checkedAt": "2026-06-24T15:00:20.228Z",
-  "headHash": "b174ddb0701cbea55bdafa03ed44d485cd7d4590",
-  "materialHash": "2dda7ba7a07eb9f9d55843bbd1a4c69c3ea9b113e6df21b1074897719ee45adc",
-  "storyFilesHash": "0d44ff60f84208c87a7f8946f53d5fa9404ec1b37f6505510384c3837a0a33a7",
-  "reviewRound": "2026-06-24T14:49:17.028Z",
+  "checkedAt": "2026-06-24T18:45:00.526Z",
+  "headHash": "5720a818d56335e6f9e2fe4c4768127263a1b93c",
+  "materialHash": "e0f15b3e777a3b582c88a034c47ab6d0c4b093415576cfae5eb12b1bfec39caa",
+  "storyFilesHash": "20e275c81159f6f0c82a86b8318fb0a49753ee9244eac7d4d38ee77f751c5a47",
+  "reviewRound": "2026-06-24T18:39:47.548Z",
   "agentId": "lattice-review-delivery",
   "docsPromises": [
     {
       "docPath": "packages/main/src/core/evidence-stale-hint.ts#jsdoc-drift-class",
       "promise": "JSDoc output format block shows the Drift class: line",
-      "verifiedBy": "diff/read",
-      "evidence": "Diff adds Drift class line to JSDoc output format block; confirmed in full file read"
+      "status": "verified",
+      "verifiedBy": "git diff/read",
+      "evidence": "Current diff adds the Drift class line to the documented output block."
     },
     {
       "docPath": "packages/main/src/core/evidence-stale-hint.ts#jsdoc-done_prepare",
       "promise": "JSDoc output format block shows the done_prepare --mergeMain --refreshStale --validate one-step line",
-      "verifiedBy": "diff/read",
-      "evidence": "Diff adds Or when converging TEST to DONE + done_prepare line to JSDoc; confirmed in full file read"
+      "status": "verified",
+      "verifiedBy": "git diff/read",
+      "evidence": "Current diff adds the TEST-to-DONE one-step recovery text and done_prepare command to the documented output block."
     },
     {
       "docPath": "packages/main/src/core/evidence-stale-hint.ts#runtime-drift-class",
-      "promise": "Runtime renderEvidenceStaleHint output contains Drift class: line with storyId-substituted content",
-      "verifiedBy": "diff/read",
-      "evidence": "Diff adds Drift class line to lines[] array; template literal uses storyId variable; no placeholder; confirmed in full file"
+      "promise": "Runtime renderEvidenceStaleHint output contains Drift class: line with drift classification wording",
+      "status": "verified",
+      "verifiedBy": "git diff/read",
+      "evidence": "Current diff adds the Drift class line to the renderEvidenceStaleHint lines array."
     },
     {
       "docPath": "packages/main/src/core/evidence-stale-hint.ts#runtime-done_prepare",
-      "promise": "Runtime renderEvidenceStaleHint output contains done_prepare one-step line with literal storyId",
-      "verifiedBy": "diff/read",
-      "evidence": "Diff adds Or when converging line and lattice done_prepare --storyId=${storyId} --mergeMain --refreshStale --validate; confirmed in full file"
+      "promise": "Runtime renderEvidenceStaleHint output contains done_prepare one-step line with real storyId substitution",
+      "status": "verified",
+      "verifiedBy": "git diff/read",
+      "evidence": "Current diff adds lattice done_prepare --storyId=${storyId} --mergeMain --refreshStale --validate to the renderer."
     },
     {
       "docPath": "packages/main/src/core/evidence-stale-hint.ts#existing-lines-preserved",
-      "promise": "Existing output lines (EVIDENCE_STALE_MARKER, Meaning, Run to recover, refresh_stale, validate) are preserved",
-      "verifiedBy": "diff/read",
-      "evidence": "Diff is additive only with no removal of existing lines array entries; full file confirms all 5 original lines intact"
+      "promise": "Existing EVIDENCE_STALE marker, Meaning, refresh_stale, and validate recovery lines are preserved",
+      "status": "verified",
+      "verifiedBy": "git diff/read",
+      "evidence": "The renderer diff is additive around the existing stale-evidence lines; no original recovery line is removed."
     },
     {
       "docPath": "packages/main/src/core/evidence-stale-hint.ts#3-surfaces-auto-inherit",
-      "promise": "3 surfaces (hints.ts, session.ts, transition-orchestrator.ts) auto-inherit new lines without edits",
-      "verifiedBy": "grep/diff",
-      "evidence": "All 3 surfaces call renderEvidenceStaleHint(); diff does not modify any surface file; grep confirmed hints.ts:208 session.ts:1353 transition-orchestrator.ts:567"
+      "promise": "hints.ts, session.ts, and transition-orchestrator.ts inherit the enriched block through renderEvidenceStaleHint without separate edits",
+      "status": "verified",
+      "verifiedBy": "rg/git diff",
+      "evidence": "rg shows all three surfaces call renderEvidenceStaleHint; branch diff does not edit those surface files."
     },
     {
       "docPath": "packages/main/src/tasks/verification-freshness-smoke.ts#slice-5-to-8",
-      "promise": "extractStaleBlock slice updated from 5 to 8 lines",
-      "verifiedBy": "diff/grep",
-      "evidence": "Diff changes slice(markerIdx, markerIdx+5) to slice(markerIdx, markerIdx+8); comment updated; confirmed at line 604"
+      "promise": "extractStaleBlock slice is updated from 5 to 8 lines for the enriched block",
+      "status": "verified",
+      "verifiedBy": "git diff/read",
+      "evidence": "Current diff changes the helper comment and slice to markerIdx + 8."
     },
     {
       "docPath": "packages/main/src/tasks/verification-freshness-smoke.ts#GAP1",
-      "promise": "GAP1 regression assert: rendered block must contain done_prepare one-step line with literal storyId",
-      "verifiedBy": "diff/grep",
-      "evidence": "Diff adds assert.ok with GAP1 message checking done_prepare --storyId substituted at line 505"
+      "promise": "GAP1 regression assert verifies the done_prepare one-step recovery line with literal storyId",
+      "status": "verified",
+      "verifiedBy": "git diff/read",
+      "evidence": "Current diff adds assert.ok(renderedBlock.includes(`lattice done_prepare --storyId=${storyId} --mergeMain --refreshStale --validate`))."
     },
     {
       "docPath": "packages/main/src/tasks/verification-freshness-smoke.ts#GAP2",
-      "promise": "GAP2 regression assert: rendered block must match drift-class token regex and contain Drift class: line",
-      "verifiedBy": "diff/grep",
-      "evidence": "Diff adds assert.ok with GAP2 regex check at line 507 and Drift class literal check at line 509"
+      "promise": "GAP2 regression assert verifies drift-classification tokens and a Drift class line",
+      "status": "verified",
+      "verifiedBy": "git diff/read",
+      "evidence": "Current diff adds the storyFilesHash/story-owned/whole-tree/unrelated regex assert and includes('Drift class:') assert."
     }
   ],
   "realMachineTests": [
     {
       "featureId": "CHK-001",
-      "transcript": "verification-freshness-smoke.js run in this review session output: verification freshness smoke passed — 8-line block + GAP1/GAP2 regression + 3-surface byte-equality all green. Red/spike: node /tmp/red-stale-hint.mjs exited 1 before fix (no done_prepare no drift-class token), green after (transcript-diff.md)."
+      "transcript": "Reviewed transcript-diff.md: red/spike before the fix lacked done_prepare and drift-class tokens; after the fix the rendered EVIDENCE STALE block is 8 lines with Drift class and done_prepare. Current test-evidence.json records lattice validate --story=B-bdce --json PASS at 2026-06-24T18:42:14.550Z with materialHash e0f15b3e777a3b582c88a034c47ab6d0c4b093415576cfae5eb12b1bfec39caa and verification coverage 17/17."
     },
     {
       "featureId": "CHK-002",
-      "transcript": "Same smoke run covers CHK-002: extractStaleBlock 8-line slice, GAP1 assert, GAP2 assert, Drift class literal assert all pass within assertStaleEvidenceHintCrossSurface(). flow-stability-smoke.ts untouched per diff."
+      "transcript": "Current source diff shows verification-freshness-smoke.ts grew extractStaleBlock to an 8-line slice and added GAP1/GAP2/Drift class assertions. Current validation evidence is PASS, and done-required-evidence.json records PASS for build plus root npm test on the same materialHash e0f15b3e777a3b582c88a034c47ab6d0c4b093415576cfae5eb12b1bfec39caa."
     }
   ],
   "closingSelfCheck": {
     "hasRealMachineTest": true,
     "hasEdgeCaseCoverage": true,
     "hasUnresolvedTodos": false,
-    "summary": "All 9 docs promises verified from diff and source reads. CHK-001 delivers Drift class line and done_prepare one-step line with storyId substitution and no placeholders; 5 existing lines preserved; 3 surfaces auto-inherit via single renderEvidenceStaleHint call. CHK-002 updates extractStaleBlock to 8-line slice and adds GAP1/GAP2/Drift-class regression asserts. Smoke confirmed green in this session. No TODOs in changed files. Red/spike evidence present in transcript-diff.md. english-open-source-surface-smoke RED is pre-existing on main and not attributable to this story."
+    "summary": "Delivery promises are satisfied against the current material: the stale-evidence renderer and JSDoc include the Drift class line and done_prepare one-step recovery; existing recovery lines remain; hints/session/transition surfaces still share renderEvidenceStaleHint; verification-freshness-smoke now extracts the full 8-line block and asserts GAP1/GAP2 regressions. Reviewed git diff against main, transcript-diff.md, test-evidence.json PASS, and done-required-evidence.json PASS. No blocker found."
   },
-  "_hash": "4e74bd85cb55646be500c67bc34ffda546949706a52af5bdbd36e224ade6b7a7"
+  "_hash": "3c45e858826f0fd475104e7d9da2d19872886674729684fd568f4c29f04e2377"
 }
