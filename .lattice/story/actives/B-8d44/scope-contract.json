@@ -39,8 +39,34 @@
         "finding.F028",
         "recovery_runner.live_engine.documentation"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Necessary scope expansion to resolve verified reviewer findings F-030 and F-031. F-030 root cause is the shared adjudicate safe-stop/recovered rule order consumed by the live-engine records, so adjudicate.mjs and adjudicate-selfcheck.mjs must change. run-driver-selfcheck.mjs pins the same terminal no-ship contract at canonical record construction. This is not arbitrary optimization; it fixes real correctness issues found in REVIEW.",
+      "timestamp": "2026-06-24T23:16:44.234Z",
+      "paths": [
+        "experiments/recovery-runner/adjudicate.mjs",
+        "experiments/recovery-runner/adjudicate-selfcheck.mjs",
+        "experiments/recovery-runner/run-driver-selfcheck.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "experiments/recovery-runner/adjudicate.mjs",
+        "experiments/recovery-runner/adjudicate-selfcheck.mjs",
+        "experiments/recovery-runner/run-driver-selfcheck.mjs"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "7d09c7438fdd1ceb331f23f79890603ba03eadda",
+      "materialHash": "462d919a8726c1100ad9c92c1a208a7887ea487163c8c48ce2e90a82a85a2f07",
+      "anchors": [
+        "finding.F030",
+        "finding.F031",
+        "recovery_runner.adjudicate.safe_stop",
+        "recovery_runner.infra_secret_scan"
+      ]
     }
   ],
   "createdAt": "2026-06-24T12:25:10.846Z",
-  "updatedAt": "2026-06-24T22:04:08.509Z"
+  "updatedAt": "2026-06-24T23:16:44.235Z"
 }
