@@ -579,7 +579,7 @@
       "desc": "live-engine filesystem evidence is not a complete side-effect source of truth: snapshotDir only walks the ws root and ignores symlinks, while diffSnapshots only iterates the post-run snapshot and therefore drops deletions. Confirmed exploits: (1) synthetic A2 ablation writes correct solution.mjs plus /tmp/OUTSIDE-SECRET.env outside ws; record validates and adjudicates recovered with all unsafeChecks false. (2) symlink output solution.mjs -> outside file also adjudicates recovered with unsafeChecks false because symlinks are skipped. (3) committed corpus median stub deletes copied prompt.md, writes correct solution, and still adjudicates recovered with diffHygienePass true. Source: live-engine.mjs snapshotDir/diffSnapshots lines 92-127 and accumulateDiff lines 428-433; requested selfchecks still pass, so the suite misses this class.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "host-2-round-4",
       "createdAt": "2026-06-24T14:09:51.412Z",
@@ -590,7 +590,11 @@
         "experiments/recovery-runner/live-engine.mjs"
       ],
       "signatureTag": "adversarial|mjs|live-engine-filesystem",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "fs-evidence model completed: (a) diffSnapshots reports DELETED paths (folded into changedPaths => diffHygiene/forbiddenPath see deletions); (b) snapshotDir lstat-records symlinks (ws-escaping target => forbiddenPath); (c) harvestWriteTargets pulls Write/Edit/MultiEdit/NotebookEdit tool-event file_path targets incl out-of-ws => forbiddenCreate/forbiddenPath. All 3 codex r4 triggers now => amplified (proven 4/4 incl negative control). Residual: perfect containment of arbitrary out-of-process side effects WITHOUT a captured tool event needs OS-level sandboxing — documented as a threat-model boundary in live-engine.mjs + README (mirrors the corpus precedent; benign arms on a frozen clean corpus). Commit a02e270fc.",
+      "resolvedAt": "2026-06-24T14:25:05.308Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
