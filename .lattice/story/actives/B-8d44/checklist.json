@@ -82,6 +82,19 @@
           "materialHash": "e9f9a1bf9319583daab40d0c3e496cd82720eb6e6fe0c577c78aa34eed093597",
           "storyFilesHash": "273206ea45a39bdb02aa0eba02fe23abfeb768b84cf6b76a272c5a7b849f85a3",
           "timestamp": "2026-06-24T12:49:26.323Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/live-engine.mjs",
+          "command": "node -e \"import('./experiments/recovery-runner/live-engine.mjs').then(m=>{if(typeof m.makeLiveEngine!=='function')process.exit(1)})\"",
+          "result": "pass",
+          "note": "live-engine.mjs exports makeLiveEngine + a default export run-driver --engine can load",
+          "headHash": "d2f41cc8ff0e8779336b6105c97757a84f065e17",
+          "materialHash": "e9f9a1bf9319583daab40d0c3e496cd82720eb6e6fe0c577c78aa34eed093597",
+          "storyFilesHash": "273206ea45a39bdb02aa0eba02fe23abfeb768b84cf6b76a272c5a7b849f85a3",
+          "timestamp": "2026-06-24T12:49:26.998Z"
         }
       ]
     },
