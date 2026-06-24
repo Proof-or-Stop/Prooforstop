@@ -44,6 +44,46 @@
         }
       ],
       "_hash": "b94ca47052b9f8ecf93b98944d46cdf5eb5bde18bbf8423d80617c22624a0098"
+    },
+    {
+      "timestamp": "2026-06-24T12:59:40.354Z",
+      "issueCount": 6,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "2 checklist items; please check for missing combined scenarios (e.g., what happens when Add the Host DONE convergence / drift-handling section to CLAUDE.md + Mirror the parallel Host DONE convergence section into AGENTS.md are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals_dismissed",
+          "severity": "advisory",
+          "message": "1 risk signal(s) have been dismissed by main agent (reasons in story.riskSignalsDismissed): State Machine/Gate"
+        },
+        {
+          "type": "touchpoint_mapping_missing",
+          "severity": "advisory",
+          "message": "None of the checklist items have the files field filled in (legacy story compatibility mode); cannot perform coverage validation on understanding.touchpoints. Please list the changed files in files.modify/create/test for at least one item to enable strict touchpoint-to-files validation"
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-5396 is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "9e0f47fed25253256f3d73fcf983384254a8b9e93e130bad362365db79c5d793"
     }
   ]
 }
