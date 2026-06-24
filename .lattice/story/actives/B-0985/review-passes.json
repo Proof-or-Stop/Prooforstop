@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-24T10:19:54.578Z",
       "reviewRunId": "B-0985:RR-005",
       "_hash": "8596a57e9ef188d380141aac5778edde033797153535539e3139c6848581888a"
+    },
+    {
+      "id": "B-0985:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Quality pass: proof admissibility evaluation is fail-closed for production-completion. Source requires current contractVersion and uses exact true checks for required proof predicates; runtime smoke plus reviewer matrix confirmed missing/null/false/string/non-true required checks and missing/null/wrong contractVersion all deny allowed and productionDoneEligible.",
+      "createdAt": "2026-06-24T10:32:06.356Z",
+      "reviewRound": "2026-06-24T10:27:56.413Z",
+      "reviewRunId": "B-0985:RR-011",
+      "_hash": "f9a6ce69c3ec89b96341c061cb84811c829029c90123c10b887de43ff91c506a"
     }
   ]
 }
