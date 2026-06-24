@@ -422,7 +422,7 @@ function seedStory(store: StoryStore, storyId: string): void {
       text: async () => JSON.stringify(proof),
     };
   };
-  const client = new AuthorityClient('https://authority.example', fetchImpl);
+  const client = new AuthorityClient('https://authority.example', fetchImpl, undefined, { customerApiKey: 'test-customer-key' });
   const outcome = await client.fetchGateReceiptProof('/v1/receipts/AR-proof-1/proof');
   assert.equal(outcome.ok, true);
   assert.equal(outcome.kind, 'success');

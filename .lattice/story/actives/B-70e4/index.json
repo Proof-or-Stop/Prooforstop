@@ -4,7 +4,7 @@
   "title": "Authenticate the gate-receipt proof fetch (fix 401) and send materialOverlapAudit in the live gate smoke",
   "description": "The Authority gate-receipt proof endpoint /v1/receipts/{id}/proof is a protected read, but authority_receipt_verify --proofPath fetched it unauthenticated and got 401. Two production bugs plus one out-of-date smoke; fix verified green end-to-end against the real staging Authority.",
   "type": "bug",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "riskSignals": [
     {
@@ -22,7 +22,7 @@
   ],
   "createdAt": "2026-06-24T00:54:26.039Z",
   "startedAt": "2026-06-24T00:54:26.039Z",
-  "endedAt": null,
+  "endedAt": "2026-06-24T04:09:33.504Z",
   "events": [
     {
       "phase": "INIT",
@@ -41,11 +41,160 @@
       "user": "Harmonygo",
       "sessionId": "d5efb245-908a-4b5b-b129-44bcce26a23c",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-24T00:59:10.849Z",
+      "branch": "story/B-70e4",
+      "user": "Harmonygo",
+      "sessionId": "d5efb245-908a-4b5b-b129-44bcce26a23c",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-24T01:11:31.944Z",
+      "branch": "story/B-70e4",
+      "user": "Harmonygo",
+      "sessionId": "d5efb245-908a-4b5b-b129-44bcce26a23c",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-24T01:23:41.780Z",
+      "branch": "story/B-70e4",
+      "user": "Harmonygo",
+      "sessionId": "d5efb245-908a-4b5b-b129-44bcce26a23c",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-24T01:44:55.144Z",
+      "branch": "story/B-70e4",
+      "user": "Harmonygo",
+      "sessionId": "d5efb245-908a-4b5b-b129-44bcce26a23c",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-24T01:49:03.993Z",
+      "branch": "story/B-70e4",
+      "user": "Harmonygo",
+      "sessionId": "d5efb245-908a-4b5b-b129-44bcce26a23c",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-24T02:05:06.366Z",
+      "branch": "story/B-70e4",
+      "user": "Harmonygo",
+      "sessionId": "d5efb245-908a-4b5b-b129-44bcce26a23c",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-24T02:30:13.151Z",
+      "branch": "story/B-70e4",
+      "user": "Harmonygo",
+      "sessionId": "d5efb245-908a-4b5b-b129-44bcce26a23c",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-24T02:45:40.407Z",
+      "branch": "story/B-70e4",
+      "user": "Harmonygo",
+      "sessionId": "d5efb245-908a-4b5b-b129-44bcce26a23c",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-24T03:24:44.952Z",
+      "branch": "story/B-70e4",
+      "user": "Harmonygo",
+      "sessionId": "d5efb245-908a-4b5b-b129-44bcce26a23c",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-24T03:27:22.420Z",
+      "branch": "story/B-70e4",
+      "user": "Harmonygo",
+      "sessionId": "d5efb245-908a-4b5b-b129-44bcce26a23c",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-24T03:43:06.940Z",
+      "branch": "story/B-70e4",
+      "user": "Harmonygo",
+      "sessionId": "d5efb245-908a-4b5b-b129-44bcce26a23c",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-24T03:43:07.686Z",
+      "branch": "story/B-70e4",
+      "user": "Harmonygo",
+      "sessionId": "d5efb245-908a-4b5b-b129-44bcce26a23c",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-24T03:49:24.478Z",
+      "branch": "story/B-70e4",
+      "user": "Harmonygo",
+      "sessionId": "d5efb245-908a-4b5b-b129-44bcce26a23c",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-24T03:58:40.161Z",
+      "branch": "story/B-70e4",
+      "user": "Harmonygo",
+      "sessionId": "d5efb245-908a-4b5b-b129-44bcce26a23c",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-24T03:58:40.688Z",
+      "branch": "story/B-70e4",
+      "user": "Harmonygo",
+      "sessionId": "d5efb245-908a-4b5b-b129-44bcce26a23c",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-24T04:06:59.904Z",
+      "branch": "story/B-70e4",
+      "user": "Harmonygo",
+      "sessionId": "d5efb245-908a-4b5b-b129-44bcce26a23c",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-24T04:09:33.504Z",
+      "branch": "story/B-70e4",
+      "user": "Harmonygo",
+      "sessionId": "d5efb245-908a-4b5b-b129-44bcce26a23c",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-70e4",
-    "branch": "story/B-70e4",
-    "createdAt": "2026-06-24T00:58:33.290Z"
-  }
+  "currentReviewRound": "2026-06-24T03:58:40.688Z"
 }
