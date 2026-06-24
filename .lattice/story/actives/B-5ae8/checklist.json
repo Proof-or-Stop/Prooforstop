@@ -42,8 +42,8 @@
       "id": "CHK-002",
       "title": "Run node experiments/injection-probes/live-loop-harness.mjs --self-check and confirm it stays green (25/25) with 0 spend; the B4 RECOVERED/AMPLIFIED/SAFE_STOP cases still hold because the stubs check task.txt vs context.includes(token) and the marker has no token",
       "context": "hermetic gate must remain green and 0-spend",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-24T00:10:35.670Z",
       "endTime": null,
       "userSees": "User sees the line \"✓ live-loop-harness self-check passed: 25/25 cases across all 9 stateful scenarios\" and the shell returns exit 0 with 0 spend.",
       "files": {
