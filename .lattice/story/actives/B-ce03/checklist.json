@@ -74,7 +74,30 @@
       "context": "Bring over focused smoke coverage for metadata-only dirt, dirty source blockers, unsafe renames, failed done-required evidence, and lifecycle_check localReady semantics.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "done_prepare smoke includes a passing metadata-only dirty scenario and lifecycle_check smoke includes a ready fixture with localReady true.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "smokes cover dirty source, metadata-to-source rename, source-to-metadata rename, and source-to-owner-lease rename blockers.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "benchmark assertions fail if metadata-only done_prepare dirt regresses to blockedAt cleanTree or if the scenario precondition is not DONE-closure ready.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
