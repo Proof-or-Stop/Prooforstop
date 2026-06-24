@@ -128,7 +128,8 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "userSees": "Running `node packages/main/dist/tasks/review-escalation-smoke.js` passes; `lattice review_escalation_status` and policy/fallback_set compute freshness from the resolved gitCwd instead of the metadata root."
     },
     {
       "id": "CHK-004",
