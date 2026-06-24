@@ -76,6 +76,17 @@
           "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
           "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
           "timestamp": "2026-06-24T11:19:35.726Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/delivery-check-freshness-smoke.js",
+          "result": "pass",
+          "note": "delivery-check-freshness-smoke.ts:366-393 (legacy case): legacyDeliveryCheck() (line 173-187) creates a record WITHOUT materialHash or storyFilesHash, calling signDeliveryCheck with no materialHash/storyFilesHash args. signDeliveryCheck (delivery-check-hash.ts:56-57) conditionally appends these only when present, so the legacy hash is computed without them. recomputeDeliveryCheckHash (line 67-78) reads the stored record (which has no storyFilesHash) and passes undefined, reproducing the identical legacy hash. The smoke asserts evaluateDeliveryCheckFreshness still works (returns stale_delivery_check, not tampered), confirming byte-identical recomputation.",
+          "headHash": "0c5687b5404a8b6eebf8780bfc8ae2a0b78d7b1d",
+          "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
+          "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
+          "timestamp": "2026-06-24T11:19:47.395Z"
         }
       ]
     },
