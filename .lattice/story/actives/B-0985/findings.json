@@ -51,7 +51,7 @@
       "desc": "Known production-gate-decision artifacts fail open when required proof checks are omitted. In packages/main/src/core/proof-admissibility.ts:536 the evaluator defaults checks to {}, and lines 552-580 only add reasons when optional check fields are explicitly invalid/false. Because allowed is computed as policy && reasons.length === 0 at lines 595-596, evaluateProofAdmissibility({artifactKind:\"authority-receipt-ref\", consumer:\"AUTHORITY_GATE_DECISION\", claim:\"production-completion\"}) returns allowed=true and productionDoneEligible=true with no schema, shape, digest, signature/receipt, subject, producer, or material binding evidence. The smoke tests cover explicit stale/unsupported values and unknown artifact kind at packages/main/src/tasks/proof-admissibility-smoke.ts:119-153, but they do not cover missing checks for a known strong surface. Repro: node --input-type=module -e \"import { evaluateProofAdmissibility } from './packages/main/dist/core/proof-admissibility.js'; console.log(JSON.stringify(evaluateProofAdmissibility({artifactKind:'authority-receipt-ref',consumer:'AUTHORITY_GATE_DECISION',claim:'production-completion'}), null, 2));\" shows allowed=true and productionDoneEligible=true. This violates the story requirement for unknown fail-closed behavior and leaves a negative-control gap for authority-receipt-ref vs production-gate-decision.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-24T10:16:05.542Z",
@@ -63,7 +63,11 @@
         "packages/main/src/tasks/proof-admissibility-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|known-production-gate",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Added negative control for known authority-receipt-ref production gate decision with omitted checks; evaluator now returns allowed=false and productionDoneEligible=false with missing_required_field/signature_missing/unknown_producer reasons. Verified with build and proof smoke.",
+      "resolvedAt": "2026-06-24T10:20:55.725Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-0985:F-004",
