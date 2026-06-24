@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-ce03",
+  "mode": "correctness_fix",
+  "allowed": [
+    "Port B-9dfb done_prepare metadata-only dirty handling into current main",
+    "Port focused regression smoke and benchmark assertions for these behaviors",
+    "Port lifecycle_check advisory missing done_prepare report semantics into current main",
+    "Update the done_prepare automation decision document for this behavior"
+  ],
+  "excluded": [
+    "Do not change unrelated proof-admissibility or Host runbook behavior",
+    "Do not import .lattice/story/actives/B-9dfb metadata",
+    "Do not merge orchestrate/main wholesale",
+    "Do not resurrect or reuse the stale B-9dfb worktree",
+    "Do not weaken source/material dirty blockers or DONE-required failure blockers"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User agreed to connect the B-9dfb behavior here via a new worktree; prior discussion explicitly chose a fresh story that ports behavior only, not old story metadata or unrelated orchestrate/main history.",
+  "createdAt": "2026-06-24T12:57:52.684Z",
+  "updatedAt": "2026-06-24T12:57:52.684Z",
+  "_hash": "1277eb61da48399a6c9efe58987aef17b25eea56434bbf8c0a5735088f4e1032"
+}

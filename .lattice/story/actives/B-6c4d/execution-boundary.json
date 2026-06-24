@@ -1,0 +1,33 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-6c4d",
+  "allowedCommands": [
+    "node packages/main/dist/tasks/flow-stability-smoke.js",
+    "npm --prefix packages/main run build",
+    "npm test"
+  ],
+  "allowedTools": [
+    "Bash",
+    "Edit",
+    "Glob",
+    "Grep",
+    "Read",
+    "Write"
+  ],
+  "allowedPaths": [
+    "docs/requirements/decisions/review-run-binding-race.md",
+    "docs/requirements/decisions/session-ownership-and-write-leases.md",
+    "packages/main/src/core/evidence-freshness.ts",
+    "packages/main/src/core/review-run.ts",
+    "packages/main/src/tasks/flow-stability-smoke.ts",
+    "packages/main/src/tasks/review-pass-discard-smoke.ts"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Relax review-run id-recency binding (kind-aware) + EMPTY storyFilesHash guard. Excludes lock unification + materialHash redesign.",
+  "createdAt": "2026-06-24T12:54:15.527Z",
+  "updatedAt": "2026-06-24T12:54:15.527Z",
+  "_hash": "6cfdb9475ecbc12803d572517311a290536495627b2a22438e6389349a11450a"
+}

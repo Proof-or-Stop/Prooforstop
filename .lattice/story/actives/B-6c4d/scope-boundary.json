@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-6c4d",
+  "mode": "correctness_fix",
+  "allowed": [
+    "Add a regression smoke for the binding race and confirm flow-stability finding-supersession semantics stay green",
+    "Add the EMPTY_STORY_FILES_HASH no-signal guard to checkEvidenceFreshnessForGit drift-advisory branch (evidence-freshness.ts), for all callers",
+    "Relax the id-recency rejection at review-run.ts assertCurrentReviewRunForEvidence (write, both kinds) and validateEvidenceRunBinding (validate, KIND-AWARE: skip stale_run for passes, keep for findings)",
+    "Write docs/requirements/decisions/review-run-binding-race.md and reconcile session-ownership-and-write-leases.md (doc-only)"
+  ],
+  "excluded": [
+    "Any whole-tree materialHash recompute redesign",
+    "keep-strict (no fix)",
+    "Option A lock unification (unifying review-runs.lock / review-passes.lock) — deferred follow-up, not in this change",
+    "The delivery-check drift-advisory (already shipped in friction #1 / B-d243)"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Design locked by adversarial workflow + red->spike->story; relax id-recency (kind-aware), add EMPTY guard, doc reconcile; Option A lock-unification deferred.",
+  "createdAt": "2026-06-24T12:54:15.141Z",
+  "updatedAt": "2026-06-24T12:54:15.141Z",
+  "_hash": "01ff6e651527a450232c051c290e3a2a47a3d5be7d242c6b0c7842c8a4649a53"
+}

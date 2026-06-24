@@ -1,0 +1,61 @@
+{
+  "storyId": "B-5396",
+  "name": "host-done-convergence-runbook",
+  "title": "Host DONE convergence runbook: document done_prepare and storyFilesHash drift decision rules",
+  "description": "Translate the already-built freshness/drift mechanisms (done_prepare, storyFilesHash secondary freshness, review-assurance-floor, delivery-check drift advisory, proof-admissibility) into one explicit Host-facing operating discipline in AGENTS.md and CLAUDE.md, so Hosts stop mis-operating during parallel-story DONE convergence. Docs-only: a projection/reference of existing rules, NOT new rules. No CLI/code, no hash/freshness logic, no gate-strength, no proof-admissibility contract changes.",
+  "type": "chore",
+  "phase": "INIT_CHECK",
+  "priority": "medium",
+  "keywords": [
+    "host-runbook",
+    "done_prepare",
+    "storyFilesHash",
+    "materialHash",
+    "drift",
+    "DONE-convergence",
+    "docs-only",
+    "AGENTS.md",
+    "CLAUDE.md"
+  ],
+  "riskSignals": [
+    {
+      "category": "State Machine/Gate",
+      "matched": "story_advance"
+    }
+  ],
+  "createdAt": "2026-06-24T12:50:52.832Z",
+  "startedAt": "2026-06-24T12:50:52.832Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-24T12:50:52.847Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "b0a01b07-dd7a-40ba-a0fe-163497230a65",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-24T12:53:52.970Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "b0a01b07-dd7a-40ba-a0fe-163497230a65",
+      "agent": "main"
+    }
+  ],
+  "riskSignalsDismissed": [
+    {
+      "category": "State Machine/Gate",
+      "reason": "False positive (mention not modify): this is a docs-only story editing AGENTS.md and CLAUDE.md. It only quotes story_advance/done_prepare in the Host-runbook prose; it modifies no state-machine, gate, or lifecycle code. No packages/main/src changes at all.",
+      "at": "2026-06-24T12:51:16.248Z"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-5396",
+    "branch": "story/B-5396",
+    "createdAt": "2026-06-24T12:53:52.547Z"
+  }
+}
