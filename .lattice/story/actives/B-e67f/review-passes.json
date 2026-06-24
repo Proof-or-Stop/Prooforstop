@@ -71,6 +71,15 @@
       "reviewRound": "2026-06-24T10:16:50.255Z",
       "reviewRunId": "B-e67f:RR-010",
       "_hash": "bace609b22e48ce7323c8d6bab6b0e894278f6e9243156ef61199c62c1c90492"
+    },
+    {
+      "id": "B-e67f:RP-009",
+      "agent": "lattice-review-quality",
+      "note": "Round 3 quality re-attest of corpus-selfcheck.mjs (commit dedb8d0c68, F-009/F-010 fixes only). Dead code: all imports used; PRISTINE_NODE_OPTIONS + void idiom is intentional documentation (not dead code). Type safety: three catch blocks all push to issues or return structured output — no silent swallowing. I/O shell isolation: no bridge.ts in this project, not applicable. Tests: 24/24 tasks pass, 10/10 negative-control guards fire, 6/6 run-selfchecks pass. No quality blockers found.",
+      "createdAt": "2026-06-24T10:49:55.722Z",
+      "reviewRound": "2026-06-24T10:16:50.255Z",
+      "reviewRunId": "B-e67f:RR-009",
+      "_hash": "26cdb2c8fbcfcb18fc1c56d533b639e3cc9f66b575407fc2d5ca6dc6ece73b4a"
     }
   ]
 }
