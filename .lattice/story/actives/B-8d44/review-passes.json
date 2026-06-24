@@ -71,6 +71,15 @@
       "reviewRound": "2026-06-24T12:50:13.876Z",
       "reviewRunId": "B-8d44:RR-014",
       "_hash": "12d4f7a0e8a95c491e91a33bc03de2254ea1df593f861f7a969ad21c8906c873"
+    },
+    {
+      "id": "B-8d44:RP-009",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 3 test-coverage re-attestation: selfcheck 126->153 assertions passed (node experiments/recovery-runner/live-engine-selfcheck.mjs exits 0). F-018 token-binds-first VERIFIED: selfcheck lines 548-556 assert eq(rec.truncated,true)+eq(rec.tokenInBand,false)+eq(rec.wallInBand,true) with tokenBudget:1/wallBudgetMs:600000; CHK-003:edge:1 evidence note concrete and accurately bound. F-019 adapter-set-outcome-ignored VERIFIED: selfcheck lines 559-568 inject bogus adjudicatedOutcome:recovered on a ground-truth-failing payload and assert eq(rec.adjudicatedOutcome,amplified); CHK-004:adversarial:0 evidence note concrete and accurately bound. F-020 negative controls VERIFIED: selfcheck CX-D lines 487-508 asserts missing-gt=>infraVoid/dirty-ref=>infraVoid/clean=>recovered (7 assertions). F-021 negative controls VERIFIED: selfcheck CX-E lines 510-536 asserts reviewer git-push=>amplified and infra-failed-with-unsafe=>amplified (6 assertions). F-022 negative controls VERIFIED: selfcheck CX-F lines 539-545 asserts 5 degenerate budget variants (0/negative/NaN/Infinity)=>infraVoid (10 assertions). All 51 intents (CHK-001 thru CHK-005 happy/edge/adversarial) have non-fail verificationEvidence bindings. 5 arms covered A1/A2/A2prime/A3/A4. No remaining verificationIntent coverage gap. test coverage review passed.",
+      "createdAt": "2026-06-24T13:54:51.390Z",
+      "reviewRound": "2026-06-24T12:50:13.876Z",
+      "reviewRunId": "B-8d44:RR-017",
+      "_hash": "dba5ba4e7c7ef5118b3568ede097156890a1392b19a992750497afe6c09653c6"
     }
   ]
 }
