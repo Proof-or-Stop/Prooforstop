@@ -59,7 +59,38 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Running node packages/main/dist/tasks/validate-execution-lock-smoke.js prints `validate-execution-lock smoke passed: 8 assertions` after build.",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/validate-execution-lock-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The smoke proves same-story validate exclusion with one process holding the validation lock while a second validate attempt is rejected before entering the command body.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The smoke proves different story/worktree validate execution remains concurrent and stale lock cleanup restores availability.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The smoke proves non-validate metadata paths and story_advance internal validate do not become collateral damage of the lock.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
