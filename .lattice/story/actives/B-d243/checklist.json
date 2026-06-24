@@ -438,6 +438,17 @@
           "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
           "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
           "timestamp": "2026-06-24T11:21:41.869Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:2",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/delivery-check-freshness-smoke.js",
+          "result": "pass",
+          "note": "delivery-check-freshness-smoke.ts:332-363 (forged storyFilesHash case): forges storyFilesHash to \"f\".repeat(64) (line 339). Asserts signDeliveryCheck with forged value differs from original _hash (lines 347-353). Writes forged record, asserts doneRow status=fail (line 357), detail matches /_hash mismatch/ (line 358). canFinishGuard returns false (line 359), guard reason matches /delivery_check_tampered/ (line 360). Specific code/status/detail triple for tampered detection is pinned.",
+          "headHash": "3520347641e47bc1f4544e30e733faedc94a3409",
+          "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
+          "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
+          "timestamp": "2026-06-24T11:21:46.290Z"
         }
       ]
     },
