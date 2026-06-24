@@ -86,7 +86,15 @@
       "startTime": null,
       "endTime": null,
       "files": {
-        "modify": [],
+        "modify": [
+          "packages/main/src/handlers/implementation-review.ts",
+          "packages/main/src/core/intent-coverage.ts",
+          "packages/main/src/core/zod.ts",
+          "packages/main/src/verifier/index.ts",
+          "packages/main/src/verifier/validate.ts",
+          "packages/main/src/verifier/cli-executor.ts",
+          "packages/main/src/verifier/types.ts"
+        ],
         "create": [],
         "test": [
           "scripts/verify-orphan-surface.mjs"
