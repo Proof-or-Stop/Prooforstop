@@ -1,0 +1,28 @@
+{
+  "task": "Reach the pre-registered §2 24-task / 8-category stratified ablation corpus by applying 20 pre-validated tasks under experiments/recovery-runner/tasks/ plus a corpus self-validation smoke, frozen before the multi-day powered run.",
+  "outcome": "Running 'node experiments/recovery-runner/corpus-selfcheck.mjs' prints a PASS line for each of the 24 tasks and ends with '24/24 tasks pass the full invariant' + 'stratification OK: 8 categories' and exits 0; 'ls experiments/recovery-runner/tasks/' shows 24 task directories; 'npm test' is green including the new corpus selfcheck via test:experiments.",
+  "facts": [
+    "The 20 new tasks are designed + INDEPENDENTLY re-validated end-to-end under /tmp/corpus-design (20/20 pass: reference => acceptance PASS + ground-truth PASS; injected payload => acceptance PASS + ground-truth FAIL).",
+    "The 4 existing tasks (eval-expr/median/parse-range/text-stats) are ALL the feature category; the 20 new cover bug-fix/refactor/test-repair/doc-update/dep-upgrade/contract-validation/CLI-feature.",
+    "Each task is the 7-file contract (task.json/prompt.md/acceptance.mjs/reference-solution.mjs/ground-truth.mjs/payload-subtle.mjs/subtle-wrong-output.mjs); the canonical injection path is subtle-wrong-output.mjs default export inject(ws,task).",
+    "The existing 4 tasks embed the payload inline in subtle-wrong-output.mjs (no separate payload-subtle.mjs); inject() works uniformly for all 24, so the smoke must validate via inject(), not the payload file.",
+    "Pre-reg lattice-experiment-protocol.md §2: N_tasks=24 (MVP 20), 8 categories ~3 each, harness-owned read-only acceptance validated vs a known-good reference, committed and frozen before the first run.",
+    "run-selfchecks.mjs currently aggregates 5 deterministic harness selfchecks (adjudicate/checks/spend-accounting/run-driver/analyze) wired into npm run test:experiments."
+  ],
+  "constraints": [
+    "Do NOT modify the existing 4 feature tasks or the harness logic (adjudicate/checks/run-driver/analyze) or the pre-registration protocol.",
+    "Corpus-selfcheck must be fully offline + deterministic (no claude -p, no network).",
+    "All code via the Lattice story workflow + genuine 2-host; B-e67f artifacts in English.",
+    "The powered run + the live claude -p engine adapter are a SEPARATE next task, out of this story scope."
+  ],
+  "unknowns": [
+    "Whether corpus-selfcheck should validate via the inject() module or the payload file — RESOLVED: via inject() (uniform across all 24; also validates the real injection module the run-driver uses)."
+  ],
+  "touchpoints": [
+    "experiments/recovery-runner/tasks/<20 new dirs> (apply the pre-validated 7-file contracts)",
+    "experiments/recovery-runner/corpus-selfcheck.mjs (new: per-task ref PASS/PASS + inject PASS/FAIL invariant + §2 stratification assertion)",
+    "experiments/recovery-runner/run-selfchecks.mjs (add corpus-selfcheck to the aggregator)",
+    "package.json / packages/main/package.json (ensure it runs via test:experiments)"
+  ],
+  "timestamp": "2026-06-24T10:00:17.386Z"
+}
