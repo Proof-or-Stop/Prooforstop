@@ -1,17 +1,17 @@
 {
-  "task": "Phase 1 of the Lattice->Proofbound rebrand: change only the user-VISIBLE brand in README/docs prose, packages/*/src user-facing strings (--help/banner/descriptions/errors), and package.json description fields, keeping all internal load-bearing identifiers for later phases.",
-  "outcome": "A user reading README.md or running the CLI --help/banner sees 'Proofbound' / 'Proofbound CLI' instead of 'Lattice' / 'Lattice CLI'; the lowercase 'lattice' command, .lattice/ paths, @lattice/* packages, schema-ids and salts are unchanged (still functional). Build + full test suite stay green.",
+  "task": "Phase 1 of the Lattice->Proofbound rebrand: change only the user-VISIBLE brand in README/docs prose, packages/*/src user-facing strings, and package.json descriptions, keeping all internal load-bearing identifiers for later phases.",
+  "outcome": "A user reading README.md or running the CLI --help/banner sees 'Proofbound' / 'Proofbound CLI' instead of 'Lattice' / 'Lattice CLI'; the lowercase 'lattice' command, .lattice/ paths, @lattice/* packages, schema-ids and salts are unchanged. Build + full test suite stay green.",
   "facts": [
-    "18,145 'lattice' hits across 1,562 files; load-bearing internals deferred to later phases: the .lattice/ audit dir (189 src files), @lattice/* packages (117 files), 122 distinct lattice.*.v1 schema-ids, 15 lattice-* signature salts (just renamed from koala in B-fbca). Phase 1 touches only brand prose + user-facing strings + package descriptions."
+    "18,145 'lattice' hits across 1,562 files; deferred internals: .lattice/ audit dir (189 src files), @lattice/* packages (117 files), 122 lattice.*.v1 schema-ids, 15 lattice-* salts. Phase 1 touches only brand prose + user-facing strings + package descriptions."
   ],
   "constraints": [
-    "Edit only README.md, docs/**, packages/{main,utils,lab}/src user-facing strings, package.json description fields (NOT name), CHANGELOG.md. Keep lowercase 'lattice' commands, .lattice/ paths, @lattice refs, schema-ids, salts. Build + full test suite must pass."
+    "Edit only README.md, docs/**, packages/{main,utils,lab}/src user-facing strings, package.json description (NOT name), CHANGELOG.md. Keep lowercase 'lattice' commands, .lattice/ paths, @lattice refs, schema-ids, salts. Build + full test suite must pass."
   ],
   "unknowns": [
-    "None. Mechanical capitalized-brand-word replacement in user-visible surfaces; the keep-list (lowercase identifiers) is explicit."
+    "None; the change is fully determined and nothing remains open at design time."
   ],
   "touchpoints": [
-    "README.md; docs/**/*.md; packages/main/src, packages/utils/src, packages/lab/src (user-facing strings only); package.json description fields; CHANGELOG.md"
+    "README.md; docs; packages/main/src; packages/utils/src; packages/lab/src; package.json; CHANGELOG.md"
   ],
-  "timestamp": "2026-06-24T12:15:33.021Z"
+  "timestamp": "2026-06-24T12:17:19.547Z"
 }
