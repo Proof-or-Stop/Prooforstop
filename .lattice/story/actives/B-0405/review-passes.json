@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-24T11:32:27.508Z",
       "reviewRunId": "B-0405:RR-006",
       "_hash": "47ef1e1f9759324bfa8fc564319dd39d1abc5774dcfe25e02b516e8c9970c39f"
+    },
+    {
+      "id": "B-0405:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "Concept review passed for proof admissibility hardening M2-M7 at aea8497. Checked registry/evaluator boundaries, reserved caller metadata stripping, semantic digest/strict shape contract, Authority gate receipt production-vs-local classification, warn/enforce consumer behavior, legacy/local downgrade path, and handoff proof-ref separation. No blocker found: local CLI assurance remains non-production by default, enforce mode blocks inadmissible proof consumption, legacy/local evidence is diagnostic-only, and handoff carries proof refs without asserting receiptVerified/authorityDone/fullAuthorityDone/productionDone.",
+      "createdAt": "2026-06-24T11:52:29.062Z",
+      "reviewRound": "2026-06-24T11:50:39.023Z",
+      "reviewRunId": "B-0405:RR-011",
+      "_hash": "cf8473293af7232c0796015d748f4fe429f072c5a8055eb12bf06a71d98cced5"
     }
   ]
 }
