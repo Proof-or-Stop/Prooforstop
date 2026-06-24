@@ -9,9 +9,9 @@
         "docs/evidence/evidence-platform-architecture.md",
         "docs/evidence/proof-surface-inventory.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-24T11:17:15.561Z",
-      "endTime": null,
+      "endTime": "2026-06-24T11:17:22.745Z",
       "userSees": "Reserved proof-looking metadata keys are stripped or rejected from caller-writable metadata while ordinary metadata survives, verified by proof-admissibility-hardening smoke output.",
       "files": {
         "modify": [
@@ -44,7 +44,31 @@
             "type": "logic"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:proof-admissibility-hardening",
+          "result": "pass",
+          "note": "Hardening smoke covers reserved proof-key stripping/rejection, nested linked spoof keys, delegated metadata spoofing, and ordinary metadata preservation.",
+          "headHash": "0738519cb6644d5aecfa26f221dc334d06fd5ca7",
+          "materialHash": "a2dfb8c6a958296b980bae7fb7046305e4b1ccaec6819ddd4e107e22df2dfe95",
+          "storyFilesHash": "4b1a812749cdde4b9b3a991a3726eea23a668aefe4fb71c83666658038cd3299",
+          "timestamp": "2026-06-24T11:17:23.100Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "TypeScript build passes with metadata sanitizers wired into runner registration, job spec, and provider event parsing.",
+          "headHash": "0738519cb6644d5aecfa26f221dc334d06fd5ca7",
+          "materialHash": "a2dfb8c6a958296b980bae7fb7046305e4b1ccaec6819ddd4e107e22df2dfe95",
+          "storyFilesHash": "4b1a812749cdde4b9b3a991a3726eea23a668aefe4fb71c83666658038cd3299",
+          "timestamp": "2026-06-24T11:17:23.394Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
