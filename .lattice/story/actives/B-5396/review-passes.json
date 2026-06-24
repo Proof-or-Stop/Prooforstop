@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-5396:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept residue check complete. This diff adds (no deletions/replacements) a Host DONE convergence / drift handling section to CLAUDE.md and AGENTS.md. No concept words were deleted or replaced — the only minus-lines in the diff are story metadata status fields (pending→done, phase transitions). Independent verification confirms: (1) section heading appears exactly once in each file; (2) VERBATIM paragraph 1 (materialHash-only downgrade) byte-identical in both; (3) VERBATIM paragraph 2 (metadata-only B-9dfb pointer) byte-identical in both; (4) all 4 decision-doc references present 1× each in both files; (5) all 7 rules present in CLAUDE.md (lines 396-403); (6) diff of extracted sections is empty — two copies are byte-identical; (7) done_prepare mentioned 2× each file. No concept deletion/replacement residue. No promised-but-undelivered CLI behavior claims (rules are references to existing docs, not behavioral promises). No blocker found.",
+      "createdAt": "2026-06-24T13:09:29.853Z",
+      "reviewRound": "2026-06-24T13:08:02.474Z",
+      "reviewRunId": "B-5396:RR-002",
+      "_hash": "2a554b376d5e98a0fef2cabb17045d9a21b416474a597f700fe3e723165876b2"
+    }
+  ]
+}
