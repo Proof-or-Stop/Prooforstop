@@ -116,6 +116,15 @@
       "reviewRound": "2026-06-24T12:13:00.859Z",
       "reviewRunId": "B-0405:RR-027",
       "_hash": "3338f3969f255ff72f7431b66a9e49e9912773760879808d4907d66e0e204548"
+    },
+    {
+      "id": "B-0405:RP-014",
+      "agent": "lattice-review-concept",
+      "note": "Focused re-review after latest main merge to v0.3.87: conceptual boundaries hold. Production completion remains scoped to production-gate-decision with signature/receipt, freshness, subject, consumer, and producer-boundary checks; local review/quorum, handoff, legacy, and diagnostic artifacts keep Authority/production booleans false. Verified with npm --prefix packages/main run test:proof-admissibility-hardening; npm --prefix packages/main run test:proof-admissibility; npm --prefix packages/main run build; npm run test:process-fact-contract; git diff --check main...HEAD.",
+      "createdAt": "2026-06-24T12:16:14.636Z",
+      "reviewRound": "2026-06-24T12:13:00.859Z",
+      "reviewRunId": "B-0405:RR-029",
+      "_hash": "b4a93605d02639f3b4f8ab63f78bd77304b19aa44f2ef4fe1473b3e814755cf6"
     }
   ]
 }
