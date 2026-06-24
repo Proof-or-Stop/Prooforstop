@@ -84,9 +84,9 @@
       "id": "CHK-002",
       "title": "Add fail-closed scope regression coverage",
       "context": "Extend scope contract/process fact checks so evidence/live-smoke-transcript.json passes, while sibling arbitrary nested evidence such as evidence/notes.md still fails closed.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-24T14:23:42.131Z",
-      "endTime": null,
+      "endTime": "2026-06-24T14:23:45.363Z",
       "files": {
         "modify": [
           "packages/main/src/tasks/scope-contract-smoke.ts",
@@ -121,7 +121,42 @@
           }
         ]
       },
-      "userSees": "The regression smoke prints PASS while accepting live-smoke-transcript.json and rejecting evidence/notes.md."
+      "userSees": "The regression smoke prints PASS while accepting live-smoke-transcript.json and rejecting evidence/notes.md.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/scope-contract-smoke.js",
+          "result": "pass",
+          "note": "Smoke accepts .lattice/story/actives/B-scope/evidence/live-smoke-transcript.json as lifecycle_artifact and keeps it non-blocking.",
+          "headHash": "f950213d18e0c58fe77675036c419b6b960da130",
+          "materialHash": "9c876e7ddba55eba9762f7634cd40e9da656a43e72203655705d1d7fec06a6e2",
+          "storyFilesHash": "bd28fbc198e139cd88d20f6e569c79b497829de4ce1a20811e84894a5a5ce210",
+          "timestamp": "2026-06-24T14:23:45.590Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/scope-contract-smoke.js",
+          "result": "pass",
+          "note": "transcript-diff lifecycle artifact behavior remains accepted in the smoke coverage.",
+          "headHash": "f950213d18e0c58fe77675036c419b6b960da130",
+          "materialHash": "9c876e7ddba55eba9762f7634cd40e9da656a43e72203655705d1d7fec06a6e2",
+          "storyFilesHash": "bd28fbc198e139cd88d20f6e569c79b497829de4ce1a20811e84894a5a5ce210",
+          "timestamp": "2026-06-24T14:23:45.785Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/scope-contract-smoke.js",
+          "result": "pass",
+          "note": "Sibling path evidence/notes.md still reports blocking non-lifecycle drift in the smoke runner.",
+          "headHash": "f950213d18e0c58fe77675036c419b6b960da130",
+          "materialHash": "9c876e7ddba55eba9762f7634cd40e9da656a43e72203655705d1d7fec06a6e2",
+          "storyFilesHash": "bd28fbc198e139cd88d20f6e569c79b497829de4ce1a20811e84894a5a5ce210",
+          "timestamp": "2026-06-24T14:23:45.990Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
