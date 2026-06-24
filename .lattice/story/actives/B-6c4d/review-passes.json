@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-24T14:22:50.026Z",
       "reviewRunId": "B-6c4d:RR-007",
       "_hash": "7c74b4e39b568e7ebccd40eda007d7fb1fbf55990f6ffe8c9015b0d33441142b"
+    },
+    {
+      "id": "B-6c4d:RP-004",
+      "agent": "lattice-review-docs",
+      "note": "Round-2 docs review: Step-1 yielded FLOW_FACT_POLICIES/PROCESS_FACT_LEVELS/PROCESS_FACT_LEVELS rationale strings + prompt-registry.ts prompt text (3 symbol-level changes). Step-2/3 compared all 3 against review-run.ts:807 kind-aware gate, assertCurrentReviewRunForEvidence write-time removal, validateEvidenceRunBinding validate-time kind-aware logic, evidence-freshness.ts EMPTY_STORY_FILES_HASH guard, and review-run-binding-race.md decision doc (4 paragraphs). All rationale strings accurately reflect the implementation: PASS bypasses stale_run rejection, FINDING keeps it; freshness+scope are the real authorities; review-run-binding-race.md is correctly cross-referenced and remains internally consistent. Closing reverse scan: decision doc reference resolves to a real file; smoke-test assertion is present in code. 0 findings — no doc-code drift, no doc-promise-undelivered.",
+      "createdAt": "2026-06-24T14:24:46.317Z",
+      "reviewRound": "2026-06-24T14:22:50.026Z",
+      "reviewRunId": "B-6c4d:RR-006",
+      "_hash": "adf242a95a14f19e378e618e98a00c2a0ab2f7227813769c039e809f75c9b3d8"
     }
   ]
 }
