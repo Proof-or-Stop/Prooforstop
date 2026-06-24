@@ -71,6 +71,15 @@
       "reviewRound": "2026-06-24T04:33:42.085Z",
       "reviewRunId": "B-0aa1:RR-011",
       "_hash": "462612c0e58f14c3e27ca956ec999a687d6f80c4865090522f5e4f5972b7a29b"
+    },
+    {
+      "id": "B-0aa1:RP-009",
+      "agent": "lattice-review-quality",
+      "note": "Round 3 docs-only re-review: baselineHeadHash/materialHash optional fields added consistently across types.ts, CreateProbeInput, ReproProbeArgs, and command-catalog Zod schema. Conditional spread correctly omits fields from digest when absent. Docs probe contract table now matches implementation (F-003 fix). No dead code, no type drift, no I/O isolation regression. PASS.",
+      "createdAt": "2026-06-24T04:38:16.984Z",
+      "reviewRound": "2026-06-24T04:33:42.085Z",
+      "reviewRunId": "B-0aa1:RR-012",
+      "_hash": "2962dc2f2a80b81b4cd9a0e9160efda109c350a6fe8489e060a6ab10e7e9310c"
     }
   ]
 }
