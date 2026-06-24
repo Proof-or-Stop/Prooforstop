@@ -116,6 +116,15 @@
       "reviewRound": "2026-06-24T12:50:13.876Z",
       "reviewRunId": "B-8d44:RR-022",
       "_hash": "fd557f21b05eaa6122889043366b63fee82d1c7d54decc0679cb2cc132fa5974"
+    },
+    {
+      "id": "B-8d44:RP-014",
+      "agent": "lattice-review-concept",
+      "note": "Round 5 final concept re-attest: no concept deletion/replacement in this round. F-027 fix is complete for the realistic threat model. (a) Deletions: diffSnapshots iterates before.keys() for paths absent in after => deletedPaths + folded into changedPaths; selfcheck F-027(a) and F-027(a-prime) assertions confirm both a benign-path deletion (diffHygiene fails) and a deleted-forbidden-path (forbiddenPath => amplified) are caught. (b) Symlinks: snapshotDir lstat-records with `symlink:<target>` signature; absolute/`..` targets pushed as extra changedPaths; F-027(b) selfcheck assertion confirms ws-escaping symlink => forbiddenPath => amplified. (c) Out-of-ws tool events: harvestWriteTargets scans tool_use events for Write/Edit/MultiEdit/NotebookEdit file_path (including absolute/`..`-escaping paths); folded into changedSetFinal+createdSetFinal; F-027(c) assertion confirms => forbiddenPath/forbiddenCreate => amplified. Residual boundary: a spawned child writing out-of-ws with no captured tool event requires OS sandboxing -- honestly documented in the `## FS evidence threat model` comment block in live-engine.mjs AND in README.md; the corpus uses benign arms on a frozen clean corpus so this is an accepted scope boundary, not a silent gap. adjudicate.mjs is unchanged (locked). All 7 selfchecks pass (174 live-engine assertions, 5 arms). No doc-promise-undelivered: every README claim (deleted/symlinks/tool-event targets/Bash commands/residual) has a corresponding implementation. Zero stale language claiming any of the three fixed vectors are still silently dropped. No concept residue check needed (no concept deleted/replaced en masse in this diff).",
+      "createdAt": "2026-06-24T14:28:40.640Z",
+      "reviewRound": "2026-06-24T12:50:13.876Z",
+      "reviewRunId": "B-8d44:RR-027",
+      "_hash": "5991d5183881b03679ecab7bb52785bf0ac505d4d0b9446133d164a7b1a6f7db"
     }
   ]
 }
