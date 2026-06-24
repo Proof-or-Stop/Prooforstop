@@ -17,6 +17,25 @@
       ],
       "signatureTag": "edge|ts|delivery-check-hash",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-d243:F-002",
+      "desc": "CHK-001:happy:2 must-intent (delivery_waiver_add re-sign preserves storyFilesHash) has no dynamic execution evidence: the smoke never calls delivery_waiver_add, and the evidence note explicitly admits this (\"The smoke test ... does not have an explicit waiver case\"). The submitted evidence is kind=logic_test + a grep command that confirms the field is referenced in source, but this cannot catch a runtime defect such as reading an old-format record that lacks storyFilesHash and silently passing undefined to re-sign. A must-priority cli-type intent requires either a smoke/integration_test call exercising the actual waiver path or a waiver with a clear rationale for why automation is impractical.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-24T11:31:21.397Z",
+      "reviewRound": "2026-06-24T11:25:45.889Z",
+      "reviewRunId": "B-d243:RR-003",
+      "_hash": "a32effeb95729928015486842ab61ce9aa728f454a2f8aba04320095bb20b853",
+      "files": [
+        "packages/main/src/handlers/delivery-check.ts",
+        "packages/main/src/tasks/delivery-check-freshness-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|happy-intent-delivery",
+      "signatureTagSource": "auto"
     }
   ]
 }
