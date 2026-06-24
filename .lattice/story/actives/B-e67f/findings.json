@@ -184,6 +184,20 @@
       "_hash": "6147a924a113c19e4b0f33ccc3a5291b073f401cbd6ee6ecc3984167b3216f68",
       "signatureTag": "adversarial|unknown|incomplete-source-tamper",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-e67f:F-010",
+      "desc": "F-007 fix incomplete (process-env spoof): corpus-selfcheck run() spawns child node with inherited env (corpus-selfcheck.mjs:85). A gamed inject() can set process.env.NODE_OPTIONS=--require <hook> so ONLY the ground-truth child prints GROUND-TRUTH FAIL while solution.mjs is correct — codex confirmed the full selfcheck still exits 0 with 24/24 + 8/8. Fix: spawn the acceptance/ground-truth children with a SANITIZED env (strip NODE_OPTIONS / pass a minimal allowlisted env) so an injector cannot preload a hook into the harness child processes. Add negative-controls for source-dir-tamper and env-spoof.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex-host-2",
+      "createdAt": "2026-06-24T10:40:54.520Z",
+      "reviewRound": "2026-06-24T10:16:50.255Z",
+      "_hash": "b12a5dda2b8f842b9a64628b8904367e562191c847434f6aeef937d2a1c09fd9",
+      "signatureTag": "adversarial|unknown|incomplete-process-spoof",
+      "signatureTagSource": "auto"
     }
   ]
 }
