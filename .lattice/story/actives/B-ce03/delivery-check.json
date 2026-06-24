@@ -1,0 +1,92 @@
+{
+  "storyId": "B-ce03",
+  "checkedAt": "2026-06-24T13:33:17.770Z",
+  "headHash": "4f883b6ca3cea55d9fd33ef9b4f4cb0d2b08c013",
+  "materialHash": "ebc27d38cc0029898387f299a1e155089cd0ea7e8e4db7cf660b33552706b65b",
+  "storyFilesHash": "c77a81e0d68f0afd28a1ef997286ef94df0ff9abe33c2959ab06a6c95ac9d399",
+  "reviewRound": "2026-06-24T13:16:35.548Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-ce03/plan.md#CHK-001",
+      "promise": "done_prepare allows only unchanged pre-existing same-story lifecycle metadata dirt while still blocking source/material dirt, unsafe renames, owner-lease escape paths, failed DONE-required evidence, and newly produced dirty files.",
+      "status": "verified",
+      "verifiedBy": "fresh lattice validate, live_smoke_transcript artifact, targeted done-prepare-smoke",
+      "evidence": "lattice validate PASS at 2026-06-24T13:29:58.983Z; evidence/live-smoke-transcript.json captured node packages/main/dist/tasks/done-prepare-smoke.js exitCode 0 at 2026-06-24T13:27:04.135Z; targeted done-prepare-smoke exited 0 and printed metadata-only, dirty-source, unsafe-rename, failed-evidence, and local-only boundary assertions."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-ce03/plan.md#CHK-002",
+      "promise": "lifecycle_check treats a missing done_prepare structured report as advisory when DONE oracle rows are clean, keeps the row visible, and can report localReady true.",
+      "status": "verified",
+      "verifiedBy": "fresh lattice validate and targeted lifecycle-check-smoke",
+      "evidence": "lattice validate PASS with CHK-002 happy/edge/adversarial coverage 3/3; node packages/main/dist/tasks/lifecycle-check-smoke.js exited 0 with output lifecycle_check smoke passed."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-ce03/plan.md#CHK-003",
+      "promise": "focused regression smokes and benchmark assertions cover metadata-only dirty PASS behavior, dirty source blockers, metadata/source rename blockers, failed DONE-required evidence, lifecycle_check advisory semantics, and no regression to blockedAt cleanTree.",
+      "status": "verified",
+      "verifiedBy": "fresh lattice validate and targeted smoke/benchmark commands",
+      "evidence": "node packages/main/dist/tasks/done-prepare-smoke.js exited 0; node packages/main/dist/tasks/lifecycle-check-smoke.js exited 0; node packages/main/dist/tasks/done-readiness-flow-benchmark.js --rounds=1 --slow-ms=1 exited 0 with status PASS and donePrepareDirtyMetadata.blockedAt null."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-ce03/plan.md#CHK-004",
+      "promise": "done_prepare readiness documentation describes unchanged pre-existing lifecycle metadata as allowed while source/material dirt, unsafe renames, new dirty files, failed DONE-required evidence, and story-owned drift remain blockers.",
+      "status": "verified",
+      "verifiedBy": "git diff main...HEAD docs plus checklist docs evidence",
+      "evidence": "git diff main...HEAD -- docs/requirements/decisions/done-prepare-automation-execution-plan.md shows same-story lifecycle metadata allowance, other-story metadata/source/material blockers, metadata/source/owner-lease rename blockers, and failed DONE-required evidence not rescued by the allowance."
+    },
+    {
+      "docPath": "checklist:CHK-001:userSees",
+      "promise": "User-facing done_prepare behavior no longer prints blockedAt cleanTree for unchanged pre-existing lifecycle metadata, while dirty source or unsafe rename scenarios still block at cleanTree.",
+      "status": "verified",
+      "verifiedBy": "live_smoke_transcript artifact and targeted done-prepare-smoke",
+      "evidence": "live-smoke-transcript.json stdout includes pre-existing DONE-required lifecycle metadata does not block preflight or final PASS, dirty source preflight still blocks, metadata-to-source/source-to-metadata/source-to-owner-lease dirty renames block, and done-prepare smoke passed."
+    },
+    {
+      "docPath": "checklist:CHK-002:userSees",
+      "promise": "User-facing lifecycle_check for a DONE-ready story can show localReady true while still showing WARN done.done_prepare advisory guidance.",
+      "status": "verified",
+      "verifiedBy": "targeted lifecycle-check-smoke and validation coverage",
+      "evidence": "lifecycle-check-smoke exited 0; validation coverage marks CHK-002 happy/edge/adversarial covered by logic_test evidence."
+    },
+    {
+      "docPath": "checklist:CHK-003:userSees",
+      "promise": "Focused smoke and benchmark commands fail loudly if metadata-only dirty DONE readiness regresses to cleanTree blocking.",
+      "status": "verified",
+      "verifiedBy": "targeted done-prepare-smoke, lifecycle-check-smoke, and benchmark",
+      "evidence": "All three targeted commands exited 0; benchmark output reports status PASS and metadata-only done_prepare dirt blockedAt null."
+    },
+    {
+      "docPath": "checklist:CHK-004:userSees",
+      "promise": "The done_prepare decision doc states unchanged pre-existing lifecycle metadata dirt is allowed while source/material dirt, unsafe renames, failed evidence, and story-owned drift still block.",
+      "status": "verified",
+      "verifiedBy": "git diff main...HEAD docs and validation docs evidence",
+      "evidence": "Documentation diff contains the same-story lifecycle metadata allowance, source/material and unsafe rename blockers, and failed DONE-required evidence remains blocking."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "evidence/live-smoke-transcript.json present and fresh per lattice live_smoke_transcript. It captured node packages/main/dist/tasks/done-prepare-smoke.js with exitCode 0 and stdout including metadata-only lifecycle metadata does not block, dirty source blocks, unsafe renames block, failed DONE-required evidence blocks closure without claiming PASS, authorityDone false, productionDone false, and done-prepare smoke passed."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "node packages/main/dist/tasks/lifecycle-check-smoke.js exited 0 during delivery review with output: lifecycle_check smoke passed. Fresh lattice validate also recorded CHK-002 happy/edge/adversarial coverage as covered."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "node packages/main/dist/tasks/done-prepare-smoke.js exited 0, node packages/main/dist/tasks/lifecycle-check-smoke.js exited 0, and node packages/main/dist/tasks/done-readiness-flow-benchmark.js --rounds=1 --slow-ms=1 exited 0 with status PASS and donePrepareDirtyMetadata.blockedAt null."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "git diff main...HEAD -- docs/requirements/decisions/done-prepare-automation-execution-plan.md shows the documented metadata allowance and blocker boundaries; validation docs evidence for CHK-004 happy/edge/adversarial is covered."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery-check scope passes: plan and checklist promises are verified by live-smoke transcript, targeted smokes, benchmark, docs diff, fresh validation, and current reviewer lane passes. This signature is local delivery evidence only and does not claim Authority, fullAuthority, production, or full DONE readiness; separate DONE gates still report missing done-required validation, branch sync, review assurance floor, summary, and done_prepare report."
+  },
+  "_hash": "d0fab784b9b83396b1187923bfb53e252c4ae31ad6eb3d4aecda98223d50ee34"
+}

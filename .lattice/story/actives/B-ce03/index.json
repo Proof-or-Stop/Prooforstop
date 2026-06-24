@@ -1,0 +1,111 @@
+{
+  "storyId": "B-ce03",
+  "name": "port-b9dfb-metadata-dirty-done-readiness",
+  "title": "Port B-9dfb metadata-only dirty DONE readiness behavior into current main",
+  "description": "Current local main does not contain the B-9dfb behavior that makes done_prepare and lifecycle_check treat pre-existing Lattice lifecycle metadata-only dirty state consistently. Port only the code/document/test behavior from the B-9dfb merge source, excluding old story metadata and unrelated orchestrate/main history.",
+  "type": "bug",
+  "phase": "DONE",
+  "priority": "high",
+  "keywords": [
+    "done_prepare",
+    "lifecycle_check",
+    "metadata-only-dirty",
+    "storyFilesHash"
+  ],
+  "createdAt": "2026-06-24T12:55:27.246Z",
+  "startedAt": "2026-06-24T12:55:27.246Z",
+  "endedAt": "2026-06-24T13:48:13.117Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-24T12:55:27.295Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-7f55c8d5292c7c45",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-24T12:58:03.854Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-7f55c8d5292c7c45",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-24T12:58:28.026Z",
+      "branch": "story/B-ce03",
+      "user": "Harmonygo",
+      "sessionId": "sess-62ebfebab9f4c340",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-24T13:04:01.456Z",
+      "branch": "story/B-ce03",
+      "user": "Harmonygo",
+      "sessionId": "sess-62ebfebab9f4c340",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-24T13:16:35.548Z",
+      "branch": "story/B-ce03",
+      "user": "Harmonygo",
+      "sessionId": "sess-62ebfebab9f4c340",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-24T13:25:49.517Z",
+      "branch": "story/B-ce03",
+      "user": "Harmonygo",
+      "sessionId": "sess-62ebfebab9f4c340",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-24T13:42:31.471Z",
+      "branch": "story/B-ce03",
+      "user": "Harmonygo",
+      "sessionId": "sess-62ebfebab9f4c340",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-24T13:43:04.423Z",
+      "branch": "story/B-ce03",
+      "user": "Harmonygo",
+      "sessionId": "sess-62ebfebab9f4c340",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-24T13:47:41.628Z",
+      "branch": "story/B-ce03",
+      "user": "Harmonygo",
+      "sessionId": "sess-62ebfebab9f4c340",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-24T13:48:13.117Z",
+      "branch": "story/B-ce03",
+      "user": "Harmonygo",
+      "sessionId": "sess-62ebfebab9f4c340",
+      "agent": "main"
+    }
+  ],
+  "currentReviewRound": "2026-06-24T13:43:04.423Z"
+}

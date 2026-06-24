@@ -1,0 +1,40 @@
+{
+  "passes": [
+    {
+      "id": "B-5396:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept residue check complete. This diff adds (no deletions/replacements) a Host DONE convergence / drift handling section to CLAUDE.md and AGENTS.md. No concept words were deleted or replaced — the only minus-lines in the diff are story metadata status fields (pending→done, phase transitions). Independent verification confirms: (1) section heading appears exactly once in each file; (2) VERBATIM paragraph 1 (materialHash-only downgrade) byte-identical in both; (3) VERBATIM paragraph 2 (metadata-only B-9dfb pointer) byte-identical in both; (4) all 4 decision-doc references present 1× each in both files; (5) all 7 rules present in CLAUDE.md (lines 396-403); (6) diff of extracted sections is empty — two copies are byte-identical; (7) done_prepare mentioned 2× each file. No concept deletion/replacement residue. No promised-but-undelivered CLI behavior claims (rules are references to existing docs, not behavioral promises). No blocker found.",
+      "createdAt": "2026-06-24T13:09:29.853Z",
+      "reviewRound": "2026-06-24T13:08:02.474Z",
+      "reviewRunId": "B-5396:RR-002",
+      "_hash": "2a554b376d5e98a0fef2cabb17045d9a21b416474a597f700fe3e723165876b2"
+    },
+    {
+      "id": "B-5396:RP-002",
+      "agent": "lattice-review-docs",
+      "note": "Fallback 1 (pure docs diff, 0 exported symbols). Paragraphs compared: the Host DONE convergence sections in CLAUDE.md and AGENTS.md (identical in substance). Checks: (1) all 4 cited decision docs exist on disk; (2) done_prepare flags --mergeMain/--refreshStale/--validate confirmed via --help; (3) story_advance --phase=DONE is established idiom in both files; (4) materialHash-only+storyFilesHash-unchanged → advisory confirmed in evidence-freshness.ts (fresh:true + warnings array); (5) storyFilesHash drift → strict reject confirmed in review-run.ts (fresh:false hard-rejects); (6) floor/escalation downgrade on storyFilesHash-unchanged confirmed in review-assurance-floor.ts; (7) CLAUDE.md and AGENTS.md sections byte-identical in substance; (8) done_prepare and story_advance both registered in cli-engine.ts; no doc-promise-undelivered issues. 0 blockers.",
+      "createdAt": "2026-06-24T13:11:40.535Z",
+      "reviewRound": "2026-06-24T13:08:02.474Z",
+      "reviewRunId": "B-5396:RR-003",
+      "_hash": "860283f861e4d0e3b5fd122294028ff978cd7d749315fa9bf72492083fa05825"
+    },
+    {
+      "id": "B-5396:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. All 17 intent lanes covered (CHK-001: 5 happy-must + 2 edge + 2 adversarial; CHK-002: 4 happy-must + 2 edge + 2 adversarial). CLI greps re-run and confirmed: section headers present in both files (grep -c returns 1 each), both VERBATIM paragraphs match exactly in both files, all 4 decision-doc references confirmed present (4/4) in both files, done_prepare cited in CLAUDE.md (count=2), diff of extracted sections is empty (byte-identical). Logic lanes passed on inspection: cite-not-restate discipline upheld (section opens with explicit non-restatement declaration + doc pointer list), no CLI behavior claims (commands used as ordering/entry-point refs only, not as output promises), exactly 7 rules enumerated matching checklist context, no novel policy invented. Validate: allPass=true.",
+      "createdAt": "2026-06-24T13:12:03.972Z",
+      "reviewRound": "2026-06-24T13:08:02.474Z",
+      "reviewRunId": "B-5396:RR-004",
+      "_hash": "edd5fb47a260c7e50ef97da7002deae450883b2ee0f6672c8f79ef2d0ac55ebf"
+    },
+    {
+      "id": "B-5396:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Docs-only change (CLAUDE.md + AGENTS.md). Checks: (1) Dead code: N/A docs-only. (2) Type safety: N/A docs-only. (3) I/O isolation: N/A docs-only. (4) Doc-promise-undelivered: initially raised F-001 on the --mergeMain flag form vs JSON form, but empirical disproof confirmed both forms are valid -- done_prepare --help documents exactly the POSIX flag form used in the runbook, and --dryRun confirms the flags parse correctly; F-001 resolved. All 4 referenced decision docs exist. No leaked code changes. No duplicate sections. Markdown is well-formed. Style is consistent with surrounding doc. CLAUDE.md and AGENTS.md additions are correctly mirrored. No blockers.",
+      "createdAt": "2026-06-24T13:16:04.427Z",
+      "reviewRound": "2026-06-24T13:08:02.474Z",
+      "reviewRunId": "B-5396:RR-001",
+      "_hash": "29590e436ca006216766f4f02ff934b8396599cdb9bf5521f5d9f24081c411e8"
+    }
+  ]
+}

@@ -5,7 +5,7 @@
  * @type feature
  * @priority high
  * @description
- *   Read-only adapter that assembles the data shape future Lattice
+ *   Read-only adapter that assembles the data shape future Proofbound
  *   observability UI surfaces need without parsing `session_brief`/`status`
  *   Markdown and without reading backing story JSON directly. It consumes the
  *   `story_authority_resolve` CHK-001 contract row-by-row, then opens a fresh

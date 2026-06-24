@@ -1,0 +1,76 @@
+{
+  "storyId": "B-2f1a",
+  "checkedAt": "2026-06-24T14:55:57.070Z",
+  "headHash": "7bf600606ad26f6dd87f0c4cf8f0a7a3f42f6f0d",
+  "materialHash": "41dbb9a53a5b754e2a6b9ca5668872935307c08c1999f383bcfa71eade23945f",
+  "storyFilesHash": "936bef065184d26c704001231b709a8e54780359a7e45773c3f0be24a6794f1d",
+  "reviewRound": "2026-06-24T12:38:48.171Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "README.md#heading",
+      "promise": "README heading reads # Proofbound CLI",
+      "verifiedBy": "direct file read",
+      "evidence": "head -1 README.md confirms: # Proofbound CLI"
+    },
+    {
+      "docPath": "CHANGELOG.md#phase-1-entry",
+      "promise": "CHANGELOG has a Phase-1 Lattice->Proofbound entry listing internal identifiers as deferred",
+      "verifiedBy": "git diff main...HEAD -- CHANGELOG.md",
+      "evidence": "Added B-2f1a entry: Phase 1 of Lattice->Proofbound rebrand; lists lattice binary / @lattice packages / .lattice dir / schema-ids / salts as deferred to later phases"
+    },
+    {
+      "docPath": "packages/main/src/core/lattice-brand.ts",
+      "promise": "LATTICE_PRODUCT_NAME identifier kept, value changed to Proofbound CLI",
+      "verifiedBy": "git grep LATTICE_PRODUCT_NAME -- packages/main/src",
+      "evidence": "lattice-brand.ts: export const LATTICE_PRODUCT_NAME = 'Proofbound CLI' as const"
+    },
+    {
+      "docPath": "README.md + docs/**/*.md + packages/*/src/**",
+      "promise": "F-001 resolved: zero occurrences of Lattice-(native|owned|enforced|managed|branded)",
+      "verifiedBy": "git grep -nE Lattice-(native|owned|enforced|managed|branded) -- README.md docs packages/*/src",
+      "evidence": "grep returned no output; zero matches confirmed"
+    },
+    {
+      "docPath": "packages/*/package.json#description",
+      "promise": "package.json description fields updated to Proofbound; name fields (@lattice/*) unchanged",
+      "verifiedBy": "git diff main...HEAD -- packages KEEP-LIST grep",
+      "evidence": "@lattice/lab name field unchanged in diff; only description strings contain Proofbound"
+    },
+    {
+      "docPath": "packages/main/src and packages/utils/src (keep-list)",
+      "promise": "No identifier rename: @lattice/ refs, .lattice/ paths, lattice.*.v1 schema-ids, lattice-*-(integrity|binding) salts are byte-identical to main",
+      "verifiedBy": "git diff main...HEAD -- packages filtered by KEEP-LIST regex; inspected all + lines",
+      "evidence": "All + lines with .lattice/ retain the path token unchanged; no lattice.*.v1 or lattice-*-integrity/binding appeared as renames"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "git grep -ci Proofbound -- README.md docs confirms prose rebrand; git grep .lattice/ -- docs confirms path identifiers unchanged; git diff main...HEAD -- docs checked for schema-id/salt changes (none found)"
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "npm --prefix packages/main run build exits 0 (tsc clean); git grep -c Proofbound -- packages/main/src confirms user-facing strings changed; no identifier renamed"
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "git grep -l Proofbound -- package.json packages/*/package.json confirms description updated; @lattice/lab name field unchanged in diff"
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "npm --prefix packages/main run build exits 0 (current run verified); KEEP-LIST grep confirms @lattice/ names, .lattice/ paths, schema-ids, salts not renamed"
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "git diff main...HEAD -- CHANGELOG.md shows added B-2f1a entry with Phase 1 description and explicit deferral of internal identifiers"
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 6 docsPromises verified from source. Build (tsc) exits 0. F-001 grep returns zero. KEEP-LIST shows no identifier rename: @lattice/ names, .lattice/ paths, lattice.*.v1 schema-ids, lattice-*-(integrity|binding) salts are byte-intact. CHANGELOG entry is honest about scope and deferrals. Re-sign justified: rebrand content unchanged from prior passing check; only materialHash drifted due to a main-merge."
+  },
+  "_hash": "eb87cdffca090a7bf5ab9c0d999e3bfe90735a6c02228e6875c4c4459d1b775e"
+}

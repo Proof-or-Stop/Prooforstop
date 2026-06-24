@@ -6,7 +6,7 @@
  * @type chore
  * @priority high
  * @description
- *   Smoke coverage for Lattice CLI 0.3.5 enforce readiness diagnostics
+ *   Smoke coverage for Proofbound CLI 0.3.5 enforce readiness diagnostics
  *   (B-b710 milestones 3-4). Verifies:
  *
  *   Happy / off mode:
@@ -905,7 +905,7 @@ function refFor(
     'conduit explain documents off mode as default local-only workflow',
   );
   assert.ok(
-    json.explanation.some((line: string) => /enforce.*Lattice Authority server.*actor key.*runner/i.test(line)),
+    json.explanation.some((line: string) => /enforce.*Proofbound Authority server.*actor key.*runner/i.test(line)),
     'conduit explain documents enforce mode prerequisites',
   );
   assertNoProductionOverclaim(json, 'CLI conduit_explain --json');

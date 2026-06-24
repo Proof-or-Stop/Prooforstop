@@ -1,0 +1,30 @@
+{
+  "storyId": "B-91f3",
+  "checkedAt": "2026-06-24T13:20:43.802Z",
+  "reviewRound": "",
+  "agentId": "product-reviewer",
+  "issues": [
+    {
+      "severity": "medium",
+      "desc": "CHK-001 is framed as internal classification/discovery with rg and tests, but it does not state the user-observable outcome that lets someone recognize the Authority production receipt core dependency has been classified; rewrite or complement it around the visible product result, such as local proof output/gate behavior no longer treating Authority production receipts as core completion evidence."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-06-24T13:20:37.114Z",
+      "issues": []
+    },
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-24T13:20:43.802Z",
+      "issues": [
+        {
+          "severity": "medium",
+          "desc": "CHK-001 is framed as internal classification/discovery with rg and tests, but it does not state the user-observable outcome that lets someone recognize the Authority production receipt core dependency has been classified; rewrite or complement it around the visible product result, such as local proof output/gate behavior no longer treating Authority production receipts as core completion evidence."
+        }
+      ]
+    }
+  ],
+  "_hash": "5e2cec0fb7340c5c997d2dced5e4b429f787b0c4492ad11dd9eea6aa77dd5854"
+}

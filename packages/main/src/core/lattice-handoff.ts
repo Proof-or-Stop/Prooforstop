@@ -10,6 +10,10 @@ import { buildLatticeHostStatus, type LatticeHostStatus } from './lattice-hosts.
 import { phaseRank } from './phase-flow.js';
 import { resolveStoryAuthority, type StoryAuthorityRow } from './story-authority-resolver.js';
 import type { StoryStore } from './store.js';
+import {
+  buildHandoffAdmissibilitySummary,
+  type HandoffAdmissibilitySummary,
+} from './proof-admissibility-handoff.js';
 
 /**
  * Diagnostic warning attached to a handoff pack when the story's authoritative
@@ -99,6 +103,7 @@ export interface HandoffPack extends HandoffPackHashInput {
    */
   phaseAuthorityWarning?: PhaseAuthorityWarning;
   packHash: string;
+  admissibilitySummary: HandoffAdmissibilitySummary;
   productionDone: false;
   receiptRefs: [];
 }
@@ -130,6 +135,7 @@ export interface HandoffInspection {
   capabilityDeltas: HandoffCapabilityDelta[];
   degradations: CanonicalStory['degradations'];
   authorityBoundary: HandoffAuthorityBoundary;
+  admissibilitySummary: HandoffAdmissibilitySummary;
   executionInstructions: string[];
   recoveryPoint: HandoffPack['recoveryPoint'];
   phaseAuthorityWarning?: PhaseAuthorityWarning;
@@ -161,6 +167,7 @@ export interface HandoffAcceptProjection {
   evidenceRefs: string[];
   lineage: CanonicalStory['lineage'];
   authorityBoundary: HandoffAuthorityBoundary;
+  admissibilitySummary: HandoffAdmissibilitySummary;
   recoveryPoint: HandoffPack['recoveryPoint'];
   authorityChanged: false;
   productionDone: false;
@@ -197,6 +204,7 @@ export interface HandoffResumeProjection {
   evidenceRefs: string[];
   lineage: CanonicalStory['lineage'];
   authorityBoundary: HandoffAuthorityBoundary;
+  admissibilitySummary: HandoffAdmissibilitySummary;
   recoveryPoint: HandoffPack['recoveryPoint'];
   authorityChanged: false;
   productionDone: false;
@@ -233,6 +241,7 @@ export interface HandoffReceipt {
   verdict: 'pass' | 'warn' | 'fail';
   summary?: string;
   limitations: string[];
+  admissibilitySummary?: HandoffAdmissibilitySummary;
 }
 
 export interface HandoffReceiptSubmission {
@@ -252,6 +261,7 @@ export interface HandoffReceiptSubmission {
   productionDone: false;
   nextAction: string;
   warnings: string[];
+  admissibilitySummary: HandoffAdmissibilitySummary;
   validations: {
     packId: 'pass' | 'fail';
     packHash: 'pass' | 'fail';
@@ -341,6 +351,7 @@ export interface HostDispatchProjection {
   productionDone: false;
   nextAction: string;
   warnings: string[];
+  admissibilitySummary: HandoffAdmissibilitySummary;
   limits: string[];
   hostStatus: LatticeHostStatus;
   worktree: Pick<HandoffWorktreeProjection, 'branch' | 'worktreePath' | 'cleanupCommand' | 'reviewCommand'>;
@@ -419,7 +430,7 @@ function localAuthorityOnlyCanonicalStory(canonical: CanonicalStory): CanonicalS
 }
 
 function buildAuthorityBoundary(summary?: string): HandoffAuthorityBoundary {
-  const normalizedSummary = summary?.trim() || 'Lattice keeps story, scope, receipt, and merge authority; the overflow host executes bounded work only.';
+  const normalizedSummary = summary?.trim() || 'Proofbound keeps story, scope, receipt, and merge authority; the overflow host executes bounded work only.';
   return {
     owner: 'lattice',
     executor: 'overflow-host',
@@ -434,7 +445,7 @@ function buildAuthorityBoundary(summary?: string): HandoffAuthorityBoundary {
     notes: [
       'Hosts execute bounded tasks only; they do not become production authority.',
       'Do not auto-merge, auto-trust, or submit authority evidence from overflow output.',
-      'Manual review in the owning Lattice worktree remains required before merge or DONE.',
+      'Manual review in the owning Proofbound worktree remains required before merge or DONE.',
     ],
   };
 }
@@ -542,6 +553,12 @@ function normalizeHandoffPack(value: HandoffPack): HandoffPack {
   return {
     ...normalized,
     packHash: normalizeOptionalString(value.packHash) ?? computeHandoffPackHash(normalized),
+    admissibilitySummary: value.admissibilitySummary ?? buildHandoffAdmissibilitySummary({
+      fromHost: normalized.fromHost,
+      toHost: normalized.toHost,
+      evidenceRefs: normalized.evidenceRefs,
+      receiptRefs: normalized.receiptRefs,
+    }),
   };
 }
 
@@ -627,6 +644,12 @@ export function createHandoffPack(
   const objective = normalizeOptionalString(args.objective);
   const authorityBoundary = buildAuthorityBoundary(args.authorityBoundary);
   const phaseAuthorityWarning = resolvePhaseAuthorityWarning(store, root, args.storyId);
+  const admissibilitySummary = buildHandoffAdmissibilitySummary({
+    fromHost: sourceHost,
+    toHost: targetProbe.host,
+    evidenceRefs: refs,
+    receiptRefs: [],
+  });
   const partial: HandoffPack = {
     schemaVersion: 'handoff-pack-v0',
     storyId: args.storyId,
@@ -665,6 +688,7 @@ export function createHandoffPack(
       guidance: 'Manual-first overflow only. Review the bounded pack, create an isolated worktree, collect a local diagnostic receipt, and merge only after main-agent review.',
     },
     ...(phaseAuthorityWarning ? { phaseAuthorityWarning } : {}),
+    admissibilitySummary,
     productionDone: false,
     receiptRefs: [],
   };
@@ -694,6 +718,12 @@ export function readHandoffAcceptProjection(file: string): HandoffAcceptProjecti
   return {
     ...parsed,
     authorityBoundary: buildAuthorityBoundary(parsed.authorityBoundary?.summary),
+    admissibilitySummary: parsed.admissibilitySummary ?? buildHandoffAdmissibilitySummary({
+      fromHost: parsed.fromHost,
+      toHost: parsed.toHost,
+      evidenceRefs: parsed.evidenceRefs,
+      receiptRefs: parsed.receiptRefs,
+    }),
     authorityChanged: false,
     productionDone: false,
     receiptRefs: [],
@@ -738,6 +768,7 @@ export function inspectHandoffPack(pack: HandoffPack): HandoffInspection {
     capabilityDeltas: pack.capabilityDeltas,
     degradations: pack.degradations,
     authorityBoundary: pack.authorityBoundary,
+    admissibilitySummary: pack.admissibilitySummary,
     executionInstructions: pack.executionInstructions,
     recoveryPoint: pack.recoveryPoint,
     ...(pack.phaseAuthorityWarning ? { phaseAuthorityWarning: pack.phaseAuthorityWarning } : {}),
@@ -780,6 +811,7 @@ export function buildHandoffAcceptProjection(
     evidenceRefs: pack.evidenceRefs,
     lineage: pack.canonicalStory.lineage,
     authorityBoundary: pack.authorityBoundary,
+    admissibilitySummary: pack.admissibilitySummary,
     recoveryPoint: pack.recoveryPoint,
     authorityChanged: false,
     productionDone: false,
@@ -820,6 +852,9 @@ export function buildHandoffResumeProjection(
     receiptRefs: [] as [],
   };
   const authorityBoundary = isAccept ? source.authorityBoundary : source.authorityBoundary;
+  const admissibilitySummary = isAccept
+    ? source.admissibilitySummary
+    : source.admissibilitySummary;
   return {
     schemaVersion: 'lattice.handoff_resume.v1',
     processEvent,
@@ -833,6 +868,7 @@ export function buildHandoffResumeProjection(
     evidenceRefs,
     lineage,
     authorityBoundary,
+    admissibilitySummary,
     recoveryPoint,
     authorityChanged: false,
     productionDone: false,
@@ -924,6 +960,12 @@ function normalizeHandoffReceipt(value: HandoffReceipt): HandoffReceipt {
     changedFiles: normalizeOrderedStrings(value.changedFiles),
     commands: normalizeOrderedStrings(value.commands),
     limitations: normalizeOrderedStrings(value.limitations),
+    admissibilitySummary: value.admissibilitySummary ?? buildHandoffAdmissibilitySummary({
+      fromHost: value.fromHost,
+      toHost: value.toHost,
+      evidenceRefs: [],
+      receiptRefs: [value.packId],
+    }),
     ...(normalizeOptionalString(value.summary) ? { summary: normalizeOptionalString(value.summary) } : {}),
   };
 }
@@ -1079,6 +1121,12 @@ export function submitHandoffReceipt(root: string, receipt: HandoffReceipt): Han
       ? 'Receipt accepted as local diagnostic evidence only. Review the overflow diff in an isolated worktree and merge manually if it passes local review.'
       : 'Receipt is diagnostic only. Recreate the pack or overflow worktree if scope/freshness drifted, then review and resubmit a corrected local receipt.',
     warnings,
+    admissibilitySummary: normalized.admissibilitySummary ?? buildHandoffAdmissibilitySummary({
+      fromHost: normalized.fromHost,
+      toHost: normalized.toHost,
+      evidenceRefs: [],
+      receiptRefs: [normalized.packId],
+    }),
     validations: {
       packId: packIdPass ? 'pass' : 'fail',
       packHash: packHashPass ? 'pass' : 'fail',
@@ -1176,6 +1224,7 @@ export function buildHostDispatchProjection(
         ? ['Supervised dispatch never auto-trusts output, auto-merges diffs, submits evidence, verifies receipts, or claims productionDone.']
         : []),
     ],
+    admissibilitySummary: pack.admissibilitySummary,
     limits: hostStatus.limits,
     hostStatus,
     worktree: {

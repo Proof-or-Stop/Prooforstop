@@ -391,6 +391,18 @@ project/
 
 **版本递增纪律**：每个会改变 Lattice CLI / runtime 行为的 story 合并回本地 `main` 后，必须把 CLI patch 版本递增 1（例如 `0.3.6` → `0.3.7`），同步 `package.json` / lockfile / `LATTICE_CLI_VERSION`，运行 `npm --prefix packages/main run build`，并确认 `lattice --version` 输出新版本。纯文档、story metadata-only、review evidence-only 合并不强制 bump，避免无意义消耗版本号。
 
+**Host DONE convergence / drift handling（DONE 收束纪律）**：并行 story 收束时按此操作，避免在 DONE 前反复撞。这是对既有机制的**投影**，规则源以下列决策文档为准、不在此重定义：`docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md`、`docs/requirements/decisions/story-files-hash-material-drift.md`、`docs/requirements/decisions/done-prepare-automation-execution-plan.md`、`docs/requirements/decisions/review-assurance-floor-execution-plan.md`，以及 `lattice done_prepare --help`。
+
+1. **TEST→DONE 先 done_prepare，不要直接撞 `story_advance DONE`**：先运行 `lattice done_prepare --storyId=B-xxxx --mergeMain --refreshStale --validate`（会 merge main、安全 refresh stale evidence、validate，并聚合下一步 blocker）；只有 `DONE prepare: PASS` 后再 `lattice story_advance --phase=DONE`。
+2. **Host 不自判 freshness**：读 `done_prepare` / freshness-reader 的分类结果，不要拿原始 hash 自己判 pass。
+3. **headHash-only drift** 通常是 metadata / provenance 移动，**不是**强重跑信号。
+4. **materialHash-only drift + storyFilesHash 不变**：unrelated whole-tree drift 候选（以下为当前 warn/advisory 投影，enforce 模式落地后可能收紧）：
+   > materialHash-only drift with unchanged storyFilesHash is usually unrelated whole-tree drift. In current warn/advisory paths, Lattice may downgrade this to re-attestation advisory instead of forcing full re-review/quorum. Host must follow done_prepare / freshness-reader output, not self-classify it as pass.
+5. **storyFilesHash drift** 才是 story-owned material drift 的**强信号**：review pass / quorum / delivery 可能需要重新绑定（消费方不同：reviewer-pass 严格，floor / escalation / delivery-check 在 storyFilesHash 不变时降级接受）。
+6. **done_prepare 不是万能豁免**：它能自动化 merge / refresh / validate / next-action，但**跳不过 related drift**——若 merge main 改到了当前 story-owned files（storyFilesHash 真变），仍需重 review / 重 quorum / 重 delivery。
+7. **metadata-only dirty** 的处理：
+   > Metadata-only dirty handling is governed by done_prepare/lifecycle_check; see B-9dfb once merged. Host must not manually bypass cleanTree.
+
 **依赖准备（INIT_CHECK 后，F-003）**：git worktree **不**继承主仓 gitignored 的 `node_modules`，新 worktree 默认缺依赖，直接跑 tsc / `lattice validate` 会因解析不到模块而失败。worktree 创建时若缺依赖会输出告警：
 
 ```text
@@ -828,7 +840,7 @@ lattice verification_evidence_add '{"storyId":"B-xxx","itemId":"CHK-001","intent
 
 The structured `canPassReviewGuard` gate (`core/machine.ts`, consumed by the REVIEW→TEST transition) decides on reviewer evidence + findings, NOT on free text. Its accurate semantics:
 
-- **An invalid (stale / unknown-run / tampered) current-round binding blocks in ALL rounds.** `collectReviewerEvidenceState` validates every reviewer finding / review-pass against its bound `reviewRunId` (signature, lane, current round, current-latest run, fresh head/material hash, scope binding). If any current-round reviewer evidence is invalid, the gate fails closed BEFORE the round split — round 1 and round 2+ alike.
+- **An invalid (stale / unknown-run / tampered) current-round binding blocks in ALL rounds.** `collectReviewerEvidenceState` validates every reviewer finding / review-pass against its bound `reviewRunId` (signature, lane, current round, fresh head/material hash, scope binding; plus — for an open FINDING only — the lane's current-latest run, since a PASS is accepted on any current-round fresh run). If any current-round reviewer evidence is invalid, the gate fails closed BEFORE the round split — round 1 and round 2+ alike.
 - **Round 1 (`roundCount <= 1`): requires EVERY opt-in reviewer to have a valid current-round verdict, plus quorum.** The opt-in set is the same one `lattice reviewer_list` reports (baseline concept + quality + test-coverage, plus behavior/docs by riskSignals / `.md` touchpoints). Missing any opt-in reviewer, or failing the quorum check, blocks.
 - **Round 2+ (`roundCount >= 2`): requires only `>= 1` valid current-round receipt** (finding or review-pass). The framework still skips no reviewer; this only relaxes the gate's minimum, not the reviewer roster.
 - **A verified open blocking finding blocks** (after round decay): `status=open` AND severity in the round's effective blocking set (round 1 = profile `blockingSeverities`; round 2 = critical+high; round 3+ = critical) AND `evidenceState` verified-or-missing. `suspected` / `disproven` never block.

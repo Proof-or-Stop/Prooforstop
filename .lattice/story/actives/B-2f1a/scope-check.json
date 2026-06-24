@@ -1,0 +1,87 @@
+{
+  "storyId": "B-2f1a",
+  "checkedAt": "2026-06-24T12:19:17.129Z",
+  "features": [
+    {
+      "feature": "Replace capitalized brand name Lattice->Proofbound and Lattice CLI->Proofbound CLI in prose across README* and docs/**/*.md",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Keep lowercase lattice commands, .lattice/ paths, @lattice refs, schema-ids and salts untouched in docs",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Replace user-visible brand Lattice->Proofbound in packages/*/src user-visible strings (--help text, CLI banner/title, command descriptions, user-facing error messages)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Do NOT touch identifiers, imports, package names, .lattice paths, schema-ids, salts in packages/*/src",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Update package.json description fields to Proofbound (root + packages/main + packages/utils + packages/lab)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Keep package.json name fields (lattice, @lattice/core, etc.) unchanged for Phase 2",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Build + full test suite must remain green after all changes",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Verify (grep-confirm) the lattice binary name, @lattice/* package names, .lattice/ paths, lattice.*.v1 schema-ids (122), and lattice-* salts (15) are byte-unchanged",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Add CHANGELOG entry documenting Phase-1 user-visible Lattice->Proofbound rebrand and that internal identifiers are deferred to later phases",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Internal identifier rebrand (lattice binary rename, @lattice/* package name changes, .lattice/ audit dir rename, schema-id changes, salt rename) -- deferred to later phases",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "CHK-001/CHK-002/CHK-003/CHK-004 all explicitly state these are NOT part of Phase 1; description says keeping all internal load-bearing identifiers for later phases",
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 10,
+    "covered": 9,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "b914782f394e56dfb8cd066b02a6c9da9e4a42113d6cc2b506b25179ccea1d69",
+  "openQuestions": []
+}

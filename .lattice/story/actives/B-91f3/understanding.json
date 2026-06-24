@@ -1,0 +1,23 @@
+{
+  "task": "Demote Authority Server production receipt completion from the local CLI proof-admissibility core while preserving external/legacy adapter boundaries.",
+  "outcome": "After this story, the user runs `node packages/main/dist/tasks/proof-admissibility-smoke.js` and sees `proof-admissibility smoke passed`; inspecting the smoke shows authority-receipt-ref is local/external diagnostic evidence with `productionDoneEligible=false`, and `lattice gap_analyze {\"format\":\"json\"}` still reports 0 high gaps.",
+  "facts": [
+    "B-fbfb already closed the five high proof-admissibility version gaps and bumped CLI to 0.3.89.",
+    "Current proof-admissibility registry has authority-receipt-ref scoped as production-gate-decision with productionDoneEligible=true for production-completion.",
+    "The user wants to remove Authority Server production receipt from the core route and complete proof locally in the CLI.",
+    "Authority client/server files and historical docs still exist; this story is not a broad deletion."
+  ],
+  "constraints": [
+    "Do not delete Authority client networking or server integration wholesale.",
+    "Do not alter Red/Repro/Spike gate behavior.",
+    "Do not fix unrelated currentDoneMaterialBinding medium gap.",
+    "Keep local proof wording centered on admissibilityStatus, assuranceLevel, and evidenceScope; authorityDone/fullAuthorityDone/productionDone stay legacy/external and default false."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/proof-admissibility.ts",
+    "packages/main/src/tasks/proof-admissibility-smoke.ts",
+    "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+  ],
+  "timestamp": "2026-06-24T13:21:59.277Z"
+}

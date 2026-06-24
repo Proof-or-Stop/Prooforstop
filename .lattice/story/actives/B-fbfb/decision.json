@@ -1,0 +1,67 @@
+{
+  "principles": [
+    "Close only scanner-visible high gaps that belong to proof admissibility version support.",
+    "Prefer real verifier semantics over annotation-only closure when the contract is partial.",
+    "Keep schema and contract behavior stable where implementation already exists."
+  ],
+  "drivers": [
+    "convergence_check blocks on 5 high gaps",
+    "verifierVersionSupported appears not fully implemented",
+    "The next server receipt cleanup depends on a tight local admissibility boundary"
+  ],
+  "options": [
+    {
+      "name": "A: Add verifier version support and scanner-visible facts",
+      "pros": [
+        "Closes the real semantic gap and the mapping gaps together",
+        "Keeps Authority cleanup separate",
+        "Produces testable behavior"
+      ],
+      "cons": [
+        "Requires touching core admissibility API and smoke expectations"
+      ]
+    },
+    {
+      "name": "B: Add only annotations",
+      "pros": [
+        "Smallest patch",
+        "Likely closes four scanner gaps"
+      ],
+      "cons": [
+        "Leaves verifierVersionSupported as a real correctness hole"
+      ]
+    },
+    {
+      "name": "C: Refactor gap_analyze matching",
+      "pros": [
+        "Could reduce future annotation friction"
+      ],
+      "cons": [
+        "Changes scanner semantics beyond this story scope and could mask real gaps"
+      ]
+    }
+  ],
+  "chosen": "A: Add verifier version support and scanner-visible facts",
+  "rationale": "Option A is the narrowest path that addresses both classes of issue: four requirements already have implementation but need scanner-visible facts, while verifierVersionSupported needs a real support check before the local admissibility contract is credible.",
+  "preMortem": [
+    {
+      "scenario": "Scanner still reports the same five gaps after code changes",
+      "trigger": "Annotations do not include the exact requirement keywords extracted from the decision document",
+      "consequence": "convergence_check remains red despite implementation",
+      "mitigation": "Use explicit @task titles/descriptions/changes containing supportedSchemaVersion, verifierVersionSupported, contractVersionSupported, unsupported_schema_version, and unsupported_contract_version; rerun gap_analyze before DONE"
+    },
+    {
+      "scenario": "Verifier version support rejects valid existing artifacts",
+      "trigger": "New verifier allowlist is required but callers do not pass verifierVersion",
+      "consequence": "False blocks in current local admissibility consumers",
+      "mitigation": "Add verifierVersion as optional except for surfaces/checks that provide supported versions, or default surfaces to an explicit current verifier version with tests"
+    },
+    {
+      "scenario": "Story accidentally includes server receipt demotion work",
+      "trigger": "Production completion cleanup is adjacent in the same files",
+      "consequence": "Scope expands and review cannot isolate the five high gaps",
+      "mitigation": "Keep Authority/server receipt changes out of B-fbfb and reserve them for the second story after high gaps close"
+    }
+  ],
+  "timestamp": "2026-06-24T12:48:18.340Z"
+}

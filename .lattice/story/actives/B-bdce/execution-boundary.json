@@ -1,0 +1,37 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-bdce",
+  "allowedCommands": [
+    "git diff",
+    "git status",
+    "node packages/main/dist/tasks/*-smoke.js",
+    "npm --prefix packages/main run build",
+    "npm test"
+  ],
+  "allowedTools": [
+    "git",
+    "node",
+    "npm"
+  ],
+  "allowedPaths": [
+    "packages/main/src/core/evidence-stale-hint.ts",
+    "packages/main/src/tasks/verification-freshness-smoke.ts"
+  ],
+  "excludedCommands": [
+    "git push",
+    "git reset --hard",
+    "rm -rf"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".lattice",
+    "packages/main/src/core/done-oracle.ts",
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/handlers"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Enrich the shared stale-evidence hint renderer + its one byte-equality smoke. No gate logic, no surface edits (auto-inherit).",
+  "createdAt": "2026-06-24T14:36:15.256Z",
+  "updatedAt": "2026-06-24T14:36:15.256Z",
+  "_hash": "d22aaac9de4023e55cbbe676e278ebbfb494e3f8ff5d487eb585404f1e701550"
+}

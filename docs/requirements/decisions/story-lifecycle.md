@@ -1,6 +1,6 @@
 # Story Lifecycle
 
-> The current primary flow uses the second-generation Lattice flow:
+> The current primary flow uses the second-generation Proofbound flow:
 >
 > `INIT -> INIT_CHECK -> PLAN/express skip -> DEV -> REVIEW -> TEST -> DONE`
 >
@@ -19,7 +19,7 @@ The express channel may skip some planning material when the gate allows it, but
 
 ## Phase Numbering and Health Checks
 
-Lattice assigns the executable primary-flow phases a stable number, used by `lattice status` to display progress:
+Proofbound assigns the executable primary-flow phases a stable number, used by `lattice status` to display progress:
 
 | Number | Phase | Description |
 |---:|---|---|
@@ -34,7 +34,7 @@ Lattice assigns the executable primary-flow phases a stable number, used by `lat
 
 `DISCARDED` is a terminal state and does not participate in the primary-flow progress percentage. `TEST_CASE` and `TEST_CASE_REVIEW` are legacy phases, retained only so that old stories remain readable and migratable; new stories should not actively enter them.
 
-The numbering is used only for observable state, not to judge whether something is anomalous. Lattice's flow permits legal rollbacks, so you cannot detect errors with "the current number must equal the previous number + 1." Health checks must use the legal transition graph:
+The numbering is used only for observable state, not to judge whether something is anomalous. Proofbound's flow permits legal rollbacks, so you cannot detect errors with "the current number must equal the previous number + 1." Health checks must use the legal transition graph:
 
 - Forward: `INIT -> INIT_CHECK -> PLAN -> DEV -> REVIEW -> TEST -> DONE`
 - Compatibility forward: `IDEA -> INIT`, `IDEA -> PLAN`
@@ -199,7 +199,7 @@ Once a story has a recorded `worktree.path`, a linked git worktree branch, or ha
 - **Runtime environment facts are registered separately**: runtime/environment facts such as the CLI entrypoint, the global core realpath, the project-local bin, the Node/package version, the validate source, and the external-reference-policy do not enter the process-fact registry. They are registered in `packages/main/src/core/runtime-fact-registry.ts`, displayed by `doctor`'s `Runtime scan:`, and verified by `scripts/verify-runtime-fact-contract.mjs` to ensure the registry / checker / doctor output are consistent. An external project's expectations about Orchestrate-local realpath/symlink only warn/advisory; `external-reference-policy` is a bounded policy scan and does not perform a connectivity pass.
 - **Runtime file facts are registered separately**: runtime artifacts such as `.lattice/activity.jsonl`, the legacy `docs/story/activity.jsonl`, `.lattice/runtime/`, `.lattice/traces/`, `.lattice-serve.json`, and debug/browser logs are registered in `packages/main/src/core/runtime-artifact-registry.ts`. Freshness, baseline risk, `story_sync_main`, `lattice init`, and `doctor` must consume this table, to avoid mistaking a runtime file such as the activity log for a material change; `.lattice/story/` is still process evidence and is not a runtime artifact.
 - **A Pass conclusion is not a finding**: when a reviewer has no finding, it must write `review_pass_set`. To stay compatible with old prompts or misuse, a pass-only `finding_add` (such as no findings, check passed, PASS/PASSED) is converted into a review pass in the handler; ambiguous failure semantics such as "but/failed/issue found" are still kept as a finding.
-- **REVIEW evidence is first bound to a reviewer run**: `review_run_start` writes a signed `review-runs.json`, recording `reviewRunId / lane / reviewRound / headHash / materialHash / promptHash`. The `finding_add` / `review_pass_set` of the current REVIEW round must carry the `reviewRunId`, and the gate accepts only the latest reviewer run with a matching lane, matching reviewRound, valid signature, and still fresh.
+- **REVIEW evidence is first bound to a reviewer run**: `review_run_start` writes a signed `review-runs.json`, recording `reviewRunId / lane / reviewRound / headHash / materialHash / promptHash`. The `finding_add` / `review_pass_set` of the current REVIEW round must carry the `reviewRunId`, and the gate requires a matching lane, matching reviewRound, valid signature, and still-fresh material/scope. Binding is kind-aware (see `review-run-binding-race.md`): PASS evidence is accepted on any current-round run that is material- and scope-fresh — being the latest run on the lane (id-recency) is NOT required — while an open FINDING still requires the latest run on the lane so it cannot be hidden by a newer pass.
 - **Finding category does not proliferate**: the current canonical categories are `happy|edge|adversarial|missing`. Known legacy categories (`cleanup|doc-promise-undelivered|doc-code-drift|spec-boundary`) are only normalized to `missing` as compatibility input, and must not continue to propagate as active reviewer prompt examples or new process semantics.
 - **User-value acceptance comes first**: before DONE, you must be able to clearly state "what change the user sees, how to use it, and where the evidence is." An engineering pipeline passing does not mean the task is truly complete.
 - **User-value acceptance is structured**: `summary_set` must record `expectedOutcome`, `actualTranscript`, `outcomeDiff`, and `acceptanceVerdict`, and may record `outcomeKind=success|blocked|audit_only`. The DONE gate consumes these fields, and when they are missing it cannot enter DONE; a legacy summary missing `outcomeKind` is displayed as success/default.

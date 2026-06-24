@@ -1,0 +1,48 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-ce03",
+  "allowedCommands": [
+    "git diff c3da2080a^1 c3da2080a -- <target files>",
+    "lattice story_advance --storyId=B-ce03 --phase=<phase>",
+    "lattice validate --story=B-ce03",
+    "node packages/main/dist/tasks/done-prepare-smoke.js",
+    "node packages/main/dist/tasks/done-readiness-flow-benchmark.js",
+    "node packages/main/dist/tasks/lifecycle-check-smoke.js",
+    "npm --prefix packages/main run build",
+    "npm --prefix packages/main test -- <target task>"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "git",
+    "lattice",
+    "node",
+    "npm"
+  ],
+  "allowedPaths": [
+    "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+    "package-lock.json",
+    "package.json",
+    "packages/main/src/core/lifecycle-readiness.ts",
+    "packages/main/src/generated/version.ts",
+    "packages/main/src/handlers/done-prepare.ts",
+    "packages/main/src/tasks/done-prepare-smoke.ts",
+    "packages/main/src/tasks/done-readiness-flow-benchmark.ts",
+    "packages/main/src/tasks/lifecycle-check-smoke.ts"
+  ],
+  "excludedCommands": [
+    "git checkout -- .",
+    "git clean -fd",
+    "git merge orchestrate/main",
+    "git reset --hard"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".lattice/story/actives/B-9dfb",
+    ".worktrees/B-9dfb"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Port only the six target behavior/doc/test files from B-9dfb source; avoid old story metadata and unrelated alternate-main commits.",
+  "createdAt": "2026-06-24T12:57:52.747Z",
+  "updatedAt": "2026-06-24T12:57:52.747Z",
+  "_hash": "5808aebd0f7195f9dc5d35cd44ee761fe425a0a2a657aa21d8c56c63dc4edf26"
+}

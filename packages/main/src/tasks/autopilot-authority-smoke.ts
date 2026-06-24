@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Smoke coverage for Lattice autopilot dual-mode boundaries:
+ * Smoke coverage for Proofbound autopilot dual-mode boundaries:
  * - local mode remains usable without Python authority configuration.
  * - shadow mode reports authority readiness without blocking local workflow.
  * - authority mode fail-closes when Python authority prerequisites or DONE

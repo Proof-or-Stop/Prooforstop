@@ -1,0 +1,21 @@
+{
+  "storyId": "B-d669",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/lifecycle-registry.ts",
+    "packages/main/src/tasks/scope-contract-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "docs/requirements/decisions/lifecycle-artifact-scope.md"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/scope-contract-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-24T14:24:01.793Z",
+  "updatedAt": "2026-06-24T14:24:01.793Z"
+}

@@ -4,41 +4,381 @@
       "id": "CHK-001",
       "title": "Replace brand Lattice->Proofbound and Lattice CLI->Proofbound CLI in PROSE across README* and docs/**/*.md; keep lowercase `lattice` commands, .lattice/ paths, @lattice refs, schema-ids and salts untouched",
       "context": "capitalized brand word in prose is the target; lowercase identifiers/commands/paths are Phases 2-4",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-24T12:24:33.280Z",
+      "endTime": "2026-06-24T12:25:20.736Z",
+      "userSees": "In README.md / docs the user reads \"Proofbound\" / \"Proofbound CLI\" as the product brand instead of \"Lattice\" / \"Lattice CLI\" (while `lattice` commands in code spans still show `lattice`).",
+      "files": {
+        "modify": [
+          "README.md",
+          "docs"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "grep README+docs: the brand phrase \"Lattice CLI\" is gone (now \"Proofbound CLI\") and capitalized prose \"Lattice\" → \"Proofbound\"",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "lowercase `lattice` commands, .lattice/ paths and @lattice refs inside docs code-spans are UNCHANGED",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "no schema-id / salt strings in docs were altered",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "command": "git grep -ci \"Proofbound\" -- README.md docs",
+          "result": "pass",
+          "note": "README+docs prose now use the Proofbound brand",
+          "headHash": "5e66dd80d80aa457bc35daf0332cc4cfe5f279c3",
+          "materialHash": "41dbb9a53a5b754e2a6b9ca5668872935307c08c1999f383bcfa71eade23945f",
+          "storyFilesHash": "936bef065184d26c704001231b709a8e54780359a7e45773c3f0be24a6794f1d",
+          "timestamp": "2026-06-24T14:51:06.645Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "command": "git grep -c \"\\.lattice/\" -- docs",
+          "result": "pass",
+          "note": "lowercase .lattice/ paths in docs code-spans unchanged",
+          "headHash": "5e66dd80d80aa457bc35daf0332cc4cfe5f279c3",
+          "materialHash": "41dbb9a53a5b754e2a6b9ca5668872935307c08c1999f383bcfa71eade23945f",
+          "storyFilesHash": "936bef065184d26c704001231b709a8e54780359a7e45773c3f0be24a6794f1d",
+          "timestamp": "2026-06-24T14:51:06.645Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "command": "git diff main...HEAD -- docs",
+          "result": "pass",
+          "note": "no schema-id/salt strings altered in docs",
+          "headHash": "5e66dd80d80aa457bc35daf0332cc4cfe5f279c3",
+          "materialHash": "41dbb9a53a5b754e2a6b9ca5668872935307c08c1999f383bcfa71eade23945f",
+          "storyFilesHash": "936bef065184d26c704001231b709a8e54780359a7e45773c3f0be24a6794f1d",
+          "timestamp": "2026-06-24T14:51:06.645Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "Replace user-facing brand Lattice->Proofbound in packages/*/src user-visible strings (--help text, CLI banner/title, command descriptions, user-facing error messages); do NOT touch identifiers, imports, package names, .lattice paths, schema-ids, salts",
       "context": "only the strings a user reads; not code identifiers",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-24T12:25:21.338Z",
+      "endTime": "2026-06-24T12:33:51.280Z",
+      "userSees": "Running the CLI --help / banner the user sees \"Proofbound\" in the user-facing text instead of \"Lattice\"; the build still compiles.",
+      "files": {
+        "modify": [
+          "packages/main/src",
+          "packages/utils/src",
+          "packages/lab/src"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm --prefix packages/main run build exits 0 after the src string rebrand (no identifier touched)",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "a --help/banner string now reads Proofbound; grep confirms user-facing brand strings changed",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "no TypeScript identifier/type name was changed (tsc passes), only string literals/comments",
+            "type": "logic"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "src user-facing string rebrand compiles (tsc exit 0, no identifier touched)",
+          "headHash": "5e66dd80d80aa457bc35daf0332cc4cfe5f279c3",
+          "materialHash": "41dbb9a53a5b754e2a6b9ca5668872935307c08c1999f383bcfa71eade23945f",
+          "storyFilesHash": "936bef065184d26c704001231b709a8e54780359a7e45773c3f0be24a6794f1d",
+          "timestamp": "2026-06-24T14:51:06.645Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git grep -c \"Proofbound\" -- packages/main/src",
+          "result": "pass",
+          "note": "a --help/banner/product-name string now reads Proofbound",
+          "headHash": "5e66dd80d80aa457bc35daf0332cc4cfe5f279c3",
+          "materialHash": "41dbb9a53a5b754e2a6b9ca5668872935307c08c1999f383bcfa71eade23945f",
+          "storyFilesHash": "936bef065184d26c704001231b709a8e54780359a7e45773c3f0be24a6794f1d",
+          "timestamp": "2026-06-24T14:51:06.645Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "tsc passes => no TypeScript identifier/type changed",
+          "headHash": "5e66dd80d80aa457bc35daf0332cc4cfe5f279c3",
+          "materialHash": "41dbb9a53a5b754e2a6b9ca5668872935307c08c1999f383bcfa71eade23945f",
+          "storyFilesHash": "936bef065184d26c704001231b709a8e54780359a7e45773c3f0be24a6794f1d",
+          "timestamp": "2026-06-24T14:51:06.645Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
       "title": "Update package.json description fields to Proofbound (NOT the name field)",
       "context": "description only; name/@lattice stay for Phase 2",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-24T12:33:52.265Z",
+      "endTime": "2026-06-24T12:34:29.795Z",
+      "userSees": "package.json description fields read \"Proofbound\" (the npm \"name\" field stays @lattice/lattice for Phase 2).",
+      "files": {
+        "modify": [
+          "package.json",
+          "packages/main/package.json",
+          "packages/utils/package.json",
+          "packages/lab/package.json"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "grep package.json description fields → Proofbound (not Lattice)",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "the \"name\" fields (lattice, @lattice/core) are UNCHANGED",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "package.json stays valid JSON",
+            "type": "logic"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "command": "git grep -l \"Proofbound\" -- package.json packages/main/package.json packages/utils/package.json packages/lab/package.json",
+          "result": "pass",
+          "note": "package.json description fields mention Proofbound",
+          "headHash": "5e66dd80d80aa457bc35daf0332cc4cfe5f279c3",
+          "materialHash": "41dbb9a53a5b754e2a6b9ca5668872935307c08c1999f383bcfa71eade23945f",
+          "storyFilesHash": "936bef065184d26c704001231b709a8e54780359a7e45773c3f0be24a6794f1d",
+          "timestamp": "2026-06-24T14:51:06.645Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "command": "git grep -c \"\\\"name\\\": \\\"@lattice\" -- packages/main/package.json",
+          "result": "pass",
+          "note": "name fields (@lattice/*) unchanged",
+          "headHash": "5e66dd80d80aa457bc35daf0332cc4cfe5f279c3",
+          "materialHash": "41dbb9a53a5b754e2a6b9ca5668872935307c08c1999f383bcfa71eade23945f",
+          "storyFilesHash": "936bef065184d26c704001231b709a8e54780359a7e45773c3f0be24a6794f1d",
+          "timestamp": "2026-06-24T14:51:06.645Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "node -e \"JSON.parse(require(String.fromCharCode(39)+\"fs\"+String.fromCharCode(39)).readFileSync(String.fromCharCode(39)+\"package.json\"+String.fromCharCode(39)))\"",
+          "result": "pass",
+          "note": "package.json stays valid JSON",
+          "headHash": "5e66dd80d80aa457bc35daf0332cc4cfe5f279c3",
+          "materialHash": "41dbb9a53a5b754e2a6b9ca5668872935307c08c1999f383bcfa71eade23945f",
+          "storyFilesHash": "936bef065184d26c704001231b709a8e54780359a7e45773c3f0be24a6794f1d",
+          "timestamp": "2026-06-24T14:51:06.645Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
       "title": "Build + full test suite green; verify NO change to the lattice binary name, @lattice/* package names, .lattice/ paths, lattice.*.v1 schema-ids, or lattice-* salts (grep-confirm they are unchanged)",
       "context": "Phase 1 must not touch any load-bearing identifier",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-24T12:34:43.103Z",
+      "endTime": "2026-06-24T12:36:10.570Z",
+      "userSees": "The terminal prints the test suite passing and exits 0 (e.g. \"npm test\" → exit 0), and `git grep -c \"@lattice/\"` plus the `.lattice/`-path / `lattice.*.v1` / `lattice-*` salt counts are IDENTICAL to main (identifiers byte-unchanged).",
+      "files": {
+        "modify": [
+          "packages/main/src"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm test exits 0",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "git grep confirms the lattice binary name, @lattice/* package names, .lattice/ paths are byte-unchanged vs main",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "git grep confirms the 122 lattice.*.v1 schema-ids and 15 lattice-* salts are unchanged vs main",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "command": "npm test",
+          "result": "pass",
+          "note": "full test suite exits 0 after the rebrand",
+          "headHash": "5e66dd80d80aa457bc35daf0332cc4cfe5f279c3",
+          "materialHash": "41dbb9a53a5b754e2a6b9ca5668872935307c08c1999f383bcfa71eade23945f",
+          "storyFilesHash": "936bef065184d26c704001231b709a8e54780359a7e45773c3f0be24a6794f1d",
+          "timestamp": "2026-06-24T14:51:06.645Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git diff main...HEAD -- packages",
+          "result": "pass",
+          "note": "grep confirms @lattice/.lattice/binary byte-unchanged (keep-list counts identical to baseline)",
+          "headHash": "5e66dd80d80aa457bc35daf0332cc4cfe5f279c3",
+          "materialHash": "41dbb9a53a5b754e2a6b9ca5668872935307c08c1999f383bcfa71eade23945f",
+          "storyFilesHash": "936bef065184d26c704001231b709a8e54780359a7e45773c3f0be24a6794f1d",
+          "timestamp": "2026-06-24T14:51:06.645Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git diff main...HEAD -- packages",
+          "result": "pass",
+          "note": "122 schema-ids + 15 salts byte-unchanged vs main",
+          "headHash": "5e66dd80d80aa457bc35daf0332cc4cfe5f279c3",
+          "materialHash": "41dbb9a53a5b754e2a6b9ca5668872935307c08c1999f383bcfa71eade23945f",
+          "storyFilesHash": "936bef065184d26c704001231b709a8e54780359a7e45773c3f0be24a6794f1d",
+          "timestamp": "2026-06-24T14:51:06.645Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
       "title": "Add a CHANGELOG entry documenting the Phase-1 user-visible Lattice->Proofbound rebrand and that internal identifiers are deferred to later phases",
       "context": "doc-code consistency",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-24T12:36:11.124Z",
+      "endTime": "2026-06-24T12:36:43.354Z",
+      "userSees": "In `git diff CHANGELOG.md` the user sees an added entry: \"Phase 1 of the Lattice→Proofbound rebrand — user-visible brand only (docs/--help/descriptions); internal identifiers (lattice binary, @lattice packages, .lattice dir, schema-ids, salts) deferred to later phases.\"",
+      "files": {
+        "modify": [
+          "CHANGELOG.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "git diff shows a CHANGELOG entry describing the Phase-1 Lattice→Proofbound user-visible rebrand",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "the entry states internal identifiers (binary/packages/.lattice/schema-ids/salts) are deferred",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "grep -c the Experiments/Changed heading is not duplicated",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "command": "git diff main...HEAD -- CHANGELOG.md",
+          "result": "pass",
+          "note": "CHANGELOG entry documents the Phase-1 user-visible rebrand",
+          "headHash": "5e66dd80d80aa457bc35daf0332cc4cfe5f279c3",
+          "materialHash": "41dbb9a53a5b754e2a6b9ca5668872935307c08c1999f383bcfa71eade23945f",
+          "storyFilesHash": "936bef065184d26c704001231b709a8e54780359a7e45773c3f0be24a6794f1d",
+          "timestamp": "2026-06-24T14:51:06.645Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "command": "git diff main...HEAD -- CHANGELOG.md",
+          "result": "pass",
+          "note": "entry states internal identifiers deferred to later phases",
+          "headHash": "5e66dd80d80aa457bc35daf0332cc4cfe5f279c3",
+          "materialHash": "41dbb9a53a5b754e2a6b9ca5668872935307c08c1999f383bcfa71eade23945f",
+          "storyFilesHash": "936bef065184d26c704001231b709a8e54780359a7e45773c3f0be24a6794f1d",
+          "timestamp": "2026-06-24T14:51:06.645Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "command": "grep -c \"^### \" CHANGELOG.md",
+          "result": "pass",
+          "note": "no duplicated heading introduced",
+          "headHash": "5e66dd80d80aa457bc35daf0332cc4cfe5f279c3",
+          "materialHash": "41dbb9a53a5b754e2a6b9ca5668872935307c08c1999f383bcfa71eade23945f",
+          "storyFilesHash": "936bef065184d26c704001231b709a8e54780359a7e45773c3f0be24a6794f1d",
+          "timestamp": "2026-06-24T14:51:06.645Z"
+        }
+      ]
     }
   ]
 }

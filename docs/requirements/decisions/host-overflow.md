@@ -1,12 +1,12 @@
-# Lattice Host Overflow
+# Proofbound Host Overflow
 
 ## Decision
 
-Lattice Host Overflow is a **manual-first, host-neutral overflow architecture**
-for bounded work that leaves Lattice in charge of story, scope, receipt, and
+Proofbound Host Overflow is a **manual-first, host-neutral overflow architecture**
+for bounded work that leaves Proofbound in charge of story, scope, receipt, and
 merge authority.
 
-- Lattice is the authority surface.
+- Proofbound is the authority surface.
 - Claude Code, Codex, Antigravity, and similar tools are execution hosts.
 - Manual handoff comes before supervised dispatch.
 - Supervised dispatch is a conservative projection, not an auto-runner.
@@ -24,7 +24,7 @@ B-106b landed the manual-first Host Overflow base. B-a5c2 extends that base with
 `dispatch_auto` as the selected `policy-authorized-unattended-scheduler`:
 `chosen: policy-authorized-unattended-scheduler`, `preMortem: 6`.
 The v1.0.1 real-subprocess contract is Claude Code first: a policy must set
-`allowRealHostSubprocess=true` before Lattice may attempt a Claude Code real
+`allowRealHostSubprocess=true` before Proofbound may attempt a Claude Code real
 subprocess. Codex and Antigravity remain scaffolded/refused real-subprocess
 targets in this version. Gemini is retained only for deprecated legacy
 compatibility.
@@ -33,10 +33,10 @@ The product finish line is concrete and user-visible:
 
 1. The user defines or selects an explicit unattended policy; real Claude Code
    subprocess launch additionally requires `allowRealHostSubprocess=true`.
-2. Lattice checks policy authorization, including allowed hosts, allowed and
+2. Proofbound checks policy authorization, including allowed hosts, allowed and
    denied paths, max parallelism, timeouts, retry limits, command templates,
    budget/network posture, and environment allow/deny filtering.
-3. Lattice probes host capability and reports unavailable or supervised-only
+3. Proofbound probes host capability and reports unavailable or supervised-only
    when login, noninteractive mode, cwd isolation, timeout, transcript, network,
    or env-safety guarantees are missing. The standalone
    `host_runtime_probe.unattendedSafe` fact stays conservatively `false`.
@@ -60,7 +60,7 @@ local diagnostic receipt as a verified authority receipt.
 
 B-47cd defines the host-to-host autopilot layer above dispatch. Autopilot may
 sequence policy checks, bounded runs, status/watch, review, cancel, and resume
-surfaces, but it does not replace Lattice story/scope/review authority.
+surfaces, but it does not replace Proofbound story/scope/review authority.
 
 The three user-facing modes are:
 
@@ -133,7 +133,7 @@ authority boundary.
 
 ## Boundaries
 
-Lattice keeps these responsibilities:
+Proofbound keeps these responsibilities:
 
 - Story identity, lifecycle, and scope authority
 - Pack creation and pack-hash authority
@@ -164,7 +164,7 @@ Every overflow surface must keep:
 
 ## Landed dispatch surfaces
 
-The supervised dispatch layer is now landed as explicit Lattice surfaces:
+The supervised dispatch layer is now landed as explicit Proofbound surfaces:
 
 - `dispatch_plan` selects the runtime and returns a bounded pack/worktree
   preview without creating a dispatch record, worktree, receipt, or external
@@ -199,12 +199,12 @@ The supervised dispatch layer is now landed as explicit Lattice surfaces:
 5. Main agent reviews scope, freshness, and diff locally.
 6. Main agent merges manually if the result is acceptable.
 
-If a host is unavailable, Lattice reports that as a diagnostic readiness issue
+If a host is unavailable, Proofbound reports that as a diagnostic readiness issue
 with `nextAction`; it is not a global workflow blocker.
 
 ## Non-goals
 
-Lattice Host Overflow does **not**:
+Proofbound Host Overflow does **not**:
 
 - Share hidden context implicitly across hosts
 - Auto-trust overflow output
@@ -215,7 +215,7 @@ Lattice Host Overflow does **not**:
 - Verify authority receipts from overflow hosts
 - Turn host availability into production authority
 - Require the Mac App
-- Introduce a new model-runner runtime inside Lattice
+- Introduce a new model-runner runtime inside Proofbound
 - Claim Codex or Antigravity real-subprocess support in v1.0.1
 
 ## Claude Code note
@@ -223,7 +223,7 @@ Lattice Host Overflow does **not**:
 Claude Code is a supported overflow execution host, but not a production
 authority. The intended sentence for user-facing docs is:
 
-> Lattice Host Overflow is manual-first; Lattice keeps story/scope/receipt
+> Proofbound Host Overflow is manual-first; Proofbound keeps story/scope/receipt
 > authority; Claude Code is an execution host, not a production authority.
 
 ## Smoke coverage

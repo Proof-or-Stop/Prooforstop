@@ -1,4 +1,4 @@
-# Lattice Lifecycle Proof-Or-Stop Readiness Check
+# Proofbound Lifecycle Proof-Or-Stop Readiness Check
 
 Status: execution plan; V1 P1 landed in `B-bd45`
 Created: 2026-06-20
@@ -7,7 +7,7 @@ V1 report model: `StoryReadinessReport`
 
 ## Purpose
 
-The Lifecycle Readiness Check is a read-only control tower for a Lattice story.
+The Lifecycle Readiness Check is a read-only control tower for a Proofbound story.
 It answers one question:
 
 > What proof is already present for the requested lifecycle target, and what is
@@ -415,7 +415,7 @@ lattice done_prepare '{"storyId":"B-xxxx","mergeMain":true,"refreshStale":true,"
 
 ## Image Flowchart
 
-![Lattice Lifecycle Readiness Check flow](assets/lattice-lifecycle-readiness-check-flow.svg)
+![Proofbound Lifecycle Readiness Check flow](assets/lattice-lifecycle-readiness-check-flow.svg)
 
 Mermaid source for environments that render diagrams directly:
 
@@ -534,7 +534,7 @@ Success means fewer blind lifecycle attempts, not fewer gates.
 
 ## Decision
 
-Adopt the Lattice Lifecycle Proof-Or-Stop Readiness Check as the V1 direction.
+Adopt the Proofbound Lifecycle Proof-Or-Stop Readiness Check as the V1 direction.
 
 The first valuable slice is a read-only `StoryReadinessReport` surfaced through
 `lattice lifecycle_check` / `lattice story_readiness`. Full-flow orchestration is

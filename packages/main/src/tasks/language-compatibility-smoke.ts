@@ -21,7 +21,7 @@ const englishBackground = [
   'Use canonical English section names for stored output and error messages, while preserving arbitrary Unicode body text as data.',
   '',
   '## Conversational Texture',
-  'The user asked for English-first mechanical rules, with agents converting user language into canonical schema before calling Lattice.',
+  'The user asked for English-first mechanical rules, with agents converting user language into canonical schema before calling Proofbound.',
 ].join('\n');
 
 const nonCanonicalHeadingBackground = [
@@ -92,7 +92,7 @@ try {
 
   writeFileSync(join(decisionsDir, 'english.md'), [
     '# English Truth',
-    'Decision: choose English canonical labels for newly rendered Lattice output.',
+    'Decision: choose English canonical labels for newly rendered Proofbound output.',
     'Requirement: the scanner must keep producing entries for historical requirements.',
     'Constraint: not allowed to discard Unicode summaries.',
     'Pending: confirm whether more aliases should move to configuration.',

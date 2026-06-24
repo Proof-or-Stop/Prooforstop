@@ -1,0 +1,28 @@
+{
+  "findings": [
+    {
+      "id": "B-2f1a:F-001",
+      "desc": "doc-code-drift: Phase-1 rebrand plan (CHK-001) says replace capitalized brand word Lattice in prose, but the compound adjective Lattice-native was left unchanged in multiple in-scope doc files. README.md:374 has Lattice-native planner surface; docs/guide.md:134 has Lattice-native planner entry point; docs/requirements/decisions/lattice-authority-live-integration.md has the section heading ## Stage C Requirements: Lattice-Native Planner (line 1960), body text Stage C must be Lattice-native (line 1965), and diagram labels -> Lattice-native Story Planner / -> Lattice-native Job Planner (lines 592, 594, 3514, 3515). In the same sentences where other Lattice->Proofbound replacements were applied, these Lattice-native compounds were skipped.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-24T12:43:06.575Z",
+      "reviewRound": "2026-06-24T12:38:48.171Z",
+      "reviewRunId": "B-2f1a:RR-003",
+      "_hash": "84955b30e29c5fac52432a25ad6db495e411931e4b650aa02c8aceab2081ef14",
+      "files": [
+        "README.md",
+        "docs/guide.md",
+        "docs/requirements/decisions/lattice-authority-live-integration.md"
+      ],
+      "signatureTag": "doc-code-drift|md|code-drift-phase",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in c0f2dec10: swept the compound brand adjectives Lattice-native/managed/owned/branded/enforced → Proofbound-* (22 occurrences) across README + docs prose + src user-facing strings/@title/doc-comments; grep for those 5 tokens now returns 0; build+test green; 0 protected identifiers touched. Borderline state-descriptors (Lattice-only/specific/staged/dispatched) + kept-identifier refs (Lattice-era/prefixed/directory, filenames) deliberately retained.",
+      "resolvedAt": "2026-06-24T12:52:30.818Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

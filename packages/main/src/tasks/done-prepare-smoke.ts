@@ -34,7 +34,7 @@ import type { ChecklistData, ClosingSelfCheck, DocsPromise, ProcessEvent, RealMa
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const cliPath = join(packageRoot, 'cli.js');
-const COMMIT_ENV = ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Lattice Smoke'];
+const COMMIT_ENV = ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proofbound Smoke'];
 
 interface RepoOptions {
   storyId: string;
@@ -536,6 +536,24 @@ withRepo('pre-existing DONE-required lifecycle metadata does not block preflight
   assert.doesNotMatch(output, /blockedAt: cleanTree/);
   assert.match(output, /worktreeClean: PASS/);
   assert.match(status(worktreePath), /done-required-evidence\.json/, 'pre-existing metadata dirt remains for the operator to commit');
+});
+
+withRepo('other-story lifecycle metadata still blocks preflight', {
+  storyId: 'B-dp-other-story-metadata',
+}, ({ worktreePath }) => {
+  write(
+    worktreePath,
+    '.lattice/story/actives/B-dp-other-story/done-required-evidence.json',
+    '{"status":"PASS","storyId":"B-dp-other-story"}\n',
+  );
+  const output = runLattice(worktreePath, 'done_prepare', {
+    storyId: 'B-dp-other-story-metadata',
+    validate: false,
+    mergeMain: false,
+  });
+  assertBlocked(output, 'cleanTree');
+  assert.match(output, /\.lattice\/story\/actives\/B-dp-other-story\/done-required-evidence\.json/);
+  assert.doesNotMatch(output, /DONE prepare: PASS/);
 });
 
 withRepo('failed DONE-required lifecycle metadata blocks DONE closure without claiming PASS', {

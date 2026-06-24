@@ -1,0 +1,28 @@
+{
+  "task": "Add a \"Host DONE convergence / drift handling\" runbook section to AGENTS.md and CLAUDE.md, projecting existing freshness/drift mechanisms into one explicit Host operating discipline (docs-only).",
+  "outcome": "Opening AGENTS.md or CLAUDE.md (or `grep -n \"Host DONE convergence\" AGENTS.md CLAUDE.md`) shows a new section with: run `lattice done_prepare --mergeMain --refreshStale --validate` before story_advance DONE; do not self-judge freshness (read done_prepare/freshness-reader); the headHash-only / materialHash-only+storyFilesHash-unchanged / storyFilesHash-drift layering; done_prepare cannot bypass related drift; the two VERBATIM paragraphs (materialHash-only downgrade is current warn/advisory projection; metadata-only dirty governed by done_prepare/lifecycle_check, see B-9dfb, do not bypass cleanTree); and references to the 4 decision docs. `lattice` behavior is byte-identical (no code change).",
+  "facts": [
+    "Mechanisms already exist: B-fb36 done_prepare, B-4363 sync-main-first, B-5a9a/B-6de6 storyFilesHash secondary freshness, B-d243/B-d321 delivery-check drift+material binding, B-cd3d/B-c3e1/B-c64a evidence freshness — all DONE.",
+    "proof-admissibility (proof-admissibility-hardening-execution-plan.md, B-0985 M0/M1 + B-0405 M2-M7) is committed and warn-by-default; it defines evidence admissibility (contract), this story only projects it.",
+    "All 4 referenced decision docs exist under docs/requirements/decisions/: proof-admissibility-hardening-execution-plan.md, story-files-hash-material-drift.md, done-prepare-automation-execution-plan.md, review-assurance-floor-execution-plan.md.",
+    "Parallel-doc convention already used: the version-bump discipline appears in both AGENTS.md:122 and CLAUDE.md:392.",
+    "B-9dfb (INIT_CHECK) is actively changing metadata-only dirty-state semantics in done_prepare/lifecycle_check -> reference as a pointer, do not hardcode behavior.",
+    "The repo has a docs-drift gate that checks doc command references against the registry -> cite docs, do not restate rules."
+  ],
+  "constraints": [
+    "Docs-only: edit only AGENTS.md and CLAUDE.md; no packages/main/src, no CLI/behavior change.",
+    "Projection/reference, not new rules; cite the decision docs as source of truth.",
+    "Both copies (AGENTS.md/CLAUDE.md) must be consistent in substance.",
+    "Drift-downgrade wording framed as current warn/advisory projection (proof-admissibility is warn-by-default); metadata-only as a pointer to B-9dfb."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "AGENTS.md",
+    "CLAUDE.md",
+    "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md (read-only reference)",
+    "docs/requirements/decisions/story-files-hash-material-drift.md (read-only reference)",
+    "docs/requirements/decisions/done-prepare-automation-execution-plan.md (read-only reference)",
+    "docs/requirements/decisions/review-assurance-floor-execution-plan.md (read-only reference)"
+  ],
+  "timestamp": "2026-06-24T12:54:37.616Z"
+}

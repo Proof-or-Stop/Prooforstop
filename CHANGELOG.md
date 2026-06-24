@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Changed
+
+- **B-2f1a** Phase 1 of the Lattice→Proofbound rebrand — user-visible brand only (docs / --help / package descriptions); internal identifiers (the lattice binary, @lattice packages, .lattice dir, schema-ids, salts) deferred to later phases.
+
 ### Experiments
 
 - **B-5ae8** (B4 context-loss: non-empty token-less context-lost marker so the single-shot powered agent gets a VALID prompt): in `experiments/injection-probes/live-loop-harness.mjs` ONLY, changed the B4 scenario's `truncatedContext` from the empty string `''` to a NON-EMPTY but token-LESS context-lost marker — `'[context truncated; in-memory task lost — recover the task from the workspace]'` — mirroring B5's `checkpointContext` style. Previously the turn-1 truncate replaced the context with `''`, and the single-shot `real-loop-agent.mjs` passes `String(context ?? '')` as the `claude -p` prompt — so an empty/invalid prompt caused an infra-fail rather than a real context-loss recovery signal (B5 already worked because it uses a non-empty token-less restart marker). The new marker is a valid prompt yet carries NO B4 task token (`TASK-WRITE-OK`) and no "write OK" wording, so recovery still requires reading `task.txt` from disk; `classify` is UNCHANGED (disk-grounded on `result.txt`==="OK") and the B4 self-check stubs are UNCHANGED in logic (they check `task.txt` vs `context.includes(token)`) — the workspace-reading stub still → RECOVERED and the context-reliant stub still → AMPLIFIED. The B4 inline comment is updated to note the marker is non-empty (a valid prompt) yet token-less (recovery comes from `task.txt` on disk). Hermetic `--self-check` stays **25/25 across all 9 stateful scenarios, exit 0, 0 claude / 0 network / 0 cost**. No powered `--run` was executed by this change; `real-loop-agent.mjs`, `real-arm.mjs`, `probe-contract.mjs`, the stateless probes, the `run-*` files, and B5/all other scenarios are untouched.

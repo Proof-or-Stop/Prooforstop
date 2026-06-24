@@ -1,16 +1,16 @@
-# Lattice Codex Command Boundary Execution Plan
+# Proofbound Codex Command Boundary Execution Plan
 
 Date: 2026-06-13
 
 ## Purpose
 
-This document defines the execution plan for keeping Lattice workflow commands
+This document defines the execution plan for keeping Proofbound workflow commands
 host-neutral while limiting the Codex command surface to Codex adapter
 diagnostics and verification.
 
 The goal is not to add compatibility aliases for mistaken workflow commands.
 The goal is to stop generated prompts, generated assets, docs, and CLI
-suggestions from teaching agents that ordinary Lattice lifecycle commands belong
+suggestions from teaching agents that ordinary Proofbound lifecycle commands belong
 to a Codex-specific namespace.
 
 This plan follows four constraints:
@@ -22,13 +22,13 @@ This plan follows four constraints:
 
 ## Problem Statement
 
-Lattice is the workflow layer. It coordinates story state, checklist state,
+Proofbound is the workflow layer. It coordinates story state, checklist state,
 review artifacts, validation evidence, delivery checks, and convergence checks
 across hosts. Those commands must remain host-neutral.
 
 Codex is one possible host/adapter. Codex-specific commands may diagnose or
 verify Codex adapter assets, but they must not become a second namespace for
-ordinary Lattice workflow operations.
+ordinary Proofbound workflow operations.
 
 The operator-facing defect has two closely related forms:
 
@@ -44,7 +44,7 @@ The fix must clean guidance and preserve fail-closed command behavior.
 
 ### Host-Neutral Workflow Commands
 
-The following command families belong to the Lattice workflow layer and must be
+The following command families belong to the Proofbound workflow layer and must be
 generated or recommended without a host or agent namespace:
 
 | Command family | Correct guidance |
@@ -95,7 +95,7 @@ The current source behavior already contains the correct narrow CLI fallback:
 
 - Codex adapter aliases for `verify` and `doctor` remain supported.
 - Codex-prefixed session recovery and document discovery are rejected.
-- The error message tells users to run the ordinary Lattice command instead.
+- The error message tells users to run the ordinary Proofbound command instead.
 
 However, three areas still need explicit audit before this can be treated as
 done:
@@ -133,7 +133,7 @@ non-document targets; it does not claim they are already cleaned.
 - Do not add a broad `lattice codex ...` namespace.
 - Do not make mistaken workflow commands succeed through backward-compatible
   aliases.
-- Do not rename host-neutral Lattice commands.
+- Do not rename host-neutral Proofbound commands.
 - Do not remove Codex adapter diagnostics or verification commands.
 - Do not convert legacy `lattice` cleanup into this story unless the exact text
   creates the same host-neutral boundary violation.
@@ -142,7 +142,7 @@ non-document targets; it does not claim they are already cleaned.
 
 ## Execution Story Shape
 
-Use one small Lattice story for the prompt/template cleanup. If a separate story
+Use one small Proofbound story for the prompt/template cleanup. If a separate story
 is already completing runtime `dist` auto-build after DONE merges, do not
 duplicate that work. Treat the runtime build story as a dependency.
 
@@ -161,7 +161,7 @@ Suggested checklist:
 | CHK-003 | Add regression coverage for forbidden namespace guidance and allowed adapter commands. | `packages/main/src/tasks/*smoke.ts` |
 | CHK-004 | Verify runtime CLI output after build/dist sync. | `packages/main/dist/**`, validation transcript |
 
-The story should use normal Lattice lifecycle phases:
+The story should use normal Proofbound lifecycle phases:
 
 ```text
 INIT -> INIT_CHECK -> PLAN -> DEV -> REVIEW -> TEST -> DONE
@@ -189,7 +189,7 @@ Exclude story lifecycle storage and fixtures from manual editing:
 
 - `docs/story/**`
 - `tests/fixtures/**`
-- `.lattice/story/**` unless using Lattice commands
+- `.lattice/story/**` unless using Proofbound commands
 
 Use scans that distinguish:
 
@@ -234,7 +234,7 @@ Keep the CLI behavior fail-closed:
 - unsupported Codex-prefixed workflow commands exit non-zero;
 - the error states that the Codex adapter namespace only supports adapter
   verification and diagnostics;
-- the error suggests the ordinary Lattice command.
+- the error suggests the ordinary Proofbound command.
 
 This is a product boundary, not only a typo recovery path.
 
@@ -289,8 +289,8 @@ Expected result:
 - hits in smoke tests are allowed only when asserting rejection/fallback output.
 
 Local Codex wrapper diagnostics guidance must also be checked. The local Codex
-wrapper forwards to the main Lattice CLI with Codex activity attribution; a bare
-`doctor` argument opens the general Lattice doctor, not Codex adapter
+wrapper forwards to the main Proofbound CLI with Codex activity attribution; a bare
+`doctor` argument opens the general Proofbound doctor, not Codex adapter
 diagnostics. Scan for that exact wrapper/argument combination and replace it
 with the adapter diagnostic command.
 
@@ -360,13 +360,13 @@ node bin/lattice.js verify_codex '{"storyId":"<storyId>"}'
 Reviewers should check these points:
 
 1. The fix does not make forbidden workflow namespace forms succeed.
-2. The generated guidance teaches host-neutral Lattice workflow commands.
+2. The generated guidance teaches host-neutral Proofbound workflow commands.
 3. Codex adapter commands remain available only for adapter diagnostics and
    verification.
 4. Runtime `dist` matches source behavior.
 5. Smoke tests cover both positive adapter commands and negative workflow
    namespace commands.
-6. The story does not expand scope into unrelated Lattice branding cleanup,
+6. The story does not expand scope into unrelated Proofbound branding cleanup,
    Authority readiness, or production claims.
 
 ## Rollback Plan
@@ -390,7 +390,7 @@ The story is acceptable when all of the following are true:
   command.
 - Allowed Codex adapter commands still work.
 - Source and dist are synchronized.
-- Lattice validation passes with fresh evidence.
+- Proofbound validation passes with fresh evidence.
 
 ## No-Overclaim Boundary
 

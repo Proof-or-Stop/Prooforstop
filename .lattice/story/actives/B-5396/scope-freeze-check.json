@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-5396",
+  "checkedAt": "2026-06-24T12:53:52.205Z",
+  "mode": "maintenance",
+  "status": "pass",
+  "scopeBoundaryHash": "0e8e4876f32e2b0637ced4e1d0a82e493e5a475132fda6bcc487cce6a94ac30f",
+  "executionBoundaryHash": "46ec73b82324f940f4141281c93461d3e3a378fc8988e4be232db081f22042c2",
+  "freshnessHash": "e00c5d1683a89c51c8337f2078e5b82ef92c075a29fae33511dc2f03e2e50a65",
+  "effectiveExcludedKeywords": [
+    "Any CLI/code change (no packages/main/src, no session_brief/done_prepare/blocker output)",
+    "Changing gate strength, quorum, or proof-admissibility contract rules",
+    "Changing hash/freshness judgment or drift-downgrade logic",
+    "Hardcoding metadata-only dirty-state behavior (defer to B-9dfb; pointer only)",
+    "Inventing new rules (must be a projection/reference of existing decision docs)"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Any CLI/code change (no packages/main/src, no session_brief/done_prepare/blocker output)",
+      "source": "scopeBoundary.excluded",
+      "text": "Any CLI/code change (no packages/main/src, no session_brief/done_prepare/blocker output)",
+      "excluded": true
+    },
+    {
+      "keyword": "Changing gate strength, quorum, or proof-admissibility contract rules",
+      "source": "scopeBoundary.excluded",
+      "text": "Changing gate strength, quorum, or proof-admissibility contract rules",
+      "excluded": true
+    },
+    {
+      "keyword": "Changing hash/freshness judgment or drift-downgrade logic",
+      "source": "scopeBoundary.excluded",
+      "text": "Changing hash/freshness judgment or drift-downgrade logic",
+      "excluded": true
+    },
+    {
+      "keyword": "Hardcoding metadata-only dirty-state behavior (defer to B-9dfb; pointer only)",
+      "source": "scopeBoundary.excluded",
+      "text": "Hardcoding metadata-only dirty-state behavior (defer to B-9dfb; pointer only)",
+      "excluded": true
+    },
+    {
+      "keyword": "Inventing new rules (must be a projection/reference of existing decision docs)",
+      "source": "scopeBoundary.excluded",
+      "text": "Inventing new rules (must be a projection/reference of existing decision docs)",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "9d8b3b6f095487ca0b7e1dc3c2a98a7bc765656fbca0fe9dbe8838eca2647ad8"
+}

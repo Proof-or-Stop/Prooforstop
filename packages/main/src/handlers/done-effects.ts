@@ -270,7 +270,7 @@ export function acquireDoneMainMergeLock(
   return acquireMainWriteLockRegistered(mainRepoRoot, {
     label: 'DONE main merge',
     heldMessage:
-      `DONE main merge lock is held by another Lattice operation; story ${storyId} phase was not changed. ` +
+      `DONE main merge lock is held by another Proofbound operation; story ${storyId} phase was not changed. ` +
       `Retry after the active DONE merge finishes.`,
   });
 }

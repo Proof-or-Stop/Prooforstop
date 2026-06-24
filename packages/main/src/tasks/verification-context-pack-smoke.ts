@@ -33,7 +33,7 @@ function schemaFor(name: string) {
 const root = mkdtempSync(join(tmpdir(), 'lattice-vcp-'));
 git(root, ['init']);
 git(root, ['config', 'user.email', 'lattice@example.test']);
-git(root, ['config', 'user.name', 'Lattice Smoke']);
+git(root, ['config', 'user.name', 'Proofbound Smoke']);
 writeFileSync(join(root, 'alpha.ts'), [
   'export function alpha() {',
   '  return 1;',
@@ -94,7 +94,7 @@ assert.ok((result.pack.changedHunks ?? []).every(hunk => Boolean(hunk.patchHash 
 const multiTrackedRoot = mkdtempSync(join(tmpdir(), 'lattice-vcp-multi-'));
 git(multiTrackedRoot, ['init']);
 git(multiTrackedRoot, ['config', 'user.email', 'lattice@example.test']);
-git(multiTrackedRoot, ['config', 'user.name', 'Lattice Smoke']);
+git(multiTrackedRoot, ['config', 'user.name', 'Proofbound Smoke']);
 writeFileSync(join(multiTrackedRoot, 'alpha.ts'), 'export const alpha = 1;\n');
 writeFileSync(join(multiTrackedRoot, 'beta.ts'), 'export const beta = 1;\n');
 git(multiTrackedRoot, ['add', 'alpha.ts', 'beta.ts']);
@@ -261,7 +261,7 @@ assert.deepEqual(evidence.inspectedPackRefs, allContextPackRequiredRefs(handlerR
 const deletionRoot = mkdtempSync(join(tmpdir(), 'lattice-vcp-delete-'));
 git(deletionRoot, ['init']);
 git(deletionRoot, ['config', 'user.email', 'lattice@example.test']);
-git(deletionRoot, ['config', 'user.name', 'Lattice Smoke']);
+git(deletionRoot, ['config', 'user.name', 'Proofbound Smoke']);
 writeFileSync(join(deletionRoot, 'gamma.ts'), 'export const gamma = 1;\n');
 git(deletionRoot, ['add', 'gamma.ts']);
 git(deletionRoot, ['commit', '-m', 'initial']);

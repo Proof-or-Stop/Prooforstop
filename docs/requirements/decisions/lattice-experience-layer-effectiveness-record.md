@@ -1,4 +1,4 @@
-# Lattice Experience Layer -- Effectiveness-Proof Development Record
+# Proofbound Experience Layer -- Effectiveness-Proof Development Record
 
 Status: accepted
 Source story: B-cb13
@@ -15,7 +15,7 @@ lattice-experience-layer-execution-plan.md (B-1480) recorded the PLAN. Baseline 
 
 ## Scope
 
-The per-project Experience Layer on the Orchestrate (Lattice CLI) main branch: the six merged stories above plus the offline phase-3.5 backfill analysis and the live signature_backfill apply (main commit 2750aadef). Per-project only -- cross-project aggregation was removed (B-2a8d).
+The per-project Experience Layer on the Orchestrate (Proofbound CLI) main branch: the six merged stories above plus the offline phase-3.5 backfill analysis and the live signature_backfill apply (main commit 2750aadef). Per-project only -- cross-project aggregation was removed (B-2a8d).
 
 ## Non-Goals
 
@@ -54,7 +54,7 @@ Cons:
 
 ## Chosen Approach
 
-Six Lattice stories (each INIT->DONE, full review, audit fields excluded from gates, advisory-only): B-a2e3 read-only learning_validate (anchorFiles + revalidate leaf; valid-rate/drift instrument); B-4eb6 phase 3.1 learning_scan (derives+persists .lattice/learning/finding-signals.json, activating the Phase 1.5 hint loop); B-5d48 phase 3.2 signatureTag auto-candidate + provenance at finding_add (audit-only, excluded from finding _hash); B-06b3 phase 3.3 deterministic per-story A/B hintMode with shadow-gated hint display (event fires on both arms; hints stay out of resolveReviewPromptHash); B-c06a phase 3.4 read-only learning_effectiveness (predictive value + ON/OFF arm readout with a conservative N gate). Then an evidence-first offline phase-3.5 backfill (LLM-assigned area|failureMode signatures over 695 findings, 164 classes, leakage-free) re-ran the learning curve; then signature_backfill (B-17a9) persisted 656 real signatures into the live findings (commit 2750aadef) with every finding _hash byte-identical.
+Six Proofbound stories (each INIT->DONE, full review, audit fields excluded from gates, advisory-only): B-a2e3 read-only learning_validate (anchorFiles + revalidate leaf; valid-rate/drift instrument); B-4eb6 phase 3.1 learning_scan (derives+persists .lattice/learning/finding-signals.json, activating the Phase 1.5 hint loop); B-5d48 phase 3.2 signatureTag auto-candidate + provenance at finding_add (audit-only, excluded from finding _hash); B-06b3 phase 3.3 deterministic per-story A/B hintMode with shadow-gated hint display (event fires on both arms; hints stay out of resolveReviewPromptHash); B-c06a phase 3.4 read-only learning_effectiveness (predictive value + ON/OFF arm readout with a conservative N gate). Then an evidence-first offline phase-3.5 backfill (LLM-assigned area|failureMode signatures over 695 findings, 164 classes, leakage-free) re-ran the learning curve; then signature_backfill (B-17a9) persisted 656 real signatures into the live findings (commit 2750aadef) with every finding _hash byte-identical.
 
 ## Operational Rules
 
@@ -80,6 +80,6 @@ Six Lattice stories (each INIT->DONE, full review, audit fields excluded from ga
 
 ## Supersession
 
-If this decision changes, update this file through a Lattice story. Because
+If this decision changes, update this file through a Proofbound story. Because
 this file is under `docs/requirements/decisions/*.md`, DONE requires the local
 decision-doc 3x2 host verdict quorum.

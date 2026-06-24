@@ -1,0 +1,84 @@
+{
+  "principles": [
+    "id-recency carries zero material/scope information: a second run_start changes only the reviewRunId, not what was reviewed.",
+    "The live-snapshot freshness + scope checks are the staleness authorities; the id check only false-rejects substantively-current evidence.",
+    "Relax must be KIND-AWARE: passes become valid when material+scope fresh, but OPEN findings keep surfacing so a newer pass cannot hide an unresolved finding.",
+    "Never let an empty-set (no-signal) storyFilesHash enable the drift advisory."
+  ],
+  "drivers": [
+    "The quorum-blocking false-reject (a material-fresh pass stranded by a concurrent run_start forced a fresh REVIEW round in B-70e4).",
+    "Soundness of the REVIEW gate that feeds the 3x2 escalation quorum.",
+    "Preserving flow-stability's pass-supersession + open-finding-surfacing + resolved-finding-supersession semantics."
+  ],
+  "options": [
+    {
+      "name": "Relax id-recency kind-aware + EMPTY guard (+ doc reconcile)",
+      "pros": [
+        "Fixes the quorum-blocking false-reject",
+        "Sound: freshness+scope still reject genuine drift",
+        "Kind-aware preserves open-finding supersession (flow-stability green)",
+        "EMPTY guard closes the no-signal hole for all callers"
+      ],
+      "cons": [
+        "Touches a shared freshness function (broader blast radius — mitigated by test:all)",
+        "Leaves the run_start/pass_set lock window (benign once the race no longer false-rejects)"
+      ]
+    },
+    {
+      "name": "keep-strict (no change)",
+      "pros": [
+        "No code change"
+      ],
+      "cons": [
+        "Preserves the quorum-blocking false-reject for a check that adds no soundness"
+      ]
+    },
+    {
+      "name": "unify-lock-A only",
+      "pros": [
+        "Narrows the interleave window"
+      ],
+      "cons": [
+        "Does NOT fix the race: a legitimate later run_start still invalidates an earlier fresh pass under strict id-recency. Rejected as a standalone fix."
+      ]
+    },
+    {
+      "name": "blanket relax (both kinds) without the EMPTY guard",
+      "pros": [
+        "Smallest diff"
+      ],
+      "cons": [
+        "Breaks flow-stability's open-finding supersession (a newer pass could hide an unresolved finding); and is unsound under empty-set storyFilesHash drift. Rejected — caught by the spike + the adversarial review."
+      ]
+    }
+  ],
+  "chosen": "Relax id-recency kind-aware + EMPTY guard (+ doc reconcile)",
+  "rationale": "Locked by an adversarial design workflow (relax + mandatory EMPTY guard; lock-unification deferred) and refined by a red->spike->story spike that caught the open-finding regression of a blanket relax, hence the kind-aware validate-side relax. Verified red->green plus flow-stability green plus test:all 0 genuine FAIL.",
+  "preMortem": [
+    {
+      "scenario": "Empty-set storyFilesHash amplification",
+      "trigger": "A review run captured with an empty story diff (HEAD==main) persists storyFilesHash=sha256(''); under whole-tree drift the live diff is also empty",
+      "consequence": "The drift advisory accepts a stale-material run that vouches for nothing (worst on non-scope-protected stories)",
+      "mitigation": "Add the EMPTY_STORY_FILES_HASH guard to checkEvidenceFreshnessForGit so empty on either side falls through to strict materialHash; covered by the spike GUARD case"
+    },
+    {
+      "scenario": "Open finding hidden by a newer pass",
+      "trigger": "A blanket relax removes stale_run for findings too; a reviewer files an open finding on run-1 then a pass on run-2",
+      "consequence": "The newer pass hides the unresolved finding and the gate wrongly passes",
+      "mitigation": "Kind-aware relax: keep stale_run for findings; flow-stability case 2 asserts the open finding still blocks"
+    },
+    {
+      "scenario": "Scope-protected story scope drift",
+      "trigger": "A non-latest run was captured against an older scope contract/diff and the live scope changed",
+      "consequence": "Accepting it would miss a scope change",
+      "mitigation": "compareScopeBinding (691-699/837-857) still re-digests the live contract+diff and rejects scope drift; relax only removes id-recency, not the scope check"
+    },
+    {
+      "scenario": "Genuinely material-stale run accepted",
+      "trigger": "run-1's materialHash differs from live and storyFilesHash mismatches (real story-owned change)",
+      "consequence": "Stale evidence admitted",
+      "mitigation": "checkEvidenceFreshnessForGit still hard-rejects on materialHash mismatch + storyFilesHash mismatch; the spike GUARD case asserts a material-drifted run still rejects"
+    }
+  ],
+  "timestamp": "2026-06-24T12:55:50.068Z"
+}

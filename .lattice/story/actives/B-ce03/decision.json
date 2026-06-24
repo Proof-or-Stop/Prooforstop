@@ -1,0 +1,69 @@
+{
+  "principles": [
+    "Port behavior, not stale lifecycle metadata.",
+    "Preserve proof-or-stop blockers for true material/source changes.",
+    "Keep the patch narrow enough to validate under current main."
+  ],
+  "drivers": [
+    "Current local main lacks B-9dfb behavior while alternate history contains a verified implementation.",
+    "Hosts lose time when Lattice metadata-only dirty state blocks done_prepare at cleanTree.",
+    "Directly merging alternate main would import unrelated history."
+  ],
+  "options": [
+    {
+      "name": "A: Fresh story semantic port",
+      "pros": [
+        "Keeps current main coherent",
+        "Excludes old story metadata",
+        "Allows validation against current code"
+      ],
+      "cons": [
+        "Requires manual conflict-aware merge"
+      ]
+    },
+    {
+      "name": "B: Merge orchestrate/main",
+      "pros": [
+        "Would include B-9dfb commits quickly"
+      ],
+      "cons": [
+        "Imports unrelated commits",
+        "May conflict with current active stories",
+        "Could worsen stale story metadata"
+      ]
+    },
+    {
+      "name": "C: Recreate old B-9dfb worktree",
+      "pros": [
+        "Preserves original story identity superficially"
+      ],
+      "cons": [
+        "Resolver already shows broken worktree binding",
+        "Would fight Lattice lifecycle metadata instead of fixing current main"
+      ]
+    }
+  ],
+  "chosen": "A: Fresh story semantic port",
+  "rationale": "Choose a fresh semantic port because the desired asset is the behavior and regression coverage, not the old stale story binding or the alternate-main commit graph.",
+  "preMortem": [
+    {
+      "scenario": "Patch is applied too broadly and imports stale B-9dfb story metadata.",
+      "trigger": "Using git cherry-pick or checkout without path filtering.",
+      "consequence": "Current story index gets polluted or duplicate lifecycle state appears.",
+      "mitigation": "Only edit the six allowed target files and keep .lattice/story/actives/B-9dfb excluded."
+    },
+    {
+      "scenario": "Metadata-only allowance accidentally permits source changes.",
+      "trigger": "Dirty classification checks only destination path or ignores rename original path.",
+      "consequence": "done_prepare could mutate with uncommitted material changes present.",
+      "mitigation": "Require every dirty entry path/originalPath to classify as Lattice story metadata and add source/rename blocker smokes."
+    },
+    {
+      "scenario": "lifecycle_check reports readiness too optimistically.",
+      "trigger": "Missing done_prepare report becomes non-blocking even when DONE oracle rows have blockers.",
+      "consequence": "Host receives a false localReady signal.",
+      "mitigation": "Make advisory status conditional on no DONE oracle blockers and cover with ready fixture smoke."
+    }
+  ],
+  "timestamp": "2026-06-24T12:58:56.243Z"
+}

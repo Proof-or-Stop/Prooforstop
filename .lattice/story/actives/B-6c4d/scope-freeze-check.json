@@ -1,0 +1,49 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-6c4d",
+  "checkedAt": "2026-06-24T12:54:16.043Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "01ff6e651527a450232c051c290e3a2a47a3d5be7d242c6b0c7842c8a4649a53",
+  "executionBoundaryHash": "6cfdb9475ecbc12803d572517311a290536495627b2a22438e6389349a11450a",
+  "freshnessHash": "872f33873158b14621ba5016ee020dd1ec8a94f8aed137ac382b41a60f11f6d0",
+  "effectiveExcludedKeywords": [
+    "Any whole-tree materialHash recompute redesign",
+    "Authority",
+    "customerKeyRef",
+    "keep-strict (no fix)",
+    "Layer4",
+    "Option A lock unification (unifying review-runs.lock / review-passes.lock) — deferred follow-up, not in this change",
+    "repair UX",
+    "The delivery-check drift-advisory (already shipped in friction #1 / B-d243)"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Any whole-tree materialHash recompute redesign",
+      "source": "scopeBoundary.excluded",
+      "text": "Any whole-tree materialHash recompute redesign",
+      "excluded": true
+    },
+    {
+      "keyword": "keep-strict (no fix)",
+      "source": "scopeBoundary.excluded",
+      "text": "keep-strict (no fix)",
+      "excluded": true
+    },
+    {
+      "keyword": "Option A lock unification (unifying review-runs.lock / review-passes.lock) — deferred follow-up, not in this change",
+      "source": "scopeBoundary.excluded",
+      "text": "Option A lock unification (unifying review-runs.lock / review-passes.lock) — deferred follow-up, not in this change",
+      "excluded": true
+    },
+    {
+      "keyword": "The delivery-check drift-advisory (already shipped in friction #1 / B-d243)",
+      "source": "scopeBoundary.excluded",
+      "text": "The delivery-check drift-advisory (already shipped in friction #1 / B-d243)",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "2ce84da9f37047a24b38538d27da0b7811a829edaef46cd6d1d7a1dae7157b51"
+}

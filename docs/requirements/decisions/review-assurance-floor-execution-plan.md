@@ -7,7 +7,7 @@ Created: 2026-06-19
 
 ## Decision
 
-Lattice should add a mandatory review assurance floor for code-changing stories: ordinary code diffs require at least one review round before DONE, failure or bug signals escalate to three local single-host rounds, and high-risk lifecycle/gate/Authority/process-fact work keeps the stronger three-round two-host or explicit degraded-single-host path.
+Proofbound should add a mandatory review assurance floor for code-changing stories: ordinary code diffs require at least one review round before DONE, failure or bug signals escalate to three local single-host rounds, and high-risk lifecycle/gate/Authority/process-fact work keeps the stronger three-round two-host or explicit degraded-single-host path.
 
 ## Context
 
@@ -15,7 +15,7 @@ A small development task can look low risk during PLAN but still ship a bug when
 
 ## Scope
 
-Applies to future Lattice CLI lifecycle policy and DONE closure design for code-changing stories. This document is a planning and policy artifact only; runtime DONE oracle implementation, storage fields, and exact row ids are future work.
+Applies to future Proofbound CLI lifecycle policy and DONE closure design for code-changing stories. This document is a planning and policy artifact only; runtime DONE oracle implementation, storage fields, and exact row ids are future work.
 
 ## Non-Goals
 
@@ -114,7 +114,7 @@ capability.
 
 ## Supersession
 
-If this decision changes, update this file through a Lattice story. Because
+If this decision changes, update this file through a Proofbound story. Because
 this file is under `docs/requirements/decisions/*.md`, future edits should use
 the current story-lifecycle review escalation policy: direct decision-doc edits
 are diagnostic/classification inputs, and DONE requires 3x2 only when the

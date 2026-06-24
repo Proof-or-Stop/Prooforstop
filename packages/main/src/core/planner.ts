@@ -642,7 +642,7 @@ function verificationIntentFor(title: string): VerificationIntent {
   return {
     happy: [{ id: `${slug(title)}:happy`, desc: `Verify the requested behavior for "${title}" succeeds on the normal path.`, type: 'cli', requiredIn: 'balanced', priority: 'must' }],
     edge: [{ id: `${slug(title)}:edge`, desc: `Verify bounded failure or missing-input handling for "${title}".`, type: 'cli', requiredIn: 'strict', priority: 'should' }],
-    adversarial: [{ id: `${slug(title)}:adversarial`, desc: 'Verify the implementation does not overclaim DONE or bypass Lattice evidence/receipt gates.', type: 'logic', requiredIn: 'strict', priority: 'must' }],
+    adversarial: [{ id: `${slug(title)}:adversarial`, desc: 'Verify the implementation does not overclaim DONE or bypass Proofbound evidence/receipt gates.', type: 'logic', requiredIn: 'strict', priority: 'must' }],
   };
 }
 
@@ -672,10 +672,10 @@ function buildChecklist(request: string, workflow: DevelopmentWorkflow): Planner
   const compact = request.length > 140 ? `${request.slice(0, 137)}...` : request;
   return [
     {
-      title: 'Implement the requested Lattice change',
+      title: 'Implement the requested Proofbound change',
       context: `Implement the smallest verifiable scope for: ${compact}`,
       relatedDocs: ['docs/requirements/decisions/lattice-authority-live-integration.md'],
-      verificationIntent: verificationIntentFor('Implement the requested Lattice change'),
+      verificationIntent: verificationIntentFor('Implement the requested Proofbound change'),
     },
     {
       title: 'Verify evidence and DONE boundaries',
@@ -699,7 +699,7 @@ function interviewQuestions(): PlannerQuestion[] {
 
 function decisionQuestions(): PlannerQuestion[] {
   return [
-    { id: 'D-001', question: 'Confirm whether this run may create or mutate a Lattice Story/job.', why: 'Story/job creation changes workflow state.' },
+    { id: 'D-001', question: 'Confirm whether this run may create or mutate a Proofbound Story/job.', why: 'Story/job creation changes workflow state.' },
   ];
 }
 
@@ -820,7 +820,7 @@ export function buildPlannerDraft(root: string, args: PlannerDraftArgs = {}, now
     : `prun-${digest.slice(0, 12)}-${interactionMode}`;
   const title = developmentWorkflow === 'source_aligned_redevelopment'
     ? `Source-aligned redevelopment to ${args.targetLanguage || 'target language'}`
-    : request.split(/\n+/)[0]?.trim().slice(0, 96) || 'Lattice planner request';
+    : request.split(/\n+/)[0]?.trim().slice(0, 96) || 'Proofbound planner request';
   // Fork the Story name on a forced run so story_create's normalized-name
   // idempotency does NOT reuse the default Story; a repeated forced run with the
   // same reason still collapses (deterministic), so forced scopes stay idempotent.
@@ -931,7 +931,7 @@ export function reviewPlannerDraft(draft: PlannerDraft, now = new Date()): Plann
 // argv carries no context that could leak — the executor digests it and never
 // surfaces it raw. `fake` needs no argv (it is deterministic and spawns nothing).
 function providerStepArgv(provider: 'codex' | 'claude', storyId: string): string[] {
-  const prompt = `Implement the smallest scoped step for Lattice story ${storyId} per its checklist; do not over-optimize.`;
+  const prompt = `Implement the smallest scoped step for Proofbound story ${storyId} per its checklist; do not over-optimize.`;
   return provider === 'codex'
     ? ['exec', '--skip-git-repo-check', prompt]
     : ['-p', prompt, '--output-format', 'json'];

@@ -312,9 +312,16 @@ export function checkEvidenceFreshnessForGit(
           materialFiles: [],
         };
       }
-      if (evidenceStoryFilesHash) {
+      // review-run-binding-race (friction #2) soundness guard: an EMPTY_STORY_FILES_HASH
+      // (sha256 of an empty story-owned diff — e.g. HEAD==main / no story branch) is a
+      // NO-SIGNAL value, not a real vouching hash. It must never enable the drift advisory
+      // (else a stale-material record whose story diff is empty on both sides would ride
+      // the downgrade). Skip the advisory when either side is the empty-set value; control
+      // falls through to the strict materialHash hard-reject below. Mirrors the delivery-check
+      // empty-set guard, generalized here for ALL checkEvidenceFreshnessForGit callers.
+      if (evidenceStoryFilesHash && evidenceStoryFilesHash !== EMPTY_STORY_FILES_HASH) {
         const storyFilesHash = currentStoryFilesHash(gitCwd, 'HEAD', metadataRoot);
-        if (storyFilesHash && storyFilesHash === evidenceStoryFilesHash) {
+        if (storyFilesHash && storyFilesHash !== EMPTY_STORY_FILES_HASH && storyFilesHash === evidenceStoryFilesHash) {
           return {
             fresh: true,
             reason: 'evidence storyFilesHash matches current story-owned file state; whole-tree materialHash drift requires re-attestation advisory',

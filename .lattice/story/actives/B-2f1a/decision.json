@@ -1,0 +1,67 @@
+{
+  "principles": [
+    "Change only what a user reads (prose + user-facing strings), never a load-bearing identifier",
+    "Phase the rebrand so no single story can break the build, audit trail, or evidence verification",
+    "Brand-first is the lowest-risk starting point"
+  ],
+  "drivers": [
+    "18k lattice hits are mostly internal identifiers; blind rename is catastrophic",
+    "the .lattice/ dir is self-referential (the workflow uses it) so it must be a separate late phase"
+  ],
+  "options": [
+    {
+      "name": "Phase-1 user-visible branding only (keep all identifiers)",
+      "pros": [
+        "lowest risk",
+        "high user-visible value",
+        "no build/audit/evidence collateral"
+      ],
+      "cons": [
+        "docs temporarily mix Proofbound brand with lattice commands until Phase 3"
+      ]
+    },
+    {
+      "name": "Big-bang full Lattice->Proofbound rename",
+      "pros": [
+        "done in one shot"
+      ],
+      "cons": [
+        "breaks build + .lattice audit dir + @lattice packages + signed evidence",
+        "unreviewable",
+        "catastrophic"
+      ]
+    },
+    {
+      "name": "Direct mechanical commit (no Lattice)",
+      "pros": [
+        "fast"
+      ],
+      "cons": [
+        "Phase 1 edits packages/*/src strings = code, so it goes through Lattice"
+      ]
+    }
+  ],
+  "chosen": "Phase-1 user-visible branding only (keep all identifiers)",
+  "rationale": "Lowest-risk, high user-visible value, zero load-bearing-identifier collateral; the phased program isolates the dangerous .lattice-dir rename to a separate late phase.",
+  "preMortem": [
+    {
+      "scenario": "over-reach into identifiers breaks the build",
+      "trigger": "a blind sed also changes lowercase `lattice` commands / .lattice paths / @lattice imports / schema-ids / salts",
+      "consequence": "build/tests fail or audit-trail/evidence verification breaks",
+      "mitigation": "replace only the capitalized brand word Lattice in prose/strings; keep lowercase identifiers; grep-verify the lattice binary, @lattice packages, .lattice paths, schema-ids and salts are byte-unchanged after the sweep"
+    },
+    {
+      "scenario": "docs mix Proofbound brand with lattice commands and confuse readers",
+      "trigger": "Phase 1 renames the brand but keeps the lattice binary until Phase 3",
+      "consequence": "a doc says Proofbound CLI but shows `lattice validate`",
+      "mitigation": "acceptable and documented in the CHANGELOG (phased rebrand); Phase 3 renames the binary"
+    },
+    {
+      "scenario": "a brand string embedded in a code identifier gets changed",
+      "trigger": "Lattice appears inside a TypeScript identifier or type name in src",
+      "consequence": "compile error",
+      "mitigation": "the full test suite (tsc build) catches it; restrict src edits to string literals / comments / --help text, not identifiers"
+    }
+  ],
+  "timestamp": "2026-06-24T12:15:33.478Z"
+}

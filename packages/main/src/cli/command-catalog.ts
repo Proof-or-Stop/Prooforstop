@@ -555,7 +555,7 @@ Behavior:
     outcomeKind: z.enum(STORY_OUTCOME_KINDS).optional().describe('DONE outcome classification: success / blocked / audit_only'),
     limitations: z.string().describe('Known limitations or design deviations (write "none — fully covered" if none).'),
     pitfalls: z.string().describe('Pitfalls record: where it got stuck, how many retries, and what the next person should know (at least 10 characters; no empty platitudes).'),
-    skipReasons: z.record(z.string(), z.string()).optional().describe('{case name: reason}; explain each sandbox:false case that was not run, otherwise Lattice reports missing entries.'),
+    skipReasons: z.record(z.string(), z.string()).optional().describe('{case name: reason}; explain each sandbox:false case that was not run, otherwise Proofbound reports missing entries.'),
   }},
   { name: 'summary_get', description: 'Read story summary', schema: {
     storyId: z.string().describe('Story ID'),
@@ -889,15 +889,15 @@ Behavior:
   { name: 'aux_doc_list', description: 'List project documents, used to choose relatedDocs during PLAN', schema: {
     format: z.enum(['text', 'json']).optional().describe('Output format (default: text).'),
   }},
-  { name: 'capability_list', description: 'List host-neutral Lattice capability profiles and degradations (text/json)', schema: {
+  { name: 'capability_list', description: 'List host-neutral Proofbound capability profiles and degradations (text/json)', schema: {
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
   }},
-  { name: 'capability_probe', description: 'Probe one host-neutral Lattice capability profile and visible degradations (text/json)', schema: {
+  { name: 'capability_probe', description: 'Probe one host-neutral Proofbound capability profile and visible degradations (text/json)', schema: {
     host: z.string().describe('Host profile id, for example codex, claude-code, local-runner, browser, server, desktop-app'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
   }},
-  { name: 'agent_prompt', description: 'Print the canonical Lattice agent prompt body for a role from the package prompt registry (host-neutral single source; Claude thin-shims fetch from here, Codex resolves the same registry)', schema: {
-    role: z.string().min(1).describe('Lattice agent role name, e.g. lattice-implementer, lattice-review-concept (the template basename without .md)'),
+  { name: 'agent_prompt', description: 'Print the canonical Proofbound agent prompt body for a role from the package prompt registry (host-neutral single source; Claude thin-shims fetch from here, Codex resolves the same registry)', schema: {
+    role: z.string().min(1).describe('Proofbound agent role name, e.g. lattice-implementer, lattice-review-concept (the template basename without .md)'),
   }},
   { name: 'capability_claim_evaluate', description: 'Evaluate a local capability claim fail-closed from lower-layer suite reports (text/json)', schema: {
     target: z.string().optional().describe('Requested claim target, for example development, engineering, loop-engineering, or production-safety'),
@@ -943,14 +943,14 @@ Behavior:
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
     json: z.boolean().optional().describe('Shortcut for --format=json'),
   }},
-  { name: 'host_list', description: 'List Lattice host profiles, visible degradations, and migration authority boundaries (text/json). Alias: lattice host list', schema: {
+  { name: 'host_list', description: 'List Proofbound host profiles, visible degradations, and migration authority boundaries (text/json). Alias: lattice host list', schema: {
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
   }},
-  { name: 'host_probe', description: 'Probe one Lattice host profile without claiming production authority (text/json). Alias: lattice host probe', schema: {
+  { name: 'host_probe', description: 'Probe one Proofbound host profile without claiming production authority (text/json). Alias: lattice host probe', schema: {
     host: z.string().describe('Host profile id, for example codex, claude-code, local-runner, browser, server, desktop-app'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
   }},
-  { name: 'host_status', description: 'Report overflow-readiness status for one Lattice host without changing authority (text/json). Alias: lattice host status', schema: {
+  { name: 'host_status', description: 'Report overflow-readiness status for one Proofbound host without changing authority (text/json). Alias: lattice host status', schema: {
     host: z.string().describe('Host profile id, for example claude-code or codex'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
     json: z.boolean().optional().describe('Shortcut for --format=json'),
@@ -966,11 +966,11 @@ Behavior:
     json: z.boolean().optional().describe('Shortcut for --format=json'),
     output: z.string().optional().describe('Optional file path for runtime probe JSON; refuses to overwrite'),
   }},
-  { name: 'host_install', description: 'Show dry-run Lattice host install guidance only; no third-party installs are executed. Alias: lattice host install', schema: {
+  { name: 'host_install', description: 'Show dry-run Proofbound host install guidance only; no third-party installs are executed. Alias: lattice host install', schema: {
     host: z.string().describe('Host profile id to show guidance for'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
   }},
-  { name: 'lattice_config_doctor', description: 'Report Lattice CLI 0.3.8 migration readiness, Mac App demotion status, and wrapper-root gitRoot diagnostics (text/json). Alias: lattice config doctor', schema: {
+  { name: 'lattice_config_doctor', description: 'Report Proofbound CLI 0.3.8 migration readiness, Mac App demotion status, and wrapper-root gitRoot diagnostics (text/json). Alias: lattice config doctor', schema: {
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
     json: z.boolean().optional().describe('Shortcut for --format=json'),
   }},
@@ -980,13 +980,13 @@ Behavior:
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
     json: z.boolean().optional().describe('Shortcut for --format=json'),
   }},
-  { name: 'rollout_check', description: 'Run read-only cross-project Lattice rollout diagnostics for install drift, managed assets, runtime footprint, and transcript scope. Alias: lattice rollout check', schema: {
+  { name: 'rollout_check', description: 'Run read-only cross-project Proofbound rollout diagnostics for install drift, managed assets, runtime footprint, and transcript scope. Alias: lattice rollout check', schema: {
     projects: z.union([z.string(), z.array(z.string())]).optional().describe('Comma-separated project paths or JSON array; omit to scan the current root'),
     maxDepth: z.number().optional().describe('Discovery depth when projects is omitted (default 1)'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
     json: z.boolean().optional().describe('Shortcut for --format=json'),
   }},
-  { name: 'baseline_run', description: 'Run one executable Lattice baseline scenario and write required final-report artifacts. Alias: lattice baseline run', schema: {
+  { name: 'baseline_run', description: 'Run one executable Proofbound baseline scenario and write required final-report artifacts. Alias: lattice baseline run', schema: {
     baselineId: z.string().describe('Baseline scenario id (NL-*/RED-* baseline suite, or legacy ENG-/AUTH-/CLAIM-* Baseline 2-5 id)'),
     runId: z.string().optional().describe('Optional run id'),
     artifactsRoot: z.string().optional().describe('Baseline artifacts root (default .lattice/artifacts/baseline)'),
@@ -1041,7 +1041,7 @@ Behavior:
     json: z.boolean().optional().describe('Output JSON'),
     format: z.enum(['text', 'json']).optional().describe('Output format'),
   }},
-  { name: 'baseline_suite_report', description: 'Aggregate Lattice baseline final-report.json files and write baseline-suite-report.json/md. Alias: lattice baseline suite report', schema: {
+  { name: 'baseline_suite_report', description: 'Aggregate Proofbound baseline final-report.json files and write baseline-suite-report.json/md. Alias: lattice baseline suite report', schema: {
     layer: z.enum(['development', 'engineering', 'loop-engineering', 'production-safety', 'capability-claim']).optional().describe('Legacy Baseline 2-5 layer to aggregate'),
     artifactsRoot: z.string().optional().describe('Baseline artifacts root (default .lattice/artifacts/baseline)'),
     reports: z.union([z.string(), z.array(z.string())]).optional().describe('Comma-separated final-report.json files or directories; defaults to the command report root'),
@@ -1066,7 +1066,7 @@ Behavior:
     policyMode: z.string().optional().describe('Optional workflow policy profile for receipt eligibility lookup'),
     now: z.string().optional().describe('Optional timestamp for deterministic receipt freshness checks'),
   }},
-  { name: 'conduit_status', description: 'Report Lattice conduit status and enforce readiness diagnostics without provisioning a runner or production authority. Alias: lattice conduit status', schema: {
+  { name: 'conduit_status', description: 'Report Proofbound conduit status and enforce readiness diagnostics without provisioning a runner or production authority. Alias: lattice conduit status', schema: {
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
     json: z.boolean().optional().describe('Shortcut for --format=json'),
   }},
@@ -1074,7 +1074,7 @@ Behavior:
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
     json: z.boolean().optional().describe('Shortcut for --format=json'),
   }},
-  { name: 'story_export', description: 'Export a Lattice Story as Canonical Story v0 without claiming production authority', schema: {
+  { name: 'story_export', description: 'Export a Proofbound Story as Canonical Story v0 without claiming production authority', schema: {
     storyId: z.string().describe('Story ID to export'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
     output: z.string().optional().describe('Optional file path for canonical-story JSON'),
@@ -1084,14 +1084,14 @@ Behavior:
     activeOnly: z.boolean().optional().describe('Default true; pass false to include DONE/DISCARDED stories'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default json for machine consumers)'),
   }},
-  { name: 'observability_snapshot', description: 'Build a host-neutral Lattice observability snapshot (authority ladder, story board, capability matrix, recovery, parallel) from story_authority_resolve without claiming production authority. Alias: lattice observability snapshot', schema: {
+  { name: 'observability_snapshot', description: 'Build a host-neutral Proofbound observability snapshot (authority ladder, story board, capability matrix, recovery, parallel) from story_authority_resolve without claiming production authority. Alias: lattice observability snapshot', schema: {
     storyIds: z.array(z.string()).optional().describe('Restrict snapshot to specific story ids'),
     activeOnly: z.boolean().optional().describe('Default true; pass false to include DONE/DISCARDED stories'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
     json: z.boolean().optional().describe('Shortcut for --format=json'),
     output: z.string().optional().describe('Optional file path for snapshot JSON; refuses to overwrite'),
   }},
-  { name: 'handoff_create', description: 'Create a Lattice handoff pack from one host to another without manufacturing production DONE. Alias: lattice handoff create', schema: {
+  { name: 'handoff_create', description: 'Create a Proofbound handoff pack from one host to another without manufacturing production DONE. Alias: lattice handoff create', schema: {
     storyId: z.string().describe('Story ID to include in the handoff pack'),
     fromHost: z.string().describe('Source host profile id'),
     toHost: z.string().describe('Target host profile id'),
@@ -1109,12 +1109,12 @@ Behavior:
     json: z.boolean().optional().describe('Shortcut for --format=json'),
     output: z.string().optional().describe('Optional file path for handoff-pack JSON'),
   }},
-  { name: 'handoff_inspect', description: 'Inspect a Lattice handoff pack and show capability deltas, degradations, evidence refs, and authority boundary. Alias: lattice handoff inspect', schema: {
+  { name: 'handoff_inspect', description: 'Inspect a Proofbound handoff pack and show capability deltas, degradations, evidence refs, and authority boundary. Alias: lattice handoff inspect', schema: {
     file: z.string().describe('Handoff pack JSON file'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
     json: z.boolean().optional().describe('Shortcut for --format=json'),
   }},
-  { name: 'handoff_accept', description: 'Accept a Lattice handoff pack as a process-event style projection without changing authority. Alias: lattice handoff accept', schema: {
+  { name: 'handoff_accept', description: 'Accept a Proofbound handoff pack as a process-event style projection without changing authority. Alias: lattice handoff accept', schema: {
     file: z.string().describe('Handoff pack JSON file'),
     acceptedByHost: z.string().optional().describe('Accepting host profile id; defaults to the handoff target host'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
@@ -1439,14 +1439,14 @@ Behavior:
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
     output: z.string().optional().describe('Optional file path for evidence inspection JSON; refuses to overwrite'),
   }},
-  { name: 'parallel_wave_create', description: 'Create a Lattice Parallel Wave scheduling projection over Canonical Stories without authority changes', schema: {
+  { name: 'parallel_wave_create', description: 'Create a Proofbound Parallel Wave scheduling projection over Canonical Stories without authority changes', schema: {
     storyIds: z.array(z.string()).optional().describe('Story IDs to include; omit to analyze active stories'),
     hosts: z.array(z.string()).optional().describe('Host profile ids to consider; defaults to codex'),
     waveId: z.string().optional().describe('Optional stable wave id; defaults to a deterministic id from story refs'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
     output: z.string().optional().describe('Optional file path for wave JSON; refuses to overwrite'),
   }},
-  { name: 'parallel_wave_inspect', description: 'Inspect a Lattice Parallel Wave JSON file without refreshing evidence or authority', schema: {
+  { name: 'parallel_wave_inspect', description: 'Inspect a Proofbound Parallel Wave JSON file without refreshing evidence or authority', schema: {
     file: z.string().describe('Parallel Wave JSON file'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
     output: z.string().optional().describe('Optional file path for inspection JSON; refuses to overwrite'),
@@ -1499,7 +1499,7 @@ Behavior:
   }},
 
   // Doctor (health issue inspection).
-  { name: 'doctor', description: 'View Lattice health issues (silent-caught PERSIST fails); scan orphan worktrees', schema: {
+  { name: 'doctor', description: 'View Proofbound health issues (silent-caught PERSIST fails); scan orphan worktrees', schema: {
     format: z.enum(['text', 'json']).optional().describe('Output format (default: text).'),
     limit: z.number().optional().describe('Maximum number of entries to read (default: 1000).'),
     repair: z.boolean().optional().describe('Clean DONE/DISCARDED terminal worktree registrations, orphan directories, and prunable metadata.'),
@@ -1524,10 +1524,10 @@ Behavior:
   { name: 'codex_doctor', description: 'Report Codex adapter diagnostics status', schema: {
     json: z.boolean().optional().describe('Structured JSON output.'),
   }},
-  { name: 'check', description: 'Check Lattice asset/template drift; --apply/--upgrade sync safe items explicitly', schema: {
+  { name: 'check', description: 'Check Proofbound asset/template drift; --apply/--upgrade sync safe items explicitly', schema: {
     json: z.boolean().optional().describe('Structured JSON output.'),
     apply: z.boolean().optional().describe('Sync MISSING/STALE_SAFE managed assets; does not overwrite CASE_MISMATCH/STALE_LOCAL_EDIT/INCOMPATIBLE.'),
-    upgrade: z.boolean().optional().describe('Sync MISSING/STALE_SAFE managed assets to current Lattice templates; equivalent to --apply.'),
+    upgrade: z.boolean().optional().describe('Sync MISSING/STALE_SAFE managed assets to current Proofbound templates; equivalent to --apply.'),
     reviewLocalEdits: z.boolean().optional().describe('Output structured manual review summary for STALE_LOCAL_EDIT.'),
     profile: z.enum(['codex', 'claude', 'all', 'core']).optional().describe('Override auto-detected init profile.'),
     assetMode: z.enum(['full', 'thin']).optional().describe('Override Codex prompt asset mode; full=generate .lattice-codex/agents, thin=use prompt registry.'),
@@ -1558,7 +1558,7 @@ Behavior:
     agent: z.string().optional().describe('Caller identity (audit field, defaults from LATTICE_AGENT).'),
   }},
 
-  // Verifier (Lattice built-in code verification).
+  // Verifier (Proofbound built-in code verification).
   { name: 'validate', description: 'Run project verification (static, logic, and integration tests)', longHelp: VALIDATE_LONG, schema: {
     full: z.union([z.string(), z.boolean()]).optional().describe('Include real-machine tests (--full or --full=PvE to filter by name).'),
     focus: z.string().optional().describe('Run an explicit focused validate profile, for example --focus=fast. Configured commands must opt in with focus tags; no-focus validate remains full.'),
@@ -1591,8 +1591,8 @@ Behavior:
     result: z.string().describe('JSON string output by evaluator.'),
   }},
 
-  // Finding (Lattice reviewer finding).
-  { name: 'finding_add', description: 'Add a finding (Lattice reviewer finding)', schema: {
+  // Finding (Proofbound reviewer finding).
+  { name: 'finding_add', description: 'Add a finding (Proofbound reviewer finding)', schema: {
     storyId: z.string().describe('Story ID'),
     desc: z.string().describe('Finding description.'),
     severity: z.enum(['critical', 'high', 'medium', 'low']).describe('Severity.'),
@@ -1937,11 +1937,11 @@ Behavior:
     explicitExcludes: z.array(z.string()).optional().describe('Files explicitly out of scope'),
     scopeChangeReason: z.string().optional().describe('Reason recorded on the generated contract'),
   }},
-  { name: 'guard_session_start', description: 'Start (or restart) a Lattice-managed scope-guard session projection for a story', schema: {
+  { name: 'guard_session_start', description: 'Start (or restart) a Proofbound-managed scope-guard session projection for a story', schema: {
     storyId: z.string().describe('Story ID'),
     provider: z.string().min(1, 'provider is required').describe('Agent provider runtime (e.g. claude-code, codex). Guard mode depends on provider and context flags.'),
     nativeHookVerified: z.boolean().optional().describe('Set true when the host-native PreToolUse hook is confirmed installed (Claude Code .claude/settings.json or Codex .codex/hooks.json), enabling native-pretool mode.'),
-    viaDispatch: z.boolean().optional().describe('(Codex/Antigravity only; Gemini legacy) Set true when running via Lattice dispatch/pre-apply flow, enabling wrapped-preapply mode. Without this, those hosts use watcher-fallback.'),
+    viaDispatch: z.boolean().optional().describe('(Codex/Antigravity only; Gemini legacy) Set true when running via Proofbound dispatch/pre-apply flow, enabling wrapped-preapply mode. Without this, those hosts use watcher-fallback.'),
     json: z.boolean().optional().describe('Output structured JSON'),
   }},
   { name: 'guard_session_status', description: 'Read the current guard session projection for a story', schema: {
@@ -1957,7 +1957,7 @@ Behavior:
   // Returns allow/deny/ask/shadow verdict before the write lands.
   // Fail-closed on corrupt scope contracts or ambiguous active guard sessions.
   // Backward-compatible allow when no guard session or story context exists.
-  { name: 'prewrite_guard_check', description: 'Pre-write scope enforcement for Claude Code PreToolUse hooks and Lattice dispatch pre-apply checks', schema: {
+  { name: 'prewrite_guard_check', description: 'Pre-write scope enforcement for Claude Code PreToolUse hooks and Proofbound dispatch pre-apply checks', schema: {
     storyId: z.string().optional().describe('Story ID (auto-discovered from active guard sessions when absent)'),
     provider: z.string().optional().describe('Agent provider (informational; used to log who triggered the check)'),
     toolName: z.string().describe('Name of the write-like tool being invoked (e.g. Edit, Write, MultiEdit, NotebookEdit)'),
@@ -2001,14 +2001,14 @@ Behavior:
     authorityURL: z.string().optional().describe('Authority server base URL override'),
     authorityTimeoutMS: z.number().optional().describe('Request timeout override'),
   }},
-  { name: 'authority_receipt_fetch', description: 'Fetch a native Lattice Authority receipt by id and optionally write it to a local JSON file. Alias: lattice authority receipt fetch', schema: {
+  { name: 'authority_receipt_fetch', description: 'Fetch a native Proofbound Authority receipt by id and optionally write it to a local JSON file. Alias: lattice authority receipt fetch', schema: {
     receiptId: z.string().describe('Native Authority receipt id to fetch'),
     outputFile: z.string().optional().describe('Optional output JSON file path'),
     authorityURL: z.string().optional().describe('Override LATTICE_AUTHORITY_URL'),
     json: z.boolean().optional().describe('Output JSON'),
     format: z.enum(['text', 'json']).optional().describe('Output format'),
   }},
-  { name: 'autopilot_execute', description: 'Execute a bounded unattended Lattice autopilot loop. Local mode runs local Lattice commands, shadow warns on authority readiness, authority fails closed for DONE without a verified receipt. Alias: lattice autopilot execute', schema: {
+  { name: 'autopilot_execute', description: 'Execute a bounded unattended Proofbound autopilot loop. Local mode runs local Proofbound commands, shadow warns on authority readiness, authority fails closed for DONE without a verified receipt. Alias: lattice autopilot execute', schema: {
     mode: z.enum(['local', 'shadow', 'authority']).optional().describe('Autopilot mode: local, shadow, or authority'),
     storyId: z.string().optional().describe('Story ID to bind the autopilot executor to'),
     until: z.enum(['PLAN', 'DEV', 'REVIEW', 'TEST', 'DONE']).optional().describe('Target phase to execute toward'),
@@ -2023,7 +2023,7 @@ Behavior:
     claudeCommand: z.string().optional().describe('Claude Code CLI executable for repair attempts (default claude)'),
     claudePermissionMode: z.string().optional().describe('Optional Claude Code CLI --permission-mode value for repair attempts'),
     maxRepairAttempts: z.number().optional().describe('Maximum Claude repair attempts per failed step when allowClaudeRepair=true'),
-    commandTimeoutMS: z.number().optional().describe('Timeout for each Lattice executor command in milliseconds'),
+    commandTimeoutMS: z.number().optional().describe('Timeout for each Proofbound executor command in milliseconds'),
     claudeTimeoutMS: z.number().optional().describe('Timeout for each Claude repair command in milliseconds'),
     authorityURL: z.string().optional().describe('Authority server base URL override'),
     authorityTimeoutMS: z.number().optional().describe('Request timeout override'),
@@ -2031,9 +2031,9 @@ Behavior:
     authorityPublicKey: z.string().optional().describe('Legacy base64 subject-receipt public key; does not satisfy native authority DONE'),
     receiptSubjectId: z.string().optional().describe('Legacy expected subjectId; does not satisfy native authority DONE'),
     receiptSubjectKind: z.string().optional().describe('Legacy expected subjectKind; does not satisfy native authority DONE'),
-    serverPublicKey: z.string().optional().describe('Native Lattice Authority Ed25519 server public key, hex by default'),
+    serverPublicKey: z.string().optional().describe('Native Proofbound Authority Ed25519 server public key, hex by default'),
     serverPublicKeyEncoding: z.enum(['hex', 'base64', 'auto']).optional().describe('Encoding of serverPublicKey (default auto)'),
-    serverKeyId: z.string().optional().describe('Expected native Lattice Authority serverKeyId'),
+    serverKeyId: z.string().optional().describe('Expected native Proofbound Authority serverKeyId'),
     receiptKind: z.string().optional().describe('Expected native receipt kind, e.g. gate_decision'),
     receiptProjectId: z.string().optional().describe('Expected native receipt projectId'),
     receiptStoryId: z.string().optional().describe('Expected native receipt storyId'),
@@ -2047,7 +2047,7 @@ Behavior:
     json: z.boolean().optional().describe('Output JSON'),
     format: z.enum(['text', 'json']).optional().describe('Output format'),
   }},
-  { name: 'planner_draft', description: 'Create a structured Lattice planner draft from a natural-language request. Alias: lattice planner draft', schema: {
+  { name: 'planner_draft', description: 'Create a structured Proofbound planner draft from a natural-language request. Alias: lattice planner draft', schema: {
     request: z.string().optional().describe('One sentence or paragraph request'),
     requestFile: z.string().optional().describe('Request document path'),
     interactionMode: z.enum(['autonomous', 'interview', 'decision-gated']).optional().describe('Planner interaction mode (default autonomous)'),
@@ -2079,7 +2079,7 @@ Behavior:
     json: z.boolean().optional().describe('Output JSON'),
     format: z.enum(['text', 'json']).optional().describe('Output format'),
   }},
-  { name: 'planner_create_story', description: 'Create a Lattice Story from a reviewed planner draft. Alias: lattice planner create-story', schema: {
+  { name: 'planner_create_story', description: 'Create a Proofbound Story from a reviewed planner draft. Alias: lattice planner create-story', schema: {
     draftFile: z.string().optional().describe('Planner draft JSON file'),
     runId: z.string().optional().describe('Planner run id'),
     forceNew: z.boolean().optional().describe('Force a new Story through the planner-controlled path'),
@@ -2224,7 +2224,7 @@ Behavior:
     json: z.boolean().optional().describe('Output JSON'),
     format: z.enum(['text', 'json']).optional().describe('Output format'),
   }},
-  { name: 'authority_job_create', description: 'Submit a planner JobPlan as a queued Lattice Authority job; honors server_delegated senior bundles. Alias: lattice authority job create', schema: {
+  { name: 'authority_job_create', description: 'Submit a planner JobPlan as a queued Proofbound Authority job; honors server_delegated senior bundles. Alias: lattice authority job create', schema: {
     jobPlanFile: z.string().optional().describe('JobPlan JSON file produced by lattice planner run/create-job'),
     runId: z.string().optional().describe('Planner run id with a persisted jobPlan'),
     provider: z.string().min(1).optional().describe('Authority provider declaration for the queued job; required unless the JobPlan explicitly opts into a non-fake provider'),
@@ -2297,7 +2297,7 @@ Behavior:
     json: z.boolean().optional().describe('JSON output format.'),
   }},
   { name: 'dev_memory_finish', description: 'Finish the dev-memory session', schema: {
-    storyId: z.string().optional().describe('Active story ID, for example B-xxx; omitted value is inferred automatically from the active story branch; optional outside Lattice sessions.'),
+    storyId: z.string().optional().describe('Active story ID, for example B-xxx; omitted value is inferred automatically from the active story branch; optional outside Proofbound sessions.'),
     storyDir: z.string().optional().describe('Story directory root path (default <root>/.lattice/story/actives).'),
     query: z.string().optional().describe('Optional relevance filter query.'),
     scope: z.enum(['global']).optional().describe('When storyId is omitted: global=promote project lessons to global dev-memory; even inside an active story, do not write story candidates.'),

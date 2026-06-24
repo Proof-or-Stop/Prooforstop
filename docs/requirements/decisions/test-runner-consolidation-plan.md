@@ -1,8 +1,8 @@
 # Test Runner Consolidation Plan
 
 This decision document records the chosen architecture for consolidating the
-project's test runner and decomposes the implementation into follow-up Lattice
-stories. The deliberation history is captured under Lattice story **B-35aa**.
+project's test runner and decomposes the implementation into follow-up Proofbound
+stories. The deliberation history is captured under Proofbound story **B-35aa**.
 
 ## Current State
 
@@ -33,7 +33,7 @@ state, then cleaning up. Smokes are **integration scenarios**, not unit tests.
 
 - **`testing-infra.md`** (the project-level validation entry) documents:
   - **Project-native validation policy**: prefer `npm test` / `pytest` /
-    `go test` / `cargo test` etc. as the validation entry; Lattice does not
+    `go test` / `cargo test` etc. as the validation entry; Proofbound does not
     require any project to use a TypeScript `validate.ts`.
   - **General black-box command** as a first-class executor (applicable to
     `go test`, `pytest`, `ctest`, `mvn test`, `swift test`, `xcodebuild test`,
@@ -130,13 +130,13 @@ Same as B but without c8 wiring.
    from the runner's worker pool; coverage comes from c8 wrapping the runner;
    ergonomics come from `test:all` / `test:tag` / `test:select`.
 
-4. **No framework lock-in.** If a future Lattice contributor wants to swap the
+4. **No framework lock-in.** If a future Proofbound contributor wants to swap the
    in-house runner for some new option, they replace the runner without
    touching any smoke.
 
-## Follow-up Lattice Stories
+## Follow-up Proofbound Stories
 
-Each follow-up story goes through its own full Lattice workflow (INIT →
+Each follow-up story goes through its own full Proofbound workflow (INIT →
 INIT_CHECK → PLAN → DEV → REVIEW → TEST → DONE). One-paragraph scope sketches
 follow; future `story_create` calls may quote them verbatim.
 

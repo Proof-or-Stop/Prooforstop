@@ -1,0 +1,353 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Classify the five proof admissibility convergence gaps",
+      "context": "Confirm which gaps are annotation-only versus missing implementation before changing code. The five gaps are supportedSchemaVersion, verifierVersionSupported, contractVersionSupported, unsupported_schema_version, and unsupported_contract_version.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+      ],
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-06-24T12:58:37.703Z",
+      "userSees": "User sees: \"5 high proof-admissibility gaps classified: 4 mapping gaps, 1 verifierVersionSupported semantic gap.\"",
+      "files": {
+        "modify": [
+          "packages/main/src/core/proof-admissibility.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/proof-admissibility-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The five current high gaps are classified with evidence from code and gap_analyze output.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The unrelated medium currentDoneMaterialBinding gap is explicitly kept out of scope.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The story does not classify server receipt demotion or Red/Repro gate work as part of these five gaps.",
+            "type": "docs"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "lattice gap_analyze {\"format\":\"json\"}",
+          "result": "pass",
+          "note": "Red/Repro classification confirmed: before implementation gap_analyze reported exactly the five targeted high proof-admissibility gaps; after implementation the same command reports 0 high / 1 unrelated medium.",
+          "headHash": "dbf5b2fbeea8002ebbbc9631f17287855e494b9c",
+          "materialHash": "00ae1c39b27f61905e8449e698cdaf58e16faa1be9aed828c83f1502dd23bdfc",
+          "storyFilesHash": "54c4365042b338b6ac2d0c827a64115af9e75f2fcd42089262a0bbcd1f5e66a0",
+          "timestamp": "2026-06-24T12:58:37.878Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "lattice gap_analyze {\"format\":\"json\"}",
+          "result": "pass",
+          "note": "The only remaining gap is medium currentDoneMaterialBinding missing @test, explicitly outside B-fbfb scope.",
+          "headHash": "dbf5b2fbeea8002ebbbc9631f17287855e494b9c",
+          "materialHash": "00ae1c39b27f61905e8449e698cdaf58e16faa1be9aed828c83f1502dd23bdfc",
+          "storyFilesHash": "54c4365042b338b6ac2d0c827a64115af9e75f2fcd42089262a0bbcd1f5e66a0",
+          "timestamp": "2026-06-24T12:58:38.086Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "file": ".lattice/story/actives/B-fbfb/scope-contract.json",
+          "result": "pass",
+          "note": "Scope contract excludes server production receipt demotion/deletion and Red/Repro/Spike gate implementation; B-fbfb code diff touches only proof-admissibility core/gates/smokes.",
+          "headHash": "dbf5b2fbeea8002ebbbc9631f17287855e494b9c",
+          "materialHash": "00ae1c39b27f61905e8449e698cdaf58e16faa1be9aed828c83f1502dd23bdfc",
+          "storyFilesHash": "54c4365042b338b6ac2d0c827a64115af9e75f2fcd42089262a0bbcd1f5e66a0",
+          "timestamp": "2026-06-24T12:58:38.280Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-002",
+      "title": "Implement verifier version admissibility support",
+      "context": "Add a real supported-verifier-version check equivalent to schema and contract support, with a deterministic reason code and tests for unsupported verifier versions.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+      ],
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-06-24T12:58:51.418Z",
+      "userSees": "User sees: \"proof-admissibility smoke passed; unsupported verifierVersion is rejected.\"",
+      "files": {
+        "modify": [
+          "packages/main/src/core/proof-admissibility.ts",
+          "packages/main/src/core/proof-admissibility-gates.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/proof-admissibility-smoke.ts",
+          "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Current verifierVersion is accepted when all other admissibility checks pass.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Missing verifierVersion fails closed with missing_required_field when direct evaluator checks omit it.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Unsupported verifierVersion fails closed with unsupported_verifier_version and cannot be productionDone eligible.",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proof-admissibility-smoke.ts",
+          "command": "node packages/main/dist/tasks/proof-admissibility-smoke.js",
+          "result": "pass",
+          "note": "Smoke passes with currentValidChecks including PROOF_ADMISSIBILITY_VERIFIER_VERSION, proving the current verifier version is accepted when other checks pass.",
+          "headHash": "5dd9580b06f1207e3b206c586ac9b413b7e379c9",
+          "materialHash": "00ae1c39b27f61905e8449e698cdaf58e16faa1be9aed828c83f1502dd23bdfc",
+          "storyFilesHash": "54c4365042b338b6ac2d0c827a64115af9e75f2fcd42089262a0bbcd1f5e66a0",
+          "timestamp": "2026-06-24T12:58:51.600Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proof-admissibility-smoke.ts",
+          "command": "node packages/main/dist/tasks/proof-admissibility-smoke.js",
+          "result": "pass",
+          "note": "Smoke covers missing/null verifierVersion and expects missing_required_field, proving direct evaluator calls fail closed when verifier version is absent.",
+          "headHash": "5dd9580b06f1207e3b206c586ac9b413b7e379c9",
+          "materialHash": "00ae1c39b27f61905e8449e698cdaf58e16faa1be9aed828c83f1502dd23bdfc",
+          "storyFilesHash": "54c4365042b338b6ac2d0c827a64115af9e75f2fcd42089262a0bbcd1f5e66a0",
+          "timestamp": "2026-06-24T12:58:51.766Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proof-admissibility-smoke.ts",
+          "command": "node packages/main/dist/tasks/proof-admissibility-smoke.js",
+          "result": "pass",
+          "note": "Smoke covers wrong verifierVersion and expects unsupported_verifier_version with productionDoneEligible=false.",
+          "headHash": "5dd9580b06f1207e3b206c586ac9b413b7e379c9",
+          "materialHash": "00ae1c39b27f61905e8449e698cdaf58e16faa1be9aed828c83f1502dd23bdfc",
+          "storyFilesHash": "54c4365042b338b6ac2d0c827a64115af9e75f2fcd42089262a0bbcd1f5e66a0",
+          "timestamp": "2026-06-24T12:58:51.921Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-003",
+      "title": "Bind existing schema and contract checks to convergence requirements",
+      "context": "Add code facts/annotations or registry mappings so gap_analyze can see that supportedSchemaVersion, contractVersionSupported, unsupported_schema_version, and unsupported_contract_version are implemented without changing their existing behavior.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+      ],
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-06-24T12:59:03.383Z",
+      "userSees": "User sees: \"gap_analyze no longer reports supportedSchemaVersion/contractVersionSupported reason-code mapping gaps.\"",
+      "files": {
+        "modify": [
+          "packages/main/src/core/proof-admissibility.ts",
+          "packages/main/src/tasks/proof-admissibility-smoke.ts"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Scanner-visible task annotations contain the exact requirement phrases for schema and contract support.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Existing schema/contract behavior remains stable while annotation mapping is added.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No broad gap_analyze semantic rewrite is used to hide uncovered requirements.",
+            "type": "docs"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "rg -n \"supportedSchemaVersion|verifierVersionSupported|contractVersionSupported|unsupported_schema_version|unsupported_contract_version|@task B-fbfb\" packages/main/src/core/proof-admissibility.ts packages/main/src/tasks/proof-admissibility-smoke.ts",
+          "result": "pass",
+          "note": "Scanner-visible B-fbfb annotation contains exact requirement phrases for schema/contract support and reason-code mapping.",
+          "headHash": "d9878b35cf042443a6b1f738a39358d1dcad731c",
+          "materialHash": "00ae1c39b27f61905e8449e698cdaf58e16faa1be9aed828c83f1502dd23bdfc",
+          "storyFilesHash": "54c4365042b338b6ac2d0c827a64115af9e75f2fcd42089262a0bbcd1f5e66a0",
+          "timestamp": "2026-06-24T12:59:03.549Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proof-admissibility-smoke.ts",
+          "command": "node packages/main/dist/tasks/proof-admissibility-smoke.js",
+          "result": "pass",
+          "note": "Existing schema/contract behavior remains stable: unsupported schema and unsupported contract version expectations still pass.",
+          "headHash": "d9878b35cf042443a6b1f738a39358d1dcad731c",
+          "materialHash": "00ae1c39b27f61905e8449e698cdaf58e16faa1be9aed828c83f1502dd23bdfc",
+          "storyFilesHash": "54c4365042b338b6ac2d0c827a64115af9e75f2fcd42089262a0bbcd1f5e66a0",
+          "timestamp": "2026-06-24T12:59:03.701Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "git show --name-only --format= HEAD",
+          "result": "pass",
+          "note": "No gap_analyze source or requirement document was changed; high gaps were closed by implementation facts and tests rather than weakening scanner semantics or deleting requirements.",
+          "headHash": "d9878b35cf042443a6b1f738a39358d1dcad731c",
+          "materialHash": "00ae1c39b27f61905e8449e698cdaf58e16faa1be9aed828c83f1502dd23bdfc",
+          "storyFilesHash": "54c4365042b338b6ac2d0c827a64115af9e75f2fcd42089262a0bbcd1f5e66a0",
+          "timestamp": "2026-06-24T12:59:03.851Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-004",
+      "title": "Verify high convergence gaps are closed",
+      "context": "Run build, proof admissibility smokes, gap_analyze, and convergence_check to prove the five high gaps are closed without expanding scope.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+      ],
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-06-24T12:59:13.520Z",
+      "userSees": "User sees: \"No high-priority proof-admissibility version gaps remain.\"",
+      "files": {
+        "modify": [
+          "packages/main/src/core/proof-admissibility.ts",
+          "packages/main/src/core/proof-admissibility-gates.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/proof-admissibility-smoke.ts",
+          "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm build and proof-admissibility smokes pass after the fix.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "gap_analyze may still report unrelated non-high or unrelated active story status, but not the five targeted high gaps.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "convergence_check high-priority gap count is not reduced by deleting or weakening the requirement document.",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proof-admissibility-smoke.js && node packages/main/dist/tasks/proof-admissibility-hardening-smoke.js",
+          "result": "pass",
+          "note": "Build passed, proof-admissibility smoke passed, and proof-admissibility hardening smoke passed on dbf5b2fbeea8002ebbbc9631f17287855e494b9c.",
+          "headHash": "a93ada10b57f6ce9c04e800fb6f79d29a7d96bbc",
+          "materialHash": "00ae1c39b27f61905e8449e698cdaf58e16faa1be9aed828c83f1502dd23bdfc",
+          "storyFilesHash": "54c4365042b338b6ac2d0c827a64115af9e75f2fcd42089262a0bbcd1f5e66a0",
+          "timestamp": "2026-06-24T12:59:13.678Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "command": "lattice gap_analyze {\"format\":\"json\"}",
+          "result": "pass",
+          "note": "gap_analyze reports Gaps: 0 high / 1 medium; the remaining medium currentDoneMaterialBinding gap is unrelated and pre-existing.",
+          "headHash": "a93ada10b57f6ce9c04e800fb6f79d29a7d96bbc",
+          "materialHash": "00ae1c39b27f61905e8449e698cdaf58e16faa1be9aed828c83f1502dd23bdfc",
+          "storyFilesHash": "54c4365042b338b6ac2d0c827a64115af9e75f2fcd42089262a0bbcd1f5e66a0",
+          "timestamp": "2026-06-24T12:59:13.826Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "lattice convergence_check",
+          "result": "pass",
+          "note": "convergence_check now passes No high-priority gaps and Code annotations compliant; it remains globally non-converged only because active stories B-2f1a, B-8d44, and B-fbfb are unfinished.",
+          "headHash": "a93ada10b57f6ce9c04e800fb6f79d29a7d96bbc",
+          "materialHash": "00ae1c39b27f61905e8449e698cdaf58e16faa1be9aed828c83f1502dd23bdfc",
+          "storyFilesHash": "54c4365042b338b6ac2d0c827a64115af9e75f2fcd42089262a0bbcd1f5e66a0",
+          "timestamp": "2026-06-24T12:59:13.976Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-24T12:58:37.703Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Five-gap classification and scope evidence recorded after implementation verification."
+    },
+    {
+      "timestamp": "2026-06-24T12:58:51.418Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Verifier version support implemented and covered by proof-admissibility smoke."
+    },
+    {
+      "timestamp": "2026-06-24T12:59:03.383Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Schema/contract mapping facts and unchanged behavior verified."
+    },
+    {
+      "timestamp": "2026-06-24T12:59:13.520Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Final verification shows the five targeted high gaps are closed without weakening requirements."
+    }
+  ]
+}

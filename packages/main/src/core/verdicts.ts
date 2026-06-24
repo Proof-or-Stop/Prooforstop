@@ -313,7 +313,7 @@ export function summarizeVerdicts(
   const staleVerdicts = forRun.length - all.length;
   // requiredHosts is a hard floor: final review certification is always multi-host.
   // A 0 / 1 / negative / NaN value can never silently downgrade the requirement
-  // below the Lattice final-check floor.
+  // below the Proofbound final-check floor.
   const required = Math.max(MIN_FINAL_HOSTS_PER_REVIEW_WAVE, Math.floor(Number(requiredHosts)) || MIN_FINAL_HOSTS_PER_REVIEW_WAVE);
 
   // Group verdicts so any duplicate same-host or same-session origin collapses to one
@@ -498,7 +498,7 @@ export interface VerdictOrderingResult {
 }
 
 /**
- * Receipt-before-verdict ordering (§X9 "Authority ordering"): Lattice Authority
+ * Receipt-before-verdict ordering (§X9 "Authority ordering"): Proofbound Authority
  * issues and stores the native gate_decision receipt BEFORE the multi-host gate is
  * evaluated, and verifier hosts inspect that verified receipt. So an Authority host
  * verdict is only well-formed when it names the gate_decision receipt + gate input
@@ -600,7 +600,7 @@ function intFloor(value: unknown, fallback = 0): number {
 
 function serverBackedVerdict(verdict: AuthorityVerdictReceipt): boolean {
   if (typeof verdict.signature === 'string' && /^[0-9a-fA-F]{128}$/.test(verdict.signature.trim())) return true;
-  // Python Lattice Authority returns server-stored HostVerdictRecord objects from
+  // Python Proofbound Authority returns server-stored HostVerdictRecord objects from
   // GET /v1/jobs/{jobId}/verdicts with a `receiptId` binding instead of inlining the
   // host_verdict receipt signature. Treat that receipt-bound server record as
   // server-backed for final wave counting; independence and acceptance are still

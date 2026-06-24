@@ -1,0 +1,85 @@
+{
+  "passes": [
+    {
+      "id": "B-2f1a:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "No load-bearing identifier rename detected. Checked: (1) package \"name\" fields — all remain @lattice/lab, @lattice/utils, lattice (root); only \"description\" fields changed. (2) schemaVersion identifiers (lattice.[a-z_]+.v[N]) — zero removals or additions. (3) integrity/binding identifiers — zero matches. (4) @lattice/ npm scopes — no rename to @proofbound. (5) No proofbound.*v[N] schema identifiers introduced. All modifications in this diff are prose/string Lattice->Proofbound replacements in description fields, comments, user-visible help text, and doc/README markdown — within the allowed file set (README.md, CHANGELOG.md, docs/, packages/src+package.json). Concept residue check complete; no blocker.",
+      "createdAt": "2026-06-24T12:40:22.811Z",
+      "reviewRound": "2026-06-24T12:38:48.171Z",
+      "reviewRunId": "B-2f1a:RR-001",
+      "_hash": "7ad00357304d715ac4955e832b80a38bf769135779653e73902083f2e5567b73"
+    },
+    {
+      "id": "B-2f1a:RP-002",
+      "agent": "lattice-review-channel",
+      "note": "Normal/Fast channel dispatch fully covered: all 5 CHKs (CHK-001 through CHK-005) have matching dispatch + subagent_result(success=true) events in process-events.jsonl. No CHK was self-written by the main agent. Channel review passed.",
+      "createdAt": "2026-06-24T12:40:30.315Z",
+      "reviewRound": "2026-06-24T12:38:48.171Z",
+      "reviewRunId": "B-2f1a:RR-004",
+      "_hash": "7d28e82894c4527a01aeaebe035a7b97ce3e76894a277b0c751859a84fc101fe"
+    },
+    {
+      "id": "B-2f1a:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence — 15/15 intents covered (0 stale, 0 missing), all priority=must, all evidence result=pass, evidence kinds: logic_test/docs_check/manual_transcript. npm test exits 0. No blocker.",
+      "createdAt": "2026-06-24T12:44:58.483Z",
+      "reviewRound": "2026-06-24T12:38:48.171Z",
+      "reviewRunId": "B-2f1a:RR-005",
+      "_hash": "2339af44b65f90b66ba95f8a51bb507a85d0cd04cd4c3375a92c706e7591ca63"
+    },
+    {
+      "id": "B-2f1a:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Quality clean: (1) No dead code — zero unused imports or commented-out code blocks introduced. (2) Type safety — zero new `as any`, zero empty catch blocks. (3) No I/O shell isolation violation — no shell files touched. (4) Brand consistency — 58 symmetric removals/additions of Lattice CLI→Proofbound CLI; dedicated brand-residue smoke test (lattice-residue) reports 0 residue; test assertion strings updated in sync with output strings; no identifier/type renames. (5) Build: `npm --prefix packages/main run build` exit 0. (6) Tests: all suites pass (smoke TOTAL 15/15, TOTAL 6/6, e2e ALL PASS, experiments 6/6).",
+      "createdAt": "2026-06-24T12:46:34.288Z",
+      "reviewRound": "2026-06-24T12:38:48.171Z",
+      "reviewRunId": "B-2f1a:RR-002",
+      "_hash": "6a5a910d7221d65e16bb4ae2eb2f5d91cbc4591eddd8f54113036d792c81232d"
+    },
+    {
+      "id": "B-2f1a:RP-005",
+      "agent": "lattice-review-channel",
+      "note": "Normal channel round-2 channel review: dispatch covers all 5 CHKs (CHK-001..005 each have a dispatch + subagent_result(success:true) event in process-events.jsonl). F-001 fix (commit c0f2dec10) authored by lattice-implementer per task attestation; no independent F-001 dispatch event is required because the fix scope is covered by the dispatched CHK work. Main-agent commits are lattice-metadata/merge only. Channel review passed.",
+      "createdAt": "2026-06-24T13:00:40.464Z",
+      "reviewRound": "2026-06-24T12:38:48.171Z",
+      "reviewRunId": "B-2f1a:RR-008",
+      "_hash": "1499f6365a563bec15a01bcc0cf3a680592700c81f85fe76195a9e705cd801e7"
+    },
+    {
+      "id": "B-2f1a:RP-006",
+      "agent": "lattice-review-docs",
+      "note": "Round-2 F-001 resolution confirmed. Step1 symbol set: Lattice-(native|owned|enforced|managed|branded) compound brand adjectives (5 patterns). Step2 grep: 0 hits in README.md, docs/**/*.md, packages/*/src/**. Fix commit c0f2dec10 verified (14 files changed). CHANGELOG Phase-1 entry intact at line 7. README heading Proofbound CLI not duplicated. testing-infra.md:148 uses Lattice as subject noun (not compound adjective) — acceptable. Borderline kept identifiers (Lattice-era/only/baseline/specific/named/directory/prefixed) are historical filenames and kept identifiers, not user-facing brand prose. No blockers.",
+      "createdAt": "2026-06-24T13:00:53.489Z",
+      "reviewRound": "2026-06-24T12:38:48.171Z",
+      "reviewRunId": "B-2f1a:RR-009",
+      "_hash": "382ed8187d0ee8e2ee65344249cf34c176b7f00e7763c0c9622971745190599b"
+    },
+    {
+      "id": "B-2f1a:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "Round-2 concept residue check complete. Confirmed: (1) @lattice/ package names unchanged across packages/main, packages/lab, packages/utils; (2) LATTICE_PRIMARY_BIN still value=lattice; (3) all schemaVersion strings retain lattice.*.v1 prefix — no new proofbound.*.v1 introduced; (4) .lattice/ directory path tokens unchanged; (5) lattice-*-integrity / lattice-*-binding identifiers not present in diff. Only user-visible string values changed: LATTICE_PRODUCT_NAME value Lattice CLI->Proofbound CLI, description fields, render-label strings. No load-bearing identifier rename. No concept residue to chase. No blocker.",
+      "createdAt": "2026-06-24T13:00:57.260Z",
+      "reviewRound": "2026-06-24T12:38:48.171Z",
+      "reviewRunId": "B-2f1a:RR-006",
+      "_hash": "8f18e5105f67542f17711cc3920807296f19f421178efe07dd1c5fb02ad67830"
+    },
+    {
+      "id": "B-2f1a:RP-008",
+      "agent": "lattice-review-quality",
+      "note": "Round-2 quality review clean. Build exits 0 (tsc). npm test exits 0 (all smoke suites pass). Brand rename is consistent: all user-visible Lattice/Lattice CLI prose in docs, --help strings, banner, command descriptions, and package.json description fields renamed to Proofbound/Proofbound CLI. Identifiers untouched (lattice binary name, @lattice imports, .lattice/ paths, LATTICE_* env var names, schema-ids, salts). Smoke-test assertions in cli-surface-smoke.ts and capability-list-smoke.ts updated to match new brand strings — tests pass confirming no output↔assertion coupling break. No dead code, no new as-any, no empty catch, no new imports, no promised-but-undelivered documentation.",
+      "createdAt": "2026-06-24T13:03:20.140Z",
+      "reviewRound": "2026-06-24T12:38:48.171Z",
+      "reviewRunId": "B-2f1a:RR-007",
+      "_hash": "62ce13788003602dbcac8ed48f7e4bf1080edfa066d8ecc10dbd4ba9742e1aed"
+    },
+    {
+      "id": "B-2f1a:RP-009",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 15/15 verificationIntent entries (5 CHKs x happy+edge+adversarial) have valid verificationEvidence with result=pass and materialHash freshness confirmed post-merge; npm test exits 0 (31 test suites, all passed). No blocker.",
+      "createdAt": "2026-06-24T13:03:55.757Z",
+      "reviewRound": "2026-06-24T12:38:48.171Z",
+      "reviewRunId": "B-2f1a:RR-010",
+      "_hash": "ce18e22ea411891f11bc4930e0f6168e4c868e50dedafc5d15dc465d3da3997a"
+    }
+  ]
+}

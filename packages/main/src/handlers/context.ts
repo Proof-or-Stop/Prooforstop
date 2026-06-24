@@ -163,7 +163,7 @@ function formatUnresolvedSignedWorkspace(storyId: string, metadataRoot: string, 
     'signedWorkspaceRoot: unresolved',
     `Reason [${unresolvedReason || 'requires_git_signed_workspace_but_no_binding'}]: no explicit git-backed story worktree or configured gitRoot could be verified.`,
     'No reviewer run was created.',
-    'Next action: configure gitRoot, attach the story to a git worktree, or recreate/advance the story through a git-backed Lattice worktree flow.',
+    'Next action: configure gitRoot, attach the story to a git worktree, or recreate/advance the story through a git-backed Proofbound worktree flow.',
   ].join('\n');
 }
 

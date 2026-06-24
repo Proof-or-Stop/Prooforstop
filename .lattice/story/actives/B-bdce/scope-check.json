@@ -1,0 +1,129 @@
+{
+  "storyId": "B-bdce",
+  "checkedAt": "2026-06-24T14:42:43.072Z",
+  "features": [
+    {
+      "feature": "renderEvidenceStaleHint enriched with a done_prepare one-step recovery line (lattice done_prepare --storyId=... --mergeMain --refreshStale --validate)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:done-prepare-automation-execution-plan.md"
+    },
+    {
+      "feature": "renderEvidenceStaleHint enriched with a drift-classification line (whole-tree materialHash drift + unchanged storyFilesHash = unrelated/main drift -> refresh, do not re-review; storyFilesHash change = story-owned drift -> re-review/re-quorum)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:story-files-hash-material-drift.md"
+    },
+    {
+      "feature": "Existing stable lines (EVIDENCE_STALE_MARKER, refresh_stale, validate) must be kept unchanged (backward-compat)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Three consuming surfaces (hints.ts, session.ts, transition-orchestrator.ts) auto-inherit via shared renderer; must not be edited unless they reconstruct the string",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "The 3 consuming surfaces hints.ts/session.ts/transition-orchestrator.ts (they auto-inherit the shared renderer; do not edit unless one reconstructs the string)",
+      "source": "description"
+    },
+    {
+      "feature": "byte-equality smoke assertions in verification-freshness-smoke.ts updated to match new renderer output (including extractStaleBlock line-count slice)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "GAP1 regression assert: rendered hint contains done_prepare so dropping the one-step line fails the smoke",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "GAP2 regression assert: rendered hint contains a drift-classification token (storyFilesHash/story-owned/whole-tree/unrelated) so dropping the classification line fails the smoke",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "flow-stability-smoke.ts must not be edited (only uses findStaleEvidence; unchanged, out of scope)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "flow-stability-smoke.ts (only uses findStaleEvidence; unchanged, out of scope)",
+      "source": "description"
+    },
+    {
+      "feature": "DONE-blocker generators (done-oracle.ts, machine.ts), freshness judgment, gate strength, proof-admissibility contract must not be changed",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "DONE-blocker generators (machine.ts/done-oracle.ts), freshness judgment, gate strength, proof-admissibility contract — spike showed they are not the gap",
+      "source": "description"
+    },
+    {
+      "feature": "storyId substitution in done_prepare one-step line (no literal <storyId> placeholders, per B-a2f1 preMortem #3)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Wave 5 of done-prepare plan: TEST phase hints should point to done_prepare before raw DONE when closure work is needed",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:done-prepare-automation-execution-plan.md"
+    },
+    {
+      "feature": "storyFilesHash freshness semantics: mismatching materialHash + matching storyFilesHash = valid with re-attestation advisory; mismatching storyFilesHash = stale reject (story-files-hash-material-drift.md Freshness Semantics section)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:story-files-hash-material-drift.md"
+    },
+    {
+      "feature": "done_prepare command contract: mergeMain, refreshStale, validate flags; fail-closed merge conflict; blocked output format (done-prepare-automation-execution-plan.md Command Contract / Execution Flow)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "DONE-blocker generators (machine.ts/done-oracle.ts), freshness judgment, gate strength, proof-admissibility contract — spike showed they are not the gap",
+      "source": "decisions:done-prepare-automation-execution-plan.md"
+    },
+    {
+      "feature": "lifecycle_check / StoryReadinessReport: done_prepare HEAD binding semantics, pre-merge vs post-merge binding (lattice-lifecycle-readiness-check-execution-plan.md)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "DONE-blocker generators (machine.ts/done-oracle.ts), freshness judgment, gate strength, proof-admissibility contract — spike showed they are not the gap",
+      "source": "decisions:lattice-lifecycle-readiness-check-execution-plan.md"
+    },
+    {
+      "feature": "proof-admissibility contract: producer boundary, semantic digest, C1-C14 clauses, ProofSurfaceDefinition registration (proof-admissibility-hardening-execution-plan.md)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "DONE-blocker generators (machine.ts/done-oracle.ts), freshness judgment, gate strength, proof-admissibility contract — spike showed they are not the gap",
+      "source": "decisions:proof-admissibility-hardening-execution-plan.md"
+    },
+    {
+      "feature": "DONE full-test gate: doneRequiredCommands, done-required-evidence.json, DONE oracle row for full-suite (done-full-test-gate-execution-plan.md)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "DONE-blocker generators (machine.ts/done-oracle.ts), freshness judgment, gate strength, proof-admissibility contract — spike showed they are not the gap",
+      "source": "decisions:done-full-test-gate-execution-plan.md"
+    }
+  ],
+  "summary": {
+    "total": 16,
+    "covered": 8,
+    "excluded": 8,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "6c6011dd00fc735c22939f3b63eac337f2f5232ed8054a9dcbc4011278d36222",
+  "openQuestions": []
+}

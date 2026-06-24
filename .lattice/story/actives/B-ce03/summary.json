@@ -1,0 +1,56 @@
+{
+  "storyId": "B-ce03",
+  "changes": "Ported the B-9dfb DONE readiness behavior into current main by tightening done_prepare dirty metadata handling to same-story lifecycle metadata, adding an other-story metadata blocker smoke, and updating the DONE prepare decision document.",
+  "usage": "Hosts continue using lattice done_prepare --storyId=<story> --mergeMain --refreshStale --validate and lattice lifecycle_check --target=DONE; metadata-only same-story lifecycle dirt is handled without cleanTree deadlock.",
+  "expectedOutcome": "Running done_prepare with unchanged same-story lifecycle metadata dirt should continue and print DONE prepare: PASS in the covered smoke, while dirty source, unsafe renames, other-story metadata, and failed DONE-required evidence still block.",
+  "actualTranscript": "live_smoke_transcript captured node packages/main/dist/tasks/done-prepare-smoke.js exitCode 0; output included pre-existing DONE-required lifecycle metadata does not block preflight or final PASS, other-story lifecycle metadata still blocks preflight, failed DONE-required lifecycle metadata blocks DONE closure, and done-prepare smoke passed.",
+  "outcomeDiff": "No difference: actual transcript matched the expected PASS/blocker split.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Local readiness only; this story does not claim Authority DONE, fullAuthorityDone, productionDone, or solve true storyFilesHash/material drift.",
+  "pitfalls": "B-9dfb existed on orchestrate/main but not local main, so the safe path was a fresh story and semantic port. Initial verificationEvidence went stale after the implementation commit and required evidence_refresh --apply before validate passed.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 156559
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 24172
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 333430
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 754092
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 553969
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 510222
+    }
+  },
+  "totalDurationMs": 2332493,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-24T13:34:19.739Z",
+  "updatedAt": "2026-06-24T13:34:19.739Z"
+}

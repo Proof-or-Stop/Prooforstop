@@ -1,9 +1,9 @@
-# Lattice Authority M1-M16 Generated Proof And Live E2E Plan
+# Proofbound Authority M1-M16 Generated Proof And Live E2E Plan
 
 ## Purpose
 
-This document proves that the Lattice Authority M1-M16 implementation artifacts
-have been generated in the Lattice CLI worktree, and defines the dedicated live
+This document proves that the Proofbound Authority M1-M16 implementation artifacts
+have been generated in the Proofbound CLI worktree, and defines the dedicated live
 execution run still required to prove the whole chain:
 
 ```text
@@ -26,7 +26,7 @@ Core review principles for this proof and the live run:
 
 ## Scope
 
-`M1-M16` in this document refers to the sixteen Lattice Authority milestones in
+`M1-M16` in this document refers to the sixteen Proofbound Authority milestones in
 `lattice-authority-live-integration.md`:
 
 - M1 Contract Lock
@@ -41,8 +41,8 @@ Core review principles for this proof and the live run:
 - M10 Gate Evaluation Loop
 - M11 End-To-End Authority Autopilot
 - M12 Deployment And Global Verification
-- M13 Lattice Story Planner
-- M14 Lattice Job Planner
+- M13 Proofbound Story Planner
+- M14 Proofbound Job Planner
 - M15 Natural-Language-To-DONE E2E
 - M16 Multi-Host Final Verification
 
@@ -54,7 +54,7 @@ separate document describes the broader unattended completion product track.
 | Status | Meaning |
 | --- | --- |
 | Generated complete | The milestone has concrete requirements, CLI/code surfaces, contracts, and smoke or live-test harnesses in this worktree. It is reproducible by inspecting the referenced files and running the listed commands. |
-| Live E2E pending | The milestone has generated artifacts, but the final localhost run has not yet proven the whole queued job + evidence + receipt + multi-host chain against Python Lattice Authority. |
+| Live E2E pending | The milestone has generated artifacts, but the final localhost run has not yet proven the whole queued job + evidence + receipt + multi-host chain against Python Proofbound Authority. |
 | Live E2E complete | The final run has produced a non-skipped transcript from `http://localhost:6789/` with job id, run id, evidence refs, verified native receipt, and multi-host certification refs. |
 
 The current proof is: **M1-M16 are generated complete**. The full live E2E chain
@@ -76,8 +76,8 @@ is still **live E2E pending** until the execution plan below is run.
 | M10 Gate Evaluation Loop | `packages/main/src/core/authority-completion.ts`, `packages/main/src/core/authority-client.ts`, `packages/main/src/core/planned-steps-executor.ts`, `packages/main/src/tasks/authority-completion-smoke.ts`, `packages/main/src/tasks/evidence-live-wiring-smoke.ts` | `npm --prefix packages/main run test:authority-completion`; `npm --prefix packages/main run test:evidence-live-wiring-smoke`; live `POST /v1/gates/evaluate` transcript in final run | Generated complete | A stub-signed gate receipt proves verifier logic only, not production Authority DONE. |
 | M11 End-To-End Authority Autopilot | `packages/main/src/core/authority-job-loop.ts`, `packages/main/src/core/authority-job-loop-live.ts`, `packages/main/src/core/autopilot-executor.ts`, `packages/main/src/core/authority-runner.ts`, `packages/main/src/tasks/authority-job-loop-smoke.ts`, `packages/main/src/tasks/authority-job-loop-live-smoke.ts`, `packages/main/src/tasks/autopilot-execute-smoke.ts` | `npm --prefix packages/main run test:authority-job-loop`; `npm --prefix packages/main run test:authority-job-loop-live-smoke`; `npm --prefix packages/main run test:autopilot-execute-smoke` | Generated complete | The final queued-job live run must still prove no dangling lease and receipt-backed terminal state. |
 | M12 Deployment And Global Verification | `README.md`, `docs/guide.md`, `docs/requirements/decisions/lattice-authority-live-integration.md`, `package.json`, `packages/main/package.json`, global `lattice` command routing in `packages/main/src/cli-engine.ts` | `npm --prefix packages/main run build`; `lattice check`; `lattice autopilot status --json`; `npm --prefix packages/main run test:authority-live-python` with `http://localhost:6789/` | Generated complete | Global/local parity and server deployment are proven only by the final live transcript, not by package-local tests alone. |
-| M13 Lattice Story Planner | `packages/main/src/core/planner.ts`, `packages/main/src/handlers/planner.ts`, `packages/main/src/cli-engine.ts`, `packages/main/src/tasks/planner-unattended-smoke.ts`, `packages/main/src/tasks/natural-language-to-done-smoke.ts` | `npm --prefix packages/main run test:planner-unattended-smoke`; `npm --prefix packages/main run test:natural-language-to-done-smoke`; `lattice planner run --request="<request>" --mode=local --until=DONE --planOnly --json` | Generated complete | Planner output is not DONE until execution, evidence, and final gates pass. |
-| M14 Lattice Job Planner | `packages/main/src/core/planner.ts`, `packages/main/src/core/authority-contracts.ts`, `packages/main/src/core/planned-steps-executor.ts`, `packages/main/src/tasks/planner-unattended-smoke.ts` | `npm --prefix packages/main run test:planner-unattended-smoke`; `lattice planner run --request="<request>" --mode=authority --until=DONE --planOnly --json` | Generated complete | A generated JobPlan is not a claimed Authority job until the server queues and runner claims it. |
+| M13 Proofbound Story Planner | `packages/main/src/core/planner.ts`, `packages/main/src/handlers/planner.ts`, `packages/main/src/cli-engine.ts`, `packages/main/src/tasks/planner-unattended-smoke.ts`, `packages/main/src/tasks/natural-language-to-done-smoke.ts` | `npm --prefix packages/main run test:planner-unattended-smoke`; `npm --prefix packages/main run test:natural-language-to-done-smoke`; `lattice planner run --request="<request>" --mode=local --until=DONE --planOnly --json` | Generated complete | Planner output is not DONE until execution, evidence, and final gates pass. |
+| M14 Proofbound Job Planner | `packages/main/src/core/planner.ts`, `packages/main/src/core/authority-contracts.ts`, `packages/main/src/core/planned-steps-executor.ts`, `packages/main/src/tasks/planner-unattended-smoke.ts` | `npm --prefix packages/main run test:planner-unattended-smoke`; `lattice planner run --request="<request>" --mode=authority --until=DONE --planOnly --json` | Generated complete | A generated JobPlan is not a claimed Authority job until the server queues and runner claims it. |
 | M15 Natural-Language-To-DONE E2E | `packages/main/src/tasks/natural-language-to-done-smoke.ts`, `packages/main/src/tasks/planner-unattended-smoke.ts`, `packages/main/src/tasks/authority-job-loop-live-smoke.ts`, `packages/main/src/core/planner.ts`, `packages/main/src/core/authority-completion.ts` | `npm --prefix packages/main run test:natural-language-to-done-smoke`; `npm --prefix packages/main run test:planner-unattended-smoke`; live `lattice planner run --mode=authority --until=DONE --json` in final run | Generated complete | Current smoke can use a signing-correct stub; production natural-language-to-DONE requires live receipt and final certification. |
 | M16 Multi-Host Final Verification | `packages/main/src/core/verdicts.ts`, `packages/main/src/handlers/verdict.ts`, `packages/main/src/core/authority-client.ts`, `packages/main/src/tasks/multi-host-authority-smoke.ts`, `packages/main/src/tasks/planner-unattended-smoke.ts` | `npm --prefix packages/main run test:multi-host-authority-smoke`; `lattice authority verdict submit --jobId=<job> --runId=<run> --receiptId=<receipt> --gateInputDigest=<digest> --json`; `lattice authority job status --jobId=<job> --receiptFile=<receipt.json> --json` | Generated complete | Host verdicts cannot replace a native gate receipt; fullAuthorityDone requires both. |
 
@@ -86,7 +86,7 @@ Generated-complete conclusion:
 ```text
 M1-M16 all have generated requirement, CLI/code, and verification harness
 artifacts in this worktree. The remaining proof is not generation; it is one
-dedicated live E2E execution against Python Lattice Authority.
+dedicated live E2E execution against Python Proofbound Authority.
 ```
 
 ## Required Live E2E Execution Plan
@@ -124,10 +124,10 @@ Pass condition:
 - no whitespace/check failure;
 - every failure is classified as a real correctness issue before fixing.
 
-### E1. Start Python Lattice Authority On localhost:6789
+### E1. Start Python Proofbound Authority On localhost:6789
 
 Purpose: prove the server used for live evidence is the real local Python
-Lattice Authority, not a stub or alternate port.
+Proofbound Authority, not a stub or alternate port.
 
 Commands:
 
@@ -207,7 +207,7 @@ export LATTICE_AUTHORITY_SESSION_ID=session-live-1
 export LATTICE_AUTHORITY_PROJECT_ID=project-live-1
 ```
 
-Runtime environment for actual Lattice CLI authority mode:
+Runtime environment for actual Proofbound CLI authority mode:
 
 ```bash
 export LATTICE_AUTHORITY_MODE=enforce

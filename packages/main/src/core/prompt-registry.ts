@@ -5,7 +5,7 @@
  * @type feature
  * @priority high
  * @description
- * Package-owned registry for Lattice agent prompt templates. Project
+ * Package-owned registry for Proofbound agent prompt templates. Project
  * assets can point at this registry instead of materializing every prompt file.
  * @changes
  * - [CHK-002] Add stable prompt metadata, hashes, and host-specific rendering.
@@ -20,7 +20,7 @@ export const PROMPT_REGISTRY_VERSION = 'lattice.prompt-registry.v1';
 export const PROMPT_REGISTRY_SOURCE = '@lattice/core/templates/agents';
 export const SUPPORTED_PROMPT_HOSTS = ['claude', 'codex'] as const;
 export const LOAD_BEARING_LATTICE_PROMPT_SLICE = `<!-- lattice:start -->
-# Lattice Load-Bearing Runtime Guide
+# Proofbound Load-Bearing Runtime Guide
 
 This embedded slice is intentionally compact. It replaces the old full guide
 snapshot while preserving the process facts that prompts rely on. For broad
@@ -34,7 +34,7 @@ assuming hidden context.
 - Before acting, run \`lattice aux_doc_list\` and read only the relevant
   source-of-truth files. If an aux command is unavailable, fall back to shell
   search/read tools.
-- Story operations must use Lattice CLI commands. Do not directly read or write
+- Story operations must use Proofbound CLI commands. Do not directly read or write
   story metadata under \`docs/story/\`, and do not write fixtures directly under
   \`tests/fixtures/\`.
 - Current lifecycle:
@@ -64,10 +64,10 @@ lattice checklist_get '{"storyId":"B-xxxx"}'
 
 Fresh-context separation is a prompt and evidence discipline, not a hidden
 mechanical identity boundary. Subagents and the main agent can look similar to
-the shell, so auditability comes from structured Lattice facts plus this fence.
+the shell, so auditability comes from structured Proofbound facts plus this fence.
 
 - A worker/reviewer must infer only from its provided inputs, code diff, story
-  metadata exposed by Lattice commands, and explicitly read source files.
+  metadata exposed by Proofbound commands, and explicitly read source files.
 - Do not assume the main agent's private intent or full conversation history.
 - For reviewer lanes, an unregistered issue is not a finding. Every real issue
   must be recorded with \`lattice finding_add\`; no-issue conclusions must be
@@ -95,14 +95,14 @@ normalization, signing, validation, and gate consumption.
   evidence. They must not infer process facts from free text like "passed".
 - Finding signatures bind storyId, reviewer lane, reviewRound, severity,
   category, description, and files. Review run validation also checks signature,
-  current-latest run, matching reviewRound, and fresh head/material hashes.
+  matching reviewRound, fresh head/material hashes, and—for an open finding—the lane's latest run (a pass does not require being the latest run).
 - Delivery semantics stay separate: delivery check docs promises, real machine
   tests, closing self-check, waivers, and signed delivery artifacts are consumed
   by DONE gates, not by ordinary prose.
 
 ## Authority And Handoff Boundaries
 
-- Local Lattice evidence is Non-authority unless an Authority Server receipt is
+- Local Proofbound evidence is Non-authority unless an Authority Server receipt is
   actually submitted and verified by the authority flow.
 - Do not claim \`receiptVerified\`, \`productionDone\`, \`authorityDone\`, or
   \`fullAuthorityDone\` from local tests, prompt text, or story metadata alone.

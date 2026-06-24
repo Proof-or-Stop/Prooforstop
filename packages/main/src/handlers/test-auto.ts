@@ -77,13 +77,13 @@ export function createTestAutoHandlers(ctx: HandlerContext) {
         }, null, 2);
       }
 
-      // Lattice 自身项目禁止全量测试（自己测自己会副作用污染）
+      // Proofbound 自身项目禁止全量测试（自己测自己会副作用污染）
       try {
         const pkgPath = join(root, 'packages', 'main', 'package.json');
         if (existsSync(pkgPath)) {
           const pkg = JSON.parse(readFileSync(pkgPath, 'utf-8'));
           if (pkg.name === CANONICAL_CORE_PACKAGE_NAME) {
-            throw new Error('Lattice 自身项目禁止 test_auto 全量测试（会自己测自己导致副作用污染）。请运行 lattice validate --story=<storyId>，并用 checklist_update 或 verification_evidence_add 记录 verificationEvidence');
+            throw new Error('Proofbound 自身项目禁止 test_auto 全量测试（会自己测自己导致副作用污染）。请运行 lattice validate --story=<storyId>，并用 checklist_update 或 verification_evidence_add 记录 verificationEvidence');
           }
         }
       } catch (e: any) {

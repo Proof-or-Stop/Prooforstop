@@ -1,4 +1,4 @@
-# Lattice Baseline Two-Host Multi-Agent Execution Plan
+# Proofbound Baseline Two-Host Multi-Agent Execution Plan
 
 Date: 2026-06-09
 
@@ -27,9 +27,9 @@ the same four review principles:
 Already proven by the remote evidence bundle:
 
 ```text
-Lattice CLI non-authority PASS
-Lattice CLI + remote Lattice Authority authorityDone PASS
-Lattice CLI + remote Lattice Authority fullAuthorityDone PASS
+Proofbound CLI non-authority PASS
+Proofbound CLI + remote Proofbound Authority authorityDone PASS
+Proofbound CLI + remote Proofbound Authority fullAuthorityDone PASS
 ```
 
 Evidence anchors:
@@ -488,8 +488,8 @@ Baseline measured success rate is <computed value>.
 Forbidden final statements unless the measured evidence supports them:
 
 ```text
-Lattice can complete any natural-language request to DONE.
-Lattice can rewrite any old project into any target language with equivalent behavior.
+Proofbound can complete any natural-language request to DONE.
+Proofbound can rewrite any old project into any target language with equivalent behavior.
 All future Authority runs are guaranteed to pass.
 Local/non-authority results are Authority DONE.
 ```
@@ -500,7 +500,7 @@ Stop and report blocked instead of continuing when:
 
 - remote Authority cannot be reached or the server key pin does not match;
 - customer API key authorization fails;
-- required baseline fixture cannot be built for reasons outside Lattice's
+- required baseline fixture cannot be built for reasons outside Proofbound's
   control and cannot be repaired in scope;
 - final host verdicts disagree on a real correctness issue;
 - success-rate denominator or exclusions cannot be justified;
