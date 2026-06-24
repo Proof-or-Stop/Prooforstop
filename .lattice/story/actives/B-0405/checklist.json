@@ -338,6 +338,18 @@
           "materialHash": "a2dfb8c6a958296b980bae7fb7046305e4b1ccaec6819ddd4e107e22df2dfe95",
           "storyFilesHash": "4b1a812749cdde4b9b3a991a3726eea23a668aefe4fb71c83666658038cd3299",
           "timestamp": "2026-06-24T11:18:16.067Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts",
+          "command": "npm --prefix packages/main run test:proof-admissibility-hardening",
+          "result": "pass",
+          "note": "Hardening smoke verifies diagnostic handoff receipts and host-local outputs keep receiptVerified/authorityDone/fullAuthorityDone/productionDone false.",
+          "headHash": "9994325a6d6806b721d9b380388f71f1a0194ea7",
+          "materialHash": "a2dfb8c6a958296b980bae7fb7046305e4b1ccaec6819ddd4e107e22df2dfe95",
+          "storyFilesHash": "4b1a812749cdde4b9b3a991a3726eea23a668aefe4fb71c83666658038cd3299",
+          "timestamp": "2026-06-24T11:20:29.427Z"
         }
       ]
     },
