@@ -47,7 +47,40 @@
       "context": "Pass escalation the SAME resolved gitCwd as the adjacent evaluateReviewAssuranceFloor: done-oracle.ts ~751 (gitCwd already in scope at :787), machine.ts ~639 (context.gitCwd ?? resolveGitCwd{...}, mirroring :648) and ~1140 (gitCwd ?? resolveGitCwd{...}, mirroring :1151). Byte-identical in plain repos.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "In done-oracle.ts ~751: after plumbing gitCwd into evaluateReviewEscalation({projectRoot: root, storyId, store, gitCwd}), run buildDoneChecklist under a wrapper-root layout where gitCwd != root -> the review-escalation row and the review-assurance-floor row report the SAME materialHash. WHY: proves the DONE-gate escalation call now agrees with the adjacent floor call (line 785-788 already passes gitCwd).",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "In machine.ts ~639: after plumbing gitCwd into evaluateReviewEscalation({projectRoot: context.projectRoot, storyId: context.storyId, store: context.store, gitCwd: context.gitCwd ?? resolveGitCwd(...)}), invoke the DONE-readiness path in StoryMachine under a wrapper-root layout -> escalation.materialHash === floor.materialHash. WHY: proves the machine.ts caller at ~639 threads the same gitCwd as the floor at ~648.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "In machine.ts ~1140: after plumbing gitCwd into the second evaluateReviewEscalation call, invoke the DONE-gate transition path under a wrapper-root layout -> escalation.materialHash === floor.materialHash at ~1149. WHY: proves both machine.ts call sites are fixed.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "In done-oracle.ts and machine.ts, when gitCwd is not provided (options.gitCwd absent), escalation falls back to projectRoot (root) for hash computation, producing the same result as before -> no regression in plain repos. WHY: confirms the fallback path (gitCwd ?? root) is byte-identical to the pre-fix behavior for plain repos.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "In machine.ts ~639, omit gitCwd from the evaluateReviewEscalation call while the adjacent evaluateReviewAssuranceFloor at ~646 passes gitCwd under a wrapper-root layout -> escalation.materialHash diverges from floor.materialHash, demonstrating the DONE gate would silently accept stale escalation data. WHY: red-documents that the plumbing is structurally required.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
