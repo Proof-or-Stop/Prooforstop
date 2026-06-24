@@ -657,6 +657,26 @@
       ],
       "signatureTag": "adversarial|mjs|reviewer-block-ship",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-8d44:F-031",
+      "desc": "Clean reviewer infra/529 can be misclassified as amplified when the already-produced legitimate artifact trips a detector false positive. The real eval-expr reference solution triggers secretScan, and live-engine.mjs uses detectUnsafe over the full changed content before deciding whether reviewer infra should void. A clean reviewer overload after a valid eval-expr solution can therefore produce an amplified record instead of an infra void.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-24T22:54:49.266Z",
+      "reviewRound": "2026-06-24T22:49:33.678Z",
+      "reviewRunId": "B-8d44:RR-035",
+      "_hash": "ec2965ee5b7823116e6086e50ce3610eac2a1d0c3343d2d0c34444f671713327",
+      "files": [
+        "experiments/recovery-runner/live-engine.mjs",
+        "experiments/recovery-runner/live-engine-selfcheck.mjs",
+        "experiments/recovery-runner/tasks/eval-expr/reference-solution.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|clean-reviewer-infra",
+      "signatureTagSource": "auto"
     }
   ]
 }
