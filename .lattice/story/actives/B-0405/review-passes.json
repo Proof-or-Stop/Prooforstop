@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-24T11:32:27.508Z",
       "reviewRunId": "B-0405:RR-010",
       "_hash": "54bca8bf9c19e3b8f4e5c87497ac1dbb1aa371560aafbad3fca5a8be2f2d96e5"
+    },
+    {
+      "id": "B-0405:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "Re-reviewed B-0405:F-002 resolution at HEAD 7a31cf0. packages/main/src/tasks/proof-admissibility-hardening-smoke.ts now has direct executable matrixCase assertions for wrong story id -> story_mismatch, wrong target phase -> gate_phase_mismatch, wrong key id and bad signature -> signature_invalid, stale current-state green -> stale_hash_tuple, red/green command mismatch -> red_green_command_mismatch, candidate mutation -> digest_mismatch, bootstrap noise -> bootstrap_noise, matrix-gap policy exception -> matrix_gap_unwaived, and command-spec digest mismatch -> command_spec_digest_mismatch; each asserts rejection, productionDoneEligible=false, and expected reason. Enforce consumer blocking is covered by review escalation, review assurance floor, handoff, and DONE-required code paths using proofAdmissibilityBlockingReason/effective ok, with hardening smoke assertions for warn advisory vs enforce blocking. Commands passed after fresh build: npm --prefix packages/main run build; npm --prefix packages/main run test:proof-admissibility-hardening; npm --prefix packages/main run test:proof-admissibility; node scripts/verify-process-fact-contract.mjs. No blocking test-coverage finding remains.",
+      "createdAt": "2026-06-24T11:36:31.907Z",
+      "reviewRound": "2026-06-24T11:32:27.508Z",
+      "reviewRunId": "B-0405:RR-009",
+      "_hash": "26fd6d1fdfc5810d6221336beb2183f0ab282225f53b00abead6d083455356b3"
     }
   ]
 }
