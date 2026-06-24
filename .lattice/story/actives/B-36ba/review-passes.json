@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-24T01:51:47.453Z",
       "reviewRunId": "B-36ba:RR-001",
       "_hash": "ebe05596cd5a055267a972b53dff7d51f8c08a14a01ab74a9fd50e0e04b1700e"
+    },
+    {
+      "id": "B-36ba:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Concept-residue check complete (round 2, RR-004). The only concept replacements are single-arg currentMaterialHash(args.projectRoot) and currentStoryFilesHash(args.projectRoot) in the escalation path, replaced with 3-arg gitCwd-threaded forms. All 6 production evaluateReviewEscalation call sites (done-oracle.ts:751, machine.ts:639+1146, handlers/review-escalation.ts:66+130+222) now carry gitCwd. quorum-submit.ts:329 is intentionally unchanged per plan (passes explicit materialHash/storyFilesHash, bypassing internal recompute). review-run.ts single-arg calls (captureReviewRunSnapshot) are in a separate non-escalation path with no evaluateReviewEscalation connection — pre-existing pattern, out of scope. Lines 12-13 of review-escalation-freshness-root-smoke.ts are JSDoc documenting the old bug, not active code. No new CLAUDE.md/README promises. No doc-promise-undelivered issues. Zero residual single-arg calls in escalation path. No blocker.",
+      "createdAt": "2026-06-24T02:15:19.001Z",
+      "reviewRound": "2026-06-24T02:12:19.502Z",
+      "reviewRunId": "B-36ba:RR-004",
+      "_hash": "78d905afce0f5c7998f2a448f5af8d0ce40d4bf7216d880ee4c2e70feb17a6d5"
     }
   ]
 }
