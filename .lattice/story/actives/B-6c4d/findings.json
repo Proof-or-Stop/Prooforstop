@@ -81,6 +81,24 @@
       ],
       "signatureTag": "missing|md|promise-undelivered-agent",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-6c4d:F-005",
+      "desc": "doc-promise-undelivered: docs/requirements/decisions/story-lifecycle.md line 202 still says \"the gate accepts only the latest reviewer run with a matching lane, matching reviewRound, valid signature, and still fresh\" — after B-6c4d kind-aware relax, PASS evidence no longer requires latest-run; the statement is now inaccurate for passes (it describes the pre-relax policy as a blanket rule). The story scope allowed reconciling decision docs (review-run-binding-race.md was written; session-ownership-and-write-leases.md was reconciled) but story-lifecycle.md was not updated.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-24T14:27:12.618Z",
+      "reviewRound": "2026-06-24T14:22:50.026Z",
+      "reviewRunId": "B-6c4d:RR-005",
+      "_hash": "7ac47e9d104c4a91579c602fd02b35e8dded09326b8815296619ba2b60b602e4",
+      "files": [
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "signatureTag": "missing|md|promise-undelivered-docs",
+      "signatureTagSource": "auto"
     }
   ]
 }
