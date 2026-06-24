@@ -1,9 +1,9 @@
 {
   "storyId": "B-70e4",
-  "checkedAt": "2026-06-24T03:52:37.215Z",
-  "headHash": "9dbe521edb620daf688ab3d06dd45243f0e140e0",
-  "materialHash": "f232c7029257a01f346ffad63c2a664b3b80d713b0c74103e8da7fea41e32783",
-  "reviewRound": "2026-06-24T03:43:07.686Z",
+  "checkedAt": "2026-06-24T04:07:58.526Z",
+  "headHash": "f9e303ed963046fada4838afd12e9a252ff4af31",
+  "materialHash": "6389ceaf7ce2dfa0a53285ad09b7e4b13d19c8c4f71c8c2ba173d4d23aa3c781",
+  "reviewRound": "2026-06-24T03:58:40.688Z",
   "agentId": "lattice-review-delivery",
   "docsPromises": [
     {
@@ -53,7 +53,7 @@
     "hasRealMachineTest": true,
     "hasEdgeCaseCoverage": true,
     "hasUnresolvedTodos": false,
-    "summary": "All 4 plan promises verified in code from diff. CHK-001/004: deterministic smoke with 4 assertion blocks covering Bearer auth, happy-path schema parse, and fail-closed for both unset and empty-string keys. CHK-002/003: live staging smoke against https://staging.hostneutral.net, no 401, DONE gate consumed, tampered control blocked. Run-all-smokes 225/227 (2 manifest-skips) exit 0 per lattice validate output in test-evidence.json at current materialHash f232c702."
+    "summary": "All 4 plan promises verified in code from diff (byte-identical to prior review at dac88b335). Re-sign triggered by main-branch re-sync that moved materialHash to 6389ceaf. CHK-001/004: deterministic smoke 4 assertion blocks covering Bearer auth, happy-path schema parse, fail-closed for unset and empty-string keys. CHK-002/003: live staging smoke against https://staging.hostneutral.net, no 401, DONE gate consumed, tampered control blocked. lattice validate allPass:true at headHash f9e303ed / materialHash 6389ceaf."
   },
-  "_hash": "5d669d8ef6929b819c747456b848bfbb0cbabc065991235f44a53dc47aa49eeb"
+  "_hash": "fc7eb0caa4cf6a3c4a30d823592f0dd415430957894f3ef4ebc7df7d2181863b"
 }
