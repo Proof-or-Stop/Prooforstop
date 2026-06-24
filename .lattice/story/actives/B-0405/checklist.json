@@ -1,0 +1,77 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Implement M2 reserved proof-key metadata contract",
+      "context": "Define reserved proof-key registry, classify caller/server/proof/diagnostic metadata, strip or reject reserved proof keys from caller-writable metadata while preserving ordinary metadata, and add B-e9cb/B-bfa9-style regression coverage.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+        "docs/evidence/evidence-platform-architecture.md",
+        "docs/evidence/proof-surface-inventory.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Implement M3 semantic binding and versioned verification",
+      "context": "Define canonical signed/digested payload helpers, require schema/verifier/contract version checks where proof is consumed, reject null/extra/missing semantic fields, and add tamper tests for reason/verdict/story/head/material/signature fields.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+        "docs/evidence/evidence-platform-architecture.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Implement M4 gate warn-mode integration",
+      "context": "Route REVIEW/TEST/DONE/DONE_REQUIRED/Authority/handoff/local-quorum consumer paths through the shared proof admissibility evaluator in warning/diagnostic mode first, with stable reason codes and remediation hints; update process fact registry if a new gate fact is consumed.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+        "docs/evidence/evidence-platform-architecture.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Implement M5 legacy scope and migration diagnostics",
+      "context": "Classify old evidence lacking new fields as legacy-observed/local-only/unknown-producer, keep it audit-readable, prevent it from satisfying strong proof claims, and provide dry-run repair/migration diagnostics where mechanical upgrade is possible.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+        "docs/evidence/proof-surface-inventory.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Implement M6 host handoff and multi-host boundary",
+      "context": "Split handoff artifacts into context/evidenceCandidate/diagnosticReceipt/admissibleProofRef, preserve productionDone=false unless a matching gate consumes a verified receipt, add host identity fields for local quorum without Authority overclaim, and surface admissibility summaries for Codex/Claude/Antigravity entry paths.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+        "docs/evidence/evidence-platform-architecture.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-006",
+      "title": "Implement M7 enforce rollout and adversarial regression suite",
+      "context": "Add proofAdmissibility.mode warn|enforce policy, enforce high-risk proof consumption paths, add adversarial regression cases from the plan, and finish with 3 rounds x 2 host review evidence over final material.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+        "docs/evidence/evidence-platform-architecture.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

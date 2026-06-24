@@ -1,0 +1,37 @@
+{
+  "storyId": "B-0405",
+  "name": "proof-admissibility-hardening-complete",
+  "title": "Complete proof admissibility hardening M2-M7",
+  "description": "Implement the remaining proof admissibility hardening plan after B-0985: reserved proof-key/server-owned metadata contract, semantic binding/versioned verification, warn-mode gate integration, legacy migration, handoff boundary, and enforce rollout with adversarial regression. This touches evidence, gates, Authority receipt consumption, handoff, process facts, and high-risk production proof boundaries.",
+  "type": "feature",
+  "phase": "INIT",
+  "priority": "critical",
+  "riskSignals": [
+    {
+      "category": "Data Migration/Destructive",
+      "matched": "migration"
+    },
+    {
+      "category": "Validation Framework",
+      "matched": "verifier"
+    },
+    {
+      "category": "Production/Emergency",
+      "matched": "production"
+    }
+  ],
+  "createdAt": "2026-06-24T11:00:02.460Z",
+  "startedAt": "2026-06-24T11:00:02.460Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-24T11:00:02.461Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-7f55c8d5292c7c45",
+      "agent": "main"
+    }
+  ]
+}
