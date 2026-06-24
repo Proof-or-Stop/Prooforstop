@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-36ba:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion/replacement residue found. The old single-arg currentMaterialHash(args.projectRoot)/currentStoryFilesHash(args.projectRoot) pattern in evaluateReviewEscalation is fully replaced by the gitCwd-threaded three-arg calls. All DONE-gate call sites (done-oracle.ts:751, machine.ts:639, machine.ts:1146) and all handler entry points (review_escalation_status, policy_set, fallback_set) correctly thread gitCwd. The quorum-submit.ts:329 non-threaded call is correct by design (explicit materialHash/storyFilesHash supplied; internal recompute never reached). No residual production-path uses of the old pattern exist. Byte-identical behavior in plain repos confirmed by default gitCwd=projectRoot. Smoke test auto-discovered by run-all-smokes and wired in both package.json files. Concept residue check completed, no blocker.",
+      "createdAt": "2026-06-24T01:56:06.458Z",
+      "reviewRound": "2026-06-24T01:51:47.453Z",
+      "reviewRunId": "B-36ba:RR-002",
+      "_hash": "0eef6f90ff4653e013e42d58355bf6f486192c545ca0f9d32a5c5c1924ed24e5"
+    }
+  ]
+}
