@@ -124,12 +124,11 @@
       "q": "Pre-reg §2 says 8 categories ~3 each. The 4 existing tasks are ALL type: feature (4 tasks), while doc-update has only 2 tasks (du-interp, du-duration). CHK-003 asserts only >=2 per category with no upper-bound check. Is the >=2 floor sufficient, or should the selfcheck also assert <=4 (or similar upper bound) per category to catch future drift that concentrates too many tasks in one category and violates the stratified design?",
       "evidence": "§2: N_tasks=24, stratified (8 categories ≈3 each). Existing task.json types: eval-expr=feature, median=feature, parse-range=feature, text-stats=feature (4 feature tasks total). New tasks add 0 feature, 2 doc-update. Result: feature=4, doc-update=2, all others=3. CHK-003 asserts >=2 each — does not bound above.",
       "sourcePointers": [
-        "docs/requirements/decisions/lattice-experiment-protocol.md:64",
-        "experiments/recovery-runner/tasks/eval-expr/task.json",
-        "experiments/recovery-runner/tasks/median/task.json",
-        "experiments/recovery-runner/tasks/parse-range/task.json",
-        "experiments/recovery-runner/tasks/text-stats/task.json"
-      ]
+        "docs/requirements/decisions/lattice-experiment-protocol.md",
+        "CHK-003"
+      ],
+      "resolution": "Per pre-reg §2 ('8 categories ≈3 each'), the current distribution feature=4 / doc-update=2 / six others=3 satisfies the '~3 each' intent (the existing 4 tasks are all feature; only 2 strong doc-update designs were authored). Resolution: corpus-selfcheck.mjs will assert each category count is within [2,5] (lower bound keeps every category meaningfully represented; upper bound 5 catches gross drift / over-concentration) in addition to total==24 and exactly 8 distinct categories. This bounds drift without forcing an artificial exactly-3 split the pre-reg does not require.",
+      "resolvedAt": "2026-06-24T10:05:58.718Z"
     }
   ]
 }
