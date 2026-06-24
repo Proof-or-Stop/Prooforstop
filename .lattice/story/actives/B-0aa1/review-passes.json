@@ -152,6 +152,15 @@
       "reviewRound": "2026-06-24T05:02:41.528Z",
       "reviewRunId": "B-0aa1:RR-021",
       "_hash": "8df9783e449df50d32c2fdef046a431989757b5e8e4947d9fbbcff216086ae89"
+    },
+    {
+      "id": "B-0aa1:RP-018",
+      "agent": "lattice-review-quality",
+      "note": "Targeted re-review of F-004 fix in artifact-store.ts confirmed. Shared artifactDigestSubject() is now the single source of truth for the 6 canonical digest fields (artifactKind/schemaVersion/producer/evidenceScope/subjectBinding/payload), called by both digestSubject (write) and verifyArtifactDigest (verify), eliminating the duplicated field list. Digest semantics unchanged: computeDigest stableCanonicalizes (recursive key sort) so helper field ordering is irrelevant; the helper is a pure projection of identical fields with the same producer default. Write->verify round-trip proven green via smoke step 2 (reviewProbe probeDigest -> verifyArtifactDigest) plus idempotency and payload-sensitivity assertions. Build clean (0.3.83), test:repro-first-candidate passed. No dead code, type-safe, no I/O leakage.",
+      "createdAt": "2026-06-24T05:11:04.519Z",
+      "reviewRound": "2026-06-24T05:09:01.993Z",
+      "reviewRunId": "B-0aa1:RR-024",
+      "_hash": "f5bdb7db567b210b5ff86d9508d74694240f55ef492e1d3c52544f63771b658a"
     }
   ]
 }
