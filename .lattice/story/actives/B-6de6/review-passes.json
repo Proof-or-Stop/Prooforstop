@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-6de6:RP-001",
+      "agent": "lattice-review-docs",
+      "note": "Step 1: 4 symbols extracted (eventsWithStoryFilesHashDowngrade, evaluateReviewAssuranceFloor, ReviewAssuranceFloorFallbackRecord, ReviewAssuranceFloorReport). Step 2: 7 doc paragraphs compared across process-fact-levels.ts gateConsumer/rationale, verify-process-fact-contract.mjs line field, story-files-hash-material-drift.md §Process Fact Contract, review-assurance-floor.ts B-6de6 comments, plan.md CHK-001..005, smoke test advisory assertions. All consistent: (1) gateConsumer text accurately enumerates the floor as a consumer; (2) rationale three conditions (accept/advisory/reject) match code; (3) verifier line string matches exactly (Python confirmed); (4) decision doc §Process Fact Contract satisfied by updated registration; (5) B-6de6 code comments neither over- nor under-claim vs actual behavior; (6) advisory string emitted by fallbackRecordFromEvent and eventsWithStoryFilesHashDowngrade both contain storyFilesHash matches satisfying smoke /storyFilesHash matches/ regex. No blockers found.",
+      "createdAt": "2026-06-24T00:24:27.064Z",
+      "reviewRound": "2026-06-24T00:21:09.458Z",
+      "reviewRunId": "B-6de6:RR-004",
+      "_hash": "28ebcd9c82f6cd9beb625d9c175e6d5440687dd093a2907a5f9b2f0f604cf1f8"
+    }
+  ]
+}
