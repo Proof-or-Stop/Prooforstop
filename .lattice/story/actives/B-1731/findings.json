@@ -77,7 +77,7 @@
       "desc": "Repro-first engine/read errors are classified as stale binding and block enforce-mode PLAN/DEV gates instead of using the dedicated non-blocking repro_first_preflight_engine_error path. core/repro-evidence-binding-gate.ts:113 explicitly excludes repro_first_preflight_engine_error from blocking, and session.ts renders that reason, but evaluateStoryEvidenceBindingGate catches listArtifacts failures and returns reasonCode=stale_story_evidence_binding at core/repro-evidence-binding-gate.ts:300-306. In enforce mode resultFor then sets blocking=true, contradicting CHK-002 fail-open intent and potentially stranding code stories on evidence-store infrastructure/read errors rather than only blocking missing or invalid accepted bindings.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-06-24T22:07:29.593Z",
@@ -90,7 +90,11 @@
         "packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts"
       ],
       "signatureTag": "edge|ts|repro-first-engine",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in fcd3aebb2: evaluateStoryEvidenceBindingGate now maps artifact read/list failures to non-blocking repro_first_preflight_engine_error instead of stale_story_evidence_binding. Verified by npm run test:repro-evidence-binding-dev-gate; smoke ok 6 proves fail-open, reasonCode=repro_first_preflight_engine_error, and session_brief renders reproFirst: engine-error; mode=enforce.",
+      "resolvedAt": "2026-06-24T22:18:22.614Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
