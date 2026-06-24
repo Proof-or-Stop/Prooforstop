@@ -17,6 +17,27 @@
       ],
       "signatureTag": "missing|ts|packages-main-handlers",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-1731:F-002",
+      "desc": "Coverage blocker: B-1731 declares a hermetic smoke matrix for explicit reproFirstBypassReason/repro-first-bypass artifact + session_brief surfacing, classifier/engine fail-open via repro_first_preflight_engine_error, and an 18-assertion PLAN/DEV matrix, but the current repro-evidence-binding-dev-gate smoke passes only 13 checks and has no assertions for engine_error or session_brief. rg over the smoke finds no engine_error/session_brief coverage and only mode=off/story_create_from_repro bypass output, so the checklist verificationEvidence does not prove those promised paths before REVIEW can pass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-24T22:06:33.466Z",
+      "reviewRound": "2026-06-24T22:02:26.542Z",
+      "reviewRunId": "B-1731:RR-003",
+      "_hash": "b1da5761792fc47d5b7bb440eaff85de79b3fa0754510fde1477039bcff9940c",
+      "files": [
+        "packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts",
+        "packages/main/src/handlers/story-create.ts",
+        "packages/main/src/handlers/session.ts",
+        "packages/main/src/core/repro-evidence-binding-gate.ts"
+      ],
+      "signatureTag": "missing|ts|coverage-blocker-1731",
+      "signatureTagSource": "auto"
     }
   ]
 }
