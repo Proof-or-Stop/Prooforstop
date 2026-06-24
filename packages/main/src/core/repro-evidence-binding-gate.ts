@@ -131,6 +131,14 @@ function isCandidateArtifact(artifact: EvidenceArtifact<unknown>, kind: string, 
   return ok;
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return !!value && typeof value === 'object' && !Array.isArray(value);
+}
+
+function missingStringFields(record: Record<string, unknown>, fields: string[]): string[] {
+  return fields.filter(field => typeof record[field] !== 'string' || String(record[field]).trim().length === 0);
+}
+
 function readBoundArtifact<TPayload>(
   projectRoot: string,
   artifactId: string,
@@ -163,6 +171,26 @@ function validateBindingCandidate(
   const payload = binding.payload;
 
   isCandidateArtifact(binding as EvidenceArtifact<unknown>, 'story-evidence-binding', details);
+  if (!isRecord(payload)) {
+    details.push(`${binding.artifactId}: malformed story-evidence-binding payload: missing or non-object payload`);
+    return { ok: false, details };
+  }
+  if (!isRecord(binding.subjectBinding)) {
+    details.push(`${binding.artifactId}: malformed story-evidence-binding subjectBinding: missing or non-object subjectBinding`);
+    return { ok: false, details };
+  }
+  const missingPayloadFields = missingStringFields(payload, [
+    'storyId',
+    'candidateId',
+    'probeId',
+    'probeDigest',
+    'reviewId',
+    'reviewDigest',
+  ]);
+  if (missingPayloadFields.length > 0) {
+    details.push(`${binding.artifactId}: malformed story-evidence-binding payload missing required field(s): ${missingPayloadFields.join(', ')}`);
+    return { ok: false, details };
+  }
   const admissibility = buildProofAdmissibilityDiagnostic({
     artifactId: binding.artifactId,
     artifactKind: 'story-evidence-binding',

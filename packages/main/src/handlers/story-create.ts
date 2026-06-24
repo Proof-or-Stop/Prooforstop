@@ -74,6 +74,10 @@ function normalizeStoryCreateFiles(files?: StoryCreateChecklistInput['files']): 
     : undefined;
 }
 
+function isPreLifecycleStoryCreatePhase(phase: StoryPhase): boolean {
+  return phase === 'IDEA' || phase === 'INIT';
+}
+
 function renderReproFirstStoryCreatePreflight(args: {
   projectRoot: string;
   storyId: string;
@@ -107,6 +111,14 @@ function renderReproFirstStoryCreatePreflight(args: {
   if (!classification.required) return '';
   const bypassReason = args.bypassReason?.trim();
   if (bypassReason) {
+    if (!isPreLifecycleStoryCreatePhase(args.phase)) {
+      throw new Error(
+        `reproFirstBypassReason cannot create repro-first-required story ${args.storyId} directly in phase ${args.phase}. ` +
+        `Create it in IDEA/INIT, then satisfy the normal lifecycle gates with a valid story-evidence-binding. ` +
+        `[repro_first_bypass_direct_phase_forbidden]\n` +
+        `  classifier: ${classification.reason}; ${classification.details.join('; ')}`,
+      );
+    }
     return [
       '⚠ Repro-first STORY_INTAKE preflight bypassed with explicit reason. [repro_first_bypassed]',
       `  reason: ${bypassReason}`,
@@ -118,7 +130,7 @@ function renderReproFirstStoryCreatePreflight(args: {
     `Repro-first STORY_INTAKE preflight requires accepted repro evidence before creating code-verifiable story ${args.storyId}. [missing_story_evidence_binding]`,
     `  mode: ${mode}`,
     `  classifier: ${classification.reason}; ${classification.details.join('; ')}`,
-    '  Use story_create_from_repro after repro_probe + repro_review_set(red-reviewed,target-bug), or pass reproFirstBypassReason for a documented emergency/non-reproducible intake exception.',
+    '  Use story_create_from_repro after repro_probe + repro_review_set(red-reviewed,target-bug), or pass reproFirstBypassReason for a documented emergency/non-reproducible IDEA/INIT intake exception.',
   ].join('\n');
   if (mode === 'enforce') throw new Error(message);
   return `⚠ ${message}`;

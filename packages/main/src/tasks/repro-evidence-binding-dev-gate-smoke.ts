@@ -309,6 +309,26 @@ await check('engine errors fail open and surface in session_brief', async () => 
   });
 });
 
+await check('malformed story-evidence-binding returns stale diagnostic instead of throwing', async () => {
+  await withRoot((root, store) => {
+    const storyId = 'B-malformed-binding';
+    writeStory(store, storyId, 'PLAN', fileChecklist);
+    writeArtifact(root, {
+      artifactKind: 'story-evidence-binding',
+      evidenceScope: 'evidence-candidate',
+      subjectBinding: { storyId, candidateId: 'cand-malformed', probeId: 'probe-malformed' },
+      producer: 'repro-intake-service',
+      payload: undefined as any,
+    });
+    const result = evaluateStoryEvidenceBindingGate(root, store, storyId);
+    assert.equal(result.blocking, true);
+    assert.equal(result.reasonCode, 'stale_story_evidence_binding');
+    assert.match(result.details.join('\n'), /malformed story-evidence-binding payload/);
+    assert.doesNotThrow(() => getGuardFailureReason(storyId, store, 'DEV', root));
+    assert.match(getGuardFailureReason(storyId, store, 'DEV', root) ?? '', /stale_story_evidence_binding/);
+  });
+});
+
 await check('story_create enforce blocks file-declaring story without binding before persistence', async () => {
   await withRoot((root, store) => {
     const handlers = createStoryCreateHandlers({ root, store, scanRoot: join(root, 'packages/main') });
@@ -329,6 +349,31 @@ await check('story_create enforce blocks file-declaring story without binding be
       /missing_story_evidence_binding/,
     );
     assert.deepEqual(store.listStoryIds(), [], 'blocked story_create must not persist story metadata');
+  });
+});
+
+await check('story_create direct lifecycle phase rejects repro-first bypass before persistence', async () => {
+  await withRoot((root, store) => {
+    const handlers = createStoryCreateHandlers({ root, store, scanRoot: join(root, 'packages/main') });
+    assert.throws(
+      () => handlers.story_create({
+        name: 'direct-dev-bypass-block',
+        title: 'Direct DEV bypass block',
+        description: 'Exercise direct lifecycle phase with an explicit repro-first bypass reason.',
+        type: 'feature',
+        phase: 'DEV',
+        priority: 'medium',
+        background: validBackground,
+        reproFirstBypassReason: 'Emergency non-reproducible intake must not skip DEV lifecycle binding gates.',
+        checklist: [{
+          title: 'Modify code',
+          context: 'Declares files so direct DEV bypass must not persist without accepted binding.',
+          files: { modify: ['src/feature.ts'] },
+        }],
+      }),
+      /repro_first_bypass_direct_phase_forbidden/,
+    );
+    assert.deepEqual(store.listStoryIds(), [], 'blocked direct phase bypass must not persist story metadata');
   });
 });
 
@@ -415,6 +460,34 @@ await check('story_create fromDraft supports explicit repro-first bypass reason'
     const gate = evaluateStoryEvidenceBindingGate(root, store, storyId);
     assert.equal(gate.required, true);
     assert.equal(gate.blocking, true, 'bypass only permits intake; lifecycle gates still require binding');
+  });
+});
+
+await check('story_create blocks direct lifecycle phase with repro-first bypass before persistence', async () => {
+  await withRoot((root, store) => {
+    const handlers = createStoryCreateHandlers({ root, store, scanRoot: join(root, 'packages/main') });
+    const blockedPhases: StoryPhase[] = ['PLAN', 'DEV', 'REVIEW', 'TEST', 'DONE'];
+    for (const phase of blockedPhases) {
+      assert.throws(
+        () => handlers.story_create({
+          name: `direct-${phase.toLowerCase()}-bypass`,
+          title: `Direct ${phase} bypass`,
+          description: 'Exercise direct phase repro-first bypass refusal on a file-declaring story.',
+          type: 'feature',
+          priority: 'medium',
+          phase,
+          background: validBackground,
+          reproFirstBypassReason: 'Emergency non-reproducible intake accepted by human operator for this smoke.',
+          checklist: [{
+            title: 'Modify code',
+            context: 'Declares files so repro-first bypass must not skip lifecycle gates.',
+            files: { modify: ['src/feature.ts'], test: ['tests/feature.test.ts'] },
+          }],
+        }),
+        /repro_first_bypass_direct_phase_forbidden/,
+      );
+    }
+    assert.deepEqual(store.listStoryIds(), [], 'blocked direct-phase bypass must not persist story metadata');
   });
 });
 
@@ -553,6 +626,26 @@ await check('gate rejects binding whose repro review is not an accepted target b
     const details = result.details.join('\n');
     assert.match(details, /repro_first_candidate_unreviewed/);
     assert.match(details, /repro_first_reviewed_class_not_target_bug/);
+  });
+});
+
+await check('gate treats malformed story-evidence-binding payload as stale without throwing', async () => {
+  await withRoot((root, store) => {
+    const storyId = 'B-malformed-binding';
+    writeStory(store, storyId, 'PLAN', fileChecklist);
+    writeArtifact(root, {
+      artifactKind: 'story-evidence-binding',
+      evidenceScope: 'evidence-candidate',
+      subjectBinding: { candidateId: 'cand-malformed-binding', storyId },
+      producer: 'repro-intake-service',
+      payload: null,
+    });
+    const result = evaluateStoryEvidenceBindingGate(root, store, storyId);
+    assert.equal(result.blocking, true);
+    assert.equal(result.reasonCode, 'stale_story_evidence_binding');
+    assert.match(result.details.join('\n'), /malformed story-evidence-binding payload/);
+    assert.equal(canSendStoryEventWithoutSnapshotCan(storyId, store, 'PLAN', 'START', root), false);
+    assert.match(getGuardFailureReason(storyId, store, 'DEV', root) ?? '', /stale_story_evidence_binding/);
   });
 });
 
