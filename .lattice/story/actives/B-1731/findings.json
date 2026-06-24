@@ -258,6 +258,25 @@
       ],
       "signatureTag": "edge|ts|cached-validation-pass",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-1731:F-012",
+      "desc": "Fresh validation PASS skip is HEAD-bound rather than working-tree-bound. If material source files are edited after PASS evidence is recorded but before REVIEW->TEST, current HEAD/material hashes can still look fresh while validate would run against a different dirty worktree.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-24T23:55:00.123Z",
+      "reviewRound": "2026-06-24T23:48:36.362Z",
+      "reviewRunId": "B-1731:RR-037",
+      "_hash": "0f66895305c052a49ac400e80b97bbd9f86bcee557c9dda06195dff8978207c6",
+      "files": [
+        "packages/main/src/handlers/phase-gates.ts",
+        "packages/main/src/tasks/validation-protocol-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|fresh-validation-pass",
+      "signatureTagSource": "auto"
     }
   ]
 }
