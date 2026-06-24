@@ -623,6 +623,19 @@
           "materialHash": "2f149db52f337a4f4466fa1a43a8f0dbc8df49ef07e65772f5be61142bd5f85c",
           "storyFilesHash": "c21f0bf4341b45f8bae934c199fccad218fe04e737720749c66665a41e8540cb",
           "timestamp": "2026-06-24T00:21:01.451Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "the verifier validates the whole runtime/registry set; producer entries (quorum_submit, autopilot_review_submit, review_escalation_fallback_set) that already name the review assurance floor remain consistent with the updated freshness-gate consumer text",
+          "headHash": "d697d199688befd91dc0214833c2ac07eeb755ab",
+          "materialHash": "2f149db52f337a4f4466fa1a43a8f0dbc8df49ef07e65772f5be61142bd5f85c",
+          "storyFilesHash": "c21f0bf4341b45f8bae934c199fccad218fe04e737720749c66665a41e8540cb",
+          "timestamp": "2026-06-24T00:21:02.141Z"
         }
       ]
     }
