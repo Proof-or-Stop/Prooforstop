@@ -18,6 +18,25 @@
       ],
       "signatureTag": "doc-code-drift|md|code-drift-readme",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-8d44:F-002",
+      "desc": "doc-code-drift: README.md line 101 (run-driver section) says 'the real campaign plugs a run-recovery.mjs adapter as the engine', but this diff introduces live-engine.mjs as the dedicated pluggable engine adapter for the real campaign. live-engine.mjs is not mentioned anywhere in README.md. The statement now mis-identifies the adapter and the README omits the new module entirely.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-24T12:53:51.737Z",
+      "reviewRound": "2026-06-24T12:50:13.876Z",
+      "reviewRunId": "B-8d44:RR-004",
+      "_hash": "41d32ce37e885fae4c20c7801e7571b124f9d8b0bce75ed70aafc960b47cba5e",
+      "files": [
+        "experiments/recovery-runner/README.md",
+        "experiments/recovery-runner/live-engine.mjs"
+      ],
+      "signatureTag": "doc-code-drift|md|code-drift-readme",
+      "signatureTagSource": "auto"
     }
   ]
 }
