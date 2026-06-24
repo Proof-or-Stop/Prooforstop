@@ -698,14 +698,14 @@
           "intentRef": "CHK-004:adversarial:0",
           "kind": "logic_test",
           "verdict": "success",
-          "file": "experiments/recovery-runner/run-selfchecks.mjs",
-          "command": "node experiments/recovery-runner/run-selfchecks.mjs",
+          "file": "experiments/recovery-runner/corpus-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/corpus-selfcheck.mjs",
           "result": "pass",
-          "note": "run-selfchecks aggregator now runs 6 selfchecks (adjudicate/checks/spend-accounting/run-driver/analyze + corpus-selfcheck); all 6 pass, exit 0; the 5 existing still report + the corpus one is added; aggregator exits non-zero if any selfcheck (incl corpus) fails",
-          "headHash": "0795c3c4fdac10d2cb6e4c1d6e2af7dd9b600ee9",
-          "materialHash": "9f28b82c91a9d14b0bfcf1aef3a30137f791cf3546df8978a7ad59d8ada25b33",
-          "storyFilesHash": "aed6666624846d734a34433306144b48ef4dd03e1dc39ea9ff8f89e19fcf3376",
-          "timestamp": "2026-06-24T10:16:47.450Z"
+          "note": "corpus-selfcheck now runs a built-in negative-control self-test that constructs synthetic gamed corpora and asserts the real guards REJECT each mutation (correct-solution-not-caught / harness-tamper / missing-file / stray-file / missing-payload / 25-tasks / unknown-category / wrong-count) — prints 'negative-control self-test: 8/8 guards fire'; the mutation is actually exercised, not asserted in prose",
+          "headHash": "267a74835d3d6eaa5146c6352746d4386c45dd71",
+          "materialHash": "03ac2ae4cf90a681ead16a78c7ebfe7f00d258c49a17397a78706c19c1cc25d8",
+          "storyFilesHash": "bf5cea6e9a648fc109da08133396f55860337c7e23ecf5053dd8e144115c43e0",
+          "timestamp": "2026-06-24T10:34:40.346Z"
         },
         {
           "intentRef": "CHK-004:adversarial:1",
