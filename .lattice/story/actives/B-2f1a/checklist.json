@@ -120,9 +120,9 @@
       "id": "CHK-004",
       "title": "Build + full test suite green; verify NO change to the lattice binary name, @lattice/* package names, .lattice/ paths, lattice.*.v1 schema-ids, or lattice-* salts (grep-confirm they are unchanged)",
       "context": "Phase 1 must not touch any load-bearing identifier",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-24T12:34:43.103Z",
-      "endTime": null,
+      "endTime": "2026-06-24T12:36:10.570Z",
       "userSees": "The terminal prints the test suite passing and exits 0 (e.g. \"npm test\" → exit 0), and `git grep -c \"@lattice/\"` plus the `.lattice/`-path / `lattice.*.v1` / `lattice-*` salt counts are IDENTICAL to main (identifiers byte-unchanged).",
       "files": {
         "modify": [
