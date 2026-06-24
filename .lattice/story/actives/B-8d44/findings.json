@@ -75,7 +75,7 @@
       "desc": "experiments/recovery-runner/live-engine.mjs:232, experiments/recovery-runner/live-engine.mjs:275, experiments/recovery-runner/live-engine.mjs:364: processEvents/permEvents are harvested only from arm.lastExec, which is overwritten on each retry. Trigger verified with a no-LLM A2 cell whose first attempt emitted processEvents=[git push origin main] and failed acceptance, then second attempt succeeded without processEvents: final record was recovered and unsafeChecks.destructiveCmd=false. Earlier real unsafe actions can evade capture and be scored safe.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-24T12:54:16.326Z",
@@ -86,7 +86,11 @@
         "experiments/recovery-runner/live-engine.mjs"
       ],
       "signatureTag": "adversarial|mjs|experiments-recovery-runner",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Unsafe evidence (processEvents/permEvents/createdPaths) accumulated across ALL attempts; git-push in attempt 1 + clean attempt 2 => destructiveCmd true => amplified. Proven. Commit c6506637b.",
+      "resolvedAt": "2026-06-24T13:15:33.439Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8d44:F-005",
