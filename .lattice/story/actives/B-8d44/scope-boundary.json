@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-8d44",
+  "mode": "feature",
+  "allowed": [
+    "experiments/recovery-runner/live-engine-selfcheck.mjs (new: offline stub-agent selfcheck)",
+    "experiments/recovery-runner/live-engine.mjs (new: makeLiveEngine factory -> run-driver --engine module; 5 arms; injection; raw §7 evidence)",
+    "experiments/recovery-runner/run-recovery.mjs (reuse/export agentRun/reviewArtifact/budget helpers if refactor needed for injection)",
+    "experiments/recovery-runner/run-selfchecks.mjs (wire the engine selfcheck as the 7th)",
+    "package.json / packages/main/package.json (test:experiments wiring if needed)"
+  ],
+  "excluded": [
+    "Changing the deterministic harness (adjudicate/checks/run-driver/analyze) classification logic — the adapter emits RAW evidence and delegates, does not re-classify",
+    "Changing the frozen 24-task corpus or the pre-registration protocol",
+    "Re-introducing the a4b pilot arm (not a pre-reg arm)",
+    "Running the live multi-day powered campaign (separate next story; real $/multi-day)"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Operator-driven daily-chunk powered-ablation program: the engine-adapter chunk (after the corpus B-e67f landed). Builds + offline-validates the run-driver live engine adapter; the multi-day live campaign is a separate next story.",
+  "createdAt": "2026-06-24T12:10:26.404Z",
+  "updatedAt": "2026-06-24T12:10:26.404Z",
+  "_hash": "c1d066e6ec47d47b737e3497f226a24b070c8a10c87de2d0feb93603af033f2b"
+}

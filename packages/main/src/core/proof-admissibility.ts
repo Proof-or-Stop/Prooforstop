@@ -153,6 +153,13 @@ export interface AdmissibilityChecks {
   signatureOrReceiptBindingValid?: boolean;
   temporalAndMaterialBindingValid?: boolean;
   subjectMatches?: boolean;
+  storyMatches?: boolean;
+  gatePhaseMatches?: boolean;
+  commandSpecDigestValid?: boolean;
+  redGreenCommandsMatch?: boolean;
+  matrixGapWaived?: boolean;
+  bootstrapNoiseRejected?: boolean;
+  hashTupleFresh?: boolean;
   producerBoundaryTrusted?: boolean;
   hasReservedProofKey?: boolean;
 }
@@ -581,6 +588,27 @@ export function evaluateProofAdmissibility(input: EvaluateProofAdmissibilityInpu
 
   if (checks.hasReservedProofKey === true) {
     addReason(reasons, remediation, 'reserved_key_detected', 'Strip caller-writable reserved proof keys and regenerate producer-owned proof fields.');
+  }
+  if (checks.storyMatches === false) {
+    addReason(reasons, remediation, 'story_mismatch', 'Evaluate only proof bound to the requested story id.');
+  }
+  if (checks.gatePhaseMatches === false) {
+    addReason(reasons, remediation, 'gate_phase_mismatch', 'Evaluate only proof bound to the requested lifecycle gate phase.');
+  }
+  if (checks.commandSpecDigestValid === false) {
+    addReason(reasons, remediation, 'command_spec_digest_mismatch', 'Regenerate proof from the exact command specification consumed by this policy.');
+  }
+  if (checks.redGreenCommandsMatch === false) {
+    addReason(reasons, remediation, 'red_green_command_mismatch', 'Bind red and green runs to the same command intent before claiming equivalence.');
+  }
+  if (checks.matrixGapWaived === false) {
+    addReason(reasons, remediation, 'matrix_gap_unwaived', 'Resolve or explicitly waive the regression-matrix gap before consuming this proof.');
+  }
+  if (checks.bootstrapNoiseRejected === false) {
+    addReason(reasons, remediation, 'bootstrap_noise', 'Classify bootstrap noise separately; it cannot satisfy target-bug proof claims.');
+  }
+  if (checks.hashTupleFresh === false) {
+    addReason(reasons, remediation, 'stale_hash_tuple', 'Refresh proof against the current story/head/material hash tuple.');
   }
 
   if (checks.schemaVersion === undefined) {

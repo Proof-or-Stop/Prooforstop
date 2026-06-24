@@ -1,0 +1,20 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add the Host DONE convergence / drift-handling section to CLAUDE.md",
+      "context": "Add a new section 'Host DONE convergence / drift handling' to CLAUDE.md covering these rules (a projection of existing mechanisms, with references): (1) TEST->DONE: run `lattice done_prepare --storyId=B-xxxx --mergeMain --refreshStale --validate` BEFORE story_advance DONE, never collide story_advance DONE directly. (2) Host does not self-judge freshness; read the done_prepare / freshness-reader classification, not raw hashes. (3) headHash-only drift is usually metadata/provenance movement, not a strong rerun signal. (4) materialHash-only drift with unchanged storyFilesHash is an unrelated whole-tree drift candidate; per the current consumer contract it may be advisory / re-attestation / refresh rather than full re-quorum -- VERBATIM: 'materialHash-only drift with unchanged storyFilesHash is usually unrelated whole-tree drift. In current warn/advisory paths, Lattice may downgrade this to re-attestation advisory instead of forcing full re-review/quorum. Host must follow done_prepare / freshness-reader output, not self-classify it as pass.' (5) storyFilesHash drift is the strong story-owned-material signal; review pass / quorum / delivery may need re-binding (consumer-dependent: reviewer-pass is strict, floor/escalation/delivery-check downgrade on storyFilesHash-unchanged). (6) done_prepare automates merge/refresh/validate/next-action but does NOT bypass related drift. (7) metadata-only dirty handling -- VERBATIM pointer: 'Metadata-only dirty handling is governed by done_prepare/lifecycle_check; see B-9dfb once merged. Host must not manually bypass cleanTree.' Reference these decision docs (verified to exist): docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md, story-files-hash-material-drift.md, done-prepare-automation-execution-plan.md, review-assurance-floor-execution-plan.md, plus `lattice done_prepare --help`. Do NOT restate the rules from those docs; cite them as the source of truth to avoid docs-drift.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Mirror the parallel Host DONE convergence section into AGENTS.md",
+      "context": "Add the same 'Host DONE convergence / drift handling' section to AGENTS.md (Host = codex), keeping it consistent with the CLAUDE.md copy, mirroring the existing parallel-doc convention (the version-bump discipline already appears in both AGENTS.md:122 and CLAUDE.md:392). Same 7 rules + the two VERBATIM wordings + the same 4 decision-doc references. Keep both copies byte-aligned in substance so the docs-drift gate and future readers see one consistent discipline.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

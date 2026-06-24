@@ -41,6 +41,10 @@ export interface DoneRequiredCommandConfig {
   proof?: DoneRequiredBuildProof;
 }
 
+export interface ProofAdmissibilityConfig {
+  mode?: 'warn' | 'enforce';
+}
+
 export interface LatticeConfig {
   /**
    * Marks this checkout as a read-only legacy/evidence root. Mutating CLI
@@ -93,6 +97,7 @@ export interface LatticeConfig {
       commands?: Array<string | DoneRequiredCommandConfig>;
     };
   };
+  proofAdmissibility?: ProofAdmissibilityConfig;
   /** 浏览器测试配置 */
   browser?: {
     /** dev server 启动命令（如 "npx vite"） */

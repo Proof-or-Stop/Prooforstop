@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-fbfb",
+  "mode": "custom",
+  "allowed": [
+    "Add implementation facts or annotations for supportedSchemaVersion, contractVersionSupported, unsupported_schema_version, unsupported_contract_version",
+    "Add verifierVersionSupported semantics if missing",
+    "Close only the five proof admissibility convergence high gaps reported on 2026-06-24",
+    "Update proof-admissibility tests/smokes needed to prove the five gaps are closed"
+  ],
+  "excluded": [
+    "Branding/rebrand work",
+    "Changing gap_analyze matching semantics beyond what is necessary to map this implementation",
+    "Red/Repro/Spike gate implementation",
+    "Server production receipt demotion or deletion planned for the separate second story",
+    "Unrelated active story cleanup"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User asked to first optimize the five gap_analyze high gaps, then separately handle server production receipt demotion/deletion. Red/Repro/Spike gate gap is delegated to others.",
+  "createdAt": "2026-06-24T12:47:21.828Z",
+  "updatedAt": "2026-06-24T12:47:21.828Z",
+  "_hash": "0756ee50fcde41755cc2563e5f5de0b4d130ee3a5ff4bee6a1dcebbe0b110fa5"
+}

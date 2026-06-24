@@ -1,0 +1,36 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Relax the id-recency rejection at both review-run binding sites (kind-aware on validate)",
+      "context": "review-run.ts: assertCurrentReviewRunForEvidence (~669-672) drop the id-recency throw (write-time, both kinds); validateEvidenceRunBinding (~794-804) keep the stale_run check ONLY for evidence.kind !== 'pass' so open findings still surface but material-fresh non-latest passes become valid. The freshness (674-683/805-822) + scope (691-699/837-857) checks remain the staleness authorities.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Add the EMPTY_STORY_FILES_HASH no-signal guard to checkEvidenceFreshnessForGit",
+      "context": "evidence-freshness.ts drift-advisory branch (~315): the advisory must fire only when BOTH the stored and live storyFilesHash are non-empty (!== EMPTY_STORY_FILES_HASH); an empty-set hash falls through to strict materialHash. Mirrors delivery-check-hash.ts:184-188, generalized for all callers. Soundness prerequisite for the relax.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Add a regression smoke for the binding race and confirm flow-stability semantics hold",
+      "context": "A test that mints two review_run_start on one lane (same round, same material), binds a pass to the FIRST, and asserts it is ACCEPTED (assertCurrentReviewRunForEvidence returns; collectReviewerEvidenceState invalid empty) while genuinely material-drifted and empty-signal runs still hard-reject; plus confirm flow-stability-smoke stays green (open finding still blocks via stale_run, superseded pass + resolved finding still drop). Reference /tmp/friction2-runbind-fix/redgreen-spike-test.ts.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Reconcile the lease-contract doc and write the decision doc",
+      "context": "docs/requirements/decisions/review-run-binding-race.md (the design decision); reconcile docs .../session-ownership-and-write-leases.md (~101-103) so review_run_start/review_pass_set/finding_add are documented as reviewerWrite / lease-exempt to match command-policy.ts. Doc-only.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

@@ -1,0 +1,149 @@
+{
+  "findings": [
+    {
+      "id": "B-0405:F-001",
+      "desc": "Docs/code naming drift: the hardening plan implementation boundary tells readers to register proof surfaces through `ArtifactDefinition` and evaluate gate claims through `ClaimPolicy` at docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md:58-60, but the current registry exports `ProofSurfaceDefinition` and `ProofClaimPolicy` at packages/main/src/core/proof-admissibility.ts:122-144. This can misdirect follow-up implementation work even though the Authority/production scope rules themselves remain correctly conservative.",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-24T11:24:17.863Z",
+      "reviewRound": "2026-06-24T11:21:33.431Z",
+      "reviewRunId": "B-0405:RR-003",
+      "_hash": "de0c742b615cd09cc25231f3297e5a63b5ba3c24e7df22bf1dc0bf68d824769b",
+      "files": [
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+        "packages/main/src/core/proof-admissibility.ts"
+      ],
+      "signatureTag": "doc-code-drift|md|docs-code-naming",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Aligned proof admissibility hardening docs to implementation names ProofSurfaceDefinition and ProofClaimPolicy, replacing the stale ArtifactDefinition / ClaimPolicy wording. Verified with npm --prefix packages/main run build; npm --prefix packages/main run test:proof-admissibility; npm --prefix packages/main run test:proof-admissibility-hardening; node scripts/verify-process-fact-contract.mjs.",
+      "resolvedAt": "2026-06-24T11:32:48.168Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-0405:F-002",
+      "desc": "M7 adversarial matrix coverage is incomplete. The plan requires executable regressions for wrong story id, wrong target phase, wrong key id, bad signature, stale current-state green, red/green command mismatch, candidate mutation, bootstrap noise, and matrix-gap policy exceptions (docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md:431-447, 560-584). The two proof admissibility suites pass, but packages/main/src/tasks/proof-admissibility-hardening-smoke.ts only covers reserved metadata, semantic tamper, strict shape, diagnostics, legacy classification, handoff overclaim, and enforce blocking; packages/main/src/tasks/proof-admissibility-smoke.ts covers stale material and broad consumer/producer mismatch. In packages/main/src/core/proof-admissibility.ts, several specific reason codes are enumerated but no evaluator branch or test assertion produces story_mismatch, gate_phase_mismatch, red_green_command_mismatch, matrix_gap_unwaived, bootstrap_noise, command_spec_digest_mismatch, or stale_hash_tuple. Commands run: npm --prefix packages/main run build; npm --prefix packages/main run test:proof-admissibility; npm --prefix packages/main run test:proof-admissibility-hardening; node scripts/verify-process-fact-contract.mjs all passed, confirming this is a coverage gap rather than a failing test.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-24T11:24:52.483Z",
+      "reviewRound": "2026-06-24T11:21:33.431Z",
+      "reviewRunId": "B-0405:RR-005",
+      "_hash": "cbdbe7c8ccdcbd4a1ab8ed35a8f053ce6bed4b83521ca6ccafaa41e69f9165c9",
+      "files": [
+        "packages/main/src/tasks/proof-admissibility-smoke.ts",
+        "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts",
+        "packages/main/src/core/proof-admissibility.ts",
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+      ],
+      "signatureTag": "missing|ts|adversarial-matrix-coverage",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Added executable adversarial matrix assertions to proof-admissibility-hardening-smoke. The suite now directly produces and asserts wrong story id -> story_mismatch, wrong target phase -> gate_phase_mismatch, wrong key id/bad signature -> signature_invalid, stale current-state green -> stale_hash_tuple, red/green command mismatch -> red_green_command_mismatch, candidate mutation -> digest_mismatch, bootstrap noise -> bootstrap_noise, matrix gap exception -> matrix_gap_unwaived, and command-spec digest mismatch -> command_spec_digest_mismatch. Verified with npm --prefix packages/main run build; npm --prefix packages/main run test:proof-admissibility; npm --prefix packages/main run test:proof-admissibility-hardening; node scripts/verify-process-fact-contract.mjs.",
+      "resolvedAt": "2026-06-24T11:32:48.115Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-0405:F-003",
+      "desc": "M7 enforce rollout is not actually integrated into high-risk gate decisions. The plan requires proofAdmissibility.mode=warn|enforce to enforce Authority receipt consumption, DONE-required evidence, review escalation host verdicts, and handoff proof refs (docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md:422). The implementation defines resolveProofAdmissibilityMode and diagnostic.blocking (packages/main/src/core/proof-admissibility-gates.ts:26,52), but rg shows resolveProofAdmissibilityMode is not called outside its definition, and the touched consumers only attach proofAdmissibility diagnostics to reports without using diagnostic.blocking to fail the gate, e.g. DONE-required returns its existing blocking state while appending proofAdmissibility (packages/main/src/core/done-required-validation.ts:486,600), review assurance appends proofAdmissibility to the report (packages/main/src/core/review-assurance-floor.ts:610), and review escalation does the same (packages/main/src/core/review-escalation.ts:457). The smoke test only proves buildProofAdmissibilityDiagnostic(... mode: enforce) returns blocking=true (packages/main/src/tasks/proof-admissibility-hardening-smoke.ts:215), not that any configured high-risk consumer rejects inadmissible artifacts in enforce mode. This leaves M7 satisfied only as a diagnostic helper, not as gate integration.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-24T11:25:16.054Z",
+      "reviewRound": "2026-06-24T11:21:33.431Z",
+      "reviewRunId": "B-0405:RR-004",
+      "_hash": "41f3582c8aa67c169624bc5498437136956b90120a4da950d7bd5cee7abab7dd",
+      "files": [
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+        "packages/main/src/core/proof-admissibility-gates.ts",
+        "packages/main/src/core/done-required-validation.ts",
+        "packages/main/src/core/review-assurance-floor.ts",
+        "packages/main/src/core/review-escalation.ts",
+        "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts"
+      ],
+      "signatureTag": "missing|md|enforce-rollout-actually",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Implemented config-driven enforce-mode consumption in local high-risk proof consumers: review escalation and review assurance floor now fold blocking proof diagnostics into ok/reasons, handoff proof refs expose blocked/reasons, and configured DONE-required evaluations append stable proof_admissibility_blocked remediation when inadmissible. Added warn/enforce smoke assertions proving warn remains advisory and enforce rejects inadmissible review escalation, review floor, and handoff proof-ref consumption. Verified with npm --prefix packages/main run build; npm --prefix packages/main run test:proof-admissibility; npm --prefix packages/main run test:proof-admissibility-hardening; node scripts/verify-process-fact-contract.mjs.",
+      "resolvedAt": "2026-06-24T11:32:48.085Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-0405:F-004",
+      "desc": "Test coverage evidence for CHK-001..CHK-006 is stale after the main merge/material hash drift. Current HEAD b1d962e passes npm --prefix packages/main run build, npm --prefix packages/main run test:proof-admissibility-hardening, and node scripts/verify-process-fact-contract.mjs, and the smoke source covers the adversarial matrix, but lattice session_brief still reports 18 stale verification intent(s) and instructs recovery via lattice verification_evidence_refresh_stale --storyId=B-0405 followed by lattice validate --story=B-0405 --json. Until those verificationEvidence bindings are refreshed on current material, the checklist evidence cannot be treated as fresh coverage for REVIEW->TEST.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-24T11:53:24.618Z",
+      "reviewRound": "2026-06-24T11:50:39.023Z",
+      "reviewRunId": "B-0405:RR-016",
+      "_hash": "4c1791ec99afa9fac75e3bb0b1fd44d463ae6d61c1329894a82d2779b469c852",
+      "files": [
+        "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts",
+        "packages/main/src/core/evidence-stale-hint.ts",
+        "packages/main/src/core/verification.ts"
+      ],
+      "signatureTag": "missing|ts|test-coverage-evidence",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Resolved after main merge by running lattice verification_evidence_refresh_stale --storyId=B-0405, then lattice validate --story=B-0405 --json. Validate passed with 30 configured commands and verification intent coverage 18/18 covered, 0 required missing. Fresh checklist evidence is bound to current post-merge materialHash/storyFilesHash.",
+      "resolvedAt": "2026-06-24T11:59:34.916Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-0405:F-005",
+      "desc": "Documentation consistency blocker: proof-admissibility-hardening-execution-plan.md now states that B-0405 implemented M2-M7 in warn-by-default/enforce diagnostics mode (lines 3-5) and adds implemented status notes for M2-M5 (for example lines 268-271, 304-308, 340-344, 374-377), but Appendix A still labels the same contract work as Current code status Missing/Partial with pending Gap/action items (lines 620-635), and Appendix B still says shared enum/strict shape/contract integration/typed handoff split remain missing or must be added (lines 705-719). Because this decision doc is the truth-source execution plan for the story, readers cannot tell whether B-0405 delivered the hardening or whether those appendix actions remain required. Update the appendices to either mark them explicitly as pre-B-0405 baseline/historical gap analysis or refresh the current-status/action columns to match the implemented B-0405 state.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-24T11:54:03.246Z",
+      "reviewRound": "2026-06-24T11:50:39.023Z",
+      "reviewRunId": "B-0405:RR-017",
+      "_hash": "70ade5f11aaa1a49f16ec2f22c6a297f1c2f2dd4805a2c22794385e6b89479cb",
+      "files": [
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+      ],
+      "signatureTag": "doc-code-drift|md|documentation-consistency-blocker",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Updated docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md Appendix A/B to explicitly report post-B-0405 CLI implementation status separately from remaining future work. The appendices now state that Authority Server production receipt conformance remains out of scope and do not overclaim productionDone. Committed docs-only fix as a8e491d30. Focused text check run: sed -n '/^## Appendix A:/,/^## Appendix C:/p' docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md | rg -n '\\b(missing|partial|pending|needs|must add|still missing|must be added|Gap / action|Current code status|Current status)\\b'; remaining hits are legitimate clause wording (missing field, historical evidence missing the current contract), not stale Appendix status/action labels. git diff --check passed for the edited doc.",
+      "resolvedAt": "2026-06-24T11:58:28.140Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-0405:F-006",
+      "desc": "Post-merge review assurance is stale for current material. After F-004/F-005 resolution, lattice finding_list shows all prior findings resolved and checklist evidence refreshed to materialHash 923ad919c3ba509a25243f28d0b60a236866050a79a73b478ce4b24568baa7d0, and build/smoke/contract checks pass. However lattice review_escalation_status --storyId=B-0405 --json reports ok=false, required=true, materialHash=923ad919c3ba509a25243f28d0b60a236866050a79a73b478ce4b24568baa7d0, fullQuorum.ok=false, voluntaryLocalRounds.validRoundCount=0, and all six submitted B-0405-q-r1..q-r3 host verdicts ignored because materialDigest is stale (c074e77cf9d0d9198cf347d2b26f05ffbb179573e69e3b7bf20317aa976004dc). CHK-006 evidence still claims final material has local voluntary 3 rounds x 2 host quorum, so the current material lacks fresh 3x2 assurance and REVIEW/DONE escalation risk remains after the main merge/docs fix. A concurrent lattice validate --story=B-0405 --json attempt was blocked by an existing validation lock (pid 53418), so this finding is based on the dedicated review_escalation_status gate diagnostic plus passing focused code checks.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-24T12:02:32.780Z",
+      "reviewRound": "2026-06-24T11:58:15.113Z",
+      "reviewRunId": "B-0405:RR-019",
+      "_hash": "58972c35bddf7f31ae8a353741e84274f114f797db51eb14cb8e16bf32cea3a0",
+      "files": [
+        ".lattice/story/actives/B-0405/process-events.jsonl",
+        ".lattice/story/actives/B-0405/checklist.json",
+        "packages/main/src/core/review-escalation.ts"
+      ],
+      "signatureTag": "missing|jsonl|post-merge-review",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded by current quality run B-0405:RR-022 / pass B-0405:RP-011, which explicitly found all non-quorum quality concerns clean and identified the remaining action as submitting a fresh local 3x2 quorum over current material. This resolution only clears the stale old-run blocker so quorum_submit can bind final material; it does not claim quorum freshness until quorum_submit and review_escalation_status pass immediately afterward.",
+      "resolvedAt": "2026-06-24T12:08:44.671Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "medium"
+    }
+  ]
+}

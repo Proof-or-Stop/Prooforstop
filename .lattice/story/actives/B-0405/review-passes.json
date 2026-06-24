@@ -1,0 +1,139 @@
+{
+  "passes": [
+    {
+      "id": "B-0405:RP-001",
+      "agent": "lattice-review-quality",
+      "note": "Quality review passed. Checked fail-closed evaluator behavior, strict Authority proof schemas, bounded caller-metadata sanitization, warn/enforce diagnostic behavior, handoff/legacy downgrade boundaries, and no local/legacy/handoff promotion to productionDone. Commands passed: npm --prefix packages/main run build; npm --prefix packages/main run test:proof-admissibility-hardening.",
+      "createdAt": "2026-06-24T11:23:58.949Z",
+      "reviewRound": "2026-06-24T11:21:33.431Z",
+      "reviewRunId": "B-0405:RR-001",
+      "_hash": "e2a35d13ff309f3ad8f727512b608facc0439a4c9eb03702afe01172bca4ea37"
+    },
+    {
+      "id": "B-0405:RP-002",
+      "agent": "lattice-review-docs",
+      "note": "Docs re-review passed. F-001 is resolved: docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md now names ProofSurfaceDefinition and ProofClaimPolicy, matching packages/main/src/core/proof-admissibility.ts exports. Reviewed proof-admissibility hardening docs, evidence platform architecture, proof-surface inventory, README Authority/production references, and implementation/test touchpoints. Docs remain conservative about Authority/production: local/shadow/diagnostic/legacy evidence cannot establish productionDone, raw Authority receipts are input evidence only, and only matching production-gate-decision policy can be production eligible. M2-M7 status lines match the implemented B-0405 scope: CLI proof surfaces, strict binding, warn-mode diagnostics, legacy dry-run classification, handoff boundary, warn default plus enforce diagnostics/high-risk consumer blocking smoke coverage.",
+      "createdAt": "2026-06-24T11:35:52.716Z",
+      "reviewRound": "2026-06-24T11:32:27.508Z",
+      "reviewRunId": "B-0405:RR-008",
+      "_hash": "ade9497fb4325bcc6540e8e167cef7553f26d36f08dbfd92d8ae2e72b9a41fb3"
+    },
+    {
+      "id": "B-0405:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "PASS: re-review after F-003/F-002/F-001 fixes. Enforce mode is consumed by high-risk review escalation, review assurance floor, and DONE-required proof consumers via proof_admissibility_blocked gates, not merely reported diagnostically. Handoff and legacy/local evidence remain diagnostic/local-only and cannot set receiptVerified/authorityDone/fullAuthorityDone/productionDone. Targeted proof-admissibility hardening smoke passed.",
+      "createdAt": "2026-06-24T11:36:29.983Z",
+      "reviewRound": "2026-06-24T11:32:27.508Z",
+      "reviewRunId": "B-0405:RR-010",
+      "_hash": "54bca8bf9c19e3b8f4e5c87497ac1dbb1aa371560aafbad3fca5a8be2f2d96e5"
+    },
+    {
+      "id": "B-0405:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "Re-reviewed B-0405:F-002 resolution at HEAD 7a31cf0. packages/main/src/tasks/proof-admissibility-hardening-smoke.ts now has direct executable matrixCase assertions for wrong story id -> story_mismatch, wrong target phase -> gate_phase_mismatch, wrong key id and bad signature -> signature_invalid, stale current-state green -> stale_hash_tuple, red/green command mismatch -> red_green_command_mismatch, candidate mutation -> digest_mismatch, bootstrap noise -> bootstrap_noise, matrix-gap policy exception -> matrix_gap_unwaived, and command-spec digest mismatch -> command_spec_digest_mismatch; each asserts rejection, productionDoneEligible=false, and expected reason. Enforce consumer blocking is covered by review escalation, review assurance floor, handoff, and DONE-required code paths using proofAdmissibilityBlockingReason/effective ok, with hardening smoke assertions for warn advisory vs enforce blocking. Commands passed after fresh build: npm --prefix packages/main run build; npm --prefix packages/main run test:proof-admissibility-hardening; npm --prefix packages/main run test:proof-admissibility; node scripts/verify-process-fact-contract.mjs. No blocking test-coverage finding remains.",
+      "createdAt": "2026-06-24T11:36:31.907Z",
+      "reviewRound": "2026-06-24T11:32:27.508Z",
+      "reviewRunId": "B-0405:RR-009",
+      "_hash": "26fd6d1fdfc5810d6221336beb2183f0ab282225f53b00abead6d083455356b3"
+    },
+    {
+      "id": "B-0405:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Quality/safety review passed after fixes. Verified config-mode consumers in review escalation, review assurance floor, and DONE-required evaluation; enforce mode feeds stable proof_admissibility_blocked reasons into otherwise-passing local gates while warn mode stays advisory. Fail-closed behavior is present for malformed/missing/stale DONE-required evidence and strict binding failures. Metadata sanitizer is bounded to caller metadata parse paths, strips reserved proof keys recursively, and preserves ordinary metadata. Semantic binding rejects tampering and strict shapes reject extra/null proof fields. Handoff and local review paths keep authorityDone/fullAuthorityDone/productionDone false and do not promote diagnostic artifacts. Verification run: npm --prefix packages/main run build -- --noEmit; node packages/main/dist/tasks/proof-admissibility-hardening-smoke.js.",
+      "createdAt": "2026-06-24T11:36:35.497Z",
+      "reviewRound": "2026-06-24T11:32:27.508Z",
+      "reviewRunId": "B-0405:RR-006",
+      "_hash": "47ef1e1f9759324bfa8fc564319dd39d1abc5774dcfe25e02b516e8c9970c39f"
+    },
+    {
+      "id": "B-0405:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "Concept review passed for proof admissibility hardening M2-M7 at aea8497. Checked registry/evaluator boundaries, reserved caller metadata stripping, semantic digest/strict shape contract, Authority gate receipt production-vs-local classification, warn/enforce consumer behavior, legacy/local downgrade path, and handoff proof-ref separation. No blocker found: local CLI assurance remains non-production by default, enforce mode blocks inadmissible proof consumption, legacy/local evidence is diagnostic-only, and handoff carries proof refs without asserting receiptVerified/authorityDone/fullAuthorityDone/productionDone.",
+      "createdAt": "2026-06-24T11:52:29.062Z",
+      "reviewRound": "2026-06-24T11:50:39.023Z",
+      "reviewRunId": "B-0405:RR-011",
+      "_hash": "cf8473293af7232c0796015d748f4fe429f072c5a8055eb12bf06a71d98cced5"
+    },
+    {
+      "id": "B-0405:RP-007",
+      "agent": "lattice-review-quality",
+      "note": "Quality review of main-merged B-0405 material found no blocking implementation, maintainability, type-safety, or integration-risk issue. Inspected proof-admissibility helpers, Authority receipt strict schemas, caller metadata sanitization, handoff admissibility projections, review/DONE proof diagnostics, and focused smoke coverage. Verified with npm --prefix packages/main run build, npm --prefix packages/main run test:proof-admissibility-hardening, node packages/main/dist/tasks/authority-receipt-proof-auth-smoke.js, node packages/main/dist/tasks/authority-runner-contracts-smoke.js, and node packages/main/dist/tasks/proof-admissibility-smoke.js.",
+      "createdAt": "2026-06-24T11:52:52.580Z",
+      "reviewRound": "2026-06-24T11:50:39.023Z",
+      "reviewRunId": "B-0405:RR-012",
+      "_hash": "b8af5b9f85f72dee94d4b605cd5444663763b7bdbd4c649d330318f9a9c9e70e"
+    },
+    {
+      "id": "B-0405:RP-008",
+      "agent": "lattice-review-docs",
+      "note": "Focused re-review for F-005: docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md now distinguishes B-0405 implemented CLI hardening from remaining future work. Authority Server production receipt conformance/execution is explicitly future/out of scope and no longer implied as delivered by B-0405.",
+      "createdAt": "2026-06-24T12:01:25.966Z",
+      "reviewRound": "2026-06-24T11:58:15.113Z",
+      "reviewRunId": "B-0405:RR-021",
+      "_hash": "21fd31843d34b6ec1b7a9ca8b8a4f5b832e336d8add06065e93d77771bb9dfad"
+    },
+    {
+      "id": "B-0405:RP-009",
+      "agent": "lattice-review-concept",
+      "note": "Focused re-review after F-004/F-005 resolution: conceptual boundaries still hold. Local/review/handoff assurance remains non-Authority and keeps receiptVerified/authorityDone/fullAuthorityDone/productionDone false unless a matching Authority gate receipt is consumed. Enforce mode now folds inadmissible high-risk proof diagnostics into review escalation/review assurance/handoff blocking while warn mode remains advisory. Legacy/local/handoff evidence is downgraded to legacy/local-diagnostic/evidence-candidate classifications and cannot satisfy production-completion claims. Verified with npm --prefix packages/main run build; npm --prefix packages/main run test:proof-admissibility; npm --prefix packages/main run test:proof-admissibility-hardening; node scripts/verify-process-fact-contract.mjs.",
+      "createdAt": "2026-06-24T12:01:37.443Z",
+      "reviewRound": "2026-06-24T11:58:15.113Z",
+      "reviewRunId": "B-0405:RR-018",
+      "_hash": "b40cc3f107d0af02a1a46e19c8351fb8c0d3971dd820aa170c6b02cf025c11bd"
+    },
+    {
+      "id": "B-0405:RP-010",
+      "agent": "lattice-review-test-coverage",
+      "note": "Focused re-review after F-004 resolution: fresh lattice validate --story=B-0405 --json passed all configured validation commands and reported verification intent coverage 18/18 covered with 0 required missing. checklist_get shows all six checklist items done, each with 3 verification intents and 3 passing verification evidence entries; session_brief reports last test PASS and no stale verification evidence.",
+      "createdAt": "2026-06-24T12:03:21.325Z",
+      "reviewRound": "2026-06-24T11:58:15.113Z",
+      "reviewRunId": "B-0405:RR-020",
+      "_hash": "51f459fc7a36a4d4bbef18784e885ddf111b5857d5323baaebb6c7b62a13a791"
+    },
+    {
+      "id": "B-0405:RP-011",
+      "agent": "lattice-review-quality",
+      "note": "Focused re-review after F-006: build, proof-admissibility smoke, proof-admissibility-hardening smoke, process fact contract, git diff --check, and lattice validate --story=B-0405 --json all pass; finding_list shows F-001..F-005 resolved and F-006 is the only open issue. review_escalation_status still reports stale prior quorum verdicts for current material 923ad919c3ba509a25243f28d0b60a236866050a79a73b478ce4b24568baa7d0 with authorityDone/fullAuthorityDone/productionDone false. This pass confirms non-quorum quality concerns are clean and enables a fresh local quorum_submit to bind the final material after current reviewer passes; it does not claim the quorum is already fresh.",
+      "createdAt": "2026-06-24T12:07:27.493Z",
+      "reviewRound": "2026-06-24T11:58:15.113Z",
+      "reviewRunId": "B-0405:RR-022",
+      "_hash": "22e02d11e0cb5a2180c645259433604d89afae635200e6e7b7291af97521e604"
+    },
+    {
+      "id": "B-0405:RP-012",
+      "agent": "lattice-review-docs",
+      "note": "Docs re-review after latest main merge to v0.3.87: proof-admissibility-hardening-execution-plan.md clearly distinguishes B-0405 implemented CLI hardening from future Authority Server production work. Appendix A/B now state post-B-0405 CLI status and separate remaining future work; no stale Appendix contradiction found.",
+      "createdAt": "2026-06-24T12:14:50.847Z",
+      "reviewRound": "2026-06-24T12:13:00.859Z",
+      "reviewRunId": "B-0405:RR-026",
+      "_hash": "7dc4921f41be0d48e6b71149a7f39987d4ff85f5024beb5a3755d54d74a6e48a"
+    },
+    {
+      "id": "B-0405:RP-013",
+      "agent": "lattice-review-quality",
+      "note": "Quality re-review after main merge to v0.3.87: inspected main...HEAD implementation diff and current metadata-only follow-up commits; build and proof-admissibility smoke checks pass; worktree is clean; no implementation-quality or non-quorum blockers found.",
+      "createdAt": "2026-06-24T12:15:19.071Z",
+      "reviewRound": "2026-06-24T12:13:00.859Z",
+      "reviewRunId": "B-0405:RR-027",
+      "_hash": "3338f3969f255ff72f7431b66a9e49e9912773760879808d4907d66e0e204548"
+    },
+    {
+      "id": "B-0405:RP-014",
+      "agent": "lattice-review-concept",
+      "note": "Focused re-review after latest main merge to v0.3.87: conceptual boundaries hold. Production completion remains scoped to production-gate-decision with signature/receipt, freshness, subject, consumer, and producer-boundary checks; local review/quorum, handoff, legacy, and diagnostic artifacts keep Authority/production booleans false. Verified with npm --prefix packages/main run test:proof-admissibility-hardening; npm --prefix packages/main run test:proof-admissibility; npm --prefix packages/main run build; npm run test:process-fact-contract; git diff --check main...HEAD.",
+      "createdAt": "2026-06-24T12:16:14.636Z",
+      "reviewRound": "2026-06-24T12:13:00.859Z",
+      "reviewRunId": "B-0405:RR-029",
+      "_hash": "b4a93605d02639f3b4f8ab63f78bd77304b19aa44f2ef4fe1473b3e814755cf6"
+    },
+    {
+      "id": "B-0405:RP-015",
+      "agent": "lattice-review-test-coverage",
+      "note": "Final focused re-review after main merge to v0.3.87: refreshed 18 stale verification evidence bindings, validate passed with 18/18 verification intents covered, and focused hardening/base/process-fact checks passed (test:proof-admissibility-hardening, test:proof-admissibility, verify-process-fact-contract). No test-coverage blockers.",
+      "createdAt": "2026-06-24T12:17:06.767Z",
+      "reviewRound": "2026-06-24T12:13:00.859Z",
+      "reviewRunId": "B-0405:RR-030",
+      "_hash": "b93cbc2c13cecb304b51547321b8d897eb6d6c6e74bbb219f8e166bd01d3520e"
+    }
+  ]
+}

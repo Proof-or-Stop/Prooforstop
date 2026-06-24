@@ -1,6 +1,8 @@
 # Proof Admissibility Hardening Execution Plan
 
-> Status: execution plan; M0/M1 classification-only MVP implemented by B-0985.
+> Status: execution plan; M0/M1 classification-only MVP implemented by B-0985;
+> M2-M7 hardening implemented by B-0405 in warn-by-default mode with enforce
+> diagnostics for high-risk proof consumers.
 > Date: 2026-06-23.
 > Scope: Proofbound / Proofbound CLI evidence, receipt, handoff, and gate-consumption boundaries.
 > Architecture baseline: `docs/evidence/evidence-platform-architecture.md`.
@@ -54,8 +56,8 @@ modifiable by, an untrusted boundary.
 Implementation boundary:
 
 - Use the shared `EvidenceRuntime` facade.
-- Register proof surfaces through `ArtifactDefinition`.
-- Evaluate gate claims through `ClaimPolicy`.
+- Register proof surfaces through `ProofSurfaceDefinition`.
+- Evaluate gate claims through `ProofClaimPolicy`.
 - Store artifacts and ledger streams under `.lattice/evidence/`.
 - Keep existing strong verifiers, but connect them through adapters instead of
   rewriting them in the first migration slice.
@@ -263,6 +265,11 @@ Exit criteria:
 - No caller-writable metadata path can create a field that is later accepted as
   proof.
 
+B-0405 status: implemented for CLI proof surfaces. Reserved proof-key detection
+and sanitization live in `proof-admissibility-metadata.ts`; caller metadata on
+runner registration, job spec, and provider event envelopes strips nested or
+linked spoof keys while preserving ordinary metadata.
+
 ### M3 - Semantic Binding And Versioned Verification
 
 Goal: prevent partial digest/signature coverage from making edited evidence look
@@ -294,6 +301,12 @@ Exit criteria:
 - Any change to a gate-consumed semantic field changes the digest or fails strict
   shape/signature verification.
 
+B-0405 status: implemented for the CLI hardening slice. Versioned canonical
+binding helpers live in `proof-admissibility-binding.ts`; Authority gate receipt
+proof schemas are strict for strong proof paths, and the hardening smoke covers
+reason/verdict/story/head/material/signature-like tamper plus null/extra/missing
+shape failures.
+
 ### M4 - Gate Integration In Warn Mode
 
 Goal: route REVIEW, TEST, DONE, Authority, handoff, and local review-quorum
@@ -324,6 +337,12 @@ Exit criteria:
 - Every gate report can tell whether it consumed strong proof, local evidence,
   diagnostic evidence, or legacy audit material.
 
+B-0405 status: implemented in warn mode for gate-facing reports. Shared
+diagnostics live in `proof-admissibility-gates.ts`; DONE-required, review
+escalation, review assurance floor, handoff, and Authority receipt-facing
+surfaces report scope/reason/remediation through the shared contract. The
+process fact registry records `runtime:proof_admissibility_gate_diagnostic`.
+
 ### M5 - Legacy Scope And Migration
 
 Goal: preserve old evidence for audit without letting it satisfy stronger proof
@@ -351,6 +370,11 @@ Exit criteria:
 
 - Old evidence remains readable.
 - Old evidence cannot accidentally satisfy a new strong proof gate.
+
+B-0405 status: dry-run diagnostics implemented in
+`proof-admissibility-legacy.ts`. Legacy artifacts are classified as
+`legacy-observed`, `legacy-local-only`, or `legacy-unknown-producer`; all remain
+readable and none are promoted to strong proof.
 
 ### M6 - Host Handoff And Multi-Host Boundary
 
@@ -381,6 +405,12 @@ Exit criteria:
 
 - A new host can tell which inputs are context, which are candidate evidence,
   and which are admissible proof.
+
+B-0405 status: implemented for handoff projections. Handoff summaries separate
+`context`, `evidenceCandidate`, `diagnosticReceipt`, and `admissibleProofRef`,
+carry host/quorum identity, and keep `receiptVerified`, `authorityDone`,
+`fullAuthorityDone`, and `productionDone` false unless a separate matching gate
+consumes verified proof.
 
 ### M7 - Hard-Fail Rollout And Adversarial Regression Suite
 
@@ -430,6 +460,12 @@ Exit criteria:
 - In enforce mode, no inadmissible proof-looking artifact can satisfy a strong
   gate.
 - In warn mode, local development remains usable with clear diagnostics.
+
+B-0405 status: implemented as config-resolved `proofAdmissibility.mode =
+warn|enforce` helper with warn default. The adversarial hardening smoke covers
+reserved-key injection, delegated metadata spoofing, stale/wrong-shape proof
+diagnostics, local/diagnostic handoff receipts, legacy downgrade behavior, and
+enforce-mode blocking for inadmissible high-risk consumers.
 
 ## 7. Dependency Plan
 
@@ -575,28 +611,29 @@ This program is complete when:
 
 Review date: 2026-06-23.
 
-Current code has many strong local protections, but they are implemented per
-surface. The missing layer is a single admissibility contract that every proof
-consumer must call before treating an artifact as proof.
+Post-B-0405 note: the rows below are no longer the pre-implementation gap list.
+They describe the CLI hardening delivered by B-0405 and the remaining future
+work that is intentionally outside this story, especially Authority Server
+production receipt conformance and broader contract unification.
 
 ### A.1 Contract clauses
 
-| Clause | Contract requirement | Current code status | Current code examples | Gap / action |
+| Clause | Contract requirement | B-0405 CLI status | Implemented examples | Remaining future work |
 |---|---|---|---|---|
-| C1: Single scope classifier | Every proof-looking artifact must classify into exactly one canonical `EvidenceScope` defined in Appendix E before any consumer interprets it | Partial | `authority-boundary.ts` classifies local/shadow/receipt-backed L2+; `receipt-bundle.ts` hardwires `local-key-single-host`; `lattice-handoff.ts` forces `productionDone=false`; process fact registry labels many non-authority commands | Add shared `proof-admissibility.ts`; migrate local classifiers to one enum/reason-code set |
-| C2: Producer ownership | Proof fields must be produced by the owning authority, not by caller-writable metadata | Missing as a universal rule | Authority sibling fixes `B-e9cb` / `B-bfa9`; current Proofbound code has local per-artifact writers but no reserved proof-key registry | Add reserved proof-key registry and metadata sanitizer for every metadata-carrying proof surface |
-| C3: Supported schema version | Strong proof artifacts must carry an accepted schema/version and reject unsupported versions | Mostly present per artifact | `done-required-validation.ts` checks schema/version; `receipt-bundle.ts` checks `lattice.receipt_bundle.v1`; `authority-gate-receipt-verifier.ts` checks `lattice.authority_gate_receipt_proof.v1`; `lattice-handoff.ts` checks handoff receipt schema | Centralize version support policy and downgrade old shapes to `legacy-observed` where appropriate |
-| C4: Strict shape before trust | Strong proof verification must reject null, wrong type, missing field, and unexpected proof keys before interpreting signed fields | Partial | `receipt-bundle.ts` does strict shape and rejects extra keys/nulls; `authority-gate-receipt-verifier.ts` uses Zod schemas with `.passthrough()` on gate proof/input/decision; DONE receipts validate required fields but do not use one shared strict-shape contract | Decide which artifacts may be passthrough diagnostics and which must be strict; add strict shape for strong proof paths |
-| C5: Semantic digest coverage | Every gate-consumed semantic field must be included in the digest/signature subject | Partial | `authority-gate-receipt-verifier.ts` recomputes input/decision digests and subject digest; `receipt-bundle.ts` signs the bundle body; B-7b6e fixed a gate-strength digest omission | Add semantic-field coverage tests for every gate-consumed claim, including `reason`, verdict, producer/verifier ids, policy, and evidence refs |
-| C6: Signature / receipt binding | A signature or receipt must bind to the actual subject, trusted key, story, and gate context | Strong for key paths, not universal | `authority-receipt-classification.ts` verifies receipt subject binding to an envelope; `authority-gate-receipt-verifier.ts` verifies signature, subject kind/id/digest, key trust; `review-run.ts` verifies signed reviewer runs; `receipt-bundle.ts` verifies trusted local key | Route all future signed/receipt-like artifacts through a shared binding checklist |
-| C7: Temporal and material binding | Proof must declare whether it is historical-baseline, current-state, or transition-relation, and validate the correct hash/material rule for that role | Strong for current review/DONE/Authority; missing for historical red-to-green relations | `review-run.ts` checks `headHash`, `materialHash`, and `storyFilesHash`; `done-required-validation.ts` blocks stale current material; repro-first requires historical baseline + current green + relation | Add temporal role, baseline/current binding rules, and red-green relation validation |
-| C8: Artifact consumer matching | Proof must be consumed only by the consumer it was produced for, including non-gate consumers such as story intake | Partial | `authority-gate-receipt-verifier.ts` checks target phase; `review-run.ts` checks lane/current round/latest run; process fact registry records `consumerGate` for many artifacts | Add machine-checkable `ArtifactConsumerKind` in the admissibility registry and verify process-fact coverage |
-| C9: Non-authority cannot overclaim | Local/shadow/diagnostic/worker output must not set `receiptVerified`, `authorityDone`, `fullAuthorityDone`, or `productionDone` | Strong in many surfaces | `authority-boundary.ts`, `lattice-handoff.ts`, `usage-ledger/authority-evidence.ts`, `process-fact-levels.ts`, and `docs/guide.md` all preserve this boundary | Keep behavior; replace repeated local booleans with shared scope classification where practical |
-| C10: Legacy scope | Historical evidence missing the current contract must remain readable but not strong-admissible | Missing as a unified behavior | DONE-required and review-run code have some legacy compatibility, but there is no universal `legacy-observed` output | Add legacy classifier and migration/dry-run; do not delete old evidence |
-| C11: Stable reason codes | Rejections must have machine-readable reason codes and remediation hints | Partial | Authority gate receipt has enumerated failure reasons; receipt bundle has ordered reasons; review-run and DONE-required have reason strings; handoff has warnings/validations | Normalize reason code vocabulary across modules |
-| C12: Cross-runtime vectors | CLI and Authority Server must run the same tamper/shape/stale/semantic fixtures | Missing | Current smokes are TypeScript-local; sibling Authority fixes are documented but not shared vectors | Add JSON fixture pack and require CLI + Authority Server conformance |
-| C13: Handoff artifact class split | Handoff must distinguish context, evidence candidate, diagnostic receipt, and admissible proof ref | Partial | `lattice-handoff.ts` has `authorityBoundary`, `packHash`, `receiptVerified=false`, `productionDone=false`, and local diagnostic receipt submission | Add typed handoff artifact classes and preflight output showing admissibility scope per ref |
-| C14: Privacy-safe reproducible command envelope | Command-backed evidence must record structured command specs, bootstrap/environment digests, and bounded redacted output without leaking raw prompts/secrets | Present for usage ledger privacy; missing for generic command evidence | `usage-ledger/authority-evidence.ts` builds privacy-preserving envelopes and fail-safe receipt verification; repro-first requires `CommandSpec`, `bootstrapSpecDigest`, `environmentFingerprint`, and redacted output digest | Add shared command envelope policy for repro, DONE-required, review evidence, and Authority-bound receipts |
+| C1: Single scope classifier | Every proof-looking artifact must classify into exactly one canonical `EvidenceScope` defined in Appendix E before any consumer interprets it | Implemented for CLI proof-surface classification and gate diagnostics | `proof-admissibility.ts` defines registered surfaces and claim policies; `authority-boundary.ts`, `lattice-handoff.ts`, and process fact registry outputs map local/shadow/diagnostic/receipt-backed scopes without allowing `productionDone` overclaim | Continue converging older per-surface wording and future Authority Server integrations onto the same enum/reason-code vocabulary |
+| C2: Producer ownership | Proof fields must be produced by the owning authority, not by caller-writable metadata | Implemented for B-0405 CLI metadata surfaces | `proof-admissibility-metadata.ts` reserves proof keys and sanitizes runner registration, job spec, and provider event metadata while preserving ordinary caller metadata | Authority Server production-owned metadata remains a sibling/server concern, not completed by this story |
+| C3: Supported schema version | Strong proof artifacts must carry an accepted schema/version and reject unsupported versions | Implemented for the CLI hardening slice and preserved on existing strong verifiers | `done-required-validation.ts`, `receipt-bundle.ts`, `authority-gate-receipt-verifier.ts`, and handoff receipts keep explicit schema/version checks; legacy read paths downgrade old shapes instead of promoting them | Keep future schema additions registered in the shared contract before gate consumption |
+| C4: Strict shape before trust | Strong proof verification must reject null, wrong type, missing field, and unexpected proof keys before interpreting signed fields | Implemented for strong CLI proof paths covered by B-0405 | `proof-admissibility-binding.ts` and the hardening smoke cover null, extra key, removed required field, wrong type, and signature-like tamper cases; diagnostic/passthrough output remains explicitly diagnostic | Continue marking intentionally passthrough diagnostics as non-strong proof; do not treat this as Authority Server production receipt coverage |
+| C5: Semantic digest coverage | Every gate-consumed semantic field must be included in the digest/signature subject | Implemented for B-0405 CLI semantic binding coverage | Versioned binding helpers cover reason, verdict, story/head/material, consumer, and signature-like subjects in the adversarial smoke matrix | Extend the same pattern when new gate-consumed semantic fields or server-side receipt subjects are introduced |
+| C6: Signature / receipt binding | A signature or receipt must bind to the actual subject, trusted key, story, and gate context | Implemented for existing CLI key paths and registered diagnostics | `authority-receipt-classification.ts`, `authority-gate-receipt-verifier.ts`, `review-run.ts`, and `receipt-bundle.ts` keep subject/key/story/gate checks; B-0405 routes diagnostics through the shared claim policy layer | Future signed/receipt-like artifacts must be registered before they are consumed as proof |
+| C7: Temporal and material binding | Proof must declare whether it is historical-baseline, current-state, or transition-relation, and validate the correct hash/material rule for that role | Implemented for current-state CLI gates and the B-0405 adversarial stale/transition checks | `review-run.ts`, `done-required-validation.ts`, and proof-admissibility tests cover head/material/story freshness plus red/green relation and command mismatch diagnostics | Broader historical migration and Authority Server receipt timelines remain future integration work |
+| C8: Artifact consumer matching | Proof must be consumed only by the consumer it was produced for, including non-gate consumers such as story intake | Implemented for B-0405 gate-facing CLI diagnostics and high-risk enforce consumers | Claim policies and process fact registry entries bind target consumers/lanes/phases; hardening smoke covers wrong story and wrong target phase | Keep new consumers registered in `ProofClaimPolicy` and the process-fact contract before use |
+| C9: Non-authority cannot overclaim | Local/shadow/diagnostic/worker output must not set `receiptVerified`, `authorityDone`, `fullAuthorityDone`, or `productionDone` | Implemented and unchanged by B-0405 | `authority-boundary.ts`, `lattice-handoff.ts`, `usage-ledger/authority-evidence.ts`, `process-fact-levels.ts`, and docs preserve local/diagnostic boundaries and keep `productionDone=false` without a matching verified gate receipt | Keep this boundary for all future handoff, local quorum, and Authority-adjacent output |
+| C10: Legacy scope | Historical evidence missing the current contract must remain readable but not strong-admissible | Implemented as read-time CLI dry-run diagnostics | `proof-admissibility-legacy.ts` classifies `legacy-observed`, `legacy-local-only`, and `legacy-unknown-producer`; legacy artifacts remain readable and are not promoted to strong proof | Add repair commands only where upgrade is mechanically provable; leave non-upgradable history audit-only |
+| C11: Stable reason codes | Rejections must have machine-readable reason codes and remediation hints | Implemented for B-0405 diagnostics and adversarial assertions | `proof-admissibility.ts` / `proof-admissibility-gates.ts` emit scope, reason, remediation, and blocking/advisory state; tests assert specific reason codes for tamper and policy failures | Continue reducing older free-text reasons when touching legacy surfaces |
+| C12: Cross-runtime vectors | CLI and Authority Server must run the same tamper/shape/stale/semantic fixtures | Implemented for CLI regression vectors only | `proof-admissibility-smoke.ts` and `proof-admissibility-hardening-smoke.ts` exercise the CLI matrix, including reserved keys, stale hashes, semantic tamper, handoff overclaim, and enforce blocking | Authority Server conformance/shared fixture execution is explicitly future work and does not imply `productionDone` |
+| C13: Handoff artifact class split | Handoff must distinguish context, evidence candidate, diagnostic receipt, and admissible proof ref | Implemented for CLI handoff projections | `lattice-handoff.ts` summaries separate `context`, `evidenceCandidate`, `diagnosticReceipt`, and `admissibleProofRef`, with receipt/authority/production booleans held false unless a matching gate consumes verified proof | Keep future host surfaces rendering these classes before any completion claim |
+| C14: Privacy-safe reproducible command envelope | Command-backed evidence must record structured command specs, bootstrap/environment digests, and bounded redacted output without leaking raw prompts/secrets | Implemented for B-0405 CLI proof-admissibility command diagnostics and existing usage-ledger privacy surfaces | `usage-ledger/authority-evidence.ts` remains fail-safe and privacy preserving; hardening diagnostics cover command-spec digest, bootstrap noise, redacted output, and red/green command mismatch classes | Broaden shared command-envelope adoption as additional repro, DONE-required, review, and Authority-bound receipts are migrated |
 
 ### A.2 New Proof-Looking Artifact Intake Template
 
@@ -666,22 +703,26 @@ override plus dirty-before and dirty-after evidence.
 
 ### B.1 Modules that must obey the contract
 
-| Module / surface | Artifact kind | Current admissibility role | Must obey clauses | Current status |
+Post-B-0405 note: this table reports the implemented CLI state after B-0405.
+Remaining unification or Authority Server production receipt work is called out
+separately and must not be read as delivered by this story.
+
+| Module / surface | Artifact kind | Current admissibility role | Must obey clauses | B-0405 CLI status / remaining work |
 |---|---|---|---|---|
-| `packages/main/src/core/authority-gate-receipt-verifier.ts` | Authority `gate_decision` proof | `production-gate-decision` candidate | C1, C3-C8, C11, C12 | Strong core checks; strict shape and shared enum still missing |
-| `packages/main/src/core/authority-receipt-classification.ts` | Evidence-envelope receipt | `authority-receipt` candidate | C1, C3, C5, C6, C11, C12 | Strong subject binding; needs shared contract integration |
-| `packages/main/src/core/authority-boundary.ts` | Local/shadow authority submission | `local-diagnostic` or `receipt-backed-l2-plus` classifier | C1, C9, C11 | Good anti-overclaim classifier; should feed shared scope enum |
-| `packages/main/src/core/receipt-bundle.ts` | Offline local signed bundle | `local-key-single-host` | C1, C3-C7, C9, C11, C12 | Strong strict-shape/signature/freshness; must remain non-Authority |
-| `packages/main/src/core/done-required-validation.ts` | DONE-required command receipts | `local-gate-evidence` | C1, C3, C5, C7, C8, C10, C11 | Strong freshness/policy/command coverage; needs shared scope and stricter receipt shape |
-| `packages/main/src/core/review-run.ts` | Reviewer run, finding, review pass | REVIEW gate evidence | C1, C3, C5-C8, C11 | Strong lane/round/latest/signature/freshness checks; should declare scope through registry |
-| `packages/main/src/core/lattice-handoff.ts` | Handoff pack/receipt/dispatch | Context + local diagnostic evidence | C1, C7-C9, C11, C13 | Strong anti-overclaim; needs typed artifact class split |
-| `packages/main/src/core/process-fact-registry.ts` and `process-fact-levels.ts` | Gate-consumed process facts | Registry / drift guard | C1, C8-C11 | Many entries already record non-authority boundaries; add admissibility registry synchronization |
-| `packages/main/src/core/usage-ledger/authority-evidence.ts` | Usage evidence envelope + receipt gate | Privacy-preserving evidence candidate | C1, C5, C6, C9, C11, C14 | Strong local privacy and fail-safe receipt gate; needs shared scope naming |
-| `packages/main/src/core/gate-strength.ts` and `gate-strength` tasks | Gate-strength result digest | Local methodology proof | C3-C5, C11, C12 | B-7b6e lesson applies: semantic fields such as `reason` must be digest-bound |
-| `packages/main/src/handlers/authority-enforce.ts` | Authority receipt verify/fetch/write path | Producer of receipt refs | C1, C3-C9, C11, C12 | Must call shared admissibility helper before persisting consumable refs |
-| `packages/main/src/handlers/lattice-handoff.ts` | Handoff CLI surface | Handoff context/diagnostic surface | C1, C9, C13 | Must render scope labels so hosts cannot misread output |
-| `packages/main/src/handlers/verdict*` / `quorum-submit` | Local or Authority host verdicts | Local quorum or Authority verdict candidate | C1, C6-C9, C11 | Must distinguish local review quorum from Authority receipt completion |
-| `packages/main/src/core/evidence-freshness.ts` | Freshness primitive | Shared supporting check | C7, C11 | Already central for hashes; reason-code vocabulary should align with admissibility |
+| `packages/main/src/core/authority-gate-receipt-verifier.ts` | Authority `gate_decision` proof | `production-gate-decision` candidate | C1, C3-C8, C11, C12 | Strong CLI verifier path is strict-shape and claim-policy aware; Authority Server production receipt execution remains out of B-0405 scope |
+| `packages/main/src/core/authority-receipt-classification.ts` | Evidence-envelope receipt | `authority-receipt` candidate | C1, C3, C5, C6, C11, C12 | Subject binding remains strong and is represented in shared diagnostics; future work is cross-runtime fixture parity |
+| `packages/main/src/core/authority-boundary.ts` | Local/shadow authority submission | `local-diagnostic` or `receipt-backed-l2-plus` classifier | C1, C9, C11 | Anti-overclaim classification feeds the shared scope boundary; local/shadow output still cannot set Authority completion or `productionDone` |
+| `packages/main/src/core/receipt-bundle.ts` | Offline local signed bundle | `local-key-single-host` | C1, C3-C7, C9, C11, C12 | Strict-shape/signature/freshness behavior remains strong and explicitly non-Authority |
+| `packages/main/src/core/done-required-validation.ts` | DONE-required command receipts | `local-gate-evidence` | C1, C3, C5, C7, C8, C10, C11 | Freshness, policy, command coverage, scope diagnostics, and enforce-mode blocking are wired for the CLI consumer |
+| `packages/main/src/core/review-run.ts` | Reviewer run, finding, review pass | REVIEW gate evidence | C1, C3, C5-C8, C11 | Lane/round/latest/signature/freshness checks remain strong and are surfaced through registered proof diagnostics |
+| `packages/main/src/core/lattice-handoff.ts` | Handoff pack/receipt/dispatch | Context + local diagnostic evidence | C1, C7-C9, C11, C13 | Handoff projections now render typed artifact classes and keep local diagnostics separate from admissible proof refs |
+| `packages/main/src/core/process-fact-registry.ts` and `process-fact-levels.ts` | Gate-consumed process facts | Registry / drift guard | C1, C8-C11 | Process facts include `runtime:proof_admissibility_gate_diagnostic`; future process-fact additions must stay synchronized with the admissibility registry |
+| `packages/main/src/core/usage-ledger/authority-evidence.ts` | Usage evidence envelope + receipt gate | Privacy-preserving evidence candidate | C1, C5, C6, C9, C11, C14 | Local privacy and fail-safe receipt handling remain strong; future work is broader shared command-envelope adoption |
+| `packages/main/src/core/gate-strength.ts` and `gate-strength` tasks | Gate-strength result digest | Local methodology proof | C3-C5, C11, C12 | B-7b6e semantic-binding lesson is represented in the B-0405 adversarial matrix for reason/verdict tamper |
+| `packages/main/src/handlers/authority-enforce.ts` | Authority receipt verify/fetch/write path | Producer of receipt refs | C1, C3-C9, C11, C12 | CLI receipt-ref handling is diagnostic/enforce aware; Authority Server production receipt behavior remains a future/server-side responsibility |
+| `packages/main/src/handlers/lattice-handoff.ts` | Handoff CLI surface | Handoff context/diagnostic surface | C1, C9, C13 | Handoff output renders scope/class labels so hosts cannot read local transfer output as completion proof |
+| `packages/main/src/handlers/verdict*` / `quorum-submit` | Local or Authority host verdicts | Local quorum or Authority verdict candidate | C1, C6-C9, C11 | Local review quorum remains distinct from Authority receipt completion; proof diagnostics preserve that boundary |
+| `packages/main/src/core/evidence-freshness.ts` | Freshness primitive | Shared supporting check | C7, C11 | Hash freshness remains central; reason-code vocabulary is aligned for B-0405 proof diagnostics and should be reused by future consumers |
 
 ### B.2 Practical conclusion
 

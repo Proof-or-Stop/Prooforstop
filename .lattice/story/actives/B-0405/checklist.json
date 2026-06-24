@@ -9,9 +9,78 @@
         "docs/evidence/evidence-platform-architecture.md",
         "docs/evidence/proof-surface-inventory.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-24T11:17:15.561Z",
+      "endTime": "2026-06-24T11:17:22.745Z",
+      "userSees": "Reserved proof-looking metadata keys are stripped or rejected from caller-writable metadata while ordinary metadata survives, verified by proof-admissibility-hardening smoke output.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/proof-admissibility.ts",
+          "packages/main/src/core/authority-runner-contracts.ts"
+        ],
+        "create": [
+          "packages/main/src/core/proof-admissibility-metadata.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Ordinary caller metadata survives sanitization unchanged.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Known reserved proof keys are stripped or rejected at caller-writable boundaries.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Nested or linked metadata cannot preseed hostDeclarationDigest/providerAuthorization/receiptVerified/productionDone proof-looking fields accepted as proof.",
+            "type": "logic"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:proof-admissibility-hardening",
+          "result": "pass",
+          "note": "Hardening smoke covers reserved proof-key stripping/rejection, nested linked spoof keys, delegated metadata spoofing, and ordinary metadata preservation.",
+          "headHash": "91040ef92876d57a5cd7bf6939f2b2b6a173285b",
+          "materialHash": "557587217494f4a23c83947aad76a35c898e431feddb59fd52ab07d04f6bb201",
+          "storyFilesHash": "660f3d57916ce872fea5fbfe24c913cdbc24ef4c550ce1eb2a11b9a52081f1b6",
+          "timestamp": "2026-06-24T12:14:05.061Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "TypeScript build passes with metadata sanitizers wired into runner registration, job spec, and provider event parsing.",
+          "headHash": "91040ef92876d57a5cd7bf6939f2b2b6a173285b",
+          "materialHash": "557587217494f4a23c83947aad76a35c898e431feddb59fd52ab07d04f6bb201",
+          "storyFilesHash": "660f3d57916ce872fea5fbfe24c913cdbc24ef4c550ce1eb2a11b9a52081f1b6",
+          "timestamp": "2026-06-24T12:14:05.061Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts",
+          "command": "npm --prefix packages/main run test:proof-admissibility-hardening",
+          "result": "pass",
+          "note": "Hardening smoke covers nested/linked metadata reserved-key injection and verifies hostDeclarationDigest/providerAuthorization/receiptVerified/productionDone-style proof keys are not accepted as proof.",
+          "headHash": "91040ef92876d57a5cd7bf6939f2b2b6a173285b",
+          "materialHash": "557587217494f4a23c83947aad76a35c898e431feddb59fd52ab07d04f6bb201",
+          "storyFilesHash": "660f3d57916ce872fea5fbfe24c913cdbc24ef4c550ce1eb2a11b9a52081f1b6",
+          "timestamp": "2026-06-24T12:14:05.061Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -21,9 +90,78 @@
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
         "docs/evidence/evidence-platform-architecture.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-24T11:17:30.417Z",
+      "endTime": "2026-06-24T11:17:36.845Z",
+      "userSees": "Semantic proof tamper cases reject edits to reason, verdict, schema, null, extra keys, story/head/material binding, and digest/signature subjects.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/proof-admissibility.ts",
+          "packages/main/src/core/authority-gate-receipt-verifier.ts"
+        ],
+        "create": [
+          "packages/main/src/core/proof-admissibility-binding.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Canonical payload helper produces stable digest for valid proof payloads with supported schema/verifier/contract versions.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Null, missing, and extra proof fields fail strict shape before trust.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Changing reason, verdict, story id, head hash, material hash, or semantic fields changes digest or fails verification.",
+            "type": "logic"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:proof-admissibility-hardening",
+          "result": "pass",
+          "note": "Hardening smoke covers versioned canonical binding plus reason/verdict/story/head/material/signature-like tamper and null/extra/missing field rejection.",
+          "headHash": "91040ef92876d57a5cd7bf6939f2b2b6a173285b",
+          "materialHash": "557587217494f4a23c83947aad76a35c898e431feddb59fd52ab07d04f6bb201",
+          "storyFilesHash": "660f3d57916ce872fea5fbfe24c913cdbc24ef4c550ce1eb2a11b9a52081f1b6",
+          "timestamp": "2026-06-24T12:14:05.061Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:proof-admissibility",
+          "result": "pass",
+          "note": "Existing proof admissibility smoke still passes after strict Authority proof schema and binding helper additions.",
+          "headHash": "91040ef92876d57a5cd7bf6939f2b2b6a173285b",
+          "materialHash": "557587217494f4a23c83947aad76a35c898e431feddb59fd52ab07d04f6bb201",
+          "storyFilesHash": "660f3d57916ce872fea5fbfe24c913cdbc24ef4c550ce1eb2a11b9a52081f1b6",
+          "timestamp": "2026-06-24T12:14:05.061Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts",
+          "command": "npm --prefix packages/main run test:proof-admissibility-hardening",
+          "result": "pass",
+          "note": "Hardening smoke mutates semantic payload fields including reason/verdict/story/head/material-like bindings and verifies digest/strict-shape verification fails closed.",
+          "headHash": "91040ef92876d57a5cd7bf6939f2b2b6a173285b",
+          "materialHash": "557587217494f4a23c83947aad76a35c898e431feddb59fd52ab07d04f6bb201",
+          "storyFilesHash": "660f3d57916ce872fea5fbfe24c913cdbc24ef4c550ce1eb2a11b9a52081f1b6",
+          "timestamp": "2026-06-24T12:14:05.061Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -33,9 +171,84 @@
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
         "docs/evidence/evidence-platform-architecture.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-24T11:17:42.477Z",
+      "endTime": "2026-06-24T11:17:51.339Z",
+      "userSees": "Gate diagnostics show each consumed proof-looking artifact scope, claim, consumer, reason code, and remediation hint in warn mode without breaking legacy local flows.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/done-oracle.ts",
+          "packages/main/src/handlers/done-closure.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/done-required-validation.ts",
+          "packages/main/src/core/review-escalation.ts",
+          "packages/main/src/core/review-assurance-floor.ts",
+          "packages/main/src/handlers/authority-enforce.ts"
+        ],
+        "create": [
+          "packages/main/src/core/proof-admissibility-gates.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Strong local DONE-required evidence emits local-gate-evidence diagnostics, not productionDone.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Legacy/local/diagnostic gate inputs emit warnings with stable reason codes and remediation hints.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A proof-looking artifact routed to the wrong consumer/claim is diagnosed as consumer or claim mismatch and cannot silently satisfy production completion.",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:proof-admissibility-hardening",
+          "result": "pass",
+          "note": "Hardening smoke covers warn-mode diagnostic output with scope, reason code, and remediation for inadmissible gate-facing evidence.",
+          "headHash": "91040ef92876d57a5cd7bf6939f2b2b6a173285b",
+          "materialHash": "557587217494f4a23c83947aad76a35c898e431feddb59fd52ab07d04f6bb201",
+          "storyFilesHash": "660f3d57916ce872fea5fbfe24c913cdbc24ef4c550ce1eb2a11b9a52081f1b6",
+          "timestamp": "2026-06-24T12:14:05.061Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Process fact registry includes runtime:proof_admissibility_gate_diagnostic and contract verification passes.",
+          "headHash": "91040ef92876d57a5cd7bf6939f2b2b6a173285b",
+          "materialHash": "557587217494f4a23c83947aad76a35c898e431feddb59fd52ab07d04f6bb201",
+          "storyFilesHash": "660f3d57916ce872fea5fbfe24c913cdbc24ef4c550ce1eb2a11b9a52081f1b6",
+          "timestamp": "2026-06-24T12:14:05.061Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts",
+          "command": "npm --prefix packages/main run test:proof-admissibility-hardening",
+          "result": "pass",
+          "note": "Hardening smoke exercises gate diagnostics for local/legacy/diagnostic scopes and verifies stable reason codes plus remediation hints are returned.",
+          "headHash": "91040ef92876d57a5cd7bf6939f2b2b6a173285b",
+          "materialHash": "557587217494f4a23c83947aad76a35c898e431feddb59fd52ab07d04f6bb201",
+          "storyFilesHash": "660f3d57916ce872fea5fbfe24c913cdbc24ef4c550ce1eb2a11b9a52081f1b6",
+          "timestamp": "2026-06-24T12:14:05.061Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -45,9 +258,78 @@
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
         "docs/evidence/proof-surface-inventory.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-24T11:17:56.366Z",
+      "endTime": "2026-06-24T11:18:01.806Z",
+      "userSees": "Legacy evidence is reported as legacy-observed, legacy-local-only, or legacy-unknown-producer and remains audit-readable while failing strong production proof claims.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/proof-admissibility.ts"
+        ],
+        "create": [
+          "packages/main/src/core/proof-admissibility-legacy.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Legacy artifacts without current contract fields remain readable and return legacy scope classification.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Mechanically upgradable legacy artifacts produce dry-run repair diagnostics without mutating evidence by default.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Legacy evidence cannot satisfy production-completion or Authority receipt claims even if prose says verified.",
+            "type": "logic"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:proof-admissibility-hardening",
+          "result": "pass",
+          "note": "Hardening smoke covers legacy-observed, legacy-local-only, and legacy-unknown-producer classification as readable but non-strong proof.",
+          "headHash": "91040ef92876d57a5cd7bf6939f2b2b6a173285b",
+          "materialHash": "557587217494f4a23c83947aad76a35c898e431feddb59fd52ab07d04f6bb201",
+          "storyFilesHash": "660f3d57916ce872fea5fbfe24c913cdbc24ef4c550ce1eb2a11b9a52081f1b6",
+          "timestamp": "2026-06-24T12:14:05.061Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts",
+          "command": "npm --prefix packages/main run test:proof-admissibility-hardening",
+          "result": "pass",
+          "note": "Hardening smoke covers legacy dry-run diagnostics and verifies legacy upgrade guidance is reported without mutating historical evidence.",
+          "headHash": "91040ef92876d57a5cd7bf6939f2b2b6a173285b",
+          "materialHash": "557587217494f4a23c83947aad76a35c898e431feddb59fd52ab07d04f6bb201",
+          "storyFilesHash": "660f3d57916ce872fea5fbfe24c913cdbc24ef4c550ce1eb2a11b9a52081f1b6",
+          "timestamp": "2026-06-24T12:14:05.061Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts",
+          "command": "npm --prefix packages/main run test:proof-admissibility-hardening",
+          "result": "pass",
+          "note": "Hardening smoke verifies legacy observed/local/unknown evidence remains readable but denies production-completion and Authority receipt claims even if proof-looking prose exists.",
+          "headHash": "91040ef92876d57a5cd7bf6939f2b2b6a173285b",
+          "materialHash": "557587217494f4a23c83947aad76a35c898e431feddb59fd52ab07d04f6bb201",
+          "storyFilesHash": "660f3d57916ce872fea5fbfe24c913cdbc24ef4c550ce1eb2a11b9a52081f1b6",
+          "timestamp": "2026-06-24T12:14:05.061Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
@@ -57,9 +339,79 @@
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
         "docs/evidence/evidence-platform-architecture.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-24T11:18:07.703Z",
+      "endTime": "2026-06-24T11:18:15.287Z",
+      "userSees": "Handoff and host entry summaries separate context, evidenceCandidate, diagnosticReceipt, and admissibleProofRef while keeping productionDone false unless a matching gate consumes verified proof.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/lattice-handoff.ts",
+          "packages/main/src/handlers/lattice-handoff.ts",
+          "packages/main/src/core/process-fact-levels.ts"
+        ],
+        "create": [
+          "packages/main/src/core/proof-admissibility-handoff.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Handoff summary renders the four artifact classes with scope and remediation hints.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Local quorum host identity fields are present but remain local-review-quorum, not Authority completion.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Diagnostic handoff receipts and host-local outputs cannot set receiptVerified, authorityDone, fullAuthorityDone, or productionDone.",
+            "type": "logic"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:proof-admissibility-hardening",
+          "result": "pass",
+          "note": "Hardening smoke covers handoff context/evidenceCandidate/diagnosticReceipt/admissibleProofRef split and no receiptVerified/authorityDone/fullAuthorityDone/productionDone overclaim.",
+          "headHash": "91040ef92876d57a5cd7bf6939f2b2b6a173285b",
+          "materialHash": "557587217494f4a23c83947aad76a35c898e431feddb59fd52ab07d04f6bb201",
+          "storyFilesHash": "660f3d57916ce872fea5fbfe24c913cdbc24ef4c550ce1eb2a11b9a52081f1b6",
+          "timestamp": "2026-06-24T12:14:05.061Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "TypeScript build passes with handoff admissibility summary threaded through pack, inspect, accept, resume, receipt-submit, and dispatch projections.",
+          "headHash": "91040ef92876d57a5cd7bf6939f2b2b6a173285b",
+          "materialHash": "557587217494f4a23c83947aad76a35c898e431feddb59fd52ab07d04f6bb201",
+          "storyFilesHash": "660f3d57916ce872fea5fbfe24c913cdbc24ef4c550ce1eb2a11b9a52081f1b6",
+          "timestamp": "2026-06-24T12:14:05.061Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts",
+          "command": "npm --prefix packages/main run test:proof-admissibility-hardening",
+          "result": "pass",
+          "note": "Hardening smoke verifies diagnostic handoff receipts and host-local outputs keep receiptVerified/authorityDone/fullAuthorityDone/productionDone false.",
+          "headHash": "91040ef92876d57a5cd7bf6939f2b2b6a173285b",
+          "materialHash": "557587217494f4a23c83947aad76a35c898e431feddb59fd52ab07d04f6bb201",
+          "storyFilesHash": "660f3d57916ce872fea5fbfe24c913cdbc24ef4c550ce1eb2a11b9a52081f1b6",
+          "timestamp": "2026-06-24T12:14:05.061Z"
+        }
+      ]
     },
     {
       "id": "CHK-006",
@@ -69,9 +421,84 @@
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
         "docs/evidence/evidence-platform-architecture.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-24T11:18:20.932Z",
+      "endTime": "2026-06-24T11:18:27.755Z",
+      "userSees": "proofAdmissibility.mode supports warn and enforce; high-risk proof consumers reject inadmissible artifacts in enforce mode; adversarial suite passes; final DONE records 3 rounds x 2 host review assurance.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/proof-admissibility.ts",
+          "packages/main/src/core/done-oracle.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/package.json",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/evidence/evidence-platform-architecture.md",
+          "docs/evidence/proof-surface-inventory.md"
+        ],
+        "create": [
+          "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "proofAdmissibility.mode=warn reports diagnostics while allowing local development flows; mode=enforce rejects high-risk inadmissible proof consumers.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Adversarial regression suite covers reserved-key injection, delegated metadata spoof, stale hash, wrong story, wrong target phase, wrong key, bad signature, null/extra/missing field, omitted semantic field, diagnostic handoff receipt, raw red probe, stale current green, command mismatch, candidate mutation, bootstrap noise, and matrix-gap policy exception.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Final material has 3 rounds x 2 host review assurance and no inadmissible proof-looking artifact can satisfy a strong gate in enforce mode.",
+            "type": "manual"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:proof-admissibility-hardening",
+          "result": "pass",
+          "note": "Hardening smoke covers proofAdmissibility warn/enforce behavior and enforce-mode blocking for high-risk inadmissible proof consumers.",
+          "headHash": "91040ef92876d57a5cd7bf6939f2b2b6a173285b",
+          "materialHash": "557587217494f4a23c83947aad76a35c898e431feddb59fd52ab07d04f6bb201",
+          "storyFilesHash": "660f3d57916ce872fea5fbfe24c913cdbc24ef4c550ce1eb2a11b9a52081f1b6",
+          "timestamp": "2026-06-24T12:14:05.061Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "Package script test:proof-admissibility-hardening compiles and runs from dist.",
+          "headHash": "91040ef92876d57a5cd7bf6939f2b2b6a173285b",
+          "materialHash": "557587217494f4a23c83947aad76a35c898e431feddb59fd52ab07d04f6bb201",
+          "storyFilesHash": "660f3d57916ce872fea5fbfe24c913cdbc24ef4c550ce1eb2a11b9a52081f1b6",
+          "timestamp": "2026-06-24T12:14:05.061Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "lattice quorum_submit --storyId=B-0405 --hostA=claude-code-cli --hostB=codex-cli --providerA=claude --providerB=codex --rounds=3 --json",
+          "result": "pass",
+          "note": "Final v0.3.87 material has local voluntary 3 rounds x 2 host quorum: emittedCount=6, materialDigest=557587217494f4a23c83947aad76a35c898e431feddb59fd52ab07d04f6bb201, runIds=B-0405-q-r1..q-r3, assuranceLevel=full-3x2, fullQuorum.ok=true. This is local review assurance only; authorityDone/fullAuthorityDone/productionDone remain false.",
+          "headHash": "58e834ba64aa6c62c93ffca5281ae91846b11167",
+          "materialHash": "557587217494f4a23c83947aad76a35c898e431feddb59fd52ab07d04f6bb201",
+          "storyFilesHash": "660f3d57916ce872fea5fbfe24c913cdbc24ef4c550ce1eb2a11b9a52081f1b6",
+          "timestamp": "2026-06-24T12:18:25.671Z"
+        }
+      ]
     }
   ]
 }
