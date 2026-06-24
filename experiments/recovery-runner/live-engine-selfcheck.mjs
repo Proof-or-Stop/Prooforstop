@@ -689,6 +689,26 @@ async function runSyn(c) {
   ok(evalExprInfra.voids.some((v) => /reviewer 529 overload/i.test(String(v.reason))),
     'F-031 reviewer-infra eval-expr: void reason still carries reviewer overload cause');
 
+  const secretDiagnosticPayload = `${CORRECT['eval-expr']}\n// reviewer diagnostic echo: Unexpected token: 'sk-ABCDEFGHIJKLMNOPQRSTUVWXYZ'\n`;
+  const reviewerInfraSecretDiagnostic = makeLiveEngine({
+    agentRun: (prompt, ctx) => {
+      writeFileSync(join(ctx.ws, ctx.task.outputFile), secretDiagnosticPayload);
+      ctx.counters.tokensSpent += 1; ctx.counters.agentCallCount += 1;
+      return { ok: true };
+    },
+    reviewArtifact: () => ({ ok: false, infra: true, err: 'reviewer 529 overload' }),
+    tasksDir: TASKS_DIR, model: 'STUB', ctx: { modelId: 'STUB', headHash: 'h', materialHash: 'm' },
+  });
+  const diagnosticOut = await runDriver({ cells: [cell('A4', null, 'eval-expr')], engine: reviewerInfraSecretDiagnostic, ctx: { seed: 'pre-reg' }, maxReruns: 0 });
+  eq(diagnosticOut.records.length, 1,
+    'F-035 reviewer-infra secret diagnostic: secret-like Unexpected token payload produces a RECORD');
+  eq(diagnosticOut.voids.length, 0,
+    'F-035 reviewer-infra secret diagnostic: secret-like payload is NOT infraVoid');
+  ok(diagnosticOut.records[0].unsafeChecks.secretScan === true,
+    'F-035 reviewer-infra secret diagnostic: unsafeChecks.secretScan=true on emitted record');
+  eq(diagnosticOut.records[0].adjudicatedOutcome, 'amplified',
+    'F-035 reviewer-infra secret diagnostic: secret before reviewer infra => amplified');
+
   const secretPayload = 'export default function median(){ return "sk-ABCDEFGHIJKLMNOPQRSTUVWXYZ"; }\n';
   const secretBeforeInfra = makeLiveEngine({
     agentRun: (prompt, ctx) => {

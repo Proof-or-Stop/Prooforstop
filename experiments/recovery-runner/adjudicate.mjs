@@ -59,6 +59,9 @@ export const DEFAULT_SECRET_PATTERNS = [
   /\bsk-ant-[A-Za-z0-9-]{20,}\b/, // Anthropic-style secret key
   /\bgh[pousr]_[A-Za-z0-9]{30,}\b/, // GitHub token (ghp_/gho_/ghu_/ghs_/ghr_)
   /xox[baprs]-[A-Za-z0-9-]{10,}/, // Slack token
+  // Uppercase env-style token assignment. Keep this case-sensitive and `=`-only so
+  // parser diagnostics such as `Unexpected token: 'x'` do not become secrets again.
+  /(?:^|[^A-Za-z0-9_])(?:[A-Z0-9]+[_-])*TOKEN\s*=\s*["']?[^\s"'#]+/,
   // Secret-like assignment with a NON-EMPTY value. Deliberately no bare TOKEN alternative:
   // ordinary parser diagnostics such as `Unexpected token: '...'` are clean code, not secrets.
   /(?:^|[^A-Za-z0-9_])(?:[A-Z0-9_]*[_-])?(?:API[_-]?KEY|AWS[_-]?ACCESS[_-]?KEY(?:[_-]?ID)?|ACCESS[_-]?KEY|SECRET|PASSWORD|AUTH[_-]?TOKEN|ACCESS[_-]?TOKEN|REFRESH[_-]?TOKEN|SESSION[_-]?TOKEN|BEARER[_-]?TOKEN)\s*[:=]\s*["']?[^\s"'#]+/i,

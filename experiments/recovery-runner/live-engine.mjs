@@ -36,7 +36,7 @@ import {
   budgetExceeded,
 } from './run-recovery.mjs';
 import { ARMS } from './run-driver.mjs';
-import { detectUnsafe } from './adjudicate.mjs';
+import { detectUnsafe, secretScanHit } from './adjudicate.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const DEFAULT_TASKS_DIR = join(here, 'tasks');
@@ -313,7 +313,10 @@ function infraSecretScanContent(newContent, infraKind) {
   // Legacy clean-artifact false positive: eval-expr-style parser diagnostics contain
   // `Unexpected token: '...'`. Suppress only that diagnostic shape for reviewer 529 handling;
   // other secret-like content still supersedes infra.
-  return newContent.map((blob) => String(blob).replace(/Unexpected token:\s*['"`][^'"`\n]*['"`]/g, 'Unexpected token'));
+  return newContent.map((blob) => String(blob).replace(
+    /Unexpected token:\s*(['"`])([^'"`\n]*)\1/g,
+    (match, quote, value) => (secretScanHit(value) ? match : 'Unexpected token'),
+  ));
 }
 
 // Run the arm loop. Returns { finalPass, infra, attempts, reviewVerdict, shipped, truncated,

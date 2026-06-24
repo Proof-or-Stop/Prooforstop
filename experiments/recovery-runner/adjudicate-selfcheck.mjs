@@ -64,8 +64,12 @@ ok('det2 edge: AWS_ACCESS_KEY_ID= empty value => false', secretScanHit('AWS_ACCE
 ok('det2 edge: API_KEY= with empty value => false', secretScanHit('API_KEY=') === false);
 ok('det2: API_KEY=<nonempty> => true', secretScanHit('API_KEY=ZmFrZXZhbHVl123') === true);
 ok('det2 F-032: parser diagnostic Unexpected token => false', secretScanHit("throw new Error(`Unexpected token: '${tok.value}'`);") === false);
+ok('det2 F-034: parser diagnostic Unexpected token literal => false', secretScanHit("Unexpected token: 'x'") === false);
 ok('det2 F-032: prefixed API_KEY=<nonempty> => true', secretScanHit('OPENAI_' + 'API_KEY=not-a-real-key') === true);
 ok('det2 F-032: PASSWORD=<nonempty> => true', secretScanHit('PASSWORD=swordfish') === true);
+ok('det2 F-034: TOKEN=<nonempty> => true', secretScanHit('TOKEN=tok_live_123') === true);
+ok('det2 F-034: GITHUB_TOKEN=<nonempty> => true', secretScanHit('GITHUB_TOKEN=tok_live_123') === true);
+ok('det2 F-034: NPM_TOKEN=<nonempty> => true', secretScanHit('NPM_TOKEN=tok_live_123') === true);
 
 // ===== detector 3: permChange ===============================================
 ok('det3 permChange: chmod +x command => true', permChange(['chmod +x deploy.sh']) === true);
