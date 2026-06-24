@@ -1,47 +1,53 @@
 {
   "storyId": "B-0aa1",
-  "checkedAt": "2026-06-24T04:48:42.994Z",
-  "headHash": "92db4a61ab28aa438bd2d91be87c0f79a047b7f5",
-  "materialHash": "a7933ba3b66954d21e52866cfb95d101cc03eba34587c69733210a8f8ef9ac4f",
-  "reviewRound": "2026-06-24T04:33:42.085Z",
+  "checkedAt": "2026-06-24T05:17:37.672Z",
+  "headHash": "41c39d957d5580119de53c9015b70d9b872fa755",
+  "materialHash": "477c32f65c73e18a156531593cac6e6f003e80a63758b41fa1b9588dadb06f05",
+  "reviewRound": "2026-06-24T05:09:01.993Z",
   "agentId": "lattice-review-delivery",
   "docsPromises": [
     {
       "docPath": "docs/evidence/evidence-platform-architecture.md",
-      "promise": "Defines evidence platform layering (EvidenceRuntime → EvidenceArtifactService), evidenceScope=evidence-candidate enforcement, .lattice/evidence storage layout, 8 artifact kinds, and candidate-only consumption boundary.",
-      "verifiedBy": "diff + grep",
-      "evidence": "File exists in diff (git diff main...HEAD). types.ts defines all 8 ArtifactKind values and EvidenceScope=evidence-candidate. artifact-store.ts comments match .lattice/evidence/objects/sha256/<digest>.json, refs/by-id/<artifactId>.json, ledger/observed.jsonl layout. registry.ts registers createReproIntakeHandlers. story_create_from_repro handler note confirms no verificationEvidence set."
+      "promise": "Defines the candidate-only evidence storage boundary: EvidenceRuntime -> EvidenceArtifactService layering, immutable EvidenceArtifact envelope with evidenceScope='evidence-candidate', .lattice/evidence storage layout (objects/sha256/<digest>.json, refs/by-id/<artifactId>.json, ledger/observed.jsonl), digest over a canonical subject that includes nested commandSpec fields, the 8 MVP artifact kinds, and a consumption boundary forbidding DONE/production gates from consuming candidate artifacts.",
+      "status": "verified",
+      "verifiedBy": "diff + grep + build + live smoke",
+      "evidence": "File present in git diff main...HEAD. types.ts:16 declares EvidenceScope='evidence-candidate' and types.ts:20-27 declares exactly the 8 ArtifactKind values listed in the doc table (repro-probe, repro-review, spike-record, spike-review, red-green-relation, red-green-evaluation, regression-matrix-review, story-evidence-binding). artifact-store.ts:7-10 header comment matches the documented storage layout strings byte-for-byte. Re-ran at current material (head 41c39d9, material 477c32f): `npm --prefix packages/main run build` passes (tsc, @lattice/core@0.3.83); smoke section 12 prints '8 artifacts verified as evidence-candidate'; smoke section 1 shows nested commandSpec digest c15a0c53944a, proving digest includes nested command fields."
     },
     {
       "docPath": "docs/requirements/decisions/repro-first-story-intake-experiment.md",
-      "promise": "Defines Repro-First intake workflow, candidate-only boundary for all 9 MVP commands, probe/spike/red-green/story-binding contracts, and smoke test verification (final line: repro-first candidate smoke passed).",
+      "promise": "Defines the Repro-First intake workflow and candidate-only boundary for all 9 MVP commands (repro_probe, repro_probe_get, repro_review_set, spike_record, spike_review_set, red_green_relation_create, red_green_relation_evaluate, regression_matrix_review_set, story_create_from_repro). Promises: probe requires a red-reviewed/target-bug review; red_green_relation_evaluate fails closed on missing refs/digest/command mismatch; story_create_from_repro delegates to story_create, writes an immutable story-evidence-binding, and creates no current verificationEvidence; expected smoke final line 'repro-first candidate smoke passed'.",
+      "status": "verified",
       "verifiedBy": "diff + grep + live smoke run",
-      "evidence": "File exists in diff. All 9 commands (repro_probe, repro_probe_get, repro_review_set, spike_record, spike_review_set, red_green_relation_create, red_green_relation_evaluate, regression_matrix_review_set, story_create_from_repro) registered in command-catalog.ts lines 2313-2381 and via createReproIntakeHandlers in registry.ts. Live smoke run terminated with repro-first candidate smoke passed. Handler output includes evidenceScope=evidence-candidate and explicit non-production notes."
+      "evidence": "File present in git diff main...HEAD. All 9 commands registered in command-catalog.ts:2313-2373 with 'evidence-candidate scope' descriptions, plus createReproIntakeHandlers in registry.ts. Re-ran the live smoke at current material (head 41c39d9): all 12 sections pass — section 6 happy-path evaluate pass=true, section 9 'verificationEvidence is absent from binding — correct', section 10 mismatch evaluate pass=false (missing red-reviewed review / not_run / command mismatch), section 11 'correctly blocked story creation from rejected repro', final line 'repro-first candidate smoke passed'. Behavior matches the documented Probe/Spike/Red-Green/Story-Creation contracts."
     }
   ],
   "realMachineTests": [
     {
-      "featureId": "CHK-001",
-      "transcript": "npm --prefix packages/main run test:repro-first-candidate: smoke creates immutable digest-addressed candidate artifacts, reloads by id, verifies nested commandSpec digest sensitivity, and confirms evidenceScope=evidence-candidate on all 8 artifacts. Live run completed with repro-first candidate smoke passed. lattice validate --story=B-0aa1 recorded PASS at 2026-06-24T04:41:41.992Z with 12/12 intents covered."
+      "featureId": "CHK-001..004 build",
+      "transcript": "`npm --prefix packages/main run build` (tsc) re-run at current HEAD 41c39d9 / material 477c32f: exits 0, @lattice/core@0.3.83, no type errors. Also captured as a PASS receipt in done-required-evidence.json (label 'packages/main build', exitCode 0, outputDigest 37434a1e...)."
     },
     {
-      "featureId": "CHK-002",
-      "transcript": "npm --prefix packages/main run test:repro-first-candidate: smoke exercises reviewed repro, spike record/review, relation, matrix review, story binding creation, confirms no verificationEvidence produced by story_create_from_repro, and verifies red-green evaluation fails closed for unreviewed/not_run/mismatched command paths. Live run completed with repro-first candidate smoke passed."
+      "featureId": "CHK-001/002/003/004 repro-first smoke",
+      "transcript": "`npm --prefix packages/main run test:repro-first-candidate` re-run by this reviewer at current material (head 41c39d9): exit 0, all 12 sections pass — immutable digest-addressed candidate artifacts (probe digest c15a0c53944a), nested commandSpec digest sensitivity, reviewed repro + spike + relation + matrix review, happy-path evaluate pass=true, mismatch evaluate fail-closed (sec 10), rejected-probe blocking (sec 11), story_create_from_repro binding with no verificationEvidence (sec 8-9), and '8 artifacts verified as evidence-candidate' (sec 12). Final line: 'repro-first candidate smoke passed'. Prior stored live-smoke-transcript.json was bound to stale head 92db4a6/0.3.82; this re-run confirms identical behavior on current 0.3.83 material."
     },
     {
-      "featureId": "CHK-003",
-      "transcript": "npm --prefix packages/main run build && npm --prefix packages/main run test:repro-first-candidate: build confirms all 9 repro-first commands compile in command-catalog.ts and handler registry. Smoke drives handler-level command behavior including invalid/non-accepted input rejection and evidenceScope=evidence-candidate enforcement. Live run completed with repro-first candidate smoke passed."
+      "featureId": "lattice validate --story=B-0aa1",
+      "transcript": "Captured in test-evidence.json: `lattice validate --story=B-0aa1 --json` -> provider lattice-verifier-configured-commands, status pass, allPass true ('Project validation commands passed'); configured validate commands[0..] all green including packages/main build. Verification coverage: 12/12 must intents across CHK-001..004 covered by logic_test evidence at material 477c32f (checklist_get reports 4/4 items done, 3 passing evidence each, 0 failing, 0 waivers). Re-invoking validate live was declined to respect the active story-owner lease (read-only reviewer); the persisted PASS is bound to current material."
     },
     {
-      "featureId": "CHK-004",
-      "transcript": "npm --prefix packages/main run test:repro-first-candidate: smoke covers full happy path (repro_probe → story_create_from_repro binding), matrix review with digest-sensitive relation evaluation, mismatch fail-closed diagnostics, rejected probe blocking story creation, and proof that story_create_from_repro produces no verificationEvidence and all 8 artifacts remain evidence-candidate. Final output: repro-first candidate smoke passed."
+      "featureId": "DONE-required root npm test",
+      "transcript": "done-required-evidence.json status PASS at head 41c39d9 / material 477c32f: receipt 'root full test suite' (`npm test`) exitCode 0, durationMs 25462, outputDigest c9b3a6aa...; suite tail includes docs-drift, gitroot-cwd-contract, and process-fact-contract all passing. Reasons: []. This is the DONE-admissible full-suite receipt bound to current material."
+    },
+    {
+      "featureId": "process-fact contract",
+      "transcript": "`npm run test:process-fact-contract` (scripts/verify-process-fact-contract.mjs) re-run by this reviewer at current material: 'Process fact contract verified'. Registry now includes the repro-intake process facts registered by commit 25299de (command-policy.ts, config.ts, process-fact-levels.ts). Confirms the 9 new repro-first commands are declared as process facts with CLI/handler hard fallbacks, not prompt-only."
     }
   ],
   "closingSelfCheck": {
     "hasRealMachineTest": true,
     "hasEdgeCaseCoverage": true,
     "hasUnresolvedTodos": false,
-    "summary": "All 4 checklist items done; 12/12 verification intents covered; live smoke passes on built package; docs promises verified against implementation; candidate-only boundary enforced throughout."
+    "summary": "Re-verified at current material (head 41c39d9 / material 477c32f, post bac7ed1 digest-subject hardening + 25299de process-fact registration + main merge). Both docs deliver exactly what code implements (8 artifact kinds, storage layout, 9 candidate-only commands). Edge/adversarial coverage real: smoke proves fail-closed evaluate, rejected-probe blocking, and no verificationEvidence from story binding. Build + repro-first smoke + process-fact contract re-run green; root npm test and validate PASS receipts bound to current material; 4/4 checklist items done, 12/12 must intents covered, 4/4 findings resolved, 0 open, no code TODOs."
   },
-  "_hash": "591ffdd7c1d2302d35125910b98a876733cf98869eac868021c3ad7b6be32213"
+  "_hash": "9beb347dc67ed291e4cd161470e59a7ab4ecd787483a7f2240f8866d7c0883f0"
 }
