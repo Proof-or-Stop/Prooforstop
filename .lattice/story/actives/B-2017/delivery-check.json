@@ -1,0 +1,56 @@
+{
+  "storyId": "B-2017",
+  "checkedAt": "2026-06-24T11:36:16.690Z",
+  "headHash": "20364ceb9af08948f9752496ccd4fd637b9fc766",
+  "materialHash": "dc58de0b411a6037c3f55dd3b6afda1ee06603b690bc9b2bf47da9aa98d7d6a8",
+  "reviewRound": "2026-06-24T11:18:46.569Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+      "promise": "Proof-looking and gate-consumed artifacts must not overclaim admissible proof without the shared admissibility contract, producer boundary, consumer matching, freshness, and explicit claim wording.",
+      "status": "verified",
+      "verifiedBy": "manual doc review plus git diff main...HEAD",
+      "evidence": "The related proof-admissibility doc is unchanged in this story, and the patch adds a local orphan-surface detector plus high-confidence source cleanup only. No new gate proof-consuming artifact, production authority claim, or admissible-proof wording is introduced; transcript and summary use local detector/build/validation language."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-2017/summary.json",
+      "promise": "The story summary promises the orphan-surface detector is wired at root and packages/main, retired surfaces are absent, build passes, and implementation_review_result_get stays unavailable.",
+      "status": "verified",
+      "verifiedBy": "summary review plus rerun detector probes plus recorded TEST/DONE evidence",
+      "evidence": "Summary matches observed outputs: root and package detector probes passed with 102 factories, 261 catalog commands, and 7 retired surfaces absent; recorded TEST/DONE evidence shows packages/main build and validation passed; CLI probe returns Unknown command with signed-review suggestions."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-2017/evidence/transcript-diff.md",
+      "promise": "Expected and actual transcript behavior match for root detector, package detector, packages/main build, unavailable implementation_review_result_get, and lattice validate coverage.",
+      "status": "verified",
+      "verifiedBy": "transcript review plus selective rerun",
+      "evidence": "Transcript states no expected/actual difference. I reran both detector entrypoints and the unavailable-command probe; test-evidence records lattice validate PASS with 30/30 configured commands and 12/12 verification intents covered."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "npm run test:orphan-surface rerun passed: orphan-surface check passed with 102 handler factories registered, 261 catalog commands checked, and 7 retired surfaces absent. Recorded evidence covers happy registration coverage, edge protection for tasks and dynamic verifier surfaces, and adversarial failure behavior for unregistered handler factories via detector self-test."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "npm run test:orphan-surface and npm --prefix packages/main run test:orphan-surface both passed on the real checkout. This verifies the root and packages/main CI-facing script entrypoints invoke the detector and propagate its result."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Retired-surface evidence is covered by the detector pass and recorded rg proof. The detector asserts the seven retired surfaces are absent while protected dynamic verifier files remain present; lattice implementation_review_result_get --help rerun returned Unknown command and suggested review_run_start/review_pass_set, so the old unsigned command path was not restored."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Recorded TEST and DONE-required evidence show npm --prefix packages/main run build passed, lattice validate --story=B-2017 --json passed with 30/30 configured commands and 12/12 verification intents covered, and done-required validation passed. I also reran both orphan-surface script entrypoints and confirmed git status was clean before delivery-check mutation."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Real-machine tests exist through rerun detector probes plus recorded TEST/DONE evidence. Edge coverage exists for dynamic verifier/task surfaces, package-level invocation, unavailable legacy command behavior, and unrelated-change scope. TODO scan of changed files found no unresolved TODO/FIXME/XXX markers."
+  },
+  "_hash": "972aabe5aac20791074f6cc77b48d77058c5f06a580757c28536945296e36154"
+}
