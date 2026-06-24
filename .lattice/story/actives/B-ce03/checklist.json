@@ -1,0 +1,45 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Port done_prepare metadata-only dirty handling",
+      "context": "done_prepare should allow pre-existing unchanged Lattice story lifecycle metadata dirt, while still blocking source/material dirt, unsafe renames, failed DONE-required evidence, and new files produced by done_prepare.",
+      "relatedDocs": [
+        "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Port lifecycle_check advisory done_prepare readiness semantics",
+      "context": "When DONE oracle rows have no blockers, missing done_prepare structured report should be advisory and must not make localReady false.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Port regression smokes and benchmark assertions",
+      "context": "Bring over focused smoke coverage for metadata-only dirt, dirty source blockers, unsafe renames, failed done-required evidence, and lifecycle_check localReady semantics.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Update done_prepare readiness decision documentation",
+      "context": "Document that metadata-only dirty lifecycle evidence is allowed only when unchanged and pre-existing, and that material/source changes still block.",
+      "relatedDocs": [
+        "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

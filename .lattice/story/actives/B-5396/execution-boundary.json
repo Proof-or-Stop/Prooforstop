@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-5396",
+  "allowedCommands": [
+    "git diff",
+    "git status",
+    "grep",
+    "lattice validate"
+  ],
+  "allowedTools": [
+    "git"
+  ],
+  "allowedPaths": [
+    "AGENTS.md",
+    "CLAUDE.md"
+  ],
+  "excludedCommands": [
+    "git push",
+    "git reset --hard",
+    "rm -rf"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".lattice",
+    "docs/requirements/decisions",
+    "packages",
+    "scripts"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Docs-only: edit AGENTS.md + CLAUDE.md runbook section. No source/CLI changes; referenced decision docs are read-only (cited, not edited).",
+  "createdAt": "2026-06-24T12:53:51.848Z",
+  "updatedAt": "2026-06-24T12:53:51.848Z",
+  "_hash": "46ec73b82324f940f4141281c93461d3e3a378fc8988e4be232db081f22042c2"
+}

@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-5396",
+  "mode": "maintenance",
+  "allowed": [
+    "AGENTS.md (add Host DONE convergence / drift-handling runbook section)",
+    "CLAUDE.md (add the parallel Host DONE convergence / drift-handling section)"
+  ],
+  "excluded": [
+    "Any CLI/code change (no packages/main/src, no session_brief/done_prepare/blocker output)",
+    "Changing gate strength, quorum, or proof-admissibility contract rules",
+    "Changing hash/freshness judgment or drift-downgrade logic",
+    "Hardcoding metadata-only dirty-state behavior (defer to B-9dfb; pointer only)",
+    "Inventing new rules (must be a projection/reference of existing decision docs)"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User converged on a docs-only Host runbook in conversation: project existing done_prepare/storyFilesHash/floor/delivery-check/proof-admissibility rules into AGENTS.md+CLAUDE.md; no CLI, no contract changes; metadata-only deferred to B-9dfb.",
+  "createdAt": "2026-06-24T12:53:51.475Z",
+  "updatedAt": "2026-06-24T12:53:51.475Z",
+  "_hash": "0e8e4876f32e2b0637ced4e1d0a82e493e5a475132fda6bcc487cce6a94ac30f"
+}
