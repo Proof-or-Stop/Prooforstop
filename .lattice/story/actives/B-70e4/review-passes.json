@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-24T01:49:03.993Z",
       "reviewRunId": "B-70e4:RR-006",
       "_hash": "0dada70de3ddd50185626bcc2718fcf085c896402a75d2391e447f2cb106b486"
+    },
+    {
+      "id": "B-70e4:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Commit a8faba566 is correct and minimal. The single-line change passes { customerApiKey: \"test-customer-key\" } as the 4th arg matching AuthorityClient constructor signature (baseURL, fetchImpl, timeoutMS=undefined, auth). fetchGateReceiptProof calls get() with authenticated:true; without a key get() returns error fails-closed. The mock fetchImpl only asserts input URL and method — it does not assert headers — so the added Authorization header is transparent to the mock. The absolute-URL negative test (line 431) passes \"https://evil.example/proof\" which is rejected by assertServerRelativePath before any auth check, so the same client instance works correctly. No dead code, no unused imports, no type issues, no empty catch. Change is deterministic and minimal.",
+      "createdAt": "2026-06-24T02:47:02.950Z",
+      "reviewRound": "2026-06-24T02:45:40.407Z",
+      "reviewRunId": "B-70e4:RR-008",
+      "_hash": "edf5041b661b9b2349739b9c8e5c3200f386fab01dfdfa099fe00c78b8ec47b3"
     }
   ]
 }
