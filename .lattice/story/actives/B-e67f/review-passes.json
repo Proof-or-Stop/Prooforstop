@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-24T10:16:50.255Z",
       "reviewRunId": "B-e67f:RR-005",
       "_hash": "760e3c00253086a51af99ae8caa74539fef3b6c9bbd1aa697b5182d172ab826b"
+    },
+    {
+      "id": "B-e67f:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Round 2 re-attestation: corpus-selfcheck.mjs fix round (d0f7d97cc) hardened correctly. (1) SHA-256 tamper-assert: snapshot taken before import()+inject(), comparison correct, defense-in-depth re-copy after check — sound (Control 2 verifies it live). (2) mkdtempSync scratch: SCRATCH is top-level unique per run, ncRoot is sub-dir of SCRATCH, both cleaned — ncRoot by rmSync on line 385 in happy path, SCRATCH by the outer finally block on line 437 covering both throw and normal exit. (3) Eight negative-control cases: all non-tautological, isolated scratch dirs, no shared state; all 8/8 guards fire live. (4) No dead module-level imports in corpus-selfcheck.mjs — all 9 named imports are used. One unused import of readFileSync exists inside the HARNESS_ACCEPT template string literal (line 248) but that is cosmetic dead code in a synthetic fixture string, not in the reviewed module itself, and has no correctness or maintainability impact. (5) No as-any, no empty catch, fully offline/deterministic, no network calls. (6) Fix commit only touched corpus-selfcheck.mjs + README.md — no harness/task regressions. Live runs: 24/24 tasks + stratification OK + 8/8 guards fire + 6/6 selfchecks pass.",
+      "createdAt": "2026-06-24T10:39:06.390Z",
+      "reviewRound": "2026-06-24T10:16:50.255Z",
+      "reviewRunId": "B-e67f:RR-006",
+      "_hash": "a9c5631dea238712c7ca1c40e7b1f5f4be3ea3ab06dca61fab5f58b9bb8dbdfb"
     }
   ]
 }
