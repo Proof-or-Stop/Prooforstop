@@ -1,5 +1,5 @@
 import { execFileSync } from 'child_process';
-import { currentMaterialHash, isMaterialExcludedPath } from './evidence-freshness.js';
+import { currentMaterialHash, currentStoryFilesHash, isMaterialExcludedPath } from './evidence-freshness.js';
 import {
   evaluateHostVerdictRounds,
   type HostVerdictRound,
@@ -7,6 +7,7 @@ import {
 } from './host-independence.js';
 import {
   REVIEW_ESCALATION_FALLBACK_ELIGIBILITIES,
+  eventsWithStoryFilesHashDowngrade,
   isReviewEscalationFallbackEligibility,
 } from './review-escalation.js';
 import { isReviewerAgent } from './review-run.js';
@@ -62,9 +63,11 @@ export interface ReviewAssuranceFloorFallbackRecord {
   evidenceRefs: string[];
   approvalRef?: string;
   materialHash?: string;
+  storyFilesHash?: string;
   assuranceLevel?: string;
   valid: boolean;
   reasons: string[];
+  advisories?: string[];
 }
 
 export interface ReviewAssuranceFloorReport {
@@ -101,6 +104,7 @@ export interface ReviewAssuranceFloorReport {
   fullAuthorityDone: false;
   productionDone: false;
   reasons: string[];
+  advisories?: string[];
   diffError?: string;
 }
 
@@ -118,6 +122,7 @@ export interface EvaluateReviewAssuranceFloorArgs {
   touchpoints?: string[];
   changedFiles?: string[];
   materialHash?: string;
+  storyFilesHash?: string;
 }
 
 function normalizeString(value: unknown): string {
@@ -498,15 +503,26 @@ export function evaluateReviewAssuranceFloor(args: EvaluateReviewAssuranceFloorA
     });
   }
 
+  // B-6de6: honor storyFilesHash as a secondary downgrade-accept, exactly
+  // mirroring review-escalation: whole-tree materialHash stays the PRIMARY key,
+  // and storyFilesHash only forgives unrelated whole-tree drift (valid-with-
+  // advisory), never a real story-file change. (materialHash is non-null here.)
+  const storyFilesHash = args.storyFilesHash ?? currentStoryFilesHash(gitCwd, 'HEAD', args.projectRoot) ?? null;
+  const downgradeAdvisories: string[] = [];
+  const rawEvents = readEvents(args);
+  const effectiveEvents = storyFilesHash
+    ? eventsWithStoryFilesHashDowngrade(rawEvents, materialHash, storyFilesHash, downgradeAdvisories)
+    : rawEvents;
+
   const localRounds = evaluateHostVerdictRounds(
-    readEvents(args),
+    effectiveEvents,
     materialHash,
     requiredHosts,
   );
   const fullOk = localRounds.validRounds.length >= requiredRounds;
-  const fallback = latestFallbackRecord(readEvents(args), materialHash);
+  const fallback = latestFallbackRecord(effectiveEvents, materialHash, storyFilesHash);
   const degradedRounds = highRiskRequired
-    ? evaluateHostVerdictRounds(readEvents(args), materialHash, REVIEW_ASSURANCE_FLOOR_LOCAL_HOSTS_PER_ROUND)
+    ? evaluateHostVerdictRounds(effectiveEvents, materialHash, REVIEW_ASSURANCE_FLOOR_LOCAL_HOSTS_PER_ROUND)
     : null;
   const degradedRoundsOk = Boolean(degradedRounds && degradedRounds.validRounds.length >= requiredRounds);
   const degradedOk = highRiskRequired && fallback?.valid === true && degradedRoundsOk;
@@ -528,6 +544,11 @@ export function evaluateReviewAssuranceFloor(args: EvaluateReviewAssuranceFloorA
       reasons.push(`failure signals make the 3x1 local floor sticky: ${failureSignals.map(signal => signal.kind).join(', ')}`);
     }
   }
+
+  // B-6de6: surface re-attestation advisories from BOTH the host-verdict
+  // downgrade pass and the degraded fallback record so the storyFilesHash
+  // drift-acceptance signal is never swallowed (mirrors review-escalation).
+  const advisories = [...downgradeAdvisories, ...(fallback?.advisories ?? [])];
 
   return {
     schemaVersion: 'lattice.review_assurance_floor.v1',
@@ -565,6 +586,7 @@ export function evaluateReviewAssuranceFloor(args: EvaluateReviewAssuranceFloorA
     fullAuthorityDone: false,
     productionDone: false,
     reasons,
+    ...(advisories.length > 0 ? { advisories } : {}),
   };
 }
 
@@ -576,6 +598,7 @@ function fallbackRecordFromEvent(
   event: ProcessEvent,
   index: number,
   expectedMaterialHash: string,
+  expectedStoryFilesHash: string | null,
 ): ReviewAssuranceFloorFallbackRecord {
   const eligibility = normalizeString(event.eligibility);
   const reason = normalizeString(event.reason);
@@ -584,8 +607,10 @@ function fallbackRecordFromEvent(
     : [];
   const approvalRef = normalizeString(event.approvalRef);
   const materialHash = normalizeString(event.materialHash);
+  const storyFilesHash = normalizeString(event.storyFilesHash);
   const assuranceLevel = normalizeString(event.assuranceLevel);
   const reasons: string[] = [];
+  const advisories: string[] = [];
 
   if (!isReviewEscalationFallbackEligibility(eligibility)) {
     reasons.push(`eligibility must be one of ${REVIEW_ESCALATION_FALLBACK_ELIGIBILITIES.join('|')}`);
@@ -593,7 +618,16 @@ function fallbackRecordFromEvent(
   if (reason.length < 20) reasons.push('reason must be at least 20 characters');
   if (evidenceRefs.length === 0 && !approvalRef) reasons.push('fallback requires evidenceRefs or approvalRef');
   if (!materialHash) reasons.push('missing materialHash');
-  else if (materialHash !== expectedMaterialHash) reasons.push('materialHash is stale');
+  // B-6de6: the fallback event carries event.materialHash (NOT materialDigest),
+  // so eventsWithStoryFilesHashDowngrade does not rewrite it; apply the SAME
+  // storyFilesHash downgrade-accept that review-escalation uses here.
+  else if (materialHash !== expectedMaterialHash) {
+    if (expectedStoryFilesHash && storyFilesHash && storyFilesHash === expectedStoryFilesHash) {
+      advisories.push('materialHash is stale but storyFilesHash matches; re-attestation advisory required');
+    } else {
+      reasons.push('materialHash is stale');
+    }
+  }
   if (assuranceLevel !== 'degraded-single-host') {
     reasons.push('assuranceLevel must be degraded-single-host');
   }
@@ -606,17 +640,19 @@ function fallbackRecordFromEvent(
     evidenceRefs,
     ...(approvalRef ? { approvalRef } : {}),
     ...(materialHash ? { materialHash } : {}),
+    ...(storyFilesHash ? { storyFilesHash } : {}),
     ...(assuranceLevel ? { assuranceLevel } : {}),
     valid: reasons.length === 0,
     reasons,
+    ...(advisories.length > 0 ? { advisories } : {}),
   };
 }
 
-function latestFallbackRecord(events: ProcessEvent[], expectedMaterialHash: string): ReviewAssuranceFloorFallbackRecord | null {
+function latestFallbackRecord(events: ProcessEvent[], expectedMaterialHash: string, expectedStoryFilesHash: string | null): ReviewAssuranceFloorFallbackRecord | null {
   const records = events
     .map((event, index) => ({ event, index }))
     .filter(({ event }) => event.type === 'review_escalation_fallback')
-    .map(({ event, index }) => fallbackRecordFromEvent(event, index, expectedMaterialHash));
+    .map(({ event, index }) => fallbackRecordFromEvent(event, index, expectedMaterialHash, expectedStoryFilesHash));
   return latestByIndex(records);
 }
 
