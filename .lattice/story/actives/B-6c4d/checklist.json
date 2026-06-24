@@ -56,9 +56,9 @@
       "id": "CHK-002",
       "title": "Add the EMPTY_STORY_FILES_HASH no-signal guard to checkEvidenceFreshnessForGit",
       "context": "evidence-freshness.ts drift-advisory branch (~315): the advisory must fire only when BOTH the stored and live storyFilesHash are non-empty (!== EMPTY_STORY_FILES_HASH); an empty-set hash falls through to strict materialHash. Mirrors delivery-check-hash.ts:184-188, generalized for all callers. Soundness prerequisite for the relax.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-24T13:09:11.270Z",
-      "endTime": null,
+      "endTime": "2026-06-24T13:09:18.214Z",
       "verificationIntent": {
         "happy": [
           {
