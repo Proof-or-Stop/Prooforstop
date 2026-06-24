@@ -1,0 +1,42 @@
+{
+  "storyId": "B-8d44",
+  "checkedAt": "2026-06-24T12:13:07.533Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "id": "INIT-001",
+      "severity": "medium",
+      "desc": "background.md uses paper section shorthand §1/§3/§5/§6/§7 (e.g. \"pre-reg §1 arms\", \"§3 fixed-point injection\", \"§7 metric names\") without ever stating these are sections of the Proofbound/Lattice paper. A standalone reader who is new to the project cannot infer what §1, §3, §5, §6, §7 denote without prior project context."
+    },
+    {
+      "id": "INIT-002",
+      "severity": "medium",
+      "desc": "background.md references multiple cross-story IDs inline (B-2d4c / B-ebbb / B-f248 / B-7036 as \"infra-(a)\" components; B-e67f as the corpus story) without a one-sentence description of what each referenced story delivered. Per Dimension 2, cross-story references require at least a one-sentence context on first appearance so the background is independently readable."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-24T12:11:44.150Z",
+      "issues": []
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-06-24T12:13:07.533Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "medium",
+          "desc": "background.md uses paper section shorthand §1/§3/§5/§6/§7 (e.g. \"pre-reg §1 arms\", \"§3 fixed-point injection\", \"§7 metric names\") without ever stating these are sections of the Proofbound/Lattice paper. A standalone reader who is new to the project cannot infer what §1, §3, §5, §6, §7 denote without prior project context."
+        },
+        {
+          "id": "INIT-002",
+          "severity": "medium",
+          "desc": "background.md references multiple cross-story IDs inline (B-2d4c / B-ebbb / B-f248 / B-7036 as \"infra-(a)\" components; B-e67f as the corpus story) without a one-sentence description of what each referenced story delivered. Per Dimension 2, cross-story references require at least a one-sentence context on first appearance so the background is independently readable."
+        }
+      ]
+    }
+  ],
+  "_hash": "96af2146a2f98fd12fa63672be8f13fd531f8684f175b3361ffaaeb9e80000ad"
+}
