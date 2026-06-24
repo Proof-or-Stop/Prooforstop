@@ -1,0 +1,36 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "fetchGateReceiptProof must request an authenticated read so the customer API key is sent as Bearer auth",
+      "context": "packages/main/src/core/authority-client.ts: get() only attaches Authorization when authenticated:true; protected /v1/receipts/{id}/proof returns 401 otherwise",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "loadProof must construct the AuthorityClient with resolved auth for the proofPath fetch",
+      "context": "packages/main/src/handlers/authority-enforce.ts: pass resolveAuthorityClientAuth(process.env) as the 4th AuthorityClient arg",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "The live receipt-ref gate smoke must send an empty-overlap materialOverlapAudit on the DONE gate request, in both the digest input and the signed decision",
+      "context": "packages/main/src/tasks/authority-live-receipt-ref-gate-smoke.ts: DONE enforce gate requires materialOverlapAudit; use buildNoOverlapMaterialOverlapAuditDefault()",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Add a deterministic regression smoke pinning that the proof fetch is authenticated (Bearer) and fail-closed without a key",
+      "context": "new packages/main/src/tasks/authority-receipt-proof-auth-smoke.ts plus a package.json script; must FAIL without the fix and PASS with it",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
