@@ -1,0 +1,22 @@
+{
+  "findings": [
+    {
+      "id": "B-d243:F-001",
+      "desc": "delivery-check-hash.ts:94 advisory field is optional on DeliveryCheckFreshnessResult but is semantically required when code===delivery_check_drift_advisory; missing discriminated union means a future code path returning that code without advisory would silently swallow the advisory (done-oracle uses the defensive ? empty-string guard at line 629). The type should enforce advisory presence for the advisory code.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-24T11:30:43.552Z",
+      "reviewRound": "2026-06-24T11:25:45.889Z",
+      "reviewRunId": "B-d243:RR-002",
+      "_hash": "0ab5dcd82bf57e5b4dadc0d857d365ce2938a853754fa6f8ce0e7871ca631bb9",
+      "files": [
+        "packages/main/src/core/delivery-check-hash.ts"
+      ],
+      "signatureTag": "edge|ts|delivery-check-hash",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
