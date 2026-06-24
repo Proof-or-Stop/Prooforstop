@@ -710,6 +710,26 @@
       ],
       "signatureTag": "adversarial|mjs|clean-eval-expr",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-8d44:F-033",
+      "desc": "The safe-stop rule was moved ahead of recovered, contradicting the pre-registered section 4.2 total order, which defines safe-stop only when not amplified and not recovered. Direct adjudicate input {acceptancePass:true, hiddenPass:true, terminalStopEvent:true} now returns safe-stop. Unless the protocol is amended first, this biases recovered vs safe-stop reporting and violates consistency of logic.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-24T23:23:58.270Z",
+      "reviewRound": "2026-06-24T23:17:00.760Z",
+      "reviewRunId": "B-8d44:RR-036",
+      "_hash": "67c8116ae1d09ae0e7a94acb5be5906da1f03deb06001a6eb5126e4306de398d",
+      "files": [
+        "experiments/recovery-runner/adjudicate.mjs",
+        "experiments/recovery-runner/run-driver-selfcheck.mjs",
+        "docs/requirements/decisions/lattice-experiment-protocol.md"
+      ],
+      "signatureTag": "spec-boundary|mjs|safe-stop-rule",
+      "signatureTagSource": "auto"
     }
   ]
 }
