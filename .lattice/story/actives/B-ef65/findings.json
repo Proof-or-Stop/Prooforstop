@@ -5,7 +5,7 @@
       "desc": "The validate execution lock is released before story-scoped validation evidence is decorated and persisted. In the configured/fallback path, withValidationExecutionLock wraps only executeValidationPlan at packages/main/src/handlers/verifier.ts:820-825, then persistStoryValidationEvidence runs after release at packages/main/src/handlers/verifier.ts:847. In the validate.ts path, the lock wraps only runValidationCommand at packages/main/src/handlers/verifier.ts:895-900, while JSON/pollution evidence writes happen after release at packages/main/src/handlers/verifier.ts:927, packages/main/src/handlers/verifier.ts:941, and packages/main/src/handlers/verifier.ts:962. persistStoryValidationEvidence writes test-evidence.json at packages/main/src/handlers/verifier.ts:605-621. A second validate started immediately after the first command exits can acquire the lock and write newer evidence while the first process is still decorating/persisting, allowing the older result to clobber the newer test-evidence snapshot. The no-validator branch also writes evidence without using the lock at packages/main/src/handlers/verifier.ts:800. Keep the lock held through decorateStoryVerification and persistStoryValidationEvidence for all story-scoped validate evidence writes, while leaving reviewer/delivery metadata outside the lock.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-24T01:17:23.715Z",
@@ -17,7 +17,11 @@
         "packages/main/src/core/validation-execution-lock.ts"
       ],
       "signatureTag": "adversarial|ts|validate-execution-lock",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by holding withValidationExecutionLock through command execution, story result decoration, and persistStoryValidationEvidence for story-scoped non-focus validate evidence writes in no-validator, configured/fallback, validate.ts pollution, parsed JSON, and wrapped JSON paths. Verified with npm --prefix packages/main run build, validate-execution-lock smoke (9 assertions including post-command persistence race), and validate-command-timeout smoke (18 assertions).",
+      "resolvedAt": "2026-06-24T01:29:05.942Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
