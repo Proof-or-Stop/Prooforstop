@@ -95,7 +95,7 @@ normalization, signing, validation, and gate consumption.
   evidence. They must not infer process facts from free text like "passed".
 - Finding signatures bind storyId, reviewer lane, reviewRound, severity,
   category, description, and files. Review run validation also checks signature,
-  current-latest run, matching reviewRound, and fresh head/material hashes.
+  matching reviewRound, fresh head/material hashes, and—for an open finding—the lane's latest run (a pass does not require being the latest run).
 - Delivery semantics stay separate: delivery check docs promises, real machine
   tests, closing self-check, waivers, and signed delivery artifacts are consumed
   by DONE gates, not by ordinary prose.

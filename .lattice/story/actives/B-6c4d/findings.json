@@ -1,0 +1,146 @@
+{
+  "findings": [
+    {
+      "id": "B-6c4d:F-001",
+      "desc": "doc-promise-undelivered: flow-fact-policy.ts line 36 and process-fact-levels.ts line 324 both still read \"bound to the latest signed reviewer run for that lane\" but B-6c4d relaxes passes on non-latest material-fresh runs — the rationale now misrepresents the enforced policy and will mislead future callers of the policy registry",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-24T14:13:55.507Z",
+      "reviewRound": "2026-06-24T14:10:01.204Z",
+      "reviewRunId": "B-6c4d:RR-003",
+      "_hash": "52d288f89640fc61ac5d01b80387bb4731cf36b726b99571290435c14cc7b70b",
+      "files": [
+        "packages/main/src/core/flow-fact-policy.ts",
+        "packages/main/src/core/process-fact-levels.ts"
+      ],
+      "signatureTag": "missing|ts|promise-undelivered-flow",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-6c4d:F-002",
+      "desc": "doc-promise-undelivered: prompt-registry.ts line 98 still says \"Review run validation also checks signature, current-latest run, matching reviewRound, and fresh head/material hashes\" — after B-6c4d the validate path accepts non-latest passes, so \"current-latest run\" is no longer accurate for pass evidence",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-24T14:14:06.198Z",
+      "reviewRound": "2026-06-24T14:10:01.204Z",
+      "reviewRunId": "B-6c4d:RR-003",
+      "_hash": "23021475bbea0262d90aea6a247fc1ae7bcced0e1e36de9f7d0a8c476b4f6d2f",
+      "files": [
+        "packages/main/src/core/prompt-registry.ts"
+      ],
+      "signatureTag": "missing|ts|promise-undelivered-prompt",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-6c4d:F-003",
+      "desc": "CHK-001:adversarial:2 intent claims \\\"net result lane blocked\\\" but assertReviewRunBindingRaceAcceptsNonLatestFreshPass never calls getGuardFailureReason to assert that the gate actually blocks when a non-latest-run open finding coexists with a non-latest-run pass. The smoke asserts the pass has no stale_run (L1452-1457) and the open finding has stale_run (L1466-1471) separately, but the final \\\"net result lane blocked\\\" claim in the evidence note is not validated by a guard-layer assertion. The link from stale_run-in-invalid to gate-blocks is real but left implicit. The analogous cases in assertSupersededReviewPassDoesNotBlockLatestReviewerRun use getGuardFailureReason (L1313) to close this loop; the binding-race function does not.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-24T14:16:29.071Z",
+      "reviewRound": "2026-06-24T14:10:01.204Z",
+      "reviewRunId": "B-6c4d:RR-004",
+      "_hash": "d9bcb5388774bb364fc6b05beb77042035148368255d9aa3658fd604d2843308",
+      "files": [
+        "packages/main/src/tasks/flow-stability-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|adversarial-intent-claims",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-6c4d:F-004",
+      "desc": "doc-promise-undelivered: 10 agent template files in packages/main/templates/agents/ (lattice-evaluator.md, lattice-implementer.md, lattice-review-behavior.md, lattice-review-channel.md, lattice-review-concept.md, lattice-review-delivery.md, lattice-review-docs.md, lattice-review-quality.md, lattice-review-scope-plan.md, lattice-review-story-init.md) still carry the old stale lattice:start block text: \"Review run validation also checks signature, current-latest run, matching reviewRound, and fresh head/material hashes\" — inaccurate after the kind-aware relax; prompt-registry.ts LOAD_BEARING_LATTICE_PROMPT_SLICE was updated but the template .md files were not synced, causing prompt-registry-smoke line 89 to fail (extractLatticeBlock(source) != LOAD_BEARING_LATTICE_PROMPT_SLICE). Deployed mirrors in .claude/agents/ and .lattice-codex/agents/ have the same stale text.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-24T14:26:05.942Z",
+      "reviewRound": "2026-06-24T14:22:50.026Z",
+      "reviewRunId": "B-6c4d:RR-005",
+      "_hash": "d2246925616aec581d3e429029b5be374500ad6c4eab885307dd6abf1322f830",
+      "files": [
+        "packages/main/templates/agents/lattice-evaluator.md",
+        "packages/main/templates/agents/lattice-implementer.md",
+        "packages/main/templates/agents/lattice-review-behavior.md",
+        "packages/main/templates/agents/lattice-review-channel.md",
+        "packages/main/templates/agents/lattice-review-concept.md",
+        "packages/main/templates/agents/lattice-review-delivery.md",
+        "packages/main/templates/agents/lattice-review-docs.md",
+        "packages/main/templates/agents/lattice-review-quality.md",
+        "packages/main/templates/agents/lattice-review-scope-plan.md",
+        "packages/main/templates/agents/lattice-review-story-init.md"
+      ],
+      "signatureTag": "missing|md|promise-undelivered-agent",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-6c4d:F-005",
+      "desc": "doc-promise-undelivered: docs/requirements/decisions/story-lifecycle.md line 202 still says \"the gate accepts only the latest reviewer run with a matching lane, matching reviewRound, valid signature, and still fresh\" — after B-6c4d kind-aware relax, PASS evidence no longer requires latest-run; the statement is now inaccurate for passes (it describes the pre-relax policy as a blanket rule). The story scope allowed reconciling decision docs (review-run-binding-race.md was written; session-ownership-and-write-leases.md was reconciled) but story-lifecycle.md was not updated.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-24T14:27:12.618Z",
+      "reviewRound": "2026-06-24T14:22:50.026Z",
+      "reviewRunId": "B-6c4d:RR-005",
+      "_hash": "7ac47e9d104c4a91579c602fd02b35e8dded09326b8815296619ba2b60b602e4",
+      "files": [
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "signatureTag": "missing|md|promise-undelivered-docs",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-6c4d:F-006",
+      "desc": "doc-code-drift: packages/main/src/core/prompt-registry.ts line 98 still reads 'current-latest run, matching reviewRound, and fresh head/material hashes' — the pre-kind-aware wording that the round-3 commit explicitly reverted. The code (review-run.ts:807 validateEvidenceRunBinding and assertCurrentReviewRunForEvidence:669-676) implements kind-aware binding: the id-recency check is dropped for evidence.kind=pass so PASS evidence on a non-latest-but-material-fresh run is accepted, while FINDING evidence still requires the latest run. The prompt-registry.ts text omits this kind-awareness and implies id-recency is required for all evidence. This contradicts story-lifecycle.md:202, flow-fact-policy.ts review-run-boundary rationale, process-fact-levels.ts review-run-boundary rationale, and review-run-binding-race.md — all of which correctly describe the kind-aware policy. Because prompt-registry.ts is the LOAD_BEARING_LATTICE_PROMPT_SLICE injected into every agent prompt, agents reading it will incorrectly believe id-recency is required for passes, misdiagnosing the relaxed binding.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-24T14:46:07.065Z",
+      "reviewRound": "2026-06-24T14:41:01.279Z",
+      "reviewRunId": "B-6c4d:RR-011",
+      "_hash": "fe7666c33ffb573631b51cf5e41a478f668bd4c4331252f014bd93ffbaaa56d7",
+      "files": [
+        "packages/main/src/core/prompt-registry.ts",
+        "packages/main/src/core/review-run.ts",
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/review-run-binding-race.md",
+        "packages/main/src/core/flow-fact-policy.ts",
+        "packages/main/src/core/process-fact-levels.ts"
+      ],
+      "signatureTag": "missing|ts|code-drift-packages",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-6c4d:F-007",
+      "desc": "doc-code-drift: CLAUDE.md line 831 still says collectReviewerEvidenceState checks \"current-latest run\" uniformly for all evidence kinds. After the kind-aware fix in review-run.ts:807-819, the id-recency (latest-run) check is DROPPED for passes (kind=pass) and KEPT only for open findings (kind=finding). The CLAUDE.md REVIEW->TEST gate-behavior section must be updated to reflect the kind-aware policy.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-24T15:08:14.151Z",
+      "reviewRound": "2026-06-24T15:05:36.419Z",
+      "reviewRunId": "B-6c4d:RR-015",
+      "_hash": "adecfec1373b30a62d1f0da14dcd3e9925e42b23ccf249e2a7bb986d276c27f0",
+      "files": [
+        "CLAUDE.md",
+        "packages/main/src/core/review-run.ts"
+      ],
+      "signatureTag": "doc-code-drift|md|code-drift-claude",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
