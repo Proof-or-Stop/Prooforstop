@@ -7,9 +7,77 @@
       "relatedDocs": [
         "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-24T13:05:09.895Z",
+      "endTime": "2026-06-24T13:08:48.906Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "done_prepare PASSes or reaches later DONE closure checks when the only initial dirty files are unchanged pre-existing Lattice lifecycle metadata for the same story.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "done_prepare still blocks at cleanTree for dirty source/material files and for metadata/source rename attempts.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "failed DONE-required lifecycle metadata remains a DONE closure blocker and cannot be converted into a DONE prepare PASS by the metadata-only allowance.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "Running done_prepare with only unchanged pre-existing Lattice lifecycle metadata dirt no longer prints blockedAt: cleanTree; dirty source or unsafe rename scenarios still print blockedAt: cleanTree.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/done-prepare.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/done-prepare-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/done-prepare-smoke.js",
+          "result": "pass",
+          "note": "Smoke passed: same-story pre-existing done-required-evidence metadata remains dirty while done_prepare reports PASS.",
+          "headHash": "e669427850429f1170b31de1942a0c0ec9d7ccd4",
+          "materialHash": "ebc27d38cc0029898387f299a1e155089cd0ea7e8e4db7cf660b33552706b65b",
+          "storyFilesHash": "c77a81e0d68f0afd28a1ef997286ef94df0ff9abe33c2959ab06a6c95ac9d399",
+          "timestamp": "2026-06-24T13:13:40.870Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/done-prepare-smoke.js",
+          "result": "pass",
+          "note": "Smoke passed: dirty source, metadata-to-source, source-to-metadata, source-to-owner-lease, and other-story metadata scenarios block at cleanTree.",
+          "headHash": "e669427850429f1170b31de1942a0c0ec9d7ccd4",
+          "materialHash": "ebc27d38cc0029898387f299a1e155089cd0ea7e8e4db7cf660b33552706b65b",
+          "storyFilesHash": "c77a81e0d68f0afd28a1ef997286ef94df0ff9abe33c2959ab06a6c95ac9d399",
+          "timestamp": "2026-06-24T13:13:40.870Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/done-prepare-smoke.js",
+          "result": "pass",
+          "note": "Smoke passed: failed DONE-required lifecycle metadata blocks doneClosure and does not produce DONE prepare PASS.",
+          "headHash": "e669427850429f1170b31de1942a0c0ec9d7ccd4",
+          "materialHash": "ebc27d38cc0029898387f299a1e155089cd0ea7e8e4db7cf660b33552706b65b",
+          "storyFilesHash": "c77a81e0d68f0afd28a1ef997286ef94df0ff9abe33c2959ab06a6c95ac9d399",
+          "timestamp": "2026-06-24T13:13:40.870Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -18,17 +86,154 @@
       "relatedDocs": [
         "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-24T13:08:58.266Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "lifecycle_check target DONE reports localReady true when all DONE oracle rows are clean and the only missing done_prepare report row is advisory.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "missing done_prepare report remains blocking when DONE oracle rows contain blockers.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "the advisory done_prepare row remains visible in the report so hosts still receive the preflight command instead of silently losing guidance.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "Running lifecycle_check for a DONE-ready story can print localReady: true while still showing a WARN done.done_prepare advisory row with the next done_prepare command.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/lifecycle-readiness.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/lifecycle-check-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/lifecycle-check-smoke.js",
+          "result": "pass",
+          "note": "Smoke passed: DONE-ready fixture reports localReady true when missing done_prepare is only advisory.",
+          "headHash": "e669427850429f1170b31de1942a0c0ec9d7ccd4",
+          "materialHash": "ebc27d38cc0029898387f299a1e155089cd0ea7e8e4db7cf660b33552706b65b",
+          "storyFilesHash": "c77a81e0d68f0afd28a1ef997286ef94df0ff9abe33c2959ab06a6c95ac9d399",
+          "timestamp": "2026-06-24T13:13:40.870Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/lifecycle-check-smoke.js",
+          "result": "pass",
+          "note": "Smoke passed: blocker fixture keeps missing done_prepare visible while localReady remains false due to DONE oracle blockers.",
+          "headHash": "e669427850429f1170b31de1942a0c0ec9d7ccd4",
+          "materialHash": "ebc27d38cc0029898387f299a1e155089cd0ea7e8e4db7cf660b33552706b65b",
+          "storyFilesHash": "c77a81e0d68f0afd28a1ef997286ef94df0ff9abe33c2959ab06a6c95ac9d399",
+          "timestamp": "2026-06-24T13:13:40.870Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/lifecycle-check-smoke.js",
+          "result": "pass",
+          "note": "Smoke passed: advisory row remains visible as WARN done.done_prepare with next done_prepare guidance.",
+          "headHash": "e669427850429f1170b31de1942a0c0ec9d7ccd4",
+          "materialHash": "ebc27d38cc0029898387f299a1e155089cd0ea7e8e4db7cf660b33552706b65b",
+          "storyFilesHash": "c77a81e0d68f0afd28a1ef997286ef94df0ff9abe33c2959ab06a6c95ac9d399",
+          "timestamp": "2026-06-24T13:13:40.870Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
       "title": "Port regression smokes and benchmark assertions",
       "context": "Bring over focused smoke coverage for metadata-only dirt, dirty source blockers, unsafe renames, failed done-required evidence, and lifecycle_check localReady semantics.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-24T13:09:07.398Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "done_prepare smoke includes a passing metadata-only dirty scenario and lifecycle_check smoke includes a ready fixture with localReady true.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "smokes cover dirty source, metadata-to-source rename, source-to-metadata rename, and source-to-owner-lease rename blockers.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "benchmark assertions fail if metadata-only done_prepare dirt regresses to blockedAt cleanTree or if the scenario precondition is not DONE-closure ready.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "The focused smoke and benchmark commands fail loudly if metadata-only dirty DONE readiness regresses to cleanTree blocking.",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/done-readiness-flow-benchmark.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/done-prepare-smoke.ts",
+          "packages/main/src/tasks/lifecycle-check-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/done-prepare-smoke.js && node packages/main/dist/tasks/lifecycle-check-smoke.js",
+          "result": "pass",
+          "note": "Both smokes passed; done_prepare covers metadata-only dirty PASS and lifecycle_check covers DONE-ready localReady true.",
+          "headHash": "e669427850429f1170b31de1942a0c0ec9d7ccd4",
+          "materialHash": "ebc27d38cc0029898387f299a1e155089cd0ea7e8e4db7cf660b33552706b65b",
+          "storyFilesHash": "c77a81e0d68f0afd28a1ef997286ef94df0ff9abe33c2959ab06a6c95ac9d399",
+          "timestamp": "2026-06-24T13:13:40.870Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/done-prepare-smoke.js",
+          "result": "pass",
+          "note": "Smoke passed blocker coverage for dirty source and metadata/source/owner-lease rename boundaries.",
+          "headHash": "e669427850429f1170b31de1942a0c0ec9d7ccd4",
+          "materialHash": "ebc27d38cc0029898387f299a1e155089cd0ea7e8e4db7cf660b33552706b65b",
+          "storyFilesHash": "c77a81e0d68f0afd28a1ef997286ef94df0ff9abe33c2959ab06a6c95ac9d399",
+          "timestamp": "2026-06-24T13:13:40.870Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/done-readiness-flow-benchmark.js --rounds=1 --slow-ms=1",
+          "result": "pass",
+          "note": "Benchmark passed and asserted metadata-only done-required-evidence dirt does not regress to blockedAt cleanTree while closure precondition is ready.",
+          "headHash": "e669427850429f1170b31de1942a0c0ec9d7ccd4",
+          "materialHash": "ebc27d38cc0029898387f299a1e155089cd0ea7e8e4db7cf660b33552706b65b",
+          "storyFilesHash": "c77a81e0d68f0afd28a1ef997286ef94df0ff9abe33c2959ab06a6c95ac9d399",
+          "timestamp": "2026-06-24T13:13:40.870Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -37,9 +242,75 @@
       "relatedDocs": [
         "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-24T13:09:15.567Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "done_prepare automation decision doc states that unchanged pre-existing Lattice lifecycle metadata dirt is allowed for preflight/final cleanTree checks.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "the doc also states source/material dirt and unsafe metadata/source renames remain blockers.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "the doc does not claim done_prepare can waive failed DONE-required evidence or storyFilesHash-related material drift.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "The done_prepare decision doc states that unchanged pre-existing lifecycle metadata dirt is allowed, while source/material dirt, unsafe renames, failed evidence, and story-owned drift still block.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "command": "git diff -- docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "result": "pass",
+          "note": "Decision doc now states same-story unchanged pre-existing lifecycle metadata may remain dirty without cleanTree blocking.",
+          "headHash": "e669427850429f1170b31de1942a0c0ec9d7ccd4",
+          "materialHash": "ebc27d38cc0029898387f299a1e155089cd0ea7e8e4db7cf660b33552706b65b",
+          "storyFilesHash": "c77a81e0d68f0afd28a1ef997286ef94df0ff9abe33c2959ab06a6c95ac9d399",
+          "timestamp": "2026-06-24T13:13:40.870Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "command": "git diff -- docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "result": "pass",
+          "note": "Decision doc states source/material, fixture, runtime, declared artifact, other-story metadata, and metadata/source/owner-lease renames still block.",
+          "headHash": "e669427850429f1170b31de1942a0c0ec9d7ccd4",
+          "materialHash": "ebc27d38cc0029898387f299a1e155089cd0ea7e8e4db7cf660b33552706b65b",
+          "storyFilesHash": "c77a81e0d68f0afd28a1ef997286ef94df0ff9abe33c2959ab06a6c95ac9d399",
+          "timestamp": "2026-06-24T13:13:40.870Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "git diff -- docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "result": "pass",
+          "note": "Decision doc states failed DONE-required evidence is not waived and must block doneClosure rather than claim PASS.",
+          "headHash": "e669427850429f1170b31de1942a0c0ec9d7ccd4",
+          "materialHash": "ebc27d38cc0029898387f299a1e155089cd0ea7e8e4db7cf660b33552706b65b",
+          "storyFilesHash": "c77a81e0d68f0afd28a1ef997286ef94df0ff9abe33c2959ab06a6c95ac9d399",
+          "timestamp": "2026-06-24T13:13:40.870Z"
+        }
+      ]
     }
   ]
 }

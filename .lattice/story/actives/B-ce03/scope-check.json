@@ -1,0 +1,51 @@
+{
+  "storyId": "B-ce03",
+  "checkedAt": "2026-06-24T13:02:46.110Z",
+  "features": [
+    {
+      "feature": "Port only the B-9dfb DONE-readiness behavior through the six scoped target files",
+      "covered_by": "understanding.touchpoints lists exactly six files; checklist files.modify/test map to done-prepare handler, lifecycle readiness, two smoke tasks, benchmark task, and done_prepare decision doc; plan_get Execution Notes limits old B-9dfb source to a semantic patch source for six scoped target files",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "lattice understanding_get; checklist_get; plan_get"
+    },
+    {
+      "feature": "Exclude stale .lattice/story/actives/B-9dfb lifecycle metadata",
+      "covered_by": "understanding constraints explicitly say not to import .lattice/story/actives/B-9dfb metadata; decision preMortem identifies stale B-9dfb story metadata import as failure mode; plan_get Execution Notes explicitly exclude .lattice/story/actives/B-9dfb",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "lattice understanding_get; decision_get; plan_get; git ls-tree refs/remotes/orchestrate/main .lattice/story/actives/B-9dfb"
+    },
+    {
+      "feature": "Exclude wholesale orchestrate/main merge",
+      "covered_by": "understanding constraints say not to merge orchestrate/main wholesale; decision rejects Merge orchestrate/main option B; git diff main..refs/remotes/orchestrate/main shows 10787 changed paths, making broad merge out of scope",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "lattice understanding_get; decision_get; git diff --name-only main..refs/remotes/orchestrate/main"
+    },
+    {
+      "feature": "Preserve blockers for source/material dirt, unsafe renames, generated metadata, failed DONE-required evidence, and story/material drift",
+      "covered_by": "CHK-001 edge/adversarial verificationIntent covers source/material dirt, metadata/source renames, and failed DONE-required evidence; CHK-003 covers dirty source, metadata/source rename blockers, failed done-required evidence, and benchmark regression assertions; CHK-004 adversarial docs intent forbids claiming waiver over failed DONE-required evidence or storyFilesHash-related material drift; done_prepare and material-drift docs preserve materialHash/storyFilesHash and blocker semantics",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "lattice checklist_get; rg docs/requirements/decisions/done-prepare-automation-execution-plan.md docs/requirements/decisions/story-files-hash-material-drift.md"
+    },
+    {
+      "feature": "Keep lifecycle_check done_prepare report advisory only when DONE oracle rows have no blockers",
+      "covered_by": "CHK-002 happy/edge/adversarial verificationIntent requires localReady true only for clean DONE oracle rows and visible advisory guidance; plan_get CHK-002 states missing done_prepare report is blocking when DONE oracle rows already have blockers; current lifecycle-readiness surface has doneOracleHasBlockers controlling done.done_prepare blocking status",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "lattice checklist_get; plan_get; packages/main/src/core/lifecycle-readiness.ts"
+    }
+  ],
+  "summary": {
+    "total": 5,
+    "covered": 5,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "65b4287a88fe0dc9674b4e95ec1d2bbfb912b8f1cfaa1f9cd443767acf6aa8c1"
+}
