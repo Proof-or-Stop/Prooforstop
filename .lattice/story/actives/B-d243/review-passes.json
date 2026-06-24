@@ -1,0 +1,49 @@
+{
+  "passes": [
+    {
+      "id": "B-d243:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept-completeness verified: (1) storyFilesHash is inside the signDeliveryCheck/recomputeDeliveryCheckHash signature domain — integrity check runs before any storyFilesHash-keyed downgrade, so no unsigned-field gate path exists; (2) waiver re-sign path (delivery_waiver_add) correctly threads data.storyFilesHash; legacy fixtures intentionally omit storyFilesHash and fall back to strict — no incomplete wiring; (3) checkCompletedEvidenceSnapshotFreshness (Gate A) carries the B-d243 keep-strict comment and takes no storyFilesHash parameter; done-required-validation.ts (Gate B) has zero diff — not touched; (4) spec amendment (DONE Sub-Gate Bindings, story-files-hash-material-drift.md) is consistent with the code on all stated invariants: signed payload, advisory-only downgrade, storyFilesHash mismatch hard-rejects, missing fallback to strict, stored hash never rebound. No doc-promise-undelivered gap found. Zero findings.",
+      "createdAt": "2026-06-24T11:30:37.850Z",
+      "reviewRound": "2026-06-24T11:25:45.889Z",
+      "reviewRunId": "B-d243:RR-001",
+      "_hash": "aea02094b984365e4d4a2c1ad2e2f24901c50968f42d7782d7ddcb2d95eefce3"
+    },
+    {
+      "id": "B-d243:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed 7 changed files in packages/main/src. No dead code, no type-as-any, no swallowed errors, no shell isolation violations. Append-only signature payload is correct (legacy records recompute byte-identically). Downgrade branch never rebinds stored hash (store is read-only in evaluateDeliveryCheckFreshness). Smoke test assertions are load-bearing (literal advisory text pinned, non-rebind asserted, guard-blocker pattern exclusion). TypeScript clean. One medium/edge finding filed: missing discriminated union type for advisory field (B-d243:F-001) — advisory is semantically required for delivery_check_drift_advisory code but typed optional, creating a silent-swallow risk on future code paths. Not a current correctness bug (the only code path sets it; test pins it). No blockers.",
+      "createdAt": "2026-06-24T11:30:56.658Z",
+      "reviewRound": "2026-06-24T11:25:45.889Z",
+      "reviewRunId": "B-d243:RR-002",
+      "_hash": "dca4ac9f1bf0892b31ce277523b07b5b4c50170f3ccb23b3f2fbef4031812423"
+    },
+    {
+      "id": "B-d243:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Round-2 re-review: F-001 is fully resolved. DeliveryCheckFreshnessResult is now a correct discriminated union — advisory is required (non-optional string) on the drift-advisory variant and advisory?:undefined on all other codes; there is exactly one construction site (delivery-check-hash.ts:193) assigning a hardcoded non-empty literal. done-oracle.ts narrows on code===delivery_check_drift_advisory (not on truthiness/?: fallback) before accessing advisory, eliminating the silent swallow. The empty-set EMPTY_STORY_FILES_HASH guard is correct on both stored and current sides. The new smoke cases (F-002 waiver re-sign, F-004 no-advisory negative assertion, empty-set strict-stale) are deterministic, non-vacuous, and load-bearing: the F-004 doesNotMatch(/ADVISORY/) would fail if the advisory leaked onto a fresh row; the empty-set case asserts storyFilesHash===undefined in the record and stale_delivery_check under drift; the F-002 case verifies _hash re-validates and storyFilesHash is preserved across waiver. No dead imports, no unused code, no as-any, no empty catch. No new findings.",
+      "createdAt": "2026-06-24T11:51:40.965Z",
+      "reviewRound": "2026-06-24T11:48:44.885Z",
+      "reviewRunId": "B-d243:RR-004",
+      "_hash": "07c8593bf46c83c9c624a31b07113699aa0016c202f3b0e43055da2e8bfe1b5c"
+    },
+    {
+      "id": "B-d243:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Round-2 concept re-verify PASS. (1) No concept deletions or replacements introduced in round-2 commit 04acf46b2 — no residue sweep required. (2) Empty-set storyFilesHash soundness fix: CONFIRMED. Writer (delivery-check.ts line 175-176) drops rawStoryFilesHash when equal to EMPTY_STORY_FILES_HASH, persisting undefined. Gate (delivery-check-hash.ts line 184+188) guards against EMPTY_STORY_FILES_HASH on BOTH the stored deliveryCheck.storyFilesHash and the current storyFilesHash before entering the advisory branch. Smoke test (delivery-check-freshness-smoke.ts check line 633) explicitly exercises the no-story-diff topology and asserts stale_delivery_check (not advisory). (3) No other path to delivery_check_drift_advisory: evaluateDeliveryCheckFreshness is the ONLY function that returns this code; called in done-oracle.ts, machine.ts (x2), and the smoke test — all via the fixed function. checkEvidenceFreshnessForGit at evidence-freshness.ts line 317 is a separate code path for verification-evidence freshness, not reachable via delivery_check_drift_advisory, and is pre-existing out-of-scope for B-d243. (4) Gate A (checkCompletedEvidenceSnapshotFreshness) confirmed untouched — no storyFilesHash wired in, exactly as required. (5) Spec (story-files-hash-material-drift.md DONE Sub-Gate Bindings amendment) is consistent with implementation and done-oracle.ts comment. (6) Discriminated union (F-001) makes advisory a required string for the drift-advisory variant; done-oracle.ts narrows on .code not on truthiness swallow. All checks clean, no blocker.",
+      "createdAt": "2026-06-24T11:52:30.381Z",
+      "reviewRound": "2026-06-24T11:48:44.885Z",
+      "reviewRunId": "B-d243:RR-006",
+      "_hash": "da7245327695d38c23e20f55ad3d4a16fcb6cb4effc02d95ead930fd98e58503"
+    },
+    {
+      "id": "B-d243:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence for all 36 intent entries across CHK-001 through CHK-005. F-002 resolved: CHK-001:happy:2 now has a live dynamic smoke case (delivery_waiver_add re-sign preserves storyFilesHash) that calls the handler and asserts re-signed _hash validates, storyFilesHash preserved, and drift-advisory still fires post-waiver. F-003 resolved: CHK-002:edge:1 re-recorded as manual_transcript (dynamic smoke case); CHK-001:edge:1, CHK-002:adversarial:2, CHK-003:edge:1 re-recorded as logic_test with no misleading smoke command field. F-004 resolved: fresh-path case (delivery_check_set first case) now has assert.doesNotMatch(row.detail, /ADVISORY/) pinned at smoke line 323. Host-2 soundness fix covered: CHK-002:edge:1 evidence records the createMainFixture empty-set case with dynamic execution confirming strict stale, never advisory. Validate reports 36/36 covered, 0 required missing. Smoke exits 0 with 11 named pass lines.",
+      "createdAt": "2026-06-24T11:54:29.603Z",
+      "reviewRound": "2026-06-24T11:48:44.885Z",
+      "reviewRunId": "B-d243:RR-005",
+      "_hash": "bf454129616b5b94d37d75010429eb733a8ea1c40591443679989bc18b812744"
+    }
+  ]
+}

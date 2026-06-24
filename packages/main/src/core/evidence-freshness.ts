@@ -6,6 +6,17 @@ import { LATTICE_STORY_DIR, LEGACY_DOCS_STORY_DIR } from './lattice-paths.js';
 
 export const GIT_TREE_OUTPUT_MAX_BUFFER = 32 * 1024 * 1024;
 
+// B-d243 (host-2 soundness fix): the value currentStoryFilesHash returns for an
+// EMPTY story-owned diff (HEAD == main, or the story already resolved on main).
+// `changedStoryFilesBetween` then yields zero entries, so the hash is
+// sha256(''). This is NOT undefined — it is a real digest that vouches for
+// NOTHING. Treating it as a positive signal would let a delivery-check signed on
+// main (empty diff) re-match later under whole-tree drift while HEAD stays empty,
+// wrongly firing the drift-advisory downgrade for a record that attested no
+// story diff. Callers that key the advisory on storyFilesHash must therefore
+// treat this empty-set value as no-signal and fall back to strict materialHash.
+export const EMPTY_STORY_FILES_HASH = createHash('sha256').update('').digest('hex');
+
 export type EvidenceFreshness = {
   fresh: boolean;
   reason: string;

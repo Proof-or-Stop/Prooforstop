@@ -1,0 +1,33 @@
+{
+  "task": "Stop the DONE delivery-check freshness gate from re-staling a freshly-signed delivery-check on unrelated whole-tree materialHash drift, by folding a signed storyFilesHash into delivery-check and downgrading pure whole-tree drift to a mandatory re-attestation advisory.",
+  "outcome": "An operator finishing a story after an unrelated main merge runs `lattice story_advance '{\"storyId\":\"B-xxxx\",\"phase\":\"DONE\"}'` and, instead of being blocked by `[✗] delivery-check: stale delivery-check: materialHash mismatch (recorded …, current …)`, sees `[✓] delivery-check: N docsPromises checked — ADVISORY: whole-tree materialHash drift detected while the signed delivery-check storyFilesHash matches; the story diff the reviewer attested is unchanged. Re-attestation advisory: re-run the lattice-review-delivery reviewer if the merged-in (non-story) code could affect the real-machine test claims.` and the story proceeds to DONE without a forced reviewer re-sign. If the operator instead changed a story-owned file, the row still fails: `[✗] delivery-check: stale delivery-check: materialHash mismatch …`.",
+  "facts": [
+    "evaluateDeliveryCheckFreshness (core/delivery-check-hash.ts:135-143) hard-fails on any materialHash mismatch today; done-oracle.ts:592 renders that as a blocking DONE row.",
+    "The storyFilesHash secondary-freshness signal (decision story-files-hash-material-drift) already downgrades whole-tree drift to an advisory for review runs, verification evidence, and escalation verdicts, but NOT for delivery-check.",
+    "DeliveryCheckData has no storyFilesHash field and signDeliveryCheck does not sign one (core/types.ts:1395-1416, core/delivery-check-hash.ts:34-52).",
+    "currentStoryFilesHash(gitCwd,'HEAD',metadataRoot) (core/evidence-freshness.ts:199) is the existing, tested computation to reuse.",
+    "A red→green spike already proved the fix: non-story whole-tree drift -> advisory, story-owned change -> stale reject, forged storyFilesHash -> tampered (verified diff at /tmp/friction1-cfresh-fix/core-fix.diff)."
+  ],
+  "constraints": [
+    "delivery-check is SIGNED: storyFilesHash must be folded into signDeliveryCheck/recomputeDeliveryCheckHash so the downgrade keyed on it is non-forgeable (a forged storyFilesHash must break _hash).",
+    "Downgrade only ever relaxes to a MANDATORY loud advisory (code delivery_check_drift_advisory), never to 'fresh', and never rebinds the stored hash.",
+    "A missing storyFilesHash (legacy) or a storyFilesHash mismatch (story-owned change) keeps the strict stale_delivery_check behavior.",
+    "Gate A (completed-snapshot, done-oracle.ts:140) stays strict — it is a frozen-ref integrity check where storyFilesHash is dead code; only add a keep-strict note.",
+    "Gate B (done-required suite) stays strict and keeps re-running on the merged tree — out of scope.",
+    "Legacy delivery-check records without storyFilesHash must recompute byte-identically (append-only signature payload)."
+  ],
+  "unknowns": [
+    "The exact advisory wording to surface on the DONE row (must be loud and direct re-attestation) — to be finalized in CHK-003.",
+    "Whether the existing delivery-check-freshness smoke's all-on-main fixture needs a full story-branch rewrite or an added story-branch case (CHK-004)."
+  ],
+  "touchpoints": [
+    "packages/main/src/core/types.ts (DeliveryCheckData.storyFilesHash)",
+    "packages/main/src/core/delivery-check-hash.ts (signDeliveryCheck, recomputeDeliveryCheckHash, DeliveryCheckFreshnessCode, evaluateDeliveryCheckFreshness)",
+    "packages/main/src/handlers/delivery-check.ts (delivery_check_set + delivery_waiver_add re-sign)",
+    "packages/main/src/core/done-oracle.ts (delivery-check row + Gate-A keep-strict comment)",
+    "packages/main/src/tasks/delivery-check-freshness-smoke.ts (re-fixture + drift cases)",
+    "packages/main/src/core/process-fact-levels.ts + core/process-fact-registry.ts (delivery_check_set rationale)",
+    "docs/requirements/decisions/story-files-hash-material-drift.md (DONE Sub-Gate amendment)"
+  ],
+  "timestamp": "2026-06-24T11:01:23.896Z"
+}

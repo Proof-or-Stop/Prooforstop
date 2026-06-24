@@ -1,0 +1,82 @@
+{
+  "storyId": "B-d243",
+  "checkedAt": "2026-06-24T12:06:20.818Z",
+  "headHash": "1d13a7adc2e91668e3c3330ea56153ff7b009b64",
+  "materialHash": "c712ff64107fc7ffb4a260412f5d215402ff14334ddcb5b213b40c84d1e3f9ba",
+  "storyFilesHash": "97f73e7292c05278d423cd534757482351e6924844bbd857b39d572fa8c93290",
+  "reviewRound": "2026-06-24T11:48:44.885Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/story-files-hash-material-drift.md#DONE-Sub-Gate-Bindings",
+      "promise": "Spec amended with DONE Sub-Gate Bindings section: delivery-check (Gate C) adopts storyFilesHash with signed guard; done-required suite (Gate B) kept strict (re-runs); completed evidence snapshot freshness (Gate A) excluded as frozen-ref integrity check not subject to whole-tree drift.",
+      "verifiedBy": "diff/read",
+      "evidence": "docs/requirements/decisions/story-files-hash-material-drift.md lines 95-104 contain the DONE Sub-Gate Bindings amendment with all three sub-gate rationales."
+    },
+    {
+      "docPath": "packages/main/src/core/delivery-check-hash.ts",
+      "promise": "signDeliveryCheck and recomputeDeliveryCheckHash fold storyFilesHash into the signature payload; evaluateDeliveryCheckFreshness adds delivery_check_drift_advisory downgrade: materialHash mismatch + matching signed non-empty storyFilesHash -> ok:true, code delivery_check_drift_advisory, mandatory advisory; missing or empty-set storyFilesHash falls back to strict stale.",
+      "verifiedBy": "diff/read",
+      "evidence": "delivery-check-hash.ts: signDeliveryCheck appends storyFilesHash only when present; recomputeDeliveryCheckHash passes data.storyFilesHash; evaluateDeliveryCheckFreshness guards both stored and current storyFilesHash against EMPTY_STORY_FILES_HASH before downgrading."
+    },
+    {
+      "docPath": "packages/main/src/core/types.ts#DeliveryCheckData",
+      "promise": "DeliveryCheckData gains optional storyFilesHash field with doc-comment explaining signed secondary-freshness semantics and the drift-advisory/strict-stale/missing-fallback semantics.",
+      "verifiedBy": "diff/read",
+      "evidence": "types.ts lines 1404-1413: storyFilesHash?: string with full doc-comment covering signed, drift-advisory, strict-stale on mismatch, missing falls back to strict materialHash."
+    },
+    {
+      "docPath": "packages/main/src/handlers/delivery-check.ts",
+      "promise": "delivery_check_set computes currentStoryFilesHash, drops empty-set value to undefined, signs into _hash, persists as data.storyFilesHash; delivery_waiver_add re-sign preserves storyFilesHash.",
+      "verifiedBy": "diff/read",
+      "evidence": "delivery-check.ts lines 161-194: rawStoryFilesHash computed, empty-set dropped to undefined, folded into signDeliveryCheck and persisted; waiver re-sign at lines 69/90 passes data.storyFilesHash through signDeliveryCheck."
+    },
+    {
+      "docPath": "packages/main/src/core/done-oracle.ts",
+      "promise": "DONE delivery-check row: drift_advisory -> status=pass with mandatory advisory suffix appended to detail (never swallowed via discriminated union); tampered/stale still fail. Gate A (checkCompletedEvidenceSnapshotFreshness) carries a comment that storyFilesHash is intentionally not applied.",
+      "verifiedBy": "diff/read",
+      "evidence": "done-oracle.ts lines 626-641: discriminated union narrowed on code=delivery_check_drift_advisory; advisorySuffix appended to detail. Lines 141-150: explicit comment that storyFilesHash intentionally excluded from Gate A frozen-ref check."
+    },
+    {
+      "docPath": "packages/main/src/core/process-fact-levels.ts and process-fact-registry.ts",
+      "promise": "delivery_check_set process-fact level rationale updated to name storyFilesHash + drift-advisory semantics; artifact:delivery-check.json rationale updated; contract verifier asserts storyFilesHash, delivery_check_drift_advisory, signature, strict stale tokens on both level and artifact registry entries.",
+      "verifiedBy": "diff/grep",
+      "evidence": "process-fact-levels.ts line 277: delivery_check_set rationale names storyFilesHash + drift-advisory; process-fact-registry.ts line 786: artifact rationale names storyFilesHash + delivery_check_drift_advisory + strict stale; scripts/verify-process-fact-contract.mjs lines 2432-2461: contract verifier asserts all four tokens."
+    },
+    {
+      "docPath": "packages/main/src/tasks/delivery-check-freshness-smoke.ts",
+      "promise": "Smoke re-fixtured to story-branch topology with real story-owned commit so storyFilesHash is non-empty; 11 named cases covering: non-story drift (advisory pass + literal advisory text assert), story-owned change (strict stale), forged storyFilesHash (tampered), legacy no-storyFilesHash (strict stale), empty-set storyFilesHash (strict stale never advisory), waiver re-sign (storyFilesHash preserved + drift still advisory), fresh (no advisory text), plus existing cases.",
+      "verifiedBy": "diff/read + real-machine run",
+      "evidence": "delivery-check-freshness-smoke.ts: createFixture() creates story branch with feature.ts commit for non-empty storyFilesHash; createMainFixture() for empty-set case; 11 check() calls each with assert statements; real run: all 11 pass, exit 0."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "node packages/main/dist/tasks/delivery-check-freshness-smoke.js: all 11 cases pass exit 0. delivery_check_set records non-empty storyFilesHash on story-branch topology; empty-set dropped to undefined on main topology. npm --prefix packages/main run build: tsc exit 0."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Smoke case non-story whole-tree drift: evaluateDeliveryCheckFreshness returns ok=true, code=delivery_check_drift_advisory, advisory=literal text. Smoke case story-owned change: ok=false, code=stale_delivery_check. Smoke case forged storyFilesHash: code=delivery_check_tampered. Smoke case empty-set: ok=false, code=stale_delivery_check."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Smoke case non-story drift: doneRow.status=pass and doneRow.detail includes literal ADVISORY: text. Smoke fresh case: doneRow.detail does NOT match /ADVISORY/. Smoke empty-set case: doneRow.detail does NOT match /ADVISORY/ and row.status=fail. All three assertions confirmed by real machine run."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "node packages/main/dist/tasks/delivery-check-freshness-smoke.js: story-branch topology verified (storyFilesHash non-empty differs from main). All 11 cases pass exit 0. npm test (root) exit 0 FAIL 0 across all sub-suites. Cases: advisory pass with literal text, story-owned stale, forged tampered, legacy strict stale, empty-set strict stale never advisory, waiver re-sign advisory survives."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "node scripts/verify-process-fact-contract.mjs: Process fact contract verified (exit 0). npm --prefix packages/main run build: tsc exit 0. Contract verifier asserts storyFilesHash + delivery_check_drift_advisory + signature + strict stale tokens on delivery_check_set level entry and artifact:delivery-check.json registry entry."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 7 docsPromises verified in code and diff. Real-machine smoke runs 11 adversarial+edge+happy cases on real git fixtures (all pass). Full npm test suite passes (FAIL 0). Process-fact contract verifier passes. No unresolved TODOs in diff. Gate A (frozen-ref) correctly excluded, Gate B (done-required) correctly kept strict, Gate C (delivery-check) correctly adopts signed storyFilesHash with empty-set guard and mandatory advisory."
+  },
+  "_hash": "c0c14ab6243fcd3ba32a6d833eb94a9060e0776f4bb2c1dd198597f72134a52d"
+}

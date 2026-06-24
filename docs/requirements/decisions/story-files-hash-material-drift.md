@@ -91,3 +91,13 @@ semantics must be registered in `process-fact-levels.ts`,
 registered semantics must state that story-owned file changes still invalidate
 the binding, while unrelated whole-tree `materialHash` drift is only accepted
 with an explicit re-attestation advisory.
+
+## DONE Sub-Gate Bindings (Amendment 2026-06-24)
+
+The DONE gate has three freshness sub-gates. After review they are bound as follows.
+
+Adopted with extra guard (signed): delivery-check (core/delivery-check-hash.ts), the lattice-review-delivery reviewer's signed attestation of the story's git diff vs main, doc-promises, and real-machine tests. storyFilesHash is folded INTO the signed payload (signDeliveryCheck / recomputeDeliveryCheckHash) and persisted on the record; keying a relaxation on an unsigned field of a signed record is forbidden because it is forgeable. With storyFilesHash signed, materialHash mismatch + matching signed storyFilesHash downgrades to a mandatory re-attestation advisory (code delivery_check_drift_advisory), never to "fresh"; storyFilesHash mismatch hard-rejects; missing storyFilesHash falls back to strict; the stored hash is never rebound. Because delivery-check attests whole-tree behavioral claims (real-machine tests) and is the last gate before merge, the advisory must be operator-visible and direct re-attestation if the integrated runtime context changed.
+
+Kept strict (re-runs): the done-required build+full-test-suite evidence (core/done-required-validation.ts evaluateDoneRequiredEvidence). On whole-tree materialHash drift it re-runs the suite on the merged tree rather than downgrading, so behavioral breakage from an unrelated merge is caught directly; this cheap genuine re-verification is preferred over an advisory for the suite.
+
+Excluded (kept strict): the completed-DONE-projection evidence snapshot check (core/done-oracle.ts checkCompletedEvidenceSnapshotFreshness). It recomputes materialHash AT the recorded evidence.headHash (a frozen past ref) to verify the recorded (headHash, materialHash) pair is self-consistent — an evidence-integrity / tamper check, not a HEAD-drift freshness check. storyFilesHash computed at the same frozen ref yields no independent signal and an unrelated main merge does not change the tree at the recorded head, so this gate cannot exhibit the whole-tree-drift symptom; storyFilesHash MUST NOT be wired into it.

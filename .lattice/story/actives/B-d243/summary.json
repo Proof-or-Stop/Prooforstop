@@ -1,0 +1,55 @@
+{
+  "storyId": "B-d243",
+  "changes": "Folded a SIGNED storyFilesHash into the delivery-check record (DeliveryCheckData + signDeliveryCheck/recomputeDeliveryCheckHash + the delivery_check_set writer and delivery_waiver_add re-sign) and added a delivery_check_drift_advisory downgrade to evaluateDeliveryCheckFreshness: when the whole-tree materialHash drifts but the signed storyFilesHash still matches the current story-owned file state, the DONE delivery-check gate passes with a mandatory loud re-attestation advisory instead of failing stale. Story-owned changes, forged storyFilesHash, legacy-missing, and empty-set storyFilesHash all keep strict reject. done-oracle surfaces the advisory on the DONE row via a discriminated-union result. Gate A (frozen-ref completed-snapshot) and Gate B (done-required suite, re-runs) stay strict; spec + process-fact rationale amended; the freshness smoke re-fixtured to a story-branch topology (11 cases).",
+  "usage": "No new command — the behavior is automatic at the DONE delivery-check gate. After an unrelated main merge that drifts the whole-tree materialHash but leaves the story diff unchanged, story_advance DONE shows the delivery-check row passing with an ADVISORY line rather than blocking on stale_delivery_check; no reviewer re-sign is forced. Regression guard: node packages/main/dist/tasks/delivery-check-freshness-smoke.js.",
+  "expectedOutcome": "DONE delivery-check row reads: [PASS] delivery-check: N docsPromises checked — ADVISORY: whole-tree materialHash drift detected while the signed delivery-check storyFilesHash matches; the story diff the reviewer attested is unchanged. Re-attestation advisory: re-run the lattice-review-delivery reviewer if the merged-in (non-story) code could affect the real-machine test claims. A story-owned change instead still fails with stale delivery-check.",
+  "actualTranscript": "This story DONE itself demonstrated the fix: after the DONE pre-check synced main (whole-tree drift), the delivery-check row passed with exactly that ADVISORY line (instead of B-70e4-style stale_delivery_check), and the escalation/evidence rows likewise reported materialDigest drift accepted because storyFilesHash matches. delivery-check-freshness smoke: 11/11 cases pass, exit 0. done_required_validate: build + root npm test PASS (exit 0).",
+  "outcomeDiff": "No diff — expected == actual. The advisory text on the passing delivery-check row matched the literal expected wording; story-owned/forged/legacy/empty-set cases hard-rejected as expected.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Scope is Gate C (signed delivery-check) only. Gate A (completed-DONE snapshot, frozen-ref integrity) and Gate B (done-required suite) intentionally stay strict — Gate B re-runs the build+test suite on the merged tree (~48s) as the behavioral backstop for the advisory. The advisory does not re-execute behavioral claims; if an unrelated main merge changes shared/transitive code that affects real-machine behavior, Gate B (not the advisory) is what catches it.",
+  "pitfalls": "An empty-set storyFilesHash (delivery_check_set run with HEAD on main / no story diff) returns sha256(empty) not undefined; it is treated as no-signal and falls back to strict (host-2 caught this). The downgrade is keyed on a SIGNED storyFilesHash — a forged storyFilesHash breaks _hash (delivery_check_tampered). The downgrade never returns fresh and never rebinds the stored hash. Do NOT wire storyFilesHash into Gate A: it is a frozen-ref integrity check where the signal is dead code.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 194437
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 24371
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 373849
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 1920526
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 1234777
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 632786
+    }
+  },
+  "totalDurationMs": 4380757,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-24T12:09:06.488Z",
+  "updatedAt": "2026-06-24T12:09:06.488Z"
+}

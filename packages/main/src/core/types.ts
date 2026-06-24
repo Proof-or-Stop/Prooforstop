@@ -1400,6 +1400,16 @@ export interface DeliveryCheckData {
   headHash?: string;
   /** Material tree hash reviewed by lattice-review-delivery; signed and required for freshness. */
   materialHash?: string;
+  /**
+   * Story-owned file hash (storyFilesHash secondary-freshness signal). Signed.
+   * When the whole-tree materialHash drifts (e.g. an unrelated main merge) but
+   * this matches the current story-owned file state, the DONE delivery-check
+   * gate downgrades to a mandatory re-attestation advisory instead of rejecting
+   * as stale. A story-owned change still mismatches and hard-rejects; a missing
+   * value falls back to strict materialHash. Because it is folded into _hash,
+   * a forged storyFilesHash breaks the signature (delivery_check_tampered).
+   */
+  storyFilesHash?: string;
   /** Snapshot of story.currentReviewRound at write time */
   reviewRound: string;
   /** Reviewer self-reported agent id, for audit traceability only (not part of signature) */
@@ -1409,8 +1419,10 @@ export interface DeliveryCheckData {
   closingSelfCheck: ClosingSelfCheck;
   /**
    * Signature for new writes:
-   * sha256(storyId:JSON(docsPromises):JSON(realMachineTests):JSON(closingSelfCheck):reviewRound:materialHash:salt)
-   * Legacy records without materialHash may still recompute, but DONE gates reject them as stale.
+   * sha256(storyId:JSON(docsPromises):JSON(realMachineTests):JSON(closingSelfCheck):reviewRound:materialHash:storyFilesHash:salt)
+   * materialHash and storyFilesHash are appended only when present, so legacy
+   * records without them recompute byte-identically; DONE gates reject a missing
+   * materialHash as stale.
    */
   _hash: string;
 }

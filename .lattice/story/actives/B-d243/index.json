@@ -4,7 +4,7 @@
   "title": "Adopt a signed storyFilesHash drift-advisory for the delivery-check DONE gate",
   "description": "The DONE delivery-check freshness gate binds the whole-tree materialHash, so any unrelated main merge re-stales a freshly-signed delivery-check and forces the lattice-review-delivery reviewer to re-sign the byte-identical story diff. Fold a signed storyFilesHash into delivery-check and downgrade pure whole-tree drift to a mandatory re-attestation advisory, while story-owned changes still hard-reject.",
   "type": "bug",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "keywords": [
     "delivery-check",
@@ -15,7 +15,7 @@
   ],
   "createdAt": "2026-06-24T10:56:05.731Z",
   "startedAt": "2026-06-24T10:56:05.731Z",
-  "endedAt": null,
+  "endedAt": "2026-06-24T12:09:15.831Z",
   "events": [
     {
       "phase": "INIT",
@@ -34,11 +34,70 @@
       "user": "Harmonygo",
       "sessionId": "d5efb245-908a-4b5b-b129-44bcce26a23c",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-24T10:59:44.550Z",
+      "branch": "story/B-d243",
+      "user": "Harmonygo",
+      "sessionId": "d5efb245-908a-4b5b-b129-44bcce26a23c",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-24T11:05:58.399Z",
+      "branch": "story/B-d243",
+      "user": "Harmonygo",
+      "sessionId": "d5efb245-908a-4b5b-b129-44bcce26a23c",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-24T11:25:45.889Z",
+      "branch": "story/B-d243",
+      "user": "Harmonygo",
+      "sessionId": "d5efb245-908a-4b5b-b129-44bcce26a23c",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-24T11:36:31.849Z",
+      "branch": "story/B-d243",
+      "user": "Harmonygo",
+      "sessionId": "d5efb245-908a-4b5b-b129-44bcce26a23c",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-24T11:48:44.885Z",
+      "branch": "story/B-d243",
+      "user": "Harmonygo",
+      "sessionId": "d5efb245-908a-4b5b-b129-44bcce26a23c",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-24T11:58:33.702Z",
+      "branch": "story/B-d243",
+      "user": "Harmonygo",
+      "sessionId": "d5efb245-908a-4b5b-b129-44bcce26a23c",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-24T12:09:15.831Z",
+      "branch": "story/B-d243",
+      "user": "Harmonygo",
+      "sessionId": "d5efb245-908a-4b5b-b129-44bcce26a23c",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-d243",
-    "branch": "story/B-d243",
-    "createdAt": "2026-06-24T10:59:19.709Z"
-  }
+  "currentReviewRound": "2026-06-24T11:48:44.885Z"
 }

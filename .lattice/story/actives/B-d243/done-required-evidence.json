@@ -1,0 +1,56 @@
+{
+  "schema": "lattice.done-required-evidence",
+  "version": 1,
+  "storyId": "B-d243",
+  "status": "PASS",
+  "startedAt": "2026-06-24T12:07:52.449Z",
+  "endedAt": "2026-06-24T12:08:40.211Z",
+  "durationMs": 47762,
+  "headHash": "912653be3256bd8640b5b4043e2ddad7f1ac1cd7",
+  "materialHash": "00ac00e42c1dde92235a5a33d9f8bfa433e762bceaa503ff8dbf534de790d5a9",
+  "storyFilesHash": "97f73e7292c05278d423cd534757482351e6924844bbd857b39d572fa8c93290",
+  "policyHash": "1f72cd38f6c94ed8e6fb8946919ac028e73770eb129ea0db75474982a61542dc",
+  "commandSetHash": "a69129533543ffdeb071da3c66fd0b8a884d1ce93d136c87df6120b3cac9dd35",
+  "receipts": [
+    {
+      "label": "packages/main build",
+      "command": "npm",
+      "args": [
+        "--prefix",
+        "packages/main",
+        "run",
+        "build"
+      ],
+      "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-d243",
+      "status": "PASS",
+      "exitCode": 0,
+      "durationMs": 7803,
+      "outputDigest": "d404c74942a4897707a1363300e96b54ece50cb8ab1cb57df1a2f552eeae6f2c",
+      "outputTail": "\n> @lattice/core@0.3.86 build\n> tsc\n\n",
+      "startedAt": "2026-06-24T12:07:52.449Z",
+      "endedAt": "2026-06-24T12:08:00.252Z",
+      "headHash": "912653be3256bd8640b5b4043e2ddad7f1ac1cd7",
+      "materialHash": "00ac00e42c1dde92235a5a33d9f8bfa433e762bceaa503ff8dbf534de790d5a9",
+      "storyFilesHash": "97f73e7292c05278d423cd534757482351e6924844bbd857b39d572fa8c93290"
+    },
+    {
+      "label": "root full test suite",
+      "command": "npm",
+      "args": [
+        "test"
+      ],
+      "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-d243",
+      "status": "PASS",
+      "exitCode": 0,
+      "durationMs": 39561,
+      "outputDigest": "ab8b92f578ff39421ed3c6fabc40d75fa7c50c241195bde4fcd309ba4ea55e44",
+      "outputTail": "-path-drift-smoke.js\n\ndocs-drift path+asset smoke passed\n\n> lattice@0.3.86 test:docs-drift-wrapper-root\n> npm --prefix packages/main run test:docs-drift-wrapper-root\n\n\n> @lattice/core@0.3.86 test:docs-drift-wrapper-root\n> node dist/tasks/docs-drift-wrapper-root-smoke.js\n\ndocs-drift wrapper-root smoke passed\n\n> lattice@0.3.86 test:gitroot-cwd-contract\n> node packages/main/dist/tasks/gitroot-cwd-contract-smoke.js\n\n✓ self-test: KNOWN-GOOD fixture produces 0 violations\n✓ self-test: KNOWN-BAD fixture produces exactly 1 violation on projectRoot\n✓ self-test: ALIAS KNOWN-BAD (const gitCwd = projectRoot → git cwd) produces exactly 1 alias violation\n✓ self-test: ALIAS KNOWN-GOOD (const x = projectRoot, not a git cwd) produces 0 violations\n✓ self-test: ALIAS KNOWN-GOOD (const gitCwd = resolveGitCwd(...) → git cwd) produces 0 violations\n✓ self-test: BACKTICK KNOWN-BAD (execSync(`git`, { cwd: projectRoot })) produces exactly 1 bare violation\n✓ self-test: BACKTICK KNOWN-GOOD (execSync(`git`, { cwd: resolvedGitCwd })) produces 0 violations\n✓ self-test: docs-drift KNOWN-GOOD fixture (repoRoot: gitCwd) produces 0 violations\n✓ self-test: docs-drift KNOWN-BAD fixture (repoRoot: deps.projectRoot) is flagged\n✓ repo scan clean: 645 .ts files inspected, 0 bare-cwd violations\n✓ review-preflight docs-drift gate wires repoRoot: gitCwd (not metadataRoot)\n\n✓ gitroot-cwd-contract smoke passed\n\n> lattice@0.3.86 test:process-fact-contract\n> node scripts/verify-process-fact-contract.mjs\n\nProcess Fact Contract\nPrompt guides; CLI/handler/gate decides\n\nScope: process facts only — phase/state transitions, pass/no-issue confirmations, findings/categories/roles, and evidence/check artifacts.\nOut of scope: ordinary explanatory prose, narrative rationale, and benign Claude/Codex wording differences that do not alter commands or artifact paths.\n\n\nProcess Fact Registry\n- entries: 314 (261 CLI, 12 runtime, 10 reviewer lanes, 24 artifacts)\n- levels: L0=122, L1=38, L2=55, L3=4, L4=95\n- kinds: artifact=12, command=214, execution-status=5, finding=3, flow-policy=7, gate-evidence=33, host-verdict=2, review-pass=1, review-run=1, reviewer-lane=10, runtime-behavior=12, signed-artifact=12, validation-status=2\n- flow fact policies:\nflow fact policy: express-verification-policy -> express-exempt -> gate validate verification coverage and story_review PLAN fast-path advisory gate\nflow fact policy: finding -> artifact findings.json -> gate storyMachine.canPassReview REVIEW to TEST gate\nflow fact policy: pass-only-normalization -> finding_add:pass-only->review_pass_set -> artifact review-passes.json -> gate storyMachine.canPassReview REVIEW to TEST gate\nflow fact policy: review-pass -> artifact review-passes.json -> gate storyMachine.canPassReview REVIEW to TEST gate\nflow fact policy: review-pass-supersession -> artifact review-passes.json -> gate storyMachine.canPassReview REVIEW to TEST gate\nflow fact policy: review-round-iso-string -> artifact findings.json -> gate review signatures and storyMachine.canPassReview REVIEW to TEST gate\nflow fact policy: review-run-boundary -> artifact review-runs.json -> gate storyMachine.canPassReview REVIEW to TEST gate\n- registry entries:\n- agent_prompt [L0/command] producer=handlers/agent-prompt\n- artifact_declare [L4/gate-evidence] producer=handlers/artifact-declare gate=dirty-worktree classifier and DONE declared artifact gate artifact=declared-artifacts.json\n- artifact:authority-receipt-refs.json [L4/artifact] producer=core/authority-gate-receipts gate=TEST/DONE Authority gate_decision receipt consumption predicate artifact=authority-receipt-refs.json\n- artifact:checklist.json [L4/artifact] producer=handlers/checklist gate=storyMachine.checklistAllDone DEV to REVIEW gate and validate verification coverage/freshness gates artifact=checklist.json\n- artifact:decision-doc-proposals.json [L4/artifact] producer=handlers/decision-doc-promotion gate=decision_doc_save proposal freshness and target render gate artifact=decisi\n...[truncated 41187 chars]",
+      "startedAt": "2026-06-24T12:08:00.453Z",
+      "endedAt": "2026-06-24T12:08:40.014Z",
+      "headHash": "912653be3256bd8640b5b4043e2ddad7f1ac1cd7",
+      "materialHash": "00ac00e42c1dde92235a5a33d9f8bfa433e762bceaa503ff8dbf534de790d5a9",
+      "storyFilesHash": "97f73e7292c05278d423cd534757482351e6924844bbd857b39d572fa8c93290"
+    }
+  ],
+  "reasons": []
+}

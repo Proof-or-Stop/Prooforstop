@@ -1,0 +1,77 @@
+{
+  "principles": [
+    "Never silently weaken a signed gate: any downgrade keyed on a field of a signed record requires that field to be inside the signature.",
+    "Downgrade to a mandatory loud advisory, never to 'fresh', and never rebind the stored hash — preserve audit history.",
+    "Story-ownership of what was attested (storyFilesHash), not signed-ness, is the dividing line for the drift advisory.",
+    "Keep each DONE sub-gate's intent: frozen-ref integrity (A) and behavioral re-run (B) stay strict; only the diff-attestation freshness (C) relaxes."
+  ],
+  "drivers": [
+    "Soundness of the signed delivery-check attestation (a wrong relaxation undermines the last gate before merge).",
+    "The recurring re-sign friction: unrelated main merges re-stale a byte-identical reviewed diff (observed 3x in B-70e4).",
+    "Consistency with the existing storyFilesHash secondary-freshness spec and its adopted bindings."
+  ],
+  "options": [
+    {
+      "name": "Downgrade Gate C with a signed storyFilesHash guard",
+      "pros": [
+        "Removes the recurring re-sign friction",
+        "Non-forgeable (storyFilesHash in the signature)",
+        "Consistent with the existing storyFilesHash advisory model",
+        "Story-owned changes and legacy-missing still hard-reject",
+        "Gate B still re-runs the suite, backstopping behavioral drift"
+      ],
+      "cons": [
+        "Touches the signature payload (must keep legacy recompute byte-identical)",
+        "Requires re-fixturing the all-on-main smoke to a story-branch topology"
+      ]
+    },
+    {
+      "name": "Keep Gate C strict (no change)",
+      "pros": [
+        "Zero soundness risk to the signed gate",
+        "No code change"
+      ],
+      "cons": [
+        "Does not fix the friction — every unrelated merge still forces a reviewer re-sign of the same diff"
+      ]
+    },
+    {
+      "name": "Downgrade Gate C keyed on an UNSIGNED storyFilesHash",
+      "pros": [
+        "Smaller diff (no signature change)"
+      ],
+      "cons": [
+        "Forgeable bypass: an editor can set storyFilesHash to match current and force the relaxation — converts the strongest signed gate into a bypass. Rejected."
+      ]
+    }
+  ],
+  "chosen": "Downgrade Gate C with a signed storyFilesHash guard",
+  "rationale": "Locked by an adversarial design panel and the user's soundness call: downgrade only the signed delivery-check (Gate C) with storyFilesHash folded into the signature; keep Gate B re-running (cheap genuine behavioral re-verification that backstops the advisory) and Gate A strict (frozen-ref integrity). The unsigned-key option is a forgeable bypass and was rejected.",
+  "preMortem": [
+    {
+      "scenario": "Forgeable downgrade bypass",
+      "trigger": "storyFilesHash is stored but NOT folded into signDeliveryCheck/recomputeDeliveryCheckHash",
+      "consequence": "An editor sets storyFilesHash to match current and forces the advisory on a stale gate — the strongest signed gate becomes a bypass",
+      "mitigation": "Fold storyFilesHash into the signature payload; add a forged-storyFilesHash test asserting _hash breaks (delivery_check_tampered)"
+    },
+    {
+      "scenario": "Hidden behavioral drift accepted",
+      "trigger": "An unrelated main merge changes a shared/transitive helper that alters real-machine test behavior while story-owned files are byte-identical",
+      "consequence": "The advisory accepts a delivery-check whose behavioral claim may no longer hold",
+      "mitigation": "Advisory is loud and mandatory (never 'fresh'); Gate B (done-required suite) stays strict and re-runs the full build+test on the merged tree, catching behavioral breakage"
+    },
+    {
+      "scenario": "All-on-main fixture false downgrade",
+      "trigger": "The existing smoke fixture keeps HEAD on main, so currentStoryFilesHash is the empty-set constant and matches after ANY drift",
+      "consequence": "The smoke would assert a downgrade for changes that should be story-owned, masking a real mismatch path",
+      "mitigation": "Re-fixture to a story-branch topology (HEAD ahead of main); add explicit story-owned-change -> stale and legacy-missing -> strict cases"
+    },
+    {
+      "scenario": "Gate-A cargo-cult wire-in",
+      "trigger": "A future change wires storyFilesHash into checkCompletedEvidenceSnapshotFreshness by analogy",
+      "consequence": "Softens a frozen-ref tamper detector into a soft warning for forge/rewrite mismatches",
+      "mitigation": "Add an explicit keep-strict code comment at done-oracle.ts:140 and a spec note that Gate A is excluded because it is a frozen-ref integrity check"
+    }
+  ],
+  "timestamp": "2026-06-24T11:01:24.324Z"
+}

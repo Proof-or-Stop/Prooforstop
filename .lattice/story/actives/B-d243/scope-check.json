@@ -1,0 +1,164 @@
+{
+  "storyId": "B-d243",
+  "checkedAt": "2026-06-24T11:04:11.588Z",
+  "features": [
+    {
+      "feature": "Add storyFilesHash optional field to DeliveryCheckData and fold it into the delivery-check signature (signDeliveryCheck + recomputeDeliveryCheckHash)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-files-hash-material-drift.md"
+    },
+    {
+      "feature": "Compute currentStoryFilesHash and persist it in delivery_check_set writer",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-files-hash-material-drift.md"
+    },
+    {
+      "feature": "Thread storyFilesHash through delivery_waiver_add re-sign path",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-files-hash-material-drift.md"
+    },
+    {
+      "feature": "Legacy delivery-check records without storyFilesHash must recompute byte-identically (append-only payload)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-files-hash-material-drift.md"
+    },
+    {
+      "feature": "materialHash mismatch + matching signed storyFilesHash => advisory pass (delivery_check_drift_advisory code), stored hash NOT rebound",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-files-hash-material-drift.md"
+    },
+    {
+      "feature": "Missing or mismatching storyFilesHash on materialHash mismatch keeps strict stale_delivery_check",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-files-hash-material-drift.md"
+    },
+    {
+      "feature": "Advisory is mandatory and never silent — cannot be swallowed by the DONE delivery-check row",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-files-hash-material-drift.md"
+    },
+    {
+      "feature": "drift_advisory delivery-check yields a passing DONE gate row (status=pass) with advisory text in detail",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-files-hash-material-drift.md"
+    },
+    {
+      "feature": "Smoke re-fixture to story-branch topology so currentStoryFilesHash is non-empty (HEAD ahead of main)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Smoke case: non-story whole-tree drift => advisory pass",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Smoke case: story-owned change => stale reject",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Smoke case: forged storyFilesHash => delivery_check_tampered (_hash breaks)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Smoke case: legacy delivery-check missing storyFilesHash => strict stale (byte-identical legacy recompute verified)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Amend docs/requirements/decisions/story-files-hash-material-drift.md with DONE sub-gate bindings (Gate A excluded/frozen-ref, Gate B strict, Gate C adopt-with-signed-guard)",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-files-hash-material-drift.md"
+    },
+    {
+      "feature": "Update delivery_check_set rationale in process-fact-levels.ts and process-fact-registry.ts (signed storyFilesHash + drift-advisory semantics)",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-files-hash-material-drift.md"
+    },
+    {
+      "feature": "Add Gate-A keep-strict code comment at done-oracle.ts checkCompletedEvidenceSnapshotFreshness (storyFilesHash intentionally not applied)",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-files-hash-material-drift.md"
+    },
+    {
+      "feature": "Gate A (completed-snapshot freshness) stays strict — storyFilesHash must NOT be wired into checkCompletedEvidenceSnapshotFreshness",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json: Gate A completed-snapshot freshness: do NOT wire storyFilesHash (frozen-ref integrity check stays strict)",
+      "source": "description"
+    },
+    {
+      "feature": "Gate B (done-required suite) stays strict — no downgrade applied",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json: Gate B done-required suite: do NOT downgrade (stays strict, re-runs on the merged tree)",
+      "source": "description"
+    },
+    {
+      "feature": "Any whole-tree materialHash recompute redesign or replacing materialHash with story-diff-only hashing",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json: Any whole-tree materialHash recompute redesign or replacing materialHash with story-diff-only hashing",
+      "source": "decisions:decisions/story-files-hash-material-drift.md"
+    },
+    {
+      "feature": "review_run_start latest-run binding race fix",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary.json: The review_run_start latest-run binding race (separate friction #2 story)",
+      "source": "description"
+    },
+    {
+      "feature": "process-fact-contract verifier passes after registry updates",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-files-hash-material-drift.md"
+    }
+  ],
+  "summary": {
+    "total": 21,
+    "covered": 17,
+    "excluded": 4,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "42d7363e3992f6d46fbe3089422946de23128f4066b1ad1645abed87f4fb2048",
+  "openQuestions": []
+}

@@ -1,0 +1,78 @@
+{
+  "findings": [
+    {
+      "id": "B-d243:F-001",
+      "desc": "delivery-check-hash.ts:94 advisory field is optional on DeliveryCheckFreshnessResult but is semantically required when code===delivery_check_drift_advisory; missing discriminated union means a future code path returning that code without advisory would silently swallow the advisory (done-oracle uses the defensive ? empty-string guard at line 629). The type should enforce advisory presence for the advisory code.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-24T11:30:43.552Z",
+      "reviewRound": "2026-06-24T11:25:45.889Z",
+      "reviewRunId": "B-d243:RR-002",
+      "_hash": "0ab5dcd82bf57e5b4dadc0d857d365ce2938a853754fa6f8ce0e7871ca631bb9",
+      "files": [
+        "packages/main/src/core/delivery-check-hash.ts"
+      ],
+      "signatureTag": "edge|ts|delivery-check-hash",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-d243:F-002",
+      "desc": "CHK-001:happy:2 must-intent (delivery_waiver_add re-sign preserves storyFilesHash) has no dynamic execution evidence: the smoke never calls delivery_waiver_add, and the evidence note explicitly admits this (\"The smoke test ... does not have an explicit waiver case\"). The submitted evidence is kind=logic_test + a grep command that confirms the field is referenced in source, but this cannot catch a runtime defect such as reading an old-format record that lacks storyFilesHash and silently passing undefined to re-sign. A must-priority cli-type intent requires either a smoke/integration_test call exercising the actual waiver path or a waiver with a clear rationale for why automation is impractical.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-24T11:31:21.397Z",
+      "reviewRound": "2026-06-24T11:25:45.889Z",
+      "reviewRunId": "B-d243:RR-003",
+      "_hash": "a32effeb95729928015486842ab61ce9aa728f454a2f8aba04320095bb20b853",
+      "files": [
+        "packages/main/src/handlers/delivery-check.ts",
+        "packages/main/src/tasks/delivery-check-freshness-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|happy-intent-delivery",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-d243:F-003",
+      "desc": "CHK-001:edge:1, CHK-002:edge:1, CHK-002:adversarial:2, CHK-003:edge:1: evidence kind=logic_test but command= node packages/main/dist/tasks/delivery-check-freshness-smoke.js. The kind field declares this is a logic (static code) inspection, but the command field points to the smoke binary. A reviewer cannot determine from the evidence record whether the claim is backed by a live smoke execution (which would be manual_transcript) or a code-reading argument (which should have a grep/cat command, not the smoke binary). This ambiguity undermines auditability: if the smoke were to regress, these entries would still record kind=logic_test and could be mistaken for independent static proof rather than smoke-dependent evidence.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-24T11:31:29.123Z",
+      "reviewRound": "2026-06-24T11:25:45.889Z",
+      "reviewRunId": "B-d243:RR-003",
+      "_hash": "6d37f3ef16f55dc31945ccf6629802a9c4bf711ebcb41159d30c61f1e13df5f8",
+      "files": [
+        "packages/main/src/tasks/delivery-check-freshness-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|edge-edge-adversarial",
+      "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-d243:F-004",
+      "desc": "CHK-003:happy:1 intent: normal fresh delivery-check -> DONE row passes with NO advisory appended. The smoke case (delivery-check-freshness-smoke.ts:212-244) asserts row.status=pass but does not assert that row.detail does NOT contain the advisory string. The evidence note explains the absence via code reasoning (done-oracle.ts only appends advisorySuffix when freshness.advisory is truthy), but there is no pinned assert.doesNotMatch(row.detail, /ADVISORY/) assertion in the smoke. If done-oracle.ts were accidentally changed to always append some advisory text, the CHK-003:happy:1 smoke case would still pass. Advisory suppression on the fresh path is a behavioral invariant worth pinning explicitly.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-24T11:31:37.888Z",
+      "reviewRound": "2026-06-24T11:25:45.889Z",
+      "reviewRunId": "B-d243:RR-003",
+      "_hash": "fd8b1c5aaa8b0236baafb61e77452d454636dca66261aa7caaade29dd81f15df",
+      "files": [
+        "packages/main/src/tasks/delivery-check-freshness-smoke.ts",
+        "packages/main/src/core/done-oracle.ts"
+      ],
+      "signatureTag": "missing|ts|happy-intent-normal",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
