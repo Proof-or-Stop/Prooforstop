@@ -370,6 +370,17 @@
           "materialHash": "96adaa007e8f7ddafa1d445c9f905d262eb90f4da087c701fec35f3474287e79",
           "storyFilesHash": "3bb033bf48d472daad32daea22503c5bbbef2c03c79374e5fe0665781999041e",
           "timestamp": "2026-06-24T01:20:55.961Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm run --prefix packages/main test:authority-receipt-proof-auth",
+          "result": "pass",
+          "note": "RED/GREEN reasoning: authority-receipt-proof-auth-smoke.ts:38-41 asserts Authorization===\"Bearer cust-key-xyz\". This header is added by get() at authority-client.ts:685 ONLY when authenticated===true (line 676). fetchGateReceiptProof sets authenticated:true at line 646 (CHK-001 fix). If this fix is reverted (authenticated removed/false), get() skips the Authorization header entirely, so capturedHeaders.Authorization would be undefined and the assert at line 38-41 would fail with \"fetchGateReceiptProof must send the customer API key as Bearer auth\". The test is a regression guard that detects the original bug.",
+          "headHash": "d0816c8e44ca370c2003e1b7d204e608959897f0",
+          "materialHash": "96adaa007e8f7ddafa1d445c9f905d262eb90f4da087c701fec35f3474287e79",
+          "storyFilesHash": "3bb033bf48d472daad32daea22503c5bbbef2c03c79374e5fe0665781999041e",
+          "timestamp": "2026-06-24T01:21:07.463Z"
         }
       ]
     }
