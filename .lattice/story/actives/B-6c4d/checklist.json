@@ -154,7 +154,21 @@
       "context": "docs/requirements/decisions/review-run-binding-race.md (the design decision); reconcile docs .../session-ownership-and-write-leases.md (~101-103) so review_run_start/review_pass_set/finding_add are documented as reviewerWrite / lease-exempt to match command-policy.ts. Doc-only.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "review-run-binding-race.md exists and documents: the decision (relax id-recency kind-aware), why id-recency is redundant, the EMPTY guard prerequisite, and rejected alternatives (blanket-relax, lock-unification, keep-strict); WHY: the decision record is the deliverable",
+            "type": "cli"
+          },
+          {
+            "desc": "session-ownership-and-write-leases.md lists review_run_start, review_pass_set, finding_add as reviewerWrite / lease-exempt matching command-policy.ts; WHY: doc-code consistency is the deliverable",
+            "type": "cli"
+          }
+        ],
+        "edge": [],
+        "adversarial": []
+      }
     }
   ]
 }
