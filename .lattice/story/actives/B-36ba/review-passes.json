@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-24T02:12:19.502Z",
       "reviewRunId": "B-36ba:RR-005",
       "_hash": "e8c88596360088bb5c28d908616632378516ebd6de8173b0261a8a31dd7b5798"
+    },
+    {
+      "id": "B-36ba:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "Concept residue check complete (round 3). Deleted concept: single-arg currentMaterialHash(args.projectRoot) and currentStoryFilesHash(args.projectRoot) calls on the escalation freshness path. All 3 production files (core/review-escalation.ts, handlers/review-escalation.ts, core/done-oracle.ts) now use multi-arg form with gitCwd threaded. machine.ts canFinishGuard and getGuardFailureReason both resolve gitCwd via resolveGitCwd fallback before passing to evaluateReviewEscalation. quorum-submit intentionally unchanged: it supplies materialHash/storyFilesHash as pre-computed values, bypassing the gitCwd path. Single-arg currentMaterialHash calls in other test files and unrelated production files (lattice-evidence.ts, handlers/verifier.ts, etc.) are outside scope — they do not go through the escalation freshness path. Plain-repo byte-identity preserved: evaluateReviewEscalation defaults gitCwd to args.projectRoot when not supplied. No concept residue found in the escalation freshness path.",
+      "createdAt": "2026-06-24T02:41:28.946Z",
+      "reviewRound": "2026-06-24T02:38:27.797Z",
+      "reviewRunId": "B-36ba:RR-007",
+      "_hash": "2080ec7faedab094a9dc04fd7f16ee2f7d359e291c8b5df113b8947c127bf30a"
     }
   ]
 }
