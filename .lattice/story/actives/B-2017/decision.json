@@ -1,0 +1,69 @@
+{
+  "principles": [
+    "Only fix real command-surface correctness drift; do not optimize unrelated code.",
+    "Prefer deletion of proven unreachable legacy surfaces over reviving unsigned or obsolete workflows.",
+    "Preserve dynamic entrypoints and regression assets unless the detector can prove they are not reachable by any supported path.",
+    "Keep Lattice workflow commands host-neutral and registered through the central registry/catalog path."
+  ],
+  "drivers": [
+    "The current CLI can contain a handler implementation that users cannot call, creating false confidence.",
+    "The implementation-review legacy path lacks modern signed reviewer-run freshness semantics.",
+    "The repo uses dynamic task smoke discovery and dynamic serve modules, so naive import-graph dead-code checks would be dangerous."
+  ],
+  "options": [
+    {
+      "name": "A: Narrow orphan-surface detector plus high-confidence cleanup",
+      "pros": [
+        "Directly catches defined-but-unregistered handler factories and command registry/catalog drift",
+        "Avoids broad dead-code optimization and keeps dynamic entrypoints safe",
+        "Matches the user instruction not to register old commands just to make code appear used"
+      ],
+      "cons": [
+        "Does not detect every possible unused symbol or unreachable internal helper"
+      ]
+    },
+    {
+      "name": "B: Register all orphan handlers to make them callable",
+      "pros": [
+        "Would reduce orphan scan findings quickly"
+      ],
+      "cons": [
+        "Revives obsolete command surfaces without proving they fit modern signed review gates",
+        "Can create misleading workflow evidence and violate Lattice proof discipline"
+      ]
+    },
+    {
+      "name": "C: Broad dead-code removal using import graph",
+      "pros": [
+        "Could reduce more lines of code"
+      ],
+      "cons": [
+        "High false-positive risk for run-all-smokes, lattice serve, init templates, and dynamic imports",
+        "Optimizes arbitrarily instead of fixing a bounded correctness issue"
+      ]
+    }
+  ],
+  "chosen": "A: Narrow orphan-surface detector plus high-confidence cleanup",
+  "rationale": "Chosen because it fixes the actual correctness failure, defined command surfaces that are unreachable, while preserving dynamic supported entrypoints and avoiding arbitrary optimization.",
+  "preMortem": [
+    {
+      "scenario": "Detector flags smoke tasks as orphan and blocks valid CI",
+      "trigger": "It treats package.json script references as the only task entrypoints",
+      "consequence": "Valid regression assets are removed or CI becomes noisy",
+      "mitigation": "Explicitly exempt tasks/*-smoke.ts and document run-all-smokes directory discovery semantics"
+    },
+    {
+      "scenario": "Cleanup revives old implementation_review_result commands by registering them",
+      "trigger": "The team tries to make the orphan finding disappear by adding registry entries",
+      "consequence": "Unsigned legacy review evidence can be confused with modern signed review lane evidence",
+      "mitigation": "Delete or retire the old handler instead of registering it; future migration must use review_run_start plus finding/pass commands"
+    },
+    {
+      "scenario": "Cleanup removes dynamic serve or starter support",
+      "trigger": "A static import graph misses lattice serve dynamic paths and cli-init templates",
+      "consequence": "lattice serve or generated starter projects break",
+      "mitigation": "Keep verifier/serve, devHost, bridge, browser client/server paths out of deletion scope unless a dedicated serve deprecation story proves removal safe"
+    }
+  ],
+  "timestamp": "2026-06-24T11:03:22.456Z"
+}

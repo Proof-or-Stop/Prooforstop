@@ -1,0 +1,31 @@
+{
+  "task": "Prevent unreachable handler and command surfaces from silently accumulating while retiring only proven legacy residue.",
+  "outcome": "After completion, running npm run test:orphan-surface prints orphan surface verification passed, npm --prefix packages/main run build succeeds, and lattice implementation_review_result_get --help still reports unknown command instead of reviving the old unsigned review path.",
+  "facts": [
+    "implementation_review_result_set/get are defined in a handler file but are not registered in the current CLI registry or command catalog.",
+    "Current REVIEW evidence is signed through review_run_start plus finding_add or review_pass_set, so the old implementation-review command path is not the correct modern lane.",
+    "core/intent-coverage.ts was previously deleted by B-76a3 and was reintroduced by a baseline import without live imports.",
+    "core/zod.ts is a half-public bridge: packages/utils has only a declaration file while runtime code imports zod directly.",
+    "run-all-smokes discovers tasks/*-smoke.js dynamically, so task files must not be treated as orphan merely because package.json does not list each one."
+  ],
+  "constraints": [
+    "Do not register legacy commands merely to satisfy a detector.",
+    "Do not delete dynamic serve, devHost, browser bridge, or smoke discovery entrypoints.",
+    "Keep the detector narrow enough to catch real command/handler correctness drift without becoming a broad dead-code optimizer.",
+    "Preserve host-neutral Lattice semantics: command surfaces belong to the Lattice workflow layer, not Codex or Claude-specific namespaces."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "scripts/verify-orphan-surface.mjs",
+    "package.json",
+    "packages/main/package.json",
+    "packages/main/src/handlers/implementation-review.ts",
+    "packages/main/src/core/intent-coverage.ts",
+    "packages/main/src/core/zod.ts",
+    "packages/main/src/verifier/index.ts",
+    "packages/main/src/verifier/validate.ts",
+    "packages/main/src/verifier/cli-executor.ts",
+    "packages/main/src/verifier/types.ts"
+  ],
+  "timestamp": "2026-06-24T11:03:08.804Z"
+}

@@ -9,7 +9,36 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [],
+        "create": [
+          "scripts/verify-orphan-surface.mjs"
+        ],
+        "test": [
+          "scripts/verify-orphan-surface.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Detector passes when every create*Handlers factory is either registered or explicitly allowlisted with a reason.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Detector does not flag tasks/*-smoke.ts or dynamic lattice serve/devHost support as orphan surfaces.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Detector would fail if a new handler factory is added without registry/catalog exposure or explicit allowlist.",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
