@@ -43,7 +43,39 @@
       "context": "only the strings a user reads; not code identifiers",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Running the CLI --help / banner the user sees \"Proofbound\" in the user-facing text instead of \"Lattice\"; the build still compiles.",
+      "files": {
+        "modify": [
+          "packages/main/src",
+          "packages/utils/src",
+          "packages/lab/src"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm --prefix packages/main run build exits 0 after the src string rebrand (no identifier touched)",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "a --help/banner string now reads Proofbound; grep confirms user-facing brand strings changed",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "no TypeScript identifier/type name was changed (tsc passes), only string literals/comments",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
