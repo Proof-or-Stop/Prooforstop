@@ -87,6 +87,17 @@
           "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
           "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
           "timestamp": "2026-06-24T11:19:47.395Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/delivery-check-freshness-smoke.js",
+          "result": "pass",
+          "note": "delivery-check-hash.ts:56-57 signDeliveryCheck: storyFilesHash is appended to the payload ONLY when truthy (\"...(storyFilesHash ? [storyFilesHash] : [])\"). An empty string is falsy in JS, so it takes the [] branch — identical to undefined/null. evaluateDeliveryCheckFreshness (line 158) checks \"if (deliveryCheck.storyFilesHash)\" — empty string is falsy, so the advisory branch is never entered. The legacy stale path (line 173-180) applies. This means empty-string storyFilesHash is treated as missing (legacy), not as a valid hash that could forge a match.",
+          "headHash": "7421ead13a719cfe9d2ff7f9978c2b715bf0e9b6",
+          "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
+          "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
+          "timestamp": "2026-06-24T11:19:52.428Z"
         }
       ]
     },
