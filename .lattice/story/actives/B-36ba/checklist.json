@@ -88,7 +88,45 @@
       "context": "packages/main/src/handlers/review-escalation.ts review_escalation_status/policy_set/fallback_set: pass gitCwd via resolveGitCwd({store: ctx.store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root}). Confirm quorum-submit.ts:329 already passes explicit materialHash/storyFilesHash so the internal recompute is bypassed (no change).",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "In handlers/review-escalation.ts review_escalation_status (~64): after adding gitCwd via resolveGitCwd({store: ctx.store, storyId: args.storyId, metadataRoot: ctx.root, projectRoot: ctx.root}), invoke the handler under a wrapper-root layout -> the returned report.materialHash matches the value from evaluateReviewAssuranceFloor with the same gitCwd. WHY: proves the diagnostic status handler is gitCwd-aware.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "In handlers/review-escalation.ts review_escalation_policy_set (~126): after plumbing gitCwd, invoke the handler -> the embedded escalation report.materialHash agrees with the floor. WHY: the policy_set re-evaluates escalation after recording a policy event; its hash must match.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "In handlers/review-escalation.ts review_escalation_fallback_set (~216): after plumbing gitCwd, invoke the handler -> the embedded escalation report.materialHash agrees with the floor. WHY: the fallback_set re-evaluates escalation; its hash must also match.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Confirm quorum-submit.ts line 329-335 already passes explicit materialHash and storyFilesHash to evaluateReviewEscalation, bypassing the internal currentMaterialHash/currentStoryFilesHash fallback -> no code change needed in quorum-submit.ts. WHY: verifies the checklist context assertion that the quorum path is unaffected.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "In fallback_set handler, currentMaterialHash at line 181 and currentStoryFilesHash at line 189 are called with ctx.root (not gitCwd) for the FRESHNESS CHECK of the user-supplied materialHash -> verify whether these also need gitCwd. If ctx.root is the metadata root in a wrapper-root layout, these freshness checks would compute wrong hashes. WHY: potential secondary bug in the same handler that CHK-003 touches.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Call review_escalation_status handler WITHOUT gitCwd plumbing under a wrapper-root layout -> the returned report.materialHash is null or diverges from the floor, proving the diagnostic handler was also affected by the original bug. WHY: red-documents that handler-level plumbing is necessary, not just core+DONE-gate.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
