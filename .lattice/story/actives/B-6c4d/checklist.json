@@ -59,10 +59,10 @@
           "command": "node packages/main/dist/tasks/flow-stability-smoke.js",
           "result": "pass",
           "note": "B-6c4d smoke creates two same-lane same-round runs and asserts the pass bound to RR-001 is accepted by assertCurrentReviewRunForEvidence after RR-002 exists.",
-          "headHash": "347abfa8784e76579ffbf037b4cdc98957e1386a",
-          "materialHash": "09bc6debb8bab9711f60e491a085c2acff1b9afa0ec483ad9fb4c7f75787de6e",
-          "storyFilesHash": "07ff5164478d06234b749e58fc7ad47d120c359c64d9c881a9ace67b3715a396",
-          "timestamp": "2026-06-24T14:22:34.883Z"
+          "headHash": "9dcdff6deccedcc5b49a96aceffcbb5ca35635c5",
+          "materialHash": "0e5f20eab3fc2371171edcb06f31c088e9b0a0e94e694979dfc8c4a5557c72ce",
+          "storyFilesHash": "1ca448bd1028d3d20f8bd45c4365a67fa43ab8e25b8878d1ff417506e6b0a58c",
+          "timestamp": "2026-06-24T14:40:46.946Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
@@ -71,10 +71,10 @@
           "command": "node packages/main/dist/tasks/flow-stability-smoke.js",
           "result": "pass",
           "note": "B-6c4d smoke writes a pass bound to RR-001 and asserts collectReviewerEvidenceState has no pass stale_run for that non-latest material-fresh run.",
-          "headHash": "347abfa8784e76579ffbf037b4cdc98957e1386a",
-          "materialHash": "09bc6debb8bab9711f60e491a085c2acff1b9afa0ec483ad9fb4c7f75787de6e",
-          "storyFilesHash": "07ff5164478d06234b749e58fc7ad47d120c359c64d9c881a9ace67b3715a396",
-          "timestamp": "2026-06-24T14:22:34.883Z"
+          "headHash": "9dcdff6deccedcc5b49a96aceffcbb5ca35635c5",
+          "materialHash": "0e5f20eab3fc2371171edcb06f31c088e9b0a0e94e694979dfc8c4a5557c72ce",
+          "storyFilesHash": "1ca448bd1028d3d20f8bd45c4365a67fa43ab8e25b8878d1ff417506e6b0a58c",
+          "timestamp": "2026-06-24T14:40:46.946Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -83,10 +83,10 @@
           "command": "node packages/main/dist/tasks/flow-stability-smoke.js",
           "result": "pass",
           "note": "B-6c4d smoke commits material drift after the run and asserts the non-latest run hard-rejects as stale, preserving freshness as the staleness authority.",
-          "headHash": "347abfa8784e76579ffbf037b4cdc98957e1386a",
-          "materialHash": "09bc6debb8bab9711f60e491a085c2acff1b9afa0ec483ad9fb4c7f75787de6e",
-          "storyFilesHash": "07ff5164478d06234b749e58fc7ad47d120c359c64d9c881a9ace67b3715a396",
-          "timestamp": "2026-06-24T14:22:34.883Z"
+          "headHash": "9dcdff6deccedcc5b49a96aceffcbb5ca35635c5",
+          "materialHash": "0e5f20eab3fc2371171edcb06f31c088e9b0a0e94e694979dfc8c4a5557c72ce",
+          "storyFilesHash": "1ca448bd1028d3d20f8bd45c4365a67fa43ab8e25b8878d1ff417506e6b0a58c",
+          "timestamp": "2026-06-24T14:40:46.946Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
@@ -95,10 +95,10 @@
           "command": "grep -n \"currentScopeContextForStory\\|compareScopeBinding(run.scopeBinding\" packages/main/src/core/review-run.ts",
           "result": "pass",
           "note": "The grep shows both write-time and validate-time paths still compute current scope context and compare the run scope binding, so scope mismatch remains independent of id-recency.",
-          "headHash": "347abfa8784e76579ffbf037b4cdc98957e1386a",
-          "materialHash": "09bc6debb8bab9711f60e491a085c2acff1b9afa0ec483ad9fb4c7f75787de6e",
-          "storyFilesHash": "07ff5164478d06234b749e58fc7ad47d120c359c64d9c881a9ace67b3715a396",
-          "timestamp": "2026-06-24T14:22:34.883Z"
+          "headHash": "9dcdff6deccedcc5b49a96aceffcbb5ca35635c5",
+          "materialHash": "0e5f20eab3fc2371171edcb06f31c088e9b0a0e94e694979dfc8c4a5557c72ce",
+          "storyFilesHash": "1ca448bd1028d3d20f8bd45c4365a67fa43ab8e25b8878d1ff417506e6b0a58c",
+          "timestamp": "2026-06-24T14:40:46.946Z"
         },
         {
           "intentRef": "CHK-001:edge:2",
@@ -107,10 +107,10 @@
           "command": "grep -n \"run.reviewRound !== story.currentReviewRound\" packages/main/src/core/review-run.ts",
           "result": "pass",
           "note": "The grep shows run.reviewRound is checked against story.currentReviewRound before the id-recency/currentRun logic, so a different-round run still rejects as wrong_round.",
-          "headHash": "347abfa8784e76579ffbf037b4cdc98957e1386a",
-          "materialHash": "09bc6debb8bab9711f60e491a085c2acff1b9afa0ec483ad9fb4c7f75787de6e",
-          "storyFilesHash": "07ff5164478d06234b749e58fc7ad47d120c359c64d9c881a9ace67b3715a396",
-          "timestamp": "2026-06-24T14:22:34.883Z"
+          "headHash": "9dcdff6deccedcc5b49a96aceffcbb5ca35635c5",
+          "materialHash": "0e5f20eab3fc2371171edcb06f31c088e9b0a0e94e694979dfc8c4a5557c72ce",
+          "storyFilesHash": "1ca448bd1028d3d20f8bd45c4365a67fa43ab8e25b8878d1ff417506e6b0a58c",
+          "timestamp": "2026-06-24T14:40:46.946Z"
         },
         {
           "intentRef": "CHK-001:edge:3",
@@ -119,10 +119,10 @@
           "command": "node packages/main/dist/tasks/flow-stability-smoke.js",
           "result": "pass",
           "note": "The existing supersede smoke case asserts a resolved stale finding bound to a non-latest run is filtered out of invalid evidence and does not block.",
-          "headHash": "347abfa8784e76579ffbf037b4cdc98957e1386a",
-          "materialHash": "09bc6debb8bab9711f60e491a085c2acff1b9afa0ec483ad9fb4c7f75787de6e",
-          "storyFilesHash": "07ff5164478d06234b749e58fc7ad47d120c359c64d9c881a9ace67b3715a396",
-          "timestamp": "2026-06-24T14:22:34.883Z"
+          "headHash": "9dcdff6deccedcc5b49a96aceffcbb5ca35635c5",
+          "materialHash": "0e5f20eab3fc2371171edcb06f31c088e9b0a0e94e694979dfc8c4a5557c72ce",
+          "storyFilesHash": "1ca448bd1028d3d20f8bd45c4365a67fa43ab8e25b8878d1ff417506e6b0a58c",
+          "timestamp": "2026-06-24T14:40:46.946Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -131,10 +131,10 @@
           "command": "node packages/main/dist/tasks/flow-stability-smoke.js",
           "result": "pass",
           "note": "B-6c4d smoke writes an open finding bound to RR-001 while RR-002 exists and asserts collectReviewerEvidenceState includes finding stale_run.",
-          "headHash": "347abfa8784e76579ffbf037b4cdc98957e1386a",
-          "materialHash": "09bc6debb8bab9711f60e491a085c2acff1b9afa0ec483ad9fb4c7f75787de6e",
-          "storyFilesHash": "07ff5164478d06234b749e58fc7ad47d120c359c64d9c881a9ace67b3715a396",
-          "timestamp": "2026-06-24T14:22:34.883Z"
+          "headHash": "9dcdff6deccedcc5b49a96aceffcbb5ca35635c5",
+          "materialHash": "0e5f20eab3fc2371171edcb06f31c088e9b0a0e94e694979dfc8c4a5557c72ce",
+          "storyFilesHash": "1ca448bd1028d3d20f8bd45c4365a67fa43ab8e25b8878d1ff417506e6b0a58c",
+          "timestamp": "2026-06-24T14:40:46.946Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
@@ -143,10 +143,10 @@
           "command": "grep -n \"current.length > 0 ? current\\[current.length - 1\\]\\|evidence.kind !== 'pass'\" packages/main/src/core/review-run.ts",
           "result": "pass",
           "note": "The grep shows currentRunForLane uses the latest run and stale_run is retained for evidence.kind !== pass, so any number of newer run_starts cannot flush open findings.",
-          "headHash": "347abfa8784e76579ffbf037b4cdc98957e1386a",
-          "materialHash": "09bc6debb8bab9711f60e491a085c2acff1b9afa0ec483ad9fb4c7f75787de6e",
-          "storyFilesHash": "07ff5164478d06234b749e58fc7ad47d120c359c64d9c881a9ace67b3715a396",
-          "timestamp": "2026-06-24T14:22:34.883Z"
+          "headHash": "9dcdff6deccedcc5b49a96aceffcbb5ca35635c5",
+          "materialHash": "0e5f20eab3fc2371171edcb06f31c088e9b0a0e94e694979dfc8c4a5557c72ce",
+          "storyFilesHash": "1ca448bd1028d3d20f8bd45c4365a67fa43ab8e25b8878d1ff417506e6b0a58c",
+          "timestamp": "2026-06-24T14:40:46.946Z"
         },
         {
           "intentRef": "CHK-001:adversarial:2",
@@ -155,10 +155,10 @@
           "command": "node packages/main/dist/tasks/flow-stability-smoke.js",
           "result": "pass",
           "note": "B-6c4d smoke covers the mixed-kind invariant: pass on RR-001 has no pass stale_run while an open finding on the same non-latest run still surfaces stale_run.",
-          "headHash": "347abfa8784e76579ffbf037b4cdc98957e1386a",
-          "materialHash": "09bc6debb8bab9711f60e491a085c2acff1b9afa0ec483ad9fb4c7f75787de6e",
-          "storyFilesHash": "07ff5164478d06234b749e58fc7ad47d120c359c64d9c881a9ace67b3715a396",
-          "timestamp": "2026-06-24T14:22:34.883Z"
+          "headHash": "9dcdff6deccedcc5b49a96aceffcbb5ca35635c5",
+          "materialHash": "0e5f20eab3fc2371171edcb06f31c088e9b0a0e94e694979dfc8c4a5557c72ce",
+          "storyFilesHash": "1ca448bd1028d3d20f8bd45c4365a67fa43ab8e25b8878d1ff417506e6b0a58c",
+          "timestamp": "2026-06-24T14:40:46.946Z"
         }
       ]
     },
@@ -217,10 +217,10 @@
           "command": "node packages/main/dist/tasks/flow-stability-smoke.js",
           "result": "pass",
           "note": "Flow smoke asserts matching non-empty storyFilesHash downgrades unrelated whole-tree material drift to fresh:true with a re-attestation warning.",
-          "headHash": "347abfa8784e76579ffbf037b4cdc98957e1386a",
-          "materialHash": "09bc6debb8bab9711f60e491a085c2acff1b9afa0ec483ad9fb4c7f75787de6e",
-          "storyFilesHash": "07ff5164478d06234b749e58fc7ad47d120c359c64d9c881a9ace67b3715a396",
-          "timestamp": "2026-06-24T14:22:34.883Z"
+          "headHash": "9dcdff6deccedcc5b49a96aceffcbb5ca35635c5",
+          "materialHash": "0e5f20eab3fc2371171edcb06f31c088e9b0a0e94e694979dfc8c4a5557c72ce",
+          "storyFilesHash": "1ca448bd1028d3d20f8bd45c4365a67fa43ab8e25b8878d1ff417506e6b0a58c",
+          "timestamp": "2026-06-24T14:40:46.946Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
@@ -229,10 +229,10 @@
           "command": "node packages/main/dist/tasks/flow-stability-smoke.js",
           "result": "pass",
           "note": "Flow smoke then changes a story-owned file and asserts the same evidence becomes stale, proving mismatching storyFilesHash is not advisory-accepted.",
-          "headHash": "347abfa8784e76579ffbf037b4cdc98957e1386a",
-          "materialHash": "09bc6debb8bab9711f60e491a085c2acff1b9afa0ec483ad9fb4c7f75787de6e",
-          "storyFilesHash": "07ff5164478d06234b749e58fc7ad47d120c359c64d9c881a9ace67b3715a396",
-          "timestamp": "2026-06-24T14:22:34.883Z"
+          "headHash": "9dcdff6deccedcc5b49a96aceffcbb5ca35635c5",
+          "materialHash": "0e5f20eab3fc2371171edcb06f31c088e9b0a0e94e694979dfc8c4a5557c72ce",
+          "storyFilesHash": "1ca448bd1028d3d20f8bd45c4365a67fa43ab8e25b8878d1ff417506e6b0a58c",
+          "timestamp": "2026-06-24T14:40:46.946Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -241,10 +241,10 @@
           "command": "node packages/main/dist/tasks/flow-stability-smoke.js",
           "result": "pass",
           "note": "B-6c4d smoke constructs a stored EMPTY_STORY_FILES_HASH review run under later material drift and asserts it hard-rejects as stale.",
-          "headHash": "347abfa8784e76579ffbf037b4cdc98957e1386a",
-          "materialHash": "09bc6debb8bab9711f60e491a085c2acff1b9afa0ec483ad9fb4c7f75787de6e",
-          "storyFilesHash": "07ff5164478d06234b749e58fc7ad47d120c359c64d9c881a9ace67b3715a396",
-          "timestamp": "2026-06-24T14:22:34.883Z"
+          "headHash": "9dcdff6deccedcc5b49a96aceffcbb5ca35635c5",
+          "materialHash": "0e5f20eab3fc2371171edcb06f31c088e9b0a0e94e694979dfc8c4a5557c72ce",
+          "storyFilesHash": "1ca448bd1028d3d20f8bd45c4365a67fa43ab8e25b8878d1ff417506e6b0a58c",
+          "timestamp": "2026-06-24T14:40:46.946Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
@@ -253,10 +253,10 @@
           "command": "grep -n \"evidenceStoryFilesHash && evidenceStoryFilesHash !== EMPTY_STORY_FILES_HASH\\|storyFilesHash && storyFilesHash !== EMPTY_STORY_FILES_HASH\\|storyFilesHash && storyFilesHash !== evidenceStoryFilesHash\" packages/main/src/core/evidence-freshness.ts",
           "result": "pass",
           "note": "The grep shows advisory success requires live storyFilesHash to be non-EMPTY and equal; live EMPTY cannot advisory-accept and the mismatch/strict path returns fresh:false.",
-          "headHash": "347abfa8784e76579ffbf037b4cdc98957e1386a",
-          "materialHash": "09bc6debb8bab9711f60e491a085c2acff1b9afa0ec483ad9fb4c7f75787de6e",
-          "storyFilesHash": "07ff5164478d06234b749e58fc7ad47d120c359c64d9c881a9ace67b3715a396",
-          "timestamp": "2026-06-24T14:22:34.883Z"
+          "headHash": "9dcdff6deccedcc5b49a96aceffcbb5ca35635c5",
+          "materialHash": "0e5f20eab3fc2371171edcb06f31c088e9b0a0e94e694979dfc8c4a5557c72ce",
+          "storyFilesHash": "1ca448bd1028d3d20f8bd45c4365a67fa43ab8e25b8878d1ff417506e6b0a58c",
+          "timestamp": "2026-06-24T14:40:46.946Z"
         },
         {
           "intentRef": "CHK-002:edge:2",
@@ -265,10 +265,10 @@
           "command": "grep -n \"evidenceStoryFilesHash && evidenceStoryFilesHash !== EMPTY_STORY_FILES_HASH\\|storyFilesHash && storyFilesHash !== EMPTY_STORY_FILES_HASH\\|storyFilesHash && storyFilesHash !== evidenceStoryFilesHash\" packages/main/src/core/evidence-freshness.ts",
           "result": "pass",
           "note": "The grep shows both stored and live EMPTY_STORY_FILES_HASH are excluded from the advisory path, leaving no double-empty acceptance path.",
-          "headHash": "347abfa8784e76579ffbf037b4cdc98957e1386a",
-          "materialHash": "09bc6debb8bab9711f60e491a085c2acff1b9afa0ec483ad9fb4c7f75787de6e",
-          "storyFilesHash": "07ff5164478d06234b749e58fc7ad47d120c359c64d9c881a9ace67b3715a396",
-          "timestamp": "2026-06-24T14:22:34.883Z"
+          "headHash": "9dcdff6deccedcc5b49a96aceffcbb5ca35635c5",
+          "materialHash": "0e5f20eab3fc2371171edcb06f31c088e9b0a0e94e694979dfc8c4a5557c72ce",
+          "storyFilesHash": "1ca448bd1028d3d20f8bd45c4365a67fa43ab8e25b8878d1ff417506e6b0a58c",
+          "timestamp": "2026-06-24T14:40:46.946Z"
         },
         {
           "intentRef": "CHK-002:edge:3",
@@ -277,10 +277,10 @@
           "command": "grep -n \"evidenceStoryFilesHash && evidenceStoryFilesHash !== EMPTY_STORY_FILES_HASH\\|storyFilesHash && storyFilesHash !== EMPTY_STORY_FILES_HASH\\|storyFilesHash && storyFilesHash !== evidenceStoryFilesHash\" packages/main/src/core/evidence-freshness.ts",
           "result": "pass",
           "note": "The grep shows the advisory is gated by evidenceStoryFilesHash truthiness and non-EMPTY, so null/undefined legacy evidence skips the advisory and remains strict.",
-          "headHash": "347abfa8784e76579ffbf037b4cdc98957e1386a",
-          "materialHash": "09bc6debb8bab9711f60e491a085c2acff1b9afa0ec483ad9fb4c7f75787de6e",
-          "storyFilesHash": "07ff5164478d06234b749e58fc7ad47d120c359c64d9c881a9ace67b3715a396",
-          "timestamp": "2026-06-24T14:22:34.883Z"
+          "headHash": "9dcdff6deccedcc5b49a96aceffcbb5ca35635c5",
+          "materialHash": "0e5f20eab3fc2371171edcb06f31c088e9b0a0e94e694979dfc8c4a5557c72ce",
+          "storyFilesHash": "1ca448bd1028d3d20f8bd45c4365a67fa43ab8e25b8878d1ff417506e6b0a58c",
+          "timestamp": "2026-06-24T14:40:46.946Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -289,10 +289,10 @@
           "command": "node packages/main/dist/tasks/flow-stability-smoke.js",
           "result": "pass",
           "note": "B-6c4d smoke directly exercises the empty-set amplification attack by giving the run EMPTY_STORY_FILES_HASH under material drift and asserting hard reject.",
-          "headHash": "347abfa8784e76579ffbf037b4cdc98957e1386a",
-          "materialHash": "09bc6debb8bab9711f60e491a085c2acff1b9afa0ec483ad9fb4c7f75787de6e",
-          "storyFilesHash": "07ff5164478d06234b749e58fc7ad47d120c359c64d9c881a9ace67b3715a396",
-          "timestamp": "2026-06-24T14:22:34.883Z"
+          "headHash": "9dcdff6deccedcc5b49a96aceffcbb5ca35635c5",
+          "materialHash": "0e5f20eab3fc2371171edcb06f31c088e9b0a0e94e694979dfc8c4a5557c72ce",
+          "storyFilesHash": "1ca448bd1028d3d20f8bd45c4365a67fa43ab8e25b8878d1ff417506e6b0a58c",
+          "timestamp": "2026-06-24T14:40:46.946Z"
         },
         {
           "intentRef": "CHK-002:adversarial:1",
@@ -301,10 +301,10 @@
           "command": "grep -n \"evidenceStoryFilesHash && evidenceStoryFilesHash !== EMPTY_STORY_FILES_HASH\\|storyFilesHash && storyFilesHash !== EMPTY_STORY_FILES_HASH\\|storyFilesHash && storyFilesHash !== evidenceStoryFilesHash\" packages/main/src/core/evidence-freshness.ts",
           "result": "pass",
           "note": "The grep shows the guard excludes only the EMPTY sentinel and then compares any other stored hash to live storyFilesHash, so near-empty non-sentinel values mismatch to fresh:false.",
-          "headHash": "347abfa8784e76579ffbf037b4cdc98957e1386a",
-          "materialHash": "09bc6debb8bab9711f60e491a085c2acff1b9afa0ec483ad9fb4c7f75787de6e",
-          "storyFilesHash": "07ff5164478d06234b749e58fc7ad47d120c359c64d9c881a9ace67b3715a396",
-          "timestamp": "2026-06-24T14:22:34.883Z"
+          "headHash": "9dcdff6deccedcc5b49a96aceffcbb5ca35635c5",
+          "materialHash": "0e5f20eab3fc2371171edcb06f31c088e9b0a0e94e694979dfc8c4a5557c72ce",
+          "storyFilesHash": "1ca448bd1028d3d20f8bd45c4365a67fa43ab8e25b8878d1ff417506e6b0a58c",
+          "timestamp": "2026-06-24T14:40:46.946Z"
         }
       ]
     },
@@ -363,10 +363,10 @@
           "command": "node packages/main/dist/tasks/flow-stability-smoke.js",
           "result": "pass",
           "note": "Regression smoke covers the primary race-red scenario: two same-lane runs, pass bound to first run, assertCurrentReviewRunForEvidence returns and invalid pass set stays empty.",
-          "headHash": "347abfa8784e76579ffbf037b4cdc98957e1386a",
-          "materialHash": "09bc6debb8bab9711f60e491a085c2acff1b9afa0ec483ad9fb4c7f75787de6e",
-          "storyFilesHash": "07ff5164478d06234b749e58fc7ad47d120c359c64d9c881a9ace67b3715a396",
-          "timestamp": "2026-06-24T14:22:34.883Z"
+          "headHash": "9dcdff6deccedcc5b49a96aceffcbb5ca35635c5",
+          "materialHash": "0e5f20eab3fc2371171edcb06f31c088e9b0a0e94e694979dfc8c4a5557c72ce",
+          "storyFilesHash": "1ca448bd1028d3d20f8bd45c4365a67fa43ab8e25b8878d1ff417506e6b0a58c",
+          "timestamp": "2026-06-24T14:40:46.946Z"
         },
         {
           "intentRef": "CHK-003:happy:1",
@@ -375,10 +375,10 @@
           "command": "node packages/main/dist/tasks/flow-stability-smoke.js",
           "result": "pass",
           "note": "The smoke command exited 0 with the PASS output, confirming the flow-stability smoke remains green end to end.",
-          "headHash": "347abfa8784e76579ffbf037b4cdc98957e1386a",
-          "materialHash": "09bc6debb8bab9711f60e491a085c2acff1b9afa0ec483ad9fb4c7f75787de6e",
-          "storyFilesHash": "07ff5164478d06234b749e58fc7ad47d120c359c64d9c881a9ace67b3715a396",
-          "timestamp": "2026-06-24T14:22:34.883Z"
+          "headHash": "9dcdff6deccedcc5b49a96aceffcbb5ca35635c5",
+          "materialHash": "0e5f20eab3fc2371171edcb06f31c088e9b0a0e94e694979dfc8c4a5557c72ce",
+          "storyFilesHash": "1ca448bd1028d3d20f8bd45c4365a67fa43ab8e25b8878d1ff417506e6b0a58c",
+          "timestamp": "2026-06-24T14:40:46.946Z"
         },
         {
           "intentRef": "CHK-003:happy:2",
@@ -387,10 +387,10 @@
           "command": "npm test",
           "result": "pass",
           "note": "The root npm test command completed with exit 0, covering the full repository test suite with no genuine failures.",
-          "headHash": "347abfa8784e76579ffbf037b4cdc98957e1386a",
-          "materialHash": "09bc6debb8bab9711f60e491a085c2acff1b9afa0ec483ad9fb4c7f75787de6e",
-          "storyFilesHash": "07ff5164478d06234b749e58fc7ad47d120c359c64d9c881a9ace67b3715a396",
-          "timestamp": "2026-06-24T14:22:34.883Z"
+          "headHash": "9dcdff6deccedcc5b49a96aceffcbb5ca35635c5",
+          "materialHash": "0e5f20eab3fc2371171edcb06f31c088e9b0a0e94e694979dfc8c4a5557c72ce",
+          "storyFilesHash": "1ca448bd1028d3d20f8bd45c4365a67fa43ab8e25b8878d1ff417506e6b0a58c",
+          "timestamp": "2026-06-24T14:40:46.946Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -399,10 +399,10 @@
           "command": "node packages/main/dist/tasks/flow-stability-smoke.js",
           "result": "pass",
           "note": "Smoke material-drift case hard-rejects the non-latest run after materialHash changes, preserving material freshness under the relaxed id-recency rule.",
-          "headHash": "347abfa8784e76579ffbf037b4cdc98957e1386a",
-          "materialHash": "09bc6debb8bab9711f60e491a085c2acff1b9afa0ec483ad9fb4c7f75787de6e",
-          "storyFilesHash": "07ff5164478d06234b749e58fc7ad47d120c359c64d9c881a9ace67b3715a396",
-          "timestamp": "2026-06-24T14:22:34.883Z"
+          "headHash": "9dcdff6deccedcc5b49a96aceffcbb5ca35635c5",
+          "materialHash": "0e5f20eab3fc2371171edcb06f31c088e9b0a0e94e694979dfc8c4a5557c72ce",
+          "storyFilesHash": "1ca448bd1028d3d20f8bd45c4365a67fa43ab8e25b8878d1ff417506e6b0a58c",
+          "timestamp": "2026-06-24T14:40:46.946Z"
         },
         {
           "intentRef": "CHK-003:edge:1",
@@ -411,10 +411,10 @@
           "command": "node packages/main/dist/tasks/flow-stability-smoke.js",
           "result": "pass",
           "note": "Smoke empty-set storyFilesHash case hard-rejects under whole-tree drift, proving the EMPTY guard holds in integration.",
-          "headHash": "347abfa8784e76579ffbf037b4cdc98957e1386a",
-          "materialHash": "09bc6debb8bab9711f60e491a085c2acff1b9afa0ec483ad9fb4c7f75787de6e",
-          "storyFilesHash": "07ff5164478d06234b749e58fc7ad47d120c359c64d9c881a9ace67b3715a396",
-          "timestamp": "2026-06-24T14:22:34.883Z"
+          "headHash": "9dcdff6deccedcc5b49a96aceffcbb5ca35635c5",
+          "materialHash": "0e5f20eab3fc2371171edcb06f31c088e9b0a0e94e694979dfc8c4a5557c72ce",
+          "storyFilesHash": "1ca448bd1028d3d20f8bd45c4365a67fa43ab8e25b8878d1ff417506e6b0a58c",
+          "timestamp": "2026-06-24T14:40:46.946Z"
         },
         {
           "intentRef": "CHK-003:edge:2",
@@ -423,10 +423,10 @@
           "command": "node packages/main/dist/tasks/flow-stability-smoke.js",
           "result": "pass",
           "note": "Existing supersede smoke asserts an older stale pass is dropped when a newer valid pass exists for the same reviewer lane.",
-          "headHash": "347abfa8784e76579ffbf037b4cdc98957e1386a",
-          "materialHash": "09bc6debb8bab9711f60e491a085c2acff1b9afa0ec483ad9fb4c7f75787de6e",
-          "storyFilesHash": "07ff5164478d06234b749e58fc7ad47d120c359c64d9c881a9ace67b3715a396",
-          "timestamp": "2026-06-24T14:22:34.883Z"
+          "headHash": "9dcdff6deccedcc5b49a96aceffcbb5ca35635c5",
+          "materialHash": "0e5f20eab3fc2371171edcb06f31c088e9b0a0e94e694979dfc8c4a5557c72ce",
+          "storyFilesHash": "1ca448bd1028d3d20f8bd45c4365a67fa43ab8e25b8878d1ff417506e6b0a58c",
+          "timestamp": "2026-06-24T14:40:46.946Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -435,10 +435,10 @@
           "command": "node packages/main/dist/tasks/flow-stability-smoke.js",
           "result": "pass",
           "note": "Smoke open-finding case asserts stale_run is emitted for an open finding bound to run-1 when a newer run exists, so the lane remains blocked.",
-          "headHash": "347abfa8784e76579ffbf037b4cdc98957e1386a",
-          "materialHash": "09bc6debb8bab9711f60e491a085c2acff1b9afa0ec483ad9fb4c7f75787de6e",
-          "storyFilesHash": "07ff5164478d06234b749e58fc7ad47d120c359c64d9c881a9ace67b3715a396",
-          "timestamp": "2026-06-24T14:22:34.883Z"
+          "headHash": "9dcdff6deccedcc5b49a96aceffcbb5ca35635c5",
+          "materialHash": "0e5f20eab3fc2371171edcb06f31c088e9b0a0e94e694979dfc8c4a5557c72ce",
+          "storyFilesHash": "1ca448bd1028d3d20f8bd45c4365a67fa43ab8e25b8878d1ff417506e6b0a58c",
+          "timestamp": "2026-06-24T14:40:46.946Z"
         },
         {
           "intentRef": "CHK-003:adversarial:1",
@@ -447,10 +447,10 @@
           "command": "node packages/main/dist/tasks/flow-stability-smoke.js",
           "result": "pass",
           "note": "Smoke resolved-finding case asserts a resolved stale finding is superseded and absent from invalid evidence after a newer valid pass.",
-          "headHash": "347abfa8784e76579ffbf037b4cdc98957e1386a",
-          "materialHash": "09bc6debb8bab9711f60e491a085c2acff1b9afa0ec483ad9fb4c7f75787de6e",
-          "storyFilesHash": "07ff5164478d06234b749e58fc7ad47d120c359c64d9c881a9ace67b3715a396",
-          "timestamp": "2026-06-24T14:22:34.883Z"
+          "headHash": "9dcdff6deccedcc5b49a96aceffcbb5ca35635c5",
+          "materialHash": "0e5f20eab3fc2371171edcb06f31c088e9b0a0e94e694979dfc8c4a5557c72ce",
+          "storyFilesHash": "1ca448bd1028d3d20f8bd45c4365a67fa43ab8e25b8878d1ff417506e6b0a58c",
+          "timestamp": "2026-06-24T14:40:46.946Z"
         }
       ]
     },
@@ -501,10 +501,10 @@
           "command": "grep -n \"id-recency\" docs/requirements/decisions/review-run-binding-race.md",
           "result": "pass",
           "note": "The grep shows the decision doc exists and documents id-recency relaxation, kind-aware behavior, EMPTY guard prerequisite, and alternatives context.",
-          "headHash": "347abfa8784e76579ffbf037b4cdc98957e1386a",
-          "materialHash": "09bc6debb8bab9711f60e491a085c2acff1b9afa0ec483ad9fb4c7f75787de6e",
-          "storyFilesHash": "07ff5164478d06234b749e58fc7ad47d120c359c64d9c881a9ace67b3715a396",
-          "timestamp": "2026-06-24T14:22:34.883Z"
+          "headHash": "9dcdff6deccedcc5b49a96aceffcbb5ca35635c5",
+          "materialHash": "0e5f20eab3fc2371171edcb06f31c088e9b0a0e94e694979dfc8c4a5557c72ce",
+          "storyFilesHash": "1ca448bd1028d3d20f8bd45c4365a67fa43ab8e25b8878d1ff417506e6b0a58c",
+          "timestamp": "2026-06-24T14:40:46.946Z"
         },
         {
           "intentRef": "CHK-004:happy:1",
@@ -513,10 +513,10 @@
           "command": "grep -n \"reviewerWrite\" docs/requirements/decisions/session-ownership-and-write-leases.md",
           "result": "pass",
           "note": "The grep shows the lease contract doc has a reviewerWrite section documenting reviewer evidence writes as lease-exempt.",
-          "headHash": "347abfa8784e76579ffbf037b4cdc98957e1386a",
-          "materialHash": "09bc6debb8bab9711f60e491a085c2acff1b9afa0ec483ad9fb4c7f75787de6e",
-          "storyFilesHash": "07ff5164478d06234b749e58fc7ad47d120c359c64d9c881a9ace67b3715a396",
-          "timestamp": "2026-06-24T14:22:34.883Z"
+          "headHash": "9dcdff6deccedcc5b49a96aceffcbb5ca35635c5",
+          "materialHash": "0e5f20eab3fc2371171edcb06f31c088e9b0a0e94e694979dfc8c4a5557c72ce",
+          "storyFilesHash": "1ca448bd1028d3d20f8bd45c4365a67fa43ab8e25b8878d1ff417506e6b0a58c",
+          "timestamp": "2026-06-24T14:40:46.946Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -525,10 +525,10 @@
           "command": "node -e \"const fs=require('fs'); const d=fs.readFileSync('docs/requirements/decisions/session-ownership-and-write-leases.md','utf8'); const c=fs.readFileSync('packages/main/src/core/command-policy.ts','utf8'); for (const x of ['review_run_start','review_pass_set','finding_add']) { if (!d.includes(x)) throw new Error('doc missing '+x); if (!c.includes(x+':') && !c.includes(x)) throw new Error('policy missing '+x); } if (!d.includes('reviewerWrite')) throw new Error('doc missing reviewerWrite'); if (d.includes('lease-required')) throw new Error('stale lease-required wording'); console.log('reviewerWrite lease doc matches command policy')\"",
           "result": "pass",
           "note": "The read-only assertion checks review_run_start, review_pass_set, and finding_add are in the doc and command-policy, reviewerWrite is present, and stale lease-required wording is absent.",
-          "headHash": "347abfa8784e76579ffbf037b4cdc98957e1386a",
-          "materialHash": "09bc6debb8bab9711f60e491a085c2acff1b9afa0ec483ad9fb4c7f75787de6e",
-          "storyFilesHash": "07ff5164478d06234b749e58fc7ad47d120c359c64d9c881a9ace67b3715a396",
-          "timestamp": "2026-06-24T14:22:34.883Z"
+          "headHash": "9dcdff6deccedcc5b49a96aceffcbb5ca35635c5",
+          "materialHash": "0e5f20eab3fc2371171edcb06f31c088e9b0a0e94e694979dfc8c4a5557c72ce",
+          "storyFilesHash": "1ca448bd1028d3d20f8bd45c4365a67fa43ab8e25b8878d1ff417506e6b0a58c",
+          "timestamp": "2026-06-24T14:40:46.946Z"
         },
         {
           "intentRef": "CHK-004:edge:1",
@@ -537,10 +537,10 @@
           "command": "grep -n \"Decision\\|keep-strict\\|unify-lock-A alone\\|blanket relax\" docs/requirements/decisions/review-run-binding-race.md",
           "result": "pass",
           "note": "The grep shows the chosen Decision section plus rejected alternatives for keep-strict, unify-lock-A alone, and blanket relax without the EMPTY/kind-aware guard.",
-          "headHash": "347abfa8784e76579ffbf037b4cdc98957e1386a",
-          "materialHash": "09bc6debb8bab9711f60e491a085c2acff1b9afa0ec483ad9fb4c7f75787de6e",
-          "storyFilesHash": "07ff5164478d06234b749e58fc7ad47d120c359c64d9c881a9ace67b3715a396",
-          "timestamp": "2026-06-24T14:22:34.883Z"
+          "headHash": "9dcdff6deccedcc5b49a96aceffcbb5ca35635c5",
+          "materialHash": "0e5f20eab3fc2371171edcb06f31c088e9b0a0e94e694979dfc8c4a5557c72ce",
+          "storyFilesHash": "1ca448bd1028d3d20f8bd45c4365a67fa43ab8e25b8878d1ff417506e6b0a58c",
+          "timestamp": "2026-06-24T14:40:46.946Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -549,10 +549,10 @@
           "command": "node -e \"const fs=require('fs'); const race=fs.readFileSync('docs/requirements/decisions/review-run-binding-race.md','utf8'); const drift=fs.readFileSync('docs/requirements/decisions/story-files-hash-material-drift.md','utf8'); if (!race.includes('id-recency')) throw new Error('missing id-recency scope'); if (!race.includes('EMPTY_STORY_FILES_HASH')) throw new Error('missing EMPTY guard'); if (!drift.includes('storyFilesHash') || !drift.includes('delivery-check')) throw new Error('baseline drift doc missing expected scope'); for (const phrase of ['adopted bindings','relaxes any other gate','modifies delivery-check behavior']) if (race.includes(phrase)) throw new Error('overclaim: '+phrase); console.log('review-run binding doc is scoped to id-recency and EMPTY guard')\"",
           "result": "pass",
           "note": "The read-only assertion checks the binding-race doc is scoped to id-recency and EMPTY guard, references the baseline storyFilesHash/delivery-check doc, and lacks forbidden overclaim phrases.",
-          "headHash": "347abfa8784e76579ffbf037b4cdc98957e1386a",
-          "materialHash": "09bc6debb8bab9711f60e491a085c2acff1b9afa0ec483ad9fb4c7f75787de6e",
-          "storyFilesHash": "07ff5164478d06234b749e58fc7ad47d120c359c64d9c881a9ace67b3715a396",
-          "timestamp": "2026-06-24T14:22:34.883Z"
+          "headHash": "9dcdff6deccedcc5b49a96aceffcbb5ca35635c5",
+          "materialHash": "0e5f20eab3fc2371171edcb06f31c088e9b0a0e94e694979dfc8c4a5557c72ce",
+          "storyFilesHash": "1ca448bd1028d3d20f8bd45c4365a67fa43ab8e25b8878d1ff417506e6b0a58c",
+          "timestamp": "2026-06-24T14:40:46.946Z"
         },
         {
           "intentRef": "CHK-004:adversarial:1",
@@ -561,10 +561,10 @@
           "command": "node -e \"const fs=require('fs'); const d=fs.readFileSync('docs/requirements/decisions/session-ownership-and-write-leases.md','utf8'); const c=fs.readFileSync('packages/main/src/core/command-policy.ts','utf8'); for (const x of ['review_run_start','review_pass_set','finding_add']) { if (!d.includes(x)) throw new Error('doc missing '+x); if (!c.includes(x+':') && !c.includes(x)) throw new Error('policy missing '+x); } if (!d.includes('reviewerWrite')) throw new Error('doc missing reviewerWrite'); if (d.includes('lease-required')) throw new Error('stale lease-required wording'); console.log('reviewerWrite lease doc matches command policy')\"",
           "result": "pass",
           "note": "The read-only assertion checks reviewerWrite lease exemption in docs and command-policy and fails if the doc grants lease-required status to those reviewer evidence commands.",
-          "headHash": "347abfa8784e76579ffbf037b4cdc98957e1386a",
-          "materialHash": "09bc6debb8bab9711f60e491a085c2acff1b9afa0ec483ad9fb4c7f75787de6e",
-          "storyFilesHash": "07ff5164478d06234b749e58fc7ad47d120c359c64d9c881a9ace67b3715a396",
-          "timestamp": "2026-06-24T14:22:34.883Z"
+          "headHash": "9dcdff6deccedcc5b49a96aceffcbb5ca35635c5",
+          "materialHash": "0e5f20eab3fc2371171edcb06f31c088e9b0a0e94e694979dfc8c4a5557c72ce",
+          "storyFilesHash": "1ca448bd1028d3d20f8bd45c4365a67fa43ab8e25b8878d1ff417506e6b0a58c",
+          "timestamp": "2026-06-24T14:40:46.946Z"
         }
       ]
     }
