@@ -224,11 +224,11 @@
           "file": "packages/main/src/tasks/review-assurance-floor-storyfileshash-smoke.ts",
           "command": "node packages/main/dist/tasks/review-assurance-floor-storyfileshash-smoke.js",
           "result": "pass",
-          "note": "smoke check (b): accumulated prior truly-stale verdict alongside fresh downgraded verdict => new round valid, old ignored",
-          "headHash": "79d20acc14ca639a30bc3890488a1a5b4cd2e200",
-          "materialHash": "2f149db52f337a4f4466fa1a43a8f0dbc8df49ef07e65772f5be61142bd5f85c",
-          "storyFilesHash": "c21f0bf4341b45f8bae934c199fccad218fe04e737720749c66665a41e8540cb",
-          "timestamp": "2026-06-24T00:20:50.226Z"
+          "note": "smoke dedicated cross-runId re-bind check: prior runId 'round-old' truly-stale (W/S_OLD) + new runId 'round-new' downgraded (X/S) at current Y/S => validRounds.length===1 (only round-new), old verdict ignored, no duplicate-identity reason",
+          "headHash": "c37b3fdfaa1a6cb65c242231d73387a4622cd7c6",
+          "materialHash": "0655d531887e6754df0d70681e02ec253f5f3580aaf08f02149fd4323b210f29",
+          "storyFilesHash": "9ab30965d5cdd9c79abbb387c7deb289798cc9876f74e76988dfb23218140c1e",
+          "timestamp": "2026-06-24T00:43:19.662Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
