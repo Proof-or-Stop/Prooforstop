@@ -1,0 +1,445 @@
+/**
+ * ReproIntakeService — candidate-only repro-first workflow.
+ *
+ * B-0aa1: Implements the candidate evidence intake workflow.
+ *
+ * IMPORTANT: All artifacts produced here are evidence-candidate scope only.
+ * They do NOT satisfy REVIEW, TEST, DONE, Authority, or production-gate claims.
+ * allowedConsumers: STORY_INTAKE only.
+ */
+
+import {
+  writeArtifact,
+  readArtifact,
+  verifyArtifactDigest,
+} from './evidence/artifact-store.js';
+import type {
+  EvidenceArtifact,
+  ReproProbePayload,
+  ReproReviewPayload,
+  SpikeRecordPayload,
+  SpikeReviewPayload,
+  RedGreenRelationPayload,
+  RedGreenEvaluationPayload,
+  RegressionMatrixReviewPayload,
+  StoryEvidenceBindingPayload,
+  CommandSpec,
+  ReproVerdict,
+  SpikeReviewVerdict,
+  ReviewedFailureClass,
+  ExecutionStatus,
+} from './evidence/types.js';
+
+const CANDIDATE_SCOPE = 'evidence-candidate' as const;
+const PRODUCER = 'repro-intake-service';
+
+// ---------------------------------------------------------------------------
+// createProbe
+// ---------------------------------------------------------------------------
+
+export interface CreateProbeInput {
+  candidateId: string;
+  taskSummary: string;
+  eligibility: string;
+  reason: string;
+  commandSpec: CommandSpec;
+  expectedFailure: string;
+  expectedFailurePattern: string;
+  executionStatus: ExecutionStatus;
+  observedFailureSummary: string;
+  boundedOutputExcerpt: string;
+  producerObservedClass: ReviewedFailureClass;
+  baselineHeadHash?: string;
+  materialHash?: string;
+}
+
+export function createProbe(
+  projectRoot: string,
+  input: CreateProbeInput,
+): EvidenceArtifact<ReproProbePayload> {
+  if (!input.candidateId || input.candidateId.trim().length === 0) {
+    throw new Error('repro-intake: candidateId is required');
+  }
+  if (!input.taskSummary || input.taskSummary.trim().length < 5) {
+    throw new Error('repro-intake: taskSummary must be at least 5 characters');
+  }
+
+  const payload: ReproProbePayload = {
+    candidateId: input.candidateId.trim(),
+    taskSummary: input.taskSummary.trim(),
+    eligibility: input.eligibility,
+    reason: input.reason,
+    commandSpec: input.commandSpec,
+    expectedFailure: input.expectedFailure,
+    expectedFailurePattern: input.expectedFailurePattern,
+    executionStatus: input.executionStatus,
+    observedFailureSummary: input.observedFailureSummary,
+    boundedOutputExcerpt: input.boundedOutputExcerpt,
+    producerObservedClass: input.producerObservedClass,
+    ...(input.baselineHeadHash ? { baselineHeadHash: input.baselineHeadHash } : {}),
+    ...(input.materialHash ? { materialHash: input.materialHash } : {}),
+  };
+
+  return writeArtifact(projectRoot, {
+    artifactKind: 'repro-probe',
+    evidenceScope: CANDIDATE_SCOPE,
+    subjectBinding: { candidateId: input.candidateId },
+    payload,
+    producer: PRODUCER,
+  });
+}
+
+// ---------------------------------------------------------------------------
+// getProbe
+// ---------------------------------------------------------------------------
+
+export function getProbe(
+  projectRoot: string,
+  probeId: string,
+): EvidenceArtifact<ReproProbePayload> {
+  return readArtifact<ReproProbePayload>(projectRoot, probeId);
+}
+
+// ---------------------------------------------------------------------------
+// reviewProbe
+// ---------------------------------------------------------------------------
+
+export interface ReviewProbeInput {
+  probeId: string;
+  probeDigest?: string;
+  verdict: ReproVerdict;
+  reviewedFailureClass: ReviewedFailureClass;
+  notes: string;
+}
+
+export function reviewProbe(
+  projectRoot: string,
+  input: ReviewProbeInput,
+): EvidenceArtifact<ReproReviewPayload> {
+  const probe = readArtifact<ReproProbePayload>(projectRoot, input.probeId);
+
+  if (input.probeDigest && !verifyArtifactDigest(probe, input.probeDigest)) {
+    throw new Error(`repro-intake: probe digest mismatch for ${input.probeId}; expected ${input.probeDigest}, got ${probe.artifactDigest}`);
+  }
+
+  const payload: ReproReviewPayload = {
+    probeId: input.probeId,
+    probeDigest: probe.artifactDigest,
+    verdict: input.verdict,
+    reviewedFailureClass: input.reviewedFailureClass,
+    notes: input.notes,
+  };
+
+  return writeArtifact(projectRoot, {
+    artifactKind: 'repro-review',
+    evidenceScope: CANDIDATE_SCOPE,
+    subjectBinding: { candidateId: probe.payload.candidateId, probeId: input.probeId },
+    payload,
+    producer: PRODUCER,
+  });
+}
+
+// ---------------------------------------------------------------------------
+// recordSpike
+// ---------------------------------------------------------------------------
+
+export interface RecordSpikeInput {
+  probeId: string;
+  description: string;
+  steps: string[];
+  observations: string;
+  commandSpec?: CommandSpec;
+  expectedFailurePattern?: string;
+  executionStatus: ExecutionStatus;
+  observedOutput: string;
+}
+
+export function recordSpike(
+  projectRoot: string,
+  input: RecordSpikeInput,
+): EvidenceArtifact<SpikeRecordPayload> {
+  const probe = readArtifact<ReproProbePayload>(projectRoot, input.probeId);
+
+  const payload: SpikeRecordPayload = {
+    candidateId: probe.payload.candidateId,
+    probeId: input.probeId,
+    probeDigest: probe.artifactDigest,
+    description: input.description,
+    steps: input.steps,
+    observations: input.observations,
+    executionStatus: input.executionStatus,
+    observedOutput: input.observedOutput,
+    ...(input.commandSpec ? { commandSpec: input.commandSpec } : {}),
+    ...(input.expectedFailurePattern ? { expectedFailurePattern: input.expectedFailurePattern } : {}),
+  };
+
+  return writeArtifact(projectRoot, {
+    artifactKind: 'spike-record',
+    evidenceScope: CANDIDATE_SCOPE,
+    subjectBinding: { candidateId: probe.payload.candidateId, probeId: input.probeId },
+    payload,
+    producer: PRODUCER,
+  });
+}
+
+// ---------------------------------------------------------------------------
+// reviewSpike
+// ---------------------------------------------------------------------------
+
+export interface ReviewSpikeInput {
+  spikeId: string;
+  spikeDigest?: string;
+  verdict: SpikeReviewVerdict;
+  notes: string;
+}
+
+export function reviewSpike(
+  projectRoot: string,
+  input: ReviewSpikeInput,
+): EvidenceArtifact<SpikeReviewPayload> {
+  const spike = readArtifact<SpikeRecordPayload>(projectRoot, input.spikeId);
+
+  if (input.spikeDigest && !verifyArtifactDigest(spike, input.spikeDigest)) {
+    throw new Error(`repro-intake: spike digest mismatch for ${input.spikeId}`);
+  }
+
+  const payload: SpikeReviewPayload = {
+    spikeId: input.spikeId,
+    spikeDigest: spike.artifactDigest,
+    verdict: input.verdict,
+    notes: input.notes,
+  };
+
+  return writeArtifact(projectRoot, {
+    artifactKind: 'spike-review',
+    evidenceScope: CANDIDATE_SCOPE,
+    subjectBinding: { candidateId: spike.payload.candidateId, probeId: spike.payload.probeId, spikeId: input.spikeId },
+    payload,
+    producer: PRODUCER,
+  });
+}
+
+// ---------------------------------------------------------------------------
+// createRedGreenRelation
+// ---------------------------------------------------------------------------
+
+export interface CreateRedGreenRelationInput {
+  probeId: string;
+  baselineCommandSpec: CommandSpec;
+  baselineExpectedFailurePattern: string;
+  currentCommandSpec: CommandSpec;
+  currentExpectedFailurePattern: string;
+  description: string;
+}
+
+export function createRedGreenRelation(
+  projectRoot: string,
+  input: CreateRedGreenRelationInput,
+): EvidenceArtifact<RedGreenRelationPayload> {
+  const probe = readArtifact<ReproProbePayload>(projectRoot, input.probeId);
+
+  const payload: RedGreenRelationPayload = {
+    candidateId: probe.payload.candidateId,
+    probeId: input.probeId,
+    baselineCommandSpec: input.baselineCommandSpec,
+    baselineExpectedFailurePattern: input.baselineExpectedFailurePattern,
+    currentCommandSpec: input.currentCommandSpec,
+    currentExpectedFailurePattern: input.currentExpectedFailurePattern,
+    description: input.description,
+  };
+
+  return writeArtifact(projectRoot, {
+    artifactKind: 'red-green-relation',
+    evidenceScope: CANDIDATE_SCOPE,
+    subjectBinding: { candidateId: probe.payload.candidateId, probeId: input.probeId },
+    payload,
+    producer: PRODUCER,
+  });
+}
+
+// ---------------------------------------------------------------------------
+// evaluateRedGreenRelation
+// ---------------------------------------------------------------------------
+
+export interface EvaluateRedGreenRelationInput {
+  relationId: string;
+  relationDigest?: string;
+}
+
+export function evaluateRedGreenRelation(
+  projectRoot: string,
+  input: EvaluateRedGreenRelationInput,
+): EvidenceArtifact<RedGreenEvaluationPayload> {
+  // Fail closed: missing relation ref → throw
+  const relation = readArtifact<RedGreenRelationPayload>(projectRoot, input.relationId);
+
+  if (input.relationDigest && !verifyArtifactDigest(relation, input.relationDigest)) {
+    throw new Error(`repro-intake: relation digest mismatch for ${input.relationId}`);
+  }
+
+  const probe = readArtifact<ReproProbePayload>(projectRoot, relation.payload.probeId);
+  const reasons: string[] = [];
+  let pass = true;
+
+  // Check probe has been reviewed and not rejected
+  // We scan by candidateId in the ref dir; simplified: just validate probe status
+  if (probe.payload.executionStatus === 'not_run') {
+    pass = false;
+    reasons.push('probe execution status is not_run — cannot evaluate without observed failure');
+  }
+
+  // Command spec must be same command (fail closed on mismatch)
+  const baseCmd = relation.payload.baselineCommandSpec.command;
+  const curCmd = relation.payload.currentCommandSpec.command;
+  if (baseCmd !== curCmd) {
+    pass = false;
+    reasons.push(`command mismatch: baseline="${baseCmd}" current="${curCmd}"`);
+  }
+
+  // Expected failure patterns must both be non-empty
+  if (!relation.payload.baselineExpectedFailurePattern || !relation.payload.currentExpectedFailurePattern) {
+    pass = false;
+    reasons.push('expected failure patterns must be non-empty');
+  }
+
+  if (pass) {
+    reasons.push('command specs match and failure patterns are defined');
+  }
+
+  const payload: RedGreenEvaluationPayload = {
+    relationId: input.relationId,
+    relationDigest: relation.artifactDigest,
+    pass,
+    reasons,
+  };
+
+  return writeArtifact(projectRoot, {
+    artifactKind: 'red-green-evaluation',
+    evidenceScope: CANDIDATE_SCOPE,
+    subjectBinding: { candidateId: relation.payload.candidateId, probeId: relation.payload.probeId, relationId: input.relationId },
+    payload,
+    producer: PRODUCER,
+  });
+}
+
+// ---------------------------------------------------------------------------
+// reviewRegressionMatrix
+// ---------------------------------------------------------------------------
+
+export interface ReviewRegressionMatrixInput {
+  probeId: string;
+  relationId?: string;
+  spikeId?: string;
+  status: 'accepted' | 'gap' | 'blocked';
+  notes: string;
+}
+
+export function reviewRegressionMatrix(
+  projectRoot: string,
+  input: ReviewRegressionMatrixInput,
+): EvidenceArtifact<RegressionMatrixReviewPayload> {
+  const probe = readArtifact<ReproProbePayload>(projectRoot, input.probeId);
+
+  const payload: RegressionMatrixReviewPayload = {
+    candidateId: probe.payload.candidateId,
+    probeId: input.probeId,
+    status: input.status,
+    notes: input.notes,
+    ...(input.relationId ? { relationId: input.relationId } : {}),
+    ...(input.spikeId ? { spikeId: input.spikeId } : {}),
+  };
+
+  return writeArtifact(projectRoot, {
+    artifactKind: 'regression-matrix-review',
+    evidenceScope: CANDIDATE_SCOPE,
+    subjectBinding: { candidateId: probe.payload.candidateId, probeId: input.probeId },
+    payload,
+    producer: PRODUCER,
+  });
+}
+
+// ---------------------------------------------------------------------------
+// createStoryFromRepro
+// ---------------------------------------------------------------------------
+
+export interface CreateStoryFromReproInput {
+  probeId: string;
+  reviewId: string;
+  spikeId?: string;
+  matrixReviewId?: string;
+  storyTitle: string;
+  storyDescription: string;
+  derivedChecklistRefs?: string[];
+  derivedVerificationIntentRefs?: string[];
+}
+
+export interface CreateStoryFromReproResult {
+  storyId: string;
+  bindingArtifact: EvidenceArtifact<StoryEvidenceBindingPayload>;
+}
+
+export async function createStoryFromRepro(
+  projectRoot: string,
+  input: CreateStoryFromReproInput,
+  storyCreator: (args: {
+    title: string;
+    description: string;
+    name: string;
+    type: string;
+    priority: string;
+    checklist: Array<{ title: string; context?: string }>;
+  }) => Promise<string> | string,
+): Promise<CreateStoryFromReproResult> {
+  // Validate probe and review exist
+  const probe = readArtifact<ReproProbePayload>(projectRoot, input.probeId);
+  const review = readArtifact<ReproReviewPayload>(projectRoot, input.reviewId);
+
+  // Fail closed: review must not be rejected
+  if (review.payload.verdict === 'repro-rejected') {
+    throw new Error(`repro-intake: cannot create story from rejected repro review (verdict=repro-rejected, reviewId=${input.reviewId})`);
+  }
+
+  // Validate probe digest referenced in review matches
+  if (review.payload.probeId !== input.probeId) {
+    throw new Error(`repro-intake: review ${input.reviewId} references probe ${review.payload.probeId}, not ${input.probeId}`);
+  }
+
+  const spikeDigest = input.spikeId
+    ? readArtifact<SpikeRecordPayload>(projectRoot, input.spikeId).artifactDigest
+    : undefined;
+
+  // Create story via injected creator (calls story_create handler)
+  const storyId = await storyCreator({
+    title: input.storyTitle,
+    description: input.storyDescription,
+    name: probe.payload.candidateId,
+    type: 'feature',
+    priority: 'high',
+    checklist: [{ title: 'Implement fix for reproduced failure', context: `Probe: ${input.probeId}, Review: ${input.reviewId}` }],
+  });
+
+  // Write binding artifact — original candidate artifact remains evidence-candidate
+  const bindingPayload: StoryEvidenceBindingPayload = {
+    storyId,
+    candidateId: probe.payload.candidateId,
+    probeId: input.probeId,
+    probeDigest: probe.artifactDigest,
+    reviewId: input.reviewId,
+    reviewDigest: review.artifactDigest,
+    derivedChecklistRefs: input.derivedChecklistRefs ?? [],
+    derivedVerificationIntentRefs: input.derivedVerificationIntentRefs ?? [],
+    note: 'Candidate artifacts remain evidence-candidate; story is created but verificationEvidence is not set. Green evidence is produced later by DEV/TEST.',
+    ...(input.spikeId ? { spikeId: input.spikeId, spikeDigest } : {}),
+    ...(input.matrixReviewId ? { matrixReviewId: input.matrixReviewId } : {}),
+  };
+
+  const bindingArtifact = writeArtifact(projectRoot, {
+    artifactKind: 'story-evidence-binding',
+    evidenceScope: CANDIDATE_SCOPE,
+    subjectBinding: { candidateId: probe.payload.candidateId, probeId: input.probeId, storyId },
+    payload: bindingPayload,
+    producer: PRODUCER,
+  });
+
+  return { storyId, bindingArtifact };
+}

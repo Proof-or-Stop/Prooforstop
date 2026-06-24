@@ -1,0 +1,150 @@
+/**
+ * Evidence artifact types — candidate-only evidence platform primitives.
+ *
+ * B-0aa1: Repro-first candidate-only evidence intake MVP.
+ *
+ * These types define the immutable artifact envelope plus typed payloads for
+ * candidate (pre-story) repro evidence. Candidate artifacts use evidenceScope
+ * "evidence-candidate" and are NOT production/DONE evidence. They cannot satisfy
+ * REVIEW, TEST, DONE, Authority, or production-gate claims.
+ */
+
+export const EVIDENCE_SCHEMA_VERSION = 'lattice.evidence.v1' as const;
+export type EvidenceSchemaVersion = typeof EVIDENCE_SCHEMA_VERSION;
+
+/** Candidate-only scope — pre-story artifacts that cannot satisfy production gates. */
+export type EvidenceScope = 'evidence-candidate';
+
+/** Artifact kinds for the repro-first workflow. */
+export type ArtifactKind =
+  | 'repro-probe'
+  | 'repro-review'
+  | 'spike-record'
+  | 'spike-review'
+  | 'red-green-relation'
+  | 'red-green-evaluation'
+  | 'regression-matrix-review'
+  | 'story-evidence-binding';
+
+/** Subject binding identifies what this artifact is about. */
+export interface SubjectBinding {
+  candidateId: string;
+  storyId?: string;
+  probeId?: string;
+  spikeId?: string;
+  relationId?: string;
+}
+
+/** Immutable artifact envelope — wraps any typed payload. */
+export interface EvidenceArtifact<TPayload = unknown> {
+  artifactId: string;
+  artifactKind: ArtifactKind;
+  schemaVersion: EvidenceSchemaVersion;
+  createdAt: string;
+  producer: string;
+  evidenceScope: EvidenceScope;
+  subjectBinding: SubjectBinding;
+  payload: TPayload;
+  artifactDigest: string;
+}
+
+// ---------------------------------------------------------------------------
+// Payload types
+// ---------------------------------------------------------------------------
+
+export type ExecutionStatus = 'not_run' | 'run_attempted' | 'confirmed_failing';
+export type ReviewedFailureClass = 'target-bug' | 'bootstrap-noise' | 'environment-noise' | 'unknown';
+export type ReproVerdict = 'red-reviewed' | 'repro-rejected' | 'needs-spike';
+export type SpikeReviewVerdict = 'confirmed' | 'inconclusive' | 'rejected';
+
+export interface CommandSpec {
+  command: string;
+  args?: string[];
+  env?: Record<string, string>;
+  cwd?: string;
+}
+
+export interface ReproProbePayload {
+  candidateId: string;
+  taskSummary: string;
+  eligibility: string;
+  reason: string;
+  commandSpec: CommandSpec;
+  expectedFailure: string;
+  expectedFailurePattern: string;
+  executionStatus: ExecutionStatus;
+  observedFailureSummary: string;
+  boundedOutputExcerpt: string;
+  producerObservedClass: ReviewedFailureClass;
+  baselineHeadHash?: string;
+  materialHash?: string;
+}
+
+export interface ReproReviewPayload {
+  probeId: string;
+  probeDigest: string;
+  verdict: ReproVerdict;
+  reviewedFailureClass: ReviewedFailureClass;
+  notes: string;
+}
+
+export interface SpikeRecordPayload {
+  candidateId: string;
+  probeId: string;
+  probeDigest: string;
+  description: string;
+  steps: string[];
+  observations: string;
+  commandSpec?: CommandSpec;
+  expectedFailurePattern?: string;
+  executionStatus: ExecutionStatus;
+  observedOutput: string;
+}
+
+export interface SpikeReviewPayload {
+  spikeId: string;
+  spikeDigest: string;
+  verdict: SpikeReviewVerdict;
+  notes: string;
+}
+
+export interface RedGreenRelationPayload {
+  candidateId: string;
+  probeId: string;
+  baselineCommandSpec: CommandSpec;
+  baselineExpectedFailurePattern: string;
+  currentCommandSpec: CommandSpec;
+  currentExpectedFailurePattern: string;
+  description: string;
+}
+
+export interface RedGreenEvaluationPayload {
+  relationId: string;
+  relationDigest: string;
+  pass: boolean;
+  reasons: string[];
+}
+
+export interface RegressionMatrixReviewPayload {
+  candidateId: string;
+  probeId: string;
+  relationId?: string;
+  spikeId?: string;
+  status: 'accepted' | 'gap' | 'blocked';
+  notes: string;
+}
+
+export interface StoryEvidenceBindingPayload {
+  storyId: string;
+  candidateId: string;
+  probeId: string;
+  probeDigest: string;
+  reviewId: string;
+  reviewDigest: string;
+  spikeId?: string;
+  spikeDigest?: string;
+  matrixReviewId?: string;
+  derivedChecklistRefs: string[];
+  derivedVerificationIntentRefs: string[];
+  note: string;
+}

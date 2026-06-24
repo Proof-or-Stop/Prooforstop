@@ -87,6 +87,7 @@ import { createScopeContractHandlers } from './handlers/scope-contract.js';
 import { createGuardSessionHandlers } from './handlers/guard-session.js';
 import { createAuthorityEnforceHandlers } from './handlers/authority-enforce.js';
 import { createDevMemoryHandlers } from './handlers/dev-memory.js';
+import { createReproIntakeHandlers } from './handlers/repro-intake.js';
 import { createMemoryBenchmarkHandlers } from './handlers/memory-benchmark.js';
 import { createCapabilityListHandlers } from './handlers/capability-list.js';
 import { createAgentPromptHandlers } from './handlers/agent-prompt.js';
@@ -332,6 +333,10 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   // B-ad2c: dev_memory_* — lightweight experience capture outside Lattice story gates.
   // Non-authoritative: entries cannot satisfy Lattice DONE gate evidence.
   registry.registerBatch(createDevMemoryHandlers(ctx));
+
+  // B-0aa1: repro-first candidate-only evidence intake MVP.
+  // All commands produce evidence-candidate artifacts; not production/DONE evidence.
+  registry.registerBatch(createReproIntakeHandlers(ctx));
 
   // B-d4dd/B-2a63: deterministic virtual benchmark + real-data export baseline harnesses.
   registry.registerBatch(createMemoryBenchmarkHandlers(ctx));
