@@ -33,7 +33,7 @@ import {
 import { defaultAuditWriter, evaluateDirtyGate, type AuditWriter, type DirtyGateName, type EvaluateDirtyGateResult } from './dirty-gate-policy.js';
 import { readGitStatusLines, classifierOptionsForCheck } from './dirty-worktree-gate.js';
 import { checkEvidenceFreshnessForGit, currentMaterialHash } from './evidence-freshness.js';
-import { recomputeDeliveryCheckHash } from './delivery-check-hash.js';
+import { evaluateDeliveryCheckFreshness } from './delivery-check-hash.js';
 import {
   summarizeCodexEvidence,
   storyRequiresCodexEvidence,
@@ -568,26 +568,35 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
   } catch { /* ignore */ }
 
   // 6. delivery-check.json (hard gate, mirrors machine.canFinish / getGuardFailureReason)
-  const deliveryCheck = store.readDeliveryCheck(storyId);
+  const deliveryCheckFreshness = evaluateDeliveryCheckFreshness(storyId, store, gitCwd, root);
+  const deliveryCheck = deliveryCheckFreshness.deliveryCheck;
   if (!deliveryCheck) {
     rows.push(doneCheckRow({
       id: 'delivery-check',
       status: 'fail',
       label: 'delivery-check',
-      detail: 'Missing delivery-check.json (requires lattice-review-delivery reviewer signature)',
+      detail: deliveryCheckFreshness.reason,
       hint: 'Run the lattice-review-delivery reviewer and use delivery_check_set to write the signed artifact. Fallback is compliant only with lattice-review-delivery provenance / agentId=lattice-review-delivery; the main agent must not self-sign.',
       source: 'delivery-check.json',
     }));
   } else {
-    const expectedHash = recomputeDeliveryCheckHash(storyId, store);
-    if (expectedHash === null || deliveryCheck._hash !== expectedHash) {
+    if (deliveryCheckFreshness.code === 'delivery_check_tampered') {
       rows.push(doneCheckRow({
         id: 'delivery-check',
         status: 'fail',
         label: 'delivery-check',
-        detail: 'delivery-check.json _hash mismatch',
+        detail: deliveryCheckFreshness.reason,
         hint: 'Re-run the lattice-review-delivery reviewer to generate a new delivery-check.json',
         source: 'delivery-check.json._hash',
+      }));
+    } else if (deliveryCheckFreshness.code === 'stale_delivery_check') {
+      rows.push(doneCheckRow({
+        id: 'delivery-check',
+        status: 'fail',
+        label: 'delivery-check',
+        detail: deliveryCheckFreshness.reason,
+        hint: 'Re-run the lattice-review-delivery reviewer to generate a new delivery-check.json bound to the current materialHash',
+        source: 'delivery-check.json.materialHash',
       }));
     } else {
       const unverified = deliveryCheck.docsPromises.filter(

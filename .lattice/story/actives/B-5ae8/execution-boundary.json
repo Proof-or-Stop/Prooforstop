@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-5ae8",
+  "allowedCommands": [
+    "git *",
+    "node --check experiments/injection-probes/live-loop-harness.mjs",
+    "node bin/lattice.js *",
+    "node experiments/injection-probes/live-loop-harness.mjs --self-check"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "CHANGELOG.md",
+    "experiments/injection-probes/live-loop-harness.mjs"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek-operator",
+  "confirmationNote": "One-line correctness fix: B4.truncatedContext '' -> non-empty token-less marker. Verify via hermetic --self-check (0 spend).",
+  "createdAt": "2026-06-24T00:04:09.949Z",
+  "updatedAt": "2026-06-24T00:04:09.949Z",
+  "_hash": "ecbecd0496cf15dbaf8ca96eddf12d58d51ed5ba51788d14416dd7a0c0ea76a3"
+}

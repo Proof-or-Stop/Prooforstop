@@ -1,0 +1,32 @@
+{
+  "task": "Force delivery-check evidence stale when the reviewed material changes after the delivery reviewer signs.",
+  "outcome": "When a user runs lattice session_brief before DONE after changing source material post-delivery-check, the DONE pre-check shows delivery-check as stale and tells them to rerun lattice-review-delivery instead of showing delivery-check PASS.",
+  "facts": [
+    "Baseline item 5 says delivery-check can remain visible after the material head it reviewed has changed.",
+    "delivery_check_set currently signs docsPromises, realMachineTests, closingSelfCheck, and reviewRound, but not the material binding.",
+    "DONE oracle and machine guard currently verify the delivery-check hash and docsPromises but do not compare delivery-check materialHash to current materialHash.",
+    "Existing done-required validation treats materialHash as the hard freshness binding and headHash as audit-only when material/story hashes still match.",
+    "Process-fact registry coverage is artifact/provenance level: delivery-check.json remains L4 gate evidence produced by delivery_check_set; field-level binding belongs in DeliveryCheckData, the integrity hash, and focused smoke coverage.",
+    "Older delivery-check files without materialHash must fail closed as stale for DONE evidence; this is a correctness change, not a compatibility-preserving optimization."
+  ],
+  "constraints": [
+    "Do not change delivery reviewer role ownership or allow main-agent self-signing.",
+    "Do not weaken validation, review, summary, done_prepare, or delivery-check gates.",
+    "Do not treat metadata-only head drift as a reason to rerun delivery review when materialHash is unchanged.",
+    "Do not edit the immutable baseline v1 artifact; write a derived story-specific result artifact.",
+    "Do not broaden into DONE summary freshness; that is baseline item 6."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/types.ts",
+    "packages/main/src/core/delivery-check-hash.ts",
+    "packages/main/src/handlers/delivery-check.ts",
+    "packages/main/src/core/done-oracle.ts",
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/core/lifecycle-readiness.ts",
+    "packages/main/src/tasks/delivery-check-freshness-smoke.ts",
+    "lattice.config.json",
+    "experiments/baselines/lattice-workflow-efficiency-baseline-v1-B-d321-delivery-check-freshness-result.json"
+  ],
+  "timestamp": "2026-06-23T12:28:06.308Z"
+}

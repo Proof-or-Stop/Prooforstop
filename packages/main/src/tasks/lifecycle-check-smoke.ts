@@ -162,13 +162,17 @@ async function createDoneReadyFixture(): Promise<{ root: string; store: StorySto
       }],
     }],
   });
+  const headHash = currentGitHead(root);
+  const materialHash = currentMaterialHash(root, 'HEAD', root);
+  assert.ok(headHash, 'fixture git HEAD is available for delivery-check freshness');
+  assert.ok(materialHash, 'fixture material hash is available for delivery-check freshness');
   store.writeTestEvidence(STORY_ID, {
     command: 'lifecycle-check-ready-smoke',
     output: JSON.stringify({ allPass: true, summary: 'lifecycle check ready smoke passed' }),
     result: 'PASS',
     timestamp: now,
-    headHash: currentGitHead(root),
-    materialHash: currentMaterialHash(root, 'HEAD', root),
+    headHash,
+    materialHash,
     storyFilesHash: currentStoryFilesHash(root, 'HEAD', root),
     verificationCoverage: {
       total: 1,
@@ -193,12 +197,14 @@ async function createDoneReadyFixture(): Promise<{ root: string; store: StorySto
   store.writeDeliveryCheck(STORY_ID, {
     storyId: STORY_ID,
     checkedAt: now,
+    headHash,
+    materialHash,
     reviewRound: '',
     agentId: 'lattice-review-delivery',
     docsPromises,
     realMachineTests,
     closingSelfCheck,
-    _hash: signDeliveryCheck(STORY_ID, docsPromises, realMachineTests, closingSelfCheck, ''),
+    _hash: signDeliveryCheck(STORY_ID, docsPromises, realMachineTests, closingSelfCheck, '', materialHash),
   });
   store.writeSummary(STORY_ID, {
     storyId: STORY_ID,

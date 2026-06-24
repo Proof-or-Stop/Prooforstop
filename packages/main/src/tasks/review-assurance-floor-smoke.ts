@@ -6,7 +6,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { signDeliveryCheck } from '../core/delivery-check-hash.js';
-import { currentMaterialHash } from '../core/evidence-freshness.js';
+import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
 import {
   canFinishGuard,
   getGuardFailureReason,
@@ -174,7 +174,7 @@ function fallback(materialHash: string, overrides: Partial<ProcessEvent> = {}): 
   };
 }
 
-function deliveryCheck(storyId: string, reviewRound = REVIEW_ROUND) {
+function deliveryCheck(storyId: string, headHash: string, materialHash: string, reviewRound = REVIEW_ROUND) {
   const docsPromises: [] = [];
   const realMachineTests: [] = [];
   const closingSelfCheck = {
@@ -186,22 +186,24 @@ function deliveryCheck(storyId: string, reviewRound = REVIEW_ROUND) {
   return {
     storyId,
     checkedAt: '2026-06-19T12:00:00.000Z',
+    headHash,
+    materialHash,
     reviewRound,
     agentId: 'lattice-review-delivery',
     docsPromises,
     realMachineTests,
     closingSelfCheck,
-    _hash: signDeliveryCheck(storyId, docsPromises, realMachineTests, closingSelfCheck, reviewRound),
+    _hash: signDeliveryCheck(storyId, docsPromises, realMachineTests, closingSelfCheck, reviewRound, materialHash),
   };
 }
 
-function fakeDoneStore(metadataRoot: string, materialHash: string) {
+function fakeDoneStore(metadataRoot: string, headHash: string, materialHash: string) {
   const smokeStory = story({
     currentReviewRound: REVIEW_ROUND,
     riskSignals: [],
     worktree: undefined,
   });
-  const signedDeliveryCheck = deliveryCheck(STORY_ID);
+  const signedDeliveryCheck = deliveryCheck(STORY_ID, headHash, materialHash);
   return {
     readTestEvidence: () => ({ result: 'PASS', output: 'smoke validation passed' }),
     readBugs: () => ({ bugs: [] }),
@@ -445,9 +447,11 @@ try {
   check('wrapper-root machine DONE guard uses resolved gitCwd', () => {
     const wrapper = makeWrapperRepo();
     try {
+      const wrapperHeadHash = currentGitHead(wrapper.gitRoot);
       const wrapperMaterialHash = currentMaterialHash(wrapper.gitRoot);
+      assert.ok(wrapperHeadHash, 'wrapper gitRoot must have a git HEAD');
       assert.ok(wrapperMaterialHash, 'wrapper gitRoot must have a material hash');
-      const store = fakeDoneStore(wrapper.metadataRoot, wrapperMaterialHash);
+      const store = fakeDoneStore(wrapper.metadataRoot, wrapperHeadHash, wrapperMaterialHash);
       const context: StoryMachineContext = {
         storyId: STORY_ID,
         store: store as any,

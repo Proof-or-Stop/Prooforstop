@@ -17,6 +17,8 @@ import type { HandlerContext } from './context.js';
 import type { DeliveryCheckData, DocsPromise, RealMachineTest, ClosingSelfCheck } from '../core/types.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 import { signDeliveryCheck } from '../core/delivery-check-hash.js';
+import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
+import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 
 // Signature primitives live in core/delivery-check-hash.ts (single source of
 // truth) so core consumers can verify the hash without a core→handlers import.
@@ -63,9 +65,13 @@ export function createDeliveryCheckHandlers(ctx: HandlerContext): Record<string,
         data.realMachineTests,
         data.closingSelfCheck,
         data.reviewRound,
+        data.materialHash,
       );
       if (data._hash !== currentExpected) {
         throw new Error('delivery-check.json _hash is invalid (file may have been tampered with), please re-run the lattice-review-delivery reviewer');
+      }
+      if (!data.materialHash) {
+        throw new Error('delivery-check.json is missing materialHash binding, please re-run the lattice-review-delivery reviewer');
       }
 
       // 4) Set waiverReason
@@ -79,6 +85,7 @@ export function createDeliveryCheckHandlers(ctx: HandlerContext): Record<string,
         data.realMachineTests,
         data.closingSelfCheck,
         data.reviewRound,
+        data.materialHash,
       );
 
       // 6) Write back
@@ -134,19 +141,37 @@ export function createDeliveryCheckHandlers(ctx: HandlerContext): Record<string,
         }
       }
 
-      // 3) compute signature
+      // 3) compute current material binding and signature
+      const gitCwd = resolveGitCwd({
+        store,
+        storyId: args.storyId,
+        metadataRoot: root,
+        projectRoot: root,
+      });
+      const headHash = currentGitHead(gitCwd);
+      if (!headHash) {
+        throw new Error('delivery_check_set: unable to compute current headHash for audit metadata');
+      }
+      const materialHash = currentMaterialHash(gitCwd, 'HEAD', root);
+      if (!materialHash) {
+        throw new Error('delivery_check_set: unable to compute current materialHash for freshness binding');
+      }
+
       const _hash = signDeliveryCheck(
         args.storyId,
         docsPromises,
         realMachineTests,
         closingSelfCheck,
         reviewRound,
+        materialHash,
       );
 
       // 4) construct DeliveryCheckData and persist to disk
       const data: DeliveryCheckData = {
         storyId: args.storyId,
         checkedAt: new Date().toISOString(),
+        headHash,
+        materialHash,
         reviewRound,
         agentId: args.agentId ?? '',
         docsPromises,
