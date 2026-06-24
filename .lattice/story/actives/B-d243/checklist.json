@@ -138,7 +138,47 @@
       "context": "packages/main/src/tasks/delivery-check-freshness-smoke.ts: HEAD ahead of main so currentStoryFilesHash is non-empty; cases for non-story whole-tree drift -> advisory pass, story-owned change -> stale reject, forged storyFilesHash -> tampered, legacy missing storyFilesHash -> strict stale. Reference /tmp/friction1-cfresh-fix/redgreen-spike-test.ts.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Smoke fixture puts HEAD ahead of main (story-branch topology) -> currentStoryFilesHash is non-empty; non-story whole-tree drift case -> advisory pass; smoke asserts the LITERAL advisory text on the passing DONE row detail (not just the code path); WHY: the product-reviewer recommendation -- assert the actual user-visible advisory wording, not just ok:true",
+            "type": "cli"
+          },
+          {
+            "desc": "Story-owned change case -> stale reject; smoke asserts the DONE row status=fail with stale detail; WHY: story-owned drift must be a pinned rejection",
+            "type": "cli"
+          },
+          {
+            "desc": "Forged storyFilesHash case -> tampered (_hash breaks); smoke asserts the DONE row status=fail with tampered detail; WHY: forgery detection is pinned",
+            "type": "cli"
+          },
+          {
+            "desc": "Legacy missing storyFilesHash case -> strict stale; smoke asserts the DONE row status=fail; WHY: legacy records must stay strict",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "node packages/main/dist/tasks/delivery-check-freshness-smoke.js exits 0 AND npm test (root) is green -> no regressions from the re-fixturing; WHY: the smoke rewrite must not break other smokes",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke cases are isolated from each other (each case sets up its own fixture state, not shared mutable state) -> case ordering does not affect results; WHY: flaky ordering-dependent tests are a known failure mode",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Smoke drift-advisory case asserts the hash is NOT rebound after the advisory pass -> the stored materialHash in the delivery-check record is still the OLD value; WHY: rebinding would silently accept the drift and break future staleness detection",
+            "type": "cli"
+          },
+          {
+            "desc": "An attacker adds a 5th case to the smoke that always passes regardless of input (vacuous test) -> code review catches it because each case must assert a SPECIFIC code/status/detail triple, not just exit 0; WHY: vacuous tests undermine the smoke suite",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
