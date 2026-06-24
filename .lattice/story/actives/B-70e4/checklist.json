@@ -381,6 +381,17 @@
           "materialHash": "96adaa007e8f7ddafa1d445c9f905d262eb90f4da087c701fec35f3474287e79",
           "storyFilesHash": "3bb033bf48d472daad32daea22503c5bbbef2c03c79374e5fe0665781999041e",
           "timestamp": "2026-06-24T01:21:07.463Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:1",
+          "kind": "logic_test",
+          "command": "npm run --prefix packages/main test:authority-receipt-proof-auth",
+          "result": "pass",
+          "note": "RED/GREEN reasoning: The CHK-002 fix (authority-enforce.ts:206-207) passes resolveAuthorityClientAuth(process.env) as the 4th arg to AuthorityClient in loadProof. If reverted to the old 3-arg constructor, loadProof creates AuthorityClient without auth. Then even with authenticated:true (CHK-001 fix), get() at authority-client.ts:677 finds this.auth.customerApiKey undefined and returns fail-closed error at line 678-683. The smoke test at authority-receipt-proof-auth-smoke.ts directly demonstrates both code paths: line 32 (with auth, passes) and line 49 (without auth, fails closed). Any test exercising loadProof through the real handler would fail without CHK-002.",
+          "headHash": "6b5da4647c857b4b3938517bae99aa02603deb57",
+          "materialHash": "96adaa007e8f7ddafa1d445c9f905d262eb90f4da087c701fec35f3474287e79",
+          "storyFilesHash": "3bb033bf48d472daad32daea22503c5bbbef2c03c79374e5fe0665781999041e",
+          "timestamp": "2026-06-24T01:21:13.577Z"
         }
       ]
     }
