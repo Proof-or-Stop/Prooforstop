@@ -40,7 +40,7 @@ const GIT_EXEC_OPTS = {
 const DEFAULT_STORY_METADATA_PREFIXES = [
   `${LATTICE_STORY_DIR.replace(/\/actives$/, '')}/`,
   `${LEGACY_DOCS_STORY_DIR.replace(/\/actives$/, '')}/`,
-  'docs/koala/framework-audit/',
+  'docs/framework-audit/',
 ];
 
 export function isStoryMetadataPath(path: string, projectRoot?: string): boolean {

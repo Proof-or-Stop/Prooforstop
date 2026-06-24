@@ -1,0 +1,72 @@
+{
+  "principles": [
+    "Rename producers and consumers of each token atomically; delete legacy-detection rather than stub it.",
+    "Sign every gate in this story via the worktree binary so the new salt is used consistently.",
+    "No-compat: do not keep koala read-fallbacks for config/storage; old data is not migrated.",
+    "Keep tsc + suite green and the residue gate PASS at every step; never touch the deferred story-4 gate self-IDs."
+  ],
+  "drivers": [
+    "The salt rename invalidates in-flight signatures (user-accepted) — but THIS story's own gates must stay self-consistent via the worktree binary.",
+    "Shared main with an active concurrent host — a broken build/test would also block them.",
+    ".koala/ and config renames touch storage/config; under no-compat they are pure renames with no migration."
+  ],
+  "options": [
+    {
+      "name": "surgical-categorized-rename",
+      "pros": [
+        "Salt stays consistent via worktree binary",
+        "Each category (salt/detection/schema/config/storage) handled with its own risk in mind",
+        "Excludes the deferred gate self-IDs"
+      ],
+      "cons": [
+        "Large surface (~57 files); careful enumeration needed"
+      ]
+    },
+    {
+      "name": "blanket-sed-koala-to-lattice",
+      "pros": [
+        "Fast"
+      ],
+      "cons": [
+        "Would rewrite the deferred KOALA_RESIDUE_* gate self-IDs and .lattice/story history",
+        "No producer/consumer or storage/config reasoning",
+        "Could corrupt the salt-signing self-consistency"
+      ]
+    }
+  ],
+  "chosen": "surgical-categorized-rename",
+  "rationale": "A surgical, category-aware rename keeps the salt-signing self-consistent (worktree binary), preserves the deferred story-4 gate self-IDs, and handles the config/storage renames as deliberate no-compat moves, whereas a blanket sed would corrupt the deferred gate IDs and the salt consistency.",
+  "preMortem": [
+    {
+      "scenario": "The salt rename self-rejects this story's own gates",
+      "trigger": "a gate signature (init-check/review/delivery) is produced by the global lattice (main old-salt dist) instead of the worktree binary",
+      "consequence": "this story's stored _hash is old-salt and the worktree DONE gate rejects it as tampered",
+      "mitigation": "run EVERY lattice gate command for this story from the worktree (node <worktree>/bin/lattice.js); rebuild worktree dist after the salt edit before signing"
+    },
+    {
+      "scenario": "A blanket replace rewrites the deferred story-4 gate self-IDs or .lattice/story history",
+      "trigger": "sed on 'koala' without path/identifier exclusions",
+      "consequence": "KOALA_RESIDUE_* renamed (breaks the gate wiring) or audit history mutated",
+      "mitigation": "exclude handlers/review-preflight.ts KOALA_RESIDUE_*, scripts/verify-koala-residue.mjs, docs/, experiments/, .lattice/story; assert they are unchanged after"
+    },
+    {
+      "scenario": "Code still WRITES to .koala/ after the path rename, splitting runtime data",
+      "trigger": "a writer of .koala/activity.jsonl (or similar) is missed while readers are renamed",
+      "consequence": "telemetry/runtime data written to one path and read from another",
+      "mitigation": "grep for every .koala/ read AND write; point all to the lattice runtime dir; no .koala/ path literal remains in packages/*/src"
+    },
+    {
+      "scenario": "Renaming the idleKoala config field / koala.config.json breaks config loading",
+      "trigger": "a consumer reads the old field name or filename not updated with the producer",
+      "consequence": "the config setting silently defaults / a config file is not found",
+      "mitigation": "rename field+filename across every reader/writer together; tsc + the config/load smokes green; accept that pre-existing koala-named config is not read (no-compat)"
+    },
+    {
+      "scenario": "Deleting isKoalaSelfRepoBootstrap removes a needed self-repo guard",
+      "trigger": "the function gates a real self-repo bootstrap path, not just legacy detection",
+      "consequence": "self-repo bootstrap misbehaves",
+      "mitigation": "inspect its callers; if it is genuine self-repo logic rename it (lattice), if it is purely legacy-koala detection delete it; covered by the bootstrap smokes"
+    }
+  ],
+  "timestamp": "2026-06-23T19:11:04.838Z"
+}

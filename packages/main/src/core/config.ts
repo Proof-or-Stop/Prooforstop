@@ -121,7 +121,7 @@ export interface LatticeConfig {
     /** checklist item 卡 in_progress 多久算遗忘（默认 30） */
     itemStale?: number;
     /** 距离上次任意 lattice 命令多久算 idle（默认 60） */
-    idleKoala?: number;
+    idleLattice?: number;
     /** open bug 多久没修算超期（默认 1440=24h） */
     bugStale?: number;
   };

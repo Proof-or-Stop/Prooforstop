@@ -379,7 +379,7 @@ const LEASE_DEFAULT_RENEWAL_MS = 120_000;
 const LEASE_DEFAULT_GRACE_MS = 30_000;
 
 // The executor must never edit story/fixture JSON directly (Non-Goals + §B2).
-const FORBIDDEN_WORKTREE_GLOBS = ['.koala/story/**', '.lattice/story/**', 'docs/story/**', '**/tests/fixtures/**'] as const;
+const FORBIDDEN_WORKTREE_GLOBS = ['.lattice/story/**', 'docs/story/**', '**/tests/fixtures/**'] as const;
 
 const REQUIRED_EVIDENCE_KINDS = ['run_record', 'provider_event', 'command_event', 'validation_evidence', 'git_evidence', 'gate_request', 'stop_summary'] as const;
 

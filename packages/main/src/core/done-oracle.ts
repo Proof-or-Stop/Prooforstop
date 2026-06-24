@@ -789,13 +789,24 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
       storyId,
       store,
     });
+    const floorBaseDetail = floor.required
+      ? `${floor.assuranceLevel}; material code paths ${floor.materialCodePaths.length}; local rounds ${floor.localRounds.validRounds.length}/${floor.localRounds.requiredRounds}`
+      : `not required; material code paths ${floor.materialCodePaths.length}`;
+    // Surface re-attestation advisories on the PASS path, mirroring the
+    // escalation row above: when a host verdict is downgrade-accepted (whole-tree
+    // materialHash drifted but the story's storyFilesHash still matches),
+    // evaluateReviewAssuranceFloor keeps floor.ok true but records a mandatory
+    // re-attestation advisory. A passing row prints ONLY its detail, so append
+    // the advisories to the detail (and only when present) so whole-tree drift is
+    // operator-visible at DONE instead of silent.
+    const floorDetail = floor.ok && floor.advisories?.length
+      ? `${floorBaseDetail} — ${floor.advisories.join('; ')}`
+      : floorBaseDetail;
     rows.push(doneCheckRow({
       id: 'review-assurance-floor',
       status: floor.ok ? 'pass' : 'fail',
       label: 'Review assurance floor',
-      detail: floor.required
-        ? `${floor.assuranceLevel}; material code paths ${floor.materialCodePaths.length}; local rounds ${floor.localRounds.validRounds.length}/${floor.localRounds.requiredRounds}`
-        : `not required; material code paths ${floor.materialCodePaths.length}`,
+      detail: floorDetail,
       hint: floor.ok ? 'review assurance floor satisfied or not required' : formatReviewAssuranceFloorFailure(floor),
       source: 'git diff main...HEAD + process-events.jsonl:host_verdict',
       blocking: floor.required && !floor.ok,

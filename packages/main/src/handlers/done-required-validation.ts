@@ -6,6 +6,7 @@ import {
   resolveDoneRequiredPolicy,
   runDoneRequiredValidation,
 } from '../core/done-required-validation.js';
+import { withValidationExecutionLock } from '../core/validation-execution-lock.js';
 
 export function createDoneRequiredValidationHandlers(ctx: HandlerContext): Record<string, (...args: any[]) => any> {
   return {
@@ -29,12 +30,17 @@ export function createDoneRequiredValidationHandlers(ctx: HandlerContext): Recor
       }
 
       const gitCwd = resolveGitCwd({ store: ctx.store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
-      const evidence = await runDoneRequiredValidation({
+      const evidence = await withValidationExecutionLock({
+        root: ctx.root,
+        storyId,
+        workspaceRoot: gitCwd,
+        command: 'done_required_validate',
+      }, () => runDoneRequiredValidation({
         projectRoot: ctx.root,
         storyId,
         store: ctx.store,
         gitCwd,
-      });
+      }));
       if (args.json) return JSON.stringify(evidence);
       return renderDoneRequiredEvidence(evidence);
     },

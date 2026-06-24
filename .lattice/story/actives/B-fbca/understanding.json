@@ -1,0 +1,38 @@
+{
+  "task": "Drive packages/*/src to zero koala (except the residue-gate self-IDs): rename all koala-* signature salts to lattice-*, delete the legacy-koala detection, and rename the koala schema-ids, config fields/filenames, and .koala/ runtime-path references to lattice equivalents.",
+  "outcome": "After this story a maintainer running `git grep -i koala -- 'packages/*/src/**'` sees ONLY the residue-gate self-identifiers KOALA_RESIDUE_* in handlers/review-preflight.ts (deferred to story 4); every other koala token in packages/*/src is gone or renamed to lattice. `npx tsc --noEmit` exits 0, the packages/main suite is green, and `node scripts/verify-koala-residue.mjs` still prints PASS.",
+  "facts": [
+    "packages/*/src has ~311 koala hits / 71 files: A=8 signature salts (14), B=legacy-detection (~40: bin/koala*.js + .codex/koala.json denylist, @koala-agent old-install handling, isKoalaSelfRepoBootstrap), C=4 schema ids (koala.capability_probe/list.v1, koala.evidence_manifest/inspect.v1), D=config (idleKoala field, koala.config.json filename, koalaConfig ~22), E=.koala/ runtime paths (~21), F=residue-gate self KOALA_RESIDUE_* (~21, story 4), plus ~177 stray comments/strings.",
+    "Renaming a signature salt VALUE invalidates every _hash signed with the old salt; in-flight stories will report tampered on their next gate and must re-run init-check/review/delivery (user-accepted collateral).",
+    "Per B-3f13, this story's OWN gate signatures must be produced by the WORKTREE binary (new salt); signing via the global lattice (main's old-salt dist) would self-reject as tampered.",
+    "Under the user's no-compat directive, old koala-named config (koala.config.json, idleKoala) and .koala/ runtime data are NOT migrated — OSS users start fresh."
+  ],
+  "constraints": [
+    "Change producers and consumers of each renamed token atomically; no half-rename.",
+    "Sign every gate in this story via the worktree binary (new salt).",
+    "Do NOT touch the residue-gate self-IDs (KOALA_RESIDUE_* in review-preflight.ts + scripts/verify-koala-residue.mjs = story 4), docs/experiments (story 4), or .lattice/story history.",
+    "Keep tsc + the packages/main suite green and the residue gate PASS."
+  ],
+  "unknowns": [
+    "Whether isKoalaSelfRepoBootstrap is load-bearing self-repo detection that must be preserved (renamed) rather than deleted.",
+    "Whether any code still WRITES to .koala/ (vs only reads) — a write would split runtime data after the path rename.",
+    "Whether the 4 koala.* schema ids are validated against any persisted data (if so, renaming orphans old records — but wave/capability/evidence schemas are ephemeral projections per B-2e91)."
+  ],
+  "touchpoints": [
+    "packages/main/src/core/guard-utils.ts",
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/reviewer-status.ts",
+    "packages/main/src/handlers/story-review.ts",
+    "packages/main/src/core/canonical-story.ts",
+    "packages/main/src/core/finding-verify.ts",
+    "packages/main/src/core/review-run.ts",
+    "packages/main/src/core/review-scope-binding.ts",
+    "packages/main/src/handlers/scope-check.ts",
+    "packages/main/src/core/managed-assets.ts",
+    "packages/main/src/core/capabilities.ts",
+    "packages/main/src/core/lattice-evidence.ts",
+    "packages/main/src/tasks/*-smoke.ts"
+  ],
+  "timestamp": "2026-06-23T19:10:26.984Z"
+}

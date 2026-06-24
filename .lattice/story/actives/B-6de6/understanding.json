@@ -1,0 +1,35 @@
+{
+  "task": "The review-assurance floor counts fresh local PASS rounds keyed only on the whole-tree materialHash, so an unrelated main merge that drifts that hash makes a story's just-submitted quorum verdicts read as stale (0 fresh rounds), forcing a full re-bind; make the floor honor storyFilesHash as a secondary downgrade-accept exactly as the escalation path already does.",
+  "outcome": "After an unrelated main merge drifts the whole-tree materialHash (story-owned files unchanged), the review-assurance floor evaluation reports the story's previously-submitted local PASS rounds as STILL VALID (count unchanged, ok=true) carrying a re-attestation advisory such as 'host verdict <id>: materialDigest drift accepted because storyFilesHash matches; re-attestation advisory required', instead of reporting 'review assurance floor requires N fresh local PASS round(s) ... found 0' and forcing a full quorum re-bind. A genuine story-owned-file change (storyFilesHash differs) still reports the rounds as stale (found 0), and the advisory is surfaced, not swallowed.",
+  "facts": [
+    "The floor (packages/main/src/core/review-assurance-floor.ts) computes fresh local PASS rounds via evaluateHostVerdictRounds(readEvents,materialHash,hosts) at lines 501 and 509, keyed only on the whole-tree currentMaterialHash computed at line 439.",
+    "evaluateHostVerdictRounds is defined in packages/main/src/core/host-independence.ts:127; at line 154 it marks any host_verdict whose materialDigest != currentMaterialHash as materialDigest-is-stale and routes it to ignoredVerdicts, so a stale verdict never reaches the per-runId duplicate-host-identity check at line 192.",
+    "The escalation path (review-escalation.ts:431 evaluateReviewEscalation) ALREADY solves this: at lines 446-448 it pre-transforms events via eventsWithStoryFilesHashDowngrade(events,materialHash,storyFilesHash,advisories) (defined review-escalation.ts:408) BEFORE calling evaluateHostVerdictRounds, and passes storyFilesHash to its 3-arg latestFallbackRecord. The floor never applies that transform and uses a 2-arg latestFallbackRecord.",
+    "eventsWithStoryFilesHashDowngrade rewrites a stale host_verdict materialDigest to the current materialHash ONLY when its stored storyFilesHash === currentStoryFilesHash, pushing a re-attestation advisory; verdicts with no/differing storyFilesHash are left untouched (still stale).",
+    "currentStoryFilesHash(gitCwd,HEAD,metadataRoot) exists at evidence-freshness.ts:199 and is already used by escalation; host_verdict events and verdict records carry storyFilesHash (verdicts.ts:54/137/250; types.ts host_verdict event).",
+    "The floor already imports from ./review-escalation.js (lines 8-11) and ./evidence-freshness.js (line 2); evaluateHostVerdictRounds is shared by floor and escalation, so modifying it would change both paths.",
+    "Because stale-by-material verdicts are routed to ignoredVerdicts before the duplicate-identity check, truly-stale verdicts (stale by BOTH materialHash and storyFilesHash, hence not downgraded) are ALREADY excluded from the duplicate-identity check by construction; checklist item 2 is satisfied without altering evaluateHostVerdictRounds.",
+    "scope_boundary_set and scope_freeze_check are INIT-only (allowedPhases=[INIT]); scope cannot be amended from PLAN without bouncing to INIT."
+  ],
+  "constraints": [
+    "All code changes go through this Lattice story workflow; B-6de6 story artifacts must be in English.",
+    "Whole-tree materialHash stays the PRIMARY freshness key; storyFilesHash is strictly a SECONDARY downgrade-accept (valid-with-advisory), per the scope-boundary excluded list.",
+    "Append-only event log preserved: filter/transform at evaluation time only; never mutate or replace stored verdict events.",
+    "Anti-gaming: a real story-owned-file change (storyFilesHash differs) MUST still stale the floor rounds; the re-attestation advisory must be surfaced, not swallowed (consistent with B-edf1).",
+    "Execution boundary allows package.json, packages/main/src/core, packages/main/src/tasks; excludes .lattice, experiments, claude -p, git push.",
+    "The floor freshness decision must AGREE with the escalation path for the same verdict, so reuse the canonical eventsWithStoryFilesHashDowngrade helper rather than writing a second implementation."
+  ],
+  "unknowns": [
+    "Whether to surface the re-attestation advisories as a new ReviewAssuranceFloorReport.advisories field (mirroring ReviewEscalationReport.advisories) or fold them into reasons; decide in DEV from how the DONE gate / CLI renders the floor result.",
+    "Whether the floor degraded single-host fallback path (fallbackRecordFromEvent line 596, latestFallbackRecord line 615) also needs the storyFilesHash downgrade for its materialHash check to match escalations 3-arg latestFallbackRecord, confirmed by whether the high-risk degraded path is reachable in the floor.",
+    "Whether reusing eventsWithStoryFilesHashDowngrade requires only adding export to it in review-escalation.ts given the floor already depends on that module."
+  ],
+  "touchpoints": [
+    "packages/main/src/core/review-assurance-floor.ts: compute storyFilesHash via currentStoryFilesHash; build effectiveEvents via the shared downgrade once; pass to both evaluateHostVerdictRounds calls (501/509) and the fallback record; surface advisories in the report; honor storyFilesHash in fallbackRecordFromEvent (596) + latestFallbackRecord.",
+    "packages/main/src/core/review-escalation.ts: add export to eventsWithStoryFilesHashDowngrade so the floor reuses the canonical helper (one-word change; guarantees floor and escalation agree).",
+    "packages/main/src/core/evidence-freshness.ts: import the already-exported currentStoryFilesHash into the floor (no change to evidence-freshness itself expected).",
+    "packages/main/src/tasks/review-assurance-floor-storyfileshash-smoke.ts (new): offline contract test asserting (a) drift+storyFilesHash-match counts valid with advisory, (b) re-bind after a real change is not duplicate-poisoned, (c) real story-file change stales the rounds.",
+    "package.json: wire the new smoke into the npm test chain."
+  ],
+  "timestamp": "2026-06-23T23:49:45.565Z"
+}

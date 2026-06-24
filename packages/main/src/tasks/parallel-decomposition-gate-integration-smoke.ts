@@ -43,7 +43,7 @@ function check(name: string, cond: boolean): void {
   console.log(`✓ ${name}`);
 }
 
-const REVIEW_SALT = 'koala-review-integrity-v1';
+const REVIEW_SALT = 'lattice-review-integrity-v1';
 const SELF_ID = 'B-self';
 const PEER_ID = 'B-peer';
 const NOW = '2026-06-19T12:00:00.000Z';

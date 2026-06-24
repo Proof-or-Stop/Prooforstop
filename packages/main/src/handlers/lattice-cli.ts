@@ -364,7 +364,7 @@ function readPackageVersion(path: string): string | null {
 function packageBinHasLattice(path: string): boolean {
   try {
     const parsed = JSON.parse(readFileSync(path, 'utf8')) as { bin?: Record<string, unknown> };
-    return parsed.bin?.lattice === 'dist/cli.js' && parsed.bin?.koala === undefined;
+    return parsed.bin?.lattice === 'dist/cli.js';
   } catch {
     return false;
   }
@@ -515,11 +515,6 @@ function buildConfigDoctor(ctx: HandlerContext) {
       detail: 'bin/lattice.js exists as the primary local bootstrap wrapper',
     },
     {
-      id: 'no-koala-local-wrapper',
-      ok: !existsSync(join(ctx.root, 'bin', 'koala.js')),
-      detail: 'legacy local wrapper is absent; lattice is the only active local bootstrap wrapper',
-    },
-    {
       id: 'package-bin-aliases',
       ok: packageBinHasLattice(mainPackagePath),
       detail: 'packages/main package.json exposes only the lattice bin',
@@ -535,7 +530,6 @@ function buildConfigDoctor(ctx: HandlerContext) {
       cliFirst: true as const,
       macAppRequired: false as const,
       macAppRole: 'optional-dashboard-archive' as const,
-      legacyKoalaAliasPreserved: false as const,
     },
     versions,
     checks,

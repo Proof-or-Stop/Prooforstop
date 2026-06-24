@@ -8,7 +8,7 @@
  * @description
  * Verifies that verify_codex keeps lattice mirror mode strict while accepting
  * registry-backed thin prompt assets without .lattice-codex/agents, and rejects
- * legacy-only Koala adapter assets as an active runtime path.
+ * legacy-only adapter assets as an active runtime path.
  * @changes
  * - [CHK-003] Cover lattice mirror, registry thin, registry drift, tampered registry hash,
  *   and legacy-only adapter rejection.
@@ -85,13 +85,13 @@ try {
 
 const legacyOnlyRoot = mkdtempSync(join(tmpdir(), 'lattice-codex-legacy-only-'));
 try {
-  writeText(legacyOnlyRoot, '.lattice-codex/koala.json', renderLatticeCodexAdapterManifest());
-  writeText(legacyOnlyRoot, 'bin/koala.js', renderLatticeBootstrapScript(packageRoot));
-  writeText(legacyOnlyRoot, 'bin/koala-codex.js', renderLatticeCodexWrapperScript());
+  writeText(legacyOnlyRoot, '.lattice-codex/legacy.json', renderLatticeCodexAdapterManifest());
+  writeText(legacyOnlyRoot, 'bin/legacy-bootstrap.js', renderLatticeBootstrapScript(packageRoot));
+  writeText(legacyOnlyRoot, 'bin/legacy-codex.js', renderLatticeCodexWrapperScript());
   seedCodexNativeHooks(legacyOnlyRoot);
   seedLegacyPrompts(legacyOnlyRoot);
   const legacyOnly = runCodexAdapterChecks(legacyOnlyRoot, { executeHeartbeats: false });
-  assert.equal(legacyOnly.ok, false, 'legacy-only koala adapter assets must not satisfy verify_codex');
+  assert.equal(legacyOnly.ok, false, 'legacy-only adapter assets must not satisfy verify_codex');
   assert.equal(checkById(legacyOnly, 'manifest').status, 'fail');
   assert.equal(checkById(legacyOnly, 'local-wrapper').status, 'fail');
 } finally {

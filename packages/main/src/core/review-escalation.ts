@@ -406,7 +406,7 @@ function evaluateVoluntaryLocalRounds(
   };
 }
 
-function eventsWithStoryFilesHashDowngrade(
+export function eventsWithStoryFilesHashDowngrade(
   events: ProcessEvent[],
   currentMaterialHash: string,
   currentStoryFilesHash: string | null,

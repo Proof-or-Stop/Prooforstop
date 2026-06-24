@@ -4,8 +4,8 @@
 
 import { createHash } from 'crypto';
 
-const FINDING_SALT = 'koala-finding-integrity-v1';
-const REVIEW_PASS_SALT = 'koala-review-pass-integrity-v1';
+const FINDING_SALT = 'lattice-finding-integrity-v1';
+const REVIEW_PASS_SALT = 'lattice-review-pass-integrity-v1';
 
 /** Sign a single finding to prevent main agent from faking reviewer findings */
 export function signFinding(

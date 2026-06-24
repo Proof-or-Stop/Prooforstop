@@ -64,9 +64,9 @@ const INITIAL_STATE: AuditState = {
 /**
  * Location of state.json relative to projectRoot.
  * Mutable trigger state lives under ignored `.lattice/runtime/`, deliberately
- * not the legacy `.koala/framework-audit/state.json` path. Some repos tracked
- * that old path before `.koala/` became runtime-only, so writing there made
- * read/status verification appear dirty.
+ * not under a tracked path. Some repos previously tracked a legacy runtime
+ * state path, so writing there made read/status verification appear dirty;
+ * the runtime-only `.lattice/runtime/` location avoids that.
  * Single source of truth: touchAuditState in audit.ts also imports this function to avoid double-hardcoding the path.
  */
 export function stateFilePath(projectRoot: string): string {

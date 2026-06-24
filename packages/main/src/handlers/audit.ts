@@ -11,7 +11,7 @@
  *   3. ensureMetaStory (idempotent) + beginRound (next round)
  *   4. Run scanner → upsertDrift (new / still-drifting)
  *   5. autoResolveMissing (not seen this round → resolved-by-nature)
- *   6. Generate report.md to docs/koala/framework-audit/YYYY-MM-DD/report.md (legacy runtime output path)
+ *   6. Generate report.md to docs/framework-audit/YYYY-MM-DD/report.md (runtime output path)
  *   7. touchAuditState: only update state.json's lastAuditAt (other fields managed by CHK-003)
  *   8. Print summary line
  *
@@ -101,8 +101,6 @@ export function createAuditHandlers(ctx: HandlerContext): AuditHandlers {
       // 1. Locate the two CLAUDE.md entries (hardcoded, not extensible)
       const mdEntries = [
         join(root, 'CLAUDE.md'),
-        // legacy self-hosting layout path the scanner still reads if present
-        join(root, 'packages', 'koala', 'CLAUDE.md'),
       ].filter(p => existsSync(p));
 
       if (mdEntries.length === 0) {
@@ -224,7 +222,7 @@ interface ReportInputs {
 
 function writeReport(inp: ReportInputs): string {
   const dateStr = localDateIsoDay();
-  const dir = join(inp.root, 'docs', 'koala', 'framework-audit', dateStr);
+  const dir = join(inp.root, 'docs', 'framework-audit', dateStr);
   mkdirSync(dir, { recursive: true });
   const out = join(dir, 'report.md');
 

@@ -23,7 +23,7 @@ export interface StaleThresholds {
   /** How long a checklist item can stay in_progress before it is treated as forgotten, in minutes. */
   itemStale: number;
   /** How long since the last lattice command counts as idle, in minutes. */
-  idleKoala: number;
+  idleLattice: number;
   /** How long an open bug can remain unfixed before it is overdue, in minutes. Default: 24h = 1440. */
   bugStale: number;
 }
@@ -31,7 +31,7 @@ export interface StaleThresholds {
 export const DEFAULT_STALE_THRESHOLDS: StaleThresholds = {
   phaseStale: 30,
   itemStale: 30,
-  idleKoala: 60,
+  idleLattice: 60,
   bugStale: 1440,
 };
 
@@ -52,7 +52,7 @@ function resolveThresholds(root: string): StaleThresholds {
     return {
       phaseStale: typeof u.phaseStale === 'number' && u.phaseStale > 0 ? u.phaseStale : DEFAULT_STALE_THRESHOLDS.phaseStale,
       itemStale: typeof u.itemStale === 'number' && u.itemStale > 0 ? u.itemStale : DEFAULT_STALE_THRESHOLDS.itemStale,
-      idleKoala: typeof u.idleKoala === 'number' && u.idleKoala > 0 ? u.idleKoala : DEFAULT_STALE_THRESHOLDS.idleKoala,
+      idleLattice: typeof u.idleLattice === 'number' && u.idleLattice > 0 ? u.idleLattice : DEFAULT_STALE_THRESHOLDS.idleLattice,
       bugStale: typeof u.bugStale === 'number' && u.bugStale > 0 ? u.bugStale : DEFAULT_STALE_THRESHOLDS.bugStale,
     };
   } catch {
@@ -125,7 +125,7 @@ function checkItemStale(checklist: ChecklistData, thresholds: StaleThresholds, n
  * Rule 3: more than the threshold since the last lattice command of any kind.
  * Uses readActivityLogTail (sources: .lattice/activity.jsonl + legacy docs/story/activity.jsonl).
  */
-function checkIdleKoala(root: string, thresholds: StaleThresholds, now: number): string | null {
+function checkIdleLattice(root: string, thresholds: StaleThresholds, now: number): string | null {
   try {
     const entries = readActivityLogTail(root, 1);
     if (entries.length === 0) return null;
@@ -135,7 +135,7 @@ function checkIdleKoala(root: string, thresholds: StaleThresholds, now: number):
     const ts = Date.parse(tsRaw);
     if (!Number.isFinite(ts)) return null;
     const diff = now - ts;
-    if (diff > thresholds.idleKoala * 60_000) {
+    if (diff > thresholds.idleLattice * 60_000) {
       return `It has been ${formatMinutes(diff)} since the last lattice command; remember to continue the flow`;
     }
   } catch { /* PROBE */ }
@@ -230,7 +230,7 @@ export function detectStaleState(ctx: HandlerContext): string[] {
       } catch { /* PROBE */ }
     }
 
-    const w3 = checkIdleKoala(ctx.root, thresholds, now);
+    const w3 = checkIdleLattice(ctx.root, thresholds, now);
     if (w3) warnings.push(w3);
 
     return suppressRecentlyEmittedWarnings(ctx.root, warnings, now);

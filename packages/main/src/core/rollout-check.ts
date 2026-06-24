@@ -163,8 +163,7 @@ function packageBinHasLattice(path: string): boolean {
   const parsed = readJsonFile(path);
   const bin = parsed?.bin;
   return !!bin && typeof bin === 'object' &&
-    (bin as Record<string, unknown>).lattice === 'dist/cli.js' &&
-    (bin as Record<string, unknown>).koala === undefined;
+    (bin as Record<string, unknown>).lattice === 'dist/cli.js';
 }
 
 function parseProjectList(root: string, projects: string | string[] | undefined, maxDepth: number): string[] {
@@ -227,12 +226,10 @@ function discoverProjects(root: string, maxDepth: number): string[] {
 function looksLikeProject(dir: string): boolean {
   return existsSync(join(dir, 'lattice.config.json')) ||
     existsSync(join(dir, LATTICE_DIR)) ||
-    existsSync(join(dir, '.koala')) ||
     existsSync(join(dir, 'package.json')) ||
     existsSync(join(dir, 'AGENTS.md')) ||
     existsSync(join(dir, 'CLAUDE.md')) ||
-    existsSync(join(dir, 'LATTICE.md')) ||
-    existsSync(join(dir, 'KOALA.md'));
+    existsSync(join(dir, 'LATTICE.md'));
 }
 
 function buildGitProbe(projectRoot: string): RolloutProjectGit {
@@ -291,15 +288,14 @@ function buildConfigProbe(projectRoot: string): RolloutProbe {
   const mainPackageVersion = readPackageVersion(mainPackagePath);
   const mainPackageName = readPackageName(mainPackagePath);
   const hasLatticeWrapper = existsSync(join(projectRoot, 'bin', 'lattice.js'));
-  const hasLegacyWrapper = existsSync(join(projectRoot, 'bin', 'koala.js'));
   const hasBinAliases = packageBinHasLattice(mainPackagePath);
   const isSelfLayout = mainPackageName === '@lattice/core';
   const ok = isSelfLayout
-    ? rootPackageVersion === LATTICE_CLI_VERSION && mainPackageVersion === LATTICE_CLI_VERSION && hasLatticeWrapper && !hasLegacyWrapper && hasBinAliases
+    ? rootPackageVersion === LATTICE_CLI_VERSION && mainPackageVersion === LATTICE_CLI_VERSION && hasLatticeWrapper && hasBinAliases
     : true;
   const status: RolloutStatus = ok ? 'pass' : 'warn';
   const detail = isSelfLayout
-    ? `root=${rootPackageVersion ?? 'unreadable'}; main=${mainPackageVersion ?? 'unreadable'}; expected=${LATTICE_CLI_VERSION}; latticeWrapper=${hasLatticeWrapper}; legacyWrapper=${hasLegacyWrapper}; bin=lattice-only:${hasBinAliases}`
+    ? `root=${rootPackageVersion ?? 'unreadable'}; main=${mainPackageVersion ?? 'unreadable'}; expected=${LATTICE_CLI_VERSION}; latticeWrapper=${hasLatticeWrapper}; bin=lattice-only:${hasBinAliases}`
     : `external project; global ${formatLatticeProductLine()} can be used without a project-local JS wrapper`;
   return {
     id: 'lattice_config_doctor',
@@ -383,12 +379,12 @@ function buildDoctorProbe(runtime: RuntimeEnvironmentReport, git: RolloutProject
 
 function buildTranscriptScopeProbe(projectRoot: string, story: RolloutProjectStoryState): RolloutProbe {
   const hasAgentGuide = existsSync(join(projectRoot, 'AGENTS.md'));
-  const hasLatticeGuide = existsSync(join(projectRoot, 'LATTICE.md')) || existsSync(join(projectRoot, 'KOALA.md')) || existsSync(join(projectRoot, 'CLAUDE.md'));
+  const hasLatticeGuide = existsSync(join(projectRoot, 'LATTICE.md')) || existsSync(join(projectRoot, 'CLAUDE.md'));
   const hasStoryRoot = existsSync(join(projectRoot, LATTICE_DIR, 'story'));
   const status: RolloutStatus = hasAgentGuide && hasLatticeGuide && hasStoryRoot ? 'pass' : 'warn';
   const parts = [
     `AGENTS.md=${hasAgentGuide}`,
-    `LATTICE/KOALA/CLAUDE guide=${hasLatticeGuide}`,
+    `LATTICE/CLAUDE guide=${hasLatticeGuide}`,
     `.lattice/story=${hasStoryRoot}`,
     `activeStories=${story.activeStoryCount}`,
   ];

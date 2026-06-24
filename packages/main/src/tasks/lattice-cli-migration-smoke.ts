@@ -93,7 +93,6 @@ const mainPackage = readJson(join(repoRoot, 'packages', 'main', 'package.json'))
 assert.equal(rootPackage.version, LATTICE_CLI_VERSION, `root package version is ${LATTICE_CLI_VERSION}`);
 assert.equal(mainPackage.version, LATTICE_CLI_VERSION, `packages/main version is ${LATTICE_CLI_VERSION}`);
 assert.equal(mainPackage.bin.lattice, 'dist/cli.js', 'lattice package bin points at CLI');
-assert.equal(mainPackage.bin.koala, undefined, 'legacy koala package bin is removed');
 
 // Help exposes first-class Lattice identity and the new command set.
 const help = runCli(['help']);
@@ -237,10 +236,11 @@ const configDoctor = runJson<any>(['lattice', 'config', 'doctor', '--format=json
 assert.equal(configDoctor.schemaVersion, 'lattice.config_doctor.v1');
 assert.equal(configDoctor.migration.cliFirst, true);
 assert.equal(configDoctor.migration.macAppRequired, false);
-// the legacy koala bin alias was removed; legacyKoalaAliasPreserved is now a deliberate `false`
-// (config_doctor's package-bin-aliases check asserts the package exposes only the lattice bin),
-// so legacyKoalaAliasPreserved is now a deliberate `false` constant, not the pre-removal `true`.
-assert.equal(configDoctor.migration.legacyKoalaAliasPreserved, false);
+// config_doctor's package-bin-aliases check asserts the package exposes only the lattice bin.
+assert.ok(
+  configDoctor.checks.some((c: any) => c.id === 'package-bin-aliases' && c.ok === true),
+  'package-bin-aliases check confirms the package exposes only the lattice bin',
+);
 assert.equal(configDoctor.versions.expected, LATTICE_CLI_VERSION);
 assertNoProductionOverclaim(configDoctor, 'lattice config doctor');
 

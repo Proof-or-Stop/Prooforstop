@@ -41,13 +41,6 @@ const AGENT_BG_POLICY: Record<string, BackgroundPolicy> = {
 
 const IMPLEMENTER_COMMIT_AUTHOR = 'lattice-implementer <lattice-implementer@noreply.local>';
 
-function normalizeAgentType(agentType: string | undefined): string | undefined {
-  if (agentType?.startsWith('koala-')) {
-    throw new Error('dispatch no longer accepts legacy koala-* role IDs; use the canonical lattice-* role ID');
-  }
-  return agentType;
-}
-
 /** Resolve agentType → injection strategy; unknown agentType downgrades to required (safest). */
 function resolveBackgroundPolicy(agentType: string | undefined): BackgroundPolicy {
   if (!agentType) return 'required'; // default lattice-implementer behavior
@@ -83,7 +76,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
   }): void {
     try {
       const story = store.readStory(args.storyId);
-      const agentType = normalizeAgentType(args.agentType) || 'lattice-implementer';
+      const agentType = args.agentType || 'lattice-implementer';
       store.appendProcessEvent(args.storyId, {
         type: 'dispatch',
         storyId: args.storyId,
@@ -200,8 +193,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       if (!args.storyId) throw new Error('storyId is required');
       if (!args.findingId) throw new Error('findingId is required');
 
-      // B-ed3e CHK-001: legacy agentType alias normalization (old name console.warn + rename)
-      const agentType = normalizeAgentType(args.agentType);
+      const agentType = args.agentType;
 
       // 1. story existence check (message is clearer than readStory's native error)
       try {
@@ -286,8 +278,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       if (!args.storyId) throw new Error('storyId is required');
       if (!args.itemId) throw new Error('itemId is required');
 
-      // B-ed3e CHK-001: legacy agentType alias normalization (old name console.warn + rename)
-      const agentType = normalizeAgentType(args.agentType);
+      const agentType = args.agentType;
 
       // 1. story existence check (readStory's error message is not clear enough; wrap a layer)
       let story;
@@ -464,7 +455,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         args.findingId ? 'findingId' : null,
         args.clusterId ? 'clusterId' : null,
       ].filter(Boolean);
-      const normalizedAgentType = normalizeAgentType(args.agentType);
+      const normalizedAgentType = args.agentType;
       if (provided.length === 0 && normalizedAgentType === 'lattice-review-story-init') {
         const result = buildInitReviewPrompt({
           storyId: args.storyId,

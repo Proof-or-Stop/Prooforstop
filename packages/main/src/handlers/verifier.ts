@@ -25,7 +25,7 @@
  */
 
 import { execSync, spawn } from 'node:child_process';
-import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { HandlerContext } from './context.js';
@@ -33,6 +33,7 @@ import { assertCwdInWorktree } from './context.js';
 import { loadConfig } from '../core/config.js';
 import type { ValidationCommand } from '../core/validation-types.js';
 import { executeValidationPlan, formatWorktreePollutionDetails, runValidationCommand, stripAnsi } from '../core/validation-executor.js';
+import { withValidationExecutionLock } from '../core/validation-execution-lock.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -652,6 +653,37 @@ function renderExternalResult(result: any): string {
   return lines.join('\n');
 }
 
+async function maybeHoldValidationLockSmokeHook(projectRoot: string, storyId: string | undefined): Promise<void> {
+  // Internal smoke seam: verifies the lock stays held after a command exits and before evidence persists.
+  const holdFile = process.env.LATTICE_VALIDATE_LOCK_SMOKE_POST_COMMAND_HOLD_FILE;
+  if (!storyId || !holdFile) return;
+  const readyFile = process.env.LATTICE_VALIDATE_LOCK_SMOKE_POST_COMMAND_READY_FILE;
+  if (readyFile) {
+    mkdirSync(dirname(readyFile), { recursive: true });
+    writeFileSync(readyFile, `${process.pid}\n`, 'utf8');
+  }
+  const timeoutMs = Number(process.env.LATTICE_VALIDATE_LOCK_SMOKE_POST_COMMAND_TIMEOUT_MS ?? 8000);
+  const deadline = Date.now() + (Number.isFinite(timeoutMs) && timeoutMs > 0 ? timeoutMs : 8000);
+  while (existsSync(holdFile)) {
+    if (Date.now() > deadline) {
+      throw new Error(`validate lock smoke hook timed out waiting for ${holdFile} in ${projectRoot}`);
+    }
+    await new Promise((resolveHold) => setTimeout(resolveHold, 25));
+  }
+}
+
+function decorateAndMaybePersistStoryValidation(
+  ctx: HandlerContext,
+  storyId: string | undefined,
+  focus: string | undefined,
+  result: any,
+): any {
+  if (!storyId) return result;
+  const decorated = decorateStoryVerification(ctx, storyId, result);
+  if (!focus) persistStoryValidationEvidence(ctx, storyId, decorated, `lattice validate --story=${storyId} --json`);
+  return decorated;
+}
+
 export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...args: any[]) => any> {
   return {
     /**
@@ -780,23 +812,32 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
           );
         }
         if (configuredCommands.length === 0 && fallbackCommands.length === 0) {
-          const base = externalResult({
-            provider: 'lattice-verifier-no-validation-entry',
-            status: 'warn',
-            summary: 'No project validator configured; skipped project-specific validation',
-            details: [
-              `当前目录: ${projectRoot}`,
-              '未找到 validate.ts/js/mts，也未在 lattice.config.json 配置 validate.command(s)',
-              '未自动发现 npm test / pytest / go test / cargo test / mvn test / gradle test 等 fallback 标准入口',
-              'Swift / Package.swift 不在自动 fallback 列表（Mac Native App 已退役）；如需运行 swift test，请显式配置 validate.commands。',
-            ],
-            warnings: [
-              '这是 skip/warn，不是代码失败。需要强门禁时请在 lattice.config.json 配置 validate.command 或 validate.commands。',
-            ],
-            headSha: currentHead(handlerGitCwd),
-          });
-          const decorated = args.story ? decorateStoryVerification(ctx, args.story, base) : base;
-          if (args.story) persistStoryValidationEvidence(ctx, args.story, decorated, `lattice validate --story=${args.story} --json`);
+          const buildNoValidatorResult = () => {
+            const base = externalResult({
+              provider: 'lattice-verifier-no-validation-entry',
+              status: 'warn',
+              summary: 'No project validator configured; skipped project-specific validation',
+              details: [
+                `当前目录: ${projectRoot}`,
+                '未找到 validate.ts/js/mts，也未在 lattice.config.json 配置 validate.command(s)',
+                '未自动发现 npm test / pytest / go test / cargo test / mvn test / gradle test 等 fallback 标准入口',
+                'Swift / Package.swift 不在自动 fallback 列表（Mac Native App 已退役）；如需运行 swift test，请显式配置 validate.commands。',
+              ],
+              warnings: [
+                '这是 skip/warn，不是代码失败。需要强门禁时请在 lattice.config.json 配置 validate.command 或 validate.commands。',
+              ],
+              headSha: currentHead(handlerGitCwd),
+            });
+            return decorateAndMaybePersistStoryValidation(ctx, args.story, focus, base);
+          };
+          const decorated = args.story
+            ? await withValidationExecutionLock({
+              root: projectRoot,
+              storyId: args.story,
+              workspaceRoot: handlerGitCwd,
+              command: 'validate',
+            }, buildNoValidatorResult)
+            : buildNoValidatorResult();
           if (args.json) return JSON.stringify(decorated);
           return renderExternalResult(decorated);
         }
@@ -809,33 +850,43 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
         ctx.log?.(usingConfigured
           ? `running ${commands.length} configured validate.command(s)${focus ? ` for focus=${focus}` : ''}`
           : `validate.ts/js/mts not found and no configured validate.command(s); running ${commands.length} advisory fallback validation command(s)`);
-        const base = await executeValidationPlan({
-          provider: usingConfigured ? 'lattice-verifier-configured-commands' : 'lattice-verifier-fallback-commands',
-          commands,
-          warnings: [],
-          ...(focus ? { focus } : {}),
-        }, projectRoot, currentHead(handlerGitCwd), args.story);
+        const runPlanAndPersist = async () => {
+          const base = await executeValidationPlan({
+            provider: usingConfigured ? 'lattice-verifier-configured-commands' : 'lattice-verifier-fallback-commands',
+            commands,
+            warnings: [],
+            ...(focus ? { focus } : {}),
+          }, projectRoot, currentHead(handlerGitCwd), args.story);
+          await maybeHoldValidationLockSmokeHook(projectRoot, args.story);
+          const summary = usingConfigured
+            ? base.summary
+            : `${base.summary}; ${fallbackDiscoveryDetail}`;
+          const details = usingConfigured
+            ? base.details
+            : [fallbackDiscoveryDetail, ...base.details];
+          const result = externalResult({
+            provider: base.provider,
+            status: base.status,
+            summary,
+            details,
+            warnings: base.warnings,
+            headSha: base.headSha,
+            commands: base.commands,
+            ...(base.focus ? { focus: base.focus } : {}),
+          });
+          return decorateAndMaybePersistStoryValidation(ctx, args.story, focus, result);
+        };
+        const decorated = args.story
+          ? await withValidationExecutionLock({
+            root: projectRoot,
+            storyId: args.story,
+            workspaceRoot: handlerGitCwd,
+            command: 'validate',
+          }, runPlanAndPersist)
+          : await runPlanAndPersist();
         for (const cmd of commands) {
           ctx.log?.(`ran: ${cmd.command} ${cmd.args.join(' ')}`);
         }
-        const summary = usingConfigured
-          ? base.summary
-          : `${base.summary}; ${fallbackDiscoveryDetail}`;
-        const details = usingConfigured
-          ? base.details
-          : [fallbackDiscoveryDetail, ...base.details];
-        const result = externalResult({
-          provider: base.provider,
-          status: base.status,
-          summary,
-          details,
-          warnings: base.warnings,
-          headSha: base.headSha,
-          commands: base.commands,
-          ...(base.focus ? { focus: base.focus } : {}),
-        });
-        const decorated = args.story ? decorateStoryVerification(ctx, args.story, result) : result;
-        if (args.story && !focus) persistStoryValidationEvidence(ctx, args.story, decorated, `lattice validate --story=${args.story} --json`);
         if (args.json) return JSON.stringify(decorated);
         return renderExternalResult(decorated);
       }
@@ -877,95 +928,104 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
       }
 
       ctx.log?.(`running: npx tsx ${tsArgs.join(' ')}`);
-      const commandResult = await runValidationCommand({
+      const runValidateFile = () => runValidationCommand({
         label: validateFile,
         command: 'npx',
         args: ['tsx', ...tsArgs],
       }, projectRoot);
-      const { code, output } = commandResult;
-      // Task B-6326 + B-4b22: verifier surfaces categorized dirty ownership
-      // details AND respects dirty-gate-policy. When every polluted path
-      // classifies as a passing category the pollution.blocking flag is
-      // flipped false and we keep status=pass.
-      const pollutionDetails = formatWorktreePollutionDetails(commandResult, projectRoot, args.story);
-      if (pollutionDetails.length > 0) {
-        const isBlocking = commandResult.worktreePollution?.blocking !== false;
-        const polluted = externalResult({
-          status: isBlocking ? 'fail' : 'pass',
-          summary: isBlocking
-            ? 'Validation command dirtied the worktree'
-            : 'Validation command produced policy-allowed dirty paths (audited)',
-          details: [
-            ...pollutionDetails,
-            ...(output.trim() ? output.trim().split('\n').filter(Boolean).map(line => `  output: ${line}`) : []),
-          ],
-          warnings: isBlocking ? [
-            'Validation side effects are not auto-restored because tracked snapshots/docs may be legitimate review artifacts.',
-          ] : [],
-          headSha: currentHead(handlerGitCwd),
-          commands: [commandResult],
-        });
-        const focusedPolluted = focus ? markFocusedResult(polluted, focus) : polluted;
-        const decorated = args.story ? decorateStoryVerification(ctx, args.story, focusedPolluted) : focusedPolluted;
-        if (args.story && !focus) persistStoryValidationEvidence(ctx, args.story, decorated, `lattice validate --story=${args.story} --json`);
-        if (args.json) return JSON.stringify(decorated);
-        return renderExternalResult(decorated);
-      }
+      const runValidateFileAndRender = async () => {
+        const commandResult = await runValidateFile();
+        await maybeHoldValidationLockSmokeHook(projectRoot, args.story);
+        const { code, output } = commandResult;
+        // Task B-6326 + B-4b22: verifier surfaces categorized dirty ownership
+        // details AND respects dirty-gate-policy. When every polluted path
+        // classifies as a passing category the pollution.blocking flag is
+        // flipped false and we keep status=pass.
+        const pollutionDetails = formatWorktreePollutionDetails(commandResult, projectRoot, args.story);
+        if (pollutionDetails.length > 0) {
+          const isBlocking = commandResult.worktreePollution?.blocking !== false;
+          const polluted = externalResult({
+            status: isBlocking ? 'fail' : 'pass',
+            summary: isBlocking
+              ? 'Validation command dirtied the worktree'
+              : 'Validation command produced policy-allowed dirty paths (audited)',
+            details: [
+              ...pollutionDetails,
+              ...(output.trim() ? output.trim().split('\n').filter(Boolean).map(line => `  output: ${line}`) : []),
+            ],
+            warnings: isBlocking ? [
+              'Validation side effects are not auto-restored because tracked snapshots/docs may be legitimate review artifacts.',
+            ] : [],
+            headSha: currentHead(handlerGitCwd),
+            commands: [commandResult],
+          });
+          const focusedPolluted = focus ? markFocusedResult(polluted, focus) : polluted;
+          const decorated = decorateAndMaybePersistStoryValidation(ctx, args.story, focus, focusedPolluted);
+          if (args.json) return JSON.stringify(decorated);
+          return renderExternalResult(decorated);
+        }
 
-      if (args.json) {
-        // Try to extract JSON from output (validate.ts should print JSON when --json is passed)
-        const stripped = stripAnsi(output);
-        // Look for JSON object in output
-        const jsonMatch = stripped.match(/\{[\s\S]*"provider"\s*:\s*"[^"]+"[\s\S]*\}/);
-        if (jsonMatch) {
-          const parsed = JSON.parse(jsonMatch[0]);
-          const focusedParsed = focus ? markFocusedResult(parsed, focus) : parsed;
-          const decorated = args.story ? decorateStoryVerification(ctx, args.story, focusedParsed) : focusedParsed;
-          if (args.story && !focus) persistStoryValidationEvidence(ctx, args.story, decorated, `lattice validate --story=${args.story} --json`);
+        if (args.json) {
+          // Try to extract JSON from output (validate.ts should print JSON when --json is passed)
+          const stripped = stripAnsi(output);
+          // Look for JSON object in output
+          const jsonMatch = stripped.match(/\{[\s\S]*"provider"\s*:\s*"[^"]+"[\s\S]*\}/);
+          if (jsonMatch) {
+            const parsed = JSON.parse(jsonMatch[0]);
+            const focusedParsed = focus ? markFocusedResult(parsed, focus) : parsed;
+            const decorated = decorateAndMaybePersistStoryValidation(ctx, args.story, focus, focusedParsed);
+            return JSON.stringify(decorated);
+          }
+          // If validate.ts doesn't support --json yet, wrap the output
+          let headSha: string | undefined;
+          try {
+            headSha = execSync('git rev-parse --short HEAD', { cwd: handlerGitCwd, encoding: 'utf-8' }).trim();
+          } catch { /* not git — graceful: headSha stays undefined */ }
+
+          const wrapped = markFocusedResult({
+            provider: 'lattice-verifier',
+            status: code === 0 ? 'pass' : 'fail',
+            allPass: code === 0,
+            summary: code === 0 ? 'All checks passed' : 'Validation failed',
+            details: stripped.split('\n').filter(l => l.trim()),
+            warnings: [],
+            timestamp: new Date().toISOString(),
+            headSha,
+            commands: [commandResult],
+          }, focus ?? '');
+          const decorated = decorateAndMaybePersistStoryValidation(ctx, args.story, focus, wrapped);
           return JSON.stringify(decorated);
         }
-        // If validate.ts doesn't support --json yet, wrap the output
-        let headSha: string | undefined;
-        try {
-          headSha = execSync('git rev-parse --short HEAD', { cwd: handlerGitCwd, encoding: 'utf-8' }).trim();
-        } catch { /* not git — graceful: headSha stays undefined */ }
 
-        const wrapped = markFocusedResult({
-          provider: 'lattice-verifier',
-          status: code === 0 ? 'pass' : 'fail',
-          allPass: code === 0,
-          summary: code === 0 ? 'All checks passed' : 'Validation failed',
-          details: stripped.split('\n').filter(l => l.trim()),
-          warnings: [],
-          timestamp: new Date().toISOString(),
-          headSha,
-          commands: [commandResult],
-        }, focus ?? '');
-        const decorated = args.story ? decorateStoryVerification(ctx, args.story, wrapped) : wrapped;
-        if (args.story && !focus) persistStoryValidationEvidence(ctx, args.story, decorated, `lattice validate --story=${args.story} --json`);
-        return JSON.stringify(decorated);
-      }
-
-      if (args.story) {
-        try {
-          const cl = ctx.store.readChecklist(args.story);
-          const head = currentHead(handlerGitCwd);
-          const story = ctx.store.readStory(args.story);
-          const effectivePolicy = resolveWorkflowPolicy(loadConfig(ctx.root), story);
-          const coverage = buildVerificationCoverage(
-            cl,
-            head,
-            (headHash, evidence) => evidenceFreshness(handlerGitCwd, projectRoot, headHash, evidence).fresh,
-            { deferredGateEvidence: 'missing', evidenceQualityProfile: effectivePolicy.profile },
-          );
-          const verificationPolicy = resolveStoryVerificationPolicy(ctx, args.story);
-          const advisories = collectStoryFilesHashAdvisories(cl, handlerGitCwd, projectRoot);
-          return maybePrefixFocusedText(output + '\n' + renderVerificationCoverage(coverage, verificationPolicy) + (advisories.length > 0 ? `\n${advisories.join('\n')}` : '') + (code !== 0 || coverage.missingRequired > 0 ? `\n(exit code: ${code || 1})` : ''), focus);
-        } catch {
-          // If story metadata cannot be read, fall back to raw verifier output.
+        if (args.story) {
+          try {
+            const cl = ctx.store.readChecklist(args.story);
+            const head = currentHead(handlerGitCwd);
+            const story = ctx.store.readStory(args.story);
+            const effectivePolicy = resolveWorkflowPolicy(loadConfig(ctx.root), story);
+            const coverage = buildVerificationCoverage(
+              cl,
+              head,
+              (headHash, evidence) => evidenceFreshness(handlerGitCwd, projectRoot, headHash, evidence).fresh,
+              { deferredGateEvidence: 'missing', evidenceQualityProfile: effectivePolicy.profile },
+            );
+            const verificationPolicy = resolveStoryVerificationPolicy(ctx, args.story);
+            const advisories = collectStoryFilesHashAdvisories(cl, handlerGitCwd, projectRoot);
+            return maybePrefixFocusedText(output + '\n' + renderVerificationCoverage(coverage, verificationPolicy) + (advisories.length > 0 ? `\n${advisories.join('\n')}` : '') + (code !== 0 || coverage.missingRequired > 0 ? `\n(exit code: ${code || 1})` : ''), focus);
+          } catch {
+            // If story metadata cannot be read, fall back to raw verifier output.
+          }
         }
-      }
-      return maybePrefixFocusedText(output + (code !== 0 ? `\n(exit code: ${code})` : ''), focus);
+        return maybePrefixFocusedText(output + (code !== 0 ? `\n(exit code: ${code})` : ''), focus);
+      };
+      return args.story
+        ? await withValidationExecutionLock({
+          root: projectRoot,
+          storyId: args.story,
+          workspaceRoot: handlerGitCwd,
+          command: 'validate',
+        }, runValidateFileAndRender)
+        : await runValidateFileAndRender();
     },
 
     /**

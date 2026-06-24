@@ -184,7 +184,7 @@ export function createTestAutoHandlers(ctx: HandlerContext) {
           }
           try {
             for (const c of group.cases) {
-              // DEBUG: 追踪项目配置文件（lattice canonical / koala legacy）被谁改了
+              // DEBUG: 追踪项目配置文件（lattice canonical / legacy）被谁改了
               const _cfgPicked = pickProjectConfigPath(root);
               const _cfgPath = _cfgPicked?.path ?? join(root, LATTICE_CONFIG_FILENAME);
               const _cfgLabel = _cfgPicked

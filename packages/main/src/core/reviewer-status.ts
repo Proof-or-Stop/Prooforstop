@@ -49,7 +49,7 @@ export function resolveReviewerTouchpoints(
 
 // ── Constants ──
 
-const REVIEW_SALT = 'koala-review-integrity-v1';
+const REVIEW_SALT = 'lattice-review-integrity-v1';
 
 // ── Public API ──
 

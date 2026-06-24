@@ -199,6 +199,21 @@ function escalationLine(rendered: string): string {
   return line!;
 }
 
+// B-6de6 CX-1: the review-assurance-floor row had the SAME dropped-advisory gap
+// as the escalation row above; assert the floor row also surfaces the advisory.
+function floorRow(rows: DoneCheckRow[]): DoneCheckRow {
+  const row = rows.find((r) => r.id === 'review-assurance-floor');
+  assert.ok(row, 'DONE checklist must include a review-assurance-floor row');
+  return row!;
+}
+
+/** Extract the rendered review-assurance-floor line from the operator-visible text. */
+function floorLine(rendered: string): string {
+  const line = rendered.split('\n').find((l) => l.includes('Review assurance floor'));
+  assert.ok(line, 'rendered DONE checklist must include a Review assurance floor line');
+  return line!;
+}
+
 let passed = 0;
 function check(name: string, fn: () => void): void {
   fn();
@@ -267,6 +282,34 @@ function check(name: string, fn: () => void): void {
           `(got line=${JSON.stringify(escalationLine(rendered))})`,
       );
     });
+
+    // B-6de6 CX-1: the SAME downgrade-accepted full quorum makes the floor's
+    // local rounds downgrade-accepted too, so the floor row must likewise PASS
+    // and SURFACE the re-attestation advisory in its rendered detail.
+    const frow = floorRow(rows);
+    check('(A) Review-assurance-floor row is PASS with a downgrade-accepted verdict', () => {
+      assert.equal(
+        frow.status,
+        'pass',
+        `(A) downgrade-accepted floor must keep the row a PASS (got status=${frow.status}, detail=${JSON.stringify(frow.detail)})`,
+      );
+      assert.equal(frow.blocking, false, `(A) the floor advisory must NOT make the row blocking (got blocking=${frow.blocking})`);
+    });
+
+    check('(A) the floor re-attestation advisory is SURFACED in the rendered pass-row detail', () => {
+      assert.match(
+        frow.detail ?? '',
+        ADVISORY_RE,
+        `(A) the Review-assurance-floor row detail must contain the re-attestation advisory ` +
+          `(got detail=${JSON.stringify(frow.detail)}). This is the dropped-advisory soundness gap (floor row).`,
+      );
+      assert.match(
+        floorLine(rendered),
+        ADVISORY_RE,
+        `(A) the operator-visible rendered Review assurance floor line must contain the advisory ` +
+          `(got line=${JSON.stringify(floorLine(rendered))})`,
+      );
+    });
   } finally {
     rmSync(root, { recursive: true, force: true });
     resetConfigCache();
@@ -314,6 +357,18 @@ function check(name: string, fn: () => void): void {
         rendered,
         ADVISORY_RE,
         `(B) the rendered no-drift DONE checklist must NOT contain advisory text`,
+      );
+    });
+
+    // B-6de6 CX-1 control: the floor row, with no drift, must also carry NO
+    // advisory text (advisory only fires on accepted drift, never on clean DONE).
+    const frow = floorRow(rows);
+    check('(B) a clean (no-drift) floor row carries NO advisory text', () => {
+      assert.equal(frow.status, 'pass', `(B) no-drift floor row must PASS (got status=${frow.status})`);
+      assert.doesNotMatch(
+        frow.detail ?? '',
+        ADVISORY_RE,
+        `(B) a no-drift floor pass row must NOT contain advisory text (got detail=${JSON.stringify(frow.detail)})`,
       );
     });
   } finally {

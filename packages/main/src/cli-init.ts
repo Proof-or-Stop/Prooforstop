@@ -479,7 +479,6 @@ function cleanupClaudeAssets() {
   removeIfManagedDoc('CLAUDE.md', 'CLAUDE.md');
   removePathIfExists('.claude/agents', '.claude/agents');
   removePathIfExists('.claude/hooks', '.claude/hooks');
-  removePathIfExists('.claude/skills/koala', '.claude/skills/koala');
   removeClaudeSettingsIfManaged();
   cleanupEmptyDirChain('.claude/skills');
   cleanupEmptyDirChain('.claude');
@@ -512,7 +511,7 @@ function enforceProfileCleanup(profile: InitProfile) {
 enforceProfileCleanup(selectedProfile);
 
 // 1. 目录
-console.log('[1/6] 创建目录...');
+console.log('[1/5] 创建目录...');
 const dirs = [
   'docs/story/actives',
   'docs/requirements/decisions',
@@ -521,7 +520,7 @@ const dirs = [
 if (isGlobalThin) dirs.push('.lattice');
 // B-097f: do NOT create project .claude/agents — agent prompts resolve from the
 // user-global ~/.claude/agents single source. `.claude` (for hooks/settings) is
-// created on demand by the [6/6] block when wantsClaude.
+// created on demand by the [5/5] block when wantsClaude.
 if (wantsCodex && selectedAssetMode === 'full') dirs.push('.lattice-codex/agents');
 for (const d of dirs) {
   const full = join(targetDir, d);
@@ -786,7 +785,7 @@ import { createApp } from './app.js';
 }
 
 // 2. lattice.config.json (canonical)
-console.log('\n[2/6] 生成 lattice.config.json...');
+console.log('\n[2/5] 生成 lattice.config.json...');
 const latticeConfig: Record<string, unknown> = {
   scanRoot: withStarter || hadSrcBeforeInit ? 'src' : '.',
   testsDir: 'tests',
@@ -821,7 +820,7 @@ if (existsSync(join(targetDir, 'lattice.config.json'))) {
 }
 
 // 3. 文档入口
-console.log('\n[3/6] 配置 Lattice / host 文档...');
+console.log('\n[3/5] 配置 Lattice / host 文档...');
 if (isGlobalThin) {
   writeManagedMarkdown('.lattice/Lattice.md', LATTICE_DOT_DIR_MD_TEMPLATE, '.lattice/Lattice.md');
   const latticeConfigPath = join(targetDir, '.lattice', 'lattice.json');
@@ -850,22 +849,13 @@ if (isGlobalThin) {
   console.log('  - AGENTS.md (profile skip)');
 }
 
-// 4. Claude slash-command skills
-console.log('\n[4/6] 清理 legacy Claude skill...');
-if (wantsClaude) {
-  removePathIfExists('.claude/skills/koala', '.claude/skills/koala');
-  console.log('  - .claude/skills/koala (removed if managed legacy asset existed)');
-} else {
-  console.log('  - .claude/skills/koala (profile skip)');
-}
-
-// 5. agent 适配器 → 全局单一源 ~/.claude/agents thin-shim（B-097f）
+// 4. agent 适配器 → 全局单一源 ~/.claude/agents thin-shim（B-097f）
 // Claude Code 只能从磁盘解析 subagent_type: lattice-*，但用户级全局
 // ~/.claude/agents 对所有项目生效，project-level 会 shadow user-level。
 // prompt 正文绝不物化进宿主目录（symlink 也算暴露）；每个角色只放一个
 // thin-shim（frontmatter + tools + "从 CLI 取指令" body），正文由
 // `lattice agent_prompt --role=<name>` 从包内 registry 现取。
-console.log('\n[5/6] 同步 agent 适配器（全局 thin-shim 单一源）...');
+console.log('\n[4/5] 同步 agent 适配器（全局 thin-shim 单一源）...');
 const agentDstDir = join(targetDir, '.claude', 'agents');
 if (wantsClaude && agentTemplateDir) {
   // 确保全局源就绪：为 CLI 包 templates/agents 下每个 *.md 在 ~/.claude/agents
@@ -957,7 +947,7 @@ if (!isGlobalThin && wantsCodex && selectedAssetMode === 'thin') {
 }
 
 // 6. hooks + settings.json
-console.log('\n[6/6] 配置 hooks...');
+console.log('\n[5/5] 配置 hooks...');
 const hooksDir = join(targetDir, '.claude', 'hooks');
 if (wantsClaude) {
   for (const hookFile of HOOK_FILES) {

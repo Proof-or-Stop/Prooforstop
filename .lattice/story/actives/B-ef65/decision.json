@@ -1,0 +1,74 @@
+{
+  "principles": [
+    "Only fix the demonstrated correctness issue.",
+    "Keep workflow commands host-neutral and agent-neutral.",
+    "Prefer narrow, test-proven behavior over broad lifecycle redesign.",
+    "Preserve unrelated concurrency and metadata writes."
+  ],
+  "drivers": [
+    "Red test proved same-story validate concurrency.",
+    "Validate and done_required_validate both write gate evidence.",
+    "Long validate commands make accidental concurrent execution expensive.",
+    "Formal story should reuse, not rewrite, the proven red/green evidence."
+  ],
+  "options": [
+    {
+      "name": "A: story-scoped validate execution lock",
+      "pros": [
+        "Blocks only the conflicting same-story validate execution path.",
+        "Preserves different worktree concurrency.",
+        "Can share with done_required_validate."
+      ],
+      "cons": [
+        "Adds one new lock primitive and contention UX."
+      ]
+    },
+    {
+      "name": "B: global validate lock",
+      "pros": [
+        "Simpler lock key and easier reasoning."
+      ],
+      "cons": [
+        "Unnecessarily blocks unrelated stories and violates do-not-optimize-arbitrarily."
+      ]
+    },
+    {
+      "name": "C: owner lease only",
+      "pros": [
+        "Would align with broader ownership direction."
+      ],
+      "cons": [
+        "Does not directly protect concurrent validate processes in this story and would broaden scope into unfinished lease design."
+      ]
+    }
+  ],
+  "chosen": "A: story-scoped validate execution lock",
+  "rationale": "Choose the story-scoped validate execution lock because it fixes the proven same-story evidence pollution risk while preserving unrelated concurrency and avoiding a broad owner-lease redesign.",
+  "preMortem": [
+    {
+      "scenario": "Lock is too broad and slows unrelated work.",
+      "trigger": "Lock key uses project root only instead of story identity.",
+      "consequence": "Different stories cannot validate concurrently.",
+      "mitigation": "Smoke covers different story/worktree parallel validate."
+    },
+    {
+      "scenario": "Lock blocks reviewer or delivery metadata writes.",
+      "trigger": "Lock wraps generic story mutations instead of only validate command execution.",
+      "consequence": "REVIEW/DONE evidence lanes become artificially serialized.",
+      "mitigation": "Smoke covers review_pass_set and delivery_check_set while validate is held."
+    },
+    {
+      "scenario": "Internal story_advance validate self-deadlocks.",
+      "trigger": "story_advance invokes validate while already in a validate lock context or same process nesting is mishandled.",
+      "consequence": "TEST transition hangs or fails despite valid implementation.",
+      "mitigation": "Smoke covers real story_advance REVIEW to TEST internal validate."
+    },
+    {
+      "scenario": "Stale lock strands future validates.",
+      "trigger": "Process crashes while holding .lattice/locks/validation.",
+      "consequence": "Future validate runs are blocked forever.",
+      "mitigation": "Heartbeat/stale reclaim and smoke coverage for stale lock recovery."
+    }
+  ],
+  "timestamp": "2026-06-24T01:05:33.633Z"
+}

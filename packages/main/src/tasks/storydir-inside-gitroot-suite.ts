@@ -353,15 +353,15 @@ try {
       assert.equal(threw, false);
     });
 
-    check('scenario4.no-gitRoot: helper stays TOTAL for a legacy `.koala` storyDir (guard removed; loadConfig no longer throws)', () => {
-      // B-b837: the legacy `.koala` write-path guard was removed, so loadConfig()
-      // no longer throws for a `.koala` storyDir. The helper must still produce a
-      // safe result and the story_create advisory must stay silent (no gitRoot).
+    check('scenario4.no-gitRoot: helper stays TOTAL for a legacy non-canonical storyDir (guard removed; loadConfig no longer throws)', () => {
+      // B-b837: the legacy write-path guard was removed, so loadConfig()
+      // no longer throws for a non-canonical storyDir. The helper must still
+      // produce a safe result and the story_create advisory must stay silent (no gitRoot).
       const legacyRoot = join(base, 'legacy-storydir-config');
       mkdirSync(legacyRoot, { recursive: true });
       writeFileSync(
         join(legacyRoot, 'lattice.config.json'),
-        JSON.stringify({ storyDir: '.koala/story/actives' }, null, 2),
+        JSON.stringify({ storyDir: 'legacy/story/actives' }, null, 2),
       );
       let threw = false;
       let result: StoryDirInsideGitRootResult | null = null;

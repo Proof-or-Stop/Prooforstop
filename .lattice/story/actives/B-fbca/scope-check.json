@@ -1,0 +1,136 @@
+{
+  "storyId": "B-fbca",
+  "checkedAt": "2026-06-23T19:13:27.378Z",
+  "features": [
+    {
+      "feature": "Rename all 8 koala-* signature salt VALUES to lattice-* in source (koala-review-integrity-v1, koala-review-pass-integrity-v1, koala-review-run-integrity-v1, koala-review-run-workspace-binding-v1, koala-review-scope-binding-v1, koala-scope-check-integrity-v1, koala-finding-integrity-v1, koala-story-store)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Perform salt renames using the worktree binary so this story gates sign with the new salt (not global/main dist)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Delete the legacy-koala DETECTION: managed-assets.ts excluded-path denylist (bin/koala.js, bin/koala-codex.js, .lattice-codex/koala.json)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Delete @koala-agent old-global-install handling in flow-stability-smoke.ts, worktree-repair-smoke.ts, lattice-only-absence-smoke.ts (old-install detection and absence assertions)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Clean remaining koala-codex / koala-agent literals and any stray koala comments/strings in packages/*/src (excluding residue-gate self-identifiers)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Rename koala config field idleKoala and related koalaConfig identifiers to lattice-named equivalents in packages/*/src",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/cc-learnings.md"
+    },
+    {
+      "feature": "Rename koala.config.json filename references to lattice equivalents; no read-fallback for old koala.config.json (OSS-clean, no migration)",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/testing-infra.md"
+    },
+    {
+      "feature": "Rename .koala/ runtime path string literals/comments to lattice runtime dir (.lattice/ or canonical path); verify no code still WRITES to .koala/",
+      "covered_by": "CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/koala-to-lattice-role-naming-execution-plan.md"
+    },
+    {
+      "feature": "No migration of existing .koala/ data (orphaned for old installs; OSS users start fresh)",
+      "covered_by": "CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Build green (npx tsc --noEmit), packages/main suite green (with documented skip list), residue gate verify-koala-residue.mjs PASS + self-test",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Zero-koala acceptance: git grep -i koala -- packages/*/src/** returns ONLY review-preflight.ts KOALA_RESIDUE_* lines after all CHK items",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Residue-gate self-identifiers KOALA_RESIDUE_* in handlers/review-preflight.ts and scripts/verify-koala-residue.mjs are OUT OF SCOPE (story 4)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "CHK-003 excludes residue-gate self-identifiers (KOALA_RESIDUE_* in handlers/review-preflight.ts) which are story 4; CHK-004 acceptance criterion explicitly carves out review-preflight.ts KOALA_RESIDUE_* as the only allowed remainder",
+      "source": "description"
+    },
+    {
+      "feature": "docs/experiments directory is OUT OF SCOPE (story 4 / not touched this story)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "CHK-004 acceptance criterion states docs/experiments untouched",
+      "source": "description"
+    },
+    {
+      "feature": ".lattice/story audit history is OUT OF SCOPE (kept, not edited)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "CHK-004 acceptance criterion states .lattice/story untouched",
+      "source": "description"
+    },
+    {
+      "feature": "KOALA_* environment variables are NOT renamed in this story (per koala-to-lattice-role-naming-execution-plan.md non-goals; runtime compat contract)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "koala-to-lattice-role-naming-execution-plan.md explicit non-goal: do not rename KOALA_* environment variables; CHK-003/004 scope is packages/*/src literals, not env vars",
+      "source": "decisions:decisions/koala-to-lattice-role-naming-execution-plan.md"
+    },
+    {
+      "feature": "koala-* role IDs in agent templates / CLI dispatch are NOT in scope for this story (covered by prior story B-ffa2 role-naming)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "koala-to-lattice-role-naming-execution-plan.md covers role IDs (B-ffa2); this story (B-fbca) targets salts/detection/config/paths only per description and CHK-001 through CHK-006",
+      "source": "decisions:decisions/koala-to-lattice-role-naming-execution-plan.md"
+    },
+    {
+      "feature": "Legacy managed-block koala:start/end parser compatibility is preserved (not removed in this story)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "koala-to-lattice-role-naming-execution-plan.md non-goal: do not remove legacy managed-block parsing for koala:start/end; this story targets salts/detection/config/paths, not managed-block syntax",
+      "source": "decisions:decisions/koala-to-lattice-role-naming-execution-plan.md"
+    }
+  ],
+  "summary": {
+    "total": 17,
+    "covered": 11,
+    "excluded": 6,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "91d772745f08f38e38fece63c4e0dc3b3ceebf5431a9bc3f9a318d2202d4672b",
+  "openQuestions": []
+}
