@@ -38,7 +38,14 @@
       "context": "Per pre-reg §1: A1 = one agent pass, output final (no loop); A2 = naive-retry up to R=3 on acceptance fail; A2' = A2 bounded by the token+wall budget (reuse budgetExceeded; token binds first; hard-truncate; emit budgetPass/tokenInBand/wallInBand/truncated/tokenBudget/wallBudgetMs); A3 = A2 then EXACTLY ONE review pass using the same reviewArtifact + the same structured context snapshot A4's reviewer gets (findings reported, not iterated); A4 = full loop with the review gate (refuse to ship on no-artifact/acceptance-fail/reviewer-BLOCK). Reuse run-recovery's agentRun/reviewArtifact core; do NOT carry over a4b (not a pre-reg arm).",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "experiments/recovery-runner/live-engine.mjs"
+        ],
+        "create": [],
+        "test": []
+      }
     },
     {
       "id": "CHK-004",
