@@ -540,6 +540,19 @@
           "materialHash": "2f149db52f337a4f4466fa1a43a8f0dbc8df49ef07e65772f5be61142bd5f85c",
           "storyFilesHash": "c21f0bf4341b45f8bae934c199fccad218fe04e737720749c66665a41e8540cb",
           "timestamp": "2026-06-24T00:20:59.640Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/review-escalation-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-escalation-smoke.js",
+          "result": "pass",
+          "note": "regression: review-escalation smoke still passes (15 checks), exit 0 (one-word export did not change escalation behavior)",
+          "headHash": "15cad1c46cef9bf9940a1cafa451de5647671f66",
+          "materialHash": "2f149db52f337a4f4466fa1a43a8f0dbc8df49ef07e65772f5be61142bd5f85c",
+          "storyFilesHash": "c21f0bf4341b45f8bae934c199fccad218fe04e737720749c66665a41e8540cb",
+          "timestamp": "2026-06-24T00:21:00.266Z"
         }
       ]
     },
