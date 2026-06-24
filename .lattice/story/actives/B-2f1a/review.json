@@ -69,6 +69,24 @@
         }
       ],
       "_hash": "83dd99aec7596a17d12948bd7cfad4da383bb1f12ebaeb62bcccb6452a094e57"
+    },
+    {
+      "timestamp": "2026-06-24T12:19:43.114Z",
+      "issueCount": 2,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 checklist items; please check for missing combined scenarios (e.g., what happens when Replace brand Lattice->Proofbound and Lattice CLI->Proofbound CLI in PROSE across README* and docs/**/*.md; keep lowercase `lattice` commands, .lattice/ paths, @lattice refs, schema-ids and salts untouched + Replace user-facing brand Lattice->Proofbound in packages/*/src user-visible strings (--help text, CLI banner/title, command descriptions, user-facing error messages); do NOT touch identifiers, imports, package names, .lattice paths, schema-ids, salts are performed simultaneously?)"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 1 undigested unknowns: None; the change is fully determined and nothing remains open at design time."
+        }
+      ],
+      "_hash": "c1ab1ffb80511d172e028594f5ecf498a4b676cf4f7c5b4b1d95e621e0b50e6a"
     }
   ]
 }
