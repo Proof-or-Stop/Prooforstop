@@ -4,7 +4,7 @@
   "title": "Port B-9dfb metadata-only dirty DONE readiness behavior into current main",
   "description": "Current local main does not contain the B-9dfb behavior that makes done_prepare and lifecycle_check treat pre-existing Lattice lifecycle metadata-only dirty state consistently. Port only the code/document/test behavior from the B-9dfb merge source, excluding old story metadata and unrelated orchestrate/main history.",
   "type": "bug",
-  "phase": "REVIEW",
+  "phase": "TEST",
   "priority": "high",
   "keywords": [
     "done_prepare",
@@ -83,6 +83,15 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-06-24T13:43:04.423Z",
+      "branch": "story/B-ce03",
+      "user": "Harmonygo",
+      "sessionId": "sess-62ebfebab9f4c340",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-24T13:47:41.628Z",
       "branch": "story/B-ce03",
       "user": "Harmonygo",
       "sessionId": "sess-62ebfebab9f4c340",
