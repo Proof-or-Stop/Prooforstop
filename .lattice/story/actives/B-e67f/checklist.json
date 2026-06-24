@@ -667,6 +667,19 @@
           "materialHash": "9f28b82c91a9d14b0bfcf1aef3a30137f791cf3546df8978a7ad59d8ada25b33",
           "storyFilesHash": "aed6666624846d734a34433306144b48ef4dd03e1dc39ea9ff8f89e19fcf3376",
           "timestamp": "2026-06-24T10:16:40.998Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/run-selfchecks.mjs",
+          "command": "node experiments/recovery-runner/run-selfchecks.mjs",
+          "result": "pass",
+          "note": "run-selfchecks aggregator now runs 6 selfchecks (adjudicate/checks/spend-accounting/run-driver/analyze + corpus-selfcheck); all 6 pass, exit 0; the 5 existing still report + the corpus one is added; aggregator exits non-zero if any selfcheck (incl corpus) fails",
+          "headHash": "592aef445bb6e235608ab638a23aea3127cc066c",
+          "materialHash": "9f28b82c91a9d14b0bfcf1aef3a30137f791cf3546df8978a7ad59d8ada25b33",
+          "storyFilesHash": "aed6666624846d734a34433306144b48ef4dd03e1dc39ea9ff8f89e19fcf3376",
+          "timestamp": "2026-06-24T10:16:43.145Z"
         }
       ]
     }
