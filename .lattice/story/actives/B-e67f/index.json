@@ -1,0 +1,46 @@
+{
+  "storyId": "B-e67f",
+  "name": "s5-corpus-24-task-stratified",
+  "title": "Build the §5/§6 24-task stratified ablation corpus (20 new tasks across 7 categories) + corpus self-validation smoke, frozen for the powered run",
+  "description": "Apply 20 pre-validated stratified tasks (bug-fix/refactor/test-repair/doc-update/dep-upgrade/contract-validation/CLI-feature) under experiments/recovery-runner/tasks/ to reach the pre-reg §2 24-task / 8-category corpus, plus a corpus-selfcheck.mjs that machine-checks the passes-acceptance-but-fails-ground-truth invariant for all 24 tasks via the canonical inject() path and asserts the stratification, wired into npm test:experiments. Freezes the corpus before the multi-day powered run. All 20 new tasks were independently re-validated end-to-end before this story.",
+  "type": "feature",
+  "phase": "INIT_CHECK",
+  "priority": "medium",
+  "keywords": [
+    "recovery-runner",
+    "ablation",
+    "corpus",
+    "experiment",
+    "powered-run",
+    "s5",
+    "s6"
+  ],
+  "createdAt": "2026-06-24T09:56:04.931Z",
+  "startedAt": "2026-06-24T09:56:04.931Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-24T09:56:04.944Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "e8aca935-deaf-4f5d-9f33-b3aff7bb35fb",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-24T09:59:30.728Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "e8aca935-deaf-4f5d-9f33-b3aff7bb35fb",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-e67f",
+    "branch": "story/B-e67f",
+    "createdAt": "2026-06-24T09:59:29.921Z"
+  }
+}

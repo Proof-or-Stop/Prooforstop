@@ -1,0 +1,32 @@
+{
+  "storyId": "B-e67f",
+  "checkedAt": "2026-06-24T09:58:33.023Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "id": "INIT-001",
+      "severity": "low",
+      "desc": "background.md Trigger Event uses \"infra-(a)\" (\"§5/§6 powered-ablation deterministic harness (infra-(a)) is complete\") without defining what infra-(a) denotes. A standalone reader cannot determine whether this is a sub-task label, a program phase identifier, or something else. Recommend expanding to e.g. \"(the infra part (a) of the §5/§6 program: adjudicate B-2d4c + checks B-ebbb + run-driver B-f248 + analyze B-7036)\" or simply dropping the parenthetical since the story list is already given."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-24T09:58:18.011Z",
+      "issues": []
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-06-24T09:58:33.023Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "low",
+          "desc": "background.md Trigger Event uses \"infra-(a)\" (\"§5/§6 powered-ablation deterministic harness (infra-(a)) is complete\") without defining what infra-(a) denotes. A standalone reader cannot determine whether this is a sub-task label, a program phase identifier, or something else. Recommend expanding to e.g. \"(the infra part (a) of the §5/§6 program: adjudicate B-2d4c + checks B-ebbb + run-driver B-f248 + analyze B-7036)\" or simply dropping the parenthetical since the story list is already given."
+        }
+      ]
+    }
+  ],
+  "_hash": "2ed321182c9c637b957dfba209cfe9973ba5528637556948c025d5b440659709"
+}
