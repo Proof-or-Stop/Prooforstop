@@ -111,13 +111,17 @@ function evidenceFreshnessRow(store: StoryStore, root: string, storyId: string) 
 
 function writeDoneGateEvidence(store: StoryStore, root: string, storyId: string): void {
   const now = '2026-06-04T10:00:00.000Z';
+  const headHash = currentGitHead(root);
+  const materialHash = currentMaterialHash(root);
+  assert.ok(headHash, 'smoke repo must have git HEAD for delivery-check freshness');
+  assert.ok(materialHash, 'smoke repo must have material hash for delivery-check freshness');
   store.writeTestEvidence(storyId, {
     command: 'done-preflight-smoke',
     output: JSON.stringify({ allPass: true, summary: 'done preflight smoke passed' }),
     result: 'PASS',
     timestamp: now,
-    headHash: currentGitHead(root),
-    materialHash: currentMaterialHash(root),
+    headHash,
+    materialHash,
     verificationCoverage: {
       total: 0,
       required: 0,
@@ -141,12 +145,14 @@ function writeDoneGateEvidence(store: StoryStore, root: string, storyId: string)
   store.writeDeliveryCheck(storyId, {
     storyId,
     checkedAt: now,
+    headHash,
+    materialHash,
     reviewRound: '',
     agentId: 'lattice-review-delivery',
     docsPromises,
     realMachineTests,
     closingSelfCheck,
-    _hash: signDeliveryCheck(storyId, docsPromises, realMachineTests, closingSelfCheck, ''),
+    _hash: signDeliveryCheck(storyId, docsPromises, realMachineTests, closingSelfCheck, '', materialHash),
   });
 }
 

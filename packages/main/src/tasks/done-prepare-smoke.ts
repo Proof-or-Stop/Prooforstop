@@ -97,13 +97,17 @@ function status(root: string): string {
 function writeDoneGateEvidence(store: StoryStore, root: string, storyId: string): void {
   const now = '2026-06-19T12:00:00.000Z';
   const storyFilesHash = currentStoryFilesHash(root, 'HEAD', root);
+  const headHash = currentGitHead(root);
+  const materialHash = currentMaterialHash(root);
+  assert.ok(headHash, 'done_prepare smoke fixture must have git HEAD for delivery-check freshness');
+  assert.ok(materialHash, 'done_prepare smoke fixture must have materialHash for delivery-check freshness');
   store.writeTestEvidence(storyId, {
     command: 'done-prepare-smoke',
     output: JSON.stringify({ allPass: true, summary: 'done prepare smoke ready' }),
     result: 'PASS',
     timestamp: now,
-    headHash: currentGitHead(root),
-    materialHash: currentMaterialHash(root),
+    headHash,
+    materialHash,
     ...(storyFilesHash ? { storyFilesHash } : {}),
     verificationCoverage: {
       total: 0,
@@ -128,12 +132,14 @@ function writeDoneGateEvidence(store: StoryStore, root: string, storyId: string)
   store.writeDeliveryCheck(storyId, {
     storyId,
     checkedAt: now,
+    headHash,
+    materialHash,
     reviewRound: '',
     agentId: 'lattice-review-delivery',
     docsPromises,
     realMachineTests,
     closingSelfCheck,
-    _hash: signDeliveryCheck(storyId, docsPromises, realMachineTests, closingSelfCheck, ''),
+    _hash: signDeliveryCheck(storyId, docsPromises, realMachineTests, closingSelfCheck, '', materialHash),
   });
 }
 
@@ -743,7 +749,7 @@ withRepo('command-backed stale evidence requires rerun', {
   assert.match(output, /will not freshen it by rewriting hashes/);
 });
 
-withRepo('matching storyFilesHash command evidence survives unrelated main material drift', {
+withRepo('matching storyFilesHash command evidence avoids rerun before delivery drift block', {
   storyId: 'B-dp-story-hash',
   storyHashCommandEvidence: true,
   changedFile: { path: 'docs/requirements/decisions/story-hash-evidence.md', content: '# story hash evidence\n' },
@@ -753,8 +759,9 @@ withRepo('matching storyFilesHash command evidence survives unrelated main mater
   git(root, [...COMMIT_ENV, 'commit', '-m', 'main material drift']);
 
   const output = runLattice(worktreePath, 'done_prepare', { storyId: 'B-dp-story-hash', validate: false });
-  assert.match(output, /DONE prepare: PASS/);
+  assertBlocked(output, 'doneClosure');
   assert.match(output, /staleEvidenceRefresh: PASS/);
+  assert.match(output, /stale delivery-check: materialHash mismatch/);
   assert.doesNotMatch(output, /stale command-backed evidence must be rerun/);
   assert.doesNotMatch(output, /npm run test:done-prepare-smoke-rerun/);
 });
