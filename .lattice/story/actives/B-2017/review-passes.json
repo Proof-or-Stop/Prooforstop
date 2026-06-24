@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-24T11:10:52.928Z",
       "reviewRunId": "B-2017:RR-001",
       "_hash": "c7709df6464a4ce9cf79e5d45d4c5e5535f044e130bbf90ca7ffbb7c34f98184"
+    },
+    {
+      "id": "B-2017:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "PASS: scripts/verify-orphan-surface.mjs is narrowly scoped to handler/catalog drift and retired/protected verifier surfaces; root and packages/main test:orphan-surface scripts pass; packages/main TypeScript build passes; direct runtime registry check found all 261 catalog commands backed by handlers except allowed built-ins; no blocking false positives, false negatives, path mistakes, or overbroad deletion guardrail issues found. Non-blocking note: the detector mainly source-scans rather than importing createMainRegistry for runtime availability, so future hardening could replace the command-name regex with a live registry comparison.",
+      "createdAt": "2026-06-24T11:14:26.730Z",
+      "reviewRound": "2026-06-24T11:10:52.928Z",
+      "reviewRunId": "B-2017:RR-002",
+      "_hash": "41cd127013e7f1a00359007dea503fd4dde226738dd310e81420f05688f707e7"
     }
   ]
 }
