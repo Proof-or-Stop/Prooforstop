@@ -492,11 +492,11 @@
           "verdict": "success",
           "command": "lattice quorum_submit --storyId=B-0405 --hostA=claude-code-cli --hostB=codex-cli --providerA=claude --providerB=codex --rounds=3 --json",
           "result": "pass",
-          "note": "Final material has local voluntary 3 rounds x 2 host quorum: emittedCount=6, runIds=B-0405-q-r1..q-r3, assuranceLevel=full-3x2, fullQuorum.ok=true. This is local review assurance only; authorityDone/fullAuthorityDone/productionDone remain false, so inadmissible proof-looking artifacts still cannot satisfy production/Authority claims.",
-          "headHash": "8ef4ba53d711a4da2afdbe26af69c17e4ad51e5a",
+          "note": "Final current material has local voluntary 3 rounds x 2 host quorum after F-006 focused quality pass: emittedCount=6, materialDigest=923ad919c3ba509a25243f28d0b60a236866050a79a73b478ce4b24568baa7d0, runIds=B-0405-q-r1..q-r3, assuranceLevel=full-3x2, fullQuorum.ok=true. This is local review assurance only; authorityDone/fullAuthorityDone/productionDone remain false.",
+          "headHash": "fe23f1dc89dae159e751dc4e1e1714d3a704d36f",
           "materialHash": "923ad919c3ba509a25243f28d0b60a236866050a79a73b478ce4b24568baa7d0",
           "storyFilesHash": "85f065d7259b3f5213f5bd88547ffa4df6bcc6f236ee1b23f0b46a2095388851",
-          "timestamp": "2026-06-24T12:00:09.760Z"
+          "timestamp": "2026-06-24T12:09:06.338Z"
         }
       ]
     }
