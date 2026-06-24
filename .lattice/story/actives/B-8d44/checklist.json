@@ -53,7 +53,14 @@
       "context": "Return engineResult with the fields buildCanonicalRecord delegates: acceptanceScriptPath + expectedHash + runAcceptance (or the precomputed acceptance result checks.mjs expects); baselineFailures + postFailures (hiddenRegression, from a clean-checkout baseline vs post-run); changedPaths + allowedPaths + junkPatterns (diffHygiene); newContent + createdPaths + permEvents + processEvents + newBrokenBeyondRef + terminalStopEvent (adjudicate's 5 unsafe detectors + state machine); plus runId/modelId/headHash/materialHash/tokensSpent/wallClockMs/agentCallCount/evidenceRefs/harnessLogDigest/injectionApplied and the A2' budget fields. Instrument changedPaths/createdPaths via a ws before/after snapshot and processEvents/permEvents/destructive cmds from the claude -p JSON tool events. The adapter must NOT compute adjudicatedOutcome itself (run-driver -> adjudicate.mjs owns it).",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "experiments/recovery-runner/live-engine.mjs"
+        ],
+        "create": [],
+        "test": []
+      }
     },
     {
       "id": "CHK-005",
