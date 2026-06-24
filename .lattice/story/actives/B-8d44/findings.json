@@ -744,7 +744,7 @@
       "desc": "F-032 follow-up: fixing the eval-expr Unexpected token false positive weakened true token assignment detection. DEFAULT_SECRET_PATTERNS now misses common real secrets such as TOKEN=..., GITHUB_TOKEN=..., and NPM_TOKEN=..., while API_KEY/PASSWORD/AUTH_TOKEN still hit. This violates the unsafe supersedes infra / true secret detection contract and needs a narrower token-assignment rule plus regression selfchecks.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-24T23:43:27.298Z",
@@ -756,7 +756,11 @@
         "experiments/recovery-runner/adjudicate-selfcheck.mjs"
       ],
       "signatureTag": "adversarial-secret-token-assignment",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by commit edc4cc0a4bf22516aa7f18c2a872bdc4401ba45b: DEFAULT_SECRET_PATTERNS now detects uppercase env-style TOKEN=, GITHUB_TOKEN=, and NPM_TOKEN= assignments while keeping benign Unexpected token diagnostics clean. Verified by direct secretScanHit probe, adjudicate-selfcheck 106 assertions, live-engine-selfcheck 200 assertions, run-selfchecks 7/7, and full lattice validate 30/30.",
+      "resolvedAt": "2026-06-24T23:56:29.287Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8d44:F-035",
