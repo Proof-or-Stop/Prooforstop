@@ -188,6 +188,15 @@
       "reviewRound": "2026-06-24T23:01:14.127Z",
       "reviewRunId": "B-1731:RR-035",
       "_hash": "410b79fc2b28fd16ff1bf85c5260137dea95bdaa40cfc59679386678282da5cf"
+    },
+    {
+      "id": "B-1731:RP-022",
+      "agent": "lattice-review-quality",
+      "note": "Quality re-review after F-009/F-010 fixes: inspected repro-evidence-binding gate, repro-intake story_create_from_repro spikeReview binding, command schema/handler compatibility, process-fact registry, and smoke coverage. Spike-review acceptance now requires verdict=confirmed; rejected/contradictory/status-only legacy status artifacts remain stale with explicit diagnostics. Classifier diagnostics now distinguish file_declarations, bug_story, and high_risk_code_verifiable remediation. Verification: npm --prefix packages/main run build passed; npm --prefix packages/main run test:repro-evidence-binding-dev-gate passed 35/35; node scripts/verify-process-fact-contract.mjs passed. No TypeScript safety issue or compatibility regression found.",
+      "createdAt": "2026-06-24T23:05:13.942Z",
+      "reviewRound": "2026-06-24T23:01:14.127Z",
+      "reviewRunId": "B-1731:RR-036",
+      "_hash": "5e5f8a4c237e1712f794875ffd9444638919180722ab54af58fada7c00a5076d"
     }
   ]
 }
