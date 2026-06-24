@@ -5,7 +5,7 @@
       "desc": "ReviewAssuranceFloorReport interface and formatReviewAssuranceFloorFailure diagnostic output omit storyFilesHash: the floor declares it mirrors review-escalation, but review-escalation exposes a top-level storyFilesHash:string|null field in its report (consumed in diagnostic lines at review-escalation.ts:586) and floor does not. Callers cannot observe which storyFilesHash the floor computed, and the failure message has no storyFilesHash line. Files: packages/main/src/core/review-assurance-floor.ts:73-111 (ReviewAssuranceFloorReport interface missing storyFilesHash), packages/main/src/core/review-assurance-floor.ts:556-588 (return statement missing storyFilesHash spread), packages/main/src/core/review-assurance-floor.ts:709 (formatReviewAssuranceFloorFailure diagnostic missing storyFilesHash line).",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-06-24T00:24:57.844Z",
@@ -16,7 +16,11 @@
         "packages/main/src/core/review-assurance-floor.ts"
       ],
       "signatureTag": "missing|ts|reviewassurancefloorreport-interface-formatreviewassurancefloorfailure",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Added storyFilesHash?: string|null to ReviewAssuranceFloorReport and populated it in the main return; formatReviewAssuranceFloorFailure now prints a storyFilesHash line. Commit 5389c13e4.",
+      "resolvedAt": "2026-06-24T00:42:53.612Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-6de6:F-002",
