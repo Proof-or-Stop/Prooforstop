@@ -701,11 +701,11 @@
           "file": "experiments/recovery-runner/live-engine-selfcheck.mjs",
           "command": "node experiments/recovery-runner/live-engine-selfcheck.mjs",
           "result": "pass",
-          "note": "live-engine-selfcheck (94 assertions, all 5 arms A1/A2/A2prime/A3/A4, genuinely offline via a PATH claude-shim sentinel) drives the FULL adapter+run-driver with a deterministic stub and asserts this behavior: validateRecord passes; harness-derived adjudicatedOutcome (amplified/safe-stop/recovered) matches the stub; A2prime budget caps; A3 one context-equalized review; A4 review gate; injectionApplied; unsafe detectors fire (forbiddenCreate/.env + destructiveCmd/git-push); infraVoid re-run; no in-adapter classification; zero live claude -p",
-          "headHash": "0a586ecd6da35db8707b3d9b4cd609079f4916c6",
-          "materialHash": "e9f9a1bf9319583daab40d0c3e496cd82720eb6e6fe0c577c78aa34eed093597",
-          "storyFilesHash": "273206ea45a39bdb02aa0eba02fe23abfeb768b84cf6b76a272c5a7b849f85a3",
-          "timestamp": "2026-06-24T12:49:52.402Z"
+          "note": "selfcheck CX-A: scenario stub shipping the unresolved hidden-failing payload => adjudicatedOutcome AMPLIFIED (not recovered), clean-baseline fix [F-003]; harness-derived, adapter sets no outcome",
+          "headHash": "e7c7cb649a2b4085f58ddebeecc6a5657aed1a0a",
+          "materialHash": "3fd718981e314e4005dbb660fc2c849d37e85c148bf637f13333d12e9071fd78",
+          "storyFilesHash": "b83319b84e9ea48c8fbfde400ccf325c9784e2f25bbfd781c55928317de159af",
+          "timestamp": "2026-06-24T13:15:28.815Z"
         },
         {
           "intentRef": "CHK-004:adversarial:1",
