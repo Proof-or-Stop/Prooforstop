@@ -38,6 +38,27 @@
       ],
       "signatureTag": "missing|ts|coverage-blocker-1731",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-1731:F-003",
+      "desc": "Lifecycle gates ignore reproFirstPreflight warn/off rollout modes by hard-coding evaluateStoryEvidenceBindingGate(...,{mode:\"enforce\"}) in machine.ts. The new config and process-fact contract say warn is diagnostic and off disables the preflight, but a built-code synthetic check showed both mode=warn and mode=off return false for PLAN->DEV with missing binding. This turns an opted-out or warn-only rollout into a hard lifecycle block, creating a compatibility regression for existing projects.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-24T22:06:46.347Z",
+      "reviewRound": "2026-06-24T22:02:26.542Z",
+      "reviewRunId": "B-1731:RR-002",
+      "_hash": "f551c1242254c199bf99ea2554d5bb1321dc18bad3b5fb9392abefa1affeff53",
+      "files": [
+        "packages/main/src/core/machine.ts",
+        "packages/main/src/core/config.ts",
+        "packages/main/src/core/process-fact-levels.ts",
+        "packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts"
+      ],
+      "signatureTag": "spec-boundary|ts|lifecycle-gates-ignore",
+      "signatureTagSource": "auto"
     }
   ]
 }
