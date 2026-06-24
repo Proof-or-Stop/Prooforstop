@@ -177,6 +177,17 @@
           "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
           "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
           "timestamp": "2026-06-24T11:20:13.411Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/delivery-check-freshness-smoke.js",
+          "result": "pass",
+          "note": "delivery-check-freshness-smoke.ts:212-244 (first case): deliveryCheckSet writes a fresh delivery-check, then evaluateDeliveryCheckFreshness returns ok:true (line 227) and doneRow status=pass (line 228). No materialHash mismatch exists (line 226 confirms afterMaterial==delivery.materialHash). The storyFilesHash is present on the record (confirmed by advisory case line 267) but irrelevant here because materialHash matches — the function returns delivery_check_passed at line 183-190 without ever entering the storyFilesHash branch.",
+          "headHash": "8656d4f082fa77b84825b7a41a8831d1a79d1c60",
+          "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
+          "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
+          "timestamp": "2026-06-24T11:20:18.075Z"
         }
       ]
     },
