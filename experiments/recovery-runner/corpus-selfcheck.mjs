@@ -30,6 +30,24 @@
 //      described. The whole script exits non-zero if any guard fails to fire.
 // Exit 0 only if ALL per-task invariants hold AND stratification holds AND every negative-control
 // guard fires; otherwise exit 1.
+//
+// ## Threat model
+// This selfcheck validates our SELF-AUTHORED corpus for ACCIDENTAL invariant violations — a payload
+// that doesn't actually fail ground-truth, a missing/stray contract file, stratification drift. That
+// is its purpose, and it fulfills it.
+// It is NOT a sandbox against a MALICIOUS task author with arbitrary in-process code execution. A
+// gamed inject()/solution that shares this process's authority can still bypass the invariant via:
+//   - PATH spoofing — shadowing the `node` binary the harness spawns (F-011, accepted_risk);
+//   - post-hash TOCTOU — racing the file between our sha256 snapshot and the child run (F-012,
+//     accepted_risk);
+//   - a harness-aware solution that reads process.argv[1] to behave differently under acceptance vs
+//     ground-truth (F-013, accepted_risk) — fundamentally unblockable by any in-process check.
+// Closing these would require real execution isolation (a locked-down subprocess: absolute node
+// path, minimal PATH, read-only harness, no network) AND making the two harnesses indistinguishable
+// to the solution — a separate hardening, out of this corpus story's scope. The 10 negative controls
+// cover the accidental-failure modes plus the CLOSED tamper vectors (F-007/F-008/F-009/F-010); the
+// three vectors above are accepted as out-of-threat-model for a self-authored corpus.
+//
 // Run: node experiments/recovery-runner/corpus-selfcheck.mjs   (defaults to ./tasks relative to here)
 import {
   readdirSync,

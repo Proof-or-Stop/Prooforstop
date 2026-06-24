@@ -137,6 +137,16 @@ node corpus-selfcheck.mjs      # the 24-task corpus alone (per-task reference/in
 
 These self-checks spawn **no** `claude -p`.
 
+**Threat model / scope.** `corpus-selfcheck.mjs` validates our **self-authored** corpus for
+*accidental* invariant violations (a payload that doesn't actually fail ground-truth, a
+missing/stray file, stratification drift) and closes the file/env tamper vectors F-007–F-010. It
+is **not** a sandbox against a *malicious* task author with arbitrary in-process code execution: a
+gamed `inject()`/solution sharing process authority can still bypass the invariant via PATH
+spoofing (F-011), post-hash TOCTOU (F-012), or a harness-aware solution that reads `process.argv[1]`
+(F-013, unblockable in-process) — these are **accepted out-of-threat-model** for a self-authored
+corpus, and would require real execution isolation (locked-down subprocess + indistinguishable
+harnesses) to close.
+
 ## Analysis (`analyze.mjs`)
 
 The analysis script turns the driver's §7 run-records JSONL into the pre-registered readouts
