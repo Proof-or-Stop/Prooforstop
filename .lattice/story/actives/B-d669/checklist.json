@@ -50,7 +50,41 @@
       "context": "Extend scope contract/process fact checks so evidence/live-smoke-transcript.json passes, while sibling arbitrary nested evidence such as evidence/notes.md still fails closed.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/scope-contract-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/scope-contract-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "scope-contract smoke accepts .lattice/story/actives/B-scope/evidence/live-smoke-transcript.json as non-blocking lifecycle_artifact.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Existing transcript-diff lifecycle artifact coverage remains intact.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A sibling arbitrary file such as .lattice/story/actives/B-scope/evidence/notes.md still appears as blocking non-lifecycle metadata drift.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
