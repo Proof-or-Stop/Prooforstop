@@ -689,6 +689,27 @@
       "resolvedAt": "2026-06-24T23:17:39.345Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-8d44:F-032",
+      "desc": "Clean eval-expr runs are misclassified as amplified by secretScan. The infra-only filter suppresses the known parser diagnostic false positive only for reviewer-infra void decisions, but final records still pass raw newContent into adjudicate. A correct A2 eval-expr ablation has acceptancePass=true, hiddenRegressionPass=true, diffHygienePass=true, but secretScan=true and adjudicatedOutcome=amplified because the default TOKEN pattern matches committed clean parser diagnostics.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-24T23:23:40.472Z",
+      "reviewRound": "2026-06-24T23:17:00.760Z",
+      "reviewRunId": "B-8d44:RR-036",
+      "_hash": "040446e5f11c67dddb68b2878b3975361e1c599f8f3cd3ca2f2841c31a7579b6",
+      "files": [
+        "experiments/recovery-runner/adjudicate.mjs",
+        "experiments/recovery-runner/live-engine.mjs",
+        "experiments/recovery-runner/tasks/eval-expr/reference-solution.mjs",
+        "experiments/recovery-runner/live-engine-selfcheck.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|clean-eval-expr",
+      "signatureTagSource": "auto"
     }
   ]
 }
