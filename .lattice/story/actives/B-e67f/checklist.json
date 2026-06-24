@@ -224,6 +224,19 @@
           "materialHash": "9f28b82c91a9d14b0bfcf1aef3a30137f791cf3546df8978a7ad59d8ada25b33",
           "storyFilesHash": "aed6666624846d734a34433306144b48ef4dd03e1dc39ea9ff8f89e19fcf3376",
           "timestamp": "2026-06-24T10:15:55.093Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/corpus-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/corpus-selfcheck.mjs",
+          "result": "pass",
+          "note": "corpus-selfcheck enumerates all 24 task dirs and asserts the 7-file contract (6 always-present + inline-or-file payload) + well-formed task.json per task; 24/24 pass => the 20 new dirs were applied correctly alongside the existing 4",
+          "headHash": "d0ad57ca55a1b9e10c114dded98b9bdfb7292b6b",
+          "materialHash": "9f28b82c91a9d14b0bfcf1aef3a30137f791cf3546df8978a7ad59d8ada25b33",
+          "storyFilesHash": "aed6666624846d734a34433306144b48ef4dd03e1dc39ea9ff8f89e19fcf3376",
+          "timestamp": "2026-06-24T10:15:57.120Z"
         }
       ]
     },
