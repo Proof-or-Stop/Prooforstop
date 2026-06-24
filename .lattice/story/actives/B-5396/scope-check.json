@@ -1,0 +1,136 @@
+{
+  "storyId": "B-5396",
+  "checkedAt": "2026-06-24T12:59:17.467Z",
+  "features": [
+    {
+      "feature": "Add a new section titled \"Host DONE convergence / drift handling\" to CLAUDE.md",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Mirror the same \"Host DONE convergence / drift handling\" section into AGENTS.md",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Rule (1): Document that hosts must run done_prepare --storyId --mergeMain --refreshStale --validate BEFORE story_advance DONE",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Rule (2): Document that host must read done_prepare/freshness-reader classification, not self-judge raw hashes",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Rule (3): Document that headHash-only drift is usually metadata/provenance movement, not a strong rerun signal",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Rule (4): Include VERBATIM text for materialHash-only drift with unchanged storyFilesHash downgrade rule",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Rule (5): Document storyFilesHash drift as the strong story-owned-material signal requiring possible re-binding of review pass/quorum/delivery",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Rule (6): Document that done_prepare automates merge/refresh/validate/next-action but does NOT bypass related drift",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Rule (7): Include VERBATIM pointer for metadata-only dirty handling deferred to B-9dfb; Host must not manually bypass cleanTree",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Cite all 4 decision docs as source-of-truth references (proof-admissibility-hardening-execution-plan.md, story-files-hash-material-drift.md, done-prepare-automation-execution-plan.md, review-assurance-floor-execution-plan.md)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Cite-not-restate discipline: section must not duplicate decision-doc rule content inline (docs-drift prevention)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "AGENTS.md section must carry same 7 rules, 2 VERBATIM passages, and 4 decision-doc references as CLAUDE.md copy (byte-aligned in substance)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "done_prepare dirty-file policy — metadata-only vs material-blocking classification (existing gate behavior from done-prepare-automation-execution-plan.md)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Scope boundary explicitly excludes all CLI/code changes and hash/freshness logic; this is implementation detail of done_prepare command, not the runbook section",
+      "source": "decisions:decisions/done-prepare-automation-execution-plan.md"
+    },
+    {
+      "feature": "storyFilesHash DONE sub-gate bindings: delivery-check signed-storyFilesHash adoption, done-required re-runs on materialHash drift, completedEvidenceSnapshot strict exclusion (from story-files-hash-material-drift.md §Amendment)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Scope boundary excludes hash/freshness logic and gate strength; these are implementation-level storyFilesHash gate sub-bindings, not Host operating discipline rules; deferred to B-9dfb pointer only",
+      "source": "decisions:decisions/story-files-hash-material-drift.md"
+    },
+    {
+      "feature": "Proof admissibility contract (C1-C14 clauses, EvidenceScope enum, ProofSurfaceDefinition, gate-consumption boundaries) from proof-admissibility-hardening-execution-plan.md",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Story description explicitly excludes gate strength and quorum/proof-admissibility contract; this story only cites the decision doc as a reference, not implements or restates it",
+      "source": "decisions:decisions/proof-admissibility-hardening-execution-plan.md"
+    },
+    {
+      "feature": "Review assurance floor operational rules and escalation trigger thresholds (3x2/3x1 requirement, countable-problem threshold) from review-assurance-floor-execution-plan.md",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Story description excludes gate strength and quorum/proof-admissibility contract; review-assurance-floor is cited as a reference doc, not reimplemented in the runbook section",
+      "source": "decisions:decisions/review-assurance-floor-execution-plan.md"
+    },
+    {
+      "feature": "Metadata-only dirty-state behavior full specification (B-9dfb scope)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Story description explicitly defers metadata-only dirty handling to B-9dfb; runbook only includes a VERBATIM pointer to B-9dfb",
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 17,
+    "covered": 12,
+    "excluded": 5,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "d9143c89d325889a841d861d3cbbb6cd7e3e05c67a87e4e68c1e60ad0e05bf3d",
+  "openQuestions": []
+}
