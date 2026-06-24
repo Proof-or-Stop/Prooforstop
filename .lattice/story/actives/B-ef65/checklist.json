@@ -11,7 +11,43 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "After the implementation build, the terminal shows TypeScript build success and validate/done_required_validate use the same story-scoped validation execution lock without changing unrelated workflow commands.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/handlers/done-required-validation.ts"
+        ],
+        "create": [
+          "packages/main/src/core/validation-execution-lock.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/validate-execution-lock-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A normal story validate command acquires and releases a lock scoped by project, story id, and worktree so same-story duplicate execution cannot overlap.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A different story/worktree can still validate concurrently, and stale validation locks can be reclaimed without blocking future work forever.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Reviewer pass writes, delivery_check_set writes, story_advance internal validate, and done_required_validate are not self-deadlocked or incorrectly blocked by the validate lock.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

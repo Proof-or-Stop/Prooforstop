@@ -4,7 +4,7 @@
   "title": "Formalize validate execution lock from red/spike evidence",
   "description": "Formal story delivery for the already-proven validate execution lock fix. Red evidence exists in bac345a80, green implementation exists in 8248dc50d, and non-regression coverage exists in 5c643b627. This experiment measures how long a story takes after the problem and solution are already proven, while recording workflow friction from story to DONE.",
   "type": "bug",
-  "phase": "INIT_CHECK",
+  "phase": "PLAN",
   "priority": "high",
   "riskSignals": [
     {
@@ -32,6 +32,15 @@
       "branch": "main",
       "user": "Harmonygo",
       "sessionId": "sess-7f55c8d5292c7c45",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-24T01:05:11.944Z",
+      "branch": "story/B-ef65",
+      "user": "Harmonygo",
+      "sessionId": "sess-aa64541dc555ac8d",
       "agent": "main"
     }
   ],
