@@ -44,7 +44,7 @@
       "desc": "Host-2 (Codex) review: the machine-guard coverage in review-escalation-freshness-root-smoke.ts is not a genuine regression guard. canFinishGuard / getGuardFailureReason return early (test-evidence/delivery-check gates) before reaching the evaluateReviewEscalation call site, and the escViaMachineExpr assertion tests a COPY of the gitCwd expression outside the guard. Reverting the machine.ts:639/1145 gitCwd plumbing would NOT fail the smoke. Fix: seed a DONE-ready wrapper-root fixture (PASS test-evidence + valid signed delivery-check + escalation-required policy + 3x2 host verdicts bound to currentMaterialHash(gitRoot,HEAD,metaRoot)) so canFinishGuard reaches and DEPENDS on the escalation call; assert canFinishGuard(gitCwd:gitRoot)===true and (gitCwd:metaRoot)===false.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex-host2",
       "createdAt": "2026-06-24T02:26:51.736Z",
@@ -55,7 +55,11 @@
         "packages/main/src/core/machine.ts"
       ],
       "signatureTag": "missing|ts|host-codex-review",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Re-review verified commit 605c39854 added a DONE-ready wrapper-root fixture: PASS test evidence, signed fresh delivery-check, explicit high-risk escalation policy, and 3x2 host verdicts bound to currentMaterialHash(gitRoot,HEAD,metaRoot). Baseline build+smoke passed. Temporarily removing gitCwd from canFinishGuard evaluateReviewEscalation compiled but made review-escalation-freshness-root-smoke fail at the canFinishGuard green assertion; restoring machine.ts made build+smoke pass again. Production machine.ts and done-oracle.ts still thread gitCwd.",
+      "resolvedAt": "2026-06-24T02:41:50.486Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
