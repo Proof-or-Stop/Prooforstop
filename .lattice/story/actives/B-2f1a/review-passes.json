@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-24T12:38:48.171Z",
       "reviewRunId": "B-2f1a:RR-002",
       "_hash": "6a5a910d7221d65e16bb4ae2eb2f5d91cbc4591eddd8f54113036d792c81232d"
+    },
+    {
+      "id": "B-2f1a:RP-005",
+      "agent": "lattice-review-channel",
+      "note": "Normal channel round-2 channel review: dispatch covers all 5 CHKs (CHK-001..005 each have a dispatch + subagent_result(success:true) event in process-events.jsonl). F-001 fix (commit c0f2dec10) authored by lattice-implementer per task attestation; no independent F-001 dispatch event is required because the fix scope is covered by the dispatched CHK work. Main-agent commits are lattice-metadata/merge only. Channel review passed.",
+      "createdAt": "2026-06-24T13:00:40.464Z",
+      "reviewRound": "2026-06-24T12:38:48.171Z",
+      "reviewRunId": "B-2f1a:RR-008",
+      "_hash": "1499f6365a563bec15a01bcc0cf3a680592700c81f85fe76195a9e705cd801e7"
     }
   ]
 }
