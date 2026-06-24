@@ -52,10 +52,10 @@
           "command": "npm run --prefix packages/main test:authority-receipt-proof-auth",
           "result": "pass",
           "note": "authority-receipt-proof-auth-smoke.ts:32-41 constructs AuthorityClient with customerApiKey=\"cust-key-xyz\", calls fetchGateReceiptProof, and asserts capturedHeaders.Authorization === \"Bearer cust-key-xyz\" (line 38-41). The capturingFetch stub (line 28-31) captures the outgoing headers, proving that authenticated:true in fetchGateReceiptProof (authority-client.ts:646) causes get() to attach the Bearer token. Test exits 0 with PASS.",
-          "headHash": "ec451a7d9261f02be0a29a9c558cbba0c528dd06",
-          "materialHash": "f232c7029257a01f346ffad63c2a664b3b80d713b0c74103e8da7fea41e32783",
-          "storyFilesHash": "3cf835ab0d0a7897a3dbc82552dd88ce8579fba2947d8f132e3d2bda8809d172",
-          "timestamp": "2026-06-24T03:26:58.259Z"
+          "headHash": "fc46d4421dd18c5cc27624c6b1e46c80349ab78c",
+          "materialHash": "6389ceaf7ce2dfa0a53285ad09b7e4b13d19c8c4f71c8c2ba173d4d23aa3c781",
+          "storyFilesHash": "fea41ff7208338c9c0e490674ae3283a0cbce563d3564975ca9e1b95ac518c6a",
+          "timestamp": "2026-06-24T03:56:29.705Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
@@ -64,10 +64,10 @@
           "command": "npm run --prefix packages/main test:authority-receipt-proof-auth",
           "result": "pass",
           "note": "Deterministic test (commit 93dc28702) now has a happy-path block: a schema-valid AuthorityGateReceiptProof fixture is returned by the stub and self-checked against AuthorityGateReceiptProofSchema; the test asserts outcome.ok===true and outcome.data.receipt.inputDigest + outcome.data.inputPayload equal the fixture. Genuinely pins ok===true + schema match (resolves F-003).",
-          "headHash": "ec451a7d9261f02be0a29a9c558cbba0c528dd06",
-          "materialHash": "f232c7029257a01f346ffad63c2a664b3b80d713b0c74103e8da7fea41e32783",
-          "storyFilesHash": "3cf835ab0d0a7897a3dbc82552dd88ce8579fba2947d8f132e3d2bda8809d172",
-          "timestamp": "2026-06-24T03:26:58.259Z"
+          "headHash": "fc46d4421dd18c5cc27624c6b1e46c80349ab78c",
+          "materialHash": "6389ceaf7ce2dfa0a53285ad09b7e4b13d19c8c4f71c8c2ba173d4d23aa3c781",
+          "storyFilesHash": "fea41ff7208338c9c0e490674ae3283a0cbce563d3564975ca9e1b95ac518c6a",
+          "timestamp": "2026-06-24T03:56:29.705Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
@@ -75,10 +75,10 @@
           "command": "npm run --prefix packages/main test:authority-receipt-proof-auth",
           "result": "pass",
           "note": "authority-receipt-proof-auth-smoke.ts:49 constructs AuthorityClient with NO 4th auth arg (customerApiKey undefined). Line 50 calls fetchGateReceiptProof, line 51 asserts outcome.ok===false (fail-closed), and line 52-55 asserts called===false proving ZERO network requests were made. This matches the get() guard at authority-client.ts:676-683 which returns kind:error with message \"customer_api_key_unconfigured_fails_closed\" when authenticated:true but no key.",
-          "headHash": "ec451a7d9261f02be0a29a9c558cbba0c528dd06",
-          "materialHash": "f232c7029257a01f346ffad63c2a664b3b80d713b0c74103e8da7fea41e32783",
-          "storyFilesHash": "3cf835ab0d0a7897a3dbc82552dd88ce8579fba2947d8f132e3d2bda8809d172",
-          "timestamp": "2026-06-24T03:26:58.259Z"
+          "headHash": "fc46d4421dd18c5cc27624c6b1e46c80349ab78c",
+          "materialHash": "6389ceaf7ce2dfa0a53285ad09b7e4b13d19c8c4f71c8c2ba173d4d23aa3c781",
+          "storyFilesHash": "fea41ff7208338c9c0e490674ae3283a0cbce563d3564975ca9e1b95ac518c6a",
+          "timestamp": "2026-06-24T03:56:29.705Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -86,10 +86,10 @@
           "command": "npm run --prefix packages/main test:authority-receipt-proof-auth",
           "result": "pass",
           "note": "RED/GREEN reasoning: authority-client.ts:646 sets authenticated:true in fetchGateReceiptProof. The get() method at line 676 checks this flag and adds Bearer header only when true. If reverted to authenticated:false/omitted, get() skips the Authorization header (line 685 never reached), so the capturingFetch stub in authority-receipt-proof-auth-smoke.ts:28-31 would capture no Authorization header and the assert at line 38-41 would fail. Restoring authenticated:true re-enables the header. The deterministic test (exit 0, PASS) proves the fix is load-bearing.",
-          "headHash": "ec451a7d9261f02be0a29a9c558cbba0c528dd06",
-          "materialHash": "f232c7029257a01f346ffad63c2a664b3b80d713b0c74103e8da7fea41e32783",
-          "storyFilesHash": "3cf835ab0d0a7897a3dbc82552dd88ce8579fba2947d8f132e3d2bda8809d172",
-          "timestamp": "2026-06-24T03:26:58.259Z"
+          "headHash": "fc46d4421dd18c5cc27624c6b1e46c80349ab78c",
+          "materialHash": "6389ceaf7ce2dfa0a53285ad09b7e4b13d19c8c4f71c8c2ba173d4d23aa3c781",
+          "storyFilesHash": "fea41ff7208338c9c0e490674ae3283a0cbce563d3564975ca9e1b95ac518c6a",
+          "timestamp": "2026-06-24T03:56:29.705Z"
         }
       ]
     },
@@ -141,10 +141,10 @@
           "command": "source /Users/jek/Documents/Work/proofbound/lattice_senior_authority_trust.env && export LATTICE_AUTHORITY_CUSTOMER_API_KEY=\"$(cat /Users/jek/Documents/Work/proofbound/lattice_senior_staging-client.env)\" && node packages/main/dist/tasks/authority-live-receipt-ref-gate-smoke.js",
           "result": "pass",
           "note": "loadProof is exercised end-to-end by the live staging smoke: runAuthorityReceiptVerify -> loadProof builds the AuthorityClient via resolveAuthorityClientAuth(process.env) and fetches the protected /v1/receipts/{id}/proof. Smoke PASS (receiptVerified===true) is execution proof that loadProof sends Bearer auth and the authenticated read succeeds against staging (resolves F-004; no longer mere structural inference).",
-          "headHash": "ec451a7d9261f02be0a29a9c558cbba0c528dd06",
-          "materialHash": "f232c7029257a01f346ffad63c2a664b3b80d713b0c74103e8da7fea41e32783",
-          "storyFilesHash": "3cf835ab0d0a7897a3dbc82552dd88ce8579fba2947d8f132e3d2bda8809d172",
-          "timestamp": "2026-06-24T03:26:58.259Z"
+          "headHash": "fc46d4421dd18c5cc27624c6b1e46c80349ab78c",
+          "materialHash": "6389ceaf7ce2dfa0a53285ad09b7e4b13d19c8c4f71c8c2ba173d4d23aa3c781",
+          "storyFilesHash": "fea41ff7208338c9c0e490674ae3283a0cbce563d3564975ca9e1b95ac518c6a",
+          "timestamp": "2026-06-24T03:56:29.705Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -152,10 +152,10 @@
           "command": "npm run --prefix packages/main test:authority-receipt-proof-auth",
           "result": "pass",
           "note": "RED/GREEN reasoning: authority-enforce.ts:207 passes auth as 4th arg to AuthorityClient. If removed (old 3-arg constructor), AuthorityClient.auth defaults to {} (no customerApiKey). Then get() at authority-client.ts:677 finds this.auth.customerApiKey undefined, and with authenticated:true it returns the fail-closed error (line 678-683) — the proof fetch never reaches the server. The smoke at authority-receipt-proof-auth-smoke.ts:32 constructs with explicit auth to prove this path works; without auth the test at line 49-55 shows the fail-closed behavior. The two tests together prove the fix is necessary.",
-          "headHash": "ec451a7d9261f02be0a29a9c558cbba0c528dd06",
-          "materialHash": "f232c7029257a01f346ffad63c2a664b3b80d713b0c74103e8da7fea41e32783",
-          "storyFilesHash": "3cf835ab0d0a7897a3dbc82552dd88ce8579fba2947d8f132e3d2bda8809d172",
-          "timestamp": "2026-06-24T03:26:58.259Z"
+          "headHash": "fc46d4421dd18c5cc27624c6b1e46c80349ab78c",
+          "materialHash": "6389ceaf7ce2dfa0a53285ad09b7e4b13d19c8c4f71c8c2ba173d4d23aa3c781",
+          "storyFilesHash": "fea41ff7208338c9c0e490674ae3283a0cbce563d3564975ca9e1b95ac518c6a",
+          "timestamp": "2026-06-24T03:56:29.705Z"
         },
         {
           "intentRef": "CHK-002:adversarial:1",
@@ -163,10 +163,10 @@
           "command": "npm run --prefix packages/main test:authority-receipt-proof-auth",
           "result": "pass",
           "note": "Partial-fix reasoning: If CHK-001 fix is applied (authenticated:true at authority-client.ts:646) but CHK-002 fix is NOT applied (no auth arg in loadProof constructor), then loadProof creates AuthorityClient with 3 args (no auth). The get() method at line 676 sees authenticated===true, reads this.auth.customerApiKey which is undefined (no auth object), and returns fail-closed error at line 678-683 — the proof fetch fails without reaching the server. The smoke test at line 49-55 directly demonstrates this: AuthorityClient without auth + fetchGateReceiptProof → ok:false, called:false. Both fixes are jointly necessary.",
-          "headHash": "ec451a7d9261f02be0a29a9c558cbba0c528dd06",
-          "materialHash": "f232c7029257a01f346ffad63c2a664b3b80d713b0c74103e8da7fea41e32783",
-          "storyFilesHash": "3cf835ab0d0a7897a3dbc82552dd88ce8579fba2947d8f132e3d2bda8809d172",
-          "timestamp": "2026-06-24T03:26:58.259Z"
+          "headHash": "fc46d4421dd18c5cc27624c6b1e46c80349ab78c",
+          "materialHash": "6389ceaf7ce2dfa0a53285ad09b7e4b13d19c8c4f71c8c2ba173d4d23aa3c781",
+          "storyFilesHash": "fea41ff7208338c9c0e490674ae3283a0cbce563d3564975ca9e1b95ac518c6a",
+          "timestamp": "2026-06-24T03:56:29.705Z"
         }
       ]
     },
@@ -222,10 +222,10 @@
           "command": "source /Users/jek/Documents/Work/proofbound/lattice_senior_authority_trust.env && export LATTICE_AUTHORITY_CUSTOMER_API_KEY=\"$(cat /Users/jek/Documents/Work/proofbound/lattice_senior_staging-client.env | tr -d '\\n')\" && node packages/main/dist/tasks/authority-live-receipt-ref-gate-smoke.js",
           "result": "pass",
           "note": "Live smoke ran against staging and printed \"PASS authority live receipt-ref gate smoke: staging proof fetched, receipt ref written, TEST/DONE gates consumed, negative control blocked\". The smoke at authority-live-receipt-ref-gate-smoke.ts:829-838 calls buildPhaseGateRequest(ctx, DONE) which includes materialOverlapAudit (line 213-219), then posts to /v1/gates/evaluate. Authority accepted the DONE gate request (verdict approve/pass at line 834) proving materialOverlapAudit is present and valid.",
-          "headHash": "ec451a7d9261f02be0a29a9c558cbba0c528dd06",
-          "materialHash": "f232c7029257a01f346ffad63c2a664b3b80d713b0c74103e8da7fea41e32783",
-          "storyFilesHash": "3cf835ab0d0a7897a3dbc82552dd88ce8579fba2947d8f132e3d2bda8809d172",
-          "timestamp": "2026-06-24T03:26:58.259Z"
+          "headHash": "fc46d4421dd18c5cc27624c6b1e46c80349ab78c",
+          "materialHash": "6389ceaf7ce2dfa0a53285ad09b7e4b13d19c8c4f71c8c2ba173d4d23aa3c781",
+          "storyFilesHash": "fea41ff7208338c9c0e490674ae3283a0cbce563d3564975ca9e1b95ac518c6a",
+          "timestamp": "2026-06-24T03:56:29.705Z"
         },
         {
           "intentRef": "CHK-003:happy:1",
@@ -233,10 +233,10 @@
           "command": "source /Users/jek/Documents/Work/proofbound/lattice_senior_authority_trust.env && export LATTICE_AUTHORITY_CUSTOMER_API_KEY=\"$(cat /Users/jek/Documents/Work/proofbound/lattice_senior_staging-client.env | tr -d '\\n')\" && node packages/main/dist/tasks/authority-live-receipt-ref-gate-smoke.js",
           "result": "pass",
           "note": "authority-live-receipt-ref-gate-smoke.ts:197-219 buildPhaseGateRequest calls buildGateEvaluateRequest with materialOverlapAudit: buildNoOverlapMaterialOverlapAuditDefault() for targetPhase=DONE (line 213-219). buildNoOverlapMaterialOverlapAuditDefault() at authority-contracts.ts:811-816 returns {changedFiles:[], actualFileOverlaps:[]}. The live smoke PASS proves Authority accepted the DONE gate request with this field present in the digest input (gateInputDigest computed by buildGateEvaluateRequest at authority-contracts.ts:882 covers all input fields including materialOverlapAudit).",
-          "headHash": "ec451a7d9261f02be0a29a9c558cbba0c528dd06",
-          "materialHash": "f232c7029257a01f346ffad63c2a664b3b80d713b0c74103e8da7fea41e32783",
-          "storyFilesHash": "3cf835ab0d0a7897a3dbc82552dd88ce8579fba2947d8f132e3d2bda8809d172",
-          "timestamp": "2026-06-24T03:26:58.259Z"
+          "headHash": "fc46d4421dd18c5cc27624c6b1e46c80349ab78c",
+          "materialHash": "6389ceaf7ce2dfa0a53285ad09b7e4b13d19c8c4f71c8c2ba173d4d23aa3c781",
+          "storyFilesHash": "fea41ff7208338c9c0e490674ae3283a0cbce563d3564975ca9e1b95ac518c6a",
+          "timestamp": "2026-06-24T03:56:29.705Z"
         },
         {
           "intentRef": "CHK-003:happy:2",
@@ -244,10 +244,10 @@
           "command": "source /Users/jek/Documents/Work/proofbound/lattice_senior_authority_trust.env && export LATTICE_AUTHORITY_CUSTOMER_API_KEY=\"$(cat /Users/jek/Documents/Work/proofbound/lattice_senior_staging-client.env | tr -d '\\n')\" && node packages/main/dist/tasks/authority-live-receipt-ref-gate-smoke.js",
           "result": "pass",
           "note": "authority-live-receipt-ref-gate-smoke.ts:222-246 signedTargetGateRequest includes materialOverlapAudit in the signed decision envelope at line 239-241: ...(request.materialOverlapAudit ? { materialOverlapAudit: request.materialOverlapAudit } : {}). Since the DONE buildPhaseGateRequest sets materialOverlapAudit, the signed decision also carries it. The live smoke PASS (Authority accepted with verdict approve/pass at line 834) proves the two sides agree — if materialOverlapAudit were missing from the signed side, the server would reject with a digest mismatch.",
-          "headHash": "ec451a7d9261f02be0a29a9c558cbba0c528dd06",
-          "materialHash": "f232c7029257a01f346ffad63c2a664b3b80d713b0c74103e8da7fea41e32783",
-          "storyFilesHash": "3cf835ab0d0a7897a3dbc82552dd88ce8579fba2947d8f132e3d2bda8809d172",
-          "timestamp": "2026-06-24T03:26:58.259Z"
+          "headHash": "fc46d4421dd18c5cc27624c6b1e46c80349ab78c",
+          "materialHash": "6389ceaf7ce2dfa0a53285ad09b7e4b13d19c8c4f71c8c2ba173d4d23aa3c781",
+          "storyFilesHash": "fea41ff7208338c9c0e490674ae3283a0cbce563d3564975ca9e1b95ac518c6a",
+          "timestamp": "2026-06-24T03:56:29.705Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -255,10 +255,10 @@
           "command": "source /Users/jek/Documents/Work/proofbound/lattice_senior_authority_trust.env && export LATTICE_AUTHORITY_CUSTOMER_API_KEY=\"$(cat /Users/jek/Documents/Work/proofbound/lattice_senior_staging-client.env | tr -d '\\n')\" && node packages/main/dist/tasks/authority-live-receipt-ref-gate-smoke.js",
           "result": "pass",
           "note": "Digest mismatch reasoning: buildPhaseGateRequest (line 197-219) feeds materialOverlapAudit into buildGateEvaluateRequest which computes gateInputDigest over ALL input fields (authority-contracts.ts:882). signedTargetGateRequest (line 222-246) includes materialOverlapAudit in the signed decision (line 239-241). If either side omits it, the gateInputDigest and the decision payload diverge — Authority server rejects with digest mismatch. The live smoke PASS proves both sides are in lockstep. The code structure makes this invariant clear: request.materialOverlapAudit is set once in buildPhaseGateRequest and read by signedTargetGateRequest.",
-          "headHash": "ec451a7d9261f02be0a29a9c558cbba0c528dd06",
-          "materialHash": "f232c7029257a01f346ffad63c2a664b3b80d713b0c74103e8da7fea41e32783",
-          "storyFilesHash": "3cf835ab0d0a7897a3dbc82552dd88ce8579fba2947d8f132e3d2bda8809d172",
-          "timestamp": "2026-06-24T03:26:58.259Z"
+          "headHash": "fc46d4421dd18c5cc27624c6b1e46c80349ab78c",
+          "materialHash": "6389ceaf7ce2dfa0a53285ad09b7e4b13d19c8c4f71c8c2ba173d4d23aa3c781",
+          "storyFilesHash": "fea41ff7208338c9c0e490674ae3283a0cbce563d3564975ca9e1b95ac518c6a",
+          "timestamp": "2026-06-24T03:56:29.705Z"
         },
         {
           "intentRef": "CHK-003:adversarial:1",
@@ -266,10 +266,10 @@
           "command": "source /Users/jek/Documents/Work/proofbound/lattice_senior_authority_trust.env && export LATTICE_AUTHORITY_CUSTOMER_API_KEY=\"$(cat /Users/jek/Documents/Work/proofbound/lattice_senior_staging-client.env | tr -d '\\n')\" && node packages/main/dist/tasks/authority-live-receipt-ref-gate-smoke.js",
           "result": "pass",
           "note": "RED/GREEN reasoning: authority-live-receipt-ref-gate-smoke.ts:213-219 adds materialOverlapAudit only for targetPhase===DONE. buildGateEvaluateRequest at authority-contracts.ts:879-883 computes gateInputDigest over the full input including materialOverlapAudit. If materialOverlapAudit were removed from the DONE buildPhaseGateRequest, the gateInputDigest would change (missing a field the server requires), causing Authority to reject the DONE gate evaluate request — the live smoke would fail at the assert on line 834. Restoring the field restores the correct digest and the server accepts. The live smoke PASS proves the addition is load-bearing.",
-          "headHash": "ec451a7d9261f02be0a29a9c558cbba0c528dd06",
-          "materialHash": "f232c7029257a01f346ffad63c2a664b3b80d713b0c74103e8da7fea41e32783",
-          "storyFilesHash": "3cf835ab0d0a7897a3dbc82552dd88ce8579fba2947d8f132e3d2bda8809d172",
-          "timestamp": "2026-06-24T03:26:58.259Z"
+          "headHash": "fc46d4421dd18c5cc27624c6b1e46c80349ab78c",
+          "materialHash": "6389ceaf7ce2dfa0a53285ad09b7e4b13d19c8c4f71c8c2ba173d4d23aa3c781",
+          "storyFilesHash": "fea41ff7208338c9c0e490674ae3283a0cbce563d3564975ca9e1b95ac518c6a",
+          "timestamp": "2026-06-24T03:56:29.705Z"
         }
       ]
     },
@@ -335,10 +335,10 @@
           "command": "npm run --prefix packages/main test:authority-receipt-proof-auth",
           "result": "pass",
           "note": "Ran npm run --prefix packages/main test:authority-receipt-proof-auth which executes dist/tasks/authority-receipt-proof-auth-smoke.js (package.json script). The smoke exited 0 and printed \"PASS authority receipt proof auth smoke: proof fetch is authenticated (Bearer) and fail-closed without a key\". All assertions at authority-receipt-proof-auth-smoke.ts:36-55 passed. This deterministic regression smoke is the primary verification artifact for CHK-001/CHK-002/CHK-004.",
-          "headHash": "ec451a7d9261f02be0a29a9c558cbba0c528dd06",
-          "materialHash": "f232c7029257a01f346ffad63c2a664b3b80d713b0c74103e8da7fea41e32783",
-          "storyFilesHash": "3cf835ab0d0a7897a3dbc82552dd88ce8579fba2947d8f132e3d2bda8809d172",
-          "timestamp": "2026-06-24T03:26:58.259Z"
+          "headHash": "fc46d4421dd18c5cc27624c6b1e46c80349ab78c",
+          "materialHash": "6389ceaf7ce2dfa0a53285ad09b7e4b13d19c8c4f71c8c2ba173d4d23aa3c781",
+          "storyFilesHash": "fea41ff7208338c9c0e490674ae3283a0cbce563d3564975ca9e1b95ac518c6a",
+          "timestamp": "2026-06-24T03:56:29.705Z"
         },
         {
           "intentRef": "CHK-004:happy:1",
@@ -346,10 +346,10 @@
           "command": "npm run --prefix packages/main test:authority-receipt-proof-auth",
           "result": "pass",
           "note": "authority-receipt-proof-auth-smoke.ts:32-34 constructs AuthorityClient with customerApiKey=\"cust-key-xyz\". Line 35 calls fetchGateReceiptProof(PROOF_PATH). The capturingFetch stub (line 28-31) captures outgoing headers. Line 38-41 asserts capturedHeaders.Authorization === \"Bearer cust-key-xyz\" — exactly pinning that the authenticated proof fetch sends the correct Bearer token value. Test exits 0.",
-          "headHash": "ec451a7d9261f02be0a29a9c558cbba0c528dd06",
-          "materialHash": "f232c7029257a01f346ffad63c2a664b3b80d713b0c74103e8da7fea41e32783",
-          "storyFilesHash": "3cf835ab0d0a7897a3dbc82552dd88ce8579fba2947d8f132e3d2bda8809d172",
-          "timestamp": "2026-06-24T03:26:58.259Z"
+          "headHash": "fc46d4421dd18c5cc27624c6b1e46c80349ab78c",
+          "materialHash": "6389ceaf7ce2dfa0a53285ad09b7e4b13d19c8c4f71c8c2ba173d4d23aa3c781",
+          "storyFilesHash": "fea41ff7208338c9c0e490674ae3283a0cbce563d3564975ca9e1b95ac518c6a",
+          "timestamp": "2026-06-24T03:56:29.705Z"
         },
         {
           "intentRef": "CHK-004:happy:2",
@@ -357,10 +357,10 @@
           "command": "npm run --prefix packages/main test:authority-receipt-proof-auth",
           "result": "pass",
           "note": "authority-receipt-proof-auth-smoke.ts:49 constructs AuthorityClient without auth (no 4th arg = no customerApiKey). Line 50 calls fetchGateReceiptProof. Line 51 asserts outcome.ok===false (fail-closed). Line 52-55 asserts called===false — the guardFetch stub (line 44-47) was NEVER invoked, proving zero network requests were sent to the protected proof endpoint when no key is configured. This pins the negative path: missing key must not leak an unauthenticated request.",
-          "headHash": "ec451a7d9261f02be0a29a9c558cbba0c528dd06",
-          "materialHash": "f232c7029257a01f346ffad63c2a664b3b80d713b0c74103e8da7fea41e32783",
-          "storyFilesHash": "3cf835ab0d0a7897a3dbc82552dd88ce8579fba2947d8f132e3d2bda8809d172",
-          "timestamp": "2026-06-24T03:26:58.259Z"
+          "headHash": "fc46d4421dd18c5cc27624c6b1e46c80349ab78c",
+          "materialHash": "6389ceaf7ce2dfa0a53285ad09b7e4b13d19c8c4f71c8c2ba173d4d23aa3c781",
+          "storyFilesHash": "fea41ff7208338c9c0e490674ae3283a0cbce563d3564975ca9e1b95ac518c6a",
+          "timestamp": "2026-06-24T03:56:29.705Z"
         },
         {
           "intentRef": "CHK-004:edge:1",
@@ -368,10 +368,10 @@
           "command": "npm run --prefix packages/main test:authority-receipt-proof-auth",
           "result": "pass",
           "note": "authority-receipt-proof-auth-smoke.ts uses stub/mock fetch throughout — capturingFetch (line 28-31) and guardFetch (line 44-47) are in-process stubs, no real network calls. The test requires no LATTICE_AUTHORITY_* env vars and runs deterministically. The AuthorityClient is constructed with \"https://authority.test\" (line 32, 49) — a non-routable URL that would fail if the stub were bypassed. This proves the test is CI-safe and deterministic without staging credentials.",
-          "headHash": "ec451a7d9261f02be0a29a9c558cbba0c528dd06",
-          "materialHash": "f232c7029257a01f346ffad63c2a664b3b80d713b0c74103e8da7fea41e32783",
-          "storyFilesHash": "3cf835ab0d0a7897a3dbc82552dd88ce8579fba2947d8f132e3d2bda8809d172",
-          "timestamp": "2026-06-24T03:26:58.259Z"
+          "headHash": "fc46d4421dd18c5cc27624c6b1e46c80349ab78c",
+          "materialHash": "6389ceaf7ce2dfa0a53285ad09b7e4b13d19c8c4f71c8c2ba173d4d23aa3c781",
+          "storyFilesHash": "fea41ff7208338c9c0e490674ae3283a0cbce563d3564975ca9e1b95ac518c6a",
+          "timestamp": "2026-06-24T03:56:29.705Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -379,10 +379,10 @@
           "command": "npm run --prefix packages/main test:authority-receipt-proof-auth",
           "result": "pass",
           "note": "RED/GREEN reasoning: authority-receipt-proof-auth-smoke.ts:38-41 asserts Authorization===\"Bearer cust-key-xyz\". This header is added by get() at authority-client.ts:685 ONLY when authenticated===true (line 676). fetchGateReceiptProof sets authenticated:true at line 646 (CHK-001 fix). If this fix is reverted (authenticated removed/false), get() skips the Authorization header entirely, so capturedHeaders.Authorization would be undefined and the assert at line 38-41 would fail with \"fetchGateReceiptProof must send the customer API key as Bearer auth\". The test is a regression guard that detects the original bug.",
-          "headHash": "ec451a7d9261f02be0a29a9c558cbba0c528dd06",
-          "materialHash": "f232c7029257a01f346ffad63c2a664b3b80d713b0c74103e8da7fea41e32783",
-          "storyFilesHash": "3cf835ab0d0a7897a3dbc82552dd88ce8579fba2947d8f132e3d2bda8809d172",
-          "timestamp": "2026-06-24T03:26:58.259Z"
+          "headHash": "fc46d4421dd18c5cc27624c6b1e46c80349ab78c",
+          "materialHash": "6389ceaf7ce2dfa0a53285ad09b7e4b13d19c8c4f71c8c2ba173d4d23aa3c781",
+          "storyFilesHash": "fea41ff7208338c9c0e490674ae3283a0cbce563d3564975ca9e1b95ac518c6a",
+          "timestamp": "2026-06-24T03:56:29.705Z"
         },
         {
           "intentRef": "CHK-004:adversarial:1",
@@ -390,10 +390,10 @@
           "command": "npm run --prefix packages/main test:authority-receipt-proof-auth",
           "result": "pass",
           "note": "RED/GREEN reasoning: The CHK-002 fix (authority-enforce.ts:206-207) passes resolveAuthorityClientAuth(process.env) as the 4th arg to AuthorityClient in loadProof. If reverted to the old 3-arg constructor, loadProof creates AuthorityClient without auth. Then even with authenticated:true (CHK-001 fix), get() at authority-client.ts:677 finds this.auth.customerApiKey undefined and returns fail-closed error at line 678-683. The smoke test at authority-receipt-proof-auth-smoke.ts directly demonstrates both code paths: line 32 (with auth, passes) and line 49 (without auth, fails closed). Any test exercising loadProof through the real handler would fail without CHK-002.",
-          "headHash": "ec451a7d9261f02be0a29a9c558cbba0c528dd06",
-          "materialHash": "f232c7029257a01f346ffad63c2a664b3b80d713b0c74103e8da7fea41e32783",
-          "storyFilesHash": "3cf835ab0d0a7897a3dbc82552dd88ce8579fba2947d8f132e3d2bda8809d172",
-          "timestamp": "2026-06-24T03:26:58.259Z"
+          "headHash": "fc46d4421dd18c5cc27624c6b1e46c80349ab78c",
+          "materialHash": "6389ceaf7ce2dfa0a53285ad09b7e4b13d19c8c4f71c8c2ba173d4d23aa3c781",
+          "storyFilesHash": "fea41ff7208338c9c0e490674ae3283a0cbce563d3564975ca9e1b95ac518c6a",
+          "timestamp": "2026-06-24T03:56:29.705Z"
         },
         {
           "intentRef": "CHK-004:adversarial:2",
@@ -401,10 +401,10 @@
           "command": "npm run --prefix packages/main test:authority-receipt-proof-auth",
           "result": "pass",
           "note": "authority-receipt-proof-auth-smoke.ts:52-55 asserts called===false (not just absence of header). The guardFetch stub at line 44-47 sets called=true if ANY request is made. A partial fix that sends an unauthenticated request (no Bearer header) and gets a 401 from the server would still set called=true, causing the assert at line 52-55 to fail. This proves the test enforces true fail-closed semantics: no request at all when no key is configured, not request-then-fail. The test also asserts outcome.ok===false at line 51 to confirm the error outcome.",
-          "headHash": "ec451a7d9261f02be0a29a9c558cbba0c528dd06",
-          "materialHash": "f232c7029257a01f346ffad63c2a664b3b80d713b0c74103e8da7fea41e32783",
-          "storyFilesHash": "3cf835ab0d0a7897a3dbc82552dd88ce8579fba2947d8f132e3d2bda8809d172",
-          "timestamp": "2026-06-24T03:26:58.259Z"
+          "headHash": "fc46d4421dd18c5cc27624c6b1e46c80349ab78c",
+          "materialHash": "6389ceaf7ce2dfa0a53285ad09b7e4b13d19c8c4f71c8c2ba173d4d23aa3c781",
+          "storyFilesHash": "fea41ff7208338c9c0e490674ae3283a0cbce563d3564975ca9e1b95ac518c6a",
+          "timestamp": "2026-06-24T03:56:29.705Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -413,10 +413,10 @@
           "command": "npm run --prefix packages/main test:authority-receipt-proof-auth",
           "result": "pass",
           "note": "Deterministic test (commit 93dc28702) adds an explicit empty-string block: new AuthorityClient(url, guardFetch, 5000, { customerApiKey: \"\" }) -> asserts outcome.ok===false AND called===false (no request sent), pinning empty-string == unset fail-closed behavior (resolves F-005).",
-          "headHash": "ec451a7d9261f02be0a29a9c558cbba0c528dd06",
-          "materialHash": "f232c7029257a01f346ffad63c2a664b3b80d713b0c74103e8da7fea41e32783",
-          "storyFilesHash": "3cf835ab0d0a7897a3dbc82552dd88ce8579fba2947d8f132e3d2bda8809d172",
-          "timestamp": "2026-06-24T03:26:58.259Z"
+          "headHash": "fc46d4421dd18c5cc27624c6b1e46c80349ab78c",
+          "materialHash": "6389ceaf7ce2dfa0a53285ad09b7e4b13d19c8c4f71c8c2ba173d4d23aa3c781",
+          "storyFilesHash": "fea41ff7208338c9c0e490674ae3283a0cbce563d3564975ca9e1b95ac518c6a",
+          "timestamp": "2026-06-24T03:56:29.705Z"
         }
       ]
     }
