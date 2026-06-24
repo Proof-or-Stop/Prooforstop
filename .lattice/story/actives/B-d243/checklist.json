@@ -471,6 +471,17 @@
           "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
           "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
           "timestamp": "2026-06-24T11:21:59.656Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/delivery-check-freshness-smoke.js",
+          "result": "pass",
+          "note": "delivery-check-freshness-smoke.ts: each case calls createFixture() (line 63) which creates a fresh tmpdir, git init, and StoryStore. Cases: line 212 (happy), line 253 (advisory), line 305 (story-owned), line 332 (forged), line 366 (legacy), line 395 (missing-binding), line 411 (tampered-material), line 444 (docsPromise), line 463 (process-fact). Each case wraps in try/finally with rmSync cleanup. No shared mutable state between cases — each gets its own fresh git repo and store. Case ordering does not affect results because state is fully isolated.",
+          "headHash": "e1ad7ed5028dbe95e81136948f0e0a16d1963398",
+          "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
+          "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
+          "timestamp": "2026-06-24T11:22:04.739Z"
         }
       ]
     },
