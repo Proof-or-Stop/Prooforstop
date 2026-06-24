@@ -78,9 +78,9 @@
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
         "docs/evidence/evidence-platform-architecture.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-24T11:17:30.417Z",
-      "endTime": null,
+      "endTime": "2026-06-24T11:17:36.845Z",
       "userSees": "Semantic proof tamper cases reject edits to reason, verdict, schema, null, extra keys, story/head/material binding, and digest/signature subjects.",
       "files": {
         "modify": [
@@ -113,7 +113,31 @@
             "type": "logic"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:proof-admissibility-hardening",
+          "result": "pass",
+          "note": "Hardening smoke covers versioned canonical binding plus reason/verdict/story/head/material/signature-like tamper and null/extra/missing field rejection.",
+          "headHash": "08248526394db3db904a7199f7674bfaff951316",
+          "materialHash": "a2dfb8c6a958296b980bae7fb7046305e4b1ccaec6819ddd4e107e22df2dfe95",
+          "storyFilesHash": "4b1a812749cdde4b9b3a991a3726eea23a668aefe4fb71c83666658038cd3299",
+          "timestamp": "2026-06-24T11:17:37.152Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:proof-admissibility",
+          "result": "pass",
+          "note": "Existing proof admissibility smoke still passes after strict Authority proof schema and binding helper additions.",
+          "headHash": "08248526394db3db904a7199f7674bfaff951316",
+          "materialHash": "a2dfb8c6a958296b980bae7fb7046305e4b1ccaec6819ddd4e107e22df2dfe95",
+          "storyFilesHash": "4b1a812749cdde4b9b3a991a3726eea23a668aefe4fb71c83666658038cd3299",
+          "timestamp": "2026-06-24T11:17:37.484Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
