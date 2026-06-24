@@ -62,6 +62,15 @@
       "reviewRound": "2026-06-24T02:38:27.797Z",
       "reviewRunId": "B-36ba:RR-008",
       "_hash": "17376565d4b89a18c77b0349b87d17ddd3f84c2606dbd133cf50660ea0fa6f24"
+    },
+    {
+      "id": "B-36ba:RP-008",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. 23/23 required intents covered (0 missing per validate). CHK-001: 5 evidence items cover 2 happy(must), 1 edge(must), 1 edge(should), 1 adversarial(must). CHK-002: 5 evidence items cover 3 happy(must), 1 edge(must), 1 adversarial(must); CHK-002:happy:1/2 now bound to genuine DONE-ready fixture (commit 605c39854) revert-proven against machine.ts:639. CHK-003: 6 evidence items cover 4 happy(must), 1 edge(must), 1 adversarial(must). CHK-004: 7 evidence items cover 3 happy(must), 1 edge(must), 1 edge(should), 1 adversarial(must), 1 adversarial(must). Smoke node packages/main/dist/tasks/review-escalation-freshness-root-smoke.js confirms pass. All evidence has result=pass, verdict=success, non-null notes with concrete behavior described, and headHash binding. No coverage gap remains.",
+      "createdAt": "2026-06-24T03:01:01.391Z",
+      "reviewRound": "2026-06-24T02:38:27.797Z",
+      "reviewRunId": "B-36ba:RR-009",
+      "_hash": "f997689ac3f83488495aa0fc6fde765a239d5e91ebaee25a7fa5ff420344a2ea"
     }
   ]
 }
