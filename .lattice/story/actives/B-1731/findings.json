@@ -239,6 +239,25 @@
       "resolvedAt": "2026-06-24T23:01:28.312Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-1731:F-011",
+      "desc": "Cached validation PASS skip is not bound to current checklist/verificationIntent inputs. A metadata-only change that adds or changes required verification intent can preserve source material freshness and old missingRequired=0 coverage, causing REVIEW->TEST to skip validate without recomputing coverage.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-24T23:54:50.861Z",
+      "reviewRound": "2026-06-24T23:48:36.362Z",
+      "reviewRunId": "B-1731:RR-038",
+      "_hash": "045e09fbc8f7892633d6aaac8f4004ef7b445508966d466542e8f6f65f89a794",
+      "files": [
+        "packages/main/src/handlers/phase-gates.ts",
+        "packages/main/src/tasks/validation-protocol-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|cached-validation-pass",
+      "signatureTagSource": "auto"
     }
   ]
 }
