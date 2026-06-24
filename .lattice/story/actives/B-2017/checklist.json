@@ -1,0 +1,39 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add a narrow orphan surface detector for handler and command registry drift",
+      "context": "The detector should inspect create*Handlers exports, registry registration, command catalog/tool declarations, and runtime command availability. It must have an allowlist for dynamic or intentionally non-command surfaces and must not flag tasks discovered by run-all-smokes.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Wire the detector into CI-facing package scripts",
+      "context": "Expose a root npm script such as test:orphan-surface that can run after build or against source as a lightweight CI correctness check.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Retire only high-confidence unused legacy code without deleting dynamic serve/starter support",
+      "context": "Remove or resolve implementation-review old command code, legacy intent-coverage residue, zod bridge half-surface, and generic verifier API files only where import/search evidence proves they are unreachable. Preserve lattice serve and starter devHost-related files.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Verify build and orphan detector behavior on the real repository",
+      "context": "Run the detector and TypeScript build; record that implementation_review_result_* remains unavailable unless deliberately migrated to modern signed review lanes in a future story.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
