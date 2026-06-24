@@ -405,6 +405,18 @@
           "materialHash": "96adaa007e8f7ddafa1d445c9f905d262eb90f4da087c701fec35f3474287e79",
           "storyFilesHash": "3bb033bf48d472daad32daea22503c5bbbef2c03c79374e5fe0665781999041e",
           "timestamp": "2026-06-24T01:21:18.333Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "npm run --prefix packages/main test:authority-receipt-proof-auth",
+          "result": "pass",
+          "note": "Deterministic test (commit 93dc28702) adds an explicit empty-string block: new AuthorityClient(url, guardFetch, 5000, { customerApiKey: \"\" }) -> asserts outcome.ok===false AND called===false (no request sent), pinning empty-string == unset fail-closed behavior (resolves F-005).",
+          "headHash": "1f6d7cc0a5dffadecc1af3727ac951bf5688e54f",
+          "materialHash": "a070c73286d507e5578b87e6d901b2d51afacf7e4d8c4632f5f2f02b7bd1edcb",
+          "storyFilesHash": "871226f7b8979c35050017fbbad4bb4b82cc5106a4e867a245cce2bde3e3c163",
+          "timestamp": "2026-06-24T01:50:24.497Z"
         }
       ]
     }
