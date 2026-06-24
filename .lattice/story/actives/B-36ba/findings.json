@@ -1,0 +1,23 @@
+{
+  "findings": [
+    {
+      "id": "B-36ba:F-001",
+      "desc": "CHK-003:happy:0, CHK-003:happy:1, CHK-003:happy:2 (all cli/must): each intent explicitly requires invoking the handler (review_escalation_status / policy_set / fallback_set) under a wrapper-root layout and asserting report.materialHash === floor.materialHash. The evidence for all three points to review-escalation-smoke.js, which is a plain-repo-only smoke with no wrapper-root layout setup. The notes acknowledge this by saying evaluation equivalence is proven indirectly via the freshness-root smoke, but that is a transitive proxy argument, not the direct handler+wrapper-root execution the intents prescribe. The `cli/must` intents are not fulfilled by plain-smoke evidence.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-24T02:00:39.897Z",
+      "reviewRound": "2026-06-24T01:51:47.453Z",
+      "reviewRunId": "B-36ba:RR-003",
+      "_hash": "2e0b0354f82ea46a5b185e785d8e43b7dfb61f42543aa2198861361b8106a466",
+      "files": [
+        "packages/main/src/handlers/review-escalation.ts",
+        "packages/main/src/tasks/review-escalation-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|happy-happy-happy",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
