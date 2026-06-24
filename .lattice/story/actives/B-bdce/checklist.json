@@ -66,9 +66,9 @@
       "id": "CHK-002",
       "title": "Update the byte-equality smokes + add the regression assertions",
       "context": "Update the rendered-hint byte-output assertions in packages/main/src/tasks/verification-freshness-smoke.ts ONLY (it imports renderEvidenceStaleHint at line 13 and asserts the block at ~487-565, incl. the extractStaleBlock helper at ~593 that hardcodes a fixed line-count slice — grow it for the added drift-class + done_prepare lines). Add the red/spike regression assertions: the rendered hint contains `done_prepare` AND a drift-classification token (storyFilesHash/story-owned/whole-tree/unrelated) so dropping either line FAILs. NOTE: tasks/flow-stability-smoke.ts only uses findStaleEvidence (unchanged) and is OUT OF SCOPE — do not edit it. Run verification-freshness-smoke green.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-24T14:47:57.048Z",
       "verificationIntent": {
         "happy": [
           {
