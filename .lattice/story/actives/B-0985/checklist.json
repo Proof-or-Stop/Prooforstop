@@ -10,7 +10,42 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees docs/evidence/proof-surface-inventory.md and .json listing each proof-looking surface with scope, producer boundary, consumers, and whether productionDone is allowed.",
+      "files": {
+        "modify": [
+          "docs/evidence/evidence-platform-architecture.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+        ],
+        "create": [
+          "docs/evidence/proof-surface-inventory.md",
+          "docs/evidence/proof-surface-inventory.json"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Inventory includes every M0 surface named in the plan, including done-required evidence, delivery/review artifacts, Authority receipt refs, local diagnostics, handoff, local quorum, and B-0aa1 Repro candidate artifacts.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Inventory explicitly marks non-production scopes such as evidence-candidate, local-diagnostic, local-key-single-host, authority-receipt, and legacy-observed as unable to set productionDone.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A reader cannot confuse raw Repro candidate, local diagnostic Authority status, or authority-receipt-only evidence with production-gate-decision proof.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

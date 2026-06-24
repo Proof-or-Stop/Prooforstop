@@ -1,0 +1,34 @@
+{
+  "task": "Implement proof admissibility registry MVP for the first M0/M1 slice of proof-admissibility hardening.",
+  "outcome": "After build, the user can run `npm --prefix packages/main run test:proof-admissibility` and see `proof-admissibility smoke passed`, plus API/JSON outputs can classify proof-looking surfaces as admissible or inadmissible with stable scope and reason codes such as `scope_not_allowed_for_claim`, `authority_receipt_requires_gate_decision`, and `local_diagnostic_not_authority`.",
+  "facts": [
+    "B-0aa1 already added candidate-only evidence storage under .lattice/evidence.",
+    "The plan says M0 inventory and M1 shared registry are blockers before warn/enforce gate integration.",
+    "Current gates already have some per-surface protections, but no single shared admissibility classifier.",
+    "This story is classification/warn foundation only and must not hard-fail existing gates."
+  ],
+  "constraints": [
+    "Do not implement Authority Server changes in this story.",
+    "Do not turn local-key or candidate evidence into production proof.",
+    "Do not write a new storage root separate from .lattice/evidence.",
+    "Do not directly edit docs/story or tests/fixtures.",
+    "Expose structured reason codes for operator/developer visibility."
+  ],
+  "unknowns": [
+    "Exact future gate-integration consumers may evolve in later M4-M7 stories, so this MVP should keep the registry extensible."
+  ],
+  "touchpoints": [
+    "docs/evidence/proof-surface-inventory.md",
+    "docs/evidence/proof-surface-inventory.json",
+    "docs/evidence/evidence-platform-architecture.md",
+    "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+    "packages/main/src/core/proof-admissibility.ts",
+    "packages/main/src/tasks/proof-admissibility-smoke.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/package.json"
+  ],
+  "timestamp": "2026-06-24T09:54:53.238Z"
+}
