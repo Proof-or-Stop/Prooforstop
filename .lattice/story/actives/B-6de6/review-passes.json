@@ -71,6 +71,15 @@
       "reviewRound": "2026-06-24T01:08:47.974Z",
       "reviewRunId": "B-6de6:RR-010",
       "_hash": "2080920e78c4951644500f6e4d3b8d10f9a12fda85d0c08dc95b15ffdac6d4b2"
+    },
+    {
+      "id": "B-6de6:RP-009",
+      "agent": "lattice-review-docs",
+      "note": "Round 3 re-attestation clean. Step 1: 36 symbols extracted from git diff main...HEAD. Step 2: 1 primary paragraph compared (runtime:story_files_hash_freshness_gate entry in process-fact-levels.ts at line 308). Step 3: (a) process-fact-levels.ts gateConsumer at line 308 exactly matches verify-process-fact-contract.mjs line 302 expected text word-for-word — both read REVIEW/TEST/DONE freshness gates for review runs, verification evidence, review escalation records, and the review assurance floor DONE freshness gate; (b) node scripts/verify-process-fact-contract.mjs exits 0 with Process fact contract verified; (c) B-6de6 code comments in review-assurance-floor.ts (lines 507-510, 549-551, 623-625) accurately describe behavior in the surrounding code; (d) done-oracle.ts storyFilesHash references at lines 188/761/796 are consistent with calling checkEvidenceFreshnessForGit with the storyFilesHash arg; (e) plan.md CHK-005 done-when condition (gateConsumer names the floor + verifier passes) is satisfied; (f) process-fact-registry.ts line 135 uses tag array (no consumer text) and lines 439/446/460 already name the review assurance floor gate. The only main-merge delta was an unrelated commit; no B-6de6 story-owned files changed. No inconsistency introduced.",
+      "createdAt": "2026-06-24T01:11:41.318Z",
+      "reviewRound": "2026-06-24T01:08:47.974Z",
+      "reviewRunId": "B-6de6:RR-012",
+      "_hash": "06026a5114548ecd02dc7350b3e4ce194a55c97113b15a683a57fa05e83f4458"
     }
   ]
 }
