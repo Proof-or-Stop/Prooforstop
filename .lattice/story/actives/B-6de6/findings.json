@@ -72,6 +72,20 @@
       ],
       "signatureTag": "missing|ts|happy-smoke-assertion",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-6de6:F-005",
+      "desc": "DONE checklist render swallows the floor re-attestation advisory on PASS rows: done-oracle.ts buildDoneChecklist review-assurance-floor row (~782) prints only assuranceLevel/material code paths/local rounds and does NOT append floor.advisories the way the escalation row (~757-759, B-edf1) does; renderDoneChecklist does not expand hints for pass rows. Trigger: one storyFilesHash-downgraded local PASS round => DONE passes while the mandatory re-attestation advisory is operator-invisible. Fix: mirror the escalation row advisory-append for the floor row.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex-host-2",
+      "createdAt": "2026-06-24T00:37:21.028Z",
+      "reviewRound": "2026-06-24T00:21:09.458Z",
+      "_hash": "96555c214881ddd55d7c6258690fee6750513f41f8a51b398f2ff023cc19b859",
+      "signatureTag": "missing|unknown|checklist-render-swallows",
+      "signatureTagSource": "auto"
     }
   ]
 }
