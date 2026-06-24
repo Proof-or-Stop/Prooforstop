@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-70e4",
+  "mode": "maintenance",
+  "allowed": [
+    "packages/main/package.json (register test script)",
+    "packages/main/smoke-manifest.json (register smoke)",
+    "packages/main/src/core/authority-client.ts (fetchGateReceiptProof authenticated read)",
+    "packages/main/src/handlers/authority-enforce.ts (loadProof passes auth)",
+    "packages/main/src/tasks/authority-live-receipt-ref-gate-smoke.ts (send materialOverlapAudit)",
+    "packages/main/src/tasks/authority-receipt-proof-auth-smoke.ts (new regression test)"
+  ],
+  "excluded": [
+    "No change to how proofs are produced server-side",
+    "No changes to other CLI handlers, commands, or the gate-decision policy/evidence model",
+    "No changes to the Lattice Authority server (read-only)"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User-approved client-only scope: fix the gate-receipt proof-fetch auth (401) + the live smoke materialOverlapAudit + a deterministic regression test. Server stays read-only. Verified via Red->Spike->Story.",
+  "createdAt": "2026-06-24T00:57:47.233Z",
+  "updatedAt": "2026-06-24T00:57:47.233Z",
+  "_hash": "3f3672e2423d0f4c5e2d142c462f83fd310ed4321f6d0beb5916c91717dff6bd"
+}

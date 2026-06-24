@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-70e4",
+  "allowedCommands": [
+    "node bin/lattice.js validate",
+    "node dist/tasks/authority-live-receipt-ref-gate-smoke.js",
+    "node dist/tasks/authority-receipt-proof-auth-smoke.js",
+    "npm run build",
+    "npm run test:authority-receipt-proof-auth"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "packages/main/package.json",
+    "packages/main/smoke-manifest.json",
+    "packages/main/src"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "createdAt": "2026-06-24T00:58:22.570Z",
+  "updatedAt": "2026-06-24T00:58:22.570Z",
+  "_hash": "6ef2c9c2b49fb1acd0b2a566e533a5c2af3dfca78c4e14b3785013a7c1f27c82"
+}
