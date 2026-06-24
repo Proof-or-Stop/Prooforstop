@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "fetchGateReceiptProof must request an authenticated read so the customer API key is sent as Bearer auth",
       "context": "packages/main/src/core/authority-client.ts: get() only attaches Authorization when authenticated:true; protected /v1/receipts/{id}/proof returns 401 otherwise",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-24T01:13:48.739Z",
       "verificationIntent": {
         "happy": [
           {
