@@ -138,8 +138,8 @@
       ],
       "signatureTag": "edge|ts|malformed-story-evidence",
       "signatureTagSource": "auto",
-      "resolvedReason": "Fixed in 888401f4e: evaluateStoryEvidenceBindingGate now validates story-evidence-binding payload and subjectBinding shape before dereferencing required fields, returning stale_story_evidence_binding details for malformed artifacts instead of throwing TypeError. Verified by npm --prefix packages/main run build and npm run test:repro-evidence-binding-dev-gate; smoke ok 7 creates a payload-less binding, confirms no throw, stale diagnostic, and guard failure remains actionable.",
-      "resolvedAt": "2026-06-24T22:29:47.221Z",
+      "resolvedReason": "Fixed in HEAD: validateBindingCandidate validates story-evidence-binding payload and subjectBinding shape before dereferencing required fields, so malformed/null payload artifacts selected by subjectBinding.storyId return stale_story_evidence_binding diagnostics instead of throwing through PLAN/DEV guard paths. Verified in this session with: npm --prefix packages/main run build; node packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js (ok 7/20 malformed binding returns stale diagnostic/no throw and guard remains actionable); node packages/main/dist/tasks/repro-first-candidate-smoke.js; node scripts/verify-process-fact-contract.mjs >/tmp/b1731-process-fact-3.log && tail -n 8 /tmp/b1731-process-fact-3.log.",
+      "resolvedAt": "2026-06-24T22:30:50.801Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
     },
