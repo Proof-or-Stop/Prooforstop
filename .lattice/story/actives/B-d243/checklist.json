@@ -186,7 +186,43 @@
       "context": "docs/requirements/decisions/story-files-hash-material-drift.md DONE Sub-Gate amendment (B strict, C adopt-with-signed-guard, A excluded-frozen-ref); update delivery_check_set rationale in core/process-fact-levels.ts + core/process-fact-registry.ts; add a code comment at done-oracle.ts checkCompletedEvidenceSnapshotFreshness that storyFilesHash is intentionally not applied (frozen-ref integrity check).",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "docs/requirements/decisions/story-files-hash-material-drift.md contains a DONE Sub-Gate Bindings section that records: Gate A excluded (frozen-ref integrity), Gate B kept strict, Gate C adopt-with-signed-guard -> grep/read confirms the three bindings with rationale; WHY: the spec is the canonical design record",
+            "type": "cli"
+          },
+          {
+            "desc": "node scripts/verify-process-fact-contract.mjs exits 0 -> process-fact-levels + process-fact-registry are consistent after the rationale update; WHY: the contract verifier is the ground truth for process-fact consistency",
+            "type": "cli"
+          },
+          {
+            "desc": "done-oracle.ts checkCompletedEvidenceSnapshotFreshness has a code comment stating storyFilesHash is intentionally not applied (frozen-ref integrity check) -> grep confirms the comment; WHY: prevents future cargo-cult wire-in of storyFilesHash into Gate A",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "process-fact-registry delivery_check_set rationale mentions both signed storyFilesHash AND drift-advisory semantics -> rationale is not stale/generic; WHY: rationale must be specific to the new behavior, not a leftover",
+            "type": "cli"
+          },
+          {
+            "desc": "npm --prefix packages/main run build exits 0 -> no TypeScript errors from the spec/rationale/comment changes; WHY: doc-comment or string changes can cause TS errors if they break template literals",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Spec amendment does NOT claim Gate A or Gate B are downgraded -> grep for storyFilesHash in the A/B sections confirms they say excluded/strict, not adopt; WHY: a copy-paste error could accidentally document a downgrade that does not exist in code",
+            "type": "cli"
+          },
+          {
+            "desc": "Gate-A keep-strict comment is inside the actual function body (not in an unrelated file or dead code) -> the comment is co-located with the frozen-ref integrity check logic; WHY: a comment in the wrong place provides no cargo-cult protection",
+            "type": "cli"
+          }
+        ]
+      }
     }
   ]
 }
