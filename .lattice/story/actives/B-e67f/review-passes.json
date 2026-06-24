@@ -53,6 +53,15 @@
       "reviewRound": "2026-06-24T10:16:50.255Z",
       "reviewRunId": "B-e67f:RR-006",
       "_hash": "a9c5631dea238712c7ca1c40e7b1f5f4be3ea3ab06dca61fab5f58b9bb8dbdfb"
+    },
+    {
+      "id": "B-e67f:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "Round 3 concept re-attest: dedb8d0c68 is confirmed to touch only experiments/recovery-runner/corpus-selfcheck.mjs (1 file, 116 additions / 9 deletions). All 24 task fixtures in experiments/recovery-runner/tasks/ are unchanged since commit 6e76b13b8; git diff dedb8d0c68 -- tasks/ is empty. No concept deletion or replacement: F-007 is retained and extended (not removed), F-008 is retained, F-009 and F-010 are newly added guards — none replaces a prior concept term wholesale. The hardened selfcheck (in-memory harness cache + source sha256 assert + sanitized child env) strictly strengthens anti-gaming; no task fixture weakened. 0 new findings.",
+      "createdAt": "2026-06-24T10:49:21.287Z",
+      "reviewRound": "2026-06-24T10:16:50.255Z",
+      "reviewRunId": "B-e67f:RR-011",
+      "_hash": "1ccd80b9285691a1efa7adda6a390558359d2cbe5b442da78c27ab0560fbab3d"
     }
   ]
 }
