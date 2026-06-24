@@ -240,9 +240,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-24T12:59:13.520Z",
       "userSees": "User sees: \"No high-priority proof-admissibility version gaps remain.\"",
       "files": {
         "modify": [
@@ -274,7 +274,42 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proof-admissibility-smoke.js && node packages/main/dist/tasks/proof-admissibility-hardening-smoke.js",
+          "result": "pass",
+          "note": "Build passed, proof-admissibility smoke passed, and proof-admissibility hardening smoke passed on dbf5b2fbeea8002ebbbc9631f17287855e494b9c.",
+          "headHash": "a93ada10b57f6ce9c04e800fb6f79d29a7d96bbc",
+          "materialHash": "00ae1c39b27f61905e8449e698cdaf58e16faa1be9aed828c83f1502dd23bdfc",
+          "storyFilesHash": "54c4365042b338b6ac2d0c827a64115af9e75f2fcd42089262a0bbcd1f5e66a0",
+          "timestamp": "2026-06-24T12:59:13.678Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "command": "lattice gap_analyze {\"format\":\"json\"}",
+          "result": "pass",
+          "note": "gap_analyze reports Gaps: 0 high / 1 medium; the remaining medium currentDoneMaterialBinding gap is unrelated and pre-existing.",
+          "headHash": "a93ada10b57f6ce9c04e800fb6f79d29a7d96bbc",
+          "materialHash": "00ae1c39b27f61905e8449e698cdaf58e16faa1be9aed828c83f1502dd23bdfc",
+          "storyFilesHash": "54c4365042b338b6ac2d0c827a64115af9e75f2fcd42089262a0bbcd1f5e66a0",
+          "timestamp": "2026-06-24T12:59:13.826Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "lattice convergence_check",
+          "result": "pass",
+          "note": "convergence_check now passes No high-priority gaps and Code annotations compliant; it remains globally non-converged only because active stories B-2f1a, B-8d44, and B-fbfb are unfinished.",
+          "headHash": "a93ada10b57f6ce9c04e800fb6f79d29a7d96bbc",
+          "materialHash": "00ae1c39b27f61905e8449e698cdaf58e16faa1be9aed828c83f1502dd23bdfc",
+          "storyFilesHash": "54c4365042b338b6ac2d0c827a64115af9e75f2fcd42089262a0bbcd1f5e66a0",
+          "timestamp": "2026-06-24T12:59:13.976Z"
+        }
+      ]
     }
   ],
   "auditLog": [
@@ -304,6 +339,15 @@
       "from": "pending",
       "to": "done",
       "reason": "Schema/contract mapping facts and unchanged behavior verified."
+    },
+    {
+      "timestamp": "2026-06-24T12:59:13.520Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Final verification shows the five targeted high gaps are closed without weakening requirements."
     }
   ]
 }
