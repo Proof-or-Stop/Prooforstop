@@ -80,6 +80,15 @@
       "reviewRound": "2026-06-24T03:08:08.008Z",
       "reviewRunId": "B-36ba:RR-011",
       "_hash": "182300a67727b057d46456ba310157ae6bbf8532abf8759734d78b6c4bffb810"
+    },
+    {
+      "id": "B-36ba:RP-010",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion or replacement in this story. B-36ba adds the gitCwd parameter to evaluateReviewEscalation and converts single-arg currentMaterialHash/currentStoryFilesHash calls to three-arg form only in the review-escalation path (review-escalation.ts core+handler, machine.ts, done-oracle.ts). The merge commit f38a3933d brought in B-6de6/B-fbca/B-ef65 main changes but introduced zero concept deletions in B-36ba-owned files. All escalation-path call sites confirmed using gitCwd form. No single-arg residue found. Build clean, smoke passed.",
+      "createdAt": "2026-06-24T03:10:30.049Z",
+      "reviewRound": "2026-06-24T03:08:08.008Z",
+      "reviewRunId": "B-36ba:RR-010",
+      "_hash": "bd33f47cef522f78c0a7c6cd09ad4bf8c32efabf14830651f7daa5e9dc8b0b06"
     }
   ]
 }
