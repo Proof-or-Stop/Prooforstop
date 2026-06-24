@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-24T13:08:02.474Z",
       "reviewRunId": "B-5396:RR-004",
       "_hash": "edd5fb47a260c7e50ef97da7002deae450883b2ee0f6672c8f79ef2d0ac55ebf"
+    },
+    {
+      "id": "B-5396:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Docs-only change (CLAUDE.md + AGENTS.md). Checks: (1) Dead code: N/A docs-only. (2) Type safety: N/A docs-only. (3) I/O isolation: N/A docs-only. (4) Doc-promise-undelivered: initially raised F-001 on the --mergeMain flag form vs JSON form, but empirical disproof confirmed both forms are valid -- done_prepare --help documents exactly the POSIX flag form used in the runbook, and --dryRun confirms the flags parse correctly; F-001 resolved. All 4 referenced decision docs exist. No leaked code changes. No duplicate sections. Markdown is well-formed. Style is consistent with surrounding doc. CLAUDE.md and AGENTS.md additions are correctly mirrored. No blockers.",
+      "createdAt": "2026-06-24T13:16:04.427Z",
+      "reviewRound": "2026-06-24T13:08:02.474Z",
+      "reviewRunId": "B-5396:RR-001",
+      "_hash": "29590e436ca006216766f4f02ff934b8396599cdb9bf5521f5d9f24081c411e8"
     }
   ]
 }
