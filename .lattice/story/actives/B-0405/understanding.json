@@ -1,0 +1,40 @@
+{
+  "task": "Complete the remaining M2-M7 proof admissibility hardening plan after B-0985.",
+  "outcome": "When complete, lattice session_brief for B-0405 shows DONE pre-check all PASS, lattice --version shows the bumped release, npm --prefix packages/main run test:proof-admissibility-hardening passes, and inadmissible proof-looking artifacts are rejected or warned with stable reason codes instead of being accepted as production proof.",
+  "facts": [
+    "B-0985 implemented M0/M1 classification-only proof admissibility registry in packages/main/src/core/proof-admissibility.ts.",
+    "Reserved proof-key sanitization should target caller-writable metadata boundaries such as authority runner/job/result metadata and local host/autopilot metadata, while preserving ordinary metadata.",
+    "Gate warn-mode integration seams are done-oracle, done-closure, phase-gates, review escalation/floor, done-required validation, and handoff read/write handlers.",
+    "Handoff and local host outputs already mostly force productionDone=false; M6 should make the artifact class split explicit and machine-readable.",
+    "The story is critical/high-risk and DONE will require 3 rounds x 2 host review assurance over final material."
+  ],
+  "constraints": [
+    "Do not run omx or touch .omx.",
+    "Use the existing B-0985 proof-admissibility registry as the shared vocabulary instead of creating a second proof manager.",
+    "Legacy evidence must remain readable but cannot satisfy new strong proof gates.",
+    "Start with warn diagnostics before hard-fail enforcement except for already fail-closed high-risk proof paths.",
+    "Every gate-facing rejection must have stable machine-readable reason codes and remediation hints.",
+    "Do not make ordinary local development require Authority Server."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/proof-admissibility.ts",
+    "packages/main/src/core/authority-runner-contracts.ts",
+    "packages/main/src/core/authority-gate-receipt-verifier.ts",
+    "packages/main/src/core/done-required-validation.ts",
+    "packages/main/src/core/review-escalation.ts",
+    "packages/main/src/core/review-assurance-floor.ts",
+    "packages/main/src/core/lattice-handoff.ts",
+    "packages/main/src/core/done-oracle.ts",
+    "packages/main/src/handlers/done-closure.ts",
+    "packages/main/src/handlers/phase-gates.ts",
+    "packages/main/src/handlers/lattice-handoff.ts",
+    "packages/main/src/handlers/authority-enforce.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/tasks/*admissibility*.ts",
+    "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+    "docs/evidence/evidence-platform-architecture.md",
+    "docs/evidence/proof-surface-inventory.md"
+  ],
+  "timestamp": "2026-06-24T11:03:57.774Z"
+}
