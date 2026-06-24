@@ -1,0 +1,134 @@
+{
+  "storyId": "B-e67f",
+  "checkedAt": "2026-06-24T10:04:17.909Z",
+  "features": [
+    {
+      "feature": "Task corpus total count = 24",
+      "covered_by": "CHK-001 (applies 20 tasks to reach 24) + CHK-003 (asserts total==24)",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "Corpus stratified across 8 categories: bug-fix / feature / refactor / test-repair / doc-update / dep-upgrade / contract-validation / CLI-feature",
+      "covered_by": "CHK-003 (asserts exactly 8 distinct categories present)",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "Each category has approximately 3 tasks (~3 each per pre-reg §2)",
+      "covered_by": "CHK-003 (asserts each category has >= 2 tasks)",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "Each task ships the 7-file contract (task.json / prompt.md / acceptance.mjs / reference-solution.mjs / ground-truth.mjs / payload-subtle.mjs / subtle-wrong-output.mjs)",
+      "covered_by": "CHK-001 (specifies full 7-file contract per task dir)",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "Acceptance scripts validated against a known-good reference solution",
+      "covered_by": "CHK-002 (corpus-selfcheck asserts reference-solution passes acceptance+ground-truth for every task)",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "passes-acceptance-but-fails-ground-truth anti-gaming invariant machine-checked for every task",
+      "covered_by": "CHK-002 (inject()-based: ref PASS/PASS then payload PASS/FAIL for all 24)",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "Task list + acceptance scripts committed and frozen before the first powered run",
+      "covered_by": "CHK-001 + CHK-004 (corpus committed to repo and green in npm test before powered run)",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "corpus-selfcheck wired into npm test (not hand-run only)",
+      "covered_by": "CHK-004 (wire into run-selfchecks.mjs + npm test:experiments)",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "corpus-selfcheck uses canonical inject() path (same module as run-driver)",
+      "covered_by": "CHK-002 (import subtle-wrong-output.mjs default + call inject(ws,...) — canonical path)",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "corpus-selfcheck is fully offline and deterministic (no claude -p)",
+      "covered_by": "CHK-002 (explicitly: offline, deterministic, no claude -p)",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "corpus-selfcheck reports per-task PASS/FAIL and a final summary count",
+      "covered_by": "CHK-002 (print per-task PASS/FAIL + a final count)",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Existing 4 tasks preserved unmodified",
+      "covered_by": "CHK-001 (explicitly: Do not modify the existing 4 tasks)",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Powered multi-day run (§5/§6 A1-A4 arms execution)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Story description and decision.json explicitly: this story excludes the powered run; corpus freeze is the boundary before multi-day run",
+      "source": "decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "Live engine adapter (claude -p integration, run-driver live arm logic)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Story description explicitly: this story excludes the live engine adapter; decision.json conservative scope principle",
+      "source": "decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "Harness logic changes (adjudicate.mjs, checks.mjs, run-driver.mjs, analyze.mjs)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Story description explicitly: this story excludes harness changes; decision.json conservative scope principle",
+      "source": "decisions/lattice-experiment-protocol.md"
+    }
+  ],
+  "summary": {
+    "total": 15,
+    "covered": 12,
+    "excluded": 3,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "16ce6d30caefcb9454eb8a562ae7eedd0e39ea7625bfbf3dd211a4c9002a1219",
+  "openQuestions": [
+    {
+      "id": "OQ-001",
+      "q": "Pre-reg §2 says 8 categories ~3 each. The 4 existing tasks are ALL type: feature (4 tasks), while doc-update has only 2 tasks (du-interp, du-duration). CHK-003 asserts only >=2 per category with no upper-bound check. Is the >=2 floor sufficient, or should the selfcheck also assert <=4 (or similar upper bound) per category to catch future drift that concentrates too many tasks in one category and violates the stratified design?",
+      "evidence": "§2: N_tasks=24, stratified (8 categories ≈3 each). Existing task.json types: eval-expr=feature, median=feature, parse-range=feature, text-stats=feature (4 feature tasks total). New tasks add 0 feature, 2 doc-update. Result: feature=4, doc-update=2, all others=3. CHK-003 asserts >=2 each — does not bound above.",
+      "sourcePointers": [
+        "docs/requirements/decisions/lattice-experiment-protocol.md",
+        "CHK-003"
+      ],
+      "resolution": "Per pre-reg §2 ('8 categories ≈3 each'), the current distribution feature=4 / doc-update=2 / six others=3 satisfies the '~3 each' intent (the existing 4 tasks are all feature; only 2 strong doc-update designs were authored). Resolution: corpus-selfcheck.mjs will assert each category count is within [2,5] (lower bound keeps every category meaningfully represented; upper bound 5 catches gross drift / over-concentration) in addition to total==24 and exactly 8 distinct categories. This bounds drift without forcing an artificial exactly-3 split the pre-reg does not require.",
+      "resolvedAt": "2026-06-24T10:05:58.718Z"
+    }
+  ]
+}
