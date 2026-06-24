@@ -5,7 +5,7 @@
       "desc": "packages/main/src/core/proof-admissibility.ts:532-596 fail-open when required checks are omitted. For a registered production-gate-decision surface such as authority-receipt-ref, evaluateProofAdmissibility defaults checks to {} and only rejects required schema/shape/digest/signature/material/subject/producer validations when callers explicitly pass false or an unsupported string. A caller that omits checks entirely still matches the production-completion policy and reaches allowed=true plus productionDoneEligible=true at lines 595-596. This violates the fail-closed contract for proof-looking artifacts and is not covered by packages/main/src/tasks/proof-admissibility-smoke.ts, which only exercises the happy path with all valid checks present and unknown artifacts without a definition.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-24T10:15:05.427Z",
@@ -17,7 +17,11 @@
         "packages/main/src/tasks/proof-admissibility-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "evaluateProofAdmissibility now requires schemaVersion plus required strict shape, semantic digest, signature/receipt, temporal/material, subject, and producer checks to be present and valid; omitted required checks add denial reasons. Verified with npm --prefix packages/main run build and npm --prefix packages/main run test:proof-admissibility.",
+      "resolvedAt": "2026-06-24T10:20:20.678Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-0985:F-002",
