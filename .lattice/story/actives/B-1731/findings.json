@@ -166,6 +166,28 @@
       "resolvedAt": "2026-06-24T22:29:54.933Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-1731:F-008",
+      "desc": "Spike-review acceptance is advertised in the checklist/preflight contract but is not consumable by the story-evidence-binding gate. story_create_from_repro only accepts spikeId/matrixReviewId, not spikeReviewId, and StoryEvidenceBindingPayload has no spikeReviewId/spikeReviewDigest fields. The gate validates a spike-record digest and optional regression-matrix-review linkage, but never reads a spike-review artifact or checks SpikeReviewPayload.verdict=confirmed. As a result, a story can bind an unreviewed spike record while still passing the final binding gate, and the promised spike path (spike-record + spike-review) is not actually enforced. Source refs: packages/main/src/handlers/repro-intake.ts:129, packages/main/src/core/evidence/types.ts:137, packages/main/src/core/repro-intake.ts:384, packages/main/src/core/repro-intake.ts:467, packages/main/src/core/repro-evidence-binding-gate.ts:244.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-24T22:43:04.526Z",
+      "reviewRound": "2026-06-24T22:39:02.983Z",
+      "reviewRunId": "B-1731:RR-020",
+      "_hash": "f040e28c791b1e98aae3eb4aa62d3e008a1ef6720633aa52f6ba77b7e3599dcc",
+      "files": [
+        "packages/main/src/handlers/repro-intake.ts",
+        "packages/main/src/core/evidence/types.ts",
+        "packages/main/src/core/repro-intake.ts",
+        "packages/main/src/core/repro-evidence-binding-gate.ts",
+        "packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|spike-review-binding",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
