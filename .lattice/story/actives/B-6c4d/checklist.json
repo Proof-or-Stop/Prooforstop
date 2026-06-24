@@ -106,7 +106,47 @@
       "context": "A test that mints two review_run_start on one lane (same round, same material), binds a pass to the FIRST, and asserts it is ACCEPTED (assertCurrentReviewRunForEvidence returns; collectReviewerEvidenceState invalid empty) while genuinely material-drifted and empty-signal runs still hard-reject; plus confirm flow-stability-smoke stays green (open finding still blocks via stale_run, superseded pass + resolved finding still drop). Reference /tmp/friction2-runbind-fix/redgreen-spike-test.ts.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Regression smoke: mint two review_run_start on one lane (same round + material), bind pass to FIRST run → assertCurrentReviewRunForEvidence returns (no throw), collectReviewerEvidenceState.invalid is empty → smoke PASS; WHY: the primary race-red scenario that triggered this story",
+            "type": "cli"
+          },
+          {
+            "desc": "flow-stability-smoke.ts (or sibling) runs end-to-end → exit 0 with PASS output; WHY: confirms all existing flow-stability assertions still hold after the relax",
+            "type": "cli"
+          },
+          {
+            "desc": "npm test (root) exits 0 with no genuine failures; WHY: no regression across the full test suite",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Smoke case: genuinely material-drifted run (materialHash changed) with non-latest id → still hard-rejects (collectReviewerEvidenceState.invalid includes stale_run_hash); WHY: relaxing id-recency must not weaken material freshness",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke case: empty-set storyFilesHash run under whole-tree drift → still hard-rejects (falls through to strict materialHash, not advisory); WHY: the EMPTY guard from CHK-002 must hold in integration",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke case: superseded pass (non-latest run, agent has a valid pass on latest run too) → supersede filter drops the old pass from invalid (no stale_run emitted for it); WHY: existing supersede semantics preserved",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Smoke case: OPEN finding bound to run-1, run-2 exists → stale_run emitted for the finding, collectReviewerEvidenceState.invalid includes it, lane is blocked; WHY: the kind-aware invariant must hold in the integration smoke — open findings cannot be hidden",
+            "type": "cli"
+          },
+          {
+            "desc": "Smoke case: resolved finding bound to run-1, run-2 exists → supersede filter drops it from invalid (terminal finding superseded); WHY: resolved findings should not block after the relax",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
