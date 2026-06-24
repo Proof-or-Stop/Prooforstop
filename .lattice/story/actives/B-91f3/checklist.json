@@ -7,9 +7,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-24T13:33:20.309Z",
-      "endTime": null,
+      "endTime": "2026-06-24T13:33:29.434Z",
       "userSees": "User sees: \"Authority production receipt dependency classified: local core path is authority-receipt-ref productionDoneEligible=true before demotion.\"",
       "files": {
         "modify": [
@@ -40,7 +40,44 @@
             "type": "docs"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/proof-admissibility-smoke.js",
+          "result": "pass",
+          "note": "Smoke identifies authority-receipt-ref behavior: allowed as evidence/input, overall=pass, but productionDoneEligible=false.",
+          "headHash": "2cec182822606408ef5691e68b86ee2d82ae2bb2",
+          "materialHash": "5cc8fc3c312db6940d74e58dcb390b5823b78a89c6ec66749dc9aad5bd2c2a48",
+          "storyFilesHash": "7310f4ead675e1ea32af2b108822bde528e414767ca23feda77413feeac022e7",
+          "timestamp": "2026-06-24T13:33:29.647Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "command": "rg -n \"external Authority adapters|Non-goals|Authority-owned receipts are evidence inputs\" docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "result": "pass",
+          "note": "The plan classifies Authority adapters/server behavior as external/future scope rather than deleting networking or historical readers.",
+          "headHash": "2cec182822606408ef5691e68b86ee2d82ae2bb2",
+          "materialHash": "5cc8fc3c312db6940d74e58dcb390b5823b78a89c6ec66749dc9aad5bd2c2a48",
+          "storyFilesHash": "7310f4ead675e1ea32af2b108822bde528e414767ca23feda77413feeac022e7",
+          "timestamp": "2026-06-24T13:33:29.841Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "command": "rg -n \"Red/Repro/Spike|red/green|handoff|usage-ledger\" docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "result": "pass",
+          "note": "The changed plan keeps unrelated handoff, usage-ledger, and red/green semantics as separate proof surfaces rather than rewriting them.",
+          "headHash": "2cec182822606408ef5691e68b86ee2d82ae2bb2",
+          "materialHash": "5cc8fc3c312db6940d74e58dcb390b5823b78a89c6ec66749dc9aad5bd2c2a48",
+          "storyFilesHash": "7310f4ead675e1ea32af2b108822bde528e414767ca23feda77413feeac022e7",
+          "timestamp": "2026-06-24T13:33:30.053Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
