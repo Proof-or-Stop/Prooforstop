@@ -103,11 +103,13 @@ Anything else is still useful, but it is not strong proof:
 | `local-gate-evidence` | Strong local lifecycle gate readiness evidence | No |
 | `local-review-quorum` | Local 3 round x 2 host verdict over current material | No Authority claim; may satisfy local review escalation |
 | `authority-receipt` | Signature-verified Authority receipt with subject binding | No; it may only be input to a matching gate |
-| `production-gate-decision` | Verified Authority `gate_decision` receipt consumed by the matching gate | Yes, if all policy checks pass |
+| `production-gate-decision` | Verified Authority `gate_decision` receipt or receipt ref consumed by an Authority-facing adapter | No in the local CLI core; adapter/future compatibility evidence only |
 
-An authority receipt is evidence. It is not a production claim by itself.
-Only a matching gate-consumed `production-gate-decision` may support
-`productionDone = true`.
+An Authority receipt is evidence. It is not a local production completion claim
+by itself. In the local CLI proof-admissibility core, the proof vocabulary is
+`admissibilityStatus`, `assuranceLevel`, and `evidenceScope`; Authority
+production receipts remain external adapter/future compatibility inputs rather
+than local `productionDone = true` assertions.
 
 Temporal role is separate from evidence scope:
 
@@ -574,7 +576,7 @@ Enforce ready:
 | Use local/shadow `accepted=true` | `local-diagnostic`, not Authority proof |
 | Submit handoff diagnostic receipt | Accepted as diagnostic only; `productionDone=false` |
 | Read old evidence missing new fields | `legacy-observed`, audit-readable |
-| Valid new Authority `gate_decision` receipt consumed by matching gate | `production-gate-decision`, eligible for production claim under policy |
+| Valid new Authority `gate_decision` receipt consumed by matching adapter | `production-gate-decision`, admissible as evidence/input; local CLI core keeps `productionDone=false` |
 | Raw red probe without accepted ReproReview | `evidence-candidate` only; not a valid historical baseline |
 | Historical red uses old baseline hashes | `historical-valid`; not stale merely because current HEAD changed, but cannot independently satisfy a current-state gate |
 | Current green does not match current story hash tuple | stale current-state evidence |
@@ -1107,7 +1109,26 @@ block unrelated stories merely because they exist in the ledger history.
 - `trusted-reviewer-owned`
 - `legacy-unknown`
 
-#### Overall（artifact-level result）
+#### Local CLI proof vocabulary
+
+The local CLI proof-admissibility core names proof output with
+`admissibilityStatus`, `assuranceLevel`, and `evidenceScope`. Authority
+production receipts are external adapter/future compatibility evidence, not
+local production completion claims.
+
+#### AdmissibilityStatus
+
+- `admissible`
+- `inadmissible`
+
+#### AssuranceLevel
+
+- `none`
+- `diagnostic`
+- `local-gate`
+- `authority-adapter`
+
+#### Legacy Overall（artifact-level compatibility result）
 
 - `pass`
 - `warn`

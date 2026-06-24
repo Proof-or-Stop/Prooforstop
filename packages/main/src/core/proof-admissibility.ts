@@ -270,10 +270,20 @@ export const PROOF_SURFACE_REGISTRY = [
     temporalAndMaterialBindingRequired: true,
     allowedConsumers: ['AUTHORITY_GATE_DECISION', 'TEST', 'DONE'],
     allowedClaims: [
-      { claim: 'production-completion', consumers: ['AUTHORITY_GATE_DECISION', 'TEST', 'DONE'], productionDoneEligible: true },
+      /**
+       * @task B-91f3
+       * @checklist CHK-001, CHK-002
+       * @title Authority receipt refs remain admissible evidence, not local production completion
+       * @type feature
+       * @priority high
+       * @description
+       *   Authority receipt refs may be consumed as compatible evidence/input by Authority-facing adapters.
+       *   The local proof-admissibility core must not convert that evidence into a local productionDone claim.
+       */
+      { claim: 'production-completion', consumers: ['AUTHORITY_GATE_DECISION', 'TEST', 'DONE'], productionDoneEligible: false },
       { claim: 'done-readiness', consumers: ['TEST', 'DONE'], productionDoneEligible: false },
     ],
-    producerBoundaryNote: 'Verified Authority gate_decision receipt ref consumed by the matching lifecycle gate.',
+    producerBoundaryNote: 'Verified Authority gate_decision receipt ref is compatible evidence/input; local core does not claim production completion.',
     remediation: PRODUCTION_GATE_REMEDIATION,
   },
   {

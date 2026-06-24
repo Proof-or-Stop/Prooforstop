@@ -97,9 +97,9 @@ function runtimeChecks(value: Record<string, unknown>): RuntimeAdmissibilityChec
     claim: 'production-completion',
     checks: currentValidChecks('lattice.authority_receipt_refs.v1'),
   });
-  assert.equal(result.allowed, true, 'matching production gate decision with exact true checks and current contractVersion is allowed');
-  assert.equal(result.productionDoneEligible, true, 'matching production gate decision with exact true checks and current contractVersion can be productionDone eligible');
-  assert.deepEqual(result.reasons, [], 'happy production gate decision has no reasons');
+  assert.equal(result.allowed, true, 'authority receipt ref with exact true checks and current contractVersion is allowed as evidence/input');
+  assert.equal(result.productionDoneEligible, false, 'authority receipt ref evidence cannot set local productionDone');
+  assert.deepEqual(result.reasons, [], 'admissible authority receipt ref evidence has no reasons');
 }
 
 {
