@@ -18,6 +18,27 @@
       ],
       "signatureTag": "doc-code-drift|md|docs-code-naming",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-0405:F-002",
+      "desc": "M7 adversarial matrix coverage is incomplete. The plan requires executable regressions for wrong story id, wrong target phase, wrong key id, bad signature, stale current-state green, red/green command mismatch, candidate mutation, bootstrap noise, and matrix-gap policy exceptions (docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md:431-447, 560-584). The two proof admissibility suites pass, but packages/main/src/tasks/proof-admissibility-hardening-smoke.ts only covers reserved metadata, semantic tamper, strict shape, diagnostics, legacy classification, handoff overclaim, and enforce blocking; packages/main/src/tasks/proof-admissibility-smoke.ts covers stale material and broad consumer/producer mismatch. In packages/main/src/core/proof-admissibility.ts, several specific reason codes are enumerated but no evaluator branch or test assertion produces story_mismatch, gate_phase_mismatch, red_green_command_mismatch, matrix_gap_unwaived, bootstrap_noise, command_spec_digest_mismatch, or stale_hash_tuple. Commands run: npm --prefix packages/main run build; npm --prefix packages/main run test:proof-admissibility; npm --prefix packages/main run test:proof-admissibility-hardening; node scripts/verify-process-fact-contract.mjs all passed, confirming this is a coverage gap rather than a failing test.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-24T11:24:52.483Z",
+      "reviewRound": "2026-06-24T11:21:33.431Z",
+      "reviewRunId": "B-0405:RR-005",
+      "_hash": "cbdbe7c8ccdcbd4a1ab8ed35a8f053ce6bed4b83521ca6ccafaa41e69f9165c9",
+      "files": [
+        "packages/main/src/tasks/proof-admissibility-smoke.ts",
+        "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts",
+        "packages/main/src/core/proof-admissibility.ts",
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+      ],
+      "signatureTag": "missing|ts|adversarial-matrix-coverage",
+      "signatureTagSource": "auto"
     }
   ]
 }
