@@ -246,6 +246,17 @@
           "materialHash": "96adaa007e8f7ddafa1d445c9f905d262eb90f4da087c701fec35f3474287e79",
           "storyFilesHash": "3bb033bf48d472daad32daea22503c5bbbef2c03c79374e5fe0665781999041e",
           "timestamp": "2026-06-24T01:20:19.705Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "source /Users/jek/Documents/Work/proofbound/lattice_senior_authority_trust.env && export LATTICE_AUTHORITY_CUSTOMER_API_KEY=\"$(cat /Users/jek/Documents/Work/proofbound/lattice_senior_staging-client.env | tr -d '\\n')\" && node packages/main/dist/tasks/authority-live-receipt-ref-gate-smoke.js",
+          "result": "pass",
+          "note": "Digest mismatch reasoning: buildPhaseGateRequest (line 197-219) feeds materialOverlapAudit into buildGateEvaluateRequest which computes gateInputDigest over ALL input fields (authority-contracts.ts:882). signedTargetGateRequest (line 222-246) includes materialOverlapAudit in the signed decision (line 239-241). If either side omits it, the gateInputDigest and the decision payload diverge — Authority server rejects with digest mismatch. The live smoke PASS proves both sides are in lockstep. The code structure makes this invariant clear: request.materialOverlapAudit is set once in buildPhaseGateRequest and read by signedTargetGateRequest.",
+          "headHash": "136f2f059d5ae470605a5e61405305fc35aac03e",
+          "materialHash": "96adaa007e8f7ddafa1d445c9f905d262eb90f4da087c701fec35f3474287e79",
+          "storyFilesHash": "3bb033bf48d472daad32daea22503c5bbbef2c03c79374e5fe0665781999041e",
+          "timestamp": "2026-06-24T01:20:28.693Z"
         }
       ]
     },
