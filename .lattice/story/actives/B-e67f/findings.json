@@ -73,6 +73,24 @@
       ],
       "signatureTag": "missing|mjs|happy-evidence-cover",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-e67f:F-005",
+      "desc": "CHK-001:adversarial:0 lacks valid verificationEvidence: the intent requires verifying \"no extra files beyond the 7-file contract in any new task dir (no .DS_Store, node_modules, .bak, etc.)\" via a find command, but corpus-selfcheck.mjs only asserts that the REQUIRED 6 files exist; it never enumerates actual directory contents against an allowlist and would pass even with extra junk files present.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-24T10:24:51.189Z",
+      "reviewRound": "2026-06-24T10:16:50.255Z",
+      "reviewRunId": "B-e67f:RR-001",
+      "_hash": "66157b897a02c864b197cd69965a12c21688312c15e7aeadff437577b5cdbd86",
+      "files": [
+        "experiments/recovery-runner/corpus-selfcheck.mjs"
+      ],
+      "signatureTag": "missing|mjs|adversarial-lacks-valid",
+      "signatureTagSource": "auto"
     }
   ]
 }
