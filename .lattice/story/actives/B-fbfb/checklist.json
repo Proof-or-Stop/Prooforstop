@@ -61,7 +61,36 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "gap_analyze can match supportedSchemaVersion, contractVersionSupported, unsupported_schema_version, and unsupported_contract_version to code annotations.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/proof-admissibility.ts",
+          "packages/main/src/tasks/proof-admissibility-smoke.ts"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Scanner-visible task annotations contain the exact requirement phrases for schema and contract support.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Existing schema/contract behavior remains stable while annotation mapping is added.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No broad gap_analyze semantic rewrite is used to hide uncovered requirements.",
+            "type": "docs"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
