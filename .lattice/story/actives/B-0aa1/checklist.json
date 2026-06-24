@@ -57,10 +57,10 @@
           "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:repro-first-candidate",
           "result": "pass",
           "note": "Build and repro-first smoke pass after hardening; smoke creates immutable digest-addressed candidate artifacts and reloads them by id.",
-          "headHash": "20ece7af881da201037a6da7c081d3652fe86ad0",
-          "materialHash": "a7933ba3b66954d21e52866cfb95d101cc03eba34587c69733210a8f8ef9ac4f",
-          "storyFilesHash": "74667f163c69172cf845df651c97481b2b28f438d5ab155cc089ca0c641fef76",
-          "timestamp": "2026-06-24T04:38:50.575Z"
+          "headHash": "c7b8a235b7db38ee87674f286fca9cd864f9edeb",
+          "materialHash": "6f8866fba89705c2dfe3a5848554e5f64e2417b803bce7a99c467434ba21022c",
+          "storyFilesHash": "76e127976d956b8d6f2e64cf39b93d8b228fd0570a37a6cd8d769b6f3e6570f8",
+          "timestamp": "2026-06-24T04:55:42.818Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -69,10 +69,10 @@
           "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:repro-first-candidate",
           "result": "pass",
           "note": "Smoke verifies nested commandSpec values change artifactDigest and artifact store uses canonical digest-addressed objects.",
-          "headHash": "20ece7af881da201037a6da7c081d3652fe86ad0",
-          "materialHash": "a7933ba3b66954d21e52866cfb95d101cc03eba34587c69733210a8f8ef9ac4f",
-          "storyFilesHash": "74667f163c69172cf845df651c97481b2b28f438d5ab155cc089ca0c641fef76",
-          "timestamp": "2026-06-24T04:38:50.575Z"
+          "headHash": "c7b8a235b7db38ee87674f286fca9cd864f9edeb",
+          "materialHash": "6f8866fba89705c2dfe3a5848554e5f64e2417b803bce7a99c467434ba21022c",
+          "storyFilesHash": "76e127976d956b8d6f2e64cf39b93d8b228fd0570a37a6cd8d769b6f3e6570f8",
+          "timestamp": "2026-06-24T04:55:42.818Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -81,10 +81,10 @@
           "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:repro-first-candidate",
           "result": "pass",
           "note": "Smoke verifies all candidate artifacts retain evidence-candidate scope and are explicitly non-production/non-DONE.",
-          "headHash": "20ece7af881da201037a6da7c081d3652fe86ad0",
-          "materialHash": "a7933ba3b66954d21e52866cfb95d101cc03eba34587c69733210a8f8ef9ac4f",
-          "storyFilesHash": "74667f163c69172cf845df651c97481b2b28f438d5ab155cc089ca0c641fef76",
-          "timestamp": "2026-06-24T04:38:50.575Z"
+          "headHash": "c7b8a235b7db38ee87674f286fca9cd864f9edeb",
+          "materialHash": "6f8866fba89705c2dfe3a5848554e5f64e2417b803bce7a99c467434ba21022c",
+          "storyFilesHash": "76e127976d956b8d6f2e64cf39b93d8b228fd0570a37a6cd8d769b6f3e6570f8",
+          "timestamp": "2026-06-24T04:55:42.818Z"
         }
       ]
     },
@@ -144,10 +144,10 @@
           "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:repro-first-candidate",
           "result": "pass",
           "note": "Smoke exercises reviewed repro, spike record/review, relation, matrix review, and story binding artifact creation.",
-          "headHash": "20ece7af881da201037a6da7c081d3652fe86ad0",
-          "materialHash": "a7933ba3b66954d21e52866cfb95d101cc03eba34587c69733210a8f8ef9ac4f",
-          "storyFilesHash": "74667f163c69172cf845df651c97481b2b28f438d5ab155cc089ca0c641fef76",
-          "timestamp": "2026-06-24T04:38:50.575Z"
+          "headHash": "c7b8a235b7db38ee87674f286fca9cd864f9edeb",
+          "materialHash": "6f8866fba89705c2dfe3a5848554e5f64e2417b803bce7a99c467434ba21022c",
+          "storyFilesHash": "76e127976d956b8d6f2e64cf39b93d8b228fd0570a37a6cd8d769b6f3e6570f8",
+          "timestamp": "2026-06-24T04:55:42.818Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -156,10 +156,10 @@
           "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:repro-first-candidate",
           "result": "pass",
           "note": "Smoke proves red-green evaluation fails closed for unreviewed/not_run/mismatched command paths.",
-          "headHash": "20ece7af881da201037a6da7c081d3652fe86ad0",
-          "materialHash": "a7933ba3b66954d21e52866cfb95d101cc03eba34587c69733210a8f8ef9ac4f",
-          "storyFilesHash": "74667f163c69172cf845df651c97481b2b28f438d5ab155cc089ca0c641fef76",
-          "timestamp": "2026-06-24T04:38:50.575Z"
+          "headHash": "c7b8a235b7db38ee87674f286fca9cd864f9edeb",
+          "materialHash": "6f8866fba89705c2dfe3a5848554e5f64e2417b803bce7a99c467434ba21022c",
+          "storyFilesHash": "76e127976d956b8d6f2e64cf39b93d8b228fd0570a37a6cd8d769b6f3e6570f8",
+          "timestamp": "2026-06-24T04:55:42.818Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -168,10 +168,10 @@
           "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:repro-first-candidate",
           "result": "pass",
           "note": "Smoke proves story_create_from_repro creates a binding without current verificationEvidence and rejects non-accepted repro reviews.",
-          "headHash": "20ece7af881da201037a6da7c081d3652fe86ad0",
-          "materialHash": "a7933ba3b66954d21e52866cfb95d101cc03eba34587c69733210a8f8ef9ac4f",
-          "storyFilesHash": "74667f163c69172cf845df651c97481b2b28f438d5ab155cc089ca0c641fef76",
-          "timestamp": "2026-06-24T04:38:50.575Z"
+          "headHash": "c7b8a235b7db38ee87674f286fca9cd864f9edeb",
+          "materialHash": "6f8866fba89705c2dfe3a5848554e5f64e2417b803bce7a99c467434ba21022c",
+          "storyFilesHash": "76e127976d956b8d6f2e64cf39b93d8b228fd0570a37a6cd8d769b6f3e6570f8",
+          "timestamp": "2026-06-24T04:55:42.818Z"
         }
       ]
     },
@@ -233,10 +233,10 @@
           "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:repro-first-candidate",
           "result": "pass",
           "note": "Build confirms command catalog and handler registry compile for all repro-first commands; smoke drives handler-level command behavior.",
-          "headHash": "20ece7af881da201037a6da7c081d3652fe86ad0",
-          "materialHash": "a7933ba3b66954d21e52866cfb95d101cc03eba34587c69733210a8f8ef9ac4f",
-          "storyFilesHash": "74667f163c69172cf845df651c97481b2b28f438d5ab155cc089ca0c641fef76",
-          "timestamp": "2026-06-24T04:38:50.575Z"
+          "headHash": "c7b8a235b7db38ee87674f286fca9cd864f9edeb",
+          "materialHash": "6f8866fba89705c2dfe3a5848554e5f64e2417b803bce7a99c467434ba21022c",
+          "storyFilesHash": "76e127976d956b8d6f2e64cf39b93d8b228fd0570a37a6cd8d769b6f3e6570f8",
+          "timestamp": "2026-06-24T04:55:42.818Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -245,10 +245,10 @@
           "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:repro-first-candidate",
           "result": "pass",
           "note": "Smoke covers invalid/non-accepted inputs: missing accepted repro review and rejected review block downstream operations.",
-          "headHash": "20ece7af881da201037a6da7c081d3652fe86ad0",
-          "materialHash": "a7933ba3b66954d21e52866cfb95d101cc03eba34587c69733210a8f8ef9ac4f",
-          "storyFilesHash": "74667f163c69172cf845df651c97481b2b28f438d5ab155cc089ca0c641fef76",
-          "timestamp": "2026-06-24T04:38:50.575Z"
+          "headHash": "c7b8a235b7db38ee87674f286fca9cd864f9edeb",
+          "materialHash": "6f8866fba89705c2dfe3a5848554e5f64e2417b803bce7a99c467434ba21022c",
+          "storyFilesHash": "76e127976d956b8d6f2e64cf39b93d8b228fd0570a37a6cd8d769b6f3e6570f8",
+          "timestamp": "2026-06-24T04:55:42.818Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -257,10 +257,10 @@
           "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:repro-first-candidate",
           "result": "pass",
           "note": "Handlers return evidenceScope=evidence-candidate and explicit notes that outputs are not production/DONE evidence.",
-          "headHash": "20ece7af881da201037a6da7c081d3652fe86ad0",
-          "materialHash": "a7933ba3b66954d21e52866cfb95d101cc03eba34587c69733210a8f8ef9ac4f",
-          "storyFilesHash": "74667f163c69172cf845df651c97481b2b28f438d5ab155cc089ca0c641fef76",
-          "timestamp": "2026-06-24T04:38:50.575Z"
+          "headHash": "c7b8a235b7db38ee87674f286fca9cd864f9edeb",
+          "materialHash": "6f8866fba89705c2dfe3a5848554e5f64e2417b803bce7a99c467434ba21022c",
+          "storyFilesHash": "76e127976d956b8d6f2e64cf39b93d8b228fd0570a37a6cd8d769b6f3e6570f8",
+          "timestamp": "2026-06-24T04:55:42.818Z"
         }
       ]
     },
@@ -320,10 +320,10 @@
           "command": "npm --prefix packages/main run test:repro-first-candidate",
           "result": "pass",
           "note": "Smoke covers the full happy path from repro_probe through story_create_from_repro binding.",
-          "headHash": "20ece7af881da201037a6da7c081d3652fe86ad0",
-          "materialHash": "a7933ba3b66954d21e52866cfb95d101cc03eba34587c69733210a8f8ef9ac4f",
-          "storyFilesHash": "74667f163c69172cf845df651c97481b2b28f438d5ab155cc089ca0c641fef76",
-          "timestamp": "2026-06-24T04:38:50.575Z"
+          "headHash": "c7b8a235b7db38ee87674f286fca9cd864f9edeb",
+          "materialHash": "6f8866fba89705c2dfe3a5848554e5f64e2417b803bce7a99c467434ba21022c",
+          "storyFilesHash": "76e127976d956b8d6f2e64cf39b93d8b228fd0570a37a6cd8d769b6f3e6570f8",
+          "timestamp": "2026-06-24T04:55:42.818Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -332,10 +332,10 @@
           "command": "npm --prefix packages/main run test:repro-first-candidate",
           "result": "pass",
           "note": "Smoke covers matrix review, digest-sensitive relation evaluation, and mismatch fail-closed diagnostics as candidate records.",
-          "headHash": "20ece7af881da201037a6da7c081d3652fe86ad0",
-          "materialHash": "a7933ba3b66954d21e52866cfb95d101cc03eba34587c69733210a8f8ef9ac4f",
-          "storyFilesHash": "74667f163c69172cf845df651c97481b2b28f438d5ab155cc089ca0c641fef76",
-          "timestamp": "2026-06-24T04:38:50.575Z"
+          "headHash": "c7b8a235b7db38ee87674f286fca9cd864f9edeb",
+          "materialHash": "6f8866fba89705c2dfe3a5848554e5f64e2417b803bce7a99c467434ba21022c",
+          "storyFilesHash": "76e127976d956b8d6f2e64cf39b93d8b228fd0570a37a6cd8d769b6f3e6570f8",
+          "timestamp": "2026-06-24T04:55:42.818Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -344,10 +344,10 @@
           "command": "npm --prefix packages/main run test:repro-first-candidate",
           "result": "pass",
           "note": "Smoke asserts story_create_from_repro does not produce verificationEvidence and all artifacts remain evidence-candidate.",
-          "headHash": "20ece7af881da201037a6da7c081d3652fe86ad0",
-          "materialHash": "a7933ba3b66954d21e52866cfb95d101cc03eba34587c69733210a8f8ef9ac4f",
-          "storyFilesHash": "74667f163c69172cf845df651c97481b2b28f438d5ab155cc089ca0c641fef76",
-          "timestamp": "2026-06-24T04:38:50.575Z"
+          "headHash": "c7b8a235b7db38ee87674f286fca9cd864f9edeb",
+          "materialHash": "6f8866fba89705c2dfe3a5848554e5f64e2417b803bce7a99c467434ba21022c",
+          "storyFilesHash": "76e127976d956b8d6f2e64cf39b93d8b228fd0570a37a6cd8d769b6f3e6570f8",
+          "timestamp": "2026-06-24T04:55:42.818Z"
         }
       ]
     }
