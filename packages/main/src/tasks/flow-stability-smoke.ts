@@ -1469,6 +1469,11 @@ function assertReviewRunBindingRaceAcceptsNonLatestFreshPass(): void {
       true,
       'kind-aware relax must keep stale_run for an OPEN finding bound to a non-latest run',
     );
+    assert.match(
+      getGuardFailureReason(storyId, store, 'TEST', root) ?? '',
+      /Not the latest run on the current lane|stale_run/,
+      'open finding still blocks the gate even though the pass is accepted',
+    );
     store.writeFindings(storyId, { findings: [] });
 
     // GUARD B: an empty-set-storyFilesHash run on a drifted material tree must
