@@ -1,0 +1,27 @@
+{
+  "task": "Relax the id-recency review-run binding (kind-aware) so a concurrent/retried review_run_start no longer hard-rejects a material- and scope-fresh review pass bound to a non-latest run, while open findings still surface and an empty-set storyFilesHash never enables the drift advisory.",
+  "outcome": "A reviewer whose review_pass_set is bound to run-1 after a concurrent review_run_start minted run-2 on the same lane (same round, same material) no longer sees `review evidence for <lane> bound reviewRunId <RR-1> is not the current latest reviewer run (current: <RR-2>)` and no longer has the lane's valid-pass set emptied; the pass is accepted and quorum_submit proceeds. An OPEN finding bound to run-1 still blocks with `... Not the latest run on the current lane ...` (not hidden by a newer pass), a resolved finding is still superseded, and a genuinely material/scope-drifted or empty-signal run still hard-rejects as stale.",
+  "facts": [
+    "The id-recency rejection lives at review-run.ts:669-672 (assertCurrentReviewRunForEvidence, write, throws) and 794-804 (validateEvidenceRunBinding, validate, issue 'stale_run').",
+    "Both surviving checks compare the run's captured snapshot against LIVE state, never run-1 vs run-2: checkEvidenceFreshnessForGit (674-683/805-822) reads live currentMaterialHash/currentStoryFilesHash; compareScopeBinding (691-699/837-857) re-digests the live contract + diff.",
+    "collectReviewerEvidenceState supersede filter (review-run.ts:925-929) drops stale_run/stale_run_hash for kind==='pass' and for terminal (resolved/dismissed) findings, but KEEPS it for OPEN findings (they block).",
+    "checkEvidenceFreshnessForGit drift-advisory branch (evidence-freshness.ts:315) lacks the EMPTY_STORY_FILES_HASH no-signal guard that delivery-check-hash.ts:184-188 has; currentStoryFilesHash returns truthy sha256('') for an empty story diff.",
+    "A red->spike->story spike proved the fix red->green AND caught that a BLANKET relax (both kinds) breaks flow-stability's open-finding supersession; the validate-side relax must be kind-aware. reviewerWrite is lease-exempt (command-policy.ts) and run_start/pass_set hold distinct locks."
+  ],
+  "constraints": [
+    "Validate-side relax is KIND-AWARE: skip the id-recency stale_run only for evidence.kind==='pass'; KEEP it for findings so an OPEN finding bound to a non-latest run still surfaces (flow-stability cases 2 and 3 must stay green).",
+    "The EMPTY_STORY_FILES_HASH guard in checkEvidenceFreshnessForGit is a MANDATORY prerequisite: the drift advisory fires only when both stored and live storyFilesHash are non-empty; empty falls through to strict materialHash.",
+    "Never relax the freshness or scope checks — they remain the staleness authorities; a material/scope-drifted run still hard-rejects.",
+    "Do NOT unify the run_start/pass_set locks (Option A deferred) and do NOT touch the delivery-check path (already shipped in B-d243)."
+  ],
+  "unknowns": [
+    "Whether to add the new race regression case to flow-stability-smoke or a dedicated smoke (CHK-003) — to be decided in DEV; both must stay green."
+  ],
+  "touchpoints": [
+    "packages/main/src/core/review-run.ts (assertCurrentReviewRunForEvidence ~669, validateEvidenceRunBinding ~794)",
+    "packages/main/src/core/evidence-freshness.ts (checkEvidenceFreshnessForGit drift-advisory branch ~315)",
+    "packages/main/src/tasks/flow-stability-smoke.ts (or a new regression smoke)",
+    "docs/requirements/decisions/review-run-binding-race.md + docs/requirements/decisions/session-ownership-and-write-leases.md"
+  ],
+  "timestamp": "2026-06-24T12:55:49.657Z"
+}

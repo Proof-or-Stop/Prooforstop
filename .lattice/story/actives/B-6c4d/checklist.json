@@ -6,7 +6,51 @@
       "context": "review-run.ts: assertCurrentReviewRunForEvidence (~669-672) drop the id-recency throw (write-time, both kinds); validateEvidenceRunBinding (~794-804) keep the stale_run check ONLY for evidence.kind !== 'pass' so open findings still surface but material-fresh non-latest passes become valid. The freshness (674-683/805-822) + scope (691-699/837-857) checks remain the staleness authorities.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Two review_run_start on same lane/round/material, bind pass to run-1 → assertCurrentReviewRunForEvidence does NOT throw (write-time acceptance); WHY: validates the id-recency throw removal at write path",
+            "type": "cli"
+          },
+          {
+            "desc": "Two review_run_start on same lane/round/material, bind pass to run-1 → validateEvidenceRunBinding returns null (no stale_run issue), collectReviewerEvidenceState.invalid is empty; WHY: validates the validate-path relax for kind=pass",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Material-drifted non-latest run (materialHash mismatch + storyFilesHash mismatch) → assertCurrentReviewRunForEvidence throws stale (freshness authority rejects even though id-recency relaxed); WHY: confirms freshness check is still the staleness authority after id-recency removal",
+            "type": "cli"
+          },
+          {
+            "desc": "Scope-drifted non-latest run (live scope contract changed) → assertCurrentReviewRunForEvidence throws scope mismatch; WHY: confirms scope check is still enforced independently of id-recency",
+            "type": "cli"
+          },
+          {
+            "desc": "Non-latest run in a DIFFERENT reviewRound → assertCurrentReviewRunForEvidence throws wrong_round before id-recency is even checked; WHY: round check precedes id-recency and must still reject",
+            "type": "cli"
+          },
+          {
+            "desc": "Resolved/dismissed finding bound to non-latest run → collectReviewerEvidenceState supersede filter drops it (does not appear in invalid); WHY: terminal findings are still superseded by the existing filter at L925-929",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "OPEN finding bound to run-1 when run-2 exists on same lane → validateEvidenceRunBinding emits stale_run for that finding (kind-aware: findings keep the stale_run), collectReviewerEvidenceState.invalid includes it; WHY: the KIND-AWARE relax must NOT hide unresolved findings",
+            "type": "cli"
+          },
+          {
+            "desc": "Attacker mints N sequential run_starts to flush prior findings — each OPEN finding bound to any non-latest run still emits stale_run and blocks; WHY: validates kind-aware invariant holds under repeated run_start churn not just two runs",
+            "type": "cli"
+          },
+          {
+            "desc": "Pass bound to run-1 AND open finding bound to run-1 on same lane, run-2 exists → pass accepted (no stale_run for pass) but finding still surfaces (stale_run for finding); net result lane blocked; WHY: validates mixed-kind scenario where both evidence types coexist on a superseded run",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
