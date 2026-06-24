@@ -583,6 +583,17 @@
           "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
           "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
           "timestamp": "2026-06-24T11:22:39.248Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "manual_transcript",
+          "command": "grep -n storyFilesHash packages/main/src/core/process-fact-registry.ts",
+          "result": "pass",
+          "note": "process-fact-registry.ts:786 delivery_check_set rationale: \"Delivery-check signature is consumed by DONE and folds in storyFilesHash: whole-tree materialHash drift with a matching signed storyFilesHash downgrades to a mandatory re-attestation advisory (delivery_check_drift_advisory), while a story-owned change or missing storyFilesHash stays strict stale.\" This mentions BOTH signed storyFilesHash AND drift-advisory semantics explicitly. The rationale is specific to the new B-d243 behavior, not a stale/generic leftover.",
+          "headHash": "2681d1ccdcf9cfb3e190e8b06086ad574aefb759",
+          "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
+          "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
+          "timestamp": "2026-06-24T11:22:44.535Z"
         }
       ]
     }
