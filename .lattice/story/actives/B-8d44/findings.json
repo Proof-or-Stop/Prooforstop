@@ -275,6 +275,24 @@
       ],
       "signatureTag": "missing|mjs|adversarial-lacks-evidence",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-8d44:F-016",
+      "desc": "CHK-002:adversarial:1 lacks evidence: intent requires that a malicious injection writing OUTSIDE the ws (e.g. /tmp/pwned) is captured in changedPaths via the before/after snapshot. The selfcheck never constructs a scenarioMap stub whose inject() writes outside the ws and then asserts the out-of-ws path appears in changedPaths or createdPaths. The selfcheck's unsafeCreate test writes inside the ws (.env within the ws directory). The comment in live-engine.mjs lines 347-349 describes the snapshotDir mechanism, but it is not adversarially tested.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-24T12:59:26.562Z",
+      "reviewRound": "2026-06-24T12:50:13.876Z",
+      "reviewRunId": "B-8d44:RR-002",
+      "_hash": "4c3d54e85e8795124730db2c6f6089edd98d105b9930cb3b2ec32a03396c9106",
+      "files": [
+        "experiments/recovery-runner/live-engine-selfcheck.mjs"
+      ],
+      "signatureTag": "missing|mjs|adversarial-lacks-evidence",
+      "signatureTagSource": "auto"
     }
   ]
 }
