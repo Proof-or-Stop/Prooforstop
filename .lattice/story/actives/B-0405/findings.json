@@ -94,6 +94,24 @@
       ],
       "signatureTag": "missing|ts|test-coverage-evidence",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-0405:F-005",
+      "desc": "Documentation consistency blocker: proof-admissibility-hardening-execution-plan.md now states that B-0405 implemented M2-M7 in warn-by-default/enforce diagnostics mode (lines 3-5) and adds implemented status notes for M2-M5 (for example lines 268-271, 304-308, 340-344, 374-377), but Appendix A still labels the same contract work as Current code status Missing/Partial with pending Gap/action items (lines 620-635), and Appendix B still says shared enum/strict shape/contract integration/typed handoff split remain missing or must be added (lines 705-719). Because this decision doc is the truth-source execution plan for the story, readers cannot tell whether B-0405 delivered the hardening or whether those appendix actions remain required. Update the appendices to either mark them explicitly as pre-B-0405 baseline/historical gap analysis or refresh the current-status/action columns to match the implemented B-0405 state.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-24T11:54:03.246Z",
+      "reviewRound": "2026-06-24T11:50:39.023Z",
+      "reviewRunId": "B-0405:RR-017",
+      "_hash": "70ade5f11aaa1a49f16ec2f22c6a297f1c2f2dd4805a2c22794385e6b89479cb",
+      "files": [
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+      ],
+      "signatureTag": "doc-code-drift|md|documentation-consistency-blocker",
+      "signatureTagSource": "auto"
     }
   ]
 }
