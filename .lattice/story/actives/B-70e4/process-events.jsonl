@@ -11,3 +11,5 @@
 {"type":"subagent_result","checklistId":"CHK-003","success":true,"timestamp":"2026-06-24T01:13:50.055Z"}
 {"type":"subagent_result","checklistId":"CHK-004","success":true,"timestamp":"2026-06-24T01:13:50.694Z"}
 {"type":"reviewer_finding","storyId":"B-70e4","command":"finding_add","role":"reviewer","agent":"lattice-review-concept","result":"pass","findingId":"B-70e4:F-001","severity":"critical","missingAttribution":false,"timestamp":"2026-06-24T01:24:54.788Z"}
+{"type":"dirty_gate_audit","storyId":"B-70e4","gate":"validate-side-effect","category":"lattice_metadata_changes","pathCount":1,"paths":[".lattice/story/actives/B-70e4/review-runs.json"],"reason":"lattice-owned story metadata; auto-committed by B-3506 helper","timestamp":"2026-06-24T01:26:00.688Z"}
+{"type":"reviewer_finding","storyId":"B-70e4","command":"finding_add","role":"reviewer","agent":"lattice-review-quality","result":"pass","findingId":"B-70e4:F-002","severity":"medium","missingAttribution":false,"timestamp":"2026-06-24T01:26:44.778Z"}
