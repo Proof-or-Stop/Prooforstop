@@ -609,7 +609,22 @@
       },
       "status": "done",
       "startTime": "2026-06-24T00:08:25.612Z",
-      "endTime": "2026-06-24T00:09:45.538Z"
+      "endTime": "2026-06-24T00:09:45.538Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "verifier prints 'Process fact contract verified', exit 0 after the gateConsumer update",
+          "headHash": "b42dbbf31a5be104ef04b739a9274d30a7179249",
+          "materialHash": "2f149db52f337a4f4466fa1a43a8f0dbc8df49ef07e65772f5be61142bd5f85c",
+          "storyFilesHash": "c21f0bf4341b45f8bae934c199fccad218fe04e737720749c66665a41e8540cb",
+          "timestamp": "2026-06-24T00:21:01.451Z"
+        }
+      ]
     }
   ],
   "auditLog": [
