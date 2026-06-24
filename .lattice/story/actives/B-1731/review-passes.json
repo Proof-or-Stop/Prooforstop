@@ -143,6 +143,15 @@
       "reviewRound": "2026-06-24T22:49:32.346Z",
       "reviewRunId": "B-1731:RR-027",
       "_hash": "9673a495ed841221f953149052443b77e2a0b9f25880c7169e37804d639f7ba8"
+    },
+    {
+      "id": "B-1731:RP-017",
+      "agent": "lattice-review-concept",
+      "note": "Concept pass: inspected packages/main/src/core/repro-evidence-binding-gate.ts and packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts. F-010 is fixed: spike review acceptance requires verdict=confirmed, and legacy status=accepted does not override rejected or missing verdict. F-009 classifier diagnostics are sanity-checked for bug_story and high_risk_code_verifiable. Ran npm run test:repro-evidence-binding-dev-gate; all 35 smoke checks passed.",
+      "createdAt": "2026-06-24T23:03:30.387Z",
+      "reviewRound": "2026-06-24T23:01:14.127Z",
+      "reviewRunId": "B-1731:RR-031",
+      "_hash": "1ae4b7ac8095f1f313145f7ed21bd43366c6e5b110b28567df9cc313e597a5c2"
     }
   ]
 }
