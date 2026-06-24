@@ -612,11 +612,17 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
           source: 'delivery-check.json.docsPromises',
         }));
       } else {
+        // delivery_check_drift_advisory falls here (not tampered, not stale): the
+        // gate PASSES but the mandatory whole-tree drift advisory is surfaced loudly
+        // on the row detail (never swallowed) so the operator re-attests if needed.
+        const advisorySuffix = deliveryCheckFreshness.advisory
+          ? ` — ADVISORY: ${deliveryCheckFreshness.advisory}`
+          : '';
         rows.push(doneCheckRow({
           id: 'delivery-check',
           status: 'pass',
           label: 'delivery-check',
-          detail: `${deliveryCheck.docsPromises.length} docsPromises checked`,
+          detail: `${deliveryCheck.docsPromises.length} docsPromises checked${advisorySuffix}`,
           source: 'delivery-check.json.docsPromises',
         }));
       }
