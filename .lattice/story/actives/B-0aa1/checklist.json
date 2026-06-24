@@ -107,7 +107,46 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "lattice --help lists the new repro-first commands and each command returns JSON/text with artifactId, digest, and candidate scope fields.",
+      "files": {
+        "modify": [
+          "packages/main/src/registry.ts",
+          "packages/main/src/cli/command-catalog.ts"
+        ],
+        "create": [
+          "packages/main/src/handlers/repro-intake.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/repro-first-candidate-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-003:happy:0",
+            "desc": "All new commands are registered in MAIN_TOOLS and the handler registry, and can be invoked through the CLI.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-003:edge:0",
+            "desc": "Invalid candidate ids, unreviewed probe refs, or missing story creation fields produce explicit non-zero errors.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-003:adversarial:0",
+            "desc": "Handlers reject attempts to pass candidate artifacts as production, authority, or DONE evidence scope.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
