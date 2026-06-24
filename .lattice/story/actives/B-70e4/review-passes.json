@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-24T01:49:03.993Z",
       "reviewRunId": "B-70e4:RR-004",
       "_hash": "35b5cd1981c017280dc0b74537f1cc6d722860eabfcdde2cb582d51891e38e93"
+    },
+    {
+      "id": "B-70e4:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "F-002 dead-code confirmed resolved: AuthorityClient now receives customerApiKey in verifyReceiptRef, making proof.ok&&proof.data branch reachable. authority-receipt-proof-auth-smoke.ts: no dead imports, no unused functions, no as-any on observable logic (line-94 cast is redundant but identical to the already-typed Record<string,string>), no random/time/network calls, fixture is schema-validated before use, empty-string key block is genuine (calledEmpty stays false). authority-enforce.ts loadProof: auth now resolved via resolveAuthorityClientAuth. No new quality issues found.",
+      "createdAt": "2026-06-24T01:57:00.979Z",
+      "reviewRound": "2026-06-24T01:49:03.993Z",
+      "reviewRunId": "B-70e4:RR-005",
+      "_hash": "0110d50f38c4b9887abd4abb9f2d0ea8ec72fb7011b4a8f499991e9cd496bf14"
     }
   ]
 }
