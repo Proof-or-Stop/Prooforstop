@@ -1,81 +1,81 @@
 {
   "storyId": "B-6de6",
-  "checkedAt": "2026-06-24T01:00:42.573Z",
-  "headHash": "b969a79c8923b47f645f9c92d65000e48dbebd33",
+  "checkedAt": "2026-06-24T01:26:45.895Z",
+  "headHash": "84c89dbef1f1d44688f1ee8b6a9181f731a0d239",
   "materialHash": "243ad0fda632f5b2f019304fcf58bfc50be538f15e86e2ac06f183bba6cd40dc",
-  "reviewRound": "2026-06-24T00:21:09.458Z",
-  "agentId": "lattice-review-delivery",
+  "reviewRound": "2026-06-24T01:08:47.974Z",
+  "agentId": "",
   "docsPromises": [
     {
-      "docPath": ".lattice/story/actives/B-6de6/plan.md#CHK-001",
-      "promise": "In review-assurance-floor.ts evaluateReviewAssuranceFloor, import eventsWithStoryFilesHashDowngrade from review-escalation.ts and currentStoryFilesHash from evidence-freshness.ts; compute effectiveEvents via the downgrade helper; pass effectiveEvents to evaluateHostVerdictRounds and latestFallbackRecord; a host verdict stale by materialHash but with matching storyFilesHash is counted as a valid local round with the re-attestation advisory attached.",
-      "verifiedBy": "diff+grep",
-      "evidence": "review-assurance-floor.ts lines 507-591: imports eventsWithStoryFilesHashDowngrade (line 12), currentStoryFilesHash (line 2); storyFilesHash computed at line 511; effectiveEvents at line 514-516; passed to evaluateHostVerdictRounds line 518 and latestFallbackRecord line 524; advisories on report line 552. eventsWithStoryFilesHashDowngrade exported from review-escalation.ts line 408."
+      "docPath": "packages/main/src/core/review-assurance-floor.ts#storyFilesHash-downgrade",
+      "promise": "review-assurance-floor honors storyFilesHash as a secondary downgrade-accept: whole-tree materialHash drift is forgiven when storyFilesHash still matches, producing a valid-with-advisory result; real story-file changes are not forgiven",
+      "verifiedBy": "diff/grep",
+      "evidence": "evaluateReviewAssuranceFloor now imports currentStoryFilesHash and eventsWithStoryFilesHashDowngrade; builds effectiveEvents once and passes to both evaluateHostVerdictRounds calls and latestFallbackRecord; storyFilesHash injected into return struct; anti-gaming control verified in check (c)"
     },
     {
-      "docPath": ".lattice/story/actives/B-6de6/plan.md#CHK-002",
-      "promise": "Truly-stale verdicts (stale by BOTH materialHash AND storyFilesHash) are excluded from the per-round duplicate-host-identity check; only freshness-valid verdicts participate in the identity/validity evaluation.",
-      "verifiedBy": "by-construction+smoke",
-      "evidence": "By construction: eventsWithStoryFilesHashDowngrade only rewrites verdicts whose storyFilesHash matches; truly-stale verdicts stay materialDigest-stale, routed to ignoredVerdicts before duplicate-identity check. review-assurance-floor-storyfileshash-smoke.ts checks (b) and (b2) runtime PASS (14/14)."
+      "docPath": "packages/main/src/core/review-escalation.ts#export-eventsWithStoryFilesHashDowngrade",
+      "promise": "eventsWithStoryFilesHashDowngrade is exported from review-escalation.ts so review-assurance-floor can reuse the canonical helper",
+      "verifiedBy": "diff/grep",
+      "evidence": "diff shows exactly one change: function keyword changed to export function; import confirmed in review-assurance-floor.ts diff"
     },
     {
-      "docPath": ".lattice/story/actives/B-6de6/plan.md#CHK-003",
-      "promise": "fallbackRecordFromEvent updated to accept expectedStoryFilesHash 4th arg; when materialHash stale but storyFilesHash matches, pushes advisory instead of stale reason; advisories surfaced on ReviewAssuranceFloorReport; anti-gaming: storyFilesHash mismatch still stales the rounds.",
-      "verifiedBy": "diff+grep",
-      "evidence": "review-assurance-floor.ts: fallbackRecordFromEvent takes expectedStoryFilesHash at line 603; advisory logic at lines 627-631; latestFallbackRecord passes storyFilesHash at line 657; advisories field on ReviewAssuranceFloorFallbackRecord line 69, ReviewAssuranceFloorReport line 108; report.advisories at line 552. Smoke (c) anti-gaming and (d) degraded fallback checks pass."
+      "docPath": "packages/main/src/core/review-assurance-floor.ts#fallbackRecordFromEvent-storyFilesHash",
+      "promise": "fallbackRecordFromEvent applies the same storyFilesHash downgrade-accept to fallback records: stale materialHash forgiven with advisory when storyFilesHash matches, rejected otherwise",
+      "verifiedBy": "diff/grep",
+      "evidence": "fallbackRecordFromEvent gains expectedStoryFilesHash param; stale materialHash branch checks match before pushing advisory vs error reason; latestFallbackRecord passes the new arg; verified by check (d) in smoke"
     },
     {
-      "docPath": ".lattice/story/actives/B-6de6/plan.md#CHK-004",
-      "promise": "New offline smoke review-assurance-floor-storyfileshash-smoke.ts (14 checks) created and wired into npm test chain; done-escalation-drift-advisory-smoke.ts has floor-row render assertions (7 checks).",
-      "verifiedBy": "file-read+runtime",
-      "evidence": "package.json line 15: test:review-assurance-floor-storyfileshash-smoke in test chain; test:done-escalation-drift-advisory in test chain. Runtime: 14/14 and 7/7 checks pass."
+      "docPath": "packages/main/src/core/done-oracle.ts#floor-advisory-render",
+      "promise": "DONE checklist done-oracle.ts floor row surfaces re-attestation advisory in the detail field when a host verdict is downgrade-accepted",
+      "verifiedBy": "diff/grep",
+      "evidence": "buildDoneChecklist builds floorDetail = floor.ok && floor.advisories?.length ? floorBaseDetail + advisory : floorBaseDetail; confirmed by done-escalation-drift-advisory-smoke check (A): floor row PASS with advisory text in detail"
     },
     {
-      "docPath": ".lattice/story/actives/B-6de6/plan.md#CHK-005",
-      "promise": "process-fact-levels.ts runtime:story_files_hash_freshness_gate gateConsumer updated to include the review assurance floor DONE freshness gate; verify-process-fact-contract.mjs exits 0 with Process fact contract verified.",
-      "verifiedBy": "grep+runtime",
-      "evidence": "process-fact-levels.ts line 308 gateConsumer includes the review assurance floor DONE freshness gate. node scripts/verify-process-fact-contract.mjs prints Process fact contract verified."
+      "docPath": "packages/main/src/core/review-assurance-floor.ts#formatReviewAssuranceFloorFailure-advisory",
+      "promise": "formatReviewAssuranceFloorFailure surfaces accepted-drift advisories on the FAIL path so the re-attestation signal is never swallowed",
+      "verifiedBy": "diff/grep",
+      "evidence": "diff adds storyFilesHash line to output and a conditional block: if (report.advisories?.length) lines.push accepted-drift advisories"
     },
     {
-      "docPath": "done-oracle.ts floor row advisory surfacing (CX-1)",
-      "promise": "done-oracle.ts floor row appends floor.advisories to the row detail when floor.ok is true and advisories are present, so the re-attestation advisory is operator-visible and not swallowed on the pass path.",
-      "verifiedBy": "diff+smoke-runtime",
-      "evidence": "done-oracle.ts lines 801-802: floorDetail appends floor.advisories when floor.ok && floor.advisories?.length. done-escalation-drift-advisory-smoke.ts checks (A) floor PASS with advisory in detail and rendered line: 7/7 pass."
+      "docPath": "packages/main/src/core/process-fact-levels.ts#story_files_hash_freshness_gate",
+      "promise": "process-fact-levels.ts registers the review-assurance floor as a storyFilesHash-freshness consumer by updating the gateConsumer field of runtime:story_files_hash_freshness_gate",
+      "verifiedBy": "diff/grep",
+      "evidence": "diff shows gateConsumer updated to include review assurance floor DONE freshness gate; verify-process-fact-contract.mjs passes with matching expected line update"
     },
     {
-      "docPath": "review-assurance-floor.ts formatReviewAssuranceFloorFailure advisory surfacing",
-      "promise": "formatReviewAssuranceFloorFailure surfaces accepted-drift advisories even on the FAIL path so the re-attestation signal is not swallowed when the floor fails for another reason.",
-      "verifiedBy": "diff",
-      "evidence": "review-assurance-floor.ts lines 719-725: accepted-drift advisories appended to failure format output when report.advisories?.length is truthy."
+      "docPath": "scripts/verify-process-fact-contract.mjs#story_files_hash_freshness_gate-line",
+      "promise": "verify-process-fact-contract.mjs expected line updated to match the new gateConsumer wording including review assurance floor",
+      "verifiedBy": "diff/script-run",
+      "evidence": "diff shows requiredRuntimeEntries entry updated; running the script outputs: Process fact contract verified"
     }
   ],
   "realMachineTests": [
     {
       "featureId": "CHK-001",
-      "transcript": "review-assurance-floor-storyfileshash-smoke.ts 14/14 checks pass: (a) unrelated whole-tree drift keeps rounds valid with advisory; (a2) full three-part re-attestation advisory pattern; (b) truly-stale prior verdict does not duplicate-poison the round; (b2) cross-runId re-bind only new round valid; (c) real story-file change stales rounds anti-gaming; (d) degraded fallback storyFilesHash match valid with advisory; (d) degraded fallback real story-file change stales; baseline no drift no advisory; plus 6 verificationIntent coverage checks."
+      "transcript": "review-assurance-floor-storyfileshash-smoke.ts: check (a) drift keeps rounds valid with advisory; (a2) full three-part re-attestation pattern; (1) two different-runId drifted rounds both downgraded valid; (2) legacy verdict without storyFilesHash not downgraded; (3) null storyFilesHash no crash; baseline no drift no advisory. 14/14 checks pass."
     },
     {
       "featureId": "CHK-002",
-      "transcript": "Covered by review-assurance-floor-storyfileshash-smoke.ts checks (b), (b2), (4), (5): truly-stale verdicts excluded from duplicate-host-identity check; cross-runId re-bind; three-era same-identity no dup-identity; two truly-stale dup-identity verdicts ignored. All 14 pass."
+      "transcript": "review-assurance-floor-storyfileshash-smoke.ts: check (b) truly-stale prior verdict does not duplicate-poison; (b2) cross-runId re-bind only new round valid; (4) three eras same identity diff runIds => 2 valid no dup-identity; (5) two truly-stale dup-identity verdicts => ignored no dup-identity. All assertions pass."
     },
     {
       "featureId": "CHK-003",
-      "transcript": "Covered by review-assurance-floor-storyfileshash-smoke.ts checks (a), (a2), (c), (d), (6) and done-escalation-drift-advisory-smoke.ts 7/7: advisory present on downgrade-accept; full three-part pattern match; anti-gaming inverse control passes; degraded fallback accepts/rejects correctly; one advisory per downgraded verdict; floor row PASS with advisory surfaced in detail and rendered line (case A); floor row PASS with no advisory on clean DONE (case B)."
+      "transcript": "review-assurance-floor-storyfileshash-smoke.ts: (c) real story-file change stales rounds anti-gaming; (d) degraded fallback storyFilesHash match => valid with advisory; (d) degraded fallback real story-file change => stale; (6) one advisory per verdict not deduplicated. done-escalation-drift-advisory-smoke.ts: (A) floor row PASS with advisory in detail; (B) clean no-drift floor row carries NO advisory. 7/7 pass."
     },
     {
       "featureId": "CHK-004",
-      "transcript": "review-assurance-floor-storyfileshash-smoke.ts run directly: 14/14 checks pass. Wired in package.json test chain (test:review-assurance-floor-storyfileshash-smoke position 5, test:done-escalation-drift-advisory). done-escalation-drift-advisory-smoke.ts 7/7 checks."
+      "transcript": "review-assurance-floor-storyfileshash-smoke.ts (431 lines, new file) wired into package.json test chain as test:review-assurance-floor-storyfileshash-smoke; fully offline. Executed: 14/14 checks pass. done-escalation-drift-advisory-smoke.ts extended with 7 floor-row assertions: 7/7 pass."
     },
     {
       "featureId": "CHK-005",
-      "transcript": "node scripts/verify-process-fact-contract.mjs exits 0 with final line: Process fact contract verified. process-fact-levels.ts line 308 gateConsumer includes the review assurance floor DONE freshness gate."
+      "transcript": "process-fact-levels.ts runtime:story_files_hash_freshness_gate gateConsumer updated; verify-process-fact-contract.mjs requiredRuntimeEntries expected line updated; running node scripts/verify-process-fact-contract.mjs outputs: Process fact contract verified."
     }
   ],
   "closingSelfCheck": {
     "hasRealMachineTest": true,
     "hasEdgeCaseCoverage": true,
     "hasUnresolvedTodos": false,
-    "summary": "All 7 docsPromises verified in code from diff and file reads. storyFilesHash downgrade-accept is implemented end-to-end: review-assurance-floor.ts reuses eventsWithStoryFilesHashDowngrade from escalation; done-oracle.ts floor row appends advisories to detail not just hint; failure formatter also surfaces them; process-fact-levels.ts names the floor as a freshness consumer. Two machine test suites run live: 14/14 offline smoke checks (all happy/edge/adversarial paths) and 7/7 real-git-fixture DONE render checks (advisory visible in rendered pass row detail). No unresolved TODOs in non-test code."
+    "summary": "All 7 docsPromises verified directly in the diff. review-assurance-floor-storyfileshash-smoke.ts (14 checks) covers happy, edge (legacy verdict, null storyFilesHash, identity across eras), adversarial (anti-gaming, dup-identity), and degraded fallback. done-escalation-drift-advisory-smoke.ts (7 checks) covers DONE render advisory surface and clean-DONE control. process-fact-contract script passes. No doc-code drift; no unresolved TODOs in diff."
   },
-  "_hash": "c5e952a7d5439eb669b2fa88727009d1c8285b0a5f369bf0c2003005bcb715ff"
+  "_hash": "fb49b6ae6114ff6ec311d7a27fd473e2e98a7f81090e066bb3830d11b07020d1"
 }
