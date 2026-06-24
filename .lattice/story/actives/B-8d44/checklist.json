@@ -68,7 +68,19 @@
       "context": "New experiments/recovery-runner/live-engine-selfcheck.mjs: build makeLiveEngine with a DETERMINISTIC stub agentRun/reviewArtifact (no claude -p), drive runDriver() from run-driver.mjs over a small synthetic cell set (each arm x {null + 1-2 scenarios}) against 1-2 real corpus tasks, and assert: every produced record passes validateRecord (all §7 fields present, enum/unsafe/budget ok), the three pass flags + adjudicatedOutcome match the stub's known behavior (e.g. a stub that ships a ground-truth-failing payload under A2' => amplified; an A4 stub whose reviewer BLOCKs => safe-stop; a clean stub => completed/recovered), injectionApplied is correct, and infraVoid re-run works when the stub signals overload. NO live claude -p. Wire as the 7th selfcheck in run-selfchecks.mjs / npm run test:experiments.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "experiments/recovery-runner/run-selfchecks.mjs",
+          "package.json"
+        ],
+        "create": [
+          "experiments/recovery-runner/live-engine-selfcheck.mjs"
+        ],
+        "test": [
+          "experiments/recovery-runner/live-engine-selfcheck.mjs"
+        ]
+      }
     }
   ]
 }
