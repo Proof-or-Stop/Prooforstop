@@ -1,0 +1,65 @@
+{
+  "storyId": "B-0405",
+  "checkedAt": "2026-06-24T11:48:01.077Z",
+  "headHash": "6403a5612f24373ffa8fd2cf6ec26d039df1442a",
+  "materialHash": "c074e77cf9d0d9198cf347d2b26f05ffbb179573e69e3b7bf20317aa976004dc",
+  "reviewRound": "2026-06-24T11:32:27.508Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+      "promise": "M2 reserved proof-key metadata contract strips or rejects caller-writable proof-looking keys while preserving ordinary metadata.",
+      "status": "verified",
+      "verifiedBy": "source review + npm build + hardening smoke",
+      "evidence": "Reviewed proof-admissibility-metadata.ts and authority runner/event parsers; reran npm --prefix packages/main run build and npm --prefix packages/main run test:proof-admissibility-hardening, which passed with proof-admissibility hardening smoke passed."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+      "promise": "M3 semantic binding and versioned verification reject tamper to reason, verdict, schema/shape, story/head/material binding, and digest/signature subjects.",
+      "status": "verified",
+      "verifiedBy": "source review + hardening smoke",
+      "evidence": "Reviewed proof-admissibility-binding.ts and AuthorityGateReceiptProofSchema strict-shape use; hardening smoke passed and asserts reason/verdict/story/head/material/signature-like tamper plus null/extra/missing shape failures."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+      "promise": "M4 gate integration reports shared proof admissibility diagnostics with scope, consumer, claim, reason code, and remediation in warn mode.",
+      "status": "verified",
+      "verifiedBy": "source review + process fact verifier + validation evidence",
+      "evidence": "Reviewed proof-admissibility-gates.ts and consuming review/DONE paths; node scripts/verify-process-fact-contract.mjs passed and registry includes runtime:proof_admissibility_gate_diagnostic."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+      "promise": "M5 legacy evidence remains readable as legacy scope but cannot satisfy strong production proof claims.",
+      "status": "verified",
+      "verifiedBy": "source review + hardening smoke",
+      "evidence": "Reviewed proof-admissibility-legacy.ts usage through hardening smoke; smoke passed and asserts legacy-observed, legacy-local-only, and legacy-unknown-producer downgrade behavior."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+      "promise": "M6 handoff and multi-host boundaries separate context/evidenceCandidate/diagnosticReceipt/admissibleProofRef and keep receiptVerified/authorityDone/fullAuthorityDone/productionDone false unless a matching gate consumes verified proof.",
+      "status": "verified",
+      "verifiedBy": "source review + review_escalation_status + hardening smoke",
+      "evidence": "Reviewed proof-admissibility-handoff.ts and lattice-handoff.ts; lattice review_escalation_status --storyId=B-0405 reports authorityDone=false fullAuthorityDone=false productionDone=false; hardening smoke passed."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+      "promise": "M7 warn/enforce rollout blocks high-risk inadmissible proof consumers in enforce mode and final material has local 3x2 review assurance without Authority productionDone.",
+      "status": "verified",
+      "verifiedBy": "source review + hardening smoke + review_escalation_status",
+      "evidence": "Reviewed enforce-mode consumption in review-escalation, review-assurance-floor, handoff, and done-required-validation; hardening smoke passed; review_escalation_status reports assuranceLevel=full-3x2 and authorityDone=false fullAuthorityDone=false productionDone=false."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001..CHK-006",
+      "transcript": "Delivery reviewer reran npm --prefix packages/main run build: exit 0, tsc completed. Reran npm --prefix packages/main run test:proof-admissibility-hardening: exit 0, final output proof-admissibility hardening smoke passed. Reran node scripts/verify-process-fact-contract.mjs: exit 0, Process fact contract verified. Read-only lattice review_escalation_status --storyId=B-0405 reports required=true ok=true assuranceLevel=full-3x2 fullQuorum=3/3 rounds x 2 hosts, with authorityDone=false fullAuthorityDone=false productionDone=false. live_smoke_transcript artifact status is missing, so this signature relies on the real commands rerun in the worktree plus recorded transcript-diff/evidence-command metadata, not on a persisted live-smoke artifact."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery review passes: documented M2-M7 promises are implemented for the local CLI hardening slice, executable smoke/build/process-fact commands pass on this machine, resolved review findings have strong evidence, local 3x2 quorum is present, and no Authority productionDone/fullAuthorityDone/authorityDone claim is made."
+  },
+  "_hash": "7098886dad0345673c68eae65f0b7b7f9bfeab712cd4aef3d25e5da767b66faf"
+}
