@@ -245,11 +245,11 @@
           "file": "experiments/recovery-runner/corpus-selfcheck.mjs",
           "command": "node experiments/recovery-runner/corpus-selfcheck.mjs",
           "result": "pass",
-          "note": "corpus-selfcheck enumerates all 24 task dirs and asserts the 7-file contract (6 always-present + inline-or-file payload) + well-formed task.json per task; 24/24 pass => the 20 new dirs were applied correctly alongside the existing 4",
-          "headHash": "14f5f71be2f18e7f3d73c2ec0ddbe9d9e3b214a5",
-          "materialHash": "9f28b82c91a9d14b0bfcf1aef3a30137f791cf3546df8978a7ad59d8ada25b33",
-          "storyFilesHash": "aed6666624846d734a34433306144b48ef4dd03e1dc39ea9ff8f89e19fcf3376",
-          "timestamp": "2026-06-24T10:15:59.203Z"
+          "note": "corpus-selfcheck now rejects any file in a task dir outside the 7 contract files + {overfit-output.mjs}; negative-control 'stray-file' guard fires (a planted stray file FAILs the check)",
+          "headHash": "dd36a44fbeaca7003831c647550184bef3ce6eeb",
+          "materialHash": "03ac2ae4cf90a681ead16a78c7ebfe7f00d258c49a17397a78706c19c1cc25d8",
+          "storyFilesHash": "bf5cea6e9a648fc109da08133396f55860337c7e23ecf5053dd8e144115c43e0",
+          "timestamp": "2026-06-24T10:34:20.238Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
