@@ -313,6 +313,25 @@
       ],
       "signatureTag": "edge|ts|fresh-skip-trusts",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-1731:F-015",
+      "desc": "Validation protocol smoke does not cover explicit unsafe PASS branches for wrong validate command, malformed or nonzero verificationCoverage.missingRequired, or missing headHash/materialHash freshness bindings, so regressions in those rerun predicates could skip validate unnoticed.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-24T23:55:30.520Z",
+      "reviewRound": "2026-06-24T23:48:36.362Z",
+      "reviewRunId": "B-1731:RR-039",
+      "_hash": "a19a6673026ec848323cfabb84841dfdd432b44da4149a1a8b1e4d74dec5f619",
+      "files": [
+        "packages/main/src/handlers/phase-gates.ts",
+        "packages/main/src/tasks/validation-protocol-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|validation-protocol-smoke",
+      "signatureTagSource": "auto"
     }
   ]
 }
