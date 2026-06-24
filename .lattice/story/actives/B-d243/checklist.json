@@ -50,10 +50,10 @@
           "command": "node packages/main/dist/tasks/delivery-check-freshness-smoke.js",
           "result": "pass",
           "note": "delivery-check-freshness-smoke.ts:332-363 (forged storyFilesHash case) + :41-61 (signDeliveryCheck): signDeliveryCheck folds storyFilesHash into the sha256 payload (line 57); the smoke forges storyFilesHash on a real delivery record and asserts the re-computed hash differs from _hash (line 352-353), proving storyFilesHash is inside the signed payload. recomputeDeliveryCheckHash (line 67-78) passes the stored storyFilesHash through the same signDeliveryCheck path, so same-input reproduces identical hash. The first smoke case (line 212-244) does delivery_check_set which signs with storyFilesHash and then evaluateDeliveryCheckFreshness returns ok:true, confirming signature verification passes.",
-          "headHash": "7c2e1aa9e382dae65d5f077e705d3d79fe4cf424",
-          "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
-          "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
-          "timestamp": "2026-06-24T11:19:25.127Z"
+          "headHash": "f300859cb241f4953365c927d6318eb01f09eada",
+          "materialHash": "c712ff64107fc7ffb4a260412f5d215402ff14334ddcb5b213b40c84d1e3f9ba",
+          "storyFilesHash": "97f73e7292c05278d423cd534757482351e6924844bbd857b39d572fa8c93290",
+          "timestamp": "2026-06-24T11:46:21.745Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
@@ -61,10 +61,10 @@
           "command": "node packages/main/dist/tasks/delivery-check-freshness-smoke.js",
           "result": "pass",
           "note": "delivery-check-freshness-smoke.ts:212-244 (first case): deliveryCheckSet calls createDeliveryCheckHandlers then delivery_check_set (line 156-157), asserts \"Delivery check saved\" (line 163), reads the stored record (line 164), and asserts delivery.storyFilesHash is truthy via the advisory case (line 267). The record._hash is verified by evaluateDeliveryCheckFreshness returning ok:true (line 227). delivery-check-hash.ts signDeliveryCheck (line 41-61) folds storyFilesHash into the hash; recomputeDeliveryCheckHash (line 67-78) recomputes and matches _hash.",
-          "headHash": "eed6cd6f8016ab30505d0730800ab67d0d7c6a37",
-          "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
-          "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
-          "timestamp": "2026-06-24T11:19:29.873Z"
+          "headHash": "f300859cb241f4953365c927d6318eb01f09eada",
+          "materialHash": "c712ff64107fc7ffb4a260412f5d215402ff14334ddcb5b213b40c84d1e3f9ba",
+          "storyFilesHash": "97f73e7292c05278d423cd534757482351e6924844bbd857b39d572fa8c93290",
+          "timestamp": "2026-06-24T11:46:21.745Z"
         },
         {
           "intentRef": "CHK-001:happy:2",
@@ -72,10 +72,10 @@
           "command": "grep -n storyFilesHash packages/main/src/handlers/delivery-check.ts",
           "result": "pass",
           "note": "delivery-check.ts waiver re-sign path: the waiver_add handler calls signDeliveryCheck with the existing record fields including storyFilesHash. The smoke test delivery-check-freshness-smoke.ts does not have an explicit waiver case, but the signing function signDeliveryCheck (delivery-check-hash.ts:41-61) is shared by both delivery_check_set and waiver re-sign, and it preserves storyFilesHash when present (line 57). The handler reads the existing record, re-signs with its fields (including storyFilesHash), and writes back. Logic inspection confirms the waiver path does not strip or omit storyFilesHash from the re-sign call.",
-          "headHash": "6c14d5d7efe7106f7a99642938667789e28f25aa",
-          "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
-          "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
-          "timestamp": "2026-06-24T11:19:35.726Z"
+          "headHash": "f300859cb241f4953365c927d6318eb01f09eada",
+          "materialHash": "c712ff64107fc7ffb4a260412f5d215402ff14334ddcb5b213b40c84d1e3f9ba",
+          "storyFilesHash": "97f73e7292c05278d423cd534757482351e6924844bbd857b39d572fa8c93290",
+          "timestamp": "2026-06-24T11:46:21.745Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -83,10 +83,10 @@
           "command": "node packages/main/dist/tasks/delivery-check-freshness-smoke.js",
           "result": "pass",
           "note": "delivery-check-freshness-smoke.ts:366-393 (legacy case): legacyDeliveryCheck() (line 173-187) creates a record WITHOUT materialHash or storyFilesHash, calling signDeliveryCheck with no materialHash/storyFilesHash args. signDeliveryCheck (delivery-check-hash.ts:56-57) conditionally appends these only when present, so the legacy hash is computed without them. recomputeDeliveryCheckHash (line 67-78) reads the stored record (which has no storyFilesHash) and passes undefined, reproducing the identical legacy hash. The smoke asserts evaluateDeliveryCheckFreshness still works (returns stale_delivery_check, not tampered), confirming byte-identical recomputation.",
-          "headHash": "0c5687b5404a8b6eebf8780bfc8ae2a0b78d7b1d",
-          "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
-          "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
-          "timestamp": "2026-06-24T11:19:47.395Z"
+          "headHash": "f300859cb241f4953365c927d6318eb01f09eada",
+          "materialHash": "c712ff64107fc7ffb4a260412f5d215402ff14334ddcb5b213b40c84d1e3f9ba",
+          "storyFilesHash": "97f73e7292c05278d423cd534757482351e6924844bbd857b39d572fa8c93290",
+          "timestamp": "2026-06-24T11:46:21.745Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
@@ -104,10 +104,10 @@
           "command": "node packages/main/dist/tasks/delivery-check-freshness-smoke.js",
           "result": "pass",
           "note": "delivery-check-freshness-smoke.ts:332-363 (forged storyFilesHash case): creates a real signed delivery record, then forges storyFilesHash to \"f\".repeat(64) (line 339). Asserts that re-signing with the forged value produces a DIFFERENT hash from the original _hash (line 347-353). Writes the forged record to the store and asserts done-oracle returns status=fail with _hash mismatch detail (line 357-358) and machine guard blocks with delivery_check_tampered (line 360). This proves an unsigned storyFilesHash forgery is detected because the signature covers it.",
-          "headHash": "59c3530b8518b03a6b44c85887b4b8a1851097a9",
-          "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
-          "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
-          "timestamp": "2026-06-24T11:19:57.520Z"
+          "headHash": "f300859cb241f4953365c927d6318eb01f09eada",
+          "materialHash": "c712ff64107fc7ffb4a260412f5d215402ff14334ddcb5b213b40c84d1e3f9ba",
+          "storyFilesHash": "97f73e7292c05278d423cd534757482351e6924844bbd857b39d572fa8c93290",
+          "timestamp": "2026-06-24T11:46:21.745Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
@@ -115,10 +115,10 @@
           "command": "node packages/main/dist/tasks/delivery-check-freshness-smoke.js",
           "result": "pass",
           "note": "delivery-check-hash.ts:50-61 signDeliveryCheck: storyFilesHash is conditionally appended (line 57). If a record was signed WITH storyFilesHash (truthy), removing it changes the payload (one fewer element in the join). recomputeDeliveryCheckHash (line 67-78) reads whatever is on the stored record — if storyFilesHash was deleted, it passes undefined, the payload shrinks, and the recomputed hash differs from _hash. The smoke forged-storyFilesHash case (delivery-check-freshness-smoke.ts:332-363) proves the signature mechanism catches field changes; deletion is a subset of that (changing from a value to undefined), and the conditional-append logic (line 56-57) guarantees the payload changes in both directions.",
-          "headHash": "45e2a9a66c99e8a4d695a1b427e6a38e86c4472f",
-          "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
-          "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
-          "timestamp": "2026-06-24T11:20:03.633Z"
+          "headHash": "f300859cb241f4953365c927d6318eb01f09eada",
+          "materialHash": "c712ff64107fc7ffb4a260412f5d215402ff14334ddcb5b213b40c84d1e3f9ba",
+          "storyFilesHash": "97f73e7292c05278d423cd534757482351e6924844bbd857b39d572fa8c93290",
+          "timestamp": "2026-06-24T11:46:21.745Z"
         }
       ]
     },
@@ -172,10 +172,10 @@
           "command": "node packages/main/dist/tasks/delivery-check-freshness-smoke.js",
           "result": "pass",
           "note": "delivery-check-freshness-smoke.ts:253-302 (non-story whole-tree drift case): after deliveryCheckSet, merges an unrelated main change into the story branch. Asserts materialHash changed (line 281), storyFilesHash unchanged (line 282). evaluateDeliveryCheckFreshness returns ok:true, code delivery_check_drift_advisory, advisory=EXPECTED_ADVISORY (lines 286-288). Line 289 asserts the stored materialHash is NOT rebound (still equals delivery.materialHash). This covers the exact intent: materialHash mismatch + signed storyFilesHash match -> advisory downgrade, no rebind.",
-          "headHash": "ef379cb40644fe9f03b5d8acab6e4edfbe268256",
-          "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
-          "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
-          "timestamp": "2026-06-24T11:20:13.411Z"
+          "headHash": "f300859cb241f4953365c927d6318eb01f09eada",
+          "materialHash": "c712ff64107fc7ffb4a260412f5d215402ff14334ddcb5b213b40c84d1e3f9ba",
+          "storyFilesHash": "97f73e7292c05278d423cd534757482351e6924844bbd857b39d572fa8c93290",
+          "timestamp": "2026-06-24T11:46:21.745Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
@@ -183,10 +183,10 @@
           "command": "node packages/main/dist/tasks/delivery-check-freshness-smoke.js",
           "result": "pass",
           "note": "delivery-check-freshness-smoke.ts:212-244 (first case): deliveryCheckSet writes a fresh delivery-check, then evaluateDeliveryCheckFreshness returns ok:true (line 227) and doneRow status=pass (line 228). No materialHash mismatch exists (line 226 confirms afterMaterial==delivery.materialHash). The storyFilesHash is present on the record (confirmed by advisory case line 267) but irrelevant here because materialHash matches — the function returns delivery_check_passed at line 183-190 without ever entering the storyFilesHash branch.",
-          "headHash": "8656d4f082fa77b84825b7a41a8831d1a79d1c60",
-          "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
-          "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
-          "timestamp": "2026-06-24T11:20:18.075Z"
+          "headHash": "f300859cb241f4953365c927d6318eb01f09eada",
+          "materialHash": "c712ff64107fc7ffb4a260412f5d215402ff14334ddcb5b213b40c84d1e3f9ba",
+          "storyFilesHash": "97f73e7292c05278d423cd534757482351e6924844bbd857b39d572fa8c93290",
+          "timestamp": "2026-06-24T11:46:21.745Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -194,10 +194,10 @@
           "command": "node packages/main/dist/tasks/delivery-check-freshness-smoke.js",
           "result": "pass",
           "note": "delivery-check-freshness-smoke.ts:366-393 (legacy case): legacyDeliveryCheck() has no materialHash or storyFilesHash. After a whole-tree drift (merge from main, lines 373-378), evaluateDeliveryCheckFreshness returns ok:false, code stale_delivery_check (lines 381-382). delivery-check-hash.ts:128-136 catches the missing materialHash and returns stale before the storyFilesHash branch (line 158) is reached. Legacy records without storyFilesHash never get the advisory downgrade.",
-          "headHash": "af84ebe24014be8ae4a7ba151810fb87ee9542d8",
-          "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
-          "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
-          "timestamp": "2026-06-24T11:20:21.873Z"
+          "headHash": "f300859cb241f4953365c927d6318eb01f09eada",
+          "materialHash": "c712ff64107fc7ffb4a260412f5d215402ff14334ddcb5b213b40c84d1e3f9ba",
+          "storyFilesHash": "97f73e7292c05278d423cd534757482351e6924844bbd857b39d572fa8c93290",
+          "timestamp": "2026-06-24T11:46:21.745Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
@@ -216,10 +216,10 @@
           "command": "node packages/main/dist/tasks/delivery-check-freshness-smoke.js",
           "result": "pass",
           "note": "delivery-check-freshness-smoke.ts:305-329 (story-owned change case): after deliveryCheckSet, edits the STORY_FILE (feature.ts) on the story branch (line 312-314). Asserts materialHash changed (line 315) AND storyFilesHash changed (line 316). doneRow returns status=fail with stale detail (lines 319-320). Machine guard blocks with stale_delivery_check (line 322). This proves: story-owned change -> storyFilesHash mismatch -> strict stale, never downgraded to advisory.",
-          "headHash": "f265bfc6204a4dc8fa5b8f8cd8fe82ade872fb82",
-          "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
-          "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
-          "timestamp": "2026-06-24T11:20:34.048Z"
+          "headHash": "f300859cb241f4953365c927d6318eb01f09eada",
+          "materialHash": "c712ff64107fc7ffb4a260412f5d215402ff14334ddcb5b213b40c84d1e3f9ba",
+          "storyFilesHash": "97f73e7292c05278d423cd534757482351e6924844bbd857b39d572fa8c93290",
+          "timestamp": "2026-06-24T11:46:21.745Z"
         },
         {
           "intentRef": "CHK-002:adversarial:1",
@@ -227,10 +227,10 @@
           "command": "node packages/main/dist/tasks/delivery-check-freshness-smoke.js",
           "result": "pass",
           "note": "delivery-check-freshness-smoke.ts:332-363 (forged storyFilesHash case): forges storyFilesHash on the stored record (line 337-339), which makes _hash mismatch. delivery-check-hash.ts:117-126 (evaluateDeliveryCheckFreshness) runs signature verification FIRST: recomputeDeliveryCheckHash recomputes from stored fields, compares to _hash, and if they differ returns delivery_check_tampered BEFORE ever reaching the materialHash or storyFilesHash freshness branches (lines 138+). The smoke asserts status=fail with _hash mismatch detail (line 357-358) and guard=delivery_check_tampered (line 360), confirming signature verification precedes any advisory logic.",
-          "headHash": "4b9864f316b07c74ec7c9421b38d5c0ac4ff8a5a",
-          "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
-          "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
-          "timestamp": "2026-06-24T11:20:39.219Z"
+          "headHash": "f300859cb241f4953365c927d6318eb01f09eada",
+          "materialHash": "c712ff64107fc7ffb4a260412f5d215402ff14334ddcb5b213b40c84d1e3f9ba",
+          "storyFilesHash": "97f73e7292c05278d423cd534757482351e6924844bbd857b39d572fa8c93290",
+          "timestamp": "2026-06-24T11:46:21.745Z"
         },
         {
           "intentRef": "CHK-002:adversarial:2",
@@ -294,10 +294,10 @@
           "command": "node packages/main/dist/tasks/delivery-check-freshness-smoke.js",
           "result": "pass",
           "note": "delivery-check-freshness-smoke.ts:253-302 (advisory case): line 292 asserts doneRow status=pass. Line 293 asserts row.detail includes the LITERAL advisory text via the pinned EXPECTED_ADVISORY constant (line 250-251: \"whole-tree materialHash drift detected while the signed delivery-check storyFilesHash matches...\"). done-oracle.ts:626-636 constructs the advisory suffix as \"— ADVISORY: <freshness.advisory>\" and appends it to the detail string. The smoke asserts the exact wording is present, confirming the advisory is VISIBLE on the passing DONE row and never swallowed.",
-          "headHash": "457c4c5c897c5821e33792ac08689ab9203ca631",
-          "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
-          "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
-          "timestamp": "2026-06-24T11:20:54.995Z"
+          "headHash": "f300859cb241f4953365c927d6318eb01f09eada",
+          "materialHash": "c712ff64107fc7ffb4a260412f5d215402ff14334ddcb5b213b40c84d1e3f9ba",
+          "storyFilesHash": "97f73e7292c05278d423cd534757482351e6924844bbd857b39d572fa8c93290",
+          "timestamp": "2026-06-24T11:46:21.745Z"
         },
         {
           "intentRef": "CHK-003:happy:1",
@@ -305,10 +305,10 @@
           "command": "node packages/main/dist/tasks/delivery-check-freshness-smoke.js",
           "result": "pass",
           "note": "delivery-check-freshness-smoke.ts:212-244 (first/happy case): deliveryCheckSet writes a fresh delivery-check, materialHash matches (line 226). doneRow returns status=pass (line 228). The row.detail is not explicitly asserted for absence of advisory in this case, but done-oracle.ts:629-630 only appends the advisory suffix when freshness.advisory is truthy; for delivery_check_passed (line 183-190 in delivery-check-hash.ts) no advisory field is set. The advisory-case smoke (line 293) pins EXPECTED_ADVISORY presence; the fresh case has no advisory, so the detail contains only the standard N-docsPromises text. No advisory pollution.",
-          "headHash": "b764e4239650b20e972c63a7b7589d2df3ccf4ab",
-          "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
-          "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
-          "timestamp": "2026-06-24T11:21:03.653Z"
+          "headHash": "f300859cb241f4953365c927d6318eb01f09eada",
+          "materialHash": "c712ff64107fc7ffb4a260412f5d215402ff14334ddcb5b213b40c84d1e3f9ba",
+          "storyFilesHash": "97f73e7292c05278d423cd534757482351e6924844bbd857b39d572fa8c93290",
+          "timestamp": "2026-06-24T11:46:21.745Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -316,10 +316,10 @@
           "command": "node packages/main/dist/tasks/delivery-check-freshness-smoke.js",
           "result": "pass",
           "note": "delivery-check-freshness-smoke.ts:293 asserts row.detail includes \"— ADVISORY: <text>\". done-oracle.ts:636 constructs detail as \"{docsPromises.length} docsPromises checked{advisorySuffix}\". The advisory is APPENDED (string concatenation) to the existing docsPromises text, not replacing it. The detail contains BOTH the N-docsPromises count AND the advisory. The smoke assertion uses .includes() which confirms the advisory substring is present within the full detail string, which starts with the docsPromises text.",
-          "headHash": "d3364ba8a9aa21339b27e2fd3746d10ab76dc803",
-          "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
-          "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
-          "timestamp": "2026-06-24T11:21:06.667Z"
+          "headHash": "f300859cb241f4953365c927d6318eb01f09eada",
+          "materialHash": "c712ff64107fc7ffb4a260412f5d215402ff14334ddcb5b213b40c84d1e3f9ba",
+          "storyFilesHash": "97f73e7292c05278d423cd534757482351e6924844bbd857b39d572fa8c93290",
+          "timestamp": "2026-06-24T11:46:21.745Z"
         },
         {
           "intentRef": "CHK-003:edge:1",
@@ -337,10 +337,10 @@
           "command": "node packages/main/dist/tasks/delivery-check-freshness-smoke.js",
           "result": "pass",
           "note": "delivery-check-freshness-smoke.ts:332-363 (forged storyFilesHash case): forges storyFilesHash, causing _hash mismatch. done-oracle.ts:594-601 handles delivery_check_tampered: row status=fail, detail references _hash mismatch (line 599-600). The smoke asserts row.status=fail (line 357) and row.detail matches /_hash mismatch/ (line 358). The tampered code path (done-oracle.ts:594) is entered BEFORE the advisory branch (done-oracle.ts:626), so tampered is never downgraded to advisory.",
-          "headHash": "650e0bb58d5119b0c79f70247b44160a2dc9b8c2",
-          "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
-          "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
-          "timestamp": "2026-06-24T11:21:17.455Z"
+          "headHash": "f300859cb241f4953365c927d6318eb01f09eada",
+          "materialHash": "c712ff64107fc7ffb4a260412f5d215402ff14334ddcb5b213b40c84d1e3f9ba",
+          "storyFilesHash": "97f73e7292c05278d423cd534757482351e6924844bbd857b39d572fa8c93290",
+          "timestamp": "2026-06-24T11:46:21.745Z"
         },
         {
           "intentRef": "CHK-003:adversarial:1",
@@ -348,10 +348,10 @@
           "command": "node packages/main/dist/tasks/delivery-check-freshness-smoke.js",
           "result": "pass",
           "note": "delivery-check-freshness-smoke.ts:305-329 (story-owned change case): edits the story-owned file, causing storyFilesHash mismatch. evaluateDeliveryCheckFreshness returns stale_delivery_check (line 316 confirms storyFilesHash changed). done-oracle.ts:603-610 handles stale_delivery_check: row status=fail, detail includes stale detail. The smoke asserts row.status=fail (line 319), detail matches /stale delivery-check: materialHash mismatch/ (line 320), and guard blocks with stale_delivery_check (line 322). Story-owned drift still hard-rejects at the DONE gate, not downgraded to advisory.",
-          "headHash": "f79c564c82c01f7fe71c0042fc8cb280286dbba9",
-          "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
-          "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
-          "timestamp": "2026-06-24T11:21:21.933Z"
+          "headHash": "f300859cb241f4953365c927d6318eb01f09eada",
+          "materialHash": "c712ff64107fc7ffb4a260412f5d215402ff14334ddcb5b213b40c84d1e3f9ba",
+          "storyFilesHash": "97f73e7292c05278d423cd534757482351e6924844bbd857b39d572fa8c93290",
+          "timestamp": "2026-06-24T11:46:21.745Z"
         },
         {
           "intentRef": "CHK-003:adversarial:2",
@@ -359,10 +359,10 @@
           "command": "node packages/main/dist/tasks/delivery-check-freshness-smoke.js",
           "result": "pass",
           "note": "delivery-check-freshness-smoke.ts:332-363 (forged storyFilesHash case): the attacker forges storyFilesHash to match currentStoryFilesHash, setting code=delivery_check_drift_advisory conceptually, BUT the _hash does not verify because storyFilesHash is signed. evaluateDeliveryCheckFreshness (delivery-check-hash.ts:117-126) runs recomputeDeliveryCheckHash FIRST: the recomputed hash uses the forged storyFilesHash, which differs from the original _hash. It returns delivery_check_tampered BEFORE the freshness branch. done-oracle.ts:594 maps this to row=fail. The smoke asserts _hash mismatch (line 358) and delivery_check_tampered (line 360). The code field alone cannot bypass signature verification.",
-          "headHash": "66fb7cad2fa23239e3a4ea1ad0be9d19cd4901de",
-          "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
-          "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
-          "timestamp": "2026-06-24T11:21:26.925Z"
+          "headHash": "f300859cb241f4953365c927d6318eb01f09eada",
+          "materialHash": "c712ff64107fc7ffb4a260412f5d215402ff14334ddcb5b213b40c84d1e3f9ba",
+          "storyFilesHash": "97f73e7292c05278d423cd534757482351e6924844bbd857b39d572fa8c93290",
+          "timestamp": "2026-06-24T11:46:21.745Z"
         }
       ]
     },
@@ -420,10 +420,10 @@
           "command": "node packages/main/dist/tasks/delivery-check-freshness-smoke.js",
           "result": "pass",
           "note": "delivery-check-freshness-smoke.ts:253-302 (advisory case): line 258-264 asserts currentStoryFilesHash is non-empty and differs from main (story-branch topology). Lines 269-278 create non-story whole-tree drift via unrelated main merge. Line 286 asserts ok:true (advisory pass). Line 288 asserts advisory===EXPECTED_ADVISORY (the exact pinned wording, line 250-251). Line 293 asserts the DONE row.detail includes the LITERAL advisory text \"— ADVISORY: whole-tree materialHash drift detected...\". The smoke exits 0 with \"delivery-check-freshness smoke passed\" confirming the entire suite including this case.",
-          "headHash": "63753874d3909c7bdd2db8f91877b557d4a033f2",
-          "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
-          "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
-          "timestamp": "2026-06-24T11:21:37.056Z"
+          "headHash": "f300859cb241f4953365c927d6318eb01f09eada",
+          "materialHash": "c712ff64107fc7ffb4a260412f5d215402ff14334ddcb5b213b40c84d1e3f9ba",
+          "storyFilesHash": "97f73e7292c05278d423cd534757482351e6924844bbd857b39d572fa8c93290",
+          "timestamp": "2026-06-24T11:46:21.745Z"
         },
         {
           "intentRef": "CHK-004:happy:1",
@@ -431,10 +431,10 @@
           "command": "node packages/main/dist/tasks/delivery-check-freshness-smoke.js",
           "result": "pass",
           "note": "delivery-check-freshness-smoke.ts:305-329 (story-owned change case): edits STORY_FILE (line 312), commits (line 314). Asserts materialHash changed (line 315) and storyFilesHash changed (line 316). doneRow returns status=fail (line 319) with detail matching /stale delivery-check: materialHash mismatch/ (line 320). canFinishGuard returns false (line 321), guard reason matches /stale_delivery_check/ (line 322). lifecycleDeliveryRow reports status=blocked, code=stale_delivery_check (lines 325-326). This is a specific code/status/detail triple assertion, not just exit 0.",
-          "headHash": "482c690f97a03138e1ae3a8b9bfce1d9e204773b",
-          "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
-          "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
-          "timestamp": "2026-06-24T11:21:41.869Z"
+          "headHash": "f300859cb241f4953365c927d6318eb01f09eada",
+          "materialHash": "c712ff64107fc7ffb4a260412f5d215402ff14334ddcb5b213b40c84d1e3f9ba",
+          "storyFilesHash": "97f73e7292c05278d423cd534757482351e6924844bbd857b39d572fa8c93290",
+          "timestamp": "2026-06-24T11:46:21.745Z"
         },
         {
           "intentRef": "CHK-004:happy:2",
@@ -442,10 +442,10 @@
           "command": "node packages/main/dist/tasks/delivery-check-freshness-smoke.js",
           "result": "pass",
           "note": "delivery-check-freshness-smoke.ts:332-363 (forged storyFilesHash case): forges storyFilesHash to \"f\".repeat(64) (line 339). Asserts signDeliveryCheck with forged value differs from original _hash (lines 347-353). Writes forged record, asserts doneRow status=fail (line 357), detail matches /_hash mismatch/ (line 358). canFinishGuard returns false (line 359), guard reason matches /delivery_check_tampered/ (line 360). Specific code/status/detail triple for tampered detection is pinned.",
-          "headHash": "3520347641e47bc1f4544e30e733faedc94a3409",
-          "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
-          "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
-          "timestamp": "2026-06-24T11:21:46.290Z"
+          "headHash": "f300859cb241f4953365c927d6318eb01f09eada",
+          "materialHash": "c712ff64107fc7ffb4a260412f5d215402ff14334ddcb5b213b40c84d1e3f9ba",
+          "storyFilesHash": "97f73e7292c05278d423cd534757482351e6924844bbd857b39d572fa8c93290",
+          "timestamp": "2026-06-24T11:46:21.745Z"
         },
         {
           "intentRef": "CHK-004:happy:3",
@@ -453,10 +453,10 @@
           "command": "node packages/main/dist/tasks/delivery-check-freshness-smoke.js",
           "result": "pass",
           "note": "delivery-check-freshness-smoke.ts:366-393 (legacy case): legacyDeliveryCheck() creates a record with no materialHash or storyFilesHash (lines 173-187). After whole-tree drift (lines 373-378), evaluateDeliveryCheckFreshness returns ok:false, code stale_delivery_check (lines 381-382). doneRow returns status=fail (line 385), detail matches /missing materialHash binding/ (line 386). canFinishGuard false (line 387), guard reason stale_delivery_check (line 388), lifecycle code=stale_delivery_check (line 389). Legacy records pinned to strict stale.",
-          "headHash": "50ad6fb18dabfb6682ae20bf44f71d8698970c07",
-          "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
-          "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
-          "timestamp": "2026-06-24T11:21:49.897Z"
+          "headHash": "f300859cb241f4953365c927d6318eb01f09eada",
+          "materialHash": "c712ff64107fc7ffb4a260412f5d215402ff14334ddcb5b213b40c84d1e3f9ba",
+          "storyFilesHash": "97f73e7292c05278d423cd534757482351e6924844bbd857b39d572fa8c93290",
+          "timestamp": "2026-06-24T11:46:21.745Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -464,10 +464,10 @@
           "command": "node packages/main/dist/tasks/delivery-check-freshness-smoke.js && npm test",
           "result": "pass",
           "note": "Smoke exits 0 with \"delivery-check-freshness smoke passed\" (verified by running node packages/main/dist/tasks/delivery-check-freshness-smoke.js). npm test (root) exits 0 with ALL PASS across cli-e2e, experience-coverage-gap-smoke, done-merge-experience-refresh-smoke, nested-worktree-bootstrap, and 5 recovery-runner selfchecks. No regressions from the re-fixturing. Both commands verified by running them and confirming exit 0.",
-          "headHash": "392e78c165c18a23f74513e41269437b21d48822",
-          "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
-          "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
-          "timestamp": "2026-06-24T11:21:59.656Z"
+          "headHash": "f300859cb241f4953365c927d6318eb01f09eada",
+          "materialHash": "c712ff64107fc7ffb4a260412f5d215402ff14334ddcb5b213b40c84d1e3f9ba",
+          "storyFilesHash": "97f73e7292c05278d423cd534757482351e6924844bbd857b39d572fa8c93290",
+          "timestamp": "2026-06-24T11:46:21.745Z"
         },
         {
           "intentRef": "CHK-004:edge:1",
@@ -475,10 +475,10 @@
           "command": "node packages/main/dist/tasks/delivery-check-freshness-smoke.js",
           "result": "pass",
           "note": "delivery-check-freshness-smoke.ts: each case calls createFixture() (line 63) which creates a fresh tmpdir, git init, and StoryStore. Cases: line 212 (happy), line 253 (advisory), line 305 (story-owned), line 332 (forged), line 366 (legacy), line 395 (missing-binding), line 411 (tampered-material), line 444 (docsPromise), line 463 (process-fact). Each case wraps in try/finally with rmSync cleanup. No shared mutable state between cases — each gets its own fresh git repo and store. Case ordering does not affect results because state is fully isolated.",
-          "headHash": "e1ad7ed5028dbe95e81136948f0e0a16d1963398",
-          "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
-          "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
-          "timestamp": "2026-06-24T11:22:04.739Z"
+          "headHash": "f300859cb241f4953365c927d6318eb01f09eada",
+          "materialHash": "c712ff64107fc7ffb4a260412f5d215402ff14334ddcb5b213b40c84d1e3f9ba",
+          "storyFilesHash": "97f73e7292c05278d423cd534757482351e6924844bbd857b39d572fa8c93290",
+          "timestamp": "2026-06-24T11:46:21.745Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -486,10 +486,10 @@
           "command": "node packages/main/dist/tasks/delivery-check-freshness-smoke.js",
           "result": "pass",
           "note": "delivery-check-freshness-smoke.ts:289 (advisory case): explicitly asserts store.readDeliveryCheck(STORY_ID)?.materialHash === delivery.materialHash after the advisory pass. This proves the stored materialHash is still the OLD value (the one recorded at delivery_check_set time), not rebound to the current drifted materialHash. The advisory downgrade (delivery-check-hash.ts:161-171) returns the result WITHOUT modifying the store — it is a read-only evaluation that never writes. The assertion at line 289 is the pinned guard against rebinding.",
-          "headHash": "3451b8d7d909887428f64521dc1ea255b39fb14d",
-          "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
-          "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
-          "timestamp": "2026-06-24T11:22:11.352Z"
+          "headHash": "f300859cb241f4953365c927d6318eb01f09eada",
+          "materialHash": "c712ff64107fc7ffb4a260412f5d215402ff14334ddcb5b213b40c84d1e3f9ba",
+          "storyFilesHash": "97f73e7292c05278d423cd534757482351e6924844bbd857b39d572fa8c93290",
+          "timestamp": "2026-06-24T11:46:21.745Z"
         },
         {
           "intentRef": "CHK-004:adversarial:1",
@@ -497,10 +497,10 @@
           "command": "node packages/main/dist/tasks/delivery-check-freshness-smoke.js",
           "result": "pass",
           "note": "delivery-check-freshness-smoke.ts: all 9 cases assert SPECIFIC code/status/detail triples. Case 1 (line 212): fresh delivery ok:true + doneRow pass + guard not stale/tampered. Case 2 (line 253): ok:true + code drift_advisory + advisory===EXPECTED_ADVISORY + row.detail includes literal advisory + no rebind. Case 3 (line 305): status=fail + /stale/ + guard stale_delivery_check. Case 4 (line 332): status=fail + /_hash mismatch/ + guard delivery_check_tampered. Case 5 (line 366): ok:false + code stale + /missing materialHash/. A vacuous 10th case that always passes would NOT satisfy these assertion patterns — each tests a distinct behavior with input-dependent assertions. Code review catches vacuous additions because the existing cases set the standard of specific triple assertions.",
-          "headHash": "f89dccf52953ac32009a5f7f05d7362db68aa467",
-          "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
-          "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
-          "timestamp": "2026-06-24T11:22:16.747Z"
+          "headHash": "f300859cb241f4953365c927d6318eb01f09eada",
+          "materialHash": "c712ff64107fc7ffb4a260412f5d215402ff14334ddcb5b213b40c84d1e3f9ba",
+          "storyFilesHash": "97f73e7292c05278d423cd534757482351e6924844bbd857b39d572fa8c93290",
+          "timestamp": "2026-06-24T11:46:21.745Z"
         }
       ]
     },
@@ -554,10 +554,10 @@
           "command": "grep -n \"DONE Sub-Gate Bindings\" docs/requirements/decisions/story-files-hash-material-drift.md",
           "result": "pass",
           "note": "story-files-hash-material-drift.md:95 contains \"## DONE Sub-Gate Bindings (Amendment 2026-06-24)\". Lines 99-103 record all three bindings: (1) line 99 \"Adopted with extra guard (signed): delivery-check\" = Gate C adopt-with-signed-guard; (2) line 101 \"Kept strict (re-runs): the done-required build+full-test-suite evidence\" = Gate B kept strict; (3) line 103 \"Excluded (kept strict): the completed-DONE-projection evidence snapshot check\" = Gate A excluded (frozen-ref integrity). Each binding includes rationale explaining why that sub-gate is bound that way. All three present with rationale.",
-          "headHash": "6d9e0ecc46b8296ebf63d57e0e819c231560d5a6",
-          "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
-          "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
-          "timestamp": "2026-06-24T11:22:28.078Z"
+          "headHash": "f300859cb241f4953365c927d6318eb01f09eada",
+          "materialHash": "c712ff64107fc7ffb4a260412f5d215402ff14334ddcb5b213b40c84d1e3f9ba",
+          "storyFilesHash": "97f73e7292c05278d423cd534757482351e6924844bbd857b39d572fa8c93290",
+          "timestamp": "2026-06-24T11:46:21.745Z"
         },
         {
           "intentRef": "CHK-005:happy:1",
@@ -565,10 +565,10 @@
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "verify-process-fact-contract.mjs exits 0 with \"Process fact contract verified\" (or equivalent summary). The script validates that process-fact-levels.ts and process-fact-registry.ts are consistent: all registry entries reference valid levels, all artifacts reference valid producer commands, all flow-fact policies are wired. After the B-d243 rationale update to delivery_check_set (process-fact-registry.ts:786 now mentions storyFilesHash and drift-advisory), the contract still verifies, confirming the rationale update did not break any structural invariant.",
-          "headHash": "7e69cb68772f02ca4ca8e04b88e14f2202387804",
-          "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
-          "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
-          "timestamp": "2026-06-24T11:22:33.111Z"
+          "headHash": "f300859cb241f4953365c927d6318eb01f09eada",
+          "materialHash": "c712ff64107fc7ffb4a260412f5d215402ff14334ddcb5b213b40c84d1e3f9ba",
+          "storyFilesHash": "97f73e7292c05278d423cd534757482351e6924844bbd857b39d572fa8c93290",
+          "timestamp": "2026-06-24T11:46:21.745Z"
         },
         {
           "intentRef": "CHK-005:happy:2",
@@ -576,10 +576,10 @@
           "command": "grep -n frozen-ref packages/main/src/core/done-oracle.ts",
           "result": "pass",
           "note": "done-oracle.ts:141-149 contains the comment: \"B-d243 (DONE Sub-Gate amendment): storyFilesHash is intentionally NOT applied here. This is a frozen-ref evidence-integrity check (it recomputes materialHash AT the recorded evidence.headHash...) storyFilesHash MUST NOT be wired into it.\" This comment is at lines 141-149, immediately above the checkCompletedEvidenceSnapshotFreshness function definition (line 151). grep confirms the frozen-ref comment exists and is co-located with the function. It prevents future cargo-cult wire-in of storyFilesHash into Gate A.",
-          "headHash": "0234b7b61b2e3361a91b6d548fee4de986e00aff",
-          "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
-          "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
-          "timestamp": "2026-06-24T11:22:39.248Z"
+          "headHash": "f300859cb241f4953365c927d6318eb01f09eada",
+          "materialHash": "c712ff64107fc7ffb4a260412f5d215402ff14334ddcb5b213b40c84d1e3f9ba",
+          "storyFilesHash": "97f73e7292c05278d423cd534757482351e6924844bbd857b39d572fa8c93290",
+          "timestamp": "2026-06-24T11:46:21.745Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -587,10 +587,10 @@
           "command": "grep -n storyFilesHash packages/main/src/core/process-fact-registry.ts",
           "result": "pass",
           "note": "process-fact-registry.ts:786 delivery_check_set rationale: \"Delivery-check signature is consumed by DONE and folds in storyFilesHash: whole-tree materialHash drift with a matching signed storyFilesHash downgrades to a mandatory re-attestation advisory (delivery_check_drift_advisory), while a story-owned change or missing storyFilesHash stays strict stale.\" This mentions BOTH signed storyFilesHash AND drift-advisory semantics explicitly. The rationale is specific to the new B-d243 behavior, not a stale/generic leftover.",
-          "headHash": "2681d1ccdcf9cfb3e190e8b06086ad574aefb759",
-          "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
-          "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
-          "timestamp": "2026-06-24T11:22:44.535Z"
+          "headHash": "f300859cb241f4953365c927d6318eb01f09eada",
+          "materialHash": "c712ff64107fc7ffb4a260412f5d215402ff14334ddcb5b213b40c84d1e3f9ba",
+          "storyFilesHash": "97f73e7292c05278d423cd534757482351e6924844bbd857b39d572fa8c93290",
+          "timestamp": "2026-06-24T11:46:21.745Z"
         },
         {
           "intentRef": "CHK-005:edge:1",
@@ -598,10 +598,10 @@
           "command": "npm --prefix packages/main run build",
           "result": "pass",
           "note": "npm --prefix packages/main run build exits 0 (tsc completes without errors). The B-d243 changes include: updated rationale strings in process-fact-registry.ts (line 786), a new code comment block in done-oracle.ts (lines 141-149), and the spec doc amendment. The TypeScript build confirms no TS errors from these string/comment changes — no broken template literals, no type mismatches.",
-          "headHash": "529a0af2ba2bfcf4984b8d7deee03188550205fa",
-          "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
-          "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
-          "timestamp": "2026-06-24T11:22:52.727Z"
+          "headHash": "f300859cb241f4953365c927d6318eb01f09eada",
+          "materialHash": "c712ff64107fc7ffb4a260412f5d215402ff14334ddcb5b213b40c84d1e3f9ba",
+          "storyFilesHash": "97f73e7292c05278d423cd534757482351e6924844bbd857b39d572fa8c93290",
+          "timestamp": "2026-06-24T11:46:21.745Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -609,10 +609,10 @@
           "command": "grep -n storyFilesHash docs/requirements/decisions/story-files-hash-material-drift.md",
           "result": "pass",
           "note": "story-files-hash-material-drift.md: Gate A (line 103) says \"Excluded (kept strict)\" and \"storyFilesHash MUST NOT be wired into it\" — NOT downgraded. Gate B (line 101) says \"Kept strict (re-runs)\" — NOT downgraded, no mention of storyFilesHash adoption. Only Gate C (line 99) says \"Adopted with extra guard (signed)\" and explicitly states it downgrades to advisory. grep confirms: Gate A and B sections do NOT claim adopt or downgrade for storyFilesHash. No copy-paste error documenting a nonexistent downgrade.",
-          "headHash": "a00edbae4fbb0ee3623eb6a112b5b57922b97816",
-          "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
-          "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
-          "timestamp": "2026-06-24T11:22:57.291Z"
+          "headHash": "f300859cb241f4953365c927d6318eb01f09eada",
+          "materialHash": "c712ff64107fc7ffb4a260412f5d215402ff14334ddcb5b213b40c84d1e3f9ba",
+          "storyFilesHash": "97f73e7292c05278d423cd534757482351e6924844bbd857b39d572fa8c93290",
+          "timestamp": "2026-06-24T11:46:21.745Z"
         },
         {
           "intentRef": "CHK-005:adversarial:1",
@@ -620,10 +620,10 @@
           "command": "grep -n frozen-ref packages/main/src/core/done-oracle.ts",
           "result": "pass",
           "note": "done-oracle.ts:142 contains the frozen-ref comment, immediately above the checkCompletedEvidenceSnapshotFreshness function definition at line 151. The comment block spans lines 141-149 and is INSIDE the module body, co-located with the actual function that performs the frozen-ref integrity check. It is NOT in an unrelated file or dead code — the function is called at line 197 within the active code path. The comment states \"storyFilesHash is intentionally NOT applied here\" and explains why, providing cargo-cult protection exactly where a future developer would look when modifying the frozen-ref check.",
-          "headHash": "f2b3d04ddd291f7c8ab6e5b070ee5c68bd0dd478",
-          "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
-          "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
-          "timestamp": "2026-06-24T11:23:00.946Z"
+          "headHash": "f300859cb241f4953365c927d6318eb01f09eada",
+          "materialHash": "c712ff64107fc7ffb4a260412f5d215402ff14334ddcb5b213b40c84d1e3f9ba",
+          "storyFilesHash": "97f73e7292c05278d423cd534757482351e6924844bbd857b39d572fa8c93290",
+          "timestamp": "2026-06-24T11:46:21.745Z"
         }
       ]
     }
