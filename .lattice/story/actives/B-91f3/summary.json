@@ -1,18 +1,17 @@
 {
   "storyId": "B-91f3",
-  "changes": "Demoted Authority receipt refs from local productionDone eligibility, restored checker_error/overall proof diagnostics, and documented the host-neutral proof-admissibility boundary.",
-  "usage": "Use the existing Lattice proof-admissibility smokes and gap_analyze; local CLI evidence may consume Authority receipt refs as evidence/input but not as production completion.",
-  "expectedOutcome": "The local CLI no longer treats Authority receipt refs as production completion, checker failures are visible as overall=error, and proof-admissibility gaps stay at zero high.",
-  "actualTranscript": "npm build and proof-admissibility smokes passed; gap_analyze reported 0 high gaps and 1 unrelated medium annotation gap; four reviewer lanes and delivery reviewer passed.",
-  "outcomeDiff": "No difference between expected and observed story-scoped outcome; global convergence remains outside scope because other active stories exist.",
+  "changes": "Demoted Authority receipt refs from local productionDone eligibility while preserving them as external/compatibility evidence inputs; updated proof-admissibility docs and smoke expectation.",
+  "usage": "Run proof-admissibility smoke or gap_analyze to verify local CLI evidence scope; local DONE no longer depends on Authority Server production receipt completion.",
+  "expectedOutcome": "authority-receipt-ref remains admissible evidence/input but productionDoneEligible is false in the local CLI proof-admissibility core.",
+  "actualTranscript": "npm --prefix packages/main run build PASS; proof-admissibility smoke passed; proof-admissibility hardening smoke passed; lattice gap_analyze reports 0 high / 1 unrelated medium; lattice validate reports pass/allPass true with 12/12 intents covered; done_required_validate PASS.",
+  "outcomeDiff": "Expected local Authority receipt demotion matched actual results; no high proof-admissibility gap reopened. The only remaining medium currentDoneMaterialBinding annotation gap is unrelated.",
   "acceptanceVerdict": "accepted",
-  "outcomeKind": "success",
   "realMachineCoverage": {
     "ran": [],
     "skipped": []
   },
-  "limitations": "Full Authority production completion remains external/future adapter scope; this story deliberately does not implement Authority server production receipts.",
-  "pitfalls": "A concurrent/older host repeatedly committed minimized diffs that removed checker_error/overall semantics; guard session and revert commits were needed before review could proceed.",
+  "limitations": "Authority client/server compatibility code still exists by design; this story only removes local productionDone eligibility from Authority receipt refs.",
+  "pitfalls": "Do not describe Authority receipt evidence as deleted everywhere; it is external adapter evidence, not local CLI completion proof.",
   "phaseStats": {
     "INIT": {
       "count": 1,
@@ -36,10 +35,10 @@
     },
     "TEST": {
       "count": 1,
-      "durationMs": 146489
+      "durationMs": 148360
     }
   },
-  "totalDurationMs": 2693771,
+  "totalDurationMs": 2695642,
   "fixtureStats": {
     "totalRuns": 0,
     "totalCases": 0,
@@ -52,5 +51,5 @@
     "open": 0
   },
   "createdAt": "2026-06-24T14:04:42.104Z",
-  "updatedAt": "2026-06-24T14:04:42.104Z"
+  "updatedAt": "2026-06-24T14:04:43.975Z"
 }
