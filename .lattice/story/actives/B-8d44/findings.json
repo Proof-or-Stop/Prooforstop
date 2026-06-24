@@ -385,7 +385,7 @@
       "desc": "CHK-003:edge:1 lacks a concrete token-binds-first assertion: the intent requires A2prime exceeding token budget before wall budget => truncated=true, tokenInBand=false, wallInBand=true, but the bound evidence note (CX-C) covers only no-budget infraVoid and with-budget honest budgetPass. No selfcheck assertion exercises the case where tokensSpent > tokenBudget while wallClockMs < wallBudgetMs (tokenInBand=false + wallInBand=true simultaneously). live-engine.mjs lines 273-277 compute these fields independently but the selfcheck only checks typeof tokenInBand === boolean (line 205), not the specific negative-token/positive-wall combination. Evidence note is misbound to a different scenario; this is a must-intent gap.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-24T13:22:30.795Z",
@@ -397,7 +397,11 @@
         "experiments/recovery-runner/live-engine.mjs"
       ],
       "signatureTag": "missing|mjs|edge-lacks-concrete",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "token-binds-first assertion added + CHK-003:edge:1 rebound. Proven vs codex r2 triggers (7/7). Commit 9cce6b071.",
+      "resolvedAt": "2026-06-24T13:33:36.754Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8d44:F-019",
