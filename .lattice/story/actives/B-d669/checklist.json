@@ -162,9 +162,9 @@
       "id": "CHK-003",
       "title": "Update lifecycle artifact scope policy text",
       "context": "Document live-smoke transcript alongside transcript-diff as a path-specific TEST lifecycle artifact and explicitly retain the no-blanket-evidence-dir invariant.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-24T14:23:48.175Z",
-      "endTime": null,
+      "endTime": "2026-06-24T14:23:48.703Z",
       "files": {
         "modify": [
           "docs/requirements/decisions/lifecycle-artifact-scope.md"
@@ -197,7 +197,42 @@
           }
         ]
       },
-      "userSees": "The lifecycle artifact policy names evidence/live-smoke-transcript.json and still says arbitrary evidence/ files are not lifecycle artifacts."
+      "userSees": "The lifecycle artifact policy names evidence/live-smoke-transcript.json and still says arbitrary evidence/ files are not lifecycle artifacts.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "command": "grep -n \"live-smoke-transcript.json\" docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "result": "pass",
+          "note": "Decision doc explicitly includes evidence/live-smoke-transcript.json in TEST lifecycle artifact scope.",
+          "headHash": "132439cd30cdb0fc73fe85620268fdcf77a6bb44",
+          "materialHash": "9c876e7ddba55eba9762f7634cd40e9da656a43e72203655705d1d7fec06a6e2",
+          "storyFilesHash": "bd28fbc198e139cd88d20f6e569c79b497829de4ce1a20811e84894a5a5ce210",
+          "timestamp": "2026-06-24T14:23:48.875Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "command": "grep -n \"closed and registry-backed\" docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "result": "pass",
+          "note": "Policy still states lifecycle artifact admission is closed and registry backed.",
+          "headHash": "132439cd30cdb0fc73fe85620268fdcf77a6bb44",
+          "materialHash": "9c876e7ddba55eba9762f7634cd40e9da656a43e72203655705d1d7fec06a6e2",
+          "storyFilesHash": "bd28fbc198e139cd88d20f6e569c79b497829de4ce1a20811e84894a5a5ce210",
+          "timestamp": "2026-06-24T14:23:49.055Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "command": "grep -n \"evidence/notes.md\" docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "result": "pass",
+          "note": "Doc explicitly rejects blanket evidence/ directory by citing arbitrary evidence/ notes as non-lifecycle.",
+          "headHash": "132439cd30cdb0fc73fe85620268fdcf77a6bb44",
+          "materialHash": "9c876e7ddba55eba9762f7634cd40e9da656a43e72203655705d1d7fec06a6e2",
+          "storyFilesHash": "bd28fbc198e139cd88d20f6e569c79b497829de4ce1a20811e84894a5a5ce210",
+          "timestamp": "2026-06-24T14:23:49.221Z"
+        }
+      ]
     }
   ]
 }
