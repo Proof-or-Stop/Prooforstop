@@ -66,7 +66,7 @@
       "desc": "quality-cleanup: review-escalation-freshness-root-smoke.ts:88+106 imports from node:fs are split across two separate import statements (line 88: mkdtempSync/mkdirSync/writeFileSync/rmSync; line 106: realpathSync). They should be merged into a single import statement for the same module.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-24T03:10:09.659Z",
@@ -77,7 +77,11 @@
         "packages/main/src/tasks/review-escalation-freshness-root-smoke.ts"
       ],
       "signatureTag": "missing|ts|quality-cleanup-review",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Cosmetic only: two separate import statements both from 'node:fs' in the smoke test file. Zero runtime/type/maintainability impact (TypeScript and Node treat split same-module imports identically). Deferred rather than fixed because editing the smoke would change storyFilesHash and force a full review re-bind round (3 reviewers + 3x2 host quorum) over the 259-commit post-merge material for a 1-line style preference — disproportionate to the nit.",
+      "resolvedAt": "2026-06-24T03:14:56.219Z",
+      "resolutionType": "accepted_risk",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
