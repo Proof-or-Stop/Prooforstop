@@ -71,6 +71,15 @@
       "reviewRound": "2026-06-24T03:27:22.420Z",
       "reviewRunId": "B-70e4:RR-010",
       "_hash": "e237cce193a62e5101596c07139943bd06e7373b88b4d5721d17995cc7a783c7"
+    },
+    {
+      "id": "B-70e4:RP-009",
+      "agent": "lattice-review-concept",
+      "note": "Concept-completeness check complete for commit ec451a7d. The cwd threading is correct and consistent: (1) loadProof gained a cwd? param and the single call site at runAuthorityReceiptVerify:273 passes ctx.root — ctx.root is the HandlerContext.root:string field, the canonical handler project root. (2) resolveAuthorityClientAuth(process.env, cwd?{cwd}:{}) correctly threads cwd into resolveAuthorityCustomerApiKey which uses options.cwd??process.cwd() for FILE-based key path resolution. (3) No stale process.cwd() bare calls remain in authority-enforce.ts auth-resolution path. (4) loadAuthoritySettings (baseURL) reads only env vars, not files — leaving it without cwd is intentional and correct; confirmed from authority-mode.ts implementation. (5) The two pre-existing resolveAuthorityClientAuth calls in authority-client.ts:2234/2426 already thread options.cwd; not regressed. (6) authority-submit.ts:201 default-param resolveAuthorityClientAuth() is a submission path outside this story scope, not changed. (7) No other handler files call resolveAuthorityClientAuth or loadProof. (8) plan.md CHK-002 DoneWhen promised resolveAuthorityClientAuth(process.env); delivery is a superset (adds cwd threading) — not a doc-promise-undelivered. Story artifacts in .lattice/ referencing the old signature are historical pre-fix descriptions, not source code residue. Zero blockers.",
+      "createdAt": "2026-06-24T03:29:45.850Z",
+      "reviewRound": "2026-06-24T03:27:22.420Z",
+      "reviewRunId": "B-70e4:RR-011",
+      "_hash": "4b19881552795ad2a4d8ae647de5c16454539a372163d9e2a97cd1e2d449c02c"
     }
   ]
 }
