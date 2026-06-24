@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-24T10:16:50.255Z",
       "reviewRunId": "B-e67f:RR-007",
       "_hash": "21d3cf6eea71753aa062fa0399fd3c3264a5addfba00d14e8e01563807281790"
+    },
+    {
+      "id": "B-e67f:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 concept re-attestation: (1) fix commit d0f7d97cc confirmed to touch ONLY corpus-selfcheck.mjs + README.md — all 140 task fixture files unchanged. (2) Task corpus verified: 24 tasks in 8 categories (bf:3, feature:4, rf:3, tr:3, du:2, dp:3, cv:3, cl:3 = 24) exactly matching README table and task.json type fields. (3) Selfcheck hardening verified: F-004 (7th file enforcement), F-005 (stray file guard), F-006 (negative-control self-test — all 5 controls must fire or exit 1), F-007 (inject sandbox tamper-proof via harness sha256 snapshot), F-008 (reentrant mkdtemp scratch + rmSync cleanup) all implemented. Exit gate requires allTasksOk AND stratOk AND controlsOk. No concept deletion or replacement found; no weakening of task quality.",
+      "createdAt": "2026-06-24T10:36:58.322Z",
+      "reviewRound": "2026-06-24T10:16:50.255Z",
+      "reviewRunId": "B-e67f:RR-008",
+      "_hash": "1be19758fcf25d2d699abea327039e27b3fcb2d4085e158cabc86d91c5496b33"
     }
   ]
 }
