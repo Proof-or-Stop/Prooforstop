@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-24T10:19:54.578Z",
       "reviewRunId": "B-0985:RR-008",
       "_hash": "7ea52f155c46c658399325f7e6153f25542b0123b621817e07becbcde6f1e9a8"
+    },
+    {
+      "id": "B-0985:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "Reviewed fixed HEAD for F-003 coverage. Verified proof-admissibility smoke now covers omitted checks for known authority-receipt-ref production-gate-decision, local-gate-evidence done-required evidence boundaries, and negative production controls for candidate, diagnostic, local-key, receipt-only, and legacy surfaces. Re-ran build, npm --prefix packages/main run test:proof-admissibility, and node scripts/verify-process-fact-contract.mjs; no test-coverage blocker remains.",
+      "createdAt": "2026-06-24T10:24:12.296Z",
+      "reviewRound": "2026-06-24T10:19:54.578Z",
+      "reviewRunId": "B-0985:RR-007",
+      "_hash": "80e0f4772f91a4b3b91a1baa24fbdb4d6ede3ea1c4eaa5c92d41ef42bc5d7b7a"
     }
   ]
 }
