@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-24T14:22:50.026Z",
       "reviewRunId": "B-6c4d:RR-008",
       "_hash": "3cb41bbacc5454e2e255012a0744ff11fb1818f6ac016d44fe98715264b59ec0"
+    },
+    {
+      "id": "B-6c4d:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "Round-3 concept residue check complete. F-004 resolved: prompt-registry-smoke exits 0 (16 agents rendered), git diff main shows zero net change to prompt-registry.ts. F-005 resolved: story-lifecycle.md line 202 now carries the kind-aware wording (PASS accepted on any material+scope-fresh current-round run; id-recency NOT required; open FINDING still requires latest run). Authoritative rationale docs verified: review-run-binding-race.md (full kind-aware spec), flow-fact-policy.ts line 36 and 324 (flow-policy:review-run-boundary rationale), process-fact-levels.ts (matching rationale). No concept deletion/replacement residue detected in round-3 diff. No new findings.",
+      "createdAt": "2026-06-24T14:42:29.900Z",
+      "reviewRound": "2026-06-24T14:41:01.279Z",
+      "reviewRunId": "B-6c4d:RR-009",
+      "_hash": "4e33b13d8fb19c3e4756ad903d27603e5e5764c7732b807f400b667308136837"
     }
   ]
 }
