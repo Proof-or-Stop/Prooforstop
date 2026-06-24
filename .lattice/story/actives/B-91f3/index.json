@@ -4,7 +4,7 @@
   "title": "Demote Authority production receipt from local admissibility core",
   "description": "Move Authority Server production receipt completion out of the local CLI core path. Local proof admissibility should report admissibilityStatus, assuranceLevel, and evidenceScope while keeping authorityDone/fullAuthorityDone/productionDone as legacy/external adapter fields that default false and are not required for local DONE.",
   "type": "refactor",
-  "phase": "REVIEW",
+  "phase": "TEST",
   "priority": "high",
   "keywords": [
     "proof-admissibility",
@@ -63,6 +63,15 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-06-24T13:39:27.680Z",
+      "branch": "story/B-91f3",
+      "user": "Harmonygo",
+      "sessionId": "sess-22adca864604e748",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-24T14:02:15.615Z",
       "branch": "story/B-91f3",
       "user": "Harmonygo",
       "sessionId": "sess-22adca864604e748",
