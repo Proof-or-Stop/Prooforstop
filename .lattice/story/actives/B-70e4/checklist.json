@@ -325,7 +325,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm run --prefix packages/main test:authority-receipt-proof-auth",
+          "result": "pass",
+          "note": "Ran npm run --prefix packages/main test:authority-receipt-proof-auth which executes dist/tasks/authority-receipt-proof-auth-smoke.js (package.json script). The smoke exited 0 and printed \"PASS authority receipt proof auth smoke: proof fetch is authenticated (Bearer) and fail-closed without a key\". All assertions at authority-receipt-proof-auth-smoke.ts:36-55 passed. This deterministic regression smoke is the primary verification artifact for CHK-001/CHK-002/CHK-004.",
+          "headHash": "6559c074e79b8eda8563e3a287554ca36fb6998f",
+          "materialHash": "96adaa007e8f7ddafa1d445c9f905d262eb90f4da087c701fec35f3474287e79",
+          "storyFilesHash": "3bb033bf48d472daad32daea22503c5bbbef2c03c79374e5fe0665781999041e",
+          "timestamp": "2026-06-24T01:20:42.608Z"
+        }
+      ]
     }
   ]
 }
