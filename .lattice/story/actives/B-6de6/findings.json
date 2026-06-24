@@ -86,6 +86,20 @@
       "_hash": "96555c214881ddd55d7c6258690fee6750513f41f8a51b398f2ff023cc19b859",
       "signatureTag": "missing|unknown|checklist-render-swallows",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-6de6:F-006",
+      "desc": "Floor failure diagnostics suppress accepted-drift advisories: formatReviewAssuranceFloorFailure (review-assurance-floor.ts:705-749) never prints report.advisories. Trigger: a downgraded verdict is accepted but the floor still fails for another reason (e.g. failure signals require 3 sticky rounds, only 1 storyFilesHash-matching stale-material round) => report.advisories populated but invisible on the fail path, violating 'advisory always surfaced when drift accepted'. Fix: add accepted-drift advisories + storyFilesHash lines to the failure formatter.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex-host-2",
+      "createdAt": "2026-06-24T00:37:21.457Z",
+      "reviewRound": "2026-06-24T00:21:09.458Z",
+      "_hash": "f0b3561a2599dc690b6bc79bf5f7570f2696ea5ef23dc81a6df5a852235ee68c",
+      "signatureTag": "missing|unknown|floor-failure-diagnostics",
+      "signatureTagSource": "auto"
     }
   ]
 }
