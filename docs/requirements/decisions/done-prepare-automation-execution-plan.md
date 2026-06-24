@@ -165,14 +165,20 @@ Supported `dryRun` behavior:
 Dirty-file policy:
 
 - supersedes the first implementation's blanket clean-tree rule: initial
-  preflight may proceed when the only dirty rows classify as Lattice story
-  lifecycle metadata, such as
+  preflight may proceed when the only dirty rows classify as same-story Lattice
+  lifecycle metadata for the requested story, such as
   `.lattice/story/actives/<storyId>/done-required-evidence.json`;
 - initial preflight still blocks material/source, fixture, runtime artifact,
-  declared artifact, and unexpected dirty rows using the shared dirty-worktree
-  classifier;
+  declared artifact, other-story Lattice metadata, and unexpected dirty rows
+  using the shared dirty-worktree classifier;
+- rename rows are allowed only when every path in the row is same-story
+  lifecycle metadata; metadata-to-source, source-to-metadata, and
+  source-to-owner-lease renames block before mutation;
 - unchanged pre-existing Lattice story lifecycle metadata remains advisory for
   `done_prepare`; it does not force a `blockedAt: cleanTree` result by itself;
+- failed DONE-required evidence is not rescued by the dirty-file allowance: it
+  remains visible as same-story metadata dirt, but `doneClosure` blocks on the
+  failed evidence and `done_prepare` must not claim `PASS`;
 - if prepare work leaves uncommitted metadata changes, the command must stop at
   `cleanTree` and list the exact files to commit before DONE;
 - if prepare work advances HEAD by delegating to an existing metadata writer that
