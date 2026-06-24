@@ -7,6 +7,9 @@
  * Coverage:
  *  - same story + same worktree: a second validate fails before entering the
  *    configured validation command;
+ *  - same-story evidence persistence remains inside the validate lock after the
+ *    validation command exits, so an overlapping newer validate cannot enter
+ *    and then be overwritten by older post-command persistence;
  *  - different story worktrees: validates can still run at the same time;
  *  - reviewer and delivery metadata writes are not blocked while validate holds
  *    its lock;
@@ -150,7 +153,16 @@ async function waitForEntered(root: string, count: number, timeoutMs: number): P
   return enteredCount(root) >= count;
 }
 
-function spawnCommand(root: string, args: string[], label: string): SpawnedChild {
+async function waitForFile(path: string, timeoutMs: number): Promise<boolean> {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    if (existsSync(path)) return true;
+    await sleep(25);
+  }
+  return existsSync(path);
+}
+
+function spawnCommand(root: string, args: string[], label: string, extraEnv: Record<string, string> = {}): SpawnedChild {
   const child = spawn(process.execPath, [cliPath(), ...args], {
     cwd: root,
     env: {
@@ -158,6 +170,7 @@ function spawnCommand(root: string, args: string[], label: string): SpawnedChild
       LATTICE_IDLE_TIMEOUT_MS: '300000',
       LATTICE_PROJECT_ROOT: root,
       LATTICE_VALIDATE_LOCK_SMOKE_LABEL: label,
+      ...extraEnv,
     },
     stdio: ['ignore', 'pipe', 'pipe'],
   });
@@ -171,8 +184,8 @@ function spawnCommand(root: string, args: string[], label: string): SpawnedChild
   return { child, done };
 }
 
-function spawnValidate(root: string, storyId: string, label: string): SpawnedChild {
-  return spawnCommand(root, ['validate', `--story=${storyId}`, '--json'], label);
+function spawnValidate(root: string, storyId: string, label: string, extraEnv: Record<string, string> = {}): SpawnedChild {
+  return spawnCommand(root, ['validate', `--story=${storyId}`, '--json'], label, extraEnv);
 }
 
 async function waitChild(proc: SpawnedChild, timeoutMs: number): Promise<ChildResult> {
@@ -225,12 +238,14 @@ function setupFixture(options: FixtureOptions = {}): { root: string; storyId: st
   }, null, 2) + '\n');
   write(root, 'validate-probe.mjs', `
 import { appendFileSync, existsSync } from 'node:fs';
-appendFileSync('entered.log', String(process.pid) + ' ' + Date.now() + '\\n');
+const label = process.env.LATTICE_VALIDATE_LOCK_SMOKE_LABEL || 'unlabeled';
+appendFileSync('entered.log', label + ' ' + String(process.pid) + ' ' + Date.now() + '\\n');
 const deadline = Date.now() + 8000;
 while (!existsSync('release')) {
   if (Date.now() > deadline) process.exit(12);
   await new Promise((resolve) => setTimeout(resolve, 25));
 }
+console.log('probe ' + label + ' passed');
 `);
   write(root, 'packages/main/src/index.ts', 'export const validateLockSmoke = true;\n');
   git(root, ['init']);
@@ -286,6 +301,61 @@ async function assertSameStoryMutualExclusion(): Promise<void> {
       ].join('\n'),
     );
   } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+async function assertPostCommandPersistenceHoldsLock(): Promise<void> {
+  const { root, storyId } = setupFixture({ storyId: 'B-validate-evidence-race' });
+  const holdFile = join(root, 'post-command.hold');
+  const readyFile = join(root, 'post-command.ready');
+  try {
+    writeFileSync(holdFile, 'hold older validate after its command exits\n', 'utf8');
+    const older = spawnValidate(root, storyId, 'older-post-command', {
+      LATTICE_VALIDATE_LOCK_SMOKE_POST_COMMAND_HOLD_FILE: holdFile,
+      LATTICE_VALIDATE_LOCK_SMOKE_POST_COMMAND_READY_FILE: readyFile,
+      LATTICE_VALIDATE_LOCK_SMOKE_POST_COMMAND_TIMEOUT_MS: '12000',
+    });
+    const olderEntered = await waitForEntered(root, 1, 4000);
+    if (!olderEntered) {
+      rmSync(holdFile, { force: true });
+      release(root);
+      const olderResult = await waitChild(older, 4000);
+      assert.fail([
+        'precondition: older validate command entered before post-command hold',
+        `olderExit=${olderResult.code}`,
+        `olderOutput=${olderResult.output.slice(0, 2000)}`,
+      ].join('\n'));
+    }
+
+    release(root);
+    assert.equal(
+      await waitForFile(readyFile, 4000),
+      true,
+      'older validate must reach the post-command pre-persistence hold',
+    );
+
+    const newer = spawnValidate(root, storyId, 'newer-post-command');
+    const newerResult = await waitChild(newer, 5000);
+
+    assert.notEqual(newerResult.code, 0, 'newer validate must be blocked until older evidence persistence finishes');
+    assert.match(newerResult.output, /validation execution|already running|is blocked/);
+    assert.equal(
+      enteredCount(root),
+      1,
+      'newer validate must not enter the validation command while older validate is between command exit and evidence persistence',
+    );
+
+    rmSync(holdFile, { force: true });
+    const olderResult = await waitChild(older, 12000);
+    assert.equal(olderResult.code, 0, olderResult.output);
+
+    const evidence = new StoryStore(root).readTestEvidence(storyId);
+    assert.ok(evidence, 'older validate must persist test evidence after the post-command hold releases');
+    assert.match(evidence.output, /probe older-post-command passed/);
+    assert.doesNotMatch(evidence.output, /probe newer-post-command passed/);
+  } finally {
+    rmSync(holdFile, { force: true });
     rmSync(root, { recursive: true, force: true });
   }
 }
@@ -505,6 +575,7 @@ async function assertReentrantButNotSiblingBypass(): Promise<void> {
 void (async () => {
   try {
     await assertSameStoryMutualExclusion();
+    await assertPostCommandPersistenceHoldsLock();
     await assertDifferentWorktreesCanValidateConcurrently();
     await assertReviewerWritesAreNotBlocked();
     await assertDeliveryCheckSetIsNotBlocked();
@@ -512,7 +583,7 @@ void (async () => {
     await assertDoneRequiredSharesValidateLock();
     await assertStaleLockReclaimed();
     await assertReentrantButNotSiblingBypass();
-    console.log('validate-execution-lock smoke passed: 8 assertions');
+    console.log('validate-execution-lock smoke passed: 9 assertions');
   } catch (error) {
     console.error(error instanceof Error ? error.message : String(error));
     process.exit(1);
