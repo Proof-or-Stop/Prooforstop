@@ -537,6 +537,26 @@
       ],
       "signatureTag": "adversarial|mjs|host-round-fail",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-8d44:F-026",
+      "desc": "host-2 ROUND 3 current-run rebind of F-023: F-021 fix still misses throw-before-harvest. runArmLoop calls agentRun/reviewArtifact before pushing the result to allExecs or snapshotting; if the executor/reviewer writes an unsafe side effect and then throws, the outer catch returns infraVoid before changedPaths/createdPaths/processEvents/permEvents are harvested. Confirmed with no-LLM probes on committed median: A2 agentRun wrote ws/.env then threw, and A4 reviewArtifact wrote ws/.env then threw; after clean rerun runDriver emitted adjudicatedOutcome=\"recovered\", all unsafeChecks=false, diffHygienePass=true. Fix by catching per executor/reviewer call inside runArmLoop, snapshotting after throws, converting thrown attempts into allExecs/infra evidence, and preserving stdout/json/process evidence from live wrapper exceptions.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-24T13:39:09.920Z",
+      "reviewRound": "2026-06-24T12:50:13.876Z",
+      "reviewRunId": "B-8d44:RR-018",
+      "_hash": "97d174368b0da89743535e8084743d08972150587d553b30e2560af91dc4ca27",
+      "files": [
+        "experiments/recovery-runner/live-engine.mjs",
+        "experiments/recovery-runner/run-driver.mjs",
+        "experiments/recovery-runner/run-recovery.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|host-round-current",
+      "signatureTagSource": "auto"
     }
   ]
 }
