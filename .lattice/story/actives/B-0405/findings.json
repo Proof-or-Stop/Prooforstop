@@ -120,6 +120,26 @@
       "resolvedAt": "2026-06-24T11:58:28.140Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-0405:F-006",
+      "desc": "Post-merge review assurance is stale for current material. After F-004/F-005 resolution, lattice finding_list shows all prior findings resolved and checklist evidence refreshed to materialHash 923ad919c3ba509a25243f28d0b60a236866050a79a73b478ce4b24568baa7d0, and build/smoke/contract checks pass. However lattice review_escalation_status --storyId=B-0405 --json reports ok=false, required=true, materialHash=923ad919c3ba509a25243f28d0b60a236866050a79a73b478ce4b24568baa7d0, fullQuorum.ok=false, voluntaryLocalRounds.validRoundCount=0, and all six submitted B-0405-q-r1..q-r3 host verdicts ignored because materialDigest is stale (c074e77cf9d0d9198cf347d2b26f05ffbb179573e69e3b7bf20317aa976004dc). CHK-006 evidence still claims final material has local voluntary 3 rounds x 2 host quorum, so the current material lacks fresh 3x2 assurance and REVIEW/DONE escalation risk remains after the main merge/docs fix. A concurrent lattice validate --story=B-0405 --json attempt was blocked by an existing validation lock (pid 53418), so this finding is based on the dedicated review_escalation_status gate diagnostic plus passing focused code checks.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-24T12:02:32.780Z",
+      "reviewRound": "2026-06-24T11:58:15.113Z",
+      "reviewRunId": "B-0405:RR-019",
+      "_hash": "58972c35bddf7f31ae8a353741e84274f114f797db51eb14cb8e16bf32cea3a0",
+      "files": [
+        ".lattice/story/actives/B-0405/process-events.jsonl",
+        ".lattice/story/actives/B-0405/checklist.json",
+        "packages/main/src/core/review-escalation.ts"
+      ],
+      "signatureTag": "missing|jsonl|post-merge-review",
+      "signatureTagSource": "auto"
     }
   ]
 }
