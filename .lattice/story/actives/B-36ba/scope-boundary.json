@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-36ba",
+  "mode": "correctness_fix",
+  "allowed": [
+    "package.json and packages/main/package.json (wire the new smoke into the test chain)",
+    "packages/main/src/core/done-oracle.ts (~751: pass the resolved gitCwd into the escalation call, mirroring the adjacent floor call)",
+    "packages/main/src/core/machine.ts (~639 and ~1140: pass resolved gitCwd into the two escalation calls, mirroring the adjacent floor calls)",
+    "packages/main/src/core/review-escalation.ts (gitCwd-aware freshness root: add gitCwd?:string arg, gitCwd = args.gitCwd ?? args.projectRoot, call currentMaterialHash/currentStoryFilesHash with (gitCwd,HEAD,projectRoot))",
+    "packages/main/src/handlers/review-escalation.ts (plumb gitCwd via resolveGitCwd into status/policy_set/fallback_set; add the import)",
+    "packages/main/src/tasks/review-escalation-freshness-root-smoke.ts (new offline floor<->escalation equivalence smoke)"
+  ],
+  "excluded": [
+    "Any behavior change in plain repos: every caller edit must be byte-identical when gitCwd == projectRoot",
+    "Changing the floor freshness logic or making the floor storyFilesHash-authoritative (that is B-6de6 scope)",
+    "Changing whole-tree materialHash as the primary freshness key, or any verdict-producer stored-hash computation (quorum_submit/autopilot_review_submit/verifier semantics)",
+    "Mutating or replacing stored verdict events (append-only log preserved)",
+    "quorum-submit.ts:329 internal recompute (already bypassed via explicit materialHash/storyFilesHash; no change)"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User requested this fix via a fresh Lattice story + genuine 2-host (Claude+Codex) review, explicitly as the escalation freshness-root path deferred from B-6de6 (whose scope-boundary excluded the escalation-verdict advisory path).",
+  "createdAt": "2026-06-24T01:24:25.849Z",
+  "updatedAt": "2026-06-24T01:24:25.849Z",
+  "_hash": "1050ba8a318778e61de817c7282e2845892f2221ddc155a93e9e9d2e3b894f48"
+}

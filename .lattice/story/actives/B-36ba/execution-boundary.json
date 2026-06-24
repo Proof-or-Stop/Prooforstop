@@ -1,0 +1,40 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-36ba",
+  "allowedCommands": [
+    "git diff",
+    "git status",
+    "node packages/main/dist/tasks/*-smoke.js",
+    "node scripts/verify-process-fact-contract.mjs",
+    "npm --prefix packages/main run build",
+    "npm test"
+  ],
+  "allowedTools": [
+    "git",
+    "node",
+    "npm"
+  ],
+  "allowedPaths": [
+    "package.json",
+    "packages/main/package.json",
+    "packages/main/src/core",
+    "packages/main/src/handlers",
+    "packages/main/src/tasks"
+  ],
+  "excludedCommands": [
+    "claude -p",
+    "git push",
+    "git reset --hard",
+    "rm -rf"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".lattice",
+    "experiments"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Plumb the resolved gitCwd into the review-escalation evaluator + its DONE-gate and diagnostic callers; offline equivalence smoke. No floor logic change, no verdict-producer change, byte-identical in plain repos.",
+  "createdAt": "2026-06-24T01:24:48.813Z",
+  "updatedAt": "2026-06-24T01:24:48.813Z",
+  "_hash": "d2a02e6f78df9c72f158cbf37fb224d06209d23aeed7341dbe3d943f54ac183d"
+}
