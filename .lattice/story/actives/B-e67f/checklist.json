@@ -520,6 +520,19 @@
           "materialHash": "9f28b82c91a9d14b0bfcf1aef3a30137f791cf3546df8978a7ad59d8ada25b33",
           "storyFilesHash": "aed6666624846d734a34433306144b48ef4dd03e1dc39ea9ff8f89e19fcf3376",
           "timestamp": "2026-06-24T10:16:25.612Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/corpus-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/corpus-selfcheck.mjs",
+          "result": "pass",
+          "note": "corpus-selfcheck stratification: asserts total==24, exactly 8 distinct categories, each count in [2,5]; prints 'stratification OK: 8 categories {bug-fix:3,feature:4,...}'; drift (25th task / consolidated category / missing category) fails the check",
+          "headHash": "94fa5272b76b30adf0f8ec3046967754ee6cad4c",
+          "materialHash": "9f28b82c91a9d14b0bfcf1aef3a30137f791cf3546df8978a7ad59d8ada25b33",
+          "storyFilesHash": "aed6666624846d734a34433306144b48ef4dd03e1dc39ea9ff8f89e19fcf3376",
+          "timestamp": "2026-06-24T10:16:27.723Z"
         }
       ]
     },
