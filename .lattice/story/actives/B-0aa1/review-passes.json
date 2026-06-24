@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-24T04:23:29.058Z",
       "reviewRunId": "B-0aa1:RR-002",
       "_hash": "a7907944cc2b5bb898bca184cccd84267ef171a5c42f1ee1bfac3d99029abae7"
+    },
+    {
+      "id": "B-0aa1:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "F-001 same-payload idempotency: createProbe called twice with identical subject asserts same artifactDigest and artifactId (exercises artifact-store existsSync early-return). F-002 empty-pattern fail-closed: relation created with empty expectedFailurePattern strings asserts pass=false with expected failure patterns in reasons. test:repro-first-candidate passes green. Build clean.",
+      "createdAt": "2026-06-24T04:31:05.317Z",
+      "reviewRound": "2026-06-24T04:29:34.954Z",
+      "reviewRunId": "B-0aa1:RR-008",
+      "_hash": "d31f3a5f1b5f11322dde7fa932c586dc44fffbed0c7a09243a8dbad768e29213"
     }
   ]
 }
