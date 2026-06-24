@@ -292,6 +292,20 @@
       "_hash": "83bd2ac3f2b94ec2306530ab63c504fa460d7c4472e51a912cc88a29ebefab3c",
       "signatureTag": "adversarial|unknown|path-spoof-sanitizedenv",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-e67f:F-016",
+      "desc": "TOCTOU: inject() can spawn a short-lived detached helper that rewrites the scratch ground-truth.mjs AFTER the sha256 check + cached rewrite but BEFORE run(wsGt). Confirmed: synthetic gamed corpus exits 0 with 24/24 + 10/10. In-process time-of-check/time-of-use cannot be closed by another hash check.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex-host-2",
+      "createdAt": "2026-06-24T10:57:18.657Z",
+      "reviewRound": "2026-06-24T10:16:50.255Z",
+      "_hash": "c938a36c33b51561c0c3007ee80337e5b56ddb133a776816132ac67aa7b99a57",
+      "signatureTag": "adversarial|unknown|toctou-inject-spawn",
+      "signatureTagSource": "auto"
     }
   ]
 }
