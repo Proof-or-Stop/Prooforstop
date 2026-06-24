@@ -109,6 +109,17 @@
           "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
           "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
           "timestamp": "2026-06-24T11:19:57.520Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/delivery-check-freshness-smoke.js",
+          "result": "pass",
+          "note": "delivery-check-hash.ts:50-61 signDeliveryCheck: storyFilesHash is conditionally appended (line 57). If a record was signed WITH storyFilesHash (truthy), removing it changes the payload (one fewer element in the join). recomputeDeliveryCheckHash (line 67-78) reads whatever is on the stored record — if storyFilesHash was deleted, it passes undefined, the payload shrinks, and the recomputed hash differs from _hash. The smoke forged-storyFilesHash case (delivery-check-freshness-smoke.ts:332-363) proves the signature mechanism catches field changes; deletion is a subset of that (changing from a value to undefined), and the conditional-append logic (line 56-57) guarantees the payload changes in both directions.",
+          "headHash": "45e2a9a66c99e8a4d695a1b427e6a38e86c4472f",
+          "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
+          "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
+          "timestamp": "2026-06-24T11:20:03.633Z"
         }
       ]
     },
