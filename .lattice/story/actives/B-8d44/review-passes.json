@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-24T12:50:13.876Z",
       "reviewRunId": "B-8d44:RR-011",
       "_hash": "818504bbf2bb6a69a756a962c567eb1acf4a1a32b46e9f5f63dd82a0217d4ebe"
+    },
+    {
+      "id": "B-8d44:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Round 3 re-attest: F-020/F-021/F-022 deeper-variant fixes are correct and clean. F-020: computeBaselineFailures correctly fail-closes on missing ground-truth (any cell) and dirty reference (scenario cell); catch block also fail-closes. F-021: allExecs accumulates ALL executor + reviewer returns; harvestProcess/PermEvents unions across them; unsafe supersedes void path produces a full valid record without fabricating acceptance/hidden evidence; counters are side-effect-incremented (not summed from allExecs) so tokensSpent/agentCallCount have no double-count. F-022: isPosFinite rejects 0/negative/NaN/Infinity. Selfcheck 153 assertions + run-selfchecks 7/7 all pass. One low finding F-024 registered: dead-code artifactExists at line 447 is declared but never read.",
+      "createdAt": "2026-06-24T13:36:56.743Z",
+      "reviewRound": "2026-06-24T12:50:13.876Z",
+      "reviewRunId": "B-8d44:RR-016",
+      "_hash": "d9539274d132d6da1be7bfb9a7e3593b7068444486ffc81714d0ab2b78a89fbd"
     }
   ]
 }
