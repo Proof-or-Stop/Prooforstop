@@ -1,0 +1,73 @@
+{
+  "storyId": "B-91f3",
+  "checkedAt": "2026-06-24T13:24:01.391Z",
+  "features": [
+    {
+      "feature": "Demote Authority production receipt from local proof-admissibility core",
+      "covered_by": "CHK-001, CHK-002, CHK-004",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "Checklist limits implementation to packages/main/src/core/proof-admissibility.ts and proof-admissibility verification; Authority receipt refs remain evidence/input or external adapter scope, not local productionDone eligibility."
+    },
+    {
+      "feature": "Update proof-admissibility smoke expectations and CLI proof vocabulary",
+      "covered_by": "CHK-002, CHK-003, CHK-004",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "Checklist includes packages/main/src/tasks/proof-admissibility-smoke.ts and verification that authority-receipt-ref production completion is productionDoneEligible=false while local negative controls remain."
+    },
+    {
+      "feature": "Update proof-admissibility-hardening-execution-plan.md only for this demotion boundary",
+      "covered_by": "CHK-001, CHK-003, CHK-004",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "All checklist relatedDocs point to docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md; doc wording must keep Authority Server conformance as future/external adapter scope."
+    },
+    {
+      "feature": "Broad Authority client deletion",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "CHK-001 edge; CHK-003 adversarial",
+      "source": "Scope classifies Authority client networking and historical docs as out of scope rather than deleting broad client/server support."
+    },
+    {
+      "feature": "Red/Repro/Spike gate changes",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "Story user scope; CHK-001 adversarial",
+      "source": "Allowed work is proof-admissibility demotion only; unrelated lifecycle gate semantics, including Red/Repro/Spike gates, are excluded."
+    },
+    {
+      "feature": "Unrelated currentDoneMaterialBinding fix",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "Story user scope",
+      "source": "The requested PLAN scope review explicitly excludes unrelated currentDoneMaterialBinding repair work."
+    },
+    {
+      "feature": "Unrelated handoff semantics",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "CHK-001 adversarial; CHK-002 adversarial",
+      "source": "Checklist verification requires no alteration to handoff semantics while demoting Authority production receipt from local proof admissibility."
+    },
+    {
+      "feature": "Unrelated usage-ledger semantics",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "CHK-001 adversarial",
+      "source": "Checklist verification requires no alteration to usage-ledger semantics; this story is not a usage-ledger semantics change."
+    }
+  ],
+  "summary": {
+    "total": 8,
+    "covered": 3,
+    "excluded": 5,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "081407e71a7d253757179e86907cb43c42865fb07c66473ba245ef616b4e3ff7",
+  "openQuestions": []
+}
