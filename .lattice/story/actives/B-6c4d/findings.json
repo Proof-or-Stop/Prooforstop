@@ -18,6 +18,24 @@
       ],
       "signatureTag": "missing|ts|promise-undelivered-flow",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-6c4d:F-002",
+      "desc": "doc-promise-undelivered: prompt-registry.ts line 98 still says \"Review run validation also checks signature, current-latest run, matching reviewRound, and fresh head/material hashes\" — after B-6c4d the validate path accepts non-latest passes, so \"current-latest run\" is no longer accurate for pass evidence",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-24T14:14:06.198Z",
+      "reviewRound": "2026-06-24T14:10:01.204Z",
+      "reviewRunId": "B-6c4d:RR-003",
+      "_hash": "23021475bbea0262d90aea6a247fc1ae7bcced0e1e36de9f7d0a8c476b4f6d2f",
+      "files": [
+        "packages/main/src/core/prompt-registry.ts"
+      ],
+      "signatureTag": "missing|ts|promise-undelivered-prompt",
+      "signatureTagSource": "auto"
     }
   ]
 }
