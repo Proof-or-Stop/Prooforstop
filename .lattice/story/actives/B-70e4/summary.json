@@ -1,0 +1,55 @@
+{
+  "storyId": "B-70e4",
+  "changes": "Authenticated the gate-receipt proof fetch so the protected Authority read /v1/receipts/{id}/proof carries Authorization: Bearer: fetchGateReceiptProof now passes authenticated:true; loadProof builds the AuthorityClient via resolveAuthorityClientAuth and threads ctx.root so file-based customer keys resolve against the target project root; the live receipt-ref gate smoke sends an empty-overlap materialOverlapAudit on the DONE gate in lockstep (digest input + signed decision) and authenticates its diagnostic proof fetch; added a deterministic regression smoke (authority-receipt-proof-auth-smoke) and fixed a pre-existing smoke that relied on the old unauthenticated behavior.",
+  "usage": "Run authority_receipt_verify --proofPath /v1/receipts/{id}/proof against a real Authority with a customer API key configured (env value or file path via the 3 root config files); the proof is fetched with Bearer auth, the receipt-ref is written, and the TEST/DONE gates are consumed. Regression guard: npm run --prefix packages/main test:authority-receipt-proof-auth.",
+  "expectedOutcome": "Proof fetched on the protected endpoint (no 401), receipt-ref written, TEST/DONE gates consumed, tampered negative control blocked; deterministic test asserts Bearer header sent, happy-path schema-valid proof parses ok===true, and fail-closed (no request) for both unset and empty-string keys.",
+  "actualTranscript": "Live staging smoke (https://staging.hostneutral.net): PASS authority live receipt-ref gate smoke: staging proof fetched, receipt ref written, TEST/DONE gates consumed, negative control blocked. Deterministic: PASS authority receipt proof auth smoke: Bearer header sent, happy-path parses ok===true, and fail-closed for both unset and empty-string keys. Full suite run-all-smokes 225/227 (2 manifest-skips) exit 0; root npm test exit 0.",
+  "outcomeDiff": "No diff — expected == actual on every row (see evidence/transcript-diff.md). Each verification command was re-run green on the final 182-commit-newer main base.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "The file-based customer-key cwd path (--root from outside the project with a key file) is exercised end-to-end by the live smoke via env auth but not separately unit-tested; treated as an acceptable should-level gap. baseURL resolution (loadAuthoritySettings) was intentionally left process.env-based (Authority URL is an env value, not a root-relative file).",
+  "pitfalls": "fetchGateReceiptProof now FAILS CLOSED without a customer key (empty string == unset): any caller/test that constructs AuthorityClient without auth and expects the proof fetch to succeed will break (this is what broke the pre-existing authority-receipt-proof smoke; an independent Codex host-2 review caught it). The two auth fixes (client authenticated:true + handler resolveAuthorityClientAuth) are jointly necessary — a partial fix still 401s. materialOverlapAudit must be sent in lockstep on both the digest input and the signed decision or gateInputDigest mismatches and the server rejects.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 247711
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 37098
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 741095
+    },
+    "DEV": {
+      "count": 6,
+      "durationMs": 2064682
+    },
+    "REVIEW": {
+      "count": 6,
+      "durationMs": 6400810
+    },
+    "TEST": {
+      "count": 3,
+      "durationMs": 2207469
+    }
+  },
+  "totalDurationMs": 11698866,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-24T04:09:24.905Z",
+  "updatedAt": "2026-06-24T04:09:24.905Z"
+}
