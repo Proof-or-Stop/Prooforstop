@@ -538,6 +538,24 @@ withRepo('pre-existing DONE-required lifecycle metadata does not block preflight
   assert.match(status(worktreePath), /done-required-evidence\.json/, 'pre-existing metadata dirt remains for the operator to commit');
 });
 
+withRepo('other-story lifecycle metadata still blocks preflight', {
+  storyId: 'B-dp-other-story-metadata',
+}, ({ worktreePath }) => {
+  write(
+    worktreePath,
+    '.lattice/story/actives/B-dp-other-story/done-required-evidence.json',
+    '{"status":"PASS","storyId":"B-dp-other-story"}\n',
+  );
+  const output = runLattice(worktreePath, 'done_prepare', {
+    storyId: 'B-dp-other-story-metadata',
+    validate: false,
+    mergeMain: false,
+  });
+  assertBlocked(output, 'cleanTree');
+  assert.match(output, /\.lattice\/story\/actives\/B-dp-other-story\/done-required-evidence\.json/);
+  assert.doesNotMatch(output, /DONE prepare: PASS/);
+});
+
 withRepo('failed DONE-required lifecycle metadata blocks DONE closure without claiming PASS', {
   storyId: 'B-dp-dirty-metadata-fail',
   doneRequiredPolicy: true,

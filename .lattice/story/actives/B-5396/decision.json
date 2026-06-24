@@ -1,0 +1,70 @@
+{
+  "principles": [
+    "Projection not invention: every rule cites an existing decision doc / mechanism; no new contract.",
+    "Anti-drift: cite source-of-truth docs rather than restate; keep AGENTS.md/CLAUDE.md copies consistent.",
+    "Minimal footprint: docs-only; defer the CLI-hint rewrite and metadata-only specifics."
+  ],
+  "drivers": [
+    "Reduce Host mis-operation at DONE convergence.",
+    "Do not duplicate proof-admissibility (a committed contract program).",
+    "Do not trigger a heavy lifecycle (no high-risk code)."
+  ],
+  "options": [
+    {
+      "name": "docs-only runbook (AGENTS.md + CLAUDE.md)",
+      "pros": [
+        "Lowest risk/cost: markdown, no material code, no 3x2 floor",
+        "Mirrors the established parallel-doc convention (version-bump discipline lives in both files)",
+        "Reduces Host mis-operation at DONE convergence immediately"
+      ],
+      "cons": [
+        "Static doc is read less often than an in-context CLI hint",
+        "Two parallel copies must be kept consistent"
+      ]
+    },
+    {
+      "name": "also rewrite CLI blocker hints now",
+      "pros": [
+        "Host reads guidance in-context at the moment of confusion (highest leverage)"
+      ],
+      "cons": [
+        "Touches high-risk lifecycle code (blocker generators) -> full 3x2 review, ~1-2h",
+        "Would collide with B-9dfb (in-flight metadata-only dirty-state change)",
+        "Rejected for now; defer to a separate story once B-9dfb merges"
+      ]
+    },
+    {
+      "name": "single canonical doc + pointers in AGENTS/CLAUDE",
+      "pros": [
+        "No duplication"
+      ],
+      "cons": [
+        "Breaks per-Host self-sufficiency (codex reads AGENTS.md, claude reads CLAUDE.md); each must stand alone",
+        "Not the repo's established pattern; rejected"
+      ]
+    }
+  ],
+  "chosen": "docs-only runbook (AGENTS.md + CLAUDE.md)",
+  "rationale": "Option A reduces Host confusion at the lowest risk/cost, mirrors the established parallel-doc convention, and cites (not duplicates) the proof-admissibility / storyFilesHash / done_prepare / floor decision docs. B is deferred (high-risk lifecycle code + B-9dfb overlap); C breaks per-Host self-sufficiency since each Host reads only its own instructions file.",
+  "preMortem": [
+    {
+      "scenario": "The runbook goes stale.",
+      "trigger": "It restates rules that later change (proof-admissibility warn->enforce, or B-9dfb changes metadata-only dirty-state handling).",
+      "consequence": "Host follows an outdated rule and mis-operates.",
+      "mitigation": "Cite the decision docs as source of truth rather than restating; frame the materialHash-only downgrade as a 'current warn/advisory projection'; reference metadata-only handling as a pointer to B-9dfb instead of hardcoding it."
+    },
+    {
+      "scenario": "AGENTS.md and CLAUDE.md copies diverge over time.",
+      "trigger": "A future edit updates only one file.",
+      "consequence": "codex and claude Hosts receive different DONE discipline.",
+      "mitigation": "Keep both copies byte-aligned in substance (mirror the existing version-bump parallel-doc convention); the docs reviewer checks cross-file consistency."
+    },
+    {
+      "scenario": "docs-drift gate blocks REVIEW->TEST.",
+      "trigger": "The runbook cites a lattice command that is stale or renamed vs the registry.",
+      "consequence": "The story cannot advance to TEST.",
+      "mitigation": "Reference only verified commands (done_prepare --help confirmed) and the 4 existing decision docs; run the docs-drift preflight before advancing."
+    }
+  ],
+  "timestamp": "2026-06-24T12:55:17.018Z"
+}

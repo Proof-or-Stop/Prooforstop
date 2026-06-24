@@ -176,18 +176,34 @@ function dirtyEntryPaths(entry: DirtyWorktreeEntry): string[] {
   return [entry.path, entry.originalPath].filter((path): path is string => Boolean(path));
 }
 
-function isDonePrepareAllowedInitialMetadataEntry(entry: DirtyWorktreeEntry, projectRoot: string): boolean {
+function normalizeRelPath(path: string): string {
+  return path
+    .replace(/\\/g, '/')
+    .replace(/^\.\//, '')
+    .replace(/^\/+/, '')
+    .replace(/\/+$/, '');
+}
+
+function isSameStoryLifecycleMetadataPath(ctx: HandlerContext, storyId: string, path: string): boolean {
+  const storyDir = normalizeRelPath(ctx.store.storyDirRel());
+  const normalized = normalizeRelPath(path);
+  return normalized === `${storyDir}/${storyId}` || normalized.startsWith(`${storyDir}/${storyId}/`);
+}
+
+function isDonePrepareAllowedInitialMetadataEntry(ctx: HandlerContext, storyId: string, entry: DirtyWorktreeEntry): boolean {
   const paths = dirtyEntryPaths(entry);
   return entry.category === 'lattice_metadata_changes'
     && paths.length > 0
-    && paths.every((path) => isStoryMetadataPath(path, projectRoot));
+    && paths.every((path) => isStoryMetadataPath(path, ctx.root))
+    && paths.every((path) => isSameStoryLifecycleMetadataPath(ctx, storyId, path));
 }
 
 function initialDonePrepareBlockingEntries(
+  ctx: HandlerContext,
+  storyId: string,
   classification: DirtyWorktreeClassification,
-  projectRoot: string,
 ): DirtyWorktreeEntry[] {
-  return classification.entries.filter((entry) => !isDonePrepareAllowedInitialMetadataEntry(entry, projectRoot));
+  return classification.entries.filter((entry) => !isDonePrepareAllowedInitialMetadataEntry(ctx, storyId, entry));
 }
 
 function dirtyPathDigest(gitCwd: string, path: string): string {
@@ -214,12 +230,13 @@ function dirtyEntrySignature(gitCwd: string, entry: DirtyWorktreeEntry): string 
 }
 
 function unchangedFromInitialAllowedMetadata(
+  ctx: HandlerContext,
+  storyId: string,
   gitCwd: string,
   entry: DirtyWorktreeEntry,
   initialAllowedMetadataSignatures: ReadonlySet<string>,
-  projectRoot: string,
 ): boolean {
-  return isDonePrepareAllowedInitialMetadataEntry(entry, projectRoot)
+  return isDonePrepareAllowedInitialMetadataEntry(ctx, storyId, entry)
     && initialAllowedMetadataSignatures.has(dirtyEntrySignature(gitCwd, entry));
 }
 
@@ -667,7 +684,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
 
   const initialDirty = nonLeaseDirtyRows(ctx, storyId, gitStatusRows(gitCwd));
   const initialDirtyClassification = classifyDirtyRows(ctx, storyId, initialDirty);
-  const initialBlockingEntries = initialDonePrepareBlockingEntries(initialDirtyClassification, ctx.root);
+  const initialBlockingEntries = initialDonePrepareBlockingEntries(ctx, storyId, initialDirtyClassification);
   if (initialBlockingEntries.length > 0) {
     const files = entryFiles(initialBlockingEntries);
     setStep(steps, 'cleanTree', 'blocked', 'worktree must be clean before DONE prepare can mutate');
@@ -681,7 +698,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
   }
   const initialAllowedMetadataSignatures = new Set(
     initialDirtyClassification.groups.lattice_metadata_changes
-      .filter((entry) => isDonePrepareAllowedInitialMetadataEntry(entry, ctx.root))
+      .filter((entry) => isDonePrepareAllowedInitialMetadataEntry(ctx, storyId, entry))
       .map((entry) => dirtyEntrySignature(gitCwd, entry)),
   );
   setStep(
@@ -917,7 +934,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
   const finalDirty = nonLeaseDirtyRows(ctx, storyId, gitStatusRows(gitCwd));
   const finalDirtyClassification = classifyDirtyRows(ctx, storyId, finalDirty);
   const finalBlockingEntries = finalDirtyClassification.entries.filter(
-    (entry) => !unchangedFromInitialAllowedMetadata(gitCwd, entry, initialAllowedMetadataSignatures, ctx.root),
+    (entry) => !unchangedFromInitialAllowedMetadata(ctx, storyId, gitCwd, entry, initialAllowedMetadataSignatures),
   );
   if (finalBlockingEntries.length > 0) {
     const files = entryFiles(finalBlockingEntries);
