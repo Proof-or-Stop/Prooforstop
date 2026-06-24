@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-24T01:51:47.453Z",
       "reviewRunId": "B-36ba:RR-002",
       "_hash": "0eef6f90ff4653e013e42d58355bf6f486192c545ca0f9d32a5c5c1924ed24e5"
+    },
+    {
+      "id": "B-36ba:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "All 5 changed source files reviewed. Dead code: none. Type safety: clean (tsc --noEmit passes, no as-any, empty catch in resolveGitCwd is intentional fail-safe). I/O isolation: no shell/bridge violation. Correctness: gitCwd?? falls back to projectRoot in all callers — plain-repo behavior is byte-identical; resolveGitCwd is fail-safe returning projectRoot on resolver error; handler storyId types are required strings; machine.ts already imported resolveGitCwd. Smoke test passes both PLAIN and WRAPPER-ROOT cases including RED-documenting assertion. No doc-promise-undelivered findings.",
+      "createdAt": "2026-06-24T01:56:20.403Z",
+      "reviewRound": "2026-06-24T01:51:47.453Z",
+      "reviewRunId": "B-36ba:RR-001",
+      "_hash": "ebe05596cd5a055267a972b53dff7d51f8c08a14a01ab74a9fd50e0e04b1700e"
     }
   ]
 }
