@@ -65,6 +65,17 @@
           "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
           "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
           "timestamp": "2026-06-24T11:19:29.873Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "logic_test",
+          "command": "grep -n storyFilesHash packages/main/src/handlers/delivery-check.ts",
+          "result": "pass",
+          "note": "delivery-check.ts waiver re-sign path: the waiver_add handler calls signDeliveryCheck with the existing record fields including storyFilesHash. The smoke test delivery-check-freshness-smoke.ts does not have an explicit waiver case, but the signing function signDeliveryCheck (delivery-check-hash.ts:41-61) is shared by both delivery_check_set and waiver re-sign, and it preserves storyFilesHash when present (line 57). The handler reads the existing record, re-signs with its fields (including storyFilesHash), and writes back. Logic inspection confirms the waiver path does not strip or omit storyFilesHash from the re-sign call.",
+          "headHash": "6c14d5d7efe7106f7a99642938667789e28f25aa",
+          "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
+          "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
+          "timestamp": "2026-06-24T11:19:35.726Z"
         }
       ]
     },
