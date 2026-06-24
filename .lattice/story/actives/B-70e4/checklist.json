@@ -359,6 +359,17 @@
           "materialHash": "96adaa007e8f7ddafa1d445c9f905d262eb90f4da087c701fec35f3474287e79",
           "storyFilesHash": "3bb033bf48d472daad32daea22503c5bbbef2c03c79374e5fe0665781999041e",
           "timestamp": "2026-06-24T01:20:51.682Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:1",
+          "kind": "manual_transcript",
+          "command": "npm run --prefix packages/main test:authority-receipt-proof-auth",
+          "result": "pass",
+          "note": "authority-receipt-proof-auth-smoke.ts uses stub/mock fetch throughout — capturingFetch (line 28-31) and guardFetch (line 44-47) are in-process stubs, no real network calls. The test requires no LATTICE_AUTHORITY_* env vars and runs deterministically. The AuthorityClient is constructed with \"https://authority.test\" (line 32, 49) — a non-routable URL that would fail if the stub were bypassed. This proves the test is CI-safe and deterministic without staging credentials.",
+          "headHash": "b2317fccd32392b8d358ec62f7bd329d40feebe3",
+          "materialHash": "96adaa007e8f7ddafa1d445c9f905d262eb90f4da087c701fec35f3474287e79",
+          "storyFilesHash": "3bb033bf48d472daad32daea22503c5bbbef2c03c79374e5fe0665781999041e",
+          "timestamp": "2026-06-24T01:20:55.961Z"
         }
       ]
     }
