@@ -94,7 +94,43 @@
       "context": "core/done-oracle.ts: delivery_check_drift_advisory passes the gate (status pass) but appends the mandatory advisory to the row detail, never swallowed.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "delivery_check_drift_advisory result from evaluateDeliveryCheckFreshness -> done-oracle delivery-check row has status=pass AND row.detail contains the literal advisory text (e.g. \"whole-tree materialHash drift detected\" or equivalent); WHY: the advisory must be VISIBLE on the passing DONE row, never swallowed",
+            "type": "cli"
+          },
+          {
+            "desc": "Normal fresh delivery-check -> done-oracle row status=pass with standard detail (no advisory appended); WHY: the advisory path must not pollute the normal fresh path",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Advisory text is appended to existing detail, not replacing it -> row.detail contains BOTH the original N-docs-promises text AND the advisory; WHY: existing detail must not be clobbered",
+            "type": "cli"
+          },
+          {
+            "desc": "delivery_check_drift_advisory with an advisory string that contains special characters (newlines, quotes) -> row.detail is not truncated or corrupted; WHY: advisory text fidelity",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Tampered delivery-check (_hash mismatch) -> done-oracle row status=fail with tampered detail, NOT pass with advisory; WHY: tampered must never be downgraded to advisory",
+            "type": "cli"
+          },
+          {
+            "desc": "Stale delivery-check (story-owned change, storyFilesHash mismatch) -> done-oracle row status=fail with stale detail, NOT pass with advisory; WHY: story-owned drift must still hard-reject at the DONE gate",
+            "type": "cli"
+          },
+          {
+            "desc": "An attacker crafts a delivery-check record with code=delivery_check_drift_advisory but the _hash does not verify -> done-oracle recomputes and finds tampered, row=fail; WHY: the code field alone must not bypass signature verification",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
