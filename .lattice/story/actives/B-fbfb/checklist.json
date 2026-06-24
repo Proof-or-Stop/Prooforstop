@@ -72,7 +72,39 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "lattice gap_analyze reports zero high proof-admissibility gaps and convergence_check no longer lists the five version-support gaps.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/proof-admissibility.ts",
+          "packages/main/src/core/proof-admissibility-gates.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/proof-admissibility-smoke.ts",
+          "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm build and proof-admissibility smokes pass after the fix.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "gap_analyze may still report unrelated non-high or unrelated active story status, but not the five targeted high gaps.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "convergence_check high-priority gap count is not reduced by deleting or weakening the requirement document.",
+            "type": "cli"
+          }
+        ]
+      }
     }
   ]
 }
