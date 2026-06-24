@@ -449,6 +449,17 @@
           "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
           "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
           "timestamp": "2026-06-24T11:21:46.290Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:3",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/delivery-check-freshness-smoke.js",
+          "result": "pass",
+          "note": "delivery-check-freshness-smoke.ts:366-393 (legacy case): legacyDeliveryCheck() creates a record with no materialHash or storyFilesHash (lines 173-187). After whole-tree drift (lines 373-378), evaluateDeliveryCheckFreshness returns ok:false, code stale_delivery_check (lines 381-382). doneRow returns status=fail (line 385), detail matches /missing materialHash binding/ (line 386). canFinishGuard false (line 387), guard reason stale_delivery_check (line 388), lifecycle code=stale_delivery_check (line 389). Legacy records pinned to strict stale.",
+          "headHash": "50ad6fb18dabfb6682ae20bf44f71d8698970c07",
+          "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
+          "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
+          "timestamp": "2026-06-24T11:21:49.897Z"
         }
       ]
     },
