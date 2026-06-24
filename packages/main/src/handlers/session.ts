@@ -46,6 +46,7 @@ import { listActiveLoops, deriveLatestLoopRecord } from '../core/review-loop.js'
 import type { ReviewLoopIteration } from '../core/types.js';
 import { renderScopeAntiExpansionSummary } from '../core/machine.js';
 import { evaluateStoryDirConfigInsideGitRoot } from '../core/story-signed-workspace-resolution.js';
+import { evaluateStoryEvidenceBindingGate } from '../core/repro-evidence-binding-gate.js';
 
 interface ActiveStoryDetected {
   storyId: string;
@@ -62,6 +63,30 @@ function renderDoneOutcomes(outcomes: Record<StoryOutcomeKind, number>): string 
     `DONE-${formatStoryOutcomeKind('blocked')}=${outcomes.blocked}`,
     `DONE-${formatStoryOutcomeKind('audit_only')}=${outcomes.audit_only}`,
   ].join(' ');
+}
+
+function renderReproFirstIntakeLine(projectRoot: string, store: StoryStore, storyId: string): string | null {
+  try {
+    const result = evaluateStoryEvidenceBindingGate(projectRoot, store, storyId);
+    let status: string;
+    if (result.reasonCode === 'repro_first_preflight_engine_error') {
+      status = 'engine-error';
+    } else if (!result.required) {
+      status = result.mode === 'off' ? 'off' : 'bypass-eligible';
+    } else if (result.bindingArtifactId) {
+      status = `bound-accepted(${result.bindingArtifactId})`;
+    } else if (result.reasonCode === 'missing_story_evidence_binding') {
+      status = result.blocking ? 'missing(blocking)' : 'missing(warn)';
+    } else if (result.reasonCode === 'stale_story_evidence_binding') {
+      status = result.blocking ? 'stale(blocking)' : 'stale(warn)';
+    } else {
+      status = result.ok ? 'bound-accepted' : 'missing';
+    }
+    const detail = result.details[0] ? ` — ${result.details[0]}` : '';
+    return `  reproFirst: ${status}; mode=${result.mode}${detail}`;
+  } catch {
+    return null;
+  }
 }
 
 function detectActiveStoryFromGit(ctx: HandlerContext): ActiveStoryDetected | null {
@@ -1034,6 +1059,15 @@ export function createSessionHandlers(ctx: HandlerContext) {
           );
           for (const l of renderOwnershipBlock(view)) lines.push(l);
         } catch { /* probe — never block session_brief on ownership-render failure */ }
+      }
+
+      {
+        const reproLine = renderReproFirstIntakeLine(ctx.root, ctx.store, storyId);
+        if (reproLine) {
+          lines.push('');
+          lines.push('## Repro-first intake');
+          lines.push(reproLine);
+        }
       }
 
       if (story.phase === 'INIT' || story.phase === 'INIT_CHECK') {

@@ -129,6 +129,7 @@ const requiredProcessFactSemantics = {
   review_escalation_policy_set: ['schema-contract', 'gate-evidence'],
   review_escalation_fallback_set: ['schema-contract', 'gate-evidence'],
   authority_receipt_verify: ['gate-evidence'],
+  story_create_from_repro: ['artifact', 'schema-contract', 'workspace-binding', 'gate-evidence'],
 };
 const requiredReviewerLanes = [
   'lattice-review-story-init',
@@ -166,6 +167,7 @@ const requiredArtifactFacts = [
   { name: 'artifact:process-events.jsonl', path: 'process-events.jsonl', signed: false },
   { name: 'artifact:decision-doc-proposals.json', path: 'decision-doc-proposals.json', signed: false },
   { name: 'artifact:authority-receipt-refs.json', path: 'authority-receipt-refs.json', signed: false },
+  { name: 'artifact:story-evidence-binding', path: 'story-evidence-binding', signed: false },
 ];
 const requiredReviewLoopL4Commands = [
   'review_loop_start',

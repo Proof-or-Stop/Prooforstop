@@ -97,6 +97,7 @@ export const PROCESS_FACT_KIND_BY_COMMAND: Record<string, ProcessFactKind> = {
   decision_doc_save: 'gate-evidence',
   review_escalation_policy_set: 'gate-evidence',
   review_escalation_fallback_set: 'gate-evidence',
+  story_create_from_repro: 'gate-evidence',
 };
 
 export const PROCESS_FACT_REQUIRED_SEMANTICS = {
@@ -126,6 +127,7 @@ export const PROCESS_FACT_REQUIRED_SEMANTICS = {
   decision_doc_save: ['artifact', 'schema-contract', 'execution-evidence', 'gate-evidence'],
   review_escalation_policy_set: ['schema-contract', 'gate-evidence'],
   review_escalation_fallback_set: ['schema-contract', 'gate-evidence'],
+  story_create_from_repro: ['artifact', 'schema-contract', 'workspace-binding', 'gate-evidence'],
 } as const satisfies Record<string, readonly ProcessFactSemantic[]>;
 
 export const PROCESS_FACT_RUNTIME_SEMANTICS = {
@@ -466,6 +468,13 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     producerCommand: 'authority_receipt_verify',
     consumerGate: 'TEST/DONE Authority gate_decision receipt consumption predicate',
   },
+  story_create_from_repro: {
+    name: 'story-evidence-binding',
+    path: 'story-evidence-binding',
+    signed: false,
+    producerCommand: 'story_create_from_repro',
+    consumerGate: 'storyMachine.canEnterPlan IDEA to PLAN gate and storyMachine.canStartDev/canSkipPlan DEV-entry gates',
+  },
 };
 
 export const PROCESS_FACT_REVIEWER_LANE_NAMES = [
@@ -612,6 +621,7 @@ function artifactFactSemantics(artifact: ProcessFactArtifactRef): ProcessFactSem
   if (artifact.path === 'scope-extension-proposals.json') semantics.push('blocker-state', 'schema-contract');
   if (artifact.path === 'scope-discard-digest.json') semantics.push('supersession-policy');
   if (artifact.path === 'decision-doc-proposals.json') semantics.push('schema-contract', 'execution-evidence');
+  if (artifact.path === 'story-evidence-binding') semantics.push('schema-contract', 'workspace-binding');
   return semantics;
 }
 
@@ -904,6 +914,16 @@ export const PROCESS_FACT_ARTIFACTS = [
     consumerGate: 'TEST/DONE Authority gate_decision receipt consumption predicate',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.authority_receipt_verify,
     rationale: 'Verified production gate_decision receipt refs derive strongEvidenceConsumed and production authority facts only after local gate-context rechecks.',
+  },
+  {
+    name: 'artifact:story-evidence-binding',
+    kind: 'artifact',
+    semantics: ['artifact', 'schema-contract', 'workspace-binding', 'gate-evidence'],
+    level: 'L4',
+    producer: 'handlers/repro-intake',
+    consumerGate: 'storyMachine.canEnterPlan IDEA to PLAN gate and storyMachine.canStartDev/canSkipPlan DEV-entry gates',
+    artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.story_create_from_repro,
+    rationale: 'Story evidence binding artifacts bind accepted repro candidate evidence to a story before file-declaring stories may enter PLAN or DEV.',
   },
 ] as const satisfies readonly ProcessFactRegistryEntry[];
 

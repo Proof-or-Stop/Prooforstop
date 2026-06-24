@@ -144,6 +144,7 @@ export interface StoryEvidenceBindingPayload {
   spikeId?: string;
   spikeDigest?: string;
   matrixReviewId?: string;
+  matrixReviewDigest?: string;
   derivedChecklistRefs: string[];
   derivedVerificationIntentRefs: string[];
   note: string;

@@ -431,6 +431,12 @@ export async function createStoryFromRepro(
   const spikeDigest = input.spikeId
     ? readArtifact<SpikeRecordPayload>(projectRoot, input.spikeId).artifactDigest
     : undefined;
+  const matrixReview = input.matrixReviewId
+    ? readArtifact<RegressionMatrixReviewPayload>(projectRoot, input.matrixReviewId)
+    : undefined;
+  if (matrixReview && matrixReview.payload.probeId !== input.probeId) {
+    throw new Error(`repro-intake: matrix review ${input.matrixReviewId} references probe ${matrixReview.payload.probeId}, not ${input.probeId}`);
+  }
 
   // Create story via injected creator (calls story_create handler)
   const storyId = await storyCreator({
@@ -454,7 +460,7 @@ export async function createStoryFromRepro(
     derivedVerificationIntentRefs: input.derivedVerificationIntentRefs ?? [],
     note: 'Candidate artifacts remain evidence-candidate; story is created but verificationEvidence is not set. Green evidence is produced later by DEV/TEST.',
     ...(input.spikeId ? { spikeId: input.spikeId, spikeDigest } : {}),
-    ...(input.matrixReviewId ? { matrixReviewId: input.matrixReviewId } : {}),
+    ...(input.matrixReviewId && matrixReview ? { matrixReviewId: input.matrixReviewId, matrixReviewDigest: matrixReview.artifactDigest } : {}),
   };
 
   const bindingArtifact = writeArtifact(projectRoot, {
