@@ -61,8 +61,8 @@
       "id": "CHK-002",
       "title": "Exclude truly-stale verdicts from the per-round duplicate-host-identity check",
       "context": "So an accumulated prior-submit verdict (stale by both materialHash AND storyFilesHash) cannot create a 'duplicate host/session/key identity' invalid round that forces a brand-new-material re-bind. Only freshness-valid verdicts (current materialHash OR storyFilesHash-matching) participate in a round's identity/validity evaluation; stale ones are filtered out before the duplicate check.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-24T00:09:53.173Z",
       "endTime": null,
       "verificationIntent": {
         "happy": [
