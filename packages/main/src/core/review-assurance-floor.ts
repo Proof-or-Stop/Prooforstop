@@ -78,6 +78,7 @@ export interface ReviewAssuranceFloorReport {
   requiredAssurance: ReviewAssuranceFloorRequiredAssurance;
   assuranceLevel: ReviewAssuranceFloorAssuranceLevel;
   materialHash: string | null;
+  storyFilesHash?: string | null;
   changedFiles: ReviewAssuranceFloorChangedFile[];
   materialCodePaths: string[];
   failureSignals: ReviewAssuranceFloorFailureSignal[];
@@ -560,6 +561,7 @@ export function evaluateReviewAssuranceFloor(args: EvaluateReviewAssuranceFloorA
       ? (highRiskRequired ? (fullOk ? 'full-3x2' : 'degraded-single-host') : requiredRounds === REVIEW_ASSURANCE_FLOOR_FAILURE_REQUIRED_ROUNDS ? 'degraded-single-host' : 'local-one-round')
       : 'missing',
     materialHash,
+    storyFilesHash,
     changedFiles,
     materialCodePaths,
     failureSignals,
@@ -707,12 +709,20 @@ export function formatReviewAssuranceFloorFailure(report: ReviewAssuranceFloorRe
     `  - required assurance: ${report.requiredAssurance}`,
     `  - assuranceLevel: ${report.assuranceLevel}`,
     `  - materialHash: ${report.materialHash ?? '<missing>'}`,
+    `  - storyFilesHash: ${report.storyFilesHash ?? '<missing>'}`,
     `  - material code paths: ${report.materialCodePaths.length === 0 ? '<unknown>' : report.materialCodePaths.slice(0, 8).join(', ')}`,
     `  - local rounds: ${report.localRounds.validRounds.length}/${report.localRounds.requiredRounds} with ${report.localRounds.requiredPassingHostsPerRound} PASS host`,
     `  - degraded fallback: ${report.degradedFallback.validRounds.length}/${report.degradedFallback.requiredRounds} rounds with ${report.degradedFallback.requiredPassingHostsPerRound} PASS host; explicit fallback=${report.degradedFallback.allowed ? 'valid' : 'missing/invalid'}`,
     `  - failure signals: ${signalSummary}`,
     `  - high-risk signals: ${highRiskSummary}`,
   ];
+  // Surface accepted-drift advisories even on the FAIL path: a host verdict can
+  // be downgrade-accepted (whole-tree materialHash drifted but storyFilesHash
+  // matches) while the floor still fails for another reason (e.g. failure-signal
+  // 3-round stickiness). Do not swallow the re-attestation signal.
+  if (report.advisories?.length) {
+    lines.push(`  - accepted-drift advisories: ${report.advisories.join('; ')}`);
+  }
   if (staleVerdicts.length > 0) {
     const shown = staleVerdicts.slice(0, STALE_VERDICT_SUMMARY_LIMIT).map(formatIgnoredVerdictSummary).join(', ');
     const suffix = staleVerdicts.length > STALE_VERDICT_SUMMARY_LIMIT

@@ -136,6 +136,32 @@ check('(a) unrelated whole-tree drift keeps rounds valid with advisory', () => {
   );
   assert.ok(report.advisories, 'report.advisories must be present');
   assert.match((report.advisories ?? []).join('\n'), /storyFilesHash matches/);
+  // F-004: assert the FULL three-part host-verdict advisory pattern, not just a
+  // substring, so the actual "materialDigest drift accepted because storyFilesHash
+  // matches; re-attestation advisory required" wording cannot regress unnoticed.
+  assert.match(
+    (report.advisories ?? []).join('\n'),
+    /materialDigest drift accepted.*storyFilesHash matches.*re-attestation/,
+    'full three-part re-attestation advisory pattern must be present',
+  );
+});
+
+// F-004 (CHK-003:happy:0) — dedicated full-pattern advisory assertion: the
+// surfaced advisory must be the EXACT host-verdict re-attestation wording, not
+// merely contain "storyFilesHash matches". Guards against the wording silently
+// changing or being replaced by a weaker string.
+check('(a2) full three-part re-attestation advisory pattern', () => {
+  const report = evaluate({
+    storyId: STORY_ID,
+    processEvents: [verdict('round-1', 'codex-a', MATERIAL_X, STORY_FILES_S)],
+    materialHash: MATERIAL_Y,
+    storyFilesHash: STORY_FILES_S,
+  });
+  assert.ok(report.advisories && report.advisories.length > 0, 'advisories must be present');
+  assert.match(
+    (report.advisories ?? []).join('\n'),
+    /materialDigest drift accepted.*storyFilesHash matches.*re-attestation/,
+  );
 });
 
 // (b) Re-bind after drift: the same fresh storyFilesHash-matching verdict, PLUS
@@ -165,6 +191,35 @@ check('(b) truly-stale prior verdict does not duplicate-poison the round', () =>
     allRoundReasons,
     /duplicate host\/session\/key identity/,
     'truly-stale verdict must be ignored, not duplicate-poisoning',
+  );
+});
+
+// F-003 (CHK-002:happy:1) — cross-runId re-bind: a truly-stale prior round
+// (runId=round-old, materialHash=W, storyFilesHash=S_old) and a downgraded new
+// round (runId=round-new, materialHash=X->Y, storyFilesHash=S) share host
+// identity but live in DIFFERENT runIds. Only the new round counts; the truly-
+// stale verdict is ignored, never poisoning the identity check.
+check('(b2) cross-runId re-bind => only new round valid, old ignored', () => {
+  const report = evaluate({
+    storyId: STORY_ID,
+    processEvents: [
+      verdict('round-old', 'codex-a', MATERIAL_W, STORY_FILES_S_OLD), // truly stale
+      verdict('round-new', 'codex-a', MATERIAL_X, STORY_FILES_S), // downgraded to current
+    ],
+    materialHash: MATERIAL_Y,
+    storyFilesHash: STORY_FILES_S,
+  });
+  assert.equal(report.ok, true);
+  assert.equal(report.localRounds.validRounds.length, 1, 'exactly one valid round (round-new)');
+  assert.equal(report.localRounds.validRounds[0]?.runId, 'round-new', 'the valid round must be round-new');
+  const allRoundReasons = [
+    ...report.localRounds.validRounds.flatMap(r => r.reasons),
+    ...report.localRounds.invalidRounds.flatMap(r => r.reasons),
+  ].join('\n');
+  assert.doesNotMatch(allRoundReasons, /duplicate host\/session\/key identity/);
+  assert.ok(
+    report.localRounds.ignoredVerdicts.some(v => v.runId === 'round-old'),
+    'the truly-stale round-old verdict must appear in ignoredVerdicts',
   );
 });
 
