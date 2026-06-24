@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-24T00:21:09.458Z",
       "reviewRunId": "B-6de6:RR-002",
       "_hash": "608c2ba398d78a31b1f4cfc3c5b44fd08784f890f565e9b8b004fa59fbb42fe4"
+    },
+    {
+      "id": "B-6de6:RP-003",
+      "agent": "lattice-review-docs",
+      "note": "Step 1 extracted 0 exported symbols from git diff main...HEAD (all story code changes are in the single fix commit 5389c13e4 which modifies only internal exports in done-oracle.ts and review-assurance-floor.ts). Step 2/3 directly compared the 4 files named in the review prompt: (1) done-oracle.ts floor row comment accurately mirrors the escalation row comment — no over/under-claim, advisory-append logic matches stated behavior; (2) review-assurance-floor.ts storyFilesHash? field added to ReviewAssuranceFloorReport interface and populated in return, formatReviewAssuranceFloorFailure storyFilesHash+advisories lines match their comments; (3) node scripts/verify-process-fact-contract.mjs exits 0 and prints Process fact contract verified, runtime:story_files_hash_freshness_gate gateConsumer at line 308 names the review assurance floor DONE freshness gate exactly matching CHK-005 userSees; (4) plan.md CHK-003 done-when advisory pattern and CHK-005 userSees both match actual smoke/verifier output. All 14 storyFilesHash smoke checks and all 7 done-escalation-drift-advisory smoke checks pass. No doc-code inconsistency found.",
+      "createdAt": "2026-06-24T00:47:04.695Z",
+      "reviewRound": "2026-06-24T00:21:09.458Z",
+      "reviewRunId": "B-6de6:RR-007",
+      "_hash": "4d6a0eaf11ef135fa2427d7d791af9b508d19f23674277f0f3715f2baaed8b3a"
     }
   ]
 }
