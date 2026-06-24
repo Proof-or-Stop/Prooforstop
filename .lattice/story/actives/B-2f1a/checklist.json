@@ -160,7 +160,35 @@
       "context": "doc-code consistency",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "The CHANGELOG documents the Phase-1 user-visible rebrand and that internal identifiers are deferred to later phases.",
+      "files": {
+        "modify": [
+          "CHANGELOG.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "git diff shows a CHANGELOG entry describing the Phase-1 Lattice→Proofbound user-visible rebrand",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "the entry states internal identifiers (binary/packages/.lattice/schema-ids/salts) are deferred",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "grep -c the Experiments/Changed heading is not duplicated",
+            "type": "cli"
+          }
+        ]
+      }
     }
   ]
 }
