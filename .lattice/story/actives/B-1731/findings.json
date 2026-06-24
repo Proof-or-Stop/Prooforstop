@@ -95,6 +95,26 @@
       "resolvedAt": "2026-06-24T22:19:33.681Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-1731:F-005",
+      "desc": "Direct story_create with phase=DEV/TEST/DONE plus reproFirstBypassReason still bypasses the repro-first lifecycle gate. In the direct-phase branch, story-create.ts:923-935 renders the preflight with the bypass reason, then story-create.ts:936-955 persists phase: args.phase immediately. The bypass is non-blocking by construction in repro-evidence-binding-gate.ts:108-114, while machine.ts:895-899 only checks PLAN when the story starts in IDEA and machine.ts:945-948 only checks transitions into DEV. Result: in enforce mode a code-verifiable/bug story can be materialized directly as DEV, TEST, or DONE without an accepted story-evidence-binding, contradicting the promise that bypass only permits story creation and later PLAN/DEV gates still require binding. Fix by rejecting reproFirstBypassReason on direct phases at or beyond PLAN/DEV, forcing bypassed creates to stop in INIT/IDEA, or applying the same binding predicate before persisting direct lifecycle phases.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-24T22:23:07.790Z",
+      "reviewRound": "2026-06-24T22:17:36.825Z",
+      "reviewRunId": "B-1731:RR-009",
+      "_hash": "26b721f1af32acc92df00a903c1f546bccd8303bdd020c504143b381d7fddd1c",
+      "files": [
+        "packages/main/src/handlers/story-create.ts",
+        "packages/main/src/core/repro-evidence-binding-gate.ts",
+        "packages/main/src/core/machine.ts"
+      ],
+      "signatureTag": "adversarial|ts|direct-story-create",
+      "signatureTagSource": "auto"
     }
   ]
 }
