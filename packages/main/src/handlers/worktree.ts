@@ -639,10 +639,8 @@ export function createWorktreeHandlers(ctx: HandlerContext) {
       return '⚠ Uncleaned main init commit: cannot read HEAD';
     }
 
-    const legacyInitSubject = `koala${':'} story ${storyId} init`;
     const safeSubject =
       subject === `lattice: story ${storyId} init` ||
-      subject === legacyInitSubject ||
       subject.includes(storyId);
     const safeFiles = files.length > 0 && files.every(path => path.startsWith(storyRel));
     if (!safeSubject || !safeFiles) {

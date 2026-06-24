@@ -4,9 +4,9 @@
  *
  * The ledger writer is now active by default; LATTICE_USAGE_LEDGER=0 is the
  * explicit escape hatch that restores the byte-identical legacy default-off
- * behavior. The legacy KOALA_ env alias was removed (B-b837); a stale KOALA_
- * value is silently ignored. This smoke proves the behavioral contracts of that
- * flip:
+ * behavior. The legacy retired-brand env alias was removed (B-b837); a stale
+ * retired-brand-prefixed value is silently ignored. This smoke proves the
+ * behavioral contracts of that flip:
  *
  *   - CHK-001 flag parsing: an UNSET env reads as ON; the falsy strings
  *     ('0'/'false'/'off'/'no'/'') read as OFF; the truthy strings
@@ -53,7 +53,7 @@ import { type UsageLedgerRecordInput } from '../core/usage-ledger/record.js';
 let passed = 0;
 const failures: string[] = [];
 
-// The legacy ledger-alias env var (formerly the KOALA_-prefixed name) was
+// The legacy ledger-alias env var (formerly the retired-brand-prefixed name) was
 // removed (B-b837). Only LATTICE_USAGE_LEDGER is read now; any other env var —
 // including a user's stale legacy alias — must be silently ignored. We exercise
 // that with a representative stale legacy-shaped key built at runtime so the test

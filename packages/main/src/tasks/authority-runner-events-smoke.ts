@@ -15,7 +15,7 @@ const baseJob: JobSpec = {
   kind: 'verify',
   provider: 'fake-provider',
   model: 'fake-local',
-  vendor: 'koala',
+  vendor: 'lattice',
   metadata: {
     allowLocalCommand: true,
     runnerId: 'runner-1',

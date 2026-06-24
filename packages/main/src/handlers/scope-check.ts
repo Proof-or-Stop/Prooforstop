@@ -10,7 +10,7 @@ import type { HandlerContext } from './context.js';
 import type { ScopeCheckData, OpenQuestion } from '../core/types.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 
-export const SCOPE_CHECK_SALT = 'koala-scope-check-integrity-v1';
+export const SCOPE_CHECK_SALT = 'lattice-scope-check-integrity-v1';
 
 export function signScopeCheck(storyId: string, timestamp: string, gaps: number, covered: number, reviewRound: string = ''): string {
   return createHash('sha256')

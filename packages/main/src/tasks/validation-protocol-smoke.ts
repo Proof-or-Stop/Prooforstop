@@ -364,25 +364,25 @@ try {
     rmSync(latticeCanonicalRoot, { recursive: true, force: true });
   }
 
-  // Lattice-only config: koala.config.json is no longer an active fallback
+  // Lattice-only config: a non-canonical config file is not an active fallback
   // when lattice.config.json is absent.
   const legacyOnlyRoot = mkdtempSync(join(tmpdir(), 'lattice-validation-legacy-only-'));
   try {
-    writeFileSync(join(legacyOnlyRoot, 'koala.config.json'), JSON.stringify({
+    writeFileSync(join(legacyOnlyRoot, 'other.config.json'), JSON.stringify({
       validate: {
         commands: [
-          { label: 'legacy koala gate', command: 'node', args: ['-e', 'process.stdout.write("legacy-ok")'] },
+          { label: 'legacy gate', command: 'node', args: ['-e', 'process.stdout.write("legacy-ok")'] },
         ],
       },
     }));
     resetConfigCache();
     const legacyDiscovered = configuredValidationCommands(legacyOnlyRoot);
-    assert.equal(legacyDiscovered.length, 0, 'koala.config.json validate.commands must not load as an active config fallback');
+    assert.equal(legacyDiscovered.length, 0, 'a non-canonical config file validate.commands must not load as an active config fallback');
   } finally {
     rmSync(legacyOnlyRoot, { recursive: true, force: true });
   }
 
-  // B-38d6 CHK-002: lattice.config.json and koala.config.json both present →
+  // B-38d6 CHK-002: lattice.config.json and a non-canonical config both present →
   // lattice.config.json wins (canonical) and diagnostic identifies the winner.
   const conflictConfigRoot = mkdtempSync(join(tmpdir(), 'lattice-validation-config-conflict-'));
   try {
@@ -393,17 +393,17 @@ try {
         ],
       },
     }));
-    writeFileSync(join(conflictConfigRoot, 'koala.config.json'), JSON.stringify({
+    writeFileSync(join(conflictConfigRoot, 'other.config.json'), JSON.stringify({
       validate: {
         commands: [
-          { label: 'koala loses gate', command: 'node', args: ['-e', 'process.stdout.write("koala-loses")'] },
+          { label: 'other loses gate', command: 'node', args: ['-e', 'process.stdout.write("other-loses")'] },
         ],
       },
     }));
     resetConfigCache();
     const conflictDiscovered = configuredValidationCommands(conflictConfigRoot);
     assert.equal(conflictDiscovered.length, 1, 'only the canonical lattice.config.json entry must be loaded');
-    assert.equal(conflictDiscovered[0].label, 'lattice wins gate', 'lattice.config.json must win over koala.config.json');
+    assert.equal(conflictDiscovered[0].label, 'lattice wins gate', 'lattice.config.json must win over a non-canonical config');
     const conflictJson = await createVerifierHandlers({
       root: conflictConfigRoot,
       scanRoot: conflictConfigRoot,
@@ -412,7 +412,7 @@ try {
     }).validate({ json: true });
     const conflictResult = JSON.parse(conflictJson);
     assert.match(conflictResult.commands[0].output, /lattice-wins/);
-    assert.doesNotMatch(conflictResult.commands[0].output, /koala-loses/, 'koala.config.json gate must NOT be executed when lattice.config.json is present');
+    assert.doesNotMatch(conflictResult.commands[0].output, /other-loses/, 'a non-canonical config gate must NOT be executed when lattice.config.json is present');
   } finally {
     rmSync(conflictConfigRoot, { recursive: true, force: true });
   }
@@ -949,8 +949,8 @@ try {
   const conflictRuntimeRoot = mkdtempSync(join(tmpdir(), 'lattice-runtime-mode-legacy-local-'));
   try {
     mkdirSync(join(conflictRuntimeRoot, 'node_modules', '.bin'), { recursive: true });
-    const legacyLocalBin = join(conflictRuntimeRoot, 'node_modules', '.bin', process.platform === 'win32' ? 'koala.cmd' : 'koala');
-    const otherCli = join(conflictRuntimeRoot, 'other-koala');
+    const legacyLocalBin = join(conflictRuntimeRoot, 'node_modules', '.bin', process.platform === 'win32' ? 'stale-legacy.cmd' : 'stale-legacy');
+    const otherCli = join(conflictRuntimeRoot, 'other-cli');
     writeFileSync(legacyLocalBin, '#!/usr/bin/env node\n');
     writeFileSync(otherCli, '#!/usr/bin/env node\n');
     const report = runRuntimeEnvironmentChecks(conflictRuntimeRoot, {
@@ -965,7 +965,7 @@ try {
     assert.equal(
       (report.projectLocalBin.actual as any).path,
       join(conflictRuntimeRoot, 'node_modules', '.bin', process.platform === 'win32' ? 'lattice.cmd' : 'lattice'),
-      'project-local-bin must ignore stale koala local bins',
+      'project-local-bin must ignore stale legacy local bins',
     );
     assert.equal((report.projectLocalBin.actual as any).present, false);
     const runtimeSummary = renderRuntimeFootprintSummary(report.runtimeMode);
@@ -973,7 +973,7 @@ try {
     assert.match(runtimeSummary, /Runtime source: unknown/);
     assert.match(runtimeSummary, /Project-local JavaScript runtime required: no/);
     assert.match(runtimeSummary, /Authority: local-runtime-diagnostic-only/);
-    assert.doesNotMatch(runtimeSummary, /node_modules\/\.bin\/koala/);
+    assert.doesNotMatch(runtimeSummary, /node_modules\/\.bin\/stale-legacy/);
   } finally {
     rmSync(conflictRuntimeRoot, { recursive: true, force: true });
   }
@@ -983,8 +983,8 @@ try {
   const packagedConflictRoot = mkdtempSync(join(tmpdir(), 'lattice-runtime-mode-packaged-conflict-'));
   try {
     mkdirSync(join(packagedConflictRoot, 'node_modules', '.bin'), { recursive: true });
-    const legacyLocalBin = join(packagedConflictRoot, 'node_modules', '.bin', process.platform === 'win32' ? 'koala.cmd' : 'koala');
-    const packagedCli = join(packagedConflictRoot, 'packaged-koala');
+    const legacyLocalBin = join(packagedConflictRoot, 'node_modules', '.bin', process.platform === 'win32' ? 'stale-legacy.cmd' : 'stale-legacy');
+    const packagedCli = join(packagedConflictRoot, 'packaged-cli');
     writeFileSync(legacyLocalBin, '#!/usr/bin/env node\n');
     writeFileSync(packagedCli, '#!/usr/bin/env node\n');
     const report = runRuntimeEnvironmentChecks(packagedConflictRoot, {
@@ -996,7 +996,7 @@ try {
     assert.equal(report.runtimeMode.mode, 'packaged-runtime');
     assert.equal(report.runtimeMode.source, 'packaged-runtime');
     assert.equal(report.runtimeMode.requiresProjectJavaScriptRuntime, false);
-    assert.equal((report.projectLocalBin.actual as any).present, false, 'packaged mode should ignore stale koala local bins');
+    assert.equal((report.projectLocalBin.actual as any).present, false, 'packaged mode should ignore stale legacy local bins');
   } finally {
     rmSync(packagedConflictRoot, { recursive: true, force: true });
     if (previousPackagedRuntime === undefined) delete process.env.LATTICE_DESKTOP_PACKAGED_RUNTIME;
@@ -1007,7 +1007,7 @@ try {
   process.env.LATTICE_DESKTOP_PACKAGED_RUNTIME = '1';
   const packagedCleanRoot = mkdtempSync(join(tmpdir(), 'lattice-runtime-mode-packaged-clean-'));
   try {
-    const packagedCli = join(packagedCleanRoot, 'packaged-koala');
+    const packagedCli = join(packagedCleanRoot, 'packaged-cli');
     writeFileSync(packagedCli, '#!/usr/bin/env node\n');
     const report = runRuntimeEnvironmentChecks(packagedCleanRoot, {
       commandResolver: () => packagedCli,
@@ -1112,14 +1112,15 @@ try {
 
   const incompatibleAssetRoot = mkdtempSync(join(tmpdir(), 'lattice-managed-incompatible-'));
   try {
-    mkdirSync(join(incompatibleAssetRoot, 'bin', 'koala.js'), { recursive: true });
-    const result = runManagedAssetCheck(incompatibleAssetRoot, { apply: true, profile: 'core' });
-    const item = result.items.find(entry => entry.relPath === 'bin/koala.js');
+    // An excluded-path runtime asset present as a directory must report INCOMPATIBLE.
+    mkdirSync(join(incompatibleAssetRoot, '.lattice-codex', 'settings.json'), { recursive: true });
+    const result = runManagedAssetCheck(incompatibleAssetRoot, { apply: true, profile: 'codex', assetMode: 'full' });
+    const item = result.items.find(entry => entry.relPath === '.lattice-codex/settings.json');
     assert.equal(item?.status, 'INCOMPATIBLE');
     assert.equal(item?.applied, undefined);
-    assert.equal(result.applied.includes('bin/koala.js'), false, 'INCOMPATIBLE must not be counted as applied');
+    assert.equal(result.applied.includes('.lattice-codex/settings.json'), false, 'INCOMPATIBLE must not be counted as applied');
     const rendered = renderManagedAssetCheck(result);
-    assert.match(rendered, /INCOMPATIBLE bin\/koala\.js/);
+    assert.match(rendered, /INCOMPATIBLE \.lattice-codex\/settings\.json/);
     assert.match(rendered, /action: .*fix manually|action: .*manually/);
   } finally {
     rmSync(incompatibleAssetRoot, { recursive: true, force: true });

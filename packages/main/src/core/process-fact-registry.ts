@@ -154,7 +154,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     name: 'review.json',
     path: 'review.json',
     signed: true,
-    signature: 'sha256(storyId:timestamp:issueCount:blockerCount:koala-review-integrity-v1)',
+    signature: 'sha256(storyId:timestamp:issueCount:blockerCount:lattice-review-integrity-v1)',
     producerCommand: 'story_review',
     consumerGate: 'storyMachine.canStartDev PLAN to DEV gate',
   },

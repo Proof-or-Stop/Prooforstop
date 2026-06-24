@@ -198,7 +198,7 @@ export function createGapLogHandlers(ctx: HandlerContext): Record<string, (...ar
           ...(ev.reproCommand ? { reproCommand: ev.reproCommand } : {}),
           ...(ev.observedOutput ? { observedOutput: ev.observedOutput } : {}),
           ...(ev.analysisNote ? { analysisNote: ev.analysisNote } : {}),
-          agent: args.agent || process.env.LATTICE_AGENT || 'koala-gap-log',
+          agent: args.agent || process.env.LATTICE_AGENT || 'lattice-gap-log',
         });
         return { created: ensured.created, result: appended };
       }, {

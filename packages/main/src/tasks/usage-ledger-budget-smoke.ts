@@ -58,8 +58,8 @@ import { resolveLedgerPath, verifyLedgerChain } from '../core/usage-ledger/write
 let passed = 0;
 const failures: string[] = [];
 
-// The legacy hard-budget alias env var (formerly the KOALA_-prefixed name) was
-// removed (B-b837). Only LATTICE_HARD_BUDGET_TOKENS is read now; any other env
+// The legacy hard-budget alias env var (formerly the retired-brand-prefixed name)
+// was removed (B-b837). Only LATTICE_HARD_BUDGET_TOKENS is read now; any other env
 // var — including a user's stale legacy alias — must be silently ignored. We
 // exercise that with a representative stale legacy-shaped key built at runtime so
 // the test stays free of the retired brand token.

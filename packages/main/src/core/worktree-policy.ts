@@ -63,7 +63,7 @@ export const DEFAULT_FAIL_CLOSED_WORKTREE_POLICY: WorktreePolicyView = {
   requiresAuthoritativeWorktree: true,
   allowWorktreeRepair: false,
   allowedPathRoots: [],
-  forbiddenPathGlobs: ['.koala/story/**', '.lattice/story/**', 'docs/story/**', '**/tests/fixtures/**'],
+  forbiddenPathGlobs: ['.lattice/story/**', 'docs/story/**', '**/tests/fixtures/**'],
   requiresCleanWorktree: false,
   preserveUnrelatedDirtyChanges: true,
   requireGitStatusEvidence: true,

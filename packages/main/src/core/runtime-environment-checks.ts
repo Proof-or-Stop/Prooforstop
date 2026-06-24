@@ -82,7 +82,6 @@ const __dirname = dirname(__filename);
 
 const MIN_NODE_MAJOR = 20;
 const CANONICAL_ROOT_PACKAGE_NAME = 'lattice';
-const LEGACY_ROOT_PACKAGE_NAME = 'koala';
 const CANONICAL_CORE_PACKAGE_NAME = '@lattice/core';
 const URL_RE = /\bhttps?:\/\/[^\s<>"')\]]+/gi;
 const HOST_PORT_RE = /\b(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}:\d{2,5}\b/g;
@@ -731,7 +730,7 @@ function detectSelfProject(projectRoot: string): boolean {
   const corePackage = readPackageJson(join(projectRoot, 'packages', 'main'));
   const rootName = rootPackage?.name;
   const coreName = corePackage?.name;
-  return (rootName === CANONICAL_ROOT_PACKAGE_NAME || rootName === LEGACY_ROOT_PACKAGE_NAME)
+  return rootName === CANONICAL_ROOT_PACKAGE_NAME
     && coreName === CANONICAL_CORE_PACKAGE_NAME;
 }
 

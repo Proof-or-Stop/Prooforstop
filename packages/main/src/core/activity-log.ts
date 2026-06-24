@@ -3,7 +3,7 @@
  *
  * Runtime logs go to <projectRoot>/.lattice/activity.jsonl.
  * The older <projectRoot>/docs/story/activity.jsonl is a read-only source.
- * readActivityLogTail merges both sources. The old Koala runtime-path read
+ * readActivityLogTail merges both sources. The old legacy runtime-path read
  * fallback was removed (B-a4e3).
  */
 

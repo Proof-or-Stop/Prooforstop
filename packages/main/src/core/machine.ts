@@ -477,7 +477,7 @@ export function canStartDevGuard(context: StoryMachineContext): boolean {
       const review = context.store.readReview(context.storyId);
       if (!review || !review.reviews || review.reviews.length === 0) return false;
       const lastRound = review.reviews[review.reviews.length - 1];
-      const REVIEW_SALT = 'koala-review-integrity-v1';
+      const REVIEW_SALT = 'lattice-review-integrity-v1';
       const hashInput = `${context.storyId}:${lastRound.timestamp}:${lastRound.issueCount}:${lastRound.blockerCount ?? lastRound.issueCount}:${REVIEW_SALT}`;
       const expectedHash = createHash('sha256').update(hashInput).digest('hex');
       if (!lastRound._hash || lastRound._hash !== expectedHash) return false;
@@ -929,7 +929,7 @@ export function getGuardFailureReason(
             reasons.push('story_review check not passed (no review record)');
           } else {
             const lastRound = review.reviews[review.reviews.length - 1];
-            const REVIEW_SALT = 'koala-review-integrity-v1';
+            const REVIEW_SALT = 'lattice-review-integrity-v1';
             const hashInput = `${storyId}:${lastRound.timestamp}:${lastRound.issueCount}:${lastRound.blockerCount ?? lastRound.issueCount}:${REVIEW_SALT}`;
             const expectedHash = createHash('sha256').update(hashInput).digest('hex');
             if (!lastRound._hash || lastRound._hash !== expectedHash) {

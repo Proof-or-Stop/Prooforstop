@@ -184,8 +184,8 @@ interface AddRecordInput {
   fact: Record<string, unknown>;
 }
 
-const DEFAULT_STORY_ROOTS = ['.lattice/story/actives', '.koala/story/actives', 'docs/story/actives'] as const;
-const PROTECTED_STORY_OUTPUT_ROOTS = ['.lattice/story', '.koala/story', 'docs/story'] as const;
+const DEFAULT_STORY_ROOTS = ['.lattice/story/actives', 'docs/story/actives'] as const;
+const PROTECTED_STORY_OUTPUT_ROOTS = ['.lattice/story', 'docs/story'] as const;
 const PROTECTED_FIXTURE_OUTPUT_ROOTS = ['packages/main/tests/fixtures'] as const;
 const ACTIVITY_SOURCE = '.lattice/activity.jsonl';
 const DEV_MEMORY_SOURCE = '.lattice/dev-memory/experience.jsonl';
