@@ -1,0 +1,23 @@
+{
+  "findings": [
+    {
+      "id": "B-8d44:F-001",
+      "desc": "doc-code-drift: README.md line 133 comment for run-selfchecks.mjs says '(6)' selfchecks, but this diff adds live-engine-selfcheck.mjs as the 7th entry in SELFCHECKS array (verified in run-selfchecks.mjs). The selfcheck count in the README inline comment is wrong by 1.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-24T12:53:44.041Z",
+      "reviewRound": "2026-06-24T12:50:13.876Z",
+      "reviewRunId": "B-8d44:RR-004",
+      "_hash": "c0812b9b7fdebae52b351848f58cd3227053b6f362c2132bfbcd5e56d987b374",
+      "files": [
+        "experiments/recovery-runner/README.md",
+        "experiments/recovery-runner/run-selfchecks.mjs"
+      ],
+      "signatureTag": "doc-code-drift|md|code-drift-readme",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
