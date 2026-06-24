@@ -119,7 +119,39 @@
       "context": "Run the detector and TypeScript build; record that implementation_review_result_* remains unavailable unless deliberately migrated to modern signed review lanes in a future story.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "package.json",
+          "packages/main/package.json"
+        ],
+        "create": [
+          "scripts/verify-orphan-surface.mjs"
+        ],
+        "test": [
+          "scripts/verify-orphan-surface.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm run test:orphan-surface and npm --prefix packages/main run build both pass on the real repository.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A direct CLI probe confirms implementation_review_result_get remains unavailable unless a future signed-review migration intentionally reintroduces it.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No unrelated active story metadata or dynamic serve files are changed by this story.",
+            "type": "manual"
+          }
+        ]
+      }
     }
   ]
 }
