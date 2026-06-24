@@ -116,6 +116,15 @@
       "reviewRound": "2026-06-24T10:16:50.255Z",
       "reviewRunId": "B-e67f:RR-017",
       "_hash": "69a2d4f3f29f5d170a506c487033b809353415f7f2ce2024010b6ac69ac3a2c5"
+    },
+    {
+      "id": "B-e67f:RP-014",
+      "agent": "lattice-review-test-coverage",
+      "note": "round 4 final re-attest: corpus-selfcheck 24/24 + 10/10 confirmed live. All 28 verificationIntents (priority=should, no must-intents) have valid verificationEvidence with result=pass and matching intentRefs. F-014 is addressed: CHK-002:edge:0 and CHK-002:adversarial:0 evidence notes now say 10/10. Commit 4f0433a26 is doc-only (threat-model comment block + README note, insertions only, no logic change verified via git show). Open findings F-015/F-016/F-017 are codex-host-2 adversarial bypass re-filings accepted out-of-threat-model under operator decision (same three vectors as resolved F-011/F-012/F-013); they are not verificationIntent coverage gaps. No new blocker found. Test coverage review passed.",
+      "createdAt": "2026-06-24T11:35:09.494Z",
+      "reviewRound": "2026-06-24T10:16:50.255Z",
+      "reviewRunId": "B-e67f:RR-018",
+      "_hash": "a03c3a58baed5d3a14f5e51938add9bcfbacd54d5349507447797ec701f94c9c"
     }
   ]
 }
