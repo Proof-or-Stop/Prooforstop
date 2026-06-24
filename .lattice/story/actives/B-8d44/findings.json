@@ -595,6 +595,25 @@
       "resolvedAt": "2026-06-24T14:25:05.308Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-8d44:F-028",
+      "desc": "doc-code-drift: README FS-evidence threat-model note (line 109) lists only Write/Edit/MultiEdit as harvested tool-use events but harvestWriteTargets in live-engine.mjs also covers NotebookEdit (with notebook_path input field). The inline code comment at live-engine.mjs line 92 is correct (includes NotebookEdit); the README omits it, causing a reader to under-estimate the capture coverage.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-24T14:28:32.246Z",
+      "reviewRound": "2026-06-24T12:50:13.876Z",
+      "reviewRunId": "B-8d44:RR-028",
+      "_hash": "747512fa4c7c6d397372359c84523d970b9d558d754399d6105046e56f0fd715",
+      "files": [
+        "experiments/recovery-runner/README.md",
+        "experiments/recovery-runner/live-engine.mjs"
+      ],
+      "signatureTag": "doc-code-drift|md|code-drift-readme",
+      "signatureTagSource": "auto"
     }
   ]
 }
