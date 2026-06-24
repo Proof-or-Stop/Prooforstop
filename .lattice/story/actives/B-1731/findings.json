@@ -1,0 +1,22 @@
+{
+  "findings": [
+    {
+      "id": "B-1731:F-001",
+      "desc": "packages/main/src/handlers/story-create.ts:413 The fromDraft branch returns before the new repro-first story_create preflight is defined/invoked. It reads draft index/checklist, computes riskSignals, writes the INIT story/checklist, deletes the draft, commits metadata, and returns at line 538 without calling classifyReproFirstRequirement or honoring reproFirstPreflight.mode=enforce. A reviewed draft whose checklist JSON contains files.modify/create/test, or whose index is type=bug / high-risk code-verifiable, can therefore be materialized by story_create --fromDraft without an accepted story-evidence-binding and without reproFirstBypassReason. That violates the pre-story story_create intake contract; later PLAN/DEV gates may catch it, but the creation-time gate is bypassed on this supported story_create surface.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-24T22:06:03.897Z",
+      "reviewRound": "2026-06-24T22:02:26.542Z",
+      "reviewRunId": "B-1731:RR-005",
+      "_hash": "10792d2e2d30d211678c7b4d23a836fee72256481e373613f9e2f91aafa9d84d",
+      "files": [
+        "packages/main/src/handlers/story-create.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-handlers",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
