@@ -1,8 +1,8 @@
 {
   "storyId": "B-70e4",
-  "checkedAt": "2026-06-24T02:09:39.184Z",
-  "headHash": "cd483b710248a63d726d8c7ea5bb579ee3ccb8e4",
-  "materialHash": "a070c73286d507e5578b87e6d901b2d51afacf7e4d8c4632f5f2f02b7bd1edcb",
+  "checkedAt": "2026-06-24T02:18:19.515Z",
+  "headHash": "79430c8ac17009be5b23d9a4e8d4f92122690a62",
+  "materialHash": "6f700e92aa93534d5f63b4771e5042e5e0b61b25e5bc418bcb9b938e111c16a2",
   "reviewRound": "2026-06-24T01:49:03.993Z",
   "agentId": "lattice-review-delivery",
   "docsPromises": [
@@ -10,7 +10,7 @@
       "docPath": "plan.md#CHK-001",
       "promise": "fetchGateReceiptProof passes authenticated:true to get(), causing get() to attach Authorization: Bearer <customerApiKey> for the proof fetch",
       "verifiedBy": "diff/grep",
-      "evidence": "git diff shows authority-client.ts:646 adds authenticated:true in fetchGateReceiptProof; get() at lines 676-685 conditionally attaches Bearer header when authenticated===true and customerApiKey is set"
+      "evidence": "git diff shows authority-client.ts:646 adds authenticated:true in fetchGateReceiptProof; get() at lines 676-685 conditionally attaches Bearer header when authenticated===true and customerApiKey is set; storyFilesHash 871226f7 identical before and after main merge confirming byte-level no change"
     },
     {
       "docPath": "plan.md#CHK-002",
@@ -40,26 +40,26 @@
   "realMachineTests": [
     {
       "featureId": "CHK-001",
-      "transcript": "deterministic smoke (npm run --prefix packages/main test:authority-receipt-proof-auth) exits 0: Bearer header captured, happy-path parses ok===true, fail-closed for unset and empty-string keys; red/green confirmed by reverting authenticated:true"
+      "transcript": "deterministic smoke (npm run --prefix packages/main test:authority-receipt-proof-auth) exits 0: Bearer header captured, happy-path parses ok===true, fail-closed for unset and empty-string keys; red/green confirmed by reverting authenticated:true; re-run on merged tree PASS per coordinator report + storyFilesHash unchanged"
     },
     {
       "featureId": "CHK-002",
-      "transcript": "live staging smoke (authority-live-receipt-ref-gate-smoke.js against https://staging.hostneutral.net) PASS: staging proof fetched, receipt ref written, TEST/DONE gates consumed, negative control blocked; deterministic smoke also covers loadProof auth path"
+      "transcript": "live staging smoke (authority-live-receipt-ref-gate-smoke.js against https://staging.hostneutral.net) PASS on merged tree: staging proof fetched, receipt ref written, TEST/DONE gates consumed, negative control blocked; storyFilesHash 871226f7 byte-identical confirms no delivery change from merge"
     },
     {
       "featureId": "CHK-003",
-      "transcript": "live staging smoke PASS: Authority accepted the DONE gate request including materialOverlapAudit in the signed decision payload; CHK-003 happy:0/1/2 and adversarial:0/1 all covered in test-evidence verificationCoverage"
+      "transcript": "live staging smoke PASS on merged tree: Authority accepted DONE gate request including materialOverlapAudit in signed decision payload; CHK-003 happy:0/1/2 and adversarial:0/1 covered=pass in test-evidence verificationCoverage (materialHash 6f700e92 post-merge)"
     },
     {
       "featureId": "CHK-004",
-      "transcript": "deterministic smoke exits 0 PASS on all assertions (Bearer header, happy-path schema parse, fail-closed for unset key, fail-closed for empty-string key); registered in package.json + smoke-manifest.json; verificationCoverage missingRequired=0"
+      "transcript": "deterministic smoke exits 0 PASS: Bearer header, happy-path schema parse, fail-closed for unset key, fail-closed for empty-string key; registered in package.json + smoke-manifest.json; verificationCoverage missingRequired=0; re-confirmed on merged tree per fresh test-evidence.json timestamp 2026-06-24T02:17:39"
     }
   ],
   "closingSelfCheck": {
     "hasRealMachineTest": true,
     "hasEdgeCaseCoverage": true,
     "hasUnresolvedTodos": false,
-    "summary": "All 5 docsPromises verified in code diff. Two real-machine tests: live staging smoke against https://staging.hostneutral.net (PASS) and deterministic regression smoke with stubbed transport (PASS, red/green confirmed). Edge cases covered: fail-closed for missing key, fail-closed for empty-string key, tampered receipt blocked. verificationCoverage 20/19 required covered, missingRequired=0, 5 missing entries are all priority=should. No unresolved TODOs in changed source files."
+    "summary": "Re-attestation after main merge (134 commits). storyFilesHash 871226f7 is byte-identical before and after merge — no story file changed. materialHash drifted from a070c73 to 6f700e92 due to unrelated main code only. All 5 docsPromises verified in code diff. Both real-machine tests re-run on merged tree: live staging smoke PASS, deterministic smoke PASS. Edge cases covered: fail-closed for missing key, empty-string key, tampered receipt blocked. verificationCoverage missingRequired=0."
   },
-  "_hash": "66a40f1942d7f5eb5145e7ccde5b284c8aa17f198832d19b6d17dcd0a7e5ac1f"
+  "_hash": "efd9f5b9392bb9e2b433124208f67979be8bf62b0307f50a0eb429566576ba21"
 }
