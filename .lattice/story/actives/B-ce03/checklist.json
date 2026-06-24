@@ -9,7 +9,30 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "done_prepare PASSes or reaches later DONE closure checks when the only initial dirty files are unchanged pre-existing Lattice lifecycle metadata for the same story.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "done_prepare still blocks at cleanTree for dirty source/material files and for metadata/source rename attempts.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "failed DONE-required lifecycle metadata remains a DONE closure blocker and cannot be converted into a DONE prepare PASS by the metadata-only allowance.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
