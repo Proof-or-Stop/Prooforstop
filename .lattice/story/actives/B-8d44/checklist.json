@@ -121,6 +121,62 @@
         ],
         "create": [],
         "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A1 stub: one agent pass, output final, no retry loop => record has agentCallCount=1, adjudicatedOutcome derived by harness (completed if acceptance passes); WHY: proves A1 single-pass semantics",
+            "type": "cli"
+          },
+          {
+            "desc": "A2 stub that fails acceptance on pass 1-2 then passes on pass 3 => agentCallCount=3, acceptance eventually passes; WHY: proves A2 naive-retry up to R=3",
+            "type": "cli"
+          },
+          {
+            "desc": "A2prime stub with budget => budgetPass/tokenInBand/wallInBand/truncated/tokenBudget/wallBudgetMs all populated on record, validateRecord passes; WHY: proves A2prime budget fields emitted",
+            "type": "cli"
+          },
+          {
+            "desc": "A3 stub: A2 retry loop then EXACTLY ONE review pass => reviewArtifact called exactly once, findings reported but NOT iterated; WHY: proves A3 single-review semantics",
+            "type": "cli"
+          },
+          {
+            "desc": "A4 stub with clean acceptance + reviewer SHIP => record adjudicatedOutcome derived as recovered/completed; WHY: proves A4 full loop happy path",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A2 stub fails acceptance on ALL 3 passes => agentCallCount=3, acceptance still false, no infinite loop; WHY: proves R=3 retry cap",
+            "type": "cli"
+          },
+          {
+            "desc": "A2prime stub exceeding token budget before wall budget => truncated=true, tokenInBand=false, wallInBand=true (token binds first); WHY: proves token-binds-first semantics per pre-reg",
+            "type": "cli"
+          },
+          {
+            "desc": "A3 reviewer gets the SAME structured context snapshot as A4 reviewer (assert buildReviewContext output is identical for both arms given same state); WHY: proves context-equalization clause from pre-reg section 1 A3",
+            "type": "cli"
+          },
+          {
+            "desc": "no a4b arm exists in the ARMS constant or the arm dispatcher => attempting arm=a4b throws or is rejected; WHY: proves a4b is dropped per pre-reg",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A4 stub whose reviewer BLOCKs => engine does NOT ship, record adjudicatedOutcome derived as safe-stop by the harness; WHY: proves review gate refuses to ship on BLOCK",
+            "type": "cli"
+          },
+          {
+            "desc": "A4 stub with no review artifact produced => engine refuses to ship (no-artifact gate); WHY: proves the no-artifact guard",
+            "type": "cli"
+          },
+          {
+            "desc": "A2prime stub that ships a ground-truth-failing payload => harness derives adjudicatedOutcome=amplified (acceptance may pass but hidden regression fails); WHY: proves amplified detection under budget constraints",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
