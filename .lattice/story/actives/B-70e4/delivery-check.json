@@ -1,0 +1,65 @@
+{
+  "storyId": "B-70e4",
+  "checkedAt": "2026-06-24T02:09:39.184Z",
+  "headHash": "cd483b710248a63d726d8c7ea5bb579ee3ccb8e4",
+  "materialHash": "a070c73286d507e5578b87e6d901b2d51afacf7e4d8c4632f5f2f02b7bd1edcb",
+  "reviewRound": "2026-06-24T01:49:03.993Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "plan.md#CHK-001",
+      "promise": "fetchGateReceiptProof passes authenticated:true to get(), causing get() to attach Authorization: Bearer <customerApiKey> for the proof fetch",
+      "verifiedBy": "diff/grep",
+      "evidence": "git diff shows authority-client.ts:646 adds authenticated:true in fetchGateReceiptProof; get() at lines 676-685 conditionally attaches Bearer header when authenticated===true and customerApiKey is set"
+    },
+    {
+      "docPath": "plan.md#CHK-002",
+      "promise": "loadProof resolves auth via resolveAuthorityClientAuth(process.env) and passes it as the 4th AuthorityClient arg",
+      "verifiedBy": "diff/grep",
+      "evidence": "git diff shows authority-enforce.ts imports resolveAuthorityClientAuth and adds const auth = resolveAuthorityClientAuth(process.env); then new AuthorityClient(settings.baseURL, args._fetchImpl, settings.timeoutMS, auth) at lines 204-207"
+    },
+    {
+      "docPath": "plan.md#CHK-003",
+      "promise": "buildPhaseGateRequest includes buildNoOverlapMaterialOverlapAuditDefault() for DONE phase in both the gateInputDigest and signed decision payload",
+      "verifiedBy": "diff/grep",
+      "evidence": "git diff shows authority-live-receipt-ref-gate-smoke.ts imports buildNoOverlapMaterialOverlapAuditDefault; buildPhaseGateRequest spreads materialOverlapAudit when targetPhase===DONE (lines 213-219); signedTargetGateRequest propagates it when request.materialOverlapAudit is set (lines 239-241)"
+    },
+    {
+      "docPath": "plan.md#CHK-004",
+      "promise": "Deterministic regression smoke authority-receipt-proof-auth-smoke.ts created, registered in package.json as test:authority-receipt-proof-auth and in smoke-manifest.json",
+      "verifiedBy": "diff/grep",
+      "evidence": "packages/main/src/tasks/authority-receipt-proof-auth-smoke.ts is a new file in the diff (181 lines); package.json line 60 has test:authority-receipt-proof-auth script; smoke-manifest.json diff adds {name:authority-receipt-proof-auth} entry"
+    },
+    {
+      "docPath": "plan.md#CHK-004",
+      "promise": "Test asserts: with a customer key proof fetch sends Authorization: Bearer <key>; without a key it fails closed and sends no request",
+      "verifiedBy": "code inspection",
+      "evidence": "authority-receipt-proof-auth-smoke.ts: lines 92-106 assert Bearer header with capturingFetch; lines 137-149 assert no request and outcome.ok===false when no key; lines 153-171 assert same fail-closed behavior for empty-string key"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "deterministic smoke (npm run --prefix packages/main test:authority-receipt-proof-auth) exits 0: Bearer header captured, happy-path parses ok===true, fail-closed for unset and empty-string keys; red/green confirmed by reverting authenticated:true"
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "live staging smoke (authority-live-receipt-ref-gate-smoke.js against https://staging.hostneutral.net) PASS: staging proof fetched, receipt ref written, TEST/DONE gates consumed, negative control blocked; deterministic smoke also covers loadProof auth path"
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "live staging smoke PASS: Authority accepted the DONE gate request including materialOverlapAudit in the signed decision payload; CHK-003 happy:0/1/2 and adversarial:0/1 all covered in test-evidence verificationCoverage"
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "deterministic smoke exits 0 PASS on all assertions (Bearer header, happy-path schema parse, fail-closed for unset key, fail-closed for empty-string key); registered in package.json + smoke-manifest.json; verificationCoverage missingRequired=0"
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 5 docsPromises verified in code diff. Two real-machine tests: live staging smoke against https://staging.hostneutral.net (PASS) and deterministic regression smoke with stubbed transport (PASS, red/green confirmed). Edge cases covered: fail-closed for missing key, fail-closed for empty-string key, tampered receipt blocked. verificationCoverage 20/19 required covered, missingRequired=0, 5 missing entries are all priority=should. No unresolved TODOs in changed source files."
+  },
+  "_hash": "66a40f1942d7f5eb5145e7ccde5b284c8aa17f198832d19b6d17dcd0a7e5ac1f"
+}
