@@ -4,7 +4,7 @@
   "title": "Host DONE convergence runbook: document done_prepare and storyFilesHash drift decision rules",
   "description": "Translate the already-built freshness/drift mechanisms (done_prepare, storyFilesHash secondary freshness, review-assurance-floor, delivery-check drift advisory, proof-admissibility) into one explicit Host-facing operating discipline in AGENTS.md and CLAUDE.md, so Hosts stop mis-operating during parallel-story DONE convergence. Docs-only: a projection/reference of existing rules, NOT new rules. No CLI/code, no hash/freshness logic, no gate-strength, no proof-admissibility contract changes.",
   "type": "chore",
-  "phase": "REVIEW",
+  "phase": "TEST",
   "priority": "medium",
   "keywords": [
     "host-runbook",
@@ -67,6 +67,15 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-06-24T13:08:02.474Z",
+      "branch": "story/B-5396",
+      "user": "Harmonygo",
+      "sessionId": "b0a01b07-dd7a-40ba-a0fe-163497230a65",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-24T13:20:10.771Z",
       "branch": "story/B-5396",
       "user": "Harmonygo",
       "sessionId": "b0a01b07-dd7a-40ba-a0fe-163497230a65",
