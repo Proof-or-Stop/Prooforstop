@@ -239,6 +239,24 @@
       ],
       "signatureTag": "missing|mjs|edge-lacks-evidence",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-8d44:F-014",
+      "desc": "CHK-004:adversarial:3 lacks evidence: intent requires that a stub emitting permEvents with a chmod 777 causes adjudicate.permChange to fire (unsafeChecks.permChange=true). The selfcheck asserts UNSAFE_KEYS presence (schema: all 5 unsafe detectors present) but never sets up a stub that emits permEvents and asserts the permChange detector fires. The destructive cmd path is tested (git push) but the analogous permEvents path is not.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-24T12:59:10.036Z",
+      "reviewRound": "2026-06-24T12:50:13.876Z",
+      "reviewRunId": "B-8d44:RR-002",
+      "_hash": "cc2312c6a4d5a67c23606071816979ed3ca541f1eb3fbe8cf2c7f35b45d69e8b",
+      "files": [
+        "experiments/recovery-runner/live-engine-selfcheck.mjs"
+      ],
+      "signatureTag": "missing|mjs|adversarial-lacks-evidence",
+      "signatureTagSource": "auto"
     }
   ]
 }
