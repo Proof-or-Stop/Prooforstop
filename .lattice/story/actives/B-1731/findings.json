@@ -125,7 +125,7 @@
       "desc": "Malformed story-evidence-binding artifacts can throw out of evaluateStoryEvidenceBindingGate instead of returning a structured stale/engine-error result. validateBindingCandidate dereferences binding.payload.storyId after listArtifacts selected an envelope by subjectBinding.storyId; a malformed ref/object with no payload reproduced TypeError: Cannot read properties of undefined (reading storyId). This violates the intended fail-open/stale diagnostic behavior and can make DEV/PLAN guard paths reject or crash without an actionable gate reason. Source: packages/main/src/core/repro-evidence-binding-gate.ts:163 and machine guard consumers at packages/main/src/core/machine.ts:477,898,946.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-24T22:24:24.095Z",
@@ -137,7 +137,11 @@
         "packages/main/src/core/machine.ts"
       ],
       "signatureTag": "edge|ts|malformed-story-evidence",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 888401f4e: evaluateStoryEvidenceBindingGate now validates story-evidence-binding payload and subjectBinding shape before dereferencing required fields, returning stale_story_evidence_binding details for malformed artifacts instead of throwing TypeError. Verified by npm --prefix packages/main run build and npm run test:repro-evidence-binding-dev-gate; smoke ok 7 creates a payload-less binding, confirms no throw, stale diagnostic, and guard failure remains actionable.",
+      "resolvedAt": "2026-06-24T22:29:47.221Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-1731:F-007",
