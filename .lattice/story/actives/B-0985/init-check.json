@@ -1,0 +1,30 @@
+{
+  "storyId": "B-0985",
+  "checkedAt": "2026-06-24T09:52:56.464Z",
+  "reviewRound": "",
+  "agentId": "product-reviewer",
+  "issues": [
+    {
+      "severity": "medium",
+      "desc": "Checklist items CHK-002 through CHK-004 are technically scoped but do not explicitly state the user-observable completion signal, such as a developer/operator being able to classify a proof-looking artifact and see a structured admissible/not-admissible result with reason codes. Background explains the product need well enough to proceed, so this is advisory rather than blocking."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-06-24T09:52:44.297Z",
+      "issues": []
+    },
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-24T09:52:56.464Z",
+      "issues": [
+        {
+          "severity": "medium",
+          "desc": "Checklist items CHK-002 through CHK-004 are technically scoped but do not explicitly state the user-observable completion signal, such as a developer/operator being able to classify a proof-looking artifact and see a structured admissible/not-admissible result with reason codes. Background explains the product need well enough to proceed, so this is advisory rather than blocking."
+        }
+      ]
+    }
+  ],
+  "_hash": "dfca915a0f7bcdafd51aea897fc62d92a07b11ce6edaf462bd03d64cd3dae057"
+}

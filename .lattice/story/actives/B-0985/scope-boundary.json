@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-0985",
+  "mode": "feature",
+  "allowed": [
+    "docs/evidence/evidence-platform-architecture.md",
+    "docs/evidence/proof-surface-inventory.json",
+    "docs/evidence/proof-surface-inventory.md",
+    "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+    "packages/main/package.json",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/proof-admissibility.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/tasks/proof-admissibility-smoke.ts"
+  ],
+  "excluded": [
+    "Authority Server implementation or remote service changes",
+    "handoff schema migration beyond classification inventory",
+    "hard-fail enforce rollout for REVIEW/TEST/DONE/Authority gates",
+    "legacy evidence migration/repair commands",
+    "reserved proof-key stripping in external metadata producers",
+    "semantic signature migration for existing receipt formats"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "User requested development of proof-admissibility-hardening-execution-plan.md. This story is the M0/M1 executable registry/classification MVP only; later milestones remain excluded follow-up work.",
+  "createdAt": "2026-06-24T09:53:39.142Z",
+  "updatedAt": "2026-06-24T09:53:39.142Z",
+  "_hash": "6d1e44d110d186eb0faeaf804681a48ca6a8dbfee82b4e567b73b2585cb8f9a9"
+}

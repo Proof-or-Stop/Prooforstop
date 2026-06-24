@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-0985",
+  "allowedCommands": [
+    "find",
+    "git add",
+    "git commit",
+    "git diff",
+    "git status",
+    "lattice checklist_get",
+    "lattice checklist_update",
+    "lattice decision_set",
+    "lattice delivery_check_set",
+    "lattice done_required_validate",
+    "lattice finding_add",
+    "lattice quorum_submit",
+    "lattice review_pass_set",
+    "lattice review_run_start",
+    "lattice session_brief",
+    "lattice story_advance",
+    "lattice story_get",
+    "lattice story_review",
+    "lattice understanding_set",
+    "lattice validate",
+    "ls",
+    "node scripts/verify-process-fact-contract.mjs",
+    "npm --prefix packages/main run build",
+    "npm --prefix packages/main run test:proof-admissibility",
+    "rg",
+    "sed"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "docs/evidence",
+    "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+    "packages/main/package.json",
+    "packages/main/src/cli",
+    "packages/main/src/core",
+    "packages/main/src/registry.ts",
+    "packages/main/src/tasks",
+    "scripts"
+  ],
+  "excludedCommands": [
+    "git checkout --",
+    "git clean",
+    "git push",
+    "git reset --hard",
+    "omx"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".omx",
+    "docs/story",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "Execution is bounded to proof admissibility registry/classification MVP implementation and verification. No Authority Server, hard-fail rollout, destructive git cleanup, or remote push.",
+  "createdAt": "2026-06-24T09:54:01.944Z",
+  "updatedAt": "2026-06-24T09:54:01.944Z",
+  "_hash": "95021a99d14222daeabfd4a0a7953e52f45a8c87e289c8f91b7aa15a5c4f9cba"
+}
