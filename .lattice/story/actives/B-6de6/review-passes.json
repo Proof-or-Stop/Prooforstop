@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-24T00:21:09.458Z",
       "reviewRunId": "B-6de6:RR-005",
       "_hash": "d5e679c23455406df0e354ef9052382fe26928cc4c2a61cc9945553c05ce883e"
+    },
+    {
+      "id": "B-6de6:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "round-2 test-coverage review passed: F-003 fix verified (dedicated cross-runId re-bind check at smoke line 202-224, asserting ignoredVerdicts + round-new identity, CHK-002:happy:1 re-bound); F-004 fix verified (full three-part /materialDigest drift accepted.*storyFilesHash matches.*re-attestation/ pattern in (a) line 139-146 and dedicated (a2) check line 153-165, CHK-003:happy:0 re-bound); F-005 floor DONE-render advisory verified (done-escalation-drift-advisory-smoke.ts checks at line 290-312 and 366-373, 7/7 pass); all 30 must-intents have concrete non-generic evidence in the 14-check storyfileshash smoke (passes) and 7-check done-escalation-drift smoke (passes); validate freshness gap (28 stale) is an evidence-freshness staleness issue not a test coverage gap.",
+      "createdAt": "2026-06-24T00:47:52.135Z",
+      "reviewRound": "2026-06-24T00:21:09.458Z",
+      "reviewRunId": "B-6de6:RR-008",
+      "_hash": "1e8a98d419e2d5ec4617869e28984875d111d82c3ec66a08b9a7e37dc5f71e5f"
     }
   ]
 }
