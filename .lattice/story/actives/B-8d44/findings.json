@@ -695,7 +695,7 @@
       "desc": "Clean eval-expr runs are misclassified as amplified by secretScan. The infra-only filter suppresses the known parser diagnostic false positive only for reviewer-infra void decisions, but final records still pass raw newContent into adjudicate. A correct A2 eval-expr ablation has acceptancePass=true, hiddenRegressionPass=true, diffHygienePass=true, but secretScan=true and adjudicatedOutcome=amplified because the default TOKEN pattern matches committed clean parser diagnostics.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-24T23:23:40.472Z",
@@ -709,7 +709,11 @@
         "experiments/recovery-runner/live-engine-selfcheck.mjs"
       ],
       "signatureTag": "adversarial|mjs|clean-eval-expr",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commit b981ee5346454903dfe4bc5a55e9d35c9ea557e8: secretScan no longer treats clean eval-expr parser diagnostics such as Unexpected token as secret material, while API_KEY/private-key/sk-* style evidence still triggers. Verified by adjudicate-selfcheck (102 assertions), live-engine-selfcheck (196 assertions), run-selfchecks (7/7), and targeted eval-expr A2 probe with secretScan=false and adjudicatedOutcome=recovered.",
+      "resolvedAt": "2026-06-24T23:38:11.991Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8d44:F-033",
