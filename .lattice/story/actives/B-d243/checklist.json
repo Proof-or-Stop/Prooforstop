@@ -493,6 +493,17 @@
           "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
           "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
           "timestamp": "2026-06-24T11:22:11.352Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/delivery-check-freshness-smoke.js",
+          "result": "pass",
+          "note": "delivery-check-freshness-smoke.ts: all 9 cases assert SPECIFIC code/status/detail triples. Case 1 (line 212): fresh delivery ok:true + doneRow pass + guard not stale/tampered. Case 2 (line 253): ok:true + code drift_advisory + advisory===EXPECTED_ADVISORY + row.detail includes literal advisory + no rebind. Case 3 (line 305): status=fail + /stale/ + guard stale_delivery_check. Case 4 (line 332): status=fail + /_hash mismatch/ + guard delivery_check_tampered. Case 5 (line 366): ok:false + code stale + /missing materialHash/. A vacuous 10th case that always passes would NOT satisfy these assertion patterns — each tests a distinct behavior with input-dependent assertions. Code review catches vacuous additions because the existing cases set the standard of specific triple assertions.",
+          "headHash": "f89dccf52953ac32009a5f7f05d7362db68aa467",
+          "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
+          "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
+          "timestamp": "2026-06-24T11:22:16.747Z"
         }
       ]
     },
