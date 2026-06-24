@@ -17,7 +17,7 @@ import type { HandlerContext } from './context.js';
 import type { DeliveryCheckData, DocsPromise, RealMachineTest, ClosingSelfCheck } from '../core/types.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 import { signDeliveryCheck } from '../core/delivery-check-hash.js';
-import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
+import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 
 // Signature primitives live in core/delivery-check-hash.ts (single source of
@@ -66,6 +66,7 @@ export function createDeliveryCheckHandlers(ctx: HandlerContext): Record<string,
         data.closingSelfCheck,
         data.reviewRound,
         data.materialHash,
+        data.storyFilesHash,
       );
       if (data._hash !== currentExpected) {
         throw new Error('delivery-check.json _hash is invalid (file may have been tampered with), please re-run the lattice-review-delivery reviewer');
@@ -86,6 +87,7 @@ export function createDeliveryCheckHandlers(ctx: HandlerContext): Record<string,
         data.closingSelfCheck,
         data.reviewRound,
         data.materialHash,
+        data.storyFilesHash,
       );
 
       // 6) Write back
@@ -156,6 +158,11 @@ export function createDeliveryCheckHandlers(ctx: HandlerContext): Record<string,
       if (!materialHash) {
         throw new Error('delivery_check_set: unable to compute current materialHash for freshness binding');
       }
+      // storyFilesHash: secondary freshness signal over the story-owned diff vs main.
+      // Signed so the DONE-gate drift-advisory downgrade keyed on it is non-forgeable.
+      // Undefined when HEAD is on main (no story diff) or it cannot be computed —
+      // the freshness gate then falls back to strict materialHash.
+      const storyFilesHash = currentStoryFilesHash(gitCwd, 'HEAD', root);
 
       const _hash = signDeliveryCheck(
         args.storyId,
@@ -164,6 +171,7 @@ export function createDeliveryCheckHandlers(ctx: HandlerContext): Record<string,
         closingSelfCheck,
         reviewRound,
         materialHash,
+        storyFilesHash,
       );
 
       // 4) construct DeliveryCheckData and persist to disk
@@ -172,6 +180,7 @@ export function createDeliveryCheckHandlers(ctx: HandlerContext): Record<string,
         checkedAt: new Date().toISOString(),
         headHash,
         materialHash,
+        storyFilesHash,
         reviewRound,
         agentId: args.agentId ?? '',
         docsPromises,
