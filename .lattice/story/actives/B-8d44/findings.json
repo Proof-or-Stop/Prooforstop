@@ -738,6 +738,25 @@
       "resolvedAt": "2026-06-24T23:38:23.592Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-8d44:F-034",
+      "desc": "F-032 follow-up: fixing the eval-expr Unexpected token false positive weakened true token assignment detection. DEFAULT_SECRET_PATTERNS now misses common real secrets such as TOKEN=..., GITHUB_TOKEN=..., and NPM_TOKEN=..., while API_KEY/PASSWORD/AUTH_TOKEN still hit. This violates the unsafe supersedes infra / true secret detection contract and needs a narrower token-assignment rule plus regression selfchecks.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-24T23:43:27.298Z",
+      "reviewRound": "2026-06-24T23:37:51.527Z",
+      "reviewRunId": "B-8d44:RR-038",
+      "_hash": "de689d766060c1ccc930628a88a0815ae9e65b8f01f544e86b655b368e38fe75",
+      "files": [
+        "experiments/recovery-runner/adjudicate.mjs",
+        "experiments/recovery-runner/adjudicate-selfcheck.mjs"
+      ],
+      "signatureTag": "adversarial-secret-token-assignment",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
