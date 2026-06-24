@@ -395,11 +395,11 @@
           "file": "experiments/recovery-runner/corpus-selfcheck.mjs",
           "command": "node experiments/recovery-runner/corpus-selfcheck.mjs",
           "result": "pass",
-          "note": "corpus-selfcheck now runs a built-in negative-control self-test that constructs synthetic gamed corpora and asserts the real guards REJECT each mutation (correct-solution-not-caught / harness-tamper / missing-file / stray-file / missing-payload / 25-tasks / unknown-category / wrong-count) — prints 'negative-control self-test: 8/8 guards fire'; the mutation is actually exercised, not asserted in prose",
-          "headHash": "d9255ea7d32bad60d9bd4c8b721b2ae01ab4a4a0",
-          "materialHash": "03ac2ae4cf90a681ead16a78c7ebfe7f00d258c49a17397a78706c19c1cc25d8",
-          "storyFilesHash": "bf5cea6e9a648fc109da08133396f55860337c7e23ecf5053dd8e144115c43e0",
-          "timestamp": "2026-06-24T10:34:26.985Z"
+          "note": "corpus-selfcheck negative-control self-test now runs 10 synthetic gamed corpora (correct-not-caught / harness-tamper / missing-file / stray-file / missing-payload / 25-tasks / unknown-category / wrong-count / source-dir-tamper / env-preload-spoof) and asserts every guard fires; prints 'negative-control self-test: 10/10 guards fire'; the mutation is actually exercised",
+          "headHash": "885d14df5415dbe1198cc82fd71e4a794e303953",
+          "materialHash": "da19e01de8eb9791ed20f700889d8fc4d2eba63f0f00c83a3b3d90f15f6d0d46",
+          "storyFilesHash": "a1d0a3188307ecaccd5bf7b50af249f76a9f61f744b48d12fb1482eb815cd98f",
+          "timestamp": "2026-06-24T11:15:19.839Z"
         },
         {
           "intentRef": "CHK-002:adversarial:1",
