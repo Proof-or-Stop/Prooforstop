@@ -8,9 +8,9 @@
         "docs/evidence/evidence-platform-architecture.md",
         "docs/requirements/decisions/repro-first-story-intake-experiment.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-24T04:17:09.726Z",
       "userSees": "repro_probe stores an immutable candidate-only artifact and prints artifactId, digest, and evidenceScope=candidate-only.",
       "files": {
         "modify": [],
@@ -48,7 +48,21 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/core/evidence/artifact-store.ts",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "artifact-store.ts and types.ts compile; smoke roundtrip verified",
+          "headHash": "f64bd5f3947721785fcb7e9552d3854f849764b6",
+          "materialHash": "30bd1828d818594f03f863a6ea80dac3c0012ac667812c625556957db43f23e1",
+          "storyFilesHash": "214a4d712d3db85052732add2534548a4ac429c74de2afddb50dc39941b70a01",
+          "timestamp": "2026-06-24T04:17:09.936Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
