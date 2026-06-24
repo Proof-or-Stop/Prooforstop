@@ -1,6 +1,6 @@
 # Proof Admissibility Hardening Execution Plan
 
-> Status: execution plan, not yet implementation complete.
+> Status: execution plan; M0/M1 classification-only MVP implemented by B-0985.
 > Date: 2026-06-23.
 > Scope: Proofbound / Lattice CLI evidence, receipt, handoff, and gate-consumption boundaries.
 > Architecture baseline: `docs/evidence/evidence-platform-architecture.md`.
@@ -8,6 +8,11 @@
 This plan migrates existing proof-looking surfaces onto the shared Evidence
 Runtime architecture. It must not create a separate Proof Admissibility manager,
 storage root, ledger format, or gate-specific proof implementation.
+
+B-0985 implements the first classification-only slice: the inventory, canonical
+enum vocabulary, proof surface registry, and evaluator. It does not hard-fail
+gates, change Authority Server behavior, or create storage outside
+`.lattice/evidence/`.
 
 ## Table of Contents
 
@@ -170,13 +175,17 @@ Steps:
 Deliverables:
 
 - `docs/evidence/proof-surface-inventory.md`
-- Optional machine-readable `docs/evidence/proof-surface-inventory.json`
+- `docs/evidence/proof-surface-inventory.json`
 
 Exit criteria:
 
 - Every gate-consumed proof-looking surface has an owner and scope.
 - Every non-authority surface explicitly says why it cannot set
   `productionDone`.
+
+B-0985 status: complete for the classification-only M0 slice. Future slices may
+expand or migrate the inventory, but new proof-looking surfaces should start by
+adding a registry entry rather than adding gate prose.
 
 ### M1 - Shared Proof Admissibility Registry
 
@@ -215,6 +224,11 @@ Exit criteria:
 
 - A caller can ask "what is this artifact allowed to prove?" and receive a
   structured answer with reason codes.
+
+B-0985 status: complete for M1 classification. The shared module is
+`packages/main/src/core/proof-admissibility.ts`; the focused smoke command is
+`npm --prefix packages/main run test:proof-admissibility`. Gate enforcement and
+Authority Server integration remain non-goals for this story.
 
 ### M2 - Reserved Proof-Key And Server-Owned Metadata Contract
 
