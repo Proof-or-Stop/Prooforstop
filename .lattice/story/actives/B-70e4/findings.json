@@ -70,6 +70,25 @@
       ],
       "signatureTag": "missing|ts|happy-evidence-demonstrates",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-70e4:F-005",
+      "desc": "CHK-004:edge:0 (empty string customerApiKey treated as missing, fail-closed) has no evidence. The should-priority intent explicitly calls out that empty-string env vars are a common misconfiguration that must behave identically to unset. The smoke test only covers customerApiKey=undefined (no 4th arg at line 49); it does not have a test case for new AuthorityClient(..., { customerApiKey: \"\" }). The code does handle this correctly (authority-client.ts:677 uses optional-chain + trim, so \"\" trims to \"\" which is falsy), but the behavior is not pinned by an assertion. Given the security sensitivity (fail-closed auth behavior) this should-priority gap is material.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-24T01:40:01.723Z",
+      "reviewRound": "2026-06-24T01:23:41.780Z",
+      "reviewRunId": "B-70e4:RR-003",
+      "_hash": "9717f408499c679bed5806443d901a18d8cdf026ffbd309a380bbbc0a204ea67",
+      "files": [
+        "packages/main/src/tasks/authority-receipt-proof-auth-smoke.ts",
+        "packages/main/src/core/authority-client.ts"
+      ],
+      "signatureTag": "missing|ts|edge-empty-string",
+      "signatureTagSource": "auto"
     }
   ]
 }
