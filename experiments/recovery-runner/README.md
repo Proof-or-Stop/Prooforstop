@@ -97,8 +97,12 @@ a stream of canonical §7 run-records. It:
   ablation cell apply to every arm). N/A cells are excluded **and logged**, never counted as
   failures.
 - assigns a seeded, deterministic, reproducible run order (`runOrderSeed`).
-- invokes a **pluggable per-cell engine** (injected), so the driver core is fully
-  offline-testable; the real campaign plugs a `run-recovery.mjs` adapter as the engine.
+- invokes a **pluggable per-cell engine** (injected via `--engine`), so the driver core is
+  fully offline-testable; the real campaign plugs **`live-engine.mjs`** as the engine adapter
+  (its `makeLiveEngine()` reuses `run-recovery.mjs`'s live `claude -p` plumbing — executor,
+  reviewer, acceptance, ground-truth — and emits the RAW §7 evidence the driver canonicalises).
+  The executor/reviewer are injectable, so `live-engine-selfcheck.mjs` drives the whole adapter
+  offline with a deterministic stub (no `claude -p`).
 - canonicalises each raw run into the exact §7 record by **delegating** to `adjudicate.mjs`
   (outcome + 5 unsafe detectors) and `checks.mjs` (the three pass flags) — nothing is
   re-implemented.
@@ -121,7 +125,8 @@ node run-driver.mjs --tasks eval-expr,median,parse-range,text-stats --k 5
 
 # run for real: supply an engine module exporting `default async (cell, attempt) => result`.
 # Without --engine the driver refuses to launch a live campaign (that is a separate task).
-node run-driver.mjs --engine ./<engine-adapter>.mjs --record ../<paper-repo>/records.jsonl
+# live-engine.mjs is the live claude -p adapter (the live multi-day campaign is a separate story).
+node run-driver.mjs --engine ./live-engine.mjs --record ../<paper-repo>/records.jsonl
 ```
 
 ## Offline self-checks
@@ -130,9 +135,10 @@ Every harness module has a deterministic, no-LLM self-check. The aggregator runs
 them and is wired into the root `npm test` via `npm run test:experiments`:
 
 ```sh
-node run-selfchecks.mjs        # adjudicate + checks + spend-accounting + run-driver + analyze + corpus selfchecks (6)
-node run-driver-selfcheck.mjs  # the driver alone (enumeration, schema, denominators, validity, …)
-node corpus-selfcheck.mjs      # the 24-task corpus alone (per-task reference/injection invariant, §2 stratification, negative-control guards)
+node run-selfchecks.mjs           # adjudicate + checks + spend-accounting + run-driver + analyze + corpus + live-engine selfchecks (7)
+node run-driver-selfcheck.mjs     # the driver alone (enumeration, schema, denominators, validity, …)
+node corpus-selfcheck.mjs         # the 24-task corpus alone (per-task reference/injection invariant, §2 stratification, negative-control guards)
+node live-engine-selfcheck.mjs    # the live-engine adapter alone (5 arms × {ablation+scenarios} via a stub: outcome derivation, unsafe detectors, A2prime budgets, infra-void; no claude -p)
 ```
 
 These self-checks spawn **no** `claude -p`.
