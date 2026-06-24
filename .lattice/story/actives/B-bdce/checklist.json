@@ -1,0 +1,20 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Enrich renderEvidenceStaleHint with a done_prepare one-step line + a drift-classification line",
+      "context": "packages/main/src/core/evidence-stale-hint.ts renderEvidenceStaleHint: keep the existing stable lines (the EVIDENCE STALE marker + Meaning + `lattice verification_evidence_refresh_stale --storyId=...` + `lattice validate --story=... --json`). ADD (a) a drift-classification line: whole-tree materialHash drift with UNCHANGED story-owned files (storyFilesHash) is usually unrelated/main drift -> refresh, do not re-review; storyFilesHash change = story-owned drift -> re-review/re-quorum; and (b) a one-step recovery line: `lattice done_prepare --storyId=... --mergeMain --refreshStale --validate` for TEST->DONE convergence. The three consuming surfaces (handlers/hints.ts, handlers/session.ts, handlers/transition-orchestrator.ts) call the shared renderer and auto-inherit; do not edit them unless they reconstruct the string. Keep storyId-substitution (no literal <storyId> placeholders, per B-a2f1 preMortem #3).",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Update the byte-equality smokes + add the regression assertions",
+      "context": "Update the byte-output assertions that pin the old stale-hint text in packages/main/src/tasks/verification-freshness-smoke.ts and packages/main/src/tasks/flow-stability-smoke.ts to the new output. Add the red/spike regression assertions (the hint output contains `done_prepare` AND a drift-classification token like storyFilesHash/story-owned/whole-tree/unrelated) so a future regression that drops either line FAILs — this is the RED test (GAP1/GAP2) formalized. Run both smokes green.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
