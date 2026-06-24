@@ -242,9 +242,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-24T13:09:15.567Z",
       "verificationIntent": {
         "happy": [
           {
@@ -275,7 +275,42 @@
         ],
         "create": [],
         "test": []
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "command": "git diff -- docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "result": "pass",
+          "note": "Decision doc now states same-story unchanged pre-existing lifecycle metadata may remain dirty without cleanTree blocking.",
+          "headHash": "a4033f051d3bd273f4f8cc6f45f09a6e2326638c",
+          "materialHash": "d3c7b4dd7324ecf797b04994398543e4af7f669b6fbb35bc0023a29183e92fc0",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-24T13:09:15.698Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "command": "git diff -- docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "result": "pass",
+          "note": "Decision doc states source/material, fixture, runtime, declared artifact, other-story metadata, and metadata/source/owner-lease renames still block.",
+          "headHash": "a4033f051d3bd273f4f8cc6f45f09a6e2326638c",
+          "materialHash": "d3c7b4dd7324ecf797b04994398543e4af7f669b6fbb35bc0023a29183e92fc0",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-24T13:09:15.833Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "git diff -- docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "result": "pass",
+          "note": "Decision doc states failed DONE-required evidence is not waived and must block doneClosure rather than claim PASS.",
+          "headHash": "a4033f051d3bd273f4f8cc6f45f09a6e2326638c",
+          "materialHash": "d3c7b4dd7324ecf797b04994398543e4af7f669b6fbb35bc0023a29183e92fc0",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-24T13:09:15.967Z"
+        }
+      ]
     }
   ]
 }
