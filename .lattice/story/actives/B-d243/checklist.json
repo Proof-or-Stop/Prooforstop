@@ -221,6 +221,17 @@
           "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
           "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
           "timestamp": "2026-06-24T11:20:34.048Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/delivery-check-freshness-smoke.js",
+          "result": "pass",
+          "note": "delivery-check-freshness-smoke.ts:332-363 (forged storyFilesHash case): forges storyFilesHash on the stored record (line 337-339), which makes _hash mismatch. delivery-check-hash.ts:117-126 (evaluateDeliveryCheckFreshness) runs signature verification FIRST: recomputeDeliveryCheckHash recomputes from stored fields, compares to _hash, and if they differ returns delivery_check_tampered BEFORE ever reaching the materialHash or storyFilesHash freshness branches (lines 138+). The smoke asserts status=fail with _hash mismatch detail (line 357-358) and guard=delivery_check_tampered (line 360), confirming signature verification precedes any advisory logic.",
+          "headHash": "4b9864f316b07c74ec7c9421b38d5c0ac4ff8a5a",
+          "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
+          "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
+          "timestamp": "2026-06-24T11:20:39.219Z"
         }
       ]
     },
