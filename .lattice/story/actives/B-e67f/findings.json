@@ -256,7 +256,7 @@
       "desc": "Verified bypass: acceptance and ground-truth run as distinguishable child entrypoints, and the injected solution can inspect process.argv[1] to behave correctly under acceptance.mjs and intentionally fail only under ground-truth.mjs. A synthetic 24-task corpus exited 0 with 24/24 tasks and 10/10 guards while each injected solution was harness-aware instead of naturally wrong. Relevant code: corpus-selfcheck.mjs lines 113-119 and 230-235.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-24T10:53:20.813Z",
@@ -267,7 +267,11 @@
         "experiments/recovery-runner/corpus-selfcheck.mjs"
       ],
       "signatureTag": "adversarial|mjs|verified-bypass-acceptance",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "accepted_risk (operator decision): corpus-selfcheck validates our SELF-AUTHORED corpus for ACCIDENTAL invariant violations + stratification drift (its real, fulfilled purpose), NOT as a sandbox against a MALICIOUS task author with arbitrary in-process code execution. That threat is out of scope: we author + validate every task (the 20 payloads are genuine subtle bugs, confirmed by the concept lane + codex spot-checks), and this class is fundamentally unblockable by in-process checks (esp. F-013 harness-aware solution) without real execution isolation. Documented as a threat-model boundary in corpus-selfcheck.mjs + README; an execution-isolation hardening is a separate optional follow-up.",
+      "resolvedAt": "2026-06-24T11:15:13.670Z",
+      "resolutionType": "accepted_risk",
+      "resolveEvidenceStrength": "medium"
     },
     {
       "id": "B-e67f:F-014",
