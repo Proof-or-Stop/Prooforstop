@@ -431,14 +431,18 @@
       "desc": "F-003 fix INCOMPLETE — computeBaselineFailures fails OPEN: returns [] when ground-truth.mjs is missing, and treats a DIRTY reference-solution.mjs (one that itself fails ground-truth) as a valid pre-existing baseline failure, so the baseline-vs-post delta masks an UNRESOLVED injected fault => scored recovered. Codex confirmed: no ground-truth => recovered; bad reference => recovered; clean reference+gt => amplified. Fix: for a scenario cell, FAIL CLOSED (infraVoid 'invalid task: missing ground-truth' / 'dirty reference') when ground-truth.mjs is absent OR the clean reference does not PASS ground-truth — never emit a clean 'recovered' from a malformed task/harness. (Our 24-task corpus is clean per corpus-selfcheck, but the engine must be robust.)",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex-host-2",
       "createdAt": "2026-06-24T13:24:14.046Z",
       "reviewRound": "2026-06-24T12:50:13.876Z",
       "_hash": "b9260a530a162052947200e852b8809b997aa387853de89a4e9bf40d21cfd650",
       "signatureTag": "adversarial|unknown|incomplete-computebaselinefailures-fails",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "computeBaselineFailures fail-closed (missing-gt/dirty-ref => infraVoid); STOP-checked all 24 corpus tasks pass (0 falsely voided). Proven vs codex r2 triggers (7/7). Commit 9cce6b071.",
+      "resolvedAt": "2026-06-24T13:33:37.691Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8d44:F-021",
