@@ -54,6 +54,25 @@
       ],
       "signatureTag": "missing|ts|edge-edge-adversarial",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-d243:F-004",
+      "desc": "CHK-003:happy:1 intent: normal fresh delivery-check -> DONE row passes with NO advisory appended. The smoke case (delivery-check-freshness-smoke.ts:212-244) asserts row.status=pass but does not assert that row.detail does NOT contain the advisory string. The evidence note explains the absence via code reasoning (done-oracle.ts only appends advisorySuffix when freshness.advisory is truthy), but there is no pinned assert.doesNotMatch(row.detail, /ADVISORY/) assertion in the smoke. If done-oracle.ts were accidentally changed to always append some advisory text, the CHK-003:happy:1 smoke case would still pass. Advisory suppression on the fresh path is a behavioral invariant worth pinning explicitly.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-24T11:31:37.888Z",
+      "reviewRound": "2026-06-24T11:25:45.889Z",
+      "reviewRunId": "B-d243:RR-003",
+      "_hash": "fd8b1c5aaa8b0236baafb61e77452d454636dca66261aa7caaade29dd81f15df",
+      "files": [
+        "packages/main/src/tasks/delivery-check-freshness-smoke.ts",
+        "packages/main/src/core/done-oracle.ts"
+      ],
+      "signatureTag": "missing|ts|happy-intent-normal",
+      "signatureTagSource": "auto"
     }
   ]
 }
