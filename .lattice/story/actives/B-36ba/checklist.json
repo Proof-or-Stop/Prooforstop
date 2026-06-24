@@ -134,7 +134,50 @@
       "context": "New packages/main/src/tasks/review-escalation-freshness-root-smoke.ts: under BOTH plain and wrapper-root layouts assert floor.materialHash === escalation.materialHash and escalation.{materialHash,storyFilesHash} === currentMaterialHash/currentStoryFilesHash(gitCwd,'HEAD',projectRoot); add a RED-documenting assertion that escalation without gitCwd diverges (null) in wrapper-root, plus a plain-repo no-change regression. Wire an npm script and into the npm test chain.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "New smoke test under plain-repo layout: call evaluateReviewAssuranceFloor and evaluateReviewEscalation with the same (gitCwd === projectRoot) and assert floor.materialHash === escalation.materialHash and escalation.materialHash === currentMaterialHash(gitCwd,\"HEAD\",projectRoot). WHY: plain-repo no-change regression proving floor<->escalation equivalence in the common case.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "New smoke test under wrapper-root layout (git root != metadata/project root): set up a temporary wrapper-root where metadataRoot is a non-git parent and gitCwd is the inner git root, call both evaluators with the same gitCwd -> floor.materialHash === escalation.materialHash and both equal currentMaterialHash(gitCwd,\"HEAD\",projectRoot). WHY: proves wrapper-root equivalence end-to-end.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Smoke test is wired into npm test chain (npm script entry) and passes in CI -> ensures the equivalence assertion runs on every build. WHY: prevents future regressions from breaking the floor<->escalation alignment.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Smoke test covers storyFilesHash equivalence in addition to materialHash: under both plain and wrapper-root layouts assert escalation.storyFilesHash === currentStoryFilesHash(gitCwd,\"HEAD\",projectRoot). WHY: the bug affects both hashes (lines 439 and 440); both must be tested.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Smoke test handles the case where the story has no findings and escalation is not required -> escalation still reports correct materialHash/storyFilesHash even when ok=true and required=false. WHY: most stories do not trigger escalation but must still compute correct hashes for the report.",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "RED-documenting assertion in the smoke test: under wrapper-root layout, call evaluateReviewEscalation WITHOUT gitCwd (only projectRoot = metadataRoot) -> assert materialHash is null or diverges from floor.materialHash, and storyFilesHash is null or diverges from floor.storyFilesHash. WHY: proves that omitting gitCwd in wrapper-root causes the exact divergence the bug describes; the test documents the failure mode and would catch if the fix were reverted.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Plain-repo regression assertion: run the smoke test against a plain repo where gitCwd === projectRoot and confirm that the old code path (no gitCwd field) and the new code path (gitCwd = projectRoot) produce byte-identical results -> no behavioral change for plain repos. WHY: guards against the fix accidentally changing plain-repo semantics.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
