@@ -1,0 +1,36 @@
+{
+  "storyId": "B-1731",
+  "checkedAt": "2026-06-24T14:15:20.865Z",
+  "reviewRound": "",
+  "agentId": "product-reviewer",
+  "issues": [
+    {
+      "severity": "low",
+      "desc": "The story description and background use engineering-heavy language (STORY_INTAKE consumer, proof-admissibility scope) to describe the user-facing outcome. At PLAN time, adding a concrete mock transcript of the warning the operator sees (the actual CLI output when story_create is run for a bug without repro evidence) would make the user-observable value immediately tangible. Not blocking for INIT since the behavioral intent is clear."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-06-24T14:13:26.320Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "medium",
+          "desc": "background.md paragraph 1 references (B-0985/B-0405) as story IDs without a one-sentence explanation of what those stories established, making the background non-standalone for a new reader who does not have context on those story IDs."
+        }
+      ]
+    },
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-24T14:15:20.865Z",
+      "issues": [
+        {
+          "severity": "low",
+          "desc": "The story description and background use engineering-heavy language (STORY_INTAKE consumer, proof-admissibility scope) to describe the user-facing outcome. At PLAN time, adding a concrete mock transcript of the warning the operator sees (the actual CLI output when story_create is run for a bug without repro evidence) would make the user-observable value immediately tangible. Not blocking for INIT since the behavioral intent is clear."
+        }
+      ]
+    }
+  ],
+  "_hash": "ff4943159d27ed4fe256c24411dc277808e235fd225f31cb669df1291626e4b2"
+}
