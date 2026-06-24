@@ -1,0 +1,129 @@
+{
+  "storyId": "B-6c4d",
+  "checkedAt": "2026-06-24T13:04:41.045Z",
+  "features": [
+    {
+      "feature": "Relax id-recency rejection at assertCurrentReviewRunForEvidence (write path, both kinds — pass and finding)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Relax id-recency rejection at validateEvidenceRunBinding (validate path, KIND-AWARE: skip stale_run for passes, keep for open findings)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Freshness check (materialHash + storyFilesHash) remains the staleness authority after id-recency removal",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-files-hash-material-drift.md"
+    },
+    {
+      "feature": "Scope check (compareScopeBinding) remains enforced independently of id-recency",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Add EMPTY_STORY_FILES_HASH no-signal guard to checkEvidenceFreshnessForGit drift-advisory branch (evidence-freshness.ts) for all callers",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Empty stored storyFilesHash (EMPTY_STORY_FILES_HASH sentinel) must fall through to strict materialHash, not enable advisory",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-files-hash-material-drift.md"
+    },
+    {
+      "feature": "Empty live storyFilesHash must fall through to strict materialHash, not enable advisory",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/story-files-hash-material-drift.md"
+    },
+    {
+      "feature": "Add regression smoke: mint two review_run_start on same lane/round/material, bind pass to first run, assert acceptance (no throw, invalid empty)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Confirm flow-stability smoke stays green (open finding still blocks via stale_run, superseded pass + resolved finding still drop)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "npm test (root) passes with no genuine failures (no regression across full test suite)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Write docs/requirements/decisions/review-run-binding-race.md (design decision record documenting the relax, EMPTY guard prerequisite, and all four rejected alternatives)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Reconcile session-ownership-and-write-leases.md so review_run_start, review_pass_set, finding_add are classified as reviewerWrite / lease-exempt matching command-policy.ts",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/session-ownership-and-write-leases.md"
+    },
+    {
+      "feature": "Option A lock-unification (unifying review-runs.lock / review-passes.lock)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Option A lock unification (unifying review-runs.lock / review-passes.lock) — deferred follow-up, not in this change",
+      "source": "description"
+    },
+    {
+      "feature": "keep-strict (no change / no fix)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "keep-strict (no fix)",
+      "source": "description"
+    },
+    {
+      "feature": "Whole-tree materialHash recompute redesign",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Any whole-tree materialHash recompute redesign",
+      "source": "decisions:decisions/story-files-hash-material-drift.md"
+    },
+    {
+      "feature": "Delivery-check drift-advisory (already shipped in friction #1 / B-d243)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "The delivery-check drift-advisory (already shipped in friction #1 / B-d243)",
+      "source": "decisions:decisions/story-files-hash-material-drift.md"
+    }
+  ],
+  "summary": {
+    "total": 16,
+    "covered": 12,
+    "excluded": 4,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "f79b42e9d7ebef3ac1778e080ef950430a227d3e0f609177989ec91698453548",
+  "openQuestions": []
+}
