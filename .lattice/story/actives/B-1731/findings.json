@@ -277,6 +277,24 @@
       ],
       "signatureTag": "adversarial|ts|fresh-validation-pass",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-1731:F-013",
+      "desc": "Fresh skip path swallows checkEvidenceFreshnessForGit warnings. When storyFilesHash matches but whole-tree materialHash drifted, lifecycle/DONE semantics surface a re-attestation warning, while REVIEW->TEST logs only a plain fresh skip.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-24T23:55:09.284Z",
+      "reviewRound": "2026-06-24T23:48:36.362Z",
+      "reviewRunId": "B-1731:RR-037",
+      "_hash": "f4241112e5c37b3ace32721313d50e644ab0ff6fd3215bd1d2b7d82afb91c1b5",
+      "files": [
+        "packages/main/src/handlers/phase-gates.ts"
+      ],
+      "signatureTag": "missing|ts|fresh-skip-path",
+      "signatureTagSource": "auto"
     }
   ]
 }
