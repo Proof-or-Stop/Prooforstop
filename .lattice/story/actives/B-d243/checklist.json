@@ -460,6 +460,17 @@
           "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
           "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
           "timestamp": "2026-06-24T11:21:49.897Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/delivery-check-freshness-smoke.js && npm test",
+          "result": "pass",
+          "note": "Smoke exits 0 with \"delivery-check-freshness smoke passed\" (verified by running node packages/main/dist/tasks/delivery-check-freshness-smoke.js). npm test (root) exits 0 with ALL PASS across cli-e2e, experience-coverage-gap-smoke, done-merge-experience-refresh-smoke, nested-worktree-bootstrap, and 5 recovery-runner selfchecks. No regressions from the re-fixturing. Both commands verified by running them and confirming exit 0.",
+          "headHash": "392e78c165c18a23f74513e41269437b21d48822",
+          "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
+          "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
+          "timestamp": "2026-06-24T11:21:59.656Z"
         }
       ]
     },
