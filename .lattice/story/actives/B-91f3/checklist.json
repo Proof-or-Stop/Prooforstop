@@ -162,9 +162,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-24T13:35:57.725Z",
-      "endTime": null,
+      "endTime": "2026-06-24T13:35:58.355Z",
       "userSees": "User sees: \"Proof vocabulary is CLI-first: evidenceScope and local assurance are primary; productionDone is legacy/external false by default.\"",
       "files": {
         "modify": [
@@ -193,7 +193,44 @@
             "type": "docs"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/proof-admissibility-smoke.js && node packages/main/dist/tasks/proof-admissibility-hardening-smoke.js",
+          "result": "pass",
+          "note": "Smoke tests cover local evidenceScope/admissibility behavior, Authority receipt demotion, and checker-error diagnostic vocabulary.",
+          "headHash": "8ca5961d9f0ad02d65e4c74e58114a3052dd3e64",
+          "materialHash": "5cc8fc3c312db6940d74e58dcb390b5823b78a89c6ec66749dc9aad5bd2c2a48",
+          "storyFilesHash": "7310f4ead675e1ea32af2b108822bde528e414767ca23feda77413feeac022e7",
+          "timestamp": "2026-06-24T13:35:58.572Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "command": "if rg -n \"[\\p{Han}]\" docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md; then exit 1; else echo no Chinese text remains; fi",
+          "result": "pass",
+          "note": "Appendix C.1.1/D/E/F/G are normalized to English host-neutral wording.",
+          "headHash": "8ca5961d9f0ad02d65e4c74e58114a3052dd3e64",
+          "materialHash": "5cc8fc3c312db6940d74e58dcb390b5823b78a89c6ec66749dc9aad5bd2c2a48",
+          "storyFilesHash": "7310f4ead675e1ea32af2b108822bde528e414767ca23feda77413feeac022e7",
+          "timestamp": "2026-06-24T13:35:58.752Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "command": "lattice gap_analyze {\"format\":\"json\"}",
+          "result": "pass",
+          "note": "gap_analyze reports 0 high gaps after wording changes, proving convergence was not preserved by deleting requirements or weakening controls.",
+          "headHash": "8ca5961d9f0ad02d65e4c74e58114a3052dd3e64",
+          "materialHash": "5cc8fc3c312db6940d74e58dcb390b5823b78a89c6ec66749dc9aad5bd2c2a48",
+          "storyFilesHash": "7310f4ead675e1ea32af2b108822bde528e414767ca23feda77413feeac022e7",
+          "timestamp": "2026-06-24T13:35:58.940Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
