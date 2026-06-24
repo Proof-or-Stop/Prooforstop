@@ -25,7 +25,7 @@
       "desc": "CHK-002:happy:1 and CHK-002:happy:2 (both cli/must): each intent requires invoking the DONE-readiness path of StoryMachine (canFinishGuard at machine.ts ~639 and getGuardFailureReason at machine.ts ~1140) under a wrapper-root layout and asserting escalation.materialHash === floor.materialHash. The evidence for both is kind=logic_test (code inspection of machine.ts), not a cli execution under a wrapper-root layout. CHK-002:happy:0 uses done-oracle-wrapper-root-smoke.js which covers the done-oracle.ts call site, but the two machine.ts call sites are only verified by static inspection. The cli/must intents for these two machine.ts paths are not fulfilled by logic_test inspection evidence.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-24T02:00:47.779Z",
@@ -36,7 +36,8 @@
         "packages/main/src/core/machine.ts"
       ],
       "signatureTag": "missing|ts|happy-happy-both",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-06-24T02:16:06.365Z"
     }
   ]
 }
