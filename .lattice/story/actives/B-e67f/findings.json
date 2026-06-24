@@ -278,7 +278,7 @@
       "desc": "CHK-002:adversarial:0 and CHK-002:edge:0 evidence notes say \"8/8 guards fire\" and enumerate only 8 controls (correct-solution-not-caught / harness-tamper / missing-file / stray-file / missing-payload / 25-tasks / unknown-category / wrong-count) but the live corpus-selfcheck.mjs now runs 10 controls: controls 9 (F-009: source-dir-harness tamper via INJECT_SOURCE_TAMPER) and 10 (F-010: NODE_OPTIONS env-preload spoof via INJECT_ENV_SPOOF) were added by commit dedb8d0c68 and are confirmed firing (live run: 10/10 guards fire). The adversarial verificationIntent descriptions do not name either exploit. This is documentation drift: the command bound to these intents (node experiments/recovery-runner/corpus-selfcheck.mjs) does exercise all 10 controls and exits 0 only when all fire, so functional coverage is present. However the evidence note description understates the actual guard set. No must-intent is unexecuted; severity is low (not a blocker).",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-24T10:54:55.828Z",
@@ -289,7 +289,11 @@
         "experiments/recovery-runner/corpus-selfcheck.mjs"
       ],
       "signatureTag": "missing|mjs|adversarial-edge-evidence",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Evidence notes for CHK-002:edge:0 + CHK-002:adversarial:0 updated 8/8 -> 10/10 to match the current negative-control count. Cosmetic note drift only; the bound command always ran all controls.",
+      "resolvedAt": "2026-06-24T11:15:20.506Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-e67f:F-015",
