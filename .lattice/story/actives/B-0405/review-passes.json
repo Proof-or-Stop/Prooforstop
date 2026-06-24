@@ -71,6 +71,15 @@
       "reviewRound": "2026-06-24T11:58:15.113Z",
       "reviewRunId": "B-0405:RR-021",
       "_hash": "21fd31843d34b6ec1b7a9ca8b8a4f5b832e336d8add06065e93d77771bb9dfad"
+    },
+    {
+      "id": "B-0405:RP-009",
+      "agent": "lattice-review-concept",
+      "note": "Focused re-review after F-004/F-005 resolution: conceptual boundaries still hold. Local/review/handoff assurance remains non-Authority and keeps receiptVerified/authorityDone/fullAuthorityDone/productionDone false unless a matching Authority gate receipt is consumed. Enforce mode now folds inadmissible high-risk proof diagnostics into review escalation/review assurance/handoff blocking while warn mode remains advisory. Legacy/local/handoff evidence is downgraded to legacy/local-diagnostic/evidence-candidate classifications and cannot satisfy production-completion claims. Verified with npm --prefix packages/main run build; npm --prefix packages/main run test:proof-admissibility; npm --prefix packages/main run test:proof-admissibility-hardening; node scripts/verify-process-fact-contract.mjs.",
+      "createdAt": "2026-06-24T12:01:37.443Z",
+      "reviewRound": "2026-06-24T11:58:15.113Z",
+      "reviewRunId": "B-0405:RR-018",
+      "_hash": "b40cc3f107d0af02a1a46e19c8351fb8c0d3971dd820aa170c6b02cf025c11bd"
     }
   ]
 }
