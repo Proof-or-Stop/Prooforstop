@@ -14,7 +14,29 @@
   "protectedFiles": [],
   "explicitExcludes": [],
   "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "codex-main",
+      "reason": "REV-11 requires changing the gate diagnostic boundary so checker failures are overall=error, warning-only, and never consumed as admissible proof.",
+      "timestamp": "2026-06-24T13:27:01.721Z",
+      "paths": [
+        "packages/main/src/core/proof-admissibility-gates.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/proof-admissibility-gates.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "5d895b15532330a9e9adb2281879163ed8b555b7",
+      "materialHash": "6543dd2592d6e8342e2d0a2da6903e044cd0fdb5c57cd8e80a98eb7d6ba3b102",
+      "anchors": [
+        "buildProofAdmissibilityDiagnostic",
+        "ProofAdmissibilityDiagnostic.overall",
+        "checker_error"
+      ]
+    }
+  ],
   "createdAt": "2026-06-24T13:24:41.873Z",
-  "updatedAt": "2026-06-24T13:24:41.873Z"
+  "updatedAt": "2026-06-24T13:27:01.721Z"
 }
