@@ -24,7 +24,6 @@ export interface ProofAdmissibilityDiagnostic {
   blocking: boolean;
   reasons: string[];
   remediation: string[];
-  error?: string;
 }
 
 export function resolveProofAdmissibilityMode(projectRoot?: string): ProofAdmissibilityMode {

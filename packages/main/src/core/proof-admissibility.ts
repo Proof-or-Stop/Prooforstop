@@ -604,15 +604,13 @@ export function evaluateProofAdmissibility(input: EvaluateProofAdmissibilityInpu
    * @type feature
    * @priority high
    * @description
-   *   AND supportedSchemaVersion maps checks.schemaVersion to each registry schemaVersions list.
-   *   AND supportedVerifierVersion maps checks.verifierVersion to PROOF_ADMISSIBILITY_VERIFIER_VERSION.
-   *   AND supportedContractVersion maps checks.contractVersion to PROOF_ADMISSIBILITY_CONTRACT_VERSION.
-   *   AND verifierVersionSupported is the ledger-consumption alias for AND supportedVerifierVersion.
-   *   AND contractVersionSupported is the ledger-consumption alias for AND supportedContractVersion.
-   *   unsupported_schema_version, unsupported_contract_version, and unsupported_verifier_version are deterministic proof-admissibility reason codes.
+   *   supportedSchemaVersion maps checks.schemaVersion to each registry schemaVersions list.
+   *   verifierVersionSupported maps checks.verifierVersion to PROOF_ADMISSIBILITY_VERIFIER_VERSION.
+   *   contractVersionSupported maps checks.contractVersion to PROOF_ADMISSIBILITY_CONTRACT_VERSION.
+   *   unsupported_schema_version and unsupported_contract_version are deterministic proof-admissibility reason codes.
    * @changes
-   *   - [CHK-002] Add AND supportedSchemaVersion, AND supportedVerifierVersion, AND supportedContractVersion, AND verifierVersionSupported, and AND contractVersionSupported implementation anchors.
-   *   - [CHK-003] Bind unsupported_schema_version, unsupported_contract_version, and unsupported_verifier_version reason-code coverage to smoke tests.
+   *   - [CHK-002] Add supportedSchemaVersion, verifierVersionSupported, and contractVersionSupported implementation anchors.
+   *   - [CHK-003] Bind unsupported_schema_version and unsupported_contract_version reason-code coverage to smoke tests.
    */
   if (checks.verifierVersion == null) {
     addReason(reasons, remediation, 'missing_required_field', 'Evaluate the artifact with the current proof admissibility verifier version.');

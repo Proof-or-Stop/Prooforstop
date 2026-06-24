@@ -330,7 +330,6 @@ function validGateProof(overrides: Record<string, unknown> = {}): Record<string,
     },
   });
   assert.equal(enforced.blocking, true, 'M7 enforce mode blocks high-risk inadmissible proof consumer');
-
 }
 
 {
