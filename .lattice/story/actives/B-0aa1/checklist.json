@@ -72,9 +72,9 @@
         "docs/requirements/decisions/repro-first-story-intake-experiment.md",
         "docs/evidence/evidence-platform-architecture.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-24T04:17:18.821Z",
       "userSees": "repro_review_set, spike_record, spike_review_set, and red_green_relation_evaluate print candidate stage/status summaries without marking any story DONE.",
       "files": {
         "modify": [],
@@ -111,7 +111,21 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/core/repro-intake.ts",
+          "command": "node packages/main/dist/tasks/repro-first-candidate-smoke.js",
+          "result": "pass",
+          "note": "Full candidate workflow: probe→review→spike→relation→evaluate→matrix→story_create_from_repro all pass",
+          "headHash": "b94d2228c274d33b1a4b5553236c8e5f118a8d4b",
+          "materialHash": "30bd1828d818594f03f863a6ea80dac3c0012ac667812c625556957db43f23e1",
+          "storyFilesHash": "214a4d712d3db85052732add2534548a4ac429c74de2afddb50dc39941b70a01",
+          "timestamp": "2026-06-24T04:17:18.998Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
