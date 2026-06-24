@@ -18,6 +18,25 @@
       ],
       "signatureTag": "adversarial|ts|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-0985:F-002",
+      "desc": "packages/main/src/core/proof-admissibility.ts:532: evaluateProofAdmissibility fails open when required checks are omitted. For authority-receipt-ref + DONE + production-completion, an empty checks object (or no checks) skips schema/shape/digest/signature/subject/producer/material requirements because the code only adds reasons when optional fields are explicitly false or mismatched. Repro: node --input-type=module -e \"import { evaluateProofAdmissibility } from './packages/main/dist/core/proof-admissibility.js'; console.log(evaluateProofAdmissibility({artifactKind:'authority-receipt-ref',consumer:'DONE',claim:'production-completion'}))\" returns allowed=true and productionDoneEligible=true with reasons=[]. This violates the plan admissibleProof conjunction and productionDone boundary: production-gate-decision should only be productionDone eligible after current schema, strict shape, semantic digest, signature/receipt, subject, producer, and temporal/material bindings are affirmatively valid. Add negative smoke coverage for missing checks and fail closed with missing_required_field/clause_not_bound (or equivalent structured reasons).",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-24T10:15:25.569Z",
+      "reviewRound": "2026-06-24T10:13:41.196Z",
+      "reviewRunId": "B-0985:RR-001",
+      "_hash": "c1d1bb2ba9dc378a242af39f53ba2c4e242072655cec8f9b2c336415e5a53f6d",
+      "files": [
+        "packages/main/src/core/proof-admissibility.ts",
+        "packages/main/src/tasks/proof-admissibility-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
