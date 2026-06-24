@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-24T02:45:40.407Z",
       "reviewRunId": "B-70e4:RR-008",
       "_hash": "edf5041b661b9b2349739b9c8e5c3200f386fab01dfdfa099fe00c78b8ec47b3"
+    },
+    {
+      "id": "B-70e4:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "Independently verified all fetchGateReceiptProof call sites in source (grep -rn fetchGateReceiptProof packages/). Exactly 4 behavioral call sites exist: (1) authority-enforce.ts:208 via loadProof — resolveAuthorityClientAuth(process.env) as 4th arg, authenticated, CLEAN; (2) authority-live-receipt-ref-gate-smoke.ts:862 — new AuthorityClient(liveURL, undefined, undefined, { customerApiKey: input.ctx.customerApiKey }), authenticated (fixed in prior round), CLEAN; (3) authority-receipt-proof-smoke.ts:426 — now has { customerApiKey: test-customer-key } as 4th arg per commit a8faba566, CLEAN; (4) authority-receipt-proof-smoke.ts:431 — same authenticated client as line 425, absolute-URL rejection test, CLEAN. The unauthed constructions in authority-receipt-proof-auth-smoke.ts:142/158 are intentional negative-path assertions (assert outcome.ok===false, called===false — fail-closed). No other source file calls fetchGateReceiptProof (evidence-live-wiring-smoke, evidence-upload-loop-smoke, authority-enforce-matrix-smoke, authority-live-python-smoke confirmed zero). No concept residue, no new blocker.",
+      "createdAt": "2026-06-24T02:47:14.944Z",
+      "reviewRound": "2026-06-24T02:45:40.407Z",
+      "reviewRunId": "B-70e4:RR-007",
+      "_hash": "e236710b50f89665ae4d9bdef9eb0e62f43aff33d131cf91f10425722a0e35a8"
     }
   ]
 }
