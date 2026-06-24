@@ -369,11 +369,11 @@
           "file": "experiments/recovery-runner/corpus-selfcheck.mjs",
           "command": "node experiments/recovery-runner/corpus-selfcheck.mjs",
           "result": "pass",
-          "note": "corpus-selfcheck per task: reference => ACCEPT PASS + GROUND-TRUTH PASS, then canonical inject() => ACCEPT PASS + GROUND-TRUTH FAIL (the passes-acceptance-but-fails-ground-truth anti-gaming invariant); a no-op/undetected injection fails the check; 24/24 pass",
-          "headHash": "5b170211a28adf3a2afbe46cbfd5ebb13cb1938c",
-          "materialHash": "9f28b82c91a9d14b0bfcf1aef3a30137f791cf3546df8978a7ad59d8ada25b33",
-          "storyFilesHash": "aed6666624846d734a34433306144b48ef4dd03e1dc39ea9ff8f89e19fcf3376",
-          "timestamp": "2026-06-24T10:16:10.076Z"
+          "note": "corpus-selfcheck now runs a built-in negative-control self-test that constructs synthetic gamed corpora and asserts the real guards REJECT each mutation (correct-solution-not-caught / harness-tamper / missing-file / stray-file / missing-payload / 25-tasks / unknown-category / wrong-count) — prints 'negative-control self-test: 8/8 guards fire'; the mutation is actually exercised, not asserted in prose",
+          "headHash": "6c2c4378da080b3c9a04ee34324597e96152b460",
+          "materialHash": "03ac2ae4cf90a681ead16a78c7ebfe7f00d258c49a17397a78706c19c1cc25d8",
+          "storyFilesHash": "bf5cea6e9a648fc109da08133396f55860337c7e23ecf5053dd8e144115c43e0",
+          "timestamp": "2026-06-24T10:34:24.504Z"
         },
         {
           "intentRef": "CHK-002:edge:2",
