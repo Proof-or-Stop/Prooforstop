@@ -107,6 +107,15 @@
       "reviewRound": "2026-06-24T15:12:05.913Z",
       "reviewRunId": "B-6c4d:RR-018",
       "_hash": "1ec19b3e97bfe16133631681ea771f69aaefbdfcd902da69249cead05c1a5bc9"
+    },
+    {
+      "id": "B-6c4d:RP-013",
+      "agent": "lattice-review-concept",
+      "note": "Round-5 concept residue check complete. The round-5 commit (2aef97e1e) changed only CLAUDE.md line 831, replacing the stale universal current-latest-run policy claim with the correct kind-aware description (FINDING-only). Grep confirms: (1) no stale universal current-latest-run policy claim survives in any active source/doc; (2) the one remaining occurrence of \"current-latest run\" in CLAUDE.md:831 is correctly scoped to \"for an open FINDING only\"; (3) review-run.ts:807 implements the kind-aware gate (evidence.kind !== \"pass\" condition); (4) flow-fact-policy.ts:36 and process-fact-levels.ts:324 both carry the correct kind-aware rationale; (5) evidence-freshness.ts has the EMPTY_STORY_FILES_HASH guard; (6) decision doc review-run-binding-race.md correctly documents the KIND-AWARE relaxation. No concept deletion/replacement introduced; no residue blocker found.",
+      "createdAt": "2026-06-24T15:13:44.533Z",
+      "reviewRound": "2026-06-24T15:12:05.913Z",
+      "reviewRunId": "B-6c4d:RR-017",
+      "_hash": "4c15c986c8f89d98ea5dd52e22e369839b63b23f41a510d508a5c0b1d742d792"
     }
   ]
 }
