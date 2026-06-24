@@ -89,6 +89,15 @@
       "reviewRound": "2026-06-24T11:58:15.113Z",
       "reviewRunId": "B-0405:RR-020",
       "_hash": "51f459fc7a36a4d4bbef18784e885ddf111b5857d5323baaebb6c7b62a13a791"
+    },
+    {
+      "id": "B-0405:RP-011",
+      "agent": "lattice-review-quality",
+      "note": "Focused re-review after F-006: build, proof-admissibility smoke, proof-admissibility-hardening smoke, process fact contract, git diff --check, and lattice validate --story=B-0405 --json all pass; finding_list shows F-001..F-005 resolved and F-006 is the only open issue. review_escalation_status still reports stale prior quorum verdicts for current material 923ad919c3ba509a25243f28d0b60a236866050a79a73b478ce4b24568baa7d0 with authorityDone/fullAuthorityDone/productionDone false. This pass confirms non-quorum quality concerns are clean and enables a fresh local quorum_submit to bind the final material after current reviewer passes; it does not claim the quorum is already fresh.",
+      "createdAt": "2026-06-24T12:07:27.493Z",
+      "reviewRound": "2026-06-24T11:58:15.113Z",
+      "reviewRunId": "B-0405:RR-022",
+      "_hash": "22e02d11e0cb5a2180c645259433604d89afae635200e6e7b7291af97521e604"
     }
   ]
 }
