@@ -124,6 +124,20 @@
       "_hash": "68d7338e935fee2fc2ab41468d8e3c651960c89bf51768b5c8749b572b7755cc",
       "signatureTag": "adversarial|unknown|corpus-selfcheck-anti",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-e67f:F-008",
+      "desc": "corpus-selfcheck is not reentrant: SCRATCH is a fixed global path (tmpdir()/corpus-selfcheck-scratch) rmSync'd at startup, so two concurrent runs collide (reproduced: one process exits 1 with ENOTEMPTY at the startup rmSync, the other passes). Fix: use mkdtempSync(join(tmpdir(),'corpus-selfcheck-')) for a unique per-run scratch dir.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex-host-2",
+      "createdAt": "2026-06-24T10:27:41.055Z",
+      "reviewRound": "2026-06-24T10:16:50.255Z",
+      "_hash": "7493f1fbf1184fa2e337f50053097d27986598a50dd0912e457dae82a73d4429",
+      "signatureTag": "edge|unknown|corpus-selfcheck-reentrant",
+      "signatureTagSource": "auto"
     }
   ]
 }
