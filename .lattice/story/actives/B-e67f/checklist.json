@@ -206,11 +206,11 @@
           "file": "experiments/recovery-runner/corpus-selfcheck.mjs",
           "command": "node experiments/recovery-runner/corpus-selfcheck.mjs",
           "result": "pass",
-          "note": "corpus-selfcheck enumerates all 24 task dirs and asserts the 7-file contract (6 always-present + inline-or-file payload) + well-formed task.json per task; 24/24 pass => the 20 new dirs were applied correctly alongside the existing 4",
-          "headHash": "3d9d4139d6448cf6e13b152519535956c71688b2",
-          "materialHash": "9f28b82c91a9d14b0bfcf1aef3a30137f791cf3546df8978a7ad59d8ada25b33",
-          "storyFilesHash": "aed6666624846d734a34433306144b48ef4dd03e1dc39ea9ff8f89e19fcf3376",
-          "timestamp": "2026-06-24T10:15:53.042Z"
+          "note": "corpus-selfcheck now asserts payload-subtle.mjs EXISTS for every task whose subtle-wrong-output.mjs references it (the full 7-file contract for all 20 new tasks + eval-expr); inline-payload legacy tasks correctly exempt; negative-control 'missing-payload-file' guard fires",
+          "headHash": "b5c4b5f97b93a229831522ef0467097d5a7c888f",
+          "materialHash": "03ac2ae4cf90a681ead16a78c7ebfe7f00d258c49a17397a78706c19c1cc25d8",
+          "storyFilesHash": "bf5cea6e9a648fc109da08133396f55860337c7e23ecf5053dd8e144115c43e0",
+          "timestamp": "2026-06-24T10:34:17.946Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
