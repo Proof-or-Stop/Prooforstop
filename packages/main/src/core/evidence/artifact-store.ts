@@ -72,15 +72,35 @@ function computeDigest(obj: unknown): string {
     .digest('hex');
 }
 
-function digestSubject<TPayload>(opts: CreateArtifactOptions<TPayload>): unknown {
+interface ArtifactDigestSubject<TPayload> {
+  artifactKind: ArtifactKind;
+  schemaVersion: string;
+  producer: string;
+  evidenceScope: EvidenceScope;
+  subjectBinding: SubjectBinding;
+  payload: TPayload;
+}
+
+function artifactDigestSubject<TPayload>(subject: ArtifactDigestSubject<TPayload>): ArtifactDigestSubject<TPayload> {
   return {
+    artifactKind: subject.artifactKind,
+    schemaVersion: subject.schemaVersion,
+    producer: subject.producer,
+    evidenceScope: subject.evidenceScope,
+    subjectBinding: subject.subjectBinding,
+    payload: subject.payload,
+  };
+}
+
+function digestSubject<TPayload>(opts: CreateArtifactOptions<TPayload>): ArtifactDigestSubject<TPayload> {
+  return artifactDigestSubject({
     artifactKind: opts.artifactKind,
     schemaVersion: EVIDENCE_SCHEMA_VERSION,
     producer: opts.producer ?? 'repro-intake',
     evidenceScope: opts.evidenceScope,
     subjectBinding: opts.subjectBinding,
     payload: opts.payload,
-  };
+  });
 }
 
 function generateArtifactId(kind: ArtifactKind): string {
@@ -152,14 +172,14 @@ export function readArtifact<TPayload>(
 
 /** Verify that a stored artifact digest matches expected. */
 export function verifyArtifactDigest(artifact: EvidenceArtifact<unknown>, expectedDigest: string): boolean {
-  const recomputed = computeDigest({
+  const recomputed = computeDigest(artifactDigestSubject({
     artifactKind: artifact.artifactKind,
     schemaVersion: artifact.schemaVersion,
     producer: artifact.producer,
     evidenceScope: artifact.evidenceScope,
     subjectBinding: artifact.subjectBinding,
     payload: artifact.payload,
-  });
+  }));
   return recomputed === expectedDigest && artifact.artifactDigest === expectedDigest;
 }
 
