@@ -104,9 +104,9 @@
       "id": "CHK-003",
       "title": "Add a regression smoke for the binding race and confirm flow-stability semantics hold",
       "context": "A test that mints two review_run_start on one lane (same round, same material), binds a pass to the FIRST, and asserts it is ACCEPTED (assertCurrentReviewRunForEvidence returns; collectReviewerEvidenceState invalid empty) while genuinely material-drifted and empty-signal runs still hard-reject; plus confirm flow-stability-smoke stays green (open finding still blocks via stale_run, superseded pass + resolved finding still drop). Reference /tmp/friction2-runbind-fix/redgreen-spike-test.ts.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-24T13:09:24.966Z",
-      "endTime": null,
+      "endTime": "2026-06-24T13:57:44.024Z",
       "verificationIntent": {
         "happy": [
           {
