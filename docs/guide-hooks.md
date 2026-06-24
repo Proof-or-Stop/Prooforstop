@@ -1,10 +1,10 @@
-# Lattice Hooks Guide
+# Proofbound Hooks Guide
 
-Lattice exposes 4 event points in every command's lifecycle and lets you configure shell hook commands in `lattice.config.json`. The design is inspired by Claude Code's PreToolUse / PostToolUse / SessionStart / Stop mechanism, and its goal is to decouple "things the agent wants to do after a command finishes" from the Lattice framework core.
+Proofbound exposes 4 event points in every command's lifecycle and lets you configure shell hook commands in `lattice.config.json`. The design is inspired by Claude Code's PreToolUse / PostToolUse / SessionStart / Stop mechanism, and its goal is to decouple "things the agent wants to do after a command finishes" from the Proofbound framework core.
 
 ## Claude Code Prompt Reminder
 
-Lattice initialization merges a Claude Code `UserPromptSubmit` hook into `.claude/settings.json`:
+Proofbound initialization merges a Claude Code `UserPromptSubmit` hook into `.claude/settings.json`:
 
 ```json
 {
@@ -30,13 +30,13 @@ This hook is only a soft reminder: it locates the repository from the hook JSON'
 Run lattice session_brief first to restore context
 ```
 
-The threshold can be adjusted with `LATTICE_SESSION_BRIEF_FRESH_MINUTES`. Malformed stdin, a missing activity file, and single-line parse failures all exit zero and must never block the user's prompt. Claude Code hooks/settings belong only to `.claude/`; Lattice init does not create `.lattice-codex/hooks` or `.lattice-codex/settings.json`.
+The threshold can be adjusted with `LATTICE_SESSION_BRIEF_FRESH_MINUTES`. Malformed stdin, a missing activity file, and single-line parse failures all exit zero and must never block the user's prompt. Claude Code hooks/settings belong only to `.claude/`; Proofbound init does not create `.lattice-codex/hooks` or `.lattice-codex/settings.json`.
 
 ## When to Use
 
 - After the agent runs `story_advance phase=DEV`, automatically run `git fetch origin main && git merge`
 - When a command errors, push the error log to Slack / WeCom / Telegram
-- Observer-style tools that want real-time notifications when the Lattice state changes (more elegant than polling activity.jsonl)
+- Observer-style tools that want real-time notifications when the Proofbound state changes (more elegant than polling activity.jsonl)
 - Automatically back up the fixture directory before entering the TEST phase
 - Copy the understanding/decision JSON to an external archive when leaving the PLAN phase
 
@@ -87,14 +87,14 @@ Each hook command receives the full `process.env` through `child_process.spawn`,
 
 | Variable | Stages it appears in | Meaning |
 |---|---|---|
-| `LATTICE_STAGE` | all | legacy env var; the current Lattice stage name (`preCommand`/`postCommand`/`onError`/`onPhaseChange`) |
-| `LATTICE_COMMAND` | all | legacy env var; the current Lattice command name (e.g. `story_advance`) |
+| `LATTICE_STAGE` | all | legacy env var; the current Proofbound stage name (`preCommand`/`postCommand`/`onError`/`onPhaseChange`) |
+| `LATTICE_COMMAND` | all | legacy env var; the current Proofbound command name (e.g. `story_advance`) |
 | `LATTICE_CWD` | all | legacy env var; the process cwd when the hook fired |
-| `LATTICE_ROOT` | all | legacy env var; the current Lattice project root (after `--root` resolution) |
+| `LATTICE_ROOT` | all | legacy env var; the current Proofbound project root (after `--root` resolution) |
 | `LATTICE_ARGS_JSON` | preCommand / postCommand / onError | legacy env var; the argument JSON passed to the handler (truncated to 8KB) |
 | `LATTICE_RESULT_JSON` | postCommand | legacy env var; the handler return value JSON (truncated to 8KB) |
 | `LATTICE_ERROR` | onError | legacy env var; the error.message string |
-| `LATTICE_STORY_ID` | onPhaseChange + any stage when an active story exists | legacy env var; the current Lattice story id (`B-xxxx`) |
+| `LATTICE_STORY_ID` | onPhaseChange + any stage when an active story exists | legacy env var; the current Proofbound story id (`B-xxxx`) |
 | `LATTICE_PHASE` | any stage when an active story exists | legacy env var; the current phase (at the time the hook runs) |
 | `LATTICE_OLD_PHASE` | onPhaseChange | legacy env var; the phase before the transition |
 | `LATTICE_NEW_PHASE` | onPhaseChange | legacy env var; the phase after the transition |
@@ -125,7 +125,7 @@ Each hook command receives the full `process.env` through `child_process.spawn`,
 }
 ```
 
-This is hooked into preCommand rather than postCommand because merging after the advance could produce conflicts the agent cannot see. A failing preCommand does not block either, but it at least surfaces the conflict in the Lattice command's stderr.
+This is hooked into preCommand rather than postCommand because merging after the advance could produce conflicts the agent cannot see. A failing preCommand does not block either, but it at least surfaces the conflict in the Proofbound command's stderr.
 
 ### Example 2: Trigger a Telegram notification on onPhaseChange
 
@@ -189,7 +189,7 @@ Mind the shell escaping—this is fine for simple cases, but for anything comple
 
 ## Cooperation with the Stale-detector
 
-`lattice doctor` now also aggregates `hook:*` health issues, which together with the `stale-detector`'s stderr warnings form Lattice's "self-observation" system:
+`lattice doctor` now also aggregates `hook:*` health issues, which together with the `stale-detector`'s stderr warnings form Proofbound's "self-observation" system:
 
 - stale-detector: proactively prints soft reminders before each command runs (phase stuck / item stuck in_progress / idle lattice / open bug overdue)
 - hook: spawns user scripts at event points, leaving a trail in the legacy runtime health path `~/.lattice/health.jsonl`

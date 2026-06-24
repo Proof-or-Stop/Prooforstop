@@ -2,11 +2,11 @@
 
 ## Goal
 
-Rename active Legacy role identifiers to Lattice role identifiers across the
+Rename active Legacy role identifiers to Proofbound role identifiers across the
 agent, reviewer, runtime, and documentation surfaces that teach or consume
 role IDs. While doing that cleanup, also rename active user-visible verifier
 dirty-gate vocabulary plus generated managed-block markers that would otherwise
-keep teaching Lattice as the current product surface. This is not a global
+keep teaching Proofbound as the current product surface. This is not a global
 removal of every historical `Lattice` or `lattice` token.
 
 This file is the handoff document for story `B-ffa2`. It intentionally contains
@@ -75,7 +75,7 @@ Active cleanup targets are surfaces that a current host, reviewer, command, or
 operator can copy, invoke, or treat as process evidence. They should use only
 the `lattice-*` role IDs after this migration.
 
-Legacy or compatibility text may keep Lattice wording only when it is clearly not
+Legacy or compatibility text may keep Proofbound wording only when it is clearly not
 teaching active role invocation:
 
 - archived material under `docs/lattice/**` and legacy root-markdown copies;
@@ -84,7 +84,7 @@ teaching active role invocation:
 - runtime compatibility paths and variables that are still real on disk or in
   user environments.
 
-When a remaining Lattice reference is kept, the surrounding prose should make the
+When a remaining Proofbound reference is kept, the surrounding prose should make the
 reason clear: historical archive, runtime compatibility, or old data migration.
 Do not leave an unlabelled active instruction such as "spawn
 `lattice-review-quality`" in current docs or prompts.
@@ -100,7 +100,7 @@ Do not leave an unlabelled active instruction such as "spawn
   audit config, traces, or artifact registry entries as part of the role-ID
   rename. `.lattice` path migration is a separate storage/runtime compatibility
   project.
-- Do not rewrite archive docs simply to erase the word Lattice. Archive material
+- Do not rewrite archive docs simply to erase the word Proofbound. Archive material
   should remain truthful and may be labelled legacy where needed.
 - Do not re-enable `lattice.config.json` as an active config fallback. Current
   active config behavior is Lattice-only: `lattice.config.json` is canonical and
@@ -112,7 +112,7 @@ Do not leave an unlabelled active instruction such as "spawn
   sections. New generated assets should use `lattice:start/end`; old projects
   should remain readable and safely upgradeable.
 - Do not touch `docs/story/**` or `tests/fixtures/**` directly. Story and
-  fixture changes must go through Lattice commands when needed.
+  fixture changes must go through Proofbound commands when needed.
 
 ## Rollout by Checklist
 
@@ -140,7 +140,7 @@ specific read-only legacy migration path requires explicit normalization.
 
 ### CHK-004 - active docs, audits, and tests
 
-Update active docs and tests that still teach or assert Lattice role IDs or active
+Update active docs and tests that still teach or assert Proofbound role IDs or active
 Lattice-branded validation vocabulary. Preserve or label historical/archive
 references instead of performing a blind repository rename. Keep runtime
 compatibility docs accurate for `LATTICE_*`, `.lattice`, old signed salts, and old

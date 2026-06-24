@@ -26,7 +26,7 @@ This project uses software engineering to manage the automated generation, optim
 
 ---
 
-## Lattice CLI Rollout
+## Proofbound CLI Rollout
 
 `lattice` is the current command entry point and the only active product command. For local project development, inspection, and restoring context, prefer:
 
@@ -38,7 +38,7 @@ lattice host status --host=claude-code --format=json
 lattice rollout_check --projects /path/to/project --json
 ```
 
-After developing the Lattice CLI itself, the local/global refresh flow is:
+After developing the Proofbound CLI itself, the local/global refresh flow is:
 
 ```bash
 npm --prefix packages/main run build
@@ -57,7 +57,7 @@ lattice rollout_check --projects "$(pwd)" --json
 
 | Mode | When to use | CLI behavior | Production authority? |
 |------|----------|----------|------------------------|
-| `off` (default) | Normal local Lattice story development, **free and purely local**. | No network requests at all; local evidence and DONE gate behavior are unchanged. | No: `productionDone=false`, `receiptVerified=false`. |
+| `off` (default) | Normal local Proofbound story development, **free and purely local**. | No network requests at all; local evidence and DONE gate behavior are unchanged. | No: `productionDone=false`, `receiptVerified=false`. |
 | `shadow` | You want to observe the Python authority's responses while keeping local behavior. | Best-effort observational POST; on failure, only a stderr warning, with no effect on the local write. | No: the transport's `accepted: true` is `thin-client-transport-accepted`, not a signed receipt. |
 | `enforce` | Isolated headless runner / Authority job path, which **requires** a Python authority server + customer API key + a registered actor key + runner identity + project id + pinned server key. | `authority enforce runner --dry-run` projects readiness; `--live` signs the native envelope, registers/heartbeats the runner, optionally reads `/v1/runners/{runnerId}/jobs/stream` as a `jobs.available` notification hint, and then always uses the signed claim endpoint for jobs. Authority job execution consumes typed `plannedSteps[]`, uploads evidence, requests server `gate_decision`, verifies the native receipt, and then completes or releases the lease according to policy. | Only a signature-verified native `gate_decision` receipt can support per-run `authorityDone`; `fullAuthorityDone` also requires final multi-host certification. Runner heartbeat, jobs-stream hints, and claim alone are not production authority. |
 
@@ -94,7 +94,7 @@ lattice conduit explain --json
 - `nextActions: string[]` — the corresponding env / command suggestions
 - `productionDone: false`, `receiptVerified: false`, `canClaimProductionDone: false`
 
-**Important boundary**: this local JSON or text output is **not** authority evidence. Only an `AuthorityReceipt` issued by the Python authority and signature-verified by the runner / client counts as signed production authority. Even with `LATTICE_AUTHORITY_URL`, `LATTICE_AUTHORITY_ACTOR_KEY`, and `LATTICE_AUTHORITY_RUNNER_ID` all set, `productionDone` stays `false` until a signed native Lattice Authority `gate_decision` receipt is signature-verified. A `jobs_stream` network event is only a queue notification hint; empty snapshots, old servers, HTTP errors, malformed SSE, and timeouts fall back to the existing signed claim. Full `fullAuthorityDone` additionally requires final multi-host certification. For the PD-1 / PD-2 trust boundary, see [`requirements/decisions/authority-client-role.md`](requirements/decisions/authority-client-role.md).
+**Important boundary**: this local JSON or text output is **not** authority evidence. Only an `AuthorityReceipt` issued by the Python authority and signature-verified by the runner / client counts as signed production authority. Even with `LATTICE_AUTHORITY_URL`, `LATTICE_AUTHORITY_ACTOR_KEY`, and `LATTICE_AUTHORITY_RUNNER_ID` all set, `productionDone` stays `false` until a signed native Proofbound Authority `gate_decision` receipt is signature-verified. A `jobs_stream` network event is only a queue notification hint; empty snapshots, old servers, HTTP errors, malformed SSE, and timeouts fall back to the existing signed claim. Full `fullAuthorityDone` additionally requires final multi-host certification. For the PD-1 / PD-2 trust boundary, see [`requirements/decisions/authority-client-role.md`](requirements/decisions/authority-client-role.md).
 
 ### Autopilot modes: local / shadow / authority
 
@@ -125,13 +125,13 @@ lattice autopilot run --mode=authority --storyId=B-xxxx --until=DONE \
   `autopilot_projection` process event, and that projection is not gate
   evidence or production authority.
 - `autopilot_execute` is the true bounded executor loop. Non-dry-run execution
-  requires `--storyId`, runs only argv-mapped Lattice commands, records a
+  requires `--storyId`, runs only argv-mapped Proofbound commands, records a
   non-authoritative `autopilot_execution` event, and only invokes Claude Code
   CLI repair when `--allowClaudeRepair=true` is explicit.
 
 ### Planner: natural language → Story + plan
 
-`lattice planner ...` is the Lattice-native planner entry point: it turns a one-sentence natural-language requirement into a Lattice Story draft, checklist, verification intent, and typed `plannedSteps[]` for the autopilot executor to consume. It never hands Story / job / receipt authority to an external framework.
+`lattice planner ...` is the Lattice-native planner entry point: it turns a one-sentence natural-language requirement into a Proofbound Story draft, checklist, verification intent, and typed `plannedSteps[]` for the autopilot executor to consume. It never hands Story / job / receipt authority to an external framework.
 
 ```bash
 lattice planner draft --request="Add a hello command that prints hi" --json
@@ -144,7 +144,7 @@ lattice planner run --request="<one sentence>" --mode=authority --until=DONE --j
 
 Boundaries:
 
-- `planner draft` / `review` / `status` / `source-manifest` are read-only; `planner create-story` / `create-job` write state only through Lattice commands.
+- `planner draft` / `review` / `status` / `source-manifest` are read-only; `planner create-story` / `create-job` write state only through Proofbound commands.
 - Interaction mode is `--interactionMode=autonomous|interview|decision-gated` (default `autonomous`); a paused run resumes with `planner answer` / `planner decision submit` / `planner resume`.
 - `planner run` strings together draft → review → Story → job/local plan → executor, but DONE is still bound by the same gates as autopilot: `local` reaches at most local certified completion, and authority DONE still requires a signature-verified native `gate_decision` receipt. The planner is still converging against its fixtures, so treat it as the planning entry point, not a guarantee of unattended DONE.
 
@@ -200,7 +200,7 @@ Boundaries:
 
 ## Host Overflow
 
-Lattice Host Overflow is a **manual-first** bounded overflow process: Lattice holds story / scope / receipt / merge authority, and Claude Code is only an execution host, not a production authority.
+Proofbound Host Overflow is a **manual-first** bounded overflow process: Proofbound holds story / scope / receipt / merge authority, and Claude Code is only an execution host, not a production authority.
 
 Recommended order:
 

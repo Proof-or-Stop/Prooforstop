@@ -82,7 +82,7 @@ production authority.
 | Claude Code | Audit the operator path and host-neutral wording for direct REVIEW, non-git, no-commit, and wrong-cwd cases. | Operator workflow section only. |
 
 The main agent owns final reconciliation and prevents overclaiming. Host
-outputs are advisory until reviewed and merged by the main Lattice workflow.
+outputs are advisory until reviewed and merged by the main Proofbound workflow.
 
 ## Current Behavior Audit
 
@@ -213,7 +213,7 @@ Wording must not imply that Codex or Claude Code owns authority. Recommended
 language:
 
 ```text
-review_run_start requires a git-backed Lattice workspace because reviewer runs
+review_run_start requires a git-backed Proofbound workspace because reviewer runs
 are signed against HEAD/materialHash. Host runners may execute the command, but
 they do not manufacture material snapshots or Authority receipts.
 ```

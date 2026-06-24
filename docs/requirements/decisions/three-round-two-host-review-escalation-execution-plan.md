@@ -6,7 +6,7 @@ Status: Execution plan
 
 ## Purpose
 
-This document defines the execution plan for making Lattice review escalation
+This document defines the execution plan for making Proofbound review escalation
 mechanical:
 
 ```text
@@ -40,7 +40,7 @@ receipt completion.
 
 ## Current State
 
-Lattice currently has these pieces:
+Proofbound currently has these pieces:
 
 | Area | Current behavior |
 | --- | --- |
@@ -56,7 +56,7 @@ Lattice currently has these pieces:
 
 ### Default Rule
 
-All stories start with the normal Lattice REVIEW flow.
+All stories start with the normal Proofbound REVIEW flow.
 
 The first version must not force every story through 3x2. Clean stories that
 pass normal REVIEW without the escalation trigger should remain eligible for
@@ -258,7 +258,7 @@ is necessary but not sufficient for DONE.
 
 DONE is the hard enforcement point.
 
-Before DONE, Lattice must evaluate:
+Before DONE, Proofbound must evaluate:
 
 ```text
 requires3x2 = firstReviewRoundCountableProblems >= 2

@@ -1,6 +1,6 @@
 # Orchestrate Legacy Evidence Index
 
-Proofbound starts from a clean source tree. The historical Orchestrate Lattice
+Proofbound starts from a clean source tree. The historical Orchestrate Proofbound
 story records and evidence archives are intentionally not copied into this
 repository's `main` branch.
 
@@ -10,7 +10,7 @@ repository's `main` branch.
 - Legacy Orchestrate evidence remains local-only in the original archive.
 - `/Users/jek/Documents/Work/proofbound` is the canonical active checkout.
 - `/Users/jek/Documents/Work/Orchestrate` is a retired read-only legacy evidence
-  root and should not receive new Lattice writes.
+  root and should not receive new Proofbound writes.
 - Do not commit old `.lattice/story/**` or `.lattice/artifacts/**` into this
   repository's `main` branch.
 - Paper drafts may cite curated claims from this index, but raw review logs,

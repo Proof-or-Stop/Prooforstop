@@ -1,22 +1,22 @@
-# Lattice Authority Unattended Development Requirements
+# Proofbound Authority Unattended Development Requirements
 
 ## Status
 
-This document is the single requirements source for developing the Lattice
+This document is the single requirements source for developing the Proofbound
 Authority-backed unattended development path.
 
 It combines two previously separate stages into one coordinated product track:
 
-- **Stage A: Authority control plane and receipt foundation.** Lattice CLI must
-  connect to the existing Python Lattice Authority, use native signed envelopes,
+- **Stage A: Authority control plane and receipt foundation.** Proofbound CLI must
+  connect to the existing Python Proofbound Authority, use native signed envelopes,
   register and heartbeat runners, claim authority jobs, and verify native
   `gate_decision` receipts.
-- **Stage B: Authority-backed unattended executor.** Lattice CLI must consume
+- **Stage B: Authority-backed unattended executor.** Proofbound CLI must consume
   authority jobs, execute bounded development steps, upload evidence, request
   gate evaluation, verify the returned receipt, retry or stop safely, and advance
   toward TEST / DONE without human babysitting.
-- **Stage C: Lattice-native planner.** Lattice must turn a natural-language
-  request into a Lattice Story, verification intent, Authority job, and typed
+- **Stage C: Lattice-native planner.** Proofbound must turn a natural-language
+  request into a Proofbound Story, verification intent, Authority job, and typed
   `plannedSteps[]` without handing story, job, or receipt authority to an
   external framework.
 
@@ -31,16 +31,16 @@ The existing Python implementation lives at the legacy repository path:
 /Users/jek/Documents/Work/Lattice/cord-team
 ```
 
-The product and server name is **Lattice Authority**. The repository path and
+The product and server name is **Proofbound Authority**. The repository path and
 Python package entrypoint may keep legacy names during migration, but all new
 product copy, CLI help, API docs, tests, environment variables, and process facts
-must use Lattice Authority naming.
+must use Proofbound Authority naming.
 
 ## Customer Server Access Boundary
 
 Hosted customer usage requires a customer-scoped server API key in addition to
 the existing Ed25519 actor signing model. The customer API key authorizes the
-tenant / workspace / project to use Lattice Authority APIs; the actor private
+tenant / workspace / project to use Proofbound Authority APIs; the actor private
 key signs the exact runner, job, evidence, verdict, and gate envelopes. These
 two credentials are intentionally separate and must not be collapsed into one
 bearer token.
@@ -69,8 +69,8 @@ The current codebase now has the core unattended-development loop in place:
 - local autopilot mode works without Python authority;
 - shadow mode can surface authority readiness without blocking local work;
 - authority mode fails closed when prerequisites are missing;
-- Lattice CLI can discover policy from Lattice Authority;
-- Lattice CLI consumes operator/server-provided Authority handoff files. The
+- Proofbound CLI can discover policy from Proofbound Authority;
+- Proofbound CLI consumes operator/server-provided Authority handoff files. The
   ordinary developer pair is `lattice_authority_trust.env` plus its referenced
   `lattice_staging-client.env`; advanced/live runner handoff may provide the
   `lattice_senior_*` pair. Public CLI code does not generate those files. A
@@ -82,8 +82,8 @@ The current codebase now has the core unattended-development loop in place:
   `antigravity` to runner registration, heartbeat, and signed claim routing.
   Server policy remains the authorization boundary and may reject a declaration
   before any job is owned;
-- Lattice CLI has a native receipt verifier for Python-shaped
-  Lattice Authority receipts;
+- Proofbound CLI has a native receipt verifier for Python-shaped
+  Proofbound Authority receipts;
 - live authority mode can register / heartbeat, read
   `/v1/runners/{runnerId}/jobs/stream` as an authenticated `jobs.available`
   notification hint, claim a real Authority job through the existing signed
@@ -91,18 +91,18 @@ The current codebase now has the core unattended-development loop in place:
   `gate.evaluate`, verify the returned native `gate_decision` receipt, and
   complete-or-release the lease without leaving a dangling claim;
 - the planner can turn a natural-language request or request file into a
-  Lattice Story, typed JobPlan, and executable `plannedSteps[]`;
-- local Lattice workflow and global `lattice` entrypoints remain usable.
+  Proofbound Story, typed JobPlan, and executable `plannedSteps[]`;
+- local Proofbound workflow and global `lattice` entrypoints remain usable.
 
 The loop is still deliberately bounded. A bundled local-test Authority key
 (`serverKey.productionInert=true`) proves local integration only and cannot
 satisfy production Authority DONE. Production Authority DONE still requires a
-non-inert Lattice Authority server key, a verified native `gate_decision`
+non-inert Proofbound Authority server key, a verified native `gate_decision`
 receipt, and the required multi-host final verification wave.
 
 ## Implementation Status (2026-06-06)
 
-This section records what is implemented in the Lattice CLI today versus what
+This section records what is implemented in the Proofbound CLI today versus what
 must still not be overclaimed. It is a status ledger, not a relaxation of any
 gate. The current pass implements the planner, bounded executor, live Authority
 job loop, evidence / gate / receipt wiring, repair / retry safety, and
@@ -112,7 +112,7 @@ Implemented (current tested surface):
 
 - autopilot modes: `autopilot status|doctor|run|execute`. `run` is dry-run
   projection by default; `execute --mode=local` is a real bounded executor over
-  argv-mapped Lattice commands; `execute --mode=authority` is fail-closed and
+  argv-mapped Proofbound commands; `execute --mode=authority` is fail-closed and
   acts as a native `gate_decision` receipt verifier, not a receipt minter
   (`packages/main/src/core/autopilot.ts`, `autopilot-executor.ts`);
 - claimed-job entry point: `autopilot execute --jobFile=<job.json>` loads and
@@ -153,10 +153,10 @@ Implemented (current tested surface):
   `provider.claude` steps fail closed before any spawn unless explicitly enabled
   in `providerPolicy.allowedProviders` with a configured credential (`disabled` /
   `provider_unavailable` / `credential_unavailable` / `noninteractive_auth_unavailable`),
-  `story.advance` returns `blocked` so Lattice lifecycle gates are never
+  `story.advance` returns `blocked` so Proofbound lifecycle gates are never
   bypassed, and for `until=DONE` `multiHostVerified` always stays `false`
   (host verdicts are owned elsewhere). The authority `gate.evaluate` step is
-  now wired to Lattice Authority: `planner run` calls
+  now wired to Proofbound Authority: `planner run` calls
   `resolveAuthorityGateEvaluator` (`authority-client.ts`) BEFORE execution,
   which — only when `LATTICE_AUTHORITY_MODE` is `enforce`/`shadow`, a server
   URL is set, and a server verification key is pinned or discovered — appends
@@ -285,7 +285,7 @@ Implemented (current tested surface):
 - M15 Natural-Language-To-DONE E2E: `tasks/natural-language-to-done-smoke.ts`
   drives the whole Stage C→B chain through the REAL planner handler
   (`createPlannerHandlers` over a real `StoryStore`): a one-sentence request AND
-  an identical `--requestFile` each plan a real Lattice Story, build the typed
+  an identical `--requestFile` each plan a real Proofbound Story, build the typed
   authority JobPlan, and run `executePlannedSteps` (fake provider → validate →
   run-events/evidence upload → `gate.evaluate`). The only stubbed surface is the
   Authority server, through the SAME injectable seam production uses —
@@ -416,12 +416,12 @@ Remaining boundaries that must not be overclaimed:
   `gate_decision` receipt verifies, and the required multi-host final
   certification wave is satisfied;
 - the local live Python smoke proves policy discovery plus runner
-  register/heartbeat/jobs-stream-hint/claim/release against a real Lattice
+  register/heartbeat/jobs-stream-hint/claim/release against a real Proofbound
   Authority server. The jobs stream is a notification hint before claim, not a
   lease, receipt, completion event, or Authority approval. When the server
   reports `serverKey.productionInert=true`, that evidence is
   integration evidence only and must not be treated as production Authority DONE;
-- server-side native `gate_decision` receipt issuance is owned by Lattice
+- server-side native `gate_decision` receipt issuance is owned by Proofbound
   Authority. The CLI verifies and consumes those receipts; it never mints one.
 
 M8 per-step evidence streaming (2026-06-06). The §B4 evidence taxonomy now has
@@ -436,7 +436,7 @@ a run-level `git_evidence` record built from injected git state. Python event
 endpoints receive one signed event per POST: provider evidence is sent as a
 `providerEvent` envelope to `POST /v1/runs/{runId}/provider-events`, and run
 events are sent as an `event` envelope to `POST /v1/runs/{runId}/events`.
-Internal Lattice evidence taxonomy is preserved locally, but payloads sent to
+Internal Proofbound evidence taxonomy is preserved locally, but payloads sent to
 Python `/v1/evidence` use Python `EvidenceKind` values such as `docs_check` or
 `logic_test`, never internal-only kinds such as `run_record`. Three boundaries
 are mechanical, pinned by `evidence-upload-loop-smoke`:
@@ -559,24 +559,24 @@ honest boundaries of the current deterministic projection; the
   `redactedProviderEnv` (planned-steps-executor) remains the env-projection seam.
   The live upload path redacts before transport and attaches retention metadata to
   uploaded envelopes (`evidence-live-wiring-smoke`); durable server-side GC
-  scheduling is still owned by Lattice Authority storage operations, while the CLI
+  scheduling is still owned by Proofbound Authority storage operations, while the CLI
   retention engine proves the local decision logic.
 
-Because of these boundaries, Lattice may claim the tested unattended local mode
+Because of these boundaries, Proofbound may claim the tested unattended local mode
 and the tested Authority-backed per-run loop. It must not claim production
-Authority DONE unless a non-inert Lattice Authority server verifies the native
+Authority DONE unless a non-inert Proofbound Authority server verifies the native
 `gate_decision` receipt and the required independent-host final certification
 passes.
 
 ## Product Goal
 
-Lattice should support unattended development in two user-selected development
+Proofbound should support unattended development in two user-selected development
 modes:
 
 | User-selected mode | Goal | Authority dependency | Production DONE claim |
 | --- | --- | --- | --- |
-| `local` / `non-authority` | Pure client-side bounded autopilot for development and validation. It must not connect to Lattice Authority. | None. | No. |
-| `authority` | Lattice CLI client plus Lattice Authority server strong-verification mode. | Required. | Yes, only after verified native `gate_decision` receipt. |
+| `local` / `non-authority` | Pure client-side bounded autopilot for development and validation. It must not connect to Proofbound Authority. | None. | No. |
+| `authority` | Proofbound CLI client plus Proofbound Authority server strong-verification mode. | Required. | Yes, only after verified native `gate_decision` receipt. |
 
 `shadow` is an explicit diagnostic/readiness mode, not a third user-selected
 unattended development mode. It may inspect Authority readiness when requested,
@@ -590,7 +590,7 @@ For complete unattended development, the product goal extends to:
 ```text
 natural language request
 -> Lattice-native Story Planner
--> Lattice Story + background + checklist + verification intent
+-> Proofbound Story + background + checklist + verification intent
 -> Lattice-native Job Planner
 -> local run plan or Authority job + typed plannedSteps[]
 -> Stage B executor
@@ -604,24 +604,24 @@ natural language request
 This track must not:
 
 - redevelop the Python server from scratch;
-- make ordinary local Lattice commands depend on Python authority;
-- allow non-authority mode to contact Lattice Authority;
+- make ordinary local Proofbound commands depend on Python authority;
+- allow non-authority mode to contact Proofbound Authority;
 - allow env presence, runner heartbeat, job claim, or transport acceptance to
   satisfy DONE;
 - allow bundled default test keys to satisfy production Authority DONE;
-- treat legacy subject receipts as native Lattice Authority DONE receipts;
-- write story or fixture JSON directly instead of using Lattice commands;
+- treat legacy subject receipts as native Proofbound Authority DONE receipts;
+- write story or fixture JSON directly instead of using Proofbound commands;
 - run arbitrary shell commands from authority jobs;
 - hide failed verification behind a green local status;
 - auto-push to remote Git or create GitHub branches unless a human explicitly
-  asks outside the Lattice flow;
+  asks outside the Proofbound flow;
 - make `obra/superpowers` or any other external methodology repository the owner
-  of Lattice Story, Authority job, planned steps, gate evaluation, or receipt
+  of Proofbound Story, Authority job, planned steps, gate evaluation, or receipt
   semantics.
 
 ## Superpowers Reference Policy
 
-`obra/superpowers` is a useful methodology reference, not a Lattice runtime
+`obra/superpowers` is a useful methodology reference, not a Proofbound runtime
 dependency and not an authority source.
 
 Reference repository:
@@ -630,10 +630,10 @@ Reference repository:
 https://github.com/obra/superpowers
 ```
 
-License note: the repository is MIT licensed. Lattice may learn from the
+License note: the repository is MIT licensed. Proofbound may learn from the
 methodology, but copied text or code must preserve the required license notice.
 
-Reference principles Lattice should absorb:
+Reference principles Proofbound should absorb:
 
 - clarify the user's intent before writing code;
 - turn rough ideas into a written spec;
@@ -647,19 +647,19 @@ Reference principles Lattice should absorb:
 
 Lattice-specific constraints that override the reference:
 
-- Lattice Story is created only through Lattice commands;
-- verification intent is a Lattice process fact, not prose-only planning text;
-- Authority jobs are issued by Lattice Authority;
-- `plannedSteps[]` use Lattice's typed step schema;
+- Proofbound Story is created only through Proofbound commands;
+- verification intent is a Proofbound process fact, not prose-only planning text;
+- Authority jobs are issued by Proofbound Authority;
+- `plannedSteps[]` use Proofbound's typed step schema;
 - provider execution is performed by the Stage B executor;
-- DONE is gated only by verified native Lattice Authority `gate_decision`
+- DONE is gated only by verified native Proofbound Authority `gate_decision`
   receipts;
 - external skill/plugin docs may guide prompting, but they do not control
   lifecycle, job leases, evidence, or receipt authority.
 
 ## Naming And Environment Contract
 
-Canonical Lattice CLI client names:
+Canonical Proofbound CLI client names:
 
 ```text
 LATTICE_AUTHORITY_URL
@@ -687,7 +687,7 @@ LATTICE_AUTHORITY_RECEIPT_CLOCK_SKEW_MS
 Legacy `LATTICE_AUTHORITY_*` client variables remain aliases for compatibility.
 When both names are present, `LATTICE_AUTHORITY_*` wins.
 
-Canonical Lattice Authority server names:
+Canonical Proofbound Authority server names:
 
 ```text
 LATTICE_AUTHORITY_ENV
@@ -759,7 +759,7 @@ testKeyProfile: local-test | none
 
 Rules:
 
-- `authority.md` is an internal key-management file for Lattice Authority tests
+- `authority.md` is an internal key-management file for Proofbound Authority tests
   and local development;
 - if `actorKeyPath` is present, the private key is read from that local path;
 - raw production private keys must not be committed to `authority.md`;
@@ -783,11 +783,11 @@ the default, but a negative value or a value above local policy is rejected.
 
 ## Authority Trust Model
 
-Lattice Authority is the only source of production authority for this track.
+Proofbound Authority is the only source of production authority for this track.
 
 Trust rules:
 
-- non-authority mode never connects to Lattice Authority;
+- non-authority mode never connects to Proofbound Authority;
 - local development may trust a discovered server key from localhost;
 - deployed verification must use HTTPS or a trusted local tunnel;
 - production verification must support pinned server public key and key id;
@@ -805,7 +805,7 @@ Trust rules:
 Python implementation models may use `snake_case` internally. Public API JSON,
 stored receipt JSON, and signed payloads use `camelCase` aliases.
 
-Lattice must sign and verify the public wire payload:
+Proofbound must sign and verify the public wire payload:
 
 - sorted canonical JSON keys;
 - compact separators;
@@ -818,12 +818,12 @@ Lattice must sign and verify the public wire payload:
   `2026-06-05T12:34:56.123000Z`.
 
 Raw Ed25519 keys are byte-compatible across Python and TypeScript. String
-encodings are not. Lattice must normalize keys internally to bytes and accept
+encodings are not. Proofbound must normalize keys internally to bytes and accept
 hex or base64 only when the encoding is explicit.
 
 ## Native Receipt Contract
 
-Authority-backed DONE requires a native Lattice Authority receipt:
+Authority-backed DONE requires a native Proofbound Authority receipt:
 
 ```text
 receiptId
@@ -867,12 +867,12 @@ Freshness semantics:
   receipt freshness check fails.
 
 Legacy receipts with `subjectId`, `subjectKind`, or `authorityActorId` may remain
-supported for old compatibility tests, but they must not satisfy native Lattice
+supported for old compatibility tests, but they must not satisfy native Proofbound
 Authority DONE.
 
 ## Command Surface
 
-The implementation should extend existing Lattice commands rather than create a
+The implementation should extend existing Proofbound commands rather than create a
 parallel product surface.
 
 Required operator commands:
@@ -908,7 +908,7 @@ waiting for a decision, blocked, receipt-verified, or fully DONE.
 
 `lattice authority verdict submit` is the server-backed Authority path.
 `lattice autopilot review submit` is the local non-authority path. The local path
-records verifier verdicts in Lattice local run state keyed by `storyId` and
+records verifier verdicts in Proofbound local run state keyed by `storyId` and
 local `runId`; it must never create an Authority receipt or set Authority DONE
 flags.
 
@@ -930,7 +930,7 @@ flags.
 }
 ```
 
-Lattice CLI must parse this as metadata only. Policy discovery must not write
+Proofbound CLI must parse this as metadata only. Policy discovery must not write
 evidence, pass gates, claim DONE, or mutate local story lifecycle state.
 
 ### A2. Actor Key Bootstrap
@@ -985,7 +985,7 @@ control-plane-smoke-no-provider-execution
 
 `lattice authority receipt verify` must:
 
-- parse native Lattice Authority receipt JSON;
+- parse native Proofbound Authority receipt JSON;
 - verify signature and binding fields;
 - fail for tamper, wrong project, wrong story, wrong kind, wrong key id, wrong
   public key, missing `decisionDigest`, and stale receipt when freshness is
@@ -997,12 +997,12 @@ control-plane-smoke-no-provider-execution
 
 Stage A is complete when:
 
-- Lattice discovers server key metadata;
+- Proofbound discovers server key metadata;
 - cross-language signing fixtures pass;
 - actor key registration is secure in production;
 - live runner register / heartbeat / claim / release works;
-- a real signed `gate_decision` receipt can be produced by Lattice Authority and
-  verified by Lattice;
+- a real signed `gate_decision` receipt can be produced by Proofbound Authority and
+  verified by Proofbound;
 - no status, readiness, policy, heartbeat, or claim path overclaims
   `productionDone`.
 
@@ -1010,7 +1010,7 @@ Stage A is complete when:
 
 ### B1. Job Dispatch Contract
 
-Lattice Authority must be able to dispatch jobs that the Lattice runner can
+Proofbound Authority must be able to dispatch jobs that the Proofbound runner can
 execute without ambiguity.
 
 Each job must include:
@@ -1040,14 +1040,14 @@ createdAt
 
 | Step type | Meaning |
 | --- | --- |
-| `lattice.command` | Run an argv-mapped allowlisted Lattice command. |
+| `lattice.command` | Run an argv-mapped allowlisted Proofbound command. |
 | `provider.codex` | Run a bounded Codex CLI provider action. |
 | `provider.claude` | Run a bounded Claude Code CLI provider action when explicitly enabled. |
 | `provider.fake` | Run a deterministic fake provider action for fixtures only. |
 | `validate.run` | Run configured validation. |
 | `codex.verify` | Run `lattice codex verify` when adapter evidence is needed. |
-| `gate.evaluate` | Ask Lattice Authority to issue a gate decision. |
-| `story.advance` | Advance lifecycle only through Lattice CLI gate commands. |
+| `gate.evaluate` | Ask Proofbound Authority to issue a gate decision. |
+| `story.advance` | Advance lifecycle only through Proofbound CLI gate commands. |
 | `stop.summary` | Stop and upload a final summary. |
 
 All command-like steps must be represented as argv arrays or structured provider
@@ -1198,7 +1198,7 @@ Rules:
 
 ### B2. Worktree And Scope Safety
 
-Authority mode must operate inside the story's authoritative Lattice worktree.
+Authority mode must operate inside the story's authoritative Proofbound worktree.
 
 Rules:
 
@@ -1206,7 +1206,7 @@ Rules:
   identify the authoritative cwd; until that command exists, the implementation
   must use the same internal resolver that powers `lattice story_get --detail`
   and `lattice story_advance --phase=INIT_CHECK`;
-- create or repair a story worktree only through Lattice commands;
+- create or repair a story worktree only through Proofbound commands;
 - initial worktree creation must go through `lattice story_advance
   --storyId=<story> --phase=INIT_CHECK`;
 - refuse to edit outside the configured project/worktree boundary;
@@ -1214,7 +1214,7 @@ Rules:
   fixture JSON;
 - preserve unrelated dirty user changes;
 - capture git status before and after each mutating step;
-- stop before merge or remote push unless the Lattice lifecycle gate authorizes
+- stop before merge or remote push unless the Proofbound lifecycle gate authorizes
   it.
 
 ### B3. Provider Executor
@@ -1232,7 +1232,7 @@ Provider requirements:
 - run with max attempts;
 - run with explicit cwd;
 - capture stdout, stderr, exit code, duration, and model/provider metadata;
-- upload provider events to Lattice Authority;
+- upload provider events to Proofbound Authority;
 - never treat provider success as validation success;
 - never treat provider output prose as gate evidence without structured
   evidence or a verified receipt.
@@ -1280,7 +1280,7 @@ Rules:
 
 ### B4. Evidence Upload
 
-Every executor loop must upload structured evidence to Lattice Authority:
+Every executor loop must upload structured evidence to Proofbound Authority:
 
 | Evidence | Required fields |
 | --- | --- |
@@ -1323,7 +1323,7 @@ log dump.
 
 Rules:
 
-- Lattice Authority stores evidence metadata, digests, redaction summaries, and
+- Proofbound Authority stores evidence metadata, digests, redaction summaries, and
   artifact refs in durable storage;
 - large raw artifacts may live in configured artifact storage, but the Authority
   record must retain their digest, size, media type, redaction state, and
@@ -1374,7 +1374,7 @@ Required behavior:
 
 ### B6. Gate Evaluation And DONE Receipt
 
-Authority mode must use Lattice Authority to decide production DONE.
+Authority mode must use Proofbound Authority to decide production DONE.
 
 Flow:
 
@@ -1382,10 +1382,10 @@ Flow:
    process events, material hash, and requested target.
 2. Submit `POST /v1/gates/evaluate`.
 3. Receive or fetch a native `gate_decision` receipt.
-4. Verify receipt signature and bindings in Lattice.
+4. Verify receipt signature and bindings in Proofbound.
 5. Only then allow authority DONE projection.
 
-Local Lattice DONE and production DONE remain separate concepts unless the
+Local Proofbound DONE and production DONE remain separate concepts unless the
 verified receipt explicitly binds the story and decision digest.
 
 ### B7. Executor Loop
@@ -1712,7 +1712,7 @@ Provider steps are execution hosts, not authority.
 - simulate success, validation failure, timeout, and blocked cases;
 - never modify files unless the fixture explicitly asks for a safe test change.
 
-Provider completion does not imply step success until Lattice captures output,
+Provider completion does not imply step success until Proofbound captures output,
 uploads evidence, and runs any required validation step.
 
 ### B14. Validation And Repair Loop
@@ -1731,7 +1731,7 @@ must be allowlisted in the Authority job and linked to checklist evidence.
 
 Validation flow:
 
-1. Run the configured Lattice validation command or allowlisted validation step.
+1. Run the configured Proofbound validation command or allowlisted validation step.
 2. Upload validation evidence.
 3. If validation passes, continue toward gate evaluation or next step.
 4. If validation fails, classify the failure.
@@ -1797,11 +1797,11 @@ path. It may not downgrade silently to local DONE.
 
 ### B16. Advancement And Completion
 
-The executor may advance lifecycle only through Lattice CLI commands.
+The executor may advance lifecycle only through Proofbound CLI commands.
 
 Rules:
 
-- `story.advance` steps call Lattice command handlers through argv-mapped
+- `story.advance` steps call Proofbound command handlers through argv-mapped
   commands;
 - TEST advancement requires local lifecycle gates to pass;
 - DONE authority projection requires verified native `gate_decision` receipt;
@@ -1933,7 +1933,7 @@ if full authority DONE is requested:
   reconcile multi-host verdicts
   if required verdicts fail or are missing: stop blocked
   mark fullAuthorityDone projection only after multi-host pass
-advance local lifecycle only through Lattice commands when allowed
+advance local lifecycle only through Proofbound commands when allowed
 complete or release job
 write final summary
 ```
@@ -1963,7 +1963,7 @@ Stage C makes complete unattended development possible from a natural-language
 request. It must generate the Story and Authority job inputs that Stage B needs.
 
 Stage C must be Lattice-native. It may borrow methodology from Superpowers, but
-it must produce Lattice process artifacts and use Lattice commands.
+it must produce Proofbound process artifacts and use Proofbound commands.
 
 ### C1. Planner Command Surface
 
@@ -1993,7 +1993,7 @@ Command behavior:
 - `planner draft` is read-only and produces a structured draft.
 - `planner review` checks completeness, ambiguity, unsupported scope, and
   placeholder content.
-- `planner create-story` mutates Lattice Story state only through Lattice
+- `planner create-story` mutates Proofbound Story state only through Proofbound
   commands.
 - `planner create-job` submits signed Authority job creation requests in
   authority mode. In local mode, the planner emits a local execution plan with
@@ -2233,7 +2233,7 @@ The Story Planner must not create a Story if:
 - the request asks for destructive or unsafe behavior;
 - the request cannot be mapped to the current repository.
 
-When it does create a Story, it must call Lattice commands such as
+When it does create a Story, it must call Proofbound commands such as
 `story_create`, `story_draft`, `checklist_add`, or their current canonical
 equivalents. It must not write story JSON directly.
 
@@ -2291,7 +2291,7 @@ Rules:
   of the same contract, not separate special workflows;
 - the source codebase is read-only input and must not be mutated by the
   executor;
-- target project files are created or modified only through the Lattice story
+- target project files are created or modified only through the Proofbound story
   worktree and normal lifecycle gates;
 - variable, identifier, package, module, or project naming may be changed only
   according to an explicit `renameMap` or project-name-derived rule recorded in
@@ -2454,7 +2454,7 @@ Alignment evidence rules:
   be classified at manifest/mapping time before any repair step is enqueued and
   must not trigger repeated repair attempts;
 - provider output may propose mappings or repairs, but it is not alignment
-  evidence until Lattice records a manifest diff, command result, validation
+  evidence until Proofbound records a manifest diff, command result, validation
   result, or explicit gap record;
 - anything that cannot be backed by manifest extraction or a passing check goes
   to `gapList[]`.
@@ -2868,10 +2868,10 @@ run planner draft
 if interactionMode=interview: ask 5-10 questions, record answers, require confirmation
 run planner review
 if interactionMode=decision-gated: pause only for required major decisions
-if safe and allowed: create Lattice Story
+if safe and allowed: create Proofbound Story
 if not safe: stop with scope questions
 derive Authority job + typed plannedSteps[]
-submit job to Lattice Authority
+submit job to Proofbound Authority
 run Stage B executor
 execute provider and validation steps
 upload evidence
@@ -2898,7 +2898,7 @@ Stage C is complete when:
 - `decision-gated` mode pauses for major decisions only and records decision
   receipts before continuing;
 - planner review rejects placeholder, vague, overbroad, or unverifiable drafts;
-- Story creation uses Lattice commands only;
+- Story creation uses Proofbound commands only;
 - Job Planner creates a signed Authority job with typed `plannedSteps[]`;
 - planned steps include validation, evidence, retry, stop, and receipt policy;
 - Stage B can consume the generated job without hand-editing;
@@ -2910,7 +2910,7 @@ Stage C is complete when:
 ## Cross-Stage Closure Requirements
 
 The complete natural-language-to-DONE path needs several closure rules that span
-planner, executor, Lattice lifecycle, and Lattice Authority. These rules are
+planner, executor, Proofbound lifecycle, and Proofbound Authority. These rules are
 mandatory because otherwise a run can appear complete while one link in the
 chain is still only local, inferred, duplicated, or stale.
 
@@ -2938,7 +2938,7 @@ Rules:
 ### X2. Story Lifecycle Bootstrap
 
 Natural-language-to-DONE cannot jump directly from a request to provider
-execution. It must bootstrap the Lattice Story lifecycle through Lattice
+execution. It must bootstrap the Proofbound Story lifecycle through Proofbound
 commands.
 
 Required bootstrap sequence:
@@ -2958,7 +2958,7 @@ Stage B executor
 
 Rules:
 
-- Story creation and advancement use Lattice commands only;
+- Story creation and advancement use Proofbound commands only;
 - planner-created Stories must not skip required lifecycle gates;
 - the executor must run in the authoritative story worktree, not the main mirror;
 - if the Story is still in IDEA, INIT, INIT_CHECK, PLAN, REVIEW, TEST, DONE, or
@@ -3007,8 +3007,8 @@ Per-run `authorityDone` is true only when:
 local lifecycle reached DONE or an approved authority target state
 all required validation evidence is uploaded
 all required checklist coverage bindings are satisfied
-Lattice Authority issued native gate_decision receipt
-Lattice verified the receipt signature and bindings
+Proofbound Authority issued native gate_decision receipt
+Proofbound verified the receipt signature and bindings
 Authority job is completed with final summary
 no required lease is left active
 final JSON reports localDone=true and authorityDone=true
@@ -3030,7 +3030,7 @@ Cleanup requirements:
 - record final stop/completion summary;
 - preserve unrelated user worktree changes;
 - report any remaining worktree, branch, lease, or receipt gap;
-- never silently merge, push, or delete user work outside Lattice lifecycle
+- never silently merge, push, or delete user work outside Proofbound lifecycle
   rules.
 
 ### X5. Resume, Idempotency, And Duplicate Prevention
@@ -3219,8 +3219,8 @@ This mechanism supports two development modes:
 
 | Mode | Review anchor | Storage | Blocking target |
 | --- | --- | --- | --- |
-| `local` / `shadow` non-authority | `validationDigest`, `materialHash`, local evidence refs, and local lifecycle state. | Lattice local run state keyed by `storyId` and local `runId`. | `localReviewCertified` only. |
-| `authority` | verified `gate_decision` receipt, `gateInputDigest`, Authority evidence refs, and per-run DONE flags. | Lattice Authority verdict endpoints keyed by `jobId` and `runId`. | `fullAuthorityDone` only. |
+| `local` / `shadow` non-authority | `validationDigest`, `materialHash`, local evidence refs, and local lifecycle state. | Proofbound local run state keyed by `storyId` and local `runId`. | `localReviewCertified` only. |
+| `authority` | verified `gate_decision` receipt, `gateInputDigest`, Authority evidence refs, and per-run DONE flags. | Proofbound Authority verdict endpoints keyed by `jobId` and `runId`. | `fullAuthorityDone` only. |
 
 Minimum policy:
 
@@ -3287,7 +3287,7 @@ Blocking rules:
 
 Authority ordering:
 
-- Lattice Authority issues and stores the native `gate_decision` receipt before
+- Proofbound Authority issues and stores the native `gate_decision` receipt before
   the Authority multi-host final verification gate is evaluated;
 - verifier hosts inspect the verified receipt, gate input digest, evidence refs,
   planned step digests, and final per-run DONE flags;
@@ -3373,7 +3373,7 @@ Rules:
   validation digest, material hash, host identity, provider, model, review wave
   id, prompt digest, and artifact digest;
 - Authority stores Authority verdict records as final verification evidence;
-- local Lattice stores local verdict records as local review evidence;
+- local Proofbound stores local verdict records as local review evidence;
 - `authority job status` must show Authority verdict count, independent verifier
   count, failing findings, and whether the Authority multi-host gate is
   satisfied;
@@ -3402,9 +3402,9 @@ Reconciliation protocol:
 - after any repair that changes artifacts, evidence, material hash, local
   lifecycle state, planned-step outputs, or Authority gate input, all previous
   affected verdicts are stale for final certification;
-- after such repair in local mode, Lattice must rerun validation, compute fresh
+- after such repair in local mode, Proofbound must rerun validation, compute fresh
   local anchors, and start a fresh review wave;
-- after such repair in Authority mode, Lattice must rerun validation, rebuild
+- after such repair in Authority mode, Proofbound must rerun validation, rebuild
   gate input, request and verify a fresh `gate_decision` receipt, and then start
   a fresh review wave over the new chain;
 - if findings cannot be repaired unattended, the run stops blocked with the
@@ -3436,7 +3436,7 @@ Host decision waves for mid-run ambiguity:
 
 ## Server Requirements
 
-Lattice Authority must provide or confirm support for:
+Proofbound Authority must provide or confirm support for:
 
 - actor key registration with production bootstrap guard;
 - policy discovery with server key metadata;
@@ -3452,7 +3452,7 @@ Lattice Authority must provide or confirm support for:
 - `multiHostPolicy` discovery with required and preferred verifier providers;
 - Postgres persistence;
 - Alembic migrations;
-- deployment configuration under Lattice Authority names;
+- deployment configuration under Proofbound Authority names;
 - HTTPS or trusted tunnel for deployed verification;
 - audit logs for actor, runner, job, evidence, and receipt operations.
 
@@ -3485,7 +3485,7 @@ Minimal stable Authority endpoints for this pass:
 Rules:
 
 - before M6 begins, Agent 1 must replace every `confirm ...` status with
-  `existing`, `partial`, or `missing` evidence from the running Lattice Authority
+  `existing`, `partial`, or `missing` evidence from the running Proofbound Authority
   server;
 - `POST /v1/gates/evaluate` must explicitly state whether the server already
   mints native signed `gate_decision` receipts. If it does not, receipt issuance
@@ -3493,7 +3493,7 @@ Rules:
 - `partial` and `missing` statuses must map to a server Story or a blocked start
   decision. CLI agents must not guess endpoint behavior from names or docs.
 
-The Python server may keep existing compatibility aliases, but the Lattice
+The Python server may keep existing compatibility aliases, but the Proofbound
 Authority track must document any alias used by the CLI and must not leave the
 Stage B executor guessing endpoint names.
 
@@ -3502,9 +3502,9 @@ derive host identity from the authenticated context. Submitted JSON may bind the
 claimed `hostId` for audit, but it is not the source of truth for independence
 counting.
 
-## Lattice CLI Requirements
+## Proofbound CLI Requirements
 
-Lattice CLI must provide:
+Proofbound CLI must provide:
 
 - canonical `LATTICE_AUTHORITY_*` settings with legacy alias fallback;
 - native actor envelope signing;
@@ -3533,9 +3533,9 @@ multi-host final verification.
 | --- | --- | --- |
 | M1 | Contract Lock | Requirements, field contracts, command names, env names, and receipt semantics are frozen. |
 | M2 | Cross-Language Crypto Fixtures | Python and TypeScript agree on canonical JSON, Ed25519 signing, timestamps, and key encodings. |
-| M3 | Authority Metadata And Bootstrap | Lattice Authority exposes server key metadata and production-safe actor key registration. |
-| M4 | Native Receipt Verifier | Lattice verifies native `gate_decision` receipts and rejects wrong bindings. |
-| M5 | Live Runner Control Plane | Lattice live runner registers, heartbeats, claims, and releases jobs without provider execution. |
+| M3 | Authority Metadata And Bootstrap | Proofbound Authority exposes server key metadata and production-safe actor key registration. |
+| M4 | Native Receipt Verifier | Proofbound verifies native `gate_decision` receipts and rejects wrong bindings. |
+| M5 | Live Runner Control Plane | Proofbound live runner registers, heartbeats, claims, and releases jobs without provider execution. |
 | M6 | Authority Job Schema | Jobs, planned steps, leases, retry policy, stop policy, provider policy, worktree policy, evidence policy, receipt policy, and multi-host policy are machine-readable. |
 | M7 | Provider Executor | Codex/Claude/fake provider execution is bounded, captured, and scoped to the story worktree. |
 | M8 | Evidence Upload | Runs, provider events, command events, validation results, git state, and summaries upload to Authority. |
@@ -3543,8 +3543,8 @@ multi-host final verification.
 | M10 | Gate Evaluation Loop | Executor requests gate evaluation and verifies returned native receipts before authority DONE. |
 | M11 | End-To-End Authority Autopilot | One authority job can drive a story through provider work, validation, evidence, receipt verification, and final summary. |
 | M12 | Deployment And Global Verification | Postgres-backed server, key pinning, HTTPS/tunnel, global `lattice`, and full test matrix pass. |
-| M13 | Lattice Story Planner | Natural-language requests produce reviewed Story drafts, background, checklist, verification intent, assumptions, and scope questions. |
-| M14 | Lattice Job Planner | Story + verification intent produce signed Authority jobs with typed `plannedSteps[]`, policies, and planner digests. |
+| M13 | Proofbound Story Planner | Natural-language requests produce reviewed Story drafts, background, checklist, verification intent, assumptions, and scope questions. |
+| M14 | Proofbound Job Planner | Story + verification intent produce signed Authority jobs with typed `plannedSteps[]`, policies, and planner digests. |
 | M15 | Natural-Language-To-DONE E2E | `lattice planner run --mode=authority --until=DONE` creates Story/job, runs Stage B, verifies receipt, reports authority DONE or blocked, and includes source-aligned redevelopment E2E fixtures when that workflow is selected. |
 | M16 | Multi-Host Final Verification | At least two independent hosts, with 2-3 hosts per review wave and optional 3+ release certification including Gemini when available, submit verifier verdicts, reconcile disagreements, and verify local or Authority final artifacts before local certified DONE or full authority DONE is claimed. |
 
@@ -3553,9 +3553,9 @@ multi-host final verification.
 This pass should implement the missing Stage B executor loop and the Stage C
 planner layer, not only document them.
 
-### Lattice Development Flow Binding
+### Proofbound Development Flow Binding
 
-This product track must be built through the normal Lattice Story flow, not as a
+This product track must be built through the normal Proofbound Story flow, not as a
 parallel unmanaged agent project.
 
 Rules:
@@ -3563,7 +3563,7 @@ Rules:
 - before implementation starts, this requirements document and the requirements
   navigation entry must be tracked and committed so every implementation worktree
   receives the same truth source;
-- create one parent track Story or one Story per milestone group using Lattice
+- create one parent track Story or one Story per milestone group using Proofbound
   commands only. Direct story JSON edits are not allowed;
 - every implementation Story must link this document in `relatedDocs`;
 - each Story checklist item must map the relevant milestone, required block, and
@@ -3602,7 +3602,7 @@ npm run test:authority-live-python
 Rules:
 
 - missing or failing preflight evidence blocks the dependent milestone Story;
-- `test:authority-live-python` must prove the local Lattice Authority server can
+- `test:authority-live-python` must prove the local Proofbound Authority server can
   satisfy the endpoint status table above, or produce exact missing endpoint
   actions;
 - if the server cannot mint a verifiable native `gate_decision` receipt,
@@ -3620,8 +3620,8 @@ M9 Repair And Stop Policy
 M10 Gate Evaluation Loop
 M11 End-To-End Authority Autopilot
 M12 Final verification for the implemented path
-M13 Lattice Story Planner
-M14 Lattice Job Planner
+M13 Proofbound Story Planner
+M14 Proofbound Job Planner
 M15 Natural-Language-To-DONE E2E
 M16 Multi-Host Final Verification
 ```
@@ -3632,7 +3632,7 @@ definition of success for this pass is Stage B and Stage C working end to end.
 ### Localhost 6789 Live Verification Plan For M1-M16
 
 This plan creates the hard evidence needed to claim that the sixteen Authority
-milestones were validated against a real local Python Lattice Authority server at
+milestones were validated against a real local Python Proofbound Authority server at
 `http://localhost:6789/`. It is a verification plan, not a second development
 track.
 
@@ -3647,14 +3647,14 @@ Core rule:
 
 The live verification must preserve two user-selected operating principles:
 
-1. **Lattice non-authority CLI.** The client is allowed to execute locally under
-   local policy, with no Lattice Authority server contact. This mode may produce
+1. **Proofbound non-authority CLI.** The client is allowed to execute locally under
+   local policy, with no Proofbound Authority server contact. This mode may produce
    local evidence, local validation, and local multi-host review, but it must not
    claim `authorityDone`, `fullAuthorityDone`, server receipt verification, or
    Python Authority evidence.
-2. **Lattice CLI + Lattice Authority.** The client is still allowed to execute
+2. **Proofbound CLI + Proofbound Authority.** The client is still allowed to execute
    locally, but final Authority claims require server-verified evidence from the
-   Python Lattice Authority. In this mode the local runner executes provider /
+   Python Proofbound Authority. In this mode the local runner executes provider /
    validation work, uploads signed evidence to `http://localhost:6789/`, requests
    or verifies native `gate_decision` receipts, and uses server-backed job /
    evidence / receipt / multi-host records before claiming Authority DONE.
@@ -3681,7 +3681,7 @@ Non-goals:
 
 Localhost live verification prerequisites:
 
-- Python Lattice Authority is started from
+- Python Proofbound Authority is started from
   `/Users/jek/Documents/Work/Lattice/cord-team`;
 - the server listens on `http://localhost:6789/`;
 - `/v1/authority/policy` returns a server key whose `publicKeyHex` is pinned in
@@ -3701,7 +3701,7 @@ Recommended localhost server setup evidence:
 cd /Users/jek/Documents/Work/Lattice/cord-team
 
 # The default package entrypoint uses port 8765. For the final hard evidence,
-# run the same app explicitly on the Lattice local Authority default.
+# run the same app explicitly on the Proofbound local Authority default.
 uv run uvicorn cord_team.api.app:create_app \
   --factory \
   --host 127.0.0.1 \
@@ -3718,7 +3718,7 @@ must still be pinned and verified through `LATTICE_AUTHORITY_LIVE_PUBLIC_KEY`.
 If the server cannot run on HTTPS port 6789, record that as a verification
 blocker for M12 instead of downgrading the final evidence to another port.
 
-Required Lattice live environment:
+Required Proofbound live environment:
 
 ```bash
 export LATTICE_AUTHORITY_LIVE_URL=http://localhost:6789/
@@ -3744,7 +3744,7 @@ default-test or ephemeral server key profile as production DONE evidence.
 | V2. Cross-language signing and control plane | M1-M5 | Prove TypeScript and Python agree on signing, receipts, actor key registration, runner registration, heartbeat, claim, and release. | `npm run build`; `npm --prefix packages/main run test:authority-runner-contracts`; `npm --prefix packages/main run test:authority-runner-client`; `npm --prefix packages/main run test:authority-runner-events`; Python fixture/schema tests; `npm --prefix packages/main run test:authority-live-python` against `http://localhost:6789/`. | Contract tests pass and live smoke outputs `passed: policy + control-plane`, not `SKIPPED`; release uses Python `release{runnerId,sessionId,reason}` and no `outcome`. |
 | V3. Stage B live execution loop | M6-M11 | Prove job schema, planned steps, provider execution, evidence upload, repair/stop policy, gate evaluation, receipt verification, and end-to-end Authority autopilot behavior while preserving local-only execution mode. | `npm --prefix packages/main run test:authority-job-loop`; `npm --prefix packages/main run test:authority-job-loop-live-smoke`; `npm --prefix packages/main run test:evidence-upload-loop-smoke`; `npm --prefix packages/main run test:evidence-live-wiring-smoke`; local/non-authority smoke proving zero server contact; live Authority evidence refs for run events, provider events, evidence upload, gate request, receipt verification, terminal status. | Non-authority execution can run locally with Authority flags false and no server contact; authority execution uploads evidence to the live server, gate receipt verification controls DONE, and failure paths release or block without dangling leases. |
 | V4. Stage C planner to Authority job | M13-M15 | Prove natural-language intake can create a Story draft, checklist, verification intent, Authority job, typed `plannedSteps[]`, and both non-authority and authority execution paths. | `npm --prefix packages/main run test:planner-unattended-smoke`; `npm --prefix packages/main run test:natural-language-to-done-smoke`; local planner run evidence with zero server contact; live job creation or live job-file equivalent bound to the same Story, planner digest, checklist digest, verification intent digest, and policy. | One-sentence and document-style requests produce non-placeholder Story/job plans; unsupported scope blocks; non-authority reports local-only status; authority DONE is claimed only after verified live receipt evidence. |
-| V5. Global Lattice and deployment parity | M12 | Prove the globally installed `lattice` uses the same built code path and respects both non-authority and authority configuration. | Global `lattice check`; global local/non-authority smoke with no server contact; global `lattice authority` status/policy command where available; global `npm --prefix packages/main run test:authority-live-python` or equivalent global wrapper invocation; recorded binary realpath and package version. | Global `lattice` preserves local-only execution when non-authority is selected, and hits `http://localhost:6789/` with pinned-key verification only when authority mode is selected. |
+| V5. Global Proofbound and deployment parity | M12 | Prove the globally installed `lattice` uses the same built code path and respects both non-authority and authority configuration. | Global `lattice check`; global local/non-authority smoke with no server contact; global `lattice authority` status/policy command where available; global `npm --prefix packages/main run test:authority-live-python` or equivalent global wrapper invocation; recorded binary realpath and package version. | Global `lattice` preserves local-only execution when non-authority is selected, and hits `http://localhost:6789/` with pinned-key verification only when authority mode is selected. |
 | V6. Multi-host final certification and evidence closure | M16 plus final claim across M1-M15 | Prove final DONE is not a single-host overclaim. | Three bounded host-check waves before final DONE; each wave has at least two independent host verdicts, normally Codex CLI and Claude CLI, reviewing the same final anchors: commit/head, material hash, live smoke output, receipt refs, job/run ids, and evidence refs. Gemini may be added when available. Every wave prompt includes: `don't optimize for the sake of optimization`, `don't optimize arbitrarily`, `only fix real correctness issues`, and `preserve consistency of logic`. | Independent hosts return PASS in all three waves, or any real correctness BLOCK is repaired and the stale anchors are re-verified through fresh waves. Final claim explicitly states whether it is `localDone`, `authorityDone`, or `fullAuthorityDone`. |
 
 Original milestone to verification milestone mapping:
@@ -3763,8 +3763,8 @@ Original milestone to verification milestone mapping:
 | M10 Gate Evaluation Loop | V3 |
 | M11 End-To-End Authority Autopilot | V3 |
 | M12 Deployment And Global Verification | V1, V5 |
-| M13 Lattice Story Planner | V4 |
-| M14 Lattice Job Planner | V4 |
+| M13 Proofbound Story Planner | V4 |
+| M14 Proofbound Job Planner | V4 |
 | M15 Natural-Language-To-DONE E2E | V4 |
 | M16 Multi-Host Final Verification | V6 |
 
@@ -3820,11 +3820,11 @@ Fail-closed rules:
 ### Twenty-Five Required Blocks For This Pass
 
 The following twenty-five blocks are mandatory for this implementation pass.
-They are not optional enhancements. If any block is missing, Lattice must not
+They are not optional enhancements. If any block is missing, Proofbound must not
 claim full unattended development mode.
 
 1. **Authority job producer and schema.**
-   Lattice Authority must dispatch jobs that include `plannedSteps[]`, retry
+   Proofbound Authority must dispatch jobs that include `plannedSteps[]`, retry
    policy, stop policy, lease metadata, evidence policy, provider policy, and
    receipt policy, and multi-host policy. The claimed job payload must be
    complete enough that the runner does not guess what to do.
@@ -3843,7 +3843,7 @@ claim full unattended development mode.
 
 4. **Evidence upload loop.**
    The executor must upload provider events, command events, validation
-   evidence, git evidence, gate requests, and stop summaries to Lattice
+   evidence, git evidence, gate requests, and stop summaries to Proofbound
    Authority. Local logs alone are not sufficient.
 
 5. **Validation, repair, retry, and safe stop.**
@@ -3864,14 +3864,14 @@ claim full unattended development mode.
    timeout handling, dirty worktree protection, local/shadow autopilot
    regression, and global `lattice` execution.
 
-8. **Lattice Story Planner.**
-   Lattice must turn a natural-language request into a reviewed Story draft with
+8. **Proofbound Story Planner.**
+   Proofbound must turn a natural-language request into a reviewed Story draft with
    background, checklist, verification intent, assumptions, scope questions,
    risk classification, related docs, and source-aligned redevelopment
-   workflow intent. Story creation must use Lattice commands only.
+   workflow intent. Story creation must use Proofbound commands only.
 
-9. **Lattice Job Planner.**
-   Lattice must turn Story + verification intent into a signed Authority job
+9. **Proofbound Job Planner.**
+   Proofbound must turn Story + verification intent into a signed Authority job
    with typed `plannedSteps[]`, retry policy, stop policy, evidence policy,
    receipt policy, provider policy, worktree policy, and planner digests.
 
@@ -3980,7 +3980,7 @@ claim full unattended development mode.
 
 ### Implementation Pass Deliverables
 
-Lattice CLI deliverables:
+Proofbound CLI deliverables:
 
 - `lattice planner draft` produces a structured Story draft from a
   natural-language request.
@@ -3992,7 +3992,7 @@ Lattice CLI deliverables:
   `lattice planner resume` drive paused planner runs through structured files.
 - `lattice planner review` rejects ambiguous, placeholder, overbroad, unsafe, or
   unverifiable drafts.
-- `lattice planner create-story` creates Story artifacts through Lattice
+- `lattice planner create-story` creates Story artifacts through Proofbound
   commands only.
 - `lattice story resolve --storyId=<story> --json` or its internal resolver
   equivalent provides the authoritative worktree cwd.
@@ -4066,14 +4066,14 @@ Lattice CLI deliverables:
 - Final JSON distinguishes per-run receipt-backed `authorityDone` from
   multi-host-certified `fullAuthorityDone` and local `localReviewCertified`.
 
-Lattice Authority deliverables:
+Proofbound Authority deliverables:
 
 - Job payloads include typed `plannedSteps[]`, retry policy, stop policy,
   evidence policy, receipt policy, provider policy, worktree policy,
   multi-host policy, and lease metadata.
 - Job records bind planner digests, story id, verification intent digest, and
   planned step digests.
-- Job claim returns enough data for Lattice CLI to execute without guessing.
+- Job claim returns enough data for Proofbound CLI to execute without guessing.
 - Job heartbeat, lease renewal, release, and completion are idempotent.
 - Evidence endpoints accept the executor evidence classes required by this
   document.
@@ -4148,7 +4148,7 @@ Shared deliverables:
 9. **Story Planner.**
    Implement `planner draft`, `planner review`, and `planner create-story` after
    the executor's typed step contract is stable. The planner must produce drafts
-   that map directly to Lattice Story fields and verification intent.
+   that map directly to Proofbound Story fields and verification intent.
 
 10. **Job Planner.**
     Implement `planner create-job` after Stage B can consume typed
@@ -4179,7 +4179,7 @@ This pass is complete only when all of these cases pass:
 | dirty worktree protection | unrelated user changes are preserved; unsafe job stops. |
 | stale receipt freshness | stale enforce-mode receipt fails authority DONE. |
 | future receipt clock skew | future-dated receipt beyond `LATTICE_AUTHORITY_RECEIPT_CLOCK_SKEW_MS` fails with explicit reason. |
-| local autopilot regression | local mode still works without Lattice Authority. |
+| local autopilot regression | local mode still works without Proofbound Authority. |
 | local review certified | local mode with `--requireMultiHost` reaches `localReviewCertified=true` only after required independent local verdicts pass. |
 | local review overclaim guard | local review never sets `authorityDone`, `fullAuthorityDone`, or `multiHostVerified`. |
 | shadow autopilot regression | shadow mode still warns only. |
@@ -4231,13 +4231,13 @@ This pass is complete only when all of these cases pass:
 | multi-host disagreement | failing independent verdict blocks local review certification or full authority DONE, or returns to repair when policy and budget allow. |
 | multi-host repair freshness | repair that changes material state forces fresh validation, fresh Authority receipt when applicable, and a fresh review wave. |
 
-After these pass, Lattice can claim:
+After these pass, Proofbound can claim:
 
 ```text
-Lattice natural-language-to-authority-DONE unattended development v1 is implemented.
+Proofbound natural-language-to-authority-DONE unattended development v1 is implemented.
 ```
 
-Before these pass, Lattice may only claim:
+Before these pass, Proofbound may only claim:
 
 ```text
 Stage A authority control plane is connected, and Stage B/Stage C are in progress.
@@ -4261,7 +4261,7 @@ burst is allowed only when all of these are true:
 
 - Stage A readiness preflight has passed or the burst is limited to preflight
   remediation Stories;
-- each agent owns a separate Lattice Story or non-overlapping write-set;
+- each agent owns a separate Proofbound Story or non-overlapping write-set;
 - every Story has explicit `relatedDocs`, `verificationIntent`, and validation
   rows before implementation starts;
 - no shared contract file is edited by multiple agents without the Codex
@@ -4277,7 +4277,7 @@ independence, not raw agent count.
 | Agent 1 | Python Authority API, config, deployment, receipts. | M3, M8, M10, M12 |
 | Agent 2 | Crypto contracts, fixtures, native verifier review. | M2, M4, M10 |
 | Agent 3 | Runner registry, job scheduler, leases, completion semantics, Authority job schema. | M5, M6, M11, M14 |
-| Agent 4 | Lattice CLI autopilot executor, command policy, Job Planner integration. | M5, M7, M9, M11, M14 |
+| Agent 4 | Proofbound CLI autopilot executor, command policy, Job Planner integration. | M5, M7, M9, M11, M14 |
 | Agent 5 | Provider adapters, worktree safety, evidence capture, Story Planner implementation. | M7, M8, M9, M13 |
 | Agent 6 | E2E smokes, docs, deployment verification, overclaim audits, natural-language-to-DONE verification, multi-host final verification. | M1, M11, M12, M15, M16 |
 | Codex coordinator | Sequence, merge local work, prevent contract drift, run final matrix. | all |
@@ -4330,7 +4330,7 @@ Wave 5: end-to-end, multi-host verification, and deployment.
 
 | Case | Expected |
 | --- | --- |
-| local autopilot without Lattice Authority | pass |
+| local autopilot without Proofbound Authority | pass |
 | non-authority no server contact | local/non-authority mode does not read `authority.md`, connect to `http://localhost:6789/`, or call Authority endpoints |
 | local validation failure | returns local failure, no authority overclaim |
 | local multi-host review | required independent local verdicts set `localReviewCertified=true` |
@@ -4505,7 +4505,7 @@ Wave 5: end-to-end, multi-host verification, and deployment.
 | Source-aligned redevelopment leaks source secrets or proprietary material. | Source is read-only, excluded paths are enforced, secrets are redacted/excluded, and evidence prefers digests/refs. |
 | Source-aligned redevelopment launders license obligations. | Required license and attribution notices are preserved or surfaced as blockers. |
 | Source-aligned redevelopment overclaims alignment. | DONE requires deterministic module/function alignment maps, rename-map evidence, build/test parity, and explicit gap records. |
-| Cross-language redevelopment is marketed as exact semantic identity. | The contract is evidence-backed observable parity plus explicit gaps; Lattice must not claim perfect equivalence for arbitrary language pairs. |
+| Cross-language redevelopment is marketed as exact semantic identity. | The contract is evidence-backed observable parity plus explicit gaps; Proofbound must not claim perfect equivalence for arbitrary language pairs. |
 | A language pair becomes hardcoded special-case behavior. | `sourceLanguage -> targetLanguage` runs through language adapters, neutral manifests, semantic mapping policy, and target-runnable parity oracles. |
 | Missing language adapters are hidden behind provider prose. | Missing adapters block or produce scoped gaps; provider output cannot replace deterministic manifest extraction. |
 | Source-only tests burn budget in cross-language repair loops. | Untranslatable checks route directly to `gapList[]` or blocked stop reasons instead of repeated repair attempts. |
@@ -4515,8 +4515,8 @@ Wave 5: end-to-end, multi-host verification, and deployment.
 
 This product track is complete only when all of the following are true:
 
-- local autopilot still works without Lattice Authority;
-- local/non-authority mode never connects to Lattice Authority;
+- local autopilot still works without Proofbound Authority;
+- local/non-authority mode never connects to Proofbound Authority;
 - shadow remains diagnostic/advisory and is not a third user-selected
   unattended development mode;
 - authority mode defaults to `http://localhost:6789/` only for local authority
@@ -4524,7 +4524,7 @@ This product track is complete only when all of the following are true:
 - default test keys and `authority.md` local-test profiles are rejected for
   deployed production Authority DONE;
 - one-sentence, paragraph, and multi-paragraph natural-language requests can be
-  transformed into reviewed Lattice Story drafts;
+  transformed into reviewed Proofbound Story drafts;
 - `autonomous`, `interview`, and `decision-gated` interaction modes all pass
   their dedicated planner and end-to-end tests;
 - `autonomous` and post-confirmation `interview` can use bounded 2-3 host
@@ -4541,7 +4541,7 @@ This product track is complete only when all of the following are true:
   slowing low-risk autonomous work;
 - final multi-host review prompts include `dont optimize for the sake of
   optimization`;
-- Story Planner creates or reuses Stories only through Lattice commands;
+- Story Planner creates or reuses Stories only through Proofbound commands;
 - Job Planner creates or reuses Authority jobs with typed `plannedSteps[]`;
 - Job Planner also creates local run plans for non-authority unattended
   development when `--mode=local` is selected;
@@ -4574,8 +4574,8 @@ This product track is complete only when all of the following are true:
   local validation and required independent local verifier verdicts pass;
 - local non-authority review never sets `authorityDone`, `fullAuthorityDone`, or
   `multiHostVerified`;
-- Lattice Authority issues a native signed `gate_decision` receipt;
-- Lattice verifies the receipt before authority DONE;
+- Proofbound Authority issues a native signed `gate_decision` receipt;
+- Proofbound verifies the receipt before authority DONE;
 - DONE reconciliation proves local lifecycle, Authority receipt, job completion,
   lease cleanup, and final summary are all aligned;
 - review policy supports 2-3 hosts per review wave and preferred 3+ release
@@ -4608,7 +4608,7 @@ This product track is complete only when all of the following are true:
 - read-only planner/job status commands expose the current phase, refs, and
   final state without mutating the run;
 - global `lattice` passes the full planner/authority/autopilot regression matrix;
-- deployed or deployment-grade Lattice Authority verification passes with a
+- deployed or deployment-grade Proofbound Authority verification passes with a
   pinned server key;
 - production Authority verification proves customer API key validation,
   wrong-project rejection, revoked/expired-key rejection, customer-key-gated

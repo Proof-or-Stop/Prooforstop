@@ -1,18 +1,18 @@
-# Lattice Mid-Flight Story Repair And gitRoot Worktree Bootstrap Plan
+# Proofbound Mid-Flight Story Repair And gitRoot Worktree Bootstrap Plan
 
 Date: 2026-06-13
 
 ## Purpose
 
-This document defines the execution plan for fixing the Lattice CLI gaps exposed
+This document defines the execution plan for fixing the Proofbound CLI gaps exposed
 by the ClawCreek PR-A story recovery case.
 
-The goal is to let Lattice support a story that was created before the current
+The goal is to let Proofbound support a story that was created before the current
 PLAN discipline was fully applied, without weakening the second-generation
 flow. A completed implementation with recorded evidence should have a
 mechanical, auditable repair path when the checklist schema is missing
 `verificationIntent`. At the same time, automatic worktree bootstrap must honor
-`gitRoot` when Lattice metadata lives in a wrapper directory that is not itself
+`gitRoot` when Proofbound metadata lives in a wrapper directory that is not itself
 a git repository.
 
 Problem 3 from the incident, the `checklist_update --help` import error for
@@ -47,18 +47,18 @@ Relevant config:
 ```
 
 The affected story, `B-5a12`, did not start cleanly from the current standard
-Lattice PLAN flow. Checklist items existed before `verificationIntent` was
+Proofbound PLAN flow. Checklist items existed before `verificationIntent` was
 filled. Later work added understanding, decision, plan, scope check, checklist
 done state, and 21 verification evidence records. `story_review` still blocked
 because each checklist item lacked `verificationIntent.happy`,
 `verificationIntent.edge`, and `verificationIntent.adversarial`.
 
 The blocking review result is directionally correct: evidence proves behavior,
-but intent is the acceptance contract. The defect is that Lattice gives no
+but intent is the acceptance contract. The defect is that Proofbound gives no
 first-class way to repair or migrate a mid-flight story whose evidence already
 exists.
 
-There was also a bootstrap failure path: Lattice correctly resolved the signed
+There was also a bootstrap failure path: Proofbound correctly resolved the signed
 workspace root to the configured `gitRoot`, but automatic worktree creation
 still assumed the current metadata root was the git root in at least part of the
 bootstrap path.
@@ -79,7 +79,7 @@ Current behavior:
 Why this is a product defect:
 
 - The user sees that the code and verification evidence are complete, but
-  Lattice cannot close the workflow.
+  Proofbound cannot close the workflow.
 - The only manual workaround is to reconstruct intent one item at a time through
   generic checklist updates, without a repair-specific audit trail.
 - A reviewer cannot distinguish "no acceptance contract exists and no evidence
@@ -97,12 +97,12 @@ Current behavior:
 
 Why this is a product defect:
 
-- The user has a valid Lattice setup: metadata at wrapper root, code repository
+- The user has a valid Proofbound setup: metadata at wrapper root, code repository
   under configured `gitRoot`.
 - INIT_CHECK should be able to create `story/B-*` worktrees for that code repo
   without requiring manual intervention.
 - If bootstrap fails, the workflow loses the token-saving preflight value that
-  Lattice is supposed to provide.
+  Proofbound is supposed to provide.
 
 ### P3. sourceManifestDigest Help Import Error
 
@@ -295,7 +295,7 @@ Worktree creation should resolve two roots:
 
 | Root | Meaning |
 | --- | --- |
-| metadata root | Where Lattice config and story metadata live. |
+| metadata root | Where Proofbound config and story metadata live. |
 | git material root | The actual git repo, usually `metadataRoot/gitRoot` when configured. |
 
 The bootstrap path must:
@@ -467,7 +467,7 @@ Add or extend smoke coverage for these scenarios:
 
 ### Decision Document 3-Round / 2-Host Verification
 
-Because this story changes Lattice core workflow behavior, the decision document
+Because this story changes Proofbound core workflow behavior, the decision document
 itself must pass a bounded multi-host verification before the implementation can
 be considered ready for DONE.
 
@@ -496,7 +496,7 @@ The three rounds should be used for different pressure:
 3. Round 3 checks final closure: whether validation evidence, review findings,
    build output, and rollout notes still match the final material state.
 
-This audit is a requirement for Lattice core decision documents. It does not by
+This audit is a requirement for Proofbound core decision documents. It does not by
 itself create `fullAuthorityDone`, does not convert host verdicts into Authority
 receipts, and does not relax any lifecycle gate.
 
@@ -547,7 +547,7 @@ runtime contains the new command before testing globally.
 The fix is complete when:
 
 1. A mid-flight story with passing evidence but missing `verificationIntent` can
-   be repaired through one explicit Lattice command.
+   be repaired through one explicit Proofbound command.
 2. The repair is auditable and does not pretend the intent was authored before
    implementation.
 3. `story_review` gives a specific repair hint instead of a generic blocker
@@ -565,7 +565,7 @@ The fix is complete when:
 ## Rollout Notes
 
 After implementation lands on main and the main package is built, global CLI
-users should get the new repair command through the normal global Lattice path.
+users should get the new repair command through the normal global Proofbound path.
 For affected projects, the recommended operator sequence is:
 
 1. Update to the fixed main/global CLI.

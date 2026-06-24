@@ -8,9 +8,9 @@ This document defines a two-layer execution plan after the B-b750
 `review_run_start` signed workspace work.
 
 Layer 1 is operational closure: make sure B-b750 reaches and remains at real
-Lattice DONE, not merely REVIEW or TEST pass.
+Proofbound DONE, not merely REVIEW or TEST pass.
 
-Layer 2 is a narrow Lattice CLI improvement: add a DONE closure
+Layer 2 is a narrow Proofbound CLI improvement: add a DONE closure
 runbook/assistant so future agents do not confuse TEST PASS with DONE.
 
 This plan is intentionally conservative:
@@ -54,7 +54,7 @@ Layer 1 therefore has two modes:
 
 ## Host-Neutral Authority Boundary
 
-This plan supports both Lattice CLI Non-authority mode and the Lattice
+This plan supports both Proofbound CLI Non-authority mode and the Proofbound
 Authority Server path, but it must keep them separate.
 
 Local CLI closure evidence can prove:
@@ -144,7 +144,7 @@ node packages/main/dist/cli.js summary_set '{
 }'
 ```
 
-Commit any Lattice metadata produced by validation, delivery check, or summary.
+Commit any Proofbound metadata produced by validation, delivery check, or summary.
 
 ### 3. Advance To DONE
 
@@ -184,7 +184,7 @@ git status --short
 Acceptance for the already-DONE state:
 
 - local main contains the B-b750 merge commit;
-- Lattice dashboard counts B-b750 as DONE;
+- Proofbound dashboard counts B-b750 as DONE;
 - no B-b750 worktree is required;
 - the working tree is clean or any dirty files are unrelated and explicitly
   understood.
@@ -193,7 +193,7 @@ Acceptance for the already-DONE state:
 
 ### Problem
 
-The existing Lattice CLI correctly blocks DONE when closure artifacts are
+The existing Proofbound CLI correctly blocks DONE when closure artifacts are
 missing, but agents can still misread a TEST PASS as task completion. This is a
 correctness issue in operator guidance and agent workflow interpretation, not a
 reason to weaken DONE gates.

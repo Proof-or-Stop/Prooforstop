@@ -2,7 +2,7 @@
 
 > Status: execution plan; M0/M1 classification-only MVP implemented by B-0985.
 > Date: 2026-06-23.
-> Scope: Proofbound / Lattice CLI evidence, receipt, handoff, and gate-consumption boundaries.
+> Scope: Proofbound / Proofbound CLI evidence, receipt, handoff, and gate-consumption boundaries.
 > Architecture baseline: `docs/evidence/evidence-platform-architecture.md`.
 
 This plan migrates existing proof-looking surfaces onto the shared Evidence

@@ -13,7 +13,7 @@
 This document defines the execution plan to formally unlock the Layer 4
 Production Safety Baseline.
 
-The goal is not to add another theory layer. The goal is to prove that Lattice
+The goal is not to add another theory layer. The goal is to prove that Proofbound
 can consume production-grade Authority evidence without turning local
 diagnostics, host transcripts, fake receipts, stale receipts, or prose claims
 into production completion facts.
@@ -21,7 +21,7 @@ into production completion facts.
 The core question answered by this unlock is:
 
 ```text
-Can Lattice safely convert Authority-backed, server-signed, freshness-bound,
+Can Proofbound safely convert Authority-backed, server-signed, freshness-bound,
 multi-host-reviewed evidence into a production safety claim for tested task
 classes while failing closed on missing, stale, tampered, or local-only proof?
 ```
@@ -29,27 +29,27 @@ classes while failing closed on missing, stale, tampered, or local-only proof?
 The allowed claim after unlock is:
 
 ```text
-Lattice has validated the Layer 4 Production Safety Baseline for the tested
+Proofbound has validated the Layer 4 Production Safety Baseline for the tested
 Authority-backed task classes.
 ```
 
 Plain wording:
 
 ```text
-Lattice has validated the Layer 4 Production Safety Baseline for the tested
+Proofbound has validated the Layer 4 Production Safety Baseline for the tested
 Authority-backed task classes.
 ```
 
 The unlock does not allow these claims:
 
-- Lattice can develop arbitrary projects unattended in production.
-- Lattice is globally production-grade.
-- Lattice has unlocked global Capability Claim.
-- Lattice can skip Layer 1, Layer 2, or Layer 3 proof.
-- Lattice can treat local CLI status as production Authority.
-- Lattice can treat a customer API key as an Authority receipt.
-- Lattice can treat a host transcript as a server-signed receipt.
-- Lattice can claim fullAuthorityDone without the required final certification
+- Proofbound can develop arbitrary projects unattended in production.
+- Proofbound is globally production-grade.
+- Proofbound has unlocked global Capability Claim.
+- Proofbound can skip Layer 1, Layer 2, or Layer 3 proof.
+- Proofbound can treat local CLI status as production Authority.
+- Proofbound can treat a customer API key as an Authority receipt.
+- Proofbound can treat a host transcript as a server-signed receipt.
+- Proofbound can claim fullAuthorityDone without the required final certification
   wave policy.
 
 Terminology note:
@@ -92,16 +92,16 @@ execution material. It does not replace the source contracts.
 
 | Source document | Production Safety role |
 |---|---|
-| [Lattice Unattended Completion Plan](lattice-unattended-completion-plan.md) | Defines the M3-M8, M15, and M16 production completion path. |
+| [Proofbound Unattended Completion Plan](lattice-unattended-completion-plan.md) | Defines the M3-M8, M15, and M16 production completion path. |
 | [Authority Receipt Gate End-to-End Plan](authority-session-receipt-gate-execution.md) | Defines the Authority receipt and lifecycle gate end-to-end proof chain. |
-| [Lattice Authority Receipt Contract](lattice-authority-receipt-contract.md) | Defines server receipt fields, signature, proof bundle, freshness, and session binding. |
-| [Lattice CLI Authority Client and Receipt Ref](lattice-cli-authority-client-receipt-ref.md) | Defines CLI-side receipt verification and receipt ref persistence. |
+| [Proofbound Authority Receipt Contract](lattice-authority-receipt-contract.md) | Defines server receipt fields, signature, proof bundle, freshness, and session binding. |
+| [Proofbound CLI Authority Client and Receipt Ref](lattice-cli-authority-client-receipt-ref.md) | Defines CLI-side receipt verification and receipt ref persistence. |
 | [Lifecycle Gate Receipt Consumption](lifecycle-gate-receipt-consumption.md) | Defines how lifecycle gates consume verified receipt refs. |
-| [Lattice Authority Customer API Key Access](lattice-authority-customer-api-key-access.md) | Defines customer API key boundaries and credential separation. |
+| [Proofbound Authority Customer API Key Access](lattice-authority-customer-api-key-access.md) | Defines customer API key boundaries and credential separation. |
 | [Authority Runner Session and Evidence Envelope](authority-runner-session-evidence-envelope.md) | Defines runner/session/evidence envelope binding. |
 | [Authority Receipt Cross-Repo Live Smoke](authority-receipt-cross-repo-live-smoke.md) | Defines live staging smoke proof expectations. |
-| [Lattice Authority Remote Evidence Bundle](lattice-authority-remote-evidence-bundle.md) | Defines remote evidence bundle shape. |
-| [Lattice Authority M1-M16 Generated Proof And Live E2E Plan](lattice-authority-m1-m16-generated-proof-and-live-e2e.md) | Provides detailed live E2E implementation sequencing. |
+| [Proofbound Authority Remote Evidence Bundle](lattice-authority-remote-evidence-bundle.md) | Defines remote evidence bundle shape. |
+| [Proofbound Authority M1-M16 Generated Proof And Live E2E Plan](lattice-authority-m1-m16-generated-proof-and-live-e2e.md) | Provides detailed live E2E implementation sequencing. |
 
 If this document conflicts with a lower-level contract, the lower-level
 Authority or gate contract controls the exact field semantics.
@@ -122,16 +122,16 @@ classes. It does not prove a global product claim.
 What can be said after Layer 4 passes:
 
 ```text
-Lattice has validated Authority-backed Production Safety controls for the
+Proofbound has validated Authority-backed Production Safety controls for the
 tested task classes.
 ```
 
 What cannot be said after Layer 4 alone:
 
 ```text
-Lattice has unlocked all capability claims.
-Lattice can run arbitrary production unattended development.
-Lattice can claim fullAuthorityDone without the required final certification.
+Proofbound has unlocked all capability claims.
+Proofbound can run arbitrary production unattended development.
+Proofbound can claim fullAuthorityDone without the required final certification.
 ```
 
 ## 5. Required Preconditions
@@ -193,7 +193,7 @@ The first formal Layer 4 unlock requires this suite.
 
 | Baseline ID | Verifies | Expected outcome |
 |---|---|---|
-| `PROD-AUTH-LIVE-1` | Lattice talks to a real Authority service and rejects mocked or contract-only service outputs. | `PASS` |
+| `PROD-AUTH-LIVE-1` | Proofbound talks to a real Authority service and rejects mocked or contract-only service outputs. | `PASS` |
 | `PROD-CUSTOMER-KEY-1` | Missing, invalid, revoked, expired, rotated, and out-of-scope customer API keys fail closed. | `PASS` |
 | `PROD-ACTOR-RUNNER-SESSION-1` | Actor signature, runner id, heartbeat, job claim, and session id are bound through the job. | `PASS` |
 | `PROD-EVIDENCE-BINDING-1` | Evidence upload is bound to story, job/run, producer/verifier run ids, head hash, material hash, and evidence digest. | `PASS` |

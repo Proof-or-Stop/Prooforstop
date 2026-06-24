@@ -1,4 +1,4 @@
-# Lattice CLI Authority Client Role (PD-1 / PD-2 Decisions)
+# Proofbound CLI Authority Client Role (PD-1 / PD-2 Decisions)
 
 > **Status**: PD-1 decision recorded — 2026-05-25; PD-2 boundary recorded — 2026-05-27
 > **Stories**: B-4bd4 (PD-1, decision-only; no production code changed), B-7e38 (PD-2, docs + smoke tests only)
@@ -10,21 +10,21 @@
 ## PD-2 Decision (Isolated Enforce Subsystem — B-7e38 Milestone 0)
 
 **Question**: If a future product track enables a CLI-side authority runner, must it be
-isolated from ordinary Lattice workflow commands, and how should the four subsystem roles
+isolated from ordinary Proofbound workflow commands, and how should the four subsystem roles
 be named so the boundary is cold-readable?
 
 **Answer**: **Yes — isolated, opt-in, headless.** The four subsystem roles are:
 
 | Role | Subsystem | L2+ evidence authority? |
 |------|-----------|------------------------|
-| **Ordinary Lattice CLI** | Workflow thin client (`@lattice/core`, this repo) | **No** — transport / local only |
+| **Ordinary Proofbound CLI** | Workflow thin client (`@lattice/core`, this repo) | **No** — transport / local only |
 | **`lattice authority enforce`** | Future isolated opt-in headless runner path (this repo, future CLI command) | **Only after M2+ gates cleared** — see Milestone Routing below |
 | **Python authority** | Receipt authority (separate Python repo) | **Yes** — signed `AuthorityReceipt` |
-| **Mac Runner / Lattice Runner CLI** | Execution plane (separate Mac/Swift + forthcoming Runner CLI repo) | **Yes** — actor key, heartbeat, signed envelope |
+| **Mac Runner / Proofbound Runner CLI** | Execution plane (separate Mac/Swift + forthcoming Runner CLI repo) | **Yes** — actor key, heartbeat, signed envelope |
 
 Key constraints recorded by this milestone:
 
-- Ordinary Lattice workflow commands (`lattice story_advance`, `lattice verification_evidence_add`, etc.)
+- Ordinary Proofbound workflow commands (`lattice story_advance`, `lattice verification_evidence_add`, etc.)
   **must never** become or be treated as authority evidence submissions, regardless of future
   enforce subsystem wording in docs.
 - `lattice authority enforce` **does not exist yet** as a command. Milestone 0 reserves the
@@ -49,7 +49,7 @@ Key constraints recorded by this milestone:
 
 ### M1: Policy Discovery Detail
 
-M1 adds a command with two equivalent syntaxes: `authority_enforce_policy` (underscore form, Lattice CLI dispatch style) and `lattice authority enforce policy` (space-separated CLI form). Both invoke the same handler; the underscore form is the internal command name and the space form is the user-facing alias.
+M1 adds a command with two equivalent syntaxes: `authority_enforce_policy` (underscore form, Proofbound CLI dispatch style) and `lattice authority enforce policy` (space-separated CLI form). Both invoke the same handler; the underscore form is the internal command name and the space form is the user-facing alias.
 
 **Ownership boundary**: the Python authority server **owns** policy discovery — it publishes `GET /v1/authority/policy` and defines the policy schema. The TypeScript CLI **consumes** that endpoint read-only; it has no authority to modify, sign, or version the policy.
 
@@ -71,18 +71,18 @@ Milestone 1 implemented read-only policy discovery only; actor keys, jobs, provi
 
 ## PD-1 Decision
 
-**Question**: Should Lattice CLI become a first-class enforce-mode authority client, or stay a thin
+**Question**: Should Proofbound CLI become a first-class enforce-mode authority client, or stay a thin
 local/shadow tool with MAC as the canonical runner for authority evidence?
 
-**Answer**: **Lattice CLI remains a thin local/shadow lifecycle client.** It must not claim or certify
+**Answer**: **Proofbound CLI remains a thin local/shadow lifecycle client.** It must not claim or certify
 L2+ authority evidence. MAC/runner/CI/human and the Python authority remain the canonical sources
 for L2+ authority evidence. A first-class enforce-mode CLI authority client is **deferred** to a
 future explicit product track once handshake, full evidence envelope submission, actor-key/signing/
 runner identity, and server receipt verification are implemented and reviewed in dedicated stories.
 
-### Lattice CLI 0.3.5 Status Surfaces
+### Proofbound CLI 0.3.5 Status Surfaces
 
-Lattice CLI 0.3.5 adds receipt-aware status commands for migration visibility:
+Proofbound CLI 0.3.5 adds receipt-aware status commands for migration visibility:
 
 - `authority_status` / `lattice authority status`
 - `conduit_status` / `lattice conduit status`
@@ -128,7 +128,7 @@ requires the receipt-backed path described by PD-1 / PD-2.
 **readiness** section so users can tell `off` (intentional opt-out, free local
 workflow) apart from `shadow` / `enforce` with missing prerequisites. Missing
 prerequisites are surfaced as warnings, **not** as global blockers — ordinary
-local Lattice story development (`story_advance`,
+local Proofbound story development (`story_advance`,
 `verification_evidence_add`, DONE) keeps working in every mode.
 
 New readiness JSON fields (both `authority_status` and `conduit_status`):
@@ -170,9 +170,9 @@ remembering the long form.
 
 ### Dual-mode Autopilot Boundary
 
-Lattice autopilot is split into three explicit modes:
+Proofbound autopilot is split into three explicit modes:
 
-- `local` (default): pure local Lattice workflow. It projects the ordinary story
+- `local` (default): pure local Proofbound workflow. It projects the ordinary story
   commands and never requires Python authority.
 - `shadow`: local workflow plus authority readiness diagnostics. Missing Python
   authority prerequisites become warnings, not blockers.
@@ -196,7 +196,7 @@ does not submit evidence, and cannot promote local DONE to production DONE.
 
 `autopilot_execute` is the true bounded executor loop. It is always
 story-scoped mutating for non-dry-run execution, requires a concrete `storyId`,
-runs only safe argv-mapped Lattice commands, and may append a
+runs only safe argv-mapped Proofbound commands, and may append a
 non-authoritative `autopilot_execution` event. That event is an execution audit
 receipt only; it is not a Python `AuthorityReceipt` and cannot replace signed
 authority subject binding for production DONE. Claude Code CLI repair is an
@@ -252,11 +252,11 @@ product approval lands).
 
 Three roles, named so the boundary is cold-readable without prior context:
 
-1. **Lattice CLI — workflow client** (`@lattice/core`, this repo). Drives the
+1. **Proofbound CLI — workflow client** (`@lattice/core`, this repo). Drives the
    Story lifecycle, runs local validations, and may POST observational evidence
    in `shadow` mode or transport-only evidence in `enforce` mode. **The CLI
    never produces production-grade authority evidence.**
-2. **Lattice Runner CLI / Mac Runner — execution plane** (separate Mac/Swift repo
+2. **Proofbound Runner CLI / Mac Runner — execution plane** (separate Mac/Swift repo
    and forthcoming Runner CLI). Owns actor-key registration, runner heartbeat,
    ed25519-signed evidence envelopes, and the run identity that L2+ evidence
    binds to.
@@ -279,7 +279,7 @@ Three roles, named so the boundary is cold-readable without prior context:
 > bindings, or a verifier run id equal to the producer run id — is not L2+
 > authority.
 
-The Lattice CLI envelope (`buildEnvelope` in
+The Proofbound CLI envelope (`buildEnvelope` in
 [`packages/main/src/core/authority-submit.ts`](../../../packages/main/src/core/authority-submit.ts))
 is a strict subset that lacks (a), (b), and (c) by design under PD-1. The
 boundary classifier
@@ -320,14 +320,14 @@ classifier, a labeled transport-acceptance helper in `authority-submit.ts`, and
 the `test:authority-boundary-smoke` adversarial test. M2 (Python authority
 policy discovery, FU-5) is owned by the Cord Team Python authority repo, and
 M5/FU-4 (Mac/Runner actor-key, heartbeat, runner identity) is owned by the
-Lattice Mac/Swift repo; both live in separate repos with their own Lattice stories
+Proofbound Mac/Swift repo; both live in separate repos with their own Proofbound stories
 and are **not** auto-opened by this story. M3–M6 remain routed per the table
 below — M3 and M4 are CLI-side deferred follow-ups that require an explicit
 enforce-mode product approval before any CLI authority-client code lands.
 
 ## L2+ Evidence Boundary
 
-**Lattice CLI must not claim or certify L2+ authority evidence** until the following gaps are
+**Proofbound CLI must not claim or certify L2+ authority evidence** until the following gaps are
 resolved in dedicated implementation stories:
 
 | Gap | AUDIT ref | Status |
@@ -403,22 +403,22 @@ Under the current thin-client decision, the CLI does not need to model or mirror
 
 ## Milestone Routing
 
-> Routing reflects the **current PD-1 decision: Lattice CLI stays thin local/shadow**. CLI must
+> Routing reflects the **current PD-1 decision: Proofbound CLI stays thin local/shadow**. CLI must
 > not claim or certify L2+ authority evidence. Python authority and Mac runner remain canonical.
 >
 > Status values: **required** — work may proceed now; **deferred** — must not begin until an
 > explicit enforce-mode product approval overrides PD-1 (or until deemed worth the cost for
 > PD-1-independent items); **docs-only** — resolved by this document, no code needed;
 > **not authority work** — owned by a different repo or team (Python authority, Mac runner);
-> Lattice CLI has no implementation obligation and cannot schedule or block this work.
+> Proofbound CLI has no implementation obligation and cannot schedule or block this work.
 
 | Milestone | Name | Owning repo / component | Status (PD-1 = thin-client) | Prerequisite | Validation expectation | User approval required |
 |-----------|------|------------------------|-----------------------------|--------------|-----------------------|------------------------|
-| **M2** | Python authority policy discovery (FU-5) | Cord Team Python authority — **separate repo; own Lattice story** | **not authority work** — Cord Team initiative; Lattice CLI has no implementation obligation; Python/Mac work is not current Lattice CLI authority implementation | B-4bd4 decided (current story, complete) | Cord Team publishes `/v1/authority/policy` with versioned thin-client compatibility contract (`evidenceSchemaDigest` + required-field discovery), so a reduced-capability client can negotiate a lower trust level rather than be hard-rejected | No — Cord Team initiative; CLI team may request but cannot block |
-| **M3** | CLI authority handshake fields (FU-2) | Lattice CLI TypeScript — **this repo** | **Deferred** — must not implement until enforce-mode PD-1 explicitly approved | Explicit enforce-mode product approval; M2 policy contract (advisory input) | CLI sends `clientName` / `clientVersion` / `commandCatalogDigest` / `evidenceSchemaDigest` / `authorityMode`; production Python with `production_enforce_authority=true` accepts rather than returning `authority_handshake_required` | **Yes — enforce-mode product approval required before any code lands** |
-| **M4** | Full `EvidenceEnvelope` in `buildEnvelope` (FU-1) | Lattice CLI TypeScript — **this repo** | **Deferred** — same gate as M3 | Enforce-mode product approval; M3 (handshake implemented) | `buildEnvelope` populates `producerRunId` / `verifierRunId`, `provider` / `model` / `vendor`, and optionally `claims` / `coverage` / `negativeControls`; CLI evidence accepted at L2+ by production Python authority | **Yes — enforce-mode product approval required before any code lands** |
-| **M5** | Actor-key / runner identity / envelope signing (FU-3, FU-4-runner) | **FU-3**: Lattice CLI — **docs-only, resolved** (this document). **FU-4 runner portion**: Lattice Mac/Swift — **separate repo; own Lattice story** | **FU-3: docs-only / resolved** under thin-client posture — CLI is explicitly not a runner; MAC is the canonical runner (see §FU-3 doc-only resolution above). **FU-4 runner portion: not authority work** — MAC work in a separate repo; Lattice CLI has no implementation obligation | FU-3: none (resolved by this document). FU-4: MAC/Cord team decision, unblocked by PD-1 | FU-3: this document is the durable record; no CLI code required. FU-4: MAC populates `model` / `vendor` + handshake `nil` fields in runner build; actor-key / heartbeat / signing remain MAC-owned | FU-3: No — resolved by design decision recorded here. FU-4: No — MAC team advisory, independent of CLI |
-| **M6** | `AuthorityReceipt` signature verification + VCP cross-repo test (FU-4-receipt, FU-6) | **FU-4 receipt**: Lattice Mac/Swift — **separate repo**. **FU-6**: Lattice CLI (optional; pursue if deemed worth cost) | FU-4 receipt: **not authority work** — MAC work, separate repo; Lattice CLI has no obligation. FU-6: **deferred** — independent of PD-1 enforce gate; may pursue if deemed worth cost | M5 FU-4-runner for MAC receipt; FU-6 independent | MAC cryptographically verifies `AuthorityReceipt` ed25519 signature (currently only JobSpec is verified). FU-6 (if pursued): fixture-based cross-repo VCP digest-equality test passes in CLI CI | No — advisory items; FU-6 requires no product approval; MAC is Cord team decision |
+| **M2** | Python authority policy discovery (FU-5) | Cord Team Python authority — **separate repo; own Proofbound story** | **not authority work** — Cord Team initiative; Proofbound CLI has no implementation obligation; Python/Mac work is not current Proofbound CLI authority implementation | B-4bd4 decided (current story, complete) | Cord Team publishes `/v1/authority/policy` with versioned thin-client compatibility contract (`evidenceSchemaDigest` + required-field discovery), so a reduced-capability client can negotiate a lower trust level rather than be hard-rejected | No — Cord Team initiative; CLI team may request but cannot block |
+| **M3** | CLI authority handshake fields (FU-2) | Proofbound CLI TypeScript — **this repo** | **Deferred** — must not implement until enforce-mode PD-1 explicitly approved | Explicit enforce-mode product approval; M2 policy contract (advisory input) | CLI sends `clientName` / `clientVersion` / `commandCatalogDigest` / `evidenceSchemaDigest` / `authorityMode`; production Python with `production_enforce_authority=true` accepts rather than returning `authority_handshake_required` | **Yes — enforce-mode product approval required before any code lands** |
+| **M4** | Full `EvidenceEnvelope` in `buildEnvelope` (FU-1) | Proofbound CLI TypeScript — **this repo** | **Deferred** — same gate as M3 | Enforce-mode product approval; M3 (handshake implemented) | `buildEnvelope` populates `producerRunId` / `verifierRunId`, `provider` / `model` / `vendor`, and optionally `claims` / `coverage` / `negativeControls`; CLI evidence accepted at L2+ by production Python authority | **Yes — enforce-mode product approval required before any code lands** |
+| **M5** | Actor-key / runner identity / envelope signing (FU-3, FU-4-runner) | **FU-3**: Proofbound CLI — **docs-only, resolved** (this document). **FU-4 runner portion**: Proofbound Mac/Swift — **separate repo; own Proofbound story** | **FU-3: docs-only / resolved** under thin-client posture — CLI is explicitly not a runner; MAC is the canonical runner (see §FU-3 doc-only resolution above). **FU-4 runner portion: not authority work** — MAC work in a separate repo; Proofbound CLI has no implementation obligation | FU-3: none (resolved by this document). FU-4: MAC/Cord team decision, unblocked by PD-1 | FU-3: this document is the durable record; no CLI code required. FU-4: MAC populates `model` / `vendor` + handshake `nil` fields in runner build; actor-key / heartbeat / signing remain MAC-owned | FU-3: No — resolved by design decision recorded here. FU-4: No — MAC team advisory, independent of CLI |
+| **M6** | `AuthorityReceipt` signature verification + VCP cross-repo test (FU-4-receipt, FU-6) | **FU-4 receipt**: Proofbound Mac/Swift — **separate repo**. **FU-6**: Proofbound CLI (optional; pursue if deemed worth cost) | FU-4 receipt: **not authority work** — MAC work, separate repo; Proofbound CLI has no obligation. FU-6: **deferred** — independent of PD-1 enforce gate; may pursue if deemed worth cost | M5 FU-4-runner for MAC receipt; FU-6 independent | MAC cryptographically verifies `AuthorityReceipt` ed25519 signature (currently only JobSpec is verified). FU-6 (if pursued): fixture-based cross-repo VCP digest-equality test passes in CLI CI | No — advisory items; FU-6 requires no product approval; MAC is Cord team decision |
 
 ### Deduplication against known backlog (B-4622, B-da5b, B-0f04)
 
@@ -427,17 +427,17 @@ completed stories:
 
 | Story | Phase | Topic | Overlap with M2–M6 |
 |-------|-------|-------|--------------------|
-| **B-4622** | INIT (parked) | `scope_check_save` PLAN-only evidence-hygiene gap — internal Lattice CLI scope-check lifecycle (`command-policy.ts` allowedPhases, `story_review` PLAN→DEV gate) | None — different subsystem; not authority/receipt/envelope work |
+| **B-4622** | INIT (parked) | `scope_check_save` PLAN-only evidence-hygiene gap — internal Proofbound CLI scope-check lifecycle (`command-policy.ts` allowedPhases, `story_review` PLAN→DEV gate) | None — different subsystem; not authority/receipt/envelope work |
 | **B-da5b** | INIT (parked) | Post-DONE activity heartbeat recreating orphan `.worktrees/` dirs — worktree lifecycle bug | None — different subsystem; not authority/receipt/envelope work |
 | **B-0f04** | DONE | Cross-end authority contract audit that produced the FU-1–FU-6 recommendations and the PD-1 question | Completed; M2–M6 are the forward routing from its recommendations, not a re-audit |
 
-FU-1 / FU-2 / FU-3 / FU-6 all live in the Lattice CLI authority-client subsystem
+FU-1 / FU-2 / FU-3 / FU-6 all live in the Proofbound CLI authority-client subsystem
 (`authority-submit.ts` / `authority-client.ts` / `authority-contracts.ts`) — a
 different subsystem from B-4622's scope-check and B-da5b's worktree lifecycle.
 Routing M2–M6 does not re-propose either parked backlog item.
 
 Any Python authority (M2, M5/FU-4) or Mac runner (M5/FU-4, M6/FU-4) work must be
-tracked as **separate stories in their own repos**, following each team's own Lattice
+tracked as **separate stories in their own repos**, following each team's own Proofbound
 flow. CLI stories in this repo may only implement CLI-owned items (M3, M4, M6/FU-6),
 and only after the enforce-mode approval gate is cleared (M3, M4).
 
@@ -516,5 +516,5 @@ guard against future wording changes silently promoting thin-client submissions.
 | B-2522 CHK-002 enforce matrix | In-process smoke proving local/off stays free/local, shadow is warning-only, enforce fake receipt only classifies after receipt verification, enforce missing server fails closed, parallel_report stays non-authoritative with productionDone=false | `packages/main/src/tasks/authority-enforce-matrix-smoke.ts` |
 | Verification Context Pack | Defines locally-landed vs external authority constraints | `docs/requirements/decisions/verification-context-pack.md` |
 | Truth-source management | Defines where human decisions must live | `docs/requirements/decisions/truth-source.md` |
-| Role separation doc | Lattice multi-role architecture reference | `docs/requirements/decisions/role-separation.md` |
+| Role separation doc | Proofbound multi-role architecture reference | `docs/requirements/decisions/role-separation.md` |
 | Story lifecycle | DONE/REVIEW/TEST gate policy | `docs/requirements/decisions/story-lifecycle.md` |
