@@ -4,7 +4,7 @@
   "title": "Allow live-smoke transcript evidence as a TEST lifecycle artifact in scope gates",
   "description": "B-ce03 exposed a scope gate bug: live_smoke_transcript writes .lattice/story/actives/<storyId>/evidence/live-smoke-transcript.json during TEST, but scope classification treats that command-generated story evidence as out-of-scope. The DONE gate then suggests scope_contract_acknowledge even though that command is forbidden in TEST. Fix the lifecycle artifact classifier so the supported live-smoke transcript artifact passes scope without weakening arbitrary nested evidence files.",
   "type": "bug",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "keywords": [
     "live-smoke-transcript",
@@ -20,7 +20,7 @@
   ],
   "createdAt": "2026-06-24T14:12:46.734Z",
   "startedAt": "2026-06-24T14:12:46.734Z",
-  "endedAt": null,
+  "endedAt": "2026-06-24T14:36:09.133Z",
   "events": [
     {
       "phase": "INIT",
@@ -39,11 +39,52 @@
       "user": "Harmonygo",
       "sessionId": "sess-7f55c8d5292c7c45",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-24T14:14:43.284Z",
+      "branch": "story/B-d669",
+      "user": "Harmonygo",
+      "sessionId": "sess-d9ee6f7c61fbe29c",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-24T14:16:53.158Z",
+      "branch": "story/B-d669",
+      "user": "Harmonygo",
+      "sessionId": "sess-d9ee6f7c61fbe29c",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-24T14:24:02.285Z",
+      "branch": "story/B-d669",
+      "user": "Harmonygo",
+      "sessionId": "sess-d9ee6f7c61fbe29c",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-24T14:28:41.195Z",
+      "branch": "story/B-d669",
+      "user": "Harmonygo",
+      "sessionId": "sess-d9ee6f7c61fbe29c",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-24T14:36:09.133Z",
+      "branch": "story/B-d669",
+      "user": "Harmonygo",
+      "sessionId": "sess-d9ee6f7c61fbe29c",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-d669",
-    "branch": "story/B-d669",
-    "createdAt": "2026-06-24T14:14:35.304Z"
-  }
+  "currentReviewRound": "2026-06-24T14:24:02.285Z"
 }
