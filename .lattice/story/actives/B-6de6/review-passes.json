@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-24T00:21:09.458Z",
       "reviewRunId": "B-6de6:RR-008",
       "_hash": "1e8a98d419e2d5ec4617869e28984875d111d82c3ec66a08b9a7e37dc5f71e5f"
+    },
+    {
+      "id": "B-6de6:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Round 2 quality review passed. Checked: (1) dead code — no unused imports or commented-out blocks in changed files; currentStoryFilesHash and eventsWithStoryFilesHashDowngrade are both imported and used; (2) type safety — no as-any casts, no empty catch blocks; storyFilesHash?: string|null on ReviewAssuranceFloorReport and interface are correct; normalizeString returns empty string for undefined event.storyFilesHash, making the fallback advisory guard safe; (3) done-oracle.ts floor advisory guard floor.ok && floor.advisories?.length is correct — only appends on pass path, parallel to escalation row, no behavior change when no advisories; fail path surfaces advisories via formatReviewAssuranceFloorFailure hint which also guards report.advisories?.length; (4) formatReviewAssuranceFloorFailure correctly appends accepted-drift advisories on the fail path without duplication; (5) new smoke review-assurance-floor-storyfileshash-smoke.ts is fully offline, deterministic, non-tautological, and would fail if the fix were reverted (checks (a), (a2), (c) cover the happy/anti-gaming/control paths); (6) done-escalation-drift-advisory-smoke.ts new checks (A) and (B) for the floor row are deterministic and symmetric to the pre-existing escalation row checks; (7) I/O isolation not applicable (no bridge.ts); (8) process-fact-levels.ts rationale update and verify-process-fact-contract.mjs expected line are consistent with each other. No blockers found.",
+      "createdAt": "2026-06-24T00:48:12.770Z",
+      "reviewRound": "2026-06-24T00:21:09.458Z",
+      "reviewRunId": "B-6de6:RR-006",
+      "_hash": "cdcb2ecf04c307d0ebf8f18c003527215979094274d5a19adc9e30f7ae2bd639"
     }
   ]
 }
