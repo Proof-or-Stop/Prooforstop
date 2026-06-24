@@ -17,6 +17,25 @@
       ],
       "signatureTag": "missing|ts|reviewassurancefloorreport-interface-formatreviewassurancefloorfailure",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-6de6:F-002",
+      "desc": "currentStoryFilesHash call-site asymmetry between the floor and review-escalation: floor correctly passes (gitCwd, HEAD, args.projectRoot) separating git-cwd from metadataRoot (wrapper-root aware, review-assurance-floor.ts:510), while review-escalation passes only (args.projectRoot) as gitCwd with no metadataRoot separation (review-escalation.ts:440). On a wrapper-root layout where gitCwd != projectRoot the two evaluators compute different storyFilesHash values for the same story, breaking the claim of equivalent downgrade-accept semantics. The floor fix is correct; review-escalation has a pre-existing bug not addressed by this story. No unified helper or comment documents the asymmetry.",
+      "severity": "low",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-24T00:25:09.330Z",
+      "reviewRound": "2026-06-24T00:21:09.458Z",
+      "reviewRunId": "B-6de6:RR-001",
+      "_hash": "c5a254849f214bc47517794b7d48fb6ff0cdf41aa3da2cb73afc076f775c0a33",
+      "files": [
+        "packages/main/src/core/review-escalation.ts",
+        "packages/main/src/core/review-assurance-floor.ts"
+      ],
+      "signatureTag": "edge|ts|currentstoryfileshash-call-site",
+      "signatureTagSource": "auto"
     }
   ]
 }
