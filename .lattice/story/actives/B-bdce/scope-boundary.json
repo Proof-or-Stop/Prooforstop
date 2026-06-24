@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-bdce",
+  "mode": "maintenance",
+  "allowed": [
+    "packages/main/src/core/evidence-stale-hint.ts (enrich renderEvidenceStaleHint: add done_prepare one-step line + drift-classification line; keep existing refresh_stale+validate lines)",
+    "packages/main/src/tasks/verification-freshness-smoke.ts (update rendered-hint byte-equality asserts + extractStaleBlock line-count slice; add GAP1/GAP2 regression asserts)"
+  ],
+  "excluded": [
+    "Changing the existing stable recovery lines (refresh_stale + validate) or the EVIDENCE_STALE_MARKER constant",
+    "DONE-blocker generators (machine.ts/done-oracle.ts), freshness judgment, gate strength, proof-admissibility contract — spike showed they are not the gap",
+    "flow-stability-smoke.ts (only uses findStaleEvidence; unchanged, out of scope)",
+    "The 3 consuming surfaces hints.ts/session.ts/transition-orchestrator.ts (they auto-inherit the shared renderer; do not edit unless one reconstructs the string)"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Validated by red/spike: RED test exit 1 (no done_prepare, no drift class); scratch green proof; scope grep confirmed only verification-freshness-smoke.ts pins the rendered output. User approved proceeding.",
+  "createdAt": "2026-06-24T14:36:14.885Z",
+  "updatedAt": "2026-06-24T14:36:14.885Z",
+  "_hash": "db1d50b441b8d7c942fd5c9123fe50a5ef7e52f9b237563dc05ed338ee37bf45"
+}
