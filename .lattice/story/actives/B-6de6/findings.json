@@ -68,7 +68,7 @@
       "desc": "CHK-003:happy:0 smoke assertion uses a weaker match pattern than the stated intent requires. Intent specifies the advisory must match /materialDigest drift accepted.*storyFilesHash matches.*re-attestation/, but the smoke (line 138 of review-assurance-floor-storyfileshash-smoke.ts) only asserts assert.match(..., /storyFilesHash matches/). The actual advisory text (review-escalation.ts line 422) does contain all three components ('materialDigest drift accepted because storyFilesHash matches; re-attestation advisory required'), but the smoke would pass even if the advisory were reduced to a shorter string containing only 'storyFilesHash matches', without the 'materialDigest drift accepted' prefix or the 're-attestation advisory required' suffix. The evidence therefore does not verify the full advisory content promised by the intent, making the test insufficient to catch future advisory format regressions.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-24T00:26:29.402Z",
@@ -79,7 +79,11 @@
         "packages/main/src/tasks/review-assurance-floor-storyfileshash-smoke.ts"
       ],
       "signatureTag": "missing|ts|happy-smoke-assertion",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Smoke now asserts the full three-part advisory pattern /materialDigest drift accepted.*storyFilesHash matches.*re-attestation/ for CHK-003:happy:0. Commit 5389c13e4.",
+      "resolvedAt": "2026-06-24T00:42:54.450Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-6de6:F-005",
