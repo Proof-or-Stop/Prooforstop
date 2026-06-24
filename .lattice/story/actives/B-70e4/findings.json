@@ -1,0 +1,22 @@
+{
+  "findings": [
+    {
+      "id": "B-70e4:F-001",
+      "desc": "concept-cleanup: fetchGateReceiptProof authentication fix incomplete: authority-live-receipt-ref-gate-smoke.ts:860 still calls new AuthorityClient(input.ctx.liveURL).fetchGateReceiptProof(proofPath) with no auth arg (unauthenticated), while ctx.customerApiKey is available in scope (line 151/170). Since the proof endpoint is protected (401 without auth), this diagnostic fetch will 401 in the same conditions the fix is designed to cure — defeating the diagnostic.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-24T01:24:54.787Z",
+      "reviewRound": "2026-06-24T01:23:41.780Z",
+      "reviewRunId": "B-70e4:RR-001",
+      "_hash": "c49415d842e6f2bcb68a9debd16f3bcd89fb9de993199c92d630c02d421132f4",
+      "files": [
+        "packages/main/src/tasks/authority-live-receipt-ref-gate-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|concept-cleanup-fetchgatereceiptproof",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
