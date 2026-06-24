@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-2f1a",
+  "allowedCommands": [
+    "git *",
+    "grep *",
+    "node bin/lattice.js *",
+    "npm --prefix packages/main run build",
+    "npm test"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "CHANGELOG.md",
+    "docs",
+    "package.json",
+    "packages/lab/src",
+    "packages/main/src",
+    "packages/utils/src",
+    "README.md"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek-operator",
+  "confirmationNote": "Phase-1 user-visible rebrand: brand prose + --help/banner strings + package descriptions only. No identifier/binary/package-name/.lattice/schema-id/salt changes.",
+  "createdAt": "2026-06-24T12:11:53.588Z",
+  "updatedAt": "2026-06-24T12:11:53.588Z",
+  "_hash": "7ae0e4022c723d2bceffee90134e8a0a107764c1735231610859e176c860113d"
+}

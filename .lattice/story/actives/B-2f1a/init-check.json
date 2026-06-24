@@ -1,0 +1,42 @@
+{
+  "storyId": "B-2f1a",
+  "checkedAt": "2026-06-24T12:13:58.786Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "id": "INIT-001",
+      "severity": "low",
+      "desc": "background.md Trigger Event references cross-story B-fbca (koala salt rename) with no one-sentence explanation; a standalone reader cannot infer what B-fbca did without prior context."
+    },
+    {
+      "id": "INIT-002",
+      "severity": "low",
+      "desc": "background.md Trigger Event phrase \"packages/*/src + docs/experiments literal-zero\" uses unexplained jargon \"literal-zero\" (zero occurrences of the koala identifier in those paths) that a new reader cannot infer without context."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-24T12:08:23.698Z",
+      "issues": []
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-06-24T12:13:58.786Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "low",
+          "desc": "background.md Trigger Event references cross-story B-fbca (koala salt rename) with no one-sentence explanation; a standalone reader cannot infer what B-fbca did without prior context."
+        },
+        {
+          "id": "INIT-002",
+          "severity": "low",
+          "desc": "background.md Trigger Event phrase \"packages/*/src + docs/experiments literal-zero\" uses unexplained jargon \"literal-zero\" (zero occurrences of the koala identifier in those paths) that a new reader cannot infer without context."
+        }
+      ]
+    }
+  ],
+  "_hash": "81eeb94b73d739f3e0f88b20b395d1199b94d4ee2abadc4abdb50f68a56aed2b"
+}
