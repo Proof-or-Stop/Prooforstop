@@ -83,7 +83,38 @@
       "context": "description only; name/@lattice stay for Phase 2",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "package.json description fields read \"Proofbound\" (the npm \"name\" field stays @lattice/lattice for Phase 2).",
+      "files": {
+        "modify": [
+          "package.json",
+          "packages/main/package.json",
+          "packages/utils/package.json",
+          "packages/lab/package.json"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "grep package.json description fields → Proofbound (not Lattice)",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "the \"name\" fields (lattice, @lattice/core) are UNCHANGED",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "package.json stays valid JSON",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
