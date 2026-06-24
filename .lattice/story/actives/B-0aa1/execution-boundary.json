@@ -1,0 +1,55 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-0aa1",
+  "allowedCommands": [
+    "git diff*",
+    "git show*",
+    "git status*",
+    "lattice *",
+    "ls *",
+    "nl *",
+    "node packages/main/dist/tasks/*",
+    "npm --prefix packages/main run *",
+    "npm --prefix packages/main run build",
+    "rg *",
+    "sed *"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "Codex CLI",
+    "Lattice CLI",
+    "shell"
+  ],
+  "allowedPaths": [
+    "AGENTS.md",
+    "CLAUDE.md",
+    "docs/evidence/evidence-platform-architecture.md",
+    "docs/requirements/decisions/repro-first-story-intake-experiment.md",
+    "docs/requirements/NAV.md",
+    "package-lock.json",
+    "package.json",
+    "packages/main/package-lock.json",
+    "packages/main/package.json",
+    "packages/main/src"
+  ],
+  "excludedCommands": [
+    "git checkout -- *",
+    "git clean -fd*",
+    "git push*",
+    "git reset --hard*",
+    "omx *"
+  ],
+  "excludedTools": [
+    "omx"
+  ],
+  "excludedPaths": [
+    ".omx",
+    "docs/story",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Develop the repro-first candidate-only evidence intake MVP in a story worktree. Do not use omx or .omx. Do not directly edit story or fixture storage.",
+  "createdAt": "2026-06-24T04:05:15.236Z",
+  "updatedAt": "2026-06-24T04:05:15.236Z",
+  "_hash": "8618162e6256c5b4baf4c75d1e9789ee3a4079405626865f61a5a04932b8f7da"
+}

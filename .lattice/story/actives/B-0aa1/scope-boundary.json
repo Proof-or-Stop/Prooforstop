@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-0aa1",
+  "mode": "feature",
+  "allowed": [
+    "Add CLI/handler support for repro_probe, repro_review_set, spike_record, spike_review_set, red_green_relation_create/evaluate, regression_matrix_review_set, and story_create_from_repro binding",
+    "Add focused smoke tests proving candidate-only artifacts do not satisfy DONE or production claims and can bind to a later story",
+    "Add shared local evidence artifact storage primitives only as needed for repro candidate artifacts under .lattice/evidence/",
+    "Implement the candidate-only Repro-first intake MVP described by docs/requirements/decisions/repro-first-story-intake-experiment.md"
+  ],
+  "excluded": [
+    "Do not add UI/dashboard surfaces",
+    "Do not change the production DONE gate beyond non-consuming candidate artifact plumbing",
+    "Do not implement full Proof Admissibility enforcement or Authority Server quorum behavior in this story",
+    "Do not migrate legacy evidence or build the full ledger/waterline system in this story"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User requested developing repro-first-story-intake-experiment.md until complete; this boundary limits the first implementation to the document candidate-only intake MVP and excludes full admissibility hardening.",
+  "createdAt": "2026-06-24T04:04:56.071Z",
+  "updatedAt": "2026-06-24T04:04:56.071Z",
+  "_hash": "6c744c6718a56a36a01166294e215f42ae25b247e908fd2dadc3455bd803c3cf"
+}

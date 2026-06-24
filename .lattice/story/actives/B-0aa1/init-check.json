@@ -1,0 +1,34 @@
+{
+  "storyId": "B-0aa1",
+  "checkedAt": "2026-06-24T04:05:52.129Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init@fallback",
+  "issues": [],
+  "agentResults": [
+    {
+      "agentId": "lattice-review-story-init@fallback",
+      "checkedAt": "2026-06-24T04:05:52.129Z",
+      "issues": []
+    },
+    {
+      "agentId": "product-reviewer@fallback",
+      "checkedAt": "2026-06-24T04:05:52.129Z",
+      "issues": []
+    }
+  ],
+  "fallback": {
+    "mode": "fallback",
+    "reason": "No Agent/subagent execution tool is available in this Codex session; lattice dispatch only emits reviewer prompts. I manually checked scope_boundary, execution_boundary, and scope_freeze_check: implementation is limited to candidate-only repro intake MVP, excludes Authority quorum/full admissibility enforcement/UI/legacy migration, blocks omx and direct story fixture edits, and has no high/critical INIT issues.",
+    "evidenceRefs": [
+      "scope_boundary_set hash 6c744c6718a56a36a01166294e215f42ae25b247e908fd2dadc3455bd803c3cf",
+      "execution_boundary_set hash 8618162e6256c5b4baf4c75d1e9789ee3a4079405626865f61a5a04932b8f7da",
+      "scope_freeze_check PASS for B-0aa1"
+    ],
+    "actor": "Harmonygo",
+    "session": "sess-7f55c8d5292c7c45",
+    "attestedAt": "2026-06-24T04:05:52.129Z",
+    "headHash": "f9257068139e1b3d9e7ccbf4935a2ee1fc2d355b",
+    "materialHash": "52352bc26f18994d52e2bcbab0353fd26b1406f60155aed1bddd36c5f4107278"
+  },
+  "_hash": "4e20db07db70ffee25640908eb84b9c3ebb15706e26efb9a67343688cec879f8"
+}
