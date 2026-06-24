@@ -1,0 +1,23 @@
+{
+  "findings": [
+    {
+      "id": "B-0405:F-001",
+      "desc": "Docs/code naming drift: the hardening plan implementation boundary tells readers to register proof surfaces through `ArtifactDefinition` and evaluate gate claims through `ClaimPolicy` at docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md:58-60, but the current registry exports `ProofSurfaceDefinition` and `ProofClaimPolicy` at packages/main/src/core/proof-admissibility.ts:122-144. This can misdirect follow-up implementation work even though the Authority/production scope rules themselves remain correctly conservative.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-24T11:24:17.863Z",
+      "reviewRound": "2026-06-24T11:21:33.431Z",
+      "reviewRunId": "B-0405:RR-003",
+      "_hash": "de0c742b615cd09cc25231f3297e5a63b5ba3c24e7df22bf1dc0bf68d824769b",
+      "files": [
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+        "packages/main/src/core/proof-admissibility.ts"
+      ],
+      "signatureTag": "doc-code-drift|md|docs-code-naming",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
