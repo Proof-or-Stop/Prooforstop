@@ -53,6 +53,15 @@
       "reviewRound": "2026-06-24T22:29:16.791Z",
       "reviewRunId": "B-1731:RR-016",
       "_hash": "7d46564a05749a668a00da39f95c9bb8699af20a3e0c664c6987e0fa03985c75"
+    },
+    {
+      "id": "B-1731:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "Round 3 targeted concept re-review of commit 888401f4e: no blocker. story_create now rejects reproFirstBypassReason for direct PLAN/DEV/REVIEW/TEST/DONE before persistence while allowing IDEA/INIT intake bypass only; malformed story-evidence-binding payloads remain stale/invalid and block lifecycle gates rather than being accepted. Verified with npm --prefix packages/main run build and npm --prefix packages/main run test:repro-evidence-binding-dev-gate.",
+      "createdAt": "2026-06-24T22:35:10.572Z",
+      "reviewRound": "2026-06-24T22:29:16.791Z",
+      "reviewRunId": "B-1731:RR-015",
+      "_hash": "817022e6e15c96f5abfc3e50cefb2e63d816ce20f066bbed5bc5f39ea88e2b0f"
     }
   ]
 }
