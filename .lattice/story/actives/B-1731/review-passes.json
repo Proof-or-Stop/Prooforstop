@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-1731:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 2 coverage re-review clean. fcd3aebb2 makes repro-evidence-binding-dev-gate smoke load-bearing across file declarations, bug_story, high-risk code-verifiable, story_create enforce/warn/off, fromDraft enforce/warn/bypass, story_create_from_repro, rejected review, PLAN/DEV/INIT_CHECK gates, warn/off lifecycle behavior, engine-error fail-open, and session_brief surfacing. Verified npm run test:repro-evidence-binding-dev-gate (21 ok) and npm run test:process-fact-contract (process fact contract verified, including runtime:repro_first_story_intake_preflight and artifact:story-evidence-binding).",
+      "createdAt": "2026-06-24T22:23:09.429Z",
+      "reviewRound": "2026-06-24T22:17:36.825Z",
+      "reviewRunId": "B-1731:RR-010",
+      "_hash": "2cc6f5739fe0b6f7e8155e9730fe176bc023dd640ce87bf7e3dcd8e5ace7b95e"
+    }
+  ]
+}
