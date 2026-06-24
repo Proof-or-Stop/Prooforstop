@@ -12,16 +12,14 @@
     "Do not modify Red/Repro/Spike gate behavior in this story.",
     "Do not perform server production receipt demotion or deletion in this story.",
     "Do not touch unrelated dirty files or other active stories.",
-    "Keep changes limited to proof-admissibility core, binding, tests/smokes, and scanner-visible annotations if needed."
+    "Keep changes limited to proof-admissibility core, gates, tests/smokes, and scanner-visible annotations if needed."
   ],
   "unknowns": [],
   "touchpoints": [
     "packages/main/src/core/proof-admissibility.ts",
-    "packages/main/src/core/proof-admissibility-binding.ts",
     "packages/main/src/core/proof-admissibility-gates.ts",
     "packages/main/src/tasks/proof-admissibility-smoke.ts",
-    "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts",
-    "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+    "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts"
   ],
-  "timestamp": "2026-06-24T12:48:50.714Z"
+  "timestamp": "2026-06-24T12:52:37.182Z"
 }
