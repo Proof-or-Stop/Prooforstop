@@ -93,9 +93,9 @@
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
         "docs/evidence/evidence-platform-architecture.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-24T10:08:53.060Z",
-      "endTime": null,
+      "endTime": "2026-06-24T10:09:01.061Z",
       "userSees": "User sees a shared proof admissibility registry in core code with canonical scopes, roles, consumers, claims, temporal roles, producer boundaries, and reason codes.",
       "files": {
         "modify": [
@@ -130,7 +130,45 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/core/proof-admissibility.ts",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "Core registry exports canonical EvidenceScope, ArtifactRole, ClaimKind, ArtifactConsumerKind, TemporalRole, ProofProducerBoundary, and reason-code dictionaries.",
+          "headHash": "64a8b953d1df5371c5c6243f56189349a9d585d7",
+          "materialHash": "b2d2745fdd0678e902f7917e3e4200fe071ec3c373c70df8e50224e67f42e411",
+          "storyFilesHash": "1182244e6833c24e24ecba68362c64b7d67b270c8e42ec7310e0221d464a874d",
+          "timestamp": "2026-06-24T10:09:01.261Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proof-admissibility-smoke.ts",
+          "command": "npm --prefix packages/main run test:proof-admissibility",
+          "result": "pass",
+          "note": "Smoke asserts unknown artifact kinds and unsupported schema versions fail closed with structured reasons.",
+          "headHash": "64a8b953d1df5371c5c6243f56189349a9d585d7",
+          "materialHash": "b2d2745fdd0678e902f7917e3e4200fe071ec3c373c70df8e50224e67f42e411",
+          "storyFilesHash": "1182244e6833c24e24ecba68362c64b7d67b270c8e42ec7310e0221d464a874d",
+          "timestamp": "2026-06-24T10:09:01.445Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proof-admissibility-smoke.ts",
+          "command": "npm --prefix packages/main run test:proof-admissibility",
+          "result": "pass",
+          "note": "Smoke asserts authority-receipt and production-gate-decision are distinct, with productionDone eligibility only for the matching production gate decision.",
+          "headHash": "64a8b953d1df5371c5c6243f56189349a9d585d7",
+          "materialHash": "b2d2745fdd0678e902f7917e3e4200fe071ec3c373c70df8e50224e67f42e411",
+          "storyFilesHash": "1182244e6833c24e24ecba68362c64b7d67b270c8e42ec7310e0221d464a874d",
+          "timestamp": "2026-06-24T10:09:01.623Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
