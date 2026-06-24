@@ -100,7 +100,42 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Gate diagnostics show each consumed proof-looking artifact scope, claim, consumer, reason code, and remediation hint in warn mode without breaking legacy local flows.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/done-oracle.ts",
+          "packages/main/src/handlers/done-closure.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/core/process-fact-levels.ts"
+        ],
+        "create": [
+          "packages/main/src/core/proof-admissibility-gates.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Strong local DONE-required evidence emits local-gate-evidence diagnostics, not productionDone.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Legacy/local/diagnostic gate inputs emit warnings with stable reason codes and remediation hints.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A proof-looking artifact routed to the wrong consumer/claim is diagnosed as consumer or claim mismatch and cannot silently satisfy production completion.",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
