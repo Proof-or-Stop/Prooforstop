@@ -136,9 +136,9 @@
       "id": "CHK-004",
       "title": "Re-fixture delivery-check-freshness smoke to story-branch topology and add the drift cases",
       "context": "packages/main/src/tasks/delivery-check-freshness-smoke.ts: HEAD ahead of main so currentStoryFilesHash is non-empty; cases for non-story whole-tree drift -> advisory pass, story-owned change -> stale reject, forged storyFilesHash -> tampered, legacy missing storyFilesHash -> strict stale. Reference /tmp/friction1-cfresh-fix/redgreen-spike-test.ts.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-24T11:12:16.884Z",
       "verificationIntent": {
         "happy": [
           {
