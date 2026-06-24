@@ -224,6 +224,17 @@
           "materialHash": "96adaa007e8f7ddafa1d445c9f905d262eb90f4da087c701fec35f3474287e79",
           "storyFilesHash": "3bb033bf48d472daad32daea22503c5bbbef2c03c79374e5fe0665781999041e",
           "timestamp": "2026-06-24T01:20:09.244Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "manual_transcript",
+          "command": "source /Users/jek/Documents/Work/proofbound/lattice_senior_authority_trust.env && export LATTICE_AUTHORITY_CUSTOMER_API_KEY=\"$(cat /Users/jek/Documents/Work/proofbound/lattice_senior_staging-client.env | tr -d '\\n')\" && node packages/main/dist/tasks/authority-live-receipt-ref-gate-smoke.js",
+          "result": "pass",
+          "note": "authority-live-receipt-ref-gate-smoke.ts:197-219 buildPhaseGateRequest calls buildGateEvaluateRequest with materialOverlapAudit: buildNoOverlapMaterialOverlapAuditDefault() for targetPhase=DONE (line 213-219). buildNoOverlapMaterialOverlapAuditDefault() at authority-contracts.ts:811-816 returns {changedFiles:[], actualFileOverlaps:[]}. The live smoke PASS proves Authority accepted the DONE gate request with this field present in the digest input (gateInputDigest computed by buildGateEvaluateRequest at authority-contracts.ts:882 covers all input fields including materialOverlapAudit).",
+          "headHash": "7962efe93b43bd214e587abf91a8d52ab14f0119",
+          "materialHash": "96adaa007e8f7ddafa1d445c9f905d262eb90f4da087c701fec35f3474287e79",
+          "storyFilesHash": "3bb033bf48d472daad32daea22503c5bbbef2c03c79374e5fe0665781999041e",
+          "timestamp": "2026-06-24T01:20:14.801Z"
         }
       ]
     },
