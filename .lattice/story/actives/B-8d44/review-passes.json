@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-24T12:50:13.876Z",
       "reviewRunId": "B-8d44:RR-007",
       "_hash": "3a482b8e8cdca3fbc4e8d85cdc3f5e954b1044dbc2ae4841fa02493bced6c7d4"
+    },
+    {
+      "id": "B-8d44:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 concept re-attest complete. F-006 fix confirmed: A3 reviewArtifact called once post-loop, reviewVerdict recorded-not-iterated, BLOCK does not gate finalPass/outcome; selfcheck asserts recovered even with reviewerShips=false, and spy call-count=1 even after acceptance-fail retries. F-003 fix confirmed: computeBaselineFailures() builds a throwaway clean ws from reference-solution.mjs independent of injection, so an unresolved injected fault is new vs clean baseline => amplified, a genuinely-fixed fault passes ground-truth => recovered; adjudicate.mjs unchanged (0 diff lines). All 5 arms (A1/A2/A2prime/A3/A4) remain pre-reg-faithful. Adapter emits raw evidence only, no adjudicatedOutcome. selfcheck 126/126 assertions passed. No concept deleted/replaced. No doc-promise-undelivered gaps found.",
+      "createdAt": "2026-06-24T13:19:14.717Z",
+      "reviewRound": "2026-06-24T12:50:13.876Z",
+      "reviewRunId": "B-8d44:RR-011",
+      "_hash": "818504bbf2bb6a69a756a962c567eb1acf4a1a32b46e9f5f63dd82a0217d4ebe"
     }
   ]
 }
