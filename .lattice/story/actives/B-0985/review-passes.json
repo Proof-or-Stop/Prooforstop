@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-24T10:19:54.578Z",
       "reviewRunId": "B-0985:RR-007",
       "_hash": "80e0f4772f91a4b3b91a1baa24fbdb4d6ede3ea1c4eaa5c92d41ef42bc5d7b7a"
+    },
+    {
+      "id": "B-0985:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Concept review round 2 PASS. Prior F-002 is fixed: packages/main/src/core/proof-admissibility.ts:516-658 now requires affirmative schema, strict shape, semantic digest, signature/receipt, temporal/material, subject, and producer checks; omitted authority-receipt-ref production-completion checks fail closed with missing_required_field/signature_missing/unknown_producer and productionDoneEligible=false. Boundary review: registry keeps local-gate done-required evidence to done-readiness only, candidate and diagnostic artifacts non-production, raw authority-receipt diagnostic-only, and only authority-receipt-ref/production-gate-decision can become production-completion eligible after all checks. Verified with npm --prefix packages/main run build and npm --prefix packages/main run test:proof-admissibility.",
+      "createdAt": "2026-06-24T10:24:16.653Z",
+      "reviewRound": "2026-06-24T10:19:54.578Z",
+      "reviewRunId": "B-0985:RR-005",
+      "_hash": "8596a57e9ef188d380141aac5778edde033797153535539e3139c6848581888a"
     }
   ]
 }
