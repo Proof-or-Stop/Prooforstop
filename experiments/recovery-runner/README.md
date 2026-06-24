@@ -22,10 +22,27 @@ The arm decides what the loop does once the visible acceptance test passes:
 A fault is `amplified` when an arm ships an artifact that passes the visible test but
 fails the hidden ground truth — i.e. the loop got fooled.
 
-## The four tasks
+## The 24-task stratified corpus
 
-`eval-expr`, `median`, `parse-range`, `text-stats` — small, deterministic Node tasks
-that each produce a `solution.mjs`.
+The pre-reg §2 corpus is **24 small, deterministic Node tasks** (each produces a
+`solution.mjs`), stratified across **8 categories** so the ablation is not biased toward one
+kind of work:
+
+| category | count | tasks |
+| --- | --- | --- |
+| `bug-fix` | 3 | `bf-datediff`, `bf-mergesorted`, `bf-lru` |
+| `feature` | 4 | `eval-expr`, `median`, `parse-range`, `text-stats` |
+| `refactor` | 3 | `rf-units`, `rf-roman`, `rf-money` |
+| `test-repair` | 3 | `tr-slugify`, `tr-pluralize`, `tr-clamp` |
+| `doc-update` | 2 | `du-interp`, `du-duration` |
+| `dep-upgrade` | 3 | `dp-deepmerge`, `dp-querystring`, `dp-semver` |
+| `contract-validation` | 3 | `cv-ipv4`, `cv-luhn`, `cv-email` |
+| `CLI-feature` | 3 | `cl-combined`, `cl-equals`, `cl-multi` |
+
+Each category carries 2–5 tasks (OQ-001: lower bound keeps every category represented, upper
+bound catches drift). The corpus is **frozen for the powered run** and continuously validated
+by `corpus-selfcheck.mjs` (see "Offline self-checks"), which asserts every task's
+reference/injection invariant **and** the §2 stratification.
 
 ## Layout of a task dir (`tasks/<task>/`)
 
@@ -36,9 +53,13 @@ that each produce a `solution.mjs`.
   `GROUND-TRUTH PASS`); the loop never sees it.
 - `reference-solution.mjs` — a known-good solution (stored distinctly so a live run's
   `solution.mjs` can never overwrite it).
-- task-specific **passes-the-visible-test-but-wrong** injection payloads:
-  `subtle-wrong-output.mjs`, plus per-task `payload-subtle.mjs` / `overfit-output.mjs`.
-  These pass `acceptance.mjs` but fail `ground-truth.mjs` — the bait the experiment uses.
+- task-specific **passes-the-visible-test-but-wrong** injection payloads: every task has
+  `subtle-wrong-output.mjs` (default-exports an `inject(ws, task)` — the canonical injection
+  path the run-driver uses). The 20 stratified tasks (and `eval-expr`) store the payload in a
+  separate `payload-subtle.mjs` that the injector reads; a few legacy tasks (`text-stats`)
+  embed the payload inline in `subtle-wrong-output.mjs` and have no `payload-subtle.mjs`; two
+  legacy tasks (`median`, `parse-range`) also carry an `overfit-output.mjs`. The payload passes
+  `acceptance.mjs` but fails `ground-truth.mjs` — the bait the experiment uses.
 
 ## `injections/` — generic file-ops
 
@@ -109,8 +130,9 @@ Every harness module has a deterministic, no-LLM self-check. The aggregator runs
 them and is wired into the root `npm test` via `npm run test:experiments`:
 
 ```sh
-node run-selfchecks.mjs        # adjudicate + checks + spend-accounting + run-driver + analyze selfchecks
+node run-selfchecks.mjs        # adjudicate + checks + spend-accounting + run-driver + analyze + corpus selfchecks (6)
 node run-driver-selfcheck.mjs  # the driver alone (enumeration, schema, denominators, validity, …)
+node corpus-selfcheck.mjs      # the 24-task corpus alone (per-task reference/injection invariant, §2 stratification, negative-control guards)
 ```
 
 These self-checks spawn **no** `claude -p`.
