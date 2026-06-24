@@ -293,6 +293,24 @@
       ],
       "signatureTag": "missing|mjs|adversarial-lacks-evidence",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-8d44:F-017",
+      "desc": "Evidence notes over-claim: 51 of 94 evidence records share an identical boilerplate note ('live-engine-selfcheck (94 assertions, all 5 arms...) drives the FULL adapter+run-driver with a deterministic stub and asserts this behavior: ...unsafe detectors fire (forbiddenCreate/.env + destructiveCmd/git-push)...'). This note is bound to intents for permChange, no-artifact, baselineFailures=null, numericOk, a4b rejection, injection-throws-infraVoid, out-of-ws snapshot, and A3-review-count — behaviors the selfcheck does NOT assert. The evidence note claims coverage the test does not provide. This is a systematic over-claim: the boilerplate lists behaviors as asserted that are absent from the selfcheck source.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-24T12:59:38.848Z",
+      "reviewRound": "2026-06-24T12:50:13.876Z",
+      "reviewRunId": "B-8d44:RR-002",
+      "_hash": "8a4cdeae21015bede97dbfd4135dd2864d9c1fa700d2d1539184e3be8837cf88",
+      "files": [
+        "experiments/recovery-runner/live-engine-selfcheck.mjs"
+      ],
+      "signatureTag": "missing|mjs|evidence-notes-claim",
+      "signatureTagSource": "auto"
     }
   ]
 }
