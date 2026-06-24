@@ -48,9 +48,9 @@
       "id": "CHK-002",
       "title": "Add the drift-advisory downgrade branch to evaluateDeliveryCheckFreshness",
       "context": "core/delivery-check-hash.ts: on materialHash mismatch, if a signed storyFilesHash matches currentStoryFilesHash, return ok:true code delivery_check_drift_advisory with a mandatory advisory and never rebind the stored hash; missing or mismatched storyFilesHash keeps strict stale_delivery_check.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-24T11:08:35.676Z",
       "verificationIntent": {
         "happy": [
           {
