@@ -463,11 +463,11 @@
           "file": "experiments/recovery-runner/live-engine-selfcheck.mjs",
           "command": "node experiments/recovery-runner/live-engine-selfcheck.mjs",
           "result": "pass",
-          "note": "selfcheck CX-C: A2prime with no budgets => infraVoid fail-closed; with budgets => honest budgetPass [F-005]",
-          "headHash": "a834be4288a4d5bbcd8fa89f88845852a47ee3fb",
-          "materialHash": "3fd718981e314e4005dbb660fc2c849d37e85c148bf637f13333d12e9071fd78",
-          "storyFilesHash": "b83319b84e9ea48c8fbfde400ccf325c9784e2f25bbfd781c55928317de159af",
-          "timestamp": "2026-06-24T13:15:30.621Z"
+          "note": "selfcheck asserts A2prime token-binds-first: a stub over the TOKEN budget but under wall => truncated=true + tokenInBand=false + wallInBand=true [F-018]",
+          "headHash": "9cce6b0718cec62b0a84a83ba51efa43327a3273",
+          "materialHash": "9389edc0b23f1e84d3256efb8b83b90b50a8f9bd9f64663919aa0e6005b6b3e9",
+          "storyFilesHash": "ebed77dadfaa575d4f92a7c909111313ccc168cd6138f7d29cb2bcecf1fdacad",
+          "timestamp": "2026-06-24T13:33:35.550Z"
         },
         {
           "intentRef": "CHK-003:edge:2",
