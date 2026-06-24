@@ -515,11 +515,11 @@
           "file": "experiments/recovery-runner/corpus-selfcheck.mjs",
           "command": "node experiments/recovery-runner/corpus-selfcheck.mjs",
           "result": "pass",
-          "note": "corpus-selfcheck stratification: asserts total==24, exactly 8 distinct categories, each count in [2,5]; prints 'stratification OK: 8 categories {bug-fix:3,feature:4,...}'; drift (25th task / consolidated category / missing category) fails the check",
-          "headHash": "883c8524ac6b924c48d40b8e10b902c2647df900",
-          "materialHash": "9f28b82c91a9d14b0bfcf1aef3a30137f791cf3546df8978a7ad59d8ada25b33",
-          "storyFilesHash": "aed6666624846d734a34433306144b48ef4dd03e1dc39ea9ff8f89e19fcf3376",
-          "timestamp": "2026-06-24T10:16:25.612Z"
+          "note": "corpus-selfcheck now runs a built-in negative-control self-test that constructs synthetic gamed corpora and asserts the real guards REJECT each mutation (correct-solution-not-caught / harness-tamper / missing-file / stray-file / missing-payload / 25-tasks / unknown-category / wrong-count) — prints 'negative-control self-test: 8/8 guards fire'; the mutation is actually exercised, not asserted in prose",
+          "headHash": "f293e3cc2400f7f9e2a5763062f912314c79859f",
+          "materialHash": "03ac2ae4cf90a681ead16a78c7ebfe7f00d258c49a17397a78706c19c1cc25d8",
+          "storyFilesHash": "bf5cea6e9a648fc109da08133396f55860337c7e23ecf5053dd8e144115c43e0",
+          "timestamp": "2026-06-24T10:34:29.191Z"
         },
         {
           "intentRef": "CHK-003:edge:1",
