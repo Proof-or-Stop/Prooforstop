@@ -62,6 +62,15 @@
       "reviewRound": "2026-06-24T01:08:47.974Z",
       "reviewRunId": "B-6de6:RR-009",
       "_hash": "6dadb16896c7aecb2a468a609a8249dd3b530854f0329a9e7dfca58014aa955e"
+    },
+    {
+      "id": "B-6de6:RP-008",
+      "agent": "lattice-review-concept",
+      "note": "Round 3 re-attestation after main-merge. The three merges from main introduced only .lattice/story/actives/ metadata for unrelated stories (B-5ae8, B-70e4, B-ef65) — zero source-code changes from main. B-6de6 own code is byte-identical to round 2: (1) review-assurance-floor.ts storyFilesHash secondary downgrade-accept with advisory collection at lines 507-591, plus advisories surfaced in formatReviewAssuranceFloorFailure at lines 719-724; (2) done-oracle.ts floor advisory append at lines 801-802 (PASS render); (3) eventsWithStoryFilesHashDowngrade exported from review-escalation.ts and imported correctly by review-assurance-floor.ts; (4) process-fact-levels.ts gateConsumer extended (not deleted); (5) verify-process-fact-contract.mjs line string extended to match; (6) latestFallbackRecord signature updated to 3 params with no stale call sites. No concept deleted or replaced. No residue to grep for. Concept complete: advisory surfaced at DONE render + failure formatter; whole-tree materialHash primary, storyFilesHash secondary downgrade-accept. No new issues introduced by the merge.",
+      "createdAt": "2026-06-24T01:11:26.825Z",
+      "reviewRound": "2026-06-24T01:08:47.974Z",
+      "reviewRunId": "B-6de6:RR-010",
+      "_hash": "2080920e78c4951644500f6e4d3b8d10f9a12fda85d0c08dc95b15ffdac6d4b2"
     }
   ]
 }
