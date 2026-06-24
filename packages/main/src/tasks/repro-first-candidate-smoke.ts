@@ -232,6 +232,7 @@ section('1. repro_probe — happy path');
       probeId: probe.artifactId,
       reviewId: review.artifactId,
       spikeId: spike.artifactId,
+      spikeReviewId: spikeReview.artifactId,
       matrixReviewId: matrix.artifactId,
       storyTitle: 'Fix auth guard expiry bypass',
       storyDescription: 'Auth guard allows expired tokens through fast path; fix jwt.verify call to include exp check',
@@ -252,6 +253,8 @@ section('1. repro_probe — happy path');
   assert.equal(binding.payload.probeId, probe.artifactId);
   assert.equal(binding.payload.reviewId, review.artifactId);
   assert.equal(binding.payload.spikeId, spike.artifactId);
+  assert.equal(binding.payload.spikeReviewId, spikeReview.artifactId);
+  assert.equal(binding.payload.spikeReviewDigest, spikeReview.artifactDigest);
   assert.ok(binding.payload.note.includes('not set'), 'binding note must say verificationEvidence is not set');
 
   process.stdout.write(`  story: ${fromReproResult.storyId} binding: ${fromReproResult.bindingArtifact.artifactId}\n`);

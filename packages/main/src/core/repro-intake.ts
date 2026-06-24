@@ -385,6 +385,7 @@ export interface CreateStoryFromReproInput {
   probeId: string;
   reviewId: string;
   spikeId?: string;
+  spikeReviewId?: string;
   matrixReviewId?: string;
   storyTitle: string;
   storyDescription: string;
@@ -431,9 +432,34 @@ export async function createStoryFromRepro(
     throw new Error(`repro-intake: review ${input.reviewId} digest ${review.payload.probeDigest} does not match probe ${input.probeId} digest ${probe.artifactDigest}`);
   }
 
-  const spikeDigest = input.spikeId
-    ? readArtifact<SpikeRecordPayload>(projectRoot, input.spikeId).artifactDigest
+  if (input.spikeReviewId && !input.spikeId) {
+    throw new Error(`repro-intake: spikeReviewId ${input.spikeReviewId} requires spikeId`);
+  }
+
+  const spike = input.spikeId
+    ? readArtifact<SpikeRecordPayload>(projectRoot, input.spikeId)
     : undefined;
+  const spikeDigest = spike?.artifactDigest;
+  const spikeReview = input.spikeReviewId
+    ? readArtifact<SpikeReviewPayload>(projectRoot, input.spikeReviewId)
+    : undefined;
+  if (spike && spike.payload.probeId !== input.probeId) {
+    throw new Error(`repro-intake: spike ${input.spikeId} references probe ${spike.payload.probeId}, not ${input.probeId}`);
+  }
+  if (spike && spike.payload.probeDigest !== probe.artifactDigest) {
+    throw new Error(`repro-intake: spike ${input.spikeId} digest ${spike.payload.probeDigest} does not match probe ${input.probeId} digest ${probe.artifactDigest}`);
+  }
+  if (spikeReview) {
+    if (spikeReview.payload.spikeId !== input.spikeId) {
+      throw new Error(`repro-intake: spike review ${input.spikeReviewId} references spike ${spikeReview.payload.spikeId}, not ${input.spikeId}`);
+    }
+    if (spikeReview.payload.spikeDigest !== spikeDigest) {
+      throw new Error(`repro-intake: spike review ${input.spikeReviewId} digest ${spikeReview.payload.spikeDigest} does not match spike ${input.spikeId} digest ${spikeDigest}`);
+    }
+    if (spikeReview.payload.verdict !== 'confirmed') {
+      throw new Error(`repro-intake: spike review ${input.spikeReviewId} verdict=${spikeReview.payload.verdict}, expected confirmed`);
+    }
+  }
   const matrixReview = input.matrixReviewId
     ? readArtifact<RegressionMatrixReviewPayload>(projectRoot, input.matrixReviewId)
     : undefined;
@@ -476,6 +502,7 @@ export async function createStoryFromRepro(
     derivedVerificationIntentRefs: input.derivedVerificationIntentRefs ?? [],
     note: 'Candidate artifacts remain evidence-candidate; story is created but verificationEvidence is not set. Green evidence is produced later by DEV/TEST.',
     ...(input.spikeId ? { spikeId: input.spikeId, spikeDigest } : {}),
+    ...(input.spikeReviewId && spikeReview ? { spikeReviewId: input.spikeReviewId, spikeReviewDigest: spikeReview.artifactDigest } : {}),
     ...(input.matrixReviewId && matrixReview ? { matrixReviewId: input.matrixReviewId, matrixReviewDigest: matrixReview.artifactDigest } : {}),
   };
 

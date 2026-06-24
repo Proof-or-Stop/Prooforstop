@@ -2387,6 +2387,7 @@ Behavior:
     probeId: z.string().min(1).describe('Artifact ID of the repro probe.'),
     reviewId: z.string().min(1).describe('Artifact ID of the repro review.'),
     spikeId: z.string().optional().describe('Optional spike record artifact ID.'),
+    spikeReviewId: z.string().optional().describe('Optional confirmed spike review artifact ID when spikeId is supplied.'),
     matrixReviewId: z.string().optional().describe('Optional regression matrix review artifact ID.'),
     storyTitle: z.string().min(5).describe('Title for the new story.'),
     storyDescription: z.string().min(10).describe('Description for the new story.'),

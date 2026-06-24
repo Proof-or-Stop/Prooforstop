@@ -7,6 +7,7 @@ import type {
   ReproProbePayload,
   ReproReviewPayload,
   SpikeRecordPayload,
+  SpikeReviewPayload,
   StoryEvidenceBindingPayload,
 } from './evidence/types.js';
 import type { StoryStore } from './store.js';
@@ -162,6 +163,10 @@ function readBoundArtifact<TPayload>(
   }
 }
 
+function isAcceptedSpikeReview(payload: SpikeReviewPayload & { status?: string }): boolean {
+  return payload.verdict === 'confirmed' || payload.status === 'accepted';
+}
+
 function validateBindingCandidate(
   projectRoot: string,
   storyId: string,
@@ -258,6 +263,29 @@ function validateBindingCandidate(
         if (spike.payload.probeDigest !== payload.probeDigest) details.push(`${spike.artifactId}: spike probeDigest does not match binding probeDigest`);
         if (spike.subjectBinding.candidateId !== payload.candidateId) details.push(`${spike.artifactId}: spike subjectBinding.candidateId does not match binding candidateId`);
         if (spike.subjectBinding.probeId !== payload.probeId) details.push(`${spike.artifactId}: spike subjectBinding.probeId does not match binding probeId`);
+      }
+
+      if (!payload.spikeReviewId || !payload.spikeReviewDigest) {
+        details.push(`${binding.artifactId}: spikeReviewId and spikeReviewDigest are required when spikeId is present`);
+      } else {
+        const spikeReview = readBoundArtifact<SpikeReviewPayload>(
+          projectRoot,
+          payload.spikeReviewId,
+          'spike-review',
+          payload.spikeReviewDigest,
+          details,
+        );
+        if (spikeReview) {
+          const spikeReviewPayload = spikeReview.payload as SpikeReviewPayload & { status?: string };
+          if (spikeReview.subjectBinding.candidateId !== payload.candidateId) details.push(`${spikeReview.artifactId}: spikeReview subjectBinding.candidateId does not match binding candidateId`);
+          if (spikeReview.subjectBinding.probeId !== payload.probeId) details.push(`${spikeReview.artifactId}: spikeReview subjectBinding.probeId does not match binding probeId`);
+          if (spikeReview.subjectBinding.spikeId !== payload.spikeId) details.push(`${spikeReview.artifactId}: spikeReview subjectBinding.spikeId does not match binding spikeId`);
+          if (spikeReviewPayload.spikeId !== payload.spikeId) details.push(`${spikeReview.artifactId}: spikeReview payload.spikeId does not match binding spikeId`);
+          if (spikeReviewPayload.spikeDigest !== payload.spikeDigest) details.push(`${spikeReview.artifactId}: spikeReview payload.spikeDigest does not match binding spikeDigest`);
+          if (!isAcceptedSpikeReview(spikeReviewPayload)) {
+            details.push(`${spikeReview.artifactId}: spike_review_not_confirmed verdict=${spikeReviewPayload.verdict}, status=${spikeReviewPayload.status ?? '(missing)'}, expected verdict=confirmed or status=accepted`);
+          }
+        }
       }
     }
   }

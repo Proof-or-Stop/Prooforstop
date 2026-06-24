@@ -21,12 +21,13 @@
   ],
   "allowedCreate": [],
   "allowedTest": [
-    "packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts"
+    "packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts",
+    "packages/main/src/tasks/repro-first-candidate-smoke.ts"
   ],
   "protectedFiles": [],
   "explicitExcludes": [],
-  "scopeChangeReason": "B-1731 implementation requires config, command policy, process fact registry/verifier, and session_brief surfaces in addition to the original story_create/lifecycle gate files.",
+  "scopeChangeReason": "F-008 requires spike-review binding coverage in the repro-first candidate smoke because story_create_from_repro now carries spikeReviewId/spikeReviewDigest in the story-evidence-binding contract.",
   "acknowledgements": [],
   "createdAt": "2026-06-24T21:50:40.326Z",
-  "updatedAt": "2026-06-24T22:02:22.888Z"
+  "updatedAt": "2026-06-24T22:49:11.305Z"
 }

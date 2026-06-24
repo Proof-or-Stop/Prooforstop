@@ -130,6 +130,7 @@ export interface StoryCreateFromReproArgs {
   probeId: string;
   reviewId: string;
   spikeId?: string;
+  spikeReviewId?: string;
   matrixReviewId?: string;
   storyTitle: string;
   storyDescription: string;

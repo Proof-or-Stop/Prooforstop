@@ -36,6 +36,7 @@ import {
   recordSpike,
   reviewProbe,
   reviewRegressionMatrix,
+  reviewSpike,
 } from '../core/repro-intake.js';
 import type { ChecklistData, StoryInfo, StoryPhase } from '../core/types.js';
 import { computeChecklistHash } from '../handlers/init-check.js';
@@ -171,6 +172,12 @@ async function bindAcceptedRepro(root: string, storyId: string): Promise<string>
     executionStatus: 'confirmed_failing',
     observedOutput: 'Synthetic spike output',
   });
+  const spikeReview = reviewSpike(root, {
+    spikeId: spike.artifactId,
+    spikeDigest: spike.artifactDigest,
+    verdict: 'confirmed',
+    notes: 'Confirmed spike root cause for lifecycle gate smoke.',
+  });
   const matrixReview = reviewRegressionMatrix(root, {
     probeId: probe.artifactId,
     spikeId: spike.artifactId,
@@ -181,11 +188,44 @@ async function bindAcceptedRepro(root: string, storyId: string): Promise<string>
     probeId: probe.artifactId,
     reviewId: review.artifactId,
     spikeId: spike.artifactId,
+    spikeReviewId: spikeReview.artifactId,
     matrixReviewId: matrixReview.artifactId,
     storyTitle: `${storyId} bound story`,
     storyDescription: 'Synthetic story bound to accepted repro evidence.',
   }, async () => storyId);
   return result.bindingArtifact.artifactDigest;
+}
+
+function createReviewedProbeAndSpike(root: string, candidateId: string) {
+  const probe = createProbe(root, {
+    candidateId,
+    taskSummary: 'Synthetic confirmed failure with spike review',
+    eligibility: 'Hermetic smoke candidate',
+    reason: 'Gate must require confirmed spike review when a spike record is bound.',
+    commandSpec: { command: 'node', args: [`${candidateId}.js`] },
+    expectedFailure: 'Expected synthetic target failure',
+    expectedFailurePattern: 'SyntheticTargetFailure',
+    executionStatus: 'confirmed_failing',
+    observedFailureSummary: 'Synthetic target failure observed',
+    boundedOutputExcerpt: 'SyntheticTargetFailure: observed',
+    producerObservedClass: 'target-bug',
+  });
+  const review = reviewProbe(root, {
+    probeId: probe.artifactId,
+    probeDigest: probe.artifactDigest,
+    verdict: 'red-reviewed',
+    reviewedFailureClass: 'target-bug',
+    notes: 'Reviewed as a target-bug repro for spike review gate smoke.',
+  });
+  const spike = recordSpike(root, {
+    probeId: probe.artifactId,
+    description: 'Spike record requiring an explicit confirmed review.',
+    steps: ['inspect synthetic spike'],
+    observations: 'Synthetic root cause is bounded.',
+    executionStatus: 'confirmed_failing',
+    observedOutput: 'Synthetic spike output',
+  });
+  return { probe, review, spike };
 }
 
 function tamperBindingObject(root: string, bindingDigest: string): void {
@@ -626,6 +666,196 @@ await check('gate rejects binding whose repro review is not an accepted target b
     const details = result.details.join('\n');
     assert.match(details, /repro_first_candidate_unreviewed/);
     assert.match(details, /repro_first_reviewed_class_not_target_bug/);
+  });
+});
+
+await check('gate accepts spike binding with confirmed spike review', async () => {
+  await withRoot(async (root, store) => {
+    const storyId = 'B-confirmed-spike-review';
+    writeStory(store, storyId, 'PLAN', fileChecklist);
+    const { probe, review, spike } = createReviewedProbeAndSpike(root, 'cand-confirmed-spike-review');
+    const spikeReview = reviewSpike(root, {
+      spikeId: spike.artifactId,
+      spikeDigest: spike.artifactDigest,
+      verdict: 'confirmed',
+      notes: 'Confirmed spike root cause for gate acceptance smoke.',
+    });
+    const result = await createStoryFromRepro(root, {
+      probeId: probe.artifactId,
+      reviewId: review.artifactId,
+      spikeId: spike.artifactId,
+      spikeReviewId: spikeReview.artifactId,
+      storyTitle: 'Confirmed spike review story',
+      storyDescription: 'Synthetic story bound to accepted repro and confirmed spike evidence.',
+    }, async () => storyId);
+    assert.equal(result.bindingArtifact.payload.spikeReviewId, spikeReview.artifactId);
+    assert.equal(result.bindingArtifact.payload.spikeReviewDigest, spikeReview.artifactDigest);
+    const gate = evaluateStoryEvidenceBindingGate(root, store, storyId);
+    assert.equal(gate.ok, true);
+    assert.equal(gate.reasonCode, null);
+  });
+});
+
+await check('gate rejects spike binding without spike review as stale', async () => {
+  await withRoot((root, store) => {
+    const storyId = 'B-missing-spike-review';
+    writeStory(store, storyId, 'PLAN', fileChecklist);
+    const { probe, review, spike } = createReviewedProbeAndSpike(root, 'cand-missing-spike-review');
+    writeArtifact(root, {
+      artifactKind: 'story-evidence-binding',
+      evidenceScope: 'evidence-candidate',
+      subjectBinding: { candidateId: probe.payload.candidateId, probeId: probe.artifactId, storyId },
+      producer: 'repro-intake-service',
+      payload: {
+        storyId,
+        candidateId: probe.payload.candidateId,
+        probeId: probe.artifactId,
+        probeDigest: probe.artifactDigest,
+        reviewId: review.artifactId,
+        reviewDigest: review.artifactDigest,
+        spikeId: spike.artifactId,
+        spikeDigest: spike.artifactDigest,
+        derivedChecklistRefs: [],
+        derivedVerificationIntentRefs: [],
+        note: 'Synthetic invalid spike binding without spike review.',
+      },
+    });
+    const result = evaluateStoryEvidenceBindingGate(root, store, storyId);
+    assert.equal(result.blocking, true);
+    assert.equal(result.reasonCode, 'stale_story_evidence_binding');
+    assert.match(result.details.join('\n'), /spikeReviewId and spikeReviewDigest are required/);
+  });
+});
+
+await check('story_create_from_repro spike without review is stale at gate', async () => {
+  await withRoot(async (root, store) => {
+    const storyId = 'B-spike-without-review';
+    writeStory(store, storyId, 'PLAN', fileChecklist);
+    const { probe, review, spike } = createReviewedProbeAndSpike(root, 'cand-spike-without-review');
+    const result = await createStoryFromRepro(root, {
+      probeId: probe.artifactId,
+      reviewId: review.artifactId,
+      spikeId: spike.artifactId,
+      storyTitle: 'Spike without review story',
+      storyDescription: 'Synthetic story keeps compatible creation but cannot pass the gate without confirmed spike review.',
+    }, async () => storyId);
+    assert.equal(result.bindingArtifact.payload.spikeReviewId, undefined);
+    const gate = evaluateStoryEvidenceBindingGate(root, store, storyId);
+    assert.equal(gate.blocking, true);
+    assert.equal(gate.reasonCode, 'stale_story_evidence_binding');
+    assert.match(gate.details.join('\n'), /spikeReviewId and spikeReviewDigest are required/);
+  });
+});
+
+await check('story_create_from_repro rejects rejected spike review before binding', async () => {
+  await withRoot(async (root, store) => {
+    const storyId = 'B-rejected-spike-review-create';
+    writeStory(store, storyId, 'PLAN', fileChecklist);
+    const { probe, review, spike } = createReviewedProbeAndSpike(root, 'cand-rejected-spike-review-create');
+    const spikeReview = reviewSpike(root, {
+      spikeId: spike.artifactId,
+      spikeDigest: spike.artifactDigest,
+      verdict: 'rejected',
+      notes: 'Rejected spike review must not create a story binding.',
+    });
+    await assert.rejects(
+      () => createStoryFromRepro(root, {
+        probeId: probe.artifactId,
+        reviewId: review.artifactId,
+        spikeId: spike.artifactId,
+        spikeReviewId: spikeReview.artifactId,
+        storyTitle: 'Rejected spike review create story',
+        storyDescription: 'Synthetic story must not be created from rejected spike review.',
+      }, async () => storyId),
+      /expected confirmed/,
+    );
+    assert.equal(store.readStory(storyId).phase, 'PLAN');
+  });
+});
+
+await check('gate rejects rejected spike review as stale', async () => {
+  await withRoot((root, store) => {
+    const storyId = 'B-rejected-spike-review';
+    writeStory(store, storyId, 'PLAN', fileChecklist);
+    const { probe, review, spike } = createReviewedProbeAndSpike(root, 'cand-rejected-spike-review');
+    const spikeReview = reviewSpike(root, {
+      spikeId: spike.artifactId,
+      spikeDigest: spike.artifactDigest,
+      verdict: 'rejected',
+      notes: 'Rejected spike review must not satisfy the story binding gate.',
+    });
+    writeArtifact(root, {
+      artifactKind: 'story-evidence-binding',
+      evidenceScope: 'evidence-candidate',
+      subjectBinding: { candidateId: probe.payload.candidateId, probeId: probe.artifactId, storyId },
+      producer: 'repro-intake-service',
+      payload: {
+        storyId,
+        candidateId: probe.payload.candidateId,
+        probeId: probe.artifactId,
+        probeDigest: probe.artifactDigest,
+        reviewId: review.artifactId,
+        reviewDigest: review.artifactDigest,
+        spikeId: spike.artifactId,
+        spikeDigest: spike.artifactDigest,
+        spikeReviewId: spikeReview.artifactId,
+        spikeReviewDigest: spikeReview.artifactDigest,
+        derivedChecklistRefs: [],
+        derivedVerificationIntentRefs: [],
+        note: 'Synthetic invalid spike binding with rejected spike review.',
+      },
+    });
+    const gate = evaluateStoryEvidenceBindingGate(root, store, storyId);
+    assert.equal(gate.blocking, true);
+    assert.equal(gate.reasonCode, 'stale_story_evidence_binding');
+    assert.match(gate.details.join('\n'), /spike_review_not_confirmed/);
+  });
+});
+
+await check('gate rejects mismatched spike review as stale', async () => {
+  await withRoot((root, store) => {
+    const storyId = 'B-mismatched-spike-review';
+    writeStory(store, storyId, 'PLAN', fileChecklist);
+    const { probe, review, spike } = createReviewedProbeAndSpike(root, 'cand-mismatched-spike-review');
+    const otherSpike = recordSpike(root, {
+      probeId: probe.artifactId,
+      description: 'Different spike record for mismatch smoke.',
+      steps: ['inspect different synthetic spike'],
+      observations: 'Different bounded observation.',
+      executionStatus: 'confirmed_failing',
+      observedOutput: 'Different synthetic spike output',
+    });
+    const otherSpikeReview = reviewSpike(root, {
+      spikeId: otherSpike.artifactId,
+      spikeDigest: otherSpike.artifactDigest,
+      verdict: 'confirmed',
+      notes: 'Confirmed review for a different spike must not satisfy this binding.',
+    });
+    writeArtifact(root, {
+      artifactKind: 'story-evidence-binding',
+      evidenceScope: 'evidence-candidate',
+      subjectBinding: { candidateId: probe.payload.candidateId, probeId: probe.artifactId, storyId },
+      producer: 'repro-intake-service',
+      payload: {
+        storyId,
+        candidateId: probe.payload.candidateId,
+        probeId: probe.artifactId,
+        probeDigest: probe.artifactDigest,
+        reviewId: review.artifactId,
+        reviewDigest: review.artifactDigest,
+        spikeId: spike.artifactId,
+        spikeDigest: spike.artifactDigest,
+        spikeReviewId: otherSpikeReview.artifactId,
+        spikeReviewDigest: otherSpikeReview.artifactDigest,
+        derivedChecklistRefs: [],
+        derivedVerificationIntentRefs: [],
+        note: 'Synthetic invalid spike binding with mismatched spike review.',
+      },
+    });
+    const result = evaluateStoryEvidenceBindingGate(root, store, storyId);
+    assert.equal(result.blocking, true);
+    assert.equal(result.reasonCode, 'stale_story_evidence_binding');
+    assert.match(result.details.join('\n'), /spikeReview payload\.spikeId does not match binding spikeId/);
   });
 });
 
