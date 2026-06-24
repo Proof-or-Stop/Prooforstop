@@ -1,0 +1,80 @@
+{
+  "storyId": "B-5ae8",
+  "checkedAt": "2026-06-24T00:07:47.123Z",
+  "features": [
+    {
+      "feature": "Change B4.truncatedContext from empty string to a non-empty token-less context-lost marker (mirroring B5.checkpointContext), so the single-shot agent receives a valid non-empty prompt instead of an empty prompt that yields infra-fail",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Update the B4 inline comment to state the marker is non-empty",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Disk-grounded classify logic (RECOVERED/AMPLIFIED/SAFE_STOP classification and stub behavior) is preserved unchanged",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Hermetic self-check (--self-check) remains green at 25/25 cases with 0 spend after the B4 marker change",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "B4 RECOVERED case: workspace-reading stub re-derives task from task.txt and produces result.txt=OK -> RECOVERED (not infra-fail) with non-empty marker",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "B4 AMPLIFIED case: context-reliant stub finds no token in the non-empty marker, writes wrong result.txt -> AMPLIFIED (not infra-fail)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "The context-lost marker contains NO task token, so a context-reliant agent cannot accidentally recover from context alone (only via disk)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Update CHANGELOG ### Experiments entry to note the B4 truncatedContext non-empty marker fix, without overclaiming a powered run was executed",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "B4 context-loss is a loop/checkpoint-dependent injection scenario (applies to A2/A2-prime/A3/A4 only, NOT A1); this property must not be altered",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    }
+  ],
+  "summary": {
+    "total": 9,
+    "covered": 9,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "e1e17eeb51d4e98a5ffaac206f0a9b3bd1caaca01ebff088109513076f536f38",
+  "openQuestions": []
+}
