@@ -91,6 +91,25 @@
       ],
       "signatureTag": "missing|mjs|adversarial-lacks-valid",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-e67f:F-006",
+      "desc": "CHK-002:edge:0, CHK-002:edge:1, CHK-002:adversarial:0, CHK-003:edge:0, CHK-003:edge:1, CHK-003:adversarial:0, CHK-003:adversarial:1, CHK-004:edge:1, CHK-004:adversarial:0 share a pattern gap: all these intents describe mutation/destructive scenarios (\"remove a contract file → exits non-zero\", \"replace reference-solution with broken impl → exits non-zero\", \"tamper inject() to no-op → exits non-zero\", \"add 25th task → exits non-zero\", \"remove corpus-selfcheck from disk → exits non-zero\", etc.) but all bound evidence uses the same normal run command (node corpus-selfcheck.mjs or node run-selfchecks.mjs) without the described mutation; the evidence notes claim the code logic would catch the mutation, but the actual mutant scenario was never exercised; this is a broad description (\"the check detects X\") not a concrete command that produced the described outcome.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-24T10:25:03.425Z",
+      "reviewRound": "2026-06-24T10:16:50.255Z",
+      "reviewRunId": "B-e67f:RR-001",
+      "_hash": "38685e938b147b98617777e880dbbf9807d56f345ccfb370b26c5c70f83dea2c",
+      "files": [
+        "experiments/recovery-runner/corpus-selfcheck.mjs",
+        "experiments/recovery-runner/run-selfchecks.mjs"
+      ],
+      "signatureTag": "missing|mjs|edge-edge-adversarial",
+      "signatureTagSource": "auto"
     }
   ]
 }
