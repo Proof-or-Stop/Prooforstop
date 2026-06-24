@@ -499,6 +499,15 @@ function assertStaleEvidenceHintCrossSurface(): void {
     // preMortem #3 anti-placeholder anchors:
     assert.ok(!renderedBlock.includes('<storyId>'), 'rendered block must not contain <storyId> placeholder');
     assert.ok(!renderedBlock.includes('<B-'), 'rendered block must not contain <B-xxx> placeholder');
+    // B-bdce GAP1/GAP2 regression (red/spike): the hint must guide the Host to the
+    // done_prepare one-step recovery AND classify the drift, so a future edit that
+    // drops either line FAILs here (the red test, formalized).
+    assert.ok(renderedBlock.includes(`lattice done_prepare --storyId=${storyId} --mergeMain --refreshStale --validate`),
+      'GAP1: rendered block must offer the done_prepare one-step ordered recovery with literal storyId');
+    assert.ok(/storyFilesHash|story-owned|whole-tree|unrelated/.test(renderedBlock),
+      'GAP2: rendered block must classify the drift (whole-tree materialHash vs story-owned storyFilesHash)');
+    assert.ok(renderedBlock.includes('Drift class:'),
+      'rendered block must include the Drift class line');
 
     // (3) session_brief surface: must include marker + identical recovery block.
     // session_brief detects active story from `git rev-parse --abbrev-ref HEAD`.
@@ -581,16 +590,18 @@ function assertStaleEvidenceHintCrossSurface(): void {
   }
 }
 
-/** Extract the EVIDENCE STALE block (marker line + the following 4 indented
- *  recovery lines) from a surface output, so we can assert byte-identity
- *  against the renderer output without false negatives from surface-specific
+/** Extract the EVIDENCE STALE block (marker line + the following 7 indented
+ *  lines) from a surface output, so we can assert byte-identity against the
+ *  renderer output without false negatives from surface-specific
  *  preamble/trailing text. */
 function extractStaleBlock(output: string): string {
   const lines = output.split('\n');
   const markerIdx = lines.findIndex(l => l.startsWith(EVIDENCE_STALE_MARKER));
   if (markerIdx < 0) return '';
-  // Renderer emits exactly 5 lines: marker / meaning / "Run to recover" / 2 command lines.
-  return lines.slice(markerIdx, markerIdx + 5).join('\n');
+  // Renderer emits exactly 8 lines (B-bdce): marker / meaning / drift-class /
+  // "Run to recover" / 2 recovery command lines / "Or, when converging..." /
+  // done_prepare one-step command line.
+  return lines.slice(markerIdx, markerIdx + 8).join('\n');
 }
 
 assertStaleEvidenceHintCrossSurface();
