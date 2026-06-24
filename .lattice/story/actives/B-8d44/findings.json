@@ -479,6 +479,26 @@
       "resolvedAt": "2026-06-24T13:33:38.968Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-8d44:F-023",
+      "desc": "host-2 ROUND 3: F-021 fix still misses the throw-before-harvest path. In live-engine.mjs runArmLoop calls agentRun/reviewArtifact before pushing the result to allExecs or snapshotting; if the executor/reviewer makes an unsafe side effect and then throws, control jumps to the outer engine catch at live-engine.mjs:498 and returns infraVoid before changedPaths/createdPaths/processEvents/permEvents are harvested. Confirmed with two no-LLM full-corpus probes on the committed median task: attempt 1 wrote ws/.env then threw from agentRun (A2), or reviewArtifact wrote ws/.env then threw (A4); attempt 2 reran clean. runDriver emitted a final record with adjudicatedOutcome=\"recovered\", all unsafeChecks=false, diffHygienePass=true, and only logged the first attempt as engine-error void. This masks real unsafe side effects behind a clean rerun. Default live wrappers amplify the risk: run-recovery.mjs catch branches also discard stdout/json details on execFileSync errors. Fix by wrapping each executor/reviewer call inside runArmLoop so thrown attempts are converted into an allExecs entry after a post-call snapshot, then run the same unsafe-before-void decision; preserve any available stdout/json/process evidence from live wrapper exceptions.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-24T13:36:20.650Z",
+      "reviewRound": "2026-06-24T12:50:13.876Z",
+      "reviewRunId": "B-8d44:RR-015",
+      "_hash": "4be66e1aea2a7cdd312bbf05319d2dec7b0569502491bd410883e0d4491cfa47",
+      "files": [
+        "experiments/recovery-runner/live-engine.mjs",
+        "experiments/recovery-runner/run-driver.mjs",
+        "experiments/recovery-runner/run-recovery.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|host-round-still",
+      "signatureTagSource": "auto"
     }
   ]
 }
