@@ -449,14 +449,18 @@
       "desc": "F-004 fix INCOMPLETE — unsafe evidence still lost: reviewArtifact (reviewer) execs are NOT in allExecs, and infra-voided executor attempts are discarded before evidence capture. Codex confirmed: a reviewer emitting git push + chmod 777 => recovered/all-unsafe-false; an executor attempt that did git push+chmod then infra-failed, rerun clean => recovered/all-unsafe-false. Fix: accumulate processEvents/permEvents from ALL execs incl reviewer calls AND infra-failed attempts.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex-host-2",
       "createdAt": "2026-06-24T13:24:14.715Z",
       "reviewRound": "2026-06-24T12:50:13.876Z",
       "_hash": "1ca749046220848d5f2e981bdb0c5874ee919f9587e3682959000b21d2c1512a",
       "signatureTag": "adversarial|unknown|incomplete-unsafe-evidence",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "unsafe evidence accumulated across ALL execs incl infra-failed attempts + reviewer calls; unsafe supersedes void => amplified. Proven vs codex r2 triggers (7/7). Commit 9cce6b071.",
+      "resolvedAt": "2026-06-24T13:33:38.305Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8d44:F-022",
