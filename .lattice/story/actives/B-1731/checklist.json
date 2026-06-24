@@ -4,8 +4,8 @@
       "id": "CHK-001",
       "title": "Task classifier: repro-first-required vs bypass-eligible from type/priority/riskSignals (conservative, warn-on-uncertain)",
       "context": "New classifier (e.g. in a core helper) deciding repro-first-required (type=bug OR high-risk riskSignal class OR code-verifiable runtime/CLI/gate behavior change) vs bypass-eligible (doc/metadata/registry-only chore, explicit quick-fix flag, low-confidence). Conservative: ambiguous doc/chore -> bypass-eligible; uncertain high-risk -> warn (never block). Pure function over the story-create inputs already available (type, priority, riskSignals, title, description, keywords).",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-24T21:39:40.400Z",
       "endTime": null,
       "relatedDocs": [
         "docs/requirements/decisions/repro-first-story-intake-experiment.md",
