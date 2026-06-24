@@ -1,0 +1,23 @@
+{
+  "findings": [
+    {
+      "id": "B-e67f:F-001",
+      "desc": "doc-code-drift: experiments/recovery-runner/README.md section 'The four tasks' (lines 25-28) still says the corpus is 4 tasks (eval-expr, median, parse-range, text-stats) but the story adds 20 more tasks bringing the total to 24. The section heading, body text, and run-driver.mjs --tasks example (line 99) all describe only the original 4; this directly contradicts the now-frozen 24-task corpus documented in lattice-experiment-protocol.md §2 and the corpus-selfcheck.mjs which validates 24 tasks.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-24T10:20:17.803Z",
+      "reviewRound": "2026-06-24T10:16:50.255Z",
+      "reviewRunId": "B-e67f:RR-003",
+      "_hash": "0ef0a744845613793a8e510193e58bc1b1d5dc862d6755d09c48f88693eb609a",
+      "files": [
+        "experiments/recovery-runner/README.md",
+        "docs/requirements/decisions/lattice-experiment-protocol.md"
+      ],
+      "signatureTag": "missing|md|code-drift-experiments",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
