@@ -199,9 +199,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/repro-first-story-intake-experiment.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-24T04:17:19.948Z",
       "userSees": "node packages/main/dist/tasks/repro-first-candidate-smoke.js prints repro-first candidate smoke passed with all assertions green.",
       "files": {
         "modify": [
@@ -239,7 +239,21 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/repro-first-candidate-smoke.ts",
+          "command": "node packages/main/dist/tasks/repro-first-candidate-smoke.js",
+          "result": "pass",
+          "note": "All 12 sections pass including mismatch-fails-closed, rejected-blocks-story, no-verificationEvidence, all-artifacts-evidence-candidate. Final output: repro-first candidate smoke passed",
+          "headHash": "cf71b8cc08ca00687426eeb5b2e2976f4980246e",
+          "materialHash": "30bd1828d818594f03f863a6ea80dac3c0012ac667812c625556957db43f23e1",
+          "storyFilesHash": "214a4d712d3db85052732add2534548a4ac429c74de2afddb50dc39941b70a01",
+          "timestamp": "2026-06-24T04:17:20.119Z"
+        }
+      ]
     }
   ]
 }
