@@ -1,0 +1,93 @@
+{
+  "storyId": "B-ef65",
+  "checkedAt": "2026-06-24T01:08:25.472Z",
+  "features": [
+    {
+      "feature": "packages/main/src/core/validation-execution-lock.ts story-scoped validate execution lock primitive",
+      "covered_by": "understanding.touchpoints; CHK-001; decision chosen A: story-scoped validate execution lock",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "lattice understanding_get/checklist_get/decision_get for B-ef65"
+    },
+    {
+      "feature": "packages/main/src/handlers/verifier.ts wraps validate command execution with the story-scoped lock",
+      "covered_by": "understanding.touchpoints; CHK-001; outcome names validate concurrency behavior",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "lattice understanding_get/checklist_get for B-ef65"
+    },
+    {
+      "feature": "packages/main/src/handlers/done-required-validation.ts shares the same story-scoped lock for done_required_validate",
+      "covered_by": "understanding.touchpoints; CHK-001; CHK-002",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "lattice understanding_get/checklist_get for B-ef65"
+    },
+    {
+      "feature": "packages/main/src/tasks/validate-execution-lock-smoke.ts carries the red/green regression smoke",
+      "covered_by": "understanding.touchpoints; CHK-002; outcome expects validate-execution-lock smoke passed: 8 assertions",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "lattice understanding_get/checklist_get for B-ef65"
+    },
+    {
+      "feature": "B-ef65 story metadata and final summary record experiment friction and timing only",
+      "covered_by": "CHK-003; understanding facts mention dirty canonical root and external proof commits",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "lattice understanding_get/checklist_get for B-ef65"
+    },
+    {
+      "feature": "owner lease redesign",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "understanding.constraints: Do not change owner lease design; decision option C rejected; user excluded scope",
+      "source": "lattice understanding_get/decision_get for B-ef65"
+    },
+    {
+      "feature": "global validate serialization across unrelated worktrees/stories",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "understanding.constraints: keep lock story-scoped; decision option B rejected; user excluded scope",
+      "source": "lattice understanding_get/decision_get for B-ef65"
+    },
+    {
+      "feature": "Authority server behavior or production receipt verification claims",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "understanding.constraints: Do not change Authority server behavior; scope check is local CLI PLAN evidence only; user excluded scope",
+      "source": "lattice understanding_get for B-ef65"
+    },
+    {
+      "feature": "Codex/Claude host-specific behavior",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "understanding.constraints: host-neutral and not Codex/Claude-specific; user excluded scope",
+      "source": "lattice understanding_get for B-ef65"
+    },
+    {
+      "feature": "unrelated active stories",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "story is B-ef65 only; user excluded scope",
+      "source": "lattice story_get/checklist_get for B-ef65"
+    },
+    {
+      "feature": "unrelated dirty root files",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "understanding facts: canonical root had unrelated dirty files before story creation and this story must not touch them; user excluded scope",
+      "source": "lattice understanding_get for B-ef65"
+    }
+  ],
+  "summary": {
+    "total": 11,
+    "covered": 5,
+    "excluded": 6,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "d9620d63f0da952fb526fe7765f71ca9e6b7a8178889c9396c34e519e967ec96"
+}
