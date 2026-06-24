@@ -5,7 +5,7 @@
       "desc": "CHK-001:edge:0 idempotency path untested — smoke only proves different payloads produce different digests; the artifact-store writeArtifact early-return (existsSync check at artifact-store.ts:106-108) is never exercised. The intent requires proof that same payload written twice returns the same artifact without mutation, but no assertion calls createProbe (or any writer) twice with identical input.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-24T04:27:51.258Z",
@@ -17,14 +17,18 @@
         "packages/main/src/core/evidence/artifact-store.ts"
       ],
       "signatureTag": "edge|ts|edge-idempotency-path",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commit 576b2c62e: repro-first smoke now calls createProbe twice with the identical canonical subject and asserts same artifactDigest and same artifactId, exercising the artifact-store early-return idempotency path. Verified with npm --prefix packages/main run build and npm --prefix packages/main run test:repro-first-candidate.",
+      "resolvedAt": "2026-06-24T04:29:46.291Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-0aa1:F-002",
       "desc": "CHK-002:edge:0 empty-pattern fail-closed path untested — evaluateRedGreenRelation checks !baselineExpectedFailurePattern || !currentExpectedFailurePattern (repro-intake.ts:318-321) to fail closed on empty patterns, but the smoke step-10 mismatch test uses non-empty patterns (pattern-a / pattern-b). The empty-pattern code path is never triggered, leaving the fail-closed guarantee for that condition unverified.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-24T04:27:57.973Z",
@@ -36,7 +40,11 @@
         "packages/main/src/core/repro-intake.ts"
       ],
       "signatureTag": "edge|ts|edge-empty-pattern",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commit 576b2c62e: repro-first smoke now creates an empty-pattern red-green relation and asserts evaluateRedGreenRelation fails closed with an expected failure patterns diagnostic. Verified with npm --prefix packages/main run build and npm --prefix packages/main run test:repro-first-candidate.",
+      "resolvedAt": "2026-06-24T04:29:46.300Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
