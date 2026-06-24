@@ -1,0 +1,202 @@
+{
+  "storyId": "B-8d44",
+  "checkedAt": "2026-06-24T12:23:39.767Z",
+  "features": [
+    {
+      "feature": "A1 arm — one agent pass, output final (no loop, no review)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "A2 arm — naive-retry up to R=3 on acceptance fail",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "A2prime arm — token+wall budget cap (token binds first), ±20% tolerance band, hard-truncate at upper bound",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "A2prime per-run budget-compliance log fields: budgetPass/tokenInBand/wallInBand/truncated/tokenBudget/wallBudgetMs",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "A3 arm — A2 then exactly one review pass using SAME reviewer + SAME structured context snapshot as A4; findings reported not iterated",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "A4 arm — full Lattice-Reflection-Loop with review gate; refuse to ship on no-artifact/acceptance-fail/reviewer-BLOCK",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "a4b arm (non-pre-reg in-loop reflection variant)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "CHK-003: do NOT carry over a4b (not a pre-reg arm)",
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "Per-cell workspace setup (mkdtemp, copy task prompt + editable files, resolve taskId under tasksDir)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "§6 injection applied at §3 fixed point (immediately before first agent action); ablation cells (scenarioId null) apply no injection",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "B4/B5/B10 scenarios loop/checkpoint-dependent and not applicable to A1 per §3 applicability table",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "§7 run-record schema: all 21+ required fields (runId/arm/taskId/scenarioId/repeat/modelId/headHash/materialHash/tokensSpent/wallClockMs/agentCallCount/acceptancePass/hiddenRegressionPass/diffHygienePass/unsafeChecks/adjudicatedOutcome/denominatorSets/evidenceRefs/harnessLogDigest/injectionApplied/runOrderSeed/applicable)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "Adapter emits RAW evidence only; must NOT compute adjudicatedOutcome (run-driver adjudicate.mjs owns classification)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "5 unsafe-detector raw evidence: changedPaths/newContent/permEvents/createdPaths/processEvents + newBrokenBeyondRef + terminalStopEvent",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "RAW acceptance evidence: acceptanceScriptPath + expectedHash + runAcceptance for checks.mjs harnessAcceptance delegation",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "Hidden regression raw evidence: baselineFailures + postFailures for checks.mjs hiddenRegression delegation",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "Diff hygiene raw evidence: changedPaths/allowedPaths/junkPatterns for checks.mjs diffHygiene delegation",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "infraVoid signal on claude overload/529/exec error; triggers re-run not drop in run-driver",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "Engine factory: makeLiveEngine with injectable agentRun/reviewArtifact for offline testability; default = live claude -p",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "Offline selfcheck (live-engine-selfcheck.mjs): deterministic stub agent, no claude -p, drives runDriver() over each arm x scenarios, asserts validateRecord + adjudicatedOutcome matches known stub behavior",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "Selfcheck wired as 7th selfcheck in run-selfchecks.mjs and npm run test:experiments",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "Live multi-day powered campaign (actual N_tasks=24 k=5 repeats real runs)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Story description and decision.json: live campaign is a SEPARATE next story",
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "Harness classification changes to adjudicate.mjs and checks.mjs",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Story description: classification stays in upstream locked harness modules; adapter only emits raw evidence",
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "Pilot calibration of A2prime per-task token+wall budget constants from A4 pilot median",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Live campaign deferred; adapter accepts budgets as injected parameter — calibration belongs to powered-run story",
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "Acceptance scripts hash-checked read-only run against fresh clean checkout not visible in agent workspace (§2 anti-gaming)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "Compute parity: every run records actual token+wall-clock spend so residual imbalance is visible and bounded",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    }
+  ],
+  "summary": {
+    "total": 25,
+    "covered": 22,
+    "excluded": 3,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "37a4f479138cffad7d1b7de3871130119a0fb1e0d6c43cde9ddc7acdc3183772",
+  "openQuestions": [
+    {
+      "id": "OQ-001",
+      "q": "§4.2 + §7 spec labels the outcome recovered-to-green but run-driver.mjs ADJUDICATED_OUTCOMES enum encodes it as recovered (no -to-green suffix). The adapter selfcheck uses validateRecord which enforces the enum. Is this a deliberate code alias or a spec/code mismatch that should be documented?",
+      "evidence": "lattice-experiment-protocol.md §4.2 lists outcomes as: amplified / recovered-to-green / safe-stop. run-driver.mjs line 67 defines ADJUDICATED_OUTCOMES = [amplified, recovered, safe-stop, null] — the -to-green suffix is dropped.",
+      "sourcePointers": [
+        "docs/requirements/decisions/lattice-experiment-protocol.md",
+        "experiments/recovery-runner/run-driver.mjs"
+      ]
+    }
+  ]
+}
