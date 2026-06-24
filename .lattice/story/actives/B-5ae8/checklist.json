@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Change B4.truncatedContext from the empty string to a non-empty token-less context-lost marker mirroring B5.checkpointContext (e.g. a [context truncated; recover the task from the workspace] string), and update the B4 comment to say the marker is non-empty",
+      "context": "empty prompt -> infra-fail; non-empty token-less marker -> valid prompt that still lacks the task token",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Run node experiments/injection-probes/live-loop-harness.mjs --self-check and confirm it stays green (25/25) with 0 spend; the B4 RECOVERED/AMPLIFIED/SAFE_STOP cases still hold because the stubs check task.txt vs context.includes(token) and the marker has no token",
+      "context": "hermetic gate must remain green and 0-spend",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Update the CHANGELOG ### Experiments entry to note the B4 truncatedContext non-empty marker fix",
+      "context": "doc-code consistency",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
