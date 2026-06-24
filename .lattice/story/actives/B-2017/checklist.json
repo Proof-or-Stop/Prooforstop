@@ -46,10 +46,10 @@
           "command": "npm run test:orphan-surface",
           "result": "pass",
           "note": "Detector passed on real source: 102 handler factories registered and 261 catalog commands checked.",
-          "headHash": "13ab8cfd0a33a6d52ceabfae0cc9e5bff488a057",
-          "materialHash": "e79803cf823de9a36cae6ed52b4e18b4c6bde478c71f0c22eed9f312af8de15f",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-24T11:09:58.625Z"
+          "headHash": "57c54a0b40a0bcdb73e87e330696e898d118bc9a",
+          "materialHash": "dc58de0b411a6037c3f55dd3b6afda1ee06603b690bc9b2bf47da9aa98d7d6a8",
+          "storyFilesHash": "7861c5f1f3211403424407e9254de2db6511886e8c605e7ff91c11a3e2527d69",
+          "timestamp": "2026-06-24T11:24:57.451Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -57,10 +57,10 @@
           "command": "npm run test:orphan-surface",
           "result": "pass",
           "note": "Detector explicitly protects dynamic verifier serve/dev-host/browser surfaces and does not scan tasks as orphan command surfaces.",
-          "headHash": "13ab8cfd0a33a6d52ceabfae0cc9e5bff488a057",
-          "materialHash": "e79803cf823de9a36cae6ed52b4e18b4c6bde478c71f0c22eed9f312af8de15f",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-24T11:09:58.785Z"
+          "headHash": "57c54a0b40a0bcdb73e87e330696e898d118bc9a",
+          "materialHash": "dc58de0b411a6037c3f55dd3b6afda1ee06603b690bc9b2bf47da9aa98d7d6a8",
+          "storyFilesHash": "7861c5f1f3211403424407e9254de2db6511886e8c605e7ff91c11a3e2527d69",
+          "timestamp": "2026-06-24T11:24:57.451Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -68,10 +68,10 @@
           "command": "node scripts/verify-orphan-surface.mjs",
           "result": "pass",
           "note": "Script contains hard-fail checks for exported handler factories not reachable from createMainRegistry.",
-          "headHash": "13ab8cfd0a33a6d52ceabfae0cc9e5bff488a057",
-          "materialHash": "e79803cf823de9a36cae6ed52b4e18b4c6bde478c71f0c22eed9f312af8de15f",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-24T11:09:58.894Z"
+          "headHash": "57c54a0b40a0bcdb73e87e330696e898d118bc9a",
+          "materialHash": "dc58de0b411a6037c3f55dd3b6afda1ee06603b690bc9b2bf47da9aa98d7d6a8",
+          "storyFilesHash": "7861c5f1f3211403424407e9254de2db6511886e8c605e7ff91c11a3e2527d69",
+          "timestamp": "2026-06-24T11:24:57.451Z"
         }
       ]
     },
@@ -119,10 +119,10 @@
           "command": "npm run test:orphan-surface",
           "result": "pass",
           "note": "Root package script invokes scripts/verify-orphan-surface.mjs and passed.",
-          "headHash": "d413478d07dbc025d7eb7d6f728ed4417eb38cb3",
-          "materialHash": "e79803cf823de9a36cae6ed52b4e18b4c6bde478c71f0c22eed9f312af8de15f",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-24T11:10:07.459Z"
+          "headHash": "57c54a0b40a0bcdb73e87e330696e898d118bc9a",
+          "materialHash": "dc58de0b411a6037c3f55dd3b6afda1ee06603b690bc9b2bf47da9aa98d7d6a8",
+          "storyFilesHash": "7861c5f1f3211403424407e9254de2db6511886e8c605e7ff91c11a3e2527d69",
+          "timestamp": "2026-06-24T11:24:57.451Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -130,10 +130,10 @@
           "command": "npm --prefix packages/main run test:orphan-surface",
           "result": "pass",
           "note": "packages/main package script invokes the same detector from package cwd and passed.",
-          "headHash": "d413478d07dbc025d7eb7d6f728ed4417eb38cb3",
-          "materialHash": "e79803cf823de9a36cae6ed52b4e18b4c6bde478c71f0c22eed9f312af8de15f",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-24T11:10:07.564Z"
+          "headHash": "57c54a0b40a0bcdb73e87e330696e898d118bc9a",
+          "materialHash": "dc58de0b411a6037c3f55dd3b6afda1ee06603b690bc9b2bf47da9aa98d7d6a8",
+          "storyFilesHash": "7861c5f1f3211403424407e9254de2db6511886e8c605e7ff91c11a3e2527d69",
+          "timestamp": "2026-06-24T11:24:57.451Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -141,10 +141,10 @@
           "command": "npm run test:orphan-surface",
           "result": "pass",
           "note": "Detector exits nonzero through fail() when handler/catalog mismatch arrays are non-empty; the CI-facing script propagates that exit status.",
-          "headHash": "d413478d07dbc025d7eb7d6f728ed4417eb38cb3",
-          "materialHash": "e79803cf823de9a36cae6ed52b4e18b4c6bde478c71f0c22eed9f312af8de15f",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-24T11:10:07.670Z"
+          "headHash": "57c54a0b40a0bcdb73e87e330696e898d118bc9a",
+          "materialHash": "dc58de0b411a6037c3f55dd3b6afda1ee06603b690bc9b2bf47da9aa98d7d6a8",
+          "storyFilesHash": "7861c5f1f3211403424407e9254de2db6511886e8c605e7ff91c11a3e2527d69",
+          "timestamp": "2026-06-24T11:24:57.451Z"
         }
       ]
     },
@@ -197,10 +197,10 @@
           "command": "rg \"createImplementationReviewHandlers|intent-coverage|core/zod|verifier/(index|validate|cli-executor|types)\" packages/main/src scripts package.json packages/main/package.json --glob \"!scripts/audit-silent-catches-baseline.json\"",
           "result": "pass",
           "note": "Search found only intentional detector retired-surface entries and current verification-intent coverage names; old handler/core/verifier source imports are absent.",
-          "headHash": "de8be74228675aa4189a5fe9979a6d21ab3f8ef0",
-          "materialHash": "e79803cf823de9a36cae6ed52b4e18b4c6bde478c71f0c22eed9f312af8de15f",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-24T11:10:14.552Z"
+          "headHash": "57c54a0b40a0bcdb73e87e330696e898d118bc9a",
+          "materialHash": "dc58de0b411a6037c3f55dd3b6afda1ee06603b690bc9b2bf47da9aa98d7d6a8",
+          "storyFilesHash": "7861c5f1f3211403424407e9254de2db6511886e8c605e7ff91c11a3e2527d69",
+          "timestamp": "2026-06-24T11:24:57.451Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -208,10 +208,10 @@
           "command": "npm run test:orphan-surface",
           "result": "pass",
           "note": "Protected dynamic verifier surfaces serve.ts, dev-host.ts, bridge-host.ts, browser-client.ts, browser-server.ts, and browser-executor.ts remained present.",
-          "headHash": "de8be74228675aa4189a5fe9979a6d21ab3f8ef0",
-          "materialHash": "e79803cf823de9a36cae6ed52b4e18b4c6bde478c71f0c22eed9f312af8de15f",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-24T11:10:14.705Z"
+          "headHash": "57c54a0b40a0bcdb73e87e330696e898d118bc9a",
+          "materialHash": "dc58de0b411a6037c3f55dd3b6afda1ee06603b690bc9b2bf47da9aa98d7d6a8",
+          "storyFilesHash": "7861c5f1f3211403424407e9254de2db6511886e8c605e7ff91c11a3e2527d69",
+          "timestamp": "2026-06-24T11:24:57.451Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -219,10 +219,10 @@
           "command": "lattice implementation_review_result_get --help",
           "result": "pass",
           "note": "Command remains unavailable and suggests modern signed review commands, proving the old unsigned implementation-review result handler was not restored.",
-          "headHash": "de8be74228675aa4189a5fe9979a6d21ab3f8ef0",
-          "materialHash": "e79803cf823de9a36cae6ed52b4e18b4c6bde478c71f0c22eed9f312af8de15f",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-24T11:10:14.826Z"
+          "headHash": "57c54a0b40a0bcdb73e87e330696e898d118bc9a",
+          "materialHash": "dc58de0b411a6037c3f55dd3b6afda1ee06603b690bc9b2bf47da9aa98d7d6a8",
+          "storyFilesHash": "7861c5f1f3211403424407e9254de2db6511886e8c605e7ff91c11a3e2527d69",
+          "timestamp": "2026-06-24T11:24:57.451Z"
         }
       ]
     },
@@ -272,10 +272,10 @@
           "command": "npm run test:orphan-surface && npm --prefix packages/main run build",
           "result": "pass",
           "note": "Detector passed and TypeScript build completed successfully on the real repository.",
-          "headHash": "3ef99ba14b1928c4855ca9a3f6ada1732527778d",
-          "materialHash": "e79803cf823de9a36cae6ed52b4e18b4c6bde478c71f0c22eed9f312af8de15f",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-24T11:10:31.733Z"
+          "headHash": "57c54a0b40a0bcdb73e87e330696e898d118bc9a",
+          "materialHash": "dc58de0b411a6037c3f55dd3b6afda1ee06603b690bc9b2bf47da9aa98d7d6a8",
+          "storyFilesHash": "7861c5f1f3211403424407e9254de2db6511886e8c605e7ff91c11a3e2527d69",
+          "timestamp": "2026-06-24T11:24:57.451Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -283,10 +283,10 @@
           "command": "lattice implementation_review_result_get --help",
           "result": "pass",
           "note": "Probe returned Unknown command and suggested review_run_start/review_pass_set, so the old command remains unavailable.",
-          "headHash": "3ef99ba14b1928c4855ca9a3f6ada1732527778d",
-          "materialHash": "e79803cf823de9a36cae6ed52b4e18b4c6bde478c71f0c22eed9f312af8de15f",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-24T11:10:31.853Z"
+          "headHash": "57c54a0b40a0bcdb73e87e330696e898d118bc9a",
+          "materialHash": "dc58de0b411a6037c3f55dd3b6afda1ee06603b690bc9b2bf47da9aa98d7d6a8",
+          "storyFilesHash": "7861c5f1f3211403424407e9254de2db6511886e8c605e7ff91c11a3e2527d69",
+          "timestamp": "2026-06-24T11:24:57.451Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -294,10 +294,10 @@
           "command": "git status --short",
           "result": "pass",
           "note": "Dirty tree is limited to B-2017 metadata plus scoped package/script/source edits; no unrelated active story metadata or dynamic verifier serve files were modified.",
-          "headHash": "3ef99ba14b1928c4855ca9a3f6ada1732527778d",
-          "materialHash": "e79803cf823de9a36cae6ed52b4e18b4c6bde478c71f0c22eed9f312af8de15f",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-24T11:10:31.982Z"
+          "headHash": "57c54a0b40a0bcdb73e87e330696e898d118bc9a",
+          "materialHash": "dc58de0b411a6037c3f55dd3b6afda1ee06603b690bc9b2bf47da9aa98d7d6a8",
+          "storyFilesHash": "7861c5f1f3211403424407e9254de2db6511886e8c605e7ff91c11a3e2527d69",
+          "timestamp": "2026-06-24T11:24:57.451Z"
         }
       ]
     }
