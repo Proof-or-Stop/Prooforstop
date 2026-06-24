@@ -5,7 +5,7 @@
       "desc": "Normal channel CHK-001/CHK-002/CHK-003 have no dispatch events in process-events.jsonl; only a single INIT-phase init-review dispatch (product-reviewer) is present. No lattice dispatch event formally assigned any CHK to lattice-implementer. Git commits 4afd78bae (CHK-001) and 0cf053e20 (CHK-003) carry lattice-implementer as git author, but this is a git identity field, not a Lattice dispatch record. Per the channel review spec, dispatch events in process-events.jsonl are the authoritative evidence. Should have dispatched CHK-001, CHK-002, and CHK-003 to lattice-implementer via lattice dispatch.",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-channel",
       "createdAt": "2026-06-24T00:14:51.891Z",
@@ -13,7 +13,9 @@
       "reviewRunId": "B-5ae8:RR-004",
       "_hash": "c1b203f95180e0fef90a2eee9d2791be089e33893a355d60ae6f1d123d610b1e",
       "signatureTag": "missing|unknown|normal-channel-dispatch",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "False positive: the finding was based on reading the un-merged main-repo copy of process-events.jsonl. The worktree copy at .worktrees/B-5ae8/.lattice/story/actives/B-5ae8/process-events.jsonl contains dispatch + subagent_result(success:true) pairs for CHK-001, CHK-002, and CHK-003. All 3 DEV checklist items have complete dispatch coverage. No actual violation.",
+      "resolvedAt": "2026-06-24T00:20:47.040Z"
     }
   ]
 }
