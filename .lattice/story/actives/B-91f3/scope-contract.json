@@ -1,0 +1,20 @@
+{
+  "storyId": "B-91f3",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/proof-admissibility.ts",
+    "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+    "packages/main/src/tasks/proof-admissibility-smoke.ts"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/proof-admissibility-smoke.ts",
+    "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-24T13:24:41.873Z",
+  "updatedAt": "2026-06-24T13:24:41.873Z"
+}
