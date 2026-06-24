@@ -4,7 +4,7 @@
   "title": "Add a CI orphan-surface detector and retire high-confidence unused legacy surfaces",
   "description": "Prevent Lattice from accumulating handler and command surfaces that are defined in TypeScript but unreachable from the runtime registry, while cleaning only the high-confidence stale code paths already shown to be unused. The change must not register old commands merely to satisfy a scan, and must not delete dynamic serve or smoke discovery entrypoints.",
   "type": "refactor",
-  "phase": "PLAN",
+  "phase": "DEV",
   "priority": "high",
   "keywords": [
     "orphan-surface",
@@ -44,6 +44,15 @@
       "phase": "PLAN",
       "action": "advance",
       "timestamp": "2026-06-24T11:02:36.131Z",
+      "branch": "story/B-2017",
+      "user": "Harmonygo",
+      "sessionId": "sess-4f9b6d774b18acf2",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-24T11:04:21.724Z",
       "branch": "story/B-2017",
       "user": "Harmonygo",
       "sessionId": "sess-4f9b6d774b18acf2",

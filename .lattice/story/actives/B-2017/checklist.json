@@ -7,9 +7,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-24T11:09:58.480Z",
       "files": {
         "modify": [],
         "create": [
@@ -38,7 +38,42 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "npm run test:orphan-surface",
+          "result": "pass",
+          "note": "Detector passed on real source: 102 handler factories registered and 261 catalog commands checked.",
+          "headHash": "13ab8cfd0a33a6d52ceabfae0cc9e5bff488a057",
+          "materialHash": "e79803cf823de9a36cae6ed52b4e18b4c6bde478c71f0c22eed9f312af8de15f",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-24T11:09:58.625Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "npm run test:orphan-surface",
+          "result": "pass",
+          "note": "Detector explicitly protects dynamic verifier serve/dev-host/browser surfaces and does not scan tasks as orphan command surfaces.",
+          "headHash": "13ab8cfd0a33a6d52ceabfae0cc9e5bff488a057",
+          "materialHash": "e79803cf823de9a36cae6ed52b4e18b4c6bde478c71f0c22eed9f312af8de15f",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-24T11:09:58.785Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node scripts/verify-orphan-surface.mjs",
+          "result": "pass",
+          "note": "Script contains hard-fail checks for exported handler factories not reachable from createMainRegistry.",
+          "headHash": "13ab8cfd0a33a6d52ceabfae0cc9e5bff488a057",
+          "materialHash": "e79803cf823de9a36cae6ed52b4e18b4c6bde478c71f0c22eed9f312af8de15f",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-24T11:09:58.894Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",

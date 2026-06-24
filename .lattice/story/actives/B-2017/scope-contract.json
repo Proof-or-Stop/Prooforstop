@@ -1,0 +1,44 @@
+{
+  "storyId": "B-2017",
+  "mode": "enforce",
+  "allowedModify": [
+    "package.json",
+    "packages/main/package.json",
+    "packages/main/src/handlers/implementation-review.ts",
+    "packages/main/src/core/intent-coverage.ts",
+    "packages/main/src/core/zod.ts",
+    "packages/main/src/verifier/index.ts",
+    "packages/main/src/verifier/validate.ts",
+    "packages/main/src/verifier/cli-executor.ts",
+    "packages/main/src/verifier/types.ts"
+  ],
+  "allowedCreate": [
+    "scripts/verify-orphan-surface.mjs"
+  ],
+  "allowedTest": [
+    "scripts/verify-orphan-surface.mjs"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [
+    {
+      "actor": "codex-cli",
+      "reason": "Update a stale source comment that referenced the retired intent-coverage module after the cleanup.",
+      "timestamp": "2026-06-24T11:09:18.543Z",
+      "paths": [
+        "packages/main/src/handlers/checklist.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/handlers/checklist.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "13ab8cfd0a33a6d52ceabfae0cc9e5bff488a057",
+      "materialHash": "e79803cf823de9a36cae6ed52b4e18b4c6bde478c71f0c22eed9f312af8de15f"
+    }
+  ],
+  "createdAt": "2026-06-24T11:04:32.314Z",
+  "updatedAt": "2026-06-24T11:09:18.543Z"
+}
