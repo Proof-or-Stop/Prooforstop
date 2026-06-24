@@ -232,6 +232,17 @@
           "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
           "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
           "timestamp": "2026-06-24T11:20:39.219Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:2",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/delivery-check-freshness-smoke.js",
+          "result": "pass",
+          "note": "delivery-check-hash.ts:138 and :159: both currentMaterialHash and currentStoryFilesHash are called with the same (gitCwd, HEAD, metadataRoot) triple. They both resolve HEAD to a tree via git, and since HEAD is a symbolic ref that resolves atomically (git guarantees a single commit object), both functions read the same git snapshot. There is no window between the two calls where HEAD could advance to a different commit — git ref resolution is atomic per invocation. The smoke advisory case (delivery-check-freshness-smoke.ts:253-302) exercises both computations in sequence and asserts consistent results (storyFilesHash match + materialHash mismatch), which would fail if a TOCTOU race changed HEAD between the two reads.",
+          "headHash": "0467bf2b079ffacee8ff05a2ca496ec0b8d2a146",
+          "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
+          "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
+          "timestamp": "2026-06-24T11:20:45.489Z"
         }
       ]
     },
