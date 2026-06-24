@@ -85,6 +85,8 @@ The original candidate remains `evidence-candidate`. Current green
 | `observedFailureSummary` | Human-readable summary. |
 | `boundedOutputExcerpt` | Small non-secret excerpt. |
 | `producerObservedClass` | `target-bug`, `bootstrap-noise`, `environment-noise`, or `unknown`. |
+| `baselineHeadHash` | Optional git HEAD hash for the baseline where the probe was recorded. |
+| `materialHash` | Optional material hash for the baseline where the probe was recorded. |
 
 A probe can support Repro-First story creation only after a matching
 `repro_review_set` records `verdict=red-reviewed` and
