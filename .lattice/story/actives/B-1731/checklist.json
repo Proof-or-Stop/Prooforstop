@@ -273,9 +273,9 @@
       "id": "CHK-004",
       "title": "Hermetic smoke covering the verification matrix; register",
       "context": "check+counter smoke (explicit literals) covering: type=bug no candidate -> warn (mode=warn) and block (mode=enforce) with next command; story_create_from_repro with accepted target-bug repro-review -> pass; candidate present but repro-review missing -> repro_first_candidate_unreviewed; reviewer class bootstrap-noise -> repro_first_reviewed_class_not_target_bug; spike path accepted -> pass; doc-only chore -> allow; bypassReproFirst.reason -> allow + repro-first-bypass artifact + session_brief; classifier throws -> allow + repro_first_preflight_engine_error (fail-open); mode=off -> allow always. Register the smoke in the validate command set / package test script.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-24T22:00:26.348Z",
       "relatedDocs": [
         "docs/requirements/decisions/repro-first-story-intake-experiment.md"
       ],
@@ -313,7 +313,64 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "TypeScript build compiled the new registered smoke and repro-first gate code.",
+          "headHash": "c05d8828270ad62380a24600f658aead39fa048c",
+          "materialHash": "ce6a2003a743a29f21740a4b39561fbf8f67a1ad065827ffe7d0d90e39df080e",
+          "storyFilesHash": "532eba9adeead064f0076b0d39e942aba714756d6214dafd7eec4fbaf23776d2",
+          "timestamp": "2026-06-24T22:00:26.770Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js",
+          "result": "pass",
+          "note": "Smoke ok 2/10/13 prove valid story-evidence-binding allows IDEA→PLAN, PLAN→DEV, and INIT_CHECK→DEV express.",
+          "headHash": "c05d8828270ad62380a24600f658aead39fa048c",
+          "materialHash": "ce6a2003a743a29f21740a4b39561fbf8f67a1ad065827ffe7d0d90e39df080e",
+          "storyFilesHash": "532eba9adeead064f0076b0d39e942aba714756d6214dafd7eec4fbaf23776d2",
+          "timestamp": "2026-06-24T22:00:27.436Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js",
+          "result": "pass",
+          "note": "Smoke ok 3 proves no-file checklist stories bypass repro-first gate.",
+          "headHash": "c05d8828270ad62380a24600f658aead39fa048c",
+          "materialHash": "ce6a2003a743a29f21740a4b39561fbf8f67a1ad065827ffe7d0d90e39df080e",
+          "storyFilesHash": "532eba9adeead064f0076b0d39e942aba714756d6214dafd7eec4fbaf23776d2",
+          "timestamp": "2026-06-24T22:00:27.740Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js",
+          "result": "pass",
+          "note": "Smoke ok 1/8/9/11/12 cover missing, unaccepted, stale, and express missing binding blocks with reason codes.",
+          "headHash": "c05d8828270ad62380a24600f658aead39fa048c",
+          "materialHash": "ce6a2003a743a29f21740a4b39561fbf8f67a1ad065827ffe7d0d90e39df080e",
+          "storyFilesHash": "532eba9adeead064f0076b0d39e942aba714756d6214dafd7eec4fbaf23776d2",
+          "timestamp": "2026-06-24T22:00:28.048Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "docs_check",
+          "command": "rg -n \"repro-evidence-binding-dev-gate-smoke\" lattice.config.json package.json packages/main/package.json",
+          "result": "pass",
+          "note": "Smoke is registered in lattice validate commands plus root and packages/main npm scripts.",
+          "headHash": "c05d8828270ad62380a24600f658aead39fa048c",
+          "materialHash": "ce6a2003a743a29f21740a4b39561fbf8f67a1ad065827ffe7d0d90e39df080e",
+          "storyFilesHash": "532eba9adeead064f0076b0d39e942aba714756d6214dafd7eec4fbaf23776d2",
+          "timestamp": "2026-06-24T22:00:28.301Z"
+        }
+      ]
     }
   ]
 }
