@@ -68,7 +68,40 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees classifier results that say allowed=false with stable reason codes for candidate, diagnostic, legacy, local-key, and receipt-only inputs, and allowed=true only for matching production-gate-decision policy.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/proof-admissibility.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/proof-admissibility-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A matching production-gate-decision artifact can be classified as admissible for DONE production-readiness under its allowed policy.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "local-review-quorum can satisfy local review escalation but cannot set productionDone or Authority completion claims.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "local diagnostic accepted=true, raw Repro candidate, legacy observed evidence, local-key bundle, and authority-receipt without gate decision all deny production claims with explicit reason codes.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
