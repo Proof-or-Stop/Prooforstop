@@ -1,0 +1,36 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-d243",
+  "allowedCommands": [
+    "node packages/main/dist/tasks/delivery-check-freshness-smoke.js",
+    "node scripts/verify-process-fact-contract.mjs",
+    "npm --prefix packages/main run build",
+    "npm test"
+  ],
+  "allowedTools": [
+    "Bash",
+    "Edit",
+    "Glob",
+    "Grep",
+    "Read",
+    "Write"
+  ],
+  "allowedPaths": [
+    "docs/requirements/decisions/story-files-hash-material-drift.md",
+    "packages/main/src/core/delivery-check-hash.ts",
+    "packages/main/src/core/done-oracle.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/handlers/delivery-check.ts",
+    "packages/main/src/tasks/delivery-check-freshness-smoke.ts"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Gate C signed delivery-check storyFilesHash drift-advisory. Excludes Gate A/B changes and any whole-tree materialHash redesign per the locked design.",
+  "createdAt": "2026-06-24T10:59:06.389Z",
+  "updatedAt": "2026-06-24T10:59:06.389Z",
+  "_hash": "398798e4c203257e4e4c970109a847b2eb46ca6a3ab77ad57005a3a50cfc1c44"
+}
