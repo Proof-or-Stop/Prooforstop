@@ -1,0 +1,69 @@
+{
+  "principles": [
+    "Single source: enrich the one renderer so all 3 surfaces auto-inherit and stay byte-identical.",
+    "Backward-compat: keep the existing refresh_stale+validate lines and the EVIDENCE_STALE_MARKER constant.",
+    "Projection not new logic: the drift-class line reflects existing storyFilesHash-secondary behavior, not a new rule."
+  ],
+  "drivers": [
+    "A Host reading the stale hint cannot tell unrelated-drift (refresh) from story-owned drift (re-review).",
+    "Put the guidance at the moment of the hint, complementing the B-5396 runbook.",
+    "Keep it low-risk (no gate logic)."
+  ],
+  "options": [
+    {
+      "name": "enrich the shared renderer",
+      "pros": [
+        "Single source: all 3 surfaces auto-inherit; byte-identity preserved",
+        "~2 lines in one core file + 1 smoke update; low-risk (not a high-risk lifecycle path)",
+        "Puts the guidance at the moment the Host reads the stale hint"
+      ],
+      "cons": [
+        "Must update the one byte-equality smoke (extractStaleBlock slice)"
+      ]
+    },
+    {
+      "name": "rewrite the DONE-blocker generators (machine.ts/done-oracle.ts)",
+      "pros": [
+        "Guidance at the DONE gate too"
+      ],
+      "cons": [
+        "High-risk lifecycle code -> full 3x2 review",
+        "The spike refuted this: DONE gate already suggests done_prepare; the gap is the earlier hint",
+        "Rejected"
+      ]
+    },
+    {
+      "name": "add a separate new hint alongside the shared one",
+      "pros": [
+        "No change to the existing renderer"
+      ],
+      "cons": [
+        "Breaks the single-source byte-identity invariant (B-a2f1); two hints to keep in sync",
+        "Rejected"
+      ]
+    }
+  ],
+  "chosen": "enrich the shared renderer",
+  "rationale": "The spike validated this is a ~2-line change in one core file (single source -> 3 surfaces auto-inherit) plus one byte-equality smoke update, with no high-risk lifecycle exposure. Option B (rewrite DONE-blocker generators) was refuted by the spike (gate already suggests done_prepare; high-risk 3x2). Option C breaks the single-source byte-identity invariant.",
+  "preMortem": [
+    {
+      "scenario": "The byte-equality smoke breaks.",
+      "trigger": "Adding lines changes renderEvidenceStaleHint output but the extractStaleBlock slice / assert.equal in verification-freshness-smoke.ts still expects the old text.",
+      "consequence": "verification-freshness-smoke (and npm test) fail.",
+      "mitigation": "Update the byte-equality asserts + the extractStaleBlock line-count slice in the same change; run the smoke green before REVIEW."
+    },
+    {
+      "scenario": "The drift-class wording goes stale.",
+      "trigger": "proof-admissibility/floor enforce mode later tightens the materialHash-only downgrade.",
+      "consequence": "The hint over-promises 'refresh, don't re-review'.",
+      "mitigation": "Frame the drift-class line as the current storyFilesHash-secondary behavior (B-6de6/B-d243), worded as guidance not a guarantee; it mirrors the just-merged runbook wording."
+    },
+    {
+      "scenario": "A surface reconstructs the hint string instead of calling the renderer.",
+      "trigger": "One of hints.ts/session.ts/transition-orchestrator.ts builds the block locally.",
+      "consequence": "That surface would not inherit the new lines -> byte divergence.",
+      "mitigation": "Verified all three call renderEvidenceStaleHint (no local reconstruction); the byte-equality smoke asserts session_brief + validate match the renderer."
+    }
+  ],
+  "timestamp": "2026-06-24T14:37:34.814Z"
+}

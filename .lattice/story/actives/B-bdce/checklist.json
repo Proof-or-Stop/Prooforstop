@@ -6,7 +6,60 @@
       "context": "packages/main/src/core/evidence-stale-hint.ts renderEvidenceStaleHint: keep the existing stable lines (the EVIDENCE STALE marker + Meaning + `lattice verification_evidence_refresh_stale --storyId=...` + `lattice validate --story=... --json`). ADD (a) a drift-classification line: whole-tree materialHash drift with UNCHANGED story-owned files (storyFilesHash) is usually unrelated/main drift -> refresh, do not re-review; storyFilesHash change = story-owned drift -> re-review/re-quorum; and (b) a one-step recovery line: `lattice done_prepare --storyId=... --mergeMain --refreshStale --validate` for TEST->DONE convergence. The three consuming surfaces (handlers/hints.ts, handlers/session.ts, handlers/transition-orchestrator.ts) call the shared renderer and auto-inherit; do not edit them unless they reconstruct the string. Keep storyId-substitution (no literal <storyId> placeholders, per B-a2f1 preMortem #3).",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "renderEvidenceStaleHint(storyId, stale, {currentHead}) output contains a line with `lattice done_prepare --storyId=<storyId>` (with real storyId substituted, no placeholders); WHY: confirms the one-step recovery line is present in the canonical block",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "renderEvidenceStaleHint(storyId, stale, {currentHead}) output contains a drift-classification line distinguishing materialHash-only drift (storyFilesHash unchanged -> refresh, do not re-review) from storyFilesHash drift (story-owned -> re-review/re-quorum); WHY: confirms the drift-class token is rendered",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "The three consuming surfaces (hints.ts decorateResult / session.ts session_brief / transition-orchestrator.ts story_advance) produce byte-identical output to the renderer for both the done_prepare and drift-class lines (the existing cross-surface byte-equality contract from B-a2f1 still holds after the enrichment); WHY: preMortem #2 three-way identity",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "renderEvidenceStaleHint with empty storyId returns empty string (no done_prepare or drift-class lines leak); WHY: anti-placeholder guard still works with more lines",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "renderEvidenceStaleHint with stale=[] returns empty string even when storyId is valid; WHY: no-stale guard prevents spurious recovery block",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "The existing stable lines (EVIDENCE_STALE_MARKER / Meaning / refresh_stale command / validate command) are preserved verbatim in the output after enrichment; WHY: backward-compat — existing surfaces must not break",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "storyId containing special characters (e.g. B-bdce) is substituted literally into the done_prepare command, not escaped or mangled; WHY: the done_prepare command must be copy-pasteable",
+            "type": "logic",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "If a surface (hints.ts / session.ts / transition-orchestrator.ts) were to reconstruct the done_prepare or drift-class line instead of calling renderEvidenceStaleHint, the byte-equality smoke would catch the divergence and fail; WHY: the shared-renderer contract is enforced by the smoke, not just by convention",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "The drift-classification line does not contain literal placeholder tokens like <storyId> or <B-xxx>; WHY: preMortem #3 anti-placeholder anchor extended to the new line",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
