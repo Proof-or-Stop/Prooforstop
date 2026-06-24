@@ -1,0 +1,36 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Apply the 20 new validated task dirs under experiments/recovery-runner/tasks/",
+      "context": "Copy the 20 pre-validated task directories from /tmp/corpus-design/ into experiments/recovery-runner/tasks/ (bug-fix: bf-datediff,bf-mergesorted,bf-lru; refactor: rf-units,rf-roman,rf-money; test-repair: tr-slugify,tr-pluralize,tr-clamp; doc-update: du-interp,du-duration; dep-upgrade: dp-deepmerge,dp-querystring,dp-semver; contract-validation: cv-ipv4,cv-luhn,cv-email; CLI-feature: cl-combined,cl-equals,cl-multi). Each is the full 7-file contract (task.json/prompt.md/acceptance.mjs/reference-solution.mjs/ground-truth.mjs/payload-subtle.mjs/subtle-wrong-output.mjs). Do not modify the existing 4 tasks.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Add corpus-selfcheck.mjs validating all 24 tasks via the canonical inject() path",
+      "context": "New experiments/recovery-runner/corpus-selfcheck.mjs: for every task dir under tasks/, copy reference-solution.mjs to a scratch solution.mjs + acceptance.mjs + ground-truth.mjs, assert node acceptance.mjs => ACCEPT PASS (exit 0) and node ground-truth.mjs => GROUND-TRUTH PASS (exit 0); then import subtle-wrong-output.mjs default + call inject(ws,{outputFile:'solution.mjs',taskId}) and assert acceptance => ACCEPT PASS (exit 0) and ground-truth => GROUND-TRUTH FAIL (exit !=0). Print per-task PASS/FAIL + a final count. Offline, deterministic, no claude -p.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Assert pre-reg §2 stratification (24 tasks across 8 categories)",
+      "context": "In corpus-selfcheck.mjs, read each task.json type and assert: total tasks == 24, exactly 8 distinct categories present (bug-fix/feature/refactor/test-repair/doc-update/dep-upgrade/contract-validation/CLI-feature), and each category has >= 2 tasks (~3 each). Fail if the corpus drifts from the pre-reg §2 spec.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Wire corpus-selfcheck into run-selfchecks.mjs + npm test:experiments",
+      "context": "Add corpus-selfcheck.mjs to the run-selfchecks.mjs aggregator (it currently runs the 5 harness selfchecks) and ensure it runs via npm run test:experiments / npm test. Confirm the full chain stays green.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
