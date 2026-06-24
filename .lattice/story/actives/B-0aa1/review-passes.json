@@ -62,6 +62,15 @@
       "reviewRound": "2026-06-24T04:33:42.085Z",
       "reviewRunId": "B-0aa1:RR-010",
       "_hash": "c8d9ef08352428be931550001534a9305725dd32bd8cec8c47130cc070a84ca6"
+    },
+    {
+      "id": "B-0aa1:RP-008",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 3 re-review: docs-only change (2 lines added to Probe Contract table documenting optional baselineHeadHash/materialHash fields). Zero code changes to packages/main/src. All 12 must-priority verificationIntents retain valid evidence. F-001 (idempotency) and F-002 (empty-pattern fail-closed) remain resolved with evidenceState=verified. No test coverage regression.",
+      "createdAt": "2026-06-24T04:37:36.252Z",
+      "reviewRound": "2026-06-24T04:33:42.085Z",
+      "reviewRunId": "B-0aa1:RR-011",
+      "_hash": "462612c0e58f14c3e27ca956ec999a687d6f80c4865090522f5e4f5972b7a29b"
     }
   ]
 }
