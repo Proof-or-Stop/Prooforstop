@@ -601,7 +601,7 @@
       "desc": "doc-code-drift: README FS-evidence threat-model note (line 109) lists only Write/Edit/MultiEdit as harvested tool-use events but harvestWriteTargets in live-engine.mjs also covers NotebookEdit (with notebook_path input field). The inline code comment at live-engine.mjs line 92 is correct (includes NotebookEdit); the README omits it, causing a reader to under-estimate the capture coverage.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-06-24T14:28:32.246Z",
@@ -613,7 +613,11 @@
         "experiments/recovery-runner/live-engine.mjs"
       ],
       "signatureTag": "doc-code-drift|md|code-drift-readme",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "README FS-evidence threat-model note now lists Write/Edit/MultiEdit/NotebookEdit (file_path/notebook_path), matching harvestWriteTargets' regex /^(write|edit|multiedit|notebookedit)$/i + field chain. Doc-only; both selfchecks green (174 + 7/7). Commit b17c6a6d51.",
+      "resolvedAt": "2026-06-24T14:47:07.109Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
