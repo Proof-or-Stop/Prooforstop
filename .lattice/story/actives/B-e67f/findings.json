@@ -224,6 +224,24 @@
       ],
       "signatureTag": "adversarial|mjs|verified-bypass-sanitizedenv",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-e67f:F-012",
+      "desc": "Verified bypass: post-inject hashes are checked before cached harness restore and there is no final immutable handoff before child execution. inject() can spawn a short-lived helper that rewrites scratch ground-truth.mjs after the hash check/cached rewrite but before run(wsGt). A synthetic 24-task corpus exited 0 with 24/24 tasks and 10/10 guards. Relevant code: corpus-selfcheck.mjs lines 212-235.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-24T10:53:20.088Z",
+      "reviewRound": "2026-06-24T10:16:50.255Z",
+      "reviewRunId": "B-e67f:RR-013",
+      "_hash": "29af51f1149b6bbc0b22e2102606da70027a0a4bd2bf747051e2de964e4b19fb",
+      "files": [
+        "experiments/recovery-runner/corpus-selfcheck.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|verified-bypass-post",
+      "signatureTagSource": "auto"
     }
   ]
 }
