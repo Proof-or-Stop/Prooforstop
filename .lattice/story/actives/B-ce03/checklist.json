@@ -32,6 +32,16 @@
             "priority": "must"
           }
         ]
+      },
+      "userSees": "Running done_prepare with only unchanged pre-existing Lattice lifecycle metadata dirt no longer prints blockedAt: cleanTree; dirty source or unsafe rename scenarios still print blockedAt: cleanTree.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/done-prepare.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/done-prepare-smoke.ts"
+        ]
       }
     },
     {
