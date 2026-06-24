@@ -4,7 +4,7 @@
   "title": "B4 truncatedContext: non-empty context-lost marker so single-shot agent gets a valid prompt",
   "description": "Fix B4 context-loss so the turn-1 truncation hands the single-shot claude -p agent a non-empty token-less context-lost marker (mirroring B5.checkpointContext) instead of an empty prompt that yields infra-fail, keeping the disk-grounded classify and the hermetic self-check green, so the honest powered re-run produces a real B4 outcome for the paper recovery table.",
   "type": "bug",
-  "phase": "INIT_CHECK",
+  "phase": "PLAN",
   "priority": "high",
   "keywords": [
     "live-loop,injection,truncate,context-loss,single-shot"
@@ -33,6 +33,15 @@
       "action": "advance",
       "timestamp": "2026-06-24T00:04:11.412Z",
       "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "2094c029-06be-4ea6-b9eb-bdb694c8c71a",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-24T00:04:31.000Z",
+      "branch": "story/B-5ae8",
       "user": "Harmonygo",
       "sessionId": "2094c029-06be-4ea6-b9eb-bdb694c8c71a",
       "agent": "main"

@@ -6,7 +6,37 @@
       "context": "empty prompt -> infra-fail; non-empty token-less marker -> valid prompt that still lacks the task token",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "In --self-check the B4 cases use the non-empty context-lost marker: a disk-reading stub -> RECOVERED and a context-reliant stub -> AMPLIFIED (neither is infra-fail).",
+      "files": {
+        "modify": [
+          "experiments/injection-probes/live-loop-harness.mjs"
+        ],
+        "create": [],
+        "test": [
+          "experiments/injection-probes/live-loop-harness.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "B4 truncatedContext is a non-empty token-less marker; a workspace-reading stub re-derives the task from task.txt -> result.txt=OK -> RECOVERED",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "a context-reliant stub reads the token-less marker, finds no token, writes wrong result.txt -> AMPLIFIED",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "the marker contains NO task token, so a context-reliant agent cannot accidentally recover from context alone (only via disk)",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

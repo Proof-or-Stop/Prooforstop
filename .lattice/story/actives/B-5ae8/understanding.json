@@ -1,0 +1,17 @@
+{
+  "task": "Change B4.truncatedContext from the empty string to a non-empty token-less context-lost marker (mirroring B5.checkpointContext) so the single-shot claude -p agent gets a valid prompt instead of infra-failing.",
+  "outcome": "node experiments/injection-probes/live-loop-harness.mjs --self-check prints 25/25 (B4 cases RECOVERED and AMPLIFIED, not infra-fail) exit 0, 0 spend; the subsequent powered --run produces a REAL B4 outcome (recovered/amplified/safe-stop) instead of infra-fail.",
+  "facts": [
+    "B4.truncatedContext is currently '' (line ~315); B5.checkpointContext is the non-empty marker '[process killed and restarted; in-memory context lost]' (line ~351); real-loop-agent.mjs passes String(context ?? '') as the claude -p prompt (line ~52), so an empty context is an empty (invalid) prompt -> infra-fail."
+  ],
+  "constraints": [
+    "Edit only experiments/injection-probes/live-loop-harness.mjs and CHANGELOG.md. The hermetic --self-check must stay 25/25 green and 0-spend. The new marker must be token-less so the disk-grounded classify and the B4 RECOVERED/AMPLIFIED/SAFE_STOP stubs are unaffected."
+  ],
+  "unknowns": [
+    "None. The marker text is a token-less constant; the recovery semantics and classify are unchanged."
+  ],
+  "touchpoints": [
+    "experiments/injection-probes/live-loop-harness.mjs; CHANGELOG.md"
+  ],
+  "timestamp": "2026-06-24T00:04:52.474Z"
+}
