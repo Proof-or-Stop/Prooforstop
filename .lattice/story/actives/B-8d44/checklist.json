@@ -866,6 +866,19 @@
           "materialHash": "e9f9a1bf9319583daab40d0c3e496cd82720eb6e6fe0c577c78aa34eed093597",
           "storyFilesHash": "273206ea45a39bdb02aa0eba02fe23abfeb768b84cf6b76a272c5a7b849f85a3",
           "timestamp": "2026-06-24T12:49:59.210Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:3",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/run-selfchecks.mjs",
+          "command": "node experiments/recovery-runner/run-selfchecks.mjs",
+          "result": "pass",
+          "note": "run-selfchecks aggregator now runs 7 selfchecks incl live-engine-selfcheck; all pass offline (npm test:experiments routes through it); exit 0",
+          "headHash": "72394cfddf12ec3373eb3378db48bf10d12adc41",
+          "materialHash": "e9f9a1bf9319583daab40d0c3e496cd82720eb6e6fe0c577c78aa34eed093597",
+          "storyFilesHash": "273206ea45a39bdb02aa0eba02fe23abfeb768b84cf6b76a272c5a7b849f85a3",
+          "timestamp": "2026-06-24T12:50:00.336Z"
         }
       ]
     }
