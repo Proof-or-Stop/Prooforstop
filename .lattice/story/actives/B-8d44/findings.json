@@ -221,6 +221,24 @@
       ],
       "signatureTag": "missing|mjs|edge-lacks-evidence",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-8d44:F-013",
+      "desc": "CHK-004:edge:2 lacks evidence: intent requires that a record with tokensSpent=-1 or NaN causes validateRecord to return numericOk=false. The validateRecord function in run-driver.mjs line 304 checks NUMERIC_RECORD_FIELDS for finite>=0. The selfcheck never calls validateRecord with a record containing negative or NaN spend values. No assertion of numericOk=false exists anywhere in the selfcheck.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-24T12:59:00.742Z",
+      "reviewRound": "2026-06-24T12:50:13.876Z",
+      "reviewRunId": "B-8d44:RR-002",
+      "_hash": "8ea694597ebee775121e8f54541c12231eb707366f900c1dbf0a79c1ba9a0c06",
+      "files": [
+        "experiments/recovery-runner/live-engine-selfcheck.mjs,experiments/recovery-runner/run-driver.mjs"
+      ],
+      "signatureTag": "missing|mjs|edge-lacks-evidence",
+      "signatureTagSource": "auto"
     }
   ]
 }
