@@ -74,7 +74,7 @@
       "desc": "Maintainability/integrity: the canonical digest subject is constructed in two independent places in artifact-store.ts — digestSubject() (lines 75-84, write path, keys: artifactKind/schemaVersion/producer(opts.producer ?? 'repro-intake')/evidenceScope/subjectBinding/payload) and verifyArtifactDigest() (lines 155-162, verify path, same 6 keys reconstructed from a stored EvidenceArtifact). They are currently field-for-field identical, but there is no shared source of truth, so any future change to the digest subject (e.g. adding a field on the write side) must be mirrored by hand in the verify side or every verifyArtifactDigest() call silently returns false (digest mismatch / false tamper-detection). This is the exact multi-read-point hazard CLAUDE.md's integrity conventions warn about, in code whose whole purpose is tamper detection. Suggest a single helper that takes the 6 canonical fields and is called by both write and verify (write maps CreateArtifactOptions→fields applying the producer default; verify maps the stored artifact→fields). Not a current correctness bug (build clean, smoke green); low-severity preventive refactor.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-24T05:07:07.684Z",
@@ -85,7 +85,11 @@
         "packages/main/src/core/evidence/artifact-store.ts"
       ],
       "signatureTag": "missing|ts|duplicated-digest-subject",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed by sharing artifactDigestSubject() between writeArtifact digest creation and verifyArtifactDigest recomputation, so the six canonical digest fields now have one source of truth. Verified with npm --prefix packages/main run build and npm --prefix packages/main run test:repro-first-candidate.",
+      "resolvedAt": "2026-06-24T05:08:14.232Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
