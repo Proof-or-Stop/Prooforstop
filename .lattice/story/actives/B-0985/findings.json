@@ -93,6 +93,25 @@
       "resolvedAt": "2026-06-24T10:21:02.706Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-0985:F-005",
+      "desc": "F-001 is not fully fixed: the evaluator still has fail-open paths for missing/invalid required admissibility dimensions. In packages/main/src/core/proof-admissibility.ts:526-533, requireCheck only treats undefined as missing and false as invalid; runtime null values for required boolean checks are accepted as satisfied. A production-completion evaluation for authority-receipt-ref with strictShapeValid:null or producerBoundaryTrusted:null returns allowed:true and productionDoneEligible:true. The evaluator also does not require contractVersion: packages/main/src/core/proof-admissibility.ts:572-574 only rejects a present mismatched version, so omitting contractVersion while all other checks are true also returns allowed:true/productionDoneEligible:true. Repro after npm --prefix packages/main run build: node --input-type=module importing packages/main/dist/core/proof-admissibility.js and evaluating authority-receipt-ref/AUTHORITY_GATE_DECISION/production-completion produced omittedContract {\"allowed\":true,\"productionDoneEligible\":true,\"reasons\":[]}, nullRequired {\"allowed\":true,\"productionDoneEligible\":true,\"reasons\":[]}, and nullProducer {\"allowed\":true,\"productionDoneEligible\":true,\"reasons\":[]}. This violates the admissibleProof contract in docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md:77-90, where producerBoundaryTrusted, supportedSchemaVersion, strictShapeValid, semanticDigestValid, signature/binding, temporal/material binding, consumer, and scope must all be satisfied. The smoke test covers omitted checks as a whole, but not null required fields or missing contractVersion, so the hidden fail-open path remains.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-24T10:24:37.088Z",
+      "reviewRound": "2026-06-24T10:19:54.578Z",
+      "reviewRunId": "B-0985:RR-006",
+      "_hash": "c28f6ed9cdb6d81931c471e03a2d59a063b869ee660b44de13dd4605b988d63e",
+      "files": [
+        "packages/main/src/core/proof-admissibility.ts",
+        "packages/main/src/tasks/proof-admissibility-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|fully-fixed-evaluator",
+      "signatureTagSource": "auto"
     }
   ]
 }
