@@ -624,7 +624,7 @@
       "desc": "A3 calls reviewArtifact once but does not persist/report the review verdict or findings into the raw engine result/canonical evidence. live-engine.mjs captures reviewVerdict at the A3 review point, but the result object only emits scoring inputs and evidenceRefs; run-driver canonical records have no reviewer verdict/reason fields. This violates the A3 pre-reg contract: exactly one review pass with findings reported, not iterated.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-06-24T22:54:29.615Z",
@@ -637,7 +637,11 @@
         "docs/requirements/decisions/lattice-experiment-protocol.md"
       ],
       "signatureTag": "missing|mjs|calls-reviewartifact-once",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commit 9cfc189: A3 writes a hashed a3-review-evidence.json sidecar into the cell workspace and adds a reviewArtifact evidenceRef, preserving exact §7 record schema while reporting the single review verdict/findings without iterating. Verified with live-engine-selfcheck (192 assertions), run-selfchecks, and an ad hoc A3 BLOCK probe confirming digestOk=true and reviewMode=reported-not-iterated.",
+      "resolvedAt": "2026-06-24T23:17:18.607Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8d44:F-030",
