@@ -70,6 +70,42 @@
         ],
         "create": [],
         "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "stub engine with scenarioId != null => mkdtemp creates a fresh ws, injection.inject(ws,task) is called at the fixed point, injectionApplied=true in engineResult; WHY: proves injection wiring for scenario cells",
+            "type": "cli"
+          },
+          {
+            "desc": "stub engine with scenarioId === null (ablation) => NO injection applied, injectionApplied=false; WHY: proves ablation cells skip injection",
+            "type": "cli"
+          },
+          {
+            "desc": "acceptanceScriptPath + expectedHash are recorded from the resolved task; WHY: proves the acceptance script binding for downstream harnessAcceptance",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "task has no agent-editable files (prompt-only task) => ws contains only the prompt, no crash; WHY: proves graceful handling of minimal tasks",
+            "type": "cli"
+          },
+          {
+            "desc": "two cells for the same taskId run sequentially => each gets an INDEPENDENT mkdtemp ws (no cross-contamination); WHY: proves workspace isolation between cells",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "injection module inject() throws => the engine treats it as infraVoid (not a silent corruption of the ws); WHY: proves infra-failure handling for broken injection modules",
+            "type": "cli"
+          },
+          {
+            "desc": "a malicious injection module that writes OUTSIDE the ws (e.g. /tmp/pwned) => changedPaths captures the out-of-ws write via before/after snapshot, so diffHygiene would flag it downstream; WHY: proves the ws snapshot is comprehensive",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
