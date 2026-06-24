@@ -9,7 +9,37 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "gap_analyze red repro is classified: four mapping gaps and one verifierVersionSupported semantic gap.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/proof-admissibility.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/proof-admissibility-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The five current high gaps are classified with evidence from code and gap_analyze output.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The unrelated medium currentDoneMaterialBinding gap is explicitly kept out of scope.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The story does not classify server receipt demotion or Red/Repro gate work as part of these five gaps.",
+            "type": "docs"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
