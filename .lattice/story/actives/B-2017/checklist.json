@@ -230,9 +230,9 @@
       "id": "CHK-004",
       "title": "Verify build and orphan detector behavior on the real repository",
       "context": "Run the detector and TypeScript build; record that implementation_review_result_* remains unavailable unless deliberately migrated to modern signed review lanes in a future story.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-24T11:10:31.548Z",
       "files": {
         "modify": [
           "package.json",
@@ -264,7 +264,42 @@
             "type": "manual"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "command": "npm run test:orphan-surface && npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "Detector passed and TypeScript build completed successfully on the real repository.",
+          "headHash": "3ef99ba14b1928c4855ca9a3f6ada1732527778d",
+          "materialHash": "e79803cf823de9a36cae6ed52b4e18b4c6bde478c71f0c22eed9f312af8de15f",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-24T11:10:31.733Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "command": "lattice implementation_review_result_get --help",
+          "result": "pass",
+          "note": "Probe returned Unknown command and suggested review_run_start/review_pass_set, so the old command remains unavailable.",
+          "headHash": "3ef99ba14b1928c4855ca9a3f6ada1732527778d",
+          "materialHash": "e79803cf823de9a36cae6ed52b4e18b4c6bde478c71f0c22eed9f312af8de15f",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-24T11:10:31.853Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "git status --short",
+          "result": "pass",
+          "note": "Dirty tree is limited to B-2017 metadata plus scoped package/script/source edits; no unrelated active story metadata or dynamic verifier serve files were modified.",
+          "headHash": "3ef99ba14b1928c4855ca9a3f6ada1732527778d",
+          "materialHash": "e79803cf823de9a36cae6ed52b4e18b4c6bde478c71f0c22eed9f312af8de15f",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-24T11:10:31.982Z"
+        }
+      ]
     }
   ]
 }
