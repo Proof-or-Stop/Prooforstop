@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-24T04:29:34.954Z",
       "reviewRunId": "B-0aa1:RR-008",
       "_hash": "d31f3a5f1b5f11322dde7fa932c586dc44fffbed0c7a09243a8dbad768e29213"
+    },
+    {
+      "id": "B-0aa1:RP-004",
+      "agent": "lattice-review-docs",
+      "note": "Docs match implementation on all primary review criteria: all 9 command names match handler exports, all 8 artifact kinds match types.ts ArtifactKind union, candidate-only scope enforced throughout (EvidenceScope = evidence-candidate only), digest idempotence implemented correctly (existsSync check returns existing artifact), nested commandSpec fields included in digest canonical subject, red-reviewed + target-bug requirement enforced in both evaluateRedGreenRelation and createStoryFromRepro, empty-pattern fail-closed behavior implemented, no Authority/DONE/production-gate overclaim anywhere. Storage layout matches (.lattice/evidence/objects/sha256/, refs/by-id/, ledger/observed.jsonl). Smoke test verification command and expected output match. One LOW finding filed (F-003): probe contract table missing two optional fields baselineHeadHash and materialHash.",
+      "createdAt": "2026-06-24T04:32:40.679Z",
+      "reviewRound": "2026-06-24T04:29:34.954Z",
+      "reviewRunId": "B-0aa1:RR-006",
+      "_hash": "d69cdb95f26461a2b0068bb0893d23c55d2fc5ffd382bfcfd0c26a428b107ba3"
     }
   ]
 }
