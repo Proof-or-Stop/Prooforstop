@@ -56,6 +56,27 @@
       ],
       "signatureTag": "adversarial|ts|known-production-gate",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-0985:F-004",
+      "desc": "Decision-doc production-gate example is out of sync with the implemented registry/inventory. The current registry and inventory use artifactKind authority-receipt-ref for the sole production-gate-decision surface (docs/evidence/proof-surface-inventory.md:42, docs/evidence/proof-surface-inventory.json:52, packages/main/src/core/proof-admissibility.ts:250), but the recommended output snippet still shows artifactKind authority-gate-receipt-proof with scope production-gate-decision (docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md:1140-1145). This can mislead future gate consumers about the canonical artifact kind even though the classifier itself is consistent.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-24T10:16:07.444Z",
+      "reviewRound": "2026-06-24T10:13:41.196Z",
+      "reviewRunId": "B-0985:RR-003",
+      "_hash": "ed210d0e62a7497f9eec148cd649a1157e71f887558af46785512b70cbba7381",
+      "files": [
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+        "docs/evidence/proof-surface-inventory.md",
+        "docs/evidence/proof-surface-inventory.json",
+        "packages/main/src/core/proof-admissibility.ts"
+      ],
+      "signatureTag": "doc-code-drift|md|decision-production-gate",
+      "signatureTagSource": "auto"
     }
   ]
 }
