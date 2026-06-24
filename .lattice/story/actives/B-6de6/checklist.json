@@ -345,6 +345,19 @@
           "materialHash": "2f149db52f337a4f4466fa1a43a8f0dbc8df49ef07e65772f5be61142bd5f85c",
           "storyFilesHash": "c21f0bf4341b45f8bae934c199fccad218fe04e737720749c66665a41e8540cb",
           "timestamp": "2026-06-24T00:20:53.616Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/review-assurance-floor-storyfileshash-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-assurance-floor-storyfileshash-smoke.js",
+          "result": "pass",
+          "note": "smoke check (d) second: fallback storyFilesHash mismatch => record.reasons contains 'materialHash is stale' and record.valid=false",
+          "headHash": "db681f330814d44ba3be97f983d30899b1c2bdcf",
+          "materialHash": "2f149db52f337a4f4466fa1a43a8f0dbc8df49ef07e65772f5be61142bd5f85c",
+          "storyFilesHash": "c21f0bf4341b45f8bae934c199fccad218fe04e737720749c66665a41e8540cb",
+          "timestamp": "2026-06-24T00:20:54.258Z"
         }
       ]
     },
