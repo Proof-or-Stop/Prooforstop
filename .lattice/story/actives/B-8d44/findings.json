@@ -143,7 +143,7 @@
       "desc": "edge: live-engine.mjs:431 HARNESS_OWNED set does not cover custom scenarioMap injection filenames — if a future scenarioMap entry maps to a file in taskDir that is not in HARNESS_OWNED (e.g. a custom B7-B15 probe payload placed in taskDir rather than the shared injections/ dir), copyAgentEditable (line 302, runs before resolveInjection/inject at lines 317-320) will copy that injection payload into the agent workspace before the agent runs, making the injected fault visible to the agent and breaking the §2 anti-gaming contract",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-24T12:56:44.462Z",
@@ -154,7 +154,11 @@
         "experiments/recovery-runner/live-engine.mjs"
       ],
       "signatureTag": "edge|mjs|edge-live-engine",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Harness protection switched from a 6-name DENYLIST to an ALLOWLIST: only task.promptFile + the editable output are copied into the agent ws; acceptance/ground-truth/reference/payload/injection/task.json never leak. Commit c6506637b.",
+      "resolvedAt": "2026-06-24T13:15:35.801Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8d44:F-008",
