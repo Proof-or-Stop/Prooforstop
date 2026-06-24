@@ -549,7 +549,20 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "command": "grep -n \"DONE Sub-Gate Bindings\" docs/requirements/decisions/story-files-hash-material-drift.md",
+          "result": "pass",
+          "note": "story-files-hash-material-drift.md:95 contains \"## DONE Sub-Gate Bindings (Amendment 2026-06-24)\". Lines 99-103 record all three bindings: (1) line 99 \"Adopted with extra guard (signed): delivery-check\" = Gate C adopt-with-signed-guard; (2) line 101 \"Kept strict (re-runs): the done-required build+full-test-suite evidence\" = Gate B kept strict; (3) line 103 \"Excluded (kept strict): the completed-DONE-projection evidence snapshot check\" = Gate A excluded (frozen-ref integrity). Each binding includes rationale explaining why that sub-gate is bound that way. All three present with rationale.",
+          "headHash": "6d9e0ecc46b8296ebf63d57e0e819c231560d5a6",
+          "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
+          "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
+          "timestamp": "2026-06-24T11:22:28.078Z"
+        }
+      ]
     }
   ]
 }
