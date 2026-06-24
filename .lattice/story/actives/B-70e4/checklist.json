@@ -212,7 +212,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "source /Users/jek/Documents/Work/proofbound/lattice_senior_authority_trust.env && export LATTICE_AUTHORITY_CUSTOMER_API_KEY=\"$(cat /Users/jek/Documents/Work/proofbound/lattice_senior_staging-client.env | tr -d '\\n')\" && node packages/main/dist/tasks/authority-live-receipt-ref-gate-smoke.js",
+          "result": "pass",
+          "note": "Live smoke ran against staging and printed \"PASS authority live receipt-ref gate smoke: staging proof fetched, receipt ref written, TEST/DONE gates consumed, negative control blocked\". The smoke at authority-live-receipt-ref-gate-smoke.ts:829-838 calls buildPhaseGateRequest(ctx, DONE) which includes materialOverlapAudit (line 213-219), then posts to /v1/gates/evaluate. Authority accepted the DONE gate request (verdict approve/pass at line 834) proving materialOverlapAudit is present and valid.",
+          "headHash": "b8321ed2594d23726106c36b4d087579660be056",
+          "materialHash": "96adaa007e8f7ddafa1d445c9f905d262eb90f4da087c701fec35f3474287e79",
+          "storyFilesHash": "3bb033bf48d472daad32daea22503c5bbbef2c03c79374e5fe0665781999041e",
+          "timestamp": "2026-06-24T01:20:09.244Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
