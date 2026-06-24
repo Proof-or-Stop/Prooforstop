@@ -51,7 +51,44 @@
       "context": "Add the preflight to packages/main/src/handlers/story-create.ts (and ensure story_create_from_repro passes because it binds the candidate). REUSE proof-admissibility (STORY_INTAKE consumer, evidence-candidate scope). Satisfied = a bound reviewer-accepted candidate: repro path (repro-probe + repro-review reviewedFailureClass=target-bug) OR spike path (spike-record + spike-review). Required+missing -> warn (block under enforce) with exact next command. Wrap the whole preflight in fail-OPEN try/catch (engine error -> allow + repro_first_preflight_engine_error diagnostic). Bypass (bypassReproFirst.reason) always honored, writes a repro-first-bypass local-diagnostic artifact.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "relatedDocs": [
+        "docs/requirements/decisions/repro-first-story-intake-experiment.md",
+        "docs/evidence/proof-surface-inventory.md"
+      ],
+      "userSees": "When a code-touched story lacks accepted repro evidence, the terminal prints Cannot enter PLAN or Cannot enter DEV with missing_story_evidence_binding and the recovery command hint.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/machine.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "PLAN→DEV and INIT_CHECK→DEV express are allowed when a valid story-evidence-binding references a red-reviewed target-bug repro.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "IDEA→PLAN is blocked for file-touched stories with no binding and surfaces a precise missing_story_evidence_binding reason.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Bindings with stale probe/review digests or mismatched story identity are rejected before PLAN/DEV entry.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
