@@ -65,10 +65,10 @@
           "command": "node packages/main/dist/tasks/review-assurance-floor-storyfileshash-smoke.js",
           "result": "pass",
           "note": "smoke check (a): drift to MATERIAL_Y with storyFilesHash=S unchanged => ok=true, validRounds>=1, re-attestation advisory present",
-          "headHash": "e3c784bdf5cbbccce704d6462d313c289f3dea48",
-          "materialHash": "0655d531887e6754df0d70681e02ec253f5f3580aaf08f02149fd4323b210f29",
-          "storyFilesHash": "9ab30965d5cdd9c79abbb387c7deb289798cc9876f74e76988dfb23218140c1e",
-          "timestamp": "2026-06-24T00:51:50.963Z"
+          "headHash": "3b7abef09e3cb8d88e94c421e65bf037956681fa",
+          "materialHash": "243ad0fda632f5b2f019304fcf58bfc50be538f15e86e2ac06f183bba6cd40dc",
+          "storyFilesHash": "0b55b38f343c07f597df4fa331f4bb46d1ee39682468d6b79a8a1f6c2d748979",
+          "timestamp": "2026-06-24T01:20:36.392Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
@@ -78,10 +78,10 @@
           "command": "node packages/main/dist/tasks/review-assurance-floor-storyfileshash-smoke.js",
           "result": "pass",
           "note": "smoke check 'two verdicts in different runIds both stale-material X matching S => validRounds>=2 (both downgraded)'",
-          "headHash": "e3c784bdf5cbbccce704d6462d313c289f3dea48",
-          "materialHash": "0655d531887e6754df0d70681e02ec253f5f3580aaf08f02149fd4323b210f29",
-          "storyFilesHash": "9ab30965d5cdd9c79abbb387c7deb289798cc9876f74e76988dfb23218140c1e",
-          "timestamp": "2026-06-24T00:51:50.963Z"
+          "headHash": "3b7abef09e3cb8d88e94c421e65bf037956681fa",
+          "materialHash": "243ad0fda632f5b2f019304fcf58bfc50be538f15e86e2ac06f183bba6cd40dc",
+          "storyFilesHash": "0b55b38f343c07f597df4fa331f4bb46d1ee39682468d6b79a8a1f6c2d748979",
+          "timestamp": "2026-06-24T01:20:36.392Z"
         },
         {
           "intentRef": "CHK-001:happy:2",
@@ -91,10 +91,10 @@
           "command": "node packages/main/dist/tasks/review-assurance-floor-storyfileshash-smoke.js",
           "result": "pass",
           "note": "smoke baseline check: no drift + matching storyFilesHash => ok=true and NO advisory (downgrade fires only on actual drift)",
-          "headHash": "e3c784bdf5cbbccce704d6462d313c289f3dea48",
-          "materialHash": "0655d531887e6754df0d70681e02ec253f5f3580aaf08f02149fd4323b210f29",
-          "storyFilesHash": "9ab30965d5cdd9c79abbb387c7deb289798cc9876f74e76988dfb23218140c1e",
-          "timestamp": "2026-06-24T00:51:50.963Z"
+          "headHash": "3b7abef09e3cb8d88e94c421e65bf037956681fa",
+          "materialHash": "243ad0fda632f5b2f019304fcf58bfc50be538f15e86e2ac06f183bba6cd40dc",
+          "storyFilesHash": "0b55b38f343c07f597df4fa331f4bb46d1ee39682468d6b79a8a1f6c2d748979",
+          "timestamp": "2026-06-24T01:20:36.392Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -104,10 +104,10 @@
           "command": "node packages/main/dist/tasks/review-assurance-floor-storyfileshash-smoke.js",
           "result": "pass",
           "note": "smoke check 'legacy verdict storyFilesHash=undefined + stale material => verdict ignored, found 0, ok=false'",
-          "headHash": "e3c784bdf5cbbccce704d6462d313c289f3dea48",
-          "materialHash": "0655d531887e6754df0d70681e02ec253f5f3580aaf08f02149fd4323b210f29",
-          "storyFilesHash": "9ab30965d5cdd9c79abbb387c7deb289798cc9876f74e76988dfb23218140c1e",
-          "timestamp": "2026-06-24T00:51:50.963Z"
+          "headHash": "3b7abef09e3cb8d88e94c421e65bf037956681fa",
+          "materialHash": "243ad0fda632f5b2f019304fcf58bfc50be538f15e86e2ac06f183bba6cd40dc",
+          "storyFilesHash": "0b55b38f343c07f597df4fa331f4bb46d1ee39682468d6b79a8a1f6c2d748979",
+          "timestamp": "2026-06-24T01:20:36.392Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
@@ -117,10 +117,10 @@
           "command": "node packages/main/dist/tasks/review-assurance-floor-storyfileshash-smoke.js",
           "result": "pass",
           "note": "smoke check 'currentStoryFilesHash null (arg omitted) + material drift => effectiveEvents unchanged, verdict stale, found 0, no crash'",
-          "headHash": "e3c784bdf5cbbccce704d6462d313c289f3dea48",
-          "materialHash": "0655d531887e6754df0d70681e02ec253f5f3580aaf08f02149fd4323b210f29",
-          "storyFilesHash": "9ab30965d5cdd9c79abbb387c7deb289798cc9876f74e76988dfb23218140c1e",
-          "timestamp": "2026-06-24T00:51:50.963Z"
+          "headHash": "3b7abef09e3cb8d88e94c421e65bf037956681fa",
+          "materialHash": "243ad0fda632f5b2f019304fcf58bfc50be538f15e86e2ac06f183bba6cd40dc",
+          "storyFilesHash": "0b55b38f343c07f597df4fa331f4bb46d1ee39682468d6b79a8a1f6c2d748979",
+          "timestamp": "2026-06-24T01:20:36.392Z"
         },
         {
           "intentRef": "CHK-001:edge:2",
@@ -130,10 +130,10 @@
           "command": "node packages/main/dist/tasks/review-assurance-floor-storyfileshash-smoke.js",
           "result": "pass",
           "note": "smoke check (d): degraded fallback materialHash stale but storyFilesHash matches => record.valid=true with advisory (not a stale reason)",
-          "headHash": "e3c784bdf5cbbccce704d6462d313c289f3dea48",
-          "materialHash": "0655d531887e6754df0d70681e02ec253f5f3580aaf08f02149fd4323b210f29",
-          "storyFilesHash": "9ab30965d5cdd9c79abbb387c7deb289798cc9876f74e76988dfb23218140c1e",
-          "timestamp": "2026-06-24T00:51:50.963Z"
+          "headHash": "3b7abef09e3cb8d88e94c421e65bf037956681fa",
+          "materialHash": "243ad0fda632f5b2f019304fcf58bfc50be538f15e86e2ac06f183bba6cd40dc",
+          "storyFilesHash": "0b55b38f343c07f597df4fa331f4bb46d1ee39682468d6b79a8a1f6c2d748979",
+          "timestamp": "2026-06-24T01:20:36.392Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -143,10 +143,10 @@
           "command": "node packages/main/dist/tasks/review-assurance-floor-storyfileshash-smoke.js",
           "result": "pass",
           "note": "smoke check (c): storyFilesHash differs (S2) + material stale => verdict ignored, validRounds=0, ok=false",
-          "headHash": "e3c784bdf5cbbccce704d6462d313c289f3dea48",
-          "materialHash": "0655d531887e6754df0d70681e02ec253f5f3580aaf08f02149fd4323b210f29",
-          "storyFilesHash": "9ab30965d5cdd9c79abbb387c7deb289798cc9876f74e76988dfb23218140c1e",
-          "timestamp": "2026-06-24T00:51:50.963Z"
+          "headHash": "3b7abef09e3cb8d88e94c421e65bf037956681fa",
+          "materialHash": "243ad0fda632f5b2f019304fcf58bfc50be538f15e86e2ac06f183bba6cd40dc",
+          "storyFilesHash": "0b55b38f343c07f597df4fa331f4bb46d1ee39682468d6b79a8a1f6c2d748979",
+          "timestamp": "2026-06-24T01:20:36.392Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
@@ -156,10 +156,10 @@
           "command": "node packages/main/dist/tasks/review-assurance-floor-storyfileshash-smoke.js",
           "result": "pass",
           "note": "smoke baseline: materialDigest equals current (not stale) => no advisory emitted",
-          "headHash": "e3c784bdf5cbbccce704d6462d313c289f3dea48",
-          "materialHash": "0655d531887e6754df0d70681e02ec253f5f3580aaf08f02149fd4323b210f29",
-          "storyFilesHash": "9ab30965d5cdd9c79abbb387c7deb289798cc9876f74e76988dfb23218140c1e",
-          "timestamp": "2026-06-24T00:51:50.963Z"
+          "headHash": "3b7abef09e3cb8d88e94c421e65bf037956681fa",
+          "materialHash": "243ad0fda632f5b2f019304fcf58bfc50be538f15e86e2ac06f183bba6cd40dc",
+          "storyFilesHash": "0b55b38f343c07f597df4fa331f4bb46d1ee39682468d6b79a8a1f6c2d748979",
+          "timestamp": "2026-06-24T01:20:36.392Z"
         }
       ]
     },
@@ -212,10 +212,10 @@
           "command": "node packages/main/dist/tasks/review-assurance-floor-storyfileshash-smoke.js",
           "result": "pass",
           "note": "smoke check (b): one downgraded + one truly-stale (both hashes differ) same runId/identity => round valid, no duplicate-identity reason",
-          "headHash": "e3c784bdf5cbbccce704d6462d313c289f3dea48",
-          "materialHash": "0655d531887e6754df0d70681e02ec253f5f3580aaf08f02149fd4323b210f29",
-          "storyFilesHash": "9ab30965d5cdd9c79abbb387c7deb289798cc9876f74e76988dfb23218140c1e",
-          "timestamp": "2026-06-24T00:51:50.963Z"
+          "headHash": "3b7abef09e3cb8d88e94c421e65bf037956681fa",
+          "materialHash": "243ad0fda632f5b2f019304fcf58bfc50be538f15e86e2ac06f183bba6cd40dc",
+          "storyFilesHash": "0b55b38f343c07f597df4fa331f4bb46d1ee39682468d6b79a8a1f6c2d748979",
+          "timestamp": "2026-06-24T01:20:36.392Z"
         },
         {
           "intentRef": "CHK-002:happy:1",
@@ -225,10 +225,10 @@
           "command": "node packages/main/dist/tasks/review-assurance-floor-storyfileshash-smoke.js",
           "result": "pass",
           "note": "smoke dedicated cross-runId re-bind check: prior runId 'round-old' truly-stale (W/S_OLD) + new runId 'round-new' downgraded (X/S) at current Y/S => validRounds.length===1 (only round-new), old verdict ignored, no duplicate-identity reason",
-          "headHash": "c37b3fdfaa1a6cb65c242231d73387a4622cd7c6",
-          "materialHash": "0655d531887e6754df0d70681e02ec253f5f3580aaf08f02149fd4323b210f29",
-          "storyFilesHash": "9ab30965d5cdd9c79abbb387c7deb289798cc9876f74e76988dfb23218140c1e",
-          "timestamp": "2026-06-24T00:43:19.662Z"
+          "headHash": "3b7abef09e3cb8d88e94c421e65bf037956681fa",
+          "materialHash": "243ad0fda632f5b2f019304fcf58bfc50be538f15e86e2ac06f183bba6cd40dc",
+          "storyFilesHash": "0b55b38f343c07f597df4fa331f4bb46d1ee39682468d6b79a8a1f6c2d748979",
+          "timestamp": "2026-06-24T01:20:36.392Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -238,10 +238,10 @@
           "command": "node packages/main/dist/tasks/review-assurance-floor-storyfileshash-smoke.js",
           "result": "pass",
           "note": "smoke check 'three eras (truly-stale, downgraded, current) same identity different runIds => 2 valid rounds, truly-stale ignored, no duplicate-identity'",
-          "headHash": "e3c784bdf5cbbccce704d6462d313c289f3dea48",
-          "materialHash": "0655d531887e6754df0d70681e02ec253f5f3580aaf08f02149fd4323b210f29",
-          "storyFilesHash": "9ab30965d5cdd9c79abbb387c7deb289798cc9876f74e76988dfb23218140c1e",
-          "timestamp": "2026-06-24T00:51:50.963Z"
+          "headHash": "3b7abef09e3cb8d88e94c421e65bf037956681fa",
+          "materialHash": "243ad0fda632f5b2f019304fcf58bfc50be538f15e86e2ac06f183bba6cd40dc",
+          "storyFilesHash": "0b55b38f343c07f597df4fa331f4bb46d1ee39682468d6b79a8a1f6c2d748979",
+          "timestamp": "2026-06-24T01:20:36.392Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -251,10 +251,10 @@
           "command": "node packages/main/dist/tasks/review-assurance-floor-storyfileshash-smoke.js",
           "result": "pass",
           "note": "smoke check 'two truly-stale verdicts same identity same runId => both ignored before the duplicate check, no duplicate-identity-invalid round, validRounds=0'",
-          "headHash": "e3c784bdf5cbbccce704d6462d313c289f3dea48",
-          "materialHash": "0655d531887e6754df0d70681e02ec253f5f3580aaf08f02149fd4323b210f29",
-          "storyFilesHash": "9ab30965d5cdd9c79abbb387c7deb289798cc9876f74e76988dfb23218140c1e",
-          "timestamp": "2026-06-24T00:51:50.963Z"
+          "headHash": "3b7abef09e3cb8d88e94c421e65bf037956681fa",
+          "materialHash": "243ad0fda632f5b2f019304fcf58bfc50be538f15e86e2ac06f183bba6cd40dc",
+          "storyFilesHash": "0b55b38f343c07f597df4fa331f4bb46d1ee39682468d6b79a8a1f6c2d748979",
+          "timestamp": "2026-06-24T01:20:36.392Z"
         }
       ]
     },
@@ -315,10 +315,10 @@
           "command": "node packages/main/dist/tasks/review-assurance-floor-storyfileshash-smoke.js",
           "result": "pass",
           "note": "smoke now asserts the FULL three-part advisory pattern /materialDigest drift accepted.*storyFilesHash matches.*re-attestation/ against report.advisories on an accepted-drift pass",
-          "headHash": "2bbf06e857ad7bca9f5d0ba70f8059095045e27d",
-          "materialHash": "0655d531887e6754df0d70681e02ec253f5f3580aaf08f02149fd4323b210f29",
-          "storyFilesHash": "9ab30965d5cdd9c79abbb387c7deb289798cc9876f74e76988dfb23218140c1e",
-          "timestamp": "2026-06-24T00:43:20.185Z"
+          "headHash": "3b7abef09e3cb8d88e94c421e65bf037956681fa",
+          "materialHash": "243ad0fda632f5b2f019304fcf58bfc50be538f15e86e2ac06f183bba6cd40dc",
+          "storyFilesHash": "0b55b38f343c07f597df4fa331f4bb46d1ee39682468d6b79a8a1f6c2d748979",
+          "timestamp": "2026-06-24T01:20:36.392Z"
         },
         {
           "intentRef": "CHK-003:happy:1",
@@ -328,10 +328,10 @@
           "command": "node packages/main/dist/tasks/review-assurance-floor-storyfileshash-smoke.js",
           "result": "pass",
           "note": "smoke check (d): fallback record carries the materialHash-stale-but-storyFilesHash-matches advisory and reasons do NOT contain 'materialHash is stale'",
-          "headHash": "e3c784bdf5cbbccce704d6462d313c289f3dea48",
-          "materialHash": "0655d531887e6754df0d70681e02ec253f5f3580aaf08f02149fd4323b210f29",
-          "storyFilesHash": "9ab30965d5cdd9c79abbb387c7deb289798cc9876f74e76988dfb23218140c1e",
-          "timestamp": "2026-06-24T00:51:50.963Z"
+          "headHash": "3b7abef09e3cb8d88e94c421e65bf037956681fa",
+          "materialHash": "243ad0fda632f5b2f019304fcf58bfc50be538f15e86e2ac06f183bba6cd40dc",
+          "storyFilesHash": "0b55b38f343c07f597df4fa331f4bb46d1ee39682468d6b79a8a1f6c2d748979",
+          "timestamp": "2026-06-24T01:20:36.392Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -341,10 +341,10 @@
           "command": "node packages/main/dist/tasks/review-assurance-floor-storyfileshash-smoke.js",
           "result": "pass",
           "note": "smoke check 'multiple downgraded verdicts => advisories filtered by /storyFilesHash matches/ has length 2 (one per verdict, not deduplicated)'",
-          "headHash": "e3c784bdf5cbbccce704d6462d313c289f3dea48",
-          "materialHash": "0655d531887e6754df0d70681e02ec253f5f3580aaf08f02149fd4323b210f29",
-          "storyFilesHash": "9ab30965d5cdd9c79abbb387c7deb289798cc9876f74e76988dfb23218140c1e",
-          "timestamp": "2026-06-24T00:51:50.963Z"
+          "headHash": "3b7abef09e3cb8d88e94c421e65bf037956681fa",
+          "materialHash": "243ad0fda632f5b2f019304fcf58bfc50be538f15e86e2ac06f183bba6cd40dc",
+          "storyFilesHash": "0b55b38f343c07f597df4fa331f4bb46d1ee39682468d6b79a8a1f6c2d748979",
+          "timestamp": "2026-06-24T01:20:36.392Z"
         },
         {
           "intentRef": "CHK-003:edge:1",
@@ -354,10 +354,10 @@
           "command": "node packages/main/dist/tasks/review-assurance-floor-storyfileshash-smoke.js",
           "result": "pass",
           "note": "smoke check (d) second: fallback storyFilesHash mismatch => record.reasons contains 'materialHash is stale' and record.valid=false",
-          "headHash": "e3c784bdf5cbbccce704d6462d313c289f3dea48",
-          "materialHash": "0655d531887e6754df0d70681e02ec253f5f3580aaf08f02149fd4323b210f29",
-          "storyFilesHash": "9ab30965d5cdd9c79abbb387c7deb289798cc9876f74e76988dfb23218140c1e",
-          "timestamp": "2026-06-24T00:51:50.963Z"
+          "headHash": "3b7abef09e3cb8d88e94c421e65bf037956681fa",
+          "materialHash": "243ad0fda632f5b2f019304fcf58bfc50be538f15e86e2ac06f183bba6cd40dc",
+          "storyFilesHash": "0b55b38f343c07f597df4fa331f4bb46d1ee39682468d6b79a8a1f6c2d748979",
+          "timestamp": "2026-06-24T01:20:36.392Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -367,10 +367,10 @@
           "command": "node packages/main/dist/tasks/review-assurance-floor-storyfileshash-smoke.js",
           "result": "pass",
           "note": "smoke check (c): real story-file change (S->S2) with material drift => ok=false, validRounds=0",
-          "headHash": "e3c784bdf5cbbccce704d6462d313c289f3dea48",
-          "materialHash": "0655d531887e6754df0d70681e02ec253f5f3580aaf08f02149fd4323b210f29",
-          "storyFilesHash": "9ab30965d5cdd9c79abbb387c7deb289798cc9876f74e76988dfb23218140c1e",
-          "timestamp": "2026-06-24T00:51:50.963Z"
+          "headHash": "3b7abef09e3cb8d88e94c421e65bf037956681fa",
+          "materialHash": "243ad0fda632f5b2f019304fcf58bfc50be538f15e86e2ac06f183bba6cd40dc",
+          "storyFilesHash": "0b55b38f343c07f597df4fa331f4bb46d1ee39682468d6b79a8a1f6c2d748979",
+          "timestamp": "2026-06-24T01:20:36.392Z"
         },
         {
           "intentRef": "CHK-003:adversarial:1",
@@ -380,10 +380,10 @@
           "command": "node packages/main/dist/tasks/review-assurance-floor-storyfileshash-smoke.js",
           "result": "pass",
           "note": "smoke check (c): advisory absent on rejected drift (no /storyFilesHash matches/ when downgrade not triggered)",
-          "headHash": "e3c784bdf5cbbccce704d6462d313c289f3dea48",
-          "materialHash": "0655d531887e6754df0d70681e02ec253f5f3580aaf08f02149fd4323b210f29",
-          "storyFilesHash": "9ab30965d5cdd9c79abbb387c7deb289798cc9876f74e76988dfb23218140c1e",
-          "timestamp": "2026-06-24T00:51:50.963Z"
+          "headHash": "3b7abef09e3cb8d88e94c421e65bf037956681fa",
+          "materialHash": "243ad0fda632f5b2f019304fcf58bfc50be538f15e86e2ac06f183bba6cd40dc",
+          "storyFilesHash": "0b55b38f343c07f597df4fa331f4bb46d1ee39682468d6b79a8a1f6c2d748979",
+          "timestamp": "2026-06-24T01:20:36.392Z"
         }
       ]
     },
@@ -458,10 +458,10 @@
           "command": "node packages/main/dist/tasks/review-assurance-floor-storyfileshash-smoke.js",
           "result": "pass",
           "note": "new smoke runs from dist and exits 0 with 'review-assurance-floor storyFilesHash smoke passed' (12 checks)",
-          "headHash": "e3c784bdf5cbbccce704d6462d313c289f3dea48",
-          "materialHash": "0655d531887e6754df0d70681e02ec253f5f3580aaf08f02149fd4323b210f29",
-          "storyFilesHash": "9ab30965d5cdd9c79abbb387c7deb289798cc9876f74e76988dfb23218140c1e",
-          "timestamp": "2026-06-24T00:51:50.963Z"
+          "headHash": "3b7abef09e3cb8d88e94c421e65bf037956681fa",
+          "materialHash": "243ad0fda632f5b2f019304fcf58bfc50be538f15e86e2ac06f183bba6cd40dc",
+          "storyFilesHash": "0b55b38f343c07f597df4fa331f4bb46d1ee39682468d6b79a8a1f6c2d748979",
+          "timestamp": "2026-06-24T01:20:36.392Z"
         },
         {
           "intentRef": "CHK-004:happy:1",
@@ -471,10 +471,10 @@
           "command": "npm test",
           "result": "pass",
           "note": "npm test (full root suite) exits 0; chain includes test:review-assurance-floor-storyfileshash-smoke (verified in /tmp/b6de6-npmtest.log)",
-          "headHash": "e3c784bdf5cbbccce704d6462d313c289f3dea48",
-          "materialHash": "0655d531887e6754df0d70681e02ec253f5f3580aaf08f02149fd4323b210f29",
-          "storyFilesHash": "9ab30965d5cdd9c79abbb387c7deb289798cc9876f74e76988dfb23218140c1e",
-          "timestamp": "2026-06-24T00:51:50.963Z"
+          "headHash": "3b7abef09e3cb8d88e94c421e65bf037956681fa",
+          "materialHash": "243ad0fda632f5b2f019304fcf58bfc50be538f15e86e2ac06f183bba6cd40dc",
+          "storyFilesHash": "0b55b38f343c07f597df4fa331f4bb46d1ee39682468d6b79a8a1f6c2d748979",
+          "timestamp": "2026-06-24T01:20:36.392Z"
         },
         {
           "intentRef": "CHK-004:happy:2",
@@ -484,10 +484,10 @@
           "command": "node packages/main/dist/tasks/review-assurance-floor-storyfileshash-smoke.js",
           "result": "pass",
           "note": "smoke assertion (a): quorum at X + unrelated whole-tree drift (storyFilesHash unchanged) => ok=true with re-attestation advisory",
-          "headHash": "e3c784bdf5cbbccce704d6462d313c289f3dea48",
-          "materialHash": "0655d531887e6754df0d70681e02ec253f5f3580aaf08f02149fd4323b210f29",
-          "storyFilesHash": "9ab30965d5cdd9c79abbb387c7deb289798cc9876f74e76988dfb23218140c1e",
-          "timestamp": "2026-06-24T00:51:50.963Z"
+          "headHash": "3b7abef09e3cb8d88e94c421e65bf037956681fa",
+          "materialHash": "243ad0fda632f5b2f019304fcf58bfc50be538f15e86e2ac06f183bba6cd40dc",
+          "storyFilesHash": "0b55b38f343c07f597df4fa331f4bb46d1ee39682468d6b79a8a1f6c2d748979",
+          "timestamp": "2026-06-24T01:20:36.392Z"
         },
         {
           "intentRef": "CHK-004:happy:3",
@@ -497,10 +497,10 @@
           "command": "node packages/main/dist/tasks/review-assurance-floor-storyfileshash-smoke.js",
           "result": "pass",
           "note": "smoke assertion (b): re-bind with accumulated truly-stale prior verdicts + fresh downgraded verdicts => no duplicate-identity-invalid round",
-          "headHash": "e3c784bdf5cbbccce704d6462d313c289f3dea48",
-          "materialHash": "0655d531887e6754df0d70681e02ec253f5f3580aaf08f02149fd4323b210f29",
-          "storyFilesHash": "9ab30965d5cdd9c79abbb387c7deb289798cc9876f74e76988dfb23218140c1e",
-          "timestamp": "2026-06-24T00:51:50.963Z"
+          "headHash": "3b7abef09e3cb8d88e94c421e65bf037956681fa",
+          "materialHash": "243ad0fda632f5b2f019304fcf58bfc50be538f15e86e2ac06f183bba6cd40dc",
+          "storyFilesHash": "0b55b38f343c07f597df4fa331f4bb46d1ee39682468d6b79a8a1f6c2d748979",
+          "timestamp": "2026-06-24T01:20:36.392Z"
         },
         {
           "intentRef": "CHK-004:happy:4",
@@ -510,10 +510,10 @@
           "command": "node packages/main/dist/tasks/review-assurance-floor-storyfileshash-smoke.js",
           "result": "pass",
           "note": "smoke assertion (c): real story-file change (storyFilesHash differs) => found 0 fresh rounds, ok=false",
-          "headHash": "e3c784bdf5cbbccce704d6462d313c289f3dea48",
-          "materialHash": "0655d531887e6754df0d70681e02ec253f5f3580aaf08f02149fd4323b210f29",
-          "storyFilesHash": "9ab30965d5cdd9c79abbb387c7deb289798cc9876f74e76988dfb23218140c1e",
-          "timestamp": "2026-06-24T00:51:50.963Z"
+          "headHash": "3b7abef09e3cb8d88e94c421e65bf037956681fa",
+          "materialHash": "243ad0fda632f5b2f019304fcf58bfc50be538f15e86e2ac06f183bba6cd40dc",
+          "storyFilesHash": "0b55b38f343c07f597df4fa331f4bb46d1ee39682468d6b79a8a1f6c2d748979",
+          "timestamp": "2026-06-24T01:20:36.392Z"
         },
         {
           "intentRef": "CHK-004:happy:5",
@@ -523,10 +523,10 @@
           "command": "node packages/main/dist/tasks/review-assurance-floor-storyfileshash-smoke.js",
           "result": "pass",
           "note": "smoke assertion (d): degraded single-host fallback storyFilesHash match => valid with advisory; mismatch => invalid with materialHash-stale reason",
-          "headHash": "e3c784bdf5cbbccce704d6462d313c289f3dea48",
-          "materialHash": "0655d531887e6754df0d70681e02ec253f5f3580aaf08f02149fd4323b210f29",
-          "storyFilesHash": "9ab30965d5cdd9c79abbb387c7deb289798cc9876f74e76988dfb23218140c1e",
-          "timestamp": "2026-06-24T00:51:50.963Z"
+          "headHash": "3b7abef09e3cb8d88e94c421e65bf037956681fa",
+          "materialHash": "243ad0fda632f5b2f019304fcf58bfc50be538f15e86e2ac06f183bba6cd40dc",
+          "storyFilesHash": "0b55b38f343c07f597df4fa331f4bb46d1ee39682468d6b79a8a1f6c2d748979",
+          "timestamp": "2026-06-24T01:20:36.392Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -536,10 +536,10 @@
           "command": "node packages/main/dist/tasks/review-assurance-floor-smoke.js",
           "result": "pass",
           "note": "regression: existing review-assurance-floor smoke still passes (10 checks), exit 0",
-          "headHash": "e3c784bdf5cbbccce704d6462d313c289f3dea48",
-          "materialHash": "0655d531887e6754df0d70681e02ec253f5f3580aaf08f02149fd4323b210f29",
-          "storyFilesHash": "9ab30965d5cdd9c79abbb387c7deb289798cc9876f74e76988dfb23218140c1e",
-          "timestamp": "2026-06-24T00:51:50.963Z"
+          "headHash": "3b7abef09e3cb8d88e94c421e65bf037956681fa",
+          "materialHash": "243ad0fda632f5b2f019304fcf58bfc50be538f15e86e2ac06f183bba6cd40dc",
+          "storyFilesHash": "0b55b38f343c07f597df4fa331f4bb46d1ee39682468d6b79a8a1f6c2d748979",
+          "timestamp": "2026-06-24T01:20:36.392Z"
         },
         {
           "intentRef": "CHK-004:edge:1",
@@ -549,10 +549,10 @@
           "command": "node packages/main/dist/tasks/review-escalation-smoke.js",
           "result": "pass",
           "note": "regression: review-escalation smoke still passes (15 checks), exit 0 (one-word export did not change escalation behavior)",
-          "headHash": "e3c784bdf5cbbccce704d6462d313c289f3dea48",
-          "materialHash": "0655d531887e6754df0d70681e02ec253f5f3580aaf08f02149fd4323b210f29",
-          "storyFilesHash": "9ab30965d5cdd9c79abbb387c7deb289798cc9876f74e76988dfb23218140c1e",
-          "timestamp": "2026-06-24T00:51:50.963Z"
+          "headHash": "3b7abef09e3cb8d88e94c421e65bf037956681fa",
+          "materialHash": "243ad0fda632f5b2f019304fcf58bfc50be538f15e86e2ac06f183bba6cd40dc",
+          "storyFilesHash": "0b55b38f343c07f597df4fa331f4bb46d1ee39682468d6b79a8a1f6c2d748979",
+          "timestamp": "2026-06-24T01:20:36.392Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -562,10 +562,10 @@
           "command": "npm --prefix packages/main run build",
           "result": "pass",
           "note": "tsc build clean, exit 0 (advisories field typed on ReviewAssuranceFloorReport; effectiveEvents threading type-checks)",
-          "headHash": "e3c784bdf5cbbccce704d6462d313c289f3dea48",
-          "materialHash": "0655d531887e6754df0d70681e02ec253f5f3580aaf08f02149fd4323b210f29",
-          "storyFilesHash": "9ab30965d5cdd9c79abbb387c7deb289798cc9876f74e76988dfb23218140c1e",
-          "timestamp": "2026-06-24T00:51:50.963Z"
+          "headHash": "3b7abef09e3cb8d88e94c421e65bf037956681fa",
+          "materialHash": "243ad0fda632f5b2f019304fcf58bfc50be538f15e86e2ac06f183bba6cd40dc",
+          "storyFilesHash": "0b55b38f343c07f597df4fa331f4bb46d1ee39682468d6b79a8a1f6c2d748979",
+          "timestamp": "2026-06-24T01:20:36.392Z"
         }
       ]
     },
@@ -619,10 +619,10 @@
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "verifier prints 'Process fact contract verified', exit 0 after the gateConsumer update",
-          "headHash": "e3c784bdf5cbbccce704d6462d313c289f3dea48",
-          "materialHash": "0655d531887e6754df0d70681e02ec253f5f3580aaf08f02149fd4323b210f29",
-          "storyFilesHash": "9ab30965d5cdd9c79abbb387c7deb289798cc9876f74e76988dfb23218140c1e",
-          "timestamp": "2026-06-24T00:51:50.963Z"
+          "headHash": "3b7abef09e3cb8d88e94c421e65bf037956681fa",
+          "materialHash": "243ad0fda632f5b2f019304fcf58bfc50be538f15e86e2ac06f183bba6cd40dc",
+          "storyFilesHash": "0b55b38f343c07f597df4fa331f4bb46d1ee39682468d6b79a8a1f6c2d748979",
+          "timestamp": "2026-06-24T01:20:36.392Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -632,10 +632,10 @@
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "the verifier validates the whole runtime/registry set; producer entries (quorum_submit, autopilot_review_submit, review_escalation_fallback_set) that already name the review assurance floor remain consistent with the updated freshness-gate consumer text",
-          "headHash": "e3c784bdf5cbbccce704d6462d313c289f3dea48",
-          "materialHash": "0655d531887e6754df0d70681e02ec253f5f3580aaf08f02149fd4323b210f29",
-          "storyFilesHash": "9ab30965d5cdd9c79abbb387c7deb289798cc9876f74e76988dfb23218140c1e",
-          "timestamp": "2026-06-24T00:51:50.963Z"
+          "headHash": "3b7abef09e3cb8d88e94c421e65bf037956681fa",
+          "materialHash": "243ad0fda632f5b2f019304fcf58bfc50be538f15e86e2ac06f183bba6cd40dc",
+          "storyFilesHash": "0b55b38f343c07f597df4fa331f4bb46d1ee39682468d6b79a8a1f6c2d748979",
+          "timestamp": "2026-06-24T01:20:36.392Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -645,10 +645,10 @@
           "command": "git diff main...HEAD -- packages/main/src/core/process-fact-levels.ts",
           "result": "pass",
           "note": "git diff shows ONLY the runtime:story_files_hash_freshness_gate gateConsumer enumeration extended to add the review assurance floor; no new fact name/category introduced; semantics still require story-owned file changes to invalidate and only forgive whole-tree drift with a re-attestation advisory",
-          "headHash": "e3c784bdf5cbbccce704d6462d313c289f3dea48",
-          "materialHash": "0655d531887e6754df0d70681e02ec253f5f3580aaf08f02149fd4323b210f29",
-          "storyFilesHash": "9ab30965d5cdd9c79abbb387c7deb289798cc9876f74e76988dfb23218140c1e",
-          "timestamp": "2026-06-24T00:51:50.963Z"
+          "headHash": "3b7abef09e3cb8d88e94c421e65bf037956681fa",
+          "materialHash": "243ad0fda632f5b2f019304fcf58bfc50be538f15e86e2ac06f183bba6cd40dc",
+          "storyFilesHash": "0b55b38f343c07f597df4fa331f4bb46d1ee39682468d6b79a8a1f6c2d748979",
+          "timestamp": "2026-06-24T01:20:36.392Z"
         }
       ]
     }
