@@ -92,7 +92,36 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees: \"Proof vocabulary is CLI-first: evidenceScope and local assurance are primary; productionDone is legacy/external false by default.\"",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/proof-admissibility-smoke.ts",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Smoke and doc wording describe authority receipt refs as local/external evidence rather than local production completion.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The hardening doc keeps Authority Server conformance as future/external adapter scope, not current local completion.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No wording claims server support was deleted everywhere or that local proof equals Authority production completion.",
+            "type": "docs"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
