@@ -80,6 +80,15 @@
       "reviewRound": "2026-06-24T03:27:22.420Z",
       "reviewRunId": "B-70e4:RR-011",
       "_hash": "4b19881552795ad2a4d8ae647de5c16454539a372163d9e2a97cd1e2d449c02c"
+    },
+    {
+      "id": "B-70e4:RP-010",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (round 4): all 19 must-priority verificationIntents across CHK-001..004 are covered by valid non-fail evidence bound to headHash ec451a7d (fix commit) / materialHash f232c70 (current round). validate reports 20/25 covered, 0 required missing. Round-2 resolutions F-003 (CHK-001:happy:1 schema-match), F-004 (CHK-002:happy:0 re-bound as integration_test via live staging smoke), F-005 (CHK-004:edge:0 empty-string) all still hold at current HEAD. Commit ec451a7d cwd-threading: the FILE-based customer-key resolution path (LATTICE_AUTHORITY_CUSTOMER_API_KEY_PATH / .lattice/authority.md) is not unit-tested in isolation, but this is an acceptable should-level gap. Reasons: (1) No CHK checklist item declares FILE-based cwd as a must-intent; (2) the inline env VALUE path (early-return in resolveAuthorityCustomerApiKey) is what the deterministic smoke exercises, and quality reviewer RP-008 confirms the cwd conditional is correct and backward-compatible; (3) the live staging smokes (authority-live-receipt-ref-gate-smoke, authority-enforce-matrix-smoke) exercise loadProof end-to-end; (4) the options.cwd??process.cwd() pattern in resolveAuthorityCustomerApiKey is the same pre-existing pattern already tested in other authority-client callers. No blocker found. 5 should-priority edge intents (CHK-001:edge:0/1, CHK-002:edge:0/1, CHK-003:edge:0) remain uncovered but are advisory only for the normal channel.",
+      "createdAt": "2026-06-24T03:32:15.733Z",
+      "reviewRound": "2026-06-24T03:27:22.420Z",
+      "reviewRunId": "B-70e4:RR-012",
+      "_hash": "2401c152010cd58595a3f587e6e0fe809c8e5f64ee90ad9b7441bf167580f672"
     }
   ]
 }
