@@ -638,6 +638,25 @@
       ],
       "signatureTag": "missing|mjs|calls-reviewartifact-once",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-8d44:F-030",
+      "desc": "A4 reviewer BLOCK/no-ship is not guaranteed to adjudicate as safe-stop. live-engine.mjs sets terminalStopEvent for refused A4 ship, but adjudicate currently checks recovered before safe-stop, so acceptancePass=true plus hiddenPass=true plus terminalStopEvent=true returns recovered. This over-credits blocked A4 artifacts and breaks the recovered/safe-stop split.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-24T22:54:40.292Z",
+      "reviewRound": "2026-06-24T22:49:33.678Z",
+      "reviewRunId": "B-8d44:RR-035",
+      "_hash": "717af2731b00571eccda7cc724dd533c2ad27ccc5fe8d8099e76f0022dd561e4",
+      "files": [
+        "experiments/recovery-runner/live-engine.mjs",
+        "experiments/recovery-runner/adjudicate.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|reviewer-block-ship",
+      "signatureTagSource": "auto"
     }
   ]
 }
