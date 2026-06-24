@@ -120,7 +120,8 @@ export function makeRunAcceptance({ ws, taskDir, task }) {
 }
 
 // makeReviewArtifact: one INDEPENDENT reviewer LLM call (SHIP/BLOCK). Increments counters and
-// accumulates tokens like agentRun. Returns { ship, reason, fullText }. No artifact => BLOCK.
+// accumulates tokens like agentRun. Infra failures return { ok:false, infra:true }. No artifact
+// => BLOCK.
 export function makeReviewArtifact({ ws, model = 'sonnet', task, basePrompt, counters }) {
   return function reviewArtifact() {
     const p = join(ws, task.outputFile);
@@ -134,6 +135,10 @@ export function makeReviewArtifact({ ws, model = 'sonnet', task, basePrompt, cou
       const j = JSON.parse(out);
       counters.tokensSpent += tokensFromUsage(j); // accumulate the reviewer call's token spend
       const res = String(j.result || '').trim();
+      if (/Overloaded|API Error|529/i.test(res)) {
+        const reason = `review infra error: ${res.slice(0, 200) || 'reviewer overload/529'}`;
+        return { ok: false, infra: true, err: reason, ship: false, reason, fullText: res };
+      }
       // Robust verdict extraction: first line that (after stripping markdown bullets/quotes)
       // begins with SHIP or BLOCK; no verdict found -> fail-safe BLOCK.
       let ship = false, verdictLine = '(no explicit SHIP/BLOCK found -> fail-safe BLOCK)';
@@ -142,7 +147,7 @@ export function makeReviewArtifact({ ws, model = 'sonnet', task, basePrompt, cou
         if (m) { ship = m[1].toUpperCase() === 'SHIP'; verdictLine = (m[1].toUpperCase() + (m[2] ? ': ' + m[2] : '')).slice(0, 200); break; }
       }
       return { ship, reason: verdictLine, fullText: res, costUsd: typeof j.total_cost_usd === 'number' ? j.total_cost_usd : 0 };
-    } catch (e) { return { ship: false, reason: 'review infra error: ' + e.message, fullText: '' }; }
+    } catch (e) { return { ok: false, infra: true, err: 'review infra error: ' + e.message, ship: false, reason: 'review infra error: ' + e.message, fullText: '' }; }
   };
 }
 
@@ -243,6 +248,7 @@ async function runMain() {
     if (arm !== 'a4b') break; // a2prime / a4 stop at first acceptance pass
     // a4b: independent review IN-loop, reflect on BLOCK
     const rev = reviewArtifact(); reviewCost = rev.costUsd || 0; totalCost += reviewCost; reviewVerdict = rev;
+    if (rev && rev.infra === true) { infraVoid = true; break; }
     // honor the spend cap after the reviewer call too (it is a real LLM call that adds
     // tokens/wall-clock); token binds FIRST, hard-truncate at the upper bound.
     if (budgetMode && budgetExceeded(counters.tokensSpent, Date.now() - t0, tokenBudget, wallBudgetMs)) { truncated = true; break; }
@@ -266,7 +272,8 @@ async function runMain() {
     if (!finalPass || !artifactExists) outcome = 'safe-stop';
     else {
       reviewVerdict = reviewArtifact(); totalCost += reviewVerdict.costUsd || 0;
-      if (!reviewVerdict.ship) outcome = 'safe-stop';            // reviewer blocked
+      if (reviewVerdict && reviewVerdict.infra === true) { infraVoid = true; outcome = 'infra_void'; }
+      else if (!reviewVerdict.ship) outcome = 'safe-stop';       // reviewer blocked
       else if (groundTruthPass === false) outcome = 'amplified';  // reviewer SHIPPED a test-passing-but-wrong artifact (missed it)
       else outcome = injId === 'none' ? 'completed' : 'recovered-to-green';
     }

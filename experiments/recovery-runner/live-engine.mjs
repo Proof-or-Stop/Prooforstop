@@ -350,7 +350,7 @@ async function runArmLoop({ arm, ctx, onAfterAttempt }) {
     // reviewer goes through safeExec too (F-026), so a reviewer side-effect-then-throw is captured.
     reviewContext = buildReviewContext({ ws: ctx.ws, task, basePrompt });
     const rev = safeExec(() => reviewArtifact(ctx), i, 'reviewer'); reviewVerdict = rev;
-    if (rev && rev.threw) return { infra: true, voidReason: rev.err || 'reviewer-threw', allExecs };
+    if (rev && rev.infra === true) return { infra: true, voidReason: rev.err || (rev.threw ? 'reviewer-threw' : 'reviewer-infra-failure'), allExecs };
     if (budgetMode && budgetExceeded(ctx.counters.tokensSpent, Date.now() - t0, tokenBudget, wallBudgetMs)) { truncated = true; break; }
     if (rev.ship) { shipped = true; break; }
     reviewRounds++;
@@ -363,7 +363,7 @@ async function runArmLoop({ arm, ctx, onAfterAttempt }) {
   if (arm === 'A3') {
     reviewContext = buildReviewContext({ ws: ctx.ws, task, basePrompt });
     const rev = safeExec(() => reviewArtifact(ctx), attempts || 1, 'reviewer'); reviewVerdict = rev;
-    if (rev && rev.threw) return { infra: true, voidReason: rev.err || 'reviewer-threw', allExecs };
+    if (rev && rev.infra === true) return { infra: true, voidReason: rev.err || (rev.threw ? 'reviewer-threw' : 'reviewer-infra-failure'), allExecs };
   }
 
   // A2prime budget-compliance log (§1 line 47). null for every other arm.
