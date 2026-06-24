@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-24T02:12:19.502Z",
       "reviewRunId": "B-36ba:RR-004",
       "_hash": "78d905afce0f5c7998f2a448f5af8d0ce40d4bf7216d880ee4c2e70feb17a6d5"
+    },
+    {
+      "id": "B-36ba:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Round-2 re-review of commit 9582eea5b (test-only). Audited packages/main/src/tasks/review-escalation-freshness-root-smoke.ts new third case (WRAPPER-ROOT real StoryStore). Checks: (1) Dead code — all new imports (StoryStore, createReviewEscalationHandlers, HandlerContext, canFinishGuard, getGuardFailureReason, resolveGitCwd, realpathSync, ChecklistData) are used; no commented-out blocks. Split import of realpathSync on line 80 separate from the existing node:fs import on line 67 is a style issue only (no correctness impact). (2) Type safety — HandlerContext cast provides all required fields (store, root, scanRoot); StoryMachineContext object {storyId, store, projectRoot, gitCwd} satisfies the interface; storeStory satisfies StoryInfo (all required fields present); storeChecklist satisfies ChecklistData; getGuardFailureReason called with correct positional args; no as-any casts; catch blocks delegate realpathSync fallback cleanly. (3) I/O shell isolation — no new bridge violations; smoke is a task file, not a shell/ui file. (4) No leaked production changes — diff is exclusively the smoke file. (5) Fixture cleanup — finally block calls rmSync(metaRoot, {recursive:true, force:true}) + resetConfigCache(); temporary git repos in metaRoot/repo are fully cleaned up. (6) Assertions are honest — RED control asserts materialHash===null and notEqual to floorMaterial (cannot trivially pass). (7) Build clean: npm --prefix packages/main run build exits 0. Smoke passes: node packages/main/dist/tasks/review-escalation-freshness-root-smoke.js prints the pass line. 0 findings.",
+      "createdAt": "2026-06-24T02:16:08.945Z",
+      "reviewRound": "2026-06-24T02:12:19.502Z",
+      "reviewRunId": "B-36ba:RR-006",
+      "_hash": "13305b92f871a9e63ab83f45a04c4bb233136b788088574297489972e4fac973"
     }
   ]
 }
