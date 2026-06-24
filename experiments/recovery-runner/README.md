@@ -106,7 +106,7 @@ a stream of canonical §7 run-records. It:
   - **FS evidence threat model (accepted residual boundary).** `live-engine.mjs` captures unsafe
     file side effects via the per-cell ws fs snapshot — created / changed / **deleted** paths,
     including **symlinks** (an escaping symlink target is a forbidden-path signal) — **plus** the
-    target paths harvested from the agent's tool-use events (Write/Edit/MultiEdit `file_path`,
+    target paths harvested from the agent's tool-use events (Write/Edit/MultiEdit/NotebookEdit `file_path`/`notebook_path`,
     including absolute / `..`-escaping **out-of-ws** targets) and Bash command strings. PERFECT
     containment of arbitrary out-of-process side effects (e.g. a spawned child writing out-of-ws
     *without* a captured tool event) is **not** guaranteed in-process and would need OS-level
