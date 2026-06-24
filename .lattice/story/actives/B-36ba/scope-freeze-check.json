@@ -1,0 +1,56 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-36ba",
+  "checkedAt": "2026-06-24T01:25:05.201Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "1050ba8a318778e61de817c7282e2845892f2221ddc155a93e9e9d2e3b894f48",
+  "executionBoundaryHash": "d2a02e6f78df9c72f158cbf37fb224d06209d23aeed7341dbe3d943f54ac183d",
+  "freshnessHash": "10f401e4e2a6d6ec1cf722afb00c20f22828b4070e5ea3f14caf4574844076d4",
+  "effectiveExcludedKeywords": [
+    "Any behavior change in plain repos: every caller edit must be byte-identical when gitCwd == projectRoot",
+    "Authority",
+    "Changing the floor freshness logic or making the floor storyFilesHash-authoritative (that is B-6de6 scope)",
+    "Changing whole-tree materialHash as the primary freshness key, or any verdict-producer stored-hash computation (quorum_submit/autopilot_review_submit/verifier semantics)",
+    "customerKeyRef",
+    "Layer4",
+    "Mutating or replacing stored verdict events (append-only log preserved)",
+    "quorum-submit.ts:329 internal recompute (already bypassed via explicit materialHash/storyFilesHash; no change)",
+    "repair UX"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Any behavior change in plain repos: every caller edit must be byte-identical when gitCwd == projectRoot",
+      "source": "scopeBoundary.excluded",
+      "text": "Any behavior change in plain repos: every caller edit must be byte-identical when gitCwd == projectRoot",
+      "excluded": true
+    },
+    {
+      "keyword": "Changing the floor freshness logic or making the floor storyFilesHash-authoritative (that is B-6de6 scope)",
+      "source": "scopeBoundary.excluded",
+      "text": "Changing the floor freshness logic or making the floor storyFilesHash-authoritative (that is B-6de6 scope)",
+      "excluded": true
+    },
+    {
+      "keyword": "Changing whole-tree materialHash as the primary freshness key, or any verdict-producer stored-hash computation (quorum_submit/autopilot_review_submit/verifier semantics)",
+      "source": "scopeBoundary.excluded",
+      "text": "Changing whole-tree materialHash as the primary freshness key, or any verdict-producer stored-hash computation (quorum_submit/autopilot_review_submit/verifier semantics)",
+      "excluded": true
+    },
+    {
+      "keyword": "Mutating or replacing stored verdict events (append-only log preserved)",
+      "source": "scopeBoundary.excluded",
+      "text": "Mutating or replacing stored verdict events (append-only log preserved)",
+      "excluded": true
+    },
+    {
+      "keyword": "quorum-submit.ts:329 internal recompute (already bypassed via explicit materialHash/storyFilesHash; no change)",
+      "source": "scopeBoundary.excluded",
+      "text": "quorum-submit.ts:329 internal recompute (already bypassed via explicit materialHash/storyFilesHash; no change)",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "f44997d1ebef410220a475e365c7815b1ecd020362a65186fcfc02a6989dc46a"
+}

@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-ef65",
+  "mode": "correctness_fix",
+  "allowed": [
+    "packages/main/src/core/validation-execution-lock.ts",
+    "packages/main/src/handlers/done-required-validation.ts",
+    "packages/main/src/handlers/verifier.ts",
+    "packages/main/src/tasks/validate-execution-lock-smoke.ts",
+    "story metadata and summary for B-ef65 only"
+  ],
+  "excluded": [
+    "Authority server changes",
+    "Codex or Claude host-specific behavior",
+    "global validate serialization",
+    "owner lease redesign",
+    "unrelated active stories or existing dirty root files"
+  ],
+  "confirmedBy": "codex-main",
+  "confirmationNote": "User approved formal story experiment after red/spike proof; scope is limited to the already-proven validate execution lock fix and its regression smoke.",
+  "createdAt": "2026-06-24T01:04:11.228Z",
+  "updatedAt": "2026-06-24T01:04:11.228Z",
+  "_hash": "d11361701bf8dce7f363257c57d685b18a7a18e6f8d096de51d423c8dda8f098"
+}
