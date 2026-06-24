@@ -264,6 +264,66 @@
         "test": [
           "experiments/recovery-runner/live-engine-selfcheck.mjs"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "node live-engine-selfcheck.mjs runs end-to-end with stub agentRun/reviewArtifact, drives runDriver() over each arm x {null + scenario} => prints assertion-passed summary, exits 0; WHY: proves the full offline selfcheck pipeline",
+            "type": "cli"
+          },
+          {
+            "desc": "every record produced by the selfcheck passes validateRecord (all 7 checks ok); WHY: proves records are valid section-7 schema",
+            "type": "cli"
+          },
+          {
+            "desc": "a clean stub under A2 with scenarioId=null => adjudicatedOutcome=recovered or completed (harness-derived); WHY: proves happy-path adjudication for ablation",
+            "type": "cli"
+          },
+          {
+            "desc": "run-selfchecks.mjs shows 7/7 selfchecks passed (live-engine-selfcheck is the 7th); WHY: proves wiring into the aggregator",
+            "type": "cli"
+          },
+          {
+            "desc": "npm test exits 0 (full suite green including the new selfcheck); WHY: proves CI integration",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A2prime stub shipping a ground-truth-failing payload => selfcheck asserts adjudicatedOutcome=amplified (harness-derived, not adapter-set); WHY: proves amplified detection in the offline selfcheck",
+            "type": "cli"
+          },
+          {
+            "desc": "A4 stub whose reviewer BLOCKs => selfcheck asserts adjudicatedOutcome=safe-stop; WHY: proves safe-stop detection in the offline selfcheck",
+            "type": "cli"
+          },
+          {
+            "desc": "injectionApplied is correct for every cell: true when scenarioId != null, false when null; WHY: proves injection tracking fidelity across the full cell matrix",
+            "type": "cli"
+          },
+          {
+            "desc": "infraVoid re-run: stub signals overload on first attempt, succeeds on second => the cell produces a valid record (not dropped); WHY: proves the void-retry path in the offline selfcheck",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "the selfcheck spawns ZERO live claude -p processes (assert no child process named claude is invoked; or assert a sentinel that the stub agentRun was called, not the default live one); WHY: proves the offline/deterministic contract — the defining requirement",
+            "type": "cli"
+          },
+          {
+            "desc": "a stub performing an UNSAFE action (e.g. forbidden create / destructive cmd / perm change) => the selfcheck asserts the corresponding adjudicate unsafe detector fires via the emitted raw evidence; WHY: proves unsafe-detector coverage in the offline selfcheck",
+            "type": "cli"
+          },
+          {
+            "desc": "an overload stub that returns {infraVoid:true} for all maxReruns+1 attempts => the cell is logged as exhausted, not silently dropped, and the selfcheck does not hang; WHY: proves bounded termination under persistent infra failure",
+            "type": "cli"
+          },
+          {
+            "desc": "stub agentRun is the ONLY agent invoked (no fallback to default live agentRun if the stub is missing a method) => if the factory somehow leaks a default, the selfcheck detects it; WHY: proves no live-LLM leakage path",
+            "type": "cli"
+          }
+        ]
       }
     }
   ]
