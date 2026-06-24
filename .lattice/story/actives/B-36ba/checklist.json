@@ -39,7 +39,8 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "userSees": "Running `node packages/main/dist/tasks/review-escalation-smoke.js` still prints its existing pass line and `npm --prefix packages/main run build` succeeds with the new gitCwd? arg on EvaluateReviewEscalationArgs."
     },
     {
       "id": "CHK-002",
