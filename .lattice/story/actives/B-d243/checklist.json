@@ -50,7 +50,43 @@
       "context": "core/delivery-check-hash.ts: on materialHash mismatch, if a signed storyFilesHash matches currentStoryFilesHash, return ok:true code delivery_check_drift_advisory with a mandatory advisory and never rebind the stored hash; missing or mismatched storyFilesHash keeps strict stale_delivery_check.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "materialHash mismatch + SIGNED storyFilesHash equals currentStoryFilesHash -> evaluateDeliveryCheckFreshness returns {ok:true, code:\"delivery_check_drift_advisory\", advisory:\"<non-empty string>\"} and stored hash is NOT rebound; WHY: the core happy-path downgrade that eliminates the re-sign friction",
+            "type": "cli"
+          },
+          {
+            "desc": "materialHash matches (fresh) -> returns ok:true code fresh regardless of storyFilesHash; WHY: the existing fresh path must not regress",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "materialHash mismatch + storyFilesHash is missing/null (legacy record) -> strict stale_delivery_check (ok:false); WHY: legacy records without storyFilesHash must never get the advisory downgrade",
+            "type": "cli"
+          },
+          {
+            "desc": "materialHash mismatch + storyFilesHash present but currentStoryFilesHash is empty (HEAD on main, no story branch) -> strict stale; WHY: empty currentStoryFilesHash should not match a real stored hash",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "materialHash mismatch + SIGNED storyFilesHash does NOT match currentStoryFilesHash (story-owned file changed) -> strict stale_delivery_check (ok:false); WHY: a story-owned change must never be downgraded to an advisory",
+            "type": "cli"
+          },
+          {
+            "desc": "Record has _hash tampered (storyFilesHash was forged post-signature) -> recomputeDeliveryCheckHash mismatch -> delivery_check_tampered BEFORE the freshness branch even runs; WHY: signature verification must precede any advisory logic",
+            "type": "cli"
+          },
+          {
+            "desc": "Concurrent main merge during evaluateDeliveryCheckFreshness: currentStoryFilesHash computed at call time vs currentMaterialHash are from the same git snapshot -> no TOCTOU race between the two computations; WHY: if storyFilesHash and materialHash are computed at different git states, a mid-merge could cause a false advisory",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
