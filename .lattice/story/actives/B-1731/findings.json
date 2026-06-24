@@ -172,7 +172,7 @@
       "desc": "Spike-review acceptance is advertised in the checklist/preflight contract but is not consumable by the story-evidence-binding gate. story_create_from_repro only accepts spikeId/matrixReviewId, not spikeReviewId, and StoryEvidenceBindingPayload has no spikeReviewId/spikeReviewDigest fields. The gate validates a spike-record digest and optional regression-matrix-review linkage, but never reads a spike-review artifact or checks SpikeReviewPayload.verdict=confirmed. As a result, a story can bind an unreviewed spike record while still passing the final binding gate, and the promised spike path (spike-record + spike-review) is not actually enforced. Source refs: packages/main/src/handlers/repro-intake.ts:129, packages/main/src/core/evidence/types.ts:137, packages/main/src/core/repro-intake.ts:384, packages/main/src/core/repro-intake.ts:467, packages/main/src/core/repro-evidence-binding-gate.ts:244.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-24T22:43:04.526Z",
@@ -187,7 +187,11 @@
         "packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts"
       ],
       "signatureTag": "missing|ts|spike-review-binding",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Added spikeReviewId/spikeReviewDigest to story-evidence-binding, story_create_from_repro input, and gate validation. Gate now requires confirmed/accepted spike-review for any binding with spikeId and returns stale_story_evidence_binding details for missing, rejected, or mismatched spike reviews. Verified with: npm --prefix packages/main run build; node packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js; node packages/main/dist/tasks/repro-first-candidate-smoke.js; node scripts/verify-process-fact-contract.mjs >/tmp/b1731-process-fact-4.log && tail -n 8 /tmp/b1731-process-fact-4.log.",
+      "resolvedAt": "2026-06-24T22:50:16.033Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
