@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-24T11:21:33.431Z",
       "reviewRunId": "B-0405:RR-001",
       "_hash": "e2a35d13ff309f3ad8f727512b608facc0439a4c9eb03702afe01172bca4ea37"
+    },
+    {
+      "id": "B-0405:RP-002",
+      "agent": "lattice-review-docs",
+      "note": "Docs re-review passed. F-001 is resolved: docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md now names ProofSurfaceDefinition and ProofClaimPolicy, matching packages/main/src/core/proof-admissibility.ts exports. Reviewed proof-admissibility hardening docs, evidence platform architecture, proof-surface inventory, README Authority/production references, and implementation/test touchpoints. Docs remain conservative about Authority/production: local/shadow/diagnostic/legacy evidence cannot establish productionDone, raw Authority receipts are input evidence only, and only matching production-gate-decision policy can be production eligible. M2-M7 status lines match the implemented B-0405 scope: CLI proof surfaces, strict binding, warn-mode diagnostics, legacy dry-run classification, handoff boundary, warn default plus enforce diagnostics/high-risk consumer blocking smoke coverage.",
+      "createdAt": "2026-06-24T11:35:52.716Z",
+      "reviewRound": "2026-06-24T11:32:27.508Z",
+      "reviewRunId": "B-0405:RR-008",
+      "_hash": "ade9497fb4325bcc6540e8e167cef7553f26d36f08dbfd92d8ae2e72b9a41fb3"
     }
   ]
 }
