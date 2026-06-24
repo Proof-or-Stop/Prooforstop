@@ -1,7 +1,7 @@
 
 import type { HandlerContext } from './context.js';
 import { collectContext, nextStoryId } from './context.js';
-import type { ScopeBoundaryMode, StoryInfo, StoryPhase, StoryType, VerificationIntent } from '../core/types.js';
+import type { ChecklistData, ScopeBoundaryMode, StoryInfo, StoryPhase, StoryType, VerificationIntent } from '../core/types.js';
 import { validateBackground } from '../core/background-validator.js';
 import { writeFileSync, mkdirSync, existsSync, readFileSync, rmSync, realpathSync } from 'fs';
 import { join, relative, isAbsolute } from 'path';
@@ -21,6 +21,10 @@ import {
   assertEnglishAuthoringText,
   type EnglishAuthoringTextSource,
 } from './english-artifact-gate.js';
+import {
+  classifyReproFirstRequirement,
+  resolveReproFirstPreflightMode,
+} from '../core/repro-evidence-binding-gate.js';
 
 type StoryCreateScopeBoundaryInput = {
   mode?: ScopeBoundaryMode;
@@ -44,6 +48,31 @@ type StoryCreateExecutionBoundaryInput = {
   confirmation?: string;
   actor?: string;
 };
+
+type StoryCreateChecklistInput = {
+  title: string;
+  context?: string;
+  relatedDocs?: string[];
+  userSees?: string;
+  excludes?: string[];
+  files?: { modify?: string[]; create?: string[]; test?: string[] };
+  verificationIntent?: VerificationIntent;
+  phase?: 'DEV' | 'TEST_CASE';
+};
+
+type NormalizedStoryCreateFiles = { modify: string[]; create: string[]; test: string[] };
+
+function normalizeStoryCreateFiles(files?: StoryCreateChecklistInput['files']): NormalizedStoryCreateFiles | undefined {
+  if (!files) return undefined;
+  const normalized = {
+    modify: Array.isArray(files.modify) ? files.modify : [],
+    create: Array.isArray(files.create) ? files.create : [],
+    test: Array.isArray(files.test) ? files.test : [],
+  };
+  return normalized.modify.length > 0 || normalized.create.length > 0 || normalized.test.length > 0
+    ? normalized
+    : undefined;
+}
 
 /**
  * B-6812 F-003: typed error raised when a keyword-full-overlap duplicate of an
@@ -314,7 +343,7 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
       source?: string;
       depends?: string[];
       keywords?: string[];
-      checklist?: Array<{ title: string; context?: string; relatedDocs?: string[]; userSees?: string; excludes?: string[]; verificationIntent?: VerificationIntent }>;
+      checklist?: StoryCreateChecklistInput[];
       scopeBoundary?: StoryCreateScopeBoundaryInput;
       executionBoundary?: StoryCreateExecutionBoundaryInput;
       prefix?: string;
@@ -322,6 +351,7 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
       forceNew?: boolean; // B-0af4 CHK-001: bypass idempotency and force new creation
       background?: string; // B-45ed CHK-006: required four-section background.md content
       fromDraft?: string; // B-9975 CHK-003: from-draft mode
+      reproFirstBypassReason?: string; // Allows story_create_from_repro/emergency intake to create the envelope before binding exists.
     }): string {
       // B-6812 CHK-001 / B-f60c CHK-003: serialize the whole story_create body
       // (fromDraft branch + normal branch) so the idempotency scan →
@@ -617,6 +647,69 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
       const storyId = nextStoryId(store, args.prefix);
       const now = new Date().toISOString();
       const hasChecklist = args.checklist && args.checklist.length > 0;
+      const checklistItemFromInput = (
+        c: StoryCreateChecklistInput,
+        i: number,
+        status: 'pending' | 'done',
+      ): ChecklistData['items'][number] => {
+        const files = normalizeStoryCreateFiles(c.files);
+        return {
+          id: `CHK-${String(i + 1).padStart(3, '0')}`,
+          title: c.title,
+          ...(c.context ? { context: c.context } : {}),
+          ...(c.relatedDocs !== undefined ? { relatedDocs: c.relatedDocs } : {}),
+          ...(c.userSees ? { userSees: c.userSees } : {}),
+          ...(c.excludes !== undefined ? { excludes: c.excludes } : {}),
+          ...(files ? { files } : {}),
+          ...(c.verificationIntent !== undefined ? { verificationIntent: c.verificationIntent } : {}),
+          ...(c.phase !== undefined ? { phase: c.phase } : {}),
+          status,
+          startTime: status === 'done' ? now : null,
+          endTime: status === 'done' ? now : null,
+        };
+      };
+      const preflightChecklist: ChecklistData = {
+        items: hasChecklist ? args.checklist!.map((c, i) => checklistItemFromInput(c, i, 'pending')) : [],
+      };
+      let reproFirstHint = '';
+      const runReproFirstStoryCreatePreflight = (phaseForStory: StoryPhase): void => {
+        const mode = resolveReproFirstPreflightMode(ctx.root);
+        if (mode === 'off') return;
+        const candidateStory = {
+          storyId,
+          name: args.name,
+          title: args.title,
+          description: args.description,
+          type: args.type,
+          phase: phaseForStory,
+          priority: elevatedPriority,
+          ...(riskSignals.length > 0 ? { riskSignals } : {}),
+          createdAt: now,
+          startedAt: hasChecklist ? now : null,
+          endedAt: null,
+          events: [],
+        } as StoryInfo;
+        const classification = classifyReproFirstRequirement(candidateStory, preflightChecklist);
+        if (!classification.required) return;
+        const bypassReason = args.reproFirstBypassReason?.trim();
+        if (bypassReason) {
+          reproFirstHint = [
+            '⚠ Repro-first STORY_INTAKE preflight bypassed with explicit reason. [repro_first_bypassed]',
+            `  reason: ${bypassReason}`,
+            `  classifier: ${classification.reason}; ${classification.details.join('; ')}`,
+            '  Note: this only permits story creation; PLAN/DEV gates still require a valid story-evidence-binding when the story declares code files.',
+          ].join('\n');
+          return;
+        }
+        const message = [
+          `Repro-first STORY_INTAKE preflight requires accepted repro evidence before creating code-verifiable story ${storyId}. [missing_story_evidence_binding]`,
+          `  mode: ${mode}`,
+          `  classifier: ${classification.reason}; ${classification.details.join('; ')}`,
+          '  Use story_create_from_repro after repro_probe + repro_review_set(red-reviewed,target-bug), or pass reproFirstBypassReason for a documented emergency/non-reproducible intake exception.',
+        ].join('\n');
+        if (mode === 'enforce') throw new Error(message);
+        reproFirstHint = `⚠ ${message}`;
+      };
 
       // B-45ed CHK-006: persist background.md to docs/story/actives/{storyId}/background.md
       const writeBackground = () => {
@@ -769,6 +862,7 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
       const emitAdvisoryToStderr = (): void => {
         const blocks: string[] = [];
         if (riskHint.trim().length > 0) blocks.push(riskHint.trim());
+        if (reproFirstHint.trim().length > 0) blocks.push(reproFirstHint.trim());
         if (dupWarning.trim().length > 0) blocks.push(dupWarning.trim());
         const concurrentNote = recentConcurrentStoriesNote(store, storyId, Date.parse(now));
         if (concurrentNote.length > 0) blocks.push(concurrentNote);
@@ -797,6 +891,7 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
             'Create the story in INIT, persist init-check/scope-boundary/execution-boundary/scope-freeze artifacts, then use story_advance phase=INIT_CHECK. [story_create_direct_init_check_forbidden]',
           );
         }
+        runReproFirstStoryCreatePreflight(args.phase);
         const story: StoryInfo = {
           storyId,
           name: args.name,
@@ -823,19 +918,7 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
         if (hasChecklist) {
           const isDone = args.phase === 'DONE';
           const checklist = {
-            items: args.checklist!.map((c: any, i: number) => ({
-              id: `CHK-${String(i + 1).padStart(3, '0')}`,
-              title: c.title,
-              ...(c.context ? { context: c.context } : {}),
-              ...(c.relatedDocs !== undefined ? { relatedDocs: c.relatedDocs } : {}),
-              ...(c.userSees ? { userSees: c.userSees } : {}),
-              ...(c.excludes !== undefined ? { excludes: c.excludes } : {}),
-              ...(c.verificationIntent !== undefined ? { verificationIntent: c.verificationIntent } : {}),
-              ...(c.phase !== undefined ? { phase: c.phase } : {}),
-              status: (isDone ? 'done' : 'pending') as 'done' | 'pending',
-              startTime: isDone ? now : null,
-              endTime: isDone ? now : null,
-            })),
+            items: args.checklist!.map((c, i) => checklistItemFromInput(c, i, isDone ? 'done' : 'pending')),
           };
           store.writeChecklist(storyId, checklist);
         }
@@ -853,6 +936,7 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
 
       // Normal mode: with checklist → INIT (subsequent story_advance INIT_CHECK creates worktree → PLAN)
       const phase: StoryPhase = hasChecklist ? 'INIT' : 'IDEA';
+      runReproFirstStoryCreatePreflight(phase);
       const story: StoryInfo = {
         storyId,
         name: args.name,
@@ -877,18 +961,7 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
 
       if (hasChecklist) {
         const checklist = {
-          items: args.checklist!.map((c: any, i: number) => ({
-            id: `CHK-${String(i + 1).padStart(3, '0')}`,
-            title: c.title,
-            ...(c.context ? { context: c.context } : {}),
-            ...(c.relatedDocs !== undefined ? { relatedDocs: c.relatedDocs } : {}),
-            ...(c.userSees ? { userSees: c.userSees } : {}),
-            ...(c.excludes !== undefined ? { excludes: c.excludes } : {}),
-            ...(c.verificationIntent !== undefined ? { verificationIntent: c.verificationIntent } : {}),
-            status: 'pending' as const,
-            startTime: null,
-            endTime: null,
-          })),
+          items: args.checklist!.map((c, i) => checklistItemFromInput(c, i, 'pending')),
         };
         store.writeChecklist(storyId, checklist);
         const noContext = args.checklist!.filter((c: any) => !c.context).length;

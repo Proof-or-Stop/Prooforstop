@@ -61,7 +61,19 @@ export const MAIN_TOOLS: ToolDef[] = [
     source: z.string().optional().describe('Source.'),
     depends: z.array(z.string()).optional().describe('Dependent Story ID.'),
     keywords: z.array(z.string()).optional().describe('Keywords (domain/module/concept, used for duplicate detection).'),
-    checklist: z.array(z.object({ title: z.string(), context: z.string().optional(), relatedDocs: z.array(z.string()).optional().describe('Related documentation paths used for the three reminders.'), userSees: z.string().optional().describe('User-visible output.'), excludes: z.array(z.string()).optional().describe('Explicitly declared out-of-scope functionality.'), verificationIntent: verificationIntentSchema.optional().describe('Happy-path, edge-case, and adversarial verification intent.') })).optional().describe('Development checklist.'),
+    checklist: z.array(z.object({
+      title: z.string(),
+      context: z.string().optional(),
+      relatedDocs: z.array(z.string()).optional().describe('Related documentation paths used for the three reminders.'),
+      userSees: z.string().optional().describe('User-visible output.'),
+      excludes: z.array(z.string()).optional().describe('Explicitly declared out-of-scope functionality.'),
+      files: z.object({
+        modify: z.array(z.string()).optional(),
+        create: z.array(z.string()).optional(),
+        test: z.array(z.string()).optional(),
+      }).optional().describe('Affected file declarations used by story intake and review gates.'),
+      verificationIntent: verificationIntentSchema.optional().describe('Happy-path, edge-case, and adversarial verification intent.'),
+    })).optional().describe('Development checklist.'),
     scopeBoundary: z.object({
       mode: z.enum(['correctness_fix', 'feature', 'maintenance', 'custom']).optional().describe('Scope boundary mode; correctness_fix enables the default future denylist.'),
       allowed: z.array(z.string().min(1)).optional().describe('Scope entries the user confirmed as allowed.'),
@@ -94,6 +106,7 @@ export const MAIN_TOOLS: ToolDef[] = [
     forceNew: z.boolean().optional().describe('B-0af4: bypass same-name story idempotency and force creation; unfinished same-name stories are reused by default.'),
     background: z.string().optional().describe('B-45ed CHK-006: four-section background.md content. Must include Trigger Event, Key Insight, Tradeoff, and Conversation Texture sections; each section at least 50 characters, total at least 300, and Trigger Event must include a concrete ID (B-xxxx / F-xxx / CHK-xxx / commit hash / YYYY-MM-DD). Not required in fromDraft mode.'),
     fromDraft: z.string().optional().describe('B-9975: create a story from a reviewed draft by passing draft name. Conservatively stops in INIT, then follows normal INIT_CHECK gates.'),
+    reproFirstBypassReason: z.string().min(10).optional().describe('Documented STORY_INTAKE exception for emergency/non-reproducible work; later lifecycle gates still require binding for code-declaring stories.'),
   }},
   { name: 'story_advance', description: 'Advance a Story to the next phase', longHelp: STORY_ADVANCE_LONG, schema: {
     storyId: z.string().describe('Story ID'), phase: z.enum(['IDEA','INIT','INIT_CHECK','PLAN','DEV','REVIEW','TEST','DONE']).describe('Target phase.'),

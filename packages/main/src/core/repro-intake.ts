@@ -30,6 +30,7 @@ import type {
   ReviewedFailureClass,
   ExecutionStatus,
 } from './evidence/types.js';
+import type { StoryType } from './types.js';
 
 const CANDIDATE_SCOPE = 'evidence-candidate' as const;
 const PRODUCER = 'repro-intake-service';
@@ -403,9 +404,11 @@ export async function createStoryFromRepro(
     title: string;
     description: string;
     name: string;
-    type: string;
+    type: StoryType;
     priority: string;
     checklist: Array<{ title: string; context?: string }>;
+    background: string;
+    reproFirstBypassReason: string;
   }) => Promise<string> | string,
 ): Promise<CreateStoryFromReproResult> {
   // Validate probe and review exist
@@ -438,14 +441,27 @@ export async function createStoryFromRepro(
     throw new Error(`repro-intake: matrix review ${input.matrixReviewId} references probe ${matrixReview.payload.probeId}, not ${input.probeId}`);
   }
 
+  const background = [
+    '## Trigger Event',
+    `${new Date().toISOString().slice(0, 10)} repro-first intake is creating a story from accepted candidate evidence. Probe ${input.probeId} and review ${input.reviewId} are bound before development starts.`,
+    '## Key Insights',
+    `The repro review is red-reviewed and classified as target-bug, so this story starts from observed failing behavior instead of a speculative fix. Candidate ${probe.payload.candidateId} remains intake evidence only.`,
+    '## Solution Tradeoffs',
+    'Using story_create_from_repro keeps the normal story lifecycle intact while adding a pre-story binding artifact. It avoids pretending candidate evidence is verificationEvidence, DONE evidence, Authority proof, or production proof.',
+    '## Conversational Texture',
+    'The maintainer sees a normal Lattice story with a durable intake binding, then still expects DEV, REVIEW, TEST, validation, and DONE evidence to prove the actual fix after implementation.',
+  ].join('\n\n');
+
   // Create story via injected creator (calls story_create handler)
   const storyId = await storyCreator({
     title: input.storyTitle,
     description: input.storyDescription,
     name: probe.payload.candidateId,
-    type: 'feature',
+    type: 'bug',
     priority: 'high',
     checklist: [{ title: 'Implement fix for reproduced failure', context: `Probe: ${input.probeId}, Review: ${input.reviewId}` }],
+    background,
+    reproFirstBypassReason: 'story_create_from_repro writes story-evidence-binding immediately after story_create from accepted repro evidence',
   });
 
   // Write binding artifact — original candidate artifact remains evidence-candidate

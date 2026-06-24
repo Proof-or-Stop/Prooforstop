@@ -17,11 +17,16 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 
 import { resetConfigCache } from '../core/config.js';
+import { writeArtifact } from '../core/evidence/artifact-store.js';
 import { StoryStore } from '../core/store.js';
 import {
   canSendStoryEventWithoutSnapshotCan,
   getGuardFailureReason,
 } from '../core/machine.js';
+import {
+  evaluateStoryEvidenceBindingGate,
+  type ReproFirstPreflightMode,
+} from '../core/repro-evidence-binding-gate.js';
 import {
   createProbe,
   createStoryFromRepro,
@@ -30,6 +35,8 @@ import {
   reviewRegressionMatrix,
 } from '../core/repro-intake.js';
 import type { ChecklistData, StoryInfo, StoryPhase } from '../core/types.js';
+import { createReproIntakeHandlers } from '../handlers/repro-intake.js';
+import { createStoryCreateHandlers } from '../handlers/story-create.js';
 
 const NOW = '2026-06-24T12:00:00.000Z';
 
@@ -38,7 +45,7 @@ function write(root: string, rel: string, content: string): void {
   writeFileSync(join(root, rel), content, 'utf8');
 }
 
-function makeRoot(): { root: string; store: StoryStore } {
+function makeRoot(mode: ReproFirstPreflightMode = 'enforce'): { root: string; store: StoryStore } {
   const root = mkdtempSync(join(tmpdir(), 'lattice-repro-binding-gate-'));
   write(root, 'lattice.config.json', JSON.stringify({
     scanRoot: 'packages/main',
@@ -48,6 +55,7 @@ function makeRoot(): { root: string; store: StoryStore } {
     storyDir: '.lattice/story/actives',
     requirementsDir: 'docs/requirements',
     worktreeDir: '.worktrees',
+    reproFirstPreflight: { mode },
     workflow: { profile: 'light' },
   }));
   resetConfigCache();
@@ -154,8 +162,8 @@ function tamperBindingObject(root: string, bindingDigest: string): void {
   writeFileSync(objectPath, JSON.stringify(artifact, null, 2) + '\n', 'utf8');
 }
 
-async function withRoot(fn: (root: string, store: StoryStore) => Promise<void> | void): Promise<void> {
-  const { root, store } = makeRoot();
+async function withRoot(fn: (root: string, store: StoryStore) => Promise<void> | void, mode: ReproFirstPreflightMode = 'enforce'): Promise<void> {
+  const { root, store } = makeRoot(mode);
   try {
     await fn(root, store);
   } finally {
@@ -163,6 +171,17 @@ async function withRoot(fn: (root: string, store: StoryStore) => Promise<void> |
     resetConfigCache();
   }
 }
+
+const validBackground = [
+  '## Trigger Event',
+  '2026-06-24 B-1731 smoke needs a complete trigger event section to exercise story_create preflight without relying on a shortened fixture.',
+  '## Key Insights',
+  'Code-changing stories that declare files need an accepted repro binding before moving into lifecycle execution, while warn mode remains a rollout diagnostic.',
+  '## Solution Tradeoffs',
+  'The smoke uses the real story_create handler for preflight and the real repro intake handler for binding, keeping the test close to production command behavior.',
+  '## Conversational Texture',
+  'A maintainer sees a clear missing binding warning or block, then uses story_create_from_repro to bind candidate evidence before normal development begins.',
+].join('\n\n');
 
 let passed = 0;
 async function check(name: string, fn: () => Promise<void> | void): Promise<void> {
@@ -197,6 +216,167 @@ await check('IDEA->PLAN no-file checklist passes without binding', async () => {
     writeStory(store, storyId, 'IDEA', noFileChecklist);
     assert.equal(canSendStoryEventWithoutSnapshotCan(storyId, store, 'IDEA', 'PLAN', root), true);
     assert.equal(getGuardFailureReason(storyId, store, 'PLAN', root), null);
+  });
+});
+
+await check('story_create enforce blocks file-declaring story without binding before persistence', async () => {
+  await withRoot((root, store) => {
+    const handlers = createStoryCreateHandlers({ root, store, scanRoot: join(root, 'packages/main') });
+    assert.throws(
+      () => handlers.story_create({
+        name: 'preflight-enforce-block',
+        title: 'Preflight enforce block',
+        description: 'Exercise repro-first preflight on story_create with declared files.',
+        type: 'feature',
+        priority: 'medium',
+        background: validBackground,
+        checklist: [{
+          title: 'Modify code',
+          context: 'Declares files so repro-first preflight must require accepted evidence.',
+          files: { modify: ['src/feature.ts'], test: ['tests/feature.test.ts'] },
+        }],
+      }),
+      /missing_story_evidence_binding/,
+    );
+    assert.deepEqual(store.listStoryIds(), [], 'blocked story_create must not persist story metadata');
+  });
+});
+
+await check('story_create warn mode diagnoses missing binding but does not block creation', async () => {
+  await withRoot((root, store) => {
+    const handlers = createStoryCreateHandlers({ root, store, scanRoot: join(root, 'packages/main') });
+    const output = handlers.story_create({
+      name: 'preflight-warn',
+      title: 'Preflight warn',
+      description: 'Exercise repro-first warn mode on a file-declaring story.',
+      type: 'feature',
+      priority: 'medium',
+      background: validBackground,
+      checklist: [{
+        title: 'Modify code',
+        context: 'Declares files so warn mode should surface but not block.',
+        files: { modify: ['src/feature.ts'] },
+      }],
+    });
+    const storyId = output.match(/B-[a-z0-9]+/i)?.[0];
+    assert.ok(storyId, 'warn mode story_create should return a story id');
+    const result = evaluateStoryEvidenceBindingGate(root, store, storyId);
+    assert.equal(result.required, true);
+    assert.equal(result.blocking, false);
+    assert.equal(result.reasonCode, 'missing_story_evidence_binding');
+  }, 'warn');
+});
+
+await check('story_create mode off bypasses repro-first diagnostic', async () => {
+  await withRoot((root, store) => {
+    const handlers = createStoryCreateHandlers({ root, store, scanRoot: join(root, 'packages/main') });
+    const output = handlers.story_create({
+      name: 'preflight-off',
+      title: 'Preflight off',
+      description: 'Exercise repro-first disabled mode on a file-declaring story.',
+      type: 'feature',
+      priority: 'medium',
+      background: validBackground,
+      checklist: [{
+        title: 'Modify code',
+        context: 'Declares files but project config disables the repro-first preflight.',
+        files: { modify: ['src/feature.ts'] },
+      }],
+    });
+    const storyId = output.match(/B-[a-z0-9]+/i)?.[0];
+    assert.ok(storyId, 'off mode story_create should return a story id');
+    const result = evaluateStoryEvidenceBindingGate(root, store, storyId);
+    assert.equal(result.required, false);
+    assert.equal(result.mode, 'off');
+  }, 'off');
+});
+
+await check('story_create_from_repro handler creates story and binding under enforce mode', async () => {
+  await withRoot(async (root, store) => {
+    const probe = createProbe(root, {
+      candidateId: 'cand-handler-bound',
+      taskSummary: 'Handler creates story from accepted repro',
+      eligibility: 'Hermetic smoke candidate',
+      reason: 'The handler path must pass background validation and write binding.',
+      commandSpec: { command: 'node', args: ['handler-repro.js'] },
+      expectedFailure: 'Expected handler target failure',
+      expectedFailurePattern: 'HandlerTargetFailure',
+      executionStatus: 'confirmed_failing',
+      observedFailureSummary: 'Handler target failure observed',
+      boundedOutputExcerpt: 'HandlerTargetFailure: observed',
+      producerObservedClass: 'target-bug',
+    });
+    const review = reviewProbe(root, {
+      probeId: probe.artifactId,
+      probeDigest: probe.artifactDigest,
+      verdict: 'red-reviewed',
+      reviewedFailureClass: 'target-bug',
+      notes: 'Reviewed as target-bug for handler smoke.',
+    });
+    const handlers = createReproIntakeHandlers({ root, store, scanRoot: join(root, 'packages/main') });
+    const result = await handlers.story_create_from_repro({
+      probeId: probe.artifactId,
+      reviewId: review.artifactId,
+      storyTitle: 'Handler bound story',
+      storyDescription: 'Create a story from accepted handler-level repro evidence.',
+    });
+    const story = store.readStory(result.storyId);
+    assert.equal(story.phase, 'INIT');
+    assert.equal(result.hasVerificationEvidence, false);
+    assert.match(result.bindingArtifactId, /^seb-/);
+    assert.match(result.bindingArtifactDigest, /^[a-f0-9]{64}$/);
+    const gate = evaluateStoryEvidenceBindingGate(root, store, result.storyId);
+    assert.equal(gate.ok, true);
+  });
+});
+
+await check('gate rejects binding whose repro review is not an accepted target bug', async () => {
+  await withRoot((root, store) => {
+    const storyId = 'B-unaccepted-review';
+    writeStory(store, storyId, 'PLAN', fileChecklist);
+    const probe = createProbe(root, {
+      candidateId: 'cand-unaccepted-review',
+      taskSummary: 'Unaccepted review reason code smoke',
+      eligibility: 'Hermetic smoke candidate',
+      reason: 'Gate must reject arbitrary story-evidence-binding metadata when review is not accepted.',
+      commandSpec: { command: 'node', args: ['unaccepted-review.js'] },
+      expectedFailure: 'Expected target failure',
+      expectedFailurePattern: 'UnacceptedReviewFailure',
+      executionStatus: 'confirmed_failing',
+      observedFailureSummary: 'Observed failure still requires reviewer acceptance.',
+      boundedOutputExcerpt: 'UnacceptedReviewFailure: observed',
+      producerObservedClass: 'target-bug',
+    });
+    const review = reviewProbe(root, {
+      probeId: probe.artifactId,
+      probeDigest: probe.artifactDigest,
+      verdict: 'needs-spike',
+      reviewedFailureClass: 'bootstrap-noise',
+      notes: 'Not accepted as a target bug; gate should reject this binding.',
+    });
+    writeArtifact(root, {
+      artifactKind: 'story-evidence-binding',
+      evidenceScope: 'evidence-candidate',
+      subjectBinding: { candidateId: probe.payload.candidateId, probeId: probe.artifactId, storyId },
+      producer: 'repro-intake-service',
+      payload: {
+        storyId,
+        candidateId: probe.payload.candidateId,
+        probeId: probe.artifactId,
+        probeDigest: probe.artifactDigest,
+        reviewId: review.artifactId,
+        reviewDigest: review.artifactDigest,
+        derivedChecklistRefs: [],
+        derivedVerificationIntentRefs: [],
+        note: 'Synthetic invalid binding for reason-code smoke.',
+      },
+    });
+    const result = evaluateStoryEvidenceBindingGate(root, store, storyId);
+    assert.equal(result.blocking, true);
+    assert.equal(result.reasonCode, 'stale_story_evidence_binding');
+    const details = result.details.join('\n');
+    assert.match(details, /repro_first_candidate_unreviewed/);
+    assert.match(details, /repro_first_reviewed_class_not_target_bug/);
   });
 });
 

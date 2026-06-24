@@ -304,6 +304,15 @@ const requiredRuntimeEntries = [
     line: '- runtime:story_files_hash_freshness_gate [L4] owner=core/evidence-freshness gate=REVIEW/TEST/DONE freshness gates for review runs, verification evidence, review escalation records, and the review assurance floor DONE freshness gate',
   },
   {
+    // B-1731: repro-first intake is a gate-consumed runtime predicate. The
+    // story-evidence-binding artifact is written by story_create_from_repro;
+    // this runtime fact is the classifier + warn/enforce gate that consumes it.
+    name: 'runtime:repro_first_story_intake_preflight',
+    level: 'L4',
+    owner: 'core/repro-evidence-binding-gate',
+    line: '- runtime:repro_first_story_intake_preflight [L4] owner=core/repro-evidence-binding-gate gate=story_create STORY_INTAKE preflight and storyMachine.canEnterPlan/canStartDev/canSkipPlan gates',
+  },
+  {
     name: 'runtime:review_escalation_done_gate',
     level: 'L4',
     owner: 'core/review-escalation',
