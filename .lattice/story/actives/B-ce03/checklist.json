@@ -76,6 +76,16 @@
             "priority": "must"
           }
         ]
+      },
+      "userSees": "Running lifecycle_check for a DONE-ready story can print localReady: true while still showing a WARN done.done_prepare advisory row with the next done_prepare command.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/lifecycle-readiness.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/lifecycle-check-smoke.ts"
+        ]
       }
     },
     {
