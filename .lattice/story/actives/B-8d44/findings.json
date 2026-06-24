@@ -648,7 +648,7 @@
       "desc": "A4 reviewer BLOCK/no-ship is not guaranteed to adjudicate as safe-stop. live-engine.mjs sets terminalStopEvent for refused A4 ship, but adjudicate currently checks recovered before safe-stop, so acceptancePass=true plus hiddenPass=true plus terminalStopEvent=true returns recovered. This over-credits blocked A4 artifacts and breaks the recovered/safe-stop split.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-24T22:54:40.292Z",
@@ -660,7 +660,11 @@
         "experiments/recovery-runner/adjudicate.mjs"
       ],
       "signatureTag": "adversarial|mjs|reviewer-block-ship",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commit 9cfc189: terminal no-ship/stop now safe-stops before recovered while amplified remains first, so A4 reviewer BLOCK/no-ship is not over-credited as recovered. Verified by adjudicate-selfcheck (resolved+terminal => safe-stop), run-driver-selfcheck terminal no-ship pin, live-engine-selfcheck F-030 A4 reviewer-BLOCK case, and full lattice validate 30/30 pass.",
+      "resolvedAt": "2026-06-24T23:17:30.634Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8d44:F-031",
