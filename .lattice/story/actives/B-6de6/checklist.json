@@ -553,6 +553,19 @@
           "materialHash": "2f149db52f337a4f4466fa1a43a8f0dbc8df49ef07e65772f5be61142bd5f85c",
           "storyFilesHash": "c21f0bf4341b45f8bae934c199fccad218fe04e737720749c66665a41e8540cb",
           "timestamp": "2026-06-24T00:21:00.266Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/core/review-assurance-floor.ts",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "tsc build clean, exit 0 (advisories field typed on ReviewAssuranceFloorReport; effectiveEvents threading type-checks)",
+          "headHash": "b7df727ce7ad5e7c28015b341a20494c4debcacf",
+          "materialHash": "2f149db52f337a4f4466fa1a43a8f0dbc8df49ef07e65772f5be61142bd5f85c",
+          "storyFilesHash": "c21f0bf4341b45f8bae934c199fccad218fe04e737720749c66665a41e8540cb",
+          "timestamp": "2026-06-24T00:21:00.860Z"
         }
       ]
     },
