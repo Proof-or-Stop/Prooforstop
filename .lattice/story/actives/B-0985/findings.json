@@ -99,7 +99,7 @@
       "desc": "F-001 is not fully fixed: the evaluator still has fail-open paths for missing/invalid required admissibility dimensions. In packages/main/src/core/proof-admissibility.ts:526-533, requireCheck only treats undefined as missing and false as invalid; runtime null values for required boolean checks are accepted as satisfied. A production-completion evaluation for authority-receipt-ref with strictShapeValid:null or producerBoundaryTrusted:null returns allowed:true and productionDoneEligible:true. The evaluator also does not require contractVersion: packages/main/src/core/proof-admissibility.ts:572-574 only rejects a present mismatched version, so omitting contractVersion while all other checks are true also returns allowed:true/productionDoneEligible:true. Repro after npm --prefix packages/main run build: node --input-type=module importing packages/main/dist/core/proof-admissibility.js and evaluating authority-receipt-ref/AUTHORITY_GATE_DECISION/production-completion produced omittedContract {\"allowed\":true,\"productionDoneEligible\":true,\"reasons\":[]}, nullRequired {\"allowed\":true,\"productionDoneEligible\":true,\"reasons\":[]}, and nullProducer {\"allowed\":true,\"productionDoneEligible\":true,\"reasons\":[]}. This violates the admissibleProof contract in docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md:77-90, where producerBoundaryTrusted, supportedSchemaVersion, strictShapeValid, semanticDigestValid, signature/binding, temporal/material binding, consumer, and scope must all be satisfied. The smoke test covers omitted checks as a whole, but not null required fields or missing contractVersion, so the hidden fail-open path remains.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-24T10:24:37.088Z",
@@ -111,7 +111,11 @@
         "packages/main/src/tasks/proof-admissibility-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|fully-fixed-evaluator",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed the proof admissibility evaluator so required boolean checks pass only when the runtime value is exactly true; null, false, string, number, and other non-true values now add invalid denial reasons. contractVersion is now mandatory and must equal PROOF_ADMISSIBILITY_CONTRACT_VERSION; omitted/null add missing_required_field and wrong versions add unsupported_contract_version. Added proof-admissibility smoke coverage for null required checks, non-true boolean values, missing/null/wrong contractVersion, and the happy path with exact true checks/current contract. Verified with npm --prefix packages/main run build; npm --prefix packages/main run test:proof-admissibility; node scripts/verify-process-fact-contract.mjs.",
+      "resolvedAt": "2026-06-24T10:28:06.745Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
