@@ -80,11 +80,77 @@ function matchAll(source, pattern) {
   return [...source.matchAll(pattern)];
 }
 
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function isConstConsumedByRegistry(registrySource, constName) {
+  const escapedConst = escapeRegExp(constName);
+  return (
+    new RegExp(String.raw`registry\.registerBatch(?:Missing)?\(\s*${escapedConst}\s*\)`).test(registrySource) ||
+    new RegExp(
+      String.raw`registry\.register\(\s*['"][a-z][a-z0-9_]*['"]\s*,\s*${escapedConst}(?:\.[A-Za-z_$][A-Za-z0-9_$]*)?\s*\)`,
+    ).test(registrySource)
+  );
+}
+
+function collectDirectlyRegisteredFactories(registrySource) {
+  const factories = new Set(
+    matchAll(
+      registrySource,
+      /registry\.registerBatch(?:Missing)?\(\s*(create[A-Za-z0-9]+Handlers)\s*\(\s*(?:ctx)?\s*\)\s*\)/g,
+    ).map(match => match[1]),
+  );
+
+  for (const [, constName, factory] of matchAll(
+    registrySource,
+    /const\s+([A-Za-z_$][A-Za-z0-9_$]*)\s*=\s*(create[A-Za-z0-9]+Handlers)\s*\(\s*(?:ctx)?\s*\)\s*;/g,
+  )) {
+    if (isConstConsumedByRegistry(registrySource, constName)) factories.add(factory);
+  }
+
+  return factories;
+}
+
+function assert(condition, message) {
+  if (!condition) {
+    throw new Error(`orphan-surface self-test failed: ${message}`);
+  }
+}
+
+function runSelfTest() {
+  const registered = collectDirectlyRegisteredFactories(`
+    registry.registerBatch(createDirectHandlers(ctx));
+    registry.registerBatchMissing(createDirectMissingHandlers(ctx));
+
+    const batchHandlers = createBatchHandlers(ctx);
+    registry.registerBatch(batchHandlers);
+
+    const missingHandlers = createMissingHandlers(ctx);
+    registry.registerBatchMissing(missingHandlers);
+
+    const clusterHandlers = createClusterHandlers(ctx);
+    registry.register('finding_cluster', clusterHandlers.finding_cluster);
+
+    const orphanHandlers = createOrphanHandlers(ctx);
+    void orphanHandlers;
+  `);
+
+  assert(registered.has('createDirectHandlers'), 'direct registerBatch factory should be registered');
+  assert(registered.has('createDirectMissingHandlers'), 'direct registerBatchMissing factory should be registered');
+  assert(registered.has('createBatchHandlers'), 'const consumed by registerBatch should be registered');
+  assert(registered.has('createMissingHandlers'), 'const consumed by registerBatchMissing should be registered');
+  assert(registered.has('createClusterHandlers'), 'const consumed by registry.register member should be registered');
+  assert(!registered.has('createOrphanHandlers'), 'instantiated-but-unregistered factory must remain unregistered');
+}
+
 function fail(message, details = []) {
   console.error(`orphan-surface check failed: ${message}`);
   for (const detail of details) console.error(`  - ${detail}`);
   process.exitCode = 1;
 }
+
+runSelfTest();
 
 const registrySource = read(registryFile);
 const catalogSource = read(commandCatalogFile);
@@ -98,16 +164,7 @@ for (const [, factory, importPath] of matchAll(
   importedFactories.set(factory, `packages/main/src/handlers/${importPath}.ts`);
 }
 
-const directlyRegisteredFactories = new Set([
-  ...matchAll(
-    registrySource,
-    /registry\.registerBatch(?:Missing)?\(\s*(create[A-Za-z0-9]+Handlers)\s*\(\s*(?:ctx)?\s*\)\s*\)/g,
-  ).map(match => match[1]),
-  ...matchAll(
-    registrySource,
-    /const\s+[A-Za-z0-9_]+\s*=\s*(create[A-Za-z0-9]+Handlers)\s*\(\s*ctx\s*\)\s*;/g,
-  ).map(match => match[1]),
-]);
+const directlyRegisteredFactories = collectDirectlyRegisteredFactories(registrySource);
 
 const exportedFactories = new Map();
 for (const file of handlerFiles) {
