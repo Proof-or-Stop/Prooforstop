@@ -167,6 +167,24 @@
       ],
       "signatureTag": "missing|mjs|edge-lacks-evidence",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-8d44:F-010",
+      "desc": "CHK-003:edge:3 lacks evidence: intent requires that attempting arm=a4b throws or is rejected. The selfcheck imports ARMS from run-driver.mjs and uses it in the schema test (section 6), but never calls runDriver or enumerateCells with arm='a4b' and asserts a throw. The ARMS constant in run-driver.mjs line 35 clearly excludes a4b, and enumerateCells line 156-158 throws on unknown arms — but this is unexercised by the selfcheck.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-24T12:58:34.275Z",
+      "reviewRound": "2026-06-24T12:50:13.876Z",
+      "reviewRunId": "B-8d44:RR-002",
+      "_hash": "feaf6583b1c8d71dbb2d23ad90b04ec4c51df9626bee2aca0874d344dfc98243",
+      "files": [
+        "experiments/recovery-runner/live-engine-selfcheck.mjs,experiments/recovery-runner/run-driver.mjs"
+      ],
+      "signatureTag": "missing|mjs|edge-lacks-evidence",
+      "signatureTagSource": "auto"
     }
   ]
 }
