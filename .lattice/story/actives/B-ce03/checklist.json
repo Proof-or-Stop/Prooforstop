@@ -107,6 +107,17 @@
             "priority": "must"
           }
         ]
+      },
+      "userSees": "The focused smoke and benchmark commands fail loudly if metadata-only dirty DONE readiness regresses to cleanTree blocking.",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/done-readiness-flow-benchmark.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/done-prepare-smoke.ts",
+          "packages/main/src/tasks/lifecycle-check-smoke.ts"
+        ]
       }
     },
     {
