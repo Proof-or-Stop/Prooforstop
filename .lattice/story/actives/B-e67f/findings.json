@@ -140,14 +140,18 @@
       "desc": "corpus-selfcheck anti-gaming invariant is not tamper-proof against a gamed task: it copies acceptance.mjs+ground-truth.mjs, runs the reference, then calls untrusted task-local inject() and re-runs the SAME copied harness files without re-copying/re-hashing them or constraining what inject() may write. Trigger: a malicious subtle-wrong-output.mjs could write a correct solution.mjs AND overwrite the scratch ground-truth.mjs to print GROUND-TRUTH FAIL + exit nonzero, satisfying the invariant with NO real buried payload bug. Current tasks only write task.outputFile (not exploited today) but the machine invariant itself is unsound. Fix: re-copy pristine acceptance.mjs+ground-truth.mjs after inject() (or snapshot+assert inject only modified solution.mjs / no harness writes).",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex-host-2",
       "createdAt": "2026-06-24T10:27:40.616Z",
       "reviewRound": "2026-06-24T10:16:50.255Z",
       "_hash": "68d7338e935fee2fc2ab41468d8e3c651960c89bf51768b5c8749b572b7755cc",
       "signatureTag": "adversarial|unknown|corpus-selfcheck-anti",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "inject() sandboxed: sha256 snapshot of scratch acceptance.mjs+ground-truth.mjs before inject(), asserted unchanged after (tamper => FAIL 'inject() tampered with harness file'), + pristine harness re-copied before the post-inject runs; negative-control 'tamper' guard fires. Anti-gaming invariant now tamper-proof. Commit d0f7d97cc.",
+      "resolvedAt": "2026-06-24T10:34:43.798Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-e67f:F-008",
