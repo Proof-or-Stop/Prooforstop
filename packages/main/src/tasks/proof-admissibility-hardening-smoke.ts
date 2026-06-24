@@ -33,6 +33,7 @@ import {
 import {
   evaluateProofAdmissibility,
   PROOF_ADMISSIBILITY_CONTRACT_VERSION,
+  PROOF_ADMISSIBILITY_VERIFIER_VERSION,
   type AdmissibilityReasonCode,
 } from '../core/proof-admissibility.js';
 import {
@@ -83,6 +84,7 @@ function matrixCase(label: string, checks: Record<string, unknown>, reason: Admi
     claim: 'production-completion',
     checks: {
       contractVersion: PROOF_ADMISSIBILITY_CONTRACT_VERSION,
+      verifierVersion: PROOF_ADMISSIBILITY_VERIFIER_VERSION,
       schemaVersion: 'lattice.authority_receipt_refs.v1',
       strictShapeValid: true,
       semanticDigestValid: true,

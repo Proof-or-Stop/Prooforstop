@@ -1,0 +1,64 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-91f3",
+  "allowedCommands": [
+    "git add *",
+    "git commit *",
+    "git diff *",
+    "git status *",
+    "lattice checklist_get *",
+    "lattice checklist_update *",
+    "lattice convergence_check",
+    "lattice decision_set *",
+    "lattice done_prepare *",
+    "lattice done_required_validate *",
+    "lattice gap_analyze *",
+    "lattice plan_set *",
+    "lattice scope_contract_init_from_plan *",
+    "lattice scope_freeze_check *",
+    "lattice session_brief",
+    "lattice story_advance *",
+    "lattice story_get *",
+    "lattice story_review *",
+    "lattice summary_set *",
+    "lattice understanding_set *",
+    "lattice validate *",
+    "node packages/main/dist/tasks/proof-admissibility-hardening-smoke.js",
+    "node packages/main/dist/tasks/proof-admissibility-smoke.js",
+    "npm --prefix packages/main run build",
+    "rg *"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "exec_command",
+    "multi_agent"
+  ],
+  "allowedPaths": [
+    "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+    "package-lock.json",
+    "package.json",
+    "packages/main/package.json",
+    "packages/main/src/core/proof-admissibility-gates.ts",
+    "packages/main/src/core/proof-admissibility.ts",
+    "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts",
+    "packages/main/src/tasks/proof-admissibility-smoke.ts"
+  ],
+  "excludedCommands": [
+    "git checkout -- *",
+    "git clean *",
+    "git push *",
+    "git reset --hard *",
+    "omx *"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".omx",
+    "docs/story",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "CLI-first Authority demotion story; no broad server deletion.",
+  "createdAt": "2026-06-24T13:19:48.333Z",
+  "updatedAt": "2026-06-24T13:19:48.333Z",
+  "_hash": "b5fa71b2ff7425ebdca9f39f2e73a732c667ba1fd07f76c8ae49568ad7ee5148"
+}

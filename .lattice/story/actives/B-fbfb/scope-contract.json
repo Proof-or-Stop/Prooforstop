@@ -1,0 +1,20 @@
+{
+  "storyId": "B-fbfb",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/proof-admissibility.ts",
+    "packages/main/src/core/proof-admissibility-gates.ts",
+    "packages/main/src/tasks/proof-admissibility-smoke.ts"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/proof-admissibility-smoke.ts",
+    "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-24T12:53:19.787Z",
+  "updatedAt": "2026-06-24T12:53:19.787Z"
+}

@@ -80,6 +80,7 @@ export type ProofProducerBoundary = typeof PROOF_PRODUCER_BOUNDARIES[number];
 export const ADMISSIBILITY_REASON_CODES = [
   'unsupported_schema_version',
   'unsupported_contract_version',
+  'unsupported_verifier_version',
   'bad_shape',
   'missing_required_field',
   'unexpected_field',
@@ -118,6 +119,7 @@ export const ADMISSIBILITY_REASON_CODES = [
 export type AdmissibilityReasonCode = typeof ADMISSIBILITY_REASON_CODES[number];
 
 export const PROOF_ADMISSIBILITY_CONTRACT_VERSION = 'lattice.proof_admissibility.v1' as const;
+export const PROOF_ADMISSIBILITY_VERIFIER_VERSION = 'lattice.proof_admissibility_verifier.v1' as const;
 
 export interface ProofClaimPolicy {
   claim: ClaimKind;
@@ -148,6 +150,7 @@ export type ProofSurfaceKind = typeof PROOF_SURFACE_REGISTRY[number]['artifactKi
 export interface AdmissibilityChecks {
   schemaVersion?: string;
   contractVersion?: string;
+  verifierVersion?: string;
   strictShapeValid?: boolean;
   semanticDigestValid?: boolean;
   signatureOrReceiptBindingValid?: boolean;
@@ -580,6 +583,27 @@ export function evaluateProofAdmissibility(input: EvaluateProofAdmissibilityInpu
     addReason(reasons, remediation, 'missing_required_field', 'Evaluate the artifact with the current proof admissibility contract version.');
   } else if (checks.contractVersion !== PROOF_ADMISSIBILITY_CONTRACT_VERSION) {
     addReason(reasons, remediation, 'unsupported_contract_version', 'Evaluate the artifact with the current proof admissibility contract version.');
+  }
+
+  /**
+   * @task B-fbfb
+   * @checklist CHK-002, CHK-003
+   * @title proof admissibility version convergence anchors
+   * @type feature
+   * @priority high
+   * @description
+   *   supportedSchemaVersion maps checks.schemaVersion to each registry schemaVersions list.
+   *   verifierVersionSupported maps checks.verifierVersion to PROOF_ADMISSIBILITY_VERIFIER_VERSION.
+   *   contractVersionSupported maps checks.contractVersion to PROOF_ADMISSIBILITY_CONTRACT_VERSION.
+   *   unsupported_schema_version and unsupported_contract_version are deterministic proof-admissibility reason codes.
+   * @changes
+   *   - [CHK-002] Add supportedSchemaVersion, verifierVersionSupported, and contractVersionSupported implementation anchors.
+   *   - [CHK-003] Bind unsupported_schema_version and unsupported_contract_version reason-code coverage to smoke tests.
+   */
+  if (checks.verifierVersion == null) {
+    addReason(reasons, remediation, 'missing_required_field', 'Evaluate the artifact with the current proof admissibility verifier version.');
+  } else if (checks.verifierVersion !== PROOF_ADMISSIBILITY_VERIFIER_VERSION) {
+    addReason(reasons, remediation, 'unsupported_verifier_version', 'Evaluate the artifact with the current proof admissibility verifier version.');
   }
 
   if (checks.schemaVersion !== undefined && !definition.schemaVersions.includes(checks.schemaVersion)) {
