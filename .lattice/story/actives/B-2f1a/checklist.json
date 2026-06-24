@@ -123,7 +123,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "The full test suite passes and no load-bearing identifier changed.",
+      "userSees": "The terminal prints the test suite passing and exits 0 (e.g. \"npm test\" → exit 0), and `git grep -c \"@lattice/\"` plus the `.lattice/`-path / `lattice.*.v1` / `lattice-*` salt counts are IDENTICAL to main (identifiers byte-unchanged).",
       "files": {
         "modify": [
           "packages/main/src"

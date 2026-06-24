@@ -1,0 +1,74 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-06-24T12:16:30.951Z",
+      "issueCount": 5,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-004",
+          "message": "CHK-004 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-005",
+          "message": "CHK-005 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 checklist items; please check for missing combined scenarios (e.g., what happens when Replace brand Lattice->Proofbound and Lattice CLI->Proofbound CLI in PROSE across README* and docs/**/*.md; keep lowercase `lattice` commands, .lattice/ paths, @lattice refs, schema-ids and salts untouched + Replace user-facing brand Lattice->Proofbound in packages/*/src user-visible strings (--help text, CLI banner/title, command descriptions, user-facing error messages); do NOT touch identifiers, imports, package names, .lattice paths, schema-ids, salts are performed simultaneously?)"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 1 undigested unknowns: None. Mechanical capitalized-brand-word replacement in user-visible surfaces; the keep-list (lowercase identifiers) is explicit."
+        },
+        {
+          "type": "missing_scope_check",
+          "severity": "blocker",
+          "message": "missing_scope_check: scope-check.json is missing PLAN gate evidence. `scope_check_save` already exists; a lattice-review-scope-plan / scope-plan reviewer must persist the result through `scope_check_save`. The implementation/main agent must not self-sign this evidence or manually edit story metadata. Local CLI guidance is not Authority Server completion and must not be presented as receipt verification or production/full Authority completion."
+        }
+      ],
+      "_hash": "10f86e276fee7bee056e759c64dfcd320f3184a1958bf398b70eb85c46ceb10c"
+    },
+    {
+      "timestamp": "2026-06-24T12:16:43.291Z",
+      "issueCount": 5,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-004",
+          "message": "CHK-004 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-005",
+          "message": "CHK-005 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 checklist items; please check for missing combined scenarios (e.g., what happens when Replace brand Lattice->Proofbound and Lattice CLI->Proofbound CLI in PROSE across README* and docs/**/*.md; keep lowercase `lattice` commands, .lattice/ paths, @lattice refs, schema-ids and salts untouched + Replace user-facing brand Lattice->Proofbound in packages/*/src user-visible strings (--help text, CLI banner/title, command descriptions, user-facing error messages); do NOT touch identifiers, imports, package names, .lattice paths, schema-ids, salts are performed simultaneously?)"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 1 undigested unknowns: None. Mechanical capitalized-brand-word replacement in user-visible surfaces; the keep-list (lowercase identifiers) is explicit."
+        },
+        {
+          "type": "missing_scope_check",
+          "severity": "blocker",
+          "message": "missing_scope_check: scope-check.json is missing PLAN gate evidence. `scope_check_save` already exists; a lattice-review-scope-plan / scope-plan reviewer must persist the result through `scope_check_save`. The implementation/main agent must not self-sign this evidence or manually edit story metadata. Local CLI guidance is not Authority Server completion and must not be presented as receipt verification or production/full Authority completion."
+        }
+      ],
+      "_hash": "83dd99aec7596a17d12948bd7cfad4da383bb1f12ebaeb62bcccb6452a094e57"
+    }
+  ]
+}
