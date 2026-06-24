@@ -34,7 +34,27 @@
   "protectedFiles": [],
   "explicitExcludes": [],
   "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "lattice-implementer",
+      "reason": "Typing the existing proofAdmissibility.mode config is necessary so enforce-mode proof consumers can resolve warn/enforce without unsafe dynamic casts.",
+      "timestamp": "2026-06-24T11:32:13.663Z",
+      "paths": [
+        "packages/main/src/core/config.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/config.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "64a79de702edfc6b991c7c418a45fe6e984d48d3",
+      "materialHash": "c074e77cf9d0d9198cf347d2b26f05ffbb179573e69e3b7bf20317aa976004dc",
+      "anchors": [
+        "proofAdmissibility.mode"
+      ]
+    }
+  ],
   "createdAt": "2026-06-24T11:08:45.117Z",
-  "updatedAt": "2026-06-24T11:08:45.117Z"
+  "updatedAt": "2026-06-24T11:32:13.663Z"
 }
