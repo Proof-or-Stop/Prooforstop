@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-24T10:27:56.413Z",
       "reviewRunId": "B-0985:RR-009",
       "_hash": "35af032e691868759e9cb13b4ea9ae7f9701a67c63ea3b6b22f41d8595337a4c"
+    },
+    {
+      "id": "B-0985:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage review passed. Inspected packages/main/src/tasks/proof-admissibility-smoke.ts and packages/main/src/core/proof-admissibility.ts; smoke covers registry inventory, local done-required scope, authority-receipt-ref production-completion happy path, deny cases for local review/DONE-required/local diagnostic/legacy/candidate/raw receipt surfaces, missing checks, null/non-true required check behavior, and contractVersion missing/null/mismatch. Ran npm --prefix packages/main run test:proof-admissibility and npm run test:process-fact-contract; both passed.",
+      "createdAt": "2026-06-24T10:32:22.403Z",
+      "reviewRound": "2026-06-24T10:27:56.413Z",
+      "reviewRunId": "B-0985:RR-012",
+      "_hash": "5bbbb5bfeec78062f05ada2ce1b4c137bd47308bdccd17543100ca4211f4a463"
     }
   ]
 }
