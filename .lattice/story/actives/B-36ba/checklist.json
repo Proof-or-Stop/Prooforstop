@@ -88,9 +88,9 @@
       "id": "CHK-003",
       "title": "Plumb gitCwd into the diagnostic escalation handlers",
       "context": "packages/main/src/handlers/review-escalation.ts review_escalation_status/policy_set/fallback_set: pass gitCwd via resolveGitCwd({store: ctx.store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root}). Confirm quorum-submit.ts:329 already passes explicit materialHash/storyFilesHash so the internal recompute is bypassed (no change).",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-24T01:47:53.730Z",
       "verificationIntent": {
         "happy": [
           {
