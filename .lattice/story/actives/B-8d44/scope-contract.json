@@ -17,7 +17,30 @@
   "protectedFiles": [],
   "explicitExcludes": [],
   "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "README update is necessary delivery documentation for the live-engine adapter and resolves verified docs-drift findings F-001 F-002 and F-028; it is not arbitrary scope expansion.",
+      "timestamp": "2026-06-24T22:04:08.509Z",
+      "paths": [
+        "experiments/recovery-runner/README.md"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "experiments/recovery-runner/README.md"
+      ],
+      "affectedPathCount": 1,
+      "phase": "REVIEW",
+      "headHash": "8c2378d8b535222a4df7ce93b84b18e5a68cf308",
+      "materialHash": "ddbbcb7a0ad29ddb77cf34d92cbed573634d332a9b520a73795cdc44b4e010b6",
+      "anchors": [
+        "finding.F001",
+        "finding.F002",
+        "finding.F028",
+        "recovery_runner.live_engine.documentation"
+      ]
+    }
+  ],
   "createdAt": "2026-06-24T12:25:10.846Z",
-  "updatedAt": "2026-06-24T12:25:10.846Z"
+  "updatedAt": "2026-06-24T22:04:08.509Z"
 }
