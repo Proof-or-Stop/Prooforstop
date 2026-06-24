@@ -201,14 +201,14 @@
         },
         {
           "intentRef": "CHK-002:edge:1",
-          "kind": "logic_test",
+          "kind": "manual_transcript",
           "command": "node packages/main/dist/tasks/delivery-check-freshness-smoke.js",
           "result": "pass",
-          "note": "delivery-check-hash.ts:158-172: the advisory branch requires deliveryCheck.storyFilesHash to be truthy (line 158), then computes currentStoryFilesHash (line 159) and checks \"storyFilesHash && storyFilesHash === deliveryCheck.storyFilesHash\" (line 160). If currentStoryFilesHash is empty/undefined (HEAD on main, no story branch), the && short-circuits to false, so the advisory branch is never entered and the function falls through to the strict stale return at line 173-180. The smoke legacy case (line 366-393) exercises the missing-materialHash path; logic inspection confirms the currentStoryFilesHash=empty case also stays strict.",
-          "headHash": "ad2baddc2ba129c61df63d138c9da7db5a948c72",
-          "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
-          "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
-          "timestamp": "2026-06-24T11:20:26.619Z"
+          "note": "delivery-check-freshness-smoke.ts:633-673 (empty-set storyFilesHash case, added in round-2 commit 04acf46b2): createMainFixture() puts HEAD on main with no story branch (line 144-155). Line 638-641 asserts currentStoryFilesHash===EMPTY_STORY_FILES_HASH. delivery_check_set drops the empty-set value (line 648 asserts storyFilesHash===undefined). After whole-tree drift (lines 653-655), materialHash changes (line 656) while currentStoryFilesHash stays empty-set (line 657). evaluateDeliveryCheckFreshness returns ok:false, code stale_delivery_check (lines 660-661). DONE oracle rejects (line 664), machine guard blocks (lines 667-668), lifecycle reports stale (line 669). This dynamically exercises the exact scenario: materialHash mismatch + storyFilesHash present but currentStoryFilesHash is empty (HEAD on main) -> strict stale, never advisory.",
+          "headHash": "ba33d77ec8a0af83e93669ed674c3952c2014f5b",
+          "materialHash": "c712ff64107fc7ffb4a260412f5d215402ff14334ddcb5b213b40c84d1e3f9ba",
+          "storyFilesHash": "97f73e7292c05278d423cd534757482351e6924844bbd857b39d572fa8c93290",
+          "timestamp": "2026-06-24T11:45:30.110Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
