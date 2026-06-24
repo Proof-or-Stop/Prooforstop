@@ -98,6 +98,17 @@
           "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
           "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
           "timestamp": "2026-06-24T11:19:52.428Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/delivery-check-freshness-smoke.js",
+          "result": "pass",
+          "note": "delivery-check-freshness-smoke.ts:332-363 (forged storyFilesHash case): creates a real signed delivery record, then forges storyFilesHash to \"f\".repeat(64) (line 339). Asserts that re-signing with the forged value produces a DIFFERENT hash from the original _hash (line 347-353). Writes the forged record to the store and asserts done-oracle returns status=fail with _hash mismatch detail (line 357-358) and machine guard blocks with delivery_check_tampered (line 360). This proves an unsigned storyFilesHash forgery is detected because the signature covers it.",
+          "headHash": "59c3530b8518b03a6b44c85887b4b8a1851097a9",
+          "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
+          "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
+          "timestamp": "2026-06-24T11:19:57.520Z"
         }
       ]
     },
