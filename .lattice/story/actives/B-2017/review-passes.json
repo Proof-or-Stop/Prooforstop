@@ -1,0 +1,49 @@
+{
+  "passes": [
+    {
+      "id": "B-2017:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Reviewed scripts/verify-orphan-surface.mjs, package scripts, retired implementation_review_result surfaces, and preserved dynamic verifier paths; no host-neutral or agent-neutral boundary blocker found.",
+      "createdAt": "2026-06-24T11:14:11.871Z",
+      "reviewRound": "2026-06-24T11:10:52.928Z",
+      "reviewRunId": "B-2017:RR-001",
+      "_hash": "c7709df6464a4ce9cf79e5d45d4c5e5535f044e130bbf90ca7ffbb7c34f98184"
+    },
+    {
+      "id": "B-2017:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "PASS: scripts/verify-orphan-surface.mjs is narrowly scoped to handler/catalog drift and retired/protected verifier surfaces; root and packages/main test:orphan-surface scripts pass; packages/main TypeScript build passes; direct runtime registry check found all 261 catalog commands backed by handlers except allowed built-ins; no blocking false positives, false negatives, path mistakes, or overbroad deletion guardrail issues found. Non-blocking note: the detector mainly source-scans rather than importing createMainRegistry for runtime availability, so future hardening could replace the command-name regex with a live registry comparison.",
+      "createdAt": "2026-06-24T11:14:26.730Z",
+      "reviewRound": "2026-06-24T11:10:52.928Z",
+      "reviewRunId": "B-2017:RR-002",
+      "_hash": "41cd127013e7f1a00359007dea503fd4dde226738dd310e81420f05688f707e7"
+    },
+    {
+      "id": "B-2017:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 targeted review of scripts/verify-orphan-surface.mjs: confirmed host/agent-neutral detector, no implementation_review_result resurrection, protected dynamic verifier surfaces preserved, and npm run test:orphan-surface passed.",
+      "createdAt": "2026-06-24T11:21:14.566Z",
+      "reviewRound": "2026-06-24T11:18:46.569Z",
+      "reviewRunId": "B-2017:RR-005",
+      "_hash": "08d7d9fc344c96ec10312bb7bac578e9397997da64d756b27435d0bed6a13c50"
+    },
+    {
+      "id": "B-2017:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Round 2 targeted quality review passed. Reviewed scripts/verify-orphan-surface.mjs collectDirectlyRegisteredFactories/isConstConsumedByRegistry self-test and current registry usage. Manual registry.register member usage for clusterHandlers.finding_cluster is treated as registered, and instantiated-but-unregistered factories remain excluded/fail closed. Commands: npm run test:orphan-surface; npm --prefix packages/main run build -- --noEmit.",
+      "createdAt": "2026-06-24T11:21:31.619Z",
+      "reviewRound": "2026-06-24T11:18:46.569Z",
+      "reviewRunId": "B-2017:RR-006",
+      "_hash": "d9ca09a28a5cf90fe2eea2046cbb6b75df18aaf481f0c5bbf4a750890b78d50e"
+    },
+    {
+      "id": "B-2017:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS round 2 targeted F-001 verification. scripts/verify-orphan-surface.mjs now only marks const-created handler factories registered when the const is consumed by registry.registerBatch, registry.registerBatchMissing, or registry.register. The self-test includes const orphanHandlers = createOrphanHandlers(ctx); void orphanHandlers; and asserts createOrphanHandlers is not registered. Verified npm run test:orphan-surface, npm --prefix packages/main run test:orphan-surface, and npm --prefix packages/main run build all pass.",
+      "createdAt": "2026-06-24T11:21:39.143Z",
+      "reviewRound": "2026-06-24T11:18:46.569Z",
+      "reviewRunId": "B-2017:RR-007",
+      "_hash": "4570b0fce1653a30a50075403e6e28eb4c60645bab0b22139e123cc81011442c"
+    }
+  ]
+}

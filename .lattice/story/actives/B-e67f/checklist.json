@@ -4,33 +4,723 @@
       "id": "CHK-001",
       "title": "Apply the 20 new validated task dirs under experiments/recovery-runner/tasks/",
       "context": "Copy the 20 pre-validated task directories from /tmp/corpus-design/ into experiments/recovery-runner/tasks/ (bug-fix: bf-datediff,bf-mergesorted,bf-lru; refactor: rf-units,rf-roman,rf-money; test-repair: tr-slugify,tr-pluralize,tr-clamp; doc-update: du-interp,du-duration; dep-upgrade: dp-deepmerge,dp-querystring,dp-semver; contract-validation: cv-ipv4,cv-luhn,cv-email; CLI-feature: cl-combined,cl-equals,cl-multi). Each is the full 7-file contract (task.json/prompt.md/acceptance.mjs/reference-solution.mjs/ground-truth.mjs/payload-subtle.mjs/subtle-wrong-output.mjs). Do not modify the existing 4 tasks.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-24T10:09:06.184Z",
+      "endTime": "2026-06-24T10:09:58.571Z",
+      "files": {
+        "modify": [],
+        "create": [
+          "experiments/recovery-runner/tasks/bf-datediff/task.json",
+          "experiments/recovery-runner/tasks/bf-datediff/prompt.md",
+          "experiments/recovery-runner/tasks/bf-datediff/acceptance.mjs",
+          "experiments/recovery-runner/tasks/bf-datediff/reference-solution.mjs",
+          "experiments/recovery-runner/tasks/bf-datediff/ground-truth.mjs",
+          "experiments/recovery-runner/tasks/bf-datediff/payload-subtle.mjs",
+          "experiments/recovery-runner/tasks/bf-datediff/subtle-wrong-output.mjs",
+          "experiments/recovery-runner/tasks/bf-mergesorted/task.json",
+          "experiments/recovery-runner/tasks/bf-mergesorted/prompt.md",
+          "experiments/recovery-runner/tasks/bf-mergesorted/acceptance.mjs",
+          "experiments/recovery-runner/tasks/bf-mergesorted/reference-solution.mjs",
+          "experiments/recovery-runner/tasks/bf-mergesorted/ground-truth.mjs",
+          "experiments/recovery-runner/tasks/bf-mergesorted/payload-subtle.mjs",
+          "experiments/recovery-runner/tasks/bf-mergesorted/subtle-wrong-output.mjs",
+          "experiments/recovery-runner/tasks/bf-lru/task.json",
+          "experiments/recovery-runner/tasks/bf-lru/prompt.md",
+          "experiments/recovery-runner/tasks/bf-lru/acceptance.mjs",
+          "experiments/recovery-runner/tasks/bf-lru/reference-solution.mjs",
+          "experiments/recovery-runner/tasks/bf-lru/ground-truth.mjs",
+          "experiments/recovery-runner/tasks/bf-lru/payload-subtle.mjs",
+          "experiments/recovery-runner/tasks/bf-lru/subtle-wrong-output.mjs",
+          "experiments/recovery-runner/tasks/rf-units/task.json",
+          "experiments/recovery-runner/tasks/rf-units/prompt.md",
+          "experiments/recovery-runner/tasks/rf-units/acceptance.mjs",
+          "experiments/recovery-runner/tasks/rf-units/reference-solution.mjs",
+          "experiments/recovery-runner/tasks/rf-units/ground-truth.mjs",
+          "experiments/recovery-runner/tasks/rf-units/payload-subtle.mjs",
+          "experiments/recovery-runner/tasks/rf-units/subtle-wrong-output.mjs",
+          "experiments/recovery-runner/tasks/rf-roman/task.json",
+          "experiments/recovery-runner/tasks/rf-roman/prompt.md",
+          "experiments/recovery-runner/tasks/rf-roman/acceptance.mjs",
+          "experiments/recovery-runner/tasks/rf-roman/reference-solution.mjs",
+          "experiments/recovery-runner/tasks/rf-roman/ground-truth.mjs",
+          "experiments/recovery-runner/tasks/rf-roman/payload-subtle.mjs",
+          "experiments/recovery-runner/tasks/rf-roman/subtle-wrong-output.mjs",
+          "experiments/recovery-runner/tasks/rf-money/task.json",
+          "experiments/recovery-runner/tasks/rf-money/prompt.md",
+          "experiments/recovery-runner/tasks/rf-money/acceptance.mjs",
+          "experiments/recovery-runner/tasks/rf-money/reference-solution.mjs",
+          "experiments/recovery-runner/tasks/rf-money/ground-truth.mjs",
+          "experiments/recovery-runner/tasks/rf-money/payload-subtle.mjs",
+          "experiments/recovery-runner/tasks/rf-money/subtle-wrong-output.mjs",
+          "experiments/recovery-runner/tasks/tr-slugify/task.json",
+          "experiments/recovery-runner/tasks/tr-slugify/prompt.md",
+          "experiments/recovery-runner/tasks/tr-slugify/acceptance.mjs",
+          "experiments/recovery-runner/tasks/tr-slugify/reference-solution.mjs",
+          "experiments/recovery-runner/tasks/tr-slugify/ground-truth.mjs",
+          "experiments/recovery-runner/tasks/tr-slugify/payload-subtle.mjs",
+          "experiments/recovery-runner/tasks/tr-slugify/subtle-wrong-output.mjs",
+          "experiments/recovery-runner/tasks/tr-pluralize/task.json",
+          "experiments/recovery-runner/tasks/tr-pluralize/prompt.md",
+          "experiments/recovery-runner/tasks/tr-pluralize/acceptance.mjs",
+          "experiments/recovery-runner/tasks/tr-pluralize/reference-solution.mjs",
+          "experiments/recovery-runner/tasks/tr-pluralize/ground-truth.mjs",
+          "experiments/recovery-runner/tasks/tr-pluralize/payload-subtle.mjs",
+          "experiments/recovery-runner/tasks/tr-pluralize/subtle-wrong-output.mjs",
+          "experiments/recovery-runner/tasks/tr-clamp/task.json",
+          "experiments/recovery-runner/tasks/tr-clamp/prompt.md",
+          "experiments/recovery-runner/tasks/tr-clamp/acceptance.mjs",
+          "experiments/recovery-runner/tasks/tr-clamp/reference-solution.mjs",
+          "experiments/recovery-runner/tasks/tr-clamp/ground-truth.mjs",
+          "experiments/recovery-runner/tasks/tr-clamp/payload-subtle.mjs",
+          "experiments/recovery-runner/tasks/tr-clamp/subtle-wrong-output.mjs",
+          "experiments/recovery-runner/tasks/du-interp/task.json",
+          "experiments/recovery-runner/tasks/du-interp/prompt.md",
+          "experiments/recovery-runner/tasks/du-interp/acceptance.mjs",
+          "experiments/recovery-runner/tasks/du-interp/reference-solution.mjs",
+          "experiments/recovery-runner/tasks/du-interp/ground-truth.mjs",
+          "experiments/recovery-runner/tasks/du-interp/payload-subtle.mjs",
+          "experiments/recovery-runner/tasks/du-interp/subtle-wrong-output.mjs",
+          "experiments/recovery-runner/tasks/du-duration/task.json",
+          "experiments/recovery-runner/tasks/du-duration/prompt.md",
+          "experiments/recovery-runner/tasks/du-duration/acceptance.mjs",
+          "experiments/recovery-runner/tasks/du-duration/reference-solution.mjs",
+          "experiments/recovery-runner/tasks/du-duration/ground-truth.mjs",
+          "experiments/recovery-runner/tasks/du-duration/payload-subtle.mjs",
+          "experiments/recovery-runner/tasks/du-duration/subtle-wrong-output.mjs",
+          "experiments/recovery-runner/tasks/dp-deepmerge/task.json",
+          "experiments/recovery-runner/tasks/dp-deepmerge/prompt.md",
+          "experiments/recovery-runner/tasks/dp-deepmerge/acceptance.mjs",
+          "experiments/recovery-runner/tasks/dp-deepmerge/reference-solution.mjs",
+          "experiments/recovery-runner/tasks/dp-deepmerge/ground-truth.mjs",
+          "experiments/recovery-runner/tasks/dp-deepmerge/payload-subtle.mjs",
+          "experiments/recovery-runner/tasks/dp-deepmerge/subtle-wrong-output.mjs",
+          "experiments/recovery-runner/tasks/dp-querystring/task.json",
+          "experiments/recovery-runner/tasks/dp-querystring/prompt.md",
+          "experiments/recovery-runner/tasks/dp-querystring/acceptance.mjs",
+          "experiments/recovery-runner/tasks/dp-querystring/reference-solution.mjs",
+          "experiments/recovery-runner/tasks/dp-querystring/ground-truth.mjs",
+          "experiments/recovery-runner/tasks/dp-querystring/payload-subtle.mjs",
+          "experiments/recovery-runner/tasks/dp-querystring/subtle-wrong-output.mjs",
+          "experiments/recovery-runner/tasks/dp-semver/task.json",
+          "experiments/recovery-runner/tasks/dp-semver/prompt.md",
+          "experiments/recovery-runner/tasks/dp-semver/acceptance.mjs",
+          "experiments/recovery-runner/tasks/dp-semver/reference-solution.mjs",
+          "experiments/recovery-runner/tasks/dp-semver/ground-truth.mjs",
+          "experiments/recovery-runner/tasks/dp-semver/payload-subtle.mjs",
+          "experiments/recovery-runner/tasks/dp-semver/subtle-wrong-output.mjs",
+          "experiments/recovery-runner/tasks/cv-ipv4/task.json",
+          "experiments/recovery-runner/tasks/cv-ipv4/prompt.md",
+          "experiments/recovery-runner/tasks/cv-ipv4/acceptance.mjs",
+          "experiments/recovery-runner/tasks/cv-ipv4/reference-solution.mjs",
+          "experiments/recovery-runner/tasks/cv-ipv4/ground-truth.mjs",
+          "experiments/recovery-runner/tasks/cv-ipv4/payload-subtle.mjs",
+          "experiments/recovery-runner/tasks/cv-ipv4/subtle-wrong-output.mjs",
+          "experiments/recovery-runner/tasks/cv-luhn/task.json",
+          "experiments/recovery-runner/tasks/cv-luhn/prompt.md",
+          "experiments/recovery-runner/tasks/cv-luhn/acceptance.mjs",
+          "experiments/recovery-runner/tasks/cv-luhn/reference-solution.mjs",
+          "experiments/recovery-runner/tasks/cv-luhn/ground-truth.mjs",
+          "experiments/recovery-runner/tasks/cv-luhn/payload-subtle.mjs",
+          "experiments/recovery-runner/tasks/cv-luhn/subtle-wrong-output.mjs",
+          "experiments/recovery-runner/tasks/cv-email/task.json",
+          "experiments/recovery-runner/tasks/cv-email/prompt.md",
+          "experiments/recovery-runner/tasks/cv-email/acceptance.mjs",
+          "experiments/recovery-runner/tasks/cv-email/reference-solution.mjs",
+          "experiments/recovery-runner/tasks/cv-email/ground-truth.mjs",
+          "experiments/recovery-runner/tasks/cv-email/payload-subtle.mjs",
+          "experiments/recovery-runner/tasks/cv-email/subtle-wrong-output.mjs",
+          "experiments/recovery-runner/tasks/cl-combined/task.json",
+          "experiments/recovery-runner/tasks/cl-combined/prompt.md",
+          "experiments/recovery-runner/tasks/cl-combined/acceptance.mjs",
+          "experiments/recovery-runner/tasks/cl-combined/reference-solution.mjs",
+          "experiments/recovery-runner/tasks/cl-combined/ground-truth.mjs",
+          "experiments/recovery-runner/tasks/cl-combined/payload-subtle.mjs",
+          "experiments/recovery-runner/tasks/cl-combined/subtle-wrong-output.mjs",
+          "experiments/recovery-runner/tasks/cl-equals/task.json",
+          "experiments/recovery-runner/tasks/cl-equals/prompt.md",
+          "experiments/recovery-runner/tasks/cl-equals/acceptance.mjs",
+          "experiments/recovery-runner/tasks/cl-equals/reference-solution.mjs",
+          "experiments/recovery-runner/tasks/cl-equals/ground-truth.mjs",
+          "experiments/recovery-runner/tasks/cl-equals/payload-subtle.mjs",
+          "experiments/recovery-runner/tasks/cl-equals/subtle-wrong-output.mjs",
+          "experiments/recovery-runner/tasks/cl-multi/task.json",
+          "experiments/recovery-runner/tasks/cl-multi/prompt.md",
+          "experiments/recovery-runner/tasks/cl-multi/acceptance.mjs",
+          "experiments/recovery-runner/tasks/cl-multi/reference-solution.mjs",
+          "experiments/recovery-runner/tasks/cl-multi/ground-truth.mjs",
+          "experiments/recovery-runner/tasks/cl-multi/payload-subtle.mjs",
+          "experiments/recovery-runner/tasks/cl-multi/subtle-wrong-output.mjs"
+        ],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "ls experiments/recovery-runner/tasks/ shows exactly 24 directories (4 existing + 20 new) → count == 24; WHY: confirms all pre-validated tasks were applied",
+            "type": "cli"
+          },
+          {
+            "desc": "For each of the 20 new task dirs, all 7 contract files exist (task.json, prompt.md, acceptance.mjs, reference-solution.mjs, ground-truth.mjs, payload-subtle.mjs, subtle-wrong-output.mjs) → no MISSING lines printed; WHY: ensures no partial/incomplete task copies",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The existing 4 tasks (eval-expr, median, parse-range, text-stats) are unmodified after apply → git diff against main shows no changes for those 4 dirs; WHY: the story constraint says DO NOT modify the existing 4 tasks",
+            "type": "cli"
+          },
+          {
+            "desc": "Each new task.json has a valid type field from the 7 new categories (bug-fix/refactor/test-repair/doc-update/dep-upgrade/contract-validation/CLI-feature), none has type=feature → catches category copy errors; WHY: feature is for the existing 4 only; wrong type would break stratification silently",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No extra files beyond the 7-file contract exist in any new task dir (no .DS_Store, node_modules, .bak, etc.) → find returns only the 7 expected filenames per dir; WHY: prevents junk files from contaminating the corpus freeze",
+            "type": "cli"
+          },
+          {
+            "desc": "No two task dirs share the same taskId in their task.json → all 24 taskId values are distinct; WHY: duplicate taskId would silently corrupt the run-driver task enumeration",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/corpus-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/corpus-selfcheck.mjs",
+          "result": "pass",
+          "note": "corpus-selfcheck enumerates all 24 task dirs and asserts the 7-file contract (6 always-present + inline-or-file payload) + well-formed task.json per task; 24/24 pass => the 20 new dirs were applied correctly alongside the existing 4",
+          "headHash": "366301136fe02470d243b52a56e1e4f08cd9bea9",
+          "materialHash": "3072d54fe5f075ff43ec74758de6d966e26aa36649754cec4ca5498ce59f9241",
+          "storyFilesHash": "cd3724f7ef08cc8f95788b1793453053e2a088bb2a5100a82604ed470b7c2fb4",
+          "timestamp": "2026-06-24T11:38:07.627Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/corpus-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/corpus-selfcheck.mjs",
+          "result": "pass",
+          "note": "corpus-selfcheck now asserts payload-subtle.mjs EXISTS for every task whose subtle-wrong-output.mjs references it (the full 7-file contract for all 20 new tasks + eval-expr); inline-payload legacy tasks correctly exempt; negative-control 'missing-payload-file' guard fires",
+          "headHash": "366301136fe02470d243b52a56e1e4f08cd9bea9",
+          "materialHash": "3072d54fe5f075ff43ec74758de6d966e26aa36649754cec4ca5498ce59f9241",
+          "storyFilesHash": "cd3724f7ef08cc8f95788b1793453053e2a088bb2a5100a82604ed470b7c2fb4",
+          "timestamp": "2026-06-24T11:38:07.627Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/tasks",
+          "command": "git diff --stat main...HEAD -- experiments/recovery-runner/tasks/eval-expr experiments/recovery-runner/tasks/median experiments/recovery-runner/tasks/parse-range experiments/recovery-runner/tasks/text-stats",
+          "result": "pass",
+          "note": "empty diff => the 4 pre-existing feature tasks are unmodified by this story (also enforced by the scope contract excluding them)",
+          "headHash": "366301136fe02470d243b52a56e1e4f08cd9bea9",
+          "materialHash": "3072d54fe5f075ff43ec74758de6d966e26aa36649754cec4ca5498ce59f9241",
+          "storyFilesHash": "cd3724f7ef08cc8f95788b1793453053e2a088bb2a5100a82604ed470b7c2fb4",
+          "timestamp": "2026-06-24T11:38:07.627Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/corpus-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/corpus-selfcheck.mjs",
+          "result": "pass",
+          "note": "corpus-selfcheck enumerates all 24 task dirs and asserts the 7-file contract (6 always-present + inline-or-file payload) + well-formed task.json per task; 24/24 pass => the 20 new dirs were applied correctly alongside the existing 4",
+          "headHash": "366301136fe02470d243b52a56e1e4f08cd9bea9",
+          "materialHash": "3072d54fe5f075ff43ec74758de6d966e26aa36649754cec4ca5498ce59f9241",
+          "storyFilesHash": "cd3724f7ef08cc8f95788b1793453053e2a088bb2a5100a82604ed470b7c2fb4",
+          "timestamp": "2026-06-24T11:38:07.627Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/corpus-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/corpus-selfcheck.mjs",
+          "result": "pass",
+          "note": "corpus-selfcheck now rejects any file in a task dir outside the 7 contract files + {overfit-output.mjs}; negative-control 'stray-file' guard fires (a planted stray file FAILs the check)",
+          "headHash": "366301136fe02470d243b52a56e1e4f08cd9bea9",
+          "materialHash": "3072d54fe5f075ff43ec74758de6d966e26aa36649754cec4ca5498ce59f9241",
+          "storyFilesHash": "cd3724f7ef08cc8f95788b1793453053e2a088bb2a5100a82604ed470b7c2fb4",
+          "timestamp": "2026-06-24T11:38:07.627Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/corpus-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/corpus-selfcheck.mjs",
+          "result": "pass",
+          "note": "corpus-selfcheck enumerates all 24 task dirs and asserts the 7-file contract (6 always-present + inline-or-file payload) + well-formed task.json per task; 24/24 pass => the 20 new dirs were applied correctly alongside the existing 4",
+          "headHash": "366301136fe02470d243b52a56e1e4f08cd9bea9",
+          "materialHash": "3072d54fe5f075ff43ec74758de6d966e26aa36649754cec4ca5498ce59f9241",
+          "storyFilesHash": "cd3724f7ef08cc8f95788b1793453053e2a088bb2a5100a82604ed470b7c2fb4",
+          "timestamp": "2026-06-24T11:38:07.627Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "Add corpus-selfcheck.mjs validating all 24 tasks via the canonical inject() path",
       "context": "New experiments/recovery-runner/corpus-selfcheck.mjs: for every task dir under tasks/, copy reference-solution.mjs to a scratch solution.mjs + acceptance.mjs + ground-truth.mjs, assert node acceptance.mjs => ACCEPT PASS (exit 0) and node ground-truth.mjs => GROUND-TRUTH PASS (exit 0); then import subtle-wrong-output.mjs default + call inject(ws,{outputFile:'solution.mjs',taskId}) and assert acceptance => ACCEPT PASS (exit 0) and ground-truth => GROUND-TRUTH FAIL (exit !=0). Print per-task PASS/FAIL + a final count. Offline, deterministic, no claude -p.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-24T10:10:04.488Z",
+      "endTime": "2026-06-24T10:11:22.321Z",
+      "files": {
+        "modify": [],
+        "create": [
+          "experiments/recovery-runner/corpus-selfcheck.mjs"
+        ],
+        "test": [
+          "experiments/recovery-runner/corpus-selfcheck.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "node experiments/recovery-runner/corpus-selfcheck.mjs → prints a PASS line for each of the 24 tasks + final line contains 24/24 tasks pass the full invariant + exit 0; WHY: confirms the per-task contract invariant (reference PASS/PASS + inject PASS/FAIL) holds for all 24 tasks",
+            "type": "cli"
+          },
+          {
+            "desc": "For a representative task (e.g. bf-datediff), the selfcheck reports: reference => acceptance PASS + ground-truth PASS, then inject => acceptance PASS + ground-truth FAIL → per-task line shows PASS; WHY: verifies the two-phase check (reference correctness + inject anti-gaming) actually runs both phases",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Remove one of the 7 contract files from a task dir (e.g. delete bf-lru/ground-truth.mjs), run corpus-selfcheck.mjs → exits non-zero and reports FAIL for bf-lru; WHY: ensures the selfcheck detects incomplete task contracts rather than silently skipping",
+            "type": "cli"
+          },
+          {
+            "desc": "Replace a task reference-solution.mjs with a broken implementation (e.g. always throws), run corpus-selfcheck.mjs → exits non-zero because the reference no longer passes ground-truth; WHY: ensures the selfcheck does not silently pass when the reference solution itself is broken",
+            "type": "cli"
+          },
+          {
+            "desc": "The selfcheck uses the canonical inject() from subtle-wrong-output.mjs (not a separate payload file or hardcoded injection) → inspect the source for dynamic import of subtle-wrong-output.mjs and calling inject(); WHY: validates the same injection path the real run-driver uses, as required by the story",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Tamper with a task subtle-wrong-output.mjs inject() to be a no-op (returns without modifying solution.mjs), run corpus-selfcheck.mjs → exits non-zero because ground-truth still PASSES after inject (the anti-gaming invariant fails: inject must cause ground-truth to FAIL); WHY: catches the critical scenario where a task payload does not actually inject a detectable subtle bug — the corpus would then lack anti-gaming power for that task",
+            "type": "cli"
+          },
+          {
+            "desc": "Add a 25th task dir with valid 7 files but a duplicate taskId (same as eval-expr) in task.json, run corpus-selfcheck.mjs → the selfcheck should still validate per-task invariants for all dirs it finds (not crash on duplicates); if it does not detect the duplicate, CHK-003 stratification will catch the count mismatch; WHY: ensures robustness to adversarial corpus tampering",
+            "type": "cli"
+          },
+          {
+            "desc": "The selfcheck does NOT spawn claude -p or make any network calls → grep the source for claude, fetch, http, net, axios → none found; WHY: the story requires fully offline/deterministic operation; any network call would make the selfcheck non-reproducible",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/corpus-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/corpus-selfcheck.mjs",
+          "result": "pass",
+          "note": "corpus-selfcheck per task: reference => ACCEPT PASS + GROUND-TRUTH PASS, then canonical inject() => ACCEPT PASS + GROUND-TRUTH FAIL (the passes-acceptance-but-fails-ground-truth anti-gaming invariant); a no-op/undetected injection fails the check; 24/24 pass",
+          "headHash": "366301136fe02470d243b52a56e1e4f08cd9bea9",
+          "materialHash": "3072d54fe5f075ff43ec74758de6d966e26aa36649754cec4ca5498ce59f9241",
+          "storyFilesHash": "cd3724f7ef08cc8f95788b1793453053e2a088bb2a5100a82604ed470b7c2fb4",
+          "timestamp": "2026-06-24T11:38:07.627Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/corpus-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/corpus-selfcheck.mjs",
+          "result": "pass",
+          "note": "corpus-selfcheck per task: reference => ACCEPT PASS + GROUND-TRUTH PASS, then canonical inject() => ACCEPT PASS + GROUND-TRUTH FAIL (the passes-acceptance-but-fails-ground-truth anti-gaming invariant); a no-op/undetected injection fails the check; 24/24 pass",
+          "headHash": "366301136fe02470d243b52a56e1e4f08cd9bea9",
+          "materialHash": "3072d54fe5f075ff43ec74758de6d966e26aa36649754cec4ca5498ce59f9241",
+          "storyFilesHash": "cd3724f7ef08cc8f95788b1793453053e2a088bb2a5100a82604ed470b7c2fb4",
+          "timestamp": "2026-06-24T11:38:07.627Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/corpus-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/corpus-selfcheck.mjs",
+          "result": "pass",
+          "note": "corpus-selfcheck negative-control self-test now runs 10 synthetic gamed corpora (correct-not-caught / harness-tamper / missing-file / stray-file / missing-payload / 25-tasks / unknown-category / wrong-count / source-dir-tamper / env-preload-spoof) and asserts every guard fires; prints 'negative-control self-test: 10/10 guards fire'; the mutation is actually exercised",
+          "headHash": "366301136fe02470d243b52a56e1e4f08cd9bea9",
+          "materialHash": "3072d54fe5f075ff43ec74758de6d966e26aa36649754cec4ca5498ce59f9241",
+          "storyFilesHash": "cd3724f7ef08cc8f95788b1793453053e2a088bb2a5100a82604ed470b7c2fb4",
+          "timestamp": "2026-06-24T11:38:07.627Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/corpus-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/corpus-selfcheck.mjs",
+          "result": "pass",
+          "note": "corpus-selfcheck now runs a built-in negative-control self-test that constructs synthetic gamed corpora and asserts the real guards REJECT each mutation (correct-solution-not-caught / harness-tamper / missing-file / stray-file / missing-payload / 25-tasks / unknown-category / wrong-count) — prints 'negative-control self-test: 8/8 guards fire'; the mutation is actually exercised, not asserted in prose",
+          "headHash": "366301136fe02470d243b52a56e1e4f08cd9bea9",
+          "materialHash": "3072d54fe5f075ff43ec74758de6d966e26aa36649754cec4ca5498ce59f9241",
+          "storyFilesHash": "cd3724f7ef08cc8f95788b1793453053e2a088bb2a5100a82604ed470b7c2fb4",
+          "timestamp": "2026-06-24T11:38:07.627Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/corpus-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/corpus-selfcheck.mjs",
+          "result": "pass",
+          "note": "corpus-selfcheck per task: reference => ACCEPT PASS + GROUND-TRUTH PASS, then canonical inject() => ACCEPT PASS + GROUND-TRUTH FAIL (the passes-acceptance-but-fails-ground-truth anti-gaming invariant); a no-op/undetected injection fails the check; 24/24 pass",
+          "headHash": "366301136fe02470d243b52a56e1e4f08cd9bea9",
+          "materialHash": "3072d54fe5f075ff43ec74758de6d966e26aa36649754cec4ca5498ce59f9241",
+          "storyFilesHash": "cd3724f7ef08cc8f95788b1793453053e2a088bb2a5100a82604ed470b7c2fb4",
+          "timestamp": "2026-06-24T11:38:07.627Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/corpus-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/corpus-selfcheck.mjs",
+          "result": "pass",
+          "note": "corpus-selfcheck negative-control self-test now runs 10 synthetic gamed corpora (correct-not-caught / harness-tamper / missing-file / stray-file / missing-payload / 25-tasks / unknown-category / wrong-count / source-dir-tamper / env-preload-spoof) and asserts every guard fires; prints 'negative-control self-test: 10/10 guards fire'; the mutation is actually exercised",
+          "headHash": "366301136fe02470d243b52a56e1e4f08cd9bea9",
+          "materialHash": "3072d54fe5f075ff43ec74758de6d966e26aa36649754cec4ca5498ce59f9241",
+          "storyFilesHash": "cd3724f7ef08cc8f95788b1793453053e2a088bb2a5100a82604ed470b7c2fb4",
+          "timestamp": "2026-06-24T11:38:07.627Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/corpus-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/corpus-selfcheck.mjs",
+          "result": "pass",
+          "note": "corpus-selfcheck per task: reference => ACCEPT PASS + GROUND-TRUTH PASS, then canonical inject() => ACCEPT PASS + GROUND-TRUTH FAIL (the passes-acceptance-but-fails-ground-truth anti-gaming invariant); a no-op/undetected injection fails the check; 24/24 pass",
+          "headHash": "366301136fe02470d243b52a56e1e4f08cd9bea9",
+          "materialHash": "3072d54fe5f075ff43ec74758de6d966e26aa36649754cec4ca5498ce59f9241",
+          "storyFilesHash": "cd3724f7ef08cc8f95788b1793453053e2a088bb2a5100a82604ed470b7c2fb4",
+          "timestamp": "2026-06-24T11:38:07.627Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/corpus-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/corpus-selfcheck.mjs",
+          "result": "pass",
+          "note": "corpus-selfcheck per task: reference => ACCEPT PASS + GROUND-TRUTH PASS, then canonical inject() => ACCEPT PASS + GROUND-TRUTH FAIL (the passes-acceptance-but-fails-ground-truth anti-gaming invariant); a no-op/undetected injection fails the check; 24/24 pass",
+          "headHash": "366301136fe02470d243b52a56e1e4f08cd9bea9",
+          "materialHash": "3072d54fe5f075ff43ec74758de6d966e26aa36649754cec4ca5498ce59f9241",
+          "storyFilesHash": "cd3724f7ef08cc8f95788b1793453053e2a088bb2a5100a82604ed470b7c2fb4",
+          "timestamp": "2026-06-24T11:38:07.627Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
       "title": "Assert pre-reg §2 stratification (24 tasks across 8 categories)",
       "context": "In corpus-selfcheck.mjs, read each task.json type and assert: total tasks == 24, exactly 8 distinct categories present (bug-fix/feature/refactor/test-repair/doc-update/dep-upgrade/contract-validation/CLI-feature), and each category has >= 2 tasks (~3 each). Fail if the corpus drifts from the pre-reg §2 spec.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-24T10:11:22.843Z",
+      "endTime": "2026-06-24T10:11:47.597Z",
+      "files": {
+        "modify": [
+          "experiments/recovery-runner/corpus-selfcheck.mjs"
+        ],
+        "create": [],
+        "test": [
+          "experiments/recovery-runner/corpus-selfcheck.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "node experiments/recovery-runner/corpus-selfcheck.mjs → stdout contains stratification OK: 8 categories with per-category counts summing to 24 + exit 0; WHY: confirms the pre-reg S2 spec (24 tasks / 8 categories) is satisfied",
+            "type": "cli"
+          },
+          {
+            "desc": "The stratification output shows all 8 expected category names (bug-fix, feature, refactor, test-repair, doc-update, dep-upgrade, contract-validation, CLI-feature) → each appears in the output; WHY: ensures no category is missing or misspelled",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Remove one task dir (e.g. rm -rf tasks/bf-datediff) so total drops to 23, run corpus-selfcheck.mjs → exits non-zero and stratification assertion FAILS (total != 24); WHY: catches silent corpus shrinkage",
+            "type": "cli"
+          },
+          {
+            "desc": "Change a task.json type from bug-fix to a 9th unknown category (e.g. security-audit), run corpus-selfcheck.mjs → exits non-zero because there are now only 1 bug-fix task (< 2 minimum) or an unexpected category appears; WHY: catches category drift from the pre-reg",
+            "type": "cli"
+          },
+          {
+            "desc": "Each of the 8 categories has >= 2 tasks → parse the stratification output and verify the minimum count per category is 2; WHY: the pre-reg says ~3 each with >= 2 minimum",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Add a 25th task dir with a valid 7-file contract but category bug-fix, run corpus-selfcheck.mjs → exits non-zero because total is now 25 (not 24); WHY: prevents silent corpus growth that would invalidate the pre-registration N_tasks=24 parameter",
+            "type": "cli"
+          },
+          {
+            "desc": "Rename all 3 bug-fix task dirs type field to feature in their task.json (so feature has 7, bug-fix has 0), run corpus-selfcheck.mjs → exits non-zero because bug-fix category is missing (< 2) and only 7 distinct categories remain; WHY: adversarial category consolidation attack that would bias the ablation toward one category",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/corpus-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/corpus-selfcheck.mjs",
+          "result": "pass",
+          "note": "corpus-selfcheck stratification: asserts total==24, exactly 8 distinct categories, each count in [2,5]; prints 'stratification OK: 8 categories {bug-fix:3,feature:4,...}'; drift (25th task / consolidated category / missing category) fails the check",
+          "headHash": "366301136fe02470d243b52a56e1e4f08cd9bea9",
+          "materialHash": "3072d54fe5f075ff43ec74758de6d966e26aa36649754cec4ca5498ce59f9241",
+          "storyFilesHash": "cd3724f7ef08cc8f95788b1793453053e2a088bb2a5100a82604ed470b7c2fb4",
+          "timestamp": "2026-06-24T11:38:07.627Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/corpus-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/corpus-selfcheck.mjs",
+          "result": "pass",
+          "note": "corpus-selfcheck stratification: asserts total==24, exactly 8 distinct categories, each count in [2,5]; prints 'stratification OK: 8 categories {bug-fix:3,feature:4,...}'; drift (25th task / consolidated category / missing category) fails the check",
+          "headHash": "366301136fe02470d243b52a56e1e4f08cd9bea9",
+          "materialHash": "3072d54fe5f075ff43ec74758de6d966e26aa36649754cec4ca5498ce59f9241",
+          "storyFilesHash": "cd3724f7ef08cc8f95788b1793453053e2a088bb2a5100a82604ed470b7c2fb4",
+          "timestamp": "2026-06-24T11:38:07.627Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/corpus-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/corpus-selfcheck.mjs",
+          "result": "pass",
+          "note": "corpus-selfcheck now runs a built-in negative-control self-test that constructs synthetic gamed corpora and asserts the real guards REJECT each mutation (correct-solution-not-caught / harness-tamper / missing-file / stray-file / missing-payload / 25-tasks / unknown-category / wrong-count) — prints 'negative-control self-test: 8/8 guards fire'; the mutation is actually exercised, not asserted in prose",
+          "headHash": "366301136fe02470d243b52a56e1e4f08cd9bea9",
+          "materialHash": "3072d54fe5f075ff43ec74758de6d966e26aa36649754cec4ca5498ce59f9241",
+          "storyFilesHash": "cd3724f7ef08cc8f95788b1793453053e2a088bb2a5100a82604ed470b7c2fb4",
+          "timestamp": "2026-06-24T11:38:07.627Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/corpus-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/corpus-selfcheck.mjs",
+          "result": "pass",
+          "note": "corpus-selfcheck now runs a built-in negative-control self-test that constructs synthetic gamed corpora and asserts the real guards REJECT each mutation (correct-solution-not-caught / harness-tamper / missing-file / stray-file / missing-payload / 25-tasks / unknown-category / wrong-count) — prints 'negative-control self-test: 8/8 guards fire'; the mutation is actually exercised, not asserted in prose",
+          "headHash": "366301136fe02470d243b52a56e1e4f08cd9bea9",
+          "materialHash": "3072d54fe5f075ff43ec74758de6d966e26aa36649754cec4ca5498ce59f9241",
+          "storyFilesHash": "cd3724f7ef08cc8f95788b1793453053e2a088bb2a5100a82604ed470b7c2fb4",
+          "timestamp": "2026-06-24T11:38:07.627Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/corpus-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/corpus-selfcheck.mjs",
+          "result": "pass",
+          "note": "corpus-selfcheck stratification: asserts total==24, exactly 8 distinct categories, each count in [2,5]; prints 'stratification OK: 8 categories {bug-fix:3,feature:4,...}'; drift (25th task / consolidated category / missing category) fails the check",
+          "headHash": "366301136fe02470d243b52a56e1e4f08cd9bea9",
+          "materialHash": "3072d54fe5f075ff43ec74758de6d966e26aa36649754cec4ca5498ce59f9241",
+          "storyFilesHash": "cd3724f7ef08cc8f95788b1793453053e2a088bb2a5100a82604ed470b7c2fb4",
+          "timestamp": "2026-06-24T11:38:07.627Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/corpus-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/corpus-selfcheck.mjs",
+          "result": "pass",
+          "note": "corpus-selfcheck now runs a built-in negative-control self-test that constructs synthetic gamed corpora and asserts the real guards REJECT each mutation (correct-solution-not-caught / harness-tamper / missing-file / stray-file / missing-payload / 25-tasks / unknown-category / wrong-count) — prints 'negative-control self-test: 8/8 guards fire'; the mutation is actually exercised, not asserted in prose",
+          "headHash": "366301136fe02470d243b52a56e1e4f08cd9bea9",
+          "materialHash": "3072d54fe5f075ff43ec74758de6d966e26aa36649754cec4ca5498ce59f9241",
+          "storyFilesHash": "cd3724f7ef08cc8f95788b1793453053e2a088bb2a5100a82604ed470b7c2fb4",
+          "timestamp": "2026-06-24T11:38:07.627Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/corpus-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/corpus-selfcheck.mjs",
+          "result": "pass",
+          "note": "corpus-selfcheck now runs a built-in negative-control self-test that constructs synthetic gamed corpora and asserts the real guards REJECT each mutation (correct-solution-not-caught / harness-tamper / missing-file / stray-file / missing-payload / 25-tasks / unknown-category / wrong-count) — prints 'negative-control self-test: 8/8 guards fire'; the mutation is actually exercised, not asserted in prose",
+          "headHash": "366301136fe02470d243b52a56e1e4f08cd9bea9",
+          "materialHash": "3072d54fe5f075ff43ec74758de6d966e26aa36649754cec4ca5498ce59f9241",
+          "storyFilesHash": "cd3724f7ef08cc8f95788b1793453053e2a088bb2a5100a82604ed470b7c2fb4",
+          "timestamp": "2026-06-24T11:38:07.627Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
       "title": "Wire corpus-selfcheck into run-selfchecks.mjs + npm test:experiments",
       "context": "Add corpus-selfcheck.mjs to the run-selfchecks.mjs aggregator (it currently runs the 5 harness selfchecks) and ensure it runs via npm run test:experiments / npm test. Confirm the full chain stays green.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-24T10:11:48.134Z",
+      "endTime": "2026-06-24T10:13:52.481Z",
+      "files": {
+        "modify": [
+          "experiments/recovery-runner/run-selfchecks.mjs",
+          "package.json"
+        ],
+        "create": [],
+        "test": [
+          "experiments/recovery-runner/run-selfchecks.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "node experiments/recovery-runner/run-selfchecks.mjs → output includes a line for corpus-selfcheck.mjs with a checkmark + exit 0; WHY: confirms the corpus selfcheck is wired into the aggregator",
+            "type": "cli"
+          },
+          {
+            "desc": "npm test → exits 0 (full suite green including the corpus selfcheck); WHY: confirms the corpus selfcheck runs as part of the standard CI test chain",
+            "type": "cli"
+          },
+          {
+            "desc": "run-selfchecks.mjs SELFCHECKS array now has 6 entries (5 existing + corpus-selfcheck.mjs) → grep the source to confirm; WHY: ensures the aggregator count is correct and no existing selfcheck was accidentally removed",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The 5 existing selfchecks (adjudicate, checks, spend-accounting, run-driver, analyze) still appear in run-selfchecks.mjs output → each gets a checkmark line; WHY: regression guard — wiring the new selfcheck must not drop an existing one",
+            "type": "cli"
+          },
+          {
+            "desc": "If corpus-selfcheck.mjs is temporarily broken (e.g. force exit 1), run-selfchecks.mjs → exits non-zero and reports the corpus-selfcheck failure; WHY: ensures the aggregator does not swallow failures from the new selfcheck",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Remove corpus-selfcheck.mjs from disk but leave it in the SELFCHECKS array, run run-selfchecks.mjs → exits non-zero (missing module error); WHY: ensures the aggregator hard-fails on a missing selfcheck rather than silently skipping it",
+            "type": "cli"
+          },
+          {
+            "desc": "The npm test:experiments script actually invokes run-selfchecks.mjs (not a different entry point) → inspect package.json test:experiments script to confirm it references run-selfchecks.mjs; WHY: prevents a wiring gap where npm test runs a different aggregator that does not include the corpus selfcheck",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/run-selfchecks.mjs",
+          "command": "node experiments/recovery-runner/run-selfchecks.mjs",
+          "result": "pass",
+          "note": "run-selfchecks aggregator now runs 6 selfchecks (adjudicate/checks/spend-accounting/run-driver/analyze + corpus-selfcheck); all 6 pass, exit 0; the 5 existing still report + the corpus one is added; aggregator exits non-zero if any selfcheck (incl corpus) fails",
+          "headHash": "366301136fe02470d243b52a56e1e4f08cd9bea9",
+          "materialHash": "3072d54fe5f075ff43ec74758de6d966e26aa36649754cec4ca5498ce59f9241",
+          "storyFilesHash": "cd3724f7ef08cc8f95788b1793453053e2a088bb2a5100a82604ed470b7c2fb4",
+          "timestamp": "2026-06-24T11:38:07.627Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/run-selfchecks.mjs",
+          "command": "node experiments/recovery-runner/run-selfchecks.mjs",
+          "result": "pass",
+          "note": "run-selfchecks aggregator now runs 6 selfchecks (adjudicate/checks/spend-accounting/run-driver/analyze + corpus-selfcheck); all 6 pass, exit 0; the 5 existing still report + the corpus one is added; aggregator exits non-zero if any selfcheck (incl corpus) fails",
+          "headHash": "366301136fe02470d243b52a56e1e4f08cd9bea9",
+          "materialHash": "3072d54fe5f075ff43ec74758de6d966e26aa36649754cec4ca5498ce59f9241",
+          "storyFilesHash": "cd3724f7ef08cc8f95788b1793453053e2a088bb2a5100a82604ed470b7c2fb4",
+          "timestamp": "2026-06-24T11:38:07.627Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/run-selfchecks.mjs",
+          "command": "node experiments/recovery-runner/run-selfchecks.mjs",
+          "result": "pass",
+          "note": "run-selfchecks aggregator now runs 6 selfchecks (adjudicate/checks/spend-accounting/run-driver/analyze + corpus-selfcheck); all 6 pass, exit 0; the 5 existing still report + the corpus one is added; aggregator exits non-zero if any selfcheck (incl corpus) fails",
+          "headHash": "366301136fe02470d243b52a56e1e4f08cd9bea9",
+          "materialHash": "3072d54fe5f075ff43ec74758de6d966e26aa36649754cec4ca5498ce59f9241",
+          "storyFilesHash": "cd3724f7ef08cc8f95788b1793453053e2a088bb2a5100a82604ed470b7c2fb4",
+          "timestamp": "2026-06-24T11:38:07.627Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/run-selfchecks.mjs",
+          "command": "node experiments/recovery-runner/run-selfchecks.mjs",
+          "result": "pass",
+          "note": "run-selfchecks aggregator now runs 6 selfchecks (adjudicate/checks/spend-accounting/run-driver/analyze + corpus-selfcheck); all 6 pass, exit 0; the 5 existing still report + the corpus one is added; aggregator exits non-zero if any selfcheck (incl corpus) fails",
+          "headHash": "366301136fe02470d243b52a56e1e4f08cd9bea9",
+          "materialHash": "3072d54fe5f075ff43ec74758de6d966e26aa36649754cec4ca5498ce59f9241",
+          "storyFilesHash": "cd3724f7ef08cc8f95788b1793453053e2a088bb2a5100a82604ed470b7c2fb4",
+          "timestamp": "2026-06-24T11:38:07.627Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/corpus-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/corpus-selfcheck.mjs",
+          "result": "pass",
+          "note": "corpus-selfcheck now runs a built-in negative-control self-test that constructs synthetic gamed corpora and asserts the real guards REJECT each mutation (correct-solution-not-caught / harness-tamper / missing-file / stray-file / missing-payload / 25-tasks / unknown-category / wrong-count) — prints 'negative-control self-test: 8/8 guards fire'; the mutation is actually exercised, not asserted in prose",
+          "headHash": "366301136fe02470d243b52a56e1e4f08cd9bea9",
+          "materialHash": "3072d54fe5f075ff43ec74758de6d966e26aa36649754cec4ca5498ce59f9241",
+          "storyFilesHash": "cd3724f7ef08cc8f95788b1793453053e2a088bb2a5100a82604ed470b7c2fb4",
+          "timestamp": "2026-06-24T11:38:07.627Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/corpus-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/corpus-selfcheck.mjs",
+          "result": "pass",
+          "note": "corpus-selfcheck now runs a built-in negative-control self-test that constructs synthetic gamed corpora and asserts the real guards REJECT each mutation (correct-solution-not-caught / harness-tamper / missing-file / stray-file / missing-payload / 25-tasks / unknown-category / wrong-count) — prints 'negative-control self-test: 8/8 guards fire'; the mutation is actually exercised, not asserted in prose",
+          "headHash": "366301136fe02470d243b52a56e1e4f08cd9bea9",
+          "materialHash": "3072d54fe5f075ff43ec74758de6d966e26aa36649754cec4ca5498ce59f9241",
+          "storyFilesHash": "cd3724f7ef08cc8f95788b1793453053e2a088bb2a5100a82604ed470b7c2fb4",
+          "timestamp": "2026-06-24T11:38:07.627Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "package.json",
+          "command": "npm run --silent test:experiments 2>&1 | tail -1",
+          "result": "pass",
+          "note": "package.json test:experiments invokes run-selfchecks.mjs (the aggregator that now includes corpus-selfcheck); npm test => test:experiments => run-selfchecks => corpus-selfcheck, so the new selfcheck is in the CI chain",
+          "headHash": "366301136fe02470d243b52a56e1e4f08cd9bea9",
+          "materialHash": "3072d54fe5f075ff43ec74758de6d966e26aa36649754cec4ca5498ce59f9241",
+          "storyFilesHash": "cd3724f7ef08cc8f95788b1793453053e2a088bb2a5100a82604ed470b7c2fb4",
+          "timestamp": "2026-06-24T11:38:07.627Z"
+        }
+      ]
     }
   ]
 }

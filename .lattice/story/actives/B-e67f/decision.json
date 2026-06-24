@@ -1,0 +1,78 @@
+{
+  "principles": [
+    "The pre-registration (lattice-experiment-protocol.md §2) is the AUTHORITY: corpus = 24 tasks / 8 categories ~3 each, match it exactly.",
+    "Freeze via a machine-checked invariant: a corpus selfcheck must prove for ALL 24 tasks that the reference passes acceptance+ground-truth and the injected payload passes acceptance but FAILS ground-truth.",
+    "Validate via the canonical inject() path (the same module the run-driver uses), uniform across tasks with separate or inline payloads.",
+    "Conservative scope: apply pre-validated fixtures only; do not touch the harness logic, the existing 4 tasks, or the protocol.",
+    "Fully offline + deterministic (no claude -p): the corpus build is fixtures + a selfcheck, not the powered run."
+  ],
+  "drivers": [
+    "Match pre-reg §2 stratification (24 tasks across 8 categories) and report per-category.",
+    "The passes-acceptance-but-fails-ground-truth anti-gaming invariant must be machine-checked for every task so reviewers can verify the freeze cheaply.",
+    "This is the freeze point before the multi-day powered run; the corpus must be committed + green in npm test."
+  ],
+  "options": [
+    {
+      "name": "One story: apply all 20 pre-validated tasks + inject()-based corpus-selfcheck + stratification assert",
+      "pros": [
+        "Single freeze point (pre-reg: committed+frozen before first run)",
+        "One comprehensive machine-checkable evidence artifact for reviewers",
+        "Fewer DONE-race cycles; B-6de6 storyFilesHash floor (now on main) de-risks the larger DONE"
+      ],
+      "cons": [
+        "Larger diff (20 task dirs) for reviewers to spot-check — mitigated by the selfcheck"
+      ]
+    },
+    {
+      "name": "Batch into ~6 smaller stories (3-4 tasks each)",
+      "pros": [
+        "Smaller per-story review surface"
+      ],
+      "cons": [
+        "~6x the DONE-race overhead",
+        "Multiple freeze points / partial corpus states",
+        "No single corpus-wide invariant artifact"
+      ]
+    },
+    {
+      "name": "Commit tasks without a corpus selfcheck",
+      "pros": [
+        "Smallest diff"
+      ],
+      "cons": [
+        "No machine-checked freeze / anti-gaming guard",
+        "Reviewers cannot cheaply verify the 24-task invariant",
+        "Corpus could silently drift before the run"
+      ]
+    }
+  ],
+  "chosen": "One story: apply all 20 pre-validated tasks + inject()-based corpus-selfcheck + stratification assert",
+  "rationale": "The corpus is uniform, already-independently-validated fixtures; one story with a comprehensive inject()-based selfcheck (ref PASS/PASS + payload PASS/FAIL for all 24) plus a §2 stratification assertion gives a single clean freeze point and machine-checkable review evidence, and the storyFilesHash-authoritative floor (B-6de6, now on main) + escalation gitCwd fix (B-36ba) make a single larger DONE manageable despite the whole-tree-materialHash vs active-main race. Batching multiplies the DONE-race cost for no correctness gain; omitting the selfcheck loses the anti-gaming freeze guard.",
+  "preMortem": [
+    {
+      "scenario": "A task survives in the repo but its inject() yields a payload the ground-truth does NOT catch",
+      "trigger": "a copy error or an inject()/payload mismatch during the apply",
+      "consequence": "a gamed corpus cell (payload would not be detected) biases the §6 results",
+      "mitigation": "corpus-selfcheck runs the inject() path and asserts ground-truth FAIL for every task; the build is blocked if any task does not show the exact PASS/PASS + PASS/FAIL pattern"
+    },
+    {
+      "scenario": "Stratification drifts from pre-reg §2",
+      "trigger": "a miscount or a missing category during apply",
+      "consequence": "corpus violates the pre-registration",
+      "mitigation": "corpus-selfcheck asserts total==24, 8 distinct categories, >=2 each, reading each task.json type"
+    },
+    {
+      "scenario": "The whole-tree-materialHash vs active-main DONE race stalls the merge",
+      "trigger": "main churns during the DONE pre-check",
+      "consequence": "hours lost re-binding",
+      "mitigation": "the now-merged B-6de6 storyFilesHash floor + B-36ba escalation gitCwd make freshness tolerant of unrelated drift; apply the pre-merge-main no-op + tight quorum window playbook if needed"
+    },
+    {
+      "scenario": "A stray/partial file is applied from /tmp/corpus-design",
+      "trigger": "an incomplete copy of a task dir",
+      "consequence": "a broken task",
+      "mitigation": "corpus-selfcheck asserts all 7 contract files present + the full invariant per task; npm test fails if any task is malformed"
+    }
+  ],
+  "timestamp": "2026-06-24T10:01:00.923Z"
+}

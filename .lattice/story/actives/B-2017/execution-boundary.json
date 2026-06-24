@@ -1,0 +1,44 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-2017",
+  "allowedCommands": [
+    "git *",
+    "lattice *",
+    "node scripts/verify-orphan-surface.mjs",
+    "npm --prefix packages/main run build",
+    "npm run test:orphan-surface",
+    "rg *"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+    "package.json",
+    "packages/main/package.json",
+    "packages/main/src/core/intent-coverage.ts",
+    "packages/main/src/core/zod.ts",
+    "packages/main/src/handlers/implementation-review.ts",
+    "packages/main/src/verifier/browser-client.ts",
+    "packages/main/src/verifier/browser-executor.ts",
+    "packages/main/src/verifier/browser-server.ts",
+    "packages/main/src/verifier/cli-executor.ts",
+    "packages/main/src/verifier/dev-host.ts",
+    "packages/main/src/verifier/index.ts",
+    "packages/main/src/verifier/serve.ts",
+    "packages/main/src/verifier/types.ts",
+    "packages/main/src/verifier/validate.ts",
+    "scripts/verify-orphan-surface.mjs"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".worktrees",
+    "packages/main/src/tasks",
+    "packages/main/src/verifier/dev-host.ts.delete",
+    "packages/main/src/verifier/serve.ts.delete"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "Restrict implementation to orphan-surface detection, package script wiring, and explicitly reviewed high-confidence legacy files.",
+  "createdAt": "2026-06-24T11:01:38.788Z",
+  "updatedAt": "2026-06-24T11:01:38.788Z",
+  "_hash": "44d46dd1a7186203484dee9b657057110efd06200e573dcb9845850990885753"
+}

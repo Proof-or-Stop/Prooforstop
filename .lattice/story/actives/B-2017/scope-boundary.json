@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-2017",
+  "mode": "correctness_fix",
+  "allowed": [
+    "Add a CI-level orphan surface verifier for handler/command registration consistency",
+    "Preserve dynamic serve/starter support and smoke discovery behavior",
+    "Remove or formally retire only high-confidence unused legacy surfaces identified in analysis",
+    "Update package scripts so the detector can run in CI"
+  ],
+  "excluded": [
+    "No broad dead-code deletion across tasks or smokes",
+    "No changes to active story evidence outside this story",
+    "No proof-admissibility M2-M7 implementation in this story",
+    "No registering legacy implementation_review_result commands just to satisfy the detector"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "User approved a CI-level orphan detector and cleanup, while explicitly warning not to misdelete or register old code merely for appearance.",
+  "createdAt": "2026-06-24T11:01:38.788Z",
+  "updatedAt": "2026-06-24T11:01:38.788Z",
+  "_hash": "1806d3c0e06f98bea3358011c2d14dbf9197c18a1fd62368f16262d8c4a420a9"
+}

@@ -1,0 +1,49 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-2017",
+  "checkedAt": "2026-06-24T11:02:13.258Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "1806d3c0e06f98bea3358011c2d14dbf9197c18a1fd62368f16262d8c4a420a9",
+  "executionBoundaryHash": "44d46dd1a7186203484dee9b657057110efd06200e573dcb9845850990885753",
+  "freshnessHash": "d722d8f317df43721ceb29a3929ec25eb8cb6a4b67406fc64b431408b6ae2c79",
+  "effectiveExcludedKeywords": [
+    "Authority",
+    "customerKeyRef",
+    "Layer4",
+    "No broad dead-code deletion across tasks or smokes",
+    "No changes to active story evidence outside this story",
+    "No proof-admissibility M2-M7 implementation in this story",
+    "No registering legacy implementation_review_result commands just to satisfy the detector",
+    "repair UX"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "No broad dead-code deletion across tasks or smokes",
+      "source": "scopeBoundary.excluded",
+      "text": "No broad dead-code deletion across tasks or smokes",
+      "excluded": true
+    },
+    {
+      "keyword": "No changes to active story evidence outside this story",
+      "source": "scopeBoundary.excluded",
+      "text": "No changes to active story evidence outside this story",
+      "excluded": true
+    },
+    {
+      "keyword": "No proof-admissibility M2-M7 implementation in this story",
+      "source": "scopeBoundary.excluded",
+      "text": "No proof-admissibility M2-M7 implementation in this story",
+      "excluded": true
+    },
+    {
+      "keyword": "No registering legacy implementation_review_result commands just to satisfy the detector",
+      "source": "scopeBoundary.excluded",
+      "text": "No registering legacy implementation_review_result commands just to satisfy the detector",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "528a436e9a4d1f833d51c4d57ce10d1f116a91a40d11508f4c58f107fcfbebc2"
+}

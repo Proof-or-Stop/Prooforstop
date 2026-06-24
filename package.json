@@ -1,6 +1,6 @@
 {
   "name": "lattice",
-  "version": "0.3.85",
+  "version": "0.3.86",
   "description": "",
   "main": "index.js",
   "directories": {
@@ -17,6 +17,7 @@
     "test:legacy": "node packages/main/dist/tasks/run-all-smokes.js --select",
     "test:coverage": "NODE_OPTIONS=--max-old-space-size=8192 c8 node packages/main/dist/tasks/run-all-smokes.js --jobs 1",
     "test:lattice-residue": "node scripts/verify-lattice-residue.mjs",
+    "test:orphan-surface": "node scripts/verify-orphan-surface.mjs",
     "test:nested-worktree-bootstrap": "node scripts/verify-nested-worktree-bootstrap.mjs",
     "test:main-write-lock-coverage": "node packages/main/dist/tasks/main-write-lock-coverage.js",
     "test:review-convergence-smoke": "node packages/main/dist/tasks/review-convergence-smoke.js",

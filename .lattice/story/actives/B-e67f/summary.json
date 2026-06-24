@@ -1,0 +1,52 @@
+{
+  "storyId": "B-e67f",
+  "changes": "Added 20 pre-validated stratified ablation tasks under experiments/recovery-runner/tasks/ (bug-fix/refactor/test-repair/doc-update/dep-upgrade/contract-validation/CLI-feature) to reach the pre-reg §2 24-task / 8-category corpus (with the 4 existing feature tasks). Added experiments/recovery-runner/corpus-selfcheck.mjs: machine-checks the passes-acceptance-but-fails-ground-truth anti-gaming invariant for all 24 tasks via the canonical inject() path + a [2,5]-per-category / 24-total / 8-category stratification assertion + a 10-case negative-control self-test; wired as the 6th selfcheck in run-selfchecks.mjs / npm test:experiments. Freezes the corpus before the multi-day powered run.",
+  "usage": "node experiments/recovery-runner/corpus-selfcheck.mjs -> 24/24 tasks pass the full invariant + stratification OK (8 categories) + negative-control self-test 10/10 guards fire, exit 0. Runs in the npm test chain via test:experiments / run-selfchecks.mjs (now 6 selfchecks). The corpus is the frozen input to the run-driver powered §5/§6 campaign.",
+  "expectedOutcome": "node experiments/recovery-runner/corpus-selfcheck.mjs prints a PASS line per task, 'stratification OK: 8 categories {...}', 'negative-control self-test: 10/10 guards fire', and '=== 24/24 tasks pass the full invariant ===', exit 0; ls experiments/recovery-runner/tasks/ shows 24 dirs; npm test green.",
+  "actualTranscript": "corpus-selfcheck: stratification OK: 8 categories {bug-fix:3,feature:4,refactor:3,test-repair:3,doc-update:2,dep-upgrade:3,contract-validation:3,CLI-feature:3}; negative-control self-test: 10/10 guards fire; 24/24 tasks pass the full invariant; exit 0. run-selfchecks: 6/6 pass. npm test: green.",
+  "outcomeDiff": "No difference from the planned outcome. Beyond plan: a genuine 2-host REVIEW (4 claude lanes + codex host-2) ran 4 rounds and resolved 17 findings; codex host-2 progressively caught 6 deeper soundness holes in the anti-gaming selfcheck (harness tamper -> source-dir tamper -> env preload -> PATH spoof -> TOCTOU -> harness-aware solution) that the 4 same-vendor lanes passed each round; F-007/008/009/010 were fixed (tamper-proofed), and the last three vectors (F-011/012/013, dup F-015/016/017) are accepted out-of-threat-model per operator decision and documented in a threat-model block.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "corpus-selfcheck is sound against ACCIDENTAL invariant violations + stratification drift in our SELF-AUTHORED corpus (its purpose, fulfilled). It is NOT a sandbox against a MALICIOUS in-process task author: PATH spoof (F-011/F-015), post-hash TOCTOU (F-012/F-016), and a harness-aware solution reading process.argv[1] (F-013/F-017) can bypass the in-process invariant; F-013 is fundamentally unblockable in-process. These are accepted_risk (operator decision) and documented in the corpus-selfcheck.mjs threat-model block + README; closing them needs real execution isolation (a locked-down subprocess + indistinguishable harnesses) = a separate optional follow-up. Irrelevant to this corpus, whose 20 payloads are genuine self-authored subtle bugs (concept lane + codex spot-checks confirmed).",
+  "pitfalls": "The 20-task corpus was produced by a parallel design+verify workflow then INDEPENDENTLY re-validated by the main agent (20/20 pass) before the story. Genuine 2-host: codex host-2 (gpt-5.5, xhigh) found 6 progressively-deeper soundness holes across 3 fix rounds that ALL FOUR same-vendor claude lanes passed each round — a strong cross-vendor depth exhibit; it built working full-corpus exploits to confirm each. Watch the finding-ID duplication: the test-coverage lane and codex independently filed the same 3 bypass vectors as F-011/12/13 AND F-015/16/17 — BOTH sets must be resolved or DONE escalation blocks (check finding_list authoritatively, do not trust echo). Watch the whole-tree-materialHash x active-main DONE race; the B-6de6 storyFilesHash floor + B-36ba escalation gitCwd fixes (now on main) make it tolerant of unrelated drift.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 205784
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 750
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 498556
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 540221
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 4829531
+    }
+  },
+  "totalDurationMs": 6074855,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-24T11:37:19.786Z",
+  "updatedAt": "2026-06-24T11:37:19.786Z"
+}
