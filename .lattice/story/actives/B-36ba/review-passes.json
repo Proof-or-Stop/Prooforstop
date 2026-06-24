@@ -71,6 +71,15 @@
       "reviewRound": "2026-06-24T02:38:27.797Z",
       "reviewRunId": "B-36ba:RR-009",
       "_hash": "f997689ac3f83488495aa0fc6fde765a239d5e91ebaee25a7fa5ff420344a2ea"
+    },
+    {
+      "id": "B-36ba:RP-009",
+      "agent": "lattice-review-quality",
+      "note": "Round-4 re-bind quality review. Changed files: review-escalation.ts (gitCwd optional param + fallback), handlers/review-escalation.ts (resolveGitCwd import + 3 handler call sites), done-oracle.ts (gitCwd param pass-through), machine.ts (gitCwd ?? resolveGitCwd at canFinishGuard:639 + getGuardFailureReason:1145), review-escalation-freshness-root-smoke.ts (new 875-line smoke), package.json + packages/main/package.json (test chain additions). No dead code, no as-any, no unused imports, no empty catch in diff. The split node:fs import in the smoke file (F-004, low) is a maintainability nit with no correctness impact. No blockers.",
+      "createdAt": "2026-06-24T03:10:18.435Z",
+      "reviewRound": "2026-06-24T03:08:08.008Z",
+      "reviewRunId": "B-36ba:RR-011",
+      "_hash": "182300a67727b057d46456ba310157ae6bbf8532abf8759734d78b6c4bffb810"
     }
   ]
 }
