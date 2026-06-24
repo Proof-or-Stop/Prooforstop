@@ -1,0 +1,23 @@
+{
+  "findings": [
+    {
+      "id": "B-ef65:F-001",
+      "desc": "The validate execution lock is released before story-scoped validation evidence is decorated and persisted. In the configured/fallback path, withValidationExecutionLock wraps only executeValidationPlan at packages/main/src/handlers/verifier.ts:820-825, then persistStoryValidationEvidence runs after release at packages/main/src/handlers/verifier.ts:847. In the validate.ts path, the lock wraps only runValidationCommand at packages/main/src/handlers/verifier.ts:895-900, while JSON/pollution evidence writes happen after release at packages/main/src/handlers/verifier.ts:927, packages/main/src/handlers/verifier.ts:941, and packages/main/src/handlers/verifier.ts:962. persistStoryValidationEvidence writes test-evidence.json at packages/main/src/handlers/verifier.ts:605-621. A second validate started immediately after the first command exits can acquire the lock and write newer evidence while the first process is still decorating/persisting, allowing the older result to clobber the newer test-evidence snapshot. The no-validator branch also writes evidence without using the lock at packages/main/src/handlers/verifier.ts:800. Keep the lock held through decorateStoryVerification and persistStoryValidationEvidence for all story-scoped validate evidence writes, while leaving reviewer/delivery metadata outside the lock.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-24T01:17:23.715Z",
+      "reviewRound": "2026-06-24T01:14:49.288Z",
+      "reviewRunId": "B-ef65:RR-002",
+      "_hash": "4fea3c90a5b65f7ca1bded33f1a074fff0d8b850f9bc308cb3f04c70dffc5591",
+      "files": [
+        "packages/main/src/handlers/verifier.ts",
+        "packages/main/src/core/validation-execution-lock.ts"
+      ],
+      "signatureTag": "adversarial|ts|validate-execution-lock",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
