@@ -122,7 +122,7 @@
       "desc": "Docs naming drift: docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md:675 describes DONE-required command receipts as \"Local gate evidence\" instead of the canonical `local-gate-evidence` scope. The current implementation and inventory use `local-gate-evidence` for done-required evidence (packages/main/src/core/proof-admissibility.ts:195, docs/evidence/proof-surface-inventory.md:39, docs/evidence/proof-surface-inventory.json:12). The review brief requires done-required naming to be `local-gate-evidence`.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-06-24T10:32:32.664Z",
@@ -136,7 +136,11 @@
         "docs/evidence/proof-surface-inventory.json"
       ],
       "signatureTag": "doc-code-drift|md|docs-naming-drift",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Changed the DONE-required command receipts row in proof-admissibility-hardening-execution-plan.md to use canonical scope `local-gate-evidence`, matching the implementation and inventory.",
+      "resolvedAt": "2026-06-24T10:33:17.620Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
