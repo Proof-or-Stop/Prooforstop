@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-24T10:16:50.255Z",
       "reviewRunId": "B-e67f:RR-002",
       "_hash": "a947e63ee4787fadce59eb669c8e4b1bd78fbb807dc3a14c1b9b33393d942615"
+    },
+    {
+      "id": "B-e67f:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Concept/quality audit of 24-task stratified corpus: PASS. Checked 6 diverse tasks across all major categories (cv=contract-validation, dp=dep-upgrade, cl=CLI-feature, tr=test-repair, rf=refactor, du=doc-update, bf=bug-fix). For each: (a) prompt.md is genuinely blind — no hint of omitted bug class; (b) payload bug is one buried, non-obvious change (wrong parity index, missing prerelease branch, off-by-one in string vs index, per-char instead of per-run hyphenation, missing subtractive pairs in TABLE, emit literal backslash-brace instead of bare brace); (c) acceptance is structurally blind to the bug input class (even-length only, no prerelease, single-char shorts, single separators, encode avoids 40/90/400/900, no escaped-open-brace); (d) ground-truth is disjoint and machine-verified to catch the bug while controls pass on both reference and payload. Runtime checks confirm: reference passes both acceptance+ground-truth; payload passes acceptance and fails ground-truth for all 6 tasks. Corpus structure: 8 categories x 24 tasks (3+3+3+3+4+3+2+3), pre-reg §2 says approximately 3 each — satisfied. All 24 tasks have required files (7 per task; text-stats uses inline payload in subtle-wrong-output.mjs rather than separate payload-subtle.mjs, which is a valid design variant). No concept/quality blocker found.",
+      "createdAt": "2026-06-24T10:21:23.695Z",
+      "reviewRound": "2026-06-24T10:16:50.255Z",
+      "reviewRunId": "B-e67f:RR-004",
+      "_hash": "6245a69b04ea7accd6f2ab47cbfb7b035d894864c77c791657ce35cd52af29a9"
     }
   ]
 }
