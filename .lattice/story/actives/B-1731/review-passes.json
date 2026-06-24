@@ -170,6 +170,15 @@
       "reviewRound": "2026-06-24T23:01:14.127Z",
       "reviewRunId": "B-1731:RR-032",
       "_hash": "86a56011ea87cff6865e74c37845c1887c2b1baf53d70f48f0fe0560ef3c9ae2"
+    },
+    {
+      "id": "B-1731:RP-020",
+      "agent": "lattice-review-test-coverage",
+      "note": "Current-round test-coverage pass. Verified F-009 bug_story/high_risk_code_verifiable lifecycle diagnostics are covered by repro-evidence-binding-dev-gate-smoke ok 30/31 and implemented via requirementReason/requirementDetails. Verified F-010 spike-review rejected, contradictory status, and status-only accepted cases are covered by ok 23/24/25/26 and the gate requires verdict=confirmed. Re-ran node packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js, node packages/main/dist/tasks/repro-first-candidate-smoke.js, node packages/main/dist/tasks/proof-admissibility-smoke.js, node packages/main/dist/tasks/proof-admissibility-hardening-smoke.js, and node scripts/verify-process-fact-contract.mjs; all passed. Previous PLAN/DEV/INIT_CHECK, warn/off, fail-open, malformed binding, and process-fact gates are covered.",
+      "createdAt": "2026-06-24T23:04:56.124Z",
+      "reviewRound": "2026-06-24T23:01:14.127Z",
+      "reviewRunId": "B-1731:RR-034",
+      "_hash": "a28f885055d8a0e92b2d1593ceae16444dedfd7cd0c025455ab5e70a90d1d613"
     }
   ]
 }
