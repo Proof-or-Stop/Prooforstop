@@ -14,7 +14,9 @@
       "userSees": "Classifier keeps documentation-only stories moving, while code/gate/proof stories are marked repro-first-required before lifecycle advance.",
       "files": {
         "modify": [
-          "packages/main/src/core/machine.ts"
+          "packages/main/src/core/repro-evidence-binding-gate.ts",
+          "packages/main/src/handlers/story-create.ts",
+          "packages/main/src/cli/command-catalog.ts"
         ],
         "create": [],
         "test": [
