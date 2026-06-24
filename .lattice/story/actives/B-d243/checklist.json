@@ -427,6 +427,17 @@
           "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
           "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
           "timestamp": "2026-06-24T11:21:37.056Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/delivery-check-freshness-smoke.js",
+          "result": "pass",
+          "note": "delivery-check-freshness-smoke.ts:305-329 (story-owned change case): edits STORY_FILE (line 312), commits (line 314). Asserts materialHash changed (line 315) and storyFilesHash changed (line 316). doneRow returns status=fail (line 319) with detail matching /stale delivery-check: materialHash mismatch/ (line 320). canFinishGuard returns false (line 321), guard reason matches /stale_delivery_check/ (line 322). lifecycleDeliveryRow reports status=blocked, code=stale_delivery_check (lines 325-326). This is a specific code/status/detail triple assertion, not just exit 0.",
+          "headHash": "482c690f97a03138e1ae3a8b9bfce1d9e204773b",
+          "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
+          "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
+          "timestamp": "2026-06-24T11:21:41.869Z"
         }
       ]
     },
