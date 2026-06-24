@@ -79,9 +79,9 @@
       "id": "CHK-002",
       "title": "Wire the detector into CI-facing package scripts",
       "context": "Expose a root npm script such as test:orphan-surface that can run after build or against source as a lightweight CI correctness check.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-24T11:10:07.339Z",
       "files": {
         "modify": [
           "package.json",
@@ -111,7 +111,42 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "npm run test:orphan-surface",
+          "result": "pass",
+          "note": "Root package script invokes scripts/verify-orphan-surface.mjs and passed.",
+          "headHash": "d413478d07dbc025d7eb7d6f728ed4417eb38cb3",
+          "materialHash": "e79803cf823de9a36cae6ed52b4e18b4c6bde478c71f0c22eed9f312af8de15f",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-24T11:10:07.459Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:orphan-surface",
+          "result": "pass",
+          "note": "packages/main package script invokes the same detector from package cwd and passed.",
+          "headHash": "d413478d07dbc025d7eb7d6f728ed4417eb38cb3",
+          "materialHash": "e79803cf823de9a36cae6ed52b4e18b4c6bde478c71f0c22eed9f312af8de15f",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-24T11:10:07.564Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm run test:orphan-surface",
+          "result": "pass",
+          "note": "Detector exits nonzero through fail() when handler/catalog mismatch arrays are non-empty; the CI-facing script propagates that exit status.",
+          "headHash": "d413478d07dbc025d7eb7d6f728ed4417eb38cb3",
+          "materialHash": "e79803cf823de9a36cae6ed52b4e18b4c6bde478c71f0c22eed9f312af8de15f",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-24T11:10:07.670Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
