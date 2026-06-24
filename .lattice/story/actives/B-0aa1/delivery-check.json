@@ -1,0 +1,47 @@
+{
+  "storyId": "B-0aa1",
+  "checkedAt": "2026-06-24T04:48:42.994Z",
+  "headHash": "92db4a61ab28aa438bd2d91be87c0f79a047b7f5",
+  "materialHash": "a7933ba3b66954d21e52866cfb95d101cc03eba34587c69733210a8f8ef9ac4f",
+  "reviewRound": "2026-06-24T04:33:42.085Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/evidence/evidence-platform-architecture.md",
+      "promise": "Defines evidence platform layering (EvidenceRuntime → EvidenceArtifactService), evidenceScope=evidence-candidate enforcement, .lattice/evidence storage layout, 8 artifact kinds, and candidate-only consumption boundary.",
+      "verifiedBy": "diff + grep",
+      "evidence": "File exists in diff (git diff main...HEAD). types.ts defines all 8 ArtifactKind values and EvidenceScope=evidence-candidate. artifact-store.ts comments match .lattice/evidence/objects/sha256/<digest>.json, refs/by-id/<artifactId>.json, ledger/observed.jsonl layout. registry.ts registers createReproIntakeHandlers. story_create_from_repro handler note confirms no verificationEvidence set."
+    },
+    {
+      "docPath": "docs/requirements/decisions/repro-first-story-intake-experiment.md",
+      "promise": "Defines Repro-First intake workflow, candidate-only boundary for all 9 MVP commands, probe/spike/red-green/story-binding contracts, and smoke test verification (final line: repro-first candidate smoke passed).",
+      "verifiedBy": "diff + grep + live smoke run",
+      "evidence": "File exists in diff. All 9 commands (repro_probe, repro_probe_get, repro_review_set, spike_record, spike_review_set, red_green_relation_create, red_green_relation_evaluate, regression_matrix_review_set, story_create_from_repro) registered in command-catalog.ts lines 2313-2381 and via createReproIntakeHandlers in registry.ts. Live smoke run terminated with repro-first candidate smoke passed. Handler output includes evidenceScope=evidence-candidate and explicit non-production notes."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "npm --prefix packages/main run test:repro-first-candidate: smoke creates immutable digest-addressed candidate artifacts, reloads by id, verifies nested commandSpec digest sensitivity, and confirms evidenceScope=evidence-candidate on all 8 artifacts. Live run completed with repro-first candidate smoke passed. lattice validate --story=B-0aa1 recorded PASS at 2026-06-24T04:41:41.992Z with 12/12 intents covered."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "npm --prefix packages/main run test:repro-first-candidate: smoke exercises reviewed repro, spike record/review, relation, matrix review, story binding creation, confirms no verificationEvidence produced by story_create_from_repro, and verifies red-green evaluation fails closed for unreviewed/not_run/mismatched command paths. Live run completed with repro-first candidate smoke passed."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "npm --prefix packages/main run build && npm --prefix packages/main run test:repro-first-candidate: build confirms all 9 repro-first commands compile in command-catalog.ts and handler registry. Smoke drives handler-level command behavior including invalid/non-accepted input rejection and evidenceScope=evidence-candidate enforcement. Live run completed with repro-first candidate smoke passed."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "npm --prefix packages/main run test:repro-first-candidate: smoke covers full happy path (repro_probe → story_create_from_repro binding), matrix review with digest-sensitive relation evaluation, mismatch fail-closed diagnostics, rejected probe blocking story creation, and proof that story_create_from_repro produces no verificationEvidence and all 8 artifacts remain evidence-candidate. Final output: repro-first candidate smoke passed."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 4 checklist items done; 12/12 verification intents covered; live smoke passes on built package; docs promises verified against implementation; candidate-only boundary enforced throughout."
+  },
+  "_hash": "591ffdd7c1d2302d35125910b98a876733cf98869eac868021c3ad7b6be32213"
+}

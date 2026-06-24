@@ -1,0 +1,20 @@
+{
+  "storyId": "B-0aa1",
+  "expected": "repro_probe stores an immutable candidate-only artifact and prints artifactId, digest, and evidenceScope=candidate-only.",
+  "actual": {
+    "command": "npm --prefix packages/main run test:repro-first-candidate",
+    "exitCode": 0,
+    "stdout": "\n> @lattice/core@0.3.82 test:repro-first-candidate\n> node dist/tasks/repro-first-candidate-smoke.js\n\n\n── 1. repro_probe — happy path ──\n  probe: rp-mqrl6lqk-obzkwg digest=c15a0c53944a...\n\n── 2. repro_review_set — red-reviewed ──\n  review: rr-mqrl6lql-b04hp4 verdict=red-reviewed\n\n── 3. spike_record ──\n  spike: sr-mqrl6lqm-cbcm86\n\n── 4. spike_review_set ──\n  spike-review: sr-mqrl6lqm-a8crap verdict=confirmed\n\n── 5. red_green_relation_create ──\n  relation: rgr-mqrl6lqm-mw2riv\n\n── 6. red_green_relation_evaluate — happy path (commands match) ──\n  evaluation: pass=true reasons=command specs match, failure patterns are defined, and reviewed repro is accepted (rr-mqrl6lql-b04hp4)\n\n── 7. regression_matrix_review_set ──\n  matrix-review: rmr-mqrl6lqn-c94p13 status=accepted\n\n── 8. story_create_from_repro — creates story + binding ──\n  story: B-test binding: seb-mqrl6lqo-gpyfg5\n  note: Candidate artifacts remain evidence-candidate; story is created but verificationEvidence is not set. Green evidence is produced later by DEV/TEST.\n\n── 9. Proof: story_create_from_repro produces no verificationEvidence ──\n  verificationEvidence is absent from binding — correct\n\n── 10. red_green_relation_evaluate — mismatch fails closed ──\n  mismatch eval: pass=false reasons=missing red-reviewed target-bug repro review for probe; probe execution status is not_run — cannot evaluate without observed failure; command mismatch: baseline=\"baseline-cmd\" current=\"different-cmd\"\n\n── 11. repro-rejected probe blocks story_create_from_repro ──\n  correctly blocked story creation from rejected repro\n\n── 12. Proof: all artifacts are non-production/non-DONE scoped ──\n  8 artifacts verified as evidence-candidate\n\nrepro-first candidate smoke passed\n"
+  },
+  "mode": {
+    "runCommands": true,
+    "writeEvidence": true
+  },
+  "capturedAtIso": "2026-06-24T04:41:57.657Z",
+  "claims": {
+    "authorityDone": false,
+    "productionDone": false
+  },
+  "headHash": "92db4a61ab28aa438bd2d91be87c0f79a047b7f5",
+  "materialHash": "a7933ba3b66954d21e52866cfb95d101cc03eba34587c69733210a8f8ef9ac4f"
+}
