@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-24T11:25:45.889Z",
       "reviewRunId": "B-d243:RR-002",
       "_hash": "dca4ac9f1bf0892b31ce277523b07b5b4c50170f3ccb23b3f2fbef4031812423"
+    },
+    {
+      "id": "B-d243:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Round-2 re-review: F-001 is fully resolved. DeliveryCheckFreshnessResult is now a correct discriminated union — advisory is required (non-optional string) on the drift-advisory variant and advisory?:undefined on all other codes; there is exactly one construction site (delivery-check-hash.ts:193) assigning a hardcoded non-empty literal. done-oracle.ts narrows on code===delivery_check_drift_advisory (not on truthiness/?: fallback) before accessing advisory, eliminating the silent swallow. The empty-set EMPTY_STORY_FILES_HASH guard is correct on both stored and current sides. The new smoke cases (F-002 waiver re-sign, F-004 no-advisory negative assertion, empty-set strict-stale) are deterministic, non-vacuous, and load-bearing: the F-004 doesNotMatch(/ADVISORY/) would fail if the advisory leaked onto a fresh row; the empty-set case asserts storyFilesHash===undefined in the record and stale_delivery_check under drift; the F-002 case verifies _hash re-validates and storyFilesHash is preserved across waiver. No dead imports, no unused code, no as-any, no empty catch. No new findings.",
+      "createdAt": "2026-06-24T11:51:40.965Z",
+      "reviewRound": "2026-06-24T11:48:44.885Z",
+      "reviewRunId": "B-d243:RR-004",
+      "_hash": "07c8593bf46c83c9c624a31b07113699aa0016c202f3b0e43055da2e8bfe1b5c"
     }
   ]
 }
