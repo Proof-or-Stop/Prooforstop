@@ -1,0 +1,11 @@
+## Trigger Event
+During story B-70e4 on 2026-06-24, a concurrent/retried review_run_start minted a newer reviewRunId and the lane's existing material-fresh review pass was hard-rejected as "not the current latest reviewer run", emptying the lane's valid-pass set and stalling quorum_submit until a whole fresh REVIEW round was forced.
+
+## Key Insights
+The id-recency check at review-run.ts:669-672 (write, throws) and 794-804 (validate, issue stale_run) adds ZERO material/scope information: both surviving checks (checkEvidenceFreshnessForGit and compareScopeBinding) compare the run's captured snapshot against the LIVE current state, never run-1 against run-2; a second run_start changes only the id, not what was reviewed. An adversarial design review then found one real hole (Scenario 3): the storyFilesHash drift-advisory branch in checkEvidenceFreshnessForGit lacks the EMPTY_STORY_FILES_HASH no-signal guard that delivery-check already has, so relaxing id-recency would let an empty-story-diff run ride the advisory under whole-tree drift. A red->spike->story spike additionally caught that a BLANKET relax breaks flow-stability's open-finding supersession guard, so the validate-side relax must be KIND-AWARE.
+
+## Solution Tradeoffs
+Relax id-recency: at the write path (assertCurrentReviewRunForEvidence) for both kinds; at the validate path (validateEvidenceRunBinding) KIND-AWARE — skip the stale_run only for passes so a material-fresh non-latest PASS becomes valid, but KEEP stale_run for findings so an older OPEN finding still surfaces (the collectReviewerEvidenceState supersede filter already drops it once resolved/dismissed). Add the mandatory EMPTY_STORY_FILES_HASH guard to checkEvidenceFreshnessForGit's drift-advisory branch (closes the hole for all callers). Reject keep-strict (preserves the false-reject), unify-lock-alone (does not fix the race), and blanket-relax-without-the-empty-guard (unsound). Reconcile the lease-contract doc only.
+
+## Conversational Texture
+A reviewer whose pass is bound to a slightly-older but still-current-round, material-fresh run is no longer told to redo the review because a concurrent run_start happened; quorum_submit finds the valid pass. Open findings still block (a newer pass cannot hide an unresolved finding), and genuinely stale (material/scope-changed, or empty-signal) runs still hard-reject.
