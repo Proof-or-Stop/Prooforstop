@@ -11,7 +11,7 @@
  *     future-dated, missing receipt, evaluation error, validation incomplete, unmet
  *     multi-host floor — leaves the DONE flags false with an explicit blocking reason.
  *   - runAuthorityCompletionLoop drives resolve-gate -> execute-steps ->
- *     evaluate-completion against a fake Lattice Authority server, automatically
+ *     evaluate-completion against a fake Proofbound Authority server, automatically
  *     calling /v1/gates/evaluate after appending run + evidence events, fetching /
  *     verifying the native receipt, recording receipt refs, and completing ONLY on a
  *     verified approve + completed run + satisfied multi-host policy.

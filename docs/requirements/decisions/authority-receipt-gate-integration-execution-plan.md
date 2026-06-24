@@ -3,8 +3,8 @@
 > Status: execution plan for the remaining validation and rollout slice.
 > Parent: [Authority Receipt Gate End-to-End Plan](authority-session-receipt-gate-execution.md).
 > Related:
-> [Lattice Authority Receipt Contract](lattice-authority-receipt-contract.md),
-> [Lattice CLI Authority Client and Receipt Ref](lattice-cli-authority-client-receipt-ref.md),
+> [Proofbound Authority Receipt Contract](lattice-authority-receipt-contract.md),
+> [Proofbound CLI Authority Client and Receipt Ref](lattice-cli-authority-client-receipt-ref.md),
 > [Lifecycle Gate Receipt Consumption](lifecycle-gate-receipt-consumption.md),
 > [Authority Receipt Cross-Repo Live Smoke](authority-receipt-cross-repo-live-smoke.md).
 
@@ -12,10 +12,10 @@
 
 The first slice established the primitives:
 
-- Lattice Authority Server signs `gate_decision` receipts with subject binding.
-- Lattice CLI can verify Ed25519 receipts with Python-compatible hex keys and
+- Proofbound Authority Server signs `gate_decision` receipts with subject binding.
+- Proofbound CLI can verify Ed25519 receipts with Python-compatible hex keys and
   signatures.
-- Lattice CLI has a pure receipt-ref eligibility and consumption predicate.
+- Proofbound CLI has a pure receipt-ref eligibility and consumption predicate.
 - `authority-receipt-refs.json` is registered as an L4 process fact artifact.
 
 This plan now tracks the remaining slice: prove the deployed staging path and
@@ -29,7 +29,7 @@ semantics for stories that do not require Authority-backed evidence.
 2. Do not add arbitrary abstractions or product surfaces.
 3. Fix only correctness gaps required for the signed receipt chain.
 4. Keep host-neutral logic: Claude CLI, Codex CLI, local runners, and future
-   hosts are evidence producers; only Lattice Authority Server can mint a
+   hosts are evidence producers; only Proofbound Authority Server can mint a
    production `gate_decision` receipt.
 5. Fail closed only when Authority-backed evidence is explicitly required.
    Otherwise degrade to local-only or shadow diagnostics.
@@ -61,7 +61,7 @@ Server proof bundle support is current baseline, not remaining work:
 receipt, `inputPayload`, `decisionPayload`, `decisionDigestPayload`, and server
 key metadata needed by a remote verifier.
 
-Lattice CLI and local gate primitives are also current baseline:
+Proofbound CLI and local gate primitives are also current baseline:
 
 - `authority_receipt_verify` / `lattice authority receipt verify` verifies proof
   bundles and writes production `gate_decision` refs only after production
@@ -92,7 +92,7 @@ The remaining gaps are:
 
 ### Wave 1: Server Receipt Proof Bundle
 
-Owner: Lattice Authority Server.
+Owner: Proofbound Authority Server.
 
 Status: baseline complete on staging as of 2026-06-10.
 
@@ -139,7 +139,7 @@ Acceptance tests:
 
 ### Wave 2: CLI Receipt Verification and Writer
 
-Owner: Lattice CLI.
+Owner: Proofbound CLI.
 
 Status: local baseline implemented; needs staging/live proof verification and
 rollout hardening.
@@ -206,7 +206,7 @@ Acceptance tests:
 
 ### Wave 3: Idempotent Gate Consumption
 
-Owner: Lattice CLI lifecycle gates.
+Owner: Proofbound CLI lifecycle gates.
 
 Status: local TEST/DONE baseline implemented; REVIEW policy and production
 rollout need explicit decision before hard enforcement.
@@ -286,7 +286,7 @@ Acceptance tests:
 
 ### Wave 4: Status and Operator Feedback
 
-Owner: Lattice CLI.
+Owner: Proofbound CLI.
 
 Goal: make output truthful and actionable.
 
@@ -337,7 +337,7 @@ contract-only.
 
 Minimum command sequence:
 
-1. Use the deployed staging Lattice Authority Server with a configured
+1. Use the deployed staging Proofbound Authority Server with a configured
    non-default key.
 2. Discover policy and server key.
 3. Register actor key and runner heartbeat.

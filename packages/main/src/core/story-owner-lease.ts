@@ -2,7 +2,7 @@
  * B-c55d CHK-001: story owner lease core (local session ownership).
  *
  * session-ownership-and-write-leases.md rollout step 2b — "story owner lease".
- * Implements local Lattice session ownership coordination so that, when multiple
+ * Implements local Proofbound session ownership coordination so that, when multiple
  * agent sessions run in parallel, "one story has one mutating owner" is a
  * mechanically-enforced fact rather than something humans negotiate in chat.
  *
@@ -628,7 +628,7 @@ export function formatNonOwnerError(
     ? `Use read-only commands, wait for the owner, or rerun with --takeover to transfer the stale lease.`
     : `Use read-only commands, wait for the owner, or rerun with --forceTakeover to seize the active lease (a deliberate human override).`;
   return (
-    `${ctx.storyId} is owned by Lattice session ${lease.sessionId}, heartbeat ${ageStr} ` +
+    `${ctx.storyId} is owned by Proofbound session ${lease.sessionId}, heartbeat ${ageStr} ` +
     `(owner cwd: ${lease.cwd}). "${ctx.command}" is an owner-gated ${ctx.ownershipClass} command, ` +
     `so this session (${ctx.currentSessionId}) cannot run it. ${staleStr}${sameWorktreeGuidance} ${nextAction}`
   );

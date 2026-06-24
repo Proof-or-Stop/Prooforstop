@@ -1,0 +1,78 @@
+{
+  "storyId": "B-bdce",
+  "name": "stale-hint-done-prepare-drift-class",
+  "title": "Enrich the stale-evidence hint with done_prepare recovery + drift classification",
+  "description": "renderEvidenceStaleHint (the single cross-surface stale verificationEvidence hint, used byte-identically by session_brief / story_advance pre-check / validate) currently offers only verification_evidence_refresh_stale + validate. It does not point the Host to done_prepare (the one-step ordered recovery) and does not classify the drift (whole-tree materialHash-only vs story-owned storyFilesHash), so a Host cannot tell a cheap refresh from a real re-review. Enrich the shared renderer; the three surfaces auto-inherit. Validated via red/spike (RED test exit 1; scratch green proof).",
+  "type": "chore",
+  "phase": "INIT_CHECK",
+  "priority": "medium",
+  "keywords": [
+    "evidence-stale-hint",
+    "renderEvidenceStaleHint",
+    "done_prepare",
+    "drift-classification",
+    "storyFilesHash",
+    "materialHash",
+    "host-ux",
+    "stale-evidence"
+  ],
+  "riskSignals": [
+    {
+      "category": "Security/Credentials",
+      "matched": "token"
+    },
+    {
+      "category": "State Machine/Gate",
+      "matched": "story_advance"
+    },
+    {
+      "category": "Validation Framework",
+      "matched": "lattice validate"
+    }
+  ],
+  "createdAt": "2026-06-24T14:27:58.723Z",
+  "startedAt": "2026-06-24T14:27:58.723Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-24T14:27:58.738Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "b0a01b07-dd7a-40ba-a0fe-163497230a65",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-24T14:36:16.769Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "b0a01b07-dd7a-40ba-a0fe-163497230a65",
+      "agent": "main"
+    }
+  ],
+  "riskSignalsDismissed": [
+    {
+      "category": "Security/Credentials",
+      "reason": "False positive (mention not modify): the word token appears only in checklist prose (a drift-classification token like storyFilesHash/whole-tree) meaning a string keyword, not a credential/secret. No security, credential, auth, or token-handling code is touched; the change is a hint-text renderer (evidence-stale-hint.ts) + 2 smokes.",
+      "at": "2026-06-24T14:28:34.068Z"
+    },
+    {
+      "category": "State Machine/Gate",
+      "reason": "False positive (mention not modify): story_advance appears only in prose describing where the stale hint is shown (story_advance pre-check) and in the recovery text. No state-machine/gate/guard code is modified; the change is the stale-evidence hint renderer + 2 smokes.",
+      "at": "2026-06-24T14:28:34.320Z"
+    },
+    {
+      "category": "Validation Framework",
+      "reason": "False positive (mention not modify): lattice validate appears only as a recovery command quoted inside the stale-evidence hint text. No validation framework code is modified; the change is evidence-stale-hint.ts (a hint renderer) + 2 byte-equality smokes.",
+      "at": "2026-06-24T14:28:34.562Z"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-bdce",
+    "branch": "story/B-bdce",
+    "createdAt": "2026-06-24T14:36:16.118Z"
+  }
+}

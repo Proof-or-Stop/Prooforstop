@@ -749,7 +749,7 @@ function createActiveStoryRoot(phase: StoryInfo['phase'], configPatch: Record<st
   write(root, 'lattice.config.json', JSON.stringify(config));
   git(root, ['init']);
   git(root, ['config', 'user.email', 'lattice@example.test']);
-  git(root, ['config', 'user.name', 'Lattice Smoke']);
+  git(root, ['config', 'user.name', 'Proofbound Smoke']);
   git(root, ['checkout', '-B', 'main']);
   git(root, ['add', '.']);
   git(root, ['commit', '-m', 'base']);
@@ -1065,7 +1065,7 @@ function assertManagedAssetExpandedDocsAndTrueDrift(): void {
   ): void => {
     const badRoot = mkdtempSync(join(tmpdir(), 'lattice-managed-drift-'));
     try {
-      const badSection = '<!-- lattice:start -->\n# Locally edited guide\nThis is not a Lattice-owned alternate contract.\n<!-- lattice:end -->\n';
+      const badSection = '<!-- lattice:start -->\n# Locally edited guide\nThis is not a Proofbound-owned alternate contract.\n<!-- lattice:end -->\n';
       for (const doc of docs) write(badRoot, doc.relPath, badSection);
       const drift = runManagedAssetCheck(badRoot, { profile: 'all', assetMode });
       const driftById = new Map(drift.items.map(item => [item.id, item]));
@@ -2090,7 +2090,7 @@ async function assertStoryAdvanceReviewEchoOmitsRetiredChannel(): Promise<void> 
     const { store, storyId, reviewRound } = createReviewStore(root);
     git(root, ['init']);
     git(root, ['config', 'user.email', 'lattice@example.test']);
-    git(root, ['config', 'user.name', 'Lattice Smoke']);
+    git(root, ['config', 'user.name', 'Proofbound Smoke']);
     git(root, ['checkout', '-B', 'main']);
     git(root, ['add', '.']);
     git(root, ['commit', '-m', 'base']);
@@ -2131,7 +2131,7 @@ function assertReviewerStatusUsesMdFallback(): void {
     } as any);
     git(root, ['init']);
     git(root, ['config', 'user.email', 'lattice@example.test']);
-    git(root, ['config', 'user.name', 'Lattice Smoke']);
+    git(root, ['config', 'user.name', 'Proofbound Smoke']);
     git(root, ['checkout', '-B', 'main']);
     git(root, ['add', '.']);
     git(root, ['commit', '-m', 'base']);
@@ -2187,7 +2187,7 @@ function assertSessionBriefStatusHintsMatchGates(): void {
     const { store, storyId, reviewRound } = createReviewStore(reviewRoot);
     git(reviewRoot, ['init']);
     git(reviewRoot, ['config', 'user.email', 'lattice@example.test']);
-    git(reviewRoot, ['config', 'user.name', 'Lattice Smoke']);
+    git(reviewRoot, ['config', 'user.name', 'Proofbound Smoke']);
     git(reviewRoot, ['checkout', '-B', 'main']);
     git(reviewRoot, ['add', '.']);
     git(reviewRoot, ['commit', '-m', 'base']);
@@ -2280,7 +2280,7 @@ function assertReviewNextUsesReviewerGateState(): void {
     const { store, storyId, reviewRound } = createReviewStore(root);
     git(root, ['init']);
     git(root, ['config', 'user.email', 'lattice@example.test']);
-    git(root, ['config', 'user.name', 'Lattice Smoke']);
+    git(root, ['config', 'user.name', 'Proofbound Smoke']);
     git(root, ['checkout', '-B', 'main']);
     git(root, ['add', '.']);
     git(root, ['commit', '-m', 'base']);
@@ -2351,7 +2351,7 @@ function assertDevGuidanceUsesReviewPhase(): void {
     const { store, storyId } = createReviewStore(root);
     git(root, ['init']);
     git(root, ['config', 'user.email', 'lattice@example.test']);
-    git(root, ['config', 'user.name', 'Lattice Smoke']);
+    git(root, ['config', 'user.name', 'Proofbound Smoke']);
     git(root, ['checkout', '-B', 'main']);
     git(root, ['add', '.']);
     git(root, ['commit', '-m', 'base']);
@@ -2424,7 +2424,7 @@ function assertRealCliValidateHintFollowsActiveStoryPhase(): void {
     resetConfigCache();
     git(root, ['init']);
     git(root, ['config', 'user.email', 'lattice@example.test']);
-    git(root, ['config', 'user.name', 'Lattice Smoke']);
+    git(root, ['config', 'user.name', 'Proofbound Smoke']);
     git(root, ['checkout', '-B', 'main']);
     git(root, ['add', '.']);
     git(root, ['commit', '-m', 'base']);
@@ -2488,7 +2488,7 @@ function assertChannelGateRejectsLatticeSubjectForRealFiles(): void {
     const { store, storyId } = createReviewStore(root);
     git(root, ['init']);
     git(root, ['config', 'user.email', 'lattice@example.test']);
-    git(root, ['config', 'user.name', 'Lattice Smoke']);
+    git(root, ['config', 'user.name', 'Proofbound Smoke']);
     git(root, ['checkout', '-B', 'main']);
     git(root, ['add', '.']);
     git(root, ['commit', '-m', 'base']);
@@ -2519,7 +2519,7 @@ function assertChannelGateAcceptsStructuredEvidenceWithSharedGitAuthor(): void {
     const { store, storyId } = createReviewStore(root);
     git(root, ['init']);
     git(root, ['config', 'user.email', 'lattice@example.test']);
-    git(root, ['config', 'user.name', 'Lattice Smoke']);
+    git(root, ['config', 'user.name', 'Proofbound Smoke']);
     git(root, ['checkout', '-B', 'main']);
     git(root, ['add', '.']);
     git(root, ['commit', '-m', 'base']);
@@ -2556,7 +2556,7 @@ function assertChannelGateAcceptsImplementerAuthorWithoutDispatch(): void {
     const { store, storyId } = createReviewStore(root);
     git(root, ['init']);
     git(root, ['config', 'user.email', 'lattice@example.test']);
-    git(root, ['config', 'user.name', 'Lattice Smoke']);
+    git(root, ['config', 'user.name', 'Proofbound Smoke']);
     git(root, ['checkout', '-B', 'main']);
     git(root, ['add', '.']);
     git(root, ['commit', '-m', 'base']);
@@ -2585,7 +2585,7 @@ function assertChannelGateAcceptsSuccessfulSubagentResultEvidence(): void {
     const { store, storyId } = createReviewStore(root);
     git(root, ['init']);
     git(root, ['config', 'user.email', 'lattice@example.test']);
-    git(root, ['config', 'user.name', 'Lattice Smoke']);
+    git(root, ['config', 'user.name', 'Proofbound Smoke']);
     git(root, ['checkout', '-B', 'main']);
     git(root, ['add', '.']);
     git(root, ['commit', '-m', 'base']);
@@ -2621,7 +2621,7 @@ function assertChannelGateAcceptsDispatchEvidence(): void {
     const { store, storyId } = createReviewStore(root);
     git(root, ['init']);
     git(root, ['config', 'user.email', 'lattice@example.test']);
-    git(root, ['config', 'user.name', 'Lattice Smoke']);
+    git(root, ['config', 'user.name', 'Proofbound Smoke']);
     git(root, ['checkout', '-B', 'main']);
     git(root, ['add', '.']);
     git(root, ['commit', '-m', 'base']);
@@ -2660,7 +2660,7 @@ function assertDoneChecklistUsesStableOracleRows(): void {
     const { store, storyId, reviewRound } = createReviewStore(root);
     git(root, ['init']);
     git(root, ['config', 'user.email', 'lattice@example.test']);
-    git(root, ['config', 'user.name', 'Lattice Smoke']);
+    git(root, ['config', 'user.name', 'Proofbound Smoke']);
     git(root, ['checkout', '-B', 'main']);
     git(root, ['add', '.']);
     git(root, ['commit', '-m', 'base']);
@@ -2746,7 +2746,7 @@ function assertDoneClosureProjectionSeparatesAuthority(): void {
     const { store, storyId } = createReviewStore(root);
     git(root, ['init']);
     git(root, ['config', 'user.email', 'lattice@example.test']);
-    git(root, ['config', 'user.name', 'Lattice Smoke']);
+    git(root, ['config', 'user.name', 'Proofbound Smoke']);
     git(root, ['checkout', '-B', 'main']);
     git(root, ['add', '.']);
     git(root, ['commit', '-m', 'base']);
@@ -3607,7 +3607,7 @@ function assertDeclaredArtifactDoneCommittedRow(): void {
   const root = mkdtempSync(join(tmpdir(), 'lattice-declared-committed-row-'));
   try {
     git(root, ['init']);
-    git(root, ['config', 'user.name', 'Lattice Smoke']);
+    git(root, ['config', 'user.name', 'Proofbound Smoke']);
     git(root, ['config', 'user.email', 'smoke@example.test']);
     write(root, 'lattice.config.json', JSON.stringify({
       scanRoot: 'packages/main',
@@ -3861,7 +3861,7 @@ async function assertPhaseGatesAndEffectsExtraction(): Promise<void> {
     store.writeStory(storyId, normalStory);
     git(preflightRoot, ['init']);
     git(preflightRoot, ['config', 'user.email', 'lattice@example.test']);
-    git(preflightRoot, ['config', 'user.name', 'Lattice Smoke']);
+    git(preflightRoot, ['config', 'user.name', 'Proofbound Smoke']);
     git(preflightRoot, ['checkout', '-B', 'main']);
     git(preflightRoot, ['add', '.']);
     git(preflightRoot, ['commit', '-m', 'base']);
@@ -4021,7 +4021,7 @@ function assertDoneOracleSameSource(): void {
     const { store, storyId, reviewRound } = createReviewStore(root);
     git(root, ['init']);
     git(root, ['config', 'user.email', 'lattice@example.test']);
-    git(root, ['config', 'user.name', 'Lattice Smoke']);
+    git(root, ['config', 'user.name', 'Proofbound Smoke']);
     git(root, ['checkout', '-B', 'main']);
     git(root, ['add', '.']);
     git(root, ['commit', '-m', 'base']);

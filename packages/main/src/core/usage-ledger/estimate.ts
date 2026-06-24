@@ -16,7 +16,7 @@
  * Boundary invariant (load-bearing): the whole `core/usage-ledger` module keeps
  * its zero-cross-module-import property. This file may import ONLY sibling
  * usage-ledger files (./record, ./ids) and node builtins. It must NOT import any
- * provider adapter, dispatch-runner, lattice-dispatch, or any other Lattice
+ * provider adapter, dispatch-runner, lattice-dispatch, or any other Proofbound
  * subsystem. The smoke statically asserts this.
  *
  * Fallback order (spec "Estimate accuracy and fallback order"):

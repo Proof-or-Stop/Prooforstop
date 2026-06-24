@@ -47,7 +47,7 @@ function makeFixture(version: string, over?: { root?: string; main?: string; bra
   mkdirSync(join(dir, 'packages/main/src/core'), { recursive: true });
   writeFileSync(join(dir, VERSION_SYNC_FILES.rootPackageJson), `{\n  "name": "lattice",\n  "version": "${over?.root ?? version}",\n  "description": ""\n}\n`);
   writeFileSync(join(dir, VERSION_SYNC_FILES.mainPackageJson), `{\n  "name": "@lattice/core",\n  "version": "${over?.main ?? version}",\n  "type": "module"\n}\n`);
-  writeFileSync(join(dir, VERSION_SYNC_FILES.brand), `import { basename } from 'path';\n\nexport const LATTICE_CLI_VERSION = '${over?.brand ?? version}' as const;\nexport const LATTICE_PRODUCT_NAME = 'Lattice CLI' as const;\nvoid basename;\n`);
+  writeFileSync(join(dir, VERSION_SYNC_FILES.brand), `import { basename } from 'path';\n\nexport const LATTICE_CLI_VERSION = '${over?.brand ?? version}' as const;\nexport const LATTICE_PRODUCT_NAME = 'Proofbound CLI' as const;\nvoid basename;\n`);
   return dir;
 }
 

@@ -299,7 +299,7 @@ function buildConfigProbe(projectRoot: string): RolloutProbe {
     : `external project; global ${formatLatticeProductLine()} can be used without a project-local JS wrapper`;
   return {
     id: 'lattice_config_doctor',
-    label: 'Lattice config doctor',
+    label: 'Proofbound config doctor',
     status,
     command: 'lattice lattice_config_doctor --format=json',
     executed: 'filesystem-probe',
@@ -402,7 +402,7 @@ function buildTranscriptScopeProbe(projectRoot: string, story: RolloutProjectSto
 }
 
 function nextActionFor(status: RolloutStatus, probes: RolloutProbe[]): string {
-  if (status === 'pass') return 'Ready for Lattice CLI rollout.';
+  if (status === 'pass') return 'Ready for Proofbound CLI rollout.';
   const firstFail = probes.find(probe => probe.status === 'fail');
   if (firstFail?.nextAction) return firstFail.nextAction;
   const firstWarn = probes.find(probe => probe.status === 'warn');

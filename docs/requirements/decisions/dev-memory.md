@@ -4,9 +4,9 @@
 
 ## Purpose
 
-Dev-memory provides a lightweight, file-backed mechanism for AI agents and humans to capture reusable lessons learned during development — **outside** the formal Lattice story and gate lifecycle.
+Dev-memory provides a lightweight, file-backed mechanism for AI agents and humans to capture reusable lessons learned during development — **outside** the formal Proofbound story and gate lifecycle.
 
-**Dev-memory is non-authoritative context, not Lattice gate evidence.**
+**Dev-memory is non-authoritative context, not Proofbound gate evidence.**
 
 This is not negotiable: no dev-memory entry, candidate file, or preflight pack can satisfy:
 - `delivery_check_set` docsPromises
@@ -26,7 +26,7 @@ Dev-memory is advisory context only. Its purpose is to help agents recall releva
 | **global** | `~/.lattice/dev-memory/experience.jsonl` | machine lifetime |
 | **story-candidate** | `<projectRoot>/.lattice/story/actives/<storyId>/dev-memory-candidates.jsonl` | story lifetime |
 
-- Paths resolve deterministically without a Lattice daemon running.
+- Paths resolve deterministically without a Proofbound daemon running.
 - Project/global reads use `.lattice/dev-memory/experience.jsonl` and `~/.lattice/dev-memory/experience.jsonl` as the sole canonical storage. The legacy `.lattice/dev-memory/experience.jsonl` read fallback was removed in B-a4e3 (existing data was migrated to `.lattice`); `.lattice` is no longer read.
 - Writes only target canonical `.lattice` storage; dev-memory commands must not append to or mutate legacy `.lattice` files.
 - JSONL format: one JSON object per line, schema-versioned via required fields.
@@ -83,7 +83,7 @@ Optional fields: `tags`, `sourceStoryId`, `evidenceRefs`.
 
 `lattice dev_memory_finish` works in three modes:
 
-**Outside Lattice (no active story, no `--scope=global`)** — for ordinary non-Lattice sessions. Does NOT require or create `.lattice/story/actives`. Reads recent project dev-memory entries (filtered by `--query` when provided). Returns a summary of retained entries, or a clear empty-state message when none exist. Does NOT touch story directories.
+**Outside Proofbound (no active story, no `--scope=global`)** — for ordinary non-Lattice sessions. Does NOT require or create `.lattice/story/actives`. Reads recent project dev-memory entries (filtered by `--query` when provided). Returns a summary of retained entries, or a clear empty-state message when none exist. Does NOT touch story directories.
 
 **Story-candidate write (active story branch, no `--scope=global`)** — defaults to the current `story/<id>` branch and writes session experience candidates to `<root>/.lattice/story/actives/<storyId>/dev-memory-candidates.jsonl`, with `scope: story-candidate`, `sourceStoryId`, `gateEvidence: false`, `authority: non_authoritative`, de-duped by id. Use `--storyId=<id>` to override the target story explicitly; this is a target override within this same path, not a separate mode.
 
@@ -91,11 +91,11 @@ Optional fields: `tags`, `sourceStoryId`, `evidenceRefs`.
 
 ### `dev_memory_start` — prompt-only memory wrapper (not lifecycle worktree initialization)
 
-`lattice dev_memory_start` is a **prompt-only memory wrapper**, intentionally separate from Lattice's story lifecycle and worktree initialization. It is not a replacement for story phase transitions — the Lattice story lifecycle remains unchanged. `dev_memory_start` runs preflight and emits startup guidance text only; **it does not launch any binary** and does not start or advance any story phase. Always safe to run.
+`lattice dev_memory_start` is a **prompt-only memory wrapper**, intentionally separate from Proofbound's story lifecycle and worktree initialization. It is not a replacement for story phase transitions — the Proofbound story lifecycle remains unchanged. `dev_memory_start` runs preflight and emits startup guidance text only; **it does not launch any binary** and does not start or advance any story phase. Always safe to run.
 
 `lattice dev_memory_start --agent=claude|codex|gemini` adds per-agent startup guidance to the output.
 
-### Lattice Parallel Dispatch Consumers
+### Proofbound Parallel Dispatch Consumers
 
 `parallel_dispatch` and `parallel_report` may surface dev-memory entries as
 bounded `experienceRefs` when the caller passes `includeExperience=true`. This
@@ -119,7 +119,7 @@ is a projection-only read path:
 - Deterministic: readable by `cat`, `grep`, `jq` without any runtime.
 - Versionable: JSONL diffs are meaningful in `git diff`.
 - Schema-evolvable: unknown fields are ignored; missing required fields cause that entry to be skipped, not a crash.
-- No daemon required: path resolution and reads work without Lattice running.
+- No daemon required: path resolution and reads work without Proofbound running.
 
 ### Why are story candidates separate from project memory?
 

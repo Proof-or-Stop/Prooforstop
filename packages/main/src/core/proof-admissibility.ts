@@ -80,6 +80,8 @@ export type ProofProducerBoundary = typeof PROOF_PRODUCER_BOUNDARIES[number];
 export const ADMISSIBILITY_REASON_CODES = [
   'unsupported_schema_version',
   'unsupported_contract_version',
+  'unsupported_verifier_version',
+  'checker_error',
   'bad_shape',
   'missing_required_field',
   'unexpected_field',
@@ -118,6 +120,9 @@ export const ADMISSIBILITY_REASON_CODES = [
 export type AdmissibilityReasonCode = typeof ADMISSIBILITY_REASON_CODES[number];
 
 export const PROOF_ADMISSIBILITY_CONTRACT_VERSION = 'lattice.proof_admissibility.v1' as const;
+export const PROOF_ADMISSIBILITY_VERIFIER_VERSION = 'lattice.proof_admissibility_verifier.v1' as const;
+
+export type AdmissibilityOverall = 'pass' | 'warn' | 'fail' | 'error';
 
 export interface ProofClaimPolicy {
   claim: ClaimKind;
@@ -148,6 +153,7 @@ export type ProofSurfaceKind = typeof PROOF_SURFACE_REGISTRY[number]['artifactKi
 export interface AdmissibilityChecks {
   schemaVersion?: string;
   contractVersion?: string;
+  verifierVersion?: string;
   strictShapeValid?: boolean;
   semanticDigestValid?: boolean;
   signatureOrReceiptBindingValid?: boolean;
@@ -179,6 +185,7 @@ export interface AdmissibilityResult {
   producerBoundary: ProofProducerBoundary | 'unknown';
   consumer: ArtifactConsumerKind;
   claim: ClaimKind;
+  overall: AdmissibilityOverall;
   allowed: boolean;
   productionDoneEligible: boolean;
   reasons: AdmissibilityReasonCode[];
@@ -267,10 +274,22 @@ export const PROOF_SURFACE_REGISTRY = [
     temporalAndMaterialBindingRequired: true,
     allowedConsumers: ['AUTHORITY_GATE_DECISION', 'TEST', 'DONE'],
     allowedClaims: [
-      { claim: 'production-completion', consumers: ['AUTHORITY_GATE_DECISION', 'TEST', 'DONE'], productionDoneEligible: true },
+      /**
+       * @task B-91f3
+       * @checklist CHK-001, CHK-002
+       * @title Authority receipt refs remain admissible evidence, not local production completion
+       * @type feature
+       * @priority high
+       * @description
+       *   Authority receipt refs may be consumed as compatible evidence/input by Authority-facing adapters.
+       *   The local proof-admissibility core must not convert that evidence into a local productionDone claim.
+       * @changes
+       *   - [CHK-002] Set authority-receipt-ref production-completion productionDoneEligible=false for local CLI proof.
+       */
+      { claim: 'production-completion', consumers: ['AUTHORITY_GATE_DECISION', 'TEST', 'DONE'], productionDoneEligible: false },
       { claim: 'done-readiness', consumers: ['TEST', 'DONE'], productionDoneEligible: false },
     ],
-    producerBoundaryNote: 'Verified Authority gate_decision receipt ref consumed by the matching lifecycle gate.',
+    producerBoundaryNote: 'Verified Authority gate_decision receipt ref is compatible evidence/input; local core does not claim production completion.',
     remediation: PRODUCTION_GATE_REMEDIATION,
   },
   {
@@ -549,6 +568,7 @@ function defaultResult(input: EvaluateProofAdmissibilityInput): AdmissibilityRes
     producerBoundary: 'unknown',
     consumer: input.consumer,
     claim: input.claim,
+    overall: 'fail',
     allowed: false,
     productionDoneEligible: false,
     reasons: ['missing_required_field'],
@@ -580,6 +600,29 @@ export function evaluateProofAdmissibility(input: EvaluateProofAdmissibilityInpu
     addReason(reasons, remediation, 'missing_required_field', 'Evaluate the artifact with the current proof admissibility contract version.');
   } else if (checks.contractVersion !== PROOF_ADMISSIBILITY_CONTRACT_VERSION) {
     addReason(reasons, remediation, 'unsupported_contract_version', 'Evaluate the artifact with the current proof admissibility contract version.');
+  }
+
+  /**
+   * @task B-fbfb
+   * @checklist CHK-002, CHK-003
+   * @title proof admissibility version convergence anchors
+   * @type feature
+   * @priority high
+   * @description
+   *   AND supportedSchemaVersion maps checks.schemaVersion to each registry schemaVersions list.
+   *   AND supportedVerifierVersion maps checks.verifierVersion to PROOF_ADMISSIBILITY_VERIFIER_VERSION.
+   *   AND supportedContractVersion maps checks.contractVersion to PROOF_ADMISSIBILITY_CONTRACT_VERSION.
+   *   AND verifierVersionSupported is the ledger-consumption alias for AND supportedVerifierVersion.
+   *   AND contractVersionSupported is the ledger-consumption alias for AND supportedContractVersion.
+   *   unsupported_schema_version, unsupported_contract_version, and unsupported_verifier_version are deterministic proof-admissibility reason codes.
+   * @changes
+   *   - [CHK-002] Add AND supportedSchemaVersion, AND supportedVerifierVersion, AND supportedContractVersion, AND verifierVersionSupported, and AND contractVersionSupported implementation anchors.
+   *   - [CHK-003] Bind unsupported_schema_version, unsupported_contract_version, and unsupported_verifier_version reason-code coverage to smoke tests.
+   */
+  if (checks.verifierVersion == null) {
+    addReason(reasons, remediation, 'missing_required_field', 'Evaluate the artifact with the current proof admissibility verifier version.');
+  } else if (checks.verifierVersion !== PROOF_ADMISSIBILITY_VERIFIER_VERSION) {
+    addReason(reasons, remediation, 'unsupported_verifier_version', 'Evaluate the artifact with the current proof admissibility verifier version.');
   }
 
   if (checks.schemaVersion !== undefined && !definition.schemaVersions.includes(checks.schemaVersion)) {
@@ -700,6 +743,7 @@ export function evaluateProofAdmissibility(input: EvaluateProofAdmissibilityInpu
   }
 
   const allowed = Boolean(policy) && reasons.length === 0;
+  const overall: AdmissibilityOverall = allowed ? 'pass' : 'fail';
   const productionDoneEligible = allowed && Boolean(policy?.productionDoneEligible) && definition.scope === 'production-gate-decision';
 
   return {
@@ -710,6 +754,7 @@ export function evaluateProofAdmissibility(input: EvaluateProofAdmissibilityInpu
     producerBoundary: definition.producerBoundary,
     consumer: input.consumer,
     claim: input.claim,
+    overall,
     allowed,
     productionDoneEligible,
     reasons,

@@ -4,7 +4,7 @@ Date: 2026-06-19
 
 ## Problem
 
-Lattice records several gate-consumed bindings against the current whole-tree
+Proofbound records several gate-consumed bindings against the current whole-tree
 `materialHash`. That is sound, but too coarse for parallel story work: merging
 an unrelated change into `main` can change the whole-tree hash and stale a
 review run, verification evidence, or review escalation record even when the
@@ -65,7 +65,7 @@ must see that unrelated whole-tree material drift occurred.
 
 ## Why Not Story-Diff Only
 
-Story-diff-only freshness is insufficient because Lattice gates also depend on
+Story-diff-only freshness is insufficient because Proofbound gates also depend on
 shared runtime code and process facts. A story can leave its own changed files
 untouched while a merge to `main` changes a transitive helper, validation
 runner, review policy, or process-fact registry entry. Treating that as fully

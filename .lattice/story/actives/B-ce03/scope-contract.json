@@ -1,0 +1,43 @@
+{
+  "storyId": "B-ce03",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/handlers/done-prepare.ts",
+    "packages/main/src/core/lifecycle-readiness.ts",
+    "packages/main/src/tasks/done-readiness-flow-benchmark.ts",
+    "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/done-prepare-smoke.ts",
+    "packages/main/src/tasks/lifecycle-check-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "TEST gate required a live-smoke transcript artifact for user-value acceptance; this is command-generated story evidence, not implementation/source scope expansion.",
+      "timestamp": "2026-06-24T13:42:47.851Z",
+      "paths": [
+        ".lattice/story/actives/B-ce03/evidence/live-smoke-transcript.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-ce03/evidence/live-smoke-transcript.json"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "4d436cd3cd8d3b8534046721994000a07dce2293",
+      "materialHash": "e9a3195d5292e52002df1fc1f3d05afec3b08ea30f22bafe1a3d88699775eb24",
+      "anchors": [
+        "live_smoke_transcript",
+        "user_value_acceptance",
+        "DONE.delivery_evidence"
+      ]
+    }
+  ],
+  "createdAt": "2026-06-24T13:04:12.624Z",
+  "updatedAt": "2026-06-24T13:42:47.851Z"
+}

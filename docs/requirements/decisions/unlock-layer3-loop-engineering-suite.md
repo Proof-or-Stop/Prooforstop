@@ -12,14 +12,14 @@
 This document defines the execution plan to formally unlock Layer 3 Loop
 Engineering Baseline capability.
 
-The goal is not to add another theory layer or make Lattice look more advanced.
-The goal is to prove that Lattice has a bounded, evidence-driven, host-neutral
+The goal is not to add another theory layer or make Proofbound look more advanced.
+The goal is to prove that Proofbound has a bounded, evidence-driven, host-neutral
 unattended development model for tested task classes.
 
 The core question answered by this unlock is:
 
 ```text
-Can Lattice plan, execute, validate, repair, review-reflect, stop, block, or
+Can Proofbound plan, execute, validate, repair, review-reflect, stop, block, or
 escalate without relying on a human to manually drive every step, while still
 preventing false DONE?
 ```
@@ -27,26 +27,26 @@ preventing false DONE?
 The allowed claim after unlock is:
 
 ```text
-Lattice has validated the formal Loop Engineering claim path for fresh UDM proof
+Proofbound has validated the formal Loop Engineering claim path for fresh UDM proof
 artifacts in the tested task classes.
 ```
 
 Plain wording:
 
 ```text
-Lattice has validated that the formal Loop Engineering claim path can consume
+Proofbound has validated that the formal Loop Engineering claim path can consume
 fresh UDM proof artifacts, and unlocks only the corresponding Layer 3 claim.
 ```
 
 The unlock does not allow these claims:
 
-- Lattice is production-grade.
-- Lattice can run unlimited autonomous coding.
-- Lattice can develop arbitrary projects unattended.
-- Lattice can skip review, validation, evidence, or Authority gates.
-- Lattice can claim production DONE without Authority receipt verification.
-- Lattice can use a single host to self-certify unattended correctness.
-- Lattice can treat Loop Engineering as long-term production safety.
+- Proofbound is production-grade.
+- Proofbound can run unlimited autonomous coding.
+- Proofbound can develop arbitrary projects unattended.
+- Proofbound can skip review, validation, evidence, or Authority gates.
+- Proofbound can claim production DONE without Authority receipt verification.
+- Proofbound can use a single host to self-certify unattended correctness.
+- Proofbound can treat Loop Engineering as long-term production safety.
 
 ## 2. Governing Principles
 
@@ -118,25 +118,25 @@ safety.
 
 | Item | Meaning |
 |---|---|
-| Layer 2 fresh proof | Lattice can handle realistic engineering tasks for tested classes. |
-| Layer 3 Loop suite PASS | Lattice can run a bounded unattended development loop for tested classes. |
+| Layer 2 fresh proof | Proofbound can handle realistic engineering tasks for tested classes. |
+| Layer 3 Loop suite PASS | Proofbound can run a bounded unattended development loop for tested classes. |
 | Layer 4 Production Safety | Long-term safety, soak, receipts, and production-grade authority remain locked. |
 | Layer 5 Capability Claim | Global claim boundary remains locked until all lower layers prove. |
 
 What can be said after Layer 3 passes:
 
 ```text
-Lattice has validated the formal Loop Engineering claim path for fresh UDM proof
+Proofbound has validated the formal Loop Engineering claim path for fresh UDM proof
 artifacts in the tested task classes.
 ```
 
 What cannot be said after Layer 3 alone:
 
 ```text
-Lattice is production-grade.
-Lattice can run unattended development safely for arbitrary projects.
-Lattice can claim production DONE without Authority receipt verification.
-Lattice has proven real Lattice Story lifecycle execution for the Loop
+Proofbound is production-grade.
+Proofbound can run unattended development safely for arbitrary projects.
+Proofbound can claim production DONE without Authority receipt verification.
+Proofbound has proven real Proofbound Story lifecycle execution for the Loop
 Engineering scenarios without the real-execution UDM baseline.
 ```
 
@@ -223,7 +223,7 @@ validation.
 | `runId` | Must be unique for the baseline run. |
 | `suiteRunId` | Must bind the run to the Layer 3 suite. |
 | `headHash` | Must identify the code revision under test. |
-| `materialHash` | Must bind code, evidence, and relevant Lattice state. |
+| `materialHash` | Must bind code, evidence, and relevant Proofbound state. |
 | `expectedOutcome` | Must match the baseline definition. |
 | `outcome` | Must be `PASS`, `EXPECTED_BLOCK`, `ESCALATED`, or `FAIL`. |
 | `claimTarget` | Must be `loop-engineering` once the Layer 3 formal proof path exists. |
@@ -269,7 +269,7 @@ Fail conditions:
 
 ### UDM-EXECUTOR-1
 
-Goal: prove that Lattice executes planned steps rather than improvising work.
+Goal: prove that Proofbound executes planned steps rather than improvising work.
 
 Pass criteria:
 
@@ -490,7 +490,7 @@ Priority order:
 7. Fresh evidence resolves trigger -> close candidate, then normal gates.
 
 `close_candidate` is not DONE. It means the loop believes the repair candidate
-is ready for normal Lattice review refresh.
+is ready for normal Proofbound review refresh.
 
 ## 11. Multi-Host / Multi-Agent Review
 
@@ -502,7 +502,7 @@ Layer 3 formal unlock requires two host CLIs and multiple review agents.
 | Loop implementer | Codex CLI or Claude CLI | Execute or simulate bounded UDM baseline runs. |
 | Reviewer agent A | Claude CLI | Review loop decisions, reflection boundaries, and stop conditions. |
 | Reviewer agent B | Codex CLI | Review evidence bindings, claim boundaries, and fail-closed behavior. |
-| Claim evaluator | Lattice | Decide whether Layer 3 claim unlock is authorized. |
+| Claim evaluator | Proofbound | Decide whether Layer 3 claim unlock is authorized. |
 
 Host-neutral rule:
 
@@ -595,25 +595,25 @@ The final Layer 3 report must include:
 Allowed wording after passing:
 
 ```text
-Lattice has validated the formal Loop Engineering claim path for fresh UDM proof
+Proofbound has validated the formal Loop Engineering claim path for fresh UDM proof
 artifacts in the tested task classes.
 ```
 
 Plain wording:
 
 ```text
-Lattice has validated that the formal Loop Engineering claim path can consume
+Proofbound has validated that the formal Loop Engineering claim path can consume
 fresh UDM proof artifacts, and unlocks only the corresponding Layer 3 claim.
 ```
 
 Forbidden wording:
 
 ```text
-Lattice can run unlimited autonomous coding.
-Lattice no longer needs human escalation.
-Lattice is production-grade.
-Lattice can claim production-grade unattended development from Loop Engineering alone.
-Lattice can claim production DONE without Authority receipt verification.
+Proofbound can run unlimited autonomous coding.
+Proofbound no longer needs human escalation.
+Proofbound is production-grade.
+Proofbound can claim production-grade unattended development from Loop Engineering alone.
+Proofbound can claim production DONE without Authority receipt verification.
 ```
 
 ## 16. Decision

@@ -3,7 +3,7 @@
 // authority-live-python-stub-smoke (B-2522 CHK-002)
 //
 // DETERMINISTIC counterpart to authority-live-python-smoke.ts. It drives the SAME
-// runLivePythonAuthoritySmoke() driver against an in-process stub Python Lattice
+// runLivePythonAuthoritySmoke() driver against an in-process stub Python Proofbound
 // Authority (injected fetch impls) so the live integration path is exercised in
 // CI with NO deployed server and NO network. This keeps the deterministic test
 // separate from the live smoke: the live file skips when env is absent; this file
@@ -45,7 +45,7 @@ const SERVER_KEY_ID = 'stub-server-key-1';
 const PROJECT_ID = 'project-stub';
 const STORY_ID = 'B-stub';
 
-// ── In-process stub Python Lattice Authority ───────────────────────────────
+// ── In-process stub Python Proofbound Authority ───────────────────────────────
 
 interface StubConfig {
   /** Override the claim response job id; null returns no job. */

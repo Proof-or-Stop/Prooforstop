@@ -1,0 +1,24 @@
+{
+  "task": "Fix the TEST scope gate bug where live_smoke_transcript writes a valid lifecycle artifact that is classified as out-of-scope.",
+  "outcome": "When a story runs live_smoke_transcript and then attempts DONE, the terminal no longer says evidence/live-smoke-transcript.json is out_of_scope; scope checks treat that exact same-story artifact as lifecycle_artifact while still rejecting evidence/notes.md.",
+  "facts": [
+    "live_smoke_transcript writes .lattice/story/actives/<storyId>/evidence/live-smoke-transcript.json",
+    "B-ce03 observed DONE blocking because that generated file was classified out_of_scope",
+    "The existing lifecycle artifact registry already whitelists evidence/transcript-diff.md by exact relative path",
+    "Lifecycle artifact scope policy intentionally forbids blanket evidence directory exemptions"
+  ],
+  "constraints": [
+    "No direct edits under docs/story; all lifecycle metadata must use lattice commands",
+    "Do not whitelist arbitrary evidence files or cross-story artifacts",
+    "Do not change Authority, DONE, reviewer quorum, or proof-admissibility semantics",
+    "The fix must be covered by scope contract/process fact smoke tests"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/lifecycle-registry.ts",
+    "packages/main/src/tasks/scope-contract-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "docs/requirements/decisions/lifecycle-artifact-scope.md"
+  ],
+  "timestamp": "2026-06-24T14:15:25.512Z"
+}

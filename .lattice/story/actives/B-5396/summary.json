@@ -1,0 +1,56 @@
+{
+  "storyId": "B-5396",
+  "changes": "CLAUDE.md + AGENTS.md: added an identical 'Host DONE convergence / drift handling' runbook section (7 rules + 2 VERBATIM paragraphs + 4 decision-doc references + done_prepare --help pointer). Projection of existing mechanisms; no code/CLI/contract change.",
+  "usage": "Host reads the new section before DONE convergence: run done_prepare before story_advance DONE; do not self-judge freshness; headHash-only vs materialHash-only vs storyFilesHash drift layering; done_prepare cannot bypass related drift. Verify: grep -n 'Host DONE convergence' AGENTS.md CLAUDE.md.",
+  "expectedOutcome": "Both AGENTS.md and CLAUDE.md show the identical Host DONE convergence section; lattice behavior unchanged; validate/docs-drift green.",
+  "actualTranscript": "grep -c 'Host DONE convergence' -> CLAUDE.md:1, AGENTS.md:1; section diff between the two files is empty (byte-identical); 4/4 decision-doc refs each; validate PASS; docs-drift no drift.",
+  "outcomeDiff": "No difference — both copies present and identical, refs valid, validate green.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Docs-only projection (cites decision docs, not re-derived). Metadata-only dirty-state specifics deferred to B-9dfb (pointer only). CLI-hint rewrite deferred to a separate story.",
+  "pitfalls": "Quality reviewer filed a false-positive high (F-001: claimed the done_prepare --flag form errors, only JSON works). Empirical disproof (done_prepare ... --dryRun parses all flags; --help documents them) brought back to the reviewer, who re-ran it and resolved F-001 — kept the working flag form. Lesson for next person: the no-new-Chinese gate (english-open-source-surface) scans packages/*/src + README + docs/guide*.md + docs/requirements/decisions/ but NOT root AGENTS.md/CLAUDE.md, so Host-doc sections can stay Chinese; story metadata must stay English (english-artifacts). Express channel (<=2 items, no riskSignals) lets the main agent write + commit docs directly. Dismissed a false-positive State Machine/Gate riskSignal (story only mentions story_advance in prose).",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 180123
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 16205
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 349622
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 483677
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 728297
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 57978
+    }
+  },
+  "totalDurationMs": 1815917,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-24T13:21:08.749Z",
+  "updatedAt": "2026-06-24T13:21:08.749Z"
+}

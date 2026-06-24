@@ -1,7 +1,7 @@
 /**
  * lattice doctor — output health issues from the last 24 hours (grouped by category)
  *
- * Lets users periodically run `lattice doctor` to check whether Lattice itself has hidden PERSIST failures.
+ * Lets users periodically run `lattice doctor` to check whether Proofbound itself has hidden PERSIST failures.
  * Previously these failures were silently swallowed by catch, making post-hoc retrospection impossible.
  *
  * B-7241 follow-up: `--repair` mode scans for orphan directories under `.worktrees/`
@@ -288,7 +288,7 @@ export function createDoctorHandlers(ctx: HandlerContext) {
       lines.push('');
 
       if (summary.total === 0 && cleanupTargets.length === 0 && auxiliaryWorktrees.length === 0 && trackedRuntimeArtifacts.length === 0 && partialDone.length === 0) {
-        lines.push('✓ No health issues recorded. Lattice is healthy.');
+        lines.push('✓ No health issues recorded. Proofbound is healthy.');
       } else if (summary.total === 0 && (cleanupTargets.length > 0 || auxiliaryWorktrees.length > 0)) {
         lines.push('⚠ No health issues recorded, but worktree cleanup issues were found.');
       } else if (summary.total === 0 && partialDone.length > 0) {

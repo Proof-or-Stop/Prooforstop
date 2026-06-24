@@ -5,7 +5,7 @@
 Safely process `stash@{0}` without applying the whole stash. The stash was
 created on main as `park unrelated lattice path cleanup and layer4 doc before
 B-b5b2 DONE` and contains multiple unrelated buckets. Each bucket must become a
-separate future Lattice story with its own tests and evidence.
+separate future Proofbound story with its own tests and evidence.
 
 ## Non-Negotiable Rules
 

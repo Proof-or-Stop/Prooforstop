@@ -1,6 +1,6 @@
 # Story Lifecycle
 
-> The current primary flow uses the second-generation Lattice flow:
+> The current primary flow uses the second-generation Proofbound flow:
 >
 > `INIT -> INIT_CHECK -> PLAN/express skip -> DEV -> REVIEW -> TEST -> DONE`
 >
@@ -19,7 +19,7 @@ The express channel may skip some planning material when the gate allows it, but
 
 ## Phase Numbering and Health Checks
 
-Lattice assigns the executable primary-flow phases a stable number, used by `lattice status` to display progress:
+Proofbound assigns the executable primary-flow phases a stable number, used by `lattice status` to display progress:
 
 | Number | Phase | Description |
 |---:|---|---|
@@ -34,7 +34,7 @@ Lattice assigns the executable primary-flow phases a stable number, used by `lat
 
 `DISCARDED` is a terminal state and does not participate in the primary-flow progress percentage. `TEST_CASE` and `TEST_CASE_REVIEW` are legacy phases, retained only so that old stories remain readable and migratable; new stories should not actively enter them.
 
-The numbering is used only for observable state, not to judge whether something is anomalous. Lattice's flow permits legal rollbacks, so you cannot detect errors with "the current number must equal the previous number + 1." Health checks must use the legal transition graph:
+The numbering is used only for observable state, not to judge whether something is anomalous. Proofbound's flow permits legal rollbacks, so you cannot detect errors with "the current number must equal the previous number + 1." Health checks must use the legal transition graph:
 
 - Forward: `INIT -> INIT_CHECK -> PLAN -> DEV -> REVIEW -> TEST -> DONE`
 - Compatibility forward: `IDEA -> INIT`, `IDEA -> PLAN`

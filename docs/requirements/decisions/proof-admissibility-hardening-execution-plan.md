@@ -4,7 +4,7 @@
 > M2-M7 hardening implemented by B-0405 in warn-by-default mode with enforce
 > diagnostics for high-risk proof consumers.
 > Date: 2026-06-23.
-> Scope: Proofbound / Lattice CLI evidence, receipt, handoff, and gate-consumption boundaries.
+> Scope: Proofbound / Proofbound CLI evidence, receipt, handoff, and gate-consumption boundaries.
 > Architecture baseline: `docs/evidence/evidence-platform-architecture.md`.
 
 This plan migrates existing proof-looking surfaces onto the shared Evidence
@@ -53,6 +53,57 @@ The root problem is not that a host has been proven to act with intent. The root
 problem is mechanical: a value can look like proof while being produced by, or
 modifiable by, an untrusted boundary.
 
+### 1.1 Threat Model
+
+Protected assets:
+
+- lifecycle gate decisions for REVIEW, TEST, DONE, handoff, and Authority-facing
+  consumers;
+- proof-looking artifacts such as receipts, review runs, handoff packs,
+  DONE-required evidence, red/green relations, and legacy evidence;
+- current material bindings: `headHash`, `materialHash`, `storyFilesHash`,
+  command digests, subject digests, and artifact digests;
+- user-facing claims such as `done-readiness`, `production-completion`,
+  `authorityDone`, `fullAuthorityDone`, and `productionDone`.
+
+Adversary capabilities considered in this plan:
+
+- a local host, provider transcript, handoff payload, or caller-writable metadata
+  can contain proof-looking keys or claims;
+- stale or historical artifacts can be replayed against current material;
+- an artifact can be presented to the wrong consumer, story, phase, or claim;
+- semantic fields that a gate consumes can be edited unless they are digest-bound;
+- a verifier/checker can fail due to local runtime error, malformed input,
+  unsupported version, or implementation bug.
+
+Trust boundaries:
+
+- caller-writable metadata, local diagnostic output, host transcripts, and
+  handoff context are not proof authority;
+- local runtime-owned evidence can support local lifecycle readiness only when
+  it is current and consumed by the matching local gate;
+- trusted reviewer-owned evidence can support local review assurance only;
+- Authority-owned receipts are evidence inputs. A production claim requires a
+  matching gate decision policy outside the local CLI core;
+- legacy evidence remains readable for audit, but is not strong-admissible
+  unless regenerated under the current contract.
+
+Non-goals:
+
+- proving that a host intended to deceive;
+- deleting external Authority adapters or historical receipt readers;
+- making checker failures silently pass a proof gate;
+- turning local diagnostics into Authority production evidence.
+
+Checker-failure rule:
+
+`overall=error` means the classifier/evaluator failed before it could decide
+whether the proof is valid. It is fail-open only for workflow availability: it
+must surface as a warning and must not block an unrelated local flow solely
+because the checker crashed. It is still `allowed=false`, cannot satisfy
+`admissibleProof`, cannot set `productionDone`, and must carry a remediation to
+rerun or repair the checker.
+
 Implementation boundary:
 
 - Use the shared `EvidenceRuntime` facade.
@@ -83,6 +134,8 @@ are satisfied:
 admissibleProof =
   producerBoundaryTrusted
   AND supportedSchemaVersion
+  AND supportedContractVersion
+  AND supportedVerifierVersion
   AND strictShapeValid
   AND semanticDigestValid
   AND signatureOrAuthorityBindingValid
@@ -91,23 +144,32 @@ admissibleProof =
   AND scopeAllowsClaim
 ```
 
-Anything else is still useful, but it is not strong proof:
+Anything else is still useful, but it is not strong proof. Scope is one
+dimension; temporal role, producer boundary, consumer, claim, and binding status
+are separate dimensions and must be evaluated together.
 
-| Evidence scope | Meaning | May set `productionDone`? |
-|---|---|---|
-| `audit-note` | Human-readable note, log, summary, prose, or diagnostic text | No |
-| `legacy-observed` | Historical evidence preserved for audit but missing the current contract | No |
-| `evidence-candidate` | Pre-story or handoff candidate evidence that may inform intake/planning but is not gate proof | No |
-| `local-diagnostic` | Local/shadow CLI output, fake/local receipt, host status, handoff status | No |
-| `local-key-single-host` | Offline signed local bundle from one key/host | No |
-| `local-gate-evidence` | Strong local lifecycle gate readiness evidence | No |
-| `local-review-quorum` | Local 3 round x 2 host verdict over current material | No Authority claim; may satisfy local review escalation |
-| `authority-receipt` | Signature-verified Authority receipt with subject binding | No; it may only be input to a matching gate |
-| `production-gate-decision` | Verified Authority `gate_decision` receipt consumed by the matching gate | Yes, if all policy checks pass |
+| Evidence scope | Default producer boundary | Typical artifact role | Default temporal role | Strong claim boundary | May set local CLI `productionDone`? |
+|---|---|---|---|---|---|
+| `audit-note` | caller-writable | local-diagnostic | not-applicable | Human-readable context only | No |
+| `legacy-observed` | legacy-unknown | local-diagnostic | not-applicable | Readable historical audit material | No |
+| `legacy-local-only` | legacy-unknown | local-diagnostic | not-applicable | Historical local-only evidence | No |
+| `legacy-unknown-producer` | legacy-unknown | local-diagnostic | not-applicable | Historical unknown-producer evidence | No |
+| `evidence-candidate` | caller-writable, trusted-reviewer-owned, or local-runtime-owned | problem-observation, repro-validity-review, planning-input, planning-review, red-green-relation, regression-matrix-review | historical-baseline, transition-relation, or not-applicable | Intake and planning only | No |
+| `local-diagnostic` | local-runtime-owned | local-diagnostic or handoff-context | current-state or not-applicable | Diagnostic status and handoff context | No |
+| `local-key-single-host` | local-runtime-owned | local-diagnostic | current-state | Single-host local receipt diagnostics | No |
+| `local-gate-evidence` | local-runtime-owned | current-verification | current-state | Local lifecycle readiness for the matching gate | No |
+| `local-review-quorum` | trusted-reviewer-owned | planning-review | current-state | Local review assurance only | No |
+| `authority-receipt` | authority-owned | authority-decision | current-state | Evidence input to a matching Authority-facing gate | No |
+| `production-gate-decision` | authority-owned | authority-decision | current-state | External Authority adapter gate decision; local CLI records the scope but does not self-mint production completion | No in local CLI core; external production adapters must prove their own policy |
 
-An authority receipt is evidence. It is not a production claim by itself.
-Only a matching gate-consumed `production-gate-decision` may support
-`productionDone = true`.
+An authority receipt is evidence. It is not a production claim by itself. The
+local CLI core must not turn any receipt ref into `productionDone = true`.
+The local CLI proof vocabulary is `admissibilityStatus`, `assuranceLevel`, and
+`evidenceScope`; Authority production receipts are external adapter/future
+compatibility evidence, not local core completion claims.
+External Authority adapters may project production completion only when their
+own matching gate policy verifies the decision and records that projection
+outside the local proof-admissibility core.
 
 Temporal role is separate from evidence scope:
 
@@ -448,10 +510,21 @@ Steps:
 5. Require high-risk review assurance:
    - 3 rounds x 2 hosts for implementation stories touching gates,
      Authority, receipt verification, handoff proof, or process facts.
+6. Require an enforce bootstrap record before any story flips
+   `proofAdmissibility.mode` from `warn` to `enforce`:
+   - the same story/head/material/policy tuple must have a fresh warn-mode pass
+     with zero blocking `overall=fail` rows for the consumers being enforced;
+   - the story must name the exact rollback command or config revert;
+   - legacy and grandfathered artifacts must be enumerated as audit-only,
+     not silently promoted;
+   - checker/evaluator `overall=error` rows must be cleared or accepted only as
+     warning-only workflow recovery, never as proof;
+   - the rollout story must carry high-risk review assurance and scope evidence.
 
 Deliverables:
 
 - Enforce policy.
+- Enforce bootstrap record.
 - Adversarial suite.
 - 3x2 review evidence for hard-fail rollout.
 
@@ -460,12 +533,20 @@ Exit criteria:
 - In enforce mode, no inadmissible proof-looking artifact can satisfy a strong
   gate.
 - In warn mode, local development remains usable with clear diagnostics.
+- A story that flips enforce mode is rejected unless warn-mode evidence,
+  rollback, grandfather/audit-only treatment, and checker-error handling are
+  explicit.
 
 B-0405 status: implemented as config-resolved `proofAdmissibility.mode =
 warn|enforce` helper with warn default. The adversarial hardening smoke covers
 reserved-key injection, delegated metadata spoofing, stale/wrong-shape proof
 diagnostics, local/diagnostic handoff receipts, legacy downgrade behavior, and
 enforce-mode blocking for inadmissible high-risk consumers.
+
+B-91f3 clarification: the local CLI core keeps `productionDoneEligible=false`
+for Authority receipt refs. External Authority adapters may still verify and
+project production completion through their own policy; that projection is not a
+local proof-admissibility default.
 
 ## 7. Dependency Plan
 
@@ -574,7 +655,7 @@ Enforce ready:
 | Use local/shadow `accepted=true` | `local-diagnostic`, not Authority proof |
 | Submit handoff diagnostic receipt | Accepted as diagnostic only; `productionDone=false` |
 | Read old evidence missing new fields | `legacy-observed`, audit-readable |
-| Valid new Authority `gate_decision` receipt consumed by matching gate | `production-gate-decision`, eligible for production claim under policy |
+| Valid new Authority `gate_decision` receipt consumed by matching adapter | `production-gate-decision`, admissible as evidence/input; local CLI core keeps `productionDone=false` |
 | Raw red probe without accepted ReproReview | `evidence-candidate` only; not a valid historical baseline |
 | Historical red uses old baseline hashes | `historical-valid`; not stale merely because current HEAD changed, but cannot independently satisfy a current-state gate |
 | Current green does not match current story hash tuple | stale current-state evidence |
@@ -903,15 +984,27 @@ consumable =
   AND scopeAllowsClaim
 ```
 
+`overall` meanings:
+
+| Overall | Meaning | Consumer behavior |
+|---|---|---|
+| `pass` | The artifact satisfied the required proof checks for this consumer and claim. | May be consumed if the remaining row predicates also match. |
+| `warn` | The artifact is useful context, but not strong proof for this consumer and claim. | May inform operators; must not satisfy strong proof. |
+| `fail` | The artifact was evaluated successfully and failed proof requirements. | In enforce mode, blocks the matching high-risk proof consumer. |
+| `error` | The evaluator/checker failed before it could classify the artifact. | Fail-open for workflow availability only: warning, `allowed=false`, never strong proof, never `productionDone`. |
+
+This distinction prevents two unsafe collapses: a bad proof must not look like a
+checker outage, and a checker outage must not be counted as proof.
+
 This gives machine reusability:
 
 - New runtime/host can load the same ledger and know whether evidence is still admissible.
 - New incident can be handled by adding a traceable row reason, instead of changing behavior ad-hoc.
 - High churn paths keep history, because stale rows are preserved rather than overwritten silently.
 
-#### C.1.1 问题/修复后风险清单（建议执行时复用）
+#### C.1.1 Issue / Post-Fix Risk Checklist
 
-| 问题 | 修复动作 | 修复后新增的潜在问题 | 对应缓解 |
+| Issue | Fix action | New risk after the fix | Mitigation |
 |---|---|---|---|
 | Client-writable metadata can look like server proof | reserved proof-key registry + strip reserved keys | Existing scripts using custom metadata keys may fail validation | Explicit key allowlist + migration dry-run output |
 | Local diagnostic receipts reused as proof | strict scope and consumer matching in ledger | Some existing operators lose “acceptance” signal in outputs | Keep `local-diagnostic` scope, no claim loss, clearer wording |
@@ -920,6 +1013,7 @@ This gives machine reusability:
 | Handoff work transfer mislabeled as proof | artifact split + context/evidence/proof class | New handoff payload must carry more explicit fields | Preflight prints class map and required fields |
 | Non-shared reason codes | centralized code vocabulary | More strict rejects can look “noisy” at first | Warn-mode rollout + explicit remediation text |
 | Cross-host/hotfix drift | host-independent digest/shape/producer rules | False failures during mixed old/new rollout windows | Versioned contract with compatibility policy |
+| Checker failure hidden inside proof failure | model checker failures as `overall=error` with `checker_error` | Operators might treat fail-open as proof-open | `overall=error` is warning-only, `allowed=false`, and cannot set `productionDone` |
 
 ### C.2 Contract-vs-code mapping by temporal/material dimensions
 
@@ -945,17 +1039,17 @@ So your interpretation is mostly right:
   keep the trace.
 - We only mint a new contract version when the admissibility rule set itself changes.
 
-## Appendix D: Admissibility Waterline Schema（覆盖水位）
+## Appendix D: Admissibility Waterline Schema
 
-你问的“这个 ledger 不够，还要不要一个水位”可以直接回答：要。  
-建议把 ledger 之外再加一层 `waterline`，只存汇总指标，专门用于“快速定位问题在哪”。
+The ledger records individual rows. Operators also need a derived waterline view
+to quickly identify where the proof contract is weak.
 
-- 如果只看每行是“记录是否过”，不够快。
-- Waterline 的价值是：
-  - 一眼看出哪个 consumer / gate 有缺口；
-  - 哪些 clause 反复缺；
-  - 是规则没接入还是哈希漂移；
-  - 哪些问题是兼容降级。
+The waterline value is diagnostic only:
+
+- it shows which consumer or gate has a gap;
+- it shows which clauses are repeatedly missing;
+- it distinguishes missing contract integration from hash drift;
+- it surfaces compatibility downgrades without accepting them as proof.
 
 ```text
 AdmissibilityWaterline {
@@ -988,23 +1082,29 @@ AdmissibilityWaterline {
 }
 ```
 
-建议执行动作（最小实现）：
+Minimum implementation:
 
-- 增加命令 `lattice admissibility_waterline`（或 `lattice audit --kind=admissibility_waterline`）；
-  - 输出每个 consumer 的 `pass / warn / fail / stale` 分桶、`missingClauses`、`top reason`；
-  - `status=red` 仅在匹配当前阻断范围时阻断高风险推进。
-- 每次 story DONE 或每 24 小时自动重算一次；
-- 进入 REVIEW 的 story 先看 waterline，再看具体 ledger 行。
+- Add `lattice admissibility_waterline` or an equivalent
+  `lattice audit --kind=admissibility_waterline` entry point.
+- Output each consumer's `pass / warn / fail / error / stale` buckets,
+  `missingClauses`, and top reasons.
+- `status=red` blocks high-risk advancement only when the row matches the
+  current blocking scope.
+- Recompute on story DONE and at least every 24 hours.
+- A story entering REVIEW should inspect the waterline first, then inspect the
+  concrete ledger rows that explain the waterline.
 
 All counts are derived from ledger rows and clause arrays. Counts are rendered
 for operator convenience, not accepted as an independent source of truth.
 
-建议阈值（可按环境调）：
+Suggested thresholds, tunable by environment:
 
-- `missingClausesRatio > 0.05`：红
-- `AUTHORITY_GATE_DECISION` 或 `DONE_REQUIRED` 出现 `failRows > 0`：红
-- `staleRatio > 0.20`：黄；`> 0.40`：红
-- `legacyRows` 持续上升且修复通道没开：黄
+- `missingClausesRatio > 0.05`: red.
+- `AUTHORITY_GATE_DECISION` or `DONE_REQUIRED` has matching `failRows > 0`: red.
+- `staleRatio > 0.20`: yellow; `> 0.40`: red.
+- `legacyRows` keeps rising with no repair channel: yellow.
+- `errorRows > 0`: yellow for workflow recovery, red only when the project tries
+  to consume that errored row as strong proof.
 
 Blocking waterline rows must match:
 
@@ -1018,18 +1118,27 @@ Blocking waterline rows must match:
 Historical failed rows and stale rows remain visible for audit, but they must not
 block unrelated stories merely because they exist in the ledger history.
 
-快速诊断规则（用于你问的“问题在哪”）：
+Fast diagnosis rules:
 
-- red 且 `missingClauses` 不空：多半是 contract 接入缺失（新 surface 或新路径没接入）。
-- red 且 `failRows` 非零：多半是哈希、签名、producer、consumer 绑定失败（高优先级整改）。
-- red 且 `staleRows` 高：多半是 material/storyFiles/head 漂移后未重新评估。
-- yellow 且 `legacyRows` 上升：多半是历史证据被放进“强证据视图”导致的兼容行为，需要修复说明。
+- red with non-empty `missingClauses`: likely missing contract integration for a
+  new surface or path.
+- red with non-zero `failRows`: likely hash, signature, producer, or consumer
+  binding failure; treat as high priority.
+- red with high `staleRows`: likely material/storyFiles/head drift without a
+  fresh evaluation.
+- yellow with rising `legacyRows`: likely historical evidence entering a strong
+  evidence view; document and repair the compatibility path.
+- yellow with `errorRows`: likely checker/runtime failure; rerun or repair the
+  checker and do not consume the errored row as proof.
 
-## Appendix E: 标准值域字典（防止命名漂移）
+## Appendix E: Standard Value Dictionary
 
-为防止不同故事/模块出现 `consumer / status / scope / reason` 名称分叉，建议统一以下值域（实现新内容时只允许使用本表）：
+To prevent `consumer`, `status`, `scope`, and `reason` vocabulary drift across
+stories and modules, new implementation work should write only the values in
+this dictionary. Readers may accept compatibility aliases, but new writers must
+use canonical values.
 
-#### ArtifactConsumerKind（建议）
+#### ArtifactConsumerKind
 
 - `STORY_INTAKE`
 - `PLAN`
@@ -1037,7 +1146,7 @@ block unrelated stories merely because they exist in the ledger history.
 - `TEST`
 - `DONE`
 - `HANDOFF`
-- `AUTHORITY_GATE_DECISION`（建议主用）
+- `AUTHORITY_GATE_DECISION`
 - `DONE_REQUIRED`
 
 #### CLI command to artifact kind mapping
@@ -1054,13 +1163,13 @@ block unrelated stories merely because they exist in the ledger history.
 | `regression_matrix_review_set` | `regression-matrix-review` |
 | `validate` / DEV / TEST evidence writers | `current-verification-evidence` |
 
-兼容别名（兼容读取，严禁新写入）：
+Compatibility aliases, read-only:
 
 - `AUTHORITY_GATE` -> `AUTHORITY_GATE_DECISION`
 - `LOCAL_REVIEW_QUORUM` -> `REVIEW`
-- `gate` -> `consumer`（读取时兼容，新增输出必须写 `consumer`）
+- `gate` -> `consumer`
 
-#### ArtifactRole（建议）
+#### ArtifactRole
 
 - `problem-observation`
 - `repro-validity-review`
@@ -1073,7 +1182,7 @@ block unrelated stories merely because they exist in the ledger history.
 - `local-diagnostic`
 - `authority-decision`
 
-#### ClaimKind（建议）
+#### ClaimKind
 
 - `historical-failure`
 - `current-pass`
@@ -1085,7 +1194,7 @@ block unrelated stories merely because they exist in the ledger history.
 - `handoff-context`
 - `diagnostic-status`
 
-#### Scope（建议）
+#### Scope
 
 - `audit-note`
 - `legacy-observed`
@@ -1099,7 +1208,7 @@ block unrelated stories merely because they exist in the ledger history.
 - `authority-receipt`
 - `production-gate-decision`
 
-#### ProofProducerBoundary（建议）
+#### ProofProducerBoundary
 
 - `caller-writable`
 - `local-runtime-owned`
@@ -1107,12 +1216,35 @@ block unrelated stories merely because they exist in the ledger history.
 - `trusted-reviewer-owned`
 - `legacy-unknown`
 
-#### Overall（artifact-level result）
+#### Local CLI proof vocabulary
+
+The local CLI proof-admissibility core names proof output with
+`admissibilityStatus`, `assuranceLevel`, and `evidenceScope`. Authority
+production receipts are external adapter/future compatibility evidence, not
+local production completion claims.
+
+#### AdmissibilityStatus
+
+- `admissible`
+- `inadmissible`
+
+#### AssuranceLevel
+
+- `none`
+- `diagnostic`
+- `local-gate`
+- `authority-adapter`
+
+#### Legacy Overall (artifact-level compatibility result)
 
 - `pass`
 - `warn`
 - `fail`
 - `error`
+
+`error` is reserved for checker/evaluator failure. It is not proof success and
+not proof failure. It is warning-only for workflow availability and must remain
+`allowed=false`.
 
 #### BindingStatus
 
@@ -1135,10 +1267,12 @@ block unrelated stories merely because they exist in the ledger history.
 - `fail`
 - `not_applicable`
 
-#### 标准 reason code（建议）
+#### Standard reason code
 
 - `unsupported_schema_version`
 - `unsupported_contract_version`
+- `unsupported_verifier_version`
+- `checker_error`
 - `bad_shape`
 - `missing_required_field`
 - `unexpected_field`
@@ -1174,7 +1308,7 @@ block unrelated stories merely because they exist in the ledger history.
 - `reserved_key_detected`
 - `legacy_downgrade`
 
-#### 推荐统一输出片段
+#### Recommended unified output fragment
 
 ```json
 {
@@ -1216,58 +1350,81 @@ Failure example:
 
 ## Appendix F: Historical Lessons / Prior Bugs
 
-### F.1 历史复盘：之前是“分散护栏”，现在是“统一账本”
+### F.1 From scattered guardrails to one ledger
 
-这类问题以前是被各 story 分散修过的：有些修到了 `metadata`，有些修到了 `digest`，有些修到了 `authority`，但没有一个统一面向 gate 的共享入口。可以把历史视作：
+Earlier fixes landed in separate stories: some hardened `metadata`, some
+hardened `digest`, and some hardened `authority` boundaries. The missing piece
+was one gate-facing intake point that classifies proof-looking values before any
+consumer trusts them.
 
-| 类别 | 先前修复片段 | 统一前问题 | 统一后收益 |
+| Category | Prior fix fragment | Before the unified contract | After the unified contract |
 |---|---|---|---|
-| 客户端可写 metadata 伪造 proof 字段 | `B-e9cb` / `B-bfa9`（各自修 metadata 与 delegated metadata 边界） | 新增路径可以继续引入新的伪造元数据字段而被误消费 | 统一 reserved key 与 producer ownership 规则，入口统一拦截 |
-| 语义字段未覆盖到 digest | `B-7b6e` | 仍可能在新语义面（如 reason / gating context）出现“看起来一致、实则被篡改” | `semanticFieldBinding` 成为每类 gate 的共同检查项，降低“局部遗漏” |
-| 签名/形状不一致 | `B-4c65` | 每类签名有各自形状/版本策略，新增 surface 时容易忘填 | 统一 strict-shape + schema/version 入 contract，减少实现差异 |
-| local-shadow 被误读为权威 proof | `authority-boundary` 与 handoff 历史实现 | 仍容易在消费端把诊断性信号当成可用 proof | scope 统一标注，消费端按 scope+consumer 决定可否 claim |
-| 手工类比 stale/legacy 处理 | 多处本地兼容处理 | 同一份旧证据在不同模块行为不一致 | 一致化 `legacy-observed` 与 `stale` 语义，降低误读 |
+| Client-writable metadata forged proof fields | `B-e9cb` / `B-bfa9` | New paths could still introduce spoofed metadata fields and be misconsumed. | Reserved keys and producer ownership are checked at one intake boundary. |
+| Semantic fields were not digest-bound | `B-7b6e` | New semantic fields such as reason or gate context could look verified while being edited. | `semanticFieldBinding` becomes a shared check for every gate class. |
+| Signature and shape checks diverged | `B-4c65` | Each signature class carried its own shape/version policy, so new surfaces could omit checks. | Strict shape plus schema/version rules reduce implementation drift. |
+| Local-shadow output was over-read as authority proof | `authority-boundary` and historical handoff work | Diagnostic signals could still be consumed as proof. | Scope plus consumer decides whether any claim is allowed. |
+| Stale and legacy handling was ad hoc | Multiple local compatibility paths | The same old evidence could behave differently in different modules. | `legacy-observed` and `stale` semantics are shared. |
 
-结论：
+Conclusions:
 
-- 统一管理后，**会显著减少重复 bug 回归**，主要是“新增 feature + 新 surface + 审核入口没接管”这类高频问题。
-- 不会“完全消灭”问题，因为新功能会引入新 surface、新 host 或新数据模型；但会把问题从“散落隐患”改为“可追踪的 ledger 缺口”。
-- 这也意味着后续修复通常更快：发现问题后优先追加 ledger 行与 reason code，而不是先重建整条链路。
+- Unified management should significantly reduce repeated evidence-spoofing
+  regressions, especially "new feature + new surface + reviewer/gate path not
+  wired into the contract" failures.
+- It will not eliminate every future issue because new hosts, surfaces, and data
+  models will continue to appear. It changes the failure from scattered latent
+  risk into a traceable ledger gap.
+- Future fixes should usually be faster: add a ledger row and reason code before
+  rebuilding a bespoke proof chain.
 
-建议定义一个验收指标（完成后追踪）：
+Suggested follow-up metric:
 
-- 在 enforce 生效后的 30 天内，重复的 evidence-spoofing 类高危回归应明显下降（目标是持续下降而非归零）。
-- 同类风险从“新增后才被发现”变为“入口即报”。
+- In the 30 days after enforce mode is enabled, repeated high-risk
+  evidence-spoofing regressions should trend down. The target is sustained
+  reduction, not an unrealistic claim of zero.
+- Similar risks should become visible at intake rather than only after a later
+  consumer misreads the artifact.
 
-## Appendix G: Unified Close Checklist（每个 story 的防回归闭环）
+## Appendix G: Unified Close Checklist
 
-为避免“这次修了 A，这次又在 B 打穿”，高风险路径改动统一执行这张清单：
+High-risk proof-path stories should use this checklist so that fixing one proof
+surface does not leave the same bug class open in another surface.
 
-- Step 1：contract 接入清点
-  - 列出新增/变更的 proof-like artifact（含 handoff/context/evidence/decision）。
-  - 检查 `C1~C14` 条款中的 `module -> required clauses` 是否都覆盖新 artifact。
-  - 新 artifact 一律补齐 `producer`、`scope`、`ArtifactConsumerKind`、
-    `ArtifactRole`、`ClaimKind`、`claimSubject`、`reason codes`。
-- Step 2：证据入账
-  - 产出端：只追加 `ArtifactObservedEvent`，不写 admissibility 结论。
-  - 评估端：追加 `AdmissibilityEvaluationRow`。
-  - 消费端：在 gate 入场前使用最新适用 evaluation，或重新调用共享
-    admissibility evaluator。
-- Step 3：一致性门槛检查
-  - 通过 `lattice admissibility_waterline`（或等价入口）生成当前 consumer 水位。
-  - `AUTHORITY_GATE_DECISION`/`DONE_REQUIRED` 的 `failRows > 0` 只有在匹配当前
-    story、consumer、contractVersion、hash/temporal binding、active policy、latest
-    non-superseded evaluation 时才阻断推进；历史失败只展示不阻断无关 story。
-- Step 4：三重哈希校验
-  - 复核并记录 `materialHash`、`headHash`、`storyFilesHash` 的当前值。
-  - 检查 stale 计数是否可解释（是否有合法重跑/更新）。
-- Step 5：兼容与降级说明
-  - 若出现 `legacy`/`local-diagnostic`，在输出中明确其仅为审计用途，不可 claim `production`。
-- Step 6：交付前签核
-  - REVIEW note 必须附上本 story 的 `missingClauses`、`topReasons`、`legacyRows`、`highSeverityFailCount`。
+- Step 1: contract integration inventory
+  - List every new or changed proof-like artifact, including handoff, context,
+    evidence, and decision artifacts.
+  - Check whether the module-to-clause table covers every required C1-C14 clause
+    for the artifact.
+  - New artifacts must declare `producer`, `scope`, `ArtifactConsumerKind`,
+    `ArtifactRole`, `ClaimKind`, `claimSubject`, and reason codes.
+- Step 2: evidence ledger write path
+  - Producers append only `ArtifactObservedEvent`; they do not write
+    admissibility conclusions.
+  - Evaluators append `AdmissibilityEvaluationRow`.
+  - Consumers use the latest applicable evaluation, or rerun the shared
+    admissibility evaluator before gate entry.
+- Step 3: consistency threshold check
+  - Generate the current consumer waterline through `lattice
+    admissibility_waterline` or an equivalent entry point.
+  - `AUTHORITY_GATE_DECISION` / `DONE_REQUIRED` `failRows > 0` blocks only when
+    it matches the current story, consumer, contract version, hash/temporal
+    binding, active policy, and latest non-superseded evaluation. Historical
+    failures remain visible but do not block unrelated stories.
+- Step 4: hash tuple check
+  - Record the current `materialHash`, `headHash`, and `storyFilesHash`.
+  - Check that stale counts are explained by a legitimate rerun or update path.
+- Step 5: compatibility and downgrade explanation
+  - If `legacy` or `local-diagnostic` appears, output must say it is audit or
+    diagnostic material only and cannot claim production completion.
+- Step 6: delivery signoff
+  - REVIEW notes for high-risk proof-path stories should include the story's
+    `missingClauses`, `topReasons`, `legacyRows`, `errorRows`, and
+    `highSeverityFailCount`.
 
-收口指标（验收信号）：
+Close signals:
 
-- 目标是关键 consumer（`AUTHORITY_GATE_DECISION`、`REVIEW`、`DONE_REQUIRED`）状态为 green。
-- 允许存在 yellow（主要是兼容和迁移噪声），但必须附带修复计划和责任人。
-- 任何 `contractVersion` 升级必须触发当日回归与一次 waterline 快照。
+- Key consumers such as `AUTHORITY_GATE_DECISION`, `REVIEW`, and `DONE_REQUIRED`
+  should be green for the current subject.
+- Yellow status is acceptable for compatibility or migration noise only when a
+  repair plan and owner are attached.
+- Any `contractVersion` upgrade must trigger same-day regression and a waterline
+  snapshot.

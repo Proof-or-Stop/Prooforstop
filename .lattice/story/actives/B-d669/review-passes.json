@@ -1,0 +1,40 @@
+{
+  "passes": [
+    {
+      "id": "B-d669:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "No blocking issues in scope and implementation for this story; behavior is limited to lifecycle registry and smoke task updates.",
+      "createdAt": "2026-06-24T14:24:35.610Z",
+      "reviewRound": "2026-06-24T14:24:02.285Z",
+      "reviewRunId": "B-d669:RR-006",
+      "_hash": "61fb54dac53aee897d895adcd40d1305edbbc0ffd043f02d55d27dd3279bf2c0"
+    },
+    {
+      "id": "B-d669:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Code quality and gating are in good shape; no maintainability or safety risk from registry mapping changes.",
+      "createdAt": "2026-06-24T14:24:38.649Z",
+      "reviewRound": "2026-06-24T14:24:02.285Z",
+      "reviewRunId": "B-d669:RR-007",
+      "_hash": "67fc461a494ccce5361192561c367d15bac74430a5bc5166bc74c4032a5b2cde"
+    },
+    {
+      "id": "B-d669:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "Scope-contract smoke and process-fact contract verification provide adequate test intent coverage for acceptance.",
+      "createdAt": "2026-06-24T14:24:41.649Z",
+      "reviewRound": "2026-06-24T14:24:02.285Z",
+      "reviewRunId": "B-d669:RR-008",
+      "_hash": "a91d26c5b69ff3e999c6a5b3841f02918826cb05bcdc00538f1d924e676b4e53"
+    },
+    {
+      "id": "B-d669:RP-004",
+      "agent": "lattice-review-docs",
+      "note": "Docs changes are accurate and policy wording now explicitly names live-smoke-transcript evidence scope while keeping registry-backed constraints.",
+      "createdAt": "2026-06-24T14:24:44.638Z",
+      "reviewRound": "2026-06-24T14:24:02.285Z",
+      "reviewRunId": "B-d669:RR-009",
+      "_hash": "92f177f68f175af7ff931f742fde18605162ae833a64789afefe8c6715056f6e"
+    }
+  ]
+}

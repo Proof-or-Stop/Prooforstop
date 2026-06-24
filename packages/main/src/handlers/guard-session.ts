@@ -1,5 +1,5 @@
 /**
- * Guard Session handlers — Lattice guard_session_start / status / check
+ * Guard Session handlers — Proofbound guard_session_start / status / check
  *
  * guard_session_start    — start (or restart) a story-scoped scope-guard session
  *                          projection bound to the current scope contract.

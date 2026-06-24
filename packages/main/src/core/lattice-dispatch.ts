@@ -565,7 +565,7 @@ function probeClaudeCodeCapabilities(commandPath: string | null): RealHostCapabi
   // Environment safety: Claude Code inherits the invoker's environment
   const envSafetyPosture: EnvSafetyPosture = commandPath ? 'inherited' : 'unverified';
   if (commandPath) {
-    degradations.push('claude-code inherits the invoker environment; sensitive env vars are visible to the subprocess unless filtered by Lattice policy.');
+    degradations.push('claude-code inherits the invoker environment; sensitive env vars are visible to the subprocess unless filtered by Proofbound policy.');
   }
 
   // Login readiness: ANTHROPIC_API_KEY is a strong signal for non-interactive auth
@@ -573,7 +573,7 @@ function probeClaudeCodeCapabilities(commandPath: string | null): RealHostCapabi
     ? 'ready'
     : (commandPath ? 'unknown' : 'unknown');
 
-  // Receipt support: stdout/stderr captured as transcript; Lattice builds receipt from transcript + git
+  // Receipt support: stdout/stderr captured as transcript; Proofbound builds receipt from transcript + git
   const receiptSupport: ReceiptSupport = commandPath ? 'transcript-capture' : 'unverified';
 
   if (!commandPath) {
@@ -623,7 +623,7 @@ function probeGeminiCapabilities(commandPath: string | null): RealHostCapabiliti
 
   const envSafetyPosture: EnvSafetyPosture = commandPath ? 'inherited' : 'unverified';
   if (commandPath) {
-    degradations.push('gemini inherits the invoker environment; sensitive env vars are visible to the subprocess unless filtered by Lattice policy.');
+    degradations.push('gemini inherits the invoker environment; sensitive env vars are visible to the subprocess unless filtered by Proofbound policy.');
   }
 
   // Login readiness: gemini typically requires gcloud auth or application default credentials
@@ -673,7 +673,7 @@ function probeAntigravityCapabilities(commandPath: string | null): RealHostCapab
 
   const envSafetyPosture: EnvSafetyPosture = commandPath ? 'inherited' : 'unverified';
   if (commandPath) {
-    degradations.push('antigravity inherits the invoker environment; sensitive env vars are visible to the subprocess unless filtered by Lattice policy.');
+    degradations.push('antigravity inherits the invoker environment; sensitive env vars are visible to the subprocess unless filtered by Proofbound policy.');
   }
 
   const loginReadiness: LoginReadiness = 'unknown';
@@ -706,7 +706,7 @@ function probeCodexCapabilities(commandPath: string | null, isCodexSession: bool
 
   if (isCodexSession) {
     // Running inside a Codex session: capabilities are available in-process
-    degradations.push('Codex session inherits the invoker environment; sensitive env vars are visible unless filtered by Lattice policy.');
+    degradations.push('Codex session inherits the invoker environment; sensitive env vars are visible unless filtered by Proofbound policy.');
     unattendedReasons.push('Unattended execution requires a dispatch_policy_check authorization and dispatch_auto policy binding before starting.');
     return {
       versionStatus: 'unknown',
@@ -741,7 +741,7 @@ function probeCodexCapabilities(commandPath: string | null, isCodexSession: bool
 
   const envSafetyPosture: EnvSafetyPosture = commandPath ? 'inherited' : 'unverified';
   if (commandPath) {
-    degradations.push('codex inherits the invoker environment; sensitive env vars are visible to the subprocess unless filtered by Lattice policy.');
+    degradations.push('codex inherits the invoker environment; sensitive env vars are visible to the subprocess unless filtered by Proofbound policy.');
   }
 
   const loginReadiness: LoginReadiness = 'unknown';
@@ -825,7 +825,7 @@ export function probeHostRuntime(host: string): HostRuntimeProbe {
     ? supportsLiveDispatch
       ? []
       : [
-        `${normalized} runtime is scaffolded only: Lattice records invocation metadata and waits for a local receipt; it does not auto-drive the external host.`,
+        `${normalized} runtime is scaffolded only: Proofbound records invocation metadata and waits for a local receipt; it does not auto-drive the external host.`,
       ]
     : [
       `${cliCommand} CLI is not available in PATH; runtime stays unavailable-safe and will not start the host automatically.`,
@@ -874,7 +874,7 @@ export function probeHostRuntime(host: string): HostRuntimeProbe {
       ]
       : [
         'Real-host execution is scaffolded only in this milestone.',
-        'No external host is auto-driven by Lattice dispatch_run.',
+        'No external host is auto-driven by Proofbound dispatch_run.',
         'A local receipt is still diagnostic-only and leaves productionDone=false.',
       ],
     warnings,
@@ -985,7 +985,7 @@ function createDispatchId(storyId: string, host: HostRuntimeId): string {
 
 function dispatchPrompt(pack: HandoffPack, runtime: HostRuntimeProbe, dispatchId: string): string {
   return [
-    `# Lattice Dispatch ${dispatchId}`,
+    `# Proofbound Dispatch ${dispatchId}`,
     '',
     `Story: ${pack.storyId}`,
     `Host runtime: ${runtime.host}`,
@@ -1234,7 +1234,7 @@ function assertClaudePrintLauncherAllowed(
 ): void {
   if (commandAllowlistAllowsClaudePrint(commandAllowlist)) return;
   throw new Error(
-    `${refusalPrefix} policy commandAllowlist must include canonical launcher "${CLAUDE_PRINT_LAUNCHER}" before Lattice may start claude --print.`,
+    `${refusalPrefix} policy commandAllowlist must include canonical launcher "${CLAUDE_PRINT_LAUNCHER}" before Proofbound may start claude --print.`,
   );
 }
 
@@ -3282,7 +3282,7 @@ export function dispatchAuto(store: StoryStore, root: string, args: DispatchAuto
     }
     if (!policyAllowsRealHostSubprocess(policy)) {
       throw new Error(
-        `dispatch_auto: host "${selectedHost}" is not unattended-safe (unattendedSafe=false). Policy "${policyName}" must set allowRealHostSubprocess=true before Lattice may start claude --print.`,
+        `dispatch_auto: host "${selectedHost}" is not unattended-safe (unattendedSafe=false). Policy "${policyName}" must set allowRealHostSubprocess=true before Proofbound may start claude --print.`,
       );
     }
     if (probe.noninteractiveSupport !== 'supported') {

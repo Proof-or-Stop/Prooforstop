@@ -73,7 +73,7 @@ function write(root: string, path: string, content: string): void {
 function commit(cwd: string, message: string): void {
   git(cwd, ['add', '.']);
   git(cwd, [
-    '-c', 'user.name=Lattice Smoke',
+    '-c', 'user.name=Proofbound Smoke',
     '-c', 'user.email=smoke@example.test',
     '-c', 'commit.gpgsign=false',
     'commit',
@@ -141,7 +141,7 @@ function initReviewRepo(prefix: string, storyId: string): string {
   git(root, ['init']);
   git(root, ['checkout', '-B', 'main']);
   git(root, ['config', 'user.email', 'smoke@example.test']);
-  git(root, ['config', 'user.name', 'Lattice Smoke']);
+  git(root, ['config', 'user.name', 'Proofbound Smoke']);
   write(root, 'lattice.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
@@ -178,9 +178,9 @@ function initEmptyHeadDirtyReviewRepo(prefix: string, storyId: string): string {
   git(root, ['init']);
   git(root, ['checkout', '-B', 'main']);
   git(root, ['config', 'user.email', 'smoke@example.test']);
-  git(root, ['config', 'user.name', 'Lattice Smoke']);
+  git(root, ['config', 'user.name', 'Proofbound Smoke']);
   git(root, [
-    '-c', 'user.name=Lattice Smoke',
+    '-c', 'user.name=Proofbound Smoke',
     '-c', 'user.email=smoke@example.test',
     '-c', 'commit.gpgsign=false',
     'commit',

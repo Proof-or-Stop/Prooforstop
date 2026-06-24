@@ -1,0 +1,69 @@
+{
+  "principles": [
+    "Prefer exact path allowlists over broad directory exemptions",
+    "Lifecycle artifact policy text and executable registry must stay aligned",
+    "Scope gates should fail closed for unrecognized generated evidence",
+    "The repair should preserve existing proof-admissibility and DONE semantics"
+  ],
+  "drivers": [
+    "Observed B-ce03 DONE flow blocked on a generated live-smoke transcript artifact",
+    "The artifact is command-generated lifecycle evidence for the same story",
+    "Opening all evidence paths would weaken scope control"
+  ],
+  "options": [
+    {
+      "name": "A: Add exact live-smoke transcript lifecycle artifact path",
+      "pros": [
+        "Fixes the observed generated-artifact false positive",
+        "Preserves fail-closed handling for arbitrary sibling evidence files",
+        "Matches existing transcript-diff exact-path design"
+      ],
+      "cons": [
+        "Requires keeping one more registry/doc/test entry synchronized"
+      ]
+    },
+    {
+      "name": "B: Whitelist the whole evidence directory",
+      "pros": [
+        "Avoids future path-by-path updates"
+      ],
+      "cons": [
+        "Breaks the no-blanket-evidence-dir invariant",
+        "Could hide arbitrary story metadata or accidental evidence drift"
+      ]
+    },
+    {
+      "name": "C: Leave classifier unchanged and require scope acknowledgement",
+      "pros": [
+        "No code change in registry"
+      ],
+      "cons": [
+        "TEST/DONE users hit an impossible or misleading acknowledgement path",
+        "Generated first-party lifecycle evidence remains blocked"
+      ]
+    }
+  ],
+  "chosen": "A: Add exact live-smoke transcript lifecycle artifact path",
+  "rationale": "Option A fixes the real gate false positive while preserving the closed registry safety model; broad directory allowlisting would trade speed for weaker scope proof.",
+  "preMortem": [
+    {
+      "scenario": "Arbitrary nested evidence becomes allowed",
+      "trigger": "Implementation uses a prefix or directory wildcard instead of an exact relative path",
+      "consequence": "Scope gate stops detecting unrelated generated evidence drift",
+      "mitigation": "Add negative regression for evidence/notes.md and keep registry exact-path only"
+    },
+    {
+      "scenario": "Documentation says live-smoke is allowed but verifier registry omits it",
+      "trigger": "Only docs are updated",
+      "consequence": "DONE continues to block on live-smoke transcript artifact",
+      "mitigation": "Run scope-contract smoke and process fact contract verifier"
+    },
+    {
+      "scenario": "Cross-story artifact is accidentally accepted",
+      "trigger": "Classifier ignores storyId ownership when matching lifecycle artifact paths",
+      "consequence": "One story can smuggle another story artifact through scope gates",
+      "mitigation": "Keep same-story path classification path and do not alter storyId matching semantics"
+    }
+  ],
+  "timestamp": "2026-06-24T14:15:25.697Z"
+}

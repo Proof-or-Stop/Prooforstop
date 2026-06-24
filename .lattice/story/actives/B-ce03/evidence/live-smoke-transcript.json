@@ -1,0 +1,20 @@
+{
+  "storyId": "B-ce03",
+  "expected": "Running done_prepare with only unchanged pre-existing Lattice lifecycle metadata dirt no longer prints blockedAt: cleanTree; dirty source or unsafe rename scenarios still print blockedAt: cleanTree.",
+  "actual": {
+    "command": "node packages/main/dist/tasks/done-prepare-smoke.js",
+    "exitCode": 0,
+    "stdout": "  ✓ clean ready path prints exactly one DONE next command\n  ✓ authority receipt verified runbook still prints local-only PASS boundary\n  ✓ dirty preflight blocks before mutation\n  ✓ dirty source preflight still blocks before mutation\n  ✓ metadata-to-source dirty rename blocks before mutation\n  ✓ source-to-metadata dirty rename blocks before mutation\n  ✓ source-to-owner-lease dirty rename blocks before mutation\n  ✓ pre-existing DONE-required lifecycle metadata does not block preflight or final PASS\n  ✓ other-story lifecycle metadata still blocks preflight\n  ✓ failed DONE-required lifecycle metadata blocks DONE closure without claiming PASS\n  ✓ missing DONE-required evidence is produced by done_prepare validation\n  ✓ failing DONE-required validation blocks done_prepare validate step\n  ✓ non-TEST phase blocks before mutation\n  ✓ wrong cwd blocks before mutation\n  ✓ wrong branch blocks before mutation\n  ✓ missing local main blocks before mutation\n  ✓ stale refresh disabled blocks with refresh guidance\n  ✓ lifecycle_check maps stale DONE evidence freshness to done_prepare\n  ✓ validate fail stops before DONE guidance\n  ✓ runtime source diff reports post-DONE version bump required\n  ✓ docs-only diff reports no post-DONE version bump required\n  ✓ validate-created metadata blocks at final cleanTree\n  ✓ safe stale refresh auto-commit blocks with generated commit guidance\n  ✓ merge conflict blocks at mergeMain\n  ✓ command-backed stale evidence requires rerun\n  ✓ matching storyFilesHash command evidence avoids rerun before delivery drift block\n  ✓ DONE recovery hints route ordering-sensitive blockers through done_prepare\n  ✓ fresh review before main sync blocks after merge without verdict rebind\n  ✓ dryRun reports without mutation\n  ✓ dryRun skips planned merge refresh validate and build mutations\n  ✓ version bump mode is rejected by command schema\n✓ done-prepare smoke passed\n"
+  },
+  "mode": {
+    "runCommands": true,
+    "writeEvidence": true
+  },
+  "capturedAtIso": "2026-06-24T13:27:04.135Z",
+  "claims": {
+    "authorityDone": false,
+    "productionDone": false
+  },
+  "headHash": "b6c0bbe1ce7c01c926453d0846bd8cad2628c911",
+  "materialHash": "ebc27d38cc0029898387f299a1e155089cd0ea7e8e4db7cf660b33552706b65b"
+}

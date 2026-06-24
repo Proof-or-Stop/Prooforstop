@@ -342,7 +342,7 @@ async function bridgeApi(httpPort: number, path: string, body?: unknown): Promis
 
 function generateDashboardHtml(machineName: string, transitionsJson: string, hasBrowser: boolean, proxyUrl: string, bridgeWsPort: number): string {
   return `<!DOCTYPE html>
-<html><head><meta charset="utf-8"><title>${machineName} — Lattice Debug</title>
+<html><head><meta charset="utf-8"><title>${machineName} — Proofbound Debug</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,system-ui,sans-serif;background:#1a1a2e;color:#e0e0e0;padding:16px;max-width:100%;margin:0 auto}
@@ -399,7 +399,7 @@ h1{color:#e94560;font-size:20px;display:inline}
 .state-tab:hover{color:#e0e0e0}
 .state-tab.active{background:#0f3460;color:#53d8fb}
 </style></head><body>
-<div class="header"><h1>${machineName}</h1><span class="subtitle">Lattice debug console</span></div>
+<div class="header"><h1>${machineName}</h1><span class="subtitle">Proofbound debug console</span></div>
 <div class="tabs" id="tabs">
   <div class="tab active" data-tab="bridge">Bridge</div>
   ${hasBrowser ? '<div class="tab" data-tab="browser">Browser</div>' : ''}
@@ -987,7 +987,7 @@ export async function startServe(options: ServeOptions) {
         proxy.listen(proxyPort, () => {
           proxyUrl = `http://localhost:${proxyPort}`;
           console.log(`  Proxy: ${proxyUrl} → ${devUrl}`);
-          console.log(`  Open the proxy address in the browser; Lattice will automatically inject the control script`);
+          console.log(`  Open the proxy address in the browser; Proofbound will automatically inject the control script`);
         });
       }
     }

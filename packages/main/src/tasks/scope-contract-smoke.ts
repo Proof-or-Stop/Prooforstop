@@ -226,12 +226,20 @@ try {
   };
   const lifecycleRuntimePositive = checkScopeContract(waveContract, [
     '.lattice/story/actives/B-scope/summary.json',
+    '.lattice/story/actives/B-scope/evidence/live-smoke-transcript.json',
     '.lattice/activity.jsonl',
   ]);
   assert.equal(lifecycleRuntimePositive.status, 'pass', 'registered lifecycle/runtime artifacts should pass scope');
   assertScopeRow(lifecycleRuntimePositive, 'B-997b CHK-004 lifecycle row', {
     id: 'scope.lifecycle_artifact:B-scope:summary.json',
     source: '.lattice/story/actives/B-scope/summary.json',
+    status: 'pass',
+    blocking: false,
+    action: /provenance|artifact|not.*gate/i,
+  });
+  assertScopeRow(lifecycleRuntimePositive, 'B-d669 live-smoke transcript lifecycle row', {
+    id: 'scope.lifecycle_artifact:B-scope:live-smoke-transcript.json',
+    source: '.lattice/story/actives/B-scope/evidence/live-smoke-transcript.json',
     status: 'pass',
     blocking: false,
     action: /provenance|artifact|not.*gate/i,

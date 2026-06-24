@@ -51,7 +51,7 @@ export function createTestIntentHandoffHandlers(ctx: HandlerContext) {
       const missingList = missingIntentItems.map((item) => `${item.id} "${item.title}"`).join(', ') || '(none)';
 
       const prompt = [
-        `You are the test-intent agent for Lattice story ${args.storyId}.`,
+        `You are the test-intent agent for Proofbound story ${args.storyId}.`,
         '',
         'Follow the repository test-intent agent contract:',
         '- First review checklist split quality against the story description.',

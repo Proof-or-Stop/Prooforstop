@@ -17,7 +17,7 @@
  * `CommandRunner` dependency-injection pattern in validate-lint.ts. This keeps
  * the predicate trivially unit-testable without spawning git.
  *
- * The incident (ClawCreek, Lattice 0.3.5): a project that broadly ignores
+ * The incident (ClawCreek, Proofbound 0.3.5): a project that broadly ignores
  * `.lattice/` keeps the volatile runtime safe from `git clean` but SILENTLY
  * untracks the persistent story metadata. The metadata is then never committed,
  * and the next `git clean -fdx` (ignored + untracked = exactly what clean

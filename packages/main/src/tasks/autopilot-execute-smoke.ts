@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /**
- * Smoke coverage for the true Lattice autopilot executor loop:
+ * Smoke coverage for the true Proofbound autopilot executor loop:
  * - execute is separate from run/projection.
- * - local mode runs argv-mapped Lattice commands without shell parsing.
+ * - local mode runs argv-mapped Proofbound commands without shell parsing.
  * - authority DONE without a verified receipt fails closed before execution.
  * - Claude Code CLI repair is disabled by default and only runs when explicit.
  */

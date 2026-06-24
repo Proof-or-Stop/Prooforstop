@@ -1,0 +1,32 @@
+{
+  "storyId": "B-bdce",
+  "checkedAt": "2026-06-24T14:35:34.035Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "id": "INIT-001",
+      "severity": "low",
+      "desc": "background.md Key Insights uses the abbreviation \"3x2\" (\"not high-risk 3x2\") without expanding it on first mention. A new reader cannot infer whether it means 3 rounds x 2 hosts, 3 reviewers x 2 passes, or something else. The negation context (\"not 3x2\") makes the story scope clear regardless, so this is advisory only."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-24T14:31:27.502Z",
+      "issues": []
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-06-24T14:35:34.035Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "low",
+          "desc": "background.md Key Insights uses the abbreviation \"3x2\" (\"not high-risk 3x2\") without expanding it on first mention. A new reader cannot infer whether it means 3 rounds x 2 hosts, 3 reviewers x 2 passes, or something else. The negation context (\"not 3x2\") makes the story scope clear regardless, so this is advisory only."
+        }
+      ]
+    }
+  ],
+  "_hash": "080f9fef6abbc5df9b2988ff44d4888f4760bc2bfbad1f5ebe12d3e39fbe1afc"
+}

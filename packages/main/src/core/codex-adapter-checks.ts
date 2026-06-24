@@ -318,7 +318,7 @@ function checkManifest(root: string, checks: CodexAdapterCheck[], resolution: Ag
     }
     const expectedRegistryManifest = renderLatticeCodexAdapterManifest({ promptMode: 'registry' });
     if (actual !== expectedRegistryManifest) {
-      push(checks, 'manifest', 'Codex manifest', 'fail', true, `${selection.relPath} drifted from Lattice registry template`, LOCAL_INIT_VERIFY_COMMAND);
+      push(checks, 'manifest', 'Codex manifest', 'fail', true, `${selection.relPath} drifted from Proofbound registry template`, LOCAL_INIT_VERIFY_COMMAND);
       return 'registry';
     }
     push(checks, 'manifest', 'Codex manifest', 'pass', true, `${selection.relPath} uses registry prompt mode (${expectedRegistry.agentCount} prompt(s), hash=${expectedRegistry.materialHash.slice(0, 12)})`);
@@ -329,10 +329,10 @@ function checkManifest(root: string, checks: CodexAdapterCheck[], resolution: Ag
     return null;
   }
   if (actual !== expected) {
-    push(checks, 'manifest', 'Codex manifest', 'fail', true, `${selection.relPath} drifted from Lattice template`, LOCAL_INIT_VERIFY_COMMAND);
+    push(checks, 'manifest', 'Codex manifest', 'fail', true, `${selection.relPath} drifted from Proofbound template`, LOCAL_INIT_VERIFY_COMMAND);
     return 'legacy-mirror';
   }
-  push(checks, 'manifest', 'Codex manifest', 'pass', true, `${selection.relPath} matches Lattice template`);
+  push(checks, 'manifest', 'Codex manifest', 'pass', true, `${selection.relPath} matches Proofbound template`);
   return 'legacy-mirror';
 }
 
@@ -422,7 +422,7 @@ function checkCodexNativeHooks(root: string, checks: CodexAdapterCheck[]): void 
   const hooksJsonPath = join(root, '.codex', 'hooks.json');
   const hookScriptPath = join(root, '.codex', 'hooks', 'lattice-scope-pretool.cjs');
   if (!existsSync(hooksJsonPath)) {
-    push(checks, 'codex-native-hooks', 'Codex native PreToolUse hook', 'fail', true, 'missing .codex/hooks.json with Lattice PreToolUse hook', LOCAL_INIT_VERIFY_COMMAND);
+    push(checks, 'codex-native-hooks', 'Codex native PreToolUse hook', 'fail', true, 'missing .codex/hooks.json with Proofbound PreToolUse hook', LOCAL_INIT_VERIFY_COMMAND);
     return;
   }
   if (!existsSync(hookScriptPath)) {
@@ -599,7 +599,7 @@ function checkLocalWrapper(root: string, checks: CodexAdapterCheck[], executeHea
         'Local wrapper heartbeat',
         'pass',
         true,
-        'packaged runtime uses embedded Lattice CLI; wrapper env contract verified without external Node',
+        'packaged runtime uses embedded Proofbound CLI; wrapper env contract verified without external Node',
       );
       return;
     }

@@ -1,4 +1,4 @@
-# Lattice Strengthening Roadmap Execution Plan
+# Proofbound Strengthening Roadmap Execution Plan
 
 Date: 2026-06-19
 Origin story: B-8b07
@@ -9,7 +9,7 @@ Status: M1-M3 wave complete; M4-M12 remain follow-up milestones
 ## Status And Purpose
 
 This document is a requirements decision and execution roadmap for strengthening
-Lattice along three coordinated tracks:
+Proofbound along three coordinated tracks:
 
 1. **Hard scope boundaries**: make every story's allowed work, excluded work,
    lifecycle artifact allowance, and later-phase scope change path explicit and
@@ -32,7 +32,7 @@ policy choices in every branch.
 The desired product outcome is:
 
 ```text
-An operator can ask "is this Lattice story safe to proceed, review, validate,
+An operator can ask "is this Proofbound story safe to proceed, review, validate,
 merge, or claim?" and receive a mechanically grounded answer that names the
 scope boundary, evidence state, host/reviewer independence state, baseline
 expectation, and next required action.
@@ -42,7 +42,7 @@ The product/material deliverable of B-b5c0 was only this document repair. The
 B-997b wave is deliberately narrower than the whole roadmap: it ships M1-M3
 scope boundary behavior and keeps Authority/Layer 4/customer key work out of
 scope. Any `.lattice/story/actives/<storyId>/*` lifecycle metadata is
-story-scoped provenance produced by the Lattice workflow, not proof of later
+story-scoped provenance produced by the Proofbound workflow, not proof of later
 roadmap milestones.
 
 ## Source And Context Mapping
@@ -124,7 +124,7 @@ This roadmap story does not:
 - alter `verificationIntent`, `verificationEvidence`, review-run, finding,
   delivery, validation, summary, or DONE semantics;
 - directly edit story JSON by hand, or change product/runtime metadata outside
-  the Lattice workflow (story-scoped provenance under
+  the Proofbound workflow (story-scoped provenance under
   `.lattice/story/actives/B-b5c0/*` is allowed);
 - claim that any future baseline has passed;
 - claim `authorityDone`, `fullAuthorityDone`, `productionDone`,
@@ -133,7 +133,7 @@ This roadmap story does not:
   contracts;
 - use host transcripts, decision-doc prose, or documentation registration as
   gate evidence;
-- expand Lattice into a generic optimization program; future stories must fix
+- expand Proofbound into a generic optimization program; future stories must fix
   real correctness issues or close named evidence gaps.
 
 ## Principles
@@ -175,7 +175,7 @@ Additional roadmap principles:
 
 ### Track A. Hard Scope Boundaries
 
-Goal: prevent Lattice stories from drifting across unapproved code, document,
+Goal: prevent Proofbound stories from drifting across unapproved code, document,
 metadata, fixture, authority, runtime, or generated-artifact boundaries.
 
 Core product questions:
@@ -1413,7 +1413,7 @@ M11 staged runbook and repair prerequisite:
 
 Audited emergency bypass for self-hosting over-block:
 
-- Use only when Lattice's strengthened local gate blocks the story that is
+- Use only when Proofbound's strengthened local gate blocks the story that is
   required to fix that same gate and no normal replan/repair path can proceed.
 - Requires explicit human/operator reason, owner lease for story-scoped writes,
   main write lock for main/shared writes, current material/head hash, affected
@@ -1507,7 +1507,7 @@ Exit criteria:
 | 3x2 review blocks local progress when a host is unavailable | Stories stall indefinitely. | Explicit degraded single-host fallback with lower-assurance label and policy gate. |
 | Degraded fallback becomes normal | Lower assurance is reported as full proof. | Stable `degraded-single-host` fields and tests rejecting full-3x2 wording. |
 | Parallel work creates stacked gate holes | Independently correct stories combine into a bypass. | Shared schema owners, dependency joins, merged-state combination review. |
-| Baseline claims outrun evidence | Lattice appears more capable than tested. | Success-rate math, false-DONE count, claim boundary templates. |
+| Baseline claims outrun evidence | Proofbound appears more capable than tested. | Success-rate math, false-DONE count, claim boundary templates. |
 | Authority terminology leaks into local evidence | Host transcripts or local statuses imply production proof. | Local host evidence remains review evidence; receipt-backed facts are separate. |
 | Migration mutates user metadata unexpectedly | Trust and auditability degrade. | Dry-run first, explicit reason, owner lease, no direct story JSON edits. |
 

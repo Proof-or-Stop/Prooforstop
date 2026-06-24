@@ -1071,7 +1071,7 @@ export async function evaluateAuthorityGate(
       decisionDigest: verification.receipt.decisionDigest,
       gateInputDigest: expectedGateInputDigest,
       receiptInputDigest: verification.receipt.inputDigest,
-      reason: `Lattice Authority receipt binding mismatch: inputDigest expected ${expectedReceiptInputDigest}, got ${verification.receipt.inputDigest}`,
+      reason: `Proofbound Authority receipt binding mismatch: inputDigest expected ${expectedReceiptInputDigest}, got ${verification.receipt.inputDigest}`,
     };
   }
   return {
@@ -1508,7 +1508,7 @@ function buildJobRunEvidence(
     inspectedPackRefs: [],
     commandDigest,
     transcriptHash,
-    note: `Lattice runner evidence refs: ${refs.join(', ')}`,
+    note: `Proofbound runner evidence refs: ${refs.join(', ')}`,
     clientName: 'lattice-cli',
     clientVersion: authorityEnvValue(env, 'CLIENT_VERSION') ?? 'unknown',
     authorityMode: 'enforce',

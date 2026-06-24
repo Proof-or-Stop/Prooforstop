@@ -19,7 +19,7 @@
  *   - the reporter task runs over a sample ledger, prints, and exits 0 (human +
  *     --json + with price table); missing/corrupt ledger exits non-zero;
  *   - static: no dollar/price literal in diagnostics.ts; the usage-ledger module
- *     imports ZERO other Lattice modules (only ./ siblings + node:).
+ *     imports ZERO other Proofbound modules (only ./ siblings + node:).
  *
  * Runs entirely in an OS temp dir; never pollutes the repo. Prints per-check
  * lines and a final summary; exits non-zero on any failure.
@@ -531,7 +531,7 @@ try {
     assert.ok(!banned.test(code), 'diagnostics.ts code must contain no hardcoded prices');
   });
 
-  check('static: usage-ledger module imports ZERO other Lattice modules (in-module files + node: only)', () => {
+  check('static: usage-ledger module imports ZERO other Proofbound modules (in-module files + node: only)', () => {
     const files = walkTs(srcUsageLedgerDir);
     assert.ok(files.length > 0, 'found usage-ledger source files');
     const moduleRoot = resolve(srcUsageLedgerDir) + sep;

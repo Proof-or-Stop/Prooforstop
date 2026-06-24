@@ -6,7 +6,7 @@ Status: execution plan; documentation only
 
 ## Purpose
 
-This plan defines the target owner-session identity contract for Lattice's local
+This plan defines the target owner-session identity contract for Proofbound's local
 story owner leases across Codex, Claude Code, Antigravity/agy, and future hosts.
 It does not implement runtime code. Future implementation stories must use this
 document as the execution plan before changing owner-lease, lifecycle, host
@@ -36,7 +36,7 @@ host-specific exceptions in core behavior:
 - Codex, Antigravity/agy, and future hosts need the same contract without adding
   one more host-specific branch to core each time.
 
-The target is a host-neutral Lattice contract: core code consumes one canonical
+The target is a host-neutral Proofbound contract: core code consumes one canonical
 session id, while host adapters bridge each runtime's native signals into that
 contract.
 
@@ -80,7 +80,7 @@ The target resolver order is:
 
 1. **Explicit canonical env**: a user, wrapper, runner, or host adapter sets
    `LATTICE_SESSION_ID`.
-2. **Host adapter bridge**: a Lattice-owned adapter maps a host-native stable
+2. **Host adapter bridge**: a Proofbound-owned adapter maps a host-native stable
    signal into `LATTICE_SESSION_ID` before core owner-lease code runs.
 3. **Generated-token fallback**: when a host has a session boundary but no
    native stable env, the adapter creates and reuses a local opaque token for

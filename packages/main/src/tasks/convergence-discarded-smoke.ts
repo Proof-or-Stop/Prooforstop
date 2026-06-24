@@ -74,7 +74,7 @@ try {
   resetConfigCache();
   git(['init']);
   git(['config', 'user.email', 'lattice-smoke@example.invalid']);
-  git(['config', 'user.name', 'Lattice Smoke']);
+  git(['config', 'user.name', 'Proofbound Smoke']);
   git(['add', 'lattice.config.json', 'packages/main/src/empty.ts']);
   git(['commit', '-m', 'initial smoke project']);
 

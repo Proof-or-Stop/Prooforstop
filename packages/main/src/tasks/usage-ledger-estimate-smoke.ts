@@ -25,7 +25,7 @@
  *   - writer round-trip: estimate record appended (opt-in ON, temp dir) then
  *     re-read via verifyLedgerChain + re-validated;
  *   - STATIC import boundary: the whole core/usage-ledger module imports ZERO
- *     other Lattice modules (only ./ siblings + node: builtins).
+ *     other Proofbound modules (only ./ siblings + node: builtins).
  *
  * Runs entirely in an OS temp dir; never pollutes the repo. Prints per-check
  * lines and a final summary; exits non-zero on any failure.
@@ -591,7 +591,7 @@ async function main(): Promise<void> {
   // ----------------------------------------------------------------------
   // STATIC: zero-cross-module-import boundary for core/usage-ledger
   // ----------------------------------------------------------------------
-  await check('STATIC core/usage-ledger imports ZERO other Lattice modules (only ./ siblings + node:)', () => {
+  await check('STATIC core/usage-ledger imports ZERO other Proofbound modules (only ./ siblings + node:)', () => {
     const repoRoot = execFileSync('git', ['rev-parse', '--show-toplevel'], { encoding: 'utf8' }).trim();
     const moduleDir = join(repoRoot, 'packages', 'main', 'src', 'core', 'usage-ledger');
     const tsFiles = walkTs(moduleDir);

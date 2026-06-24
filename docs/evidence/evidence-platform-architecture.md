@@ -3,7 +3,7 @@
 Status: implementation baseline for the B-0aa1 candidate-only MVP plus the
 B-0985 proof-admissibility classification MVP.
 Date: 2026-06-24.
-Scope: shared local evidence artifact storage for Proofbound / Lattice CLI.
+Scope: shared local evidence artifact storage for Proofbound / Proofbound CLI.
 
 This document defines the evidence storage boundary used by Repro-First intake.
 The B-0aa1 slice implements the artifact storage and repro intake portions only.

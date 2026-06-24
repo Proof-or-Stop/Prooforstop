@@ -75,7 +75,7 @@ import type {
 /** Marker line printed by the smoke so `lattice validate` output is greppable. */
 const MARKER = 'review-incremental-context-smoke:';
 
-const COMMIT_ENV = ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Lattice Smoke'];
+const COMMIT_ENV = ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proofbound Smoke'];
 
 function git(cwd: string, args: string[]): string {
   return execFileSync('git', args, {

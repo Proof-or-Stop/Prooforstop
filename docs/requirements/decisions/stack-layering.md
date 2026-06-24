@@ -1,4 +1,4 @@
-# Claude Code / Codex × Superpowers × Lattice Layering Notes (draft)
+# Claude Code / Codex × Superpowers × Proofbound Layering Notes (draft)
 
 > 2026.04 · Explains the responsibility boundaries of the current system with a three-layer model, to stop "who is responsible for workflow, who for project state, who for runtime" from staying tangled together
 
@@ -8,7 +8,7 @@ The recommended way to understand the current system is as three layers:
 
 1. **Claude Code / Codex**: agent runtime
 2. **Superpowers**: agent workflow / methodology
-3. **Lattice CLI / Lattice**: project execution + verification substrate
+3. **Proofbound CLI / Proofbound**: project execution + verification substrate
 
 The three layers are not a flat feature list, but a top-down division of labor:
 
@@ -19,7 +19,7 @@ Claude Code / Codex
 Superpowers
   ↓ provides workflow, skills, methodology, default work habits
 
-Lattice CLI / Lattice
+Proofbound CLI / Proofbound
   ↓ provides story / checklist / phase / gate / artifact / evidence / bug / review result
 ```
 
@@ -37,12 +37,12 @@ These three things are essentially three different questions:
 |---|---|
 | **Claude Code / Codex** | Where does the agent run, and what native capabilities does it have? |
 | **Superpowers** | By what method should the agent work? |
-| **Lattice** | How is project state persisted, advanced, verified, and re-reviewed? |
+| **Proofbound** | How is project state persisted, advanced, verified, and re-reviewed? |
 
 If the boundaries are not drawn, two typical problems appear:
 
 1. **Everyone wants to be the workflow orchestration layer**  
-   Both Superpowers and Lattice start issuing orders, and they fight each other.
+   Both Superpowers and Proofbound start issuing orders, and they fight each other.
 2. **No one is responsible for project state**  
    The agent workflow looks complete, but story/gate/artifact/evidence has no clear foundation.
 
@@ -94,7 +94,7 @@ and not:
 
 > **Persist project state and verification evidence for the long term**
 
-### 3. Lattice CLI / Lattice: The Execution / Verification Substrate
+### 3. Proofbound CLI / Proofbound: The Execution / Verification Substrate
 
 This is the project-state layer, responsible for:
 
@@ -132,7 +132,7 @@ The healthiest combination is not "who replaces whom," but:
 - **Claude Code / Codex** provides the runtime
 - **Superpowers** provides the workflow
 - **Lattice-era state artifacts** provide the historical state substrate
-- **Lattice CLI 0.3.5** is the active product entry point of this substrate
+- **Proofbound CLI 0.3.5** is the active product entry point of this substrate
 
 That is:
 
@@ -141,7 +141,7 @@ User / agent
   ↓
 Superpowers skills / workflow
   ↓ invokes
-Lattice CLI / MCP / story machine
+Proofbound CLI / MCP / story machine
   ↓ persists
 story / checklist / phase / gate / artifact / evidence
 ```
@@ -150,11 +150,11 @@ A more plain-spoken version:
 
 - **Claude/Codex**: lets the agent work
 - **Superpowers**: tells the agent how it should work
-- **Lattice CLI / Lattice**: records how far it actually got
+- **Proofbound CLI / Proofbound**: records how far it actually got
 
 ## Mac App Boundary
 
-Lattice CLI 0.3.5 moves provider/config status into CLI-first surfaces:
+Proofbound CLI 0.3.5 moves provider/config status into CLI-first surfaces:
 `host_list`, `host_probe`, `host_install`, `lattice_config_doctor`,
 `authority_status`, `conduit_status`, and `conduit_explain`. The Mac App is not
 the required project-state or provider/config layer. It may remain an optional
@@ -181,7 +181,7 @@ Risks:
 - long-term re-review and cross-session alignment may not be hard enough
 - "how far it actually got / why it can continue / where the evidence is" may be scattered across the chat and inside skills
 
-### The Risk of Lattice Alone
+### The Risk of Proofbound Alone
 
 Advantages:
 
@@ -205,7 +205,7 @@ The best form of the combination is:
 
 In other words:
 
-> **Superpowers is responsible for "doing the right thing," and Lattice is responsible for "the system knowing what it actually did."**
+> **Superpowers is responsible for "doing the right thing," and Proofbound is responsible for "the system knowing what it actually did."**
 
 ## Boundary Principles
 
@@ -219,11 +219,11 @@ Superpowers can trigger workflows, but should not define for itself:
 - the final-judgment record of a gate
 - the persistence protocol of bug/evidence
 
-These should be Lattice's responsibility.
+These should be Proofbound's responsibility.
 
-### Principle 2: Lattice Is Not Responsible for Shaping the Entire Agent Methodology
+### Principle 2: Proofbound Is Not Responsible for Shaping the Entire Agent Methodology
 
-Lattice should keep focusing on:
+Proofbound should keep focusing on:
 
 - state machine
 - gate
@@ -249,15 +249,15 @@ Claude/Codex provides the runtime and interaction, but should not become:
 
 Otherwise, as soon as you cross sessions / tools / agents, you lose state.
 
-### Principle 4: Lattice's Runtime Is Limited to Project State
+### Principle 4: Proofbound's Runtime Is Limited to Project State
 
-The runtime here is not the agent runtime. Lattice is not responsible for starting, recovering, or scheduling a Codex/Claude session, nor does it implement a general worker pool, prompt marketplace, token/model management, or notification system.
+The runtime here is not the agent runtime. Proofbound is not responsible for starting, recovering, or scheduling a Codex/Claude session, nor does it implement a general worker pool, prompt marketplace, token/model management, or notification system.
 
-Lattice prioritizes being observable, recoverable, and diagnosable, and the thing those properties land on should be the project-state runtime:
+Proofbound prioritizes being observable, recoverable, and diagnosable, and the thing those properties land on should be the project-state runtime:
 
 - `status`: read-only display of story / phase / worktree / reviewer / artifact / dirty risk
 - `next`: read-only output of the currently most trustworthy next step
-- `doctor`: diagnoses the health of the Lattice flow and local state
+- `doctor`: diagnoses the health of the Proofbound flow and local state
 - the optional future `.lattice/state`: can only be a deletable, rebuildable projection cache, and must not become a second source of truth
 
 The hard boundary is: story, checklist, fixture, requirements, and git are still the sources of truth; all gates are still judged by the deterministic CLI / fixture / review record, not by the LLM's on-the-spot judgment.
@@ -281,9 +281,9 @@ Looking at the current repository, you can already see this layering starting to
 - requesting-code-review
 - verification-before-completion
 
-These are more like methods for "how to drive the agent," not things Lattice itself needs to fully rewrite.
+These are more like methods for "how to drive the agent," not things Proofbound itself needs to fully rewrite.
 
-### Lattice Layer
+### Proofbound Layer
 
 - `story_advance`
 - `session_brief`
@@ -296,9 +296,9 @@ These are more like methods for "how to drive the agent," not things Lattice its
 
 These all belong to the project state / verification substrate.
 
-## Direct Guidance for Lattice
+## Direct Guidance for Proofbound
 
-If you accept this layering, what Lattice should prioritize next is not "adding more skills like Superpowers," but continuing to strengthen these foundational capabilities:
+If you accept this layering, what Proofbound should prioritize next is not "adding more skills like Superpowers," but continuing to strengthen these foundational capabilities:
 
 1. **A clearer state machine**  
    keep structuring phase / rollback / gate reason
@@ -307,13 +307,13 @@ If you accept this layering, what Lattice should prioritize next is not "adding 
 3. **More decidable verification**  
    reduce states that "look complete" but the system cannot confirm
 4. **More stable runtime integration**  
-   make worktree / reconcile / ownership drift less frequent when upper-layer workflows call Lattice
+   make worktree / reconcile / ownership drift less frequent when upper-layer workflows call Proofbound
 
 ## One-Sentence Positioning (recommended for external/internal phrasing)
 
 The recommended unified phrasing:
 
-> **Claude Code / Codex is the runtime, Superpowers is the workflow, Lattice is the project execution and verification substrate.**
+> **Claude Code / Codex is the runtime, Superpowers is the workflow, Proofbound is the project execution and verification substrate.**
 
 A bit more plainly:
 

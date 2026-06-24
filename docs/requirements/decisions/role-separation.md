@@ -1,4 +1,4 @@
-# Lattice Multi-Role Separation Refactor Plan
+# Proofbound Multi-Role Separation Refactor Plan
 
 > 2026.04 · Split the 4 responsibilities of plan / adversarial / implementation / test-verification from "one main agent holding all of them" into roles that can evolve independently
 
@@ -201,8 +201,8 @@ The agent's input prompt is constructed by the main agent and must contain:
 1. The current story id + phase
 2. The list of checklist items with status != done (including title + context)
 3. A short index of files already read (to avoid the sub-agent re-Reading)
-4. The Lattice commands it is allowed to call (`checklist_update`, `update_task_state`, `fixture_batch_add`)
-5. The list of Lattice commands it is blocked from calling
+4. The Proofbound commands it is allowed to call (`checklist_update`, `update_task_state`, `fixture_batch_add`)
+5. The list of Proofbound commands it is blocked from calling
 
 **Checklist**
 
@@ -980,15 +980,15 @@ Every wave has a mandatory gate story and a rollback playbook. The gate's data d
 ## Advisory Read-Only Reviewer Mode (`LATTICE_REVIEWER_READONLY=1`)
 
 Some workflows delegate read-only review to an external Claude/Codex/Gemini process that is
-**not** a normal Lattice gate reviewer. These advisory reviewers should not be able to call
-mutating Lattice commands — they are expected to return structured text or JSON findings to the
+**not** a normal Proofbound gate reviewer. These advisory reviewers should not be able to call
+mutating Proofbound commands — they are expected to return structured text or JSON findings to the
 owner session, which then records evidence through the normal gate.
 
 ### Dispatch rule for owner agents
 
 When an **owner session** launches an advisory external reviewer (Claude/Codex/Gemini), it
 **must** set `LATTICE_REVIEWER_READONLY=1` on that spawned process only — not on the owner
-session itself or on any normal Lattice gate reviewer subagent.
+session itself or on any normal Proofbound gate reviewer subagent.
 
 ```bash
 # Correct: sandbox only the advisory process
@@ -999,7 +999,7 @@ LATTICE_REVIEWER_READONLY=1 claude --model sonnet ... --prompt "inspect src/ and
 ```
 
 The owner instructs the advisory reviewer to return structured JSON or plain-text findings and
-**explicitly prohibits** the reviewer from calling any of the following Lattice commands:
+**explicitly prohibits** the reviewer from calling any of the following Proofbound commands:
 
 - `review_pass_set` — would forge a gate-pass artifact
 - `finding_add` — would forge a signed finding
@@ -1026,9 +1026,9 @@ When set on a spawned reviewer process:
 
 ### Advisory reviewer output is not gate evidence
 
-A read-only reviewer cannot produce a Lattice `review_pass_set` record, a signed `finding_add`
+A read-only reviewer cannot produce a Proofbound `review_pass_set` record, a signed `finding_add`
 entry, or any other lifecycle artifact. Owner sessions that receive advisory reviewer output
-must explicitly call the relevant Lattice commands themselves to materialize evidence.
+must explicitly call the relevant Proofbound commands themselves to materialize evidence.
 
 ### If LATTICE_REVIEWER_READONLY was omitted
 
@@ -1044,7 +1044,7 @@ scrutiny before recording any evidence:
 3. **Discard any gate artifacts** (finding hashes, review pass records) that appear to have
    been written by the advisory reviewer directly — re-run or re-record them through the owner.
 
-### Normal Lattice gate reviewers must NOT set this mode
+### Normal Proofbound gate reviewers must NOT set this mode
 
 Standard reviewers (`lattice-review-*` subagents in REVIEW phase) need to call `review_run_start`,
 `finding_add`, `review_pass_set`, `init_check_set`, `scope_check_save`, and

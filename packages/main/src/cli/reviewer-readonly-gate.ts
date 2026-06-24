@@ -26,7 +26,7 @@ export function enforceReviewerReadOnlyCommandGate(
   throw new Error(
     `[${REVIEWER_READONLY_ENV}=1] Command "${cmd}" is not allowed in read-only reviewer mode ` +
     `(effective ownershipClass: ${clsLabel}). ` +
-    `Advisory read-only reviewers may only run read-only Lattice commands and should return ` +
+    `Advisory read-only reviewers may only run read-only Proofbound commands and should return ` +
     `structured findings to the story owner. ` +
     `To run write commands, unset ${REVIEWER_READONLY_ENV} and ensure you are the story owner.`,
   );

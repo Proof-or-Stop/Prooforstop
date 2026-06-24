@@ -1,8 +1,8 @@
-# Lattice Unattended Completion Plan
+# Proofbound Unattended Completion Plan
 
 ## Status
 
-Execution plan. This document turns the remaining Lattice unattended
+Execution plan. This document turns the remaining Proofbound unattended
 development gaps into implementation milestones, required evidence, and DONE
 criteria.
 
@@ -40,7 +40,7 @@ Operational meaning:
 | Area | Current state | Required completion |
 |---|---|---|
 | plannedSteps contract | Contract and smoke tests exist. | Production executor consumes typed steps for real jobs and reports structured evidence per step. |
-| Lattice Authority mode | CLI/contracts/local tests exist. | Python Authority live loop passes on `http://localhost:6789/` with real customer API key and signed actors. |
+| Proofbound Authority mode | CLI/contracts/local tests exist. | Python Authority live loop passes on `http://localhost:6789/` with real customer API key and signed actors. |
 | Customer API key access | Requirements and config contract exist. | Server stores hashed keys, validates scopes, rejects missing/invalid/revoked/expired keys, and supports rotation tests. |
 | Actor / runner signatures | Boundary is defined. | Actor enrollment and signed mutating APIs are verified against the live server. |
 | Evidence upload | API shape and client path exist. | Live evidence is persisted, bound to job/run/step/material hash, and referenced by gate receipts. |
@@ -106,16 +106,16 @@ Blockers:
 - free-form prose steps are accepted as executable work;
 - a step can pass without required evidence.
 
-### M3. Python Lattice Authority Live Baseline
+### M3. Python Proofbound Authority Live Baseline
 
-Goal: prove the CLI talks to a real local Python Lattice Authority server.
+Goal: prove the CLI talks to a real local Python Proofbound Authority server.
 
 Deliverables:
 
 - Python Authority source is the existing local server project at
   `/Users/jek/Documents/Work/Lattice/cord-team` unless a later Story explicitly
   replaces the server source;
-- documented startup command for Python Lattice Authority on
+- documented startup command for Python Proofbound Authority on
   `http://localhost:6789/`;
 - canonical local `.lattice/authority.md` profile;
 - generated local test customer API key, actor key, runner id, project id, and

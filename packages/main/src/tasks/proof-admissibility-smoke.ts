@@ -13,6 +13,7 @@ import {
   CLAIM_KINDS,
   EVIDENCE_SCOPES,
   PROOF_ADMISSIBILITY_CONTRACT_VERSION,
+  PROOF_ADMISSIBILITY_VERIFIER_VERSION,
   PROOF_PRODUCER_BOUNDARIES,
   PROOF_SURFACE_REGISTRY,
   TEMPORAL_ROLES,
@@ -33,6 +34,7 @@ function expectReason(
 function currentValidChecks(schemaVersion: string) {
   return {
     contractVersion: PROOF_ADMISSIBILITY_CONTRACT_VERSION,
+    verifierVersion: PROOF_ADMISSIBILITY_VERIFIER_VERSION,
     schemaVersion,
     strictShapeValid: true,
     semanticDigestValid: true,
@@ -58,6 +60,8 @@ function runtimeChecks(value: Record<string, unknown>): RuntimeAdmissibilityChec
   assert.ok(TEMPORAL_ROLES.includes('transition-relation'), 'temporal role dictionary includes transition-relation');
   assert.ok(PROOF_PRODUCER_BOUNDARIES.includes('authority-owned'), 'producer boundary dictionary includes authority-owned');
   assert.ok(ADMISSIBILITY_REASON_CODES.includes('local_diagnostic_non_gate'), 'reason dictionary includes local_diagnostic_non_gate');
+  assert.ok(ADMISSIBILITY_REASON_CODES.includes('unsupported_verifier_version'), 'reason dictionary includes unsupported_verifier_version');
+  assert.ok(ADMISSIBILITY_REASON_CODES.includes('checker_error'), 'reason dictionary includes checker_error');
 }
 
 {
@@ -94,9 +98,10 @@ function runtimeChecks(value: Record<string, unknown>): RuntimeAdmissibilityChec
     claim: 'production-completion',
     checks: currentValidChecks('lattice.authority_receipt_refs.v1'),
   });
-  assert.equal(result.allowed, true, 'matching production gate decision with exact true checks and current contractVersion is allowed');
-  assert.equal(result.productionDoneEligible, true, 'matching production gate decision with exact true checks and current contractVersion can be productionDone eligible');
-  assert.deepEqual(result.reasons, [], 'happy production gate decision has no reasons');
+  assert.equal(result.allowed, true, 'authority receipt ref with exact true checks and current contractVersion is allowed as evidence/input');
+  assert.equal(result.overall, 'pass', 'matching production gate decision has pass overall');
+  assert.equal(result.productionDoneEligible, false, 'local CLI core never turns authority receipt refs into productionDone eligibility');
+  assert.deepEqual(result.reasons, [], 'admissible authority receipt ref evidence has no reasons');
 }
 
 {
@@ -136,6 +141,7 @@ for (const value of [false, 'true', 1, 0]) {
     claim: 'production-completion',
     checks: runtimeChecks({
       schemaVersion: 'lattice.authority_receipt_refs.v1',
+      verifierVersion: PROOF_ADMISSIBILITY_VERIFIER_VERSION,
       strictShapeValid: true,
       semanticDigestValid: true,
       signatureOrReceiptBindingValid: true,
@@ -177,6 +183,57 @@ for (const value of [false, 'true', 1, 0]) {
   assert.equal(wrongContractVersion.allowed, false, 'authority receipt production-completion with wrong contractVersion fails closed');
   assert.equal(wrongContractVersion.productionDoneEligible, false, 'authority receipt production-completion with wrong contractVersion cannot set productionDone');
   expectReason(wrongContractVersion.reasons, 'unsupported_contract_version', 'wrong contractVersion');
+}
+
+{
+  const missingVerifierVersion = evaluateProofAdmissibility({
+    artifactKind: 'authority-receipt-ref',
+    consumer: 'AUTHORITY_GATE_DECISION',
+    claim: 'production-completion',
+    checks: runtimeChecks({
+      contractVersion: PROOF_ADMISSIBILITY_CONTRACT_VERSION,
+      schemaVersion: 'lattice.authority_receipt_refs.v1',
+      strictShapeValid: true,
+      semanticDigestValid: true,
+      signatureOrReceiptBindingValid: true,
+      temporalAndMaterialBindingValid: true,
+      subjectMatches: true,
+      producerBoundaryTrusted: true,
+    }),
+  });
+  assert.equal(missingVerifierVersion.allowed, false, 'authority receipt production-completion with all checks true but missing verifierVersion fails closed');
+  assert.equal(missingVerifierVersion.productionDoneEligible, false, 'authority receipt production-completion with missing verifierVersion cannot set productionDone');
+  expectReason(missingVerifierVersion.reasons, 'missing_required_field', 'missing verifierVersion');
+}
+
+{
+  const nullVerifierVersion = evaluateProofAdmissibility({
+    artifactKind: 'authority-receipt-ref',
+    consumer: 'AUTHORITY_GATE_DECISION',
+    claim: 'production-completion',
+    checks: runtimeChecks({
+      ...currentValidChecks('lattice.authority_receipt_refs.v1'),
+      verifierVersion: null,
+    }),
+  });
+  assert.equal(nullVerifierVersion.allowed, false, 'authority receipt production-completion with null verifierVersion fails closed');
+  assert.equal(nullVerifierVersion.productionDoneEligible, false, 'authority receipt production-completion with null verifierVersion cannot set productionDone');
+  expectReason(nullVerifierVersion.reasons, 'missing_required_field', 'null verifierVersion');
+}
+
+{
+  const wrongVerifierVersion = evaluateProofAdmissibility({
+    artifactKind: 'authority-receipt-ref',
+    consumer: 'AUTHORITY_GATE_DECISION',
+    claim: 'production-completion',
+    checks: runtimeChecks({
+      ...currentValidChecks('lattice.authority_receipt_refs.v1'),
+      verifierVersion: 'lattice.proof_admissibility_verifier.v0',
+    }),
+  });
+  assert.equal(wrongVerifierVersion.allowed, false, 'authority receipt production-completion with wrong verifierVersion fails closed');
+  assert.equal(wrongVerifierVersion.productionDoneEligible, false, 'authority receipt production-completion with wrong verifierVersion cannot set productionDone');
+  expectReason(wrongVerifierVersion.reasons, 'unsupported_verifier_version', 'wrong verifierVersion');
 }
 
 {

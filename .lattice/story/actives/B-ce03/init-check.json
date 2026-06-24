@@ -1,0 +1,39 @@
+{
+  "storyId": "B-ce03",
+  "checkedAt": "2026-06-24T12:57:03.646Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "severity": "medium",
+      "desc": "CHK-002 relatedDocs points to missing docs/requirements/decisions/lattice-lifecycle-proof-stop-readiness-check.md; the apparent intended source exists as docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md, so PLAN/DONE related-doc reminders will miss the lifecycle_check truth source unless corrected."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-24T12:56:54.189Z",
+      "issues": [
+        {
+          "severity": "medium",
+          "desc": "CHK-003 is framed as porting regression smokes and benchmark assertions, which is engineering assurance rather than a user-observable outcome. Tie it explicitly to the operator-visible completion signal, e.g. operators can trust metadata-only DONE-readiness behavior because the focused smokes prove harmless metadata dirt passes while source/material dirt still blocks."
+        },
+        {
+          "severity": "medium",
+          "desc": "CHK-002 references docs/requirements/decisions/lattice-lifecycle-proof-stop-readiness-check.md, but that file is not present; the apparent current truth source is docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md. Fix the relatedDocs path so implementers and reviewers can verify the promised lifecycle_check localReady semantics against the right decision doc."
+        }
+      ]
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-06-24T12:57:03.646Z",
+      "issues": [
+        {
+          "severity": "medium",
+          "desc": "CHK-002 relatedDocs points to missing docs/requirements/decisions/lattice-lifecycle-proof-stop-readiness-check.md; the apparent intended source exists as docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md, so PLAN/DONE related-doc reminders will miss the lifecycle_check truth source unless corrected."
+        }
+      ]
+    }
+  ],
+  "_hash": "68a13b9cf864bfdd695f97b6b5e29f60efb65436fd9fc057651acd6b3c7a1f65"
+}

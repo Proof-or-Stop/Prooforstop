@@ -1,4 +1,4 @@
-# Lattice's Refactor Plan for Learning from Claude Code
+# Proofbound's Refactor Plan for Learning from Claude Code
 
 > 2026.04 · Summarized after a full audit of lattice's current state
 

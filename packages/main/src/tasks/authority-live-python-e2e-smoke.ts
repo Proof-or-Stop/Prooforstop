@@ -2,7 +2,7 @@
 //
 // authority-live-python-e2e-smoke
 //
-// Live E2E proving a real queued Python Lattice Authority job can be created,
+// Live E2E proving a real queued Python Proofbound Authority job can be created,
 // claimed by the live runner loop, executed through typed plannedSteps[],
 // evidence/gate wired to the server, and finalized without a dangling lease.
 //
@@ -901,7 +901,7 @@ export function buildLiveJobPlan(ctx: LiveContext): JobPlan {
       validationStepIds: ['step-validate'],
       evidenceRefs,
       expectedArtifacts: ['authority-job-loop-live-e2e-summary'],
-      gatePredicate: 'Python Lattice Authority returns a verified gate_decision receipt for target DONE.',
+      gatePredicate: 'Python Proofbound Authority returns a verified gate_decision receipt for target DONE.',
     }],
     multiHostPolicy: {
       minIndependentHosts: 2,

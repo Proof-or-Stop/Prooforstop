@@ -322,7 +322,7 @@ export function createInitPreflightHandlers(ctx: HandlerContext): Record<string,
     if (!isCanonicalStoryId(args.storyId)) {
       throw new Error(
         `init_preflight refuses a non-canonical storyId: ${JSON.stringify(args.storyId)}. ` +
-        'A storyId must be a path-safe canonical Lattice id (e.g. B-1a2b); no story facts were read.',
+        'A storyId must be a path-safe canonical Proofbound id (e.g. B-1a2b); no story facts were read.',
       );
     }
     const report = buildInitPreflightReport(ctx, args.storyId);

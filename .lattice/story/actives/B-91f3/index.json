@@ -1,0 +1,91 @@
+{
+  "storyId": "B-91f3",
+  "name": "demote-authority-production-receipt-core",
+  "title": "Demote Authority production receipt from local admissibility core",
+  "description": "Move Authority Server production receipt completion out of the local CLI core path. Local proof admissibility should report admissibilityStatus, assuranceLevel, and evidenceScope while keeping authorityDone/fullAuthorityDone/productionDone as legacy/external adapter fields that default false and are not required for local DONE.",
+  "type": "refactor",
+  "phase": "DONE",
+  "priority": "high",
+  "keywords": [
+    "proof-admissibility",
+    "authority-receipt",
+    "productionDone",
+    "assuranceLevel",
+    "evidenceScope"
+  ],
+  "riskSignals": [
+    {
+      "category": "Production/Emergency",
+      "matched": "production"
+    }
+  ],
+  "createdAt": "2026-06-24T13:19:48.333Z",
+  "startedAt": "2026-06-24T13:19:48.333Z",
+  "endedAt": "2026-06-24T14:08:46.488Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-24T13:19:48.382Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-7f55c8d5292c7c45",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-24T13:21:24.274Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-7f55c8d5292c7c45",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-24T13:21:33.193Z",
+      "branch": "story/B-91f3",
+      "user": "Harmonygo",
+      "sessionId": "sess-22adca864604e748",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-24T13:24:35.304Z",
+      "branch": "story/B-91f3",
+      "user": "Harmonygo",
+      "sessionId": "sess-22adca864604e748",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-24T13:39:27.680Z",
+      "branch": "story/B-91f3",
+      "user": "Harmonygo",
+      "sessionId": "sess-22adca864604e748",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-24T14:02:15.615Z",
+      "branch": "story/B-91f3",
+      "user": "Harmonygo",
+      "sessionId": "sess-22adca864604e748",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-24T14:08:46.488Z",
+      "branch": "story/B-91f3",
+      "user": "Harmonygo",
+      "sessionId": "sess-22adca864604e748",
+      "agent": "main"
+    }
+  ],
+  "currentReviewRound": "2026-06-24T13:39:27.680Z"
+}

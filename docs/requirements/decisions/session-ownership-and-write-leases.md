@@ -3,7 +3,7 @@
 ## Status
 
 Adopted design; rollout fully implemented. This document is the canonical, adopted
-design for Lattice's multi-session coordination rules and is treated as a process truth
+design for Proofbound's multi-session coordination rules and is treated as a process truth
 source — agents and the scope-plan reviewer should honor it.
 
 Owner-session identity amendment: B-a781 added
@@ -39,7 +39,7 @@ B-9089 extends them with the host-neutral owner-session contract.
 
 ## Original Problem
 
-Before the implemented main write lock and story owner lease rollout, Lattice
+Before the implemented main write lock and story owner lease rollout, Proofbound
 supported parallel story worktrees but did not mechanically own write
 coordination across sessions. The remaining B-a781 work is narrower: migrate
 session identity resolution to the canonical host-adapter `LATTICE_SESSION_ID`
@@ -50,9 +50,9 @@ The rollout was designed to prevent these failure modes:
 - Two sessions can mutate the same story metadata and confuse phase or evidence state.
 - Two DONE flows can race on main and leave partial-DONE recovery work.
 - Shared B-META writes such as `gap_log` can duplicate findings.
-- Agents relying on human chat coordination instead of Lattice-enforced ownership.
+- Agents relying on human chat coordination instead of Proofbound-enforced ownership.
 
-Lattice must allow parallel work while making write authority explicit.
+Proofbound must allow parallel work while making write authority explicit.
 
 ## Goals
 
@@ -160,7 +160,7 @@ Examples:
 3. The lock scope must cover the whole critical section, not just the final write.
 4. DONE must hold the main write lock from pre-merge final check through merge and worktree cleanup.
 5. B-META finding writes must hold the main write lock and perform idempotency checks inside the lock.
-6. Lock acquisition failure is blocking. Lattice must not proceed optimistically.
+6. Lock acquisition failure is blocking. Proofbound must not proceed optimistically.
 
 ## Storage
 
@@ -197,7 +197,7 @@ read-only / wait / `--forceTakeover`.
 Example (active foreign lease):
 
 ```text
-B-6974 is owned by Lattice session abc123, heartbeat 8m ago (owner cwd: /repo/.worktrees/B-6974).
+B-6974 is owned by Proofbound session abc123, heartbeat 8m ago (owner cwd: /repo/.worktrees/B-6974).
 "checklist_update" is an owner-gated storyScopedMutating command, so this session (def456)
 cannot run it. The owner lease is still ACTIVE. Use read-only commands, wait for the owner,
 or rerun with --forceTakeover to seize the active lease (a deliberate human override).
@@ -206,7 +206,7 @@ or rerun with --forceTakeover to seize the active lease (a deliberate human over
 Example (stale foreign lease):
 
 ```text
-B-6974 is owned by Lattice session abc123, heartbeat 45m ago (owner cwd: /repo/.worktrees/B-6974).
+B-6974 is owned by Proofbound session abc123, heartbeat 45m ago (owner cwd: /repo/.worktrees/B-6974).
 "checklist_update" is an owner-gated storyScopedMutating command, so this session (def456)
 cannot run it. The owner lease is STALE (no heartbeat for 30+ minutes). Use read-only
 commands, wait for the owner, or rerun with --takeover to transfer the stale lease.
@@ -258,7 +258,7 @@ Inside the relevant lock:
 
 The command classes above describe ownership coordination between *owner sessions*. A separate
 concern is **advisory external reviewers**: external Claude/Codex/Gemini processes delegated
-to inspect artifacts and return structured findings as text — they are not Lattice gate
+to inspect artifacts and return structured findings as text — they are not Proofbound gate
 reviewers and must not write lifecycle evidence directly.
 
 `LATTICE_REVIEWER_READONLY=1` is an opt-in guard for these advisory reviewer processes. It
@@ -269,7 +269,7 @@ layers on top of the `CommandPolicy` / owner-lease architecture:
   side-effect that requires mutating access.
 - Only `ownershipClass === 'readOnly'` commands (e.g. `session_brief`, `story_get`,
   `checklist_get`, `finding_list`) proceed. All other classes fail closed.
-- This mode does **not** change how normal Lattice gate reviewers (`lattice-review-*`) work.
+- This mode does **not** change how normal Proofbound gate reviewers (`lattice-review-*`) work.
   Those reviewers operate without `LATTICE_REVIEWER_READONLY=1` set and must be able to call
   `review_pass_set`, `finding_add`, `delivery_check_set`, etc.
 

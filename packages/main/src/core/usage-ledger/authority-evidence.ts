@@ -12,7 +12,7 @@
  *
  *   2. verifyUsageReceipt(envelope, signedReceipt, verify): the verification
  *      gate. The receipt verifier is INJECTED (exactly like estimate.ts injects
- *      countTokens) so this module imports ZERO other Lattice modules — it must
+ *      countTokens) so this module imports ZERO other Proofbound modules — it must
  *      NOT import authority-signing.ts. A local record's authority.receiptVerified
  *      becomes true ONLY when the injected verifier returns verified===true AND
  *      the verifier's subject binding matches the envelope's subject. Every other
