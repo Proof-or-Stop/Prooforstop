@@ -143,6 +143,15 @@
       "reviewRound": "2026-06-24T12:50:13.876Z",
       "reviewRunId": "B-8d44:RR-026",
       "_hash": "b719feabd18746c086c1934b669fb6bc238b9b0d4124fe8ade9dafa0130db322"
+    },
+    {
+      "id": "B-8d44:RP-017",
+      "agent": "lattice-review-docs",
+      "note": "F-028 fixed at b17c6a6d51: README now lists Write/Edit/MultiEdit/NotebookEdit file_path/notebook_path matching harvestWriteTargets regex /^(write|edit|multiedit|notebookedit)$/i and field chain file_path||path||notebook_path. The omission of intermediate |path| fallback from the prose matches the live-engine.mjs own comment block (line 92) which also omits it — not a drift. Step1: 0 new exported symbols changed in b17c6a6d51 (docs-only commit). Step2: README threat-model paragraph verified vs harvestWriteTargets implementation. Step3: created/changed/deleted/symlink/out-of-ws/5-arms/7-selfchecks claims all consistent. No remaining doc-code drift.",
+      "createdAt": "2026-06-24T14:50:00.633Z",
+      "reviewRound": "2026-06-24T12:50:13.876Z",
+      "reviewRunId": "B-8d44:RR-029",
+      "_hash": "4ea1788415ded8bbd2ce94ceb399334f28f61ef9c0a365c195674f867701a909"
     }
   ]
 }
