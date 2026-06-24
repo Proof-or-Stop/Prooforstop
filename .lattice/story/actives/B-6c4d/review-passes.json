@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-24T14:22:50.026Z",
       "reviewRunId": "B-6c4d:RR-006",
       "_hash": "adf242a95a14f19e378e618e98a00c2a0ab2f7227813769c039e809f75c9b3d8"
+    },
+    {
+      "id": "B-6c4d:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: F-003 resolved — 347abfa gate-layer assertion in assertReviewRunBindingRaceAcceptsNonLatestFreshPass now calls getGuardFailureReason in the combined (non-latest PASS accepted + open FINDING stale_run) scenario and asserts it matches /Not the latest run on the current lane|stale_run/; smoke exits 0; validate 31/31 covered 0 required missing; no new gaps found.",
+      "createdAt": "2026-06-24T14:26:30.284Z",
+      "reviewRound": "2026-06-24T14:22:50.026Z",
+      "reviewRunId": "B-6c4d:RR-008",
+      "_hash": "3cb41bbacc5454e2e255012a0744ff11fb1818f6ac016d44fe98715264b59ec0"
     }
   ]
 }
