@@ -4,7 +4,7 @@
   "title": "Build the run-driver live claude -p engine adapter (5 pre-reg arms + §6 injection + raw §7 evidence), offline-testable via an injectable agent stub",
   "description": "Implement the pluggable --engine module run-driver.mjs needs to execute the powered §5/§6 campaign: a factory makeLiveEngine({agentRun,reviewArtifact,...}) returning async (cell,attempt)=>engineResult that, per cell (arm x task x scenario x repeat), sets up a fresh task workspace, applies the §6 injection at the §3 fixed point, runs the cell's arm loop (A1/A2/A2'/A3/A4 per pre-reg §1) with live claude -p, and collects the RAW evidence run-driver's buildCanonicalRecord delegates to adjudicate.mjs + checks.mjs (changedPaths/newContent/createdPaths/permEvents/processEvents/terminalStopEvent + acceptanceScriptPath/expectedHash/runAcceptance + baselineFailures/postFailures + tokensSpent/wallClockMs/agentCallCount + A2' budget fields), returning infraVoid on overload/error. The adapter does NOT classify (run-driver delegates to adjudicate/checks). The default agentRun/reviewArtifact are live claude -p; both are INJECTABLE so an offline selfcheck (deterministic, no claude -p) drives the full adapter+run-driver with a stub agent. The actual multi-day live campaign is a SEPARATE next story; this builds + offline-validates the adapter.",
   "type": "feature",
-  "phase": "TEST",
+  "phase": "DEV",
   "priority": "high",
   "keywords": [
     "recovery-runner",
@@ -85,6 +85,15 @@
       "phase": "TEST",
       "action": "advance",
       "timestamp": "2026-06-24T22:11:38.983Z",
+      "branch": "story/B-8d44",
+      "user": "Harmonygo",
+      "sessionId": "sess-a1062ce6b2e7dcf7",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-24T22:27:25.567Z",
       "branch": "story/B-8d44",
       "user": "Harmonygo",
       "sessionId": "sess-a1062ce6b2e7dcf7",
