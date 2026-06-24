@@ -616,6 +616,17 @@
           "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
           "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
           "timestamp": "2026-06-24T11:22:57.291Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "grep -n frozen-ref packages/main/src/core/done-oracle.ts",
+          "result": "pass",
+          "note": "done-oracle.ts:142 contains the frozen-ref comment, immediately above the checkCompletedEvidenceSnapshotFreshness function definition at line 151. The comment block spans lines 141-149 and is INSIDE the module body, co-located with the actual function that performs the frozen-ref integrity check. It is NOT in an unrelated file or dead code — the function is called at line 197 within the active code path. The comment states \"storyFilesHash is intentionally NOT applied here\" and explains why, providing cargo-cult protection exactly where a future developer would look when modifying the frozen-ref check.",
+          "headHash": "f2b3d04ddd291f7c8ab6e5b070ee5c68bd0dd478",
+          "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
+          "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
+          "timestamp": "2026-06-24T11:23:00.946Z"
         }
       ]
     }
