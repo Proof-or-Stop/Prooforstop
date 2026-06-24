@@ -250,13 +250,13 @@ export function printHelp(options: GlobalHelpOptions) {
     check: 'Check',
     release: 'Release',
     host: 'Host',
-    lattice: 'Lattice',
-    rollout: 'Lattice',
+    lattice: 'Proofbound',
+    rollout: 'Proofbound',
     authority: 'Authority',
     conduit: 'Conduit',
   };
   // Display order for known groups; groups not in the list (from extras) are appended alphabetically.
-  const KNOWN_ORDER = ['Host', 'Lattice', 'Authority', 'Conduit', 'Story', 'Review', 'Checklist', 'Grill', 'Bug', 'Test', 'Validate', 'Evaluate', 'Workflow', 'Status', 'Check', 'Serve', 'Session', 'Aux', 'Audit'];
+  const KNOWN_ORDER = ['Host', 'Proofbound', 'Authority', 'Conduit', 'Story', 'Review', 'Checklist', 'Grill', 'Bug', 'Test', 'Validate', 'Evaluate', 'Workflow', 'Status', 'Check', 'Serve', 'Session', 'Aux', 'Audit'];
 
   const groups: Record<string, ToolDef[]> = {};
   for (const t of tools) {
@@ -297,18 +297,18 @@ export function printHelp(options: GlobalHelpOptions) {
 
     ── REVIEW ──
     9. lattice story_advance --storyId=B-xxx --phase=REVIEW    # Enter code review
-   10. Lattice reviewer reviews code and raises findings       # critical/high must resolve
+   10. Proofbound reviewer reviews code and raises findings       # critical/high must resolve
 
     ── TEST → DONE ──
    11. lattice story_advance --storyId=B-xxx --phase=TEST
    12. lattice story_advance --storyId=B-xxx --phase=DONE     # Merge back to local main and clean worktree
 
   Parallelism and branch discipline:
-    Lattice parallel development uses only local git worktrees plus local branches; do not create or push GitHub/origin feature branches.
+    Proofbound parallel development uses only local git worktrees plus local branches; do not create or push GitHub/origin feature branches.
     If remote publishing is needed, first let DONE merge back to local main, confirm main is clean, then a human explicitly runs lattice release_approve_push --confirm, and then manually runs git push origin main.
 
   Initialize a new project:
-    lattice init                          # Initialize Lattice project state in the current directory
+    lattice init                          # Initialize Proofbound project state in the current directory
 
   Tip: use --key=value for simple arguments; use JSON format for complex arguments (array/object).
   Error? Use lattice <command> --help to view complete argument help.

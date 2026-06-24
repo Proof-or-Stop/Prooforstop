@@ -35,7 +35,7 @@ export function createStoryResolveHandlers(ctx: HandlerContext) {
       };
       if (wantsJson(args)) return result;
       return [
-        `Lattice story resolve (${result.schemaVersion})`,
+        `Proofbound story resolve (${result.schemaVersion})`,
         `storyId: ${result.storyId}`,
         `phase: ${result.phase}`,
         `metadataRoot: ${result.metadataRoot}`,

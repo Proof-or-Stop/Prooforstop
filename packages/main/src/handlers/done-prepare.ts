@@ -673,7 +673,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
     setStep(steps, 'cleanTree', 'blocked', 'worktree must be clean before DONE prepare can mutate');
     return block({
       blockedAt: 'cleanTree',
-      reason: 'worktree has dirty files that are not Lattice story lifecycle metadata; done_prepare cannot mutate yet',
+      reason: 'worktree has dirty files that are not Proofbound story lifecycle metadata; done_prepare cannot mutate yet',
       files,
       next: 'git status --short',
       steps,
@@ -689,7 +689,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
     'preflight',
     'pass',
     initialAllowedMetadataSignatures.size > 0
-      ? 'only pre-existing Lattice story lifecycle metadata is dirty'
+      ? 'only pre-existing Proofbound story lifecycle metadata is dirty'
       : undefined,
   );
 
@@ -934,7 +934,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
     steps,
     'cleanTree',
     'pass',
-    finalDirtyClassification.total > 0 ? 'only unchanged pre-existing Lattice story lifecycle metadata remains dirty' : undefined,
+    finalDirtyClassification.total > 0 ? 'only unchanged pre-existing Proofbound story lifecycle metadata remains dirty' : undefined,
   );
 
   return renderPass({

@@ -67,7 +67,7 @@ function buildValidationLockContentionMessage(args: {
       `(pid ${args.holder.pid} on ${args.holder.hostname}), ${heartbeat}. ${retry}`
     );
   }
-  return `${prefix} by another Lattice process (holder details unavailable), ${heartbeat}. ${retry}`;
+  return `${prefix} by another Proofbound process (holder details unavailable), ${heartbeat}. ${retry}`;
 }
 
 function startHeartbeat(lock: AcquiredMkdirLock): ReturnType<typeof setInterval> {

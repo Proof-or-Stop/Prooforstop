@@ -294,7 +294,7 @@ function assertConfiguredStoryDirWorks(storyDir: string): void {
     assert.throws(
       () => runMemoryBenchmarkRealData({ root, outputDir: join(root, '.lattice/story/actives/B-real/memory-real-baseline') }),
       /refuses to write outputDir under \.lattice\/story/,
-      'outputDir writes refuse to target Lattice story state',
+      'outputDir writes refuse to target Proofbound story state',
     );
 
     const handlers = createMemoryBenchmarkHandlers({

@@ -46,7 +46,7 @@ function seedStory(store: StoryStore): void {
     storyId: 'B-handoff',
     name: 'handoff-smoke',
     title: 'Handoff smoke story',
-    description: 'Smoke story for Lattice handoff packs.',
+    description: 'Smoke story for Proofbound handoff packs.',
     type: 'feature',
     phase: 'DEV',
     priority: 'high',

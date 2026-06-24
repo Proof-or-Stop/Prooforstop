@@ -41,7 +41,7 @@ const storyCreate = schemaFor('story_create').parse({
     '2026-05-03 User feedback: validation-type stories using type test are rejected, forcing users to guess the chore type when first creating a validation task.',
     '',
     '## Key Insight',
-    'Validation-type tasks are semantically closer to chore in Lattice, but users naturally type test; the CLI should absorb this common expression difference.',
+    'Validation-type tasks are semantically closer to chore in Proofbound, but users naturally type test; the CLI should absorb this common expression difference.',
     '',
     '## Trade-off Decision',
     'Keep the persisted StoryType set unchanged, and only normalize test to chore at the CLI schema layer to avoid breaking downstream type checks.',

@@ -1,6 +1,6 @@
 // Authority trust-boundary classifier (B-ec09 / Milestone 1).
 //
-// Mechanically classifies a Lattice CLI authority submission so that downstream
+// Mechanically classifies a Proofbound CLI authority submission so that downstream
 // gates / docs / tests cannot mistake CLI-shaped evidence for receipt-backed
 // L2+ production authority. PD-1 keeps the CLI as a thin local/shadow client,
 // so the CLI envelope is a strict subset (no run bindings, no provider/model/

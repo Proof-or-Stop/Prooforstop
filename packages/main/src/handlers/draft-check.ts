@@ -1,5 +1,5 @@
 /**
- * Draft Check handler — Lattice draft_check_set / draft_issue_resolve
+ * Draft Check handler — Proofbound draft_check_set / draft_issue_resolve
  *
  * Parallel to init-check but for drafts. Allows a reviewer to sign off on
  * a draft's background + checklist before it becomes a formal story.

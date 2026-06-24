@@ -1378,7 +1378,7 @@ try {
     // path from the id — otherwise the gate would write
     // `<root>/.lattice/outside/owner-lease.json` OUTSIDE the story tree, ahead
     // of any handler-level guard. The fix validates the id against the
-    // canonical Lattice story-id shape (anchored, `[A-Za-z0-9_-]` only, so it
+    // canonical Proofbound story-id shape (anchored, `[A-Za-z0-9_-]` only, so it
     // can never contain `/`, `\`, or `..`) and throws on a malformed id.
     const gateRoot = join(root, 'f003-traversal');
     mkdirSync(gateRoot, { recursive: true });
@@ -1405,7 +1405,7 @@ try {
       assert.throws(
         () => enforceStoryOwnerLeaseGate(cmd, args, gateStore, null, gateRoot),
         (err: Error) =>
-          /not a valid Lattice story id|path-traversal/i.test(err.message) &&
+          /not a valid Proofbound story id|path-traversal/i.test(err.message) &&
           err.message.includes('../../outside'),
         `the shared owner-lease gate fail-closed rejects a traversal storyId for ${cmd} (F-003)`,
       );

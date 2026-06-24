@@ -384,7 +384,7 @@ export function createLifecycleOrchestrateHandlers(ctx: HandlerContext): Record<
     // so a crafted `../../outside`-style id cannot escape the story tree.
     if (!isCanonicalStoryId(storyId)) {
       throw new Error(
-        `lifecycle_orchestrate: storyId "${storyId}" is not a canonical, path-safe Lattice story id`,
+        `lifecycle_orchestrate: storyId "${storyId}" is not a canonical, path-safe Proofbound story id`,
       );
     }
 

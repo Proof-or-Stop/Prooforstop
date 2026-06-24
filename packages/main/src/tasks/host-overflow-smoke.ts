@@ -97,7 +97,7 @@ function initRepo(root: string): void {
   writeConfig(root);
   git(root, ['init']);
   git(root, ['config', 'user.email', 'lattice@example.com']);
-  git(root, ['config', 'user.name', 'Lattice Smoke']);
+  git(root, ['config', 'user.name', 'Proofbound Smoke']);
   git(root, ['add', '.']);
   git(root, ['commit', '-m', 'fixture']);
 }
@@ -108,7 +108,7 @@ function seedStory(store: StoryStore): void {
     storyId: 'B-overflow',
     name: 'host-overflow-smoke',
     title: 'Host overflow smoke story',
-    description: 'Smoke story for Lattice Host Overflow.',
+    description: 'Smoke story for Proofbound Host Overflow.',
     type: 'feature',
     phase: 'DEV',
     priority: 'high',

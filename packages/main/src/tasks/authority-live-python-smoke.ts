@@ -2,7 +2,7 @@
 //
 // authority-live-python-smoke (B-2522 CHK-002)
 //
-// Live integration smoke proving the CLI can drive a real Python Lattice
+// Live integration smoke proving the CLI can drive a real Python Proofbound
 // Authority server BEYOND read-only policy discovery — i.e. the runner control
 // plane (register actor key + runner, heartbeat, claim, release) and, when a
 // claimed job carrying typed plannedSteps[] is available, one bounded authority

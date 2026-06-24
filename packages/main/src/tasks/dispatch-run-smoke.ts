@@ -108,7 +108,7 @@ function initRepo(root: string, externalDir: string): void {
   writeConfig(root);
   git(root, ['init']);
   git(root, ['config', 'user.email', 'lattice@example.com']);
-  git(root, ['config', 'user.name', 'Lattice Smoke']);
+  git(root, ['config', 'user.name', 'Proofbound Smoke']);
   git(root, ['add', '.']);
   git(root, ['commit', '-m', 'fixture']);
 }
@@ -119,7 +119,7 @@ function seedStory(store: StoryStore, storyId = 'B-dispatch'): void {
     storyId,
     name: 'dispatch-run-smoke',
     title: 'Dispatch run smoke story',
-    description: 'Smoke story for Lattice dispatch_run automatic overflow.',
+    description: 'Smoke story for Proofbound dispatch_run automatic overflow.',
     type: 'feature',
     phase: 'DEV',
     priority: 'high',

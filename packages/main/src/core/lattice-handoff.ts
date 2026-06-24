@@ -419,7 +419,7 @@ function localAuthorityOnlyCanonicalStory(canonical: CanonicalStory): CanonicalS
 }
 
 function buildAuthorityBoundary(summary?: string): HandoffAuthorityBoundary {
-  const normalizedSummary = summary?.trim() || 'Lattice keeps story, scope, receipt, and merge authority; the overflow host executes bounded work only.';
+  const normalizedSummary = summary?.trim() || 'Proofbound keeps story, scope, receipt, and merge authority; the overflow host executes bounded work only.';
   return {
     owner: 'lattice',
     executor: 'overflow-host',
@@ -434,7 +434,7 @@ function buildAuthorityBoundary(summary?: string): HandoffAuthorityBoundary {
     notes: [
       'Hosts execute bounded tasks only; they do not become production authority.',
       'Do not auto-merge, auto-trust, or submit authority evidence from overflow output.',
-      'Manual review in the owning Lattice worktree remains required before merge or DONE.',
+      'Manual review in the owning Proofbound worktree remains required before merge or DONE.',
     ],
   };
 }

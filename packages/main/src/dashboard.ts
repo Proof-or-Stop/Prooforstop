@@ -1,5 +1,5 @@
 /**
- * Lattice dashboard — real-time story progress board
+ * Proofbound dashboard — real-time story progress board
  *
  * Refreshes every N seconds, supports switching between multiple project directories.
  * Press a number key to switch projects, press q to quit.
@@ -235,7 +235,7 @@ function render(projects: ProjectSnapshot[], selectedIdx: number, intervalSec: n
 
   const lines: string[] = [];
   lines.push('');
-  lines.push(`${BOLD}  Lattice dashboard${RESET}  ${DIM}⟳ ${intervalSec}s   ${dateStr} ${timeStr}${RESET}`);
+  lines.push(`${BOLD}  Proofbound dashboard${RESET}  ${DIM}⟳ ${intervalSec}s   ${dateStr} ${timeStr}${RESET}`);
   lines.push(`  ${'─'.repeat(60)}`);
 
   for (let i = 0; i < projects.length; i++) {

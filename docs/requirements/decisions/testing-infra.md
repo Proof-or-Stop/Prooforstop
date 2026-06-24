@@ -145,7 +145,7 @@ Process facts must be protected by two layers of code policy and gate, not only 
 - pass-only finding_add normalization: a pass-only finding with low severity and an agent of `lattice-review-*` is converted to `review_pass_set`; one containing contradictory semantics such as failure / blocker / missing / failed, a non-reviewer, or a non-low severity must all be kept as a finding.
 - review run freshness: `review_run_start` records `headHash/materialHash`. If a code or document material change makes the run stale, the old `reviewRunId` is no longer usable, and the reviewer must re-run `review_run_start` before submitting a finding/pass.
 - Express exemption: when the channel is express and there is zero `verificationIntent`, it outputs `Verification policy: express-exempt (channel=express; PLAN verificationIntent intentionally skipped)`; normal / fast with zero intent only displays the ordinary coverage-missing wording, not `express-exempt`.
-- Worker evidence boundary: prompt-only worker claims are not mechanical evidence. Auditable worker facts only come from structured records such as `lattice dispatch` / dispatch/process-event/commit evidence / commit author; Proofbound cannot mechanically prove true subagent context isolation, and can only prove observable assignment evidence.
+- Worker evidence boundary: prompt-only worker claims are not mechanical evidence. Auditable worker facts only come from structured records such as `lattice dispatch` / dispatch/process-event/commit evidence / commit author; Lattice cannot mechanically prove true subagent context isolation, and can only prove observable assignment evidence.
 
 ## Test Flow
 

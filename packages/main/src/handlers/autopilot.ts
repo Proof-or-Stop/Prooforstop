@@ -21,7 +21,7 @@ function wantsJson(args: { format?: string; json?: boolean } | undefined): boole
 
 function renderRun(result: AutopilotRunResult): string {
   const lines = [
-    `Lattice autopilot run (${result.schemaVersion})`,
+    `Proofbound autopilot run (${result.schemaVersion})`,
     `status: ${result.status}`,
     `mode: ${result.mode}`,
     `targetPhase: ${result.targetPhase}`,
@@ -57,7 +57,7 @@ function renderRun(result: AutopilotRunResult): string {
 
 function renderStatus(result: AutopilotStatusResult): string {
   return [
-    `Lattice autopilot status (${result.schemaVersion})`,
+    `Proofbound autopilot status (${result.schemaVersion})`,
     `localAvailable: ${result.localAvailable}`,
     `defaultMode: ${result.defaultMode}`,
     `modes: ${result.modes.join(', ')}`,
@@ -80,7 +80,7 @@ function renderStatus(result: AutopilotStatusResult): string {
 
 function renderExecute(result: AutopilotExecuteResult): string {
   const lines = [
-    `Lattice autopilot execute (${result.schemaVersion})`,
+    `Proofbound autopilot execute (${result.schemaVersion})`,
     `status: ${result.status}`,
     `mode: ${result.mode}`,
     `targetPhase: ${result.targetPhase}`,
@@ -289,7 +289,7 @@ export function createAutopilotHandlers(ctx: HandlerContext) {
       };
       if (wantsJson(args)) return result;
       return [
-        `Lattice autopilot doctor (${result.schemaVersion})`,
+        `Proofbound autopilot doctor (${result.schemaVersion})`,
         `ok: ${result.ok}`,
         `localStatus: ${local.status}`,
         `authorityStatus: ${authority.status}`,

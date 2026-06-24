@@ -353,7 +353,7 @@ async function runStoryTransitionInner(
           ctx.log?.(`⚠ ${syncResult.message}`);
         }
       }
-      // B-0e53: capture main's sha AFTER autoSyncMain so Lattice's own sync is
+      // B-0e53: capture main's sha AFTER autoSyncMain so Proofbound's own sync is
       // already in the baseline. The re-check before writeStory compares against
       // this; only an EXTERNAL advance after this point trips the abort.
       syncedMainSha = readMainSha(doneGitCwd);

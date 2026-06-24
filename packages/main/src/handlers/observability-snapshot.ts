@@ -5,7 +5,7 @@
  * @type feature
  * @priority high
  * @description
- *   `observability_snapshot` CLI surface for the host-neutral Lattice
+ *   `observability_snapshot` CLI surface for the host-neutral Proofbound
  *   observability console. Read-only L0 adapter dry-run that consumes the
  *   `story_authority_resolve` CHK-001 contract, opens a fresh `StoryStore`
  *   rooted at each row's `authoritativeCwd`, and emits a JSON snapshot for
@@ -34,7 +34,7 @@ function writeJsonNoOverwrite(file: string, value: unknown): void {
 function renderText(snapshot: LatticeObservabilitySnapshot): string {
   const ladder = snapshot.sections.authorityLadder;
   return [
-    `Lattice observability snapshot (${snapshot.schemaVersion})`,
+    `Proofbound observability snapshot (${snapshot.schemaVersion})`,
     `resolverSchemaVersion: ${snapshot.resolverSchemaVersion}`,
     `generatedAt: ${snapshot.generatedAt}`,
     `readOnly: ${snapshot.readOnly}`,

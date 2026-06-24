@@ -77,7 +77,7 @@ function story(id: string, patch: Partial<StoryInfo>): StoryInfo {
     storyId: id,
     name: id.toLowerCase(),
     title: `${id} parallel wave smoke`,
-    description: `${id} seeded for Lattice Parallel Wave smoke coverage.`,
+    description: `${id} seeded for Proofbound Parallel Wave smoke coverage.`,
     type: 'feature',
     phase: 'DEV',
     priority: 'medium',
@@ -95,7 +95,7 @@ function checklist(intentRef: string, receiptRef?: string): ChecklistData {
     kind: 'logic_test',
     command: 'npm --prefix packages/main run test:lattice-parallel-wave-smoke',
     result: 'pass',
-    note: 'Seed evidence for Lattice Parallel Wave smoke coverage.',
+    note: 'Seed evidence for Proofbound Parallel Wave smoke coverage.',
     timestamp: now,
     ...(receiptRef ? { receiptRef } : {}),
   };
@@ -518,7 +518,7 @@ function assertActiveWorktreeOverlapProjection(): void {
     const metadataOnly = ref(wave, 'B-metadata-only');
     assert.equal(metadataOnly.changedFiles!.status, 'ok');
     assert.deepEqual(metadataOnly.changedFiles!.materialChangedFiles, []);
-    assert.ok(metadataOnly.changedFiles!.ignoredChangedFiles.some(path => path.startsWith('.lattice/')), 'metadata-only Lattice changes are visible as ignored');
+    assert.ok(metadataOnly.changedFiles!.ignoredChangedFiles.some(path => path.startsWith('.lattice/')), 'metadata-only Proofbound changes are visible as ignored');
     assert.ok(metadataOnly.changedFiles!.ignoredChangedFiles.some(path => path.startsWith('.lattice/runtime/')), 'registered runtime changes are visible as ignored');
     assert.deepEqual(metadataOnly.actualFileOverlaps ?? [], []);
     assert.equal(metadataOnly.recommendation, 'parallel_dev', 'metadata-only changes do not create overlap noise');

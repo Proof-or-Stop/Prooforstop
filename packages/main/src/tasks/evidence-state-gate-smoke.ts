@@ -74,7 +74,7 @@ function createReviewRepo(): { root: string; store: StoryStore; runIds: Map<stri
   git(root, ['init']);
   git(root, ['checkout', '-B', 'main']);
   git(root, ['add', '.']);
-  git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Lattice Smoke', 'commit', '-m', 'base']);
+  git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proofbound Smoke', 'commit', '-m', 'base']);
   resetConfigCache();
 
   const store = new StoryStore(root);
@@ -364,7 +364,7 @@ function assertSuspectedWithoutReasonRejected(): void {
     const worktreePath = join(root, '.worktrees', STORY_ID);
     mkdirSync(dirname(worktreePath), { recursive: true });
     git(root, ['add', '.']);
-    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Lattice Smoke', 'commit', '-m', 'story metadata']);
+    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proofbound Smoke', 'commit', '-m', 'story metadata']);
     git(root, ['branch', `story/${STORY_ID}`]);
     git(root, ['worktree', 'add', worktreePath, `story/${STORY_ID}`]);
     resetConfigCache();
@@ -438,7 +438,7 @@ function assertHandlerRejectionCases(): void {
     const worktreePath = join(root, '.worktrees', STORY_ID);
     mkdirSync(dirname(worktreePath), { recursive: true });
     git(root, ['add', '.']);
-    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Lattice Smoke', 'commit', '-m', 'story metadata']);
+    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proofbound Smoke', 'commit', '-m', 'story metadata']);
     git(root, ['branch', `story/${STORY_ID}`]);
     git(root, ['worktree', 'add', worktreePath, `story/${STORY_ID}`]);
     resetConfigCache();

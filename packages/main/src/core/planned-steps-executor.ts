@@ -178,7 +178,7 @@ export interface RedevelopmentExecutionSummary {
  * the B15 gate-input subset the deterministic executor can produce from local
  * state. The evaluator is a synchronous port: any async authority call (evaluate +
  * receipt verify) must already be resolved by the caller, so the executor itself
- * stays deterministic and never bypasses the Lattice lifecycle gate boundary.
+ * stays deterministic and never bypasses the Proofbound lifecycle gate boundary.
  */
 export interface AuthorityGateInput {
   projectId: string;
@@ -236,7 +236,7 @@ export interface ExecutePlannedStepsOptions {
    * and synchronous, so async evidence upload runs over the returned `steps[]`
    * (see `core/evidence-uploader.ts`). Local mode uses this hook to capture
    * per-step evidence as the loop runs; authority mode streams the same records
-   * to Lattice Authority afterward. The hook never influences step results.
+   * to Proofbound Authority afterward. The hook never influences step results.
    */
   evidenceRecorder?: (step: PlannedStepExecution, index: number) => void;
   /**
@@ -956,7 +956,7 @@ function executeOneStep(
   if (step.type === 'story.advance') {
     return block('story_advance_requires_lifecycle_gate_evidence', {
       targetPhase: jobPlan.until,
-      note: 'planner execution will not bypass Lattice lifecycle gates',
+      note: 'planner execution will not bypass Proofbound lifecycle gates',
     });
   }
 
@@ -1237,9 +1237,9 @@ export function executePlannedSteps(options: ExecutePlannedStepsOptions): Planne
     if (worktreeStopSummary && (WORKTREE_STOP_REASONS as readonly string[]).includes(stopReason)) {
       nextActions.add(worktreeStopSummary.nextAction);
     } else if (stopReason === 'authority_gate_decision_receipt_required') {
-      nextActions.add('Run with a Lattice Authority server that can evaluate gates and issue a native gate_decision receipt.');
+      nextActions.add('Run with a Proofbound Authority server that can evaluate gates and issue a native gate_decision receipt.');
     } else if (stopReason === 'authority_gate_decision_rejected' || stopReason === 'authority_gate_decision_blocked' || stopReason === 'authority_gate_decision_not_approved') {
-      nextActions.add('Lattice Authority did not approve the gate; resolve the decision reason and rerun, or stop — authority DONE is not available.');
+      nextActions.add('Proofbound Authority did not approve the gate; resolve the decision reason and rerun, or stop — authority DONE is not available.');
     } else if (stopReason === 'authority_gate_receipt_unverified') {
       nextActions.add('The returned native gate_decision receipt failed verification; do not claim authority DONE. Check server key, decisionDigest, and freshness.');
     } else if (stopReason === 'authority_gate_evaluation_error') {
@@ -1266,7 +1266,7 @@ export function executePlannedSteps(options: ExecutePlannedStepsOptions): Planne
   }
   if (status === 'done' && options.jobPlan.mode === 'local') {
     if (!localDone && options.jobPlan.until === 'DONE') {
-      nextActions.add('PlannedSteps completed, but local Story lifecycle has not reached DONE; run the normal Lattice lifecycle gates before claiming local DONE.');
+      nextActions.add('PlannedSteps completed, but local Story lifecycle has not reached DONE; run the normal Proofbound lifecycle gates before claiming local DONE.');
     }
     nextActions.add('Submit independent local host verdicts before claiming localReviewCertified when multi-host policy requires it.');
   }
