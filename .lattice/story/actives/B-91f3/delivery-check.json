@@ -1,0 +1,31 @@
+{
+  "storyId": "B-91f3",
+  "checkedAt": "2026-06-24T14:03:07.693Z",
+  "headHash": "d59f21b9731197149c5e3b8425f44f5167ff1368",
+  "materialHash": "21201483eede133d51a9666f1894a29534204e94c7ce29e53dde0234afdc0158",
+  "storyFilesHash": "1cec437cb0e01cd3b2b114bb93d06db3007310abffe1d644f2036a19f8dc326e",
+  "reviewRound": "2026-06-24T13:39:27.680Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+      "promise": "Authority receipt is evidence/external adapter scope, not local production completion; local proof vocabulary uses admissibilityStatus, assuranceLevel, and evidenceScope.",
+      "status": "verified",
+      "verifiedBy": "rg + proof-admissibility smoke + gap_analyze",
+      "evidence": "Document updated; proof-admissibility smoke passes; gap_analyze reports 0 high / 1 medium unrelated."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001..CHK-004",
+      "transcript": "npm --prefix packages/main run build PASS; proof-admissibility smoke passed; proof-admissibility hardening smoke passed; lattice gap_analyze reports 0 high / 1 medium; lattice validate --story=B-91f3 --json reports status pass, allPass true, 12/12 verification intents covered."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "B-91f3 demotes Authority receipt from local productionDone eligibility while preserving external/compatibility evidence scope. Routine validation and proof-admissibility smokes passed; no unresolved story-scoped TODOs remain."
+  },
+  "_hash": "1c97ec6ba416a8fd28d6b0993310bbef307f5190a381e9de637e82f9889b13ca"
+}
