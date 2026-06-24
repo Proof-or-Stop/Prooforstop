@@ -134,6 +134,26 @@
       ],
       "signatureTag": "edge|ts|malformed-story-evidence",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-1731:F-007",
+      "desc": "packages/main/src/handlers/story-create.ts:923 Direct story_create with phase=DEV/REVIEW/TEST/DONE plus reproFirstBypassReason still bypasses the repro-first lifecycle binding gate. The direct-phase branch renders the preflight with the bypass reason, then persists phase=args.phase at story-create.ts:936-955. Because repro-evidence-binding-gate.ts:108-114 makes repro_first_bypassed non-blocking and machine.ts:895-948 only checks PLAN/DEV transition guards, a code-verifiable or bug story can be materialized directly into a lifecycle phase without an accepted story-evidence-binding. This contradicts the bypass promise that it only permits intake and that later PLAN/DEV gates still require binding. Fix by rejecting reproFirstBypassReason for direct lifecycle phases, forcing bypassed creates to stop in INIT/IDEA, or applying the accepted-binding predicate before persisting direct lifecycle phases.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-24T22:25:01.442Z",
+      "reviewRound": "2026-06-24T22:17:36.825Z",
+      "reviewRunId": "B-1731:RR-011",
+      "_hash": "a48090e00c539977a64ec34d3f177e509c6154a918eda2fedd247e83154efee1",
+      "files": [
+        "packages/main/src/handlers/story-create.ts",
+        "packages/main/src/core/repro-evidence-binding-gate.ts",
+        "packages/main/src/core/machine.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-handlers",
+      "signatureTagSource": "auto"
     }
   ]
 }
