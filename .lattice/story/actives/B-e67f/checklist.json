@@ -152,6 +152,38 @@
           "experiments/recovery-runner/tasks/cl-multi/subtle-wrong-output.mjs"
         ],
         "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "ls experiments/recovery-runner/tasks/ shows exactly 24 directories (4 existing + 20 new) → count == 24; WHY: confirms all pre-validated tasks were applied",
+            "type": "cli"
+          },
+          {
+            "desc": "For each of the 20 new task dirs, all 7 contract files exist (task.json, prompt.md, acceptance.mjs, reference-solution.mjs, ground-truth.mjs, payload-subtle.mjs, subtle-wrong-output.mjs) → no MISSING lines printed; WHY: ensures no partial/incomplete task copies",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The existing 4 tasks (eval-expr, median, parse-range, text-stats) are unmodified after apply → git diff against main shows no changes for those 4 dirs; WHY: the story constraint says DO NOT modify the existing 4 tasks",
+            "type": "cli"
+          },
+          {
+            "desc": "Each new task.json has a valid type field from the 7 new categories (bug-fix/refactor/test-repair/doc-update/dep-upgrade/contract-validation/CLI-feature), none has type=feature → catches category copy errors; WHY: feature is for the existing 4 only; wrong type would break stratification silently",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No extra files beyond the 7-file contract exist in any new task dir (no .DS_Store, node_modules, .bak, etc.) → find returns only the 7 expected filenames per dir; WHY: prevents junk files from contaminating the corpus freeze",
+            "type": "cli"
+          },
+          {
+            "desc": "No two task dirs share the same taskId in their task.json → all 24 taskId values are distinct; WHY: duplicate taskId would silently corrupt the run-driver task enumeration",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
