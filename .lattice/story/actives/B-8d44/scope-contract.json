@@ -1,0 +1,23 @@
+{
+  "storyId": "B-8d44",
+  "mode": "enforce",
+  "allowedModify": [
+    "experiments/recovery-runner/run-recovery.mjs",
+    "experiments/recovery-runner/live-engine.mjs",
+    "experiments/recovery-runner/run-selfchecks.mjs",
+    "package.json"
+  ],
+  "allowedCreate": [
+    "experiments/recovery-runner/live-engine.mjs",
+    "experiments/recovery-runner/live-engine-selfcheck.mjs"
+  ],
+  "allowedTest": [
+    "experiments/recovery-runner/live-engine-selfcheck.mjs"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-24T12:25:10.846Z",
+  "updatedAt": "2026-06-24T12:25:10.846Z"
+}
