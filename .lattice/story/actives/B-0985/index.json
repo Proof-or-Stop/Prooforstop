@@ -4,7 +4,7 @@
   "title": "Implement proof admissibility registry MVP",
   "description": "Implement the first executable slice of proof-admissibility-hardening-execution-plan.md: M0/M1 shared proof-surface inventory, admissibility types/registry, classification API, and smoke coverage. This is warn/classification-only and must not hard-fail existing gates yet.",
   "type": "feature",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "high",
   "riskSignals": [
     {
@@ -51,11 +51,21 @@
       "user": "Harmonygo",
       "sessionId": "sess-c24c6567ed1e4439",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-24T10:13:41.196Z",
+      "branch": "story/B-0985",
+      "user": "Harmonygo",
+      "sessionId": "sess-c24c6567ed1e4439",
+      "agent": "main"
     }
   ],
   "worktree": {
     "path": ".worktrees/B-0985",
     "branch": "story/B-0985",
     "createdAt": "2026-06-24T09:54:18.497Z"
-  }
+  },
+  "currentReviewRound": "2026-06-24T10:13:41.196Z"
 }
