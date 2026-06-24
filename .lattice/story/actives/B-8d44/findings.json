@@ -120,7 +120,7 @@
       "desc": "A3 arm \"reported-not-iterated\" semantics unverified in selfcheck: the selfcheck only exercises A3 with correct+reviewerShips=true (clean path). Two concept-critical A3 behaviors have no assertion: (a) A3 + reviewer BLOCK => outcome is `recovered` (not safe-stop), confirming \"findings reported, not iterated\" does NOT gate the §6 adjudicated outcome; (b) A3 + acceptance-fail-all-retries => reviewer still called unconditionally. Without these assertions the A3 arm loop contract is untested for its distinguishing edge cases.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-06-24T12:56:04.888Z",
@@ -132,7 +132,11 @@
         "experiments/recovery-runner/live-engine.mjs"
       ],
       "signatureTag": "missing|mjs|reported-iterated-semantics",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Selfcheck now asserts A3 reported-not-iterated: reviewer BLOCK does not gate (outcome not forced safe-stop) and the reviewer runs even after acceptance-fail. Commit c6506637b.",
+      "resolvedAt": "2026-06-24T13:15:35.007Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8d44:F-007",
