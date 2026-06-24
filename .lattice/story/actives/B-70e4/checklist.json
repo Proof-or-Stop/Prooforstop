@@ -154,6 +154,17 @@
           "materialHash": "96adaa007e8f7ddafa1d445c9f905d262eb90f4da087c701fec35f3474287e79",
           "storyFilesHash": "3bb033bf48d472daad32daea22503c5bbbef2c03c79374e5fe0665781999041e",
           "timestamp": "2026-06-24T01:19:51.827Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "logic_test",
+          "command": "npm run --prefix packages/main test:authority-receipt-proof-auth",
+          "result": "pass",
+          "note": "Partial-fix reasoning: If CHK-001 fix is applied (authenticated:true at authority-client.ts:646) but CHK-002 fix is NOT applied (no auth arg in loadProof constructor), then loadProof creates AuthorityClient with 3 args (no auth). The get() method at line 676 sees authenticated===true, reads this.auth.customerApiKey which is undefined (no auth object), and returns fail-closed error at line 678-683 — the proof fetch fails without reaching the server. The smoke test at line 49-55 directly demonstrates this: AuthorityClient without auth + fetchGateReceiptProof → ok:false, called:false. Both fixes are jointly necessary.",
+          "headHash": "46b5c13c74da8fce19bc6ee31b5c402442ca0252",
+          "materialHash": "96adaa007e8f7ddafa1d445c9f905d262eb90f4da087c701fec35f3474287e79",
+          "storyFilesHash": "3bb033bf48d472daad32daea22503c5bbbef2c03c79374e5fe0665781999041e",
+          "timestamp": "2026-06-24T01:19:56.365Z"
         }
       ]
     },
