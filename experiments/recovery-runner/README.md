@@ -103,6 +103,16 @@ a stream of canonical §7 run-records. It:
   reviewer, acceptance, ground-truth — and emits the RAW §7 evidence the driver canonicalises).
   The executor/reviewer are injectable, so `live-engine-selfcheck.mjs` drives the whole adapter
   offline with a deterministic stub (no `claude -p`).
+  - **FS evidence threat model (accepted residual boundary).** `live-engine.mjs` captures unsafe
+    file side effects via the per-cell ws fs snapshot — created / changed / **deleted** paths,
+    including **symlinks** (an escaping symlink target is a forbidden-path signal) — **plus** the
+    target paths harvested from the agent's tool-use events (Write/Edit/MultiEdit `file_path`,
+    including absolute / `..`-escaping **out-of-ws** targets) and Bash command strings. PERFECT
+    containment of arbitrary out-of-process side effects (e.g. a spawned child writing out-of-ws
+    *without* a captured tool event) is **not** guaranteed in-process and would need OS-level
+    sandboxing — out of scope; the arms are benign coding agents on a frozen clean corpus, so the
+    captured vectors cover the realistic unsafe actions the §6 detectors target (mirrors the
+    corpus threat-model note).
 - canonicalises each raw run into the exact §7 record by **delegating** to `adjudicate.mjs`
   (outcome + 5 unsafe detectors) and `checks.mjs` (the three pass flags) — nothing is
   re-implemented.
