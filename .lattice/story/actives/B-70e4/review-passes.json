@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-24T01:23:41.780Z",
       "reviewRunId": "B-70e4:RR-002",
       "_hash": "25732693c40cf567434613e279bc4d6b7e535a4b9a9fbd2457924c094c552421"
+    },
+    {
+      "id": "B-70e4:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "F-001 RESOLVED: commit 93dc28702 patched authority-live-receipt-ref-gate-smoke.ts:860 to pass { customerApiKey: input.ctx.customerApiKey } as the 4th arg to new AuthorityClient, making the rich diagnostic branch (proof.ok && proof.data) reachable. Full fetchGateReceiptProof grep scan: only two call sites in source code — (1) authority-live-receipt-ref-gate-smoke.ts:862 (now authenticated, fixed), (2) authority-enforce.ts:208 (uses auth-resolved client from loadProof, correct). authority-receipt-proof-smoke.ts:425-431 is a pre-existing unit test outside story scope that tests schema-parse logic with a test stub (discoverPolicy is public, fetchGateReceiptProof there is testing the parser not the live endpoint). authority-live-receipt-ref-gate-smoke.ts:156 discoverPolicy() is a public endpoint not requiring auth. No new concept residue found. Concept check complete — zero blockers.",
+      "createdAt": "2026-06-24T01:56:29.086Z",
+      "reviewRound": "2026-06-24T01:49:03.993Z",
+      "reviewRunId": "B-70e4:RR-004",
+      "_hash": "35b5cd1981c017280dc0b74537f1cc6d722860eabfcdde2cb582d51891e38e93"
     }
   ]
 }
