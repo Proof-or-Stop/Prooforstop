@@ -1,0 +1,64 @@
+{
+  "storyId": "B-fbfb",
+  "checkedAt": "2026-06-24T13:13:08.172Z",
+  "headHash": "9c4d0a1077803f7f41e8f726c28719c7712174d9",
+  "materialHash": "00ae1c39b27f61905e8449e698cdaf58e16faa1be9aed828c83f1502dd23bdfc",
+  "storyFilesHash": "54c4365042b338b6ac2d0c827a64115af9e75f2fcd42089262a0bbcd1f5e66a0",
+  "reviewRound": "2026-06-24T12:59:26.355Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-fbfb/plan.md#userSees-CHK-001",
+      "promise": "User sees: 5 high proof-admissibility gaps classified: 4 mapping gaps, 1 verifierVersionSupported semantic gap.",
+      "status": "verified",
+      "verifiedBy": "gap_analyze plus scoped diff review",
+      "evidence": "lattice gap_analyze reports Gaps: 0 high / 1 medium; remaining medium is currentDoneMaterialBinding in src/handlers/done-prepare.ts:529, unrelated to proof admissibility. Diff touches proof-admissibility core/gates/smokes and does not weaken gap_analyze requirements."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-fbfb/plan.md#userSees-CHK-002",
+      "promise": "User sees: proof-admissibility smoke passed; unsupported verifierVersion is rejected.",
+      "status": "verified",
+      "verifiedBy": "build and smoke command",
+      "evidence": "npm --prefix packages/main run build && node packages/main/dist/tasks/proof-admissibility-smoke.js && node packages/main/dist/tasks/proof-admissibility-hardening-smoke.js passed; proof-admissibility-smoke.ts asserts missing/null/wrong verifierVersion fail closed with missing_required_field or unsupported_verifier_version."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-fbfb/plan.md#userSees-CHK-003",
+      "promise": "User sees: gap_analyze no longer reports supportedSchemaVersion/contractVersionSupported reason-code mapping gaps.",
+      "status": "verified",
+      "verifiedBy": "grep and gap_analyze",
+      "evidence": "rg found @task B-fbfb anchors for supportedSchemaVersion, verifierVersionSupported, and contractVersionSupported in packages/main/src/core/proof-admissibility.ts; lattice gap_analyze reports 0 high gaps."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-fbfb/plan.md#userSees-CHK-004",
+      "promise": "User sees: No high-priority proof-admissibility version gaps remain.",
+      "status": "verified",
+      "verifiedBy": "gap_analyze and convergence_check",
+      "evidence": "lattice gap_analyze reports 0 high / 1 medium unrelated; lattice convergence_check has No high-priority gaps passed with detail All requirements are covered. Overall converged=false only because unrelated active stories B-2f1a, B-8d44, and B-fbfb remain unfinished."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "gap_analyze classified the current delivery state as 0 high / 1 medium; the only remaining medium is currentDoneMaterialBinding missing @test annotation in done-prepare.ts, not one of the five proof-admissibility high gaps."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "npm --prefix packages/main run build plus proof-admissibility-smoke and proof-admissibility-hardening-smoke passed. Smoke assertions cover current verifierVersion accepted, missing/null verifierVersion rejected, and wrong verifierVersion rejected with unsupported_verifier_version."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "rg verified B-fbfb scanner-visible anchors for supportedSchemaVersion, verifierVersionSupported, contractVersionSupported, unsupported_schema_version, unsupported_contract_version, and unsupported_verifier_version in proof-admissibility code and smokes; gap_analyze reports no high mapping gaps."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "lattice convergence_check passes No high-priority gaps; lattice validate --story=B-fbfb --json passed all 30 configured validation commands and reports 12/12 verification intents covered. .lattice/story/actives/B-fbfb/evidence/transcript-diff.md exists and is 2051 bytes."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery review passes: the four user-visible promises are verified by gap_analyze, convergence_check, build, proof-admissibility smokes, rg anchors, and fresh validate. The five targeted high proof-admissibility gaps are gone; only one unrelated medium done-prepare annotation gap remains."
+  },
+  "_hash": "2e02c473b11122b5a2213bca10f3c8081395751e35ff05f19be89e93fb5eaa6a"
+}

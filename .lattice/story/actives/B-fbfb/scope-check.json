@@ -1,0 +1,73 @@
+{
+  "storyId": "B-fbfb",
+  "checkedAt": "2026-06-24T12:51:49.973Z",
+  "features": [
+    {
+      "feature": "supportedSchemaVersion proof-admissibility convergence gap",
+      "covered_by": "CHK-001 classification; CHK-003 scanner-visible schema/contract facts; CHK-004 gap_analyze/convergence_check verification",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "story_get checklist + plan_get + understanding_get"
+    },
+    {
+      "feature": "verifierVersionSupported proof-admissibility convergence gap",
+      "covered_by": "CHK-001 classification as semantic gap; CHK-002 real verifier version admissibility support; CHK-004 smoke/gap_analyze/convergence_check verification",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "story_get checklist + plan_get + decision_get"
+    },
+    {
+      "feature": "contractVersionSupported proof-admissibility convergence gap",
+      "covered_by": "CHK-001 classification; CHK-003 scanner-visible schema/contract facts; CHK-004 gap_analyze/convergence_check verification",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "story_get checklist + plan_get + understanding_get"
+    },
+    {
+      "feature": "unsupported_schema_version proof-admissibility convergence gap",
+      "covered_by": "CHK-001 classification; CHK-003 scanner-visible reason-code mapping; CHK-004 gap_analyze/convergence_check verification",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "story_get checklist + plan_get + understanding_get"
+    },
+    {
+      "feature": "unsupported_contract_version proof-admissibility convergence gap",
+      "covered_by": "CHK-001 classification; CHK-003 scanner-visible reason-code mapping; CHK-004 gap_analyze/convergence_check verification",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "story_get checklist + plan_get + understanding_get"
+    },
+    {
+      "feature": "server production receipt demotion/deletion",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "understanding constraint says not to perform server production receipt demotion or deletion in this story; decision preMortem reserves Authority/server receipt changes for a second story",
+      "source": "understanding_get + decision_get"
+    },
+    {
+      "feature": "Red/Repro/Spike gate implementation or behavior changes",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "understanding constraint says not to modify Red/Repro/Spike gate behavior; CHK-001 adversarial intent excludes Red/Repro gate work; plan confines CHK-001 to classification",
+      "source": "checklist_get + plan_get + understanding_get"
+    },
+    {
+      "feature": "unrelated medium currentDoneMaterialBinding gap",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "CHK-001 edge intent and plan CHK-001 explicitly keep currentDoneMaterialBinding outside this story",
+      "source": "checklist_get + plan_get"
+    }
+  ],
+  "summary": {
+    "total": 8,
+    "covered": 5,
+    "excluded": 3,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "f1e1c4ba186fb5f2698b2b7a64f86d13cac989d650cf0448b22066cd84442343",
+  "openQuestions": []
+}
