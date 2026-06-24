@@ -348,6 +348,17 @@
           "materialHash": "96adaa007e8f7ddafa1d445c9f905d262eb90f4da087c701fec35f3474287e79",
           "storyFilesHash": "3bb033bf48d472daad32daea22503c5bbbef2c03c79374e5fe0665781999041e",
           "timestamp": "2026-06-24T01:20:47.136Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:2",
+          "kind": "manual_transcript",
+          "command": "npm run --prefix packages/main test:authority-receipt-proof-auth",
+          "result": "pass",
+          "note": "authority-receipt-proof-auth-smoke.ts:49 constructs AuthorityClient without auth (no 4th arg = no customerApiKey). Line 50 calls fetchGateReceiptProof. Line 51 asserts outcome.ok===false (fail-closed). Line 52-55 asserts called===false — the guardFetch stub (line 44-47) was NEVER invoked, proving zero network requests were sent to the protected proof endpoint when no key is configured. This pins the negative path: missing key must not leak an unauthenticated request.",
+          "headHash": "418aadcac8c587b760ed71ba1d80aadc1139b155",
+          "materialHash": "96adaa007e8f7ddafa1d445c9f905d262eb90f4da087c701fec35f3474287e79",
+          "storyFilesHash": "3bb033bf48d472daad32daea22503c5bbbef2c03c79374e5fe0665781999041e",
+          "timestamp": "2026-06-24T01:20:51.682Z"
         }
       ]
     }
