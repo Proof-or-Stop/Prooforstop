@@ -80,6 +80,15 @@
       "reviewRound": "2026-06-24T01:08:47.974Z",
       "reviewRunId": "B-6de6:RR-012",
       "_hash": "06026a5114548ecd02dc7350b3e4ce194a55c97113b15a683a57fa05e83f4458"
+    },
+    {
+      "id": "B-6de6:RP-010",
+      "agent": "lattice-review-test-coverage",
+      "note": "round 3 re-attestation: both smokes run clean after main-merge (14 checks + 7 checks). CHK-002:happy:1 cross-runId re-bind check present at smoke line 202. CHK-003:happy:0 three-part advisory pattern /materialDigest drift accepted.*storyFilesHash matches.*re-attestation/ present at smoke lines 144/163. done-escalation-drift-advisory-smoke floor-row assertions present at lines 290/299/366. All 20 intent refs (must) covered by logic_test evidence result=pass. No gap introduced by the main-merge storyFilesHash drift. Test coverage review passed.",
+      "createdAt": "2026-06-24T01:14:21.943Z",
+      "reviewRound": "2026-06-24T01:08:47.974Z",
+      "reviewRunId": "B-6de6:RR-011",
+      "_hash": "f36bf99ffb761cd65bc04b050c2f246c263d2dc091a61b2db682cacf3dc7ebf6"
     }
   ]
 }
