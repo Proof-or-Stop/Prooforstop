@@ -7,9 +7,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-24T12:58:37.703Z",
       "userSees": "User sees: \"5 high proof-admissibility gaps classified: 4 mapping gaps, 1 verifierVersionSupported semantic gap.\"",
       "files": {
         "modify": [
@@ -39,7 +39,42 @@
             "type": "docs"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "lattice gap_analyze {\"format\":\"json\"}",
+          "result": "pass",
+          "note": "Red/Repro classification confirmed: before implementation gap_analyze reported exactly the five targeted high proof-admissibility gaps; after implementation the same command reports 0 high / 1 unrelated medium.",
+          "headHash": "dbf5b2fbeea8002ebbbc9631f17287855e494b9c",
+          "materialHash": "00ae1c39b27f61905e8449e698cdaf58e16faa1be9aed828c83f1502dd23bdfc",
+          "storyFilesHash": "54c4365042b338b6ac2d0c827a64115af9e75f2fcd42089262a0bbcd1f5e66a0",
+          "timestamp": "2026-06-24T12:58:37.878Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "lattice gap_analyze {\"format\":\"json\"}",
+          "result": "pass",
+          "note": "The only remaining gap is medium currentDoneMaterialBinding missing @test, explicitly outside B-fbfb scope.",
+          "headHash": "dbf5b2fbeea8002ebbbc9631f17287855e494b9c",
+          "materialHash": "00ae1c39b27f61905e8449e698cdaf58e16faa1be9aed828c83f1502dd23bdfc",
+          "storyFilesHash": "54c4365042b338b6ac2d0c827a64115af9e75f2fcd42089262a0bbcd1f5e66a0",
+          "timestamp": "2026-06-24T12:58:38.086Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "file": ".lattice/story/actives/B-fbfb/scope-contract.json",
+          "result": "pass",
+          "note": "Scope contract excludes server production receipt demotion/deletion and Red/Repro/Spike gate implementation; B-fbfb code diff touches only proof-admissibility core/gates/smokes.",
+          "headHash": "dbf5b2fbeea8002ebbbc9631f17287855e494b9c",
+          "materialHash": "00ae1c39b27f61905e8449e698cdaf58e16faa1be9aed828c83f1502dd23bdfc",
+          "storyFilesHash": "54c4365042b338b6ac2d0c827a64115af9e75f2fcd42089262a0bbcd1f5e66a0",
+          "timestamp": "2026-06-24T12:58:38.280Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -166,6 +201,17 @@
           }
         ]
       }
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-24T12:58:37.703Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Five-gap classification and scope evidence recorded after implementation verification."
     }
   ]
 }

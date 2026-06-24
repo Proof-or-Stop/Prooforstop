@@ -190,6 +190,29 @@
         }
       ],
       "_hash": "51abacb60f565ad8967017dd15ef7d0a81f86b15e7adc6b050238d43613031ef"
+    },
+    {
+      "timestamp": "2026-06-24T12:52:47.498Z",
+      "issueCount": 3,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "4 checklist items; please check for missing combined scenarios (e.g., what happens when Classify the five proof admissibility convergence gaps + Implement verifier version admissibility support are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 1 high-risk signal(s): Validation Framework. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run lattice story_review_dismiss '{\"storyId\":\"B-fbfb\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-fbfb is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "f0deb9125938252074da6262cc09b41dac04118927703e423c9a50be405ab5a6"
     }
   ]
 }
