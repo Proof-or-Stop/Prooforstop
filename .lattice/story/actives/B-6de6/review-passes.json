@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-24T00:21:09.458Z",
       "reviewRunId": "B-6de6:RR-004",
       "_hash": "28ebcd9c82f6cd9beb625d9c175e6d5440687dd093a2907a5f9b2f0f604cf1f8"
+    },
+    {
+      "id": "B-6de6:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Dead code: none. Type safety: all new fields (advisories?, storyFilesHash?, string|null threading) are correctly typed with no unsafe casts or any. I/O isolation: no bridge violations. Correctness: (1) effectiveEvents computed once and threaded to all three evaluateHostVerdictRounds calls and latestFallbackRecord — no raw readEvents() reuse after the computation block; (2) fallbackRecordFromEvent applies the identical 4-arg/3-arg storyFilesHash downgrade-accept pattern from review-escalation.ts:225/350 — null expectedStoryFilesHash and empty-string storyFilesHash both correctly fall through to materialHash stale; (3) advisories merged from downgradeAdvisories + fallback.advisories with no double-counting (eventsWithStoryFilesHashDowngrade only touches host_verdict, not review_escalation_fallback); (4) advisories only emitted when non-empty via the conditional spread; (5) the new export of eventsWithStoryFilesHashDowngrade is a one-word change with no behavioral impact on escalation; (6) smoke assertions are meaningful, deterministic, and genuinely offline for all paths except the null-storyFilesHash test (3) which makes a harmless failing git call to /tmp and falls back to null as designed; (7) process-fact-levels.ts rationale and verify-process-fact-contract.mjs line field are consistent with the implementation.",
+      "createdAt": "2026-06-24T00:25:29.621Z",
+      "reviewRound": "2026-06-24T00:21:09.458Z",
+      "reviewRunId": "B-6de6:RR-002",
+      "_hash": "608c2ba398d78a31b1f4cfc3c5b44fd08784f890f565e9b8b004fa59fbb42fe4"
     }
   ]
 }
