@@ -54,10 +54,10 @@
           "command": "node -e \"const fs=require(\\\"fs\\\"); JSON.parse(fs.readFileSync(\\\"docs/evidence/proof-surface-inventory.json\\\",\\\"utf8\\\")); console.log(\\\"proof-surface-inventory json ok\\\")\"",
           "result": "pass",
           "note": "Inventory docs and JSON include M0 surfaces, B-0aa1 candidate artifacts, scopes, producer boundaries, consumers, and productionDone eligibility.",
-          "headHash": "5ee9243121f5f47510152cb9e5fa339a9b30c910",
-          "materialHash": "b2d2745fdd0678e902f7917e3e4200fe071ec3c373c70df8e50224e67f42e411",
-          "storyFilesHash": "1182244e6833c24e24ecba68362c64b7d67b270c8e42ec7310e0221d464a874d",
-          "timestamp": "2026-06-24T10:08:47.650Z"
+          "headHash": "0541b69d4d97662b17ba440e5ca4f19dffd4786d",
+          "materialHash": "757cd274eb420fd2abb4eb2fc2c070c1a01bbf434bcfca129c3c485cf5972767",
+          "storyFilesHash": "c4b663beb712e4b02f74353c533abef9a10a1cc20fa35aeac5b5dc7291bfad0e",
+          "timestamp": "2026-06-24T10:37:25.397Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -66,10 +66,10 @@
           "command": "npm --prefix packages/main run test:proof-admissibility",
           "result": "pass",
           "note": "Negative controls deny production claims for evidence-candidate, local-diagnostic, local-key-single-host, local-review-quorum, authority-receipt-only, and legacy surfaces.",
-          "headHash": "5ee9243121f5f47510152cb9e5fa339a9b30c910",
-          "materialHash": "b2d2745fdd0678e902f7917e3e4200fe071ec3c373c70df8e50224e67f42e411",
-          "storyFilesHash": "1182244e6833c24e24ecba68362c64b7d67b270c8e42ec7310e0221d464a874d",
-          "timestamp": "2026-06-24T10:08:47.824Z"
+          "headHash": "0541b69d4d97662b17ba440e5ca4f19dffd4786d",
+          "materialHash": "757cd274eb420fd2abb4eb2fc2c070c1a01bbf434bcfca129c3c485cf5972767",
+          "storyFilesHash": "c4b663beb712e4b02f74353c533abef9a10a1cc20fa35aeac5b5dc7291bfad0e",
+          "timestamp": "2026-06-24T10:37:25.397Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -78,10 +78,10 @@
           "command": "npm --prefix packages/main run test:proof-admissibility",
           "result": "pass",
           "note": "Docs and smoke distinguish raw authority-receipt from gate-consumed production-gate-decision.",
-          "headHash": "5ee9243121f5f47510152cb9e5fa339a9b30c910",
-          "materialHash": "b2d2745fdd0678e902f7917e3e4200fe071ec3c373c70df8e50224e67f42e411",
-          "storyFilesHash": "1182244e6833c24e24ecba68362c64b7d67b270c8e42ec7310e0221d464a874d",
-          "timestamp": "2026-06-24T10:08:47.994Z"
+          "headHash": "0541b69d4d97662b17ba440e5ca4f19dffd4786d",
+          "materialHash": "757cd274eb420fd2abb4eb2fc2c070c1a01bbf434bcfca129c3c485cf5972767",
+          "storyFilesHash": "c4b663beb712e4b02f74353c533abef9a10a1cc20fa35aeac5b5dc7291bfad0e",
+          "timestamp": "2026-06-24T10:37:25.397Z"
         }
       ]
     },
@@ -139,10 +139,10 @@
           "command": "npm --prefix packages/main run build",
           "result": "pass",
           "note": "Core registry exports canonical EvidenceScope, ArtifactRole, ClaimKind, ArtifactConsumerKind, TemporalRole, ProofProducerBoundary, and reason-code dictionaries.",
-          "headHash": "64a8b953d1df5371c5c6243f56189349a9d585d7",
-          "materialHash": "b2d2745fdd0678e902f7917e3e4200fe071ec3c373c70df8e50224e67f42e411",
-          "storyFilesHash": "1182244e6833c24e24ecba68362c64b7d67b270c8e42ec7310e0221d464a874d",
-          "timestamp": "2026-06-24T10:09:01.261Z"
+          "headHash": "0541b69d4d97662b17ba440e5ca4f19dffd4786d",
+          "materialHash": "757cd274eb420fd2abb4eb2fc2c070c1a01bbf434bcfca129c3c485cf5972767",
+          "storyFilesHash": "c4b663beb712e4b02f74353c533abef9a10a1cc20fa35aeac5b5dc7291bfad0e",
+          "timestamp": "2026-06-24T10:37:25.397Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -151,10 +151,10 @@
           "command": "npm --prefix packages/main run test:proof-admissibility",
           "result": "pass",
           "note": "Smoke asserts unknown artifact kinds and unsupported schema versions fail closed with structured reasons.",
-          "headHash": "64a8b953d1df5371c5c6243f56189349a9d585d7",
-          "materialHash": "b2d2745fdd0678e902f7917e3e4200fe071ec3c373c70df8e50224e67f42e411",
-          "storyFilesHash": "1182244e6833c24e24ecba68362c64b7d67b270c8e42ec7310e0221d464a874d",
-          "timestamp": "2026-06-24T10:09:01.445Z"
+          "headHash": "0541b69d4d97662b17ba440e5ca4f19dffd4786d",
+          "materialHash": "757cd274eb420fd2abb4eb2fc2c070c1a01bbf434bcfca129c3c485cf5972767",
+          "storyFilesHash": "c4b663beb712e4b02f74353c533abef9a10a1cc20fa35aeac5b5dc7291bfad0e",
+          "timestamp": "2026-06-24T10:37:25.397Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -163,10 +163,10 @@
           "command": "npm --prefix packages/main run test:proof-admissibility",
           "result": "pass",
           "note": "Smoke asserts authority-receipt and production-gate-decision are distinct, with productionDone eligibility only for the matching production gate decision.",
-          "headHash": "64a8b953d1df5371c5c6243f56189349a9d585d7",
-          "materialHash": "b2d2745fdd0678e902f7917e3e4200fe071ec3c373c70df8e50224e67f42e411",
-          "storyFilesHash": "1182244e6833c24e24ecba68362c64b7d67b270c8e42ec7310e0221d464a874d",
-          "timestamp": "2026-06-24T10:09:01.623Z"
+          "headHash": "0541b69d4d97662b17ba440e5ca4f19dffd4786d",
+          "materialHash": "757cd274eb420fd2abb4eb2fc2c070c1a01bbf434bcfca129c3c485cf5972767",
+          "storyFilesHash": "c4b663beb712e4b02f74353c533abef9a10a1cc20fa35aeac5b5dc7291bfad0e",
+          "timestamp": "2026-06-24T10:37:25.397Z"
         }
       ]
     },
@@ -221,10 +221,10 @@
           "command": "npm --prefix packages/main run test:proof-admissibility",
           "result": "pass",
           "note": "Smoke verifies a matching authority-receipt-ref production-gate-decision is allowed and productionDoneEligible for production-completion.",
-          "headHash": "b0991b235fb1dc3fbce611166757a0e60df9c93d",
-          "materialHash": "b2d2745fdd0678e902f7917e3e4200fe071ec3c373c70df8e50224e67f42e411",
-          "storyFilesHash": "1182244e6833c24e24ecba68362c64b7d67b270c8e42ec7310e0221d464a874d",
-          "timestamp": "2026-06-24T10:09:15.018Z"
+          "headHash": "0541b69d4d97662b17ba440e5ca4f19dffd4786d",
+          "materialHash": "757cd274eb420fd2abb4eb2fc2c070c1a01bbf434bcfca129c3c485cf5972767",
+          "storyFilesHash": "c4b663beb712e4b02f74353c533abef9a10a1cc20fa35aeac5b5dc7291bfad0e",
+          "timestamp": "2026-06-24T10:37:25.397Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -233,10 +233,10 @@
           "command": "npm --prefix packages/main run test:proof-admissibility",
           "result": "pass",
           "note": "Smoke verifies local-review-quorum can satisfy REVIEW review-pass while denying DONE/AUTHORITY production-completion.",
-          "headHash": "b0991b235fb1dc3fbce611166757a0e60df9c93d",
-          "materialHash": "b2d2745fdd0678e902f7917e3e4200fe071ec3c373c70df8e50224e67f42e411",
-          "storyFilesHash": "1182244e6833c24e24ecba68362c64b7d67b270c8e42ec7310e0221d464a874d",
-          "timestamp": "2026-06-24T10:09:15.194Z"
+          "headHash": "0541b69d4d97662b17ba440e5ca4f19dffd4786d",
+          "materialHash": "757cd274eb420fd2abb4eb2fc2c070c1a01bbf434bcfca129c3c485cf5972767",
+          "storyFilesHash": "c4b663beb712e4b02f74353c533abef9a10a1cc20fa35aeac5b5dc7291bfad0e",
+          "timestamp": "2026-06-24T10:37:25.397Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -245,10 +245,10 @@
           "command": "npm --prefix packages/main run test:proof-admissibility",
           "result": "pass",
           "note": "Smoke verifies local diagnostic, raw candidate, legacy, local-key, and authority-receipt-only inputs deny production claims with explicit reason codes.",
-          "headHash": "b0991b235fb1dc3fbce611166757a0e60df9c93d",
-          "materialHash": "b2d2745fdd0678e902f7917e3e4200fe071ec3c373c70df8e50224e67f42e411",
-          "storyFilesHash": "1182244e6833c24e24ecba68362c64b7d67b270c8e42ec7310e0221d464a874d",
-          "timestamp": "2026-06-24T10:09:15.387Z"
+          "headHash": "0541b69d4d97662b17ba440e5ca4f19dffd4786d",
+          "materialHash": "757cd274eb420fd2abb4eb2fc2c070c1a01bbf434bcfca129c3c485cf5972767",
+          "storyFilesHash": "c4b663beb712e4b02f74353c533abef9a10a1cc20fa35aeac5b5dc7291bfad0e",
+          "timestamp": "2026-06-24T10:37:25.397Z"
         }
       ]
     },
@@ -310,10 +310,10 @@
           "command": "npm --prefix packages/main run test:proof-admissibility",
           "result": "pass",
           "note": "Package script is available and prints proof-admissibility smoke passed after build.",
-          "headHash": "498486e7c49e82eaf441a6e82f17907ca384734e",
-          "materialHash": "b2d2745fdd0678e902f7917e3e4200fe071ec3c373c70df8e50224e67f42e411",
-          "storyFilesHash": "1182244e6833c24e24ecba68362c64b7d67b270c8e42ec7310e0221d464a874d",
-          "timestamp": "2026-06-24T10:09:28.691Z"
+          "headHash": "0541b69d4d97662b17ba440e5ca4f19dffd4786d",
+          "materialHash": "757cd274eb420fd2abb4eb2fc2c070c1a01bbf434bcfca129c3c485cf5972767",
+          "storyFilesHash": "c4b663beb712e4b02f74353c533abef9a10a1cc20fa35aeac5b5dc7291bfad0e",
+          "timestamp": "2026-06-24T10:37:25.397Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -322,10 +322,10 @@
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "No new lifecycle command or gate fact was introduced; existing process fact contract remains green.",
-          "headHash": "498486e7c49e82eaf441a6e82f17907ca384734e",
-          "materialHash": "b2d2745fdd0678e902f7917e3e4200fe071ec3c373c70df8e50224e67f42e411",
-          "storyFilesHash": "1182244e6833c24e24ecba68362c64b7d67b270c8e42ec7310e0221d464a874d",
-          "timestamp": "2026-06-24T10:09:28.928Z"
+          "headHash": "0541b69d4d97662b17ba440e5ca4f19dffd4786d",
+          "materialHash": "757cd274eb420fd2abb4eb2fc2c070c1a01bbf434bcfca129c3c485cf5972767",
+          "storyFilesHash": "c4b663beb712e4b02f74353c533abef9a10a1cc20fa35aeac5b5dc7291bfad0e",
+          "timestamp": "2026-06-24T10:37:25.397Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -334,10 +334,10 @@
           "command": "npm --prefix packages/main run test:proof-admissibility",
           "result": "pass",
           "note": "Smoke includes negative controls for non-production scopes, unknown artifacts, unsupported schema, and stale material denial.",
-          "headHash": "498486e7c49e82eaf441a6e82f17907ca384734e",
-          "materialHash": "b2d2745fdd0678e902f7917e3e4200fe071ec3c373c70df8e50224e67f42e411",
-          "storyFilesHash": "1182244e6833c24e24ecba68362c64b7d67b270c8e42ec7310e0221d464a874d",
-          "timestamp": "2026-06-24T10:09:29.166Z"
+          "headHash": "0541b69d4d97662b17ba440e5ca4f19dffd4786d",
+          "materialHash": "757cd274eb420fd2abb4eb2fc2c070c1a01bbf434bcfca129c3c485cf5972767",
+          "storyFilesHash": "c4b663beb712e4b02f74353c533abef9a10a1cc20fa35aeac5b5dc7291bfad0e",
+          "timestamp": "2026-06-24T10:37:25.397Z"
         }
       ]
     }
