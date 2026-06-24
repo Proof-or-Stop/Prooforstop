@@ -1,0 +1,57 @@
+{
+  "storyId": "B-36ba",
+  "name": "escalation-freshness-gitcwd",
+  "title": "Align review-escalation freshness-root to gitCwd so floor and escalation agree under wrapper-root layouts",
+  "description": "evaluateReviewEscalation recomputes evidence freshness from args.projectRoot, while the review-assurance-floor and the verdict producers use the resolved gitCwd. In wrapper-root layouts (git root != metadata/project root) escalation reads freshness from the wrong root, so the same host_verdict can be downgrade-accepted by the floor yet read as stale/null by escalation. Make escalation gitCwd-aware and prove floor<->escalation hash equivalence.",
+  "type": "bug",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "keywords": [
+    "review-escalation",
+    "review-assurance-floor",
+    "wrapper-root",
+    "gitCwd",
+    "storyFilesHash",
+    "materialHash",
+    "freshness",
+    "lifecycle-gate"
+  ],
+  "riskSignals": [
+    {
+      "category": "State Machine/Gate",
+      "matched": "machine.ts"
+    },
+    {
+      "category": "Validation Framework",
+      "matched": "verifier"
+    }
+  ],
+  "createdAt": "2026-06-24T01:21:19.290Z",
+  "startedAt": "2026-06-24T01:21:19.290Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-24T01:21:19.306Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "b0a01b07-dd7a-40ba-a0fe-163497230a65",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-24T01:25:09.275Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "b0a01b07-dd7a-40ba-a0fe-163497230a65",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-36ba",
+    "branch": "story/B-36ba",
+    "createdAt": "2026-06-24T01:25:08.880Z"
+  }
+}
