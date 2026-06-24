@@ -100,7 +100,7 @@
       "desc": "Documentation consistency blocker: proof-admissibility-hardening-execution-plan.md now states that B-0405 implemented M2-M7 in warn-by-default/enforce diagnostics mode (lines 3-5) and adds implemented status notes for M2-M5 (for example lines 268-271, 304-308, 340-344, 374-377), but Appendix A still labels the same contract work as Current code status Missing/Partial with pending Gap/action items (lines 620-635), and Appendix B still says shared enum/strict shape/contract integration/typed handoff split remain missing or must be added (lines 705-719). Because this decision doc is the truth-source execution plan for the story, readers cannot tell whether B-0405 delivered the hardening or whether those appendix actions remain required. Update the appendices to either mark them explicitly as pre-B-0405 baseline/historical gap analysis or refresh the current-status/action columns to match the implemented B-0405 state.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-06-24T11:54:03.246Z",
@@ -111,7 +111,11 @@
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
       ],
       "signatureTag": "doc-code-drift|md|documentation-consistency-blocker",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Updated docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md Appendix A/B to explicitly report post-B-0405 CLI implementation status separately from remaining future work. The appendices now state that Authority Server production receipt conformance remains out of scope and do not overclaim productionDone. Committed docs-only fix as a8e491d30. Focused text check run: sed -n '/^## Appendix A:/,/^## Appendix C:/p' docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md | rg -n '\\b(missing|partial|pending|needs|must add|still missing|must be added|Gap / action|Current code status|Current status)\\b'; remaining hits are legitimate clause wording (missing field, historical evidence missing the current contract), not stale Appendix status/action labels. git diff --check passed for the edited doc.",
+      "resolvedAt": "2026-06-24T11:58:28.140Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
