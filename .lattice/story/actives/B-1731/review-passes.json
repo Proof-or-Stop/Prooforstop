@@ -125,6 +125,15 @@
       "reviewRound": "2026-06-24T22:49:32.346Z",
       "reviewRunId": "B-1731:RR-028",
       "_hash": "4fd3ec39abb2745998351f678189ef966e1aa981698fa1e531ee9838206c9f35"
+    },
+    {
+      "id": "B-1731:RP-015",
+      "agent": "lattice-review-concept",
+      "note": "Concept re-review after F-008 fix passed. Checked repro-first intake boundaries across story_create/fromDraft/direct phase paths, lifecycle PLAN/DEV/express gates, malformed binding handling, engine-error fail-open behavior, and spike-review binding semantics. HEAD requires accepted repro review, treats malformed/unaccepted/stale bindings as stale_story_evidence_binding under enforce mode, keeps evidence-store engine errors non-blocking as repro_first_preflight_engine_error, rejects reproFirstBypassReason for direct lifecycle phases beyond IDEA/INIT, runs fromDraft through the shared preflight before persistence/deletion, and requires confirmed/accepted spike-review whenever spikeId is bound.",
+      "createdAt": "2026-06-24T22:54:28.511Z",
+      "reviewRound": "2026-06-24T22:49:32.346Z",
+      "reviewRunId": "B-1731:RR-029",
+      "_hash": "35020ef3d6cea30d9f34050936c515dc6ee3e401e9ee70addf81004f1335e1f6"
     }
   ]
 }
