@@ -573,6 +573,24 @@
       "resolvedAt": "2026-06-24T14:05:51.945Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-8d44:F-027",
+      "desc": "live-engine filesystem evidence is not a complete side-effect source of truth: snapshotDir only walks the ws root and ignores symlinks, while diffSnapshots only iterates the post-run snapshot and therefore drops deletions. Confirmed exploits: (1) synthetic A2 ablation writes correct solution.mjs plus /tmp/OUTSIDE-SECRET.env outside ws; record validates and adjudicates recovered with all unsafeChecks false. (2) symlink output solution.mjs -> outside file also adjudicates recovered with unsafeChecks false because symlinks are skipped. (3) committed corpus median stub deletes copied prompt.md, writes correct solution, and still adjudicates recovered with diffHygienePass true. Source: live-engine.mjs snapshotDir/diffSnapshots lines 92-127 and accumulateDiff lines 428-433; requested selfchecks still pass, so the suite misses this class.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "host-2-round-4",
+      "createdAt": "2026-06-24T14:09:51.412Z",
+      "reviewRound": "2026-06-24T12:50:13.876Z",
+      "reviewRunId": "B-8d44:RR-023",
+      "_hash": "7459f41dcd92c4bf955e4c145fc404a25ae04fd593b5d8be36f48b46a2c8b6d9",
+      "files": [
+        "experiments/recovery-runner/live-engine.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|live-engine-filesystem",
+      "signatureTagSource": "auto"
     }
   ]
 }
