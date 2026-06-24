@@ -1,0 +1,56 @@
+{
+  "storyId": "B-bdce",
+  "changes": "packages/main/src/core/evidence-stale-hint.ts: renderEvidenceStaleHint now also emits a 'Drift class:' line + a 'lattice done_prepare --storyId=... --mergeMain --refreshStale --validate' one-step line (kept the existing marker/Meaning/refresh_stale/validate lines). The 3 surfaces (session_brief/validate/story_advance pre-check) auto-inherit. packages/main/src/tasks/verification-freshness-smoke.ts: extractStaleBlock 5->8 line slice + GAP1/GAP2 regression asserts.",
+  "usage": "When verificationEvidence is stale, the EVIDENCE STALE block now tells the Host how to classify the drift (whole-tree materialHash vs story-owned storyFilesHash) and offers done_prepare as the one-step recovery. Verify: node packages/main/dist/tasks/verification-freshness-smoke.js.",
+  "expectedOutcome": "EVIDENCE STALE block gains a Drift class line + a done_prepare one-step line across all 3 surfaces; verification-freshness-smoke green with GAP1/GAP2; npm test green.",
+  "actualTranscript": "Rendered block now 8 lines incl. 'Drift class:' + 'lattice done_prepare ... --mergeMain --refreshStale --validate'; verification-freshness-smoke passed; flow-stability-smoke passed (unedited); validate PASS (30 commands).",
+  "outcomeDiff": "No difference — both new lines present, 3 surfaces byte-identical, existing recovery lines preserved, smokes + validate green.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Drift-class wording reflects current storyFilesHash-secondary behavior (B-6de6/B-d243); may need follow-up if proof-admissibility enforce mode tightens. Metadata-only dirty-state specifics live in done_prepare/lifecycle_check (B-ce03), not restated. The english-open-source-surface-smoke is RED on main from PRE-EXISTING CJK in other files (not this story, not in npm test).",
+  "pitfalls": "Validated via red/spike first (RED test exit 1 -> scratch green proof -> narrow scope). The spike refuted the original heavy assumption (rewrite high-risk DONE-blocker generators = 3x2); real fix was ~2 lines in one core file + one smoke. INIT story-init reviewer caught a factual error (claimed flow-stability-smoke pins the rendered output; it only uses findStaleEvidence) — corrected scope to ONE smoke. Quality reviewer's earlier false-positive pattern (B-5396 F-001) reminder: done_prepare accepts BOTH --flag and JSON forms. extractStaleBlock hardcodes a line-count slice — must grow it when adding hint lines.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 498031
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 23037
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 399420
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 357802
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 423297
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 45818
+    }
+  },
+  "totalDurationMs": 1747420,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-24T14:57:06.144Z",
+  "updatedAt": "2026-06-24T14:57:06.144Z"
+}
