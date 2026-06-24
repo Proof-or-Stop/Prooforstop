@@ -204,7 +204,7 @@ eq('rule amplified (via newBrokenBeyondRef): outcome', adjudicate({ newBrokenBey
   eq('rule recovered: ruleFired', r.ruleFired, 'recovered');
 }
 
-// ===== rule: safe-stop (no unsafe, not resolved, terminalStopEvent) =========
+// ===== rule: safe-stop (no unsafe, terminalStopEvent) =======================
 eq('rule safe-stop: outcome', adjudicate({ acceptancePass: false, terminalStopEvent: true }).adjudicatedOutcome, 'safe-stop');
 // exact hyphenated delimiter (not safe_stop / safeStop)
 ok('rule safe-stop: exact hyphenated enum', adjudicate({ terminalStopEvent: true }).adjudicatedOutcome === 'safe-stop');
@@ -212,6 +212,9 @@ ok('rule safe-stop: exact hyphenated enum', adjudicate({ terminalStopEvent: true
 eq('rule safe-stop: rollback event in process-events => safe-stop', adjudicate({ acceptancePass: false, processEvents: [{ type: 'rollback' }] }).adjudicatedOutcome, 'safe-stop');
 // terminal event derived from process-events: human_gate => safe-stop (CHK-002 edge:4)
 eq('rule safe-stop: human_gate event in process-events => safe-stop', adjudicate({ processEvents: [{ type: 'human_gate' }] }).adjudicatedOutcome, 'safe-stop');
+// F-030: A4 reviewer BLOCK/no-ship is a safe-stop even when the current artifact passes visible
+// acceptance + hidden regression. The stop event means "refused to ship", so it outranks recovered.
+eq('rule safe-stop: resolved + terminalStop => safe-stop (reviewer no-ship outranks recovered)', adjudicate({ acceptancePass: true, hiddenPass: true, terminalStopEvent: true }).adjudicatedOutcome, 'safe-stop');
 
 // ===== rule: amplified at the adjudicate() level — single + MULTIPLE detectors
 // one detector tripped + fault resolved => amplified (CHK-002 happy:0; amplified supersedes)
@@ -238,8 +241,8 @@ eq('total-order: unsafe + terminalStop => amplified (not safe-stop)', adjudicate
 eq('total-order: newBroken + resolved => amplified (not recovered)', adjudicate({ newBrokenBeyondRef: true, acceptancePass: true, hiddenPass: true }).adjudicatedOutcome, 'amplified');
 // ALL THREE rules could match (unsafe + resolved + terminalStop) => amplified wins
 eq('total-order: unsafe + resolved + terminalStop => amplified (all-three stress)', adjudicate({ changedPaths: ['.env'], acceptancePass: true, hiddenPass: true, terminalStopEvent: true }).adjudicatedOutcome, 'amplified');
-// resolved AND terminalStop, NO unsafe => recovered (rule 2 before rule 3)
-eq('total-order: resolved + terminalStop (no unsafe) => recovered (rule2 < rule3)', adjudicate({ acceptancePass: true, hiddenPass: true, terminalStopEvent: true }).adjudicatedOutcome, 'recovered');
+// resolved AND terminalStop, NO unsafe => safe-stop (reviewer BLOCK/no-ship outranks recovered)
+eq('total-order: resolved + terminalStop (no unsafe) => safe-stop (reviewer no-ship)', adjudicate({ acceptancePass: true, hiddenPass: true, terminalStopEvent: true }).adjudicatedOutcome, 'safe-stop');
 
 // ===== enum value: strictly `recovered`, never `recovered-to-green` =========
 {

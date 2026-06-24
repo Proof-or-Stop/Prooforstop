@@ -26,7 +26,7 @@
 // VALIDITY FILTER: any infra failure (claude overload / 529 / exec error / arm-loop infra fault /
 // broken injection module) returns { infraVoid:true, voidReason } so the driver voids + re-runs.
 
-import { mkdtempSync, copyFileSync, readFileSync, existsSync, readdirSync, statSync, readlinkSync } from 'node:fs';
+import { mkdtempSync, copyFileSync, readFileSync, existsSync, readdirSync, statSync, readlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve, dirname, relative, sep } from 'node:path';
 import { createHash } from 'node:crypto';
@@ -273,6 +273,39 @@ export function buildReviewContext({ ws, task, basePrompt }) {
     taskId: task.taskId, outputFile: task.outputFile, spec: basePrompt,
     artifactExists, artifact,
   };
+}
+
+function reviewVerdictEvidence(reviewVerdict) {
+  const v = reviewVerdict && typeof reviewVerdict === 'object' ? reviewVerdict : {};
+  return {
+    ok: 'ok' in v ? v.ok : null,
+    infra: v.infra === true,
+    threw: v.threw === true,
+    kind: typeof v.kind === 'string' ? v.kind : null,
+    ship: typeof v.ship === 'boolean' ? v.ship : null,
+    reason: typeof v.reason === 'string' ? v.reason : null,
+    fullText: typeof v.fullText === 'string' ? v.fullText : null,
+    err: typeof v.err === 'string' ? v.err : null,
+    costUsd: Number.isFinite(v.costUsd) ? v.costUsd : null,
+  };
+}
+
+function writeA3ReviewEvidence({ ws, cell, reviewContext, reviewVerdict }) {
+  const evidence = {
+    schema: 'recovery-runner.a3-review-evidence.v1',
+    arm: 'A3',
+    taskId: cell.taskId,
+    scenarioId: cell.scenarioId == null ? null : cell.scenarioId,
+    repeat: cell.repeat,
+    reviewMode: 'reported-not-iterated',
+    reviewContext,
+    reviewVerdict: reviewVerdictEvidence(reviewVerdict),
+  };
+  const payload = `${JSON.stringify(evidence, null, 2)}\n`;
+  const p = join(ws, 'a3-review-evidence.json');
+  writeFileSync(p, payload);
+  const digest = createHash('sha256').update(payload).digest('hex');
+  return `reviewArtifact:${p}#sha256=${digest}`;
 }
 
 // Run the arm loop. Returns { finalPass, infra, attempts, reviewVerdict, shipped, truncated,
@@ -538,10 +571,14 @@ export function makeLiveEngine(opts = {}) {
         // a re-runnable void (F-021). So if ANY unsafe condition is present in the cell's history,
         // emit a record (the driver will adjudicate it `amplified`) instead of voiding. Only a
         // genuinely-clean infra failure is a void → re-run.
-        // Use the SAME (empty) policy the driver's buildCanonicalRecord -> adjudicate uses, so this
-        // pre-check agrees with the eventual adjudication (default forbidden patterns, no allowlist).
-        const { anyUnsafe } = detectUnsafe({ changedPaths, newContent, permEvents, createdPaths, processEvents });
-        if (!anyUnsafe) {
+        // Content-only secretScan is intentionally NOT enough to supersede an infra void here:
+        // legitimate artifacts can contain parser strings such as "token: '...'" that trip the
+        // conservative secret regex. Hard side effects (forbidden path/create, perms, destructive
+        // command) still supersede infra and fall through to an amplified record.
+        const { unsafeChecks } = detectUnsafe({ changedPaths, newContent: [], permEvents, createdPaths, processEvents });
+        const hardUnsafeBeforeInfra = unsafeChecks.forbiddenPath || unsafeChecks.perms
+          || unsafeChecks.forbiddenCreate || unsafeChecks.destructiveCmd;
+        if (!hardUnsafeBeforeInfra) {
           return { infraVoid: true, voidReason: arm.voidReason || 'arm-loop-infra-failure' };
         }
         // fall through with the harvested unsafe evidence => amplified record (not a void).
@@ -567,6 +604,12 @@ export function makeLiveEngine(opts = {}) {
 
       // allowedPaths: the agent may only touch the task's declared outputFile (diffHygiene scope).
       const allowedPaths = [task.outputFile];
+      const evidenceRefs = [`ws:${ws}`];
+      if (cell.arm === 'A3' && arm.reviewVerdict) {
+        evidenceRefs.push(writeA3ReviewEvidence({
+          ws, cell, reviewContext: arm.reviewContext, reviewVerdict: arm.reviewVerdict,
+        }));
+      }
 
       const result = {
         // §2 acceptance binding (harnessAcceptance).
@@ -595,7 +638,7 @@ export function makeLiveEngine(opts = {}) {
         tokensSpent: counters.tokensSpent,
         wallClockMs: arm.wallClockMs ?? null,
         agentCallCount: counters.agentCallCount,
-        evidenceRefs: [`ws:${ws}`],
+        evidenceRefs,
         harnessLogDigest: createHash('sha256').update(JSON.stringify({ changedPaths, createdPaths, gt })).digest('hex'),
         // §3 injectionApplied: true iff this scenario cell actually applied the fixed-point fault.
         injectionApplied: cell.scenarioId == null ? false : injectionApplied,
