@@ -38,25 +38,46 @@
  *       escalation.materialHash null and !== floor.materialHash. This is exactly
  *       the floor<->escalation disagreement the gitCwd plumbing fixes.
  *
- * B-36ba REVIEW F-001/F-002 add a third case:
- *   WRAPPER-ROOT (real StoryStore: handlers + machine guards):
+ * B-36ba REVIEW F-001 adds a third case:
+ *   WRAPPER-ROOT (real StoryStore: handlers):
  *     The first two cases drive the evaluator with synthetic story/findings args.
- *     Findings F-001/F-002 require DIRECT wrapper-root RUNTIME invocation of the
- *     three review_escalation_* handlers (CHK-003:happy:0/1/2) and the two
- *     machine.ts escalation call sites (CHK-002:happy:1/2), proving the
- *     resolveGitCwd -> evaluator path computes the REAL gitRoot hashes — not the
- *     bare non-git metadataRoot — through the exact production wiring.
+ *     Finding F-001 requires DIRECT wrapper-root RUNTIME invocation of the three
+ *     review_escalation_* handlers (CHK-003:happy:0/1/2), proving the resolveGitCwd
+ *     -> evaluator path computes the REAL gitRoot hashes — not the bare non-git
+ *     metadataRoot — through the exact production wiring.
  *       - resolveGitCwd(store, storyId, metaRoot, metaRoot) === gitRoot (!= metaRoot).
- *         This is the single resolution all three handlers AND both machine call
- *         sites share.
+ *         This is the single resolution all three handlers share.
  *       - HANDLERS (F-001): review_escalation_status / _policy_set / _fallback_set
  *         each report report.materialHash === the floor materialHash.
- *       - MACHINE (F-002): canFinishGuard + getGuardFailureReason run without
- *         throwing under wrapper-root; evaluateReviewEscalation called with the
- *         EXACT machine.ts gitCwd expression (`context.gitCwd ?? resolveGitCwd(...)`)
- *         yields the floor material/story-files hashes.
  *       - RED control: the evaluator with NO gitCwd (defaults to the non-git
  *         metaRoot) yields a null materialHash that differs from the floor.
+ *
+ * B-36ba REVIEW F-003 (Codex host-2) adds a fourth, GENUINE-guard case:
+ *   WRAPPER-ROOT DONE-ready (DONE gate genuinely depends on escalation gitCwd):
+ *     F-003 observed that the old third case's machine coverage was NOT a real
+ *     regression guard — canFinishGuard / getGuardFailureReason returned EARLY (the
+ *     test-evidence / delivery-check / escalation-policy gates failed before the
+ *     evaluateReviewEscalation call sites at machine.ts:639/1145), and the
+ *     `escViaMachineExpr` block tested a COPY of the gitCwd expression. Reverting
+ *     machine.ts:639/1145 would NOT have failed the smoke.
+ *
+ *     This case builds a FULLY DONE-ready wrapper-root fixture (test-evidence PASS,
+ *     no bugs, signed delivery-check, an explicit valid high-risk policy that makes
+ *     escalation REQUIRED, and 3 rounds x 2 independent host PASS verdicts bound to
+ *     the resolved-gitCwd materialHash/storyFilesHash). With every preceding gate
+ *     satisfied, the DONE verdict GENUINELY DEPENDS on the escalation call sites
+ *     reading the correct gitCwd:
+ *       - GREEN (gitCwd = inner gitRoot): evaluateReviewEscalation required && ok;
+ *         canFinishGuard === true (machine.ts:639); getGuardFailureReason === null
+ *         (machine.ts:1145); the done-oracle review-escalation row === 'pass'
+ *         (done-oracle.ts:751).
+ *       - RED (gitCwd = the non-git metaRoot, i.e. the pre-fix behavior): escalation
+ *         computes its freshness from the non-git root -> null materialHash ->
+ *         required-but-not-ok -> the done-oracle review-escalation row === 'fail'.
+ *     Reverting any of machine.ts:639 / machine.ts:1145 / done-oracle.ts:751 to drop
+ *     the gitCwd plumbing makes escalation compute from the non-git metadataRoot at
+ *     that call site, flipping the corresponding GREEN assertion to a failure — so
+ *     these assertions are a TRUE regression guard for the three production call sites.
  *
  * On success prints `review-escalation freshness-root smoke passed`; any assert
  * failure throws -> exit 1.
@@ -68,17 +89,29 @@ import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 
-import { evaluateReviewEscalation } from '../core/review-escalation.js';
+import {
+  evaluateReviewEscalation,
+  REVIEW_ESCALATION_EXPLICIT_HIGH_RISK_POLICY_PREDICATE,
+} from '../core/review-escalation.js';
 import { evaluateReviewAssuranceFloor } from '../core/review-assurance-floor.js';
-import { currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
+import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { resetConfigCache } from '../core/config.js';
 import { StoryStore } from '../core/store.js';
 import { createReviewEscalationHandlers } from '../handlers/review-escalation.js';
 import type { HandlerContext } from '../handlers/context.js';
 import { canFinishGuard, getGuardFailureReason } from '../core/machine.js';
+import { buildDoneChecklist, type DoneCheckRow } from '../core/done-oracle.js';
+import { signDeliveryCheck } from '../core/delivery-check-hash.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { realpathSync } from 'node:fs';
-import type { ChecklistData, StoryInfo } from '../core/types.js';
+import type {
+  ChecklistData,
+  ClosingSelfCheck,
+  DocsPromise,
+  ProcessEvent,
+  RealMachineTest,
+  StoryInfo,
+} from '../core/types.js';
 
 const STORY_ID = 'B-36ba-smoke';
 const BRANCH = 'story/B-36ba-smoke';
@@ -307,13 +340,15 @@ function story(): StoryInfo {
 }
 
 // ════════════════════════════════════════════════════════════════════════════
-// WRAPPER-ROOT (real StoryStore: handlers + machine guards) — B-36ba F-001/F-002.
+// WRAPPER-ROOT (real StoryStore: handlers) — B-36ba F-001.
 //
 // DIRECT wrapper-root RUNTIME coverage: drive the three review_escalation_*
-// handlers and the two machine.ts escalation guards over a real StoryStore on a
-// wrapper-root layout (non-git metadataRoot + inner gitRoot subdir), proving the
-// resolveGitCwd -> evaluator path computes the REAL gitRoot hashes through the
-// exact production wiring (not a synthetic evaluator call).
+// handlers over a real StoryStore on a wrapper-root layout (non-git metadataRoot
+// + inner gitRoot subdir), proving the resolveGitCwd -> evaluator path computes
+// the REAL gitRoot hashes through the exact production wiring (not a synthetic
+// evaluator call). The machine.ts:639/1145 + done-oracle.ts:751 escalation call
+// sites are exercised as GENUINE regression guards by the DONE-ready case below
+// (F-003), where the DONE gate's verdict depends on escalation reading gitCwd.
 // ════════════════════════════════════════════════════════════════════════════
 {
   resetConfigCache();
@@ -495,48 +530,18 @@ function story(): StoryInfo {
       'STORE F-001 (CHK-003:happy:2): review_escalation_fallback_set report.materialHash must equal the floor materialHash',
     );
 
-    // ── (4) MACHINE GUARDS (F-002): DIRECT wrapper-root runtime invocation ──
-    const context = { storyId: STORE_STORY_ID, store, projectRoot: metaRoot, gitCwd: gitRoot };
-
-    // (a) canFinishGuard escalation call site (~639) under wrapper-root: no throw.
-    const canFinish = canFinishGuard(context);
-    assert.equal(
-      typeof canFinish,
-      'boolean',
-      `STORE F-002: canFinishGuard must return a boolean under wrapper-root (got ${typeof canFinish})`,
-    );
-
-    // (b) getGuardFailureReason escalation call site (~1145) under wrapper-root: no throw.
-    const reason = getGuardFailureReason(STORE_STORY_ID, store, 'DONE', metaRoot, gitRoot);
-    assert.ok(
-      reason === null || typeof reason === 'string',
-      `STORE F-002: getGuardFailureReason must return null or a string under wrapper-root (got ${typeof reason})`,
-    );
-
-    // (c) CHK-002:happy:1/2 — the EXACT machine.ts gitCwd expression feeds the floor
-    //     material/story-files hashes into the evaluator.
-    const machineGitCwd = context.gitCwd ?? resolveGitCwd({
-      store,
-      storyId: STORE_STORY_ID,
-      metadataRoot: metaRoot,
-      projectRoot: metaRoot,
-    });
-    const escViaMachineExpr = evaluateReviewEscalation({
-      projectRoot: metaRoot,
-      gitCwd: machineGitCwd,
-      store,
-      storyId: STORE_STORY_ID,
-    });
-    assert.equal(
-      escViaMachineExpr.materialHash,
-      floorMaterial,
-      'STORE F-002 (CHK-002:happy:1): evaluateReviewEscalation via the machine.ts gitCwd expression must yield the floor materialHash',
-    );
-    assert.equal(
-      escViaMachineExpr.storyFilesHash,
-      floorStory,
-      'STORE F-002 (CHK-002:happy:2): evaluateReviewEscalation via the machine.ts gitCwd expression must yield the floor storyFilesHash',
-    );
+    // ── (4) MACHINE call sites: covered by the DONE-ready case below ──
+    // B-36ba REVIEW F-003 (Codex host-2): the previous weak machine coverage here
+    // (canFinishGuard/getGuardFailureReason no-throw checks + an `escViaMachineExpr`
+    // COPY of the machine.ts gitCwd expression) was NOT a genuine regression guard.
+    // canFinishGuard/getGuardFailureReason returned EARLY (this fixture lacks the
+    // test-evidence/delivery-check/escalation-policy gates that precede the
+    // evaluateReviewEscalation call sites), so reverting machine.ts:639/1145 would
+    // NOT have failed those no-throw assertions; and `escViaMachineExpr` re-derived
+    // the gitCwd expression in the test rather than exercising the production call.
+    // The genuine machine.ts:639/1145 + done-oracle.ts:751 guard is the
+    // DONE-ready wrapper-root case at the bottom of this file, where the DONE gate
+    // GENUINELY DEPENDS on escalation reading the resolved gitCwd.
 
     // ── (5) RED control for the store fixture: no gitCwd defaults to the non-git
     //        metaRoot -> null materialHash, disagreeing with the floor. ──
@@ -555,6 +560,311 @@ function story(): StoryInfo {
       escNoGit.materialHash,
       floorMaterial,
       'STORE RED: the no-gitCwd escalation hash must DIFFER from the floor hash',
+    );
+  } finally {
+    rmSync(metaRoot, { recursive: true, force: true });
+    resetConfigCache();
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// WRAPPER-ROOT DONE-ready: DONE gate genuinely depends on escalation gitCwd
+// — B-36ba REVIEW F-003 (Codex host-2).
+//
+// WHY THIS IS A GENUINE GUARD (and the old machine coverage was not):
+//   The three production escalation call sites — machine.ts:639 (canFinishGuard),
+//   machine.ts:1145 (getGuardFailureReason DONE branch), and done-oracle.ts:751
+//   (the `review-escalation` DONE-checklist row) — each call
+//   evaluateReviewEscalation with `gitCwd: context.gitCwd ?? resolveGitCwd(...)`.
+//   On a wrapper-root layout (projectRoot/metadataRoot is a bare NON-git wrapper;
+//   the real repo lives in a configured gitRoot subdir), evaluateReviewEscalation
+//   recomputes its freshness materialHash from that gitCwd. If the gitCwd plumbing
+//   is reverted, escalation reads from the non-git metadataRoot -> currentMaterialHash
+//   returns null -> the escalation is `required` (via the explicit high-risk policy)
+//   but NOT `ok` (current material hash unavailable). That makes:
+//     - canFinishGuard -> false,
+//     - getGuardFailureReason('DONE') -> non-null,
+//     - the done-oracle `review-escalation` row -> status 'fail'.
+//   This fixture pre-satisfies EVERY gate that precedes those escalation calls
+//   (test-evidence PASS, no open bugs, signed+fresh delivery-check, empty/verified
+//   docsPromises, and the review-assurance-floor via the same 3x2 verdicts) so the
+//   ONLY thing standing between the fixture and a passing DONE verdict is the
+//   escalation call reading the correct gitCwd. Reverting machine.ts:639/1145 or
+//   done-oracle.ts:751 therefore FLIPS the matching GREEN assertion to a failure.
+//   The RED control (calling buildDoneChecklist with gitCwd = the non-git metaRoot)
+//   reproduces the pre-fix behavior and asserts SPECIFICALLY on the review-escalation
+//   row, isolating the escalation gitCwd dependency from every other DONE row.
+// ════════════════════════════════════════════════════════════════════════════
+{
+  resetConfigCache();
+  const metaRoot = mkdtempSync(join(tmpdir(), 'review-escalation-freshness-done-'));
+  const DONE_STORY_ID = 'B-36ba-done';
+  try {
+    // metaRoot is deliberately NOT a git repo. gitRoot:'repo' drives resolveGitCwd's
+    // configured-git-root branch (the story has NO worktree binding).
+    writeFileSync(
+      join(metaRoot, 'lattice.config.json'),
+      JSON.stringify(
+        {
+          scanRoot: 'packages/main',
+          rootDir: 'src',
+          storyDir: '.lattice/story/actives',
+          requirementsDir: 'docs/requirements',
+          worktreeDir: '.worktrees',
+          gitRoot: 'repo',
+        },
+        null,
+        2,
+      ),
+      'utf-8',
+    );
+    resetConfigCache();
+
+    // Inner git repo on a NON-story/* branch ('work') so handler autoCommit is a
+    // silent no-op — mirrors the third case and reuses buildInnerRepo's shape.
+    const gitRoot = join(metaRoot, 'repo');
+    mkdirSync(gitRoot, { recursive: true });
+    git(gitRoot, ['init']);
+    git(gitRoot, ['config', 'user.email', 'smoke@example.invalid']);
+    git(gitRoot, ['config', 'user.name', 'Freshness Root DONE Smoke']);
+    git(gitRoot, ['checkout', '-B', 'main']);
+    write(gitRoot, 'README.md', '# freshness root done smoke inner repo\n');
+    write(gitRoot, 'packages/main/src/seed.ts', 'export const seed = 1;\n');
+    git(gitRoot, ['add', '.']);
+    git(gitRoot, ['commit', '-m', 'seed']);
+    git(gitRoot, ['checkout', '-B', 'work']);
+    // A material (non-metadata) source file diffed against main -> storyFilesHash is
+    // non-empty and materialHash is defined (so escalation/floor are both "required").
+    write(gitRoot, 'packages/main/src/foo.ts', 'export const foo = 1;\n');
+    git(gitRoot, ['add', '.']);
+    git(gitRoot, ['commit', '-m', 'material code file']);
+
+    const store = new StoryStore(metaRoot);
+    const now = '2026-06-24T00:00:00.000Z';
+
+    // Freshness anchors computed from the RESOLVED gitCwd (the inner gitRoot) with
+    // metaRoot as the metadata root — the SAME shape the DONE gates use.
+    const materialHash = currentMaterialHash(gitRoot, 'HEAD', metaRoot)!;
+    const storyFilesHash = currentStoryFilesHash(gitRoot, 'HEAD', metaRoot)!;
+    const headHash = currentGitHead(gitRoot)!;
+    assert.ok(materialHash, 'DONE: currentMaterialHash(gitRoot, HEAD, metaRoot) must be defined');
+    assert.ok(storyFilesHash, 'DONE: currentStoryFilesHash(gitRoot, HEAD, metaRoot) must be defined');
+    assert.ok(headHash, 'DONE: currentGitHead(gitRoot) must be defined');
+
+    // ── TEST-phase story with NO worktree binding -> resolveGitCwd uses the
+    //    configured-git-root branch (the inner gitRoot subdir). ──
+    const doneStory: StoryInfo = {
+      storyId: DONE_STORY_ID,
+      name: 'wrapper-root-done-fixture',
+      title: 'Wrapper root DONE-ready fixture story',
+      description: 'DONE-ready wrapper-root fixture: the DONE gate depends on escalation gitCwd.',
+      type: 'chore',
+      phase: 'TEST',
+      priority: 'medium',
+      createdAt: now,
+      startedAt: now,
+      endedAt: null,
+      // NO worktree binding -> configured-git-root branch resolves to the subdir.
+    };
+    store.writeStory(DONE_STORY_ID, doneStory);
+    store.writeChecklist(DONE_STORY_ID, {
+      items: [{
+        id: 'CHK-001',
+        title: 'Synthetic completed item',
+        context: 'Synthetic completed context',
+        status: 'done',
+        startTime: now,
+        endTime: now,
+        verificationIntent: {
+          happy: [{ desc: 'happy proof exists', type: 'logic', priority: 'must' }],
+          edge: [],
+          adversarial: [],
+        },
+        verificationEvidence: [{
+          intentRef: 'CHK-001:happy:0',
+          kind: 'logic_test',
+          result: 'pass',
+          note: 'synthetic proof for review-escalation freshness-root DONE smoke',
+        }],
+      }],
+    } as ChecklistData);
+
+    // ── test-evidence + delivery-check seeding modeled on lifecycle-check-smoke ──
+    store.writeTestEvidence(DONE_STORY_ID, {
+      command: 'review-escalation-freshness-root-done-smoke',
+      output: JSON.stringify({ allPass: true, summary: 'done-ready wrapper-root fixture' }),
+      result: 'PASS',
+      timestamp: now,
+      headHash,
+      materialHash,
+      storyFilesHash,
+      verificationCoverage: {
+        total: 1,
+        required: 1,
+        covered: 1,
+        missingRequired: 0,
+        entries: [],
+      },
+    });
+    store.writeBugs(DONE_STORY_ID, { bugs: [] });
+
+    const docsPromises: DocsPromise[] = [];
+    const realMachineTests: RealMachineTest[] = [{
+      featureId: 'CHK-001',
+      transcript: 'done-ready wrapper-root fixture has synthetic real-machine coverage.',
+    }];
+    const closingSelfCheck: ClosingSelfCheck = {
+      hasRealMachineTest: true,
+      hasEdgeCaseCoverage: true,
+      hasUnresolvedTodos: false,
+      summary: 'done-ready wrapper-root fixture closure evidence is complete.',
+    };
+    store.writeDeliveryCheck(DONE_STORY_ID, {
+      storyId: DONE_STORY_ID,
+      checkedAt: now,
+      headHash,
+      materialHash,
+      reviewRound: '',
+      agentId: 'lattice-review-delivery',
+      docsPromises,
+      realMachineTests,
+      closingSelfCheck,
+      _hash: signDeliveryCheck(DONE_STORY_ID, docsPromises, realMachineTests, closingSelfCheck, '', materialHash),
+    });
+
+    // ── Make escalation REQUIRED via an explicit valid high-risk policy event.
+    //    All fields below are required by policyRecordFromEvent for validity:
+    //    requires3x2=true, the exact predicate, policyVersion, riskClass (or
+    //    milestoneId), sourcePolicyRef, rolloutStage, boolean degradedFallbackAllowed,
+    //    issuer, issuedAt, and a materialHash bound to the current (gitCwd) hash. ──
+    const policyEvent: Omit<ProcessEvent, 'timestamp'> = {
+      type: 'review_escalation_policy',
+      storyId: DONE_STORY_ID,
+      command: 'review_escalation_policy_set',
+      policyId: `${DONE_STORY_ID}:POL-1`,
+      predicate: REVIEW_ESCALATION_EXPLICIT_HIGH_RISK_POLICY_PREDICATE,
+      requires3x2: true,
+      policyVersion: 'v1',
+      riskClass: 'high',
+      sourcePolicyRef: 'docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md',
+      rolloutStage: 'ga',
+      degradedFallbackAllowed: false,
+      issuer: 'smoke',
+      issuedAt: now,
+      headHash,
+      materialHash,
+      authorityDone: false,
+      fullAuthorityDone: false,
+      productionDone: false,
+    };
+    store.appendProcessEvent(DONE_STORY_ID, policyEvent);
+
+    // ── Seed 3 rounds x 2 INDEPENDENT host PASS verdicts bound to the SAME
+    //    materialHash + storyFilesHash (the resolved-gitCwd hashes). Each round needs
+    //    two hosts with distinct host/session/key identities; materialDigest must
+    //    equal materialHash exactly or the round fails closed. ──
+    for (const runId of ['round-1', 'round-2', 'round-3']) {
+      const hosts = [
+        { hostId: `claude-${runId}`, provider: 'claude', sessionId: `claude-${runId}-session`, keyId: `claude-${runId}-key` },
+        { hostId: `codex-${runId}`, provider: 'codex', sessionId: `codex-${runId}-session`, keyId: `codex-${runId}-key` },
+      ];
+      for (const host of hosts) {
+        const verdictEvent: Omit<ProcessEvent, 'timestamp'> = {
+          type: 'host_verdict',
+          verdictId: `${runId}-${host.hostId}`,
+          runId,
+          hostId: host.hostId,
+          provider: host.provider,
+          sessionId: host.sessionId,
+          keyId: host.keyId,
+          decision: 'pass',
+          materialDigest: materialHash,
+          storyFilesHash,
+          validationDigest: `validation-${runId}`,
+          promptDigest: `prompt-${runId}`,
+        };
+        store.appendProcessEvent(DONE_STORY_ID, verdictEvent);
+      }
+    }
+
+    // ── GREEN: escalation required && ok under the RESOLVED gitCwd. ──
+    const escReq = evaluateReviewEscalation({
+      projectRoot: metaRoot,
+      gitCwd: gitRoot,
+      store,
+      storyId: DONE_STORY_ID,
+    });
+    assert.equal(
+      escReq.required,
+      true,
+      'DONE: escalation must be required via the explicit high-risk policy',
+    );
+    assert.equal(
+      escReq.ok,
+      true,
+      'DONE: escalation must be satisfied by the 3x2 verdicts under the correct gitCwd',
+    );
+
+    // ── GREEN machine.ts:639 — canFinishGuard PASSES under wrapper-root with the
+    //    resolved gitCwd. Reverting the escalation gitCwd plumbing makes escalation
+    //    read the non-git metaRoot -> null materialHash -> required-but-not-ok ->
+    //    this flips to false. ──
+    const greenCtx = { storyId: DONE_STORY_ID, store, projectRoot: metaRoot, gitCwd: gitRoot };
+    const greenCanFinish = canFinishGuard(greenCtx);
+    if (!greenCanFinish) {
+      // DEBUG aid (F-003 guidance): surface which DONE gate actually fails so a
+      // fixture-seeding gap is distinguishable from a genuine regression.
+      console.error(
+        'DONE GREEN DEBUG: getGuardFailureReason =',
+        getGuardFailureReason(DONE_STORY_ID, store, 'DONE', metaRoot, gitRoot),
+      );
+    }
+    assert.equal(
+      greenCanFinish,
+      true,
+      'machine.ts:639 — canFinishGuard must PASS under wrapper-root with resolved gitCwd; ' +
+        'reverting the escalation gitCwd plumbing makes escalation read the non-git metaRoot -> null materialHash -> this fails',
+    );
+
+    // ── GREEN machine.ts:1145 — getGuardFailureReason('DONE') is null with the
+    //    resolved gitCwd. ──
+    assert.equal(
+      getGuardFailureReason(DONE_STORY_ID, store, 'DONE', metaRoot, gitRoot),
+      null,
+      'machine.ts:1145 — getGuardFailureReason must be null with resolved gitCwd',
+    );
+
+    // ── GREEN done-oracle.ts:751 — the review-escalation DONE row PASSES with the
+    //    resolved gitCwd. ──
+    const greenRows: DoneCheckRow[] = buildDoneChecklist(DONE_STORY_ID, store, metaRoot, {
+      auditWriter: null,
+      gitCwd: gitRoot,
+    });
+    const greenEsc = greenRows.find(r => r.id === 'review-escalation');
+    assert.ok(greenEsc, 'DONE: done-oracle must produce a review-escalation row');
+    assert.equal(
+      greenEsc.status,
+      'pass',
+      'done-oracle.ts:751 — review-escalation row must PASS with resolved gitCwd',
+    );
+
+    // ── RED done-oracle.ts:751 — passing the WRONG (non-git metaRoot) gitCwd
+    //    simulates the pre-fix behavior: escalation computes its freshness from the
+    //    non-git metadataRoot -> null materialHash -> required-but-not-ok -> the
+    //    review-escalation row FAILS. Asserting specifically on this row ISOLATES the
+    //    escalation gitCwd dependency (only this row depends on the materialHash being
+    //    computable). ──
+    const redRows: DoneCheckRow[] = buildDoneChecklist(DONE_STORY_ID, store, metaRoot, {
+      auditWriter: null,
+      gitCwd: metaRoot,
+    });
+    const redEsc = redRows.find(r => r.id === 'review-escalation');
+    assert.ok(redEsc, 'DONE RED: done-oracle must produce a review-escalation row');
+    assert.equal(
+      redEsc.status,
+      'fail',
+      'DONE RED: review-escalation row must FAIL when escalation reads the wrong (non-git) root ' +
+        '— isolates the escalation gitCwd dependency',
     );
   } finally {
     rmSync(metaRoot, { recursive: true, force: true });
