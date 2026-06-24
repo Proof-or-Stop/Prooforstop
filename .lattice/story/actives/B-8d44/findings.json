@@ -185,6 +185,24 @@
       ],
       "signatureTag": "missing|mjs|edge-lacks-evidence",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-8d44:F-011",
+      "desc": "CHK-003:adversarial:1 lacks evidence: intent requires that an A4 stub that produces NO review artifact (artifact file not written) causes the engine to refuse to ship. The selfcheck's A4/refuse test uses behavior='acceptFail' which DOES write a file (ACCEPT_FAIL stub writes the bad artifact), so artifactExists=true. The no-artifact case (agent never writes task.outputFile) is a distinct code path. In live-engine.mjs line 369, artifactExists is computed but is NOT used in the terminalStopEvent calculation (line 371: terminalStopEvent = refusedShip). The selfcheck neither tests nor asserts this path.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-24T12:58:45.588Z",
+      "reviewRound": "2026-06-24T12:50:13.876Z",
+      "reviewRunId": "B-8d44:RR-002",
+      "_hash": "34642fc4bed5af703e70608e50f34daee7604ed955bd939b14ee1b9d228e8b73",
+      "files": [
+        "experiments/recovery-runner/live-engine-selfcheck.mjs,experiments/recovery-runner/live-engine.mjs"
+      ],
+      "signatureTag": "missing|mjs|adversarial-lacks-evidence",
+      "signatureTagSource": "auto"
     }
   ]
 }
