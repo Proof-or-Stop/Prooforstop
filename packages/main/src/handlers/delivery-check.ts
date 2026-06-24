@@ -17,7 +17,7 @@ import type { HandlerContext } from './context.js';
 import type { DeliveryCheckData, DocsPromise, RealMachineTest, ClosingSelfCheck } from '../core/types.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 import { signDeliveryCheck } from '../core/delivery-check-hash.js';
-import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
+import { currentGitHead, currentMaterialHash, currentStoryFilesHash, EMPTY_STORY_FILES_HASH } from '../core/evidence-freshness.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 
 // Signature primitives live in core/delivery-check-hash.ts (single source of
@@ -162,7 +162,18 @@ export function createDeliveryCheckHandlers(ctx: HandlerContext): Record<string,
       // Signed so the DONE-gate drift-advisory downgrade keyed on it is non-forgeable.
       // Undefined when HEAD is on main (no story diff) or it cannot be computed —
       // the freshness gate then falls back to strict materialHash.
-      const storyFilesHash = currentStoryFilesHash(gitCwd, 'HEAD', root);
+      //
+      // B-d243 (host-2 soundness fix): when there is NO story-owned diff (HEAD ==
+      // main, or the story already resolved on main), currentStoryFilesHash
+      // returns sha256('') — the EMPTY-set hash, not undefined. A delivery-check
+      // signed with that empty-set value vouches for NOTHING, yet under later
+      // whole-tree drift with HEAD still empty it would re-match and wrongly fire
+      // the drift-advisory downgrade. Treat the empty-set value as no-signal and
+      // persist `undefined` so a no-story-diff delivery-check falls back to strict
+      // materialHash freshness.
+      const rawStoryFilesHash = currentStoryFilesHash(gitCwd, 'HEAD', root);
+      const storyFilesHash =
+        rawStoryFilesHash && rawStoryFilesHash !== EMPTY_STORY_FILES_HASH ? rawStoryFilesHash : undefined;
 
       const _hash = signDeliveryCheck(
         args.storyId,

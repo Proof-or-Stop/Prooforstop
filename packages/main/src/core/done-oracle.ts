@@ -626,9 +626,14 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
         // delivery_check_drift_advisory falls here (not tampered, not stale): the
         // gate PASSES but the mandatory whole-tree drift advisory is surfaced loudly
         // on the row detail (never swallowed) so the operator re-attests if needed.
-        const advisorySuffix = deliveryCheckFreshness.advisory
-          ? ` — ADVISORY: ${deliveryCheckFreshness.advisory}`
-          : '';
+        // B-d243 F-001: the DeliveryCheckFreshnessResult discriminated union makes
+        // `advisory` a required non-empty string for the drift-advisory variant, so
+        // narrow on the code (not on a `? ''` truthiness swallow) — a
+        // drift_advisory with an empty advisory is now impossible by construction.
+        const advisorySuffix =
+          deliveryCheckFreshness.code === 'delivery_check_drift_advisory'
+            ? ` — ADVISORY: ${deliveryCheckFreshness.advisory}`
+            : '';
         rows.push(doneCheckRow({
           id: 'delivery-check',
           status: 'pass',

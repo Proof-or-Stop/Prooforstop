@@ -22,7 +22,7 @@
 import { createHash } from 'crypto';
 import type { StoryStore } from './store.js';
 import type { DocsPromise, RealMachineTest, ClosingSelfCheck } from './types.js';
-import { currentMaterialHash, currentStoryFilesHash } from './evidence-freshness.js';
+import { currentMaterialHash, currentStoryFilesHash, EMPTY_STORY_FILES_HASH } from './evidence-freshness.js';
 
 export const DELIVERY_CHECK_SALT = 'lattice-delivery-check-integrity-v1';
 
@@ -85,17 +85,33 @@ export type DeliveryCheckFreshnessCode =
   | 'delivery_check_tampered'
   | 'stale_delivery_check';
 
-export interface DeliveryCheckFreshnessResult {
+interface DeliveryCheckFreshnessResultBase {
   ok: boolean;
-  code: DeliveryCheckFreshnessCode;
   reason: string;
   deliveryCheck: ReturnType<StoryStore['readDeliveryCheck']>;
   expectedHash: string | null;
   currentMaterialHash?: string;
   currentStoryFilesHash?: string;
-  /** Mandatory loud advisory text when code === 'delivery_check_drift_advisory'. */
-  advisory?: string;
 }
+
+/**
+ * B-d243 F-001: discriminated union so the drift-advisory variant CANNOT be
+ * constructed without its mandatory loud advisory text. A
+ * delivery_check_drift_advisory result with an absent/empty advisory is a type
+ * error at the construction site (and, for the consumer, advisory is a non-empty
+ * string by the type), so the gate can never silently swallow the re-attestation
+ * warning. Every other code variant has no advisory field.
+ */
+export type DeliveryCheckFreshnessResult =
+  | (DeliveryCheckFreshnessResultBase & {
+      code: 'delivery_check_drift_advisory';
+      /** Mandatory loud advisory text; required by the type for this variant. */
+      advisory: string;
+    })
+  | (DeliveryCheckFreshnessResultBase & {
+      code: Exclude<DeliveryCheckFreshnessCode, 'delivery_check_drift_advisory'>;
+      advisory?: undefined;
+    });
 
 export function evaluateDeliveryCheckFreshness(
   storyId: string,
@@ -155,9 +171,23 @@ export function evaluateDeliveryCheckFreshness(
     // re-attestation advisory instead of rejecting as stale. The stored record is never
     // rebound. A missing storyFilesHash (legacy) or a mismatch (story-owned change) keeps
     // the strict stale behavior. storyFilesHash is inside _hash, so it cannot be forged.
-    if (deliveryCheck.storyFilesHash) {
+    //
+    // B-d243 (host-2 soundness fix): defensively guard against the EMPTY-set hash
+    // on BOTH sides. currentStoryFilesHash returns sha256('') for an empty
+    // story-owned diff (HEAD on main / story resolved on main); that value
+    // vouches for NOTHING. delivery_check_set already drops the empty-set value
+    // at sign time, but this gate must also refuse to downgrade when either the
+    // stored or the current storyFilesHash is the empty-set hash — otherwise a
+    // record that attested no story diff could re-match under whole-tree drift
+    // and wrongly take the advisory. An empty-set stored or current hash keeps
+    // strict stale.
+    if (deliveryCheck.storyFilesHash && deliveryCheck.storyFilesHash !== EMPTY_STORY_FILES_HASH) {
       const storyFilesHash = currentStoryFilesHash(gitCwd, 'HEAD', metadataRoot);
-      if (storyFilesHash && storyFilesHash === deliveryCheck.storyFilesHash) {
+      if (
+        storyFilesHash &&
+        storyFilesHash !== EMPTY_STORY_FILES_HASH &&
+        storyFilesHash === deliveryCheck.storyFilesHash
+      ) {
         return {
           ok: true,
           code: 'delivery_check_drift_advisory',

@@ -2428,6 +2428,52 @@ function assertReviewAssuranceFloorContract(registry, levelRegistry) {
   }
 }
 
+// B-d243 (host-2 P2 #2): the delivery_check_set process fact MUST record that
+// delivery-check signs storyFilesHash and supports the delivery_check_drift_advisory
+// outcome. This mirrors how the review-run storyFilesHash gate-consumer semantics
+// are asserted (assertReviewRunStoryFilesHashContract): the L4 level rationale,
+// the artifact registry rationale, and the signing source must all keep naming
+// the storyFilesHash binding + the drift-advisory downgrade so this gate semantic
+// cannot silently drift out of the process-fact contract.
+function assertDeliveryCheckStoryFilesHashContract(registry, levelRegistry) {
+  const commandName = 'delivery_check_set';
+  const levelEntry = levelRegistry.get(commandName);
+  assert(levelEntry, `${processFactLevelRegistryPath}: required delivery_check_set level entry missing`);
+  if (levelEntry) {
+    assert(levelEntry.level === 'L4', `${processFactLevelRegistryPath}: ${commandName} must stay L4`);
+    assert(levelEntry.owner === 'handlers/delivery-check', `${processFactLevelRegistryPath}: ${commandName} owner drifted`);
+    assert(/storyMachine\.canFinish DONE gate/.test(levelEntry.gateConsumer || ''), `${processFactLevelRegistryPath}: ${commandName} gateConsumer must name the DONE gate`);
+    for (const token of ['storyFilesHash', 'delivery_check_drift_advisory', 'signature', 'strict stale']) {
+      assert(
+        new RegExp(token, 'i').test(levelEntry.rationale),
+        `${processFactLevelRegistryPath}: ${commandName} rationale must name ${token} (delivery-check signs storyFilesHash and supports the drift-advisory outcome)`,
+      );
+    }
+  }
+
+  const artifactEntry = registry.get('artifact:delivery-check.json');
+  assert(artifactEntry, `${processFactRegistryPath}: artifact:delivery-check.json missing`);
+  if (artifactEntry) {
+    assert(artifactEntry.level === 'L4', `${processFactRegistryPath}: artifact:delivery-check.json must stay L4`);
+    for (const token of ['storyFilesHash', 'delivery_check_drift_advisory', 'strict stale']) {
+      assert(
+        new RegExp(token, 'i').test(artifactEntry.rationale || ''),
+        `${processFactRegistryPath}: artifact:delivery-check.json rationale must name ${token} (signed storyFilesHash + drift-advisory outcome consumed by DONE)`,
+      );
+    }
+  }
+
+  // The signing source must keep folding storyFilesHash into the signature so the
+  // drift-advisory downgrade keyed on it stays non-forgeable.
+  const hashSource = read('packages/main/src/core/delivery-check-hash.ts');
+  for (const token of ['storyFilesHash', "code: 'delivery_check_drift_advisory'", 'EMPTY_STORY_FILES_HASH']) {
+    assert(
+      hashSource.includes(token),
+      `packages/main/src/core/delivery-check-hash.ts: required delivery-check storyFilesHash token missing: ${token}`,
+    );
+  }
+}
+
 function assertReviewRunStoryFilesHashContract(registry, levelRegistry) {
   const runtimeName = 'runtime:review_run_story_files_hash_gate';
   const levelEntry = levelRegistry.get(runtimeName);
@@ -3681,6 +3727,7 @@ function assertProcessFactCommandInventory() {
   }
   assertReviewRunStoryFilesHashContract(registry, levelRegistry);
   assertReviewAssuranceFloorContract(registry, levelRegistry);
+  assertDeliveryCheckStoryFilesHashContract(registry, levelRegistry);
 
   for (const expected of requiredControlledMutationEntries) {
     const actual = levelRegistry.get(expected.name);

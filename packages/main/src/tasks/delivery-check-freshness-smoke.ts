@@ -8,7 +8,7 @@ import { dirname, join } from 'node:path';
 import { resetConfigCache } from '../core/config.js';
 import { buildDoneChecklist } from '../core/done-oracle.js';
 import { evaluateDeliveryCheckFreshness, signDeliveryCheck } from '../core/delivery-check-hash.js';
-import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
+import { currentGitHead, currentMaterialHash, currentStoryFilesHash, EMPTY_STORY_FILES_HASH } from '../core/evidence-freshness.js';
 import { buildStoryReadinessReport } from '../core/lifecycle-readiness.js';
 import { canFinishGuard, getGuardFailureReason, type StoryMachineContext } from '../core/machine.js';
 import { getProcessFactRegistryEntry, hasProcessFactSemantic } from '../core/process-fact-registry.js';
@@ -83,6 +83,82 @@ function createFixture(): { root: string; store: StoryStore } {
     name: 'delivery-check-freshness-smoke',
     title: 'Delivery check freshness smoke',
     description: 'Synthetic story for delivery-check material freshness.',
+    type: 'chore',
+    phase: 'TEST',
+    priority: 'medium',
+    createdAt: NOW,
+    startedAt: NOW,
+    endedAt: null,
+    currentReviewRound: 'round-1',
+  };
+  store.writeStory(STORY_ID, story);
+  store.writeChecklist(STORY_ID, {
+    items: [{
+      id: 'CHK-001',
+      title: 'Synthetic delivery item',
+      context: 'Synthetic delivery context',
+      status: 'done',
+      startTime: NOW,
+      endTime: NOW,
+      verificationIntent: {
+        happy: [{ desc: 'delivery smoke proof exists', type: 'logic', priority: 'must' }],
+        edge: [],
+        adversarial: [],
+      },
+      verificationEvidence: [{
+        intentRef: 'CHK-001:happy:0',
+        kind: 'logic_test',
+        result: 'pass',
+        note: 'synthetic proof for delivery-check freshness smoke',
+      }],
+    }],
+  });
+  const headHash = currentGitHead(root);
+  const materialHash = currentMaterialHash(root, 'HEAD', root);
+  assert.ok(headHash, 'fixture must have a git HEAD');
+  assert.ok(materialHash, 'fixture must have a materialHash');
+  store.writeTestEvidence(STORY_ID, {
+    command: 'delivery-check-freshness-smoke',
+    output: JSON.stringify({ allPass: true, summary: 'delivery-check-freshness smoke validation passed' }),
+    result: 'PASS',
+    timestamp: NOW,
+    headHash,
+    materialHash,
+    verificationCoverage: {
+      total: 1,
+      required: 1,
+      covered: 1,
+      missingRequired: 0,
+      entries: [],
+    },
+  });
+  return { root, store };
+}
+
+// B-d243 (host-2 soundness fix): a NO-story-diff fixture. HEAD stays on `main`
+// (no story branch ahead of it), so currentStoryFilesHash yields the empty-set
+// hash sha256('') rather than a digest over any real story-owned diff. A
+// delivery-check signed on this topology must record storyFilesHash === undefined
+// (the handler drops the empty-set value) and therefore fall back to strict
+// materialHash freshness under whole-tree drift.
+function createMainFixture(): { root: string; store: StoryStore } {
+  const root = mkdtempSync(join(tmpdir(), 'delivery-check-freshness-main-'));
+  writeConfig(root);
+  write(root, 'README.md', '# delivery check freshness smoke (main topology)\n');
+  write(root, 'packages/main/src/index.ts', 'export const deliveryFreshness = true;\n');
+  git(root, ['init']);
+  git(root, ['checkout', '-B', 'main']);
+  git(root, ['add', 'README.md', 'lattice.config.json', 'packages/main/src/index.ts']);
+  git(root, ['commit', '-m', 'base']);
+  // No story branch / no story-owned commit: HEAD == main, so the story-owned
+  // diff vs main is empty and currentStoryFilesHash is the empty-set hash.
+
+  const store = new StoryStore(root);
+  const story: StoryInfo = {
+    storyId: STORY_ID,
+    name: 'delivery-check-freshness-smoke',
+    title: 'Delivery check freshness smoke (main topology)',
+    description: 'Synthetic story resolved on main for empty-set storyFilesHash.',
     type: 'chore',
     phase: 'TEST',
     priority: 'medium',
@@ -239,6 +315,12 @@ check('delivery_check_set records materialHash as binding and headHash as audit 
     assert.equal(row.code, 'delivery_check_passed', 'lifecycle readiness accepts fresh delivery check');
     assert.equal(report.artifacts.deliveryCheckRef?.materialHash, delivery.materialHash, 'readiness exposes materialHash binding');
     assert.equal(report.artifacts.deliveryCheckRef?.headHash, delivery.headHash, 'readiness exposes headHash audit metadata');
+
+    // B-d243 F-004: the ADVISORY suffix is reserved for the drift-advisory path.
+    // On the fresh (no-drift) passing case the DONE row detail must NEVER carry
+    // the advisory text — otherwise the literal-text drift guard could pass even
+    // if the advisory leaked onto a non-advisory row.
+    assert.doesNotMatch(doneRow(store, root).detail ?? '', /ADVISORY/, 'fresh delivery-check row must not surface advisory text');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -476,6 +558,118 @@ check('process-fact registry keeps delivery-check as L4 signed gate evidence pro
   assert.equal(artifact?.artifact?.producerCommand, 'delivery_check_set');
   assert.equal(hasProcessFactSemantic('artifact:delivery-check.json', 'signed-artifact'), true);
   assert.equal(hasProcessFactSemantic('artifact:delivery-check.json', 'gate-evidence'), true);
+});
+
+check('delivery_waiver_add re-sign preserves the signed storyFilesHash so the drift-advisory survives (F-002)', () => {
+  const { root, store } = createFixture();
+  try {
+    // A waivable docsPromise gives delivery_waiver_add a target. The story-branch
+    // fixture yields a non-empty signed storyFilesHash.
+    const waivablePromise: DocsPromise = {
+      docPath: 'docs/requirements/decisions/delivery-check-freshness.md',
+      promise: 'The smoke must exercise the delivery_waiver_add re-sign path.',
+      status: 'unverified',
+    };
+    const delivery = deliveryCheckSet(root, store, [waivablePromise]);
+    assert.ok(delivery.storyFilesHash, 'delivery_check_set must persist a non-empty signed storyFilesHash');
+    assert.notEqual(delivery.storyFilesHash, EMPTY_STORY_FILES_HASH, 'story-branch storyFilesHash must not be the empty-set value');
+
+    // (a) Actually CALL delivery_waiver_add on the signed delivery-check.
+    const handlers = createDeliveryCheckHandlers({ store, root, scanRoot: join(root, 'packages/main') });
+    const waiverReason = 'Waived for the F-002 re-sign smoke: this promise is intentionally deferred to a follow-up story.';
+    const output = handlers.delivery_waiver_add({
+      storyId: STORY_ID,
+      promiseId: waivablePromise.docPath,
+      waiverReason,
+    });
+    assert.match(output, /Waiver added/, 'delivery_waiver_add should add the waiver');
+    if (git(root, ['status', '--porcelain', '--', '.lattice'])) {
+      git(root, ['add', '.lattice']);
+      git(root, ['commit', '-m', 'waiver metadata']);
+    }
+
+    const afterWaiver = store.readDeliveryCheck(STORY_ID);
+    assert.ok(afterWaiver, 'delivery-check.json must still exist after waiver');
+    // (a) The re-signed _hash still validates (not tampered): recompute matches.
+    assert.equal(
+      afterWaiver._hash,
+      signDeliveryCheck(
+        afterWaiver.storyId,
+        afterWaiver.docsPromises,
+        afterWaiver.realMachineTests,
+        afterWaiver.closingSelfCheck,
+        afterWaiver.reviewRound,
+        afterWaiver.materialHash,
+        afterWaiver.storyFilesHash,
+      ),
+      'delivery_waiver_add must produce a valid re-signed _hash',
+    );
+    // (b) The storyFilesHash is preserved on the record across the re-sign.
+    assert.equal(afterWaiver.storyFilesHash, delivery.storyFilesHash, 'delivery_waiver_add must preserve the signed storyFilesHash');
+    assert.equal(afterWaiver.docsPromises.find(p => p.docPath === waivablePromise.docPath)?.status, 'waived', 'promise must be waived');
+
+    // (c) After an unrelated non-story drift the gate still returns the
+    // drift-advisory (the waiver re-sign did NOT drop storyFilesHash from the
+    // signed payload, so the downgrade still keys on the matching story diff).
+    git(root, ['checkout', 'main']);
+    write(root, 'README.md', '# delivery check freshness smoke\n\nunrelated main change after waiver\n');
+    git(root, ['add', 'README.md']);
+    git(root, ['commit', '-m', 'unrelated main drift after waiver']);
+    git(root, ['checkout', STORY_BRANCH]);
+    git(root, ['merge', '--no-edit', 'main']);
+
+    assert.notEqual(currentMaterialHash(root, 'HEAD', root), afterWaiver.materialHash, 'whole-tree material drift must change materialHash');
+    assert.equal(currentStoryFilesHash(root, 'HEAD', root), afterWaiver.storyFilesHash, 'non-story drift leaves the story-owned storyFilesHash unchanged');
+
+    const freshness = evaluateDeliveryCheckFreshness(STORY_ID, store, root, root);
+    assert.equal(freshness.ok, true, 'waived + drifted delivery-check must still downgrade to advisory (not stale)');
+    assert.equal(freshness.code, 'delivery_check_drift_advisory', 'waiver re-sign must keep storyFilesHash so the drift-advisory still fires');
+    assert.equal(freshness.advisory, EXPECTED_ADVISORY, 'drift-advisory after waiver must carry the mandatory advisory text');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+check('empty-set storyFilesHash (no story diff) falls back to strict materialHash stale, never advisory (host-2 soundness)', () => {
+  const { root, store } = createMainFixture();
+  try {
+    // Sanity: with HEAD == main, the story-owned diff is empty and
+    // currentStoryFilesHash is the empty-set hash sha256('').
+    assert.equal(
+      currentStoryFilesHash(root, 'HEAD', root),
+      EMPTY_STORY_FILES_HASH,
+      'no-story-diff fixture must yield the empty-set storyFilesHash',
+    );
+
+    const delivery = deliveryCheckSet(root, store);
+    // The handler must DROP the empty-set value: a no-story-diff delivery-check
+    // records storyFilesHash === undefined so it cannot wrongly enable the
+    // downgrade for a record that vouches for nothing.
+    assert.equal(delivery.storyFilesHash, undefined, 'no-story-diff delivery_check_set must not persist the empty-set storyFilesHash');
+
+    // Whole-tree (material) drift on the no-story-diff topology: edit a tracked
+    // file on main (still HEAD). The story-owned diff vs main stays empty, so
+    // currentStoryFilesHash stays the empty-set hash, but the materialHash drifts.
+    write(root, 'packages/main/src/index.ts', 'export const deliveryFreshness = true;\nexport const drift = "main";\n');
+    git(root, ['add', 'packages/main/src/index.ts']);
+    git(root, ['commit', '-m', 'whole-tree material drift on main']);
+    assert.notEqual(currentMaterialHash(root, 'HEAD', root), delivery.materialHash, 'whole-tree material drift must change materialHash');
+    assert.equal(currentStoryFilesHash(root, 'HEAD', root), EMPTY_STORY_FILES_HASH, 'no-story-diff topology keeps the empty-set storyFilesHash under drift');
+
+    const freshness = evaluateDeliveryCheckFreshness(STORY_ID, store, root, root);
+    assert.equal(freshness.ok, false, 'empty-set storyFilesHash must NOT enable the advisory downgrade');
+    assert.equal(freshness.code, 'stale_delivery_check', 'no-story-diff delivery-check falls back to strict materialHash stale');
+
+    const row = doneRow(store, root);
+    assert.equal(row.status, 'fail', 'DONE oracle rejects the empty-set fall-back as strict stale');
+    assert.match(row.detail ?? '', /stale delivery-check: materialHash mismatch/);
+    assert.doesNotMatch(row.detail ?? '', /ADVISORY/, 'empty-set strict stale row must not surface advisory text');
+    assert.equal(canFinishGuard(machineContext(store, root)), false, 'machine guard blocks the empty-set strict stale delivery check');
+    assert.match(getGuardFailureReason(STORY_ID, store, 'DONE', root, root) ?? '', /\[stale_delivery_check\]/);
+    assert.equal(lifecycleDeliveryRow(store, root).row.code, 'stale_delivery_check', 'lifecycle readiness classifies the empty-set fall-back as stale');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
 });
 
 console.log('delivery-check-freshness smoke passed');
