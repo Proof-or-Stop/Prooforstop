@@ -1,0 +1,21 @@
+{
+  "storyId": "B-ce03",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/handlers/done-prepare.ts",
+    "packages/main/src/core/lifecycle-readiness.ts",
+    "packages/main/src/tasks/done-readiness-flow-benchmark.ts",
+    "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/done-prepare-smoke.ts",
+    "packages/main/src/tasks/lifecycle-check-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-24T13:04:12.624Z",
+  "updatedAt": "2026-06-24T13:04:12.624Z"
+}
