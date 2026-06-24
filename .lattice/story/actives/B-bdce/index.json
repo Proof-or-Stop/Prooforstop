@@ -4,7 +4,7 @@
   "title": "Enrich the stale-evidence hint with done_prepare recovery + drift classification",
   "description": "renderEvidenceStaleHint (the single cross-surface stale verificationEvidence hint, used byte-identically by session_brief / story_advance pre-check / validate) currently offers only verification_evidence_refresh_stale + validate. It does not point the Host to done_prepare (the one-step ordered recovery) and does not classify the drift (whole-tree materialHash-only vs story-owned storyFilesHash), so a Host cannot tell a cheap refresh from a real re-review. Enrich the shared renderer; the three surfaces auto-inherit. Validated via red/spike (RED test exit 1; scratch green proof).",
   "type": "chore",
-  "phase": "REVIEW",
+  "phase": "TEST",
   "priority": "medium",
   "keywords": [
     "evidence-stale-hint",
@@ -104,6 +104,15 @@
       "branch": "story/B-bdce",
       "user": "Harmonygo",
       "sessionId": "b0a01b07-dd7a-40ba-a0fe-163497230a65",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-24T18:35:19.433Z",
+      "branch": "story/B-bdce",
+      "user": "Harmonygo",
+      "sessionId": "sess-735b8c9bcd81a6e7",
       "agent": "main"
     }
   ],
