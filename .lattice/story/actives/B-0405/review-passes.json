@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-24T11:32:27.508Z",
       "reviewRunId": "B-0405:RR-008",
       "_hash": "ade9497fb4325bcc6540e8e167cef7553f26d36f08dbfd92d8ae2e72b9a41fb3"
+    },
+    {
+      "id": "B-0405:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "PASS: re-review after F-003/F-002/F-001 fixes. Enforce mode is consumed by high-risk review escalation, review assurance floor, and DONE-required proof consumers via proof_admissibility_blocked gates, not merely reported diagnostically. Handoff and legacy/local evidence remain diagnostic/local-only and cannot set receiptVerified/authorityDone/fullAuthorityDone/productionDone. Targeted proof-admissibility hardening smoke passed.",
+      "createdAt": "2026-06-24T11:36:29.983Z",
+      "reviewRound": "2026-06-24T11:32:27.508Z",
+      "reviewRunId": "B-0405:RR-010",
+      "_hash": "54bca8bf9c19e3b8f4e5c87497ac1dbb1aa371560aafbad3fca5a8be2f2d96e5"
     }
   ]
 }
