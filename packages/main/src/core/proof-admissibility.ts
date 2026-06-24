@@ -528,7 +528,7 @@ function requireCheck(
     addReason(reasons, remediation, missingReason, missingHint);
     return;
   }
-  if (value === false) {
+  if (value !== true) {
     addReason(reasons, remediation, invalidReason, invalidHint);
   }
 }
@@ -569,7 +569,9 @@ export function evaluateProofAdmissibility(input: EvaluateProofAdmissibilityInpu
     );
   }
 
-  if (checks.contractVersion !== undefined && checks.contractVersion !== PROOF_ADMISSIBILITY_CONTRACT_VERSION) {
+  if (checks.contractVersion == null) {
+    addReason(reasons, remediation, 'missing_required_field', 'Evaluate the artifact with the current proof admissibility contract version.');
+  } else if (checks.contractVersion !== PROOF_ADMISSIBILITY_CONTRACT_VERSION) {
     addReason(reasons, remediation, 'unsupported_contract_version', 'Evaluate the artifact with the current proof admissibility contract version.');
   }
 

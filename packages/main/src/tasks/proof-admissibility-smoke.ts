@@ -43,6 +43,12 @@ function currentValidChecks(schemaVersion: string) {
   };
 }
 
+type RuntimeAdmissibilityChecks = Parameters<typeof evaluateProofAdmissibility>[0]['checks'];
+
+function runtimeChecks(value: Record<string, unknown>): RuntimeAdmissibilityChecks {
+  return value as RuntimeAdmissibilityChecks;
+}
+
 {
   assert.ok(EVIDENCE_SCOPES.includes('production-gate-decision'), 'scope dictionary includes production-gate-decision');
   assert.ok(EVIDENCE_SCOPES.includes('local-gate-evidence'), 'scope dictionary includes local-gate-evidence');
@@ -88,9 +94,89 @@ function currentValidChecks(schemaVersion: string) {
     claim: 'production-completion',
     checks: currentValidChecks('lattice.authority_receipt_refs.v1'),
   });
-  assert.equal(result.allowed, true, 'matching production gate decision is allowed');
-  assert.equal(result.productionDoneEligible, true, 'matching production gate decision can be productionDone eligible');
+  assert.equal(result.allowed, true, 'matching production gate decision with exact true checks and current contractVersion is allowed');
+  assert.equal(result.productionDoneEligible, true, 'matching production gate decision with exact true checks and current contractVersion can be productionDone eligible');
   assert.deepEqual(result.reasons, [], 'happy production gate decision has no reasons');
+}
+
+{
+  const nullRequiredCheck = evaluateProofAdmissibility({
+    artifactKind: 'authority-receipt-ref',
+    consumer: 'AUTHORITY_GATE_DECISION',
+    claim: 'production-completion',
+    checks: runtimeChecks({
+      ...currentValidChecks('lattice.authority_receipt_refs.v1'),
+      strictShapeValid: null,
+    }),
+  });
+  assert.equal(nullRequiredCheck.allowed, false, 'authority receipt production-completion with a null required check fails closed');
+  assert.equal(nullRequiredCheck.productionDoneEligible, false, 'authority receipt production-completion with a null required check cannot set productionDone');
+  expectReason(nullRequiredCheck.reasons, 'bad_shape', 'null required strictShapeValid');
+}
+
+for (const value of [false, 'true', 1, 0]) {
+  const result = evaluateProofAdmissibility({
+    artifactKind: 'authority-receipt-ref',
+    consumer: 'AUTHORITY_GATE_DECISION',
+    claim: 'production-completion',
+    checks: runtimeChecks({
+      ...currentValidChecks('lattice.authority_receipt_refs.v1'),
+      strictShapeValid: value,
+    }),
+  });
+  assert.equal(result.allowed, false, `authority receipt production-completion with strictShapeValid=${JSON.stringify(value)} fails closed`);
+  assert.equal(result.productionDoneEligible, false, `authority receipt production-completion with strictShapeValid=${JSON.stringify(value)} cannot set productionDone`);
+  expectReason(result.reasons, 'bad_shape', `non-true required strictShapeValid ${JSON.stringify(value)}`);
+}
+
+{
+  const missingContractVersion = evaluateProofAdmissibility({
+    artifactKind: 'authority-receipt-ref',
+    consumer: 'AUTHORITY_GATE_DECISION',
+    claim: 'production-completion',
+    checks: runtimeChecks({
+      schemaVersion: 'lattice.authority_receipt_refs.v1',
+      strictShapeValid: true,
+      semanticDigestValid: true,
+      signatureOrReceiptBindingValid: true,
+      temporalAndMaterialBindingValid: true,
+      subjectMatches: true,
+      producerBoundaryTrusted: true,
+    }),
+  });
+  assert.equal(missingContractVersion.allowed, false, 'authority receipt production-completion with all checks true but missing contractVersion fails closed');
+  assert.equal(missingContractVersion.productionDoneEligible, false, 'authority receipt production-completion with missing contractVersion cannot set productionDone');
+  expectReason(missingContractVersion.reasons, 'missing_required_field', 'missing contractVersion');
+}
+
+{
+  const nullContractVersion = evaluateProofAdmissibility({
+    artifactKind: 'authority-receipt-ref',
+    consumer: 'AUTHORITY_GATE_DECISION',
+    claim: 'production-completion',
+    checks: runtimeChecks({
+      ...currentValidChecks('lattice.authority_receipt_refs.v1'),
+      contractVersion: null,
+    }),
+  });
+  assert.equal(nullContractVersion.allowed, false, 'authority receipt production-completion with null contractVersion fails closed');
+  assert.equal(nullContractVersion.productionDoneEligible, false, 'authority receipt production-completion with null contractVersion cannot set productionDone');
+  expectReason(nullContractVersion.reasons, 'missing_required_field', 'null contractVersion');
+}
+
+{
+  const wrongContractVersion = evaluateProofAdmissibility({
+    artifactKind: 'authority-receipt-ref',
+    consumer: 'AUTHORITY_GATE_DECISION',
+    claim: 'production-completion',
+    checks: runtimeChecks({
+      ...currentValidChecks('lattice.authority_receipt_refs.v1'),
+      contractVersion: 'lattice.proof_admissibility.v0',
+    }),
+  });
+  assert.equal(wrongContractVersion.allowed, false, 'authority receipt production-completion with wrong contractVersion fails closed');
+  assert.equal(wrongContractVersion.productionDoneEligible, false, 'authority receipt production-completion with wrong contractVersion cannot set productionDone');
+  expectReason(wrongContractVersion.reasons, 'unsupported_contract_version', 'wrong contractVersion');
 }
 
 {
