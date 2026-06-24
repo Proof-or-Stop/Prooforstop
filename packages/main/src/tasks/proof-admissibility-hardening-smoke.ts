@@ -26,6 +26,7 @@ import {
 } from '../core/proof-admissibility-binding.js';
 import {
   buildProofAdmissibilityDiagnostic,
+  formatProofAdmissibilityDiagnostic,
 } from '../core/proof-admissibility-gates.js';
 import {
   buildHandoffAdmissibilitySummary,
@@ -313,6 +314,7 @@ function validGateProof(overrides: Record<string, unknown> = {}): Record<string,
   assert.equal(warning.blocking, false, 'M4 warn mode reports without blocking');
   assert.equal(warning.scope, 'local-diagnostic', 'M4 reports diagnostic scope');
   assert.ok(warning.reasons.includes('local_diagnostic_non_gate'), 'M4 reports reason code');
+  assert.equal(warning.overall, 'fail', 'M4 proof failures are distinct from checker errors');
   assert.ok(warning.remediation.length > 0, 'M4 reports remediation');
 
   const enforced = buildProofAdmissibilityDiagnostic({
@@ -330,6 +332,22 @@ function validGateProof(overrides: Record<string, unknown> = {}): Record<string,
     },
   });
   assert.equal(enforced.blocking, true, 'M7 enforce mode blocks high-risk inadmissible proof consumer');
+
+  const checkerError = buildProofAdmissibilityDiagnostic({
+    artifactKind: 'handoff-pack',
+    artifactId: 'HP-checker-error',
+    consumer: 'AUTHORITY_GATE_DECISION',
+    claim: 'production-completion',
+    mode: 'enforce',
+    evaluator: () => {
+      throw new Error('synthetic checker outage');
+    },
+  });
+  assert.equal(checkerError.overall, 'error', 'REV-11 checker failures use overall=error');
+  assert.equal(checkerError.allowed, false, 'REV-11 checker failures never become admissible proof');
+  assert.equal(checkerError.blocking, false, 'REV-11 checker failures fail-open to warning even in enforce mode');
+  assert.deepEqual(checkerError.reasons, ['checker_error'], 'REV-11 checker failures use a stable reason code');
+  assert.match(formatProofAdmissibilityDiagnostic(checkerError), /checker-error.*overall=error/, 'REV-11 formatted diagnostic names checker error state');
 }
 
 {
