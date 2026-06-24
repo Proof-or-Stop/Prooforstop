@@ -190,8 +190,8 @@
       "id": "CHK-002",
       "title": "Add corpus-selfcheck.mjs validating all 24 tasks via the canonical inject() path",
       "context": "New experiments/recovery-runner/corpus-selfcheck.mjs: for every task dir under tasks/, copy reference-solution.mjs to a scratch solution.mjs + acceptance.mjs + ground-truth.mjs, assert node acceptance.mjs => ACCEPT PASS (exit 0) and node ground-truth.mjs => GROUND-TRUTH PASS (exit 0); then import subtle-wrong-output.mjs default + call inject(ws,{outputFile:'solution.mjs',taskId}) and assert acceptance => ACCEPT PASS (exit 0) and ground-truth => GROUND-TRUTH FAIL (exit !=0). Print per-task PASS/FAIL + a final count. Offline, deterministic, no claude -p.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-24T10:10:04.488Z",
       "endTime": null,
       "files": {
         "modify": [],
