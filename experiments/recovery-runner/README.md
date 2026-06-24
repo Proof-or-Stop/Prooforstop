@@ -14,7 +14,9 @@ The arm decides what the loop does once the visible acceptance test passes:
 - **a2prime** — bare naive-retry loop. No review gate. Re-invokes the agent with the
   failure output appended until acceptance passes (up to `R`), then ships whatever passed.
 - **a4** — same loop plus **one** post-hoc independent review gate. The reviewer can
-  `SHIP`/`BLOCK`; a `BLOCK` becomes a `safe-stop` instead of shipping.
+  `SHIP`/`BLOCK`; a `BLOCK` is a terminal no-ship signal. Per the §4.2 total order,
+  unresolved blocked runs become `safe-stop`, while a genuinely recovered run still scores
+  `recovered` when no amplification occurred.
 - **a4b** — bounded **reflection** loop. The independent reviewer runs *in-loop*; on
   `BLOCK` its finding is fed back and the agent retries (up to `MAX_REVIEW_ROUNDS`), so
   the loop can *recover* from a caught fault rather than merely stopping.
