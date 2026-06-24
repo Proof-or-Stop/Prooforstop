@@ -195,8 +195,11 @@
       "evidence": "lattice-experiment-protocol.md §4.2 lists outcomes as: amplified / recovered-to-green / safe-stop. run-driver.mjs line 67 defines ADJUDICATED_OUTCOMES = [amplified, recovered, safe-stop, null] — the -to-green suffix is dropped.",
       "sourcePointers": [
         "docs/requirements/decisions/lattice-experiment-protocol.md",
-        "experiments/recovery-runner/run-driver.mjs"
-      ]
+        "experiments/recovery-runner/adjudicate.mjs",
+        "CHK-005"
+      ],
+      "resolution": "Per adjudicate.mjs ADJUDICATED_OUTCOMES + run-driver validateRecord, the canonical §7 outcome enum is 'recovered' — the §4.2 spec's 'recovered-to-green' suffix was already dropped in code by B-2d4c. The live-engine adapter emits RAW evidence only and never sets adjudicatedOutcome; the offline selfcheck asserts the harness-derived outcome string is 'recovered' (matching the code enum / validateRecord), NOT 'recovered-to-green'. No enum change; this is a pre-existing spec-vs-code label note, not a B-8d44 defect.",
+      "resolvedAt": "2026-06-24T12:25:00.322Z"
     }
   ]
 }
