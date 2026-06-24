@@ -413,6 +413,19 @@
           "materialHash": "9f28b82c91a9d14b0bfcf1aef3a30137f791cf3546df8978a7ad59d8ada25b33",
           "storyFilesHash": "aed6666624846d734a34433306144b48ef4dd03e1dc39ea9ff8f89e19fcf3376",
           "timestamp": "2026-06-24T10:16:16.753Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:2",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/corpus-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/corpus-selfcheck.mjs",
+          "result": "pass",
+          "note": "corpus-selfcheck per task: reference => ACCEPT PASS + GROUND-TRUTH PASS, then canonical inject() => ACCEPT PASS + GROUND-TRUTH FAIL (the passes-acceptance-but-fails-ground-truth anti-gaming invariant); a no-op/undetected injection fails the check; 24/24 pass",
+          "headHash": "7c31d2314fecf4bcbac4aeaaf2269049a95c1e2c",
+          "materialHash": "9f28b82c91a9d14b0bfcf1aef3a30137f791cf3546df8978a7ad59d8ada25b33",
+          "storyFilesHash": "aed6666624846d734a34433306144b48ef4dd03e1dc39ea9ff8f89e19fcf3376",
+          "timestamp": "2026-06-24T10:16:18.888Z"
         }
       ]
     },
