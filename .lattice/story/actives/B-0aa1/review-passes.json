@@ -134,6 +134,15 @@
       "reviewRound": "2026-06-24T05:02:41.528Z",
       "reviewRunId": "B-0aa1:RR-020",
       "_hash": "ce2e373cbdfcd590f473f11fa70726f83be29bdc48fcde2e4714a1157d346c8f"
+    },
+    {
+      "id": "B-0aa1:RP-016",
+      "agent": "lattice-review-docs",
+      "note": "Docs-code consistency verified for docs/evidence/evidence-platform-architecture.md and docs/requirements/decisions/repro-first-story-intake-experiment.md. Symbols extracted from diff: 9 repro-intake commands (repro_probe/repro_probe_get/repro_review_set/spike_record/spike_review_set/red_green_relation_create/red_green_relation_evaluate/regression_matrix_review_set/story_create_from_repro) + core exports (createProbe/reviewProbe/recordSpike/reviewSpike/createRedGreenRelation/evaluateRedGreenRelation/reviewRegressionMatrix/createStoryFromRepro, writeArtifact/readArtifact, ArtifactKind/EvidenceArtifact/payload types). ~9 doc sections/tables compared. Verified: (1) EvidenceArtifact envelope (10 fields, schemaVersion lattice.evidence.v1, evidenceScope evidence-candidate) matches types.ts; (2) storage layout objects/sha256, refs/by-id, ledger/observed.jsonl matches artifact-store.ts; (3) digest subject {artifactKind,schemaVersion,producer,evidenceScope,subjectBinding,payload}, nested commandSpec included, idempotent rewrite matches computeDigest/writeArtifact; (4) 8 artifact-kind table matches ArtifactKind union; (5) 9 MVP commands table matches handlers + registry.ts:339 registerBatch + command-catalog.ts:2313-2376; (6) probe contract 13 fields incl optional baselineHeadHash/materialHash + ExecutionStatus/producerObservedClass enums match ReproProbePayload; (7) red_green_relation_evaluate 6 fail-closed conditions match evaluateRedGreenRelation; (8) story_create_from_repro delegates to story_create, no verificationEvidence (hasVerificationEvidence:false), binding fields match StoryEvidenceBindingPayload; (9) smoke command + final line repro-first candidate smoke passed + claimed coverage (happy/nested-digest/mismatch fail-closed/rejected-probe/binding/no-verificationEvidence) match smoke sections 1-12; (10) command-policy.ts + process-fact-levels.ts reason text reinforces candidate-only/not-DONE/not-Authority claims. No doc-code drift. No blockers.",
+      "createdAt": "2026-06-24T05:06:03.387Z",
+      "reviewRound": "2026-06-24T05:02:41.528Z",
+      "reviewRunId": "B-0aa1:RR-023",
+      "_hash": "b3344d049e29f7d71a9ffa74a700191adaca2c692f34d75bc1617c653333913e"
     }
   ]
 }
