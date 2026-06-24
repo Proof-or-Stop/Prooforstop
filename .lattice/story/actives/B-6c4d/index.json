@@ -4,7 +4,7 @@
   "title": "Relax the id-recency review-run binding so a concurrent review_run_start no longer strands a material-fresh pass",
   "description": "When reviewer lanes run in parallel (or a reviewer retries review_run_start), a second run_start on the same lane mints a newer reviewRunId and any pass/finding bound to the original run is hard-rejected purely by id-recency, even when it is still material- and scope-fresh. This stalls quorum_submit and forced a whole fresh REVIEW round in B-70e4. Relax the id-recency rejection (the freshness + scope checks are the real authorities), kind-aware so open findings still surface, conditioned on an empty-set storyFilesHash no-signal guard.",
   "type": "bug",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "keywords": [
     "review_run_start",
@@ -16,7 +16,7 @@
   ],
   "createdAt": "2026-06-24T12:51:13.391Z",
   "startedAt": "2026-06-24T12:51:13.391Z",
-  "endedAt": null,
+  "endedAt": "2026-06-24T16:31:05.827Z",
   "events": [
     {
       "phase": "INIT",
@@ -170,12 +170,16 @@
       "user": "Harmonygo",
       "sessionId": "sess-14f611b818500e13",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-24T16:31:05.827Z",
+      "branch": "story/B-6c4d",
+      "user": "Harmonygo",
+      "sessionId": "sess-14f611b818500e13",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-6c4d",
-    "branch": "story/B-6c4d",
-    "createdAt": "2026-06-24T12:54:25.287Z"
-  },
   "currentReviewRound": "2026-06-24T16:19:09.469Z"
 }
