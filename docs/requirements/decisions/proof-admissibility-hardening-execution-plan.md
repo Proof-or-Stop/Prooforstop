@@ -1138,7 +1138,7 @@ block unrelated stories merely because they exist in the ledger history.
 ```json
 {
   "consumer": "AUTHORITY_GATE_DECISION",
-  "artifactKind": "authority-gate-receipt-proof",
+  "artifactKind": "authority-receipt-ref",
   "artifactRole": "authority-decision",
   "intendedClaim": "production-completion",
   "claimSubject": "story:B-xxxx",

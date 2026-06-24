@@ -272,7 +272,7 @@ export const PROOF_SURFACE_REGISTRY = [
     artifactRole: 'authority-decision',
     temporalRole: 'current-state',
     producerBoundary: 'authority-owned',
-    schemaVersions: ['lattice.authority_receipt.v1', 'lattice.authority_gate_receipt_proof.v1'],
+    schemaVersions: ['lattice.authority_receipt.v1'],
     strictShapeRequired: true,
     semanticDigestRequired: true,
     signatureOrReceiptBindingRequired: true,
@@ -513,6 +513,26 @@ function addReason(
   if (!remediation.includes(hint)) remediation.push(hint);
 }
 
+function requireCheck(
+  checks: AdmissibilityChecks,
+  field: keyof AdmissibilityChecks,
+  reasons: AdmissibilityReasonCode[],
+  remediation: string[],
+  missingReason: AdmissibilityReasonCode,
+  missingHint: string,
+  invalidReason: AdmissibilityReasonCode,
+  invalidHint: string,
+): void {
+  const value = checks[field];
+  if (value === undefined) {
+    addReason(reasons, remediation, missingReason, missingHint);
+    return;
+  }
+  if (value === false) {
+    addReason(reasons, remediation, invalidReason, invalidHint);
+  }
+}
+
 function defaultResult(input: EvaluateProofAdmissibilityInput): AdmissibilityResult {
   return {
     artifactKind: input.artifactKind,
@@ -561,23 +581,80 @@ export function evaluateProofAdmissibility(input: EvaluateProofAdmissibilityInpu
     addReason(reasons, remediation, 'reserved_key_detected', 'Strip caller-writable reserved proof keys and regenerate producer-owned proof fields.');
   }
 
-  if (definition.strictShapeRequired && checks.strictShapeValid === false) {
-    addReason(reasons, remediation, 'bad_shape', 'Regenerate the artifact with the required strict shape and no unexpected proof fields.');
+  if (checks.schemaVersion === undefined) {
+    addReason(reasons, remediation, 'missing_required_field', `Provide a schemaVersion supported by ${definition.artifactKind}: ${definition.schemaVersions.join(', ')}.`);
   }
-  if (definition.semanticDigestRequired && checks.semanticDigestValid === false) {
-    addReason(reasons, remediation, 'digest_mismatch', 'Regenerate the artifact so all claim-consumed semantic fields are digest-bound.');
+
+  if (definition.strictShapeRequired) {
+    requireCheck(
+      checks,
+      'strictShapeValid',
+      reasons,
+      remediation,
+      'missing_required_field',
+      'Confirm the artifact strict shape before treating it as admissible proof.',
+      'bad_shape',
+      'Regenerate the artifact with the required strict shape and no unexpected proof fields.',
+    );
   }
-  if (definition.signatureOrReceiptBindingRequired && checks.signatureOrReceiptBindingValid === false) {
-    addReason(reasons, remediation, 'signature_invalid', 'Verify or recreate the signature/receipt binding for this exact subject.');
+  if (definition.semanticDigestRequired) {
+    requireCheck(
+      checks,
+      'semanticDigestValid',
+      reasons,
+      remediation,
+      'missing_required_field',
+      'Confirm the semantic digest before treating claim-consumed fields as proof.',
+      'digest_mismatch',
+      'Regenerate the artifact so all claim-consumed semantic fields are digest-bound.',
+    );
   }
-  if (definition.temporalAndMaterialBindingRequired && checks.temporalAndMaterialBindingValid === false) {
-    addReason(reasons, remediation, 'stale_material', 'Refresh the artifact for the current temporal role and head/material/story-files tuple.');
+  if (definition.signatureOrReceiptBindingRequired) {
+    requireCheck(
+      checks,
+      'signatureOrReceiptBindingValid',
+      reasons,
+      remediation,
+      'signature_missing',
+      'Verify the required signature or receipt binding before treating this artifact as proof.',
+      'signature_invalid',
+      'Verify or recreate the signature/receipt binding for this exact subject.',
+    );
   }
-  if (checks.subjectMatches === false) {
-    addReason(reasons, remediation, 'artifact_subject_mismatch', 'Evaluate only artifacts bound to the requested story, gate, command, or candidate subject.');
+  if (definition.temporalAndMaterialBindingRequired) {
+    requireCheck(
+      checks,
+      'temporalAndMaterialBindingValid',
+      reasons,
+      remediation,
+      'missing_required_field',
+      'Confirm the current head/material/story-files tuple before treating this artifact as proof.',
+      'stale_material',
+      'Refresh the artifact for the current temporal role and head/material/story-files tuple.',
+    );
   }
-  if (checks.producerBoundaryTrusted === false) {
-    addReason(reasons, remediation, 'producer_owned_required', definition.producerBoundaryNote);
+
+  if (!definition.scope.startsWith('legacy-')) {
+    requireCheck(
+      checks,
+      'subjectMatches',
+      reasons,
+      remediation,
+      'missing_required_field',
+      'Confirm the artifact subject matches the requested story, gate, command, or candidate before treating it as proof.',
+      'artifact_subject_mismatch',
+      'Evaluate only artifacts bound to the requested story, gate, command, or candidate subject.',
+    );
+    requireCheck(
+      checks,
+      'producerBoundaryTrusted',
+      reasons,
+      remediation,
+      'unknown_producer',
+      'Confirm the artifact producer boundary before treating it as proof.',
+      'producer_owned_required',
+      definition.producerBoundaryNote,
+    );
   }
 
   if (input.claim === 'production-completion' && definition.scope !== 'production-gate-decision') {

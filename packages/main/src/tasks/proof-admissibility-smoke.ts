@@ -94,6 +94,19 @@ function currentValidChecks(schemaVersion: string) {
 }
 
 {
+  const missingChecks = evaluateProofAdmissibility({
+    artifactKind: 'authority-receipt-ref',
+    consumer: 'AUTHORITY_GATE_DECISION',
+    claim: 'production-completion',
+  });
+  assert.equal(missingChecks.allowed, false, 'production gate decision with omitted checks fails closed');
+  assert.equal(missingChecks.productionDoneEligible, false, 'production gate decision with omitted checks cannot set productionDone');
+  expectReason(missingChecks.reasons, 'missing_required_field', 'missing production gate checks');
+  expectReason(missingChecks.reasons, 'signature_missing', 'missing production gate checks');
+  expectReason(missingChecks.reasons, 'unknown_producer', 'missing production gate checks');
+}
+
+{
   const doneRequired = evaluateProofAdmissibility({
     artifactKind: 'done-required-evidence',
     consumer: 'DONE_REQUIRED',
