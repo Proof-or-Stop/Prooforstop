@@ -80,6 +80,15 @@
       "reviewRound": "2026-06-24T12:50:13.876Z",
       "reviewRunId": "B-8d44:RR-017",
       "_hash": "dba5ba4e7c7ef5118b3568ede097156890a1392b19a992750497afe6c09653c6"
+    },
+    {
+      "id": "B-8d44:RP-010",
+      "agent": "lattice-review-docs",
+      "note": "Step 1: extracted ~120 local symbols from the 63c1a70b7 diff (safeExec, snapshotDir, diffSnapshots, injDiff, no exported-API surface change). Step 2: grepped README.md for live-engine, selfcheck, infraVoid, safeExec, no-op, snapshot — hit lines 101-105 (live-engine.mjs description), 138 (7 selfchecks count), 141 (live-engine-selfcheck.mjs arm/feature list). Step 3: confirmed (a) README line 138 still says 7 selfchecks — F-025/F-026 added assertions inside the existing 7th selfcheck file, not a new selfcheck; (b) README line 141 lists infra-void + unsafe detectors which subsume F-025/F-026 semantics; (c) code comments in live-engine.mjs at safeExec/F-026 and at the no-op guard/F-025 accurately describe behavior; (d) F-024 is dead-code removal with no behavior or doc impact; (e) node live-engine-selfcheck.mjs confirmed 164 assertions / 5 arms. No doc-code drift found. No blocker.",
+      "createdAt": "2026-06-24T14:08:21.017Z",
+      "reviewRound": "2026-06-24T12:50:13.876Z",
+      "reviewRunId": "B-8d44:RR-021",
+      "_hash": "a6b1317f9dfd0907608e8540c12563f1e5c0930a0e3fc0dc19dd5948421c5b24"
     }
   ]
 }
