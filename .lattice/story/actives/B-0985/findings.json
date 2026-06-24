@@ -28,7 +28,7 @@
       "desc": "packages/main/src/core/proof-admissibility.ts:532: evaluateProofAdmissibility fails open when required checks are omitted. For authority-receipt-ref + DONE + production-completion, an empty checks object (or no checks) skips schema/shape/digest/signature/subject/producer/material requirements because the code only adds reasons when optional fields are explicitly false or mismatched. Repro: node --input-type=module -e \"import { evaluateProofAdmissibility } from './packages/main/dist/core/proof-admissibility.js'; console.log(evaluateProofAdmissibility({artifactKind:'authority-receipt-ref',consumer:'DONE',claim:'production-completion'}))\" returns allowed=true and productionDoneEligible=true with reasons=[]. This violates the plan admissibleProof conjunction and productionDone boundary: production-gate-decision should only be productionDone eligible after current schema, strict shape, semantic digest, signature/receipt, subject, producer, and temporal/material bindings are affirmatively valid. Add negative smoke coverage for missing checks and fail closed with missing_required_field/clause_not_bound (or equivalent structured reasons).",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-06-24T10:15:25.569Z",
@@ -40,7 +40,11 @@
         "packages/main/src/tasks/proof-admissibility-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Same fail-open path fixed by requiring affirmative required checks before production-completion can be allowed. The proof smoke now covers omitted checks for authority-receipt-ref with AUTHORITY_GATE_DECISION and production-completion. Verified with build and proof smoke.",
+      "resolvedAt": "2026-06-24T10:20:48.387Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-0985:F-003",
