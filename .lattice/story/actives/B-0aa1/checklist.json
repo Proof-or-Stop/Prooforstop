@@ -118,7 +118,45 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "node packages/main/dist/tasks/repro-first-candidate-smoke.js prints repro-first candidate smoke passed with all assertions green.",
+      "files": {
+        "modify": [
+          "packages/main/package.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/repro-first-candidate-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/repro-first-candidate-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-004:happy:0",
+            "desc": "Smoke covers the full happy path from repro_probe through story_create_from_repro binding.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-004:edge:0",
+            "desc": "Smoke covers matrix gaps and red-green mismatch diagnostics as candidate records rather than production gate evidence.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-004:adversarial:0",
+            "desc": "Smoke asserts no current story verificationEvidence is created by story_create_from_repro and candidate artifacts remain non-DONE scoped.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
