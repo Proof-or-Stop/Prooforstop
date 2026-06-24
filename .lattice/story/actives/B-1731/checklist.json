@@ -182,9 +182,9 @@
       "id": "CHK-003",
       "title": "Config reproFirstPreflight.mode=off|warn|enforce (warn default) + reason codes + process fact + session_brief surfacing",
       "context": "Resolve reproFirstPreflight.mode (off|warn|enforce, default warn) mirroring proofAdmissibility.mode. Add reason codes repro_first_required_no_candidate, repro_first_candidate_unreviewed, repro_first_reviewed_class_not_target_bug, repro_first_bypassed, repro_first_preflight_engine_error. Register process fact runtime:repro_first_intake_preflight (STORY_INTAKE consumer), synchronized with the admissibility/process-fact verification script. session_brief shows per active story: reproFirst: bound-accepted | bypassed(reason) | missing.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-24T22:00:13.587Z",
       "relatedDocs": [
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
         "docs/evidence/evidence-platform-architecture.md"
@@ -221,7 +221,53 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js",
+          "result": "pass",
+          "note": "Smoke ok 1/9/11 proves missing_story_evidence_binding and stale_story_evidence_binding are emitted for missing and stale gate outcomes.",
+          "headHash": "b12d2312a8861ae5eec490bc7d947722a7544fef",
+          "materialHash": "ce6a2003a743a29f21740a4b39561fbf8f67a1ad065827ffe7d0d90e39df080e",
+          "storyFilesHash": "532eba9adeead064f0076b0d39e942aba714756d6214dafd7eec4fbaf23776d2",
+          "timestamp": "2026-06-24T22:00:13.854Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js",
+          "result": "pass",
+          "note": "Smoke ok 3 proves no-file checklist stories return null guard failure reason and continue normally.",
+          "headHash": "b12d2312a8861ae5eec490bc7d947722a7544fef",
+          "materialHash": "ce6a2003a743a29f21740a4b39561fbf8f67a1ad065827ffe7d0d90e39df080e",
+          "storyFilesHash": "532eba9adeead064f0076b0d39e942aba714756d6214dafd7eec4fbaf23776d2",
+          "timestamp": "2026-06-24T22:00:14.118Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js",
+          "result": "pass",
+          "note": "Smoke ok 8 proves gate checks artifact digests plus repro review verdict/class semantics instead of trusting arbitrary local metadata.",
+          "headHash": "b12d2312a8861ae5eec490bc7d947722a7544fef",
+          "materialHash": "ce6a2003a743a29f21740a4b39561fbf8f67a1ad065827ffe7d0d90e39df080e",
+          "storyFilesHash": "532eba9adeead064f0076b0d39e942aba714756d6214dafd7eec4fbaf23776d2",
+          "timestamp": "2026-06-24T22:00:14.462Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Process fact contract verified runtime:repro_first_story_intake_preflight and story-evidence-binding artifact registration.",
+          "headHash": "b12d2312a8861ae5eec490bc7d947722a7544fef",
+          "materialHash": "ce6a2003a743a29f21740a4b39561fbf8f67a1ad065827ffe7d0d90e39df080e",
+          "storyFilesHash": "532eba9adeead064f0076b0d39e942aba714756d6214dafd7eec4fbaf23776d2",
+          "timestamp": "2026-06-24T22:00:14.803Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
