@@ -1,0 +1,58 @@
+{
+  "principles": [
+    "生命周期 gate 必须由代码强制，不依赖文档记忆。",
+    "代码类 story 才要求 Repro-First，非代码 story 不能被误伤。",
+    "证据只能来自可验证 artifact digest 和 story binding，不能信普通文本声明。"
+  ],
+  "drivers": [
+    "用户要求 pro-story gate 成为硬约束。",
+    "现有 story-evidence-binding 已能表达 repro/red review 到 story 的绑定。",
+    "B-1731 是高风险 lifecycle gate story，需要小步可验证。"
+  ],
+  "options": [
+    {
+      "name": "A: 在 IDEA→PLAN 与 DEV 入口共用 story-evidence-binding gate",
+      "pros": [
+        "直接覆盖用户说的 story 前 gate。",
+        "复用现有 artifact 模型，改动集中。",
+        "可以用 hermetic smoke 明确证明阻塞/放行行为。"
+      ],
+      "cons": [
+        "不等同于 story_create 创建前全局 block；创建动作仍可发生。"
+      ]
+    },
+    {
+      "name": "B: 立刻在 story_create 中加入全局 enforce policy",
+      "pros": [
+        "最靠前，能在创建时就阻止不合规代码 story。"
+      ],
+      "cons": [
+        "会影响批量创建、实验 story、无 binding 的初始化路径，兼容风险更大。",
+        "需要新增配置、bypass reason、session_brief surfacing，范围超过当前最小闭环。"
+      ]
+    }
+  ],
+  "chosen": "A: 在 IDEA→PLAN 与 DEV 入口共用 story-evidence-binding gate",
+  "rationale": "先把用户明确指出的 pro-story gate 落到进入 PLAN 的生命周期硬门禁，并保持 DEV 入口同规则复核；story_create 全局 enforce 作为 B-1731 后续扩展或单独 story，避免一次改动同时改变创建协议和阶段协议。",
+  "preMortem": [
+    {
+      "scenario": "非代码 story 被误拦",
+      "trigger": "只按 priority/type 判断而不看 files 声明",
+      "consequence": "文档/研究/管理类 story 无法推进",
+      "mitigation": "本轮只在 checklist.files.modify/create/test 存在时触发硬门禁"
+    },
+    {
+      "scenario": "旧或伪造 binding 被当作红测证据",
+      "trigger": "只检查 artifact 存在，不校验 digest/storyId/review verdict",
+      "consequence": "门禁变成形式化假安全",
+      "mitigation": "校验 storyId、subjectBinding、probeDigest、reviewDigest、red-reviewed + target-bug"
+    },
+    {
+      "scenario": "回滚修复路径被卡死",
+      "trigger": "REVIEW→DEV 或 TEST→DEV 也重新要求新 repro binding",
+      "consequence": "正常修复无法回 DEV",
+      "mitigation": "本轮只拦进入 PLAN/初次 DEV/express DEV，不拦 rollback DEV"
+    }
+  ],
+  "timestamp": "2026-06-24T21:29:02.310Z"
+}

@@ -1,0 +1,24 @@
+{
+  "task": "把 Repro-First 升级为 story 前和 DEV 前都会执行的硬门禁：代码类 story 没有红测/复现 review 绑定时不能继续。",
+  "outcome": "用户创建或推进一个会修改代码的 story 时，如果没有先通过 repro/red review 证据，终端会直接显示 Cannot enter PLAN 或 Cannot enter DEV，并指向 story_create_from_repro；有有效绑定时流程正常放行。",
+  "facts": [
+    "用户明确要求 pro-story gate 使用 story 实现，而不是直接补丁。",
+    "现有 Repro candidate artifact 已有 repro-probe/repro-review/story-evidence-binding。",
+    "B-1731 已存在并覆盖 repro-first story-intake preflight gate 范围。",
+    "本轮决策采用 IDEA→PLAN 与 DEV 入口共用 binding gate；story_create 全局 enforce 不混入本次最小闭环。"
+  ],
+  "constraints": [
+    "必须走 B-1731 story 流程。",
+    "只对声明文件变更的代码类 story 施加硬门禁，非代码/无 files 声明的 story 不应被误伤。",
+    "门禁必须机械验证 artifact digest、storyId、probe/review 一致性。"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts",
+    "packages/main/src/handlers/story-create.ts",
+    "packages/main/src/handlers/repro-intake.ts",
+    "docs/requirements/decisions/repro-first-story-intake-experiment.md"
+  ],
+  "timestamp": "2026-06-24T21:29:12.811Z"
+}
