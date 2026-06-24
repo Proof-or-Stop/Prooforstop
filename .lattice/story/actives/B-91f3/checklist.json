@@ -9,7 +9,38 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees: \"Authority production receipt dependency classified: local core path is authority-receipt-ref productionDoneEligible=true before demotion.\"",
+      "files": {
+        "modify": [
+          "packages/main/src/core/proof-admissibility.ts",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/proof-admissibility-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Existing Authority receipt productionDone eligibility is identified in proof-admissibility registry and smoke expectations.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Authority client networking and historical docs are classified as out of scope rather than deleted.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The classification does not alter unrelated handoff, usage-ledger, or Red/Repro/Spike semantics.",
+            "type": "docs"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

@@ -1,0 +1,66 @@
+{
+  "principles": [
+    "Local CLI admissibility is the core proof boundary; server production receipt completion is external adapter scope.",
+    "Preserve fail-closed evidence semantics while removing productionDone eligibility from local defaults.",
+    "Avoid broad Authority deletion; demote the core claim path first."
+  ],
+  "drivers": [
+    "User wants to delete or demote Authority Server production receipt as a core dependency",
+    "Current registry still lets authority-receipt-ref be productionDoneEligible",
+    "The local admissibility contract now has version support and scanner coverage after B-fbfb"
+  ],
+  "options": [
+    {
+      "name": "A: Demote local productionDone eligibility only",
+      "pros": [
+        "Smallest safe behavioral change",
+        "Keeps historical/external Authority adapter code readable",
+        "Directly removes local core dependency on production receipt completion"
+      ],
+      "cons": [
+        "Authority-related names remain in adapters/docs as external or legacy scope"
+      ]
+    },
+    {
+      "name": "B: Delete all Authority client and receipt code",
+      "pros": [
+        "Strongest simplification if server path is truly abandoned"
+      ],
+      "cons": [
+        "Large blast radius across tests, docs, baselines, handoff, usage ledger, and authority client flows"
+      ]
+    },
+    {
+      "name": "C: Documentation-only demotion",
+      "pros": [
+        "Low implementation risk"
+      ],
+      "cons": [
+        "Leaves productionDoneEligible=true in code, so the core route still exists"
+      ]
+    }
+  ],
+  "chosen": "A: Demote local productionDone eligibility only",
+  "rationale": "Option A matches the user intent without turning this into a repository-wide Authority deletion. The core problem is that local proof-admissibility still models authority-receipt-ref as productionDone eligible; changing that and updating tests/docs removes the core dependency while preserving external compatibility.",
+  "preMortem": [
+    {
+      "scenario": "Local DONE gates accidentally start requiring server receipt again",
+      "trigger": "A test or registry path still treats authority-receipt-ref as productionDoneEligible",
+      "consequence": "The CLI-first proof model remains confusing and brittle",
+      "mitigation": "Assert authority-receipt-ref production-completion returns productionDoneEligible=false in proof-admissibility smoke"
+    },
+    {
+      "scenario": "Broad Authority deletion breaks unrelated command surfaces",
+      "trigger": "Implementation removes authority client modules instead of demoting the core claim path",
+      "consequence": "Large unrelated regressions and blocked validation",
+      "mitigation": "Restrict allowed paths to proof-admissibility core/tests and the hardening doc"
+    },
+    {
+      "scenario": "Docs overclaim that Authority support is gone everywhere",
+      "trigger": "Hardening plan wording says deleted instead of external/legacy adapter scope",
+      "consequence": "Future hosts misunderstand remaining Authority client code",
+      "mitigation": "Use precise wording: external adapter/future work, not local core route"
+    }
+  ],
+  "timestamp": "2026-06-24T13:21:59.410Z"
+}
