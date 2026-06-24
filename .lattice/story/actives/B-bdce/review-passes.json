@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-bdce:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion or replacement in this diff. The change is purely additive: two new lines added to renderEvidenceStaleHint (Drift class + done_prepare one-step recovery) and the extractStaleBlock slice updated from 5 to 8 lines in verification-freshness-smoke.ts. Grep scan confirmed: (1) no residual old 5-line marker/comment anywhere; (2) no residual markerIdx+5 slice anywhere; (3) EVIDENCE_STALE_MARKER, renderEvidenceStaleHint, findStaleEvidence constants unchanged; (4) Drift class: only appears in the canonical renderer and its regression assertion — no hardcoding elsewhere; (5) done_prepare references outside .lattice/ are pre-existing AGENTS.md/CLAUDE.md runbook references unrelated to this change; (6) three consuming surfaces (hints.ts/session.ts/transition-orchestrator.ts) call the shared renderer with no reconstruction; (7) flow-stability-smoke.ts untouched as declared in scope. Concept residue check completed, no blocker.",
+      "createdAt": "2026-06-24T14:50:42.703Z",
+      "reviewRound": "2026-06-24T14:49:17.028Z",
+      "reviewRunId": "B-bdce:RR-001",
+      "_hash": "a6fcacf71da779c540a9da2afeadc8d36d0d0bc5fd10924eca4a939ca48c5959"
+    }
+  ]
+}
