@@ -1,0 +1,49 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-d243",
+  "checkedAt": "2026-06-24T10:59:19.238Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "0c2318a664ff4db8c361cb7902b3849d8ef16e13dff589c8763a62b4864ff632",
+  "executionBoundaryHash": "398798e4c203257e4e4c970109a847b2eb46ca6a3ab77ad57005a3a50cfc1c44",
+  "freshnessHash": "fdbf106605eb8b990da4c1ce11b873d0b1f630fc2f32e25f544c1f9c6f1cabd9",
+  "effectiveExcludedKeywords": [
+    "Any whole-tree materialHash recompute redesign or replacing materialHash with story-diff-only hashing",
+    "Authority",
+    "customerKeyRef",
+    "Gate A completed-snapshot freshness: do NOT wire storyFilesHash (frozen-ref integrity check stays strict)",
+    "Gate B done-required suite: do NOT downgrade (stays strict, re-runs on the merged tree)",
+    "Layer4",
+    "repair UX",
+    "The review_run_start latest-run binding race (separate friction #2 story)"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Any whole-tree materialHash recompute redesign or replacing materialHash with story-diff-only hashing",
+      "source": "scopeBoundary.excluded",
+      "text": "Any whole-tree materialHash recompute redesign or replacing materialHash with story-diff-only hashing",
+      "excluded": true
+    },
+    {
+      "keyword": "Gate A completed-snapshot freshness: do NOT wire storyFilesHash (frozen-ref integrity check stays strict)",
+      "source": "scopeBoundary.excluded",
+      "text": "Gate A completed-snapshot freshness: do NOT wire storyFilesHash (frozen-ref integrity check stays strict)",
+      "excluded": true
+    },
+    {
+      "keyword": "Gate B done-required suite: do NOT downgrade (stays strict, re-runs on the merged tree)",
+      "source": "scopeBoundary.excluded",
+      "text": "Gate B done-required suite: do NOT downgrade (stays strict, re-runs on the merged tree)",
+      "excluded": true
+    },
+    {
+      "keyword": "The review_run_start latest-run binding race (separate friction #2 story)",
+      "source": "scopeBoundary.excluded",
+      "text": "The review_run_start latest-run binding race (separate friction #2 story)",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "ba1d6d989efa09f68feb5f7a8c690789299161cb06f68b8bac364b0c29188ae9"
+}

@@ -1,0 +1,56 @@
+{
+  "storyId": "B-0985",
+  "changes": "Implemented the proof admissibility registry MVP: added canonical scope/role/claim/consumer/producer/reason-code types, a fail-closed evaluator, proof surface inventory docs/JSON, and a proof-admissibility smoke test script.",
+  "usage": "Use npm --prefix packages/main run test:proof-admissibility to verify the registry and evaluator. Import evaluateProofAdmissibility from packages/main/src/core/proof-admissibility.ts for future gate integrations.",
+  "expectedOutcome": "Non-production proof-looking artifacts are classified as non-production and cannot support productionDone; only a bound authority-receipt-ref production gate decision can be production eligible when every required check passes.",
+  "actualTranscript": "npm --prefix packages/main run build passed; npm --prefix packages/main run test:proof-admissibility printed proof-admissibility smoke passed; lattice validate --story=B-0985 --json passed 30/30 configured commands with 12/12 verification intents covered; quorum_submit recorded 3 rounds x 2 hosts.",
+  "outcomeDiff": "No difference for this M0/M1 MVP slice: expected registry, docs, fail-closed evaluator, smoke test, validation, delivery check, and 3x2 local quorum all passed.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "This slice is warn/classification foundation only. It does not yet enforce all production gates, migrate handoff evidence, change Authority Server production receipt behavior, or add reserved-key sanitizer enforcement.",
+  "pitfalls": "F-001 through F-006 exposed important fail-open and naming risks: omitted checks, null/non-true check values, missing contractVersion, and inconsistent local-gate-evidence wording. Future work should keep required checks exact-true and keep raw authority-receipt distinct from authority-receipt-ref.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 160186
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 21265
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 401415
+    },
+    "DEV": {
+      "count": 4,
+      "durationMs": 1119054
+    },
+    "REVIEW": {
+      "count": 4,
+      "durationMs": 1165834
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 547774
+    }
+  },
+  "totalDurationMs": 3415529,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-24T10:48:34.346Z",
+  "updatedAt": "2026-06-24T10:48:34.346Z"
+}

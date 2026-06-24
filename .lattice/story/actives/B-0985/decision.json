@@ -1,0 +1,77 @@
+{
+  "principles": [
+    "Classify before consuming proof-looking data.",
+    "Candidate, diagnostic, legacy, local-key, Authority receipt, and production gate decision must remain mechanically distinct.",
+    "This slice is warn/classification-only; enforcement follows later stories.",
+    "Reason codes must be stable enough for operators, reviewers, and future gates."
+  ],
+  "drivers": [
+    "Reduce repeated proof-surface bugs across metadata, receipts, handoff, and local diagnostics.",
+    "Provide a reusable M1 contract for later M2-M7 hardening slices.",
+    "Give users a visible command/test that proves classification behavior."
+  ],
+  "options": [
+    {
+      "name": "A: registry/classifier MVP only",
+      "pros": [
+        "Small enough to complete safely in one story",
+        "Establishes shared enums, surface definitions, and reason codes for future gates",
+        "Does not break existing DONE/Authority/local workflows"
+      ],
+      "cons": [
+        "Does not yet enforce reserved-key stripping or hard-fail inadmissible gate evidence"
+      ]
+    },
+    {
+      "name": "B: full enforce-mode rollout now",
+      "pros": [
+        "Would address more plan milestones in one pass",
+        "Could immediately block more spoofing surfaces"
+      ],
+      "cons": [
+        "Too risky because it touches REVIEW/TEST/DONE/Authority/handoff gates at once",
+        "Likely causes false blocks without legacy migration and warning period"
+      ]
+    },
+    {
+      "name": "C: documentation-only inventory",
+      "pros": [
+        "Lowest implementation risk",
+        "Useful for planning"
+      ],
+      "cons": [
+        "Does not give callers a machine-readable classifier or stable reason codes",
+        "Would not satisfy the user request to develop the feature"
+      ]
+    }
+  ],
+  "chosen": "A: registry/classifier MVP only",
+  "rationale": "Choose A because M0/M1 are explicit blockers for the rest of the plan. A creates the shared contract, inventory, and smoke-tested classification behavior while preserving current gate behavior until warn/enforce integration is developed separately.",
+  "preMortem": [
+    {
+      "scenario": "A future gate treats authority-receipt as productionDone by reading only the scope label.",
+      "trigger": "Registry naming is ambiguous or claim evaluation collapses receipt evidence and gate decision.",
+      "consequence": "Local or partial Authority evidence could be overclaimed as production completion.",
+      "mitigation": "Encode authority-receipt and production-gate-decision as distinct scopes and add smoke tests denying production claim for receipt-only inputs."
+    },
+    {
+      "scenario": "The classifier becomes another parallel proof implementation instead of the shared contract.",
+      "trigger": "Definitions are hard-coded in one task or handler and not reusable by future gate integration.",
+      "consequence": "M2-M7 stories fork logic again and the original problem persists.",
+      "mitigation": "Put domain types and registry in core/proof-admissibility.ts and register a process fact for the smoke/command path."
+    },
+    {
+      "scenario": "Legacy or candidate evidence gets mislabeled as strong proof.",
+      "trigger": "Default behavior accepts missing fields as admissible to avoid breaking old data.",
+      "consequence": "Old or pre-story evidence can satisfy claims it should only inform.",
+      "mitigation": "Fail closed for missing definitions and unsupported scope/claim combinations; classify legacy/candidate/local diagnostic as non-production by default."
+    },
+    {
+      "scenario": "The feature passes tests but users cannot see useful output.",
+      "trigger": "Smoke only asserts internal booleans and does not expose reason codes or inventory shape.",
+      "consequence": "Reviewer/product advisory remains unresolved and operators still need manual interpretation.",
+      "mitigation": "Smoke tests assert stable reason codes and inventory artifacts document producer, scope, consumers, and claim boundaries."
+    }
+  ],
+  "timestamp": "2026-06-24T09:55:11.975Z"
+}

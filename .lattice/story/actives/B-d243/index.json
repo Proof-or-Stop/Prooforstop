@@ -1,0 +1,44 @@
+{
+  "storyId": "B-d243",
+  "name": "delivery-check-drift-advisory",
+  "title": "Adopt a signed storyFilesHash drift-advisory for the delivery-check DONE gate",
+  "description": "The DONE delivery-check freshness gate binds the whole-tree materialHash, so any unrelated main merge re-stales a freshly-signed delivery-check and forces the lattice-review-delivery reviewer to re-sign the byte-identical story diff. Fold a signed storyFilesHash into delivery-check and downgrade pure whole-tree drift to a mandatory re-attestation advisory, while story-owned changes still hard-reject.",
+  "type": "bug",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "keywords": [
+    "delivery-check",
+    "storyFilesHash",
+    "DONE gate",
+    "materialHash",
+    "freshness"
+  ],
+  "createdAt": "2026-06-24T10:56:05.731Z",
+  "startedAt": "2026-06-24T10:56:05.731Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-24T10:56:05.742Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "d5efb245-908a-4b5b-b129-44bcce26a23c",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-24T10:59:20.179Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "d5efb245-908a-4b5b-b129-44bcce26a23c",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-d243",
+    "branch": "story/B-d243",
+    "createdAt": "2026-06-24T10:59:19.709Z"
+  }
+}

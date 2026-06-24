@@ -1,0 +1,49 @@
+{
+  "storyId": "B-0985",
+  "checkedAt": "2026-06-24T10:47:52.761Z",
+  "headHash": "7a5a1a5efaee844ec5b58018b72550236ebb4370",
+  "materialHash": "757cd274eb420fd2abb4eb2fc2c070c1a01bbf434bcfca129c3c485cf5972767",
+  "reviewRound": "2026-06-24T10:34:51.359Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+      "promise": "B-0985 implements the M0/M1 classification-only MVP: proof surface inventory, canonical enum vocabulary, shared proof surface registry, and evaluator, while leaving gate enforcement and Authority Server behavior for later milestones.",
+      "status": "verified",
+      "verifiedBy": "git diff main...HEAD plus lattice validate --story=B-0985 --json",
+      "evidence": "Doc added with B-0985 status under M0 and M1; fresh validate passed 30/30 configured commands and 12/12 verification intent coverage."
+    },
+    {
+      "docPath": "docs/evidence/evidence-platform-architecture.md",
+      "promise": "B-0985 adds a classification-only ProofAdmissibilityService shape in packages/main/src/core/proof-admissibility.ts, creates no new storage root, writes no evidence, calls no Authority Server path, and does not hard-fail lifecycle gates.",
+      "status": "verified",
+      "verifiedBy": "git diff main...HEAD plus build/smoke/validate",
+      "evidence": "Doc diff names the classification MVP and non-goals; npm --prefix packages/main run build passed; npm --prefix packages/main run test:proof-admissibility printed proof-admissibility smoke passed."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "PASS. Inventory/doc evidence verified by node -e JSON.parse docs/evidence/proof-surface-inventory.json, npm --prefix packages/main run test:proof-admissibility, and fresh lattice validate --story=B-0985 --json. Validate reported CHK-001 happy/edge/adversarial covered; transcript-diff exists at .lattice/story/actives/B-0985/evidence/transcript-diff.md (34 lines)."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "PASS. npm --prefix packages/main run build passed (tsc). npm --prefix packages/main run test:proof-admissibility passed. Fresh lattice validate --story=B-0985 --json reported CHK-002 happy/edge/adversarial covered for canonical registry exports, fail-closed unknown/schema handling, and authority-receipt vs production-gate-decision separation."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "PASS. npm --prefix packages/main run test:proof-admissibility printed proof-admissibility smoke passed. Fresh lattice validate --story=B-0985 --json reported CHK-003 happy/edge/adversarial covered for matching production-gate-decision allow, local-review-quorum non-production limits, and explicit denial reason codes for candidate/diagnostic/legacy/local-key/receipt-only inputs."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "PASS. npm --prefix packages/main run test:proof-admissibility printed proof-admissibility smoke passed; npm --prefix packages/main run build passed; fresh lattice validate --story=B-0985 --json passed 30/30 configured commands including quorum-submit smoke. Process events show quorum_submit recorded 3 rounds x 2 hosts as six pass host_verdicts for claude-code-cli and codex-cli."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Reverse-scanned main...HEAD diff and touched docs. Scope is classification-only and matches implementation/evidence: no business-code edits by delivery reviewer, no new storage root, no gate hard-fail, no Authority behavior change. Fresh validate passed 30/30 configured commands; build and proof-admissibility smoke passed; transcript-diff and 3x2 local quorum evidence are present."
+  },
+  "_hash": "10803226460776073b0c69fbacd56dca29a276937fd98db51b4275114c3530dd"
+}

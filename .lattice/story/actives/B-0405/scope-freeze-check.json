@@ -1,0 +1,59 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-0405",
+  "checkedAt": "2026-06-24T11:02:44.667Z",
+  "mode": "feature",
+  "status": "pass",
+  "scopeBoundaryHash": "ef539e35f35c7159ea12e641afe4b979f0667593c941e4e715752bdd014f53ee",
+  "executionBoundaryHash": "e710930f1cc740552ae47101ae6610a343604bc72c74780282d9df6a6d8fc845",
+  "freshnessHash": "8de511279fe19bf93a8014f219bab4fed0dbad9fe23ea27d3e8e1ada84175fbe",
+  "effectiveExcludedKeywords": [
+    "database migrations unrelated to proof metadata",
+    "experiments/tier-c-proof/**",
+    "packages/*/src/ui/**",
+    "paper/**",
+    "renaming or branding work unrelated to proof admissibility",
+    "unrelated provider benchmark code"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "database migrations unrelated to proof metadata",
+      "source": "scopeBoundary.excluded",
+      "text": "database migrations unrelated to proof metadata",
+      "excluded": true
+    },
+    {
+      "keyword": "experiments/tier-c-proof/**",
+      "source": "scopeBoundary.excluded",
+      "text": "experiments/tier-c-proof/**",
+      "excluded": true
+    },
+    {
+      "keyword": "packages/*/src/ui/**",
+      "source": "scopeBoundary.excluded",
+      "text": "packages/*/src/ui/**",
+      "excluded": true
+    },
+    {
+      "keyword": "paper/**",
+      "source": "scopeBoundary.excluded",
+      "text": "paper/**",
+      "excluded": true
+    },
+    {
+      "keyword": "renaming or branding work unrelated to proof admissibility",
+      "source": "scopeBoundary.excluded",
+      "text": "renaming or branding work unrelated to proof admissibility",
+      "excluded": true
+    },
+    {
+      "keyword": "unrelated provider benchmark code",
+      "source": "scopeBoundary.excluded",
+      "text": "unrelated provider benchmark code",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "3a6f605624c1918980af573cae8f230eaa036fded323460c6075b6cb455b6b56"
+}

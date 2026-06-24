@@ -1,0 +1,904 @@
+{
+  "runs": [
+    {
+      "reviewRunId": "B-0985:RR-001",
+      "storyId": "B-0985",
+      "agent": "lattice-review-concept",
+      "lane": "lattice-review-concept",
+      "reviewRound": "2026-06-24T10:13:41.196Z",
+      "startedAt": "2026-06-24T10:14:05.369Z",
+      "headHash": "a4053104dc2f38cb8862c7c5c5d665efb88fc989",
+      "materialHash": "15fa6f92f23489e438c04c4589d93d324297dd4d5691e36f9e1984dea9854931",
+      "storyFilesHash": "583e117bc99dcb3bbbab7171ac9ee9d8973db169f28bc2f35d34c48c432a6fe6",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "422bef4827ddb7d4a57484f2f5cc77fcdfcf6290c26cd42d4a10e389c1fe699a",
+        "diffPackHash": "3c9d067cfae6daf057db363966a7b8b2d38df7cf5d51c02c087eba20808dcafb",
+        "reviewedChangedFiles": [
+          "docs/evidence/evidence-platform-architecture.md",
+          "docs/evidence/proof-surface-inventory.json",
+          "docs/evidence/proof-surface-inventory.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "packages/main/package.json",
+          "packages/main/src/core/proof-admissibility.ts",
+          "packages/main/src/tasks/proof-admissibility-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "2693b0a623cc997544a05b552bb40e74b3b77dfe010956ad8dce2a8867b47e8f",
+          "39d54512ce009152a25124ee0fca452c483aba914bb7d26945670525fb1be77a",
+          "3fd061062afeb92f3ec70270365b5d14379bcf2bcf0fa94c00e3f8da145621c8",
+          "949ae96f01bc0645b4924993b50c340ee56ec25215be3e33e21d8e34f890de1c",
+          "a4cdb5b8944343a6c6b52e250f87e040debd769b28476f4364f0f7baa44efeef",
+          "cbbaf2d3b9a52769f37666ead9abe8f24bf8e55e14ec8d7ab16d7ec84fd5e6ef",
+          "f017d3a1b8b70ebbc0e594b07270cbf79fdcbda2bc08a67292ebbebd203fd603",
+          "f61a2fa77769a62c8bcd9ea9e6cf7c12e2491c60f559f80d221eef9b9dd5d127"
+        ],
+        "bindingHash": "38fbde539bfef6dbe0751d7a4c2f0aee0f47c4eee344aae6cd6610a4e17a29fe"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0985",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0985",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0985",
+        "workspaceMode": "story-worktree",
+        "headHash": "a4053104dc2f38cb8862c7c5c5d665efb88fc989",
+        "materialHash": "15fa6f92f23489e438c04c4589d93d324297dd4d5691e36f9e1984dea9854931",
+        "storyFilesHash": "583e117bc99dcb3bbbab7171ac9ee9d8973db169f28bc2f35d34c48c432a6fe6",
+        "bindingHash": "ee4e401b99565a31af8f3f7bea2902347c7528fbf44b24a7aa793ddfb0ce97cf"
+      },
+      "_hash": "fab0fc2fc73518705885a2843eac232671f1904e4fdacbd6fcf3ec7b61d1b723"
+    },
+    {
+      "reviewRunId": "B-0985:RR-002",
+      "storyId": "B-0985",
+      "agent": "lattice-review-quality",
+      "lane": "lattice-review-quality",
+      "reviewRound": "2026-06-24T10:13:41.196Z",
+      "startedAt": "2026-06-24T10:14:13.136Z",
+      "headHash": "a4053104dc2f38cb8862c7c5c5d665efb88fc989",
+      "materialHash": "15fa6f92f23489e438c04c4589d93d324297dd4d5691e36f9e1984dea9854931",
+      "storyFilesHash": "583e117bc99dcb3bbbab7171ac9ee9d8973db169f28bc2f35d34c48c432a6fe6",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "422bef4827ddb7d4a57484f2f5cc77fcdfcf6290c26cd42d4a10e389c1fe699a",
+        "diffPackHash": "3c9d067cfae6daf057db363966a7b8b2d38df7cf5d51c02c087eba20808dcafb",
+        "reviewedChangedFiles": [
+          "docs/evidence/evidence-platform-architecture.md",
+          "docs/evidence/proof-surface-inventory.json",
+          "docs/evidence/proof-surface-inventory.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "packages/main/package.json",
+          "packages/main/src/core/proof-admissibility.ts",
+          "packages/main/src/tasks/proof-admissibility-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "2693b0a623cc997544a05b552bb40e74b3b77dfe010956ad8dce2a8867b47e8f",
+          "39d54512ce009152a25124ee0fca452c483aba914bb7d26945670525fb1be77a",
+          "3fd061062afeb92f3ec70270365b5d14379bcf2bcf0fa94c00e3f8da145621c8",
+          "949ae96f01bc0645b4924993b50c340ee56ec25215be3e33e21d8e34f890de1c",
+          "a4cdb5b8944343a6c6b52e250f87e040debd769b28476f4364f0f7baa44efeef",
+          "cbbaf2d3b9a52769f37666ead9abe8f24bf8e55e14ec8d7ab16d7ec84fd5e6ef",
+          "f017d3a1b8b70ebbc0e594b07270cbf79fdcbda2bc08a67292ebbebd203fd603",
+          "f61a2fa77769a62c8bcd9ea9e6cf7c12e2491c60f559f80d221eef9b9dd5d127"
+        ],
+        "bindingHash": "38fbde539bfef6dbe0751d7a4c2f0aee0f47c4eee344aae6cd6610a4e17a29fe"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0985",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0985",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0985",
+        "workspaceMode": "story-worktree",
+        "headHash": "a4053104dc2f38cb8862c7c5c5d665efb88fc989",
+        "materialHash": "15fa6f92f23489e438c04c4589d93d324297dd4d5691e36f9e1984dea9854931",
+        "storyFilesHash": "583e117bc99dcb3bbbab7171ac9ee9d8973db169f28bc2f35d34c48c432a6fe6",
+        "bindingHash": "ee4e401b99565a31af8f3f7bea2902347c7528fbf44b24a7aa793ddfb0ce97cf"
+      },
+      "_hash": "b2a5d024c824e7e201334d37b9d0b89aa715246a827644ccd61711c2ab762542"
+    },
+    {
+      "reviewRunId": "B-0985:RR-003",
+      "storyId": "B-0985",
+      "agent": "lattice-review-docs",
+      "lane": "lattice-review-docs",
+      "reviewRound": "2026-06-24T10:13:41.196Z",
+      "startedAt": "2026-06-24T10:14:51.365Z",
+      "headHash": "a4053104dc2f38cb8862c7c5c5d665efb88fc989",
+      "materialHash": "15fa6f92f23489e438c04c4589d93d324297dd4d5691e36f9e1984dea9854931",
+      "storyFilesHash": "583e117bc99dcb3bbbab7171ac9ee9d8973db169f28bc2f35d34c48c432a6fe6",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "422bef4827ddb7d4a57484f2f5cc77fcdfcf6290c26cd42d4a10e389c1fe699a",
+        "diffPackHash": "3c9d067cfae6daf057db363966a7b8b2d38df7cf5d51c02c087eba20808dcafb",
+        "reviewedChangedFiles": [
+          "docs/evidence/evidence-platform-architecture.md",
+          "docs/evidence/proof-surface-inventory.json",
+          "docs/evidence/proof-surface-inventory.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "packages/main/package.json",
+          "packages/main/src/core/proof-admissibility.ts",
+          "packages/main/src/tasks/proof-admissibility-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "2693b0a623cc997544a05b552bb40e74b3b77dfe010956ad8dce2a8867b47e8f",
+          "39d54512ce009152a25124ee0fca452c483aba914bb7d26945670525fb1be77a",
+          "3fd061062afeb92f3ec70270365b5d14379bcf2bcf0fa94c00e3f8da145621c8",
+          "949ae96f01bc0645b4924993b50c340ee56ec25215be3e33e21d8e34f890de1c",
+          "a4cdb5b8944343a6c6b52e250f87e040debd769b28476f4364f0f7baa44efeef",
+          "cbbaf2d3b9a52769f37666ead9abe8f24bf8e55e14ec8d7ab16d7ec84fd5e6ef",
+          "f017d3a1b8b70ebbc0e594b07270cbf79fdcbda2bc08a67292ebbebd203fd603",
+          "f61a2fa77769a62c8bcd9ea9e6cf7c12e2491c60f559f80d221eef9b9dd5d127"
+        ],
+        "bindingHash": "38fbde539bfef6dbe0751d7a4c2f0aee0f47c4eee344aae6cd6610a4e17a29fe"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0985",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0985",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0985",
+        "workspaceMode": "story-worktree",
+        "headHash": "a4053104dc2f38cb8862c7c5c5d665efb88fc989",
+        "materialHash": "15fa6f92f23489e438c04c4589d93d324297dd4d5691e36f9e1984dea9854931",
+        "storyFilesHash": "583e117bc99dcb3bbbab7171ac9ee9d8973db169f28bc2f35d34c48c432a6fe6",
+        "bindingHash": "ee4e401b99565a31af8f3f7bea2902347c7528fbf44b24a7aa793ddfb0ce97cf"
+      },
+      "_hash": "bd782628d8d12738414e29b3d720a750b5fc197720f18673a4b5b3f3cf8b1626"
+    },
+    {
+      "reviewRunId": "B-0985:RR-004",
+      "storyId": "B-0985",
+      "agent": "lattice-review-test-coverage",
+      "lane": "lattice-review-test-coverage",
+      "reviewRound": "2026-06-24T10:13:41.196Z",
+      "startedAt": "2026-06-24T10:14:53.429Z",
+      "headHash": "a4053104dc2f38cb8862c7c5c5d665efb88fc989",
+      "materialHash": "15fa6f92f23489e438c04c4589d93d324297dd4d5691e36f9e1984dea9854931",
+      "storyFilesHash": "583e117bc99dcb3bbbab7171ac9ee9d8973db169f28bc2f35d34c48c432a6fe6",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "422bef4827ddb7d4a57484f2f5cc77fcdfcf6290c26cd42d4a10e389c1fe699a",
+        "diffPackHash": "3c9d067cfae6daf057db363966a7b8b2d38df7cf5d51c02c087eba20808dcafb",
+        "reviewedChangedFiles": [
+          "docs/evidence/evidence-platform-architecture.md",
+          "docs/evidence/proof-surface-inventory.json",
+          "docs/evidence/proof-surface-inventory.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "packages/main/package.json",
+          "packages/main/src/core/proof-admissibility.ts",
+          "packages/main/src/tasks/proof-admissibility-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "2693b0a623cc997544a05b552bb40e74b3b77dfe010956ad8dce2a8867b47e8f",
+          "39d54512ce009152a25124ee0fca452c483aba914bb7d26945670525fb1be77a",
+          "3fd061062afeb92f3ec70270365b5d14379bcf2bcf0fa94c00e3f8da145621c8",
+          "949ae96f01bc0645b4924993b50c340ee56ec25215be3e33e21d8e34f890de1c",
+          "a4cdb5b8944343a6c6b52e250f87e040debd769b28476f4364f0f7baa44efeef",
+          "cbbaf2d3b9a52769f37666ead9abe8f24bf8e55e14ec8d7ab16d7ec84fd5e6ef",
+          "f017d3a1b8b70ebbc0e594b07270cbf79fdcbda2bc08a67292ebbebd203fd603",
+          "f61a2fa77769a62c8bcd9ea9e6cf7c12e2491c60f559f80d221eef9b9dd5d127"
+        ],
+        "bindingHash": "38fbde539bfef6dbe0751d7a4c2f0aee0f47c4eee344aae6cd6610a4e17a29fe"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0985",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0985",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0985",
+        "workspaceMode": "story-worktree",
+        "headHash": "a4053104dc2f38cb8862c7c5c5d665efb88fc989",
+        "materialHash": "15fa6f92f23489e438c04c4589d93d324297dd4d5691e36f9e1984dea9854931",
+        "storyFilesHash": "583e117bc99dcb3bbbab7171ac9ee9d8973db169f28bc2f35d34c48c432a6fe6",
+        "bindingHash": "ee4e401b99565a31af8f3f7bea2902347c7528fbf44b24a7aa793ddfb0ce97cf"
+      },
+      "_hash": "12830701894c27fcda82a82d24c36d262f645b420d0167c1a6329dcadaf1e25f"
+    },
+    {
+      "reviewRunId": "B-0985:RR-005",
+      "storyId": "B-0985",
+      "agent": "lattice-review-concept",
+      "lane": "lattice-review-concept",
+      "reviewRound": "2026-06-24T10:19:54.578Z",
+      "startedAt": "2026-06-24T10:22:49.317Z",
+      "headHash": "1e720ee9b55ce92ef2ce4c92903bc16e37c6a48e",
+      "materialHash": "a91960aeefa61c01bf35517a19880bb8ffc30ff086f652291133b982db10e88f",
+      "storyFilesHash": "17d866e0382a7cdb1a69d0b1ab43fa22fae11af694e07e7530c43a7ee24ae04c",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "422bef4827ddb7d4a57484f2f5cc77fcdfcf6290c26cd42d4a10e389c1fe699a",
+        "diffPackHash": "b8b34b01c22fcb056aac769b899c11ba9989fbdd875f7288fbcce807196f010a",
+        "reviewedChangedFiles": [
+          "docs/evidence/evidence-platform-architecture.md",
+          "docs/evidence/proof-surface-inventory.json",
+          "docs/evidence/proof-surface-inventory.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "packages/main/package.json",
+          "packages/main/src/core/proof-admissibility.ts",
+          "packages/main/src/tasks/proof-admissibility-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "1fdb045b54a32e1892f0647cebc207ad7c657eed6066700b85687cf8abb462d8",
+          "3fd061062afeb92f3ec70270365b5d14379bcf2bcf0fa94c00e3f8da145621c8",
+          "68699560346c39f1676f96ee8175df7398a825617b147197771629ecfe6b1112",
+          "7cb39b33a375e21621ed6d9b094636996cab14fe5fe65e368990cfb231406256",
+          "949ae96f01bc0645b4924993b50c340ee56ec25215be3e33e21d8e34f890de1c",
+          "a2203a05e1c28000ff2ea74b06840bc9b23682cce933d472bc40ee3f94118a24",
+          "cbbaf2d3b9a52769f37666ead9abe8f24bf8e55e14ec8d7ab16d7ec84fd5e6ef",
+          "f017d3a1b8b70ebbc0e594b07270cbf79fdcbda2bc08a67292ebbebd203fd603"
+        ],
+        "bindingHash": "5b687a4c68a991998fec52018c355be87a56ce43078f2fad6a6663ff827fb612"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0985",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0985",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0985",
+        "workspaceMode": "story-worktree",
+        "headHash": "1e720ee9b55ce92ef2ce4c92903bc16e37c6a48e",
+        "materialHash": "a91960aeefa61c01bf35517a19880bb8ffc30ff086f652291133b982db10e88f",
+        "storyFilesHash": "17d866e0382a7cdb1a69d0b1ab43fa22fae11af694e07e7530c43a7ee24ae04c",
+        "bindingHash": "2d26a251c5999d2eb8e6cbde206f98f94b17c2b24ccc083f01a134c9f80e73f5"
+      },
+      "_hash": "89c78d60a4c9332d79d4ae669bb467660c4d262342010ad015f21895463fb713"
+    },
+    {
+      "reviewRunId": "B-0985:RR-006",
+      "storyId": "B-0985",
+      "agent": "lattice-review-quality",
+      "lane": "lattice-review-quality",
+      "reviewRound": "2026-06-24T10:19:54.578Z",
+      "startedAt": "2026-06-24T10:22:51.606Z",
+      "headHash": "1e720ee9b55ce92ef2ce4c92903bc16e37c6a48e",
+      "materialHash": "a91960aeefa61c01bf35517a19880bb8ffc30ff086f652291133b982db10e88f",
+      "storyFilesHash": "17d866e0382a7cdb1a69d0b1ab43fa22fae11af694e07e7530c43a7ee24ae04c",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "422bef4827ddb7d4a57484f2f5cc77fcdfcf6290c26cd42d4a10e389c1fe699a",
+        "diffPackHash": "b8b34b01c22fcb056aac769b899c11ba9989fbdd875f7288fbcce807196f010a",
+        "reviewedChangedFiles": [
+          "docs/evidence/evidence-platform-architecture.md",
+          "docs/evidence/proof-surface-inventory.json",
+          "docs/evidence/proof-surface-inventory.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "packages/main/package.json",
+          "packages/main/src/core/proof-admissibility.ts",
+          "packages/main/src/tasks/proof-admissibility-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "1fdb045b54a32e1892f0647cebc207ad7c657eed6066700b85687cf8abb462d8",
+          "3fd061062afeb92f3ec70270365b5d14379bcf2bcf0fa94c00e3f8da145621c8",
+          "68699560346c39f1676f96ee8175df7398a825617b147197771629ecfe6b1112",
+          "7cb39b33a375e21621ed6d9b094636996cab14fe5fe65e368990cfb231406256",
+          "949ae96f01bc0645b4924993b50c340ee56ec25215be3e33e21d8e34f890de1c",
+          "a2203a05e1c28000ff2ea74b06840bc9b23682cce933d472bc40ee3f94118a24",
+          "cbbaf2d3b9a52769f37666ead9abe8f24bf8e55e14ec8d7ab16d7ec84fd5e6ef",
+          "f017d3a1b8b70ebbc0e594b07270cbf79fdcbda2bc08a67292ebbebd203fd603"
+        ],
+        "bindingHash": "5b687a4c68a991998fec52018c355be87a56ce43078f2fad6a6663ff827fb612"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0985",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0985",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0985",
+        "workspaceMode": "story-worktree",
+        "headHash": "1e720ee9b55ce92ef2ce4c92903bc16e37c6a48e",
+        "materialHash": "a91960aeefa61c01bf35517a19880bb8ffc30ff086f652291133b982db10e88f",
+        "storyFilesHash": "17d866e0382a7cdb1a69d0b1ab43fa22fae11af694e07e7530c43a7ee24ae04c",
+        "bindingHash": "2d26a251c5999d2eb8e6cbde206f98f94b17c2b24ccc083f01a134c9f80e73f5"
+      },
+      "_hash": "363604df014cb85858d75de827513648e94152ac60c23d08261fb3602491383f"
+    },
+    {
+      "reviewRunId": "B-0985:RR-007",
+      "storyId": "B-0985",
+      "agent": "lattice-review-test-coverage",
+      "lane": "lattice-review-test-coverage",
+      "reviewRound": "2026-06-24T10:19:54.578Z",
+      "startedAt": "2026-06-24T10:23:04.156Z",
+      "headHash": "1e720ee9b55ce92ef2ce4c92903bc16e37c6a48e",
+      "materialHash": "a91960aeefa61c01bf35517a19880bb8ffc30ff086f652291133b982db10e88f",
+      "storyFilesHash": "17d866e0382a7cdb1a69d0b1ab43fa22fae11af694e07e7530c43a7ee24ae04c",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "422bef4827ddb7d4a57484f2f5cc77fcdfcf6290c26cd42d4a10e389c1fe699a",
+        "diffPackHash": "b8b34b01c22fcb056aac769b899c11ba9989fbdd875f7288fbcce807196f010a",
+        "reviewedChangedFiles": [
+          "docs/evidence/evidence-platform-architecture.md",
+          "docs/evidence/proof-surface-inventory.json",
+          "docs/evidence/proof-surface-inventory.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "packages/main/package.json",
+          "packages/main/src/core/proof-admissibility.ts",
+          "packages/main/src/tasks/proof-admissibility-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "1fdb045b54a32e1892f0647cebc207ad7c657eed6066700b85687cf8abb462d8",
+          "3fd061062afeb92f3ec70270365b5d14379bcf2bcf0fa94c00e3f8da145621c8",
+          "68699560346c39f1676f96ee8175df7398a825617b147197771629ecfe6b1112",
+          "7cb39b33a375e21621ed6d9b094636996cab14fe5fe65e368990cfb231406256",
+          "949ae96f01bc0645b4924993b50c340ee56ec25215be3e33e21d8e34f890de1c",
+          "a2203a05e1c28000ff2ea74b06840bc9b23682cce933d472bc40ee3f94118a24",
+          "cbbaf2d3b9a52769f37666ead9abe8f24bf8e55e14ec8d7ab16d7ec84fd5e6ef",
+          "f017d3a1b8b70ebbc0e594b07270cbf79fdcbda2bc08a67292ebbebd203fd603"
+        ],
+        "bindingHash": "5b687a4c68a991998fec52018c355be87a56ce43078f2fad6a6663ff827fb612"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0985",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0985",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0985",
+        "workspaceMode": "story-worktree",
+        "headHash": "1e720ee9b55ce92ef2ce4c92903bc16e37c6a48e",
+        "materialHash": "a91960aeefa61c01bf35517a19880bb8ffc30ff086f652291133b982db10e88f",
+        "storyFilesHash": "17d866e0382a7cdb1a69d0b1ab43fa22fae11af694e07e7530c43a7ee24ae04c",
+        "bindingHash": "2d26a251c5999d2eb8e6cbde206f98f94b17c2b24ccc083f01a134c9f80e73f5"
+      },
+      "_hash": "fbe4e2e641d817075f923ef4b3bb55150bb7037562716ddfca32a5b40a66d519"
+    },
+    {
+      "reviewRunId": "B-0985:RR-008",
+      "storyId": "B-0985",
+      "agent": "lattice-review-docs",
+      "lane": "lattice-review-docs",
+      "reviewRound": "2026-06-24T10:19:54.578Z",
+      "startedAt": "2026-06-24T10:23:06.392Z",
+      "headHash": "1e720ee9b55ce92ef2ce4c92903bc16e37c6a48e",
+      "materialHash": "a91960aeefa61c01bf35517a19880bb8ffc30ff086f652291133b982db10e88f",
+      "storyFilesHash": "17d866e0382a7cdb1a69d0b1ab43fa22fae11af694e07e7530c43a7ee24ae04c",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "422bef4827ddb7d4a57484f2f5cc77fcdfcf6290c26cd42d4a10e389c1fe699a",
+        "diffPackHash": "b8b34b01c22fcb056aac769b899c11ba9989fbdd875f7288fbcce807196f010a",
+        "reviewedChangedFiles": [
+          "docs/evidence/evidence-platform-architecture.md",
+          "docs/evidence/proof-surface-inventory.json",
+          "docs/evidence/proof-surface-inventory.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "packages/main/package.json",
+          "packages/main/src/core/proof-admissibility.ts",
+          "packages/main/src/tasks/proof-admissibility-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "1fdb045b54a32e1892f0647cebc207ad7c657eed6066700b85687cf8abb462d8",
+          "3fd061062afeb92f3ec70270365b5d14379bcf2bcf0fa94c00e3f8da145621c8",
+          "68699560346c39f1676f96ee8175df7398a825617b147197771629ecfe6b1112",
+          "7cb39b33a375e21621ed6d9b094636996cab14fe5fe65e368990cfb231406256",
+          "949ae96f01bc0645b4924993b50c340ee56ec25215be3e33e21d8e34f890de1c",
+          "a2203a05e1c28000ff2ea74b06840bc9b23682cce933d472bc40ee3f94118a24",
+          "cbbaf2d3b9a52769f37666ead9abe8f24bf8e55e14ec8d7ab16d7ec84fd5e6ef",
+          "f017d3a1b8b70ebbc0e594b07270cbf79fdcbda2bc08a67292ebbebd203fd603"
+        ],
+        "bindingHash": "5b687a4c68a991998fec52018c355be87a56ce43078f2fad6a6663ff827fb612"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0985",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0985",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0985",
+        "workspaceMode": "story-worktree",
+        "headHash": "1e720ee9b55ce92ef2ce4c92903bc16e37c6a48e",
+        "materialHash": "a91960aeefa61c01bf35517a19880bb8ffc30ff086f652291133b982db10e88f",
+        "storyFilesHash": "17d866e0382a7cdb1a69d0b1ab43fa22fae11af694e07e7530c43a7ee24ae04c",
+        "bindingHash": "2d26a251c5999d2eb8e6cbde206f98f94b17c2b24ccc083f01a134c9f80e73f5"
+      },
+      "_hash": "9e378aa2425bed8ce5efda5082564ee208dddf09e1e482debaa78098317ff653"
+    },
+    {
+      "reviewRunId": "B-0985:RR-009",
+      "storyId": "B-0985",
+      "agent": "lattice-review-concept",
+      "lane": "lattice-review-concept",
+      "reviewRound": "2026-06-24T10:27:56.413Z",
+      "startedAt": "2026-06-24T10:31:12.661Z",
+      "headHash": "0e4b86bb3881fd399eeb8e11eb04ada8805be324",
+      "materialHash": "d83ca0d874e0733a223127174da98a12d21ca21d6912ee65ef0152d613305231",
+      "storyFilesHash": "3c8ca3655c0afb5e402e3ea08084b93a6d2af637f22aab0edefb81a7dfe8eea8",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "422bef4827ddb7d4a57484f2f5cc77fcdfcf6290c26cd42d4a10e389c1fe699a",
+        "diffPackHash": "e9510ca9a824203a38cd8c53919c6eb55d3e7f275eba3c474511b341e5be2b4a",
+        "reviewedChangedFiles": [
+          "docs/evidence/evidence-platform-architecture.md",
+          "docs/evidence/proof-surface-inventory.json",
+          "docs/evidence/proof-surface-inventory.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "packages/main/package.json",
+          "packages/main/src/core/proof-admissibility.ts",
+          "packages/main/src/tasks/proof-admissibility-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "1fdb045b54a32e1892f0647cebc207ad7c657eed6066700b85687cf8abb462d8",
+          "3fd061062afeb92f3ec70270365b5d14379bcf2bcf0fa94c00e3f8da145621c8",
+          "86a4b2dd1627265bcb9388571994a9a85d0b18adbb75e0112986fedcc00e17ba",
+          "949ae96f01bc0645b4924993b50c340ee56ec25215be3e33e21d8e34f890de1c",
+          "976d191c4cf4d298df0e73de1d93a569c4fa555f22c17f3797d5fae065351549",
+          "a2203a05e1c28000ff2ea74b06840bc9b23682cce933d472bc40ee3f94118a24",
+          "cbbaf2d3b9a52769f37666ead9abe8f24bf8e55e14ec8d7ab16d7ec84fd5e6ef",
+          "f017d3a1b8b70ebbc0e594b07270cbf79fdcbda2bc08a67292ebbebd203fd603"
+        ],
+        "bindingHash": "45bcbe41c745eee95199f79daa925b54805e3ef9d954ea34f924dda5a74ac94a"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0985",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0985",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0985",
+        "workspaceMode": "story-worktree",
+        "headHash": "0e4b86bb3881fd399eeb8e11eb04ada8805be324",
+        "materialHash": "d83ca0d874e0733a223127174da98a12d21ca21d6912ee65ef0152d613305231",
+        "storyFilesHash": "3c8ca3655c0afb5e402e3ea08084b93a6d2af637f22aab0edefb81a7dfe8eea8",
+        "bindingHash": "507f245529a065f4b969a812f6271afcb480a4fbd3c5fec59b11a2380ca2bc7d"
+      },
+      "_hash": "209a96519f27f20c99d34d4a61b8021269f3c041f35e1ef5f225f7bdeba4a619"
+    },
+    {
+      "reviewRunId": "B-0985:RR-010",
+      "storyId": "B-0985",
+      "agent": "lattice-review-docs",
+      "lane": "lattice-review-docs",
+      "reviewRound": "2026-06-24T10:27:56.413Z",
+      "startedAt": "2026-06-24T10:31:13.937Z",
+      "headHash": "0e4b86bb3881fd399eeb8e11eb04ada8805be324",
+      "materialHash": "d83ca0d874e0733a223127174da98a12d21ca21d6912ee65ef0152d613305231",
+      "storyFilesHash": "3c8ca3655c0afb5e402e3ea08084b93a6d2af637f22aab0edefb81a7dfe8eea8",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "422bef4827ddb7d4a57484f2f5cc77fcdfcf6290c26cd42d4a10e389c1fe699a",
+        "diffPackHash": "e9510ca9a824203a38cd8c53919c6eb55d3e7f275eba3c474511b341e5be2b4a",
+        "reviewedChangedFiles": [
+          "docs/evidence/evidence-platform-architecture.md",
+          "docs/evidence/proof-surface-inventory.json",
+          "docs/evidence/proof-surface-inventory.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "packages/main/package.json",
+          "packages/main/src/core/proof-admissibility.ts",
+          "packages/main/src/tasks/proof-admissibility-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "1fdb045b54a32e1892f0647cebc207ad7c657eed6066700b85687cf8abb462d8",
+          "3fd061062afeb92f3ec70270365b5d14379bcf2bcf0fa94c00e3f8da145621c8",
+          "86a4b2dd1627265bcb9388571994a9a85d0b18adbb75e0112986fedcc00e17ba",
+          "949ae96f01bc0645b4924993b50c340ee56ec25215be3e33e21d8e34f890de1c",
+          "976d191c4cf4d298df0e73de1d93a569c4fa555f22c17f3797d5fae065351549",
+          "a2203a05e1c28000ff2ea74b06840bc9b23682cce933d472bc40ee3f94118a24",
+          "cbbaf2d3b9a52769f37666ead9abe8f24bf8e55e14ec8d7ab16d7ec84fd5e6ef",
+          "f017d3a1b8b70ebbc0e594b07270cbf79fdcbda2bc08a67292ebbebd203fd603"
+        ],
+        "bindingHash": "45bcbe41c745eee95199f79daa925b54805e3ef9d954ea34f924dda5a74ac94a"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0985",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0985",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0985",
+        "workspaceMode": "story-worktree",
+        "headHash": "0e4b86bb3881fd399eeb8e11eb04ada8805be324",
+        "materialHash": "d83ca0d874e0733a223127174da98a12d21ca21d6912ee65ef0152d613305231",
+        "storyFilesHash": "3c8ca3655c0afb5e402e3ea08084b93a6d2af637f22aab0edefb81a7dfe8eea8",
+        "bindingHash": "507f245529a065f4b969a812f6271afcb480a4fbd3c5fec59b11a2380ca2bc7d"
+      },
+      "_hash": "13171f61167bc51290ccc6f8b6830d70ef4465f952735ef01352b79c86736c57"
+    },
+    {
+      "reviewRunId": "B-0985:RR-011",
+      "storyId": "B-0985",
+      "agent": "lattice-review-quality",
+      "lane": "lattice-review-quality",
+      "reviewRound": "2026-06-24T10:27:56.413Z",
+      "startedAt": "2026-06-24T10:31:14.579Z",
+      "headHash": "0e4b86bb3881fd399eeb8e11eb04ada8805be324",
+      "materialHash": "d83ca0d874e0733a223127174da98a12d21ca21d6912ee65ef0152d613305231",
+      "storyFilesHash": "3c8ca3655c0afb5e402e3ea08084b93a6d2af637f22aab0edefb81a7dfe8eea8",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "422bef4827ddb7d4a57484f2f5cc77fcdfcf6290c26cd42d4a10e389c1fe699a",
+        "diffPackHash": "e9510ca9a824203a38cd8c53919c6eb55d3e7f275eba3c474511b341e5be2b4a",
+        "reviewedChangedFiles": [
+          "docs/evidence/evidence-platform-architecture.md",
+          "docs/evidence/proof-surface-inventory.json",
+          "docs/evidence/proof-surface-inventory.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "packages/main/package.json",
+          "packages/main/src/core/proof-admissibility.ts",
+          "packages/main/src/tasks/proof-admissibility-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "1fdb045b54a32e1892f0647cebc207ad7c657eed6066700b85687cf8abb462d8",
+          "3fd061062afeb92f3ec70270365b5d14379bcf2bcf0fa94c00e3f8da145621c8",
+          "86a4b2dd1627265bcb9388571994a9a85d0b18adbb75e0112986fedcc00e17ba",
+          "949ae96f01bc0645b4924993b50c340ee56ec25215be3e33e21d8e34f890de1c",
+          "976d191c4cf4d298df0e73de1d93a569c4fa555f22c17f3797d5fae065351549",
+          "a2203a05e1c28000ff2ea74b06840bc9b23682cce933d472bc40ee3f94118a24",
+          "cbbaf2d3b9a52769f37666ead9abe8f24bf8e55e14ec8d7ab16d7ec84fd5e6ef",
+          "f017d3a1b8b70ebbc0e594b07270cbf79fdcbda2bc08a67292ebbebd203fd603"
+        ],
+        "bindingHash": "45bcbe41c745eee95199f79daa925b54805e3ef9d954ea34f924dda5a74ac94a"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0985",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0985",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0985",
+        "workspaceMode": "story-worktree",
+        "headHash": "0e4b86bb3881fd399eeb8e11eb04ada8805be324",
+        "materialHash": "d83ca0d874e0733a223127174da98a12d21ca21d6912ee65ef0152d613305231",
+        "storyFilesHash": "3c8ca3655c0afb5e402e3ea08084b93a6d2af637f22aab0edefb81a7dfe8eea8",
+        "bindingHash": "507f245529a065f4b969a812f6271afcb480a4fbd3c5fec59b11a2380ca2bc7d"
+      },
+      "_hash": "d8b14afad0dd09e44ca0555c94fd6846825d11d603f11bec4b5b160880ad64b1"
+    },
+    {
+      "reviewRunId": "B-0985:RR-012",
+      "storyId": "B-0985",
+      "agent": "lattice-review-test-coverage",
+      "lane": "lattice-review-test-coverage",
+      "reviewRound": "2026-06-24T10:27:56.413Z",
+      "startedAt": "2026-06-24T10:31:17.019Z",
+      "headHash": "0e4b86bb3881fd399eeb8e11eb04ada8805be324",
+      "materialHash": "d83ca0d874e0733a223127174da98a12d21ca21d6912ee65ef0152d613305231",
+      "storyFilesHash": "3c8ca3655c0afb5e402e3ea08084b93a6d2af637f22aab0edefb81a7dfe8eea8",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "422bef4827ddb7d4a57484f2f5cc77fcdfcf6290c26cd42d4a10e389c1fe699a",
+        "diffPackHash": "e9510ca9a824203a38cd8c53919c6eb55d3e7f275eba3c474511b341e5be2b4a",
+        "reviewedChangedFiles": [
+          "docs/evidence/evidence-platform-architecture.md",
+          "docs/evidence/proof-surface-inventory.json",
+          "docs/evidence/proof-surface-inventory.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "packages/main/package.json",
+          "packages/main/src/core/proof-admissibility.ts",
+          "packages/main/src/tasks/proof-admissibility-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "1fdb045b54a32e1892f0647cebc207ad7c657eed6066700b85687cf8abb462d8",
+          "3fd061062afeb92f3ec70270365b5d14379bcf2bcf0fa94c00e3f8da145621c8",
+          "86a4b2dd1627265bcb9388571994a9a85d0b18adbb75e0112986fedcc00e17ba",
+          "949ae96f01bc0645b4924993b50c340ee56ec25215be3e33e21d8e34f890de1c",
+          "976d191c4cf4d298df0e73de1d93a569c4fa555f22c17f3797d5fae065351549",
+          "a2203a05e1c28000ff2ea74b06840bc9b23682cce933d472bc40ee3f94118a24",
+          "cbbaf2d3b9a52769f37666ead9abe8f24bf8e55e14ec8d7ab16d7ec84fd5e6ef",
+          "f017d3a1b8b70ebbc0e594b07270cbf79fdcbda2bc08a67292ebbebd203fd603"
+        ],
+        "bindingHash": "45bcbe41c745eee95199f79daa925b54805e3ef9d954ea34f924dda5a74ac94a"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0985",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0985",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0985",
+        "workspaceMode": "story-worktree",
+        "headHash": "0e4b86bb3881fd399eeb8e11eb04ada8805be324",
+        "materialHash": "d83ca0d874e0733a223127174da98a12d21ca21d6912ee65ef0152d613305231",
+        "storyFilesHash": "3c8ca3655c0afb5e402e3ea08084b93a6d2af637f22aab0edefb81a7dfe8eea8",
+        "bindingHash": "507f245529a065f4b969a812f6271afcb480a4fbd3c5fec59b11a2380ca2bc7d"
+      },
+      "_hash": "3ecf573071bc42cd765290ac04fbfea321ac54a2d51d902db48748f1618a7919"
+    },
+    {
+      "reviewRunId": "B-0985:RR-013",
+      "storyId": "B-0985",
+      "agent": "lattice-review-docs",
+      "lane": "lattice-review-docs",
+      "reviewRound": "2026-06-24T10:27:56.413Z",
+      "startedAt": "2026-06-24T10:33:42.751Z",
+      "headHash": "448c143ff5f7c572ecedc00a8abfd1d664f4a6e5",
+      "materialHash": "757cd274eb420fd2abb4eb2fc2c070c1a01bbf434bcfca129c3c485cf5972767",
+      "storyFilesHash": "c4b663beb712e4b02f74353c533abef9a10a1cc20fa35aeac5b5dc7291bfad0e",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "422bef4827ddb7d4a57484f2f5cc77fcdfcf6290c26cd42d4a10e389c1fe699a",
+        "diffPackHash": "a9bf0e6e3646ef6708b39ff8fd527eb60e07ba0c4cfe34b466a4e8a7c591f710",
+        "reviewedChangedFiles": [
+          "docs/evidence/evidence-platform-architecture.md",
+          "docs/evidence/proof-surface-inventory.json",
+          "docs/evidence/proof-surface-inventory.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "packages/main/package.json",
+          "packages/main/src/core/proof-admissibility.ts",
+          "packages/main/src/tasks/proof-admissibility-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "1fdb045b54a32e1892f0647cebc207ad7c657eed6066700b85687cf8abb462d8",
+          "3a7731b13c408af1670deca15da336a2c15be1935760e42919bffd644113c89b",
+          "3fd061062afeb92f3ec70270365b5d14379bcf2bcf0fa94c00e3f8da145621c8",
+          "86a4b2dd1627265bcb9388571994a9a85d0b18adbb75e0112986fedcc00e17ba",
+          "949ae96f01bc0645b4924993b50c340ee56ec25215be3e33e21d8e34f890de1c",
+          "976d191c4cf4d298df0e73de1d93a569c4fa555f22c17f3797d5fae065351549",
+          "cbbaf2d3b9a52769f37666ead9abe8f24bf8e55e14ec8d7ab16d7ec84fd5e6ef",
+          "f017d3a1b8b70ebbc0e594b07270cbf79fdcbda2bc08a67292ebbebd203fd603"
+        ],
+        "bindingHash": "a2bb33f9b454eb2cac99d56b1c7e4d577c104a945c1aec77f20c98c780b11a53"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0985",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0985",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0985",
+        "workspaceMode": "story-worktree",
+        "headHash": "448c143ff5f7c572ecedc00a8abfd1d664f4a6e5",
+        "materialHash": "757cd274eb420fd2abb4eb2fc2c070c1a01bbf434bcfca129c3c485cf5972767",
+        "storyFilesHash": "c4b663beb712e4b02f74353c533abef9a10a1cc20fa35aeac5b5dc7291bfad0e",
+        "bindingHash": "502c088f56dda20f4cf14fc7839082258d413954b45765faba4635135edd4e40"
+      },
+      "_hash": "c6836b7c4e913b1e8966b67243033e3c916184df56436be1462635bdef6f699d"
+    },
+    {
+      "reviewRunId": "B-0985:RR-014",
+      "storyId": "B-0985",
+      "agent": "lattice-review-quality",
+      "lane": "lattice-review-quality",
+      "reviewRound": "2026-06-24T10:34:51.359Z",
+      "startedAt": "2026-06-24T10:35:29.492Z",
+      "headHash": "617913ccad4afb447e2eee9574a4e53dee5bb06d",
+      "materialHash": "757cd274eb420fd2abb4eb2fc2c070c1a01bbf434bcfca129c3c485cf5972767",
+      "storyFilesHash": "c4b663beb712e4b02f74353c533abef9a10a1cc20fa35aeac5b5dc7291bfad0e",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "422bef4827ddb7d4a57484f2f5cc77fcdfcf6290c26cd42d4a10e389c1fe699a",
+        "diffPackHash": "a9bf0e6e3646ef6708b39ff8fd527eb60e07ba0c4cfe34b466a4e8a7c591f710",
+        "reviewedChangedFiles": [
+          "docs/evidence/evidence-platform-architecture.md",
+          "docs/evidence/proof-surface-inventory.json",
+          "docs/evidence/proof-surface-inventory.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "packages/main/package.json",
+          "packages/main/src/core/proof-admissibility.ts",
+          "packages/main/src/tasks/proof-admissibility-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "1fdb045b54a32e1892f0647cebc207ad7c657eed6066700b85687cf8abb462d8",
+          "3a7731b13c408af1670deca15da336a2c15be1935760e42919bffd644113c89b",
+          "3fd061062afeb92f3ec70270365b5d14379bcf2bcf0fa94c00e3f8da145621c8",
+          "86a4b2dd1627265bcb9388571994a9a85d0b18adbb75e0112986fedcc00e17ba",
+          "949ae96f01bc0645b4924993b50c340ee56ec25215be3e33e21d8e34f890de1c",
+          "976d191c4cf4d298df0e73de1d93a569c4fa555f22c17f3797d5fae065351549",
+          "cbbaf2d3b9a52769f37666ead9abe8f24bf8e55e14ec8d7ab16d7ec84fd5e6ef",
+          "f017d3a1b8b70ebbc0e594b07270cbf79fdcbda2bc08a67292ebbebd203fd603"
+        ],
+        "bindingHash": "a2bb33f9b454eb2cac99d56b1c7e4d577c104a945c1aec77f20c98c780b11a53"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0985",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0985",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0985",
+        "workspaceMode": "story-worktree",
+        "headHash": "617913ccad4afb447e2eee9574a4e53dee5bb06d",
+        "materialHash": "757cd274eb420fd2abb4eb2fc2c070c1a01bbf434bcfca129c3c485cf5972767",
+        "storyFilesHash": "c4b663beb712e4b02f74353c533abef9a10a1cc20fa35aeac5b5dc7291bfad0e",
+        "bindingHash": "49c3d518af5a236195b2ab0463a9b9caa5e6e1ccb9a8e0d03fd5fdd9c6db7ba9"
+      },
+      "_hash": "c8028ed89d4a778a11585fb9aa286b65e74ab4d3759554be8d5c3ed905ead7c9"
+    },
+    {
+      "reviewRunId": "B-0985:RR-015",
+      "storyId": "B-0985",
+      "agent": "lattice-review-concept",
+      "lane": "lattice-review-concept",
+      "reviewRound": "2026-06-24T10:34:51.359Z",
+      "startedAt": "2026-06-24T10:35:30.447Z",
+      "headHash": "617913ccad4afb447e2eee9574a4e53dee5bb06d",
+      "materialHash": "757cd274eb420fd2abb4eb2fc2c070c1a01bbf434bcfca129c3c485cf5972767",
+      "storyFilesHash": "c4b663beb712e4b02f74353c533abef9a10a1cc20fa35aeac5b5dc7291bfad0e",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "422bef4827ddb7d4a57484f2f5cc77fcdfcf6290c26cd42d4a10e389c1fe699a",
+        "diffPackHash": "a9bf0e6e3646ef6708b39ff8fd527eb60e07ba0c4cfe34b466a4e8a7c591f710",
+        "reviewedChangedFiles": [
+          "docs/evidence/evidence-platform-architecture.md",
+          "docs/evidence/proof-surface-inventory.json",
+          "docs/evidence/proof-surface-inventory.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "packages/main/package.json",
+          "packages/main/src/core/proof-admissibility.ts",
+          "packages/main/src/tasks/proof-admissibility-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "1fdb045b54a32e1892f0647cebc207ad7c657eed6066700b85687cf8abb462d8",
+          "3a7731b13c408af1670deca15da336a2c15be1935760e42919bffd644113c89b",
+          "3fd061062afeb92f3ec70270365b5d14379bcf2bcf0fa94c00e3f8da145621c8",
+          "86a4b2dd1627265bcb9388571994a9a85d0b18adbb75e0112986fedcc00e17ba",
+          "949ae96f01bc0645b4924993b50c340ee56ec25215be3e33e21d8e34f890de1c",
+          "976d191c4cf4d298df0e73de1d93a569c4fa555f22c17f3797d5fae065351549",
+          "cbbaf2d3b9a52769f37666ead9abe8f24bf8e55e14ec8d7ab16d7ec84fd5e6ef",
+          "f017d3a1b8b70ebbc0e594b07270cbf79fdcbda2bc08a67292ebbebd203fd603"
+        ],
+        "bindingHash": "a2bb33f9b454eb2cac99d56b1c7e4d577c104a945c1aec77f20c98c780b11a53"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0985",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0985",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0985",
+        "workspaceMode": "story-worktree",
+        "headHash": "617913ccad4afb447e2eee9574a4e53dee5bb06d",
+        "materialHash": "757cd274eb420fd2abb4eb2fc2c070c1a01bbf434bcfca129c3c485cf5972767",
+        "storyFilesHash": "c4b663beb712e4b02f74353c533abef9a10a1cc20fa35aeac5b5dc7291bfad0e",
+        "bindingHash": "49c3d518af5a236195b2ab0463a9b9caa5e6e1ccb9a8e0d03fd5fdd9c6db7ba9"
+      },
+      "_hash": "9f43d892312a74f116fc8028f1ff70fc70a0c1c5ff3710f2141da426d664046e"
+    },
+    {
+      "reviewRunId": "B-0985:RR-016",
+      "storyId": "B-0985",
+      "agent": "lattice-review-docs",
+      "lane": "lattice-review-docs",
+      "reviewRound": "2026-06-24T10:34:51.359Z",
+      "startedAt": "2026-06-24T10:35:32.577Z",
+      "headHash": "617913ccad4afb447e2eee9574a4e53dee5bb06d",
+      "materialHash": "757cd274eb420fd2abb4eb2fc2c070c1a01bbf434bcfca129c3c485cf5972767",
+      "storyFilesHash": "c4b663beb712e4b02f74353c533abef9a10a1cc20fa35aeac5b5dc7291bfad0e",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "422bef4827ddb7d4a57484f2f5cc77fcdfcf6290c26cd42d4a10e389c1fe699a",
+        "diffPackHash": "a9bf0e6e3646ef6708b39ff8fd527eb60e07ba0c4cfe34b466a4e8a7c591f710",
+        "reviewedChangedFiles": [
+          "docs/evidence/evidence-platform-architecture.md",
+          "docs/evidence/proof-surface-inventory.json",
+          "docs/evidence/proof-surface-inventory.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "packages/main/package.json",
+          "packages/main/src/core/proof-admissibility.ts",
+          "packages/main/src/tasks/proof-admissibility-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "1fdb045b54a32e1892f0647cebc207ad7c657eed6066700b85687cf8abb462d8",
+          "3a7731b13c408af1670deca15da336a2c15be1935760e42919bffd644113c89b",
+          "3fd061062afeb92f3ec70270365b5d14379bcf2bcf0fa94c00e3f8da145621c8",
+          "86a4b2dd1627265bcb9388571994a9a85d0b18adbb75e0112986fedcc00e17ba",
+          "949ae96f01bc0645b4924993b50c340ee56ec25215be3e33e21d8e34f890de1c",
+          "976d191c4cf4d298df0e73de1d93a569c4fa555f22c17f3797d5fae065351549",
+          "cbbaf2d3b9a52769f37666ead9abe8f24bf8e55e14ec8d7ab16d7ec84fd5e6ef",
+          "f017d3a1b8b70ebbc0e594b07270cbf79fdcbda2bc08a67292ebbebd203fd603"
+        ],
+        "bindingHash": "a2bb33f9b454eb2cac99d56b1c7e4d577c104a945c1aec77f20c98c780b11a53"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0985",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0985",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0985",
+        "workspaceMode": "story-worktree",
+        "headHash": "617913ccad4afb447e2eee9574a4e53dee5bb06d",
+        "materialHash": "757cd274eb420fd2abb4eb2fc2c070c1a01bbf434bcfca129c3c485cf5972767",
+        "storyFilesHash": "c4b663beb712e4b02f74353c533abef9a10a1cc20fa35aeac5b5dc7291bfad0e",
+        "bindingHash": "49c3d518af5a236195b2ab0463a9b9caa5e6e1ccb9a8e0d03fd5fdd9c6db7ba9"
+      },
+      "_hash": "e71cfa8c5390b9aff31e85bf637ba3ae64c4d474b1c1b63b84b2668bb649ba32"
+    },
+    {
+      "reviewRunId": "B-0985:RR-017",
+      "storyId": "B-0985",
+      "agent": "lattice-review-test-coverage",
+      "lane": "lattice-review-test-coverage",
+      "reviewRound": "2026-06-24T10:34:51.359Z",
+      "startedAt": "2026-06-24T10:35:36.587Z",
+      "headHash": "617913ccad4afb447e2eee9574a4e53dee5bb06d",
+      "materialHash": "757cd274eb420fd2abb4eb2fc2c070c1a01bbf434bcfca129c3c485cf5972767",
+      "storyFilesHash": "c4b663beb712e4b02f74353c533abef9a10a1cc20fa35aeac5b5dc7291bfad0e",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "422bef4827ddb7d4a57484f2f5cc77fcdfcf6290c26cd42d4a10e389c1fe699a",
+        "diffPackHash": "a9bf0e6e3646ef6708b39ff8fd527eb60e07ba0c4cfe34b466a4e8a7c591f710",
+        "reviewedChangedFiles": [
+          "docs/evidence/evidence-platform-architecture.md",
+          "docs/evidence/proof-surface-inventory.json",
+          "docs/evidence/proof-surface-inventory.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "packages/main/package.json",
+          "packages/main/src/core/proof-admissibility.ts",
+          "packages/main/src/tasks/proof-admissibility-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "1fdb045b54a32e1892f0647cebc207ad7c657eed6066700b85687cf8abb462d8",
+          "3a7731b13c408af1670deca15da336a2c15be1935760e42919bffd644113c89b",
+          "3fd061062afeb92f3ec70270365b5d14379bcf2bcf0fa94c00e3f8da145621c8",
+          "86a4b2dd1627265bcb9388571994a9a85d0b18adbb75e0112986fedcc00e17ba",
+          "949ae96f01bc0645b4924993b50c340ee56ec25215be3e33e21d8e34f890de1c",
+          "976d191c4cf4d298df0e73de1d93a569c4fa555f22c17f3797d5fae065351549",
+          "cbbaf2d3b9a52769f37666ead9abe8f24bf8e55e14ec8d7ab16d7ec84fd5e6ef",
+          "f017d3a1b8b70ebbc0e594b07270cbf79fdcbda2bc08a67292ebbebd203fd603"
+        ],
+        "bindingHash": "a2bb33f9b454eb2cac99d56b1c7e4d577c104a945c1aec77f20c98c780b11a53"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0985",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0985",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0985",
+        "workspaceMode": "story-worktree",
+        "headHash": "617913ccad4afb447e2eee9574a4e53dee5bb06d",
+        "materialHash": "757cd274eb420fd2abb4eb2fc2c070c1a01bbf434bcfca129c3c485cf5972767",
+        "storyFilesHash": "c4b663beb712e4b02f74353c533abef9a10a1cc20fa35aeac5b5dc7291bfad0e",
+        "bindingHash": "49c3d518af5a236195b2ab0463a9b9caa5e6e1ccb9a8e0d03fd5fdd9c6db7ba9"
+      },
+      "_hash": "ebbc0021e3df1fc14a31d0b13f51bb5cff604c91c1b3a791f36407724a1e3c1d"
+    },
+    {
+      "reviewRunId": "B-0985:RR-018",
+      "storyId": "B-0985",
+      "agent": "lattice-review-quality",
+      "lane": "lattice-review-quality",
+      "reviewRound": "2026-06-24T10:34:51.359Z",
+      "startedAt": "2026-06-24T10:36:24.201Z",
+      "headHash": "b0ac2730bdff11d3f2095c473ad0cf8ba072bd71",
+      "materialHash": "757cd274eb420fd2abb4eb2fc2c070c1a01bbf434bcfca129c3c485cf5972767",
+      "storyFilesHash": "c4b663beb712e4b02f74353c533abef9a10a1cc20fa35aeac5b5dc7291bfad0e",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "422bef4827ddb7d4a57484f2f5cc77fcdfcf6290c26cd42d4a10e389c1fe699a",
+        "diffPackHash": "a9bf0e6e3646ef6708b39ff8fd527eb60e07ba0c4cfe34b466a4e8a7c591f710",
+        "reviewedChangedFiles": [
+          "docs/evidence/evidence-platform-architecture.md",
+          "docs/evidence/proof-surface-inventory.json",
+          "docs/evidence/proof-surface-inventory.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "packages/main/package.json",
+          "packages/main/src/core/proof-admissibility.ts",
+          "packages/main/src/tasks/proof-admissibility-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "1fdb045b54a32e1892f0647cebc207ad7c657eed6066700b85687cf8abb462d8",
+          "3a7731b13c408af1670deca15da336a2c15be1935760e42919bffd644113c89b",
+          "3fd061062afeb92f3ec70270365b5d14379bcf2bcf0fa94c00e3f8da145621c8",
+          "86a4b2dd1627265bcb9388571994a9a85d0b18adbb75e0112986fedcc00e17ba",
+          "949ae96f01bc0645b4924993b50c340ee56ec25215be3e33e21d8e34f890de1c",
+          "976d191c4cf4d298df0e73de1d93a569c4fa555f22c17f3797d5fae065351549",
+          "cbbaf2d3b9a52769f37666ead9abe8f24bf8e55e14ec8d7ab16d7ec84fd5e6ef",
+          "f017d3a1b8b70ebbc0e594b07270cbf79fdcbda2bc08a67292ebbebd203fd603"
+        ],
+        "bindingHash": "a2bb33f9b454eb2cac99d56b1c7e4d577c104a945c1aec77f20c98c780b11a53"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0985",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0985",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-0985",
+        "workspaceMode": "story-worktree",
+        "headHash": "b0ac2730bdff11d3f2095c473ad0cf8ba072bd71",
+        "materialHash": "757cd274eb420fd2abb4eb2fc2c070c1a01bbf434bcfca129c3c485cf5972767",
+        "storyFilesHash": "c4b663beb712e4b02f74353c533abef9a10a1cc20fa35aeac5b5dc7291bfad0e",
+        "bindingHash": "e025d8b5f455bde445f033139be9662c64a5d179e694a1635a59372bcb4642ec"
+      },
+      "_hash": "896f7c7a8ee85a737c2397ec6ca2c1bd9a60cfd147cbdaae8905ef4c4a2fa11c"
+    }
+  ]
+}

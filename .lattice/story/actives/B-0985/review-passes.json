@@ -1,0 +1,103 @@
+{
+  "passes": [
+    {
+      "id": "B-0985:RP-001",
+      "agent": "lattice-review-docs",
+      "note": "PASS docs round 2 for prior F-004 at HEAD 1e720ee. The proof inventory now distinguishes the production-consumable surface as artifactKind authority-receipt-ref with scope production-gate-decision, while raw authority-receipt remains input/diagnostic evidence: docs/evidence/proof-surface-inventory.md:16, docs/evidence/proof-surface-inventory.md:42, docs/evidence/proof-surface-inventory.md:43, docs/evidence/proof-surface-inventory.json:52, docs/evidence/proof-surface-inventory.json:66. local-gate-evidence wording is local readiness only and explicitly not production completion: docs/evidence/proof-surface-inventory.md:30, docs/evidence/proof-surface-inventory.md:39, docs/evidence/proof-surface-inventory.md:63, docs/evidence/proof-surface-inventory.json:12, docs/evidence/proof-surface-inventory.json:229. Architecture wording and registry code align with the same boundary: docs/evidence/evidence-platform-architecture.md:133, packages/main/src/core/proof-admissibility.ts:250, packages/main/src/core/proof-admissibility.ts:270, packages/main/src/core/proof-admissibility.ts:660. No docs finding.",
+      "createdAt": "2026-06-24T10:24:09.802Z",
+      "reviewRound": "2026-06-24T10:19:54.578Z",
+      "reviewRunId": "B-0985:RR-008",
+      "_hash": "7ea52f155c46c658399325f7e6153f25542b0123b621817e07becbcde6f1e9a8"
+    },
+    {
+      "id": "B-0985:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "Reviewed fixed HEAD for F-003 coverage. Verified proof-admissibility smoke now covers omitted checks for known authority-receipt-ref production-gate-decision, local-gate-evidence done-required evidence boundaries, and negative production controls for candidate, diagnostic, local-key, receipt-only, and legacy surfaces. Re-ran build, npm --prefix packages/main run test:proof-admissibility, and node scripts/verify-process-fact-contract.mjs; no test-coverage blocker remains.",
+      "createdAt": "2026-06-24T10:24:12.296Z",
+      "reviewRound": "2026-06-24T10:19:54.578Z",
+      "reviewRunId": "B-0985:RR-007",
+      "_hash": "80e0f4772f91a4b3b91a1baa24fbdb4d6ede3ea1c4eaa5c92d41ef42bc5d7b7a"
+    },
+    {
+      "id": "B-0985:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Concept review round 2 PASS. Prior F-002 is fixed: packages/main/src/core/proof-admissibility.ts:516-658 now requires affirmative schema, strict shape, semantic digest, signature/receipt, temporal/material, subject, and producer checks; omitted authority-receipt-ref production-completion checks fail closed with missing_required_field/signature_missing/unknown_producer and productionDoneEligible=false. Boundary review: registry keeps local-gate done-required evidence to done-readiness only, candidate and diagnostic artifacts non-production, raw authority-receipt diagnostic-only, and only authority-receipt-ref/production-gate-decision can become production-completion eligible after all checks. Verified with npm --prefix packages/main run build and npm --prefix packages/main run test:proof-admissibility.",
+      "createdAt": "2026-06-24T10:24:16.653Z",
+      "reviewRound": "2026-06-24T10:19:54.578Z",
+      "reviewRunId": "B-0985:RR-005",
+      "_hash": "8596a57e9ef188d380141aac5778edde033797153535539e3139c6848581888a"
+    },
+    {
+      "id": "B-0985:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Quality pass: proof admissibility evaluation is fail-closed for production-completion. Source requires current contractVersion and uses exact true checks for required proof predicates; runtime smoke plus reviewer matrix confirmed missing/null/false/string/non-true required checks and missing/null/wrong contractVersion all deny allowed and productionDoneEligible.",
+      "createdAt": "2026-06-24T10:32:06.356Z",
+      "reviewRound": "2026-06-24T10:27:56.413Z",
+      "reviewRunId": "B-0985:RR-011",
+      "_hash": "f9a6ce69c3ec89b96341c061cb84811c829029c90123c10b887de43ff91c506a"
+    },
+    {
+      "id": "B-0985:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Concept review PASS after F-005 fix at HEAD 0e4b86b. Reviewed docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md against packages/main/src/core/proof-admissibility.ts, docs/evidence/proof-surface-inventory.md/json, and packages/main/src/tasks/proof-admissibility-smoke.ts. ProductionDone boundary is conceptually correct: local/legacy/raw/candidate/diagnostic/review/quorum/offline evidence remains non-production; raw authority-receipt is diagnostic-status only; only authority-receipt-ref scoped as production-gate-decision can be production-completion eligible, and only when policy matches plus current contractVersion, schemaVersion, strict shape, semantic digest, signature/receipt, temporal/material, subject, and producer checks are exactly satisfied. F-001/F-002 omitted-check fail-open and F-005 null/non-true/missing-contract fail-open are fixed. Verified with lattice finding_list and npm --prefix packages/main run test:proof-admissibility.",
+      "createdAt": "2026-06-24T10:32:21.942Z",
+      "reviewRound": "2026-06-24T10:27:56.413Z",
+      "reviewRunId": "B-0985:RR-009",
+      "_hash": "35af032e691868759e9cb13b4ea9ae7f9701a67c63ea3b6b22f41d8595337a4c"
+    },
+    {
+      "id": "B-0985:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage review passed. Inspected packages/main/src/tasks/proof-admissibility-smoke.ts and packages/main/src/core/proof-admissibility.ts; smoke covers registry inventory, local done-required scope, authority-receipt-ref production-completion happy path, deny cases for local review/DONE-required/local diagnostic/legacy/candidate/raw receipt surfaces, missing checks, null/non-true required check behavior, and contractVersion missing/null/mismatch. Ran npm --prefix packages/main run test:proof-admissibility and npm run test:process-fact-contract; both passed.",
+      "createdAt": "2026-06-24T10:32:22.403Z",
+      "reviewRound": "2026-06-24T10:27:56.413Z",
+      "reviewRunId": "B-0985:RR-012",
+      "_hash": "5bbbb5bfeec78062f05ada2ce1b4c137bd47308bdccd17543100ca4211f4a463"
+    },
+    {
+      "id": "B-0985:RP-007",
+      "agent": "lattice-review-docs",
+      "note": "Docs re-review after F-006 fix passed. proof-admissibility-hardening-execution-plan.md now uses canonical local-gate-evidence for DONE-required command receipts, and remains aligned with implementation/inventory naming: authority-receipt-ref is the production-gate-decision surface; raw authority-receipt is input/evidence only, not production completion.",
+      "createdAt": "2026-06-24T10:34:19.089Z",
+      "reviewRound": "2026-06-24T10:27:56.413Z",
+      "reviewRunId": "B-0985:RR-013",
+      "_hash": "326dba9931f4e417b27bf450c69dd6f8365a6cef82f4ab12d8de06e330d7c4e0"
+    },
+    {
+      "id": "B-0985:RP-008",
+      "agent": "lattice-review-docs",
+      "note": "Docs/inventory consistency verified after F-006: done-required-evidence is canonical local-gate-evidence for DONE-required/local done-readiness only; authority-receipt-ref is the production-gate-decision surface eligible for production-completion when bindings match; raw authority-receipt remains input/evidence/diagnostic-status and is not production completion.",
+      "createdAt": "2026-06-24T10:36:09.838Z",
+      "reviewRound": "2026-06-24T10:34:51.359Z",
+      "reviewRunId": "B-0985:RR-016",
+      "_hash": "d6d913803635baf27660e5f5fd789503d421122a292ccca2098bece39536725a"
+    },
+    {
+      "id": "B-0985:RP-009",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS test-coverage: proof-admissibility smoke covers happy allow and deny/fail-closed paths for null/non-true required checks plus missing/null/wrong contractVersion; npm --prefix packages/main run test:proof-admissibility passed.",
+      "createdAt": "2026-06-24T10:36:25.047Z",
+      "reviewRound": "2026-06-24T10:34:51.359Z",
+      "reviewRunId": "B-0985:RR-017",
+      "_hash": "83eb058dae1ff8b434cdef2159895f4e17db710a1a0b2b60f7818e9d6fbabb07"
+    },
+    {
+      "id": "B-0985:RP-010",
+      "agent": "lattice-review-concept",
+      "note": "PASS concept: proof admissibility remains fail-closed. In packages/main/src/core/proof-admissibility.ts, only authority-receipt-ref has production-completion with productionDoneEligible=true under production-gate-decision scope, and evaluateProofAdmissibility additionally requires current contractVersion plus schema, strict shape, semantic digest, signature/receipt binding, temporal/material binding, subject, and trusted producer checks before allowed=true. Local/legacy/raw candidate/diagnostic/offline/quorum surfaces remain non-production: done-required, delivery-check, review-run, offline-receipt-bundle, handoff-pack, usage-ledger evidence, repro/spike/red-green/story-binding, and legacy-evidence all have productionDoneEligible=false and fail production-completion overread. Focused verification: npm --prefix packages/main run test:proof-admissibility passed.",
+      "createdAt": "2026-06-24T10:36:30.085Z",
+      "reviewRound": "2026-06-24T10:34:51.359Z",
+      "reviewRunId": "B-0985:RR-015",
+      "_hash": "f6faf4584c7a46ffbd1c1168f8dc6af575158a189fa7202968ed3eea8fb91d31"
+    },
+    {
+      "id": "B-0985:RP-011",
+      "agent": "lattice-review-quality",
+      "note": "Quality review pass: inspected packages/main/src/core/proof-admissibility.ts and packages/main/src/tasks/proof-admissibility-smoke.ts. Required checks fail closed because requireCheck accepts only value === true; missing/null/wrong contractVersion blocks allowed; productionDoneEligible is derived only from allowed policy with production-gate-decision scope. Verified with npm --prefix packages/main run build && node packages/main/dist/tasks/proof-admissibility-smoke.js.",
+      "createdAt": "2026-06-24T10:36:31.445Z",
+      "reviewRound": "2026-06-24T10:34:51.359Z",
+      "reviewRunId": "B-0985:RR-018",
+      "_hash": "544394ee055db14787086bcbfd9f982fc315e2149c934cb005bd5c6ffca774e8"
+    }
+  ]
+}

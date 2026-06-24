@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-d243",
+  "mode": "correctness_fix",
+  "allowed": [
+    "Add the delivery_check_drift_advisory downgrade branch to evaluateDeliveryCheckFreshness (materialHash mismatch + matching signed storyFilesHash -> advisory pass; missing/mismatch -> strict)",
+    "Amend docs/requirements/decisions/story-files-hash-material-drift.md, update delivery_check_set rationale in core/process-fact-levels.ts + core/process-fact-registry.ts, and add a Gate-A keep-strict code comment in done-oracle.ts",
+    "Fold a signed storyFilesHash into the delivery-check signature (core/types.ts DeliveryCheckData, core/delivery-check-hash.ts signDeliveryCheck/recomputeDeliveryCheckHash, handlers/delivery-check.ts delivery_check_set + delivery_waiver_add re-sign)",
+    "Re-fixture packages/main/src/tasks/delivery-check-freshness-smoke.ts to a story-branch topology and add non-story-drift/story-drift/forged/legacy cases",
+    "Surface the advisory loudly on the DONE delivery-check row (core/done-oracle.ts)"
+  ],
+  "excluded": [
+    "Any whole-tree materialHash recompute redesign or replacing materialHash with story-diff-only hashing",
+    "Gate A completed-snapshot freshness: do NOT wire storyFilesHash (frozen-ref integrity check stays strict)",
+    "Gate B done-required suite: do NOT downgrade (stays strict, re-runs on the merged tree)",
+    "The review_run_start latest-run binding race (separate friction #2 story)"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User locked the design via the soundness decision: downgrade only the signed delivery-check (Gate C), keep Gate B strict, keep Gate A strict.",
+  "createdAt": "2026-06-24T10:58:40.166Z",
+  "updatedAt": "2026-06-24T10:58:40.166Z",
+  "_hash": "0c2318a664ff4db8c361cb7902b3849d8ef16e13dff589c8763a62b4864ff632"
+}

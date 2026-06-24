@@ -1,0 +1,146 @@
+{
+  "findings": [
+    {
+      "id": "B-0985:F-001",
+      "desc": "packages/main/src/core/proof-admissibility.ts:532-596 fail-open when required checks are omitted. For a registered production-gate-decision surface such as authority-receipt-ref, evaluateProofAdmissibility defaults checks to {} and only rejects required schema/shape/digest/signature/material/subject/producer validations when callers explicitly pass false or an unsupported string. A caller that omits checks entirely still matches the production-completion policy and reaches allowed=true plus productionDoneEligible=true at lines 595-596. This violates the fail-closed contract for proof-looking artifacts and is not covered by packages/main/src/tasks/proof-admissibility-smoke.ts, which only exercises the happy path with all valid checks present and unknown artifacts without a definition.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-24T10:15:05.427Z",
+      "reviewRound": "2026-06-24T10:13:41.196Z",
+      "reviewRunId": "B-0985:RR-002",
+      "_hash": "6c445bda2d251d95a9309671ab6af4ce547a1ece6872b65cf4b3baff85a57561",
+      "files": [
+        "packages/main/src/core/proof-admissibility.ts",
+        "packages/main/src/tasks/proof-admissibility-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-core",
+      "signatureTagSource": "auto",
+      "resolvedReason": "evaluateProofAdmissibility now requires schemaVersion plus required strict shape, semantic digest, signature/receipt, temporal/material, subject, and producer checks to be present and valid; omitted required checks add denial reasons. Verified with npm --prefix packages/main run build and npm --prefix packages/main run test:proof-admissibility.",
+      "resolvedAt": "2026-06-24T10:20:20.678Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-0985:F-002",
+      "desc": "packages/main/src/core/proof-admissibility.ts:532: evaluateProofAdmissibility fails open when required checks are omitted. For authority-receipt-ref + DONE + production-completion, an empty checks object (or no checks) skips schema/shape/digest/signature/subject/producer/material requirements because the code only adds reasons when optional fields are explicitly false or mismatched. Repro: node --input-type=module -e \"import { evaluateProofAdmissibility } from './packages/main/dist/core/proof-admissibility.js'; console.log(evaluateProofAdmissibility({artifactKind:'authority-receipt-ref',consumer:'DONE',claim:'production-completion'}))\" returns allowed=true and productionDoneEligible=true with reasons=[]. This violates the plan admissibleProof conjunction and productionDone boundary: production-gate-decision should only be productionDone eligible after current schema, strict shape, semantic digest, signature/receipt, subject, producer, and temporal/material bindings are affirmatively valid. Add negative smoke coverage for missing checks and fail closed with missing_required_field/clause_not_bound (or equivalent structured reasons).",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-24T10:15:25.569Z",
+      "reviewRound": "2026-06-24T10:13:41.196Z",
+      "reviewRunId": "B-0985:RR-001",
+      "_hash": "c1d1bb2ba9dc378a242af39f53ba2c4e242072655cec8f9b2c336415e5a53f6d",
+      "files": [
+        "packages/main/src/core/proof-admissibility.ts",
+        "packages/main/src/tasks/proof-admissibility-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-core",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Same fail-open path fixed by requiring affirmative required checks before production-completion can be allowed. The proof smoke now covers omitted checks for authority-receipt-ref with AUTHORITY_GATE_DECISION and production-completion. Verified with build and proof smoke.",
+      "resolvedAt": "2026-06-24T10:20:48.387Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-0985:F-003",
+      "desc": "Known production-gate-decision artifacts fail open when required proof checks are omitted. In packages/main/src/core/proof-admissibility.ts:536 the evaluator defaults checks to {}, and lines 552-580 only add reasons when optional check fields are explicitly invalid/false. Because allowed is computed as policy && reasons.length === 0 at lines 595-596, evaluateProofAdmissibility({artifactKind:\"authority-receipt-ref\", consumer:\"AUTHORITY_GATE_DECISION\", claim:\"production-completion\"}) returns allowed=true and productionDoneEligible=true with no schema, shape, digest, signature/receipt, subject, producer, or material binding evidence. The smoke tests cover explicit stale/unsupported values and unknown artifact kind at packages/main/src/tasks/proof-admissibility-smoke.ts:119-153, but they do not cover missing checks for a known strong surface. Repro: node --input-type=module -e \"import { evaluateProofAdmissibility } from './packages/main/dist/core/proof-admissibility.js'; console.log(JSON.stringify(evaluateProofAdmissibility({artifactKind:'authority-receipt-ref',consumer:'AUTHORITY_GATE_DECISION',claim:'production-completion'}), null, 2));\" shows allowed=true and productionDoneEligible=true. This violates the story requirement for unknown fail-closed behavior and leaves a negative-control gap for authority-receipt-ref vs production-gate-decision.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-24T10:16:05.542Z",
+      "reviewRound": "2026-06-24T10:13:41.196Z",
+      "reviewRunId": "B-0985:RR-004",
+      "_hash": "31df5baff001f0958e100d6230a125f83204c828c5737ec9a459c31db7b19813",
+      "files": [
+        "packages/main/src/core/proof-admissibility.ts",
+        "packages/main/src/tasks/proof-admissibility-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|known-production-gate",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Added negative control for known authority-receipt-ref production gate decision with omitted checks; evaluator now returns allowed=false and productionDoneEligible=false with missing_required_field/signature_missing/unknown_producer reasons. Verified with build and proof smoke.",
+      "resolvedAt": "2026-06-24T10:20:55.725Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-0985:F-004",
+      "desc": "Decision-doc production-gate example is out of sync with the implemented registry/inventory. The current registry and inventory use artifactKind authority-receipt-ref for the sole production-gate-decision surface (docs/evidence/proof-surface-inventory.md:42, docs/evidence/proof-surface-inventory.json:52, packages/main/src/core/proof-admissibility.ts:250), but the recommended output snippet still shows artifactKind authority-gate-receipt-proof with scope production-gate-decision (docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md:1140-1145). This can mislead future gate consumers about the canonical artifact kind even though the classifier itself is consistent.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-24T10:16:07.444Z",
+      "reviewRound": "2026-06-24T10:13:41.196Z",
+      "reviewRunId": "B-0985:RR-003",
+      "_hash": "ed210d0e62a7497f9eec148cd649a1157e71f887558af46785512b70cbba7381",
+      "files": [
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+        "docs/evidence/proof-surface-inventory.md",
+        "docs/evidence/proof-surface-inventory.json",
+        "packages/main/src/core/proof-admissibility.ts"
+      ],
+      "signatureTag": "doc-code-drift|md|decision-production-gate",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Updated the recommended production gate example to artifactKind authority-receipt-ref and aligned the raw Authority receipt inventory/registry schema list so stale authority-gate-receipt-proof wording remains only in raw verifier context. Verified with process fact contract.",
+      "resolvedAt": "2026-06-24T10:21:02.706Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-0985:F-005",
+      "desc": "F-001 is not fully fixed: the evaluator still has fail-open paths for missing/invalid required admissibility dimensions. In packages/main/src/core/proof-admissibility.ts:526-533, requireCheck only treats undefined as missing and false as invalid; runtime null values for required boolean checks are accepted as satisfied. A production-completion evaluation for authority-receipt-ref with strictShapeValid:null or producerBoundaryTrusted:null returns allowed:true and productionDoneEligible:true. The evaluator also does not require contractVersion: packages/main/src/core/proof-admissibility.ts:572-574 only rejects a present mismatched version, so omitting contractVersion while all other checks are true also returns allowed:true/productionDoneEligible:true. Repro after npm --prefix packages/main run build: node --input-type=module importing packages/main/dist/core/proof-admissibility.js and evaluating authority-receipt-ref/AUTHORITY_GATE_DECISION/production-completion produced omittedContract {\"allowed\":true,\"productionDoneEligible\":true,\"reasons\":[]}, nullRequired {\"allowed\":true,\"productionDoneEligible\":true,\"reasons\":[]}, and nullProducer {\"allowed\":true,\"productionDoneEligible\":true,\"reasons\":[]}. This violates the admissibleProof contract in docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md:77-90, where producerBoundaryTrusted, supportedSchemaVersion, strictShapeValid, semanticDigestValid, signature/binding, temporal/material binding, consumer, and scope must all be satisfied. The smoke test covers omitted checks as a whole, but not null required fields or missing contractVersion, so the hidden fail-open path remains.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-24T10:24:37.088Z",
+      "reviewRound": "2026-06-24T10:19:54.578Z",
+      "reviewRunId": "B-0985:RR-006",
+      "_hash": "c28f6ed9cdb6d81931c471e03a2d59a063b869ee660b44de13dd4605b988d63e",
+      "files": [
+        "packages/main/src/core/proof-admissibility.ts",
+        "packages/main/src/tasks/proof-admissibility-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|fully-fixed-evaluator",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed the proof admissibility evaluator so required boolean checks pass only when the runtime value is exactly true; null, false, string, number, and other non-true values now add invalid denial reasons. contractVersion is now mandatory and must equal PROOF_ADMISSIBILITY_CONTRACT_VERSION; omitted/null add missing_required_field and wrong versions add unsupported_contract_version. Added proof-admissibility smoke coverage for null required checks, non-true boolean values, missing/null/wrong contractVersion, and the happy path with exact true checks/current contract. Verified with npm --prefix packages/main run build; npm --prefix packages/main run test:proof-admissibility; node scripts/verify-process-fact-contract.mjs.",
+      "resolvedAt": "2026-06-24T10:28:06.745Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-0985:F-006",
+      "desc": "Docs naming drift: docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md:675 describes DONE-required command receipts as \"Local gate evidence\" instead of the canonical `local-gate-evidence` scope. The current implementation and inventory use `local-gate-evidence` for done-required evidence (packages/main/src/core/proof-admissibility.ts:195, docs/evidence/proof-surface-inventory.md:39, docs/evidence/proof-surface-inventory.json:12). The review brief requires done-required naming to be `local-gate-evidence`.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-24T10:32:32.664Z",
+      "reviewRound": "2026-06-24T10:27:56.413Z",
+      "reviewRunId": "B-0985:RR-010",
+      "_hash": "e07a0da2daaa2fc70d9d4e3d2e879ce5384be4f235fcc98a21419f66da2a41f1",
+      "files": [
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+        "packages/main/src/core/proof-admissibility.ts",
+        "docs/evidence/proof-surface-inventory.md",
+        "docs/evidence/proof-surface-inventory.json"
+      ],
+      "signatureTag": "doc-code-drift|md|docs-naming-drift",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Changed the DONE-required command receipts row in proof-admissibility-hardening-execution-plan.md to use canonical scope `local-gate-evidence`, matching the implementation and inventory.",
+      "resolvedAt": "2026-06-24T10:33:17.620Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

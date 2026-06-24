@@ -1,13 +1,15 @@
 # Evidence Platform Architecture
 
-Status: implementation baseline for the B-0aa1 candidate-only MVP.
+Status: implementation baseline for the B-0aa1 candidate-only MVP plus the
+B-0985 proof-admissibility classification MVP.
 Date: 2026-06-24.
 Scope: shared local evidence artifact storage for Proofbound / Lattice CLI.
 
 This document defines the evidence storage boundary used by Repro-First intake.
 The B-0aa1 slice implements the artifact storage and repro intake portions only.
-It does not implement Authority quorum, production gate consumption, ledger
-waterlines, or full Proof Admissibility enforcement.
+The B-0985 slice adds a shared proof-admissibility registry and classification
+helper. It does not implement Authority quorum, production gate consumption,
+ledger waterlines, or hard Proof Admissibility enforcement.
 
 ## Architecture Rule
 
@@ -30,7 +32,11 @@ ReproIntakeService
 ```
 
 B-0aa1 implements the local candidate artifact store and ReproIntakeService
-needed for Repro-First intake. ProofAdmissibilityService remains future work.
+needed for Repro-First intake. B-0985 implements the first classification-only
+ProofAdmissibilityService shape in
+`packages/main/src/core/proof-admissibility.ts`. Future stories can route gate
+checks through that helper, but this architecture slice does not change any gate
+decision or Authority Server behavior.
 
 ## Artifact Envelope
 
@@ -107,3 +113,32 @@ completion claim by itself. In particular:
 
 The next admissibility-hardening story can add claim policies and waterlines on
 top of this storage layer.
+
+## Proof Admissibility Classification MVP
+
+B-0985 registers proof-looking surfaces in a shared classification registry:
+
+- canonical evidence scopes, artifact roles, claim kinds, consumers, temporal
+  roles, producer boundaries, and reason codes;
+- proof surface definitions for current local evidence, review, handoff,
+  Authority receipt, and B-0aa1 Repro candidate artifacts;
+- an evaluator returning `allowed`, `productionDoneEligible`, `reasons`, and
+  `remediation`.
+
+This is a classifier only. It does not write new evidence, create a new storage
+root, call the Authority Server, or hard-fail lifecycle gates.
+
+The classifier enforces the scope boundary in code:
+
+- `evidence-candidate`, `local-diagnostic`, `local-key-single-host`,
+  `local-gate-evidence`, `local-review-quorum`, `legacy-observed`, and raw
+  `authority-receipt` surfaces cannot satisfy `production-completion`;
+- `production-gate-decision` is the only scope that can be
+  `productionDoneEligible`, and only for a matching consumer/claim with valid
+  schema, shape, digest, signature/receipt, subject, and temporal/material
+  checks.
+
+The current inventory lives in:
+
+- `docs/evidence/proof-surface-inventory.md`
+- `docs/evidence/proof-surface-inventory.json`
