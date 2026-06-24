@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "Change B4.truncatedContext from the empty string to a non-empty token-less context-lost marker mirroring B5.checkpointContext (e.g. a [context truncated; recover the task from the workspace] string), and update the B4 comment to say the marker is non-empty",
       "context": "empty prompt -> infra-fail; non-empty token-less marker -> valid prompt that still lacks the task token",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-24T00:09:10.589Z",
-      "endTime": null,
+      "endTime": "2026-06-24T00:10:26.204Z",
       "userSees": "In --self-check the B4 cases use the non-empty context-lost marker: a disk-reading stub -> RECOVERED and a context-reliant stub -> AMPLIFIED (neither is infra-fail).",
       "files": {
         "modify": [
