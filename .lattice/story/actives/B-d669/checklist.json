@@ -92,7 +92,39 @@
       "context": "Document live-smoke transcript alongside transcript-diff as a path-specific TEST lifecycle artifact and explicitly retain the no-blanket-evidence-dir invariant.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/lifecycle-artifact-scope.md"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Policy text names evidence/live-smoke-transcript.json as a path-specific lifecycle artifact alongside evidence/transcript-diff.md.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Policy still states lifecycle artifact admission is closed and registry-backed.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Policy explicitly rejects a blanket evidence/ directory exemption for arbitrary nested files.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
