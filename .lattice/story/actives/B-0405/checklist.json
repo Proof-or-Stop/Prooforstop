@@ -60,7 +60,8 @@
       "userSees": "Semantic proof tamper cases reject edits to reason, verdict, schema, null, extra keys, story/head/material binding, and digest/signature subjects.",
       "files": {
         "modify": [
-          "packages/main/src/core/proof-admissibility.ts"
+          "packages/main/src/core/proof-admissibility.ts",
+          "packages/main/src/core/authority-gate-receipt-verifier.ts"
         ],
         "create": [
           "packages/main/src/core/proof-admissibility-binding.ts"
