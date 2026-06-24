@@ -594,6 +594,17 @@
           "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
           "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
           "timestamp": "2026-06-24T11:22:44.535Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:1",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "npm --prefix packages/main run build exits 0 (tsc completes without errors). The B-d243 changes include: updated rationale strings in process-fact-registry.ts (line 786), a new code comment block in done-oracle.ts (lines 141-149), and the spec doc amendment. The TypeScript build confirms no TS errors from these string/comment changes — no broken template literals, no type mismatches.",
+          "headHash": "529a0af2ba2bfcf4984b8d7deee03188550205fa",
+          "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
+          "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
+          "timestamp": "2026-06-24T11:22:52.727Z"
         }
       ]
     }
