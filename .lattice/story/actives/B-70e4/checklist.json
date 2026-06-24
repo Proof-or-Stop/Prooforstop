@@ -139,7 +139,55 @@
       "context": "new packages/main/src/tasks/authority-receipt-proof-auth-smoke.ts plus a package.json script; must FAIL without the fix and PASS with it",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm run --prefix packages/main test:authority-receipt-proof-auth -> exits 0 with all assertions passing; WHY: the deterministic regression smoke is the primary verification artifact for this story",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "With customerApiKey configured: stub fetch captures the outgoing request -> Authorization header is exactly \"Bearer <key>\"; WHY: pins the positive path -- authenticated proof fetch sends the correct header value",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Without customerApiKey: the smoke asserts that client returns fail-closed error AND the stub fetch receives ZERO requests -> no network call is made; WHY: pins the negative path -- missing key must not leak an unauthenticated request",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "customerApiKey is empty string -> treated as missing, fail-closed with no request sent; WHY: empty-string env vars are a common misconfiguration that must be handled identically to unset",
+            "type": "cli",
+            "priority": "should"
+          },
+          {
+            "desc": "The test uses a stub/mock fetch (not real network) -> test is deterministic and runs without Authority env vars; WHY: regression smoke must be runnable in CI without staging credentials",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "RED/GREEN: revert CHK-001 fix (remove authenticated:true from fetchGateReceiptProof) -> the with-key test case FAILS because no Authorization header is sent despite having a key; restore fix -> test passes; WHY: the test is a regression guard that detects the original bug",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "RED/GREEN: revert CHK-002 fix (remove auth arg from loadProof constructor) -> any test exercising loadProof path FAILS because client has no auth even when env key is set; restore fix -> test passes; WHY: proves the test covers both halves of the fix",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Test asserts request count == 0 when no key (not just absence of header) -> a partial fix that sends an unauthenticated request and gets 401 is caught as a failure; WHY: fail-closed means no request at all, not request-then-fail",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
