@@ -636,6 +636,19 @@
           "materialHash": "2f149db52f337a4f4466fa1a43a8f0dbc8df49ef07e65772f5be61142bd5f85c",
           "storyFilesHash": "c21f0bf4341b45f8bae934c199fccad218fe04e737720749c66665a41e8540cb",
           "timestamp": "2026-06-24T00:21:02.141Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/core/process-fact-levels.ts",
+          "command": "git diff main...HEAD -- packages/main/src/core/process-fact-levels.ts",
+          "result": "pass",
+          "note": "git diff shows ONLY the runtime:story_files_hash_freshness_gate gateConsumer enumeration extended to add the review assurance floor; no new fact name/category introduced; semantics still require story-owned file changes to invalidate and only forgive whole-tree drift with a re-attestation advisory",
+          "headHash": "9a00ff5b29fd28cb78c456f24338d4640fbaabe4",
+          "materialHash": "2f149db52f337a4f4466fa1a43a8f0dbc8df49ef07e65772f5be61142bd5f85c",
+          "storyFilesHash": "c21f0bf4341b45f8bae934c199fccad218fe04e737720749c66665a41e8540cb",
+          "timestamp": "2026-06-24T00:21:02.796Z"
         }
       ]
     }
