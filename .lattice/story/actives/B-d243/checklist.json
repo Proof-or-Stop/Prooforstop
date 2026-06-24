@@ -165,7 +165,20 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/delivery-check-freshness-smoke.js",
+          "result": "pass",
+          "note": "delivery-check-freshness-smoke.ts:253-302 (non-story whole-tree drift case): after deliveryCheckSet, merges an unrelated main change into the story branch. Asserts materialHash changed (line 281), storyFilesHash unchanged (line 282). evaluateDeliveryCheckFreshness returns ok:true, code delivery_check_drift_advisory, advisory=EXPECTED_ADVISORY (lines 286-288). Line 289 asserts the stored materialHash is NOT rebound (still equals delivery.materialHash). This covers the exact intent: materialHash mismatch + signed storyFilesHash match -> advisory downgrade, no rebind.",
+          "headHash": "ef379cb40644fe9f03b5d8acab6e4edfbe268256",
+          "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
+          "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
+          "timestamp": "2026-06-24T11:20:13.411Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
