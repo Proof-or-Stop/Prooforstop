@@ -33,6 +33,7 @@ import { assertCwdInWorktree } from './context.js';
 import { loadConfig } from '../core/config.js';
 import type { ValidationCommand } from '../core/validation-types.js';
 import { executeValidationPlan, formatWorktreePollutionDetails, runValidationCommand, stripAnsi } from '../core/validation-executor.js';
+import { withValidationExecutionLock } from '../core/validation-execution-lock.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -809,12 +810,20 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
         ctx.log?.(usingConfigured
           ? `running ${commands.length} configured validate.command(s)${focus ? ` for focus=${focus}` : ''}`
           : `validate.ts/js/mts not found and no configured validate.command(s); running ${commands.length} advisory fallback validation command(s)`);
-        const base = await executeValidationPlan({
+        const runPlan = () => executeValidationPlan({
           provider: usingConfigured ? 'lattice-verifier-configured-commands' : 'lattice-verifier-fallback-commands',
           commands,
           warnings: [],
           ...(focus ? { focus } : {}),
         }, projectRoot, currentHead(handlerGitCwd), args.story);
+        const base = args.story
+          ? await withValidationExecutionLock({
+            root: projectRoot,
+            storyId: args.story,
+            workspaceRoot: handlerGitCwd,
+            command: 'validate',
+          }, runPlan)
+          : await runPlan();
         for (const cmd of commands) {
           ctx.log?.(`ran: ${cmd.command} ${cmd.args.join(' ')}`);
         }
@@ -877,11 +886,19 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
       }
 
       ctx.log?.(`running: npx tsx ${tsArgs.join(' ')}`);
-      const commandResult = await runValidationCommand({
+      const runValidateFile = () => runValidationCommand({
         label: validateFile,
         command: 'npx',
         args: ['tsx', ...tsArgs],
       }, projectRoot);
+      const commandResult = args.story
+        ? await withValidationExecutionLock({
+          root: projectRoot,
+          storyId: args.story,
+          workspaceRoot: handlerGitCwd,
+          command: 'validate',
+        }, runValidateFile)
+        : await runValidateFile();
       const { code, output } = commandResult;
       // Task B-6326 + B-4b22: verifier surfaces categorized dirty ownership
       // details AND respects dirty-gate-policy. When every polluted path
