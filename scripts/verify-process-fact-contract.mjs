@@ -299,7 +299,7 @@ const requiredRuntimeEntries = [
     name: 'runtime:story_files_hash_freshness_gate',
     level: 'L4',
     owner: 'core/evidence-freshness',
-    line: '- runtime:story_files_hash_freshness_gate [L4] owner=core/evidence-freshness gate=REVIEW/TEST/DONE freshness gates for review runs, verification evidence, and review escalation records',
+    line: '- runtime:story_files_hash_freshness_gate [L4] owner=core/evidence-freshness gate=REVIEW/TEST/DONE freshness gates for review runs, verification evidence, review escalation records, and the review assurance floor DONE freshness gate',
   },
   {
     name: 'runtime:review_escalation_done_gate',
