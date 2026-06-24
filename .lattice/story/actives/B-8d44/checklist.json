@@ -15,6 +15,46 @@
           "experiments/recovery-runner/live-engine.mjs"
         ],
         "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "import makeLiveEngine from live-engine.mjs with stub agentRun/reviewArtifact => returns a function (typeof engine === function); WHY: proves the factory produces a callable engine",
+            "type": "cli"
+          },
+          {
+            "desc": "call makeLiveEngine with NO agentRun/reviewArtifact (defaults) => the returned engine is still a function and the defaults reference live claude -p helpers (agentRun/reviewArtifact imported from run-recovery); WHY: proves default wiring for the live campaign path",
+            "type": "cli"
+          },
+          {
+            "desc": "run-driver.mjs --engine experiments/recovery-runner/live-engine.mjs loads without error (the module is importable as a run-driver engine); WHY: proves --engine wiring end-to-end",
+            "type": "cli"
+          },
+          {
+            "desc": "engine(cell, attempt) returning {infraVoid:true, voidReason:\"overload\"} => run-driver treats it as a void and re-runs; WHY: proves infraVoid contract",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "engine(cell, attempt) throws an Error => run-driver catches it and treats as infraVoid (never a silent drop); WHY: proves the exception-as-infra-void contract from run-driver line 349",
+            "type": "cli"
+          },
+          {
+            "desc": "makeLiveEngine called with empty opts {} => defaults are populated (model defaults, tasksDir defaults); WHY: proves factory resilience to minimal config",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "engine returns a result with adjudicatedOutcome already set => buildCanonicalRecord overwrites it with the harness-derived value (the adapter must NOT pre-classify); WHY: proves single-source-of-truth delegation",
+            "type": "cli"
+          },
+          {
+            "desc": "engine returns {infraVoid:true} repeatedly for maxReruns+1 attempts => the cell is logged as exhausted-reruns, never silently dropped; WHY: proves bounded re-run + durable void logging",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
