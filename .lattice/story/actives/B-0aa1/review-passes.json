@@ -98,6 +98,15 @@
       "reviewRound": "2026-06-24T04:50:02.077Z",
       "reviewRunId": "B-0aa1:RR-016",
       "_hash": "4f6d120a334e703ba95a165821385f6bd60faddc430ccb5233abb716779f5438"
+    },
+    {
+      "id": "B-0aa1:RP-012",
+      "agent": "lattice-review-test-coverage",
+      "note": "Scope-ack for live-smoke-transcript.json is a legitimate lifecycle evidence path acknowledgement. All 12 verificationIntent slots (CHK-001 through CHK-004, happy/edge/adversarial) have result=pass evidence with consistent materialHash. All three prior findings (F-001 idempotency, F-002 empty-pattern, F-003 docs contract) are resolved with evidenceState=verified. The acknowledged artifact contains real-execution evidence (runCommands=true, exitCode=0, 12 concrete steps) and correctly carries authorityDone=false/productionDone=false. No new test gaps introduced.",
+      "createdAt": "2026-06-24T04:51:49.032Z",
+      "reviewRound": "2026-06-24T04:50:02.077Z",
+      "reviewRunId": "B-0aa1:RR-015",
+      "_hash": "1bd0b35a61a7488304451950cbd83d79f6fb986e377bda84b6a11d48198f38e7"
     }
   ]
 }
