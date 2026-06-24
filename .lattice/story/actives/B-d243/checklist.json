@@ -210,6 +210,17 @@
           "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
           "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
           "timestamp": "2026-06-24T11:20:26.619Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/delivery-check-freshness-smoke.js",
+          "result": "pass",
+          "note": "delivery-check-freshness-smoke.ts:305-329 (story-owned change case): after deliveryCheckSet, edits the STORY_FILE (feature.ts) on the story branch (line 312-314). Asserts materialHash changed (line 315) AND storyFilesHash changed (line 316). doneRow returns status=fail with stale detail (lines 319-320). Machine guard blocks with stale_delivery_check (line 322). This proves: story-owned change -> storyFilesHash mismatch -> strict stale, never downgraded to advisory.",
+          "headHash": "f265bfc6204a4dc8fa5b8f8cd8fe82ade872fb82",
+          "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
+          "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
+          "timestamp": "2026-06-24T11:20:34.048Z"
         }
       ]
     },
