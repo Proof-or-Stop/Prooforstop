@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-24T10:27:56.413Z",
       "reviewRunId": "B-0985:RR-011",
       "_hash": "f9a6ce69c3ec89b96341c061cb84811c829029c90123c10b887de43ff91c506a"
+    },
+    {
+      "id": "B-0985:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Concept review PASS after F-005 fix at HEAD 0e4b86b. Reviewed docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md against packages/main/src/core/proof-admissibility.ts, docs/evidence/proof-surface-inventory.md/json, and packages/main/src/tasks/proof-admissibility-smoke.ts. ProductionDone boundary is conceptually correct: local/legacy/raw/candidate/diagnostic/review/quorum/offline evidence remains non-production; raw authority-receipt is diagnostic-status only; only authority-receipt-ref scoped as production-gate-decision can be production-completion eligible, and only when policy matches plus current contractVersion, schemaVersion, strict shape, semantic digest, signature/receipt, temporal/material, subject, and producer checks are exactly satisfied. F-001/F-002 omitted-check fail-open and F-005 null/non-true/missing-contract fail-open are fixed. Verified with lattice finding_list and npm --prefix packages/main run test:proof-admissibility.",
+      "createdAt": "2026-06-24T10:32:21.942Z",
+      "reviewRound": "2026-06-24T10:27:56.413Z",
+      "reviewRunId": "B-0985:RR-009",
+      "_hash": "35af032e691868759e9cb13b4ea9ae7f9701a67c63ea3b6b22f41d8595337a4c"
     }
   ]
 }
