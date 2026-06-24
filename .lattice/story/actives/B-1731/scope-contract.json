@@ -9,6 +9,12 @@
     "packages/main/src/core/repro-intake.ts",
     "packages/main/src/core/evidence/types.ts",
     "packages/main/src/handlers/repro-intake.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/handlers/session.ts",
+    "scripts/verify-process-fact-contract.mjs",
     "lattice.config.json",
     "package.json",
     "packages/main/package.json"
@@ -19,8 +25,8 @@
   ],
   "protectedFiles": [],
   "explicitExcludes": [],
-  "scopeChangeReason": "Refresh scope contract after expanding B-1731 from lifecycle-only guard to story_create pre-story intake gate plus smoke registration.",
+  "scopeChangeReason": "Refresh scope contract after aligning all implementation touchpoints for story_create preflight, lifecycle gate, config, process fact, session surfacing, and smoke registration.",
   "acknowledgements": [],
   "createdAt": "2026-06-24T21:50:40.326Z",
-  "updatedAt": "2026-06-24T22:01:23.604Z"
+  "updatedAt": "2026-06-24T22:01:42.570Z"
 }
