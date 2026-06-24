@@ -1,0 +1,26 @@
+{
+  "task": "Formalize the already-proven validate execution lock fix inside a normal Lattice story.",
+  "outcome": "After this story, the user can run `node packages/main/dist/tasks/validate-execution-lock-smoke.js` and see `validate-execution-lock smoke passed: 8 assertions`, proving same-story validate concurrency is blocked without harming reviewer, delivery, story_advance, stale-lock, or done-required paths.",
+  "facts": [
+    "Red evidence commit bac345a80 proves same-story validate can enter the validation command concurrently before the fix.",
+    "Green implementation commit 8248dc50d adds a story-scoped validation execution lock and wraps validate plus done_required_validate.",
+    "Non-regression commit 5c643b627 extends the smoke to 8 assertions covering delivery_check_set and story_advance internal validate.",
+    "Canonical root had unrelated dirty files before story creation; this story must not touch them."
+  ],
+  "constraints": [
+    "Do not optimize arbitrarily; fix only the real workflow correctness issue.",
+    "Keep the lock host-neutral and story-scoped, not Codex/Claude-specific and not global across unrelated worktrees.",
+    "Do not change owner lease design or Authority server behavior in this story.",
+    "Preserve different-story validate concurrency and reviewer/delivery metadata writes."
+  ],
+  "unknowns": [
+    "Whether DONE will require extra evidence refresh because this story starts from already-proven external commits."
+  ],
+  "touchpoints": [
+    "packages/main/src/core/validation-execution-lock.ts",
+    "packages/main/src/handlers/verifier.ts",
+    "packages/main/src/handlers/done-required-validation.ts",
+    "packages/main/src/tasks/validate-execution-lock-smoke.ts"
+  ],
+  "timestamp": "2026-06-24T01:05:33.543Z"
+}

@@ -1,0 +1,54 @@
+{
+  "storyId": "B-ef65",
+  "checkedAt": "2026-06-24T01:51:59.788Z",
+  "headHash": "90e12eee9b5c3bbf031afcde6c8117004cb86e8f",
+  "materialHash": "3f8297ef2c1455363ee6e07c00f63e97a1a3bf45bb2f3b4a4f539776bae8bd67",
+  "reviewRound": "2026-06-24T01:42:49.321Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-ef65/evidence/delivery-context-pack.json:userSees[0]",
+      "promise": "After the implementation build, the terminal shows TypeScript build success and validate/done_required_validate use the same story-scoped validation execution lock without changing unrelated workflow commands.",
+      "status": "verified",
+      "verifiedBy": "delivery review of source diff, current DONE-required evidence, current validation evidence, and live smoke transcript",
+      "evidence": "Current validation evidence is PASS at 2026-06-24T01:48:27.998Z on materialHash 3f8297ef2c1455363ee6e07c00f63e97a1a3bf45bb2f3b4a4f539776bae8bd67 with verification coverage 9/9. DONE-required evidence is PASS at 2026-06-24T01:49:07.231Z on the same materialHash and includes packages/main build plus npm test. Source diff adds validation-execution-lock.ts, wraps story validate evidence persistence in withValidationExecutionLock, and wraps done_required_validate with the same story-scoped lock. Live smoke at 2026-06-24T01:50:18.406Z exited 0."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-ef65/evidence/delivery-context-pack.json:userSees[1]",
+      "promise": "Running node packages/main/dist/tasks/validate-execution-lock-smoke.js prints `validate-execution-lock smoke passed: 8 assertions` after build.",
+      "status": "waived",
+      "verifiedBy": "delivery review of superseding live smoke transcript and F-001 stronger coverage",
+      "evidence": "The old exact 8-assertion text is stale. The current live-smoke-transcript.json re-captured at 2026-06-24T01:50:18.406Z shows command node packages/main/dist/tasks/validate-execution-lock-smoke.js exitCode 0 and stdout validate-execution-lock smoke passed: 9 assertions on materialHash 3f8297ef2c1455363ee6e07c00f63e97a1a3bf45bb2f3b4a4f539776bae8bd67.",
+      "waiverReason": "The exact 8-assertion promise was superseded by the reviewed B-ef65:F-001 fix, and the current 9-assertion live smoke is stronger evidence rather than a regression."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-ef65/evidence/delivery-context-pack.json:userSees[2]",
+      "promise": "Final summary reports elapsed story time and friction points observed from story creation through DONE, including PLAN gate work, worktree dependency setup, review/test evidence, and any stale evidence recovery.",
+      "status": "waived",
+      "verifiedBy": "delivery review of summary.json plus current evidence artifacts",
+      "evidence": "summary.json records totalDurationMs 612816, phase stats for INIT/INIT_CHECK/PLAN/DEV, and pitfalls including dirty root, story_create background friction, high-risk auto-elevation, INIT artifacts, node_modules symlinks, PLAN blockers, execution boundary/schema mismatch, owner lease friction, and utils dist bootstrap. It keeps DONE timestamp pending and limitations scoped to validate-lock only. It does not claim Authority completion, production readiness, or unattended readiness.",
+      "waiverReason": "The exact through-DONE final timestamp cannot be true before DONE. The current summary honestly records observed timing and friction so far and avoids overclaiming readiness."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Reviewed current test-evidence.json: lattice validate --story=B-ef65 --json PASS at 2026-06-24T01:48:27.998Z, headHash 90e12eee9b5c3bbf031afcde6c8117004cb86e8f, materialHash 3f8297ef2c1455363ee6e07c00f63e97a1a3bf45bb2f3b4a4f539776bae8bd67, verification coverage 9/9. Reviewed source diff: validate and done_required_validate use the shared story-scoped validation execution lock."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Reviewed current live-smoke-transcript.json: node packages/main/dist/tasks/validate-execution-lock-smoke.js exited 0 at 2026-06-24T01:50:18.406Z with stdout validate-execution-lock smoke passed: 9 assertions, bound to materialHash 3f8297ef2c1455363ee6e07c00f63e97a1a3bf45bb2f3b4a4f539776bae8bd67. Reviewed smoke source coverage for same-story exclusion, post-command evidence persistence hold, different-story/worktree concurrency, stale lock reclaim, metadata writes, story_advance internal validate, done_required_validate contention, reentrancy, and sibling contention."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Reviewed current done-required-evidence.json: PASS at 2026-06-24T01:49:07.231Z, materialHash 3f8297ef2c1455363ee6e07c00f63e97a1a3bf45bb2f3b4a4f539776bae8bd67, packages/main build PASS and root npm test PASS. Reviewed summary.json: it reports elapsed timing and friction, says final DONE timestamp is pending, and does not claim Authority, production, or unattended readiness."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery review accepts B-ef65 for the current materialHash 3f8297ef2c1455363ee6e07c00f63e97a1a3bf45bb2f3b4a4f539776bae8bd67. Current validation and DONE-required evidence pass, the live smoke passes with 9 assertions, and the old 8-assertion promise is explicitly waived as superseded. Claims remain scoped to validate execution locking and do not assert Authority completion, production readiness, or unattended readiness."
+  },
+  "_hash": "dc71e006d39d7b7e931842cdfa09efa684d65e65bfc17cdc401fac3cfe4ea21f"
+}
