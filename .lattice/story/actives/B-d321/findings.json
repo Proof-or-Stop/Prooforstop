@@ -1,0 +1,81 @@
+{
+  "findings": [
+    {
+      "id": "B-d321:F-001",
+      "desc": "Existing regression smokes were not updated for delivery-check materialHash binding. Repro: `node packages/main/dist/tasks/flow-stability-smoke.js` fails because the synthetic docsPromise delivery-check at packages/main/src/tasks/flow-stability-smoke.ts:3966 signs without materialHash, so DONE reports `stale delivery-check: delivery-check.json is missing materialHash binding` before the expected docsPromise failure. Additional repros: `node packages/main/dist/tasks/lifecycle-check-smoke.js`, `node packages/main/dist/tasks/review-assurance-floor-smoke.js`, and `node packages/main/dist/tasks/done-preflight-smoke.js` also fail from legacy delivery-check fixtures. Update these fixtures/helpers to record headHash/materialHash and sign with materialHash where they intend a fresh delivery-check, or adjust assertions where stale legacy evidence is intentional.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-23T12:49:54.112Z",
+      "reviewRound": "2026-06-23T12:46:01.524Z",
+      "reviewRunId": "B-d321:RR-002",
+      "_hash": "86ecdfc740af66a704c2065c0605becda31d6443a4ae9a3621cd76c379345e90",
+      "files": [
+        "packages/main/src/tasks/flow-stability-smoke.ts",
+        "packages/main/src/tasks/lifecycle-check-smoke.ts",
+        "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+        "packages/main/src/tasks/done-preflight-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|existing-regression-smokes",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Updated the four existing regression smoke fixtures to persist headHash/materialHash on synthetic fresh delivery-check records and sign with materialHash. Verified with npm --prefix packages/main run build; node packages/main/dist/tasks/flow-stability-smoke.js; node packages/main/dist/tasks/lifecycle-check-smoke.js; node packages/main/dist/tasks/review-assurance-floor-smoke.js; node packages/main/dist/tasks/done-preflight-smoke.js; node packages/main/dist/tasks/delivery-check-freshness-smoke.js; lattice validate --focus=fast --json; lattice scope_contract_check --storyId=B-d321.",
+      "resolvedAt": "2026-06-23T12:57:41.923Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-d321:F-002",
+      "desc": "F-001 fixture alignment is incomplete: several DONE-ready smoke fixtures still write delivery-check.json without headHash/materialHash and sign without materialHash, so the new fail-closed gate blocks them before their intended assertions. Verified after build: `node packages/main/dist/tasks/done-prepare-smoke.js` fails with DONE prepare BLOCKED reason stale delivery-check missing materialHash binding; `node packages/main/dist/tasks/worktree-authority-smoke.js` fails story_advance DONE with [stale_delivery_check]; `node packages/main/dist/tasks/done-readiness-flow-benchmark.js` fails because done closure readiness is false. Static call sites also show five-argument signDeliveryCheck in packages/main/src/tasks/worktree-authority-smoke.ts:560, done-prepare-smoke.ts:136, done-premerge-mainsha-recheck-smoke.ts:168, done-readiness-flow-benchmark.ts:443, and field-regression-cli-smoke.ts:1879. Update fresh fixtures to record headHash/materialHash and sign with materialHash, leaving only explicit legacy-stale tests unsigned.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-23T13:06:03.389Z",
+      "reviewRound": "2026-06-23T12:57:33.948Z",
+      "reviewRunId": "B-d321:RR-004",
+      "_hash": "2408293408ec5a215da6c459ee4f6be8784aad20781d1a58f6a35b2d9b88e89a",
+      "files": [
+        "packages/main/src/tasks/worktree-authority-smoke.ts",
+        "packages/main/src/tasks/done-prepare-smoke.ts",
+        "packages/main/src/tasks/done-premerge-mainsha-recheck-smoke.ts",
+        "packages/main/src/tasks/done-readiness-flow-benchmark.ts",
+        "packages/main/src/tasks/field-regression-cli-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|fixture-alignment-incomplete",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fresh synthetic delivery-check fixtures now persist headHash/materialHash and sign with the same materialHash in worktree-authority-smoke, done-prepare-smoke, done-premerge-mainsha-recheck-smoke, done-readiness-flow-benchmark, and field-regression-cli-smoke. Verification passed: npm --prefix packages/main run build; node packages/main/dist/tasks/done-prepare-smoke.js; node packages/main/dist/tasks/worktree-authority-smoke.js; node packages/main/dist/tasks/done-readiness-flow-benchmark.js; node packages/main/dist/tasks/done-premerge-mainsha-recheck-smoke.js; node packages/main/dist/tasks/field-regression-cli-smoke.js; node packages/main/dist/tasks/delivery-check-freshness-smoke.js; lattice validate --focus=fast --json; lattice scope_contract_check --storyId=B-d321 --json.",
+      "resolvedAt": "2026-06-23T13:25:13.643Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-d321:F-003",
+      "desc": "Re-review cannot pass: F-001 fixed the four named regression smokes, but coverage is still incomplete for additional DONE-ready smoke fixtures that write delivery-check.json without headHash/materialHash and sign without materialHash. Verified after build: `node packages/main/dist/tasks/done-prepare-smoke.js` fails with DONE prepare BLOCKED due to stale delivery-check missing materialHash binding; `node packages/main/dist/tasks/worktree-authority-smoke.js` fails story_advance DONE with [stale_delivery_check]; `node packages/main/dist/tasks/done-readiness-flow-benchmark.js` fails because the dirty metadata scenario is not closure-ready. Static call sites still show five-argument signDeliveryCheck in done-prepare-smoke.ts:136, worktree-authority-smoke.ts:560, done-premerge-mainsha-recheck-smoke.ts:168, done-readiness-flow-benchmark.ts:443, and field-regression-cli-smoke.ts:1879. Update fresh delivery-check fixtures to persist headHash/materialHash and sign with materialHash, keeping unsigned legacy fixtures only where stale evidence is intentional.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-23T13:07:14.615Z",
+      "reviewRound": "2026-06-23T12:57:33.948Z",
+      "reviewRunId": "B-d321:RR-006",
+      "_hash": "9159da0e8729254088bea0458d495a93bde67cc62a85fa33df68607478687036",
+      "files": [
+        "packages/main/src/tasks/worktree-authority-smoke.ts",
+        "packages/main/src/tasks/done-prepare-smoke.ts",
+        "packages/main/src/tasks/done-premerge-mainsha-recheck-smoke.ts",
+        "packages/main/src/tasks/done-readiness-flow-benchmark.ts",
+        "packages/main/src/tasks/field-regression-cli-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|fixture-alignment-incomplete",
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fresh synthetic delivery-check fixtures now persist headHash/materialHash and sign with the same materialHash in worktree-authority-smoke, done-prepare-smoke, done-premerge-mainsha-recheck-smoke, done-readiness-flow-benchmark, and field-regression-cli-smoke. Verification passed: npm --prefix packages/main run build; node packages/main/dist/tasks/done-prepare-smoke.js; node packages/main/dist/tasks/worktree-authority-smoke.js; node packages/main/dist/tasks/done-readiness-flow-benchmark.js; node packages/main/dist/tasks/done-premerge-mainsha-recheck-smoke.js; node packages/main/dist/tasks/field-regression-cli-smoke.js; node packages/main/dist/tasks/delivery-check-freshness-smoke.js; lattice validate --focus=fast --json; lattice scope_contract_check --storyId=B-d321 --json.",
+      "resolvedAt": "2026-06-23T13:25:23.837Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

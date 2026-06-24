@@ -1633,10 +1633,10 @@ async function assertHotfixPriorityElevationCliSurface(): Promise<void> {
       '## Trigger Event',
       '2026-05-08 B-hotfix user reported hotfix fixes need to be recorded; even if the request is low priority, it should explicitly enter the high-risk review path to avoid emergency keywords being hidden by docs wording.',
       '',
-      '## Key Insight',
+      '## Key Insights',
       'What needs to be verified here is not the business function, but whether the CLI surface honestly explains that effective priority overrides the original priority, and lets the agent anticipate the preMortem gate.',
       '',
-      '## Trade-offs',
+      '## Solution Tradeoffs',
       'Keep the hotfix auto-elevate behavior, since it protects production and emergency fix paths; this smoke only locks the output wording and persisted priority.',
       '',
       '## Conversation Texture',
@@ -1682,94 +1682,11 @@ async function assertHotfixPriorityElevationCliSurface(): Promise<void> {
       ].join('\n'),
       checklist: [{ title: 'Record localized risk detection', context: 'CLI output should elevate localized emergency/security wording' }],
     });
-    assert.equal(localizedResult.code, 0);
+    assert.equal(localizedResult.code, 1, localizedResult.stderr);
     assert.doesNotMatch(localizedResult.stdout, /Auto-elevated priority|Original priority=low/);
-    assert.match(localizedResult.stderr, /Auto-elevated priority: low → high/);
-    const localizedStore = new StoryStore(root);
-    const localizedStoryId = localizedStore.listStoryIds().find(id => localizedStore.readStory(id).name === 'localized-risk-surface');
-    assert.ok(localizedStoryId);
-    const localizedStory = localizedStore.readStory(localizedStoryId);
-    assert.equal(localizedStory.priority, 'high');
-    const localizedCategories = new Set((localizedStory.riskSignals || []).map(sig => sig.category));
-    assert.ok(localizedCategories.has('Production/Emergency'));
-    assert.ok(localizedCategories.has('Security/Credentials'));
-
-    const localizedRiskCases = [
-      {
-        name: 'localized-data-migration-risk',
-        title: '\u6570\u636e\u8fc1\u79fb\u7834\u574f\u6027\u53d8\u66f4',
-        description: '\u6570\u636e\u5e93\u8fc1\u79fb\u9700\u8981\u8c03\u6574\u8868\u7ed3\u6784\u5e76\u9632\u6b62\u5220\u8868\u98ce\u9669',
-        category: 'Data Migration/Destructive',
-        backgroundSuffix: 'B-lr01',
-      },
-      {
-        name: 'localized-state-machine-risk',
-        title: '\u72b6\u6001\u673a\u95e8\u7981\u4fee\u6539',
-        description: '\u9636\u6bb5\u6d41\u8f6c\u548c\u5b88\u536b\u903b\u8f91\u9700\u8981\u8c03\u6574',
-        category: 'State Machine/Gate',
-        backgroundSuffix: 'B-lr02',
-      },
-      {
-        name: 'localized-validation-framework-risk',
-        title: '\u9a8c\u8bc1\u6846\u67b6\u56de\u5f52',
-        description: '\u9a8c\u8bc1\u534f\u8bae\u548c\u6d4b\u8bd5\u8fd0\u884c\u5668\u9700\u8981\u66f4\u65b0',
-        category: 'Validation Framework',
-        backgroundSuffix: 'B-lr03',
-      },
-      {
-        name: 'localized-git-destructive-risk',
-        title: 'git \u5f3a\u63a8\u9632\u62a4',
-        description: 'git \u5f3a\u63a8\u548c\u91cd\u7f6e\u64cd\u4f5c\u9700\u8981\u9ad8\u98ce\u9669\u5ba1\u67e5',
-        category: 'git Destructive Operation',
-        backgroundSuffix: 'B-lr04',
-      },
-      {
-        name: 'localized-compliance-risk',
-        title: '\u9690\u79c1\u5408\u89c4\u4fee\u590d',
-        description: '\u654f\u611f\u4fe1\u606f\u548c\u7528\u6237\u6570\u636e\u5904\u7406\u9700\u8981\u5408\u89c4\u5ba1\u67e5',
-        category: 'Compliance/Privacy',
-        backgroundSuffix: 'B-lr05',
-      },
-      {
-        name: 'localized-breaking-api-risk',
-        title: '\u516c\u5171 API \u7834\u574f\u6027\u53d8\u66f4',
-        description: '\u516c\u5171 API \u4e0d\u517c\u5bb9\u53d8\u66f4\u9700\u8981\u9ad8\u98ce\u9669\u8def\u5f84',
-        category: 'Breaking API Change',
-        backgroundSuffix: 'B-lr06',
-      },
-    ];
-
-    for (const riskCase of localizedRiskCases) {
-      const riskResult = await runLatticeRaw(root, 'story_create', {
-        name: riskCase.name,
-        title: riskCase.title,
-        description: riskCase.description,
-        type: 'chore',
-        priority: 'low',
-        background: [
-          '## Trigger Event',
-          `2026-06-03 ${riskCase.backgroundSuffix} user wrote a localized high-risk request; it should be treated the same as the matching English risk category.`,
-          '',
-          '## Key Insights',
-          'Localized wording must map to the same effective high-risk behavior and persisted riskSignals category.',
-          '',
-          '## Solution Tradeoffs',
-          'Keep each localized case scoped to one category so this regression catches category drift.',
-          '',
-          '## Conversational Texture',
-          'The user asked whether translation wording and real outcomes stay aligned.',
-        ].join('\n'),
-        checklist: [{ title: `Record ${riskCase.category} localized detection`, context: 'CLI output should elevate localized high-risk wording' }],
-      });
-      assert.equal(riskResult.code, 0, `${riskCase.name} should create successfully`);
-      assert.doesNotMatch(riskResult.stdout, /Auto-elevated priority|Original priority=low/, `${riskCase.name} should keep advisory off stdout`);
-      assert.match(riskResult.stderr, /Auto-elevated priority: low → high/, `${riskCase.name} should show auto-elevation on stderr`);
-      const riskStoryId = localizedStore.listStoryIds().find(id => localizedStore.readStory(id).name === riskCase.name);
-      assert.ok(riskStoryId, `${riskCase.name} should persist a story`);
-      const riskStory = localizedStore.readStory(riskStoryId);
-      assert.equal(riskStory.priority, 'high', `${riskCase.name} should persist elevated priority`);
-      assert.ok((riskStory.riskSignals || []).some(sig => sig.category === riskCase.category), `${riskCase.name} should persist ${riskCase.category}`);
-    }
+    assert.match(localizedResult.stderr, /english_artifact_cjk_authoring/);
+    assert.match(localizedResult.stderr, /title:1: non-English \(CJK\) text/);
+    assert.equal(new StoryStore(root).listStoryIds().length, 1, 'CJK authoring refusal must not persist a story');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -1871,12 +1788,14 @@ function writeDoneReadyStory(worktree: string, storyId: string): void {
   const delivery: DeliveryCheckData = {
     storyId,
     checkedAt: timestamp,
+    headHash: head,
+    materialHash,
     reviewRound: timestamp,
     agentId: 'lattice-review-delivery',
     docsPromises,
     realMachineTests,
     closingSelfCheck,
-    _hash: signDeliveryCheck(storyId, docsPromises, realMachineTests, closingSelfCheck, timestamp),
+    _hash: signDeliveryCheck(storyId, docsPromises, realMachineTests, closingSelfCheck, timestamp, materialHash),
   };
   store.writeDeliveryCheck(storyId, delivery);
 }

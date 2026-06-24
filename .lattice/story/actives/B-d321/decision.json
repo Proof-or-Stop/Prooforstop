@@ -1,0 +1,77 @@
+{
+  "principles": [
+    "Only fix the correctness proof gap exposed by baseline item 5.",
+    "Delivery-check freshness must follow existing Lattice materialHash semantics.",
+    "Fail closed for missing/tampered gate evidence bindings.",
+    "Keep delivery reviewer role separation unchanged.",
+    "Preserve existing docsPromise validation behavior."
+  ],
+  "drivers": [
+    "Gate-consumed delivery-check evidence must not pass over changed source material.",
+    "Metadata-only commits should not create arbitrary delivery-review rerun loops.",
+    "Process-fact/artifact contracts must remain consistent for L4 delivery-check evidence."
+  ],
+  "options": [
+    {
+      "name": "materialHash-binding-with-headHash-audit",
+      "pros": [
+        "Catches real material drift after delivery review",
+        "Matches done-required freshness semantics",
+        "Avoids arbitrary reruns for metadata-only head changes",
+        "Keeps fix narrow to delivery-check contract/gates"
+      ],
+      "cons": [
+        "Older delivery-check artifacts without materialHash become stale and must be rerun"
+      ]
+    },
+    {
+      "name": "headHash-and-materialHash-hard-binding",
+      "pros": [
+        "Strictly binds delivery-check to exact commit"
+      ],
+      "cons": [
+        "Would force reruns after harmless Lattice metadata-only commits",
+        "Conflicts with existing done-required metadata-only head drift behavior"
+      ]
+    },
+    {
+      "name": "status-only-warning",
+      "pros": [
+        "Avoids breaking older delivery-check artifacts"
+      ],
+      "cons": [
+        "Leaves DONE able to accept stale delivery evidence",
+        "Does not fix the correctness issue"
+      ]
+    }
+  ],
+  "chosen": "materialHash-binding-with-headHash-audit",
+  "rationale": "Use materialHash as the hard freshness contract and keep headHash as audit metadata. That fixes stale source-material delivery evidence without inventing a broad optimization or destabilizing metadata-only closure workflows.",
+  "preMortem": [
+    {
+      "scenario": "Older delivery-check files without materialHash still pass",
+      "trigger": "DONE gate only checks _hash and docsPromises",
+      "consequence": "Stale delivery evidence remains accepted",
+      "mitigation": "Gate helper treats missing materialHash as stale and tests assert fail-closed behavior"
+    },
+    {
+      "scenario": "Metadata-only commits force unnecessary delivery reviewer reruns",
+      "trigger": "headHash is enforced as a hard binding",
+      "consequence": "DONE closure loops after Lattice metadata writes",
+      "mitigation": "Record headHash for audit only; freshness compares materialHash"
+    },
+    {
+      "scenario": "Hash signature ignores the new binding",
+      "trigger": "materialHash field is added but not included in signDeliveryCheck",
+      "consequence": "A stale or forged binding can be edited without tamper detection",
+      "mitigation": "Include materialHash in signature domain and add tamper regression assertions"
+    },
+    {
+      "scenario": "Process-fact contract silently drifts",
+      "trigger": "Delivery-check artifact contract changes without registry/contract validation",
+      "consequence": "Reviewers cannot rely on L4 gate evidence provenance",
+      "mitigation": "Focused smoke asserts delivery-check remains L4 gate evidence produced by delivery_check_set and full process-fact contract validation passes"
+    }
+  ],
+  "timestamp": "2026-06-23T12:28:26.345Z"
+}
