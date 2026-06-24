@@ -75,10 +75,11 @@
       "q": "Where is docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md, or should the story relatedDocs/plan source be updated to the actual canonical plan? Without it, the reviewer cannot independently verify that CHK-001 includes every M0 surface named by the plan.",
       "evidence": "The checklist and plan both cite docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md; sed and rg --files in /Users/jek/Documents/Work/proofbound/.worktrees/B-0985 report no such file. docs/evidence/evidence-platform-architecture.md only says the next admissibility-hardening story can add claim policies and waterlines, but does not enumerate this storys M0/M1 plan.",
       "sourcePointers": [
-        "checklist_get B-0985 CHK-001..CHK-004 relatedDocs",
-        "plan_get B-0985 Scope",
-        "docs/evidence/evidence-platform-architecture.md:108"
-      ]
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+        "CHK-001"
+      ],
+      "resolution": "Resolved by bringing the user-selected source document docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md into the B-0985 worktree. The document now exists in the story branch and can be used to verify that CHK-001 covers the M0 surface inventory named in the plan.",
+      "resolvedAt": "2026-06-24T09:59:29.557Z"
     }
   ]
 }
