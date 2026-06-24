@@ -134,6 +134,15 @@
       "reviewRound": "2026-06-24T22:49:32.346Z",
       "reviewRunId": "B-1731:RR-029",
       "_hash": "35020ef3d6cea30d9f34050936c515dc6ee3e401e9ee70addf81004f1335e1f6"
+    },
+    {
+      "id": "B-1731:RP-016",
+      "agent": "lattice-review-quality",
+      "note": "Quality review inspected packages/main/src/core/repro-evidence-binding-gate.ts, packages/main/src/core/repro-intake.ts, packages/main/src/handlers/repro-intake.ts, packages/main/src/handlers/story-create.ts, packages/main/src/core/machine.ts, packages/main/src/core/config.ts, packages/main/src/core/evidence/types.ts, packages/main/src/cli/command-catalog.ts, command policy/process fact registry changes, and repro smoke coverage. Verified runtime behavior with npm --prefix packages/main run build, node packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js, node packages/main/dist/tasks/repro-first-candidate-smoke.js, node scripts/verify-process-fact-contract.mjs, and node packages/main/dist/tasks/command-ownership-contract.js. Focused checks covered enforce/warn/off config semantics, malformed/stale story-evidence-binding artifacts, accepted repro review binding, required confirmed spikeReviewId/spikeReviewDigest handling, rejected/mismatched spike review rejection, story_create preflight persistence behavior, and lifecycle PLAN/DEV/express gates. I also ran node packages/main/dist/tasks/command-catalog-smoke.js; it fails on the pre-existing trailing command order assertion because main already has repro-intake commands after dev_memory, so I did not treat that baseline smoke drift as a B-1731 blocker. No story-owned quality blocker found.",
+      "createdAt": "2026-06-24T22:55:33.894Z",
+      "reviewRound": "2026-06-24T22:49:32.346Z",
+      "reviewRunId": "B-1731:RR-027",
+      "_hash": "9673a495ed841221f953149052443b77e2a0b9f25880c7169e37804d639f7ba8"
     }
   ]
 }
