@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-24T11:18:46.569Z",
       "reviewRunId": "B-2017:RR-005",
       "_hash": "08d7d9fc344c96ec10312bb7bac578e9397997da64d756b27435d0bed6a13c50"
+    },
+    {
+      "id": "B-2017:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Round 2 targeted quality review passed. Reviewed scripts/verify-orphan-surface.mjs collectDirectlyRegisteredFactories/isConstConsumedByRegistry self-test and current registry usage. Manual registry.register member usage for clusterHandlers.finding_cluster is treated as registered, and instantiated-but-unregistered factories remain excluded/fail closed. Commands: npm run test:orphan-surface; npm --prefix packages/main run build -- --noEmit.",
+      "createdAt": "2026-06-24T11:21:31.619Z",
+      "reviewRound": "2026-06-24T11:18:46.569Z",
+      "reviewRunId": "B-2017:RR-006",
+      "_hash": "d9ca09a28a5cf90fe2eea2046cbb6b75df18aaf481f0c5bbf4a750890b78d50e"
     }
   ]
 }
