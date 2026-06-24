@@ -467,14 +467,18 @@
       "desc": "F-005 fix INCOMPLETE — A2prime budget guard rejects only null/missing budgets, not non-positive/non-finite. Codex confirmed {tokenBudget:0, wallBudgetMs:100000} emits a record with budgetPass=true, truncated=true, validateOk=true. Fix: reject tokenBudget<=0 / wallBudgetMs<=0 / non-finite (NaN/Infinity) => infraVoid fail-closed before any record; a 0 or non-finite budget is not a valid equal-spend budget.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex-host-2",
       "createdAt": "2026-06-24T13:24:15.366Z",
       "reviewRound": "2026-06-24T12:50:13.876Z",
       "_hash": "93257017fd5c9b630f545dbefc65c6e77e9839c341a86f76fdd4972cf6847bd6",
       "signatureTag": "adversarial|unknown|incomplete-a2prime-budget",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "A2prime budget guard rejects 0/negative/NaN/Infinity (must be finite>0) fail-closed. Proven vs codex r2 triggers (7/7). Commit 9cce6b071.",
+      "resolvedAt": "2026-06-24T13:33:38.968Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
