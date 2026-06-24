@@ -15,6 +15,7 @@ import type { HandlerContext } from './context.js';
 import {
   AuthorityClient,
   loadAuthorityConfig,
+  resolveAuthorityClientAuth,
   type AuthorityConfigLoadOptions,
   type AuthorityFetch,
 } from '../core/authority-client.js';
@@ -200,7 +201,10 @@ async function loadProof(args: AuthorityReceiptVerifyArgs): Promise<unknown> {
     if (!settings.baseURL) {
       throw new Error('LATTICE_AUTHORITY_URL is not set; proofPath fetch requires an authority server URL.');
     }
-    const client = new AuthorityClient(settings.baseURL, args._fetchImpl, settings.timeoutMS);
+    // The gate-receipt proof endpoint is a protected Authority API; carry the
+    // customer API key so the fetch is authorized (otherwise 401).
+    const auth = resolveAuthorityClientAuth(process.env);
+    const client = new AuthorityClient(settings.baseURL, args._fetchImpl, settings.timeoutMS, auth);
     const outcome = await client.fetchGateReceiptProof(args.proofPath);
     if (!outcome.ok) {
       throw new Error(`authority receipt proof fetch failed (${outcome.kind}): ${outcome.message ?? 'unknown error'}`);

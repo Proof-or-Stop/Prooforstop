@@ -19,6 +19,7 @@ import { createVerifierHandlers } from '../handlers/verifier.js';
 import { runAuthorityReceiptTransitionGate } from '../handlers/phase-gates.js';
 import {
   buildGateEvaluateRequest,
+  buildNoOverlapMaterialOverlapAuditDefault,
   type GateEvaluateRequestContract,
 } from '../core/authority-contracts.js';
 import { gateDecisionInputDigest } from '../core/authority-gate-receipt-verifier.js';
@@ -209,6 +210,12 @@ function buildPhaseGateRequest(ctx: LiveContext, targetPhase: 'TEST' | 'DONE'): 
       `${ctx.storyId}:seed:l2-verifier:gemini`,
       `${ctx.storyId}:delivery`,
     ],
+    // The DONE enforce gate requires a materialOverlapAudit (empty actualFileOverlaps
+    // attests no overlapping concurrent changes). It is part of the gateInputDigest,
+    // so it must be present here AND in the signed decision payload below.
+    ...(targetPhase === 'DONE'
+      ? { materialOverlapAudit: buildNoOverlapMaterialOverlapAuditDefault() }
+      : {}),
   });
 }
 
@@ -229,6 +236,9 @@ function signedTargetGateRequest(ctx: LiveContext, request: GateEvaluateRequestC
       policyMode: 'balanced',
       authorityMode: 'enforce',
       evidenceHashes: request.evidenceRefs ?? [],
+      ...(request.materialOverlapAudit
+        ? { materialOverlapAudit: request.materialOverlapAudit }
+        : {}),
       requestedByActorId: ctx.mainActorId,
       requestedAt: timestamp,
     },
