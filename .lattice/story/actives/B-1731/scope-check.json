@@ -1,0 +1,45 @@
+{
+  "storyId": "B-1731",
+  "checkedAt": "2026-06-24T21:31:09.678Z",
+  "features": [
+    {
+      "feature": "IDEA-to-PLAN repro-first hard gate for code-touched stories",
+      "covered_by": "plan.md#CHK-002 + verificationIntent CHK-002 edge/adversarial",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "story description + user correction pro-story gate"
+    },
+    {
+      "feature": "DEV ingress re-check for PLAN->DEV and INIT_CHECK->DEV express",
+      "covered_by": "plan.md#CHK-002 + verificationIntent CHK-002 happy/adversarial",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "story description"
+    },
+    {
+      "feature": "Non-code/no-files bypass behavior",
+      "covered_by": "plan.md#CHK-001 + verificationIntent CHK-001 edge",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decision option A"
+    },
+    {
+      "feature": "story_create global warn/enforce preflight",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "decision option A limits this slice to lifecycle PLAN/DEV gate; story_create enforce remains follow-up",
+      "source": "decision_set"
+    }
+  ],
+  "summary": {
+    "total": 4,
+    "covered": 3,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "e8de1585aa04af0f4e616c69a95967548bfbcdf66be22e2fcc1a7b5642abad1f",
+  "openQuestions": []
+}
