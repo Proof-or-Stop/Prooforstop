@@ -122,6 +122,25 @@
       ],
       "signatureTag": "missing|ts|code-drift-packages",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-6c4d:F-007",
+      "desc": "doc-code-drift: CLAUDE.md line 831 still says collectReviewerEvidenceState checks \"current-latest run\" uniformly for all evidence kinds. After the kind-aware fix in review-run.ts:807-819, the id-recency (latest-run) check is DROPPED for passes (kind=pass) and KEPT only for open findings (kind=finding). The CLAUDE.md REVIEW->TEST gate-behavior section must be updated to reflect the kind-aware policy.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-24T15:08:14.151Z",
+      "reviewRound": "2026-06-24T15:05:36.419Z",
+      "reviewRunId": "B-6c4d:RR-015",
+      "_hash": "adecfec1373b30a62d1f0da14dcd3e9925e42b23ccf249e2a7bb986d276c27f0",
+      "files": [
+        "CLAUDE.md",
+        "packages/main/src/core/review-run.ts"
+      ],
+      "signatureTag": "doc-code-drift|md|code-drift-claude",
+      "signatureTagSource": "auto"
     }
   ]
 }
