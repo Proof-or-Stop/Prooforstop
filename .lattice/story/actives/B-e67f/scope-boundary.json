@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-e67f",
+  "mode": "feature",
+  "allowed": [
+    "experiments/recovery-runner/corpus-selfcheck.mjs — new: corpus invariant (ref PASS/PASS, inject() PASS/FAIL for all 24) + §2 stratification assertion",
+    "experiments/recovery-runner/run-selfchecks.mjs — wire corpus-selfcheck into the aggregator",
+    "experiments/recovery-runner/tasks/<20 new task dirs: bf-*, rf-*, tr-*, du-*, dp-*, cv-*, cl-*> — apply the pre-validated 7-file task contracts",
+    "package.json / packages/main/package.json — wire corpus-selfcheck into test:experiments if needed"
+  ],
+  "excluded": [
+    "Building the live claude -p engine adapter or running the powered campaign (separate next task)",
+    "Changing the deterministic harness logic (adjudicate.mjs/checks.mjs/run-driver.mjs/analyze.mjs)",
+    "Changing the pre-registration protocol (lattice-experiment-protocol.md)",
+    "Modifying the existing 4 feature tasks (eval-expr/median/parse-range/text-stats)"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Operator-driven daily-chunk powered-ablation program: the corpus chunk. The 20 new tasks were designed + independently re-validated end-to-end before this story.",
+  "createdAt": "2026-06-24T09:57:08.110Z",
+  "updatedAt": "2026-06-24T09:57:08.110Z",
+  "_hash": "b38282baf309b4e5a8ebfaef11703015d6d3bf92c00732c25ebb77b38bd65284"
+}

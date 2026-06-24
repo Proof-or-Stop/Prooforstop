@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-e67f",
+  "allowedCommands": [
+    "cp -r",
+    "git diff",
+    "git status",
+    "node experiments/recovery-runner/corpus-selfcheck.mjs",
+    "node experiments/recovery-runner/run-selfchecks.mjs",
+    "npm --prefix packages/main run build",
+    "npm test"
+  ],
+  "allowedTools": [
+    "cp",
+    "git",
+    "node",
+    "npm"
+  ],
+  "allowedPaths": [
+    "experiments/recovery-runner",
+    "package.json",
+    "packages/main/package.json"
+  ],
+  "excludedCommands": [
+    "claude -p",
+    "git push",
+    "git reset --hard",
+    "rm -rf"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".lattice"
+  ],
+  "confirmedBy": "jek",
+  "createdAt": "2026-06-24T09:57:08.386Z",
+  "updatedAt": "2026-06-24T09:57:08.386Z",
+  "_hash": "5ded4b85928dd29d81320e15a4694936f14d016c587ccbd2aa8aabf99734522c"
+}
