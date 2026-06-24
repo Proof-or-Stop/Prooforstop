@@ -4,8 +4,8 @@
       "id": "CHK-001",
       "title": "Relax the id-recency rejection at both review-run binding sites (kind-aware on validate)",
       "context": "review-run.ts: assertCurrentReviewRunForEvidence (~669-672) drop the id-recency throw (write-time, both kinds); validateEvidenceRunBinding (~794-804) keep the stale_run check ONLY for evidence.kind !== 'pass' so open findings still surface but material-fresh non-latest passes become valid. The freshness (674-683/805-822) + scope (691-699/837-857) checks remain the staleness authorities.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-24T13:08:30.047Z",
       "endTime": null,
       "verificationIntent": {
         "happy": [
