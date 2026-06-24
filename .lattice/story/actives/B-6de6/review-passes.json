@@ -53,6 +53,15 @@
       "reviewRound": "2026-06-24T00:21:09.458Z",
       "reviewRunId": "B-6de6:RR-006",
       "_hash": "cdcb2ecf04c307d0ebf8f18c003527215979094274d5a19adc9e30f7ae2bd639"
+    },
+    {
+      "id": "B-6de6:RP-007",
+      "agent": "lattice-review-quality",
+      "note": "Round 3 re-attestation after main-merge. Build clean (tsc 0 errors). Smoke 1: 14/14 passed. Smoke 2: 7/7 passed. B-6de6 source changes (review-assurance-floor.ts effectiveEvents+storyFilesHash+advisories; done-oracle.ts floor advisory append; review-escalation.ts export; process-fact-levels.ts gateConsumer) are byte-intact post-merge. Main merged commit abb2875a5 only touched unrelated B-ef65 story metadata — zero overlap with B-6de6 source regions. No dead code, no type-safety issues, no I/O isolation violations. Zero new findings.",
+      "createdAt": "2026-06-24T01:10:41.706Z",
+      "reviewRound": "2026-06-24T01:08:47.974Z",
+      "reviewRunId": "B-6de6:RR-009",
+      "_hash": "6dadb16896c7aecb2a468a609a8249dd3b530854f0329a9e7dfca58014aa955e"
     }
   ]
 }
