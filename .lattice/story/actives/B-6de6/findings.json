@@ -27,7 +27,7 @@
       "desc": "currentStoryFilesHash call-site asymmetry between the floor and review-escalation: floor correctly passes (gitCwd, HEAD, args.projectRoot) separating git-cwd from metadataRoot (wrapper-root aware, review-assurance-floor.ts:510), while review-escalation passes only (args.projectRoot) as gitCwd with no metadataRoot separation (review-escalation.ts:440). On a wrapper-root layout where gitCwd != projectRoot the two evaluators compute different storyFilesHash values for the same story, breaking the claim of equivalent downgrade-accept semantics. The floor fix is correct; review-escalation has a pre-existing bug not addressed by this story. No unified helper or comment documents the asymmetry.",
       "severity": "low",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-06-24T00:25:09.330Z",
@@ -39,7 +39,11 @@
         "packages/main/src/core/review-assurance-floor.ts"
       ],
       "signatureTag": "edge|ts|currentstoryfileshash-call-site",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Pre-existing escalation wrapper-root root-resolution: review-escalation.ts:439 uses currentStoryFilesHash(projectRoot) while the floor (this story) correctly uses currentStoryFilesHash(gitCwd,'HEAD',projectRoot). The shared eventsWithStoryFilesHashDowngrade helper is identical (downgrade semantics agree); only the caller-supplied freshness root differs, and only under wrapper-root layouts. The scope-boundary explicitly EXCLUDED the escalation advisory path (already shipped by B-5a9a/B-edf1), and changing escalation's freshness root risks wrapper-root regression beyond this story. Independently corroborated by codex host-2. Tracked as a dedicated follow-up story to align escalation's freshness root to gitCwd.",
+      "resolvedAt": "2026-06-24T00:42:55.649Z",
+      "resolutionType": "accepted_risk",
+      "resolveEvidenceStrength": "medium"
     },
     {
       "id": "B-6de6:F-003",
