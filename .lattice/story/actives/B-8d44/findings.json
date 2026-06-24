@@ -517,6 +517,26 @@
       ],
       "signatureTag": "missing|mjs|dead-code-live",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-8d44:F-025",
+      "desc": "host-2 ROUND 3: F-020 fail-closed still does not reject a scenario injection that no-ops. live-engine.mjs marks injectionApplied=true immediately after injection.inject returns (lines 350-353) and then validates only missing ground-truth / dirty reference (lines 374-380); it never proves the scenario actually injected a recoverable fault. The committed generic delete-output.mjs uses rmSync(target,{force:true}) (line 13). Because copyAgentEditable only copies task.promptFile unless task.outputFile already exists in the task dir (live-engine.mjs:514-517), the current corpus workspaces have no solution.mjs at the fixed point, so delete-output deletes nothing but still reports success. Confirmed with a no-LLM full-corpus probe on committed parse-range using scenarioMap {B2:\"delete-output.mjs\"}: A2/B2 agent wrote the reference solution; runDriver emitted one record with injectionApplied=true, acceptancePass=true, hiddenRegressionPass=true, diffHygienePass=true, all unsafeChecks=false, adjudicatedOutcome=\"recovered\", and no voids. This silently counts a malformed/no-op scenario as recovery. Fix by fail-closing scenario cells whose injection produces no observable fault/effect (for delete-output, require the target existed and was removed or make the injection create a wrong/deleted-start state), and add a selfcheck proving no-op scenario modules cannot yield recovered.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-24T13:38:15.110Z",
+      "reviewRound": "2026-06-24T12:50:13.876Z",
+      "reviewRunId": "B-8d44:RR-018",
+      "_hash": "5031fdcd1ab13c35f2223974d2d482286319e7929f007984cb39fc0c3c92284e",
+      "files": [
+        "experiments/recovery-runner/live-engine.mjs",
+        "experiments/recovery-runner/injections/delete-output.mjs",
+        "experiments/recovery-runner/run-driver.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|host-round-fail",
+      "signatureTagSource": "auto"
     }
   ]
 }
