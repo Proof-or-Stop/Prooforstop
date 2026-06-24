@@ -6,7 +6,36 @@
       "context": "capitalized brand word in prose is the target; lowercase identifiers/commands/paths are Phases 2-4",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "In README.md / docs the user reads \"Proofbound\" / \"Proofbound CLI\" as the product brand instead of \"Lattice\" / \"Lattice CLI\" (while `lattice` commands in code spans still show `lattice`).",
+      "files": {
+        "modify": [
+          "README.md",
+          "docs"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "grep README+docs: the brand phrase \"Lattice CLI\" is gone (now \"Proofbound CLI\") and capitalized prose \"Lattice\" → \"Proofbound\"",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "lowercase `lattice` commands, .lattice/ paths and @lattice refs inside docs code-spans are UNCHANGED",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "no schema-id / salt strings in docs were altered",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
