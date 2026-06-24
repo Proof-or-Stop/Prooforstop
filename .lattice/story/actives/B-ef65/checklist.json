@@ -102,7 +102,36 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Final summary reports elapsed story time and friction points observed from story creation through DONE, including PLAN gate work, worktree dependency setup, review/test evidence, and any stale evidence recovery.",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The final story summary records the start timestamp, completion timestamp, elapsed time, and major Lattice phase transitions.",
+            "type": "manual",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The summary distinguishes product/code correctness evidence from workflow friction so the experiment does not overstate implementation risk.",
+            "type": "manual",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The summary names any gate loops, stale evidence, dependency bootstrap, owner lease, or reviewer fallback encountered instead of silently hiding process cost.",
+            "type": "manual",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
