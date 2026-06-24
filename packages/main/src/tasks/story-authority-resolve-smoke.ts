@@ -70,7 +70,7 @@ function seedRepo(root: string): void {
   git(root, ['add', '.']);
   git(root, [
     '-c', 'user.email=smoke@example.test',
-    '-c', 'user.name=Lattice Smoke',
+    '-c', 'user.name=Proofbound Smoke',
     'commit', '-m', 'base',
   ]);
 }
@@ -157,7 +157,7 @@ function assertHappyAndEdgeAndAdversarial(): void {
     git(root, ['add', '.']);
     git(root, [
       '-c', 'user.email=smoke@example.test',
-      '-c', 'user.name=Lattice Smoke',
+      '-c', 'user.name=Proofbound Smoke',
       'commit', '-m', 'main mirror at INIT_CHECK',
     ]);
     mkdirSync(dirname(worktreeAbsPath), { recursive: true });
@@ -234,7 +234,7 @@ function assertHappyAndEdgeAndAdversarial(): void {
     git(root, ['add', '.']);
     git(root, [
       '-c', 'user.email=smoke@example.test',
-      '-c', 'user.name=Lattice Smoke',
+      '-c', 'user.name=Proofbound Smoke',
       'commit', '-m', 'add terminal story',
     ]);
     resetConfigCache();

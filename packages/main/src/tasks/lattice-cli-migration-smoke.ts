@@ -86,17 +86,17 @@ function degradationByCategory(degradations: any[], category: string): any {
 }
 
 // Product identity and package entrypoints.
-assert.match(runCli(['--version']), new RegExp(`Lattice CLI ${LATTICE_CLI_VERSION}`));
-assert.match(runCli(['version']), /Lattice CLI/);
+assert.match(runCli(['--version']), new RegExp(`Proofbound CLI ${LATTICE_CLI_VERSION}`));
+assert.match(runCli(['version']), /Proofbound CLI/);
 const rootPackage = readJson(join(repoRoot, 'package.json'));
 const mainPackage = readJson(join(repoRoot, 'packages', 'main', 'package.json'));
 assert.equal(rootPackage.version, LATTICE_CLI_VERSION, `root package version is ${LATTICE_CLI_VERSION}`);
 assert.equal(mainPackage.version, LATTICE_CLI_VERSION, `packages/main version is ${LATTICE_CLI_VERSION}`);
 assert.equal(mainPackage.bin.lattice, 'dist/cli.js', 'lattice package bin points at CLI');
 
-// Help exposes first-class Lattice identity and the new command set.
+// Help exposes first-class Proofbound identity and the new command set.
 const help = runCli(['help']);
-assert.match(help, new RegExp(`Lattice CLI ${LATTICE_CLI_VERSION.replace(/\./g, '\\.')}`));
+assert.match(help, new RegExp(`Proofbound CLI ${LATTICE_CLI_VERSION.replace(/\./g, '\\.')}`));
 assert.match(help, /(?:^|\n)\s+Entrypoint:\s+lattice/);
 for (const command of COMMANDS) {
   assert.match(help, new RegExp(command), `help exposes ${command}`);
@@ -170,7 +170,7 @@ for (const category of [
   'receipt-verify',
   'multimodal-research',
 ] as const) {
-  assert.equal(capabilityByCategory(desktopFromList, category).status, 'unavailable', `desktop-app ${category} is unavailable in Lattice projection`);
+  assert.equal(capabilityByCategory(desktopFromList, category).status, 'unavailable', `desktop-app ${category} is unavailable in Proofbound projection`);
   assert.equal(degradationByCategory(desktopFromList.degradations, category).visible, true, `desktop-app ${category} degradation is visible`);
 }
 assert.equal(capabilityByCategory(desktopFromList, 'approval').status, 'available', 'desktop-app keeps dashboard approval available');
@@ -178,12 +178,12 @@ assert.equal(capabilityByCategory(desktopFromList, 'artifact-display').status, '
 assert.equal(
   degradationByCategory(desktopFromList.degradations, 'evidence-submit').authorityImpact,
   'evidence-local-only',
-  'desktop-app evidence submission remains local-only in Lattice projection',
+  'desktop-app evidence submission remains local-only in Proofbound projection',
 );
 assert.equal(
   degradationByCategory(desktopFromList.degradations, 'receipt-verify').authorityImpact,
   'blocks-production-done',
-  'desktop-app receipt verification blocks productionDone in Lattice projection',
+  'desktop-app receipt verification blocks productionDone in Proofbound projection',
 );
 
 const hostListAlias = runJson<any>(['host', 'list', '--format=json']);

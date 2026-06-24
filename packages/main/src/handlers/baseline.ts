@@ -118,7 +118,7 @@ export function createBaselineHandlers(ctx: HandlerContext) {
       });
       return wantsJson(args)
         ? result
-        : render(`Lattice baseline run (${result.schemaVersion})`, {
+        : render(`Proofbound baseline run (${result.schemaVersion})`, {
             baselineId: result.baselineId,
             runId: result.runId,
             outcome: result.outcome,
@@ -160,7 +160,7 @@ export function createBaselineHandlers(ctx: HandlerContext) {
       writeSuiteReport(outputDir, suite);
       return wantsJson(args)
         ? suite
-        : render(`Lattice baseline suite (${suite.schemaVersion})`, {
+        : render(`Proofbound baseline suite (${suite.schemaVersion})`, {
             suiteStatus: suite.suiteStatus,
             validRunCount: suite.validRunCount,
             falseDoneCount: suite.falseDoneCount,

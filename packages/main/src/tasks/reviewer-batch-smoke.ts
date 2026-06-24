@@ -296,7 +296,7 @@ assert.equal(isCommandAllowed('reviewer_batch', 'DONE', DEFAULT_PHASE_TOOLS), tr
   // Path-traversal id is rejected by isCanonicalStoryId (no filesystem path derived).
   assert.throws(
     () => handler!({ storyId: '../../etc/passwd', json: true }),
-    /not a canonical, path-safe Lattice story id/,
+    /not a canonical, path-safe Proofbound story id/,
     'path-traversal storyId is rejected',
   );
 }

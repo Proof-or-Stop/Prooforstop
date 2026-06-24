@@ -98,7 +98,7 @@ function initRepo(): string {
   const root = mkdtempSync(join(tmpdir(), 'lattice-init-window-data-loss-'));
   git(root, ['init', '-b', 'main']);
   git(root, ['config', 'user.email', 'smoke@example.test']);
-  git(root, ['config', 'user.name', 'Lattice Smoke']);
+  git(root, ['config', 'user.name', 'Proofbound Smoke']);
   // Mirror the production `.gitignore` lattice rules verbatim: `.lattice/*` is
   // ignored, the story tree is re-allowlisted, but `activity.jsonl` is ignored
   // again. This is the precise rule shape from the repo root `.gitignore`.

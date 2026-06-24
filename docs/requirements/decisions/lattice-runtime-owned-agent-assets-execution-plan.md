@@ -1,20 +1,20 @@
-# Lattice Runtime-Owned Agent Assets Execution Plan
+# Proofbound Runtime-Owned Agent Assets Execution Plan
 
 Date: 2026-06-15
 
 ## Purpose
 
-This document defines the execution plan for moving Lattice agent prompt assets
+This document defines the execution plan for moving Proofbound agent prompt assets
 to a runtime-owned model.
 
 The principle is:
 
 ```text
-Lattice agent templates belong to the local Lattice CLI runtime, not to each
+Proofbound agent templates belong to the local Proofbound CLI runtime, not to each
 business project.
 ```
 
-Offline execution still uses the local installed Lattice CLI package. It does
+Offline execution still uses the local installed Proofbound CLI package. It does
 not require copying all templates, or even thin prompt config, into every
 project.
 
@@ -46,7 +46,7 @@ The current local global `lattice` binary points at:
 ```
 
 Therefore the CLI code and package prompt registry are available to any project
-that invokes this local global Lattice CLI.
+that invokes this local global Proofbound CLI.
 
 However, older projects may already contain materialized prompt assets such as:
 
@@ -86,7 +86,7 @@ asset-mode config.
 "Offline" should mean:
 
 ```text
-the local Lattice CLI package is installed and can render prompts locally
+the local Proofbound CLI package is installed and can render prompts locally
 ```
 
 It should not mean:
@@ -102,7 +102,7 @@ deliberate full-asset mode.
 
 ### Default Behavior
 
-By default, a Lattice project should not need project-local prompt assets.
+By default, a Proofbound project should not need project-local prompt assets.
 
 Expected default:
 
@@ -112,7 +112,7 @@ business project
   AGENTS.md / requirements     project instructions and source of truth
   .lattice/story/...           story metadata
 
-local Lattice CLI runtime
+local Proofbound CLI runtime
   prompt registry
   agent templates
   host adapter defaults
@@ -133,8 +133,8 @@ Project-local assets remain allowed only when explicitly requested.
 
 | Mode | Meaning | Requirement |
 | --- | --- | --- |
-| runtime-owned default | Use prompt registry from local Lattice CLI. | No project prompt assets. |
-| pinned-runtime | Use a specific installed local Lattice CLI version/path. | Explicit config with reason. |
+| runtime-owned default | Use prompt registry from local Proofbound CLI. | No project prompt assets. |
+| pinned-runtime | Use a specific installed local Proofbound CLI version/path. | Explicit config with reason. |
 | full-asset mode | Materialize prompt files into the project. | Explicit flag, warning, and drift checks. |
 | debug override | Temporary local prompt override. | Explicit file rule and clear expiry. |
 
@@ -144,8 +144,8 @@ Full-asset mode is a compatibility/debug mode, not the default.
 
 This plan supports both:
 
-- Lattice CLI local Non-authority execution;
-- Lattice Authority Server receipt-backed execution.
+- Proofbound CLI local Non-authority execution;
+- Proofbound Authority Server receipt-backed execution.
 
 But the asset ownership model must not blur authority boundaries.
 
@@ -213,9 +213,9 @@ packages/main/src/handlers/codex-adapter.ts
 
 Questions to answer mechanically:
 
-- When does Lattice read package registry prompts?
-- When does Lattice materialize `.claude/agents`?
-- When does Lattice materialize `.lattice-codex/agents`?
+- When does Proofbound read package registry prompts?
+- When does Proofbound materialize `.claude/agents`?
+- When does Proofbound materialize `.lattice-codex/agents`?
 - Which config file forces `global-thin` today?
 - Which commands currently write prompt assets?
 - Which commands merely inspect prompt assets?
@@ -234,7 +234,7 @@ Change default prompt resolution so that absence of project-local prompt asset
 config means:
 
 ```text
-use local Lattice CLI package prompt registry
+use local Proofbound CLI package prompt registry
 ```
 
 Do not require `.lattice/lattice.json` or `.lattice-codex/lattice.json` solely to say
@@ -255,7 +255,7 @@ Those are project facts, not prompt asset ownership facts.
 Acceptance:
 
 - A project with no `.claude/agents`, no `.lattice-codex/agents`, and no prompt asset
-  config still runs Lattice host/reviewer commands through the runtime registry.
+  config still runs Proofbound host/reviewer commands through the runtime registry.
 - `lattice doctor` or the relevant adapter doctor reports
   `mode=runtime-owned`.
 
@@ -365,7 +365,7 @@ Full-asset mode output must say:
 
 ```text
 This project now carries local prompt assets. They can drift from the runtime
-registry. Run verify/doctor after Lattice CLI upgrades.
+registry. Run verify/doctor after Proofbound CLI upgrades.
 ```
 
 Acceptance:
@@ -501,10 +501,10 @@ The capability is complete only when all of these are true:
 
 - Do not remove project structure config such as `lattice.config.json`.
 - Do not remove legitimate project guidance such as `AGENTS.md`.
-- Do not auto-delete project files during ordinary Lattice commands.
+- Do not auto-delete project files during ordinary Proofbound commands.
 - Do not introduce network dependency for offline prompt rendering.
 - Do not make local prompt registry verification imply Authority completion.
-- Do not optimize unrelated Lattice flows merely because they appear nearby.
+- Do not optimize unrelated Proofbound flows merely because they appear nearby.
 
 ## Review Plan
 
@@ -551,7 +551,7 @@ claude --print --permission-mode plan --tools Read,Glob,Grep \
 
 Audit criteria:
 
-- host-neutral Lattice design;
+- host-neutral Proofbound design;
 - local Non-authority and Authority Server path separation;
 - do not optimize for optimization;
 - do not optimize arbitrarily;

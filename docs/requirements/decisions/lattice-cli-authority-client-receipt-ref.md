@@ -1,12 +1,12 @@
-# Lattice CLI Authority Client and Receipt Ref
+# Proofbound CLI Authority Client and Receipt Ref
 
 > Status: execution subdocument for
 > [Authority Receipt Gate End-to-End Plan](authority-session-receipt-gate-execution.md).
-> Owner: Orchestrate / Lattice CLI.
+> Owner: Orchestrate / Proofbound CLI.
 
 ## Purpose
 
-This document defines the Lattice CLI contract for verifying Authority receipts
+This document defines the Proofbound CLI contract for verifying Authority receipts
 and persisting structured receipt refs that lifecycle gates can consume.
 
 The local CLI baseline includes proof verification and receipt-ref writing. The
@@ -16,7 +16,7 @@ where required.
 
 ## Boundary
 
-Ordinary Lattice workflow remains local unless the explicit Authority enforce
+Ordinary Proofbound workflow remains local unless the explicit Authority enforce
 path is approved and configured.
 
 These surfaces remain diagnostic unless `authority_receipt_verify` verifies a

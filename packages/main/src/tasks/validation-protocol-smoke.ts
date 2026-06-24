@@ -424,7 +424,7 @@ try {
     }));
     writeFileSync(join(dirtyFallbackRoot, 'report.md'), 'baseline\n');
     execFileSync('git', ['init'], { cwd: dirtyFallbackRoot, stdio: ['ignore', 'ignore', 'ignore'] });
-    execFileSync('git', ['config', 'user.name', 'Lattice Smoke'], { cwd: dirtyFallbackRoot, stdio: ['ignore', 'ignore', 'ignore'] });
+    execFileSync('git', ['config', 'user.name', 'Proofbound Smoke'], { cwd: dirtyFallbackRoot, stdio: ['ignore', 'ignore', 'ignore'] });
     execFileSync('git', ['config', 'user.email', 'smoke@example.test'], { cwd: dirtyFallbackRoot, stdio: ['ignore', 'ignore', 'ignore'] });
     execFileSync('git', ['add', '.'], { cwd: dirtyFallbackRoot, stdio: ['ignore', 'ignore', 'ignore'] });
     execFileSync('git', ['commit', '-m', 'seed dirty fallback smoke'], { cwd: dirtyFallbackRoot, stdio: ['ignore', 'ignore', 'ignore'] });
@@ -461,7 +461,7 @@ try {
       requirementsDir: 'docs/requirements',
     }));
     execFileSync('git', ['init'], { cwd: categorizedPollutionRoot, stdio: ['ignore', 'ignore', 'ignore'] });
-    execFileSync('git', ['config', 'user.name', 'Lattice Smoke'], { cwd: categorizedPollutionRoot, stdio: ['ignore', 'ignore', 'ignore'] });
+    execFileSync('git', ['config', 'user.name', 'Proofbound Smoke'], { cwd: categorizedPollutionRoot, stdio: ['ignore', 'ignore', 'ignore'] });
     execFileSync('git', ['config', 'user.email', 'smoke@example.test'], { cwd: categorizedPollutionRoot, stdio: ['ignore', 'ignore', 'ignore'] });
     execFileSync('git', ['add', '.'], { cwd: categorizedPollutionRoot, stdio: ['ignore', 'ignore', 'ignore'] });
     execFileSync('git', ['commit', '-m', 'seed classified pollution smoke'], { cwd: categorizedPollutionRoot, stdio: ['ignore', 'ignore', 'ignore'] });
@@ -517,7 +517,7 @@ try {
       requirementsDir: 'docs/requirements',
     }));
     execFileSync('git', ['init'], { cwd: passingPollutionRoot, stdio: ['ignore', 'ignore', 'ignore'] });
-    execFileSync('git', ['config', 'user.name', 'Lattice Smoke'], { cwd: passingPollutionRoot, stdio: ['ignore', 'ignore', 'ignore'] });
+    execFileSync('git', ['config', 'user.name', 'Proofbound Smoke'], { cwd: passingPollutionRoot, stdio: ['ignore', 'ignore', 'ignore'] });
     execFileSync('git', ['config', 'user.email', 'smoke@example.test'], { cwd: passingPollutionRoot, stdio: ['ignore', 'ignore', 'ignore'] });
     mkdirSync(join(passingPollutionRoot, '.lattice', 'story', 'actives', 'B-pass'), { recursive: true });
     writeFileSync(join(passingPollutionRoot, '.lattice', 'story', 'actives', 'B-pass', 'seed.txt'), 'seed\n');
@@ -682,7 +682,7 @@ try {
       requirementsDir: 'docs/requirements',
     }));
     execFileSync('git', ['init'], { cwd: declaredE2eRoot, stdio: ['ignore', 'ignore', 'ignore'] });
-    execFileSync('git', ['config', 'user.name', 'Lattice Smoke'], { cwd: declaredE2eRoot, stdio: ['ignore', 'ignore', 'ignore'] });
+    execFileSync('git', ['config', 'user.name', 'Proofbound Smoke'], { cwd: declaredE2eRoot, stdio: ['ignore', 'ignore', 'ignore'] });
     execFileSync('git', ['config', 'user.email', 'smoke@example.test'], { cwd: declaredE2eRoot, stdio: ['ignore', 'ignore', 'ignore'] });
     execFileSync('git', ['add', '.'], { cwd: declaredE2eRoot, stdio: ['ignore', 'ignore', 'ignore'] });
     execFileSync('git', ['commit', '-m', 'seed declared e2e smoke'], { cwd: declaredE2eRoot, stdio: ['ignore', 'ignore', 'ignore'] });
@@ -781,7 +781,7 @@ try {
     mkdirSync(join(attackChainRoot, 'packages/main/src/core'), { recursive: true });
     writeFileSync(join(attackChainRoot, ATTACK_SOURCE), 'export const seed = 1;\n');
     execFileSync('git', ['init'], { cwd: attackChainRoot, stdio: ['ignore', 'ignore', 'ignore'] });
-    execFileSync('git', ['config', 'user.name', 'Lattice Smoke'], { cwd: attackChainRoot, stdio: ['ignore', 'ignore', 'ignore'] });
+    execFileSync('git', ['config', 'user.name', 'Proofbound Smoke'], { cwd: attackChainRoot, stdio: ['ignore', 'ignore', 'ignore'] });
     execFileSync('git', ['config', 'user.email', 'smoke@example.test'], { cwd: attackChainRoot, stdio: ['ignore', 'ignore', 'ignore'] });
     execFileSync('git', ['add', '.'], { cwd: attackChainRoot, stdio: ['ignore', 'ignore', 'ignore'] });
     execFileSync('git', ['commit', '-m', 'seed attack-chain smoke'], { cwd: attackChainRoot, stdio: ['ignore', 'ignore', 'ignore'] });
@@ -1046,20 +1046,20 @@ try {
     assert.ok(driftText.startsWith('Runtime footprint:\nRuntime mode:'), 'plain check drift should render runtime footprint before drift details');
     assert.match(driftText, /Project-local JavaScript runtime required: (yes|no)/);
     assert.match(driftText, /Next action: run lattice check --apply to sync MISSING\/STALE_SAFE assets/);
-    assert.match(driftText, /Lattice managed asset check: DRIFT/);
+    assert.match(driftText, /Proofbound managed asset check: DRIFT/);
 
     runManagedAssetCheck(checkRoot, { apply: true, profile: 'core' });
     const cleanText = check({ profile: 'core' }) as string;
     assert.ok(cleanText.startsWith('Runtime footprint:\nRuntime mode:'), 'plain check OK should start with runtime footprint');
     assert.match(cleanText, /Next action: no managed asset drift/);
-    assert.match(cleanText, /Lattice managed asset check: OK/);
+    assert.match(cleanText, /Proofbound managed asset check: OK/);
   } finally {
     rmSync(checkRoot, { recursive: true, force: true });
   }
 
   const staleLocalAssetRoot = mkdtempSync(join(tmpdir(), 'lattice-managed-stale-local-'));
   try {
-    writeFileSync(join(staleLocalAssetRoot, 'LATTICE.md'), '<!-- lattice:start -->\n# Local Lattice Notes\ncustom text\n<!-- lattice:end -->\n');
+    writeFileSync(join(staleLocalAssetRoot, 'LATTICE.md'), '<!-- lattice:start -->\n# Local Proofbound Notes\ncustom text\n<!-- lattice:end -->\n');
     const before = readFileSync(join(staleLocalAssetRoot, 'LATTICE.md'), 'utf-8');
     const plainCheck = createCheckHandlers({
       root: staleLocalAssetRoot,
@@ -1079,7 +1079,7 @@ try {
       'plain check stale local edit should render runtime footprint before drift details',
     );
     assert.match(staleLocalCheckText, /Next action: review unsafe managed assets manually/);
-    assert.match(staleLocalCheckText, /Lattice managed asset check: DRIFT/);
+    assert.match(staleLocalCheckText, /Proofbound managed asset check: DRIFT/);
     assert.match(staleLocalCheckText, /STALE_LOCAL_EDIT LATTICE\.md|STALE_LOCAL_EDIT[\s\S]*LATTICE\.md/);
     const result = runManagedAssetCheck(staleLocalAssetRoot, { apply: true, reviewLocalEdits: true, profile: 'core' });
     const item = result.items.find(entry => entry.relPath === 'LATTICE.md');
@@ -1135,15 +1135,15 @@ try {
     writeFileSync(codexWrapperPath, renderLatticeCodexWrapperScript());
     const latticeWrapper = readFileSync(latticeWrapperPath, 'utf-8');
     const codexWrapper = readFileSync(codexWrapperPath, 'utf-8');
-    assert.match(latticeWrapper, /require\('node:fs'\)/, 'Lattice wrapper should be CommonJS so non-JS repos do not need package.json type=module');
+    assert.match(latticeWrapper, /require\('node:fs'\)/, 'Proofbound wrapper should be CommonJS so non-JS repos do not need package.json type=module');
     assert.match(codexWrapper, /import\('node:fs'\)/, 'Codex wrapper should use dynamic import so it runs in both CommonJS and type=module projects');
     assert.doesNotMatch(codexWrapper, /require\(/, 'Codex wrapper must not use require because type=module projects execute .js files as ESM');
-    assert.doesNotMatch(latticeWrapper, /^import\s/m, 'Lattice wrapper must not use static ESM import syntax');
+    assert.doesNotMatch(latticeWrapper, /^import\s/m, 'Proofbound wrapper must not use static ESM import syntax');
     assert.doesNotMatch(codexWrapper, /^import\s/m, 'Codex wrapper must not use static ESM import syntax');
 
     const latticeHelp = spawnSync(process.execPath, [latticeWrapperPath, 'help'], { cwd: wrapperRoot, encoding: 'utf8' });
     assert.equal(latticeHelp.status, 0, latticeHelp.stderr || latticeHelp.stdout);
-    assert.doesNotMatch(latticeHelp.stderr, /MODULE_TYPELESS_PACKAGE_JSON|Reparsing as ES module/, 'Lattice wrapper help must not emit Node module-type warnings');
+    assert.doesNotMatch(latticeHelp.stderr, /MODULE_TYPELESS_PACKAGE_JSON|Reparsing as ES module/, 'Proofbound wrapper help must not emit Node module-type warnings');
 
     const codexHelp = spawnSync(process.execPath, [codexWrapperPath, 'help'], { cwd: wrapperRoot, encoding: 'utf8' });
     assert.equal(codexHelp.status, 0, codexHelp.stderr || codexHelp.stdout);
@@ -1156,7 +1156,7 @@ try {
     scripts: { test: 'node -e "process.stdout.write(\\"fallback\\")"' },
   }));
   execFileSync('git', ['init'], { cwd: tmp, stdio: ['ignore', 'ignore', 'ignore'] });
-  execFileSync('git', ['config', 'user.name', 'Lattice Smoke'], { cwd: tmp, stdio: ['ignore', 'ignore', 'ignore'] });
+  execFileSync('git', ['config', 'user.name', 'Proofbound Smoke'], { cwd: tmp, stdio: ['ignore', 'ignore', 'ignore'] });
   execFileSync('git', ['config', 'user.email', 'smoke@example.test'], { cwd: tmp, stdio: ['ignore', 'ignore', 'ignore'] });
   mkdirSync(join(tmp, '.lattice', 'story', 'actives', 'B-demo'), { recursive: true });
   mkdirSync(join(tmp, '.lattice', 'runtime'), { recursive: true });

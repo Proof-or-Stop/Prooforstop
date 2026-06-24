@@ -200,7 +200,7 @@ function buildAuthorityReadiness(
   } else if (settings.mode === 'enforce') {
     if (!authorityUrlConfigured) {
       warnings.push(
-        'enforce mode set but LATTICE_AUTHORITY_URL is empty; runner / policy discovery cannot reach the Lattice Authority server',
+        'enforce mode set but LATTICE_AUTHORITY_URL is empty; runner / policy discovery cannot reach the Proofbound Authority server',
       );
       actions.push('export LATTICE_AUTHORITY_URL=https://<authority-host>');
     }
@@ -477,7 +477,7 @@ function buildWrapperGitRootDiagnostics(metadataRoot: string): WrapperGitRootDia
       candidates,
       suggestedGitRoot: candidates[0],
       repairCommand: configRepairCommandFor(candidates[0]),
-      note: 'Operator suggestion only: Lattice never applies this repair automatically and runtime resolution never guesses child repositories. Run the repair command to configure gitRoot explicitly.',
+      note: 'Operator suggestion only: Proofbound never applies this repair automatically and runtime resolution never guesses child repositories. Run the repair command to configure gitRoot explicitly.',
     };
   }
   return {
@@ -1012,7 +1012,7 @@ export async function runAuthorityEnforceRunner(
       ...plan,
       dryRun: false,
       live: true,
-      note: 'Live runner was not started because required Lattice Authority configuration is missing.',
+      note: 'Live runner was not started because required Proofbound Authority configuration is missing.',
     };
   }
   const settings = loadAuthorityConfig(env, { ...args, authorityMode: args.authorityMode ?? 'enforce' }, options);
@@ -1272,10 +1272,10 @@ function buildConduitExplain(
     ...buildConduitStatus(env, options),
     schemaVersion: 'lattice.conduit_explain.v1' as const,
     explanation: [
-      'Lattice CLI 0.3.6 replaces Mac App provider/config dashboard dependencies with CLI-first diagnostics.',
+      'Proofbound CLI 0.3.6 replaces Mac App provider/config dashboard dependencies with CLI-first diagnostics.',
       'The conduit is a coordination surface for host capability reports, config migration checks, handoff packs, evidence freshness manifests, and parallel wave plans.',
       'It is intentionally not a model runner or receipt authority. Production completion remains false until an explicit receipt-backed authority path verifies a signed receipt.',
-      'Authority modes: off = default local-only workflow (no network); shadow = observational POST when LATTICE_AUTHORITY_URL is reachable; enforce = Authority job path (requires Lattice Authority server + customer API key + actor key + runner identity + project id + pinned server key; jobs execute typed plannedSteps, upload evidence, request gate_decision, and verify native receipts).',
+      'Authority modes: off = default local-only workflow (no network); shadow = observational POST when LATTICE_AUTHORITY_URL is reachable; enforce = Authority job path (requires Proofbound Authority server + customer API key + actor key + runner identity + project id + pinned server key; jobs execute typed plannedSteps, upload evidence, request gate_decision, and verify native receipts).',
     ],
   };
 }

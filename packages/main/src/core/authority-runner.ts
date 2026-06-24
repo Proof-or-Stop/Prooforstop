@@ -993,7 +993,7 @@ export function consumeClaimedAuthorityJob(
         ? 'authority-done-requires-multi-host-verification'
         : `authority-done-final-policy-not-satisfied:${completion.stopReason}`;
     if (completion.receiptVerified === false) {
-      nextActions.add('Verify a native Lattice Authority gate_decision receipt before completing this job for DONE.');
+      nextActions.add('Verify a native Proofbound Authority gate_decision receipt before completing this job for DONE.');
     }
     nextActions.add(completion.nextAction);
   } else {

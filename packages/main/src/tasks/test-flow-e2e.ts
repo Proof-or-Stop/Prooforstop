@@ -22,7 +22,7 @@ function defaultBackground(): string {
     'This background is deliberately written as complete context rather than a short placeholder, to avoid e2e bypassing the real four-part gate of story_create.',
     '',
     '## Key Insights',
-    'The current Lattice story_create already requires background to be a source-of-truth input; old e2e passing only title and description would falsely report process failures.',
+    'The current Proofbound story_create already requires background to be a source-of-truth input; old e2e passing only title and description would falsely report process failures.',
     'So the auto-default values must simulate context provided by a real user, rather than relying on the handler relaxing validation.',
     '',
     '## Solution Tradeoffs',
@@ -30,7 +30,7 @@ function defaultBackground(): string {
     'This validates the public CLI flow and also surfaces issues early when background schema drifts in the future.',
     '',
     '## Conversational Texture',
-    'What the user cares about is whether the latest Lattice can be reliably used by projects, so this regression should provide clear motivation, constraints, and acceptance context like a real session.',
+    'What the user cares about is whether the latest Proofbound can be reliably used by projects, so this regression should provide clear motivation, constraints, and acceptance context like a real session.',
     'Test content stays concise, but does not sacrifice basic respect for the product flow.',
   ].join('\n');
 }
@@ -76,7 +76,7 @@ function autoDefaults(
     if (/^checklist$/i.test(field)) auto[field] = [
       {
         title: 'Verify current story lifecycle e2e path',
-        context: 'E2E regression needs a concrete checklist item with context so current Lattice truth-source gates exercise the real path.',
+        context: 'E2E regression needs a concrete checklist item with context so current Proofbound truth-source gates exercise the real path.',
       },
     ];
     else if (/^background$/i.test(field)) auto[field] = defaultBackground();

@@ -373,7 +373,7 @@ The handler is preferentially part of the `js.execute` compatibility path only; 
 
 When `test_auto` runs, it creates a temporary store to isolate the test data, and loads handlers:
 
-1. **Lattice itself**: uses `createToolHandlers(testStore, root)` directly
+1. **Proofbound itself**: uses `createToolHandlers(testStore, root)` directly
 2. **External projects**: point to `tests/test-runtime.js` via the `testRuntime` config of `lattice.config.json`; that file exports `createTestHandlers(store, projectRoot)`, which returns a handler map
 
 ## Browser Real-Machine Tests (browser case)

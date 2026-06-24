@@ -216,7 +216,7 @@ function receiptProjection(
         verified: false,
         native: true,
         format: 'lattice-authority',
-        reason: 'receiptFile and serverPublicKey are required to verify a native Lattice Authority receipt',
+        reason: 'receiptFile and serverPublicKey are required to verify a native Proofbound Authority receipt',
       };
     }
     try {
@@ -265,7 +265,7 @@ function receiptProjection(
         verified: false,
         native: true,
         format: 'lattice-authority',
-        reason: `native Lattice Authority receipt verification failed: ${error?.message || String(error)}`,
+        reason: `native Proofbound Authority receipt verification failed: ${error?.message || String(error)}`,
       };
     }
   }
@@ -363,7 +363,7 @@ function localSteps(storyId: string | undefined, targetPhase: AutopilotUntilPhas
     {
       id: 'asset-check',
       command: 'lattice check',
-      purpose: 'Confirm Lattice managed assets are not drifted.',
+      purpose: 'Confirm Proofbound managed assets are not drifted.',
       mutates: false,
       authorityRequired: false,
     },
@@ -436,7 +436,7 @@ export function buildAutopilotRun(
   }
   if (!args.storyId) nextActions.add('Pass --storyId=B-xxx to bind autopilot to a concrete Story.');
   if (receiptRequired && (!receipt.verified || !receipt.native)) {
-    nextActions.add('Provide --receiptFile=<path> and --serverPublicKey=<hex> after Lattice Authority signs a native gate_decision receipt.');
+    nextActions.add('Provide --receiptFile=<path> and --serverPublicKey=<hex> after Proofbound Authority signs a native gate_decision receipt.');
     nextActions.add('Bind the signed receipt with --receiptKind=gate_decision plus --receiptProjectId/--receiptStoryId/--serverKeyId/--expectedDecisionDigest when those values are known.');
   }
   const plannedSteps = localSteps(args.storyId, targetPhase);
@@ -504,10 +504,10 @@ export function buildAutopilotRun(
     executedSteps: dryRun ? [] : plannedSteps.slice(0, maxSteps).filter(step => !step.authorityRequired),
     nextActions: [...nextActions],
     note: mode === 'authority'
-      ? 'Authority autopilot is fail-closed: local checks can run, but DONE requires a verified native Lattice Authority gate_decision receipt.'
+      ? 'Authority autopilot is fail-closed: local checks can run, but DONE requires a verified native Proofbound Authority gate_decision receipt.'
       : mode === 'shadow'
         ? 'Shadow autopilot preserves local execution while surfacing Python authority readiness warnings.'
-        : 'Local autopilot is pure local Lattice workflow; it never requires Python authority.',
+        : 'Local autopilot is pure local Proofbound workflow; it never requires Python authority.',
   };
 }
 

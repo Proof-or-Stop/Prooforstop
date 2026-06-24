@@ -2,7 +2,7 @@
 
 The **prewrite scope guard** is a story-scoped projection that tracks whether an
 agent dispatched to implement a checklist item stays within its declared scope
-contract. Starting a guard session tells Lattice which runtime host is running
+contract. Starting a guard session tells Proofbound which runtime host is running
 the agent so it can choose the right protection strategy.
 
 B-997b wave 1 status: M1-M3 wave complete; M4-M12 remain follow-up milestones.
@@ -15,10 +15,10 @@ remain follow-up work.
 - **`native-pretool` (pre-tool blocking)** — a host with a verified pre-tool
   hook can reject a forbidden write before the file is modified.
 - **`wrapped-preapply` (dispatch pre-apply blocking)** — Codex and
-  Antigravity/agy can use this only when running through Lattice
+  Antigravity/agy can use this only when running through Proofbound
   dispatch/pre-apply flow.
 - **`watcher-fallback` (post-write detection)** — any host without a verified
-  pre-tool or wrapped-preapply context is observed after the fact. Lattice
+  pre-tool or wrapped-preapply context is observed after the fact. Proofbound
   detects the violation when `guard_session_check` runs and blocks lifecycle
   progression, but the forbidden file has already been written.
 
@@ -41,8 +41,8 @@ host-specific session envs belong only in adapter, dispatch, or test code.
 |---|---|---|
 | `claude`, `claude-code`, `claude_code`, `claudecode` with verified hook | `native-pretool` | Host hook fires before the write |
 | `codex` with verified Codex hook | `native-pretool` | Codex native hook fires before the write |
-| `codex` through Lattice dispatch/pre-apply flow | `wrapped-preapply` | Lattice wrapper checks the patch before apply |
-| `antigravity`, `agy` through Lattice dispatch/pre-apply flow | `wrapped-preapply` | Lattice wrapper checks the patch before apply while preserving the Antigravity CLI host identity |
+| `codex` through Proofbound dispatch/pre-apply flow | `wrapped-preapply` | Proofbound wrapper checks the patch before apply |
+| `antigravity`, `agy` through Proofbound dispatch/pre-apply flow | `wrapped-preapply` | Proofbound wrapper checks the patch before apply while preserving the Antigravity CLI host identity |
 | `codex`, `antigravity`, `agy` without a verified context | `watcher-fallback` | Diff detected after write; no pre-tool interception |
 | `gemini`, `gemini-cli` | legacy/deprecated compatibility only | Not a current guard-provider path; use `antigravity`/`agy` for current third-host flows |
 | Any other string | `watcher-fallback` | Default; no pre-tool hook assumption |
@@ -50,7 +50,7 @@ host-specific session envs belong only in adapter, dispatch, or test code.
 `guard_session_start` derives the mode automatically from the `provider` you
 pass.  You never configure the mode directly.
 
-> **Important:** Lattice never overclaims `native-pretool` mode. Even if you
+> **Important:** Proofbound never overclaims `native-pretool` mode. Even if you
 > pass `provider=claude-code` or `provider=codex`, the guard session can only
 > intercept writes when a verified host hook is installed. Without that proof,
 > it reports `wrapped-preapply` only for dispatch/pre-apply flow or

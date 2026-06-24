@@ -4,7 +4,7 @@ Date: 2026-06-12
 
 ## Purpose
 
-This document defines an executable plan for a future Lattice CLI improvement:
+This document defines an executable plan for a future Proofbound CLI improvement:
 make `missing_scope_check` failures more actionable when `story_review` blocks
 PLAN progress because the story is missing PLAN scope evidence.
 
@@ -29,7 +29,7 @@ The real observed problem is guidance/actionability:
 - The missing artifact is `scope-check.json`, the PLAN gate evidence produced by
   a scope reviewer through `scope_check_save`.
 - Operators can misread the blocker as a content problem in the planned
-  document or as a missing Lattice feature.
+  document or as a missing Proofbound feature.
 - The next action is not obvious enough: run a scope-plan review, then persist
   the reviewer result with `scope_check_save`.
 
@@ -75,7 +75,7 @@ The future implementation must not:
 
 ## Host-Neutral Boundary
 
-This improvement is a Lattice CLI Non-authority ergonomics improvement.
+This improvement is a Proofbound CLI Non-authority ergonomics improvement.
 
 The local CLI may provide:
 
@@ -236,7 +236,7 @@ Reviewers must check:
 
 ### Phase 6. TEST And DONE
 
-Goal: complete the future implementation through normal Lattice lifecycle.
+Goal: complete the future implementation through normal Proofbound lifecycle.
 
 The future implementation story must:
 
@@ -307,7 +307,7 @@ Return:
 ```text
 You are the Codex-style host reviewer for the same artifact/diff.
 
-Audit the mechanical Lattice CLI correctness of the missing_scope_check
+Audit the mechanical Proofbound CLI correctness of the missing_scope_check
 guidance plan or implementation. Do not optimize for optimization and do not
 optimize arbitrarily. Only report real correctness issues. Follow consistency
 of logic.
@@ -342,7 +342,7 @@ After the two-host audit:
 - rerun the relevant verification command after every accepted change.
 
 For this documentation story, accepted findings should be incorporated into this
-document before it is handed to the Lattice execution flow.
+document before it is handed to the Proofbound execution flow.
 
 ### Accepted Audit Finding
 
@@ -370,7 +370,7 @@ Checklist evidence should confirm:
 - it identifies `scope-check.json` as the missing artifact;
 - it excludes auto-generation and main-agent self-signing;
 - it preserves the Non-authority / Authority Server boundary;
-- it includes follow-up Lattice execution commands.
+- it includes follow-up Proofbound execution commands.
 
 For the future implementation story:
 
@@ -401,7 +401,7 @@ For the future implementation story:
 - do not remove `scope_check_save`;
 - do not relax `story_review` blockers.
 
-## Final Lattice Execution Handoff
+## Final Proofbound Execution Handoff
 
 This document does not implement the missing guidance improvement. It hands the
 work to a future implementation story.
@@ -442,11 +442,11 @@ lattice story_create '{
     },
     {
       "title":"Run review, validation, delivery, summary, and DONE closure",
-      "context":"Complete the implementation through normal Lattice lifecycle and do not claim implementation completion before DONE.",
+      "context":"Complete the implementation through normal Proofbound lifecycle and do not claim implementation completion before DONE.",
       "relatedDocs":["docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md"]
     }
   ],
-  "background":"## Trigger Event\nA PLAN review blocker reported missing_scope_check. The command scope_check_save already exists; the missing artifact is scope-check.json. The user confusion is guidance/actionability, not missing CLI capability.\n\n## Key Insights\nPLAN scope evidence must remain reviewer-written and gate-consumed. Local CLI guidance is Non-authority and must not be described as receipt-backed Authority Server proof.\n\n## Solution Tradeoffs\nPrefer narrow wording and help updates over a new lifecycle assistant. Do not weaken gates or auto-generate evidence.\n\n## Conversational Texture\nThe user wants Lattice to execute this plan later, but this document itself is not the implementation."
+  "background":"## Trigger Event\nA PLAN review blocker reported missing_scope_check. The command scope_check_save already exists; the missing artifact is scope-check.json. The user confusion is guidance/actionability, not missing CLI capability.\n\n## Key Insights\nPLAN scope evidence must remain reviewer-written and gate-consumed. Local CLI guidance is Non-authority and must not be described as receipt-backed Authority Server proof.\n\n## Solution Tradeoffs\nPrefer narrow wording and help updates over a new lifecycle assistant. Do not weaken gates or auto-generate evidence.\n\n## Conversational Texture\nThe user wants Proofbound to execute this plan later, but this document itself is not the implementation."
 }'
 ```
 
@@ -464,4 +464,4 @@ lattice story_advance --storyId=B-xxxx --phase=DEV
 ```
 
 Implementation is not complete until the follow-up story reaches DONE through
-Lattice REVIEW, TEST, delivery, summary, and final DONE gates.
+Proofbound REVIEW, TEST, delivery, summary, and final DONE gates.

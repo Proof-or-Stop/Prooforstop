@@ -278,7 +278,7 @@ function classifyRuntimeMode(context: RuntimeCheckContext): RuntimeModeContract 
       return runtimeModeContract(
         'diagnostic-only',
         'unknown',
-          'project-local CLI bin exists, but the active Lattice CLI entrypoint could not be resolved',
+          'project-local CLI bin exists, but the active Proofbound CLI entrypoint could not be resolved',
       );
     }
     if (!localBinRealpath) {
@@ -293,13 +293,13 @@ function classifyRuntimeMode(context: RuntimeCheckContext): RuntimeModeContract 
         return runtimeModeContract(
           'packaged-runtime',
           'packaged-runtime',
-          'packaged runtime detected; project package.json/node_modules are not required for Lattice diagnostics',
+          'packaged runtime detected; project package.json/node_modules are not required for Proofbound diagnostics',
         );
       }
       return runtimeModeContract(
         'project-local-package',
         'project-node-modules',
-        `active Lattice CLI is the project-local ${relative(context.projectRoot, localBin)} package`,
+        `active Proofbound CLI is the project-local ${relative(context.projectRoot, localBin)} package`,
         true,
       );
     }
@@ -314,7 +314,7 @@ function classifyRuntimeMode(context: RuntimeCheckContext): RuntimeModeContract 
     return runtimeModeContract(
       'packaged-runtime',
       'packaged-runtime',
-      'packaged runtime detected; project package.json/node_modules are not required for Lattice diagnostics',
+      'packaged runtime detected; project package.json/node_modules are not required for Proofbound diagnostics',
     );
   }
 
@@ -322,7 +322,7 @@ function classifyRuntimeMode(context: RuntimeCheckContext): RuntimeModeContract 
     return runtimeModeContract(
       'diagnostic-only',
       'unknown',
-      'active Lattice CLI entrypoint could not be resolved; runtime classification is diagnostic-only',
+      'active Proofbound CLI entrypoint could not be resolved; runtime classification is diagnostic-only',
     );
   }
 
@@ -331,7 +331,7 @@ function classifyRuntimeMode(context: RuntimeCheckContext): RuntimeModeContract 
     return runtimeModeContract(
       'diagnostic-only',
       'unknown',
-      `active Lattice CLI ${active.realpath} does not match a known runtime source`,
+      `active Proofbound CLI ${active.realpath} does not match a known runtime source`,
     );
   }
 
@@ -339,7 +339,7 @@ function classifyRuntimeMode(context: RuntimeCheckContext): RuntimeModeContract 
     return runtimeModeContract(
       'global-cli',
       'global-cli',
-      'active Lattice CLI resolves to the global installation; project package.json/node_modules are not required',
+      'active Proofbound CLI resolves to the global installation; project package.json/node_modules are not required',
     );
   }
 
@@ -396,15 +396,15 @@ function runtimeModeSource(context: RuntimeCheckContext, activeRealpath: string)
 function compatibilityRuntimeMessage(source: RuntimeModeSource): string {
   switch (source) {
     case 'repo-local-dist':
-      return 'compatibility launcher is using the repository-local Lattice dist runtime; run npm --prefix packages/main run build after core edits';
+      return 'compatibility launcher is using the repository-local Proofbound dist runtime; run npm --prefix packages/main run build after core edits';
     case 'project-node-modules':
-      return 'compatibility launcher is using the project node_modules Lattice package without requiring node_modules/.bin/lattice as the active CLI';
+      return 'compatibility launcher is using the project node_modules Proofbound package without requiring node_modules/.bin/lattice as the active CLI';
     case 'packaged-runtime':
-      return 'compatibility launcher is using a packaged Lattice runtime; project package.json/node_modules are not required';
+      return 'compatibility launcher is using a packaged Proofbound runtime; project package.json/node_modules are not required';
     case 'external-development-engine':
-      return 'compatibility launcher is using an external Lattice development engine; project package.json/node_modules are not required';
+      return 'compatibility launcher is using an external Proofbound development engine; project package.json/node_modules are not required';
     case 'global-cli':
-      return 'compatibility launcher is using the global Lattice CLI; project package.json/node_modules are not required';
+      return 'compatibility launcher is using the global Proofbound CLI; project package.json/node_modules are not required';
     case 'unknown':
       return 'runtime source is unknown; classification is diagnostic-only';
   }
@@ -445,7 +445,7 @@ function checkPackageVersion(context: RuntimeCheckContext, severity: RuntimeFact
       globalCore: globalPackagePath ? packageSummary(globalPackage, globalPackagePath) : null,
     },
     expected: context.isSelfProject ? 'root, packages/main, runtime, and global core versions match' : 'runtime package version readable',
-    ...(ok ? {} : { warnings: ['Lattice package versions are missing or inconsistent'] }),
+    ...(ok ? {} : { warnings: ['Proofbound package versions are missing or inconsistent'] }),
   };
 }
 
@@ -855,7 +855,7 @@ function compatibilityLauncherSignal(activePath: string | null): boolean {
 
 function localBinWarning(localBin: string, localRealpath: string | null, cliRealpath: string | null, cliEntrypoint: string | null): string {
   if (!localRealpath) return `${localBin} exists but its realpath could not be resolved`;
-  if (!cliRealpath) return `${localBin} exists but active Lattice CLI could not be resolved for comparison`;
+  if (!cliRealpath) return `${localBin} exists but active Proofbound CLI could not be resolved for comparison`;
   return `${localBin} resolves to ${localRealpath}, active CLI ${cliEntrypoint ?? 'lattice'} resolves to ${cliRealpath}`;
 }
 

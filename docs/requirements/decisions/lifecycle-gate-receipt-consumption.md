@@ -2,7 +2,7 @@
 
 > Status: execution subdocument for
 > [Authority Receipt Gate End-to-End Plan](authority-session-receipt-gate-execution.md).
-> Owner: Orchestrate / Lattice CLI lifecycle gates.
+> Owner: Orchestrate / Proofbound CLI lifecycle gates.
 
 ## Purpose
 

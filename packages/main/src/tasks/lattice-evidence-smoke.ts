@@ -30,7 +30,7 @@ function git(cwd: string, args: string[]): string {
 
 function commitPaths(cwd: string, message: string, paths: string[]): string {
   git(cwd, ['add', ...paths]);
-  git(cwd, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Lattice Smoke', 'commit', '-m', message]);
+  git(cwd, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proofbound Smoke', 'commit', '-m', message]);
   return git(cwd, ['rev-parse', 'HEAD']);
 }
 

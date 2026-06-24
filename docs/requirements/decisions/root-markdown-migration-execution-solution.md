@@ -119,7 +119,7 @@ Each migration story that executes part of this solution must pass these gates b
 4. `docs/requirements/NAV.md` includes every active decision doc added by the batch and its file count matches the decisions list.
 5. No migrated text claims Production Safety readiness, new capability readiness, authority readiness, or unattended readiness.
 6. If a temporary stub remains, it has a canonical destination and a follow-up deletion condition.
-7. The story's required Lattice validation command passes in TEST.
+7. The story's required Proofbound validation command passes in TEST.
 
 Useful local checks:
 

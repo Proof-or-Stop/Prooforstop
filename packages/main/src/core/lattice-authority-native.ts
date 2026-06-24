@@ -118,14 +118,14 @@ export function normalizePrivateKeyToBase64(
   privateKey: string,
   encoding: LatticeAuthorityKeyEncoding = 'auto',
 ): PrivateKeyBase64 {
-  return decodeRawKey(privateKey, 32, 'Lattice Authority actor private key', encoding).toString('base64');
+  return decodeRawKey(privateKey, 32, 'Proofbound Authority actor private key', encoding).toString('base64');
 }
 
 export function normalizePublicKeyToBase64(
   publicKey: string,
   encoding: LatticeAuthorityKeyEncoding = 'auto',
 ): PublicKeyBase64 {
-  return decodeRawKey(publicKey, 32, 'Lattice Authority server public key', encoding).toString('base64');
+  return decodeRawKey(publicKey, 32, 'Proofbound Authority server public key', encoding).toString('base64');
 }
 
 export function derivePublicKeyHexFromPrivateKey(
@@ -143,7 +143,7 @@ export function signLatticeAuthorityEnvelope<T extends LatticeAuthoritySignedEnv
   encoding: LatticeAuthorityKeyEncoding = 'auto',
 ): { signed: T & { signature: string }; digest: string } {
   if (!envelope.actorId || !envelope.role || !envelope.nonce || !envelope.timestamp) {
-    throw new Error('Lattice Authority envelope requires actorId, role, nonce, and timestamp');
+    throw new Error('Proofbound Authority envelope requires actorId, role, nonce, and timestamp');
   }
   const unsigned = stripSignature(envelope);
   const privateKeyBase64 = normalizePrivateKeyToBase64(privateKey, encoding);
@@ -158,7 +158,7 @@ export function signLatticeAuthorityEnvelope<T extends LatticeAuthoritySignedEnv
 export function parseLatticeAuthorityReceipt(value: unknown): LatticeAuthorityReceipt {
   const parsed = LatticeAuthorityReceiptSchema.safeParse(value);
   if (!parsed.success) {
-    throw new Error(`Lattice Authority receipt is invalid: ${parsed.error.message}`);
+    throw new Error(`Proofbound Authority receipt is invalid: ${parsed.error.message}`);
   }
   return parsed.data;
 }
@@ -179,12 +179,12 @@ export function verifyLatticeAuthorityReceipt(
       provided: true,
       verified: false,
       receipt,
-      reason: `Lattice Authority receipt verification material uses unsupported algorithm: ${invalidAlgorithm ?? options.serverPublicKeyAlgorithm}`,
+      reason: `Proofbound Authority receipt verification material uses unsupported algorithm: ${invalidAlgorithm ?? options.serverPublicKeyAlgorithm}`,
     };
   }
   const signature = receipt.signature;
   if (!signature || !isHexBytes(signature, 64)) {
-    return { provided: true, verified: false, receipt, reason: 'Lattice Authority receipt signature is missing or not 64-byte hex' };
+    return { provided: true, verified: false, receipt, reason: 'Proofbound Authority receipt signature is missing or not 64-byte hex' };
   }
   let serverPublicKey: PublicKeyBase64;
   try {
@@ -198,7 +198,7 @@ export function verifyLatticeAuthorityReceipt(
   const signatureBase64 = Buffer.from(signature, 'hex').toString('base64');
   const signatureVerified = verifyCanonical(stripSignature(receipt), signatureBase64, serverPublicKey);
   if (!signatureVerified) {
-    return { provided: true, verified: false, receipt, reason: 'Lattice Authority receipt signature verification failed' };
+    return { provided: true, verified: false, receipt, reason: 'Proofbound Authority receipt signature verification failed' };
   }
   const mismatches: string[] = [];
   if (options.expectedKind && receipt.kind !== options.expectedKind) {
@@ -220,7 +220,7 @@ export function verifyLatticeAuthorityReceipt(
     mismatches.push('gate_decision receipt must include decisionDigest');
   }
   if (mismatches.length > 0) {
-    return { provided: true, verified: false, receipt, reason: `Lattice Authority receipt binding mismatch: ${mismatches.join('; ')}` };
+    return { provided: true, verified: false, receipt, reason: `Proofbound Authority receipt binding mismatch: ${mismatches.join('; ')}` };
   }
   // Freshness is enforced whenever maxAge is configured. A configured-but-invalid
   // maxAge/clockSkew or an unparseable client clock must fail closed with an
@@ -230,32 +230,32 @@ export function verifyLatticeAuthorityReceipt(
   const clockSkewMs = options.clockSkewMs ?? 300_000;
   if (maxAgeMs !== undefined) {
     if (!Number.isFinite(maxAgeMs) || maxAgeMs < 0) {
-      return { provided: true, verified: false, receipt, reason: `Lattice Authority receipt freshness check cannot run: maxAgeMs is invalid (maxAgeMs=${maxAgeMs})` };
+      return { provided: true, verified: false, receipt, reason: `Proofbound Authority receipt freshness check cannot run: maxAgeMs is invalid (maxAgeMs=${maxAgeMs})` };
     }
     if (!Number.isFinite(clockSkewMs) || clockSkewMs < 0) {
-      return { provided: true, verified: false, receipt, reason: `Lattice Authority receipt freshness check cannot run: clockSkewMs is invalid (clockSkewMs=${clockSkewMs})` };
+      return { provided: true, verified: false, receipt, reason: `Proofbound Authority receipt freshness check cannot run: clockSkewMs is invalid (clockSkewMs=${clockSkewMs})` };
     }
     const now = options.now ?? new Date();
     const nowMs = now.getTime();
     if (!Number.isFinite(nowMs)) {
-      return { provided: true, verified: false, receipt, reason: `Lattice Authority receipt freshness check cannot run: client clock is invalid (clientClock=${String(now)})` };
+      return { provided: true, verified: false, receipt, reason: `Proofbound Authority receipt freshness check cannot run: client clock is invalid (clientClock=${String(now)})` };
     }
     const clientClock = now.toISOString();
     const issuedMs = Date.parse(receipt.issuedAt);
     if (!Number.isFinite(issuedMs)) {
-      return { provided: true, verified: false, receipt, reason: `Lattice Authority receipt issuedAt is not parseable; clientClock=${clientClock} serverIssuedAt=${receipt.issuedAt}` };
+      return { provided: true, verified: false, receipt, reason: `Proofbound Authority receipt issuedAt is not parseable; clientClock=${clientClock} serverIssuedAt=${receipt.issuedAt}` };
     }
     if (issuedMs > nowMs + clockSkewMs) {
-      return { provided: true, verified: false, receipt, reason: `Lattice Authority receipt is future-dated; clientClock=${clientClock} serverIssuedAt=${receipt.issuedAt} clockSkewMs=${clockSkewMs}` };
+      return { provided: true, verified: false, receipt, reason: `Proofbound Authority receipt is future-dated; clientClock=${clientClock} serverIssuedAt=${receipt.issuedAt} clockSkewMs=${clockSkewMs}` };
     }
     if (nowMs - issuedMs > maxAgeMs + clockSkewMs) {
-      return { provided: true, verified: false, receipt, reason: `Lattice Authority receipt is stale; clientClock=${clientClock} serverIssuedAt=${receipt.issuedAt} maxAgeMs=${maxAgeMs} clockSkewMs=${clockSkewMs}` };
+      return { provided: true, verified: false, receipt, reason: `Proofbound Authority receipt is stale; clientClock=${clientClock} serverIssuedAt=${receipt.issuedAt} maxAgeMs=${maxAgeMs} clockSkewMs=${clockSkewMs}` };
     }
   }
   return {
     provided: true,
     verified: true,
     receipt,
-    reason: 'Lattice Authority receipt signature and native bindings verified',
+    reason: 'Proofbound Authority receipt signature and native bindings verified',
   };
 }

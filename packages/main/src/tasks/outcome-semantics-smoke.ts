@@ -120,7 +120,7 @@ function assertSessionDashboardAndAuthorityWording(): void {
     write(root, 'packages/main/src/index.ts', 'export {};\n');
     git(root, ['init']);
     git(root, ['config', 'user.email', 'lattice@example.test']);
-    git(root, ['config', 'user.name', 'Lattice Smoke']);
+    git(root, ['config', 'user.name', 'Proofbound Smoke']);
     git(root, ['checkout', '-B', 'main']);
     git(root, ['add', '.']);
     git(root, ['commit', '-m', 'base']);

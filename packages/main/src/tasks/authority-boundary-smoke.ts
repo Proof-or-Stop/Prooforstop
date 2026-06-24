@@ -2,7 +2,7 @@
 //
 // Authority boundary smoke (B-ec09 / Milestone 1).
 //
-// Purpose: prove mechanically that Lattice CLI authority submissions cannot be
+// Purpose: prove mechanically that Proofbound CLI authority submissions cannot be
 // mistaken for receipt-backed L2+ production authority. Even a forged "transport
 // accepted" path on a CLI-shaped envelope must classify as `thin-client-*`,
 // never as `receipt-backed-l2-plus`.

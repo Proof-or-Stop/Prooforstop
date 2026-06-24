@@ -34,7 +34,7 @@ import type { ChecklistData, ClosingSelfCheck, DocsPromise, ProcessEvent, RealMa
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const cliPath = join(packageRoot, 'cli.js');
-const COMMIT_ENV = ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Lattice Smoke'];
+const COMMIT_ENV = ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proofbound Smoke'];
 
 interface RepoOptions {
   storyId: string;

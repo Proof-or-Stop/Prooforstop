@@ -3,7 +3,7 @@
 ## Decision
 
 `/Users/jek/Documents/Work/proofbound` is the canonical active checkout for new
-Lattice work.
+Proofbound work.
 
 `/Users/jek/Documents/Work/Orchestrate` is a retired, read-only legacy evidence
 root. It remains useful for local evidence lookup and paper/research traceability,
@@ -25,11 +25,11 @@ Read-only workflow commands remain available so old evidence can still be
 inspected. Mutating workflow commands fail before handler dispatch and print:
 
 ```text
-Lattice root is retired: /Users/jek/Documents/Work/Orchestrate
+Proofbound root is retired: /Users/jek/Documents/Work/Orchestrate
 Use canonicalRoot: /Users/jek/Documents/Work/proofbound
 ```
 
-This behavior is Host-neutral and Agent-neutral. It belongs to the Lattice
+This behavior is Host-neutral and Agent-neutral. It belongs to the Proofbound
 workflow layer and does not depend on Codex, Claude, shell hooks, or a local Git
 remote setting.
 
@@ -54,7 +54,7 @@ Legacy Orchestrate evidence stays local-only unless it is deliberately curated
 into public-safe documentation. Do not publish raw `.lattice/story/**`,
 authority trust files, local transcripts, or runtime logs to GitHub.
 
-New Lattice Authority runner diagnostics, including `jobs_stream` notification
+New Proofbound Authority runner diagnostics, including `jobs_stream` notification
 hints from `/v1/runners/{runnerId}/jobs/stream`, belong only in the canonical
 proofbound workflow. They must not create new evidence or runtime writes under
 the retired Orchestrate root.

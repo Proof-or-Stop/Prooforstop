@@ -11,7 +11,7 @@ import {
 } from '../core/runtime-environment-checks.js';
 
 function renderLatticeManagedAssetCheck(result: ReturnType<typeof runManagedAssetCheck>): string {
-  // core renderManagedAssetCheck already emits Lattice-branded output; no legacy rewrite needed.
+  // core renderManagedAssetCheck already emits Proofbound-branded output; no legacy rewrite needed.
   return renderManagedAssetCheck(result);
 }
 
