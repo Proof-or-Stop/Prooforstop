@@ -37,6 +37,24 @@
       ],
       "signatureTag": "missing|md|code-drift-experiments",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-e67f:F-003",
+      "desc": "CHK-001:edge:0 lacks valid verificationEvidence: the intent requires git diff to verify the 4 pre-existing task dirs (eval-expr/median/parse-range/text-stats) are unmodified, but the bound evidence (node experiments/recovery-runner/corpus-selfcheck.mjs) performs no git operations and would pass even if those 4 dirs were modified; corpus-selfcheck only checks file presence + task.json well-formedness, not git-level diff.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-24T10:24:20.393Z",
+      "reviewRound": "2026-06-24T10:16:50.255Z",
+      "reviewRunId": "B-e67f:RR-001",
+      "_hash": "c7eea691655757e96efd810150eb2c08f7b11ad81e73aba1d432520d99659109",
+      "files": [
+        "experiments/recovery-runner/corpus-selfcheck.mjs"
+      ],
+      "signatureTag": "missing|mjs|edge-lacks-valid",
+      "signatureTagSource": "auto"
     }
   ]
 }
