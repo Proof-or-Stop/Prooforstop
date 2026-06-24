@@ -260,9 +260,9 @@
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
         "docs/evidence/evidence-platform-architecture.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-24T10:09:20.574Z",
-      "endTime": null,
+      "endTime": "2026-06-24T10:09:28.323Z",
       "userSees": "User sees `proof-admissibility smoke passed`, process fact verification stays green, and the new test command is available from package scripts.",
       "files": {
         "modify": [
@@ -301,7 +301,45 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/package.json",
+          "command": "npm --prefix packages/main run test:proof-admissibility",
+          "result": "pass",
+          "note": "Package script is available and prints proof-admissibility smoke passed after build.",
+          "headHash": "498486e7c49e82eaf441a6e82f17907ca384734e",
+          "materialHash": "b2d2745fdd0678e902f7917e3e4200fe071ec3c373c70df8e50224e67f42e411",
+          "storyFilesHash": "1182244e6833c24e24ecba68362c64b7d67b270c8e42ec7310e0221d464a874d",
+          "timestamp": "2026-06-24T10:09:28.691Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/proof-admissibility-smoke.ts",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "No new lifecycle command or gate fact was introduced; existing process fact contract remains green.",
+          "headHash": "498486e7c49e82eaf441a6e82f17907ca384734e",
+          "materialHash": "b2d2745fdd0678e902f7917e3e4200fe071ec3c373c70df8e50224e67f42e411",
+          "storyFilesHash": "1182244e6833c24e24ecba68362c64b7d67b270c8e42ec7310e0221d464a874d",
+          "timestamp": "2026-06-24T10:09:28.928Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/proof-admissibility-smoke.ts",
+          "command": "npm --prefix packages/main run test:proof-admissibility",
+          "result": "pass",
+          "note": "Smoke includes negative controls for non-production scopes, unknown artifacts, unsupported schema, and stale material denial.",
+          "headHash": "498486e7c49e82eaf441a6e82f17907ca384734e",
+          "materialHash": "b2d2745fdd0678e902f7917e3e4200fe071ec3c373c70df8e50224e67f42e411",
+          "storyFilesHash": "1182244e6833c24e24ecba68362c64b7d67b270c8e42ec7310e0221d464a874d",
+          "timestamp": "2026-06-24T10:09:29.166Z"
+        }
+      ]
     }
   ]
 }
