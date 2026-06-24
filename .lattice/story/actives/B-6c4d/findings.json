@@ -99,6 +99,29 @@
       ],
       "signatureTag": "missing|md|promise-undelivered-docs",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-6c4d:F-006",
+      "desc": "doc-code-drift: packages/main/src/core/prompt-registry.ts line 98 still reads 'current-latest run, matching reviewRound, and fresh head/material hashes' — the pre-kind-aware wording that the round-3 commit explicitly reverted. The code (review-run.ts:807 validateEvidenceRunBinding and assertCurrentReviewRunForEvidence:669-676) implements kind-aware binding: the id-recency check is dropped for evidence.kind=pass so PASS evidence on a non-latest-but-material-fresh run is accepted, while FINDING evidence still requires the latest run. The prompt-registry.ts text omits this kind-awareness and implies id-recency is required for all evidence. This contradicts story-lifecycle.md:202, flow-fact-policy.ts review-run-boundary rationale, process-fact-levels.ts review-run-boundary rationale, and review-run-binding-race.md — all of which correctly describe the kind-aware policy. Because prompt-registry.ts is the LOAD_BEARING_LATTICE_PROMPT_SLICE injected into every agent prompt, agents reading it will incorrectly believe id-recency is required for passes, misdiagnosing the relaxed binding.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-24T14:46:07.065Z",
+      "reviewRound": "2026-06-24T14:41:01.279Z",
+      "reviewRunId": "B-6c4d:RR-011",
+      "_hash": "fe7666c33ffb573631b51cf5e41a478f668bd4c4331252f014bd93ffbaaa56d7",
+      "files": [
+        "packages/main/src/core/prompt-registry.ts",
+        "packages/main/src/core/review-run.ts",
+        "docs/requirements/decisions/story-lifecycle.md",
+        "docs/requirements/decisions/review-run-binding-race.md",
+        "packages/main/src/core/flow-fact-policy.ts",
+        "packages/main/src/core/process-fact-levels.ts"
+      ],
+      "signatureTag": "missing|ts|code-drift-packages",
+      "signatureTagSource": "auto"
     }
   ]
 }
