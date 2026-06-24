@@ -288,7 +288,20 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/delivery-check-freshness-smoke.js",
+          "result": "pass",
+          "note": "delivery-check-freshness-smoke.ts:253-302 (advisory case): line 292 asserts doneRow status=pass. Line 293 asserts row.detail includes the LITERAL advisory text via the pinned EXPECTED_ADVISORY constant (line 250-251: \"whole-tree materialHash drift detected while the signed delivery-check storyFilesHash matches...\"). done-oracle.ts:626-636 constructs the advisory suffix as \"— ADVISORY: <freshness.advisory>\" and appends it to the detail string. The smoke asserts the exact wording is present, confirming the advisory is VISIBLE on the passing DONE row and never swallowed.",
+          "headHash": "457c4c5c897c5821e33792ac08689ab9203ca631",
+          "materialHash": "b408c17340b07573b67def7f174c5be835305444e9f751447334111ee6e0e214",
+          "storyFilesHash": "37419f33c493964defd3ec2e7fbb5b938f073766f622f32aad9a6990e03d7a0a",
+          "timestamp": "2026-06-24T11:20:54.995Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
