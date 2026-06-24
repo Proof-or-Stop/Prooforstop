@@ -185,6 +185,34 @@
         }
       ],
       "_hash": "c725c66f19c499462eaaf24521bb2df40f7923038c5be54bc98a6619493156bb"
+    },
+    {
+      "timestamp": "2026-06-24T01:37:25.124Z",
+      "issueCount": 4,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "4 checklist items; please check for missing combined scenarios (e.g., what happens when Make evaluateReviewEscalation freshness-root gitCwd-aware + Plumb resolved gitCwd into the DONE-gate escalation calls are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 2 high-risk signal(s): State Machine/Gate, Validation Framework. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run lattice story_review_dismiss '{\"storyId\":\"B-36ba\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        },
+        {
+          "type": "touchpoint_mapping_missing",
+          "severity": "advisory",
+          "message": "None of the checklist items have the files field filled in (legacy story compatibility mode); cannot perform coverage validation on understanding.touchpoints. Please list the changed files in files.modify/create/test for at least one item to enable strict touchpoint-to-files validation"
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-36ba is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "45c9122f9b07efbff053c3e38b44886234de7e1059edacfbf67dd4351f1c211b"
     }
   ]
 }

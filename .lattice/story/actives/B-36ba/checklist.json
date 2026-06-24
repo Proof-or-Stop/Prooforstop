@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "Make evaluateReviewEscalation freshness-root gitCwd-aware",
       "context": "packages/main/src/core/review-escalation.ts ~439-440: add gitCwd?: string to EvaluateReviewEscalationArgs, compute const gitCwd = args.gitCwd ?? args.projectRoot, and change currentMaterialHash(args.projectRoot)/currentStoryFilesHash(args.projectRoot) to currentMaterialHash(gitCwd,'HEAD',args.projectRoot)/currentStoryFilesHash(gitCwd,'HEAD',args.projectRoot), matching review-assurance-floor.ts:439 and producers (quorum-submit.ts:247/251, verifier.ts:610).",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-24T01:47:52.592Z",
       "verificationIntent": {
         "happy": [
           {
