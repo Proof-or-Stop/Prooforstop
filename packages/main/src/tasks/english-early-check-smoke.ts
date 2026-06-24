@@ -64,7 +64,7 @@ function makeRoot(label: string): string {
   const root = mkdtempSync(join(tmpdir(), `lattice-english-early-${label}-`));
   git(root, ['init', '-b', 'main']);
   git(root, ['config', 'user.email', 'smoke@example.test']);
-  git(root, ['config', 'user.name', 'Lattice Smoke']);
+  git(root, ['config', 'user.name', 'Proofbound Smoke']);
   writeFile(root, 'lattice.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',

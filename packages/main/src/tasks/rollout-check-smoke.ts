@@ -125,7 +125,7 @@ const alias = runJson(['lattice', 'rollout', 'check', `--projects=${repoRoot}`, 
 assertRolloutShape(alias, 'space alias');
 assert.equal(alias.projects[0]?.path, repoRoot, 'space alias scans requested project');
 
-// Core handles non-Lattice/nonexistent projects as explicit project results.
+// Core handles non-Proofbound/nonexistent projects as explicit project results.
 const tempRoot = join(tmpdir(), `lattice-rollout-smoke-${process.pid}-${Date.now()}`);
 mkdirSync(tempRoot, { recursive: true });
 try {
@@ -161,7 +161,7 @@ try {
   writeFileSync(join(externalMain, 'package.json'), JSON.stringify({ name: '@example/main', version: '1.0.0' }, null, 2));
   const externalResult = buildRolloutCheck({ root: tempRoot, projects: [externalMonorepo] });
   const configProbe = externalResult.projects[0]?.probes.find(probe => probe.id === 'lattice_config_doctor');
-  assert.equal(configProbe?.status, 'pass', 'external packages/main layout is not treated as the Lattice source tree');
+  assert.equal(configProbe?.status, 'pass', 'external packages/main layout is not treated as the Proofbound source tree');
   assert.match(configProbe?.detail ?? '', /external project/, 'external packages/main layout keeps external-project guidance');
   assert.ok(!configProbe?.nextAction?.includes('Refresh the local CLI package'), 'external packages/main layout avoids self-layout refresh guidance');
 } finally {

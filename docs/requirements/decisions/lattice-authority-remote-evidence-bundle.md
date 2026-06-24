@@ -1,4 +1,4 @@
-# Lattice Authority Remote Evidence Bundle
+# Proofbound Authority Remote Evidence Bundle
 
 Date: 2026-06-09
 
@@ -21,7 +21,7 @@ run that proves:
 
 | Claim | Result | Evidence anchor |
 | --- | --- | --- |
-| Lattice non-authority CLI | PASS | Local certification smoke proves zero Authority contact and no false Authority DONE flags. |
+| Proofbound non-authority CLI | PASS | Local certification smoke proves zero Authority contact and no false Authority DONE flags. |
 | Remote `authorityDone` | PASS | Remote queued job was created, claimed, executed, uploaded evidence, and verified a native server receipt. |
 | Remote `fullAuthorityDone` | PASS | Remote queued job passed three server-backed multi-host final review waves. |
 
@@ -269,9 +269,9 @@ Primary files touched by this validation effort:
 The evidence in this bundle is enough to claim:
 
 ```text
-Lattice CLI non-authority PASS
-Lattice CLI + remote Lattice Authority authorityDone PASS
-Lattice CLI + remote Lattice Authority fullAuthorityDone PASS
+Proofbound CLI non-authority PASS
+Proofbound CLI + remote Proofbound Authority authorityDone PASS
+Proofbound CLI + remote Proofbound Authority fullAuthorityDone PASS
 ```
 
 It does not claim that every future arbitrary project or every cross-language

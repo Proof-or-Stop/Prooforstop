@@ -80,9 +80,9 @@ B-3a80 has only three documentation actions:
 The two signed-workspace high gaps remain candidates for a future implementation
 or verification story. They are not closed by this document.
 
-## 5. Lattice CLI Flow
+## 5. Proofbound CLI Flow
 
-The implementation story must keep all story metadata behind Lattice CLI
+The implementation story must keep all story metadata behind Proofbound CLI
 commands and avoid direct story-file edits.
 
 Required local flow:

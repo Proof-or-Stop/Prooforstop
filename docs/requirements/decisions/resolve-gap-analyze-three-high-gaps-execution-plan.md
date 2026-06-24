@@ -190,7 +190,7 @@ Use these rules while resolving the three high gaps.
 1. Finish or intentionally park unrelated active stories so the target is clear.
 2. Open one signed-workspace implementation story for GAP-SW-UNRESOLVED-1 and
    GAP-SW-NO-BINDING-1.
-3. Run the signed-workspace story to DONE through Lattice lifecycle.
+3. Run the signed-workspace story to DONE through Proofbound lifecycle.
 4. Re-run `lattice gap_analyze`.
 5. If only GAP-L4-CUSTOMER-KEY-1 remains, choose Path B1 or Path B2.
 6. Run the chosen Layer 4 boundary or implementation story to DONE.
@@ -216,7 +216,7 @@ Each follow-up story must include:
 - exact changed files;
 - source or document anchors for each cleared gap;
 - deterministic commands that can be replayed;
-- Lattice validation evidence;
+- Proofbound validation evidence;
 - review pass evidence;
 - final statement of what remains locked.
 

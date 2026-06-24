@@ -1,5 +1,5 @@
 /**
- * Long-form PROMPTs for Lattice CLI core commands
+ * Long-form PROMPTs for Proofbound CLI core commands
  *
  * Displayed by `lattice <cmd> --help` to teach agents how to use commands.
  */

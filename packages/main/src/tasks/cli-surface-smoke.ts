@@ -94,7 +94,7 @@ assert.deepEqual(
 );
 
 const storyAdvanceHelp = runCli(['story_advance', '--help']);
-assert.match(storyAdvanceHelp, /Lattice CLI/, 'tool help keeps Lattice branding');
+assert.match(storyAdvanceHelp, /Proofbound CLI/, 'tool help keeps Proofbound branding');
 assert.match(storyAdvanceHelp, /Dry-run: optional via --dryRun/, 'optional dry-run class remains visible');
 assert.match(storyAdvanceHelp, /Owner lease meta options/, 'owner lease help remains visible');
 
@@ -105,14 +105,14 @@ const hostInstallHelp = runCli(['host_install', '--help']);
 assert.match(hostInstallHelp, /Dry-run: always-on\./, 'always-on dry-run class remains visible');
 
 const globalHelp = runCli(['help']);
-assert.match(globalHelp, /Lattice CLI/, 'global help keeps Lattice branding');
+assert.match(globalHelp, /Proofbound CLI/, 'global help keeps Proofbound branding');
 assert.match(globalHelp, /host_runtime_list/, 'global help keeps host runtime section entries');
 assert.match(globalHelp.toLowerCase(), /antigravity/, 'global help keeps current host wording');
 assert.match(globalHelp.toLowerCase(), /\bagy\b/, 'global help keeps antigravity alias wording');
 assert.doesNotMatch(globalHelp.toLowerCase(), /current[^\n.]*gemini|gemini[^\n.]*current/, 'Gemini is not described as current');
 
 const versionThroughLatticeNamespace = runCli(['lattice', 'version']);
-assert.match(versionThroughLatticeNamespace, /Lattice CLI/, 'lattice version special path remains in runCli');
+assert.match(versionThroughLatticeNamespace, /Proofbound CLI/, 'lattice version special path remains in runCli');
 
 const hostRuntimeList = runJson<{ schemaVersion: string }>(['lattice', 'host', 'runtime', 'list', '--json']);
 assert.equal(hostRuntimeList.schemaVersion, 'lattice.host_runtime_list.v1');

@@ -245,7 +245,7 @@ try {
 
   // The natural-language request must have produced a real Story + JobPlan, and the plannedSteps
   // execution must bind that same Story end to end (NL -> Story -> JobPlan -> plannedSteps).
-  assert.match(localRun.storyId, /^B-[0-9a-f]{4,6}$/i, 'planner run must create a real Lattice Story from the natural-language request');
+  assert.match(localRun.storyId, /^B-[0-9a-f]{4,6}$/i, 'planner run must create a real Proofbound Story from the natural-language request');
   assert.equal(localRun.jobPlan.storyId, localRun.storyId, 'the JobPlan must bind the Story created from the request');
   assert.equal(localRun.execution.storyId, localRun.storyId, 'plannedSteps execution must bind the same created Story');
   const localSteps = localRun.execution.steps as JsonObject[];
@@ -260,7 +260,7 @@ try {
   assert.equal(localRun.execution.localDone, false, 'a passing local planned-step gate must not be treated as Story lifecycle DONE');
   assert(localRun.execution.evidenceRefs.length >= localSteps.length, 'every executed planned step must surface an evidence ref');
   assert(localRun.execution.evidenceRefs.every((ref: string) => ref.startsWith(`${localRun.storyId}:`)), 'plannedSteps evidence refs must bind the created Story');
-  assert(localRun.execution.nextActions.some((action: string) => /local Story lifecycle has not reached DONE/i.test(action)), 'local completion must tell the operator that lifecycle DONE still requires the normal Lattice gates');
+  assert(localRun.execution.nextActions.some((action: string) => /local Story lifecycle has not reached DONE/i.test(action)), 'local completion must tell the operator that lifecycle DONE still requires the normal Proofbound gates');
 
   const authorityRun = run([
     'lattice', 'planner', 'run',

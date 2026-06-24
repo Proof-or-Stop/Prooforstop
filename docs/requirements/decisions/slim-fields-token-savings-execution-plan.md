@@ -5,7 +5,7 @@ Date: 2026-06-15
 ## Purpose
 
 This document defines a low-risk execution plan for reducing repeated LLM context
-cost from Lattice status queries.
+cost from Proofbound status queries.
 
 The goal is not to change command semantics. The goal is to update agent prompts
 and documentation so agents use compact read-only query forms by default:
@@ -91,7 +91,7 @@ Full output is required before:
 
 ## Execution Discipline
 
-Implementation must run as a dedicated Lattice story, not as part of B-f495.
+Implementation must run as a dedicated Proofbound story, not as part of B-f495.
 That story must begin with `lattice session_brief` and `lattice aux_doc_list`
 from its own worktree before reading or editing implementation files.
 
@@ -256,7 +256,7 @@ B-f495 accepts this plan after the execution-order and review-discipline
 corrections above. The evidence cited here is local repository evidence and is
 not Authority Server evidence. Provider billing savings are not proven; the
 token figures are approximate context-size estimates only. Implementation should
-proceed as a separate dedicated Lattice story.
+proceed as a separate dedicated Proofbound story.
 
 ## Rollback
 

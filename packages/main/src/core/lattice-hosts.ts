@@ -80,7 +80,7 @@ export interface LatticeHostInstallGuidance {
 const PRODUCT = { name: LATTICE_PRODUCT_NAME, version: LATTICE_CLI_VERSION } as const;
 
 const LATTICE_DESKTOP_APP_SUMMARY =
-  'Optional dashboard/archive surface for displaying artifacts, collecting visible approval, and browsing historical handoff context; Lattice CLI commands remain the editing, test, authority, and receipt surfaces.';
+  'Optional dashboard/archive surface for displaying artifacts, collecting visible approval, and browsing historical handoff context; Proofbound CLI commands remain the editing, test, authority, and receipt surfaces.';
 
 type LatticeDesktopCapabilityDemotion = {
   status: Exclude<CapabilityStatus, 'available'>;
@@ -94,56 +94,56 @@ type LatticeDesktopCapabilityDemotion = {
 const LATTICE_DESKTOP_APP_DEMOTIONS: Partial<Record<CapabilityCategory, LatticeDesktopCapabilityDemotion>> = {
   'file-edit': {
     status: 'unavailable',
-    note: 'Unavailable in Lattice CLI 0.3.8; the desktop app is optional dashboard/archive only.',
+    note: 'Unavailable in Proofbound CLI 0.3.8; the desktop app is optional dashboard/archive only.',
     authorityImpact: 'none',
-    reason: 'Lattice CLI 0.3.8 does not treat the desktop app as a repository editing host.',
+    reason: 'Proofbound CLI 0.3.8 does not treat the desktop app as a repository editing host.',
     fallback: 'Delegate file edits to Codex, Claude Code, Antigravity, or another explicit editing host.',
   },
   'patch-apply': {
     status: 'unavailable',
-    note: 'Unavailable in Lattice CLI 0.3.8; patches must be applied by a CLI/editor host.',
+    note: 'Unavailable in Proofbound CLI 0.3.8; patches must be applied by a CLI/editor host.',
     authorityImpact: 'none',
     reason: 'The desktop app projection is dashboard/archive only and cannot apply patches.',
     fallback: 'Use a patch-capable CLI/editor host.',
   },
   'shell/pty': {
     status: 'unavailable',
-    note: 'Unavailable in Lattice CLI 0.3.8; shell access stays with CLI/editor/runner hosts.',
+    note: 'Unavailable in Proofbound CLI 0.3.8; shell access stays with CLI/editor/runner hosts.',
     authorityImpact: 'verification-evidence-limited',
     reason: 'The desktop app projection is not a local command or PTY surface.',
     fallback: 'Run commands through Codex, Claude Code, Antigravity, or local-runner.',
   },
   'test-execution': {
     status: 'unavailable',
-    note: 'Unavailable in Lattice CLI 0.3.8; tests must run through CLI/editor/runner hosts.',
+    note: 'Unavailable in Proofbound CLI 0.3.8; tests must run through CLI/editor/runner hosts.',
     authorityImpact: 'verification-evidence-limited',
     reason: 'The desktop app projection is not a test execution surface.',
     fallback: 'Delegate build and test commands to local-runner or an editing host with shell access.',
   },
   'browser-automation': {
     status: 'unavailable',
-    note: 'Unavailable in Lattice CLI 0.3.8; browser checks require a browser-capable host.',
+    note: 'Unavailable in Proofbound CLI 0.3.8; browser checks require a browser-capable host.',
     authorityImpact: 'verification-evidence-limited',
-    reason: 'The desktop app projection does not expose browser automation as a Lattice host capability.',
+    reason: 'The desktop app projection does not expose browser automation as a Proofbound host capability.',
     fallback: 'Use a browser host or record that browser automation is unavailable.',
   },
   'evidence-submit': {
     status: 'unavailable',
-    note: 'Unavailable in Lattice CLI 0.3.8; the desktop app is not an authority evidence submission surface.',
+    note: 'Unavailable in Proofbound CLI 0.3.8; the desktop app is not an authority evidence submission surface.',
     authorityImpact: 'evidence-local-only',
     reason: 'The desktop app projection cannot submit authority evidence.',
     fallback: 'Keep evidence local until submitted through an explicit authority-capable client.',
   },
   'receipt-verify': {
     status: 'unavailable',
-    note: 'Unavailable in Lattice CLI 0.3.8; the desktop app cannot verify authority receipts.',
+    note: 'Unavailable in Proofbound CLI 0.3.8; the desktop app cannot verify authority receipts.',
     authorityImpact: 'blocks-production-done',
     reason: 'The desktop app projection cannot verify authority receipts or unlock productionDone.',
     fallback: 'Require a verified receipt from an authority-capable verifier before productionDone.',
   },
   'multimodal-research': {
     status: 'unavailable',
-    note: 'Unavailable in Lattice CLI 0.3.8; research and verification are delegated to explicit capable hosts.',
+    note: 'Unavailable in Proofbound CLI 0.3.8; research and verification are delegated to explicit capable hosts.',
     authorityImpact: 'none',
     reason: 'The desktop app projection is limited to dashboard/archive display rather than research execution.',
     fallback: 'Delegate research to a multimodal-capable host.',
@@ -283,7 +283,7 @@ function nextActionForStatus(
     return 'Run lattice host list --format=json, then choose a host whose profile exposes file-edit, shell/pty, test-execution, and approval support.';
   }
   if (status === 'degraded') {
-    return 'Manual-first overflow is possible, but inspect the visible limits before dispatching work and keep review/merge authority in Lattice.';
+    return 'Manual-first overflow is possible, but inspect the visible limits before dispatching work and keep review/merge authority in Proofbound.';
   }
   return 'Manual-first overflow is ready: create a handoff pack, project an isolated overflow worktree, then review any receipt locally before merging.';
 }
@@ -357,9 +357,9 @@ function installStepsForHost(host: string): { summary: string; steps: string[]; 
   ];
   if (normalized === 'codex') {
     return {
-      summary: 'Codex is an editing host. Use the Lattice CLI inside the existing Codex workspace session.',
+      summary: 'Codex is an editing host. Use the Proofbound CLI inside the existing Codex workspace session.',
       steps: [
-        'Build the repo-local Lattice CLI before using worktree-local status or gate commands.',
+        'Build the repo-local Proofbound CLI before using worktree-local status or gate commands.',
         'Use lattice host probe --host=codex to inspect optional browser, evidence-submit, and receipt-verify degradations.',
         'Keep authority evidence local unless an explicit authority URL and receipt verifier are configured.',
       ],
@@ -369,7 +369,7 @@ function installStepsForHost(host: string): { summary: string; steps: string[]; 
   }
   if (normalized === 'claude-code') {
     return {
-      summary: 'Claude Code is an editing host. Install and authenticate it through its own vendor flow, then use Lattice handoff surfaces.',
+      summary: 'Claude Code is an editing host. Install and authenticate it through its own vendor flow, then use Proofbound handoff surfaces.',
       steps: [
         'Confirm Claude Code is available in the user environment through its vendor documentation.',
         'Use lattice host probe --host=claude-code to inspect visible capability degradations.',
@@ -381,7 +381,7 @@ function installStepsForHost(host: string): { summary: string; steps: string[]; 
   }
   if (normalized === 'antigravity' || normalized === 'agy') {
     return {
-      summary: 'Antigravity is an editing host exposed through the agy CLI. Install and authenticate it through its own vendor flow, then use Lattice handoff/runtime surfaces.',
+      summary: 'Antigravity is an editing host exposed through the agy CLI. Install and authenticate it through its own vendor flow, then use Proofbound handoff/runtime surfaces.',
       steps: [
         'Confirm agy is available in the user environment through its vendor documentation.',
         'Use lattice host probe --host=antigravity to inspect visible capability degradations.',
@@ -434,7 +434,7 @@ function installStepsForHost(host: string): { summary: string; steps: string[]; 
     return {
       summary: 'The Mac App is optional dashboard/archive surface only for this migration.',
       steps: [
-        'Use Lattice CLI commands for host/config/authority/conduit diagnostics.',
+        'Use Proofbound CLI commands for host/config/authority/conduit diagnostics.',
         'Keep any Mac App usage as an optional dashboard or archived surface.',
         'Do not route production authority claims through the Mac App unless a future receipt-backed runner path is implemented.',
       ],

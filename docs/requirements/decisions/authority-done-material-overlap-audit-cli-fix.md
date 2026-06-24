@@ -1,17 +1,17 @@
 # Authority DONE Material Overlap Audit CLI Fix
 
-> Status: execution handoff for a Lattice CLI correctness fix.
-> Owner: Orchestrate / Lattice CLI.
+> Status: execution handoff for a Proofbound CLI correctness fix.
+> Owner: Orchestrate / Proofbound CLI.
 > Related:
 > [Authority Receipt Gate Integration Execution Plan](authority-receipt-gate-integration-execution-plan.md),
 > [Authority Receipt Cross-Repo Live Smoke](authority-receipt-cross-repo-live-smoke.md),
-> [Lattice CLI Authority Client and Receipt Ref](lattice-cli-authority-client-receipt-ref.md),
+> [Proofbound CLI Authority Client and Receipt Ref](lattice-cli-authority-client-receipt-ref.md),
 > [Lifecycle Gate Receipt Consumption](lifecycle-gate-receipt-consumption.md).
 
 ## Purpose
 
 The deployed Authority DONE gate now enforces a material-overlap audit before
-Authority completion. The current Lattice CLI live smoke can reach TEST queued
+Authority completion. The current Proofbound CLI live smoke can reach TEST queued
 job execution, but the full DONE live E2E fails during DONE preflight because
 the CLI does not submit `materialOverlapAudit` in the signed gate decision
 input.
@@ -26,7 +26,7 @@ slice.
 Environment:
 
 - Server: `https://staging.hostneutral.net`
-- CLI: Lattice CLI `0.3.8`
+- CLI: Proofbound CLI `0.3.8`
 - Smoke: `packages/main/dist/tasks/authority-live-python-e2e-smoke.js`
 
 DONE preflight fails before queued job creation with:
@@ -217,7 +217,7 @@ evaluates DONE and mints a production `gate_decision` receipt.
 
 ## Verification
 
-The Lattice CLI story should verify at least:
+The Proofbound CLI story should verify at least:
 
 1. Unit/schema coverage: `GateEvaluateRequestContractSchema` accepts
    `materialOverlapAudit` with `changedFiles` and `actualFileOverlaps`.
@@ -241,7 +241,7 @@ Receipt proof: PASS inputPayload.materialOverlapAudit present
 
 ## Story Checklist Suggestion
 
-Use the normal Lattice CLI story/worktree flow. Suggested checklist:
+Use the normal Proofbound CLI story/worktree flow. Suggested checklist:
 
 - Add material-overlap audit contract to gate request types and schemas.
 - Include the audit in signed DONE/enforce gate envelopes before signing.

@@ -1,9 +1,9 @@
-# Lattice Authority Customer API Key Access
+# Proofbound Authority Customer API Key Access
 
 ## Status
 
 Requirements optimization. This document defines the production access model for
-customers connecting Lattice CLI / local runners to a hosted Lattice Authority
+customers connecting Proofbound CLI / local runners to a hosted Proofbound Authority
 server. It complements, but does not replace, the signed actor-envelope and
 receipt requirements in `lattice-authority-live-integration.md`.
 
@@ -13,25 +13,25 @@ usage real, auditable, revocable, and tenant-isolated.
 
 ## Problem
 
-The localhost live verification proves that Lattice CLI can talk to a real
-Python Lattice Authority server with real Ed25519 actor signatures. That is not
+The localhost live verification proves that Proofbound CLI can talk to a real
+Python Proofbound Authority server with real Ed25519 actor signatures. That is not
 enough for a hosted customer service.
 
 In hosted usage, each customer must receive a server access credential before
-their CLI, runner, or project can use Lattice Authority APIs. Without a
+their CLI, runner, or project can use Proofbound Authority APIs. Without a
 customer-scoped API key layer, any client that can register an actor public key
 in development mode could become an authority actor. That is acceptable for
 local development only, not for a customer-facing service.
 
 ## Required Access Model
 
-Production Lattice Authority access has two distinct credentials:
+Production Proofbound Authority access has two distinct credentials:
 
 | Credential | Owner | Purpose | Sent on every request? | Stored by server? |
 |---|---|---|---|---|
 | Customer API key | Customer / workspace / project | Authenticates the paying or allowed tenant and scopes access to projects / APIs. | Yes for tenant-scoped APIs; policy discovery may stay public or key-optional. | Hash only; never raw. |
 | Actor private key | Local CLI, runner, reviewer, main actor, host verifier | Signs the exact command/job/evidence/verdict envelope. Proves which actor performed the action. | Never as raw key; only signatures are sent. | Public key only. |
-| Server signing key | Lattice Authority server | Signs policy and native receipts. | No. Server public key is advertised/pinned. | Private key stays server-side only. |
+| Server signing key | Proofbound Authority server | Signs policy and native receipts. | No. Server public key is advertised/pinned. | Private key stays server-side only. |
 
 Both customer API key and actor signature are required for production mutating
 operations. The API key answers "which customer/project is allowed to call this
@@ -41,7 +41,7 @@ action."
 ## Non-Goals
 
 - Do not use provider API keys, OpenAI keys, GitHub tokens, or other third-party
-  secrets as Lattice Authority access keys.
+  secrets as Proofbound Authority access keys.
 - Do not upload real customer secrets to test redaction. Use canary values and
   prove the server never stores the canary in raw form.
 - Do not let a customer API key replace Ed25519 actor signatures. A bearer key
@@ -49,7 +49,7 @@ action."
 - Do not let actor key registration in production behave like localhost
   development mode.
 - Do not block local non-authority mode. Customers can still run local-only
-  Lattice workflows without an Authority server or API key.
+  Proofbound workflows without an Authority server or API key.
 
 ## Canonical Environment And Config
 
@@ -192,7 +192,7 @@ The server must verify:
 
 ### 5. Receipts
 
-Customer API keys do not create authority receipts. Only Lattice Authority
+Customer API keys do not create authority receipts. Only Proofbound Authority
 server signing keys mint native receipts.
 
 `authorityDone` requires:

@@ -239,7 +239,7 @@ assert.ok(DEFAULT_PHASE_TOOLS['*']?.includes('memory_benchmark_*'), 'phase tools
     });
     const parsedRun = JSON.parse(runStdout) as typeof singleRun;
     assert.equal(parsedRun.scores.memoryScore, null);
-    assert.equal(parsedRun.note.includes('not Lattice lifecycle gate authority'), true);
+    assert.equal(parsedRun.note.includes('not Proofbound lifecycle gate authority'), true);
 
     const compareStdout = execFileSync(process.execPath, [cliPath, '--root', root, 'memory_benchmark_compare', '--candidateCounts=10000,100000', '--format=json'], {
       cwd: root,

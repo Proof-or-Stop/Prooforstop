@@ -22,7 +22,7 @@
  *     appendUsageRecord WRITES, a parse failure still yields raw text (the B-0f7c
  *     fallback), a thrown ledger op does NOT propagate to the dispatch caller, and
  *     NO budget block occurs when LATTICE_HARD_BUDGET_TOKENS is unset.
- *   - STATIC: the whole core/usage-ledger module still imports ZERO other Lattice
+ *   - STATIC: the whole core/usage-ledger module still imports ZERO other Proofbound
  *     modules (only ./ siblings + node: builtins).
  *
  * Runs entirely in an OS temp dir and saves/restores process.env hermetically;
@@ -443,7 +443,7 @@ try {
   // ======================================================================
   // STATIC: zero cross-module import invariant for core/usage-ledger
   // ======================================================================
-  check('STATIC core/usage-ledger imports ZERO other Lattice modules', () => {
+  check('STATIC core/usage-ledger imports ZERO other Proofbound modules', () => {
     const repoRoot = execFileSync('git', ['rev-parse', '--show-toplevel'], { encoding: 'utf8' }).trim();
     const moduleDir = join(repoRoot, 'packages', 'main', 'src', 'core', 'usage-ledger');
     const tsFiles = walkTs(moduleDir);
@@ -464,7 +464,7 @@ try {
           if (rel.startsWith('..')) offenders.push(`${relative(repoRoot, file)} -> ${spec}`);
           continue;
         }
-        // A bare specifier (a package or another Lattice module) is an offender.
+        // A bare specifier (a package or another Proofbound module) is an offender.
         offenders.push(`${relative(repoRoot, file)} -> ${spec}`);
       }
     }

@@ -59,7 +59,7 @@ function check(name: string, condition: boolean, detail?: string): void {
   checks++;
 }
 
-const COMMIT_ENV = ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Lattice Smoke'];
+const COMMIT_ENV = ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proofbound Smoke'];
 const PINNED_NOW = '2026-06-18T10:00:00.000Z';
 
 function git(cwd: string, args: string[]): string {

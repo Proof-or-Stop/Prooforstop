@@ -1,5 +1,5 @@
 /**
- * Lattice CLI engine
+ * Proofbound CLI engine
  *
  * Wrap the shared dispatch, parse, log, and phase-gate logic in the callable runCli function.
  * The main package cli.ts is the binary entrypoint and calls runCli() directly.
@@ -572,7 +572,7 @@ function commitFromDraftMetadataAndMergeMain(root: string, store: StoryStore, st
 // ── Main ──
 
 /**
- * runCli: Lattice CLI runtime entry point.
+ * runCli: Proofbound CLI runtime entry point.
  *
  * @param opts.extraTools ToolDef list from third-party packages, merged into help and dispatch.
  * @param opts.extraRegister register function from third-party packages, called after createMainRegistry.
@@ -753,7 +753,7 @@ export async function runCli(opts?: {
   try {
     staleWarnings = detectStaleState(ctx);
     if (staleWarnings.length > 0) {
-      process.stderr.write('⚠ Lattice stale state warnings:\n');
+      process.stderr.write('⚠ Proofbound stale state warnings:\n');
       for (const w of staleWarnings) process.stderr.write(`  - ${w}\n`);
     }
   } catch { /* never block */ }

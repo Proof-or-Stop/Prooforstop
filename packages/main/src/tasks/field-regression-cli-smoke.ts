@@ -45,7 +45,7 @@ function canonicalPath(path: string): string {
   }
 }
 
-function commit(cwd: string, message: string, author = 'Lattice Smoke'): string {
+function commit(cwd: string, message: string, author = 'Proofbound Smoke'): string {
   git(cwd, ['add', '.']);
   git(cwd, [
     '-c', `user.name=${author}`,
@@ -84,7 +84,7 @@ function initRepo(prefix: string, storyDir = '.lattice/story/actives'): string {
   git(root, ['init']);
   git(root, ['checkout', '-B', 'main']);
   git(root, ['config', 'user.email', 'smoke@example.test']);
-  git(root, ['config', 'user.name', 'Lattice Smoke']);
+  git(root, ['config', 'user.name', 'Proofbound Smoke']);
   write(root, 'lattice.config.json', JSON.stringify({
     scanRoot: 'packages/main',
     rootDir: 'src',
@@ -129,7 +129,7 @@ function addImmediateChildGitRepo(root: string, name: string): string {
   git(gitRoot, ['init']);
   git(gitRoot, ['checkout', '-B', 'main']);
   git(gitRoot, ['config', 'user.email', 'smoke@example.test']);
-  git(gitRoot, ['config', 'user.name', 'Lattice Smoke']);
+  git(gitRoot, ['config', 'user.name', 'Proofbound Smoke']);
   write(gitRoot, 'README.md', `${name} nested git material root\n`);
   write(gitRoot, 'packages/main/src/base.ts', `export const ${name.replace(/[^a-zA-Z0-9_$]/g, '_')} = true;\n`);
   commit(gitRoot, `${name} nested git material base`);
@@ -163,7 +163,7 @@ function initRepoWithoutCommit(prefix: string): string {
   git(root, ['init']);
   git(root, ['checkout', '-B', 'main']);
   git(root, ['config', 'user.email', 'smoke@example.test']);
-  git(root, ['config', 'user.name', 'Lattice Smoke']);
+  git(root, ['config', 'user.name', 'Proofbound Smoke']);
   resetConfigCache();
   return root;
 }
@@ -173,9 +173,9 @@ function initRepoWithMetadataOnlyHead(prefix: string): string {
   git(root, ['init']);
   git(root, ['checkout', '-B', 'main']);
   git(root, ['config', 'user.email', 'smoke@example.test']);
-  git(root, ['config', 'user.name', 'Lattice Smoke']);
+  git(root, ['config', 'user.name', 'Proofbound Smoke']);
   git(root, [
-    '-c', 'user.name=Lattice Smoke',
+    '-c', 'user.name=Proofbound Smoke',
     '-c', 'user.email=smoke@example.test',
     '-c', 'commit.gpgsign=false',
     'commit',
@@ -877,7 +877,7 @@ async function assertReviewRunStartSplitRootGitRootBinding(): Promise<void> {
     git(otherGitRoot, ['init']);
     git(otherGitRoot, ['checkout', '-B', 'main']);
     git(otherGitRoot, ['config', 'user.email', 'smoke@example.test']);
-    git(otherGitRoot, ['config', 'user.name', 'Lattice Smoke']);
+    git(otherGitRoot, ['config', 'user.name', 'Proofbound Smoke']);
     write(otherGitRoot, 'README.md', 'alternate git material root\n');
     write(otherGitRoot, 'packages/main/src/base.ts', 'export const alternate = true;\n');
     commit(otherGitRoot, 'alternate git material base');
@@ -1847,7 +1847,7 @@ async function assertStaleWarningCooldownCliSurface(): Promise<void> {
 
     const first = await runLatticeRaw(root, 'session_brief');
     assert.equal(first.code, 0);
-    assert.match(first.stderr, /Lattice stale state warnings/);
+    assert.match(first.stderr, /Proofbound stale state warnings/);
     const logPath = getRuntimeActivityLogPath(root);
     const lines = readFileSync(logPath, 'utf-8').trim().split('\n');
     const last = JSON.parse(lines[lines.length - 1]);
@@ -1859,7 +1859,7 @@ async function assertStaleWarningCooldownCliSurface(): Promise<void> {
     writeFileSync(logPath, `${lines.join('\n')}\n`);
     const second = await runLatticeRaw(root, 'session_brief');
     assert.equal(second.code, 0);
-    assert.doesNotMatch(second.stderr, /Lattice stale state warnings/);
+    assert.doesNotMatch(second.stderr, /Proofbound stale state warnings/);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }

@@ -93,7 +93,7 @@ Layer 4 unlock requires capabilities that do not exist in this story:
 | Missing capability | Why it matters |
 |---|---|
 | Production-safety evaluator | A formal evaluator that can authorize `production-safety` claims does not exist. The current `capability_claim_evaluate` is L0/read-only diagnostic for Layer 2/3 only. |
-| Authority proof chain | Production Safety requires real Authority Server receipts (`receiptVerified=true`, `productionDone=true`). Lattice CLI cannot produce these. |
+| Authority proof chain | Production Safety requires real Authority Server receipts (`receiptVerified=true`, `productionDone=true`). Proofbound CLI cannot produce these. |
 | Soak evidence | Production Safety baselines require `soak-summary.json` and `recovery-log.jsonl` from real sustained operation. |
 | Multi-host authority verification | Production Safety requires verified independent multi-host proof, not just independent review verdicts. |
 
@@ -112,7 +112,7 @@ Layer 5 / global Capability     = LOCKED (requires all lower layers)
 
 ## 6. What This Invariant Does Not Do
 
-- Does not verify Authority Server receipts. Lattice CLI remains non-authority.
+- Does not verify Authority Server receipts. Proofbound CLI remains non-authority.
 - Does not convert Claude or Codex host verdicts into Authority evidence.
 - Does not implement `reportFiles` or `reportRoot` selection API.
 - Does not add new capability layers or broader runner rewrites.

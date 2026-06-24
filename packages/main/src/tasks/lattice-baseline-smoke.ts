@@ -464,7 +464,7 @@ function initRepo(label: string): string {
   git(root, ['init']);
   git(root, ['checkout', '-B', 'main']);
   git(root, ['add', '.']);
-  git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Lattice Smoke', 'commit', '-m', 'seed']);
+  git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proofbound Smoke', 'commit', '-m', 'seed']);
   return root;
 }
 
@@ -473,7 +473,7 @@ function commitTrackedChange(root: string, relPath: string, content: string, mes
   mkdirSync(dirname(abs), { recursive: true });
   writeFileSync(abs, content, 'utf8');
   git(root, ['add', relPath]);
-  git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Lattice Smoke', 'commit', '-m', message]);
+  git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proofbound Smoke', 'commit', '-m', message]);
 }
 
 function finalReportSeed(
@@ -1603,7 +1603,7 @@ for (const defect of [
     assert.equal(suite.materialHash, beforeArtifactCommitMaterialHash, 'generated suite report should bind to the current material hash');
 
     git(root, ['add', '-f', '.lattice/artifacts/baseline']);
-    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Lattice Smoke', 'commit', '-m', 'persist baseline proof artifacts']);
+    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proofbound Smoke', 'commit', '-m', 'persist baseline proof artifacts']);
     assert.notEqual(currentGitHead(root), beforeArtifactCommitHead, 'committing proof artifacts should move HEAD');
     assert.equal(materialHash(root), beforeArtifactCommitMaterialHash, 'committing excluded proof artifacts must not change materialHash');
 
@@ -1661,7 +1661,7 @@ for (const defect of [
     assert.equal((loopSuite.coveredBaselineIds as unknown[]).length, 10, 'formal loop suite should cover all ten UDM baselines');
 
     git(root, ['add', '-f', '.lattice/artifacts/baseline']);
-    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Lattice Smoke', 'commit', '-m', 'persist loop proof artifacts']);
+    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proofbound Smoke', 'commit', '-m', 'persist loop proof artifacts']);
 
     const loop = requireJsonObject(
       runCli(root, ['capability_claim_formal_evaluate', '--target=loop-engineering', '--format=json']),

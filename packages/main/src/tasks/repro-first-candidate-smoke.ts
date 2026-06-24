@@ -219,7 +219,7 @@ section('1. repro_probe — happy path');
 
   section('8. story_create_from_repro — creates story + binding');
 
-  // Stub story creator to avoid full Lattice store setup
+  // Stub story creator to avoid full Proofbound store setup
   let capturedArgs: Record<string, unknown> | null = null;
   const stubStoryCreator = async (args: Record<string, unknown>): Promise<string> => {
     capturedArgs = args;

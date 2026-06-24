@@ -1,7 +1,7 @@
-# Lattice Parallel Wave
+# Proofbound Parallel Wave
 
 Parallel Wave is a collection-level scheduling and recovery projection for
-multi-story Lattice delivery. It reads existing Canonical Story v0 projections,
+multi-story Proofbound delivery. It reads existing Canonical Story v0 projections,
 host capability profiles, story dependency metadata, and shared hotspot hints,
 then emits a wave plan that helps operators decide which stories can proceed in
 parallel worktrees.
@@ -13,13 +13,13 @@ gates. Each JSON surface keeps the non-authority boundary explicit with
 `authority.receiptRefs=[]`; no surface emits production completion, non-empty
 `receiptRefs`, or auto-spawned runner state.
 
-## Lattice Mapping
+## Proofbound Mapping
 
 - Canonical Story remains the story-level source projection. Parallel Wave does
   not extend or rewrite Canonical Story v0.
 - Wave story refs point at Canonical Stories by `storyId`, lifecycle phase,
   lane, safety, dependencies, hotspots, evidence refs, and recovery refs.
-- Host candidates come from the Lattice capability registry. Capability gaps are
+- Host candidates come from the Proofbound capability registry. Capability gaps are
   visible degradations and do not create receipts.
 - Evidence refs are lineage references only. They are useful for recovery and
   validation planning, but the wave does not refresh evidence, submit evidence,
@@ -33,12 +33,12 @@ gates. Each JSON surface keeps the non-authority boundary explicit with
   active story collection degrades selected stories to local planning-only
   guidance until every active worktree projection can be collected. Actual
   material file overlaps are local scheduling degradations only.
-- Merge order is guidance for sequencing integration. It does not replace Lattice
+- Merge order is guidance for sequencing integration. It does not replace Proofbound
   lifecycle gates.
 
 ## Commands
 
-Lattice CLI 0.3.5 is the primary product entrypoint for these commands. The
+Proofbound CLI 0.3.5 is the primary product entrypoint for these commands. The
 legacy `lattice` alias remains compatible.
 
 `parallel_wave_create` creates a wave projection from story refs, or from active
@@ -183,14 +183,14 @@ boundary.
 4. Integrate capability, degradation, evidence, and merge-order guidance.
 5. Add smoke coverage for candidates, blockers, policy registration, L0 fact
    levels, and no-overwrite behavior.
-6. Record validation evidence after build, smoke, scope, and Lattice validation.
+6. Record validation evidence after build, smoke, scope, and Proofbound validation.
 
 ## Authority Boundary
 
 Parallel Wave can make work safer to schedule, resume, and merge, but it cannot
 make work done. A wave artifact, handoff pack, local JSON file, missing receipt,
 conditional receipt capability, or unverified receipt ref cannot satisfy DONE or
-production authority. Production completion still requires the normal Lattice
+production authority. Production completion still requires the normal Proofbound
 gates and a verified receipt-backed authority flow.
 
 Every `buildParallelReport` output has `authority.productionDone=false`,

@@ -229,7 +229,7 @@ const arg = parseTargetDir(initArgs);
 
 if (initArgs.includes('--help') || initArgs.includes('-h') || initArgs.includes('help')) {
   console.log(`
-lattice init — 初始化 Lattice 开发框架
+lattice init — 初始化 Proofbound 开发框架
 
 用法:
   lattice init [目标目录]                    在指定目录初始化（默认当前目录）
@@ -239,21 +239,21 @@ lattice init — 初始化 Lattice 开发框架
                                         选择资产模式: global-thin（默认）| full | thin
   lattice init --starter [目标目录]          额外生成旧版 starter 业务模板
   lattice init --with-template [目标目录]    --starter 的同义 alias
-  lattice init --upgrade [目标目录]          同步 Lattice 管理资产到当前版本
+  lattice init --upgrade [目标目录]          同步 Proofbound 管理资产到当前版本
   lattice init --verify-codex [目标目录]     初始化后校验 Codex adapter 资产
   lattice init --help                        显示帮助
 
 默认初始化（global-thin mode）:
-  .lattice/Lattice.md           canonical host-neutral Lattice 指南（新目录）
-  .lattice/lattice.json         项目 Lattice 配置（global-thin）
+  .lattice/Lattice.md           canonical host-neutral Proofbound 指南（新目录）
+  .lattice/lattice.json         项目 Proofbound 配置（global-thin）
   AGENTS.md                     薄 Codex/AGENTS 指南（引用全局 lattice CLI）
   lattice.config.json           项目配置（canonical）
   .lattice/story/actives/       Story 数据目录
   docs/requirements/            真相源目录
 
 full/thin asset mode（显式 --asset-mode=full 或 --asset-mode=thin）:
-  LATTICE.md                    canonical host-neutral Lattice 指南（旧位置）
-  bin/lattice.js                本地 Lattice bootstrap（仅 full/thin）
+  LATTICE.md                    canonical host-neutral Proofbound 指南（旧位置）
+  bin/lattice.js                本地 Proofbound bootstrap（仅 full/thin）
   .lattice-codex/lattice.json           Codex adapter manifest（仅 full/thin + codex profile）
   .lattice-codex/agents                 agent prompt copies（仅 full mode + codex profile）
 
@@ -288,7 +288,7 @@ const isPython = existsSync(join(targetDir, 'requirements.txt'))
   || existsSync(join(targetDir, 'pyproject.toml'))
   || existsSync(join(targetDir, 'setup.py'));
 
-console.log(`\nInitializing Lattice in ${targetDir}\n`);
+console.log(`\nInitializing Proofbound in ${targetDir}\n`);
 console.log(`Selected init profile: ${selectedProfile}`);
 console.log(`Profile reason: ${selectedProfileInfo.reason}`);
 console.log(`Codex asset mode: ${selectedAssetMode}`);
@@ -341,16 +341,16 @@ function writeManagedMarkdown(relPath: string, desiredContent: string, label: st
 
   const existing = readFileSync(full, 'utf-8');
   if (!INIT_DOC_SECTION_RE.test(existing)) {
-    console.log(`  - ${label} (exists, no Lattice managed markers, skip)`);
+    console.log(`  - ${label} (exists, no Proofbound managed markers, skip)`);
     return;
   }
 
   const updated = existing.replace(INIT_DOC_SECTION_RE, extractManagedSection(desiredContent));
   if (updated !== existing) {
     writeFileSync(full, updated);
-    console.log(`  ✓ ${label} (Lattice section synced)`);
+    console.log(`  ✓ ${label} (Proofbound section synced)`);
   } else {
-    console.log(`  - ${label} (Lattice section up to date)`);
+    console.log(`  - ${label} (Proofbound section up to date)`);
   }
 }
 
@@ -530,7 +530,7 @@ for (const d of dirs) {
   }
 }
 
-// 1.5 .gitignore（同步 Lattice runtime ignore 模板）
+// 1.5 .gitignore（同步 Proofbound runtime ignore 模板）
 const giPath = join(targetDir, '.gitignore');
 const giSrc = join(packageRoot, '..', '..', '.gitignore');
 if (!existsSync(giPath)) {
@@ -543,9 +543,9 @@ if (!existsSync(giPath)) {
     const merged = mergeLatticeRuntimeIgnores(readFileSync(giPath, 'utf8'));
     if (merged.changed) {
       writeFileSync(giPath, merged.content);
-      console.log('  ✓ .gitignore (copied from Lattice template, runtime ignores synced)');
+      console.log('  ✓ .gitignore (copied from Proofbound template, runtime ignores synced)');
     } else {
-      console.log('  ✓ .gitignore (copied from Lattice template)');
+      console.log('  ✓ .gitignore (copied from Proofbound template)');
     }
   } else {
     const minimalGitignore = [
@@ -568,7 +568,7 @@ if (!existsSync(giPath)) {
   const mergeResult = mergeLatticeRuntimeIgnores(readFileSync(giPath, 'utf8'));
   if (mergeResult.changed) {
     writeFileSync(giPath, mergeResult.content);
-    console.log('  ✓ .gitignore (merged Lattice runtime ignores)');
+    console.log('  ✓ .gitignore (merged Proofbound runtime ignores)');
   } else {
     console.log('  - .gitignore (runtime ignores already present)');
   }
@@ -820,7 +820,7 @@ if (existsSync(join(targetDir, 'lattice.config.json'))) {
 }
 
 // 3. 文档入口
-console.log('\n[3/5] 配置 Lattice / host 文档...');
+console.log('\n[3/5] 配置 Proofbound / host 文档...');
 if (isGlobalThin) {
   writeManagedMarkdown('.lattice/Lattice.md', LATTICE_DOT_DIR_MD_TEMPLATE, '.lattice/Lattice.md');
   const latticeConfigPath = join(targetDir, '.lattice', 'lattice.json');
@@ -977,7 +977,7 @@ if (wantsClaude) {
     try {
       const existing = JSON.parse(readFileSync(settingsPath, 'utf-8'));
       if (!existing.hooks) existing.hooks = {};
-      // 只添加缺失的 Lattice hook，不覆盖用户已有配置。
+      // 只添加缺失的 Proofbound hook，不覆盖用户已有配置。
       for (const [event, hooks] of Object.entries(claudeHooks)) {
         if (!existing.hooks[event]) {
           existing.hooks[event] = hooks;
@@ -1001,7 +1001,7 @@ if (wantsClaude) {
         );
         if (migrated.changed) {
           existing.hooks[event] = migrated.entries;
-          console.log(`  ✓ settings.json: 迁移 ${event} Lattice hook 名称`);
+          console.log(`  ✓ settings.json: 迁移 ${event} Proofbound hook 名称`);
         }
         let mergedAny = false;
         for (const entry of hooks) {
@@ -1012,7 +1012,7 @@ if (wantsClaude) {
           }
         }
         if (mergedAny) {
-          console.log(`  ✓ settings.json: 合并 ${event} Lattice hook`);
+          console.log(`  ✓ settings.json: 合并 ${event} Proofbound hook`);
         } else {
           console.log(`  - settings.json: ${event} hook 已存在, skip`);
         }
@@ -1047,7 +1047,7 @@ if (wantsCodex || isGlobalThin) {
         console.log(`  - .codex/hooks.json: ${merged.incompatible.join(', ')} hook shape incompatible, skip`);
       } else if (merged.changed) {
         writeFileSync(codexHooksPath, JSON.stringify(merged.updated, null, 2) + '\n');
-        console.log('  ✓ .codex/hooks.json: merged Lattice PreToolUse hook');
+        console.log('  ✓ .codex/hooks.json: merged Proofbound PreToolUse hook');
       } else {
         console.log('  - .codex/hooks.json: PreToolUse hook exists, skip');
       }
@@ -1064,7 +1064,7 @@ if (wantsCodex || isGlobalThin) {
 }
 
 if (upgradeManagedAssets) {
-  console.log('\n[upgrade] 同步 Lattice 管理资产...');
+  console.log('\n[upgrade] 同步 Proofbound 管理资产...');
   const result = runManagedAssetCheck(targetDir, { apply: true, profile: selectedProfile, assetMode: selectedAssetMode });
   console.log(renderManagedAssetCheck(result));
   if (!result.ok) process.exit(1);

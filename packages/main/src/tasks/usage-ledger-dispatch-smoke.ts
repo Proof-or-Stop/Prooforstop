@@ -20,7 +20,7 @@
  *     summary + diagnostics and assert the story's provider-reported total equals
  *     the sample's tokens AND the estimate was superseded (not double-counted);
  *   - STATIC import boundary: the whole core/usage-ledger module imports ZERO
- *     other Lattice modules (only ./ siblings + node: builtins), preserved after
+ *     other Proofbound modules (only ./ siblings + node: builtins), preserved after
  *     adding dispatch-usage.ts.
  *
  * Runs entirely in an OS temp dir; never pollutes the repo. Prints per-check
@@ -582,7 +582,7 @@ async function main(): Promise<void> {
   // ======================================================================
   // STATIC: module isolation (zero-cross-module-import for core/usage-ledger)
   // ======================================================================
-  await check('STATIC core/usage-ledger imports ZERO other Lattice modules (incl. dispatch-usage.ts)', () => {
+  await check('STATIC core/usage-ledger imports ZERO other Proofbound modules (incl. dispatch-usage.ts)', () => {
     const repoRoot = execFileSync('git', ['rev-parse', '--show-toplevel'], { encoding: 'utf8' }).trim();
     const moduleDir = join(repoRoot, 'packages', 'main', 'src', 'core', 'usage-ledger');
     const tsFiles = walkTs(moduleDir);

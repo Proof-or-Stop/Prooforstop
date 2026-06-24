@@ -576,7 +576,7 @@ export function lifecycleArtifactsByTransition(): LifecycleTransitionArtifacts[]
 // ── B-b9d0 CHK-001/002: lifecycle artifact scope classifier ──
 //
 // Narrow trust policy for command-generated story metadata. A path is
-// recognized as a Lattice-owned lifecycle artifact only when it lives under a
+// recognized as a Proofbound-owned lifecycle artifact only when it lives under a
 // known story directory prefix, the segment after that prefix is a valid
 // storyId, AND either the top-level terminal filename or relative story-dir
 // path is in a closed set below. Arbitrary JSON / unknown files under active docs/story/
@@ -616,7 +616,7 @@ export const LATTICE_LIFECYCLE_ARTIFACT_RELATIVE_PATHS: ReadonlySet<string> = ne
 ]);
 
 /**
- * Canonical Lattice story-id shape. Anchored (`^…$`) and restricted to
+ * Canonical Proofbound story-id shape. Anchored (`^…$`) and restricted to
  * `[A-Za-z0-9_-]` body characters, so a matching id can NEVER contain a path
  * separator (`/`, `\`) or a `..` traversal segment. This is the single source
  * of truth for "is this a real story id" — it is reused both here (artifact
@@ -627,7 +627,7 @@ export const LATTICE_LIFECYCLE_ARTIFACT_RELATIVE_PATHS: ReadonlySet<string> = ne
 export const STORY_ID_RE = /^(?:B-META-[A-Za-z0-9_-]+|B-[A-Za-z0-9_-]+|ADHOC-[A-Za-z0-9_-]+|TOOL-[A-Za-z0-9_-]+|META-[A-Za-z0-9_-]+)$/;
 
 /**
- * True when `value` is a path-safe canonical Lattice story id. A caller that
+ * True when `value` is a path-safe canonical Proofbound story id. A caller that
  * is about to derive a filesystem path from a storyId (e.g. `storyDirPath`)
  * MUST gate on this first so a crafted `../../outside`-style id cannot escape
  * the story tree.
@@ -709,7 +709,7 @@ export function classifyLifecycleArtifact(
       storyId,
       fileName,
       storyDir: stripTrailingSlash(prefix),
-      label: 'Lattice lifecycle artifact (command-generated metadata)',
+      label: 'Proofbound lifecycle artifact (command-generated metadata)',
     };
   }
 
@@ -735,7 +735,7 @@ export function classifyLifecycleArtifact(
       storyId: candidateStoryId,
       fileName,
       storyDir,
-      label: 'Lattice lifecycle artifact (legacy story-tree metadata)',
+      label: 'Proofbound lifecycle artifact (legacy story-tree metadata)',
     };
   }
 

@@ -30,7 +30,7 @@ function git(cwd: string, args: string[]): string {
 
 function commit(cwd: string, message: string): string {
   git(cwd, ['add', '.']);
-  git(cwd, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Lattice Smoke', 'commit', '-m', message]);
+  git(cwd, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proofbound Smoke', 'commit', '-m', message]);
   return git(cwd, ['rev-parse', 'HEAD']);
 }
 
@@ -418,7 +418,7 @@ function assertStaleEvidenceHintCrossSurface(): void {
   try {
     git(root, ['init']);
     git(root, ['config', 'user.email', 'smoke@example.test']);
-    git(root, ['config', 'user.name', 'Lattice Smoke']);
+    git(root, ['config', 'user.name', 'Proofbound Smoke']);
     write(root, 'lattice.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
@@ -633,7 +633,7 @@ async function assertRecoverEvidenceCommand(): Promise<void> {
     try {
       git(root, ['init']);
       git(root, ['config', 'user.email', 'smoke@example.test']);
-      git(root, ['config', 'user.name', 'Lattice Smoke']);
+      git(root, ['config', 'user.name', 'Proofbound Smoke']);
       write(root, 'lattice.config.json', JSON.stringify({
         scanRoot: 'packages/main',
         rootDir: 'src',
@@ -822,7 +822,7 @@ async function assertSimulatedMainMergeRegression(): Promise<void> {
     // ── 1. Build temp git fixture with a baseline materialHash ─────────────
     git(root, ['init']);
     git(root, ['config', 'user.email', 'smoke@example.test']);
-    git(root, ['config', 'user.name', 'Lattice Smoke']);
+    git(root, ['config', 'user.name', 'Proofbound Smoke']);
     write(root, 'lattice.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',
@@ -1101,7 +1101,7 @@ async function assertSimulatedMainMergeRegression(): Promise<void> {
   try {
     git(root2, ['init']);
     git(root2, ['config', 'user.email', 'smoke@example.test']);
-    git(root2, ['config', 'user.name', 'Lattice Smoke']);
+    git(root2, ['config', 'user.name', 'Proofbound Smoke']);
     write(root2, 'lattice.config.json', JSON.stringify({
       scanRoot: 'packages/main',
       rootDir: 'src',

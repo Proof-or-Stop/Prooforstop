@@ -429,7 +429,7 @@ export function evaluateForbiddenEdits(
         introducedForbiddenPaths: introduced,
         gitStatusBeforeDigest: before.digest,
         gitStatusAfterDigest: after.digest,
-        note: 'the executed step introduced edits to a forbidden path; story/fixture JSON must be changed through Lattice commands, never edited directly',
+        note: 'the executed step introduced edits to a forbidden path; story/fixture JSON must be changed through Proofbound commands, never edited directly',
       },
     };
   }
@@ -454,7 +454,7 @@ const WORKTREE_NEXT_ACTION: Record<WorktreeStopReason, string> = {
   authoritative_worktree_unresolved: 'Resolve the authoritative story worktree (lattice story resolve / lattice story_advance --phase=INIT_CHECK) before running provider work in authority mode.',
   git_status_evidence_unavailable: 'Run the executor inside the story git worktree so git status evidence can be captured before mutating steps.',
   dirty_worktree: 'Commit, stash, or resolve the pending worktree changes (unrelated dirty changes are preserved, not discarded), then rerun.',
-  forbidden_path_glob: 'Stop editing story/fixture JSON or other forbidden paths directly; route those changes through Lattice commands.',
+  forbidden_path_glob: 'Stop editing story/fixture JSON or other forbidden paths directly; route those changes through Proofbound commands.',
 };
 
 /** Build the printable / uploadable fail-closed stop summary for a worktree block. */
@@ -482,7 +482,7 @@ export function buildWorktreeStopSummary(args: {
 
 export function renderWorktreeStopSummary(summary: WorktreeStopSummary): string {
   return [
-    `Lattice worktree stop (${summary.schemaVersion})`,
+    `Proofbound worktree stop (${summary.schemaVersion})`,
     `storyId: ${summary.storyId}`,
     `stepId: ${summary.stepId}`,
     `stopReason: ${summary.stopReason}`,

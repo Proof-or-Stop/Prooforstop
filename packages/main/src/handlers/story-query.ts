@@ -779,7 +779,7 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
      * @type feature
      * @priority high
      * @description
-     *   Story artifacts and activity logs are Lattice machine state, not human
+     *   Story artifacts and activity logs are Proofbound machine state, not human
      *   documentation. This command migrates legacy docs/story/actives data
      *   into the configured storyDir and legacy docs/story/activity.jsonl into
      *   .lattice/activity.jsonl, backing up removed legacy files under .lattice.

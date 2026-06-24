@@ -290,9 +290,9 @@ function displayCommand(request: AutopilotCommandRequest): string {
 
 function claudeRepairPrompt(step: AutopilotStep, request: AutopilotCommandRequest, result: AutopilotCommandResult, plan: AutopilotRunResult): string {
   return [
-    'You are Claude Code CLI running as an explicit Lattice autopilot repair step.',
+    'You are Claude Code CLI running as an explicit Proofbound autopilot repair step.',
     'Make the smallest safe code or documentation change needed for the failing command to pass.',
-    'Do not edit Story, checklist, fixture, or process-event JSON directly; use the Lattice CLI for Lattice state changes.',
+    'Do not edit Story, checklist, fixture, or process-event JSON directly; use the Proofbound CLI for Proofbound state changes.',
     'Do not create or push GitHub/origin branches.',
     '',
     `Story: ${plan.story.storyId ?? 'unbound'}`,
@@ -308,7 +308,7 @@ function claudeRepairPrompt(step: AutopilotStep, request: AutopilotCommandReques
     'stderr excerpt:',
     excerpt(result.stderr) || '(empty)',
     '',
-    'After the repair, stop. The Lattice autopilot executor will retry the failing command.',
+    'After the repair, stop. The Proofbound autopilot executor will retry the failing command.',
   ].join('\n');
 }
 
@@ -447,7 +447,7 @@ export function executeAutopilot(options: ExecuteAutopilotOptions): AutopilotExe
     nextActions.add(claimedJobFileError);
     nextActions.add('Reissue a valid claimed Authority job file (typed plannedSteps[]) before running lattice autopilot execute --jobFile.');
   } else if (dryRun) {
-    nextActions.add('Remove --dryRun to execute the planned local Lattice commands.');
+    nextActions.add('Remove --dryRun to execute the planned local Proofbound commands.');
     if (multiHostRequired) {
       nextActions.add(`This run targets DONE with multi-host certification: real execution stays blocked until ${requiredHostVerdictCount} independent host verdicts certify the run (lattice autopilot review submit / lattice authority verdict submit).`);
     }
@@ -599,7 +599,7 @@ export function executeAutopilot(options: ExecuteAutopilotOptions): AutopilotExe
     note: plan.mode === 'authority'
       ? 'Authority execute is fail-closed: local mode remains available, and authority DONE still requires a verified Python authority receipt.'
       : plan.mode === 'shadow'
-        ? 'Shadow execute runs local Lattice steps while surfacing authority readiness warnings.'
-        : 'Local execute runs only local Lattice commands and does not require Python authority.',
+        ? 'Shadow execute runs local Proofbound steps while surfacing authority readiness warnings.'
+        : 'Local execute runs only local Proofbound commands and does not require Python authority.',
   };
 }

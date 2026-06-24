@@ -116,12 +116,12 @@ assert.doesNotMatch(
 const commandHelpExpectations: Array<{ args: string[]; includes: string[] }> = [
   {
     args: ['story_create', '--help'],
-    includes: ['Lattice CLI', 'lattice story_create', '--checklist', '--scopeBoundary'],
+    includes: ['Proofbound CLI', 'lattice story_create', '--checklist', '--scopeBoundary'],
   },
   {
     args: ['story_advance', '--help'],
     includes: [
-      'Lattice CLI',
+      'Proofbound CLI',
       'lattice story_advance',
       '--phase',
       'INIT_CHECK',
@@ -134,11 +134,11 @@ const commandHelpExpectations: Array<{ args: string[]; includes: string[] }> = [
   },
   {
     args: ['validate', '--help'],
-    includes: ['Lattice CLI', 'lattice validate', '--story', '--json'],
+    includes: ['Proofbound CLI', 'lattice validate', '--story', '--json'],
   },
   {
     args: ['authority_receipt_verify', '--help'],
-    includes: ['Lattice CLI', 'lattice authority_receipt_verify', '--storyId', '--proofFile'],
+    includes: ['Proofbound CLI', 'lattice authority_receipt_verify', '--storyId', '--proofFile'],
   },
 ];
 
@@ -150,7 +150,7 @@ for (const { args, includes } of commandHelpExpectations) {
 }
 
 const helpOutput = runCli(['help']);
-assert.match(helpOutput, /Lattice CLI/, 'lattice help should retain Lattice branding');
+assert.match(helpOutput, /Proofbound CLI/, 'lattice help should retain Proofbound branding');
 assert.match(helpOutput, /host_runtime_probe/, 'lattice help should include host runtime commands');
 assert.match(helpOutput, /antigravity/, 'lattice help should include antigravity host text');
 

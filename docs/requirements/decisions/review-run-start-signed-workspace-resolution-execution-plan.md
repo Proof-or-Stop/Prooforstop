@@ -39,12 +39,12 @@ This plan is intentionally narrow:
 
 ## Problem Statement
 
-Lattice currently has several root-like concepts that can collapse into one
+Proofbound currently has several root-like concepts that can collapse into one
 path in a simple repository but diverge in wrapper-root projects.
 
 | Concept | Meaning | Current ClawCreek failure |
 | --- | --- | --- |
-| `metadataRoot` | Where Lattice story/review metadata is read and written. | `/Users/jek/Documents/ClawCreek` |
+| `metadataRoot` | Where Proofbound story/review metadata is read and written. | `/Users/jek/Documents/ClawCreek` |
 | `signedWorkspaceRoot` | Git-backed workspace used to capture `HEAD`, `materialHash`, scope diff, and review scope binding. | Missing because the resolver falls back to `metadataRoot`. |
 | `authoritativeCwd` | Directory a host/operator should run the next story-scoped command from. | `story_resolve` reports a non-git wrapper root even though `requiresWorktree=true`. |
 | `worktreePath` | Explicit story worktree path, if the story has one. | `null` for direct REVIEW/backfill stories. |
@@ -67,7 +67,7 @@ different directories.
 - `story_resolve` must not report a non-git wrapper root as executable
   `authoritativeCwd` for a REVIEW/TEST/DONE story that requires signed
   workspace evidence.
-- Direct REVIEW remains valid when the current Lattice project root is itself
+- Direct REVIEW remains valid when the current Proofbound project root is itself
   a git-backed project root with a usable `HEAD` and `materialHash`; it must
   not require a worktree for every REVIEW story.
 - Do not auto-discover or guess nested git repositories. A wrapper root may
@@ -104,7 +104,7 @@ claude -p --permission-mode plan --tools Read,Glob,Grep \
 
 Review constraints:
 
-- host-neutral Lattice design;
+- host-neutral Proofbound design;
 - support CLI Non-authority and Authority Server paths;
 - do not optimize for optimization;
 - do not optimize arbitrarily;
@@ -162,7 +162,7 @@ Important naming rule:
 ```text
 authoritativeCwd is where the next host command should run.
 signedWorkspaceRoot is where HEAD/materialHash are captured.
-metadataRoot is where Lattice story metadata is persisted.
+metadataRoot is where Proofbound story metadata is persisted.
 ```
 
 In most simple repos these paths are the same. In wrapper-root projects they
@@ -315,7 +315,7 @@ Reason [requires_git_signed_workspace_but_no_binding]:
 No reviewer run was created.
 Next action:
   configure gitRoot, attach the story to a git worktree, or recreate/advance
-  the story through a git-backed Lattice worktree flow.
+  the story through a git-backed Proofbound worktree flow.
 ```
 
 ### Phase 5. Add Explicit Binding Path
@@ -352,7 +352,7 @@ Rules:
 - The path must be a git worktree.
 - The worktree branch must match the expected story branch, or the command must
   record a clear exception reason.
-- The attachment is persisted through Lattice CLI, not by editing story JSON.
+- The attachment is persisted through Proofbound CLI, not by editing story JSON.
 
 Recommended first implementation:
 
@@ -534,7 +534,7 @@ The future implementation story is complete only when:
 Use this wording after local implementation and review pass:
 
 ```text
-Lattice CLI now has explicit signed workspace resolution for reviewer runs.
+Proofbound CLI now has explicit signed workspace resolution for reviewer runs.
 The CLI distinguishes metadataRoot from signedWorkspaceRoot, fails closed when
 no git-backed signed workspace is proven, and preserves direct REVIEW behavior
 for ordinary git-backed project roots.

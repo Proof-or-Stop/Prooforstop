@@ -33,7 +33,7 @@ function scanMdDir(dir: string, root: string, out: DocEntry[], skipPaths: Set<st
     const full = join(dir, e.name);
     if (e.isDirectory()) {
       if (SKIP_DIRS.has(e.name)) continue;
-      // Skip Lattice-managed runtime data subtrees (storyDir / fixturesDir)
+      // Skip Proofbound-managed runtime data subtrees (storyDir / fixturesDir)
       const rel = relative(root, full).split('\\').join('/');
       if (skipPaths.has(rel)) continue;
       scanMdDir(full, root, out, skipPaths);
@@ -76,7 +76,7 @@ export function createAuxDocHandlers(ctx: HandlerContext) {
       const config = loadConfig(root);
       const docDirs = config.docDirs ?? DEFAULT_DOC_DIRS;
       const all: DocEntry[] = [];
-      // Lattice-managed runtime data subtrees (story/fixtures); skipped while scanning
+      // Proofbound-managed runtime data subtrees (story/fixtures); skipped while scanning
       const skipPaths = new Set<string>();
       if (config.storyDir) skipPaths.add(config.storyDir.split('\\').join('/'));
       if (config.fixturesDir) skipPaths.add(config.fixturesDir.split('\\').join('/'));

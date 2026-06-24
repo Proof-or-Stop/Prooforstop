@@ -128,7 +128,7 @@ export interface AuthorityCompletionVerdict {
   decisionDigest?: string;
   /** Executor gate input digest certified by the verified gate.evaluate step. */
   gateInputDigest?: string;
-  /** Native gate_decision receipt inputDigest issued by Lattice Authority. */
+  /** Native gate_decision receipt inputDigest issued by Proofbound Authority. */
   receiptInputDigest?: string;
   lifecyclePhase: string | null;
   /** Explicit machine-readable reasons the job did NOT complete (empty when completed). */
@@ -469,10 +469,10 @@ function completionNextAction(args: {
   const reason = args.blockingReasons[0];
   switch (reason) {
     case 'authority_gate_decision_receipt_required':
-      return 'Run against a Lattice Authority server that evaluates the gate and issues a native gate_decision receipt; authority DONE is fail-closed without one.';
+      return 'Run against a Proofbound Authority server that evaluates the gate and issues a native gate_decision receipt; authority DONE is fail-closed without one.';
     case 'authority_gate_decision_rejected':
     case 'authority_gate_decision_blocked':
-      return 'Lattice Authority did not approve the gate; resolve the decision reason and rerun, or stop — authority DONE is not available.';
+      return 'Proofbound Authority did not approve the gate; resolve the decision reason and rerun, or stop — authority DONE is not available.';
     case 'authority_gate_receipt_unverified':
       return 'The native gate_decision receipt failed verification (signature, key id, story/project binding, decisionDigest, or freshness); do not claim authority DONE.';
     case 'authority_gate_receipt_binding_mismatch':
