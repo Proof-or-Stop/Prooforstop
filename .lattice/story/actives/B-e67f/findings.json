@@ -95,7 +95,7 @@
       "desc": "CHK-001:adversarial:0 lacks valid verificationEvidence: the intent requires verifying \"no extra files beyond the 7-file contract in any new task dir (no .DS_Store, node_modules, .bak, etc.)\" via a find command, but corpus-selfcheck.mjs only asserts that the REQUIRED 6 files exist; it never enumerates actual directory contents against an allowlist and would pass even with extra junk files present.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-24T10:24:51.189Z",
@@ -106,7 +106,11 @@
         "experiments/recovery-runner/corpus-selfcheck.mjs"
       ],
       "signatureTag": "missing|mjs|adversarial-lacks-valid",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "corpus-selfcheck now rejects stray files (allowlist = 7 contract files + overfit-output.mjs); negative-control proves it. Commit d0f7d97cc.",
+      "resolvedAt": "2026-06-24T10:34:42.794Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-e67f:F-006",
