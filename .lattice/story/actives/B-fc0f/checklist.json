@@ -55,9 +55,9 @@
       "id": "CHK-002",
       "title": "Fix field-regression-cli-smoke stale background-section headers",
       "context": "packages/main/src/tasks/field-regression-cli-smoke.ts (~line 1636) builds a story_create background with '## Key Insight' / '## Trade-offs' / '## Conversation Texture', which the current background-validator rejects (needs '## Key Insights' / '## Solution Tradeoffs' / '## Conversational Texture'), so story_create exits 1 → fails on main. Update ONLY the 3 section headers; keep the hotfix-priority-elevation assertion intact (deleting the test loses that coverage).",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-25T05:22:05.936Z",
       "userSees": "User sees the exact text “✓ field regression CLI smoke passed”",
       "files": {
         "modify": [
@@ -85,7 +85,20 @@
             "type": "logic"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/field-regression-cli-smoke.js",
+          "result": "pass",
+          "note": "field regression smoke passed; stale background section headers normalized",
+          "headHash": "846a37783cf88fbcd655f15c7441b9024240231d",
+          "materialHash": "d5dc4c09dcf288071d35b5991bec5d7931b7278fdd63b70dd3c38423d1d13ce6",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-25T05:22:06.068Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
