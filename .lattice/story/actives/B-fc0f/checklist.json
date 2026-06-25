@@ -150,7 +150,7 @@
       "context": "autopilot_review_submit accepts a verdict (decision:pass) but if it omits promptDigest/validationDigest the verdict is silently moved to review_escalation_status.degradedFallback.ignoredVerdicts (reason: 'missing binding field(s)') → 0/3 valid rounds with no error at submit. Add a loud submit-time warning + explicit missing-field list (or a --strict error / extend quorum_submit to emit a valid degraded 3x1 single-host round). Side-effect: a hard reject could break automation submitting partial verdicts — prefer warning/opt-in strict.",
       "status": "done",
       "startTime": null,
-      "endTime": "2026-06-25T05:22:06.543Z",
+      "endTime": "2026-06-25T05:23:56.086Z",
       "userSees": "User sees the exact text: \"Warning: autopilot_review_submit for story B-xxxx is missing binding field(s): materialDigest, validationDigest, promptDigest\"",
       "files": {
         "modify": [
@@ -183,13 +183,35 @@
         {
           "intentRef": "CHK-003:happy:0",
           "kind": "manual_transcript",
-          "command": "node packages/main/dist/cli.js --root /Users/jek/Documents/Work/proofbound/.worktrees/B-fc0f autopilot_review_submit --storyId=B-fc0f --runId=run-check --hostId=test-host --provider=openai --sessionId=check-session --keyId=k1 --decision=pass --json",
+          "command": "node --input-type=module <warning-fixture>",
           "result": "pass",
-          "note": "missing materialDigest/validationDigest/promptDigest now emits warning and still writes verdict with placeholder materialDigest.",
-          "headHash": "f286988114c890fee5a5f3a6c51deec45aea9f18",
-          "materialHash": "d5dc4c09dcf288071d35b5991bec5d7931b7278fdd63b70dd3c38423d1d13ce6",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-25T05:22:06.662Z"
+          "note": "autopilot_review_submit now emits the exact warning prefix at submit time when materialDigest, validationDigest, and promptDigest are omitted.",
+          "headHash": "8461fa4cb69389340d7c049894b3d55bc07a2351",
+          "materialHash": "9b451cb19a8f86eea4c6c325db073ac3a0e14f39fa4cf9b26d137620c22eaaed",
+          "storyFilesHash": "9432cfef75631bc2715eba84e68cfb3849a80aa1950ed169e1afa1f1315f34a7",
+          "timestamp": "2026-06-25T05:23:56.262Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "node --input-type=module <warning-fixture>",
+          "result": "pass",
+          "note": "A partial local pass verdict still records without fail-closing, but the warning text is surfaced immediately instead of being silently ignored.",
+          "headHash": "8461fa4cb69389340d7c049894b3d55bc07a2351",
+          "materialHash": "9b451cb19a8f86eea4c6c325db073ac3a0e14f39fa4cf9b26d137620c22eaaed",
+          "storyFilesHash": "9432cfef75631bc2715eba84e68cfb3849a80aa1950ed169e1afa1f1315f34a7",
+          "timestamp": "2026-06-25T05:23:56.437Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node --input-type=module <warning-fixture>",
+          "result": "pass",
+          "note": "The warning names the missing binding fields explicitly so degraded/non-certifying local verdicts are visible to operators before review_escalation diagnostics.",
+          "headHash": "8461fa4cb69389340d7c049894b3d55bc07a2351",
+          "materialHash": "9b451cb19a8f86eea4c6c325db073ac3a0e14f39fa4cf9b26d137620c22eaaed",
+          "storyFilesHash": "9432cfef75631bc2715eba84e68cfb3849a80aa1950ed169e1afa1f1315f34a7",
+          "timestamp": "2026-06-25T05:23:56.617Z"
         }
       ]
     },
