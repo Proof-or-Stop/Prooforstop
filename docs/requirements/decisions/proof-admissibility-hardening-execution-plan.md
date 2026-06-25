@@ -1,10 +1,11 @@
 # Proof Admissibility Hardening Execution Plan
 
 > Status: execution plan; M0/M1 classification-only MVP implemented by B-0985;
-> M2-M7 hardening implemented by B-0405 in warn-by-default mode with enforce
-> diagnostics for high-risk proof consumers.
+> M2-M7 hardening partially implemented by B-0405 in warn-by-default mode with
+> enforce diagnostics for high-risk proof consumers. Full ledger/waterline and
+> global hard-fail availability must be capability-detected by consumers.
 > Date: 2026-06-23.
-> Scope: Proofbound / Proofbound CLI evidence, receipt, handoff, and gate-consumption boundaries.
+> Scope: Proofbound CLI evidence, receipt, handoff, and gate-consumption boundaries.
 > Architecture baseline: `docs/evidence/evidence-platform-architecture.md`.
 
 This plan migrates existing proof-looking surfaces onto the shared Evidence
@@ -113,6 +114,31 @@ Implementation boundary:
 - Keep existing strong verifiers, but connect them through adapters instead of
   rewriting them in the first migration slice.
 
+### 1.2 Boundary With Global Lifecycle Control Plane
+
+Proof Admissibility owns proof decision logic:
+
+- scope / claim / consumer policy;
+- producer boundary and temporal/material binding decisions;
+- verifier adapter resolution;
+- `AdmissibilityEvaluationRow`;
+- `AdmissibilityWaterline`;
+- proof-consumption enforcement in M7.
+
+The Global Lifecycle Control Plane may consume and render these outputs, but it
+must not create a second admissibility ledger, recalculate clause coverage,
+reclassify scope, recompute freshness for proof claims, or implement parallel
+proof hard-block policy. In particular:
+
+- CP-2 in the control-plane plan is a consumption-closure projection over this
+  plan's diagnostics / waterline.
+- CP-5 runtime and queue enforcement must not absorb Proof M7; Proof M7 remains
+  the owner of DONE_REQUIRED, review-assurance, handoff-proof, and
+  Authority-facing proof-consumer enforcement.
+
+If an admissibility capability is not implemented, the control plane must report
+`unknown` / `unavailable`; it must not assume the capability exists.
+
 ## 2. Observed Failure Classes
 
 | Class | Concrete failure | Root cause | Case / evidence | Required contract |
@@ -182,6 +208,18 @@ Temporal role is separate from evidence scope:
 For repro-first flows, REVIEW/TEST/DONE consume a valid historical baseline,
 fresh current-state green evidence, and a valid transition relation. They do not
 consume a "fresh red" on current material.
+This is enforced as a registry projection, not by trusting CLI command names:
+
+- `red_green_relation_create` emits artifact kind `red-green-relation` for candidate
+  transition evidence.
+- `red_green_relation_evaluate` emits artifact kind `red-green-relation-evaluation`
+  after evaluator-bound digest and command equivalence checks.
+- `story_create_from_repro` emits `story-evidence-binding`; it binds candidate
+  artifact references and may only be used as planning/intake proof.
+
+No caller-side `commandEquivalence` override is allowed in claim projection.
+Only registry-classified artifact kinds and digest tuples in `.lattice/evidence/`
+can be consumed by STORY_INTAKE/PLAN/REVIEW/TEST/DONE.
 
 ## 4. Expected Benefits
 
@@ -259,7 +297,8 @@ diagnostic evidence, or legacy audit material.
 
 Steps:
 
-1. Add a core module such as `packages/main/src/core/proof-admissibility.ts`.
+1. Add a core module under `packages/main/src/core/evidence/admissibility/*`.
+   `packages/main/src/core/proof-admissibility.ts` remains the compatibility re-export.
 2. Define:
    - `EvidenceScope`
    - `AdmissibilityResult`
@@ -291,7 +330,8 @@ Exit criteria:
   structured answer with reason codes.
 
 B-0985 status: complete for M1 classification. The shared module is
-`packages/main/src/core/proof-admissibility.ts`; the focused smoke command is
+`packages/main/src/core/evidence/admissibility/*` (compat entrypoint in
+`packages/main/src/core/proof-admissibility.ts`); the focused smoke command is
 `npm --prefix packages/main run test:proof-admissibility`. Gate enforcement and
 Authority Server integration remain non-goals for this story.
 
@@ -792,12 +832,14 @@ separately and must not be read as delivered by this story.
 |---|---|---|---|---|
 | `packages/main/src/core/authority-gate-receipt-verifier.ts` | Authority `gate_decision` proof | `production-gate-decision` candidate | C1, C3-C8, C11, C12 | Strong CLI verifier path is strict-shape and claim-policy aware; Authority Server production receipt execution remains out of B-0405 scope |
 | `packages/main/src/core/authority-receipt-classification.ts` | Evidence-envelope receipt | `authority-receipt` candidate | C1, C3, C5, C6, C11, C12 | Subject binding remains strong and is represented in shared diagnostics; future work is cross-runtime fixture parity |
-| `packages/main/src/core/authority-boundary.ts` | Local/shadow authority submission | `local-diagnostic` or `receipt-backed-l2-plus` classifier | C1, C9, C11 | Anti-overclaim classification feeds the shared scope boundary; local/shadow output still cannot set Authority completion or `productionDone` |
+| `packages/main/src/core/authority-boundary.ts` | Local/shadow authority submission | `local-diagnostic` classifier | C1, C9, C11 | Anti-overclaim classification feeds the shared scope boundary; local/shadow output still cannot set Authority completion or `productionDone` |
 | `packages/main/src/core/receipt-bundle.ts` | Offline local signed bundle | `local-key-single-host` | C1, C3-C7, C9, C11, C12 | Strict-shape/signature/freshness behavior remains strong and explicitly non-Authority |
 | `packages/main/src/core/done-required-validation.ts` | DONE-required command receipts | `local-gate-evidence` | C1, C3, C5, C7, C8, C10, C11 | Freshness, policy, command coverage, scope diagnostics, and enforce-mode blocking are wired for the CLI consumer |
 | `packages/main/src/core/review-run.ts` | Reviewer run, finding, review pass | REVIEW gate evidence | C1, C3, C5-C8, C11 | Lane/round/latest/signature/freshness checks remain strong and are surfaced through registered proof diagnostics |
 | `packages/main/src/core/lattice-handoff.ts` | Handoff pack/receipt/dispatch | Context + local diagnostic evidence | C1, C7-C9, C11, C13 | Handoff projections now render typed artifact classes and keep local diagnostics separate from admissible proof refs |
 | `packages/main/src/core/process-fact-registry.ts` and `process-fact-levels.ts` | Gate-consumed process facts | Registry / drift guard | C1, C8-C11 | Process facts include `runtime:proof_admissibility_gate_diagnostic`; future process-fact additions must stay synchronized with the admissibility registry |
+| `packages/main/src/core/repro-intake.ts` | Repro-first candidate surfaces (`repro-*`, `spike-*`, red-green relation, binding) | `evidence-candidate` | C1, C8, C11 | Registry-facing candidate artifacts are implemented as registry entries; they remain candidate-only and cannot satisfy lifecycle or production claims |
+| `packages/main/src/handlers/repro-intake.ts` | Repro-first CLI commands and handlers | candidate-only command surfaces | C1, C8, C11 | CLI command surface remains underscore names; artifact kinds are canonicalized to hyphenated registry values before evaluator projection |
 | `packages/main/src/core/usage-ledger/authority-evidence.ts` | Usage evidence envelope + receipt gate | Privacy-preserving evidence candidate | C1, C5, C6, C9, C11, C14 | Local privacy and fail-safe receipt handling remain strong; future work is broader shared command-envelope adoption |
 | `packages/main/src/core/gate-strength.ts` and `gate-strength` tasks | Gate-strength result digest | Local methodology proof | C3-C5, C11, C12 | B-7b6e semantic-binding lesson is represented in the B-0405 adversarial matrix for reason/verdict tamper |
 | `packages/main/src/handlers/authority-enforce.ts` | Authority receipt verify/fetch/write path | Producer of receipt refs | C1, C3-C9, C11, C12 | CLI receipt-ref handling is diagnostic/enforce aware; Authority Server production receipt behavior remains a future/server-side responsibility |
@@ -832,9 +874,10 @@ may be added directly to a gate. It must first declare:
 
 Pre-story repro/spike artifacts are a special case of this same rule:
 
-- `repro-probe`, `repro-review`, `spike-record`, `spike-review`, and
-  `regression-matrix-review` start as scoped artifacts with explicit roles;
-  only the first four are pre-story `evidence-candidate`.
+- `repro-probe`, `repro-review`, `spike-record`, `spike-review`,
+  `red-green-relation`, `regression-matrix-review`, and
+  `red-green-relation-evaluation` start as scoped artifacts with explicit roles;
+  all are pre-story `evidence-candidate`.
 - They may inform story creation and planning.
 - They may not satisfy REVIEW/TEST/DONE/Authority gates until promoted into a
   story-bound verification intent / current verification evidence path and
@@ -1162,6 +1205,12 @@ use canonical values.
 | `red_green_relation_evaluate` | `red-green-relation-evaluation` |
 | `regression_matrix_review_set` | `regression-matrix-review` |
 | `validate` / DEV / TEST evidence writers | `current-verification-evidence` |
+
+Projection rule:
+
+- `command` names are CLI dispatch names (underscore).
+- `artifactKind` is the canonical hyphenated contract key used by registries and evaluators.
+- Claim consumption must use registry lookup by `artifactKind`; `command` names alone can never determine admissibility.
 
 Compatibility aliases, read-only:
 

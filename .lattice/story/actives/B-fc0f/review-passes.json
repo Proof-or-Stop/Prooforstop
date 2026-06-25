@@ -1,0 +1,112 @@
+{
+  "passes": [
+    {
+      "id": "B-fc0f:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "No concept issues: scope, acceptance intent, and implementation strategy align with story context.",
+      "createdAt": "2026-06-25T05:25:51.083Z",
+      "reviewRound": "2026-06-25T05:24:29.657Z",
+      "reviewRunId": "B-fc0f:RR-001",
+      "_hash": "604b757568abde4095e8f7708687c35a16af43ae154690a05d6e609438c12f0b"
+    },
+    {
+      "id": "B-fc0f:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "No quality issues: fixes are targeted, evidence updates are precise, and behavior changes are limited to documented review/smoke surfaces.",
+      "createdAt": "2026-06-25T05:25:53.874Z",
+      "reviewRound": "2026-06-25T05:24:29.657Z",
+      "reviewRunId": "B-fc0f:RR-002",
+      "_hash": "6643894685d66afb9cb35d25672b332886ce3dea7090f1defc3be4b1ec40446b"
+    },
+    {
+      "id": "B-fc0f:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage lane clear: all verification intents have pass evidence and evidence hashes stay aligned to current material/story files.",
+      "createdAt": "2026-06-25T05:25:56.724Z",
+      "reviewRound": "2026-06-25T05:24:29.657Z",
+      "reviewRunId": "B-fc0f:RR-003",
+      "_hash": "46dbc83a8ab2e0455357b5744309abf4d4896e9627c55265e70b417e6f6d3a76"
+    },
+    {
+      "id": "B-fc0f:RP-004",
+      "agent": "lattice-review-docs",
+      "note": "Docs lane clear: requirement and decision artifacts match implementation scope and no stale references block onboarding.",
+      "createdAt": "2026-06-25T05:26:01.678Z",
+      "reviewRound": "2026-06-25T05:24:29.657Z",
+      "reviewRunId": "B-fc0f:RR-004",
+      "_hash": "d5c10cdd28da748ef94b0c5ebca0474b6628822ee416819566cd5fbbd70043c9"
+    },
+    {
+      "id": "B-fc0f:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "PASS: implementation plan and risks are coherent; no blocking concept defects.",
+      "createdAt": "2026-06-25T05:26:13.122Z",
+      "reviewRound": "2026-06-25T05:24:29.657Z",
+      "reviewRunId": "B-fc0f:RR-006",
+      "_hash": "ac3e53ae65811b706d3e956e918bc53a4da057f580b93da6132f390291256137"
+    },
+    {
+      "id": "B-fc0f:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "PASS: quality and architecture checks pass; no regressions introduced.",
+      "createdAt": "2026-06-25T05:26:13.781Z",
+      "reviewRound": "2026-06-25T05:24:29.657Z",
+      "reviewRunId": "B-fc0f:RR-002",
+      "_hash": "e08289f2db1d23226228402e745465972a7b01744587d382ae6a00ae7c1c3de4"
+    },
+    {
+      "id": "B-fc0f:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: relevant tests run and validated; no blocking test coverage gaps.",
+      "createdAt": "2026-06-25T05:26:14.464Z",
+      "reviewRound": "2026-06-25T05:24:29.657Z",
+      "reviewRunId": "B-fc0f:RR-003",
+      "_hash": "736486cc5a47ad6183860d40bd3d8bffd8fb876d958b5b4e7b34006dee3dce75"
+    },
+    {
+      "id": "B-fc0f:RP-008",
+      "agent": "lattice-review-docs",
+      "note": "PASS: docs and comments aligned; no blocking documentation defects.",
+      "createdAt": "2026-06-25T05:26:15.092Z",
+      "reviewRound": "2026-06-25T05:24:29.657Z",
+      "reviewRunId": "B-fc0f:RR-004",
+      "_hash": "fc594f14affbdb3765eae1804533e5ac0161d9f014faad2a2e9348435af47f35"
+    },
+    {
+      "id": "B-fc0f:RP-009",
+      "agent": "lattice-review-concept",
+      "note": "Scope and checklist align; no blocker found for concept design, contract scope, and current evidence coverage.",
+      "createdAt": "2026-06-25T05:34:36.525Z",
+      "reviewRound": "2026-06-25T05:34:11.395Z",
+      "reviewRunId": "B-fc0f:RR-007",
+      "_hash": "737c76e81c33332d8ebe3029e523e19510e9f25093f31c5f7dc1fb54a53e8599"
+    },
+    {
+      "id": "B-fc0f:RP-010",
+      "agent": "lattice-review-quality",
+      "note": "Code and behavior align with implementation intent; no quality blockers found, including readability and risk controls.",
+      "createdAt": "2026-06-25T05:34:42.735Z",
+      "reviewRound": "2026-06-25T05:34:11.395Z",
+      "reviewRunId": "B-fc0f:RR-008",
+      "_hash": "8a9f7048c5d065f55707d3777f8e77494cb99218e332cf57c4df4cb2f0d4d48c"
+    },
+    {
+      "id": "B-fc0f:RP-011",
+      "agent": "lattice-review-test-coverage",
+      "note": "Validation evidence and evidence coverage are coherent; required checks are present and no test-coverage blockers remain.",
+      "createdAt": "2026-06-25T05:34:46.308Z",
+      "reviewRound": "2026-06-25T05:34:11.395Z",
+      "reviewRunId": "B-fc0f:RR-009",
+      "_hash": "8846002b37ec190b52cacffdc45013df5e7cc1a507e0ab62d984059c52e315ea"
+    },
+    {
+      "id": "B-fc0f:RP-012",
+      "agent": "lattice-review-docs",
+      "note": "Docs updates and related-doc references look consistent with behavior changes; no blocking doc gaps found.",
+      "createdAt": "2026-06-25T05:34:49.750Z",
+      "reviewRound": "2026-06-25T05:34:11.395Z",
+      "reviewRunId": "B-fc0f:RR-010",
+      "_hash": "e897fdb901747bedfc798aa1ec51b4056880daa84d114c84bdcbc9af8fb7976a"
+    }
+  ]
+}

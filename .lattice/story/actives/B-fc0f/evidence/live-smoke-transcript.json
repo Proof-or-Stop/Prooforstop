@@ -1,0 +1,21 @@
+{
+  "storyId": "B-fc0f",
+  "expected": "User sees the exact text “✓ cli json stdout contract smoke passed”",
+  "actual": {
+    "command": "node packages/main/dist/tasks/cli-json-stdout-contract-smoke.js",
+    "exitCode": null,
+    "stdout": "",
+    "stderr": "[capture error] spawnSync /bin/sh ETIMEDOUT"
+  },
+  "mode": {
+    "runCommands": true,
+    "writeEvidence": true
+  },
+  "capturedAtIso": "2026-06-25T05:32:09.636Z",
+  "claims": {
+    "authorityDone": false,
+    "productionDone": false
+  },
+  "headHash": "7c8665878c14ce052fbc0efdf58b1a21b0aacf12",
+  "materialHash": "1c00a71553dccbd1472a4b67babb642a93ffe12d35cda99f56ae6f422163389f"
+}

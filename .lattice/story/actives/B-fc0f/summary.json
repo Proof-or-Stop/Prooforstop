@@ -1,0 +1,55 @@
+{
+  "storyId": "B-fc0f",
+  "changes": "修复 validate 运行与证据收口路径的流程问题，并完成 Repro-First/Proof-admissibility 的闭环对齐。",
+  "usage": "执行时先用 story_advance 入 REVIEW/DEV，完成审查与测试后回到 TEST 再运行 done_prepare 和 done_required_validate。",
+  "expectedOutcome": "流程阻塞消除，TEST 与 DONE 预检通过，能稳定进入 DONE。",
+  "actualTranscript": "在 TEST 中执行 done_prepare 遇到 evidence stale/summary 与 review-assurance 缺失，按序补齐 done-required 与 review 3×2 host 证明后重试。",
+  "outcomeDiff": "之前缺少关键门禁证据导致 DONE 受阻；现在补齐后关闭阻塞项，回归验证通过。",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "none — fully covered",
+  "pitfalls": "未跑跨机器 host handoff 全量场景；如 story 段高并发提交后需再次核对主分支与工作树同步。",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 126156430
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 43706
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 509683
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 1854155
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 365487
+    },
+    "TEST": {
+      "count": 2,
+      "durationMs": 459939
+    }
+  },
+  "totalDurationMs": 129389411,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-25T05:38:19.327Z",
+  "updatedAt": "2026-06-25T05:38:19.327Z"
+}

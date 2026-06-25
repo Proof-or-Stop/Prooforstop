@@ -1,0 +1,38 @@
+{
+  "storyId": "B-fc0f",
+  "mode": "enforce",
+  "allowedModify": [
+    "docs/evidence/evidence-platform-architecture.md",
+    "docs/evidence/proof-surface-inventory.json",
+    "docs/evidence/proof-surface-inventory.md",
+    "docs/requirements/NAV.md",
+    "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+    "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+    "docs/requirements/decisions/repro-first-story-intake-experiment.md",
+    "packages/main/src/core/evidence/types.ts",
+    "packages/main/src/core/prompt-registry.ts",
+    "packages/main/src/core/proof-admissibility.ts",
+    "packages/main/src/core/repro-intake.ts",
+    "packages/main/src/handlers/done-prepare.ts",
+    "packages/main/src/handlers/verdict.ts",
+    "packages/main/src/tasks/cli-json-stdout-contract-smoke.ts",
+    "packages/main/src/tasks/english-open-source-surface-smoke.ts",
+    "packages/main/src/tasks/field-regression-cli-smoke.ts",
+    "packages/main/src/tasks/prompt-token-cost-smoke.ts",
+    "packages/main/src/tasks/proof-admissibility-smoke.ts",
+    "packages/main/src/tasks/repro-first-candidate-smoke.ts",
+    "packages/main/src/core/review-assurance-floor.ts",
+    ".lattice/story/actives/B-fc0f/evidence/delivery-context-pack.json"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/cli-json-stdout-contract-smoke.ts",
+    "packages/main/src/core/review-assurance-floor.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Add delivery-context artifact path created in TEST for delivery evidence parity.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-25T04:53:41.728Z",
+  "updatedAt": "2026-06-25T05:34:09.495Z"
+}

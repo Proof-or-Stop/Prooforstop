@@ -169,7 +169,6 @@
     },
     {
       "artifactKind": "red-green-relation",
-      "aliases": ["red-green-evaluation"],
       "scope": "evidence-candidate",
       "artifactRole": "red-green-relation",
       "temporalRole": "transition-relation",
@@ -180,6 +179,20 @@
       "productionDoneEligible": false,
       "status": "candidate-only",
       "whyNotStronger": "Relation evidence links candidate baseline/current intent but is not current green gate evidence."
+    },
+    {
+      "artifactKind": "red-green-relation-evaluation",
+      "aliases": ["red-green-evaluation"],
+      "scope": "evidence-candidate",
+      "artifactRole": "red-green-relation",
+      "temporalRole": "transition-relation",
+      "producerBoundary": "local-runtime-owned",
+      "schemaVersions": ["lattice.evidence.v1"],
+      "allowedConsumers": ["STORY_INTAKE", "PLAN"],
+      "allowedClaims": ["red-green-equivalence"],
+      "productionDoneEligible": false,
+      "status": "candidate-only",
+      "whyNotStronger": "Derived evaluator output for baseline/current relation comparison is still candidate-only intake evidence."
     },
     {
       "artifactKind": "regression-matrix-review",

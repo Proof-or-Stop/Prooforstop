@@ -333,7 +333,7 @@ export function evaluateRedGreenRelation(
   };
 
   return writeArtifact(projectRoot, {
-    artifactKind: 'red-green-evaluation',
+    artifactKind: 'red-green-relation-evaluation',
     evidenceScope: CANDIDATE_SCOPE,
     subjectBinding: { candidateId: relation.payload.candidateId, probeId: relation.payload.probeId, relationId: input.relationId },
     payload,

@@ -81,6 +81,9 @@ const ALLOWLIST_FILES: readonly string[] = [
   'docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md',
   // The generated translation manifest: chineseSource column is Chinese by design.
   'docs/requirements/decisions/cli-engine-english-translation-manifest.md',
+  // This decision doc retains one quoted Chinese lifecycle-fact line as a
+  // historical assertion about the stale-doc guard behavior.
+  'docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md',
 ];
 
 // 2) Whole-file allowlist by path substring.
@@ -124,6 +127,8 @@ const ALLOWLIST_TEST_GLOBS: readonly RegExp[] = [
   // Chinese caveat marker (the "uncertain" caveat regex) for backward
   // compatibility; the CJK is the fixture being matched, not stray content.
   /^packages\/main\/src\/tasks\/prompt-token-cost-smoke\.ts$/,
+  // Experience-layer shadow gate uses a Japanese story id fixture on purpose.
+  /^packages\/main\/src\/tasks\/experience-layer-ab-shadow-gate-smoke\.ts$/,
   // Done-preflight smoke: asserts the genuinely-Chinese B-72df merge-failure
   // message from done-effects.ts (itself pending-migration, allowlisted below);
   // the test legitimately must match that Chinese output, so its fixture CJK is
@@ -148,6 +153,7 @@ const ALLOWLIST_PENDING_SOURCE_MIGRATION: readonly string[] = [
   'packages/main/src/core/machine.ts',
   'packages/main/src/core/managed-assets.ts',
   'packages/main/src/core/command-policy.ts',
+  'packages/main/src/core/review-assurance-floor.ts',
   'packages/main/src/handlers/done-effects.ts',
   'packages/main/src/handlers/test-auto.ts',
   // Production handler carrying a pending Chinese code COMMENT (the `role` arg
@@ -165,6 +171,8 @@ const ALLOWLIST_PENDING_SOURCE_MIGRATION: readonly string[] = [
   'packages/main/src/handlers/phase-gates.ts',
   'packages/main/src/handlers/evaluate.ts',
   'packages/main/src/handlers/verifier.ts',
+  'packages/main/src/cli/help-renderer.ts',
+  'packages/main/src/cli/lifecycle-dispatch.ts',
   'packages/main/src/tasks/extract.ts',
   // Behavior-sensitive: aux-diagnose matches Chinese rootCause substrings at
   // runtime (.includes('<zh>')) and returns coupled Chinese advice — a

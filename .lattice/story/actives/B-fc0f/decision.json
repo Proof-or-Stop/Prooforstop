@@ -1,0 +1,59 @@
+{
+  "principles": [
+    "Do not increase flakiness while fixing validation; keep smoke semantics deterministic",
+    "Prefer explicit failures and actionable hints over silent ignores for all reviewer/local verification paths",
+    "Keep phase gates consistent by aligning DONE advisory and local verdict evaluators",
+    "Avoid modifying fixture baseline behavior unless required by clear evidence"
+  ],
+  "drivers": [
+    "Multiple validate/TEST failures were burning engineering time due hidden blockers",
+    "Review evidence must be mechanically consistent across review_escalation_status and done_prepare",
+    "Current regression risk is in lifecycle and review-assurance floor semantics"
+  ],
+  "options": [
+    {
+      "name": "Option A: minimal edits in each hotspot",
+      "pros": [
+        "Quick to implement"
+      ],
+      "cons": [
+        "May leave unknown root cause for CHK-001 and mask recurring floor mismatch risks",
+        "Could require repeated triage"
+      ]
+    },
+    {
+      "name": "Option B: targeted mechanical fixes plus one regression harness update",
+      "pros": [
+        "Closes each CHK path with deterministic evidence and runtime guardrails",
+        "Provides fail-fast visibility without masking missing binding/floor issues",
+        "Reduces future TEST churn and makes DONE gating behavior explicit"
+      ],
+      "cons": [
+        "Touches validation and review-evidence surface, needs careful phase-aware testing"
+      ]
+    }
+  ],
+  "chosen": "Option B: targeted mechanical fixes plus one regression harness update",
+  "rationale": "This route closes the remaining blocker paths directly, records explicit evidence for each checklist item, and gives durable protections against future regressions in validate and DONE readiness behavior.",
+  "preMortem": [
+    {
+      "scenario": "cli-json-stdout-contract-smoke still hangs after command-level timeout changes",
+      "trigger": "subprocess inherits interactive stdin or unresolved dependency",
+      "consequence": "validation remains slow; regression undetected while giving false PASS",
+      "mitigation": "Add targeted command-level timeout and log exact hanging command path for immediate diagnosis before any green assumption"
+    },
+    {
+      "scenario": "done_prepare reports stale binding mismatch to review_escalation_status",
+      "trigger": "different hash-binding assumptions in floor evaluators",
+      "consequence": "DONE can still block indefinitely even with valid degraded rounds",
+      "mitigation": "Cross-check floor report payload from done_prepare against review_escalation_status and unify binding keys or route text guidance accordingly"
+    },
+    {
+      "scenario": "global fixture failures are treated as code defects and over-prioritized",
+      "trigger": "mis-triage of independent flakes",
+      "consequence": "unnecessary code churn and extra risk for unrelated behavior",
+      "mitigation": "Run each involved smoke explicitly and record root-cause evidence in checklist instead of speculative code changes"
+    }
+  ],
+  "timestamp": "2026-06-25T04:48:49.186Z"
+}

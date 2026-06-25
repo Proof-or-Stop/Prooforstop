@@ -555,6 +555,7 @@ function renderRuntimeReport(report: RuntimeChangeReport): string[] {
  *   stale pre-merge host verdicts.
  * @changes
  *   - [CHK-001] Add current binding output and ordered review/quorum commands to done_prepare blockers.
+ * @test current-done-material-binding
  */
 function currentDoneMaterialBinding(ctx: HandlerContext, gitCwd: string): DonePrepareCurrentBinding {
   return {
