@@ -45,6 +45,10 @@ export interface ProofAdmissibilityConfig {
   mode?: 'warn' | 'enforce';
 }
 
+export interface ReproFirstPreflightConfig {
+  mode?: 'off' | 'warn' | 'enforce';
+}
+
 export interface LatticeConfig {
   /**
    * Marks this checkout as a read-only legacy/evidence root. Mutating CLI
@@ -98,6 +102,12 @@ export interface LatticeConfig {
     };
   };
   proofAdmissibility?: ProofAdmissibilityConfig;
+  /**
+   * Repro-first STORY_INTAKE preflight. Default warn keeps story intake
+   * available while surfacing code-changing stories that lack accepted repro
+   * binding; enforce turns the same diagnostic into a lifecycle block.
+   */
+  reproFirstPreflight?: ReproFirstPreflightConfig;
   /** 浏览器测试配置 */
   browser?: {
     /** dev server 启动命令（如 "npx vite"） */

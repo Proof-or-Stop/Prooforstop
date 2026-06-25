@@ -30,6 +30,7 @@ import type {
   ReviewedFailureClass,
   ExecutionStatus,
 } from './evidence/types.js';
+import type { StoryType } from './types.js';
 
 const CANDIDATE_SCOPE = 'evidence-candidate' as const;
 const PRODUCER = 'repro-intake-service';
@@ -384,6 +385,7 @@ export interface CreateStoryFromReproInput {
   probeId: string;
   reviewId: string;
   spikeId?: string;
+  spikeReviewId?: string;
   matrixReviewId?: string;
   storyTitle: string;
   storyDescription: string;
@@ -403,9 +405,11 @@ export async function createStoryFromRepro(
     title: string;
     description: string;
     name: string;
-    type: string;
+    type: StoryType;
     priority: string;
     checklist: Array<{ title: string; context?: string }>;
+    background: string;
+    reproFirstBypassReason: string;
   }) => Promise<string> | string,
 ): Promise<CreateStoryFromReproResult> {
   // Validate probe and review exist
@@ -428,18 +432,62 @@ export async function createStoryFromRepro(
     throw new Error(`repro-intake: review ${input.reviewId} digest ${review.payload.probeDigest} does not match probe ${input.probeId} digest ${probe.artifactDigest}`);
   }
 
-  const spikeDigest = input.spikeId
-    ? readArtifact<SpikeRecordPayload>(projectRoot, input.spikeId).artifactDigest
+  if (input.spikeReviewId && !input.spikeId) {
+    throw new Error(`repro-intake: spikeReviewId ${input.spikeReviewId} requires spikeId`);
+  }
+
+  const spike = input.spikeId
+    ? readArtifact<SpikeRecordPayload>(projectRoot, input.spikeId)
     : undefined;
+  const spikeDigest = spike?.artifactDigest;
+  const spikeReview = input.spikeReviewId
+    ? readArtifact<SpikeReviewPayload>(projectRoot, input.spikeReviewId)
+    : undefined;
+  if (spike && spike.payload.probeId !== input.probeId) {
+    throw new Error(`repro-intake: spike ${input.spikeId} references probe ${spike.payload.probeId}, not ${input.probeId}`);
+  }
+  if (spike && spike.payload.probeDigest !== probe.artifactDigest) {
+    throw new Error(`repro-intake: spike ${input.spikeId} digest ${spike.payload.probeDigest} does not match probe ${input.probeId} digest ${probe.artifactDigest}`);
+  }
+  if (spikeReview) {
+    if (spikeReview.payload.spikeId !== input.spikeId) {
+      throw new Error(`repro-intake: spike review ${input.spikeReviewId} references spike ${spikeReview.payload.spikeId}, not ${input.spikeId}`);
+    }
+    if (spikeReview.payload.spikeDigest !== spikeDigest) {
+      throw new Error(`repro-intake: spike review ${input.spikeReviewId} digest ${spikeReview.payload.spikeDigest} does not match spike ${input.spikeId} digest ${spikeDigest}`);
+    }
+    if (spikeReview.payload.verdict !== 'confirmed') {
+      throw new Error(`repro-intake: spike review ${input.spikeReviewId} verdict=${spikeReview.payload.verdict}, expected confirmed`);
+    }
+  }
+  const matrixReview = input.matrixReviewId
+    ? readArtifact<RegressionMatrixReviewPayload>(projectRoot, input.matrixReviewId)
+    : undefined;
+  if (matrixReview && matrixReview.payload.probeId !== input.probeId) {
+    throw new Error(`repro-intake: matrix review ${input.matrixReviewId} references probe ${matrixReview.payload.probeId}, not ${input.probeId}`);
+  }
+
+  const background = [
+    '## Trigger Event',
+    `${new Date().toISOString().slice(0, 10)} repro-first intake is creating a story from accepted candidate evidence. Probe ${input.probeId} and review ${input.reviewId} are bound before development starts.`,
+    '## Key Insights',
+    `The repro review is red-reviewed and classified as target-bug, so this story starts from observed failing behavior instead of a speculative fix. Candidate ${probe.payload.candidateId} remains intake evidence only.`,
+    '## Solution Tradeoffs',
+    'Using story_create_from_repro keeps the normal story lifecycle intact while adding a pre-story binding artifact. It avoids pretending candidate evidence is verificationEvidence, DONE evidence, Authority proof, or production proof.',
+    '## Conversational Texture',
+    'The maintainer sees a normal Lattice story with a durable intake binding, then still expects DEV, REVIEW, TEST, validation, and DONE evidence to prove the actual fix after implementation.',
+  ].join('\n\n');
 
   // Create story via injected creator (calls story_create handler)
   const storyId = await storyCreator({
     title: input.storyTitle,
     description: input.storyDescription,
     name: probe.payload.candidateId,
-    type: 'feature',
+    type: 'bug',
     priority: 'high',
     checklist: [{ title: 'Implement fix for reproduced failure', context: `Probe: ${input.probeId}, Review: ${input.reviewId}` }],
+    background,
+    reproFirstBypassReason: 'story_create_from_repro writes story-evidence-binding immediately after story_create from accepted repro evidence',
   });
 
   // Write binding artifact — original candidate artifact remains evidence-candidate
@@ -454,7 +502,8 @@ export async function createStoryFromRepro(
     derivedVerificationIntentRefs: input.derivedVerificationIntentRefs ?? [],
     note: 'Candidate artifacts remain evidence-candidate; story is created but verificationEvidence is not set. Green evidence is produced later by DEV/TEST.',
     ...(input.spikeId ? { spikeId: input.spikeId, spikeDigest } : {}),
-    ...(input.matrixReviewId ? { matrixReviewId: input.matrixReviewId } : {}),
+    ...(input.spikeReviewId && spikeReview ? { spikeReviewId: input.spikeReviewId, spikeReviewDigest: spikeReview.artifactDigest } : {}),
+    ...(input.matrixReviewId && matrixReview ? { matrixReviewId: input.matrixReviewId, matrixReviewDigest: matrixReview.artifactDigest } : {}),
   };
 
   const bindingArtifact = writeArtifact(projectRoot, {

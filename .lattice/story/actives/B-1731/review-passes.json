@@ -1,0 +1,256 @@
+{
+  "passes": [
+    {
+      "id": "B-1731:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 2 coverage re-review clean. fcd3aebb2 makes repro-evidence-binding-dev-gate smoke load-bearing across file declarations, bug_story, high-risk code-verifiable, story_create enforce/warn/off, fromDraft enforce/warn/bypass, story_create_from_repro, rejected review, PLAN/DEV/INIT_CHECK gates, warn/off lifecycle behavior, engine-error fail-open, and session_brief surfacing. Verified npm run test:repro-evidence-binding-dev-gate (21 ok) and npm run test:process-fact-contract (process fact contract verified, including runtime:repro_first_story_intake_preflight and artifact:story-evidence-binding).",
+      "createdAt": "2026-06-24T22:23:09.429Z",
+      "reviewRound": "2026-06-24T22:17:36.825Z",
+      "reviewRunId": "B-1731:RR-010",
+      "_hash": "2cc6f5739fe0b6f7e8155e9730fe176bc023dd640ce87bf7e3dcd8e5ace7b95e"
+    },
+    {
+      "id": "B-1731:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "Targeted re-review after F-002: inspected packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts and covered implementation paths for story_create preflight/fromDraft/bypass, lifecycle PLAN/DEV/express gates, session_brief rendering, config modes, accepted/stale binding validation, and process fact registration. npm --prefix packages/main run build passed; npm run test:repro-evidence-binding-dev-gate passed with 21 ok cases; node scripts/verify-process-fact-contract.mjs passed. No verification coverage blocker found.",
+      "createdAt": "2026-06-24T22:23:16.727Z",
+      "reviewRound": "2026-06-24T22:17:36.825Z",
+      "reviewRunId": "B-1731:RR-007",
+      "_hash": "cfa96b7f6e81f61cb94c5f8fd5d07ab466310af7c25465a5a522f7f8cae8b30e"
+    },
+    {
+      "id": "B-1731:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Round 2 quality re-review passed. Verified fcd3aebb2 removes hardcoded enforce from lifecycle gates, so story_create and PLAN/DEV/express lifecycle checks honor reproFirstPreflight.mode off/warn/enforce; bypass only permits intake while lifecycle remains binding-gated for code-declaring stories; engine errors fail open and surface in session_brief; schema addition reproFirstBypassReason is optional/backwards-compatible; process fact registry covers runtime:repro_first_story_intake_preflight. Ran npm --prefix packages/main run build, npm --prefix packages/main run test:repro-evidence-binding-dev-gate, and npm run test:process-fact-contract.",
+      "createdAt": "2026-06-24T22:24:54.458Z",
+      "reviewRound": "2026-06-24T22:17:36.825Z",
+      "reviewRunId": "B-1731:RR-012",
+      "_hash": "5fd75eecf8174ec1347801fb708ded9f257cf2fee70c4fa33a0ef6ba2bd4a926"
+    },
+    {
+      "id": "B-1731:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 3 targeted test-coverage re-review after 888401f4e: packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts covers malformed story-evidence-binding payloads returning stale diagnostics without throwing, direct lifecycle phase reproFirstBypassReason rejection before persistence for PLAN/DEV/REVIEW/TEST/DONE, and the existing lifecycle matrix. Verified with npm run test:repro-evidence-binding-dev-gate (25 checks pass).",
+      "createdAt": "2026-06-24T22:33:43.465Z",
+      "reviewRound": "2026-06-24T22:29:16.791Z",
+      "reviewRunId": "B-1731:RR-014",
+      "_hash": "d5fb1e1535b5e6278ee976a96e110badbfafaa674ef85ba875eeb15ed8df1830"
+    },
+    {
+      "id": "B-1731:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Concept re-review clean at HEAD e0c641d. Checked story_create direct-phase bypass guard, fromDraft preflight before persistence/deletion, story_create_from_repro accepted-review binding path, repro_first_preflight_engine_error fail-open/session_brief surfacing, malformed binding stale diagnostics, and IDEA->PLAN/PLAN->DEV/INIT_CHECK->DEV lifecycle boundaries. Targeted verification passed: npm --prefix packages/main run test:repro-evidence-binding-dev-gate (25 checks).",
+      "createdAt": "2026-06-24T22:35:02.225Z",
+      "reviewRound": "2026-06-24T22:29:16.791Z",
+      "reviewRunId": "B-1731:RR-018",
+      "_hash": "48e1c58ac90aa7b42ce55ef76f5a38005f335c11a3b7be4c5fd06fce1c13c4b8"
+    },
+    {
+      "id": "B-1731:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Round 3 targeted quality re-review passed. Reviewed repro-evidence-binding gate, story_create preflight/bypass path, and repro-evidence-binding dev gate smoke. Defensive binding payload/subject shape checks avoid TypeError on malformed story-evidence-binding, stale binding diagnostics remain blocking in enforce mode, and direct lifecycle phase bypass is rejected before persistence. Verified with npm --prefix packages/main run build and npm --prefix packages/main run test:repro-evidence-binding-dev-gate.",
+      "createdAt": "2026-06-24T22:35:08.947Z",
+      "reviewRound": "2026-06-24T22:29:16.791Z",
+      "reviewRunId": "B-1731:RR-016",
+      "_hash": "7d46564a05749a668a00da39f95c9bb8699af20a3e0c664c6987e0fa03985c75"
+    },
+    {
+      "id": "B-1731:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "Round 3 targeted concept re-review of commit 888401f4e: no blocker. story_create now rejects reproFirstBypassReason for direct PLAN/DEV/REVIEW/TEST/DONE before persistence while allowing IDEA/INIT intake bypass only; malformed story-evidence-binding payloads remain stale/invalid and block lifecycle gates rather than being accepted. Verified with npm --prefix packages/main run build and npm --prefix packages/main run test:repro-evidence-binding-dev-gate.",
+      "createdAt": "2026-06-24T22:35:10.572Z",
+      "reviewRound": "2026-06-24T22:29:16.791Z",
+      "reviewRunId": "B-1731:RR-015",
+      "_hash": "817022e6e15c96f5abfc3e50cefb2e63d816ce20f066bbed5bc5f39ea88e2b0f"
+    },
+    {
+      "id": "B-1731:RP-008",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage re-review clean. Fresh checks passed: npm --prefix packages/main run build -- --noEmit; npm run test:repro-evidence-binding-dev-gate (25 assertions, including direct-phase bypass block and malformed binding no-throw stale diagnostics); npm run test:process-fact-contract. Existing findings F-001..F-007 are resolved with strong evidence; no new coverage blocker found.",
+      "createdAt": "2026-06-24T22:35:50.830Z",
+      "reviewRound": "2026-06-24T22:29:16.791Z",
+      "reviewRunId": "B-1731:RR-019",
+      "_hash": "e9c8b94663ede84878b1bd0ec035ff25dafb95cf3d647c5eb8715e390f80dd56"
+    },
+    {
+      "id": "B-1731:RP-009",
+      "agent": "lattice-review-quality",
+      "note": "Quality re-review passed at HEAD e0c641d. Checked repro-first config mode semantics (off/warn/enforce), malformed story-evidence-binding handling, direct lifecycle bypass behavior, state-machine DEV/PLAN gates, command policy/process fact registry wiring, and compatibility of story_create_from_repro. Verification: npx tsc --noEmit passed from packages/main; node scripts/verify-process-fact-contract.mjs passed; git diff --check main...HEAD passed. No blocking findings.",
+      "createdAt": "2026-06-24T22:36:11.189Z",
+      "reviewRound": "2026-06-24T22:29:16.791Z",
+      "reviewRunId": "B-1731:RR-017",
+      "_hash": "cecb93161bd5e21fa2fccdbba3a2eff55c59a492ec5a39a518d1de12e755aacf"
+    },
+    {
+      "id": "B-1731:RP-010",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: npm run test:repro-evidence-binding-dev-gate completed successfully at HEAD 6a2334d; repro evidence binding dev gate smoke reported ok 1-25 and ended with repro evidence binding dev gate smoke passed. Coverage lane found no current-round blocker.",
+      "createdAt": "2026-06-24T22:40:45.464Z",
+      "reviewRound": "2026-06-24T22:39:02.983Z",
+      "reviewRunId": "B-1731:RR-022",
+      "_hash": "8884a94627827fd73c325c8f563765d991e19de98f84bdbfb8f0bccd63050688"
+    },
+    {
+      "id": "B-1731:RP-011",
+      "agent": "lattice-review-concept",
+      "note": "Concept review round 4 pass: verified final HEAD preserves repro-first story intake semantics and no regression in direct phase bypass guard, fromDraft preflight/delete ordering, malformed binding stale diagnostics, and engine-error fail-open behavior. Evidence: npm --prefix packages/main run build; node scripts/verify-process-fact-contract.mjs; node packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js all passed.",
+      "createdAt": "2026-06-24T22:41:44.910Z",
+      "reviewRound": "2026-06-24T22:39:02.983Z",
+      "reviewRunId": "B-1731:RR-023",
+      "_hash": "d8ffaad57d85ffc24d2978062de32660ed615ca0b9368d65be767cef3cb705f0"
+    },
+    {
+      "id": "B-1731:RP-012",
+      "agent": "lattice-review-concept",
+      "note": "Round 4 metadata-only re-review: the English decision artifact preserves the concept contract (binding evidence gate at PLAN/DEV entry, non-code bypass/fail-open safeguards, digest/story binding evidence, rollback path). No source code changed after Round 3 passes; no open concept blocker.",
+      "createdAt": "2026-06-24T22:41:56.056Z",
+      "reviewRound": "2026-06-24T22:39:02.983Z",
+      "reviewRunId": "B-1731:RR-024",
+      "_hash": "09637292a45dc3474d6340d2bf658028df51438ea8799699ca60b4eb58e90096"
+    },
+    {
+      "id": "B-1731:RP-013",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage review passed on current HEAD c8e48acb0. Inspected checklist verification intents/evidence plus packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts, packages/main/src/tasks/repro-first-candidate-smoke.ts, scripts/verify-process-fact-contract.mjs, process-fact registry/levels. Ran npm --prefix packages/main run build; node packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js (31 checks: preflight classification, warn/off/enforce, bypass/fromDraft, malformed/stale bindings, direct-phase blocking, spike-review binding); node packages/main/dist/tasks/repro-first-candidate-smoke.js; node scripts/verify-process-fact-contract.mjs. No verified coverage blocker remains.",
+      "createdAt": "2026-06-24T22:53:43.406Z",
+      "reviewRound": "2026-06-24T22:49:32.346Z",
+      "reviewRunId": "B-1731:RR-026",
+      "_hash": "bf9766e4830fc41f46c0f0032930a8471310b47fe7b6b088911c6f4494c1eb3f"
+    },
+    {
+      "id": "B-1731:RP-014",
+      "agent": "lattice-review-test-coverage",
+      "note": "No blocker: coverage is load-bearing after F-008. Inspected repro-evidence-binding gate, repro-intake binding creation, spike review payload fields, handler wiring, validation registration. Ran node packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js: 31/31 passed, including spike accepted/missing/rejected/mismatched cases and previous lifecycle/classifier checks. Ran node scripts/verify-process-fact-contract.mjs: passed with artifact:story-evidence-binding and runtime:repro_first_story_intake_preflight registered.",
+      "createdAt": "2026-06-24T22:54:26.644Z",
+      "reviewRound": "2026-06-24T22:49:32.346Z",
+      "reviewRunId": "B-1731:RR-028",
+      "_hash": "4fd3ec39abb2745998351f678189ef966e1aa981698fa1e531ee9838206c9f35"
+    },
+    {
+      "id": "B-1731:RP-015",
+      "agent": "lattice-review-concept",
+      "note": "Concept re-review after F-008 fix passed. Checked repro-first intake boundaries across story_create/fromDraft/direct phase paths, lifecycle PLAN/DEV/express gates, malformed binding handling, engine-error fail-open behavior, and spike-review binding semantics. HEAD requires accepted repro review, treats malformed/unaccepted/stale bindings as stale_story_evidence_binding under enforce mode, keeps evidence-store engine errors non-blocking as repro_first_preflight_engine_error, rejects reproFirstBypassReason for direct lifecycle phases beyond IDEA/INIT, runs fromDraft through the shared preflight before persistence/deletion, and requires confirmed/accepted spike-review whenever spikeId is bound.",
+      "createdAt": "2026-06-24T22:54:28.511Z",
+      "reviewRound": "2026-06-24T22:49:32.346Z",
+      "reviewRunId": "B-1731:RR-029",
+      "_hash": "35020ef3d6cea30d9f34050936c515dc6ee3e401e9ee70addf81004f1335e1f6"
+    },
+    {
+      "id": "B-1731:RP-016",
+      "agent": "lattice-review-quality",
+      "note": "Quality review inspected packages/main/src/core/repro-evidence-binding-gate.ts, packages/main/src/core/repro-intake.ts, packages/main/src/handlers/repro-intake.ts, packages/main/src/handlers/story-create.ts, packages/main/src/core/machine.ts, packages/main/src/core/config.ts, packages/main/src/core/evidence/types.ts, packages/main/src/cli/command-catalog.ts, command policy/process fact registry changes, and repro smoke coverage. Verified runtime behavior with npm --prefix packages/main run build, node packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js, node packages/main/dist/tasks/repro-first-candidate-smoke.js, node scripts/verify-process-fact-contract.mjs, and node packages/main/dist/tasks/command-ownership-contract.js. Focused checks covered enforce/warn/off config semantics, malformed/stale story-evidence-binding artifacts, accepted repro review binding, required confirmed spikeReviewId/spikeReviewDigest handling, rejected/mismatched spike review rejection, story_create preflight persistence behavior, and lifecycle PLAN/DEV/express gates. I also ran node packages/main/dist/tasks/command-catalog-smoke.js; it fails on the pre-existing trailing command order assertion because main already has repro-intake commands after dev_memory, so I did not treat that baseline smoke drift as a B-1731 blocker. No story-owned quality blocker found.",
+      "createdAt": "2026-06-24T22:55:33.894Z",
+      "reviewRound": "2026-06-24T22:49:32.346Z",
+      "reviewRunId": "B-1731:RR-027",
+      "_hash": "9673a495ed841221f953149052443b77e2a0b9f25880c7169e37804d639f7ba8"
+    },
+    {
+      "id": "B-1731:RP-017",
+      "agent": "lattice-review-concept",
+      "note": "Concept pass: inspected packages/main/src/core/repro-evidence-binding-gate.ts and packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts. F-010 is fixed: spike review acceptance requires verdict=confirmed, and legacy status=accepted does not override rejected or missing verdict. F-009 classifier diagnostics are sanity-checked for bug_story and high_risk_code_verifiable. Ran npm run test:repro-evidence-binding-dev-gate; all 35 smoke checks passed.",
+      "createdAt": "2026-06-24T23:03:30.387Z",
+      "reviewRound": "2026-06-24T23:01:14.127Z",
+      "reviewRunId": "B-1731:RR-031",
+      "_hash": "1ae4b7ac8095f1f313145f7ed21bd43366c6e5b110b28567df9cc313e597a5c2"
+    },
+    {
+      "id": "B-1731:RP-018",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage pass: inspected packages/main/src/core/repro-evidence-binding-gate.ts and packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts; ran npm --prefix packages/main run build and npm --prefix packages/main run test:repro-evidence-binding-dev-gate. Smoke covers rejected verdict with accepted legacy status, status-only accepted legacy spike review rejection, and PLAN->DEV bug/high-risk classifier diagnostic causes.",
+      "createdAt": "2026-06-24T23:04:07.500Z",
+      "reviewRound": "2026-06-24T23:01:14.127Z",
+      "reviewRunId": "B-1731:RR-033",
+      "_hash": "9d0554a38bbf69612594d1a235bd4af8adc5129ed1637b333392370c79aaac6c"
+    },
+    {
+      "id": "B-1731:RP-019",
+      "agent": "lattice-review-quality",
+      "note": "No blocker remains for F-009/F-010 in the scoped files. Inspected packages/main/src/core/repro-evidence-binding-gate.ts and packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts: StoryEvidenceBindingGateResult optional requirement fields now drive classifier-specific missing/stale diagnostics; engine-error remains fail-open and visible; spike-review acceptance now requires verdict=confirmed and rejects rejected/status-only accepted cases. Ran npm --prefix packages/main run build and npx tsx packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts (35 checks passed).",
+      "createdAt": "2026-06-24T23:04:14.441Z",
+      "reviewRound": "2026-06-24T23:01:14.127Z",
+      "reviewRunId": "B-1731:RR-032",
+      "_hash": "86a56011ea87cff6865e74c37845c1887c2b1baf53d70f48f0fe0560ef3c9ae2"
+    },
+    {
+      "id": "B-1731:RP-020",
+      "agent": "lattice-review-test-coverage",
+      "note": "Current-round test-coverage pass. Verified F-009 bug_story/high_risk_code_verifiable lifecycle diagnostics are covered by repro-evidence-binding-dev-gate-smoke ok 30/31 and implemented via requirementReason/requirementDetails. Verified F-010 spike-review rejected, contradictory status, and status-only accepted cases are covered by ok 23/24/25/26 and the gate requires verdict=confirmed. Re-ran node packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js, node packages/main/dist/tasks/repro-first-candidate-smoke.js, node packages/main/dist/tasks/proof-admissibility-smoke.js, node packages/main/dist/tasks/proof-admissibility-hardening-smoke.js, and node scripts/verify-process-fact-contract.mjs; all passed. Previous PLAN/DEV/INIT_CHECK, warn/off, fail-open, malformed binding, and process-fact gates are covered.",
+      "createdAt": "2026-06-24T23:04:56.124Z",
+      "reviewRound": "2026-06-24T23:01:14.127Z",
+      "reviewRunId": "B-1731:RR-034",
+      "_hash": "a28f885055d8a0e92b2d1593ceae16444dedfd7cd0c025455ab5e70a90d1d613"
+    },
+    {
+      "id": "B-1731:RP-021",
+      "agent": "lattice-review-concept",
+      "note": "Concept REVIEW pass after F-009/F-010 fixes. Re-reviewed repro-first boundaries: spike bindings require spike-review payload.verdict=confirmed; legacy status=accepted is diagnostic only and cannot override verdict=rejected or missing verdict; lifecycle diagnostics report classifier-specific reasons for file declarations, bug stories, and high-risk code-verifiable stories; previous repro-first candidate path still passes. Verification run: npm --prefix packages/main run test:repro-evidence-binding-dev-gate; npm --prefix packages/main run test:repro-first-candidate; npm --prefix packages/main run build -- --noEmit; node scripts/verify-process-fact-contract.mjs.",
+      "createdAt": "2026-06-24T23:05:11.728Z",
+      "reviewRound": "2026-06-24T23:01:14.127Z",
+      "reviewRunId": "B-1731:RR-035",
+      "_hash": "410b79fc2b28fd16ff1bf85c5260137dea95bdaa40cfc59679386678282da5cf"
+    },
+    {
+      "id": "B-1731:RP-022",
+      "agent": "lattice-review-quality",
+      "note": "Quality re-review after F-009/F-010 fixes: inspected repro-evidence-binding gate, repro-intake story_create_from_repro spikeReview binding, command schema/handler compatibility, process-fact registry, and smoke coverage. Spike-review acceptance now requires verdict=confirmed; rejected/contradictory/status-only legacy status artifacts remain stale with explicit diagnostics. Classifier diagnostics now distinguish file_declarations, bug_story, and high_risk_code_verifiable remediation. Verification: npm --prefix packages/main run build passed; npm --prefix packages/main run test:repro-evidence-binding-dev-gate passed 35/35; node scripts/verify-process-fact-contract.mjs passed. No TypeScript safety issue or compatibility regression found.",
+      "createdAt": "2026-06-24T23:05:13.942Z",
+      "reviewRound": "2026-06-24T23:01:14.127Z",
+      "reviewRunId": "B-1731:RR-036",
+      "_hash": "5e5f8a4c237e1712f794875ffd9444638919180722ab54af58fada7c00a5076d"
+    },
+    {
+      "id": "B-1731:RP-023",
+      "agent": "lattice-review-concept",
+      "note": "PASS Round 9 concept: no blockers. Verified phase-gates output parsing, blocking dirty worktree rerun, freshness warning surfacing, and validation-protocol-smoke coverage for false/malformed output, dirty material, and warning cases.",
+      "createdAt": "2026-06-25T00:17:31.157Z",
+      "reviewRound": "2026-06-25T00:10:57.735Z",
+      "reviewRunId": "B-1731:RR-040",
+      "_hash": "8769f3f9e726f1d49640a4cbabd2ca7d5dc3c6f356dd76588d487ea5f13d814d"
+    },
+    {
+      "id": "B-1731:RP-024",
+      "agent": "lattice-review-quality",
+      "note": "PASS Round 9 quality: no blockers. F-011 fixed because cached validation PASS skip compares stored verificationCoverage entries with the current checklist verificationIntent snapshot before reuse, and validation-protocol-smoke covers checklist drift.",
+      "createdAt": "2026-06-25T00:17:44.838Z",
+      "reviewRound": "2026-06-25T00:10:57.735Z",
+      "reviewRunId": "B-1731:RR-041",
+      "_hash": "1135d9c2b1ad7c3a062541abeec4a6fa6354118f413f41dfa249c9c10ee59343"
+    },
+    {
+      "id": "B-1731:RP-025",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS Round 9 test coverage: no blockers. validation-protocol-smoke now covers unsafe cached PASS evidence branches for wrong command, malformed/nonzero coverage, missing hashes, false/malformed output, checklist intent drift, stale evidence, and dirty material worktree.",
+      "createdAt": "2026-06-25T00:17:59.403Z",
+      "reviewRound": "2026-06-25T00:10:57.735Z",
+      "reviewRunId": "B-1731:RR-042",
+      "_hash": "655cbd5c303da5c9febb4f415cadf0eadae17ac9ee9b7b116a6ce1f8f994f46c"
+    },
+    {
+      "id": "B-1731:RP-026",
+      "agent": "lattice-review-quality",
+      "note": "Round 11 quality review: verified Round 10 cached-validation blocker fix. phase-gates compares stored validation PASS verificationCoverage against current buildVerificationCoverage snapshot including status and key verificationEvidence fields, so evidence removal/downgrade/status changes rerun validate. Build and validation-protocol smoke pass; smoke covers fresh skip, warning skip, unsafe coverage/input/output/hash/dirty branches, and evidence removal rerun without stale PASS reuse.",
+      "createdAt": "2026-06-25T00:58:44.789Z",
+      "reviewRound": "2026-06-25T00:54:02.097Z",
+      "reviewRunId": "B-1731:RR-044",
+      "_hash": "a0b4fb006604c6c56ec55b96f97d11bbcd5ae2d509b2c80b6a61fd9247723080"
+    },
+    {
+      "id": "B-1731:RP-027",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 11 test-coverage review: no blocker. Verified regression coverage for validation-protocol cached PASS hardening, including coverage-evidence-removed, malformed/gap/missing-hash/output/dirty/stale PASS rerun branches; repro-first STORY_INTAKE/lifecycle binding gate smoke covers enforce/warn/off, pre-persistence story_create blocks, accepted and stale bindings, unaccepted review, spike review hardening, engine-error fail-open, and story_create_from_repro no verificationEvidence; repro-first candidate smoke preserves candidate-only evidence scope; proof-admissibility hardening smoke and process-fact contract pass with runtime:repro_first_story_intake_preflight registered as L4 gate-consumed process fact.",
+      "createdAt": "2026-06-25T00:59:03.793Z",
+      "reviewRound": "2026-06-25T00:54:02.097Z",
+      "reviewRunId": "B-1731:RR-045",
+      "_hash": "e5978d438c40ed4ee000cb88931e82f1e63b0bcbb3469790a2c054ea09407d42"
+    },
+    {
+      "id": "B-1731:RP-028",
+      "agent": "lattice-review-concept",
+      "note": "Concept pass: current implementation still solves B-1731. Repro-first classifier and STORY_INTAKE/PLAN/DEV-entry gates require accepted evidence-candidate story-evidence-binding for file-declaring, bug, or high-risk code-verifiable stories while warn/off and documented intake bypass remain scoped. Candidate evidence is not promoted to verification/DONE/Authority proof. Cached validation PASS hardening is in-scope evidence admissibility: reuse requires command identity, passing JSON output, verificationCoverage/current checklist+verificationEvidence equivalence, non-blocking worktree state, and head/material/storyFiles freshness; unsafe or legacy PASS evidence reruns validate and records FAIL on failure. Verified with build, repro evidence binding smoke, validation protocol smoke, and process fact contract.",
+      "createdAt": "2026-06-25T00:59:09.961Z",
+      "reviewRound": "2026-06-25T00:54:02.097Z",
+      "reviewRunId": "B-1731:RR-043",
+      "_hash": "9ef8e430928f7ba29f6e87d119563ed809be8c163b600e38d05ec5a9b70c58eb"
+    }
+  ]
+}

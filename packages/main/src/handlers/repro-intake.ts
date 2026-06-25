@@ -130,6 +130,7 @@ export interface StoryCreateFromReproArgs {
   probeId: string;
   reviewId: string;
   spikeId?: string;
+  spikeReviewId?: string;
   matrixReviewId?: string;
   storyTitle: string;
   storyDescription: string;
@@ -260,9 +261,11 @@ export function createReproIntakeHandlers(ctx: HandlerContext) {
           name: storyArgs.name,
           title: storyArgs.title,
           description: storyArgs.description,
-          type: storyArgs.type as 'feature',
+          type: storyArgs.type,
           priority: storyArgs.priority,
           checklist: storyArgs.checklist,
+          background: storyArgs.background,
+          reproFirstBypassReason: storyArgs.reproFirstBypassReason,
         });
         // Extract story ID from result string (e.g. "Story B-xxxx created...")
         const match = String(createResult).match(/B-[a-z0-9]{4,6}/i);

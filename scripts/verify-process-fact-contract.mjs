@@ -129,6 +129,7 @@ const requiredProcessFactSemantics = {
   review_escalation_policy_set: ['schema-contract', 'gate-evidence'],
   review_escalation_fallback_set: ['schema-contract', 'gate-evidence'],
   authority_receipt_verify: ['gate-evidence'],
+  story_create_from_repro: ['artifact', 'schema-contract', 'workspace-binding', 'gate-evidence'],
 };
 const requiredReviewerLanes = [
   'lattice-review-story-init',
@@ -166,6 +167,7 @@ const requiredArtifactFacts = [
   { name: 'artifact:process-events.jsonl', path: 'process-events.jsonl', signed: false },
   { name: 'artifact:decision-doc-proposals.json', path: 'decision-doc-proposals.json', signed: false },
   { name: 'artifact:authority-receipt-refs.json', path: 'authority-receipt-refs.json', signed: false },
+  { name: 'artifact:story-evidence-binding', path: 'story-evidence-binding', signed: false },
 ];
 const requiredReviewLoopL4Commands = [
   'review_loop_start',
@@ -300,6 +302,15 @@ const requiredRuntimeEntries = [
     level: 'L4',
     owner: 'core/evidence-freshness',
     line: '- runtime:story_files_hash_freshness_gate [L4] owner=core/evidence-freshness gate=REVIEW/TEST/DONE freshness gates for review runs, verification evidence, review escalation records, and the review assurance floor DONE freshness gate',
+  },
+  {
+    // B-1731: repro-first intake is a gate-consumed runtime predicate. The
+    // story-evidence-binding artifact is written by story_create_from_repro;
+    // this runtime fact is the classifier + warn/enforce gate that consumes it.
+    name: 'runtime:repro_first_story_intake_preflight',
+    level: 'L4',
+    owner: 'core/repro-evidence-binding-gate',
+    line: '- runtime:repro_first_story_intake_preflight [L4] owner=core/repro-evidence-binding-gate gate=story_create STORY_INTAKE preflight and storyMachine.canEnterPlan/canStartDev/canSkipPlan gates',
   },
   {
     name: 'runtime:review_escalation_done_gate',

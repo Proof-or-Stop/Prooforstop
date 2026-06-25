@@ -1,0 +1,56 @@
+{
+  "storyId": "B-1731",
+  "changes": "Added repro-first story intake and lifecycle gates so code-verifiable stories require accepted repro or spike evidence before advancing; hardened REVIEW-to-TEST validation evidence reuse so stale or unsafe PASS artifacts rerun validate instead of skipping.",
+  "usage": "Use story_create_from_repro after repro_probe plus accepted repro_review_set, or use documented reproFirstBypassReason only for IDEA/INIT intake exceptions; use lattice validate and story_advance as normal and the gates enforce evidence.",
+  "expectedOutcome": "A repro-first-required story without accepted bound evidence is blocked or warned according to config before development, and TEST cannot reuse cached PASS validation unless command, coverage inputs, output, hashes, and worktree state are safe.",
+  "actualTranscript": "lattice validate --story=B-1731 --json passed all 31 configured commands at 2026-06-25T00:25:56.712Z; done_required_validate passed build and root npm test at 2026-06-25T00:28:05.380Z; Round 9 concept, quality, and test-coverage reviewers all passed.",
+  "outcomeDiff": "No difference: observed gate behavior and validation transcripts match the expected repro-first and validation-evidence safety outcomes.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Authority/fullAuthority/production receipts were not claimed; this is local framework readiness with full local validation and 3x2 review quorum.",
+  "pitfalls": "This story had repeated review findings and exposed a Lattice self-hosting gap: cached validation PASS evidence needed stricter binding to checklist inputs, parsed output, clean worktree state, and freshness warnings before TEST.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 1449518
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 24792696
+    },
+    "PLAN": {
+      "count": 3,
+      "durationMs": 396344
+    },
+    "DEV": {
+      "count": 11,
+      "durationMs": 4984880
+    },
+    "REVIEW": {
+      "count": 9,
+      "durationMs": 5047430
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 746933
+    }
+  },
+  "totalDurationMs": 37417822,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-25T00:34:23.817Z",
+  "updatedAt": "2026-06-25T00:34:23.817Z"
+}

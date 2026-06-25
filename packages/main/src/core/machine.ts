@@ -37,6 +37,10 @@ import {
   storedScopeFreezeDiscardMitigations,
   type ScopeFreezeChecklistProjection,
 } from './scope-anti-expansion.js';
+import {
+  evaluateStoryEvidenceBindingGate,
+  formatStoryEvidenceBindingGateFailure,
+} from './repro-evidence-binding-gate.js';
 
 /**
  * Resolve effective blocking severities with round decay.
@@ -470,6 +474,7 @@ export function canStartDevGuard(context: StoryMachineContext): boolean {
     const config = loadConfig(context.projectRoot);
     const story = context.store.readStory(context.storyId);
     const policy = resolveWorkflowPolicy(config, story);
+    if (evaluateStoryEvidenceBindingGate(context.projectRoot, context.store, context.storyId).blocking) return false;
     // F-001: ONLY the review-record checks are gated on requireStoryReview. The parallel
     // sub-check below must run on EVERY door into DEV (it used to be skipped when review was
     // not required, which made the hard block bypassable). The early `return true` is gone.
@@ -496,6 +501,16 @@ export function canStartDevGuard(context: StoryMachineContext): boolean {
   }
 }
 
+export function canEnterPlanGuard(context: StoryMachineContext): boolean {
+  try {
+    const story = context.store.readStory(context.storyId);
+    if (story.phase !== 'IDEA') return true;
+    return !evaluateStoryEvidenceBindingGate(context.projectRoot, context.store, context.storyId).blocking;
+  } catch {
+    return false;
+  }
+}
+
 export function canSkipPlanGuard(context: StoryMachineContext): boolean {
   // Express channel: WorkflowPolicy decides whether skipping PLAN is allowed
   try {
@@ -506,6 +521,7 @@ export function canSkipPlanGuard(context: StoryMachineContext): boolean {
     if (!policy.quickPath.allowRiskSignals && story.riskSignals && story.riskSignals.length > 0) return false;
     const cl = context.store.readChecklist(context.storyId);
     if (cl.items.length > policy.quickPath.maxChecklistItems) return false;
+    if (evaluateStoryEvidenceBindingGate(context.projectRoot, context.store, context.storyId).blocking) return false;
     // F-003: the INIT_CHECK→DEV express channel is ALSO a door into DEV, so it must enforce the
     // SAME parallel hard-block (otherwise an express story bypasses the gate). Shared FAIL-OPEN
     // wrapper: a gate/config infra error must never strand the express channel.
@@ -676,7 +692,7 @@ export function canSendStoryEventWithoutSnapshotCan(
   const context: StoryMachineContext = { storyId, store, projectRoot, ...(gitCwd ? { gitCwd } : {}) };
   switch (currentState) {
     case 'IDEA':
-      return eventType === 'INIT' || eventType === 'PLAN';
+      return eventType === 'INIT' || (eventType === 'PLAN' && canEnterPlanGuard(context));
     case 'INIT':
       return eventType === 'INIT_CHECK' && canEnterInitCheckGuard(context);
     case 'INIT_CHECK':
@@ -718,6 +734,7 @@ export const storyMachine = setup({
     // The guard and getGuardFailureReason share the same decision logic: missing init-check.json → false;
     // _hash mismatch → false; pass → true. The failure reason is rendered as a human-readable message by getGuardFailureReason.
     canEnterInitCheck: ({ context }) => canEnterInitCheckGuard(context),
+    canEnterPlan: ({ context }) => canEnterPlanGuard(context),
     canStartDev: ({ context }) => canStartDevGuard(context),
     canSkipPlan: ({ context }) => canSkipPlanGuard(context),
     // F-006: REVIEW→DEV and TEST→DEV rollbacks are also doors into DEV — enforce the parallel block.
@@ -733,7 +750,7 @@ export const storyMachine = setup({
     IDEA: {
       on: {
         INIT: { target: 'INIT' },
-        PLAN: { target: 'PLAN' }, // legacy direct path
+        PLAN: { target: 'PLAN', guard: 'canEnterPlan' }, // legacy direct path
       },
     },
     INIT: {
@@ -875,6 +892,13 @@ export function getGuardFailureReason(
     return null;
   }
 
+  if (targetPhase === 'PLAN') {
+    const story = store.readStory(storyId);
+    if (story.phase !== 'IDEA') return null;
+    const reproGate = evaluateStoryEvidenceBindingGate(projectRoot ?? process.cwd(), store, storyId);
+    return formatStoryEvidenceBindingGateFailure('PLAN', storyId, reproGate);
+  }
+
   if (targetPhase === 'DEV') {
     // First check whether taking the express channel from INIT_CHECK
     const story = store.readStory(storyId);
@@ -916,6 +940,12 @@ export function getGuardFailureReason(
       }
       // No express-eligibility reasons => this story takes the express channel into DEV.
       tookExpressChannel = true;
+    }
+
+    if (!isRollbackDoor) {
+      const reproGate = evaluateStoryEvidenceBindingGate(projectRoot ?? process.cwd(), store, storyId);
+      const reproGateFailure = formatStoryEvidenceBindingGateFailure('DEV', storyId, reproGate);
+      if (reproGateFailure) return reproGateFailure;
     }
 
     // Normal PLAN → DEV path: requires story_review to pass (unless policy does not require it).

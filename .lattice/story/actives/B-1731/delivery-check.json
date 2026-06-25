@@ -1,0 +1,67 @@
+{
+  "storyId": "B-1731",
+  "checkedAt": "2026-06-25T01:25:03.809Z",
+  "headHash": "5b808444569cdaa460049efdc7100cf51aa3fb56",
+  "materialHash": "da9a004beb307eae7e09ed9067a3435bf97b7742a8566ee81b5bc05e231fab60",
+  "storyFilesHash": "41ab0bed0d6724ada3bb296eadf576ac3c6b0c230cb22a583b9341d0dc40905a",
+  "reviewRound": "2026-06-25T00:54:02.097Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "checklist:CHK-001:userSees",
+      "promise": "Classifier keeps documentation-only stories moving, while code/gate/proof stories are marked repro-first-required before lifecycle advance.",
+      "status": "verified",
+      "verifiedBy": "source+validation",
+      "evidence": "classifyReproFirstRequirement covers file_declarations, bug_story, high_risk_code_verifiable and bypass_eligible_no_files in packages/main/src/core/repro-evidence-binding-gate.ts; lifecycle_check reports 12/12 verification intent coverage at materialHash da9a004beb30."
+    },
+    {
+      "docPath": "checklist:CHK-002:userSees",
+      "promise": "When a code-touched story lacks accepted repro evidence, the terminal prints Cannot enter PLAN or Cannot enter DEV with missing_story_evidence_binding and the recovery command hint.",
+      "status": "verified",
+      "verifiedBy": "source+smoke",
+      "evidence": "formatStoryEvidenceBindingGateFailure emits Cannot enter PLAN/DEV with missing_story_evidence_binding; repro-evidence-binding-dev-gate-smoke covers missing/stale/valid PLAN and DEV gates and is included in current validation PASS."
+    },
+    {
+      "docPath": "checklist:CHK-003:userSees",
+      "promise": "The gate failure text distinguishes missing, invalid, stale, and non-code-bypass cases without claiming Authority or production evidence.",
+      "status": "verified",
+      "verifiedBy": "source+smoke",
+      "evidence": "evaluateStoryEvidenceBindingGate returns missing_story_evidence_binding, stale_story_evidence_binding, repro_first_bypassed, and repro_first_preflight_engine_error; process fact registry registers story_create_from_repro as STORY_INTAKE gate evidence only."
+    },
+    {
+      "docPath": "checklist:CHK-004:userSees",
+      "promise": "A maintainer can run node packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js and see the PLAN and DEV gate behavior pass.",
+      "status": "verified",
+      "verifiedBy": "validation evidence",
+      "evidence": "Latest validate PASS at 2026-06-25T01:18:34.388Z includes configured validate command 30 node packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js; checklist evidence binds the command to current materialHash da9a004beb30."
+    },
+    {
+      "docPath": "summary:B-1731",
+      "promise": "Cached validation PASS evidence is admissible only when command, output, verification coverage, hashes, and worktree state are safe.",
+      "status": "verified",
+      "verifiedBy": "source+validation-protocol-smoke",
+      "evidence": "runValidateGate checks validate command, stored allPass/allPassed output, verificationCoverage missingRequired and snapshot parity, head/material hash bindings, and blocking dirty paths; validation-protocol-smoke covers unsafe PASS reruns and current evidence records pass."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001/CHK-002/CHK-003/CHK-004:repro-first-binding",
+      "transcript": "Evidence reviewed: lifecycle_check DONE report lists 12/12 required verification intents covered and latest validate PASS materialHash=da9a004beb307eae7e09ed9067a3435bf97b7742a8566ee81b5bc05e231fab60. test_list shows configured validate command 30 ran node packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js and passed, covering story_create enforce/warn/off, story_create_from_repro binding, IDEA->PLAN, PLAN->DEV, INIT_CHECK->DEV express, bypass, malformed/stale bindings, and spike-review hardening."
+    },
+    {
+      "featureId": "CHK-004:validation-cached-pass-admissibility",
+      "transcript": "Evidence reviewed: CHK-004 gate-regression evidence records npm --prefix packages/main run build && node packages/main/dist/tasks/validation-protocol-smoke.js pass at current materialHash. Source scan of packages/main/src/handlers/phase-gates.ts confirms cached PASS skip requires the expected validate command, JSON output allPass/allPassed=true, verificationCoverage missingRequired=0, coverage snapshot parity with current checklist/evidence, headHash/materialHash bindings, and no blocking dirty worktree paths."
+    },
+    {
+      "featureId": "B-1731:review-test-done-required",
+      "transcript": "Read-only lifecycle_check reports Round 11 has 3 valid reviewer evidence records, no open blocking findings, TEST validation PASS at 2026-06-25T01:18:34.388Z with materialHash da9a004beb307eae7e09ed9067a3435bf97b7742a8566ee81b5bc05e231fab60, verification intent coverage 12/12, evidence freshness pass, and DONE-required validation PASS at 2026-06-25T01:20:46.431Z for 2 required commands."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "provenance=lattice-review-delivery. Delivery promises are backed by current source inspection, current TEST validation evidence, DONE-required validation evidence, Round 11 reviewer evidence, and focused smoke coverage. Separate review escalation and review assurance floor rows may still block DONE but are outside this delivery-check promise signature."
+  },
+  "_hash": "f51ecfcbe92c2ef4ba9d6e658530f9873f401a11adf7c835f33f7f1629dfa25e"
+}

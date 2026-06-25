@@ -1,0 +1,58 @@
+{
+  "principles": [
+    "Lifecycle gates must be enforced by code, not by documentation memory.",
+    "Only code-verifiable stories should require Repro-First binding; non-code stories must not be blocked accidentally.",
+    "Gate evidence must come from verifiable artifact digests and story bindings, not plain-text claims."
+  ],
+  "drivers": [
+    "The requested pro-story gate must become a hard lifecycle constraint.",
+    "Existing story-evidence-binding artifacts can represent repro/red-review-to-story binding.",
+    "B-1731 is a high-risk lifecycle gate story and needs small, mechanically verifiable steps."
+  ],
+  "options": [
+    {
+      "name": "A: Share a story-evidence-binding gate across IDEA-to-PLAN and DEV entry",
+      "pros": [
+        "Directly covers the requested pre-story lifecycle gate.",
+        "Reuses the existing artifact model with focused changes.",
+        "Can be proven with hermetic smoke coverage for block and allow behavior."
+      ],
+      "cons": [
+        "It is not a complete global story_create block by itself; intake can still create early-phase stories."
+      ]
+    },
+    {
+      "name": "B: Add a global enforce policy directly inside story_create immediately",
+      "pros": [
+        "It is the earliest possible interception point and can stop non-compliant code stories at creation time."
+      ],
+      "cons": [
+        "It has higher compatibility risk for bulk creation, experiment stories, and initialization paths without existing binding.",
+        "It requires config, bypass reason, and session_brief surfacing, which is broader than the first minimal lifecycle closure."
+      ]
+    }
+  ],
+  "chosen": "A: Share a story-evidence-binding gate across IDEA-to-PLAN and DEV entry",
+  "rationale": "Start by enforcing the requested pro-story lifecycle gate at the PLAN entry and rechecking the same rule at DEV entry. Keep global story_create enforcement as a later extension or separate story so one change does not alter both creation protocol and phase protocol at once.",
+  "preMortem": [
+    {
+      "scenario": "A non-code story is blocked by mistake",
+      "trigger": "The classifier uses only priority or type and ignores file declarations",
+      "consequence": "Documentation, research, or management stories cannot advance",
+      "mitigation": "Trigger the hard gate only for checklist files.modify/create/test, bug stories, or code-verifiable high-risk signals"
+    },
+    {
+      "scenario": "A stale or forged binding is accepted as red-test evidence",
+      "trigger": "The gate checks only artifact existence and skips digest, storyId, or review verdict validation",
+      "consequence": "The gate becomes formal safety theater instead of real evidence",
+      "mitigation": "Validate storyId, subjectBinding, probeDigest, reviewDigest, red-reviewed verdict, and target-bug class"
+    },
+    {
+      "scenario": "A rollback repair path is stranded",
+      "trigger": "REVIEW-to-DEV or TEST-to-DEV rollback requires a new repro binding",
+      "consequence": "A normal fix cannot return to DEV",
+      "mitigation": "Block first entry into PLAN/DEV and express DEV only; do not block rollback-to-DEV repair transitions"
+    }
+  ],
+  "timestamp": "2026-06-24T22:38:30.136Z"
+}

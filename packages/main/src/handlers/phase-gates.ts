@@ -32,7 +32,7 @@ import type { ChecklistData, StoryPhase, ReviewLoopIteration, ScopeCheckResult, 
 import { listActiveLoops, deriveLatestLoopRecord } from '../core/review-loop.js';
 import { getStateName, getGuardFailureReason } from '../core/machine.js';
 import { resolveLocalCodexVerifyCommand } from '../core/codex-adapter-checks.js';
-import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
+import { checkEvidenceFreshnessForGit, currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { reportHealthIssue } from '../core/health.js';
 import { loadAuthoritySettings } from '../core/authority-mode.js';
 import {
@@ -43,6 +43,13 @@ import { loadConfig } from '../core/config.js';
 import { resolveWorkflowPolicy } from '../core/workflow-policy.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { execSync } from 'child_process';
+import {
+  classifyGitStatusRows,
+  classifierOptionsForCheck,
+  isBlockingDirty,
+  readGitStatusLines,
+} from '../core/dirty-worktree-gate.js';
+import { buildVerificationCoverage } from '../core/verification.js';
 import {
   buildDoneChecklist,
   renderDoneChecklist,
@@ -496,6 +503,87 @@ export function runAuthorityReceiptTransitionGate(
   })}`;
 }
 
+function canonicalCoverageSnapshotFromReport(coverage: any): string | null {
+  if (!Array.isArray(coverage?.entries)) return null;
+  const rows = coverage.entries.map((entry: any) => ({
+    intentRef: String(entry?.intentRef ?? ''),
+    itemId: String(entry?.itemId ?? ''),
+    lane: String(entry?.lane ?? ''),
+    desc: String(entry?.desc ?? ''),
+    type: String(entry?.type ?? ''),
+    priority: String(entry?.priority ?? 'must'),
+    status: String(entry?.status ?? ''),
+    evidence: entry?.evidence ? {
+      kind: String(entry.evidence.kind ?? ''),
+      result: String(entry.evidence.result ?? ''),
+      command: String(entry.evidence.command ?? ''),
+      waiverType: String(entry.evidence.waiverType ?? ''),
+      verdict: String(entry.evidence.verdict ?? ''),
+    } : null,
+  }));
+  rows.sort((a: any, b: any) => a.intentRef.localeCompare(b.intentRef));
+  return JSON.stringify({
+    total: typeof coverage.total === 'number' ? coverage.total : null,
+    required: typeof coverage.required === 'number' ? coverage.required : null,
+    covered: typeof coverage.covered === 'number' ? coverage.covered : null,
+    missingRequired: typeof coverage.missingRequired === 'number' ? coverage.missingRequired : null,
+    entries: rows,
+  });
+}
+
+function currentChecklistCoverageSnapshot(ctx: HandlerContext, storyId: string): string {
+  const story = ctx.store.readStory(storyId);
+  const checklist = ctx.store.readChecklist(storyId);
+  const gitCwd = resolveGitCwd({ store: ctx.store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
+  const head = currentGitHead(gitCwd);
+  const policy = resolveWorkflowPolicy(loadConfig(ctx.root), story);
+  const coverage = buildVerificationCoverage(
+    checklist,
+    head,
+    (headHash, evidence) => checkEvidenceFreshnessForGit(
+      gitCwd,
+      headHash,
+      evidence?.materialHash,
+      ctx.root,
+      evidence?.storyFilesHash,
+    ).fresh,
+    { deferredGateEvidence: 'missing', evidenceQualityProfile: policy.profile },
+  );
+  return canonicalCoverageSnapshotFromReport(coverage) ?? JSON.stringify({ entries: [] });
+}
+
+function coverageInputsMatchCurrentChecklist(ctx: HandlerContext, storyId: string, coverage: any): { ok: boolean; reason?: string } {
+  const recorded = canonicalCoverageSnapshotFromReport(coverage);
+  if (!recorded) return { ok: false, reason: 'existing validation PASS verificationCoverage has no entries snapshot' };
+  const current = currentChecklistCoverageSnapshot(ctx, storyId);
+  if (recorded !== current) {
+    return { ok: false, reason: 'existing validation PASS verificationCoverage does not match current checklist verificationIntent inputs or current verificationEvidence records' };
+  }
+  return { ok: true };
+}
+
+function storedValidateOutputIsPassing(output: string): { ok: boolean; reason?: string } {
+  try {
+    const parsed = JSON.parse(output);
+    if (parsed?.allPass === true || parsed?.allPassed === true) return { ok: true };
+    return { ok: false, reason: 'existing validation PASS output is not allPass/allPassed=true' };
+  } catch {
+    return { ok: false, reason: 'existing validation PASS output is not valid JSON' };
+  }
+}
+
+function blockingDirtyWorktreeReason(ctx: HandlerContext, storyId: string, gitCwd: string): string {
+  const status = readGitStatusLines(gitCwd);
+  if (!status.ok) return `unable to read git status for validation evidence skip (${status.error})`;
+  const config = loadConfig(ctx.root);
+  const classification = classifyGitStatusRows(status.lines, classifierOptionsForCheck(config, storyId, ctx.store, ctx.root));
+  const blocked = isBlockingDirty(classification);
+  if (!blocked.blocked) return '';
+  const sample = blocked.blockingPaths.slice(0, 5).join(', ');
+  const suffix = blocked.blockingPaths.length > 5 ? ', ...' : '';
+  return `current worktree has blocking dirty path(s): ${sample}${suffix}`;
+}
+
 /**
  * DEV→TEST lattice validate gate.
  *
@@ -526,7 +614,61 @@ export async function runValidateGate(
   _actor: { stop(): void },
 ): Promise<void> {
   const { store } = ctx;
-  ctx.log?.('DEV→TEST gate: running lattice validate --json...');
+  const existingEvidence = store.readTestEvidence(storyId);
+  const validateCommand = `lattice validate --story=${storyId} --json`;
+  let rerunReason = '';
+  if (existingEvidence?.result === 'PASS') {
+    const coverage = existingEvidence.verificationCoverage;
+    if (existingEvidence.command !== validateCommand) {
+      rerunReason = `existing validation PASS command is not ${validateCommand}`;
+    } else {
+      const outputPass = storedValidateOutputIsPassing(existingEvidence.output);
+      if (!outputPass.ok) {
+        rerunReason = outputPass.reason || 'existing validation PASS output is not passing';
+      }
+    }
+    if (!rerunReason) {
+      if (!coverage) {
+        rerunReason = 'existing validation PASS is missing verificationCoverage from lattice validate';
+      } else if (typeof coverage.missingRequired !== 'number') {
+        rerunReason = 'existing validation PASS verificationCoverage is missing missingRequired';
+      } else if (coverage.missingRequired !== 0) {
+        rerunReason = `existing validation PASS has ${coverage.missingRequired} required verification coverage gap(s)`;
+      } else {
+        const coverageInputMatch = coverageInputsMatchCurrentChecklist(ctx, storyId, coverage);
+        if (!coverageInputMatch.ok) {
+          rerunReason = coverageInputMatch.reason || 'existing validation PASS verificationCoverage is stale';
+        }
+      }
+    }
+    if (!rerunReason && existingEvidence.headHash && existingEvidence.materialHash) {
+      const evidenceGitCwd = resolveGitCwd({ store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
+      const dirtyReason = blockingDirtyWorktreeReason(ctx, storyId, evidenceGitCwd);
+      if (dirtyReason) {
+        rerunReason = dirtyReason;
+      } else {
+        const freshness = checkEvidenceFreshnessForGit(
+          evidenceGitCwd,
+          existingEvidence.headHash,
+          existingEvidence.materialHash,
+          ctx.root,
+          existingEvidence.storyFilesHash,
+        );
+        if (freshness.fresh) {
+          const warningSuffix = freshness.warnings?.length ? ` (${freshness.warnings.join('; ')})` : '';
+          ctx.log?.(`DEV→TEST gate: existing validation PASS is fresh${warningSuffix}; skipping lattice validate rerun.`);
+          return;
+        }
+        rerunReason = `existing validation PASS is stale (${freshness.reason})`;
+      }
+    } else if (!rerunReason) {
+      rerunReason = 'existing validation PASS is missing headHash/materialHash freshness bindings';
+    }
+  }
+
+  ctx.log?.(rerunReason
+    ? `DEV→TEST gate: ${rerunReason}; running lattice validate --json...`
+    : 'DEV→TEST gate: running lattice validate --json...');
   try {
     const { createVerifierHandlers } = await import('./verifier.js');
     const verifierHandlers = createVerifierHandlers(ctx);
@@ -554,7 +696,7 @@ export async function runValidateGate(
     const evidenceMaterialHash = currentMaterialHash(evidenceGitCwd, 'HEAD', ctx.root);
     const evidenceStoryFilesHash = currentStoryFilesHash(evidenceGitCwd, 'HEAD', ctx.root);
     store.writeTestEvidence(storyId, {
-      command: `lattice validate --story=${storyId} --json`,
+      command: validateCommand,
       output: String(jsonResult),
       result: parsed.allPass ? 'PASS' : 'FAIL',
       timestamp: new Date().toISOString(),
@@ -595,7 +737,7 @@ export async function runValidateGate(
     const message = e instanceof Error ? e.message : String(e);
     try {
       store.writeTestEvidence(storyId, {
-        command: `lattice validate --story=${storyId} --json`,
+        command: validateCommand,
         output: `validate execution error: ${message}`,
         result: 'FAIL',
         timestamp: new Date().toISOString(),

@@ -4,33 +4,378 @@
       "id": "CHK-001",
       "title": "Task classifier: repro-first-required vs bypass-eligible from type/priority/riskSignals (conservative, warn-on-uncertain)",
       "context": "New classifier (e.g. in a core helper) deciding repro-first-required (type=bug OR high-risk riskSignal class OR code-verifiable runtime/CLI/gate behavior change) vs bypass-eligible (doc/metadata/registry-only chore, explicit quick-fix flag, low-confidence). Conservative: ambiguous doc/chore -> bypass-eligible; uncertain high-risk -> warn (never block). Pure function over the story-create inputs already available (type, priority, riskSignals, title, description, keywords).",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-24T21:39:40.400Z",
+      "endTime": "2026-06-24T21:59:34.722Z",
+      "relatedDocs": [
+        "docs/requirements/decisions/repro-first-story-intake-experiment.md",
+        "docs/evidence/evidence-platform-architecture.md"
+      ],
+      "userSees": "Classifier keeps documentation-only stories moving, while code/gate/proof stories are marked repro-first-required before lifecycle advance.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/repro-evidence-binding-gate.ts",
+          "packages/main/src/handlers/story-create.ts",
+          "packages/main/src/cli/command-catalog.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A checklist that declares code file changes is treated as requiring repro-first binding before PLAN/DEV.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A checklist with no files.modify/create/test remains bypass-eligible and is not blocked by repro-first gate.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A code-touched story cannot bypass by providing a malformed or stale story-evidence-binding.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js",
+          "result": "pass",
+          "note": "Smoke ok 1/4/9 proves file-declaring stories are classified repro-first-required and blocked without binding under enforce mode.",
+          "headHash": "1ec2b94ce374713777e0cfc6227f3f8f59f7970c",
+          "materialHash": "da9a004beb307eae7e09ed9067a3435bf97b7742a8566ee81b5bc05e231fab60",
+          "storyFilesHash": "41ab0bed0d6724ada3bb296eadf576ac3c6b0c230cb22a583b9341d0dc40905a",
+          "timestamp": "2026-06-25T00:51:55.520Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js",
+          "result": "pass",
+          "note": "Smoke ok 3 proves no-file checklist stories remain bypass-eligible and get no PLAN guard failure.",
+          "headHash": "1ec2b94ce374713777e0cfc6227f3f8f59f7970c",
+          "materialHash": "da9a004beb307eae7e09ed9067a3435bf97b7742a8566ee81b5bc05e231fab60",
+          "storyFilesHash": "41ab0bed0d6724ada3bb296eadf576ac3c6b0c230cb22a583b9341d0dc40905a",
+          "timestamp": "2026-06-25T00:51:55.520Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js",
+          "result": "pass",
+          "note": "Smoke ok 8 and ok 11 prove unaccepted-review and stale-digest bindings are rejected instead of trusted as bypass metadata.",
+          "headHash": "1ec2b94ce374713777e0cfc6227f3f8f59f7970c",
+          "materialHash": "da9a004beb307eae7e09ed9067a3435bf97b7742a8566ee81b5bc05e231fab60",
+          "storyFilesHash": "41ab0bed0d6724ada3bb296eadf576ac3c6b0c230cb22a583b9341d0dc40905a",
+          "timestamp": "2026-06-25T00:51:55.520Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "STORY_INTAKE preflight in story-create.ts + story_create_from_repro: query proof-admissibility for a bound accepted repro/spike evidence-candidate; warn/block; fail-OPEN; bypass-with-reason",
       "context": "Add the preflight to packages/main/src/handlers/story-create.ts (and ensure story_create_from_repro passes because it binds the candidate). REUSE proof-admissibility (STORY_INTAKE consumer, evidence-candidate scope). Satisfied = a bound reviewer-accepted candidate: repro path (repro-probe + repro-review reviewedFailureClass=target-bug) OR spike path (spike-record + spike-review). Required+missing -> warn (block under enforce) with exact next command. Wrap the whole preflight in fail-OPEN try/catch (engine error -> allow + repro_first_preflight_engine_error diagnostic). Bypass (bypassReproFirst.reason) always honored, writes a repro-first-bypass local-diagnostic artifact.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-24T21:59:47.334Z",
+      "relatedDocs": [
+        "docs/requirements/decisions/repro-first-story-intake-experiment.md",
+        "docs/evidence/proof-surface-inventory.md"
+      ],
+      "userSees": "When a code-touched story lacks accepted repro evidence, the terminal prints Cannot enter PLAN or Cannot enter DEV with missing_story_evidence_binding and the recovery command hint.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/repro-evidence-binding-gate.ts",
+          "packages/main/src/core/repro-intake.ts",
+          "packages/main/src/core/evidence/types.ts",
+          "packages/main/src/handlers/story-create.ts",
+          "packages/main/src/handlers/repro-intake.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "PLAN→DEV and INIT_CHECK→DEV express are allowed when a valid story-evidence-binding references a red-reviewed target-bug repro.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "IDEA→PLAN is blocked for file-touched stories with no binding and surfaces a precise missing_story_evidence_binding reason.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Bindings with stale probe/review digests or mismatched story identity are rejected before PLAN/DEV entry.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js",
+          "result": "pass",
+          "note": "Smoke ok 2, ok 10, and ok 13 prove valid story-evidence-binding allows IDEA→PLAN, PLAN→DEV, and INIT_CHECK→DEV express.",
+          "headHash": "1ec2b94ce374713777e0cfc6227f3f8f59f7970c",
+          "materialHash": "da9a004beb307eae7e09ed9067a3435bf97b7742a8566ee81b5bc05e231fab60",
+          "storyFilesHash": "41ab0bed0d6724ada3bb296eadf576ac3c6b0c230cb22a583b9341d0dc40905a",
+          "timestamp": "2026-06-25T00:51:55.520Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js",
+          "result": "pass",
+          "note": "Smoke ok 1 and ok 9 prove file-touched stories without binding surface missing_story_evidence_binding before PLAN/DEV.",
+          "headHash": "1ec2b94ce374713777e0cfc6227f3f8f59f7970c",
+          "materialHash": "da9a004beb307eae7e09ed9067a3435bf97b7742a8566ee81b5bc05e231fab60",
+          "storyFilesHash": "41ab0bed0d6724ada3bb296eadf576ac3c6b0c230cb22a583b9341d0dc40905a",
+          "timestamp": "2026-06-25T00:51:55.520Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js",
+          "result": "pass",
+          "note": "Smoke ok 8 and ok 11 prove stale digests, unaccepted reviews, and non-target-bug classifications are rejected before PLAN/DEV entry.",
+          "headHash": "1ec2b94ce374713777e0cfc6227f3f8f59f7970c",
+          "materialHash": "da9a004beb307eae7e09ed9067a3435bf97b7742a8566ee81b5bc05e231fab60",
+          "storyFilesHash": "41ab0bed0d6724ada3bb296eadf576ac3c6b0c230cb22a583b9341d0dc40905a",
+          "timestamp": "2026-06-25T00:51:55.520Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/repro-first-candidate-smoke.js",
+          "result": "pass",
+          "note": "Existing candidate workflow still creates story-evidence-binding without verificationEvidence after createStoryFromRepro changes.",
+          "headHash": "171d54b0018d15a398c85429fbf2e4143ce0fdd2",
+          "materialHash": "ce6a2003a743a29f21740a4b39561fbf8f67a1ad065827ffe7d0d90e39df080e",
+          "storyFilesHash": "532eba9adeead064f0076b0d39e942aba714756d6214dafd7eec4fbaf23776d2",
+          "timestamp": "2026-06-24T21:59:48.441Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
       "title": "Config reproFirstPreflight.mode=off|warn|enforce (warn default) + reason codes + process fact + session_brief surfacing",
       "context": "Resolve reproFirstPreflight.mode (off|warn|enforce, default warn) mirroring proofAdmissibility.mode. Add reason codes repro_first_required_no_candidate, repro_first_candidate_unreviewed, repro_first_reviewed_class_not_target_bug, repro_first_bypassed, repro_first_preflight_engine_error. Register process fact runtime:repro_first_intake_preflight (STORY_INTAKE consumer), synchronized with the admissibility/process-fact verification script. session_brief shows per active story: reproFirst: bound-accepted | bypassed(reason) | missing.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-24T22:00:13.587Z",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+        "docs/evidence/evidence-platform-architecture.md"
+      ],
+      "userSees": "The gate failure text distinguishes missing, invalid, stale, and non-code-bypass cases without claiming Authority or production evidence.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/session.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Failure reasons include missing_story_evidence_binding and stale_story_evidence_binding for the corresponding gate outcomes.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "No-file checklist stories return null guard failure reason and continue normally.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The gate validates artifact digests and accepted repro review semantics instead of trusting local prose or arbitrary metadata.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js",
+          "result": "pass",
+          "note": "Smoke ok 1/9/11 proves missing_story_evidence_binding and stale_story_evidence_binding are emitted for missing and stale gate outcomes.",
+          "headHash": "1ec2b94ce374713777e0cfc6227f3f8f59f7970c",
+          "materialHash": "da9a004beb307eae7e09ed9067a3435bf97b7742a8566ee81b5bc05e231fab60",
+          "storyFilesHash": "41ab0bed0d6724ada3bb296eadf576ac3c6b0c230cb22a583b9341d0dc40905a",
+          "timestamp": "2026-06-25T00:51:55.520Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js",
+          "result": "pass",
+          "note": "Smoke ok 3 proves no-file checklist stories return null guard failure reason and continue normally.",
+          "headHash": "1ec2b94ce374713777e0cfc6227f3f8f59f7970c",
+          "materialHash": "da9a004beb307eae7e09ed9067a3435bf97b7742a8566ee81b5bc05e231fab60",
+          "storyFilesHash": "41ab0bed0d6724ada3bb296eadf576ac3c6b0c230cb22a583b9341d0dc40905a",
+          "timestamp": "2026-06-25T00:51:55.520Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js",
+          "result": "pass",
+          "note": "Smoke ok 8 proves gate checks artifact digests plus repro review verdict/class semantics instead of trusting arbitrary local metadata.",
+          "headHash": "1ec2b94ce374713777e0cfc6227f3f8f59f7970c",
+          "materialHash": "da9a004beb307eae7e09ed9067a3435bf97b7742a8566ee81b5bc05e231fab60",
+          "storyFilesHash": "41ab0bed0d6724ada3bb296eadf576ac3c6b0c230cb22a583b9341d0dc40905a",
+          "timestamp": "2026-06-25T00:51:55.520Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Process fact contract verified runtime:repro_first_story_intake_preflight and story-evidence-binding artifact registration.",
+          "headHash": "b12d2312a8861ae5eec490bc7d947722a7544fef",
+          "materialHash": "ce6a2003a743a29f21740a4b39561fbf8f67a1ad065827ffe7d0d90e39df080e",
+          "storyFilesHash": "532eba9adeead064f0076b0d39e942aba714756d6214dafd7eec4fbaf23776d2",
+          "timestamp": "2026-06-24T22:00:14.803Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
       "title": "Hermetic smoke covering the verification matrix; register",
       "context": "check+counter smoke (explicit literals) covering: type=bug no candidate -> warn (mode=warn) and block (mode=enforce) with next command; story_create_from_repro with accepted target-bug repro-review -> pass; candidate present but repro-review missing -> repro_first_candidate_unreviewed; reviewer class bootstrap-noise -> repro_first_reviewed_class_not_target_bug; spike path accepted -> pass; doc-only chore -> allow; bypassReproFirst.reason -> allow + repro-first-bypass artifact + session_brief; classifier throws -> allow + repro_first_preflight_engine_error (fail-open); mode=off -> allow always. Register the smoke in the validate command set / package test script.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-24T22:00:37.290Z",
+      "endTime": "2026-06-24T22:02:11.856Z",
+      "relatedDocs": [
+        "docs/requirements/decisions/repro-first-story-intake-experiment.md"
+      ],
+      "userSees": "A maintainer can run node packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js and see 18 assertions pass for PLAN and DEV gate behavior.",
+      "files": {
+        "modify": [
+          "lattice.config.json",
+          "package.json",
+          "packages/main/package.json"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Smoke covers valid story-evidence-binding allowing IDEA→PLAN, PLAN→DEV, and INIT_CHECK→DEV express.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Smoke covers no-file checklist stories bypassing repro-first gate at PLAN and DEV.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Smoke covers missing and stale bindings blocking PLAN/DEV and surfacing reason codes.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js",
+          "result": "pass",
+          "note": "Build passed and repro-evidence-binding smoke passed 13 assertions covering story_create enforce/warn/off, story_create_from_repro binding, IDEA->PLAN, PLAN->DEV, and INIT_CHECK->DEV express gates.",
+          "headHash": "1ec2b94ce374713777e0cfc6227f3f8f59f7970c",
+          "materialHash": "da9a004beb307eae7e09ed9067a3435bf97b7742a8566ee81b5bc05e231fab60",
+          "storyFilesHash": "41ab0bed0d6724ada3bb296eadf576ac3c6b0c230cb22a583b9341d0dc40905a",
+          "timestamp": "2026-06-25T00:51:55.520Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/repro-first-candidate-smoke.js && node packages/main/dist/tasks/proof-admissibility-smoke.js && node packages/main/dist/tasks/proof-admissibility-hardening-smoke.js",
+          "result": "pass",
+          "note": "Candidate artifact and proof-admissibility smokes passed, proving repro-first artifacts remain evidence-candidate/non-DONE scoped and continue to interoperate with admissibility checks.",
+          "headHash": "1ec2b94ce374713777e0cfc6227f3f8f59f7970c",
+          "materialHash": "da9a004beb307eae7e09ed9067a3435bf97b7742a8566ee81b5bc05e231fab60",
+          "storyFilesHash": "41ab0bed0d6724ada3bb296eadf576ac3c6b0c230cb22a583b9341d0dc40905a",
+          "timestamp": "2026-06-25T00:51:55.520Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Process fact contract verified after registering the repro-first STORY_INTAKE preflight fact and command policy mappings.",
+          "headHash": "1ec2b94ce374713777e0cfc6227f3f8f59f7970c",
+          "materialHash": "da9a004beb307eae7e09ed9067a3435bf97b7742a8566ee81b5bc05e231fab60",
+          "storyFilesHash": "41ab0bed0d6724ada3bb296eadf576ac3c6b0c230cb22a583b9341d0dc40905a",
+          "timestamp": "2026-06-25T00:51:55.520Z"
+        },
+        {
+          "intentRef": "CHK-004:gate-regression:validation-protocol",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/validation-protocol-smoke.js",
+          "result": "pass",
+          "note": "Current HEAD re-ran build plus validation-protocol smoke after strengthening cached PASS coverage snapshots. Smoke covers metadata-only verificationEvidence removal/weakening reruns validate, plus command/output/coverage/hash/dirty/stale safety branches.",
+          "headHash": "43a2bb65fcb50a0b2872df9b8f474e61e2ab4576",
+          "materialHash": "da9a004beb307eae7e09ed9067a3435bf97b7742a8566ee81b5bc05e231fab60",
+          "storyFilesHash": "41ab0bed0d6724ada3bb296eadf576ac3c6b0c230cb22a583b9341d0dc40905a",
+          "timestamp": "2026-06-25T00:52:03.301Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-24T22:00:37.290Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Finish smoke registration and verification matrix coverage."
     }
   ]
 }
