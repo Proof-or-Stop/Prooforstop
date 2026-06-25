@@ -75,16 +75,21 @@ assert.equal(
 
 assert.equal(
   LIFECYCLE_CONTROL_MIGRATION_MILESTONES.length,
-  5,
-  'lifecycle-control migration must remain a five-milestone structural plan',
+  6,
+  'lifecycle-control migration must remain a six-milestone structural plan',
 );
 assert.equal(
-  LIFECYCLE_CONTROL_MIGRATION_MILESTONES[4]?.subtracks?.map(track => track.id).join(','),
+  LIFECYCLE_CONTROL_MIGRATION_MILESTONES.map((milestone) => milestone.id).join(','),
+  'CP-0,CP-1,CP-2,CP-3,CP-4,CP-5',
+  'milestones must be CP-0 inventory through CP-5',
+);
+assert.equal(
+  LIFECYCLE_CONTROL_MIGRATION_MILESTONES[5]?.subtracks?.map(track => track.id).join(','),
   'CP-5A,CP-5B',
   'CP-5 must keep runtime enforcement and queue governance split',
 );
 assert.equal(
-  LIFECYCLE_CONTROL_MIGRATION_MILESTONES[4]?.subtracks?.[0]?.title,
+  LIFECYCLE_CONTROL_MIGRATION_MILESTONES[5]?.subtracks?.[0]?.title,
   'Runtime Enforcement track',
   'CP-5A must be runtime enforcement, not Proof M7 or Authority ownership',
 );
@@ -117,6 +122,21 @@ assert.equal(lifecycleQueue.isReadOnlyControlPlane, isReadOnlyControlPlane);
 const storyStatus: StoryControlStatus = {
   storyId: 'B-88ae',
   phase: 'DEV',
+  runtime: {
+    status: 'green',
+    reason: 'legacy compatibility projection',
+    source: 'legacy-projection',
+  },
+  consumption: {
+    status: 'green',
+    reason: 'legacy compatibility projection',
+    source: 'legacy-projection',
+  },
+  readiness: {
+    status: 'green',
+    reason: 'legacy compatibility projection',
+    source: 'legacy-projection',
+  },
   capabilities: DEFAULT_CONTROL_PLANE_CAPABILITIES,
   lanes: [
     {
@@ -128,6 +148,11 @@ const storyStatus: StoryControlStatus = {
   queue: {
     classification: 'none',
   },
+  compatibilityProjection: {
+    source: 'legacy-story-state',
+    projectedAt: '2026-06-25T00:00:00.000Z',
+    section: 'legacy-control-lane',
+  },
   cp2Projection: {
     source: 'legacy-story-state',
     projectionKind: 'consumption-closure',
@@ -135,6 +160,24 @@ const storyStatus: StoryControlStatus = {
 };
 
 const projectStatus: ProjectControlStatus = {
+  runtime: {
+    status: 'green',
+    reason: 'legacy compatibility projection',
+    source: 'legacy-projection',
+  },
+  consumption: {
+    status: 'green',
+    reason: 'legacy compatibility projection',
+    source: 'legacy-projection',
+  },
+  readiness: {
+    status: 'green',
+    reason: 'legacy compatibility projection',
+    source: 'legacy-projection',
+  },
+  queueSummary: {
+    classification: 'none',
+  },
   capabilities: DEFAULT_CONTROL_PLANE_CAPABILITIES,
   stories: [storyStatus],
   lanes: storyStatus.lanes,
@@ -149,8 +192,16 @@ const helperStoryStatus = buildStoryControlStatus({
 });
 assert.equal(helperStoryStatus.cp2Projection?.projectionKind, 'consumption-closure');
 assert.equal(isReadOnlyControlPlane(helperStoryStatus.capabilities), true);
+assert.equal(helperStoryStatus.runtime.status, 'unknown', 'runtime section defaults to unknown projection state');
+assert.equal(helperStoryStatus.consumption.status, 'unknown', 'consumption section defaults to unknown projection state');
+assert.equal(helperStoryStatus.readiness.status, 'unknown', 'readiness section defaults to unknown projection state');
+assert.ok(helperStoryStatus.compatibilityProjection?.projectedAt, 'compatibility projection preserves compatibility metadata');
 
 const helperProjectStatus = buildProjectControlStatus({ stories: [helperStoryStatus] });
 assert.equal(helperProjectStatus.stories[0], helperStoryStatus);
+assert.equal(helperProjectStatus.runtime.status, 'unknown', 'project runtime default is unknown');
+assert.equal(helperProjectStatus.consumption.status, 'unknown', 'project consumption default is unknown');
+assert.equal(helperProjectStatus.readiness.status, 'unknown', 'project readiness default is unknown');
+assert.equal(helperProjectStatus.queueSummary.classification, 'none', 'project queue summary defaults to none');
 
 console.log('source-structure convergence smoke passed');
