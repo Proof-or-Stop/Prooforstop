@@ -1,0 +1,26 @@
+{
+  "storyId": "B-fc0f",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/tasks/cli-json-stdout-contract-smoke.ts",
+    "packages/main/src/tasks/field-regression-cli-smoke.ts",
+    "packages/main/src/handlers/verdict.ts",
+    "packages/main/src/tasks/english-open-source-surface-smoke.ts",
+    "packages/main/src/tasks/prompt-token-cost-smoke.ts",
+    "packages/main/src/tasks/global-agents-init-smoke.ts",
+    "packages/main/src/handlers/done-prepare.ts",
+    "packages/main/src/core/review-assurance-floor.ts",
+    "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/cli-json-stdout-contract-smoke.ts",
+    "packages/main/src/core/review-assurance-floor.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-25T04:53:41.728Z",
+  "updatedAt": "2026-06-25T04:53:41.728Z"
+}

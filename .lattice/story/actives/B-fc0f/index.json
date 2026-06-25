@@ -4,7 +4,7 @@
   "title": "Fix slow/flaky validate-battery smokes + silent floor-verdict ignore (workflow friction found during B-b837)",
   "description": "B-b837's ~2.5h lifecycle was dominated by repeated time loss, not feature work. This story parks the root-cause bugs (a hanging smoke re-run in every validate pass, stale test fixtures, and a silent floor-verdict ignore) for another host to fix. Each item records what fixing it could break.",
   "type": "bug",
-  "phase": "PLAN",
+  "phase": "DEV",
   "priority": "high",
   "keywords": [
     "smoke-timeout",
@@ -54,6 +54,15 @@
       "phase": "PLAN",
       "action": "advance",
       "timestamp": "2026-06-25T04:45:10.063Z",
+      "branch": "story/B-fc0f",
+      "user": "Harmonygo",
+      "sessionId": "sess-8bb31f3823debd17",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-25T04:53:39.746Z",
       "branch": "story/B-fc0f",
       "user": "Harmonygo",
       "sessionId": "sess-8bb31f3823debd17",

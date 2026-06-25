@@ -329,6 +329,52 @@
         }
       ],
       "_hash": "8cd0325b059de9ff6c8dafa837fe3dbe8259f47184166752aacb1bdf70614eb3"
+    },
+    {
+      "timestamp": "2026-06-25T04:53:20.659Z",
+      "issueCount": 3,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 checklist items; please check for missing combined scenarios (e.g., what happens when Diagnose and fix the cli-json-stdout-contract-smoke hang (killed at the 300s ceiling) + Fix field-regression-cli-smoke stale background-section headers are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 3 high-risk signal(s): Security/Credentials, Validation Framework, Production/Emergency. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run lattice story_review_dismiss '{\"storyId\":\"B-fc0f\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-fc0f is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "b638a6a012e1f7088515cb0c3186746063924f5b5de4b2f3780811ac7f80a7b8"
+    },
+    {
+      "timestamp": "2026-06-25T04:53:37.591Z",
+      "issueCount": 3,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 checklist items; please check for missing combined scenarios (e.g., what happens when Diagnose and fix the cli-json-stdout-contract-smoke hang (killed at the 300s ceiling) + Fix field-regression-cli-smoke stale background-section headers are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 3 high-risk signal(s): Security/Credentials, Validation Framework, Production/Emergency. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run lattice story_review_dismiss '{\"storyId\":\"B-fc0f\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-fc0f is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "7fedf7704b0d08adb696848f058d87b374db2fc94a0adc148cb487a6b42ed2b6"
     }
   ]
 }
