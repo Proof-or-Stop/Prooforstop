@@ -224,6 +224,15 @@
       "reviewRound": "2026-06-25T00:10:57.735Z",
       "reviewRunId": "B-1731:RR-042",
       "_hash": "655cbd5c303da5c9febb4f415cadf0eadae17ac9ee9b7b116a6ce1f8f994f46c"
+    },
+    {
+      "id": "B-1731:RP-026",
+      "agent": "lattice-review-quality",
+      "note": "Round 11 quality review: verified Round 10 cached-validation blocker fix. phase-gates compares stored validation PASS verificationCoverage against current buildVerificationCoverage snapshot including status and key verificationEvidence fields, so evidence removal/downgrade/status changes rerun validate. Build and validation-protocol smoke pass; smoke covers fresh skip, warning skip, unsafe coverage/input/output/hash/dirty branches, and evidence removal rerun without stale PASS reuse.",
+      "createdAt": "2026-06-25T00:58:44.789Z",
+      "reviewRound": "2026-06-25T00:54:02.097Z",
+      "reviewRunId": "B-1731:RR-044",
+      "_hash": "a0b4fb006604c6c56ec55b96f97d11bbcd5ae2d509b2c80b6a61fd9247723080"
     }
   ]
 }
