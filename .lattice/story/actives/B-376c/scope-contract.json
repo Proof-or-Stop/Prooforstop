@@ -7,7 +7,8 @@
     "packages/main/tests/tasks/source-structure-convergence-smoke.ts",
     "docs/evidence/evidence-platform-architecture.md",
     "packages/main/src/core/lifecycle-control/global-control-service.ts",
-    "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md"
+    "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+    "packages/main/src/tasks/source-structure-convergence-smoke.ts"
   ],
   "allowedCreate": [],
   "allowedTest": [
@@ -15,8 +16,8 @@
   ],
   "protectedFiles": [],
   "explicitExcludes": [],
-  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "scopeChangeReason": "Extend allowedModify for source-structure convergence smoke fixture test moved to tasks path to keep lifecycle-control migration test executable.",
   "acknowledgements": [],
   "createdAt": "2026-06-25T04:50:30.847Z",
-  "updatedAt": "2026-06-25T04:50:30.847Z"
+  "updatedAt": "2026-06-25T04:54:08.148Z"
 }
