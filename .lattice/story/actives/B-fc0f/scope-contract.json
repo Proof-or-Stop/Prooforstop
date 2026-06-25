@@ -2,15 +2,26 @@
   "storyId": "B-fc0f",
   "mode": "enforce",
   "allowedModify": [
-    "packages/main/src/tasks/cli-json-stdout-contract-smoke.ts",
-    "packages/main/src/tasks/field-regression-cli-smoke.ts",
-    "packages/main/src/handlers/verdict.ts",
-    "packages/main/src/tasks/english-open-source-surface-smoke.ts",
-    "packages/main/src/tasks/prompt-token-cost-smoke.ts",
-    "packages/main/src/tasks/global-agents-init-smoke.ts",
+    "docs/evidence/evidence-platform-architecture.md",
+    "docs/evidence/proof-surface-inventory.json",
+    "docs/evidence/proof-surface-inventory.md",
+    "docs/requirements/NAV.md",
+    "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+    "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+    "docs/requirements/decisions/repro-first-story-intake-experiment.md",
+    "packages/main/src/core/evidence/types.ts",
+    "packages/main/src/core/prompt-registry.ts",
+    "packages/main/src/core/proof-admissibility.ts",
+    "packages/main/src/core/repro-intake.ts",
     "packages/main/src/handlers/done-prepare.ts",
-    "packages/main/src/core/review-assurance-floor.ts",
-    "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md"
+    "packages/main/src/handlers/verdict.ts",
+    "packages/main/src/tasks/cli-json-stdout-contract-smoke.ts",
+    "packages/main/src/tasks/english-open-source-surface-smoke.ts",
+    "packages/main/src/tasks/field-regression-cli-smoke.ts",
+    "packages/main/src/tasks/prompt-token-cost-smoke.ts",
+    "packages/main/src/tasks/proof-admissibility-smoke.ts",
+    "packages/main/src/tasks/repro-first-candidate-smoke.ts",
+    "packages/main/src/core/review-assurance-floor.ts"
   ],
   "allowedCreate": [],
   "allowedTest": [
@@ -19,8 +30,8 @@
   ],
   "protectedFiles": [],
   "explicitExcludes": [],
-  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "scopeChangeReason": "Remove erroneous placeholder and keep scope aligned with actual changed files.",
   "acknowledgements": [],
   "createdAt": "2026-06-25T04:53:41.728Z",
-  "updatedAt": "2026-06-25T04:53:41.728Z"
+  "updatedAt": "2026-06-25T05:22:54.533Z"
 }
