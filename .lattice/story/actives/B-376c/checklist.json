@@ -99,31 +99,36 @@
       "status": "in_progress",
       "startTime": "2026-06-25T04:47:58.808Z",
       "endTime": null,
-      "userSees": "User sees updated source-structure convergence smoke explicitly validating canonical control-plane schema.",
+      "userSees": "User sees: source-structure-convergence-smoke output includes `StoryControlStatus schema` and `milestoneCount=6` assertions.",
       "files": {
         "modify": [
-          "packages/main/src/tasks/source-structure-convergence-smoke.ts"
+          "packages/main/tests/tasks/source-structure-convergence-smoke.ts"
         ],
         "create": [],
-        "test": []
+        "test": [
+          "packages/main/tests/tasks/source-structure-convergence-smoke.ts"
+        ]
       },
       "verificationIntent": {
         "happy": [
           {
-            "desc": "Run convergence smoke and validate no assertion on old schema remains.",
-            "type": "cli"
+            "desc": "Smoke verifies canonical status shape, CP-0..CP-5, and no legacy-only fields in strict mode.",
+            "type": "cli",
+            "priority": "must"
           }
         ],
         "edge": [
           {
-            "desc": "Remove legacy fields and verify smoke fails with clear compatibility diagnostics.",
-            "type": "cli"
+            "desc": "Smoke can intentionally surface old-schema mismatch with readable diagnostic.",
+            "type": "logic",
+            "priority": "must"
           }
         ],
         "adversarial": [
           {
-            "desc": "Run smoke on partial migration and verify explicit mismatch surfaced.",
-            "type": "cli"
+            "desc": "Partial migration scenario fails early and logs explicit mismatch details.",
+            "type": "manual",
+            "priority": "must"
           }
         ]
       }
