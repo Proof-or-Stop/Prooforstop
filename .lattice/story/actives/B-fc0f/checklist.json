@@ -22,7 +22,35 @@
       "context": "autopilot_review_submit accepts a verdict (decision:pass) but if it omits promptDigest/validationDigest the verdict is silently moved to review_escalation_status.degradedFallback.ignoredVerdicts (reason: 'missing binding field(s)') → 0/3 valid rounds with no error at submit. Add a loud submit-time warning + explicit missing-field list (or a --strict error / extend quorum_submit to emit a valid degraded 3x1 single-host round). Side-effect: a hard reject could break automation submitting partial verdicts — prefer warning/opt-in strict.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees missing binding warning output and non-silent handling of incomplete verdicts",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/verdict.ts"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Submit local pass verdict via autopilot_review_submit with all required bindings and observe explicit warning on missing fields",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Submit verdict with one missing binding and verify warning still records in note without fail-closed behavior",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Submit repeated degraded evidence and confirm it is visible in review-escalation/degraded fallback rows",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
