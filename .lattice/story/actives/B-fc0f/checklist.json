@@ -44,10 +44,10 @@
           "command": "node packages/main/dist/tasks/cli-json-stdout-contract-smoke.js",
           "result": "pass",
           "note": "Focused validate path keeps validate JSON stdout parseable and avoids the previous 300s watchdog kill by using validate --focus=fast while still exercising the validate JSON/text surface.",
-          "headHash": "2191def6372d30ae1aac9d065dcb132f37d1024f",
-          "materialHash": "b23c8d3249c91d93ad86d3025aebada3e06c05c68a9b71d1859317c18e0ff574",
-          "storyFilesHash": "131f48d4f17207177c96d77e5ab157240b99814cfded990eb3cca2cd80bdb0bb",
-          "timestamp": "2026-06-25T05:26:15.255Z"
+          "headHash": "3e697d5ddc7abd06d6126b307a16b6b6088b58bd",
+          "materialHash": "1c00a71553dccbd1472a4b67babb642a93ffe12d35cda99f56ae6f422163389f",
+          "storyFilesHash": "a52f5a934bc1477a1f12f0f382ce3c86b3cf30fdc894897e6f27acde5cd85db0",
+          "timestamp": "2026-06-25T05:30:55.154Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -55,10 +55,10 @@
           "command": "node packages/main/dist/tasks/cli-json-stdout-contract-smoke.js",
           "result": "pass",
           "note": "authority_status --format=json / --json and host_list --format=json remain pure JSON stdout with no human hint markers.",
-          "headHash": "2191def6372d30ae1aac9d065dcb132f37d1024f",
-          "materialHash": "b23c8d3249c91d93ad86d3025aebada3e06c05c68a9b71d1859317c18e0ff574",
-          "storyFilesHash": "131f48d4f17207177c96d77e5ab157240b99814cfded990eb3cca2cd80bdb0bb",
-          "timestamp": "2026-06-25T05:26:15.255Z"
+          "headHash": "3e697d5ddc7abd06d6126b307a16b6b6088b58bd",
+          "materialHash": "1c00a71553dccbd1472a4b67babb642a93ffe12d35cda99f56ae6f422163389f",
+          "storyFilesHash": "a52f5a934bc1477a1f12f0f382ce3c86b3cf30fdc894897e6f27acde5cd85db0",
+          "timestamp": "2026-06-25T05:30:55.154Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -66,10 +66,10 @@
           "command": "node packages/main/dist/tasks/cli-json-stdout-contract-smoke.js",
           "result": "pass",
           "note": "Adversarial assertion still rejects trailing decoration by requiring validate JSON stdout to be a single whole JSON document.",
-          "headHash": "2191def6372d30ae1aac9d065dcb132f37d1024f",
-          "materialHash": "b23c8d3249c91d93ad86d3025aebada3e06c05c68a9b71d1859317c18e0ff574",
-          "storyFilesHash": "131f48d4f17207177c96d77e5ab157240b99814cfded990eb3cca2cd80bdb0bb",
-          "timestamp": "2026-06-25T05:26:15.255Z"
+          "headHash": "3e697d5ddc7abd06d6126b307a16b6b6088b58bd",
+          "materialHash": "1c00a71553dccbd1472a4b67babb642a93ffe12d35cda99f56ae6f422163389f",
+          "storyFilesHash": "a52f5a934bc1477a1f12f0f382ce3c86b3cf30fdc894897e6f27acde5cd85db0",
+          "timestamp": "2026-06-25T05:30:55.154Z"
         }
       ]
     },
@@ -115,10 +115,10 @@
           "command": "node packages/main/dist/tasks/field-regression-cli-smoke.js",
           "result": "pass",
           "note": "The background-section headers now match the validator and story_create no longer fails in the smoke path.",
-          "headHash": "2191def6372d30ae1aac9d065dcb132f37d1024f",
-          "materialHash": "b23c8d3249c91d93ad86d3025aebada3e06c05c68a9b71d1859317c18e0ff574",
-          "storyFilesHash": "131f48d4f17207177c96d77e5ab157240b99814cfded990eb3cca2cd80bdb0bb",
-          "timestamp": "2026-06-25T05:26:15.255Z"
+          "headHash": "3e697d5ddc7abd06d6126b307a16b6b6088b58bd",
+          "materialHash": "1c00a71553dccbd1472a4b67babb642a93ffe12d35cda99f56ae6f422163389f",
+          "storyFilesHash": "a52f5a934bc1477a1f12f0f382ce3c86b3cf30fdc894897e6f27acde5cd85db0",
+          "timestamp": "2026-06-25T05:30:55.154Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -126,10 +126,10 @@
           "command": "node packages/main/dist/tasks/field-regression-cli-smoke.js",
           "result": "pass",
           "note": "Focused regression coverage kept the validator-sensitive header names stable without removing the hotfix-priority assertion.",
-          "headHash": "2191def6372d30ae1aac9d065dcb132f37d1024f",
-          "materialHash": "b23c8d3249c91d93ad86d3025aebada3e06c05c68a9b71d1859317c18e0ff574",
-          "storyFilesHash": "131f48d4f17207177c96d77e5ab157240b99814cfded990eb3cca2cd80bdb0bb",
-          "timestamp": "2026-06-25T05:26:15.255Z"
+          "headHash": "3e697d5ddc7abd06d6126b307a16b6b6088b58bd",
+          "materialHash": "1c00a71553dccbd1472a4b67babb642a93ffe12d35cda99f56ae6f422163389f",
+          "storyFilesHash": "a52f5a934bc1477a1f12f0f382ce3c86b3cf30fdc894897e6f27acde5cd85db0",
+          "timestamp": "2026-06-25T05:30:55.154Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -137,10 +137,10 @@
           "command": "node packages/main/dist/tasks/field-regression-cli-smoke.js",
           "result": "pass",
           "note": "The smoke still exercises the stale-header regression path by pinning the accepted section names in code.",
-          "headHash": "2191def6372d30ae1aac9d065dcb132f37d1024f",
-          "materialHash": "b23c8d3249c91d93ad86d3025aebada3e06c05c68a9b71d1859317c18e0ff574",
-          "storyFilesHash": "131f48d4f17207177c96d77e5ab157240b99814cfded990eb3cca2cd80bdb0bb",
-          "timestamp": "2026-06-25T05:26:15.255Z"
+          "headHash": "3e697d5ddc7abd06d6126b307a16b6b6088b58bd",
+          "materialHash": "1c00a71553dccbd1472a4b67babb642a93ffe12d35cda99f56ae6f422163389f",
+          "storyFilesHash": "a52f5a934bc1477a1f12f0f382ce3c86b3cf30fdc894897e6f27acde5cd85db0",
+          "timestamp": "2026-06-25T05:30:55.154Z"
         }
       ]
     },
@@ -186,10 +186,10 @@
           "command": "node --input-type=module <warning-fixture>",
           "result": "pass",
           "note": "autopilot_review_submit now emits the exact warning prefix at submit time when materialDigest, validationDigest, and promptDigest are omitted.",
-          "headHash": "2191def6372d30ae1aac9d065dcb132f37d1024f",
-          "materialHash": "b23c8d3249c91d93ad86d3025aebada3e06c05c68a9b71d1859317c18e0ff574",
-          "storyFilesHash": "131f48d4f17207177c96d77e5ab157240b99814cfded990eb3cca2cd80bdb0bb",
-          "timestamp": "2026-06-25T05:26:15.255Z"
+          "headHash": "3e697d5ddc7abd06d6126b307a16b6b6088b58bd",
+          "materialHash": "1c00a71553dccbd1472a4b67babb642a93ffe12d35cda99f56ae6f422163389f",
+          "storyFilesHash": "a52f5a934bc1477a1f12f0f382ce3c86b3cf30fdc894897e6f27acde5cd85db0",
+          "timestamp": "2026-06-25T05:30:55.154Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -197,10 +197,10 @@
           "command": "node --input-type=module <warning-fixture>",
           "result": "pass",
           "note": "A partial local pass verdict still records without fail-closing, but the warning text is surfaced immediately instead of being silently ignored.",
-          "headHash": "2191def6372d30ae1aac9d065dcb132f37d1024f",
-          "materialHash": "b23c8d3249c91d93ad86d3025aebada3e06c05c68a9b71d1859317c18e0ff574",
-          "storyFilesHash": "131f48d4f17207177c96d77e5ab157240b99814cfded990eb3cca2cd80bdb0bb",
-          "timestamp": "2026-06-25T05:26:15.255Z"
+          "headHash": "3e697d5ddc7abd06d6126b307a16b6b6088b58bd",
+          "materialHash": "1c00a71553dccbd1472a4b67babb642a93ffe12d35cda99f56ae6f422163389f",
+          "storyFilesHash": "a52f5a934bc1477a1f12f0f382ce3c86b3cf30fdc894897e6f27acde5cd85db0",
+          "timestamp": "2026-06-25T05:30:55.154Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -208,10 +208,10 @@
           "command": "node --input-type=module <warning-fixture>",
           "result": "pass",
           "note": "The warning names the missing binding fields explicitly so degraded/non-certifying local verdicts are visible to operators before review_escalation diagnostics.",
-          "headHash": "2191def6372d30ae1aac9d065dcb132f37d1024f",
-          "materialHash": "b23c8d3249c91d93ad86d3025aebada3e06c05c68a9b71d1859317c18e0ff574",
-          "storyFilesHash": "131f48d4f17207177c96d77e5ab157240b99814cfded990eb3cca2cd80bdb0bb",
-          "timestamp": "2026-06-25T05:26:15.255Z"
+          "headHash": "3e697d5ddc7abd06d6126b307a16b6b6088b58bd",
+          "materialHash": "1c00a71553dccbd1472a4b67babb642a93ffe12d35cda99f56ae6f422163389f",
+          "storyFilesHash": "a52f5a934bc1477a1f12f0f382ce3c86b3cf30fdc894897e6f27acde5cd85db0",
+          "timestamp": "2026-06-25T05:30:55.154Z"
         }
       ]
     },
@@ -259,10 +259,10 @@
           "command": "node packages/main/dist/tasks/english-open-source-surface-smoke.js && node packages/main/dist/tasks/prompt-token-cost-smoke.js && node packages/main/dist/tasks/global-agents-init-smoke.js",
           "result": "pass",
           "note": "The pre-existing smoke failures were triaged to concrete drift: english-open-source needed allowlist updates for audited CJK sources, prompt-token-cost needed its audit truth-source path and prompt-registry constant aligned, and global-agents-init remains green.",
-          "headHash": "2191def6372d30ae1aac9d065dcb132f37d1024f",
-          "materialHash": "b23c8d3249c91d93ad86d3025aebada3e06c05c68a9b71d1859317c18e0ff574",
-          "storyFilesHash": "131f48d4f17207177c96d77e5ab157240b99814cfded990eb3cca2cd80bdb0bb",
-          "timestamp": "2026-06-25T05:26:15.255Z"
+          "headHash": "3e697d5ddc7abd06d6126b307a16b6b6088b58bd",
+          "materialHash": "1c00a71553dccbd1472a4b67babb642a93ffe12d35cda99f56ae6f422163389f",
+          "storyFilesHash": "a52f5a934bc1477a1f12f0f382ce3c86b3cf30fdc894897e6f27acde5cd85db0",
+          "timestamp": "2026-06-25T05:30:55.154Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -270,10 +270,10 @@
           "command": "node packages/main/dist/tasks/global-agents-init-smoke.js",
           "result": "pass",
           "note": "global-agents-init-smoke was rerun and remained green, so the earlier flake did not reproduce after the related smoke repairs.",
-          "headHash": "2191def6372d30ae1aac9d065dcb132f37d1024f",
-          "materialHash": "b23c8d3249c91d93ad86d3025aebada3e06c05c68a9b71d1859317c18e0ff574",
-          "storyFilesHash": "131f48d4f17207177c96d77e5ab157240b99814cfded990eb3cca2cd80bdb0bb",
-          "timestamp": "2026-06-25T05:26:15.255Z"
+          "headHash": "3e697d5ddc7abd06d6126b307a16b6b6088b58bd",
+          "materialHash": "1c00a71553dccbd1472a4b67babb642a93ffe12d35cda99f56ae6f422163389f",
+          "storyFilesHash": "a52f5a934bc1477a1f12f0f382ce3c86b3cf30fdc894897e6f27acde5cd85db0",
+          "timestamp": "2026-06-25T05:30:55.154Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -281,10 +281,10 @@
           "command": "node packages/main/dist/tasks/english-open-source-surface-smoke.js && node packages/main/dist/tasks/prompt-token-cost-smoke.js",
           "result": "pass",
           "note": "Both formerly failing smokes now fail for real regressions again rather than stale allowlist/path drift, which restores their signal value.",
-          "headHash": "2191def6372d30ae1aac9d065dcb132f37d1024f",
-          "materialHash": "b23c8d3249c91d93ad86d3025aebada3e06c05c68a9b71d1859317c18e0ff574",
-          "storyFilesHash": "131f48d4f17207177c96d77e5ab157240b99814cfded990eb3cca2cd80bdb0bb",
-          "timestamp": "2026-06-25T05:26:15.255Z"
+          "headHash": "3e697d5ddc7abd06d6126b307a16b6b6088b58bd",
+          "materialHash": "1c00a71553dccbd1472a4b67babb642a93ffe12d35cda99f56ae6f422163389f",
+          "storyFilesHash": "a52f5a934bc1477a1f12f0f382ce3c86b3cf30fdc894897e6f27acde5cd85db0",
+          "timestamp": "2026-06-25T05:30:55.154Z"
         }
       ]
     },
@@ -337,10 +337,10 @@
           "command": "node packages/main/dist/tasks/review-assurance-floor-storyfileshash-smoke.js",
           "result": "pass",
           "note": "The degraded single-host fallback path accepts 3/3 rounds when storyFilesHash still matches, proving the shared review-assurance evaluator honors degraded fallback rather than misclassifying it as missing.",
-          "headHash": "2191def6372d30ae1aac9d065dcb132f37d1024f",
-          "materialHash": "b23c8d3249c91d93ad86d3025aebada3e06c05c68a9b71d1859317c18e0ff574",
-          "storyFilesHash": "131f48d4f17207177c96d77e5ab157240b99814cfded990eb3cca2cd80bdb0bb",
-          "timestamp": "2026-06-25T05:26:15.255Z"
+          "headHash": "3e697d5ddc7abd06d6126b307a16b6b6088b58bd",
+          "materialHash": "1c00a71553dccbd1472a4b67babb642a93ffe12d35cda99f56ae6f422163389f",
+          "storyFilesHash": "a52f5a934bc1477a1f12f0f382ce3c86b3cf30fdc894897e6f27acde5cd85db0",
+          "timestamp": "2026-06-25T05:30:55.154Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -348,10 +348,10 @@
           "command": "node packages/main/dist/tasks/review-assurance-floor-storyfileshash-smoke.js",
           "result": "pass",
           "note": "When storyFilesHash really changes, the same degraded fallback becomes stale and is rejected, preserving the current-material binding requirement.",
-          "headHash": "2191def6372d30ae1aac9d065dcb132f37d1024f",
-          "materialHash": "b23c8d3249c91d93ad86d3025aebada3e06c05c68a9b71d1859317c18e0ff574",
-          "storyFilesHash": "131f48d4f17207177c96d77e5ab157240b99814cfded990eb3cca2cd80bdb0bb",
-          "timestamp": "2026-06-25T05:26:15.255Z"
+          "headHash": "3e697d5ddc7abd06d6126b307a16b6b6088b58bd",
+          "materialHash": "1c00a71553dccbd1472a4b67babb642a93ffe12d35cda99f56ae6f422163389f",
+          "storyFilesHash": "a52f5a934bc1477a1f12f0f382ce3c86b3cf30fdc894897e6f27acde5cd85db0",
+          "timestamp": "2026-06-25T05:30:55.154Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -359,10 +359,10 @@
           "command": "node packages/main/dist/tasks/done-prepare-smoke.js",
           "result": "pass",
           "note": "done_prepare still blocks stale review evidence after main-sync drift and prints the current material/storyFilesHash rebind runbook, confirming the DONE path consumes the same review-assurance floor evidence discipline.",
-          "headHash": "2191def6372d30ae1aac9d065dcb132f37d1024f",
-          "materialHash": "b23c8d3249c91d93ad86d3025aebada3e06c05c68a9b71d1859317c18e0ff574",
-          "storyFilesHash": "131f48d4f17207177c96d77e5ab157240b99814cfded990eb3cca2cd80bdb0bb",
-          "timestamp": "2026-06-25T05:26:15.255Z"
+          "headHash": "3e697d5ddc7abd06d6126b307a16b6b6088b58bd",
+          "materialHash": "1c00a71553dccbd1472a4b67babb642a93ffe12d35cda99f56ae6f422163389f",
+          "storyFilesHash": "a52f5a934bc1477a1f12f0f382ce3c86b3cf30fdc894897e6f27acde5cd85db0",
+          "timestamp": "2026-06-25T05:30:55.154Z"
         }
       ]
     }
