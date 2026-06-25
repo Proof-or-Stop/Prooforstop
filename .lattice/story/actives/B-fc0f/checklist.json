@@ -6,7 +6,37 @@
       "context": "packages/main/src/tasks/cli-json-stdout-contract-smoke.ts hangs and is re-run in every npm test / lattice validate pass (~5min each). Find WHY it never exits (subprocess/stdin wait) and fix the hang or make it fail-fast. DO NOT just raise/skip the timeout — that would mask a real CLI json-stdout contract hang (the CLI not terminating is itself a product bug). Side-effect of muting: hides a real non-termination defect.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees cli-json-stdout-contract-smoke complete and all JSON contract checks pass in TEST output",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/cli-json-stdout-contract-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/cli-json-stdout-contract-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Execute cli-json-stdout-contract-smoke in DEV/TEST and assert validate --json parses to pure JSON",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Verify --format=json and --json aliases preserve pure JSON contracts in mixed config/profile conditions",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Run with non-json legacy hint paths and confirm they do not contaminate stderr stdout expectations",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
