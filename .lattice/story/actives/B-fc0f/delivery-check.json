@@ -1,0 +1,75 @@
+{
+  "storyId": "B-fc0f",
+  "checkedAt": "2026-06-25T05:33:22.614Z",
+  "headHash": "7c8665878c14ce052fbc0efdf58b1a21b0aacf12",
+  "materialHash": "1c00a71553dccbd1472a4b67babb642a93ffe12d35cda99f56ae6f422163389f",
+  "storyFilesHash": "a52f5a934bc1477a1f12f0f382ce3c86b3cf30fdc894897e6f27acde5cd85db0",
+  "reviewRound": "2026-06-25T05:24:29.657Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-fc0f/checklist.json",
+      "promise": "User sees the exact text \"✓ cli json stdout contract smoke passed\"",
+      "status": "verified",
+      "verifiedBy": "logic_test",
+      "evidence": "node packages/main/dist/tasks/cli-json-stdout-contract-smoke.js"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-fc0f/checklist.json",
+      "promise": "User sees the exact text \"✓ field regression CLI smoke passed\"",
+      "status": "verified",
+      "verifiedBy": "logic_test",
+      "evidence": "node packages/main/dist/tasks/field-regression-cli-smoke.js"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-fc0f/checklist.json",
+      "promise": "User sees the exact text: \"Warning: autopilot_review_submit for story B-xxxx is missing binding field(s): materialDigest, validationDigest, promptDigest\"",
+      "status": "verified",
+      "verifiedBy": "manual",
+      "evidence": "node --input-type=module <warning-fixture>"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-fc0f/checklist.json",
+      "promise": "User sees exact triage lines: \"english-open-source-surface-smoke exit 1\" and later \"global-agents-init-smoke retry passes\"",
+      "status": "verified",
+      "verifiedBy": "logic_test",
+      "evidence": "node packages/main/dist/tasks/english-open-source-surface-smoke.js && node packages/main/dist/tasks/global-agents-init-smoke.js"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-fc0f/checklist.json",
+      "promise": "User sees done_prepare and review_escalation status lines including \"degraded fallback: 3/3 rounds\"",
+      "status": "verified",
+      "verifiedBy": "logic_test",
+      "evidence": "node packages/main/dist/tasks/review-assurance-floor-storyfileshash-smoke.js && node packages/main/dist/tasks/done-prepare-smoke.js"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Executed in user-visible CLI smoke command chain. Output included \"✓ cli json stdout contract smoke passed\" (about 63s runtime)."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Executed field-regression-cli-smoke command in user-visible path; output included \"✓ field regression CLI smoke passed\"."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Executed missing-binding warning fixture and observed explicit warning for missing binding fields."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Executed pre-existing smoke triage commands; english-open-source/prompt-token-cost reported expected diagnostics and global-agents-init remained retry-green."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "Executed review-assurance-floor-storyfileshash-smoke and done-prepare-smoke; done_prepare reported degraded fallback 3/3 and stale drift handling guidance."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 5 checklist deliverables were exercised by real-machine runs and verification transcripts; validation passed and delivery artifacts captured."
+  },
+  "_hash": "29743a6d4e4bbf545458b3bfb8b1dd6c7d7450960cc6f57dad342c6e6418f102"
+}
