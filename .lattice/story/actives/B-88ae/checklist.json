@@ -172,9 +172,9 @@
         "docs/evidence/evidence-platform-architecture.md",
         "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-25T03:05:57.261Z",
       "userSees": "运行 npm --prefix packages/main run build、node packages/main/dist/tasks/source-structure-convergence-smoke.js、proof-admissibility smoke、repro-first smoke 后都通过；输出明确说明 source-structure convergence smoke passed。",
       "files": {
         "modify": [
@@ -206,7 +206,42 @@
             "type": "logic"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/source-structure-convergence-smoke.js",
+          "result": "pass",
+          "note": "Focused smoke printed source-structure convergence smoke passed.",
+          "headHash": "5dfa3a60cb41c0225fded13d752e106979756f27",
+          "materialHash": "da787239ad91081a1bc392241e568bcbf5de8151347d2c1a641f221d6e640835",
+          "storyFilesHash": "de5c1760761e5c7942dcc1c7f30bf84afda6aecf4cb57f1178dff62c591840be",
+          "timestamp": "2026-06-25T03:05:57.623Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/proof-admissibility-smoke.js && node packages/main/dist/tasks/repro-first-candidate-smoke.js",
+          "result": "pass",
+          "note": "Existing proof-admissibility and repro-first smokes passed, proving compatibility paths did not break current behavior.",
+          "headHash": "5dfa3a60cb41c0225fded13d752e106979756f27",
+          "materialHash": "da787239ad91081a1bc392241e568bcbf5de8151347d2c1a641f221d6e640835",
+          "storyFilesHash": "de5c1760761e5c7942dcc1c7f30bf84afda6aecf4cb57f1178dff62c591840be",
+          "timestamp": "2026-06-25T03:05:57.982Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/source-structure-convergence-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts representative identity between new and legacy imports, catching accidental duplicate registries/functions.",
+          "headHash": "5dfa3a60cb41c0225fded13d752e106979756f27",
+          "materialHash": "da787239ad91081a1bc392241e568bcbf5de8151347d2c1a641f221d6e640835",
+          "storyFilesHash": "de5c1760761e5c7942dcc1c7f30bf84afda6aecf4cb57f1178dff62c591840be",
+          "timestamp": "2026-06-25T03:05:58.295Z"
+        }
+      ]
     }
   ],
   "auditLog": [
@@ -227,6 +262,15 @@
       "from": "pending",
       "to": "done",
       "reason": "Lifecycle-control skeleton and control status types committed and verified."
+    },
+    {
+      "timestamp": "2026-06-25T03:05:57.261Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Focused smoke and compatibility verification completed."
     }
   ]
 }
