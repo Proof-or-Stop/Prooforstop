@@ -207,9 +207,9 @@
       "relatedDocs": [
         ".lattice/story/actives/B-fc0f/background.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-25T04:52:45.970Z",
-      "endTime": null,
+      "endTime": "2026-06-25T05:22:07.763Z",
       "userSees": "User sees done_prepare and review_escalation status lines including \"degraded fallback: 3/3 rounds\"",
       "files": {
         "modify": [
@@ -241,7 +241,20 @@
             "type": "logic"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/done-prepare-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/done-escalation-drift-advisory-smoke.js && node packages/main/dist/tasks/review-escalation-smoke.js && node packages/main/dist/tasks/review-escalation-freshness-root-smoke.js",
+          "result": "pass",
+          "note": "done-prepare and review floor/escalation path smokes pass and accept degraded 3x1/floor advisory paths.",
+          "headHash": "333c865d746e5e939ea31a25bd9750dbe70c8b8e",
+          "materialHash": "d5dc4c09dcf288071d35b5991bec5d7931b7278fdd63b70dd3c38423d1d13ce6",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-25T05:22:07.885Z"
+        }
+      ]
     }
   ]
 }
