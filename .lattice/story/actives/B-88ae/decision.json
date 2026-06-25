@@ -1,0 +1,71 @@
+{
+  "principles": [
+    "Preserve behavior while changing module shape.",
+    "One source of truth for evidence and proof definitions.",
+    "New code should have canonical imports; old imports remain compatible.",
+    "Do not implement gates or proof authority in a structure-only story."
+  ],
+  "drivers": [
+    "Recommended source layout is now documented but not fully present in code.",
+    "Flat proof/repro modules have many existing importers, so moving them directly is high blast-radius.",
+    "Future Global Control Plane work needs stable runtime/consumption/queue module boundaries."
+  ],
+  "options": [
+    {
+      "name": "A: Compatibility entrypoints first",
+      "pros": [
+        "Low behavior risk",
+        "Build can prove new and legacy paths simultaneously",
+        "Creates canonical paths for future work"
+      ],
+      "cons": [
+        "Implementation remains physically flat behind adapters for now",
+        "Requires later migration story to move internals"
+      ]
+    },
+    {
+      "name": "B: Move implementations into new directories now",
+      "pros": [
+        "Tree immediately matches the final architecture more literally",
+        "Fewer temporary adapters"
+      ],
+      "cons": [
+        "Large import churn across proof, repro, gate, and smoke files",
+        "Higher risk of breaking lifecycle/proof behavior while trying to do structural cleanup"
+      ]
+    },
+    {
+      "name": "C: Only update docs, no code",
+      "pros": [
+        "Fastest and lowest risk"
+      ],
+      "cons": [
+        "Does not satisfy the user request to develop the structure",
+        "Leaves future hosts without canonical import paths"
+      ]
+    }
+  ],
+  "chosen": "A: Compatibility entrypoints first",
+  "rationale": "Choose compatibility entrypoints first because the user wants development now, but the source tree has many proof/repro importers. This gives future code the recommended paths, keeps existing paths working, and avoids accidentally changing gate/proof behavior.",
+  "preMortem": [
+    {
+      "scenario": "New directories duplicate proof definitions and drift from flat modules.",
+      "trigger": "A developer copies enums or registries instead of re-exporting existing modules.",
+      "consequence": "Two proof stacks emerge and the architecture goal fails.",
+      "mitigation": "Use re-export adapters only in this slice and add a smoke asserting key symbols are identical across legacy and new paths."
+    },
+    {
+      "scenario": "Compatibility shells are mistaken for full migration completion.",
+      "trigger": "Future host sees new folders and assumes implementation has moved.",
+      "consequence": "Follow-up work skips real migration planning.",
+      "mitigation": "Add comments and final notes stating this is milestone 1 compatibility structure, with later migration milestones remaining."
+    },
+    {
+      "scenario": "Lifecycle-control skeleton accidentally starts acting as a gate.",
+      "trigger": "Projector types include allow/deny behavior or write lifecycle evidence.",
+      "consequence": "Control Plane becomes a second lifecycle/proof authority.",
+      "mitigation": "Keep skeleton read-only types and no command registration in this story; proof hard-block remains Proof M7."
+    }
+  ],
+  "timestamp": "2026-06-25T02:51:12.956Z"
+}

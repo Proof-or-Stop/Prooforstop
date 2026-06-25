@@ -11,7 +11,40 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "开发者可以从 packages/main/src/core/evidence/artifact、evidence/repro、evidence/admissibility、evidence/storage 导入公共 API；旧的 core/proof-admissibility、core/repro-intake、core/evidence/artifact-store 路径仍然编译通过。",
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/src/core/evidence/artifact/index.ts",
+          "packages/main/src/core/evidence/repro/index.ts",
+          "packages/main/src/core/evidence/admissibility/index.ts",
+          "packages/main/src/core/evidence/storage/index.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/source-structure-convergence-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "New evidence artifact/repro/admissibility/storage entrypoints compile and expose the same core symbols as legacy paths.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Legacy import paths continue to compile after new entrypoints are added.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "New entrypoints do not copy proof registries or create competing definitions; smoke checks representative symbols are shared.",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
