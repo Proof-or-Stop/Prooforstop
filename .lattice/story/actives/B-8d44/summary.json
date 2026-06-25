@@ -1,18 +1,18 @@
 {
   "storyId": "B-8d44",
-  "changes": "Added the recovery-runner live-engine adapter, offline live-engine selfcheck, run-recovery helper wiring, run-selfchecks aggregator entry, and README delivery notes for the new live campaign engine path.",
-  "usage": "Run node experiments/recovery-runner/run-selfchecks.mjs for offline validation, or use run-driver with --engine experiments/recovery-runner/live-engine.mjs for the later live campaign path.",
-  "expectedOutcome": "User sees all recovery-runner selfchecks pass offline, including live-engine coverage for A1, A2, A2prime, A3, and A4, with no live Claude process invoked.",
-  "actualTranscript": "node experiments/recovery-runner/run-selfchecks.mjs exited 0 and printed all 7 recovery-runner selfchecks passed offline, no live LLM; live-engine-selfcheck reported 174 assertions passed across A1, A2, A2prime, A3, and A4.",
-  "outcomeDiff": "No user-visible difference: actual transcript matches the expected offline validation result.",
+  "changes": "Implemented and hardened the recovery-runner live-engine adapter path for the five pre-registered arms, including A3 reported-not-iterated sidecar evidence, A4 review-gate behavior, raw section-7 evidence capture, F-032/F-034/F-035 secret-scan correctness, and section 4.2 adjudication order consistency.",
+  "usage": "Run node experiments/recovery-runner/run-selfchecks.mjs for offline verification, or use run-driver with --engine experiments/recovery-runner/live-engine.mjs for the later live Claude campaign path. The live campaign itself remains a separate story.",
+  "expectedOutcome": "The user sees all recovery-runner selfchecks pass offline with no live LLM, and Lattice validate reports all configured project validation commands passing with verification coverage complete.",
+  "actualTranscript": "node experiments/recovery-runner/run-selfchecks.mjs exited 0: adjudicate-selfcheck 106 assertions, checks-selfcheck 112, spend-accounting 56, run-driver 136, analyze 75, corpus selfcheck pass, live-engine 200 assertions, and all 7 recovery-runner selfchecks passed offline. lattice validate also passed 30/30 configured commands with verification coverage 51/51.",
+  "outcomeDiff": "No difference: actual output matches expected offline validation and routine Lattice validation results.",
   "acceptanceVerdict": "accepted",
   "outcomeKind": "success",
   "realMachineCoverage": {
     "ran": [],
     "skipped": []
   },
-  "limitations": "The actual multi-day live Claude campaign is intentionally a separate later story; this story delivers the engine and offline-verifiable foundation only. Local evidence and 3x2 quorum are Non-authority and do not claim Authority Server completion.",
-  "pitfalls": "Resolution required 28 review findings, a reviewer-visible README scope acknowledgement, stale verification evidence refresh, main merge via done_prepare, and repeated full validate runs. Keep the live campaign separate and do not treat local quorum as Authority proof.",
+  "limitations": "The multi-day live Claude campaign is intentionally out of scope for this story. Evidence is local Non-authority; no Authority Server receipt, productionDone, fullAuthorityDone, or authorityDone claim is made.",
+  "pitfalls": "Review found multiple real correctness issues before DONE: A3 evidence reporting, safe-stop/recovered ordering, eval-expr secret false positives, TOKEN assignment under-detection, and reviewer-infra diagnostic masking. Final fixes are pinned by adjudicate-selfcheck 106, live-engine-selfcheck 200, run-selfchecks 7/7, and lattice validate 30/30.",
   "phaseStats": {
     "INIT": {
       "count": 1,
@@ -27,19 +27,19 @@
       "durationMs": 413180
     },
     "DEV": {
-      "count": 1,
-      "durationMs": 1503318
+      "count": 5,
+      "durationMs": 5729589
     },
     "REVIEW": {
-      "count": 1,
-      "durationMs": 33685107
+      "count": 5,
+      "durationMs": 35166141
     },
     "TEST": {
-      "count": 1,
-      "durationMs": 678123
+      "count": 2,
+      "durationMs": 1059298
     }
   },
-  "totalDurationMs": 36776855,
+  "totalDurationMs": 42865335,
   "fixtureStats": {
     "totalRuns": 0,
     "totalCases": 0,
@@ -52,5 +52,5 @@
     "open": 0
   },
   "createdAt": "2026-06-24T22:22:57.106Z",
-  "updatedAt": "2026-06-24T22:22:57.106Z"
+  "updatedAt": "2026-06-25T00:04:25.616Z"
 }
