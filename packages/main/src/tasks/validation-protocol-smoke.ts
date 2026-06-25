@@ -1361,11 +1361,13 @@ try {
   async function assertUnsafePassEvidenceReruns(args: {
     name: string;
     reason: string;
+    prepareBeforeEvidenceCommit?: (fixture: { root: string; store: StoryStore; storyId: string; evidence: any }) => void;
     mutateEvidence?: (evidence: any) => void;
     mutateAfterCommit?: (fixture: { root: string; store: StoryStore; storyId: string; evidence: any }) => void;
   }): Promise<void> {
     const fixture = seedValidateGateSkipRoot(`lattice-validate-gate-${args.name}-`, `B-vgate-${args.name}`);
     try {
+      args.prepareBeforeEvidenceCommit?.(fixture);
       args.mutateEvidence?.(fixture.evidence);
       fixture.store.writeTestEvidence(fixture.storyId, fixture.evidence);
       gitQuiet(fixture.root, ['add', `.lattice/story/actives/${fixture.storyId}`]);
@@ -1547,6 +1549,59 @@ try {
           },
         }],
       });
+    },
+  });
+
+  await assertUnsafePassEvidenceReruns({
+    name: 'coverage-evidence-removed',
+    reason: 'current verificationEvidence records',
+    prepareBeforeEvidenceCommit: ({ store, storyId, evidence }) => {
+      const intentEvidence = {
+        intentRef: 'CHK-001:happy:0',
+        kind: 'logic_test',
+        result: 'pass',
+        command: 'node packages/main/dist/tasks/validation-protocol-smoke.js',
+        note: 'Fresh PASS evidence for the required intent before metadata weakening.',
+      };
+      store.writeChecklist(storyId, {
+        items: [{
+          id: 'CHK-001',
+          title: 'Required intent with real evidence',
+          status: 'done',
+          startTime: null,
+          endTime: null,
+          verificationIntent: {
+            happy: [{ desc: 'Required intent keeps the same text after PASS', type: 'logic', priority: 'must' }],
+            edge: [],
+            adversarial: [],
+          },
+          verificationEvidence: [intentEvidence as any],
+        }],
+      });
+      evidence.output = '{"allPass":true,"summary":"already passed with covered intent"}';
+      evidence.verificationCoverage = {
+        total: 1,
+        required: 1,
+        covered: 1,
+        missingRequired: 0,
+        entries: [{
+          intentRef: 'CHK-001:happy:0',
+          itemId: 'CHK-001',
+          lane: 'happy',
+          desc: 'Required intent keeps the same text after PASS',
+          type: 'logic',
+          priority: 'must',
+          status: 'covered',
+          evidence: intentEvidence,
+        }],
+      };
+    },
+    mutateAfterCommit: ({ store, storyId }) => {
+      const checklist = store.readChecklist(storyId);
+      const item = checklist.items[0];
+      assert.ok(item, 'coverage evidence removal smoke must seed a checklist item');
+      item.verificationEvidence = [];
+      store.writeChecklist(storyId, checklist);
     },
   });
 

@@ -49,7 +49,7 @@ import {
   isBlockingDirty,
   readGitStatusLines,
 } from '../core/dirty-worktree-gate.js';
-import { collectVerificationIntents } from '../core/verification.js';
+import { buildVerificationCoverage } from '../core/verification.js';
 import {
   buildDoneChecklist,
   renderDoneChecklist,
@@ -503,22 +503,7 @@ export function runAuthorityReceiptTransitionGate(
   })}`;
 }
 
-function canonicalCoverageInputSnapshotFromChecklist(checklist: ChecklistData): string {
-  const rows = checklist.items.flatMap(item =>
-    collectVerificationIntents(item).map(collected => ({
-      intentRef: collected.ref,
-      itemId: collected.itemId,
-      lane: collected.lane,
-      desc: collected.intent.desc,
-      type: collected.intent.type,
-      priority: collected.intent.priority || 'must',
-    })),
-  );
-  rows.sort((a, b) => a.intentRef.localeCompare(b.intentRef));
-  return JSON.stringify(rows);
-}
-
-function canonicalCoverageInputSnapshotFromEvidence(coverage: any): string | null {
+function canonicalCoverageSnapshotFromReport(coverage: any): string | null {
   if (!Array.isArray(coverage?.entries)) return null;
   const rows = coverage.entries.map((entry: any) => ({
     intentRef: String(entry?.intentRef ?? ''),
@@ -527,17 +512,52 @@ function canonicalCoverageInputSnapshotFromEvidence(coverage: any): string | nul
     desc: String(entry?.desc ?? ''),
     type: String(entry?.type ?? ''),
     priority: String(entry?.priority ?? 'must'),
+    status: String(entry?.status ?? ''),
+    evidence: entry?.evidence ? {
+      kind: String(entry.evidence.kind ?? ''),
+      result: String(entry.evidence.result ?? ''),
+      command: String(entry.evidence.command ?? ''),
+      waiverType: String(entry.evidence.waiverType ?? ''),
+      verdict: String(entry.evidence.verdict ?? ''),
+    } : null,
   }));
   rows.sort((a: any, b: any) => a.intentRef.localeCompare(b.intentRef));
-  return JSON.stringify(rows);
+  return JSON.stringify({
+    total: typeof coverage.total === 'number' ? coverage.total : null,
+    required: typeof coverage.required === 'number' ? coverage.required : null,
+    covered: typeof coverage.covered === 'number' ? coverage.covered : null,
+    missingRequired: typeof coverage.missingRequired === 'number' ? coverage.missingRequired : null,
+    entries: rows,
+  });
+}
+
+function currentChecklistCoverageSnapshot(ctx: HandlerContext, storyId: string): string {
+  const story = ctx.store.readStory(storyId);
+  const checklist = ctx.store.readChecklist(storyId);
+  const gitCwd = resolveGitCwd({ store: ctx.store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
+  const head = currentGitHead(gitCwd);
+  const policy = resolveWorkflowPolicy(loadConfig(ctx.root), story);
+  const coverage = buildVerificationCoverage(
+    checklist,
+    head,
+    (headHash, evidence) => checkEvidenceFreshnessForGit(
+      gitCwd,
+      headHash,
+      evidence?.materialHash,
+      ctx.root,
+      evidence?.storyFilesHash,
+    ).fresh,
+    { deferredGateEvidence: 'missing', evidenceQualityProfile: policy.profile },
+  );
+  return canonicalCoverageSnapshotFromReport(coverage) ?? JSON.stringify({ entries: [] });
 }
 
 function coverageInputsMatchCurrentChecklist(ctx: HandlerContext, storyId: string, coverage: any): { ok: boolean; reason?: string } {
-  const recorded = canonicalCoverageInputSnapshotFromEvidence(coverage);
+  const recorded = canonicalCoverageSnapshotFromReport(coverage);
   if (!recorded) return { ok: false, reason: 'existing validation PASS verificationCoverage has no entries snapshot' };
-  const current = canonicalCoverageInputSnapshotFromChecklist(ctx.store.readChecklist(storyId));
+  const current = currentChecklistCoverageSnapshot(ctx, storyId);
   if (recorded !== current) {
-    return { ok: false, reason: 'existing validation PASS verificationCoverage does not match current checklist verificationIntent inputs' };
+    return { ok: false, reason: 'existing validation PASS verificationCoverage does not match current checklist verificationIntent inputs or current verificationEvidence records' };
   }
   return { ok: true };
 }
