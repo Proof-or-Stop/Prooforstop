@@ -9,7 +9,7 @@ import { createHash } from 'node:crypto';
 // job lease. It owns the safety boundary, not the network: the actual
 // heartbeat / renew / release / complete calls are injected as a synchronous
 // `JobLeaseTransport`, so the loop can be exercised exhaustively without a live
-// Lattice Authority server (the same pattern the gate evaluator uses to keep
+// Proofbound Authority server (the same pattern the gate evaluator uses to keep
 // async I/O out of the deterministic executor core).
 //
 // Hard invariants enforced here:

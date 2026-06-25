@@ -34,7 +34,7 @@ Implementation boundary after B-ac25: the local DONE-required surface is `doneRe
 Reasons:
 
 - Normal `lattice validate` is used during DEV/TEST iteration and should remain configurable for fast feedback.
-- Root full `npm test` is self-host expensive and should not be forced onto every Lattice user by default.
+- Root full `npm test` is self-host expensive and should not be forced onto every Proofbound user by default.
 - DONE/release assurance needs a stronger evidence contract than "the normal validation subset happened to pass".
 - A named DONE-required profile makes the claim explicit: self-host DONE is blocked unless the full required suite has fresh PASS evidence for the current material.
 - Release/push alignment can then decide whether to reuse the same artifact, require it before remote publish approval, or keep remote push as a narrower build+tsc safety net with clear wording.
@@ -88,7 +88,7 @@ Self-host behavior for Orchestrate/Lattice:
 - Missing, failing, or stale DONE-required evidence blocks local DONE.
 - A degraded or emergency path may continue only under an explicitly lower assurance label.
 
-This avoids imposing Orchestrate-specific cost on every Lattice user while fixing the self-host overclaim.
+This avoids imposing Orchestrate-specific cost on every Proofbound user while fixing the self-host overclaim.
 
 ## Evidence Data Model
 
@@ -375,7 +375,7 @@ Review requirements:
 - Do not modify root `package.json`, `lattice.config.json`, `.githooks/pre-push`, or runtime TypeScript in B-3321.
 - Do not append root `npm test` to normal `validate.commands` as the final solution.
 - Do not force root full-suite execution on external projects that have not opted in.
-- Do not make the pre-push hook depend on Lattice CLI as a hidden requirement.
+- Do not make the pre-push hook depend on Proofbound CLI as a hidden requirement.
 - Do not claim root full-suite assurance from ordinary `test-evidence.json`.
 - Do not store unbounded command output in story evidence.
 - Do not reopen historical DONE stories solely for this new policy.

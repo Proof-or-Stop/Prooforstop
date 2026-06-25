@@ -1,19 +1,19 @@
 # Lifecycle Artifact Scope Policy
 
 **Status**: active (B-b9d0; B-997b wave 1)
-**Scope**: scope-contract enforcement when a Lattice command writes a story-scoped
+**Scope**: scope-contract enforcement when a Proofbound command writes a story-scoped
 metadata artifact during DEV / REVIEW / TEST / DONE.
 
-Legacy Lattice path note: the old hidden Lattice story tree is intentionally not
+Legacy Proofbound path note: the old hidden Proofbound story tree is intentionally not
 named here as a runnable path. It is retired and rejected wherever this policy
 describes current lifecycle classification.
 
 ## Why this exists
 
-Lattice lifecycle CLI commands (`delivery_check_set`, `summary_set`,
+Proofbound lifecycle CLI commands (`delivery_check_set`, `summary_set`,
 `scope_contract_set`, `finding_add`, `init_check_set`, …) write metadata files
 under `.lattice/story/actives/<storyId>/` or `docs/story/.../<storyId>/`.
-The retired hidden Lattice story tree is no longer a recognized story-dir prefix. These
+The retired hidden Proofbound story tree is no longer a recognized story-dir prefix. These
 writes are not implementation work — they are command-generated provenance.
 Before B-b9d0 the scope gate either failed-closed against them (blocking DONE)
 or fell back to a blanket legacy Lattice-directory exemption that let arbitrary,
@@ -39,16 +39,17 @@ order:
    – returns a hit only when the path matches:
    – a recognized story-dir prefix (`docs/story/actives/`,
      `.lattice/story/actives/`, or a custom `storyDir`;
-     the retired hidden Lattice story tree is not recognized),
+     the retired hidden Proofbound story tree is not recognized),
    – followed by a valid storyId segment,
    – followed by either a top-level terminal filename in
      `LATTICE_LIFECYCLE_ARTIFACT_FILENAMES` or a relative path in
      `LATTICE_LIFECYCLE_ARTIFACT_RELATIVE_PATHS` (the closed sets declared in
      `packages/main/src/core/lifecycle-registry.ts`).
-     The relative-path set is intentionally tiny: today it includes the TEST
-     transcript evidence path `evidence/transcript-diff.md` and does not allow
-     arbitrary files under `evidence/`, even when their basename is a known
-     top-level lifecycle filename such as `summary.json`.
+     The relative-path set is intentionally tiny: today it includes only the
+     TEST transcript evidence paths `evidence/transcript-diff.md` and
+     `evidence/live-smoke-transcript.json`. It does not allow arbitrary files
+     under `evidence/`, even when their basename is a known top-level lifecycle
+     filename such as `summary.json`.
    – Legacy story-tree paths under `docs/story/...` resolve as
      `legacy-metadata` for back-compat with PLAN-time files.
 
@@ -58,7 +59,7 @@ order:
      `.lattice/locks/...`, `owner-lease.json`, `docs/story/activity.jsonl`,
      `.lattice-tmp-*`, `lattice-debug.log`,
      `browser-test.log`, etc.
-   – Used by scope to skip volatile runtime telemetry that Lattice writes as a
+   – Used by scope to skip volatile runtime telemetry that Proofbound writes as a
      side-effect of read/write commands. **This is NOT a blanket `.lattice/`
      pass.** An arbitrary file like `.lattice/foo.json` does not match any registered runtime matcher and
      therefore falls through.
@@ -119,11 +120,12 @@ Expected row families:
   recognizes these filenames as provenance; INIT_CHECK gate satisfaction still
   requires the machine guard to verify hashes, freshness, pending proposal
   state, excluded keyword hits, and repeat-discard mitigation.
-- A user-value acceptance transcript may write
-  `.lattice/story/actives/<id>/evidence/transcript-diff.md` during TEST as a
-  lifecycle transcript artifact. This exemption is path-specific; sibling files
-  such as `evidence/notes.md` and arbitrary nested evidence still fall through
-  to normal scope enforcement.
+- User-value acceptance transcript commands may write
+  `.lattice/story/actives/<id>/evidence/transcript-diff.md` and
+  `.lattice/story/actives/<id>/evidence/live-smoke-transcript.json` during TEST
+  as lifecycle transcript artifacts. These exemptions are path-specific;
+  sibling files such as `evidence/notes.md` and arbitrary nested evidence still
+  fall through to normal scope enforcement.
 - `scope_contract_acknowledge` is still required for ordinary in-scope file
   expansions (product code, docs, new tests). It is **not** required for
   lifecycle artifacts.
@@ -139,11 +141,11 @@ Expected row families:
 Mechanical evidence lives in:
 
 - `scripts/verify-process-fact-contract.mjs` — asserts the classifier accepts
-  known lifecycle filenames plus `evidence/transcript-diff.md` under a story
-  id, rejects arbitrary files in the retired hidden Lattice tree and nearby
-  non-transcript evidence files, includes the INIT scope anti-expansion artifact
-  filenames, and rejects ordinary product source files when scope is
-  unacknowledged.
+  known lifecycle filenames plus `evidence/transcript-diff.md` and
+  `evidence/live-smoke-transcript.json` under a story id, rejects arbitrary
+  files in the retired hidden Proofbound tree and nearby non-transcript evidence
+  files, includes the INIT scope anti-expansion artifact filenames, and rejects
+  ordinary product source files when scope is unacknowledged.
 - `scripts/verify-gap-convergence.mjs` — asserts derived `.build` symlink
   loops do not crash `convergence_check` and do not hide real `docs/story` /
   truth-source content.
@@ -160,12 +162,12 @@ test-evidence.json is gate-consumed validation metadata, not material drift inpu
 
 ## Policy: registry-backed prompt assets
 
-Lattice init supports two compatible prompt asset shapes:
+Proofbound init supports two compatible prompt asset shapes:
 
 | Layer | Examples | Ownership |
 | --- | --- | --- |
 | project-local required assets | Default fresh init primary (global-thin): `.lattice/Lattice.md`, `.lattice/lattice.json`, `AGENTS.md`. Full/local-shim explicit opt-in (`--asset-mode=full`/`--asset-mode=thin`): `LATTICE.md`, `.lattice-codex/lattice.json`, `bin/lattice.js`, `bin/lattice-codex.js`, `.claude/settings.json`, `.claude/hooks/*`. | Repository-local host entrypoints, adapter config, and command launchers. Global-thin init requires only `.lattice/` assets; local wrappers are generated only in full/thin modes. |
-| package registry prompt templates | `packages/main/templates/agents/*.md` exposed through `lattice.prompt-registry.v1` | Versioned Lattice package assets. These are the canonical prompt bodies. |
+| package registry prompt templates | `packages/main/templates/agents/*.md` exposed through `lattice.prompt-registry.v1` | Versioned Proofbound package assets. These are the canonical prompt bodies. |
 | generated or materialized prompt caches | `.lattice-codex/agents/*.md`, `.claude/agents/*.md` when a profile asks for full materialization | Compatibility surfaces for hosts or old repositories that still expect local prompt files. |
 
 The phrase **registry-backed prompt assets** means project metadata points at the
@@ -178,7 +180,7 @@ requiring `.lattice-codex/` entries or local bin wrappers. In full/thin modes,
 Legacy `.lattice-codex/lattice.json` files may remain archived or user-owned, but they are
 not active adapter inputs.
 
-The Lattice naming migration is a managed-asset naming contract only. It does
+The Proofbound naming migration is a managed-asset naming contract only. It does
 not promote ordinary CLI output to receipt-backed authority and does not change
 Story lifecycle gates. `lattice` is the only active runtime/product command.
 Fresh init must not generate `LATTICE.md`, `.lattice-codex/lattice.json`, `bin/lattice.js`, or
@@ -198,9 +200,9 @@ Safe migration follows the existing managed-asset states:
 - `OK` registry manifests and full-mode mirrors are both valid.
 - `MISSING` registry metadata can be created by explicit thin init/check flows.
 - `STALE_SAFE` generated prompt mirrors may be updated or removed only when
-  Lattice can prove they are old unedited managed assets.
+  Proofbound can prove they are old unedited managed assets.
 - `STALE_LOCAL_EDIT`, `CASE_MISMATCH`, and `INCOMPATIBLE` prompt files are
-  report-only. Lattice must not overwrite or delete local edits during thin
+  report-only. Proofbound must not overwrite or delete local edits during thin
   migration.
 
 Registry-backed prompt checks are adapter hygiene. They do not submit evidence,
@@ -209,7 +211,7 @@ receipt-backed authority remain separate gate inputs.
 
 ## Policy: host-neutral prompt content, thin host adapters (B-097f)
 
-The single source of truth for every Lattice agent prompt **body** is the package
+The single source of truth for every Proofbound agent prompt **body** is the package
 prompt registry (`packages/main/templates/agents/*.md` via
 `promptRegistryManifest()`). **No host materializes prompt content.** Each host
 keeps only a *thin adapter* that points back at the registry; the adapter shape is
@@ -232,7 +234,7 @@ keeps one file per role, but that file is a **content-free shim**.
 
 1. **Prompt content never lives under a host.** A Claude shim contains only
    frontmatter (`name`, `description`, `tools`) plus a body instructing the agent
-   to fetch its authoritative instructions from the Lattice CLI. The role prompt
+   to fetch its authoritative instructions from the Proofbound CLI. The role prompt
    body is **not** copied or symlinked into any host directory.
 
 2. **`lattice agent_prompt --role=<name>` is the shared content endpoint.** It
@@ -273,5 +275,5 @@ keeps one file per role, but that file is a **content-free shim**.
 
 This realizes the runtime-owned principle in
 `lattice-runtime-owned-agent-assets-execution-plan.md` for both hosts: agent
-prompt **content** belongs to the local Lattice CLI runtime/registry, not to any
+prompt **content** belongs to the local Proofbound CLI runtime/registry, not to any
 host directory or business project; hosts hold only thin, content-free adapters.

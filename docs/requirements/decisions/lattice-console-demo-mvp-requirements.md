@@ -1,4 +1,4 @@
-# Lattice Console Demo MVP Requirements Recommendation
+# Proofbound Console Demo MVP Requirements Recommendation
 
 > Status: proposal for Story B-0414
 > Date: 2026-06-16
@@ -8,11 +8,11 @@
 
 ## 1. Purpose
 
-The static prototype already shows the right product shape: a Lattice monitor with Overview, Active Stories, DONE Pre-check, Bugs and Findings, Hosts and Runtimes, Trajectory / Truth, and Authority Status.
+The static prototype already shows the right product shape: a Proofbound monitor with Overview, Active Stories, DONE Pre-check, Bugs and Findings, Hosts and Runtimes, Trajectory / Truth, and Authority Status.
 
-The missing piece is not visual polish. The missing piece is the bridge from a static mock to a trustworthy Lattice console that:
+The missing piece is not visual polish. The missing piece is the bridge from a static mock to a trustworthy Proofbound console that:
 
-- reads only supported Lattice CLI JSON surfaces;
+- reads only supported Proofbound CLI JSON surfaces;
 - explains the current workflow state without parsing Markdown or private backing stores;
 - turns every failed or warning state into a concrete recovery command;
 - keeps local workflow evidence, local host verdicts, Authority receipts, and production DONE clearly separated;
@@ -38,18 +38,18 @@ The prototype also exposes real productization gaps:
 
 - The data is hard-coded. For example, the prototype shows `346 / 375 DONE`, while the current `session_brief` on 2026-06-16 reports `349 / 381 DONE`.
 - It implies `source: lattice ... --format=json`, but several required surfaces need explicit stable JSON contracts before the UI should depend on them.
-- It shows failed gates, but does not consistently provide the recovery command that Lattice already knows.
+- It shows failed gates, but does not consistently provide the recovery command that Proofbound already knows.
 - It mixes local green status and production authority status in the same visual language unless the user opens the Authority page.
 - It treats story and host state as dashboard facts, but does not yet show authority root, worktree root, mirror phase, or stale evidence recovery.
 
 The MVP should fix these correctness issues first. It should not optimize layout, animation, chart density, or background style until the state model is honest.
 
-## 3. Lattice Core Design Philosophy
+## 3. Proofbound Core Design Philosophy
 
-The console should expose Lattice's core product philosophy: host-neutral workflow, CLI-owned truth, evidence-backed gates, recovery before analytics, and explicit authority boundaries. The demo can be visually polished only when those semantics remain visible and consistent.
+The console should expose Proofbound's core product philosophy: host-neutral workflow, CLI-owned truth, evidence-backed gates, recovery before analytics, and explicit authority boundaries. The demo can be visually polished only when those semantics remain visible and consistent.
 
 1. **Host-neutral workflow first**
-   Lattice workflow commands and state are not Codex-specific, Claude-specific, or Mac-app-specific. The console must describe Lattice state, not a single host runtime transcript.
+   Proofbound workflow commands and state are not Codex-specific, Claude-specific, or Mac-app-specific. The console must describe Proofbound state, not a single host runtime transcript.
 
 2. **No arbitrary optimization**
    Do not add analytics, daemons, storage layers, or extra indexing only because the dashboard could look richer. Add a field only when it answers a real workflow recovery or correctness question.
@@ -73,7 +73,7 @@ The console should expose Lattice's core product philosophy: host-neutral workfl
 
 The MVP should let a user answer five questions without asking an agent:
 
-1. What is the current Lattice project state?
+1. What is the current Proofbound project state?
 2. Which stories are active, and where is each authoritative worktree?
 3. Why can or cannot a selected story reach DONE?
 4. What exact command should recover a warning or failure?
@@ -95,7 +95,7 @@ The MVP must not:
 
 ## 6. Data Source Contract
 
-The console adapter must consume Lattice through supported CLI JSON surfaces only.
+The console adapter must consume Proofbound through supported CLI JSON surfaces only.
 
 Required read-only command surfaces:
 
@@ -303,11 +303,11 @@ If an element cannot yet resolve to real data, it must show a disabled or "not i
 ### 8.4 Product Logic Requirements for Clicks
 
 - A click must never imply a mutation unless the UI explicitly labels it as a copyable command or future confirmed action.
-- A failed gate click must explain why Lattice would block the phase transition.
+- A failed gate click must explain why Proofbound would block the phase transition.
 - A warning click must distinguish advisory state from blocking state.
 - A host click must distinguish runtime availability from Authority readiness.
 - A convergence click must distinguish whole-project convergence from the selected story's DONE eligibility.
-- A command shown in a drawer must use host-neutral Lattice command names unless the command is explicitly adapter-specific.
+- A command shown in a drawer must use host-neutral Proofbound command names unless the command is explicitly adapter-specific.
 
 ## 9. Core User Flows
 
@@ -315,7 +315,7 @@ If an element cannot yet resolve to real data, it must show a disabled or "not i
 
 1. User opens console.
 2. Console reads project overview and active stories.
-3. Console highlights the most reliable next action from Lattice.
+3. Console highlights the most reliable next action from Proofbound.
 4. User can copy the next command.
 
 Acceptance:
@@ -345,7 +345,7 @@ Acceptance:
 
 Acceptance:
 
-- Recovery command matches Lattice CLI behavior.
+- Recovery command matches Proofbound CLI behavior.
 - Mutating commands are labeled.
 - Local evidence and Authority evidence remain distinct.
 
@@ -423,7 +423,7 @@ Exit criteria:
 
 The first implementation story should be accepted only when:
 
-1. The console reads live Lattice data instead of static demo arrays.
+1. The console reads live Proofbound data instead of static demo arrays.
 2. The displayed active story count matches `story_list`.
 3. The displayed lifecycle totals match `story_list` or an explicitly documented aggregate.
 4. The displayed DONE pre-check state matches the CLI's machine-readable gate state.
@@ -435,7 +435,7 @@ The first implementation story should be accepted only when:
 10. The console can explain non-convergence without treating every project-level gap as a current-story blocker.
 11. The console satisfies the visual rules for spacing, symmetry, restrained hierarchy, and semantic color use.
 12. Every visible clickable target opens a meaningful detail, route, disabled-state explanation, or close action.
-13. Click behavior preserves Lattice product logic: read-only by default, host-neutral commands, and no local evidence upgraded into production authority.
+13. Click behavior preserves Proofbound product logic: read-only by default, host-neutral commands, and no local evidence upgraded into production authority.
 
 ## 12. Verification Plan
 
@@ -480,15 +480,15 @@ Minimum verification for the implementation story:
 
 Recommended implementation story:
 
-`Build read-only Lattice Console live data adapter`
+`Build read-only Proofbound Console live data adapter`
 
 Initial checklist:
 
 1. Add or confirm a machine-readable active-story resolver surface.
-2. Build a read-only adapter that executes supported Lattice JSON commands.
+2. Build a read-only adapter that executes supported Proofbound JSON commands.
 3. Replace prototype hard-coded metrics with adapter snapshots.
 4. Render DONE pre-check gates with recovery commands.
 5. Add a click-target inventory and browser test proving every clickable demo element opens a valid detail/page/disabled explanation.
 6. Add tests proving no direct `.lattice/story/**` reads and no mutating commands.
 
-This sequence follows the Lattice host-neutral direction and avoids optimization for its own sake: it fixes live-state correctness, recovery clarity, and authority-boundary clarity first.
+This sequence follows the Proofbound host-neutral direction and avoids optimization for its own sake: it fixes live-state correctness, recovery clarity, and authority-boundary clarity first.

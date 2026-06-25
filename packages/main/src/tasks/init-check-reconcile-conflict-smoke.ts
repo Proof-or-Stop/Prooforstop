@@ -67,7 +67,7 @@ function initRepo(prefix: string): string {
   const root = mkdtempSync(join(tmpdir(), prefix));
   git(root, ['init', '-b', 'main']);
   git(root, ['config', 'user.email', 'smoke@example.test']);
-  git(root, ['config', 'user.name', 'Lattice Smoke']);
+  git(root, ['config', 'user.name', 'Proofbound Smoke']);
   // Make local merges deterministic regardless of the host git config.
   git(root, ['config', 'commit.gpgsign', 'false']);
   write(root, 'lattice.config.json', JSON.stringify({

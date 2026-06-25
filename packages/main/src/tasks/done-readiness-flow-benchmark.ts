@@ -34,7 +34,7 @@ import type { ChecklistData, ClosingSelfCheck, DocsPromise, RealMachineTest, Sto
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const cliPath = join(packageRoot, 'cli.js');
-const COMMIT_ENV = ['-c', 'user.email=benchmark@example.test', '-c', 'user.name=Lattice Benchmark'];
+const COMMIT_ENV = ['-c', 'user.email=benchmark@example.test', '-c', 'user.name=Proofbound Benchmark'];
 const DEFAULT_ROUNDS = 3;
 const DEFAULT_SLOW_COMMAND_MS = 800;
 const METADATA_STORY_ID = 'B-readiness-bench';

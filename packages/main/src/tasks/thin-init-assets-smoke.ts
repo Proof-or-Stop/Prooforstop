@@ -185,7 +185,7 @@ const preserveRoot = makeRoot('preserve-legacy');
 try {
   const legacyFiles = new Map([
     ['GUIDE.md', '# User legacy guide\n\nDo not delete.\n'],
-    ['LATTICE.md', '# User old Lattice guide\n\nDo not delete.\n'],
+    ['LATTICE.md', '# User old Proofbound guide\n\nDo not delete.\n'],
     ['bin/legacy-bootstrap.js', '#!/usr/bin/env node\nconsole.log("user legacy bootstrap");\n'],
     ['bin/legacy-codex.js', '#!/usr/bin/env node\nconsole.log("user legacy codex wrapper");\n'],
     ['.lattice-codex/legacy.json', '{"userOwned":true}\n'],

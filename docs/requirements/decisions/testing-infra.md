@@ -12,7 +12,7 @@ The current test contract is centered on the story checklist:
 
 ### Project-Native Validation
 
-Prefer using the project's own validation commands (such as `npm test`, `pytest`, `go test`, `cargo test`) to produce evidence. Lattice does not require every project to have a TypeScript `validate.ts`, nor does it require passing through a fixture to count as validation.
+Prefer using the project's own validation commands (such as `npm test`, `pytest`, `go test`, `cargo test`) to produce evidence. Proofbound does not require every project to have a TypeScript `validate.ts`, nor does it require passing through a fixture to count as validation.
 
 ### Browser Real-Machine Tests
 
@@ -22,7 +22,7 @@ Browser black-box validation can still serve as `verificationEvidence`:
 2. Execute the user-visible flow in a real browser
 3. Associate the transcript, screenshot/trace, command, and result with the corresponding `verificationIntent` via `checklist_update`
 
-User-value acceptance can only be approximated, not disguised as a fully automatic proof: transcript/delivery evidence is required; prompt-only user-value claims are not enough. The user's final approval is non-mechanical user approval, and the Lattice gate can only consume a transcript, verificationEvidence, delivery-check / product-reviewer evidence, or a waiver.
+User-value acceptance can only be approximated, not disguised as a fully automatic proof: transcript/delivery evidence is required; prompt-only user-value claims are not enough. The user's final approval is non-mechanical user approval, and the Proofbound gate can only consume a transcript, verificationEvidence, delivery-check / product-reviewer evidence, or a waiver.
 
 ### Grill Planning Artifact Boundary
 
@@ -101,7 +101,7 @@ Configuration example:
 ```
 
 The JSON receipt of `validate.command` / `validate.commands` is audit evidence: each command should record
-`command`, `args`, `code`, `durationMs`, `output`, and `shell=true` when shell semantics are needed. When a string command contains shell semantics such as `cd`/`&&`/a pipe/a redirect, Lattice will execute it
+`command`, `args`, `code`, `durationMs`, `output`, and `shell=true` when shell semantics are needed. When a string command contains shell semantics such as `cd`/`&&`/a pipe/a redirect, Proofbound will execute it
 as a deliberate shell receipt; a structured command object does not go through the shell by default, unless `"shell": true` is written explicitly. When a required command fails, `lattice validate` hard-fails; when an `optional:true`
 command fails, it only returns a warn.
 
@@ -111,7 +111,7 @@ the labels of the auto-discovered fallback commands, whether it is in a no-valid
 will leave a `shell=true` receipt. It must not write a project-specific test count or an assumption such as PVSC here;
 when a hard gate is needed, an explicit validate command should be configured. Swift / Package.swift is not in the auto-fallback (the Mac Native App is retired), and the doctor output will explicitly note that an explicit `validate.commands` is needed before `swift test` will run.
 
-The `Runtime scan:` of `lattice doctor` is another kind of advisory / warn output: it checks Lattice runtime environment facts,
+The `Runtime scan:` of `lattice doctor` is another kind of advisory / warn output: it checks Proofbound runtime environment facts,
 does not write validation evidence, and does not enter the `process-fact-registry`. The runtime facts are declared by
 `packages/main/src/core/runtime-fact-registry.ts`, and `scripts/verify-runtime-fact-contract.mjs` validates the registry ID, output key, checker wiring,
 the doctor JSON `runtime` section, and text source coverage. `external-reference-policy` only does a bounded

@@ -1,10 +1,10 @@
 /**
- * Task B-3506: Shared auto-commit helper for Lattice metadata writes
+ * Task B-3506: Shared auto-commit helper for Proofbound metadata writes
  *
  * Extracted from packages/main/src/handlers/story-advance.ts:autoCommitStoryMetadata
  * (B-6326 lifecycle). All lattice CLI handlers that mutate files under the
  * configured story directory should call this AFTER a successful write so the
- * worktree-dirty gate stops blocking on Lattice's own bookkeeping.
+ * worktree-dirty gate stops blocking on Proofbound's own bookkeeping.
  *
  * Safety contract (preMortem #1 anchor):
  *   - Path scope is derived from the configured storyDir plus `storyId` itself.

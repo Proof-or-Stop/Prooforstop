@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-bdce",
+  "checkedAt": "2026-06-24T14:36:15.658Z",
+  "mode": "maintenance",
+  "status": "pass",
+  "scopeBoundaryHash": "db1d50b441b8d7c942fd5c9123fe50a5ef7e52f9b237563dc05ed338ee37bf45",
+  "executionBoundaryHash": "d22aaac9de4023e55cbbe676e278ebbfb494e3f8ff5d487eb585404f1e701550",
+  "freshnessHash": "6e2aa569b29e8a710c2d840f4b36c8b4c6f87443413523e7fed185e3f16b0de0",
+  "effectiveExcludedKeywords": [
+    "Changing the existing stable recovery lines (refresh_stale + validate) or the EVIDENCE_STALE_MARKER constant",
+    "DONE-blocker generators (machine.ts/done-oracle.ts), freshness judgment, gate strength, proof-admissibility contract — spike showed they are not the gap",
+    "flow-stability-smoke.ts (only uses findStaleEvidence; unchanged, out of scope)",
+    "The 3 consuming surfaces hints.ts/session.ts/transition-orchestrator.ts (they auto-inherit the shared renderer; do not edit unless one reconstructs the string)"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Changing the existing stable recovery lines (refresh_stale + validate) or the EVIDENCE_STALE_MARKER constant",
+      "source": "scopeBoundary.excluded",
+      "text": "Changing the existing stable recovery lines (refresh_stale + validate) or the EVIDENCE_STALE_MARKER constant",
+      "excluded": true
+    },
+    {
+      "keyword": "DONE-blocker generators (machine.ts/done-oracle.ts), freshness judgment, gate strength, proof-admissibility contract — spike showed they are not the gap",
+      "source": "scopeBoundary.excluded",
+      "text": "DONE-blocker generators (machine.ts/done-oracle.ts), freshness judgment, gate strength, proof-admissibility contract — spike showed they are not the gap",
+      "excluded": true
+    },
+    {
+      "keyword": "flow-stability-smoke.ts (only uses findStaleEvidence; unchanged, out of scope)",
+      "source": "scopeBoundary.excluded",
+      "text": "flow-stability-smoke.ts (only uses findStaleEvidence; unchanged, out of scope)",
+      "excluded": true
+    },
+    {
+      "keyword": "The 3 consuming surfaces hints.ts/session.ts/transition-orchestrator.ts (they auto-inherit the shared renderer; do not edit unless one reconstructs the string)",
+      "source": "scopeBoundary.excluded",
+      "text": "The 3 consuming surfaces hints.ts/session.ts/transition-orchestrator.ts (they auto-inherit the shared renderer; do not edit unless one reconstructs the string)",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "e9ce67c4cd19e184e0406531e82c27fd63db8f227d194e8a6374c7e018edca8f"
+}

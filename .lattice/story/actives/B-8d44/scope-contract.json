@@ -1,0 +1,72 @@
+{
+  "storyId": "B-8d44",
+  "mode": "enforce",
+  "allowedModify": [
+    "experiments/recovery-runner/run-recovery.mjs",
+    "experiments/recovery-runner/live-engine.mjs",
+    "experiments/recovery-runner/run-selfchecks.mjs",
+    "package.json"
+  ],
+  "allowedCreate": [
+    "experiments/recovery-runner/live-engine.mjs",
+    "experiments/recovery-runner/live-engine-selfcheck.mjs"
+  ],
+  "allowedTest": [
+    "experiments/recovery-runner/live-engine-selfcheck.mjs"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "README update is necessary delivery documentation for the live-engine adapter and resolves verified docs-drift findings F-001 F-002 and F-028; it is not arbitrary scope expansion.",
+      "timestamp": "2026-06-24T22:04:08.509Z",
+      "paths": [
+        "experiments/recovery-runner/README.md"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "experiments/recovery-runner/README.md"
+      ],
+      "affectedPathCount": 1,
+      "phase": "REVIEW",
+      "headHash": "8c2378d8b535222a4df7ce93b84b18e5a68cf308",
+      "materialHash": "ddbbcb7a0ad29ddb77cf34d92cbed573634d332a9b520a73795cdc44b4e010b6",
+      "anchors": [
+        "finding.F001",
+        "finding.F002",
+        "finding.F028",
+        "recovery_runner.live_engine.documentation"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Necessary scope expansion to resolve verified reviewer findings F-030 and F-031. F-030 root cause is the shared adjudicate safe-stop/recovered rule order consumed by the live-engine records, so adjudicate.mjs and adjudicate-selfcheck.mjs must change. run-driver-selfcheck.mjs pins the same terminal no-ship contract at canonical record construction. This is not arbitrary optimization; it fixes real correctness issues found in REVIEW.",
+      "timestamp": "2026-06-24T23:16:44.234Z",
+      "paths": [
+        "experiments/recovery-runner/adjudicate.mjs",
+        "experiments/recovery-runner/adjudicate-selfcheck.mjs",
+        "experiments/recovery-runner/run-driver-selfcheck.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "experiments/recovery-runner/adjudicate.mjs",
+        "experiments/recovery-runner/adjudicate-selfcheck.mjs",
+        "experiments/recovery-runner/run-driver-selfcheck.mjs"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "7d09c7438fdd1ceb331f23f79890603ba03eadda",
+      "materialHash": "462d919a8726c1100ad9c92c1a208a7887ea487163c8c48ce2e90a82a85a2f07",
+      "anchors": [
+        "finding.F030",
+        "finding.F031",
+        "recovery_runner.adjudicate.safe_stop",
+        "recovery_runner.infra_secret_scan"
+      ]
+    }
+  ],
+  "createdAt": "2026-06-24T12:25:10.846Z",
+  "updatedAt": "2026-06-24T23:16:44.235Z"
+}

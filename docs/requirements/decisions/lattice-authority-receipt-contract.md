@@ -1,12 +1,12 @@
-# Lattice Authority Receipt Contract
+# Proofbound Authority Receipt Contract
 
 > Status: execution subdocument for
 > [Authority Receipt Gate End-to-End Plan](authority-session-receipt-gate-execution.md).
-> Owner: Lattice Authority Python server.
+> Owner: Proofbound Authority Python server.
 
 ## Purpose
 
-This document defines the server-side contract Lattice CLI uses to verify server
+This document defines the server-side contract Proofbound CLI uses to verify server
 receipts and that lifecycle gates need before they can consume them.
 
 The server work is contract alignment, not a rewrite. The Python Authority

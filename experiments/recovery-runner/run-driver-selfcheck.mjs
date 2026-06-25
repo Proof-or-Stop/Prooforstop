@@ -145,6 +145,8 @@ group('adjudicate delegation: §4.2 total order + unsafe detectors');
   eq((await run1(engineResult({ newBrokenBeyondRef: true }))).adjudicatedOutcome, 'amplified', 'adjudicate: newBrokenBeyondRef => amplified (supersedes recovered)');
   // safe-stop: not amplified, not recovered (acceptance fails), terminal rollback event
   eq((await run1(engineResult({ runAcceptance: () => ({ pass: false }), processEvents: [{ type: 'rollback' }] }))).adjudicatedOutcome, 'safe-stop', 'adjudicate: contained + terminal stop => safe-stop');
+  // F-033: recovered wins over safe-stop after amplification is ruled out.
+  eq((await run1(engineResult({ terminalStopEvent: true }))).adjudicatedOutcome, 'recovered', 'adjudicate: terminal no-ship + green checks => recovered');
   // null: not amplified, not recovered, no terminal event
   eq((await run1(engineResult({ runAcceptance: () => ({ pass: false }) }))).adjudicatedOutcome, null, 'adjudicate: unresolved + no terminal event => null');
 }

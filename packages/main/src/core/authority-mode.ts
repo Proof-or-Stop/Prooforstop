@@ -24,7 +24,7 @@ export const AUTHORITY_MODES: readonly AuthorityMode[] = ['off', 'shadow', 'enfo
 export const DEFAULT_AUTHORITY_TIMEOUT_MS = 10_000;
 
 /**
- * Default Lattice Authority server URL. Per the requirements doc
+ * Default Proofbound Authority server URL. Per the requirements doc
  * (`lattice-authority-live-integration.md`, "Authority URL and key-file defaults")
  * this default applies ONLY when the user selects `authority` (transport
  * `enforce`) mode and provides no URL via CLI / env / authority.md. It is

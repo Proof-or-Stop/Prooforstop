@@ -27,7 +27,7 @@ import type { ProviderEvent } from './authority-runner-contracts.js';
  * This module turns the deterministic executor's per-step output
  * ({@link PlannedStepsExecutionResult.steps}) into the structured evidence
  * taxonomy required by the live-integration requirements §B4 and streams each
- * record to Lattice Authority through the EXISTING {@link AuthorityClient}
+ * record to Proofbound Authority through the EXISTING {@link AuthorityClient}
  * endpoints:
  *
  *   - provider events            -> POST /v1/runs/{runId}/provider-events
@@ -450,7 +450,7 @@ function providerEventOf(record: StepEvidenceRecord, header: EvidenceUploadHeade
     provider: header.provider ?? 'codex',
     type: 'message',
     ...(header.jobId ? { jobId: header.jobId } : {}),
-    message: `Lattice provider evidence ${record.evidenceId}`,
+    message: `Proofbound provider evidence ${record.evidenceId}`,
     occurredAt: record.occurredAt,
     artifactRefs: [],
     metadata: { evidenceBinding: record.evidenceBinding, evidenceDigest: record.evidenceDigest, ...record.payload },
@@ -462,7 +462,7 @@ function endpointFor(kind: EvidenceStreamKind): EvidenceUploadEndpoint {
 }
 
 /**
- * Stream evidence records to Lattice Authority through the existing client
+ * Stream evidence records to Proofbound Authority through the existing client
  * endpoints, one POST per record (per-step streaming). Fails closed at the first
  * required record whose transport outcome is not `success`.
  */
@@ -580,7 +580,7 @@ export interface StreamPlannedStepEvidenceOptions extends BuildEvidenceStreamOpt
 
 /**
  * Top-level entry: build the evidence stream from an execution and either record
- * it locally (local mode — ZERO network) or stream it to Lattice Authority
+ * it locally (local mode — ZERO network) or stream it to Proofbound Authority
  * (authority mode — fail closed on required upload failure).
  *
  * Mode is taken from `jobPlan.mode`. A local job NEVER touches the client even if

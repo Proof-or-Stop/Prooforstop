@@ -13,33 +13,33 @@ Baseline capability.
 
 The goal is not to add another framework layer or create a stronger-looking
 claim. The goal is to prove, through an evidence-backed Engineering baseline
-suite, that Lattice can handle realistic engineering work under scoped,
+suite, that Proofbound can handle realistic engineering work under scoped,
 reviewed, gated, and auditable conditions.
 
 The core question answered by this unlock is:
 
 ```text
-Can Lattice complete realistic engineering tasks with correct scope control,
+Can Proofbound complete realistic engineering tasks with correct scope control,
 regression protection, review evidence, and fail-closed proof gates?
 ```
 
 The allowed claim after unlock is:
 
 ```text
-Lattice has passed the Layer 2 Engineering Baseline and can claim real
+Proofbound has passed the Layer 2 Engineering Baseline and can claim real
 engineering development baseline capability under gated, evidence-backed
 conditions.
 ```
 
 The unlock does not allow these claims:
 
-- Lattice can run unattended development.
-- Lattice is production-grade.
-- Lattice can autonomously develop arbitrary projects.
-- Lattice can skip Loop Engineering.
-- Lattice can skip Production Safety.
-- Lattice can treat local CLI status as production Authority.
-- Lattice can turn host transcripts into capability proof by relabeling them.
+- Proofbound can run unattended development.
+- Proofbound is production-grade.
+- Proofbound can autonomously develop arbitrary projects.
+- Proofbound can skip Loop Engineering.
+- Proofbound can skip Production Safety.
+- Proofbound can treat local CLI status as production Authority.
+- Proofbound can turn host transcripts into capability proof by relabeling them.
 
 ## 2. Governing Principles
 
@@ -80,8 +80,8 @@ Layer 2 capability itself is not yet unlocked.
 Current conclusion:
 
 ```text
-Lattice has a formal proof consumption path.
-Lattice has not yet formally unlocked Layer 2 Engineering capability.
+Proofbound has a formal proof consumption path.
+Proofbound has not yet formally unlocked Layer 2 Engineering capability.
 ```
 
 ## 4. Unlock Boundary
@@ -91,14 +91,14 @@ explicit.
 
 | Item | Meaning |
 |---|---|
-| Proof bridge exists | Lattice can verify and consume formal proof inputs. |
+| Proof bridge exists | Proofbound can verify and consume formal proof inputs. |
 | Engineering suite PASS exists | The actual Layer 2 baseline tasks have passed. |
 | Capability unlock exists | The claim evaluator has authorized the Layer 2 claim from valid suite proof. |
 
 What can be said now:
 
 ```text
-Lattice has the proof bridge required to run formal Layer 2 unlock.
+Proofbound has the proof bridge required to run formal Layer 2 unlock.
 ```
 
 What cannot be said yet:
@@ -121,14 +121,14 @@ The unlock proof pack must use that selected root.
 
 | Baseline ID | Name | What it verifies | PASS means |
 |---|---|---|---|
-| `ENG-MULTI-FILE-1` | Multi-file feature baseline | One feature requires changes across 3-8 files. | Lattice can handle cross-module feature development. |
-| `ENG-EXISTING-REPO-1` | Existing repo feature baseline | Add functionality inside an existing repository. | Lattice can work with existing structure instead of rewriting it. |
-| `ENG-BUGFIX-1` | Bugfix baseline | Reproduce, locate, fix, and verify a real bug. | Lattice can handle real defects with evidence. |
-| `ENG-REGRESSION-1` | Regression protection baseline | Fix behavior A without breaking behavior B. | Lattice protects existing behavior. |
-| `ENG-DATA-MIGRATION-1` | Data/schema migration baseline | High-risk data or schema change is gated. | Lattice blocks or gates risky migration instead of improvising. |
-| `ENG-AUTH-SECURITY-1` | Auth/security baseline | Auth, secret, and security boundaries are respected. | Lattice does not bypass security constraints. |
+| `ENG-MULTI-FILE-1` | Multi-file feature baseline | One feature requires changes across 3-8 files. | Proofbound can handle cross-module feature development. |
+| `ENG-EXISTING-REPO-1` | Existing repo feature baseline | Add functionality inside an existing repository. | Proofbound can work with existing structure instead of rewriting it. |
+| `ENG-BUGFIX-1` | Bugfix baseline | Reproduce, locate, fix, and verify a real bug. | Proofbound can handle real defects with evidence. |
+| `ENG-REGRESSION-1` | Regression protection baseline | Fix behavior A without breaking behavior B. | Proofbound protects existing behavior. |
+| `ENG-DATA-MIGRATION-1` | Data/schema migration baseline | High-risk data or schema change is gated. | Proofbound blocks or gates risky migration instead of improvising. |
+| `ENG-AUTH-SECURITY-1` | Auth/security baseline | Auth, secret, and security boundaries are respected. | Proofbound does not bypass security constraints. |
 | `ENG-FRONTEND-VISUAL-1` | Frontend visual baseline | UI is verified with browser, screenshot, or interaction evidence. | UI correctness is not reduced to build success. |
-| `ENG-LONG-RUN-1` | Long-running story baseline | Multiple stories, multiple review rounds, or extended work remain coherent. | Lattice can support longer engineering execution without logical drift. |
+| `ENG-LONG-RUN-1` | Long-running story baseline | Multiple stories, multiple review rounds, or extended work remain coherent. | Proofbound can support longer engineering execution without logical drift. |
 | `ENG-LOOP-REVIEW-1` | Review reflection loop baseline | REVIEW findings enter loop repair and are closed or escalated correctly. | Review loop can converge without false DONE. |
 
 Risk-sensitive baselines may pass only when their explicit gates are satisfied.
@@ -242,7 +242,7 @@ Authority separate from host output.
 | Reviewer agent A | Claude CLI | Independently review implementation, evidence, and logic consistency. |
 | Reviewer agent B | Codex CLI | Independently review gates, receipts, claim boundaries, and fail-closed behavior. |
 | Authority Server | Authority | Produce production-classified gate decision receipts. |
-| Claim evaluator | Lattice | Decide whether Layer 2 claim unlock is authorized. |
+| Claim evaluator | Proofbound | Decide whether Layer 2 claim unlock is authorized. |
 
 Host-neutral rule:
 
@@ -342,7 +342,7 @@ work can be parallelized.
 
 ## 13. Minimal Story Checklist
 
-The formal unlock should be executed as a dedicated Lattice story:
+The formal unlock should be executed as a dedicated Proofbound story:
 
 ```text
 Formal unlock Layer 2 Engineering Baseline
@@ -377,14 +377,14 @@ The Layer 2 unlock story is complete only when:
 | Claim boundary | Only a formal Layer 2 Engineering claim unlocks; local diagnostic claim output is insufficient. |
 | Host-neutral review | Claude CLI and Codex CLI have no blocker. |
 | Authority boundary | CLI status is not treated as production Authority. |
-| User value | Lattice can be described as having real engineering development baseline capability, not unattended development. |
+| User value | Proofbound can be described as having real engineering development baseline capability, not unattended development. |
 
 ## 15. Final Claim Format
 
 If all criteria pass, the final claim should be:
 
 ```text
-Lattice has passed the Layer 2 Engineering Baseline and can claim real
+Proofbound has passed the Layer 2 Engineering Baseline and can claim real
 engineering development baseline capability under gated, evidence-backed
 conditions.
 ```
@@ -416,7 +416,7 @@ How can formal Layer 2 proof be consumed by lifecycle gates?
 This unlock plan solves the next question:
 
 ```text
-How does Lattice formally prove and claim Layer 2 Engineering capability?
+How does Proofbound formally prove and claim Layer 2 Engineering capability?
 ```
 
 The answer is:

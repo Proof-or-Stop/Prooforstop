@@ -3289,16 +3289,16 @@ function assertProcessFactRegistryContract(cliToolNames, policyEntries, configTe
  * @type bugfix
  * @priority high
  * @description
- *   Proves TEST transcript evidence is the only nested evidence path accepted
- *   by lifecycle artifact scope classification.
+ *   Proves TEST transcript evidence paths are the only nested evidence paths
+ *   accepted by lifecycle artifact scope classification.
  * @changes
- *   - [CHK-001] Assert evidence/transcript-diff.md passes scope as a lifecycle artifact
+ *   - [CHK-001] Assert transcript evidence paths pass scope as lifecycle artifacts
  *   - [CHK-001] Assert nearby arbitrary evidence files remain out_of_scope
  *
  * B-b9d0 CHK-001/CHK-002/CHK-005: mechanical evidence that the scope-contract
  * lifecycle-artifact classifier
  *   (a) accepts known story-scoped lifecycle artifacts under the story id,
- *   (a2) accepts the narrow TEST transcript evidence relative path,
+ *   (a2) accepts the narrow TEST transcript evidence relative paths,
  *   (b) rejects arbitrary `.koala/foo.json` and `.koala/story/...` writes
  *       after the `.lattice` migration,
  *   (c) rejects ordinary product source files when unacknowledged,
@@ -3326,6 +3326,7 @@ async function assertLifecycleArtifactScopePolicy() {
     'isRuntimeArtifactPath',
     'classifyLifecycleArtifact',
     'evidence/transcript-diff.md',
+    'evidence/live-smoke-transcript.json',
     'does not weaken product source scope enforcement',
     'arbitrary',
     'M1-M3 wave complete; M4-M12 remain follow-up milestones',
@@ -3439,6 +3440,7 @@ async function assertLifecycleArtifactScopePolicy() {
     return row;
   };
   const transcriptOnlyFile = '.lattice/story/actives/B-scope/evidence/transcript-diff.md';
+  const liveSmokeTranscriptOnlyFile = '.lattice/story/actives/B-scope/evidence/live-smoke-transcript.json';
 
   const lifecycleAccept = [
     '.lattice/story/actives/B-scope/delivery-check.json',
@@ -3453,6 +3455,7 @@ async function assertLifecycleArtifactScopePolicy() {
     '.lattice/story/actives/B-scope/process-events.jsonl',
     '.lattice/story/actives/B-scope/done-required-evidence.json',
     transcriptOnlyFile,
+    liveSmokeTranscriptOnlyFile,
     'docs/story/actives/B-scope/plan.md',
   ];
   for (const file of lifecycleAccept) {
@@ -3480,6 +3483,10 @@ async function assertLifecycleArtifactScopePolicy() {
   const transcriptOnlyScope = probe([transcriptOnlyFile]);
   if (transcriptOnlyScope.status !== 'pass' || !transcriptOnlyScope.summary.includes('Scope gate: pass')) {
     fail(`transcript-only scope check should pass without acknowledgement: ${JSON.stringify(transcriptOnlyScope)}`);
+  }
+  const liveSmokeTranscriptOnlyScope = probe([liveSmokeTranscriptOnlyFile]);
+  if (liveSmokeTranscriptOnlyScope.status !== 'pass' || !liveSmokeTranscriptOnlyScope.summary.includes('Scope gate: pass')) {
+    fail(`live-smoke transcript-only scope check should pass without acknowledgement: ${JSON.stringify(liveSmokeTranscriptOnlyScope)}`);
   }
 
   const runtimeAccept = [
@@ -3515,6 +3522,7 @@ async function assertLifecycleArtifactScopePolicy() {
     '.koala/story/actives/B-scope/evidence/test-evidence.json',
     '.koala/story/actives/B-scope/evidence/transcript-diff.txt',
     '.koala/story/actives/B-scope/evidence/transcript-diff.md',
+    '.koala/story/actives/B-scope/evidence/live-smoke-transcript.json',
     '.koala/story/actives/B-scope/delivery-check.json',
     'packages/main/src/handlers/unrelated.ts',
     'src/handlers/random.ts',

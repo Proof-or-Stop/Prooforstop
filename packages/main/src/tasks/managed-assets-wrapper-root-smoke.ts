@@ -4,7 +4,7 @@
  * Regression smoke for `lattice check` managed asset root diagnostics on a
  * wrapper-root layout:
  *
- *   metadataRoot/              <- not a git repo; Lattice metadata/assets live here
+ *   metadataRoot/              <- not a git repo; Proofbound metadata/assets live here
  *     lattice.config.json      <- { gitRoot: "repo" }
  *     .lattice/Lattice.md      <- managed asset path base
  *     repo/                    <- configured gitRoot subdir
@@ -143,7 +143,7 @@ try {
   assert.equal(applyJson.gitRoot, canonicalGitRoot, 'apply JSON gitRoot');
   assert.equal(applyJson.pathsRelativeTo, 'assetRoot', 'apply JSON pathsRelativeTo');
   assert.equal(applyJson.assetRootGitRootSplit, true, 'apply JSON split flag');
-  assertExists(metadataRoot, '.lattice/Lattice.md', 'metadataRoot managed Lattice guide');
+  assertExists(metadataRoot, '.lattice/Lattice.md', 'metadataRoot managed Proofbound guide');
   assertExists(metadataRoot, '.lattice/managed-assets.json', 'metadataRoot managed manifest');
   assertMissing(gitRoot, '.lattice/managed-assets.json', 'gitRoot managed manifest');
   assert.equal(

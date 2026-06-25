@@ -61,7 +61,7 @@ function formatAutopilotReviewStatus(result: AutopilotReviewStatusResult): strin
     ...selectedRun
   } = result;
   return [
-    render(`Lattice autopilot review status (${result.schemaVersion})`, selectedRun as unknown as Record<string, unknown>),
+    render(`Proofbound autopilot review status (${result.schemaVersion})`, selectedRun as unknown as Record<string, unknown>),
     `runs: ${allRunIds.length > 0 ? allRunIds.join(', ') : '<none>'}`,
     `latestRuns: ${latestRuns.length}`,
     ...latestRuns.map(run => `  - ${formatRunSummary(run)}`),
@@ -242,7 +242,7 @@ export function createVerdictHandlers(ctx: HandlerContext) {
   return {
     autopilot_review_submit(args: SubmitArgs = {}) {
       const result = submitLocal('local', args);
-      return wantsJson(args) ? result : render(`Lattice autopilot review submit (${result.schemaVersion})`, result as unknown as Record<string, unknown>);
+      return wantsJson(args) ? result : render(`Proofbound autopilot review submit (${result.schemaVersion})`, result as unknown as Record<string, unknown>);
     },
     autopilot_review_status(args: { storyId: string; runId?: string; requiredHosts?: number } & FormatArgs) {
       const result = localReviewStatus(args);
@@ -280,7 +280,7 @@ export function createVerdictHandlers(ctx: HandlerContext) {
         createMode: outcome.createMode,
         endpoint: outcome.endpoint,
       };
-      return wantsJson(args) ? result : render(`Lattice authority job create (${result.schemaVersion})`, result as unknown as Record<string, unknown>);
+      return wantsJson(args) ? result : render(`Proofbound authority job create (${result.schemaVersion})`, result as unknown as Record<string, unknown>);
     },
 
     async authority_receipt_fetch(args: ReceiptFetchArgs) {
@@ -306,7 +306,7 @@ export function createVerdictHandlers(ctx: HandlerContext) {
         outputFile: args.outputFile ?? null,
         receipt: args.outputFile ? undefined : outcome.data,
       };
-      return wantsJson(args) ? result : render(`Lattice authority receipt fetch (${result.schemaVersion})`, result as unknown as Record<string, unknown>);
+      return wantsJson(args) ? result : render(`Proofbound authority receipt fetch (${result.schemaVersion})`, result as unknown as Record<string, unknown>);
     },
 
     async authority_verdict_submit(args: SubmitArgs = {}) {
@@ -321,11 +321,11 @@ export function createVerdictHandlers(ctx: HandlerContext) {
         if (!outcome.ok) {
           throw new Error(`authority verdict submit blocked (${outcome.transport}): ${outcome.reason ?? 'unknown error'}`);
         }
-        return wantsJson(args) ? outcome : render('Lattice authority verdict submit (server-backed)', outcome as unknown as Record<string, unknown>);
+        return wantsJson(args) ? outcome : render('Proofbound authority verdict submit (server-backed)', outcome as unknown as Record<string, unknown>);
       }
       // Local-storage fallback (non-authority / no URL) — preserved verbatim.
       const result = submitLocal('authority', args);
-      return wantsJson(args) ? result : render(`Lattice authority verdict submit (${result.schemaVersion})`, result as unknown as Record<string, unknown>);
+      return wantsJson(args) ? result : render(`Proofbound authority verdict submit (${result.schemaVersion})`, result as unknown as Record<string, unknown>);
     },
 
     async authority_verdict_list(args: { jobId: string; runId?: string; requiredHosts?: number } & FormatArgs & AuthorityBackingSeams) {
@@ -336,10 +336,10 @@ export function createVerdictHandlers(ctx: HandlerContext) {
         if (!outcome.ok) {
           throw new Error(`authority verdict list failed (${outcome.transport}): ${outcome.reason ?? 'unknown error'}`);
         }
-        return wantsJson(args) ? outcome : render('Lattice authority verdict list (server-backed)', outcome as unknown as Record<string, unknown>);
+        return wantsJson(args) ? outcome : render('Proofbound authority verdict list (server-backed)', outcome as unknown as Record<string, unknown>);
       }
       const result = listLocal('authority', args);
-      return wantsJson(args) ? result : render(`Lattice authority verdict list (${result.schemaVersion})`, result as unknown as Record<string, unknown>);
+      return wantsJson(args) ? result : render(`Proofbound authority verdict list (${result.schemaVersion})`, result as unknown as Record<string, unknown>);
     },
 
     async authority_job_status(args: JobStatusArgs) {
@@ -383,7 +383,7 @@ export function createVerdictHandlers(ctx: HandlerContext) {
           nextAction: status.certification?.nextAction,
           certification: status.certification,
         };
-        return wantsJson(args) ? result : render(`Lattice authority job status (${result.schemaVersion})`, result as unknown as Record<string, unknown>);
+        return wantsJson(args) ? result : render(`Proofbound authority job status (${result.schemaVersion})`, result as unknown as Record<string, unknown>);
       }
 
       // Local-storage fallback (non-authority / no URL) — preserved verbatim.
@@ -409,7 +409,7 @@ export function createVerdictHandlers(ctx: HandlerContext) {
         blockedReason: verdictSummary.blockedReason,
         verdictSummary,
       };
-      return wantsJson(args) ? result : render(`Lattice authority job status (${result.schemaVersion})`, result as unknown as Record<string, unknown>);
+      return wantsJson(args) ? result : render(`Proofbound authority job status (${result.schemaVersion})`, result as unknown as Record<string, unknown>);
     },
   };
 }

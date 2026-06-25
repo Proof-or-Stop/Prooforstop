@@ -1,0 +1,27 @@
+{
+  "task": "Enrich renderEvidenceStaleHint (the single cross-surface stale-evidence hint) with a done_prepare one-step recovery line + a drift-classification line, so a Host can tell a cheap refresh from a real re-review.",
+  "outcome": "When verificationEvidence is stale, session_brief / `lattice validate` text / the story_advance pre-check now print the EVIDENCE STALE block with TWO new lines in addition to the existing refresh_stale + validate recovery: a drift-class line (whole-tree materialHash drift with unchanged storyFilesHash = unrelated/main drift -> refresh, do not re-review; storyFilesHash change = re-review/re-quorum) and a one-step line `lattice done_prepare --storyId=<id> --mergeMain --refreshStale --validate`. `node packages/main/dist/tasks/verification-freshness-smoke.js` passes with the updated byte-equality + the new GAP1/GAP2 regression asserts; `npm test` green. All three surfaces stay byte-identical (auto-inherit).",
+  "facts": [
+    "renderEvidenceStaleHint (evidence-stale-hint.ts:92) is the single source; handlers/hints.ts + handlers/session.ts + handlers/transition-orchestrator.ts emit it byte-identically (B-a2f1).",
+    "Currently it emits only refresh_stale + validate; RED test (red/spike) exit 1 confirmed no done_prepare + no drift classification.",
+    "Only tasks/verification-freshness-smoke.ts pins the rendered output (imports renderEvidenceStaleHint line 13, asserts ~487-565 incl. extractStaleBlock ~593). tasks/flow-stability-smoke.ts only uses findStaleEvidence (unchanged, out of scope).",
+    "done-oracle.ts:339 already suggests done_prepare at the DONE gate; the gap is the EARLIER hint a Host reads first.",
+    "evidence-stale-hint.ts is material-code but NOT a high-risk lifecycle path -> review-assurance-floor needs 1 local round, not 3x2.",
+    "Spike green proof: adding the done_prepare line + drift-class line to the renderer passes both GAP assertions."
+  ],
+  "constraints": [
+    "Keep the existing stable lines (refresh_stale + validate) and the EVIDENCE_STALE_MARKER constant unchanged (backward-compat).",
+    "Do not edit the 3 consuming surfaces (they auto-inherit); do not touch DONE-blocker generators / freshness judgment / gate strength / proof-admissibility.",
+    "Maintain byte-identity across the 3 surfaces; storyId-substituted, no literal <storyId> placeholder (B-a2f1 preMortem #3).",
+    "Update extractStaleBlock line-count slice in verification-freshness-smoke.ts to match the added lines."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/evidence-stale-hint.ts",
+    "packages/main/src/tasks/verification-freshness-smoke.ts",
+    "packages/main/src/handlers/hints.ts (auto-inherit, reference)",
+    "packages/main/src/handlers/session.ts (auto-inherit, reference)",
+    "packages/main/src/handlers/transition-orchestrator.ts (auto-inherit, reference)"
+  ],
+  "timestamp": "2026-06-24T14:37:05.771Z"
+}

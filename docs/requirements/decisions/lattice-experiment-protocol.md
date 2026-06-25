@@ -1,4 +1,4 @@
-# Lattice Pre-Registered Experiment Protocol — §5 Reflection-Loop Ablation & §6 Recovery
+# Proofbound Pre-Registered Experiment Protocol — §5 Reflection-Loop Ablation & §6 Recovery
 
 > Story: B-4620
 > Status: pre-registration (design lock)
@@ -46,7 +46,7 @@ Same model, same tools, same task, same injection; only control differs.
 | **A2 naive-retry** | on automated fail blindly re-invoke, up to **R=3** | — | — | — |
 | **A2′ compute-matched naive** | identical to A2 but bounded by a **token + wall-clock budget** equal to A4's per-task median (measured in pilot). Concrete tolerance band: **±20% of A4's per-task median tokens AND ±20% wall-clock**; if the two budgets conflict the **token budget binds first**; each run logs pass/fail against these constants. Hard-truncation cap at the upper bound. **Compute parity is matched on spend, not call count** | — | — | — |
 | **A3 review-only** | A2, then **exactly one** review pass using the SAME review mechanism AND the **same structured context snapshot** A4's reviewer receives; findings reported, not iterated | one pass (= A4's reviewer, context-equalized) | — | — |
-| **A4 Lattice-Reflection-Loop** (treatment) | full Lattice lifecycle: plan→execute→review→bounded reflection→evidence gates→DONE | yes | yes | yes |
+| **A4 Lattice-Reflection-Loop** (treatment) | full Proofbound lifecycle: plan→execute→review→bounded reflection→evidence gates→DONE | yes | yes | yes |
 
 - **Compute parity (fixes round-1 cross-host finding).** A2′ matches A4 on **total
   tokens + wall-clock** (optionally tool-call-mix), not call count; every run records
@@ -138,12 +138,12 @@ assigned by a **total-order adjudication script** (first matching rule wins):
 
 ## 6. Causal vs observational — scope boundary
 - §5/§6 compare lifecycle arms on adjudicated objective outcomes; this CAN support
-  "Lattice's loop contains/recovers more than an equal-SPEND naive loop" if H1/H2 hold
+  "Proofbound's loop contains/recovers more than an equal-SPEND naive loop" if H1/H2 hold
   under the GLMM (A2′ matches spend, so it is not a compute artifact).
 - The **experience-layer** causal claim is SEPARATE: the `learning_effectiveness`
   ON/OFF arm (≥20/arm; `significant` = sufficient-N, not p<0.05; needs a dedicated
   formal test). Until then experience-layer = observational (recall 0.507).
-- Neither claims "Lattice makes development smarter" until its powered, formally-tested
+- Neither claims "Proofbound makes development smarter" until its powered, formally-tested
   result exists.
 
 ## 7. Run-record schema + validity filter

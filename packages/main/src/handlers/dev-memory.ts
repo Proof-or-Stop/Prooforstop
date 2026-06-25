@@ -1,8 +1,8 @@
 /**
  * dev-memory handlers — thin CLI wrappers around core/dev-memory.ts
  *
- * B-ad2c: lightweight experience capture outside Lattice story gates.
- * All commands are non-authoritative and do NOT satisfy Lattice gate evidence.
+ * B-ad2c: lightweight experience capture outside Proofbound story gates.
+ * All commands are non-authoritative and do NOT satisfy Proofbound gate evidence.
  */
 
 import type { HandlerContext } from './context.js';
@@ -206,7 +206,7 @@ export function createDevMemoryHandlers(ctx: HandlerContext) {
       if (relevant.length === 0) {
         return [
           `dev_memory_finish: no experience entries found in project memory (${projectPath}).`,
-          `  No story directory required for outside-Lattice sessions.`,
+          `  No story directory required for outside-Proofbound sessions.`,
         ].join('\n');
       }
 

@@ -259,7 +259,7 @@ export function diagnoseReviewRunSnapshot(projectRoot: string): ReviewRunSnapsho
     return {
       code: 'not_git_repo',
       reason: `signed workspace is not a git repository: ${projectRoot}`,
-      nextAction: 'Run inside a git-backed Lattice project/worktree, or initialize git and create an initial commit before starting a signed reviewer run.',
+      nextAction: 'Run inside a git-backed Proofbound project/worktree, or initialize git and create an initial commit before starting a signed reviewer run.',
     };
   }
   if (!currentGitHead(projectRoot)) {
@@ -666,10 +666,14 @@ export function assertCurrentReviewRunForEvidence(
   if (run.reviewRound !== story.currentReviewRound) {
     throw new Error(`review evidence for ${agent} bound reviewRunId ${reviewRunId} belongs to reviewRound ${run.reviewRound}, current round is ${story.currentReviewRound}. ${roundMismatchHint(story.storyId, agent)}`);
   }
-  const currentRun = currentRunForLane(runs, agent, story.currentReviewRound);
-  if (currentRun && currentRun.reviewRunId !== reviewRunId) {
-    throw new Error(`review evidence for ${agent} bound reviewRunId ${reviewRunId} is not the current latest reviewer run (current: ${currentRun.reviewRunId}). ${latestRunHint(story.storyId, agent, currentRun.reviewRunId)}`);
-  }
+  // review-run-binding-race (friction #2): NO id-recency rejection. A second
+  // review_run_start on a lane only mints a newer reviewRunId; it does not change
+  // what was reviewed. A pass/finding bound to a NON-latest run in the CURRENT
+  // round is accepted as long as it is still material-fresh + scope-fresh (enforced
+  // below) — rejecting it purely because a newer run exists is the benign
+  // concurrent/retried-run binding race. The freshness check (material/storyFilesHash,
+  // with the EMPTY-set no-signal guard) and the scope-binding check are the real
+  // staleness authorities; id-recency carries no material/scope information.
   const signedProjectRoot = workspaceValidation.projectRoot;
   const freshness = checkEvidenceFreshnessForGit(
     signedProjectRoot,
@@ -791,8 +795,16 @@ function validateEvidenceRunBinding(
       message: `${evidence.kind} ${evidence.id} reviewRunId ${evidence.reviewRunId} belongs to reviewRound ${run.reviewRound}, current round is ${story.currentReviewRound}. ${roundMismatchHint(story.storyId, evidence.agent)}`,
     };
   }
+  // review-run-binding-race (friction #2): the id-recency 'stale_run' rejection is
+  // RELAXED FOR PASSES only. A material-fresh non-latest PASS in the current round
+  // stays valid (the freshness + scope checks below are the authorities), fixing the
+  // concurrent/retried review_run_start race that stranded an otherwise-valid pass and
+  // blocked quorum_submit. It is KEPT FOR FINDINGS so an older OPEN finding is still
+  // surfaced and is NOT hidden by a newer pass on the same lane; the supersede filter
+  // in collectReviewerEvidenceState already drops a stale_run finding once it is
+  // resolved/dismissed (terminal), so resolved findings stay superseded as before.
   const currentRun = currentRunForLane(runs, evidence.agent, story.currentReviewRound);
-  if (currentRun && currentRun.reviewRunId !== run.reviewRunId) {
+  if (currentRun && currentRun.reviewRunId !== run.reviewRunId && evidence.kind !== 'pass') {
     return {
       code: 'stale_run',
       kind: evidence.kind,

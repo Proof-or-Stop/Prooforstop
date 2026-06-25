@@ -353,7 +353,7 @@ function buildDelegationContract(mode: AutopilotMode): AutopilotDelegationContra
     receiptRequired: true,
     transcriptRequired: true,
     handoff: {
-      expectation: 'dispatch_auto must create or reuse a bounded Lattice handoff pack with allowedPaths, deniedPaths, requiredCommands, successCriteria, and authority boundaries intact.',
+      expectation: 'dispatch_auto must create or reuse a bounded Proofbound handoff pack with allowedPaths, deniedPaths, requiredCommands, successCriteria, and authority boundaries intact.',
     },
     receipt: {
       expectation: mode === 'authority-verified'

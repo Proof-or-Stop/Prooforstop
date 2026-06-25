@@ -214,13 +214,13 @@ const HOST_PROFILE_INPUTS: HostProfileInput[] = [
       capability('evidence-submit', 'conditional', 'Requires a configured authority URL and submit-capable client path.'),
       capability('receipt-verify', 'conditional', 'Requires an authority receipt verifier path.'),
       capability('multimodal-research', 'available', 'Can combine local files, web research, and visual inputs when tools are present.'),
-      capability('prewrite-guard', 'conditional', 'native-pretool mode when a verified Codex PreToolUse hook is installed; wrapped-preapply when invoked via Lattice dispatch/pre-apply flow; otherwise watcher-fallback.'),
+      capability('prewrite-guard', 'conditional', 'native-pretool mode when a verified Codex PreToolUse hook is installed; wrapped-preapply when invoked via Proofbound dispatch/pre-apply flow; otherwise watcher-fallback.'),
     ],
     degradations: [
       degradation('browser-automation', 'conditional', 'verification-evidence-limited', 'Browser automation may be absent from a Codex session.', 'Mark browser verification unavailable or delegate to a browser-capable host.'),
       degradation('evidence-submit', 'conditional', 'evidence-local-only', 'Authority submission depends on external authority configuration.', 'Keep evidence local and do not claim authority-backed completion.'),
       degradation('receipt-verify', 'conditional', 'blocks-production-done', 'Receipt verification depends on an authority verifier.', 'Require a verified receipt before productionDone can be claimed.'),
-      degradation('prewrite-guard', 'conditional', 'none', 'Codex native-pretool guard requires a verified .codex/hooks.json PreToolUse hook; without it, direct Codex sessions fall back unless routed through Lattice dispatch wrapped-preapply.', 'Install the .codex/hooks.json lattice-scope-pretool hook or route through Lattice dispatch to enable a pre-write guard mode.'),
+      degradation('prewrite-guard', 'conditional', 'none', 'Codex native-pretool guard requires a verified .codex/hooks.json PreToolUse hook; without it, direct Codex sessions fall back unless routed through Proofbound dispatch wrapped-preapply.', 'Install the .codex/hooks.json lattice-scope-pretool hook or route through Proofbound dispatch to enable a pre-write guard mode.'),
     ],
   },
   {
@@ -265,7 +265,7 @@ const HOST_PROFILE_INPUTS: HostProfileInput[] = [
       capability('evidence-submit', 'conditional', 'Requires authority client configuration.'),
       capability('receipt-verify', 'conditional', 'Requires authority receipt verifier support.'),
       capability('multimodal-research', 'conditional', 'Depends on enabled tools and model inputs.'),
-      capability('prewrite-guard', 'conditional', 'wrapped-preapply mode when invoked via Lattice dispatch/pre-apply flow; otherwise watcher-fallback.'),
+      capability('prewrite-guard', 'conditional', 'wrapped-preapply mode when invoked via Proofbound dispatch/pre-apply flow; otherwise watcher-fallback.'),
     ],
     degradations: [
       degradation('patch-apply', 'conditional', 'none', 'Patch-specific tooling may not be exposed directly.', 'Use normal file-edit operations with clear diffs.'),
@@ -274,7 +274,7 @@ const HOST_PROFILE_INPUTS: HostProfileInput[] = [
       degradation('evidence-submit', 'conditional', 'evidence-local-only', 'Authority submission is not intrinsic to the host.', 'Keep local evidence and require a submit-capable authority client.'),
       degradation('receipt-verify', 'conditional', 'blocks-production-done', 'Receipt verification is not intrinsic to the host.', 'Require a verified receipt before productionDone can be claimed.'),
       degradation('multimodal-research', 'conditional', 'none', 'Multimodal research depends on enabled tools.', 'Use text-only research or delegate to a multimodal host.'),
-      degradation('prewrite-guard', 'conditional', 'none', 'Antigravity has no registered native PreToolUse hook; prewrite guard is wrapped-preapply when via Lattice dispatch, watcher-fallback otherwise.', 'Route through Lattice dispatch to enable wrapped-preapply guard mode.'),
+      degradation('prewrite-guard', 'conditional', 'none', 'Antigravity has no registered native PreToolUse hook; prewrite guard is wrapped-preapply when via Proofbound dispatch, watcher-fallback otherwise.', 'Route through Proofbound dispatch to enable wrapped-preapply guard mode.'),
     ],
   },
   {
@@ -514,7 +514,7 @@ export function buildCapabilityProbe(host: string): CapabilityProbe {
 
 export function renderCapabilityListText(list: CapabilityList = buildCapabilityList()): string {
   const lines: string[] = [
-    `Lattice capability profiles (${list.schemaVersion})`,
+    `Proofbound capability profiles (${list.schemaVersion})`,
     '',
     `Authority: productionDone requires ${list.authorityRules.receiptCapability}; handoffCanManufactureProductionDone=${list.authorityRules.handoffCanManufactureProductionDone}`,
     `Categories: ${list.categories.map(c => c.id).join(', ')}`,
@@ -554,7 +554,7 @@ export function renderCapabilityProbeText(probe: CapabilityProbe): string {
     .map(c => `${c.category}=${c.status}`);
 
   const lines: string[] = [
-    `Lattice capability probe (${probe.schemaVersion})`,
+    `Proofbound capability probe (${probe.schemaVersion})`,
     `host: ${probe.host}`,
     `requestedHost: ${probe.requestedHost}`,
     `matchedFallback: ${probe.matchedFallback}`,

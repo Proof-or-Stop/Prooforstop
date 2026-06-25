@@ -319,7 +319,7 @@ try {
   assert.equal(handlerResult.sections.storyBoard.length, 2, 'handler with activeOnly:false surfaces both seeded stories');
 
   const textResult = handlers.observability_snapshot({}) as string;
-  assert.match(textResult, /Lattice observability snapshot \(lattice\.observability_snapshot\.v1\)/);
+  assert.match(textResult, /Proofbound observability snapshot \(lattice\.observability_snapshot\.v1\)/);
   assert.match(textResult, /productionDone: false/);
   assert.match(textResult, /receiptVerified: false/);
   assert.match(textResult, /authorityChanged: false/);

@@ -141,7 +141,7 @@ export interface LatticeConfig {
     bugStale?: number;
   };
   /**
-   * Lifecycle hooks — spawn shell commands at Lattice command lifecycle points.
+   * Lifecycle hooks — spawn shell commands at Proofbound command lifecycle points.
    * 每个事件下用 commandName 或 "*" 通配匹配，value 是 shell 命令数组。
    * onPhaseChange 的 key 用 "FROM->TO" 格式（或 "*"）。
    *
@@ -180,7 +180,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'status',        // 全局：项目全貌（story 进度 + 代码验证）
     'doctor',        // 全局：health 巡检，任何阶段都可以查
     'done_recover',  // 全局：显式恢复 partial-DONE（先检查 main clean / merge-tree）
-    'check',         // 全局：Lattice 管理资产/模板漂移检查；--apply/--upgrade 显式同步安全项
+    'check',         // 全局：Proofbound 管理资产/模板漂移检查；--apply/--upgrade 显式同步安全项
     'test_list',     // 全局：读取测试证据快照，TEST/DEV 排障都需要
     'bug_list',      // 全局：读取 bug 状态，便于复核 dashboard
     'finding_list',  // 全局：只读查看 reviewer 结果，避免阶段 UX 陷阱
@@ -215,39 +215,39 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'draft_check_set',      // B-9975 CHK-002: draft check 全阶段可用
     'draft_issue_resolve',
     'authority_enforce_policy', // B-ea92 M1: read-only authority policy discovery, no side-effects
-    'authority_enforce_runner', // Lattice Authority control-plane runner; --live still avoids provider execution
+    'authority_enforce_runner', // Proofbound Authority control-plane runner; --live still avoids provider execution
     'authority_receipt_verify', // B-eca1 CHK-002: verifies production Authority gate_decision proof and writes authority-receipt-refs.json only after production classification
-    'authority_receipt_fetch', 'authority_job_create', // Explicit Lattice Authority control-plane/artifact bridge; never mint native receipts
-    'authority_verdict_submit', 'authority_verdict_list', 'authority_job_status', // Lattice Authority multi-host verdict/status surfaces; never mint native receipts
+    'authority_receipt_fetch', 'authority_job_create', // Explicit Proofbound Authority control-plane/artifact bridge; never mint native receipts
+    'authority_verdict_submit', 'authority_verdict_list', 'authority_job_status', // Proofbound Authority multi-host verdict/status surfaces; never mint native receipts
     'planner_*', 'story_resolve', // Natural-language planner and plannedStep context resolution surfaces
     'capability_list', // B-f26a M2: read-only host capability diagnostics for cross-host degradation
     'capability_probe', // B-cd31 CHK-002: productized single-host capability diagnostics
     'agent_prompt', // B-097f CHK-002: read-only host-neutral agent prompt endpoint; resolves role body from package registry in any phase
     'baseline_run', 'baseline_suite', 'baseline_suite_report', 'capability_claim_evaluate', 'capability_claim_formal_evaluate', // B-92e2/B-ce79: baseline artifact/report commands; formal claim still does not mutate lifecycle or production authority
     'memory_benchmark_*', // B-d4dd/B-2a63: virtual benchmark + real-data export harnesses are read-only in all phases
-    'host_*', // Lattice CLI 0.3.6: host list/probe/install guidance; dry-run/read-only diagnostics only
+    'host_*', // Proofbound CLI 0.3.6: host list/probe/install guidance; dry-run/read-only diagnostics only
     'host_runtime_*', // B-106b/B-d674: dispatch runtime readiness probes for fake/codex/claude-code/antigravity
-    'lattice_config_doctor', // Lattice CLI 0.3.6: CLI-first migration/config status; no Mac App dependency
+    'lattice_config_doctor', // Proofbound CLI 0.3.6: CLI-first migration/config status; no Mac App dependency
     'lattice_config_repair', // B-526c: explicit confirmed gitRoot repair; command policy enforces mutating ownership semantics
     'codex_doctor',          // Codex adapter diagnostics (read-only); does not write process-event evidence
-    'rollout_check', // Lattice CLI 0.3.6: read-only cross-project rollout diagnostics
-    'baseline_run', 'baseline_suite', 'baseline_suite_report', // Lattice baseline execution and suite reporting; writes baseline artifacts only
-    'authority_status', // Lattice CLI 0.3.6: receipt-aware status only; no evidence submission
-    'conduit_*', // Lattice CLI 0.3.6: conduit status/explain; no runner provisioning or authority mutation
+    'rollout_check', // Proofbound CLI 0.3.6: read-only cross-project rollout diagnostics
+    'baseline_run', 'baseline_suite', 'baseline_suite_report', // Proofbound baseline execution and suite reporting; writes baseline artifacts only
+    'authority_status', // Proofbound CLI 0.3.6: receipt-aware status only; no evidence submission
+    'conduit_*', // Proofbound CLI 0.3.6: conduit status/explain; no runner provisioning or authority mutation
     'story_export', // B-cd31 CHK-003: Canonical Story v0 export surface
     'story_authority_resolve', // B-381e: read-only authority/worktree resolver for observability adapters
     'observability_snapshot', // B-381e: read-only host-neutral observability adapter dry-run
-    'handoff_create', 'handoff_inspect', // B-cd31 CHK-004: Lattice cross-host handoff pack surface
+    'handoff_create', 'handoff_inspect', // B-cd31 CHK-004: Proofbound cross-host handoff pack surface
     'handoff_accept', 'handoff_resume', // B-cd31 CHK-005: handoff accept/resume projections without authority mutation
     'handoff_receipt_submit', 'handoff_worktree_create', // B-aa98: overflow receipt/worktree diagnostic projections
     'dispatch_plan', 'dispatch_prepare', 'dispatch_run', 'overflow_auto', // B-106b: supervised dispatch runtime surfaces
     'dispatch_collect', 'dispatch_receipt_create', 'dispatch_status', 'dispatch_list', // B-106b: persisted dispatch lifecycle + receipt helpers
     'dispatch_resume', 'dispatch_cancel', 'dispatch_review', 'dispatch_merge_plan', // B-106b: lifecycle control + manual review/merge guidance
     'dispatch_policy_create', 'dispatch_policy_get', 'dispatch_policy_check', 'dispatch_auto', 'dispatch_watch', // B-a5c2: policy-authorized dispatch controls + read-only watch
-    'autopilot_*', // Lattice unattended/autopilot surfaces declare allowedPhases:all in command-policy; phaseTools must match
+    'autopilot_*', // Proofbound unattended/autopilot surfaces declare allowedPhases:all in command-policy; phaseTools must match
     'quorum_submit', // local voluntary 3x2 floor helper; handler refuses without current reviewer pass evidence
     'evidence_manifest', 'evidence_inspect', // B-cd31 CHK-006: portable evidence freshness diagnostics
-    'parallel_wave_create', 'parallel_wave_inspect', 'parallel_plan', // B-29b6: read-only Lattice Parallel Wave planning surfaces; no authority mutation
+    'parallel_wave_create', 'parallel_wave_inspect', 'parallel_plan', // B-29b6: read-only Proofbound Parallel Wave planning surfaces; no authority mutation
     'parallel_dispatch', 'parallel_status', 'parallel_merge_queue', 'parallel_report', // B-e70f: read-only Parallel Dispatch projections; no spawning or authority mutation
     'review_loop_status', 'review_loop_policy_show', // B-7a34: read-only review loop projections; REVIEW-only mutators are phase-scoped below
     'dev_memory_*',  // B-1148: dev_memory_capture/list/search/preflight/finish/start declared allowedPhases:all in command-policy; phaseTools must match
@@ -396,12 +396,12 @@ const _cache = new Map<string, LatticeConfig>();
  * Canonical project config filename.
  */
 export const LATTICE_CONFIG_FILENAME = 'lattice.config.json';
-/** Project config filenames that define an active Lattice project root. */
+/** Project config filenames that define an active Proofbound project root. */
 export const PROJECT_CONFIG_FILENAMES: readonly string[] = [
   LATTICE_CONFIG_FILENAME,
 ];
 
-/** True if the canonical Lattice project config file exists in dir. */
+/** True if the canonical Proofbound project config file exists in dir. */
 export function hasProjectConfigFile(dir: string): boolean {
   return PROJECT_CONFIG_FILENAMES.some((name) => existsSync(join(dir, name)));
 }

@@ -76,7 +76,7 @@ left-hand term is preferred; the right-hand note explains what to avoid.
 | (avoid `forbidden`) | Replace `forbidden` with `blocked` when it is an execution deny rule, or with `excluded` when it is a scope rule. |
 | **source of truth** | The authoritative origin of requirements/decisions. Use `source of truth` / `sources of truth`; avoid `truth source` / `truth-source`. |
 | **iteration** | One pass of a review or reflection loop. Use `iteration` (`this iteration` / `next iteration` / `previous iteration`); avoid `round` as a synonym inside review/reflection loops. (`reviewRound` the code identifier and "REVIEW round" the phase concept stay as-is.) |
-| **Story** | The capitalized product object (a Lattice work item). `story` lowercase is generic prose. |
+| **Story** | The capitalized product object (a Proofbound work item). `story` lowercase is generic prose. |
 | **Git** | The product / proper noun is `Git`; the command stays lowercase `git` (e.g. `git init`, `git commit`). |
 | **evidence** | Uncountable noun. Write "evidence", "a piece of evidence", or "evidence entries"; never "an evidence" or "evidences". |
 | **finding** | A reviewer-recorded issue. Use `finding`; avoid `finding item`. |
@@ -232,7 +232,7 @@ this table is the authoritative review packet for every Chinese-bearing
 
 | ID | Surface | Chinese source | Proposed English | Notes |
 |---|---|---|---|---|
-| T001 | comment | Lattice CLI 引擎 | Lattice CLI engine | File header. |
+| T001 | comment | Proofbound CLI 引擎 | Proofbound CLI engine | File header. |
 | T002 | comment | 把 dispatch / parse / log / phase gate 这些通用逻辑包成可调用的 runCli 函数。 | Wrap shared dispatch, parse, log, and phase-gate logic in the callable `runCli` function. | Preserve `runCli`. |
 | T003 | comment | main 自己的 cli.ts 是 bin 入口，直接调 runCli()； | The main package `cli.ts` is the binary entrypoint and calls `runCli()` directly. | Header comment. |
 | T004 | comment | 第三方 bootstrap 脚本可以在 runCli({extraTools, extraRegister}) 时把 utils 的工具和 handler 一起合进来。 | Third-party bootstrap scripts can pass `extraTools` and `extraRegister` to `runCli(...)` to merge utility tools and handlers. | Join wrapped source lines. |
@@ -372,7 +372,7 @@ this table is the authoritative review packet for every Chinese-bearing
 | T138 | help | 写代码 + 写验证（fixture / 项目原生测试 / validate.ts 可选） | Implement the code and its verification (fixtures, project-native tests, or optional `validate.ts`) | Main help workflow. |
 | T139 | help | 验证（按项目语言自动发现或读取配置） | Validate, using language-aware auto-discovery or project configuration | Main help workflow. |
 | T140 | help | 进入代码审查 | Enter code review | Main help workflow. |
-| T141 | help | Lattice reviewer 审查代码，提 finding | Lattice reviewers inspect the code and record findings | Main help workflow. |
+| T141 | help | Proofbound reviewer 审查代码，提 finding | Proofbound reviewers inspect the code and record findings | Main help workflow. |
 | T142 | help | 合并回本地 main 并清理 worktree | Merge back into local `main` and clean up the worktree | Main help workflow. |
 | T143 | help | 并行/分支纪律 | Parallel and branch discipline | Main help section. |
 | T144 | help | 初始化新项目 | Initialize a new project | Main help section. |
@@ -434,7 +434,7 @@ Known wrapped units in this manifest:
 
 ```tsv
 translationId	sourceLine	surface	chineseSource	proposedEnglish	reviewStatus
-M001	2	comment	Lattice CLI 引擎	Lattice CLI engine	review-draft
+M001	2	comment	Proofbound CLI 引擎	Proofbound CLI engine	review-draft
 M002	4	comment	把 dispatch / parse / log / phase gate 这些通用逻辑包成可调用的 runCli 函数。	Wrap the shared dispatch, parse, log, and phase-gate logic in the callable runCli function.	review-draft
 M003	5	comment	main 自己的 cli.ts 是 bin 入口，直接调 runCli()；	The main package cli.ts is the binary entrypoint and calls runCli() directly.	review-draft
 M004	6	comment	第三方 bootstrap 脚本可以在 runCli({extraTools, extraRegister}) 时把 utils	Third-party bootstrap scripts can pass extraTools and extraRegister to runCli to merge utility tools	review-draft
@@ -781,7 +781,7 @@ M344	712	schema	DONE gate 必填：expected vs actual 差异；没有差异也�
 M345	713	schema	DONE gate 必填：用户价值验收结论	DONE gate required: user-value acceptance verdict.	review-draft
 M346	715	schema	已知限制 / 设计偏离（没有就写 "none — fully covered"）	Known limitations or design deviations (write "none — fully covered" if none).	review-draft
 M347	716	schema	踩坑记录（卡在哪、绕了几次路、下个人应该知道什么，≥ 10 字符；禁止空话）	Pitfalls record: where it got stuck, how many retries, and what the next person should know (at least 10 characters; no empty platitudes).	review-draft
-M348	717	schema	{case name: reason} 对每条 sandbox:false 但没跑的 case 说明原因；未提供则 Lattice 报错列出缺失项	{case name: reason}; explain each sandbox:false case that was not run, otherwise Lattice reports missing entries.	review-draft
+M348	717	schema	{case name: reason} 对每条 sandbox:false 但没跑的 case 说明原因；未提供则 Proofbound 报错列出缺失项	{case name: reason}; explain each sandbox:false case that was not run, otherwise Proofbound reports missing entries.	review-draft
 M349	719	command-description	读取 story summary	Read story summary	review-draft
 M350	723	command-description	报告 bug	Report a bug	review-draft
 M351	725	schema	描述 / 关联 checklist ID	Description. / Related checklist ID.	review-draft
@@ -873,7 +873,7 @@ M436	851	schema	artifact 摘要	Artifact summary.	review-draft
 M437	853	command-description	列出项目文档（PLAN 阶段挑选 relatedDocs 用）	List project documents, used to choose relatedDocs during PLAN	review-draft
 M438	854	schema	输出格式（默认 text）	Output format (default: text).	review-draft
 M439	1462	comment	Doctor (health issue 巡检)	Doctor (health issue inspection).	review-draft
-M440	1463	command-description	查看 Lattice 自身的 health issue（被 silent catch 接住的 PERSIST 失败）+ 扫 .worktrees/ 孤儿目录	View Lattice health issues (silent-caught PERSIST fails); scan orphan worktrees	review-draft
+M440	1463	command-description	查看 Proofbound 自身的 health issue（被 silent catch 接住的 PERSIST 失败）+ 扫 .worktrees/ 孤儿目录	View Proofbound health issues (silent-caught PERSIST fails); scan orphan worktrees	review-draft
 M441	1464	schema	输出格式（默认 text）	Output format (default: text).	review-draft
 M442	1465	schema	最多读取条数（默认 1000）	Maximum number of entries to read (default: 1000).	review-draft
 M443	1466	schema	清理 DONE/DISCARDED terminal worktree 注册项、孤儿目录与 prunable 元数据	Clean DONE/DISCARDED terminal worktree registrations, orphan directories, and prunable metadata.	review-draft
@@ -884,10 +884,10 @@ M447	1482	schema	结构化 JSON 输出	Structured JSON output.	review-draft
 M448	1483	schema	可选 Story ID；缺省从 story/* 分支推断并记录 process-event evidence	Optional Story ID; defaults to inferring from the story/* branch and recording process-event evidence.	review-draft
 M449	1485	command-description	Codex adapter 诊断：输出 Codex adapter 检查状态（不写 process-event evidence）。Alias: lattice codex doctor	Report Codex adapter diagnostics status	review-draft
 M450	1486	schema	结构化 JSON 输出	Structured JSON output.	review-draft
-M451	1488	command-description	检查 Lattice 管理资产/模板漂移；--apply/--upgrade 显式同步安全项	Check Lattice asset/template drift; --apply/--upgrade sync safe items explicitly	review-draft
+M451	1488	command-description	检查 Proofbound 管理资产/模板漂移；--apply/--upgrade 显式同步安全项	Check Proofbound asset/template drift; --apply/--upgrade sync safe items explicitly	review-draft
 M452	1489	schema	结构化 JSON 输出	Structured JSON output.	review-draft
 M453	1490	schema	同步 MISSING/STALE_SAFE 管理资产；不会覆盖 CASE_MISMATCH/STALE_LOCAL_EDIT/INCOMPATIBLE	Sync MISSING/STALE_SAFE managed assets; does not overwrite CASE_MISMATCH/STALE_LOCAL_EDIT/INCOMPATIBLE.	review-draft
-M454	1491	schema	同步 MISSING/STALE_SAFE 管理资产到当前 Lattice 模板；等价于 --apply	Sync MISSING/STALE_SAFE managed assets to current Lattice templates; equivalent to --apply.	review-draft
+M454	1491	schema	同步 MISSING/STALE_SAFE 管理资产到当前 Proofbound 模板；等价于 --apply	Sync MISSING/STALE_SAFE managed assets to current Proofbound templates; equivalent to --apply.	review-draft
 M455	1492	schema	输出 STALE_LOCAL_EDIT 的结构化人工审查摘要	Output structured manual review summary for STALE_LOCAL_EDIT.	review-draft
 M456	1493	schema	覆盖自动检测的 init profile	Override auto-detected init profile.	review-draft
 M457	1494	schema	覆盖 Codex prompt asset 模式；full=生成 .lattice-codex/agents，thin=使用 prompt registry	Override Codex prompt asset mode; full=generate .lattice-codex/agents, thin=use prompt registry.	review-draft
@@ -911,7 +911,7 @@ M474	1516	schema	证据状态：默认 suspected；verified 仅当提供结构�
 M475	1517	schema	suspected 时的怀疑理由（可选，缺省自动兜底）	Suspicion reason for suspected state (optional; automatic fallback if omitted).	review-draft
 M476	1518	schema	关联文件路径	Related file paths.	review-draft
 M477	1519	schema	调用者身份（审计字段，默认从 LATTICE_AGENT 读）	Caller identity (audit field, defaults from LATTICE_AGENT).	review-draft
-M478	1522	comment	Verifier (Lattice 内建代码验证)	Verifier (Lattice built-in code verification).	review-draft
+M478	1522	comment	Verifier (Proofbound 内建代码验证)	Verifier (Proofbound built-in code verification).	review-draft
 M479	1523	command-description	运行项目验证（静态 + 逻辑 + 集成测试）	Run project verification (static, logic, and integration tests)	review-draft
 M480	1524	schema	含真机测试（--full 或 --full=PvE 按名称过滤）	Include real-machine tests (--full or --full=PvE to filter by name).	review-draft
 M481	1525	schema	只跑 story 改动涉及的 transition（TEST gate 用）	Run only transitions affected by the story changes (used by TEST gate).	review-draft
@@ -1055,7 +1055,7 @@ M618	1770	command-description	设置项目 workflow profile（light/balanced/str
 M619	1771	schema	目标 profile：light / balanced / strict	Target profile: light / balanced / strict.	review-draft
 M620	1773	command-description	显示当前 workflow profile 和生效策略	Show current workflow profile and effective policy	review-draft
 M621	1774	command-description	解释某个 story 的实际生效 profile（project / required / effective）	Explain a story's actual effective profile (project / required / effective)	review-draft
-M622	2123	command-description	捕获一条非权威 dev-memory 经验条目到 file-backed JSONL 存储（不能满足 Lattice gate evidence）	Capture a non-authoritative dev-memory lesson to JSONL (not gate evidence)	review-draft
+M622	2123	command-description	捕获一条非权威 dev-memory 经验条目到 file-backed JSONL 存储（不能满足 Proofbound gate evidence）	Capture a non-authoritative dev-memory lesson to JSONL (not gate evidence)	review-draft
 M623	2124	schema	经验类别	Lesson category.	review-draft
 M624	2125	schema	存储范围（默认 project）	Storage scope (default: project).	review-draft
 M625	2126	schema	一句话摘要（≥10 字符）	One-sentence summary (at least 10 characters).	review-draft
@@ -1084,7 +1084,7 @@ M647	2151	schema	最多包含条目数（默认 5）	Maximum number of entries t
 M648	2152	schema	行数预算（默认 60）	Line budget (default: 60).	review-draft
 M649	2153	schema	JSON 格式输出	JSON output format.	review-draft
 M650	2155	command-description	结束会话：active story 中默认写入 story 候选；无 story 时报告/晋升项目条目（不需 story 目录）	Finish the dev-memory session	review-draft
-M651	2156	schema	活动 story ID（如 B-xxx）；省略时 active story 分支会自动推断；Lattice 外部会话可省略	Active story ID, for example B-xxx; omitted value is inferred automatically from the active story branch; optional outside Lattice sessions.	review-draft
+M651	2156	schema	活动 story ID（如 B-xxx）；省略时 active story 分支会自动推断；Proofbound 外部会话可省略	Active story ID, for example B-xxx; omitted value is inferred automatically from the active story branch; optional outside Proofbound sessions.	review-draft
 M652	2157	schema	story 目录根路径（默认 <root>/.lattice/story/actives；legacy .lattice/story/actives 仍可读）	Story directory root path (default <root>/.lattice/story/actives; legacy .lattice/story/actives remains readable).	review-draft
 M653	2158	schema	可选：相关性过滤词	Optional relevance filter query.	review-draft
 M654	2159	schema	无 storyId 时：global=将项目经验晋升到全局 dev-memory；即使在 active story 中也不写 story 候选	When storyId is omitted: global=promote project lessons to global dev-memory; even inside an active story, do not write story candidates.	review-draft
@@ -1131,13 +1131,13 @@ M694	2496	other	4. lattice story_review --storyId=B-xxx # 审查通过后进 DEV
 M695	2500	other	6. 写代码 + 写验证（fixture / 项目原生测试 / validate.ts 可选）	6. Implement the code and its verification (fixtures, project-native tests, or optional validate.ts)	review-draft
 M696	2501	other	7. lattice validate # 验证（按项目语言自动发现或读取配置）	7. lattice validate                                         # Verification (auto-detect by project language or read config)	review-draft
 M697	2505	other	9. lattice story_advance --storyId=B-xxx --phase=REVIEW # 进入代码审查	9. lattice story_advance --storyId=B-xxx --phase=REVIEW    # Enter code review	review-draft
-M698	2506	other	10. Lattice reviewer 审查代码，提 finding # critical/high 必须 resolve	10. Lattice reviewer reviews code and raises findings       # critical/high must resolve	review-draft
+M698	2506	other	10. Proofbound reviewer 审查代码，提 finding # critical/high 必须 resolve	10. Proofbound reviewer reviews code and raises findings       # critical/high must resolve	review-draft
 M699	2510	other	12. lattice story_advance --storyId=B-xxx --phase=DONE # 合并回本地 main 并清理 worktree	12. lattice story_advance --storyId=B-xxx --phase=DONE     # Merge back to local main and clean worktree	review-draft
 M700	2512	other	并行/分支纪律:	Parallelism and branch discipline:	review-draft
-M701	2513	other	Lattice 并行开发只使用本地 git worktree + 本地分支；不要创建或 push GitHub/origin feature branch。	Lattice parallel development uses only local git worktrees plus local branches; do not create or push GitHub/origin feature branches.	review-draft
+M701	2513	other	Proofbound 并行开发只使用本地 git worktree + 本地分支；不要创建或 push GitHub/origin feature branch。	Proofbound parallel development uses only local git worktrees plus local branches; do not create or push GitHub/origin feature branches.	review-draft
 M702	2514	other	如需发布远端，先让 DONE 合回本地 main、确认 main 干净，再由人类显式运行 lattice release_approve_push --confirm，然后手动 git push origin main。	If remote publishing is needed, first let DONE merge back to local main, confirm main is clean, then a human explicitly runs lattice release_approve_push --confirm, and then manually runs git push origin main.	review-draft
 M703	2516	other	初始化新项目:	Initialize a new project:	review-draft
-M704	2517	other	lattice init # 在当前目录初始化 Lattice project state	lattice init                          # Initialize Lattice project state in the current directory	review-draft
+M704	2517	other	lattice init # 在当前目录初始化 Proofbound project state	lattice init                          # Initialize Proofbound project state in the current directory	review-draft
 M705	2519	other	提示: 简单参数用 --key=value，复杂参数(array/object)用 JSON 格式	Tip: use --key=value for simple arguments; use JSON format for complex arguments (array/object).	review-draft
 M706	2520	help	出错? 用 lattice <command> --help 查看完整参数说明	Error? Use lattice <command> --help to view complete argument help.	review-draft
 M707	2526	comment	测试入口：接受 JSON 描述的 schema（"string"|"number"|"boolean"|"array"|"object"），内部转 Zod */	Test entrypoint: accepts a JSON-described schema (string/number/boolean/array/object) and converts it to Zod internally. */	review-draft
@@ -1147,7 +1147,7 @@ M710	2583	comment	忽略无法识别的 positional 参数	Ignore unrecognized po
 M711	2646	comment	向上查找项目配置（lattice.config.json 优先，lattice.config.json 兜底）确定项目根	Walk upward to find project config (prefer lattice.config.json, fall back to lattice.config.json) and determine project root.	review-draft
 M712	2867	comment	Runtime enum re-validation (CLAUDE.md「Handler 编码约定」): a missing policy	Runtime enum re-validation (CLAUDE.md Handler coding convention): a missing policy	review-draft
 M713	2943	comment	"Handler 编码约定"): the flag counts as set ONLY for a real boolean `true` or	Handler coding convention: the flag counts as set ONLY for a real boolean true or	review-draft
-M714	3354	comment	runCli — Lattice CLI 运行时入口	runCli: Lattice CLI runtime entry point.	review-draft
+M714	3354	comment	runCli — Proofbound CLI 运行时入口	runCli: Proofbound CLI runtime entry point.	review-draft
 M715	3356	comment	@param opts.extraTools 第三方包的 ToolDef 列表，会合进 help 和 dispatch	@param opts.extraTools ToolDef list from third-party packages, merged into help and dispatch.	review-draft
 M716	3357	comment	@param opts.extraRegister 第三方包的 register 函数，在 createMainRegistry 之后调用	@param opts.extraRegister register function from third-party packages, called after createMainRegistry.	review-draft
 M717	3358	comment	（收到 Registry 实例后用 registry.registerBatch(...) 注入 handler）	(after receiving the Registry instance, inject handlers with registry.registerBatch(...))	review-draft

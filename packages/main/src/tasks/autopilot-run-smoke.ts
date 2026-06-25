@@ -183,7 +183,7 @@ function initRepo(root: string): void {
   writeConfig(root);
   git(root, ['init']);
   git(root, ['config', 'user.email', 'lattice@example.com']);
-  git(root, ['config', 'user.name', 'Lattice Smoke']);
+  git(root, ['config', 'user.name', 'Proofbound Smoke']);
   git(root, ['add', '.']);
   git(root, ['commit', '-m', 'fixture']);
 }
@@ -194,7 +194,7 @@ function seedStory(store: StoryStore, storyId: string): void {
     storyId,
     name: 'autopilot-run-smoke',
     title: 'Autopilot run smoke story',
-    description: 'Smoke story for Lattice unattended host-to-host autopilot execution modes.',
+    description: 'Smoke story for Proofbound unattended host-to-host autopilot execution modes.',
     type: 'feature',
     phase: 'DEV',
     priority: 'high',

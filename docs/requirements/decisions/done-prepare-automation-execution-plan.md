@@ -54,7 +54,7 @@ That post-DONE work is related but must not be folded into pre-DONE readiness.
 
 ## Scope
 
-This plan applies to Lattice CLI lifecycle automation only.
+This plan applies to Proofbound CLI lifecycle automation only.
 
 In scope:
 
@@ -165,16 +165,16 @@ Supported `dryRun` behavior:
 Dirty-file policy:
 
 - supersedes the first implementation's blanket clean-tree rule: initial
-  preflight may proceed when the only dirty rows classify as same-story Lattice
+  preflight may proceed when the only dirty rows classify as same-story Proofbound
   lifecycle metadata for the requested story, such as
   `.lattice/story/actives/<storyId>/done-required-evidence.json`;
 - initial preflight still blocks material/source, fixture, runtime artifact,
-  declared artifact, other-story Lattice metadata, and unexpected dirty rows
+  declared artifact, other-story Proofbound metadata, and unexpected dirty rows
   using the shared dirty-worktree classifier;
 - rename rows are allowed only when every path in the row is same-story
   lifecycle metadata; metadata-to-source, source-to-metadata, and
   source-to-owner-lease renames block before mutation;
-- unchanged pre-existing Lattice story lifecycle metadata remains advisory for
+- unchanged pre-existing Proofbound story lifecycle metadata remains advisory for
   `done_prepare`; it does not force a `blockedAt: cleanTree` result by itself;
 - failed DONE-required evidence is not rescued by the dirty-file allowance: it
   remains visible as same-story metadata dirt, but `doneClosure` blocks on the
@@ -186,7 +186,7 @@ Dirty-file policy:
   commit(s), and tell the operator to review them and rerun `done_prepare` from
   the new HEAD;
 - a successful `DONE prepare: PASS` requires no new or changed dirty rows beyond
-  unchanged pre-existing Lattice story lifecycle metadata.
+  unchanged pre-existing Proofbound story lifecycle metadata.
 
 This keeps the implementation fail-closed for material drift and generated
 outputs while aligning pre-existing lifecycle metadata dirt with the DONE oracle's
@@ -281,7 +281,7 @@ If `canAttemptDone=true`, continue to runtime-change detection and final output.
 
 ### 6. Runtime Change Detection
 
-Detect whether the story changed Lattice CLI runtime behavior. The first
+Detect whether the story changed Proofbound CLI runtime behavior. The first
 implementation can use a conservative path-based rule.
 
 Report `postDoneRuntimeVersionBumpRequired=true` if the story diff includes any

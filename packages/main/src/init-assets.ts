@@ -20,17 +20,17 @@ export function listAgentPromptFiles(agentDir: string): string[] {
 export const AGENTS_MD_TEMPLATE = `# AGENTS.md
 
 <!-- lattice:start -->
-## Lattice
+## Proofbound
 
-- \`LATTICE.md\` is the host-neutral Lattice guide; this file keeps only Codex / AGENTS additions.
+- \`LATTICE.md\` is the host-neutral Proofbound guide; this file keeps only Codex / AGENTS additions.
 - At the start of a new session, or when resuming interrupted work, run \`node bin/lattice.js session_brief\`.
 - Before acting, run \`node bin/lattice.js aux_doc_list\` to inspect relevant docs; if the current global core-only environment lacks aux commands, fall back to the local bootstrap or shell search.
 - Prefer \`node bin/lattice.js\` (or global \`lattice\`) for Story / checklist / fixture / bug operations. Do not edit story/fixture JSON directly.
-- Parallel Lattice work is local-only: use local git worktrees/local branches, finish by merging to local \`main\` and cleaning the worktree. Remote publish is default-denied; a human must run \`lattice release_approve_push --confirm\` for a short-lived one-shot approval before any \`git push origin main\`.
-- Codex subagent prompts use the Lattice adapter: full asset mode materializes \`.lattice-codex/agents\`, while thin asset mode resolves prompts from the package registry. Claude Code-only assets are generated only when the Claude profile is enabled.
+- Parallel Proofbound work is local-only: use local git worktrees/local branches, finish by merging to local \`main\` and cleaning the worktree. Remote publish is default-denied; a human must run \`lattice release_approve_push --confirm\` for a short-lived one-shot approval before any \`git push origin main\`.
+- Codex subagent prompts use the Proofbound adapter: full asset mode materializes \`.lattice-codex/agents\`, while thin asset mode resolves prompts from the package registry. Claude Code-only assets are generated only when the Claude profile is enabled.
 - After changing the Codex adapter, \`.lattice-codex\`, or \`bin/lattice-codex.js\`, run \`node bin/lattice-codex.js verify_codex\` so REVIEW/DONE gates can consume hard evidence.
 - For Codex adapter diagnostics, run \`node bin/lattice-codex.js doctor\`.
-- Run \`node bin/lattice.js check\` to check Lattice managed asset/template drift; after review, use \`node bin/lattice.js check --apply\` or \`node bin/lattice.js check --upgrade\` to sync safe items.
+- Run \`node bin/lattice.js check\` to check Proofbound managed asset/template drift; after review, use \`node bin/lattice.js check --apply\` or \`node bin/lattice.js check --upgrade\` to sync safe items.
 
 <!-- lattice:end -->
 `;
@@ -38,19 +38,19 @@ export const AGENTS_MD_TEMPLATE = `# AGENTS.md
 export const LATTICE_MD_TEMPLATE = `# LATTICE.md
 
 <!-- lattice:start -->
-## Lattice
+## Proofbound
 
-\`LATTICE.md\` is the canonical, host-neutral Lattice guide. New init profiles create or sync this file.
+\`LATTICE.md\` is the canonical, host-neutral Proofbound guide. New init profiles create or sync this file.
 
 - At the start of a new session, or when resuming interrupted work, run \`node bin/lattice.js session_brief\`.
 - Before acting, run \`node bin/lattice.js aux_doc_list\` to inspect relevant docs; if the current global core-only environment lacks aux commands, fall back to the local bootstrap or shell search.
 - Prefer \`node bin/lattice.js\` (or global \`lattice\`) for Story / checklist / fixture / bug operations. Do not edit story/fixture JSON directly.
-- Parallel Lattice work is local-only: use local git worktrees/local branches, finish by merging to local \`main\` and cleaning the worktree. Remote publish is default-denied; a human must run \`lattice release_approve_push --confirm\` for a short-lived one-shot approval before any \`git push origin main\`.
+- Parallel Proofbound work is local-only: use local git worktrees/local branches, finish by merging to local \`main\` and cleaning the worktree. Remote publish is default-denied; a human must run \`lattice release_approve_push --confirm\` for a short-lived one-shot approval before any \`git push origin main\`.
 - The default local entrypoint is \`node bin/lattice.js\`; if the profile generated a Codex adapter, also use \`node bin/lattice-codex.js\`.
 - Codex-specific notes live in \`AGENTS.md\` and \`.lattice-codex/README.md\`; Claude-specific notes live in \`CLAUDE.md\` and \`.claude/\`.
-- After changing Lattice adapter assets, run the corresponding verification: project validation uses \`node bin/lattice.js validate\`, and the Codex adapter additionally uses \`node bin/lattice-codex.js verify_codex\`.
-- \`node bin/lattice.js check\` checks Lattice managed assets against the hardcoded registry. \`node bin/lattice.js check --apply\` / \`node bin/lattice.js check --upgrade\` sync only MISSING/STALE_SAFE items and do not overwrite CASE_MISMATCH, local edits, or incompatible files.
-- Legacy project documents may still mention old project names, but active runtime assets generated by init use Lattice entrypoints only.
+- After changing Proofbound adapter assets, run the corresponding verification: project validation uses \`node bin/lattice.js validate\`, and the Codex adapter additionally uses \`node bin/lattice-codex.js verify_codex\`.
+- \`node bin/lattice.js check\` checks Proofbound managed assets against the hardcoded registry. \`node bin/lattice.js check --apply\` / \`node bin/lattice.js check --upgrade\` sync only MISSING/STALE_SAFE items and do not overwrite CASE_MISMATCH, local edits, or incompatible files.
+- Legacy project documents may still mention old project names, but active runtime assets generated by init use Proofbound entrypoints only.
 
 <!-- lattice:end -->
 `;
@@ -58,15 +58,15 @@ export const LATTICE_MD_TEMPLATE = `# LATTICE.md
 export const CLAUDE_MD_TEMPLATE = `# CLAUDE.md
 
 <!-- lattice:start -->
-## Lattice For Claude Code
+## Proofbound For Claude Code
 
-- \`LATTICE.md\` is the canonical, host-neutral Lattice guide; Story lifecycle facts and shared rules derive from it.
+- \`LATTICE.md\` is the canonical, host-neutral Proofbound guide; Story lifecycle facts and shared rules derive from it.
 - Claude Code entrypoints should first run \`node bin/lattice.js session_brief\`; daily operations should use \`node bin/lattice.js\` or global \`lattice\`.
-- Parallel Lattice work is local-only: use local git worktrees/local branches, finish by merging to local \`main\` and cleaning the worktree. Remote publish is default-denied; a human must run \`lattice release_approve_push --confirm\` for a short-lived one-shot approval before any \`git push origin main\`.
+- Parallel Proofbound work is local-only: use local git worktrees/local branches, finish by merging to local \`main\` and cleaning the worktree. Remote publish is default-denied; a human must run \`lattice release_approve_push --confirm\` for a short-lived one-shot approval before any \`git push origin main\`.
 - Claude Code subagents live in \`.claude/agents\`.
 - Claude Code hooks live in \`.claude/hooks\`, and Claude settings live in \`.claude/settings.json\`.
 - When the repository also enables the Codex profile, Codex assets live separately under \`.lattice-codex/\`; do not treat this file as a shared truth source for both hosts.
-- Run \`node bin/lattice.js check\` to check Lattice managed asset/template drift; after review, use \`node bin/lattice.js check --apply\` or \`node bin/lattice.js check --upgrade\` to sync safe items.
+- Run \`node bin/lattice.js check\` to check Proofbound managed asset/template drift; after review, use \`node bin/lattice.js check --apply\` or \`node bin/lattice.js check --upgrade\` to sync safe items.
 
 <!-- lattice:end -->
 `;
@@ -79,17 +79,17 @@ export const CLAUDE_MD_TEMPLATE = `# CLAUDE.md
 export const LATTICE_DOT_DIR_MD_TEMPLATE = `# Lattice.md
 
 <!-- lattice:start -->
-## Lattice
+## Proofbound
 
-\`.lattice/Lattice.md\` is the canonical, host-neutral Lattice project guide. This directory holds project-local Lattice context and configuration.
+\`.lattice/Lattice.md\` is the canonical, host-neutral Proofbound project guide. This directory holds project-local Proofbound context and configuration.
 
 - At the start of a new session, or when resuming interrupted work, run \`lattice session_brief\`.
 - Before acting, run \`lattice aux_doc_list\` to inspect relevant docs.
 - Use the global \`lattice\` CLI for Story / checklist / fixture / bug operations. Do not edit story/fixture JSON directly.
-- Parallel Lattice work is local-only: use local git worktrees/local branches, finish by merging to local \`main\` and cleaning the worktree. Remote publish is default-denied; a human must run \`lattice release_approve_push --confirm\` for a short-lived one-shot approval before any \`git push origin main\`.
+- Parallel Proofbound work is local-only: use local git worktrees/local branches, finish by merging to local \`main\` and cleaning the worktree. Remote publish is default-denied; a human must run \`lattice release_approve_push --confirm\` for a short-lived one-shot approval before any \`git push origin main\`.
 - Codex adapter verification and diagnostics use the global CLI: \`lattice codex verify\` and \`lattice codex doctor\`.
-- Run \`lattice check\` to check Lattice managed asset/template drift; after review, use \`lattice check --apply\` to sync safe items.
-- Legacy project documents may still mention old project names, but active runtime assets generated by global-thin init use Lattice entrypoints only.
+- Run \`lattice check\` to check Proofbound managed asset/template drift; after review, use \`lattice check --apply\` to sync safe items.
+- Legacy project documents may still mention old project names, but active runtime assets generated by global-thin init use Proofbound entrypoints only.
 
 <!-- lattice:end -->
 `;
@@ -97,15 +97,15 @@ export const LATTICE_DOT_DIR_MD_TEMPLATE = `# Lattice.md
 export const AGENTS_MD_GLOBAL_THIN_TEMPLATE = `# AGENTS.md
 
 <!-- lattice:start -->
-## Lattice
+## Proofbound
 
-- \`.lattice/Lattice.md\` is the host-neutral Lattice guide; this file keeps only Codex / AGENTS additions.
+- \`.lattice/Lattice.md\` is the host-neutral Proofbound guide; this file keeps only Codex / AGENTS additions.
 - At the start of a new session, or when resuming interrupted work, run \`lattice session_brief\`.
 - Before acting, run \`lattice aux_doc_list\` to inspect relevant docs.
 - Use the global \`lattice\` CLI for Story / checklist / fixture / bug operations. Do not edit story/fixture JSON directly.
-- Parallel Lattice work is local-only: use local git worktrees/local branches, finish by merging to local \`main\` and cleaning the worktree. Remote publish is default-denied; a human must run \`lattice release_approve_push --confirm\` for a short-lived one-shot approval before any \`git push origin main\`.
+- Parallel Proofbound work is local-only: use local git worktrees/local branches, finish by merging to local \`main\` and cleaning the worktree. Remote publish is default-denied; a human must run \`lattice release_approve_push --confirm\` for a short-lived one-shot approval before any \`git push origin main\`.
 - Codex adapter verification uses the global CLI: \`lattice codex verify\`. For diagnostics, run \`lattice codex doctor\`.
-- Run \`lattice check\` to check Lattice managed asset/template drift; after review, use \`lattice check --apply\` to sync safe items.
+- Run \`lattice check\` to check Proofbound managed asset/template drift; after review, use \`lattice check --apply\` to sync safe items.
 
 <!-- lattice:end -->
 `;
@@ -121,7 +121,7 @@ export function renderLatticeProjectConfig(): string {
   return JSON.stringify({
     latticeVersion: 1,
     assetMode: 'global-thin',
-    description: 'Global-thin Lattice project: executable Codex adapter behavior lives in the global lattice CLI; no local bin shims required.',
+    description: 'Global-thin Proofbound project: executable Codex adapter behavior lives in the global lattice CLI; no local bin shims required.',
     generatedAt: new Date().toISOString(),
   } satisfies LatticeProjectConfig, null, 2) + '\n';
 }
@@ -153,7 +153,7 @@ export const LATTICE_CODEX_ADAPTER_MANIFEST: CodexAdapterManifest = {
     {
       name: 'local-wrapper',
       command: 'node bin/lattice-codex.js',
-      useWhen: 'This repository includes the Lattice bootstrap wrapper.',
+      useWhen: 'This repository includes the Proofbound bootstrap wrapper.',
     },
     {
       name: 'global-fallback',
@@ -175,7 +175,7 @@ export const LATTICE_CODEX_ADAPTER_MANIFEST: CodexAdapterManifest = {
     '.lattice-codex/settings.json',
   ],
   notes: [
-    'This file is read by Lattice tooling, not by the Codex runtime.',
+    'This file is read by Proofbound tooling, not by the Codex runtime.',
     'Codex agent prompts live in .lattice-codex/agents and are generated from .claude/agents in full asset mode.',
     'Codex native hooks are official lowercase .codex assets; case-insensitive file systems may project them through the same .lattice-codex directory entry.',
     'Claude Code hooks, settings, and skills remain under .claude only.',
@@ -209,7 +209,7 @@ export function renderLatticeCodexAdapterManifest(options: RenderCodexAdapterMan
   }, null, 2)}\n`;
 }
 
-const CODEX_README_LATTICE_TEMPLATE = `# Codex + Lattice
+const CODEX_README_LATTICE_TEMPLATE = `# Codex + Proofbound
 
 优先做法：
 
@@ -238,15 +238,15 @@ fallback 说明：
 - 全局 \`lattice\` 可能是 core-only，\`aux_*\` 命令不一定可用
 - 全局 \`lattice\` 也可能滞后于当前 worktree；有本地 wrapper 或 \`node packages/main/dist/cli.js\` 时，不要把 fallback 的 \`status\` / \`next\` / \`validate\` 输出当作 gate 证据
 - \`.lattice-codex/agents\` 由 \`.claude/agents\` 的完整 prompt 集合受控生成；Claude hooks/settings/skills 仍只属于 \`.claude\`
-- \`.lattice-codex/lattice.json\` 是 Lattice 自己读取的 Codex adapter manifest，用来说明推荐入口、session 环境变量和不生成的 runtime 资产
+- \`.lattice-codex/lattice.json\` 是 Proofbound 自己读取的 Codex adapter manifest，用来说明推荐入口、session 环境变量和不生成的 runtime 资产
 
 建议：
 
 - 新 session 第一条命令跑 \`node bin/lattice-codex.js session_brief\`
 - 日常所有 story/checklist/fixture/bug 操作尽量保持同一入口
-- 在 Lattice 仓库自身开发时，若完整 wrapper 暂不可用，用 \`node packages/main/dist/cli.js <command>\` 做当前 worktree 的 status/gate/validate 判断
+- 在 Proofbound 仓库自身开发时，若完整 wrapper 暂不可用，用 \`node packages/main/dist/cli.js <command>\` 做当前 worktree 的 status/gate/validate 判断
 - 改动 Codex adapter 资产后运行 \`node bin/lattice-codex.js verify_codex\`（或 \`node bin/lattice.js verify_codex\`）；它会验证 manifest、agent mirror、native hook、wrapper heartbeat、global fallback heartbeat 和 runtime 排除项，并写入 gate 可消费的 process-event evidence
-- 运行 \`lattice check\` 检查 Lattice 管理资产/模板漂移；确认后用 \`lattice check --apply\` 或 \`lattice check --upgrade\` 同步安全项
+- 运行 \`lattice check\` 检查 Proofbound 管理资产/模板漂移；确认后用 \`lattice check --apply\` 或 \`lattice check --upgrade\` 同步安全项
 - 初始化脚本可用 \`lattice init --verify-codex\` 做同源资产校验
 - 诊断 Codex adapter 时运行 \`node bin/lattice-codex.js doctor\`，可同时查看共享检查、health 和 worktree 状态
 - 如果 \`aux_*\` 不可用，说明当前是 core-only lattice：优先找本地 bootstrap 入口；没有的话，用 AGENTS.md 规定的 shell 搜索兜底
@@ -254,7 +254,7 @@ fallback 说明：
 边界：
 
 - 不创建 \`.lattice-codex/settings.json\`，因为 Codex runtime 不会读取 Claude Code settings
-- Codex 官方 PreToolUse hook 使用小写 \`.codex/hooks.json\` 和 \`.codex/hooks/lattice-scope-pretool.cjs\`，由 Lattice init/check 管理；大小写不敏感文件系统上可能显示为 \`.lattice-codex/hooks\` alias
+- Codex 官方 PreToolUse hook 使用小写 \`.codex/hooks.json\` 和 \`.codex/hooks/lattice-scope-pretool.cjs\`，由 Proofbound init/check 管理；大小写不敏感文件系统上可能显示为 \`.lattice-codex/hooks\` alias
 - 需要观测 Codex 活动时，使用 \`.lattice-codex/lattice.json\` 记录的 wrapper 或带 \`LATTICE_ACTIVITY_RECORD_READONLY=1\` 的 fallback
 `;
 
@@ -264,7 +264,7 @@ const CODEX_README_THIN_APPENDIX = `
 This repository uses registry-backed Codex prompts:
 
 - \`.lattice-codex/lattice.json\` records \`promptMode=registry\` and the package prompt registry hash.
-- \`.lattice-codex/agents\` prompt copies are not required for Lattice adapter verification in this mode.
+- \`.lattice-codex/agents\` prompt copies are not required for Proofbound adapter verification in this mode.
 - Legacy full-mode repositories may still materialize \`.lattice-codex/agents\`; both modes remain supported.
 - This is adapter hygiene only. It does not replace validation evidence, receipts, or production authority.
 `;
@@ -329,7 +329,7 @@ async function main() {
     console.error('');
     console.error('Recovery:');
     console.error('  - Install or update @lattice/core, then rerun: lattice init --verify-codex');
-    console.error('  - In the Lattice repository, run: npm run build');
+    console.error('  - In the Proofbound repository, run: npm run build');
     process.exit(1);
   }
 
@@ -384,7 +384,7 @@ async function main() {
     console.error('');
     console.error('Recovery:');
     console.error('  - Rerun: lattice init --verify-codex');
-    console.error('  - If this is the Lattice repository, run: npm run build');
+    console.error('  - If this is the Proofbound repository, run: npm run build');
     process.exit(1);
   }
 }
@@ -462,7 +462,7 @@ export function getCodexHooks() {
         type: 'command',
         command: codexHookCommand(LATTICE_SCOPE_PRETOOL_HOOK_FILE),
         timeout: 30,
-        statusMessage: 'Checking Lattice scope',
+        statusMessage: 'Checking Proofbound scope',
       }],
     }],
   };
@@ -484,7 +484,7 @@ export function renderCodexPretoolScopeHookScript(): string {
  * Exit 0  -> pass (tool proceeds)
  * Exit 2  -> block (Codex rejects the supported tool call; reason on stderr)
  *
- * Graceful degradation: if this hook cannot find or run the Lattice CLI, it
+ * Graceful degradation: if this hook cannot find or run the Proofbound CLI, it
  * passes through rather than trapping the host in a broken local hook.
  */
 'use strict';

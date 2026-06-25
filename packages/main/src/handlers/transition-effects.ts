@@ -191,7 +191,7 @@ export function buildNextSteps(
 → Use Agent({ subagent_type: "lattice-implementer", prompt: "..." }) to assign tasks
 → After the subagent finishes and commits, the main agent accepts and merges, then story_advance(${storyId}, REVIEW)
 → sub agent should not use isolation:"worktree", run directly in the main agent's worktree
-⚠ During the REVIEW phase, Lattice reviewers will check the commit author — in the normal channel, if all code is written by the main agent itself, a critical finding will be raised`;
+⚠ During the REVIEW phase, Proofbound reviewers will check the commit author — in the normal channel, if all code is written by the main agent itself, a critical finding will be raised`;
     })(),
     REVIEW: (() => {
       // B-fdcf CHK-002: Dynamic echo by opt-in list (no longer fixed at 5 after channel LLM reviewer was retired).

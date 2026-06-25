@@ -108,7 +108,7 @@ export function checkSemanticScope(
   const globalProtected = new Set(contract.protectedAnchors ?? []);
 
   for (const hunk of diffPack.hunks) {
-    // Story metadata / Lattice internal files are never semantically gated.
+    // Story metadata / Proofbound internal files are never semantically gated.
     // Only docs/story/ and .lattice/ are exempt; any other runtime path is
     // intentionally not exempt and should surface as a path/scope violation.
     if (hunk.path.startsWith('docs/story/') || hunk.path.startsWith('.lattice/')) continue;

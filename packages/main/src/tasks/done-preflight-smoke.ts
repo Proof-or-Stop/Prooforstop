@@ -234,7 +234,7 @@ function buildDoneReadyStoryWithLinkedWorktree(
   git(root, ['init']);
   git(root, ['checkout', '-B', 'main']);
   git(root, ['add', '.']);
-  git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Lattice Smoke', 'commit', '-m', 'base']);
+  git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proofbound Smoke', 'commit', '-m', 'base']);
   resetConfigCache();
 
   const now = '2026-06-04T10:00:00.000Z';
@@ -273,7 +273,7 @@ function buildDoneReadyStoryWithLinkedWorktree(
   store.writeChecklist(storyId, checklist);
 
   git(root, ['add', '.']);
-  git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Lattice Smoke', 'commit', '-m', 'story metadata']);
+  git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proofbound Smoke', 'commit', '-m', 'story metadata']);
   git(root, ['branch', `story/${storyId}`]);
   git(root, ['worktree', 'add', worktreePath, `story/${storyId}`]);
 
@@ -282,7 +282,7 @@ function buildDoneReadyStoryWithLinkedWorktree(
   if (writeClosureEvidence) {
     writeDoneGateEvidence(worktreeStore, worktreePath, storyId);
     git(worktreePath, ['add', '.']);
-    git(worktreePath, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Lattice Smoke', 'commit', '-m', 'done gate evidence']);
+    git(worktreePath, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proofbound Smoke', 'commit', '-m', 'done gate evidence']);
   }
 
   return { worktreePath, store };
@@ -293,7 +293,7 @@ function buildTestPassedStoryMissingClosureArtifacts(root: string, storyId: stri
   const worktreeStore = new StoryStore(worktreePath);
   writePassingTestEvidence(worktreeStore, worktreePath, storyId);
   git(worktreePath, ['add', '.']);
-  git(worktreePath, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Lattice Smoke', 'commit', '-m', 'test evidence only']);
+  git(worktreePath, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proofbound Smoke', 'commit', '-m', 'test evidence only']);
   return { worktreePath };
 }
 
@@ -362,7 +362,7 @@ function markStoryBranchAsPartialDone(worktreePath: string, storyId: string): vo
   story.endedAt = story.endedAt || '2026-06-04T10:30:00.000Z';
   store.writeStory(storyId, story);
   git(worktreePath, ['add', store.storyDirRel()]);
-  git(worktreePath, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Lattice Smoke', 'commit', '-m', 'partial done state']);
+  git(worktreePath, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proofbound Smoke', 'commit', '-m', 'partial done state']);
 }
 
 /**
@@ -529,7 +529,7 @@ function assertCompletedDoneEvidenceFreshnessUsesRecordedSnapshot(): void {
 
     write(root, 'packages/main/src/unrelated-after-done.ts', 'export const unrelatedAfterDone = true;\n');
     git(root, ['add', 'packages/main/src/unrelated-after-done.ts']);
-    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Lattice Smoke', 'commit', '-m', 'unrelated material after done']);
+    git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proofbound Smoke', 'commit', '-m', 'unrelated material after done']);
 
     const store = new StoryStore(root);
     const story = store.readStory(storyId);
@@ -574,7 +574,7 @@ function assertActiveTestEvidenceFreshnessStillUsesCurrentMaterialHash(): void {
 
     write(worktreePath, 'packages/main/src/unrelated-active.ts', 'export const unrelatedActive = true;\n');
     git(worktreePath, ['add', 'packages/main/src/unrelated-active.ts']);
-    git(worktreePath, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Lattice Smoke', 'commit', '-m', 'unrelated material during test']);
+    git(worktreePath, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proofbound Smoke', 'commit', '-m', 'unrelated material during test']);
     assert.equal(store.readStory(storyId).phase, 'TEST', 'pre-condition: story must remain active TEST');
     assert.notEqual(
       currentMaterialHash(worktreePath),

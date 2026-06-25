@@ -7,7 +7,7 @@
 //
 //   natural-language request (one sentence AND requestFile)
 //     -> planner draft + adversarial review
-//     -> real Lattice Story created/reused
+//     -> real Proofbound Story created/reused
 //     -> typed Authority JobPlan (plannedSteps[])
 //     -> executePlannedSteps: provider (fake deterministic) -> validate ->
 //        evidence/run-events upload -> gate.evaluate -> native gate_decision
@@ -247,7 +247,7 @@ try {
   const approved = await approveRun;
   assert.equal(approved.schemaVersion, 'lattice.planner_run.v1');
   assert.equal(approved.status, 'blocked', 'a verified native gate_decision receipt unlocks per-run authorityDone, but final DONE waits for multi-host certification');
-  assert.match(approved.storyId, /^B-[0-9a-f]{4,6}$/i, 'the NL request creates a real Lattice Story');
+  assert.match(approved.storyId, /^B-[0-9a-f]{4,6}$/i, 'the NL request creates a real Proofbound Story');
   assert.equal(approved.jobPlan.storyId, approved.storyId, 'the JobPlan binds the created Story');
   assert.equal(approved.jobPlan.mode, 'authority');
   const exec = approved.execution as JsonObject;

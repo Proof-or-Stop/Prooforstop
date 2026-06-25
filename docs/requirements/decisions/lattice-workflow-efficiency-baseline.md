@@ -1,4 +1,4 @@
-# Lattice Workflow Efficiency Baseline
+# Proofbound Workflow Efficiency Baseline
 
 Date: 2026-06-23
 Baseline registration story: B-4bd7
