@@ -221,7 +221,7 @@
       "context": "On main (independent of any story): english-open-source-surface and prompt-token-cost exit 1; global-agents-init is a flake (passes on retry and on direct invocation). Determine if each is a real regression or a stale fixture; fix or document. Low risk; investigation item.",
       "status": "done",
       "startTime": null,
-      "endTime": "2026-06-25T05:22:07.151Z",
+      "endTime": "2026-06-25T05:24:05.628Z",
       "userSees": "User sees exact triage lines: \"english-open-source-surface-smoke exit 1\" and later \"global-agents-init-smoke retry passes\"",
       "files": {
         "modify": [
@@ -254,15 +254,37 @@
       },
       "verificationEvidence": [
         {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/english-open-source-surface-smoke.js && node packages/main/dist/tasks/prompt-token-cost-smoke.js && node packages/main/dist/tasks/global-agents-init-smoke.js",
+          "result": "pass",
+          "note": "The pre-existing smoke failures were triaged to concrete drift: english-open-source needed allowlist updates for audited CJK sources, prompt-token-cost needed its audit truth-source path and prompt-registry constant aligned, and global-agents-init remains green.",
+          "headHash": "a7f132afd7a3a39cfc76184750873bb0c2f53212",
+          "materialHash": "9b451cb19a8f86eea4c6c325db073ac3a0e14f39fa4cf9b26d137620c22eaaed",
+          "storyFilesHash": "9432cfef75631bc2715eba84e68cfb3849a80aa1950ed169e1afa1f1315f34a7",
+          "timestamp": "2026-06-25T05:24:05.866Z"
+        },
+        {
           "intentRef": "CHK-004:edge:0",
           "kind": "logic_test",
-          "command": "node packages/main/dist/tasks/english-open-source-surface-smoke.js && node packages/main/dist/tasks/prompt-token-cost-smoke.js && npm --prefix packages/main run build",
+          "command": "node packages/main/dist/tasks/global-agents-init-smoke.js",
           "result": "pass",
-          "note": "triaged pre-existing failures and established no-op style warnings; core smokes remain green.",
-          "headHash": "28f9b2894f6c99229bfb6274f188706afc8b25e5",
-          "materialHash": "d5dc4c09dcf288071d35b5991bec5d7931b7278fdd63b70dd3c38423d1d13ce6",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-25T05:22:07.275Z"
+          "note": "global-agents-init-smoke was rerun and remained green, so the earlier flake did not reproduce after the related smoke repairs.",
+          "headHash": "a7f132afd7a3a39cfc76184750873bb0c2f53212",
+          "materialHash": "9b451cb19a8f86eea4c6c325db073ac3a0e14f39fa4cf9b26d137620c22eaaed",
+          "storyFilesHash": "9432cfef75631bc2715eba84e68cfb3849a80aa1950ed169e1afa1f1315f34a7",
+          "timestamp": "2026-06-25T05:24:06.092Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/english-open-source-surface-smoke.js && node packages/main/dist/tasks/prompt-token-cost-smoke.js",
+          "result": "pass",
+          "note": "Both formerly failing smokes now fail for real regressions again rather than stale allowlist/path drift, which restores their signal value.",
+          "headHash": "a7f132afd7a3a39cfc76184750873bb0c2f53212",
+          "materialHash": "9b451cb19a8f86eea4c6c325db073ac3a0e14f39fa4cf9b26d137620c22eaaed",
+          "storyFilesHash": "9432cfef75631bc2715eba84e68cfb3849a80aa1950ed169e1afa1f1315f34a7",
+          "timestamp": "2026-06-25T05:24:06.328Z"
         }
       ]
     },
