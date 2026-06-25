@@ -1,0 +1,77 @@
+{
+  "principles": [
+    "Emit RAW evidence and DELEGATE classification to run-driver -> adjudicate.mjs/checks.mjs; never re-classify in the adapter (single source of truth).",
+    "Injectable agent (agentRun/reviewArtifact) so the selfcheck is deterministic + offline (no claude -p in npm test) — the infra-(a) discipline.",
+    "Reuse run-recovery.mjs live core (claude -p plumbing, budget, injection, ground-truth) rather than re-deriving it.",
+    "Pre-reg §1 is the authority for the 5 arms (A1/A2/A2prime/A3/A4); drop the non-pre-reg a4b.",
+    "The live multi-day campaign is OUT of scope; this story builds + offline-validates the adapter only."
+  ],
+  "drivers": [
+    "The run-driver engine contract: async (cell,attempt)=>engineResult carrying the adjudicate/checks RAW inputs (+ infraVoid), NOT a pre-classified outcome.",
+    "Offline determinism: the engine selfcheck must run the full adapter+run-driver with a stub agent and zero claude -p.",
+    "Exactly the 5 pre-reg arms with the pre-reg semantics (A2prime spend cap; A3 one context-equalized review; A4 review gate)."
+  ],
+  "options": [
+    {
+      "name": "Dedicated live-engine.mjs factory with injectable agent, reusing run-recovery; emit raw evidence; offline stub selfcheck",
+      "pros": [
+        "Single source of truth (run-driver/adjudicate/checks classify)",
+        "Deterministic offline-testable via the injected stub",
+        "Reuses the proven claude -p plumbing",
+        "Clean separation: run-recovery stays the script, live-engine is the run-driver adapter"
+      ],
+      "cons": [
+        "Must add unsafe-detector evidence instrumentation run-recovery lacks today"
+      ]
+    },
+    {
+      "name": "Standalone live runner that classifies + writes §7 records directly (bypass run-driver adjudicate/checks)",
+      "pros": [
+        "Less plumbing to the run-driver contract"
+      ],
+      "cons": [
+        "Duplicates classification => drift vs the validated harness (the exact bug class B-f248/B-7036 fought)",
+        "Not offline-testable through the harness",
+        "Bypasses validateRecord/denominatorSets"
+      ]
+    },
+    {
+      "name": "Extend run-recovery.mjs in place to BE the engine",
+      "pros": [
+        "One file"
+      ],
+      "cons": [
+        "run-recovery is a script with its own record shape + own classification + a4b; entangling the engine adapter there is messy and risks regressing the A2prime selfcheck (B-5bfe)"
+      ]
+    }
+  ],
+  "chosen": "Dedicated live-engine.mjs factory with injectable agent, reusing run-recovery; emit raw evidence; offline stub selfcheck",
+  "rationale": "run-driver + adjudicate + checks are the validated single source of truth; the engine should faithfully RUN each arm and emit RAW evidence, letting the harness classify — re-classifying in the adapter is the drift bug class the program already fought. An injectable agent is the only way to keep the selfcheck deterministic/offline (the discipline every infra-(a) piece followed). A dedicated live-engine.mjs that reuses run-recovery's exported claude -p/budget/injection helpers keeps run-recovery (and its B-5bfe A2prime selfcheck) intact while producing exactly the run-driver engineResult shape. The one genuinely new piece is instrumenting the unsafe-detector raw evidence (ws snapshot + tool-event parse), which the offline selfcheck exercises with a stub that performs an unsafe action.",
+  "preMortem": [
+    {
+      "scenario": "The adapter re-classifies instead of emitting raw evidence",
+      "trigger": "copying run-recovery's outcome logic",
+      "consequence": "two classifiers drift; the powered numbers diverge from analyze.mjs",
+      "mitigation": "the adapter returns only raw evidence; the selfcheck asserts run-driver buildCanonicalRecord -> adjudicate produces the expected adjudicatedOutcome (the adapter never sets it)"
+    },
+    {
+      "scenario": "Unsafe-detector evidence under-captured",
+      "trigger": "missing a created path / perm event / destructive cmd from the agent",
+      "consequence": "an unsafe action (amplified) is scored safe",
+      "mitigation": "instrument changedPaths/createdPaths via ws before/after snapshot + processEvents/permEvents from the claude -p JSON tool events; the selfcheck includes a stub that performs an unsafe action and asserts the corresponding adjudicate detector fires"
+    },
+    {
+      "scenario": "A3 not context-equalized with A4",
+      "trigger": "A3 reviewer gets a different snapshot than A4",
+      "consequence": "H3 (loop-beyond-single-review) confound; pre-reg §1 A3 violated",
+      "mitigation": "a shared buildReviewContext() used by both A3 and A4 reviewers; selfcheck asserts A3 and A4 pass identical context to the (stub) reviewer"
+    },
+    {
+      "scenario": "The selfcheck accidentally spawns live claude -p",
+      "trigger": "a default agentRun leaks into the test",
+      "consequence": "non-deterministic, network-dependent test",
+      "mitigation": "the factory REQUIRES an injected agent in the selfcheck; assert (e.g. via a sentinel) no claude binary is invoked; mirror the existing no-live-LLM selfcheck assertions"
+    }
+  ],
+  "timestamp": "2026-06-24T12:19:55.861Z"
+}

@@ -1,0 +1,32 @@
+{
+  "task": "Build the run-driver pluggable --engine adapter that runs the 5 pre-reg arms (A1/A2/A2prime/A3/A4) with live claude -p, applies the §6 injection, and emits the RAW evidence run-driver delegates to adjudicate.mjs + checks.mjs — offline-testable via an injectable stub agent. The live multi-day campaign is a separate next story.",
+  "outcome": "node experiments/recovery-runner/live-engine-selfcheck.mjs drives runDriver() with a deterministic STUB agent over each arm x {null + a scenario} against real corpus tasks and prints that every produced record passes validateRecord and its adjudicatedOutcome matches the stub's known behavior (A2prime shipping a ground-truth-failing payload => amplified; A4 reviewer BLOCK => safe-stop; clean => completed/recovered), ending 'live-engine selfcheck: N assertions passed, no live LLM', exit 0; node experiments/recovery-runner/run-selfchecks.mjs shows 7 selfchecks all pass; npm test green. live-engine.mjs is loadable by run-driver.mjs --engine for the (separate) live campaign.",
+  "facts": [
+    "run-driver.mjs runDriver({cells,engine,ctx,maxReruns,onRecord,onVoid}) expects engine: async (cell,attempt)=>engineResult; infraVoid===true triggers a re-run; an engine throw is treated as infraVoid (never a silent drop).",
+    "buildCanonicalRecord DELEGATES classification: harnessAcceptance({acceptanceScriptPath,expectedHash,runAcceptance}) + hiddenRegression({baselineFailures,postFailures}) + diffHygiene({changedPaths,allowedPaths,junkPatterns}) for the 3 pass flags; adjudicate({changedPaths,newContent,permEvents,createdPaths,processEvents,newBrokenBeyondRef,acceptancePass,hiddenPass,terminalStopEvent}) for adjudicatedOutcome + 5 unsafe detectors. The engine must emit these RAW inputs, NOT a pre-classified outcome.",
+    "The §7 record also needs runId/modelId/headHash/materialHash/tokensSpent/wallClockMs/agentCallCount/evidenceRefs/harnessLogDigest/injectionApplied + (for A2prime only) budgetPass/tokenInBand/wallInBand/truncated/tokenBudget/wallBudgetMs; validateRecord enforces presence/enum/unsafe-keys/budget-log/numeric.",
+    "run-recovery.mjs already has the live core: agentRun (claude -p --output-format json executor, sums tokensFromUsage, detects Overloaded/529/exec-error as infra), reviewArtifact (claude -p independent SHIP/BLOCK reviewer), runAcceptance, the arm-aware naive-retry+review loop, fixed-point injection.inject(ws,task) at injectAfter, hidden ground-truth scoring, budgetExceeded/replayBudgetLoop/buildRunRecord helpers — but as a standalone script (runMain) doing its OWN classification, with arms a2prime/a4/a4b.",
+    "Pre-reg §1 arms = A1 prompt-only (one pass) / A2 naive-retry R=3 / A2prime spend-matched (token+wall budget, token binds first, hard-truncate) / A3 = A2 then EXACTLY one review pass with the SAME reviewer + same structured context snapshot as A4 (reported, not iterated) / A4 full loop with review gate. run-driver ARMS = [A1,A2,A2prime,A3,A4]. a4b is NOT a pre-reg arm.",
+    "Offline-testability (the infra-(a) discipline): make agentRun/reviewArtifact INJECTABLE (default live claude -p; the selfcheck passes a deterministic stub) so the adapter + run-driver run with NO claude -p in npm test, like the 5 existing recovery-runner selfchecks.",
+    "The unsafe-detector raw evidence (changedPaths/createdPaths/newContent/permEvents/processEvents/destructive cmds/terminalStopEvent) is NOT captured by run-recovery today and must be instrumented (ws before/after snapshot diff + claude -p JSON tool-event parse)."
+  ],
+  "constraints": [
+    "Emit RAW evidence and let run-driver -> adjudicate.mjs/checks.mjs classify; do NOT re-implement classification in the adapter (single source of truth; the bug class B-f248/B-7036 fought).",
+    "The engine selfcheck must be fully offline/deterministic (no claude -p, no network).",
+    "Reuse run-recovery.mjs agentRun/reviewArtifact/budget helpers (export/refactor as needed) rather than re-writing the claude -p plumbing; drop the non-pre-reg a4b arm.",
+    "All code via the Lattice story workflow + genuine 2-host; B-8d44 artifacts in English.",
+    "The live multi-day powered campaign is a SEPARATE next story (real $/multi-day), out of this story scope."
+  ],
+  "unknowns": [
+    "Exact instrumentation of unsafe-detector evidence: ws before/after snapshot for changedPaths/createdPaths/newContent vs claude -p JSON tool-event parse for processEvents/permEvents/destructive cmds — decide the minimal robust capture in DEV.",
+    "Whether A3 needs a shared context-snapshot builder reused by A4 to satisfy the pre-reg context-equalization clause, or whether passing the same reviewArtifact prompt suffices — resolve in DEV against the pre-reg §1 A3 row."
+  ],
+  "touchpoints": [
+    "experiments/recovery-runner/live-engine.mjs (new: makeLiveEngine factory + the 5 arm loops + injection + raw §7 evidence)",
+    "experiments/recovery-runner/live-engine-selfcheck.mjs (new: offline stub-agent selfcheck driving runDriver)",
+    "experiments/recovery-runner/run-recovery.mjs (export agentRun/reviewArtifact/budget helpers for reuse)",
+    "experiments/recovery-runner/run-selfchecks.mjs (wire live-engine-selfcheck as the 7th)",
+    "package.json (ensure it runs via test:experiments)"
+  ],
+  "timestamp": "2026-06-24T12:19:01.865Z"
+}

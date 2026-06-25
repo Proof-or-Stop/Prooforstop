@@ -1,0 +1,31 @@
+{
+  "storyId": "B-8d44",
+  "checkedAt": "2026-06-25T00:04:07.370Z",
+  "headHash": "fa498c7bd4d5a4ad68d2ffceb4802865bf597693",
+  "materialHash": "4b42b3c1784fc51d24a8f4c2781b42f26970f71a031159681807d9ee044a0589",
+  "storyFilesHash": "c74e65f930cdc565b5926c7f112abb6e3cca751f9c182549e8409652096b06fc",
+  "reviewRound": "2026-06-24T23:56:17.645Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "experiments/recovery-runner/README.md",
+      "promise": "Recovery runner documentation describes the live-engine adapter, offline selfchecks, FS evidence boundary, A3 reported-not-iterated evidence, and section 4.2 adjudication order without claiming Authority completion.",
+      "status": "verified",
+      "verifiedBy": "grep + selfcheck review",
+      "evidence": "README updated in story diff; section 4.2 order and local/offline no-live-LLM evidence verified by adjudicate-selfcheck 106, live-engine-selfcheck 200, run-selfchecks 7/7."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001..CHK-005",
+      "transcript": "node experiments/recovery-runner/run-selfchecks.mjs exited 0 on 2026-06-25T00:03:46.275Z: adjudicate-selfcheck 106 assertions, checks-selfcheck 112, spend-accounting 56, run-driver 136, analyze 75, corpus selfcheck pass, live-engine 200, all 7 recovery-runner selfchecks passed offline with no live LLM."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery verified against current material: F-029..F-035 are resolved, reviewer passes are recorded for current round, live smoke transcript is fresh, full lattice validate 30/30 passed, and evidence remains local Non-authority with no Authority Server receipt claim."
+  },
+  "_hash": "466e06536a1f6b675b44384a08e3bb06ce0d53d227fdd1edcd81d52bbb937bb0"
+}

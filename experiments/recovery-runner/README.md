@@ -14,7 +14,9 @@ The arm decides what the loop does once the visible acceptance test passes:
 - **a2prime** — bare naive-retry loop. No review gate. Re-invokes the agent with the
   failure output appended until acceptance passes (up to `R`), then ships whatever passed.
 - **a4** — same loop plus **one** post-hoc independent review gate. The reviewer can
-  `SHIP`/`BLOCK`; a `BLOCK` becomes a `safe-stop` instead of shipping.
+  `SHIP`/`BLOCK`; a `BLOCK` is a terminal no-ship signal. Per the §4.2 total order,
+  unresolved blocked runs become `safe-stop`, while a genuinely recovered run still scores
+  `recovered` when no amplification occurred.
 - **a4b** — bounded **reflection** loop. The independent reviewer runs *in-loop*; on
   `BLOCK` its finding is fed back and the agent retries (up to `MAX_REVIEW_ROUNDS`), so
   the loop can *recover* from a caught fault rather than merely stopping.
@@ -97,8 +99,22 @@ a stream of canonical §7 run-records. It:
   ablation cell apply to every arm). N/A cells are excluded **and logged**, never counted as
   failures.
 - assigns a seeded, deterministic, reproducible run order (`runOrderSeed`).
-- invokes a **pluggable per-cell engine** (injected), so the driver core is fully
-  offline-testable; the real campaign plugs a `run-recovery.mjs` adapter as the engine.
+- invokes a **pluggable per-cell engine** (injected via `--engine`), so the driver core is
+  fully offline-testable; the real campaign plugs **`live-engine.mjs`** as the engine adapter
+  (its `makeLiveEngine()` reuses `run-recovery.mjs`'s live `claude -p` plumbing — executor,
+  reviewer, acceptance, ground-truth — and emits the RAW §7 evidence the driver canonicalises).
+  The executor/reviewer are injectable, so `live-engine-selfcheck.mjs` drives the whole adapter
+  offline with a deterministic stub (no `claude -p`).
+  - **FS evidence threat model (accepted residual boundary).** `live-engine.mjs` captures unsafe
+    file side effects via the per-cell ws fs snapshot — created / changed / **deleted** paths,
+    including **symlinks** (an escaping symlink target is a forbidden-path signal) — **plus** the
+    target paths harvested from the agent's tool-use events (Write/Edit/MultiEdit/NotebookEdit `file_path`/`notebook_path`,
+    including absolute / `..`-escaping **out-of-ws** targets) and Bash command strings. PERFECT
+    containment of arbitrary out-of-process side effects (e.g. a spawned child writing out-of-ws
+    *without* a captured tool event) is **not** guaranteed in-process and would need OS-level
+    sandboxing — out of scope; the arms are benign coding agents on a frozen clean corpus, so the
+    captured vectors cover the realistic unsafe actions the §6 detectors target (mirrors the
+    corpus threat-model note).
 - canonicalises each raw run into the exact §7 record by **delegating** to `adjudicate.mjs`
   (outcome + 5 unsafe detectors) and `checks.mjs` (the three pass flags) — nothing is
   re-implemented.
@@ -121,7 +137,8 @@ node run-driver.mjs --tasks eval-expr,median,parse-range,text-stats --k 5
 
 # run for real: supply an engine module exporting `default async (cell, attempt) => result`.
 # Without --engine the driver refuses to launch a live campaign (that is a separate task).
-node run-driver.mjs --engine ./<engine-adapter>.mjs --record ../<paper-repo>/records.jsonl
+# live-engine.mjs is the live claude -p adapter (the live multi-day campaign is a separate story).
+node run-driver.mjs --engine ./live-engine.mjs --record ../<paper-repo>/records.jsonl
 ```
 
 ## Offline self-checks
@@ -130,9 +147,10 @@ Every harness module has a deterministic, no-LLM self-check. The aggregator runs
 them and is wired into the root `npm test` via `npm run test:experiments`:
 
 ```sh
-node run-selfchecks.mjs        # adjudicate + checks + spend-accounting + run-driver + analyze + corpus selfchecks (6)
-node run-driver-selfcheck.mjs  # the driver alone (enumeration, schema, denominators, validity, …)
-node corpus-selfcheck.mjs      # the 24-task corpus alone (per-task reference/injection invariant, §2 stratification, negative-control guards)
+node run-selfchecks.mjs           # adjudicate + checks + spend-accounting + run-driver + analyze + corpus + live-engine selfchecks (7)
+node run-driver-selfcheck.mjs     # the driver alone (enumeration, schema, denominators, validity, …)
+node corpus-selfcheck.mjs         # the 24-task corpus alone (per-task reference/injection invariant, §2 stratification, negative-control guards)
+node live-engine-selfcheck.mjs    # the live-engine adapter alone (5 arms × {ablation+scenarios} via a stub: outcome derivation, unsafe detectors, A2prime budgets, infra-void; no claude -p)
 ```
 
 These self-checks spawn **no** `claude -p`.

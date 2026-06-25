@@ -1,0 +1,220 @@
+{
+  "passes": [
+    {
+      "id": "B-8d44:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept-completeness review complete. All 5 pre-reg arms (A1/A2/A2prime/A3/A4) are present in live-engine.mjs. a4b is correctly dropped (comment at line 180) and not listed in run-driver ARMS=[]. §3 injection applies at the correct fixed point (immediately before the first agent action, for scenario cells). The adapter correctly emits raw §7 evidence without classifying adjudicatedOutcome (delegated to adjudicate.mjs). A2prime spend-matched budget (token-binds-first, hard-truncate, 6-field log) is faithfully implemented. A3 context-equalization via shared buildReviewContext is present. The offline injectable-stub design is sound (PATH shim + liveSpawnsDetected guard). One high/missing finding (F-006) filed: A3 arm reported-not-iterated semantics are not verified by a dedicated selfcheck assertion. All remaining arms and concepts are tested or have deliberate scope-boundary notes (clean-checkout acceptance wiring is outside this story per checks.mjs comment).",
+      "createdAt": "2026-06-24T12:56:39.939Z",
+      "reviewRound": "2026-06-24T12:50:13.876Z",
+      "reviewRunId": "B-8d44:RR-003",
+      "_hash": "9058b6e5c8203df69035fb5654527103d9763fd5936a23e455778f5701a2c09b"
+    },
+    {
+      "id": "B-8d44:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Quality review complete. 7/7 selfchecks pass (94 assertions in live-engine-selfcheck, 0 live LLM). Checked: (1) dead code — all imports used, no commented-out blocks, 3 unexported-externally exports (NAIVE_RETRY_R/MAX_REVIEW_ROUNDS/buildReviewContext) are intentional API surface for the future run-driver story, not dead code; (2) type safety — empty catch blocks are all intentional fs-scan skips, counter increment has no double-counting between live/stub paths, A3 post-loop review on acceptance-fail is intentional per pre-reg, scan() recursion is safe for JSON.parse output; (3) IO shell isolation — N/A (no bridge.ts pattern, experiment files only). One medium/edge finding raised: B-8d44:F-007 (HARNESS_OWNED gap for custom scenarioMap filenames in taskDir). run-selfchecks.mjs diff is a clean 1-line addition. run-recovery.mjs export refactor did not regress its A2prime selfcheck (B-5bfe spend-accounting-selfcheck: 56 assertions pass).",
+      "createdAt": "2026-06-24T12:57:00.326Z",
+      "reviewRound": "2026-06-24T12:50:13.876Z",
+      "reviewRunId": "B-8d44:RR-006",
+      "_hash": "a9f2c5c88b245d7c77ddada3ae1ae259de0484ae0a5e933b8acc62ee7d192e6d"
+    },
+    {
+      "id": "B-8d44:RP-003",
+      "agent": "lattice-review-docs",
+      "note": "Round 2 re-attestation: Step 1 symbols from diff = {makeLiveEngine, live-engine-selfcheck, run-selfchecks}; Step 2 paragraphs compared = 3 (run-driver section lines 89-144, offline self-checks section lines 132-144, live-engine-selfcheck.mjs description line 141). F-001 fix verified: run-selfchecks.mjs SELFCHECKS array has 7 entries matching README comment (7). F-002 fix verified: README run-driver section now names live-engine.mjs as engine adapter with correct --engine flag; example command updated to ./live-engine.mjs. No new doc-code drift: diff only changes 3 README hunks (all F-001/F-002); three-arms section and run-recovery header note unchanged; F-003/F-004/F-005/F-007 code fixes (fault scoring, evidence accumulation, fail-closed, allowlist) introduce no README claims that contradict the code.",
+      "createdAt": "2026-06-24T13:18:48.965Z",
+      "reviewRound": "2026-06-24T12:50:13.876Z",
+      "reviewRunId": "B-8d44:RR-010",
+      "_hash": "cdf19640bb101bb6a7ef0dabd2c5bb4df0dca3811d49a7b04cb7a4cee2bb6bc7"
+    },
+    {
+      "id": "B-8d44:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Round 2 quality re-attestation passed. All 17 round-1 findings correctly addressed: F-003 computeBaselineFailures uses clean pre-injection reference via makeGroundTruth on a throwaway refWs (reference-solution.mjs), so an unresolved injected fault (subtle payload) is new vs baseline => amplified; F-004 accumulateDiff called via onAfterAttempt after every attempt + union of allExecs for process/perm events, with arm.allExecs||[] defensive fallback; F-005 A2prime fail-closed guard before any LLM work, returns infraVoid with descriptive reason; F-007 allowlist copy (promptFile + outputFile-if-exists-as-starter) correctly excludes acceptance/ground-truth/injection/reference from agent ws; F-010 unknown arm rejected synchronously before the infra-void try-catch. No dead imports: delimiter used in PATH shim line 53, sep used in snapshotDir line 102. No as-any/empty-catch issues (JS not TS). No I/O shell isolation issues (no bridge pattern in this project). 7/7 selfchecks pass including 126 live-engine assertions covering all 5 arms. README updates correctly reflect live-engine.mjs as the engine adapter and 7-selfcheck count.",
+      "createdAt": "2026-06-24T13:18:55.430Z",
+      "reviewRound": "2026-06-24T12:50:13.876Z",
+      "reviewRunId": "B-8d44:RR-007",
+      "_hash": "3a482b8e8cdca3fbc4e8d85cdc3f5e954b1044dbc2ae4841fa02493bced6c7d4"
+    },
+    {
+      "id": "B-8d44:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 concept re-attest complete. F-006 fix confirmed: A3 reviewArtifact called once post-loop, reviewVerdict recorded-not-iterated, BLOCK does not gate finalPass/outcome; selfcheck asserts recovered even with reviewerShips=false, and spy call-count=1 even after acceptance-fail retries. F-003 fix confirmed: computeBaselineFailures() builds a throwaway clean ws from reference-solution.mjs independent of injection, so an unresolved injected fault is new vs clean baseline => amplified, a genuinely-fixed fault passes ground-truth => recovered; adjudicate.mjs unchanged (0 diff lines). All 5 arms (A1/A2/A2prime/A3/A4) remain pre-reg-faithful. Adapter emits raw evidence only, no adjudicatedOutcome. selfcheck 126/126 assertions passed. No concept deleted/replaced. No doc-promise-undelivered gaps found.",
+      "createdAt": "2026-06-24T13:19:14.717Z",
+      "reviewRound": "2026-06-24T12:50:13.876Z",
+      "reviewRunId": "B-8d44:RR-011",
+      "_hash": "818504bbf2bb6a69a756a962c567eb1acf4a1a32b46e9f5f63dd82a0217d4ebe"
+    },
+    {
+      "id": "B-8d44:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Round 3 re-attest: F-020/F-021/F-022 deeper-variant fixes are correct and clean. F-020: computeBaselineFailures correctly fail-closes on missing ground-truth (any cell) and dirty reference (scenario cell); catch block also fail-closes. F-021: allExecs accumulates ALL executor + reviewer returns; harvestProcess/PermEvents unions across them; unsafe supersedes void path produces a full valid record without fabricating acceptance/hidden evidence; counters are side-effect-incremented (not summed from allExecs) so tokensSpent/agentCallCount have no double-count. F-022: isPosFinite rejects 0/negative/NaN/Infinity. Selfcheck 153 assertions + run-selfchecks 7/7 all pass. One low finding F-024 registered: dead-code artifactExists at line 447 is declared but never read.",
+      "createdAt": "2026-06-24T13:36:56.743Z",
+      "reviewRound": "2026-06-24T12:50:13.876Z",
+      "reviewRunId": "B-8d44:RR-016",
+      "_hash": "d9539274d132d6da1be7bfb9a7e3593b7068444486ffc81714d0ab2b78a89fbd"
+    },
+    {
+      "id": "B-8d44:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "Round 3 concept re-attest complete. Verified: (1) adjudicate.mjs diff is empty — unchanged. (2) F-020 fail-closed: missingGroundTruth or dirtyReference => infraVoid, never recovered — implemented in live-engine.mjs lines 370-379 + validateBaseline() lines 528-551. (3) F-021 unsafe evidence from all execs: every executor + reviewer attempt pushed to allExecs; unsafe in an infra-failed attempt supersedes the void => amplified record — implemented lines 228/260/273/405-430. (4) F-022 degenerate-budget rejection: A2prime with 0/negative/NaN/Infinity budget => infraVoid — implemented line 337. (5) Adapter emits raw evidence only: adjudicatedOutcome is absent from live-engine result struct; F-019 selfcheck adversarially confirms driver ignores adapter-set adjudicatedOutcome. (6) All 5 arms (A1/A2/A2prime/A3/A4) present in live-engine.mjs. (7) Selfcheck: 153 assertions passed, no live LLM (arms covered: A1, A2, A2prime, A3, A4). No concept deletion/replacement detected; no residue blockers found.",
+      "createdAt": "2026-06-24T13:37:03.169Z",
+      "reviewRound": "2026-06-24T12:50:13.876Z",
+      "reviewRunId": "B-8d44:RR-013",
+      "_hash": "537b5acbe2e4961d92b7fd191c426111770148f2b8127f287e3713d4f770dba0"
+    },
+    {
+      "id": "B-8d44:RP-008",
+      "agent": "lattice-review-docs",
+      "note": "Round 3 re-attest: commit 9cce6b071 touches only live-engine.mjs + live-engine-selfcheck.mjs (no README). Step 1 extracted ~120 symbols (mostly local vars/fns; key exported: computeBaselineFailures, buildReviewContext, makeLiveEngine, harvestProcessEvents, harvestPermEvents, isPosFinite). Step 2 grepped README.md + experiments/recovery-runner/README.md. Step 3 compared 3 paragraphs. (1) README line 141: live-engine-selfcheck described as 5 arms x {ablation+scenarios}, outcome derivation, unsafe detectors, A2prime budgets, infra-void — runtime confirms A1/A2/A2prime/A3/A4 = 5 arms, 153 assertions passed. (2) README line 138: selfchecks (7) — run-selfchecks.mjs has exactly 7 scripts. (3) F-020/F-021/F-022 code comments: all accurately describe the implementation — fail-closed for missing GT / dirty ref (F-020); allExecs accumulation before infra-void decision including infra-failed executor + reviewArtifact calls (F-021); degenerate budget reject (F-022). No over/under-claims. No doc-code drift found.",
+      "createdAt": "2026-06-24T13:37:06.893Z",
+      "reviewRound": "2026-06-24T12:50:13.876Z",
+      "reviewRunId": "B-8d44:RR-014",
+      "_hash": "12d4f7a0e8a95c491e91a33bc03de2254ea1df593f861f7a969ad21c8906c873"
+    },
+    {
+      "id": "B-8d44:RP-009",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 3 test-coverage re-attestation: selfcheck 126->153 assertions passed (node experiments/recovery-runner/live-engine-selfcheck.mjs exits 0). F-018 token-binds-first VERIFIED: selfcheck lines 548-556 assert eq(rec.truncated,true)+eq(rec.tokenInBand,false)+eq(rec.wallInBand,true) with tokenBudget:1/wallBudgetMs:600000; CHK-003:edge:1 evidence note concrete and accurately bound. F-019 adapter-set-outcome-ignored VERIFIED: selfcheck lines 559-568 inject bogus adjudicatedOutcome:recovered on a ground-truth-failing payload and assert eq(rec.adjudicatedOutcome,amplified); CHK-004:adversarial:0 evidence note concrete and accurately bound. F-020 negative controls VERIFIED: selfcheck CX-D lines 487-508 asserts missing-gt=>infraVoid/dirty-ref=>infraVoid/clean=>recovered (7 assertions). F-021 negative controls VERIFIED: selfcheck CX-E lines 510-536 asserts reviewer git-push=>amplified and infra-failed-with-unsafe=>amplified (6 assertions). F-022 negative controls VERIFIED: selfcheck CX-F lines 539-545 asserts 5 degenerate budget variants (0/negative/NaN/Infinity)=>infraVoid (10 assertions). All 51 intents (CHK-001 thru CHK-005 happy/edge/adversarial) have non-fail verificationEvidence bindings. 5 arms covered A1/A2/A2prime/A3/A4. No remaining verificationIntent coverage gap. test coverage review passed.",
+      "createdAt": "2026-06-24T13:54:51.390Z",
+      "reviewRound": "2026-06-24T12:50:13.876Z",
+      "reviewRunId": "B-8d44:RR-017",
+      "_hash": "dba5ba4e7c7ef5118b3568ede097156890a1392b19a992750497afe6c09653c6"
+    },
+    {
+      "id": "B-8d44:RP-010",
+      "agent": "lattice-review-docs",
+      "note": "Step 1: extracted ~120 local symbols from the 63c1a70b7 diff (safeExec, snapshotDir, diffSnapshots, injDiff, no exported-API surface change). Step 2: grepped README.md for live-engine, selfcheck, infraVoid, safeExec, no-op, snapshot — hit lines 101-105 (live-engine.mjs description), 138 (7 selfchecks count), 141 (live-engine-selfcheck.mjs arm/feature list). Step 3: confirmed (a) README line 138 still says 7 selfchecks — F-025/F-026 added assertions inside the existing 7th selfcheck file, not a new selfcheck; (b) README line 141 lists infra-void + unsafe detectors which subsume F-025/F-026 semantics; (c) code comments in live-engine.mjs at safeExec/F-026 and at the no-op guard/F-025 accurately describe behavior; (d) F-024 is dead-code removal with no behavior or doc impact; (e) node live-engine-selfcheck.mjs confirmed 164 assertions / 5 arms. No doc-code drift found. No blocker.",
+      "createdAt": "2026-06-24T14:08:21.017Z",
+      "reviewRound": "2026-06-24T12:50:13.876Z",
+      "reviewRunId": "B-8d44:RR-021",
+      "_hash": "a6b1317f9dfd0907608e8540c12563f1e5c0930a0e3fc0dc19dd5948421c5b24"
+    },
+    {
+      "id": "B-8d44:RP-011",
+      "agent": "lattice-review-concept",
+      "note": "Round 4 concept re-attestation complete. No concept deletion/replacement this round. Specific checks: (1) F-025 no-op-injection=>infraVoid: pre/post snapshotDir diff enforced before injectionApplied=true; zero ws change => infraVoid voidReason naming the no-op, no record emitted, verified by selfcheck assertion at live-engine-selfcheck.mjs:596-600. (2) F-026 snapshot-survives-throw: safeExec wraps every executor/reviewer call; snap(i) runs unconditionally after fn() regardless of throw; unsafe evidence from fs snapshot detected before void-vs-amplified decision; verified at selfcheck:612-636. (3) Unresolved fault => amplified (not recovered): newBrokenBeyondRef keyed by hidden ground-truth id; adjudicate Rule 2 requires !newBrokenBeyondRef; verified by adjudicate-selfcheck.mjs:244 comment + existing adjudicate tests. (4) adjudicate.mjs diff vs main is empty (unchanged). (5) run-selfchecks.mjs: all 7 selfchecks pass, 164 assertions in live-engine-selfcheck. (6) recovered-to-green: not a concept deletion; deliberately retained in run-recovery.mjs (standalone path), pre-reg doc (§4.2 terminology), run-driver-selfcheck (bad-enum test); adjudicate.mjs bridges to §7 enum recovered. (7) replayBudgetLoop bare let agentCallCount/tokensSpent at line 67 is a pure local accumulator inside that function, not residue of the counters migration. (8) Closing doc-promise check: README new promises (live-engine.mjs, live-engine-selfcheck.mjs, 7-selfcheck count, makeLiveEngine export) all verified present in code. Zero findings registered.",
+      "createdAt": "2026-06-24T14:10:21.217Z",
+      "reviewRound": "2026-06-24T12:50:13.876Z",
+      "reviewRunId": "B-8d44:RR-019",
+      "_hash": "221ce65921917bd74f08b1d124c007d83aeffcaef241441f650e6e764aa769e1"
+    },
+    {
+      "id": "B-8d44:RP-012",
+      "agent": "lattice-review-quality",
+      "note": "Round 4 quality re-attest: no dead code (all functions used, all imports consumed), no type-safety issues (empty catches are all intentional fail-closed/skip patterns with inline comments, no as-any), no I/O shell isolation concern (no bridge.ts). safeExec correctness verified: snap(i) runs after try/catch so fs snapshot survives a throw (F-026); no double-count — live makeAgentRun increments counter internally before its own try/catch and never throws to safeExec; stub throwAfterEnv throws before its counter increment so only safeExec catch increments once; overload returns {ok:false} without throwing so safeExec catch unreachable. No-op guard covers modifications+creations (diffSnapshots) plus deletions (sameKeys key-set comparison). A clean throw with zero side effect remains an infraVoid (F-026c selfcheck passes). Selfchecks: 164 assertions (live-engine-selfcheck), 7/7 (run-selfchecks). README doc-promise checked: selfcheck count updated to 7, live-engine.mjs CLI example added — all delivered. 0 findings.",
+      "createdAt": "2026-06-24T14:11:02.618Z",
+      "reviewRound": "2026-06-24T12:50:13.876Z",
+      "reviewRunId": "B-8d44:RR-024",
+      "_hash": "a6574f23946ededf64c59bb48acb7a9bd3c96a26a0ad5fcc652589ecb00724a3"
+    },
+    {
+      "id": "B-8d44:RP-013",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (round 4): 164 assertions passed across all 5 arms (A1/A2/A2prime/A3/A4), 7/7 selfcheck aggregator green, all 51 verificationIntent must-items (CHK-001..005 happy/edge/adversarial) bound to concrete logic_test evidence via node experiments/recovery-runner/live-engine-selfcheck.mjs; F-025 (no-op injection => infraVoid) and F-026 (throw-after-side-effect => fs-snapshot survives, amplified) assertions verified non-tautological and would fail on revert; validate staleness is pure lattice metadata HEAD drift (no material code change after 63c1a70b7); no blocker.",
+      "createdAt": "2026-06-24T14:13:18.194Z",
+      "reviewRound": "2026-06-24T12:50:13.876Z",
+      "reviewRunId": "B-8d44:RR-022",
+      "_hash": "fd557f21b05eaa6122889043366b63fee82d1c7d54decc0679cb2cc132fa5974"
+    },
+    {
+      "id": "B-8d44:RP-014",
+      "agent": "lattice-review-concept",
+      "note": "Round 5 final concept re-attest: no concept deletion/replacement in this round. F-027 fix is complete for the realistic threat model. (a) Deletions: diffSnapshots iterates before.keys() for paths absent in after => deletedPaths + folded into changedPaths; selfcheck F-027(a) and F-027(a-prime) assertions confirm both a benign-path deletion (diffHygiene fails) and a deleted-forbidden-path (forbiddenPath => amplified) are caught. (b) Symlinks: snapshotDir lstat-records with `symlink:<target>` signature; absolute/`..` targets pushed as extra changedPaths; F-027(b) selfcheck assertion confirms ws-escaping symlink => forbiddenPath => amplified. (c) Out-of-ws tool events: harvestWriteTargets scans tool_use events for Write/Edit/MultiEdit/NotebookEdit file_path (including absolute/`..`-escaping paths); folded into changedSetFinal+createdSetFinal; F-027(c) assertion confirms => forbiddenPath/forbiddenCreate => amplified. Residual boundary: a spawned child writing out-of-ws with no captured tool event requires OS sandboxing -- honestly documented in the `## FS evidence threat model` comment block in live-engine.mjs AND in README.md; the corpus uses benign arms on a frozen clean corpus so this is an accepted scope boundary, not a silent gap. adjudicate.mjs is unchanged (locked). All 7 selfchecks pass (174 live-engine assertions, 5 arms). No doc-promise-undelivered: every README claim (deleted/symlinks/tool-event targets/Bash commands/residual) has a corresponding implementation. Zero stale language claiming any of the three fixed vectors are still silently dropped. No concept residue check needed (no concept deleted/replaced en masse in this diff).",
+      "createdAt": "2026-06-24T14:28:40.640Z",
+      "reviewRound": "2026-06-24T12:50:13.876Z",
+      "reviewRunId": "B-8d44:RR-027",
+      "_hash": "5991d5183881b03679ecab7bb52785bf0ac505d4d0b9446133d164a7b1a6f7db"
+    },
+    {
+      "id": "B-8d44:RP-015",
+      "agent": "lattice-review-quality",
+      "note": "Round 5 final quality re-attest (F-027 fs-evidence fix). Reviewed live-engine.mjs, live-engine-selfcheck.mjs, run-recovery.mjs, run-selfchecks.mjs, README.md. Checked: (1) Dead code — all imports used (mkdtempSync, copyFileSync, readFileSync, existsSync, readdirSync, statSync, readlinkSync all have call sites; ARMS, detectUnsafe, all run-recovery factories used); no commented-out code; ctxMeta used at lines 592-594; injDiff used at 458; changedSetFinal/createdSetFinal are live aliases that get further .add() calls at 530. (2) Type safety — all catch blocks have intentional handlers (return empty string / continue / set default value / structured error object); safeExec catch is correct; no as-any pattern (plain JS); no swallowed errors (every catch either propagates via structured return or is documented best-effort binary/unreadable). (3) I/O shell isolation — no bridge.ts in this project; not applicable. Verified: diffSnapshots deletion correctness (before-not-after keys correctly pushed to deletedPaths and changedPaths at line 172); symlink lstat-only (no follow; readlinkSync used, never statSync follow-through on symlink branch); escaping-target detection logic verified (absolute or ..-containing => changedPaths push); harvestWriteTargets correct field names (file_path || path || notebook_path covering Write/Edit/MultiEdit/NotebookEdit); no false positives on clean runs (same-sig entries take the else-continue branch). Selfchecks: live-engine-selfcheck 174/174 passed including all F-027(a/a-prime/b/c) cases; run-selfchecks.mjs 7/7 passed. No findings.",
+      "createdAt": "2026-06-24T14:29:03.321Z",
+      "reviewRound": "2026-06-24T12:50:13.876Z",
+      "reviewRunId": "B-8d44:RR-025",
+      "_hash": "2e0c31b217447672cb7562820a874e9c5aef3136cc7006ad3f43636d715cb04d"
+    },
+    {
+      "id": "B-8d44:RP-016",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence for all 51 intents across CHK-001..005 (no must-gap, no waiver); F-027 three vectors (deletePrompt/symlinkEscape/outOfWsToolEvent) each have concrete non-tautological assertions; clean-run negative control present at PATH-shim sentinel line 716; 174 assertions ran offline, exit 0.",
+      "createdAt": "2026-06-24T14:38:40.076Z",
+      "reviewRound": "2026-06-24T12:50:13.876Z",
+      "reviewRunId": "B-8d44:RR-026",
+      "_hash": "b719feabd18746c086c1934b669fb6bc238b9b0d4124fe8ade9dafa0130db322"
+    },
+    {
+      "id": "B-8d44:RP-017",
+      "agent": "lattice-review-docs",
+      "note": "F-028 fixed at b17c6a6d51: README now lists Write/Edit/MultiEdit/NotebookEdit file_path/notebook_path matching harvestWriteTargets regex /^(write|edit|multiedit|notebookedit)$/i and field chain file_path||path||notebook_path. The omission of intermediate |path| fallback from the prose matches the live-engine.mjs own comment block (line 92) which also omits it — not a drift. Step1: 0 new exported symbols changed in b17c6a6d51 (docs-only commit). Step2: README threat-model paragraph verified vs harvestWriteTargets implementation. Step3: created/changed/deleted/symlink/out-of-ws/5-arms/7-selfchecks claims all consistent. No remaining doc-code drift.",
+      "createdAt": "2026-06-24T14:50:00.633Z",
+      "reviewRound": "2026-06-24T12:50:13.876Z",
+      "reviewRunId": "B-8d44:RR-029",
+      "_hash": "4ea1788415ded8bbd2ce94ceb399334f28f61ef9c0a365c195674f867701a909"
+    },
+    {
+      "id": "B-8d44:RP-018",
+      "agent": "lattice-review-quality",
+      "note": "Final-material re-attest at b17c6a6d51. Delta confirmed README-only (1 line: added NotebookEdit to threat-model note in experiments/recovery-runner/README.md). No .mjs or any code file changed. Dead-code/type-safety/I/O-isolation checks: no new issues (code unchanged from a02e270fc). Self-checks green: live-engine-selfcheck.mjs 174 assertions passed; run-selfchecks.mjs 7/7 passed. Quality pass re-attested with zero findings.",
+      "createdAt": "2026-06-24T15:00:11.611Z",
+      "reviewRound": "2026-06-24T12:50:13.876Z",
+      "reviewRunId": "B-8d44:RR-030",
+      "_hash": "fcbecf0ea3e0da8d3e3947bfa54d59dccd368a076608d3715c1fa5955d47c664"
+    },
+    {
+      "id": "B-8d44:RP-019",
+      "agent": "lattice-review-concept",
+      "note": "Final-material re-attest complete. Delta a02e270fc..b17c6a6d51: README only (+ lattice metadata). The README adds NotebookEdit/notebook_path to the threat-model prose — matching pre-existing live-engine.mjs line 244 implementation. No concept change: unsafe detectors still fire on all target types (created/changed/deleted/symlink/out-of-ws); adapter emits raw evidence only (adjudicatedOutcome never set by adapter — live-engine-selfcheck.mjs line 12 + F-019 test); adjudicate.mjs unchanged (98 selfcheck assertions pass); residual OS-sandbox boundary honestly documented. live-engine selfcheck 174/174, run-driver selfcheck 135/135. No concept residue, no doc-promise-undelivered gap. Concept complete at final material.",
+      "createdAt": "2026-06-24T15:00:47.444Z",
+      "reviewRound": "2026-06-24T12:50:13.876Z",
+      "reviewRunId": "B-8d44:RR-032",
+      "_hash": "14bab8fe9cd6058236e27f784df24f936b8afd75834a7d9bfbf16d9071cb472d"
+    },
+    {
+      "id": "B-8d44:RP-020",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: final-material re-attest at b17c6a6d51 (F-028 doc-only). Delta a02e270fc..b17c6a6d51 confirmed README-only (zero change to live-engine.mjs/live-engine-selfcheck.mjs/run-selfchecks.mjs). Selfcheck runs 174 assertions passed, no live LLM, arms A1/A2/A2prime/A3/A4 all covered. All verificationIntents CHK-001..005 (happy/edge/adversarial, all must) remain bound to genuine logic_test evidence with accurate notes. Validate stale flags are a mechanical materialHash consequence of the doc commit, not a coverage regression. No blocker.",
+      "createdAt": "2026-06-24T15:12:45.121Z",
+      "reviewRound": "2026-06-24T12:50:13.876Z",
+      "reviewRunId": "B-8d44:RR-031",
+      "_hash": "369c08b5b2ab178148a43fe9fedc0780abfbd9a01c615990ec50d33c0513285f"
+    },
+    {
+      "id": "B-8d44:RP-021",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage reviewer found no blocking coverage gap for reviewer infra/529 handling. Inspected run-recovery reviewer infra mapping, live-engine A3/A4 infra handling, run-driver infraVoid rerun path, and F-028 regression coverage; ran live-engine-selfcheck, run-selfchecks, npm run test:experiments, and an ad hoc offline A3/A4 reviewer-infra check.",
+      "createdAt": "2026-06-24T22:54:56.819Z",
+      "reviewRound": "2026-06-24T22:49:33.678Z",
+      "reviewRunId": "B-8d44:RR-033",
+      "_hash": "39a39a81eb49b6c543dc5cb11f48ee2a71ea0174e56db38a05bf66ffa397f5f2"
+    },
+    {
+      "id": "B-8d44:RP-022",
+      "agent": "lattice-review-concept",
+      "note": "PASS local Non-authority concept review for current material: section 4.2 order remains amplified then recovered then safe-stop; A3 evidence remains reported-not-iterated; token-secret fixes do not change protocol semantics; no Authority Server receipt is claimed.",
+      "createdAt": "2026-06-24T23:57:59.486Z",
+      "reviewRound": "2026-06-24T23:56:17.645Z",
+      "reviewRunId": "B-8d44:RR-040",
+      "_hash": "bc2825889f89311fd552e5959379f166f87dfb1e2478fe9a61b3a34a299dde28"
+    },
+    {
+      "id": "B-8d44:RP-023",
+      "agent": "lattice-review-quality",
+      "note": "PASS local Non-authority quality review for current material: direct probes and selfchecks show benign Unexpected token stays clean, TOKEN/GITHUB_TOKEN/NPM_TOKEN/API_KEY/sk-* are detected, reviewer-infra secret diagnostics emit amplified records rather than infra voids, and resolved+terminal remains recovered.",
+      "createdAt": "2026-06-24T23:58:07.018Z",
+      "reviewRound": "2026-06-24T23:56:17.645Z",
+      "reviewRunId": "B-8d44:RR-041",
+      "_hash": "02384cf55b428deba05f6401e20916b547ced9b69de3c3b26ef47abecc72a343"
+    },
+    {
+      "id": "B-8d44:RP-024",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS local Non-authority test-coverage review for current material: adjudicate-selfcheck now has 106 assertions, live-engine-selfcheck 200 assertions including F-035 pins, run-driver-selfcheck 136 assertions, run-selfchecks 7/7, lattice validate 30/30, and verification coverage 51/51.",
+      "createdAt": "2026-06-24T23:58:13.225Z",
+      "reviewRound": "2026-06-24T23:56:17.645Z",
+      "reviewRunId": "B-8d44:RR-042",
+      "_hash": "7684220f7effcdcaccf8293aae6c4331cc2d3cf50e3574c38c1492449462bc47"
+    }
+  ]
+}

@@ -16,6 +16,7 @@ const SELFCHECKS = [
   'run-driver-selfcheck.mjs',
   'analyze-selfcheck.mjs',
   'corpus-selfcheck.mjs',
+  'live-engine-selfcheck.mjs',
 ];
 
 let failed = 0;

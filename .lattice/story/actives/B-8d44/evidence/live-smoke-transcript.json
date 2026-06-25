@@ -1,0 +1,20 @@
+{
+  "storyId": "B-8d44",
+  "expected": null,
+  "actual": {
+    "command": "node experiments/recovery-runner/run-selfchecks.mjs",
+    "exitCode": 0,
+    "stdout": "✓ adjudicate-selfcheck.mjs: adjudicate selfcheck: 106 assertions passed, no live LLM\n✓ checks-selfcheck.mjs: checks selfcheck: 112 assertions passed, no live LLM\n✓ spend-accounting-selfcheck.mjs: B-5bfe selfcheck: 56 assertions passed, NO live LLM invoked (no claude -p subprocess; all imported helpers are pure).\n✓ run-driver-selfcheck.mjs: ✓ run-driver-selfcheck: 136 assertions passed, 0 failed (no live LLM)\n✓ analyze-selfcheck.mjs: ✓ analyze-selfcheck: 75 assertions passed, 0 failed (no live LLM)\n✓ corpus-selfcheck.mjs: ✓ corpus-selfcheck: all tasks pass + stratification holds + guards fire (offline, no live LLM)\n✓ live-engine-selfcheck.mjs: live-engine selfcheck: 200 assertions passed, no live LLM (arms covered: A1, A2, A2prime, A3, A4)\n\n✓ all 7 recovery-runner selfchecks passed (offline, no live LLM)\n"
+  },
+  "mode": {
+    "runCommands": true,
+    "writeEvidence": true
+  },
+  "capturedAtIso": "2026-06-25T00:03:46.275Z",
+  "claims": {
+    "authorityDone": false,
+    "productionDone": false
+  },
+  "headHash": "9bd8da9fcd9f930ea5db5de3fe7136114e2291f6",
+  "materialHash": "4b42b3c1784fc51d24a8f4c2781b42f26970f71a031159681807d9ee044a0589"
+}
