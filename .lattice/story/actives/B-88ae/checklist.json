@@ -9,9 +9,9 @@
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
         "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-25T03:05:40.129Z",
       "userSees": "开发者可以从 packages/main/src/core/evidence/artifact、evidence/repro、evidence/admissibility、evidence/storage 导入公共 API；旧的 core/proof-admissibility、core/repro-intake、core/evidence/artifact-store 路径仍然编译通过。",
       "files": {
         "modify": [],
@@ -44,7 +44,42 @@
             "type": "logic"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/source-structure-convergence-smoke.js",
+          "result": "pass",
+          "note": "Focused smoke imported evidence/artifact, evidence/storage, evidence/repro, and evidence/admissibility entrypoints and verified representative exports share identity with legacy artifact-store, repro-intake, and proof-admissibility modules.",
+          "headHash": "5dfa3a60cb41c0225fded13d752e106979756f27",
+          "materialHash": "da787239ad91081a1bc392241e568bcbf5de8151347d2c1a641f221d6e640835",
+          "storyFilesHash": "de5c1760761e5c7942dcc1c7f30bf84afda6aecf4cb57f1178dff62c591840be",
+          "timestamp": "2026-06-25T03:05:40.510Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proof-admissibility-smoke.js && node packages/main/dist/tasks/repro-first-candidate-smoke.js",
+          "result": "pass",
+          "note": "Build plus existing proof-admissibility and repro-first smokes passed, proving legacy paths still compile and behavior remains compatible.",
+          "headHash": "5dfa3a60cb41c0225fded13d752e106979756f27",
+          "materialHash": "da787239ad91081a1bc392241e568bcbf5de8151347d2c1a641f221d6e640835",
+          "storyFilesHash": "de5c1760761e5c7942dcc1c7f30bf84afda6aecf4cb57f1178dff62c591840be",
+          "timestamp": "2026-06-25T03:05:40.819Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/source-structure-convergence-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts shared object/function identity for PROOF_SURFACE_REGISTRY, evaluateProofAdmissibility, createProbe, createStoryFromRepro, writeArtifact, and readArtifact, catching duplicated registries or copied implementations.",
+          "headHash": "5dfa3a60cb41c0225fded13d752e106979756f27",
+          "materialHash": "da787239ad91081a1bc392241e568bcbf5de8151347d2c1a641f221d6e640835",
+          "storyFilesHash": "de5c1760761e5c7942dcc1c7f30bf84afda6aecf4cb57f1178dff62c591840be",
+          "timestamp": "2026-06-25T03:05:41.253Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -137,6 +172,17 @@
           }
         ]
       }
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-25T03:05:40.129Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Source-structure adapters committed in 5f8d3a60/8a921726/5dfa3a60 and verified with build plus focused smokes."
     }
   ]
 }
