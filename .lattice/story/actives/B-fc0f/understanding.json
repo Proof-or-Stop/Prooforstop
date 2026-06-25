@@ -1,0 +1,31 @@
+{
+  "task": "Diagnose and resolve TEST-battery blockers blocking validate convergence",
+  "outcome": "Validation must stop hanging CHK-001 smoke, synchronize with review-evidence floor signals, and close stale fixture failures with explicit evidence",
+  "facts": [
+    "cli-json-stdout-contract-smoke.ts invokes real CLI child processes from dist/cli.js",
+    "The current failing/slow points are CHK-001 hang, CHK-002 stale headers, CHK-003 silent missing binding on autopilot_review_submit, CHK-004 pre-existing english-open-source-surface/prompt-token-cost/global-agents-init behavior, and CHK-005 review assurance floor/de-escalation mismatch risk",
+    "done_prepare review-assurance-floor row currently drives DONE blockers and review_escalation_status is the sibling diagnostic path",
+    "existing modifications already made: CHK-002 header text and CHK-003 warning are pending validation"
+  ],
+  "constraints": [
+    "do not bypass run-away subprocesses with only timeout extension",
+    "never silence missing binding or degraded fallback signals",
+    "keep done_prepare advisory logic authoritative for DONE",
+    "only close CHK-005 with proof via status/evidence parity commands"
+  ],
+  "unknowns": [
+    "whether cli-json-stdout-contract-smoke hang is caused by a specific subcommand in TEST environment"
+  ],
+  "touchpoints": [
+    "packages/main/src/tasks/cli-json-stdout-contract-smoke.ts",
+    "packages/main/src/handlers/verdict.ts",
+    "packages/main/src/handlers/done-prepare.ts",
+    "packages/main/src/core/review-assurance-floor.ts",
+    "packages/main/src/tasks/field-regression-cli-smoke.ts",
+    "packages/main/src/tasks/english-open-source-surface-smoke.ts",
+    "packages/main/src/tasks/prompt-token-cost-smoke.ts",
+    "packages/main/src/tasks/global-agents-init-smoke.ts",
+    "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md"
+  ],
+  "timestamp": "2026-06-25T04:48:30.550Z"
+}
