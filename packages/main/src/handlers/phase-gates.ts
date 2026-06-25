@@ -44,6 +44,13 @@ import { resolveWorkflowPolicy } from '../core/workflow-policy.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { execSync } from 'child_process';
 import {
+  classifyGitStatusRows,
+  classifierOptionsForCheck,
+  isBlockingDirty,
+  readGitStatusLines,
+} from '../core/dirty-worktree-gate.js';
+import { collectVerificationIntents } from '../core/verification.js';
+import {
   buildDoneChecklist,
   renderDoneChecklist,
   type DoneCheckRow,
@@ -496,6 +503,67 @@ export function runAuthorityReceiptTransitionGate(
   })}`;
 }
 
+function canonicalCoverageInputSnapshotFromChecklist(checklist: ChecklistData): string {
+  const rows = checklist.items.flatMap(item =>
+    collectVerificationIntents(item).map(collected => ({
+      intentRef: collected.ref,
+      itemId: collected.itemId,
+      lane: collected.lane,
+      desc: collected.intent.desc,
+      type: collected.intent.type,
+      priority: collected.intent.priority || 'must',
+    })),
+  );
+  rows.sort((a, b) => a.intentRef.localeCompare(b.intentRef));
+  return JSON.stringify(rows);
+}
+
+function canonicalCoverageInputSnapshotFromEvidence(coverage: any): string | null {
+  if (!Array.isArray(coverage?.entries)) return null;
+  const rows = coverage.entries.map((entry: any) => ({
+    intentRef: String(entry?.intentRef ?? ''),
+    itemId: String(entry?.itemId ?? ''),
+    lane: String(entry?.lane ?? ''),
+    desc: String(entry?.desc ?? ''),
+    type: String(entry?.type ?? ''),
+    priority: String(entry?.priority ?? 'must'),
+  }));
+  rows.sort((a: any, b: any) => a.intentRef.localeCompare(b.intentRef));
+  return JSON.stringify(rows);
+}
+
+function coverageInputsMatchCurrentChecklist(ctx: HandlerContext, storyId: string, coverage: any): { ok: boolean; reason?: string } {
+  const recorded = canonicalCoverageInputSnapshotFromEvidence(coverage);
+  if (!recorded) return { ok: false, reason: 'existing validation PASS verificationCoverage has no entries snapshot' };
+  const current = canonicalCoverageInputSnapshotFromChecklist(ctx.store.readChecklist(storyId));
+  if (recorded !== current) {
+    return { ok: false, reason: 'existing validation PASS verificationCoverage does not match current checklist verificationIntent inputs' };
+  }
+  return { ok: true };
+}
+
+function storedValidateOutputIsPassing(output: string): { ok: boolean; reason?: string } {
+  try {
+    const parsed = JSON.parse(output);
+    if (parsed?.allPass === true || parsed?.allPassed === true) return { ok: true };
+    return { ok: false, reason: 'existing validation PASS output is not allPass/allPassed=true' };
+  } catch {
+    return { ok: false, reason: 'existing validation PASS output is not valid JSON' };
+  }
+}
+
+function blockingDirtyWorktreeReason(ctx: HandlerContext, storyId: string, gitCwd: string): string {
+  const status = readGitStatusLines(gitCwd);
+  if (!status.ok) return `unable to read git status for validation evidence skip (${status.error})`;
+  const config = loadConfig(ctx.root);
+  const classification = classifyGitStatusRows(status.lines, classifierOptionsForCheck(config, storyId, ctx.store, ctx.root));
+  const blocked = isBlockingDirty(classification);
+  if (!blocked.blocked) return '';
+  const sample = blocked.blockingPaths.slice(0, 5).join(', ');
+  const suffix = blocked.blockingPaths.length > 5 ? ', ...' : '';
+  return `current worktree has blocking dirty path(s): ${sample}${suffix}`;
+}
+
 /**
  * DEV→TEST lattice validate gate.
  *
@@ -530,29 +598,50 @@ export async function runValidateGate(
   const validateCommand = `lattice validate --story=${storyId} --json`;
   let rerunReason = '';
   if (existingEvidence?.result === 'PASS') {
+    const coverage = existingEvidence.verificationCoverage;
     if (existingEvidence.command !== validateCommand) {
       rerunReason = `existing validation PASS command is not ${validateCommand}`;
-    } else if (!existingEvidence.verificationCoverage) {
-      rerunReason = 'existing validation PASS is missing verificationCoverage from lattice validate';
-    } else if (typeof existingEvidence.verificationCoverage.missingRequired !== 'number') {
-      rerunReason = 'existing validation PASS verificationCoverage is missing missingRequired';
-    } else if (existingEvidence.verificationCoverage.missingRequired !== 0) {
-      rerunReason = `existing validation PASS has ${existingEvidence.verificationCoverage.missingRequired} required verification coverage gap(s)`;
-    } else if (existingEvidence.headHash && existingEvidence.materialHash) {
-      const evidenceGitCwd = resolveGitCwd({ store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
-      const freshness = checkEvidenceFreshnessForGit(
-        evidenceGitCwd,
-        existingEvidence.headHash,
-        existingEvidence.materialHash,
-        ctx.root,
-        existingEvidence.storyFilesHash,
-      );
-      if (freshness.fresh) {
-        ctx.log?.('DEV→TEST gate: existing validation PASS is fresh; skipping lattice validate rerun.');
-        return;
-      }
-      rerunReason = `existing validation PASS is stale (${freshness.reason})`;
     } else {
+      const outputPass = storedValidateOutputIsPassing(existingEvidence.output);
+      if (!outputPass.ok) {
+        rerunReason = outputPass.reason || 'existing validation PASS output is not passing';
+      }
+    }
+    if (!rerunReason) {
+      if (!coverage) {
+        rerunReason = 'existing validation PASS is missing verificationCoverage from lattice validate';
+      } else if (typeof coverage.missingRequired !== 'number') {
+        rerunReason = 'existing validation PASS verificationCoverage is missing missingRequired';
+      } else if (coverage.missingRequired !== 0) {
+        rerunReason = `existing validation PASS has ${coverage.missingRequired} required verification coverage gap(s)`;
+      } else {
+        const coverageInputMatch = coverageInputsMatchCurrentChecklist(ctx, storyId, coverage);
+        if (!coverageInputMatch.ok) {
+          rerunReason = coverageInputMatch.reason || 'existing validation PASS verificationCoverage is stale';
+        }
+      }
+    }
+    if (!rerunReason && existingEvidence.headHash && existingEvidence.materialHash) {
+      const evidenceGitCwd = resolveGitCwd({ store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
+      const dirtyReason = blockingDirtyWorktreeReason(ctx, storyId, evidenceGitCwd);
+      if (dirtyReason) {
+        rerunReason = dirtyReason;
+      } else {
+        const freshness = checkEvidenceFreshnessForGit(
+          evidenceGitCwd,
+          existingEvidence.headHash,
+          existingEvidence.materialHash,
+          ctx.root,
+          existingEvidence.storyFilesHash,
+        );
+        if (freshness.fresh) {
+          const warningSuffix = freshness.warnings?.length ? ` (${freshness.warnings.join('; ')})` : '';
+          ctx.log?.(`DEV→TEST gate: existing validation PASS is fresh${warningSuffix}; skipping lattice validate rerun.`);
+          return;
+        }
+        rerunReason = `existing validation PASS is stale (${freshness.reason})`;
+      }
+    } else if (!rerunReason) {
       rerunReason = 'existing validation PASS is missing headHash/materialHash freshness bindings';
     }
   }

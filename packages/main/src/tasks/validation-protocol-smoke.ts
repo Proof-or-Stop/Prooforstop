@@ -1309,6 +1309,93 @@ try {
   // stop the actor themselves.
   const { runValidateGate } = await import('../handlers/phase-gates.js');
 
+  function seedValidateGateSkipRoot(prefix: string, storyId: string): {
+    root: string;
+    store: StoryStore;
+    storyId: string;
+    evidence: any;
+  } {
+    const root = mkdtempSync(join(tmpdir(), prefix));
+    writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
+      scanRoot: 'packages/main',
+      rootDir: 'src',
+      storyDir: '.lattice/story/actives',
+      validate: {
+        commands: [
+          { label: 'failing skip guard rerun', command: 'node', args: ['-e', 'process.exit(5)'] },
+        ],
+      },
+    }));
+    mkdirSync(join(root, 'packages/main/src'), { recursive: true });
+    writeFileSync(join(root, 'packages/main/src/app.ts'), 'export const base = 1;\n');
+    initSmokeGitRepo(root);
+    gitQuiet(root, ['add', 'lattice.config.json', 'packages/main/src/app.ts']);
+    gitQuiet(root, ['commit', '-m', 'seed validate gate skip guard smoke']);
+    gitQuiet(root, ['checkout', '-b', `story/${storyId}`]);
+    writeFileSync(join(root, 'packages/main/src/app.ts'), 'export const base = 2;\n');
+    gitQuiet(root, ['add', 'packages/main/src/app.ts']);
+    gitQuiet(root, ['commit', '-m', 'story change']);
+    resetConfigCache();
+    const store = new StoryStore(root);
+    const now = '2026-05-16T03:00:00.000Z';
+    store.writeStory(storyId, {
+      storyId, name: `${storyId}-skip-guard`, title: `${storyId} skip guard`,
+      description: 'unsafe PASS evidence must rerun validate', type: 'chore', phase: 'TEST',
+      priority: 'medium', createdAt: now, startedAt: now, endedAt: null,
+      currentReviewRound: now, events: [],
+    });
+    store.writeChecklist(storyId, { items: [] });
+    const evidence: any = {
+      command: `lattice validate --story=${storyId} --json`,
+      output: '{"allPass":true,"summary":"already passed"}',
+      result: 'PASS' as const,
+      timestamp: '2026-05-16T03:01:00.000Z',
+      headHash: currentGitHead(root)!,
+      materialHash: currentMaterialHash(root, 'HEAD', root)!,
+      storyFilesHash: currentStoryFilesHash(root, 'HEAD', root)!,
+      verificationCoverage: { total: 0, required: 0, covered: 0, missingRequired: 0, entries: [] },
+    };
+    return { root, store, storyId, evidence };
+  }
+
+  async function assertUnsafePassEvidenceReruns(args: {
+    name: string;
+    reason: string;
+    mutateEvidence?: (evidence: any) => void;
+    mutateAfterCommit?: (fixture: { root: string; store: StoryStore; storyId: string; evidence: any }) => void;
+  }): Promise<void> {
+    const fixture = seedValidateGateSkipRoot(`lattice-validate-gate-${args.name}-`, `B-vgate-${args.name}`);
+    try {
+      args.mutateEvidence?.(fixture.evidence);
+      fixture.store.writeTestEvidence(fixture.storyId, fixture.evidence);
+      gitQuiet(fixture.root, ['add', `.lattice/story/actives/${fixture.storyId}`]);
+      gitQuiet(fixture.root, ['commit', '-m', `record ${args.name} validation evidence`]);
+      args.mutateAfterCommit?.(fixture);
+      let stopped = false;
+      const logs: string[] = [];
+      const actor = { stop() { stopped = true; } };
+      await assert.rejects(
+        () => runValidateGate({ store: fixture.store, root: fixture.root, scanRoot: join(fixture.root, 'packages/main'), log: line => logs.push(line) }, fixture.storyId, actor),
+        /Cannot enter TEST: lattice validate did not pass/,
+        `${args.name}: unsafe PASS evidence must not skip a failing validate rerun`,
+      );
+      const after = fixture.store.readTestEvidence(fixture.storyId);
+      assert.equal(stopped, false, `${args.name}: rerun path must leave actor stop to transition-orchestrator`);
+      assert.equal(after?.result, 'FAIL', `${args.name}: failing validate rerun must persist FAIL evidence`);
+      assert.ok(
+        logs.some(line => line.includes(args.reason)),
+        `${args.name}: rerun log should include "${args.reason}"`,
+      );
+      assert.ok(
+        !logs.some(line => line.includes('existing validation PASS is fresh; skipping lattice validate rerun')),
+        `${args.name}: unsafe evidence must not log fresh skip`,
+      );
+    } finally {
+      rmSync(fixture.root, { recursive: true, force: true });
+      resetConfigCache();
+    }
+  }
+
   const gateFreshRoot = mkdtempSync(join(tmpdir(), 'lattice-validate-gate-fresh-skip-'));
   try {
     writeFileSync(join(gateFreshRoot, 'lattice.config.json'), JSON.stringify({
@@ -1340,6 +1427,7 @@ try {
       priority: 'medium', createdAt: now, startedAt: now, endedAt: null,
       currentReviewRound: now, events: [],
     });
+    store.writeChecklist(storyId, { items: [] });
     const evidence = {
       command: `lattice validate --story=${storyId} --json`,
       output: '{"allPass":true,"summary":"already passed"}',
@@ -1374,6 +1462,102 @@ try {
     resetConfigCache();
   }
 
+  const gateWarningRoot = seedValidateGateSkipRoot('lattice-validate-gate-warning-skip-', 'B-vgate-warning');
+  try {
+    gateWarningRoot.store.writeTestEvidence(gateWarningRoot.storyId, gateWarningRoot.evidence);
+    gitQuiet(gateWarningRoot.root, ['add', `.lattice/story/actives/${gateWarningRoot.storyId}`]);
+    gitQuiet(gateWarningRoot.root, ['commit', '-m', 'record warning validation evidence']);
+    gitQuiet(gateWarningRoot.root, ['checkout', 'main']);
+    writeFileSync(join(gateWarningRoot.root, 'packages/main/src/unrelated.ts'), 'export const unrelated = 1;\n');
+    gitQuiet(gateWarningRoot.root, ['add', 'packages/main/src/unrelated.ts']);
+    gitQuiet(gateWarningRoot.root, ['commit', '-m', 'unrelated main material change']);
+    gitQuiet(gateWarningRoot.root, ['checkout', `story/${gateWarningRoot.storyId}`]);
+    gitQuiet(gateWarningRoot.root, ['merge', 'main', '--no-edit']);
+    let stopped = false;
+    const logs: string[] = [];
+    const actor = { stop() { stopped = true; } };
+    await runValidateGate({ store: gateWarningRoot.store, root: gateWarningRoot.root, scanRoot: join(gateWarningRoot.root, 'packages/main'), log: line => logs.push(line) }, gateWarningRoot.storyId, actor);
+    const after = gateWarningRoot.store.readTestEvidence(gateWarningRoot.storyId);
+    assert.equal(stopped, false, 'fresh warning skip path must leave actor stop to transition-orchestrator');
+    assert.equal(after?.result, 'PASS', 'fresh warning skip path must preserve PASS evidence');
+    assert.equal(after?.timestamp, gateWarningRoot.evidence.timestamp, 'fresh warning skip path must not rewrite test-evidence timestamp');
+    assert.ok(
+      logs.some(line => line.includes('whole-tree materialHash drift detected while storyFilesHash matches')),
+      'fresh warning skip path must surface the re-attestation warning',
+    );
+  } finally {
+    rmSync(gateWarningRoot.root, { recursive: true, force: true });
+    resetConfigCache();
+  }
+
+  await assertUnsafePassEvidenceReruns({
+    name: 'wrong-command',
+    reason: 'existing validation PASS command is not',
+    mutateEvidence: evidence => { evidence.command = 'lattice validate --story=B-other --json'; },
+  });
+
+  await assertUnsafePassEvidenceReruns({
+    name: 'coverage-malformed',
+    reason: 'verificationCoverage is missing missingRequired',
+    mutateEvidence: evidence => { evidence.verificationCoverage.missingRequired = '0'; },
+  });
+
+  await assertUnsafePassEvidenceReruns({
+    name: 'coverage-gap',
+    reason: 'required verification coverage gap',
+    mutateEvidence: evidence => { evidence.verificationCoverage.missingRequired = 1; },
+  });
+
+  await assertUnsafePassEvidenceReruns({
+    name: 'missing-hashes',
+    reason: 'missing headHash/materialHash freshness bindings',
+    mutateEvidence: evidence => {
+      delete evidence.headHash;
+      delete evidence.materialHash;
+    },
+  });
+
+  await assertUnsafePassEvidenceReruns({
+    name: 'output-false',
+    reason: 'output is not allPass/allPassed=true',
+    mutateEvidence: evidence => { evidence.output = '{"allPass":false,"summary":"contradiction"}'; },
+  });
+
+  await assertUnsafePassEvidenceReruns({
+    name: 'output-malformed',
+    reason: 'output is not valid JSON',
+    mutateEvidence: evidence => { evidence.output = 'not json'; },
+  });
+
+  await assertUnsafePassEvidenceReruns({
+    name: 'checklist-drift',
+    reason: 'verificationCoverage does not match current checklist verificationIntent inputs',
+    mutateAfterCommit: ({ store, storyId }) => {
+      store.writeChecklist(storyId, {
+        items: [{
+          id: 'CHK-001',
+          title: 'New required intent after validation',
+          status: 'done',
+          startTime: null,
+          endTime: null,
+          verificationIntent: {
+            happy: [{ desc: 'New must intent requires recomputed coverage', type: 'logic', priority: 'must' }],
+            edge: [],
+            adversarial: [],
+          },
+        }],
+      });
+    },
+  });
+
+  await assertUnsafePassEvidenceReruns({
+    name: 'dirty-material',
+    reason: 'current worktree has blocking dirty path',
+    mutateAfterCommit: ({ root }) => {
+      writeFileSync(join(root, 'packages/main/src/app.ts'), 'export const base = 999;\n');
+    },
+  });
+
   const gateLegacyNoCoverageRoot = mkdtempSync(join(tmpdir(), 'lattice-validate-gate-legacy-no-coverage-'));
   try {
     writeFileSync(join(gateLegacyNoCoverageRoot, 'lattice.config.json'), JSON.stringify({
@@ -1405,6 +1589,7 @@ try {
       priority: 'medium', createdAt: now, startedAt: now, endedAt: null,
       currentReviewRound: now, events: [],
     });
+    store.writeChecklist(storyId, { items: [] });
     const legacyEvidence = {
       command: `lattice validate --story=${storyId} --json`,
       output: '{"allPass":true,"summary":"legacy pass without coverage"}',
@@ -1476,6 +1661,7 @@ try {
       priority: 'medium', createdAt: now, startedAt: now, endedAt: null,
       currentReviewRound: now, events: [],
     });
+    store.writeChecklist(storyId, { items: [] });
     const staleEvidence = {
       command: `lattice validate --story=${storyId} --json`,
       output: '{"allPass":true,"summary":"old pass"}',
