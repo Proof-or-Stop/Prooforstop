@@ -242,6 +242,15 @@
       "reviewRound": "2026-06-25T00:54:02.097Z",
       "reviewRunId": "B-1731:RR-045",
       "_hash": "e5978d438c40ed4ee000cb88931e82f1e63b0bcbb3469790a2c054ea09407d42"
+    },
+    {
+      "id": "B-1731:RP-028",
+      "agent": "lattice-review-concept",
+      "note": "Concept pass: current implementation still solves B-1731. Repro-first classifier and STORY_INTAKE/PLAN/DEV-entry gates require accepted evidence-candidate story-evidence-binding for file-declaring, bug, or high-risk code-verifiable stories while warn/off and documented intake bypass remain scoped. Candidate evidence is not promoted to verification/DONE/Authority proof. Cached validation PASS hardening is in-scope evidence admissibility: reuse requires command identity, passing JSON output, verificationCoverage/current checklist+verificationEvidence equivalence, non-blocking worktree state, and head/material/storyFiles freshness; unsafe or legacy PASS evidence reruns validate and records FAIL on failure. Verified with build, repro evidence binding smoke, validation protocol smoke, and process fact contract.",
+      "createdAt": "2026-06-25T00:59:09.961Z",
+      "reviewRound": "2026-06-25T00:54:02.097Z",
+      "reviewRunId": "B-1731:RR-043",
+      "_hash": "9ef8e430928f7ba29f6e87d119563ed809be8c163b600e38d05ec5a9b70c58eb"
     }
   ]
 }
