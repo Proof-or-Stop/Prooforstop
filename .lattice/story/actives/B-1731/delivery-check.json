@@ -1,0 +1,60 @@
+{
+  "storyId": "B-1731",
+  "checkedAt": "2026-06-25T00:33:31.921Z",
+  "headHash": "3b9661362c02e4ddc2113274babd48bf8a26178e",
+  "materialHash": "464959111171720e990249b623d1861603d530c33108ff787837a10af3ae1cd8",
+  "storyFilesHash": "fc2af48e33eaf1459bc791c0eaa049f42a60fa6fd27c6efb24da0378a4603e57",
+  "reviewRound": "2026-06-25T00:10:57.735Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "checklist:CHK-001",
+      "promise": "Classifier keeps documentation-only stories moving, while code/gate/proof stories are marked repro-first-required before lifecycle advance.",
+      "status": "verified",
+      "verifiedBy": "story_get + repro-evidence-binding-dev-gate-smoke + validate snapshot",
+      "evidence": "CHK-001 happy/edge/adversarial evidence passed; validate PASS covered 12/12 required intents and repro-evidence smoke command 30."
+    },
+    {
+      "docPath": "checklist:CHK-002",
+      "promise": "When a code-touched story lacks accepted repro evidence, the terminal prints Cannot enter PLAN or Cannot enter DEV with missing_story_evidence_binding and the recovery command hint.",
+      "status": "verified",
+      "verifiedBy": "source diff + repro-evidence-binding-dev-gate-smoke + validate snapshot",
+      "evidence": "machine.ts wires PLAN/DEV guards; formatStoryEvidenceBindingGateFailure emits Cannot enter PLAN/DEV and missing_story_evidence_binding; smoke covers missing binding PLAN/DEV cases."
+    },
+    {
+      "docPath": "checklist:CHK-003",
+      "promise": "The gate failure text distinguishes missing, invalid, stale, and non-code-bypass cases without claiming Authority or production evidence.",
+      "status": "verified",
+      "verifiedBy": "source diff + repro-evidence-binding-dev-gate-smoke + process fact registration",
+      "evidence": "repro-evidence-binding-gate.ts returns missing/stale/engine-error/non-required diagnostics; process facts register candidate/gate scope without Authority/production claims; smoke covers reason-code and no-file bypass behavior."
+    },
+    {
+      "docPath": "checklist:CHK-004",
+      "promise": "A maintainer can run node packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js and see the PLAN/DEV gate behavior covered.",
+      "status": "verified",
+      "verifiedBy": "test_list validate transcript",
+      "evidence": "Latest validate PASS includes configured command 30 node packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js with PLAN/DEV, warn/off, fromDraft, direct-phase, spike-review, malformed/stale binding coverage."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "B-1731:validate",
+      "transcript": "lattice test_list shows latest command lattice validate --story=B-1731 --json result PASS at 2026-06-25T00:25:56.712Z. The saved output is allPass=true over 31 configured validate.commands entries [0] through [30], including build, existing smoke suites, and repro-evidence-binding-dev-gate-smoke. Verification coverage is 12/12 covered, 0 required missing."
+    },
+    {
+      "featureId": "B-1731:done-required",
+      "transcript": "DONE oracle/lifecycle evidence shows lattice done_required_validate --storyId=B-1731 --json PASS at 2026-06-25T00:28:05.380Z with 2 required commands. lattice.config.json identifies them as packages/main build: npm --prefix packages/main run build, and root full test suite: npm test."
+    },
+    {
+      "featureId": "CHK-004:gate-regression:validation-protocol",
+      "transcript": "Checklist evidence and evidence_inspect show npm --prefix packages/main run build && node packages/main/dist/tasks/validation-protocol-smoke.js PASS, fresh against current material hash. The smoke covers fresh PASS skip, warning surfacing, legacy/no-coverage rerun, stale rerun, wrong command, malformed/nonzero coverage, missing hashes, false/malformed validate output, checklist intent drift, and dirty material worktree rerun predicates."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Real-machine test exists via lattice validate PASS over 31 configured commands, DONE-required validation PASS over build and root npm test, and targeted validation-protocol smoke PASS. Edge and adversarial coverage exists across the 12/12 verification intents plus validation-cache edge cases. rg found no TODO/FIXME/XXX/HACK markers in the touched delivery implementation/test files."
+  },
+  "_hash": "fc747abe3160b18e4061a1ad06f6d60af90a1d0dc9be5d27b1deac3e5ec36db2"
+}
