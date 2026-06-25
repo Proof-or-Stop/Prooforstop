@@ -1,0 +1,127 @@
+{
+  "storyId": "B-88ae",
+  "checkedAt": "2026-06-25T02:56:28.743Z",
+  "features": [
+    {
+      "feature": "Evidence artifact entrypoint core/evidence/artifact/index.ts re-exporting artifact-store primitives + evidence types",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "scope-boundary.allowed[0]; plan M1; evidence-platform-architecture.md; legacy core/evidence/artifact-store.ts exists"
+    },
+    {
+      "feature": "Evidence storage entrypoint core/evidence/storage/index.ts re-exporting storage primitives for future storage namespace",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "scope-boundary.allowed[0]; plan M1; CHK-001 files.create"
+    },
+    {
+      "feature": "Evidence repro entrypoint core/evidence/repro/index.ts re-exporting ReproIntakeService + candidate types",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "scope-boundary.allowed[0]; plan M2; legacy core/repro-intake.ts exists"
+    },
+    {
+      "feature": "Evidence admissibility entrypoint core/evidence/admissibility/index.ts re-exporting proof-admissibility API",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "scope-boundary.allowed[0]; plan M2; legacy core/proof-admissibility.ts exists"
+    },
+    {
+      "feature": "Lifecycle-control skeleton + shared read-only status types StoryControlStatus/ProjectControlStatus/ControlPlaneCapabilities, lane+queue enums, milestone constants",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "scope-boundary.allowed[2]; plan M3; CHK-002"
+    },
+    {
+      "feature": "Lifecycle-control runtime/consumption/queue/dashboard projection entrypoints, types-only read-only skeleton",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "scope-boundary.allowed[2]; plan M3; CHK-002 files.create"
+    },
+    {
+      "feature": "Focused source-structure-convergence smoke proving new+legacy imports compile and share representative symbol identity",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "scope-boundary.allowed[1]; plan M4-M5; CHK-003"
+    },
+    {
+      "feature": "package.json npm script test:source-structure-convergence + compat re-run of proof-admissibility & repro-first smokes",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan CHK-003; checklist files.modify packages/main/package.json"
+    },
+    {
+      "feature": "global_control_status CLI/runtime behavior",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "scope-boundary.excluded[2]; plan Non-goals",
+      "source": "plan.md:13; scope-boundary.json"
+    },
+    {
+      "feature": "Lifecycle phase gate / DONE gate behavior changes",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "scope-boundary.excluded[1]",
+      "source": "scope-boundary.json; plan Non-goals"
+    },
+    {
+      "feature": "Proof Admissibility M7 enforcement",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "scope-boundary.excluded[1]; plan Non-goals",
+      "source": "plan.md:13; scope-boundary.json"
+    },
+    {
+      "feature": "Authority production semantics",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "scope-boundary.excluded[1]; plan Non-goals",
+      "source": "plan.md:13; scope-boundary.json"
+    },
+    {
+      "feature": "Queue cleanup enforcement",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "scope-boundary.excluded[1]; plan Non-goals",
+      "source": "plan.md:13; scope-boundary.json"
+    },
+    {
+      "feature": "Tier-C experiment story bulk cleanup/discard",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "scope-boundary.excluded[0]",
+      "source": "scope-boundary.json"
+    }
+  ],
+  "summary": {
+    "total": 14,
+    "covered": 8,
+    "excluded": 6,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "aca69fd482e0e111d0e8a8f83dc16a3e51934b1e196acec97df1297189128737",
+  "openQuestions": [
+    {
+      "id": "OQ-1",
+      "q": "CHK-001/002/003 relatedDocs and execution-boundary allowedPaths reference docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md, and the CHK-002 lifecycle-control skeleton is meant to derive from it, but that decision doc does not exist in the worktree. Where is the authoritative source for the lifecycle-control skeleton design, or should the doc be created or the dangling reference corrected as part of this story?",
+      "evidence": "Filesystem in B-88ae worktree has no docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md. The evidence-platform architecture doc supports CHK-001 but not the lifecycle-control skeleton shape. checklist.json CHK-002 relatedDocs lists only the missing doc.",
+      "sourcePointers": [
+        "docs/requirements/decisions/",
+        "docs/evidence/evidence-platform-architecture.md",
+        "execution-boundary.json#allowedPaths",
+        "checklist.json#CHK-002.relatedDocs"
+      ]
+    }
+  ]
+}
