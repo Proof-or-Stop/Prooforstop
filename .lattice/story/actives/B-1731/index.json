@@ -4,7 +4,7 @@
   "title": "Repro-first story-intake preflight gate: classify at story_create and warn/block when a repro-first-required task has no bound accepted repro/spike candidate",
   "description": "Add a STORY_INTAKE-consumer preflight to packages/main/src/handlers/story-create.ts (and the story_create_from_repro path) that turns Red/Repro/Spike from a soft norm into a triggered precondition of story intake. REUSE proof-admissibility.ts (STORY_INTAKE consumer, evidence-candidate scope, reason codes) — do NOT build a parallel admissibility system. (1) Classifier: repro-first-required if type=bug OR riskSignals match high-risk (gate/authority/receipt/proof/evidence/process-fact/security/migration/hotfix) OR the change is code-verifiable runtime/CLI/gate behavior; bypass-eligible if doc/metadata/registry-only chore, explicit quick-fix, or low-confidence (conservative: when uncertain, warn not block). (2) Preflight: query proof-admissibility for a bound, reviewer-accepted repro/spike evidence-candidate (repro path: repro-probe + accepted repro-review with reviewedFailureClass=target-bug; or spike path: spike-record + accepted spike-review). If required and none bound -> warn (block under enforce) with the exact next command (repro_probe + story_create_from_repro). story_create_from_repro naturally passes because it binds the candidate. (3) Config reproFirstPreflight.mode = off|warn|enforce (warn default). (4) Bypass: trivial/doc-only/explicit quick-fix allowed with a recorded reason, written as a repro-first-bypass local-diagnostic artifact and surfaced in session_brief. (5) Fail-OPEN: a preflight/classifier/IO error allows story creation + emits reason repro_first_preflight_engine_error; only a clean required+missing result under enforce blocks. Add reason codes (repro_first_required_no_candidate, repro_first_candidate_unreviewed, repro_first_reviewed_class_not_target_bug, repro_first_bypassed, repro_first_preflight_engine_error), a process fact runtime:repro_first_intake_preflight, and session_brief surfacing (reproFirst: bound-accepted|bypassed(reason)|missing). A hermetic smoke covers the verification matrix. NON-GOALS: do not auto-run repro; do not consume the candidate as lifecycle proof-of-fix (PLAN->DEV/integration story); do not block on the preflight's own error; do not claim Authority; do not create a parallel admissibility manager. Enforce rollout is a separate story (warn-first).",
   "type": "feature",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "keywords": [
     "repro-first",
@@ -32,7 +32,7 @@
   ],
   "createdAt": "2026-06-24T14:10:45.995Z",
   "startedAt": "2026-06-24T14:10:45.995Z",
-  "endedAt": null,
+  "endedAt": "2026-06-25T01:32:57.457Z",
   "events": [
     {
       "phase": "INIT",
@@ -312,12 +312,16 @@
       "user": "Harmonygo",
       "sessionId": "sess-21a5d2f5374599f3",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-25T01:32:57.457Z",
+      "branch": "story/B-1731",
+      "user": "Harmonygo",
+      "sessionId": "sess-21a5d2f5374599f3",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-1731",
-    "branch": "story/B-1731",
-    "createdAt": "2026-06-24T14:34:55.042Z"
-  },
   "currentReviewRound": "2026-06-25T00:54:02.097Z"
 }
