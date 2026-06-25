@@ -55,7 +55,43 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "开发者可以从 packages/main/src/core/lifecycle-control 导入 StoryControlStatus、ProjectControlStatus、ControlPlaneCapabilities 和 runtime/consumption/queue/dashboard projection entrypoints；这些模块只提供只读类型/骨架，不注册 CLI 命令、不写 evidence、不改变 gate。",
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/src/core/lifecycle-control/index.ts",
+          "packages/main/src/core/lifecycle-control/control-status.ts",
+          "packages/main/src/core/lifecycle-control/global-control-service.ts",
+          "packages/main/src/core/lifecycle-control/runtime/index.ts",
+          "packages/main/src/core/lifecycle-control/consumption/index.ts",
+          "packages/main/src/core/lifecycle-control/queue/index.ts",
+          "packages/main/src/core/lifecycle-control/dashboard/index.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/source-structure-convergence-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Lifecycle-control public types and projection entrypoints compile from the documented paths.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Skeleton modules remain read-only and contain no CLI registration or lifecycle mutation behavior.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Consumption projection types do not import concrete proof verifiers or write AdmissibilityEvaluationRow.",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
