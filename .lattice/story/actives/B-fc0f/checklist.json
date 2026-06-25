@@ -99,7 +99,38 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees done_prepare review-assurance row show degraded fallback parity with review_escalation_status",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/core/review-assurance-floor.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/core/review-assurance-floor.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Compare review_escalation_status and done_prepare(done-closure) on a degraded single-host scenario",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Verify done_prepare uses current story/material binding on degraded fallback floor",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Re-run after main merge drift and confirm advisory/re-attestation behavior remains bounded",
+            "type": "logic"
+          }
+        ]
+      }
     }
   ]
 }
