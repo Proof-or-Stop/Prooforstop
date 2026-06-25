@@ -16,6 +16,8 @@
     "packages/main/src/core/lifecycle-control/consumption/index.ts",
     "packages/main/src/core/lifecycle-control/queue/index.ts",
     "packages/main/src/core/lifecycle-control/dashboard/index.ts",
+    "packages/main/src/core/lifecycle-control/types.ts",
+    "packages/main/src/core/lifecycle-control/milestones.ts",
     "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
     "packages/main/src/tasks/source-structure-convergence-smoke.ts"
   ],
@@ -32,8 +34,8 @@
     "queue cleanup enforcement",
     "Tier-C experiment cleanup"
   ],
-  "scopeChangeReason": "Initialize scope contract from PLAN after source-structure convergence implementation; enforce declared file scopes before REVIEW.",
+  "scopeChangeReason": "Refresh scope contract after CHK-002 declared lifecycle-control/types.ts and milestones.ts as legitimate compatibility shim and migration-constant files.",
   "acknowledgements": [],
   "createdAt": "2026-06-25T03:06:05.576Z",
-  "updatedAt": "2026-06-25T03:06:05.576Z"
+  "updatedAt": "2026-06-25T03:06:30.641Z"
 }
