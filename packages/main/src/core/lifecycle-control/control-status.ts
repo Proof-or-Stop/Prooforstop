@@ -59,7 +59,7 @@ export const DEFAULT_CONTROL_PLANE_CAPABILITIES: ControlPlaneCapabilities = {
     {
       id: 'structural-migration-plan',
       status: 'available',
-      description: 'Keep the five-milestone structural migration plan in source.',
+      description: 'Keep the six-milestone structural migration plan in source.',
     },
   ],
 } as const;
@@ -113,13 +113,72 @@ export interface ControlQueueStatus {
   readonly reason?: string;
 }
 
+export const CONTROL_PLANE_STATUS_LEVELS = [
+  'green',
+  'yellow',
+  'red',
+  'na',
+  'unknown',
+] as const;
+
+export type ControlPlaneStatusLevel = typeof CONTROL_PLANE_STATUS_LEVELS[number];
+
+export interface ControlPlaneSection {
+  /**
+   * Canonical projector status for this section.
+   * green / yellow / red / na are explicit report states;
+   * unknown means input sources are unavailable.
+   */
+  readonly status: ControlPlaneStatusLevel;
+
+  /**
+   * Human-readable reason produced by the upstream projector.
+   */
+  readonly reason?: string;
+
+  /**
+   * Safe next action string for UX tooling.
+   */
+  readonly nextSafeAction?: string;
+
+  /**
+   * Optional count of blockers in this projection section.
+   */
+  readonly blockerCount?: number;
+
+  /**
+   * Backward-compatible marker for old consumers.
+   */
+  readonly source?: 'legacy-projection' | 'runtime-projection' | 'proof-projection';
+}
+
 export interface StoryControlStatus {
   readonly storyId: string;
   readonly phase?: string;
   readonly title?: string;
+
+  /**
+   * Canonical sections (new contract).
+   */
+  readonly runtime: ControlPlaneSection;
+  readonly consumption: ControlPlaneSection;
+  readonly readiness: ControlPlaneSection;
+
+  /**
+   * Canonical queue summary.
+   */
+  readonly queue: ControlQueueStatus;
+
+  /**
+   * Compatibility fields are intentionally retained for existing projections.
+   */
   readonly capabilities: ControlPlaneCapabilities;
   readonly lanes: readonly LifecycleControlLaneStatus[];
-  readonly queue: ControlQueueStatus;
+  readonly compatibilityProjection?: {
+    readonly source: 'legacy-story-state';
+    readonly projectedAt: string;
+    readonly section: 'legacy-control-lane';
+  };
   readonly cp2Projection?: {
     readonly source: 'legacy-story-state';
     readonly projectedAt?: string;
@@ -129,6 +188,17 @@ export interface StoryControlStatus {
 
 export interface ProjectControlStatus {
   readonly projectRoot?: string;
+  /**
+   * Canonical sections (project roll-up).
+   */
+  readonly runtime: ControlPlaneSection;
+  readonly consumption: ControlPlaneSection;
+  readonly readiness: ControlPlaneSection;
+  readonly queueSummary: ControlQueueStatus;
+
+  /**
+   * Compatibility roll-up fields kept for older projections.
+   */
   readonly capabilities: ControlPlaneCapabilities;
   readonly stories: readonly StoryControlStatus[];
   readonly lanes: readonly LifecycleControlLaneStatus[];

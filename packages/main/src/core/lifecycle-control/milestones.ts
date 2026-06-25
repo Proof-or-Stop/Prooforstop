@@ -1,5 +1,9 @@
 export interface LifecycleControlMigrationMilestone {
-  readonly id: 'CP-1' | 'CP-2' | 'CP-3' | 'CP-4' | 'CP-5';
+  /**
+   * Migration milestone identifier.
+   * CP-0 is the read-only canonical inventory baseline.
+   */
+  readonly id: 'CP-0' | 'CP-1' | 'CP-2' | 'CP-3' | 'CP-4' | 'CP-5';
   readonly title: string;
   readonly scope: readonly string[];
   readonly nonGoals: readonly string[];
@@ -14,12 +18,26 @@ export interface LifecycleControlMigrationSubtrack {
 
 export const LIFECYCLE_CONTROL_MIGRATION_MILESTONES: readonly LifecycleControlMigrationMilestone[] = [
   {
-    id: 'CP-1',
-    title: 'Compatibility-first source structure',
+    id: 'CP-0',
+    title: 'Read-Only Control Plane Inventory',
     scope: [
-      'Add evidence compatibility entrypoints.',
-      'Add lifecycle-control read-only types and migration constants.',
-      'Prove legacy and recommended imports share representative symbol identity.',
+      'Define a read-only report joining phase, authority, readiness, proof, and queue state.',
+      'Keep lifecycle truth sourced from session, story, lock, and proof providers.',
+      'Expose a stable baseline projection used by host handoff and review.',
+    ],
+    nonGoals: [
+      'No lifecycle gate mutation.',
+      'No queue cleanup enforcement.',
+      'No Authority production semantics.',
+    ],
+  },
+  {
+    id: 'CP-1',
+    title: 'Runtime Closure Automation',
+    scope: [
+      'Project worktree/runtime/gate-readiness facts from shipped runtime APIs.',
+      'Preserve metadata compatibility by keeping legacy-shaped projection fields.',
+      'Surface phase-mirror, lock, and freshness signals without changing gate decisions.',
     ],
     nonGoals: [
       'No CLI command registration.',
@@ -29,9 +47,10 @@ export const LIFECYCLE_CONTROL_MIGRATION_MILESTONES: readonly LifecycleControlMi
   },
   {
     id: 'CP-2',
-    title: 'Read-only control status projection',
+    title: 'Consumption Closure Projection',
     scope: [
-      'Project legacy story, lane, and queue state into StoryControlStatus and ProjectControlStatus.',
+      'Project admissibility consumer rows and waterline signals for story/project reporting.',
+      'Keep projection read-only and consume, rather than own, proof policy.',
       'Keep projection side-effect free and evidence-neutral.',
     ],
     nonGoals: [
@@ -41,10 +60,10 @@ export const LIFECYCLE_CONTROL_MIGRATION_MILESTONES: readonly LifecycleControlMi
   },
   {
     id: 'CP-3',
-    title: 'Host-facing read-only surfacing',
+    title: 'Queue Governance And Exceptions',
     scope: [
-      'Surface CP-2 status through an explicitly read-only host/API boundary.',
-      'Preserve existing lifecycle command behavior.',
+      'Classify active stories for actionable queue health (worktree/mirror/exceptions/duplicates).',
+      'Preserve existing command behavior and avoid hard cleanup outside queue governance rules.',
     ],
     nonGoals: [
       'No global lifecycle control execution.',
@@ -53,10 +72,10 @@ export const LIFECYCLE_CONTROL_MIGRATION_MILESTONES: readonly LifecycleControlMi
   },
   {
     id: 'CP-4',
-    title: 'Control-plane readiness checks',
+    title: 'Unified Dashboard',
     scope: [
-      'Add structural readiness diagnostics for missing projection inputs.',
-      'Classify blockers without changing lifecycle transitions.',
+      'Assemble story-level and project-level control statuses.',
+      'Show runtime + consumption + queue + readiness in one host-neutral report.',
     ],
     nonGoals: [
       'No DONE gate replacement.',
@@ -65,9 +84,9 @@ export const LIFECYCLE_CONTROL_MIGRATION_MILESTONES: readonly LifecycleControlMi
   },
   {
     id: 'CP-5',
-    title: 'Separated enforcement tracks',
+    title: 'Runtime and Queue Enforcement Split',
     scope: [
-      'Split runtime-environment enforcement from queue governance before any behavioral work.',
+      'Split enforcement-readiness tracks (runtime vs queue governance) while preserving warn-first rollout.',
       'Render Proof M7 and Authority-facing proof-consumer results without owning their enforcement.',
     ],
     nonGoals: [

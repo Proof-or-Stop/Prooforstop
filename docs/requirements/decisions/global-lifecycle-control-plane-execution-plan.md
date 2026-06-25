@@ -10,6 +10,12 @@
 
 ## 1. Purpose
 
+> Canonical-vs-Compatibility:
+> - Canonical rows are new: `runtime`, `consumption`, `readiness`, `queueSummary` (project),
+>   `runtime`/`consumption`/`readiness`/`queue` (story), and explicit `nextSafeAction` where available.
+> - Compatibility rows are retained: `lanes`, old `cp2Projection`, and story/project legacy lane names.
+> - Compatibility rows are render-only projections and must never replace authoritative lifecycle gate outcomes.
+
 This document defines the global control plane for individual story gates and
 active-story operations. It does not replace the story state machine, the
 Evidence Runtime, or the Proof Admissibility contract. It coordinates alongside

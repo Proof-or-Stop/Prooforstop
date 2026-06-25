@@ -11,15 +11,13 @@
     "Keep backward-compatible read-only fields while introducing canonical fields",
     "No framework-wide lock or queue enforcement changes in this story"
   ],
-  "unknowns": [
-    "Whether existing downstream readers depend on lane/queue legacy shapes beyond this module"
-  ],
+  "unknowns": [],
   "touchpoints": [
     "packages/main/src/core/lifecycle-control/control-status.ts",
     "packages/main/src/core/lifecycle-control/global-control-service.ts",
     "packages/main/src/core/lifecycle-control/milestones.ts",
-    "packages/main/src/tasks/source-structure-convergence-smoke.ts",
+    "packages/main/tests/tasks/source-structure-convergence-smoke.ts",
     "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md"
   ],
-  "timestamp": "2026-06-25T04:45:23.354Z"
+  "timestamp": "2026-06-25T04:50:08.722Z"
 }

@@ -4,7 +4,7 @@
   "title": "Align lifecycle-control with full global control-plane baseline",
   "description": "The lifecycle-control implementation is currently a structural skeleton that uses an older milestone taxonomy and compact status shape, which can confuse full-plan execution and operator handoff.",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "riskSignals": [
     {
@@ -14,7 +14,7 @@
   ],
   "createdAt": "2026-06-25T04:45:15.499Z",
   "startedAt": "2026-06-25T04:45:15.499Z",
-  "endedAt": null,
+  "endedAt": "2026-06-25T05:13:25.745Z",
   "events": [
     {
       "phase": "INIT",
@@ -33,11 +33,52 @@
       "user": "Harmonygo",
       "sessionId": "sess-7f55c8d5292c7c45",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-25T04:47:43.131Z",
+      "branch": "story/B-376c",
+      "user": "Harmonygo",
+      "sessionId": "sess-8e4ceb91e41bb12c",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-25T04:50:28.958Z",
+      "branch": "story/B-376c",
+      "user": "Harmonygo",
+      "sessionId": "sess-8e4ceb91e41bb12c",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-25T04:54:10.439Z",
+      "branch": "story/B-376c",
+      "user": "Harmonygo",
+      "sessionId": "sess-8e4ceb91e41bb12c",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-25T05:02:25.719Z",
+      "branch": "story/B-376c",
+      "user": "Harmonygo",
+      "sessionId": "sess-8e4ceb91e41bb12c",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-25T05:13:25.745Z",
+      "branch": "story/B-376c",
+      "user": "Harmonygo",
+      "sessionId": "sess-8e4ceb91e41bb12c",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-376c",
-    "branch": "story/B-376c",
-    "createdAt": "2026-06-25T04:47:39.741Z"
-  }
+  "currentReviewRound": "2026-06-25T04:54:10.439Z"
 }

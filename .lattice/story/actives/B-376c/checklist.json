@@ -7,9 +7,77 @@
       "relatedDocs": [
         "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-25T04:47:58.009Z",
+      "endTime": "2026-06-25T04:53:50.478Z",
+      "userSees": "User sees: grep CP-0..CP-5 in milestones.ts returns only canonical IDs CP-0, CP-1, CP-2, CP-3, CP-4, CP-5.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/lifecycle-control/milestones.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests/tasks/source-structure-convergence-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Canonical migration constants expose CP-0 through CP-5 consistently.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Unknown or stale milestone IDs are rejected before migration writes.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Re-run with legacy aliases and confirm canonical IDs are still validated.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "Rebuilt successfully at commit for current story state; CP-0..CP-5 constants remain canonical.",
+          "headHash": "3e36cd7a5b685f045b467b22bed7a8c7982a200b",
+          "materialHash": "452f3ede6fd0b82f5d506cba6a521fa3267058b8e305ce47aa94c7fb7048e915",
+          "storyFilesHash": "ec261fbac10273e940125ed9320649c9daea7d05627eba5aca8b50d1b22d0dda",
+          "timestamp": "2026-06-25T04:59:31.777Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/source-structure-convergence-smoke.js",
+          "result": "pass",
+          "note": "Validation smoke confirms non-canonical milestone IDs are rejected before migration writes.",
+          "headHash": "3e36cd7a5b685f045b467b22bed7a8c7982a200b",
+          "materialHash": "452f3ede6fd0b82f5d506cba6a521fa3267058b8e305ce47aa94c7fb7048e915",
+          "storyFilesHash": "ec261fbac10273e940125ed9320649c9daea7d05627eba5aca8b50d1b22d0dda",
+          "timestamp": "2026-06-25T04:59:31.777Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/source-structure-convergence-smoke.js",
+          "result": "pass",
+          "note": "Compatibility-layer alias paths remain covered by compatibility projection only.",
+          "headHash": "3e36cd7a5b685f045b467b22bed7a8c7982a200b",
+          "materialHash": "452f3ede6fd0b82f5d506cba6a521fa3267058b8e305ce47aa94c7fb7048e915",
+          "storyFilesHash": "ec261fbac10273e940125ed9320649c9daea7d05627eba5aca8b50d1b22d0dda",
+          "timestamp": "2026-06-25T04:59:31.777Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -18,9 +86,77 @@
       "relatedDocs": [
         "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-25T04:47:58.528Z",
+      "endTime": "2026-06-25T04:53:51.158Z",
+      "userSees": "User sees: StoryControlStatus serialization includes runtime, consumption, queue, readiness fields and optional legacy lane fields when needed.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/lifecycle-control/control-status.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests/tasks/source-structure-convergence-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "StoryControlStatus and ProjectControlStatus include canonical runtime/consumption/queue/readiness fields.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Legacy lane/queue fields remain available via compatibility projection.",
+            "type": "manual",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Malformed or conflicting fields are rejected by schema mapping and do not alter behavior.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/source-structure-convergence-smoke.js",
+          "result": "pass",
+          "note": "Story/Project control status include canonical runtime/consumption/queue/readiness fields.",
+          "headHash": "3e36cd7a5b685f045b467b22bed7a8c7982a200b",
+          "materialHash": "452f3ede6fd0b82f5d506cba6a521fa3267058b8e305ce47aa94c7fb7048e915",
+          "storyFilesHash": "ec261fbac10273e940125ed9320649c9daea7d05627eba5aca8b50d1b22d0dda",
+          "timestamp": "2026-06-25T04:59:31.777Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/source-structure-convergence-smoke.js",
+          "result": "pass",
+          "note": "Legacy lane/queue fields remain available via compatibility projection.",
+          "headHash": "3e36cd7a5b685f045b467b22bed7a8c7982a200b",
+          "materialHash": "452f3ede6fd0b82f5d506cba6a521fa3267058b8e305ce47aa94c7fb7048e915",
+          "storyFilesHash": "ec261fbac10273e940125ed9320649c9daea7d05627eba5aca8b50d1b22d0dda",
+          "timestamp": "2026-06-25T04:59:31.777Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/source-structure-convergence-smoke.js",
+          "result": "pass",
+          "note": "Malformed/conflicting schema shapes remain rejected and do not alter behavior.",
+          "headHash": "3e36cd7a5b685f045b467b22bed7a8c7982a200b",
+          "materialHash": "452f3ede6fd0b82f5d506cba6a521fa3267058b8e305ce47aa94c7fb7048e915",
+          "storyFilesHash": "ec261fbac10273e940125ed9320649c9daea7d05627eba5aca8b50d1b22d0dda",
+          "timestamp": "2026-06-25T04:59:31.777Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -30,9 +166,77 @@
         "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
         "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md#6-execution-milestones"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-25T04:47:58.808Z",
+      "endTime": "2026-06-25T04:53:50.764Z",
+      "userSees": "User sees: source-structure-convergence-smoke output includes `StoryControlStatus schema` and `milestoneCount=6` assertions.",
+      "files": {
+        "modify": [
+          "packages/main/tests/tasks/source-structure-convergence-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests/tasks/source-structure-convergence-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Smoke verifies canonical status shape, CP-0..CP-5, and no legacy-only fields in strict mode.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Smoke can intentionally surface old-schema mismatch with readable diagnostic.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Partial migration scenario fails early and logs explicit mismatch details.",
+            "type": "manual",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/source-structure-convergence-smoke.js",
+          "result": "pass",
+          "note": "Smoke validates CP-0..CP-5 and canonical StoryControlStatus schema fields.",
+          "headHash": "3e36cd7a5b685f045b467b22bed7a8c7982a200b",
+          "materialHash": "452f3ede6fd0b82f5d506cba6a521fa3267058b8e305ce47aa94c7fb7048e915",
+          "storyFilesHash": "ec261fbac10273e940125ed9320649c9daea7d05627eba5aca8b50d1b22d0dda",
+          "timestamp": "2026-06-25T04:59:31.777Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/source-structure-convergence-smoke.js",
+          "result": "pass",
+          "note": "Failure diagnostics are explicit and human-readable on mismatch.",
+          "headHash": "3e36cd7a5b685f045b467b22bed7a8c7982a200b",
+          "materialHash": "452f3ede6fd0b82f5d506cba6a521fa3267058b8e305ce47aa94c7fb7048e915",
+          "storyFilesHash": "ec261fbac10273e940125ed9320649c9daea7d05627eba5aca8b50d1b22d0dda",
+          "timestamp": "2026-06-25T04:59:31.777Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/source-structure-convergence-smoke.js",
+          "result": "pass",
+          "note": "Partial migration mismatch asserts strict detail as expected.",
+          "headHash": "3e36cd7a5b685f045b467b22bed7a8c7982a200b",
+          "materialHash": "452f3ede6fd0b82f5d506cba6a521fa3267058b8e305ce47aa94c7fb7048e915",
+          "storyFilesHash": "ec261fbac10273e940125ed9320649c9daea7d05627eba5aca8b50d1b22d0dda",
+          "timestamp": "2026-06-25T04:59:31.777Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -41,9 +245,80 @@
       "relatedDocs": [
         "docs/evidence/evidence-platform-architecture.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-25T04:47:59.053Z",
+      "endTime": "2026-06-25T04:53:51.472Z",
+      "userSees": "User sees explicit comments in architecture/docs marking canonical fields and compatibility-only fields in lifecycle-control status shapes.",
+      "files": {
+        "modify": [
+          "docs/evidence/evidence-platform-architecture.md",
+          "packages/main/src/core/lifecycle-control/control-status.ts",
+          "packages/main/src/core/lifecycle-control/global-control-service.ts",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Documentation and inline comments distinguish canonical fields vs compatibility projections.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Compat-only fields are only documented as optional/read-through layers and not treated as core semantics.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Automated scope audit can detect omitted canonical/compatibility markers.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "docs_check",
+          "file": "docs/evidence/evidence-platform-architecture.md",
+          "command": "cat docs/evidence/evidence-platform-architecture.md",
+          "result": "pass",
+          "note": "Architecture doc marks canonical fields and compatibility projection clearly.",
+          "headHash": "3e36cd7a5b685f045b467b22bed7a8c7982a200b",
+          "materialHash": "452f3ede6fd0b82f5d506cba6a521fa3267058b8e305ce47aa94c7fb7048e915",
+          "storyFilesHash": "ec261fbac10273e940125ed9320649c9daea7d05627eba5aca8b50d1b22d0dda",
+          "timestamp": "2026-06-25T04:59:31.777Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "docs_check",
+          "file": "docs/evidence/evidence-platform-architecture.md",
+          "command": "cat docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "result": "pass",
+          "note": "Compat-only fields are marked optional/read-through only in docs/comments.",
+          "headHash": "3e36cd7a5b685f045b467b22bed7a8c7982a200b",
+          "materialHash": "452f3ede6fd0b82f5d506cba6a521fa3267058b8e305ce47aa94c7fb7048e915",
+          "storyFilesHash": "ec261fbac10273e940125ed9320649c9daea7d05627eba5aca8b50d1b22d0dda",
+          "timestamp": "2026-06-25T04:59:31.777Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/source-structure-convergence-smoke.js",
+          "result": "pass",
+          "note": "Evidence scope markers remain discoverable for automated audit checks.",
+          "headHash": "3e36cd7a5b685f045b467b22bed7a8c7982a200b",
+          "materialHash": "452f3ede6fd0b82f5d506cba6a521fa3267058b8e305ce47aa94c7fb7048e915",
+          "storyFilesHash": "ec261fbac10273e940125ed9320649c9daea7d05627eba5aca8b50d1b22d0dda",
+          "timestamp": "2026-06-25T04:59:31.777Z"
+        }
+      ]
     }
   ]
 }
