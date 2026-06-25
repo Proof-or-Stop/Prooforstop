@@ -104,9 +104,9 @@
       "id": "CHK-003",
       "title": "Surface missing binding fields at autopilot_review_submit time (no silent ignore)",
       "context": "autopilot_review_submit accepts a verdict (decision:pass) but if it omits promptDigest/validationDigest the verdict is silently moved to review_escalation_status.degradedFallback.ignoredVerdicts (reason: 'missing binding field(s)') → 0/3 valid rounds with no error at submit. Add a loud submit-time warning + explicit missing-field list (or a --strict error / extend quorum_submit to emit a valid degraded 3x1 single-host round). Side-effect: a hard reject could break automation submitting partial verdicts — prefer warning/opt-in strict.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-25T05:22:06.543Z",
       "userSees": "User sees the exact text: \"Warning: autopilot_review_submit for story B-xxxx is missing binding field(s): materialDigest, validationDigest, promptDigest\"",
       "files": {
         "modify": [
@@ -134,7 +134,20 @@
             "type": "logic"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js --root /Users/jek/Documents/Work/proofbound/.worktrees/B-fc0f autopilot_review_submit --storyId=B-fc0f --runId=run-check --hostId=test-host --provider=openai --sessionId=check-session --keyId=k1 --decision=pass --json",
+          "result": "pass",
+          "note": "missing materialDigest/validationDigest/promptDigest now emits warning and still writes verdict with placeholder materialDigest.",
+          "headHash": "f286988114c890fee5a5f3a6c51deec45aea9f18",
+          "materialHash": "d5dc4c09dcf288071d35b5991bec5d7931b7278fdd63b70dd3c38423d1d13ce6",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-25T05:22:06.662Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
