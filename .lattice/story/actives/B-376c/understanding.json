@@ -1,0 +1,25 @@
+{
+  "task": "Align lifecycle-control milestone taxonomy and status schema with the full global control-plane execution plan.",
+  "outcome": "Runtime/consumption/queue control-plane rows use the canonical schema, preventing document-code drift.",
+  "facts": [
+    "Current lifecycle-control types use CP-1..CP-5 plus legacy lane/queue fields",
+    "Global control plane doc specifies CP-0..CP-5 and Story/Project status shape",
+    "Only read-only adapter code is being implemented in this story"
+  ],
+  "constraints": [
+    "Do not alter lifecycle gate transitions or authority semantics",
+    "Keep backward-compatible read-only fields while introducing canonical fields",
+    "No framework-wide lock or queue enforcement changes in this story"
+  ],
+  "unknowns": [
+    "Whether existing downstream readers depend on lane/queue legacy shapes beyond this module"
+  ],
+  "touchpoints": [
+    "packages/main/src/core/lifecycle-control/control-status.ts",
+    "packages/main/src/core/lifecycle-control/global-control-service.ts",
+    "packages/main/src/core/lifecycle-control/milestones.ts",
+    "packages/main/src/tasks/source-structure-convergence-smoke.ts",
+    "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md"
+  ],
+  "timestamp": "2026-06-25T04:45:23.354Z"
+}

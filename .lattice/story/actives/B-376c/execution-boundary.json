@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-376c",
+  "allowedCommands": [
+    "git *",
+    "lattice *",
+    "node *",
+    "npm --prefix *",
+    "npm run *"
+  ],
+  "allowedTools": [
+    "Bash",
+    "Grep",
+    "Read",
+    "Write"
+  ],
+  "allowedPaths": [
+    "docs/evidence/evidence-platform-architecture.md",
+    "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+    "packages/main/src/core/lifecycle-control",
+    "packages/main/src/tasks/source-structure-convergence-smoke.ts"
+  ],
+  "excludedCommands": [
+    "git clean -fd",
+    "git reset --hard",
+    "rm -rf"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Scoped to control-plane alignment work only; no data-loss commands allowed.",
+  "createdAt": "2026-06-25T04:46:44.150Z",
+  "updatedAt": "2026-06-25T04:46:44.150Z",
+  "_hash": "4b16276730462953de51011f1f9f65e3d6e229b7b9428f0c321e8a9d5c894edc"
+}

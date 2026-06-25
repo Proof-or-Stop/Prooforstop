@@ -1,0 +1,35 @@
+{
+  "storyId": "B-376c",
+  "checkedAt": "2026-06-25T04:47:26.693Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init@fallback",
+  "issues": [],
+  "agentResults": [
+    {
+      "agentId": "lattice-review-story-init@fallback",
+      "checkedAt": "2026-06-25T04:47:26.693Z",
+      "issues": []
+    },
+    {
+      "agentId": "product-reviewer@fallback",
+      "checkedAt": "2026-06-25T04:47:26.693Z",
+      "issues": []
+    }
+  ],
+  "fallback": {
+    "mode": "fallback",
+    "reason": "Independent subagent review is unavailable in this environment. I manually validated scope_boundary, execution_boundary, scope_freeze_check, and checklist relevance against the referenced control-plane docs before requesting INIT_CHECK, with no blocking findings.",
+    "evidenceRefs": [
+      "lattice scope_boundary_set --storyId=B-376c",
+      "lattice execution_boundary_set --storyId=B-376c",
+      "lattice scope_freeze_check --storyId=B-376c",
+      "story_create B-376c checklist"
+    ],
+    "actor": "Harmonygo",
+    "session": "sess-7f55c8d5292c7c45",
+    "attestedAt": "2026-06-25T04:47:26.693Z",
+    "headHash": "0d4eb610acb1e803194db753f910e32d88ba2fb1",
+    "materialHash": "d5dc4c09dcf288071d35b5991bec5d7931b7278fdd63b70dd3c38423d1d13ce6"
+  },
+  "_hash": "c916d3302e1a60188f371b6a3b70edbe353b8ee7b2910d5fa7eaa06efab2692e"
+}
