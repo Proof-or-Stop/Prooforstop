@@ -1,0 +1,49 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Reconcile migration milestone IDs",
+      "context": "Keep CP-0 inventory and CP-1..CP-5 names as canonical and align existing migration constants.",
+      "relatedDocs": [
+        "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Align StoryControlStatus and ProjectControlStatus with documented schema",
+      "context": "Adopt runtime/consumption/queue/readiness fields and aggregate lanes while preserving compatibility fields used by existing consumers.",
+      "relatedDocs": [
+        "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Update lifecycle-control smoke assertions and exports",
+      "context": "Refresh source-structure convergence smoke to validate the canonical status shape and new milestone count.",
+      "relatedDocs": [
+        "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+        "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md#6-execution-milestones"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Document compatibility policy in code comments and docs",
+      "context": "Make explicit which fields are canonical and which are compatibility projections to avoid future drift.",
+      "relatedDocs": [
+        "docs/evidence/evidence-platform-architecture.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
