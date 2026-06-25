@@ -1,0 +1,39 @@
+{
+  "storyId": "B-88ae",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/package.json"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/evidence/artifact/index.ts",
+    "packages/main/src/core/evidence/repro/index.ts",
+    "packages/main/src/core/evidence/admissibility/index.ts",
+    "packages/main/src/core/evidence/storage/index.ts",
+    "packages/main/src/core/lifecycle-control/index.ts",
+    "packages/main/src/core/lifecycle-control/control-status.ts",
+    "packages/main/src/core/lifecycle-control/global-control-service.ts",
+    "packages/main/src/core/lifecycle-control/runtime/index.ts",
+    "packages/main/src/core/lifecycle-control/consumption/index.ts",
+    "packages/main/src/core/lifecycle-control/queue/index.ts",
+    "packages/main/src/core/lifecycle-control/dashboard/index.ts",
+    "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+    "packages/main/src/tasks/source-structure-convergence-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/source-structure-convergence-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [
+    "global_control_status CLI/runtime behavior",
+    "lifecycle phase gate changes",
+    "DONE gate behavior changes",
+    "Proof Admissibility M7 enforcement",
+    "Authority production semantics",
+    "queue cleanup enforcement",
+    "Tier-C experiment cleanup"
+  ],
+  "scopeChangeReason": "Initialize scope contract from PLAN after source-structure convergence implementation; enforce declared file scopes before REVIEW.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-25T03:06:05.576Z",
+  "updatedAt": "2026-06-25T03:06:05.576Z"
+}
