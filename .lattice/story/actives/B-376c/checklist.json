@@ -42,7 +42,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "Build compiles with CP-0 through CP-5 migration constants in milestones.ts.",
+          "headHash": "b1307a99911d0c06cb0a6c4379a13047bbdab270",
+          "materialHash": "d5dc4c09dcf288071d35b5991bec5d7931b7278fdd63b70dd3c38423d1d13ce6",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-25T04:53:48.165Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/source-structure-convergence-smoke.js",
+          "result": "pass",
+          "note": "Milestone IDs assertion rejects non-canonical IDs.",
+          "headHash": "b1307a99911d0c06cb0a6c4379a13047bbdab270",
+          "materialHash": "d5dc4c09dcf288071d35b5991bec5d7931b7278fdd63b70dd3c38423d1d13ce6",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-25T04:53:48.165Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/source-structure-convergence-smoke.js",
+          "result": "pass",
+          "note": "Legacy alias paths are still mapped through compatibility projection only.",
+          "headHash": "b1307a99911d0c06cb0a6c4379a13047bbdab270",
+          "materialHash": "d5dc4c09dcf288071d35b5991bec5d7931b7278fdd63b70dd3c38423d1d13ce6",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-25T04:53:48.165Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -86,7 +121,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/source-structure-convergence-smoke.js",
+          "result": "pass",
+          "note": "Story/Project control status includes runtime/consumption/queue/readiness fields.",
+          "headHash": "b1307a99911d0c06cb0a6c4379a13047bbdab270",
+          "materialHash": "d5dc4c09dcf288071d35b5991bec5d7931b7278fdd63b70dd3c38423d1d13ce6",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-25T04:53:48.165Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/source-structure-convergence-smoke.js",
+          "result": "pass",
+          "note": "Legacy compatibility projection includes optional lane/queue fields.",
+          "headHash": "b1307a99911d0c06cb0a6c4379a13047bbdab270",
+          "materialHash": "d5dc4c09dcf288071d35b5991bec5d7931b7278fdd63b70dd3c38423d1d13ce6",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-25T04:53:48.165Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/source-structure-convergence-smoke.js",
+          "result": "pass",
+          "note": "Malformed shapes remain rejected by schema and mapping defaults.",
+          "headHash": "b1307a99911d0c06cb0a6c4379a13047bbdab270",
+          "materialHash": "d5dc4c09dcf288071d35b5991bec5d7931b7278fdd63b70dd3c38423d1d13ce6",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-25T04:53:48.165Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -131,7 +201,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/source-structure-convergence-smoke.js",
+          "result": "pass",
+          "note": "Smoke verifies CP-0..CP-5 and canonical StoryControlStatus schema fields.",
+          "headHash": "b1307a99911d0c06cb0a6c4379a13047bbdab270",
+          "materialHash": "d5dc4c09dcf288071d35b5991bec5d7931b7278fdd63b70dd3c38423d1d13ce6",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-25T04:53:48.165Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/source-structure-convergence-smoke.js",
+          "result": "pass",
+          "note": "Mismatch diagnostics are explicit and observable on failure.",
+          "headHash": "b1307a99911d0c06cb0a6c4379a13047bbdab270",
+          "materialHash": "d5dc4c09dcf288071d35b5991bec5d7931b7278fdd63b70dd3c38423d1d13ce6",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-25T04:53:48.165Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/source-structure-convergence-smoke.js",
+          "result": "pass",
+          "note": "Migration failure scenario asserts strict mismatch detail.",
+          "headHash": "b1307a99911d0c06cb0a6c4379a13047bbdab270",
+          "materialHash": "d5dc4c09dcf288071d35b5991bec5d7931b7278fdd63b70dd3c38423d1d13ce6",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-25T04:53:48.165Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -176,7 +281,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/source-structure-convergence-smoke.js",
+          "result": "pass",
+          "note": "Plan and architecture docs mark canonical vs compatibility projection clearly.",
+          "headHash": "b1307a99911d0c06cb0a6c4379a13047bbdab270",
+          "materialHash": "d5dc4c09dcf288071d35b5991bec5d7931b7278fdd63b70dd3c38423d1d13ce6",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-25T04:53:48.165Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/source-structure-convergence-smoke.js",
+          "result": "pass",
+          "note": "Legacy references are documented as optional compatibility layers only.",
+          "headHash": "b1307a99911d0c06cb0a6c4379a13047bbdab270",
+          "materialHash": "d5dc4c09dcf288071d35b5991bec5d7931b7278fdd63b70dd3c38423d1d13ce6",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-25T04:53:48.165Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/source-structure-convergence-smoke.js",
+          "result": "pass",
+          "note": "New evidence scope remains explicit and discoverable for automated audit.",
+          "headHash": "b1307a99911d0c06cb0a6c4379a13047bbdab270",
+          "materialHash": "d5dc4c09dcf288071d35b5991bec5d7931b7278fdd63b70dd3c38423d1d13ce6",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-25T04:53:48.165Z"
+        }
+      ]
     }
   ]
 }
