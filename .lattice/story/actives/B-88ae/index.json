@@ -4,7 +4,7 @@
   "title": "Converge Evidence and Lifecycle Control source structure",
   "description": "Implement the recommended Proofbound source layout as a compatibility-first structural slice: evidence/artifact, evidence/repro, evidence/admissibility public module paths plus lifecycle-control skeleton types/services. Preserve existing imports through compatibility re-exports and do not change lifecycle/proof behavior in this story.",
   "type": "refactor",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "createdAt": "2026-06-25T02:44:16.550Z",
   "startedAt": "2026-06-25T02:44:16.550Z",
@@ -18,6 +18,20 @@
       "user": "Harmonygo",
       "sessionId": "sess-7f55c8d5292c7c45",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-25T02:49:54.490Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-7f55c8d5292c7c45",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-88ae",
+    "branch": "story/B-88ae",
+    "createdAt": "2026-06-25T02:49:53.375Z"
+  }
 }

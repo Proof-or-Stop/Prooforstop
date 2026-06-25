@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-88ae",
+  "allowedCommands": [
+    "find *",
+    "git diff *",
+    "git status *",
+    "node packages/main/dist/tasks/proof-admissibility-smoke.js",
+    "node packages/main/dist/tasks/repro-first-candidate-smoke.js",
+    "node packages/main/dist/tasks/source-structure-convergence-smoke.js",
+    "npm --prefix packages/main run build",
+    "rg *",
+    "sed *"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "Claude CLI reviewer for INIT only",
+    "exec_command"
+  ],
+  "allowedPaths": [
+    "docs/evidence/evidence-platform-architecture.md",
+    "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+    "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+    "packages/main/package.json",
+    "packages/main/src/core/evidence",
+    "packages/main/src/core/lifecycle-control",
+    "packages/main/src/core/proof-admissibility.ts",
+    "packages/main/src/core/repro-intake.ts",
+    "packages/main/src/tasks"
+  ],
+  "excludedCommands": [
+    "git checkout -- *",
+    "git push *",
+    "git reset --hard *",
+    "lattice release_approve_push *",
+    "omx *",
+    "rm -rf *"
+  ],
+  "excludedTools": [
+    "omx"
+  ],
+  "excludedPaths": [
+    ".omx",
+    "docs/story",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "codex-main-agent",
+  "confirmationNote": "Compatibility-first source structure convergence. Verification is local TypeScript build plus focused source-structure smoke and existing proof/repro smokes. No remote push, no destructive git, no Authority behavior change, no full queue cleanup.",
+  "createdAt": "2026-06-25T02:49:26.327Z",
+  "updatedAt": "2026-06-25T02:49:26.327Z",
+  "_hash": "581783d9b608f2862473d5f6870dd87d0440dbfa348ad819f8f1b3302f7c879c"
+}

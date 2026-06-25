@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-88ae",
+  "mode": "maintenance",
+  "allowed": [
+    "Add compatibility-first source directories under packages/main/src/core/evidence/{artifact,admissibility,repro,storage} that re-export or wrap existing implementations without duplicating definitions.",
+    "Add focused smoke coverage proving new module paths compile and legacy import paths remain compatible.",
+    "Add packages/main/src/core/lifecycle-control skeleton modules and shared status types for runtime, consumption, queue, and dashboard projections.",
+    "Update related architecture documents only if needed to describe the implemented compatibility slice and remaining migration milestones."
+  ],
+  "excluded": [
+    "Do not bulk clean or discard Tier-C experiment stories.",
+    "Do not change lifecycle phase gates, DONE gate behavior, Proof Admissibility M7 enforcement, Authority production semantics, or queue cleanup enforcement.",
+    "Do not implement global_control_status CLI behavior in this story.",
+    "Do not move large existing implementations in a way that breaks legacy imports; keep compatibility re-exports."
+  ],
+  "confirmedBy": "codex-main-agent",
+  "confirmationNote": "User asked on 2026-06-25 to develop the recommended source structure and estimate milestones. Scope is confirmed as compatibility-first source-structure convergence, not full Global Control Plane behavior.",
+  "createdAt": "2026-06-25T02:49:11.199Z",
+  "updatedAt": "2026-06-25T02:49:11.199Z",
+  "_hash": "373521d3d978d93d333ad30657b762cfcf8816d3cae3223b00375c898a3428f0"
+}

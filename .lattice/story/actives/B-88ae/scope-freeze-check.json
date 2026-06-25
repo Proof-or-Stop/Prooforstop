@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-88ae",
+  "checkedAt": "2026-06-25T02:49:48.227Z",
+  "mode": "maintenance",
+  "status": "pass",
+  "scopeBoundaryHash": "373521d3d978d93d333ad30657b762cfcf8816d3cae3223b00375c898a3428f0",
+  "executionBoundaryHash": "581783d9b608f2862473d5f6870dd87d0440dbfa348ad819f8f1b3302f7c879c",
+  "freshnessHash": "3fc755d852c64d5be2f4706f62374c72a9460784f1406f45f736828394835c7e",
+  "effectiveExcludedKeywords": [
+    "Do not bulk clean or discard Tier-C experiment stories.",
+    "Do not change lifecycle phase gates, DONE gate behavior, Proof Admissibility M7 enforcement, Authority production semantics, or queue cleanup enforcement.",
+    "Do not implement global_control_status CLI behavior in this story.",
+    "Do not move large existing implementations in a way that breaks legacy imports; keep compatibility re-exports."
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Do not bulk clean or discard Tier-C experiment stories.",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not bulk clean or discard Tier-C experiment stories.",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not change lifecycle phase gates, DONE gate behavior, Proof Admissibility M7 enforcement, Authority production semantics, or queue cleanup enforcement.",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not change lifecycle phase gates, DONE gate behavior, Proof Admissibility M7 enforcement, Authority production semantics, or queue cleanup enforcement.",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not implement global_control_status CLI behavior in this story.",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not implement global_control_status CLI behavior in this story.",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not move large existing implementations in a way that breaks legacy imports; keep compatibility re-exports.",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not move large existing implementations in a way that breaks legacy imports; keep compatibility re-exports.",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "0a1160c757f5042e50acf6b45ec162bf8e0a193defef3bb728c7c625d80faa1d"
+}
