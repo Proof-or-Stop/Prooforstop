@@ -44,7 +44,35 @@
       "context": "packages/main/src/tasks/field-regression-cli-smoke.ts (~line 1636) builds a story_create background with '## Key Insight' / '## Trade-offs' / '## Conversation Texture', which the current background-validator rejects (needs '## Key Insights' / '## Solution Tradeoffs' / '## Conversational Texture'), so story_create exits 1 → fails on main. Update ONLY the 3 section headers; keep the hotfix-priority-elevation assertion intact (deleting the test loses that coverage).",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees field-regression-cli-smoke head passes after the section-header fix",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/field-regression-cli-smoke.ts"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Update CLI smoke background headers and verify the validator passes",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Verify localized section headers are rejected where appropriate and accepted where intended",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Inject invalid header variants to ensure stale validator catches drift",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
