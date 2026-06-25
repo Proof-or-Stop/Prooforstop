@@ -103,7 +103,39 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "运行 npm --prefix packages/main run build、node packages/main/dist/tasks/source-structure-convergence-smoke.js、proof-admissibility smoke、repro-first smoke 后都通过；输出明确说明 source-structure convergence smoke passed。",
+      "files": {
+        "modify": [
+          "packages/main/package.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/source-structure-convergence-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/source-structure-convergence-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Focused source-structure smoke passes after build.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Existing proof-admissibility and repro-first smokes still pass, proving compatibility paths were not broken.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Smoke asserts new and legacy imports resolve to the same representative symbols, catching accidental duplicate registries.",
+            "type": "logic"
+          }
+        ]
+      }
     }
   ]
 }
