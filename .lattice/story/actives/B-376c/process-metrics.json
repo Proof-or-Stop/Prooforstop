@@ -1,12 +1,12 @@
 {
   "storyId": "B-376c",
-  "generatedAt": "2026-06-25T04:47:49.497Z",
+  "generatedAt": "2026-06-25T04:48:24.165Z",
   "sourceSnapshot": {
     "hasUnderstanding": true,
     "hasDecision": true,
     "hasPlan": false,
     "checklistItems": 4,
-    "reviewRounds": 1,
+    "reviewRounds": 2,
     "findings": 0,
     "bugs": 0,
     "testRuns": 0,
@@ -228,13 +228,12 @@
           ]
         },
         "blockedTaskCount": {
-          "value": 0,
+          "value": 4,
           "unit": "count",
           "confidence": "medium",
           "sources": [
             "process-events.jsonl"
-          ],
-          "note": "no dispatch events"
+          ]
         }
       }
     },
@@ -279,13 +278,12 @@
           "note": "proxy: no reviewer findings may indicate missing review, not code violation"
         },
         "parallelBatchCount": {
-          "value": 0,
+          "value": 1,
           "unit": "count",
           "confidence": "medium",
           "sources": [
             "process-events.jsonl"
-          ],
-          "note": "no dispatch events"
+          ]
         },
         "blockedReturnCount": {
           "value": 0,
@@ -312,7 +310,7 @@
       },
       "metrics": {
         "storyReviewRounds": {
-          "value": 1,
+          "value": 2,
           "unit": "count",
           "confidence": "medium",
           "sources": [
@@ -347,13 +345,12 @@
           "note": "no test runs"
         },
         "reviewAfterEachBatch": {
-          "value": "n/a",
-          "unit": "text",
+          "value": false,
+          "unit": "bool",
           "confidence": "medium",
           "sources": [
             "process-events.jsonl"
-          ],
-          "note": "no dispatch events"
+          ]
         }
       }
     }
