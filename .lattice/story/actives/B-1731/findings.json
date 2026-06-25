@@ -313,7 +313,7 @@
       "desc": "Fresh skip trusts test-evidence result=PASS without parsing stored validate output for allPass/allPassed=true. An internally inconsistent artifact such as result PASS plus output allPass=false would be consumed as proof by REVIEW->TEST.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-06-24T23:55:16.734Z",
@@ -324,7 +324,11 @@
         "packages/main/src/handlers/phase-gates.ts"
       ],
       "signatureTag": "edge|ts|fresh-skip-trusts",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in cee8c0614: cached PASS evidence is no longer accepted solely from result=PASS; runValidateGate parses stored validate output and requires allPass=true or allPassed=true. False or malformed output forces validate rerun. Covered by validation-protocol-smoke output false and malformed output adversarial cases.",
+      "resolvedAt": "2026-06-25T00:11:35.102Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-1731:F-015",
