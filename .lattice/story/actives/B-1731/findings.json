@@ -268,7 +268,7 @@
       "desc": "Fresh validation PASS skip is HEAD-bound rather than working-tree-bound. If material source files are edited after PASS evidence is recorded but before REVIEW->TEST, current HEAD/material hashes can still look fresh while validate would run against a different dirty worktree.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-06-24T23:55:00.123Z",
@@ -280,7 +280,11 @@
         "packages/main/src/tasks/validation-protocol-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|fresh-validation-pass",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in cee8c0614: cached validation skip now checks the working tree with the shared dirty-worktree classifier before reusing PASS evidence. Material dirty paths force rerun instead of HEAD-only acceptance; metadata-only lifecycle dirty rows remain non-blocking. Covered by validation-protocol-smoke dirty material worktree case. Verified with build, validation-protocol-smoke, repro smokes, process fact contract, and scope gate.",
+      "resolvedAt": "2026-06-25T00:11:23.075Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-1731:F-013",
