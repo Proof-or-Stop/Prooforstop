@@ -155,14 +155,15 @@
       "relatedDocs": [
         ".lattice/story/actives/B-fc0f/background.md"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-25T04:52:45.970Z",
       "endTime": null,
       "userSees": "User sees done_prepare review-assurance row show degraded fallback parity with review_escalation_status",
       "files": {
         "modify": [
           "packages/main/src/handlers/done-prepare.ts",
-          "packages/main/src/core/review-assurance-floor.ts"
+          "packages/main/src/core/review-assurance-floor.ts",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md"
         ],
         "create": [],
         "test": [
