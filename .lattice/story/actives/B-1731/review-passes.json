@@ -233,6 +233,15 @@
       "reviewRound": "2026-06-25T00:54:02.097Z",
       "reviewRunId": "B-1731:RR-044",
       "_hash": "a0b4fb006604c6c56ec55b96f97d11bbcd5ae2d509b2c80b6a61fd9247723080"
+    },
+    {
+      "id": "B-1731:RP-027",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 11 test-coverage review: no blocker. Verified regression coverage for validation-protocol cached PASS hardening, including coverage-evidence-removed, malformed/gap/missing-hash/output/dirty/stale PASS rerun branches; repro-first STORY_INTAKE/lifecycle binding gate smoke covers enforce/warn/off, pre-persistence story_create blocks, accepted and stale bindings, unaccepted review, spike review hardening, engine-error fail-open, and story_create_from_repro no verificationEvidence; repro-first candidate smoke preserves candidate-only evidence scope; proof-admissibility hardening smoke and process-fact contract pass with runtime:repro_first_story_intake_preflight registered as L4 gate-consumed process fact.",
+      "createdAt": "2026-06-25T00:59:03.793Z",
+      "reviewRound": "2026-06-25T00:54:02.097Z",
+      "reviewRunId": "B-1731:RR-045",
+      "_hash": "e5978d438c40ed4ee000cb88931e82f1e63b0bcbb3469790a2c054ea09407d42"
     }
   ]
 }
