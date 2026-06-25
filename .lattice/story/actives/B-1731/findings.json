@@ -245,7 +245,7 @@
       "desc": "Cached validation PASS skip is not bound to current checklist/verificationIntent inputs. A metadata-only change that adds or changes required verification intent can preserve source material freshness and old missingRequired=0 coverage, causing REVIEW->TEST to skip validate without recomputing coverage.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-24T23:54:50.861Z",
@@ -257,7 +257,11 @@
         "packages/main/src/tasks/validation-protocol-smoke.ts"
       ],
       "signatureTag": "edge|ts|cached-validation-pass",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in cee8c0614: REVIEW->TEST validation PASS skip now compares stored verificationCoverage.entries against the current checklist verificationIntent snapshot before accepting cached evidence, so metadata-only required intent changes rerun lattice validate. Covered by packages/main/src/tasks/validation-protocol-smoke.ts checklist/verificationIntent drift adversarial case. Verified on current HEAD with npm --prefix packages/main run build, node packages/main/dist/tasks/validation-protocol-smoke.js, repro-evidence-binding-dev-gate-smoke, repro-first-candidate-smoke, process fact contract, and scope_contract_check.",
+      "resolvedAt": "2026-06-25T00:11:15.779Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-1731:F-012",
