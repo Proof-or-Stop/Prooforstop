@@ -31,6 +31,17 @@
       "status": "pending",
       "startTime": null,
       "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Fix doneClosure not honoring the degraded-3x1 review-assurance-floor that review_escalation_status accepts",
+      "context": "Repro on B-fbca (2026-06-24): after recording review_escalation_fallback_set (single-host-environment) + submitting 3 valid degraded single-host verdicts (autopilot_review_submit with all 4 binding fields materialDigest+storyFilesHash+validationDigest+promptDigest, bound to the current materialHash), `review_escalation_status` reports ok=true / degradedFallback: pass (N/3 rounds x 1 host). But `done_prepare` doneClosure reports the SAME floor as `review-assurance-floor: missing; local rounds 0/3` on the SAME materialHash (4829785e), with main quiescent (0 new commits, no concurrent drift). The two floor-check code paths disagree: review_escalation_status honors the degraded 3x1 fallback; doneClosure appears to count only full 2-host local rounds and does NOT honor the degraded fallback, so DONE is blocked even though the assurance floor is satisfied. Fix: make doneClosure honor the same degraded-fallback-satisfied state review_escalation_status accepts (or share the floor-evaluation fn). Side-effect of a naive fix: if doneClosure is INTENTIONALLY stricter (requires full 3x2 for DONE even when review_escalation_status accepts degraded), then the bug is the inconsistent messaging — review_escalation_status should NOT report ok=true; align them either way.",
+      "relatedDocs": [
+        ".lattice/story/actives/B-fc0f/background.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
     }
   ]
 }

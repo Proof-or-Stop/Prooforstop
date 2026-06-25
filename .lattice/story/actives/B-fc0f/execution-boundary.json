@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-fc0f",
+  "allowedCommands": [
+    "git *",
+    "lattice *",
+    "node *",
+    "npm *",
+    "tsc"
+  ],
+  "allowedTools": [
+    "Bash",
+    "Read",
+    "Write"
+  ],
+  "allowedPaths": [
+    ".lattice/story/actives/B-fc0f",
+    "docs/evidence",
+    "docs/requirements",
+    "docs/requirements/decisions",
+    "packages/main/src",
+    "packages/main/tests"
+  ],
+  "excludedCommands": [
+    "git clean",
+    "git reset",
+    "git restore",
+    "rm -rf"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".git",
+    "dist",
+    "node_modules",
+    "packages/main/.turbo"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "B-fc0f execution boundary for done/closure verification fix + proof-admissibility smoke triage.",
+  "createdAt": "2026-06-25T04:44:10.356Z",
+  "updatedAt": "2026-06-25T04:44:10.356Z",
+  "_hash": "5d1d907a2db16895f6c7b6dc053e958d215aba8d7850e4cf3bd5200a5cd38d8c"
+}

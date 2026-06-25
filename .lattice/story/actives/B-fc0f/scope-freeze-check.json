@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-fc0f",
+  "checkedAt": "2026-06-25T04:44:15.730Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "579a4ccd830d240977497400dc54d9312343458b461fae0865b5a2e60eb2a7f2",
+  "executionBoundaryHash": "5d1d907a2db16895f6c7b6dc053e958d215aba8d7850e4cf3bd5200a5cd38d8c",
+  "freshnessHash": "1af5f652b57385d0e6032f2936641b232a247cb811331ace30d57eb76c511083",
+  "effectiveExcludedKeywords": [
+    "Authority",
+    "customerKeyRef",
+    "Layer4",
+    "packages/main/src/core/provider-registry.ts",
+    "packages/main/tests/fixtures",
+    "repair UX"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "packages/main/src/core/provider-registry.ts",
+      "source": "scopeBoundary.excluded",
+      "text": "packages/main/src/core/provider-registry.ts",
+      "excluded": true
+    },
+    {
+      "keyword": "packages/main/tests/fixtures",
+      "source": "scopeBoundary.excluded",
+      "text": "packages/main/tests/fixtures",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "273271803dca6b875e5b8bd685db51eb21b19039c0bc2829c8f8439ee8e0ec8f"
+}

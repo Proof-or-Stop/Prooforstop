@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-fc0f",
+  "mode": "correctness_fix",
+  "allowed": [
+    ".lattice/story/actives/B-fc0f",
+    "docs/evidence/evidence-platform-architecture.md",
+    "docs/evidence/proof-surface-inventory.json",
+    "docs/evidence/proof-surface-inventory.md",
+    "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+    "docs/requirements/decisions/repro-first-story-intake-experiment.md",
+    "packages/main/src/core/evidence/types.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/proof-admissibility.ts",
+    "packages/main/src/core/repro-intake.ts",
+    "packages/main/src/core/runtime-fact-registry.ts",
+    "packages/main/src/handlers/done-prepare.ts",
+    "packages/main/src/tasks/proof-admissibility-smoke.ts",
+    "packages/main/src/tasks/repro-first-candidate-smoke.ts"
+  ],
+  "excluded": [
+    "packages/main/src/core/provider-registry.ts",
+    "packages/main/tests/fixtures"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Reattach and safely replay B-fc0f changes already on main",
+  "createdAt": "2026-06-25T04:44:04.449Z",
+  "updatedAt": "2026-06-25T04:44:04.449Z",
+  "_hash": "579a4ccd830d240977497400dc54d9312343458b461fae0865b5a2e60eb2a7f2"
+}
