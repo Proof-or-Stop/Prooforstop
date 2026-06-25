@@ -9,9 +9,77 @@
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
         "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-25T03:05:40.129Z",
+      "userSees": "开发者可以从 packages/main/src/core/evidence/artifact、evidence/repro、evidence/admissibility、evidence/storage 导入公共 API；旧的 core/proof-admissibility、core/repro-intake、core/evidence/artifact-store 路径仍然编译通过。",
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/src/core/evidence/artifact/index.ts",
+          "packages/main/src/core/evidence/repro/index.ts",
+          "packages/main/src/core/evidence/admissibility/index.ts",
+          "packages/main/src/core/evidence/storage/index.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/source-structure-convergence-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "New evidence artifact/repro/admissibility/storage entrypoints compile and expose the same core symbols as legacy paths.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Legacy import paths continue to compile after new entrypoints are added.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "New entrypoints do not copy proof registries or create competing definitions; smoke checks representative symbols are shared.",
+            "type": "logic"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/source-structure-convergence-smoke.js",
+          "result": "pass",
+          "note": "Focused smoke imported evidence/artifact, evidence/storage, evidence/repro, and evidence/admissibility entrypoints and verified representative exports share identity with legacy artifact-store, repro-intake, and proof-admissibility modules.",
+          "headHash": "5dfa3a60cb41c0225fded13d752e106979756f27",
+          "materialHash": "da787239ad91081a1bc392241e568bcbf5de8151347d2c1a641f221d6e640835",
+          "storyFilesHash": "de5c1760761e5c7942dcc1c7f30bf84afda6aecf4cb57f1178dff62c591840be",
+          "timestamp": "2026-06-25T03:05:40.510Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proof-admissibility-smoke.js && node packages/main/dist/tasks/repro-first-candidate-smoke.js",
+          "result": "pass",
+          "note": "Build plus existing proof-admissibility and repro-first smokes passed, proving legacy paths still compile and behavior remains compatible.",
+          "headHash": "5dfa3a60cb41c0225fded13d752e106979756f27",
+          "materialHash": "da787239ad91081a1bc392241e568bcbf5de8151347d2c1a641f221d6e640835",
+          "storyFilesHash": "de5c1760761e5c7942dcc1c7f30bf84afda6aecf4cb57f1178dff62c591840be",
+          "timestamp": "2026-06-25T03:05:40.819Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/source-structure-convergence-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts shared object/function identity for PROOF_SURFACE_REGISTRY, evaluateProofAdmissibility, createProbe, createStoryFromRepro, writeArtifact, and readArtifact, catching duplicated registries or copied implementations.",
+          "headHash": "5dfa3a60cb41c0225fded13d752e106979756f27",
+          "materialHash": "da787239ad91081a1bc392241e568bcbf5de8151347d2c1a641f221d6e640835",
+          "storyFilesHash": "de5c1760761e5c7942dcc1c7f30bf84afda6aecf4cb57f1178dff62c591840be",
+          "timestamp": "2026-06-25T03:05:41.253Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -20,9 +88,83 @@
       "relatedDocs": [
         "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-25T03:05:49.554Z",
+      "userSees": "开发者可以从 packages/main/src/core/lifecycle-control 导入 StoryControlStatus、ProjectControlStatus、ControlPlaneCapabilities 和 runtime/consumption/queue/dashboard projection entrypoints；这些模块只提供只读类型/骨架，不注册 CLI 命令、不写 evidence、不改变 gate。",
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/src/core/lifecycle-control/index.ts",
+          "packages/main/src/core/lifecycle-control/control-status.ts",
+          "packages/main/src/core/lifecycle-control/global-control-service.ts",
+          "packages/main/src/core/lifecycle-control/runtime/index.ts",
+          "packages/main/src/core/lifecycle-control/consumption/index.ts",
+          "packages/main/src/core/lifecycle-control/queue/index.ts",
+          "packages/main/src/core/lifecycle-control/dashboard/index.ts",
+          "packages/main/src/core/lifecycle-control/types.ts",
+          "packages/main/src/core/lifecycle-control/milestones.ts",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md"
+        ],
+        "test": [
+          "packages/main/src/tasks/source-structure-convergence-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Lifecycle-control public types and projection entrypoints compile from the documented paths.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Skeleton modules remain read-only and contain no CLI registration or lifecycle mutation behavior.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Consumption projection types do not import concrete proof verifiers or write AdmissibilityEvaluationRow.",
+            "type": "logic"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/source-structure-convergence-smoke.js",
+          "result": "pass",
+          "note": "Focused smoke imports lifecycle-control/index, control-status, global-control-service, runtime, consumption, queue, and dashboard namespaces and constructs StoryControlStatus and ProjectControlStatus through the public helpers.",
+          "headHash": "5dfa3a60cb41c0225fded13d752e106979756f27",
+          "materialHash": "da787239ad91081a1bc392241e568bcbf5de8151347d2c1a641f221d6e640835",
+          "storyFilesHash": "de5c1760761e5c7942dcc1c7f30bf84afda6aecf4cb57f1178dff62c591840be",
+          "timestamp": "2026-06-25T03:05:49.877Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/source-structure-convergence-smoke.js",
+          "result": "pass",
+          "note": "Smoke verifies DEFAULT_CONTROL_PLANE_CAPABILITIES keeps commandRegistration, lifecycleGateMutation, evidenceWrites, authorityProductionSemantics, proofM7Enforcement, queueCleanupEnforcement, and tierCCleanup false.",
+          "headHash": "5dfa3a60cb41c0225fded13d752e106979756f27",
+          "materialHash": "da787239ad91081a1bc392241e568bcbf5de8151347d2c1a641f221d6e640835",
+          "storyFilesHash": "de5c1760761e5c7942dcc1c7f30bf84afda6aecf4cb57f1178dff62c591840be",
+          "timestamp": "2026-06-25T03:05:50.200Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "rg -n \"Proof M7|Authority-facing|CP-5A|Runtime Enforcement\" docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md packages/main/src/core/lifecycle-control/milestones.ts packages/main/src/tasks/source-structure-convergence-smoke.ts && node packages/main/dist/tasks/source-structure-convergence-smoke.js",
+          "result": "pass",
+          "note": "Review check confirmed CP-5A is Runtime Enforcement only and proof/Authority-facing proof-consumer enforcement remains owned by Proof Admissibility; smoke verifies CP-5A/CP-5B split.",
+          "headHash": "5dfa3a60cb41c0225fded13d752e106979756f27",
+          "materialHash": "da787239ad91081a1bc392241e568bcbf5de8151347d2c1a641f221d6e640835",
+          "storyFilesHash": "de5c1760761e5c7942dcc1c7f30bf84afda6aecf4cb57f1178dff62c591840be",
+          "timestamp": "2026-06-25T03:05:50.608Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -32,9 +174,105 @@
         "docs/evidence/evidence-platform-architecture.md",
         "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-25T03:05:57.261Z",
+      "userSees": "运行 npm --prefix packages/main run build、node packages/main/dist/tasks/source-structure-convergence-smoke.js、proof-admissibility smoke、repro-first smoke 后都通过；输出明确说明 source-structure convergence smoke passed。",
+      "files": {
+        "modify": [
+          "packages/main/package.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/source-structure-convergence-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/source-structure-convergence-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Focused source-structure smoke passes after build.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Existing proof-admissibility and repro-first smokes still pass, proving compatibility paths were not broken.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Smoke asserts new and legacy imports resolve to the same representative symbols, catching accidental duplicate registries.",
+            "type": "logic"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/source-structure-convergence-smoke.js",
+          "result": "pass",
+          "note": "Focused smoke printed source-structure convergence smoke passed.",
+          "headHash": "5dfa3a60cb41c0225fded13d752e106979756f27",
+          "materialHash": "da787239ad91081a1bc392241e568bcbf5de8151347d2c1a641f221d6e640835",
+          "storyFilesHash": "de5c1760761e5c7942dcc1c7f30bf84afda6aecf4cb57f1178dff62c591840be",
+          "timestamp": "2026-06-25T03:05:57.623Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/proof-admissibility-smoke.js && node packages/main/dist/tasks/repro-first-candidate-smoke.js",
+          "result": "pass",
+          "note": "Existing proof-admissibility and repro-first smokes passed, proving compatibility paths did not break current behavior.",
+          "headHash": "5dfa3a60cb41c0225fded13d752e106979756f27",
+          "materialHash": "da787239ad91081a1bc392241e568bcbf5de8151347d2c1a641f221d6e640835",
+          "storyFilesHash": "de5c1760761e5c7942dcc1c7f30bf84afda6aecf4cb57f1178dff62c591840be",
+          "timestamp": "2026-06-25T03:05:57.982Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/source-structure-convergence-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts representative identity between new and legacy imports, catching accidental duplicate registries/functions.",
+          "headHash": "5dfa3a60cb41c0225fded13d752e106979756f27",
+          "materialHash": "da787239ad91081a1bc392241e568bcbf5de8151347d2c1a641f221d6e640835",
+          "storyFilesHash": "de5c1760761e5c7942dcc1c7f30bf84afda6aecf4cb57f1178dff62c591840be",
+          "timestamp": "2026-06-25T03:05:58.295Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-25T03:05:40.129Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Source-structure adapters committed in 5f8d3a60/8a921726/5dfa3a60 and verified with build plus focused smokes."
+    },
+    {
+      "timestamp": "2026-06-25T03:05:49.554Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Lifecycle-control skeleton and control status types committed and verified."
+    },
+    {
+      "timestamp": "2026-06-25T03:05:57.261Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Focused smoke and compatibility verification completed."
     }
   ]
 }

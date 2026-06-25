@@ -1,0 +1,53 @@
+{
+  "storyId": "B-88ae",
+  "checkedAt": "2026-06-25T03:22:02.446Z",
+  "headHash": "0b63efb6f315d2f6a99700e6cdec3aa82607d72b",
+  "materialHash": "da787239ad91081a1bc392241e568bcbf5de8151347d2c1a641f221d6e640835",
+  "storyFilesHash": "de5c1760761e5c7942dcc1c7f30bf84afda6aecf4cb57f1178dff62c591840be",
+  "reviewRound": "2026-06-25T03:06:51.888Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+      "promise": "Recommended evidence compatibility entrypoints exist at core/evidence/{artifact,storage,repro,admissibility}/index.ts and lifecycle-control layout (index/control-status/global-control-service/milestones/runtime/consumption/queue/dashboard) exists, as adapters over existing modules.",
+      "status": "verified",
+      "verifiedBy": "git diff main...HEAD + tsc build",
+      "evidence": "All 8 lifecycle-control files and 4 evidence entrypoint files are new in the diff; npm --prefix packages/main run build (tsc) compiles cleanly, proving both new and legacy import paths resolve."
+    },
+    {
+      "docPath": "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+      "promise": "Skeleton is read-only: no CLI command registration, no lifecycle gate mutation, no evidence writes, no Proof M7 / Authority production / Authority proof-consumer / queue-cleanup / Tier-C enforcement.",
+      "status": "verified",
+      "verifiedBy": "git diff main...HEAD --name-only + source-structure-convergence-smoke capability assertions",
+      "evidence": "Diff touches only new modules + package.json script; no cli-engine.ts / handlers / command-registry files changed. Smoke asserts DEFAULT_CONTROL_PLANE_CAPABILITIES.{commandRegistration,lifecycleGateMutation,evidenceWrites,proofM7Enforcement,queueCleanupEnforcement,authorityProductionSemantics,tierCCleanup}=false across all namespaces."
+    },
+    {
+      "docPath": "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+      "promise": "New evidence entrypoints adapt over existing modules without duplicating artifact storage, repro workflows, or proof-admissibility registries/definitions/gates.",
+      "status": "verified",
+      "verifiedBy": "source-structure-convergence-smoke identity assertions",
+      "evidence": "Smoke uses assert.equal on object/function identity for PROOF_SURFACE_REGISTRY, evaluateProofAdmissibility, writeArtifact, readArtifact, verifyArtifactDigest, createProbe, createStoryFromRepro between new entrypoints and legacy modules; reproduced passing at HEAD 18cecf53d."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "node packages/main/dist/tasks/source-structure-convergence-smoke.js -> source-structure convergence smoke passed; asserts evidence/{artifact,storage,repro,admissibility} entrypoints share symbol identity with legacy artifact-store/repro-intake/proof-admissibility. tsc build passed, proving legacy paths still compile. Independently reproduced at HEAD 18cecf53d."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "node packages/main/dist/tasks/source-structure-convergence-smoke.js -> passed; constructs StoryControlStatus/ProjectControlStatus via buildStoryControlStatus/buildProjectControlStatus, asserts all 8 ControlPlaneCapabilities flags false across namespaces, asserts 5 milestones and CP-5A/CP-5B split. No CLI/gate/evidence behavior added. Independently reproduced."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "npm --prefix packages/main run build clean; source-structure smoke passed; proof-admissibility smoke passed; repro-first candidate smoke passed; lattice validate --story=B-88ae -> verification intent coverage 9/9 covered (0 required missing). All independently reproduced at current HEAD."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Additive compatibility-first refactor: new evidence and lifecycle-control entrypoints adapt over existing modules, legacy paths still compile, read-only skeleton adds no CLI/gate/evidence behavior, docs plan matches code, no unresolved TODOs; all smokes and 9/9 verification coverage independently reproduced."
+  },
+  "_hash": "665a7653361b5676a0e88e4036e48286b149955c1cad58733a1a7e8fce76259b"
+}

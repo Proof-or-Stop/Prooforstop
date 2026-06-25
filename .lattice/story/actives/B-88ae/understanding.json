@@ -1,0 +1,30 @@
+{
+  "task": "Implement the recommended source structure as a compatibility-first refactor for Evidence and Lifecycle Control modules.",
+  "outcome": "用户会看到：源码里已经出现 evidence/artifact、evidence/repro、evidence/admissibility 和 lifecycle-control 分层入口；旧 import 仍能构建；新的 source-structure smoke、proof-admissibility smoke、repro-first smoke 都通过；并明确说明这是一阶段结构收敛，完整实现迁移分 5 个里程碑推进。",
+  "facts": [
+    "Current code still has flat packages/main/src/core/proof-admissibility.ts and packages/main/src/core/repro-intake.ts.",
+    "Current evidence directory only has artifact-store.ts and types.ts, so recommended subdirectories are not fully present.",
+    "Docs now define Evidence Platform as data layer, Proof Admissibility as decision layer, and Global Control Plane as projection/coordination layer.",
+    "INIT reviewers passed with advisory findings requiring flat-to-subdir mapping, observable completion signals, and explicit milestone handling.",
+    "Worktree dependency readiness was checked; root node_modules is symlinked locally for build verification and is not part of the commit."
+  ],
+  "constraints": [
+    "Do not implement global_control_status CLI behavior in this story.",
+    "Do not change lifecycle gates, DONE gate behavior, Proof Admissibility M7 enforcement, Authority production semantics, or queue cleanup enforcement.",
+    "Preserve legacy import paths through compatibility re-exports.",
+    "Do not bulk clean or discard Tier-C experiment stories.",
+    "Use public APIs and avoid creating parallel proof/admissibility registries."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/evidence/artifact/index.ts",
+    "packages/main/src/core/evidence/repro/index.ts",
+    "packages/main/src/core/evidence/admissibility/index.ts",
+    "packages/main/src/core/evidence/storage/index.ts",
+    "packages/main/src/core/lifecycle-control/control-status.ts",
+    "packages/main/src/core/lifecycle-control/index.ts",
+    "packages/main/src/tasks/source-structure-convergence-smoke.ts",
+    "packages/main/package.json"
+  ],
+  "timestamp": "2026-06-25T02:51:00.059Z"
+}

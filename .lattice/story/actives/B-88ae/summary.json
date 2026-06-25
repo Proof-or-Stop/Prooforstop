@@ -1,0 +1,56 @@
+{
+  "storyId": "B-88ae",
+  "changes": "Added canonical source-structure entrypoints for Evidence artifact/storage/repro/admissibility modules, added a read-only lifecycle-control skeleton with status/projection/milestone types, materialized the lifecycle control execution-plan document, and added a focused source-structure smoke plus npm script.",
+  "usage": "Developers can now import from packages/main/src/core/evidence/{artifact,storage,repro,admissibility} and packages/main/src/core/lifecycle-control/* while existing legacy imports continue to work; run npm --prefix packages/main run test:source-structure-convergence to verify the mapping.",
+  "expectedOutcome": "Proofbound has the first implementation slice of the recommended top-level source structure: shared evidence entrypoints and lifecycle-control skeleton exist without changing runtime gates or production semantics.",
+  "actualTranscript": "Build passed, source-structure convergence smoke passed, proof-admissibility smoke passed, repro-first candidate smoke passed, full lattice validate passed 31 configured commands with 9/9 verification intent coverage, Claude delivery reviewer passed, and local 3x2 quorum emitted three rounds for claude-code plus codex.",
+  "outcomeDiff": "No user-visible behavior difference is expected yet; this story intentionally adds structure and verification only, with runtime gate/enforcement behavior left unchanged.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Runtime lifecycle gate mutation, DONE hard-fail changes, Authority production semantics, admissibility ledger/waterline, queue cleanup enforcement, Tier-C duplicate cleanup, and full old-evidence migration remain explicit follow-up work.",
+  "pitfalls": "The story needed scope adjustment after the global lifecycle-control decision doc was missing from the worktree, and high-risk core paths required local 3x2 quorum plus delivery reviewer evidence before DONE.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 337938
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 8415
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 410979
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 598004
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 324706
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 594241
+    }
+  },
+  "totalDurationMs": 2274285,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-25T03:22:10.835Z",
+  "updatedAt": "2026-06-25T03:22:10.835Z"
+}
