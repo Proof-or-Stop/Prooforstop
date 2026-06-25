@@ -291,7 +291,7 @@
       "desc": "Fresh skip path swallows checkEvidenceFreshnessForGit warnings. When storyFilesHash matches but whole-tree materialHash drifted, lifecycle/DONE semantics surface a re-attestation warning, while REVIEW->TEST logs only a plain fresh skip.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-06-24T23:55:09.284Z",
@@ -302,7 +302,11 @@
         "packages/main/src/handlers/phase-gates.ts"
       ],
       "signatureTag": "missing|ts|fresh-skip-path",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in cee8c0614: when checkEvidenceFreshnessForGit returns fresh-with-warning, the validation skip log includes the freshness warnings instead of silently logging a plain skip. Covered by validation-protocol-smoke warning case that creates whole-tree materialHash drift while storyFilesHash matches and asserts the warning is surfaced.",
+      "resolvedAt": "2026-06-25T00:11:29.725Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-1731:F-014",
