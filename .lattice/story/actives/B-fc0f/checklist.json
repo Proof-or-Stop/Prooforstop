@@ -153,9 +153,9 @@
       "id": "CHK-004",
       "title": "Triage the other pre-existing main smoke failures",
       "context": "On main (independent of any story): english-open-source-surface and prompt-token-cost exit 1; global-agents-init is a flake (passes on retry and on direct invocation). Determine if each is a real regression or a stale fixture; fix or document. Low risk; investigation item.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-25T05:22:07.151Z",
       "userSees": "User sees exact triage lines: \"english-open-source-surface-smoke exit 1\" and later \"global-agents-init-smoke retry passes\"",
       "files": {
         "modify": [
@@ -185,7 +185,20 @@
             "type": "logic"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/english-open-source-surface-smoke.js && node packages/main/dist/tasks/prompt-token-cost-smoke.js && npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "triaged pre-existing failures and established no-op style warnings; core smokes remain green.",
+          "headHash": "28f9b2894f6c99229bfb6274f188706afc8b25e5",
+          "materialHash": "d5dc4c09dcf288071d35b5991bec5d7931b7278fdd63b70dd3c38423d1d13ce6",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-25T05:22:07.275Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
