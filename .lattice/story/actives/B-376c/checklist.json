@@ -91,9 +91,37 @@
         "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
         "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md#6-execution-milestones"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "in_progress",
+      "startTime": "2026-06-25T04:47:58.808Z",
+      "endTime": null,
+      "userSees": "User sees updated source-structure convergence smoke explicitly validating canonical control-plane schema.",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/source-structure-convergence-smoke.ts"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run convergence smoke and validate no assertion on old schema remains.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Remove legacy fields and verify smoke fails with clear compatibility diagnostics.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Run smoke on partial migration and verify explicit mismatch surfaced.",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
