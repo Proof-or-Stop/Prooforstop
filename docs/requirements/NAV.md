@@ -1,6 +1,10 @@
 # Source of Truth Navigation
 
-> 68 files
+> 70 files
+
+## evidence
+
+- [Evidence Platform Architecture](../evidence/evidence-platform-architecture.md)
 
 ## decisions
 
@@ -25,7 +29,7 @@
 - [framework](decisions/framework.md)
 - [Proofbound Host-Neutral Observability Console (CLI-backed read-only)](decisions/host-neutral-observability-console.md)
 - [Proofbound Host Overflow](decisions/host-overflow.md)
-- [Legacy-to-Lattice Role Naming Execution Plan](decisions/legacy-to-lattice-role-naming-execution-plan.md)
+- [Legacy-to-Proofbound Role Naming Execution Plan](decisions/legacy-to-lattice-role-naming-execution-plan.md)
 - [Proofbound Authority Customer API Key Access](decisions/lattice-authority-customer-api-key-access.md)
 - [Proofbound Authority Unattended Development Requirements](decisions/lattice-authority-live-integration.md)
 - [Proofbound Authority M1-M16 Generated Proof And Live E2E Plan](decisions/lattice-authority-m1-m16-generated-proof-and-live-e2e.md)
@@ -51,6 +55,7 @@
 - [Review Assurance Floor Execution Plan](decisions/review-assurance-floor-execution-plan.md)
 - [Review Run Start Signed Workspace Resolution Execution Plan](decisions/review-run-start-signed-workspace-resolution-execution-plan.md)
 - [Review Run Start Workspace Diagnostics Execution Plan](decisions/review-run-start-workspace-diagnostics-execution-plan.md)
+- [Repro-First Story Intake Experiment](decisions/repro-first-story-intake-experiment.md)
 - [Proofbound Multi-Role Separation Refactor Plan](decisions/role-separation.md)
 - [Root Document Migration Guide](decisions/root-document-migration-guide.md)
 - [Root Markdown Migration Execution Solution](decisions/root-markdown-migration-execution-solution.md)

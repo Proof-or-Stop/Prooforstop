@@ -79,6 +79,7 @@ function runtimeChecks(value: Record<string, unknown>): RuntimeAdmissibilityChec
     'spike-record',
     'spike-review',
     'red-green-relation',
+    'red-green-relation-evaluation',
     'regression-matrix-review',
     'story-evidence-binding',
     'legacy-evidence',

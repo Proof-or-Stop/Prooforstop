@@ -193,7 +193,7 @@ section('1. repro_probe — happy path');
     relationDigest: relation.artifactDigest,
   });
 
-  assert.equal(evaluation.artifactKind, 'red-green-evaluation');
+  assert.equal(evaluation.artifactKind, 'red-green-relation-evaluation');
   assert.equal(evaluation.evidenceScope, 'evidence-candidate');
   assert.equal(evaluation.payload.pass, true, 'evaluation should pass (commands match, patterns defined)');
 

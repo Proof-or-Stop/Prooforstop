@@ -54,6 +54,36 @@ Pre-story artifacts are immutable evidence candidates only:
 
 They are not REVIEW, TEST, DONE, Authority, or production-gate proof.
 
+Canonical artifact kinds used by Evidence Runtime are hyphenated:
+
+- `repro-probe`
+- `repro-review`
+- `spike-record`
+- `spike-review`
+- `red-green-relation`
+- `red-green-relation-evaluation`
+- `regression-matrix-review`
+- `story-evidence-binding`
+
+CLI command names stay underscore-style, while artifact kinds stay canonicalized.
+Storage for pre-story artifacts follows `.lattice/evidence/`.
+
+### Canonical red/green binding
+
+`red_green_relation_create` only records the baseline/current candidate linkage.
+`red_green_relation_evaluate` records the derived evaluation result and must be
+evaluated under the same runtime contract: no caller-side `commandEquivalence`
+patch or bypass field; relation integrity is established from references.
+
+Recommended required references for evaluation are:
+
+- `baselineProbeArtifactRef`
+- `currentProbeArtifactRef` (or explicit current command digest)
+- `acceptanceRowRef`
+
+The evaluation output can only be promoted to `red-green-relation-evaluation`
+using verifier-produced digests and command-equivalence checks in the runtime.
+
 Promotion is not an in-place scope mutation. `story_create_from_repro` creates a
 new immutable `story-evidence-binding` that binds:
 
@@ -67,6 +97,11 @@ new immutable `story-evidence-binding` that binds:
 
 The original candidate remains `evidence-candidate`. Current green
 `verificationEvidence` is produced later by DEV/TEST.
+
+`story_create_from_repro` should only create a single immutable binding artifact
+with replayable digest references (`storyId`, `sourceArtifactDigests`,
+`checklistDigest`, `verificationIntentDigest`) and must not create
+`verificationEvidence` directly.
 
 ## Probe Contract
 

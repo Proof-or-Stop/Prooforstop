@@ -440,7 +440,6 @@ export const PROOF_SURFACE_REGISTRY = [
   },
   {
     artifactKind: 'red-green-relation',
-    aliases: ['red-green-evaluation'],
     scope: 'evidence-candidate',
     artifactRole: 'red-green-relation',
     temporalRole: 'transition-relation',
@@ -455,6 +454,25 @@ export const PROOF_SURFACE_REGISTRY = [
       { claim: 'red-green-equivalence', consumers: ['STORY_INTAKE', 'PLAN'], productionDoneEligible: false },
     ],
     producerBoundaryNote: 'Candidate relation evidence links baseline/current command intent for intake; it is not a current gate proof.',
+    remediation: CANDIDATE_REMEDIATION,
+  },
+  {
+    artifactKind: 'red-green-relation-evaluation',
+    aliases: ['red-green-evaluation'],
+    scope: 'evidence-candidate',
+    artifactRole: 'red-green-relation',
+    temporalRole: 'transition-relation',
+    producerBoundary: 'local-runtime-owned',
+    schemaVersions: ['lattice.evidence.v1'],
+    strictShapeRequired: true,
+    semanticDigestRequired: true,
+    signatureOrReceiptBindingRequired: false,
+    temporalAndMaterialBindingRequired: true,
+    allowedConsumers: ['STORY_INTAKE', 'PLAN'],
+    allowedClaims: [
+      { claim: 'red-green-equivalence', consumers: ['STORY_INTAKE', 'PLAN'], productionDoneEligible: false },
+    ],
+    producerBoundaryNote: 'Derived evaluator result that records command/pattern relation outcome for intake planning.',
     remediation: CANDIDATE_REMEDIATION,
   },
   {

@@ -22,6 +22,8 @@ export type ArtifactKind =
   | 'spike-record'
   | 'spike-review'
   | 'red-green-relation'
+  | 'red-green-relation-evaluation'
+  // `red-green-evaluation` kept as legacy alias to preserve compatibility with pre-baseline stories.
   | 'red-green-evaluation'
   | 'regression-matrix-review'
   | 'story-evidence-binding';
