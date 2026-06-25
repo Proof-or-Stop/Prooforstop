@@ -1639,7 +1639,7 @@ async function assertHotfixPriorityElevationCliSurface(): Promise<void> {
       '## Solution Tradeoffs',
       'Keep the hotfix auto-elevate behavior, since it protects production and emergency fix paths; this smoke only locks the output wording and persisted priority.',
       '',
-      '## Conversation Texture',
+      '## Conversational Texture',
       'The user previously observed that low priority hotfixes also require preMortem; this behavior is acceptable, but the documentation and command output must state it clearly.',
     ].join('\n');
     const result = await runLatticeRaw(root, 'story_create', {

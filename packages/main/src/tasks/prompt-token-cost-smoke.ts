@@ -17,7 +17,7 @@ import { createStoryQueryHandlers } from '../handlers/story-query.js';
 const packageRoot = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const repoRoot = join(packageRoot, '..', '..');
 const templateDir = join(packageRoot, 'templates', 'agents');
-const auditDocPath = join(repoRoot, 'docs', 'audits', 'lattice-token-cost-and-takeover-audit.md');
+const auditDocPath = join(repoRoot, 'docs', 'requirements', 'decisions', 'slim-fields-token-savings-execution-plan.md');
 
 const baselineTemplateBytes: Record<string, number> = {
   'lattice-evaluator.md': 57931,
@@ -33,7 +33,7 @@ const baselineTemplateBytes: Record<string, number> = {
 };
 
 const requiredSourcePaths = [
-  'docs/audits/lattice-token-cost-and-takeover-audit.md',
+  'docs/requirements/decisions/slim-fields-token-savings-execution-plan.md',
   'packages/main/templates/agents',
   '.claude/agents',
   '.lattice-codex/agents',
@@ -103,7 +103,11 @@ function assertAuditDocExecutable(): void {
 
   const audit = readFileSync(auditDocPath, 'utf8');
   assert.match(audit, /prompt[- ]cache|prompt caching/i, 'audit mentions prompt cache');
-  assert.match(audit, /uncertainty|caveat|不确定/i, 'audit states cache billing uncertainty as a caveat');
+  assert.match(
+    audit,
+    /approximate context-token estimates|not provider billing receipts|prompt-cache behavior is not proven/i,
+    'audit states the token estimate caveat and does not overclaim provider billing proof',
+  );
 }
 
 function assertPromptReductions(): void {

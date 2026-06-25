@@ -152,6 +152,22 @@ function loadJobPlan(root: string, args: JobCreateArgs): JobPlan {
 }
 
 export function submitLocalVerdict(ctx: HandlerContext, mode: VerdictMode, args: SubmitArgs) {
+  const missingBindingFields = mode === 'local' && args.storyId && args.decision === 'pass'
+    ? ['materialDigest', 'validationDigest', 'promptDigest'].filter((field) => {
+      if (field === 'materialDigest') return !args.materialDigest;
+      if (field === 'validationDigest') return !args.validationDigest;
+      return !args.promptDigest;
+    })
+    : [];
+  if (missingBindingFields.length > 0) {
+    const message = `Warning: autopilot_review_submit for story ${args.storyId} is missing binding field(s): ${missingBindingFields.join(', ')}`;
+    console.warn(message);
+    args = {
+      ...args,
+      note: args.note ? `${args.note}\n${message}` : message,
+    };
+  }
+
   const computedStoryFilesHash = mode === 'local' && args.storyId && !args.storyFilesHash
     ? currentStoryFilesHash(ctx.root, 'HEAD', ctx.root)
     : undefined;
