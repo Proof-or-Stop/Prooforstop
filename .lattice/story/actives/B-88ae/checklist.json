@@ -88,9 +88,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-25T03:05:49.554Z",
       "userSees": "开发者可以从 packages/main/src/core/lifecycle-control 导入 StoryControlStatus、ProjectControlStatus、ControlPlaneCapabilities 和 runtime/consumption/queue/dashboard projection entrypoints；这些模块只提供只读类型/骨架，不注册 CLI 命令、不写 evidence、不改变 gate。",
       "files": {
         "modify": [],
@@ -127,7 +127,42 @@
             "type": "logic"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/source-structure-convergence-smoke.js",
+          "result": "pass",
+          "note": "Focused smoke imports lifecycle-control/index, control-status, global-control-service, runtime, consumption, queue, and dashboard namespaces and constructs StoryControlStatus and ProjectControlStatus through the public helpers.",
+          "headHash": "5dfa3a60cb41c0225fded13d752e106979756f27",
+          "materialHash": "da787239ad91081a1bc392241e568bcbf5de8151347d2c1a641f221d6e640835",
+          "storyFilesHash": "de5c1760761e5c7942dcc1c7f30bf84afda6aecf4cb57f1178dff62c591840be",
+          "timestamp": "2026-06-25T03:05:49.877Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/source-structure-convergence-smoke.js",
+          "result": "pass",
+          "note": "Smoke verifies DEFAULT_CONTROL_PLANE_CAPABILITIES keeps commandRegistration, lifecycleGateMutation, evidenceWrites, authorityProductionSemantics, proofM7Enforcement, queueCleanupEnforcement, and tierCCleanup false.",
+          "headHash": "5dfa3a60cb41c0225fded13d752e106979756f27",
+          "materialHash": "da787239ad91081a1bc392241e568bcbf5de8151347d2c1a641f221d6e640835",
+          "storyFilesHash": "de5c1760761e5c7942dcc1c7f30bf84afda6aecf4cb57f1178dff62c591840be",
+          "timestamp": "2026-06-25T03:05:50.200Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "rg -n \"Proof M7|Authority-facing|CP-5A|Runtime Enforcement\" docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md packages/main/src/core/lifecycle-control/milestones.ts packages/main/src/tasks/source-structure-convergence-smoke.ts && node packages/main/dist/tasks/source-structure-convergence-smoke.js",
+          "result": "pass",
+          "note": "Review check confirmed CP-5A is Runtime Enforcement only and proof/Authority-facing proof-consumer enforcement remains owned by Proof Admissibility; smoke verifies CP-5A/CP-5B split.",
+          "headHash": "5dfa3a60cb41c0225fded13d752e106979756f27",
+          "materialHash": "da787239ad91081a1bc392241e568bcbf5de8151347d2c1a641f221d6e640835",
+          "storyFilesHash": "de5c1760761e5c7942dcc1c7f30bf84afda6aecf4cb57f1178dff62c591840be",
+          "timestamp": "2026-06-25T03:05:50.608Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -183,6 +218,15 @@
       "from": "pending",
       "to": "done",
       "reason": "Source-structure adapters committed in 5f8d3a60/8a921726/5dfa3a60 and verified with build plus focused smokes."
+    },
+    {
+      "timestamp": "2026-06-25T03:05:49.554Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Lifecycle-control skeleton and control status types committed and verified."
     }
   ]
 }
