@@ -81,7 +81,12 @@ assert.equal(
 assert.equal(
   LIFECYCLE_CONTROL_MIGRATION_MILESTONES[4]?.subtracks?.map(track => track.id).join(','),
   'CP-5A,CP-5B',
-  'CP-5 must keep proof/Authority and cleanup enforcement split',
+  'CP-5 must keep runtime enforcement and queue governance split',
+);
+assert.equal(
+  LIFECYCLE_CONTROL_MIGRATION_MILESTONES[4]?.subtracks?.[0]?.title,
+  'Runtime Enforcement track',
+  'CP-5A must be runtime enforcement, not Proof M7 or Authority ownership',
 );
 assert.equal(DEFAULT_CONTROL_PLANE_CAPABILITIES.readOnlyStatusProjection, true);
 assert.equal(DEFAULT_CONTROL_PLANE_CAPABILITIES.commandRegistration, false);

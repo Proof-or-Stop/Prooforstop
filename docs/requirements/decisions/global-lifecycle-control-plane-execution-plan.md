@@ -88,10 +88,12 @@ CP-2 output is therefore status data only. It does not create verificationEviden
 
 CP-5 is split before any behavior work:
 
-- CP-5A Runtime Enforcement: Proof M7, Authority semantics, and any gate-consumed runtime enforcement are designed, reviewed, and shipped independently.
+- CP-5A Runtime Enforcement: wrong authoritative cwd, unsafe locks, dirty tree, and worktree/main misuse are designed, reviewed, and shipped independently.
 - CP-5B Queue Governance Guard: queue policy, cleanup enforcement, and governance safety are designed, reviewed, and shipped independently.
 
-CP-5A must not smuggle cleanup enforcement into proof/Authority work. CP-5B must not smuggle production proof semantics into queue governance.
+Proof M7 and Authority-facing proof-consumer enforcement remain owned by Proof Admissibility. The control plane may render those results as read-only status, but it must not own or reimplement their hard-blocking semantics.
+
+CP-5A must not smuggle proof-consumer enforcement into runtime enforcement. CP-5B must not smuggle production proof semantics into queue governance.
 
 ## Non-Goals
 
@@ -101,6 +103,7 @@ CP-5A must not smuggle cleanup enforcement into proof/Authority work. CP-5B must
 - No evidence writes.
 - No Proof M7 enforcement.
 - No Authority production semantics.
+- No Authority-facing proof-consumer enforcement.
 - No queue cleanup enforcement.
 - No Tier-C cleanup.
 - No second waterline implementation.

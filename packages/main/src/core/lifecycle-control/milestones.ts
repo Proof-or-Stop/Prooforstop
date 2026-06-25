@@ -67,23 +67,25 @@ export const LIFECYCLE_CONTROL_MIGRATION_MILESTONES: readonly LifecycleControlMi
     id: 'CP-5',
     title: 'Separated enforcement tracks',
     scope: [
-      'Split production-proof semantics from cleanup enforcement before any behavioral work.',
+      'Split runtime-environment enforcement from queue governance before any behavioral work.',
+      'Render Proof M7 and Authority-facing proof-consumer results without owning their enforcement.',
     ],
     nonGoals: [
-      'No combined Authority/cleanup rollout.',
+      'No Proof M7 or Authority proof-consumer ownership.',
       'No Tier-C cleanup in the structural migration.',
     ],
     subtracks: [
       {
         id: 'CP-5A',
-        title: 'Proof and Authority enforcement track',
+        title: 'Runtime Enforcement track',
         scope: [
-          'Gate-consumed Proof M7 and Authority semantics are designed and reviewed separately.',
+          'Runtime enforcement covers wrong authoritative cwd, unsafe locks, dirty tree, and worktree/main misuse.',
+          'Proof M7 and Authority-facing proof-consumer enforcement remain owned by Proof Admissibility and may only be rendered by the control plane.',
         ],
       },
       {
         id: 'CP-5B',
-        title: 'Queue and cleanup enforcement track',
+        title: 'Queue Governance Guard',
         scope: [
           'Queue cleanup enforcement remains separate from proof admissibility and Authority production semantics.',
         ],
