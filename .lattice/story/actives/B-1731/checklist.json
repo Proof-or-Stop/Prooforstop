@@ -358,11 +358,11 @@
           "kind": "logic_test",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/validation-protocol-smoke.js",
           "result": "pass",
-          "note": "Current HEAD re-ran build plus validation-protocol smoke. Covers fresh PASS skip, warning surfacing, legacy/no coverage rerun, stale rerun, wrong command, malformed/nonzero coverage, missing hashes, false/malformed validate output, checklist intent drift, and dirty material worktree rerun predicates.",
-          "headHash": "6253f801b87ca06f3068bd27cbc75fc42abc3b0a",
-          "materialHash": "464959111171720e990249b623d1861603d530c33108ff787837a10af3ae1cd8",
-          "storyFilesHash": "fc2af48e33eaf1459bc791c0eaa049f42a60fa6fd27c6efb24da0378a4603e57",
-          "timestamp": "2026-06-25T00:10:31.019Z"
+          "note": "After merging main, current HEAD re-ran build plus validation-protocol smoke. Covers cached validation PASS skip safety: exact command, parsed allPass/allPassed output, zero required coverage gaps, checklist/verificationIntent input match, freshness hashes, dirty worktree rerun, stale rerun, and warning surfacing.",
+          "headHash": "830dfaca5361ea3be579e17f8138ca597e498534",
+          "materialHash": "d943e4787c2a6056c9635030851a2f66eb3e4c4700d8f374583893f7b0d64c7d",
+          "storyFilesHash": "04eff124cbe01edb414a37e6fdd063928fb7e841f7878dd114868be8d3db9082",
+          "timestamp": "2026-06-25T00:36:58.613Z"
         }
       ]
     }
