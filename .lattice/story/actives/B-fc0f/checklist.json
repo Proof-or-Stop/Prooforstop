@@ -116,7 +116,37 @@
       "context": "On main (independent of any story): english-open-source-surface and prompt-token-cost exit 1; global-agents-init is a flake (passes on retry and on direct invocation). Determine if each is a real regression or a stale fixture; fix or document. Low risk; investigation item.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees evidence-backed triage result for the three baseline failures and root cause attached to story",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/english-open-source-surface-smoke.ts",
+          "packages/main/src/tasks/prompt-token-cost-smoke.ts",
+          "packages/main/src/tasks/global-agents-init-smoke.ts"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run the three pre-existing main smokes and record behavior (pass/fail) with environment snapshots",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Verify global-agents-init is flake-free by re-running after transient failure",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Simulate transient conditions that previously caused false regressions and confirm triage records root cause",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
