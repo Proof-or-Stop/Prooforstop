@@ -335,7 +335,7 @@
       "desc": "Validation protocol smoke does not cover explicit unsafe PASS branches for wrong validate command, malformed or nonzero verificationCoverage.missingRequired, or missing headHash/materialHash freshness bindings, so regressions in those rerun predicates could skip validate unnoticed.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-24T23:55:30.520Z",
@@ -347,7 +347,11 @@
         "packages/main/src/tasks/validation-protocol-smoke.ts"
       ],
       "signatureTag": "missing|ts|validation-protocol-smoke",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in cee8c0614 and refreshed by CHK-004:gate-regression:validation-protocol evidence: validation-protocol-smoke now includes unsafe PASS branches for wrong command, malformed missingRequired, nonzero missingRequired, missing headHash/materialHash, false validate output, malformed validate output, checklist/verificationIntent drift, and dirty material worktree. Verified with npm --prefix packages/main run build && node packages/main/dist/tasks/validation-protocol-smoke.js and the broader smoke/process/scope command set.",
+      "resolvedAt": "2026-06-25T00:11:43.164Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
