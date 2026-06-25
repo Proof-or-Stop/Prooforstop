@@ -117,11 +117,13 @@
       "q": "CHK-001/002/003 relatedDocs and execution-boundary allowedPaths reference docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md, and the CHK-002 lifecycle-control skeleton is meant to derive from it, but that decision doc does not exist in the worktree. Where is the authoritative source for the lifecycle-control skeleton design, or should the doc be created or the dangling reference corrected as part of this story?",
       "evidence": "Filesystem in B-88ae worktree has no docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md. The evidence-platform architecture doc supports CHK-001 but not the lifecycle-control skeleton shape. checklist.json CHK-002 relatedDocs lists only the missing doc.",
       "sourcePointers": [
-        "docs/requirements/decisions/",
-        "docs/evidence/evidence-platform-architecture.md",
-        "execution-boundary.json#allowedPaths",
-        "checklist.json#CHK-002.relatedDocs"
-      ]
+        "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+        "CHK-002",
+        "CHK-003",
+        "docs/evidence/evidence-platform-architecture.md"
+      ],
+      "resolution": "Resolved: docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md is the authoritative lifecycle-control skeleton source for this story, but it was not present in the B-88ae worktree because it existed only as uncommitted planning output in the main checkout. B-88ae must materialize that decision doc as part of the story before implementing lifecycle-control skeleton modules. CHK-002 and CHK-003 remain in scope, and the doc will be treated as a created/verified source artifact rather than a dangling reference.",
+      "resolvedAt": "2026-06-25T02:56:42.647Z"
     }
   ]
 }
