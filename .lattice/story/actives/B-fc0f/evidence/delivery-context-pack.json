@@ -1,0 +1,100 @@
+{
+  "storyId": "B-fc0f",
+  "generatedFor": "delivery-review",
+  "diff": {
+    "changedFiles": [
+      ".lattice/story/actives/B-fc0f/checklist.json",
+      ".lattice/story/actives/B-fc0f/decision.json",
+      ".lattice/story/actives/B-fc0f/index.json",
+      ".lattice/story/actives/B-fc0f/plan.md",
+      ".lattice/story/actives/B-fc0f/process-events.jsonl",
+      ".lattice/story/actives/B-fc0f/process-metrics.json",
+      ".lattice/story/actives/B-fc0f/review-passes.json",
+      ".lattice/story/actives/B-fc0f/review-runs.json",
+      ".lattice/story/actives/B-fc0f/review.json",
+      ".lattice/story/actives/B-fc0f/scope-check.json",
+      ".lattice/story/actives/B-fc0f/scope-contract.json",
+      ".lattice/story/actives/B-fc0f/understanding.json",
+      "docs/evidence/evidence-platform-architecture.md",
+      "docs/evidence/proof-surface-inventory.json",
+      "docs/evidence/proof-surface-inventory.md",
+      "docs/requirements/NAV.md",
+      "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+      "docs/requirements/decisions/repro-first-story-intake-experiment.md",
+      "packages/main/src/core/evidence/types.ts",
+      "packages/main/src/core/prompt-registry.ts",
+      "packages/main/src/core/proof-admissibility.ts",
+      "packages/main/src/core/repro-intake.ts",
+      "packages/main/src/handlers/done-prepare.ts",
+      "packages/main/src/handlers/verdict.ts",
+      "packages/main/src/tasks/cli-json-stdout-contract-smoke.ts",
+      "packages/main/src/tasks/english-open-source-surface-smoke.ts",
+      "packages/main/src/tasks/field-regression-cli-smoke.ts",
+      "packages/main/src/tasks/prompt-token-cost-smoke.ts",
+      "packages/main/src/tasks/proof-admissibility-smoke.ts",
+      "packages/main/src/tasks/repro-first-candidate-smoke.ts"
+    ],
+    "summary": " .lattice/story/actives/B-fc0f/checklist.json       | 345 ++++++++++++++-\n .lattice/story/actives/B-fc0f/decision.json        |  59 +++\n .lattice/story/actives/B-fc0f/index.json           |  41 +-\n .lattice/story/actives/B-fc0f/plan.md              |  35 ++\n .lattice/story/actives/B-fc0f/process-events.jsonl |  25 ++\n .lattice/story/actives/B-fc0f/process-metrics.json | 361 +++++++++++++++\n .lattice/story/actives/B-fc0f/review-passes.json   |  76 ++++\n .lattice/story/actives/B-fc0f/review-runs.json     | 478 ++++++++++++++++++++\n .lattice/story/actives/B-fc0f/review.json          | 380 ++++++++++++++++\n .lattice/story/actives/B-fc0f/scope-check.json     |  47 ++\n .lattice/story/actives/B-fc0f/scope-contract.json  |  37 ++\n .lattice/story/actives/B-fc0f/understanding.json   |  30 ++\n docs/evidence/evidence-platform-architecture.md    | 486 +++++++++++++++++----\n docs/evidence/proof-surface-inventory.json         |  15 +-\n docs/evidence/proof-surface-inventory.md           |   3 +-\n docs/requirements/NAV.md                           |   9 +-\n ...proof-admissibility-hardening-execution-plan.md |  67 ++-\n .../repro-first-story-intake-experiment.md         |  35 ++\n packages/main/src/core/evidence/types.ts           |   2 +\n packages/main/src/core/prompt-registry.ts          |  10 +-\n packages/main/src/core/proof-admissibility.ts      |  20 +-\n packages/main/src/core/repro-intake.ts             |   2 +-\n packages/main/src/handlers/done-prepare.ts         |   1 +\n packages/main/src/handlers/verdict.ts              |  16 +\n .../src/tasks/cli-json-stdout-contract-smoke.ts    |  50 ++-\n .../src/tasks/english-open-source-surface-smoke.ts |   8 +\n .../main/src/tasks/field-regression-cli-smoke.ts   |   2 +-\n packages/main/src/tasks/prompt-token-cost-smoke.ts |  10 +-\n .../main/src/tasks/proof-admissibility-smoke.ts    |   1 +\n .../main/src/tasks/repro-first-candidate-smoke.ts  |   2 +-\n 30 files changed, 2525 insertions(+), 128 deletions(-)"
+  },
+  "docsPromises": [
+    {
+      "source": "userSees",
+      "promise": "User sees the exact text “✓ cli json stdout contract smoke passed”"
+    },
+    {
+      "source": "userSees",
+      "promise": "User sees the exact text “✓ field regression CLI smoke passed”"
+    },
+    {
+      "source": "userSees",
+      "promise": "User sees the exact text: \"Warning: autopilot_review_submit for story B-xxxx is missing binding field(s): materialDigest, validationDigest, promptDigest\""
+    },
+    {
+      "source": "userSees",
+      "promise": "User sees exact triage lines: \"english-open-source-surface-smoke exit 1\" and later \"global-agents-init-smoke retry passes\""
+    },
+    {
+      "source": "userSees",
+      "promise": "User sees done_prepare and review_escalation status lines including \"degraded fallback: 3/3 rounds\""
+    }
+  ],
+  "realMachineTests": {
+    "transcriptDiff": false,
+    "testFiles": [
+      "packages/main/src/core/review-assurance-floor.ts",
+      "packages/main/src/tasks/cli-json-stdout-contract-smoke.ts"
+    ],
+    "evidenceCommands": [
+      "node --input-type=module <warning-fixture>",
+      "node packages/main/dist/tasks/cli-json-stdout-contract-smoke.js",
+      "node packages/main/dist/tasks/done-prepare-smoke.js",
+      "node packages/main/dist/tasks/english-open-source-surface-smoke.js && node packages/main/dist/tasks/prompt-token-cost-smoke.js",
+      "node packages/main/dist/tasks/english-open-source-surface-smoke.js && node packages/main/dist/tasks/prompt-token-cost-smoke.js && node packages/main/dist/tasks/global-agents-init-smoke.js",
+      "node packages/main/dist/tasks/field-regression-cli-smoke.js",
+      "node packages/main/dist/tasks/global-agents-init-smoke.js",
+      "node packages/main/dist/tasks/review-assurance-floor-storyfileshash-smoke.js"
+    ]
+  },
+  "validation": {
+    "source": "test-evidence.json",
+    "result": "PASS",
+    "timestamp": "2026-06-25T05:29:27.384Z",
+    "headHash": "9c72d067df2c6818378587ca5a09606c1706b88a",
+    "materialHash": "b23c8d3249c91d93ad86d3025aebada3e06c05c68a9b71d1859317c18e0ff574",
+    "storyFilesHash": "131f48d4f17207177c96d77e5ab157240b99814cfded990eb3cca2cd80bdb0bb"
+  },
+  "reviewRound": "2026-06-25T05:24:29.657Z",
+  "deliveryCheck": {
+    "status": "missing",
+    "ref": null
+  },
+  "waiver": {
+    "status": "none"
+  },
+  "isSigner": false,
+  "claims": {
+    "authorityDone": false,
+    "fullAuthorityDone": false,
+    "productionDone": false
+  }
+}
