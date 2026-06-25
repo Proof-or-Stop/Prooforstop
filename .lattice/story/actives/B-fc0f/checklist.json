@@ -297,7 +297,7 @@
       ],
       "status": "done",
       "startTime": "2026-06-25T04:52:45.970Z",
-      "endTime": "2026-06-25T05:22:07.763Z",
+      "endTime": "2026-06-25T05:24:14.483Z",
       "userSees": "User sees done_prepare and review_escalation status lines including \"degraded fallback: 3/3 rounds\"",
       "files": {
         "modify": [
@@ -334,13 +334,35 @@
         {
           "intentRef": "CHK-005:happy:0",
           "kind": "logic_test",
-          "command": "node packages/main/dist/tasks/done-prepare-smoke.js && node packages/main/dist/tasks/review-assurance-floor-smoke.js && node packages/main/dist/tasks/done-escalation-drift-advisory-smoke.js && node packages/main/dist/tasks/review-escalation-smoke.js && node packages/main/dist/tasks/review-escalation-freshness-root-smoke.js",
+          "command": "node packages/main/dist/tasks/review-assurance-floor-storyfileshash-smoke.js",
           "result": "pass",
-          "note": "done-prepare and review floor/escalation path smokes pass and accept degraded 3x1/floor advisory paths.",
-          "headHash": "333c865d746e5e939ea31a25bd9750dbe70c8b8e",
-          "materialHash": "d5dc4c09dcf288071d35b5991bec5d7931b7278fdd63b70dd3c38423d1d13ce6",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-25T05:22:07.885Z"
+          "note": "The degraded single-host fallback path accepts 3/3 rounds when storyFilesHash still matches, proving the shared review-assurance evaluator honors degraded fallback rather than misclassifying it as missing.",
+          "headHash": "25093da35d72bbd7b68c6d3bfa5733eb1a4cf002",
+          "materialHash": "9b451cb19a8f86eea4c6c325db073ac3a0e14f39fa4cf9b26d137620c22eaaed",
+          "storyFilesHash": "9432cfef75631bc2715eba84e68cfb3849a80aa1950ed169e1afa1f1315f34a7",
+          "timestamp": "2026-06-25T05:24:14.690Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/review-assurance-floor-storyfileshash-smoke.js",
+          "result": "pass",
+          "note": "When storyFilesHash really changes, the same degraded fallback becomes stale and is rejected, preserving the current-material binding requirement.",
+          "headHash": "25093da35d72bbd7b68c6d3bfa5733eb1a4cf002",
+          "materialHash": "9b451cb19a8f86eea4c6c325db073ac3a0e14f39fa4cf9b26d137620c22eaaed",
+          "storyFilesHash": "9432cfef75631bc2715eba84e68cfb3849a80aa1950ed169e1afa1f1315f34a7",
+          "timestamp": "2026-06-25T05:24:14.890Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/done-prepare-smoke.js",
+          "result": "pass",
+          "note": "done_prepare still blocks stale review evidence after main-sync drift and prints the current material/storyFilesHash rebind runbook, confirming the DONE path consumes the same review-assurance floor evidence discipline.",
+          "headHash": "25093da35d72bbd7b68c6d3bfa5733eb1a4cf002",
+          "materialHash": "9b451cb19a8f86eea4c6c325db073ac3a0e14f39fa4cf9b26d137620c22eaaed",
+          "storyFilesHash": "9432cfef75631bc2715eba84e68cfb3849a80aa1950ed169e1afa1f1315f34a7",
+          "timestamp": "2026-06-25T05:24:15.096Z"
         }
       ]
     }
