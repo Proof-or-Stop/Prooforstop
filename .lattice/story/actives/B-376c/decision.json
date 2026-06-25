@@ -1,0 +1,64 @@
+{
+  "principles": [
+    "Keep source-of-truth in canonical docs and avoid schema drift",
+    "Preserve compatibility while introducing canonical status shape",
+    "Avoid changing behavior before model alignment is stabilized"
+  ],
+  "drivers": [
+    "Need consistent control-plane language for future hardening",
+    "Prevent future stories from implementing against stale shape",
+    "Support host-neutral handoff readability"
+  ],
+  "options": [
+    {
+      "name": "Replace types only",
+      "pros": [
+        "Lowest risk and fastest delivery"
+      ],
+      "cons": [
+        "Leaves old milestone mismatch unresolved"
+      ]
+    },
+    {
+      "name": "Rename milestones + expand status schema with compatibility projection",
+      "pros": [
+        "Aligns docs and code fully while reducing future drift"
+      ],
+      "cons": [
+        "Touches central lifecycle-control types used by multiple namespaces"
+      ]
+    },
+    {
+      "name": "Full CP-0..CP-5 behavioral implementation now",
+      "pros": [
+        "Most complete at once"
+      ],
+      "cons": [
+        "High blast radius, likely over-commits for one story"
+      ]
+    }
+  ],
+  "chosen": "Rename milestones + expand status schema with compatibility projection",
+  "rationale": "The project already has behavioral stubs; this story should lock the model contract first so later implementation stories can safely build on it.",
+  "preMortem": [
+    {
+      "scenario": "Downstream consumers break on field removal",
+      "trigger": "Legacy lane and queue fields are removed",
+      "consequence": "Build failures and runtime visibility regressions",
+      "mitigation": "Keep compatibility fields as optional and migrate tests before removal"
+    },
+    {
+      "scenario": "Status semantics become mixed with gate logic",
+      "trigger": "Build functions enforce logic instead of projecting",
+      "consequence": "Divergence from execution plan and wrong lifecycle behavior",
+      "mitigation": "Keep this story structural: projection-only changes"
+    },
+    {
+      "scenario": "Operator confusion from CP naming mismatch",
+      "trigger": "Plan still mixes CP-1.. with CP-0 references",
+      "consequence": "Wrong stage attribution and mixed documentation",
+      "mitigation": "Rename IDs with explicit compatibility checks in smoke"
+    }
+  ],
+  "timestamp": "2026-06-25T04:45:27.045Z"
+}

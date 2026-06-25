@@ -1,0 +1,50 @@
+{
+  "storyId": "B-376c",
+  "checkedAt": "2026-06-25T05:06:25.210Z",
+  "headHash": "f4e647f06f2c63f606bb3cd70484e57ed962a1b6",
+  "materialHash": "452f3ede6fd0b82f5d506cba6a521fa3267058b8e305ce47aa94c7fb7048e915",
+  "storyFilesHash": "ec261fbac10273e940125ed9320649c9daea7d05627eba5aca8b50d1b22d0dda",
+  "reviewRound": "2026-06-25T04:54:10.439Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+      "promise": "Canonical CP-0..CP-5 milestones and compatibility projection documented in execution plan",
+      "status": "verified",
+      "verifiedBy": "review/tests",
+      "evidence": "story_get B-376c and source-structure-convergence-smoke.js assertions"
+    },
+    {
+      "docPath": "docs/evidence/evidence-platform-architecture.md",
+      "promise": "Canonical vs compatibility evidence fields are explicitly separated in architecture",
+      "status": "verified",
+      "verifiedBy": "review/tests",
+      "evidence": "updated architecture comments and plan entries"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Build and smoke run in local worktree passed, including milestone-id and migration boundary checks."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Smoke validated canonical status fields and legacy compatibility projection behavior."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Smoke validated strict schema/milestoneCount assertions and mismatch diagnostics."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Docs and code comments now explicitly separate canonical schema from compatibility projection."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All required verification intents have fresh evidence; no unresolved TODOs in checklist; done gate conditions are now complete."
+  },
+  "_hash": "4b604c16b98aa158529f7fb83381cedcae58f0aadb25ac8b2993cef7d5494a0a"
+}

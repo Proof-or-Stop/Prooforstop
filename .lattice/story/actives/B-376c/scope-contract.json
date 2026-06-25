@@ -1,0 +1,23 @@
+{
+  "storyId": "B-376c",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/lifecycle-control/milestones.ts",
+    "packages/main/src/core/lifecycle-control/control-status.ts",
+    "packages/main/tests/tasks/source-structure-convergence-smoke.ts",
+    "docs/evidence/evidence-platform-architecture.md",
+    "packages/main/src/core/lifecycle-control/global-control-service.ts",
+    "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+    "packages/main/src/tasks/source-structure-convergence-smoke.ts"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/tests/tasks/source-structure-convergence-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Extend allowedModify for source-structure convergence smoke fixture test moved to tasks path to keep lifecycle-control migration test executable.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-25T04:50:30.847Z",
+  "updatedAt": "2026-06-25T04:54:08.148Z"
+}

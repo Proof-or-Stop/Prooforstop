@@ -1,0 +1,56 @@
+{
+  "storyId": "B-376c",
+  "changes": "Updated lifecycle-control schema to canonical CP-0..CP-5, aligned milestone constants, status interfaces, and global-control orchestration while preserving compatibility projection.",
+  "usage": "Run npm --prefix packages/main run build and node packages/main/dist/tasks/source-structure-convergence-smoke.js in this worktree as the real-machine validation sequence.",
+  "expectedOutcome": "Lifecycle control status schema and migration mapping are now canonical and validated end-to-end.",
+  "actualTranscript": "Build passes and smoke reports strict assertions for CP-0..CP-5, compatibility projection, and mismatch diagnostics.",
+  "outcomeDiff": "No difference from expected for implementation outcomes.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "none — fully covered",
+  "pitfalls": "Quorum_submit replay was required to satisfy review assurance floor; rerun review/test commands once after each material change before DONE.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 145067
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 2564
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 165827
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 221481
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 495280
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 241951
+    }
+  },
+  "totalDurationMs": 1272171,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-25T05:06:27.670Z",
+  "updatedAt": "2026-06-25T05:06:27.670Z"
+}

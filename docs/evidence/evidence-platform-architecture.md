@@ -474,3 +474,16 @@ Repro-First and admissibility documents must align on this baseline:
 
 - `docs/evidence/proof-surface-inventory.md`
 - `docs/evidence/proof-surface-inventory.json`
+
+## Read-only Lifecycle Control Projection
+
+The lifecycle control read-only plane in this baseline is a separate projection
+layer and does **not** alter gate semantics. It uses explicit projection-only fields
+for current runtime/consumption/readiness status and keeps legacy projection fields for
+backward compatibility:
+
+- Canonical status: `runtime`, `consumption`, `readiness`, and `queue`/`queueSummary`.
+- Compatibility projection: legacy `lanes` and `cp2Projection` fields remain present for
+  existing read paths but are documented as non-authoritative.
+
+This keeps migration stable while new code uses canonical field names.

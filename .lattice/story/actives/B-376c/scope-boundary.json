@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-376c",
+  "mode": "custom",
+  "allowed": [
+    "docs/evidence/evidence-platform-architecture.md",
+    "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+    "packages/main/src/core/lifecycle-control",
+    "packages/main/src/tasks/source-structure-convergence-smoke.ts"
+  ],
+  "excluded": [
+    ".lattice/story/actives",
+    "docs/story",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Bound to canonical control-plane alignment story scope.",
+  "createdAt": "2026-06-25T04:45:38.263Z",
+  "updatedAt": "2026-06-25T04:45:38.263Z",
+  "_hash": "2be0011b8ec0cfcac85360ee6629e51a2fad72c81efc9489717d2a34ed806914"
+}
