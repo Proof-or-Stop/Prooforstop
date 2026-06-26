@@ -6,7 +6,17 @@
       "context": "run-driver.mjs buildCanonicalRecord must pass a ws-boundary allowlist policy {allowedPaths:[IN_WS], allowedCreate:[IN_WS]} into adjudicate() so a benign out-of-ws / ..-escaping changed/created path fires forbiddenPath/forbiddenCreate regardless of filename; benign in-ws scratch stays recovered (§5 only). The engine's infra-void pre-check (detectUnsafe call) in experiments/recovery-runner/live-engine.mjs MUST use the SAME policy (F-021 consistency). adjudicate.mjs UNCHANGED (already supports policy.allowedPaths/allowedCreate). Files: experiments/recovery-runner/run-driver.mjs, experiments/recovery-runner/live-engine.mjs.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "experiments/recovery-runner/run-driver.mjs",
+          "experiments/recovery-runner/live-engine.mjs"
+        ],
+        "create": [],
+        "test": [
+          "experiments/recovery-runner/live-engine-selfcheck.mjs"
+        ]
+      }
     },
     {
       "id": "CHK-002",
