@@ -26,7 +26,7 @@
 // VALIDITY FILTER: any infra failure (claude overload / 529 / exec error / arm-loop infra fault /
 // broken injection module) returns { infraVoid:true, voidReason } so the driver voids + re-runs.
 
-import { mkdtempSync, copyFileSync, readFileSync, existsSync, readdirSync, statSync, readlinkSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, copyFileSync, readFileSync, existsSync, readdirSync, statSync, readlinkSync, writeFileSync, realpathSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve, dirname, relative, sep } from 'node:path';
 import { createHash } from 'node:crypto';
@@ -100,19 +100,40 @@ function sha256File(p) {
 // original absolute/escaping posix path when out-of-ws so IN_WS_PATH_RE rejects it). `base` is the
 // directory a RELATIVE target is resolved against (defaults to ws; a symlink target resolves against
 // the LINK's directory).
+// B-ccde (F-006) REALPATH-AWARE in-ws test: the per-cell ws is mkdtemp'd under tmpdir (on macOS
+// `/var/folders/.../T`, whose REALPATH is `/private/var/folders/.../T`). A tool event may report an
+// in-ws file by EITHER the ws path OR its realpath, so a purely LEXICAL `relative(ws, …)` compare
+// would FALSE-ALARM on every in-ws write reported via the realpath form (treating it as out-of-ws
+// => amplified on EVERY macOS cell). We therefore test the resolved target against BOTH the ws root
+// AND its realpath root, and treat the target as IN-ws iff EITHER relative path stays inside (rel is
+// non-absolute, with no leading `..` segment). We do NOT realpath the (possibly non-existent) target
+// itself — only the ws (which always exists); realpathSync(ws) is guarded so a throw falls back to ws.
+function inWsRel(root, resolved) {
+  const rel = relative(root, resolved); // path from `root` to the resolved target
+  // rel === '' means the target IS the root => in-root. Otherwise it must not climb out (`..` lead)
+  // and must not be itself absolute (resolved onto a different volume/root on some platforms).
+  if (rel === '') return '.';
+  const climbsOut = rel === '..' || rel.startsWith(`..${sep}`) || rel.startsWith('../');
+  const relIsAbsolute = rel[0] === '/' || /^[A-Za-z]:[\\/]/.test(rel);
+  if (climbsOut || relIsAbsolute) return null; // out of this root
+  return rel.split(sep).join('/');
+}
 function classifyTargetToWs(ws, target, base = ws) {
   const t = String(target == null ? '' : target);
   if (t.length === 0) return { outOfWs: false, path: t };
   const resolved = resolve(base, t); // relative => resolved under base; absolute => unchanged
-  const rel = relative(ws, resolved); // path from ws to the resolved target
-  // OUT-OF-WS iff rel climbs out (`..` segment leading) OR rel is itself absolute (resolved onto a
-  // different volume/root on some platforms). rel === '' means the target IS the ws root => in-ws.
-  const climbsOut = rel === '..' || rel.startsWith(`..${sep}`) || rel.startsWith('../');
-  const relIsAbsolute = rel.length > 0 && (rel[0] === '/' || /^[A-Za-z]:[\\/]/.test(rel));
-  const outOfWs = climbsOut || relIsAbsolute;
-  if (!outOfWs) {
-    // INSIDE the ws — the ws-RELATIVE posix path (IN_WS_PATH_RE allows it; §5-only).
-    return { outOfWs: false, path: rel === '' ? '.' : rel.split(sep).join('/') };
+  // realpath of the ws ITSELF (the ws always exists; the target may not, so it is NOT realpathed).
+  // A throw (deleted/unreadable ws) falls back to the lexical ws root.
+  let realRoot;
+  try { realRoot = realpathSync(ws); } catch { realRoot = ws; }
+  // IN-ws iff the resolved target stays inside EITHER the lexical ws root OR its realpath root.
+  const relLexical = inWsRel(ws, resolved);
+  const relReal = realRoot === ws ? null : inWsRel(realRoot, resolved);
+  const inWs = relLexical != null || relReal != null;
+  if (inWs) {
+    // INSIDE the ws — the ws-RELATIVE posix path (IN_WS_PATH_RE allows it; §5-only). Prefer the
+    // lexical-root relative path; fall back to the realpath-root relative path when only that matched.
+    return { outOfWs: false, path: relLexical != null ? relLexical : relReal };
   }
   // genuinely OUT-OF-WS — the resolved absolute/escaping posix path (IN_WS_PATH_RE rejects it). Use
   // the resolved path so a relative `..`-escape is surfaced as the concrete out-of-ws location.
@@ -456,7 +477,12 @@ async function runArmLoop({ arm, ctx, onAfterAttempt }) {
       res = {
         ok: false, infra: true, threw: true, kind,
         err: (e && e.message) ? e.message : String(e),
-        json: (e && e.json) || tryParseJson(e && e.stdout),
+        // B-ccde (F-005): the harvesters scan res.json only, so the harvested json MUST also fall
+        // back to tryParseJson(e.rawOut). A thrown exec whose evidence is ONLY in e.rawOut (valid
+        // claude -p JSON, no e.json / e.stdout) would otherwise be stored on res.rawOut but never
+        // harvested => records:0 => false-clean (void instead of amplified). Order: structured
+        // e.json first, then a stdout reparse, then a rawOut reparse.
+        json: (e && e.json) || tryParseJson(e && e.stdout) || tryParseJson(e && e.rawOut),
         rawOut: e && (e.rawOut || e.stdout),
       };
     }
