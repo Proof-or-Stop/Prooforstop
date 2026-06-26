@@ -40,6 +40,47 @@
         "bindingHash": "e2eac312119e3042c41f792e49849d7decfa416b71c6a1e466cd61e3f9961d00"
       },
       "_hash": "b07507feb52f2deadbe7d1d1bcaa2c7ac974de20227e49b1108fc627dfb8f91d"
+    },
+    {
+      "reviewRunId": "B-8628:RR-002",
+      "storyId": "B-8628",
+      "agent": "lattice-review-quality",
+      "lane": "lattice-review-quality",
+      "reviewRound": "2026-06-26T22:05:29.088Z",
+      "startedAt": "2026-06-26T22:07:21.230Z",
+      "headHash": "c8aa37e68425497ae44e2de1f4ea55721d999835",
+      "materialHash": "e27f1c77c74162df80ced8cf1fc99a1e9341398ef8a7015655821af5c12e44fc",
+      "storyFilesHash": "803867ba8310d1b186ba855160695f5ae12ee3c3c7d4f8c070ab4266542855e2",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "5c32dadd240b92d5873b7630e344d92ec4885d06795be94ab9a202f41025ad8c",
+        "diffPackHash": "b355543e327838f1f1249c4722011e3738f95098530368dd534e077f3104973c",
+        "reviewedChangedFiles": [
+          "packages/main/src/core/repro-evidence-binding-gate.ts",
+          "packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "790a1e6d884110882e03ee181eeea61412d2630ebc3697bf821373c41db8fb72",
+          "cc65b3ae038189cd506c09b4a2a85070ad01146a4bd388719d60df61b53ad7f5",
+          "d81840c44a673a9f03e22ef88c2a614adce8f75b2546d7067073dec0931a779d",
+          "f72ab90b85f0bd933c7513b1ad19be6e929fff1dd757fc57a07d79989eb98c93"
+        ],
+        "bindingHash": "cd59e88b9e72c9b64b06a6ad2e1d914bbd999165ddaddeacd6ad013b6f7aaa67"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8628",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8628",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8628",
+        "workspaceMode": "story-worktree",
+        "headHash": "c8aa37e68425497ae44e2de1f4ea55721d999835",
+        "materialHash": "e27f1c77c74162df80ced8cf1fc99a1e9341398ef8a7015655821af5c12e44fc",
+        "storyFilesHash": "803867ba8310d1b186ba855160695f5ae12ee3c3c7d4f8c070ab4266542855e2",
+        "bindingHash": "8982c5ce61005a55edb84683358055612efeeb4a0049d4914281390878b5c139"
+      },
+      "_hash": "d7cdf5953eb687cd240d7a54653ba600cda4f55aa11ff57daa36017360e67017"
     }
   ]
 }
