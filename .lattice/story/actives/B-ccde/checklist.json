@@ -153,9 +153,9 @@
       "id": "CHK-004",
       "title": "Selfcheck: benign-named out-of-ws + escaping-symlink => amplified; in-ws scratch not over-flagged; positive secretScan E2E",
       "context": "Add to experiments/recovery-runner/live-engine-selfcheck.mjs concrete non-tautological cases: a benign-NAMED out-of-ws Write/Edit/MultiEdit/NotebookEdit target => amplified; a benign escaping symlink => amplified; an in-ws scratch file => NOT amplified (recovered); a solution-file secret => secretScan fires => amplified (positive end-to-end). File: experiments/recovery-runner/live-engine-selfcheck.mjs.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-26T18:51:24.561Z",
-      "endTime": null,
+      "endTime": "2026-06-26T18:54:20.515Z",
       "files": {
         "modify": [
           "experiments/recovery-runner/live-engine-selfcheck.mjs"
