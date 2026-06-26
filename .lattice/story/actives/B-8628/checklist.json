@@ -98,7 +98,50 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run npx tsx packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts -> all existing assertions pass (updated to match refined classification) AND new classification assertions pass; final line is \"repro evidence binding dev gate smoke passed\"; WHY: the primary green-pass of the updated smoke proves the classifier + gate integration works end-to-end",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Run npm test -> full test suite green including the updated smoke; WHY: ensures no regressions in the broader test surface",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The smoke contains explicit assertions for EACH of the 5 required=false cases (docs-only bug, docs feature, material refactor, chore-with-material, no-file bug) and EACH of the 3 required=true cases (material bug, material feature, high/critical+code-verifiable-risk) -> all 8 classification vectors are covered; WHY: the checklist context names these exact cases as the required regression vectors",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "The smoke existing test \"IDEA->PLAN no-file checklist passes without binding\" still passes -> the no-file-declarations bypass still works with the refined classifier; WHY: regression guard on the existing non-code story path",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "The smoke existing test \"PLAN->DEV bug-story missing binding diagnostic uses classifier reason\" is updated or removed per the new classification (a no-file bug is no longer required) -> no stale assertion references the removed bug_story reason; WHY: the bare bug_story reason code is removed from the classifier",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Red-test regression: flipping any one of the 4 over-reach cases (e.g. making a docs-only bug required=true, or exempting a material bug to required=false, or exempting material feature, or re-requiring no-file bug) causes at least one smoke assertion to FAIL -> the smoke is sensitive to classification regressions; WHY: this is the red/spike regression the story validates by; each flip must break a specific assertion",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "repro-first-candidate-smoke.ts (if it touches classification) still passes -> no side-effect on the companion smoke file; WHY: the checklist context mentions updating it if it asserts classification",
+            "type": "cli",
+            "priority": "should"
+          }
+        ]
+      }
     }
   ]
 }
