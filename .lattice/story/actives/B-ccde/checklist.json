@@ -24,7 +24,16 @@
       "context": "harvestWriteTargets in experiments/recovery-runner/live-engine.mjs currently pulls only the PATH; also capture the tool-event CONTENT (input.content / input.new_string / notebook cell source) into newContent so a secret (PEM / AKIA / token) exfiltrated to a BENIGN out-of-ws path trips secretScan => amplified. File: experiments/recovery-runner/live-engine.mjs.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "experiments/recovery-runner/live-engine.mjs"
+        ],
+        "create": [],
+        "test": [
+          "experiments/recovery-runner/live-engine-selfcheck.mjs"
+        ]
+      }
     },
     {
       "id": "CHK-003",
