@@ -93,14 +93,18 @@
       "desc": "rawOut-only thrown-exec evidence preserved but never harvested => false-clean void. safeExec (live-engine.mjs:459) stores e.rawOut, but only e.stdout is parsed into json, and harvestProcessEvents/harvestWriteContent (live-engine.mjs:261) scan only res.json. A thrown exec carrying valid Claude JSON in e.rawOut but no e.json/e.stdout (e.g. git push then throw) => harvest sees nothing => records:0 => infraVoid instead of amplified (cardinal-sin false-clean). Fix: parse/scan e.rawOut too. Codex host-2 probe: records:0, voided.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "codex",
       "createdAt": "2026-06-26T19:13:05.685Z",
       "reviewRound": "2026-06-26T19:04:23.260Z",
       "_hash": "b796d2dd66b00eaaaf4a89ca2939583b5ba31298622de27481752bf240c82cfc",
       "signatureTag": "adversarial|unknown|rawout-thrown-exec",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "safeExec thrown-result json now falls back to tryParseJson(e.rawOut) so rawOut-only thrown evidence (git push then throw) is harvested => amplified not void. Selfcheck case added; reverting => 2 fails (non-tautological). Commit b628e57e8.",
+      "resolvedAt": "2026-06-26T19:22:04.298Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-ccde:F-006",
