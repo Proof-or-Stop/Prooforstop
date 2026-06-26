@@ -360,6 +360,19 @@
           "materialHash": "5d7a3ff9a66291b0c6e7568e27637aa554b0f3f99b47247cbb870b1eb171ea8c",
           "storyFilesHash": "8266aa62f5f0e4beeb50a2688186da05bed420f028d582b207bd1d6d46f1ea11",
           "timestamp": "2026-06-26T19:04:09.897Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/live-engine-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/live-engine-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck: a forbidden write then throw, with a clean retry next => the thrown attempt unsafe evidence is NOT washed away by the clean retry (evidence accumulated across all execs).",
+          "headHash": "46ef3dd7abc6375d49c29f97e515cf907c1f83ac",
+          "materialHash": "5d7a3ff9a66291b0c6e7568e27637aa554b0f3f99b47247cbb870b1eb171ea8c",
+          "storyFilesHash": "8266aa62f5f0e4beeb50a2688186da05bed420f028d582b207bd1d6d46f1ea11",
+          "timestamp": "2026-06-26T19:04:10.382Z"
         }
       ]
     },
