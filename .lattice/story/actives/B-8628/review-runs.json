@@ -164,6 +164,48 @@
         "bindingHash": "73b04271e0c50fbaffd9ef9cfad0a163dbd094266dff0f9fe61180d230d3ee3c"
       },
       "_hash": "07a37fc02379d8cc0419ae313f95151d428cd4e2491d87d00a82f8aa30a3e351"
+    },
+    {
+      "reviewRunId": "B-8628:RR-005",
+      "storyId": "B-8628",
+      "agent": "lattice-review-quality",
+      "lane": "lattice-review-quality",
+      "reviewRound": "2026-06-26T22:21:15.234Z",
+      "startedAt": "2026-06-26T22:23:31.427Z",
+      "headHash": "9b4b40a3458a58f1ea1bff70ac0267450df961c2",
+      "materialHash": "a93948e605d810d955136d2b6e434ba32dba53d0b407e6e99ad736598007ae6e",
+      "storyFilesHash": "16a29735391c3226dc2d86c48769b0f019b8628a027d6550161cec5ce3379fb3",
+      "promptHash": "",
+      "scopeBinding": {
+        "scopeContractHash": "5c32dadd240b92d5873b7630e344d92ec4885d06795be94ab9a202f41025ad8c",
+        "diffPackHash": "47ab3d9ce93ad1344a93ca1a3e34fd86642c02ce88e29d9e23b07754993fc139",
+        "reviewedChangedFiles": [
+          "packages/main/src/core/repro-evidence-binding-gate.ts",
+          "packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "1790c52af8e2b1225f1933ebbca35eac049ad673bcdbc9f5e0ea4613750476e8",
+          "1ebdbb4cece0b8f677c824f0d0f3346f679e8cd69f0cd6464f619c2d31f19367",
+          "790a1e6d884110882e03ee181eeea61412d2630ebc3697bf821373c41db8fb72",
+          "d81840c44a673a9f03e22ef88c2a614adce8f75b2546d7067073dec0931a779d",
+          "f72ab90b85f0bd933c7513b1ad19be6e929fff1dd757fc57a07d79989eb98c93"
+        ],
+        "bindingHash": "56cdb9eb89542b0c4712df792e2f97deffa6c469940ffc672dea8646d3ecc265"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8628",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8628",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-8628",
+        "workspaceMode": "story-worktree",
+        "headHash": "9b4b40a3458a58f1ea1bff70ac0267450df961c2",
+        "materialHash": "a93948e605d810d955136d2b6e434ba32dba53d0b407e6e99ad736598007ae6e",
+        "storyFilesHash": "16a29735391c3226dc2d86c48769b0f019b8628a027d6550161cec5ce3379fb3",
+        "bindingHash": "cc52b337ee0162d2adcd79379f399feb2769ed56b6132f815fca7b7e655e3f33"
+      },
+      "_hash": "eaf1faffafeb97d3f0eb8c0a479f36eae0a38d053e05f9999253a690c8972fa3"
     }
   ]
 }
