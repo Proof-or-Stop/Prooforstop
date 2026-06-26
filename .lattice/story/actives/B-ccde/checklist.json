@@ -502,6 +502,19 @@
           "materialHash": "5d7a3ff9a66291b0c6e7568e27637aa554b0f3f99b47247cbb870b1eb171ea8c",
           "storyFilesHash": "8266aa62f5f0e4beeb50a2688186da05bed420f028d582b207bd1d6d46f1ea11",
           "timestamp": "2026-06-26T19:04:13.381Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/live-engine.mjs",
+          "command": "remove the content push (live-engine.mjs ~line 332 pushStr(inp.new_string/content/...)) && node live-engine-selfcheck.mjs",
+          "result": "pass",
+          "note": "NON-TAUTOLOGY mutation captured 2026-06-26 in a throwaway copy of experiments/recovery-runner: reverting the CHK-002 content harvest to path-only drops newContent for out-of-ws tool events, so the positive secretScan E2E case fails (secretScan goes false) — implementer-verified + harvest located at live-engine.mjs:332.",
+          "headHash": "32475f809d06865c204478c97e9e4faba51e23ea",
+          "materialHash": "5d7a3ff9a66291b0c6e7568e27637aa554b0f3f99b47247cbb870b1eb171ea8c",
+          "storyFilesHash": "8266aa62f5f0e4beeb50a2688186da05bed420f028d582b207bd1d6d46f1ea11",
+          "timestamp": "2026-06-26T19:04:13.934Z"
         }
       ]
     },
