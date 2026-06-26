@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-26T22:05:29.088Z",
       "reviewRunId": "B-8628:RR-003",
       "_hash": "b5da10cc2e948811accb2f74407d23be6ed12a29abb377cd9f22fe446651d5ba"
+    },
+    {
+      "id": "B-8628:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Round-2 concept review complete. Concept changes: (1) file_declarations + bug_story demoted to legacy backward-compat in ReproFirstRequirementReason union and both switch formatters — all three locations carry the exact backward-compat comment. (2) checklistHasFileDeclarations removed from repro-evidence-binding-gate.ts; its namesake in phase-gates.ts is an independent scope-contract utility (different semantic purpose, not a residual). (3) bug_story reference in smoke test is a doesNotMatch assertion (verifies it is no longer produced), not a concept residual. (4) code_verifiable_behavior_change is the replacement concept; fully implemented. No concept residue found. F-001 resolved this round.",
+      "createdAt": "2026-06-26T22:23:13.309Z",
+      "reviewRound": "2026-06-26T22:21:15.234Z",
+      "reviewRunId": "B-8628:RR-004",
+      "_hash": "b8bb894ed1c3691dff3fcf1edc3f93a24515cbb9eed435cd5c9c0665ed395014"
     }
   ]
 }
