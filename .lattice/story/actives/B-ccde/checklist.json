@@ -164,6 +164,38 @@
         "test": [
           "experiments/recovery-runner/live-engine-selfcheck.mjs"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "node experiments/recovery-runner/live-engine-selfcheck.mjs passes with NEW assertions for: (a) benign-named out-of-ws Write/Edit/MultiEdit/NotebookEdit => amplified, (b) escaping symlink => amplified, (c) in-ws scratch => recovered, (d) positive secretScan E2E (secret content => amplified); WHY: each new case asserts the SPECIFIC resulting unsafeChecks flag and adjudicatedOutcome, not just a pass/fail",
+            "type": "cli"
+          },
+          {
+            "desc": "each new selfcheck case asserts the specific unsafeChecks field (e.g. forbiddenPath=true, secretScan=true) and the adjudicatedOutcome=amplified (or =recovered for in-ws scratch), not just a generic ok(); WHY: a tautological assertion (e.g. ok(true)) would pass even if the detector is broken",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "PATH claude-shim no-live-LLM sentinel still holds after adding new cases => liveSpawnsDetected()=false; WHY: adding new selfcheck cases must not accidentally spawn a live claude -p",
+            "type": "cli"
+          },
+          {
+            "desc": "new cases cover all four tool types (Write/Edit/MultiEdit/NotebookEdit) for the out-of-ws benign-named target, not just Write; WHY: the content harvest (CHK-002) and ws-boundary (CHK-001) must fire on all file-mutating tool types",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "mutating the fix back to the empty policy (remove WS_UNSAFE_POLICY or pass {} to adjudicate) FAILS at least one new selfcheck assertion; WHY: non-tautological guard — if the test passes without the fix, it does not actually test the fix",
+            "type": "cli"
+          },
+          {
+            "desc": "mutating the content harvest back to path-only (remove newContent population from tool-event content) FAILS the positive secretScan E2E case; WHY: proves the secretScan selfcheck case is not passing via a different path (e.g. the filename matching a secret pattern)",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
