@@ -489,6 +489,19 @@
           "materialHash": "5d7a3ff9a66291b0c6e7568e27637aa554b0f3f99b47247cbb870b1eb171ea8c",
           "storyFilesHash": "8266aa62f5f0e4beeb50a2688186da05bed420f028d582b207bd1d6d46f1ea11",
           "timestamp": "2026-06-26T19:04:12.819Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/live-engine-selfcheck.mjs",
+          "command": "perl -0pi -e 's/Object.freeze({ allowedPaths:[IN_WS_PATH_RE], allowedCreate:[IN_WS_PATH_RE] })/Object.freeze({})/' run-driver.mjs && node live-engine-selfcheck.mjs",
+          "result": "pass",
+          "note": "NON-TAUTOLOGY mutation captured 2026-06-26 in a throwaway copy of experiments/recovery-runner: emptying WS_UNSAFE_POLICY to Object.freeze({}) makes the selfcheck EXIT NON-ZERO (the out-of-ws amplified case no longer produces a record => crash/assert-fail). Confirms the new assertions depend on the CHK-001 fix.",
+          "headHash": "c13be4fcffa41391444b050dc5949c7801aa134b",
+          "materialHash": "5d7a3ff9a66291b0c6e7568e27637aa554b0f3f99b47247cbb870b1eb171ea8c",
+          "storyFilesHash": "8266aa62f5f0e4beeb50a2688186da05bed420f028d582b207bd1d6d46f1ea11",
+          "timestamp": "2026-06-26T19:04:13.381Z"
         }
       ]
     },
