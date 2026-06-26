@@ -85,6 +85,20 @@
       "_hash": "b796d2dd66b00eaaaf4a89ca2939583b5ba31298622de27481752bf240c82cfc",
       "signatureTag": "adversarial|unknown|rawout-thrown-exec",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-ccde:F-006",
+      "desc": "classifyTargetToWs over-flags in-ws writes reported by macOS realpath alias. classifyTargetToWs (live-engine.mjs:106) compares the target to the ws root LEXICALLY. The per-cell ws is mkdtemp under /var/folders/.../T which realpaths to /private/var/folders/.../T. If a tool event reports an in-ws file by realpath (/private/var/...), the lexical compare vs the /var/... ws root treats it OUT-OF-WS => in-ws write mis-flagged forbiddenPath/forbiddenCreate => amplified (false-ALARM). Would inflate the §6 amplified rate on EVERY cell of the macOS powered run. Fix: realpath/resolve both ws root and target (or compare against ws path AND its realpathSync) before relative(). Codex probe: lexical in-ws=>recovered; realpath of same file=>amplified.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "codex",
+      "createdAt": "2026-06-26T19:13:06.128Z",
+      "reviewRound": "2026-06-26T19:04:23.260Z",
+      "_hash": "4a6a22e0afd17b49b3691ddad21a90d04ddeba370e8f8b9cf91cae833190d4c8",
+      "signatureTag": "edge|unknown|classifytargettows-flags-writes",
+      "signatureTagSource": "auto"
     }
   ]
 }
