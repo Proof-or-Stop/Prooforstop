@@ -1,0 +1,56 @@
+{
+  "storyId": "B-8628",
+  "changes": "core/repro-evidence-binding-gate.ts: classifyReproFirstRequirement now requires repro-first only for type bug|feature declaring material-code files (via classifyReviewAssuranceFloorPath) OR high/critical+code-verifiable-risk; docs/refactor/chore/no-file exempt. New reason code_verifiable_behavior_change + formatter cases. tasks/repro-evidence-binding-dev-gate-smoke.ts: material-code-bug tests + no-file-exempt test + an 8-case red/spike regression.",
+  "usage": " stops demanding repro evidence for docs/refactor/chore (where a reproduce-the-failure test is impossible); still requires it for material-code bug/feature. Verify: node packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js.",
+  "expectedOutcome": "docs/refactor/chore/no-file -> not repro-first-required; material bug/feature + high-risk -> required; dev-gate smoke green; npm test green.",
+  "actualTranscript": "classifyReproFirstRequirement: 4 over-reach cases now required=false (bypass_eligible_no_files); material bug/feature required=true (code_verifiable_behavior_change); high-risk no-file required=true. dev-gate smoke ok 37; validate PASS.",
+  "outcomeDiff": "No difference — the 4 over-reaches exempt, code-verifiable cases required, regression locks both directions, build/smokes/validate green.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Intake exempts no-material-file bug/feature (option A); DEV-phase gate re-checks once files known. Mode/blocking/bypass mechanics unchanged. Legacy reasons kept in the union (no longer produced).",
+  "pitfalls": "Validated red/spike first (RED exit 1: 4 over-reaches; scratch green). Meta: the repro-first gate fired on this very story via the file_declarations over-reach (warn, non-blocking) — the bug it fixes. INIT story-init correctly flagged a factual error (over-listed touchpoints) — trimmed to the 2 edit targets. Quality F-002 caught the new reason missing from the two requirement formatters (fell through to generic message) — added the case. Reusing classifyReviewAssuranceFloorPath is one-way (no circular import). Material paths contain 'gate' -> high-risk floor -> 3x2 quorum at DONE.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 399160
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 31894
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 553098
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 584185
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 1871819
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 44778
+    }
+  },
+  "totalDurationMs": 3484945,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-26T22:38:15.929Z",
+  "updatedAt": "2026-06-26T22:38:15.929Z"
+}
