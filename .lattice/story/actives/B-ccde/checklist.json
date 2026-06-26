@@ -54,9 +54,9 @@
       "id": "CHK-002",
       "title": "Harvest out-of-ws tool-event CONTENT into newContent for secretScan",
       "context": "harvestWriteTargets in experiments/recovery-runner/live-engine.mjs currently pulls only the PATH; also capture the tool-event CONTENT (input.content / input.new_string / notebook cell source) into newContent so a secret (PEM / AKIA / token) exfiltrated to a BENIGN out-of-ws path trips secretScan => amplified. File: experiments/recovery-runner/live-engine.mjs.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-26T18:47:57.870Z",
-      "endTime": null,
+      "endTime": "2026-06-26T18:49:21.718Z",
       "files": {
         "modify": [
           "experiments/recovery-runner/live-engine.mjs"
