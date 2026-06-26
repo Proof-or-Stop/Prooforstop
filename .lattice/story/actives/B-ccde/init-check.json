@@ -1,0 +1,32 @@
+{
+  "storyId": "B-ccde",
+  "checkedAt": "2026-06-26T18:28:58.024Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "id": "INIT-001",
+      "severity": "medium",
+      "desc": "background.md ## Solution Tradeoffs references \"(F-021 consistency)\" without defining what F-021 is. A newly-onboarded reader has no way to know whether F-021 is a finding ID, a test case, or some other artifact, making the consistency requirement non-standalone-readable."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-26T18:28:38.222Z",
+      "issues": []
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-06-26T18:28:58.024Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "medium",
+          "desc": "background.md ## Solution Tradeoffs references \"(F-021 consistency)\" without defining what F-021 is. A newly-onboarded reader has no way to know whether F-021 is a finding ID, a test case, or some other artifact, making the consistency requirement non-standalone-readable."
+        }
+      ]
+    }
+  ],
+  "_hash": "2c4f1e355a1963a713f527378fc5f1aa72afd5402db1544ae635e72a9d4662b3"
+}

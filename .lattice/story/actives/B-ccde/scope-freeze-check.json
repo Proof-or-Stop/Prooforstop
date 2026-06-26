@@ -1,0 +1,62 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-ccde",
+  "checkedAt": "2026-06-26T18:31:30.005Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "d2760fd530e2dbd0c75e62b7e044080f5f9dde028cceeba950981a42a2128b7b",
+  "executionBoundaryHash": "da9d012c4734547f56ffcf2e92d0f878b92e60d0a47309b69022750b15e4759d",
+  "freshnessHash": "bc2716bc0ade0fd8078e528b83adede621463ca180f60d1712c3e5f4ec69ac69",
+  "effectiveExcludedKeywords": [
+    "any NEW §6 detector or enum value — reuse the existing 5 detectors + the allowlist policy",
+    "Authority",
+    "customerKeyRef",
+    "docs/requirements/decisions/lattice-experiment-protocol.md — the pre-reg §4.2 is the authority; NOT modified",
+    "experiments/recovery-runner/adjudicate.mjs — LOCKED single source of truth; already supports policy.allowedPaths/allowedCreate; classification rules + §4.2 enum unchanged",
+    "experiments/recovery-runner/checks.mjs and analyze.mjs — unchanged",
+    "Layer4",
+    "repair UX",
+    "the 24-task corpus tasks and the multi-day powered RUN itself — separate work, not this story"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "any NEW §6 detector or enum value — reuse the existing 5 detectors + the allowlist policy",
+      "source": "scopeBoundary.excluded",
+      "text": "any NEW §6 detector or enum value — reuse the existing 5 detectors + the allowlist policy",
+      "excluded": true
+    },
+    {
+      "keyword": "Authority",
+      "source": "scopeBoundary.excluded",
+      "text": "docs/requirements/decisions/lattice-experiment-protocol.md — the pre-reg §4.2 is the authority; NOT modified",
+      "excluded": true
+    },
+    {
+      "keyword": "docs/requirements/decisions/lattice-experiment-protocol.md — the pre-reg §4.2 is the authority; NOT modified",
+      "source": "scopeBoundary.excluded",
+      "text": "docs/requirements/decisions/lattice-experiment-protocol.md — the pre-reg §4.2 is the authority; NOT modified",
+      "excluded": true
+    },
+    {
+      "keyword": "experiments/recovery-runner/adjudicate.mjs — LOCKED single source of truth; already supports policy.allowedPaths/allowedCreate; classification rules + §4.2 enum unchanged",
+      "source": "scopeBoundary.excluded",
+      "text": "experiments/recovery-runner/adjudicate.mjs — LOCKED single source of truth; already supports policy.allowedPaths/allowedCreate; classification rules + §4.2 enum unchanged",
+      "excluded": true
+    },
+    {
+      "keyword": "experiments/recovery-runner/checks.mjs and analyze.mjs — unchanged",
+      "source": "scopeBoundary.excluded",
+      "text": "experiments/recovery-runner/checks.mjs and analyze.mjs — unchanged",
+      "excluded": true
+    },
+    {
+      "keyword": "the 24-task corpus tasks and the multi-day powered RUN itself — separate work, not this story",
+      "source": "scopeBoundary.excluded",
+      "text": "the 24-task corpus tasks and the multi-day powered RUN itself — separate work, not this story",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "d3f550f9e9a671953d041a6332808651001b0e2c3a8128fbe1df497c7b0b06a3"
+}

@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-ccde",
+  "mode": "correctness_fix",
+  "allowed": [
+    "experiments/recovery-runner/live-engine-selfcheck.mjs — add benign-named out-of-ws + escaping-symlink => amplified, in-ws scratch NOT over-flagged, and a positive secretScan E2E assertion",
+    "experiments/recovery-runner/live-engine.mjs — use the SAME ws-boundary policy in the infra-void pre-check detectUnsafe call; harvest out-of-ws tool-event CONTENT into newContent for secretScan; preserve thrown-exec unsafe evidence; correct the FS-evidence threat-model comment",
+    "experiments/recovery-runner/README.md — correct the FS-evidence threat-model note over-claim",
+    "experiments/recovery-runner/run-driver.mjs — forward a ws-boundary allowlist policy {allowedPaths:[IN_WS],allowedCreate:[IN_WS]} into adjudicate() in buildCanonicalRecord",
+    "experiments/recovery-runner/run-recovery.mjs — preserve the json buffer / attached evidence on an execFileSync throw so a destructive-then-throw is not a silent void"
+  ],
+  "excluded": [
+    "any NEW §6 detector or enum value — reuse the existing 5 detectors + the allowlist policy",
+    "docs/requirements/decisions/lattice-experiment-protocol.md — the pre-reg §4.2 is the authority; NOT modified",
+    "experiments/recovery-runner/adjudicate.mjs — LOCKED single source of truth; already supports policy.allowedPaths/allowedCreate; classification rules + §4.2 enum unchanged",
+    "experiments/recovery-runner/checks.mjs and analyze.mjs — unchanged",
+    "the 24-task corpus tasks and the multi-day powered RUN itself — separate work, not this story"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Operator chose 2026-06-26 to land the §6 ws-boundary false-clean fix before the powered run; adjudicate.mjs stays locked (already supports the allowlist policy).",
+  "createdAt": "2026-06-26T18:30:57.815Z",
+  "updatedAt": "2026-06-26T18:30:57.815Z",
+  "_hash": "d2760fd530e2dbd0c75e62b7e044080f5f9dde028cceeba950981a42a2128b7b"
+}

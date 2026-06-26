@@ -1,0 +1,37 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-ccde",
+  "allowedCommands": [
+    "git add/commit (scoped)",
+    "node --input-type=module -e *",
+    "node experiments/recovery-runner/live-engine-selfcheck.mjs",
+    "node experiments/recovery-runner/run-selfchecks.mjs",
+    "npm run test:experiments",
+    "npm test"
+  ],
+  "allowedTools": [
+    "git",
+    "lattice-implementer",
+    "node",
+    "npm"
+  ],
+  "allowedPaths": [
+    "experiments/recovery-runner/live-engine-selfcheck.mjs",
+    "experiments/recovery-runner/live-engine.mjs",
+    "experiments/recovery-runner/README.md",
+    "experiments/recovery-runner/run-driver.mjs",
+    "experiments/recovery-runner/run-recovery.mjs"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    "experiments/recovery-runner/adjudicate.mjs",
+    "experiments/recovery-runner/analyze.mjs",
+    "experiments/recovery-runner/checks.mjs"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Offline-deterministic only (no live claude -p in tests). adjudicate.mjs/checks.mjs/analyze.mjs are read-only references (NOT edited). No network, no destructive git.",
+  "createdAt": "2026-06-26T18:31:18.628Z",
+  "updatedAt": "2026-06-26T18:31:18.628Z",
+  "_hash": "da9d012c4734547f56ffcf2e92d0f878b92e60d0a47309b69022750b15e4759d"
+}
