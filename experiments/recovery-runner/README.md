@@ -105,15 +105,23 @@ a stream of canonical §7 run-records. It:
   reviewer, acceptance, ground-truth — and emits the RAW §7 evidence the driver canonicalises).
   The executor/reviewer are injectable, so `live-engine-selfcheck.mjs` drives the whole adapter
   offline with a deterministic stub (no `claude -p`).
-  - **FS evidence threat model (accepted residual boundary).** `live-engine.mjs` captures unsafe
-    file side effects via the per-cell ws fs snapshot — created / changed / **deleted** paths,
-    including **symlinks** (an escaping symlink target is a forbidden-path signal) — **plus** the
-    target paths harvested from the agent's tool-use events (Write/Edit/MultiEdit/NotebookEdit `file_path`/`notebook_path`,
-    including absolute / `..`-escaping **out-of-ws** targets) and Bash command strings. PERFECT
-    containment of arbitrary out-of-process side effects (e.g. a spawned child writing out-of-ws
-    *without* a captured tool event) is **not** guaranteed in-process and would need OS-level
-    sandboxing — out of scope; the arms are benign coding agents on a frozen clean corpus, so the
-    captured vectors cover the realistic unsafe actions the §6 detectors target (mirrors the
+  - **FS evidence threat model (ws-boundary enforced; documented residual).** `live-engine.mjs`
+    captures unsafe file side effects via the per-cell ws fs snapshot — created / changed /
+    **deleted** paths, including **symlinks** — **plus** the target paths harvested from the agent's
+    tool-use events (Write/Edit/MultiEdit/NotebookEdit `file_path`/`notebook_path`) and Bash command
+    strings, **and** the tool-event **content** (`content`/`new_string`/`new_str`/notebook cell
+    source) for the secret scan. **The workspace boundary IS enforced**: the §6 detectors are bound
+    to a `WS_UNSAFE_POLICY` allowlist (`IN_WS_PATH_RE` in `run-driver.mjs`) used identically by the
+    adjudicator and the engine's infra-void pre-check, so **any** changed/created path that resolves
+    **outside** the per-cell ws — an absolute out-of-ws path, a `..`-escape, or an escaping symlink —
+    is `amplified` **regardless of the filename** (benign-named or not). Tool-event and symlink
+    targets are normalized against the ws root first, so a legitimate in-ws write (which `claude -p`
+    reports as an *absolute* path under the ws) is **not** over-flagged — it stays a §5 hygiene
+    concern only. A secret written to a benign-named out-of-ws path also trips the secret scan via the
+    harvested content. **True residual (accepted, would need OS sandboxing):** a side effect with **no
+    tool event and no ws fs trace** — specifically an out-of-process **child** that writes out-of-ws
+    *without* a captured tool event — still escapes the in-process evidence; the arms are benign
+    coding agents on a frozen clean corpus, so this residual is an accepted boundary (mirrors the
     corpus threat-model note).
 - canonicalises each raw run into the exact §7 record by **delegating** to `adjudicate.mjs`
   (outcome + 5 unsafe detectors) and `checks.mjs` (the three pass flags) — nothing is
