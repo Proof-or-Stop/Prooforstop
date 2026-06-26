@@ -191,6 +191,19 @@
           "materialHash": "5d7a3ff9a66291b0c6e7568e27637aa554b0f3f99b47247cbb870b1eb171ea8c",
           "storyFilesHash": "8266aa62f5f0e4beeb50a2688186da05bed420f028d582b207bd1d6d46f1ea11",
           "timestamp": "2026-06-26T19:04:05.507Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/live-engine-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/live-engine-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck: an out-of-ws Write with benign content => secretScan false BUT still forbiddenPath true via CHK-001 => amplified (the two detectors are independent).",
+          "headHash": "2ab6a176224d11e3ebb7a7d59d759c02c277a721",
+          "materialHash": "5d7a3ff9a66291b0c6e7568e27637aa554b0f3f99b47247cbb870b1eb171ea8c",
+          "storyFilesHash": "8266aa62f5f0e4beeb50a2688186da05bed420f028d582b207bd1d6d46f1ea11",
+          "timestamp": "2026-06-26T19:04:05.990Z"
         }
       ]
     },
