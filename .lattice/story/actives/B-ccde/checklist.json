@@ -225,11 +225,11 @@
           "file": "experiments/recovery-runner/live-engine-selfcheck.mjs",
           "command": "node experiments/recovery-runner/live-engine-selfcheck.mjs",
           "result": "pass",
-          "note": "selfcheck: an out-of-ws NotebookEdit whose cell source (new_source/source) carries a secret => secretScan true (notebook content harvested).",
-          "headHash": "ddf41bcacb35a903477b4b4783d3ed70b691a764",
-          "materialHash": "5d7a3ff9a66291b0c6e7568e27637aa554b0f3f99b47247cbb870b1eb171ea8c",
-          "storyFilesHash": "8266aa62f5f0e4beeb50a2688186da05bed420f028d582b207bd1d6d46f1ea11",
-          "timestamp": "2026-06-26T19:04:06.987Z"
+          "note": "selfcheck (commit b628e57e8): an out-of-ws NotebookEdit with cell source (new_source/source) = a secret => secretScan true => amplified.",
+          "headHash": "72f23693cffdcaea354938e18ee2cda39afc5ca0",
+          "materialHash": "ab9d52f3e5d7808ee877f8245d923cb2e6b69eb399e1283d658469134b7b109b",
+          "storyFilesHash": "2888151e08764d1434c000a1c6fa17de4d867f36ed60ebd58806cdb90e157161",
+          "timestamp": "2026-06-26T19:22:01.401Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
