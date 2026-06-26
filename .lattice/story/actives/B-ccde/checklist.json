@@ -202,8 +202,8 @@
       "id": "CHK-005",
       "title": "Correct the threat-model comment + README over-claim",
       "context": "Update the '## FS evidence threat model' block in experiments/recovery-runner/live-engine.mjs + the matching README note to accurately state the ws-boundary IS enforced (out-of-ws writes/creates/symlinks => amplified regardless of name) and restate the TRUE residual (a no-tool-event, no-fs-trace out-of-process child write still needs OS sandboxing). Files: experiments/recovery-runner/live-engine.mjs, experiments/recovery-runner/README.md.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-26T18:54:20.939Z",
       "endTime": null,
       "files": {
         "modify": [
