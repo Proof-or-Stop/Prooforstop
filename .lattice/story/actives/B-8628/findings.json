@@ -23,7 +23,7 @@
       "desc": "quality-cleanup: repro-evidence-binding-gate.ts describeRequirementSubject() and describeRequirementRemediation() have no case for the new primary reason code code_verifiable_behavior_change (lines 434-459). Both switch statements fall through to default, producing generic user-facing messages (\"the repro-first classifier requires accepted repro evidence\" / \"correct the classifier inputs before entering lifecycle work\") instead of specific ones for the now-dominant code_verifiable_behavior_change path. The two legacy cases file_declarations and bug_story are still handled explicitly, but the new primary reason introduced by this diff is not.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-26T22:07:27.325Z",
@@ -34,7 +34,9 @@
         "packages/main/src/core/repro-evidence-binding-gate.ts"
       ],
       "signatureTag": "missing|ts|quality-cleanup-repro",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Verified: both describeRequirementSubject and describeRequirementRemediation now have explicit case 'code_verifiable_behavior_change' branches at lines 436 and 454 of repro-evidence-binding-gate.ts. node -e probe confirms formatStoryEvidenceBindingGateFailure with requirementReason=code_verifiable_behavior_change produces the specific subject 'this is a code-verifiable behavior change (a bug/feature that writes material code)' and the story_create_from_repro/reproFirstBypassReason remediation guidance — NOT the generic fallback. Build is tsc-clean. All 37 smoke assertions pass.",
+      "resolvedAt": "2026-06-26T22:22:55.268Z"
     }
   ]
 }
