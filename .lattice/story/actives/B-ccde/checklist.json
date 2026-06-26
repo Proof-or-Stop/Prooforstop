@@ -76,7 +76,15 @@
       "context": "Update the '## FS evidence threat model' block in experiments/recovery-runner/live-engine.mjs + the matching README note to accurately state the ws-boundary IS enforced (out-of-ws writes/creates/symlinks => amplified regardless of name) and restate the TRUE residual (a no-tool-event, no-fs-trace out-of-process child write still needs OS sandboxing). Files: experiments/recovery-runner/live-engine.mjs, experiments/recovery-runner/README.md.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "experiments/recovery-runner/live-engine.mjs",
+          "experiments/recovery-runner/README.md"
+        ],
+        "create": [],
+        "test": []
+      }
     }
   ]
 }
