@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-ccde:RP-001",
+      "agent": "lattice-review-docs",
+      "note": "Step 1: 8 symbols extracted (classifyTargetToWs, normalizeTargetToWs, harvestWriteContent, harvestWriteTargets, WS_UNSAFE_POLICY, IN_WS_PATH_RE, tryParseJson, ARMS). Step 2: 2 paragraphs compared (README threat-model bullet §108-127, live-engine.mjs ## FS evidence threat model block). Step 3: no drift found. README new text accurately states ws-boundary IS enforced (any out-of-ws path amplified regardless of filename), correctly attributes normalization via classifyTargetToWs, correctly scopes residual to no-tool-event+no-fs-trace out-of-process child writes only. Code and README agree on: WS_UNSAFE_POLICY used identically in buildCanonicalRecord + infra-void pre-check; normalizeTargetToWs applied before changedSetFinal/createdSetFinal; harvestWriteContent folds tool-event content for secret scan; symlink targets normalized via classifyTargetToWs with link-dir base. No stale over-claim fragments (PERFECT containment / covers realistic unsafe actions language fully removed). No under-claim (no text saying only secret-named files caught). Selfcheck: node live-engine-selfcheck.mjs reports 236 assertions passed; README says (7) module selfchecks in run-selfchecks.mjs — no count mismatch introduced by this diff. No blockers.",
+      "createdAt": "2026-06-26T19:07:56.061Z",
+      "reviewRound": "2026-06-26T19:04:23.260Z",
+      "reviewRunId": "B-ccde:RR-003",
+      "_hash": "7bae21f7648d1563dd7c7262fa61fa7acd790f4470ff176873d366f23ede2ace"
+    }
+  ]
+}
