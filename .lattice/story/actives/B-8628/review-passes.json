@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-26T22:21:15.234Z",
       "reviewRunId": "B-8628:RR-005",
       "_hash": "3bebfb2c1e91c9b59928a51123d74298b56371745e5398dda6b26a5b9d0bfbea"
+    },
+    {
+      "id": "B-8628:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-2 test coverage re-confirm (RP-002). Only change since RP-001: fix commit 41f98e483 added code_verifiable_behavior_change case to describeRequirementSubject and describeRequirementRemediation in repro-evidence-binding-gate.ts, plus backward-compat comments (F-001/F-002). Coverage assessment: (1) describeRequirementSubject formatter exercised by smoke check story_create enforce blocks (line 421), asserting /classifier: code_verifiable_behavior_change/ in thrown error — passes in 37-test run. (2) describeRequirementRemediation exercised by IDEA->PLAN missing binding test (line 274), asserting /story_create_from_repro/ in guard failure reason — matches new code_verifiable_behavior_change remediation string. (3) All 37 dev-gate smoke assertions pass (node packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js re-run: ok 37, repro evidence binding dev gate smoke passed). (4) repro-first-candidate-smoke passes (repro-first candidate smoke passed). (5) No new intents needed: the F-001/F-002 fix is formatter-only and its output paths are covered by existing must-intent evidence via the same smoke command. (6) Validate reports all evidence stale due to headHash drift after the fix commit, but this is mechanical freshness staleness not a behavioral coverage gap — the underlying behaviors are verified by the passing smoke. 19 total intents: 16 must, 3 should, 0 waiver. No must-gaps identified. Test coverage review passed.",
+      "createdAt": "2026-06-26T22:35:24.953Z",
+      "reviewRound": "2026-06-26T22:21:15.234Z",
+      "reviewRunId": "B-8628:RR-006",
+      "_hash": "736e2952fee795d38a45f357c52e463afcff27a790fb4e110cb40900200cb758"
     }
   ]
 }
