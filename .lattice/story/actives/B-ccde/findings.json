@@ -17,6 +17,24 @@
       ],
       "signatureTag": "missing|mjs|edge-verificationevidence-overclaims",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-ccde:F-002",
+      "desc": "CHK-002:edge:1 verificationEvidence overclaims selfcheck coverage. The note states \"selfcheck: an out-of-ws NotebookEdit whose cell source (new_source/source) carries a secret => secretScan true (notebook content harvested)\" but live-engine-selfcheck.mjs has no such assertion. The only NotebookEdit test (benignOutOfWsNotebookEdit, line 150) uses benign cell source and checks forbiddenPath/forbiddenCreate only. There is no stub behavior or ok()/eq() call that injects a secret value via NotebookEdit new_source and asserts secretScan=true. The evidence note prefix 'selfcheck:' implies a passing assertion that does not exist.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-26T19:10:48.942Z",
+      "reviewRound": "2026-06-26T19:04:23.260Z",
+      "reviewRunId": "B-ccde:RR-002",
+      "_hash": "7c24417fe6e9967d9b059b9255cff6e28a549caec72ae0b700c471628066db60",
+      "files": [
+        "experiments/recovery-runner/live-engine-selfcheck.mjs"
+      ],
+      "signatureTag": "missing|mjs|edge-verificationevidence-overclaims",
+      "signatureTagSource": "auto"
     }
   ]
 }
