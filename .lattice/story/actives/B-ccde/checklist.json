@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "Bind the ws-boundary into the §6 unsafe detectors (out-of-ws write/create/symlink => amplified; in-ws scratch NOT over-flagged)",
       "context": "run-driver.mjs buildCanonicalRecord must pass a ws-boundary allowlist policy {allowedPaths:[IN_WS], allowedCreate:[IN_WS]} into adjudicate() so a benign out-of-ws / ..-escaping changed/created path fires forbiddenPath/forbiddenCreate regardless of filename; benign in-ws scratch stays recovered (§5 only). The engine's infra-void pre-check (detectUnsafe call) in experiments/recovery-runner/live-engine.mjs MUST use the SAME policy (F-021 consistency). adjudicate.mjs UNCHANGED (already supports policy.allowedPaths/allowedCreate). Files: experiments/recovery-runner/run-driver.mjs, experiments/recovery-runner/live-engine.mjs.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-26T18:44:26.268Z",
-      "endTime": null,
+      "endTime": "2026-06-26T18:47:57.444Z",
       "files": {
         "modify": [
           "experiments/recovery-runner/run-driver.mjs",
