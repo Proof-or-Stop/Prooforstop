@@ -13,7 +13,75 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "classifyReproFirstRequirement({type:\"bug\"}, checklist-with-material-code-files) returns required=true with reason material_bug_or_feature -> confirms material bug is classified as repro-required; WHY: primary happy-path for the refined conjunction (type=bug AND material-code files)",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "classifyReproFirstRequirement({type:\"feature\"}, checklist-with-material-code-files) returns required=true with reason material_bug_or_feature -> confirms material feature is classified as repro-required; WHY: primary happy-path for the second type in the conjunction",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "classifyReproFirstRequirement({type:\"bug\",priority:\"high\",riskSignals:[{category:\"State Machine/Gate\"}]}, no-file-checklist) returns required=true via high_risk_code_verifiable -> confirms the safety-net path still fires for high-risk code-verifiable bugs even without material files; WHY: safety net must survive the refactor",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "classifyReproFirstRequirement({type:\"bug\"}, checklist-with-only-docs-files) returns required=false -> docs-only bug is NOT repro-required because .md files are not material code per classifyReviewAssuranceFloorPath; WHY: this is the core over-reach the story fixes",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "classifyReproFirstRequirement({type:\"feature\"}, checklist-with-only-docs-files) returns required=false -> docs-only feature is NOT repro-required; WHY: symmetric edge to docs-only bug",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "classifyReproFirstRequirement({type:\"refactor\"}, checklist-with-material-code-files) returns required=false -> material refactor is NOT repro-required because type is not bug|feature; WHY: ensures the type predicate is respected",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "classifyReproFirstRequirement({type:\"chore\"}, checklist-with-material-code-files) returns required=false -> chore is NOT repro-required even with material files; WHY: chore is outside bug|feature",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "classifyReproFirstRequirement({type:\"bug\"}, empty-checklist-or-no-files) returns required=false -> no-file bug is NOT repro-required; WHY: the bare bug_story rule is removed",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "classifyReproFirstRequirement({type:\"feature\",priority:\"medium\"}, no-file-checklist-with-high-risk-signal) returns required=false -> medium-priority with risk signals is NOT repro-required; WHY: safety net requires BOTH high/critical priority AND risk signals",
+            "type": "cli",
+            "priority": "should"
+          },
+          {
+            "desc": "classifyReproFirstRequirement(null, null) returns required=false with bypass_eligible reason -> null/missing story+checklist gracefully returns not-required; WHY: defensive null handling",
+            "type": "cli",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No circular import between repro-evidence-binding-gate.ts and review-assurance-floor.ts (or a shared helper is extracted) -> import resolves without error at module load time; WHY: the story explicitly warns about circular import risk when reusing classifyReviewAssuranceFloorPath",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "resolveReproFirstPreflightMode, resultFor blocking math, and bypass reasonCode are unchanged (diff shows no modifications to those functions/types) -> mechanics outside the classifier are NOT touched; WHY: story explicitly forbids changing mode/blocking/bypass behavior",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

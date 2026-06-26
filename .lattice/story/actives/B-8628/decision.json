@@ -1,0 +1,75 @@
+{
+  "principles": [
+    "red/spike is only meaningful when a failing test can pin a behavior delta: gate it to material-code bug/feature.",
+    "Reuse the canonical material-code classifier; do not re-invent or fork the definition.",
+    "Change WHO is classified required, not the warn/enforce/bypass mechanics.",
+    "Prove both directions with the red test as regression (exempt cases AND required cases)."
+  ],
+  "drivers": [
+    "Stop forcing red/spike where a reproduce-the-failure test is impossible (docs/refactor/chore).",
+    "Keep it for genuinely code-provable bug/feature work + high-risk safety net.",
+    "Low blast radius: one classifier + its smokes; gate mechanics untouched."
+  ],
+  "options": [
+    {
+      "name": "refine classifier to material-code bug/feature + safety net (option A)",
+      "pros": [
+        "Stops forcing red/spike where a reproduce-the-failure test is impossible (docs/refactor/chore)",
+        "Keeps it for code-verifiable bug/feature that writes material code + high-risk safety net",
+        "Small, validated change (red/spike green) in one core file + smokes; mechanics unchanged"
+      ],
+      "cons": [
+        "Loosens intake for no-material-file bug/feature (relies on DEV-gate re-check + warn)"
+      ]
+    },
+    {
+      "name": "also require no-file bug/feature at intake (stricter)",
+      "pros": [
+        "Nudges declaring files / doing repro earlier"
+      ],
+      "cons": [
+        "Re-introduces friction at intake before we can prove code is written; user chose A",
+        "Rejected"
+      ]
+    },
+    {
+      "name": "change the gate mode/blocking instead of the classifier",
+      "pros": [
+        "Could globally soften the gate"
+      ],
+      "cons": [
+        "Spike showed the gap is the CLASSIFICATION (who is required), not the warn/enforce math",
+        "Blunt; would weaken the gate for genuine cases too; rejected"
+      ]
+    }
+  ],
+  "chosen": "refine classifier to material-code bug/feature + safety net (option A)",
+  "rationale": "The red/spike validated this exact rule (8/8 cases green) as a small one-file change with mechanics untouched. Option B (require no-file at intake) was explicitly declined by the user (option A chosen). Option C blunts the gate and misses the real gap (classification, not mechanics).",
+  "preMortem": [
+    {
+      "scenario": "Circular import from reusing classifyReviewAssuranceFloorPath.",
+      "trigger": "repro-evidence-binding-gate.ts importing review-assurance-floor.ts creates an import cycle.",
+      "consequence": "tsc build fails or runtime import error.",
+      "mitigation": "Check the import graph before committing; if a cycle exists, extract a tiny shared material-path helper (the classify rule) into a leaf module both import, rather than coupling the two gate files."
+    },
+    {
+      "scenario": "The change weakens the gate for genuinely dangerous no-file bugs.",
+      "trigger": "A high-impact bug filed with no file declarations is now intake-exempt.",
+      "consequence": "A risky task skips repro evidence at story_create.",
+      "mitigation": "Keep the high/critical + code-verifiable-risk safety net (still requires it), and rely on the DEV-phase repro-evidence-binding gate to re-check once material files are declared (conservative at intake, firmer at DEV)."
+    },
+    {
+      "scenario": "Over-correction exempts material bug/feature too.",
+      "trigger": "A logic error makes the refined rule return not-required for a material-code bug/feature.",
+      "consequence": "The gate stops firing where it should.",
+      "mitigation": "The red/spike regression asserts BOTH directions: docs/refactor/chore/no-file -> not required AND material bug/feature + high-risk-no-file -> required; the smoke fails if either flips."
+    },
+    {
+      "scenario": "A consuming smoke pins the old classification and breaks.",
+      "trigger": "repro-evidence-binding-dev-gate-smoke.ts / repro-first-candidate-smoke.ts assert the old required=true for a now-exempt case.",
+      "consequence": "npm test fails.",
+      "mitigation": "Update those smokes to the refined behavior in the same change and add the red/spike regression; run npm test green before REVIEW."
+    }
+  ],
+  "timestamp": "2026-06-26T21:49:00.576Z"
+}
