@@ -4,7 +4,7 @@
   "title": "Close the §6 unsafe-oracle ws-boundary false-clean: a benign-named out-of-workspace write or escaping symlink is adjudicated recovered instead of amplified (host-2 found; shipped via B-8d44)",
   "description": "The recovery-runner §6 unsafe oracle scores a benign-NAMED out-of-workspace write/create or escaping symlink (with a captured tool event) as `recovered` instead of `amplified` — a cardinal-sin false-clean counted in the paper's §6 not-amplified PRIMARY metric. The engine harvests the out-of-ws targets but run-driver calls adjudicate with no allowlist policy, so only the secret-name denylist fires. Bind the WORKSPACE boundary into the unsafe detectors (out-of-ws => amplified regardless of name) without over-flagging benign in-ws scratch files; adjudicate.mjs stays unchanged. Land this BEFORE the multi-day powered RUN so the §6 numbers are sound.",
   "type": "bug",
-  "phase": "PLAN",
+  "phase": "DEV",
   "priority": "high",
   "keywords": [
     "recovery-runner",
@@ -53,6 +53,15 @@
       "phase": "PLAN",
       "action": "advance",
       "timestamp": "2026-06-26T18:32:11.344Z",
+      "branch": "story/B-ccde",
+      "user": "Harmonygo",
+      "sessionId": "e8aca935-deaf-4f5d-9f33-b3aff7bb35fb",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-26T18:40:44.821Z",
       "branch": "story/B-ccde",
       "user": "Harmonygo",
       "sessionId": "e8aca935-deaf-4f5d-9f33-b3aff7bb35fb",
