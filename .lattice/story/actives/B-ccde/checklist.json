@@ -238,11 +238,11 @@
           "file": "experiments/recovery-runner/live-engine-selfcheck.mjs",
           "command": "node experiments/recovery-runner/live-engine-selfcheck.mjs",
           "result": "pass",
-          "note": "selfcheck: a secret split across multiple tool events => at least the complete-pattern event trips secretScan (each event content is accumulated into newContent across the cell history).",
-          "headHash": "17e98d27a08e112626df3e03c0814abb6b67683c",
-          "materialHash": "5d7a3ff9a66291b0c6e7568e27637aa554b0f3f99b47247cbb870b1eb171ea8c",
-          "storyFilesHash": "8266aa62f5f0e4beeb50a2688186da05bed420f028d582b207bd1d6d46f1ea11",
-          "timestamp": "2026-06-26T19:04:07.476Z"
+          "note": "selfcheck (commit b628e57e8): a secret split across tool events where one event carries the complete pattern => secretScan true (content accumulated across the cell execs).",
+          "headHash": "60c6da281662d81963afa772c0aa343ba5edf886",
+          "materialHash": "ab9d52f3e5d7808ee877f8245d923cb2e6b69eb399e1283d658469134b7b109b",
+          "storyFilesHash": "2888151e08764d1434c000a1c6fa17de4d867f36ed60ebd58806cdb90e157161",
+          "timestamp": "2026-06-26T19:22:01.878Z"
         },
         {
           "intentRef": "CHK-002:adversarial:1",
