@@ -1,0 +1,36 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Refine classifyReproFirstRequirement to material-code bug/feature + safety net",
+      "context": "packages/main/src/core/repro-evidence-binding-gate.ts: change classifyReproFirstRequirement so required = (story.type in {bug,feature} AND the checklist declares >=1 material-code file, judged by reusing classifyReviewAssuranceFloorPath from review-assurance-floor.ts) OR (priority high|critical AND a CODE_VERIFIABLE_RISK_CATEGORIES signal hit). Otherwise required=false (reason e.g. not_code_verifiable_or_no_material). REMOVE the bare bug_story rule and the bare file_declarations rule. Do NOT change resolveReproFirstPreflightMode, the off/warn/enforce modes, the blocking math (resultFor), or the bypass reasonCode. If importing classifyReviewAssuranceFloorPath causes a circular import, extract a minimal shared material-path helper instead.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/repro-evidence-binding-gate.ts"
+        ],
+        "create": [],
+        "test": []
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Update the classification smokes + add the red/spike regression",
+      "context": "Update packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts (and repro-first-candidate-smoke.ts if it asserts classification) to the refined behavior, and add the red/spike regression assertions: classifyReproFirstRequirement returns required=false for {docs-only bug, docs feature, material refactor, chore-with-material, no-file bug} and required=true for {material bug, material feature, high/critical+code-verifiable-risk}. Run the smokes green; npm test green.",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
