@@ -433,14 +433,17 @@ function describeRequirement(result: StoryEvidenceBindingGateResult): string {
 
 function describeRequirementSubject(result: StoryEvidenceBindingGateResult): string {
   switch (result.requirementReason) {
-    case 'file_declarations':
-      return 'the checklist declares files.modify/create/test';
-    case 'bug_story':
-      return 'story.type=bug';
+    case 'code_verifiable_behavior_change':
+      return 'this is a code-verifiable behavior change (a bug/feature that writes material code)';
     case 'high_risk_code_verifiable':
       return 'the story has code-verifiable high-risk signals';
     case 'bypass_eligible_no_files':
       return 'the story is not repro-first required';
+    // Legacy reasons (B-8628: no longer produced; retained for backward-compat with any consumer).
+    case 'file_declarations':
+      return 'the checklist declares files.modify/create/test';
+    case 'bug_story':
+      return 'story.type=bug';
     default:
       return 'the repro-first classifier requires accepted repro evidence';
   }
@@ -448,12 +451,15 @@ function describeRequirementSubject(result: StoryEvidenceBindingGateResult): str
 
 function describeRequirementRemediation(result: StoryEvidenceBindingGateResult): string {
   switch (result.requirementReason) {
+    case 'code_verifiable_behavior_change':
+      return 'Create this material-code bug/feature from accepted repro evidence with story_create_from_repro, or pass reproFirstBypassReason for a documented non-reproducible exception.';
+    case 'high_risk_code_verifiable':
+      return 'Create this high-risk code-verifiable story from accepted repro evidence with story_create_from_repro, or dismiss/adjust false-positive risk signals before entering lifecycle work.';
+    // Legacy reasons (B-8628: no longer produced; retained for backward-compat with any consumer).
     case 'file_declarations':
       return 'Create this code-changing story from accepted repro evidence with story_create_from_repro, or remove files.modify/create/test for non-code work.';
     case 'bug_story':
       return 'Create this bug story from accepted repro evidence with story_create_from_repro, or change the story type only if this is not actually bug work.';
-    case 'high_risk_code_verifiable':
-      return 'Create this high-risk code-verifiable story from accepted repro evidence with story_create_from_repro, or dismiss/adjust false-positive risk signals before entering lifecycle work.';
     default:
       return 'Create the story from accepted repro evidence with story_create_from_repro, or correct the classifier inputs before entering lifecycle work.';
   }
