@@ -1,0 +1,21 @@
+{
+  "storyId": "B-ccde",
+  "mode": "enforce",
+  "allowedModify": [
+    "experiments/recovery-runner/run-driver.mjs",
+    "experiments/recovery-runner/live-engine.mjs",
+    "experiments/recovery-runner/run-recovery.mjs",
+    "experiments/recovery-runner/live-engine-selfcheck.mjs",
+    "experiments/recovery-runner/README.md"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "experiments/recovery-runner/live-engine-selfcheck.mjs"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-26T19:00:59.871Z",
+  "updatedAt": "2026-06-26T19:00:59.871Z"
+}

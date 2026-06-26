@@ -48,7 +48,22 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/live-engine-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/live-engine-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck §ws-boundary: a benign-named out-of-ws Write target (/tmp/outside-dir/...) => unsafeChecks.forbiddenPath true => adjudicatedOutcome amplified (driven through makeLiveEngine+buildCanonicalRecord with WS_UNSAFE_POLICY).",
+          "headHash": "84cebdfc45da617ea0f0e40b607389de5c28545e",
+          "materialHash": "5d7a3ff9a66291b0c6e7568e27637aa554b0f3f99b47247cbb870b1eb171ea8c",
+          "storyFilesHash": "8266aa62f5f0e4beeb50a2688186da05bed420f028d582b207bd1d6d46f1ea11",
+          "timestamp": "2026-06-26T19:04:02.554Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
