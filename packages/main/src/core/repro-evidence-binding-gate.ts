@@ -1,6 +1,7 @@
 import { listArtifacts, readArtifact, verifyArtifactDigest } from './evidence/artifact-store.js';
 import { loadConfig } from './config.js';
 import { buildProofAdmissibilityDiagnostic } from './proof-admissibility-gates.js';
+import { classifyReviewAssuranceFloorPath } from './review-assurance-floor.js';
 import type {
   EvidenceArtifact,
   RegressionMatrixReviewPayload,
@@ -22,10 +23,12 @@ export type StoryEvidenceBindingGateReasonCode =
 export type ReproFirstPreflightMode = 'off' | 'warn' | 'enforce';
 
 export type ReproFirstRequirementReason =
-  | 'file_declarations'
-  | 'bug_story'
+  | 'code_verifiable_behavior_change'
   | 'high_risk_code_verifiable'
-  | 'bypass_eligible_no_files';
+  | 'bypass_eligible_no_files'
+  // Legacy reasons (B-8628: no longer produced; retained for backward-compat with any consumer).
+  | 'file_declarations'
+  | 'bug_story';
 
 export interface ReproFirstRequirementClassification {
   required: boolean;
@@ -64,31 +67,41 @@ export function resolveReproFirstPreflightMode(projectRoot?: string): ReproFirst
   }
 }
 
-function checklistHasFileDeclarations(checklist: ChecklistData | null | undefined): boolean {
-  if (!checklist) return false;
-  return checklist.items.some(item => (
-    (item.files?.modify?.length ?? 0) > 0 ||
-    (item.files?.create?.length ?? 0) > 0 ||
-    (item.files?.test?.length ?? 0) > 0
-  ));
+/**
+ * B-8628: collect the checklist's declared files that are MATERIAL CODE, reusing
+ * the canonical review-assurance-floor classifier (.ts/.js/.sh/scripts/package.json
+ * = material; .md/metadata = not). Single source of truth for "writes code".
+ */
+function collectMaterialCodeFiles(checklist: ChecklistData | null | undefined): string[] {
+  if (!checklist) return [];
+  return checklist.items
+    .flatMap(item => [
+      ...(item.files?.modify ?? []),
+      ...(item.files?.create ?? []),
+      ...(item.files?.test ?? []),
+    ])
+    .filter(path => classifyReviewAssuranceFloorPath(path).materialCode);
 }
 
+/**
+ * B-8628: repro-first is required only when a reproduce-the-failure red test can
+ * exist — i.e. the task (a) writes material code AND (b) is a code-verifiable
+ * behavior change (type bug|feature). docs-only / refactor / chore / no-material
+ * are exempt at intake (the DEV-phase repro-evidence-binding gate re-checks once
+ * material files are known). The high/critical + code-verifiable-risk safety net
+ * is kept. This changes WHO is classified required, not the warn/enforce/bypass
+ * mechanics. Replaces the over-reaching file_declarations + bug_story rules.
+ */
 export function classifyReproFirstRequirement(
   story: StoryInfo | null | undefined,
   checklist: ChecklistData | null | undefined,
 ): ReproFirstRequirementClassification {
-  if (checklistHasFileDeclarations(checklist)) {
+  const materialFiles = collectMaterialCodeFiles(checklist);
+  if ((story?.type === 'bug' || story?.type === 'feature') && materialFiles.length > 0) {
     return {
       required: true,
-      reason: 'file_declarations',
-      details: ['checklist declares files.modify/create/test'],
-    };
-  }
-  if (story?.type === 'bug') {
-    return {
-      required: true,
-      reason: 'bug_story',
-      details: ['story.type=bug'],
+      reason: 'code_verifiable_behavior_change',
+      details: [`story.type=${story.type}`, `material code files: ${materialFiles.slice(0, 5).join(', ')}`],
     };
   }
   const highRiskHits = (story?.riskSignals ?? [])
@@ -104,7 +117,7 @@ export function classifyReproFirstRequirement(
   return {
     required: false,
     reason: 'bypass_eligible_no_files',
-    details: ['no checklist file declarations, bug type, or code-verifiable high-risk signal'],
+    details: ['not a material-code bug/feature and no code-verifiable high-risk signal'],
   };
 }
 
