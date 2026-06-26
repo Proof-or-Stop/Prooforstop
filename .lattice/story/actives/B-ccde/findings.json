@@ -53,6 +53,24 @@
       ],
       "signatureTag": "missing|mjs|adversarial-verificationevidence-overclaims",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-ccde:F-004",
+      "desc": "CHK-002:adversarial:1 verificationEvidence overclaims selfcheck coverage. The note states \"selfcheck: a secret in the new_str alias field => secretScan true (the harvest reads the new_str alias, confirmed at live-engine.mjs harvest of content/new_string/new_str/new_source/source)\" but live-engine-selfcheck.mjs contains no new_str-alias test case. There is no stub behavior emitting a tool_use input with the new_str field (vs new_string) carrying a secret, and no ok()/eq() call asserting secretScan=true for that alias. The harvest implementation at live-engine.mjs line 333 (pushStr(inp.new_str)) is real, but the evidence note uses 'selfcheck:' to imply an assertion that is absent.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-26T19:11:06.172Z",
+      "reviewRound": "2026-06-26T19:04:23.260Z",
+      "reviewRunId": "B-ccde:RR-002",
+      "_hash": "f489bb1ccb78922dedc9a989079ecf851885cc4cafadb9828ea7fe63543bb33b",
+      "files": [
+        "experiments/recovery-runner/live-engine-selfcheck.mjs"
+      ],
+      "signatureTag": "missing|mjs|adversarial-verificationevidence-overclaims",
+      "signatureTagSource": "auto"
     }
   ]
 }
