@@ -1,0 +1,37 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-8628",
+  "allowedCommands": [
+    "git diff",
+    "git status",
+    "node packages/main/dist/tasks/*-smoke.js",
+    "npm --prefix packages/main run build",
+    "npm test"
+  ],
+  "allowedTools": [
+    "git",
+    "node",
+    "npm"
+  ],
+  "allowedPaths": [
+    "packages/main/src/core/repro-evidence-binding-gate.ts",
+    "packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts",
+    "packages/main/src/tasks/repro-first-candidate-smoke.ts"
+  ],
+  "excludedCommands": [
+    "git push",
+    "git reset --hard",
+    "rm -rf"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".lattice",
+    "packages/main/src/core/review-assurance-floor.ts",
+    "packages/main/src/handlers"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Refine the repro-first intake classifier + its smoke(s). No mode/blocking/bypass mechanics change; classifier reuses the canonical materialCode path test.",
+  "createdAt": "2026-06-26T21:46:48.969Z",
+  "updatedAt": "2026-06-26T21:46:48.969Z",
+  "_hash": "a6e805fe0fb7f52517f842ad90b831aa0ca4b4cf18cf9b43b8a1bd7a0fedf7dd"
+}

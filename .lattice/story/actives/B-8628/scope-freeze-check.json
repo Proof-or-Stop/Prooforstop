@@ -1,0 +1,56 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-8628",
+  "checkedAt": "2026-06-26T21:46:49.290Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "7d6f53c447c850c1fccb6c6592361ebac79f7a73697e6a224547fb17117fc73e",
+  "executionBoundaryHash": "a6e805fe0fb7f52517f842ad90b831aa0ca4b4cf18cf9b43b8a1bd7a0fedf7dd",
+  "freshnessHash": "a0060b2dde9f36af0643642d3ab402253518a141e857b3b10e022c565c8e2066",
+  "effectiveExcludedKeywords": [
+    "Authority",
+    "Changing the gate default mode or the DEV-phase repro-evidence-binding gate flow",
+    "customerKeyRef",
+    "handlers/story-create.ts (auto-inherits the classifier; no edit)",
+    "Layer4",
+    "repair UX",
+    "resolveReproFirstPreflightMode and the off/warn/enforce modes (unchanged)",
+    "review-assurance-floor.ts classifyReviewAssuranceFloorPath (reuse, do not modify; if circular-import, extract a tiny shared path helper)",
+    "The blocking math (resultFor) and the bypass reasonCode (unchanged)"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Changing the gate default mode or the DEV-phase repro-evidence-binding gate flow",
+      "source": "scopeBoundary.excluded",
+      "text": "Changing the gate default mode or the DEV-phase repro-evidence-binding gate flow",
+      "excluded": true
+    },
+    {
+      "keyword": "handlers/story-create.ts (auto-inherits the classifier; no edit)",
+      "source": "scopeBoundary.excluded",
+      "text": "handlers/story-create.ts (auto-inherits the classifier; no edit)",
+      "excluded": true
+    },
+    {
+      "keyword": "resolveReproFirstPreflightMode and the off/warn/enforce modes (unchanged)",
+      "source": "scopeBoundary.excluded",
+      "text": "resolveReproFirstPreflightMode and the off/warn/enforce modes (unchanged)",
+      "excluded": true
+    },
+    {
+      "keyword": "review-assurance-floor.ts classifyReviewAssuranceFloorPath (reuse, do not modify; if circular-import, extract a tiny shared path helper)",
+      "source": "scopeBoundary.excluded",
+      "text": "review-assurance-floor.ts classifyReviewAssuranceFloorPath (reuse, do not modify; if circular-import, extract a tiny shared path helper)",
+      "excluded": true
+    },
+    {
+      "keyword": "The blocking math (resultFor) and the bypass reasonCode (unchanged)",
+      "source": "scopeBoundary.excluded",
+      "text": "The blocking math (resultFor) and the bypass reasonCode (unchanged)",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "87e359a05023771d73ef4cc122a0372be30da2bff8d57acf71bd9b31d7b2bb09"
+}
