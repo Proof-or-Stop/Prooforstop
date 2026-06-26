@@ -1,0 +1,22 @@
+{
+  "findings": [
+    {
+      "id": "B-8628:F-001",
+      "desc": "concept-cleanup: legacy case branches for bug_story and file_declarations in describeRequirementSubject and describeRequirementRemediation (repro-evidence-binding-gate.ts lines 436/438/451/453) lack a backward-compat comment; the type union at line 29 has the B-8628 legacy annotation but the switch-case consumers do not, making it non-obvious they are backward-compat stubs for old artifacts rather than active produced paths",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-26T22:07:10.131Z",
+      "reviewRound": "2026-06-26T22:05:29.088Z",
+      "reviewRunId": "B-8628:RR-001",
+      "_hash": "0ccc6a9700059f4ad570ede11bade9d99466ad0556b4c0fe23396b2685b9b3bd",
+      "files": [
+        "packages/main/src/core/repro-evidence-binding-gate.ts"
+      ],
+      "signatureTag": "missing|ts|concept-cleanup-legacy",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
