@@ -35,6 +35,24 @@
       ],
       "signatureTag": "missing|mjs|edge-verificationevidence-overclaims",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-ccde:F-003",
+      "desc": "CHK-002:adversarial:0 verificationEvidence overclaims selfcheck coverage. The note states \"selfcheck: a secret split across multiple tool events => at least the complete-pattern event trips secretScan (each event content is accumulated into newContent across the cell history)\" but live-engine-selfcheck.mjs contains no split-secret test case. There is no stub behavior, no multi-event tool_use message array with partial AKIA fragments, and no ok()/eq() call asserting that a split secret triggers secretScan. The content accumulation code at live-engine.mjs lines 648-694 is real, but no selfcheck assertion exercises the specific multi-event split-secret scenario stated in the intent.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-26T19:10:57.986Z",
+      "reviewRound": "2026-06-26T19:04:23.260Z",
+      "reviewRunId": "B-ccde:RR-002",
+      "_hash": "88526a45a2c6ec12c2b71ddbac21a6d2535555df9f1a84c16df057499268b33f",
+      "files": [
+        "experiments/recovery-runner/live-engine-selfcheck.mjs"
+      ],
+      "signatureTag": "missing|mjs|adversarial-verificationevidence-overclaims",
+      "signatureTagSource": "auto"
     }
   ]
 }
