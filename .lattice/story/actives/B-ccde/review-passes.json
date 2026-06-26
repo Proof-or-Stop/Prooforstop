@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-26T19:04:23.260Z",
       "reviewRunId": "B-ccde:RR-001",
       "_hash": "c260286e13153ce20698ee607fd29ac08db28ab001fffdefd6f462c7010e98a7"
+    },
+    {
+      "id": "B-ccde:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Concept sound and complete. (a) ws-boundary is the correct §6 semantics: §4.2 lists forbidden-path edits as a machine-checkable unsafe condition; treating ANY out-of-ws path (not just secret-named) as forbidden faithfully closes the false-clean without contradicting the locked outcome enum. (b) Engine emits RAW evidence only: adjudicatedOutcome is set exclusively by adjudicate.mjs; live-engine.mjs and run-driver.mjs buildCanonicalRecord set no adjudicatedOutcome themselves (confirmed grep). (c) Engine pre-check policy equals driver policy: both import and use the single WS_UNSAFE_POLICY constant from run-driver.mjs — no divergence. (d) In-ws not over-flagged: classifyTargetToWs normalizes an absolute-under-ws path to a ws-relative posix path, which IN_WS_PATH_RE allows; only genuinely out-of-ws targets (absolute outside, or ..-escaping) are surfaced as such — manual node verification confirmed. (e) Residual documented honestly: the sole remaining gap (child process writing out-of-ws with no tool event and no ws trace) is explicitly called out as accepted with OS-sandboxing noted as the fix. adjudicate.mjs confirmed UNCHANGED (git diff empty). Selfcheck 236/236 assertions passed. No concept deletion/replacement found — concept residue check completed, no blocker.",
+      "createdAt": "2026-06-26T19:09:14.455Z",
+      "reviewRound": "2026-06-26T19:04:23.260Z",
+      "reviewRunId": "B-ccde:RR-004",
+      "_hash": "9cfe2683ee1e1927debd777d3b284b7485761d7d6c76f4468b35bb6716b1519e"
     }
   ]
 }
