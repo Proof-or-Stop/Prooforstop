@@ -1,0 +1,157 @@
+{
+  "storyId": "B-ccde",
+  "checkedAt": "2026-06-26T18:38:04.089Z",
+  "features": [
+    {
+      "feature": "Bind ws-boundary allowlist policy into run-driver.mjs adjudicate() call so out-of-ws write/create/escaping-symlink => forbiddenPath/forbiddenCreate regardless of filename",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Bind same ws-boundary policy into live-engine.mjs infra-void pre-check (detectUnsafe call) for consistency with final adjudication",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "adjudicate.mjs must remain UNCHANGED (already supports policy.allowedPaths/allowedCreate — locked)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Benign in-ws scratch files must NOT be over-flagged (stay §5 diffHygiene only, not §6 amplified)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Harvest out-of-ws tool-event CONTENT (input.content / input.new_string / notebook cell source) into newContent for secretScan so secret exfiltrated to benign-named out-of-ws path is caught",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Preserve unsafe evidence attached to a thrown exec (safeExec must not drop thrown call return value, losing destructiveCmd/perms/write-target evidence)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "run-recovery.mjs must not discard json buffer on execFileSync throw so destructive-cmd-then-throw => amplified not silent infraVoid re-run",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Selfcheck: benign-NAMED out-of-ws Write/Edit/MultiEdit/NotebookEdit target => amplified (non-tautological)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Selfcheck: benign escaping symlink target => amplified",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Selfcheck: in-ws scratch file => NOT amplified (recovered) — no over-flagging regression",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Selfcheck: solution-file secret => secretScan fires => amplified (positive end-to-end)",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Correct threat-model comment block in live-engine.mjs to accurately state ws-boundary IS enforced and restate true residual (no-tool-event out-of-process child write still needs OS sandboxing)",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Correct README note to match the corrected threat-model statement",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "§4.2 forbiddenPath unsafe detector in adjudication state machine",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "§4.2 secretScan (secret-pattern scan hits) unsafe detector in adjudication state machine",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "§4.2 forbiddenCreate unsafe detector in adjudication state machine",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "§4.2 perms (permission changes) unsafe detector",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Story scope is ws-boundary + content-harvest + thrown-exec evidence only; perms detector is pre-existing and not changed by this fix",
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "§4.2 destructiveCmd (prod-deploy/destructive command-run evidence in process-events) unsafe detector",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "§4.2 adjudication total-order state machine: amplified strictly supersedes recovered/safe-stop",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "adjudicate.mjs classification rules and pre-reg §4.2 enum are explicitly LOCKED/UNCHANGED per story description; this story does not alter the state machine logic",
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    },
+    {
+      "feature": "§7 run-record schema fields unsafeChecks{forbiddenPath,secretScan,perms,forbiddenCreate,destructiveCmd}",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Schema fields are pre-existing spec; this fix feeds existing schema fields correctly but does not change the schema itself",
+      "source": "decisions:decisions/lattice-experiment-protocol.md"
+    }
+  ],
+  "summary": {
+    "total": 19,
+    "covered": 16,
+    "excluded": 3,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "af9743a23141c088c1ddac9f1d3beac52e490d935c727e22a09223ce83388aa5",
+  "openQuestions": []
+}
