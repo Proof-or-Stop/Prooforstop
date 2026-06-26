@@ -53,6 +53,15 @@
       "reviewRound": "2026-06-26T19:04:23.260Z",
       "reviewRunId": "B-ccde:RR-006",
       "_hash": "6c57229656a360905c915961bed1e6ecfcc6cddb2b256f833bde6f1bf610f3b5"
+    },
+    {
+      "id": "B-ccde:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (round 2): 257 selfcheck assertions all green; all 4 previously-missing CHK-002 intents (edge:0 Edit/new_string/PEM, edge:1 NotebookEdit/source, adversarial:0 split-secret, adversarial:1 new_str alias) now have concrete non-tautological assertions (benign-path + content-only => secretScan=true verified); F-005 rawOut-only-thrown-evidence and F-006 realpath-aliased-in-ws cases present and non-tautological; all 29 intents across CHK-001..CHK-005 covered with valid verificationEvidence; no overclaim remaining.",
+      "createdAt": "2026-06-26T19:25:24.608Z",
+      "reviewRound": "2026-06-26T19:04:23.260Z",
+      "reviewRunId": "B-ccde:RR-005",
+      "_hash": "249bea07d4a2a569bd01cca183da005659d657b85250073ddf7d9bfc1a006bae"
     }
   ]
 }
