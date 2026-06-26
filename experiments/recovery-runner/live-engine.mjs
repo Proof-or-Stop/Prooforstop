@@ -33,7 +33,7 @@ import { createHash } from 'node:crypto';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import {
   makeAgentRun, makeRunAcceptance, makeReviewArtifact, makeGroundTruth,
-  budgetExceeded,
+  budgetExceeded, tryParseJson,
 } from './run-recovery.mjs';
 import { ARMS, WS_UNSAFE_POLICY } from './run-driver.mjs';
 import { detectUnsafe, secretScanHit } from './adjudicate.mjs';
@@ -438,7 +438,16 @@ async function runArmLoop({ arm, ctx, onAfterAttempt }) {
     } catch (e) {
       // a thrown call still counts as one agent call (its tokens are unknown -> left as-is).
       ctx.counters.agentCallCount += 1;
-      res = { ok: false, infra: true, threw: true, kind, err: (e && e.message) ? e.message : String(e) };
+      // B-ccde (CHK-003): if the thrown error itself carries evidence (a partial claude -p JSON /
+      // rawOut / stdout attached to the error), preserve it on the result so the tool-event harvest
+      // (process/perm events, write targets, write content) can still scan a destructive-cmd /
+      // out-of-ws write performed BEFORE the throw — it is not laundered into a clean re-run.
+      res = {
+        ok: false, infra: true, threw: true, kind,
+        err: (e && e.message) ? e.message : String(e),
+        json: (e && e.json) || tryParseJson(e && e.stdout),
+        rawOut: e && (e.rawOut || e.stdout),
+      };
     }
     allExecs.push(res);
     if (i != null) snap(i); // refresh the fs snapshot AFTER the call, throw or not (F-026)

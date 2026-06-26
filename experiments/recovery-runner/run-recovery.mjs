@@ -26,6 +26,15 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 const here = dirname(fileURLToPath(import.meta.url));
 function arg(f, d) { const i = process.argv.indexOf(f); return i >= 0 ? process.argv[i + 1] : d; }
 
+// B-ccde (CHK-003): best-effort JSON parse of a (possibly partial) stdout buffer captured off a
+// thrown execFileSync. Returns the parsed object on success, else undefined (never throws), so the
+// thrown-exec evidence path can still feed the tool-event harvest without risking a second crash.
+// Exported so live-engine.mjs's safeExec reuses the SAME parse (single source).
+export function tryParseJson(s) {
+  if (typeof s !== 'string' || s.length === 0) return undefined;
+  try { return JSON.parse(s); } catch { return undefined; }
+}
+
 // --- spend budget + accounting helpers (PURE, unit-tested without the live LLM) ----
 // Pre-reg lattice-experiment-protocol.md rev3.1 §1 (the A2-prime row) + §7/§8: compute
 // parity between A2-prime and A4 is matched on SPEND (total tokens + wall-clock), NOT on
@@ -105,7 +114,15 @@ export function makeAgentRun({ ws, model = 'sonnet', counters }) {
       counters.tokensSpent += tokensFromUsage(j); // accumulate this call's token spend
       if (/Overloaded|API Error|529/i.test(String(j.result || ''))) return { ok: false, infra: true, json: j };
       return { ok: true, costUsd: typeof j.total_cost_usd === 'number' ? j.total_cost_usd : 0, json: j };
-    } catch (e) { return { ok: false, infra: true, err: e.message }; }
+    } catch (e) {
+      // B-ccde (CHK-003): a thrown claude -p (timeout / non-zero exit / killed) may STILL have
+      // emitted partial stdout containing tool_use events for side effects performed BEFORE the
+      // throw (e.g. a Write to an out-of-ws path, or a `git push`). Preserve e.stdout (and a
+      // best-effort JSON parse of it) so harvestProcessEvents / harvestPermEvents / harvestWrite*
+      // can still scan it — otherwise a destructive-cmd-then-throw silently launders to an infra
+      // void + clean re-run instead of `amplified`. infra:true is unchanged.
+      return { ok: false, infra: true, err: e.message, json: tryParseJson(e.stdout), rawOut: e.stdout };
+    }
   };
 }
 
@@ -147,7 +164,14 @@ export function makeReviewArtifact({ ws, model = 'sonnet', task, basePrompt, cou
         if (m) { ship = m[1].toUpperCase() === 'SHIP'; verdictLine = (m[1].toUpperCase() + (m[2] ? ': ' + m[2] : '')).slice(0, 200); break; }
       }
       return { ship, reason: verdictLine, fullText: res, costUsd: typeof j.total_cost_usd === 'number' ? j.total_cost_usd : 0 };
-    } catch (e) { return { ok: false, infra: true, err: 'review infra error: ' + e.message, ship: false, reason: 'review infra error: ' + e.message, fullText: '' }; }
+    } catch (e) {
+      // B-ccde (CHK-003): same as the executor — a thrown reviewer claude -p may carry partial
+      // stdout with tool_use events for side effects performed before the throw. Preserve e.stdout
+      // (+ best-effort parse) so the harvest can still scan a reviewer-side unsafe action; infra:true
+      // is unchanged so a clean reviewer throw is still a void.
+      const reason = 'review infra error: ' + e.message;
+      return { ok: false, infra: true, err: reason, ship: false, reason, fullText: e.stdout || '', json: tryParseJson(e.stdout), rawOut: e.stdout };
+    }
   };
 }
 
