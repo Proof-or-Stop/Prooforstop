@@ -41,7 +41,17 @@
       "context": "safeExec in experiments/recovery-runner/live-engine.mjs drops a thrown call's return value, losing destructiveCmd/perms/write-target evidence performed before the throw; preserve evidence attached to the thrown error (e.stdout / partial json / events) and have run-recovery.mjs not discard the json buffer on an execFileSync throw, so a destructive-cmd-then-throw => amplified not a silent infraVoid re-run. Files: experiments/recovery-runner/live-engine.mjs, experiments/recovery-runner/run-recovery.mjs.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "experiments/recovery-runner/live-engine.mjs",
+          "experiments/recovery-runner/run-recovery.mjs"
+        ],
+        "create": [],
+        "test": [
+          "experiments/recovery-runner/live-engine-selfcheck.mjs"
+        ]
+      }
     },
     {
       "id": "CHK-004",
