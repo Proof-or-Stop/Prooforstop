@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-26T19:04:23.260Z",
       "reviewRunId": "B-ccde:RR-007",
       "_hash": "a458600e61025e854eef8467d74b024320de499f1933a9197dd4e8ace36ebd3d"
+    },
+    {
+      "id": "B-ccde:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "Host-2 round 2 reviewed experiments/recovery-runner diff and reran targeted F-005/F-006 probes plus live-engine selfchecks. F-005 rawOut-only thrown JSON now harvests destructiveCmd and amplifies; F-006 realpath-aliased in-ws target recovers while genuine out-of-ws still amplifies. No new blocking exploit found.",
+      "createdAt": "2026-06-26T19:25:04.294Z",
+      "reviewRound": "2026-06-26T19:04:23.260Z",
+      "reviewRunId": "B-ccde:RR-008",
+      "_hash": "ef3373ecdc751ab11909ae2b80657d52b89d8dc855f054231bd556fd8ea00cd9"
     }
   ]
 }
