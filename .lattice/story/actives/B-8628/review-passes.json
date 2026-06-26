@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-8628:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. 19 intents (CHK-001: 12, CHK-002: 7), 0 must-gaps, 0 waivers. Smoke runs green (ok 37). All must intents backed by manual_transcript with command=node packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js and specific behavioral notes. Should-priority intents backed by logic_test with accurate code-reference notes. Red/spike regression substantiated by git diff: old file_declarations+bug_story rules removed; new smoke assertions (docs/g.md->false, refactor->false, chore->false, no-file bug->false, material bug->true, material feature->true, high-risk->true) would fail on pre-fix code. reason=bypass_eligible_no_files explicitly asserted at line 464. CHK-001:adversarial:1 confirmed by diff (resolveReproFirstPreflightMode+resultFor unchanged). validate green. repro-first-candidate-smoke green.",
+      "createdAt": "2026-06-26T22:19:31.350Z",
+      "reviewRound": "2026-06-26T22:05:29.088Z",
+      "reviewRunId": "B-8628:RR-003",
+      "_hash": "b5da10cc2e948811accb2f74407d23be6ed12a29abb377cd9f22fe446651d5ba"
+    }
+  ]
+}
