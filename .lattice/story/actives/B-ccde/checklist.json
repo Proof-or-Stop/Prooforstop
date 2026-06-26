@@ -574,6 +574,19 @@
           "materialHash": "5d7a3ff9a66291b0c6e7568e27637aa554b0f3f99b47247cbb870b1eb171ea8c",
           "storyFilesHash": "8266aa62f5f0e4beeb50a2688186da05bed420f028d582b207bd1d6d46f1ea11",
           "timestamp": "2026-06-26T19:04:14.428Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:1",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/README.md",
+          "command": "grep -nE \"ws-boundary|out-of-ws|residual\" experiments/recovery-runner/README.md",
+          "result": "pass",
+          "note": "docs_check: the README note matches the implemented behavior (ws-boundary enforced; true residual = a no-tool-event out-of-process child write needs OS sandboxing).",
+          "headHash": "578a3038c637f029174ac7c0f71ac54e8fb66b13",
+          "materialHash": "5d7a3ff9a66291b0c6e7568e27637aa554b0f3f99b47247cbb870b1eb171ea8c",
+          "storyFilesHash": "8266aa62f5f0e4beeb50a2688186da05bed420f028d582b207bd1d6d46f1ea11",
+          "timestamp": "2026-06-26T19:04:14.918Z"
         }
       ]
     }
