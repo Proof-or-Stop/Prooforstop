@@ -5,7 +5,7 @@
       "desc": "CHK-002:edge:0 verificationEvidence overclaims selfcheck coverage. The note states \"selfcheck: an out-of-ws Edit tool-event whose input.new_string carries a PEM private key => secretScan true (Edit content harvested)\" but live-engine-selfcheck.mjs contains no corresponding assertion. The only Edit-tool test (benignOutOfWsEdit, line 148) uses benign content and checks forbiddenPath/forbiddenCreate, not secretScan. There is no stub behavior or ok()/eq() call that injects a PEM key via an Edit new_string and asserts secretScan=true. The evidence note uses the selfcheck: prefix without a matching selfcheck assertion, making this a gap between stated and actual coverage for a high-risk must intent.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-26T19:10:42.785Z",
@@ -16,7 +16,11 @@
         "experiments/recovery-runner/live-engine-selfcheck.mjs"
       ],
       "signatureTag": "missing|mjs|edge-verificationevidence-overclaims",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Added the Edit+new_string+PEM => secretScan assertion to live-engine-selfcheck.mjs (commit b628e57e8); CHK-002:edge:0 evidence re-bound to the real assertion. selfcheck 257.",
+      "resolvedAt": "2026-06-26T19:22:02.759Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-ccde:F-002",
