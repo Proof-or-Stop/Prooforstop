@@ -4,7 +4,7 @@
   "title": "Tighten repro-first classification to material-code bug/feature only (exempt docs/refactor/chore)",
   "description": "classifyReproFirstRequirement currently over-reaches: it marks repro-first-required for ANY story declaring files (incl. .md) and for ALL type=bug (incl. doc bugs). Those tasks cannot have a meaningful reproduce-the-failure red test. Refine it to require red/spike only when the task writes material code AND is a code-verifiable behavior change (type bug|feature with declared material-code files), keep the high/critical code-verifiable-risk safety net, and stay conservative at intake (no material files -> not required; the DEV-phase repro-evidence-binding gate re-checks once files exist). Validated by red/spike.",
   "type": "bug",
-  "phase": "PLAN",
+  "phase": "DEV",
   "priority": "medium",
   "keywords": [
     "repro-first",
@@ -40,6 +40,15 @@
       "phase": "PLAN",
       "action": "advance",
       "timestamp": "2026-06-26T21:47:22.049Z",
+      "branch": "story/B-8628",
+      "user": "Harmonygo",
+      "sessionId": "b0a01b07-dd7a-40ba-a0fe-163497230a65",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-26T21:56:35.147Z",
       "branch": "story/B-8628",
       "user": "Harmonygo",
       "sessionId": "b0a01b07-dd7a-40ba-a0fe-163497230a65",
