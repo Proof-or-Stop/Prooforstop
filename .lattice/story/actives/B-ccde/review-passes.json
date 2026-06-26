@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-26T19:04:23.260Z",
       "reviewRunId": "B-ccde:RR-004",
       "_hash": "9cfe2683ee1e1927debd777d3b284b7485761d7d6c76f4468b35bb6716b1519e"
+    },
+    {
+      "id": "B-ccde:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Round-2 concept re-attest PASS. F-005 rawOut harvest: only adds evidence (third tryParseJson fallback); a clean throw with no evidence still returns infraVoid per the hardUnsafeBeforeInfra+secretUnsafeBeforeInfra gate (L748); no fabrication possible. F-006 realpath-aware ws-boundary: lexical ws root + realpathSync(ws) root both tested; inWsRel is symmetric — genuinely out-of-ws targets still flagged (selfcheck h2 confirmed); only prevents a macOS false-alarm where mkdtemp /var path != /private/var realpath. adjudicate.mjs git diff = 0 lines; engine still emits raw evidence only. selfcheck 257/257 assertions passed.",
+      "createdAt": "2026-06-26T19:24:10.153Z",
+      "reviewRound": "2026-06-26T19:04:23.260Z",
+      "reviewRunId": "B-ccde:RR-007",
+      "_hash": "a458600e61025e854eef8467d74b024320de499f1933a9197dd4e8ace36ebd3d"
     }
   ]
 }
