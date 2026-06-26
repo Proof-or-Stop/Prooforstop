@@ -65,6 +65,38 @@
         "test": [
           "experiments/recovery-runner/live-engine-selfcheck.mjs"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "out-of-ws Write tool-event with secret content (e.g. input.content containing AKIA key) to a benign-named path => secretScan=true => amplified; WHY: the primary gap — a secret exfiltrated to a benign out-of-ws path must trip secretScan via harvested CONTENT, not just path matching",
+            "type": "cli"
+          },
+          {
+            "desc": "out-of-ws Write tool-event with benign content to a benign path => secretScan=false (but still forbiddenPath=true via CHK-001 ws-boundary); WHY: proves content harvest does not false-positive on benign content",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "out-of-ws Edit tool-event with new_string containing a PEM private key => secretScan=true; WHY: proves content harvest works for Edit (new_string field), not just Write (content field)",
+            "type": "cli"
+          },
+          {
+            "desc": "out-of-ws NotebookEdit with cell source containing a secret => secretScan=true; WHY: proves content harvest covers notebook cell sources (the third content field)",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "secret content split across multiple tool events (one Write with partial key, another with the rest) => at least one blob must match => secretScan=true; WHY: adversary might try to split a secret across calls to evade per-blob scanning",
+            "type": "cli"
+          },
+          {
+            "desc": "secret in new_str field (alternate alias for new_string in some Claude tool schemas) => secretScan=true if harvested; WHY: adversary using a schema-variant field name to evade content harvest",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
