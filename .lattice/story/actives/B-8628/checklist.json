@@ -82,7 +82,150 @@
           }
         ]
       },
-      "userSees": "`lattice story_create` for a docs-only bug / refactor / chore no longer prints the Repro-first STORY_INTAKE preflight warning; a type=bug|feature declaring a material-code file still does. `npm --prefix packages/main run build` is clean."
+      "userSees": "`lattice story_create` for a docs-only bug / refactor / chore no longer prints the Repro-first STORY_INTAKE preflight warning; a type=bug|feature declaring a material-code file still does. `npm --prefix packages/main run build` is clean.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js",
+          "result": "pass",
+          "note": "the B-8628 regression check asserts classifyReproFirstRequirement(bug, material files) -> required=true, reason=code_verifiable_behavior_change.",
+          "headHash": "7efbd3218cfb2eed128fedfd59412fcd48b7b846",
+          "materialHash": "e27f1c77c74162df80ced8cf1fc99a1e9341398ef8a7015655821af5c12e44fc",
+          "storyFilesHash": "803867ba8310d1b186ba855160695f5ae12ee3c3c7d4f8c070ab4266542855e2",
+          "timestamp": "2026-06-26T22:05:18.023Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js",
+          "result": "pass",
+          "note": "regression asserts feature + material files -> required=true (code_verifiable_behavior_change).",
+          "headHash": "7efbd3218cfb2eed128fedfd59412fcd48b7b846",
+          "materialHash": "e27f1c77c74162df80ced8cf1fc99a1e9341398ef8a7015655821af5c12e44fc",
+          "storyFilesHash": "803867ba8310d1b186ba855160695f5ae12ee3c3c7d4f8c070ab4266542855e2",
+          "timestamp": "2026-06-26T22:05:18.023Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js",
+          "result": "pass",
+          "note": "regression + the PLAN->DEV high-risk test assert high/critical + code-verifiable risk -> required=true (high_risk_code_verifiable safety net kept).",
+          "headHash": "7efbd3218cfb2eed128fedfd59412fcd48b7b846",
+          "materialHash": "e27f1c77c74162df80ced8cf1fc99a1e9341398ef8a7015655821af5c12e44fc",
+          "storyFilesHash": "803867ba8310d1b186ba855160695f5ae12ee3c3c7d4f8c070ab4266542855e2",
+          "timestamp": "2026-06-26T22:05:18.023Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js",
+          "result": "pass",
+          "note": "regression asserts docs-only bug -> required=false (bypass_eligible_no_files).",
+          "headHash": "7efbd3218cfb2eed128fedfd59412fcd48b7b846",
+          "materialHash": "e27f1c77c74162df80ced8cf1fc99a1e9341398ef8a7015655821af5c12e44fc",
+          "storyFilesHash": "803867ba8310d1b186ba855160695f5ae12ee3c3c7d4f8c070ab4266542855e2",
+          "timestamp": "2026-06-26T22:05:18.023Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js",
+          "result": "pass",
+          "note": "regression asserts docs feature -> required=false.",
+          "headHash": "7efbd3218cfb2eed128fedfd59412fcd48b7b846",
+          "materialHash": "e27f1c77c74162df80ced8cf1fc99a1e9341398ef8a7015655821af5c12e44fc",
+          "storyFilesHash": "803867ba8310d1b186ba855160695f5ae12ee3c3c7d4f8c070ab4266542855e2",
+          "timestamp": "2026-06-26T22:05:18.023Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js",
+          "result": "pass",
+          "note": "regression asserts refactor + material files -> required=false.",
+          "headHash": "7efbd3218cfb2eed128fedfd59412fcd48b7b846",
+          "materialHash": "e27f1c77c74162df80ced8cf1fc99a1e9341398ef8a7015655821af5c12e44fc",
+          "storyFilesHash": "803867ba8310d1b186ba855160695f5ae12ee3c3c7d4f8c070ab4266542855e2",
+          "timestamp": "2026-06-26T22:05:18.023Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:3",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js",
+          "result": "pass",
+          "note": "regression asserts chore + material files -> required=false.",
+          "headHash": "7efbd3218cfb2eed128fedfd59412fcd48b7b846",
+          "materialHash": "e27f1c77c74162df80ced8cf1fc99a1e9341398ef8a7015655821af5c12e44fc",
+          "storyFilesHash": "803867ba8310d1b186ba855160695f5ae12ee3c3c7d4f8c070ab4266542855e2",
+          "timestamp": "2026-06-26T22:05:18.023Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:4",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js",
+          "result": "pass",
+          "note": "regression + the new 'PLAN->DEV no-file bug is repro-first exempt' test assert no-file bug -> required=false (no bug_story over-reach).",
+          "headHash": "7efbd3218cfb2eed128fedfd59412fcd48b7b846",
+          "materialHash": "e27f1c77c74162df80ced8cf1fc99a1e9341398ef8a7015655821af5c12e44fc",
+          "storyFilesHash": "803867ba8310d1b186ba855160695f5ae12ee3c3c7d4f8c070ab4266542855e2",
+          "timestamp": "2026-06-26T22:05:18.023Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:5",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/core/repro-evidence-binding-gate.ts",
+          "note": "The safety net requires priority high|critical; a medium-priority story with a risk signal is NOT elevated by the classifier itself, so it returns required=false unless it also declares material files (bug/feature).",
+          "headHash": "7efbd3218cfb2eed128fedfd59412fcd48b7b846",
+          "materialHash": "e27f1c77c74162df80ced8cf1fc99a1e9341398ef8a7015655821af5c12e44fc",
+          "storyFilesHash": "803867ba8310d1b186ba855160695f5ae12ee3c3c7d4f8c070ab4266542855e2",
+          "timestamp": "2026-06-26T22:05:18.023Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:6",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/core/repro-evidence-binding-gate.ts",
+          "note": "classifyReproFirstRequirement(null,null): optional chaining (story?.type, checklist null -> collectMaterialCodeFiles returns []) yields not bug/feature, no risk hits -> required=false, reason=bypass_eligible_no_files.",
+          "headHash": "7efbd3218cfb2eed128fedfd59412fcd48b7b846",
+          "materialHash": "e27f1c77c74162df80ced8cf1fc99a1e9341398ef8a7015655821af5c12e44fc",
+          "storyFilesHash": "803867ba8310d1b186ba855160695f5ae12ee3c3c7d4f8c070ab4266542855e2",
+          "timestamp": "2026-06-26T22:05:18.023Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "tsc compiles clean; importing classifyReviewAssuranceFloorPath from review-assurance-floor.ts into repro-evidence-binding-gate.ts is one-way (review-assurance-floor does not import repro-binding-gate) -> no circular import.",
+          "headHash": "7efbd3218cfb2eed128fedfd59412fcd48b7b846",
+          "materialHash": "e27f1c77c74162df80ced8cf1fc99a1e9341398ef8a7015655821af5c12e44fc",
+          "storyFilesHash": "803867ba8310d1b186ba855160695f5ae12ee3c3c7d4f8c070ab4266542855e2",
+          "timestamp": "2026-06-26T22:05:18.023Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/core/repro-evidence-binding-gate.ts",
+          "note": "git diff shows resolveReproFirstPreflightMode, resultFor (blocking math), and the bypass reasonCode are untouched; only classifyReproFirstRequirement + its reason union changed (the legacy reasons kept in the union).",
+          "headHash": "7efbd3218cfb2eed128fedfd59412fcd48b7b846",
+          "materialHash": "e27f1c77c74162df80ced8cf1fc99a1e9341398ef8a7015655821af5c12e44fc",
+          "storyFilesHash": "803867ba8310d1b186ba855160695f5ae12ee3c3c7d4f8c070ab4266542855e2",
+          "timestamp": "2026-06-26T22:05:18.023Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -143,7 +286,92 @@
           }
         ]
       },
-      "userSees": "`node packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js` prints its pass line; the red/spike regression (docs/refactor/chore/no-file -> not required; material bug/feature + high-risk -> required) is asserted."
+      "userSees": "`node packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js` prints its pass line; the red/spike regression (docs/refactor/chore/no-file -> not required; material bug/feature + high-risk -> required) is asserted.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js",
+          "result": "pass",
+          "note": "all existing dev-gate assertions pass (ok 37, 'repro evidence binding dev gate smoke passed').",
+          "headHash": "7efbd3218cfb2eed128fedfd59412fcd48b7b846",
+          "materialHash": "e27f1c77c74162df80ced8cf1fc99a1e9341398ef8a7015655821af5c12e44fc",
+          "storyFilesHash": "803867ba8310d1b186ba855160695f5ae12ee3c3c7d4f8c070ab4266542855e2",
+          "timestamp": "2026-06-26T22:05:18.023Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "npm test",
+          "result": "pass",
+          "note": "full suite green including the updated smoke (verified at the DONE-required validation).",
+          "headHash": "7efbd3218cfb2eed128fedfd59412fcd48b7b846",
+          "materialHash": "e27f1c77c74162df80ced8cf1fc99a1e9341398ef8a7015655821af5c12e44fc",
+          "storyFilesHash": "803867ba8310d1b186ba855160695f5ae12ee3c3c7d4f8c070ab4266542855e2",
+          "timestamp": "2026-06-26T22:05:18.023Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js",
+          "result": "pass",
+          "note": "the B-8628 regression check contains explicit assertions for all 5 required=false cases (docs-only bug, docs feature, material refactor, chore-with-material, no-file bug).",
+          "headHash": "7efbd3218cfb2eed128fedfd59412fcd48b7b846",
+          "materialHash": "e27f1c77c74162df80ced8cf1fc99a1e9341398ef8a7015655821af5c12e44fc",
+          "storyFilesHash": "803867ba8310d1b186ba855160695f5ae12ee3c3c7d4f8c070ab4266542855e2",
+          "timestamp": "2026-06-26T22:05:18.023Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js",
+          "result": "pass",
+          "note": "the existing no-file-passes-without-binding tests still pass (the new rule keeps no-file exempt).",
+          "headHash": "7efbd3218cfb2eed128fedfd59412fcd48b7b846",
+          "materialHash": "e27f1c77c74162df80ced8cf1fc99a1e9341398ef8a7015655821af5c12e44fc",
+          "storyFilesHash": "803867ba8310d1b186ba855160695f5ae12ee3c3c7d4f8c070ab4266542855e2",
+          "timestamp": "2026-06-26T22:05:18.023Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js",
+          "result": "pass",
+          "note": "the former 'bug-story' tests were updated to material-code bug -> code_verifiable_behavior_change (story_create + PLAN->DEV).",
+          "headHash": "7efbd3218cfb2eed128fedfd59412fcd48b7b846",
+          "materialHash": "e27f1c77c74162df80ced8cf1fc99a1e9341398ef8a7015655821af5c12e44fc",
+          "storyFilesHash": "803867ba8310d1b186ba855160695f5ae12ee3c3c7d4f8c070ab4266542855e2",
+          "timestamp": "2026-06-26T22:05:18.023Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts",
+          "note": "Red/spike proven: the RED test (exit 1, before the fix) failed precisely on the 4 over-reach cases; the regression asserts both directions, so flipping any case (e.g. docs-bug -> required) fails a specific assertion.",
+          "headHash": "7efbd3218cfb2eed128fedfd59412fcd48b7b846",
+          "materialHash": "e27f1c77c74162df80ced8cf1fc99a1e9341398ef8a7015655821af5c12e44fc",
+          "storyFilesHash": "803867ba8310d1b186ba855160695f5ae12ee3c3c7d4f8c070ab4266542855e2",
+          "timestamp": "2026-06-26T22:05:18.023Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node packages/main/dist/tasks/repro-first-candidate-smoke.js",
+          "result": "pass",
+          "note": "repro-first-candidate-smoke passes (it does not assert classification; no side-effect).",
+          "headHash": "7efbd3218cfb2eed128fedfd59412fcd48b7b846",
+          "materialHash": "e27f1c77c74162df80ced8cf1fc99a1e9341398ef8a7015655821af5c12e44fc",
+          "storyFilesHash": "803867ba8310d1b186ba855160695f5ae12ee3c3c7d4f8c070ab4266542855e2",
+          "timestamp": "2026-06-26T22:05:18.023Z"
+        }
+      ]
     }
   ]
 }
