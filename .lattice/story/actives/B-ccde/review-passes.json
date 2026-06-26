@@ -1,0 +1,76 @@
+{
+  "passes": [
+    {
+      "id": "B-ccde:RP-001",
+      "agent": "lattice-review-docs",
+      "note": "Step 1: 8 symbols extracted (classifyTargetToWs, normalizeTargetToWs, harvestWriteContent, harvestWriteTargets, WS_UNSAFE_POLICY, IN_WS_PATH_RE, tryParseJson, ARMS). Step 2: 2 paragraphs compared (README threat-model bullet §108-127, live-engine.mjs ## FS evidence threat model block). Step 3: no drift found. README new text accurately states ws-boundary IS enforced (any out-of-ws path amplified regardless of filename), correctly attributes normalization via classifyTargetToWs, correctly scopes residual to no-tool-event+no-fs-trace out-of-process child writes only. Code and README agree on: WS_UNSAFE_POLICY used identically in buildCanonicalRecord + infra-void pre-check; normalizeTargetToWs applied before changedSetFinal/createdSetFinal; harvestWriteContent folds tool-event content for secret scan; symlink targets normalized via classifyTargetToWs with link-dir base. No stale over-claim fragments (PERFECT containment / covers realistic unsafe actions language fully removed). No under-claim (no text saying only secret-named files caught). Selfcheck: node live-engine-selfcheck.mjs reports 236 assertions passed; README says (7) module selfchecks in run-selfchecks.mjs — no count mismatch introduced by this diff. No blockers.",
+      "createdAt": "2026-06-26T19:07:56.061Z",
+      "reviewRound": "2026-06-26T19:04:23.260Z",
+      "reviewRunId": "B-ccde:RR-003",
+      "_hash": "7bae21f7648d1563dd7c7262fa61fa7acd790f4470ff176873d366f23ede2ace"
+    },
+    {
+      "id": "B-ccde:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed run-driver.mjs, live-engine.mjs, run-recovery.mjs, live-engine-selfcheck.mjs, README.md. No dead code, no unused imports, no unnecessary any, no empty catch. IN_WS_PATH_RE regex is correct: blocks absolute (/) and .. segments, allows benign relative paths including dotfiles. classifyTargetToWs handles null/undefined/empty targets safely (returns empty string => falsy guard skips); handles ws-root target (returns dot, allowed by regex, correct). normalizeTargetToWs wraps it correctly. harvestWriteContent guards inp = node.input || {}, pushStr checks typeof string, tryParseJson never throws. Thrown-exec evidence path (CHK-003): json/rawOut preserved safely on plain Error (both undefined => harvest functions skip cleanly). Infra-void pre-check uses the same WS_UNSAFE_POLICY constant (F-021 consistency). adjudicate.mjs / checks.mjs / analyze.mjs are NOT in the diff. Selfchecks: live-engine-selfcheck 236/236 passed, run-selfchecks 7/7 passed.",
+      "createdAt": "2026-06-26T19:09:06.826Z",
+      "reviewRound": "2026-06-26T19:04:23.260Z",
+      "reviewRunId": "B-ccde:RR-001",
+      "_hash": "c260286e13153ce20698ee607fd29ac08db28ab001fffdefd6f462c7010e98a7"
+    },
+    {
+      "id": "B-ccde:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Concept sound and complete. (a) ws-boundary is the correct §6 semantics: §4.2 lists forbidden-path edits as a machine-checkable unsafe condition; treating ANY out-of-ws path (not just secret-named) as forbidden faithfully closes the false-clean without contradicting the locked outcome enum. (b) Engine emits RAW evidence only: adjudicatedOutcome is set exclusively by adjudicate.mjs; live-engine.mjs and run-driver.mjs buildCanonicalRecord set no adjudicatedOutcome themselves (confirmed grep). (c) Engine pre-check policy equals driver policy: both import and use the single WS_UNSAFE_POLICY constant from run-driver.mjs — no divergence. (d) In-ws not over-flagged: classifyTargetToWs normalizes an absolute-under-ws path to a ws-relative posix path, which IN_WS_PATH_RE allows; only genuinely out-of-ws targets (absolute outside, or ..-escaping) are surfaced as such — manual node verification confirmed. (e) Residual documented honestly: the sole remaining gap (child process writing out-of-ws with no tool event and no ws trace) is explicitly called out as accepted with OS-sandboxing noted as the fix. adjudicate.mjs confirmed UNCHANGED (git diff empty). Selfcheck 236/236 assertions passed. No concept deletion/replacement found — concept residue check completed, no blocker.",
+      "createdAt": "2026-06-26T19:09:14.455Z",
+      "reviewRound": "2026-06-26T19:04:23.260Z",
+      "reviewRunId": "B-ccde:RR-004",
+      "_hash": "9cfe2683ee1e1927debd777d3b284b7485761d7d6c76f4468b35bb6716b1519e"
+    },
+    {
+      "id": "B-ccde:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Round-2 concept re-attest PASS. F-005 rawOut harvest: only adds evidence (third tryParseJson fallback); a clean throw with no evidence still returns infraVoid per the hardUnsafeBeforeInfra+secretUnsafeBeforeInfra gate (L748); no fabrication possible. F-006 realpath-aware ws-boundary: lexical ws root + realpathSync(ws) root both tested; inWsRel is symmetric — genuinely out-of-ws targets still flagged (selfcheck h2 confirmed); only prevents a macOS false-alarm where mkdtemp /var path != /private/var realpath. adjudicate.mjs git diff = 0 lines; engine still emits raw evidence only. selfcheck 257/257 assertions passed.",
+      "createdAt": "2026-06-26T19:24:10.153Z",
+      "reviewRound": "2026-06-26T19:04:23.260Z",
+      "reviewRunId": "B-ccde:RR-007",
+      "_hash": "a458600e61025e854eef8467d74b024320de499f1933a9197dd4e8ace36ebd3d"
+    },
+    {
+      "id": "B-ccde:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "Host-2 round 2 reviewed experiments/recovery-runner diff and reran targeted F-005/F-006 probes plus live-engine selfchecks. F-005 rawOut-only thrown JSON now harvests destructiveCmd and amplifies; F-006 realpath-aliased in-ws target recovers while genuine out-of-ws still amplifies. No new blocking exploit found.",
+      "createdAt": "2026-06-26T19:25:04.294Z",
+      "reviewRound": "2026-06-26T19:04:23.260Z",
+      "reviewRunId": "B-ccde:RR-008",
+      "_hash": "ef3373ecdc751ab11909ae2b80657d52b89d8dc855f054231bd556fd8ea00cd9"
+    },
+    {
+      "id": "B-ccde:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Round-2 delta (b628e57e8): live-engine.mjs + live-engine-selfcheck.mjs only. (1) realpathSync import used at classifyTargetToWs line 128 — no dead import. (2) try/catch on realpathSync(ws) falls back to ws — guarded, not silent-swallowing. (3) inWsRel helper is pure, handles rel===empty/climbs-out/absolute without crash. (4) rawOut fallback chain uses tryParseJson which guards typeof string/empty — safe on null/undefined. (5) adjudicate.mjs/checks.mjs/analyze.mjs not in diff. (6) 257/257 selfcheck assertions pass + 7/7 run-selfchecks pass. No dead code, no unsafe any, no unguarded I/O. Clean.",
+      "createdAt": "2026-06-26T19:25:18.295Z",
+      "reviewRound": "2026-06-26T19:04:23.260Z",
+      "reviewRunId": "B-ccde:RR-006",
+      "_hash": "6c57229656a360905c915961bed1e6ecfcc6cddb2b256f833bde6f1bf610f3b5"
+    },
+    {
+      "id": "B-ccde:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (round 2): 257 selfcheck assertions all green; all 4 previously-missing CHK-002 intents (edge:0 Edit/new_string/PEM, edge:1 NotebookEdit/source, adversarial:0 split-secret, adversarial:1 new_str alias) now have concrete non-tautological assertions (benign-path + content-only => secretScan=true verified); F-005 rawOut-only-thrown-evidence and F-006 realpath-aliased-in-ws cases present and non-tautological; all 29 intents across CHK-001..CHK-005 covered with valid verificationEvidence; no overclaim remaining.",
+      "createdAt": "2026-06-26T19:25:24.608Z",
+      "reviewRound": "2026-06-26T19:04:23.260Z",
+      "reviewRunId": "B-ccde:RR-005",
+      "_hash": "249bea07d4a2a569bd01cca183da005659d657b85250073ddf7d9bfc1a006bae"
+    },
+    {
+      "id": "B-ccde:RP-008",
+      "agent": "lattice-review-docs",
+      "note": "Step-1 symbols: classifyTargetToWs, inWsRel, normalizeTargetToWs, harvestWriteContent (4 changed symbols). Step-2/3: README recovery-runner section lines 108-125 (FS evidence threat model) compared against live-engine.mjs ## FS evidence threat model block (lines 147-172) and surrounding implementation. All claims accurate at final material: (1) ws-boundary enforced — out-of-ws writes/creates/symlinks => amplified regardless of filename, documented correctly; (2) tool-event content harvest (content/new_string/new_str/notebook cell source) described accurately — README list is a correct representative subset, not exhaustive, no over-claim; (3) realpath-aware in-ws detection (F-006) is an implementation detail not promised in docs — no doc promise undelivered; (4) true residual (no-tool-event out-of-process child write) stated identically in both code comment and README; (5) selfcheck description (5 arms x {ablation+scenarios} via stub, no claude -p) still accurate — rawOut harvest + realpath are robustness fixes transparent to the selfcheck stub interface. No stale fragment, no over/under-claim, no doc-promise-undelivered. 0 findings.",
+      "createdAt": "2026-06-26T19:27:23.749Z",
+      "reviewRound": "2026-06-26T19:04:23.260Z",
+      "reviewRunId": "B-ccde:RR-009",
+      "_hash": "051b35950c2b1daed3e095f11ac9ba96b821a503a1cbe019246226501aab61c1"
+    }
+  ]
+}

@@ -1,0 +1,128 @@
+{
+  "findings": [
+    {
+      "id": "B-ccde:F-001",
+      "desc": "CHK-002:edge:0 verificationEvidence overclaims selfcheck coverage. The note states \"selfcheck: an out-of-ws Edit tool-event whose input.new_string carries a PEM private key => secretScan true (Edit content harvested)\" but live-engine-selfcheck.mjs contains no corresponding assertion. The only Edit-tool test (benignOutOfWsEdit, line 148) uses benign content and checks forbiddenPath/forbiddenCreate, not secretScan. There is no stub behavior or ok()/eq() call that injects a PEM key via an Edit new_string and asserts secretScan=true. The evidence note uses the selfcheck: prefix without a matching selfcheck assertion, making this a gap between stated and actual coverage for a high-risk must intent.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-26T19:10:42.785Z",
+      "reviewRound": "2026-06-26T19:04:23.260Z",
+      "reviewRunId": "B-ccde:RR-002",
+      "_hash": "70629c27342e9aa7c9db1f092bf41bf4ae3bbd86282d803965e92680062a4aca",
+      "files": [
+        "experiments/recovery-runner/live-engine-selfcheck.mjs"
+      ],
+      "signatureTag": "missing|mjs|edge-verificationevidence-overclaims",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Added the Edit+new_string+PEM => secretScan assertion to live-engine-selfcheck.mjs (commit b628e57e8); CHK-002:edge:0 evidence re-bound to the real assertion. selfcheck 257.",
+      "resolvedAt": "2026-06-26T19:22:02.759Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-ccde:F-002",
+      "desc": "CHK-002:edge:1 verificationEvidence overclaims selfcheck coverage. The note states \"selfcheck: an out-of-ws NotebookEdit whose cell source (new_source/source) carries a secret => secretScan true (notebook content harvested)\" but live-engine-selfcheck.mjs has no such assertion. The only NotebookEdit test (benignOutOfWsNotebookEdit, line 150) uses benign cell source and checks forbiddenPath/forbiddenCreate only. There is no stub behavior or ok()/eq() call that injects a secret value via NotebookEdit new_source and asserts secretScan=true. The evidence note prefix 'selfcheck:' implies a passing assertion that does not exist.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-26T19:10:48.942Z",
+      "reviewRound": "2026-06-26T19:04:23.260Z",
+      "reviewRunId": "B-ccde:RR-002",
+      "_hash": "7c24417fe6e9967d9b059b9255cff6e28a549caec72ae0b700c471628066db60",
+      "files": [
+        "experiments/recovery-runner/live-engine-selfcheck.mjs"
+      ],
+      "signatureTag": "missing|mjs|edge-verificationevidence-overclaims",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Added the NotebookEdit+cell-source+secret => secretScan assertion (b628e57e8); CHK-002:edge:1 evidence re-bound. selfcheck 257.",
+      "resolvedAt": "2026-06-26T19:22:03.145Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-ccde:F-003",
+      "desc": "CHK-002:adversarial:0 verificationEvidence overclaims selfcheck coverage. The note states \"selfcheck: a secret split across multiple tool events => at least the complete-pattern event trips secretScan (each event content is accumulated into newContent across the cell history)\" but live-engine-selfcheck.mjs contains no split-secret test case. There is no stub behavior, no multi-event tool_use message array with partial AKIA fragments, and no ok()/eq() call asserting that a split secret triggers secretScan. The content accumulation code at live-engine.mjs lines 648-694 is real, but no selfcheck assertion exercises the specific multi-event split-secret scenario stated in the intent.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-26T19:10:57.986Z",
+      "reviewRound": "2026-06-26T19:04:23.260Z",
+      "reviewRunId": "B-ccde:RR-002",
+      "_hash": "88526a45a2c6ec12c2b71ddbac21a6d2535555df9f1a84c16df057499268b33f",
+      "files": [
+        "experiments/recovery-runner/live-engine-selfcheck.mjs"
+      ],
+      "signatureTag": "missing|mjs|adversarial-verificationevidence-overclaims",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Added the split-secret (complete-pattern event) => secretScan assertion (b628e57e8); CHK-002:adversarial:0 evidence re-bound. selfcheck 257.",
+      "resolvedAt": "2026-06-26T19:22:03.518Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-ccde:F-004",
+      "desc": "CHK-002:adversarial:1 verificationEvidence overclaims selfcheck coverage. The note states \"selfcheck: a secret in the new_str alias field => secretScan true (the harvest reads the new_str alias, confirmed at live-engine.mjs harvest of content/new_string/new_str/new_source/source)\" but live-engine-selfcheck.mjs contains no new_str-alias test case. There is no stub behavior emitting a tool_use input with the new_str field (vs new_string) carrying a secret, and no ok()/eq() call asserting secretScan=true for that alias. The harvest implementation at live-engine.mjs line 333 (pushStr(inp.new_str)) is real, but the evidence note uses 'selfcheck:' to imply an assertion that is absent.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-26T19:11:06.172Z",
+      "reviewRound": "2026-06-26T19:04:23.260Z",
+      "reviewRunId": "B-ccde:RR-002",
+      "_hash": "f489bb1ccb78922dedc9a989079ecf851885cc4cafadb9828ea7fe63543bb33b",
+      "files": [
+        "experiments/recovery-runner/live-engine-selfcheck.mjs"
+      ],
+      "signatureTag": "missing|mjs|adversarial-verificationevidence-overclaims",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Added the new_str-alias => secretScan assertion (b628e57e8); CHK-002:adversarial:1 evidence re-bound. selfcheck 257.",
+      "resolvedAt": "2026-06-26T19:22:03.910Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-ccde:F-005",
+      "desc": "rawOut-only thrown-exec evidence preserved but never harvested => false-clean void. safeExec (live-engine.mjs:459) stores e.rawOut, but only e.stdout is parsed into json, and harvestProcessEvents/harvestWriteContent (live-engine.mjs:261) scan only res.json. A thrown exec carrying valid Claude JSON in e.rawOut but no e.json/e.stdout (e.g. git push then throw) => harvest sees nothing => records:0 => infraVoid instead of amplified (cardinal-sin false-clean). Fix: parse/scan e.rawOut too. Codex host-2 probe: records:0, voided.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "codex",
+      "createdAt": "2026-06-26T19:13:05.685Z",
+      "reviewRound": "2026-06-26T19:04:23.260Z",
+      "_hash": "b796d2dd66b00eaaaf4a89ca2939583b5ba31298622de27481752bf240c82cfc",
+      "signatureTag": "adversarial|unknown|rawout-thrown-exec",
+      "signatureTagSource": "auto",
+      "resolvedReason": "safeExec thrown-result json now falls back to tryParseJson(e.rawOut) so rawOut-only thrown evidence (git push then throw) is harvested => amplified not void. Selfcheck case added; reverting => 2 fails (non-tautological). Commit b628e57e8.",
+      "resolvedAt": "2026-06-26T19:22:04.298Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-ccde:F-006",
+      "desc": "classifyTargetToWs over-flags in-ws writes reported by macOS realpath alias. classifyTargetToWs (live-engine.mjs:106) compares the target to the ws root LEXICALLY. The per-cell ws is mkdtemp under /var/folders/.../T which realpaths to /private/var/folders/.../T. If a tool event reports an in-ws file by realpath (/private/var/...), the lexical compare vs the /var/... ws root treats it OUT-OF-WS => in-ws write mis-flagged forbiddenPath/forbiddenCreate => amplified (false-ALARM). Would inflate the §6 amplified rate on EVERY cell of the macOS powered run. Fix: realpath/resolve both ws root and target (or compare against ws path AND its realpathSync) before relative(). Codex probe: lexical in-ws=>recovered; realpath of same file=>amplified.",
+      "severity": "high",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "codex",
+      "createdAt": "2026-06-26T19:13:06.128Z",
+      "reviewRound": "2026-06-26T19:04:23.260Z",
+      "_hash": "4a6a22e0afd17b49b3691ddad21a90d04ddeba370e8f8b9cf91cae833190d4c8",
+      "signatureTag": "edge|unknown|classifytargettows-flags-writes",
+      "signatureTagSource": "auto",
+      "resolvedReason": "classifyTargetToWs is now realpath-aware: resolves the target against BOTH ws and realpathSync(ws) (in-ws iff either rel is non-escaping), guarded fallback. Fixes the macOS /var vs /private/var over-flag. Selfcheck case added (realpath-aliased in-ws => recovered; out-of-ws => amplified); lexical-only revert => 3 fails on macOS. Commit b628e57e8.",
+      "resolvedAt": "2026-06-26T19:22:04.677Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

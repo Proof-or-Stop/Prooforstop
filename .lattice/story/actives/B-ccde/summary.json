@@ -1,0 +1,56 @@
+{
+  "storyId": "B-ccde",
+  "changes": "run-driver.mjs: exports WS_UNSAFE_POLICY/IN_WS_PATH_RE and passes it to adjudicate() in buildCanonicalRecord so out-of-ws changed/created paths fire forbiddenPath/forbiddenCreate. live-engine.mjs: imports the SAME policy for the infra-void pre-check (F-021 consistency); normalizes harvested tool-event/symlink targets against the ws root (in-ws absolute => ws-relative so NOT over-flagged; escaping => kept absolute => forbidden); realpath-aware classify (handles macOS /var vs /private/var); harvests tool-event CONTENT (content/new_string/new_str/new_source/source) into newContent for secretScan; preserves thrown-exec evidence via tryParseJson(e.rawOut). run-recovery.mjs: executor+reviewer catches preserve e.stdout/rawOut. live-engine-selfcheck.mjs: +57 assertions (200->257) covering benign out-of-ws Write/Edit/MultiEdit/NotebookEdit, escaping symlink, in-ws scratch (incl absolute-in-ws + realpath alias), positive secretScan E2E (Edit/NotebookEdit/split/new_str), rawOut thrown-evidence, F-021. README + threat-model comment corrected. adjudicate.mjs/checks.mjs/analyze.mjs UNTOUCHED.",
+  "usage": "node experiments/recovery-runner/live-engine-selfcheck.mjs (257, offline) and node experiments/recovery-runner/run-selfchecks.mjs (7/7). The multi-day powered run (run-driver --engine live-engine.mjs) now adjudicates an out-of-workspace write/create/symlink as amplified regardless of filename, so the §6 not-amplified primary metric no longer false-cleans an out-of-sandbox action.",
+  "expectedOutcome": "The selfcheck prints '257 assertions passed, no live LLM'; run-selfchecks prints 'all 7 recovery-runner selfchecks passed'; adjudicate(benign out-of-ws write + passing solution, WS_UNSAFE_POLICY) => amplified (was recovered); an in-ws scratch file stays recovered; npm test green; adjudicate.mjs untouched.",
+  "actualTranscript": "live-engine selfcheck: 257 assertions passed, no live LLM (arms A1,A2,A2prime,A3,A4); all 7 recovery-runner selfchecks passed; adjudicate via WS_UNSAFE_POLICY: out-of-ws=>amplified, in-ws scratch=>recovered, clean=>recovered, in-ws .env=>amplified; done_required_validate PASS (build + npm test); codex host-2 round 2 SHIP.",
+  "outcomeDiff": "No difference — expected and actual match. The original CRITICAL false-clean (benign out-of-ws write => recovered) is closed; codex host-2 round-1 found 2 additional HIGH (rawOut harvest, macOS realpath over-flag) which were fixed and confirmed closed in round 2.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Documented accepted residual: a side effect from a spawned CHILD PROCESS that writes out-of-ws WITHOUT a captured tool event AND leaves no ws fs trace requires OS-level sandboxing (containers/seccomp) — out of scope for this in-process harness; the live arms are benign coding agents on a frozen corpus. adjudicate.mjs's classification rules + the pre-reg §4.2 enum are unchanged by design.",
+  "pitfalls": "Cross-vendor review earned its keep AGAIN: codex host-2 caught 2 HIGH the 4 same-vendor claude lanes missed — (1) rawOut-only thrown evidence was preserved but never harvested (false-clean void); (2) classifyTargetToWs compared LEXICALLY so a macOS /private/var realpath of an in-ws file was over-flagged amplified (would have inflated the §6 amplified rate on EVERY macOS cell). The macOS /var->/private/var realpath aliasing is a real trap for any mkdtemp-based harness. Also: the test-coverage lane caught CHK-002 evidence NOTES overclaiming selfcheck coverage (notes said secretScan was asserted for Edit/NotebookEdit/split/new_str but only the Write E2E existed) — bind evidence to the LITERAL assertion that exists. Next person: this bug originally shipped via B-8d44 because the host-2 finding was never filed before the worktree was taken over — file findings immediately.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 665978
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 31372
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 513477
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 1418439
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 1642702
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 543683
+    }
+  },
+  "totalDurationMs": 4815664,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-26T19:40:49.646Z",
+  "updatedAt": "2026-06-26T19:40:49.646Z"
+}
