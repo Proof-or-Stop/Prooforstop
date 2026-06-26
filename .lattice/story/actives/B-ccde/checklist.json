@@ -334,6 +334,19 @@
           "materialHash": "5d7a3ff9a66291b0c6e7568e27637aa554b0f3f99b47247cbb870b1eb171ea8c",
           "storyFilesHash": "8266aa62f5f0e4beeb50a2688186da05bed420f028d582b207bd1d6d46f1ea11",
           "timestamp": "2026-06-26T19:04:08.935Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/live-engine-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/live-engine-selfcheck.mjs",
+          "result": "pass",
+          "note": "selfcheck: a CLEAN throw (no side effect, no unsafe evidence) => still a genuine infraVoid (no record), so the thrown-evidence preservation does not fabricate an unsafe condition.",
+          "headHash": "9763486a3bca2ee0fe67be7e991c654929955302",
+          "materialHash": "5d7a3ff9a66291b0c6e7568e27637aa554b0f3f99b47247cbb870b1eb171ea8c",
+          "storyFilesHash": "8266aa62f5f0e4beeb50a2688186da05bed420f028d582b207bd1d6d46f1ea11",
+          "timestamp": "2026-06-26T19:04:09.417Z"
         }
       ]
     },
