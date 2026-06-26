@@ -4,9 +4,9 @@
   "facts": [
     "classifyReproFirstRequirement (core/repro-evidence-binding-gate.ts) currently returns required via file_declarations (ANY file incl. .md) OR bug_story (ALL type=bug) OR high/critical+code-verifiable risk.",
     "red/spike RED test (exit 1) confirmed 4 over-reaches: docs-only bug, docs feature, material refactor, chore-with-material are all required=true but cannot have a reproduce-the-failure red test.",
-    "classifyReviewAssuranceFloorPath (review-assurance-floor.ts) is the canonical material-code path classifier (.ts/.js/.sh/scripts/package.json material; .md/metadata not) to reuse.",
-    "handlers/story-create.ts consumes classifyReproFirstRequirement (auto-inherits); tasks/repro-evidence-binding-dev-gate-smoke.ts + repro-first-candidate-smoke.ts pin behavior.",
-    "Spike green proof: refined rule (type bug|feature AND material files) OR (high/critical + code-verifiable risk) passes all 8 cases incl. conservative no-file intake + safety net.",
+    "Reference-only (NOT edited): review-assurance-floor.ts classifyReviewAssuranceFloorPath is reused as the canonical material-code classifier; handlers/story-create.ts consumes the classifier and auto-inherits; repro-first-candidate-smoke.ts does NOT assert the classifier (0 hits) so it is out of scope.",
+    "Only tasks/repro-evidence-binding-dev-gate-smoke.ts pins the classification behavior and needs updating.",
+    "Spike green proof: refined rule passes all 8 cases incl. conservative no-file intake + safety net.",
     "The off/warn/enforce mode (default warn), the blocking math (resultFor), and the bypass reasonCode are NOT changing — only WHO is classified required."
   ],
   "constraints": [
@@ -18,10 +18,7 @@
   "unknowns": [],
   "touchpoints": [
     "packages/main/src/core/repro-evidence-binding-gate.ts",
-    "packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts",
-    "packages/main/src/tasks/repro-first-candidate-smoke.ts",
-    "packages/main/src/core/review-assurance-floor.ts (reuse classifyReviewAssuranceFloorPath, reference)",
-    "packages/main/src/handlers/story-create.ts (consumer, auto-inherits, reference)"
+    "packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts"
   ],
-  "timestamp": "2026-06-26T21:48:27.072Z"
+  "timestamp": "2026-06-26T21:53:25.291Z"
 }
