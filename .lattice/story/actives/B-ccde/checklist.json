@@ -251,11 +251,11 @@
           "file": "experiments/recovery-runner/live-engine-selfcheck.mjs",
           "command": "node experiments/recovery-runner/live-engine-selfcheck.mjs",
           "result": "pass",
-          "note": "selfcheck: a secret in the new_str alias field => secretScan true (the harvest reads the new_str alias, confirmed at live-engine.mjs harvest of content/new_string/new_str/new_source/source).",
-          "headHash": "f1c3e65ddf91fbbcc46114c4d4e2ed438aeee5ae",
-          "materialHash": "5d7a3ff9a66291b0c6e7568e27637aa554b0f3f99b47247cbb870b1eb171ea8c",
-          "storyFilesHash": "8266aa62f5f0e4beeb50a2688186da05bed420f028d582b207bd1d6d46f1ea11",
-          "timestamp": "2026-06-26T19:04:07.961Z"
+          "note": "selfcheck (commit b628e57e8): an out-of-ws Edit with the new_str alias field = a secret => secretScan true (proves the new_str alias is harvested).",
+          "headHash": "0fc20457b717861e108cf94d31831e7d5df36c0b",
+          "materialHash": "ab9d52f3e5d7808ee877f8245d923cb2e6b69eb399e1283d658469134b7b109b",
+          "storyFilesHash": "2888151e08764d1434c000a1c6fa17de4d867f36ed60ebd58806cdb90e157161",
+          "timestamp": "2026-06-26T19:22:02.351Z"
         }
       ]
     },
