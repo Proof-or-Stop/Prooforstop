@@ -436,7 +436,22 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "experiments/recovery-runner/live-engine-selfcheck.mjs",
+          "command": "node experiments/recovery-runner/live-engine-selfcheck.mjs",
+          "result": "pass",
+          "note": "node live-engine-selfcheck.mjs => 236 assertions pass (up from 200; +36 new) covering benign out-of-ws Write/Edit/MultiEdit/NotebookEdit, escaping symlink, in-ws scratch, positive secretScan.",
+          "headHash": "45aaded3138757625dd764329ef702782e506558",
+          "materialHash": "5d7a3ff9a66291b0c6e7568e27637aa554b0f3f99b47247cbb870b1eb171ea8c",
+          "storyFilesHash": "8266aa62f5f0e4beeb50a2688186da05bed420f028d582b207bd1d6d46f1ea11",
+          "timestamp": "2026-06-26T19:04:11.349Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
