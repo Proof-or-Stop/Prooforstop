@@ -212,6 +212,34 @@
         ],
         "create": [],
         "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "the FS evidence threat model block in live-engine.mjs accurately states the ws-boundary IS enforced: out-of-ws writes/creates/symlinks => amplified regardless of filename; WHY: the old comment over-claimed the previous harvest already covered realistic unsafe actions without a ws-boundary",
+            "type": "cli"
+          },
+          {
+            "desc": "the README note matches the implemented behavior (ws-boundary enforced, true residual = no-tool-event out-of-process child write); WHY: prevents a reader from inferring outdated security posture from stale docs",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "the threat-model note does NOT under-claim by saying ws-boundary is only partially enforced or only for secret-named files; WHY: an under-claim would mislead reviewers into thinking benign-named out-of-ws writes still slip through",
+            "type": "cli"
+          },
+          {
+            "desc": "the threat-model note does NOT over-claim by saying ALL out-of-process writes are caught; WHY: the true residual (child process writes without tool events) is still open and must be documented",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "no stale fragment remains that contradicts the new threat-model statement (e.g. old text saying benign-named out-of-ws writes are NOT caught); WHY: a copy-paste artifact leaving the old over-claim in a different section would create a contradictory spec",
+            "type": "cli"
+          }
+        ]
       }
     }
   ]
