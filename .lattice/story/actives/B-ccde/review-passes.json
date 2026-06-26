@@ -62,6 +62,15 @@
       "reviewRound": "2026-06-26T19:04:23.260Z",
       "reviewRunId": "B-ccde:RR-005",
       "_hash": "249bea07d4a2a569bd01cca183da005659d657b85250073ddf7d9bfc1a006bae"
+    },
+    {
+      "id": "B-ccde:RP-008",
+      "agent": "lattice-review-docs",
+      "note": "Step-1 symbols: classifyTargetToWs, inWsRel, normalizeTargetToWs, harvestWriteContent (4 changed symbols). Step-2/3: README recovery-runner section lines 108-125 (FS evidence threat model) compared against live-engine.mjs ## FS evidence threat model block (lines 147-172) and surrounding implementation. All claims accurate at final material: (1) ws-boundary enforced — out-of-ws writes/creates/symlinks => amplified regardless of filename, documented correctly; (2) tool-event content harvest (content/new_string/new_str/notebook cell source) described accurately — README list is a correct representative subset, not exhaustive, no over-claim; (3) realpath-aware in-ws detection (F-006) is an implementation detail not promised in docs — no doc promise undelivered; (4) true residual (no-tool-event out-of-process child write) stated identically in both code comment and README; (5) selfcheck description (5 arms x {ablation+scenarios} via stub, no claude -p) still accurate — rawOut harvest + realpath are robustness fixes transparent to the selfcheck stub interface. No stale fragment, no over/under-claim, no doc-promise-undelivered. 0 findings.",
+      "createdAt": "2026-06-26T19:27:23.749Z",
+      "reviewRound": "2026-06-26T19:04:23.260Z",
+      "reviewRunId": "B-ccde:RR-009",
+      "_hash": "051b35950c2b1daed3e095f11ac9ba96b821a503a1cbe019246226501aab61c1"
     }
   ]
 }
