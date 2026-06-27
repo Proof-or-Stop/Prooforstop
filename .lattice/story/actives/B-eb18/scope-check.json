@@ -1,108 +1,52 @@
 {
   "storyId": "B-eb18",
-  "checkedAt": "2026-06-27T00:44:32.273Z",
+  "checkedAt": "2026-06-27T00:48:10.679Z",
   "features": [
     {
-      "feature": "CP-0 read-only global control inventory report",
-      "covered_by": "CHK-001 and PLAN CHK-001: global_control_status text/json, schemaVersion, readOnly=true, active story rows, authoritative cwd, mirror drift, runtime/consumption/readiness/queue sections, and no story metadata/process-event/evidence/git mutation.",
+      "feature": "CP-2 Appendix D admissibility_waterline minimum is in B-eb18 scope",
+      "covered_by": "understanding outcome names lattice admissibility_waterline; decision driver and chosen option include Appendix D waterline; CHK-003 userSees and intents require buckets/missingClauses/topReasons/diagnostic-only status; plan Scope Guardrails and CHK-003 explicitly implement Appendix D diagnostic-only waterline",
       "status": "covered",
       "excluded_by": "",
-      "source": "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md#CP-0"
+      "source": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md#appendix-d-admissibility-waterline-schema"
     },
     {
-      "feature": "CP-1 runtime closure projection over shipped runtime modules",
-      "covered_by": "CHK-002 and PLAN CHK-002: consumes resolveStoryAuthority, buildStoryReadinessReport, summarizeOwnerLease, stale/freshness helpers; renders authority, mirror drift, owner lease, validation/main-lock availability, readiness rows, and nextSafeAction; missing pure lock APIs render unknown/unavailable.",
+      "feature": "CP-3 expanded experiment batch view is in scope",
+      "covered_by": "understanding outcome names Tier-C experiment grouping; decision preMortem protects experiment stories; CHK-004 userSees and intents require collapsed and expanded views, member listing, malformed cleanup visibility; plan CHK-004 requires collapsed default plus expanded detail on request",
       "status": "covered",
       "excluded_by": "",
-      "source": "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md#CP-1"
+      "source": "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md#cp-3---queue-governance-and-exceptions"
     },
     {
-      "feature": "CP-2 consumption closure projection without parallel proof policy",
-      "covered_by": "CHK-003 and PLAN CHK-003: consumes Proof Admissibility public APIs/diagnostics where available, renders absent waterline as unavailable/unknown, and tests candidate/diagnostic/legacy artifacts cannot satisfy DONE through the control-plane projection.",
+      "feature": "Explicit queue exception schema and guarded write are in scope",
+      "covered_by": "understanding calls queue_exception_set a guarded write with audit metadata and coordination; decision principle/preMortem require guarded queue exception writes with policyVersion/class/membership/source/storyFilesHash/dashboardMode/cleanupPolicy/actor/reason/timestamp; CHK-007 userSees and intent require audit fields and storyFilesHash binding; plan CHK-007 lists queue_exception_set fields, write coordination, and read-only queue_governance_status",
       "status": "covered",
       "excluded_by": "",
-      "source": "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md#CP-2"
+      "source": "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md#8-story-exception-policy"
     },
     {
-      "feature": "Appendix D admissibility_waterline implementation or equivalent entry point",
-      "covered_by": "",
-      "status": "gap",
-      "excluded_by": "Current PLAN states no implemented admissibility_waterline API exists and renders the capability unavailable/unknown instead of implementing Appendix D verbatim.",
-      "source": "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md#CP-2; docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md#Appendix-D"
-    },
-    {
-      "feature": "CP-3 active story classification and Tier-C experiment exception preservation",
-      "covered_by": "CHK-004 and PLAN CHK-004: classifies active-worktree, stale-worktree, main-init, experiment-batch-exception, duplicate-candidate, superseded, cleanup-required; registers Tier-C provider-execution receipt verification as exception; precedence keeps malformed cleanup-required visible and excludes experiment exceptions from duplicate cleanup.",
+      "feature": "Control plane remains projection-only and does not replace lifecycle/proof/DONE/Authority semantics",
+      "covered_by": "understanding constraints forbid second lifecycle state machine and reimplementing proof policy/freshness/DONE/Evidence Runtime; decision chosen option and preMortem preserve host-neutral layering and prevent second gate/waterline overclaim; CHK-001/002/003/006 intents assert no mutation, no new freshness classifier, diagnostic-only proof, and no Proof M7 policy; plan Scope Guardrails lists must-not boundaries",
       "status": "covered",
       "excluded_by": "",
-      "source": "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md#CP-3"
+      "source": "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md#scope-boundary"
     },
     {
-      "feature": "Expanded experiment batch detail view on request",
-      "covered_by": "",
-      "status": "gap",
-      "excluded_by": "PLAN covers collapsed/grouped Tier-C status and project summaries but does not explicitly require an expanded view or command option for experiment details.",
-      "source": "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md#CP-3"
-    },
-    {
-      "feature": "Queue exception registry full policy/audit schema",
-      "covered_by": "CHK-007 and PLAN CHK-007 cover actor, reason, timestamp, story identity/binding, experimentBatchId, and write coordination.",
-      "status": "gap",
-      "excluded_by": "Baseline also requires explicit policyVersion/class/subject/membership/source/migrationMatch/hashBinding including required storyFilesHash/defaultDashboardMode/cleanupPolicy semantics; PLAN only says story identity/binding and audit metadata, which is too implicit for this boundary.",
-      "source": "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md#Story-Exception-Policy"
-    },
-    {
-      "feature": "CP-4 unified dashboard separates story-level status from project-level queue health",
-      "covered_by": "CHK-005 and PLAN CHK-005: composes story-level and project-level control status, separates runtime/consumption/readiness/queue sections, includes aggregate counts, and tests project queue pressure does not block unrelated story-level gate.",
+      "feature": "Product-visible operator completion is explicit",
+      "covered_by": "understanding outcome states operator-visible global_control_status and admissibility_waterline behavior; decision drivers require concrete CLI surface; checklist userSees fields cover global_control_status, runtime, waterline, queue, dashboard, guardrails, and queue_exception_set; plan Product-visible completion paragraph names exact commands and visible fields",
       "status": "covered",
       "excluded_by": "",
-      "source": "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md#CP-4"
-    },
-    {
-      "feature": "CP-5A runtime enforcement rollout guardrails only for named unsafe runtime operations",
-      "covered_by": "CHK-006 and PLAN CHK-006: warn-first semantics before enforce mode, rollback/config switch, hard-block only unsafe runtime operations named by the plan, metadata/material dirty distinction, and no Proof M7 policy in runtime enforcement.",
-      "status": "covered",
-      "excluded_by": "",
-      "source": "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md#CP-5A"
-    },
-    {
-      "feature": "CP-5B queue governance guard preserves Tier-C evidence and requires reviewable duplicate cleanup",
-      "covered_by": "CHK-007 and PLAN CHK-007: queue_exception_set guarded write, queue_governance_status read-only, Tier-C stories not hard-blocked or cleaned, and non-experiment duplicates report canonical/superseded suggestions.",
-      "status": "covered",
-      "excluded_by": "",
-      "source": "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md#CP-5B"
-    },
-    {
-      "feature": "Explicit non-goals: no second lifecycle machine, no proof policy recalculation, no DONE oracle replacement, no production/Authority minting",
-      "covered_by": "Understanding constraints, decision principles/preMortem, and PLAN Scope Guardrails.",
-      "status": "excluded",
-      "excluded_by": "Scope Guardrails explicitly forbid creating a second lifecycle state machine, recalculating Proof Admissibility/freshness, replacing DONE/Evidence Runtime/readiness, promoting local diagnostic evidence to production/Authority completion, or hiding malformed queue records.",
-      "source": "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md#Layer-Ownership-And-Data-Flow"
+      "source": "plan.md"
     }
   ],
   "summary": {
-    "total": 11,
-    "covered": 7,
-    "excluded": 1,
-    "gaps": 3,
+    "total": 5,
+    "covered": 5,
+    "excluded": 0,
+    "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
   "reviewRound": "",
-  "_hash": "bc3a5633969b12754b61dedd1d7b43a450082810b9fdc112d2c1cf106eee03bc",
-  "openQuestions": [
-    {
-      "id": "OQ-001",
-      "q": "Should B-eb18 implement the Proof Admissibility Appendix D admissibility_waterline/equivalent entry point now, or is rendering unavailable/unknown an intentional exclusion owned by a separate Proof Admissibility story?",
-      "evidence": "The global control-plane CP-2 task says to consume lattice admissibility_waterline if implemented or implement Appendix D verbatim, while the B-eb18 PLAN says no implemented admissibility_waterline API exists and renders the capability unavailable/unknown.",
-      "sourcePointers": [
-        "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md#CP-2",
-        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md#appendix-d-admissibility-waterline-schema",
-        "B-eb18 CHK-003",
-        "B-eb18 decision"
-      ],
-      "resolution": "Resolved in scope: because the user asked to complete the whole global lifecycle control plane plan, B-eb18 will implement the Proof Admissibility Appendix D minimum admissibility_waterline entry point as diagnostic-only output, then have the CP-2 control-plane consumption projector consume that waterline. It remains non-authoritative and cannot promote candidate, diagnostic, legacy, or local proof into DONE or production completion.",
-      "resolvedAt": "2026-06-27T00:46:27.025Z"
-    }
-  ]
+  "_hash": "49e7e14e3abc1bac4ecc5cea0570292d40feacc24ba5f097428af96511117fb5",
+  "openQuestions": []
 }
