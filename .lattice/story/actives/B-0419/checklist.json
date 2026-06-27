@@ -36,9 +36,9 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-27T00:35:13.901Z",
-      "endTime": null,
+      "endTime": "2026-06-27T00:35:16.066Z",
       "userSees": "User sees \"✔ implemented\" in story review checkpoint: delegated provider.claude path has the new one-line comment and unchanged runtime behavior.",
       "files": {
         "modify": [
@@ -48,7 +48,42 @@
         ],
         "create": [],
         "test": []
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "implement-the-requested-lattice-change:happy",
+          "kind": "manual_transcript",
+          "command": "rg -n \"Delegated `provider\\.claude` is evidence-only execution\" packages/main/src/providers/claude-cli.ts",
+          "result": "pass",
+          "note": "Confirmed comment marker exists at run-time handler entrypoint.",
+          "headHash": "816f791f0dabcd2db5e6666067821646458efd9e",
+          "materialHash": "ab9d52f3e5d7808ee877f8245d923cb2e6b69eb399e1283d658469134b7b109b",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-27T00:35:16.408Z"
+        },
+        {
+          "intentRef": "implement-the-requested-lattice-change:edge",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "Build passes after comment-only update, no behavioral regression observed.",
+          "headHash": "816f791f0dabcd2db5e6666067821646458efd9e",
+          "materialHash": "ab9d52f3e5d7808ee877f8245d923cb2e6b69eb399e1283d658469134b7b109b",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-27T00:35:16.687Z"
+        },
+        {
+          "intentRef": "implement-the-requested-lattice-change:adversarial",
+          "kind": "logic_test",
+          "file": "packages/main/src/providers/claude-cli.ts",
+          "result": "pass",
+          "note": "Comment clarifies intent without introducing DONE/Authority logic paths.",
+          "headHash": "816f791f0dabcd2db5e6666067821646458efd9e",
+          "materialHash": "ab9d52f3e5d7808ee877f8245d923cb2e6b69eb399e1283d658469134b7b109b",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-27T00:35:16.976Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
