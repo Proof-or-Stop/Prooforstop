@@ -4,8 +4,10 @@
   "facts": [
     "B-376c completed schema and milestone alignment only; it deliberately did not implement full CP-0 through CP-5 behavior.",
     "The accepted execution plan is docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md.",
-    "Existing lifecycle-control modules currently expose status shapes and read-only compatibility helpers, not registered commands or real projectors.",
-    "story_authority_resolve, lifecycle_check, done_closure, Proof Admissibility, owner lease, main write lock, validation lock, and evidence freshness modules already exist and should remain sources of truth.",
+    "Command registration must touch command-catalog.ts, registry.ts, command-policy.ts, config.ts phase tools, activity-policy.ts for read-only commands, process-fact-levels.ts, and cli-engine text markers.",
+    "Runtime projection should consume resolveStoryAuthority, buildStoryReadinessReport, summarizeOwnerLease, and existing freshness/stale-hint helpers rather than inventing new classifiers.",
+    "CP-2 waterline is not implemented as a public API; the control plane must render Proof Admissibility diagnostics/definitions where available and render unavailable/unknown rather than claiming green.",
+    "queue_exception_set is a guarded write, not read-only; queue status commands are read-only and queue exception writes need audit metadata and write coordination.",
     "INIT reviewers passed with advisories requiring explicit product-visible completion criteria and strict non-replacement of lifecycle/proof/Authority semantics."
   ],
   "constraints": [
@@ -16,28 +18,30 @@
     "Queue exceptions must preserve Tier-C experiment evidence and must not hide malformed or cleanup-required stories.",
     "All user-facing CLI output must separate story-level blockers from project-level queue health."
   ],
-  "unknowns": [
-    "Which existing public APIs expose enough proof-admissibility waterline detail for CP-2 without adding a competing schema?",
-    "Which command registration path is preferred for new read-only lifecycle-control commands in the current CLI engine?",
-    "How much CP-5A enforcement is already covered by story_advance and ownership gates, and what exact additional guard is still missing?",
-    "Where should durable queue exception registry data live so writes are guarded and not mistaken for lifecycle evidence?"
-  ],
+  "unknowns": [],
   "touchpoints": [
     "packages/main/src/core/lifecycle-control/**",
+    "packages/main/src/handlers/lifecycle-control.ts",
     "packages/main/src/handlers/story-authority-resolve.ts",
     "packages/main/src/handlers/lifecycle-check.ts",
     "packages/main/src/handlers/done-closure.ts",
     "packages/main/src/core/proof-admissibility.ts",
+    "packages/main/src/core/proof-admissibility-gates.ts",
     "packages/main/src/core/evidence-freshness.ts",
+    "packages/main/src/core/evidence-stale-hint.ts",
     "packages/main/src/core/story-owner-lease.ts",
     "packages/main/src/core/main-write-lock.ts",
     "packages/main/src/core/validation-execution-lock.ts",
-    "packages/main/src/cli-engine.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/cli/activity-policy.ts",
     "packages/main/src/core/command-policy.ts",
     "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/cli-engine.ts",
     "packages/main/src/tasks/**",
     "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
     "docs/evidence/evidence-platform-architecture.md"
   ],
-  "timestamp": "2026-06-27T00:38:29.790Z"
+  "timestamp": "2026-06-27T00:41:45.287Z"
 }

@@ -1,0 +1,84 @@
+{
+  "principles": [
+    "Project lower-layer truth; do not replace lifecycle, proof, freshness, DONE, or Authority semantics.",
+    "Fail honest: unavailable lower-layer capabilities render unknown or unavailable, never green.",
+    "Implement only correctness gaps named by the execution plan; avoid arbitrary optimization or broad cleanup.",
+    "Separate story-level gate blockers from project-level queue health in every output.",
+    "Guard every mutating queue exception write with audit metadata and write coordination."
+  ],
+  "drivers": [
+    "High-risk lifecycle/state-machine surface: wrong output can cause false DONE or false cleanup.",
+    "Existing public APIs are uneven: runtime/readiness APIs exist, while CP-2 waterline is not implemented.",
+    "Operators need a concrete CLI surface that replaces manual stitching across session_brief, story_authority_resolve, lifecycle_check, and proof diagnostics."
+  ],
+  "options": [
+    {
+      "name": "A: Minimal command wrapper over existing status commands",
+      "pros": [
+        "Smallest code change",
+        "Low immediate blast radius"
+      ],
+      "cons": [
+        "Does not satisfy queue exception registry, CP-0/CP-4 unified view, or product-visible completion criterion",
+        "Still leaves hosts stitching multiple outputs manually"
+      ]
+    },
+    {
+      "name": "B: Implement read-only projectors plus guarded queue exception write",
+      "pros": [
+        "Matches the execution plan without creating a second lifecycle/proof system",
+        "Gives operators one mechanical status surface and durable experiment grouping",
+        "Lets CP-2 be honest about unavailable waterline instead of faking completion"
+      ],
+      "cons": [
+        "Touches command registration, process facts, lifecycle-control core, and tests",
+        "Requires careful compatibility updates to existing structural smoke"
+      ]
+    },
+    {
+      "name": "C: Full new lifecycle-control enforcement engine",
+      "pros": [
+        "Could centralize all lifecycle control in one subsystem"
+      ],
+      "cons": [
+        "Violates the plan by replacing existing lifecycle/proof/DONE ownership",
+        "High risk of inconsistent logic and false authority over lower-layer gates"
+      ]
+    }
+  ],
+  "chosen": "B: Implement read-only projectors plus guarded queue exception write",
+  "rationale": "Option B is the only choice that implements the user-requested plan while preserving host-neutral layering and avoiding a second lifecycle or proof authority. It delivers the missing control-plane surface, keeps CP-2 honest about unavailable waterline capability, and limits mutation to the explicitly guarded queue exception path.",
+  "preMortem": [
+    {
+      "scenario": "Control plane accidentally becomes a second lifecycle gate",
+      "trigger": "Projector recomputes phase readiness or proof eligibility instead of consuming lower-layer results",
+      "consequence": "Hosts may trust inconsistent status and advance or block incorrectly",
+      "mitigation": "Only consume resolveStoryAuthority, StoryReadinessReport, Proof Admissibility diagnostics/definitions, and explicit queue registry data; tests assert no lifecycle/evidence mutation from status commands."
+    },
+    {
+      "scenario": "CP-2 falsely reports green without a real waterline",
+      "trigger": "Missing admissibility_waterline API is papered over with a hand-made success row",
+      "consequence": "Candidate or diagnostic evidence could appear to satisfy DONE",
+      "mitigation": "Render unavailable/unknown when waterline data is absent; tests assert candidate/diagnostic/legacy cannot satisfy DONE through control-plane projection."
+    },
+    {
+      "scenario": "Tier-C experiment stories get cleaned as duplicates",
+      "trigger": "Duplicate classifier runs before experiment exception precedence or exception registry is malformed",
+      "consequence": "Experiment evidence is destroyed or hidden",
+      "mitigation": "Implement precedence cleanup-required > active-worktree > experiment-batch-exception > duplicate-candidate, and test Tier-C grouping plus malformed cleanup visibility."
+    },
+    {
+      "scenario": "Read-only dashboard mutates state",
+      "trigger": "Handler writes process events, evidence, story metadata, or git artifacts while building status",
+      "consequence": "Status checks change the state they are supposed to observe",
+      "mitigation": "Snapshot story files/process-events/git status in smoke tests around global_control_status, runtime_closure_status, and queue_governance_status."
+    },
+    {
+      "scenario": "Queue exception write bypasses coordination",
+      "trigger": "queue_exception_set writes shared registry without main lock or audit binding",
+      "consequence": "Concurrent hosts can race and produce unreviewable exception state",
+      "mitigation": "Use main write lock for shared registry writes and persist actor/reason/timestamp/story binding in each mutation."
+    }
+  ],
+  "timestamp": "2026-06-27T00:42:02.359Z"
+}
