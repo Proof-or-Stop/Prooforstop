@@ -160,13 +160,44 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "User sees evidence for planned verification and closure checks completed before RELEASE decisions.",
+      "userSees": "User sees \"host verdict and verify commands\" run and complete before proceeding to review closure.",
       "files": {
         "modify": [
-          "packages/main/src/providers/claude-cli.ts"
+          "packages/main/src/providers/claude-cli.ts",
+          "packages/main/src",
+          "docs/requirements/decisions/lattice-authority-live-integration.md"
         ],
         "create": [],
         "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "verify-tier-c-provider-bound-path:happy",
+            "desc": "Verify the final evidence trail reflects the one-line delegated provider comment change",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "verify-tier-c-provider-bound-path:edge",
+            "desc": "Verify any stale/boundary evidence is called out before review closure",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "verify-tier-c-provider-bound-path:adversarial",
+            "desc": "Verify no local host evidence or authority completion claim is overclaimed",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
       }
     }
   ],
