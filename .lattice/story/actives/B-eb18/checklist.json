@@ -296,7 +296,31 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Queue mutation commands refuse accidental non-experiment duplicate cleanup unless a human-visible canonical/superseded reason is provided, while Tier-C experiment evidence remains preserved.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-007:happy:0",
+            "desc": "queue_exception_set records auditable exception membership with actor, reason, timestamp, and binding.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-007:edge:0",
+            "desc": "Non-experiment duplicate cleanup emits reviewable canonical/superseded suggestions instead of silent mutation.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-007:adversarial:0",
+            "desc": "Tier-C experiment exception stories are never hard-blocked or cleaned up by duplicate guard logic.",
+            "type": "logic"
+          }
+        ]
+      }
     }
   ]
 }
