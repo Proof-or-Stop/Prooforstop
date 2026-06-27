@@ -11,7 +11,6 @@
 
 **Verify**:
 - `lattice validate`
-- `lattice review_story --storyId=B-0419 --type=pass` (internal reviewer pass path)
 
 **DoneWhen**:
 - `packages/main/src/providers/claude-cli.ts` includes one explicit one-line comment in the delegated `provider.claude` bounded execution path.
@@ -28,7 +27,6 @@
 
 **Verify**:
 - `lattice validate`
-- `lattice review_story --storyId=B-0419 --type=pass`
 
 **DoneWhen**:
 - The story review path confirms no local Authority claims or DONE overclaim are introduced by this documentation-boundary change.
@@ -45,7 +43,6 @@
 
 **Verify**:
 - `lattice validate`
-- `lattice story_review --storyId=B-0419`
 
 **DoneWhen**:
 - The delegated `provider.claude` branch has the requested one-line code comment.
@@ -62,7 +59,6 @@
 
 **Verify**:
 - `lattice validate`
-- Manual sanity check of review outputs for blocking findings.
 
 **DoneWhen**:
 - All planned verification and boundary checks for CHK-003 are completed and recorded.

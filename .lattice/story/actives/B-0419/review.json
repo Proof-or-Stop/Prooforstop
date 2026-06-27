@@ -144,6 +144,36 @@
         }
       ],
       "_hash": "7a0719b118754e78a20ef4c838a700e21c7667d5d5dbc127be9db5666bffbce4"
+    },
+    {
+      "timestamp": "2026-06-27T00:34:13.224Z",
+      "issueCount": 4,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "scope_change",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 (\"Implement Tier-C provider-execution receipt verification (claude) run 92812...\") was added in PLAN phase: plan_skeleton --write generated an initial PLAN skeleton from StoryReadinessReport"
+        },
+        {
+          "type": "scope_change",
+          "severity": "advisory",
+          "itemId": "CHK-004",
+          "message": "CHK-004 (\"Verify Tier-C provider-execution receipt verification (claude) run 92812...\") was added in PLAN phase: plan_skeleton --write generated an initial PLAN skeleton from StoryReadinessReport"
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "4 checklist items; please check for missing combined scenarios (e.g., what happens when Implement the requested Lattice change + Verify evidence and DONE boundaries are performed simultaneously?)"
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-0419 is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "d9f692ae6d4578975d51777493bc6536a629b52d1af20211fe1f589ea647ad62"
     }
   ]
 }
