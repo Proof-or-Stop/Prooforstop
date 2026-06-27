@@ -4,7 +4,7 @@
   "title": "Add the A2-prime compute-matched naive arm + accurate agent-call accounting to the recovery runner",
   "description": "The pre-registered five-arm reflection-loop ablation names A2-prime (compute-matched naive) as its methodological centerpiece, but the recovery runner does not implement it and its run records do not accurately count agent calls. Add an accurate agentCalls counter and the A2-prime arm so the powered ablation can isolate structure from raw compute.",
   "type": "feature",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "medium",
   "keywords": [
     "ablation",
@@ -24,6 +24,20 @@
       "user": "Harmonygo",
       "sessionId": "e8aca935-deaf-4f5d-9f33-b3aff7bb35fb",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-27T00:33:43.225Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-c1592222a4fdb073",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-b8c8",
+    "branch": "story/B-b8c8",
+    "createdAt": "2026-06-27T00:33:42.334Z"
+  }
 }
