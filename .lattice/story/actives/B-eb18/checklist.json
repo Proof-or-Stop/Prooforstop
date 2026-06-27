@@ -112,7 +112,31 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "The consumption section shows which gate consumer is weak or blocked and explicitly keeps candidate, diagnostic, and legacy evidence out of DONE satisfaction.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-003:happy:0",
+            "desc": "consumption projection renders consumer rows with policy/source identity where Proof Admissibility exposes them.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-003:edge:0",
+            "desc": "Unavailable Proof Admissibility waterline is rendered as unknown or unavailable, not green.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-003:adversarial:0",
+            "desc": "Candidate, diagnostic, and legacy artifacts cannot make DONE or production wording eligible through the control plane.",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
