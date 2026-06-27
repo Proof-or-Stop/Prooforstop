@@ -103,9 +103,16 @@
       "files": {
         "modify": [
           "packages/main/src/core/lifecycle-control/consumption/**",
-          "packages/main/src/core/lifecycle-control/**"
+          "packages/main/src/core/lifecycle-control/**",
+          "packages/main/src/core/proof-admissibility*.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts"
         ],
-        "create": [],
+        "create": [
+          "packages/main/src/handlers/lifecycle-control.ts"
+        ],
         "test": [
           "packages/main/src/tasks/**"
         ]
@@ -113,26 +120,26 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "The consumption section shows which gate consumer is weak or blocked and explicitly keeps candidate, diagnostic, and legacy evidence out of DONE satisfaction.",
+      "userSees": "lattice admissibility_waterline --storyId=<id> --format=json shows each consumer bucket, missing clauses, top reasons, stale/legacy/error counts, and the consumption section uses that waterline without letting candidate, diagnostic, or legacy evidence satisfy DONE.",
       "verificationIntent": {
         "happy": [
           {
             "id": "CHK-003:happy:0",
-            "desc": "consumption projection renders consumer rows with policy/source identity where Proof Admissibility exposes them.",
-            "type": "logic"
+            "desc": "admissibility_waterline renders consumer pass/warn/fail/error/stale/legacy buckets, missingClauses, topReasons, and diagnostic-only status.",
+            "type": "cli"
           }
         ],
         "edge": [
           {
             "id": "CHK-003:edge:0",
-            "desc": "Unavailable Proof Admissibility waterline is rendered as unknown or unavailable, not green.",
+            "desc": "Historical failed or stale rows remain visible for audit but do not block unrelated stories without current subject/consumer/contract/material/policy match.",
             "type": "logic"
           }
         ],
         "adversarial": [
           {
             "id": "CHK-003:adversarial:0",
-            "desc": "Candidate, diagnostic, and legacy artifacts cannot make DONE or production wording eligible through the control plane.",
+            "desc": "Candidate, diagnostic, and legacy artifacts cannot make DONE or production wording eligible through either admissibility_waterline or global_control_status.",
             "type": "logic"
           }
         ]
