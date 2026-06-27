@@ -1,0 +1,36 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-0419",
+  "allowedCommands": [
+    "cat",
+    "git",
+    "lattice",
+    "node",
+    "npm --prefix packages/main run",
+    "rg",
+    "sed"
+  ],
+  "allowedTools": [
+    "cat",
+    "git",
+    "lattice",
+    "rg",
+    "sed"
+  ],
+  "allowedPaths": [
+    ".lattice/story/actives/B-0419",
+    "docs/requirements/decisions/lattice-authority-live-integration.md",
+    "packages/main/src",
+    "packages/main/tests"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".lattice"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Minimal edit/test boundary for one-line provider execution change.",
+  "createdAt": "2026-06-27T00:30:10.971Z",
+  "updatedAt": "2026-06-27T00:30:10.971Z",
+  "_hash": "ed4c61784ac9545a2522881d723e0556d04f588a3989285e71d4ae7cd5af9002"
+}
