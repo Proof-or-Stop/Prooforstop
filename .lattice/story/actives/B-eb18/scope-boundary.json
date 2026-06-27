@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-eb18",
+  "mode": "feature",
+  "allowed": [
+    "docs/evidence/evidence-platform-architecture.md",
+    "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+    "package-lock.json",
+    "package.json",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/core/lifecycle-control/**",
+    "packages/main/src/tasks/**"
+  ],
+  "excluded": [
+    ".lattice/story/actives/B-0419/**",
+    ".lattice/story/actives/B-8628/**",
+    ".lattice/story/actives/B-fbb6/**",
+    "Authority Server implementation or receipt-backed production proof semantics",
+    "experiments/recovery-runner/**"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "User requested implementation of the global lifecycle control plane plan through DONE; scope is limited to Proofbound CLI lifecycle-control implementation and docs alignment.",
+  "createdAt": "2026-06-27T00:35:34.142Z",
+  "updatedAt": "2026-06-27T00:35:34.142Z",
+  "_hash": "c0b373d6b14d08450c1ab00d530bfc8ca9b294d211ab76bf56ff0f52ae3e26b4"
+}
