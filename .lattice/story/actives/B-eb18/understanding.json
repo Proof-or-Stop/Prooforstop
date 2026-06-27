@@ -1,0 +1,43 @@
+{
+  "task": "Implement the global lifecycle control plane so Proofbound hosts can inspect runtime closure, proof-consumption closure, queue governance, dashboard state, and named guardrails from mechanical CLI output.",
+  "outcome": "After the story is done, an operator can run lattice global_control_status --format=json and see story rows with authoritativeCwd, runtime status, consumption status, queue classification, nextSafeAction, Tier-C experiment grouping, duplicate cleanup suggestions, and explicit local-only proof boundaries without stitching session_brief, story_authority_resolve, lifecycle_check, and stale plan docs.",
+  "facts": [
+    "B-376c completed schema and milestone alignment only; it deliberately did not implement full CP-0 through CP-5 behavior.",
+    "The accepted execution plan is docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md.",
+    "Existing lifecycle-control modules currently expose status shapes and read-only compatibility helpers, not registered commands or real projectors.",
+    "story_authority_resolve, lifecycle_check, done_closure, Proof Admissibility, owner lease, main write lock, validation lock, and evidence freshness modules already exist and should remain sources of truth.",
+    "INIT reviewers passed with advisories requiring explicit product-visible completion criteria and strict non-replacement of lifecycle/proof/Authority semantics."
+  ],
+  "constraints": [
+    "Do not create a second lifecycle state machine or bypass story_advance gates.",
+    "Do not reimplement Proof Admissibility policy, evidence freshness classification, DONE oracle, or Evidence Runtime verification.",
+    "Do not optimize arbitrarily; only implement the real correctness and consistency gaps named by the execution plan.",
+    "Keep Authority/production semantics out of the control plane; render lower-layer results only.",
+    "Queue exceptions must preserve Tier-C experiment evidence and must not hide malformed or cleanup-required stories.",
+    "All user-facing CLI output must separate story-level blockers from project-level queue health."
+  ],
+  "unknowns": [
+    "Which existing public APIs expose enough proof-admissibility waterline detail for CP-2 without adding a competing schema?",
+    "Which command registration path is preferred for new read-only lifecycle-control commands in the current CLI engine?",
+    "How much CP-5A enforcement is already covered by story_advance and ownership gates, and what exact additional guard is still missing?",
+    "Where should durable queue exception registry data live so writes are guarded and not mistaken for lifecycle evidence?"
+  ],
+  "touchpoints": [
+    "packages/main/src/core/lifecycle-control/**",
+    "packages/main/src/handlers/story-authority-resolve.ts",
+    "packages/main/src/handlers/lifecycle-check.ts",
+    "packages/main/src/handlers/done-closure.ts",
+    "packages/main/src/core/proof-admissibility.ts",
+    "packages/main/src/core/evidence-freshness.ts",
+    "packages/main/src/core/story-owner-lease.ts",
+    "packages/main/src/core/main-write-lock.ts",
+    "packages/main/src/core/validation-execution-lock.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/tasks/**",
+    "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+    "docs/evidence/evidence-platform-architecture.md"
+  ],
+  "timestamp": "2026-06-27T00:38:29.790Z"
+}

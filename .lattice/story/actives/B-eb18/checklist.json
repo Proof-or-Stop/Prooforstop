@@ -19,7 +19,31 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "lattice global_control_status --format=json prints a read-only globalControlPlane.status report with active story rows, authoritative cwd, mirror drift, readiness, proof-consumption summary, and queue classification.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-001:happy:0",
+            "desc": "global_control_status returns schemaVersion, readOnly=true, project summary, and story rows including authoritative cwd for worktree stories.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-001:edge:0",
+            "desc": "A story with worktree authority and main mirror drift reports the worktree authoritative cwd instead of trusting stale main metadata.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-001:adversarial:0",
+            "desc": "The report does not mutate story metadata, process events, evidence, or git status.",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
