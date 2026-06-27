@@ -4,9 +4,39 @@
       "id": "CHK-001",
       "title": "run-recovery.mjs: add an accurate per-run agentCalls counter incremented inside agentRun() (each executor call) and reviewArtifact() (each reviewer call); record agentCalls in the run record",
       "context": "Arm-agnostic; fixes the reviewRounds undercount. a2prime agentCalls=attempts; a4=attempts+1 gate review; a4b=attempts+reviewer-calls",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "in_progress",
+      "startTime": "2026-06-27T00:42:28.533Z",
+      "endTime": null,
+      "userSees": "PASS CHK-001 h1: executor+reviewer+executor+reviewer (reviewer-site increments too) => agentCallCount 4",
+      "files": {
+        "modify": [
+          "experiments/recovery-runner/run-recovery.mjs"
+        ],
+        "create": [],
+        "test": [
+          "experiments/recovery-runner/spend-accounting-selfcheck.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Executor and reviewer calls both increment agentCallCount and the record exposes agentCallCount/tokensSpent/wallClockMs.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A single call still counts as 1 and missing usage stays 0.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Malformed or negative usage input does not fabricate extra calls or crash the accounting selfcheck.",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
@@ -31,6 +61,17 @@
       "status": "pending",
       "startTime": null,
       "endTime": null
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-27T00:42:28.533Z",
+      "phase": "PLAN",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Populate PLAN completeness fields for the accounting item."
     }
   ]
 }
