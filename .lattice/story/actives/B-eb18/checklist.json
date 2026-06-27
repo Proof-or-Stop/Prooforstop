@@ -250,7 +250,31 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Unsafe runtime operations receive a clear runtime guard result naming the unsafe condition, remediation, and rollback/config switch, while normal development remains usable.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-006:happy:0",
+            "desc": "Runtime enforcement guard blocks named unsafe runtime operations in enforce mode and renders warn mode before enforcement.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-006:edge:0",
+            "desc": "Metadata-only dirty state and material dirty state are distinguished in runtime guard output.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-006:adversarial:0",
+            "desc": "Runtime enforcement does not evaluate proof admissibility or implement Proof M7 policy.",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-007",
