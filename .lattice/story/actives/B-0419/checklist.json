@@ -39,15 +39,15 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "User sees delegated provider.claude bounded step now includes one-line execution-boundary comment and no behavior changes, with same validation path and no receipts introduced.",
+      "userSees": "User sees \"✔ implemented\" in story review checkpoint: delegated provider.claude path has the new one-line comment and unchanged runtime behavior.",
       "files": {
         "modify": [
-          "packages/main/src/providers/claude-cli.ts"
+          "packages/main/src/providers/claude-cli.ts",
+          "packages/main/src",
+          "docs/requirements/decisions/lattice-authority-live-integration.md"
         ],
         "create": [],
-        "test": [
-          "packages/main/src/providers/claude-cli.ts"
-        ]
+        "test": []
       }
     },
     {
