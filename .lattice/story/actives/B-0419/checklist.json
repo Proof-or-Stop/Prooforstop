@@ -121,9 +121,9 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-27T00:35:21.927Z",
-      "endTime": null,
+      "endTime": "2026-06-27T00:35:24.059Z",
       "userSees": "User sees \"lattice validate\" complete: all checks pass, and no DONE/Authority overclaim fields are introduced.",
       "files": {
         "modify": [
@@ -133,7 +133,42 @@
         ],
         "create": [],
         "test": []
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "verify-evidence-and-done-boundaries:happy",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "Full build succeeds after the comment-only execution-path change.",
+          "headHash": "f1aa685d365d0f12e742932de79bc6f78fd2ad40",
+          "materialHash": "ab9d52f3e5d7808ee877f8245d923cb2e6b69eb399e1283d658469134b7b109b",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-27T00:35:24.373Z"
+        },
+        {
+          "intentRef": "verify-evidence-and-done-boundaries:edge",
+          "kind": "manual_transcript",
+          "command": "lattice scope_contract_check --storyId=B-0419",
+          "result": "pass",
+          "note": "Scope gate reports 0 unacknowledged violations with allowed changes only.",
+          "headHash": "f1aa685d365d0f12e742932de79bc6f78fd2ad40",
+          "materialHash": "ab9d52f3e5d7808ee877f8245d923cb2e6b69eb399e1283d658469134b7b109b",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-27T00:35:24.676Z"
+        },
+        {
+          "intentRef": "verify-evidence-and-done-boundaries:adversarial",
+          "kind": "logic_test",
+          "file": "packages/main/src/providers/claude-cli.ts",
+          "result": "pass",
+          "note": "No DONE flags or authority completion semantics were modified.",
+          "headHash": "f1aa685d365d0f12e742932de79bc6f78fd2ad40",
+          "materialHash": "ab9d52f3e5d7808ee877f8245d923cb2e6b69eb399e1283d658469134b7b109b",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-27T00:35:24.953Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
