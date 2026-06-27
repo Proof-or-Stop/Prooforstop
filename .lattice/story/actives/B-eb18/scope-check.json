@@ -97,9 +97,12 @@
       "evidence": "The global control-plane CP-2 task says to consume lattice admissibility_waterline if implemented or implement Appendix D verbatim, while the B-eb18 PLAN says no implemented admissibility_waterline API exists and renders the capability unavailable/unknown.",
       "sourcePointers": [
         "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md#CP-2",
-        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md#Appendix-D",
-        "B-eb18 plan.md#CHK-003"
-      ]
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md#appendix-d-admissibility-waterline-schema",
+        "B-eb18 CHK-003",
+        "B-eb18 decision"
+      ],
+      "resolution": "Resolved in scope: because the user asked to complete the whole global lifecycle control plane plan, B-eb18 will implement the Proof Admissibility Appendix D minimum admissibility_waterline entry point as diagnostic-only output, then have the CP-2 control-plane consumption projector consume that waterline. It remains non-authoritative and cannot promote candidate, diagnostic, legacy, or local proof into DONE or production completion.",
+      "resolvedAt": "2026-06-27T00:46:27.025Z"
     }
   ]
 }
