@@ -89,10 +89,12 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "User sees evidence and DONE-boundary checks completed via normal validation workflow; no local authority overclaim is introduced.",
+      "userSees": "User sees \"lattice validate\" complete: all checks pass, and no DONE/Authority overclaim fields are introduced.",
       "files": {
         "modify": [
-          "packages/main/src/providers/claude-cli.ts"
+          "packages/main/src/providers/claude-cli.ts",
+          "packages/main/src",
+          "docs/requirements/decisions/lattice-authority-live-integration.md"
         ],
         "create": [],
         "test": []
