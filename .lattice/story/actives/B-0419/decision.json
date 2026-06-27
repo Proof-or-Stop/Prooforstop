@@ -1,0 +1,67 @@
+{
+  "principles": [
+    "只做最小可验证改动；不新增行为边界之外的功能",
+    "保留当前 CLI 与验证链路语义，不改变权限模型",
+    "保持证据-边界一致，变更后必须能从验收与验证证据中证明"
+  ],
+  "drivers": [
+    "run 92812-23658-1782245175 明确要求补充 delegated claude 路径注释",
+    "存在过高/过低 scope 扩展与边界越界风险，需锁定最小改动",
+    "避免过度标注 authority 语义导致流程绕过"
+  ],
+  "options": [
+    {
+      "name": "仅修正 delegated claude 路径代码注释",
+      "pros": [
+        "最小改动、风险低",
+        "对验收影响明确"
+      ],
+      "cons": [
+        "仅解决可见性问题，不会改变执行逻辑"
+      ]
+    },
+    {
+      "name": "仅修改文档说明，不改代码",
+      "pros": [
+        "最快速交付",
+        "零代码风险"
+      ],
+      "cons": [
+        "不能满足 requested code-comment 的实际验收要求"
+      ]
+    },
+    {
+      "name": "增加完整 provider.claude/receipt 机制单元测试并重构",
+      "pros": [
+        "高置信验证覆盖",
+        "可长期稳定"
+      ],
+      "cons": [
+        "改动范围大，违背一行级别约束，易引入附带风险"
+      ]
+    }
+  ],
+  "chosen": "仅修正 delegated claude 路径代码注释",
+  "rationale": "story 明确要求 one-line code comment 且为 Tier-C minimal scope，优先按最小改动修复，避免触发不必要的 scope 扩散。",
+  "preMortem": [
+    {
+      "scenario": "重复执行旧版本 story 或并发修改同文件",
+      "trigger": "工作区同时有多个 B-xxxx 进行 provider 范围改动",
+      "consequence": "可能产生重复修复或互斥冲突",
+      "mitigation": "保持 scope 与 execution boundary 最小化，先确认 B-0419 独占实现，再单文件补丁并快速收敛"
+    },
+    {
+      "scenario": "注释写法不当导致误导或过度主张",
+      "trigger": "文案不匹配实际行为",
+      "consequence": "用户误解 receipt 边界与 DONE 语义",
+      "mitigation": "采用原子性说明，不引入新状态，仅记录不可过度claim 的事实"
+    },
+    {
+      "scenario": "验证入口没覆盖边界导致遗漏",
+      "trigger": "未新增/更新 verificationEvidence 与验证命令",
+      "consequence": "TEST/DONE 阶段阻塞或产生假绿",
+      "mitigation": "保留既有验证意图，不新增门禁，补充并通过现有命令验证 PASS"
+    }
+  ],
+  "timestamp": "2026-06-27T00:31:12.437Z"
+}
