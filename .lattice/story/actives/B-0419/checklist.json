@@ -262,9 +262,9 @@
       "relatedDocs": [
         ".lattice/story/actives/B-0419/background.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-27T00:35:31.528Z",
-      "endTime": null,
+      "endTime": "2026-06-27T00:35:32.689Z",
       "userSees": "User sees \"host verdict and verify commands\" run and complete before proceeding to review closure.",
       "files": {
         "modify": [
@@ -303,7 +303,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "verify-tier-c-provider-bound-path:happy",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "Build succeeds with scope-limited code comment update.",
+          "headHash": "bd8268c860703f83b010e99d35756e427ecd5190",
+          "materialHash": "ab9d52f3e5d7808ee877f8245d923cb2e6b69eb399e1283d658469134b7b109b",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-27T00:35:33.032Z"
+        },
+        {
+          "intentRef": "verify-tier-c-provider-bound-path:edge",
+          "kind": "manual_transcript",
+          "command": "lattice scope_contract_check --storyId=B-0419",
+          "result": "pass",
+          "note": "Scope evidence remains valid with no unacknowledged violations.",
+          "headHash": "bd8268c860703f83b010e99d35756e427ecd5190",
+          "materialHash": "ab9d52f3e5d7808ee877f8245d923cb2e6b69eb399e1283d658469134b7b109b",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-27T00:35:33.336Z"
+        },
+        {
+          "intentRef": "verify-tier-c-provider-bound-path:adversarial",
+          "kind": "logic_test",
+          "file": "packages/main/src/providers/claude-cli.ts",
+          "result": "pass",
+          "note": "No production authority or local evidence overclaim behavior added by this change.",
+          "headHash": "bd8268c860703f83b010e99d35756e427ecd5190",
+          "materialHash": "ab9d52f3e5d7808ee877f8245d923cb2e6b69eb399e1283d658469134b7b109b",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-27T00:35:33.682Z"
+        }
+      ]
     }
   ],
   "auditLog": [
