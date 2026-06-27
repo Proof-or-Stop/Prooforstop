@@ -1,0 +1,158 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Implement CP-0 read-only global control inventory report",
+      "context": "Produce a non-mutating report joining lifecycle, authority, readiness, proof diagnostics where available, active story titles, and queue classification. It must name authoritative cwd for worktree stories and avoid plan-doc heuristics.",
+      "relatedDocs": [
+        "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/core/lifecycle-control/**",
+          "packages/main/src/cli-engine.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/**"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Implement CP-1 runtime closure projection",
+      "context": "Project runtime readiness from existing shipped modules only: story authority, owner lease, main write lock, validation lock, freshness hints, lifecycle readiness, and done_prepare bindings. Do not create a second freshness classifier.",
+      "relatedDocs": [
+        "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/core/lifecycle-control/runtime/**",
+          "packages/main/src/core/lifecycle-control/**"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/**"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Implement CP-2 consumption closure projection",
+      "context": "Consume Proof Admissibility public APIs or equivalent diagnostics to render consumer weakness without recalculating proof policy. Candidate, diagnostic, and legacy evidence must not satisfy DONE.",
+      "relatedDocs": [
+        "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+        "docs/evidence/evidence-platform-architecture.md"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/core/lifecycle-control/consumption/**",
+          "packages/main/src/core/lifecycle-control/**"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/**"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Implement CP-3 queue governance and experiment exceptions",
+      "context": "Classify active stories, add durable experiment exception registry, register Tier-C provider-execution receipt verification, exclude exceptions from duplicate cleanup, and keep malformed experiment stories visible.",
+      "relatedDocs": [
+        "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/core/lifecycle-control/queue/**",
+          "packages/main/src/core/lifecycle-control/**"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/**"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Implement CP-4 unified dashboard command output",
+      "context": "Expose story-level and project-level control status so operators do not manually stitch session_brief, story_authority_resolve, proof diagnostics, and story list. Keep story gate status separate from project queue health.",
+      "relatedDocs": [
+        "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/core/lifecycle-control/dashboard/**",
+          "packages/main/src/core/lifecycle-control/**",
+          "packages/main/src/cli-engine.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/**"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-006",
+      "title": "Implement CP-5A runtime enforcement rollout guardrails",
+      "context": "Hard-block only unsafe runtime operations named by the plan, with warn-first policy and rollback/config documentation. Runtime enforcement must not evaluate proof admissibility.",
+      "relatedDocs": [
+        "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/core/lifecycle-control/runtime/**",
+          "packages/main/src/core/story-machine.ts",
+          "packages/main/src/cli-engine.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/**"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-007",
+      "title": "Implement CP-5B queue governance guard and verification",
+      "context": "Guard accidental duplicate/superseded mutations while preserving Tier-C experiment evidence. Exception writes must be auditable and guarded; non-experiment cleanup must be reviewable.",
+      "relatedDocs": [
+        "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/core/lifecycle-control/queue/**",
+          "packages/main/src/core/lifecycle-control/**",
+          "packages/main/src/cli-engine.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/**"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

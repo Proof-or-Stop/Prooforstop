@@ -1,0 +1,37 @@
+{
+  "storyId": "B-eb18",
+  "name": "global-lifecycle-control-plane-implementation",
+  "title": "Implement the global lifecycle control plane",
+  "description": "Implement the CP-0 through CP-5B global lifecycle control plane from the accepted execution plan so hosts can inspect runtime closure, proof-consumption closure, queue governance, dashboard state, and safe guardrails without creating a second lifecycle state machine.",
+  "type": "feature",
+  "phase": "INIT",
+  "priority": "high",
+  "keywords": [
+    "lifecycle-control",
+    "control-plane",
+    "queue-governance",
+    "runtime-closure",
+    "proof-admissibility",
+    "dashboard"
+  ],
+  "riskSignals": [
+    {
+      "category": "State Machine/Gate",
+      "matched": "state machine"
+    }
+  ],
+  "createdAt": "2026-06-27T00:35:34.142Z",
+  "startedAt": "2026-06-27T00:35:34.142Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-27T00:35:34.184Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-c1592222a4fdb073",
+      "agent": "main"
+    }
+  ]
+}
