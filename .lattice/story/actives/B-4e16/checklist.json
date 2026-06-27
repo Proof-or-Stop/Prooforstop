@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add per-step identity-keyed checkpoint list to the autopilot run record schema",
+      "context": "phase+stepIndex+command+sha256(inputs) -> status pending|done|failed plus dispatchId/evidence ref; persisted atomically after each step (append-then-fsync), never a positional count. Files: handlers/lattice-autopilot.ts AutopilotRunRecord, core/autopilot-executor.ts per-step write.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Rewrite autopilot_resume to skip done checkpoints and resume at the first non-done step",
+      "context": "handlers/lattice-autopilot.ts:1179-1203 currently always returns status:refused. Load record -> recompute planned steps -> skip steps whose identity-keyed checkpoint is done -> resume at first non-done. Resume only at step boundaries.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "RED tests: resume touches each completed step once, void-tail no-duplicate, no-refuse-on-healthy",
+      "context": "Kill mid-phase then resume (per-checkpoint run count == 1); inject a void step between completed steps and assert only the void re-runs (the 21-duplicate regression ported); autopilot_resume no longer refuses a healthy non-stale record.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
