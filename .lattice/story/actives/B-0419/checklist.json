@@ -110,13 +110,44 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "User sees the checklist-driven minimal provider-execution receipt verification task documented and ready for DEV execution.",
+      "userSees": "User sees \"provider.claude bounded executor\" evidence recorded in plan.md and changelog path checks before moving on.",
       "files": {
         "modify": [
-          "packages/main/src/providers/claude-cli.ts"
+          "packages/main/src/providers/claude-cli.ts",
+          "packages/main/src",
+          "docs/requirements/decisions/lattice-authority-live-integration.md"
         ],
         "create": [],
         "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "implement-tier-c-provider-bound-path:happy",
+            "desc": "Verify delegated provider.claude bounded execution has the requested one-line comment marker and no behavior change",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "implement-tier-c-provider-bound-path:edge",
+            "desc": "Verify no acceptance path relies on authority Done claims for this comment-only change",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "implement-tier-c-provider-bound-path:adversarial",
+            "desc": "Verify this change cannot be interpreted as production authority proof",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
       }
     },
     {
