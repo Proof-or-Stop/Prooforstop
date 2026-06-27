@@ -85,15 +85,21 @@
       "endTime": null,
       "relatedDocs": [
         "experiment-protocol.md",
-        "paper/main.tex"
+        "paper/main.tex",
+        "paper/evidence/B-b8c8-recovery-runner-accounting.md"
       ],
-      "userSees": "| **A2′ compute-matched naive** ... equal compute matched on spend, not call count |",
+      "userSees": "\"A2′ compute-matched naive (bounded by a token + wall-clock spend budget equal to A4 median, ±20% band, token binds first; equal compute matched on spend, not call count)\"",
       "files": {
         "modify": [
           "experiments/recovery-runner/run-recovery.mjs",
-          "experiments/recovery-runner/run-ablation.mjs"
+          "experiments/recovery-runner/run-ablation.mjs",
+          "experiment-protocol.md",
+          "paper/main.tex"
         ],
-        "create": [],
+        "create": [
+          "paper/evidence/B-b8c8-recovery-runner-accounting.md",
+          "paper/evidence/B-b8c8-recovery-runner-accounting.json"
+        ],
         "test": [
           "experiments/recovery-runner/spend-accounting-selfcheck.mjs"
         ]
