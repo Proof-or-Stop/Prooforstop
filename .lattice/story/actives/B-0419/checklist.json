@@ -56,10 +56,10 @@
           "command": "rg -n \"Delegated `provider\\.claude` is evidence-only execution\" packages/main/src/providers/claude-cli.ts",
           "result": "pass",
           "note": "Confirmed comment marker exists at run-time handler entrypoint.",
-          "headHash": "816f791f0dabcd2db5e6666067821646458efd9e",
-          "materialHash": "ab9d52f3e5d7808ee877f8245d923cb2e6b69eb399e1283d658469134b7b109b",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-27T00:35:16.408Z"
+          "headHash": "25fcb1cc9130a12c896840f42e1ca9c9079d88a4",
+          "materialHash": "6a127c331cf5215d1b7d4a1f830bdfc1d75f1c5d2c6bb631bc859674a1552723",
+          "storyFilesHash": "b6a83f83583c168f83095fcc066915a5472c4cc141045cf307486d54a3b07fab",
+          "timestamp": "2026-06-27T00:35:46.109Z"
         },
         {
           "intentRef": "implement-the-requested-lattice-change:edge",
@@ -67,10 +67,10 @@
           "command": "npm --prefix packages/main run build",
           "result": "pass",
           "note": "Build passes after comment-only update, no behavioral regression observed.",
-          "headHash": "816f791f0dabcd2db5e6666067821646458efd9e",
-          "materialHash": "ab9d52f3e5d7808ee877f8245d923cb2e6b69eb399e1283d658469134b7b109b",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-27T00:35:16.687Z"
+          "headHash": "25fcb1cc9130a12c896840f42e1ca9c9079d88a4",
+          "materialHash": "6a127c331cf5215d1b7d4a1f830bdfc1d75f1c5d2c6bb631bc859674a1552723",
+          "storyFilesHash": "b6a83f83583c168f83095fcc066915a5472c4cc141045cf307486d54a3b07fab",
+          "timestamp": "2026-06-27T00:35:46.109Z"
         },
         {
           "intentRef": "implement-the-requested-lattice-change:adversarial",
@@ -78,10 +78,10 @@
           "file": "packages/main/src/providers/claude-cli.ts",
           "result": "pass",
           "note": "Comment clarifies intent without introducing DONE/Authority logic paths.",
-          "headHash": "816f791f0dabcd2db5e6666067821646458efd9e",
-          "materialHash": "ab9d52f3e5d7808ee877f8245d923cb2e6b69eb399e1283d658469134b7b109b",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-27T00:35:16.976Z"
+          "headHash": "25fcb1cc9130a12c896840f42e1ca9c9079d88a4",
+          "materialHash": "6a127c331cf5215d1b7d4a1f830bdfc1d75f1c5d2c6bb631bc859674a1552723",
+          "storyFilesHash": "b6a83f83583c168f83095fcc066915a5472c4cc141045cf307486d54a3b07fab",
+          "timestamp": "2026-06-27T00:35:46.109Z"
         }
       ]
     },
@@ -141,10 +141,10 @@
           "command": "npm --prefix packages/main run build",
           "result": "pass",
           "note": "Full build succeeds after the comment-only execution-path change.",
-          "headHash": "f1aa685d365d0f12e742932de79bc6f78fd2ad40",
-          "materialHash": "ab9d52f3e5d7808ee877f8245d923cb2e6b69eb399e1283d658469134b7b109b",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-27T00:35:24.373Z"
+          "headHash": "25fcb1cc9130a12c896840f42e1ca9c9079d88a4",
+          "materialHash": "6a127c331cf5215d1b7d4a1f830bdfc1d75f1c5d2c6bb631bc859674a1552723",
+          "storyFilesHash": "b6a83f83583c168f83095fcc066915a5472c4cc141045cf307486d54a3b07fab",
+          "timestamp": "2026-06-27T00:35:46.109Z"
         },
         {
           "intentRef": "verify-evidence-and-done-boundaries:edge",
@@ -152,10 +152,10 @@
           "command": "lattice scope_contract_check --storyId=B-0419",
           "result": "pass",
           "note": "Scope gate reports 0 unacknowledged violations with allowed changes only.",
-          "headHash": "f1aa685d365d0f12e742932de79bc6f78fd2ad40",
-          "materialHash": "ab9d52f3e5d7808ee877f8245d923cb2e6b69eb399e1283d658469134b7b109b",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-27T00:35:24.676Z"
+          "headHash": "25fcb1cc9130a12c896840f42e1ca9c9079d88a4",
+          "materialHash": "6a127c331cf5215d1b7d4a1f830bdfc1d75f1c5d2c6bb631bc859674a1552723",
+          "storyFilesHash": "b6a83f83583c168f83095fcc066915a5472c4cc141045cf307486d54a3b07fab",
+          "timestamp": "2026-06-27T00:35:46.109Z"
         },
         {
           "intentRef": "verify-evidence-and-done-boundaries:adversarial",
@@ -163,10 +163,10 @@
           "file": "packages/main/src/providers/claude-cli.ts",
           "result": "pass",
           "note": "No DONE flags or authority completion semantics were modified.",
-          "headHash": "f1aa685d365d0f12e742932de79bc6f78fd2ad40",
-          "materialHash": "ab9d52f3e5d7808ee877f8245d923cb2e6b69eb399e1283d658469134b7b109b",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-27T00:35:24.953Z"
+          "headHash": "25fcb1cc9130a12c896840f42e1ca9c9079d88a4",
+          "materialHash": "6a127c331cf5215d1b7d4a1f830bdfc1d75f1c5d2c6bb631bc859674a1552723",
+          "storyFilesHash": "b6a83f83583c168f83095fcc066915a5472c4cc141045cf307486d54a3b07fab",
+          "timestamp": "2026-06-27T00:35:46.109Z"
         }
       ]
     },
@@ -226,10 +226,10 @@
           "command": "rg -n \"Delegated `provider\\.claude` is evidence-only execution\" packages/main/src/providers/claude-cli.ts",
           "result": "pass",
           "note": "Delegated provider.claude bounded entrypoint now includes the one-line evidence-only comment.",
-          "headHash": "759da41ecd6025bed40c5df9955837e7293e6e05",
-          "materialHash": "ab9d52f3e5d7808ee877f8245d923cb2e6b69eb399e1283d658469134b7b109b",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-27T00:35:28.701Z"
+          "headHash": "25fcb1cc9130a12c896840f42e1ca9c9079d88a4",
+          "materialHash": "6a127c331cf5215d1b7d4a1f830bdfc1d75f1c5d2c6bb631bc859674a1552723",
+          "storyFilesHash": "b6a83f83583c168f83095fcc066915a5472c4cc141045cf307486d54a3b07fab",
+          "timestamp": "2026-06-27T00:35:46.109Z"
         },
         {
           "intentRef": "implement-tier-c-provider-bound-path:edge",
@@ -237,10 +237,10 @@
           "command": "npm --prefix packages/main run build",
           "result": "pass",
           "note": "Build remains passing, suggesting no edge-path behavior changes.",
-          "headHash": "759da41ecd6025bed40c5df9955837e7293e6e05",
-          "materialHash": "ab9d52f3e5d7808ee877f8245d923cb2e6b69eb399e1283d658469134b7b109b",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-27T00:35:29.014Z"
+          "headHash": "25fcb1cc9130a12c896840f42e1ca9c9079d88a4",
+          "materialHash": "6a127c331cf5215d1b7d4a1f830bdfc1d75f1c5d2c6bb631bc859674a1552723",
+          "storyFilesHash": "b6a83f83583c168f83095fcc066915a5472c4cc141045cf307486d54a3b07fab",
+          "timestamp": "2026-06-27T00:35:46.109Z"
         },
         {
           "intentRef": "implement-tier-c-provider-bound-path:adversarial",
@@ -248,10 +248,10 @@
           "file": "packages/main/src/providers/claude-cli.ts",
           "result": "pass",
           "note": "No local authority proof fields or DONE semantics were added; this is documentation/comment only.",
-          "headHash": "759da41ecd6025bed40c5df9955837e7293e6e05",
-          "materialHash": "ab9d52f3e5d7808ee877f8245d923cb2e6b69eb399e1283d658469134b7b109b",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-27T00:35:29.344Z"
+          "headHash": "25fcb1cc9130a12c896840f42e1ca9c9079d88a4",
+          "materialHash": "6a127c331cf5215d1b7d4a1f830bdfc1d75f1c5d2c6bb631bc859674a1552723",
+          "storyFilesHash": "b6a83f83583c168f83095fcc066915a5472c4cc141045cf307486d54a3b07fab",
+          "timestamp": "2026-06-27T00:35:46.109Z"
         }
       ]
     },
@@ -311,10 +311,10 @@
           "command": "npm --prefix packages/main run build",
           "result": "pass",
           "note": "Build succeeds with scope-limited code comment update.",
-          "headHash": "bd8268c860703f83b010e99d35756e427ecd5190",
-          "materialHash": "ab9d52f3e5d7808ee877f8245d923cb2e6b69eb399e1283d658469134b7b109b",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-27T00:35:33.032Z"
+          "headHash": "25fcb1cc9130a12c896840f42e1ca9c9079d88a4",
+          "materialHash": "6a127c331cf5215d1b7d4a1f830bdfc1d75f1c5d2c6bb631bc859674a1552723",
+          "storyFilesHash": "b6a83f83583c168f83095fcc066915a5472c4cc141045cf307486d54a3b07fab",
+          "timestamp": "2026-06-27T00:35:46.109Z"
         },
         {
           "intentRef": "verify-tier-c-provider-bound-path:edge",
@@ -322,10 +322,10 @@
           "command": "lattice scope_contract_check --storyId=B-0419",
           "result": "pass",
           "note": "Scope evidence remains valid with no unacknowledged violations.",
-          "headHash": "bd8268c860703f83b010e99d35756e427ecd5190",
-          "materialHash": "ab9d52f3e5d7808ee877f8245d923cb2e6b69eb399e1283d658469134b7b109b",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-27T00:35:33.336Z"
+          "headHash": "25fcb1cc9130a12c896840f42e1ca9c9079d88a4",
+          "materialHash": "6a127c331cf5215d1b7d4a1f830bdfc1d75f1c5d2c6bb631bc859674a1552723",
+          "storyFilesHash": "b6a83f83583c168f83095fcc066915a5472c4cc141045cf307486d54a3b07fab",
+          "timestamp": "2026-06-27T00:35:46.109Z"
         },
         {
           "intentRef": "verify-tier-c-provider-bound-path:adversarial",
@@ -333,10 +333,10 @@
           "file": "packages/main/src/providers/claude-cli.ts",
           "result": "pass",
           "note": "No production authority or local evidence overclaim behavior added by this change.",
-          "headHash": "bd8268c860703f83b010e99d35756e427ecd5190",
-          "materialHash": "ab9d52f3e5d7808ee877f8245d923cb2e6b69eb399e1283d658469134b7b109b",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-27T00:35:33.682Z"
+          "headHash": "25fcb1cc9130a12c896840f42e1ca9c9079d88a4",
+          "materialHash": "6a127c331cf5215d1b7d4a1f830bdfc1d75f1c5d2c6bb631bc859674a1552723",
+          "storyFilesHash": "b6a83f83583c168f83095fcc066915a5472c4cc141045cf307486d54a3b07fab",
+          "timestamp": "2026-06-27T00:35:46.109Z"
         }
       ]
     }
