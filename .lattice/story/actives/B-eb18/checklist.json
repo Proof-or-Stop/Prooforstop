@@ -203,7 +203,31 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "A host can run lattice global_control_status and see story-level runtime/consumption/readiness/queue rows plus project-level runtime, consumption, queue, stale-worktree, duplicate, and experiment-batch summaries.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-005:happy:0",
+            "desc": "global_control_status text and JSON render story-level and project-level sections with top blockers and next safe actions.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-005:edge:0",
+            "desc": "Project-level queue pressure does not mark an unrelated individual story gate as blocked.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-005:adversarial:0",
+            "desc": "The dashboard output cannot be derived from stale plan docs alone and includes source/status provenance fields.",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-006",
