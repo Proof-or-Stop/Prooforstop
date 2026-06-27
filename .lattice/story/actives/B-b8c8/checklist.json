@@ -58,9 +58,37 @@
       "id": "CHK-004",
       "title": "Verify without the live LLM: agentCalls increments at both call sites (code-level) and the median computation is correct on synthetic A4 records",
       "context": "The runner shells out to claude -p, so do a no-LLM unit check of the median function + a read-level check of the two increment sites; do not run the live loop",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "in_progress",
+      "startTime": "2026-06-27T00:42:29.101Z",
+      "endTime": null,
+      "userSees": "B-5bfe selfcheck: 56 assertions passed, NO live LLM invoked (no claude -p subprocess; all imported helpers are pure).",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "experiments/recovery-runner/spend-accounting-selfcheck.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "spend-accounting-selfcheck.mjs passes 56 assertions with no live LLM subprocess.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The helper suite stays pure and buildRunRecord keeps the canonical field names.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The verification path rejects a missing agentCallCount or snake_case field without fabricating evidence.",
+            "type": "logic"
+          }
+        ]
+      }
     }
   ],
   "auditLog": [
@@ -72,6 +100,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Populate PLAN completeness fields for the accounting item."
+    },
+    {
+      "timestamp": "2026-06-27T00:42:29.101Z",
+      "phase": "PLAN",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Populate PLAN completeness fields for the verification item."
     }
   ]
 }
