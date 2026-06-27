@@ -42,9 +42,39 @@
       "id": "CHK-002",
       "title": "run-ablation.mjs: compute the median A4 (a4b) agentCalls from the A4 records and add the A2-prime arm = a2prime with R = that median (budget-match); record to ablation-A2prime-compute-matched.jsonl",
       "context": "Recompute median from records that carry the new agentCalls field; label the arm clearly",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "in_progress",
+      "startTime": "2026-06-27T00:42:30.330Z",
+      "endTime": null,
+      "userSees": "PASS CHK-003 h2: a2primeBudget(1000,2000) => {1200,2400}",
+      "files": {
+        "modify": [
+          "experiments/recovery-runner/run-ablation.mjs"
+        ],
+        "create": [],
+        "test": [
+          "experiments/recovery-runner/spend-accounting-selfcheck.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "median([1000,1000,1000]) feeds a2primeBudget => {tokenBudget:1200, wallBudgetMs:2400} and budgetPass is true only when both axes are in band.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Exact boundaries truncate at >= and budgetPass stays boolean/strict.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Token-only in-band but wall out-of-band still fails budgetPass and token binds first when caps conflict.",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
@@ -153,6 +183,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Populate PLAN completeness fields for the wording-sync item."
+    },
+    {
+      "timestamp": "2026-06-27T00:42:30.330Z",
+      "phase": "PLAN",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Populate PLAN completeness fields for the compute-matched budget item."
     }
   ]
 }
