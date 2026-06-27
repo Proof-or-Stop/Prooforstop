@@ -65,7 +65,31 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "The runtime section names validation lock state, owner/worktree authority, readiness blockers, freshness/stale hints, and the next safe runtime action without inventing new lock or freshness semantics.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-002:happy:0",
+            "desc": "runtime_closure_status projects authority, lock/readiness, stale evidence hints, and nextSafeAction from existing runtime modules.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-002:edge:0",
+            "desc": "Self-reentry or active validation lock is rendered as active/wait instead of a foreign-host conflict.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-002:adversarial:0",
+            "desc": "Runtime projection does not reclassify freshness differently from the shipped evidence freshness/readiness classifier.",
+            "type": "logic"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
