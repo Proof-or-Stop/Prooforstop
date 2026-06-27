@@ -178,6 +178,62 @@
         }
       ],
       "_hash": "a0c5a17bde77204aeca3a8e6449db65c6f028f191cbb1e65bd2d2d669e4ff686"
+    },
+    {
+      "timestamp": "2026-06-27T00:44:16.797Z",
+      "issueCount": 4,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "4 checklist items; please check for missing combined scenarios (e.g., what happens when run-recovery.mjs: add an accurate per-run agentCalls counter incremented inside agentRun() (each executor call) and reviewArtifact() (each reviewer call); record agentCalls in the run record + run-ablation.mjs: compute the median A4 (a4b) agentCalls from the A4 records and add the A2-prime arm = a2prime with R = that median (budget-match); record to ablation-A2prime-compute-matched.jsonl are performed simultaneously?)"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 2 undigested unknowns: Whether the proofbound worktree needs any source edits at all beyond evidence handling; Whether a separate paper evidence note should be added or whether protocol/manuscript wording sync is sufficient"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: paper/evidence/ is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-b8c8 is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "7ebe97162b1169949ebdd97b639f10a61b241e763aadc05e375ed96c3475e0e1"
+    },
+    {
+      "timestamp": "2026-06-27T00:45:26.544Z",
+      "issueCount": 4,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "4 checklist items; please check for missing combined scenarios (e.g., what happens when run-recovery.mjs: add an accurate per-run agentCalls counter incremented inside agentRun() (each executor call) and reviewArtifact() (each reviewer call); record agentCalls in the run record + run-ablation.mjs: compute the median A4 (a4b) agentCalls from the A4 records and add the A2-prime arm = a2prime with R = that median (budget-match); record to ablation-A2prime-compute-matched.jsonl are performed simultaneously?)"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 2 undigested unknowns: Whether the proofbound worktree needs any source edits at all beyond evidence handling; Whether a separate paper evidence note should be added or whether protocol/manuscript wording sync is sufficient"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: paper/evidence/ is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-b8c8 is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "20445e134ec2de03a39fd6ad4307cf9933dacebf2d5df1615c1115a73bc853ad"
     }
   ]
 }
