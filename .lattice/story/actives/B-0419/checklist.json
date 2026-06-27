@@ -88,7 +88,15 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees evidence and DONE-boundary checks completed via normal validation workflow; no local authority overclaim is introduced.",
+      "files": {
+        "modify": [
+          "packages/main/src/providers/claude-cli.ts"
+        ],
+        "create": [],
+        "test": []
+      }
     },
     {
       "id": "CHK-003",
