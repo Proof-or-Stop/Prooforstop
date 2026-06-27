@@ -177,9 +177,9 @@
       "relatedDocs": [
         ".lattice/story/actives/B-0419/background.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-27T00:35:27.008Z",
-      "endTime": null,
+      "endTime": "2026-06-27T00:35:28.394Z",
       "userSees": "User sees \"provider.claude bounded executor\" evidence recorded in plan.md and changelog path checks before moving on.",
       "files": {
         "modify": [
@@ -218,7 +218,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "implement-tier-c-provider-bound-path:happy",
+          "kind": "manual_transcript",
+          "command": "rg -n \"Delegated `provider\\.claude` is evidence-only execution\" packages/main/src/providers/claude-cli.ts",
+          "result": "pass",
+          "note": "Delegated provider.claude bounded entrypoint now includes the one-line evidence-only comment.",
+          "headHash": "759da41ecd6025bed40c5df9955837e7293e6e05",
+          "materialHash": "ab9d52f3e5d7808ee877f8245d923cb2e6b69eb399e1283d658469134b7b109b",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-27T00:35:28.701Z"
+        },
+        {
+          "intentRef": "implement-tier-c-provider-bound-path:edge",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "Build remains passing, suggesting no edge-path behavior changes.",
+          "headHash": "759da41ecd6025bed40c5df9955837e7293e6e05",
+          "materialHash": "ab9d52f3e5d7808ee877f8245d923cb2e6b69eb399e1283d658469134b7b109b",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-27T00:35:29.014Z"
+        },
+        {
+          "intentRef": "implement-tier-c-provider-bound-path:adversarial",
+          "kind": "logic_test",
+          "file": "packages/main/src/providers/claude-cli.ts",
+          "result": "pass",
+          "note": "No local authority proof fields or DONE semantics were added; this is documentation/comment only.",
+          "headHash": "759da41ecd6025bed40c5df9955837e7293e6e05",
+          "materialHash": "ab9d52f3e5d7808ee877f8245d923cb2e6b69eb399e1283d658469134b7b109b",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-27T00:35:29.344Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
