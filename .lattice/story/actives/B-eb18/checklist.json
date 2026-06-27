@@ -165,19 +165,19 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "The queue section groups Tier-C provider-execution stories as an experiment exception, leaves malformed experiment rows visible, and reports non-experiment duplicate candidates with canonical cleanup suggestions.",
+      "userSees": "The queue section groups Tier-C provider-execution stories as an experiment exception, supports collapsed and expanded batch views, leaves malformed experiment rows visible, and reports non-experiment duplicate candidates with canonical cleanup suggestions.",
       "verificationIntent": {
         "happy": [
           {
             "id": "CHK-004:happy:0",
-            "desc": "queue_governance_status classifies active-worktree, main-init, experiment-batch-exception, duplicate-candidate, superseded, and cleanup-required rows.",
+            "desc": "queue_governance_status classifies active-worktree, stale-worktree, main-init, experiment-batch-exception, duplicate-candidate, superseded, and cleanup-required rows with collapsed and expanded views.",
             "type": "cli"
           }
         ],
         "edge": [
           {
             "id": "CHK-004:edge:0",
-            "desc": "Tier-C provider-execution receipt verification stories are grouped and excluded from duplicate cleanup pressure.",
+            "desc": "Tier-C provider-execution receipt verification stories are grouped and excluded from duplicate cleanup pressure while expanded view lists members.",
             "type": "logic"
           }
         ],
