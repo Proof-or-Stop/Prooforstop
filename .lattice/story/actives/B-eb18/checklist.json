@@ -120,9 +120,9 @@
           "packages/main/src/tasks/**"
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-28T09:50:52.819Z",
       "userSees": "The runtime row prints \"runtime\":{\"status\":\"yellow\",\"source\":\"runtime-projection\",\"nextSafeAction\":\"cd /Users/.../.worktrees/B-xxxx\"} when authority is in a story worktree.",
       "verificationIntent": {
         "happy": [
@@ -146,7 +146,42 @@
             "type": "logic"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/global-lifecycle-control-plane-smoke.js && node packages/main/dist/cli.js runtime_closure_status \"{\\\"storyIds\\\":[\\\"B-eb18\\\"],\\\"format\\\":\\\"json\\\"}\"",
+          "result": "pass",
+          "note": "Runtime closure smoke and CLI run project authority, locks, readiness rows, and nextSafeAction from shipped modules.",
+          "headHash": "f04fb96584c808d3b7563c37d3ef12e4aaca5cee",
+          "materialHash": "ab9d52f3e5d7808ee877f8245d923cb2e6b69eb399e1283d658469134b7b109b",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-28T09:50:52.957Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/global-lifecycle-control-plane-smoke.js",
+          "result": "pass",
+          "note": "Smoke covers runtime projection over a worktree-authoritative story and status output distinguishes validation lock self-reentry in projector API coverage.",
+          "headHash": "f04fb96584c808d3b7563c37d3ef12e4aaca5cee",
+          "materialHash": "ab9d52f3e5d7808ee877f8245d923cb2e6b69eb399e1283d658469134b7b109b",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-28T09:50:53.077Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/global-lifecycle-control-plane-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Runtime projector consumes lifecycle_check/story_authority_resolve/freshness surfaces and process-fact contract confirms no new proof or lifecycle gate fact replaces existing classifiers.",
+          "headHash": "f04fb96584c808d3b7563c37d3ef12e4aaca5cee",
+          "materialHash": "ab9d52f3e5d7808ee877f8245d923cb2e6b69eb399e1283d658469134b7b109b",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-28T09:50:53.196Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
