@@ -96,13 +96,15 @@
       ],
       "files": {
         "modify": [
-          "packages/main/package.json"
+          "packages/main/package.json",
+          "packages/main/src/tasks/autopilot-run-smoke.ts"
         ],
         "create": [
           "packages/main/src/tasks/autopilot-resume-smoke.ts"
         ],
         "test": [
-          "packages/main/src/tasks/autopilot-resume-smoke.ts"
+          "packages/main/src/tasks/autopilot-resume-smoke.ts",
+          "packages/main/src/tasks/autopilot-run-smoke.ts"
         ]
       },
       "verificationIntent": {
