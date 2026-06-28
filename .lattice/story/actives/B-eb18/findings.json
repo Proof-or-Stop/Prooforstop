@@ -216,7 +216,7 @@
       "desc": "Tier-C experiment exception classification still uses runtime title-prefix inference on every read. The execution plan allows title-prefix discovery/migration, but runtime queue classification should use durable metadata or explicit exception registry membership.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-06-28T10:59:42.630Z",
@@ -229,7 +229,11 @@
         "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md"
       ],
       "signatureTag": "doc-code-drift|ts|tier-experiment-exception",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commit ab00d76c: title-prefix inference no longer classifies Tier-C stories as experiment-batch-exception at runtime; runtime preservation now requires durable story metadata or explicit queue_exception_set registry membership. Smoke asserts title-only Tier-C is main-init before registry membership and preserved after explicit queue_exception_set. Verified with build, global-lifecycle-control-plane-smoke, and process-fact contract.",
+      "resolvedAt": "2026-06-28T11:03:22.242Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
