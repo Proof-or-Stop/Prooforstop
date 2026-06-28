@@ -284,8 +284,15 @@
       "files": {
         "modify": [
           "packages/main/src/core/lifecycle-control/runtime/**",
+          "packages/main/src/core/lifecycle-control/**",
           "packages/main/src/core/story-machine.ts",
-          "packages/main/src/cli-engine.ts"
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/cli-engine.ts",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md"
         ],
         "create": [],
         "test": [
@@ -295,7 +302,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "Unsafe runtime operations receive a clear runtime guard result naming the unsafe condition, remediation, and rollback/config switch, while normal development remains usable.",
+      "userSees": "Unsafe runtime guard output contains \"mode\":\"warn\" or \"mode\":\"enforce\", \"blocked\":true, \"reason\":\"wrong_authoritative_cwd\", and \"rollback\":\"set lifecycleControl.runtimeEnforcement=warn\" for named unsafe cases.",
       "verificationIntent": {
         "happy": [
           {
