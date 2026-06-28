@@ -1,0 +1,59 @@
+{
+  "storyId": "B-320f",
+  "checkedAt": "2026-06-28T16:06:39.362Z",
+  "features": [
+    {
+      "feature": "M2 health-aware pause/resume",
+      "covered_by": "CHK-006",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "autopilot-v2-reliability-execution-plan.md#M2"
+    },
+    {
+      "feature": "M3 adaptive runtime throttle",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "autopilot-v2-reliability-execution-plan.md#M3"
+    },
+    {
+      "feature": "M4 process-pool claim/lease/fencing",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "autopilot-v2-reliability-execution-plan.md#M4"
+    },
+    {
+      "feature": "Execution-plan status and acceptance table",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md"
+    },
+    {
+      "feature": "Build, smoke validation, existing M1 regression, and version bump",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "AGENTS.md version discipline"
+    },
+    {
+      "feature": "Overall reproduced M2-M4 gap closure",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "repro probe rp-mqxz6vtf-01k0x1"
+    }
+  ],
+  "summary": {
+    "total": 6,
+    "covered": 6,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "9839ae2156f077f54c85fffea3875352dde2ad96b3642f9ccb76ac725c12729f",
+  "openQuestions": []
+}
