@@ -1,17 +1,17 @@
 {
   "storyId": "B-eb18",
-  "changes": "Implemented the global lifecycle control plane and post-review corrections: read-only global/runtime/admissibility/queue status commands, guarded queue_exception_set, canonical main-root queue exception reads, canonical main-root main-write-lock projection, explicit superseded queue classification, and Authority gate decision waterline projection through the existing receipt eligibility predicate.",
-  "usage": "Use global_control_status, runtime_closure_status, admissibility_waterline, and queue_governance_status for read-only lifecycle visibility. Use queue_exception_set only for explicit preserve-only queue exceptions; it does not grant lifecycle readiness or Authority completion.",
-  "expectedOutcome": "Operators can inspect runtime closure, proof-consumption diagnostics, queue governance, and safe next actions without creating a second lifecycle state machine or claiming production/Authority completion from local evidence.",
-  "actualTranscript": "Current implementation evidence: build, global-lifecycle-control-plane-smoke, and process-fact contract passed after fixes for F-004 through F-007. Post-main-merge REVIEW was reopened because earlier review passes and summary were stale; current-round REVIEW/TEST/DONE evidence is being regenerated before completion.",
-  "outcomeDiff": "Implementation matches the intended local Non-authority control-plane behavior so far. Final acceptance remains dependent on current-round review passes, TEST validate, done-required validation, delivery check, and review assurance over the current material hash.",
+  "changes": "Implemented the global lifecycle control plane and post-review corrections: read-only global/runtime/admissibility/queue status commands, guarded queue_exception_set, canonical main-root queue exception reads, canonical main-root main-write-lock projection, explicit superseded queue classification, cleanup-required precedence, active/stale worktree precedence over exception metadata, and Authority gate decision waterline projection through the existing receipt eligibility predicate.",
+  "usage": "Use global_control_status, runtime_closure_status, admissibility_waterline, and queue_governance_status for read-only lifecycle visibility. Use queue_exception_set only for explicit preserve-only queue exceptions; it does not grant lifecycle readiness, production readiness, or Authority completion.",
+  "expectedOutcome": "Operators can inspect runtime closure, proof-consumption diagnostics, queue governance, experiment exceptions, duplicate/superseded/cleanup classification, and safe next actions without creating a second lifecycle state machine or claiming production/Authority completion from local evidence.",
+  "actualTranscript": "Fresh TEST validation passed 31/31 configured commands with LATTICE_IDLE_TIMEOUT_MS=900000 LATTICE_MAX_TIMEOUT_MS=1800000; delivery-check was re-attested by lattice-review-delivery; quorum_submit emitted 3 rounds x 2 independent local hosts over materialDigest b6741350f96860bb7686bc19197f85bebb31cae6f790cfcae8d68d4c385c2002 with authorityDone=false/fullAuthorityDone=false/productionDone=false. DONE-required validation is run last to bind the final storyFilesHash before DONE.",
+  "outcomeDiff": "Actual behavior matches the accepted local Non-authority control-plane plan: status surfaces are read-only, queue exception writes are explicit and auditable, proof/admissibility rows remain diagnostic, and Authority Server completion remains unclaimed.",
   "acceptanceVerdict": "accepted",
   "realMachineCoverage": {
     "ran": [],
     "skipped": []
   },
   "limitations": "Local lifecycle control plane only. No Authority Server receipt-backed production completion is claimed or produced by this story.",
-  "pitfalls": "Do not treat diagnostic waterline rows, local host verdicts, delivery checks, or status dashboards as Authority Server proof. Stale material/story-file hashes must be regenerated instead of reused.",
+  "pitfalls": "Do not treat diagnostic waterline rows, local host verdicts, delivery checks, or status dashboards as Authority Server proof. Stale material/story-file hashes must be regenerated instead of reused; DONE-required validation must remain the final freshness binding step before DONE.",
   "phaseStats": {
     "INIT": {
       "count": 1,
@@ -26,19 +26,19 @@
       "durationMs": 118835068
     },
     "DEV": {
-      "count": 5,
-      "durationMs": 2214553
+      "count": 7,
+      "durationMs": 13069489
     },
     "REVIEW": {
-      "count": 5,
-      "durationMs": 1694936
+      "count": 7,
+      "durationMs": 7043596
     },
     "TEST": {
-      "count": 1,
-      "durationMs": 749379
+      "count": 2,
+      "durationMs": 1256369
     }
   },
-  "totalDurationMs": 123624529,
+  "totalDurationMs": 140335115,
   "fixtureStats": {
     "totalRuns": 0,
     "totalCases": 0,
@@ -51,5 +51,5 @@
     "open": 0
   },
   "createdAt": "2026-06-28T10:37:58.331Z",
-  "updatedAt": "2026-06-28T10:55:58.671Z"
+  "updatedAt": "2026-06-28T15:34:29.258Z"
 }
