@@ -184,7 +184,9 @@ function seedRepo(root: string): HandlerContext {
       },
     },
   });
-  writeStory(store, MALFORMED_STORY, 'INIT', 'Tier-C provider execution receipt malformed');
+  writeStory(store, MALFORMED_STORY, 'INIT', 'Tier-C provider execution receipt malformed', undefined, {
+    lifecycleControl: { queue: { supersededBy: TIER_C_DURABLE_STORY } },
+  });
   writeStory(store, SUPERSEDED_STORY, 'PLAN', 'Duplicate queue cleanup smoke', undefined, {
     lifecycleControl: { queue: { supersededBy: DUP_A } },
   });
@@ -384,6 +386,11 @@ function runSmoke(): void {
       'durable story metadata preserves Tier-C experiment exceptions without title-prefix inference',
     );
     assert.equal(queueCollapsed.rows.find((row) => row.storyId === MALFORMED_STORY)?.classification, 'cleanup-required');
+    assert.ok(
+      queueCollapsed.cleanupRequired.some((row) => row.storyId === MALFORMED_STORY),
+      'malformed migration discovery stories are surfaced in cleanupRequired even when supersession metadata exists',
+    );
+    assert.equal(queueCollapsed.summary.cleanupRequired, 1);
     assert.notEqual(
       queueCollapsed.rows.find((row) => row.storyId === DUP_A)?.classification,
       'duplicate-candidate',
@@ -419,6 +426,7 @@ function runSmoke(): void {
     assert.equal(exception.written, true);
     assert.equal(exception.policyVersion, 'proofbound.queue_exception.v1');
     assert.equal(exception.class, 'experiment-batch-exception');
+    assert.equal(exception.source, 'explicit');
     assert.equal(exception.cleanupPolicy, 'preserve');
     assert.ok(exception.storyFilesHash.length > 0);
     assert.ok(existsSync(join(root, '.lattice/lifecycle-control/queue-exceptions.json')));
@@ -442,8 +450,10 @@ function runSmoke(): void {
       storyIds: [DRIFT_STORY],
       reason: 'Preserve worktree story from a main-root explicit queue exception.',
       actor: 'global-lifecycle-control-plane-smoke',
+      source: 'migration-title-prefix',
     }) as QueueExceptionSetResult;
     assert.equal(worktreeException.written, true);
+    assert.equal(worktreeException.source, 'migration-title-prefix');
 
     const worktreeCtx: HandlerContext = {
       store: new StoryStore(join(root, `.worktrees/${DRIFT_STORY}`)),
@@ -456,18 +466,35 @@ function runSmoke(): void {
     assert.ok(worktreeGlobalDrift);
     assert.equal(
       worktreeGlobalDrift!.queue.classification,
-      'experiment-batch-exception',
-      'worktree global status reads explicit queue exceptions from the canonical main root',
+      'active-worktree',
+      'worktree global status keeps live worktree classification ahead of explicit queue exceptions from the canonical main root',
     );
     assert.equal(worktreeGlobal.project.staleWorktreeCount, 0);
 
     const worktreeQueue = worktreeRegistry.get('queue_governance_status')!({ format: 'json' }) as QueueGovernanceReport;
+    const worktreeQueueDrift = worktreeQueue.rows.find((row) => row.storyId === DRIFT_STORY);
     assert.equal(
-      worktreeQueue.rows.find((row) => row.storyId === DRIFT_STORY)?.classification,
-      'experiment-batch-exception',
-      'worktree queue status sees the main-root explicit queue exception',
+      worktreeQueueDrift?.classification,
+      'active-worktree',
+      'worktree queue status keeps active worktree precedence over the main-root explicit queue exception',
     );
+    assert.equal(worktreeQueueDrift?.exceptionId, worktreeException.exceptionId);
+    assert.equal(worktreeQueueDrift?.experimentBatchId, worktreeException.experimentBatchId);
     assert.equal(worktreeQueue.summary.staleWorktree, 0);
+
+    const legacySourceException = registry.get('queue_exception_set')!({
+      format: 'json',
+      experimentBatchId: 'legacy-source-normalization-smoke',
+      storyIds: [DUP_A],
+      reason: 'Preserve legacy source normalization behavior while emitting the current public source token.',
+      actor: 'global-lifecycle-control-plane-smoke',
+      source: 'tier-c-prefix',
+    }) as QueueExceptionSetResult;
+    assert.equal(
+      legacySourceException.source,
+      'migration-title-prefix',
+      'legacy tier-c-prefix input is normalized to the public migration-title-prefix source token',
+    );
 
     const worktreeRuntime = worktreeRegistry.get('runtime_closure_status')!({ format: 'json', storyIds: [DRIFT_STORY] }) as RuntimeClosureReport;
     assert.equal(

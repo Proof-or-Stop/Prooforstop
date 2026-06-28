@@ -719,7 +719,10 @@ Behavior:
     storyIds: z.array(z.string()).describe('Story IDs included in the exception.'),
     reason: z.string().describe('Human-readable reason (minimum enforced by handler).'),
     actor: z.string().optional().describe('Actor label recorded in the exception.'),
-    source: z.enum(['explicit', 'tier-c-prefix']).optional().describe('Source rule for this exception.'),
+    source: z.preprocess(
+      (value) => value === 'tier-c-prefix' ? 'migration-title-prefix' : value,
+      z.enum(['explicit', 'migration-title-prefix']).optional(),
+    ).describe('Source rule for this exception. Legacy tier-c-prefix input is normalized to migration-title-prefix.'),
     dashboardMode: z.enum(['collapsed', 'expanded']).optional().describe('Default dashboard mode for this exception.'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text).'),
     json: z.boolean().optional().describe('Shortcut for --format=json.'),

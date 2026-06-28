@@ -33,7 +33,9 @@ export type {
 } from '../control-status.js';
 
 const TERMINAL_PHASES = new Set(['DONE', 'DISCARDED', 'META']);
-const TIER_C_PREFIX = 'Tier-C provider-execution receipt verification';
+const MIGRATION_TITLE_PREFIX = 'Tier-C provider-execution receipt verification';
+type QueueExceptionSource = QueueExceptionRecord['source'];
+type QueueExceptionInputSource = QueueExceptionSource | 'tier-c-prefix';
 
 interface QueueExceptionRegistry {
   schemaVersion: 'lattice.queue_exception_registry.v1';
@@ -52,7 +54,7 @@ export interface QueueExceptionSetInput {
   readonly storyIds: readonly string[];
   readonly reason: string;
   readonly actor?: string;
-  readonly source?: 'explicit' | 'tier-c-prefix';
+  readonly source?: QueueExceptionInputSource;
   readonly dashboardMode?: 'collapsed' | 'expanded';
 }
 
@@ -78,7 +80,9 @@ export function readQueueExceptionRegistry(root: string): QueueExceptionRegistry
   try {
     const parsed = JSON.parse(readFileSync(file, 'utf-8')) as Partial<QueueExceptionRegistry>;
     const exceptions = Array.isArray(parsed.exceptions)
-      ? parsed.exceptions.filter(isQueueExceptionRecord)
+      ? parsed.exceptions
+        .map(normalizeQueueExceptionRecord)
+        .filter((record): record is QueueExceptionRecord => record !== null)
       : [];
     return {
       schemaVersion: 'lattice.queue_exception_registry.v1',
@@ -88,6 +92,18 @@ export function readQueueExceptionRegistry(root: string): QueueExceptionRegistry
   } catch {
     return emptyRegistry();
   }
+}
+
+function normalizeQueueExceptionSource(source: unknown): QueueExceptionSource | null {
+  if (source === undefined || source === 'explicit') return 'explicit';
+  if (source === 'migration-title-prefix' || source === 'tier-c-prefix') return 'migration-title-prefix';
+  return null;
+}
+
+function normalizeQueueExceptionRecord(value: unknown): QueueExceptionRecord | null {
+  if (!isQueueExceptionRecord(value)) return null;
+  const source = normalizeQueueExceptionSource((value as unknown as { source?: unknown }).source);
+  return source ? { ...value, source } : null;
 }
 
 function writeQueueExceptionRegistry(root: string, registry: QueueExceptionRegistry): void {
@@ -104,6 +120,7 @@ function isQueueExceptionRecord(value: unknown): value is QueueExceptionRecord {
     typeof record.exceptionId === 'string' &&
     typeof record.experimentBatchId === 'string' &&
     Array.isArray(record.storyIds) &&
+    normalizeQueueExceptionSource(record.source) !== null &&
     record.cleanupPolicy === 'preserve';
 }
 
@@ -149,7 +166,7 @@ export function setQueueException(root: string, input: QueueExceptionSetInput): 
     class: 'experiment-batch-exception',
     experimentBatchId: input.experimentBatchId,
     storyIds,
-    source: input.source ?? 'explicit',
+    source: normalizeQueueExceptionSource(input.source) ?? 'explicit',
     storyFilesHash: storyFilesHashFor(root, storyIds),
     dashboardMode: input.dashboardMode ?? 'collapsed',
     cleanupPolicy: 'preserve',
@@ -243,7 +260,7 @@ function durableExperimentException(story: StoryInfo, root: string, now: string)
 }
 
 function titleInferredExperiment(story: StoryInfo): boolean {
-  return story.title.startsWith(TIER_C_PREFIX);
+  return story.title.startsWith(MIGRATION_TITLE_PREFIX);
 }
 
 function malformedExperiment(story: StoryInfo): boolean {
@@ -336,15 +353,6 @@ export function projectQueueGovernance(
     const authorityRow = authorityById.get(story.storyId);
     const explicit = exceptions.get(story.storyId);
     const supersededTarget = supersededBy(story);
-    if (supersededTarget) {
-      return queueRow({
-        story,
-        classification: 'superseded',
-        reason: `story is explicitly superseded by ${supersededTarget}`,
-        authoritativeCwd: authorityRow?.authoritativeCwd,
-        cleanupPolicy: 'cleanup-required',
-      });
-    }
     if (malformedExperiment(story)) {
       return queueRow({
         story,
@@ -354,12 +362,26 @@ export function projectQueueGovernance(
         cleanupPolicy: 'cleanup-required',
       });
     }
-    if (explicit) {
+    if (supersededTarget) {
       return queueRow({
         story,
-        classification: 'experiment-batch-exception',
-        reason: 'experiment exception preserves provider-execution receipt verification evidence',
+        classification: 'superseded',
+        reason: `story is explicitly superseded by ${supersededTarget}`,
         authoritativeCwd: authorityRow?.authoritativeCwd,
+        cleanupPolicy: 'cleanup-required',
+      });
+    }
+    if (authorityRow?.authority === 'worktree') {
+      const stale = worktreeIsStale(story, root, staleWorktreeMs, Number.isFinite(nowMs) ? nowMs : Date.now());
+      return queueRow({
+        story,
+        classification: stale ? 'stale-worktree' : 'active-worktree',
+        reason: stale
+          ? 'authoritative worktree exists but appears stale/missing'
+          : explicit
+            ? 'authoritative worktree exists; experiment exception metadata is preserved'
+            : 'authoritative worktree exists',
+        authoritativeCwd: authorityRow.authoritativeCwd,
         exception: explicit,
       });
     }
@@ -372,13 +394,13 @@ export function projectQueueGovernance(
         cleanupPolicy: 'review-required',
       });
     }
-    if (authorityRow?.authority === 'worktree') {
-      const stale = worktreeIsStale(story, root, staleWorktreeMs, Number.isFinite(nowMs) ? nowMs : Date.now());
+    if (explicit) {
       return queueRow({
         story,
-        classification: stale ? 'stale-worktree' : 'active-worktree',
-        reason: stale ? 'authoritative worktree exists but appears stale/missing' : 'authoritative worktree exists',
-        authoritativeCwd: authorityRow.authoritativeCwd,
+        classification: 'experiment-batch-exception',
+        reason: 'experiment exception preserves provider-execution receipt verification evidence',
+        authoritativeCwd: authorityRow?.authoritativeCwd,
+        exception: explicit,
       });
     }
     if (story.phase === 'INIT' || story.phase === 'INIT_CHECK') {

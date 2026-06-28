@@ -257,7 +257,7 @@ export interface QueueExceptionRecord {
   readonly class: 'experiment-batch-exception';
   readonly experimentBatchId: string;
   readonly storyIds: readonly string[];
-  readonly source: 'explicit' | 'tier-c-prefix';
+  readonly source: 'explicit' | 'migration-title-prefix';
   readonly storyFilesHash: string;
   readonly dashboardMode: 'collapsed' | 'expanded';
   readonly cleanupPolicy: 'preserve';
