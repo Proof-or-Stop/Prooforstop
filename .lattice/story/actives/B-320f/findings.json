@@ -79,7 +79,7 @@
       "desc": "Provider-transient autopilot_run coverage is a false positive: autopilot-run-smoke passes host=\"http-503-overloaded\", but lattice-dispatch only accepts fake/codex/claude-code/antigravity/gemini, so dispatch_auto throws an unknown-host validation error. classifyDispatchError then calls classifyAutopilotProviderFailure on that validation text, and the embedded host string matches 503/overloaded, producing provider_unhealthy/paused_requires_resume. This masks local validation errors as provider health and does not prove real provider transient failures still pause. Evidence: packages/main/src/core/lattice-dispatch.ts:453 rejects unknown hosts and packages/main/src/core/lattice-dispatch.ts:3239 throws the unknown-host error; packages/main/src/core/lattice-autopilot.ts:1212 routes non-timeout/non-validation text into provider classification; packages/main/src/tasks/autopilot-run-smoke.ts:1123 uses the invalid host string and asserts paused_requires_resume.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-28T16:55:04.703Z",
@@ -92,7 +92,11 @@
         "packages/main/src/tasks/autopilot-run-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|provider-transient-autopilot",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by a44bbdd46: unknown-host/local validation errors stay validation_failed, and provider-transient autopilot_run coverage now uses a legal PATH-local claude shim through claude-code. Confirmed by round 3 quality/test-coverage passes.",
+      "resolvedAt": "2026-06-28T20:46:17.642Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
