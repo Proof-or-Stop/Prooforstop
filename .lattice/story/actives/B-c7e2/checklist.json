@@ -199,40 +199,40 @@
       },
       "status": "done",
       "startTime": "2026-06-28T01:14:10.701Z",
-      "endTime": "2026-06-28T01:21:41.009Z",
+      "endTime": "2026-06-28T01:29:19.148Z",
       "verificationEvidence": [
         {
           "intentRef": "CHK-003:happy:0",
           "kind": "integration_test",
-          "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:autopilot-resume-smoke && node packages/main/dist/tasks/autopilot-run-smoke.js",
+          "command": "npm --prefix packages/main run build; npm --prefix packages/main run test:autopilot-resume-smoke; node packages/main/dist/tasks/autopilot-run-smoke.js",
           "result": "pass",
-          "note": "Build, new package script smoke, and existing autopilot-run smoke all passed after 0eddf8fba.",
-          "headHash": "230deadd38e772b12544ab5ae8a76abefb64fb4d",
-          "materialHash": "3085c210a48ffcdbe1f9ad301242594ccfa8c5b93a698452863dc2b8e515bc2f",
-          "storyFilesHash": "7b9f0d99a89ba3396118da22dc4f9853fda434ade53301686a2e42234c986976",
-          "timestamp": "2026-06-28T01:21:41.219Z"
+          "note": "Build, new package script smoke, and existing autopilot-run smoke all passed after 2da692dde.",
+          "headHash": "8f0d28d57590a2c86ef93e76affb194e84bd309a",
+          "materialHash": "7c722c15fdeee25e0b26833e6c8a632fcdd6f706bbcf68f9939edd9df240f124",
+          "storyFilesHash": "eb6f45706114f17c567048d812961528db5e8e8520dbf6215c5d0af195f6258b",
+          "timestamp": "2026-06-28T01:29:19.345Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
           "kind": "integration_test",
-          "command": "npm --prefix packages/main run test:command-ownership-contract && node scripts/verify-process-fact-contract.mjs && lattice scope_contract_check {\"storyId\":\"B-c7e2\"}",
+          "command": "npm --prefix packages/main run test:command-ownership-contract; node scripts/verify-process-fact-contract.mjs; lattice scope_contract_check {\"storyId\":\"B-c7e2\"}; git diff --check",
           "result": "pass",
-          "note": "Command ownership, process fact registry, and scope contract checks passed; resume wording stays aligned and scope gate remains pass.",
-          "headHash": "230deadd38e772b12544ab5ae8a76abefb64fb4d",
-          "materialHash": "3085c210a48ffcdbe1f9ad301242594ccfa8c5b93a698452863dc2b8e515bc2f",
-          "storyFilesHash": "7b9f0d99a89ba3396118da22dc4f9853fda434ade53301686a2e42234c986976",
-          "timestamp": "2026-06-28T01:21:41.396Z"
+          "note": "Command ownership, process fact registry, scope contract, and whitespace checks passed; resume wording stays registered and scope gate remains pass.",
+          "headHash": "8f0d28d57590a2c86ef93e76affb194e84bd309a",
+          "materialHash": "7c722c15fdeee25e0b26833e6c8a632fcdd6f706bbcf68f9939edd9df240f124",
+          "storyFilesHash": "eb6f45706114f17c567048d812961528db5e8e8520dbf6215c5d0af195f6258b",
+          "timestamp": "2026-06-28T01:29:19.535Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
           "kind": "manual_transcript",
-          "command": "agy --print <B-c7e2 validation prompt> --print-timeout 180s",
+          "command": "agy --print <B-c7e2 validation prompt> --print-timeout 180s; npm --prefix packages/main run test:autopilot-resume-smoke",
           "result": "pass",
-          "note": "Antigravity/agy second-host validation previously returned VERDICT: pass; after reviewer fixes, local tests added policy-drift and missing-freshness fail-closed coverage for the exact high findings.",
-          "headHash": "230deadd38e772b12544ab5ae8a76abefb64fb4d",
-          "materialHash": "3085c210a48ffcdbe1f9ad301242594ccfa8c5b93a698452863dc2b8e515bc2f",
-          "storyFilesHash": "7b9f0d99a89ba3396118da22dc4f9853fda434ade53301686a2e42234c986976",
-          "timestamp": "2026-06-28T01:21:41.568Z"
+          "note": "Antigravity/agy second-host validation returned VERDICT: pass; after reviewer fixes, local smoke added maxIterations policy-drift and missing-freshness fail-closed coverage for the exact high findings.",
+          "headHash": "8f0d28d57590a2c86ef93e76affb194e84bd309a",
+          "materialHash": "7c722c15fdeee25e0b26833e6c8a632fcdd6f706bbcf68f9939edd9df240f124",
+          "storyFilesHash": "eb6f45706114f17c567048d812961528db5e8e8520dbf6215c5d0af195f6258b",
+          "timestamp": "2026-06-28T01:29:19.727Z"
         }
       ]
     }
