@@ -1,13 +1,13 @@
 {
   "storyId": "B-eb18",
-  "generatedAt": "2026-06-28T09:38:19.831Z",
+  "generatedAt": "2026-06-28T10:04:35.448Z",
   "sourceSnapshot": {
     "hasUnderstanding": true,
     "hasDecision": true,
     "hasPlan": true,
     "checklistItems": 7,
     "reviewRounds": 3,
-    "findings": 0,
+    "findings": 1,
     "bugs": 0,
     "testRuns": 0,
     "hasEvalEvidence": false,
@@ -238,7 +238,7 @@
     },
     "subagentCollaboration": {
       "effective": {
-        "value": false,
+        "value": true,
         "unit": "bool",
         "confidence": "high",
         "sources": [
@@ -247,7 +247,7 @@
       },
       "metrics": {
         "normalChannelUsesSubagent": {
-          "value": false,
+          "value": true,
           "unit": "bool",
           "confidence": "low",
           "sources": [
@@ -258,7 +258,7 @@
           "note": "proxy: uses reviewer findings as signal, not git commit author data"
         },
         "reviewerIndependence": {
-          "value": false,
+          "value": true,
           "unit": "bool",
           "confidence": "high",
           "sources": [
@@ -266,7 +266,7 @@
           ]
         },
         "mainAgentCodeViolation": {
-          "value": true,
+          "value": false,
           "unit": "bool",
           "confidence": "low",
           "sources": [
@@ -318,7 +318,7 @@
           ]
         },
         "formalFindingCount": {
-          "value": 0,
+          "value": 1,
           "unit": "count",
           "confidence": "high",
           "sources": [

@@ -1,0 +1,23 @@
+{
+  "findings": [
+    {
+      "id": "B-eb18:F-001",
+      "desc": "Queue governance misclassifies valid worktree stories as stale when status commands run from a story worktree. projectQueueGovernance reads active stories from the current store/root, then worktreeIsStale resolves story.worktree.path relative to that same root (packages/main/src/core/lifecycle-control/queue/index.ts:200-205,317-323). For worktree invocations, story.worktree.path is main-root relative (for B-eb18, .worktrees/B-eb18), so the check probes /Users/jek/Documents/Work/proofbound/.worktrees/B-eb18/.worktrees/B-eb18 and falls into the catch/stale path. Observed command evidence: node packages/main/dist/cli.js global_control_status --storyIds=[\"B-eb18\"] --format=json reports B-eb18 queue.classification=\"stale-worktree\" / reason=\"authoritative worktree exists but appears stale/missing\" even though the same report resolves authoritativeCwd=/Users/jek/Documents/Work/proofbound/.worktrees/B-eb18 and session_brief reports an active owner lease in that cwd. This breaks CP-3/CP-4 queue visibility by turning a valid authoritative worktree into cleanup-pressure noise; it does not appear to grant lifecycle readiness or Authority, so medium severity.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-28T10:04:35.446Z",
+      "reviewRound": "2026-06-28T10:01:33.439Z",
+      "reviewRunId": "B-eb18:RR-005",
+      "_hash": "9a7262d6003325e9c996eb18b9eb8d8051b6bf0b0e147a297d3bbcf7a857642d",
+      "files": [
+        "packages/main/src/core/lifecycle-control/queue/index.ts",
+        "packages/main/src/core/lifecycle-control/dashboard/index.ts"
+      ],
+      "signatureTag": "edge|ts|queue-governance-misclassifies",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
