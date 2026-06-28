@@ -1,0 +1,58 @@
+{
+  "schema": "lattice.done-required-evidence",
+  "version": 1,
+  "storyId": "B-c7e2",
+  "status": "FAIL",
+  "startedAt": "2026-06-28T01:51:21.158Z",
+  "endedAt": "2026-06-28T01:51:30.771Z",
+  "durationMs": 9613,
+  "headHash": "da4bcd1a094a2159b3c7d20c5ddb6de30a380060",
+  "materialHash": "c6fb5f0b014520e75c8d6335f2d18ca9fba49d37f21bdc418fe9985d3dd28811",
+  "storyFilesHash": "e7b89f36521263eab59bb04df45f0aafa5a4c0f64bf122966e5db9f9b963d0c9",
+  "policyHash": "1f72cd38f6c94ed8e6fb8946919ac028e73770eb129ea0db75474982a61542dc",
+  "commandSetHash": "a69129533543ffdeb071da3c66fd0b8a884d1ce93d136c87df6120b3cac9dd35",
+  "receipts": [
+    {
+      "label": "packages/main build",
+      "command": "npm",
+      "args": [
+        "--prefix",
+        "packages/main",
+        "run",
+        "build"
+      ],
+      "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c7e2",
+      "status": "PASS",
+      "exitCode": 0,
+      "durationMs": 6826,
+      "outputDigest": "870d0a350c0f70ea788f21017a8a4c5ded9c6d5f1cf6bfe985a7d2d6a3b726c5",
+      "outputTail": "\n> @lattice/core@0.3.99 build\n> tsc\n\n",
+      "startedAt": "2026-06-28T01:51:21.158Z",
+      "endedAt": "2026-06-28T01:51:27.985Z",
+      "headHash": "da4bcd1a094a2159b3c7d20c5ddb6de30a380060",
+      "materialHash": "c6fb5f0b014520e75c8d6335f2d18ca9fba49d37f21bdc418fe9985d3dd28811",
+      "storyFilesHash": "e7b89f36521263eab59bb04df45f0aafa5a4c0f64bf122966e5db9f9b963d0c9"
+    },
+    {
+      "label": "root full test suite",
+      "command": "npm",
+      "args": [
+        "test"
+      ],
+      "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c7e2",
+      "status": "FAIL",
+      "exitCode": 1,
+      "durationMs": 2521,
+      "outputDigest": "25cd5cccd893e5e568420384aa0a2aa6dd65f6673d43fe9a4bcf058cfe0ee165",
+      "outputTail": "pt-in reviewer (test-coverage) -> gate BLOCK; identical with/without helper\nreview-incremental-context-smoke: (d.3) ROUND 2+ single valid receipt -> gate PASS; identical with/without helper\nreview-incremental-context-smoke: (d.4) INVALID current-round binding (round 1) -> gate BLOCK; identical with/without helper\nreview-incremental-context-smoke: (d.4) INVALID current-round binding (round 2) -> gate BLOCK; identical with/without helper\nreview-incremental-context-smoke: (d.5) VERIFIED OPEN BLOCKING FINDING (critical) -> gate BLOCK; identical with/without helper\n\nreview-incremental-context-smoke: PASS — incremental context is correct for returning/first-timer/rename (cases a–c), and canPassReviewGuard is behaviorally IDENTICAL with vs without the incremental helper across all gate branches (round-1 opt-in+quorum, round-2+ single receipt, invalid-binding-blocks-all-rounds, verified-open-blocking-finding), with the helper proven to write nothing to the store (case d).\n\n> lattice@0.3.99 test:review-assurance-floor-storyfileshash-smoke\n> node packages/main/dist/tasks/review-assurance-floor-storyfileshash-smoke.js\n\n  ✓ (a) unrelated whole-tree drift keeps rounds valid with advisory\n  ✓ (a2) full three-part re-attestation advisory pattern\n  ✓ (b) truly-stale prior verdict does not duplicate-poison the round\n  ✓ (b2) cross-runId re-bind => only new round valid, old ignored\n  ✓ (c) real story-file change stales the rounds (anti-gaming)\n  ✓ (d) degraded fallback: storyFilesHash match => valid with advisory\n  ✓ (d) degraded fallback: real story-file change => materialHash is stale\n  ✓ baseline: no drift => valid, no re-attestation advisory\n  ✓ (1) two different-runId drifted rounds both downgraded valid\n  ✓ (2) legacy verdict (no storyFilesHash) is never downgraded\n  ✓ (3) null current storyFilesHash => no downgrade, stale, no crash\n  ✓ (4) three eras same identity diff runIds => 2 valid, no dup-identity\n  ✓ (5) two truly-stale dup-identity verdicts => ignored, no dup-identity\n  ✓ (6) one advisory per downgraded verdict (not deduplicated)\n\nreview-assurance-floor storyFilesHash smoke passed (14 checks)\n\n> lattice@0.3.99 test:docs-drift-smoke\n> node packages/main/dist/tasks/docs-drift-path-drift-smoke.js\n\ndocs-drift path+asset smoke passed\n\n> lattice@0.3.99 test:docs-drift-wrapper-root\n> npm --prefix packages/main run test:docs-drift-wrapper-root\n\n\n> @lattice/core@0.3.99 test:docs-drift-wrapper-root\n> node dist/tasks/docs-drift-wrapper-root-smoke.js\n\ndocs-drift wrapper-root smoke passed\n\n> lattice@0.3.99 test:gitroot-cwd-contract\n> node packages/main/dist/tasks/gitroot-cwd-contract-smoke.js\n\n✓ self-test: KNOWN-GOOD fixture produces 0 violations\n✓ self-test: KNOWN-BAD fixture produces exactly 1 violation on projectRoot\n✓ self-test: ALIAS KNOWN-BAD (const gitCwd = projectRoot → git cwd) produces exactly 1 alias violation\n✓ self-test: ALIAS KNOWN-GOOD (const x = projectRoot, not a git cwd) produces 0 violations\n✓ self-test: ALIAS KNOWN-GOOD (const gitCwd = resolveGitCwd(...) → git cwd) produces 0 violations\n✓ self-test: BACKTICK KNOWN-BAD (execSync(`git`, { cwd: projectRoot })) produces exactly 1 bare violation\n✓ self-test: BACKTICK KNOWN-GOOD (execSync(`git`, { cwd: resolvedGitCwd })) produces 0 violations\n✓ self-test: docs-drift KNOWN-GOOD fixture (repoRoot: gitCwd) produces 0 violations\n✓ self-test: docs-drift KNOWN-BAD fixture (repoRoot: deps.projectRoot) is flagged\n\n✗ gitroot-cwd-contract smoke FAILED\nFound 1 bare-cwd git call site(s):\n  /Users/jek/Documents/Work/proofbound/.worktrees/B-c7e2/packages/main/src/core/lattice-autopilot.ts:514: bare projectRoot/root/metadataRoot used as git cwd — route through resolveGitCwd (packages/main/src/core/story-signed-workspace-resolution.ts)\n\nFix: at each site, replace the bare projectRoot/root/metadataRoot cwd\nwith the value of resolveGitCwd(...) (story-keyed) or with an already-\nresolved gitCwd local variable. Allowlist policy is at the top of\npackages/main/src/tasks/gitroot-cwd-contract-smoke.ts.\n",
+      "startedAt": "2026-06-28T01:51:28.132Z",
+      "endedAt": "2026-06-28T01:51:30.653Z",
+      "headHash": "da4bcd1a094a2159b3c7d20c5ddb6de30a380060",
+      "materialHash": "c6fb5f0b014520e75c8d6335f2d18ca9fba49d37f21bdc418fe9985d3dd28811",
+      "storyFilesHash": "e7b89f36521263eab59bb04df45f0aafa5a4c0f64bf122966e5db9f9b963d0c9"
+    }
+  ],
+  "reasons": [
+    "command-failed: FAIL root full test suite: npm test exitCode=1"
+  ]
+}
