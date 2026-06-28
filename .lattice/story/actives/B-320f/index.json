@@ -4,11 +4,11 @@
   "title": "Complete Autopilot v2 reliability M2-M4 and update execution-plan acceptance",
   "description": "Finish the remaining Autopilot v2 reliability execution-plan work after M1/B-c7e2: update autopilot-v2-reliability-execution-plan.md to reflect M1 DONE and implement the missing M2 health-aware pause/resume semantics, M3 adaptive runtime throttle, and M4 process-pool claim/lease/fencing controls with dedicated smoke validation and an acceptance table.",
   "type": "bug",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "createdAt": "2026-06-28T16:01:18.378Z",
   "startedAt": "2026-06-28T16:01:18.378Z",
-  "endedAt": null,
+  "endedAt": "2026-06-28T21:14:08.813Z",
   "events": [
     {
       "phase": "INIT",
@@ -153,12 +153,16 @@
       "user": "Harmonygo",
       "sessionId": "codex-autopilot-b320f-fix-findings",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-28T21:14:08.813Z",
+      "branch": "story/B-320f",
+      "user": "Harmonygo",
+      "sessionId": "codex-autopilot-b320f-fix-findings",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-320f",
-    "branch": "story/B-320f",
-    "createdAt": "2026-06-28T16:02:28.480Z"
-  },
   "currentReviewRound": "2026-06-28T21:12:20.785Z"
 }
