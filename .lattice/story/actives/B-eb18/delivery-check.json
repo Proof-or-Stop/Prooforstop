@@ -1,10 +1,10 @@
 {
   "storyId": "B-eb18",
-  "checkedAt": "2026-06-28T10:44:44.536Z",
-  "headHash": "fa00489ee4e38dd55b8499525d5e11b61cb73a2b",
-  "materialHash": "4f0a59d905b929d4ebeb5cdd367f229de63a144f9d1b790e98f42146ed927450",
-  "storyFilesHash": "a7d4ea8667c182db79c7e899632e95ab17a59cdf8e7fa34006e403c62873d7b3",
-  "reviewRound": "2026-06-28T10:20:01.015Z",
+  "checkedAt": "2026-06-28T15:33:31.634Z",
+  "headHash": "58a15459fe85e499105bd9cade78f8c458a71ef2",
+  "materialHash": "b6741350f96860bb7686bc19197f85bebb31cae6f790cfcae8d68d4c385c2002",
+  "storyFilesHash": "6d27758a082029416c1d48568e2f3c4aba4fde86d186f3e87947f7cdd5822bfb",
+  "reviewRound": "2026-06-28T14:04:23.498Z",
   "agentId": "lattice-review-delivery",
   "docsPromises": [
     {
@@ -12,7 +12,7 @@
       "promise": "Provide a global control status surface for lifecycle/runtime/proof/queue state.",
       "status": "verified",
       "verifiedBy": "global-lifecycle-control-plane-smoke + validate",
-      "evidence": "global_control_status is registered and exercised by global-lifecycle-control-plane-smoke; validate passed after main merge."
+      "evidence": "global_control_status is registered and exercised by global-lifecycle-control-plane-smoke; validate passed 31/31 on current post-review material."
     },
     {
       "docPath": "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
@@ -40,7 +40,7 @@
       "promise": "Keep lifecycle gates host-neutral and avoid claiming Authority completion from local evidence.",
       "status": "verified",
       "verifiedBy": "validate + quorum smoke",
-      "evidence": "quorum-submit smoke validates local host verdicts never set authorityDone/fullAuthorityDone/productionDone; story summary states no Authority Server completion is claimed."
+      "evidence": "quorum-submit smoke validates local host verdicts never set authorityDone/fullAuthorityDone/productionDone; B-eb18 delivery remains local Non-authority evidence only."
     },
     {
       "docPath": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
@@ -54,7 +54,7 @@
       "promise": "Evidence surfaces remain structured, source-bound, and freshness-aware.",
       "status": "verified",
       "verifiedBy": "validate + done_required_validate",
-      "evidence": "TEST validate and DONE-required validation passed on the post-main material hash; stale evidence was refreshed rather than rewritten blindly."
+      "evidence": "TEST validate passed 31/31; stale verification evidence was refreshed through Lattice before DONE-required validation is re-run last for current storyFilesHash."
     }
   ],
   "realMachineTests": [
@@ -71,15 +71,15 @@
       "transcript": "PASS: queue governance and queue_exception_set were covered by global-lifecycle-control-plane-smoke and command-ownership-contract."
     },
     {
-      "featureId": "DONE",
-      "transcript": "PASS: node packages/main/dist/cli.js validate --story=B-eb18 --json passed 31/31 configured commands and node packages/main/dist/cli.js done_required_validate --storyId=B-eb18 passed build plus root npm test after main merge."
+      "featureId": "TEST",
+      "transcript": "PASS: LATTICE_IDLE_TIMEOUT_MS=900000 LATTICE_MAX_TIMEOUT_MS=1800000 node packages/main/dist/cli.js validate --story=B-eb18 --json passed 31/31 configured commands."
     }
   ],
   "closingSelfCheck": {
     "hasRealMachineTest": true,
     "hasEdgeCaseCoverage": true,
     "hasUnresolvedTodos": false,
-    "summary": "Delivery check re-attested after merging main: implemented status commands and queue exception write are covered by focused smoke, process/runtime contracts, configured validate commands, and DONE-required validation. This is local Non-authority delivery evidence only."
+    "summary": "Delivery check re-attested in TEST after final F-001 through F-013 fixes: status commands, queue exception write, process/runtime contracts, configured validate commands, and host-neutral Non-authority boundaries are covered. Authority Server completion is not claimed."
   },
-  "_hash": "116f73e6ba82e495b55a30473348b9b389f47f1483c3e2add2f60a5237eaa867"
+  "_hash": "a3ad5ca095248130e8f4800d8490c4226dfa87bee13d2fbb199cfd589838a976"
 }
