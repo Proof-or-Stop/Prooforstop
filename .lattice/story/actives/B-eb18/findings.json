@@ -129,6 +129,25 @@
       ],
       "signatureTag": "missing|ts|runtime-closure-status",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-eb18:F-007",
+      "desc": "admissibility_waterline synthesizes consumer admissibility from coarse evidence presence instead of projecting the existing Authority gate receipt eligibility predicate for Authority receipt consumers; this can misrepresent production gate decision readiness in the diagnostic control plane.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-28T10:50:23.949Z",
+      "reviewRound": "2026-06-28T10:45:18.842Z",
+      "reviewRunId": "B-eb18:RR-017",
+      "_hash": "e5f27adf4633718d3a7f7d7aff25192c23ec3dd79a0f78d5419d9529a7122487",
+      "files": [
+        "packages/main/src/core/lifecycle-control/consumption/index.ts",
+        "packages/main/src/core/authority-gate-receipts.ts"
+      ],
+      "signatureTag": "missing|ts|admissibility-waterline-synthesizes",
+      "signatureTagSource": "auto"
     }
   ]
 }
