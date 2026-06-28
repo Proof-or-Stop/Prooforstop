@@ -52,7 +52,7 @@
       "desc": "The new read-only global lifecycle control-plane commands do not fail closed on unsupported mutation or authority-looking flags. command-catalog.ts defines global_control_status/runtime_closure_status/admissibility_waterline/queue_governance_status without unsupported flag schemas such as write/apply/execute/productionDone; cli-engine.ts validates non-autopilot commands with z.object(...), which strips unknown keys. Verified by running node packages/main/dist/cli.js global_control_status --write=true --json, runtime_closure_status --write=true --json, queue_governance_status --write=true --json, and admissibility_waterline --productionDone=true --json: each exited 0 and returned normal readOnly output instead of rejecting. This leaves the safety boundary inconsistent with neighboring lifecycle read-only commands and with the story requirement to fail closed for unsupported write/authority intent.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-28T10:11:44.975Z",
@@ -66,7 +66,11 @@
         "packages/main/src/tasks/global-lifecycle-control-plane-smoke.ts"
       ],
       "signatureTag": "missing|ts|read-global-lifecycle",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Added fail-closed unsupported side-effect/authority flags to global_control_status, runtime_closure_status, queue_governance_status, and admissibility_waterline via command-catalog z.never schemas, plus handler-side rejection for direct registry calls. Evidence passed: npm --prefix packages/main run build; node packages/main/dist/tasks/global-lifecycle-control-plane-smoke.js; node packages/main/dist/tasks/command-catalog-smoke.js; direct probes node packages/main/dist/cli.js global_control_status --write=true --json and admissibility_waterline --productionDone=true --json exited nonzero with Argument validation failed.",
+      "resolvedAt": "2026-06-28T10:20:18.411Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
