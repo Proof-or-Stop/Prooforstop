@@ -118,9 +118,44 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-28T01:13:56.703Z",
-      "endTime": null
+      "endTime": "2026-06-28T01:14:05.078Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:autopilot-resume-smoke",
+          "result": "pass",
+          "note": "Smoke verified a healthy non-stale AP-green run now returns status=resume_ready with remainingSteps=0 instead of refused/unsafe_state.",
+          "headHash": "41d594bbedb6f42d033011e226c44f1072bb695f",
+          "materialHash": "38304d7f50cead7e970803924919e85cbc9c964c8bca34da377cf03edec6ccda",
+          "storyFilesHash": "fed21fd3c5229dd3a563bbbab264f10b85e49d22a95d0008ceef8c38bf65ad7b",
+          "timestamp": "2026-06-28T01:14:05.307Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:autopilot-resume-smoke",
+          "result": "pass",
+          "note": "Smoke rewrote AP-stale updatedAt to 2000-01-01 and verified autopilot_resume returned refused/stale_state.",
+          "headHash": "41d594bbedb6f42d033011e226c44f1072bb695f",
+          "materialHash": "38304d7f50cead7e970803924919e85cbc9c964c8bca34da377cf03edec6ccda",
+          "storyFilesHash": "fed21fd3c5229dd3a563bbbab264f10b85e49d22a95d0008ceef8c38bf65ad7b",
+          "timestamp": "2026-06-28T01:14:05.507Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/autopilot-run-smoke.js",
+          "result": "pass",
+          "note": "Existing autopilot-run smoke verifies cancelled resume still returns refused/unsafe_state and all resume outputs keep authorityChanged=false, receiptVerified=false, productionDone=false.",
+          "headHash": "41d594bbedb6f42d033011e226c44f1072bb695f",
+          "materialHash": "38304d7f50cead7e970803924919e85cbc9c964c8bca34da377cf03edec6ccda",
+          "storyFilesHash": "fed21fd3c5229dd3a563bbbab264f10b85e49d22a95d0008ceef8c38bf65ad7b",
+          "timestamp": "2026-06-28T01:14:05.704Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
