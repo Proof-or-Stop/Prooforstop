@@ -63,18 +63,23 @@ assert.deepEqual(toolNames.slice(0, 8), [
 ], 'MAIN_TOOLS leading command order changed');
 
 assert.deepEqual(toolNames.slice(-6), [
-  'dev_memory_capture',
-  'dev_memory_list',
-  'dev_memory_search',
-  'dev_memory_preflight',
-  'dev_memory_finish',
-  'dev_memory_start',
+  'spike_record',
+  'spike_review_set',
+  'red_green_relation_create',
+  'red_green_relation_evaluate',
+  'regression_matrix_review_set',
+  'story_create_from_repro',
 ], 'MAIN_TOOLS trailing command order changed');
 
 for (const command of [
   'story_create',
   'story_advance',
   'validate',
+  'global_control_status',
+  'runtime_closure_status',
+  'admissibility_waterline',
+  'queue_governance_status',
+  'queue_exception_set',
   'authority_receipt_verify',
   'authority_job_create',
   'host_runtime_list',

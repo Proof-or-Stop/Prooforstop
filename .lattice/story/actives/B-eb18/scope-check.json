@@ -1,0 +1,52 @@
+{
+  "storyId": "B-eb18",
+  "checkedAt": "2026-06-27T00:48:10.679Z",
+  "features": [
+    {
+      "feature": "CP-2 Appendix D admissibility_waterline minimum is in B-eb18 scope",
+      "covered_by": "understanding outcome names lattice admissibility_waterline; decision driver and chosen option include Appendix D waterline; CHK-003 userSees and intents require buckets/missingClauses/topReasons/diagnostic-only status; plan Scope Guardrails and CHK-003 explicitly implement Appendix D diagnostic-only waterline",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md#appendix-d-admissibility-waterline-schema"
+    },
+    {
+      "feature": "CP-3 expanded experiment batch view is in scope",
+      "covered_by": "understanding outcome names Tier-C experiment grouping; decision preMortem protects experiment stories; CHK-004 userSees and intents require collapsed and expanded views, member listing, malformed cleanup visibility; plan CHK-004 requires collapsed default plus expanded detail on request",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md#cp-3---queue-governance-and-exceptions"
+    },
+    {
+      "feature": "Explicit queue exception schema and guarded write are in scope",
+      "covered_by": "understanding calls queue_exception_set a guarded write with audit metadata and coordination; decision principle/preMortem require guarded queue exception writes with policyVersion/class/membership/source/storyFilesHash/dashboardMode/cleanupPolicy/actor/reason/timestamp; CHK-007 userSees and intent require audit fields and storyFilesHash binding; plan CHK-007 lists queue_exception_set fields, write coordination, and read-only queue_governance_status",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md#8-story-exception-policy"
+    },
+    {
+      "feature": "Control plane remains projection-only and does not replace lifecycle/proof/DONE/Authority semantics",
+      "covered_by": "understanding constraints forbid second lifecycle state machine and reimplementing proof policy/freshness/DONE/Evidence Runtime; decision chosen option and preMortem preserve host-neutral layering and prevent second gate/waterline overclaim; CHK-001/002/003/006 intents assert no mutation, no new freshness classifier, diagnostic-only proof, and no Proof M7 policy; plan Scope Guardrails lists must-not boundaries",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md#scope-boundary"
+    },
+    {
+      "feature": "Product-visible operator completion is explicit",
+      "covered_by": "understanding outcome states operator-visible global_control_status and admissibility_waterline behavior; decision drivers require concrete CLI surface; checklist userSees fields cover global_control_status, runtime, waterline, queue, dashboard, guardrails, and queue_exception_set; plan Product-visible completion paragraph names exact commands and visible fields",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan.md"
+    }
+  ],
+  "summary": {
+    "total": 5,
+    "covered": 5,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "49e7e14e3abc1bac4ecc5cea0570292d40feacc24ba5f097428af96511117fb5",
+  "openQuestions": []
+}

@@ -3,6 +3,9 @@ export const CONTROL_PLANE_CAPABILITY_IDS = [
   'story-lane-statuses',
   'project-lane-statuses',
   'queue-classification',
+  'runtime-closure-projection',
+  'admissibility-waterline',
+  'queue-exception-registry',
   'structural-migration-plan',
 ] as const;
 
@@ -16,7 +19,7 @@ export interface ControlPlaneCapability {
 
 export interface ControlPlaneCapabilities {
   readonly readOnlyStatusProjection: true;
-  readonly commandRegistration: false;
+  readonly commandRegistration: true;
   readonly lifecycleGateMutation: false;
   readonly evidenceWrites: false;
   readonly authorityProductionSemantics: false;
@@ -28,7 +31,7 @@ export interface ControlPlaneCapabilities {
 
 export const DEFAULT_CONTROL_PLANE_CAPABILITIES: ControlPlaneCapabilities = {
   readOnlyStatusProjection: true,
-  commandRegistration: false,
+  commandRegistration: true,
   lifecycleGateMutation: false,
   evidenceWrites: false,
   authorityProductionSemantics: false,
@@ -38,23 +41,38 @@ export const DEFAULT_CONTROL_PLANE_CAPABILITIES: ControlPlaneCapabilities = {
   capabilities: [
     {
       id: 'read-only-status-projection',
-      status: 'planned',
-      description: 'Expose lifecycle-control status shapes without registering commands or mutating gates.',
+      status: 'available',
+      description: 'Expose lifecycle-control status shapes without mutating gates.',
     },
     {
       id: 'story-lane-statuses',
-      status: 'planned',
+      status: 'available',
       description: 'Represent story-scoped lifecycle lanes as read-only projection data.',
     },
     {
       id: 'project-lane-statuses',
-      status: 'planned',
+      status: 'available',
       description: 'Represent project-level control-plane status as read-only projection data.',
     },
     {
       id: 'queue-classification',
-      status: 'planned',
+      status: 'available',
       description: 'Classify queues for visibility without cleanup enforcement.',
+    },
+    {
+      id: 'runtime-closure-projection',
+      status: 'available',
+      description: 'Project runtime closure from existing authority, readiness, lock, and freshness surfaces.',
+    },
+    {
+      id: 'admissibility-waterline',
+      status: 'available',
+      description: 'Render diagnostic-only Proof Admissibility consumer waterlines without granting readiness.',
+    },
+    {
+      id: 'queue-exception-registry',
+      status: 'available',
+      description: 'Persist explicit experiment-batch queue exceptions with audit fields and preserve cleanup policy.',
     },
     {
       id: 'structural-migration-plan',
@@ -103,6 +121,13 @@ export const CONTROL_QUEUE_CLASSIFICATIONS = [
   'blocked',
   'external',
   'cleanup-deferred',
+  'active-worktree',
+  'stale-worktree',
+  'main-init',
+  'experiment-batch-exception',
+  'duplicate-candidate',
+  'superseded',
+  'cleanup-required',
 ] as const;
 
 export type ControlQueueClassification = typeof CONTROL_QUEUE_CLASSIFICATIONS[number];
@@ -111,6 +136,9 @@ export interface ControlQueueStatus {
   readonly classification: ControlQueueClassification;
   readonly size?: number;
   readonly reason?: string;
+  readonly exceptionId?: string;
+  readonly experimentBatchId?: string;
+  readonly cleanupPolicy?: 'preserve' | 'review-required' | 'cleanup-required';
 }
 
 export const CONTROL_PLANE_STATUS_LEVELS = [
@@ -150,6 +178,145 @@ export interface ControlPlaneSection {
    * Backward-compatible marker for old consumers.
    */
   readonly source?: 'legacy-projection' | 'runtime-projection' | 'proof-projection';
+}
+
+export interface LifecycleControlIssue {
+  readonly check: string;
+  readonly reason: string;
+  readonly remediation?: string;
+  readonly source?: string;
+}
+
+export interface RuntimeClosureRow {
+  readonly lane: 'runtime';
+  readonly storyId: string;
+  readonly status: ControlPlaneStatusLevel;
+  readonly authority: 'main' | 'worktree' | 'unknown';
+  readonly authoritativeCwd: string;
+  readonly phase: string;
+  readonly mirrorPhase?: string;
+  readonly source: 'runtime-projection';
+  readonly nextSafeAction?: string;
+  readonly blockingItems: readonly LifecycleControlIssue[];
+  readonly advisoryItems: readonly LifecycleControlIssue[];
+  readonly locks: {
+    readonly ownerLease: 'owned' | 'foreign-active' | 'stale' | 'missing' | 'unknown';
+    readonly mainWriteLock: 'free' | 'active' | 'stale' | 'unknown';
+    readonly validationLock: 'free' | 'active' | 'stale' | 'self-reentry' | 'unknown';
+  };
+}
+
+export interface RuntimeClosureReport {
+  readonly schemaVersion: 'lattice.runtime_closure_status.v1';
+  readonly readOnly: true;
+  readonly generatedAt: string;
+  readonly projectRoot: string;
+  readonly source: 'runtime-projection';
+  readonly stories: readonly RuntimeClosureRow[];
+  readonly aggregate: ControlPlaneStatusLevel;
+}
+
+export interface AdmissibilityWaterlineRow {
+  readonly consumer: string;
+  readonly status: 'pass' | 'warn' | 'fail' | 'error' | 'stale' | 'legacy';
+  readonly requiredClauses: readonly string[];
+  readonly matchedClauses: readonly string[];
+  readonly missingClauses: readonly string[];
+  readonly staleRows: number;
+  readonly legacyRows: number;
+  readonly errorRows: number;
+  readonly failRows: number;
+  readonly topReasons: readonly string[];
+  readonly diagnosticOnly: true;
+  readonly productionDoneEligible: false;
+  readonly source: 'proof-admissibility';
+}
+
+export interface AdmissibilityWaterlineReport {
+  readonly schemaVersion: 'lattice.admissibility_waterline.v1';
+  readonly readOnly: true;
+  readonly diagnosticOnly: true;
+  readonly generatedAt: string;
+  readonly storyId?: string;
+  readonly policyId: string;
+  readonly rows: readonly AdmissibilityWaterlineRow[];
+  readonly summary: {
+    readonly pass: number;
+    readonly warn: number;
+    readonly fail: number;
+    readonly error: number;
+    readonly stale: number;
+    readonly legacy: number;
+  };
+  readonly note: 'diagnostic-only waterline; lifecycle gates remain authoritative elsewhere';
+}
+
+export interface QueueExceptionRecord {
+  readonly exceptionId: string;
+  readonly policyVersion: 'proofbound.queue_exception.v1';
+  readonly class: 'experiment-batch-exception';
+  readonly experimentBatchId: string;
+  readonly storyIds: readonly string[];
+  readonly source: 'explicit' | 'migration-title-prefix';
+  readonly storyFilesHash: string;
+  readonly dashboardMode: 'collapsed' | 'expanded';
+  readonly cleanupPolicy: 'preserve';
+  readonly actor: string;
+  readonly reason: string;
+  readonly createdAt: string;
+}
+
+export interface QueueGovernanceRow {
+  readonly storyId: string;
+  readonly title: string;
+  readonly phase: string;
+  readonly classification: ControlQueueClassification;
+  readonly reason: string;
+  readonly authoritativeCwd?: string;
+  readonly experimentBatchId?: string;
+  readonly exceptionId?: string;
+  readonly cleanupPolicy?: 'preserve' | 'review-required' | 'cleanup-required';
+}
+
+export interface QueueGovernanceReport {
+  readonly schemaVersion: 'lattice.queue_governance_status.v1';
+  readonly readOnly: true;
+  readonly generatedAt: string;
+  readonly projectRoot: string;
+  readonly defaultDashboardMode: 'collapsed' | 'expanded';
+  readonly rows: readonly QueueGovernanceRow[];
+  readonly experimentBatches: readonly {
+    readonly experimentBatchId: string;
+    readonly defaultDashboardMode: 'collapsed' | 'expanded';
+    readonly storyCount: number;
+    readonly storyIds?: readonly string[];
+  }[];
+  readonly duplicateClusters: readonly {
+    readonly clusterId: string;
+    readonly canonicalStoryId: string;
+    readonly duplicateStoryIds: readonly string[];
+    readonly reason: string;
+  }[];
+  readonly cleanupRequired: readonly QueueGovernanceRow[];
+  readonly summary: {
+    readonly activeWorktree: number;
+    readonly staleWorktree: number;
+    readonly mainInit: number;
+    readonly experimentBatchException: number;
+    readonly duplicateCandidate: number;
+    readonly superseded: number;
+    readonly cleanupRequired: number;
+  };
+}
+
+export interface QueueExceptionSetResult extends QueueExceptionRecord {
+  readonly schemaVersion: 'lattice.queue_exception_set.v1';
+  readonly written: true;
+  readonly auditEvent: {
+    readonly type: 'queue_exception_set';
+    readonly storyIds: readonly string[];
+    readonly timestamp: string;
+  };
 }
 
 export interface StoryControlStatus {

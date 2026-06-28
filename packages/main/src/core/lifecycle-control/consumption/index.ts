@@ -1,10 +1,201 @@
-/**
- * Consumption namespace for CP-2 Consumption Closure Projection.
- *
- * This path exposes status shapes only; it is not a second waterline
- * implementation and it does not consume or produce gate evidence.
- */
+import {
+  DEFAULT_AUTHORITY_RECEIPT_MAX_VERIFIED_AGE_MS,
+  eligibleAuthorityGateReceiptDocument,
+  type AuthorityGateReceiptFailReason,
+} from '../../authority-gate-receipts.js';
+import { loadConfig } from '../../config.js';
+import { currentGitHead, currentMaterialHash } from '../../evidence-freshness.js';
+import { resolveWorkflowPolicy } from '../../workflow-policy.js';
+import {
+  ARTIFACT_CONSUMER_KINDS,
+  PROOF_ADMISSIBILITY_CONTRACT_VERSION,
+  PROOF_SURFACE_REGISTRY,
+  type ArtifactConsumerKind,
+  type ClaimKind,
+} from '../../proof-admissibility.js';
+import {
+  buildProofAdmissibilityDiagnostic,
+  resolveProofAdmissibilityMode,
+} from '../../proof-admissibility-gates.js';
+import type { StoryStore } from '../../store.js';
+import type { StoryInfo } from '../../types.js';
+import type {
+  AdmissibilityWaterlineReport,
+  AdmissibilityWaterlineRow,
+} from '../control-status.js';
+import { buildStoryControlStatus, buildProjectControlStatus, isReadOnlyControlPlane } from '../global-control-service.js';
+import { DEFAULT_CONTROL_PLANE_CAPABILITIES } from '../control-status.js';
 
 export * from '../control-status.js';
-export { buildStoryControlStatus, buildProjectControlStatus, isReadOnlyControlPlane } from '../global-control-service.js';
+export { buildStoryControlStatus, buildProjectControlStatus, isReadOnlyControlPlane, DEFAULT_CONTROL_PLANE_CAPABILITIES };
 export type { BuildStoryControlStatusInput, BuildProjectControlStatusInput } from '../global-control-service.js';
+
+const CONSUMER_CLAUSES: Record<ArtifactConsumerKind, readonly string[]> = {
+  STORY_INTAKE: ['C1 accepted candidate', 'C2 story binding'],
+  PLAN: ['C1 story binding', 'C2 planning review'],
+  REVIEW: ['C1 current implementation evidence', 'C2 reviewer-owned proof'],
+  TEST: ['C1 current validation evidence', 'C2 current material binding'],
+  DONE: ['C1 TEST evidence', 'C3 delivery check', 'C5 summary', 'C7 review escalation', 'C8 done-required policy', 'C10 freshness', 'C11 no production overclaim'],
+  DONE_REQUIRED: ['C1 local gate evidence', 'C3 command policy', 'C5 material hash', 'C7 story files hash', 'C8 receipt identity', 'C10 command set hash', 'C11 no local diagnostic'],
+  HANDOFF: ['C1 context refs separated', 'C2 proof refs classified'],
+  AUTHORITY_GATE_DECISION: ['C1 verified external adapter decision', 'C2 authority producer boundary'],
+};
+
+function firstSupportedSurface(consumer: ArtifactConsumerKind): { artifactKind: string; claim: ClaimKind } {
+  for (const definition of PROOF_SURFACE_REGISTRY) {
+    const policy = definition.allowedClaims.find((candidate) => (candidate.consumers as readonly ArtifactConsumerKind[]).includes(consumer));
+    if ((definition.allowedConsumers as readonly ArtifactConsumerKind[]).includes(consumer) && policy) {
+      return { artifactKind: definition.artifactKind, claim: policy.claim };
+    }
+  }
+  return { artifactKind: 'legacy-evidence', claim: 'diagnostic-status' };
+}
+
+function hasConsumerEvidence(store: StoryStore, storyId: string | undefined, consumer: ArtifactConsumerKind): boolean {
+  if (!storyId) return false;
+  try {
+    if (consumer === 'DONE_REQUIRED' || consumer === 'DONE') return store.readDoneRequiredEvidence(storyId) !== null;
+    if (consumer === 'TEST') return store.readTestEvidence(storyId) !== null;
+    if (consumer === 'REVIEW') return (store.readReviewPasses(storyId).passes ?? []).length > 0;
+    if (consumer === 'STORY_INTAKE' || consumer === 'PLAN') return store.readStory(storyId).source !== undefined;
+    if (consumer === 'HANDOFF') return store.readStoryCapsule(storyId) !== null;
+    if (consumer === 'AUTHORITY_GATE_DECISION') return store.readAuthorityReceiptRefs(storyId) !== null;
+  } catch {
+    return false;
+  }
+  return false;
+}
+
+function authorityReceiptEligibility(store: StoryStore, storyId: string | undefined, projectRoot: string, now: string): {
+  present: boolean;
+  eligible: boolean;
+  reason?: AuthorityGateReceiptFailReason | 'authority_receipt_context_unavailable';
+} {
+  if (!storyId) return { present: false, eligible: false, reason: 'authority_receipt_missing' };
+  let story: StoryInfo;
+  try {
+    story = store.readStory(storyId);
+  } catch {
+    return { present: false, eligible: false, reason: 'authority_receipt_missing' };
+  }
+  const document = store.readAuthorityReceiptRefs(storyId) ?? undefined;
+  const present = document !== undefined;
+  const headHash = currentGitHead(projectRoot);
+  const materialHash = currentMaterialHash(projectRoot, 'HEAD', projectRoot);
+  if (!headHash || !materialHash) {
+    return { present, eligible: false, reason: 'authority_receipt_context_unavailable' };
+  }
+  const policy = resolveWorkflowPolicy(loadConfig(projectRoot), story);
+  const eligibility = eligibleAuthorityGateReceiptDocument(document, {
+    storyId,
+    targetPhase: 'DONE',
+    headHash,
+    materialHash,
+    now,
+    maxVerifiedAgeMs: DEFAULT_AUTHORITY_RECEIPT_MAX_VERIFIED_AGE_MS,
+    acceptablePolicyModes: [policy.profile],
+    acceptableAuthorityModes: ['enforce'],
+  });
+  return { present, eligible: eligibility.eligible, reason: eligibility.reason };
+}
+
+function rowStatus(
+  overall: 'pass' | 'warn' | 'fail' | 'error',
+  reasons: readonly string[],
+): AdmissibilityWaterlineRow['status'] {
+  if (overall === 'error') return 'error';
+  if (reasons.includes('legacy_downgrade')) return 'legacy';
+  if (reasons.some((reason) => reason.startsWith('stale_'))) return 'stale';
+  if (overall === 'pass') return 'pass';
+  if (overall === 'warn') return 'warn';
+  return 'fail';
+}
+
+function summary(rows: readonly AdmissibilityWaterlineRow[]): AdmissibilityWaterlineReport['summary'] {
+  return {
+    pass: rows.filter((row) => row.status === 'pass').length,
+    warn: rows.filter((row) => row.status === 'warn').length,
+    fail: rows.filter((row) => row.status === 'fail').length,
+    error: rows.filter((row) => row.status === 'error').length,
+    stale: rows.filter((row) => row.status === 'stale').length,
+    legacy: rows.filter((row) => row.status === 'legacy').length,
+  };
+}
+
+export interface AdmissibilityWaterlineOptions {
+  readonly storyId?: string;
+  readonly consumers?: readonly ArtifactConsumerKind[];
+  readonly now?: string;
+}
+
+export function projectAdmissibilityWaterline(
+  store: StoryStore,
+  projectRoot: string,
+  options: AdmissibilityWaterlineOptions = {},
+): AdmissibilityWaterlineReport {
+  const consumers = options.consumers && options.consumers.length > 0
+    ? options.consumers
+    : ARTIFACT_CONSUMER_KINDS;
+  const mode = resolveProofAdmissibilityMode(projectRoot);
+  const rows = consumers.map((consumer): AdmissibilityWaterlineRow => {
+    const surface = firstSupportedSurface(consumer);
+    const authorityEligibility = consumer === 'AUTHORITY_GATE_DECISION'
+      ? authorityReceiptEligibility(store, options.storyId, projectRoot, options.now ?? new Date().toISOString())
+      : undefined;
+    const present = authorityEligibility?.present ?? hasConsumerEvidence(store, options.storyId, consumer);
+    const authorityEligible = authorityEligibility?.eligible;
+    const diagnostic = buildProofAdmissibilityDiagnostic({
+      artifactId: options.storyId ? `${options.storyId}:${consumer}` : consumer,
+      artifactKind: surface.artifactKind,
+      consumer,
+      claim: surface.claim,
+      mode,
+      checks: {
+        strictShapeValid: authorityEligible ?? present,
+        semanticDigestValid: authorityEligible ?? present,
+        signatureOrReceiptBindingValid: authorityEligible ?? (present || consumer === 'STORY_INTAKE' || consumer === 'PLAN'),
+        temporalAndMaterialBindingValid: authorityEligible ?? present,
+        subjectMatches: Boolean(options.storyId),
+        storyMatches: Boolean(options.storyId),
+        gatePhaseMatches: true,
+        commandSpecDigestValid: present || consumer !== 'DONE_REQUIRED',
+        hashTupleFresh: authorityEligible ?? present,
+        producerBoundaryTrusted: authorityEligible ?? present,
+      },
+    });
+    const status = rowStatus(diagnostic.overall, diagnostic.reasons);
+    const requiredClauses = CONSUMER_CLAUSES[consumer];
+    const reasons = [
+      ...(authorityEligibility?.reason && !authorityEligibility.eligible ? [authorityEligibility.reason] : []),
+      ...diagnostic.reasons,
+    ];
+    const missingClauses = status === 'pass' ? [] : reasons.length > 0 ? reasons : ['missing_admissible_evidence'];
+    return {
+      consumer,
+      status,
+      requiredClauses,
+      matchedClauses: status === 'pass' ? requiredClauses : [],
+      missingClauses,
+      staleRows: status === 'stale' ? 1 : 0,
+      legacyRows: status === 'legacy' ? 1 : 0,
+      errorRows: status === 'error' ? 1 : 0,
+      failRows: status === 'fail' ? 1 : 0,
+      topReasons: missingClauses.slice(0, 3),
+      diagnosticOnly: true,
+      productionDoneEligible: false,
+      source: 'proof-admissibility',
+    };
+  });
+
+  return {
+    schemaVersion: 'lattice.admissibility_waterline.v1',
+    readOnly: true,
+    diagnosticOnly: true,
+    generatedAt: options.now ?? new Date().toISOString(),
+    ...(options.storyId ? { storyId: options.storyId } : {}),
+    policyId: PROOF_ADMISSIBILITY_CONTRACT_VERSION,
+    rows,
+    summary: summary(rows),
+    note: 'diagnostic-only waterline; lifecycle gates remain authoritative elsewhere',
+  };
+}

@@ -115,6 +115,7 @@ export type { ToolDef };
  * existing verifier contract while the runtime catalog is extracted.
  *
  * name: 'agent_prompt'
+ * name: 'admissibility_waterline'
  * name: 'artifact_declare'
  * name: 'audit'
  * name: 'authority_enforce_policy'
@@ -222,6 +223,7 @@ export type { ToolDef };
  * name: 'fixture_update'
  * name: 'gap_analyze'
  * name: 'gap_log'
+ * name: 'global_control_status'
  * name: 'grill_close'
  * name: 'grill_get'
  * name: 'grill_record'
@@ -281,6 +283,8 @@ export type { ToolDef };
  * name: 'playbook_reject'
  * name: 'prewrite_guard_check'
  * name: 'quorum_submit'
+ * name: 'queue_exception_set'
+ * name: 'queue_governance_status'
  * name: 'recall'
  * name: 'recover_evidence'
  * name: 'release_approve_push'
@@ -296,6 +300,7 @@ export type { ToolDef };
  * name: 'review_pass_set'
  * name: 'review_run_start'
  * name: 'reviewer_list'
+ * name: 'runtime_closure_status'
  * name: 'rollout_check'
  * name: 'scope_boundary_set'
  * name: 'scope_check_save'

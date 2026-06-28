@@ -10,16 +10,88 @@
       "files": {
         "modify": [
           "packages/main/src/core/lifecycle-control/**",
-          "packages/main/src/cli-engine.ts"
+          "packages/main/src/handlers/lifecycle-control.ts",
+          "packages/main/src/handlers/story-authority-resolve.ts",
+          "packages/main/src/handlers/lifecycle-check.ts",
+          "packages/main/src/handlers/done-closure.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/cli-engine.ts",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md"
         ],
-        "create": [],
+        "create": [
+          "packages/main/src/handlers/lifecycle-control.ts"
+        ],
         "test": [
           "packages/main/src/tasks/**"
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-28T09:38:30.770Z",
+      "endTime": "2026-06-28T09:50:44.495Z",
+      "userSees": "The JSON output contains \"schemaVersion\":\"lattice.global_control_status.v1\", \"readOnly\":true, \"authoritativeCwd\":\"/Users/.../.worktrees/B-xxxx\", and \"queue\":{\"classification\":\"...\"} for each active story.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-001:happy:0",
+            "desc": "global_control_status returns schemaVersion, readOnly=true, project summary, and story rows including authoritative cwd for worktree stories.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-001:edge:0",
+            "desc": "A story with worktree authority and main mirror drift reports the worktree authoritative cwd instead of trusting stale main metadata.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-001:adversarial:0",
+            "desc": "The report does not mutate story metadata, process events, evidence, or git status.",
+            "type": "logic"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/global-lifecycle-control-plane-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts global_control_status schemaVersion/readOnly and story rows with authoritative worktree cwd and queue classification.",
+          "headHash": "ccfe6b9065ed8f21184f3bbc8e0f3f9d2f112e4a",
+          "materialHash": "b6741350f96860bb7686bc19197f85bebb31cae6f790cfcae8d68d4c385c2002",
+          "storyFilesHash": "6d27758a082029416c1d48568e2f3c4aba4fde86d186f3e87947f7cdd5822bfb",
+          "timestamp": "2026-06-28T15:01:43.793Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/global-lifecycle-control-plane-smoke.js",
+          "result": "pass",
+          "note": "Smoke creates a main mirror INIT_CHECK / worktree DEV drift story and asserts authoritativeCwd points to the worktree.",
+          "headHash": "ccfe6b9065ed8f21184f3bbc8e0f3f9d2f112e4a",
+          "materialHash": "b6741350f96860bb7686bc19197f85bebb31cae6f790cfcae8d68d4c385c2002",
+          "storyFilesHash": "6d27758a082029416c1d48568e2f3c4aba4fde86d186f3e87947f7cdd5822bfb",
+          "timestamp": "2026-06-28T15:01:43.793Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/global-lifecycle-control-plane-smoke.js",
+          "result": "pass",
+          "note": "Smoke snapshots git status before read-only commands and asserts global/runtime/waterline/queue reads leave git status unchanged.",
+          "headHash": "ccfe6b9065ed8f21184f3bbc8e0f3f9d2f112e4a",
+          "materialHash": "b6741350f96860bb7686bc19197f85bebb31cae6f790cfcae8d68d4c385c2002",
+          "storyFilesHash": "6d27758a082029416c1d48568e2f3c4aba4fde86d186f3e87947f7cdd5822bfb",
+          "timestamp": "2026-06-28T15:01:43.793Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -32,16 +104,84 @@
       "files": {
         "modify": [
           "packages/main/src/core/lifecycle-control/runtime/**",
-          "packages/main/src/core/lifecycle-control/**"
+          "packages/main/src/core/lifecycle-control/**",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/evidence-stale-hint.ts",
+          "packages/main/src/core/story-owner-lease.ts",
+          "packages/main/src/core/main-write-lock.ts",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/handlers/lifecycle-check.ts",
+          "packages/main/src/handlers/story-authority-resolve.ts",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md"
         ],
         "create": [],
         "test": [
           "packages/main/src/tasks/**"
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-28T09:50:52.819Z",
+      "userSees": "The runtime row prints \"runtime\":{\"status\":\"yellow\",\"source\":\"runtime-projection\",\"nextSafeAction\":\"cd /Users/.../.worktrees/B-xxxx\"} when authority is in a story worktree.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-002:happy:0",
+            "desc": "runtime_closure_status projects authority, lock/readiness, stale evidence hints, and nextSafeAction from existing runtime modules.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-002:edge:0",
+            "desc": "Self-reentry or active validation lock is rendered as active/wait instead of a foreign-host conflict.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-002:adversarial:0",
+            "desc": "Runtime projection does not reclassify freshness differently from the shipped evidence freshness/readiness classifier.",
+            "type": "logic"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/global-lifecycle-control-plane-smoke.js && node packages/main/dist/cli.js runtime_closure_status \"{\\\"storyIds\\\":[\\\"B-eb18\\\"],\\\"format\\\":\\\"json\\\"}\"",
+          "result": "pass",
+          "note": "Runtime closure smoke and CLI run project authority, locks, readiness rows, and nextSafeAction from shipped modules.",
+          "headHash": "ccfe6b9065ed8f21184f3bbc8e0f3f9d2f112e4a",
+          "materialHash": "b6741350f96860bb7686bc19197f85bebb31cae6f790cfcae8d68d4c385c2002",
+          "storyFilesHash": "6d27758a082029416c1d48568e2f3c4aba4fde86d186f3e87947f7cdd5822bfb",
+          "timestamp": "2026-06-28T15:01:43.793Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/global-lifecycle-control-plane-smoke.js",
+          "result": "pass",
+          "note": "Smoke covers runtime projection over a worktree-authoritative story and status output distinguishes validation lock self-reentry in projector API coverage.",
+          "headHash": "ccfe6b9065ed8f21184f3bbc8e0f3f9d2f112e4a",
+          "materialHash": "b6741350f96860bb7686bc19197f85bebb31cae6f790cfcae8d68d4c385c2002",
+          "storyFilesHash": "6d27758a082029416c1d48568e2f3c4aba4fde86d186f3e87947f7cdd5822bfb",
+          "timestamp": "2026-06-28T15:01:43.793Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/global-lifecycle-control-plane-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Runtime projector consumes lifecycle_check/story_authority_resolve/freshness surfaces and process-fact contract confirms no new proof or lifecycle gate fact replaces existing classifiers.",
+          "headHash": "ccfe6b9065ed8f21184f3bbc8e0f3f9d2f112e4a",
+          "materialHash": "b6741350f96860bb7686bc19197f85bebb31cae6f790cfcae8d68d4c385c2002",
+          "storyFilesHash": "6d27758a082029416c1d48568e2f3c4aba4fde86d186f3e87947f7cdd5822bfb",
+          "timestamp": "2026-06-28T15:01:43.793Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -55,16 +195,87 @@
       "files": {
         "modify": [
           "packages/main/src/core/lifecycle-control/consumption/**",
-          "packages/main/src/core/lifecycle-control/**"
+          "packages/main/src/core/lifecycle-control/**",
+          "packages/main/src/core/proof-admissibility.ts",
+          "packages/main/src/core/proof-admissibility-gates.ts",
+          "packages/main/src/core/proof-admissibility-legacy.ts",
+          "packages/main/src/core/proof-admissibility-metadata.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/evidence/evidence-platform-architecture.md"
         ],
-        "create": [],
+        "create": [
+          "packages/main/src/handlers/lifecycle-control.ts"
+        ],
         "test": [
           "packages/main/src/tasks/**"
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-28T09:51:48.733Z",
+      "userSees": "lattice admissibility_waterline --storyId=<id> --format=json shows each consumer bucket, missing clauses, top reasons, stale/legacy/error counts, and the consumption section uses that waterline without letting candidate, diagnostic, or legacy evidence satisfy DONE.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-003:happy:0",
+            "desc": "admissibility_waterline renders consumer pass/warn/fail/error/stale/legacy buckets, missingClauses, topReasons, and diagnostic-only status.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-003:edge:0",
+            "desc": "Historical failed or stale rows remain visible for audit but do not block unrelated stories without current subject/consumer/contract/material/policy match.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-003:adversarial:0",
+            "desc": "Candidate, diagnostic, and legacy artifacts cannot make DONE or production wording eligible through either admissibility_waterline or global_control_status.",
+            "type": "logic"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/global-lifecycle-control-plane-smoke.js && node packages/main/dist/cli.js admissibility_waterline \"{\\\"storyId\\\":\\\"B-eb18\\\",\\\"format\\\":\\\"json\\\"}\"",
+          "result": "pass",
+          "note": "Smoke and CLI assert admissibility_waterline schema, consumer rows, missing clauses, top reasons, stale/legacy/error/fail counts, and diagnosticOnly=true.",
+          "headHash": "ccfe6b9065ed8f21184f3bbc8e0f3f9d2f112e4a",
+          "materialHash": "b6741350f96860bb7686bc19197f85bebb31cae6f790cfcae8d68d4c385c2002",
+          "storyFilesHash": "6d27758a082029416c1d48568e2f3c4aba4fde86d186f3e87947f7cdd5822bfb",
+          "timestamp": "2026-06-28T15:01:43.793Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/global-lifecycle-control-plane-smoke.js",
+          "result": "pass",
+          "note": "Waterline rows are story-scoped diagnostics; stale/historical rows remain visible without becoming unrelated story blockers.",
+          "headHash": "ccfe6b9065ed8f21184f3bbc8e0f3f9d2f112e4a",
+          "materialHash": "b6741350f96860bb7686bc19197f85bebb31cae6f790cfcae8d68d4c385c2002",
+          "storyFilesHash": "6d27758a082029416c1d48568e2f3c4aba4fde86d186f3e87947f7cdd5822bfb",
+          "timestamp": "2026-06-28T15:01:43.793Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/global-lifecycle-control-plane-smoke.js && node packages/main/dist/cli.js admissibility_waterline \"{\\\"storyId\\\":\\\"B-eb18\\\",\\\"format\\\":\\\"json\\\"}\"",
+          "result": "pass",
+          "note": "Smoke and CLI assert diagnosticOnly=true and productionDoneEligible=false for DONE/consumer rows, so candidate/diagnostic/legacy artifacts cannot satisfy DONE through the waterline or dashboard.",
+          "headHash": "ccfe6b9065ed8f21184f3bbc8e0f3f9d2f112e4a",
+          "materialHash": "b6741350f96860bb7686bc19197f85bebb31cae6f790cfcae8d68d4c385c2002",
+          "storyFilesHash": "6d27758a082029416c1d48568e2f3c4aba4fde86d186f3e87947f7cdd5822bfb",
+          "timestamp": "2026-06-28T15:01:43.793Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -76,16 +287,76 @@
       "files": {
         "modify": [
           "packages/main/src/core/lifecycle-control/queue/**",
-          "packages/main/src/core/lifecycle-control/**"
+          "packages/main/src/core/lifecycle-control/**",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md"
         ],
         "create": [],
         "test": [
           "packages/main/src/tasks/**"
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-28T09:51:57.456Z",
+      "userSees": "The queue output contains \"experimentBatches\":[{\"experimentBatchId\":\"tier-c-provider-execution-receipt-verification\",\"defaultDashboardMode\":\"collapsed\",\"storyCount\":...}] and expanded mode lists member story ids.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-004:happy:0",
+            "desc": "queue_governance_status classifies active-worktree, stale-worktree, main-init, experiment-batch-exception, duplicate-candidate, superseded, and cleanup-required rows with collapsed and expanded views.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-004:edge:0",
+            "desc": "Tier-C provider-execution receipt verification stories are grouped and excluded from duplicate cleanup pressure while expanded view lists members.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-004:adversarial:0",
+            "desc": "Malformed experiment records are still visible as cleanup-required and are not hidden by the exception.",
+            "type": "logic"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/global-lifecycle-control-plane-smoke.js && node packages/main/dist/cli.js queue_governance_status \"{\\\"expanded\\\":true,\\\"format\\\":\\\"json\\\"}\"",
+          "result": "pass",
+          "note": "Smoke asserts queue_governance_status classes active-worktree/stale-worktree/main-init/experiment-batch-exception/duplicate-candidate/cleanup-required and collapsed/expanded experiment views.",
+          "headHash": "ccfe6b9065ed8f21184f3bbc8e0f3f9d2f112e4a",
+          "materialHash": "b6741350f96860bb7686bc19197f85bebb31cae6f790cfcae8d68d4c385c2002",
+          "storyFilesHash": "6d27758a082029416c1d48568e2f3c4aba4fde86d186f3e87947f7cdd5822bfb",
+          "timestamp": "2026-06-28T15:01:43.793Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/global-lifecycle-control-plane-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts Tier-C provider-execution receipt verification stories are grouped under tier-c-provider-execution-receipt-verification and excluded from duplicate cleanup while expanded view lists members.",
+          "headHash": "ccfe6b9065ed8f21184f3bbc8e0f3f9d2f112e4a",
+          "materialHash": "b6741350f96860bb7686bc19197f85bebb31cae6f790cfcae8d68d4c385c2002",
+          "storyFilesHash": "6d27758a082029416c1d48568e2f3c4aba4fde86d186f3e87947f7cdd5822bfb",
+          "timestamp": "2026-06-28T15:01:43.793Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/global-lifecycle-control-plane-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts malformed Tier-C experiment records remain visible as cleanup-required rather than hidden by the exception.",
+          "headHash": "ccfe6b9065ed8f21184f3bbc8e0f3f9d2f112e4a",
+          "materialHash": "b6741350f96860bb7686bc19197f85bebb31cae6f790cfcae8d68d4c385c2002",
+          "storyFilesHash": "6d27758a082029416c1d48568e2f3c4aba4fde86d186f3e87947f7cdd5822bfb",
+          "timestamp": "2026-06-28T15:01:43.793Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
@@ -98,16 +369,84 @@
         "modify": [
           "packages/main/src/core/lifecycle-control/dashboard/**",
           "packages/main/src/core/lifecycle-control/**",
-          "packages/main/src/cli-engine.ts"
+          "packages/main/src/handlers/lifecycle-control.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/cli-engine.ts",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md"
         ],
-        "create": [],
+        "create": [
+          "packages/main/src/handlers/lifecycle-control.ts"
+        ],
         "test": [
           "packages/main/src/tasks/**"
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-28T09:52:06.012Z",
+      "userSees": "The text dashboard shows \"Project control status\", \"Story rows\", \"Runtime\", \"Consumption\", \"Queue\", and \"Next safe action\" sections, with project queue warnings separate from story blockers.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-005:happy:0",
+            "desc": "global_control_status text and JSON render story-level and project-level sections with top blockers and next safe actions.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-005:edge:0",
+            "desc": "Project-level queue pressure does not mark an unrelated individual story gate as blocked.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-005:adversarial:0",
+            "desc": "The dashboard output cannot be derived from stale plan docs alone and includes source/status provenance fields.",
+            "type": "logic"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/global-lifecycle-control-plane-smoke.js && node packages/main/dist/cli.js global_control_status \"{\\\"storyIds\\\":[\\\"B-eb18\\\"],\\\"format\\\":\\\"json\\\"}\"",
+          "result": "pass",
+          "note": "Smoke and CLI assert global_control_status text/JSON dashboard includes project and story sections, runtime/consumption/queue/readiness, blockers, and next safe action.",
+          "headHash": "ccfe6b9065ed8f21184f3bbc8e0f3f9d2f112e4a",
+          "materialHash": "b6741350f96860bb7686bc19197f85bebb31cae6f790cfcae8d68d4c385c2002",
+          "storyFilesHash": "6d27758a082029416c1d48568e2f3c4aba4fde86d186f3e87947f7cdd5822bfb",
+          "timestamp": "2026-06-28T15:01:43.793Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/global-lifecycle-control-plane-smoke.js",
+          "result": "pass",
+          "note": "Smoke separates project queue pressure from individual story gate rows; unrelated duplicate/experiment rows do not mark an unrelated story runtime gate blocked.",
+          "headHash": "ccfe6b9065ed8f21184f3bbc8e0f3f9d2f112e4a",
+          "materialHash": "b6741350f96860bb7686bc19197f85bebb31cae6f790cfcae8d68d4c385c2002",
+          "storyFilesHash": "6d27758a082029416c1d48568e2f3c4aba4fde86d186f3e87947f7cdd5822bfb",
+          "timestamp": "2026-06-28T15:01:43.793Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/global-lifecycle-control-plane-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Dashboard rows include source provenance fields and are computed from live projectors/registered commands, with process-fact contract confirming they are projections rather than stale plan-doc facts.",
+          "headHash": "ccfe6b9065ed8f21184f3bbc8e0f3f9d2f112e4a",
+          "materialHash": "b6741350f96860bb7686bc19197f85bebb31cae6f790cfcae8d68d4c385c2002",
+          "storyFilesHash": "6d27758a082029416c1d48568e2f3c4aba4fde86d186f3e87947f7cdd5822bfb",
+          "timestamp": "2026-06-28T15:01:43.793Z"
+        }
+      ]
     },
     {
       "id": "CHK-006",
@@ -120,17 +459,83 @@
       "files": {
         "modify": [
           "packages/main/src/core/lifecycle-control/runtime/**",
+          "packages/main/src/core/lifecycle-control/**",
           "packages/main/src/core/story-machine.ts",
-          "packages/main/src/cli-engine.ts"
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/cli-engine.ts",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md"
         ],
         "create": [],
         "test": [
           "packages/main/src/tasks/**"
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-28T09:54:21.576Z",
+      "userSees": "Unsafe runtime guard output contains \"mode\":\"warn\" or \"mode\":\"enforce\", \"blocked\":true, \"reason\":\"wrong_authoritative_cwd\", and \"rollback\":\"set lifecycleControl.runtimeEnforcement=warn\" for named unsafe cases.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-006:happy:0",
+            "desc": "Runtime enforcement guard blocks named unsafe runtime operations in enforce mode and renders warn mode before enforcement.",
+            "type": "logic"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-006:edge:0",
+            "desc": "Metadata-only dirty state and material dirty state are distinguished in runtime guard output.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-006:adversarial:0",
+            "desc": "Runtime enforcement does not evaluate proof admissibility or implement Proof M7 policy.",
+            "type": "logic"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/global-lifecycle-control-plane-smoke.js",
+          "result": "pass",
+          "note": "Runtime enforcement guard smoke asserts enforce mode blocks wrong authoritative cwd with rollback guidance and proofAdmissibilityEvaluated:false.",
+          "headHash": "ccfe6b9065ed8f21184f3bbc8e0f3f9d2f112e4a",
+          "materialHash": "b6741350f96860bb7686bc19197f85bebb31cae6f790cfcae8d68d4c385c2002",
+          "storyFilesHash": "6d27758a082029416c1d48568e2f3c4aba4fde86d186f3e87947f7cdd5822bfb",
+          "timestamp": "2026-06-28T15:01:43.793Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/global-lifecycle-control-plane-smoke.js",
+          "result": "pass",
+          "note": "Runtime enforcement guard smoke asserts metadata-only dirty state remains advisory while material dirty state blocks phase advance.",
+          "headHash": "ccfe6b9065ed8f21184f3bbc8e0f3f9d2f112e4a",
+          "materialHash": "b6741350f96860bb7686bc19197f85bebb31cae6f790cfcae8d68d4c385c2002",
+          "storyFilesHash": "6d27758a082029416c1d48568e2f3c4aba4fde86d186f3e87947f7cdd5822bfb",
+          "timestamp": "2026-06-28T15:01:43.793Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:0",
+          "kind": "logic_test",
+          "command": "node scripts/verify-process-fact-contract.mjs && npm --prefix packages/main run test:runtime-fact-contract",
+          "result": "pass",
+          "note": "Process/runtime fact contracts pass with lifecycle-control commands registered without adding a second lifecycle state machine or proof admissibility gate path.",
+          "headHash": "ccfe6b9065ed8f21184f3bbc8e0f3f9d2f112e4a",
+          "materialHash": "b6741350f96860bb7686bc19197f85bebb31cae6f790cfcae8d68d4c385c2002",
+          "storyFilesHash": "6d27758a082029416c1d48568e2f3c4aba4fde86d186f3e87947f7cdd5822bfb",
+          "timestamp": "2026-06-28T15:01:43.793Z"
+        }
+      ]
     },
     {
       "id": "CHK-007",
@@ -143,16 +548,95 @@
         "modify": [
           "packages/main/src/core/lifecycle-control/queue/**",
           "packages/main/src/core/lifecycle-control/**",
-          "packages/main/src/cli-engine.ts"
+          "packages/main/src/handlers/lifecycle-control.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/cli-engine.ts",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md"
         ],
-        "create": [],
+        "create": [
+          "packages/main/src/handlers/lifecycle-control.ts"
+        ],
         "test": [
           "packages/main/src/tasks/**"
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-28T09:54:28.159Z",
+      "userSees": "queue_exception_set output contains \"exceptionId\", \"policyVersion\":\"proofbound.queue_exception.v1\", \"class\":\"experiment-batch-exception\", \"storyFilesHash\", \"cleanupPolicy\":\"preserve\", and \"written\":true.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-007:happy:0",
+            "desc": "queue_exception_set records auditable exception membership with policyVersion, class, source, storyFilesHash binding, dashboard mode, cleanup policy, actor, reason, and timestamp.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-007:edge:0",
+            "desc": "Non-experiment duplicate cleanup emits reviewable canonical/superseded suggestions instead of silent mutation.",
+            "type": "logic"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-007:adversarial:0",
+            "desc": "Tier-C experiment exception stories are never hard-blocked or cleaned up by duplicate guard logic, and malformed records remain cleanup-required.",
+            "type": "logic"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-007:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/global-lifecycle-control-plane-smoke.js",
+          "result": "pass",
+          "note": "Queue governance smoke asserts Tier-C experiment batches collapse by default and expand with member storyIds while exceptions preserve cleanup policy.",
+          "headHash": "ccfe6b9065ed8f21184f3bbc8e0f3f9d2f112e4a",
+          "materialHash": "b6741350f96860bb7686bc19197f85bebb31cae6f790cfcae8d68d4c385c2002",
+          "storyFilesHash": "6d27758a082029416c1d48568e2f3c4aba4fde86d186f3e87947f7cdd5822bfb",
+          "timestamp": "2026-06-28T15:01:43.793Z"
+        },
+        {
+          "intentRef": "CHK-007:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/global-lifecycle-control-plane-smoke.js",
+          "result": "pass",
+          "note": "Queue governance smoke asserts malformed Tier-C titles are cleanup-required and duplicate stories remain duplicate-candidate, separating queue hygiene from lifecycle readiness.",
+          "headHash": "ccfe6b9065ed8f21184f3bbc8e0f3f9d2f112e4a",
+          "materialHash": "b6741350f96860bb7686bc19197f85bebb31cae6f790cfcae8d68d4c385c2002",
+          "storyFilesHash": "6d27758a082029416c1d48568e2f3c4aba4fde86d186f3e87947f7cdd5822bfb",
+          "timestamp": "2026-06-28T15:01:43.793Z"
+        },
+        {
+          "intentRef": "CHK-007:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/global-lifecycle-control-plane-smoke.js && node packages/main/dist/tasks/command-ownership-contract.js",
+          "result": "pass",
+          "note": "queue_exception_set smoke rejects short explicit reasons, writes queue-exceptions.json and audit JSONL with policyVersion/storyFilesHash/class/source; ownership contract keeps it mainSharedMutating rather than read-only.",
+          "headHash": "ccfe6b9065ed8f21184f3bbc8e0f3f9d2f112e4a",
+          "materialHash": "b6741350f96860bb7686bc19197f85bebb31cae6f790cfcae8d68d4c385c2002",
+          "storyFilesHash": "6d27758a082029416c1d48568e2f3c4aba4fde86d186f3e87947f7cdd5822bfb",
+          "timestamp": "2026-06-28T15:01:43.793Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-28T09:38:30.770Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start implementation through lattice-implementer"
     }
   ]
 }

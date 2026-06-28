@@ -1,0 +1,121 @@
+{
+  "passes": [
+    {
+      "id": "B-eb18:RP-001",
+      "agent": "lattice-review-quality",
+      "note": "Quality review passed: command catalog, policies, schemas, registry wiring, process-fact registration, read-only activity policy, main-root queue_exception_set locking, invalid-input fail-closed behavior, and smoke coverage were inspected; no correctness blocker found.",
+      "createdAt": "2026-06-28T10:04:03.981Z",
+      "reviewRound": "2026-06-28T10:01:33.439Z",
+      "reviewRunId": "B-eb18:RR-002",
+      "_hash": "9b1a93aa78904c9a921a26168a4e3a19d7958dac7c8966306f3a3a2fd3914139"
+    },
+    {
+      "id": "B-eb18:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage pass: verified global-lifecycle-control-plane smoke covers global status, runtime closure, admissibility waterline, queue governance, queue_exception_set writer/audit/main-lock contention, and read-only no-mutation behavior; process/runtime fact contracts plus command ownership/catalog/source-structure smokes cover command ownership and registry/process-fact coverage. No untested gate-relevant writer semantics found.",
+      "createdAt": "2026-06-28T10:04:26.514Z",
+      "reviewRound": "2026-06-28T10:01:33.439Z",
+      "reviewRunId": "B-eb18:RR-003",
+      "_hash": "84619b88c6283a393384fbf1448763835a7cff7f3b77ce4f8e190443faea0bde"
+    },
+    {
+      "id": "B-eb18:RP-003",
+      "agent": "lattice-review-docs",
+      "note": "Docs review pass: checked global-lifecycle-control-plane execution plan CP-0..CP-5 boundaries against lifecycle-control command policy, handlers, status models, queue exception writer, and live CLI projections. No docs/requirements files changed in branch; implemented commands preserve read-only status projection except guarded preserve-only queue_exception_set, do not claim Authority/production completion, and waterline reports productionDoneEligible=false. Verified with node packages/main/dist/tasks/global-lifecycle-control-plane-smoke.js plus global_control_status/runtime_closure_status/admissibility_waterline/queue_governance_status probes.",
+      "createdAt": "2026-06-28T10:04:31.582Z",
+      "reviewRound": "2026-06-28T10:01:33.439Z",
+      "reviewRunId": "B-eb18:RR-004",
+      "_hash": "b452f9aee621880f2d934ebdc558018387d91d1f95124a77858cb9ac049b4445"
+    },
+    {
+      "id": "B-eb18:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Reviewed F-001 queue worktree staleness fix at HEAD 0bea82a. queue/index.ts resolves stored worktree paths via getRepoRoot(root)+resolveWorktreePath, so worktree-context queue governance classifies valid linked worktrees as active rather than stale. Confirmed no second lifecycle state machine: runtime projection delegates to story authority/readiness and does not evaluate proof admissibility. Confirmed status commands are readOnly in command policy/handlers; admissibility_waterline reports diagnosticOnly and productionDoneEligible=false; queue_exception_set is the only mutating queue surface, guarded by canonical main write lock and cleanupPolicy=preserve. Evidence: node packages/main/dist/tasks/global-lifecycle-control-plane-smoke.js passed; node packages/main/dist/cli.js queue_governance_status --format=json from worktree reported B-eb18 active-worktree and summary.staleWorktree=0; global_control_status preserved readOnly=true and preserve queue rows; admissibility_waterline remained diagnosticOnly=true.",
+      "createdAt": "2026-06-28T10:11:32.476Z",
+      "reviewRound": "2026-06-28T10:07:34.653Z",
+      "reviewRunId": "B-eb18:RR-010",
+      "_hash": "954e486604ae0d2e651ab21c3f42edd9149fca2e0f08b822c5e4f47b465730e7"
+    },
+    {
+      "id": "B-eb18:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage pass for current HEAD 0bea82a: non-repo temp build succeeded; freshly compiled global lifecycle smoke passed and covers worktree-context active-worktree queue classification plus canonical main-write-lock contention for queue_exception_set; command ownership contract, source-structure smoke, process-fact contract, and runtime-fact contract passed. No real blocker found.",
+      "createdAt": "2026-06-28T10:12:47.642Z",
+      "reviewRound": "2026-06-28T10:07:34.653Z",
+      "reviewRunId": "B-eb18:RR-007",
+      "_hash": "96b9137146c60ec8645644f86ae2b10d8a0fce903e4933a232ac22fb14b92b81"
+    },
+    {
+      "id": "B-eb18:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "Concept review pass: no correctness blocker found. Evidence: inspected lifecycle-control handler/read-only flag boundary, queue canonical worktree projection, runtime owner lease/session projection, command catalog/policy registrations; ran global-lifecycle-control-plane smoke, runtime_closure_status, queue_governance_status, and verified global_control_status --write=true fails closed at argument validation.",
+      "createdAt": "2026-06-28T10:26:07.489Z",
+      "reviewRound": "2026-06-28T10:20:01.015Z",
+      "reviewRunId": "B-eb18:RR-011",
+      "_hash": "04e94bab2caacaa479987774fcab884dfbf1193354f9dc96558458ff8c690b6d"
+    },
+    {
+      "id": "B-eb18:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: targeted current-HEAD coverage passes for global lifecycle smoke, process/runtime contracts, command ownership/catalog, and source-structure convergence. Evidence: node packages/main/dist/tasks/global-lifecycle-control-plane-smoke.js; node scripts/verify-process-fact-contract.mjs; npm --prefix packages/main run test:runtime-fact-contract; node packages/main/dist/tasks/command-ownership-contract.js; node packages/main/dist/tasks/command-catalog-smoke.js; node packages/main/dist/tasks/source-structure-convergence-smoke.js.",
+      "createdAt": "2026-06-28T10:26:11.901Z",
+      "reviewRound": "2026-06-28T10:20:01.015Z",
+      "reviewRunId": "B-eb18:RR-013",
+      "_hash": "f69764b17b227ceef62c81380a1a3c606d2109f98e2438862c68210c98be7062"
+    },
+    {
+      "id": "B-eb18:RP-008",
+      "agent": "lattice-review-docs",
+      "note": "Docs/touchpoint consistency pass: reviewed global lifecycle control plane plan, B-eb18 plan/decision, findings F-002/F-003, and current dist probes. Implementation remains a derived read-only/control-plane projection, preserves lower-layer lifecycle/proof/DONE/Authority boundaries, reports ownerLease owned for B-eb18, rejects unsupported write/productionDone flags, and does not claim Authority or production completion.",
+      "createdAt": "2026-06-28T10:26:21.246Z",
+      "reviewRound": "2026-06-28T10:20:01.015Z",
+      "reviewRunId": "B-eb18:RR-014",
+      "_hash": "5f73c4b3d24784face966c941cdbfa71cd5a9fdb7421ecfb3470ee00798674ec"
+    },
+    {
+      "id": "B-eb18:RP-009",
+      "agent": "lattice-review-quality",
+      "note": "Quality review pass at 4a100a24. Evidence: global-lifecycle-control-plane-smoke, command-catalog-smoke, and source-structure-convergence-smoke passed; direct unsupported flag probes for global_control_status --runCommands=true and runtime_closure_status --authorityDone=true failed closed at validation; runtime_closure_status for B-eb18 from the story worktree reports ownerLease=owned using session semantics; queue_exception_set is mainSharedMutating and smoke covers canonical main write lock contention. No correctness blocker found.",
+      "createdAt": "2026-06-28T10:27:02.374Z",
+      "reviewRound": "2026-06-28T10:20:01.015Z",
+      "reviewRunId": "B-eb18:RR-012",
+      "_hash": "9639325d67515f76627a9e3b78e5e1b90a5c8b5d49b3b9bb82dd9e18691e9e0e"
+    },
+    {
+      "id": "B-eb18:RP-010",
+      "agent": "lattice-review-concept",
+      "note": "Final concept review pass: all F-001 through F-013 correctness findings are resolved with focused machine evidence; queue precedence, canonical roots, and Authority boundary logic are consistent.",
+      "createdAt": "2026-06-28T14:18:04.179Z",
+      "reviewRound": "2026-06-28T14:04:23.498Z",
+      "reviewRunId": "B-eb18:RR-028",
+      "_hash": "0d6a332fe91e509d11a887a4dbc2d5c555e8fc9dcbbfde7e48e767bd9840223c"
+    },
+    {
+      "id": "B-eb18:RP-011",
+      "agent": "lattice-review-quality",
+      "note": "Final quality review pass: implementation remains scoped to lifecycle-control correctness fixes, avoids arbitrary optimization, and keeps local Non-authority boundaries intact.",
+      "createdAt": "2026-06-28T14:18:05.450Z",
+      "reviewRound": "2026-06-28T14:04:23.498Z",
+      "reviewRunId": "B-eb18:RR-027",
+      "_hash": "3fc1d860faf3a5d8bed5f3665be94b1f5fd807df71abe95ca858fa68d12a3811"
+    },
+    {
+      "id": "B-eb18:RP-012",
+      "agent": "lattice-review-test-coverage",
+      "note": "Final test coverage review pass: build, global lifecycle smoke, and process-fact contract cover the resolved findings; stale verification evidence will be refreshed in TEST before DONE.",
+      "createdAt": "2026-06-28T14:18:07.857Z",
+      "reviewRound": "2026-06-28T14:04:23.498Z",
+      "reviewRunId": "B-eb18:RR-029",
+      "_hash": "9d7f2f14438ca61ec322add801ffe77faec8f8eaaf5679fda2750c1cc3e14def"
+    },
+    {
+      "id": "B-eb18:RP-013",
+      "agent": "lattice-review-docs",
+      "note": "Final docs/process review pass: summary and docs/process wording preserve local Non-authority status and do not claim Authority Server receipt-backed production completion.",
+      "createdAt": "2026-06-28T14:18:09.257Z",
+      "reviewRound": "2026-06-28T14:04:23.498Z",
+      "reviewRunId": "B-eb18:RR-030",
+      "_hash": "a2b27e2a9cd605e68a37a3f871acc1ed17f168a5e09a1a6ce09580cf786ba8e0"
+    }
+  ]
+}
