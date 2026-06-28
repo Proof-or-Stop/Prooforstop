@@ -36,9 +36,54 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-27T00:35:13.901Z",
+      "endTime": "2026-06-27T00:35:16.066Z",
+      "userSees": "User sees \"✔ implemented\" in story review checkpoint: delegated provider.claude path has the new one-line comment and unchanged runtime behavior.",
+      "files": {
+        "modify": [
+          "packages/main/src/providers/claude-cli.ts",
+          "packages/main/src",
+          "docs/requirements/decisions/lattice-authority-live-integration.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "implement-the-requested-lattice-change:happy",
+          "kind": "manual_transcript",
+          "command": "rg -n \"Delegated `provider\\.claude` is evidence-only execution\" packages/main/src/providers/claude-cli.ts",
+          "result": "pass",
+          "note": "Confirmed comment marker exists at run-time handler entrypoint.",
+          "headHash": "25fcb1cc9130a12c896840f42e1ca9c9079d88a4",
+          "materialHash": "6a127c331cf5215d1b7d4a1f830bdfc1d75f1c5d2c6bb631bc859674a1552723",
+          "storyFilesHash": "b6a83f83583c168f83095fcc066915a5472c4cc141045cf307486d54a3b07fab",
+          "timestamp": "2026-06-27T00:35:46.109Z"
+        },
+        {
+          "intentRef": "implement-the-requested-lattice-change:edge",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "Build passes after comment-only update, no behavioral regression observed.",
+          "headHash": "25fcb1cc9130a12c896840f42e1ca9c9079d88a4",
+          "materialHash": "6a127c331cf5215d1b7d4a1f830bdfc1d75f1c5d2c6bb631bc859674a1552723",
+          "storyFilesHash": "b6a83f83583c168f83095fcc066915a5472c4cc141045cf307486d54a3b07fab",
+          "timestamp": "2026-06-27T00:35:46.109Z"
+        },
+        {
+          "intentRef": "implement-the-requested-lattice-change:adversarial",
+          "kind": "logic_test",
+          "file": "packages/main/src/providers/claude-cli.ts",
+          "result": "pass",
+          "note": "Comment clarifies intent without introducing DONE/Authority logic paths.",
+          "headHash": "25fcb1cc9130a12c896840f42e1ca9c9079d88a4",
+          "materialHash": "6a127c331cf5215d1b7d4a1f830bdfc1d75f1c5d2c6bb631bc859674a1552723",
+          "storyFilesHash": "b6a83f83583c168f83095fcc066915a5472c4cc141045cf307486d54a3b07fab",
+          "timestamp": "2026-06-27T00:35:46.109Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -76,9 +121,248 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-27T00:35:21.927Z",
+      "endTime": "2026-06-27T00:35:24.059Z",
+      "userSees": "User sees \"lattice validate\" complete: all checks pass, and no DONE/Authority overclaim fields are introduced.",
+      "files": {
+        "modify": [
+          "packages/main/src/providers/claude-cli.ts",
+          "packages/main/src",
+          "docs/requirements/decisions/lattice-authority-live-integration.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "verify-evidence-and-done-boundaries:happy",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "Full build succeeds after the comment-only execution-path change.",
+          "headHash": "25fcb1cc9130a12c896840f42e1ca9c9079d88a4",
+          "materialHash": "6a127c331cf5215d1b7d4a1f830bdfc1d75f1c5d2c6bb631bc859674a1552723",
+          "storyFilesHash": "b6a83f83583c168f83095fcc066915a5472c4cc141045cf307486d54a3b07fab",
+          "timestamp": "2026-06-27T00:35:46.109Z"
+        },
+        {
+          "intentRef": "verify-evidence-and-done-boundaries:edge",
+          "kind": "manual_transcript",
+          "command": "lattice scope_contract_check --storyId=B-0419",
+          "result": "pass",
+          "note": "Scope gate reports 0 unacknowledged violations with allowed changes only.",
+          "headHash": "25fcb1cc9130a12c896840f42e1ca9c9079d88a4",
+          "materialHash": "6a127c331cf5215d1b7d4a1f830bdfc1d75f1c5d2c6bb631bc859674a1552723",
+          "storyFilesHash": "b6a83f83583c168f83095fcc066915a5472c4cc141045cf307486d54a3b07fab",
+          "timestamp": "2026-06-27T00:35:46.109Z"
+        },
+        {
+          "intentRef": "verify-evidence-and-done-boundaries:adversarial",
+          "kind": "logic_test",
+          "file": "packages/main/src/providers/claude-cli.ts",
+          "result": "pass",
+          "note": "No DONE flags or authority completion semantics were modified.",
+          "headHash": "25fcb1cc9130a12c896840f42e1ca9c9079d88a4",
+          "materialHash": "6a127c331cf5215d1b7d4a1f830bdfc1d75f1c5d2c6bb631bc859674a1552723",
+          "storyFilesHash": "b6a83f83583c168f83095fcc066915a5472c4cc141045cf307486d54a3b07fab",
+          "timestamp": "2026-06-27T00:35:46.109Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-003",
+      "title": "Implement Tier-C provider-execution receipt verification (claude) run 92812...",
+      "context": "Story description source: Tier-C provider-execution receipt verification (claude) run 92812-23658-1782245175: add a one-line code comment so the delegated claude provider step has a trivial bounded task to execute, producing a signed gate_decision receipt.. ReadinessReport(REVIEW) highlighted: checklist_items_not_done, missing_verification_evidence.",
+      "relatedDocs": [
+        ".lattice/story/actives/B-0419/background.md"
+      ],
+      "status": "done",
+      "startTime": "2026-06-27T00:35:27.008Z",
+      "endTime": "2026-06-27T00:35:28.394Z",
+      "userSees": "User sees \"provider.claude bounded executor\" evidence recorded in plan.md and changelog path checks before moving on.",
+      "files": {
+        "modify": [
+          "packages/main/src/providers/claude-cli.ts",
+          "packages/main/src",
+          "docs/requirements/decisions/lattice-authority-live-integration.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "implement-tier-c-provider-bound-path:happy",
+            "desc": "Verify delegated provider.claude bounded execution has the requested one-line comment marker and no behavior change",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "implement-tier-c-provider-bound-path:edge",
+            "desc": "Verify no acceptance path relies on authority Done claims for this comment-only change",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "implement-tier-c-provider-bound-path:adversarial",
+            "desc": "Verify this change cannot be interpreted as production authority proof",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "implement-tier-c-provider-bound-path:happy",
+          "kind": "manual_transcript",
+          "command": "rg -n \"Delegated `provider\\.claude` is evidence-only execution\" packages/main/src/providers/claude-cli.ts",
+          "result": "pass",
+          "note": "Delegated provider.claude bounded entrypoint now includes the one-line evidence-only comment.",
+          "headHash": "25fcb1cc9130a12c896840f42e1ca9c9079d88a4",
+          "materialHash": "6a127c331cf5215d1b7d4a1f830bdfc1d75f1c5d2c6bb631bc859674a1552723",
+          "storyFilesHash": "b6a83f83583c168f83095fcc066915a5472c4cc141045cf307486d54a3b07fab",
+          "timestamp": "2026-06-27T00:35:46.109Z"
+        },
+        {
+          "intentRef": "implement-tier-c-provider-bound-path:edge",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "Build remains passing, suggesting no edge-path behavior changes.",
+          "headHash": "25fcb1cc9130a12c896840f42e1ca9c9079d88a4",
+          "materialHash": "6a127c331cf5215d1b7d4a1f830bdfc1d75f1c5d2c6bb631bc859674a1552723",
+          "storyFilesHash": "b6a83f83583c168f83095fcc066915a5472c4cc141045cf307486d54a3b07fab",
+          "timestamp": "2026-06-27T00:35:46.109Z"
+        },
+        {
+          "intentRef": "implement-tier-c-provider-bound-path:adversarial",
+          "kind": "logic_test",
+          "file": "packages/main/src/providers/claude-cli.ts",
+          "result": "pass",
+          "note": "No local authority proof fields or DONE semantics were added; this is documentation/comment only.",
+          "headHash": "25fcb1cc9130a12c896840f42e1ca9c9079d88a4",
+          "materialHash": "6a127c331cf5215d1b7d4a1f830bdfc1d75f1c5d2c6bb631bc859674a1552723",
+          "storyFilesHash": "b6a83f83583c168f83095fcc066915a5472c4cc141045cf307486d54a3b07fab",
+          "timestamp": "2026-06-27T00:35:46.109Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-004",
+      "title": "Verify Tier-C provider-execution receipt verification (claude) run 92812...",
+      "context": "Plan happy, edge, and adversarial checks for: Tier-C provider-execution receipt verification (claude) run 92812-23658-1782245175: add a one-line code comment so the delegated claude provider step has a trivial bounded task to execute, producing a signed gate_decision receipt.. ReadinessReport(REVIEW) highlighted: checklist_items_not_done, missing_verification_evidence.",
+      "relatedDocs": [
+        ".lattice/story/actives/B-0419/background.md"
+      ],
+      "status": "done",
+      "startTime": "2026-06-27T00:35:31.528Z",
+      "endTime": "2026-06-27T00:35:32.689Z",
+      "userSees": "User sees \"host verdict and verify commands\" run and complete before proceeding to review closure.",
+      "files": {
+        "modify": [
+          "packages/main/src/providers/claude-cli.ts",
+          "packages/main/src",
+          "docs/requirements/decisions/lattice-authority-live-integration.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "verify-tier-c-provider-bound-path:happy",
+            "desc": "Verify the final evidence trail reflects the one-line delegated provider comment change",
+            "type": "cli",
+            "requiredIn": "balanced",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "verify-tier-c-provider-bound-path:edge",
+            "desc": "Verify any stale/boundary evidence is called out before review closure",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "verify-tier-c-provider-bound-path:adversarial",
+            "desc": "Verify no local host evidence or authority completion claim is overclaimed",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "verify-tier-c-provider-bound-path:happy",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "Build succeeds with scope-limited code comment update.",
+          "headHash": "25fcb1cc9130a12c896840f42e1ca9c9079d88a4",
+          "materialHash": "6a127c331cf5215d1b7d4a1f830bdfc1d75f1c5d2c6bb631bc859674a1552723",
+          "storyFilesHash": "b6a83f83583c168f83095fcc066915a5472c4cc141045cf307486d54a3b07fab",
+          "timestamp": "2026-06-27T00:35:46.109Z"
+        },
+        {
+          "intentRef": "verify-tier-c-provider-bound-path:edge",
+          "kind": "manual_transcript",
+          "command": "lattice scope_contract_check --storyId=B-0419",
+          "result": "pass",
+          "note": "Scope evidence remains valid with no unacknowledged violations.",
+          "headHash": "25fcb1cc9130a12c896840f42e1ca9c9079d88a4",
+          "materialHash": "6a127c331cf5215d1b7d4a1f830bdfc1d75f1c5d2c6bb631bc859674a1552723",
+          "storyFilesHash": "b6a83f83583c168f83095fcc066915a5472c4cc141045cf307486d54a3b07fab",
+          "timestamp": "2026-06-27T00:35:46.109Z"
+        },
+        {
+          "intentRef": "verify-tier-c-provider-bound-path:adversarial",
+          "kind": "logic_test",
+          "file": "packages/main/src/providers/claude-cli.ts",
+          "result": "pass",
+          "note": "No production authority or local evidence overclaim behavior added by this change.",
+          "headHash": "25fcb1cc9130a12c896840f42e1ca9c9079d88a4",
+          "materialHash": "6a127c331cf5215d1b7d4a1f830bdfc1d75f1c5d2c6bb631bc859674a1552723",
+          "storyFilesHash": "b6a83f83583c168f83095fcc066915a5472c4cc141045cf307486d54a3b07fab",
+          "timestamp": "2026-06-27T00:35:46.109Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-27T00:32:44.728Z",
+      "phase": "PLAN",
+      "itemId": "CHK-003",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "plan_skeleton --write generated an initial PLAN skeleton from StoryReadinessReport",
+      "addedTitle": "Implement Tier-C provider-execution receipt verification (claude) run 92812...",
+      "addedContext": "Story description source: Tier-C provider-execution receipt verification (claude) run 92812-23658-1782245175: add a one-line code comment so the delegated claude provider step has a trivial bounded task to execute, producing a signed gate_decision receipt.. ReadinessReport(REVIEW) highlighted: checklist_items_not_done, missing_verification_evidence."
+    },
+    {
+      "timestamp": "2026-06-27T00:32:44.882Z",
+      "phase": "PLAN",
+      "itemId": "CHK-004",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "plan_skeleton --write generated an initial PLAN skeleton from StoryReadinessReport",
+      "addedTitle": "Verify Tier-C provider-execution receipt verification (claude) run 92812...",
+      "addedContext": "Plan happy, edge, and adversarial checks for: Tier-C provider-execution receipt verification (claude) run 92812-23658-1782245175: add a one-line code comment so the delegated claude provider step has a trivial bounded task to execute, producing a signed gate_decision receipt.. ReadinessReport(REVIEW) highlighted: checklist_items_not_done, missing_verification_evidence."
     }
   ]
 }

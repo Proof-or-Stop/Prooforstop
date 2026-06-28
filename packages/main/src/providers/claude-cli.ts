@@ -346,6 +346,7 @@ export function runBoundedClaudeProvider(
   request: ProviderExecRequest,
   runner: ProviderProcessRunner = defaultClaudeProcessRunner,
 ): ProviderExecResult {
+  // Delegated `provider.claude` is evidence-only execution; it must never mint local authority receipts or alter DONE semantics.
   const startedAt = Date.now();
   const maxAttempts = Math.max(1, Math.min(request.maxAttempts, 5));
   let attempts = 0;
