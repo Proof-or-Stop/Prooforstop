@@ -71,6 +71,26 @@
       "resolvedAt": "2026-06-28T10:20:18.411Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-eb18:F-004",
+      "desc": "queue_governance_status promises a superseded classification, but the queue projector cannot emit classification=superseded and the smoke test does not cover it; summary only counts an impossible row, so DONE coverage would accept an unimplemented queue class.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-28T10:50:21.810Z",
+      "reviewRound": "2026-06-28T10:45:18.842Z",
+      "reviewRunId": "B-eb18:RR-015",
+      "_hash": "1b1cc721b485fd83c2321510017377264cd9292acf0d0c3266c11ad1d5051992",
+      "files": [
+        "packages/main/src/core/lifecycle-control/queue/index.ts",
+        "packages/main/src/tasks/global-lifecycle-control-plane-smoke.ts",
+        "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md"
+      ],
+      "signatureTag": "missing|ts|queue-governance-status",
+      "signatureTagSource": "auto"
     }
   ]
 }
