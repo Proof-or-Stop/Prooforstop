@@ -33,7 +33,6 @@ export type {
 } from '../control-status.js';
 
 const TERMINAL_PHASES = new Set(['DONE', 'DISCARDED', 'META']);
-const TIER_C_BATCH_ID = 'tier-c-provider-execution-receipt-verification';
 const TIER_C_PREFIX = 'Tier-C provider-execution receipt verification';
 
 interface QueueExceptionRegistry {
@@ -203,6 +202,46 @@ function supersededBy(story: StoryInfo): string | null {
   return typeof value === 'string' && value.trim().length > 0 ? value.trim() : null;
 }
 
+function durableExperimentException(story: StoryInfo, root: string, now: string): QueueExceptionRecord | null {
+  const lifecycleControl = (story as StoryInfo & {
+    lifecycleControl?: {
+      queue?: {
+        experimentBatchId?: unknown;
+        reason?: unknown;
+        actor?: unknown;
+        createdAt?: unknown;
+        dashboardMode?: unknown;
+      };
+    };
+  }).lifecycleControl;
+  const queue = lifecycleControl?.queue;
+  const experimentBatchId = typeof queue?.experimentBatchId === 'string' ? queue.experimentBatchId.trim() : '';
+  if (!experimentBatchId || !/^[a-z0-9][a-z0-9_.-]*$/.test(experimentBatchId)) return null;
+  const storyIds = [story.storyId];
+  return {
+    exceptionId: exceptionId({
+      experimentBatchId,
+      storyIds,
+      reason: 'Durable story queue metadata.',
+      source: 'explicit',
+      dashboardMode: queue?.dashboardMode === 'expanded' ? 'expanded' : 'collapsed',
+    }),
+    policyVersion: 'proofbound.queue_exception.v1',
+    class: 'experiment-batch-exception',
+    experimentBatchId,
+    storyIds,
+    source: 'explicit',
+    storyFilesHash: storyFilesHashFor(root, storyIds),
+    dashboardMode: queue?.dashboardMode === 'expanded' ? 'expanded' : 'collapsed',
+    cleanupPolicy: 'preserve',
+    actor: typeof queue?.actor === 'string' && queue.actor.trim() ? queue.actor.trim() : 'story-metadata',
+    reason: typeof queue?.reason === 'string' && queue.reason.trim()
+      ? queue.reason.trim()
+      : 'Durable story metadata marks this story as an experiment-batch exception.',
+    createdAt: typeof queue?.createdAt === 'string' && queue.createdAt.trim() ? queue.createdAt.trim() : now,
+  };
+}
+
 function titleInferredExperiment(story: StoryInfo): boolean {
   return story.title.startsWith(TIER_C_PREFIX);
 }
@@ -264,8 +303,15 @@ export function projectQueueGovernance(
     })
     .filter((story): story is StoryInfo => story !== null && !TERMINAL_PHASES.has(story.phase));
 
+  for (const story of activeStories) {
+    if (exceptions.has(story.storyId)) continue;
+    const durable = durableExperimentException(story, mainRepoRoot, now);
+    if (durable) exceptions.set(story.storyId, durable);
+  }
+
   const duplicateGroups = new Map<string, StoryInfo[]>();
   for (const story of activeStories) {
+    if (supersededBy(story) || exceptions.has(story.storyId)) continue;
     const key = titleClusterKey(story);
     if (!key) continue;
     duplicateGroups.set(key, [...(duplicateGroups.get(key) ?? []), story]);
@@ -273,7 +319,7 @@ export function projectQueueGovernance(
   const duplicateIds = new Set<string>();
   const duplicateClusters: Array<QueueGovernanceReport['duplicateClusters'][number]> = [];
   for (const [key, stories] of duplicateGroups) {
-    const nonExperiment = stories.filter((story) => !exceptions.has(story.storyId) && !titleInferredExperiment(story));
+    const nonExperiment = stories;
     if (nonExperiment.length < 2) continue;
     const canonical = nonExperiment[0];
     const duplicates = nonExperiment.slice(1).map((story) => story.storyId);
@@ -308,27 +354,13 @@ export function projectQueueGovernance(
         cleanupPolicy: 'cleanup-required',
       });
     }
-    if (explicit || titleInferredExperiment(story)) {
-      const exception = explicit ?? {
-        exceptionId: `qex-${TIER_C_BATCH_ID}`,
-        policyVersion: 'proofbound.queue_exception.v1',
-        class: 'experiment-batch-exception',
-        experimentBatchId: TIER_C_BATCH_ID,
-        storyIds: [story.storyId],
-        source: 'tier-c-prefix',
-        storyFilesHash: storyFilesHashFor(mainRepoRoot, [story.storyId]),
-        dashboardMode: 'collapsed',
-        cleanupPolicy: 'preserve',
-        actor: 'system-rule',
-        reason: 'Tier-C provider-execution receipt verification experiment batch',
-        createdAt: now,
-      } satisfies QueueExceptionRecord;
+    if (explicit) {
       return queueRow({
         story,
         classification: 'experiment-batch-exception',
         reason: 'experiment exception preserves provider-execution receipt verification evidence',
         authoritativeCwd: authorityRow?.authoritativeCwd,
-        exception,
+        exception: explicit,
       });
     }
     if (duplicateIds.has(story.storyId)) {

@@ -29,6 +29,7 @@ import type { GlobalControlStatusReport } from '../core/lifecycle-control/dashbo
 
 const DRIFT_STORY = 'B-drift';
 const TIER_C_STORY = 'B-tierc';
+const TIER_C_DURABLE_STORY = 'B-tierc-durable';
 const MALFORMED_STORY = 'B-tierc-bad';
 const DUP_A = 'B-dup-a';
 const DUP_B = 'B-dup-b';
@@ -175,12 +176,20 @@ function seedRepo(root: string): HandlerContext {
 
   const store = new StoryStore(root);
   writeStory(store, TIER_C_STORY, 'INIT', 'Tier-C provider-execution receipt verification (claude) run 01');
+  writeStory(store, TIER_C_DURABLE_STORY, 'INIT', 'Tier-C provider-execution receipt verification (claude) durable run', undefined, {
+    lifecycleControl: {
+      queue: {
+        experimentBatchId: 'tier-c-provider-execution-receipt-verification',
+        reason: 'Preserve durable Tier-C provider-execution receipt verification trial identity.',
+      },
+    },
+  });
   writeStory(store, MALFORMED_STORY, 'INIT', 'Tier-C provider execution receipt malformed');
-  writeStory(store, DUP_A, 'PLAN', 'Duplicate queue cleanup smoke');
-  writeStory(store, DUP_B, 'PLAN', 'Duplicate queue cleanup smoke');
-  writeStory(store, SUPERSEDED_STORY, 'PLAN', 'Superseded queue cleanup smoke', undefined, {
+  writeStory(store, SUPERSEDED_STORY, 'PLAN', 'Duplicate queue cleanup smoke', undefined, {
     lifecycleControl: { queue: { supersededBy: DUP_A } },
   });
+  writeStory(store, DUP_A, 'PLAN', 'Duplicate queue cleanup smoke');
+  writeStory(store, DUP_B, 'PLAN', 'Duplicate queue cleanup smoke');
 
   const worktreeRel = `.worktrees/${DRIFT_STORY}`;
   const worktreeAbs = join(root, worktreeRel);
@@ -364,15 +373,33 @@ function runSmoke(): void {
     assert.ok(batch);
     assert.equal(batch!.defaultDashboardMode, 'collapsed');
     assert.equal('storyIds' in batch!, false, 'collapsed view hides member story ids');
-    assert.equal(queueCollapsed.rows.find((row) => row.storyId === TIER_C_STORY)?.classification, 'experiment-batch-exception');
+    assert.equal(
+      queueCollapsed.rows.find((row) => row.storyId === TIER_C_STORY)?.classification,
+      'main-init',
+      'title-only Tier-C stories are discovery candidates, not durable experiment exceptions',
+    );
+    assert.equal(
+      queueCollapsed.rows.find((row) => row.storyId === TIER_C_DURABLE_STORY)?.classification,
+      'experiment-batch-exception',
+      'durable story metadata preserves Tier-C experiment exceptions without title-prefix inference',
+    );
     assert.equal(queueCollapsed.rows.find((row) => row.storyId === MALFORMED_STORY)?.classification, 'cleanup-required');
+    assert.notEqual(
+      queueCollapsed.rows.find((row) => row.storyId === DUP_A)?.classification,
+      'duplicate-candidate',
+      'a superseded predecessor with the same title must not make its replacement a duplicate candidate',
+    );
     assert.equal(queueCollapsed.rows.find((row) => row.storyId === DUP_B)?.classification, 'duplicate-candidate');
     assert.equal(queueCollapsed.rows.find((row) => row.storyId === SUPERSEDED_STORY)?.classification, 'superseded');
+    assert.ok(
+      queueCollapsed.duplicateClusters.every((cluster) => !cluster.duplicateStoryIds.includes(SUPERSEDED_STORY) && cluster.canonicalStoryId !== SUPERSEDED_STORY),
+      'superseded stories do not participate in duplicate cluster canonical selection',
+    );
     assert.equal(queueCollapsed.summary.superseded, 1);
 
     const queueExpanded = registry.get('queue_governance_status')!({ format: 'json', expanded: true }) as QueueGovernanceReport;
     const expandedBatch = queueExpanded.experimentBatches.find((entry) => entry.experimentBatchId === 'tier-c-provider-execution-receipt-verification');
-    assert.ok(expandedBatch?.storyIds?.includes(TIER_C_STORY), 'expanded view lists Tier-C members');
+    assert.ok(expandedBatch?.storyIds?.includes(TIER_C_DURABLE_STORY), 'expanded view lists durable Tier-C members');
 
     assert.equal(gitStatus(root), before, 'read-only control-plane commands must not mutate git status');
 
@@ -397,6 +424,18 @@ function runSmoke(): void {
     assert.ok(existsSync(join(root, '.lattice/lifecycle-control/queue-exceptions.json')));
     const audit = readFileSync(join(root, '.lattice/lifecycle-control/queue-exceptions.audit.jsonl'), 'utf-8');
     assert.match(audit, /queue_exception_set/);
+    const queueAfterException = registry.get('queue_governance_status')!({ format: 'json', expanded: true }) as QueueGovernanceReport;
+    assert.equal(
+      queueAfterException.rows.find((row) => row.storyId === TIER_C_STORY)?.classification,
+      'experiment-batch-exception',
+      'explicit queue_exception_set preserves title-only Tier-C stories after registry membership exists',
+    );
+    assert.ok(
+      queueAfterException.experimentBatches
+        .find((entry) => entry.experimentBatchId === 'tier-c-provider-execution-receipt-verification')
+        ?.storyIds?.includes(TIER_C_STORY),
+      'expanded view includes explicitly registered Tier-C members',
+    );
     const worktreeException = registry.get('queue_exception_set')!({
       format: 'json',
       experimentBatchId: 'worktree-main-root-exception-smoke',
