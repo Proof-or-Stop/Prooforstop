@@ -53,6 +53,15 @@
       "reviewRound": "2026-06-28T20:43:06.202Z",
       "reviewRunId": "B-320f:RR-011",
       "_hash": "d80b1aacce2948883ead4152a29197d42b0c5228605353380d8f1382d77f6831"
+    },
+    {
+      "id": "B-320f:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 3 test-coverage PASS after a44bbdd46. Verified F-002 remains fixed: autopilot-v2-reliability-smoke asserts invalid maxConcurrentLive values 0, -1, NaN, and Infinity clamp to max/current limit 1 while canStartLiveDispatch remains true. Verified F-004 false-positive is fixed: autopilot-run-smoke keeps real claude-code subprocess timeout as failed/timeout, asserts unknown host http-503-overloaded is validation_failed, and separately uses an allowed claude-code dispatch policy with a local claude shim emitting HTTP 503 to assert paused_requires_resume/provider_unhealthy plus health event persistence. evidence_plan reports 0 missing, 0 rerun, 0 refreshOnly, 25 fresh; storyFilesHash/materialHash match the a44bbdd46 evidence and current REVIEW readiness. Ran node packages/main/dist/tasks/autopilot-v2-reliability-smoke.js and node packages/main/dist/tasks/autopilot-run-smoke.js; both passed. No findings.",
+      "createdAt": "2026-06-28T20:45:14.863Z",
+      "reviewRound": "2026-06-28T20:43:06.202Z",
+      "reviewRunId": "B-320f:RR-013",
+      "_hash": "a07d16c0de33addea58f968fd02988fad0f61cda96bbe59fe056c2c03b7e6c75"
     }
   ]
 }
