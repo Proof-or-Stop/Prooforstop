@@ -265,7 +265,7 @@
       "desc": "Queue exception precedence hides active/stale worktree state. experiment-batch-exception is returned before active-worktree/stale-worktree, contradicting the queue precedence that active worktree visibility beats dashboard collapse and exceptions must not hide stale worktree blockers.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-28T11:06:40.699Z",
@@ -278,7 +278,11 @@
         "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md"
       ],
       "signatureTag": "missing|ts|queue-exception-precedence",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commit 15234dae0: queue classification now evaluates active/stale worktree before experiment-batch-exception and preserves exception metadata on the row; smoke asserts worktree global/queue status remains active-worktree with exception ids present. Verified with build, global-lifecycle-control-plane-smoke, and process-fact contract.",
+      "resolvedAt": "2026-06-28T14:06:26.573Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-eb18:F-013",
