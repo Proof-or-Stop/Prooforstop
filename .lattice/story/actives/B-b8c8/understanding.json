@@ -1,0 +1,29 @@
+{
+  "task": "Confirm the recovery-runner accounting and A2-prime budget-matching story is already realized in code, then close it with verification evidence and paper wording sync.",
+  "outcome": "B-5bfe spend-accounting selfcheck (no live LLM): 56 assertions passed, NO live LLM invoked (no claude -p subprocess; all imported helpers are pure).",
+  "facts": [
+    "run-recovery.mjs already records agentCallCount at executor and reviewer call sites",
+    "run-ablation.mjs already computes A2-prime budgets from A4 medians with token+wall spend caps and budgetPass",
+    "spend-accounting-selfcheck.mjs already exercises the no-LLM accounting and median helpers",
+    "paper/main.tex and experiment-protocol.md still had stale call-count wording in the A2-prime appendix/protocol line before this sync"
+  ],
+  "constraints": [
+    "Do not regress the existing verified runner logic by re-implementing already-correct code",
+    "Use no-LLM selfchecks as the verification source for this story",
+    "Keep the companion paper protocol/manuscript wording aligned with the implemented spend-matched semantics",
+    "Avoid touching unrelated paper artifacts or recovery-runner outputs beyond the story scope"
+  ],
+  "unknowns": [
+    "Whether the proofbound worktree needs any source edits at all beyond evidence handling",
+    "Whether a separate paper evidence note should be added or whether protocol/manuscript wording sync is sufficient"
+  ],
+  "touchpoints": [
+    "experiments/recovery-runner/run-recovery.mjs",
+    "experiments/recovery-runner/run-ablation.mjs",
+    "experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+    "paper/main.tex",
+    "experiment-protocol.md",
+    "paper/evidence/"
+  ],
+  "timestamp": "2026-06-27T00:38:13.384Z"
+}
