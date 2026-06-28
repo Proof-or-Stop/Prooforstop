@@ -1,12 +1,12 @@
 {
   "storyId": "B-320f",
-  "generatedAt": "2026-06-28T16:05:16.910Z",
+  "generatedAt": "2026-06-28T16:08:49.688Z",
   "sourceSnapshot": {
     "hasUnderstanding": true,
     "hasDecision": true,
-    "hasPlan": false,
-    "checklistItems": 6,
-    "reviewRounds": 1,
+    "hasPlan": true,
+    "checklistItems": 8,
+    "reviewRounds": 2,
     "findings": 0,
     "bugs": 0,
     "testRuns": 0,
@@ -81,7 +81,7 @@
       },
       "metrics": {
         "planArtifactsPresent": {
-          "value": false,
+          "value": true,
           "unit": "bool",
           "confidence": "high",
           "sources": [
@@ -194,7 +194,7 @@
       },
       "metrics": {
         "hasPlanArtifact": {
-          "value": false,
+          "value": true,
           "unit": "bool",
           "confidence": "high",
           "sources": [
@@ -217,7 +217,7 @@
           "sources": [
             "plan.md"
           ],
-          "note": "no plan.md"
+          "note": "no CHK sections in plan"
         },
         "devToPlanBounceCount": {
           "value": 0,
@@ -312,7 +312,7 @@
       },
       "metrics": {
         "storyReviewRounds": {
-          "value": 1,
+          "value": 2,
           "unit": "count",
           "confidence": "medium",
           "sources": [

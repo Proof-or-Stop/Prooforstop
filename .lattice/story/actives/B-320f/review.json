@@ -103,6 +103,66 @@
         }
       ],
       "_hash": "ac6e5631f62177004c5a51a78db65dddcf5fdb1dd3d6d711427721f11e635d23"
+    },
+    {
+      "timestamp": "2026-06-28T16:07:33.284Z",
+      "issueCount": 9,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "scope_change",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 (\"Implement M3 adaptive runtime throttle semantics\") was added in PLAN phase: Add M3 execution-plan acceptance item after repro intake."
+        },
+        {
+          "type": "scope_change",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 (\"Implement M4 process-pool claim lease and fencing semantics\") was added in PLAN phase: Add M4 execution-plan acceptance item after repro intake."
+        },
+        {
+          "type": "scope_change",
+          "severity": "advisory",
+          "itemId": "CHK-004",
+          "message": "CHK-004 (\"Update Autopilot v2 execution-plan status and acceptance table\") was added in PLAN phase: Add doc/status acceptance item after repro intake."
+        },
+        {
+          "type": "scope_change",
+          "severity": "advisory",
+          "itemId": "CHK-005",
+          "message": "CHK-005 (\"Run build smoke validation and version bump\") was added in PLAN phase: Add verification and release hygiene item after repro intake."
+        },
+        {
+          "type": "scope_change",
+          "severity": "advisory",
+          "itemId": "CHK-006",
+          "message": "CHK-006 (\"Implement M2 health-aware pause/resume semantics\") was added in PLAN phase: Add explicit M2 item because the from-repro CHK-001 title is frozen in PLAN."
+        },
+        {
+          "type": "scope_change",
+          "severity": "advisory",
+          "itemId": "CHK-007",
+          "message": "CHK-007 (\"Implement Complete Autopilot v2 reliability M2-M4 and update execution-plan...\") was added in PLAN phase: plan_skeleton --write generated an initial PLAN skeleton from StoryReadinessReport"
+        },
+        {
+          "type": "scope_change",
+          "severity": "advisory",
+          "itemId": "CHK-008",
+          "message": "CHK-008 (\"Verify Complete Autopilot v2 reliability M2-M4 and update execution-plan...\") was added in PLAN phase: plan_skeleton --write generated an initial PLAN skeleton from StoryReadinessReport"
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "8 checklist items; please check for missing combined scenarios (e.g., what happens when Implement fix for reproduced failure + Implement M3 adaptive runtime throttle semantics are performed simultaneously?)"
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-320f is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "bfd3cbbabccb83aaeb6579b776c8275a01e51ace84990bb6432adcf8e8c090eb"
     }
   ]
 }

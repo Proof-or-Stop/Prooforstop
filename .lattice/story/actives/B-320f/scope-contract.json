@@ -1,0 +1,27 @@
+{
+  "storyId": "B-320f",
+  "mode": "enforce",
+  "allowedModify": [
+    "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+    "packages/main/src/core/lattice-autopilot.ts",
+    "packages/main/src/core/autopilot-executor.ts",
+    "packages/main/src/core/lattice-dispatch.ts",
+    "package.json",
+    "package-lock.json",
+    "packages/main/package.json"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/autopilot-reliability.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/autopilot-v2-reliability-smoke.ts",
+    "packages/main/src/tasks/autopilot-resume-smoke.ts",
+    "packages/main/src/tasks/autopilot-run-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-28T16:09:44.158Z",
+  "updatedAt": "2026-06-28T16:09:44.158Z"
+}
