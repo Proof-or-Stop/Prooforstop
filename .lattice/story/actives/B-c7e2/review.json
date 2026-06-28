@@ -45,6 +45,42 @@
         }
       ],
       "_hash": "5dbdb420bc8c57750a5b43f3fa43460c80d151737994ecce593f5cc0c5747822"
+    },
+    {
+      "timestamp": "2026-06-28T01:00:14.584Z",
+      "issueCount": 5,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 checklist items; please check for missing combined scenarios (e.g., what happens when Add checkpoint-ledger replay for autopilot M1 resume + Re-enable autopilot_resume for healthy non-stale runs are performed simultaneously?)"
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-c7e2 is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "8e84798bc2883317391153722b034c7e45f7df425356a502315b4eb9dabc64a3"
     }
   ]
 }
