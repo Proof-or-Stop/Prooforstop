@@ -101,7 +101,7 @@
       "desc": "queue_exception_set writes exceptions through the canonical main repo root, but queue_governance_status reads exceptions from the invocation root; from a story worktree it can miss explicit main-root exceptions and misclassify preserved experiment stories.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-06-28T10:50:22.484Z",
@@ -113,7 +113,11 @@
         "packages/main/src/handlers/lifecycle-control.ts"
       ],
       "signatureTag": "missing|ts|queue-exception-writes",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commit a81497c6b: queue exception reads now resolve the canonical repo root with getRepoRoot(root), matching queue_exception_set writes; smoke asserts worktree queue/global status sees a main-root explicit queue exception. Verified with build, global-lifecycle-control-plane-smoke, and process-fact contract.",
+      "resolvedAt": "2026-06-28T10:55:35.624Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-eb18:F-006",
