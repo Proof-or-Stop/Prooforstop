@@ -1,0 +1,28 @@
+{
+  "task": "Implement Autopilot v2 M1 checkpoint-ledger-backed resume for the reproduced unsafe hard-refusal bug.",
+  "outcome": "After this lands, running node packages/main/dist/tasks/autopilot-resume-smoke.js prints that autopilot resume passed: healthy non-stale runs resume, stale/corrupt states fail closed, and committed done checkpoints are not replayed.",
+  "facts": [
+    "Red repro rp-mqx2itpx-0faeok showed autopilotResume currently returns refused/unsafe_state for a healthy non-stale run.",
+    "Spike sr-mqx2jr44-plf3ja showed a checkpoint ledger can recover next pending step even when run.json is corrupt.",
+    "Antigravity/agy second-host review sr-mqx2pvu6-31qbhb confirmed the red and spike evidence are sufficient to start M1.",
+    "Current lattice-autopilot.ts AutopilotResumeResult only permits status=refused and reason=unsafe_state|stale_state.",
+    "Existing autopilot-run smoke currently asserts resume refusal; B-c7e2 must update that expectation without weakening authority/provenance false assertions."
+  ],
+  "constraints": [
+    "Do not use Claude CLI for this task.",
+    "Do not implement M2 provider health, M3 throttle, or M4 process pool behavior.",
+    "Do not claim exactly-once execution for interrupted steps; only committed admissible done checkpoints are not re-dispatched.",
+    "storyFilesHash must be treated as a frozen pre-run baseline that excludes declared outputs."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/lattice-autopilot.ts",
+    "packages/main/src/tasks/autopilot-resume-smoke.ts",
+    "packages/main/src/tasks/autopilot-run-smoke.ts",
+    "packages/main/package.json",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-levels.ts"
+  ],
+  "timestamp": "2026-06-28T00:58:50.641Z"
+}

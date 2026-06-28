@@ -1,0 +1,25 @@
+{
+  "storyId": "B-c7e2",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/lattice-autopilot.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/tasks/autopilot-run-smoke.ts",
+    "packages/main/package.json"
+  ],
+  "allowedCreate": [
+    "packages/main/src/tasks/autopilot-resume-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/autopilot-resume-smoke.ts",
+    "packages/main/src/tasks/autopilot-run-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-28T01:01:01.302Z",
+  "updatedAt": "2026-06-28T01:01:01.302Z"
+}

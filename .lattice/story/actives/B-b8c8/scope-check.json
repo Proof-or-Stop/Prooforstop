@@ -1,0 +1,44 @@
+{
+  "storyId": "B-b8c8",
+  "checkedAt": "2026-06-27T00:39:28.740Z",
+  "features": [
+    {
+      "feature": "Accurate per-run agentCallCount accounting",
+      "covered_by": "experiments/recovery-runner/run-recovery.mjs + experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "experiments/recovery-runner/run-recovery.mjs"
+    },
+    {
+      "feature": "A2-prime compute-matched arm and budgetPass",
+      "covered_by": "experiments/recovery-runner/run-ablation.mjs + experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "experiments/recovery-runner/run-ablation.mjs"
+    },
+    {
+      "feature": "Budget-match semantics aligned in docs",
+      "covered_by": "experiment-protocol.md + paper/main.tex",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "experiment-protocol.md"
+    },
+    {
+      "feature": "No-live-LLM verification",
+      "covered_by": "experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "experiments/recovery-runner/spend-accounting-selfcheck.mjs"
+    }
+  ],
+  "summary": {
+    "total": 4,
+    "covered": 4,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "b383ac19a852db5ffb94b1aa28b30c790109f6c432845da86a205e2c594a2238"
+}

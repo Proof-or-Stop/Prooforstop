@@ -1487,7 +1487,7 @@ Behavior:
     json: z.boolean().optional().describe('Shortcut for --format=json'),
     output: z.string().optional().describe('Optional file path for autopilot review JSON; refuses to overwrite'),
   }},
-  { name: 'autopilot_resume', description: 'Inspect a persisted autopilot run and refuse unsafe v1 resume while preserving evidence. Alias: lattice autopilot resume', schema: {
+  { name: 'autopilot_resume', description: 'Replay a persisted autopilot checkpoint ledger and return an M1 resume projection without launching workers or changing authority. Alias: lattice autopilot resume', schema: {
     runId: z.string().describe('Autopilot run ID to resume'),
     maxResumeAgeMs: z.number().int().positive().optional().describe('Maximum age in ms for a persisted run to be considered resumable by core'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),

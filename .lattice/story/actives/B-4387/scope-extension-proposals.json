@@ -1,0 +1,32 @@
+{
+  "storyId": "B-4387",
+  "updatedAt": "2026-06-28T10:04:37.958Z",
+  "proposals": [
+    {
+      "proposalId": "SEP-B-4387-001",
+      "storyId": "B-4387",
+      "proposedBy": "main-agent",
+      "proposedAt": "2026-06-28T10:01:32.140Z",
+      "proposal": "This story must include the keyword Authority because the bug is strictly about authority-ready diagnostics and authority status UX; it does not expand into any new product surface beyond current authority reporting commands.",
+      "proposalTextHash": "54d9bd0daaea994171677c298210ece30e30c61cda361cc299853b47a8abe491",
+      "reason": "Correctness_fix requires touching authority readiness behavior in existing authority status/autopilot surfaces. Without explicit scope extension, the anti-expansion guard blocks INIT_CHECK.",
+      "patch": {
+        "allowed": [],
+        "excluded": [],
+        "executionAllowedCommands": [],
+        "executionAllowedTools": [],
+        "executionExcludedCommands": [],
+        "executionExcludedTools": []
+      },
+      "status": "approved",
+      "_hash": "9dba991ead4899d412cc41f13318fc681dd2d01d8a921ed430428d65b5f490dc",
+      "decision": {
+        "decision": "approved",
+        "decidedBy": "main-agent",
+        "decidedAt": "2026-06-28T10:04:37.958Z",
+        "rationale": "Authority readiness diagnostics are required for this bug and stay within existing scope.",
+        "_hash": "b9a76ef0fbbe41190cbd30e194bcb05fa0b718c39d5f39833b53e178469012d2"
+      }
+    }
+  ]
+}

@@ -1,0 +1,119 @@
+{
+  "findings": [
+    {
+      "id": "B-c7e2:F-001",
+      "desc": "currentRunBasisMatches fails open when freshness recomputation is unavailable. The ledger basis may contain headHash/materialHash/storyFilesHash from run start, but packages/main/src/core/lattice-autopilot.ts:807-820 only reports drift when both the recorded hash and the freshly recomputed hash are truthy; if currentGitHead/currentMaterialHash/currentStoryFilesHashExcludingOutputs returns undefined (wrong git root, missing .git, git failure, or ls-tree failure), the function returns matches:true. autopilotResume then treats staleReason as empty at packages/main/src/core/lattice-autopilot.ts:1789-1824 and can return resume_ready for a run whose basis freshness could not be verified. This contradicts the M1 fail-closed requirement for stale/corrupt state and is not covered by packages/main/src/tasks/autopilot-resume-smoke.ts, which covers changed/stale values but not unavailable freshness probes. SourceRefs: packages/main/src/core/lattice-autopilot.ts:807-820; packages/main/src/core/lattice-autopilot.ts:1789-1824; packages/main/src/tasks/autopilot-resume-smoke.ts:221-267.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-28T01:16:47.236Z",
+      "reviewRound": "2026-06-28T01:14:32.472Z",
+      "reviewRunId": "B-c7e2:RR-002",
+      "_hash": "f2a493c0e27833927af4a36027143a9791137a55b8fdcb4005e948160fe6c536",
+      "files": [
+        "packages/main/src/core/lattice-autopilot.ts"
+      ],
+      "signatureTag": "adversarial|ts|currentrunbasismatches-fails-open",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 0eddf8fba and refreshed in later metadata: currentRunBasisMatches now refuses when headHash/materialHash/storyFilesHash cannot be recomputed; autopilot-resume smoke temporarily moves .git and verifies refused/stale_state instead of resume_ready.",
+      "resolvedAt": "2026-06-28T01:22:02.250Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c7e2:F-002",
+      "desc": "Policy/runtime drift is frozen into the checkpoint ledger but is not recomputed during autopilot_resume before returning resume_ready. The M1 plan requires policy digest or policy-declared runtime input changes to mark old checkpoints stale/plan_drift instead of silently consuming them as done (docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md:193, docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md:211, docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md:228). The implementation records validityPolicyDigest and producerRuntimeIdentity in buildRunBasis (packages/main/src/core/lattice-autopilot.ts:578) but currentRunBasisMatches only compares headHash, materialHash, and storyFilesHash (packages/main/src/core/lattice-autopilot.ts:807), and autopilotResume uses only that limited basisFreshness before status=resume_ready (packages/main/src/core/lattice-autopilot.ts:1789). A changed autopilot policy/runtime can therefore silently reuse committed done checkpoints, overclaiming M1 resume safety.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-28T01:18:08.150Z",
+      "reviewRound": "2026-06-28T01:14:32.472Z",
+      "reviewRunId": "B-c7e2:RR-006",
+      "_hash": "c09813a95fb809efb7c404e19f5c0fb832c28c13a2d95ae27cb2423a62fa88ef",
+      "files": [
+        "packages/main/src/core/lattice-autopilot.ts",
+        "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md"
+      ],
+      "signatureTag": "adversarial|ts|policy-runtime-drift",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 0eddf8fba: runBasis now stores producerRuntimeInput, resume recomputes validityPolicyDigest and producerRuntimeIdentity from frozen inputs/current policy, and autopilot-resume smoke mutates the policy to verify refused/stale_state on policy drift.",
+      "resolvedAt": "2026-06-28T01:22:31.040Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c7e2:F-003",
+      "desc": "Policy drift is only partially fail-closed. packages/main/src/core/lattice-autopilot.ts:562 builds validityPolicyDigest from dispatchPolicy/mode/stop flags/requireServerReceipt, omitting persisted policy fields such as maxIterations/maxRuntimeMinutes/maxBudgetUSD and permission booleans. packages/main/src/core/lattice-autopilot.ts:851 then treats that narrow digest as the current-policy drift gate. Verified with a temp-repo node probe after npm --prefix packages/main run build: create AP-policy-maxiterations under policy fake maxIterations=1, overwrite the same policy with maxIterations=2, then run autopilot_resume -- it returned status=resume_ready with remainingSteps=0 instead of refused reason=stale_state. This violates the B-c7e2:F-002 expectation that current policy drift fails closed as stale_state.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-28T01:24:46.206Z",
+      "reviewRound": "2026-06-28T01:21:52.585Z",
+      "reviewRunId": "B-c7e2:RR-007",
+      "_hash": "3df7d79bdbe2edd1af17f7e1dbaca777f95d6385bc8c0e4bb235eec924666640",
+      "files": [
+        "packages/main/src/core/lattice-autopilot.ts",
+        "packages/main/src/tasks/autopilot-resume-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|policy-drift-partially",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 2da692dde: buildValidityPolicyDigest now includes maxIterations, maxRuntimeMinutes, maxBudgetUSD, autopilot permission booleans, and the existing policy semantics. autopilot-resume smoke now mutates maxIterations from 1 to 2 and verifies refused/stale_state rather than resume_ready.",
+      "resolvedAt": "2026-06-28T01:29:38.119Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c7e2:F-004",
+      "desc": "Targeted re-review: unavailable freshness probe fail-closed is now covered by packages/main/src/tasks/autopilot-resume-smoke.ts:333-350, but policy/runtime drift coverage for the resolved high finding is still too narrow. The smoke only recreates policy fake with requireServerReceipt changed at packages/main/src/tasks/autopilot-resume-smoke.ts:294-314 and expects refused/stale_state. It does not cover drift in other persisted policy/runtime-affecting fields such as maxIterations, maxRuntimeMinutes, maxBudgetUSD, or permission booleans. That gap matters because buildValidityPolicyDigest currently hashes only dispatchPolicy/mode/stop flags/requireServerReceipt at packages/main/src/core/lattice-autopilot.ts:562-571 before autopilotResume returns resume_ready from packages/main/src/core/lattice-autopilot.ts:1868-1889. Round-2 finding B-c7e2:F-003 independently verifies maxIterations drift still resumes instead of failing closed, so the tests do not yet fully cover the resolved policy/runtime drift high finding.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-28T01:25:21.726Z",
+      "reviewRound": "2026-06-28T01:21:52.585Z",
+      "reviewRunId": "B-c7e2:RR-009",
+      "_hash": "128ab4593d8f65f273ec64f408fc77c5a469eef7f053fe2127e9d64c86171d85",
+      "files": [
+        "packages/main/src/tasks/autopilot-resume-smoke.ts",
+        "packages/main/src/core/lattice-autopilot.ts"
+      ],
+      "signatureTag": "missing|ts|targeted-review-unavailable",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 2da692dde: policy drift smoke now covers maxIterations drift, the exact gap independently verified by B-c7e2:F-003, while the same smoke keeps stale checkpoint, corrupt snapshot, early failed run, and unavailable freshness fail-closed coverage.",
+      "resolvedAt": "2026-06-28T01:29:43.316Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c7e2:F-005",
+      "desc": "autopilot_resume fails open after underlying dispatch policy drift. M1 requires policy-declared runtime input drift to make old checkpoints stale, but buildValidityPolicyDigest only hashes autopilot policy fields plus the dispatchPolicy name (lattice-autopilot.ts:562-580), and currentRunBasisMatches only recomputes checkAutopilotPolicy(record.policy) (lattice-autopilot.ts:848-862). The actual dispatch policy carries host/path/command/runtime bounds (dispatch-policy.ts:8-27) and is consumed by dispatch_auto, yet changing the same named dispatch policy after a committed checkpoint is not detected. Verified with npm --prefix packages/main run build plus a temp node repro: create dispatch policy drift-dispatch allowing packages/main/src/generated/original/, run AP-drift to manual_review_ready, overwrite drift-dispatch to allow packages/main/src/generated/other/, then autopilot_resume --runId AP-drift --maxResumeAgeMs 60000 returned status=resume_ready and skippedDoneSteps=[iteration-0] instead of refusing stale_state. This silently consumes a checkpoint under a changed execution policy boundary.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-28T01:33:44.593Z",
+      "reviewRound": "2026-06-28T01:29:27.824Z",
+      "reviewRunId": "B-c7e2:RR-012",
+      "_hash": "e3bd8d8ce16daf438f9a8dc9fee01f68c240910c8925a6a2f22e6ec9c15adc56",
+      "files": [
+        "packages/main/src/core/lattice-autopilot.ts",
+        "packages/main/src/core/dispatch-policy.ts",
+        "packages/main/src/tasks/autopilot-resume-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|autopilot-resume-fails",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 1a1239e9d: validityPolicyDigest now includes a deterministic digest of the linked dispatch policy material, excluding only createdAt. autopilot-resume smoke mutates the same named dispatch policy allowedPaths and verifies refused/stale_state instead of resume_ready.",
+      "resolvedAt": "2026-06-28T01:39:03.870Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}
