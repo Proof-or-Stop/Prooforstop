@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-28T16:31:02.800Z",
       "reviewRunId": "B-320f:RR-001",
       "_hash": "43f461400a83ad04859cc8664d95a3b809577f93d64b3d0bf002af8fa6ae94c5"
+    },
+    {
+      "id": "B-320f:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 concept re-review after c09ae2791: PASS. Inspected git diff main...HEAD and relevant source/doc surfaces. F-001 concept boundary is restored: classifyDispatchError now checks local budget/policy-ish guards and /timeout|timed out/ before calling classifyAutopilotProviderFailure (packages/main/src/core/lattice-autopilot.ts:1212-1221), so real-host subprocess timeout text from lattice-dispatch.ts remains stopReason=timeout/failed rather than provider_unhealthy. Provider transient failures still map to provider_unhealthy -> paused_requires_resume via providerFailureStatus and buildProviderHealthTransition at lattice-autopilot.ts:1331-1334, 1563-1584, 1654-1679. Local budget remains budget_exhausted and allowRealHostSubprocess/unattended guard remains validation_failed before provider-health classification. M3 throttle and M4 claim/lease/fencing semantics remain local deterministic state machines in autopilot-reliability.ts and are not broadened into production process-pool overclaims. Docs remain bounded: execution plan states restart-safe resume, wrapper keepalive as non-goal, M3/M4 deterministic smoke status, and future hardening limits rather than claiming full live process-pool production behavior. Non-blocking note: the provider-transient autopilot_run smoke uses a transient-looking sentinel host string; test-coverage may choose to strengthen that evidence, but it does not change the concept architecture reviewed here.",
+      "createdAt": "2026-06-28T16:53:16.100Z",
+      "reviewRound": "2026-06-28T16:50:31.384Z",
+      "reviewRunId": "B-320f:RR-007",
+      "_hash": "267c79911bfa74bb2ee0617714715f3f064367b165b9ff18d5a79cdcf3acb434"
     }
   ]
 }
