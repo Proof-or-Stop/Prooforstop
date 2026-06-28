@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-28T16:50:31.384Z",
       "reviewRunId": "B-320f:RR-007",
       "_hash": "267c79911bfa74bb2ee0617714715f3f064367b165b9ff18d5a79cdcf3acb434"
+    },
+    {
+      "id": "B-320f:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 2 test coverage review passed: verified prior F-002 coverage fixes are non-vacuous. packages/main/src/tasks/autopilot-v2-reliability-smoke.ts asserts invalid maxConcurrentLive values 0, -1, NaN, and Infinity clamp to max/current limit 1 while preserving canStartLiveDispatch. packages/main/src/tasks/autopilot-run-smoke.ts drives autopilot_run through a shimmed real-host timeout and an http-503-overloaded provider transient path, asserting failed/timeout for the former and paused_requires_resume/provider_unhealthy plus persisted paused event for the latter. evidence_plan reports missing=0, rerun=0, refreshOnly=0, fresh=25 for current material hash, and targeted smokes passed: node packages/main/dist/tasks/autopilot-v2-reliability-smoke.js; node packages/main/dist/tasks/autopilot-run-smoke.js.",
+      "createdAt": "2026-06-28T16:53:47.652Z",
+      "reviewRound": "2026-06-28T16:50:31.384Z",
+      "reviewRunId": "B-320f:RR-009",
+      "_hash": "02c5328fa55c5cfef6ef6aa344d45841bf507aff7482f005b5c8f8b8150d0697"
     }
   ]
 }
