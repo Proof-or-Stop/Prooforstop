@@ -49,6 +49,10 @@ export interface ReproFirstPreflightConfig {
   mode?: 'off' | 'warn' | 'enforce';
 }
 
+export interface LifecycleControlConfig {
+  runtimeEnforcement?: 'unavailable' | 'warn' | 'enforce';
+}
+
 export interface LatticeConfig {
   /**
    * Marks this checkout as a read-only legacy/evidence root. Mutating CLI
@@ -108,6 +112,7 @@ export interface LatticeConfig {
    * binding; enforce turns the same diagnostic into a lifecycle block.
    */
   reproFirstPreflight?: ReproFirstPreflightConfig;
+  lifecycleControl?: LifecycleControlConfig;
   /** 浏览器测试配置 */
   browser?: {
     /** dev server 启动命令（如 "npx vite"） */
@@ -162,6 +167,8 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'next',          // read-only single next action, shares session_brief authority rules
     'done_closure',  // read-only DONE closure projection; local readiness only, no Authority claim
     'lifecycle_check', // read-only proof-or-stop readiness projection; no command execution or evidence writes
+    'global_control_status', 'runtime_closure_status', 'admissibility_waterline', 'queue_governance_status', // B-eb18: read-only global lifecycle control plane projections
+    'queue_exception_set', // B-eb18: guarded project-level queue exception writer; preserve-only, does not grant readiness
     'plan_skeleton', // read-only PLAN skeleton preview; --write delegates only to understanding_set/checklist_add
     'init_preflight', // B-62c8: read-only INIT→INIT_CHECK prerequisite surveyor; lists ALL prerequisites at once (vs story_advance fail-fast) + echoes the authoritative scope gate verdict; no command execution or evidence writes
     'evidence_plan', // B-09e7 (P3): read-only verification-evidence DRY planner (missing/rerun/refresh-only/fresh); no command execution or evidence writes

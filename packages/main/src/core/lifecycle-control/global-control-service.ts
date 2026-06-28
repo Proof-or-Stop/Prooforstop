@@ -113,7 +113,7 @@ export function buildProjectControlStatus(input: BuildProjectControlStatusInput 
  */
 export function isReadOnlyControlPlane(capabilities: ControlPlaneCapabilities): boolean {
   return capabilities.readOnlyStatusProjection === true &&
-    capabilities.commandRegistration === false &&
+    capabilities.commandRegistration === true &&
     capabilities.lifecycleGateMutation === false &&
     capabilities.evidenceWrites === false &&
     capabilities.authorityProductionSemantics === false &&
