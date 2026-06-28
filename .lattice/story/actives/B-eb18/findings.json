@@ -22,6 +22,26 @@
       "resolvedAt": "2026-06-28T10:07:46.034Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-eb18:F-002",
+      "desc": "Runtime closure reimplements owner-lease ownership with lease.pid === process.pid instead of the shipped sessionId semantics. In this review session, session_brief reports B-eb18 owner session sess-dd47f61115506974 as OWNER, but runtime_closure_status reports ownerLease=foreign-active and reason \"another active owner lease holds story-scoped mutation rights\". This contradicts the execution plan requirement that runtime closure render core/story-owner-lease.ts module-defined ownership and marks the current owner as foreign across ordinary CLI subprocesses.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-28T10:11:18.709Z",
+      "reviewRound": "2026-06-28T10:07:34.653Z",
+      "reviewRunId": "B-eb18:RR-009",
+      "_hash": "182351cbc0edacbe8f634c062eef86d6fbfe93ebe3335de502fe9b7d20b70681",
+      "files": [
+        "packages/main/src/core/lifecycle-control/runtime/index.ts",
+        "packages/main/src/core/story-owner-lease.ts",
+        "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md"
+      ],
+      "signatureTag": "doc-code-drift|ts|runtime-closure-reimplements",
+      "signatureTagSource": "auto"
     }
   ]
 }
