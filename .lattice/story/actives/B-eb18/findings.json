@@ -91,6 +91,25 @@
       ],
       "signatureTag": "missing|ts|queue-governance-status",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-eb18:F-005",
+      "desc": "queue_exception_set writes exceptions through the canonical main repo root, but queue_governance_status reads exceptions from the invocation root; from a story worktree it can miss explicit main-root exceptions and misclassify preserved experiment stories.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-28T10:50:22.484Z",
+      "reviewRound": "2026-06-28T10:45:18.842Z",
+      "reviewRunId": "B-eb18:RR-017",
+      "_hash": "5c9fca83996081dbe07cb0d119672bb340e6117cacd2a32f235587e63177c405",
+      "files": [
+        "packages/main/src/core/lifecycle-control/queue/index.ts",
+        "packages/main/src/handlers/lifecycle-control.ts"
+      ],
+      "signatureTag": "missing|ts|queue-exception-writes",
+      "signatureTagSource": "auto"
     }
   ]
 }
