@@ -273,6 +273,10 @@ export interface AutopilotRunBasis {
   storyFilesHash?: string;
   validityPolicyDigest: string;
   producerRuntimeIdentity: string;
+  producerRuntimeInput: {
+    host?: string;
+    fromHost?: string;
+  };
   declaredOutputPaths: string[];
   stepIdentities: AutopilotStepIdentity[];
 }
@@ -581,6 +585,10 @@ function buildRunBasis(root: string, args: AutopilotRunArgs, policy: PersistedAu
   const headHash = currentGitHead(root);
   const materialHash = currentMaterialHash(root, 'HEAD', root);
   const storyFilesHash = currentStoryFilesHashExcludingOutputs(root, declaredOutputPaths);
+  const producerRuntimeInput = {
+    ...(args.host ? { host: args.host } : {}),
+    ...(args.fromHost ? { fromHost: args.fromHost } : {}),
+  };
   const producerRuntimeIdentity = buildProducerRuntimeIdentity(args);
   const maxIterations = Math.max(0, Math.floor(policy.maxIterations));
   const basisInput = {
@@ -590,6 +598,7 @@ function buildRunBasis(root: string, args: AutopilotRunArgs, policy: PersistedAu
     storyFilesHash,
     validityPolicyDigest,
     producerRuntimeIdentity,
+    producerRuntimeInput,
     frozenRunPlanHash,
     declaredOutputPaths,
   };
@@ -762,6 +771,7 @@ function replayCheckpointLedger(root: string, runId: string): ReplayedCheckpoint
         storyFilesHash: parsed.runBasis.storyFilesHash,
         validityPolicyDigest: parsed.runBasis.validityPolicyDigest,
         producerRuntimeIdentity: parsed.runBasis.producerRuntimeIdentity,
+        producerRuntimeInput: parsed.runBasis.producerRuntimeInput ?? {},
         frozenRunPlanHash: parsed.runBasis.frozenRunPlanHash,
         declaredOutputPaths: parsed.runBasis.declaredOutputPaths,
       }) !== parsed.runBasis.runBasisHash) {
@@ -804,18 +814,52 @@ function replayCheckpointLedger(root: string, runId: string): ReplayedCheckpoint
   };
 }
 
-function currentRunBasisMatches(root: string, basis: AutopilotRunBasis): { matches: boolean; reason?: string } {
+function currentRunBasisMatches(root: string, basis: AutopilotRunBasis, record: AutopilotRunRecord): { matches: boolean; reason?: string } {
   const currentHead = currentGitHead(root);
-  if (basis.headHash && currentHead && basis.headHash !== currentHead) {
+  if (basis.headHash && !currentHead) {
+    return { matches: false, reason: 'headHash could not be recomputed' };
+  }
+  if (basis.headHash && currentHead !== basis.headHash) {
     return { matches: false, reason: 'headHash changed since run start' };
   }
   const currentMaterial = currentMaterialHash(root, 'HEAD', root);
-  if (basis.materialHash && currentMaterial && basis.materialHash !== currentMaterial) {
+  if (basis.materialHash && !currentMaterial) {
+    return { matches: false, reason: 'materialHash could not be recomputed' };
+  }
+  if (basis.materialHash && currentMaterial !== basis.materialHash) {
     return { matches: false, reason: 'materialHash changed since run start' };
   }
   const currentStoryFiles = currentStoryFilesHashExcludingOutputs(root, basis.declaredOutputPaths);
-  if (basis.storyFilesHash && currentStoryFiles && basis.storyFilesHash !== currentStoryFiles) {
+  if (basis.storyFilesHash && !currentStoryFiles) {
+    return { matches: false, reason: 'storyFilesHash could not be recomputed' };
+  }
+  if (basis.storyFilesHash && currentStoryFiles !== basis.storyFilesHash) {
     return { matches: false, reason: 'storyFilesHash changed since run start' };
+  }
+  if (!record.policy) {
+    return { matches: false, reason: 'autopilot policy is missing from run record' };
+  }
+  let currentPolicy: PersistedAutopilotPolicy;
+  try {
+    currentPolicy = checkAutopilotPolicy(root, record.policy).normalizedPolicy;
+  } catch (error) {
+    return {
+      matches: false,
+      reason: `autopilot policy could not be recomputed: ${String((error as { message?: unknown }).message ?? error)}`,
+    };
+  }
+  const currentValidityPolicyDigest = buildValidityPolicyDigest(currentPolicy);
+  if (basis.validityPolicyDigest !== currentValidityPolicyDigest) {
+    return { matches: false, reason: 'validityPolicyDigest changed since run start' };
+  }
+  const currentRuntimeIdentity = buildProducerRuntimeIdentity({
+    storyId: basis.storyId,
+    policy: record.policy,
+    host: basis.producerRuntimeInput?.host,
+    fromHost: basis.producerRuntimeInput?.fromHost,
+  });
+  if (basis.producerRuntimeIdentity !== currentRuntimeIdentity) {
+    return { matches: false, reason: 'producerRuntimeIdentity changed since run start' };
   }
   return { matches: true };
 }
@@ -1786,7 +1830,7 @@ export function autopilotResume(_store: StoryStore, root: string, args: Autopilo
   const maxAge = Math.max(1, Math.floor(args.maxResumeAgeMs ?? 15 * 60 * 1000));
   const updatedAtMs = Date.parse(record.updatedAt);
   const stale = Number.isNaN(updatedAtMs) || Date.now() - updatedAtMs > maxAge;
-  const basisFreshness = currentRunBasisMatches(root, replay.basis);
+  const basisFreshness = currentRunBasisMatches(root, replay.basis, record);
   const unsafe = record.status === 'cancelled' || (record.status === 'failed' && replay.checkpoints.size === 0);
   const staleReason = replay.hasStaleCheckpoint
     ? 'checkpoint ledger contains a stale checkpoint'

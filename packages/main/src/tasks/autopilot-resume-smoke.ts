@@ -15,6 +15,7 @@ import {
   existsSync,
   mkdirSync,
   mkdtempSync,
+  renameSync,
   readdirSync,
   readFileSync,
   rmSync,
@@ -157,7 +158,7 @@ try {
   resetConfigCache();
 
   const store = new StoryStore(root);
-  for (const storyId of ['B-green', 'B-stale', 'B-corrupt-snapshot', 'B-stale-checkpoint', 'B-early-fail']) {
+  for (const storyId of ['B-green', 'B-stale', 'B-corrupt-snapshot', 'B-stale-checkpoint', 'B-early-fail', 'B-policy-drift', 'B-missing-git']) {
     seedStory(store, storyId);
   }
   const ctx: HandlerContext = { store, root, scanRoot: join(root, 'packages/main') };
@@ -281,8 +282,78 @@ try {
   assert.equal(earlyFailResume.reason, 'unsafe_state');
   assertNoProductionOverclaim(earlyFailResume, 'earlyFailResume');
 
-  assertNoProductionOverclaim([green, stale, corruptSnapshot, staleCheckpoint, earlyFail], 'runs');
-  console.log('autopilot-resume smoke passed: fresh ledger projection, stale refusal, no re-dispatch, corrupt snapshot recovery, stale checkpoint fail-closed, early failed no-checkpoint refusal, and authority boundaries verified');
+  const policyDrift = run<JsonObject & AuthorityBoundary>('autopilot_run', {
+    runId: 'AP-policy-drift',
+    mode: 'conservative',
+    storyId: 'B-policy-drift',
+    policy: 'fake',
+    objective: 'Fail closed when policy digest changes.',
+    allowedPaths: ['packages/main/src/generated/policy-drift.txt'],
+    requiredCommands: ['node -e "process.exit(0)"'],
+  });
+  run('autopilot_policy_create', {
+    policy: 'fake',
+    dispatchPolicy: 'fake-dispatch',
+    mode: 'conservative',
+    allowAutoDispatch: true,
+    allowAutoValidate: true,
+    allowAutoFix: false,
+    allowStoryIntegration: false,
+    allowDoneAdvance: false,
+    allowMainMerge: false,
+    requireServerReceipt: true,
+    maxIterations: 1,
+    maxRuntimeMinutes: 10,
+    stopOnConflict: true,
+    stopOnScopeViolation: true,
+  });
+  const policyDriftResume = run<JsonObject & AuthorityBoundary>('autopilot_resume', { runId: policyDrift.runId, maxResumeAgeMs: 60_000 });
+  assert.equal(policyDriftResume.status, 'refused');
+  assert.equal(policyDriftResume.reason, 'stale_state');
+  assert.match(String(policyDriftResume.nextAction), /validityPolicyDigest changed/);
+  assertNoProductionOverclaim(policyDriftResume, 'policyDriftResume');
+
+  run('autopilot_policy_create', {
+    policy: 'fake',
+    dispatchPolicy: 'fake-dispatch',
+    mode: 'conservative',
+    allowAutoDispatch: true,
+    allowAutoValidate: true,
+    allowAutoFix: false,
+    allowStoryIntegration: false,
+    allowDoneAdvance: false,
+    allowMainMerge: false,
+    requireServerReceipt: false,
+    maxIterations: 1,
+    maxRuntimeMinutes: 10,
+    stopOnConflict: true,
+    stopOnScopeViolation: true,
+  });
+
+  const missingGit = run<JsonObject & AuthorityBoundary>('autopilot_run', {
+    runId: 'AP-missing-git',
+    mode: 'conservative',
+    storyId: 'B-missing-git',
+    policy: 'fake',
+    objective: 'Fail closed when freshness probes are unavailable.',
+    allowedPaths: ['packages/main/src/generated/missing-git.txt'],
+    requiredCommands: ['node -e "process.exit(0)"'],
+  });
+  const gitDir = join(root, '.git');
+  const movedGitDir = join(root, '.git.moved-for-autopilot-resume-smoke');
+  renameSync(gitDir, movedGitDir);
+  try {
+    const missingGitResume = run<JsonObject & AuthorityBoundary>('autopilot_resume', { runId: missingGit.runId, maxResumeAgeMs: 60_000 });
+    assert.equal(missingGitResume.status, 'refused');
+    assert.equal(missingGitResume.reason, 'stale_state');
+    assert.match(String(missingGitResume.nextAction), /headHash could not be recomputed/);
+    assertNoProductionOverclaim(missingGitResume, 'missingGitResume');
+  } finally {
+    renameSync(movedGitDir, gitDir);
+  }
+
+  assertNoProductionOverclaim([green, stale, corruptSnapshot, staleCheckpoint, earlyFail, policyDrift, missingGit], 'runs');
+  console.log('autopilot-resume smoke passed: fresh ledger projection, stale refusal, no re-dispatch, corrupt snapshot recovery, stale checkpoint fail-closed, early failed no-checkpoint refusal, policy drift fail-closed, missing freshness fail-closed, and authority boundaries verified');
 } finally {
   rmSync(sandboxRoot, { recursive: true, force: true });
 }
