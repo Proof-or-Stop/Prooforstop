@@ -1,4 +1,6 @@
-import { existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { execFileSync } from 'node:child_process';
+import { closeSync, existsSync, mkdirSync, openSync, readFileSync, renameSync, rmSync, fsyncSync, writeFileSync, writeSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import {
   checkAutopilotPolicy,
@@ -7,6 +9,7 @@ import {
   type AutopilotPolicy as PersistedAutopilotPolicy,
   type AutopilotMode as PersistedAutopilotMode,
 } from './autopilot-policy.js';
+import { currentGitHead, currentMaterialHash, isMaterialExcludedPath } from './evidence-freshness.js';
 import {
   buildDispatchMergePlan,
   cancelDispatch,
@@ -27,6 +30,7 @@ export const AUTOPILOT_WATCH_SCHEMA_VERSION = 'lattice.autopilot_watch.v1' as co
 export const AUTOPILOT_CANCEL_SCHEMA_VERSION = 'lattice.autopilot_cancel.v1' as const;
 export const AUTOPILOT_REVIEW_SCHEMA_VERSION = 'lattice.autopilot_review.v1' as const;
 export const AUTOPILOT_RESUME_SCHEMA_VERSION = 'lattice.autopilot_resume.v1' as const;
+export const AUTOPILOT_CHECKPOINT_LEDGER_SCHEMA_VERSION = 'lattice.autopilot_checkpoint_ledger.v1' as const;
 
 export const AUTOPILOT_STOP_REASONS = [
   'max_iterations',
@@ -146,6 +150,7 @@ export interface AutopilotRunRecord {
     review?: DispatchReviewResult;
     mergePlan?: DispatchMergePlanResult;
   };
+  checkpointLedger?: AutopilotCheckpointLedgerProjection;
   authorityReceiptGate: AutopilotAuthorityReceiptGate;
   mergeDecision?: AutopilotMergeDecision;
   iterations: AutopilotIteration[];
@@ -241,13 +246,94 @@ export interface AutopilotResumeArgs {
 export interface AutopilotResumeResult {
   schemaVersion: typeof AUTOPILOT_RESUME_SCHEMA_VERSION;
   runId: string;
-  status: 'refused';
-  reason: 'unsafe_state' | 'stale_state';
+  status: 'resume_ready' | 'refused';
+  reason?: 'unsafe_state' | 'stale_state' | 'corrupt_state';
+  projection?: AutopilotResumeProjection;
   record: AutopilotRunRecord;
   nextAction: string;
   authorityChanged: false;
   receiptVerified: false;
   productionDone: false;
+}
+
+export type AutopilotCheckpointStatus = 'pending' | 'running' | 'done' | 'failed' | 'stale';
+
+export interface AutopilotStepIdentity {
+  stepId: string;
+  iterationIndex: number;
+  stepInputClosureHash: string;
+}
+
+export interface AutopilotRunBasis {
+  runBasisHash: string;
+  frozenRunPlanHash: string;
+  storyId: string;
+  headHash?: string;
+  materialHash?: string;
+  storyFilesHash?: string;
+  validityPolicyDigest: string;
+  producerRuntimeIdentity: string;
+  declaredOutputPaths: string[];
+  stepIdentities: AutopilotStepIdentity[];
+}
+
+export interface AutopilotCheckpointLedgerProjection {
+  schemaVersion: typeof AUTOPILOT_CHECKPOINT_LEDGER_SCHEMA_VERSION;
+  ledgerFile: string;
+  runBasisHash: string;
+  frozenRunPlanHash: string;
+  storyFilesHash?: string;
+  checkpointCount: number;
+  lastEventHash?: string;
+}
+
+export interface AutopilotResumeProjection {
+  ledgerFile: string;
+  runBasisHash: string;
+  frozenRunPlanHash: string;
+  skippedDoneSteps: string[];
+  nextStepId?: string;
+  nextStepIndex?: number;
+  remainingSteps: number;
+  checkpointCount: number;
+  recoveredFromLedger: boolean;
+}
+
+interface AutopilotCheckpointEvent {
+  schemaVersion: typeof AUTOPILOT_CHECKPOINT_LEDGER_SCHEMA_VERSION;
+  sequence: number;
+  at: string;
+  runId: string;
+  type: 'run_basis' | 'checkpoint' | 'snapshot';
+  previousHash: string | null;
+  eventHash: string;
+  runBasis?: AutopilotRunBasis;
+  checkpoint?: AutopilotCheckpoint;
+  snapshot?: AutopilotRunRecord;
+}
+
+interface AutopilotCheckpoint {
+  stepId: string;
+  iterationIndex: number;
+  stepInputClosureHash: string;
+  status: AutopilotCheckpointStatus;
+  dispatchId?: string;
+  note?: string;
+}
+
+interface ReplayedCheckpointLedger {
+  ok: true;
+  basis: AutopilotRunBasis;
+  events: AutopilotCheckpointEvent[];
+  checkpoints: Map<string, AutopilotCheckpoint>;
+  lastSnapshot?: AutopilotRunRecord;
+  lastEventHash?: string;
+  hasStaleCheckpoint: boolean;
+}
+
+interface FailedCheckpointReplay {
+  ok: false;
+  reason: string;
 }
 
 function nowIso(): string {
@@ -295,8 +381,55 @@ function runJsonPath(root: string, runId: string): string {
   return join(runDir(root, runId), 'run.json');
 }
 
+function checkpointLedgerPath(root: string, runId: string): string {
+  return join(runDir(root, runId), 'checkpoint-events.jsonl');
+}
+
 function runJsonRelPath(runId: string): string {
   return join(LATTICE_DIR, 'autopilot-runs', safeSegment(runId, 'runId'), 'run.json').replace(/\\/g, '/');
+}
+
+function checkpointLedgerRelPath(runId: string): string {
+  return join(LATTICE_DIR, 'autopilot-runs', safeSegment(runId, 'runId'), 'checkpoint-events.jsonl').replace(/\\/g, '/');
+}
+
+function canonicalize(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(canonicalize);
+  if (value && typeof value === 'object') {
+    const sorted: Record<string, unknown> = {};
+    for (const key of Object.keys(value as Record<string, unknown>).sort()) {
+      const child = (value as Record<string, unknown>)[key];
+      if (child !== undefined) sorted[key] = canonicalize(child);
+    }
+    return sorted;
+  }
+  return value;
+}
+
+function digest(value: unknown): string {
+  return createHash('sha256').update(JSON.stringify(canonicalize(value))).digest('hex');
+}
+
+function eventDigest(eventRecord: Omit<AutopilotCheckpointEvent, 'eventHash'>): string {
+  return digest(eventRecord);
+}
+
+function appendLineFsync(file: string, line: string): void {
+  mkdirSync(dirname(file), { recursive: true });
+  const fd = openSync(file, 'a');
+  try {
+    writeSync(fd, line);
+    fsyncSync(fd);
+  } finally {
+    closeSync(fd);
+  }
+}
+
+function eventWithHash(eventRecord: Omit<AutopilotCheckpointEvent, 'eventHash'>): AutopilotCheckpointEvent {
+  return {
+    ...eventRecord,
+    eventHash: eventDigest(eventRecord),
+  };
 }
 
 function writeJsonAtomic(file: string, value: unknown): void {
@@ -316,16 +449,26 @@ function writeJsonAtomic(file: string, value: unknown): void {
   }
 }
 
-function readRunRecord(root: string, runId: string): AutopilotRunRecord {
+function readRunRecordMaybe(root: string, runId: string): { record?: AutopilotRunRecord; error?: string } {
   const file = runJsonPath(root, runId);
   if (!existsSync(file)) {
-    throw new Error(`autopilot run not found: ${runId}`);
+    return { error: `autopilot run not found: ${runId}` };
   }
-  const parsed = JSON.parse(readFileSync(file, 'utf8')) as AutopilotRunRecord;
-  if (parsed.schemaVersion !== AUTOPILOT_RUN_SCHEMA_VERSION) {
-    throw new Error(`unsupported autopilot run schema for ${runId}: ${String((parsed as { schemaVersion?: unknown }).schemaVersion)}`);
+  try {
+    const parsed = JSON.parse(readFileSync(file, 'utf8')) as AutopilotRunRecord;
+    if (parsed.schemaVersion !== AUTOPILOT_RUN_SCHEMA_VERSION) {
+      return { error: `unsupported autopilot run schema for ${runId}: ${String((parsed as { schemaVersion?: unknown }).schemaVersion)}` };
+    }
+    return { record: parsed };
+  } catch (error) {
+    return { error: String((error as { message?: unknown }).message ?? error) };
   }
-  return parsed;
+}
+
+function readRunRecord(root: string, runId: string): AutopilotRunRecord {
+  const read = readRunRecordMaybe(root, runId);
+  if (read.record) return read.record;
+  throw new Error(read.error ?? `autopilot run not found: ${runId}`);
 }
 
 function persist(root: string, record: AutopilotRunRecord): AutopilotRunRecord {
@@ -345,6 +488,369 @@ function event(type: string, message: string, extra: Pick<AutopilotEvent, 'dispa
     message,
     ...extra,
   };
+}
+
+function normalizeOutputPath(path: string): string {
+  return path.replace(/\\/g, '/').replace(/^\.\/+/, '').replace(/\/+$/, '');
+}
+
+function pathMatchesDeclaredOutput(path: string, declaredOutputPaths: string[]): boolean {
+  const normalized = normalizeOutputPath(path);
+  return declaredOutputPaths.some(output => {
+    const candidate = normalizeOutputPath(output);
+    if (!candidate) return false;
+    return normalized === candidate || normalized.startsWith(`${candidate}/`);
+  });
+}
+
+function currentStoryFilesHashExcludingOutputs(root: string, declaredOutputPaths: string[]): string | undefined {
+  try {
+    const raw = execFileSync('git', ['ls-tree', '-r', '-z', 'HEAD'], {
+      cwd: root,
+      encoding: 'utf8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+      maxBuffer: 1024 * 1024 * 1024,
+    });
+    const entries = raw.split('\0').filter(Boolean);
+    const materialEntries: string[] = [];
+    for (const entry of entries) {
+      const tab = entry.indexOf('\t');
+      if (tab < 0) continue;
+      const meta = entry.slice(0, tab);
+      const filePath = entry.slice(tab + 1);
+      if (isMaterialExcludedPath(filePath, root)) continue;
+      if (pathMatchesDeclaredOutput(filePath, declaredOutputPaths)) continue;
+      const objectId = meta.trim().split(/\s+/)[2];
+      if (!objectId) continue;
+      materialEntries.push(`${filePath}\0${objectId}`);
+    }
+    return createHash('sha256').update(materialEntries.sort().join('\0')).digest('hex');
+  } catch {
+    return undefined;
+  }
+}
+
+function buildRunPlanDigest(args: AutopilotRunArgs, policy: PersistedAutopilotPolicy, declaredOutputPaths: string[]): string {
+  return digest({
+    storyId: args.storyId,
+    mode: policy.mode,
+    policy: args.policy,
+    dispatchPolicy: policy.dispatchPolicy,
+    maxIterations: Math.max(0, Math.floor(policy.maxIterations)),
+    maxRuntimeMinutes: policy.maxRuntimeMinutes,
+    maxBudgetUSD: policy.maxBudgetUSD,
+    host: args.host,
+    fromHost: args.fromHost,
+    role: args.role,
+    objective: args.objective,
+    allowedPaths: declaredOutputPaths,
+    deniedPaths: normalizeList(args.deniedPaths) ?? [],
+    requiredCommands: normalizeList(args.requiredCommands) ?? [],
+    successCriteria: normalizeList(args.successCriteria) ?? [],
+    baseSha: args.baseSha,
+    packId: args.packId,
+    authorityBoundary: args.authorityBoundary,
+    executionInstructions: normalizeList(args.executionInstructions) ?? [],
+    parallel: args.parallel,
+  });
+}
+
+function buildValidityPolicyDigest(policy: PersistedAutopilotPolicy): string {
+  return digest({
+    schema: AUTOPILOT_CHECKPOINT_LEDGER_SCHEMA_VERSION,
+    policyName: policy.policy,
+    dispatchPolicy: policy.dispatchPolicy,
+    mode: policy.mode,
+    stopOnConflict: policy.stopOnConflict,
+    stopOnScopeViolation: policy.stopOnScopeViolation,
+    requireServerReceipt: policy.requireServerReceipt,
+  });
+}
+
+function buildProducerRuntimeIdentity(args: AutopilotRunArgs): string {
+  return digest({
+    executor: 'lattice-autopilot-m1',
+    host: args.host ?? args.fromHost ?? 'policy-default',
+    adapterBoundary: 'host-native-dispatch',
+  });
+}
+
+function buildRunBasis(root: string, args: AutopilotRunArgs, policy: PersistedAutopilotPolicy, declaredOutputPaths: string[]): AutopilotRunBasis {
+  const frozenRunPlanHash = buildRunPlanDigest(args, policy, declaredOutputPaths);
+  const validityPolicyDigest = buildValidityPolicyDigest(policy);
+  const headHash = currentGitHead(root);
+  const materialHash = currentMaterialHash(root, 'HEAD', root);
+  const storyFilesHash = currentStoryFilesHashExcludingOutputs(root, declaredOutputPaths);
+  const producerRuntimeIdentity = buildProducerRuntimeIdentity(args);
+  const maxIterations = Math.max(0, Math.floor(policy.maxIterations));
+  const basisInput = {
+    storyId: args.storyId,
+    headHash,
+    materialHash,
+    storyFilesHash,
+    validityPolicyDigest,
+    producerRuntimeIdentity,
+    frozenRunPlanHash,
+    declaredOutputPaths,
+  };
+  const runBasisHash = digest(basisInput);
+  const stepInputs = dispatchArgs(args, policy.dispatchPolicy);
+  const stepIdentities = Array.from({ length: maxIterations }, (_, index): AutopilotStepIdentity => ({
+    stepId: `iteration-${index}`,
+    iterationIndex: index,
+    stepInputClosureHash: digest({
+      runBasisHash,
+      frozenRunPlanHash,
+      iterationIndex: index,
+      dispatch: stepInputs,
+    }),
+  }));
+  return {
+    ...basisInput,
+    runBasisHash,
+    stepIdentities,
+  };
+}
+
+function checkpointProjection(runId: string, basis: AutopilotRunBasis, checkpointCount: number, lastEventHash?: string): AutopilotCheckpointLedgerProjection {
+  return {
+    schemaVersion: AUTOPILOT_CHECKPOINT_LEDGER_SCHEMA_VERSION,
+    ledgerFile: checkpointLedgerRelPath(runId),
+    runBasisHash: basis.runBasisHash,
+    frozenRunPlanHash: basis.frozenRunPlanHash,
+    ...(basis.storyFilesHash ? { storyFilesHash: basis.storyFilesHash } : {}),
+    checkpointCount,
+    ...(lastEventHash ? { lastEventHash } : {}),
+  };
+}
+
+function appendCheckpointEvent(root: string, record: AutopilotRunRecord, eventRecord: Omit<AutopilotCheckpointEvent, 'eventHash'>): AutopilotCheckpointEvent {
+  const checkpointEvent = eventWithHash(eventRecord);
+  appendLineFsync(checkpointLedgerPath(root, record.runId), JSON.stringify(checkpointEvent) + '\n');
+  return checkpointEvent;
+}
+
+function initializeCheckpointLedger(root: string, record: AutopilotRunRecord, basis: AutopilotRunBasis): AutopilotRunRecord {
+  const file = checkpointLedgerPath(root, record.runId);
+  rmSync(file, { force: true });
+  const checkpointEvent = appendCheckpointEvent(root, record, {
+    schemaVersion: AUTOPILOT_CHECKPOINT_LEDGER_SCHEMA_VERSION,
+    sequence: 0,
+    at: nowIso(),
+    runId: record.runId,
+    type: 'run_basis',
+    previousHash: null,
+    runBasis: basis,
+    snapshot: record,
+  });
+  return persist(root, {
+    ...record,
+    checkpointLedger: checkpointProjection(record.runId, basis, 0, checkpointEvent.eventHash),
+  });
+}
+
+function checkpointForBasis(basis: AutopilotRunBasis, iterationIndex: number): AutopilotCheckpoint {
+  const step = basis.stepIdentities[iterationIndex];
+  if (!step) {
+    throw new Error(`autopilot checkpoint missing step identity for iteration ${iterationIndex}`);
+  }
+  return {
+    stepId: step.stepId,
+    iterationIndex,
+    stepInputClosureHash: step.stepInputClosureHash,
+    status: 'running',
+  };
+}
+
+function recordCheckpoint(
+  root: string,
+  record: AutopilotRunRecord,
+  basis: AutopilotRunBasis,
+  sequence: number,
+  previousHash: string,
+  iterationIndex: number,
+  status: AutopilotCheckpointStatus,
+  options: { dispatchId?: string; note?: string; snapshot?: AutopilotRunRecord } = {},
+): AutopilotCheckpointEvent {
+  const checkpoint = {
+    ...checkpointForBasis(basis, iterationIndex),
+    status,
+    ...(options.dispatchId ? { dispatchId: options.dispatchId } : {}),
+    ...(options.note ? { note: options.note } : {}),
+  };
+  return appendCheckpointEvent(root, record, {
+    schemaVersion: AUTOPILOT_CHECKPOINT_LEDGER_SCHEMA_VERSION,
+    sequence,
+    at: nowIso(),
+    runId: record.runId,
+    type: 'checkpoint',
+    previousHash,
+    checkpoint,
+    ...(options.snapshot ? { snapshot: options.snapshot } : {}),
+  });
+}
+
+function recordSnapshot(
+  root: string,
+  record: AutopilotRunRecord,
+  sequence: number,
+  previousHash: string,
+  snapshot: AutopilotRunRecord,
+): AutopilotCheckpointEvent {
+  return appendCheckpointEvent(root, record, {
+    schemaVersion: AUTOPILOT_CHECKPOINT_LEDGER_SCHEMA_VERSION,
+    sequence,
+    at: nowIso(),
+    runId: record.runId,
+    type: 'snapshot',
+    previousHash,
+    snapshot,
+  });
+}
+
+function replayCheckpointLedger(root: string, runId: string): ReplayedCheckpointLedger | FailedCheckpointReplay {
+  const file = checkpointLedgerPath(root, runId);
+  if (!existsSync(file)) return { ok: false, reason: `checkpoint ledger not found for ${runId}` };
+  let lines: string[];
+  try {
+    lines = readFileSync(file, 'utf8').split('\n').map(line => line.trim()).filter(Boolean);
+  } catch (error) {
+    return { ok: false, reason: `checkpoint ledger unreadable: ${String((error as { message?: unknown }).message ?? error)}` };
+  }
+  if (lines.length === 0) return { ok: false, reason: 'checkpoint ledger is empty' };
+
+  const events: AutopilotCheckpointEvent[] = [];
+  let previousHash: string | null = null;
+  let basis: AutopilotRunBasis | undefined;
+  let lastSnapshot: AutopilotRunRecord | undefined;
+  const checkpoints = new Map<string, AutopilotCheckpointEvent['checkpoint'] & {}>();
+  let hasStaleCheckpoint = false;
+
+  for (let index = 0; index < lines.length; index++) {
+    let parsed: AutopilotCheckpointEvent;
+    try {
+      parsed = JSON.parse(lines[index]) as AutopilotCheckpointEvent;
+    } catch (error) {
+      return { ok: false, reason: `checkpoint ledger line ${index + 1} is not valid JSON: ${String((error as { message?: unknown }).message ?? error)}` };
+    }
+    if (parsed.schemaVersion !== AUTOPILOT_CHECKPOINT_LEDGER_SCHEMA_VERSION) {
+      return { ok: false, reason: `checkpoint ledger line ${index + 1} has unsupported schemaVersion` };
+    }
+    if (parsed.runId !== runId) {
+      return { ok: false, reason: `checkpoint ledger line ${index + 1} runId mismatch` };
+    }
+    if (parsed.sequence !== index) {
+      return { ok: false, reason: `checkpoint ledger line ${index + 1} sequence mismatch` };
+    }
+    if (parsed.previousHash !== previousHash) {
+      return { ok: false, reason: `checkpoint ledger line ${index + 1} hash chain mismatch` };
+    }
+    const { eventHash: _eventHash, ...withoutHash } = parsed;
+    if (parsed.eventHash !== eventDigest(withoutHash)) {
+      return { ok: false, reason: `checkpoint ledger line ${index + 1} eventHash mismatch` };
+    }
+    if (parsed.snapshot) lastSnapshot = parsed.snapshot;
+    if (parsed.type === 'run_basis') {
+      if (basis) return { ok: false, reason: 'checkpoint ledger contains multiple run_basis events' };
+      if (!parsed.runBasis?.runBasisHash || !parsed.runBasis.frozenRunPlanHash) {
+        return { ok: false, reason: 'checkpoint ledger run_basis is missing required hashes' };
+      }
+      if (digest({
+        storyId: parsed.runBasis.storyId,
+        headHash: parsed.runBasis.headHash,
+        materialHash: parsed.runBasis.materialHash,
+        storyFilesHash: parsed.runBasis.storyFilesHash,
+        validityPolicyDigest: parsed.runBasis.validityPolicyDigest,
+        producerRuntimeIdentity: parsed.runBasis.producerRuntimeIdentity,
+        frozenRunPlanHash: parsed.runBasis.frozenRunPlanHash,
+        declaredOutputPaths: parsed.runBasis.declaredOutputPaths,
+      }) !== parsed.runBasis.runBasisHash) {
+        return { ok: false, reason: 'checkpoint ledger runBasisHash does not match its material fields' };
+      }
+      basis = parsed.runBasis;
+    } else if (parsed.type === 'checkpoint') {
+      if (!basis) return { ok: false, reason: 'checkpoint ledger checkpoint appeared before run_basis' };
+      const checkpoint = parsed.checkpoint;
+      if (!checkpoint) return { ok: false, reason: `checkpoint ledger line ${index + 1} is missing checkpoint payload` };
+      const expected = basis.stepIdentities[checkpoint.iterationIndex];
+      if (!expected || expected.stepId !== checkpoint.stepId || expected.stepInputClosureHash !== checkpoint.stepInputClosureHash) {
+        return { ok: false, reason: `checkpoint ledger line ${index + 1} checkpoint identity mismatch` };
+      }
+      const existing = checkpoints.get(checkpoint.stepId);
+      if (existing && existing.stepInputClosureHash !== checkpoint.stepInputClosureHash) {
+        return { ok: false, reason: `checkpoint ledger conflicting identity for ${checkpoint.stepId}` };
+      }
+      if (checkpoint.status === 'stale') hasStaleCheckpoint = true;
+      checkpoints.set(checkpoint.stepId, checkpoint);
+    } else if (parsed.type === 'snapshot') {
+      if (!basis) return { ok: false, reason: 'checkpoint ledger snapshot appeared before run_basis' };
+      if (!parsed.snapshot) return { ok: false, reason: `checkpoint ledger line ${index + 1} is missing snapshot payload` };
+    } else {
+      return { ok: false, reason: `checkpoint ledger line ${index + 1} has unsupported event type` };
+    }
+    events.push(parsed);
+    previousHash = parsed.eventHash;
+  }
+
+  if (!basis) return { ok: false, reason: 'checkpoint ledger is missing run_basis' };
+  return {
+    ok: true,
+    basis,
+    events,
+    checkpoints,
+    ...(lastSnapshot ? { lastSnapshot } : {}),
+    ...(previousHash ? { lastEventHash: previousHash } : {}),
+    hasStaleCheckpoint,
+  };
+}
+
+function currentRunBasisMatches(root: string, basis: AutopilotRunBasis): { matches: boolean; reason?: string } {
+  const currentHead = currentGitHead(root);
+  if (basis.headHash && currentHead && basis.headHash !== currentHead) {
+    return { matches: false, reason: 'headHash changed since run start' };
+  }
+  const currentMaterial = currentMaterialHash(root, 'HEAD', root);
+  if (basis.materialHash && currentMaterial && basis.materialHash !== currentMaterial) {
+    return { matches: false, reason: 'materialHash changed since run start' };
+  }
+  const currentStoryFiles = currentStoryFilesHashExcludingOutputs(root, basis.declaredOutputPaths);
+  if (basis.storyFilesHash && currentStoryFiles && basis.storyFilesHash !== currentStoryFiles) {
+    return { matches: false, reason: 'storyFilesHash changed since run start' };
+  }
+  return { matches: true };
+}
+
+function resumeProjectionFromReplay(replay: ReplayedCheckpointLedger, recoveredFromLedger: boolean): AutopilotResumeProjection {
+  const skippedDoneSteps: string[] = [];
+  let nextStep: AutopilotStepIdentity | undefined;
+  for (const step of replay.basis.stepIdentities) {
+    const checkpoint = replay.checkpoints.get(step.stepId);
+    if (checkpoint?.status === 'done') {
+      skippedDoneSteps.push(step.stepId);
+      continue;
+    }
+    nextStep = step;
+    break;
+  }
+  const remainingSteps = nextStep
+    ? replay.basis.stepIdentities.length - nextStep.iterationIndex
+    : 0;
+  return {
+    ledgerFile: checkpointLedgerRelPath(replay.events[0]?.runId ?? ''),
+    runBasisHash: replay.basis.runBasisHash,
+    frozenRunPlanHash: replay.basis.frozenRunPlanHash,
+    skippedDoneSteps,
+    ...(nextStep ? { nextStepId: nextStep.stepId, nextStepIndex: nextStep.iterationIndex } : {}),
+    remainingSteps,
+    checkpointCount: replay.checkpoints.size,
+    recoveredFromLedger,
+  };
+}
+
+function finalStatusCheckpointStatus(status: AutopilotStatus): AutopilotCheckpointStatus {
+  if (status === 'manual_review_ready' || status === 'needs_receipt' || status === 'missing_authority_receipt') return 'done';
+  if (status === 'failed') return 'failed';
+  return 'running';
 }
 
 function buildDelegationContract(mode: AutopilotMode): AutopilotDelegationContract {
@@ -711,6 +1217,8 @@ export function autopilotRun(store: StoryStore, root: string, args: AutopilotRun
   const maxIterations = Math.max(0, Math.floor(policy.maxIterations));
   const timeoutMs = Math.max(1, Math.floor((policy.maxRuntimeMinutes ?? 5) * 60 * 1000));
   const startMs = Date.now();
+  const declaredOutputPaths = normalizeList(args.allowedPaths) ?? [];
+  const runBasis = buildRunBasis(root, args, policy, declaredOutputPaths);
 
   let record: AutopilotRunRecord = {
     schemaVersion: AUTOPILOT_RUN_SCHEMA_VERSION,
@@ -750,9 +1258,70 @@ export function autopilotRun(store: StoryStore, root: string, args: AutopilotRun
     productionDone: false,
   };
   record = persist(root, record);
+  record = initializeCheckpointLedger(root, record, runBasis);
+  let checkpointSequence = 1;
+  let previousCheckpointHash = record.checkpointLedger?.lastEventHash ?? '';
+  const finalizeWithCheckpoint = (
+    sourceRecord: AutopilotRunRecord,
+    patch: Partial<AutopilotRunRecord> & { status: AutopilotStatus; nextAction: string },
+    iterationIndex: number,
+    options: { dispatchId?: string; note?: string } = {},
+  ): AutopilotRunRecord => {
+    let finalRecord = finalize(root, sourceRecord, patch);
+    const checkpointStatus = finalStatusCheckpointStatus(finalRecord.status);
+    const checkpointEvent = recordCheckpoint(
+      root,
+      finalRecord,
+      runBasis,
+      checkpointSequence,
+      previousCheckpointHash,
+      iterationIndex,
+      checkpointStatus,
+      { ...options, snapshot: finalRecord },
+    );
+    checkpointSequence += 1;
+    previousCheckpointHash = checkpointEvent.eventHash;
+    const replay = replayCheckpointLedger(root, finalRecord.runId);
+    if (replay.ok) {
+      finalRecord = persist(root, {
+        ...finalRecord,
+        checkpointLedger: checkpointProjection(finalRecord.runId, runBasis, replay.checkpoints.size, checkpointEvent.eventHash),
+      });
+    }
+    return finalRecord;
+  };
+  const finalizeWithSnapshot = (
+    sourceRecord: AutopilotRunRecord,
+    patch: Partial<AutopilotRunRecord> & { status: AutopilotStatus; nextAction: string },
+  ): AutopilotRunRecord => {
+    let finalRecord = finalize(root, sourceRecord, patch);
+    const checkpointEvent = recordSnapshot(root, finalRecord, checkpointSequence, previousCheckpointHash, finalRecord);
+    checkpointSequence += 1;
+    previousCheckpointHash = checkpointEvent.eventHash;
+    const replay = replayCheckpointLedger(root, finalRecord.runId);
+    if (replay.ok) {
+      finalRecord = persist(root, {
+        ...finalRecord,
+        checkpointLedger: checkpointProjection(finalRecord.runId, runBasis, replay.checkpoints.size, checkpointEvent.eventHash),
+      });
+    }
+    return finalRecord;
+  };
+  const recordFailedCheckpoint = (
+    sourceRecord: AutopilotRunRecord,
+    iterationIndex: number,
+    options: { dispatchId?: string; note?: string } = {},
+  ): void => {
+    const checkpointEvent = recordCheckpoint(root, sourceRecord, runBasis, checkpointSequence, previousCheckpointHash, iterationIndex, 'failed', {
+      ...options,
+      snapshot: sourceRecord,
+    });
+    checkpointSequence += 1;
+    previousCheckpointHash = checkpointEvent.eventHash;
+  };
 
   if (policyCheck.status === 'refused') {
-    return finalize(root, record, {
+    return finalizeWithSnapshot(record, {
       status: 'failed',
       stopReason: 'validation_failed',
       stopDetails: policyCheck.reasons.join('; ') || policyCheck.nextAction,
@@ -764,7 +1333,7 @@ export function autopilotRun(store: StoryStore, root: string, args: AutopilotRun
 
   if (assertedMode && assertedMode !== mode) {
     const message = `autopilot_run mode assertion "${assertedMode}" does not match persisted autopilot policy "${policyName}" mode "${mode}"`;
-    return finalize(root, record, {
+    return finalizeWithSnapshot(record, {
       status: 'failed',
       stopReason: 'validation_failed',
       stopDetails: message,
@@ -779,7 +1348,7 @@ export function autopilotRun(store: StoryStore, root: string, args: AutopilotRun
     const nextAction = missingAuthority
       ? 'missing_authority_receipt: provide a verified server AuthorityReceipt before starting unattended autopilot. Local dispatch receipts are diagnostic only.'
       : policyCheck.nextAction;
-    return finalize(root, record, {
+    return finalizeWithSnapshot(record, {
       status: missingAuthority ? 'missing_authority_receipt' : 'failed',
       stopReason: missingAuthority ? 'missing_authority' : 'validation_failed',
       stopDetails: policyCheck.degradations.join('; ') || policyCheck.nextAction,
@@ -794,7 +1363,7 @@ export function autopilotRun(store: StoryStore, root: string, args: AutopilotRun
   }
 
   if (maxIterations <= 0) {
-    return finalize(root, record, {
+    return finalizeWithSnapshot(record, {
       status: 'failed',
       stopReason: 'max_iterations',
       stopDetails: 'maxIterations must be at least 1 for autopilot_run to start dispatch_auto',
@@ -804,7 +1373,7 @@ export function autopilotRun(store: StoryStore, root: string, args: AutopilotRun
   }
 
   if (budgetExhausted(record)) {
-    return finalize(root, record, {
+    return finalizeWithSnapshot(record, {
       status: 'failed',
       stopReason: 'budget_exhausted',
       stopDetails: `budgetSpentUSD=${record.budgetSpentUSD} reached maxBudgetUSD=${record.maxBudgetUSD}`,
@@ -815,7 +1384,7 @@ export function autopilotRun(store: StoryStore, root: string, args: AutopilotRun
 
   for (let index = 0; index < maxIterations; index++) {
     if (timedOut(startMs, timeoutMs)) {
-      return finalize(root, record, {
+      return finalizeWithSnapshot(record, {
         status: 'failed',
         stopReason: 'timeout',
         stopDetails: `timeoutMs=${timeoutMs} elapsed before the next iteration could start`,
@@ -836,6 +1405,9 @@ export function autopilotRun(store: StoryStore, root: string, args: AutopilotRun
       iterations: [...record.iterations, iteration],
       events: [...record.events, event('iteration_started', `iteration ${index} started`)],
     });
+    const runningCheckpoint = recordCheckpoint(root, record, runBasis, checkpointSequence, previousCheckpointHash, index, 'running');
+    checkpointSequence += 1;
+    previousCheckpointHash = runningCheckpoint.eventHash;
 
     let auto: DispatchAutoResult;
     try {
@@ -859,10 +1431,11 @@ export function autopilotRun(store: StoryStore, root: string, args: AutopilotRun
             event('retry_scheduled', `iteration ${index + 1} scheduled after validation failure`, { stopReason }),
           ],
         });
+        recordFailedCheckpoint(record, index, { note: message });
         continue;
       }
       if (retryDecision.refusal) {
-        return finalize(root, record, {
+        return finalizeWithCheckpoint(record, {
           status: 'failed',
           stopReason: retryDecision.refusal.stopReason,
           stopDetails: retryDecision.refusal.stopDetails,
@@ -875,9 +1448,9 @@ export function autopilotRun(store: StoryStore, root: string, args: AutopilotRun
             event('dispatch_auto_failed', message, { stopReason }),
             event('retry_refused', retryDecision.refusal.stopDetails, { stopReason: retryDecision.refusal.stopReason }),
           ],
-        });
+        }, index, { note: retryDecision.refusal.stopDetails });
       }
-      return finalize(root, record, {
+      return finalizeWithCheckpoint(record, {
         status: 'failed',
         stopReason,
         stopDetails: message,
@@ -887,7 +1460,7 @@ export function autopilotRun(store: StoryStore, root: string, args: AutopilotRun
           ? 'Manual repair required: resolve active dispatch or merge conflict evidence before rerunning autopilot_run.'
           : 'Fix the dispatch policy, host readiness, scope, or command validation issue and rerun autopilot_run.',
         events: [...record.events, event('dispatch_auto_failed', message, { stopReason })],
-      });
+      }, index, { note: message });
     }
 
     const dispatchId = auto.dispatchId;
@@ -931,10 +1504,11 @@ export function autopilotRun(store: StoryStore, root: string, args: AutopilotRun
             event('retry_scheduled', `iteration ${index + 1} scheduled after validation failure`, { dispatchId, stopReason }),
           ],
         });
+        recordFailedCheckpoint(record, index, { dispatchId, note: message });
         continue;
       }
       if (retryDecision.refusal) {
-        return finalize(root, record, {
+        return finalizeWithCheckpoint(record, {
           status: 'failed',
           stopReason: retryDecision.refusal.stopReason,
           stopDetails: retryDecision.refusal.stopDetails,
@@ -947,9 +1521,9 @@ export function autopilotRun(store: StoryStore, root: string, args: AutopilotRun
             event('validation_failed', message, { dispatchId, stopReason }),
             event('retry_refused', retryDecision.refusal.stopDetails, { dispatchId, stopReason: retryDecision.refusal.stopReason }),
           ],
-        });
+        }, index, { dispatchId, note: retryDecision.refusal.stopDetails });
       }
-      return finalize(root, record, {
+      return finalizeWithCheckpoint(record, {
         status: 'failed',
         stopReason,
         stopDetails: message,
@@ -957,7 +1531,7 @@ export function autopilotRun(store: StoryStore, root: string, args: AutopilotRun
         errors: [...record.errors, message],
         nextAction,
         events: [...record.events, event('validation_failed', message, { dispatchId, stopReason })],
-      });
+      }, index, { dispatchId, note: message });
     }
 
     if (!hasLocalReceipt || !hasTranscript) {
@@ -967,38 +1541,38 @@ export function autopilotRun(store: StoryStore, root: string, args: AutopilotRun
       ].join(', ');
       const nextAction = `Collect missing host-native evidence (${missing}) and rerun autopilot_review. No integration, DONE, or main merge is allowed.`;
       const ended = markIterationEnded(iteration, 'needs_receipt', nextAction, 'missing_receipt');
-      return finalize(root, record, {
+      return finalizeWithCheckpoint(record, {
         status: 'needs_receipt',
         stopReason: 'missing_receipt',
         stopDetails: `missing ${missing}`,
         iterations: [...record.iterations.slice(0, -1), { ...ended, dispatchId, warnings }],
         nextAction,
         events: [...record.events, event('needs_receipt', `missing ${missing}`, { dispatchId, stopReason: 'missing_receipt' })],
-      });
+      }, index, { dispatchId, note: `missing ${missing}` });
     }
 
     if (mode === 'conservative') {
       const nextAction = 'Manual review ready. Inspect dispatch_review and dispatch_merge_plan output; merge remains manual-only and productionDone=false.';
       const ended = markIterationEnded(iteration, 'manual_review_ready', nextAction);
-      return finalize(root, record, {
+      return finalizeWithCheckpoint(record, {
         status: 'manual_review_ready',
         iterations: [...record.iterations.slice(0, -1), { ...ended, dispatchId, warnings }],
         nextAction,
         events: [...record.events, event('manual_review_ready', 'conservative autopilot stopped before authority or merge actions', { dispatchId })],
-      });
+      }, index, { dispatchId, note: 'manual_review_ready' });
     }
 
     if (!authorityReceiptGate.verified) {
       const nextAction = 'missing_authority_receipt: provide a verified server AuthorityReceipt before integration, DONE, or main merge. Local dispatch receipts are diagnostic only.';
       const ended = markIterationEnded(iteration, 'missing_authority_receipt', nextAction, 'missing_authority');
-      return finalize(root, record, {
+      return finalizeWithCheckpoint(record, {
         status: 'missing_authority_receipt',
         stopReason: 'missing_authority',
         stopDetails: authorityReceiptGate.nextAction,
         iterations: [...record.iterations.slice(0, -1), { ...ended, dispatchId, warnings }],
         nextAction,
         events: [...record.events, event('missing_authority_receipt', authorityReceiptGate.nextAction, { dispatchId, stopReason: 'missing_authority' })],
-      });
+      }, index, { dispatchId, note: authorityReceiptGate.nextAction });
     }
 
     if (mode === 'full-autopilot' && !mergePlan.mergeable) {
@@ -1024,10 +1598,11 @@ export function autopilotRun(store: StoryStore, root: string, args: AutopilotRun
             event('retry_scheduled', `iteration ${index + 1} scheduled after validation failure`, { dispatchId, stopReason }),
           ],
         });
+        recordFailedCheckpoint(record, index, { dispatchId, note: stopDetails });
         continue;
       }
       if (retryDecision.refusal) {
-        return finalize(root, record, {
+        return finalizeWithCheckpoint(record, {
           status: 'failed',
           stopReason: retryDecision.refusal.stopReason,
           stopDetails: retryDecision.refusal.stopDetails,
@@ -1040,29 +1615,29 @@ export function autopilotRun(store: StoryStore, root: string, args: AutopilotRun
             event('validation_failed', stopDetails, { dispatchId, stopReason }),
             event('retry_refused', retryDecision.refusal.stopDetails, { dispatchId, stopReason: retryDecision.refusal.stopReason }),
           ],
-        });
+        }, index, { dispatchId, note: retryDecision.refusal.stopDetails });
       }
-      return finalize(root, record, {
+      return finalizeWithCheckpoint(record, {
         status: 'failed',
         stopReason,
         stopDetails,
         iterations: nextIterations,
         nextAction,
         events: [...record.events, event('validation_failed', 'dispatch_merge_plan was not mergeable', { dispatchId, stopReason })],
-      });
+      }, index, { dispatchId, note: stopDetails });
     }
 
     const nextAction = 'Authority receipt gate passed, but autopilot v1 remains manual-review only. Inspect mergeDecision and perform any integration outside autopilot.';
     const ended = markIterationEnded(iteration, 'manual_review_ready', nextAction);
-    return finalize(root, record, {
+    return finalizeWithCheckpoint(record, {
       status: 'manual_review_ready',
       iterations: [...record.iterations.slice(0, -1), { ...ended, dispatchId, warnings }],
       nextAction,
       events: [...record.events, event('manual_review_ready', 'authority receipt gate passed; autopilot stopped before manual integration', { dispatchId })],
-    });
+    }, index, { dispatchId, note: 'manual_review_ready' });
   }
 
-  return finalize(root, record, {
+  return finalizeWithSnapshot(record, {
     status: 'failed',
     stopReason: 'max_iterations',
     stopDetails: `maxIterations=${maxIterations} exhausted`,
@@ -1177,24 +1752,91 @@ export function autopilotReview(root: string, runId: string): AutopilotReviewRes
 }
 
 export function autopilotResume(_store: StoryStore, root: string, args: AutopilotResumeArgs): AutopilotResumeResult {
-  let record = readRunRecord(root, args.runId);
+  const read = readRunRecordMaybe(root, args.runId);
+  const replay = replayCheckpointLedger(root, args.runId);
+  if (!read.record && !replay.ok) {
+    throw new Error(read.error ?? replay.reason);
+  }
+  if (!replay.ok) {
+    let record = read.record!;
+    const nextAction = `Resume refused: checkpoint ledger is missing or corrupt (${replay.reason}). Start a new autopilot_run after manually reviewing dispatch state.`;
+    record = persist(root, {
+      ...record,
+      events: [...record.events, event('resume_refused', nextAction)],
+      nextAction,
+    });
+    return {
+      schemaVersion: AUTOPILOT_RESUME_SCHEMA_VERSION,
+      runId: record.runId,
+      status: 'refused',
+      reason: 'corrupt_state',
+      record,
+      nextAction,
+      authorityChanged: false,
+      receiptVerified: false,
+      productionDone: false,
+    };
+  }
+
+  const recoveredFromLedger = !read.record;
+  let record = read.record ?? replay.lastSnapshot;
+  if (!record) {
+    throw new Error(`autopilot_resume cannot recover ${args.runId}: checkpoint ledger has no snapshot projection`);
+  }
   const maxAge = Math.max(1, Math.floor(args.maxResumeAgeMs ?? 15 * 60 * 1000));
   const updatedAtMs = Date.parse(record.updatedAt);
   const stale = Number.isNaN(updatedAtMs) || Date.now() - updatedAtMs > maxAge;
-  const reason: AutopilotResumeResult['reason'] = stale ? 'stale_state' : 'unsafe_state';
-  const nextAction = stale
-    ? 'Resume refused: persisted autopilot state is stale. Start a new autopilot_run after manually reviewing dispatch state.'
-    : 'Resume refused: autopilot v1 does not safely resume host-native runs. Start a new autopilot_run or review the dispatch manually.';
+  const basisFreshness = currentRunBasisMatches(root, replay.basis);
+  const unsafe = record.status === 'cancelled' || (record.status === 'failed' && replay.checkpoints.size === 0);
+  const staleReason = replay.hasStaleCheckpoint
+    ? 'checkpoint ledger contains a stale checkpoint'
+    : !basisFreshness.matches
+      ? basisFreshness.reason ?? 'run basis changed since run start'
+      : stale
+        ? 'persisted autopilot state is older than maxResumeAgeMs'
+        : '';
+  if (staleReason || unsafe) {
+    const reason: AutopilotResumeResult['reason'] = staleReason ? 'stale_state' : 'unsafe_state';
+    const nextAction = staleReason
+      ? `Resume refused: ${staleReason}. Start a new autopilot_run after manually reviewing dispatch state.`
+      : record.status === 'cancelled'
+        ? 'Resume refused: cancelled autopilot runs are not resumable. Start a new autopilot_run or review the dispatch manually.'
+        : 'Resume refused: failed autopilot runs without a committed step checkpoint are not resumable. Start a new autopilot_run or review the dispatch manually.';
+    record = persist(root, {
+      ...record,
+      checkpointLedger: checkpointProjection(record.runId, replay.basis, replay.checkpoints.size, replay.lastEventHash),
+      events: [...record.events, event('resume_refused', nextAction)],
+      nextAction,
+    });
+    return {
+      schemaVersion: AUTOPILOT_RESUME_SCHEMA_VERSION,
+      runId: record.runId,
+      status: 'refused',
+      reason,
+      record,
+      nextAction,
+      authorityChanged: false,
+      receiptVerified: false,
+      productionDone: false,
+    };
+  }
+
+  const projection = resumeProjectionFromReplay(replay, recoveredFromLedger);
+  const skipped = projection.skippedDoneSteps.length;
+  const nextAction = projection.remainingSteps === 0
+    ? `Resume projection ready: ${skipped} committed done checkpoint(s) will not be re-dispatched; no remaining step is eligible for M1 worker launch. Continue manual review/watch from the persisted run state.`
+    : `Resume projection ready: ${skipped} committed done checkpoint(s) will not be re-dispatched; resume at ${projection.nextStepId}. M1 returns guidance only and does not launch workers.`;
   record = persist(root, {
     ...record,
-    events: [...record.events, event('resume_refused', nextAction)],
+    checkpointLedger: checkpointProjection(record.runId, replay.basis, replay.checkpoints.size, replay.lastEventHash),
+    events: [...record.events, event(recoveredFromLedger ? 'resume_projection_recovered' : 'resume_projection_ready', nextAction)],
     nextAction,
   });
   return {
     schemaVersion: AUTOPILOT_RESUME_SCHEMA_VERSION,
     runId: record.runId,
-    status: 'refused',
-    reason,
+    status: 'resume_ready',
+    projection,
     record,
     nextAction,
     authorityChanged: false,
@@ -1288,7 +1930,14 @@ export function renderAutopilotResumeText(result: AutopilotResumeResult): string
     `Autopilot resume (${result.schemaVersion})`,
     `runId: ${result.runId}`,
     `status: ${result.status}`,
-    `reason: ${result.reason}`,
+    ...(result.reason ? [`reason: ${result.reason}`] : []),
+    ...(result.projection ? [
+      `skippedDoneSteps: ${result.projection.skippedDoneSteps.length}`,
+      `remainingSteps: ${result.projection.remainingSteps}`,
+      ...(result.projection.nextStepId ? [`nextStepId: ${result.projection.nextStepId}`] : []),
+      `recoveredFromLedger: ${result.projection.recoveredFromLedger}`,
+      `ledgerFile: ${result.projection.ledgerFile}`,
+    ] : []),
     `nextAction: ${result.nextAction}`,
   ].join('\n');
 }
