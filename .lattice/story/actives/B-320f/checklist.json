@@ -99,9 +99,11 @@
       "relatedDocs": [
         "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md#M4"
       ],
-      "userSees": "autopilot-v2 reliability table shows M4 process-pool claim/lease/fencing PASS with duplicate-claim and stale-fencing smoke evidence.",
+      "userSees": "User sees \"M4 process-pool claim/lease/fencing: PASS\" in the Autopilot v2 acceptance table and smoke output.",
       "files": {
-        "modify": [],
+        "modify": [
+          "packages/main/src/core/lattice-dispatch.ts"
+        ],
         "create": [
           "packages/main/src/core/autopilot-reliability.ts"
         ],
