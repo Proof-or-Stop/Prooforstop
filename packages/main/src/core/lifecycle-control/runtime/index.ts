@@ -3,7 +3,7 @@ import { existsSync, statSync } from 'node:fs';
 import { buildStoryReadinessReport, type LifecycleReadinessTarget } from '../../lifecycle-readiness.js';
 import { mainWriteLockPath, MAIN_WRITE_LOCK_STALE_MS } from '../../main-write-lock.js';
 import { readMkdirLockHolder } from '../../mkdir-lock.js';
-import { readOwnerLease, STALE_LEASE_THRESHOLD_MS, isLeaseStale } from '../../story-owner-lease.js';
+import { getSessionId, readOwnerLease, STALE_LEASE_THRESHOLD_MS, isLeaseStale } from '../../story-owner-lease.js';
 import { resolveStoryAuthority } from '../../story-authority-resolver.js';
 import type { StoryStore } from '../../store.js';
 import type { StoryPhase } from '../../types.js';
@@ -151,7 +151,7 @@ function ownerLeaseStatus(store: StoryStore, storyId: string, nowMs: number): Ru
   const lease = readOwnerLease(store.storyDirPath(storyId));
   if (!lease) return 'missing';
   if (isLeaseStale(lease, nowMs)) return 'stale';
-  return lease.pid === process.pid ? 'owned' : 'foreign-active';
+  return lease.sessionId === getSessionId() ? 'owned' : 'foreign-active';
 }
 
 function ownerLeaseIssue(status: RuntimeClosureRow['locks']['ownerLease']): LifecycleControlIssue | null {

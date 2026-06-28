@@ -21,8 +21,34 @@ import type { HandlerContext } from './context.js';
 
 type FormatArgs = { format?: 'text' | 'json'; json?: boolean };
 
+const UNSUPPORTED_READ_ONLY_STATUS_FLAGS = [
+  'runCommands',
+  'writeEvidence',
+  'advancePhase',
+  'launchReviewers',
+  'authorityDone',
+  'fullAuthorityDone',
+  'productionDone',
+  'write',
+  'apply',
+  'execute',
+  'run',
+  'launch',
+  'capture',
+  'refresh',
+] as const;
+
 function wantsJson(args: FormatArgs | undefined): boolean {
   return args?.json === true || args?.format === 'json';
+}
+
+function assertReadOnlyStatusBoundary(command: string, args: Record<string, unknown>): void {
+  const rejected = UNSUPPORTED_READ_ONLY_STATUS_FLAGS.filter((flag) => Object.prototype.hasOwnProperty.call(args, flag));
+  if (rejected.length === 0) return;
+  throw new Error(
+    `${command} refuses unsupported side effects: ${rejected.join(', ')}. ` +
+    'This command is read-only status/diagnostics only; no story facts were read.',
+  );
 }
 
 function renderRuntime(report: ReturnType<typeof projectRuntimeClosure>): string {
@@ -88,6 +114,7 @@ function renderException(result: ReturnType<typeof setQueueException>): string {
 export function createLifecycleControlHandlers(ctx: HandlerContext): Record<string, (...args: any[]) => any> {
   return {
     global_control_status(args: ({ storyIds?: string[]; expanded?: boolean } & FormatArgs) = {}) {
+      assertReadOnlyStatusBoundary('global_control_status', args as Record<string, unknown>);
       const report = buildGlobalControlStatus(ctx.store, ctx.root, {
         storyIds: args.storyIds,
         expanded: args.expanded,
@@ -96,16 +123,19 @@ export function createLifecycleControlHandlers(ctx: HandlerContext): Record<stri
     },
 
     runtime_closure_status(args: (RuntimeClosureOptions & FormatArgs) = {}) {
+      assertReadOnlyStatusBoundary('runtime_closure_status', args as Record<string, unknown>);
       const report = projectRuntimeClosure(ctx.store, ctx.root, args);
       return wantsJson(args) ? report : renderRuntime(report);
     },
 
     admissibility_waterline(args: (AdmissibilityWaterlineOptions & FormatArgs) = {}) {
+      assertReadOnlyStatusBoundary('admissibility_waterline', args as Record<string, unknown>);
       const report = projectAdmissibilityWaterline(ctx.store, ctx.root, args);
       return wantsJson(args) ? report : renderWaterline(report);
     },
 
     queue_governance_status(args: ({ expanded?: boolean } & FormatArgs) = {}) {
+      assertReadOnlyStatusBoundary('queue_governance_status', args as Record<string, unknown>);
       const report = projectQueueGovernance(ctx.store, ctx.root, args);
       return wantsJson(args) ? report : renderQueue(report);
     },

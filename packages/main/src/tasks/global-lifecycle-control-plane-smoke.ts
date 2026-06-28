@@ -5,6 +5,7 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 import { READ_ONLY_COMMANDS } from '../cli-engine.js';
 import { getCommandPolicy } from '../core/command-policy.js';
@@ -17,6 +18,7 @@ import type {
 } from '../core/lifecycle-control/index.js';
 import { evaluateRuntimeEnforcement } from '../core/lifecycle-control/runtime/index.js';
 import { acquireMainWriteLock } from '../core/main-write-lock.js';
+import { getSessionId, ownerLeasePath } from '../core/story-owner-lease.js';
 import { StoryStore } from '../core/store.js';
 import type { StoryInfo } from '../core/types.js';
 import { createMainRegistry } from '../registry.js';
@@ -28,6 +30,19 @@ const TIER_C_STORY = 'B-tierc';
 const MALFORMED_STORY = 'B-tierc-bad';
 const DUP_A = 'B-dup-a';
 const DUP_B = 'B-dup-b';
+const LATTICE_CLI = fileURLToPath(new URL('../cli.js', import.meta.url));
+const READ_ONLY_STATUS_COMMANDS = [
+  'global_control_status',
+  'runtime_closure_status',
+  'admissibility_waterline',
+  'queue_governance_status',
+] as const;
+const UNSUPPORTED_STATUS_FLAGS = [
+  'write',
+  'apply',
+  'execute',
+  'productionDone',
+] as const;
 
 function git(cwd: string, args: string[]): string {
   return execFileSync('git', args, {
@@ -46,6 +61,21 @@ function git(cwd: string, args: string[]): string {
 
 function gitStatus(root: string): string {
   return git(root, ['status', '--short']);
+}
+
+function runCliExpectFail(cwd: string, command: string, flags: readonly string[]): string {
+  try {
+    execFileSync(process.execPath, [LATTICE_CLI, command, ...flags], {
+      cwd,
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+  } catch (err) {
+    const e = err as { stdout?: string; stderr?: string; status?: number };
+    assert.notEqual(e.status, 0, `${command} ${flags.join(' ')} exits nonzero`);
+    return `${e.stdout ?? ''}${e.stderr ?? ''}`;
+  }
+  assert.fail(`${command} ${flags.join(' ')} unexpectedly succeeded`);
 }
 
 function writeConfig(root: string): void {
@@ -127,17 +157,50 @@ function seedRepo(root: string): HandlerContext {
     phase: 'DEV',
     events: [...(story.events ?? []), { phase: 'DEV', action: 'advance', timestamp: '2026-06-28T00:10:00.000Z' }],
   });
+  const leaseHeartbeat = new Date().toISOString();
+  writeFileSync(ownerLeasePath(wtStore.storyDirPath(DRIFT_STORY)), JSON.stringify({
+    sessionId: getSessionId(),
+    sessionSource: 'derived-ppid',
+    hostname: 'global-lifecycle-control-plane-smoke',
+    pid: process.pid + 1000000,
+    cwd: worktreeAbs,
+    command: 'global-lifecycle-control-plane-smoke',
+    acquiredAt: leaseHeartbeat,
+    heartbeatAt: leaseHeartbeat,
+  }, null, 2) + '\n');
   resetConfigCache();
   return { store: new StoryStore(root), root, scanRoot: join(root, 'packages/main') };
 }
 
 function assertStaticRegistration(): void {
-  for (const command of ['global_control_status', 'runtime_closure_status', 'admissibility_waterline', 'queue_governance_status']) {
+  for (const command of READ_ONLY_STATUS_COMMANDS) {
     assert.equal(READ_ONLY_COMMANDS.has(command), true, `${command} must be activity read-only`);
     assert.equal(getCommandPolicy(command)?.ownershipClass, 'readOnly', `${command} must be readOnly`);
   }
   assert.equal(getCommandPolicy('queue_exception_set')?.ownershipClass, 'mainSharedMutating');
   assert.equal(getCommandPolicy('queue_exception_set')?.destructiveRisk, 'metadata-write');
+}
+
+function assertUnsupportedStatusFlagsFailClosed(root: string): void {
+  const throwingStore = new Proxy({}, {
+    get(_target, prop) {
+      throw new Error(`store read should not happen before status flag rejection: ${String(prop)}`);
+    },
+  }) as StoryStore;
+  const noReadRegistry = createMainRegistry({ store: throwingStore, root, scanRoot: join(root, 'packages/main') });
+
+  for (const command of READ_ONLY_STATUS_COMMANDS) {
+    for (const flag of UNSUPPORTED_STATUS_FLAGS) {
+      assert.throws(
+        () => noReadRegistry.get(command)!({ [flag]: true, json: true }),
+        /refuses unsupported side effects|no story facts were read/,
+        `${command} rejects ${flag}=true before store reads`,
+      );
+      const output = runCliExpectFail(root, command, [`--${flag}=true`, '--json']);
+      assert.match(output, new RegExp(flag), `${command} CLI rejection names --${flag}`);
+      assert.match(output, /Argument validation failed/, `${command} CLI rejection is validation failure`);
+    }
+  }
 }
 
 function assertRuntimeEnforcementGuardrails(): void {
@@ -196,6 +259,7 @@ function runSmoke(): void {
   try {
     const ctx = seedRepo(root);
     const registry = createMainRegistry(ctx);
+    assertUnsupportedStatusFlagsFailClosed(root);
     const before = gitStatus(root);
 
     const global = registry.get('global_control_status')!({ format: 'json', expanded: false }) as GlobalControlStatusReport;
@@ -288,6 +352,13 @@ function runSmoke(): void {
     const worktreeQueue = worktreeRegistry.get('queue_governance_status')!({ format: 'json' }) as QueueGovernanceReport;
     assert.equal(worktreeQueue.rows.find((row) => row.storyId === DRIFT_STORY)?.classification, 'active-worktree');
     assert.equal(worktreeQueue.summary.staleWorktree, 0);
+
+    const worktreeRuntime = worktreeRegistry.get('runtime_closure_status')!({ format: 'json', storyIds: [DRIFT_STORY] }) as RuntimeClosureReport;
+    assert.equal(
+      worktreeRuntime.stories[0].locks.ownerLease,
+      'owned',
+      'runtime closure owner lease follows sessionId ownership even when the recorded pid differs',
+    );
 
     const lock = acquireMainWriteLock(root, { label: 'queue_exception_set smoke holder' });
     try {

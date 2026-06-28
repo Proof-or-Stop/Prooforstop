@@ -49,6 +49,23 @@ import {
   verificationIntentTypeSchema,
 } from './command-schemas.js';
 
+const READ_ONLY_STATUS_UNSUPPORTED_FLAGS = {
+  runCommands: z.never().optional().describe('Not a flag; status commands are read-only. Passing --runCommands is rejected by CLI validation.'),
+  writeEvidence: z.never().optional().describe('Not a flag; status commands write no evidence. Passing --writeEvidence is rejected by CLI validation.'),
+  advancePhase: z.never().optional().describe('Not a flag; status commands never advance phase. Passing --advancePhase is rejected by CLI validation.'),
+  launchReviewers: z.never().optional().describe('Not a flag; status commands launch no reviewers. Passing --launchReviewers is rejected by CLI validation.'),
+  authorityDone: z.never().optional().describe('Not a flag; local status commands cannot claim authorityDone. Passing --authorityDone is rejected by CLI validation.'),
+  fullAuthorityDone: z.never().optional().describe('Not a flag; local status commands cannot claim fullAuthorityDone. Passing --fullAuthorityDone is rejected by CLI validation.'),
+  productionDone: z.never().optional().describe('Not a flag; local status commands cannot claim productionDone. Passing --productionDone is rejected by CLI validation.'),
+  write: z.never().optional().describe('Not a flag; status commands are read-only. Passing --write is rejected by CLI validation.'),
+  apply: z.never().optional().describe('Not a flag; status commands apply nothing. Passing --apply is rejected by CLI validation.'),
+  execute: z.never().optional().describe('Not a flag; status commands execute nothing. Passing --execute is rejected by CLI validation.'),
+  run: z.never().optional().describe('Not a flag; status commands run nothing. Passing --run is rejected by CLI validation.'),
+  launch: z.never().optional().describe('Not a flag; status commands launch nothing. Passing --launch is rejected by CLI validation.'),
+  capture: z.never().optional().describe('Not a flag; status commands capture nothing. Passing --capture is rejected by CLI validation.'),
+  refresh: z.never().optional().describe('Not a flag; status commands refresh nothing. Passing --refresh is rejected by CLI validation.'),
+} satisfies Record<string, z.ZodType>;
+
 /** CLI tool definitions bundled with main. */
 export const MAIN_TOOLS: ToolDef[] = [
   // Story
@@ -674,6 +691,7 @@ Behavior:
     expanded: z.boolean().optional().describe('Expand experiment-batch details (default false).'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text).'),
     json: z.boolean().optional().describe('Shortcut for --format=json.'),
+    ...READ_ONLY_STATUS_UNSUPPORTED_FLAGS,
   }},
   { name: 'runtime_closure_status', description: 'Read-only runtime closure projection from authority, readiness, freshness, and shipped lock state.', schema: {
     storyIds: z.array(z.string()).optional().describe('Optional story IDs to include.'),
@@ -681,17 +699,20 @@ Behavior:
     currentValidationStoryId: z.string().optional().describe('Test/diagnostic hint to render a validation lock as self-reentry.'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text).'),
     json: z.boolean().optional().describe('Shortcut for --format=json.'),
+    ...READ_ONLY_STATUS_UNSUPPORTED_FLAGS,
   }},
   { name: 'admissibility_waterline', description: 'Diagnostic-only Proof Admissibility consumer waterline; never grants lifecycle readiness or production eligibility.', schema: {
     storyId: z.string().optional().describe('Optional story ID for story-scoped evidence probes.'),
     consumers: z.array(z.enum(['STORY_INTAKE', 'PLAN', 'REVIEW', 'TEST', 'DONE', 'HANDOFF', 'AUTHORITY_GATE_DECISION', 'DONE_REQUIRED'])).optional().describe('Optional consumers to render.'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text).'),
     json: z.boolean().optional().describe('Shortcut for --format=json.'),
+    ...READ_ONLY_STATUS_UNSUPPORTED_FLAGS,
   }},
   { name: 'queue_governance_status', description: 'Read-only active story queue governance projection with duplicate and experiment-batch grouping.', schema: {
     expanded: z.boolean().optional().describe('Expand experiment-batch story membership (default false).'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text).'),
     json: z.boolean().optional().describe('Shortcut for --format=json.'),
+    ...READ_ONLY_STATUS_UNSUPPORTED_FLAGS,
   }},
   { name: 'queue_exception_set', description: 'Guarded queue governance writer for auditable experiment-batch exceptions; does not grant lifecycle readiness.', schema: {
     experimentBatchId: z.string().describe('Durable experiment batch id.'),
