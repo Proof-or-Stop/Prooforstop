@@ -187,6 +187,25 @@
       "resolvedAt": "2026-06-28T10:56:03.975Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-eb18:F-009",
+      "desc": "Superseded stories still participate in duplicate cluster canonical selection. A story with lifecycleControl.queue.supersededBy can become canonical for a same-title replacement, causing the intended replacement to be classified as duplicate-candidate and creating cleanup pressure on the canonical successor.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-28T10:59:41.954Z",
+      "reviewRound": "2026-06-28T10:55:11.249Z",
+      "reviewRunId": "B-eb18:RR-021",
+      "_hash": "d52dbc2707307ad49a437a51d6a819c16eeaa7f5a0719ed6fe040c098e98d93f",
+      "files": [
+        "packages/main/src/core/lifecycle-control/queue/index.ts",
+        "packages/main/src/tasks/global-lifecycle-control-plane-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|superseded-stories-still",
+      "signatureTagSource": "auto"
     }
   ]
 }
