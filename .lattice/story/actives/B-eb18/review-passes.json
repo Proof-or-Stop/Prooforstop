@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-28T10:01:33.439Z",
       "reviewRunId": "B-eb18:RR-002",
       "_hash": "9b1a93aa78904c9a921a26168a4e3a19d7958dac7c8966306f3a3a2fd3914139"
+    },
+    {
+      "id": "B-eb18:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage pass: verified global-lifecycle-control-plane smoke covers global status, runtime closure, admissibility waterline, queue governance, queue_exception_set writer/audit/main-lock contention, and read-only no-mutation behavior; process/runtime fact contracts plus command ownership/catalog/source-structure smokes cover command ownership and registry/process-fact coverage. No untested gate-relevant writer semantics found.",
+      "createdAt": "2026-06-28T10:04:26.514Z",
+      "reviewRound": "2026-06-28T10:01:33.439Z",
+      "reviewRunId": "B-eb18:RR-003",
+      "_hash": "84619b88c6283a393384fbf1448763835a7cff7f3b77ce4f8e190443faea0bde"
     }
   ]
 }
