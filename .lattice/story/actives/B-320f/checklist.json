@@ -387,9 +387,9 @@
       "relatedDocs": [
         ".lattice/story/actives/B-320f/background.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-28T16:19:15.948Z",
       "userSees": "User sees \"implementation integration: PASS\" in the final Autopilot v2 acceptance table.",
       "files": {
         "modify": [
@@ -426,7 +426,20 @@
             "priority": "should"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-007:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/autopilot-v2-reliability-smoke.js",
+          "result": "pass",
+          "note": "Implemented B-320f material changes across reliability helper, autopilot integration, dispatch host baseline, smoke, docs, and version bump; build and smoke pass.",
+          "headHash": "0c14e20ea90446f0a4d5e769920c0482bde56e12",
+          "materialHash": "f6100b55d5512a0f60a5b7228bf7a217ed4014cc63e1bfa0e29d5ea505d09114",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-28T16:19:16.196Z"
+        }
+      ]
     },
     {
       "id": "CHK-008",
