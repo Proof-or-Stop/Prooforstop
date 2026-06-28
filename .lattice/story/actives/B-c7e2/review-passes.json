@@ -53,6 +53,15 @@
       "reviewRound": "2026-06-28T01:38:58.172Z",
       "reviewRunId": "B-c7e2:RR-013",
       "_hash": "0135b55d8a5cd591035c87516c7f796247a1c331a328b96b81b66a87062cf432"
+    },
+    {
+      "id": "B-c7e2:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "Concept review pass: after fix 1a1239e9d, autopilot_resume replays checkpoint ledger state into an M1 projection only, never dispatches workers, and keeps authorityChanged=false, receiptVerified=false, productionDone=false. Stale updatedAt, corrupt/missing ledger, stale checkpoints, unsafe cancelled/early-failed states, autopilot policy digest drift, dispatch policy material drift, and missing git freshness probes all fail closed in implementation and focused smokes. Commands run: npm --prefix packages/main run build; npm --prefix packages/main run test:autopilot-resume-smoke; node packages/main/dist/tasks/autopilot-run-smoke.js; npm --prefix packages/main run test:command-ownership-contract; node scripts/verify-process-fact-contract.mjs; git diff --check.",
+      "createdAt": "2026-06-28T01:42:40.358Z",
+      "reviewRound": "2026-06-28T01:38:58.172Z",
+      "reviewRunId": "B-c7e2:RR-016",
+      "_hash": "97444c467a3331ecf8a437c04c8e6aa1f8016515315988ac4191235b695e354e"
     }
   ]
 }
