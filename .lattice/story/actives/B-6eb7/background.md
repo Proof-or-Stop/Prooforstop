@@ -1,0 +1,11 @@
+## Trigger Event
+During story B-8628 (DONE, Proofbound CLI 0.3.103, which tightened repro-first classification to material-code bug/feature) the Codex host-2 reviewer raised a MEDIUM (VERDICT FAIL) on 2026-06-27: the L4 repro-first process-fact rationale prose still says file-declaring stories, stale versus the shipped gate semantics. It was deferred from B-8628 because those two files were outside B-8628's scope-boundary; this story is that deferred prose follow-up.
+
+## Key Insights
+The repro-first gate now requires red/spike only for material-code bug|feature (or high/critical code-verifiable risk); it no longer keys on bare file declarations. But three rationale strings still describe the old behavior: process-fact-levels.ts ~line 88 (runtime:repro_first_story_intake_preflight: blocks file-declaring code stories), process-fact-levels.ts ~line 89 (story_create_from_repro: before file-declaring stories can enter PLAN or DEV), and process-fact-registry.ts ~line 927 (story-evidence-binding: before file-declaring stories may enter PLAN or DEV). verify-process-fact-contract.mjs checks structure not prose, so the contract gate already passes; this is a documentation-accuracy alignment the repo convention asks for. It is prose-only: the classifier/gate/mode/blocking logic shipped in B-8628 is unchanged.
+
+## Solution Tradeoffs
+Replace the file-declaring-stories phrase with material-code bug/feature (plus the high/critical code-verifiable safety net) in the three rationale strings only. Do not change classifyReproFirstRequirement, the modes, the blocking math, the structural registry fields, or any gate behavior. Keep it a chore (which is repro-first-exempt under the B-8628 rule). The two files live under high-risk process-fact paths, so DONE still requires the 3x2 review-assurance floor even though the diff is prose. Verify node scripts/verify-process-fact-contract.mjs still passes and npm test is green.
+
+## Conversational Texture
+The user explicitly chose to finish B-8628 DONE first and do this prose alignment as a small separate follow-up story rather than expand B-8628's scope mid-DONE. The emphasis is a minimal, accurate, behavior-zero prose fix that keeps the gate-consumed runtime fact aligned with the shipped semantics.

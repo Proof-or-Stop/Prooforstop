@@ -1,0 +1,20 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Update the three repro-first rationale strings to material-code bug/feature semantics",
+      "context": "Replace the stale 'file-declaring stories' phrasing in three L4 rationale strings: (1) packages/main/src/core/process-fact-levels.ts runtime:repro_first_story_intake_preflight rationale ('blocks file-declaring code stories in enforce mode' -> blocks material-code bug/feature stories, plus high/critical code-verifiable, in enforce mode); (2) packages/main/src/core/process-fact-levels.ts story_create_from_repro rationale ('before file-declaring stories can enter PLAN or DEV' -> before material-code bug/feature stories); (3) packages/main/src/core/process-fact-registry.ts story-evidence-binding rationale ('before file-declaring stories may enter PLAN or DEV' -> before material-code bug/feature stories). Prose only; do not touch classifyReproFirstRequirement, modes, blocking math, structural registry fields, or gateConsumer values. Verify: node scripts/verify-process-fact-contract.mjs passes; npm test green.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts"
+        ],
+        "create": [],
+        "test": []
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
