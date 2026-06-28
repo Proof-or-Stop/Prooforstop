@@ -1,0 +1,22 @@
+{
+  "findings": [
+    {
+      "id": "B-6eb7:F-001",
+      "desc": "concept-cleanup: file-declaring replacement incomplete: packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts still has 4 references to file-declaring (lines 373, 544, 569, 594) in test-name and description strings; these mislead future readers about the current gate semantics (material-code bug/feature) and are not excluded by deprecated or backward-compat markers",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-28T23:05:57.867Z",
+      "reviewRound": "2026-06-28T23:02:10.365Z",
+      "reviewRunId": "B-6eb7:RR-003",
+      "_hash": "2d6b87a61077fdf7f4ab1d92d3123c9cedb4380316ed85105b0d5fb18dc2649d",
+      "files": [
+        "packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|concept-cleanup-file",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
