@@ -52,10 +52,10 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/autopilot-v2-reliability-smoke.js",
           "result": "pass",
           "note": "Build passed and new smoke asserts M2/M3/M4 reliability behavior for the reproduced autopilot reliability gap.",
-          "headHash": "f83c7a94ff358453885230532b4404b52f2643ce",
-          "materialHash": "f6100b55d5512a0f60a5b7228bf7a217ed4014cc63e1bfa0e29d5ea505d09114",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-28T16:18:18.825Z"
+          "headHash": "6b127625e555ed4636dfde732de40780aeb59143",
+          "materialHash": "5d118ccca351e9fdf8f569dce8cbcb8163042c5c6c90c88106fefc8e19c90925",
+          "storyFilesHash": "8d5cf7a97b2f536fa3779fc9b86795472850f8578d13d02ef5e3832c819b193d",
+          "timestamp": "2026-06-28T16:20:44.939Z"
         }
       ]
     },
@@ -111,10 +111,10 @@
           "command": "node packages/main/dist/tasks/autopilot-v2-reliability-smoke.js",
           "result": "pass",
           "note": "Smoke asserts deterministic maxConcurrentLive state, throttle_raise, throttle_backoff, throttle_hold, and bounded permit behavior.",
-          "headHash": "518dd07369fcbc090c22e3c7b5537a97b69ae441",
-          "materialHash": "f6100b55d5512a0f60a5b7228bf7a217ed4014cc63e1bfa0e29d5ea505d09114",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-28T16:18:30.872Z"
+          "headHash": "6b127625e555ed4636dfde732de40780aeb59143",
+          "materialHash": "5d118ccca351e9fdf8f569dce8cbcb8163042c5c6c90c88106fefc8e19c90925",
+          "storyFilesHash": "8d5cf7a97b2f536fa3779fc9b86795472850f8578d13d02ef5e3832c819b193d",
+          "timestamp": "2026-06-28T16:20:44.939Z"
         }
       ]
     },
@@ -170,10 +170,10 @@
           "command": "node packages/main/dist/tasks/autopilot-v2-reliability-smoke.js",
           "result": "pass",
           "note": "Smoke asserts duplicate live claims are refused, expired leases are reclaimable, stale fencing tokens cannot complete, and completed steps cannot be claimed again.",
-          "headHash": "8c7ecd2cc62855e48aab979e908b1150472c5f65",
-          "materialHash": "f6100b55d5512a0f60a5b7228bf7a217ed4014cc63e1bfa0e29d5ea505d09114",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-28T16:18:37.521Z"
+          "headHash": "6b127625e555ed4636dfde732de40780aeb59143",
+          "materialHash": "5d118ccca351e9fdf8f569dce8cbcb8163042c5c6c90c88106fefc8e19c90925",
+          "storyFilesHash": "8d5cf7a97b2f536fa3779fc9b86795472850f8578d13d02ef5e3832c819b193d",
+          "timestamp": "2026-06-28T16:20:44.939Z"
         }
       ]
     },
@@ -225,10 +225,10 @@
           "command": "git diff -- docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
           "result": "pass",
           "note": "Execution plan status and acceptance table updated for implemented M1-M4, host baseline, build, smoke, version, validate, and DONE evidence expectations.",
-          "headHash": "88058ce3d5f5b9b741d131d92708b54d1820ef93",
-          "materialHash": "f6100b55d5512a0f60a5b7228bf7a217ed4014cc63e1bfa0e29d5ea505d09114",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-28T16:18:55.983Z"
+          "headHash": "6b127625e555ed4636dfde732de40780aeb59143",
+          "materialHash": "5d118ccca351e9fdf8f569dce8cbcb8163042c5c6c90c88106fefc8e19c90925",
+          "storyFilesHash": "8d5cf7a97b2f536fa3779fc9b86795472850f8578d13d02ef5e3832c819b193d",
+          "timestamp": "2026-06-28T16:20:44.939Z"
         }
       ]
     },
@@ -291,10 +291,10 @@
           "command": "npm --prefix packages/main run build",
           "result": "pass",
           "note": "TypeScript build passed with CLI/package version 0.3.103.",
-          "headHash": "3cacc7be21c1ea03a6a4177b4c09aeb964a5d288",
-          "materialHash": "f6100b55d5512a0f60a5b7228bf7a217ed4014cc63e1bfa0e29d5ea505d09114",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-28T16:19:03.341Z"
+          "headHash": "6b127625e555ed4636dfde732de40780aeb59143",
+          "materialHash": "5d118ccca351e9fdf8f569dce8cbcb8163042c5c6c90c88106fefc8e19c90925",
+          "storyFilesHash": "8d5cf7a97b2f536fa3779fc9b86795472850f8578d13d02ef5e3832c819b193d",
+          "timestamp": "2026-06-28T16:20:44.939Z"
         },
         {
           "intentRef": "CHK-005:happy:1",
@@ -302,10 +302,10 @@
           "command": "node packages/main/dist/tasks/autopilot-v2-reliability-smoke.js",
           "result": "pass",
           "note": "New reliability smoke printed PASS.",
-          "headHash": "3cacc7be21c1ea03a6a4177b4c09aeb964a5d288",
-          "materialHash": "f6100b55d5512a0f60a5b7228bf7a217ed4014cc63e1bfa0e29d5ea505d09114",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-28T16:19:03.595Z"
+          "headHash": "6b127625e555ed4636dfde732de40780aeb59143",
+          "materialHash": "5d118ccca351e9fdf8f569dce8cbcb8163042c5c6c90c88106fefc8e19c90925",
+          "storyFilesHash": "8d5cf7a97b2f536fa3779fc9b86795472850f8578d13d02ef5e3832c819b193d",
+          "timestamp": "2026-06-28T16:20:44.939Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -313,10 +313,10 @@
           "command": "node packages/main/dist/cli.js --version",
           "result": "pass",
           "note": "Built local CLI reports Proofbound CLI 0.3.103.",
-          "headHash": "3cacc7be21c1ea03a6a4177b4c09aeb964a5d288",
-          "materialHash": "f6100b55d5512a0f60a5b7228bf7a217ed4014cc63e1bfa0e29d5ea505d09114",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-28T16:19:03.874Z"
+          "headHash": "6b127625e555ed4636dfde732de40780aeb59143",
+          "materialHash": "5d118ccca351e9fdf8f569dce8cbcb8163042c5c6c90c88106fefc8e19c90925",
+          "storyFilesHash": "8d5cf7a97b2f536fa3779fc9b86795472850f8578d13d02ef5e3832c819b193d",
+          "timestamp": "2026-06-28T16:20:44.939Z"
         }
       ]
     },
@@ -373,10 +373,10 @@
           "command": "node packages/main/dist/tasks/autopilot-v2-reliability-smoke.js",
           "result": "pass",
           "note": "Smoke asserts retryable provider classes enter waiting/paused health states and quota/auth/policy/terminal failures remain non-transient.",
-          "headHash": "b09393340e2cd00d83cb78bb8b04dbc201996840",
-          "materialHash": "f6100b55d5512a0f60a5b7228bf7a217ed4014cc63e1bfa0e29d5ea505d09114",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-28T16:19:10.314Z"
+          "headHash": "6b127625e555ed4636dfde732de40780aeb59143",
+          "materialHash": "5d118ccca351e9fdf8f569dce8cbcb8163042c5c6c90c88106fefc8e19c90925",
+          "storyFilesHash": "8d5cf7a97b2f536fa3779fc9b86795472850f8578d13d02ef5e3832c819b193d",
+          "timestamp": "2026-06-28T16:20:44.939Z"
         }
       ]
     },
@@ -434,10 +434,10 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/autopilot-v2-reliability-smoke.js",
           "result": "pass",
           "note": "Implemented B-320f material changes across reliability helper, autopilot integration, dispatch host baseline, smoke, docs, and version bump; build and smoke pass.",
-          "headHash": "0c14e20ea90446f0a4d5e769920c0482bde56e12",
-          "materialHash": "f6100b55d5512a0f60a5b7228bf7a217ed4014cc63e1bfa0e29d5ea505d09114",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-28T16:19:16.196Z"
+          "headHash": "6b127625e555ed4636dfde732de40780aeb59143",
+          "materialHash": "5d118ccca351e9fdf8f569dce8cbcb8163042c5c6c90c88106fefc8e19c90925",
+          "storyFilesHash": "8d5cf7a97b2f536fa3779fc9b86795472850f8578d13d02ef5e3832c819b193d",
+          "timestamp": "2026-06-28T16:20:44.939Z"
         }
       ]
     },
@@ -493,10 +493,10 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/autopilot-v2-reliability-smoke.js && node packages/main/dist/cli.js --version",
           "result": "pass",
           "note": "Verification completed for B-320f DEV: build passes, reliability smoke passes, and built CLI reports 0.3.103. Routine lattice validate remains for TEST phase.",
-          "headHash": "2d7e211851b09ca087fdf20e94f71384492f3c8a",
-          "materialHash": "f6100b55d5512a0f60a5b7228bf7a217ed4014cc63e1bfa0e29d5ea505d09114",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-28T16:19:44.596Z"
+          "headHash": "6b127625e555ed4636dfde732de40780aeb59143",
+          "materialHash": "5d118ccca351e9fdf8f569dce8cbcb8163042c5c6c90c88106fefc8e19c90925",
+          "storyFilesHash": "8d5cf7a97b2f536fa3779fc9b86795472850f8578d13d02ef5e3832c819b193d",
+          "timestamp": "2026-06-28T16:20:44.939Z"
         }
       ]
     }
