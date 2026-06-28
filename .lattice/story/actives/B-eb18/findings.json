@@ -77,7 +77,7 @@
       "desc": "queue_governance_status promises a superseded classification, but the queue projector cannot emit classification=superseded and the smoke test does not cover it; summary only counts an impossible row, so DONE coverage would accept an unimplemented queue class.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-28T10:50:21.810Z",
@@ -90,7 +90,11 @@
         "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md"
       ],
       "signatureTag": "missing|ts|queue-governance-status",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commit a81497c6b: queue projector now emits classification=superseded from explicit lifecycleControl.queue.supersededBy metadata, and global-lifecycle-control-plane-smoke asserts a superseded row plus summary.superseded=1. Verified with npm --prefix packages/main run build, node packages/main/dist/tasks/global-lifecycle-control-plane-smoke.js, and node scripts/verify-process-fact-contract.mjs.",
+      "resolvedAt": "2026-06-28T10:55:35.167Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-eb18:F-005",
