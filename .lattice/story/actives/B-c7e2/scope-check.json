@@ -1,0 +1,59 @@
+{
+  "storyId": "B-c7e2",
+  "checkedAt": "2026-06-28T01:00:10.008Z",
+  "features": [
+    {
+      "feature": "Autopilot M1 checkpoint-ledger replay",
+      "covered_by": "CHK-001; plan.md#CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md"
+    },
+    {
+      "feature": "Healthy non-stale autopilot_resume no longer hard-refuses unsafe_state",
+      "covered_by": "CHK-002; plan.md#CHK-002",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "red repro rp-mqx2itpx-0faeok"
+    },
+    {
+      "feature": "Build/smoke/Antigravity second-host validation",
+      "covered_by": "CHK-003; plan.md#CHK-003",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "story execution boundary"
+    },
+    {
+      "feature": "M2 provider health/session guard ramp",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "scope-boundary excludedScope",
+      "source": "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md"
+    },
+    {
+      "feature": "M3 throttle and M4 process pool/fencing",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "scope-boundary excludedScope",
+      "source": "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md"
+    },
+    {
+      "feature": "remote production receipt semantics or productionDone enforcement",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "scope-boundary excludedScope",
+      "source": "story scope boundary"
+    }
+  ],
+  "summary": {
+    "total": 6,
+    "covered": 3,
+    "excluded": 3,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "37192419290d7176c8b8e0b45178249bad57767ff3c6c95a2f4f7473a9dc3e27",
+  "openQuestions": []
+}
