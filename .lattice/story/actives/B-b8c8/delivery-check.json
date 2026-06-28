@@ -1,8 +1,8 @@
 {
   "storyId": "B-b8c8",
-  "checkedAt": "2026-06-28T10:02:58.066Z",
-  "headHash": "f763d5b59a432eae4312580b4105d59002ae820c",
-  "materialHash": "ab9d52f3e5d7808ee877f8245d923cb2e6b69eb399e1283d658469134b7b109b",
+  "checkedAt": "2026-06-28T10:12:40.745Z",
+  "headHash": "66f49409821034ebad0f139994a668f458b4ef4c",
+  "materialHash": "43a5a7c9475f06ca23528c51250af878f6102d652bf800b60ab87add4436a56b",
   "reviewRound": "2026-06-28T09:44:57.808Z",
   "agentId": "lattice-review-delivery",
   "docsPromises": [
@@ -11,28 +11,28 @@
       "promise": "A2′ compute-matched naive is described as spend-matched on spend, not call count.",
       "status": "verified",
       "verifiedBy": "git diff",
-      "evidence": "experiment-protocol.md now says the A2′ arm is bounded by a token + wall-clock spend budget equal to A4's per-task median, ±20% band, token binds first; equal compute matched on spend, not call count."
+      "evidence": "experiment-protocol.md now says the A2′ arm is bounded by a token + wall-clock spend budget equal to A4's per-task median, ±20% band, token binds first; the proofbound transcript-diff note records the broader TEST run staying aligned with the paper sync."
     },
     {
       "docPath": "/Users/jek/Documents/Work/lattice-Paper/paper/main.tex",
       "promise": "The appendix wording for A2′ matches the spend-matched semantics used in the body.",
       "status": "verified",
       "verifiedBy": "git diff",
-      "evidence": "paper/main.tex appendix row now matches the body semantics and no longer says median A4 agent-call count."
+      "evidence": "paper/main.tex appendix row now matches the body semantics and no longer says median A4 agent-call count; the current proofbound transcript-diff note captures the matching TEST evidence trail."
     },
     {
       "docPath": "/Users/jek/Documents/Work/lattice-Paper/paper/evidence/B-b8c8-recovery-runner-accounting.md",
       "promise": "The evidence note stays within the narrow local harness/accounting boundary and does not claim a powered campaign.",
       "status": "verified",
       "verifiedBy": "read",
-      "evidence": "The note explicitly says it supports only the local verification claim and does not claim a powered campaign."
+      "evidence": "The note explicitly says it supports only the local verification claim and does not claim a powered campaign; this stays consistent with the proofbound transcript-diff note."
     },
     {
       "docPath": "/Users/jek/Documents/Work/lattice-Paper/paper/evidence/B-b8c8-recovery-runner-accounting.json",
       "promise": "The JSON evidence metadata stays narrow and points at the spend-matched A2-prime claim boundary.",
       "status": "verified",
       "verifiedBy": "read",
-      "evidence": "claimBoundary and verification.paperSync fields stay within the accounting-only scope."
+      "evidence": "claimBoundary and verification.paperSync fields stay within the accounting-only scope and align with the current paper diff evidence."
     }
   ],
   "realMachineTests": [
@@ -42,14 +42,14 @@
     },
     {
       "featureId": "B-b8c8-TEST",
-      "transcript": "lattice story_advance --storyId=B-b8c8 --phase=TEST --forceTakeover -> validate PASS, 31 configured commands ran, test-evidence.json written."
+      "transcript": "lattice story_advance --storyId=B-b8c8 --phase=TEST --forceTakeover -> validate PASS, 31 configured commands ran, test-evidence.json written; the proofbound transcript-diff note records the broader TEST run and paper sync."
     }
   ],
   "closingSelfCheck": {
     "hasRealMachineTest": true,
     "hasEdgeCaseCoverage": true,
     "hasUnresolvedTodos": false,
-    "summary": "No blocking findings remain; the paper docs, transcript diff, and selfcheck all line up with the spend-matched A2-prime story."
+    "summary": "No blocking findings remain; the paper docs, transcript diff, and selfcheck align with the spend-matched A2-prime story after the latest merge."
   },
-  "_hash": "f33f41e170f317ce156d90b2d79013b74bc1423c63d8695b1582f1f3bb4fb5fa"
+  "_hash": "36816e9b401b0a007019acbbb63d71c247331809a15f694fe8d7257ea98083f4"
 }
