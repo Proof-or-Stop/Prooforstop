@@ -275,6 +275,26 @@
       ],
       "signatureTag": "missing|ts|queue-exception-precedence",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-eb18:F-013",
+      "desc": "Queue class precedence lets superseded beat cleanup-required. A malformed Tier-C story with supersession metadata is classified as superseded instead of cleanup-required, violating the documented rule that cleanup-required beats every other class.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-28T11:06:42.444Z",
+      "reviewRound": "2026-06-28T11:03:10.400Z",
+      "reviewRunId": "B-eb18:RR-023",
+      "_hash": "f0f53a1ca5e2780d1ce827e627d4e0dd25893e23b8819f9946ec799e8c0efb36",
+      "files": [
+        "packages/main/src/core/lifecycle-control/queue/index.ts",
+        "packages/main/src/tasks/global-lifecycle-control-plane-smoke.ts",
+        "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md"
+      ],
+      "signatureTag": "missing|ts|queue-class-precedence",
+      "signatureTagSource": "auto"
     }
   ]
 }
