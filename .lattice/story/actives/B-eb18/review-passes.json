@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-28T10:07:34.653Z",
       "reviewRunId": "B-eb18:RR-007",
       "_hash": "96b9137146c60ec8645644f86ae2b10d8a0fce903e4933a232ac22fb14b92b81"
+    },
+    {
+      "id": "B-eb18:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "Concept review pass: no correctness blocker found. Evidence: inspected lifecycle-control handler/read-only flag boundary, queue canonical worktree projection, runtime owner lease/session projection, command catalog/policy registrations; ran global-lifecycle-control-plane smoke, runtime_closure_status, queue_governance_status, and verified global_control_status --write=true fails closed at argument validation.",
+      "createdAt": "2026-06-28T10:26:07.489Z",
+      "reviewRound": "2026-06-28T10:20:01.015Z",
+      "reviewRunId": "B-eb18:RR-011",
+      "_hash": "04e94bab2caacaa479987774fcab884dfbf1193354f9dc96558458ff8c690b6d"
     }
   ]
 }
