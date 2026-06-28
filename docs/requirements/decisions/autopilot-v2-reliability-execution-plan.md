@@ -12,6 +12,11 @@ actually hits — **HTTP 429 / 503 / 529 / overload, network outages, provider-s
 limits, and host/session interruptions** — assuming a host, supervisor, CI job, or human
 relaunches the process after process death.
 
+Provider-health classification applies to provider-side rate-limit, overload, and network
+failures surfaced by a runtime adapter. Dispatch/runtime timeouts owned by Proofbound's local
+subprocess boundary remain the existing local `stopReason: timeout` unless a future
+provider-specific timeout signal is deliberately reclassified.
+
 **Scope boundary.** This plan makes an autopilot run **restart-safe and resume-correct**. It does
 not make the CLI process immortal. If the host process, terminal, Codex window, Claude Code
 window, Antigravity window, CI job, or OS process dies, a supervisor or human must relaunch
@@ -254,8 +259,9 @@ by `autopilot_watch`, a host/supervisor wrapper, CI, or a human invoking `autopi
 **This + M1 = bounded single-run reliability: restart-safe resume plus health-aware pause.**
 
 **Changes.**
-- Lift `callWithRetry`/`isRetryable`'s transient-vs-terminal classification (429/503/529/overload/
-  rate/network/timeout) out of `claude-cli.ts:200-231` into a **shared** bounded-dispatch helper.
+- Lift `callWithRetry`/`isRetryable`'s transient-vs-terminal classification (provider-side
+  429/503/529/overload/rate/network failures) out of `claude-cli.ts:200-231` into a **shared**
+  bounded-dispatch helper.
   The helper is host-neutral: it applies to whichever runtime adapter the current host/window
   selected (`claude-code`, `codex`, or `antigravity`/`agy`). Legacy `gemini` may reuse the helper
   where compatibility code still exists, but it is not the current third-host baseline.
@@ -285,9 +291,11 @@ by `autopilot_watch`, a host/supervisor wrapper, CI, or a human invoking `autopi
 - Assert checkpoint/run events include enough observable data for `session-guard`-class behavior:
   `health_probe`, `provider_unhealthy`, `waiting_for_provider_health`, `paused_requires_resume`,
   `health_recovered`, and `resumed`, with concrete event/log artifact paths.
-- `claude-code`, `codex`, and `antigravity`/`agy` adapters classify 429/503/529/overload/network/
-  timeout consistently. Any remaining `gemini` compatibility path must be explicitly marked
-  legacy and cannot be used as evidence for the current third-host baseline.
+- `claude-code`, `codex`, and `antigravity`/`agy` adapters classify provider-side
+  429/503/529/overload/network failures consistently. Local dispatch/runtime timeout remains
+  `stopReason: timeout` unless a future provider-specific timeout signal is deliberately
+  reclassified. Any remaining `gemini` compatibility path must be explicitly marked legacy and
+  cannot be used as evidence for the current third-host baseline.
 
 **Files.** provider/runtime adapters for `claude-code`, `codex`, and `antigravity`/`agy`
 (plus legacy `gemini` only where compatibility still exists), `providers/<shared>`,
@@ -383,7 +391,7 @@ semantically load-bearing.
 | Item | Implementation status | Acceptance evidence |
 |---|---|---|
 | M1 checkpoint/resume | Present before B-320f and preserved. The checkpoint ledger remains authoritative and `run.json` remains a readable projection. | Existing `packages/main/src/core/lattice-autopilot.ts` checkpoint ledger and `autopilot_resume` replay path are unchanged in structure; B-320f only adds health events around pause/resume. |
-| M2 health-aware pause/resume | Implemented as shared classification/state helpers plus minimal `autopilot_run` integration at dispatch failure boundaries. Retryable 429/503/529/overload/network/timeout become provider-health states; quota/auth/policy/terminal errors are non-transient. | `node packages/main/dist/tasks/autopilot-v2-reliability-smoke.js` asserts `health_probe`, `provider_unhealthy`, `waiting_for_provider_health`, `paused_requires_resume`, `health_recovered`, and `resumed` event semantics. |
+| M2 health-aware pause/resume | Implemented as shared classification/state helpers plus minimal `autopilot_run` integration at dispatch failure boundaries. Provider-side retryable 429/503/529/overload/network failures become provider-health states; quota/auth/policy/terminal errors are non-transient. Dispatch/runtime timeout remains the local `stopReason: timeout` boundary unless a future provider-specific timeout signal is deliberately reclassified. | `node packages/main/dist/tasks/autopilot-v2-reliability-smoke.js` asserts `health_probe`, `provider_unhealthy`, `waiting_for_provider_health`, `paused_requires_resume`, `health_recovered`, and `resumed` event semantics. |
 | M3 adaptive throttle | Implemented as deterministic local throttle state with bounded `maxConcurrentLive`, permit checks, `throttle_hold`, `throttle_raise`, and `throttle_backoff`. | Smoke asserts bounded concurrency, raise on stable windows, backoff on provider failures, and hold behavior. |
 | M4 process-pool safety | Implemented as deterministic claim/lease/fencing state semantics for worker-owned step execution. Duplicate live claims are refused; expired leases can be reclaimed; stale fencing tokens cannot complete a step. | Smoke asserts duplicate live claim refusal, expired lease reclaim, stale fencing-token refusal, successful completion by the current owner, and refusal after completion. |
 | Host baseline | Current host-neutral baseline is Codex, Claude Code, and Antigravity. `agy` is an alias for Antigravity. Gemini is legacy/deprecated compatibility only. | `HOST_RUNTIME_BASELINE` is exported from `packages/main/src/core/lattice-dispatch.ts`; smoke asserts the current and legacy sets. |

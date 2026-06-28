@@ -1611,6 +1611,15 @@ function spawnOutputText(value: unknown): string {
   return Buffer.isBuffer(value) ? value.toString('utf8') : String(value);
 }
 
+function compactProcessOutputForWarning(...values: string[]): string {
+  return values
+    .filter(Boolean)
+    .join('\n')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 500);
+}
+
 function spawnTimedOut(result: ReturnType<typeof spawnSync>, timeoutMs: number): boolean {
   const error = result.error as NodeJS.ErrnoException | undefined;
   const message = String(error?.message || '');
@@ -2376,9 +2385,12 @@ function runClaudeCodeRealLeafDispatch(
 
   const baseWarnings = removeScaffoldedOnlyWarnings(record.warnings);
   if (exitCode !== 0 || timedOut) {
+    const providerOutput = compactProcessOutputForWarning(stderr, stdout, spawnError);
     const failureWarning = timedOut
       ? `claude-code real subprocess timed out after ${timeoutMs}ms`
-      : `claude-code real subprocess exited non-zero: ${exitCode}`;
+      : providerOutput
+        ? `claude-code real subprocess exited non-zero: ${exitCode}; provider output: ${providerOutput}`
+        : `claude-code real subprocess exited non-zero: ${exitCode}`;
     const failed = writeRecord(root, {
       ...record,
       status: 'failed',

@@ -1215,6 +1215,10 @@ function classifyDispatchError(message: string): AutopilotStopReason {
   if (/budget/i.test(message)) return 'budget_exhausted';
   if (/not unattended-safe|allowRealHostSubprocess/i.test(message)) return 'validation_failed';
   if (/timeout|timed out/i.test(message)) return 'timeout';
+  if (/^dispatch_auto:\s+(unknown host|host ".+" is not in policy|policy ".+" could not be loaded|policy ".+" is supervised-only)/i.test(message)) {
+    return 'validation_failed';
+  }
+  if (/dispatch_auto refused by policy commandAllowlist/i.test(message)) return 'validation_failed';
   const providerFailure = classifyAutopilotProviderFailure(message);
   if (providerFailure.retryableProviderHealth) return 'provider_unhealthy';
   if (providerFailure.requiresHuman) return 'human_required';

@@ -6,7 +6,7 @@
  *   autopilot_policy_create -> autopilot_policy_check -> autopilot_run
  *   -> autopilot_status/watch/review/cancel/resume
  *
- * Tests are deterministic and use the fake host / fake authority boundary.
+ * Tests are deterministic and use the fake host plus local CLI shims.
  * No real provider calls are required.
  */
 
@@ -489,6 +489,25 @@ try {
   assert.equal(timeoutDispatchPolicy.schemaVersion, 'lattice.dispatch_policy.v1');
   assertAuthorityFalse(timeoutDispatchPolicy, 'timeoutDispatchPolicy');
 
+  const providerTransientDispatchPolicy = run<Record<string, unknown>>('dispatch_policy_create', {
+    policy: 'claude-provider-transient-dispatch',
+    allowedHosts: ['claude-code'],
+    allowedPaths: ['packages/main/src/generated/'],
+    deniedPaths: ['README.md'],
+    maxParallel: 1,
+    maxRuntimeMinutes: 1,
+    maxBudgetUSD: 5,
+    network: 'none',
+    commandAllowlist: ['claude --print <prompt-file>'],
+    requireReceipt: true,
+    requireReview: true,
+    allowRealHostSubprocess: true,
+    allowAutoMerge: false,
+    allowProductionDone: false,
+  });
+  assert.equal(providerTransientDispatchPolicy.schemaVersion, 'lattice.dispatch_policy.v1');
+  assertAuthorityFalse(providerTransientDispatchPolicy, 'providerTransientDispatchPolicy');
+
   const policy = run<AutopilotPolicy>('autopilot_policy_create', {
     policy: 'fake',
     dispatchPolicy: 'fake-dispatch',
@@ -641,7 +660,7 @@ try {
 
   const providerTransientPolicy = run<AutopilotPolicy>('autopilot_policy_create', {
     policy: 'provider-transient',
-    dispatchPolicy: 'fake-dispatch',
+    dispatchPolicy: 'claude-provider-transient-dispatch',
     mode: 'conservative',
     allowAutoDispatch: true,
     allowAutoValidate: true,
@@ -655,7 +674,7 @@ try {
     stopOnConflict: true,
     stopOnScopeViolation: true,
   });
-  assert.equal(providerTransientPolicy.dispatchPolicy, 'fake-dispatch');
+  assert.equal(providerTransientPolicy.dispatchPolicy, 'claude-provider-transient-dispatch');
   assertAuthorityFalse(providerTransientPolicy, 'providerTransientPolicy');
 
   assert.throws(
@@ -1120,15 +1139,46 @@ try {
   assert.match(timeoutStop.stopDetails ?? '', /claude-code real subprocess timed out/i);
   assertAuthorityFalse(timeoutStop, 'timeoutStop');
 
-  const providerTransientStop = run<AutopilotRunResult>('autopilot_run', {
+  const unknownHostWithProviderText = run<AutopilotRunResult>('autopilot_run', {
     mode: 'conservative',
     storyId: 'B-provider-transient-demo',
     policy: 'provider-transient',
     host: 'http-503-overloaded',
-    objective: 'Transient provider failure must pause through autopilot_run.',
+    objective: 'Invalid local host input must not be classified as provider health.',
     allowedPaths: ['packages/main/src/generated/provider-transient.txt'],
-    requiredCommands: ['node -e "process.exit(0)"'],
+    requiredCommands: [],
   });
+  assert.equal(unknownHostWithProviderText.status, 'failed');
+  assert.equal(unknownHostWithProviderText.stopReason, 'validation_failed');
+  assert.match(unknownHostWithProviderText.stopDetails ?? '', /unknown host "http-503-overloaded"/);
+  assertAuthorityFalse(unknownHostWithProviderText, 'unknownHostWithProviderText');
+
+  writeFileSync(join(shimBin, 'claude'), [
+    '#!/bin/sh',
+    'if [ "$1" = "--help" ]; then',
+    '  echo "usage: claude --print <prompt-file>"',
+    '  exit 0',
+    'fi',
+    'echo "HTTP 503 service unavailable: provider overloaded" >&2',
+    'exit 1',
+  ].join('\n') + '\n', 'utf8');
+  chmodSync(join(shimBin, 'claude'), 0o755);
+
+  let providerTransientStop: AutopilotRunResult;
+  const pathBeforeProviderTransient = process.env.PATH;
+  try {
+    process.env.PATH = `${shimBin}:${pathBeforeProviderTransient ?? ''}`;
+    providerTransientStop = run<AutopilotRunResult>('autopilot_run', {
+      mode: 'conservative',
+      storyId: 'B-provider-transient-demo',
+      policy: 'provider-transient',
+      objective: 'Transient provider failure must pause through autopilot_run.',
+      allowedPaths: ['packages/main/src/generated/provider-transient.txt'],
+      requiredCommands: [],
+    });
+  } finally {
+    process.env.PATH = pathBeforeProviderTransient;
+  }
   assert.equal(providerTransientStop.status, 'paused_requires_resume');
   assert.equal(providerTransientStop.stopReason, 'provider_unhealthy');
   assert.equal(providerTransientStop.iterations.length, 1);
