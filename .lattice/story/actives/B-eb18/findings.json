@@ -5,7 +5,7 @@
       "desc": "Queue governance misclassifies valid worktree stories as stale when status commands run from a story worktree. projectQueueGovernance reads active stories from the current store/root, then worktreeIsStale resolves story.worktree.path relative to that same root (packages/main/src/core/lifecycle-control/queue/index.ts:200-205,317-323). For worktree invocations, story.worktree.path is main-root relative (for B-eb18, .worktrees/B-eb18), so the check probes /Users/jek/Documents/Work/proofbound/.worktrees/B-eb18/.worktrees/B-eb18 and falls into the catch/stale path. Observed command evidence: node packages/main/dist/cli.js global_control_status --storyIds=[\"B-eb18\"] --format=json reports B-eb18 queue.classification=\"stale-worktree\" / reason=\"authoritative worktree exists but appears stale/missing\" even though the same report resolves authoritativeCwd=/Users/jek/Documents/Work/proofbound/.worktrees/B-eb18 and session_brief reports an active owner lease in that cwd. This breaks CP-3/CP-4 queue visibility by turning a valid authoritative worktree into cleanup-pressure noise; it does not appear to grant lifecycle readiness or Authority, so medium severity.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-06-28T10:04:35.446Z",
@@ -17,7 +17,11 @@
         "packages/main/src/core/lifecycle-control/dashboard/index.ts"
       ],
       "signatureTag": "edge|ts|queue-governance-misclassifies",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed queue worktree staleness to resolve recorded worktree paths through the canonical main repo root while preserving absolute paths. Verification passed: npm --prefix packages/main run build; node packages/main/dist/tasks/global-lifecycle-control-plane-smoke.js; npm --prefix packages/main run test:command-ownership-contract; npm --prefix packages/main run test:runtime-fact-contract.",
+      "resolvedAt": "2026-06-28T10:07:46.034Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
