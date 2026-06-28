@@ -1213,6 +1213,7 @@ function classifyDispatchError(message: string): AutopilotStopReason {
   if (/maxParallel|active dispatch|conflict/i.test(message)) return 'conflict';
   if (/scope|allowedPaths|deniedPaths|path traversal|escapes/i.test(message)) return 'scope_violation';
   if (/budget/i.test(message)) return 'budget_exhausted';
+  if (/not unattended-safe|allowRealHostSubprocess/i.test(message)) return 'validation_failed';
   const providerFailure = classifyAutopilotProviderFailure(message);
   if (providerFailure.retryableProviderHealth) return 'provider_unhealthy';
   if (providerFailure.requiresHuman) return 'human_required';

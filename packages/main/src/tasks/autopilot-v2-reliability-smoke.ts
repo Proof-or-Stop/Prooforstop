@@ -37,6 +37,13 @@ function assertM2(): void {
     assert.equal(classification.retryableProviderHealth, false);
   }
 
+  const localBudgetBlock = classifyAutopilotProviderFailure(
+    'claude-code dispatch blocked by hard budget: provider call skipped before spawn',
+  );
+  assert.equal(localBudgetBlock.failureClass, 'terminal_step_error');
+  assert.equal(localBudgetBlock.retryableProviderHealth, false);
+  assert.equal(localBudgetBlock.requiresHuman, false);
+
   const paused = buildProviderHealthTransition({
     error: 'HTTP 503 service unavailable',
     nowIso: '2026-06-28T00:00:00.000Z',

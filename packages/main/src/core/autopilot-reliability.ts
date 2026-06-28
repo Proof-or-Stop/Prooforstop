@@ -77,7 +77,7 @@ export function classifyAutopilotProviderFailure(input: unknown): AutopilotFailu
   if (/\b(auth|unauthorized|forbidden|login required|not logged in|api key|credential|permission denied)\b/.test(normalized)) {
     return result('auth_required', false, true, message || 'provider authentication is required');
   }
-  if (/\b(quota|insufficient_quota|billing|credits? exhausted|spend limit|hard budget)\b/.test(normalized)) {
+  if (/\b(quota|insufficient_quota|billing|credits? exhausted)\b/.test(normalized)) {
     return result('quota_exhausted', false, true, message || 'provider quota is exhausted');
   }
   if (/\b(policy|policy_blocked|blocked by policy|scope violation|not allowed|disallowed|authority receipt)\b/.test(normalized)) {
