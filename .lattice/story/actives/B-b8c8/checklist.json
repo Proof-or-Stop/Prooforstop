@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "run-recovery.mjs: add an accurate per-run agentCalls counter incremented inside agentRun() (each executor call) and reviewArtifact() (each reviewer call); record agentCalls in the run record",
       "context": "Arm-agnostic; fixes the reviewRounds undercount. a2prime agentCalls=attempts; a4=attempts+1 gate review; a4b=attempts+reviewer-calls",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-27T00:42:28.533Z",
-      "endTime": null,
+      "endTime": "2026-06-28T09:44:12.244Z",
       "userSees": "PASS CHK-001 h1: executor+reviewer+executor+reviewer (reviewer-site increments too) => agentCallCount 4",
       "files": {
         "modify": [
@@ -36,7 +36,42 @@
             "type": "logic"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "Selfcheck passed; executor and reviewer calls both increment agentCallCount and the record exposes agentCallCount/tokensSpent/wallClockMs.",
+          "headHash": "8d41d43d2cb956cdc47b74b052609a1052cebef4",
+          "materialHash": "ab9d52f3e5d7808ee877f8245d923cb2e6b69eb399e1283d658469134b7b109b",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-28T09:44:12.411Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "Selfcheck passed; a single call still counts as 1 and missing usage stays 0.",
+          "headHash": "8d41d43d2cb956cdc47b74b052609a1052cebef4",
+          "materialHash": "ab9d52f3e5d7808ee877f8245d923cb2e6b69eb399e1283d658469134b7b109b",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-28T09:44:12.572Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "Selfcheck passed; malformed or negative usage input did not fabricate extra calls or crash the accounting selfcheck.",
+          "headHash": "8d41d43d2cb956cdc47b74b052609a1052cebef4",
+          "materialHash": "ab9d52f3e5d7808ee877f8245d923cb2e6b69eb399e1283d658469134b7b109b",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-28T09:44:12.722Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",

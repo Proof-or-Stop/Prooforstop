@@ -234,6 +234,29 @@
         }
       ],
       "_hash": "20445e134ec2de03a39fd6ad4307cf9933dacebf2d5df1615c1115a73bc853ad"
+    },
+    {
+      "timestamp": "2026-06-28T09:41:08.297Z",
+      "issueCount": 3,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "4 checklist items; please check for missing combined scenarios (e.g., what happens when run-recovery.mjs: add an accurate per-run agentCalls counter incremented inside agentRun() (each executor call) and reviewArtifact() (each reviewer call); record agentCalls in the run record + run-ablation.mjs: compute the median A4 (a4b) agentCalls from the A4 records and add the A2-prime arm = a2prime with R = that median (budget-match); record to ablation-A2prime-compute-matched.jsonl are performed simultaneously?)"
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 2 undigested unknowns: Whether the proofbound worktree needs any source edits at all beyond evidence handling; Whether a separate paper evidence note should be added or whether protocol/manuscript wording sync is sufficient"
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-b8c8 is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "cb0159437b708ee6249df2e8ec25346ad79ef87ac70e4b4096b01b85d4c7e4f7"
     }
   ]
 }

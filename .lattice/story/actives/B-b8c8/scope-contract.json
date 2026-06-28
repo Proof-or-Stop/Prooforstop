@@ -1,0 +1,24 @@
+{
+  "storyId": "B-b8c8",
+  "mode": "enforce",
+  "allowedModify": [
+    "experiments/recovery-runner/run-recovery.mjs",
+    "experiments/recovery-runner/run-ablation.mjs",
+    "experiment-protocol.md",
+    "paper/main.tex"
+  ],
+  "allowedCreate": [
+    "paper/evidence/",
+    "paper/evidence/B-b8c8-recovery-runner-accounting.md",
+    "paper/evidence/B-b8c8-recovery-runner-accounting.json"
+  ],
+  "allowedTest": [
+    "experiments/recovery-runner/spend-accounting-selfcheck.mjs"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Plan files were synchronized with the proofbound verification story; paper protocol/manuscript/evidence sync is in scope, and no additional proofbound business logic edits are expected.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-28T09:42:08.785Z",
+  "updatedAt": "2026-06-28T09:42:08.785Z"
+}
