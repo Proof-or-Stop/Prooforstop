@@ -385,9 +385,9 @@
           "packages/main/src/tasks/**"
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-28T09:52:06.012Z",
       "userSees": "The text dashboard shows \"Project control status\", \"Story rows\", \"Runtime\", \"Consumption\", \"Queue\", and \"Next safe action\" sections, with project queue warnings separate from story blockers.",
       "verificationIntent": {
         "happy": [
@@ -411,7 +411,42 @@
             "type": "logic"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/global-lifecycle-control-plane-smoke.js && node packages/main/dist/cli.js global_control_status \"{\\\"storyIds\\\":[\\\"B-eb18\\\"],\\\"format\\\":\\\"json\\\"}\"",
+          "result": "pass",
+          "note": "Smoke and CLI assert global_control_status text/JSON dashboard includes project and story sections, runtime/consumption/queue/readiness, blockers, and next safe action.",
+          "headHash": "221c4152afda60c04e044837260e62dec20a0de9",
+          "materialHash": "ab9d52f3e5d7808ee877f8245d923cb2e6b69eb399e1283d658469134b7b109b",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-28T09:52:06.153Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/global-lifecycle-control-plane-smoke.js",
+          "result": "pass",
+          "note": "Smoke separates project queue pressure from individual story gate rows; unrelated duplicate/experiment rows do not mark an unrelated story runtime gate blocked.",
+          "headHash": "221c4152afda60c04e044837260e62dec20a0de9",
+          "materialHash": "ab9d52f3e5d7808ee877f8245d923cb2e6b69eb399e1283d658469134b7b109b",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-28T09:52:06.279Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/global-lifecycle-control-plane-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Dashboard rows include source provenance fields and are computed from live projectors/registered commands, with process-fact contract confirming they are projections rather than stale plan-doc facts.",
+          "headHash": "221c4152afda60c04e044837260e62dec20a0de9",
+          "materialHash": "ab9d52f3e5d7808ee877f8245d923cb2e6b69eb399e1283d658469134b7b109b",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-28T09:52:06.402Z"
+        }
+      ]
     },
     {
       "id": "CHK-006",
