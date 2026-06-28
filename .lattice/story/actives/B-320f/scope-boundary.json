@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-320f",
+  "mode": "feature",
+  "allowed": [
+    "Add dedicated smoke tests and verification evidence for M2/M3/M4",
+    "Implement Autopilot v2 M2 health-aware provider pause/resume semantics in local CLI/runtime code",
+    "Implement Autopilot v2 M3 adaptive runtime throttle as bounded local control-plane logic",
+    "Implement Autopilot v2 M4 process-pool claim/lease/fencing semantics as bounded local control-plane logic",
+    "Update docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md status and acceptance table for M1-M4"
+  ],
+  "excluded": [
+    "Do not claim process immortality or unattended-at-scale proof beyond local smoke/integration evidence",
+    "Do not mutate experiments/recovery-runner generated data, output/, tmp/, or untracked powered-run artifacts",
+    "Do not push remote branches or publish releases",
+    "Do not reintroduce or depend on Lattice Authority Server production receipt semantics"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User requested modifying autopilot-v2-reliability-execution-plan.md and completing all Autopilot v2 contents until DONE on 2026-06-28; scope is confined to Autopilot v2 reliability and its verification table.",
+  "createdAt": "2026-06-28T16:02:20.720Z",
+  "updatedAt": "2026-06-28T16:02:20.720Z",
+  "_hash": "4223e73c622a02689c1cbcf1a282563afc15092f19b3a01bdec2c744a8306fa7"
+}
