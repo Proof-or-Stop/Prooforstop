@@ -1,0 +1,77 @@
+{
+  "principles": [
+    "Resume must be evidence-led, not memory-led.",
+    "Committed done checkpoints may be trusted only through a replayable ledger/projection.",
+    "Interrupted steps are at-least-once; this story must not overclaim exactly-once execution.",
+    "M1 must not widen into provider health, throttling, process-pool, or remote production-proof semantics."
+  ],
+  "drivers": [
+    "Current autopilot_resume hard-refuses healthy non-stale runs.",
+    "The red repro and spike prove a small ledger-backed recovery path is feasible.",
+    "Existing autopilot smoke and command policy must remain no-production-overclaim."
+  ],
+  "options": [
+    {
+      "name": "A: keep hard refusal and document it",
+      "pros": [
+        "Smallest code change",
+        "No behavior risk"
+      ],
+      "cons": [
+        "Does not fix the reproduced bug",
+        "Leaves autopilot_resume unusable for healthy interrupted runs"
+      ]
+    },
+    {
+      "name": "B: ledger-backed resume projection for M1",
+      "pros": [
+        "Fixes the reproduced failure",
+        "Creates an auditable basis for later M2/M3/M4",
+        "Preserves fail-closed stale/corrupt behavior"
+      ],
+      "cons": [
+        "Requires updating result types, renderer, command descriptions, and smoke tests"
+      ]
+    },
+    {
+      "name": "C: restart dispatch/autopilot execution directly on resume",
+      "pros": [
+        "Could feel more automatic to users"
+      ],
+      "cons": [
+        "Too broad for M1",
+        "Risks re-dispatching committed work",
+        "Touches provider/ramp/process-pool concerns that are explicitly out of scope"
+      ]
+    }
+  ],
+  "chosen": "B: ledger-backed resume projection for M1",
+  "rationale": "Choose B because it directly turns the red repro green while preserving Proofbound evidence boundaries: healthy non-stale runs can resume from committed checkpoint facts, while stale or corrupt states still fail closed and no remote production proof is claimed.",
+  "preMortem": [
+    {
+      "scenario": "Resume falsely claims safe progress from stale state",
+      "trigger": "updatedAt or checkpoint material is older than allowed maxResumeAgeMs",
+      "consequence": "Autopilot may guide a user from outdated state",
+      "mitigation": "Keep stale_state refusal and add smoke coverage for stale records."
+    },
+    {
+      "scenario": "Committed checkpoint replay overclaims exactly-once execution",
+      "trigger": "Interrupted step lacks committed done checkpoint but implementation marks it done",
+      "consequence": "A missed step could be skipped during resume",
+      "mitigation": "Only skip committed done checkpoints; interrupted or missing checkpoints remain pending/at-least-once."
+    },
+    {
+      "scenario": "Command metadata still says resume refuses unsafe v1 runs",
+      "trigger": "Core behavior changes but command catalog/process fact wording is not updated",
+      "consequence": "Reviewers and gap scanners see implementation/documentation drift",
+      "mitigation": "Update command catalog, command policy and process fact wording with no-production-overclaim semantics."
+    },
+    {
+      "scenario": "Existing no-authority/no-production assertions regress",
+      "trigger": "New resume status accidentally sets receiptVerified or productionDone true",
+      "consequence": "Resume becomes proof-looking metadata instead of local state guidance",
+      "mitigation": "Keep authorityChanged/receiptVerified/productionDone false in result and test both new smoke and existing autopilot-run smoke."
+    }
+  ],
+  "timestamp": "2026-06-28T00:59:20.918Z"
+}

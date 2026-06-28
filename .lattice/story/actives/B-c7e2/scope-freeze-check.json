@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-c7e2",
+  "checkedAt": "2026-06-28T00:57:09.638Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "ab8b776d90f627183ee17e0c137d20da79b6b56435dbafd2a45ed63375f015e8",
+  "executionBoundaryHash": "d75b75e2fe10bef081f96274f7b51218a74ba230113f5f7573f390857e6cbc1e",
+  "freshnessHash": "0a8278537625a0eb75ecfdeeda8252e67ae55b7cf1fbba222796d567858f9243",
+  "effectiveExcludedKeywords": [
+    "Authority",
+    "Claude CLI execution or Claude-host validation",
+    "cleanup of unrelated Tier-C duplicate experimental stories",
+    "customerKeyRef",
+    "global lifecycle control-plane changes outside the M1 resume path",
+    "Layer4",
+    "M2 provider health/session guard ramp implementation",
+    "M3 global/local throttle implementation",
+    "M4 process pool/claim/fencing implementation",
+    "remote production receipt semantics or productionDone enforcement",
+    "repair UX"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Claude CLI execution or Claude-host validation",
+      "source": "scopeBoundary.excluded",
+      "text": "Claude CLI execution or Claude-host validation",
+      "excluded": true
+    },
+    {
+      "keyword": "cleanup of unrelated Tier-C duplicate experimental stories",
+      "source": "scopeBoundary.excluded",
+      "text": "cleanup of unrelated Tier-C duplicate experimental stories",
+      "excluded": true
+    },
+    {
+      "keyword": "global lifecycle control-plane changes outside the M1 resume path",
+      "source": "scopeBoundary.excluded",
+      "text": "global lifecycle control-plane changes outside the M1 resume path",
+      "excluded": true
+    },
+    {
+      "keyword": "M2 provider health/session guard ramp implementation",
+      "source": "scopeBoundary.excluded",
+      "text": "M2 provider health/session guard ramp implementation",
+      "excluded": true
+    },
+    {
+      "keyword": "M3 global/local throttle implementation",
+      "source": "scopeBoundary.excluded",
+      "text": "M3 global/local throttle implementation",
+      "excluded": true
+    },
+    {
+      "keyword": "M4 process pool/claim/fencing implementation",
+      "source": "scopeBoundary.excluded",
+      "text": "M4 process pool/claim/fencing implementation",
+      "excluded": true
+    },
+    {
+      "keyword": "remote production receipt semantics or productionDone enforcement",
+      "source": "scopeBoundary.excluded",
+      "text": "remote production receipt semantics or productionDone enforcement",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "93874e4552517d0d04a32908580ab55793cf479b6d218f95c14913d42c4226ff"
+}

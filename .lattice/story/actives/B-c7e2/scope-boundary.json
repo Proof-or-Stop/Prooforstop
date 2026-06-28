@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-c7e2",
+  "mode": "correctness_fix",
+  "allowed": [
+    "Autopilot v2 M1 only: checkpoint-ledger-backed resume semantics",
+    "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md as the implementation baseline",
+    "focused autopilot resume smoke coverage under packages/main/src/tasks",
+    "package script wiring for the new smoke test",
+    "packages/main/src/core/lattice-autopilot.ts resume/checkpoint helper changes"
+  ],
+  "excluded": [
+    "Claude CLI execution or Claude-host validation",
+    "cleanup of unrelated Tier-C duplicate experimental stories",
+    "global lifecycle control-plane changes outside the M1 resume path",
+    "M2 provider health/session guard ramp implementation",
+    "M3 global/local throttle implementation",
+    "M4 process pool/claim/fencing implementation",
+    "remote production receipt semantics or productionDone enforcement"
+  ],
+  "confirmedBy": "codex",
+  "confirmationNote": "User approved executing Autopilot v2 M1 through Repro-First story; scope is restricted to checkpoint-ledger resume and its tests. Remote production receipt semantics remain excluded without entering this story.",
+  "createdAt": "2026-06-28T00:56:14.013Z",
+  "updatedAt": "2026-06-28T00:56:14.013Z",
+  "_hash": "ab8b776d90f627183ee17e0c137d20da79b6b56435dbafd2a45ed63375f015e8"
+}
