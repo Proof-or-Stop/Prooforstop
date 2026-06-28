@@ -240,10 +240,11 @@
       "relatedDocs": [
         "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md#M2"
       ],
-      "userSees": "autopilot-v2 reliability table shows M2 health-aware pause/resume PASS with a smoke command and events health_probe/provider_unhealthy/waiting_for_provider_health/paused_requires_resume/health_recovered/resumed.",
+      "userSees": "User sees \"M2 health-aware pause/resume: PASS\" in the Autopilot v2 acceptance table and smoke output.",
       "files": {
         "modify": [
-          "packages/main/src/core/lattice-autopilot.ts"
+          "packages/main/src/core/lattice-autopilot.ts",
+          "packages/main/src/core/autopilot-executor.ts"
         ],
         "create": [
           "packages/main/src/core/autopilot-reliability.ts"
