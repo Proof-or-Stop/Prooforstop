@@ -1,8 +1,10 @@
 # Autopilot v2 — Unattended Long-Horizon Reliability (Execution Plan)
 
-**Status:** PLANNED (backlog). Do NOT start until the §5/§6 powered ablation campaign finishes
-(it shares the same account API budget; running this program's reviews concurrently would
-accelerate the campaign's session-limit throttling). This is a multi-milestone PROGRAM.
+**Status:** IMPLEMENTED for B-320f normal-channel DEV. M1 checkpoint/resume was already present;
+B-320f adds M2 health-aware pause/resume semantics, M3 adaptive throttle state, M4 claim/lease/
+fencing safety semantics, a host-neutral baseline export, and a dedicated reliability smoke.
+This remains a multi-milestone program document for future production hardening beyond the local
+deterministic smoke surface.
 
 **North star (one sentence):** make `lattice autopilot_run` + `autopilot_resume` /
 `autopilot_watch` **restart-safe** across the failure classes a multi-day unattended run
@@ -365,4 +367,28 @@ committed unit once.
 5. **M4 (C5)** — OS-process pool. Gated. Last (needs M1's idempotence to be safe).
 
 Each milestone is its own Lattice story (DEV via `lattice-implementer`, full 2-host review).
-Start M1's story only after the powered run completes.
+M1-M4 now have a deterministic product-level smoke surface under
+`packages/main/src/tasks/autopilot-v2-reliability-smoke.ts`. Future stories may deepen the live
+process-pool runner, but must keep these semantics: committed admissible `done` checkpoints are
+not re-dispatched; uncommitted/interrupted steps are at-least-once unless verified and promoted;
+`storyFilesHash` is frozen from the pre-run baseline while excluding declared outputs; and
+runtime identity is recorded as audit provenance unless the active validity policy declares it
+semantically load-bearing.
+
+---
+
+## 9. B-320f implementation and acceptance status
+
+| Item | Implementation status | Acceptance evidence |
+|---|---|---|
+| M1 checkpoint/resume | Present before B-320f and preserved. The checkpoint ledger remains authoritative and `run.json` remains a readable projection. | Existing `packages/main/src/core/lattice-autopilot.ts` checkpoint ledger and `autopilot_resume` replay path are unchanged in structure; B-320f only adds health events around pause/resume. |
+| M2 health-aware pause/resume | Implemented as shared classification/state helpers plus minimal `autopilot_run` integration at dispatch failure boundaries. Retryable 429/503/529/overload/network/timeout become provider-health states; quota/auth/policy/terminal errors are non-transient. | `node packages/main/dist/tasks/autopilot-v2-reliability-smoke.js` asserts `health_probe`, `provider_unhealthy`, `waiting_for_provider_health`, `paused_requires_resume`, `health_recovered`, and `resumed` event semantics. |
+| M3 adaptive throttle | Implemented as deterministic local throttle state with bounded `maxConcurrentLive`, permit checks, `throttle_hold`, `throttle_raise`, and `throttle_backoff`. | Smoke asserts bounded concurrency, raise on stable windows, backoff on provider failures, and hold behavior. |
+| M4 process-pool safety | Implemented as deterministic claim/lease/fencing state semantics for worker-owned step execution. Duplicate live claims are refused; expired leases can be reclaimed; stale fencing tokens cannot complete a step. | Smoke asserts duplicate live claim refusal, expired lease reclaim, stale fencing-token refusal, successful completion by the current owner, and refusal after completion. |
+| Host baseline | Current host-neutral baseline is Codex, Claude Code, and Antigravity. `agy` is an alias for Antigravity. Gemini is legacy/deprecated compatibility only. | `HOST_RUNTIME_BASELINE` is exported from `packages/main/src/core/lattice-dispatch.ts`; smoke asserts the current and legacy sets. |
+| Documentation acceptance | Updated. The document no longer overclaims exactly-once behavior and explicitly distinguishes wrapper keepalive from product restart-safe resume. | This table records the B-320f acceptance surface and expected verification commands. |
+| Build | PASS in B-320f DEV. | `npm --prefix packages/main run build` |
+| Smoke | PASS in B-320f DEV. | `node packages/main/dist/tasks/autopilot-v2-reliability-smoke.js` prints `autopilot-v2-reliability smoke PASS`. |
+| Version | PASS in B-320f DEV. | `node packages/main/dist/cli.js --version` prints `Proofbound CLI 0.3.103`. |
+| Routine validate | Required in TEST phase, not advanced by this DEV task. | `lattice validate --story=B-320f` after phase advancement to TEST. |
+| DONE | Not performed by this DEV task. | DONE requires the normal Lattice review/test/DONE flow and any configured DONE-required evidence. |

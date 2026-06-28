@@ -418,7 +418,12 @@ const TERMINAL_DISPATCH_STATUSES = new Set<DispatchLifecycleStatus>([
   'unavailable',
 ]);
 
-const CURRENT_HOST_RUNTIME_IDS = ['codex', 'claude-code', 'antigravity'] as const;
+export const CURRENT_HOST_RUNTIME_IDS = ['codex', 'claude-code', 'antigravity'] as const;
+export const HOST_RUNTIME_BASELINE = {
+  current: CURRENT_HOST_RUNTIME_IDS,
+  aliases: { agy: 'antigravity', claude: 'claude-code' },
+  legacyDeprecated: ['gemini'],
+} as const;
 const CURRENT_HOST_RUNTIME_DESCRIPTION = 'fake|codex|claude-code|antigravity';
 const LEGACY_HOST_RUNTIME_DESCRIPTION = 'agy aliases to antigravity; gemini is accepted only for legacy compatibility';
 const HOST_RUNTIME_ORDER: HostRuntimeId[] = ['codex', 'claude-code', 'antigravity', 'fake'];
