@@ -28,7 +28,7 @@
       "desc": "Runtime closure reimplements owner-lease ownership with lease.pid === process.pid instead of the shipped sessionId semantics. In this review session, session_brief reports B-eb18 owner session sess-dd47f61115506974 as OWNER, but runtime_closure_status reports ownerLease=foreign-active and reason \"another active owner lease holds story-scoped mutation rights\". This contradicts the execution plan requirement that runtime closure render core/story-owner-lease.ts module-defined ownership and marks the current owner as foreign across ordinary CLI subprocesses.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-06-28T10:11:18.709Z",
@@ -41,7 +41,11 @@
         "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md"
       ],
       "signatureTag": "doc-code-drift|ts|runtime-closure-reimplements",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed runtime_closure_status ownerLease ownership to compare lease.sessionId against story-owner-lease getSessionId(), preserving stale detection and existing owner-lease semantics. Evidence passed: npm --prefix packages/main run build; node packages/main/dist/tasks/global-lifecycle-control-plane-smoke.js; node packages/main/dist/tasks/command-catalog-smoke.js; direct B-eb18 probe node packages/main/dist/cli.js runtime_closure_status --storyIds=[\"B-eb18\"] --format=json returned locks.ownerLease=owned.",
+      "resolvedAt": "2026-06-28T10:20:12.287Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-eb18:F-003",
