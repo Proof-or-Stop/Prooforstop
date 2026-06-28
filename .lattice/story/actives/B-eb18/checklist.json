@@ -69,7 +69,16 @@
       "files": {
         "modify": [
           "packages/main/src/core/lifecycle-control/runtime/**",
-          "packages/main/src/core/lifecycle-control/**"
+          "packages/main/src/core/lifecycle-control/**",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/evidence-stale-hint.ts",
+          "packages/main/src/core/story-owner-lease.ts",
+          "packages/main/src/core/main-write-lock.ts",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/handlers/lifecycle-check.ts",
+          "packages/main/src/handlers/story-authority-resolve.ts",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md"
         ],
         "create": [],
         "test": [
@@ -79,7 +88,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "The runtime section names validation lock state, owner/worktree authority, readiness blockers, freshness/stale hints, and the next safe runtime action without inventing new lock or freshness semantics.",
+      "userSees": "The runtime row prints \"runtime\":{\"status\":\"yellow\",\"source\":\"runtime-projection\",\"nextSafeAction\":\"cd /Users/.../.worktrees/B-xxxx\"} when authority is in a story worktree.",
       "verificationIntent": {
         "happy": [
           {
