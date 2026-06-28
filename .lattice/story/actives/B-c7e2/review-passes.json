@@ -80,6 +80,15 @@
       "reviewRound": "2026-06-28T01:58:02.984Z",
       "reviewRunId": "B-c7e2:RR-017",
       "_hash": "430107226081c4787d176e385427da27e9a3d7f6177fb7a687adfe697586eb59"
+    },
+    {
+      "id": "B-c7e2:RP-010",
+      "agent": "lattice-review-quality",
+      "note": "Quality pass for 3218fae61 autopilot basis git-cwd change. Confirmed currentStoryFilesHashExcludingOutputs runs git ls-tree from resolved gitCwd while isMaterialExcludedPath uses metadataRoot; buildRunBasis/currentRunBasisMatches use currentGitHead(gitCwd), currentMaterialHash(gitCwd, HEAD, metadataRoot), and story-files hash with metadataRoot exclusions; autopilotRun/autopilotResume resolve gitCwd through resolveGitCwd. Missing git freshness fails closed on resume via autopilot-resume-smoke. Commands passed: npm --prefix packages/main run build; npm --prefix packages/main run test:autopilot-resume-smoke; node packages/main/dist/tasks/autopilot-run-smoke.js; npm --prefix packages/main run test:done-oracle-wrapper-root; npm test; git diff --check 3218fae61^..HEAD.",
+      "createdAt": "2026-06-28T02:02:38.919Z",
+      "reviewRound": "2026-06-28T01:58:02.984Z",
+      "reviewRunId": "B-c7e2:RR-020",
+      "_hash": "126aab5c790399f3831cc65052e87f4d08984e09bc75c3d30aaf9b71b9faef29"
     }
   ]
 }
