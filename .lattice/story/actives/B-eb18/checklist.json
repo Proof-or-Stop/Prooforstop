@@ -474,9 +474,9 @@
           "packages/main/src/tasks/**"
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-28T09:54:21.576Z",
       "userSees": "Unsafe runtime guard output contains \"mode\":\"warn\" or \"mode\":\"enforce\", \"blocked\":true, \"reason\":\"wrong_authoritative_cwd\", and \"rollback\":\"set lifecycleControl.runtimeEnforcement=warn\" for named unsafe cases.",
       "verificationIntent": {
         "happy": [
@@ -500,7 +500,42 @@
             "type": "logic"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/global-lifecycle-control-plane-smoke.js",
+          "result": "pass",
+          "note": "Runtime enforcement guard smoke asserts enforce mode blocks wrong authoritative cwd with rollback guidance and proofAdmissibilityEvaluated:false.",
+          "headHash": "7b1488a06fd55c4c160e26d83955431feba53732",
+          "materialHash": "ab9d52f3e5d7808ee877f8245d923cb2e6b69eb399e1283d658469134b7b109b",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-28T09:54:21.738Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/global-lifecycle-control-plane-smoke.js",
+          "result": "pass",
+          "note": "Runtime enforcement guard smoke asserts metadata-only dirty state remains advisory while material dirty state blocks phase advance.",
+          "headHash": "7b1488a06fd55c4c160e26d83955431feba53732",
+          "materialHash": "ab9d52f3e5d7808ee877f8245d923cb2e6b69eb399e1283d658469134b7b109b",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-28T09:54:21.886Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:0",
+          "kind": "logic_test",
+          "command": "node scripts/verify-process-fact-contract.mjs && npm --prefix packages/main run test:runtime-fact-contract",
+          "result": "pass",
+          "note": "Process/runtime fact contracts pass with lifecycle-control commands registered without adding a second lifecycle state machine or proof admissibility gate path.",
+          "headHash": "7b1488a06fd55c4c160e26d83955431feba53732",
+          "materialHash": "ab9d52f3e5d7808ee877f8245d923cb2e6b69eb399e1283d658469134b7b109b",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-28T09:54:22.024Z"
+        }
+      ]
     },
     {
       "id": "CHK-007",
