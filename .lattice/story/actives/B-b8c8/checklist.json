@@ -44,10 +44,10 @@
           "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
           "result": "pass",
           "note": "Selfcheck passed; executor and reviewer calls both increment agentCallCount and the record exposes agentCallCount/tokensSpent/wallClockMs.",
-          "headHash": "8d41d43d2cb956cdc47b74b052609a1052cebef4",
-          "materialHash": "ab9d52f3e5d7808ee877f8245d923cb2e6b69eb399e1283d658469134b7b109b",
+          "headHash": "de2f88dfea0b3899cf3bdfa64a61eafdcd68e9e4",
+          "materialHash": "43a5a7c9475f06ca23528c51250af878f6102d652bf800b60ab87add4436a56b",
           "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-28T09:44:12.411Z"
+          "timestamp": "2026-06-28T10:04:00.510Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -55,10 +55,10 @@
           "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
           "result": "pass",
           "note": "Selfcheck passed; a single call still counts as 1 and missing usage stays 0.",
-          "headHash": "8d41d43d2cb956cdc47b74b052609a1052cebef4",
-          "materialHash": "ab9d52f3e5d7808ee877f8245d923cb2e6b69eb399e1283d658469134b7b109b",
+          "headHash": "de2f88dfea0b3899cf3bdfa64a61eafdcd68e9e4",
+          "materialHash": "43a5a7c9475f06ca23528c51250af878f6102d652bf800b60ab87add4436a56b",
           "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-28T09:44:12.572Z"
+          "timestamp": "2026-06-28T10:04:00.510Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -66,10 +66,10 @@
           "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
           "result": "pass",
           "note": "Selfcheck passed; malformed or negative usage input did not fabricate extra calls or crash the accounting selfcheck.",
-          "headHash": "8d41d43d2cb956cdc47b74b052609a1052cebef4",
-          "materialHash": "ab9d52f3e5d7808ee877f8245d923cb2e6b69eb399e1283d658469134b7b109b",
+          "headHash": "de2f88dfea0b3899cf3bdfa64a61eafdcd68e9e4",
+          "materialHash": "43a5a7c9475f06ca23528c51250af878f6102d652bf800b60ab87add4436a56b",
           "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-28T09:44:12.722Z"
+          "timestamp": "2026-06-28T10:04:00.510Z"
         }
       ]
     },
@@ -117,10 +117,10 @@
           "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
           "result": "pass",
           "note": "Selfcheck passed; median([1000,1000,1000]) feeds a2primeBudget => {tokenBudget:1200, wallBudgetMs:2400} and budgetPass is true only when both axes are in band.",
-          "headHash": "e89317367bfb71a7bfb20c051074e323277145f2",
-          "materialHash": "ab9d52f3e5d7808ee877f8245d923cb2e6b69eb399e1283d658469134b7b109b",
+          "headHash": "de2f88dfea0b3899cf3bdfa64a61eafdcd68e9e4",
+          "materialHash": "43a5a7c9475f06ca23528c51250af878f6102d652bf800b60ab87add4436a56b",
           "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-28T09:44:19.069Z"
+          "timestamp": "2026-06-28T10:04:00.510Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -128,10 +128,10 @@
           "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
           "result": "pass",
           "note": "Selfcheck passed; exact boundaries remain strict and budgetPass stays boolean.",
-          "headHash": "e89317367bfb71a7bfb20c051074e323277145f2",
-          "materialHash": "ab9d52f3e5d7808ee877f8245d923cb2e6b69eb399e1283d658469134b7b109b",
+          "headHash": "de2f88dfea0b3899cf3bdfa64a61eafdcd68e9e4",
+          "materialHash": "43a5a7c9475f06ca23528c51250af878f6102d652bf800b60ab87add4436a56b",
           "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-28T09:44:19.201Z"
+          "timestamp": "2026-06-28T10:04:00.510Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -139,10 +139,10 @@
           "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
           "result": "pass",
           "note": "Selfcheck passed; token-only in-band but wall out-of-band still fails budgetPass and token binds first when caps conflict.",
-          "headHash": "e89317367bfb71a7bfb20c051074e323277145f2",
-          "materialHash": "ab9d52f3e5d7808ee877f8245d923cb2e6b69eb399e1283d658469134b7b109b",
+          "headHash": "de2f88dfea0b3899cf3bdfa64a61eafdcd68e9e4",
+          "materialHash": "43a5a7c9475f06ca23528c51250af878f6102d652bf800b60ab87add4436a56b",
           "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-28T09:44:19.342Z"
+          "timestamp": "2026-06-28T10:04:00.510Z"
         }
       ]
     },
@@ -202,10 +202,10 @@
           "command": "git -C /Users/jek/Documents/Work/lattice-Paper diff -- experiment-protocol.md paper/main.tex paper/evidence/B-b8c8-recovery-runner-accounting.md paper/evidence/B-b8c8-recovery-runner-accounting.json",
           "result": "pass",
           "note": "Paper protocol and appendix now say spend-matched A2-prime, and the evidence note records the accounting claim.",
-          "headHash": "b36021086df2617bf1807fed59b20326597bb728",
-          "materialHash": "ab9d52f3e5d7808ee877f8245d923cb2e6b69eb399e1283d658469134b7b109b",
+          "headHash": "de2f88dfea0b3899cf3bdfa64a61eafdcd68e9e4",
+          "materialHash": "43a5a7c9475f06ca23528c51250af878f6102d652bf800b60ab87add4436a56b",
           "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-28T09:44:29.538Z"
+          "timestamp": "2026-06-28T10:04:00.510Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -213,10 +213,10 @@
           "command": "git -C /Users/jek/Documents/Work/lattice-Paper diff -- experiment-protocol.md paper/main.tex paper/evidence/B-b8c8-recovery-runner-accounting.md paper/evidence/B-b8c8-recovery-runner-accounting.json",
           "result": "pass",
           "note": "Proofbound checklist and paper wording use the same spend-matched definition across files.",
-          "headHash": "b36021086df2617bf1807fed59b20326597bb728",
-          "materialHash": "ab9d52f3e5d7808ee877f8245d923cb2e6b69eb399e1283d658469134b7b109b",
+          "headHash": "de2f88dfea0b3899cf3bdfa64a61eafdcd68e9e4",
+          "materialHash": "43a5a7c9475f06ca23528c51250af878f6102d652bf800b60ab87add4436a56b",
           "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-28T09:44:29.658Z"
+          "timestamp": "2026-06-28T10:04:00.510Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -224,10 +224,10 @@
           "command": "git -C /Users/jek/Documents/Work/lattice-Paper diff -- experiment-protocol.md paper/main.tex paper/evidence/B-b8c8-recovery-runner-accounting.md paper/evidence/B-b8c8-recovery-runner-accounting.json",
           "result": "pass",
           "note": "No stale call-count phrasing remains in the synced narrative for the A2-prime control.",
-          "headHash": "b36021086df2617bf1807fed59b20326597bb728",
-          "materialHash": "ab9d52f3e5d7808ee877f8245d923cb2e6b69eb399e1283d658469134b7b109b",
+          "headHash": "de2f88dfea0b3899cf3bdfa64a61eafdcd68e9e4",
+          "materialHash": "43a5a7c9475f06ca23528c51250af878f6102d652bf800b60ab87add4436a56b",
           "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-28T09:44:29.780Z"
+          "timestamp": "2026-06-28T10:04:00.510Z"
         }
       ]
     },
@@ -273,10 +273,10 @@
           "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
           "result": "pass",
           "note": "Selfcheck passed with 56 assertions and no live LLM subprocess.",
-          "headHash": "b80a08533106ebbe51ef5c1a1f8417fca5efa969",
-          "materialHash": "ab9d52f3e5d7808ee877f8245d923cb2e6b69eb399e1283d658469134b7b109b",
+          "headHash": "de2f88dfea0b3899cf3bdfa64a61eafdcd68e9e4",
+          "materialHash": "43a5a7c9475f06ca23528c51250af878f6102d652bf800b60ab87add4436a56b",
           "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-28T09:44:35.335Z"
+          "timestamp": "2026-06-28T10:04:00.510Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -284,10 +284,10 @@
           "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
           "result": "pass",
           "note": "Pure helper suite stayed pure and buildRunRecord kept the canonical field names.",
-          "headHash": "b80a08533106ebbe51ef5c1a1f8417fca5efa969",
-          "materialHash": "ab9d52f3e5d7808ee877f8245d923cb2e6b69eb399e1283d658469134b7b109b",
+          "headHash": "de2f88dfea0b3899cf3bdfa64a61eafdcd68e9e4",
+          "materialHash": "43a5a7c9475f06ca23528c51250af878f6102d652bf800b60ab87add4436a56b",
           "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-28T09:44:35.466Z"
+          "timestamp": "2026-06-28T10:04:00.510Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -295,10 +295,10 @@
           "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
           "result": "pass",
           "note": "Missing agentCallCount or snake_case inputs were rejected without fabricating evidence.",
-          "headHash": "b80a08533106ebbe51ef5c1a1f8417fca5efa969",
-          "materialHash": "ab9d52f3e5d7808ee877f8245d923cb2e6b69eb399e1283d658469134b7b109b",
+          "headHash": "de2f88dfea0b3899cf3bdfa64a61eafdcd68e9e4",
+          "materialHash": "43a5a7c9475f06ca23528c51250af878f6102d652bf800b60ab87add4436a56b",
           "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-28T09:44:35.601Z"
+          "timestamp": "2026-06-28T10:04:00.510Z"
         }
       ]
     }
