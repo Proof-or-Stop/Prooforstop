@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-28T23:02:10.365Z",
       "reviewRunId": "B-6eb7:RR-002",
       "_hash": "cad64e5e327ddcb64e0d050c1148c9ab57f2502271a095ac199fa1518593d7da"
+    },
+    {
+      "id": "B-6eb7:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Concept residue check complete. B-6eb7 replaces file-declaring with material-code bug/feature in 3 rationale strings across 2 files. Grep of full repo (*.ts/*.md/*.json, excluding node_modules/dist/.git/@deprecated) finds no residue in the two scope-allowed files. The 4 occurrences in repro-evidence-binding-dev-gate-smoke.ts are: (a) out of B-6eb7 scope-boundary, and (b) accurate descriptions of test fixtures that literally declare files via files:{modify:[...]}, not stale claims about gate semantics. No concept residue blocker.",
+      "createdAt": "2026-06-28T23:08:23.816Z",
+      "reviewRound": "2026-06-28T23:02:10.365Z",
+      "reviewRunId": "B-6eb7:RR-003",
+      "_hash": "9b06ac499784523b7ab1a8618ae6263f0041369469541d9c27e31df8b079181e"
     }
   ]
 }
