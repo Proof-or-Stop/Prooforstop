@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-28T16:50:31.384Z",
       "reviewRunId": "B-320f:RR-009",
       "_hash": "02c5328fa55c5cfef6ef6aa344d45841bf507aff7482f005b5c8f8b8150d0697"
+    },
+    {
+      "id": "B-320f:RP-005",
+      "agent": "lattice-review-docs",
+      "note": "Round 3 docs re-review PASS. Inspected git diff main...HEAD and targeted docs/implementation. docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md now limits provider-health classification to provider-side 429/503/529/rate-limit/overload/network failures and explicitly states local dispatch/runtime timeout remains stopReason: timeout unless a future provider-specific timeout signal is deliberately reclassified (lines 15-18, 294-298, 394). The acceptance table no longer says timeout becomes provider-health. Implementation alignment checked: packages/main/src/core/lattice-autopilot.ts classifyDispatchError returns timeout before provider-health classification (lines 1212-1225), and the local run timeout path finalizes with stopReason timeout (lines 1535-1543); provider transient failure path uses provider_unhealthy only after retryable provider classification (lines 1562-1588, 1658-1682). No docs blocker remains for prior F-003.",
+      "createdAt": "2026-06-28T20:45:08.398Z",
+      "reviewRound": "2026-06-28T20:43:06.202Z",
+      "reviewRunId": "B-320f:RR-014",
+      "_hash": "6b56d857e25284a3fddf78ed8774ca2b247286c45113958b8e6c87710a33f421"
     }
   ]
 }
