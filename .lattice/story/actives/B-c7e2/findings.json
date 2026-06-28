@@ -90,6 +90,26 @@
       "resolvedAt": "2026-06-28T01:29:43.316Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c7e2:F-005",
+      "desc": "autopilot_resume fails open after underlying dispatch policy drift. M1 requires policy-declared runtime input drift to make old checkpoints stale, but buildValidityPolicyDigest only hashes autopilot policy fields plus the dispatchPolicy name (lattice-autopilot.ts:562-580), and currentRunBasisMatches only recomputes checkAutopilotPolicy(record.policy) (lattice-autopilot.ts:848-862). The actual dispatch policy carries host/path/command/runtime bounds (dispatch-policy.ts:8-27) and is consumed by dispatch_auto, yet changing the same named dispatch policy after a committed checkpoint is not detected. Verified with npm --prefix packages/main run build plus a temp node repro: create dispatch policy drift-dispatch allowing packages/main/src/generated/original/, run AP-drift to manual_review_ready, overwrite drift-dispatch to allow packages/main/src/generated/other/, then autopilot_resume --runId AP-drift --maxResumeAgeMs 60000 returned status=resume_ready and skippedDoneSteps=[iteration-0] instead of refusing stale_state. This silently consumes a checkpoint under a changed execution policy boundary.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-28T01:33:44.593Z",
+      "reviewRound": "2026-06-28T01:29:27.824Z",
+      "reviewRunId": "B-c7e2:RR-012",
+      "_hash": "e3bd8d8ce16daf438f9a8dc9fee01f68c240910c8925a6a2f22e6ec9c15adc56",
+      "files": [
+        "packages/main/src/core/lattice-autopilot.ts",
+        "packages/main/src/core/dispatch-policy.ts",
+        "packages/main/src/tasks/autopilot-resume-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|autopilot-resume-fails",
+      "signatureTagSource": "auto"
     }
   ]
 }
