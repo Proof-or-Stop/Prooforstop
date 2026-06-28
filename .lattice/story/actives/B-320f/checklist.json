@@ -337,7 +337,42 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees \"verification report: PASS\" in the final Autopilot v2 acceptance table.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/autopilot-v2-reliability-smoke.ts",
+          "packages/main/src/tasks/autopilot-resume-smoke.ts",
+          "packages/main/src/tasks/autopilot-run-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The final verification report maps every M1-M4 feature to at least one command or script.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The report distinguishes dedicated Autopilot v2 tests from DONE gate scaffolding tests.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The report explicitly states remaining scope boundaries for live multi-day fleet proof.",
+            "type": "docs",
+            "priority": "should"
+          }
+        ]
+      }
     }
   ],
   "auditLog": [
