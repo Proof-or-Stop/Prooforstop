@@ -120,7 +120,7 @@
       },
       "status": "done",
       "startTime": "2026-06-28T01:13:56.703Z",
-      "endTime": "2026-06-28T01:21:39.980Z",
+      "endTime": "2026-06-28T01:29:10.942Z",
       "verificationEvidence": [
         {
           "intentRef": "CHK-002:happy:0",
@@ -128,21 +128,21 @@
           "command": "npm --prefix packages/main run test:autopilot-resume-smoke",
           "result": "pass",
           "note": "Smoke verified a healthy non-stale AP-green run returns status=resume_ready with remainingSteps=0 after preserving frozen producerRuntimeInput.",
-          "headHash": "04c21528787879495c072f5dc7387300919882b6",
-          "materialHash": "3085c210a48ffcdbe1f9ad301242594ccfa8c5b93a698452863dc2b8e515bc2f",
-          "storyFilesHash": "7b9f0d99a89ba3396118da22dc4f9853fda434ade53301686a2e42234c986976",
-          "timestamp": "2026-06-28T01:21:40.197Z"
+          "headHash": "72d77a4b811d4bbe5006086e152000a49697498d",
+          "materialHash": "7c722c15fdeee25e0b26833e6c8a632fcdd6f706bbcf68f9939edd9df240f124",
+          "storyFilesHash": "eb6f45706114f17c567048d812961528db5e8e8520dbf6215c5d0af195f6258b",
+          "timestamp": "2026-06-28T01:29:11.150Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
           "kind": "logic_test",
           "command": "npm --prefix packages/main run test:autopilot-resume-smoke",
           "result": "pass",
-          "note": "Smoke verified stale updatedAt, validityPolicyDigest drift, and unavailable git freshness probes return refused/stale_state.",
-          "headHash": "04c21528787879495c072f5dc7387300919882b6",
-          "materialHash": "3085c210a48ffcdbe1f9ad301242594ccfa8c5b93a698452863dc2b8e515bc2f",
-          "storyFilesHash": "7b9f0d99a89ba3396118da22dc4f9853fda434ade53301686a2e42234c986976",
-          "timestamp": "2026-06-28T01:21:40.406Z"
+          "note": "Smoke verified stale updatedAt, maxIterations validityPolicyDigest drift, and unavailable git freshness probes return refused/stale_state.",
+          "headHash": "72d77a4b811d4bbe5006086e152000a49697498d",
+          "materialHash": "7c722c15fdeee25e0b26833e6c8a632fcdd6f706bbcf68f9939edd9df240f124",
+          "storyFilesHash": "eb6f45706114f17c567048d812961528db5e8e8520dbf6215c5d0af195f6258b",
+          "timestamp": "2026-06-28T01:29:11.348Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -150,10 +150,10 @@
           "command": "node packages/main/dist/tasks/autopilot-run-smoke.js",
           "result": "pass",
           "note": "Existing autopilot-run smoke verifies cancelled resume still returns refused/unsafe_state and all resume outputs keep authorityChanged=false, receiptVerified=false, productionDone=false.",
-          "headHash": "04c21528787879495c072f5dc7387300919882b6",
-          "materialHash": "3085c210a48ffcdbe1f9ad301242594ccfa8c5b93a698452863dc2b8e515bc2f",
-          "storyFilesHash": "7b9f0d99a89ba3396118da22dc4f9853fda434ade53301686a2e42234c986976",
-          "timestamp": "2026-06-28T01:21:40.637Z"
+          "headHash": "72d77a4b811d4bbe5006086e152000a49697498d",
+          "materialHash": "7c722c15fdeee25e0b26833e6c8a632fcdd6f706bbcf68f9939edd9df240f124",
+          "storyFilesHash": "eb6f45706114f17c567048d812961528db5e8e8520dbf6215c5d0af195f6258b",
+          "timestamp": "2026-06-28T01:29:11.538Z"
         }
       ]
     },
