@@ -1214,10 +1214,10 @@ function classifyDispatchError(message: string): AutopilotStopReason {
   if (/scope|allowedPaths|deniedPaths|path traversal|escapes/i.test(message)) return 'scope_violation';
   if (/budget/i.test(message)) return 'budget_exhausted';
   if (/not unattended-safe|allowRealHostSubprocess/i.test(message)) return 'validation_failed';
+  if (/timeout|timed out/i.test(message)) return 'timeout';
   const providerFailure = classifyAutopilotProviderFailure(message);
   if (providerFailure.retryableProviderHealth) return 'provider_unhealthy';
   if (providerFailure.requiresHuman) return 'human_required';
-  if (/timeout|timed out/i.test(message)) return 'timeout';
   return 'validation_failed';
 }
 

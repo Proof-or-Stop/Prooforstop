@@ -73,6 +73,13 @@ function assertM2(): void {
 }
 
 function assertM3(): void {
+  for (const invalidMaxConcurrentLive of [0, -1, Number.NaN, Number.POSITIVE_INFINITY]) {
+    const clamped = createAutopilotThrottleState(invalidMaxConcurrentLive);
+    assert.equal(clamped.maxConcurrentLive, 1);
+    assert.equal(clamped.currentLimit, 1);
+    assert.equal(canStartLiveDispatch(clamped), true);
+  }
+
   let state = createAutopilotThrottleState(3);
   assert.equal(state.maxConcurrentLive, 3);
   assert.equal(state.currentLimit, 1);
