@@ -565,9 +565,18 @@ function buildValidityPolicyDigest(policy: PersistedAutopilotPolicy): string {
     policyName: policy.policy,
     dispatchPolicy: policy.dispatchPolicy,
     mode: policy.mode,
+    allowAutoDispatch: policy.allowAutoDispatch,
+    allowAutoValidate: policy.allowAutoValidate,
+    allowAutoFix: policy.allowAutoFix,
+    allowStoryIntegration: policy.allowStoryIntegration,
+    allowDoneAdvance: policy.allowDoneAdvance,
+    allowMainMerge: policy.allowMainMerge,
     stopOnConflict: policy.stopOnConflict,
     stopOnScopeViolation: policy.stopOnScopeViolation,
     requireServerReceipt: policy.requireServerReceipt,
+    maxIterations: policy.maxIterations,
+    maxRuntimeMinutes: policy.maxRuntimeMinutes,
+    maxBudgetUSD: policy.maxBudgetUSD,
   });
 }
 
