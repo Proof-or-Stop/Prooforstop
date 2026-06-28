@@ -289,7 +289,7 @@
       "desc": "Queue class precedence lets superseded beat cleanup-required. A malformed Tier-C story with supersession metadata is classified as superseded instead of cleanup-required, violating the documented rule that cleanup-required beats every other class.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-06-28T11:06:42.444Z",
@@ -302,7 +302,11 @@
         "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md"
       ],
       "signatureTag": "missing|ts|queue-class-precedence",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commit 15234dae0: malformedExperiment cleanup-required now runs before superseded classification; smoke asserts malformed migration discovery story remains cleanup-required and appears in cleanupRequired/summary even with supersession metadata. Verified with build, global-lifecycle-control-plane-smoke, and process-fact contract.",
+      "resolvedAt": "2026-06-28T14:06:28.492Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
