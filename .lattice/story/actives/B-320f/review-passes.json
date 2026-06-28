@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-28T20:43:06.202Z",
       "reviewRunId": "B-320f:RR-014",
       "_hash": "6b56d857e25284a3fddf78ed8774ca2b247286c45113958b8e6c87710a33f421"
+    },
+    {
+      "id": "B-320f:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "Round 3 concept re-review after a44bbdd46 passed. Verified diff main...HEAD plus focused source/doc inspection: provider_unhealthy is only reached after dispatch errors/results are classified as retryable provider-health failures; local timeout is handled first as stopReason=timeout; dispatch_auto unknown-host/local validation is handled before provider classification and remains validation_failed; a44bbdd46 adds a real claude-code provider-transient shim and separate invalid-host assertion; M3 throttle and M4 claim/lease/fencing helpers are unchanged in semantics; docs explicitly bound provider-health to provider-side rate/overload/network and preserve local timeout boundary. Commands run: git diff --stat/name-only main...HEAD; git show --stat --name-only a44bbdd46; targeted rg/nl inspections; git diff --check main...HEAD -- relevant files; node packages/main/dist/tasks/autopilot-v2-reliability-smoke.js; node packages/main/dist/tasks/autopilot-run-smoke.js. Findings: none.",
+      "createdAt": "2026-06-28T20:45:14.418Z",
+      "reviewRound": "2026-06-28T20:43:06.202Z",
+      "reviewRunId": "B-320f:RR-011",
+      "_hash": "d80b1aacce2948883ead4152a29197d42b0c5228605353380d8f1382d77f6831"
     }
   ]
 }
