@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-320f:RP-001",
+      "agent": "lattice-review-docs",
+      "note": "PASS docs/code alignment: docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md explicitly scopes B-320f to deterministic smoke/local semantics, avoids process-immortality and exactly-once overclaims, defines storyFilesHash as frozen pre-run baseline excluding declared outputs, and leaves routine validate/DONE as future Lattice phases. Checked implementation touchpoints in packages/main/src/core/autopilot-reliability.ts, packages/main/src/core/lattice-autopilot.ts, packages/main/src/core/lattice-dispatch.ts, and packages/main/src/tasks/autopilot-v2-reliability-smoke.ts; claims match code and smoke output.",
+      "createdAt": "2026-06-28T16:33:39.346Z",
+      "reviewRound": "2026-06-28T16:31:02.800Z",
+      "reviewRunId": "B-320f:RR-004",
+      "_hash": "08eff9e6ac9cdbf4622b0c67b07edbfb7be219782b6e80a5e8ab5fc7f66959f0"
+    }
+  ]
+}
