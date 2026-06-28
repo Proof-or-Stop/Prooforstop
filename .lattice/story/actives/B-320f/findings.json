@@ -40,6 +40,27 @@
       ],
       "signatureTag": "missing|ts|level-320f-verification",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-320f:F-003",
+      "desc": "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md:386 overclaims that retryable 429/503/529/overload/network/timeout become provider-health states. The implementation classifies dispatch timeout before provider-health classification (packages/main/src/core/lattice-autopilot.ts:1212-1220), so autopilot_run timeout remains stopReason=timeout/failed. The new regression smoke explicitly asserts that real-host timeout contract (packages/main/src/tasks/autopilot-run-smoke.ts:1100-1121), while provider transient overload separately pauses with stopReason=provider_unhealthy (packages/main/src/tasks/autopilot-run-smoke.ts:1123-1142). The dedicated reliability smoke covers provider health events but does not prove timeout becomes a provider-health state (packages/main/src/tasks/autopilot-v2-reliability-smoke.ts:15-70).",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-28T16:54:07.588Z",
+      "reviewRound": "2026-06-28T16:50:31.384Z",
+      "reviewRunId": "B-320f:RR-010",
+      "_hash": "0e6f0a63db1ba8fb5afb444ad03ae14c25997808ed6d0295c444501e1601546e",
+      "files": [
+        "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+        "packages/main/src/core/lattice-autopilot.ts",
+        "packages/main/src/tasks/autopilot-run-smoke.ts",
+        "packages/main/src/tasks/autopilot-v2-reliability-smoke.ts"
+      ],
+      "signatureTag": "doc-code-drift|md|docs-requirements-decisions",
+      "signatureTagSource": "auto"
     }
   ]
 }
