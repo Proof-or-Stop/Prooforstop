@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-28T10:01:33.439Z",
       "reviewRunId": "B-eb18:RR-003",
       "_hash": "84619b88c6283a393384fbf1448763835a7cff7f3b77ce4f8e190443faea0bde"
+    },
+    {
+      "id": "B-eb18:RP-003",
+      "agent": "lattice-review-docs",
+      "note": "Docs review pass: checked global-lifecycle-control-plane execution plan CP-0..CP-5 boundaries against lifecycle-control command policy, handlers, status models, queue exception writer, and live CLI projections. No docs/requirements files changed in branch; implemented commands preserve read-only status projection except guarded preserve-only queue_exception_set, do not claim Authority/production completion, and waterline reports productionDoneEligible=false. Verified with node packages/main/dist/tasks/global-lifecycle-control-plane-smoke.js plus global_control_status/runtime_closure_status/admissibility_waterline/queue_governance_status probes.",
+      "createdAt": "2026-06-28T10:04:31.582Z",
+      "reviewRound": "2026-06-28T10:01:33.439Z",
+      "reviewRunId": "B-eb18:RR-004",
+      "_hash": "b452f9aee621880f2d934ebdc558018387d91d1f95124a77858cb9ac049b4445"
     }
   ]
 }
