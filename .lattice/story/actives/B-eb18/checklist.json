@@ -564,9 +564,9 @@
           "packages/main/src/tasks/**"
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-28T09:54:28.159Z",
       "userSees": "queue_exception_set output contains \"exceptionId\", \"policyVersion\":\"proofbound.queue_exception.v1\", \"class\":\"experiment-batch-exception\", \"storyFilesHash\", \"cleanupPolicy\":\"preserve\", and \"written\":true.",
       "verificationIntent": {
         "happy": [
@@ -590,7 +590,42 @@
             "type": "logic"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-007:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/global-lifecycle-control-plane-smoke.js",
+          "result": "pass",
+          "note": "Queue governance smoke asserts Tier-C experiment batches collapse by default and expand with member storyIds while exceptions preserve cleanup policy.",
+          "headHash": "2fc359430477e2321c822cd8ff08c2e79a49de82",
+          "materialHash": "ab9d52f3e5d7808ee877f8245d923cb2e6b69eb399e1283d658469134b7b109b",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-28T09:54:28.289Z"
+        },
+        {
+          "intentRef": "CHK-007:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/global-lifecycle-control-plane-smoke.js",
+          "result": "pass",
+          "note": "Queue governance smoke asserts malformed Tier-C titles are cleanup-required and duplicate stories remain duplicate-candidate, separating queue hygiene from lifecycle readiness.",
+          "headHash": "2fc359430477e2321c822cd8ff08c2e79a49de82",
+          "materialHash": "ab9d52f3e5d7808ee877f8245d923cb2e6b69eb399e1283d658469134b7b109b",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-28T09:54:28.417Z"
+        },
+        {
+          "intentRef": "CHK-007:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/global-lifecycle-control-plane-smoke.js && node packages/main/dist/tasks/command-ownership-contract.js",
+          "result": "pass",
+          "note": "queue_exception_set smoke rejects short explicit reasons, writes queue-exceptions.json and audit JSONL with policyVersion/storyFilesHash/class/source; ownership contract keeps it mainSharedMutating rather than read-only.",
+          "headHash": "2fc359430477e2321c822cd8ff08c2e79a49de82",
+          "materialHash": "ab9d52f3e5d7808ee877f8245d923cb2e6b69eb399e1283d658469134b7b109b",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-28T09:54:28.579Z"
+        }
+      ]
     }
   ],
   "auditLog": [
