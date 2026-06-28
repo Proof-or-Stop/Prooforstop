@@ -48,10 +48,10 @@
           "command": "npm --prefix packages/main run test:autopilot-resume-smoke",
           "result": "pass",
           "note": "autopilot-resume smoke passed after 1a1239e9d and asserted resume projection skips committed done checkpoint iteration-0 without dispatching a new worker.",
-          "headHash": "1a1239e9dee027ce511b381df00e776d033fd514",
-          "materialHash": "c6fb5f0b014520e75c8d6335f2d18ca9fba49d37f21bdc418fe9985d3dd28811",
-          "storyFilesHash": "e7b89f36521263eab59bb04df45f0aafa5a4c0f64bf122966e5db9f9b963d0c9",
-          "timestamp": "2026-06-28T01:38:25.721Z"
+          "headHash": "685bbd2f602c6afd68bca6495343722b9c544849",
+          "materialHash": "50177f2ed7b77c3ab880f9c05dad15ae6ec2bbd30b913192adf6d043fd13db90",
+          "storyFilesHash": "2c900ca2ac3871820953741ffd21d5acff9aadcb2eb5da4e3419096a0fe46fae",
+          "timestamp": "2026-06-28T01:55:56.631Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -59,10 +59,10 @@
           "command": "npm --prefix packages/main run test:autopilot-resume-smoke",
           "result": "pass",
           "note": "autopilot-resume smoke corrupted run.json and verified resume recovered a valid projection from checkpoint ledger snapshot evidence.",
-          "headHash": "1a1239e9dee027ce511b381df00e776d033fd514",
-          "materialHash": "c6fb5f0b014520e75c8d6335f2d18ca9fba49d37f21bdc418fe9985d3dd28811",
-          "storyFilesHash": "e7b89f36521263eab59bb04df45f0aafa5a4c0f64bf122966e5db9f9b963d0c9",
-          "timestamp": "2026-06-28T01:38:25.915Z"
+          "headHash": "685bbd2f602c6afd68bca6495343722b9c544849",
+          "materialHash": "50177f2ed7b77c3ab880f9c05dad15ae6ec2bbd30b913192adf6d043fd13db90",
+          "storyFilesHash": "2c900ca2ac3871820953741ffd21d5acff9aadcb2eb5da4e3419096a0fe46fae",
+          "timestamp": "2026-06-28T01:55:56.631Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -70,10 +70,10 @@
           "command": "npm --prefix packages/main run test:autopilot-resume-smoke",
           "result": "pass",
           "note": "autopilot-resume smoke verifies stale checkpoint, maxIterations policy digest drift, linked dispatch policy material drift, and missing git freshness probes all fail closed instead of returning resume_ready.",
-          "headHash": "1a1239e9dee027ce511b381df00e776d033fd514",
-          "materialHash": "c6fb5f0b014520e75c8d6335f2d18ca9fba49d37f21bdc418fe9985d3dd28811",
-          "storyFilesHash": "e7b89f36521263eab59bb04df45f0aafa5a4c0f64bf122966e5db9f9b963d0c9",
-          "timestamp": "2026-06-28T01:38:26.110Z"
+          "headHash": "685bbd2f602c6afd68bca6495343722b9c544849",
+          "materialHash": "50177f2ed7b77c3ab880f9c05dad15ae6ec2bbd30b913192adf6d043fd13db90",
+          "storyFilesHash": "2c900ca2ac3871820953741ffd21d5acff9aadcb2eb5da4e3419096a0fe46fae",
+          "timestamp": "2026-06-28T01:55:56.631Z"
         }
       ]
     },
@@ -128,10 +128,10 @@
           "command": "npm --prefix packages/main run test:autopilot-resume-smoke",
           "result": "pass",
           "note": "Smoke verified a healthy non-stale AP-green run returns status=resume_ready with remainingSteps=0 after preserving frozen producerRuntimeInput and dispatch policy material binding.",
-          "headHash": "e45b950508bb1710b8623656c706a0d6a6575ff8",
-          "materialHash": "c6fb5f0b014520e75c8d6335f2d18ca9fba49d37f21bdc418fe9985d3dd28811",
-          "storyFilesHash": "e7b89f36521263eab59bb04df45f0aafa5a4c0f64bf122966e5db9f9b963d0c9",
-          "timestamp": "2026-06-28T01:38:34.846Z"
+          "headHash": "685bbd2f602c6afd68bca6495343722b9c544849",
+          "materialHash": "50177f2ed7b77c3ab880f9c05dad15ae6ec2bbd30b913192adf6d043fd13db90",
+          "storyFilesHash": "2c900ca2ac3871820953741ffd21d5acff9aadcb2eb5da4e3419096a0fe46fae",
+          "timestamp": "2026-06-28T01:55:56.631Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -139,10 +139,10 @@
           "command": "npm --prefix packages/main run test:autopilot-resume-smoke",
           "result": "pass",
           "note": "Smoke verified stale updatedAt, maxIterations validityPolicyDigest drift, linked dispatch policy allowedPaths drift, and unavailable git freshness probes return refused/stale_state.",
-          "headHash": "e45b950508bb1710b8623656c706a0d6a6575ff8",
-          "materialHash": "c6fb5f0b014520e75c8d6335f2d18ca9fba49d37f21bdc418fe9985d3dd28811",
-          "storyFilesHash": "e7b89f36521263eab59bb04df45f0aafa5a4c0f64bf122966e5db9f9b963d0c9",
-          "timestamp": "2026-06-28T01:38:35.049Z"
+          "headHash": "685bbd2f602c6afd68bca6495343722b9c544849",
+          "materialHash": "50177f2ed7b77c3ab880f9c05dad15ae6ec2bbd30b913192adf6d043fd13db90",
+          "storyFilesHash": "2c900ca2ac3871820953741ffd21d5acff9aadcb2eb5da4e3419096a0fe46fae",
+          "timestamp": "2026-06-28T01:55:56.631Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -150,10 +150,10 @@
           "command": "node packages/main/dist/tasks/autopilot-run-smoke.js",
           "result": "pass",
           "note": "Existing autopilot-run smoke verifies cancelled resume still returns refused/unsafe_state and all resume outputs keep authorityChanged=false, receiptVerified=false, productionDone=false.",
-          "headHash": "e45b950508bb1710b8623656c706a0d6a6575ff8",
-          "materialHash": "c6fb5f0b014520e75c8d6335f2d18ca9fba49d37f21bdc418fe9985d3dd28811",
-          "storyFilesHash": "e7b89f36521263eab59bb04df45f0aafa5a4c0f64bf122966e5db9f9b963d0c9",
-          "timestamp": "2026-06-28T01:38:35.242Z"
+          "headHash": "685bbd2f602c6afd68bca6495343722b9c544849",
+          "materialHash": "50177f2ed7b77c3ab880f9c05dad15ae6ec2bbd30b913192adf6d043fd13db90",
+          "storyFilesHash": "2c900ca2ac3871820953741ffd21d5acff9aadcb2eb5da4e3419096a0fe46fae",
+          "timestamp": "2026-06-28T01:55:56.631Z"
         }
       ]
     },
@@ -207,10 +207,10 @@
           "command": "npm --prefix packages/main run build; npm --prefix packages/main run test:autopilot-resume-smoke; node packages/main/dist/tasks/autopilot-run-smoke.js",
           "result": "pass",
           "note": "Build, new package script smoke, and existing autopilot-run smoke all passed after 1a1239e9d.",
-          "headHash": "ead02a9d78810c5b3ec9d3e0e8a543bf91177d18",
-          "materialHash": "c6fb5f0b014520e75c8d6335f2d18ca9fba49d37f21bdc418fe9985d3dd28811",
-          "storyFilesHash": "e7b89f36521263eab59bb04df45f0aafa5a4c0f64bf122966e5db9f9b963d0c9",
-          "timestamp": "2026-06-28T01:38:45.487Z"
+          "headHash": "685bbd2f602c6afd68bca6495343722b9c544849",
+          "materialHash": "50177f2ed7b77c3ab880f9c05dad15ae6ec2bbd30b913192adf6d043fd13db90",
+          "storyFilesHash": "2c900ca2ac3871820953741ffd21d5acff9aadcb2eb5da4e3419096a0fe46fae",
+          "timestamp": "2026-06-28T01:55:56.631Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -218,10 +218,10 @@
           "command": "npm --prefix packages/main run test:command-ownership-contract; node scripts/verify-process-fact-contract.mjs; lattice scope_contract_check {\"storyId\":\"B-c7e2\"}; git diff --check",
           "result": "pass",
           "note": "Command ownership, process fact registry, scope contract, and whitespace checks passed; resume behavior remains registered and scope gate remains pass.",
-          "headHash": "ead02a9d78810c5b3ec9d3e0e8a543bf91177d18",
-          "materialHash": "c6fb5f0b014520e75c8d6335f2d18ca9fba49d37f21bdc418fe9985d3dd28811",
-          "storyFilesHash": "e7b89f36521263eab59bb04df45f0aafa5a4c0f64bf122966e5db9f9b963d0c9",
-          "timestamp": "2026-06-28T01:38:45.682Z"
+          "headHash": "685bbd2f602c6afd68bca6495343722b9c544849",
+          "materialHash": "50177f2ed7b77c3ab880f9c05dad15ae6ec2bbd30b913192adf6d043fd13db90",
+          "storyFilesHash": "2c900ca2ac3871820953741ffd21d5acff9aadcb2eb5da4e3419096a0fe46fae",
+          "timestamp": "2026-06-28T01:55:56.631Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -229,10 +229,10 @@
           "command": "agy --print <B-c7e2 validation prompt> --print-timeout 180s; npm --prefix packages/main run test:autopilot-resume-smoke",
           "result": "pass",
           "note": "Antigravity/agy second-host validation returned VERDICT: pass; local smoke now covers both maxIterations policy drift and linked dispatch policy material drift fail-closed behavior.",
-          "headHash": "ead02a9d78810c5b3ec9d3e0e8a543bf91177d18",
-          "materialHash": "c6fb5f0b014520e75c8d6335f2d18ca9fba49d37f21bdc418fe9985d3dd28811",
-          "storyFilesHash": "e7b89f36521263eab59bb04df45f0aafa5a4c0f64bf122966e5db9f9b963d0c9",
-          "timestamp": "2026-06-28T01:38:45.878Z"
+          "headHash": "685bbd2f602c6afd68bca6495343722b9c544849",
+          "materialHash": "50177f2ed7b77c3ab880f9c05dad15ae6ec2bbd30b913192adf6d043fd13db90",
+          "storyFilesHash": "2c900ca2ac3871820953741ffd21d5acff9aadcb2eb5da4e3419096a0fe46fae",
+          "timestamp": "2026-06-28T01:55:56.631Z"
         }
       ]
     }
