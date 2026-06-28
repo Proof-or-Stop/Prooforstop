@@ -66,11 +66,11 @@
           "file": "packages/main/src/tasks/autopilot-run-smoke.ts",
           "command": "node packages/main/dist/tasks/autopilot-run-smoke.js",
           "result": "pass",
-          "note": "PASS: existing autopilot_run local guard/budget/authority paths still fail closed after M2 classification integration.",
-          "headHash": "2d0b5a463dcdae175d936c3b3cb620e2ceef63b3",
+          "note": "F-001 fixed: autopilot_run smoke now drives a shimmed claude-code real subprocess timeout and asserts status failed with stopReason timeout instead of provider_unhealthy.",
+          "headHash": "3fd8065487aa60d4f86d240d294d41c921483dc8",
           "materialHash": "254d1a65341cf4a9ce95b3d5342364e2eaac78b8092be7b4c6bf72d82dd5961e",
           "storyFilesHash": "0e449f9273724c107092be12728df9d43fb0f5c915a420cd1422d657bdc4d4a4",
-          "timestamp": "2026-06-28T16:30:46.547Z"
+          "timestamp": "2026-06-28T16:46:49.955Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
