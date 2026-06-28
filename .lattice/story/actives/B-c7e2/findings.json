@@ -27,7 +27,7 @@
       "desc": "Policy/runtime drift is frozen into the checkpoint ledger but is not recomputed during autopilot_resume before returning resume_ready. The M1 plan requires policy digest or policy-declared runtime input changes to mark old checkpoints stale/plan_drift instead of silently consuming them as done (docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md:193, docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md:211, docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md:228). The implementation records validityPolicyDigest and producerRuntimeIdentity in buildRunBasis (packages/main/src/core/lattice-autopilot.ts:578) but currentRunBasisMatches only compares headHash, materialHash, and storyFilesHash (packages/main/src/core/lattice-autopilot.ts:807), and autopilotResume uses only that limited basisFreshness before status=resume_ready (packages/main/src/core/lattice-autopilot.ts:1789). A changed autopilot policy/runtime can therefore silently reuse committed done checkpoints, overclaiming M1 resume safety.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-06-28T01:18:08.150Z",
@@ -39,7 +39,11 @@
         "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md"
       ],
       "signatureTag": "adversarial|ts|policy-runtime-drift",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 0eddf8fba: runBasis now stores producerRuntimeInput, resume recomputes validityPolicyDigest and producerRuntimeIdentity from frozen inputs/current policy, and autopilot-resume smoke mutates the policy to verify refused/stale_state on policy drift.",
+      "resolvedAt": "2026-06-28T01:22:31.040Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
