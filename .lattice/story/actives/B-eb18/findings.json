@@ -255,6 +255,26 @@
       ],
       "signatureTag": "doc-code-drift|ts|tier-durable-exception",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-eb18:F-012",
+      "desc": "Queue exception precedence hides active/stale worktree state. experiment-batch-exception is returned before active-worktree/stale-worktree, contradicting the queue precedence that active worktree visibility beats dashboard collapse and exceptions must not hide stale worktree blockers.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-28T11:06:40.699Z",
+      "reviewRound": "2026-06-28T11:03:10.400Z",
+      "reviewRunId": "B-eb18:RR-026",
+      "_hash": "afeb716a43d2786b1bfba632c6fca556507dd22dc34b1a5c011282023daec59f",
+      "files": [
+        "packages/main/src/core/lifecycle-control/queue/index.ts",
+        "packages/main/src/tasks/global-lifecycle-control-plane-smoke.ts",
+        "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md"
+      ],
+      "signatureTag": "missing|ts|queue-exception-precedence",
+      "signatureTagSource": "auto"
     }
   ]
 }
