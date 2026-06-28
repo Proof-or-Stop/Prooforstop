@@ -54,10 +54,10 @@
           "command": "node packages/main/dist/tasks/autopilot-v2-reliability-smoke.js",
           "result": "pass",
           "note": "PASS: M2 provider-health states classify retryable rate-limit/overload/network as health-aware pause/resume behavior.",
-          "headHash": "2d0b5a463dcdae175d936c3b3cb620e2ceef63b3",
-          "materialHash": "254d1a65341cf4a9ce95b3d5342364e2eaac78b8092be7b4c6bf72d82dd5961e",
-          "storyFilesHash": "0e449f9273724c107092be12728df9d43fb0f5c915a420cd1422d657bdc4d4a4",
-          "timestamp": "2026-06-28T16:30:46.547Z"
+          "headHash": "c09ae27911dbdfec7f2ac9f1c08a501fcadf9711",
+          "materialHash": "79ca50ee6b8219efb0255bb7abde8507a3916e5a12ff7360cefaf4102b9e02e3",
+          "storyFilesHash": "b15197340ecfb070ec803293e72b9341053316293cce64c991a9928952a95b7a",
+          "timestamp": "2026-06-28T16:50:16.499Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -67,10 +67,10 @@
           "command": "node packages/main/dist/tasks/autopilot-run-smoke.js",
           "result": "pass",
           "note": "F-001 fixed: autopilot_run smoke now drives a shimmed claude-code real subprocess timeout and asserts status failed with stopReason timeout instead of provider_unhealthy.",
-          "headHash": "3fd8065487aa60d4f86d240d294d41c921483dc8",
-          "materialHash": "254d1a65341cf4a9ce95b3d5342364e2eaac78b8092be7b4c6bf72d82dd5961e",
-          "storyFilesHash": "0e449f9273724c107092be12728df9d43fb0f5c915a420cd1422d657bdc4d4a4",
-          "timestamp": "2026-06-28T16:46:49.955Z"
+          "headHash": "c09ae27911dbdfec7f2ac9f1c08a501fcadf9711",
+          "materialHash": "79ca50ee6b8219efb0255bb7abde8507a3916e5a12ff7360cefaf4102b9e02e3",
+          "storyFilesHash": "b15197340ecfb070ec803293e72b9341053316293cce64c991a9928952a95b7a",
+          "timestamp": "2026-06-28T16:50:16.500Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -80,10 +80,10 @@
           "command": "node packages/main/dist/tasks/autopilot-v2-reliability-smoke.js",
           "result": "pass",
           "note": "PASS: quota/auth/policy/terminal and local hard-budget-like text are not treated as transient provider-health failures.",
-          "headHash": "2d0b5a463dcdae175d936c3b3cb620e2ceef63b3",
-          "materialHash": "254d1a65341cf4a9ce95b3d5342364e2eaac78b8092be7b4c6bf72d82dd5961e",
-          "storyFilesHash": "0e449f9273724c107092be12728df9d43fb0f5c915a420cd1422d657bdc4d4a4",
-          "timestamp": "2026-06-28T16:30:46.547Z"
+          "headHash": "c09ae27911dbdfec7f2ac9f1c08a501fcadf9711",
+          "materialHash": "79ca50ee6b8219efb0255bb7abde8507a3916e5a12ff7360cefaf4102b9e02e3",
+          "storyFilesHash": "b15197340ecfb070ec803293e72b9341053316293cce64c991a9928952a95b7a",
+          "timestamp": "2026-06-28T16:50:16.500Z"
         }
       ]
     },
@@ -141,10 +141,10 @@
           "command": "node packages/main/dist/tasks/autopilot-v2-reliability-smoke.js",
           "result": "pass",
           "note": "PASS: adaptive throttle raises concurrency on stable windows.",
-          "headHash": "2d0b5a463dcdae175d936c3b3cb620e2ceef63b3",
-          "materialHash": "254d1a65341cf4a9ce95b3d5342364e2eaac78b8092be7b4c6bf72d82dd5961e",
-          "storyFilesHash": "0e449f9273724c107092be12728df9d43fb0f5c915a420cd1422d657bdc4d4a4",
-          "timestamp": "2026-06-28T16:30:46.547Z"
+          "headHash": "c09ae27911dbdfec7f2ac9f1c08a501fcadf9711",
+          "materialHash": "79ca50ee6b8219efb0255bb7abde8507a3916e5a12ff7360cefaf4102b9e02e3",
+          "storyFilesHash": "b15197340ecfb070ec803293e72b9341053316293cce64c991a9928952a95b7a",
+          "timestamp": "2026-06-28T16:50:16.500Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -154,10 +154,10 @@
           "command": "node packages/main/dist/tasks/autopilot-v2-reliability-smoke.js",
           "result": "pass",
           "note": "PASS: throttle enforces maxConcurrentLive and hold behavior.",
-          "headHash": "2d0b5a463dcdae175d936c3b3cb620e2ceef63b3",
-          "materialHash": "254d1a65341cf4a9ce95b3d5342364e2eaac78b8092be7b4c6bf72d82dd5961e",
-          "storyFilesHash": "0e449f9273724c107092be12728df9d43fb0f5c915a420cd1422d657bdc4d4a4",
-          "timestamp": "2026-06-28T16:30:46.547Z"
+          "headHash": "c09ae27911dbdfec7f2ac9f1c08a501fcadf9711",
+          "materialHash": "79ca50ee6b8219efb0255bb7abde8507a3916e5a12ff7360cefaf4102b9e02e3",
+          "storyFilesHash": "b15197340ecfb070ec803293e72b9341053316293cce64c991a9928952a95b7a",
+          "timestamp": "2026-06-28T16:50:16.500Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -167,10 +167,10 @@
           "command": "node packages/main/dist/tasks/autopilot-v2-reliability-smoke.js",
           "result": "pass",
           "note": "F-002 coverage fixed: reliability smoke now asserts maxConcurrentLive values 0, negative, NaN, and Infinity clamp to the safe minimum while preserving dispatch start eligibility.",
-          "headHash": "ff8a97ef168500f551e6606fb71ae669f4e8c15b",
-          "materialHash": "254d1a65341cf4a9ce95b3d5342364e2eaac78b8092be7b4c6bf72d82dd5961e",
-          "storyFilesHash": "0e449f9273724c107092be12728df9d43fb0f5c915a420cd1422d657bdc4d4a4",
-          "timestamp": "2026-06-28T16:46:58.665Z"
+          "headHash": "c09ae27911dbdfec7f2ac9f1c08a501fcadf9711",
+          "materialHash": "79ca50ee6b8219efb0255bb7abde8507a3916e5a12ff7360cefaf4102b9e02e3",
+          "storyFilesHash": "b15197340ecfb070ec803293e72b9341053316293cce64c991a9928952a95b7a",
+          "timestamp": "2026-06-28T16:50:16.500Z"
         }
       ]
     },
@@ -228,10 +228,10 @@
           "command": "node packages/main/dist/tasks/autopilot-v2-reliability-smoke.js",
           "result": "pass",
           "note": "PASS: current owner with current fencing token can complete a claimed step.",
-          "headHash": "2d0b5a463dcdae175d936c3b3cb620e2ceef63b3",
-          "materialHash": "254d1a65341cf4a9ce95b3d5342364e2eaac78b8092be7b4c6bf72d82dd5961e",
-          "storyFilesHash": "0e449f9273724c107092be12728df9d43fb0f5c915a420cd1422d657bdc4d4a4",
-          "timestamp": "2026-06-28T16:30:46.547Z"
+          "headHash": "c09ae27911dbdfec7f2ac9f1c08a501fcadf9711",
+          "materialHash": "79ca50ee6b8219efb0255bb7abde8507a3916e5a12ff7360cefaf4102b9e02e3",
+          "storyFilesHash": "b15197340ecfb070ec803293e72b9341053316293cce64c991a9928952a95b7a",
+          "timestamp": "2026-06-28T16:50:16.500Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -241,10 +241,10 @@
           "command": "node packages/main/dist/tasks/autopilot-v2-reliability-smoke.js",
           "result": "pass",
           "note": "PASS: duplicate live claims are refused while lease is valid.",
-          "headHash": "2d0b5a463dcdae175d936c3b3cb620e2ceef63b3",
-          "materialHash": "254d1a65341cf4a9ce95b3d5342364e2eaac78b8092be7b4c6bf72d82dd5961e",
-          "storyFilesHash": "0e449f9273724c107092be12728df9d43fb0f5c915a420cd1422d657bdc4d4a4",
-          "timestamp": "2026-06-28T16:30:46.547Z"
+          "headHash": "c09ae27911dbdfec7f2ac9f1c08a501fcadf9711",
+          "materialHash": "79ca50ee6b8219efb0255bb7abde8507a3916e5a12ff7360cefaf4102b9e02e3",
+          "storyFilesHash": "b15197340ecfb070ec803293e72b9341053316293cce64c991a9928952a95b7a",
+          "timestamp": "2026-06-28T16:50:16.500Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -254,10 +254,10 @@
           "command": "node packages/main/dist/tasks/autopilot-v2-reliability-smoke.js",
           "result": "pass",
           "note": "PASS: expired lease reclaim invalidates stale owner/fencing token and already-completed steps cannot be reclaimed.",
-          "headHash": "2d0b5a463dcdae175d936c3b3cb620e2ceef63b3",
-          "materialHash": "254d1a65341cf4a9ce95b3d5342364e2eaac78b8092be7b4c6bf72d82dd5961e",
-          "storyFilesHash": "0e449f9273724c107092be12728df9d43fb0f5c915a420cd1422d657bdc4d4a4",
-          "timestamp": "2026-06-28T16:30:46.547Z"
+          "headHash": "c09ae27911dbdfec7f2ac9f1c08a501fcadf9711",
+          "materialHash": "79ca50ee6b8219efb0255bb7abde8507a3916e5a12ff7360cefaf4102b9e02e3",
+          "storyFilesHash": "b15197340ecfb070ec803293e72b9341053316293cce64c991a9928952a95b7a",
+          "timestamp": "2026-06-28T16:50:16.500Z"
         }
       ]
     },
@@ -311,10 +311,10 @@
           "command": "rg -n \"B-320f implementation and acceptance status|committed admissible|storyFilesHash\" docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
           "result": "pass",
           "note": "PASS: execution plan records B-320f status and no longer overclaims exactly-once behavior.",
-          "headHash": "2d0b5a463dcdae175d936c3b3cb620e2ceef63b3",
-          "materialHash": "254d1a65341cf4a9ce95b3d5342364e2eaac78b8092be7b4c6bf72d82dd5961e",
-          "storyFilesHash": "0e449f9273724c107092be12728df9d43fb0f5c915a420cd1422d657bdc4d4a4",
-          "timestamp": "2026-06-28T16:30:46.547Z"
+          "headHash": "c09ae27911dbdfec7f2ac9f1c08a501fcadf9711",
+          "materialHash": "79ca50ee6b8219efb0255bb7abde8507a3916e5a12ff7360cefaf4102b9e02e3",
+          "storyFilesHash": "b15197340ecfb070ec803293e72b9341053316293cce64c991a9928952a95b7a",
+          "timestamp": "2026-06-28T16:50:16.500Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -324,10 +324,10 @@
           "command": "rg -n \"Regression smokes|Version and CLI entrypoint|Routine validate\" docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
           "result": "pass",
           "note": "PASS: acceptance table lists regression smokes, version/entrypoint checks, and lifecycle validation boundary.",
-          "headHash": "2d0b5a463dcdae175d936c3b3cb620e2ceef63b3",
-          "materialHash": "254d1a65341cf4a9ce95b3d5342364e2eaac78b8092be7b4c6bf72d82dd5961e",
-          "storyFilesHash": "0e449f9273724c107092be12728df9d43fb0f5c915a420cd1422d657bdc4d4a4",
-          "timestamp": "2026-06-28T16:30:46.547Z"
+          "headHash": "c09ae27911dbdfec7f2ac9f1c08a501fcadf9711",
+          "materialHash": "79ca50ee6b8219efb0255bb7abde8507a3916e5a12ff7360cefaf4102b9e02e3",
+          "storyFilesHash": "b15197340ecfb070ec803293e72b9341053316293cce64c991a9928952a95b7a",
+          "timestamp": "2026-06-28T16:50:16.500Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -337,10 +337,10 @@
           "command": "rg -n \"does not make the CLI process immortal|external host/session keepalive is a wrapper concern\" docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
           "result": "pass",
           "note": "PASS: document keeps the wrapper/process-immortality non-claim boundary explicit.",
-          "headHash": "2d0b5a463dcdae175d936c3b3cb620e2ceef63b3",
-          "materialHash": "254d1a65341cf4a9ce95b3d5342364e2eaac78b8092be7b4c6bf72d82dd5961e",
-          "storyFilesHash": "0e449f9273724c107092be12728df9d43fb0f5c915a420cd1422d657bdc4d4a4",
-          "timestamp": "2026-06-28T16:30:46.547Z"
+          "headHash": "c09ae27911dbdfec7f2ac9f1c08a501fcadf9711",
+          "materialHash": "79ca50ee6b8219efb0255bb7abde8507a3916e5a12ff7360cefaf4102b9e02e3",
+          "storyFilesHash": "b15197340ecfb070ec803293e72b9341053316293cce64c991a9928952a95b7a",
+          "timestamp": "2026-06-28T16:50:16.500Z"
         }
       ]
     },
@@ -405,10 +405,10 @@
           "command": "npm --prefix packages/main run build",
           "result": "pass",
           "note": "PASS: TypeScript build succeeds for CLI/runtime behavior changes.",
-          "headHash": "2d0b5a463dcdae175d936c3b3cb620e2ceef63b3",
-          "materialHash": "254d1a65341cf4a9ce95b3d5342364e2eaac78b8092be7b4c6bf72d82dd5961e",
-          "storyFilesHash": "0e449f9273724c107092be12728df9d43fb0f5c915a420cd1422d657bdc4d4a4",
-          "timestamp": "2026-06-28T16:30:46.547Z"
+          "headHash": "c09ae27911dbdfec7f2ac9f1c08a501fcadf9711",
+          "materialHash": "79ca50ee6b8219efb0255bb7abde8507a3916e5a12ff7360cefaf4102b9e02e3",
+          "storyFilesHash": "b15197340ecfb070ec803293e72b9341053316293cce64c991a9928952a95b7a",
+          "timestamp": "2026-06-28T16:50:16.500Z"
         },
         {
           "intentRef": "CHK-005:happy:1",
@@ -418,10 +418,10 @@
           "command": "node packages/main/dist/tasks/autopilot-v2-reliability-smoke.js",
           "result": "pass",
           "note": "PASS: dedicated Autopilot v2 reliability smoke passes.",
-          "headHash": "2d0b5a463dcdae175d936c3b3cb620e2ceef63b3",
-          "materialHash": "254d1a65341cf4a9ce95b3d5342364e2eaac78b8092be7b4c6bf72d82dd5961e",
-          "storyFilesHash": "0e449f9273724c107092be12728df9d43fb0f5c915a420cd1422d657bdc4d4a4",
-          "timestamp": "2026-06-28T16:30:46.547Z"
+          "headHash": "c09ae27911dbdfec7f2ac9f1c08a501fcadf9711",
+          "materialHash": "79ca50ee6b8219efb0255bb7abde8507a3916e5a12ff7360cefaf4102b9e02e3",
+          "storyFilesHash": "b15197340ecfb070ec803293e72b9341053316293cce64c991a9928952a95b7a",
+          "timestamp": "2026-06-28T16:50:16.500Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -431,10 +431,10 @@
           "command": "node packages/main/dist/tasks/lattice-cli-migration-smoke.js",
           "result": "pass",
           "note": "PASS: root package, packages/main package, and lattice-brand version are synchronized at 0.3.103.",
-          "headHash": "2d0b5a463dcdae175d936c3b3cb620e2ceef63b3",
-          "materialHash": "254d1a65341cf4a9ce95b3d5342364e2eaac78b8092be7b4c6bf72d82dd5961e",
-          "storyFilesHash": "0e449f9273724c107092be12728df9d43fb0f5c915a420cd1422d657bdc4d4a4",
-          "timestamp": "2026-06-28T16:30:46.547Z"
+          "headHash": "c09ae27911dbdfec7f2ac9f1c08a501fcadf9711",
+          "materialHash": "79ca50ee6b8219efb0255bb7abde8507a3916e5a12ff7360cefaf4102b9e02e3",
+          "storyFilesHash": "b15197340ecfb070ec803293e72b9341053316293cce64c991a9928952a95b7a",
+          "timestamp": "2026-06-28T16:50:16.500Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -444,10 +444,10 @@
           "command": "node packages/main/dist/tasks/autopilot-run-smoke.js",
           "result": "pass",
           "note": "PASS: full existing autopilot_run regression smoke passes after M2/M3/M4 implementation.",
-          "headHash": "2d0b5a463dcdae175d936c3b3cb620e2ceef63b3",
-          "materialHash": "254d1a65341cf4a9ce95b3d5342364e2eaac78b8092be7b4c6bf72d82dd5961e",
-          "storyFilesHash": "0e449f9273724c107092be12728df9d43fb0f5c915a420cd1422d657bdc4d4a4",
-          "timestamp": "2026-06-28T16:30:46.547Z"
+          "headHash": "c09ae27911dbdfec7f2ac9f1c08a501fcadf9711",
+          "materialHash": "79ca50ee6b8219efb0255bb7abde8507a3916e5a12ff7360cefaf4102b9e02e3",
+          "storyFilesHash": "b15197340ecfb070ec803293e72b9341053316293cce64c991a9928952a95b7a",
+          "timestamp": "2026-06-28T16:50:16.500Z"
         }
       ]
     },
@@ -506,10 +506,10 @@
           "command": "node packages/main/dist/tasks/autopilot-run-smoke.js",
           "result": "pass",
           "note": "F-002 coverage fixed: autopilot_run smoke now asserts a transient provider-health classification persists status paused_requires_resume, stopReason provider_unhealthy, iteration stopReason provider_unhealthy, and paused_requires_resume health event evidence.",
-          "headHash": "25935e3b421ead19b4230109f51a78df47f03c4d",
-          "materialHash": "254d1a65341cf4a9ce95b3d5342364e2eaac78b8092be7b4c6bf72d82dd5961e",
-          "storyFilesHash": "0e449f9273724c107092be12728df9d43fb0f5c915a420cd1422d657bdc4d4a4",
-          "timestamp": "2026-06-28T16:47:05.218Z"
+          "headHash": "c09ae27911dbdfec7f2ac9f1c08a501fcadf9711",
+          "materialHash": "79ca50ee6b8219efb0255bb7abde8507a3916e5a12ff7360cefaf4102b9e02e3",
+          "storyFilesHash": "b15197340ecfb070ec803293e72b9341053316293cce64c991a9928952a95b7a",
+          "timestamp": "2026-06-28T16:50:16.500Z"
         },
         {
           "intentRef": "CHK-006:edge:0",
@@ -519,10 +519,10 @@
           "command": "node packages/main/dist/tasks/autopilot-run-smoke.js",
           "result": "pass",
           "note": "PASS: existing autopilot_run local guard/budget/authority paths still fail closed after M2 classification integration.",
-          "headHash": "2d0b5a463dcdae175d936c3b3cb620e2ceef63b3",
-          "materialHash": "254d1a65341cf4a9ce95b3d5342364e2eaac78b8092be7b4c6bf72d82dd5961e",
-          "storyFilesHash": "0e449f9273724c107092be12728df9d43fb0f5c915a420cd1422d657bdc4d4a4",
-          "timestamp": "2026-06-28T16:30:46.547Z"
+          "headHash": "c09ae27911dbdfec7f2ac9f1c08a501fcadf9711",
+          "materialHash": "79ca50ee6b8219efb0255bb7abde8507a3916e5a12ff7360cefaf4102b9e02e3",
+          "storyFilesHash": "b15197340ecfb070ec803293e72b9341053316293cce64c991a9928952a95b7a",
+          "timestamp": "2026-06-28T16:50:16.500Z"
         },
         {
           "intentRef": "CHK-006:adversarial:0",
@@ -532,10 +532,10 @@
           "command": "node packages/main/dist/tasks/autopilot-v2-reliability-smoke.js",
           "result": "pass",
           "note": "PASS: quota/auth/policy/terminal and local hard-budget-like text are not treated as transient provider-health failures.",
-          "headHash": "2d0b5a463dcdae175d936c3b3cb620e2ceef63b3",
-          "materialHash": "254d1a65341cf4a9ce95b3d5342364e2eaac78b8092be7b4c6bf72d82dd5961e",
-          "storyFilesHash": "0e449f9273724c107092be12728df9d43fb0f5c915a420cd1422d657bdc4d4a4",
-          "timestamp": "2026-06-28T16:30:46.547Z"
+          "headHash": "c09ae27911dbdfec7f2ac9f1c08a501fcadf9711",
+          "materialHash": "79ca50ee6b8219efb0255bb7abde8507a3916e5a12ff7360cefaf4102b9e02e3",
+          "storyFilesHash": "b15197340ecfb070ec803293e72b9341053316293cce64c991a9928952a95b7a",
+          "timestamp": "2026-06-28T16:50:16.500Z"
         }
       ]
     },
@@ -595,10 +595,10 @@
           "command": "node packages/main/dist/tasks/autopilot-resume-smoke.js",
           "result": "pass",
           "note": "PASS: M1 checkpoint/resume replay remains intact after reliability integration.",
-          "headHash": "2d0b5a463dcdae175d936c3b3cb620e2ceef63b3",
-          "materialHash": "254d1a65341cf4a9ce95b3d5342364e2eaac78b8092be7b4c6bf72d82dd5961e",
-          "storyFilesHash": "0e449f9273724c107092be12728df9d43fb0f5c915a420cd1422d657bdc4d4a4",
-          "timestamp": "2026-06-28T16:30:46.547Z"
+          "headHash": "c09ae27911dbdfec7f2ac9f1c08a501fcadf9711",
+          "materialHash": "79ca50ee6b8219efb0255bb7abde8507a3916e5a12ff7360cefaf4102b9e02e3",
+          "storyFilesHash": "b15197340ecfb070ec803293e72b9341053316293cce64c991a9928952a95b7a",
+          "timestamp": "2026-06-28T16:50:16.500Z"
         },
         {
           "intentRef": "CHK-007:edge:0",
@@ -608,10 +608,10 @@
           "command": "node packages/main/dist/tasks/autopilot-run-smoke.js",
           "result": "pass",
           "note": "PASS: Autopilot policy, authority, retry, budget, conflict, cancel, and resume regressions remain green.",
-          "headHash": "2d0b5a463dcdae175d936c3b3cb620e2ceef63b3",
-          "materialHash": "254d1a65341cf4a9ce95b3d5342364e2eaac78b8092be7b4c6bf72d82dd5961e",
-          "storyFilesHash": "0e449f9273724c107092be12728df9d43fb0f5c915a420cd1422d657bdc4d4a4",
-          "timestamp": "2026-06-28T16:30:46.547Z"
+          "headHash": "c09ae27911dbdfec7f2ac9f1c08a501fcadf9711",
+          "materialHash": "79ca50ee6b8219efb0255bb7abde8507a3916e5a12ff7360cefaf4102b9e02e3",
+          "storyFilesHash": "b15197340ecfb070ec803293e72b9341053316293cce64c991a9928952a95b7a",
+          "timestamp": "2026-06-28T16:50:16.500Z"
         },
         {
           "intentRef": "CHK-007:adversarial:0",
@@ -621,10 +621,10 @@
           "command": "node packages/main/dist/tasks/lattice-cli-migration-smoke.js",
           "result": "pass",
           "note": "PASS: CLI version and entrypoint migration checks remain synchronized after version bump.",
-          "headHash": "2d0b5a463dcdae175d936c3b3cb620e2ceef63b3",
-          "materialHash": "254d1a65341cf4a9ce95b3d5342364e2eaac78b8092be7b4c6bf72d82dd5961e",
-          "storyFilesHash": "0e449f9273724c107092be12728df9d43fb0f5c915a420cd1422d657bdc4d4a4",
-          "timestamp": "2026-06-28T16:30:46.547Z"
+          "headHash": "c09ae27911dbdfec7f2ac9f1c08a501fcadf9711",
+          "materialHash": "79ca50ee6b8219efb0255bb7abde8507a3916e5a12ff7360cefaf4102b9e02e3",
+          "storyFilesHash": "b15197340ecfb070ec803293e72b9341053316293cce64c991a9928952a95b7a",
+          "timestamp": "2026-06-28T16:50:16.500Z"
         }
       ]
     },
@@ -682,10 +682,10 @@
           "command": "npm --prefix packages/main run build",
           "result": "pass",
           "note": "PASS: build completed after all implementation and documentation changes.",
-          "headHash": "2d0b5a463dcdae175d936c3b3cb620e2ceef63b3",
-          "materialHash": "254d1a65341cf4a9ce95b3d5342364e2eaac78b8092be7b4c6bf72d82dd5961e",
-          "storyFilesHash": "0e449f9273724c107092be12728df9d43fb0f5c915a420cd1422d657bdc4d4a4",
-          "timestamp": "2026-06-28T16:30:46.547Z"
+          "headHash": "c09ae27911dbdfec7f2ac9f1c08a501fcadf9711",
+          "materialHash": "79ca50ee6b8219efb0255bb7abde8507a3916e5a12ff7360cefaf4102b9e02e3",
+          "storyFilesHash": "b15197340ecfb070ec803293e72b9341053316293cce64c991a9928952a95b7a",
+          "timestamp": "2026-06-28T16:50:16.500Z"
         },
         {
           "intentRef": "CHK-008:edge:0",
@@ -695,10 +695,10 @@
           "command": "node packages/main/dist/tasks/autopilot-v2-reliability-smoke.js",
           "result": "pass",
           "note": "PASS: feature-specific smoke covers M2/M3/M4 behavior.",
-          "headHash": "2d0b5a463dcdae175d936c3b3cb620e2ceef63b3",
-          "materialHash": "254d1a65341cf4a9ce95b3d5342364e2eaac78b8092be7b4c6bf72d82dd5961e",
-          "storyFilesHash": "0e449f9273724c107092be12728df9d43fb0f5c915a420cd1422d657bdc4d4a4",
-          "timestamp": "2026-06-28T16:30:46.547Z"
+          "headHash": "c09ae27911dbdfec7f2ac9f1c08a501fcadf9711",
+          "materialHash": "79ca50ee6b8219efb0255bb7abde8507a3916e5a12ff7360cefaf4102b9e02e3",
+          "storyFilesHash": "b15197340ecfb070ec803293e72b9341053316293cce64c991a9928952a95b7a",
+          "timestamp": "2026-06-28T16:50:16.500Z"
         },
         {
           "intentRef": "CHK-008:adversarial:0",
@@ -708,10 +708,10 @@
           "command": "node packages/main/dist/tasks/autopilot-run-smoke.js; node packages/main/dist/tasks/autopilot-resume-smoke.js; node packages/main/dist/tasks/lattice-cli-migration-smoke.js; node packages/main/dist/cli.js --version",
           "result": "pass",
           "note": "PASS: regression and version smokes prove the new behavior did not break existing autopilot/CLI contracts.",
-          "headHash": "2d0b5a463dcdae175d936c3b3cb620e2ceef63b3",
-          "materialHash": "254d1a65341cf4a9ce95b3d5342364e2eaac78b8092be7b4c6bf72d82dd5961e",
-          "storyFilesHash": "0e449f9273724c107092be12728df9d43fb0f5c915a420cd1422d657bdc4d4a4",
-          "timestamp": "2026-06-28T16:30:46.547Z"
+          "headHash": "c09ae27911dbdfec7f2ac9f1c08a501fcadf9711",
+          "materialHash": "79ca50ee6b8219efb0255bb7abde8507a3916e5a12ff7360cefaf4102b9e02e3",
+          "storyFilesHash": "b15197340ecfb070ec803293e72b9341053316293cce64c991a9928952a95b7a",
+          "timestamp": "2026-06-28T16:50:16.500Z"
         }
       ]
     }
