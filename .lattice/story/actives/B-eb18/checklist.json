@@ -182,7 +182,8 @@
       "files": {
         "modify": [
           "packages/main/src/core/lifecycle-control/queue/**",
-          "packages/main/src/core/lifecycle-control/**"
+          "packages/main/src/core/lifecycle-control/**",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md"
         ],
         "create": [],
         "test": [
@@ -192,7 +193,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "The queue section groups Tier-C provider-execution stories as an experiment exception, supports collapsed and expanded batch views, leaves malformed experiment rows visible, and reports non-experiment duplicate candidates with canonical cleanup suggestions.",
+      "userSees": "The queue output contains \"experimentBatches\":[{\"experimentBatchId\":\"tier-c-provider-execution-receipt-verification\",\"defaultDashboardMode\":\"collapsed\",\"storyCount\":...}] and expanded mode lists member story ids.",
       "verificationIntent": {
         "happy": [
           {
