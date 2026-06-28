@@ -50,7 +50,7 @@
       "desc": "Policy drift is only partially fail-closed. packages/main/src/core/lattice-autopilot.ts:562 builds validityPolicyDigest from dispatchPolicy/mode/stop flags/requireServerReceipt, omitting persisted policy fields such as maxIterations/maxRuntimeMinutes/maxBudgetUSD and permission booleans. packages/main/src/core/lattice-autopilot.ts:851 then treats that narrow digest as the current-policy drift gate. Verified with a temp-repo node probe after npm --prefix packages/main run build: create AP-policy-maxiterations under policy fake maxIterations=1, overwrite the same policy with maxIterations=2, then run autopilot_resume -- it returned status=resume_ready with remainingSteps=0 instead of refused reason=stale_state. This violates the B-c7e2:F-002 expectation that current policy drift fails closed as stale_state.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-06-28T01:24:46.206Z",
@@ -62,7 +62,11 @@
         "packages/main/src/tasks/autopilot-resume-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|policy-drift-partially",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 2da692dde: buildValidityPolicyDigest now includes maxIterations, maxRuntimeMinutes, maxBudgetUSD, autopilot permission booleans, and the existing policy semantics. autopilot-resume smoke now mutates maxIterations from 1 to 2 and verifies refused/stale_state rather than resume_ready.",
+      "resolvedAt": "2026-06-28T01:29:38.119Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-c7e2:F-004",
