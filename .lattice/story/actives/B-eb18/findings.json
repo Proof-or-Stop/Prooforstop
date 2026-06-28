@@ -193,7 +193,7 @@
       "desc": "Superseded stories still participate in duplicate cluster canonical selection. A story with lifecycleControl.queue.supersededBy can become canonical for a same-title replacement, causing the intended replacement to be classified as duplicate-candidate and creating cleanup pressure on the canonical successor.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-06-28T10:59:41.954Z",
@@ -205,7 +205,11 @@
         "packages/main/src/tasks/global-lifecycle-control-plane-smoke.ts"
       ],
       "signatureTag": "missing|ts|superseded-stories-still",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commit ab00d76c: duplicate grouping now excludes stories with explicit supersededBy metadata and experiment exceptions before canonical selection; smoke asserts a superseded predecessor with the same title does not make its replacement duplicate-candidate. Verified with build, global-lifecycle-control-plane-smoke, and process-fact contract.",
+      "resolvedAt": "2026-06-28T11:03:21.809Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-eb18:F-010",
