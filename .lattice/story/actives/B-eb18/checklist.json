@@ -214,9 +214,9 @@
           "packages/main/src/tasks/**"
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-28T09:51:48.733Z",
       "userSees": "lattice admissibility_waterline --storyId=<id> --format=json shows each consumer bucket, missing clauses, top reasons, stale/legacy/error counts, and the consumption section uses that waterline without letting candidate, diagnostic, or legacy evidence satisfy DONE.",
       "verificationIntent": {
         "happy": [
@@ -240,7 +240,42 @@
             "type": "logic"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/global-lifecycle-control-plane-smoke.js && node packages/main/dist/cli.js admissibility_waterline \"{\\\"storyId\\\":\\\"B-eb18\\\",\\\"format\\\":\\\"json\\\"}\"",
+          "result": "pass",
+          "note": "Smoke and CLI assert admissibility_waterline schema, consumer rows, missing clauses, top reasons, stale/legacy/error/fail counts, and diagnosticOnly=true.",
+          "headHash": "5fd2d7efb53530f581bfc531507d485e1f35a91d",
+          "materialHash": "ab9d52f3e5d7808ee877f8245d923cb2e6b69eb399e1283d658469134b7b109b",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-28T09:51:48.923Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/global-lifecycle-control-plane-smoke.js",
+          "result": "pass",
+          "note": "Waterline rows are story-scoped diagnostics; stale/historical rows remain visible without becoming unrelated story blockers.",
+          "headHash": "5fd2d7efb53530f581bfc531507d485e1f35a91d",
+          "materialHash": "ab9d52f3e5d7808ee877f8245d923cb2e6b69eb399e1283d658469134b7b109b",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-28T09:51:49.079Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/global-lifecycle-control-plane-smoke.js && node packages/main/dist/cli.js admissibility_waterline \"{\\\"storyId\\\":\\\"B-eb18\\\",\\\"format\\\":\\\"json\\\"}\"",
+          "result": "pass",
+          "note": "Smoke and CLI assert diagnosticOnly=true and productionDoneEligible=false for DONE/consumer rows, so candidate/diagnostic/legacy artifacts cannot satisfy DONE through the waterline or dashboard.",
+          "headHash": "5fd2d7efb53530f581bfc531507d485e1f35a91d",
+          "materialHash": "ab9d52f3e5d7808ee877f8245d923cb2e6b69eb399e1283d658469134b7b109b",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-28T09:51:49.293Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
