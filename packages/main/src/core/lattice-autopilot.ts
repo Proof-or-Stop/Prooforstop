@@ -24,6 +24,7 @@ import {
   type HostRuntimeId,
 } from './lattice-dispatch.js';
 import { LATTICE_DIR } from './lattice-paths.js';
+import { resolveGitCwd } from './story-signed-workspace-resolution.js';
 import type { StoryStore } from './store.js';
 
 export const AUTOPILOT_RUN_SCHEMA_VERSION = 'lattice.autopilot_run.v1' as const;
@@ -508,10 +509,14 @@ function pathMatchesDeclaredOutput(path: string, declaredOutputPaths: string[]):
   });
 }
 
-function currentStoryFilesHashExcludingOutputs(root: string, declaredOutputPaths: string[]): string | undefined {
+function currentStoryFilesHashExcludingOutputs(
+  metadataRoot: string,
+  gitCwd: string,
+  declaredOutputPaths: string[],
+): string | undefined {
   try {
     const raw = execFileSync('git', ['ls-tree', '-r', '-z', 'HEAD'], {
-      cwd: root,
+      cwd: gitCwd,
       encoding: 'utf8',
       stdio: ['pipe', 'pipe', 'pipe'],
       maxBuffer: 1024 * 1024 * 1024,
@@ -523,7 +528,7 @@ function currentStoryFilesHashExcludingOutputs(root: string, declaredOutputPaths
       if (tab < 0) continue;
       const meta = entry.slice(0, tab);
       const filePath = entry.slice(tab + 1);
-      if (isMaterialExcludedPath(filePath, root)) continue;
+      if (isMaterialExcludedPath(filePath, metadataRoot)) continue;
       if (pathMatchesDeclaredOutput(filePath, declaredOutputPaths)) continue;
       const objectId = meta.trim().split(/\s+/)[2];
       if (!objectId) continue;
@@ -621,12 +626,18 @@ function buildProducerRuntimeIdentity(args: AutopilotRunArgs): string {
   });
 }
 
-function buildRunBasis(root: string, args: AutopilotRunArgs, policy: PersistedAutopilotPolicy, declaredOutputPaths: string[]): AutopilotRunBasis {
+function buildRunBasis(
+  root: string,
+  gitCwd: string,
+  args: AutopilotRunArgs,
+  policy: PersistedAutopilotPolicy,
+  declaredOutputPaths: string[],
+): AutopilotRunBasis {
   const frozenRunPlanHash = buildRunPlanDigest(args, policy, declaredOutputPaths);
   const validityPolicyDigest = buildValidityPolicyDigest(root, policy);
-  const headHash = currentGitHead(root);
-  const materialHash = currentMaterialHash(root, 'HEAD', root);
-  const storyFilesHash = currentStoryFilesHashExcludingOutputs(root, declaredOutputPaths);
+  const headHash = currentGitHead(gitCwd);
+  const materialHash = currentMaterialHash(gitCwd, 'HEAD', root);
+  const storyFilesHash = currentStoryFilesHashExcludingOutputs(root, gitCwd, declaredOutputPaths);
   const producerRuntimeInput = {
     ...(args.host ? { host: args.host } : {}),
     ...(args.fromHost ? { fromHost: args.fromHost } : {}),
@@ -856,22 +867,27 @@ function replayCheckpointLedger(root: string, runId: string): ReplayedCheckpoint
   };
 }
 
-function currentRunBasisMatches(root: string, basis: AutopilotRunBasis, record: AutopilotRunRecord): { matches: boolean; reason?: string } {
-  const currentHead = currentGitHead(root);
+function currentRunBasisMatches(
+  root: string,
+  gitCwd: string,
+  basis: AutopilotRunBasis,
+  record: AutopilotRunRecord,
+): { matches: boolean; reason?: string } {
+  const currentHead = currentGitHead(gitCwd);
   if (basis.headHash && !currentHead) {
     return { matches: false, reason: 'headHash could not be recomputed' };
   }
   if (basis.headHash && currentHead !== basis.headHash) {
     return { matches: false, reason: 'headHash changed since run start' };
   }
-  const currentMaterial = currentMaterialHash(root, 'HEAD', root);
+  const currentMaterial = currentMaterialHash(gitCwd, 'HEAD', root);
   if (basis.materialHash && !currentMaterial) {
     return { matches: false, reason: 'materialHash could not be recomputed' };
   }
   if (basis.materialHash && currentMaterial !== basis.materialHash) {
     return { matches: false, reason: 'materialHash changed since run start' };
   }
-  const currentStoryFiles = currentStoryFilesHashExcludingOutputs(root, basis.declaredOutputPaths);
+  const currentStoryFiles = currentStoryFilesHashExcludingOutputs(root, gitCwd, basis.declaredOutputPaths);
   if (basis.storyFilesHash && !currentStoryFiles) {
     return { matches: false, reason: 'storyFilesHash could not be recomputed' };
   }
@@ -1312,7 +1328,8 @@ export function autopilotRun(store: StoryStore, root: string, args: AutopilotRun
   const timeoutMs = Math.max(1, Math.floor((policy.maxRuntimeMinutes ?? 5) * 60 * 1000));
   const startMs = Date.now();
   const declaredOutputPaths = normalizeList(args.allowedPaths) ?? [];
-  const runBasis = buildRunBasis(root, args, policy, declaredOutputPaths);
+  const gitCwd = resolveGitCwd({ store, storyId: args.storyId, metadataRoot: root, projectRoot: root });
+  const runBasis = buildRunBasis(root, gitCwd, args, policy, declaredOutputPaths);
 
   let record: AutopilotRunRecord = {
     schemaVersion: AUTOPILOT_RUN_SCHEMA_VERSION,
@@ -1845,7 +1862,7 @@ export function autopilotReview(root: string, runId: string): AutopilotReviewRes
   };
 }
 
-export function autopilotResume(_store: StoryStore, root: string, args: AutopilotResumeArgs): AutopilotResumeResult {
+export function autopilotResume(store: StoryStore, root: string, args: AutopilotResumeArgs): AutopilotResumeResult {
   const read = readRunRecordMaybe(root, args.runId);
   const replay = replayCheckpointLedger(root, args.runId);
   if (!read.record && !replay.ok) {
@@ -1880,7 +1897,8 @@ export function autopilotResume(_store: StoryStore, root: string, args: Autopilo
   const maxAge = Math.max(1, Math.floor(args.maxResumeAgeMs ?? 15 * 60 * 1000));
   const updatedAtMs = Date.parse(record.updatedAt);
   const stale = Number.isNaN(updatedAtMs) || Date.now() - updatedAtMs > maxAge;
-  const basisFreshness = currentRunBasisMatches(root, replay.basis, record);
+  const gitCwd = resolveGitCwd({ store, storyId: replay.basis.storyId, metadataRoot: root, projectRoot: root });
+  const basisFreshness = currentRunBasisMatches(root, gitCwd, replay.basis, record);
   const unsafe = record.status === 'cancelled' || (record.status === 'failed' && replay.checkpoints.size === 0);
   const staleReason = replay.hasStaleCheckpoint
     ? 'checkpoint ledger contains a stale checkpoint'
