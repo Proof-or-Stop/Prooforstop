@@ -17,6 +17,25 @@
       ],
       "signatureTag": "adversarial|ts|currentrunbasismatches-fails-open",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-c7e2:F-002",
+      "desc": "Policy/runtime drift is frozen into the checkpoint ledger but is not recomputed during autopilot_resume before returning resume_ready. The M1 plan requires policy digest or policy-declared runtime input changes to mark old checkpoints stale/plan_drift instead of silently consuming them as done (docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md:193, docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md:211, docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md:228). The implementation records validityPolicyDigest and producerRuntimeIdentity in buildRunBasis (packages/main/src/core/lattice-autopilot.ts:578) but currentRunBasisMatches only compares headHash, materialHash, and storyFilesHash (packages/main/src/core/lattice-autopilot.ts:807), and autopilotResume uses only that limited basisFreshness before status=resume_ready (packages/main/src/core/lattice-autopilot.ts:1789). A changed autopilot policy/runtime can therefore silently reuse committed done checkpoints, overclaiming M1 resume safety.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-28T01:18:08.150Z",
+      "reviewRound": "2026-06-28T01:14:32.472Z",
+      "reviewRunId": "B-c7e2:RR-006",
+      "_hash": "c09813a95fb809efb7c404e19f5c0fb832c28c13a2d95ae27cb2423a62fa88ef",
+      "files": [
+        "packages/main/src/core/lattice-autopilot.ts",
+        "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md"
+      ],
+      "signatureTag": "adversarial|ts|policy-runtime-drift",
+      "signatureTagSource": "auto"
     }
   ]
 }
