@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "Add checkpoint-ledger replay for autopilot M1 resume",
       "context": "Implement M1 only: committed done checkpoints are replayed from a per-run ledger/snapshot boundary so resume can distinguish committed work from interrupted work. storyFilesHash is a frozen pre-run baseline excluding declared outputs.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-28T01:01:11.330Z",
-      "endTime": null,
+      "endTime": "2026-06-28T01:13:50.629Z",
       "relatedDocs": [
         "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md"
       ],
@@ -40,7 +40,42 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:autopilot-resume-smoke",
+          "result": "pass",
+          "note": "autopilot-resume smoke passed and asserted resume projection skips committed done checkpoint iteration-0 without dispatching a new worker.",
+          "headHash": "7a4444c675b81ad2d027779b4ec91818f055512e",
+          "materialHash": "38304d7f50cead7e970803924919e85cbc9c964c8bca34da377cf03edec6ccda",
+          "storyFilesHash": "fed21fd3c5229dd3a563bbbab264f10b85e49d22a95d0008ceef8c38bf65ad7b",
+          "timestamp": "2026-06-28T01:13:50.908Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:autopilot-resume-smoke",
+          "result": "pass",
+          "note": "autopilot-resume smoke corrupted run.json and verified resume recovered a valid projection from checkpoint ledger snapshot evidence.",
+          "headHash": "7a4444c675b81ad2d027779b4ec91818f055512e",
+          "materialHash": "38304d7f50cead7e970803924919e85cbc9c964c8bca34da377cf03edec6ccda",
+          "storyFilesHash": "fed21fd3c5229dd3a563bbbab264f10b85e49d22a95d0008ceef8c38bf65ad7b",
+          "timestamp": "2026-06-28T01:13:51.131Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:autopilot-resume-smoke",
+          "result": "pass",
+          "note": "autopilot-resume smoke injected a stale checkpoint and verified autopilot_resume failed closed with refused/stale_state.",
+          "headHash": "7a4444c675b81ad2d027779b4ec91818f055512e",
+          "materialHash": "38304d7f50cead7e970803924919e85cbc9c964c8bca34da377cf03edec6ccda",
+          "storyFilesHash": "fed21fd3c5229dd3a563bbbab264f10b85e49d22a95d0008ceef8c38bf65ad7b",
+          "timestamp": "2026-06-28T01:13:51.332Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
