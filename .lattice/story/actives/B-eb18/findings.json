@@ -147,7 +147,7 @@
       "desc": "admissibility_waterline synthesizes consumer admissibility from coarse evidence presence instead of projecting the existing Authority gate receipt eligibility predicate for Authority receipt consumers; this can misrepresent production gate decision readiness in the diagnostic control plane.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-06-28T10:50:23.949Z",
@@ -159,7 +159,11 @@
         "packages/main/src/core/authority-gate-receipts.ts"
       ],
       "signatureTag": "missing|ts|admissibility-waterline-synthesizes",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commit a81497c6b: AUTHORITY_GATE_DECISION waterline now projects eligibleAuthorityGateReceiptDocument instead of passing on receipt-ref presence; smoke asserts an ineligible server-receipt-local-test ref remains non-pass and reports authority_receipt_not_production_classified. Verified with build, global-lifecycle-control-plane-smoke, and process-fact contract.",
+      "resolvedAt": "2026-06-28T10:55:36.506Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-eb18:F-008",
