@@ -1,0 +1,51 @@
+{
+  "storyId": "B-b8c8",
+  "checkedAt": "2026-06-28T10:00:26.759Z",
+  "headHash": "949becce8e5a6c53c61de309b72a3ced76f0901e",
+  "materialHash": "ab9d52f3e5d7808ee877f8245d923cb2e6b69eb399e1283d658469134b7b109b",
+  "reviewRound": "2026-06-28T09:44:57.808Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "/Users/jek/Documents/Work/lattice-Paper/experiment-protocol.md",
+      "promise": "A2′ is spend-matched to A4's per-task median spend budget, not call-count matched.",
+      "status": "verified",
+      "verifiedBy": "git diff",
+      "evidence": "A2′ now uses token + wall-clock spend budget equal to A4's per-task median, with a ±20% band and spend-matched wording."
+    },
+    {
+      "docPath": "/Users/jek/Documents/Work/lattice-Paper/paper/main.tex",
+      "promise": "The appendix wording for A2′ matches the spend-matched semantics used in the protocol.",
+      "status": "verified",
+      "verifiedBy": "git diff",
+      "evidence": "The appendix now says A2′ is bounded by the spend budget equal to A4 median, matched on spend, not call count."
+    },
+    {
+      "docPath": "/Users/jek/Documents/Work/lattice-Paper/paper/evidence/B-b8c8-recovery-runner-accounting.md",
+      "promise": "The accounting evidence note stays narrow and excludes any powered-campaign claim.",
+      "status": "verified",
+      "verifiedBy": "readback",
+      "evidence": "The note states a local-host-neutral harness/accounting boundary and explicitly says it does not claim a powered campaign."
+    },
+    {
+      "docPath": "/Users/jek/Documents/Work/lattice-Paper/paper/evidence/B-b8c8-recovery-runner-accounting.json",
+      "promise": "The JSON evidence note records the same narrow harness/accounting boundary and paper sync claim.",
+      "status": "verified",
+      "verifiedBy": "readback",
+      "evidence": "The JSON record captures claimBoundary, evidenceBoundary, and verification fields for the harness-accounting claim only."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "B-b8c8-TEST",
+      "transcript": "Proofbound TEST evidence: `lattice story_advance --storyId=B-b8c8 --phase=TEST --forceTakeover` ran `lattice validate --json`; validate PASS, 31 configured commands, and `test-evidence.json` was written. The accompanying transcript-diff note says this machine run is broader than the narrow selfcheck but shows no behavior delta. The narrow accounting selfcheck also passed: `node experiments/recovery-runner/spend-accounting-selfcheck.mjs` -> 56 assertions passed, no live LLM subprocess."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Paper wording is spend-matched, the evidence note is narrow, and the real-machine TEST run plus no-LLM selfcheck both passed."
+  },
+  "_hash": "265cf7ca2e9c7174528ea95bf598e6275d84adf8f6b2e76f224d7daa873a0ba2"
+}
