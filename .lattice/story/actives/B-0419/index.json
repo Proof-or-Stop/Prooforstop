@@ -4,11 +4,11 @@
   "title": "Tier-C provider-execution receipt verification (claude) run 92812-23658-1782245175: add a one-li",
   "description": "Tier-C provider-execution receipt verification (claude) run 92812-23658-1782245175: add a one-line code comment so the delegated claude provider step has a trivial bounded task to execute, producing a signed gate_decision receipt.",
   "type": "feature",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "createdAt": "2026-06-23T20:06:16.592Z",
   "startedAt": "2026-06-23T20:06:16.592Z",
-  "endedAt": null,
+  "endedAt": "2026-06-28T09:53:39.331Z",
   "events": [
     {
       "phase": "INIT",
@@ -63,12 +63,16 @@
       "user": "Harmonygo",
       "sessionId": "sess-dbfc1ceadc301631",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-28T09:53:39.331Z",
+      "branch": "story/B-0419",
+      "user": "Harmonygo",
+      "sessionId": "sess-dbfc1ceadc301631",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-0419",
-    "branch": "story/B-0419",
-    "createdAt": "2026-06-27T00:30:54.792Z"
-  },
   "currentReviewRound": "2026-06-27T00:35:51.973Z"
 }
