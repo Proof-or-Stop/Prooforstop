@@ -2,8 +2,124 @@
   "items": [
     {
       "id": "CHK-001",
-      "title": "Implement fix for reproduced failure",
-      "context": "Probe: rp-mqx2itpx-0faeok, Review: rr-mqx2j0jf-8mek6o",
+      "title": "Add checkpoint-ledger replay for autopilot M1 resume",
+      "context": "Implement M1 only: committed done checkpoints are replayed from a per-run ledger/snapshot boundary so resume can distinguish committed work from interrupted work. storyFilesHash is a frozen pre-run baseline excluding declared outputs.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "relatedDocs": [
+        "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/core/lattice-autopilot.ts"
+        ],
+        "create": [
+          "packages/main/src/tasks/autopilot-resume-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/autopilot-resume-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A valid checkpoint ledger with committed done steps replays to a next pending step without re-dispatching done checkpoints.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A corrupt run snapshot can be recovered from the ledger projection when the ledger is valid and fresh.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Conflicting or stale checkpoint material fails closed instead of claiming a safe resume.",
+            "type": "cli"
+          }
+        ]
+      }
+    },
+    {
+      "id": "CHK-002",
+      "title": "Re-enable autopilot_resume for healthy non-stale runs",
+      "context": "Replace the current hard refusal path with M1-safe resume semantics: refuse stale or corrupt state, but allow a healthy non-stale run to resume from the ledger-backed committed checkpoint projection.",
+      "relatedDocs": [
+        "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/core/lattice-autopilot.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/autopilot-resume-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A healthy non-stale AutopilotRunRecord no longer returns refused/unsafe_state from autopilotResume.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "An actually stale run is still refused as stale_state.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A paused or unsafe terminal state cannot be turned into a successful resume claim by caller metadata.",
+            "type": "cli"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Add Autopilot M1 resume smoke coverage and second-host validation",
+      "context": "Add a focused smoke test that proves the red repro turns green, stale/unsafe cases still fail closed, committed done checkpoints are not replayed, and Antigravity/agy can independently review the evidence.",
+      "relatedDocs": [
+        "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/package.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/autopilot-resume-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/autopilot-resume-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm build and autopilot-resume smoke pass on the implemented code.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The smoke covers stale refusal and corrupt/conflicting ledger behavior, not only the green path.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Agy second-host validation confirms the result without using Claude CLI.",
+            "type": "manual"
+          }
+        ]
+      },
       "status": "pending",
       "startTime": null,
       "endTime": null
