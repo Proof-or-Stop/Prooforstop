@@ -61,6 +61,26 @@
       ],
       "signatureTag": "doc-code-drift|md|docs-requirements-decisions",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-320f:F-004",
+      "desc": "Provider-transient autopilot_run coverage is a false positive: autopilot-run-smoke passes host=\"http-503-overloaded\", but lattice-dispatch only accepts fake/codex/claude-code/antigravity/gemini, so dispatch_auto throws an unknown-host validation error. classifyDispatchError then calls classifyAutopilotProviderFailure on that validation text, and the embedded host string matches 503/overloaded, producing provider_unhealthy/paused_requires_resume. This masks local validation errors as provider health and does not prove real provider transient failures still pause. Evidence: packages/main/src/core/lattice-dispatch.ts:453 rejects unknown hosts and packages/main/src/core/lattice-dispatch.ts:3239 throws the unknown-host error; packages/main/src/core/lattice-autopilot.ts:1212 routes non-timeout/non-validation text into provider classification; packages/main/src/tasks/autopilot-run-smoke.ts:1123 uses the invalid host string and asserts paused_requires_resume.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-28T16:55:04.703Z",
+      "reviewRound": "2026-06-28T16:50:31.384Z",
+      "reviewRunId": "B-320f:RR-008",
+      "_hash": "a8da9222d53d0ccb59a34a800ed9815611904946dc670c2cf34a47d67035cf07",
+      "files": [
+        "packages/main/src/core/lattice-autopilot.ts",
+        "packages/main/src/core/lattice-dispatch.ts",
+        "packages/main/src/tasks/autopilot-run-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|provider-transient-autopilot",
+      "signatureTagSource": "auto"
     }
   ]
 }
