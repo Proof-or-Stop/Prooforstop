@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-28T10:01:33.439Z",
       "reviewRunId": "B-eb18:RR-004",
       "_hash": "b452f9aee621880f2d934ebdc558018387d91d1f95124a77858cb9ac049b4445"
+    },
+    {
+      "id": "B-eb18:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Reviewed F-001 queue worktree staleness fix at HEAD 0bea82a. queue/index.ts resolves stored worktree paths via getRepoRoot(root)+resolveWorktreePath, so worktree-context queue governance classifies valid linked worktrees as active rather than stale. Confirmed no second lifecycle state machine: runtime projection delegates to story authority/readiness and does not evaluate proof admissibility. Confirmed status commands are readOnly in command policy/handlers; admissibility_waterline reports diagnosticOnly and productionDoneEligible=false; queue_exception_set is the only mutating queue surface, guarded by canonical main write lock and cleanupPolicy=preserve. Evidence: node packages/main/dist/tasks/global-lifecycle-control-plane-smoke.js passed; node packages/main/dist/cli.js queue_governance_status --format=json from worktree reported B-eb18 active-worktree and summary.staleWorktree=0; global_control_status preserved readOnly=true and preserve queue rows; admissibility_waterline remained diagnosticOnly=true.",
+      "createdAt": "2026-06-28T10:11:32.476Z",
+      "reviewRound": "2026-06-28T10:07:34.653Z",
+      "reviewRunId": "B-eb18:RR-010",
+      "_hash": "954e486604ae0d2e651ab21c3f42edd9149fca2e0f08b822c5e4f47b465730e7"
     }
   ]
 }
