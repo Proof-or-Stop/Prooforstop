@@ -1,0 +1,40 @@
+{
+  "passes": [
+    {
+      "id": "B-8628:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker. 19 intents (CHK-001: 12, CHK-002: 7), 0 must-gaps, 0 waivers. Smoke runs green (ok 37). All must intents backed by manual_transcript with command=node packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js and specific behavioral notes. Should-priority intents backed by logic_test with accurate code-reference notes. Red/spike regression substantiated by git diff: old file_declarations+bug_story rules removed; new smoke assertions (docs/g.md->false, refactor->false, chore->false, no-file bug->false, material bug->true, material feature->true, high-risk->true) would fail on pre-fix code. reason=bypass_eligible_no_files explicitly asserted at line 464. CHK-001:adversarial:1 confirmed by diff (resolveReproFirstPreflightMode+resultFor unchanged). validate green. repro-first-candidate-smoke green.",
+      "createdAt": "2026-06-26T22:19:31.350Z",
+      "reviewRound": "2026-06-26T22:05:29.088Z",
+      "reviewRunId": "B-8628:RR-003",
+      "_hash": "b5da10cc2e948811accb2f74407d23be6ed12a29abb377cd9f22fe446651d5ba"
+    },
+    {
+      "id": "B-8628:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Round-2 concept review complete. Concept changes: (1) file_declarations + bug_story demoted to legacy backward-compat in ReproFirstRequirementReason union and both switch formatters — all three locations carry the exact backward-compat comment. (2) checklistHasFileDeclarations removed from repro-evidence-binding-gate.ts; its namesake in phase-gates.ts is an independent scope-contract utility (different semantic purpose, not a residual). (3) bug_story reference in smoke test is a doesNotMatch assertion (verifies it is no longer produced), not a concept residual. (4) code_verifiable_behavior_change is the replacement concept; fully implemented. No concept residue found. F-001 resolved this round.",
+      "createdAt": "2026-06-26T22:23:13.309Z",
+      "reviewRound": "2026-06-26T22:21:15.234Z",
+      "reviewRunId": "B-8628:RR-004",
+      "_hash": "b8bb894ed1c3691dff3fcf1edc3f93a24515cbb9eed435cd5c9c0665ed395014"
+    },
+    {
+      "id": "B-8628:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Round-2 quality review: F-002 fix verified and resolved. Both describeRequirementSubject and describeRequirementRemediation now have explicit case code_verifiable_behavior_change at lines 436 and 454 of repro-evidence-binding-gate.ts. node -e probe confirms specific subject and story_create_from_repro/reproFirstBypassReason remediation are surfaced (not the generic fallback). Build is tsc-clean. All 37 dev-gate smoke assertions pass. No dead code; legacy branches are backward-compat stubs annotated B-8628. No leaked changes: only the 2 declared story files modified. F-001 (low, concept-cleanup) remains open and is not quality-blocking.",
+      "createdAt": "2026-06-26T22:23:36.029Z",
+      "reviewRound": "2026-06-26T22:21:15.234Z",
+      "reviewRunId": "B-8628:RR-005",
+      "_hash": "3bebfb2c1e91c9b59928a51123d74298b56371745e5398dda6b26a5b9d0bfbea"
+    },
+    {
+      "id": "B-8628:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round-2 test coverage re-confirm (RP-002). Only change since RP-001: fix commit 41f98e483 added code_verifiable_behavior_change case to describeRequirementSubject and describeRequirementRemediation in repro-evidence-binding-gate.ts, plus backward-compat comments (F-001/F-002). Coverage assessment: (1) describeRequirementSubject formatter exercised by smoke check story_create enforce blocks (line 421), asserting /classifier: code_verifiable_behavior_change/ in thrown error — passes in 37-test run. (2) describeRequirementRemediation exercised by IDEA->PLAN missing binding test (line 274), asserting /story_create_from_repro/ in guard failure reason — matches new code_verifiable_behavior_change remediation string. (3) All 37 dev-gate smoke assertions pass (node packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js re-run: ok 37, repro evidence binding dev gate smoke passed). (4) repro-first-candidate-smoke passes (repro-first candidate smoke passed). (5) No new intents needed: the F-001/F-002 fix is formatter-only and its output paths are covered by existing must-intent evidence via the same smoke command. (6) Validate reports all evidence stale due to headHash drift after the fix commit, but this is mechanical freshness staleness not a behavioral coverage gap — the underlying behaviors are verified by the passing smoke. 19 total intents: 16 must, 3 should, 0 waiver. No must-gaps identified. Test coverage review passed.",
+      "createdAt": "2026-06-26T22:35:24.953Z",
+      "reviewRound": "2026-06-26T22:21:15.234Z",
+      "reviewRunId": "B-8628:RR-006",
+      "_hash": "736e2952fee795d38a45f357c52e463afcff27a790fb4e110cb40900200cb758"
+    }
+  ]
+}

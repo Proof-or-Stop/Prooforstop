@@ -27,6 +27,7 @@ import {
   getGuardFailureReason,
 } from '../core/machine.js';
 import {
+  classifyReproFirstRequirement,
   evaluateStoryEvidenceBindingGate,
   type ReproFirstPreflightMode,
 } from '../core/repro-evidence-binding-gate.js';
@@ -417,22 +418,50 @@ await check('story_create direct lifecycle phase rejects repro-first bypass befo
   });
 });
 
-await check('story_create enforce blocks bug-story classifier without binding before persistence', async () => {
+await check('story_create enforce blocks code-verifiable material-code bug classifier without binding before persistence', async () => {
   await withRoot((root, store) => {
     const handlers = createStoryCreateHandlers({ root, store, scanRoot: join(root, 'packages/main') });
     assert.throws(
       () => handlers.story_create({
         name: 'bug-preflight-enforce-block',
         title: 'Bug preflight enforce block',
-        description: 'Exercise repro-first preflight on bug story intake without declared files.',
+        description: 'Exercise repro-first preflight on a material-code bug story intake.',
         type: 'bug',
         priority: 'medium',
         background: validBackground,
+        checklist: [{ title: 'Fix the source bug', context: 'in the runtime source', files: { modify: ['packages/main/src/x.ts'], create: [], test: [] } }],
       }),
-      /classifier: bug_story/,
+      /classifier: code_verifiable_behavior_change/,
     );
-    assert.deepEqual(store.listStoryIds(), [], 'blocked bug story_create must not persist story metadata');
+    assert.deepEqual(store.listStoryIds(), [], 'blocked material-code bug story_create must not persist story metadata');
   });
+});
+
+// B-8628 red/spike regression: a no-material-file bug (and docs/refactor/chore) is
+// intake-exempt; a material-code bug/feature is required; the high-risk safety net stays.
+await check('B-8628 classifyReproFirstRequirement: material-code bug/feature required; docs/refactor/chore/no-file exempt; safety net kept', async () => {
+  const story = (type: string, priority = 'medium', riskSignals: Array<{ category: string; matched: string }> = []) =>
+    ({ type, priority, riskSignals }) as unknown as Parameters<typeof classifyReproFirstRequirement>[0];
+  const cl = (...files: string[]) =>
+    ({ items: [{ files: { modify: files, create: [], test: [] } }] }) as unknown as Parameters<typeof classifyReproFirstRequirement>[1];
+  const expect = (name: string, s: ReturnType<typeof story>, files: string[], want: boolean) => {
+    const r = classifyReproFirstRequirement(s, cl(...files));
+    assert.equal(r.required, want, `${name}: required ${r.required} !== ${want} (reason=${r.reason})`);
+  };
+  // exempt (cannot have a reproduce-the-failure red test)
+  expect('docs-only bug', story('bug'), ['docs/g.md'], false);
+  expect('docs feature', story('feature'), ['README.md'], false);
+  expect('material refactor', story('refactor'), ['packages/main/src/x.ts'], false);
+  expect('chore w/ material', story('chore'), ['packages/main/src/x.ts'], false);
+  expect('no-file bug', story('bug'), [], false);
+  // required (code-verifiable behavior change)
+  expect('material bug', story('bug'), ['packages/main/src/x.ts'], true);
+  expect('material feature', story('feature'), ['packages/main/src/x.ts'], true);
+  // safety net (high/critical + code-verifiable risk, even without files)
+  expect('high-risk no-file', story('bug', 'high', [{ category: 'State Machine/Gate', matched: 'machine.ts' }]), [], true);
+  // reason codes
+  assert.equal(classifyReproFirstRequirement(story('bug'), cl('packages/main/src/x.ts')).reason, 'code_verifiable_behavior_change');
+  assert.equal(classifyReproFirstRequirement(story('bug'), cl('docs/g.md')).reason, 'bypass_eligible_no_files');
 });
 
 await check('story_create enforce blocks high-risk code-verifiable classifier without binding before persistence', async () => {
@@ -983,16 +1012,28 @@ await check('PLAN->DEV missing binding is blocked', async () => {
   });
 });
 
-await check('PLAN->DEV bug-story missing binding diagnostic uses classifier reason', async () => {
+await check('PLAN->DEV material-code bug missing binding diagnostic uses code-verifiable classifier reason', async () => {
   await withRoot((root, store) => {
     const storyId = 'B-bug-missing-dev';
     store.writeStory(storyId, { ...story(storyId, 'PLAN'), type: 'bug' });
-    store.writeChecklist(storyId, noFileChecklist);
+    store.writeChecklist(storyId, fileChecklist);
     assert.equal(canSendStoryEventWithoutSnapshotCan(storyId, store, 'PLAN', 'START', root), false);
     const reason = getGuardFailureReason(storyId, store, 'DEV', root) ?? '';
-    assert.match(reason, /classifier=bug_story/);
+    assert.match(reason, /classifier=code_verifiable_behavior_change/);
     assert.match(reason, /story\.type=bug/);
-    assert.doesNotMatch(reason, /checklist declares files\.modify\/create\/test/);
+  });
+});
+
+// B-8628: a no-material-file bug is intake-exempt — the DEV gate no longer blocks it
+// with a repro-first missing-binding reason (the removed bug_story over-reach).
+await check('PLAN->DEV no-file bug is repro-first exempt (no bug_story over-reach)', async () => {
+  await withRoot((root, store) => {
+    const storyId = 'B-nofile-bug-dev';
+    store.writeStory(storyId, { ...story(storyId, 'PLAN'), type: 'bug' });
+    store.writeChecklist(storyId, noFileChecklist);
+    const reason = getGuardFailureReason(storyId, store, 'DEV', root) ?? '';
+    assert.doesNotMatch(reason, /classifier=bug_story/);
+    assert.doesNotMatch(reason, /missing_story_evidence_binding/);
   });
 });
 

@@ -1,0 +1,43 @@
+{
+  "findings": [
+    {
+      "id": "B-8628:F-001",
+      "desc": "concept-cleanup: legacy case branches for bug_story and file_declarations in describeRequirementSubject and describeRequirementRemediation (repro-evidence-binding-gate.ts lines 436/438/451/453) lack a backward-compat comment; the type union at line 29 has the B-8628 legacy annotation but the switch-case consumers do not, making it non-obvious they are backward-compat stubs for old artifacts rather than active produced paths",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-26T22:07:10.131Z",
+      "reviewRound": "2026-06-26T22:05:29.088Z",
+      "reviewRunId": "B-8628:RR-001",
+      "_hash": "0ccc6a9700059f4ad570ede11bade9d99466ad0556b4c0fe23396b2685b9b3bd",
+      "files": [
+        "packages/main/src/core/repro-evidence-binding-gate.ts"
+      ],
+      "signatureTag": "missing|ts|concept-cleanup-legacy",
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-06-26T22:23:06.064Z"
+    },
+    {
+      "id": "B-8628:F-002",
+      "desc": "quality-cleanup: repro-evidence-binding-gate.ts describeRequirementSubject() and describeRequirementRemediation() have no case for the new primary reason code code_verifiable_behavior_change (lines 434-459). Both switch statements fall through to default, producing generic user-facing messages (\"the repro-first classifier requires accepted repro evidence\" / \"correct the classifier inputs before entering lifecycle work\") instead of specific ones for the now-dominant code_verifiable_behavior_change path. The two legacy cases file_declarations and bug_story are still handled explicitly, but the new primary reason introduced by this diff is not.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-26T22:07:27.325Z",
+      "reviewRound": "2026-06-26T22:05:29.088Z",
+      "reviewRunId": "B-8628:RR-002",
+      "_hash": "4f8679ccda183147e17b3cdbdecc056541fedfc561d13a56a87f9fb7d9dd4442",
+      "files": [
+        "packages/main/src/core/repro-evidence-binding-gate.ts"
+      ],
+      "signatureTag": "missing|ts|quality-cleanup-repro",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Verified: both describeRequirementSubject and describeRequirementRemediation now have explicit case 'code_verifiable_behavior_change' branches at lines 436 and 454 of repro-evidence-binding-gate.ts. node -e probe confirms formatStoryEvidenceBindingGateFailure with requirementReason=code_verifiable_behavior_change produces the specific subject 'this is a code-verifiable behavior change (a bug/feature that writes material code)' and the story_create_from_repro/reproFirstBypassReason remediation guidance — NOT the generic fallback. Build is tsc-clean. All 37 smoke assertions pass.",
+      "resolvedAt": "2026-06-26T22:22:55.268Z"
+    }
+  ]
+}

@@ -1,0 +1,129 @@
+{
+  "storyId": "B-8628",
+  "checkedAt": "2026-06-26T21:56:03.187Z",
+  "features": [
+    {
+      "feature": "classifyReproFirstRequirement returns required=true for type=bug|feature AND material-code file declared (conjunction rule)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "classifyReproFirstRequirement returns required=true for high|critical priority AND CODE_VERIFIABLE_RISK_CATEGORIES signal (safety-net rule)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "classifyReproFirstRequirement returns required=false for docs/refactor/chore types even with material-code files (type predicate exemption)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "classifyReproFirstRequirement returns required=false for bug|feature with NO material-code file declared (conservative no-file intake)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "classifyReviewAssuranceFloorPath reused (not modified) to judge material-code files, or shared helper extracted to avoid circular import",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "bare bug_story rule and bare file_declarations rule removed from classifyReproFirstRequirement",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "repro-evidence-binding-dev-gate-smoke.ts updated with red/spike regression assertions covering all 8 classification vectors (5 required=false + 3 required=true)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "smoke test sensitive to classification regressions (red-test: flipping any over-reach case breaks at least one assertion)",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "repro-first-candidate-smoke.ts checked and updated if it asserts classification",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/repro-first-story-intake-experiment.md"
+    },
+    {
+      "feature": "repro-first applies only to deterministic code-verifiable work; pure docs/visual/urgent incidents are exempt",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/repro-first-story-intake-experiment.md"
+    },
+    {
+      "feature": "pre-story repro/spike artifacts remain evidence-candidate only; classification change must not affect REVIEW/TEST/DONE/Authority gate mechanics",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/proof-admissibility-hardening-execution-plan.md"
+    },
+    {
+      "feature": "resolveReproFirstPreflightMode, off/warn/enforce modes, blocking math (resultFor), and bypass reasonCode unchanged",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary EXCLUDES the off/warn/enforce modes, blocking math (resultFor), bypass reasonCode",
+      "source": "description"
+    },
+    {
+      "feature": "story-create.ts repro-first intake call unchanged (auto-inherits classifier result)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary EXCLUDES story-create.ts (auto-inherits)",
+      "source": "description"
+    },
+    {
+      "feature": "review-assurance-floor.ts source unchanged (only reused by reference/shared helper)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary EXCLUDES review-assurance-floor.ts (reuse only)",
+      "source": "description"
+    },
+    {
+      "feature": "DEV-gate flow (non-STORY_INTAKE gate) unchanged",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary EXCLUDES DEV-gate flow",
+      "source": "description"
+    },
+    {
+      "feature": "proof-admissibility contract (admissibility ledger, C1-C14 clauses, producer boundary, scope enum) unchanged",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "scope-boundary confirms this story changes WHO is classified required, not the gate mechanics; does not overlap proof-admissibility contract",
+      "source": "decisions:decisions/proof-admissibility-hardening-execution-plan.md"
+    }
+  ],
+  "summary": {
+    "total": 16,
+    "covered": 11,
+    "excluded": 5,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "5da41a341b61e3ee532b87d4397a6927d3c417d0f46c09596bacd27726728b13",
+  "openQuestions": []
+}

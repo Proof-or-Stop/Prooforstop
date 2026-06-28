@@ -1,0 +1,70 @@
+{
+  "storyId": "B-8628",
+  "checkedAt": "2026-06-26T22:42:46.943Z",
+  "headHash": "749cc0351786aaf3d796ac17efc59cad26942871",
+  "materialHash": "a93948e605d810d955136d2b6e434ba32dba53d0b407e6e99ad736598007ae6e",
+  "storyFilesHash": "16a29735391c3226dc2d86c48769b0f019b8628a027d6550161cec5ce3379fb3",
+  "reviewRound": "2026-06-26T22:21:15.234Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-8628/plan.md#CHK-001",
+      "promise": "classifyReproFirstRequirement returns required=false for docs-only bug, docs-feature, material-refactor, chore-with-material, no-file bug; required=true for material bug, material feature, and high/critical+code-verifiable-risk",
+      "status": "verified",
+      "verifiedBy": "diff/grep + independent smoke run",
+      "evidence": "repro-evidence-binding-gate.ts lines 95-122: conjunction bug|feature AND materialFiles.length>0 -> required=true reason=code_verifiable_behavior_change; high/critical+riskSignals -> high_risk_code_verifiable; else bypass_eligible_no_files. Independent run: ok 37, ok 11 covers all 8 classification vectors"
+    },
+    {
+      "docPath": ".lattice/story/actives/B-8628/plan.md#CHK-001",
+      "promise": "bare bug_story and file_declarations rules removed from classifier production paths; resolveReproFirstPreflightMode, resultFor, bypass reasonCode untouched",
+      "status": "verified",
+      "verifiedBy": "diff/grep",
+      "evidence": "bug_story and file_declarations appear only in legacy backward-compat union comment and switch-case handlers; classifyReproFirstRequirement never returns them. resolveReproFirstPreflightMode, resultFor, repro_first_bypassed present and unchanged per diff."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-8628/plan.md#CHK-001",
+      "promise": "npm --prefix packages/main run build compiles clean with no circular import",
+      "status": "verified",
+      "verifiedBy": "independent build run",
+      "evidence": "review-assurance-floor.ts does not import repro-evidence-binding-gate.ts (grep empty). Independent tsc build exits 0 with no errors. Import is one-way."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-8628/plan.md#CHK-001",
+      "promise": "formatter cases describeRequirementSubject and describeRequirementRemediation include explicit case for code_verifiable_behavior_change (F-002 fix)",
+      "status": "verified",
+      "verifiedBy": "diff/grep",
+      "evidence": "repro-evidence-binding-gate.ts lines 436-437 and 454-455: explicit case code_verifiable_behavior_change in both switch statements. transcript-diff.md confirms specific message produced, not generic fallback."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-8628/plan.md#CHK-002",
+      "promise": "repro-evidence-binding-dev-gate-smoke.ts updated with red/spike 8-case regression asserting both directions: 5 exempt cases -> required=false AND 3 required cases -> required=true",
+      "status": "verified",
+      "verifiedBy": "diff/grep + independent smoke run",
+      "evidence": "smoke file lines 442-465 add B-8628 classifyReproFirstRequirement check asserting all 8 vectors. Lines 1029-1037 add PLAN->DEV no-file bug exempt check. ok 11 and ok 32 both pass in independent run (ok 37 total)."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-8628/plan.md#CHK-002",
+      "promise": "smoke prints pass line and npm test green",
+      "status": "verified",
+      "verifiedBy": "independent smoke run",
+      "evidence": "Independent run returned: ok 37 assertions, final line repro evidence binding dev gate smoke passed. checklist evidence records npm test green. Companion repro-first-candidate-smoke passes unaffected per transcript-diff.md."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Independent local run: node packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js -> ok 37, smoke passed. ok 10 (material-code bug blocked), ok 11 (8-case B-8628 regression: 5 exempt + 3 required), ok 12 (high-risk blocked), ok 31 (DEV classifier reason=code_verifiable_behavior_change), ok 32 (no-file bug DEV exempt). Build tsc clean. Covers happy paths, edge cases, adversarial (safety net intact, mechanics untouched)."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Independent local run confirms smoke: ok 37 total, including ok 11 (B-8628 8-case regression) and ok 32 (PLAN->DEV no-file bug exempt). Red/spike regression asserts both directions in a single check block. All 29+ pre-existing test cases still pass, confirming no regressions."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 6 plan promises verified from code diff and independent machine run. classifyReproFirstRequirement implements the refined conjunction rule: bug|feature AND materialFiles>=1 -> required; high/critical+riskSignals -> required; else exempt. The 8-case B-8628 regression and DEV-gate no-file-bug test lock both directions. F-001 legacy comment and F-002 formatter case both resolved in the diff. No circular import. No unresolved TODOs. Build clean. docs/CLAUDE.md unchanged as declared."
+  },
+  "_hash": "1b9578a13ea76030d4cd4c140a533613e6ee94a6ef90968ba87dfbb071b08699"
+}

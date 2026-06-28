@@ -4,7 +4,7 @@
   "title": "Tighten repro-first classification to material-code bug/feature only (exempt docs/refactor/chore)",
   "description": "classifyReproFirstRequirement currently over-reaches: it marks repro-first-required for ANY story declaring files (incl. .md) and for ALL type=bug (incl. doc bugs). Those tasks cannot have a meaningful reproduce-the-failure red test. Refine it to require red/spike only when the task writes material code AND is a code-verifiable behavior change (type bug|feature with declared material-code files), keep the high/critical code-verifiable-risk safety net, and stay conservative at intake (no material files -> not required; the DEV-phase repro-evidence-binding gate re-checks once files exist). Validated by red/spike.",
   "type": "bug",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "medium",
   "keywords": [
     "repro-first",
@@ -16,7 +16,7 @@
   ],
   "createdAt": "2026-06-26T21:40:10.984Z",
   "startedAt": "2026-06-26T21:40:10.984Z",
-  "endedAt": null,
+  "endedAt": "2026-06-28T16:36:26.339Z",
   "events": [
     {
       "phase": "INIT",
@@ -35,11 +35,70 @@
       "user": "Harmonygo",
       "sessionId": "b0a01b07-dd7a-40ba-a0fe-163497230a65",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-26T21:47:22.049Z",
+      "branch": "story/B-8628",
+      "user": "Harmonygo",
+      "sessionId": "b0a01b07-dd7a-40ba-a0fe-163497230a65",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-26T21:56:35.147Z",
+      "branch": "story/B-8628",
+      "user": "Harmonygo",
+      "sessionId": "b0a01b07-dd7a-40ba-a0fe-163497230a65",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-26T22:05:29.088Z",
+      "branch": "story/B-8628",
+      "user": "Harmonygo",
+      "sessionId": "b0a01b07-dd7a-40ba-a0fe-163497230a65",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-26T22:20:24.990Z",
+      "branch": "story/B-8628",
+      "user": "Harmonygo",
+      "sessionId": "b0a01b07-dd7a-40ba-a0fe-163497230a65",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-26T22:21:15.234Z",
+      "branch": "story/B-8628",
+      "user": "Harmonygo",
+      "sessionId": "b0a01b07-dd7a-40ba-a0fe-163497230a65",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-26T22:37:31.151Z",
+      "branch": "story/B-8628",
+      "user": "Harmonygo",
+      "sessionId": "b0a01b07-dd7a-40ba-a0fe-163497230a65",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-28T16:36:26.339Z",
+      "branch": "story/B-8628",
+      "user": "Harmonygo",
+      "sessionId": "b0a01b07-dd7a-40ba-a0fe-163497230a65",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-8628",
-    "branch": "story/B-8628",
-    "createdAt": "2026-06-26T21:46:49.597Z"
-  }
+  "currentReviewRound": "2026-06-26T22:21:15.234Z"
 }
