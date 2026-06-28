@@ -63,6 +63,25 @@
       ],
       "signatureTag": "adversarial|ts|policy-drift-partially",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-c7e2:F-004",
+      "desc": "Targeted re-review: unavailable freshness probe fail-closed is now covered by packages/main/src/tasks/autopilot-resume-smoke.ts:333-350, but policy/runtime drift coverage for the resolved high finding is still too narrow. The smoke only recreates policy fake with requireServerReceipt changed at packages/main/src/tasks/autopilot-resume-smoke.ts:294-314 and expects refused/stale_state. It does not cover drift in other persisted policy/runtime-affecting fields such as maxIterations, maxRuntimeMinutes, maxBudgetUSD, or permission booleans. That gap matters because buildValidityPolicyDigest currently hashes only dispatchPolicy/mode/stop flags/requireServerReceipt at packages/main/src/core/lattice-autopilot.ts:562-571 before autopilotResume returns resume_ready from packages/main/src/core/lattice-autopilot.ts:1868-1889. Round-2 finding B-c7e2:F-003 independently verifies maxIterations drift still resumes instead of failing closed, so the tests do not yet fully cover the resolved policy/runtime drift high finding.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-28T01:25:21.726Z",
+      "reviewRound": "2026-06-28T01:21:52.585Z",
+      "reviewRunId": "B-c7e2:RR-009",
+      "_hash": "128ab4593d8f65f273ec64f408fc77c5a469eef7f053fe2127e9d64c86171d85",
+      "files": [
+        "packages/main/src/tasks/autopilot-resume-smoke.ts",
+        "packages/main/src/core/lattice-autopilot.ts"
+      ],
+      "signatureTag": "missing|ts|targeted-review-unavailable",
+      "signatureTagSource": "auto"
     }
   ]
 }
