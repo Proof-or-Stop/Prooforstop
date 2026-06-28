@@ -62,6 +62,15 @@
       "reviewRound": "2026-06-28T20:43:06.202Z",
       "reviewRunId": "B-320f:RR-013",
       "_hash": "a07d16c0de33addea58f968fd02988fad0f61cda96bbe59fe056c2c03b7e6c75"
+    },
+    {
+      "id": "B-320f:RP-008",
+      "agent": "lattice-review-quality",
+      "note": "Round 3 quality re-review after a44bbdd46 passed. Verified classifyDispatchError keeps dispatch_auto unknown host / policy-local validation errors as validation_failed before provider-health matching, so host http-503-overloaded remains failed+validation_failed. Verified autopilot-run smoke now uses a deterministic PATH-local claude shim under a legal claude-code dispatch policy with allowRealHostSubprocess=true and canonical commandAllowlist, and exercises a real provider-transient subprocess failure to paused_requires_resume/provider_unhealthy. Commands run: npm --prefix packages/main run build; LATTICE_SESSION_ID=codex-autopilot-b320f-r3-quality node packages/main/dist/tasks/autopilot-run-smoke.js; git diff --check main...HEAD -- targeted files.",
+      "createdAt": "2026-06-28T20:45:22.911Z",
+      "reviewRound": "2026-06-28T20:43:06.202Z",
+      "reviewRunId": "B-320f:RR-012",
+      "_hash": "102869be13c48858edc10818bbf555c5cc0c4d19a483a1a29806327b3f436faf"
     }
   ]
 }
