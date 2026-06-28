@@ -53,6 +53,15 @@
       "reviewRound": "2026-06-28T10:20:01.015Z",
       "reviewRunId": "B-eb18:RR-011",
       "_hash": "04e94bab2caacaa479987774fcab884dfbf1193354f9dc96558458ff8c690b6d"
+    },
+    {
+      "id": "B-eb18:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: targeted current-HEAD coverage passes for global lifecycle smoke, process/runtime contracts, command ownership/catalog, and source-structure convergence. Evidence: node packages/main/dist/tasks/global-lifecycle-control-plane-smoke.js; node scripts/verify-process-fact-contract.mjs; npm --prefix packages/main run test:runtime-fact-contract; node packages/main/dist/tasks/command-ownership-contract.js; node packages/main/dist/tasks/command-catalog-smoke.js; node packages/main/dist/tasks/source-structure-convergence-smoke.js.",
+      "createdAt": "2026-06-28T10:26:11.901Z",
+      "reviewRound": "2026-06-28T10:20:01.015Z",
+      "reviewRunId": "B-eb18:RR-013",
+      "_hash": "f69764b17b227ceef62c81380a1a3c606d2109f98e2438862c68210c98be7062"
     }
   ]
 }
