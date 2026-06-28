@@ -29,7 +29,7 @@
       "desc": "Must-level B-320f verification evidence is semantically incomplete. CHK-002 adversarial requires invalid/zero maxConcurrentLive values to clamp to a safe minimum, but the cited smoke only constructs createAutopilotThrottleState(3) and exercises raise/backoff/hold; it never calls 0, negative, NaN, or Infinity even though the clamp lives in autopilot-reliability.ts. CHK-006 happy requires transient failures to produce waiting/paused autopilot_run states instead of generic failed status, but the new smoke only calls helper functions; existing autopilot-run/resume/migration smokes contain no provider_unhealthy/paused_requires_resume/waiting_for_provider_health assertion against autopilot_run. The planner sees 25 fresh evidence entries by hash, but these entries are partially vacuous for M2/M3 must intents.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-28T16:34:57.050Z",
@@ -43,7 +43,11 @@
         "packages/main/src/tasks/autopilot-run-smoke.ts"
       ],
       "signatureTag": "missing|ts|level-320f-verification",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by c09ae2791: reliability smoke covers invalid maxConcurrentLive clamp values and autopilot-run smoke covers integration-level timeout/provider transient states. Confirmed by round 3 test-coverage pass.",
+      "resolvedAt": "2026-06-28T20:46:16.656Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-320f:F-003",
