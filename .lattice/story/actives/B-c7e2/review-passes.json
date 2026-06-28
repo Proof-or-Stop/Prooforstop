@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-c7e2:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage pass: inspected checklist intents and changed tests. npm build, autopilot-resume smoke, autopilot-run smoke, command ownership contract, process fact contract, and scope contract check all passed. Coverage includes healthy resume_ready, stale_state refusal, corrupt run snapshot recovery from valid ledger, corrupt/mismatched ledger fail-closed in core replay, no re-dispatch via dispatch count assertion, cancelled/failed unsafe_state refusal, command/process contract registration, recursive authority/production false assertions, and persisted agy second-host manual transcript evidence for CHK-003.",
+      "createdAt": "2026-06-28T01:17:24.073Z",
+      "reviewRound": "2026-06-28T01:14:32.472Z",
+      "reviewRunId": "B-c7e2:RR-005",
+      "_hash": "594b9bdf18f684b7d15b183f3a962faef1429330b336c1f2b1d94784904bbf7e"
+    }
+  ]
+}
