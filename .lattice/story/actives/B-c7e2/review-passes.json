@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-28T01:38:58.172Z",
       "reviewRunId": "B-c7e2:RR-014",
       "_hash": "b7e35bc4a89999dd65caab96e9b201040fd913dde0762039a8e56f2bda0eab1a"
+    },
+    {
+      "id": "B-c7e2:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "F-005 re-review pass: validityPolicyDigest includes deterministic linked dispatch policy material via checkDispatchPolicy; missing/refused linked dispatch policy fail closed as stale_state; healthy resume still returns resume_ready. Verified with npm --prefix packages/main run build, npm --prefix packages/main run test:autopilot-resume-smoke, node packages/main/dist/tasks/autopilot-run-smoke.js, and a targeted temp-repo missing/refused dispatch policy probe.",
+      "createdAt": "2026-06-28T01:41:53.221Z",
+      "reviewRound": "2026-06-28T01:38:58.172Z",
+      "reviewRunId": "B-c7e2:RR-013",
+      "_hash": "0135b55d8a5cd591035c87516c7f796247a1c331a328b96b81b66a87062cf432"
     }
   ]
 }
