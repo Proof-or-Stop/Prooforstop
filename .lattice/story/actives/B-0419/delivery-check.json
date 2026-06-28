@@ -1,0 +1,56 @@
+{
+  "storyId": "B-0419",
+  "checkedAt": "2026-06-27T00:45:25.364Z",
+  "headHash": "d8c6b9257e7b19d6c9115d1bc6b76d810b1b2994",
+  "materialHash": "6a127c331cf5215d1b7d4a1f830bdfc1d75f1c5d2c6bb631bc859674a1552723",
+  "storyFilesHash": "b6a83f83583c168f83095fcc066915a5472c4cc141045cf307486d54a3b07fab",
+  "reviewRound": "2026-06-27T00:35:51.973Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-0419/plan.md",
+      "promise": "User sees \"✔ implemented\" in story review checkpoint: delegated provider.claude path has the new one-line comment and unchanged runtime behavior.",
+      "status": "verified",
+      "verifiedBy": "manual",
+      "evidence": "Validated during review by inspecting checklist intent and change diff with rg evidence in run 2026-06-27T00:35:46Z."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-0419/plan.md",
+      "promise": "User sees \"lattice validate\" complete: all checks pass, and no DONE/Authority overclaim fields are introduced.",
+      "status": "verified",
+      "verifiedBy": "cli",
+      "evidence": "Executed lattice validate --story=B-0419 --json and received PASS."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-0419/plan.md",
+      "promise": "User sees \"provider.claude bounded executor\" evidence recorded in plan.md and changelog path checks before moving on.",
+      "status": "verified",
+      "verifiedBy": "cli",
+      "evidence": "Checklist verification evidence and scope-contract check were committed during TEST and visible in story metadata."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-0419/plan.md",
+      "promise": "User sees \"host verdict and verify commands\" run and complete before proceeding to review closure.",
+      "status": "verified",
+      "verifiedBy": "cli",
+      "evidence": "Completed concept/quality/test/docs reviewer passes and final lattice validate pass before DONE."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Ran lattice validate --story=B-0419 --json, all configured validation commands passed in TEST after review completion."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Ran npm --prefix packages/main run build and node-based task smoke checks as part of validation; no failures observed."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Real machine validation executed (lattice validate/build) and all 4 checklist items are complete; no unresolved TODOs detected from story scope."
+  },
+  "_hash": "42f66b6cb3c9898e4528865cab8e07b4c4a828680d3558c801677d816e2f406a"
+}

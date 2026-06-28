@@ -1,0 +1,23 @@
+{
+  "storyId": "B-4e16",
+  "name": "autopilot-v2-m1-idempotent-resume",
+  "title": "Autopilot v2 M1 (C2): idempotent resume + re-enable autopilot_resume",
+  "description": "Autopilot v2 reliability program - Milestone M1 (C2): give autopilot crash/interrupt resilience by adding per-step identity-keyed checkpoints to the run record and rewriting autopilot_resume (which currently always refuses) to skip completed steps and resume at the first un-started step. BACKLOG: start only after the powered run completes. Full plan: docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md.",
+  "type": "feature",
+  "phase": "INIT",
+  "priority": "medium",
+  "createdAt": "2026-06-27T21:24:29.409Z",
+  "startedAt": "2026-06-27T21:24:29.409Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-27T21:24:29.410Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "2094c029-06be-4ea6-b9eb-bdb694c8c71a",
+      "agent": "main"
+    }
+  ]
+}

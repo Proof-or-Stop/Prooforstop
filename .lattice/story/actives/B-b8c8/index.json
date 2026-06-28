@@ -4,7 +4,7 @@
   "title": "Add the A2-prime compute-matched naive arm + accurate agent-call accounting to the recovery runner",
   "description": "The pre-registered five-arm reflection-loop ablation names A2-prime (compute-matched naive) as its methodological centerpiece, but the recovery runner does not implement it and its run records do not accurately count agent calls. Add an accurate agentCalls counter and the A2-prime arm so the powered ablation can isolate structure from raw compute.",
   "type": "feature",
-  "phase": "INIT",
+  "phase": "DONE",
   "priority": "medium",
   "keywords": [
     "ablation",
@@ -14,7 +14,7 @@
   ],
   "createdAt": "2026-06-23T00:56:18.163Z",
   "startedAt": "2026-06-23T00:56:18.163Z",
-  "endedAt": null,
+  "endedAt": "2026-06-28T10:13:20.585Z",
   "events": [
     {
       "phase": "INIT",
@@ -24,6 +24,61 @@
       "user": "Harmonygo",
       "sessionId": "e8aca935-deaf-4f5d-9f33-b3aff7bb35fb",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-27T00:33:43.225Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-c1592222a4fdb073",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-27T00:34:56.265Z",
+      "branch": "story/B-b8c8",
+      "user": "Harmonygo",
+      "sessionId": "sess-55f60604fde7a529",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-28T09:41:24.711Z",
+      "branch": "story/B-b8c8",
+      "user": "Harmonygo",
+      "sessionId": "sess-55f60604fde7a529",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-28T09:44:57.808Z",
+      "branch": "story/B-b8c8",
+      "user": "Harmonygo",
+      "sessionId": "sess-55f60604fde7a529",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-28T09:53:42.003Z",
+      "branch": "story/B-b8c8",
+      "user": "Harmonygo",
+      "sessionId": "sess-55f60604fde7a529",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-28T10:13:20.585Z",
+      "branch": "story/B-b8c8",
+      "user": "Harmonygo",
+      "sessionId": "sess-55f60604fde7a529",
+      "agent": "main"
     }
-  ]
+  ],
+  "currentReviewRound": "2026-06-28T09:44:57.808Z"
 }

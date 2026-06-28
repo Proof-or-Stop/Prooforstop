@@ -94,7 +94,7 @@ assert.equal(
   'CP-5A must be runtime enforcement, not Proof M7 or Authority ownership',
 );
 assert.equal(DEFAULT_CONTROL_PLANE_CAPABILITIES.readOnlyStatusProjection, true);
-assert.equal(DEFAULT_CONTROL_PLANE_CAPABILITIES.commandRegistration, false);
+assert.equal(DEFAULT_CONTROL_PLANE_CAPABILITIES.commandRegistration, true);
 assert.equal(DEFAULT_CONTROL_PLANE_CAPABILITIES.lifecycleGateMutation, false);
 assert.equal(DEFAULT_CONTROL_PLANE_CAPABILITIES.evidenceWrites, false);
 assert.equal(DEFAULT_CONTROL_PLANE_CAPABILITIES.proofM7Enforcement, false);

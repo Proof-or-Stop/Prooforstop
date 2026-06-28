@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-4387",
+  "mode": "correctness_fix",
+  "allowed": [
+    "control readiness smoke tests",
+    "control readiness status outputs",
+    "control-plane policy probe behavior"
+  ],
+  "excluded": [
+    "customerKeyRef",
+    "execution pipeline",
+    "Layer4",
+    "repair UX"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Focus only on control-plane readiness/reporting corrections and test coverage for reachability; do not change runner execution semantics.",
+  "createdAt": "2026-06-28T10:05:16.906Z",
+  "updatedAt": "2026-06-28T10:05:16.906Z",
+  "_hash": "ae8ad51a9117002554be1db9eba0002e74f57fa7d0fb3e92655881788e8684e1"
+}

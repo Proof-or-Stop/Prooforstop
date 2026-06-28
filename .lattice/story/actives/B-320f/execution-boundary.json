@@ -1,0 +1,49 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-320f",
+  "allowedCommands": [
+    "git diff *",
+    "git status *",
+    "lattice *",
+    "node packages/main/dist/tasks/autopilot-resume-smoke.js",
+    "node packages/main/dist/tasks/autopilot-run-smoke.js",
+    "node packages/main/dist/tasks/autopilot-v2-reliability-smoke.js",
+    "npm --prefix packages/main run build",
+    "rg *",
+    "sed *"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "exec_command",
+    "multi_tool_use.parallel"
+  ],
+  "allowedPaths": [
+    "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+    "package-lock.json",
+    "package.json",
+    "packages/main/package.json",
+    "packages/main/src/cli",
+    "packages/main/src/core",
+    "packages/main/src/handlers",
+    "packages/main/src/tasks"
+  ],
+  "excludedCommands": [
+    "git checkout -- *",
+    "git clean *",
+    "git push *",
+    "git reset --hard *",
+    "omx *"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".omx",
+    "experiments/recovery-runner/powered",
+    "output",
+    "tmp"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Bounded local development and verification only; no remote publish and no Authority Server production receipt dependency.",
+  "createdAt": "2026-06-28T16:02:21.144Z",
+  "updatedAt": "2026-06-28T16:02:21.144Z",
+  "_hash": "d7b8ec841e43a649d718dba61729bb829ec6f2732d112dc41e6ecc587317b441"
+}

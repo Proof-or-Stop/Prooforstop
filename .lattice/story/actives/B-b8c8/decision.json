@@ -1,0 +1,61 @@
+{
+  "principles": [
+    "Prefer evidence over reimplementation when the implementation already exists and passes selfcheck",
+    "Keep runner semantics and paper wording aligned to the same spend-matched definition",
+    "Avoid introducing churn in a verified recovery-runner path"
+  ],
+  "drivers": [
+    "Proofbound worktree is currently code-clean for the target files",
+    "The selfcheck already proves the accounting and budget helpers",
+    "The companion paper appendix/protocol had stale call-count wording that needed sync"
+  ],
+  "options": [
+    {
+      "name": "A: Verify-and-sync",
+      "pros": [
+        "Uses the already-correct runner implementation",
+        "Keeps the story focused on evidence and paper wording alignment",
+        "Minimizes risk of drift or accidental behavior changes"
+      ],
+      "cons": [
+        "Does not produce a new proofbound code diff",
+        "Requires a separate paper sync step to keep the manuscript consistent"
+      ]
+    },
+    {
+      "name": "B: Re-edit runner logic",
+      "pros": [
+        "Creates a visible proofbound code change",
+        "Can force the story to look implementation-heavy"
+      ],
+      "cons": [
+        "Duplicates logic that is already correct",
+        "Risks regressing a verified path or introducing mismatched semantics",
+        "Adds churn without improving the measured behavior"
+      ]
+    }
+  ],
+  "chosen": "A: Verify-and-sync",
+  "rationale": "The worktree already contains the required accounting and spend-matching behavior, and the no-LLM selfcheck passes. Re-editing the runner would be redundant and risky, so the better completion path is to verify the existing implementation and sync the paper protocol/manuscript wording to match it.",
+  "preMortem": [
+    {
+      "scenario": "Paper wording stays stale after proofbound verification",
+      "trigger": "Only the runner is validated and the manuscript/protocol appendix remains on the old call-count phrasing",
+      "consequence": "A future reader can reintroduce the wrong compute-control story",
+      "mitigation": "Patch experiment-protocol.md and the appendix in paper/main.tex to use the spend-matched wording"
+    },
+    {
+      "scenario": "Story is marked done without an evidence artifact",
+      "trigger": "We rely only on the code selfcheck and skip writing a summary note",
+      "consequence": "The paper repo loses the audit trail that this accounting change was verified",
+      "mitigation": "Add a short paper/evidence note summarizing the selfcheck and the semantic sync"
+    },
+    {
+      "scenario": "A redundant code edit sneaks in and changes semantics",
+      "trigger": "Trying to make the story look more active than it is",
+      "consequence": "The verified runner path could drift from the established selfcheck",
+      "mitigation": "Do not touch the proofbound recovery-runner logic unless a failing check appears"
+    }
+  ],
+  "timestamp": "2026-06-27T00:38:27.110Z"
+}

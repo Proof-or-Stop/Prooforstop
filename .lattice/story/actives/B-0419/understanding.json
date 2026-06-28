@@ -1,0 +1,20 @@
+{
+  "task": "补齐 B-0419 指定的 one-line 变更以修正 delegated Claude provider 执行路径的 receipt 可观测性",
+  "outcome": "用户运行该功能时，delegated claude provider 的执行边界与 receipt/完成边界不再被 overclaim，变更仅体现在一行注释/标记，且不影响验证流程。",
+  "facts": [
+    "该 story 仅为 Tier-C provider-execution receipt verification 的最小补丁",
+    "相关真相源为 docs/requirements/decisions/lattice-authority-live-integration.md",
+    "当前实现已有 provider.codex 与 provider.claude 执行链条，需要在不扩展范围下补齐边界表达"
+  ],
+  "constraints": [
+    "只改动主干源代码，不改测试框架和无关文档",
+    "保持变更最小化（1 行内）。",
+    "不要改变命令、验证策略或 authority 配置"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src",
+    "docs/requirements/decisions/lattice-authority-live-integration.md"
+  ],
+  "timestamp": "2026-06-27T00:31:09.538Z"
+}

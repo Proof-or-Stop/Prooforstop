@@ -1,0 +1,32 @@
+{
+  "storyId": "B-0419",
+  "updatedAt": "2026-06-27T00:30:25.769Z",
+  "proposals": [
+    {
+      "proposalId": "SEP-B-0419-001",
+      "storyId": "B-0419",
+      "proposedBy": "lattice",
+      "proposedAt": "2026-06-27T00:30:22.187Z",
+      "proposal": "This correctness-fix story modifies provider execution verification behavior in the delegated claude/pattern path and must intentionally include Authority-related wording from existing requirements while staying within a scoped code change.",
+      "proposalTextHash": "856502fbb39a9a66b77511ada047dd67bd881356052012dbcb96f1573deacfde",
+      "reason": "INIT anti-expansion keywords blocked this as false-positive; Authority is central to this request and constrained to a one-line change in provider execution receipt path.",
+      "patch": {
+        "allowed": [],
+        "excluded": [],
+        "executionAllowedCommands": [],
+        "executionAllowedTools": [],
+        "executionExcludedCommands": [],
+        "executionExcludedTools": []
+      },
+      "status": "approved",
+      "_hash": "498cf5879b60357b9aaf10040bbf82e83400cc01b2350d2930f2dd08ea457b17",
+      "decision": {
+        "decision": "approved",
+        "decidedBy": "lattice",
+        "decidedAt": "2026-06-27T00:30:25.769Z",
+        "rationale": "This change is explicitly about provider-execution receipt behavior and requires Authority-scope review; scope expansion is tightly bounded by one file and review evidence.",
+        "_hash": "97ca0a419e7caba80090b9a171410684432b9fb95f2d163ee0b17595ad6e458e"
+      }
+    }
+  ]
+}

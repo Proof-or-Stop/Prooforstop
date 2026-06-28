@@ -1,0 +1,37 @@
+{
+  "storyId": "B-eb18",
+  "checkedAt": "2026-06-27T00:37:07.309Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "id": "I-1",
+      "severity": "low",
+      "desc": "High-risk lifecycle/control-plane story has clear prose boundaries and CP-0..CP-5B checklist slices, but no separate configured scope contract was visible via the supported scope_contract_show read path. Preserve the stated exclusions in PLAN/decision/verification: do not replace lifecycle state machine, Proof Admissibility, Evidence Runtime, DONE oracle, freshness classifiers, or Authority production semantics; CP-5 enforcement must remain limited to the runtime and duplicate-safety cases named by the plan."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-06-27T00:36:47.833Z",
+      "issues": [
+        {
+          "severity": "medium",
+          "desc": "Story INIT is ready to advance, but the local background/checklist lean on CP labels and implementation mechanics. In PLAN, make the product-visible completion criterion explicit: an operator can run the global control status/dashboard and see authoritative cwd, runtime closure, consumption closure, queue classification, next safe action, Tier-C grouping, and duplicate cleanup suggestions without stitching multiple commands or stale docs."
+        }
+      ]
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-06-27T00:37:07.309Z",
+      "issues": [
+        {
+          "id": "I-1",
+          "severity": "low",
+          "desc": "High-risk lifecycle/control-plane story has clear prose boundaries and CP-0..CP-5B checklist slices, but no separate configured scope contract was visible via the supported scope_contract_show read path. Preserve the stated exclusions in PLAN/decision/verification: do not replace lifecycle state machine, Proof Admissibility, Evidence Runtime, DONE oracle, freshness classifiers, or Authority production semantics; CP-5 enforcement must remain limited to the runtime and duplicate-safety cases named by the plan."
+        }
+      ]
+    }
+  ],
+  "_hash": "7d366fe11fcdbf106adb3463eeed5854634e5de9464af35923203fa74700b687"
+}

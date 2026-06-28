@@ -1122,12 +1122,13 @@ try {
   assertAuthorityFalse(cancelled, 'cancelled');
   assertAuthorityFalse(cancelledReview, 'cancelledReview');
 
-  const resumeRefusal = run<Record<string, unknown> & AuthorityBoundary>('autopilot_resume', {
+  const cancelledResumeRefusal = run<Record<string, unknown> & AuthorityBoundary>('autopilot_resume', {
     runId: cancellable.runId,
   });
-  assert.equal(resumeRefusal.schemaVersion, 'lattice.autopilot_resume.v1');
-  assert.equal(resumeRefusal.status, 'refused');
-  assertAuthorityFalse(resumeRefusal, 'resumeRefusal');
+  assert.equal(cancelledResumeRefusal.schemaVersion, 'lattice.autopilot_resume.v1');
+  assert.equal(cancelledResumeRefusal.status, 'refused');
+  assert.equal(cancelledResumeRefusal.reason, 'unsafe_state');
+  assertAuthorityFalse(cancelledResumeRefusal, 'cancelledResumeRefusal');
 
   const cliPolicyCheck = runCliJson<AutopilotPolicyCheckResult>(root, [
     'autopilot_policy_check',
@@ -1208,7 +1209,8 @@ try {
     '--json',
   ]);
   assert.equal(cliTakeoverResume.schemaVersion, 'lattice.autopilot_resume.v1');
-  assert.equal(cliTakeoverResume.status, 'refused');
+  assert.equal(cliTakeoverResume.status, 'resume_ready');
+  assert.equal((cliTakeoverResume.projection as Record<string, unknown>).remainingSteps, 0);
   assertNoCliMetaLeak(cliTakeoverResume, 'cliTakeoverResume');
   assertAuthorityFalse(cliTakeoverResume, 'cliTakeoverResume');
 
@@ -1268,7 +1270,8 @@ try {
     '--json',
   ], { LATTICE_SESSION_ID: 'sess-autopilot-intruder' });
   assert.equal(ownerGateResumeTakeover.schemaVersion, 'lattice.autopilot_resume.v1');
-  assert.equal(ownerGateResumeTakeover.status, 'refused');
+  assert.equal(ownerGateResumeTakeover.status, 'resume_ready');
+  assert.equal((ownerGateResumeTakeover.projection as Record<string, unknown>).remainingSteps, 0);
   assertNoCliMetaLeak(ownerGateResumeTakeover, 'ownerGateResumeTakeover');
   assertAuthorityFalse(ownerGateResumeTakeover, 'ownerGateResumeTakeover');
 
@@ -1291,7 +1294,7 @@ try {
     conflictStop,
     cancellable,
     cancelled,
-    resumeRefusal,
+    cancelledResumeRefusal,
     cliPolicyCheck,
     cliNestedPolicyCheck,
     cliConservative,
@@ -1305,7 +1308,7 @@ try {
     ownerGateResumeTakeover,
   ], 'allResults');
 
-  console.log('autopilot-run smoke passed: registration, two-policy linkage, policy gates, deprecated CLI flag refusal, autopilot_policy_create owner-meta refusal, full autopilot-surface unknown flag refusal, runId owner-gate refusal/takeover for cancel/resume, owner meta preservation, strict autopilot read-only flag refusal, read-only review immutability, dispatch-only refusal, mode-override refusal, forged authority refusal, fully-shaped server receipt refusal, caller-supplied fake-test-server receipt refusal, authority-verified fake server gate success/refusal, full-autopilot bounded retry, budget-capped retry fail-closed, conflict stop evidence preservation, host-native delegation contract, cancel evidence preservation, cancelled review immutability, resume refusal, and authority boundaries verified');
+  console.log('autopilot-run smoke passed: registration, two-policy linkage, policy gates, deprecated CLI flag refusal, autopilot_policy_create owner-meta refusal, full autopilot-surface unknown flag refusal, runId owner-gate refusal/takeover for cancel/resume, owner meta preservation, strict autopilot read-only flag refusal, read-only review immutability, dispatch-only refusal, mode-override refusal, forged authority refusal, fully-shaped server receipt refusal, caller-supplied fake-test-server receipt refusal, authority-verified fake server gate success/refusal, full-autopilot bounded retry, budget-capped retry fail-closed, conflict stop evidence preservation, host-native delegation contract, cancel evidence preservation, cancelled review immutability, ledger-backed resume projection, cancelled resume refusal, and authority boundaries verified');
 } finally {
   rmSync(sandboxRoot, { recursive: true, force: true });
 }

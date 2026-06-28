@@ -1,0 +1,85 @@
+{
+  "storyId": "B-eb18",
+  "checkedAt": "2026-06-28T15:33:31.634Z",
+  "headHash": "58a15459fe85e499105bd9cade78f8c458a71ef2",
+  "materialHash": "b6741350f96860bb7686bc19197f85bebb31cae6f790cfcae8d68d4c385c2002",
+  "storyFilesHash": "6d27758a082029416c1d48568e2f3c4aba4fde86d186f3e87947f7cdd5822bfb",
+  "reviewRound": "2026-06-28T14:04:23.498Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+      "promise": "Provide a global control status surface for lifecycle/runtime/proof/queue state.",
+      "status": "verified",
+      "verifiedBy": "global-lifecycle-control-plane-smoke + validate",
+      "evidence": "global_control_status is registered and exercised by global-lifecycle-control-plane-smoke; validate passed 31/31 on current post-review material."
+    },
+    {
+      "docPath": "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+      "promise": "Provide runtime closure status without creating a second lifecycle state machine.",
+      "status": "verified",
+      "verifiedBy": "global-lifecycle-control-plane-smoke + process-fact contract",
+      "evidence": "runtime_closure_status projects existing story authority, lifecycle_check, locks, readiness, and freshness surfaces; process-fact contract passed."
+    },
+    {
+      "docPath": "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+      "promise": "Expose an admissibility waterline as diagnostic-only and not as Authority production completion.",
+      "status": "verified",
+      "verifiedBy": "global-lifecycle-control-plane-smoke",
+      "evidence": "admissibility_waterline reports diagnosticOnly=true and productionDoneEligible=false in smoke coverage."
+    },
+    {
+      "docPath": "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+      "promise": "Expose queue governance with explicit preserve-only exception records.",
+      "status": "verified",
+      "verifiedBy": "global-lifecycle-control-plane-smoke + command ownership contract",
+      "evidence": "queue_governance_status and queue_exception_set behavior are covered; command ownership contract keeps queue_exception_set mutating and status commands read-only."
+    },
+    {
+      "docPath": "docs/requirements/decisions/story-lifecycle.md",
+      "promise": "Keep lifecycle gates host-neutral and avoid claiming Authority completion from local evidence.",
+      "status": "verified",
+      "verifiedBy": "validate + quorum smoke",
+      "evidence": "quorum-submit smoke validates local host verdicts never set authorityDone/fullAuthorityDone/productionDone; B-eb18 delivery remains local Non-authority evidence only."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+      "promise": "Do not turn candidate, diagnostic, or legacy proof rows into production unlock evidence.",
+      "status": "verified",
+      "verifiedBy": "global-lifecycle-control-plane-smoke",
+      "evidence": "admissibility waterline stays diagnostic-only and reports missing clauses/top reasons without satisfying DONE or production wording."
+    },
+    {
+      "docPath": "docs/evidence/evidence-platform-architecture.md",
+      "promise": "Evidence surfaces remain structured, source-bound, and freshness-aware.",
+      "status": "verified",
+      "verifiedBy": "validate + done_required_validate",
+      "evidence": "TEST validate passed 31/31; stale verification evidence was refreshed through Lattice before DONE-required validation is re-run last for current storyFilesHash."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "PASS: node packages/main/dist/tasks/global-lifecycle-control-plane-smoke.js covers global_control_status and authoritative cwd projection."
+    },
+    {
+      "featureId": "CHK-002/CHK-003",
+      "transcript": "PASS: validate covered runtime_closure_status and admissibility_waterline, including freshness and diagnostic-only proof boundaries."
+    },
+    {
+      "featureId": "CHK-004/CHK-007",
+      "transcript": "PASS: queue governance and queue_exception_set were covered by global-lifecycle-control-plane-smoke and command-ownership-contract."
+    },
+    {
+      "featureId": "TEST",
+      "transcript": "PASS: LATTICE_IDLE_TIMEOUT_MS=900000 LATTICE_MAX_TIMEOUT_MS=1800000 node packages/main/dist/cli.js validate --story=B-eb18 --json passed 31/31 configured commands."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery check re-attested in TEST after final F-001 through F-013 fixes: status commands, queue exception write, process/runtime contracts, configured validate commands, and host-neutral Non-authority boundaries are covered. Authority Server completion is not claimed."
+  },
+  "_hash": "a3ad5ca095248130e8f4800d8490c4226dfa87bee13d2fbb199cfd589838a976"
+}

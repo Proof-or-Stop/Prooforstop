@@ -1,0 +1,30 @@
+{
+  "storyId": "B-0419",
+  "checkedAt": "2026-06-27T00:33:55.401Z",
+  "features": [
+    {
+      "feature": "Delegated provider.claude bounded execution path",
+      "covered_by": "code-comment in implementation",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "packages/main/src/providers/claude-cli.ts"
+    },
+    {
+      "feature": "Evidence and DONE boundary closure stays local-mode; no authority receipt claim",
+      "covered_by": "checklist/plan verification",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/story/actives/B-0419/plan.md"
+    }
+  ],
+  "summary": {
+    "total": 2,
+    "covered": 2,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "909438867fd98f4279065f7208f6c04da03852898c84f710015013b697c0c577"
+}

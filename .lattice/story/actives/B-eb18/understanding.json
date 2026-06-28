@@ -1,0 +1,50 @@
+{
+  "task": "Implement the global lifecycle control plane so Proofbound hosts can inspect runtime closure, proof-consumption closure, queue governance, dashboard state, and named guardrails from mechanical CLI output.",
+  "outcome": "After the story is done, an operator can run lattice global_control_status --format=json and see story rows with authoritativeCwd, runtime status, consumption status, queue classification, nextSafeAction, Tier-C experiment grouping, duplicate cleanup suggestions, and explicit local-only proof boundaries; the operator can also run lattice admissibility_waterline --storyId=<id> --format=json to inspect consumer buckets and reasons without stitching session_brief, story_authority_resolve, lifecycle_check, and stale plan docs.",
+  "facts": [
+    "B-376c completed schema and milestone alignment only; it deliberately did not implement full CP-0 through CP-5 behavior.",
+    "The accepted execution plan is docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md.",
+    "Command registration must touch command-catalog.ts, registry.ts, command-policy.ts, config.ts phase tools, activity-policy.ts for read-only commands, process-fact-levels.ts, and cli-engine text markers.",
+    "Runtime projection should consume resolveStoryAuthority, buildStoryReadinessReport, summarizeOwnerLease, and existing freshness/stale-hint helpers rather than inventing new classifiers.",
+    "Proof Admissibility Appendix D defines the minimum admissibility_waterline output; B-eb18 includes that minimum because the user requested the whole plan completed.",
+    "queue_exception_set is a guarded write, not read-only; queue status commands are read-only and queue exception writes need audit metadata and write coordination.",
+    "INIT and scope reviewers require explicit product-visible completion, strict non-replacement of lifecycle/proof/Authority semantics, expanded experiment view, and explicit exception registry schema."
+  ],
+  "constraints": [
+    "Do not create a second lifecycle state machine or bypass story_advance gates.",
+    "Do not reimplement Proof Admissibility policy, evidence freshness classification, DONE oracle, or Evidence Runtime verification.",
+    "Do not optimize arbitrarily; only implement the real correctness and consistency gaps named by the execution plan.",
+    "Keep Authority/production semantics out of the control plane; render lower-layer results only.",
+    "Queue exceptions must preserve Tier-C experiment evidence and must not hide malformed or cleanup-required stories.",
+    "All user-facing CLI output must separate story-level blockers from project-level queue health."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/lifecycle-control/**",
+    "packages/main/src/handlers/lifecycle-control.ts",
+    "packages/main/src/handlers/story-authority-resolve.ts",
+    "packages/main/src/handlers/lifecycle-check.ts",
+    "packages/main/src/handlers/done-closure.ts",
+    "packages/main/src/core/proof-admissibility.ts",
+    "packages/main/src/core/proof-admissibility-gates.ts",
+    "packages/main/src/core/proof-admissibility-legacy.ts",
+    "packages/main/src/core/proof-admissibility-metadata.ts",
+    "packages/main/src/core/evidence-freshness.ts",
+    "packages/main/src/core/evidence-stale-hint.ts",
+    "packages/main/src/core/story-owner-lease.ts",
+    "packages/main/src/core/main-write-lock.ts",
+    "packages/main/src/core/validation-execution-lock.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/cli/activity-policy.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/tasks/**",
+    "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+    "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+    "docs/evidence/evidence-platform-architecture.md"
+  ],
+  "timestamp": "2026-06-28T09:38:08.772Z"
+}
