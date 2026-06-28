@@ -5,7 +5,7 @@
       "desc": "currentRunBasisMatches fails open when freshness recomputation is unavailable. The ledger basis may contain headHash/materialHash/storyFilesHash from run start, but packages/main/src/core/lattice-autopilot.ts:807-820 only reports drift when both the recorded hash and the freshly recomputed hash are truthy; if currentGitHead/currentMaterialHash/currentStoryFilesHashExcludingOutputs returns undefined (wrong git root, missing .git, git failure, or ls-tree failure), the function returns matches:true. autopilotResume then treats staleReason as empty at packages/main/src/core/lattice-autopilot.ts:1789-1824 and can return resume_ready for a run whose basis freshness could not be verified. This contradicts the M1 fail-closed requirement for stale/corrupt state and is not covered by packages/main/src/tasks/autopilot-resume-smoke.ts, which covers changed/stale values but not unavailable freshness probes. SourceRefs: packages/main/src/core/lattice-autopilot.ts:807-820; packages/main/src/core/lattice-autopilot.ts:1789-1824; packages/main/src/tasks/autopilot-resume-smoke.ts:221-267.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-28T01:16:47.236Z",
@@ -16,7 +16,11 @@
         "packages/main/src/core/lattice-autopilot.ts"
       ],
       "signatureTag": "adversarial|ts|currentrunbasismatches-fails-open",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 0eddf8fba and refreshed in later metadata: currentRunBasisMatches now refuses when headHash/materialHash/storyFilesHash cannot be recomputed; autopilot-resume smoke temporarily moves .git and verifies refused/stale_state instead of resume_ready.",
+      "resolvedAt": "2026-06-28T01:22:02.250Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-c7e2:F-002",
