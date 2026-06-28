@@ -124,7 +124,7 @@
       "desc": "runtime_closure_status checks mainWriteLockPath using invocation root even though the lock is main-repo-owned; from a story worktree it can report mainWriteLock=free while the canonical main checkout lock is active.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-06-28T10:50:23.192Z",
@@ -136,7 +136,11 @@
         "packages/main/src/core/main-write-lock.ts"
       ],
       "signatureTag": "missing|ts|runtime-closure-status",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commit a81497c6b: runtime mainWriteLock status now checks mainWriteLockPath(getRepoRoot(root)); smoke asserts a worktree runtime_closure_status sees the canonical main-root lock as active. Verified with build, global-lifecycle-control-plane-smoke, and process-fact contract.",
+      "resolvedAt": "2026-06-28T10:55:36.073Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-eb18:F-007",
