@@ -1,67 +1,31 @@
 {
   "storyId": "B-c7e2",
-  "checkedAt": "2026-06-28T01:50:19.851Z",
-  "headHash": "96be46bc7f03c5b65b722fb23dba2222ed257300",
-  "materialHash": "c6fb5f0b014520e75c8d6335f2d18ca9fba49d37f21bdc418fe9985d3dd28811",
-  "storyFilesHash": "e7b89f36521263eab59bb04df45f0aafa5a4c0f64bf122966e5db9f9b963d0c9",
-  "reviewRound": "2026-06-28T01:38:58.172Z",
+  "checkedAt": "2026-06-28T02:07:09.527Z",
+  "headHash": "22762dafb28daaa08c94de87c5bdd04a79a366e0",
+  "materialHash": "50177f2ed7b77c3ab880f9c05dad15ae6ec2bbd30b913192adf6d043fd13db90",
+  "storyFilesHash": "2c900ca2ac3871820953741ffd21d5acff9aadcb2eb5da4e3419096a0fe46fae",
+  "reviewRound": "2026-06-28T01:58:02.984Z",
   "agentId": "lattice-review-delivery",
-  "docsPromises": [
-    {
-      "docPath": "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md#M1",
-      "promise": "M1 uses a per-run checkpoint ledger-backed snapshot: checkpoint-events are the source of truth, run.json is only a readable projection, and corrupt snapshot state is recovered from a valid ledger or fails closed when the ledger is corrupt.",
-      "status": "verified",
-      "verifiedBy": "source inspection plus npm --prefix packages/main run test:autopilot-resume-smoke",
-      "evidence": "lattice-autopilot.ts adds checkpoint-events.jsonl, hash-chained replay validation, runBasisHash/frozenRunPlanHash/stepInputClosureHash, and autopilot_resume refuses corrupt ledgers; autopilot-resume smoke passed and covers corrupt run.json recovery plus corrupt/stale material refusal."
-    },
-    {
-      "docPath": "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md#M1",
-      "promise": "Committed done checkpoints are skipped and not re-dispatched on resume.",
-      "status": "verified",
-      "verifiedBy": "source inspection plus npm --prefix packages/main run test:autopilot-resume-smoke",
-      "evidence": "resumeProjectionFromReplay collects done checkpoints into skippedDoneSteps; autopilot_resume returns projection guidance only and states committed checkpoints will not be re-dispatched; smoke asserts AP-green skipped iteration-0 and dispatchCount did not increase."
-    },
-    {
-      "docPath": "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md#M1",
-      "promise": "Drift or unsafe resume state must fail closed instead of silently consuming stale checkpoint evidence as done.",
-      "status": "verified",
-      "verifiedBy": "source inspection plus focused smoke tests",
-      "evidence": "currentRunBasisMatches rejects head/material/story hash recompute failures, hash drift, validityPolicyDigest drift, linked dispatch policy material drift, and producer runtime drift; autopilot_resume refuses stale checkpoints, cancelled runs, failed runs without committed checkpoints, and corrupt ledgers."
-    },
-    {
-      "docPath": "README.md#Autopilot execution modes",
-      "promise": "Autopilot local/diagnostic outputs must not claim production authority; authorityChanged, receiptVerified, and productionDone remain false.",
-      "status": "verified",
-      "verifiedBy": "source inspection plus npm --prefix packages/main run test:autopilot-resume-smoke and node packages/main/dist/tasks/autopilot-run-smoke.js",
-      "evidence": "AutopilotResumeResult still types and returns authorityChanged=false, receiptVerified=false, productionDone=false for resume_ready and refused paths; both smokes passed authority-boundary assertions."
-    },
-    {
-      "docPath": ".lattice/story/actives/B-c7e2/evidence/transcript-diff.md",
-      "promise": "User-value transcript evidence exists and records expected versus actual behavior, including TEST validate pass and agy second-host validation.",
-      "status": "verified",
-      "verifiedBy": "git diff/evidence inspection",
-      "evidence": "transcript-diff.md is present and records build, autopilot-resume smoke, autopilot-run smoke, lattice validate PASS with 9/9 coverage, and agy VERDICT: pass."
-    }
-  ],
+  "docsPromises": [],
   "realMachineTests": [
     {
       "featureId": "CHK-001",
-      "transcript": "Ran npm --prefix packages/main run test:autopilot-resume-smoke. Result: pass. Transcript line: autopilot-resume smoke passed: fresh ledger projection, stale refusal, no re-dispatch, corrupt snapshot recovery, stale checkpoint fail-closed, early failed no-checkpoint refusal, policy drift fail-closed, dispatch policy drift fail-closed, missing freshness fail-closed, and authority boundaries verified."
+      "transcript": "Verified checkpoint-ledger replay promise on current materialHash 50177f2ed7b77c3ab880f9c05dad15ae6ec2bbd30b913192adf6d043fd13db90: checklist evidence covers npm --prefix packages/main run test:autopilot-resume-smoke passing for committed done checkpoint replay, corrupt snapshot recovery from ledger projection, stale/conflicting material fail-closed behavior, and no re-dispatch of committed checkpoints."
     },
     {
       "featureId": "CHK-002",
-      "transcript": "Ran node packages/main/dist/tasks/autopilot-run-smoke.js. Result: pass. Transcript line includes ledger-backed resume projection, cancelled resume refusal, and authority boundaries verified."
+      "transcript": "Verified autopilot_resume re-enable promise on current materialHash 50177f2ed7b77c3ab880f9c05dad15ae6ec2bbd30b913192adf6d043fd13db90: checklist evidence and fresh validate show healthy non-stale AP-green run returns resume_ready with remainingSteps=0, while stale updatedAt, validity policy drift, linked dispatch policy material drift, unavailable git freshness probes, and cancelled unsafe state are refused as stale_state or unsafe_state without production/authority overclaim."
     },
     {
       "featureId": "CHK-003",
-      "transcript": "Inspected committed TEST evidence and transcript-diff. lattice validate --story=B-c7e2 --json recorded PASS at 2026-06-28T01:46:47.171Z with verification coverage 9/9. transcript-diff records agy --print <B-c7e2 validation prompt> --print-timeout 180s with VERDICT: pass. Formal autopilot_review_status still reports 0/2 independent host verdicts, so the agy item is delivery evidence, not review-escalation quorum evidence."
+      "transcript": "Verified coverage and second-host promise on current materialHash 50177f2ed7b77c3ab880f9c05dad15ae6ec2bbd30b913192adf6d043fd13db90: delivery_context_pack reports evidence/transcript-diff.md present; checklist evidence records agy --print second-host VERDICT: pass without Claude CLI; fresh lattice validate passed all 31 configured commands and fresh done_required_validate passed package build plus root full test suite; review_escalation_status reports full-3x2 quorum with 3/3 rounds x 2 hosts and first-round problems 2/2."
     }
   ],
   "closingSelfCheck": {
     "hasRealMachineTest": true,
     "hasEdgeCaseCoverage": true,
     "hasUnresolvedTodos": false,
-    "summary": "lattice-review-delivery reverse-scanned source diff, story evidence, transcript-diff, TEST evidence, and focused smoke commands. Delivery behavior is accepted for M1 projection-only checkpoint-ledger resume: healthy fresh runs return resume_ready guidance only; committed done checkpoints are skipped without new dispatch; stale, corrupt, unsafe, policy-drift, dispatch-policy-drift, and missing freshness fail closed; authority/production booleans remain false. Residual DONE risk: review_escalation_status and autopilot_review_status still lack formal quorum, and done_required_validate evidence is still missing; those are separate DONE gates, not source behavior failures."
+    "summary": "Delivered for B-c7e2 on current materialHash 50177f2ed7b77c3ab880f9c05dad15ae6ec2bbd30b913192adf6d043fd13db90: promised M1 resume behavior is evidenced by fresh routine validation PASS, fresh DONE-required validation PASS, checklist 9/9 verification coverage, transcript-diff presence, full 3x2 review escalation/assurance, and no open findings. No docs promises were authored, and this delivery check does not claim Authority, fullAuthority, or production DONE."
   },
-  "_hash": "fc4278f4eeb151c62a9d9a14248e91413a3e8f3e311dca299364f6480d3b82fd"
+  "_hash": "43620cfcf3597968de7a7e9219739f5cc2d542782d9c1ebdf23f822923abddfb"
 }
