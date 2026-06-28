@@ -1,0 +1,56 @@
+{
+  "storyId": "B-b8c8",
+  "changes": "Recovery-runner accounting now records exact agent-call counts for executor and reviewer calls, and the paper protocol/appendix now use spend-matched A2′ wording instead of call-count wording.",
+  "usage": "Run node experiments/recovery-runner/spend-accounting-selfcheck.mjs, then use lattice story_advance --storyId=B-b8c8 --phase=TEST --forceTakeover for the full TEST gate.",
+  "expectedOutcome": "The user can verify the recovery-runner accounting story with a passing selfcheck and a paper protocol that describes A2′ as spend-matched on spend, not call count.",
+  "actualTranscript": "56 assertions passed, NO live LLM invoked; TEST validate PASS with 31 configured commands and test-evidence.json written; delivery-check was refreshed for the current material hash.",
+  "outcomeDiff": "No difference; the observed output matches the expected verification flow.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "none — fully covered",
+  "pitfalls": "The main pitfall was a stale delivery-check signature after the latest merge and a temporary old call-count wording mismatch in the paper appendix; both are now refreshed and aligned.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 344245041
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 73040
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 119188446
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 213097
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 524195
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 1163406
+    }
+  },
+  "totalDurationMs": 465407246,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-28T10:13:05.409Z",
+  "updatedAt": "2026-06-28T10:13:05.409Z"
+}
