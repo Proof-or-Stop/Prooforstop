@@ -1,17 +1,17 @@
 {
   "storyId": "B-eb18",
-  "changes": "Implemented the global lifecycle control plane with read-only dashboard/status commands, diagnostic admissibility waterline, runtime closure projection, queue governance, and guarded queue exception writes.",
-  "usage": "Use global_control_status, runtime_closure_status, admissibility_waterline, and queue_governance_status for read-only lifecycle visibility; use queue_exception_set only for explicit preserve-only queue exceptions.",
-  "expectedOutcome": "Operators can inspect lifecycle/runtime/proof/queue state without mutating gates or overclaiming Authority, and unsafe side-effect flags fail closed.",
-  "actualTranscript": "Build and focused smokes passed; REVIEW completed after fixing F-001/F-002/F-003; TEST validate passed with 31/31 configured commands and 21/21 verification coverage; delivery-check was signed by lattice-review-delivery.",
-  "outcomeDiff": "Actual matches expected for local Non-authority behavior. No Authority Server receipt-backed production completion is claimed.",
+  "changes": "Implemented the global lifecycle control plane and post-review corrections: read-only global/runtime/admissibility/queue status commands, guarded queue_exception_set, canonical main-root queue exception reads, canonical main-root main-write-lock projection, explicit superseded queue classification, and Authority gate decision waterline projection through the existing receipt eligibility predicate.",
+  "usage": "Use global_control_status, runtime_closure_status, admissibility_waterline, and queue_governance_status for read-only lifecycle visibility. Use queue_exception_set only for explicit preserve-only queue exceptions; it does not grant lifecycle readiness or Authority completion.",
+  "expectedOutcome": "Operators can inspect runtime closure, proof-consumption diagnostics, queue governance, and safe next actions without creating a second lifecycle state machine or claiming production/Authority completion from local evidence.",
+  "actualTranscript": "Current implementation evidence: build, global-lifecycle-control-plane-smoke, and process-fact contract passed after fixes for F-004 through F-007. Post-main-merge REVIEW was reopened because earlier review passes and summary were stale; current-round REVIEW/TEST/DONE evidence is being regenerated before completion.",
+  "outcomeDiff": "Implementation matches the intended local Non-authority control-plane behavior so far. Final acceptance remains dependent on current-round review passes, TEST validate, done-required validation, delivery check, and review assurance over the current material hash.",
   "acceptanceVerdict": "accepted",
   "realMachineCoverage": {
     "ran": [],
     "skipped": []
   },
-  "limitations": "Local lifecycle control plane only; Authority/production completion remains outside this story and requires separate receipt-backed proof if enabled.",
-  "pitfalls": "Read-only status commands are intentionally projections, not lifecycle gate mutators; queue_exception_set preserves queue exceptions but does not grant readiness.",
+  "limitations": "Local lifecycle control plane only. No Authority Server receipt-backed production completion is claimed or produced by this story.",
+  "pitfalls": "Do not treat diagnostic waterline rows, local host verdicts, delivery checks, or status dashboards as Authority Server proof. Stale material/story-file hashes must be regenerated instead of reused.",
   "phaseStats": {
     "INIT": {
       "count": 1,
@@ -26,19 +26,19 @@
       "durationMs": 118835068
     },
     "DEV": {
-      "count": 3,
-      "durationMs": 1919454
+      "count": 5,
+      "durationMs": 2214553
     },
     "REVIEW": {
-      "count": 3,
-      "durationMs": 1336694
+      "count": 5,
+      "durationMs": 1694936
     },
     "TEST": {
       "count": 1,
-      "durationMs": 322380
+      "durationMs": 749379
     }
   },
-  "totalDurationMs": 122544189,
+  "totalDurationMs": 123624529,
   "fixtureStats": {
     "totalRuns": 0,
     "totalCases": 0,
@@ -51,5 +51,5 @@
     "open": 0
   },
   "createdAt": "2026-06-28T10:37:58.331Z",
-  "updatedAt": "2026-06-28T10:37:58.331Z"
+  "updatedAt": "2026-06-28T10:55:58.671Z"
 }
