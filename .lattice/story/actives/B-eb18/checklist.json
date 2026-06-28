@@ -295,9 +295,9 @@
           "packages/main/src/tasks/**"
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-28T09:51:57.456Z",
       "userSees": "The queue output contains \"experimentBatches\":[{\"experimentBatchId\":\"tier-c-provider-execution-receipt-verification\",\"defaultDashboardMode\":\"collapsed\",\"storyCount\":...}] and expanded mode lists member story ids.",
       "verificationIntent": {
         "happy": [
@@ -321,7 +321,42 @@
             "type": "logic"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/global-lifecycle-control-plane-smoke.js && node packages/main/dist/cli.js queue_governance_status \"{\\\"expanded\\\":true,\\\"format\\\":\\\"json\\\"}\"",
+          "result": "pass",
+          "note": "Smoke asserts queue_governance_status classes active-worktree/stale-worktree/main-init/experiment-batch-exception/duplicate-candidate/cleanup-required and collapsed/expanded experiment views.",
+          "headHash": "62063138ddaf381184f94489c9c1a2167f59e562",
+          "materialHash": "ab9d52f3e5d7808ee877f8245d923cb2e6b69eb399e1283d658469134b7b109b",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-28T09:51:57.599Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/global-lifecycle-control-plane-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts Tier-C provider-execution receipt verification stories are grouped under tier-c-provider-execution-receipt-verification and excluded from duplicate cleanup while expanded view lists members.",
+          "headHash": "62063138ddaf381184f94489c9c1a2167f59e562",
+          "materialHash": "ab9d52f3e5d7808ee877f8245d923cb2e6b69eb399e1283d658469134b7b109b",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-28T09:51:57.738Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/global-lifecycle-control-plane-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts malformed Tier-C experiment records remain visible as cleanup-required rather than hidden by the exception.",
+          "headHash": "62063138ddaf381184f94489c9c1a2167f59e562",
+          "materialHash": "ab9d52f3e5d7808ee877f8245d923cb2e6b69eb399e1283d658469134b7b109b",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-28T09:51:57.908Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
