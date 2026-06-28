@@ -1,0 +1,85 @@
+{
+  "storyId": "B-eb18",
+  "checkedAt": "2026-06-28T10:37:21.125Z",
+  "headHash": "95f83cf9a09debe187c675539b8c2aa4e6dc4b5d",
+  "materialHash": "67560e99fc49ec9719a63dc9a5e8f5d1ac3d9bd3a8a92203d9bf530170606a2b",
+  "storyFilesHash": "15a152ababa00b6f202a04029dd35db39be08c76464904219ebf9806a9e011b7",
+  "reviewRound": "2026-06-28T10:20:01.015Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "checklist:CHK-001:userSees",
+      "promise": "global_control_status exposes schemaVersion lattice.global_control_status.v1, readOnly true, authoritative worktree cwd, and queue classification for active stories.",
+      "status": "verified",
+      "verifiedBy": "manual CLI probe and smoke",
+      "evidence": "node packages/main/dist/cli.js global_control_status {storyIds:[B-eb18],format:json}; output showed schemaVersion lattice.global_control_status.v1, readOnly true, B-eb18 authoritativeCwd /Users/jek/Documents/Work/proofbound/.worktrees/B-eb18, queue classification active-worktree."
+    },
+    {
+      "docPath": "checklist:CHK-002:userSees",
+      "promise": "runtime_closure_status projects runtime closure from existing authority/lock/readiness surfaces and renders next safe action for worktree authority.",
+      "status": "verified",
+      "verifiedBy": "manual CLI probe and smoke",
+      "evidence": "node packages/main/dist/cli.js runtime_closure_status {storyIds:[B-eb18],format:json}; output showed readOnly true, source runtime-projection, authoritativeCwd worktree path, ownerLease owned, nextSafeAction cd worktree."
+    },
+    {
+      "docPath": "checklist:CHK-003:userSees",
+      "promise": "admissibility_waterline renders diagnostic-only consumer buckets and cannot satisfy DONE or production eligibility.",
+      "status": "verified",
+      "verifiedBy": "manual CLI probe and smoke",
+      "evidence": "node packages/main/dist/cli.js admissibility_waterline {storyId:B-eb18,format:json}; output showed diagnosticOnly true and productionDoneEligible false for consumer rows including DONE/AUTHORITY_GATE_DECISION."
+    },
+    {
+      "docPath": "checklist:CHK-004:userSees",
+      "promise": "queue_governance_status groups Tier-C provider-execution receipt verification stories, preserves exceptions, expands member story ids, and keeps malformed experiment stories visible.",
+      "status": "verified",
+      "verifiedBy": "manual CLI probe and smoke",
+      "evidence": "node packages/main/dist/cli.js queue_governance_status {expanded:true,format:json}; output showed experimentBatchId tier-c-provider-execution-receipt-verification, storyCount 24, storyIds present, cleanupRequired malformed rows, and B-eb18 active-worktree."
+    },
+    {
+      "docPath": "checklist:CHK-005:userSees",
+      "promise": "global dashboard composes project/story runtime, consumption, queue, readiness, blockers, and next safe action without plan-doc-only derivation.",
+      "status": "verified",
+      "verifiedBy": "manual CLI probe, delivery_context_pack, process fact contract",
+      "evidence": "global_control_status JSON included project runtime/consumption/readiness/queueSummary, story rows, runtimeClosure, queueGovernance, source provenance fields, and readOnly true."
+    },
+    {
+      "docPath": "checklist:CHK-006:userSees",
+      "promise": "runtime enforcement guardrails stay local/runtime-scoped and do not evaluate Proof Admissibility or claim Authority/production completion.",
+      "status": "verified",
+      "verifiedBy": "smoke and process/runtime fact contracts",
+      "evidence": "Verification evidence records global-lifecycle-control-plane smoke, verify-process-fact-contract, and runtime-fact-contract passing; manual probes show Authority-looking productionDone flag fails closed."
+    },
+    {
+      "docPath": "checklist:CHK-007:userSees",
+      "promise": "queue_exception_set is explicit, auditable, preserve-only, storyFilesHash-bound, and guarded by the canonical main write lock.",
+      "status": "verified",
+      "verifiedBy": "code inspection and smoke",
+      "evidence": "setQueueException writes policyVersion proofbound.queue_exception.v1, class experiment-batch-exception, cleanupPolicy preserve, storyFilesHash, audit JSONL; handler wraps it in withReentrantMainWriteLock(resolveMainRepoRoot(ctx.root)); smoke asserts audit file and lock contention."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001..CHK-007",
+      "transcript": ".lattice/story/actives/B-eb18/evidence/transcript-diff.md exists and records build, global lifecycle smoke, command catalog smoke, command ownership contract, source-structure convergence, process fact contract, runtime fact contract, final review pass, and lattice validate --story=B-eb18 --json status pass allPass true configured validate.commands 31/31 verificationCoverage 21/21."
+    },
+    {
+      "featureId": "global-control-status",
+      "transcript": "Ran node packages/main/dist/cli.js global_control_status {storyIds:[B-eb18],format:json}; observed schemaVersion lattice.global_control_status.v1, readOnly true, B-eb18 active-worktree, authoritativeCwd /Users/jek/Documents/Work/proofbound/.worktrees/B-eb18, and no authorityProductionSemantics capability."
+    },
+    {
+      "featureId": "runtime-waterline-queue",
+      "transcript": "Ran runtime_closure_status, admissibility_waterline, queue_governance_status JSON probes. Observed ownerLease owned, diagnosticOnly true, productionDoneEligible false, Tier-C preserve exception grouping, malformed cleanup-required rows, and B-eb18 active-worktree."
+    },
+    {
+      "featureId": "F-001/F-002/F-003",
+      "transcript": "findings.json marks F-001, F-002, and F-003 resolved with strong fix evidence. Re-ran global-lifecycle-control-plane-smoke successfully; direct unsupported flag probes global_control_status --write=true and admissibility_waterline --productionDone=true exited nonzero with Argument validation failed."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery acceptable for the local host-neutral lifecycle control-plane scope: registered read-only status commands work, runtime closure/waterline/queue/dashboard behavior is observable, queue_exception_set is preserve-only/audited/main-lock guarded, F-001/F-002/F-003 are resolved with tests, and the transcript/validation evidence avoid Authority Server or production completion claims. Caveat: this is not DONE readiness; session_brief still reports separate blockers for branch sync, done-required validation, review-assurance floor, and story summary."
+  },
+  "_hash": "404101e60e1d7675ee77b278181000568beb0cf780fc1bc87d6e701553eaf74d"
+}
