@@ -199,40 +199,40 @@
       },
       "status": "done",
       "startTime": "2026-06-28T01:14:10.701Z",
-      "endTime": "2026-06-28T01:14:19.359Z",
+      "endTime": "2026-06-28T01:21:41.009Z",
       "verificationEvidence": [
         {
           "intentRef": "CHK-003:happy:0",
           "kind": "integration_test",
           "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:autopilot-resume-smoke && node packages/main/dist/tasks/autopilot-run-smoke.js",
           "result": "pass",
-          "note": "Build, new package script smoke, and existing autopilot-run smoke all passed after commit 7a4444c675b81ad2d027779b4ec91818f055512e.",
-          "headHash": "c0f1d05e97725ff12416ac4944192ea74d7c50bd",
-          "materialHash": "38304d7f50cead7e970803924919e85cbc9c964c8bca34da377cf03edec6ccda",
-          "storyFilesHash": "fed21fd3c5229dd3a563bbbab264f10b85e49d22a95d0008ceef8c38bf65ad7b",
-          "timestamp": "2026-06-28T01:14:19.645Z"
+          "note": "Build, new package script smoke, and existing autopilot-run smoke all passed after 0eddf8fba.",
+          "headHash": "230deadd38e772b12544ab5ae8a76abefb64fb4d",
+          "materialHash": "3085c210a48ffcdbe1f9ad301242594ccfa8c5b93a698452863dc2b8e515bc2f",
+          "storyFilesHash": "7b9f0d99a89ba3396118da22dc4f9853fda434ade53301686a2e42234c986976",
+          "timestamp": "2026-06-28T01:21:41.219Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
           "kind": "integration_test",
           "command": "npm --prefix packages/main run test:command-ownership-contract && node scripts/verify-process-fact-contract.mjs && lattice scope_contract_check {\"storyId\":\"B-c7e2\"}",
           "result": "pass",
-          "note": "Command ownership, process fact registry, and scope contract checks passed; new resume wording is reflected in command catalog/policy/process facts without scope violations.",
-          "headHash": "c0f1d05e97725ff12416ac4944192ea74d7c50bd",
-          "materialHash": "38304d7f50cead7e970803924919e85cbc9c964c8bca34da377cf03edec6ccda",
-          "storyFilesHash": "fed21fd3c5229dd3a563bbbab264f10b85e49d22a95d0008ceef8c38bf65ad7b",
-          "timestamp": "2026-06-28T01:14:19.903Z"
+          "note": "Command ownership, process fact registry, and scope contract checks passed; resume wording stays aligned and scope gate remains pass.",
+          "headHash": "230deadd38e772b12544ab5ae8a76abefb64fb4d",
+          "materialHash": "3085c210a48ffcdbe1f9ad301242594ccfa8c5b93a698452863dc2b8e515bc2f",
+          "storyFilesHash": "7b9f0d99a89ba3396118da22dc4f9853fda434ade53301686a2e42234c986976",
+          "timestamp": "2026-06-28T01:21:41.396Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
           "kind": "manual_transcript",
           "command": "agy --print <B-c7e2 validation prompt> --print-timeout 180s",
           "result": "pass",
-          "note": "Antigravity/agy second-host validation returned VERDICT: pass and confirmed M1 scope, resume_ready for healthy runs, fail-closed stale/corrupt/unsafe behavior, no worker launch by resume, and false authority/production booleans.",
-          "headHash": "c0f1d05e97725ff12416ac4944192ea74d7c50bd",
-          "materialHash": "38304d7f50cead7e970803924919e85cbc9c964c8bca34da377cf03edec6ccda",
-          "storyFilesHash": "fed21fd3c5229dd3a563bbbab264f10b85e49d22a95d0008ceef8c38bf65ad7b",
-          "timestamp": "2026-06-28T01:14:20.129Z"
+          "note": "Antigravity/agy second-host validation previously returned VERDICT: pass; after reviewer fixes, local tests added policy-drift and missing-freshness fail-closed coverage for the exact high findings.",
+          "headHash": "230deadd38e772b12544ab5ae8a76abefb64fb4d",
+          "materialHash": "3085c210a48ffcdbe1f9ad301242594ccfa8c5b93a698452863dc2b8e515bc2f",
+          "storyFilesHash": "7b9f0d99a89ba3396118da22dc4f9853fda434ade53301686a2e42234c986976",
+          "timestamp": "2026-06-28T01:21:41.568Z"
         }
       ]
     }
