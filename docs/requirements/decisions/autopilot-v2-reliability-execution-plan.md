@@ -21,8 +21,9 @@ checkpoints. In other words:
 external host/session keepalive is a wrapper concern; durable checkpoint identity and
 health-aware pause/resume are the autopilot concern.
 
-Today none of that holds inside autopilot; this plan ports four mechanisms that were built and
-tested as out-of-band Host scaffolding for the powered run into the product.
+Before this program, those guarantees did not hold inside autopilot; this plan ports four
+mechanisms that were built and tested as out-of-band Host scaffolding for the powered run into
+the product.
 
 ---
 
@@ -388,7 +389,8 @@ semantically load-bearing.
 | Host baseline | Current host-neutral baseline is Codex, Claude Code, and Antigravity. `agy` is an alias for Antigravity. Gemini is legacy/deprecated compatibility only. | `HOST_RUNTIME_BASELINE` is exported from `packages/main/src/core/lattice-dispatch.ts`; smoke asserts the current and legacy sets. |
 | Documentation acceptance | Updated. The document no longer overclaims exactly-once behavior and explicitly distinguishes wrapper keepalive from product restart-safe resume. | This table records the B-320f acceptance surface and expected verification commands. |
 | Build | PASS in B-320f DEV. | `npm --prefix packages/main run build` |
-| Smoke | PASS in B-320f DEV. | `node packages/main/dist/tasks/autopilot-v2-reliability-smoke.js` prints `autopilot-v2-reliability smoke PASS`. |
-| Version | PASS in B-320f DEV. | `node packages/main/dist/cli.js --version` prints `Proofbound CLI 0.3.103`. |
+| Reliability smoke | PASS in B-320f DEV. | `node packages/main/dist/tasks/autopilot-v2-reliability-smoke.js` prints `autopilot-v2-reliability smoke PASS`. |
+| Regression smokes | PASS in B-320f DEV. | `node packages/main/dist/tasks/autopilot-resume-smoke.js`; `node packages/main/dist/tasks/autopilot-run-smoke.js`. These protect M1 replay, existing Authority-boundary behavior, full-autopilot bounded retry, budget-capped fail-closed behavior, and local dispatch guard classification. |
+| Version and CLI entrypoint | PASS in B-320f DEV. | `node packages/main/dist/tasks/lattice-cli-migration-smoke.js`; `node packages/main/dist/cli.js --version` prints `Proofbound CLI 0.3.103`. |
 | Routine validate | Required in TEST phase, not advanced by this DEV task. | `lattice validate --story=B-320f` after phase advancement to TEST. |
 | DONE | Not performed by this DEV task. | DONE requires the normal Lattice review/test/DONE flow and any configured DONE-required evidence. |
