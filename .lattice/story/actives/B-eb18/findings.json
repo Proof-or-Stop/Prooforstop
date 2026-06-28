@@ -206,6 +206,26 @@
       ],
       "signatureTag": "missing|ts|superseded-stories-still",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-eb18:F-010",
+      "desc": "Tier-C experiment exception classification still uses runtime title-prefix inference on every read. The execution plan allows title-prefix discovery/migration, but runtime queue classification should use durable metadata or explicit exception registry membership.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-28T10:59:42.630Z",
+      "reviewRound": "2026-06-28T10:55:11.249Z",
+      "reviewRunId": "B-eb18:RR-020",
+      "_hash": "62a9146aedb255b9921a9de0bec72be2220c8c483bf955b56b2583af88293e63",
+      "files": [
+        "packages/main/src/core/lifecycle-control/queue/index.ts",
+        "packages/main/src/tasks/global-lifecycle-control-plane-smoke.ts",
+        "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md"
+      ],
+      "signatureTag": "doc-code-drift|ts|tier-experiment-exception",
+      "signatureTagSource": "auto"
     }
   ]
 }
