@@ -1,0 +1,29 @@
+{
+  "storyId": "B-4387",
+  "name": "fix-authority-server-reachability-status",
+  "title": "Fix authority readiness when server is unreachable",
+  "description": "When Authority URL is set but server is down, authority status must report server unreachable and stop showing authority-ready.",
+  "type": "bug",
+  "phase": "INIT",
+  "priority": "high",
+  "riskSignals": [
+    {
+      "category": "Data Migration/Destructive",
+      "matched": "migration"
+    }
+  ],
+  "createdAt": "2026-06-28T10:01:11.328Z",
+  "startedAt": "2026-06-28T10:01:11.328Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-28T10:01:11.329Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-c1592222a4fdb073",
+      "agent": "main"
+    }
+  ]
+}

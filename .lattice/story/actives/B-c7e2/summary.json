@@ -1,0 +1,56 @@
+{
+  "storyId": "B-c7e2",
+  "changes": "Implemented Autopilot v2 M1 checkpoint-ledger-backed resume. autopilot_resume now returns resume_ready only as a ledger projection for healthy non-stale runs, skips committed done checkpoints without re-dispatch, and binds freshness to head/material/story files, autopilot policy fields, producer runtime input, and linked dispatch policy material. Added autopilot-resume smoke coverage and package script.",
+  "usage": "Run lattice autopilot_resume --runId=<runId> for a completed or manual-review-ready Autopilot M1 run. For verification, run npm --prefix packages/main run test:autopilot-resume-smoke and node packages/main/dist/tasks/autopilot-run-smoke.js.",
+  "expectedOutcome": "Healthy non-stale runs produce resume_ready projection-only output; stale, corrupt, unsafe, policy-drift, dispatch-policy-drift, and missing-freshness cases refuse instead of claiming safe resume.",
+  "actualTranscript": "lattice validate --story=B-c7e2 passed 31 configured commands and reported Verification intent coverage: 9/9 covered. autopilot-resume smoke reported fresh ledger projection, no re-dispatch, policy drift fail-closed, dispatch policy drift fail-closed, missing freshness fail-closed, and authority boundaries verified. agy second-host validation returned VERDICT: pass.",
+  "outcomeDiff": "No discrepancy observed between expected and actual tested CLI behavior.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "M1 resume is projection-only. It does not implement unattended re-dispatch, provider health ramping, multi-run queue governance, or production completion claims.",
+  "pitfalls": "Review found and fixed five freshness gaps: unavailable git/material/story hash probes, autopilot policy/runtime drift, omitted maxIterations-style policy fields, missing test coverage for those fields, and linked dispatch policy material drift. Future changes to resume must keep policy material binding fail-closed.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 349590
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 26001
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 123305
+    },
+    "DEV": {
+      "count": 4,
+      "durationMs": 1534008
+    },
+    "REVIEW": {
+      "count": 4,
+      "durationMs": 1145000
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 197162
+    }
+  },
+  "totalDurationMs": 3375067,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-28T01:48:15.741Z",
+  "updatedAt": "2026-06-28T01:48:15.741Z"
+}

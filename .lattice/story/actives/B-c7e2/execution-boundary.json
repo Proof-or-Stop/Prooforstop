@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-c7e2",
+  "allowedCommands": [
+    "agy --print",
+    "lattice host_runtime_probe {\"host\":\"antigravity\",\"format\":\"json\"}",
+    "lattice validate --story=B-c7e2",
+    "node packages/main/dist/tasks/autopilot-resume-smoke.js",
+    "npm --prefix packages/main run build"
+  ],
+  "allowedTools": [
+    "Antigravity CLI (agy)",
+    "Codex CLI",
+    "git",
+    "lattice",
+    "node",
+    "npm"
+  ],
+  "allowedPaths": [
+    ".lattice/evidence/",
+    "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+    "packages/main/package.json",
+    "packages/main/src/core/lattice-autopilot.ts",
+    "packages/main/src/tasks/autopilot-resume-smoke.ts"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".omx/"
+  ],
+  "confirmedBy": "codex",
+  "createdAt": "2026-06-28T00:55:11.252Z",
+  "updatedAt": "2026-06-28T00:55:11.252Z",
+  "_hash": "d75b75e2fe10bef081f96274f7b51218a74ba230113f5f7573f390857e6cbc1e"
+}

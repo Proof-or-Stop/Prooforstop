@@ -1,0 +1,32 @@
+{
+  "storyId": "B-c7e2",
+  "updatedAt": "2026-06-28T00:55:55.262Z",
+  "proposals": [
+    {
+      "proposalId": "SEP-B-c7e2-001",
+      "storyId": "B-c7e2",
+      "proposedBy": "codex-init-reviewer",
+      "proposedAt": "2026-06-28T00:55:49.771Z",
+      "proposal": "Treat Authority-related wording in the INIT background as an implementation expansion.",
+      "proposalTextHash": "2ad4b572c2c87cc82d5d119d40df5fa8771a3c8c65987b8ceeb8b6e01f8b0756",
+      "reason": "The word appears only because the execution boundary excludes Authority production receipt work; this M1 story must not implement Authority behavior.",
+      "patch": {
+        "allowed": [],
+        "excluded": [],
+        "executionAllowedCommands": [],
+        "executionAllowedTools": [],
+        "executionExcludedCommands": [],
+        "executionExcludedTools": []
+      },
+      "status": "rejected",
+      "_hash": "95eac43ce5d94a13d1728c748ee556f9383dac7db35a74b8322cd7473bf14c40",
+      "decision": {
+        "decision": "rejected",
+        "decidedBy": "codex",
+        "decidedAt": "2026-06-28T00:55:55.262Z",
+        "rationale": "Rejected because Authority appears only as explicitly excluded scope. B-c7e2 remains limited to Autopilot M1 checkpoint-ledger resume and tests.",
+        "_hash": "66164129fac7697219d2cd0156d788b5010a6de48962b4ff46d34fc10b457464"
+      }
+    }
+  ]
+}

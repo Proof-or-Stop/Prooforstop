@@ -1,0 +1,94 @@
+{
+  "passes": [
+    {
+      "id": "B-c7e2:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage pass: inspected checklist intents and changed tests. npm build, autopilot-resume smoke, autopilot-run smoke, command ownership contract, process fact contract, and scope contract check all passed. Coverage includes healthy resume_ready, stale_state refusal, corrupt run snapshot recovery from valid ledger, corrupt/mismatched ledger fail-closed in core replay, no re-dispatch via dispatch count assertion, cancelled/failed unsafe_state refusal, command/process contract registration, recursive authority/production false assertions, and persisted agy second-host manual transcript evidence for CHK-003.",
+      "createdAt": "2026-06-28T01:17:24.073Z",
+      "reviewRound": "2026-06-28T01:14:32.472Z",
+      "reviewRunId": "B-c7e2:RR-005",
+      "_hash": "594b9bdf18f684b7d15b183f3a962faef1429330b336c1f2b1d94784904bbf7e"
+    },
+    {
+      "id": "B-c7e2:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Targeted round-2 re-review clean. B-c7e2:F-001 is fixed: currentRunBasisMatches now refuses missing recomputed headHash/materialHash/storyFilesHash when the ledger has baselines, and smoke covers missing .git returning refused/stale_state. B-c7e2:F-002 is fixed for this M1 scope: resume recomputes validityPolicyDigest and producerRuntimeIdentity before resume_ready, and smoke mutates policy to verify refused/stale_state. Healthy run still returns resume_ready without dispatching a worker, cancelled/unsafe run remains refused/unsafe_state, authorityChanged/receiptVerified/productionDone remain false, and wording stays projection/guidance only. Commands run: lattice session_brief; lattice review_run_start; lattice finding_list --storyId=B-c7e2; npm --prefix packages/main run test:autopilot-resume-smoke; node packages/main/dist/tasks/autopilot-run-smoke.js; npm --prefix packages/main run build -- --noEmit; npm --prefix packages/main run test:command-ownership-contract; node scripts/verify-process-fact-contract.mjs; git diff --check main...HEAD.",
+      "createdAt": "2026-06-28T01:25:08.629Z",
+      "reviewRound": "2026-06-28T01:21:52.585Z",
+      "reviewRunId": "B-c7e2:RR-008",
+      "_hash": "006dde11c3e05cee5de25e09f44645423d8b9e94eebca7be156674840acbc453"
+    },
+    {
+      "id": "B-c7e2:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Concept review passed: F-003/F-004 policy/runtime drift is now fail-closed through validityPolicyDigest coverage of policy permission and bound fields; smoke coverage includes maxIterations drift and missing freshness probes; resume remains M1 guidance only with authorityChanged=false receiptVerified=false productionDone=false.",
+      "createdAt": "2026-06-28T01:33:06.999Z",
+      "reviewRound": "2026-06-28T01:29:27.824Z",
+      "reviewRunId": "B-c7e2:RR-011",
+      "_hash": "be80694223a3192ac9e8e8d750fdfc5abadc85aec055d46840f0d2c4896930ed"
+    },
+    {
+      "id": "B-c7e2:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage pass: inspected M1 resume smoke assertions and reran build, autopilot resume/run smokes, command ownership, process fact contract, scope contract, git diff check, and evidence_plan. Healthy resume_ready, stale refusal, corrupt snapshot recovery, early failed no-checkpoint refusal, maxIterations policy drift, missing freshness fail-closed, cancelled unsafe refusal, command/process/scope checks, and agy manual transcript evidence are covered with no blocker.",
+      "createdAt": "2026-06-28T01:33:08.982Z",
+      "reviewRound": "2026-06-28T01:29:27.824Z",
+      "reviewRunId": "B-c7e2:RR-010",
+      "_hash": "d0787bbb0e5757520e981102d7ac471c73acef878e77ad4f8ee90aa1908788fa"
+    },
+    {
+      "id": "B-c7e2:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage pass: autopilot-resume smoke asserts healthy resume_ready with skipped done checkpoint/no redispatch, stale_state refusal, corrupt snapshot recovery, stale checkpoint refusal, early failed no-checkpoint unsafe_state refusal, maxIterations validityPolicyDigest drift refusal, linked dispatch policy material drift refusal, and missing git freshness fail-closed. autopilot-run smoke covers cancelled resume unsafe_state and authority false boundaries. Evidence manifest shows all verification evidence fresh and includes CHK-003 adversarial manual_transcript for agy second-host VERDICT pass as diagnostic-only authority=false evidence. Reran npm --prefix packages/main run test:autopilot-resume-smoke, node packages/main/dist/tasks/autopilot-run-smoke.js, npm --prefix packages/main run test:command-ownership-contract, node scripts/verify-process-fact-contract.mjs, lattice scope_contract_check, and git diff --check.",
+      "createdAt": "2026-06-28T01:41:43.557Z",
+      "reviewRound": "2026-06-28T01:38:58.172Z",
+      "reviewRunId": "B-c7e2:RR-014",
+      "_hash": "b7e35bc4a89999dd65caab96e9b201040fd913dde0762039a8e56f2bda0eab1a"
+    },
+    {
+      "id": "B-c7e2:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "F-005 re-review pass: validityPolicyDigest includes deterministic linked dispatch policy material via checkDispatchPolicy; missing/refused linked dispatch policy fail closed as stale_state; healthy resume still returns resume_ready. Verified with npm --prefix packages/main run build, npm --prefix packages/main run test:autopilot-resume-smoke, node packages/main/dist/tasks/autopilot-run-smoke.js, and a targeted temp-repo missing/refused dispatch policy probe.",
+      "createdAt": "2026-06-28T01:41:53.221Z",
+      "reviewRound": "2026-06-28T01:38:58.172Z",
+      "reviewRunId": "B-c7e2:RR-013",
+      "_hash": "0135b55d8a5cd591035c87516c7f796247a1c331a328b96b81b66a87062cf432"
+    },
+    {
+      "id": "B-c7e2:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "Concept review pass: after fix 1a1239e9d, autopilot_resume replays checkpoint ledger state into an M1 projection only, never dispatches workers, and keeps authorityChanged=false, receiptVerified=false, productionDone=false. Stale updatedAt, corrupt/missing ledger, stale checkpoints, unsafe cancelled/early-failed states, autopilot policy digest drift, dispatch policy material drift, and missing git freshness probes all fail closed in implementation and focused smokes. Commands run: npm --prefix packages/main run build; npm --prefix packages/main run test:autopilot-resume-smoke; node packages/main/dist/tasks/autopilot-run-smoke.js; npm --prefix packages/main run test:command-ownership-contract; node scripts/verify-process-fact-contract.mjs; git diff --check.",
+      "createdAt": "2026-06-28T01:42:40.358Z",
+      "reviewRound": "2026-06-28T01:38:58.172Z",
+      "reviewRunId": "B-c7e2:RR-016",
+      "_hash": "97444c467a3331ecf8a437c04c8e6aa1f8016515315988ac4191235b695e354e"
+    },
+    {
+      "id": "B-c7e2:RP-008",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: post-3218fae61 changes are evidence/metadata only for this lane; no packages/main source or package files changed after 3218fae61. checklist/test-evidence show 9/9 required verificationIntent entries covered with fresh materialHash/storyFilesHash, validate PASS, done_required_validate PASS including gitroot-cwd-contract smoke PASS, and autopilot-resume/run smoke assertions cover resume_ready/no redispatch, stale_state, corrupt snapshot recovery, unsafe/cancelled refusal, policy/dispatch-policy drift, missing git freshness, and authority-boundary no-overclaim cases.",
+      "createdAt": "2026-06-28T01:59:59.849Z",
+      "reviewRound": "2026-06-28T01:58:02.984Z",
+      "reviewRunId": "B-c7e2:RR-018",
+      "_hash": "9ac6a1a809797cb90cec56ee5043e457a85ce26a1bbefc5f4abca5968086b009"
+    },
+    {
+      "id": "B-c7e2:RP-009",
+      "agent": "lattice-review-concept",
+      "note": "PASS concept review for 3218fae61. packages/main/src/core/lattice-autopilot.ts threads resolveGitCwd into run-basis creation and resume freshness only: git HEAD/material/story-files probes use gitCwd while policy/config/persistence and metadata exclusions keep metadataRoot/root. autopilotResume remains projection-only: it replays ledger state, refuses stale/unsafe/corrupt cases or returns resume projection guidance, does not dispatch workers, and continues returning authorityChanged=false receiptVerified=false productionDone=false. Verified with npm --prefix packages/main run test:autopilot-resume-smoke and npm run test:gitroot-cwd-routing.",
+      "createdAt": "2026-06-28T02:00:16.683Z",
+      "reviewRound": "2026-06-28T01:58:02.984Z",
+      "reviewRunId": "B-c7e2:RR-017",
+      "_hash": "430107226081c4787d176e385427da27e9a3d7f6177fb7a687adfe697586eb59"
+    },
+    {
+      "id": "B-c7e2:RP-010",
+      "agent": "lattice-review-quality",
+      "note": "Quality pass for 3218fae61 autopilot basis git-cwd change. Confirmed currentStoryFilesHashExcludingOutputs runs git ls-tree from resolved gitCwd while isMaterialExcludedPath uses metadataRoot; buildRunBasis/currentRunBasisMatches use currentGitHead(gitCwd), currentMaterialHash(gitCwd, HEAD, metadataRoot), and story-files hash with metadataRoot exclusions; autopilotRun/autopilotResume resolve gitCwd through resolveGitCwd. Missing git freshness fails closed on resume via autopilot-resume-smoke. Commands passed: npm --prefix packages/main run build; npm --prefix packages/main run test:autopilot-resume-smoke; node packages/main/dist/tasks/autopilot-run-smoke.js; npm --prefix packages/main run test:done-oracle-wrapper-root; npm test; git diff --check 3218fae61^..HEAD.",
+      "createdAt": "2026-06-28T02:02:38.919Z",
+      "reviewRound": "2026-06-28T01:58:02.984Z",
+      "reviewRunId": "B-c7e2:RR-020",
+      "_hash": "126aab5c790399f3831cc65052e87f4d08984e09bc75c3d30aaf9b71b9faef29"
+    }
+  ]
+}

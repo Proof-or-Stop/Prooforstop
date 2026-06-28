@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-eb18",
+  "allowedCommands": [
+    "git diff *",
+    "git log *",
+    "git status *",
+    "lattice *",
+    "node packages/main/dist/tasks/*.js",
+    "node packages/main/src/tasks/*.ts",
+    "npm --prefix packages/main run build",
+    "rg *"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "shell"
+  ],
+  "allowedPaths": [
+    "docs/evidence/evidence-platform-architecture.md",
+    "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+    "package-lock.json",
+    "package.json",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/core/lifecycle-control",
+    "packages/main/src/tasks"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".omx",
+    "experiments/recovery-runner"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "Use normal Lattice lifecycle commands and local build/smoke verification only; no remote push and no OMX.",
+  "createdAt": "2026-06-27T00:35:34.142Z",
+  "updatedAt": "2026-06-27T00:35:34.142Z",
+  "_hash": "bf1a59f78c6ede83a20afd244b077f45b106fc53748330090abe620de2de1e16"
+}
