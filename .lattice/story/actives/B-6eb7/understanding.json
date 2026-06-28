@@ -1,0 +1,22 @@
+{
+  "task": "Align three stale L4 repro-first process-fact rationale strings from \"file-declaring stories\" to the shipped material-code bug/feature gate semantics (prose-only).",
+  "outcome": "grep \"file-declaring\" packages/main/src/core/process-fact-levels.ts packages/main/src/core/process-fact-registry.ts returns nothing; the three rationale strings now read \"material-code bug/feature\" (plus high/critical code-verifiable for the preflight one); node scripts/verify-process-fact-contract.mjs still prints \"Process fact contract verified\"; npm test green.",
+  "facts": [
+    "B-8628 (DONE, CLI 0.3.103) shipped classifyReproFirstRequirement = material-code bug|feature OR high/critical code-verifiable risk; bare file_declarations + bug_story rules removed.",
+    "Stale strings: process-fact-levels.ts ~88 (runtime:repro_first_story_intake_preflight: blocks file-declaring code stories), ~89 (story_create_from_repro: before file-declaring stories enter PLAN/DEV), process-fact-registry.ts ~927 (story-evidence-binding: before file-declaring stories may enter PLAN/DEV).",
+    "verify-process-fact-contract.mjs checks structural alignment, not prose, so it already passes; this is documentation accuracy.",
+    "Codex host-2 raised this as a MEDIUM during B-8628; deferred as out-of-scope.",
+    "Both files are high-risk process-fact paths -> DONE still needs the 3x2 review-assurance floor despite the prose-only diff."
+  ],
+  "constraints": [
+    "Prose-only: edit only the rationale strings; do not touch classifier/gate/mode/blocking logic, structural registry fields, or gateConsumer values.",
+    "Behavior zero: classifyReproFirstRequirement and the gate are unchanged (shipped in B-8628).",
+    "verify-process-fact-contract.mjs must still pass; npm test must stay green."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts"
+  ],
+  "timestamp": "2026-06-28T16:53:13.191Z"
+}

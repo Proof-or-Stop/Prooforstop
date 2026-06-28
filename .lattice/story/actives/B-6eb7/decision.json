@@ -1,0 +1,50 @@
+{
+  "principles": [
+    "Prose-only: change rationale text, never gate/classifier/structural fields.",
+    "Single source of truth: the rationale must describe the shipped B-8628 semantics.",
+    "Behavior zero: no logic change, no contract-structure change."
+  ],
+  "drivers": [
+    "Keep the gate-consumed L4 process-fact rationale accurate for diagnostics.",
+    "Minimal change; do not re-touch B-8628 classifier logic.",
+    "Keep verify-process-fact-contract + npm test green."
+  ],
+  "options": [
+    {
+      "name": "swap the file-declaring phrase in the 3 rationale strings",
+      "pros": [
+        "Minimal, accurate, behavior-zero",
+        "Exactly addresses the Codex finding"
+      ],
+      "cons": [
+        "Two high-risk process-fact files -> 3x2 floor at DONE"
+      ]
+    },
+    {
+      "name": "rewrite the full rationale paragraphs",
+      "pros": [
+        "Could refresh wording broadly"
+      ],
+      "cons": [
+        "Over-broad; risk of touching structural meaning; rejected"
+      ]
+    }
+  ],
+  "chosen": "swap the file-declaring phrase in the 3 rationale strings",
+  "rationale": "The Codex finding is a precise phrase-staleness; swapping just the phrase in the 3 rationale strings is the minimal accurate fix with zero behavior/structure risk. A broader rewrite adds risk for no benefit.",
+  "preMortem": [
+    {
+      "scenario": "A structural field or gateConsumer is changed by mistake.",
+      "trigger": "Editing more than the rationale string value.",
+      "consequence": "verify-process-fact-contract.mjs fails or gate semantics drift.",
+      "mitigation": "Edit only the rationale: text; run node scripts/verify-process-fact-contract.mjs after."
+    },
+    {
+      "scenario": "One of the three occurrences is missed.",
+      "trigger": "Only updating 2 of 3 strings.",
+      "consequence": "A stale file-declaring rationale remains.",
+      "mitigation": "After editing, grep file-declaring across both files returns nothing."
+    }
+  ],
+  "timestamp": "2026-06-28T16:53:38.677Z"
+}

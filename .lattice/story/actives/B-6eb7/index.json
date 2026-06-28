@@ -4,7 +4,7 @@
   "title": "Align repro-first process-fact rationale prose with the material-code bug/feature gate semantics",
   "description": "B-8628 changed classifyReproFirstRequirement so repro-first is required only for material-code bug/feature (plus high-risk code-verifiable), but three L4 process-fact rationale strings still describe the old file-declaring-stories semantics. Prose-only alignment: swap that phrase in three rationale strings across two registry files. No gate behavior, no structural contract change.",
   "type": "chore",
-  "phase": "INIT_CHECK",
+  "phase": "PLAN",
   "priority": "medium",
   "keywords": [
     "process-fact",
@@ -32,6 +32,15 @@
       "action": "advance",
       "timestamp": "2026-06-28T16:52:51.838Z",
       "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "b0a01b07-dd7a-40ba-a0fe-163497230a65",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-28T16:52:53.680Z",
+      "branch": "story/B-6eb7",
       "user": "Harmonygo",
       "sessionId": "b0a01b07-dd7a-40ba-a0fe-163497230a65",
       "agent": "main"

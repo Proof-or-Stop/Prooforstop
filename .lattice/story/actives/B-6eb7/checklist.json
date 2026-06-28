@@ -14,7 +14,50 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "grep -rn file-declaring packages/main/src/core/process-fact-levels.ts packages/main/src/core/process-fact-registry.ts -> zero matches (old prose completely removed); WHY: confirms the stale phrasing is gone from all three sites",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "grep -rn material-code bug/feature packages/main/src/core/process-fact-levels.ts packages/main/src/core/process-fact-registry.ts -> exactly 3 matches (one per rationale string); WHY: confirms new semantics applied to all three target strings",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "node scripts/verify-process-fact-contract.mjs -> exit 0 (passes); WHY: structural contract (name/level/category/owner/gateConsumer) unchanged after prose edit",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "npm test -> green; WHY: no regressions from prose-only change",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "git diff main -- packages/main/src/core/process-fact-levels.ts packages/main/src/core/process-fact-registry.ts shows ONLY rationale: string edits -- no name/level/category/owner/gateConsumer fields appear in the diff; WHY: boundary check that structural registry fields are untouched even though the same objects are edited",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "git diff main -- packages/main/src/core/ | grep -c classifyReproFirstRequirement -> 0; WHY: gate classification logic must not be touched -- this is a prose-only alignment, not a behavior change",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "git diff main -- packages/main/src/core/ shows no changes to mode handling (reproFirstPreflight off/warn/enforce), blocking math, or gateConsumer values; WHY: ensures the chore scope boundary is respected and no accidental behavioral drift",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
