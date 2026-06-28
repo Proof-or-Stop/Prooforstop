@@ -234,6 +234,27 @@
       "resolvedAt": "2026-06-28T11:03:22.242Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-eb18:F-011",
+      "desc": "Tier-C durable exception contract has a docs/API mismatch: the execution plan documents migration-title-prefix, but public types and CLI schema accept tier-c-prefix, so an operator following the plan would be rejected.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-28T11:06:39.326Z",
+      "reviewRound": "2026-06-28T11:03:10.400Z",
+      "reviewRunId": "B-eb18:RR-025",
+      "_hash": "f1d77cfde696ac1c0ef4e25086af4af2518f3b125f5c4e2fcffb7cf78d852028",
+      "files": [
+        "packages/main/src/core/lifecycle-control/control-status.ts",
+        "packages/main/src/core/lifecycle-control/queue/index.ts",
+        "packages/main/src/cli/command-catalog.ts",
+        "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md"
+      ],
+      "signatureTag": "doc-code-drift|ts|tier-durable-exception",
+      "signatureTagSource": "auto"
     }
   ]
 }
