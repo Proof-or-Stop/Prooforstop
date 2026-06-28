@@ -148,6 +148,25 @@
       ],
       "signatureTag": "missing|ts|admissibility-waterline-synthesizes",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-eb18:F-008",
+      "desc": "summary.json says REVIEW completed after fixing F-001/F-002/F-003, but after main merge the story was rolled back into a new REVIEW round and reviewer_batch lacked current-round evidence; the summary overclaims process completion until current review evidence and final summary are refreshed.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-28T10:50:24.650Z",
+      "reviewRound": "2026-06-28T10:45:18.842Z",
+      "reviewRunId": "B-eb18:RR-018",
+      "_hash": "3ff28c1b2ff5bbaaccff3658e09da363916162f0ead2d8c6846c138ceee2e5d1",
+      "files": [
+        ".lattice/story/actives/B-eb18/summary.json",
+        ".lattice/story/actives/B-eb18/index.json"
+      ],
+      "signatureTag": "doc-code-drift|json|summary-json-says",
+      "signatureTagSource": "auto"
     }
   ]
 }
