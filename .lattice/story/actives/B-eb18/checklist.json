@@ -229,9 +229,18 @@
         "modify": [
           "packages/main/src/core/lifecycle-control/dashboard/**",
           "packages/main/src/core/lifecycle-control/**",
-          "packages/main/src/cli-engine.ts"
+          "packages/main/src/handlers/lifecycle-control.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/cli-engine.ts",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md"
         ],
-        "create": [],
+        "create": [
+          "packages/main/src/handlers/lifecycle-control.ts"
+        ],
         "test": [
           "packages/main/src/tasks/**"
         ]
@@ -239,7 +248,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "A host can run lattice global_control_status and see story-level runtime/consumption/readiness/queue rows plus project-level runtime, consumption, queue, stale-worktree, duplicate, and experiment-batch summaries.",
+      "userSees": "The text dashboard shows \"Project control status\", \"Story rows\", \"Runtime\", \"Consumption\", \"Queue\", and \"Next safe action\" sections, with project queue warnings separate from story blockers.",
       "verificationIntent": {
         "happy": [
           {
