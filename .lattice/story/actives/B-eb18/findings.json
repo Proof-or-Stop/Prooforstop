@@ -110,6 +110,25 @@
       ],
       "signatureTag": "missing|ts|queue-exception-writes",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-eb18:F-006",
+      "desc": "runtime_closure_status checks mainWriteLockPath using invocation root even though the lock is main-repo-owned; from a story worktree it can report mainWriteLock=free while the canonical main checkout lock is active.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-28T10:50:23.192Z",
+      "reviewRound": "2026-06-28T10:45:18.842Z",
+      "reviewRunId": "B-eb18:RR-017",
+      "_hash": "b6a163c977913d4b81af40baf23f4c3df815ba11ab7f567bd3989323740fa9c7",
+      "files": [
+        "packages/main/src/core/lifecycle-control/runtime/index.ts",
+        "packages/main/src/core/main-write-lock.ts"
+      ],
+      "signatureTag": "missing|ts|runtime-closure-status",
+      "signatureTagSource": "auto"
     }
   ]
 }
