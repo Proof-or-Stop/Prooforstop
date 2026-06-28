@@ -279,6 +279,16 @@ function runSmoke(): void {
       scanRoot: join(root, `.worktrees/${DRIFT_STORY}`, 'packages/main'),
     };
     const worktreeRegistry = createMainRegistry(worktreeCtx);
+    const worktreeGlobal = worktreeRegistry.get('global_control_status')!({ format: 'json', expanded: false }) as GlobalControlStatusReport;
+    const worktreeGlobalDrift = worktreeGlobal.stories.find((row) => row.storyId === DRIFT_STORY);
+    assert.ok(worktreeGlobalDrift);
+    assert.equal(worktreeGlobalDrift!.queue.classification, 'active-worktree');
+    assert.equal(worktreeGlobal.project.staleWorktreeCount, 0);
+
+    const worktreeQueue = worktreeRegistry.get('queue_governance_status')!({ format: 'json' }) as QueueGovernanceReport;
+    assert.equal(worktreeQueue.rows.find((row) => row.storyId === DRIFT_STORY)?.classification, 'active-worktree');
+    assert.equal(worktreeQueue.summary.staleWorktree, 0);
+
     const lock = acquireMainWriteLock(root, { label: 'queue_exception_set smoke holder' });
     try {
       assert.throws(

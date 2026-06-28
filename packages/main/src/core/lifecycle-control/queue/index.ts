@@ -6,6 +6,7 @@ import { currentStoryFilesHash } from '../../evidence-freshness.js';
 import { resolveStoryAuthority } from '../../story-authority-resolver.js';
 import type { StoryStore } from '../../store.js';
 import type { StoryInfo } from '../../types.js';
+import { getRepoRoot, resolveWorktreePath } from '../../worktree-runtime.js';
 import {
   CONTROL_QUEUE_CLASSIFICATIONS,
   DEFAULT_CONTROL_PLANE_CAPABILITIES,
@@ -200,7 +201,8 @@ function malformedExperiment(story: StoryInfo): boolean {
 function worktreeIsStale(story: StoryInfo, root: string, thresholdMs: number, nowMs: number): boolean {
   const path = story.worktree?.path;
   if (!path) return false;
-  const absolute = path.startsWith('/') ? path : join(root, path);
+  const absolute = resolveWorktreePath(getRepoRoot(root), path);
+  if (!absolute) return false;
   try {
     return nowMs - statSync(absolute).mtimeMs > thresholdMs;
   } catch {
