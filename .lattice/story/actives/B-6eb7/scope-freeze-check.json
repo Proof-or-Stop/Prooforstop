@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-6eb7",
+  "checkedAt": "2026-06-28T16:51:04.960Z",
+  "mode": "maintenance",
+  "status": "pass",
+  "scopeBoundaryHash": "6276069ef21190de9e9f8462aaa035b9601c7eb9cac9bbdb2cc49f82b1de792e",
+  "executionBoundaryHash": "4c7797643a57172d0c7eff940cb1d72d7597aea2a9d6c1abdb53022f4839e466",
+  "freshnessHash": "8dd4d6410b1823a73592be51119e876d7ccebfb3c61aed6847df8c22ad82e1d4",
+  "effectiveExcludedKeywords": [
+    "Any non-rationale field in the registries",
+    "classifyReproFirstRequirement and any gate/classifier logic (shipped in B-8628; unchanged)",
+    "resolveReproFirstPreflightMode / modes / blocking math / structural registry fields / gateConsumer values",
+    "verify-process-fact-contract.mjs and other gate code"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Any non-rationale field in the registries",
+      "source": "scopeBoundary.excluded",
+      "text": "Any non-rationale field in the registries",
+      "excluded": true
+    },
+    {
+      "keyword": "classifyReproFirstRequirement and any gate/classifier logic (shipped in B-8628; unchanged)",
+      "source": "scopeBoundary.excluded",
+      "text": "classifyReproFirstRequirement and any gate/classifier logic (shipped in B-8628; unchanged)",
+      "excluded": true
+    },
+    {
+      "keyword": "resolveReproFirstPreflightMode / modes / blocking math / structural registry fields / gateConsumer values",
+      "source": "scopeBoundary.excluded",
+      "text": "resolveReproFirstPreflightMode / modes / blocking math / structural registry fields / gateConsumer values",
+      "excluded": true
+    },
+    {
+      "keyword": "verify-process-fact-contract.mjs and other gate code",
+      "source": "scopeBoundary.excluded",
+      "text": "verify-process-fact-contract.mjs and other gate code",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "eb860b9f9d5def70cabe57a9ff68f2c998554acc814401470bc3edca4d9ee450"
+}

@@ -1,0 +1,36 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-6eb7",
+  "allowedCommands": [
+    "git diff",
+    "git status",
+    "grep",
+    "node scripts/verify-process-fact-contract.mjs",
+    "npm --prefix packages/main run build",
+    "npm test"
+  ],
+  "allowedTools": [
+    "git",
+    "node",
+    "npm"
+  ],
+  "allowedPaths": [
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts"
+  ],
+  "excludedCommands": [
+    "git push",
+    "git reset --hard",
+    "rm -rf"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".lattice",
+    "packages/main/src/core/repro-evidence-binding-gate.ts"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Prose-only alignment of 3 repro-first rationale strings; no classifier/gate logic change.",
+  "createdAt": "2026-06-28T16:51:04.368Z",
+  "updatedAt": "2026-06-28T16:51:04.368Z",
+  "_hash": "4c7797643a57172d0c7eff940cb1d72d7597aea2a9d6c1abdb53022f4839e466"
+}

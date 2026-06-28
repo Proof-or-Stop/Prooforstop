@@ -1,0 +1,24 @@
+{
+  "task": "Refine classifyReproFirstRequirement so repro-first is required only for material-code bug/feature work (plus the high-risk safety net), exempting docs/refactor/chore and conservative no-file intake.",
+  "outcome": "After this, `lattice story_create` for a docs-only bug, a refactor, or a chore NO LONGER prints \"Repro-first STORY_INTAKE preflight requires accepted repro evidence ... [missing_story_evidence_binding]\"; a type=bug|feature that declares a material-code file (e.g. packages/main/src/x.ts) STILL prints it. `node packages/main/dist/tasks/repro-evidence-binding-dev-gate-smoke.js` prints its pass line with the new classification cases; `npm test` is green.",
+  "facts": [
+    "classifyReproFirstRequirement (core/repro-evidence-binding-gate.ts) currently returns required via file_declarations (ANY file incl. .md) OR bug_story (ALL type=bug) OR high/critical+code-verifiable risk.",
+    "red/spike RED test (exit 1) confirmed 4 over-reaches: docs-only bug, docs feature, material refactor, chore-with-material are all required=true but cannot have a reproduce-the-failure red test.",
+    "Reference-only (NOT edited): review-assurance-floor.ts classifyReviewAssuranceFloorPath is reused as the canonical material-code classifier; handlers/story-create.ts consumes the classifier and auto-inherits; repro-first-candidate-smoke.ts does NOT assert the classifier (0 hits) so it is out of scope.",
+    "Only tasks/repro-evidence-binding-dev-gate-smoke.ts pins the classification behavior and needs updating.",
+    "Spike green proof: refined rule passes all 8 cases incl. conservative no-file intake + safety net.",
+    "The off/warn/enforce mode (default warn), the blocking math (resultFor), and the bypass reasonCode are NOT changing — only WHO is classified required."
+  ],
+  "constraints": [
+    "Do not change resolveReproFirstPreflightMode, the modes, the blocking math, or the bypass reasonCode (mechanics unchanged).",
+    "Reuse classifyReviewAssuranceFloorPath for the material-code test; if it causes a circular import, extract a tiny shared path helper instead of modifying review-assurance-floor.",
+    "Material bug/feature stay required (byte-identical classification); only docs/refactor/chore/no-file change.",
+    "Keep the high/critical code-verifiable-risk safety net."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/repro-evidence-binding-gate.ts",
+    "packages/main/src/tasks/repro-evidence-binding-dev-gate-smoke.ts"
+  ],
+  "timestamp": "2026-06-26T21:53:25.291Z"
+}
