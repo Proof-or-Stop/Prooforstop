@@ -235,9 +235,9 @@
       "id": "CHK-004",
       "title": "Verify without the live LLM: agentCalls increments at both call sites (code-level) and the median computation is correct on synthetic A4 records",
       "context": "The runner shells out to claude -p, so do a no-LLM unit check of the median function + a read-level check of the two increment sites; do not run the live loop",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-27T00:42:29.101Z",
-      "endTime": null,
+      "endTime": "2026-06-28T09:44:35.207Z",
       "userSees": "\"B-5bfe selfcheck: 56 assertions passed, NO live LLM invoked (no claude -p subprocess; all imported helpers are pure).\"",
       "files": {
         "modify": [],
@@ -265,7 +265,42 @@
             "type": "logic"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "Selfcheck passed with 56 assertions and no live LLM subprocess.",
+          "headHash": "b80a08533106ebbe51ef5c1a1f8417fca5efa969",
+          "materialHash": "ab9d52f3e5d7808ee877f8245d923cb2e6b69eb399e1283d658469134b7b109b",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-28T09:44:35.335Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "Pure helper suite stayed pure and buildRunRecord kept the canonical field names.",
+          "headHash": "b80a08533106ebbe51ef5c1a1f8417fca5efa969",
+          "materialHash": "ab9d52f3e5d7808ee877f8245d923cb2e6b69eb399e1283d658469134b7b109b",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-28T09:44:35.466Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "Missing agentCallCount or snake_case inputs were rejected without fabricating evidence.",
+          "headHash": "b80a08533106ebbe51ef5c1a1f8417fca5efa969",
+          "materialHash": "ab9d52f3e5d7808ee877f8245d923cb2e6b69eb399e1283d658469134b7b109b",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-28T09:44:35.601Z"
+        }
+      ]
     }
   ],
   "auditLog": [
