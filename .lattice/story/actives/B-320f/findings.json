@@ -1,0 +1,24 @@
+{
+  "findings": [
+    {
+      "id": "B-320f:F-001",
+      "desc": "Timeout stop reasons regress to provider_unhealthy for real host subprocess timeouts. main classified /timeout|timed out/ as AutopilotStopReason timeout before budget/validation fallback; this branch calls classifyAutopilotProviderFailure before the timeout branch in packages/main/src/core/lattice-autopilot.ts:1217-1220. The new classifier treats any \"timeout\"/\"timed out\" text as retryable network_unreachable in packages/main/src/core/autopilot-reliability.ts:95-96. Real Claude subprocess failures emit warning text \"claude-code real subprocess timed out after ${timeoutMs}ms\" from packages/main/src/core/lattice-dispatch.ts:2377-2386, and auto.status===failed builds the classification message from warnings plus nextAction in packages/main/src/core/lattice-autopilot.ts:1654-1658, so this existing timeout contract now becomes status paused_requires_resume with stopReason provider_unhealthy instead of failed/timeout. Read-only probe confirmed classifyAutopilotProviderFailure(\"timed out after 1000ms\") returns network_unreachable/retryableProviderHealth=true.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-28T16:34:50.260Z",
+      "reviewRound": "2026-06-28T16:31:02.800Z",
+      "reviewRunId": "B-320f:RR-002",
+      "_hash": "d25e48d65d6ef306aec04da18e1090ce6fd3da0caffc85acd60533e5960cd8e7",
+      "files": [
+        "packages/main/src/core/lattice-autopilot.ts",
+        "packages/main/src/core/autopilot-reliability.ts",
+        "packages/main/src/core/lattice-dispatch.ts"
+      ],
+      "signatureTag": "edge|ts|timeout-stop-reasons",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
