@@ -77,9 +77,9 @@
       "id": "CHK-002",
       "title": "run-ablation.mjs: compute the median A4 (a4b) agentCalls from the A4 records and add the A2-prime arm = a2prime with R = that median (budget-match); record to ablation-A2prime-compute-matched.jsonl",
       "context": "Recompute median from records that carry the new agentCalls field; label the arm clearly",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-27T00:42:30.330Z",
-      "endTime": null,
+      "endTime": "2026-06-28T09:44:18.931Z",
       "userSees": "PASS CHK-003 h2: a2primeBudget(1000,2000) => {1200,2400}",
       "files": {
         "modify": [
@@ -109,7 +109,42 @@
             "type": "logic"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "Selfcheck passed; median([1000,1000,1000]) feeds a2primeBudget => {tokenBudget:1200, wallBudgetMs:2400} and budgetPass is true only when both axes are in band.",
+          "headHash": "e89317367bfb71a7bfb20c051074e323277145f2",
+          "materialHash": "ab9d52f3e5d7808ee877f8245d923cb2e6b69eb399e1283d658469134b7b109b",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-28T09:44:19.069Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "Selfcheck passed; exact boundaries remain strict and budgetPass stays boolean.",
+          "headHash": "e89317367bfb71a7bfb20c051074e323277145f2",
+          "materialHash": "ab9d52f3e5d7808ee877f8245d923cb2e6b69eb399e1283d658469134b7b109b",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-28T09:44:19.201Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "node experiments/recovery-runner/spend-accounting-selfcheck.mjs",
+          "result": "pass",
+          "note": "Selfcheck passed; token-only in-band but wall out-of-band still fails budgetPass and token binds first when caps conflict.",
+          "headHash": "e89317367bfb71a7bfb20c051074e323277145f2",
+          "materialHash": "ab9d52f3e5d7808ee877f8245d923cb2e6b69eb399e1283d658469134b7b109b",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-28T09:44:19.342Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
