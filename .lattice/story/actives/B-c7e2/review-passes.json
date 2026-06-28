@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-28T01:29:27.824Z",
       "reviewRunId": "B-c7e2:RR-010",
       "_hash": "d0787bbb0e5757520e981102d7ac471c73acef878e77ad4f8ee90aa1908788fa"
+    },
+    {
+      "id": "B-c7e2:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage pass: autopilot-resume smoke asserts healthy resume_ready with skipped done checkpoint/no redispatch, stale_state refusal, corrupt snapshot recovery, stale checkpoint refusal, early failed no-checkpoint unsafe_state refusal, maxIterations validityPolicyDigest drift refusal, linked dispatch policy material drift refusal, and missing git freshness fail-closed. autopilot-run smoke covers cancelled resume unsafe_state and authority false boundaries. Evidence manifest shows all verification evidence fresh and includes CHK-003 adversarial manual_transcript for agy second-host VERDICT pass as diagnostic-only authority=false evidence. Reran npm --prefix packages/main run test:autopilot-resume-smoke, node packages/main/dist/tasks/autopilot-run-smoke.js, npm --prefix packages/main run test:command-ownership-contract, node scripts/verify-process-fact-contract.mjs, lattice scope_contract_check, and git diff --check.",
+      "createdAt": "2026-06-28T01:41:43.557Z",
+      "reviewRound": "2026-06-28T01:38:58.172Z",
+      "reviewRunId": "B-c7e2:RR-014",
+      "_hash": "b7e35bc4a89999dd65caab96e9b201040fd913dde0762039a8e56f2bda0eab1a"
     }
   ]
 }
