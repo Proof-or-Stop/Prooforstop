@@ -101,9 +101,22 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-28T16:18:30.627Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/autopilot-v2-reliability-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts deterministic maxConcurrentLive state, throttle_raise, throttle_backoff, throttle_hold, and bounded permit behavior.",
+          "headHash": "518dd07369fcbc090c22e3c7b5537a97b69ae441",
+          "materialHash": "f6100b55d5512a0f60a5b7228bf7a217ed4014cc63e1bfa0e29d5ea505d09114",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-28T16:18:30.872Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
