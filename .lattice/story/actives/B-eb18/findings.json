@@ -170,7 +170,7 @@
       "desc": "summary.json says REVIEW completed after fixing F-001/F-002/F-003, but after main merge the story was rolled back into a new REVIEW round and reviewer_batch lacked current-round evidence; the summary overclaims process completion until current review evidence and final summary are refreshed.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-06-28T10:50:24.650Z",
@@ -182,7 +182,11 @@
         ".lattice/story/actives/B-eb18/index.json"
       ],
       "signatureTag": "doc-code-drift|json|summary-json-says",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by summary_set commit 84f0b68: summary now states post-main-merge REVIEW was reopened and current-round REVIEW/TEST/DONE evidence is being regenerated, instead of claiming REVIEW is already completed. It preserves local Non-authority boundaries and avoids Authority/production overclaim.",
+      "resolvedAt": "2026-06-28T10:56:03.975Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
