@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-28T16:31:02.800Z",
       "reviewRunId": "B-320f:RR-004",
       "_hash": "08eff9e6ac9cdbf4622b0c67b07edbfb7be219782b6e80a5e8ab5fc7f66959f0"
+    },
+    {
+      "id": "B-320f:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "PASS concept review: M2 provider-health semantics are bounded to retryable rate-limit/overload/network classes while budget/scope/policy/real-host safety refusals remain local guard/control-plane failures; M3 throttle is deterministic and bounded; M4 claim/lease/fencing semantics prevent live duplicate claims, expired-lease reclaim uses a new fencing token, and stale completions are refused; docs explicitly scope B-320f to deterministic smoke/minimal dispatch-boundary integration and avoid exactly-once/process-immortality overclaims. Verified with git diff main...HEAD, source/doc inspection, reliability smoke, autopilot-run smoke, and CLI version check.",
+      "createdAt": "2026-06-28T16:34:17.392Z",
+      "reviewRound": "2026-06-28T16:31:02.800Z",
+      "reviewRunId": "B-320f:RR-001",
+      "_hash": "43f461400a83ad04859cc8664d95a3b809577f93d64b3d0bf002af8fa6ae94c5"
     }
   ]
 }
