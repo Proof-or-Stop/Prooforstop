@@ -64,10 +64,10 @@
           "command": "node packages/main/dist/tasks/global-lifecycle-control-plane-smoke.js",
           "result": "pass",
           "note": "Smoke asserts global_control_status schemaVersion/readOnly and story rows with authoritative worktree cwd and queue classification.",
-          "headHash": "5dc74183654a8aec94944d669689d6414ac1d2cc",
-          "materialHash": "67560e99fc49ec9719a63dc9a5e8f5d1ac3d9bd3a8a92203d9bf530170606a2b",
-          "storyFilesHash": "15a152ababa00b6f202a04029dd35db39be08c76464904219ebf9806a9e011b7",
-          "timestamp": "2026-06-28T10:30:02.648Z"
+          "headHash": "981cac15a4e1e15abde4dbc7f4606e29c5f3a647",
+          "materialHash": "4f0a59d905b929d4ebeb5cdd367f229de63a144f9d1b790e98f42146ed927450",
+          "storyFilesHash": "a7d4ea8667c182db79c7e899632e95ab17a59cdf8e7fa34006e403c62873d7b3",
+          "timestamp": "2026-06-28T10:41:06.474Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -75,10 +75,10 @@
           "command": "node packages/main/dist/tasks/global-lifecycle-control-plane-smoke.js",
           "result": "pass",
           "note": "Smoke creates a main mirror INIT_CHECK / worktree DEV drift story and asserts authoritativeCwd points to the worktree.",
-          "headHash": "5dc74183654a8aec94944d669689d6414ac1d2cc",
-          "materialHash": "67560e99fc49ec9719a63dc9a5e8f5d1ac3d9bd3a8a92203d9bf530170606a2b",
-          "storyFilesHash": "15a152ababa00b6f202a04029dd35db39be08c76464904219ebf9806a9e011b7",
-          "timestamp": "2026-06-28T10:30:02.648Z"
+          "headHash": "981cac15a4e1e15abde4dbc7f4606e29c5f3a647",
+          "materialHash": "4f0a59d905b929d4ebeb5cdd367f229de63a144f9d1b790e98f42146ed927450",
+          "storyFilesHash": "a7d4ea8667c182db79c7e899632e95ab17a59cdf8e7fa34006e403c62873d7b3",
+          "timestamp": "2026-06-28T10:41:06.474Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -86,10 +86,10 @@
           "command": "node packages/main/dist/tasks/global-lifecycle-control-plane-smoke.js",
           "result": "pass",
           "note": "Smoke snapshots git status before read-only commands and asserts global/runtime/waterline/queue reads leave git status unchanged.",
-          "headHash": "5dc74183654a8aec94944d669689d6414ac1d2cc",
-          "materialHash": "67560e99fc49ec9719a63dc9a5e8f5d1ac3d9bd3a8a92203d9bf530170606a2b",
-          "storyFilesHash": "15a152ababa00b6f202a04029dd35db39be08c76464904219ebf9806a9e011b7",
-          "timestamp": "2026-06-28T10:30:02.648Z"
+          "headHash": "981cac15a4e1e15abde4dbc7f4606e29c5f3a647",
+          "materialHash": "4f0a59d905b929d4ebeb5cdd367f229de63a144f9d1b790e98f42146ed927450",
+          "storyFilesHash": "a7d4ea8667c182db79c7e899632e95ab17a59cdf8e7fa34006e403c62873d7b3",
+          "timestamp": "2026-06-28T10:41:06.474Z"
         }
       ]
     },
@@ -154,10 +154,10 @@
           "command": "node packages/main/dist/tasks/global-lifecycle-control-plane-smoke.js && node packages/main/dist/cli.js runtime_closure_status \"{\\\"storyIds\\\":[\\\"B-eb18\\\"],\\\"format\\\":\\\"json\\\"}\"",
           "result": "pass",
           "note": "Runtime closure smoke and CLI run project authority, locks, readiness rows, and nextSafeAction from shipped modules.",
-          "headHash": "5dc74183654a8aec94944d669689d6414ac1d2cc",
-          "materialHash": "67560e99fc49ec9719a63dc9a5e8f5d1ac3d9bd3a8a92203d9bf530170606a2b",
-          "storyFilesHash": "15a152ababa00b6f202a04029dd35db39be08c76464904219ebf9806a9e011b7",
-          "timestamp": "2026-06-28T10:30:02.648Z"
+          "headHash": "981cac15a4e1e15abde4dbc7f4606e29c5f3a647",
+          "materialHash": "4f0a59d905b929d4ebeb5cdd367f229de63a144f9d1b790e98f42146ed927450",
+          "storyFilesHash": "a7d4ea8667c182db79c7e899632e95ab17a59cdf8e7fa34006e403c62873d7b3",
+          "timestamp": "2026-06-28T10:41:06.474Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -165,10 +165,10 @@
           "command": "node packages/main/dist/tasks/global-lifecycle-control-plane-smoke.js",
           "result": "pass",
           "note": "Smoke covers runtime projection over a worktree-authoritative story and status output distinguishes validation lock self-reentry in projector API coverage.",
-          "headHash": "5dc74183654a8aec94944d669689d6414ac1d2cc",
-          "materialHash": "67560e99fc49ec9719a63dc9a5e8f5d1ac3d9bd3a8a92203d9bf530170606a2b",
-          "storyFilesHash": "15a152ababa00b6f202a04029dd35db39be08c76464904219ebf9806a9e011b7",
-          "timestamp": "2026-06-28T10:30:02.648Z"
+          "headHash": "981cac15a4e1e15abde4dbc7f4606e29c5f3a647",
+          "materialHash": "4f0a59d905b929d4ebeb5cdd367f229de63a144f9d1b790e98f42146ed927450",
+          "storyFilesHash": "a7d4ea8667c182db79c7e899632e95ab17a59cdf8e7fa34006e403c62873d7b3",
+          "timestamp": "2026-06-28T10:41:06.474Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -176,10 +176,10 @@
           "command": "node packages/main/dist/tasks/global-lifecycle-control-plane-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Runtime projector consumes lifecycle_check/story_authority_resolve/freshness surfaces and process-fact contract confirms no new proof or lifecycle gate fact replaces existing classifiers.",
-          "headHash": "5dc74183654a8aec94944d669689d6414ac1d2cc",
-          "materialHash": "67560e99fc49ec9719a63dc9a5e8f5d1ac3d9bd3a8a92203d9bf530170606a2b",
-          "storyFilesHash": "15a152ababa00b6f202a04029dd35db39be08c76464904219ebf9806a9e011b7",
-          "timestamp": "2026-06-28T10:30:02.648Z"
+          "headHash": "981cac15a4e1e15abde4dbc7f4606e29c5f3a647",
+          "materialHash": "4f0a59d905b929d4ebeb5cdd367f229de63a144f9d1b790e98f42146ed927450",
+          "storyFilesHash": "a7d4ea8667c182db79c7e899632e95ab17a59cdf8e7fa34006e403c62873d7b3",
+          "timestamp": "2026-06-28T10:41:06.474Z"
         }
       ]
     },
@@ -248,10 +248,10 @@
           "command": "node packages/main/dist/tasks/global-lifecycle-control-plane-smoke.js && node packages/main/dist/cli.js admissibility_waterline \"{\\\"storyId\\\":\\\"B-eb18\\\",\\\"format\\\":\\\"json\\\"}\"",
           "result": "pass",
           "note": "Smoke and CLI assert admissibility_waterline schema, consumer rows, missing clauses, top reasons, stale/legacy/error/fail counts, and diagnosticOnly=true.",
-          "headHash": "5dc74183654a8aec94944d669689d6414ac1d2cc",
-          "materialHash": "67560e99fc49ec9719a63dc9a5e8f5d1ac3d9bd3a8a92203d9bf530170606a2b",
-          "storyFilesHash": "15a152ababa00b6f202a04029dd35db39be08c76464904219ebf9806a9e011b7",
-          "timestamp": "2026-06-28T10:30:02.648Z"
+          "headHash": "981cac15a4e1e15abde4dbc7f4606e29c5f3a647",
+          "materialHash": "4f0a59d905b929d4ebeb5cdd367f229de63a144f9d1b790e98f42146ed927450",
+          "storyFilesHash": "a7d4ea8667c182db79c7e899632e95ab17a59cdf8e7fa34006e403c62873d7b3",
+          "timestamp": "2026-06-28T10:41:06.474Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -259,10 +259,10 @@
           "command": "node packages/main/dist/tasks/global-lifecycle-control-plane-smoke.js",
           "result": "pass",
           "note": "Waterline rows are story-scoped diagnostics; stale/historical rows remain visible without becoming unrelated story blockers.",
-          "headHash": "5dc74183654a8aec94944d669689d6414ac1d2cc",
-          "materialHash": "67560e99fc49ec9719a63dc9a5e8f5d1ac3d9bd3a8a92203d9bf530170606a2b",
-          "storyFilesHash": "15a152ababa00b6f202a04029dd35db39be08c76464904219ebf9806a9e011b7",
-          "timestamp": "2026-06-28T10:30:02.648Z"
+          "headHash": "981cac15a4e1e15abde4dbc7f4606e29c5f3a647",
+          "materialHash": "4f0a59d905b929d4ebeb5cdd367f229de63a144f9d1b790e98f42146ed927450",
+          "storyFilesHash": "a7d4ea8667c182db79c7e899632e95ab17a59cdf8e7fa34006e403c62873d7b3",
+          "timestamp": "2026-06-28T10:41:06.474Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -270,10 +270,10 @@
           "command": "node packages/main/dist/tasks/global-lifecycle-control-plane-smoke.js && node packages/main/dist/cli.js admissibility_waterline \"{\\\"storyId\\\":\\\"B-eb18\\\",\\\"format\\\":\\\"json\\\"}\"",
           "result": "pass",
           "note": "Smoke and CLI assert diagnosticOnly=true and productionDoneEligible=false for DONE/consumer rows, so candidate/diagnostic/legacy artifacts cannot satisfy DONE through the waterline or dashboard.",
-          "headHash": "5dc74183654a8aec94944d669689d6414ac1d2cc",
-          "materialHash": "67560e99fc49ec9719a63dc9a5e8f5d1ac3d9bd3a8a92203d9bf530170606a2b",
-          "storyFilesHash": "15a152ababa00b6f202a04029dd35db39be08c76464904219ebf9806a9e011b7",
-          "timestamp": "2026-06-28T10:30:02.648Z"
+          "headHash": "981cac15a4e1e15abde4dbc7f4606e29c5f3a647",
+          "materialHash": "4f0a59d905b929d4ebeb5cdd367f229de63a144f9d1b790e98f42146ed927450",
+          "storyFilesHash": "a7d4ea8667c182db79c7e899632e95ab17a59cdf8e7fa34006e403c62873d7b3",
+          "timestamp": "2026-06-28T10:41:06.474Z"
         }
       ]
     },
@@ -329,10 +329,10 @@
           "command": "node packages/main/dist/tasks/global-lifecycle-control-plane-smoke.js && node packages/main/dist/cli.js queue_governance_status \"{\\\"expanded\\\":true,\\\"format\\\":\\\"json\\\"}\"",
           "result": "pass",
           "note": "Smoke asserts queue_governance_status classes active-worktree/stale-worktree/main-init/experiment-batch-exception/duplicate-candidate/cleanup-required and collapsed/expanded experiment views.",
-          "headHash": "5dc74183654a8aec94944d669689d6414ac1d2cc",
-          "materialHash": "67560e99fc49ec9719a63dc9a5e8f5d1ac3d9bd3a8a92203d9bf530170606a2b",
-          "storyFilesHash": "15a152ababa00b6f202a04029dd35db39be08c76464904219ebf9806a9e011b7",
-          "timestamp": "2026-06-28T10:30:02.648Z"
+          "headHash": "981cac15a4e1e15abde4dbc7f4606e29c5f3a647",
+          "materialHash": "4f0a59d905b929d4ebeb5cdd367f229de63a144f9d1b790e98f42146ed927450",
+          "storyFilesHash": "a7d4ea8667c182db79c7e899632e95ab17a59cdf8e7fa34006e403c62873d7b3",
+          "timestamp": "2026-06-28T10:41:06.474Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -340,10 +340,10 @@
           "command": "node packages/main/dist/tasks/global-lifecycle-control-plane-smoke.js",
           "result": "pass",
           "note": "Smoke asserts Tier-C provider-execution receipt verification stories are grouped under tier-c-provider-execution-receipt-verification and excluded from duplicate cleanup while expanded view lists members.",
-          "headHash": "5dc74183654a8aec94944d669689d6414ac1d2cc",
-          "materialHash": "67560e99fc49ec9719a63dc9a5e8f5d1ac3d9bd3a8a92203d9bf530170606a2b",
-          "storyFilesHash": "15a152ababa00b6f202a04029dd35db39be08c76464904219ebf9806a9e011b7",
-          "timestamp": "2026-06-28T10:30:02.648Z"
+          "headHash": "981cac15a4e1e15abde4dbc7f4606e29c5f3a647",
+          "materialHash": "4f0a59d905b929d4ebeb5cdd367f229de63a144f9d1b790e98f42146ed927450",
+          "storyFilesHash": "a7d4ea8667c182db79c7e899632e95ab17a59cdf8e7fa34006e403c62873d7b3",
+          "timestamp": "2026-06-28T10:41:06.474Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -351,10 +351,10 @@
           "command": "node packages/main/dist/tasks/global-lifecycle-control-plane-smoke.js",
           "result": "pass",
           "note": "Smoke asserts malformed Tier-C experiment records remain visible as cleanup-required rather than hidden by the exception.",
-          "headHash": "5dc74183654a8aec94944d669689d6414ac1d2cc",
-          "materialHash": "67560e99fc49ec9719a63dc9a5e8f5d1ac3d9bd3a8a92203d9bf530170606a2b",
-          "storyFilesHash": "15a152ababa00b6f202a04029dd35db39be08c76464904219ebf9806a9e011b7",
-          "timestamp": "2026-06-28T10:30:02.648Z"
+          "headHash": "981cac15a4e1e15abde4dbc7f4606e29c5f3a647",
+          "materialHash": "4f0a59d905b929d4ebeb5cdd367f229de63a144f9d1b790e98f42146ed927450",
+          "storyFilesHash": "a7d4ea8667c182db79c7e899632e95ab17a59cdf8e7fa34006e403c62873d7b3",
+          "timestamp": "2026-06-28T10:41:06.474Z"
         }
       ]
     },
@@ -419,10 +419,10 @@
           "command": "node packages/main/dist/tasks/global-lifecycle-control-plane-smoke.js && node packages/main/dist/cli.js global_control_status \"{\\\"storyIds\\\":[\\\"B-eb18\\\"],\\\"format\\\":\\\"json\\\"}\"",
           "result": "pass",
           "note": "Smoke and CLI assert global_control_status text/JSON dashboard includes project and story sections, runtime/consumption/queue/readiness, blockers, and next safe action.",
-          "headHash": "5dc74183654a8aec94944d669689d6414ac1d2cc",
-          "materialHash": "67560e99fc49ec9719a63dc9a5e8f5d1ac3d9bd3a8a92203d9bf530170606a2b",
-          "storyFilesHash": "15a152ababa00b6f202a04029dd35db39be08c76464904219ebf9806a9e011b7",
-          "timestamp": "2026-06-28T10:30:02.648Z"
+          "headHash": "981cac15a4e1e15abde4dbc7f4606e29c5f3a647",
+          "materialHash": "4f0a59d905b929d4ebeb5cdd367f229de63a144f9d1b790e98f42146ed927450",
+          "storyFilesHash": "a7d4ea8667c182db79c7e899632e95ab17a59cdf8e7fa34006e403c62873d7b3",
+          "timestamp": "2026-06-28T10:41:06.474Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -430,10 +430,10 @@
           "command": "node packages/main/dist/tasks/global-lifecycle-control-plane-smoke.js",
           "result": "pass",
           "note": "Smoke separates project queue pressure from individual story gate rows; unrelated duplicate/experiment rows do not mark an unrelated story runtime gate blocked.",
-          "headHash": "5dc74183654a8aec94944d669689d6414ac1d2cc",
-          "materialHash": "67560e99fc49ec9719a63dc9a5e8f5d1ac3d9bd3a8a92203d9bf530170606a2b",
-          "storyFilesHash": "15a152ababa00b6f202a04029dd35db39be08c76464904219ebf9806a9e011b7",
-          "timestamp": "2026-06-28T10:30:02.648Z"
+          "headHash": "981cac15a4e1e15abde4dbc7f4606e29c5f3a647",
+          "materialHash": "4f0a59d905b929d4ebeb5cdd367f229de63a144f9d1b790e98f42146ed927450",
+          "storyFilesHash": "a7d4ea8667c182db79c7e899632e95ab17a59cdf8e7fa34006e403c62873d7b3",
+          "timestamp": "2026-06-28T10:41:06.474Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -441,10 +441,10 @@
           "command": "node packages/main/dist/tasks/global-lifecycle-control-plane-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Dashboard rows include source provenance fields and are computed from live projectors/registered commands, with process-fact contract confirming they are projections rather than stale plan-doc facts.",
-          "headHash": "5dc74183654a8aec94944d669689d6414ac1d2cc",
-          "materialHash": "67560e99fc49ec9719a63dc9a5e8f5d1ac3d9bd3a8a92203d9bf530170606a2b",
-          "storyFilesHash": "15a152ababa00b6f202a04029dd35db39be08c76464904219ebf9806a9e011b7",
-          "timestamp": "2026-06-28T10:30:02.648Z"
+          "headHash": "981cac15a4e1e15abde4dbc7f4606e29c5f3a647",
+          "materialHash": "4f0a59d905b929d4ebeb5cdd367f229de63a144f9d1b790e98f42146ed927450",
+          "storyFilesHash": "a7d4ea8667c182db79c7e899632e95ab17a59cdf8e7fa34006e403c62873d7b3",
+          "timestamp": "2026-06-28T10:41:06.474Z"
         }
       ]
     },
@@ -508,10 +508,10 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/global-lifecycle-control-plane-smoke.js",
           "result": "pass",
           "note": "Runtime enforcement guard smoke asserts enforce mode blocks wrong authoritative cwd with rollback guidance and proofAdmissibilityEvaluated:false.",
-          "headHash": "5dc74183654a8aec94944d669689d6414ac1d2cc",
-          "materialHash": "67560e99fc49ec9719a63dc9a5e8f5d1ac3d9bd3a8a92203d9bf530170606a2b",
-          "storyFilesHash": "15a152ababa00b6f202a04029dd35db39be08c76464904219ebf9806a9e011b7",
-          "timestamp": "2026-06-28T10:30:02.648Z"
+          "headHash": "981cac15a4e1e15abde4dbc7f4606e29c5f3a647",
+          "materialHash": "4f0a59d905b929d4ebeb5cdd367f229de63a144f9d1b790e98f42146ed927450",
+          "storyFilesHash": "a7d4ea8667c182db79c7e899632e95ab17a59cdf8e7fa34006e403c62873d7b3",
+          "timestamp": "2026-06-28T10:41:06.474Z"
         },
         {
           "intentRef": "CHK-006:edge:0",
@@ -519,10 +519,10 @@
           "command": "node packages/main/dist/tasks/global-lifecycle-control-plane-smoke.js",
           "result": "pass",
           "note": "Runtime enforcement guard smoke asserts metadata-only dirty state remains advisory while material dirty state blocks phase advance.",
-          "headHash": "5dc74183654a8aec94944d669689d6414ac1d2cc",
-          "materialHash": "67560e99fc49ec9719a63dc9a5e8f5d1ac3d9bd3a8a92203d9bf530170606a2b",
-          "storyFilesHash": "15a152ababa00b6f202a04029dd35db39be08c76464904219ebf9806a9e011b7",
-          "timestamp": "2026-06-28T10:30:02.648Z"
+          "headHash": "981cac15a4e1e15abde4dbc7f4606e29c5f3a647",
+          "materialHash": "4f0a59d905b929d4ebeb5cdd367f229de63a144f9d1b790e98f42146ed927450",
+          "storyFilesHash": "a7d4ea8667c182db79c7e899632e95ab17a59cdf8e7fa34006e403c62873d7b3",
+          "timestamp": "2026-06-28T10:41:06.475Z"
         },
         {
           "intentRef": "CHK-006:adversarial:0",
@@ -530,10 +530,10 @@
           "command": "node scripts/verify-process-fact-contract.mjs && npm --prefix packages/main run test:runtime-fact-contract",
           "result": "pass",
           "note": "Process/runtime fact contracts pass with lifecycle-control commands registered without adding a second lifecycle state machine or proof admissibility gate path.",
-          "headHash": "5dc74183654a8aec94944d669689d6414ac1d2cc",
-          "materialHash": "67560e99fc49ec9719a63dc9a5e8f5d1ac3d9bd3a8a92203d9bf530170606a2b",
-          "storyFilesHash": "15a152ababa00b6f202a04029dd35db39be08c76464904219ebf9806a9e011b7",
-          "timestamp": "2026-06-28T10:30:02.648Z"
+          "headHash": "981cac15a4e1e15abde4dbc7f4606e29c5f3a647",
+          "materialHash": "4f0a59d905b929d4ebeb5cdd367f229de63a144f9d1b790e98f42146ed927450",
+          "storyFilesHash": "a7d4ea8667c182db79c7e899632e95ab17a59cdf8e7fa34006e403c62873d7b3",
+          "timestamp": "2026-06-28T10:41:06.475Z"
         }
       ]
     },
@@ -598,10 +598,10 @@
           "command": "node packages/main/dist/tasks/global-lifecycle-control-plane-smoke.js",
           "result": "pass",
           "note": "Queue governance smoke asserts Tier-C experiment batches collapse by default and expand with member storyIds while exceptions preserve cleanup policy.",
-          "headHash": "5dc74183654a8aec94944d669689d6414ac1d2cc",
-          "materialHash": "67560e99fc49ec9719a63dc9a5e8f5d1ac3d9bd3a8a92203d9bf530170606a2b",
-          "storyFilesHash": "15a152ababa00b6f202a04029dd35db39be08c76464904219ebf9806a9e011b7",
-          "timestamp": "2026-06-28T10:30:02.648Z"
+          "headHash": "981cac15a4e1e15abde4dbc7f4606e29c5f3a647",
+          "materialHash": "4f0a59d905b929d4ebeb5cdd367f229de63a144f9d1b790e98f42146ed927450",
+          "storyFilesHash": "a7d4ea8667c182db79c7e899632e95ab17a59cdf8e7fa34006e403c62873d7b3",
+          "timestamp": "2026-06-28T10:41:06.475Z"
         },
         {
           "intentRef": "CHK-007:edge:0",
@@ -609,10 +609,10 @@
           "command": "node packages/main/dist/tasks/global-lifecycle-control-plane-smoke.js",
           "result": "pass",
           "note": "Queue governance smoke asserts malformed Tier-C titles are cleanup-required and duplicate stories remain duplicate-candidate, separating queue hygiene from lifecycle readiness.",
-          "headHash": "5dc74183654a8aec94944d669689d6414ac1d2cc",
-          "materialHash": "67560e99fc49ec9719a63dc9a5e8f5d1ac3d9bd3a8a92203d9bf530170606a2b",
-          "storyFilesHash": "15a152ababa00b6f202a04029dd35db39be08c76464904219ebf9806a9e011b7",
-          "timestamp": "2026-06-28T10:30:02.648Z"
+          "headHash": "981cac15a4e1e15abde4dbc7f4606e29c5f3a647",
+          "materialHash": "4f0a59d905b929d4ebeb5cdd367f229de63a144f9d1b790e98f42146ed927450",
+          "storyFilesHash": "a7d4ea8667c182db79c7e899632e95ab17a59cdf8e7fa34006e403c62873d7b3",
+          "timestamp": "2026-06-28T10:41:06.475Z"
         },
         {
           "intentRef": "CHK-007:adversarial:0",
@@ -620,10 +620,10 @@
           "command": "node packages/main/dist/tasks/global-lifecycle-control-plane-smoke.js && node packages/main/dist/tasks/command-ownership-contract.js",
           "result": "pass",
           "note": "queue_exception_set smoke rejects short explicit reasons, writes queue-exceptions.json and audit JSONL with policyVersion/storyFilesHash/class/source; ownership contract keeps it mainSharedMutating rather than read-only.",
-          "headHash": "5dc74183654a8aec94944d669689d6414ac1d2cc",
-          "materialHash": "67560e99fc49ec9719a63dc9a5e8f5d1ac3d9bd3a8a92203d9bf530170606a2b",
-          "storyFilesHash": "15a152ababa00b6f202a04029dd35db39be08c76464904219ebf9806a9e011b7",
-          "timestamp": "2026-06-28T10:30:02.648Z"
+          "headHash": "981cac15a4e1e15abde4dbc7f4606e29c5f3a647",
+          "materialHash": "4f0a59d905b929d4ebeb5cdd367f229de63a144f9d1b790e98f42146ed927450",
+          "storyFilesHash": "a7d4ea8667c182db79c7e899632e95ab17a59cdf8e7fa34006e403c62873d7b3",
+          "timestamp": "2026-06-28T10:41:06.475Z"
         }
       ]
     }
