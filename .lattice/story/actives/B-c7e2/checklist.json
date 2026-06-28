@@ -6,7 +6,7 @@
       "context": "Implement M1 only: committed done checkpoints are replayed from a per-run ledger/snapshot boundary so resume can distinguish committed work from interrupted work. storyFilesHash is a frozen pre-run baseline excluding declared outputs.",
       "status": "done",
       "startTime": "2026-06-28T01:01:11.330Z",
-      "endTime": "2026-06-28T01:13:50.629Z",
+      "endTime": "2026-06-28T01:21:25.297Z",
       "relatedDocs": [
         "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md"
       ],
@@ -47,11 +47,11 @@
           "kind": "logic_test",
           "command": "npm --prefix packages/main run test:autopilot-resume-smoke",
           "result": "pass",
-          "note": "autopilot-resume smoke passed and asserted resume projection skips committed done checkpoint iteration-0 without dispatching a new worker.",
-          "headHash": "7a4444c675b81ad2d027779b4ec91818f055512e",
-          "materialHash": "38304d7f50cead7e970803924919e85cbc9c964c8bca34da377cf03edec6ccda",
-          "storyFilesHash": "fed21fd3c5229dd3a563bbbab264f10b85e49d22a95d0008ceef8c38bf65ad7b",
-          "timestamp": "2026-06-28T01:13:50.908Z"
+          "note": "autopilot-resume smoke passed after 0eddf8fba and asserted resume projection skips committed done checkpoint iteration-0 without dispatching a new worker.",
+          "headHash": "0eddf8fbaf2317b2b29eb71a6548e3afb824710c",
+          "materialHash": "3085c210a48ffcdbe1f9ad301242594ccfa8c5b93a698452863dc2b8e515bc2f",
+          "storyFilesHash": "7b9f0d99a89ba3396118da22dc4f9853fda434ade53301686a2e42234c986976",
+          "timestamp": "2026-06-28T01:21:25.553Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -59,21 +59,21 @@
           "command": "npm --prefix packages/main run test:autopilot-resume-smoke",
           "result": "pass",
           "note": "autopilot-resume smoke corrupted run.json and verified resume recovered a valid projection from checkpoint ledger snapshot evidence.",
-          "headHash": "7a4444c675b81ad2d027779b4ec91818f055512e",
-          "materialHash": "38304d7f50cead7e970803924919e85cbc9c964c8bca34da377cf03edec6ccda",
-          "storyFilesHash": "fed21fd3c5229dd3a563bbbab264f10b85e49d22a95d0008ceef8c38bf65ad7b",
-          "timestamp": "2026-06-28T01:13:51.131Z"
+          "headHash": "0eddf8fbaf2317b2b29eb71a6548e3afb824710c",
+          "materialHash": "3085c210a48ffcdbe1f9ad301242594ccfa8c5b93a698452863dc2b8e515bc2f",
+          "storyFilesHash": "7b9f0d99a89ba3396118da22dc4f9853fda434ade53301686a2e42234c986976",
+          "timestamp": "2026-06-28T01:21:25.746Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
           "kind": "logic_test",
           "command": "npm --prefix packages/main run test:autopilot-resume-smoke",
           "result": "pass",
-          "note": "autopilot-resume smoke injected a stale checkpoint and verified autopilot_resume failed closed with refused/stale_state.",
-          "headHash": "7a4444c675b81ad2d027779b4ec91818f055512e",
-          "materialHash": "38304d7f50cead7e970803924919e85cbc9c964c8bca34da377cf03edec6ccda",
-          "storyFilesHash": "fed21fd3c5229dd3a563bbbab264f10b85e49d22a95d0008ceef8c38bf65ad7b",
-          "timestamp": "2026-06-28T01:13:51.332Z"
+          "note": "autopilot-resume smoke now verifies stale checkpoint, policy digest drift, and missing git freshness probes all fail closed instead of returning resume_ready.",
+          "headHash": "0eddf8fbaf2317b2b29eb71a6548e3afb824710c",
+          "materialHash": "3085c210a48ffcdbe1f9ad301242594ccfa8c5b93a698452863dc2b8e515bc2f",
+          "storyFilesHash": "7b9f0d99a89ba3396118da22dc4f9853fda434ade53301686a2e42234c986976",
+          "timestamp": "2026-06-28T01:21:25.932Z"
         }
       ]
     },
