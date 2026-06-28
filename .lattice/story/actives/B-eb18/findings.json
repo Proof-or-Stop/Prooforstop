@@ -240,7 +240,7 @@
       "desc": "Tier-C durable exception contract has a docs/API mismatch: the execution plan documents migration-title-prefix, but public types and CLI schema accept tier-c-prefix, so an operator following the plan would be rejected.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-06-28T11:06:39.326Z",
@@ -254,7 +254,11 @@
         "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md"
       ],
       "signatureTag": "doc-code-drift|ts|tier-durable-exception",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commit 15234dae0: queue exception source now uses migration-title-prefix in public type/schema/output, with legacy tier-c-prefix input normalized; smoke asserts normalization. Verified with build, global-lifecycle-control-plane-smoke, and process-fact contract.",
+      "resolvedAt": "2026-06-28T14:06:24.689Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-eb18:F-012",
