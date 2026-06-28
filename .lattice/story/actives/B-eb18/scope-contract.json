@@ -1,0 +1,48 @@
+{
+  "storyId": "B-eb18",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/lifecycle-control/**",
+    "packages/main/src/handlers/lifecycle-control.ts",
+    "packages/main/src/handlers/story-authority-resolve.ts",
+    "packages/main/src/handlers/lifecycle-check.ts",
+    "packages/main/src/handlers/done-closure.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/cli/activity-policy.ts",
+    "packages/main/src/cli-engine.ts",
+    "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+    "packages/main/src/core/lifecycle-control/runtime/**",
+    "packages/main/src/core/evidence-freshness.ts",
+    "packages/main/src/core/evidence-stale-hint.ts",
+    "packages/main/src/core/story-owner-lease.ts",
+    "packages/main/src/core/main-write-lock.ts",
+    "packages/main/src/core/validation-execution-lock.ts",
+    "docs/requirements/decisions/story-lifecycle.md",
+    "packages/main/src/core/lifecycle-control/consumption/**",
+    "packages/main/src/core/proof-admissibility.ts",
+    "packages/main/src/core/proof-admissibility-gates.ts",
+    "packages/main/src/core/proof-admissibility-legacy.ts",
+    "packages/main/src/core/proof-admissibility-metadata.ts",
+    "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+    "docs/evidence/evidence-platform-architecture.md",
+    "packages/main/src/core/lifecycle-control/queue/**",
+    "packages/main/src/core/lifecycle-control/dashboard/**",
+    "packages/main/src/core/story-machine.ts"
+  ],
+  "allowedCreate": [
+    "packages/main/src/handlers/lifecycle-control.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/**"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-28T09:38:30.478Z",
+  "updatedAt": "2026-06-28T09:38:30.478Z"
+}

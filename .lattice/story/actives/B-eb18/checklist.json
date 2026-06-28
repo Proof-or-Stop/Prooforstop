@@ -30,8 +30,8 @@
           "packages/main/src/tasks/**"
         ]
       },
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-28T09:38:30.770Z",
       "endTime": null,
       "userSees": "The JSON output contains \"schemaVersion\":\"lattice.global_control_status.v1\", \"readOnly\":true, \"authoritativeCwd\":\"/Users/.../.worktrees/B-xxxx\", and \"queue\":{\"classification\":\"...\"} for each active story.",
       "verificationIntent": {
@@ -381,6 +381,17 @@
           }
         ]
       }
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-28T09:38:30.770Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start implementation through lattice-implementer"
     }
   ]
 }
