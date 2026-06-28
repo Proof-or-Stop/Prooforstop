@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-6eb7:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 7 verificationIntent lanes covered (4 happy/must + 1 edge/must + 2 adversarial/must). Independently verified: grep file-declaring=0 in both files; grep material-code bug/feature=3 (levels.ts=2, registry.ts=1); verify-process-fact-contract.mjs exit 0; validate 7/7 covered 0 missing; git diff shows exactly 3 rationale string edits, no structural/gateConsumer/level/category fields; classifyReproFirstRequirement diff count=0. No uncovered lanes, no blockers.",
+      "createdAt": "2026-06-28T23:04:36.794Z",
+      "reviewRound": "2026-06-28T23:02:10.365Z",
+      "reviewRunId": "B-6eb7:RR-001",
+      "_hash": "12d7f8b5608319a4967d23623be201bc365834e2c3394f8570d9daedf3510f71"
+    }
+  ]
+}
