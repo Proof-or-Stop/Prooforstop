@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-28T23:02:10.365Z",
       "reviewRunId": "B-6eb7:RR-001",
       "_hash": "12d7f8b5608319a4967d23623be201bc365834e2c3394f8570d9daedf3510f71"
+    },
+    {
+      "id": "B-6eb7:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Diff is 3 rationale-string-only lines in process-fact-levels.ts (2 changes) and process-fact-registry.ts (1 change). All replace \"file-declaring stories\" with \"material-code bug/feature stories\". The new wording matches the actual gate semantics shipped by B-8628: classifyReproFirstRequirement() requires story.type bug|feature + materialFiles.length>0. No dead code, no unused imports, no type-safety issues (pure string literal changes inside an as const satisfies array). No I/O shell isolation concern (no new imports or function calls). Prose-only chore; no structural, gateConsumer, or classifier changes.",
+      "createdAt": "2026-06-28T23:05:40.668Z",
+      "reviewRound": "2026-06-28T23:02:10.365Z",
+      "reviewRunId": "B-6eb7:RR-002",
+      "_hash": "cad64e5e327ddcb64e0d050c1148c9ab57f2502271a095ac199fa1518593d7da"
     }
   ]
 }
