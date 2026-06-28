@@ -1,6 +1,6 @@
 {
   "storyId": "B-320f",
-  "checkedAt": "2026-06-28T16:06:39.362Z",
+  "checkedAt": "2026-06-28T16:07:26.916Z",
   "features": [
     {
       "feature": "M2 health-aware pause/resume",
@@ -43,17 +43,31 @@
       "status": "covered",
       "excluded_by": "",
       "source": "repro probe rp-mqxz6vtf-01k0x1"
+    },
+    {
+      "feature": "Implementation integration across Autopilot core files",
+      "covered_by": "CHK-007",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan_skeleton-added integration item"
+    },
+    {
+      "feature": "Final verification report and evidence mapping",
+      "covered_by": "CHK-008",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan_skeleton-added verification item"
     }
   ],
   "summary": {
-    "total": 6,
-    "covered": 6,
+    "total": 8,
+    "covered": 8,
     "excluded": 0,
     "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
   "reviewRound": "",
-  "_hash": "9839ae2156f077f54c85fffea3875352dde2ad96b3642f9ccb76ac725c12729f",
+  "_hash": "0b4fbba0a6040aa893a8e0f32f3ca2990ccdd2a172fde374469c098964796441",
   "openQuestions": []
 }
