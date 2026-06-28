@@ -184,10 +184,23 @@ export function setQueueException(root: string, input: QueueExceptionSetInput): 
 
 function explicitExceptionByStory(root: string): Map<string, QueueExceptionRecord> {
   const map = new Map<string, QueueExceptionRecord>();
-  for (const record of readQueueExceptionRegistry(root).exceptions) {
+  const mainRepoRoot = getRepoRoot(root);
+  for (const record of readQueueExceptionRegistry(mainRepoRoot).exceptions) {
     for (const storyId of record.storyIds) map.set(storyId, record);
   }
   return map;
+}
+
+function supersededBy(story: StoryInfo): string | null {
+  const lifecycleControl = (story as StoryInfo & {
+    lifecycleControl?: {
+      queue?: {
+        supersededBy?: unknown;
+      };
+    };
+  }).lifecycleControl;
+  const value = lifecycleControl?.queue?.supersededBy;
+  return typeof value === 'string' && value.trim().length > 0 ? value.trim() : null;
 }
 
 function titleInferredExperiment(story: StoryInfo): boolean {
@@ -241,6 +254,7 @@ export function projectQueueGovernance(
   const now = options.now ?? new Date().toISOString();
   const nowMs = Date.parse(now);
   const staleWorktreeMs = options.staleWorktreeMs ?? 7 * 24 * 60 * 60 * 1000;
+  const mainRepoRoot = getRepoRoot(root);
   const exceptions = explicitExceptionByStory(root);
   const authority = resolveStoryAuthority(store, root, { activeOnly: true, now });
   const authorityById = new Map(authority.stories.map((row) => [row.storyId, row]));
@@ -275,6 +289,16 @@ export function projectQueueGovernance(
   const rows = activeStories.map((story) => {
     const authorityRow = authorityById.get(story.storyId);
     const explicit = exceptions.get(story.storyId);
+    const supersededTarget = supersededBy(story);
+    if (supersededTarget) {
+      return queueRow({
+        story,
+        classification: 'superseded',
+        reason: `story is explicitly superseded by ${supersededTarget}`,
+        authoritativeCwd: authorityRow?.authoritativeCwd,
+        cleanupPolicy: 'cleanup-required',
+      });
+    }
     if (malformedExperiment(story)) {
       return queueRow({
         story,
@@ -292,7 +316,7 @@ export function projectQueueGovernance(
         experimentBatchId: TIER_C_BATCH_ID,
         storyIds: [story.storyId],
         source: 'tier-c-prefix',
-        storyFilesHash: storyFilesHashFor(root, [story.storyId]),
+        storyFilesHash: storyFilesHashFor(mainRepoRoot, [story.storyId]),
         dashboardMode: 'collapsed',
         cleanupPolicy: 'preserve',
         actor: 'system-rule',

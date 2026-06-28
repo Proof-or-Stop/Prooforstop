@@ -8,8 +8,10 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { READ_ONLY_COMMANDS } from '../cli-engine.js';
+import { upsertAuthorityGateReceiptRef, type AuthorityGateDecisionReceiptRef } from '../core/authority-gate-receipts.js';
 import { getCommandPolicy } from '../core/command-policy.js';
 import { resetConfigCache } from '../core/config.js';
+import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
 import type {
   AdmissibilityWaterlineReport,
   QueueExceptionSetResult,
@@ -30,6 +32,7 @@ const TIER_C_STORY = 'B-tierc';
 const MALFORMED_STORY = 'B-tierc-bad';
 const DUP_A = 'B-dup-a';
 const DUP_B = 'B-dup-b';
+const SUPERSEDED_STORY = 'B-superseded';
 const LATTICE_CLI = fileURLToPath(new URL('../cli.js', import.meta.url));
 const READ_ONLY_STATUS_COMMANDS = [
   'global_control_status',
@@ -92,7 +95,14 @@ function writeConfig(root: string): void {
   );
 }
 
-function writeStory(store: StoryStore, storyId: string, phase: StoryInfo['phase'], title: string, worktree?: StoryInfo['worktree']): void {
+function writeStory(
+  store: StoryStore,
+  storyId: string,
+  phase: StoryInfo['phase'],
+  title: string,
+  worktree?: StoryInfo['worktree'],
+  extra: Record<string, unknown> = {},
+): void {
   const now = '2026-06-28T00:00:00.000Z';
   store.writeStory(storyId, {
     storyId,
@@ -106,6 +116,7 @@ function writeStory(store: StoryStore, storyId: string, phase: StoryInfo['phase'
     startedAt: phase === 'INIT' ? null : now,
     endedAt: null,
     ...(worktree ? { worktree } : {}),
+    ...extra,
     events: [{ phase, action: 'advance', timestamp: now }],
   });
   store.writeChecklist(storyId, {
@@ -118,6 +129,37 @@ function writeStory(store: StoryStore, storyId: string, phase: StoryInfo['phase'
       endTime: null,
     }],
   });
+}
+
+function writeIneligibleAuthorityReceiptRef(root: string, store: StoryStore, storyId: string): void {
+  const headHash = currentGitHead(root);
+  const materialHash = currentMaterialHash(root, 'HEAD', root);
+  assert.ok(headHash, 'smoke repo has a current git HEAD for Authority receipt ref');
+  assert.ok(materialHash, 'smoke repo has a current material hash for Authority receipt ref');
+  const ref: AuthorityGateDecisionReceiptRef = {
+    receiptId: 'receipt-local-test-only',
+    receiptKind: 'gate_decision',
+    classification: 'server-receipt-local-test',
+    authorityKeyId: 'local-test-key',
+    authorityPublicKeyDigest: 'local-test-digest',
+    decisionId: 'decision-local-test-only',
+    stateVersion: 1,
+    gateInputDigest: 'gate-input-digest',
+    decisionDigest: 'decision-digest',
+    decisionVerdict: 'pass',
+    storyId,
+    targetPhase: 'DONE',
+    headHash,
+    materialHash,
+    policyMode: 'balanced',
+    authorityMode: 'enforce',
+    producerRunIds: ['producer-run'],
+    verifierRunIds: ['verifier-run'],
+    evidenceDigests: ['evidence-digest'],
+    verifiedAt: '2026-06-28T00:00:00.000Z',
+    status: 'active',
+  };
+  store.writeAuthorityReceiptRefs(storyId, upsertAuthorityGateReceiptRef(undefined, ref, ref.verifiedAt!));
 }
 
 function seedRepo(root: string): HandlerContext {
@@ -136,6 +178,9 @@ function seedRepo(root: string): HandlerContext {
   writeStory(store, MALFORMED_STORY, 'INIT', 'Tier-C provider execution receipt malformed');
   writeStory(store, DUP_A, 'PLAN', 'Duplicate queue cleanup smoke');
   writeStory(store, DUP_B, 'PLAN', 'Duplicate queue cleanup smoke');
+  writeStory(store, SUPERSEDED_STORY, 'PLAN', 'Superseded queue cleanup smoke', undefined, {
+    lifecycleControl: { queue: { supersededBy: DUP_A } },
+  });
 
   const worktreeRel = `.worktrees/${DRIFT_STORY}`;
   const worktreeAbs = join(root, worktreeRel);
@@ -258,6 +303,7 @@ function runSmoke(): void {
   const root = mkdtempSync(join(tmpdir(), 'lattice-global-control-plane-'));
   try {
     const ctx = seedRepo(root);
+    writeIneligibleAuthorityReceiptRef(root, ctx.store, DRIFT_STORY);
     const registry = createMainRegistry(ctx);
     assertUnsupportedStatusFlagsFailClosed(root);
     const before = gitStatus(root);
@@ -293,6 +339,19 @@ function runSmoke(): void {
     const waterline = registry.get('admissibility_waterline')!({ format: 'json', storyId: DRIFT_STORY }) as AdmissibilityWaterlineReport;
     assert.equal(waterline.schemaVersion, 'lattice.admissibility_waterline.v1');
     assert.equal(waterline.diagnosticOnly, true);
+    const authorityDecision = waterline.rows.find((row) => row.consumer === 'AUTHORITY_GATE_DECISION');
+    assert.ok(authorityDecision);
+    assert.notEqual(
+      authorityDecision!.status,
+      'pass',
+      'Authority gate decision waterline must not pass on mere receipt-ref presence when eligibility rejects it',
+    );
+    assert.ok(
+      authorityDecision!.missingClauses.includes('authority_receipt_not_production_classified'),
+      'Authority gate decision waterline reports the real receipt eligibility rejection reason',
+    );
+    assert.equal(authorityDecision!.diagnosticOnly, true);
+    assert.equal(authorityDecision!.productionDoneEligible, false);
     const done = waterline.rows.find((row) => row.consumer === 'DONE');
     assert.ok(done);
     assert.equal(done!.diagnosticOnly, true);
@@ -308,6 +367,8 @@ function runSmoke(): void {
     assert.equal(queueCollapsed.rows.find((row) => row.storyId === TIER_C_STORY)?.classification, 'experiment-batch-exception');
     assert.equal(queueCollapsed.rows.find((row) => row.storyId === MALFORMED_STORY)?.classification, 'cleanup-required');
     assert.equal(queueCollapsed.rows.find((row) => row.storyId === DUP_B)?.classification, 'duplicate-candidate');
+    assert.equal(queueCollapsed.rows.find((row) => row.storyId === SUPERSEDED_STORY)?.classification, 'superseded');
+    assert.equal(queueCollapsed.summary.superseded, 1);
 
     const queueExpanded = registry.get('queue_governance_status')!({ format: 'json', expanded: true }) as QueueGovernanceReport;
     const expandedBatch = queueExpanded.experimentBatches.find((entry) => entry.experimentBatchId === 'tier-c-provider-execution-receipt-verification');
@@ -336,6 +397,14 @@ function runSmoke(): void {
     assert.ok(existsSync(join(root, '.lattice/lifecycle-control/queue-exceptions.json')));
     const audit = readFileSync(join(root, '.lattice/lifecycle-control/queue-exceptions.audit.jsonl'), 'utf-8');
     assert.match(audit, /queue_exception_set/);
+    const worktreeException = registry.get('queue_exception_set')!({
+      format: 'json',
+      experimentBatchId: 'worktree-main-root-exception-smoke',
+      storyIds: [DRIFT_STORY],
+      reason: 'Preserve worktree story from a main-root explicit queue exception.',
+      actor: 'global-lifecycle-control-plane-smoke',
+    }) as QueueExceptionSetResult;
+    assert.equal(worktreeException.written, true);
 
     const worktreeCtx: HandlerContext = {
       store: new StoryStore(join(root, `.worktrees/${DRIFT_STORY}`)),
@@ -346,11 +415,19 @@ function runSmoke(): void {
     const worktreeGlobal = worktreeRegistry.get('global_control_status')!({ format: 'json', expanded: false }) as GlobalControlStatusReport;
     const worktreeGlobalDrift = worktreeGlobal.stories.find((row) => row.storyId === DRIFT_STORY);
     assert.ok(worktreeGlobalDrift);
-    assert.equal(worktreeGlobalDrift!.queue.classification, 'active-worktree');
+    assert.equal(
+      worktreeGlobalDrift!.queue.classification,
+      'experiment-batch-exception',
+      'worktree global status reads explicit queue exceptions from the canonical main root',
+    );
     assert.equal(worktreeGlobal.project.staleWorktreeCount, 0);
 
     const worktreeQueue = worktreeRegistry.get('queue_governance_status')!({ format: 'json' }) as QueueGovernanceReport;
-    assert.equal(worktreeQueue.rows.find((row) => row.storyId === DRIFT_STORY)?.classification, 'active-worktree');
+    assert.equal(
+      worktreeQueue.rows.find((row) => row.storyId === DRIFT_STORY)?.classification,
+      'experiment-batch-exception',
+      'worktree queue status sees the main-root explicit queue exception',
+    );
     assert.equal(worktreeQueue.summary.staleWorktree, 0);
 
     const worktreeRuntime = worktreeRegistry.get('runtime_closure_status')!({ format: 'json', storyIds: [DRIFT_STORY] }) as RuntimeClosureReport;
@@ -362,6 +439,15 @@ function runSmoke(): void {
 
     const lock = acquireMainWriteLock(root, { label: 'queue_exception_set smoke holder' });
     try {
+      const worktreeRuntimeLocked = worktreeRegistry.get('runtime_closure_status')!({
+        format: 'json',
+        storyIds: [DRIFT_STORY],
+      }) as RuntimeClosureReport;
+      assert.equal(
+        worktreeRuntimeLocked.stories[0].locks.mainWriteLock,
+        'active',
+        'worktree runtime closure status sees the canonical main-root main write lock',
+      );
       assert.throws(
         () => worktreeRegistry.get('queue_exception_set')!({
           format: 'json',

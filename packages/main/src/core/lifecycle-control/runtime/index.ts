@@ -7,6 +7,7 @@ import { getSessionId, readOwnerLease, STALE_LEASE_THRESHOLD_MS, isLeaseStale } 
 import { resolveStoryAuthority } from '../../story-authority-resolver.js';
 import type { StoryStore } from '../../store.js';
 import type { StoryPhase } from '../../types.js';
+import { getRepoRoot } from '../../worktree-runtime.js';
 import {
   type LifecycleControlIssue,
   type RuntimeClosureReport,
@@ -120,7 +121,7 @@ function lockAgeMs(path: string, nowMs: number): number | null {
 }
 
 function mainWriteLockStatus(root: string, nowMs: number): RuntimeClosureRow['locks']['mainWriteLock'] {
-  const path = mainWriteLockPath(root);
+  const path = mainWriteLockPath(getRepoRoot(root));
   if (!existsSync(path)) return 'free';
   const age = lockAgeMs(path, nowMs);
   if (age !== null && age >= MAIN_WRITE_LOCK_STALE_MS) return 'stale';
