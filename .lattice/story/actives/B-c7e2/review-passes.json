@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-28T01:14:32.472Z",
       "reviewRunId": "B-c7e2:RR-005",
       "_hash": "594b9bdf18f684b7d15b183f3a962faef1429330b336c1f2b1d94784904bbf7e"
+    },
+    {
+      "id": "B-c7e2:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Targeted round-2 re-review clean. B-c7e2:F-001 is fixed: currentRunBasisMatches now refuses missing recomputed headHash/materialHash/storyFilesHash when the ledger has baselines, and smoke covers missing .git returning refused/stale_state. B-c7e2:F-002 is fixed for this M1 scope: resume recomputes validityPolicyDigest and producerRuntimeIdentity before resume_ready, and smoke mutates policy to verify refused/stale_state. Healthy run still returns resume_ready without dispatching a worker, cancelled/unsafe run remains refused/unsafe_state, authorityChanged/receiptVerified/productionDone remain false, and wording stays projection/guidance only. Commands run: lattice session_brief; lattice review_run_start; lattice finding_list --storyId=B-c7e2; npm --prefix packages/main run test:autopilot-resume-smoke; node packages/main/dist/tasks/autopilot-run-smoke.js; npm --prefix packages/main run build -- --noEmit; npm --prefix packages/main run test:command-ownership-contract; node scripts/verify-process-fact-contract.mjs; git diff --check main...HEAD.",
+      "createdAt": "2026-06-28T01:25:08.629Z",
+      "reviewRound": "2026-06-28T01:21:52.585Z",
+      "reviewRunId": "B-c7e2:RR-008",
+      "_hash": "006dde11c3e05cee5de25e09f44645423d8b9e94eebca7be156674840acbc453"
     }
   ]
 }
