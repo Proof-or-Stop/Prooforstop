@@ -1,0 +1,31 @@
+{
+  "task": "Complete the Autopilot v2 reliability execution plan after M1 by implementing M2 health pause/resume, M3 throttle, M4 claim/fencing, and a current acceptance table.",
+  "outcome": "When the user asks whether autopilot-v2-reliability-execution-plan.md is fully developed, I can show a table where M1, M2, M3, M4, docs, build, smoke tests, validate, and DONE evidence are each marked with concrete PASS/✅ evidence and exact commands.",
+  "facts": [
+    "B-c7e2/M1 already implemented checkpoint-ledger-backed resume and autopilot_resume projection.",
+    "The current document still says PLANNED/backlog and does not reflect M1 DONE or remaining implementation state.",
+    "Current source scan lacks Autopilot-owned M2 health pause states, M3 throttle events/maxConcurrentLive, and M4 ownerWorkerId/lease/fencing fields.",
+    "Current host baseline is codex, claude-code, and antigravity/agy; gemini is legacy only.",
+    "Authority Server production receipt is out of core scope; this story must stay local CLI/admissibility evidence only."
+  ],
+  "constraints": [
+    "Keep M1 checkpoint ledger as source of restart correctness; do not replace it.",
+    "Do not mutate experiments/recovery-runner/powered, output, tmp, or untracked powered-run data.",
+    "Do not claim process immortality; only claim restart-safe local control-plane semantics proven by tests.",
+    "Use dedicated smoke coverage for M2/M3/M4 and update the execution-plan table with exact status.",
+    "No remote push or Authority Server production receipt dependency."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+    "packages/main/src/core/lattice-autopilot.ts",
+    "packages/main/src/core/autopilot-executor.ts",
+    "packages/main/src/core/lattice-dispatch.ts",
+    "packages/main/src/core/autopilot-reliability.ts",
+    "packages/main/src/tasks/autopilot-v2-reliability-smoke.ts",
+    "packages/main/package.json",
+    "package.json",
+    "package-lock.json"
+  ],
+  "timestamp": "2026-06-28T16:03:11.916Z"
+}

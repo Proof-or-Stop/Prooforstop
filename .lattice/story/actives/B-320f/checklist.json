@@ -6,7 +6,328 @@
       "context": "Probe: rp-mqxz6vtf-01k0x1, Review: rr-mqxz71ed-wvvbd9",
       "status": "pending",
       "startTime": null,
+      "endTime": null,
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "packages/main/src/core/lattice-autopilot.ts"
+        ],
+        "create": [
+          "packages/main/src/core/autopilot-reliability.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/autopilot-v2-reliability-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The reproduced M2-M4 gap is closed by code and documented acceptance evidence.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Existing M1 checkpoint-resume behavior remains intact after the new M2-M4 layer.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The story does not turn candidate repro evidence into DONE evidence; green evidence is produced by DEV/TEST commands.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
+    },
+    {
+      "id": "CHK-002",
+      "title": "Implement M3 adaptive runtime throttle semantics",
+      "context": "Add bounded local runtime throttle logic with maxConcurrentLive, throttle_hold/throttle_raise/throttle_backoff events, stable-window raise, and overload/rate-limit backoff. Bind to Autopilot v2 M3 without claiming live fleet scale.",
+      "relatedDocs": [
+        "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md#M3"
+      ],
+      "userSees": "autopilot-v2 reliability table shows M3 adaptive throttle PASS with maxConcurrentLive enforcement and throttle_hold/throttle_raise/throttle_backoff smoke evidence.",
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/src/core/autopilot-reliability.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/autopilot-v2-reliability-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "maxConcurrentLive prevents more live dispatches than configured.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A stable window raises cautiously toward the cap; overload/rate-limit windows increase delay/backoff.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Invalid or zero maxConcurrentLive values clamp to a safe minimum and never allow unbounded concurrency.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
       "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Implement M4 process-pool claim lease and fencing semantics",
+      "context": "Add bounded local process-pool coordination primitives: ownerWorkerId, leaseId, leaseExpiresAt, fencingToken, duplicate claim refusal, expired lease takeover, and stale worker commit refusal. Bind to Autopilot v2 M4 as control-plane semantics.",
+      "relatedDocs": [
+        "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md#M4"
+      ],
+      "userSees": "autopilot-v2 reliability table shows M4 process-pool claim/lease/fencing PASS with duplicate-claim and stale-fencing smoke evidence.",
+      "files": {
+        "modify": [],
+        "create": [
+          "packages/main/src/core/autopilot-reliability.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/autopilot-v2-reliability-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "N independent units can be claimed by distinct workers and completed once each under a bounded pool.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Expired claims can be taken over with a newer fencing token.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A stale worker with an old fencing token cannot commit after a newer claim exists.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Update Autopilot v2 execution-plan status and acceptance table",
+      "context": "Revise autopilot-v2-reliability-execution-plan.md from stale PLANNED/backlog language to a current milestone ledger: M1 DONE via B-c7e2, M2-M4 completed by this story, with tests, commands, evidence boundaries, and limitations.",
+      "relatedDocs": [
+        "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md"
+      ],
+      "userSees": "The document has a detailed acceptance table showing each feature, implementation status, test script, command, and PASS/scope note.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Document status reflects M1 DONE plus this story M2-M4 completion and no longer says the whole program is PLANNED/backlog.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The table distinguishes local deterministic control-plane proof from live multi-day provider fleet proof.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The doc does not reintroduce Authority Server production receipt claims or process immortality overclaim.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Run build smoke validation and version bump",
+      "context": "Compile the CLI, run the dedicated Autopilot v2 reliability smoke plus existing Autopilot M1/run smokes, record verification evidence, merge DONE, and bump CLI patch version because runtime behavior changes.",
+      "relatedDocs": [
+        "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md#Verification"
+      ],
+      "userSees": "Final response lists build, autopilot-v2-reliability-smoke, autopilot-resume-smoke, autopilot-run-smoke, validate/DONE-required evidence, version bump, and final PASS table.",
+      "files": {
+        "modify": [
+          "package.json",
+          "package-lock.json",
+          "packages/main/package.json"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/autopilot-v2-reliability-smoke.ts",
+          "packages/main/src/tasks/autopilot-resume-smoke.ts",
+          "packages/main/src/tasks/autopilot-run-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm --prefix packages/main run build passes after runtime changes.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "node packages/main/dist/tasks/autopilot-v2-reliability-smoke.js passes and covers M2/M3/M4.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Existing M1 resume and autopilot run smokes still pass after the new reliability layer.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Version bump is applied exactly once after merge-worthy runtime behavior changes.",
+            "type": "docs",
+            "priority": "should"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-006",
+      "title": "Implement M2 health-aware pause/resume semantics",
+      "context": "Add shared Autopilot/provider failure classification and paused/waiting state projection so transient 429/503/529/network/timeout routes to health-aware pause/resume while auth/quota/policy/terminal errors remain non-transient. Bind to docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md M2.",
+      "relatedDocs": [
+        "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md#M2"
+      ],
+      "userSees": "autopilot-v2 reliability table shows M2 health-aware pause/resume PASS with a smoke command and events health_probe/provider_unhealthy/waiting_for_provider_health/paused_requires_resume/health_recovered/resumed.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/lattice-autopilot.ts"
+        ],
+        "create": [
+          "packages/main/src/core/autopilot-reliability.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/autopilot-v2-reliability-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Transient 429/network failures classify as retryable and produce waiting/paused health events instead of generic failed step status.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "auth_required, quota_exhausted, policy_blocked, and terminal_step_error are not treated as transient provider overload.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Legacy gemini is not used as current third-host baseline; current hosts are codex, claude-code, and antigravity/agy.",
+            "type": "logic",
+            "priority": "should"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-28T16:04:41.263Z",
+      "phase": "PLAN",
+      "itemId": "CHK-002",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "Add M3 execution-plan acceptance item after repro intake.",
+      "addedTitle": "Implement M3 adaptive runtime throttle semantics",
+      "addedContext": "Add bounded local runtime throttle logic with maxConcurrentLive, throttle_hold/throttle_raise/throttle_backoff events, stable-window raise, and overload/rate-limit backoff. Bind to Autopilot v2 M3 without claiming live fleet scale."
+    },
+    {
+      "timestamp": "2026-06-28T16:04:41.780Z",
+      "phase": "PLAN",
+      "itemId": "CHK-003",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "Add M4 execution-plan acceptance item after repro intake.",
+      "addedTitle": "Implement M4 process-pool claim lease and fencing semantics",
+      "addedContext": "Add bounded local process-pool coordination primitives: ownerWorkerId, leaseId, leaseExpiresAt, fencingToken, duplicate claim refusal, expired lease takeover, and stale worker commit refusal. Bind to Autopilot v2 M4 as control-plane semantics."
+    },
+    {
+      "timestamp": "2026-06-28T16:04:42.319Z",
+      "phase": "PLAN",
+      "itemId": "CHK-004",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "Add doc/status acceptance item after repro intake.",
+      "addedTitle": "Update Autopilot v2 execution-plan status and acceptance table",
+      "addedContext": "Revise autopilot-v2-reliability-execution-plan.md from stale PLANNED/backlog language to a current milestone ledger: M1 DONE via B-c7e2, M2-M4 completed by this story, with tests, commands, evidence boundaries, and limitations."
+    },
+    {
+      "timestamp": "2026-06-28T16:04:42.840Z",
+      "phase": "PLAN",
+      "itemId": "CHK-005",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "Add verification and release hygiene item after repro intake.",
+      "addedTitle": "Run build smoke validation and version bump",
+      "addedContext": "Compile the CLI, run the dedicated Autopilot v2 reliability smoke plus existing Autopilot M1/run smokes, record verification evidence, merge DONE, and bump CLI patch version because runtime behavior changes."
+    },
+    {
+      "timestamp": "2026-06-28T16:04:56.235Z",
+      "phase": "PLAN",
+      "itemId": "CHK-006",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "Add explicit M2 item because the from-repro CHK-001 title is frozen in PLAN.",
+      "addedTitle": "Implement M2 health-aware pause/resume semantics",
+      "addedContext": "Add shared Autopilot/provider failure classification and paused/waiting state projection so transient 429/503/529/network/timeout routes to health-aware pause/resume while auth/quota/policy/terminal errors remain non-transient. Bind to docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md M2."
     }
   ]
 }
