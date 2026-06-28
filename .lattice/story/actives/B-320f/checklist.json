@@ -281,9 +281,44 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-28T16:19:03.099Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "TypeScript build passed with CLI/package version 0.3.103.",
+          "headHash": "3cacc7be21c1ea03a6a4177b4c09aeb964a5d288",
+          "materialHash": "f6100b55d5512a0f60a5b7228bf7a217ed4014cc63e1bfa0e29d5ea505d09114",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-28T16:19:03.341Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:1",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/autopilot-v2-reliability-smoke.js",
+          "result": "pass",
+          "note": "New reliability smoke printed PASS.",
+          "headHash": "3cacc7be21c1ea03a6a4177b4c09aeb964a5d288",
+          "materialHash": "f6100b55d5512a0f60a5b7228bf7a217ed4014cc63e1bfa0e29d5ea505d09114",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-28T16:19:03.595Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js --version",
+          "result": "pass",
+          "note": "Built local CLI reports Proofbound CLI 0.3.103.",
+          "headHash": "3cacc7be21c1ea03a6a4177b4c09aeb964a5d288",
+          "materialHash": "f6100b55d5512a0f60a5b7228bf7a217ed4014cc63e1bfa0e29d5ea505d09114",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-28T16:19:03.874Z"
+        }
+      ]
     },
     {
       "id": "CHK-006",
