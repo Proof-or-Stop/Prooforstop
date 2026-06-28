@@ -1,0 +1,54 @@
+{
+  "storyId": "B-6eb7",
+  "checkedAt": "2026-06-28T23:11:49.841Z",
+  "headHash": "081761233d627a6455d40049e9aaadafbc9a17c2",
+  "materialHash": "8c20cf84d7b14903f1dccdc808611466d65c523f48e0bfe3aa3dc0e11556d2bb",
+  "storyFilesHash": "622d99e957eba813d63332b779b94edc43e2e9e9269af479c73cf286dda6e0a9",
+  "reviewRound": "2026-06-28T23:02:10.365Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "packages/main/src/core/process-fact-levels.ts#runtime:repro_first_story_intake_preflight.rationale",
+      "promise": "Rationale string updated from blocks file-declaring code stories to blocks material-code bug/feature stories (and high/critical code-verifiable stories) in enforce mode",
+      "verifiedBy": "diff/grep",
+      "evidence": "git diff main shows rationale field changed as expected; grep -c file-declaring returns 0; grep -c material-code bug/feature returns 2 hits in this file"
+    },
+    {
+      "docPath": "packages/main/src/core/process-fact-levels.ts#story_create_from_repro.rationale",
+      "promise": "Rationale string updated from before file-declaring stories can enter PLAN or DEV to before material-code bug/feature stories can enter PLAN or DEV",
+      "verifiedBy": "diff/grep",
+      "evidence": "git diff main shows second rationale in levels.ts changed; grep -c file-declaring returns 0 for levels.ts after the change"
+    },
+    {
+      "docPath": "packages/main/src/core/process-fact-registry.ts#story-evidence-binding entry rationale",
+      "promise": "Rationale string updated from before file-declaring stories may enter PLAN or DEV to before material-code bug/feature stories may enter PLAN or DEV",
+      "verifiedBy": "diff/grep",
+      "evidence": "git diff main shows line 927 rationale changed in registry.ts; grep -c file-declaring returns 0; grep -c material-code bug/feature returns 1 hit in registry.ts"
+    },
+    {
+      "docPath": "packages/main/src/core/ (both files) — structural contract and classifier boundary",
+      "promise": "No structural fields (name/level/category/owner/gateConsumer) touched; classifyReproFirstRequirement classifier untouched",
+      "verifiedBy": "diff/grep",
+      "evidence": "Full diff of both files shows exactly 3 changed lines, all inside rationale: string values only. git diff main -- packages/main/src/core/ | grep -c classifyReproFirstRequirement returns 0."
+    },
+    {
+      "docPath": "scripts/verify-process-fact-contract.mjs — process fact structural contract",
+      "promise": "verify-process-fact-contract.mjs passes exit 0 after the prose edit",
+      "verifiedBy": "direct execution",
+      "evidence": "Run independently in this review session: node scripts/verify-process-fact-contract.mjs exits 0, final line reads Process fact contract verified (322 entries, all levels intact)"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Prose-only chore; no new runtime logic. Independent verification this review session: (1) grep file-declaring across both files = 0 matches; (2) grep material-code bug/feature = 3 total (levels.ts:2 + registry.ts:1); (3) node scripts/verify-process-fact-contract.mjs exits 0 with Process fact contract verified; (4) diff is exactly 3 rationale: string lines — no structural or classifier fields changed; (5) classifyReproFirstRequirement grep count in core diff = 0. Full npm test suite green per verificationEvidence (prose-only, no regression risk)."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 3 rationale strings verified replaced (0 file-declaring remaining, exactly 3 material-code bug/feature hits confirmed by independent grep). Diff is precisely 3 changed lines inside rationale: string values only — no structural fields or classifier logic touched. verify-process-fact-contract.mjs confirmed passing in this review session. Transcript evidence is honest and matches independent re-verification."
+  },
+  "_hash": "f925b23d121b666c3799460d08497f21abae93953029588eb12e1ba69c81d862"
+}

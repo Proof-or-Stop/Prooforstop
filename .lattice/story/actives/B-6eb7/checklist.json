@@ -12,9 +12,138 @@
         "create": [],
         "test": []
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-28T16:59:00.222Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "grep -rn file-declaring packages/main/src/core/process-fact-levels.ts packages/main/src/core/process-fact-registry.ts -> zero matches (old prose completely removed); WHY: confirms the stale phrasing is gone from all three sites",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "grep -rn material-code bug/feature packages/main/src/core/process-fact-levels.ts packages/main/src/core/process-fact-registry.ts -> exactly 3 matches (one per rationale string); WHY: confirms new semantics applied to all three target strings",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "node scripts/verify-process-fact-contract.mjs -> exit 0 (passes); WHY: structural contract (name/level/category/owner/gateConsumer) unchanged after prose edit",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "npm test -> green; WHY: no regressions from prose-only change",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "git diff main -- packages/main/src/core/process-fact-levels.ts packages/main/src/core/process-fact-registry.ts shows ONLY rationale: string edits -- no name/level/category/owner/gateConsumer fields appear in the diff; WHY: boundary check that structural registry fields are untouched even though the same objects are edited",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "git diff main -- packages/main/src/core/ | grep -c classifyReproFirstRequirement -> 0; WHY: gate classification logic must not be touched -- this is a prose-only alignment, not a behavior change",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "git diff main -- packages/main/src/core/ shows no changes to mode handling (reproFirstPreflight off/warn/enforce), blocking math, or gateConsumer values; WHY: ensures the chore scope boundary is respected and no accidental behavioral drift",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "grep -rn file-declaring across process-fact-levels.ts + process-fact-registry.ts returns nothing; the three rationale strings now read material-code bug/feature; node scripts/verify-process-fact-contract.mjs prints Process fact contract verified.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -rcn file-declaring packages/main/src/core/process-fact-levels.ts packages/main/src/core/process-fact-registry.ts",
+          "result": "pass",
+          "note": "both files return 0 — the stale phrase is gone.",
+          "headHash": "8bad3ebf45c0c5b2e369ea3b643b1bf08afe7c2d",
+          "materialHash": "8c20cf84d7b14903f1dccdc808611466d65c523f48e0bfe3aa3dc0e11556d2bb",
+          "storyFilesHash": "622d99e957eba813d63332b779b94edc43e2e9e9269af479c73cf286dda6e0a9",
+          "timestamp": "2026-06-28T17:00:03.828Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "grep -rc 'material-code bug/feature' packages/main/src/core/process-fact-levels.ts packages/main/src/core/process-fact-registry.ts",
+          "result": "pass",
+          "note": "levels.ts=2, registry.ts=1 (3 total) — all three rationale strings updated.",
+          "headHash": "8bad3ebf45c0c5b2e369ea3b643b1bf08afe7c2d",
+          "materialHash": "8c20cf84d7b14903f1dccdc808611466d65c523f48e0bfe3aa3dc0e11556d2bb",
+          "storyFilesHash": "622d99e957eba813d63332b779b94edc43e2e9e9269af479c73cf286dda6e0a9",
+          "timestamp": "2026-06-28T17:00:03.828Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:2",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "prints 'Process fact contract verified' — structural contract intact.",
+          "headHash": "8bad3ebf45c0c5b2e369ea3b643b1bf08afe7c2d",
+          "materialHash": "8c20cf84d7b14903f1dccdc808611466d65c523f48e0bfe3aa3dc0e11556d2bb",
+          "storyFilesHash": "622d99e957eba813d63332b779b94edc43e2e9e9269af479c73cf286dda6e0a9",
+          "timestamp": "2026-06-28T17:00:03.828Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:3",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "npm test",
+          "result": "pass",
+          "note": "full suite green (verified at DONE-required validation); prose-only, no regression.",
+          "headHash": "8bad3ebf45c0c5b2e369ea3b643b1bf08afe7c2d",
+          "materialHash": "8c20cf84d7b14903f1dccdc808611466d65c523f48e0bfe3aa3dc0e11556d2bb",
+          "storyFilesHash": "622d99e957eba813d63332b779b94edc43e2e9e9269af479c73cf286dda6e0a9",
+          "timestamp": "2026-06-28T17:00:03.828Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git diff main -- packages/main/src/core/process-fact-levels.ts packages/main/src/core/process-fact-registry.ts",
+          "result": "pass",
+          "note": "diff is 3 changed lines, all inside rationale: string values; no structural/gateConsumer/level/category fields touched.",
+          "headHash": "8bad3ebf45c0c5b2e369ea3b643b1bf08afe7c2d",
+          "materialHash": "8c20cf84d7b14903f1dccdc808611466d65c523f48e0bfe3aa3dc0e11556d2bb",
+          "storyFilesHash": "622d99e957eba813d63332b779b94edc43e2e9e9269af479c73cf286dda6e0a9",
+          "timestamp": "2026-06-28T17:00:03.828Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "command": "git diff main -- packages/main/src/core/ | grep -c classifyReproFirstRequirement",
+          "result": "pass",
+          "note": "0 — repro-evidence-binding-gate.ts / the classifier is untouched (behavior shipped in B-8628 unchanged).",
+          "headHash": "8bad3ebf45c0c5b2e369ea3b643b1bf08afe7c2d",
+          "materialHash": "8c20cf84d7b14903f1dccdc808611466d65c523f48e0bfe3aa3dc0e11556d2bb",
+          "storyFilesHash": "622d99e957eba813d63332b779b94edc43e2e9e9269af479c73cf286dda6e0a9",
+          "timestamp": "2026-06-28T17:00:03.828Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/core/process-fact-levels.ts",
+          "note": "the diff changes only rationale prose; no mode handling (reproFirstPreflight), blocking math, or gateConsumer values changed — behavior is zero-delta.",
+          "headHash": "8bad3ebf45c0c5b2e369ea3b643b1bf08afe7c2d",
+          "materialHash": "8c20cf84d7b14903f1dccdc808611466d65c523f48e0bfe3aa3dc0e11556d2bb",
+          "storyFilesHash": "622d99e957eba813d63332b779b94edc43e2e9e9269af479c73cf286dda6e0a9",
+          "timestamp": "2026-06-28T17:00:03.828Z"
+        }
+      ]
     }
   ]
 }

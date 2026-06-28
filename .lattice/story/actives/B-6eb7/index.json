@@ -4,7 +4,7 @@
   "title": "Align repro-first process-fact rationale prose with the material-code bug/feature gate semantics",
   "description": "B-8628 changed classifyReproFirstRequirement so repro-first is required only for material-code bug/feature (plus high-risk code-verifiable), but three L4 process-fact rationale strings still describe the old file-declaring-stories semantics. Prose-only alignment: swap that phrase in three rationale strings across two registry files. No gate behavior, no structural contract change.",
   "type": "chore",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "medium",
   "keywords": [
     "process-fact",
@@ -16,7 +16,7 @@
   ],
   "createdAt": "2026-06-28T16:48:31.754Z",
   "startedAt": "2026-06-28T16:48:31.754Z",
-  "endedAt": null,
+  "endedAt": "2026-06-28T23:14:08.430Z",
   "events": [
     {
       "phase": "INIT",
@@ -35,11 +35,52 @@
       "user": "Harmonygo",
       "sessionId": "b0a01b07-dd7a-40ba-a0fe-163497230a65",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-28T16:52:53.680Z",
+      "branch": "story/B-6eb7",
+      "user": "Harmonygo",
+      "sessionId": "b0a01b07-dd7a-40ba-a0fe-163497230a65",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-28T16:57:51.603Z",
+      "branch": "story/B-6eb7",
+      "user": "Harmonygo",
+      "sessionId": "b0a01b07-dd7a-40ba-a0fe-163497230a65",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-28T23:02:10.365Z",
+      "branch": "story/B-6eb7",
+      "user": "Harmonygo",
+      "sessionId": "b0a01b07-dd7a-40ba-a0fe-163497230a65",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-28T23:08:50.107Z",
+      "branch": "story/B-6eb7",
+      "user": "Harmonygo",
+      "sessionId": "b0a01b07-dd7a-40ba-a0fe-163497230a65",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-28T23:14:08.430Z",
+      "branch": "story/B-6eb7",
+      "user": "Harmonygo",
+      "sessionId": "b0a01b07-dd7a-40ba-a0fe-163497230a65",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-6eb7",
-    "branch": "story/B-6eb7",
-    "createdAt": "2026-06-28T16:52:50.343Z"
-  }
+  "currentReviewRound": "2026-06-28T23:02:10.365Z"
 }

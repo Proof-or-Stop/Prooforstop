@@ -924,7 +924,7 @@ export const PROCESS_FACT_ARTIFACTS = [
     producer: 'handlers/repro-intake',
     consumerGate: 'storyMachine.canEnterPlan IDEA to PLAN gate and storyMachine.canStartDev/canSkipPlan DEV-entry gates',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.story_create_from_repro,
-    rationale: 'Story evidence binding artifacts bind accepted repro candidate evidence to a story before file-declaring stories may enter PLAN or DEV.',
+    rationale: 'Story evidence binding artifacts bind accepted repro candidate evidence to a story before material-code bug/feature stories may enter PLAN or DEV.',
   },
 ] as const satisfies readonly ProcessFactRegistryEntry[];
 

@@ -1,0 +1,56 @@
+{
+  "storyId": "B-6eb7",
+  "changes": "process-fact-levels.ts + process-fact-registry.ts: three L4 repro-first rationale strings updated from \"file-declaring stories\" to \"material-code bug/feature\" (plus high/critical code-verifiable for the preflight one), aligning the gate-consumed runtime fact with the classifier B-8628 shipped. Prose-only; classifier/gate/mode/blocking logic unchanged.",
+  "usage": "No CLI behavior change. The L4 process-fact rationale (surfaced in gate diagnostics) now accurately describes when repro-first is required. Verify: grep -rn file-declaring on the 2 files returns nothing; node scripts/verify-process-fact-contract.mjs passes.",
+  "expectedOutcome": "No file-declaring left in the 2 registry files; 3 rationale strings read material-code bug/feature; verify-process-fact-contract passes; npm test green; behavior zero.",
+  "actualTranscript": "grep file-declaring=0 in both files; material-code bug/feature=3; git diff = 3 rationale lines only; classifier untouched (grep classifyReproFirstRequirement in diff=0); Process fact contract verified; preflight all pass.",
+  "outcomeDiff": "No difference — rationale aligned, no residue in scope files, classifier/gate untouched, contract + build green.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Prose/contract-alignment only; behavior zero (classifier shipped in B-8628). Out-of-scope smoke test-fixture descriptions still say file-declaring (accurate fixture descriptions; concept F-001 withdrawn as out-of-scope).",
+  "pitfalls": "Follow-up to B-8628 from a Codex host-2 MEDIUM. Concept reviewer initially flagged residual file-declaring in the smoke (F-001) - withdrawn after scope+accuracy re-judgment (out of scope-boundary; those are fixture descriptions not gate semantics). Two high-risk process-fact paths -> DONE needs 3x2 floor even for prose. Use single quotes in summary_set (backticks trigger shell substitution).",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 260052
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 1842
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 297923
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 21858762
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 399742
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 37223
+    }
+  },
+  "totalDurationMs": 22855576,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-28T23:09:27.332Z",
+  "updatedAt": "2026-06-28T23:09:27.332Z"
+}

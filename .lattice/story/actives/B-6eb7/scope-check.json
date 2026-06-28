@@ -1,0 +1,73 @@
+{
+  "storyId": "B-6eb7",
+  "checkedAt": "2026-06-28T16:57:26.818Z",
+  "features": [
+    {
+      "feature": "Update runtime:repro_first_story_intake_preflight rationale string in process-fact-levels.ts (~line 88) from file-declaring code stories phrasing to material-code bug/feature semantics (plus high/critical code-verifiable)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Update story_create_from_repro rationale string in process-fact-levels.ts (~line 89) from file-declaring stories phrasing to material-code bug/feature semantics",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Update story-evidence-binding rationale string in process-fact-registry.ts (~line 927) from file-declaring stories phrasing to material-code bug/feature semantics",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Verify node scripts/verify-process-fact-contract.mjs passes after prose edit (structural contract unchanged)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Verify npm test passes (no regressions from prose-only change)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Prose-only scope: classifyReproFirstRequirement, mode handling, blocking math, structural registry fields, gateConsumer values, verify-process-fact-contract.mjs are excluded from change",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "CHK-001 excludes: do not touch classifyReproFirstRequirement, modes, blocking math, structural registry fields, or gateConsumer values; verify-process-fact-contract.mjs excluded from modification by story scope boundary",
+      "source": "description"
+    },
+    {
+      "feature": "repro-first-story-intake-experiment.md defines story-evidence-binding candidate artifact kind and its role as planning-input for PLAN/DEV gates — this is informational context for B-6eb7, not a change commitment for this story",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "B-6eb7 is a documentation-accuracy chore; repro-first-story-intake-experiment.md has no spec commitment requiring B-6eb7 to change classifier/gate/mode/blocking logic. The rationale text update aligns runtime facts with the actual classifier semantics shipped by B-8628 — the spec doc itself does not prescribe rationale string wording.",
+      "source": "decisions:decisions/repro-first-story-intake-experiment.md"
+    },
+    {
+      "feature": "proof-admissibility-hardening-execution-plan.md lists process-fact-registry.ts and process-fact-levels.ts as modules that must obey the contract (C1, C8-C11) — does not prescribe the rationale string content being changed",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "The admissibility plan references these files for gate-consumption and artifact consumer matching contracts, not for rationale prose content. No spec commitment in that doc requires or forbids the rationale text update in B-6eb7.",
+      "source": "decisions:decisions/proof-admissibility-hardening-execution-plan.md"
+    }
+  ],
+  "summary": {
+    "total": 8,
+    "covered": 5,
+    "excluded": 3,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "1b7e6e42bdc56bfa064515f18c31fe5491cc2017a6b2c7a411d147ec2c2a4536",
+  "openQuestions": []
+}
