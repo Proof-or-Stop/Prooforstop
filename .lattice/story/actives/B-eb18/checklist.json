@@ -30,9 +30,9 @@
           "packages/main/src/tasks/**"
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-28T09:38:30.770Z",
-      "endTime": null,
+      "endTime": "2026-06-28T09:50:44.495Z",
       "userSees": "The JSON output contains \"schemaVersion\":\"lattice.global_control_status.v1\", \"readOnly\":true, \"authoritativeCwd\":\"/Users/.../.worktrees/B-xxxx\", and \"queue\":{\"classification\":\"...\"} for each active story.",
       "verificationIntent": {
         "happy": [
@@ -56,7 +56,42 @@
             "type": "logic"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/global-lifecycle-control-plane-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts global_control_status schemaVersion/readOnly and story rows with authoritative worktree cwd and queue classification.",
+          "headHash": "24cada7883494e78816b7ea2a8f1fb52b3911ba4",
+          "materialHash": "ab9d52f3e5d7808ee877f8245d923cb2e6b69eb399e1283d658469134b7b109b",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-28T09:50:44.619Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/global-lifecycle-control-plane-smoke.js",
+          "result": "pass",
+          "note": "Smoke creates a main mirror INIT_CHECK / worktree DEV drift story and asserts authoritativeCwd points to the worktree.",
+          "headHash": "24cada7883494e78816b7ea2a8f1fb52b3911ba4",
+          "materialHash": "ab9d52f3e5d7808ee877f8245d923cb2e6b69eb399e1283d658469134b7b109b",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-28T09:50:44.750Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/global-lifecycle-control-plane-smoke.js",
+          "result": "pass",
+          "note": "Smoke snapshots git status before read-only commands and asserts global/runtime/waterline/queue reads leave git status unchanged.",
+          "headHash": "24cada7883494e78816b7ea2a8f1fb52b3911ba4",
+          "materialHash": "ab9d52f3e5d7808ee877f8245d923cb2e6b69eb399e1283d658469134b7b109b",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-06-28T09:50:44.870Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
