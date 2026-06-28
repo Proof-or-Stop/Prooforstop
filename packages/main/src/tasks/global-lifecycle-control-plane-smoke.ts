@@ -16,6 +16,7 @@ import type {
   RuntimeClosureReport,
 } from '../core/lifecycle-control/index.js';
 import { evaluateRuntimeEnforcement } from '../core/lifecycle-control/runtime/index.js';
+import { acquireMainWriteLock } from '../core/main-write-lock.js';
 import { StoryStore } from '../core/store.js';
 import type { StoryInfo } from '../core/types.js';
 import { createMainRegistry } from '../registry.js';
@@ -271,6 +272,34 @@ function runSmoke(): void {
     assert.ok(existsSync(join(root, '.lattice/lifecycle-control/queue-exceptions.json')));
     const audit = readFileSync(join(root, '.lattice/lifecycle-control/queue-exceptions.audit.jsonl'), 'utf-8');
     assert.match(audit, /queue_exception_set/);
+
+    const worktreeCtx: HandlerContext = {
+      store: new StoryStore(join(root, `.worktrees/${DRIFT_STORY}`)),
+      root: join(root, `.worktrees/${DRIFT_STORY}`),
+      scanRoot: join(root, `.worktrees/${DRIFT_STORY}`, 'packages/main'),
+    };
+    const worktreeRegistry = createMainRegistry(worktreeCtx);
+    const lock = acquireMainWriteLock(root, { label: 'queue_exception_set smoke holder' });
+    try {
+      assert.throws(
+        () => worktreeRegistry.get('queue_exception_set')!({
+          format: 'json',
+          experimentBatchId: 'tier-c-provider-execution-receipt-verification',
+          storyIds: [MALFORMED_STORY],
+          reason: 'Preserve malformed Tier-C receipt trial while lock is held.',
+          actor: 'global-lifecycle-control-plane-smoke',
+        }),
+        /queue_exception_set is blocked: the main write lock is held/,
+        'queue_exception_set from a worktree must contend on the canonical main write lock',
+      );
+    } finally {
+      lock.release();
+    }
+    assert.equal(
+      existsSync(join(root, `.worktrees/${DRIFT_STORY}`, '.lattice/lifecycle-control/queue-exceptions.json')),
+      false,
+      'worktree invocation must not write a worktree-local queue exception registry',
+    );
   } finally {
     rmSync(root, { recursive: true, force: true });
   }

@@ -15,6 +15,8 @@ import {
   projectRuntimeClosure,
   type RuntimeClosureOptions,
 } from '../core/lifecycle-control/runtime/index.js';
+import { withReentrantMainWriteLock } from '../core/main-write-lock.js';
+import { resolveMainRepoRoot } from '../core/partial-done-recovery.js';
 import type { HandlerContext } from './context.js';
 
 type FormatArgs = { format?: 'text' | 'json'; json?: boolean };
@@ -109,7 +111,12 @@ export function createLifecycleControlHandlers(ctx: HandlerContext): Record<stri
     },
 
     queue_exception_set(args: QueueExceptionSetInput & FormatArgs) {
-      const result = setQueueException(ctx.root, args);
+      const mainRepoRoot = resolveMainRepoRoot(ctx.root);
+      const result = withReentrantMainWriteLock(
+        mainRepoRoot,
+        () => setQueueException(mainRepoRoot, args),
+        { label: 'queue_exception_set' },
+      );
       return wantsJson(args) ? result : renderException(result);
     },
   };
