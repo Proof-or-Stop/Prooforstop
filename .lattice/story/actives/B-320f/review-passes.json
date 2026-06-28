@@ -1,0 +1,121 @@
+{
+  "passes": [
+    {
+      "id": "B-320f:RP-001",
+      "agent": "lattice-review-docs",
+      "note": "PASS docs/code alignment: docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md explicitly scopes B-320f to deterministic smoke/local semantics, avoids process-immortality and exactly-once overclaims, defines storyFilesHash as frozen pre-run baseline excluding declared outputs, and leaves routine validate/DONE as future Lattice phases. Checked implementation touchpoints in packages/main/src/core/autopilot-reliability.ts, packages/main/src/core/lattice-autopilot.ts, packages/main/src/core/lattice-dispatch.ts, and packages/main/src/tasks/autopilot-v2-reliability-smoke.ts; claims match code and smoke output.",
+      "createdAt": "2026-06-28T16:33:39.346Z",
+      "reviewRound": "2026-06-28T16:31:02.800Z",
+      "reviewRunId": "B-320f:RR-004",
+      "_hash": "08eff9e6ac9cdbf4622b0c67b07edbfb7be219782b6e80a5e8ab5fc7f66959f0"
+    },
+    {
+      "id": "B-320f:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "PASS concept review: M2 provider-health semantics are bounded to retryable rate-limit/overload/network classes while budget/scope/policy/real-host safety refusals remain local guard/control-plane failures; M3 throttle is deterministic and bounded; M4 claim/lease/fencing semantics prevent live duplicate claims, expired-lease reclaim uses a new fencing token, and stale completions are refused; docs explicitly scope B-320f to deterministic smoke/minimal dispatch-boundary integration and avoid exactly-once/process-immortality overclaims. Verified with git diff main...HEAD, source/doc inspection, reliability smoke, autopilot-run smoke, and CLI version check.",
+      "createdAt": "2026-06-28T16:34:17.392Z",
+      "reviewRound": "2026-06-28T16:31:02.800Z",
+      "reviewRunId": "B-320f:RR-001",
+      "_hash": "43f461400a83ad04859cc8664d95a3b809577f93d64b3d0bf002af8fa6ae94c5"
+    },
+    {
+      "id": "B-320f:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Round 2 concept re-review after c09ae2791: PASS. Inspected git diff main...HEAD and relevant source/doc surfaces. F-001 concept boundary is restored: classifyDispatchError now checks local budget/policy-ish guards and /timeout|timed out/ before calling classifyAutopilotProviderFailure (packages/main/src/core/lattice-autopilot.ts:1212-1221), so real-host subprocess timeout text from lattice-dispatch.ts remains stopReason=timeout/failed rather than provider_unhealthy. Provider transient failures still map to provider_unhealthy -> paused_requires_resume via providerFailureStatus and buildProviderHealthTransition at lattice-autopilot.ts:1331-1334, 1563-1584, 1654-1679. Local budget remains budget_exhausted and allowRealHostSubprocess/unattended guard remains validation_failed before provider-health classification. M3 throttle and M4 claim/lease/fencing semantics remain local deterministic state machines in autopilot-reliability.ts and are not broadened into production process-pool overclaims. Docs remain bounded: execution plan states restart-safe resume, wrapper keepalive as non-goal, M3/M4 deterministic smoke status, and future hardening limits rather than claiming full live process-pool production behavior. Non-blocking note: the provider-transient autopilot_run smoke uses a transient-looking sentinel host string; test-coverage may choose to strengthen that evidence, but it does not change the concept architecture reviewed here.",
+      "createdAt": "2026-06-28T16:53:16.100Z",
+      "reviewRound": "2026-06-28T16:50:31.384Z",
+      "reviewRunId": "B-320f:RR-007",
+      "_hash": "267c79911bfa74bb2ee0617714715f3f064367b165b9ff18d5a79cdcf3acb434"
+    },
+    {
+      "id": "B-320f:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 2 test coverage review passed: verified prior F-002 coverage fixes are non-vacuous. packages/main/src/tasks/autopilot-v2-reliability-smoke.ts asserts invalid maxConcurrentLive values 0, -1, NaN, and Infinity clamp to max/current limit 1 while preserving canStartLiveDispatch. packages/main/src/tasks/autopilot-run-smoke.ts drives autopilot_run through a shimmed real-host timeout and an http-503-overloaded provider transient path, asserting failed/timeout for the former and paused_requires_resume/provider_unhealthy plus persisted paused event for the latter. evidence_plan reports missing=0, rerun=0, refreshOnly=0, fresh=25 for current material hash, and targeted smokes passed: node packages/main/dist/tasks/autopilot-v2-reliability-smoke.js; node packages/main/dist/tasks/autopilot-run-smoke.js.",
+      "createdAt": "2026-06-28T16:53:47.652Z",
+      "reviewRound": "2026-06-28T16:50:31.384Z",
+      "reviewRunId": "B-320f:RR-009",
+      "_hash": "02c5328fa55c5cfef6ef6aa344d45841bf507aff7482f005b5c8f8b8150d0697"
+    },
+    {
+      "id": "B-320f:RP-005",
+      "agent": "lattice-review-docs",
+      "note": "Round 3 docs re-review PASS. Inspected git diff main...HEAD and targeted docs/implementation. docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md now limits provider-health classification to provider-side 429/503/529/rate-limit/overload/network failures and explicitly states local dispatch/runtime timeout remains stopReason: timeout unless a future provider-specific timeout signal is deliberately reclassified (lines 15-18, 294-298, 394). The acceptance table no longer says timeout becomes provider-health. Implementation alignment checked: packages/main/src/core/lattice-autopilot.ts classifyDispatchError returns timeout before provider-health classification (lines 1212-1225), and the local run timeout path finalizes with stopReason timeout (lines 1535-1543); provider transient failure path uses provider_unhealthy only after retryable provider classification (lines 1562-1588, 1658-1682). No docs blocker remains for prior F-003.",
+      "createdAt": "2026-06-28T20:45:08.398Z",
+      "reviewRound": "2026-06-28T20:43:06.202Z",
+      "reviewRunId": "B-320f:RR-014",
+      "_hash": "6b56d857e25284a3fddf78ed8774ca2b247286c45113958b8e6c87710a33f421"
+    },
+    {
+      "id": "B-320f:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "Round 3 concept re-review after a44bbdd46 passed. Verified diff main...HEAD plus focused source/doc inspection: provider_unhealthy is only reached after dispatch errors/results are classified as retryable provider-health failures; local timeout is handled first as stopReason=timeout; dispatch_auto unknown-host/local validation is handled before provider classification and remains validation_failed; a44bbdd46 adds a real claude-code provider-transient shim and separate invalid-host assertion; M3 throttle and M4 claim/lease/fencing helpers are unchanged in semantics; docs explicitly bound provider-health to provider-side rate/overload/network and preserve local timeout boundary. Commands run: git diff --stat/name-only main...HEAD; git show --stat --name-only a44bbdd46; targeted rg/nl inspections; git diff --check main...HEAD -- relevant files; node packages/main/dist/tasks/autopilot-v2-reliability-smoke.js; node packages/main/dist/tasks/autopilot-run-smoke.js. Findings: none.",
+      "createdAt": "2026-06-28T20:45:14.418Z",
+      "reviewRound": "2026-06-28T20:43:06.202Z",
+      "reviewRunId": "B-320f:RR-011",
+      "_hash": "d80b1aacce2948883ead4152a29197d42b0c5228605353380d8f1382d77f6831"
+    },
+    {
+      "id": "B-320f:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 3 test-coverage PASS after a44bbdd46. Verified F-002 remains fixed: autopilot-v2-reliability-smoke asserts invalid maxConcurrentLive values 0, -1, NaN, and Infinity clamp to max/current limit 1 while canStartLiveDispatch remains true. Verified F-004 false-positive is fixed: autopilot-run-smoke keeps real claude-code subprocess timeout as failed/timeout, asserts unknown host http-503-overloaded is validation_failed, and separately uses an allowed claude-code dispatch policy with a local claude shim emitting HTTP 503 to assert paused_requires_resume/provider_unhealthy plus health event persistence. evidence_plan reports 0 missing, 0 rerun, 0 refreshOnly, 25 fresh; storyFilesHash/materialHash match the a44bbdd46 evidence and current REVIEW readiness. Ran node packages/main/dist/tasks/autopilot-v2-reliability-smoke.js and node packages/main/dist/tasks/autopilot-run-smoke.js; both passed. No findings.",
+      "createdAt": "2026-06-28T20:45:14.863Z",
+      "reviewRound": "2026-06-28T20:43:06.202Z",
+      "reviewRunId": "B-320f:RR-013",
+      "_hash": "a07d16c0de33addea58f968fd02988fad0f61cda96bbe59fe056c2c03b7e6c75"
+    },
+    {
+      "id": "B-320f:RP-008",
+      "agent": "lattice-review-quality",
+      "note": "Round 3 quality re-review after a44bbdd46 passed. Verified classifyDispatchError keeps dispatch_auto unknown host / policy-local validation errors as validation_failed before provider-health matching, so host http-503-overloaded remains failed+validation_failed. Verified autopilot-run smoke now uses a deterministic PATH-local claude shim under a legal claude-code dispatch policy with allowRealHostSubprocess=true and canonical commandAllowlist, and exercises a real provider-transient subprocess failure to paused_requires_resume/provider_unhealthy. Commands run: npm --prefix packages/main run build; LATTICE_SESSION_ID=codex-autopilot-b320f-r3-quality node packages/main/dist/tasks/autopilot-run-smoke.js; git diff --check main...HEAD -- targeted files.",
+      "createdAt": "2026-06-28T20:45:22.911Z",
+      "reviewRound": "2026-06-28T20:43:06.202Z",
+      "reviewRunId": "B-320f:RR-012",
+      "_hash": "102869be13c48858edc10818bbf555c5cc0c4d19a483a1a29806327b3f436faf"
+    },
+    {
+      "id": "B-320f:RP-009",
+      "agent": "lattice-review-concept",
+      "note": "Round 4 concept pass: current material after main merge preserves the intended Autopilot v2 M2 health, M3 throttle, and M4 lease/fencing model; local CLI evidence boundary remains non-Authority and no conceptual blocker remains.",
+      "createdAt": "2026-06-28T21:02:36.995Z",
+      "reviewRound": "2026-06-28T21:02:06.439Z",
+      "reviewRunId": "B-320f:RR-015",
+      "_hash": "3e92a441b471b74c3f081be1a33126d81b9c5143bb6074c2261c2cb37aa42d6b"
+    },
+    {
+      "id": "B-320f:RP-010",
+      "agent": "lattice-review-quality",
+      "note": "Round 4 quality pass: current material preserves local guard classifications, timeout remains timeout, provider transient path is explicit, and no blocking implementation-quality issue remains.",
+      "createdAt": "2026-06-28T21:02:53.415Z",
+      "reviewRound": "2026-06-28T21:02:06.439Z",
+      "reviewRunId": "B-320f:RR-016",
+      "_hash": "a661d47777237303a7592657219c291c34a99b9605f12894150a6b7ad959c0cd"
+    },
+    {
+      "id": "B-320f:RP-011",
+      "agent": "lattice-review-test-coverage",
+      "note": "Round 4 test-coverage pass: build, autopilot-v2 reliability smoke, autopilot-run smoke, autopilot-resume smoke, migration smoke, validate 31 commands, and Antigravity PASS cover the M2/M3/M4 acceptance surface with no blocking gap.",
+      "createdAt": "2026-06-28T21:02:54.526Z",
+      "reviewRound": "2026-06-28T21:02:06.439Z",
+      "reviewRunId": "B-320f:RR-017",
+      "_hash": "4ed7739397d40016f4a7fd9cd507003970ee7a5857a6b3372a37897087b7a90b"
+    },
+    {
+      "id": "B-320f:RP-012",
+      "agent": "lattice-review-docs",
+      "note": "Round 4 docs pass: execution plan records implemented M1-M4 status, committed checkpoint semantics, frozen storyFilesHash boundary, acceptance evidence table, and keeps local non-Authority boundaries explicit with no blocking doc drift.",
+      "createdAt": "2026-06-28T21:02:55.634Z",
+      "reviewRound": "2026-06-28T21:02:06.439Z",
+      "reviewRunId": "B-320f:RR-018",
+      "_hash": "e1e1f74663be570b8df532f5471165fc73a07b9b89f74d8bf5803e0016142f0f"
+    },
+    {
+      "id": "B-320f:RP-013",
+      "agent": "lattice-review-docs",
+      "note": "Round 5 targeted docs/scope pass: delivery-context-pack.json is command-produced delivery reviewer context evidence, now explicitly acknowledged in scope-contract, and no blocking documentation or delivery-scope issue remains.",
+      "createdAt": "2026-06-28T21:13:07.073Z",
+      "reviewRound": "2026-06-28T21:12:20.785Z",
+      "reviewRunId": "B-320f:RR-019",
+      "_hash": "1d7db1376f733edadc78e8ab3496b663e2211ab8ceead33bea7f03f8eaa2df8a"
+    }
+  ]
+}

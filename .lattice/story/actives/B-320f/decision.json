@@ -1,0 +1,59 @@
+{
+  "principles": [
+    "Keep restart correctness ledger-first and do not weaken M1 fail-closed behavior.",
+    "Represent provider health, throttle, and worker fencing as explicit local control-plane facts that tests can prove.",
+    "Treat Authority Server production receipt semantics as out of scope and never use them for completion claims."
+  ],
+  "drivers": [
+    "User requested all Autopilot v2 execution-plan content completed until DONE.",
+    "Current code already has M1 and dispatch primitives, so the smallest reliable design is additive reuse.",
+    "The DONE answer must include a detailed acceptance table with concrete commands and tests."
+  ],
+  "options": [
+    {
+      "name": "A: Add focused Autopilot reliability core plus one dedicated M2-M4 smoke",
+      "pros": [
+        "Smallest product surface that closes documented gaps",
+        "Keeps pure state-machine logic easy to test",
+        "Avoids real provider cost or flaky live hosts in smoke tests"
+      ],
+      "cons": [
+        "M4 proves claim/lease/fencing semantics locally rather than launching a large live provider fleet"
+      ]
+    },
+    {
+      "name": "B: Rewrite Autopilot run loop into a full live process pool now",
+      "pros": [
+        "Would exercise more end-to-end live runtime behavior"
+      ],
+      "cons": [
+        "High blast radius",
+        "Provider/session limits make tests slow and flaky",
+        "Risks replacing proven M1 ledger semantics"
+      ]
+    }
+  ],
+  "chosen": "A: Add focused Autopilot reliability core plus one dedicated M2-M4 smoke",
+  "rationale": "Option A completes the documented control-plane semantics with deterministic tests and keeps live provider/fleet behavior bounded instead of over-expanding this story.",
+  "preMortem": [
+    {
+      "scenario": "Throttle or health classification masks terminal failures as retryable.",
+      "trigger": "A quota/auth/policy error gets classified with rate-limit terms.",
+      "consequence": "Autopilot waits forever or retries unsafe work.",
+      "mitigation": "Implement explicit terminal categories and adversarial smoke assertions for auth_required, quota_exhausted, terminal_step_error, and policy_blocked."
+    },
+    {
+      "scenario": "Parallel workers duplicate a pending step.",
+      "trigger": "Two workers claim the same step without fencing.",
+      "consequence": "M4 multiplies the duplicate-work class this program is meant to prevent.",
+      "mitigation": "Use atomic claim records with ownerWorkerId, leaseId, leaseExpiresAt, and monotonically increasing fencingToken; smoke conflicting and expired commits."
+    },
+    {
+      "scenario": "Documentation overclaims full unattended autonomy.",
+      "trigger": "The acceptance table says all of Autopilot v2 is complete without distinguishing local smoke vs live fleet scope.",
+      "consequence": "Reviewers/users believe the CLI keeps dead processes alive or has production Authority guarantees.",
+      "mitigation": "Document local restart-safe/control-plane scope, mark M3/M4 as implemented local control-plane capability, and keep external supervisor/Authority claims out."
+    }
+  ],
+  "timestamp": "2026-06-28T16:03:12.510Z"
+}

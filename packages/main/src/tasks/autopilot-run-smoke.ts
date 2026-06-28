@@ -6,13 +6,14 @@
  *   autopilot_policy_create -> autopilot_policy_check -> autopilot_run
  *   -> autopilot_status/watch/review/cancel/resume
  *
- * Tests are deterministic and use the fake host / fake authority boundary.
+ * Tests are deterministic and use the fake host plus local CLI shims.
  * No real provider calls are required.
  */
 
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import {
+  chmodSync,
   existsSync,
   mkdirSync,
   mkdtempSync,
@@ -100,7 +101,7 @@ interface AutopilotRunResult extends AuthorityBoundary {
   dispatchPolicy?: string;
   host?: string;
   dispatchId?: string;
-  status: 'created' | 'running' | 'needs_receipt' | 'manual_review_ready' | 'missing_authority_receipt' | 'cancelled' | 'failed';
+  status: 'created' | 'running' | 'needs_receipt' | 'manual_review_ready' | 'missing_authority_receipt' | 'cancelled' | 'failed' | 'waiting_for_provider_health' | 'paused_requires_resume';
   maxIterations: number;
   maxBudgetUSD?: number;
   stopReason?: string;
@@ -323,10 +324,22 @@ function assertNoCliMetaLeak(result: unknown, label: string): void {
 
 const sandboxRoot = mkdtempSync(join(tmpdir(), 'lattice-autopilot-run-suite-'));
 const root = join(sandboxRoot, 'repo', 'root');
+const originalPath = process.env.PATH;
 
 try {
   initRepo(root);
   resetConfigCache();
+  const shimBin = join(root, '.shim-bin');
+  mkdirSync(shimBin, { recursive: true });
+  writeFileSync(join(shimBin, 'claude'), [
+    '#!/bin/sh',
+    'if [ "$1" = "--help" ]; then',
+    '  echo "usage: claude --print <prompt-file>"',
+    '  exit 0',
+    'fi',
+    'kill -TERM $$',
+  ].join('\n') + '\n', 'utf8');
+  chmodSync(join(shimBin, 'claude'), 0o755);
 
   const store = new StoryStore(root);
   seedStory(store, 'B-demo');
@@ -334,6 +347,8 @@ try {
   seedStory(store, 'B-budget-retry-demo');
   seedStory(store, 'B-conflict-demo');
   seedStory(store, 'B-cancel-demo');
+  seedStory(store, 'B-timeout-demo');
+  seedStory(store, 'B-provider-transient-demo');
   seedStory(store, 'B-owner-gate-cancel-demo');
   seedStory(store, 'B-owner-gate-resume-demo');
   const ctx: HandlerContext = { store, root, scanRoot: join(root, 'packages/main') };
@@ -454,6 +469,44 @@ try {
   });
   assert.equal(conflictDispatchPolicy.schemaVersion, 'lattice.dispatch_policy.v1');
   assertAuthorityFalse(conflictDispatchPolicy, 'conflictDispatchPolicy');
+
+  const timeoutDispatchPolicy = run<Record<string, unknown>>('dispatch_policy_create', {
+    policy: 'claude-timeout-dispatch',
+    allowedHosts: ['claude-code'],
+    allowedPaths: ['packages/main/src/generated/'],
+    deniedPaths: ['README.md'],
+    maxParallel: 1,
+    maxRuntimeMinutes: 1,
+    maxBudgetUSD: 5,
+    network: 'none',
+    commandAllowlist: ['claude --print <prompt-file>'],
+    requireReceipt: true,
+    requireReview: true,
+    allowRealHostSubprocess: true,
+    allowAutoMerge: false,
+    allowProductionDone: false,
+  });
+  assert.equal(timeoutDispatchPolicy.schemaVersion, 'lattice.dispatch_policy.v1');
+  assertAuthorityFalse(timeoutDispatchPolicy, 'timeoutDispatchPolicy');
+
+  const providerTransientDispatchPolicy = run<Record<string, unknown>>('dispatch_policy_create', {
+    policy: 'claude-provider-transient-dispatch',
+    allowedHosts: ['claude-code'],
+    allowedPaths: ['packages/main/src/generated/'],
+    deniedPaths: ['README.md'],
+    maxParallel: 1,
+    maxRuntimeMinutes: 1,
+    maxBudgetUSD: 5,
+    network: 'none',
+    commandAllowlist: ['claude --print <prompt-file>'],
+    requireReceipt: true,
+    requireReview: true,
+    allowRealHostSubprocess: true,
+    allowAutoMerge: false,
+    allowProductionDone: false,
+  });
+  assert.equal(providerTransientDispatchPolicy.schemaVersion, 'lattice.dispatch_policy.v1');
+  assertAuthorityFalse(providerTransientDispatchPolicy, 'providerTransientDispatchPolicy');
 
   const policy = run<AutopilotPolicy>('autopilot_policy_create', {
     policy: 'fake',
@@ -585,6 +638,44 @@ try {
   assert.equal(conflictPolicy.mode, 'conservative');
   assert.equal(conflictPolicy.dispatchPolicy, 'fake-conflict-dispatch');
   assertAuthorityFalse(conflictPolicy, 'conflictPolicy');
+
+  const timeoutPolicy = run<AutopilotPolicy>('autopilot_policy_create', {
+    policy: 'claude-timeout',
+    dispatchPolicy: 'claude-timeout-dispatch',
+    mode: 'conservative',
+    allowAutoDispatch: true,
+    allowAutoValidate: true,
+    allowAutoFix: false,
+    allowStoryIntegration: false,
+    allowDoneAdvance: false,
+    allowMainMerge: false,
+    requireServerReceipt: false,
+    maxIterations: 1,
+    maxRuntimeMinutes: 10,
+    stopOnConflict: true,
+    stopOnScopeViolation: true,
+  });
+  assert.equal(timeoutPolicy.dispatchPolicy, 'claude-timeout-dispatch');
+  assertAuthorityFalse(timeoutPolicy, 'timeoutPolicy');
+
+  const providerTransientPolicy = run<AutopilotPolicy>('autopilot_policy_create', {
+    policy: 'provider-transient',
+    dispatchPolicy: 'claude-provider-transient-dispatch',
+    mode: 'conservative',
+    allowAutoDispatch: true,
+    allowAutoValidate: true,
+    allowAutoFix: false,
+    allowStoryIntegration: false,
+    allowDoneAdvance: false,
+    allowMainMerge: false,
+    requireServerReceipt: false,
+    maxIterations: 1,
+    maxRuntimeMinutes: 10,
+    stopOnConflict: true,
+    stopOnScopeViolation: true,
+  });
+  assert.equal(providerTransientPolicy.dispatchPolicy, 'claude-provider-transient-dispatch');
+  assertAuthorityFalse(providerTransientPolicy, 'providerTransientPolicy');
 
   assert.throws(
     () => run<AutopilotPolicy>('autopilot_policy_create', {
@@ -1025,6 +1116,81 @@ try {
   assert.match(budgetRetryStop.nextAction ?? '', /Fail closed|measured spend/i);
   assertAuthorityFalse(budgetRetryStop, 'budgetRetryStop');
 
+  let timeoutStop: AutopilotRunResult;
+  const pathBeforeTimeout = process.env.PATH;
+  try {
+    process.env.PATH = `${shimBin}:${pathBeforeTimeout ?? ''}`;
+    timeoutStop = run<AutopilotRunResult>('autopilot_run', {
+      mode: 'conservative',
+      storyId: 'B-timeout-demo',
+      policy: 'claude-timeout',
+      objective: 'Real host subprocess timeout must preserve the timeout stop reason.',
+      allowedPaths: ['packages/main/src/generated/timeout.txt'],
+      requiredCommands: [],
+    });
+  } finally {
+    process.env.PATH = pathBeforeTimeout;
+  }
+  assert.equal(timeoutStop.status, 'failed');
+  assert.equal(timeoutStop.stopReason, 'timeout');
+  assert.equal(timeoutStop.iterations.length, 1);
+  assert.equal(timeoutStop.iterations[0]?.status, 'failed');
+  assert.equal(timeoutStop.iterations[0]?.stopReason, 'timeout');
+  assert.match(timeoutStop.stopDetails ?? '', /claude-code real subprocess timed out/i);
+  assertAuthorityFalse(timeoutStop, 'timeoutStop');
+
+  const unknownHostWithProviderText = run<AutopilotRunResult>('autopilot_run', {
+    mode: 'conservative',
+    storyId: 'B-provider-transient-demo',
+    policy: 'provider-transient',
+    host: 'http-503-overloaded',
+    objective: 'Invalid local host input must not be classified as provider health.',
+    allowedPaths: ['packages/main/src/generated/provider-transient.txt'],
+    requiredCommands: [],
+  });
+  assert.equal(unknownHostWithProviderText.status, 'failed');
+  assert.equal(unknownHostWithProviderText.stopReason, 'validation_failed');
+  assert.match(unknownHostWithProviderText.stopDetails ?? '', /unknown host "http-503-overloaded"/);
+  assertAuthorityFalse(unknownHostWithProviderText, 'unknownHostWithProviderText');
+
+  writeFileSync(join(shimBin, 'claude'), [
+    '#!/bin/sh',
+    'if [ "$1" = "--help" ]; then',
+    '  echo "usage: claude --print <prompt-file>"',
+    '  exit 0',
+    'fi',
+    'echo "HTTP 503 service unavailable: provider overloaded" >&2',
+    'exit 1',
+  ].join('\n') + '\n', 'utf8');
+  chmodSync(join(shimBin, 'claude'), 0o755);
+
+  let providerTransientStop: AutopilotRunResult;
+  const pathBeforeProviderTransient = process.env.PATH;
+  try {
+    process.env.PATH = `${shimBin}:${pathBeforeProviderTransient ?? ''}`;
+    providerTransientStop = run<AutopilotRunResult>('autopilot_run', {
+      mode: 'conservative',
+      storyId: 'B-provider-transient-demo',
+      policy: 'provider-transient',
+      objective: 'Transient provider failure must pause through autopilot_run.',
+      allowedPaths: ['packages/main/src/generated/provider-transient.txt'],
+      requiredCommands: [],
+    });
+  } finally {
+    process.env.PATH = pathBeforeProviderTransient;
+  }
+  assert.equal(providerTransientStop.status, 'paused_requires_resume');
+  assert.equal(providerTransientStop.stopReason, 'provider_unhealthy');
+  assert.equal(providerTransientStop.iterations.length, 1);
+  assert.equal(providerTransientStop.iterations[0]?.status, 'paused_requires_resume');
+  assert.equal(providerTransientStop.iterations[0]?.stopReason, 'provider_unhealthy');
+  assert.match(providerTransientStop.stopDetails ?? '', /transient_provider_overload/);
+  assert.ok(
+    (providerTransientStop as AutopilotRunResult & { events?: Array<{ type?: string }> }).events?.some(event => event.type === 'paused_requires_resume'),
+    'provider transient autopilot_run result must persist paused_requires_resume health event',
+  );
+  assertAuthorityFalse(providerTransientStop, 'providerTransientStop');
+
   const activeConflictDispatch = run<Record<string, unknown>>('dispatch_prepare', {
     storyId: 'B-conflict-demo',
     host: 'fake',
@@ -1291,6 +1457,8 @@ try {
     fullForgedShapedAuthority,
     retryStop,
     budgetRetryStop,
+    timeoutStop,
+    providerTransientStop,
     conflictStop,
     cancellable,
     cancelled,
@@ -1308,7 +1476,8 @@ try {
     ownerGateResumeTakeover,
   ], 'allResults');
 
-  console.log('autopilot-run smoke passed: registration, two-policy linkage, policy gates, deprecated CLI flag refusal, autopilot_policy_create owner-meta refusal, full autopilot-surface unknown flag refusal, runId owner-gate refusal/takeover for cancel/resume, owner meta preservation, strict autopilot read-only flag refusal, read-only review immutability, dispatch-only refusal, mode-override refusal, forged authority refusal, fully-shaped server receipt refusal, caller-supplied fake-test-server receipt refusal, authority-verified fake server gate success/refusal, full-autopilot bounded retry, budget-capped retry fail-closed, conflict stop evidence preservation, host-native delegation contract, cancel evidence preservation, cancelled review immutability, ledger-backed resume projection, cancelled resume refusal, and authority boundaries verified');
+  console.log('autopilot-run smoke passed: registration, two-policy linkage, policy gates, deprecated CLI flag refusal, autopilot_policy_create owner-meta refusal, full autopilot-surface unknown flag refusal, runId owner-gate refusal/takeover for cancel/resume, owner meta preservation, strict autopilot read-only flag refusal, read-only review immutability, dispatch-only refusal, mode-override refusal, forged authority refusal, fully-shaped server receipt refusal, caller-supplied fake-test-server receipt refusal, authority-verified fake server gate success/refusal, full-autopilot bounded retry, budget-capped retry fail-closed, real-host timeout contract, provider transient pause contract, conflict stop evidence preservation, host-native delegation contract, cancel evidence preservation, cancelled review immutability, ledger-backed resume projection, cancelled resume refusal, and authority boundaries verified');
 } finally {
+  process.env.PATH = originalPath;
   rmSync(sandboxRoot, { recursive: true, force: true });
 }

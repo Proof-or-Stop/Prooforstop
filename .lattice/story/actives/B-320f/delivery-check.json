@@ -1,0 +1,108 @@
+{
+  "storyId": "B-320f",
+  "checkedAt": "2026-06-28T21:06:31.682Z",
+  "headHash": "bbffc854772671ba61dfb5d0c2c11c567875551b",
+  "materialHash": "362ebd6ee276bd55941835a846ed8ccd74f986726e2dc6f446f01c137da8ff2b",
+  "storyFilesHash": "9a01a3339960b46040e37d640001e69c0e8a09bae931c5ca702ad2491f926f17",
+  "reviewRound": "2026-06-28T21:02:06.439Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".lattice/story/actives/B-320f/evidence/transcript-diff.md",
+      "promise": "User sees \"autopilot-v2 reliability smoke passed: M2 health, M3 throttle, M4 fencing verified\" and the final acceptance table marks the reproduced gap closed.",
+      "status": "verified",
+      "verifiedBy": "delivery_context_pack+transcript+doc+smoke-source",
+      "evidence": "transcript-diff.md contains the live command node packages/main/dist/tasks/autopilot-v2-reliability-smoke.js and output autopilot-v2-reliability smoke PASS; docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md section 9 marks M2/M3/M4 implemented with acceptance evidence; smoke source asserts M2 health, M3 throttle, and M4 fencing."
+    },
+    {
+      "docPath": "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+      "promise": "User sees \"M3 adaptive throttle: PASS\" in the Autopilot v2 acceptance table and smoke output.",
+      "status": "verified",
+      "verifiedBy": "rg+transcript+smoke-source",
+      "evidence": "section 9 has the M3 adaptive throttle row implemented with bounded maxConcurrentLive, permit checks, throttle_hold, throttle_raise, and throttle_backoff; autopilot-v2-reliability-smoke.ts assertM3 covers raise, backoff, hold, and bounds; live transcript shows the smoke PASS."
+    },
+    {
+      "docPath": "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+      "promise": "User sees \"M4 process-pool claim/lease/fencing: PASS\" in the Autopilot v2 acceptance table and smoke output.",
+      "status": "verified",
+      "verifiedBy": "rg+transcript+smoke-source",
+      "evidence": "section 9 has the M4 process-pool safety row implemented; autopilot-v2-reliability-smoke.ts assertM4 covers duplicate claim refusal, expired lease reclaim, stale fencing refusal, current-owner completion, and already-completed refusal; live transcript shows the smoke PASS."
+    },
+    {
+      "docPath": "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+      "promise": "User sees \"Status: M1 DONE; M2 DONE; M3 DONE; M4 DONE\" near the top of autopilot-v2-reliability-execution-plan.md.",
+      "status": "verified",
+      "verifiedBy": "sed+rg",
+      "evidence": "the top status states IMPLEMENTED for B-320f, M1 checkpoint/resume was already present, and B-320f adds M2 health-aware pause/resume, M3 adaptive throttle, and M4 claim/lease/fencing safety; section 9 records M1 preserved and M2/M3/M4 implemented with acceptance evidence."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-320f/test-evidence.json",
+      "promise": "User sees \"build PASS\" and \"autopilot-v2 reliability smoke passed\" in the final verification summary.",
+      "status": "verified",
+      "verifiedBy": "test-evidence+transcript+doc",
+      "evidence": "test-evidence.json result is PASS; configured validate includes npm --prefix packages/main run build; section 9 lists Build PASS and Reliability smoke PASS; transcript-diff.md records autopilot-v2-reliability smoke PASS."
+    },
+    {
+      "docPath": "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+      "promise": "User sees \"M2 health-aware pause/resume: PASS\" in the Autopilot v2 acceptance table and smoke output.",
+      "status": "verified",
+      "verifiedBy": "rg+transcript+smoke-source",
+      "evidence": "section 9 has the M2 health-aware pause/resume row implemented; autopilot-v2-reliability-smoke.ts assertM2 covers retryable 429/503/529/network classification, non-transient auth/quota/policy/terminal errors, waiting_for_provider_health, paused_requires_resume, health_recovered, and resumed events; live transcript shows the smoke PASS."
+    },
+    {
+      "docPath": "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+      "promise": "User sees \"implementation integration: PASS\" in the final Autopilot v2 acceptance table.",
+      "status": "verified",
+      "verifiedBy": "checklist+validate+doc",
+      "evidence": "checklist_get shows CHK-001 through CHK-008 all done with passing verification evidence and no waivers; section 9 records M1 preserved, M2/M3/M4 implemented, host baseline implemented, build PASS, reliability smoke PASS, regression smokes PASS, version/entrypoint PASS; validation result is PASS."
+    },
+    {
+      "docPath": ".lattice/story/actives/B-320f/test-evidence.json",
+      "promise": "User sees \"verification report: PASS\" in the final Autopilot v2 acceptance table.",
+      "status": "verified",
+      "verifiedBy": "validate+done-required+host-verdicts",
+      "evidence": "delivery_context_pack validation source test-evidence.json reports result PASS at 2026-06-28T20:58:36.077Z; done-required-evidence.json exists; process-events.jsonl records three antigravity-cli host_verdict pass entries for agy-b320f-verification; transcript-diff.md records live reliability smoke PASS."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Live smoke transcript exists at .lattice/story/actives/B-320f/evidence/transcript-diff.md and records node packages/main/dist/tasks/autopilot-v2-reliability-smoke.js -> autopilot-v2-reliability smoke PASS. The same smoke is tied to CHK-001 evidence and covers closure of the reproduced M2/M3/M4 reliability gap."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "M3 adaptive throttle is covered by packages/main/src/tasks/autopilot-v2-reliability-smoke.ts assertM3: invalid concurrency clamps to 1, permit checks remain bounded, stable windows raise to maxConcurrentLive, provider failure backs off, and idle windows hold. The recorded command node packages/main/dist/tasks/autopilot-v2-reliability-smoke.js passed."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "M4 process-pool safety is covered by assertM4 in the reliability smoke: duplicate live claims are refused, expired leases are reclaimed, stale owners and stale fencing tokens cannot complete, current owner completion succeeds, and completed steps cannot be reclaimed. The recorded reliability smoke passed."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Documentation verification ran rg over docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md for B-320f implementation and acceptance status, committed admissible/storyFilesHash limits, regression smokes, version/entrypoint, routine validate, and process-immortality boundaries. The document now records B-320f implemented status and section 9 acceptance evidence."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "Build and verification evidence are present: npm --prefix packages/main run build passed, node packages/main/dist/tasks/autopilot-v2-reliability-smoke.js passed, autopilot run/resume and migration smokes passed, node packages/main/dist/cli.js --version reports Proofbound CLI 0.3.103, and lattice validate recorded PASS in test-evidence.json."
+    },
+    {
+      "featureId": "CHK-006",
+      "transcript": "M2 health-aware pause/resume is covered by assertM2 and autopilot-run smoke evidence: retryable 429/503/529/network errors produce provider-health waiting or paused states, non-transient quota/auth/policy/terminal/local budget errors do not, and health_probe/provider_unhealthy/waiting_for_provider_health/paused_requires_resume/health_recovered/resumed event semantics are asserted. Host baseline coverage includes codex, claude-code, antigravity, agy alias, and legacy gemini deprecation."
+    },
+    {
+      "featureId": "CHK-007",
+      "transcript": "Integration verification shows M2/M3/M4 reliability helpers integrated without replacing M1 ledger resume: autopilot-resume-smoke, autopilot-run-smoke, lattice-cli-migration-smoke, build, dedicated reliability smoke, and validation all passed. process-events.jsonl also records three antigravity-cli host_verdict pass entries for agy-b320f-verification."
+    },
+    {
+      "featureId": "CHK-008",
+      "transcript": "Final verification report coverage maps every feature to machine evidence: dedicated reliability smoke for M2/M3/M4, build PASS, regression smokes PASS, version/entrypoint PASS, lattice validate PASS at 2026-06-28T20:58:36.077Z, DONE-required evidence present, and Antigravity verification passed in three recorded host verdicts."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery review verified the context pack, live transcript, validation PASS, acceptance docs, dedicated reliability smoke source, build/validate evidence, M2/M3/M4 edge/adversarial coverage, regression smokes, and Antigravity host verdicts. No unresolved TODOs or delivery blockers found."
+  },
+  "_hash": "12f5b1f512291ca1749f03c6fec618eb117525c723c5b5467651764af8e060b3"
+}
