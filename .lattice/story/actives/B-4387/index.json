@@ -1,10 +1,10 @@
 {
   "storyId": "B-4387",
   "name": "fix-authority-server-reachability-status",
-  "title": "Fix authority readiness when server is unreachable",
-  "description": "When Authority URL is set but server is down, authority status must report server unreachable and stop showing authority-ready.",
+  "title": "Fix control-plane readiness when status endpoint is unreachable",
+  "description": "When the configured control service URL is unreachable, status should report unreachable and stop claiming ready.",
   "type": "bug",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "riskSignals": [
     {
@@ -24,6 +24,20 @@
       "user": "Harmonygo",
       "sessionId": "sess-c1592222a4fdb073",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-28T10:05:29.675Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-c1592222a4fdb073",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-4387",
+    "branch": "story/B-4387",
+    "createdAt": "2026-06-28T10:05:29.111Z"
+  }
 }

@@ -1,0 +1,51 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-4387",
+  "allowedCommands": [
+    "lattice authority status",
+    "lattice authority_status",
+    "lattice authority_status --json",
+    "lattice autopilot status",
+    "lattice checklist_get",
+    "lattice checklist_update",
+    "lattice conduit_status",
+    "lattice conduit_status --json",
+    "lattice decision_set",
+    "lattice story_advance",
+    "lattice story_get",
+    "lattice story_review",
+    "lattice understanding_set",
+    "npm --prefix packages/main run build",
+    "npm --prefix packages/main run test"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    ".lattice/story/actives/B-4387",
+    "packages/main/src/core/authority-client.ts",
+    "packages/main/src/core/autopilot.ts",
+    "packages/main/src/handlers/lattice-cli.ts",
+    "packages/main/src/tasks/authority-status-smoke.ts",
+    "packages/main/src/tasks/autopilot-authority-smoke.ts"
+  ],
+  "excludedCommands": [
+    "lattice authority enforce policy",
+    "lattice authority enforce runner",
+    "lattice authority enroll",
+    "lattice authority receipt",
+    "lattice authority run"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".git",
+    ".lattice/story/actives",
+    ".lattice/story/archived",
+    "dist",
+    "docs",
+    "node_modules"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "Scope: fix authority readiness false-positive when server down. Do: reachability probe wiring + readiness predicate + tests/fixtures updates in local scope. Stop: do not alter runner execution flow, job creation, or policy schema contracts. Allowed artifact changes: authority status and autopilot readiness outputs, tests.",
+  "createdAt": "2026-06-28T10:01:28.058Z",
+  "updatedAt": "2026-06-28T10:01:28.058Z",
+  "_hash": "7b28c96f374b0bd201b891a7e0e00cba42a4b23b127755921232161d3d35ef53"
+}

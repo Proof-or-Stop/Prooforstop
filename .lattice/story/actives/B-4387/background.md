@@ -1,19 +1,18 @@
 ## Trigger Event
-- Evidence: operator reports B-0419 follow-up, and production CLI telemetry showed `authorityReady` remained true while Authority endpoint was unreachable.
-- Related case: LATTICE_AUTHORITY_URL pointed to temporary unavailable host after maintenance window.
-- Impact: shadow/enforce UX misled users into assuming authority flow is operational while submissions would fail.
+- Evidence: operator reports B-0419 follow-up, and production CLI telemetry showed control readiness stayed true while control endpoint was unreachable.
+- Related case: configured control URL pointed to temporary unavailable host after maintenance window.
+- Impact: status/enforce UX misled users into assuming control flow is operational while submissions later failed.
 
 ## Key Insights
-- Current authority status returns `serverReachability: not-probed` and derives `authorityReady` only from config completeness and no readiness warnings.
+- Current status returns `serverReachability: not-probed` and marks ready only by configuration completeness with no readiness warnings.
 - Enforce/shadow readiness does not verify live connectivity before declaring ready.
-- Authority status/conduit status are read-only commands and can still include conservative network checks without mutating workflow state.
+- Status and conduit commands are read-only and can include conservative network checks without mutating workflow state.
 
 ## Solution Tradeoffs
-- Option A: mark ready false based on explicit /v1/authority/policy probe in status/autopilot, surfacing actionable reachability warnings. (recommended)
-- Option B: defer to existing behavior and only add docs guidance; lowest change but leaves false positives and repeated support incidents.
-- Option C: fully remove policy-probe from status and move to separate command; cleanest isolation but reduces immediate visibility and requires extra operators step.
+- Option A: mark ready false based on explicit control-plane /policy probe in status/autopilot, surfacing actionable reachability warnings. (recommended)
+- Option B: defer to existing behavior and only add docs guidance; lower immediate changes but keeps false positives and repeated support incidents.
+- Option C: move control probe to a separate command only; cleaner isolation but loses immediate visibility and adds one extra operator step.
 
 ## Conversational Texture
-- The objective is to make failures visible at the place people check authority health, rather than after a runner step fails in later execution.
-- If the server is down, readiness should become conservative and transparent, with explicit suggested commands for verification and recovery.
-
+- The goal is to make failures visible where users check control health, before submission.
+- If the control server is down, readiness should become conservative and transparent, with explicit suggested commands for verification and recovery.
