@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-6eb7",
+  "mode": "maintenance",
+  "allowed": [
+    "packages/main/src/core/process-fact-levels.ts (update 2 repro-first rationale strings: file-declaring -> material-code bug/feature)",
+    "packages/main/src/core/process-fact-registry.ts (update the story-evidence-binding rationale string: file-declaring -> material-code bug/feature)"
+  ],
+  "excluded": [
+    "Any non-rationale field in the registries",
+    "classifyReproFirstRequirement and any gate/classifier logic (shipped in B-8628; unchanged)",
+    "resolveReproFirstPreflightMode / modes / blocking math / structural registry fields / gateConsumer values",
+    "verify-process-fact-contract.mjs and other gate code"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User chose to do the Codex host-2 deferred prose alignment as a small follow-up after B-8628 DONE. Prose-only; behavior zero.",
+  "createdAt": "2026-06-28T16:51:03.819Z",
+  "updatedAt": "2026-06-28T16:51:03.819Z",
+  "_hash": "6276069ef21190de9e9f8462aaa035b9601c7eb9cac9bbdb2cc49f82b1de792e"
+}
