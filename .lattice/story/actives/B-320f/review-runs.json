@@ -1079,6 +1079,74 @@
         "bindingHash": "b408643309dbf346292149ad26070c35f7a6162d598ce9395c5b5b8d24fd3a40"
       },
       "_hash": "0bb6269ac8e76a3949e004ebbb9eaf5c92bd09bbbada95c0297d867ad0740261"
+    },
+    {
+      "reviewRunId": "B-320f:RR-017",
+      "storyId": "B-320f",
+      "agent": "lattice-review-test-coverage",
+      "lane": "lattice-review-test-coverage",
+      "reviewRound": "2026-06-28T21:02:06.439Z",
+      "startedAt": "2026-06-28T21:02:53.844Z",
+      "headHash": "29d519e089196f6caf35f86a7278f162a55cda1f",
+      "materialHash": "362ebd6ee276bd55941835a846ed8ccd74f986726e2dc6f446f01c137da8ff2b",
+      "storyFilesHash": "9a01a3339960b46040e37d640001e69c0e8a09bae931c5ca702ad2491f926f17",
+      "promptHash": "7f651aca70ab4293b322d2638c4a7071a12ea01bee8e0fb9e8a9b2e466617002",
+      "scopeBinding": {
+        "scopeContractHash": "ddaed162e6207bb67c730772415b99ee696d650ba500d12235152d6bb12bd8b0",
+        "diffPackHash": "d4ed2252209abe214dac2ae35c6eeecabab50a6b614ee72f6f6fbbf7ba974946",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+          "packages/main/package-lock.json",
+          "packages/main/package.json",
+          "packages/main/src/core/autopilot-reliability.ts",
+          "packages/main/src/core/lattice-autopilot.ts",
+          "packages/main/src/core/lattice-dispatch.ts",
+          "packages/main/src/tasks/autopilot-run-smoke.ts",
+          "packages/main/src/tasks/autopilot-v2-reliability-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "0c3a586f69880fcd81aa4ce6a7003c59dcabf1a70d867a88d74f944ba7dd761c",
+          "0d3d0dda4fc6dc7c297a9e5784300eb8abcbb1c05a9bf757afabb070bee74821",
+          "0e3387b388612802f7176eadba5e44836be9aa5c23563b2f29b6fe00a5b42fa4",
+          "2583572f086f292203277afe6df59f6baed82cd708cd683d88d059ab888e8ab5",
+          "34be2288b1732339d8fc4e171949e96d1fec4521c9b4bcbce2e8a5489c9a70bd",
+          "415adc621b1ef18105f80b2c10ceeb9f12cd08a671d3f1669b3d53f2c3db90b4",
+          "53bc0a9059ed3df04dcbe7280440aac7759e26186cd066edf5f96402f2556991",
+          "5b603b212b97f173974a9050dd65b6355e356776a914c30cf04abb0f7271e828",
+          "5ee74407d00048a65f4120caec39cc5c9aaa88518f11204702ea6e7f56700ca0",
+          "6344d0fc66db59c10020963c1446522e7110c2dca56ea48a91f094988b15616c",
+          "722c039e28d1802a68f868ffe19d5550b6a7391097da4295405c8438587ba6d9",
+          "7450a8d4fd1463415bffc5e409da39faca4915ad972a55b857908dc5415ee2c7",
+          "851fd5f0e3455a83cc806f3fcbc21ac61b5524139f3a3dc57b117df735b581d4",
+          "87de1b018c575adc05cdd9b6c4a2e97cc7ee32f84d6a1428fbb4f2e05de7ab18",
+          "965b160abd116d62b3ee64296d37f93132a878ebd6124591c5e38071f8351937",
+          "9902b6290ff4427695ff311cb6a54244d57e3dfb8e1a0221ce50c6f6f9873f90",
+          "ae71c11967633c6e4a78f4537ead758a12363f01e419df1a8517f2095d627b68",
+          "c0eb2dcb497fdedef1606fff53d959154668789bf4e6ee4cd52d49e51045e623",
+          "c653686d4fe3f99d8c4ab4175b3ec4b0404e5da9f9baaf2d7801a522b69406fe",
+          "cad0c1351b3147b71a05c2373c3c3be42844b315ac96aa21db9d41e7a712b953",
+          "d75a7f078205eaaf22f174fbbebbdb5fe5c53a554c54683bfa2d41b8f3c4bac5",
+          "daed81c9bc256df78debd396c38564f69dc96bf504d26d2687b3ac3203986af5",
+          "e3b73c4dea3f68e3b7c500be6412a8a7256990d012b1b304feb445bfef0ce415",
+          "e64d72470a74010775c5a0b3dc7686c21d25afd6d47d01866b6b16f257bc0deb",
+          "f608b7266e7ffe81adfbad9fa6ad7ee570fb30f7b00bbd12c894176f75f49299"
+        ],
+        "bindingHash": "459a4fbe7d0f0a126ca7f3ab704a44cd4f0e71d618320a82d0c52242d43a734f"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-320f",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-320f",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-320f",
+        "workspaceMode": "story-worktree",
+        "headHash": "29d519e089196f6caf35f86a7278f162a55cda1f",
+        "materialHash": "362ebd6ee276bd55941835a846ed8ccd74f986726e2dc6f446f01c137da8ff2b",
+        "storyFilesHash": "9a01a3339960b46040e37d640001e69c0e8a09bae931c5ca702ad2491f926f17",
+        "bindingHash": "da5d07c2fb66303a7590f40771f9d482d6cbee69fb3bab428c5c38fb40610576"
+      },
+      "_hash": "64707e9059746f4d1fe7a1c9716dc0bf2bda407bde301e8adb5019b4d10ffe4f"
     }
   ]
 }
