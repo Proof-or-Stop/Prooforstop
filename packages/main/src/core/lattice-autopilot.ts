@@ -9,6 +9,7 @@ import {
   type AutopilotPolicy as PersistedAutopilotPolicy,
   type AutopilotMode as PersistedAutopilotMode,
 } from './autopilot-policy.js';
+import { checkDispatchPolicy, type DispatchPolicy } from './dispatch-policy.js';
 import { currentGitHead, currentMaterialHash, isMaterialExcludedPath } from './evidence-freshness.js';
 import {
   buildDispatchMergePlan,
@@ -559,11 +560,43 @@ function buildRunPlanDigest(args: AutopilotRunArgs, policy: PersistedAutopilotPo
   });
 }
 
-function buildValidityPolicyDigest(policy: PersistedAutopilotPolicy): string {
+function dispatchPolicyMaterial(policy: DispatchPolicy): Omit<DispatchPolicy, 'createdAt'> {
+  const { createdAt: _createdAt, ...material } = policy;
+  return material;
+}
+
+function buildDispatchPolicyMaterialDigest(root: string, policyName: string): { ok: true; digest: string } | { ok: false; reason: string } {
+  try {
+    const check = checkDispatchPolicy(root, policyName);
+    if (check.status === 'refused') {
+      const reason = check.reasons.length > 0 ? check.reasons.join('; ') : check.nextAction;
+      return { ok: false, reason: `dispatch policy ${policyName} refused: ${reason}` };
+    }
+    return {
+      ok: true,
+      digest: digest({
+        schema: 'lattice.dispatch_policy_material.v1',
+        policy: dispatchPolicyMaterial(check.normalizedPolicy),
+      }),
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      reason: `dispatch policy ${policyName} could not be loaded: ${String((error as { message?: unknown }).message ?? error)}`,
+    };
+  }
+}
+
+function buildValidityPolicyDigest(root: string, policy: PersistedAutopilotPolicy): string {
+  const dispatchPolicyDigest = buildDispatchPolicyMaterialDigest(root, policy.dispatchPolicy);
+  if (!dispatchPolicyDigest.ok) {
+    throw new Error(dispatchPolicyDigest.reason);
+  }
   return digest({
     schema: AUTOPILOT_CHECKPOINT_LEDGER_SCHEMA_VERSION,
     policyName: policy.policy,
     dispatchPolicy: policy.dispatchPolicy,
+    dispatchPolicyDigest: dispatchPolicyDigest.digest,
     mode: policy.mode,
     allowAutoDispatch: policy.allowAutoDispatch,
     allowAutoValidate: policy.allowAutoValidate,
@@ -590,7 +623,7 @@ function buildProducerRuntimeIdentity(args: AutopilotRunArgs): string {
 
 function buildRunBasis(root: string, args: AutopilotRunArgs, policy: PersistedAutopilotPolicy, declaredOutputPaths: string[]): AutopilotRunBasis {
   const frozenRunPlanHash = buildRunPlanDigest(args, policy, declaredOutputPaths);
-  const validityPolicyDigest = buildValidityPolicyDigest(policy);
+  const validityPolicyDigest = buildValidityPolicyDigest(root, policy);
   const headHash = currentGitHead(root);
   const materialHash = currentMaterialHash(root, 'HEAD', root);
   const storyFilesHash = currentStoryFilesHashExcludingOutputs(root, declaredOutputPaths);
@@ -857,7 +890,15 @@ function currentRunBasisMatches(root: string, basis: AutopilotRunBasis, record: 
       reason: `autopilot policy could not be recomputed: ${String((error as { message?: unknown }).message ?? error)}`,
     };
   }
-  const currentValidityPolicyDigest = buildValidityPolicyDigest(currentPolicy);
+  let currentValidityPolicyDigest: string;
+  try {
+    currentValidityPolicyDigest = buildValidityPolicyDigest(root, currentPolicy);
+  } catch (error) {
+    return {
+      matches: false,
+      reason: `validityPolicyDigest could not be recomputed: ${String((error as { message?: unknown }).message ?? error)}`,
+    };
+  }
   if (basis.validityPolicyDigest !== currentValidityPolicyDigest) {
     return { matches: false, reason: 'validityPolicyDigest changed since run start' };
   }

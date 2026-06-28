@@ -158,7 +158,16 @@ try {
   resetConfigCache();
 
   const store = new StoryStore(root);
-  for (const storyId of ['B-green', 'B-stale', 'B-corrupt-snapshot', 'B-stale-checkpoint', 'B-early-fail', 'B-policy-drift', 'B-missing-git']) {
+  for (const storyId of [
+    'B-green',
+    'B-stale',
+    'B-corrupt-snapshot',
+    'B-stale-checkpoint',
+    'B-early-fail',
+    'B-policy-drift',
+    'B-dispatch-policy-drift',
+    'B-missing-git',
+  ]) {
     seedStory(store, storyId);
   }
   const ctx: HandlerContext = { store, root, scanRoot: join(root, 'packages/main') };
@@ -169,21 +178,24 @@ try {
     return handler({ ...args, json: true }) as T;
   };
 
-  run('dispatch_policy_create', {
-    policy: 'fake-dispatch',
-    allowedHosts: ['fake'],
-    allowedPaths: ['packages/main/src/generated/'],
-    deniedPaths: ['README.md'],
-    maxParallel: 5,
-    maxRuntimeMinutes: 10,
-    maxBudgetUSD: 5,
-    network: 'none',
-    commandAllowlist: ['node -e "process.exit(0)"'],
-    requireReceipt: true,
-    requireReview: true,
-    allowAutoMerge: false,
-    allowProductionDone: false,
-  });
+  const createFakeDispatchPolicy = (allowedPaths: string[] = ['packages/main/src/generated/']): void => {
+    run('dispatch_policy_create', {
+      policy: 'fake-dispatch',
+      allowedHosts: ['fake'],
+      allowedPaths,
+      deniedPaths: ['README.md'],
+      maxParallel: 5,
+      maxRuntimeMinutes: 10,
+      maxBudgetUSD: 5,
+      network: 'none',
+      commandAllowlist: ['node -e "process.exit(0)"'],
+      requireReceipt: true,
+      requireReview: true,
+      allowAutoMerge: false,
+      allowProductionDone: false,
+    });
+  };
+  createFakeDispatchPolicy();
   run('autopilot_policy_create', {
     policy: 'fake',
     dispatchPolicy: 'fake-dispatch',
@@ -330,6 +342,26 @@ try {
     stopOnScopeViolation: true,
   });
 
+  const dispatchPolicyDrift = run<JsonObject & AuthorityBoundary>('autopilot_run', {
+    runId: 'AP-dispatch-policy-drift',
+    mode: 'conservative',
+    storyId: 'B-dispatch-policy-drift',
+    policy: 'fake',
+    objective: 'Fail closed when linked dispatch policy content changes.',
+    allowedPaths: ['packages/main/src/generated/dispatch-policy-drift.txt'],
+    requiredCommands: ['node -e "process.exit(0)"'],
+  });
+  createFakeDispatchPolicy(['packages/main/src/generated/', 'packages/main/src/generated-expanded/']);
+  const dispatchPolicyDriftResume = run<JsonObject & AuthorityBoundary>('autopilot_resume', {
+    runId: dispatchPolicyDrift.runId,
+    maxResumeAgeMs: 60_000,
+  });
+  assert.equal(dispatchPolicyDriftResume.status, 'refused');
+  assert.equal(dispatchPolicyDriftResume.reason, 'stale_state');
+  assert.match(String(dispatchPolicyDriftResume.nextAction), /validityPolicyDigest changed/);
+  assertNoProductionOverclaim(dispatchPolicyDriftResume, 'dispatchPolicyDriftResume');
+  createFakeDispatchPolicy();
+
   const missingGit = run<JsonObject & AuthorityBoundary>('autopilot_run', {
     runId: 'AP-missing-git',
     mode: 'conservative',
@@ -352,8 +384,8 @@ try {
     renameSync(movedGitDir, gitDir);
   }
 
-  assertNoProductionOverclaim([green, stale, corruptSnapshot, staleCheckpoint, earlyFail, policyDrift, missingGit], 'runs');
-  console.log('autopilot-resume smoke passed: fresh ledger projection, stale refusal, no re-dispatch, corrupt snapshot recovery, stale checkpoint fail-closed, early failed no-checkpoint refusal, policy drift fail-closed, missing freshness fail-closed, and authority boundaries verified');
+  assertNoProductionOverclaim([green, stale, corruptSnapshot, staleCheckpoint, earlyFail, policyDrift, dispatchPolicyDrift, missingGit], 'runs');
+  console.log('autopilot-resume smoke passed: fresh ledger projection, stale refusal, no re-dispatch, corrupt snapshot recovery, stale checkpoint fail-closed, early failed no-checkpoint refusal, policy drift fail-closed, dispatch policy drift fail-closed, missing freshness fail-closed, and authority boundaries verified');
 } finally {
   rmSync(sandboxRoot, { recursive: true, force: true });
 }
