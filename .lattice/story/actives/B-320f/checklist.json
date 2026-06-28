@@ -289,7 +289,44 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees \"implementation integration: PASS\" in the final Autopilot v2 acceptance table.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/lattice-autopilot.ts",
+          "packages/main/src/core/autopilot-executor.ts",
+          "packages/main/src/core/lattice-dispatch.ts"
+        ],
+        "create": [
+          "packages/main/src/core/autopilot-reliability.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/autopilot-v2-reliability-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The M2/M3/M4 implementation paths are integrated without replacing M1 ledger-resume.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The implementation leaves Authority/productionDone fields false for local control-plane proofs.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The implementation does not require live external provider calls for deterministic smoke validation.",
+            "type": "logic",
+            "priority": "should"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-008",
