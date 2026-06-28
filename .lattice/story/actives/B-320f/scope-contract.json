@@ -21,7 +21,26 @@
   "protectedFiles": [],
   "explicitExcludes": [],
   "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "B-320f explicitly requires a 0.3.102 to 0.3.103 behavior-version bump, which touches package-lock metadata and the lattice-brand runtime version constant.",
+      "timestamp": "2026-06-28T16:21:03.338Z",
+      "paths": [
+        "packages/main/package-lock.json",
+        "packages/main/src/core/lattice-brand.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/package-lock.json",
+        "packages/main/src/core/lattice-brand.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "8aa2d2cbea3be559ed3641afcfcd3c89ca3bbbbf",
+      "materialHash": "5d118ccca351e9fdf8f569dce8cbcb8163042c5c6c90c88106fefc8e19c90925"
+    }
+  ],
   "createdAt": "2026-06-28T16:09:44.158Z",
-  "updatedAt": "2026-06-28T16:09:44.158Z"
+  "updatedAt": "2026-06-28T16:21:03.338Z"
 }
