@@ -4,7 +4,7 @@
   "title": "Autopilot v2 M1: implement checkpoint-ledger-backed resume",
   "description": "2026-06-28 repro-first intake creates this story from accepted candidate evidence. Probe rp-mqx2itpx-0faeok and review rr-mqx2j0jf-8mek6o are bound before development starts. The fix is restricted to Autopilot v2 M1 checkpoint-ledger-backed resume: candidate evidence remains intake-only and must not be treated as verificationEvidence, DONE evidence, remote quorum proof, or production proof.",
   "type": "bug",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "high",
   "createdAt": "2026-06-28T00:52:00.674Z",
   "startedAt": "2026-06-28T00:52:00.674Z",
@@ -63,6 +63,15 @@
       "user": "Harmonygo",
       "sessionId": "sess-79694b31f81f37b5",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-28T01:21:52.585Z",
+      "branch": "story/B-c7e2",
+      "user": "Harmonygo",
+      "sessionId": "sess-79694b31f81f37b5",
+      "agent": "main"
     }
   ],
   "worktree": {
@@ -70,5 +79,5 @@
     "branch": "story/B-c7e2",
     "createdAt": "2026-06-28T00:57:49.725Z"
   },
-  "currentReviewRound": "2026-06-28T01:14:32.472Z"
+  "currentReviewRound": "2026-06-28T01:21:52.585Z"
 }
