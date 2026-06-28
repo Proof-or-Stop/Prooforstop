@@ -71,6 +71,15 @@
       "reviewRound": "2026-06-28T10:20:01.015Z",
       "reviewRunId": "B-eb18:RR-014",
       "_hash": "5f73c4b3d24784face966c941cdbfa71cd5a9fdb7421ecfb3470ee00798674ec"
+    },
+    {
+      "id": "B-eb18:RP-009",
+      "agent": "lattice-review-quality",
+      "note": "Quality review pass at 4a100a24. Evidence: global-lifecycle-control-plane-smoke, command-catalog-smoke, and source-structure-convergence-smoke passed; direct unsupported flag probes for global_control_status --runCommands=true and runtime_closure_status --authorityDone=true failed closed at validation; runtime_closure_status for B-eb18 from the story worktree reports ownerLease=owned using session semantics; queue_exception_set is mainSharedMutating and smoke covers canonical main write lock contention. No correctness blocker found.",
+      "createdAt": "2026-06-28T10:27:02.374Z",
+      "reviewRound": "2026-06-28T10:20:01.015Z",
+      "reviewRunId": "B-eb18:RR-012",
+      "_hash": "9639325d67515f76627a9e3b78e5e1b90a5c8b5d49b3b9bb82dd9e18691e9e0e"
     }
   ]
 }
