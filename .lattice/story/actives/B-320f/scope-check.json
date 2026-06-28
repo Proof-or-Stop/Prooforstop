@@ -1,0 +1,73 @@
+{
+  "storyId": "B-320f",
+  "checkedAt": "2026-06-28T16:07:26.916Z",
+  "features": [
+    {
+      "feature": "M2 health-aware pause/resume",
+      "covered_by": "CHK-006",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "autopilot-v2-reliability-execution-plan.md#M2"
+    },
+    {
+      "feature": "M3 adaptive runtime throttle",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "autopilot-v2-reliability-execution-plan.md#M3"
+    },
+    {
+      "feature": "M4 process-pool claim/lease/fencing",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "autopilot-v2-reliability-execution-plan.md#M4"
+    },
+    {
+      "feature": "Execution-plan status and acceptance table",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md"
+    },
+    {
+      "feature": "Build, smoke validation, existing M1 regression, and version bump",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "AGENTS.md version discipline"
+    },
+    {
+      "feature": "Overall reproduced M2-M4 gap closure",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "repro probe rp-mqxz6vtf-01k0x1"
+    },
+    {
+      "feature": "Implementation integration across Autopilot core files",
+      "covered_by": "CHK-007",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan_skeleton-added integration item"
+    },
+    {
+      "feature": "Final verification report and evidence mapping",
+      "covered_by": "CHK-008",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan_skeleton-added verification item"
+    }
+  ],
+  "summary": {
+    "total": 8,
+    "covered": 8,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "0b4fbba0a6040aa893a8e0f32f3ca2990ccdd2a172fde374469c098964796441",
+  "openQuestions": []
+}

@@ -1,0 +1,102 @@
+{
+  "findings": [
+    {
+      "id": "B-320f:F-001",
+      "desc": "Timeout stop reasons regress to provider_unhealthy for real host subprocess timeouts. main classified /timeout|timed out/ as AutopilotStopReason timeout before budget/validation fallback; this branch calls classifyAutopilotProviderFailure before the timeout branch in packages/main/src/core/lattice-autopilot.ts:1217-1220. The new classifier treats any \"timeout\"/\"timed out\" text as retryable network_unreachable in packages/main/src/core/autopilot-reliability.ts:95-96. Real Claude subprocess failures emit warning text \"claude-code real subprocess timed out after ${timeoutMs}ms\" from packages/main/src/core/lattice-dispatch.ts:2377-2386, and auto.status===failed builds the classification message from warnings plus nextAction in packages/main/src/core/lattice-autopilot.ts:1654-1658, so this existing timeout contract now becomes status paused_requires_resume with stopReason provider_unhealthy instead of failed/timeout. Read-only probe confirmed classifyAutopilotProviderFailure(\"timed out after 1000ms\") returns network_unreachable/retryableProviderHealth=true.",
+      "severity": "high",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-28T16:34:50.260Z",
+      "reviewRound": "2026-06-28T16:31:02.800Z",
+      "reviewRunId": "B-320f:RR-002",
+      "_hash": "d25e48d65d6ef306aec04da18e1090ce6fd3da0caffc85acd60533e5960cd8e7",
+      "files": [
+        "packages/main/src/core/lattice-autopilot.ts",
+        "packages/main/src/core/autopilot-reliability.ts",
+        "packages/main/src/core/lattice-dispatch.ts"
+      ],
+      "signatureTag": "edge|ts|timeout-stop-reasons",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by c09ae2791: classifyDispatchError checks timeout before provider-health classification; autopilot-run smoke asserts real-host timeout stays failed/timeout. Confirmed by round 3 quality/concept passes.",
+      "resolvedAt": "2026-06-28T20:46:15.924Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-320f:F-002",
+      "desc": "Must-level B-320f verification evidence is semantically incomplete. CHK-002 adversarial requires invalid/zero maxConcurrentLive values to clamp to a safe minimum, but the cited smoke only constructs createAutopilotThrottleState(3) and exercises raise/backoff/hold; it never calls 0, negative, NaN, or Infinity even though the clamp lives in autopilot-reliability.ts. CHK-006 happy requires transient failures to produce waiting/paused autopilot_run states instead of generic failed status, but the new smoke only calls helper functions; existing autopilot-run/resume/migration smokes contain no provider_unhealthy/paused_requires_resume/waiting_for_provider_health assertion against autopilot_run. The planner sees 25 fresh evidence entries by hash, but these entries are partially vacuous for M2/M3 must intents.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-28T16:34:57.050Z",
+      "reviewRound": "2026-06-28T16:31:02.800Z",
+      "reviewRunId": "B-320f:RR-006",
+      "_hash": "150996ca882dacd029f8fb3408b7eb7289af1b8d42b6cd46f028d8ca0fb07283",
+      "files": [
+        "packages/main/src/tasks/autopilot-v2-reliability-smoke.ts",
+        "packages/main/src/core/autopilot-reliability.ts",
+        "packages/main/src/core/lattice-autopilot.ts",
+        "packages/main/src/tasks/autopilot-run-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|level-320f-verification",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by c09ae2791: reliability smoke covers invalid maxConcurrentLive clamp values and autopilot-run smoke covers integration-level timeout/provider transient states. Confirmed by round 3 test-coverage pass.",
+      "resolvedAt": "2026-06-28T20:46:16.656Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-320f:F-003",
+      "desc": "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md:386 overclaims that retryable 429/503/529/overload/network/timeout become provider-health states. The implementation classifies dispatch timeout before provider-health classification (packages/main/src/core/lattice-autopilot.ts:1212-1220), so autopilot_run timeout remains stopReason=timeout/failed. The new regression smoke explicitly asserts that real-host timeout contract (packages/main/src/tasks/autopilot-run-smoke.ts:1100-1121), while provider transient overload separately pauses with stopReason=provider_unhealthy (packages/main/src/tasks/autopilot-run-smoke.ts:1123-1142). The dedicated reliability smoke covers provider health events but does not prove timeout becomes a provider-health state (packages/main/src/tasks/autopilot-v2-reliability-smoke.ts:15-70).",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-28T16:54:07.588Z",
+      "reviewRound": "2026-06-28T16:50:31.384Z",
+      "reviewRunId": "B-320f:RR-010",
+      "_hash": "0e6f0a63db1ba8fb5afb444ad03ae14c25997808ed6d0295c444501e1601546e",
+      "files": [
+        "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+        "packages/main/src/core/lattice-autopilot.ts",
+        "packages/main/src/tasks/autopilot-run-smoke.ts",
+        "packages/main/src/tasks/autopilot-v2-reliability-smoke.ts"
+      ],
+      "signatureTag": "doc-code-drift|md|docs-requirements-decisions",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by a44bbdd46: execution plan now limits provider-health classification to provider-side rate/overload/network failures and preserves local dispatch/runtime timeout as stopReason timeout. Confirmed by round 3 docs pass.",
+      "resolvedAt": "2026-06-28T20:46:17.171Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-320f:F-004",
+      "desc": "Provider-transient autopilot_run coverage is a false positive: autopilot-run-smoke passes host=\"http-503-overloaded\", but lattice-dispatch only accepts fake/codex/claude-code/antigravity/gemini, so dispatch_auto throws an unknown-host validation error. classifyDispatchError then calls classifyAutopilotProviderFailure on that validation text, and the embedded host string matches 503/overloaded, producing provider_unhealthy/paused_requires_resume. This masks local validation errors as provider health and does not prove real provider transient failures still pause. Evidence: packages/main/src/core/lattice-dispatch.ts:453 rejects unknown hosts and packages/main/src/core/lattice-dispatch.ts:3239 throws the unknown-host error; packages/main/src/core/lattice-autopilot.ts:1212 routes non-timeout/non-validation text into provider classification; packages/main/src/tasks/autopilot-run-smoke.ts:1123 uses the invalid host string and asserts paused_requires_resume.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-28T16:55:04.703Z",
+      "reviewRound": "2026-06-28T16:50:31.384Z",
+      "reviewRunId": "B-320f:RR-008",
+      "_hash": "a8da9222d53d0ccb59a34a800ed9815611904946dc670c2cf34a47d67035cf07",
+      "files": [
+        "packages/main/src/core/lattice-autopilot.ts",
+        "packages/main/src/core/lattice-dispatch.ts",
+        "packages/main/src/tasks/autopilot-run-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|provider-transient-autopilot",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by a44bbdd46: unknown-host/local validation errors stay validation_failed, and provider-transient autopilot_run coverage now uses a legal PATH-local claude shim through claude-code. Confirmed by round 3 quality/test-coverage passes.",
+      "resolvedAt": "2026-06-28T20:46:17.642Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

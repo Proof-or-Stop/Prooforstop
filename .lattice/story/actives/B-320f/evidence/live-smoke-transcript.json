@@ -1,0 +1,20 @@
+{
+  "storyId": "B-320f",
+  "expected": "User sees \"autopilot-v2 reliability smoke passed: M2 health, M3 throttle, M4 fencing verified\" and the final acceptance table marks the reproduced gap closed.",
+  "actual": {
+    "command": "node packages/main/dist/tasks/autopilot-v2-reliability-smoke.js",
+    "exitCode": 0,
+    "stdout": "autopilot-v2-reliability smoke PASS\n"
+  },
+  "mode": {
+    "runCommands": true,
+    "writeEvidence": true
+  },
+  "capturedAtIso": "2026-06-28T21:04:16.143Z",
+  "claims": {
+    "authorityDone": false,
+    "productionDone": false
+  },
+  "headHash": "bbffc854772671ba61dfb5d0c2c11c567875551b",
+  "materialHash": "362ebd6ee276bd55941835a846ed8ccd74f986726e2dc6f446f01c137da8ff2b"
+}

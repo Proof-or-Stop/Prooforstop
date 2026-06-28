@@ -1,0 +1,56 @@
+{
+  "storyId": "B-320f",
+  "changes": "Implemented Autopilot v2 reliability completion: M2 provider-health pause/resume, M3 adaptive maxConcurrentLive throttle, M4 process-pool claim/lease/fencing, host baseline updates, regression smoke coverage, and updated autopilot-v2 reliability execution plan acceptance table.",
+  "usage": "Use the existing Proofbound CLI autopilot surfaces; validate with npm --prefix packages/main run build, node packages/main/dist/tasks/autopilot-v2-reliability-smoke.js, node packages/main/dist/tasks/autopilot-run-smoke.js, node packages/main/dist/tasks/autopilot-resume-smoke.js, node packages/main/dist/tasks/lattice-cli-migration-smoke.js, and lattice validate --story=B-320f --json.",
+  "expectedOutcome": "User sees M1 DONE, M2 DONE, M3 DONE, M4 DONE in the execution plan and sees the Autopilot v2 reliability smoke pass for health, throttle, and fencing behavior.",
+  "actualTranscript": "Real-machine live smoke ran node packages/main/dist/tasks/autopilot-v2-reliability-smoke.js and printed autopilot-v2-reliability smoke PASS. Full configured validation passed 31/31 commands, DONE-required validation passed 2 required commands, Antigravity verification returned PASS, delivery reviewer signed 8 promises, and review escalation recorded full 3x2 local quorum.",
+  "outcomeDiff": "No behavioral mismatch: expected Autopilot v2 reliability completion and actual smoke/validation/delivery/quorum evidence all passed on the current material.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Local CLI evidence only; no Authority Server, productionDone, fullAuthorityDone, deployment, multi-day live provider fleet proof, or process immortality is claimed.",
+  "pitfalls": "Main merge made old review and verification hashes stale, so evidence had to be rerun/refreshed and review round 4 plus local 3x2 quorum were required before DONE. Timeout classification was kept local timeout rather than provider_unhealthy to avoid overbroad transient classification.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 71060
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 7499
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 372696
+    },
+    "DEV": {
+      "count": 4,
+      "durationMs": 15879059
+    },
+    "REVIEW": {
+      "count": 4,
+      "durationMs": 1003759
+    },
+    "TEST": {
+      "count": 2,
+      "durationMs": 1054284
+    }
+  },
+  "totalDurationMs": 18388359,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-28T21:07:46.737Z",
+  "updatedAt": "2026-06-28T21:07:46.737Z"
+}

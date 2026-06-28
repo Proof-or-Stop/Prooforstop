@@ -1,0 +1,107 @@
+{
+  "storyId": "B-320f",
+  "generatedFor": "delivery-review",
+  "diff": {
+    "changedFiles": [
+      ".lattice/story/actives/B-320f/checklist.json",
+      ".lattice/story/actives/B-320f/decision.json",
+      ".lattice/story/actives/B-320f/done-required-evidence.json",
+      ".lattice/story/actives/B-320f/findings.json",
+      ".lattice/story/actives/B-320f/index.json",
+      ".lattice/story/actives/B-320f/plan.md",
+      ".lattice/story/actives/B-320f/process-events.jsonl",
+      ".lattice/story/actives/B-320f/process-metrics.json",
+      ".lattice/story/actives/B-320f/review-passes.json",
+      ".lattice/story/actives/B-320f/review-runs.json",
+      ".lattice/story/actives/B-320f/review.json",
+      ".lattice/story/actives/B-320f/scope-check.json",
+      ".lattice/story/actives/B-320f/scope-contract.json",
+      ".lattice/story/actives/B-320f/test-evidence.json",
+      ".lattice/story/actives/B-320f/understanding.json",
+      "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+      "packages/main/package-lock.json",
+      "packages/main/package.json",
+      "packages/main/src/core/autopilot-reliability.ts",
+      "packages/main/src/core/lattice-autopilot.ts",
+      "packages/main/src/core/lattice-dispatch.ts",
+      "packages/main/src/tasks/autopilot-run-smoke.ts",
+      "packages/main/src/tasks/autopilot-v2-reliability-smoke.ts"
+    ],
+    "summary": " .lattice/story/actives/B-320f/checklist.json       |  790 ++++++++++++-\n .lattice/story/actives/B-320f/decision.json        |   59 +\n .../actives/B-320f/done-required-evidence.json     |   56 +\n .lattice/story/actives/B-320f/findings.json        |  102 ++\n .lattice/story/actives/B-320f/index.json           |  104 +-\n .lattice/story/actives/B-320f/plan.md              |   57 +\n .lattice/story/actives/B-320f/process-events.jsonl |   40 +\n .lattice/story/actives/B-320f/process-metrics.json |  363 ++++++\n .lattice/story/actives/B-320f/review-passes.json   |  112 ++\n .lattice/story/actives/B-320f/review-runs.json     | 1220 ++++++++++++++++++++\n .lattice/story/actives/B-320f/review.json          |  168 +++\n .lattice/story/actives/B-320f/scope-check.json     |   73 ++\n .lattice/story/actives/B-320f/scope-contract.json  |   46 +\n .lattice/story/actives/B-320f/test-evidence.json   |  567 +++++++++\n .lattice/story/actives/B-320f/understanding.json   |   31 +\n .../autopilot-v2-reliability-execution-plan.md     |   58 +-\n packages/main/package-lock.json                    |    4 +-\n packages/main/package.json                         |    1 +\n packages/main/src/core/autopilot-reliability.ts    |  390 +++++++\n packages/main/src/core/lattice-autopilot.ts        |   96 +-\n packages/main/src/core/lattice-dispatch.ts         |   21 +-\n packages/main/src/tasks/autopilot-run-smoke.ts     |  175 ++-\n .../src/tasks/autopilot-v2-reliability-smoke.ts    |  156 +++\n 23 files changed, 4664 insertions(+), 25 deletions(-)"
+  },
+  "docsPromises": [
+    {
+      "source": "userSees",
+      "promise": "User sees \"autopilot-v2 reliability smoke passed: M2 health, M3 throttle, M4 fencing verified\" and the final acceptance table marks the reproduced gap closed."
+    },
+    {
+      "source": "userSees",
+      "promise": "User sees \"M3 adaptive throttle: PASS\" in the Autopilot v2 acceptance table and smoke output."
+    },
+    {
+      "source": "userSees",
+      "promise": "User sees \"M4 process-pool claim/lease/fencing: PASS\" in the Autopilot v2 acceptance table and smoke output."
+    },
+    {
+      "source": "userSees",
+      "promise": "User sees \"Status: M1 DONE; M2 DONE; M3 DONE; M4 DONE\" near the top of autopilot-v2-reliability-execution-plan.md."
+    },
+    {
+      "source": "userSees",
+      "promise": "User sees \"build PASS\" and \"autopilot-v2 reliability smoke passed\" in the final verification summary."
+    },
+    {
+      "source": "userSees",
+      "promise": "User sees \"M2 health-aware pause/resume: PASS\" in the Autopilot v2 acceptance table and smoke output."
+    },
+    {
+      "source": "userSees",
+      "promise": "User sees \"implementation integration: PASS\" in the final Autopilot v2 acceptance table."
+    },
+    {
+      "source": "userSees",
+      "promise": "User sees \"verification report: PASS\" in the final Autopilot v2 acceptance table."
+    }
+  ],
+  "realMachineTests": {
+    "transcriptDiff": false,
+    "testFiles": [
+      "packages/main/src/tasks/autopilot-resume-smoke.ts",
+      "packages/main/src/tasks/autopilot-run-smoke.ts",
+      "packages/main/src/tasks/autopilot-v2-reliability-smoke.ts"
+    ],
+    "evidenceCommands": [
+      "node packages/main/dist/tasks/autopilot-resume-smoke.js",
+      "node packages/main/dist/tasks/autopilot-run-smoke.js",
+      "node packages/main/dist/tasks/autopilot-run-smoke.js; node packages/main/dist/tasks/autopilot-resume-smoke.js; node packages/main/dist/tasks/lattice-cli-migration-smoke.js; node packages/main/dist/cli.js --version",
+      "node packages/main/dist/tasks/autopilot-v2-reliability-smoke.js",
+      "node packages/main/dist/tasks/lattice-cli-migration-smoke.js",
+      "npm --prefix packages/main run build",
+      "rg -n \"B-320f implementation and acceptance status|committed admissible|storyFilesHash\" docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+      "rg -n \"Regression smokes|Version and CLI entrypoint|Routine validate\" docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+      "rg -n \"does not make the CLI process immortal|external host/session keepalive is a wrapper concern\" docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md"
+    ]
+  },
+  "validation": {
+    "source": "test-evidence.json",
+    "result": "PASS",
+    "timestamp": "2026-06-28T20:58:36.077Z",
+    "headHash": "8d5e6836191099446485154bc18133c67adb47c0",
+    "materialHash": "362ebd6ee276bd55941835a846ed8ccd74f986726e2dc6f446f01c137da8ff2b",
+    "storyFilesHash": "9a01a3339960b46040e37d640001e69c0e8a09bae931c5ca702ad2491f926f17"
+  },
+  "reviewRound": "2026-06-28T21:02:06.439Z",
+  "deliveryCheck": {
+    "status": "missing",
+    "ref": null
+  },
+  "waiver": {
+    "status": "none"
+  },
+  "isSigner": false,
+  "claims": {
+    "authorityDone": false,
+    "fullAuthorityDone": false,
+    "productionDone": false
+  }
+}

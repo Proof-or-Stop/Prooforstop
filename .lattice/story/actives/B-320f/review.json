@@ -1,0 +1,168 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-06-28T16:05:16.908Z",
+      "issueCount": 17,
+      "blockerCount": 4,
+      "issues": [
+        {
+          "type": "missing_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 is missing userSees (the specific text the user sees in the terminal/UI after completing this item). Example: 'User sees \"✓ File created: hello.txt\" then returns to the prompt'"
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-004",
+          "message": "CHK-004 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-005",
+          "message": "CHK-005 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-006",
+          "message": "CHK-006 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "scope_change",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 (\"Implement M3 adaptive runtime throttle semantics\") was added in PLAN phase: Add M3 execution-plan acceptance item after repro intake."
+        },
+        {
+          "type": "scope_change",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 (\"Implement M4 process-pool claim lease and fencing semantics\") was added in PLAN phase: Add M4 execution-plan acceptance item after repro intake."
+        },
+        {
+          "type": "scope_change",
+          "severity": "advisory",
+          "itemId": "CHK-004",
+          "message": "CHK-004 (\"Update Autopilot v2 execution-plan status and acceptance table\") was added in PLAN phase: Add doc/status acceptance item after repro intake."
+        },
+        {
+          "type": "scope_change",
+          "severity": "advisory",
+          "itemId": "CHK-005",
+          "message": "CHK-005 (\"Run build smoke validation and version bump\") was added in PLAN phase: Add verification and release hygiene item after repro intake."
+        },
+        {
+          "type": "scope_change",
+          "severity": "advisory",
+          "itemId": "CHK-006",
+          "message": "CHK-006 (\"Implement M2 health-aware pause/resume semantics\") was added in PLAN phase: Add explicit M2 item because the from-repro CHK-001 title is frozen in PLAN."
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "6 checklist items; please check for missing combined scenarios (e.g., what happens when Implement fix for reproduced failure + Implement M3 adaptive runtime throttle semantics are performed simultaneously?)"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: packages/main/src/core/autopilot-executor.ts is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: packages/main/src/core/lattice-dispatch.ts is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        },
+        {
+          "type": "missing_plan_md",
+          "severity": "blocker",
+          "message": "High-risk stories must have plan.md (execution plan). Write it following the plan.md template in CLAUDE.md, one section per CHK-xxx"
+        },
+        {
+          "type": "missing_scope_check",
+          "severity": "blocker",
+          "message": "missing_scope_check: scope-check.json is missing PLAN gate evidence. `scope_check_save` already exists; a lattice-review-scope-plan / scope-plan reviewer must persist the result through `scope_check_save`. The implementation/main agent must not self-sign this evidence or manually edit story metadata. Local CLI guidance is not Authority Server completion and must not be presented as receipt verification or production/full Authority completion."
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-320f is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "ac6e5631f62177004c5a51a78db65dddcf5fdb1dd3d6d711427721f11e635d23"
+    },
+    {
+      "timestamp": "2026-06-28T16:07:33.284Z",
+      "issueCount": 9,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "scope_change",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 (\"Implement M3 adaptive runtime throttle semantics\") was added in PLAN phase: Add M3 execution-plan acceptance item after repro intake."
+        },
+        {
+          "type": "scope_change",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 (\"Implement M4 process-pool claim lease and fencing semantics\") was added in PLAN phase: Add M4 execution-plan acceptance item after repro intake."
+        },
+        {
+          "type": "scope_change",
+          "severity": "advisory",
+          "itemId": "CHK-004",
+          "message": "CHK-004 (\"Update Autopilot v2 execution-plan status and acceptance table\") was added in PLAN phase: Add doc/status acceptance item after repro intake."
+        },
+        {
+          "type": "scope_change",
+          "severity": "advisory",
+          "itemId": "CHK-005",
+          "message": "CHK-005 (\"Run build smoke validation and version bump\") was added in PLAN phase: Add verification and release hygiene item after repro intake."
+        },
+        {
+          "type": "scope_change",
+          "severity": "advisory",
+          "itemId": "CHK-006",
+          "message": "CHK-006 (\"Implement M2 health-aware pause/resume semantics\") was added in PLAN phase: Add explicit M2 item because the from-repro CHK-001 title is frozen in PLAN."
+        },
+        {
+          "type": "scope_change",
+          "severity": "advisory",
+          "itemId": "CHK-007",
+          "message": "CHK-007 (\"Implement Complete Autopilot v2 reliability M2-M4 and update execution-plan...\") was added in PLAN phase: plan_skeleton --write generated an initial PLAN skeleton from StoryReadinessReport"
+        },
+        {
+          "type": "scope_change",
+          "severity": "advisory",
+          "itemId": "CHK-008",
+          "message": "CHK-008 (\"Verify Complete Autopilot v2 reliability M2-M4 and update execution-plan...\") was added in PLAN phase: plan_skeleton --write generated an initial PLAN skeleton from StoryReadinessReport"
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "8 checklist items; please check for missing combined scenarios (e.g., what happens when Implement fix for reproduced failure + Implement M3 adaptive runtime throttle semantics are performed simultaneously?)"
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-320f is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "bfd3cbbabccb83aaeb6579b776c8275a01e51ace84990bb6432adcf8e8c090eb"
+    }
+  ]
+}

@@ -23,6 +23,12 @@ import {
   type DispatchWatchResult,
   type HostRuntimeId,
 } from './lattice-dispatch.js';
+import {
+  buildProviderHealthRecoveredEvents,
+  buildProviderHealthTransition,
+  classifyAutopilotProviderFailure,
+  type AutopilotFailureClass,
+} from './autopilot-reliability.js';
 import { LATTICE_DIR } from './lattice-paths.js';
 import { resolveGitCwd } from './story-signed-workspace-resolution.js';
 import type { StoryStore } from './store.js';
@@ -43,6 +49,8 @@ export const AUTOPILOT_STOP_REASONS = [
   'validation_failed',
   'missing_receipt',
   'missing_authority',
+  'provider_unhealthy',
+  'human_required',
 ] as const;
 
 export type AutopilotMode = 'conservative' | 'authority-verified' | 'full-autopilot';
@@ -51,6 +59,9 @@ export type AutopilotStatus =
   | 'created'
   | 'running'
   | 'needs_receipt'
+  | 'waiting_for_provider_health'
+  | 'paused_requires_resume'
+  | 'blocked_requires_human'
   | 'manual_review_ready'
   | 'missing_authority_receipt'
   | 'cancelled'
@@ -121,6 +132,9 @@ export interface AutopilotEvent {
   message: string;
   dispatchId?: string;
   stopReason?: AutopilotStopReason;
+  failureClass?: AutopilotFailureClass;
+  healthCategory?: 'llm_rate_limit' | 'llm_overload' | 'llm_network';
+  retryAfterMs?: number;
 }
 
 export interface AutopilotRunRecord {
@@ -487,13 +501,24 @@ function cloneRunRecord(record: AutopilotRunRecord): AutopilotRunRecord {
   return JSON.parse(JSON.stringify(record)) as AutopilotRunRecord;
 }
 
-function event(type: string, message: string, extra: Pick<AutopilotEvent, 'dispatchId' | 'stopReason'> = {}): AutopilotEvent {
+function event(type: string, message: string, extra: Omit<Partial<AutopilotEvent>, 'at' | 'type' | 'message'> = {}): AutopilotEvent {
   return {
     at: nowIso(),
     type,
     message,
     ...extra,
   };
+}
+
+function healthEventsForRun(healthEvents: ReturnType<typeof buildProviderHealthRecoveredEvents>): AutopilotEvent[] {
+  return healthEvents.map(healthEvent => ({
+    at: healthEvent.at,
+    type: healthEvent.type,
+    message: healthEvent.message,
+    ...(healthEvent.failureClass ? { failureClass: healthEvent.failureClass } : {}),
+    ...(healthEvent.healthCategory ? { healthCategory: healthEvent.healthCategory } : {}),
+    ...(healthEvent.retryAfterMs !== undefined ? { retryAfterMs: healthEvent.retryAfterMs } : {}),
+  }));
 }
 
 function normalizeOutputPath(path: string): string {
@@ -1187,8 +1212,16 @@ function markIterationEnded(
 function classifyDispatchError(message: string): AutopilotStopReason {
   if (/maxParallel|active dispatch|conflict/i.test(message)) return 'conflict';
   if (/scope|allowedPaths|deniedPaths|path traversal|escapes/i.test(message)) return 'scope_violation';
-  if (/timeout|timed out/i.test(message)) return 'timeout';
   if (/budget/i.test(message)) return 'budget_exhausted';
+  if (/not unattended-safe|allowRealHostSubprocess/i.test(message)) return 'validation_failed';
+  if (/timeout|timed out/i.test(message)) return 'timeout';
+  if (/^dispatch_auto:\s+(unknown host|host ".+" is not in policy|policy ".+" could not be loaded|policy ".+" is supervised-only)/i.test(message)) {
+    return 'validation_failed';
+  }
+  if (/dispatch_auto refused by policy commandAllowlist/i.test(message)) return 'validation_failed';
+  const providerFailure = classifyAutopilotProviderFailure(message);
+  if (providerFailure.retryableProviderHealth) return 'provider_unhealthy';
+  if (providerFailure.requiresHuman) return 'human_required';
   return 'validation_failed';
 }
 
@@ -1297,6 +1330,12 @@ function mergePlanStopReason(mergePlan: DispatchMergePlanResult): AutopilotStopR
     ...mergePlan.warnings,
     mergePlan.nextAction,
   ].join('\n'));
+}
+
+function providerFailureStatus(stopReason: AutopilotStopReason): AutopilotStatus | null {
+  if (stopReason === 'provider_unhealthy') return 'paused_requires_resume';
+  if (stopReason === 'human_required') return 'blocked_requires_human';
+  return null;
 }
 
 export function autopilotRun(store: StoryStore, root: string, args: AutopilotRunArgs): AutopilotRunRecord {
@@ -1526,6 +1565,28 @@ export function autopilotRun(store: StoryStore, root: string, args: AutopilotRun
     } catch (error) {
       const message = String((error as { message?: unknown }).message ?? error);
       const stopReason = classifyDispatchError(message);
+      const providerStatus = providerFailureStatus(stopReason);
+      if (providerStatus) {
+        const transition = buildProviderHealthTransition({
+          error: message,
+          nowIso: nowIso(),
+          processAlive: false,
+        });
+        const ended = markIterationEnded(iteration, providerStatus, transition.nextAction, stopReason);
+        return finalizeWithCheckpoint(record, {
+          status: providerStatus,
+          stopReason,
+          stopDetails: `${transition.classification.failureClass}: ${message}`,
+          iterations: [...record.iterations.slice(0, -1), ended],
+          errors: transition.classification.requiresHuman ? [...record.errors, message] : record.errors,
+          nextAction: transition.nextAction,
+          events: [
+            ...record.events,
+            event('dispatch_auto_failed', message, { stopReason, failureClass: transition.classification.failureClass }),
+            ...healthEventsForRun(transition.events),
+          ],
+        }, index, { note: `${transition.classification.failureClass}: ${message}` });
+      }
       const ended = markIterationEnded(iteration, 'failed', 'dispatch_auto refused or failed before any integration step.', stopReason);
       const nextIterations = [...record.iterations.slice(0, -1), ended];
       const retryDecision = validationRetryDecision(policy, stopReason, index, maxIterations, startMs, timeoutMs, record);
@@ -1598,6 +1659,28 @@ export function autopilotRun(store: StoryStore, root: string, args: AutopilotRun
       const message = [...auto.warnings, auto.nextAction].join('; ') || 'dispatch_auto returned failed status';
       const stopReason = classifyFailedDispatchResult(message);
       const nextAction = 'dispatch_auto returned failed status; autopilot preserved dispatch evidence before any integration step.';
+      const providerStatus = providerFailureStatus(stopReason);
+      if (providerStatus) {
+        const transition = buildProviderHealthTransition({
+          error: message,
+          nowIso: nowIso(),
+          processAlive: false,
+        });
+        const ended = markIterationEnded(iteration, providerStatus, transition.nextAction, stopReason);
+        return finalizeWithCheckpoint(record, {
+          status: providerStatus,
+          stopReason,
+          stopDetails: `${transition.classification.failureClass}: ${message}`,
+          iterations: [...record.iterations.slice(0, -1), { ...ended, dispatchId, warnings }],
+          errors: transition.classification.requiresHuman ? [...record.errors, message] : record.errors,
+          nextAction: transition.nextAction,
+          events: [
+            ...record.events,
+            event('validation_failed', message, { dispatchId, stopReason, failureClass: transition.classification.failureClass }),
+            ...healthEventsForRun(transition.events),
+          ],
+        }, index, { dispatchId, note: `${transition.classification.failureClass}: ${message}` });
+      }
       const ended = markIterationEnded(iteration, 'failed', nextAction, stopReason);
       const nextIterations = [...record.iterations.slice(0, -1), { ...ended, dispatchId, warnings }];
       const measuredSpendDeltaUSD = auto.host === 'fake' ? 0 : undefined;
@@ -1938,10 +2021,17 @@ export function autopilotResume(store: StoryStore, root: string, args: Autopilot
   const nextAction = projection.remainingSteps === 0
     ? `Resume projection ready: ${skipped} committed done checkpoint(s) will not be re-dispatched; no remaining step is eligible for M1 worker launch. Continue manual review/watch from the persisted run state.`
     : `Resume projection ready: ${skipped} committed done checkpoint(s) will not be re-dispatched; resume at ${projection.nextStepId}. M1 returns guidance only and does not launch workers.`;
+  const recoveredHealthEvents = record.status === 'paused_requires_resume' || record.status === 'waiting_for_provider_health'
+    ? healthEventsForRun(buildProviderHealthRecoveredEvents(nowIso()))
+    : [];
   record = persist(root, {
     ...record,
     checkpointLedger: checkpointProjection(record.runId, replay.basis, replay.checkpoints.size, replay.lastEventHash),
-    events: [...record.events, event(recoveredFromLedger ? 'resume_projection_recovered' : 'resume_projection_ready', nextAction)],
+    events: [
+      ...record.events,
+      ...recoveredHealthEvents,
+      event(recoveredFromLedger ? 'resume_projection_recovered' : 'resume_projection_ready', nextAction),
+    ],
     nextAction,
   });
   return {
