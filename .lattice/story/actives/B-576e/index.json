@@ -4,7 +4,7 @@
   "title": "Retire Authority Server semantics from Proofbound CLI",
   "description": "Remove Authority Server as a product/runtime concept and make local proof admissibility the only core evidence boundary. Authority Server production receipts are no longer part of the design.",
   "type": "refactor",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "keywords": [
     "authority-server",
@@ -24,7 +24,7 @@
   ],
   "createdAt": "2026-06-29T00:28:28.903Z",
   "startedAt": "2026-06-29T00:28:28.903Z",
-  "endedAt": null,
+  "endedAt": "2026-06-29T02:36:16.970Z",
   "events": [
     {
       "phase": "INIT",
@@ -115,12 +115,16 @@
       "user": "Harmonygo",
       "sessionId": "sess-9f05c0ef4d206eb0",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-29T02:36:16.970Z",
+      "branch": "story/B-576e",
+      "user": "Harmonygo",
+      "sessionId": "sess-9f05c0ef4d206eb0",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-576e",
-    "branch": "story/B-576e",
-    "createdAt": "2026-06-29T00:32:57.508Z"
-  },
   "currentReviewRound": "2026-06-29T02:17:55.724Z"
 }
