@@ -1760,9 +1760,10 @@ export interface ReviewRunWorkspaceBinding {
   bindingHash: string;
 }
 
-// ── ProofStory progressive intent hardening (B-7287 M0-M2 diagnostic MVP) ──
+// ── ProofStory progressive intent hardening ──
 
 export type ProofStoryHardeningLevel = 'intent_mvp' | 'standard' | 'high_assurance';
+export type ProofStoryGateMode = 'observe' | 'warn' | 'enforce';
 
 export interface OriginalIntentSnapshotData {
   schemaVersion: 'proofstory.original_intent_snapshot.v1';
@@ -1779,6 +1780,7 @@ export interface OriginalIntentSnapshotData {
 }
 
 export type MilestoneStatus = 'planned' | 'covered' | 'done' | 'not_applicable';
+export type MilestoneLedgerState = 'candidate' | 'confirmed';
 
 export interface MilestoneLedgerItem {
   id: string;
@@ -1794,6 +1796,15 @@ export interface MilestoneLedgerItem {
 export interface MilestoneLedgerData {
   schemaVersion: 'proofstory.milestone_ledger.v1';
   storyId: string;
+  /** Candidate ledgers guide diagnostics; only confirmed ledgers are gate-consumed. */
+  state?: MilestoneLedgerState;
+  /** Stable sha256 over ledger rows plus state-independent source metadata. */
+  ledgerHash?: string;
+  acceptedIntentBinding?: {
+    intentCollisionId: string;
+    acceptedInterpretationHash: string;
+    acceptedAt: string;
+  };
   milestones: MilestoneLedgerItem[];
   createdAt: string;
   updatedAt: string;
@@ -1802,7 +1813,16 @@ export interface MilestoneLedgerData {
 export interface ProofStoryTriggerReason {
   code: string;
   message: string;
-  requires?: 'milestone-ledger' | 'intent-collision' | 'red-evidence' | 'spike-evidence' | 'scope-clarification' | 'high-assurance';
+  requires?:
+    | 'milestone-ledger'
+    | 'confirmed-milestone-ledger'
+    | 'intent-collision'
+    | 'red-evidence'
+    | 'spike-evidence'
+    | 'scope-clarification'
+    | 'scope-shrinkage'
+    | 'high-assurance'
+    | 'done-equivalence';
 }
 
 export interface ProofStoryAcceptanceBinding {
@@ -1816,19 +1836,31 @@ export interface ProofStoryAcceptanceBinding {
 
 export interface ProofStoryDiagnosticGap {
   code: string;
-  severity: 'info' | 'warn';
+  severity: 'info' | 'warn' | 'fail';
   artifact: string;
   message: string;
   triggeredBy?: string[];
 }
 
+export interface ProofStoryLedgerSizing {
+  milestoneCount: number;
+  threshold: number;
+  thresholdState: 'within_threshold' | 'too_broad' | 'slice_required';
+  suggestedSlices: Array<{
+    id: string;
+    milestoneIds: string[];
+    reason: string;
+  }>;
+}
+
 export interface ProofStoryContractData {
   schemaVersion: 'proofstory.contract.v1';
   storyId: string;
-  diagnosticOnly: true;
+  diagnosticOnly: boolean;
   hardeningLevel: ProofStoryHardeningLevel;
   triggerReasons: ProofStoryTriggerReason[];
   originalIntentRequestHash?: string;
+  confirmedMilestoneLedgerHash?: string;
   acceptanceBindings: ProofStoryAcceptanceBinding[];
   diagnosticGaps: ProofStoryDiagnosticGap[];
   note?: string;
@@ -1836,29 +1868,118 @@ export interface ProofStoryContractData {
   updatedAt: string;
 }
 
+export type IntentCollisionDecision = 'pass' | 'revise_intent' | 'human_gate' | 'stop';
+
 export interface IntentCollisionData {
-  storyId?: string;
-  status?: string;
-  decision?: string;
-  resolution?: string;
-  [key: string]: unknown;
+  schemaVersion: 'proofstory.intent_collision.v1';
+  storyId: string;
+  id: string;
+  decision: IntentCollisionDecision;
+  status: 'accepted' | 'open' | 'stopped';
+  acceptedInterpretation?: string;
+  acceptedInterpretationHash?: string;
+  notes?: string;
+  ledgerHashBeforeDecision?: string;
+  confirmedLedgerHash?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ScopeShrinkageDecisionData {
+  schemaVersion: 'proofstory.scope_shrinkage_decision.v1';
+  storyId: string;
+  decision: 'confirmed' | 'rejected';
+  removedMilestoneIds: string[];
+  reason: string;
+  approvedBy: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface RedEvidenceRecord {
+  id: string;
+  trigger: string;
+  failingCommand?: string;
+  observedFailure: string;
+  expectedGreenCommand?: string;
+  note?: string;
+  createdAt: string;
+}
+
+export interface RedEvidenceData {
+  schemaVersion: 'proofstory.red_evidence.v1';
+  storyId: string;
+  records: RedEvidenceRecord[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type ProofStorySpikeStatus = 'active' | 'resolved' | 'discarded' | 'promoted';
+
+export interface ProofStorySpikeRecord {
+  id: string;
+  question: string;
+  status: ProofStorySpikeStatus;
+  result?: string;
+  promotedAs?: 'red_evidence' | 'verification_evidence' | 'scope_decision' | 'implementation_note';
+  note?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ProofStorySpikeData {
+  schemaVersion: 'proofstory.spike.v1';
+  storyId: string;
+  spikes: ProofStorySpikeRecord[];
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface ProofStoryDiagnosticReport {
   schemaVersion: 'proofstory.diagnostic_report.v1';
   storyId: string;
-  dryRun: true;
+  dryRun?: true;
+  mode: ProofStoryGateMode;
+  status: 'pass' | 'warn' | 'fail';
+  blocking: boolean;
   hardeningLevel: ProofStoryHardeningLevel;
   triggerReasons: ProofStoryTriggerReason[];
+  ledgerState: MilestoneLedgerState | 'missing';
+  ledgerSizing: ProofStoryLedgerSizing;
   missingMvpArtifacts: ProofStoryDiagnosticGap[];
   missingMilestoneCoverage: ProofStoryDiagnosticGap[];
+  missingConfirmedLedger: ProofStoryDiagnosticGap[];
   missingAcceptanceBindings: ProofStoryDiagnosticGap[];
   missingIntentCollision: ProofStoryDiagnosticGap[];
   missingRedEvidence: ProofStoryDiagnosticGap[];
   missingSpikeEvidence: ProofStoryDiagnosticGap[];
   scopeAmbiguity: ProofStoryDiagnosticGap[];
+  oversizedLedger: ProofStoryDiagnosticGap[];
   gaps: ProofStoryDiagnosticGap[];
   wouldBlockFutureDevAdmission: boolean;
+}
+
+export interface DoneIntentEquivalenceReport {
+  schemaVersion: 'proofstory.done_intent_equivalence.v1';
+  storyId: string;
+  mode: ProofStoryGateMode;
+  status: 'pass' | 'warn' | 'fail';
+  blocking: boolean;
+  checkedAt: string;
+  confirmedLedgerHash?: string;
+  acceptedShrinkageMilestoneIds: string[];
+  uncoveredRequiredMilestoneIds: string[];
+  gaps: ProofStoryDiagnosticGap[];
+}
+
+export interface ProofStoryReviewCompletenessReport {
+  schemaVersion: 'proofstory.review_completeness.v1';
+  storyId: string;
+  mode: ProofStoryGateMode;
+  status: 'pass' | 'warn' | 'fail';
+  blocking: boolean;
+  checkedAt: string;
+  gaps: ProofStoryDiagnosticGap[];
 }
 
 // ── Review Reflection Loop (B-7a34) ──

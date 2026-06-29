@@ -10,7 +10,8 @@ import type {
   ScopeBoundaryData, ExecutionBoundaryData, ScopeFreezeCheckData, DoneRequiredEvidenceData,
   ScopeExtensionProposalData, ScopeExtensionDecisionData, ScopeDiscardDigestData,
   DecisionDocProposalFile, OriginalIntentSnapshotData, MilestoneLedgerData,
-  ProofStoryContractData, IntentCollisionData,
+  ProofStoryContractData, IntentCollisionData, ScopeShrinkageDecisionData,
+  RedEvidenceData, ProofStorySpikeData,
 } from './types.js';
 import { REVIEW_LOOP_FILENAME } from './review-loop.js';
 import { CAPSULE_DIR_NAME, type StoryCapsuleData, type StoryCapsuleRunData } from './story-capsule.js';
@@ -697,6 +698,49 @@ export class StoryStore {
       if (e instanceof StoryArtifactMissingError) return null;
       throw e;
     }
+  }
+
+  writeIntentCollision(storyId: string, data: IntentCollisionData): void {
+    this.writeJson(storyId, 'intent-collision.json', data);
+  }
+
+  readScopeShrinkageDecision(storyId: string): ScopeShrinkageDecisionData | null {
+    try {
+      return this.readJson<ScopeShrinkageDecisionData>(storyId, 'scope-shrinkage-decision.json');
+    } catch (e) {
+      if (e instanceof StoryArtifactMissingError) return null;
+      throw e;
+    }
+  }
+
+  writeScopeShrinkageDecision(storyId: string, data: ScopeShrinkageDecisionData): void {
+    this.writeJson(storyId, 'scope-shrinkage-decision.json', data);
+  }
+
+  readRedEvidence(storyId: string): RedEvidenceData | null {
+    try {
+      return this.readJson<RedEvidenceData>(storyId, 'red-evidence.json');
+    } catch (e) {
+      if (e instanceof StoryArtifactMissingError) return null;
+      throw e;
+    }
+  }
+
+  writeRedEvidence(storyId: string, data: RedEvidenceData): void {
+    this.writeJson(storyId, 'red-evidence.json', data);
+  }
+
+  readProofStorySpikes(storyId: string): ProofStorySpikeData | null {
+    try {
+      return this.readJson<ProofStorySpikeData>(storyId, 'spike.json');
+    } catch (e) {
+      if (e instanceof StoryArtifactMissingError) return null;
+      throw e;
+    }
+  }
+
+  writeProofStorySpikes(storyId: string, data: ProofStorySpikeData): void {
+    this.writeJson(storyId, 'spike.json', data);
   }
 
   // ── Guard Session (B-6bfd CHK-004: scope-guard projection, NOT a write authority) ──

@@ -131,12 +131,22 @@ const requiredProcessFactSemantics = {
   review_escalation_policy_set: ['schema-contract', 'gate-evidence'],
   review_escalation_fallback_set: ['schema-contract', 'gate-evidence'],
   story_create_from_repro: ['artifact', 'schema-contract', 'workspace-binding', 'gate-evidence'],
-  original_intent_snapshot_set: ['schema-contract'],
-  milestone_ledger_set: ['schema-contract'],
-  milestone_ledger_add: ['schema-contract'],
-  proofstory_contract_set: ['schema-contract', 'verification-policy'],
+  original_intent_snapshot_set: ['schema-contract', 'gate-evidence'],
+  milestone_ledger_set: ['schema-contract', 'verification-policy', 'gate-evidence'],
+  milestone_ledger_add: ['schema-contract', 'verification-policy', 'gate-evidence'],
+  proofstory_contract_set: ['schema-contract', 'verification-policy', 'gate-evidence'],
+  intent_collision_set: ['schema-contract', 'verification-policy', 'gate-evidence'],
+  scope_shrinkage_decision_set: ['schema-contract', 'verification-policy', 'gate-evidence'],
+  red_evidence_create: ['schema-contract', 'verification-policy', 'gate-evidence'],
+  spike_start: ['schema-contract', 'verification-policy'],
+  spike_result_set: ['schema-contract', 'verification-policy'],
+  spike_result: ['schema-contract', 'verification-policy'],
+  spike_discard: ['schema-contract', 'verification-policy'],
+  spike_promote: ['schema-contract', 'verification-policy'],
   intent_coverage_check: ['schema-contract', 'verification-policy'],
   proofstory_gate_check: ['schema-contract', 'verification-policy'],
+  done_intent_equivalence_check: ['schema-contract', 'verification-policy'],
+  proofstory_review_completeness_check: ['schema-contract', 'verification-policy'],
 };
 const requiredReviewerLanes = [
   'lattice-review-story-init',
@@ -177,6 +187,10 @@ const requiredArtifactFacts = [
   { name: 'artifact:original-intent-snapshot.json', path: 'original-intent-snapshot.json', signed: false },
   { name: 'artifact:milestone-ledger.json', path: 'milestone-ledger.json', signed: false },
   { name: 'artifact:proofstory.json', path: 'proofstory.json', signed: false },
+  { name: 'artifact:intent-collision.json', path: 'intent-collision.json', signed: false },
+  { name: 'artifact:scope-shrinkage-decision.json', path: 'scope-shrinkage-decision.json', signed: false },
+  { name: 'artifact:red-evidence.json', path: 'red-evidence.json', signed: false },
+  { name: 'artifact:spike.json', path: 'spike.json', signed: false },
 ];
 const requiredReviewLoopL4Commands = [
   'review_loop_start',
@@ -518,13 +532,13 @@ function listMarkdown(dir) {
     .map(name => `${dir}/${name}`);
 }
 
-function assertProofStoryMvpDiagnosticOnlyBoundary() {
+function assertProofStoryProgressiveBoundary() {
   const catalogText = read('packages/main/src/cli/command-catalog.ts');
-  const registryText = read('packages/main/src/registry.ts');
   const handlerText = read('packages/main/src/handlers/proofstory.ts');
   const coreText = read('packages/main/src/core/proofstory.ts');
   const storyAdvanceText = read('packages/main/src/handlers/story-advance.ts');
   const phaseGatesText = read('packages/main/src/handlers/phase-gates.ts');
+  const machineText = read('packages/main/src/core/machine.ts');
 
   for (const commandName of [
     'original_intent_snapshot_set',
@@ -534,21 +548,33 @@ function assertProofStoryMvpDiagnosticOnlyBoundary() {
     'milestone_ledger_get',
     'proofstory_contract_set',
     'proofstory_contract_get',
+    'intent_collision_set',
     'intent_collision_get',
+    'scope_shrinkage_decision_set',
+    'scope_shrinkage_decision_get',
+    'red_evidence_create',
+    'red_evidence_get',
+    'spike_start',
+    'spike_result_set',
+    'spike_result',
+    'spike_discard',
+    'spike_promote',
+    'spike_get',
     'intent_coverage_check',
     'proofstory_gate_check',
+    'done_intent_equivalence_check',
+    'proofstory_review_completeness_check',
   ]) {
-    assert(catalogText.includes(`name: '${commandName}'`), `CLI schema: ProofStory MVP command missing from MAIN_TOOLS: ${commandName}`);
+    assert(catalogText.includes(`name: '${commandName}'`), `CLI schema: ProofStory command missing from MAIN_TOOLS: ${commandName}`);
   }
-  assert(!catalogText.includes("name: 'intent_collision_set'"), 'CLI schema: intent_collision_set must not exist in M0-M2');
-  assert(!registryText.includes('intent_collision_set'), 'registry: intent_collision_set must not be registered in M0-M2');
-  assert(handlerText.includes('pass dryRun:true'), 'handlers/proofstory.ts: dry-run checks must reject non-dry-run execution');
+  assert(handlerText.includes("mode === 'enforce'") && handlerText.includes('observe'), 'handlers/proofstory.ts: ProofStory checks must support observe/warn/enforce without writing evidence');
   assert(coreText.includes('computeIntentRequestHash'), 'core/proofstory.ts: requestHash helper must remain explicit');
   assert(coreText.includes('sourceText') && coreText.includes('keyRequirementIds'), 'core/proofstory.ts: requestHash must be derived from sourceText and keyRequirementIds');
-  assert(!storyAdvanceText.includes('proofstory_gate_check'), 'story-advance.ts: proofstory_gate_check must not be wired into lifecycle gates in M0-M2');
-  assert(!storyAdvanceText.includes('../core/proofstory') && !storyAdvanceText.includes('./proofstory'), 'story-advance.ts: must not import ProofStory core/handler in M0-M2');
-  assert(!phaseGatesText.includes('proofstory_gate_check'), 'phase-gates.ts: proofstory_gate_check must remain diagnostic-only in M0-M2');
-  assert(!phaseGatesText.includes('../core/proofstory'), 'phase-gates.ts: must not import ProofStory core in M0-M2');
+  assert(coreText.includes('candidate') && coreText.includes('confirmed'), 'core/proofstory.ts: milestone ledger must distinguish candidate and confirmed state');
+  assert(coreText.includes('confirmMilestoneLedger'), 'core/proofstory.ts: intent collision pass must be able to confirm a ledger');
+  assert(!storyAdvanceText.includes('../core/proofstory') && !storyAdvanceText.includes('./proofstory'), 'story-advance.ts: ProofStory must not be wired through the thin story_advance handler');
+  assert(machineText.includes('proofStoryDevGateFailure') && machineText.includes('devGateMode'), 'machine.ts: ProofStory DEV admission must go through the existing story machine guard and explicit policy mode');
+  assert(phaseGatesText.includes('evaluateReviewCompleteness') && phaseGatesText.includes('evaluateDoneIntentEquivalence'), 'phase-gates.ts: REVIEW/DONE ProofStory diagnostics must be wired through existing phase gates');
 }
 
 function isReviewerPrompt(relPath, text) {
@@ -4331,7 +4357,7 @@ assertActiveLifecycleDocGuidance();
 assertReviewRoundIsoDocs();
 assertEvidenceBoundaryDocs();
 assertPromptEvidenceBoundaries(promptMap);
-assertProofStoryMvpDiagnosticOnlyBoundary();
+assertProofStoryProgressiveBoundary();
 assertProcessFactCommandInventory();
 await assertLifecycleArtifactScopePolicy();
 printProcessFactLevelRegistrySummary();

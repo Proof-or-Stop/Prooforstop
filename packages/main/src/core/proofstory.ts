@@ -1,27 +1,41 @@
 /**
- * ProofStory progressive intent hardening (M0-M2 MVP).
+ * ProofStory progressive intent hardening.
  *
- * This module is intentionally pure: it classifies intent-hardening triggers and
- * builds diagnostic reports. Lifecycle gates do not import or consume it.
+ * This module is pure: it builds story-scoped intent artifacts and evaluates
+ * diagnostics. Lifecycle integration imports only the evaluators; no second
+ * lifecycle state machine or child-story scheduler lives here.
  */
 
 import { createHash } from 'node:crypto';
 import type {
   ChecklistData,
   ChecklistItem,
+  DoneIntentEquivalenceReport,
   IntentCollisionData,
+  IntentCollisionDecision,
   MilestoneLedgerData,
   MilestoneLedgerItem,
+  MilestoneLedgerState,
   MilestoneStatus,
   OriginalIntentSnapshotData,
   ProofStoryAcceptanceBinding,
   ProofStoryContractData,
   ProofStoryDiagnosticGap,
   ProofStoryDiagnosticReport,
+  ProofStoryGateMode,
   ProofStoryHardeningLevel,
+  ProofStoryLedgerSizing,
+  ProofStoryReviewCompletenessReport,
+  ProofStorySpikeData,
+  ProofStorySpikeRecord,
+  ProofStorySpikeStatus,
   ProofStoryTriggerReason,
+  RedEvidenceData,
+  RedEvidenceRecord,
   ScopeContractData,
+  ScopeShrinkageDecisionData,
   StoryInfo,
+  VerificationEvidence,
   VerificationLane,
 } from './types.js';
 
@@ -29,10 +43,24 @@ export const ORIGINAL_INTENT_SNAPSHOT_SCHEMA_VERSION = 'proofstory.original_inte
 export const MILESTONE_LEDGER_SCHEMA_VERSION = 'proofstory.milestone_ledger.v1';
 export const PROOFSTORY_CONTRACT_SCHEMA_VERSION = 'proofstory.contract.v1';
 export const PROOFSTORY_DIAGNOSTIC_REPORT_SCHEMA_VERSION = 'proofstory.diagnostic_report.v1';
+export const INTENT_COLLISION_SCHEMA_VERSION = 'proofstory.intent_collision.v1';
+export const SCOPE_SHRINKAGE_DECISION_SCHEMA_VERSION = 'proofstory.scope_shrinkage_decision.v1';
+export const RED_EVIDENCE_SCHEMA_VERSION = 'proofstory.red_evidence.v1';
+export const SPIKE_SCHEMA_VERSION = 'proofstory.spike.v1';
+export const DONE_INTENT_EQUIVALENCE_SCHEMA_VERSION = 'proofstory.done_intent_equivalence.v1';
+export const REVIEW_COMPLETENESS_SCHEMA_VERSION = 'proofstory.review_completeness.v1';
 
 const DEFAULT_KEY_REQUIREMENT_IDS = ['REQ-001'];
 const VALID_MILESTONE_STATUSES = new Set<MilestoneStatus>(['planned', 'covered', 'done', 'not_applicable']);
 const VERIFICATION_LANES: readonly VerificationLane[] = ['happy', 'edge', 'adversarial'];
+const VALID_GATE_MODES = new Set<ProofStoryGateMode>(['observe', 'warn', 'enforce']);
+const VALID_COLLISION_DECISIONS = new Set<IntentCollisionDecision>(['pass', 'revise_intent', 'human_gate', 'stop']);
+const VALID_SPIKE_STATUSES = new Set<ProofStorySpikeStatus>(['active', 'resolved', 'discarded', 'promoted']);
+const LEDGER_THRESHOLDS: Record<ProofStoryHardeningLevel, number> = {
+  intent_mvp: 10,
+  standard: 7,
+  high_assurance: 5,
+};
 
 export interface BuildOriginalIntentSnapshotArgs {
   storyId: string;
@@ -46,6 +74,7 @@ export interface BuildMilestoneLedgerArgs {
   storyId: string;
   milestones: unknown[];
   existing?: MilestoneLedgerData | null;
+  state?: MilestoneLedgerState;
 }
 
 export interface ProofStoryDiagnosticInput {
@@ -56,14 +85,50 @@ export interface ProofStoryDiagnosticInput {
   proofStoryContract: Pick<ProofStoryContractData, 'acceptanceBindings'> | null;
   intentCollision: IntentCollisionData | null;
   scopeContract: ScopeContractData | null;
-  redEvidencePresent: boolean;
-  spikeEvidencePresent: boolean;
+  scopeShrinkageDecision: ScopeShrinkageDecisionData | null;
+  redEvidence: RedEvidenceData | null;
+  spikeEvidence: ProofStorySpikeData | null;
 }
 
 export interface BuildProofStoryContractArgs {
   storyId: string;
   acceptanceBindings?: unknown[];
   note?: string;
+}
+
+export interface BuildIntentCollisionArgs {
+  storyId: string;
+  decision: IntentCollisionDecision;
+  acceptedInterpretation?: string;
+  notes?: string;
+  id?: string;
+}
+
+export interface BuildScopeShrinkageDecisionArgs {
+  storyId: string;
+  decision: 'confirmed' | 'rejected';
+  removedMilestoneIds?: string[];
+  reason: string;
+  approvedBy: string;
+}
+
+export interface AppendRedEvidenceArgs {
+  storyId: string;
+  trigger: string;
+  observedFailure: string;
+  failingCommand?: string;
+  expectedGreenCommand?: string;
+  note?: string;
+  id?: string;
+}
+
+export interface BuildSpikeArgs {
+  storyId: string;
+  id?: string;
+  question?: string;
+  result?: string;
+  note?: string;
+  promotedAs?: ProofStorySpikeRecord['promotedAs'];
 }
 
 function canonicalize(value: unknown): unknown {
@@ -90,6 +155,11 @@ function requireNonEmptyString(value: unknown, fieldName: string): string {
   return value.trim();
 }
 
+function optionalNonEmptyString(value: unknown, fieldName: string): string | undefined {
+  if (value == null) return undefined;
+  return requireNonEmptyString(value, fieldName);
+}
+
 function optionalStringArray(value: unknown, fieldName: string): string[] {
   if (value == null) return [];
   if (!Array.isArray(value)) throw new Error(`${fieldName} must be an array`);
@@ -101,6 +171,24 @@ function optionalStringArray(value: unknown, fieldName: string): string[] {
     out.push(entry.trim());
   }
   return [...new Set(out)];
+}
+
+function normalizeGateMode(value: unknown): ProofStoryGateMode {
+  if (value == null) return 'observe';
+  if (typeof value !== 'string' || !VALID_GATE_MODES.has(value as ProofStoryGateMode)) {
+    throw new Error('mode must be one of: observe, warn, enforce');
+  }
+  return value as ProofStoryGateMode;
+}
+
+function normalizeLedgerState(value: unknown, fallback: MilestoneLedgerState): MilestoneLedgerState {
+  if (value == null) return fallback;
+  if (value !== 'candidate' && value !== 'confirmed') throw new Error('state must be candidate or confirmed');
+  return value;
+}
+
+function defaultId(prefix: string): string {
+  return `${prefix}-${new Date().toISOString().replace(/[-:.TZ]/g, '').slice(0, 14)}`;
 }
 
 export function normalizeKeyRequirementIds(ids: unknown): string[] {
@@ -160,17 +248,33 @@ function normalizeMilestone(raw: unknown, index: number): MilestoneLedgerItem {
   };
 }
 
+export function computeMilestoneLedgerHash(milestones: readonly MilestoneLedgerItem[]): string {
+  return sha256Stable({
+    milestones: [...milestones].sort((a, b) => a.id.localeCompare(b.id)),
+  });
+}
+
 export function buildMilestoneLedger(args: BuildMilestoneLedgerArgs): MilestoneLedgerData {
+  if (!Array.isArray(args.milestones)) throw new Error('milestones must be an array');
   const milestones = args.milestones.map((raw, index) => normalizeMilestone(raw, index));
   const ids = new Set<string>();
   for (const milestone of milestones) {
     if (ids.has(milestone.id)) throw new Error(`duplicate milestone id: ${milestone.id}`);
     ids.add(milestone.id);
   }
+  const ledgerHash = computeMilestoneLedgerHash(milestones);
+  const existingHash = args.existing?.ledgerHash ?? computeMilestoneLedgerHash(args.existing?.milestones ?? []);
+  const requestedState = normalizeLedgerState(args.state, args.existing?.state ?? 'candidate');
+  const state = requestedState === 'confirmed' && args.existing?.state === 'confirmed' && existingHash === ledgerHash
+    ? 'confirmed'
+    : 'candidate';
   const now = new Date().toISOString();
   return {
     schemaVersion: MILESTONE_LEDGER_SCHEMA_VERSION,
     storyId: args.storyId,
+    state,
+    ledgerHash,
+    acceptedIntentBinding: state === 'confirmed' && existingHash === ledgerHash ? args.existing?.acceptedIntentBinding : undefined,
     milestones,
     createdAt: args.existing?.createdAt ?? now,
     updatedAt: now,
@@ -188,9 +292,45 @@ export function addMilestoneToLedger(
   }
   return buildMilestoneLedger({
     storyId,
-    existing,
+    existing: { ...(existing ?? emptyMilestoneLedger(storyId)), state: 'candidate', acceptedIntentBinding: undefined },
     milestones: [...(existing?.milestones ?? []), milestone],
+    state: 'candidate',
   });
+}
+
+function emptyMilestoneLedger(storyId: string): MilestoneLedgerData {
+  const now = new Date().toISOString();
+  return {
+    schemaVersion: MILESTONE_LEDGER_SCHEMA_VERSION,
+    storyId,
+    state: 'candidate',
+    ledgerHash: computeMilestoneLedgerHash([]),
+    milestones: [],
+    createdAt: now,
+    updatedAt: now,
+  };
+}
+
+export function confirmMilestoneLedger(
+  storyId: string,
+  ledger: MilestoneLedgerData | null,
+  collision: IntentCollisionData,
+): MilestoneLedgerData | null {
+  if (!ledger) return null;
+  if (!collisionAccepted(collision) || !collision.acceptedInterpretationHash) return ledger;
+  const now = new Date().toISOString();
+  return {
+    ...ledger,
+    storyId,
+    state: 'confirmed',
+    ledgerHash: ledger.ledgerHash ?? computeMilestoneLedgerHash(ledger.milestones),
+    acceptedIntentBinding: {
+      intentCollisionId: collision.id,
+      acceptedInterpretationHash: collision.acceptedInterpretationHash,
+      acceptedAt: now,
+    },
+    updatedAt: now,
+  };
 }
 
 function normalizeAcceptanceBinding(raw: unknown, index: number): ProofStoryAcceptanceBinding {
@@ -252,7 +392,7 @@ function hasBehaviorChangeSignal(input: ProofStoryDiagnosticInput, text: string)
 
 function hasScopeAmbiguitySignal(text: string): boolean {
   const broadScope = /\b(?:all|every|remaining|fully|entire|end-to-end|e2e|scope)\b/i.test(text);
-  const explicitScopeChange = /\b(?:remove|removal|retire|retirement|replace|replacement)\b/i.test(text);
+  const explicitScopeChange = /\b(?:remove|removal|retire|retirement|replace|replacement|shrink|shrinkage|drop)\b/i.test(text);
   const completeScopeClaim = /\bcomplete(?:ly)?\b(?=[\s\S]{0,80}\b(?:all|every|remaining|subsystem|removal|retirement|replacement|migration|end-to-end|e2e)\b)/i.test(text);
   return broadScope || explicitScopeChange || completeScopeClaim;
 }
@@ -269,7 +409,6 @@ function pushTrigger(
 
 function classifyTriggers(input: ProofStoryDiagnosticInput): { hardeningLevel: ProofStoryHardeningLevel; triggerReasons: ProofStoryTriggerReason[] } {
   const text = corpusFor(input.story, input.originalIntentSnapshot);
-  const lower = text.toLowerCase();
   const triggers: ProofStoryTriggerReason[] = [];
   const hasLedgerMilestones = (input.milestoneLedger?.milestones.length ?? 0) > 0;
   const structuralRows = countStructuralRows(text);
@@ -367,23 +506,95 @@ function verificationIntentRefSet(items: readonly ChecklistItem[]): Set<string> 
   return refs;
 }
 
-function collisionAccepted(collision: IntentCollisionData | null): boolean {
+function verificationEvidenceByRef(items: readonly ChecklistItem[]): Map<string, VerificationEvidence[]> {
+  const evidence = new Map<string, VerificationEvidence[]>();
+  for (const item of items) {
+    for (const row of item.verificationEvidence ?? []) {
+      const rows = evidence.get(row.intentRef) ?? [];
+      rows.push(row);
+      evidence.set(row.intentRef, rows);
+    }
+  }
+  return evidence;
+}
+
+function evidenceCoversIntent(evidence: Map<string, VerificationEvidence[]>, ref: string): boolean {
+  return (evidence.get(ref) ?? []).some((row) =>
+    row.result === 'pass'
+    || row.kind === 'waiver'
+    || row.verdict === 'success'
+    || row.verdict === 'waived'
+  );
+}
+
+export function collisionAccepted(collision: IntentCollisionData | null): boolean {
   if (!collision) return false;
-  const status = String(collision.status ?? collision.decision ?? collision.resolution ?? '').toLowerCase();
-  return ['pass', 'passed', 'accepted', 'accept', 'resolved'].includes(status);
+  return collision.decision === 'pass'
+    && collision.status === 'accepted'
+    && typeof collision.acceptedInterpretation === 'string'
+    && collision.acceptedInterpretation.trim().length > 0;
 }
 
 function triggerCodes(triggers: readonly ProofStoryTriggerReason[], requires: ProofStoryTriggerReason['requires']): string[] {
   return triggers.filter((trigger) => trigger.requires === requires).map((trigger) => trigger.code);
 }
 
-export function evaluateProofStoryDiagnostics(input: ProofStoryDiagnosticInput): ProofStoryDiagnosticReport {
+function redEvidenceSatisfied(redEvidence: RedEvidenceData | null): boolean {
+  return (redEvidence?.records ?? []).some((record) => record.observedFailure.trim().length > 0);
+}
+
+function spikeEvidenceSatisfied(spikeEvidence: ProofStorySpikeData | null): boolean {
+  const spikes = spikeEvidence?.spikes ?? [];
+  return spikes.length > 0 && spikes.every((spike) => spike.status !== 'active');
+}
+
+function ledgerStateOf(ledger: MilestoneLedgerData | null): MilestoneLedgerState | 'missing' {
+  return ledger?.state ?? (ledger ? 'candidate' : 'missing');
+}
+
+export function buildLedgerSizing(
+  hardeningLevel: ProofStoryHardeningLevel,
+  ledger: MilestoneLedgerData | null,
+): ProofStoryLedgerSizing {
+  const milestoneCount = ledger?.milestones.length ?? 0;
+  const threshold = LEDGER_THRESHOLDS[hardeningLevel];
+  const thresholdState: ProofStoryLedgerSizing['thresholdState'] = milestoneCount <= threshold
+    ? 'within_threshold'
+    : milestoneCount <= threshold * 2
+      ? 'too_broad'
+      : 'slice_required';
+  const suggestedSlices: ProofStoryLedgerSizing['suggestedSlices'] = [];
+  if (ledger && thresholdState !== 'within_threshold') {
+    for (let index = 0; index < ledger.milestones.length; index += threshold) {
+      const rows = ledger.milestones.slice(index, index + threshold);
+      suggestedSlices.push({
+        id: `slice-${suggestedSlices.length + 1}`,
+        milestoneIds: rows.map((row) => row.id),
+        reason: `Keep each slice at or below ${threshold} milestone(s) for ${hardeningLevel}.`,
+      });
+    }
+  }
+  return { milestoneCount, threshold, thresholdState, suggestedSlices };
+}
+
+function reportStatus(mode: ProofStoryGateMode, gaps: readonly ProofStoryDiagnosticGap[]): Pick<ProofStoryDiagnosticReport, 'status' | 'blocking'> {
+  if (mode === 'enforce' && gaps.length > 0) return { status: 'fail', blocking: true };
+  if (gaps.length > 0) return { status: 'warn', blocking: false };
+  return { status: 'pass', blocking: false };
+}
+
+export function evaluateProofStoryDiagnostics(
+  input: ProofStoryDiagnosticInput,
+  modeValue?: ProofStoryGateMode,
+): ProofStoryDiagnosticReport {
+  const mode = normalizeGateMode(modeValue);
   const { hardeningLevel, triggerReasons } = classifyTriggers(input);
   const milestoneTriggers = triggerCodes(triggerReasons, 'milestone-ledger');
   const collisionTriggers = triggerCodes(triggerReasons, 'intent-collision');
   const redTriggers = triggerCodes(triggerReasons, 'red-evidence');
   const spikeTriggers = triggerCodes(triggerReasons, 'spike-evidence');
   const scopeTriggers = triggerCodes(triggerReasons, 'scope-clarification');
+  const ledgerSizing = buildLedgerSizing(hardeningLevel, input.milestoneLedger);
 
   const missingMvpArtifacts: ProofStoryDiagnosticGap[] = [];
   if (!input.originalIntentSnapshot) {
@@ -455,6 +666,18 @@ export function evaluateProofStoryDiagnostics(input: ProofStoryDiagnosticInput):
     }
   }
 
+  const missingConfirmedLedger = milestoneTriggers.length > 0
+    && collisionAccepted(input.intentCollision)
+    && input.milestoneLedger
+    && ledgerStateOf(input.milestoneLedger) !== 'confirmed'
+    ? [gap(
+      'missing_confirmed_milestone_ledger',
+      'milestone-ledger.json',
+      'A candidate milestone ledger exists, but accepted intent interpretation has not confirmed it for gate consumption.',
+      milestoneTriggers,
+    )]
+    : [];
+
   const missingAcceptanceBindings: ProofStoryDiagnosticGap[] = [];
   const bindings = input.proofStoryContract?.acceptanceBindings ?? [];
   if (input.originalIntentSnapshot && bindings.length === 0) {
@@ -490,64 +713,93 @@ export function evaluateProofStoryDiagnostics(input: ProofStoryDiagnosticInput):
         ));
       }
     }
+    for (const milestoneId of binding.milestoneIds) {
+      if (input.milestoneLedger && !input.milestoneLedger.milestones.some((row) => row.id === milestoneId)) {
+        missingAcceptanceBindings.push(gap(
+          'acceptance_binding_unknown_milestone',
+          'proofstory.json',
+          `${binding.id} references unknown milestone ${milestoneId}.`,
+        ));
+      }
+    }
   }
 
   const missingIntentCollision = collisionTriggers.length > 0 && !collisionAccepted(input.intentCollision)
     ? [gap(
       'missing_intent_collision',
       'intent-collision.json',
-      'Intent collision is triggered but no accepted collision result is present. M0-M2 only reports this diagnostic gap.',
+      'Intent collision is triggered but no pass decision with acceptedInterpretation is present.',
       collisionTriggers,
     )]
     : [];
-  const missingRedEvidence = redTriggers.length > 0 && !input.redEvidencePresent
+  const missingRedEvidence = redTriggers.length > 0 && !redEvidenceSatisfied(input.redEvidence)
     ? [gap(
       'missing_red_evidence',
       'red-evidence.json',
-      'Red evidence is triggered but no red evidence artifact is present. M0-M2 only reports this diagnostic gap.',
+      'Red evidence is triggered but no red evidence artifact records the pre-fix failure.',
       redTriggers,
     )]
     : [];
-  const missingSpikeEvidence = spikeTriggers.length > 0 && !input.spikeEvidencePresent
+  const missingSpikeEvidence = spikeTriggers.length > 0 && !spikeEvidenceSatisfied(input.spikeEvidence)
     ? [gap(
-      'missing_spike_evidence',
+      input.spikeEvidence ? 'unresolved_spike_evidence' : 'missing_spike_evidence',
       'spike.json',
-      'Spike evidence is triggered but no spike artifact is present. M0-M2 only reports this diagnostic gap.',
+      input.spikeEvidence
+        ? 'Spike evidence is triggered but at least one spike remains active.'
+        : 'Spike evidence is triggered but no spike artifact is present.',
       spikeTriggers,
     )]
     : [];
-  const scopeAmbiguity = scopeTriggers.length > 0 && !input.scopeContract
+  const scopeAmbiguity = scopeTriggers.length > 0 && !input.scopeContract && !input.scopeShrinkageDecision
     ? [gap(
       'scope_ambiguity',
       'scope-contract.json',
-      'Scope ambiguity is triggered but no scope contract is configured. This is diagnostic only for ProofStory M0-M2.',
+      'Scope ambiguity is triggered but no scope contract or explicit shrinkage decision is configured.',
       scopeTriggers,
     )]
     : [];
+  const oversizedLedger = ledgerSizing.thresholdState === 'within_threshold'
+    ? []
+    : [gap(
+      ledgerSizing.thresholdState,
+      'milestone-ledger.json',
+      `Milestone ledger has ${ledgerSizing.milestoneCount} row(s), above the ${ledgerSizing.threshold} row threshold for ${hardeningLevel}. Suggested slicing groups are diagnostic only; no child stories are created automatically.`,
+      ['milestones_provided'],
+      ledgerSizing.thresholdState === 'slice_required' ? 'fail' : 'warn',
+    )];
 
   const gaps = [
     ...missingMvpArtifacts,
     ...missingMilestoneCoverage,
+    ...missingConfirmedLedger,
     ...missingAcceptanceBindings,
     ...missingIntentCollision,
     ...missingRedEvidence,
     ...missingSpikeEvidence,
     ...scopeAmbiguity,
+    ...oversizedLedger,
   ];
+  const status = reportStatus(mode, gaps);
 
   return {
     schemaVersion: PROOFSTORY_DIAGNOSTIC_REPORT_SCHEMA_VERSION,
     storyId: input.story.storyId,
     dryRun: true,
+    mode,
+    ...status,
     hardeningLevel,
     triggerReasons,
+    ledgerState: ledgerStateOf(input.milestoneLedger),
+    ledgerSizing,
     missingMvpArtifacts,
     missingMilestoneCoverage,
+    missingConfirmedLedger,
     missingAcceptanceBindings,
     missingIntentCollision,
     missingRedEvidence,
     missingSpikeEvidence,
     scopeAmbiguity,
+    oversizedLedger,
     gaps,
     wouldBlockFutureDevAdmission: gaps.length > 0,
   };
@@ -568,10 +820,11 @@ export function buildProofStoryContract(
   return {
     schemaVersion: PROOFSTORY_CONTRACT_SCHEMA_VERSION,
     storyId: args.storyId,
-    diagnosticOnly: true,
+    diagnosticOnly: false,
     hardeningLevel: report.hardeningLevel,
     triggerReasons: report.triggerReasons,
     originalIntentRequestHash: input.originalIntentSnapshot?.requestHash,
+    confirmedMilestoneLedgerHash: input.milestoneLedger?.state === 'confirmed' ? input.milestoneLedger.ledgerHash : undefined,
     acceptanceBindings,
     diagnosticGaps: report.gaps,
     note: args.note?.trim() || existing?.note,
@@ -580,11 +833,268 @@ export function buildProofStoryContract(
   };
 }
 
+export function buildIntentCollision(
+  args: BuildIntentCollisionArgs,
+  existing: IntentCollisionData | null,
+  ledger: MilestoneLedgerData | null,
+): IntentCollisionData {
+  if (!VALID_COLLISION_DECISIONS.has(args.decision)) {
+    throw new Error('decision must be one of: pass, revise_intent, human_gate, stop');
+  }
+  const acceptedInterpretation = optionalNonEmptyString(args.acceptedInterpretation, 'acceptedInterpretation');
+  if (args.decision === 'pass' && !acceptedInterpretation) {
+    throw new Error('acceptedInterpretation is required when decision is pass');
+  }
+  const now = new Date().toISOString();
+  const acceptedInterpretationHash = acceptedInterpretation ? sha256Stable({ acceptedInterpretation }) : undefined;
+  return {
+    schemaVersion: INTENT_COLLISION_SCHEMA_VERSION,
+    storyId: args.storyId,
+    id: args.id?.trim() || existing?.id || defaultId('IC'),
+    decision: args.decision,
+    status: args.decision === 'pass' ? 'accepted' : args.decision === 'stop' ? 'stopped' : 'open',
+    acceptedInterpretation,
+    acceptedInterpretationHash,
+    notes: args.notes?.trim() || existing?.notes,
+    ledgerHashBeforeDecision: ledger?.ledgerHash ?? (ledger ? computeMilestoneLedgerHash(ledger.milestones) : undefined),
+    confirmedLedgerHash: args.decision === 'pass'
+      ? ledger?.ledgerHash ?? (ledger ? computeMilestoneLedgerHash(ledger.milestones) : undefined)
+      : undefined,
+    createdAt: existing?.createdAt ?? now,
+    updatedAt: now,
+  };
+}
+
+export function buildScopeShrinkageDecision(
+  args: BuildScopeShrinkageDecisionArgs,
+  existing?: ScopeShrinkageDecisionData | null,
+): ScopeShrinkageDecisionData {
+  const decision = args.decision;
+  if (decision !== 'confirmed' && decision !== 'rejected') throw new Error('decision must be confirmed or rejected');
+  const removedMilestoneIds = optionalStringArray(args.removedMilestoneIds, 'removedMilestoneIds');
+  if (decision === 'confirmed' && removedMilestoneIds.length === 0) {
+    throw new Error('removedMilestoneIds is required when decision is confirmed');
+  }
+  const now = new Date().toISOString();
+  return {
+    schemaVersion: SCOPE_SHRINKAGE_DECISION_SCHEMA_VERSION,
+    storyId: args.storyId,
+    decision,
+    removedMilestoneIds,
+    reason: requireNonEmptyString(args.reason, 'reason'),
+    approvedBy: requireNonEmptyString(args.approvedBy, 'approvedBy'),
+    createdAt: existing?.createdAt ?? now,
+    updatedAt: now,
+  };
+}
+
+export function appendRedEvidence(
+  args: AppendRedEvidenceArgs,
+  existing?: RedEvidenceData | null,
+): RedEvidenceData {
+  const now = new Date().toISOString();
+  const record: RedEvidenceRecord = {
+    id: args.id?.trim() || defaultId('RED'),
+    trigger: requireNonEmptyString(args.trigger, 'trigger'),
+    observedFailure: requireNonEmptyString(args.observedFailure, 'observedFailure'),
+    failingCommand: optionalNonEmptyString(args.failingCommand, 'failingCommand'),
+    expectedGreenCommand: optionalNonEmptyString(args.expectedGreenCommand, 'expectedGreenCommand'),
+    note: optionalNonEmptyString(args.note, 'note'),
+    createdAt: now,
+  };
+  return {
+    schemaVersion: RED_EVIDENCE_SCHEMA_VERSION,
+    storyId: args.storyId,
+    records: [...(existing?.records ?? []), record],
+    createdAt: existing?.createdAt ?? now,
+    updatedAt: now,
+  };
+}
+
+function updateSpike(
+  storyId: string,
+  existing: ProofStorySpikeData | null,
+  id: string,
+  update: (record: ProofStorySpikeRecord) => ProofStorySpikeRecord,
+): ProofStorySpikeData {
+  const current = existing?.spikes ?? [];
+  const index = current.findIndex((spike) => spike.id === id);
+  if (index < 0) throw new Error(`spike not found: ${id}`);
+  const spikes = [...current];
+  spikes[index] = update(spikes[index]);
+  const now = new Date().toISOString();
+  return {
+    schemaVersion: SPIKE_SCHEMA_VERSION,
+    storyId,
+    spikes,
+    createdAt: existing?.createdAt ?? now,
+    updatedAt: now,
+  };
+}
+
+export function startSpike(args: BuildSpikeArgs, existing?: ProofStorySpikeData | null): ProofStorySpikeData {
+  const now = new Date().toISOString();
+  const id = args.id?.trim() || defaultId('SPIKE');
+  if (existing?.spikes.some((spike) => spike.id === id)) throw new Error(`duplicate spike id: ${id}`);
+  const record: ProofStorySpikeRecord = {
+    id,
+    question: requireNonEmptyString(args.question, 'question'),
+    status: 'active',
+    note: optionalNonEmptyString(args.note, 'note'),
+    createdAt: now,
+    updatedAt: now,
+  };
+  return {
+    schemaVersion: SPIKE_SCHEMA_VERSION,
+    storyId: args.storyId,
+    spikes: [...(existing?.spikes ?? []), record],
+    createdAt: existing?.createdAt ?? now,
+    updatedAt: now,
+  };
+}
+
+export function setSpikeResult(args: BuildSpikeArgs, existing: ProofStorySpikeData | null): ProofStorySpikeData {
+  const id = requireNonEmptyString(args.id, 'id');
+  const result = requireNonEmptyString(args.result, 'result');
+  const now = new Date().toISOString();
+  return updateSpike(args.storyId, existing, id, (record) => ({
+    ...record,
+    status: 'resolved',
+    result,
+    note: optionalNonEmptyString(args.note, 'note') ?? record.note,
+    updatedAt: now,
+  }));
+}
+
+export function setSpikeStatus(
+  args: BuildSpikeArgs,
+  existing: ProofStorySpikeData | null,
+  status: Extract<ProofStorySpikeStatus, 'discarded' | 'promoted'>,
+): ProofStorySpikeData {
+  if (!VALID_SPIKE_STATUSES.has(status)) throw new Error('invalid spike status');
+  const id = requireNonEmptyString(args.id, 'id');
+  const now = new Date().toISOString();
+  return updateSpike(args.storyId, existing, id, (record) => ({
+    ...record,
+    status,
+    promotedAs: status === 'promoted' ? args.promotedAs ?? 'implementation_note' : record.promotedAs,
+    note: optionalNonEmptyString(args.note, 'note') ?? record.note,
+    updatedAt: now,
+  }));
+}
+
+function confirmedShrinkageIds(decision: ScopeShrinkageDecisionData | null): Set<string> {
+  return new Set(decision?.decision === 'confirmed' ? decision.removedMilestoneIds : []);
+}
+
+export function evaluateDoneIntentEquivalence(
+  input: ProofStoryDiagnosticInput,
+  modeValue?: ProofStoryGateMode,
+): DoneIntentEquivalenceReport {
+  const mode = normalizeGateMode(modeValue);
+  const gaps: ProofStoryDiagnosticGap[] = [];
+  const acceptedShrinkageMilestoneIds = [...confirmedShrinkageIds(input.scopeShrinkageDecision)];
+  const acceptedShrinkage = new Set(acceptedShrinkageMilestoneIds);
+  const ledger = input.milestoneLedger;
+  if (!ledger || ledgerStateOf(ledger) !== 'confirmed') {
+    gaps.push(gap(
+      'missing_confirmed_milestone_ledger',
+      'milestone-ledger.json',
+      'DONE intent equivalence requires a confirmed milestone ledger.',
+      undefined,
+      'fail',
+    ));
+  }
+  const evidence = verificationEvidenceByRef(input.checklist.items);
+  const uncoveredRequiredMilestoneIds: string[] = [];
+  for (const milestone of ledger?.milestones ?? []) {
+    if (milestone.status === 'not_applicable') continue;
+    if (acceptedShrinkage.has(milestone.id)) continue;
+    const refs = milestone.verificationIntentRefs;
+    if (refs.length === 0 || !refs.every((ref) => evidenceCoversIntent(evidence, ref))) {
+      uncoveredRequiredMilestoneIds.push(milestone.id);
+    }
+  }
+  if (uncoveredRequiredMilestoneIds.length > 0) {
+    gaps.push(gap(
+      'uncovered_required_milestones',
+      'milestone-ledger.json',
+      `Required milestone(s) lack passing verification evidence and no confirmed shrinkage decision removes them: ${uncoveredRequiredMilestoneIds.join(', ')}.`,
+      undefined,
+      'fail',
+    ));
+  }
+  const blocking = mode === 'enforce' && gaps.length > 0;
+  return {
+    schemaVersion: DONE_INTENT_EQUIVALENCE_SCHEMA_VERSION,
+    storyId: input.story.storyId,
+    mode,
+    status: blocking ? 'fail' : gaps.length > 0 ? 'warn' : 'pass',
+    blocking,
+    checkedAt: new Date().toISOString(),
+    confirmedLedgerHash: ledger?.state === 'confirmed' ? ledger.ledgerHash : undefined,
+    acceptedShrinkageMilestoneIds,
+    uncoveredRequiredMilestoneIds,
+    gaps,
+  };
+}
+
+export function evaluateReviewCompleteness(
+  input: ProofStoryDiagnosticInput,
+  modeValue?: ProofStoryGateMode,
+): ProofStoryReviewCompletenessReport {
+  const mode = normalizeGateMode(modeValue);
+  const diagnostics = evaluateProofStoryDiagnostics(input, mode);
+  const evidence = verificationEvidenceByRef(input.checklist.items);
+  const gaps: ProofStoryDiagnosticGap[] = [
+    ...diagnostics.missingConfirmedLedger,
+    ...diagnostics.missingAcceptanceBindings,
+    ...diagnostics.missingMilestoneCoverage,
+  ];
+  const refs = new Set<string>();
+  for (const binding of input.proofStoryContract?.acceptanceBindings ?? []) {
+    binding.verificationIntentRefs.forEach((ref) => refs.add(ref));
+  }
+  const shrinkageIds = confirmedShrinkageIds(input.scopeShrinkageDecision);
+  for (const milestone of input.milestoneLedger?.milestones ?? []) {
+    if (shrinkageIds.has(milestone.id)) continue;
+    milestone.verificationIntentRefs.forEach((ref) => refs.add(ref));
+  }
+  for (const ref of refs) {
+    if (!evidenceCoversIntent(evidence, ref)) {
+      gaps.push(gap(
+        'review_completeness_missing_evidence',
+        'checklist.json',
+        `Verification intent ${ref} is bound to ProofStory acceptance or milestone coverage but lacks passing verification evidence.`,
+      ));
+    }
+  }
+  const blocking = mode === 'enforce' && gaps.length > 0;
+  return {
+    schemaVersion: REVIEW_COMPLETENESS_SCHEMA_VERSION,
+    storyId: input.story.storyId,
+    mode,
+    status: blocking ? 'fail' : gaps.length > 0 ? 'warn' : 'pass',
+    blocking,
+    checkedAt: new Date().toISOString(),
+    gaps,
+  };
+}
+
 export function renderProofStoryDiagnosticReport(report: ProofStoryDiagnosticReport): string {
   const lines = [
-    `ProofStory dry-run diagnostics for ${report.storyId}`,
+    `ProofStory diagnostics for ${report.storyId}`,
+    `Mode: ${report.mode}`,
+    `Status: ${report.status}`,
+    `Blocking: ${report.blocking ? 'yes' : 'no'}`,
     `Hardening level: ${report.hardeningLevel}`,
-    `Would block future DEV admission: ${report.wouldBlockFutureDevAdmission ? 'yes' : 'no'}`,
+    `Ledger: ${report.ledgerState}, ${report.ledgerSizing.milestoneCount}/${report.ledgerSizing.threshold} milestone threshold (${report.ledgerSizing.thresholdState})`,
+    ...(report.ledgerSizing.suggestedSlices.length === 0
+      ? []
+      : [
+        'Suggested slices:',
+        ...report.ledgerSizing.suggestedSlices.map((slice) => `  - ${slice.id}: ${slice.milestoneIds.join(', ')}`),
+      ]),
     `Trigger reasons (${report.triggerReasons.length}):`,
     ...(report.triggerReasons.length === 0
       ? ['  none']
@@ -592,7 +1102,7 @@ export function renderProofStoryDiagnosticReport(report: ProofStoryDiagnosticRep
     `Diagnostic gaps (${report.gaps.length}):`,
     ...(report.gaps.length === 0
       ? ['  none']
-      : report.gaps.map((item) => `  - ${item.code} [${item.artifact}]: ${item.message}`)),
+      : report.gaps.map((item) => `  - ${item.code} [${item.severity}; ${item.artifact}]: ${item.message}`)),
   ];
   return lines.join('\n');
 }

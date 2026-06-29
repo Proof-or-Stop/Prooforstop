@@ -87,6 +87,10 @@ const proofStoryAcceptanceBindingSchema = z.object({
   note: z.string().optional().describe('Reviewer-visible note.'),
 });
 
+const proofStoryGateModeSchema = z.enum(['observe', 'warn', 'enforce']);
+const proofStoryIntentCollisionDecisionSchema = z.enum(['pass', 'revise_intent', 'human_gate', 'stop']);
+const proofStorySpikePromotionSchema = z.enum(['red_evidence', 'verification_evidence', 'scope_decision', 'implementation_note']);
+
 /** CLI tool definitions bundled with main. */
 export const MAIN_TOOLS: ToolDef[] = [
   // Story
@@ -2006,7 +2010,7 @@ Behavior:
     explicitExcludes: z.array(z.string()).optional().describe('Files explicitly out of scope'),
     scopeChangeReason: z.string().optional().describe('Reason recorded on the generated contract'),
   }},
-  // B-7287 M0-M2: ProofStory progressive intent hardening MVP.
+  // ProofStory progressive intent hardening.
   { name: 'original_intent_snapshot_set', description: 'Persist the immutable Intent MVP source snapshot for a story', schema: {
     storyId: z.string().describe('Story ID'),
     sourceText: z.string().min(1).describe('Original user request text.'),
@@ -2022,6 +2026,7 @@ Behavior:
   { name: 'milestone_ledger_set', description: 'Replace the story milestone ledger for multi-deliverable intent', schema: {
     storyId: z.string().describe('Story ID'),
     milestones: z.array(proofStoryMilestoneSchema).describe('Machine-countable milestone rows.'),
+    state: z.enum(['candidate', 'confirmed']).optional().describe('Ledger state. Direct writes default to candidate; confirmed is preserved only when the existing confirmed ledger hash is unchanged.'),
     json: z.boolean().optional().describe('Output structured JSON.'),
   }},
   { name: 'milestone_ledger_add', description: 'Append one milestone row to the story milestone ledger', schema: {
@@ -2051,18 +2056,102 @@ Behavior:
     storyId: z.string().describe('Story ID'),
     json: z.boolean().optional().describe('Output structured JSON.'),
   }},
-  { name: 'intent_collision_get', description: 'Read-only diagnostic view of any existing intent collision artifact', schema: {
+  { name: 'intent_collision_set', description: 'Persist a structured ProofStory intent-collision decision', schema: {
+    storyId: z.string().describe('Story ID'),
+    decision: proofStoryIntentCollisionDecisionSchema.describe('Collision decision. Only pass with acceptedInterpretation confirms a candidate ledger.'),
+    acceptedInterpretation: z.string().min(1).optional().describe('Accepted interpretation; required when decision=pass.'),
+    notes: z.string().optional().describe('Audit note for non-pass or pass decisions.'),
+    id: z.string().optional().describe('Stable decision id; generated when omitted.'),
+    json: z.boolean().optional().describe('Output structured JSON.'),
+  }},
+  { name: 'intent_collision_get', description: 'Read the structured ProofStory intent collision artifact', schema: {
     storyId: z.string().describe('Story ID'),
     json: z.boolean().optional().describe('Output structured JSON.'),
   }},
-  { name: 'intent_coverage_check', description: 'Dry-run ProofStory intent coverage diagnostics; writes nothing', schema: {
+  { name: 'scope_shrinkage_decision_set', description: 'Persist an explicit ProofStory scope-shrinkage decision', schema: {
     storyId: z.string().describe('Story ID'),
-    dryRun: z.boolean().describe('Must be true in M0-M2; this command writes nothing.'),
+    decision: z.enum(['confirmed', 'rejected']).describe('Whether the shrinkage is accepted.'),
+    removedMilestoneIds: z.array(z.string().min(1)).optional().describe('Milestones explicitly removed from DONE equivalence when decision=confirmed.'),
+    reason: z.string().min(1).describe('Audit reason for the shrinkage decision.'),
+    approvedBy: z.string().min(1).describe('Human or agent approving the decision.'),
     json: z.boolean().optional().describe('Output structured JSON.'),
   }},
-  { name: 'proofstory_gate_check', description: 'Dry-run ProofStory gate diagnostics; not wired to story_advance', schema: {
+  { name: 'scope_shrinkage_decision_get', description: 'Read the ProofStory scope-shrinkage decision', schema: {
     storyId: z.string().describe('Story ID'),
-    dryRun: z.boolean().describe('Must be true in M0-M2; this command writes nothing and enforces nothing.'),
+    json: z.boolean().optional().describe('Output structured JSON.'),
+  }},
+  { name: 'red_evidence_create', description: 'Record ProofStory red evidence for a triggered pre-fix failure', schema: {
+    storyId: z.string().describe('Story ID'),
+    trigger: z.string().min(1).describe('Trigger or claim this red evidence addresses.'),
+    observedFailure: z.string().min(1).describe('Observed failing behavior before the fix.'),
+    failingCommand: z.string().optional().describe('Command that demonstrates the red state.'),
+    expectedGreenCommand: z.string().optional().describe('Separate command expected to pass after the fix.'),
+    note: z.string().optional().describe('Audit note.'),
+    id: z.string().optional().describe('Stable red evidence id; generated when omitted.'),
+    json: z.boolean().optional().describe('Output structured JSON.'),
+  }},
+  { name: 'red_evidence_get', description: 'Read ProofStory red evidence', schema: {
+    storyId: z.string().describe('Story ID'),
+    json: z.boolean().optional().describe('Output structured JSON.'),
+  }},
+  { name: 'spike_start', description: 'Start a ProofStory investigation spike', schema: {
+    storyId: z.string().describe('Story ID'),
+    id: z.string().optional().describe('Stable spike id; generated when omitted.'),
+    question: z.string().min(1).describe('Question the spike is investigating.'),
+    note: z.string().optional().describe('Audit note.'),
+    json: z.boolean().optional().describe('Output structured JSON.'),
+  }},
+  { name: 'spike_result_set', description: 'Record the result of a ProofStory spike', schema: {
+    storyId: z.string().describe('Story ID'),
+    id: z.string().min(1).describe('Spike id.'),
+    result: z.string().min(1).describe('Investigation result.'),
+    note: z.string().optional().describe('Audit note.'),
+    json: z.boolean().optional().describe('Output structured JSON.'),
+  }},
+  { name: 'spike_result', description: 'Alias for spike_result_set', schema: {
+    storyId: z.string().describe('Story ID'),
+    id: z.string().min(1).describe('Spike id.'),
+    result: z.string().min(1).describe('Investigation result.'),
+    note: z.string().optional().describe('Audit note.'),
+    json: z.boolean().optional().describe('Output structured JSON.'),
+  }},
+  { name: 'spike_discard', description: 'Discard a ProofStory spike as audit-only investigation evidence', schema: {
+    storyId: z.string().describe('Story ID'),
+    id: z.string().min(1).describe('Spike id.'),
+    note: z.string().optional().describe('Audit note.'),
+    json: z.boolean().optional().describe('Output structured JSON.'),
+  }},
+  { name: 'spike_promote', description: 'Mark a ProofStory spike as promoted through explicit semantics', schema: {
+    storyId: z.string().describe('Story ID'),
+    id: z.string().min(1).describe('Spike id.'),
+    promotedAs: proofStorySpikePromotionSchema.optional().describe('Explicit promotion target. This does not create red or verification evidence automatically.'),
+    note: z.string().optional().describe('Audit note.'),
+    json: z.boolean().optional().describe('Output structured JSON.'),
+  }},
+  { name: 'spike_get', description: 'Read ProofStory spike evidence', schema: {
+    storyId: z.string().describe('Story ID'),
+    json: z.boolean().optional().describe('Output structured JSON.'),
+  }},
+  { name: 'intent_coverage_check', description: 'ProofStory intent coverage diagnostics; writes nothing', schema: {
+    storyId: z.string().describe('Story ID'),
+    dryRun: z.boolean().optional().describe('Compatibility flag; this command writes nothing.'),
+    mode: proofStoryGateModeSchema.optional().describe('observe/warn/enforce diagnostic mode.'),
+    json: z.boolean().optional().describe('Output structured JSON.'),
+  }},
+  { name: 'proofstory_gate_check', description: 'ProofStory gate diagnostics in observe, warn, or enforce mode', schema: {
+    storyId: z.string().describe('Story ID'),
+    dryRun: z.boolean().optional().describe('Compatibility flag; this command writes nothing.'),
+    mode: proofStoryGateModeSchema.optional().describe('observe/warn/enforce diagnostic mode.'),
+    json: z.boolean().optional().describe('Output structured JSON.'),
+  }},
+  { name: 'done_intent_equivalence_check', description: 'Compare DONE delivery against ProofStory original intent and confirmed ledger', schema: {
+    storyId: z.string().describe('Story ID'),
+    mode: proofStoryGateModeSchema.optional().describe('observe/warn/enforce diagnostic mode.'),
+    json: z.boolean().optional().describe('Output structured JSON.'),
+  }},
+  { name: 'proofstory_review_completeness_check', description: 'Check ProofStory REVIEW completeness gaps', schema: {
+    storyId: z.string().describe('Story ID'),
+    mode: proofStoryGateModeSchema.optional().describe('observe/warn/enforce diagnostic mode.'),
     json: z.boolean().optional().describe('Output structured JSON.'),
   }},
   { name: 'guard_session_start', description: 'Start (or restart) a Proofbound-managed scope-guard session projection for a story', schema: {

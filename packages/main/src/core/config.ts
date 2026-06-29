@@ -49,6 +49,15 @@ export interface ReproFirstPreflightConfig {
   mode?: 'off' | 'warn' | 'enforce';
 }
 
+export interface ProofStoryConfig {
+  /** PLAN/INIT_CHECK/REVIEW rollback DEV admission ProofStory gate. Defaults to observe. */
+  devGateMode?: 'observe' | 'warn' | 'enforce';
+  /** REVIEW completeness diagnostic mode. Defaults to observe. */
+  reviewGateMode?: 'observe' | 'warn' | 'enforce';
+  /** DONE intent-equivalence diagnostic mode. Defaults to observe. */
+  doneGateMode?: 'observe' | 'warn' | 'enforce';
+}
+
 export interface LifecycleControlConfig {
   runtimeEnforcement?: 'unavailable' | 'warn' | 'enforce';
 }
@@ -112,6 +121,7 @@ export interface LatticeConfig {
    * binding; enforce turns the same diagnostic into a lifecycle block.
    */
   reproFirstPreflight?: ReproFirstPreflightConfig;
+  proofStory?: ProofStoryConfig;
   lifecycleControl?: LifecycleControlConfig;
   /** 浏览器测试配置 */
   browser?: {
@@ -208,7 +218,8 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'scope_contract_show', 'scope_contract_check', // B-be27: read/check scope contract; mutating commands are phase-scoped below
     'scope_diff_pack', // B-6bfd CHK-002: read-only mechanical diff context pack, useful for verifier context in any phase
     'original_intent_snapshot_get', 'milestone_ledger_get', 'proofstory_contract_get',
-    'intent_collision_get', 'intent_coverage_check', 'proofstory_gate_check', // B-7287: ProofStory M0-M2 read-only/dry-run diagnostics; no lifecycle gate wiring
+    'intent_collision_get', 'scope_shrinkage_decision_get', 'red_evidence_get', 'spike_get',
+    'intent_coverage_check', 'proofstory_gate_check', 'done_intent_equivalence_check', 'proofstory_review_completeness_check', // ProofStory read-only diagnostics; enforce mode exits nonzero but writes no evidence
     'guard_session_status', // B-6bfd CHK-004: read-only guard session projection
     'guard_session_check', // B-6bfd CHK-004: NOT read-only — refreshes/writes guard-session.json + appends a guard_session_check process event, so it is an owner-gated storyScopedMutating write (see command-policy.ts); listed here because the check itself is allowed in every phase, while guard_session_start is phase-scoped below
     'prewrite_guard_check', // B-6bfd CHK-005: read-only pre-write scope gate for Claude Code PreToolUse hooks; called by the hook in any phase, writes nothing
@@ -293,6 +304,9 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'original_intent_snapshot_set',
     'milestone_ledger_set', 'milestone_ledger_add',
     'proofstory_contract_set',
+    'intent_collision_set',
+    'red_evidence_create',
+    'spike_start', 'spike_result_set', 'spike_result', 'spike_discard', 'spike_promote',
   ],
   DEV: [
     'dev_start', // B-804c CHK-002 / B-da89: explicit worktree recovery entry; reconcile config with command-policy + worktree handler 4-phase set (DEV still in the pre-REVIEW bootstrap window)
@@ -311,6 +325,10 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'original_intent_snapshot_set',
     'milestone_ledger_set', 'milestone_ledger_add',
     'proofstory_contract_set',
+    'intent_collision_set',
+    'scope_shrinkage_decision_set',
+    'red_evidence_create',
+    'spike_start', 'spike_result_set', 'spike_result', 'spike_discard', 'spike_promote',
     'guard_session_start', // B-6bfd CHK-004: start scope-guard session during implementation
   ],
   REVIEW: [
@@ -327,6 +345,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'review_escalation_policy_set',
     'story_advance',
     'scope_contract_acknowledge',
+    'scope_shrinkage_decision_set',
     'verification_intent_repair', // B-4e06: audited legacy intent backfill
     'guard_session_start', // B-6bfd CHK-004: start scope-guard session during review
   ],
@@ -338,6 +357,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'delivery_check_set', 'delivery_waiver_add', // B-b089: delivery reviewer 在 TEST 阶段写签名
     'review_escalation_policy_set',
     'review_escalation_fallback_set',
+    'scope_shrinkage_decision_set',
     'story_advance',
   ],
   DONE: [

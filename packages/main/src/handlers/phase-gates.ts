@@ -28,7 +28,7 @@
 
 import type { HandlerContext } from './context.js';
 import type { StoryStore } from '../core/store.js';
-import type { ChecklistData, StoryPhase, ReviewLoopIteration, ScopeCheckResult, ScopeViolation } from '../core/types.js';
+import type { ChecklistData, StoryPhase, ReviewLoopIteration, ScopeCheckResult, ScopeViolation, ProofStoryGateMode } from '../core/types.js';
 import { listActiveLoops, deriveLatestLoopRecord } from '../core/review-loop.js';
 import { getStateName, getGuardFailureReason } from '../core/machine.js';
 import { resolveLocalCodexVerifyCommand } from '../core/codex-adapter-checks.js';
@@ -54,6 +54,11 @@ import {
   runScopeGate,
 } from './scope-contract.js';
 import { renderScopeCheckResult } from '../core/scope-contract.js';
+import {
+  evaluateDoneIntentEquivalence,
+  evaluateReviewCompleteness,
+  type ProofStoryDiagnosticInput,
+} from '../core/proofstory.js';
 
 type ScopeLifecycleRow = {
   id?: string;
@@ -85,6 +90,40 @@ export function checklistHasFileDeclarations(checklist: ChecklistData | null | u
     }
   }
   return false;
+}
+
+function proofStoryDiagnosticInput(store: StoryStore, storyId: string): ProofStoryDiagnosticInput {
+  let checklist: ChecklistData;
+  try {
+    checklist = store.readChecklist(storyId);
+  } catch {
+    checklist = { items: [] };
+  }
+  return {
+    story: store.readStory(storyId),
+    checklist,
+    originalIntentSnapshot: store.readOriginalIntentSnapshot(storyId),
+    milestoneLedger: store.readMilestoneLedger(storyId),
+    proofStoryContract: store.readProofStoryContract(storyId),
+    intentCollision: store.readIntentCollision(storyId),
+    scopeContract: store.readScopeContract(storyId),
+    scopeShrinkageDecision: store.readScopeShrinkageDecision(storyId),
+    redEvidence: store.readRedEvidence(storyId),
+    spikeEvidence: store.readProofStorySpikes(storyId),
+  };
+}
+
+function renderProofStoryRows(label: string, mode: ProofStoryGateMode, status: string, blocking: boolean, gaps: Array<{ code: string; message: string }>): string {
+  return [
+    `${label}: ${status} (mode=${mode}, blocking=${blocking ? 'yes' : 'no'})`,
+    ...(gaps.length === 0
+      ? ['  - no gaps']
+      : gaps.map((gap) => `  - ${gap.code}: ${gap.message}`)),
+  ].join('\n');
+}
+
+function configuredProofStoryMode(ctx: HandlerContext, key: 'reviewGateMode' | 'doneGateMode'): ProofStoryGateMode {
+  return loadConfig(ctx.root).proofStory?.[key] ?? 'observe';
 }
 
 /**
@@ -250,6 +289,25 @@ export async function runReviewToTestPreflightGate(
   const { store } = ctx;
   // B-7a34 CHK-003: review loop gate runs before CLI gates (sync, no tooling required).
   runReviewLoopGate(storyId, store);
+  const proofStoryMode = configuredProofStoryMode(ctx, 'reviewGateMode');
+  if (proofStoryMode !== 'observe') {
+    const proofStoryReport = evaluateReviewCompleteness(proofStoryDiagnosticInput(store, storyId), proofStoryMode);
+    const renderedProofStory = renderProofStoryRows(
+      'ProofStory REVIEW completeness',
+      proofStoryReport.mode,
+      proofStoryReport.status,
+      proofStoryReport.blocking,
+      proofStoryReport.gaps,
+    );
+    if (proofStoryReport.blocking) {
+      throw new Error(
+        `Cannot enter TEST: ProofStory REVIEW completeness gate did not pass\n\n` +
+        renderedProofStory +
+        `\n\n→ Resolve ProofStory completeness gaps or set proofStory.reviewGateMode to observe/warn before rerunning story_advance --phase=TEST.`,
+      );
+    }
+    ctx.log?.(renderedProofStory);
+  }
   ctx.log?.('REVIEW→TEST preflight: running CLI gates (channel/concept/lint/docs-drift plus conditional codex-adapter)...');
   try {
     const { runReviewCliGates, renderPreflight } = await import('./review-preflight.js');
@@ -394,11 +452,29 @@ export function runPlanToDevScopeAdvice(ctx: HandlerContext, storyId: string): s
 }
 
 export function runLegacyReceiptTransitionGate(
-  _ctx: HandlerContext,
-  _storyId: string,
-  _targetPhase: Extract<StoryPhase, 'TEST' | 'DONE'>,
+  ctx: HandlerContext,
+  storyId: string,
+  targetPhase: Extract<StoryPhase, 'TEST' | 'DONE'>,
 ): string {
-  return '';
+  if (targetPhase !== 'DONE') return '';
+  const mode = configuredProofStoryMode(ctx, 'doneGateMode');
+  if (mode === 'observe') return '';
+  const report = evaluateDoneIntentEquivalence(proofStoryDiagnosticInput(ctx.store, storyId), mode);
+  const rendered = renderProofStoryRows(
+    'ProofStory DONE intent equivalence',
+    report.mode,
+    report.status,
+    report.blocking,
+    report.gaps,
+  );
+  if (report.blocking) {
+    throw new Error(
+      `Cannot enter DONE: ProofStory intent equivalence gate did not pass\n\n` +
+      rendered +
+      `\n\n→ Cover required milestones with passing verification evidence or record an explicit scope_shrinkage_decision_set before rerunning story_advance --phase=DONE.`,
+    );
+  }
+  return `\n\n${rendered}`;
 }
 
 function canonicalCoverageSnapshotFromReport(coverage: any): string | null {
