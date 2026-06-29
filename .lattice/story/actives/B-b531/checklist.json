@@ -104,6 +104,19 @@
           "materialHash": "a20af37d646634c538dabb7eb3bf41b516ae6b105caecb7ec540a4ccdd0e3330",
           "storyFilesHash": "491440a574d6ffdab64fb45eb1852e259c20545e521a3d1c4bbf7a4db9cd8cf4",
           "timestamp": "2026-06-29T19:11:19.896Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/handlers/done-closure.ts",
+          "command": "node packages/main/dist/cli.js done_closure {\"storyId\":\"B-da34\"}",
+          "result": "pass",
+          "note": "Live B-da34 transcript labels projection as historical DONE snapshot and downgrades current-material revalidation to advisory/non-blocking rows.",
+          "headHash": "1b61ec2fc37e4667e5a9ddd50bae11fd44fda275",
+          "materialHash": "a20af37d646634c538dabb7eb3bf41b516ae6b105caecb7ec540a4ccdd0e3330",
+          "storyFilesHash": "491440a574d6ffdab64fb45eb1852e259c20545e521a3d1c4bbf7a4db9cd8cf4",
+          "timestamp": "2026-06-29T19:11:20.516Z"
         }
       ]
     }
