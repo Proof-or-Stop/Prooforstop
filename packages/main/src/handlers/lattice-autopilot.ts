@@ -137,16 +137,9 @@ function normalizeRunArgs(args: Record<string, unknown>): Record<string, unknown
 
 function normalizePolicyArgs(args: Record<string, unknown>): Record<string, unknown> {
   const rest = stripFormatArgs(args);
-  if (rest.requireServerReceipt === undefined && typeof rest.requireServerAuthorityReceipt === 'boolean') {
-    rest.requireServerReceipt = rest.requireServerAuthorityReceipt;
-  }
   delete rest.requireServerAuthorityReceipt;
+  delete rest.requireServerReceipt;
   return rest;
-}
-
-function policyCheckOptions(args: Record<string, unknown>): Record<string, unknown> | undefined {
-  if (args.serverAuthorityReceipt === undefined) return undefined;
-  return { serverAuthorityReceipt: args.serverAuthorityReceipt };
 }
 
 function readBooleanFact(result: unknown, key: 'authorityChanged' | 'receiptVerified' | 'productionDone'): boolean {
@@ -204,7 +197,7 @@ function requireRunId(args: { runId?: string; autopilotId?: string }): string {
 export function createLatticeAutopilotHandlers(ctx: HandlerContext): Record<string, (...args: any[]) => any> {
   return {
     autopilot_policy_create(args: Record<string, unknown> & FormatArgs) {
-      const result = createAutopilotPolicy(ctx.root, normalizePolicyArgs(args) as any, policyCheckOptions(args) as any);
+      const result = createAutopilotPolicy(ctx.root, normalizePolicyArgs(args) as any);
       const outputNote = maybeWriteOutput(ctx.root, args.output, result);
       if (wantsJson(args)) return result;
       return `${renderResult(renderAutopilotPolicyText, 'Autopilot policy', result)}${outputNote}`;
@@ -216,7 +209,7 @@ export function createLatticeAutopilotHandlers(ctx: HandlerContext): Record<stri
       return `${renderResult(renderAutopilotPolicyText, 'Autopilot policy', result)}${outputNote}`;
     },
     autopilot_policy_check(args: { policy: string } & FormatArgs) {
-      const result = checkAutopilotPolicy(ctx.root, args.policy, policyCheckOptions(args));
+      const result = checkAutopilotPolicy(ctx.root, args.policy);
       const outputNote = maybeWriteOutput(ctx.root, args.output, result);
       if (wantsJson(args)) return result;
       return `${renderResult(renderAutopilotPolicyCheckText, 'Autopilot policy check', result)}${outputNote}`;

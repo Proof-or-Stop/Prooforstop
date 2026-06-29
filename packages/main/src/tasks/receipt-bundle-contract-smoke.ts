@@ -1,7 +1,7 @@
 /**
  * Smoke: receipt-bundle ADVERSARIAL tamper-class contract (B-4c65, slice 1).
  *
- * Hermetic — no network, no Authority server, no FS/git reads. The smoke:
+ * Hermetic — no network, no remote receipt server, no FS/git reads. The smoke:
  *   1. Generates a fresh local ed25519 keypair and builds an AUTHENTIC bundle
  *      from synthetic evidence via buildReceiptBundle.
  *   2. Asserts the authentic bundle is ACCEPTED when verified offline against

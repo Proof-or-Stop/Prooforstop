@@ -10,8 +10,6 @@ import type { ChecklistData, ChecklistStatus, StoryInfo, VerificationEvidence, V
 import { buildVerificationCoverage, makeEvidence, VERIFICATION_LANES } from '../core/verification.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 import { withMkdirLock } from '../core/mkdir-lock.js';
-import { authorityModeEnabled } from '../core/authority-mode.js';
-import { createAuthoritySubmitter, resolveAuthoritySettings } from '../core/authority-submit.js';
 import { effectiveExcludedKeywords, normalizeBoundaryArray, scanExcludedKeywordHits } from '../core/scope-anti-expansion.js';
 import type { ScopeFreezeTextSource } from '../core/types.js';
 
@@ -779,11 +777,8 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       attestation?: VerificationEvidence['attestation'];
       actorTrust?: VerificationEvidence['actorTrust'];
       factProvenance?: VerificationEvidence['factProvenance'];
-    }): string | Promise<string> {
-      // --- LOCAL PREFLIGHT (must run BEFORE any authority POST; A-prepost) -------
-      // These guards are duplicated here at the handler entry (not Zod-only) per
-      // CLAUDE.md Handler coding convention. They MUST stay first so a local failure produces
-      // ZERO authority POST and ZERO local write (Blockers 1+2).
+    }): string {
+      // Local-only evidence write: record scoped Proofbound evidence and never POST.
       if (!args.note || args.note.trim().length < 5) {
         throw new Error('verification_evidence_add: note must be ≥ 5 characters, explaining why the evidence covers the intent');
       }
@@ -792,81 +787,37 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         throw new Error('verification_evidence_add: waiverType can only be used with kind=waiver');
       }
 
-      const settings = resolveAuthoritySettings(ctx.authoritySettings);
-
-      // The local-write closure runs IDENTICALLY in every mode. In enforce it only
-      // runs after a successful POST; in shadow it runs regardless of POST result;
-      // in off it runs without any authority interaction at all.
-      const writeLocal = (): { hashes: ReturnType<typeof evidenceHashes>; message: string } => {
-        return withChecklistLock(ctx, args.storyId, () => {
-          const cl = store.readChecklist(args.storyId);
-          const item = cl.items.find(i => i.id === args.itemId);
-          // itemId existence is part of the local preflight: when authority is enabled
-          // the same check is re-run in the preflight pass below BEFORE the POST so an
-          // unknown item never triggers a POST.
-          if (!item) throw new Error(`Checklist item ${args.itemId} not found`);
-
-          const hashes = evidenceHashes(resolveStoryGitCwd(args.storyId), root);
-
-          const evidence = makeEvidence({
-            intentRef: args.intentRef,
-            kind,
-            ...(args.verdict ? { verdict: args.verdict } : {}),
-            ...(args.waiverType ? { waiverType: args.waiverType } : {}),
-            ...(args.file ? { file: args.file } : {}),
-            ...(args.command ? { command: args.command } : {}),
-            ...(args.result ? { result: args.result } : {}),
-            note: args.note.trim(),
-            ...(args.attestation ? { attestation: args.attestation } : {}),
-            ...(args.actorTrust ? { actorTrust: args.actorTrust } : {}),
-            ...(args.factProvenance ? { factProvenance: args.factProvenance } : {}),
-            ...hashes,
-          });
-
-          const existing = item.verificationEvidence || [];
-          const idx = existing.findIndex(e => e.intentRef === args.intentRef);
-          if (idx >= 0) existing[idx] = evidence;
-          else existing.push(evidence);
-          item.verificationEvidence = existing;
-
-          store.writeChecklist(args.storyId, cl);
-          const aliasNote = kind !== args.kind ? `, alias ${args.kind}` : '';
-          const commitHint = autoCommitStoryMetadata(root, args.storyId, 'verification_evidence_add');
-          return { hashes, message: `Verification evidence recorded for ${args.itemId} → ${args.intentRef} (${kind}${aliasNote})${commitHint}` };
-        });
-      };
-
-      // off: byte-identical to post-B-2157 main — zero network, synchronous.
-      if (!authorityModeEnabled(settings.mode)) {
-        return writeLocal().message;
-      }
-
-      // shadow / enforce: run remaining local preflight (itemId existence) BEFORE the
-      // POST so a local failure short-circuits with zero POST, then POST, then write.
       return withChecklistLock(ctx, args.storyId, () => {
         const cl = store.readChecklist(args.storyId);
         const item = cl.items.find(i => i.id === args.itemId);
         if (!item) throw new Error(`Checklist item ${args.itemId} not found`);
-        return Promise.resolve();
-      }).then(async () => {
         const hashes = evidenceHashes(resolveStoryGitCwd(args.storyId), root);
-        const submitter = ctx.authoritySubmitter ?? createAuthoritySubmitter(settings);
-        const decision = await submitter.submitSingle({
-          storyId: args.storyId,
-          itemId: args.itemId,
+
+        const evidence = makeEvidence({
           intentRef: args.intentRef,
           kind,
+          ...(args.verdict ? { verdict: args.verdict } : {}),
+          ...(args.waiverType ? { waiverType: args.waiverType } : {}),
+          ...(args.file ? { file: args.file } : {}),
           ...(args.command ? { command: args.command } : {}),
+          ...(args.result ? { result: args.result } : {}),
           note: args.note.trim(),
-          ...(hashes.headHash ? { headHash: hashes.headHash } : {}),
-          ...(hashes.materialHash ? { materialHash: hashes.materialHash } : {}),
+          ...(args.attestation ? { attestation: args.attestation } : {}),
+          ...(args.actorTrust ? { actorTrust: args.actorTrust } : {}),
+          ...(args.factProvenance ? { factProvenance: args.factProvenance } : {}),
+          ...hashes,
         });
-        if (!decision.proceed) {
-          // enforce: authority failed -> throw, leaving ZERO local write (Blocker 4).
-          throw decision.error ?? new Error('authority POST failed');
-        }
-        if (decision.warning) process.stderr.write(`${decision.warning}\n`);
-        return writeLocal().message;
+
+        const existing = item.verificationEvidence || [];
+        const idx = existing.findIndex(e => e.intentRef === args.intentRef);
+        if (idx >= 0) existing[idx] = evidence;
+        else existing.push(evidence);
+        item.verificationEvidence = existing;
+
+        store.writeChecklist(args.storyId, cl);
+        const aliasNote = kind !== args.kind ? `, alias ${args.kind}` : '';
+        const commitHint = autoCommitStoryMetadata(root, args.storyId, 'verification_evidence_add');
+        return `Verification evidence recorded for ${args.itemId} → ${args.intentRef} (${kind}${aliasNote})${commitHint}`;
       });
     },
 
@@ -886,18 +837,13 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         actorTrust?: VerificationEvidence['actorTrust'];
         factProvenance?: VerificationEvidence['factProvenance'];
       }>;
-    }): string | Promise<string> {
+    }): string {
       if (!Array.isArray(args.evidences) || args.evidences.length === 0) {
         throw new Error('verification_evidence_batch_add: evidences must be a non-empty array');
       }
 
-      const settings = resolveAuthoritySettings(ctx.authoritySettings);
-
-      // --- LOCAL PREFLIGHT for ALL entries (A-prepost all-or-nothing) -----------
-      // Validate every entry's note/waiver/kind FIRST. itemId existence is checked
-      // against the on-disk checklist inside `runPreflight`. Any failure throws here
-      // -> ZERO batch POST + ZERO local write (no partial tail). Re-validated (not
-      // Zod-only) per CLAUDE.md Handler coding convention.
+      // Local preflight for all entries; any failure throws before the local
+      // all-or-nothing batch write.
       const normalizedKinds: VerificationEvidence['kind'][] = [];
       for (const entry of args.evidences) {
         if (!entry.note || entry.note.trim().length < 5) {
@@ -910,89 +856,39 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         normalizedKinds.push(kind);
       }
 
-      // Local write closure — runs once for the WHOLE batch (all-or-nothing). In
-      // enforce it only runs after a fully-accepted batch POST; in shadow regardless;
-      // in off without any POST.
-      const writeLocalBatch = (): string => {
-        return withChecklistLock(ctx, args.storyId, () => {
-          const cl = store.readChecklist(args.storyId);
-          const hashes = evidenceHashes(resolveStoryGitCwd(args.storyId), root);
-          let written = 0;
-          args.evidences.forEach((entry, i) => {
-            const kind = normalizedKinds[i];
-            const item = cl.items.find(it => it.id === entry.itemId);
-            if (!item) throw new Error(`Checklist item ${entry.itemId} not found`);
-            const evidence = makeEvidence({
-              intentRef: entry.intentRef,
-              kind,
-              ...(entry.verdict ? { verdict: entry.verdict } : {}),
-              ...(entry.waiverType ? { waiverType: entry.waiverType } : {}),
-              ...(entry.file ? { file: entry.file } : {}),
-              ...(entry.command ? { command: entry.command } : {}),
-              ...(entry.result ? { result: entry.result } : {}),
-              note: entry.note.trim(),
-              ...(entry.attestation ? { attestation: entry.attestation } : {}),
-              ...(entry.actorTrust ? { actorTrust: entry.actorTrust } : {}),
-              ...(entry.factProvenance ? { factProvenance: entry.factProvenance } : {}),
-              ...hashes,
-            });
-            const existing = item.verificationEvidence || [];
-            const idx = existing.findIndex(e => e.intentRef === entry.intentRef);
-            if (idx >= 0) existing[idx] = evidence;
-            else existing.push(evidence);
-            item.verificationEvidence = existing;
-            written++;
-          });
-          store.writeChecklist(args.storyId, cl);
-          const commitHint = autoCommitStoryMetadata(root, args.storyId, 'verification_evidence_batch_add');
-          return `Verification evidence batch recorded for ${args.storyId}: ${written} item intent(s)${commitHint}`;
-        });
-      };
-
-      // Re-run the on-disk itemId-existence preflight for every entry. When authority
-      // is enabled this MUST happen BEFORE the batch POST so an unknown item in any
-      // entry yields zero POST + zero local write.
-      const assertAllItemsExist = (): void => {
-        withChecklistLock(ctx, args.storyId, () => {
-          const cl = store.readChecklist(args.storyId);
-          for (const entry of args.evidences) {
-            if (!cl.items.some(it => it.id === entry.itemId)) {
-              throw new Error(`Checklist item ${entry.itemId} not found`);
-            }
-          }
-        });
-      };
-
-      // off: byte-identical to post-B-2157 main — zero network, synchronous.
-      if (!authorityModeEnabled(settings.mode)) {
-        assertAllItemsExist();
-        return writeLocalBatch();
-      }
-
-      // shadow / enforce: preflight items -> single batch POST -> write all on accept.
-      assertAllItemsExist();
-      return (async () => {
+      return withChecklistLock(ctx, args.storyId, () => {
+        const cl = store.readChecklist(args.storyId);
         const hashes = evidenceHashes(resolveStoryGitCwd(args.storyId), root);
-        const submitter = ctx.authoritySubmitter ?? createAuthoritySubmitter(settings);
-        const decision = await submitter.submitBatch(
-          args.evidences.map((entry, i) => ({
-            storyId: args.storyId,
-            itemId: entry.itemId,
+        let written = 0;
+        args.evidences.forEach((entry, i) => {
+          const kind = normalizedKinds[i];
+          const item = cl.items.find(it => it.id === entry.itemId);
+          if (!item) throw new Error(`Checklist item ${entry.itemId} not found`);
+          const evidence = makeEvidence({
             intentRef: entry.intentRef,
-            kind: normalizedKinds[i],
+            kind,
+            ...(entry.verdict ? { verdict: entry.verdict } : {}),
+            ...(entry.waiverType ? { waiverType: entry.waiverType } : {}),
+            ...(entry.file ? { file: entry.file } : {}),
             ...(entry.command ? { command: entry.command } : {}),
+            ...(entry.result ? { result: entry.result } : {}),
             note: entry.note.trim(),
-            ...(hashes.headHash ? { headHash: hashes.headHash } : {}),
-            ...(hashes.materialHash ? { materialHash: hashes.materialHash } : {}),
-          })),
-        );
-        if (!decision.proceed) {
-          // enforce: whole-batch authority failure -> throw, ZERO local writes (Blocker 4).
-          throw decision.error ?? new Error('authority batch POST failed');
-        }
-        if (decision.warning) process.stderr.write(`${decision.warning}\n`);
-        return writeLocalBatch();
-      })();
+            ...(entry.attestation ? { attestation: entry.attestation } : {}),
+            ...(entry.actorTrust ? { actorTrust: entry.actorTrust } : {}),
+            ...(entry.factProvenance ? { factProvenance: entry.factProvenance } : {}),
+            ...hashes,
+          });
+          const existing = item.verificationEvidence || [];
+          const idx = existing.findIndex(e => e.intentRef === entry.intentRef);
+          if (idx >= 0) existing[idx] = evidence;
+          else existing.push(evidence);
+          item.verificationEvidence = existing;
+          written++;
+        });
+        store.writeChecklist(args.storyId, cl);
+        const commitHint = autoCommitStoryMetadata(root, args.storyId, 'verification_evidence_batch_add');
+        return `Verification evidence batch recorded for ${args.storyId}: ${written} item intent(s)${commitHint}`;
+      });
     },
 
     verification_evidence_refresh_stale(args: {

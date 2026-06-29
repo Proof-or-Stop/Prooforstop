@@ -58,8 +58,8 @@ lifecycle readiness; it never runs `check --apply`, `check --upgrade`, repair
 commands, installers, evidence submission, or receipt verification. External
 projects and non-git projects are normalized into PASS/WARN/FAIL records with a
 next action instead of opaque command failures. `conduit_status` is local-only:
-it reports `admissibilityStatus`, `assuranceLevel`, and `evidenceScope` without
-contacting or depending on an Authority Server.
+it reports `admissibilityStatus`, `assuranceLevel`, and `evidenceScope` from
+local evidence only.
 
 ## Host Overflow
 
@@ -261,8 +261,8 @@ active Proofbound CLI. The active vocabulary is:
 - local review quorum assurance
 
 Use `lattice conduit status --json`, `lattice validate`, receipt-bundle smokes,
-and `quorum_submit` for local assurance. Older Authority Server decision docs
-are retained only as retired legacy context.
+and `quorum_submit` for local assurance. Older retired decision docs are retained
+only as legacy context.
 
 The Mac App is no longer required for release or provider/config status. It is
 an optional dashboard/archive surface unless a future, explicitly reviewed

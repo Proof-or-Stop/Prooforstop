@@ -48,12 +48,26 @@ const retiredAliasPatterns = [
 
 const activeServerProductPatterns = [
   /\bAuthority Server receipt\b/i,
+  /\bAuthority Server\b/i,
   /\bAuthority-Verified\b/i,
   /\bAuthority modes\b/i,
   /\bPython authority\b/i,
   /\bLATTICE_AUTHORITY_/,
   /\brequireServerReceipt\b/,
   /\brequireServerAuthorityReceipt\b/,
+  /\bserverAuthorityReceipt\b/,
+  /\bverifiedAuthorityReceipt\b/,
+  /\bauthorityReceiptGate\b/,
+  /\bAuthorityClient\b/,
+  /\bAuthorityMode\b/,
+  /\bAuthoritySubmit/i,
+  /\bauthority-gate-receipts\b/i,
+  /\bauthority-client\b/i,
+  /\bauthority-mode\b/i,
+  /\bauthority-submit\b/i,
+  /\bauthority-job-loop\b/i,
+  /\bauthority-runner\b/i,
+  /\blattice-authority-native\b/i,
   /\bserver-backed Authority\b/i,
   /\bserver authority receipt\b/i,
   /\bNon-authority unless an Authority Server\b/i,
@@ -62,6 +76,7 @@ const activeServerProductPatterns = [
 const activeFiles = [
   'README.md',
   'docs/guide.md',
+  'packages/main/src/cli-engine.ts',
   'packages/main/src/cli/alias-normalizer.ts',
   'packages/main/src/cli/command-catalog.ts',
   'packages/main/src/cli/activity-policy.ts',
@@ -76,10 +91,33 @@ const activeFiles = [
 ] as const;
 
 const activeDirs = [
+  'packages/main/src/cli',
+  'packages/main/src/core',
+  'packages/main/src/handlers',
+  'packages/main/src/tasks',
   'packages/main/templates/agents',
   '.lattice-codex/agents',
   '.claude/agents',
 ] as const;
+
+const sourceScanAllowlist = new Set([
+  'packages/main/src/tasks/retired-authority-server-semantics-smoke.ts',
+  'packages/main/src/tasks/command-catalog-smoke.ts',
+  'packages/main/src/tasks/proof-admissibility-smoke.ts',
+  'packages/main/src/core/proof-admissibility.ts',
+  'packages/main/src/core/proof-admissibility-handoff.ts',
+  'packages/main/src/core/receipt-bundle.ts',
+  'packages/main/src/core/authority-contracts.ts',
+  'packages/main/src/core/authority-signing.ts',
+  'packages/main/src/core/autopilot-policy.ts',
+  'packages/main/src/core/lattice-autopilot.ts',
+  'packages/main/src/core/baseline.ts',
+  'packages/main/src/core/baseline-suite-report.ts',
+  'packages/main/src/core/usage-ledger/authority-evidence.ts',
+  'packages/main/src/core/usage-ledger/record.ts',
+  'packages/main/src/cli/command-schemas.ts',
+  'packages/main/src/tasks/lattice-baseline-smoke.ts',
+]);
 
 const retiredDecisionDocs = [
   'docs/requirements/decisions/lattice-authority-receipt-contract.md',
@@ -117,7 +155,7 @@ function readRelative(path: string): string {
   return readFileSync(join(repoRoot, path), 'utf8');
 }
 
-function listMarkdownFiles(dir: string): string[] {
+function listFiles(dir: string, extensions: readonly string[]): string[] {
   const abs = join(repoRoot, dir);
   if (!existsSync(abs)) return [];
   const found: string[] = [];
@@ -126,8 +164,8 @@ function listMarkdownFiles(dir: string): string[] {
     const rel = relative(repoRoot, full);
     const stat = statSync(full);
     if (stat.isDirectory()) {
-      found.push(...listMarkdownFiles(rel));
-    } else if (entry.endsWith('.md')) {
+      found.push(...listFiles(rel, extensions));
+    } else if (extensions.some(ext => entry.endsWith(ext))) {
       found.push(rel);
     }
   }
@@ -157,11 +195,15 @@ function lineIsRetirementMarker(line: string): boolean {
   return /\b(retired|legacy|out-of-core|superseded|not active|no longer active)\b/i.test(line);
 }
 
+function lineIsNegativeBoundary(line: string): boolean {
+  return /\b(does not|do not|must not|cannot|can not|never|without|no longer|not required|not verified|not claim|not satisfy|false|delete|refusal)\b/i.test(line);
+}
+
 function scanText(file: string, text: string, patterns: PatternRule[], allowRetiredLines: boolean): Violation[] {
   const violations: Violation[] = [];
   text.split(/\r?\n/).forEach((line, index) => {
     for (const { pattern, label, allowRetiredLine } of patterns) {
-      if (allowRetiredLines && allowRetiredLine && lineIsRetirementMarker(line)) continue;
+      if (allowRetiredLines && allowRetiredLine && (lineIsRetirementMarker(line) || lineIsNegativeBoundary(line))) continue;
       if (pattern.test(line)) {
         violations.push({ file, line: index + 1, pattern: label, text: line.trim() });
       }
@@ -201,8 +243,8 @@ for (const command of retiredCommands) {
 const violations: Violation[] = [];
 const activeScanFiles = [
   ...activeFiles,
-  ...activeDirs.flatMap(dir => listMarkdownFiles(dir)),
-];
+  ...activeDirs.flatMap(dir => listFiles(dir, dir.includes('/src/') ? ['.ts'] : ['.md'])),
+].filter((file, index, all) => all.indexOf(file) === index && !sourceScanAllowlist.has(file));
 for (const file of activeScanFiles) {
   if (!existsSync(join(repoRoot, file))) continue;
   violations.push(...scanText(file, readRelative(file), activePatterns(), true));

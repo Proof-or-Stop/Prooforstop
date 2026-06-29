@@ -9,8 +9,7 @@
 //   3. the planner emits a `budgetPolicy` on every JobPlan and the consistency gate
 //      rejects a malformed budget;
 //   4. the executor stops `blocked` with `stopReason=budget_exceeded` BEFORE the gate
-//      in BOTH local and authority mode (authority never reaches DONE on exhaustion),
-//      and a generous budget never false-positives.
+//      in local mode, and a generous budget never false-positives.
 
 import assert from 'node:assert/strict';
 import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
@@ -74,7 +73,7 @@ function fixedClock(baseMs = 1_700_000_000_000): () => Date {
   return () => new Date(baseMs);
 }
 
-function buildPlan(mode: 'local' | 'authority', storyId: string): JobPlan {
+function buildPlan(mode: 'local', storyId: string): JobPlan {
   const draft = buildPlannerDraft(root, {
     request: `Bound a ${mode} run with explicit budget metering and a fail-closed stop`,
     mode,
@@ -180,7 +179,7 @@ try {
 
   // === 4. Planner emits budgetPolicy + consistency gate rejects a bad budget ==
   {
-    for (const mode of ['local', 'authority'] as const) {
+    for (const mode of ['local'] as const) {
       const plan = buildPlan(mode, `B-budget-policy-${mode}`);
       assert(plan.budgetPolicy, `${mode} JobPlan must carry a budgetPolicy block`);
       assert.equal(plan.budgetPolicy!.maxWallClockMs, 3600000, `${mode} budgetPolicy emits the default wall-clock budget`);
@@ -227,9 +226,9 @@ try {
     assert(exec.nextActions.some(a => /never triggers provider fallback/i.test(a)), 'the next action must state budget exhaustion does not trigger fallback');
   }
 
-  // === 6. Executor — AUTHORITY mode is fail-closed on budget exhaustion =======
+  // === 6. Executor — local mode is fail-closed on budget exhaustion ===========
   {
-    const plan = buildPlan('authority', 'B-budget-auth');
+    const plan = buildPlan('local', 'B-budget-auth');
     const store = makeStore('DEV');
     const exec = executePlannedSteps({
       root,
@@ -237,15 +236,14 @@ try {
       jobPlan: plan,
       now: advancingClock(5000),
       budget: { maxWallClockMs: 1 },
-      // NOTE: no authorityGate evaluator supplied. Budget must stop the run before the
-      // gate is ever reached, so authority DONE is unreachable regardless.
+      // Budget must stop the run before the gate is ever reached, so DONE is unreachable.
     });
-    assert.equal(exec.status, 'blocked', 'an exhausted authority run stops blocked');
-    assert.equal(exec.stopReason, BUDGET_EXCEEDED_STOP_REASON, 'authority budget exhaustion uses the budget_exceeded stop, not the gate-receipt stop');
-    assert.equal(exec.authorityDone, false, 'authority DONE is fail-closed on budget exhaustion');
+    assert.equal(exec.status, 'blocked', 'an exhausted local run stops blocked');
+    assert.equal(exec.stopReason, BUDGET_EXCEEDED_STOP_REASON, 'local budget exhaustion uses the budget_exceeded stop');
+    assert.equal(exec.authorityDone, false, 'authorityDone remains false on budget exhaustion');
     assert.equal(exec.fullAuthorityDone, false);
     assert.equal(exec.receiptVerified, false, 'no receipt is verified when the run never reaches the gate');
-    assert(!exec.steps.some(step => step.type === 'gate.evaluate'), 'authority execution must stop before the gate on budget exhaustion');
+    assert(!exec.steps.some(step => step.type === 'gate.evaluate'), 'local execution must stop before the gate on budget exhaustion');
     assert.equal(exec.budgetUsage!.exceeded, true);
   }
 

@@ -382,7 +382,7 @@ try {
       event.type === 'decision_doc_save' &&
       event.proposalId === 'DDP-001' &&
       event.targetPath === 'docs/requirements/decisions/promotion-smoke.md' &&
-      String(event.authorityBoundary || '').includes('not Authority Server receipt completion')
+      String(event.authorityBoundary || '').includes('not remote receipt completion')
     ), true);
   });
 

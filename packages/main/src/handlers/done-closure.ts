@@ -2,18 +2,9 @@ import type { DoneCheckRow } from '../core/done-oracle.js';
 import { buildDoneChecklist } from '../core/done-oracle.js';
 import type { StoryInfo } from '../core/types.js';
 import type { HandlerContext } from './context.js';
-import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
-import { loadAuthoritySettings } from '../core/authority-mode.js';
-import { loadConfig } from '../core/config.js';
-import { resolveWorkflowPolicy } from '../core/workflow-policy.js';
-import {
-  DEFAULT_AUTHORITY_RECEIPT_MAX_VERIFIED_AGE_MS,
-  consumeAuthorityGateReceiptDocument,
-  type AuthorityGateReceiptFailReason,
-} from '../core/authority-gate-receipts.js';
 
 type DoneClosureStatus = 'notRequired' | 'required' | 'passed' | 'blocked';
-type AuthorityImpact = 'none' | 'localOnly' | 'requiresAuthorityReceipt';
+type AssuranceImpact = 'none' | 'localEvidence';
 type DoneClosureFormatArgs = { format?: 'text' | 'json'; json?: boolean };
 const DONE_PREPARE_BLOCKER_IDS = new Set(['evidence-freshness', 'done-required-validation', 'branch-synced-main']);
 
@@ -23,7 +14,7 @@ export interface DoneClosureBlocker {
   source: string;
   reason: string;
   nextCommand?: string;
-  authorityImpact: AuthorityImpact;
+  assuranceImpact: AssuranceImpact;
   blocking: boolean;
 }
 
@@ -39,23 +30,23 @@ export interface DoneClosureRunbook {
     requiredRounds?: number;
     evidenceRefs?: string[];
   };
-  authorityServerPath: {
-    required: boolean;
-    receiptVerified: boolean;
-    receiptRefs: string[];
-    mayClaimAuthorityDone: boolean;
+  localAssurance: {
+    admissibilityStatus: 'local-admissible' | 'blocked';
+    assuranceLevel: 'local';
+    evidenceScope: 'local-gate-evidence';
+    receiptBundleRequired: boolean;
+    quorumRequired: boolean;
   };
   readOnly: true;
-  note: 'local DONE readiness is not Authority DONE readiness';
+  note: 'local DONE readiness is based on proof admissibility, receipt-bundle checks, and local quorum evidence';
 }
 
 function wantsJson(args: DoneClosureFormatArgs | undefined): boolean {
   return args?.json === true || args?.format === 'json';
 }
 
-function rowAuthorityImpact(row: DoneCheckRow): AuthorityImpact {
-  if (row.id.includes('authority') || row.source.includes('authority')) return 'requiresAuthorityReceipt';
-  if (row.blocking || row.status === 'fail') return 'localOnly';
+function rowAssuranceImpact(row: DoneCheckRow): AssuranceImpact {
+  if (row.blocking || row.status === 'fail') return 'localEvidence';
   return 'none';
 }
 
@@ -105,71 +96,8 @@ function toBlocker(storyId: string, row: DoneCheckRow): DoneClosureBlocker {
     source: row.source,
     reason,
     nextCommand: nextCommandForRow(storyId, row),
-    authorityImpact: rowAuthorityImpact(row),
+    assuranceImpact: rowAssuranceImpact(row),
     blocking: row.blocking,
-  };
-}
-
-function receiptRefsForStory(ctx: HandlerContext, storyId: string): string[] {
-  const document = ctx.store.readAuthorityReceiptRefs(storyId);
-  return (document?.refs ?? [])
-    .map((ref) => ref.receiptId || ref.decisionDigest || ref.decisionId || ref.status)
-    .filter((value): value is string => typeof value === 'string' && value.length > 0);
-}
-
-function authorityReceiptProjection(ctx: HandlerContext, storyId: string, story: StoryInfo): {
-  required: boolean;
-  receiptVerified: boolean;
-  receiptRefs: string[];
-  mayClaimAuthorityDone: boolean;
-  blocking: boolean;
-} {
-  const settings = ctx.authoritySettings ?? loadAuthoritySettings(process.env);
-  const required = settings.mode === 'enforce';
-  const receiptRefs = receiptRefsForStory(ctx, storyId);
-  if (settings.mode === 'off') {
-    return {
-      required,
-      receiptVerified: false,
-      receiptRefs,
-      mayClaimAuthorityDone: false,
-      blocking: false,
-    };
-  }
-
-  const headHash = currentGitHead(ctx.root);
-  const materialHash = currentMaterialHash(ctx.root);
-  let reason: AuthorityGateReceiptFailReason | undefined;
-  let receiptVerified = false;
-  if (!headHash || !materialHash) {
-    reason = !headHash ? 'authority_receipt_head_mismatch' : 'authority_receipt_stale_material';
-  } else {
-    const policy = resolveWorkflowPolicy(loadConfig(ctx.root), story);
-    const now = new Date().toISOString();
-    const consumed = consumeAuthorityGateReceiptDocument(
-      ctx.store.readAuthorityReceiptRefs(storyId) ?? undefined,
-      {
-        storyId,
-        targetPhase: 'DONE',
-        headHash,
-        materialHash,
-        now,
-        maxVerifiedAgeMs: DEFAULT_AUTHORITY_RECEIPT_MAX_VERIFIED_AGE_MS,
-        acceptablePolicyModes: [policy.profile],
-        acceptableAuthorityModes: ['enforce'],
-      },
-      now,
-    );
-    reason = consumed.reason;
-    receiptVerified = consumed.consumed;
-  }
-
-  return {
-    required,
-    receiptVerified,
-    receiptRefs,
-    mayClaimAuthorityDone: false,
-    blocking: required && (!receiptVerified || reason !== undefined),
   };
 }
 
@@ -188,13 +116,12 @@ export function buildDoneClosureRunbook(ctx: HandlerContext, storyId: string): D
   const evidenceRefs = [...new Set(rows
     .filter((row) => row.status === 'pass' && row.source)
     .map((row) => row.source))];
-  const authorityServerPath = authorityReceiptProjection(ctx, storyId, story);
 
   return {
     schemaVersion: 'lattice.done_closure.v1',
     storyId,
     phase: story.phase,
-    canAttemptDone: story.phase === 'TEST' && blockingRows.length === 0 && !authorityServerPath.blocking,
+    canAttemptDone: story.phase === 'TEST' && blockingRows.length === 0,
     blockers,
     localNonAuthorityAudit: {
       status: localAuditStatus(story.phase, blockingRows),
@@ -202,14 +129,15 @@ export function buildDoneClosureRunbook(ctx: HandlerContext, storyId: string): D
       requiredRounds: 1,
       evidenceRefs,
     },
-    authorityServerPath: {
-      required: authorityServerPath.required,
-      receiptVerified: authorityServerPath.receiptVerified,
-      receiptRefs: authorityServerPath.receiptRefs,
-      mayClaimAuthorityDone: authorityServerPath.mayClaimAuthorityDone,
+    localAssurance: {
+      admissibilityStatus: blockingRows.length === 0 ? 'local-admissible' : 'blocked',
+      assuranceLevel: 'local',
+      evidenceScope: 'local-gate-evidence',
+      receiptBundleRequired: false,
+      quorumRequired: false,
     },
     readOnly: true,
-    note: 'local DONE readiness is not Authority DONE readiness',
+    note: 'local DONE readiness is based on proof admissibility, receipt-bundle checks, and local quorum evidence',
   };
 }
 
@@ -223,21 +151,22 @@ function renderDoneClosure(runbook: DoneClosureRunbook): string {
     `readOnly: ${runbook.readOnly}`,
     runbook.note,
     '',
-    `localNonAuthorityAudit: ${runbook.localNonAuthorityAudit.status}`,
+    `localAssuranceAudit: ${runbook.localNonAuthorityAudit.status}`,
     `  evidenceRefs: ${(runbook.localNonAuthorityAudit.evidenceRefs ?? []).join(', ') || 'none'}`,
     '',
-    'Authority Server path:',
-    `  required: ${runbook.authorityServerPath.required}`,
-    `  receiptVerified: ${runbook.authorityServerPath.receiptVerified}`,
-    `  receiptRefs: ${runbook.authorityServerPath.receiptRefs.join(', ') || 'none'}`,
-    `  mayClaimAuthorityDone: ${runbook.authorityServerPath.mayClaimAuthorityDone}`,
+    'Local assurance:',
+    `  admissibilityStatus: ${runbook.localAssurance.admissibilityStatus}`,
+    `  assuranceLevel: ${runbook.localAssurance.assuranceLevel}`,
+    `  evidenceScope: ${runbook.localAssurance.evidenceScope}`,
+    `  receiptBundleRequired: ${runbook.localAssurance.receiptBundleRequired}`,
+    `  quorumRequired: ${runbook.localAssurance.quorumRequired}`,
     '',
     `DONE oracle rows: ${runbook.blockers.length} (${blocking.length} blocking)`,
   ];
   for (const row of runbook.blockers) {
     const marker = row.status === 'pass' ? 'PASS' : (row.status === 'fail' ? 'FAIL' : 'warn');
     lines.push(`  [${marker}] ${row.id}: ${row.reason}`);
-    lines.push(`        source: ${row.source}; blocking=${row.blocking}; authorityImpact=${row.authorityImpact}`);
+    lines.push(`        source: ${row.source}; blocking=${row.blocking}; assuranceImpact=${row.assuranceImpact}`);
     if (row.nextCommand) lines.push(`        next: ${row.nextCommand}`);
   }
   return lines.join('\n');

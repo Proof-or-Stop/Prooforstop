@@ -101,42 +101,6 @@ function renderExecute(result: AutopilotExecuteResult): string {
     'plannedSteps:',
     ...result.plannedSteps.map(step => `  - ${step.id}: ${step.command}`),
   ];
-  if (result.authorityJobLoop) {
-    const loop = result.authorityJobLoop;
-    lines.push(
-      '',
-      'authorityJobLoop:',
-      `  claimStatus: ${loop.claimStatus}`,
-      `  claimedJobId: ${loop.claimedJobId ?? 'none'}`,
-      `  disposition: ${loop.disposition}`,
-      `  releaseReason: ${loop.releaseReason ?? 'n/a'}`,
-      `  releaseOutcome: ${loop.releaseOutcome ?? 'n/a'}`,
-      `  leaseHealth: ${loop.leaseHealth ?? 'n/a'}`,
-      `  receiptRequired: ${loop.receiptRequired}`,
-      `  receiptVerified: ${loop.receiptVerified}`,
-      `  executedStepCount: ${loop.executedStepCount}`,
-      `  evidenceRefs: ${loop.evidenceRefs.length === 0 ? 'none' : loop.evidenceRefs.join(', ')}`,
-      ...(loop.failClosedReason ? [`  failClosedReason: ${loop.failClosedReason}`] : []),
-      'networkEvents:',
-      ...loop.networkEvents.map(evt => `    - ${evt.step}: ${evt.ok ? 'ok' : 'fail'}${evt.status ? ` (${evt.status})` : ''}${evt.message ? ` ${evt.message}` : ''}`),
-    );
-  }
-  if (result.claimedJobExecution) {
-    const consume = result.claimedJobExecution;
-    lines.push(
-      '',
-      'claimedJobExecution:',
-      `  jobId: ${consume.jobId}`,
-      `  disposition: ${consume.disposition}`,
-      `  releaseReason: ${consume.releaseReason}`,
-      `  receiptRequired: ${consume.receiptRequired}`,
-      `  authorityDone: ${consume.authorityDone}`,
-      `  executionStatus: ${consume.execution?.status ?? 'n/a'}`,
-      ...(consume.execution
-        ? consume.execution.steps.map(step => `    - ${step.stepId} (${step.type}): ${step.status}${step.reason ? ` [${step.reason}]` : ''}`)
-        : []),
-    );
-  }
   if (result.executedSteps.length > 0) {
     lines.push(
       '',
@@ -230,11 +194,6 @@ export function createAutopilotHandlers(ctx: HandlerContext) {
               authorityActorId: result.receipt.authorityActorId,
               claudeRepairEnabled: result.repair.enabled,
               repairAttempts: result.repair.attempts.length,
-              claimedJobId: result.claimedJobExecution?.jobId ?? null,
-              claimedJobDisposition: result.claimedJobExecution?.disposition ?? null,
-              authorityJobLoopClaimStatus: result.authorityJobLoop?.claimStatus ?? null,
-              authorityJobLoopDisposition: result.authorityJobLoop?.disposition ?? null,
-              authorityJobLoopReleaseOutcome: result.authorityJobLoop?.releaseOutcome ?? null,
               plannedSteps: result.plannedSteps.map(step => step.id),
               executedSteps: result.executedSteps.map(step => ({
                 id: step.id,

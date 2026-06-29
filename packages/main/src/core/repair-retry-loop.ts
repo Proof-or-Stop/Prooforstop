@@ -25,7 +25,7 @@ import type { StopBehavior } from './planner.js';
  *   a fresh validation probe after every repair attempt;
  * - `validationSatisfied` is true only when a real validation probe returned
  *   `passed`, never inferred from a repair provider exit code or prose;
- * - the loop confers no authority status: `authorityDone`, `receiptVerified`, and
+ * - the loop confers no remote completion status: `authorityDone`, `receiptVerified`, and
  *   `multiHostVerified` are hardcoded `false` in every result, and `validated`
  *   means "validation passed", which is a precondition for the gate, not DONE.
  */

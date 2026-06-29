@@ -85,7 +85,7 @@ export const AUTOPILOT_MODE_PERMISSION_MATRIX = {
       allowDoneAdvance: false,
       allowMainMerge: false,
     },
-    requireServerReceipt: true,
+    requireServerReceipt: false,
     defaultBounds: {
       maxIterations: 1,
       stopOnConflict: true,
@@ -103,7 +103,7 @@ export const AUTOPILOT_MODE_PERMISSION_MATRIX = {
       allowDoneAdvance: false,
       allowMainMerge: false,
     },
-    requireServerReceipt: true,
+    requireServerReceipt: false,
     defaultBounds: {
       maxIterations: 0,
       stopOnConflict: true,
@@ -238,18 +238,13 @@ export function autopilotPolicyPath(root: string, policy: string): string {
 }
 
 function hasVerifiedServerAuthorityReceipt(options?: AutopilotPolicyCheckOptions): boolean {
-  const receipt = options?.serverAuthorityReceipt;
-  return (
-    receipt?.authority === 'server'
-    && receipt.verified === true
-    && typeof receipt.receiptRef === 'string'
-    && receipt.receiptRef.trim().length > 0
-  );
+  void options;
+  return false;
 }
 
 function serverAuthorityReceiptRef(options?: AutopilotPolicyCheckOptions): string | undefined {
-  if (!hasVerifiedServerAuthorityReceipt(options)) return undefined;
-  return options?.serverAuthorityReceipt?.receiptRef.trim();
+  void options;
+  return undefined;
 }
 
 function normalizeBoolean(
@@ -329,7 +324,7 @@ function normalizeAutopilotPolicyRecord(raw: unknown): AutopilotPolicy {
     allowStoryIntegration: maybeBoolean(record.allowStoryIntegration, permissions.allowStoryIntegration),
     allowDoneAdvance: maybeBoolean(record.allowDoneAdvance, permissions.allowDoneAdvance),
     allowMainMerge: maybeBoolean(record.allowMainMerge, permissions.allowMainMerge),
-    requireServerReceipt: maybeBoolean(record.requireServerReceipt, matrix.requireServerReceipt),
+    requireServerReceipt: false,
     maxIterations: maybeNumber(record.maxIterations, bounds.maxIterations) ?? 0,
     ...(maybeNumber(record.maxRuntimeMinutes, bounds.maxRuntimeMinutes) !== undefined
       ? { maxRuntimeMinutes: maybeNumber(record.maxRuntimeMinutes, bounds.maxRuntimeMinutes) }
@@ -400,7 +395,7 @@ function validateCreateArgs(
   normalized.allowStoryIntegration = normalizeBoolean(args.allowStoryIntegration, defaults.allowStoryIntegration, 'allowStoryIntegration', errors);
   normalized.allowDoneAdvance = normalizeBoolean(args.allowDoneAdvance, defaults.allowDoneAdvance, 'allowDoneAdvance', errors);
   normalized.allowMainMerge = normalizeBoolean(args.allowMainMerge, defaults.allowMainMerge, 'allowMainMerge', errors);
-  normalized.requireServerReceipt = normalizeBoolean(args.requireServerReceipt, matrix.requireServerReceipt, 'requireServerReceipt', errors);
+  normalized.requireServerReceipt = false;
   normalized.stopOnConflict = normalizeBoolean(args.stopOnConflict, matrix.defaultBounds.stopOnConflict, 'stopOnConflict', errors);
   normalized.stopOnScopeViolation = normalizeBoolean(args.stopOnScopeViolation, matrix.defaultBounds.stopOnScopeViolation, 'stopOnScopeViolation', errors);
 
@@ -446,9 +441,7 @@ function applyModeConstraints(
   }
 
   if (policy.mode === 'authority-verified' || policy.mode === 'full-autopilot') {
-    if (policy.requireServerReceipt !== true) {
-      errors.push(`${policy.mode} mode must set requireServerReceipt=true`);
-    }
+    errors.push(`${policy.mode} mode is retired; use conservative local autopilot`);
   }
 
   if (policy.mode === 'full-autopilot') {
@@ -471,9 +464,9 @@ function applyModeConstraints(
 
   const gatedPrivileges = AUTOPILOT_MODE_PERMISSION_MATRIX[policy.mode].receiptGatedPrivileges
     .filter(privilege => policy[privilege] === true);
-  if (gatedPrivileges.length > 0 && !hasVerifiedServerAuthorityReceipt(options)) {
+  if (gatedPrivileges.length > 0) {
     errors.push(
-      `${policy.mode} requests receipt-gated privilege(s) without a verified server authority receipt context: ${gatedPrivileges.join(', ')}`,
+      `${policy.mode} requests privileges that local autopilot cannot authorize: ${gatedPrivileges.join(', ')}`,
     );
   }
 }
@@ -622,10 +615,6 @@ export function checkAutopilotPolicy(
   applyModeConstraints(normalizedPolicy, reasons, options);
 
   const degradations: string[] = [];
-  const receiptAccepted = hasVerifiedServerAuthorityReceipt(options);
-  if (normalizedPolicy.requireServerReceipt && !receiptAccepted && reasons.length === 0) {
-    degradations.push('server authority receipt context is required before this policy is authorized');
-  }
 
   if (reasons.length > 0) {
     return refusedResult(policyName, reasons, 'Fix the policy violations above and re-check.', normalizedPolicy, options);
@@ -635,7 +624,7 @@ export function checkAutopilotPolicy(
   const authorized = status === 'authorized';
   const nextAction = authorized
     ? `Policy "${policyName}" is authorized for bounded ${normalizedPolicy.mode} autopilot execution. Handlers must still preserve authorityChanged=false, receiptVerified=false, productionDone=false and enforce merge/DONE gates separately.`
-    : `Policy "${policyName}" is supervised-only. Provide server authority receipt context or choose a less privileged mode before unattended autopilot execution.`;
+    : `Policy "${policyName}" is supervised-only. Choose a conservative local mode before unattended autopilot execution.`;
 
   return {
     schemaVersion: AUTOPILOT_POLICY_CHECK_SCHEMA_VERSION,
@@ -660,19 +649,13 @@ function authorityGate(
   policy: AutopilotPolicy,
   options?: AutopilotPolicyCheckOptions,
 ): AutopilotPolicyAuthorityGate {
-  const required = policy.requireServerReceipt
-    || AUTOPILOT_MODE_PERMISSION_MATRIX[policy.mode].receiptGatedPrivileges.some(privilege => policy[privilege] === true);
-  const present = !!options?.serverAuthorityReceipt;
-  const accepted = hasVerifiedServerAuthorityReceipt(options);
-  const receiptRef = serverAuthorityReceiptRef(options);
+  void policy;
+  void options;
   return {
-    serverReceiptRequired: required,
-    serverReceiptContextPresent: present,
-    serverReceiptAcceptedForPolicy: accepted,
-    ...(receiptRef ? { serverAuthorityReceiptRef: receiptRef } : {}),
-    note: accepted
-      ? 'Server authority receipt context was supplied to the policy gate. This local check still reports receiptVerified=false and productionDone=false.'
-      : 'No verified server authority receipt context was supplied to the policy gate; local diagnostics cannot manufacture authority.',
+    serverReceiptRequired: false,
+    serverReceiptContextPresent: false,
+    serverReceiptAcceptedForPolicy: false,
+    note: 'Autopilot policy checks authorize bounded local behavior only; server receipt authorization is retired.',
   };
 }
 
@@ -682,7 +665,7 @@ function authorityBoundary(): AutopilotPolicyAuthorityBoundary {
     receiptVerified: false,
     productionDone: false,
     mainMergeAuthority: false,
-    note: 'Autopilot policy checks authorize bounded local behavior only; they do not verify authority receipts, perform main merges, advance DONE, or certify production completion.',
+    note: 'Autopilot policy checks authorize bounded local behavior only; they do not verify server receipts, perform main merges, advance DONE, or certify production completion.',
   };
 }
 

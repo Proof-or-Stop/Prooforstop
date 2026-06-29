@@ -585,13 +585,12 @@ function renderPass(args: {
     `worktreeClean: ${ensureStep(args.steps, 'cleanTree').status.toUpperCase()}`,
     ...renderRuntimeReport(args.runtime),
     '',
-    'Authority completion:',
+    'Local assurance:',
     '  localDoneReady: true',
-    '  authorityDone: false',
-    '  fullAuthorityDone: false',
     '  productionDone: false',
-    `  authorityReceiptRequired: ${args.runbook.authorityServerPath.required}`,
-    '  receiptVerified: false (not evaluated by done_prepare; Authority receipt verification is outside done_prepare)',
+    `  admissibilityStatus: ${args.runbook.localAssurance.admissibilityStatus}`,
+    `  assuranceLevel: ${args.runbook.localAssurance.assuranceLevel}`,
+    `  evidenceScope: ${args.runbook.localAssurance.evidenceScope}`,
     `  reviewAssurance: ${reviewAssuranceText(args.runbook)}`,
     '',
     'Next:',
@@ -909,20 +908,17 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
   const runbook = buildDoneClosureRunbook(ctx, storyId);
   const blockers = blockingRows(runbook);
   const nonCleanBlockers = blockers.filter((row) => row.id !== 'git-working-tree');
-  const authorityBlocked = runbook.authorityServerPath.required && !runbook.authorityServerPath.receiptVerified;
-  if (nonCleanBlockers.length > 0 || authorityBlocked) {
+  if (nonCleanBlockers.length > 0) {
     const currentBinding = hasReviewAssuranceBlocker(runbook)
       ? currentDoneMaterialBinding(ctx, gitCwd)
       : undefined;
-    const reason = authorityBlocked
-      ? 'Authority receipt is required before DONE; done_prepare cannot claim Authority completion'
-      : nonCleanBlockers.map((row) => `${row.id}: ${row.reason}`).join('; ');
+    const reason = nonCleanBlockers.map((row) => `${row.id}: ${row.reason}`).join('; ');
     setStep(steps, 'doneClosure', 'blocked', reason);
     return block({
       blockedAt: 'doneClosure',
       reason,
       currentBinding,
-      next: authorityBlocked ? `refresh local proof admissibility / receipt-bundle / quorum evidence for ${storyId}` : nextForDoneClosureBlock(storyId, runbook),
+      next: nextForDoneClosureBlock(storyId, runbook),
       commands: commandsForDoneClosureBlock(storyId, runbook, currentBinding),
       steps,
     });

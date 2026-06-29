@@ -346,10 +346,10 @@ export function summarizeVerdicts(
 
   // Truth source §X9: local review must NEVER set `multiHostVerified` (nor
   // `authorityDone` / `fullAuthorityDone`). `multiHostVerified` is strictly an
-  // Authority-mode projection of a passing host wave; a passing LOCAL wave is
+  // retired remote-mode projection of a passing host wave; a passing LOCAL wave is
   // expressed only via `localReviewCertified`. Setting it in local mode was the
-  // semantic tension this gate had to resolve — local and authority share one
-  // summarizer but the multi-host flag is Authority-only.
+  // semantic tension this gate had to resolve — local and retired compatibility
+  // projections share one summarizer but the multi-host flag is not local DONE.
   const multiHostVerified = mode === 'authority' && status === 'pass';
 
   // Neither `authorityDone` nor `fullAuthorityDone` is ever minted from host
@@ -480,12 +480,11 @@ export function summarizeVerdictRuns(
 }
 
 // ───────────────────────────────────────────────────────────────────────────────
-// Server-backed multi-host certification (truth source §X9) — pure helpers
+// Legacy remote multi-host certification compatibility (truth source §X9) — pure helpers
 //
-// These functions hold the certification LOGIC for the authority verdict commands;
-// the network I/O (submit / list against the AuthorityClient) and receipt
-// verification live in authority-client.ts. Keeping the logic here makes it unit
-// testable without a network and keeps the contract honest:
+// These functions hold compatibility certification logic for old verdict records.
+// Keeping the logic here makes it unit testable without a network and keeps the
+// contract honest:
 //   - a host verdict can never be recorded ahead of the receipt it certifies;
 //   - fullAuthorityDone needs BOTH a verified per-run gate_decision receipt AND a
 //     server-satisfied independent-host reconciliation;
@@ -690,8 +689,8 @@ export interface AuthorityCertificationView {
 }
 
 /**
- * Combine the server reconciliation with the per-run receipt verification into the
- * single release-certification view consumed by `authority job status`.
+ * Combine legacy reconciliation with per-run receipt verification into a
+ * compatibility release-certification view.
  *
  * fullAuthorityDone is true only when ALL hold:
  *   1. a verified per-run native gate_decision receipt (authorityDone);

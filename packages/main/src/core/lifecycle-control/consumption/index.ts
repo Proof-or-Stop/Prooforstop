@@ -1,12 +1,4 @@
 import {
-  DEFAULT_AUTHORITY_RECEIPT_MAX_VERIFIED_AGE_MS,
-  eligibleAuthorityGateReceiptDocument,
-  type AuthorityGateReceiptFailReason,
-} from '../../authority-gate-receipts.js';
-import { loadConfig } from '../../config.js';
-import { currentGitHead, currentMaterialHash } from '../../evidence-freshness.js';
-import { resolveWorkflowPolicy } from '../../workflow-policy.js';
-import {
   ARTIFACT_CONSUMER_KINDS,
   PROOF_ADMISSIBILITY_CONTRACT_VERSION,
   PROOF_SURFACE_REGISTRY,
@@ -18,7 +10,6 @@ import {
   resolveProofAdmissibilityMode,
 } from '../../proof-admissibility-gates.js';
 import type { StoryStore } from '../../store.js';
-import type { StoryInfo } from '../../types.js';
 import type {
   AdmissibilityWaterlineReport,
   AdmissibilityWaterlineRow,
@@ -59,44 +50,11 @@ function hasConsumerEvidence(store: StoryStore, storyId: string | undefined, con
     if (consumer === 'REVIEW') return (store.readReviewPasses(storyId).passes ?? []).length > 0;
     if (consumer === 'STORY_INTAKE' || consumer === 'PLAN') return store.readStory(storyId).source !== undefined;
     if (consumer === 'HANDOFF') return store.readStoryCapsule(storyId) !== null;
-    if (consumer === 'AUTHORITY_GATE_DECISION') return store.readAuthorityReceiptRefs(storyId) !== null;
+    if (consumer === 'AUTHORITY_GATE_DECISION') return false;
   } catch {
     return false;
   }
   return false;
-}
-
-function authorityReceiptEligibility(store: StoryStore, storyId: string | undefined, projectRoot: string, now: string): {
-  present: boolean;
-  eligible: boolean;
-  reason?: AuthorityGateReceiptFailReason | 'authority_receipt_context_unavailable';
-} {
-  if (!storyId) return { present: false, eligible: false, reason: 'authority_receipt_missing' };
-  let story: StoryInfo;
-  try {
-    story = store.readStory(storyId);
-  } catch {
-    return { present: false, eligible: false, reason: 'authority_receipt_missing' };
-  }
-  const document = store.readAuthorityReceiptRefs(storyId) ?? undefined;
-  const present = document !== undefined;
-  const headHash = currentGitHead(projectRoot);
-  const materialHash = currentMaterialHash(projectRoot, 'HEAD', projectRoot);
-  if (!headHash || !materialHash) {
-    return { present, eligible: false, reason: 'authority_receipt_context_unavailable' };
-  }
-  const policy = resolveWorkflowPolicy(loadConfig(projectRoot), story);
-  const eligibility = eligibleAuthorityGateReceiptDocument(document, {
-    storyId,
-    targetPhase: 'DONE',
-    headHash,
-    materialHash,
-    now,
-    maxVerifiedAgeMs: DEFAULT_AUTHORITY_RECEIPT_MAX_VERIFIED_AGE_MS,
-    acceptablePolicyModes: [policy.profile],
-    acceptableAuthorityModes: ['enforce'],
-  });
-  return { present, eligible: eligibility.eligible, reason: eligibility.reason };
 }
 
 function rowStatus(
@@ -139,11 +97,7 @@ export function projectAdmissibilityWaterline(
   const mode = resolveProofAdmissibilityMode(projectRoot);
   const rows = consumers.map((consumer): AdmissibilityWaterlineRow => {
     const surface = firstSupportedSurface(consumer);
-    const authorityEligibility = consumer === 'AUTHORITY_GATE_DECISION'
-      ? authorityReceiptEligibility(store, options.storyId, projectRoot, options.now ?? new Date().toISOString())
-      : undefined;
-    const present = authorityEligibility?.present ?? hasConsumerEvidence(store, options.storyId, consumer);
-    const authorityEligible = authorityEligibility?.eligible;
+    const present = hasConsumerEvidence(store, options.storyId, consumer);
     const diagnostic = buildProofAdmissibilityDiagnostic({
       artifactId: options.storyId ? `${options.storyId}:${consumer}` : consumer,
       artifactKind: surface.artifactKind,
@@ -151,22 +105,21 @@ export function projectAdmissibilityWaterline(
       claim: surface.claim,
       mode,
       checks: {
-        strictShapeValid: authorityEligible ?? present,
-        semanticDigestValid: authorityEligible ?? present,
-        signatureOrReceiptBindingValid: authorityEligible ?? (present || consumer === 'STORY_INTAKE' || consumer === 'PLAN'),
-        temporalAndMaterialBindingValid: authorityEligible ?? present,
+        strictShapeValid: present,
+        semanticDigestValid: present,
+        signatureOrReceiptBindingValid: present || consumer === 'STORY_INTAKE' || consumer === 'PLAN',
+        temporalAndMaterialBindingValid: present,
         subjectMatches: Boolean(options.storyId),
         storyMatches: Boolean(options.storyId),
         gatePhaseMatches: true,
         commandSpecDigestValid: present || consumer !== 'DONE_REQUIRED',
-        hashTupleFresh: authorityEligible ?? present,
-        producerBoundaryTrusted: authorityEligible ?? present,
+        hashTupleFresh: present,
+        producerBoundaryTrusted: present,
       },
     });
     const status = rowStatus(diagnostic.overall, diagnostic.reasons);
     const requiredClauses = CONSUMER_CLAUSES[consumer];
     const reasons = [
-      ...(authorityEligibility?.reason && !authorityEligibility.eligible ? [authorityEligibility.reason] : []),
       ...diagnostic.reasons,
     ];
     const missingClauses = status === 'pass' ? [] : reasons.length > 0 ? reasons : ['missing_admissible_evidence'];

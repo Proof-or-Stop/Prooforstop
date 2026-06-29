@@ -14,8 +14,8 @@ import { LATTICE_DIR } from './lattice-paths.js';
  * @priority high
  * @description
  *   Planner linkage for requiresAuthoritativeWorktree and requiresCleanWorktree:
- *   buildJobPolicyBlocks emits the authoritative-worktree policy for authority
- *   plans, assertJobPolicyConsistency rejects weakened authority policy, and
+ *   buildJobPolicyBlocks emits the local worktree policy,
+ *   assertJobPolicyConsistency rejects weakened local policy, and
  *   provider planned steps carry requiresCleanWorktree for executor preflight.
  * @changes
  *   - [CHK-003] Connect planner worktreePolicy emission to planner-unattended-smoke and worktree-policy-smoke coverage
@@ -39,7 +39,7 @@ export const PLANNER_INTERACTION_MODES = ['autonomous', 'interview', 'decision-g
 export type PlannerInteractionMode = typeof PLANNER_INTERACTION_MODES[number];
 
 export const PLANNER_RUN_MODES = ['local'] as const;
-export type PlannerRunMode = 'local' | 'authority';
+export type PlannerRunMode = typeof PLANNER_RUN_MODES[number];
 
 export const PLANNER_UNTIL_PHASES = ['PLAN', 'DEV', 'REVIEW', 'TEST', 'DONE'] as const;
 export type PlannerUntilPhase = typeof PLANNER_UNTIL_PHASES[number];
@@ -244,10 +244,9 @@ export const PlannedStepsSchema = z.array(PlannedStepSchema).min(1).superRefine(
   }
 });
 
-// Machine-readable JobPlan policy blocks (lattice-authority-live-integration.md
-// §B1). These travel with every JobPlan (local and authority) so the Stage B
+// Machine-readable JobPlan policy blocks. These travel with every local JobPlan so the Stage B
 // executor never has to infer provider, worktree, retry, stop, lease, evidence,
-// or receipt semantics from prose. The planner only ever emits the conservative
+// or gate semantics from prose. The planner only ever emits the conservative
 // fail-closed defaults below; `assertJobPolicyConsistency` rejects any plan whose
 // blocks are missing, ambiguous, or suspicious before it is treated as planned.
 
@@ -325,14 +324,13 @@ export interface JobStopPolicy {
   onValidationFailure: StopBehavior;
   onProviderFailure: StopBehavior;
   onGateFailure: StopBehavior;
-  onReceiptFailure: StopBehavior;
   onDirtyWorktree: StopBehavior;
   onLeaseUnsafe: StopBehavior;
   onMultiHostDisagreement: StopBehavior;
 }
 
 // Cost/time budget the executor meters and enforces (X6). Travels with every
-// JobPlan (local AND authority) so the Stage B / planner executor can stop
+// local JobPlan so the Stage B / planner executor can stop
 // `budget_exceeded` without inferring limits from prose. Derived from
 // plannerPolicy at emit time; consumed defensively by core/budget-meter.ts.
 export interface JobBudgetPolicy {
@@ -363,17 +361,6 @@ export interface JobEvidencePolicy {
   checklistCoverageRequired: boolean;
 }
 
-export interface JobReceiptPolicy {
-  requiredKind: 'gate_decision';
-  expectedDecisionDigest: string | null;
-  freshnessMaxAgeMs: number;
-  clockSkewToleranceMs: number;
-  requiredServerKeyId: string | null;
-}
-
-// Conservative defaults shared by both local and authority plans.
-const RECEIPT_DEFAULT_FRESHNESS_MS = 600_000;
-const RECEIPT_DEFAULT_CLOCK_SKEW_MS = 300_000;
 const LEASE_DEFAULT_TTL_MS = 300_000;
 const LEASE_DEFAULT_RENEWAL_MS = 120_000;
 const LEASE_DEFAULT_GRACE_MS = 30_000;
@@ -396,13 +383,11 @@ export const DEFAULT_RETENTION_BY_KIND: Record<string, EvidenceRetentionClass> =
 // retryPolicy and stopPolicy must stay disjoint (§B5: a job that mixes the fields
 // ambiguously fails validation before execution).
 const RETRY_ONLY_KEYS = ['maxAttemptsPerStep', 'maxRepairAttempts', 'maxNoProgressIterations', 'retryableFailureKinds', 'repairAllowed'] as const;
-const STOP_ONLY_KEYS = ['maxSteps', 'maxWallClockMs', 'onValidationFailure', 'onProviderFailure', 'onGateFailure', 'onReceiptFailure', 'onDirtyWorktree', 'onLeaseUnsafe', 'onMultiHostDisagreement'] as const;
+const STOP_ONLY_KEYS = ['maxSteps', 'maxWallClockMs', 'onValidationFailure', 'onProviderFailure', 'onGateFailure', 'onDirtyWorktree', 'onLeaseUnsafe', 'onMultiHostDisagreement'] as const;
 
 export interface JobPlan {
   schemaVersion: 'lattice.job_plan.v1';
   plannerRunId: string;
-  /** Server-issued Authority run id for a claimed live job. */
-  authorityRunId?: string;
   storyId: string;
   mode: PlannerRunMode;
   until: PlannerUntilPhase;
@@ -417,36 +402,9 @@ export interface JobPlan {
   budgetPolicy?: JobBudgetPolicy;
   lease?: JobLease;
   evidencePolicy?: JobEvidencePolicy;
-  receiptPolicy?: JobReceiptPolicy;
   localRunPlan?: {
     runId: string;
     plannedStepsDigest: string;
-  };
-  jobCreateRequest?: {
-    projectId: string;
-    storyId: string;
-    plannerRunId: string;
-    plannedSteps: PlannedStep[];
-    mode: 'authority';
-  };
-  jobCreateRequestEnvelope?: {
-    kind: 'retired_server_job_create';
-    projectId: string;
-    storyId: string;
-    plannerRunId: string;
-    authorityMode: 'enforce';
-    createdAt: string;
-    actorId: string;
-    actorRole: string;
-    actorKeyId: string;
-    canonicalPayloadDigest: string;
-    storyDigest: string;
-    plannerDigest: string;
-    plannedStepsDigest: string;
-    policyDigest: string;
-    idempotencyKey: string;
-    signatureAlgorithm: 'ed25519';
-    signature?: string;
   };
   plannedSteps: PlannedStep[];
   coverageMap: Array<{
@@ -471,7 +429,6 @@ export interface JobPlan {
     requireMultiHost: boolean;
     requiredHostVerdictCount: number;
     requiredReviewWaveCount?: number;
-    fullAuthorityDoneRequired: boolean;
   };
   plannerDigest: string;
   // Forced-scope provenance copied from the draft so the forked idempotency
@@ -642,7 +599,7 @@ function verificationIntentFor(title: string): VerificationIntent {
   return {
     happy: [{ id: `${slug(title)}:happy`, desc: `Verify the requested behavior for "${title}" succeeds on the normal path.`, type: 'cli', requiredIn: 'balanced', priority: 'must' }],
     edge: [{ id: `${slug(title)}:edge`, desc: `Verify bounded failure or missing-input handling for "${title}".`, type: 'cli', requiredIn: 'strict', priority: 'should' }],
-    adversarial: [{ id: `${slug(title)}:adversarial`, desc: 'Verify the implementation does not overclaim DONE or bypass Proofbound evidence/receipt gates.', type: 'logic', requiredIn: 'strict', priority: 'must' }],
+    adversarial: [{ id: `${slug(title)}:adversarial`, desc: 'Verify the implementation does not overclaim DONE or bypass Proofbound evidence gates.', type: 'logic', requiredIn: 'strict', priority: 'must' }],
   };
 }
 
@@ -652,19 +609,19 @@ function buildChecklist(request: string, workflow: DevelopmentWorkflow): Planner
       {
         title: 'Resolve source and target language adapters',
         context: 'Resolve canonical source/target language ids through languageAdapterPolicy before provider execution; missing adapters block or record scoped gaps by policy.',
-        relatedDocs: ['docs/requirements/decisions/lattice-authority-live-integration.md#c2a-source-aligned-redevelopment-workflow'],
+        relatedDocs: ['docs/requirements/decisions/proof-admissibility.md'],
         verificationIntent: verificationIntentFor('Resolve source and target language adapters'),
       },
       {
         title: 'Extract neutral manifests and semantic alignment maps',
         context: 'Produce source/target neutral manifests plus module/function alignment maps from deterministic extraction, not provider prose.',
-        relatedDocs: ['docs/requirements/decisions/lattice-authority-live-integration.md#c2a-source-aligned-redevelopment-workflow'],
+        relatedDocs: ['docs/requirements/decisions/proof-admissibility.md'],
         verificationIntent: verificationIntentFor('Extract neutral manifests and semantic alignment maps'),
       },
       {
         title: 'Run target-runnable parity checks and record gaps',
         context: 'Use target build/test/CLI/API/golden checks where possible; source-only behavior records gapList or blocks without burning repair loops.',
-        relatedDocs: ['docs/requirements/decisions/lattice-authority-live-integration.md#c2a-source-aligned-redevelopment-workflow'],
+        relatedDocs: ['docs/requirements/decisions/proof-admissibility.md'],
         verificationIntent: verificationIntentFor('Run target-runnable parity checks and record gaps'),
       },
     ];
@@ -674,13 +631,13 @@ function buildChecklist(request: string, workflow: DevelopmentWorkflow): Planner
     {
       title: 'Implement the requested Proofbound change',
       context: `Implement the smallest verifiable scope for: ${compact}`,
-      relatedDocs: ['docs/requirements/decisions/lattice-authority-live-integration.md'],
+      relatedDocs: ['docs/requirements/decisions/proof-admissibility.md'],
       verificationIntent: verificationIntentFor('Implement the requested Proofbound change'),
     },
     {
       title: 'Verify evidence and DONE boundaries',
-      context: 'Run validation and prove local/authority DONE flags are not overclaimed.',
-      relatedDocs: ['docs/requirements/decisions/lattice-authority-live-integration.md#cross-stage-closure-requirements'],
+      context: 'Run validation and prove local DONE and local proof-admissibility flags are not overclaimed.',
+      relatedDocs: ['docs/requirements/decisions/proof-admissibility.md'],
       verificationIntent: verificationIntentFor('Verify evidence and DONE boundaries'),
     },
   ];
@@ -906,9 +863,6 @@ export function reviewPlannerDraft(draft: PlannerDraft, now = new Date()): Plann
   if (!draft.plannerPolicy.allowedInteractionModes.includes(draft.interactionMode)) {
     issues.push({ id: 'POL-mode', severity: 'blocker', category: 'policy', message: `interactionMode ${draft.interactionMode} is not allowed by plannerPolicy` });
   }
-  if (draft.mode === 'authority' && draft.until === 'DONE' && !draft.plannerPolicy.allowUnattendedPlanning) {
-    issues.push({ id: 'POL-unattended-authority', severity: 'blocker', category: 'policy', message: 'authority unattended Story/job creation requires plannerPolicy.allowUnattendedPlanning=true' });
-  }
   if (draft.checklist.some(item => item.verificationIntent.happy.length === 0 || item.verificationIntent.adversarial.length === 0)) {
     issues.push({ id: 'CHK-verification', severity: 'blocker', category: 'checklist', message: 'every checklist item must have happy and adversarial verification intent' });
   }
@@ -1058,7 +1012,7 @@ export function buildPlannedSteps(draft: PlannerDraft, storyId: string): Planned
       stepId: 'step-005-gate',
       type: 'gate.evaluate',
       title: 'Evaluate gate',
-      purpose: 'Evaluate local or Authority gate without accepting prose as evidence.',
+      purpose: 'Evaluate local proof-admissibility gate without accepting prose as evidence.',
       cwdPolicy: 'project-root',
       timeoutMs: 120_000,
       maxAttempts: 1,
@@ -1066,13 +1020,13 @@ export function buildPlannedSteps(draft: PlannerDraft, storyId: string): Planned
       producesEvidence: true,
       blocksUntilEvidenceUploaded: true,
       evidenceBinding: `${storyId}:gate`,
-      args: { operation: 'gate.evaluate', mode: draft.mode, receiptRequired: draft.mode === 'authority' && draft.until === 'DONE' },
+      args: { operation: 'gate.evaluate', mode: 'local', receiptRequired: false },
     },
     {
       stepId: 'step-006-stop-summary',
       type: 'stop.summary',
       title: 'Write stop summary',
-      purpose: 'Produce auditable final status, blocked reason, receipts, verdict refs, and next action.',
+      purpose: 'Produce auditable final status, blocked reason, local evidence refs, verdict refs, and next action.',
       cwdPolicy: 'project-root',
       timeoutMs: 30_000,
       maxAttempts: 1,
@@ -1087,18 +1041,9 @@ export function buildPlannedSteps(draft: PlannerDraft, storyId: string): Planned
 }
 
 // Cross-field guard: a JobPlan must never overclaim what was actually achieved.
-// Local plans cannot carry an authority job-create envelope, fullAuthorityDoneRequired
-// is reserved for authority+DONE, and an authority+DONE plan cannot claim "planned" without an envelope.
 function assertDoneClaimNotOverclaimed(plan: JobPlan): JobPlan {
-  const authorityDone = plan.mode === 'authority' && plan.until === 'DONE';
-  if (plan.jobCreateRequestEnvelope && plan.mode !== 'authority') {
-    throw new Error('local job plan must not carry an authority job-create envelope');
-  }
-  if (plan.multiHostPolicy.fullAuthorityDoneRequired && !authorityDone) {
-    throw new Error('fullAuthorityDoneRequired may only be set for authority DONE plans');
-  }
-  if (authorityDone && plan.status === 'planned' && !plan.jobCreateRequestEnvelope) {
-    throw new Error('authority DONE plan claims planned status without an authority job-create envelope');
+  if (plan.mode !== 'local') {
+    throw new Error('job plan mode must be local; remote server job plans are retired');
   }
   return plan;
 }
@@ -1106,7 +1051,7 @@ function assertDoneClaimNotOverclaimed(plan: JobPlan): JobPlan {
 /**
  * Build the conservative, fail-closed JobPlan policy blocks. The planner never
  * enables real providers, production-DONE eligibility, or worktree repair on its
- * own; those require an explicit Authority job that the executor validates.
+ * own; those require explicit local policy and lifecycle evidence.
  */
 function buildJobPolicyBlocks(draft: PlannerDraft, plannedSteps: PlannedStep[]): {
   providerPolicy: JobProviderPolicy;
@@ -1116,9 +1061,7 @@ function buildJobPolicyBlocks(draft: PlannerDraft, plannedSteps: PlannedStep[]):
   budgetPolicy: JobBudgetPolicy;
   lease: JobLease;
   evidencePolicy: JobEvidencePolicy;
-  receiptPolicy: JobReceiptPolicy;
 } {
-  const authority = draft.mode === 'authority';
   return {
     // The provider policy is resolved once at draft time (fail-closed fake by
     // default) and reused here so the emitted provider step and the JobPlan policy
@@ -1126,7 +1069,7 @@ function buildJobPolicyBlocks(draft: PlannerDraft, plannedSteps: PlannedStep[]):
     providerPolicy: { ...draft.providerPolicy },
     worktreePolicy: {
       resolver: 'lattice.story.resolve',
-      requiresAuthoritativeWorktree: authority,
+      requiresAuthoritativeWorktree: false,
       allowWorktreeRepair: false,
       allowedPathRoots: [],
       forbiddenPathGlobs: [...FORBIDDEN_WORKTREE_GLOBS],
@@ -1147,7 +1090,6 @@ function buildJobPolicyBlocks(draft: PlannerDraft, plannedSteps: PlannedStep[]):
       onValidationFailure: 'return_to_dev',
       onProviderFailure: 'retry_then_block',
       onGateFailure: 'block',
-      onReceiptFailure: 'block',
       onDirtyWorktree: 'block',
       onLeaseUnsafe: 'block',
       onMultiHostDisagreement: 'block',
@@ -1174,13 +1116,6 @@ function buildJobPolicyBlocks(draft: PlannerDraft, plannedSteps: PlannedStep[]):
       allowContinueWithoutEvidence: false,
       checklistCoverageRequired: true,
     },
-    receiptPolicy: {
-      requiredKind: 'gate_decision',
-      expectedDecisionDigest: null,
-      freshnessMaxAgeMs: RECEIPT_DEFAULT_FRESHNESS_MS,
-      clockSkewToleranceMs: RECEIPT_DEFAULT_CLOCK_SKEW_MS,
-      requiredServerKeyId: null,
-    },
   };
 }
 
@@ -1195,9 +1130,9 @@ export function assertJobPolicyConsistency(plan: JobPlan): JobPlan {
     throw new Error(`job policy inconsistency: ${msg}`);
   }
 
-  const { providerPolicy: pp, worktreePolicy: wt, retryPolicy: rpRaw, stopPolicy: spRaw, lease, evidencePolicy: ep, receiptPolicy: rcp } = plan;
-  if (!pp || !wt || !rpRaw || !spRaw || !lease || !ep || !rcp) {
-    fail('one or more required policy blocks are missing (providerPolicy/worktreePolicy/retryPolicy/stopPolicy/lease/evidencePolicy/receiptPolicy)');
+  const { providerPolicy: pp, worktreePolicy: wt, retryPolicy: rpRaw, stopPolicy: spRaw, lease, evidencePolicy: ep } = plan;
+  if (!pp || !wt || !rpRaw || !spRaw || !lease || !ep) {
+    fail('one or more required policy blocks are missing (providerPolicy/worktreePolicy/retryPolicy/stopPolicy/lease/evidencePolicy)');
   }
 
   if (pp.providerAvailability !== 'fail_closed') fail('providerPolicy.providerAvailability must be fail_closed');
@@ -1213,7 +1148,6 @@ export function assertJobPolicyConsistency(plan: JobPlan): JobPlan {
   if (wt.resolver !== 'lattice.story.resolve') fail('worktreePolicy.resolver must be lattice.story.resolve');
   if (wt.preserveUnrelatedDirtyChanges !== true) fail('worktreePolicy.preserveUnrelatedDirtyChanges must remain true');
   if (wt.requireGitStatusEvidence !== true) fail('worktreePolicy.requireGitStatusEvidence must remain true');
-  if (plan.mode === 'authority' && wt.requiresAuthoritativeWorktree !== true) fail('authority mode requires worktreePolicy.requiresAuthoritativeWorktree=true');
 
   const rp = rpRaw as JobRetryPolicy & Record<string, unknown>;
   const sp = spRaw as JobStopPolicy & Record<string, unknown>;
@@ -1247,10 +1181,6 @@ export function assertJobPolicyConsistency(plan: JobPlan): JobPlan {
   if (lease.graceMs < 0) fail('lease.graceMs must be >= 0');
   if (lease.leaseVersion < 0) fail('lease.leaseVersion must be >= 0');
 
-  if (rcp.requiredKind !== 'gate_decision') fail('receiptPolicy.requiredKind must be gate_decision');
-  if (!(rcp.freshnessMaxAgeMs > 0)) fail('receiptPolicy.freshnessMaxAgeMs must be > 0 (enforce-mode rejects 0)');
-  if (rcp.clockSkewToleranceMs < 0) fail('receiptPolicy.clockSkewToleranceMs must be >= 0');
-
   if (ep.requiredEvidenceKinds.length === 0) fail('evidencePolicy.requiredEvidenceKinds must not be empty');
   for (const [kind, cls] of Object.entries(ep.retentionClassByKind)) {
     if (!EVIDENCE_RETENTION_CLASSES.includes(cls)) fail(`evidencePolicy.retentionClassByKind["${kind}"] has unknown retention class "${cls}"`);
@@ -1272,9 +1202,8 @@ export interface MultiHostPolicyInput {
   requiredHostVerdictCount?: number;
 }
 
-// Minimum independent hosts when any multi-host requirement is active. The doc
-// (lattice-authority-live-integration.md B.* multiHostPolicy rules) fixes this
-// floor at 2; knobs may only tighten above it, never relax below it.
+// Minimum independent hosts when any multi-host requirement is active. Local
+// quorum assurance fixes this floor at 2; knobs may only tighten above it.
 const MULTI_HOST_FLOOR = 2;
 
 // Mechanically project the --requireMultiHost / --requiredHostVerdictCount knobs
@@ -1302,9 +1231,9 @@ function projectMultiHostPolicyKnobs(input: MultiHostPolicyInput): {
 export function buildJobPlan(
   draft: PlannerDraft,
   storyId: string,
-  projectId = 'local-project',
+  _projectId = 'local-project',
   multiHostInput: MultiHostPolicyInput = {},
-  now = new Date(),
+  _now = new Date(),
 ): JobPlan {
   const multiHostKnobs = projectMultiHostPolicyKnobs(multiHostInput);
   const plannedSteps = PlannedStepsSchema.parse(buildPlannedSteps(draft, storyId)) as PlannedStep[];
@@ -1321,9 +1250,7 @@ export function buildJobPlan(
       validationStepIds: plannedSteps.filter(step => step.type === 'validate.run').map(step => step.stepId),
       evidenceRefs: plannedSteps.map(step => step.evidenceBinding),
       expectedArtifacts: [],
-      gatePredicate: draft.mode === 'authority' && draft.until === 'DONE'
-        ? 'verified native gate_decision receipt plus complete checklist coverage'
-        : 'local validation plus required independent local verdicts when requested',
+      gatePredicate: 'local validation plus required independent local verdicts when requested',
     };
   });
   const policyBlocks = buildJobPolicyBlocks(draft, plannedSteps);
@@ -1345,47 +1272,11 @@ export function buildJobPlan(
       requireMultiHost: multiHostKnobs.requireMultiHost,
       requiredHostVerdictCount: multiHostKnobs.requiredHostVerdictCount,
       requiredReviewWaveCount: 3,
-      fullAuthorityDoneRequired: draft.mode === 'authority' && draft.until === 'DONE',
     },
     plannerDigest: draft.plannerDigest,
     ...(draft.forceNewRun ? { forceNewRun: true, forceNewRunReason: draft.forceNewRunReason, forceScope: draft.forceScope } : {}),
   };
   const jobPlanDigest = sha(common);
-  if (draft.mode === 'authority') {
-    const payload = {
-      projectId,
-      storyId,
-      plannerRunId: draft.plannerRunId,
-      plannedSteps,
-      mode: 'authority' as const,
-    };
-    const envelope = {
-      kind: 'retired_server_job_create' as const,
-      projectId,
-      storyId,
-      plannerRunId: draft.plannerRunId,
-      authorityMode: 'enforce' as const,
-      createdAt: now.toISOString(),
-      actorId: 'lattice-cli-planner',
-      actorRole: 'planner',
-      actorKeyId: 'unsigned-local-planner',
-      canonicalPayloadDigest: sha(payload),
-      storyDigest: sha({ storyId }),
-      plannerDigest: draft.plannerDigest,
-      plannedStepsDigest,
-      policyDigest: sha(draft.plannerPolicy),
-      idempotencyKey: sha({ storyId, plannerDigest: draft.plannerDigest, plannedStepsDigest, policyVersion: 'v1' }),
-      signatureAlgorithm: 'ed25519' as const,
-    };
-    return assertJobPolicyConsistency(assertDoneClaimNotOverclaimed({
-      ...common,
-      jobCreateRequest: payload,
-      jobCreateRequestEnvelope: envelope,
-      jobPlanDigest,
-      status: draft.plannerPolicy.allowUnattendedPlanning ? 'planned' : 'blocked',
-      blockedReason: draft.plannerPolicy.allowUnattendedPlanning ? undefined : 'authority unattended planning is not allowed by plannerPolicy',
-    }));
-  }
   return assertJobPolicyConsistency(assertDoneClaimNotOverclaimed({
     ...common,
     localRunPlan: {

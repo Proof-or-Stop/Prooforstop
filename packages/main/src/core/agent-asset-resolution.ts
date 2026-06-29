@@ -238,7 +238,7 @@ export function resolveAgentAssetResolution(projectRoot: string): AgentAssetReso
     warnings,
     authorityBoundary: {
       kind: 'localNonAuthorityAudit',
-      text: 'This projection is a local Non-authority audit of prompt asset ownership; receipt-backed Authority Server completion is outside this read-only result.',
+      text: 'This projection is a local admissibility audit of prompt asset ownership; lifecycle completion stays with local gate evidence, receipt bundles, and review quorum.',
     },
   };
 }
