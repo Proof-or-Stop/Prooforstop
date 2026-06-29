@@ -271,9 +271,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md#M2-Read-Only-Diagnostics"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-29T18:01:17.021Z",
-      "endTime": null,
+      "endTime": "2026-06-29T18:20:15.046Z",
       "files": {
         "modify": [
           "packages/main/src/core/store.ts",
@@ -338,7 +338,86 @@
           }
         ]
       },
-      "userSees": "User sees \"proofstory_gate_check --dryRun reports wouldBlock and issues without advancing or enforcing lifecycle state.\""
+      "userSees": "User sees \"proofstory_gate_check --dryRun reports wouldBlock and issues without advancing or enforcing lifecycle state.\"",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js intent_collision_get --storyId=B-7287 --json",
+          "result": "pass",
+          "note": "Actual B-7287 command returned diagnosticOnly not_configured and explicitly states intent_collision_set is not available in M0-M2.",
+          "headHash": "9aa9b8b27066cd84dec81e40e335e6f904510f6e",
+          "materialHash": "e5bb97e65caacfbde791b927f1553d731dd9cc2304dd2d3cec5c09a65ce7f0c1",
+          "storyFilesHash": "31e1979864c72376492fb87f2b9d68f97f10cc2bf031b689b4641f62a3c620f2",
+          "timestamp": "2026-06-29T18:20:15.330Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js intent_coverage_check --storyId=B-7287 --dryRun --json",
+          "result": "pass",
+          "note": "Actual B-7287 dry-run reported hardeningLevel high_assurance and no milestone or acceptance coverage gaps; lifecycle state stayed DEV.",
+          "headHash": "9aa9b8b27066cd84dec81e40e335e6f904510f6e",
+          "materialHash": "e5bb97e65caacfbde791b927f1553d731dd9cc2304dd2d3cec5c09a65ce7f0c1",
+          "storyFilesHash": "31e1979864c72376492fb87f2b9d68f97f10cc2bf031b689b4641f62a3c620f2",
+          "timestamp": "2026-06-29T18:20:15.573Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:2",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js proofstory_gate_check --storyId=B-7287 --dryRun --json",
+          "result": "pass",
+          "note": "Actual B-7287 gate dry-run reported wouldBlockFutureDevAdmission and warn-only missing intent collision/spike diagnostics without enforcing DEV admission.",
+          "headHash": "9aa9b8b27066cd84dec81e40e335e6f904510f6e",
+          "materialHash": "e5bb97e65caacfbde791b927f1553d731dd9cc2304dd2d3cec5c09a65ce7f0c1",
+          "storyFilesHash": "31e1979864c72376492fb87f2b9d68f97f10cc2bf031b689b4641f62a3c620f2",
+          "timestamp": "2026-06-29T18:20:15.799Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:proofstory-intent-hardening-smoke",
+          "result": "pass",
+          "note": "Smoke proves a clear low-risk feature keeps hardeningLevel intent_mvp and has no missing intent collision or red evidence.",
+          "headHash": "9aa9b8b27066cd84dec81e40e335e6f904510f6e",
+          "materialHash": "e5bb97e65caacfbde791b927f1553d731dd9cc2304dd2d3cec5c09a65ce7f0c1",
+          "storyFilesHash": "31e1979864c72376492fb87f2b9d68f97f10cc2bf031b689b4641f62a3c620f2",
+          "timestamp": "2026-06-29T18:20:16.048Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:proofstory-intent-hardening-smoke",
+          "result": "pass",
+          "note": "Smoke proves explicit all five milestones triggers structural_milestone_intent and milestone coverage diagnostics.",
+          "headHash": "9aa9b8b27066cd84dec81e40e335e6f904510f6e",
+          "materialHash": "e5bb97e65caacfbde791b927f1553d731dd9cc2304dd2d3cec5c09a65ce7f0c1",
+          "storyFilesHash": "31e1979864c72376492fb87f2b9d68f97f10cc2bf031b689b4641f62a3c620f2",
+          "timestamp": "2026-06-29T18:20:16.293Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:proofstory-intent-hardening-smoke",
+          "result": "pass",
+          "note": "Smoke proves isolated complete wording in a small typo story does not trigger structural milestone intent or milestone coverage gaps.",
+          "headHash": "9aa9b8b27066cd84dec81e40e335e6f904510f6e",
+          "materialHash": "e5bb97e65caacfbde791b927f1553d731dd9cc2304dd2d3cec5c09a65ce7f0c1",
+          "storyFilesHash": "31e1979864c72376492fb87f2b9d68f97f10cc2bf031b689b4641f62a3c620f2",
+          "timestamp": "2026-06-29T18:20:16.541Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:proofstory-intent-hardening-smoke",
+          "result": "pass",
+          "note": "Smoke covers red, spike, and scope ambiguity as diagnostic gaps only, verifies proofstory_gate_check requires dryRun:true, and verifies dry-run checks do not advance phase.",
+          "headHash": "9aa9b8b27066cd84dec81e40e335e6f904510f6e",
+          "materialHash": "e5bb97e65caacfbde791b927f1553d731dd9cc2304dd2d3cec5c09a65ce7f0c1",
+          "storyFilesHash": "31e1979864c72376492fb87f2b9d68f97f10cc2bf031b689b4641f62a3c620f2",
+          "timestamp": "2026-06-29T18:20:16.787Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
