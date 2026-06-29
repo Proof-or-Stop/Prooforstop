@@ -154,6 +154,7 @@
       "context": "Remove authority_* server commands and config allowlist entries; preserve unrelated local proof/admissibility commands.",
       "files": {
         "modify": [
+          "packages/main/src/cli-engine.ts",
           "packages/main/src/cli/command-catalog.ts",
           "packages/main/src/cli/alias-normalizer.ts",
           "packages/main/src/cli/activity-policy.ts",
