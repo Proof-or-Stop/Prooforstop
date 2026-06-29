@@ -20,6 +20,25 @@
       ],
       "signatureTag": "missing|ts|active-user-facing",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-da34:F-002",
+      "desc": "Scanner whitelist is too broad for the promised hard retired-Authority gate. Evidence/sourceRefs: packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts:104-112 returns true before matching banned terms, including a blanket exemption for every packages/main/src/tasks/*.ts except the guard itself. That conflicts with docs/requirements/decisions/authority-server-vocabulary-retirement.md:80-81 and :87-96, which allow smoke tests to contain banned vocabulary only as scanner positive controls or inside explicit legacy quarantine and require the guard to prove whitelisted legacy files are explicit and narrow. As written, reintroduced Authority Server/authorityDone/productionDone vocabulary or server-backed Authority smoke code in active task files would remain invisible to validation, so M4/M5 are scope-shrunk rather than no-discount completed.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-29T17:47:12.249Z",
+      "reviewRound": "2026-06-29T17:43:53.439Z",
+      "reviewRunId": "B-da34:RR-005",
+      "_hash": "de1837b578e0bd3dd4a167fa674254349c6dbf9539935ade099e603ee26b71b0",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "docs/requirements/decisions/authority-server-vocabulary-retirement.md"
+      ],
+      "signatureTag": "adversarial|ts|scanner-whitelist-broad",
+      "signatureTagSource": "auto"
     }
   ]
 }
