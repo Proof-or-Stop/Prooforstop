@@ -1,0 +1,42 @@
+{
+  "task": "Retire the obsolete Authority Server concept from Proofbound so the CLI and host prompts rely on local proof admissibility instead of server production receipts.",
+  "outcome": "After completion, the user can run lattice help and retired Authority Server guard checks and see no server-backed authority_status/authority receipt/job/verdict command surface, no host prompt telling agents not to claim Authority Server, and passing local admissibility/receipt-bundle tests that prove the retained evidence boundary still works.",
+  "facts": [
+    "User explicitly decided Authority Server is unnecessary and should be removed from design and semantics.",
+    "Server-backed Authority surfaces are concentrated in authority_* command catalog aliases/config, handlers/authority-enforce.ts, Authority job/verdict branches in handlers/verdict.ts, process-fact registry entries, and core authority client/runner/gate/job-loop modules and tests.",
+    "Local proof-admissibility and offline receipt-bundle anti-tamper evidence are still wanted and must be preserved; proof-admissibility*, receipt-bundle.ts, quorum_submit, review escalation, and local assurance tests are not deletion targets.",
+    "Generated host prompt templates under packages/main/templates/agents/** must be updated alongside .lattice-codex and .claude copies so regeneration cannot reintroduce retired wording.",
+    "Existing docs still describe Authority Server modes, env vars, productionDone/fullAuthorityDone/authorityDone, and Authority receipts; these need retirement or legacy-reference treatment."
+  ],
+  "constraints": [
+    "Do not use omx or .omx.",
+    "Do not directly edit docs/story or tests/fixtures; story metadata must go through Lattice commands.",
+    "Do not remove local proof-admissibility, local quorum/review evidence, or offline receipt-bundle anti-tamper behavior.",
+    "Remove server-backed Authority command and product semantics rather than merely changing wording to say do not claim them.",
+    "Preserve buildability and add a guard that prevents retired server Authority terms from returning outside explicit legacy/retirement allowlists."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/cli/alias-normalizer.ts",
+    "packages/main/src/cli/activity-policy.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/handlers/authority-enforce.ts",
+    "packages/main/src/handlers/verdict.ts",
+    "packages/main/src/core/authority-*.ts",
+    "packages/main/src/tasks/authority-*.ts",
+    "packages/main/src/tasks/retired-authority-server-semantics-smoke.ts",
+    "packages/main/templates/agents/*.md",
+    ".lattice-codex/agents/*.md",
+    ".claude/agents/*.md",
+    "README.md",
+    "docs/guide.md",
+    "docs/evidence/evidence-platform-architecture.md",
+    "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+    "packages/main/package.json",
+    "lattice.config.json"
+  ],
+  "timestamp": "2026-06-29T00:33:53.154Z"
+}

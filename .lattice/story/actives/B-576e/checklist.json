@@ -20,7 +20,28 @@
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
         "docs/evidence/evidence-platform-architecture.md",
         "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md"
-      ]
+      ],
+      "userSees": "Source docs define local admissibility vocabulary and say Authority Server is retired from the core CLI path.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Canonical docs define admissibilityStatus, assuranceLevel, and evidenceScope as the replacement vocabulary.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Legacy Authority Server docs are not treated as active implementation guidance.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Docs do not present productionDone/fullAuthorityDone/authorityDone as attainable local CLI states.",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

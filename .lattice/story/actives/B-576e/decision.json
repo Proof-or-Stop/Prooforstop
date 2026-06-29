@@ -1,0 +1,81 @@
+{
+  "principles": [
+    "The CLI must not expose obsolete server-backed Authority semantics as active product behavior.",
+    "Local proof-admissibility and local review assurance are first-class and must remain mechanically verifiable.",
+    "User-facing language should name positive local evidence states instead of repeating negative Authority Server caveats.",
+    "Retirement needs a regression guard, not only one-time manual cleanup."
+  ],
+  "drivers": [
+    "Authority Server is no longer part of the design and creates host confusion.",
+    "Server-backed code is spread through commands, docs, prompts, handlers, core modules, and tests.",
+    "Local admissibility and offline receipt-bundle tests must continue passing after cleanup."
+  ],
+  "options": [
+    {
+      "name": "A: Remove server-backed Authority surfaces and migrate wording to local admissibility",
+      "pros": [
+        "Matches the user decision directly",
+        "Shrinks confusing command surface",
+        "Keeps local evidence capabilities intact",
+        "Allows a scanner to prevent reintroduction"
+      ],
+      "cons": [
+        "Requires careful import/test cleanup",
+        "May expose stale assumptions in docs and process-fact registry"
+      ]
+    },
+    {
+      "name": "B: Keep Authority code but hide it from docs",
+      "pros": [
+        "Lowest short-term build risk",
+        "Smaller immediate diff"
+      ],
+      "cons": [
+        "Leaves obsolete commands and env semantics in the product",
+        "Future hosts can still discover and use the old path",
+        "Does not satisfy the user request to remove functionality"
+      ]
+    },
+    {
+      "name": "C: Delete every authority-named file and field indiscriminately",
+      "pros": [
+        "Maximizes visible removal",
+        "Easy to explain superficially"
+      ],
+      "cons": [
+        "Would likely break local proof-admissibility and quorum code that currently reuses authority-named helpers",
+        "Could remove offline receipt-bundle anti-tamper evidence the user wants to keep",
+        "High regression risk"
+      ]
+    }
+  ],
+  "chosen": "A: Remove server-backed Authority surfaces and migrate wording to local admissibility",
+  "rationale": "Option A is the only path that removes obsolete Authority Server behavior while preserving the stronger local admissibility system that replaces it. It is broader than hiding docs but safer than deleting all authority-named code blindly.",
+  "preMortem": [
+    {
+      "scenario": "Local admissibility or receipt-bundle behavior is accidentally deleted with server Authority code.",
+      "trigger": "A file name or helper includes authority wording but is used by local proof-admissibility, quorum, or offline receipt-bundle tests.",
+      "consequence": "The cleanup weakens the evidence system while removing the obsolete server concept.",
+      "mitigation": "Classify files before deletion; preserve proof-admissibility*, receipt-bundle.ts, quorum_submit, and local assurance tests; run proof-admissibility and receipt-bundle smokes."
+    },
+    {
+      "scenario": "Generated host prompts reintroduce Authority Server wording after this story.",
+      "trigger": "Only .lattice-codex/.claude generated copies are edited while packages/main/templates/agents remains stale.",
+      "consequence": "Future host assets again tell agents not to claim Authority Server, recreating the user confusion.",
+      "mitigation": "Edit templates and generated copies together; add retired-term scanner across templates and generated host prompt directories."
+    },
+    {
+      "scenario": "Command surface still contains hidden Authority aliases after visible docs are cleaned.",
+      "trigger": "Alias normalizer, command catalog, activity policy, config allowlist, or registry entries are missed.",
+      "consequence": "lattice help or command dispatch still exposes obsolete server-backed functionality.",
+      "mitigation": "Remove authority_* commands from command catalog/aliases/config/registry; scanner asserts command names and aliases are gone."
+    },
+    {
+      "scenario": "Docs overcorrect and erase useful history without explaining local replacement.",
+      "trigger": "Authority docs are deleted without a replacement decision note or local admissibility mapping.",
+      "consequence": "Future hosts cannot tell which local terms replaced Authority Server and may invent new incompatible wording.",
+      "mitigation": "Add a concise retirement/vocabulary section in source-of-truth docs and mark old Authority docs legacy/reference or remove active guidance."
+    }
+  ],
+  "timestamp": "2026-06-29T00:34:07.724Z"
+}
