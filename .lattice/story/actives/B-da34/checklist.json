@@ -179,9 +179,9 @@
       "id": "CHK-003",
       "title": "M3 remove Authority command surface from active CLI",
       "context": "Remove authority_* active commands from help/catalog/config and hide/delete legacy compatibility surfaces. Verification must inspect CLI help/catalog/config, not just source text.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-29T17:43:14.208Z",
       "relatedDocs": [
         "docs/requirements/decisions/authority-server-vocabulary-retirement.md",
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
@@ -224,7 +224,45 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/command-catalog-smoke.ts",
+          "command": "node packages/main/dist/tasks/command-catalog-smoke.js",
+          "result": "pass",
+          "note": "Command catalog smoke passed with 256 commands after active command surface cleanup.",
+          "headHash": "84e64b32cdb0eb45ff23bfc072655f9ddda820ce",
+          "materialHash": "a2c3495831e5b0059e6532f20f5414aff5dd12fecaac023244718033ccf1d0d8",
+          "storyFilesHash": "740a187b34737cdaf4fb43054a84dda9959c78a9ce4032202579a1b2d1edb357",
+          "timestamp": "2026-06-29T17:43:15.123Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+          "result": "pass",
+          "note": "Normal help/catalog output passes scanner; retained compatibility is not exposed as active retired vocabulary.",
+          "headHash": "84e64b32cdb0eb45ff23bfc072655f9ddda820ce",
+          "materialHash": "a2c3495831e5b0059e6532f20f5414aff5dd12fecaac023244718033ccf1d0d8",
+          "storyFilesHash": "740a187b34737cdaf4fb43054a84dda9959c78a9ce4032202579a1b2d1edb357",
+          "timestamp": "2026-06-29T17:43:15.972Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+          "result": "pass",
+          "note": "Scanner positive controls reject active retired command exposure including authority_* patterns.",
+          "headHash": "84e64b32cdb0eb45ff23bfc072655f9ddda820ce",
+          "materialHash": "a2c3495831e5b0059e6532f20f5414aff5dd12fecaac023244718033ccf1d0d8",
+          "storyFilesHash": "740a187b34737cdaf4fb43054a84dda9959c78a9ce4032202579a1b2d1edb357",
+          "timestamp": "2026-06-29T17:43:16.833Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -346,6 +384,15 @@
       "from": "pending",
       "to": "done",
       "reason": "M2 user-facing wording cleaned and scanner-verified."
+    },
+    {
+      "timestamp": "2026-06-29T17:43:14.208Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "M3 active command surface cleaned and catalog/scanner verified."
     }
   ]
 }
