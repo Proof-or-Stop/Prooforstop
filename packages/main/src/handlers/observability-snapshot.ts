@@ -7,11 +7,10 @@
  * @description
  *   `observability_snapshot` CLI surface for the host-neutral Proofbound
  *   observability console. Read-only L0 adapter dry-run that consumes the
- *   `story_authority_resolve` CHK-001 contract, opens a fresh `StoryStore`
- *   rooted at each row's `authoritativeCwd`, and emits a JSON snapshot for
- *   downstream UI / dashboard surfaces. Never reads backing story JSON
- *   directly, never parses `session_brief` / `status` Markdown, and never
- *   promotes a local result to production authority.
+ *   local assurance story projection, opens a fresh `StoryStore` rooted at each
+ *   row's active cwd, and emits a JSON snapshot for downstream UI / dashboard
+ *   surfaces. Never reads backing story JSON directly, never parses
+ *   `session_brief` / `status` Markdown, and never widens local assurance.
  * @changes
  *   - [CHK-002] Add validator-required changes metadata for the observability snapshot handler task header.
  */
@@ -35,18 +34,18 @@ function renderText(snapshot: LatticeObservabilitySnapshot): string {
   const ladder = snapshot.sections.authorityLadder;
   return [
     `Proofbound observability snapshot (${snapshot.schemaVersion})`,
-    `resolverSchemaVersion: ${snapshot.resolverSchemaVersion}`,
+    `projectionSchemaVersion: ${snapshot.projectionSchemaVersion}`,
     `generatedAt: ${snapshot.generatedAt}`,
     `readOnly: ${snapshot.readOnly}`,
     `stories: ${snapshot.sections.storyBoard.length}`,
     `authorityLadder: receipt=${ladder.legacyReceipt.count} record=${ladder.legacyRecord.count} localEvidence=${ladder.localEvidence.count} inFlight=${ladder.inFlight.count}`,
-    `productionDoneGap: ${ladder.productionDoneGap}`,
+    `localAssuranceGap: ${ladder.localAssuranceGap}`,
     `capabilityMatrix: ${snapshot.sections.capabilityMatrix.length}`,
     `recoveryEntries: ${snapshot.sections.recovery.length}`,
     `parallelEntries: ${snapshot.sections.parallel.length}`,
-    `productionDone: ${snapshot.authority.productionDone}`,
-    `receiptVerified: ${snapshot.authority.receiptVerified}`,
-    `authorityChanged: ${snapshot.authority.authorityChanged}`,
+    `admissibilityStatus: ${snapshot.localAssurance.admissibilityStatus}`,
+    `assuranceLevel: ${snapshot.localAssurance.assuranceLevel}`,
+    `evidenceScope: ${snapshot.localAssurance.evidenceScope}`,
     `warnings: ${snapshot.warnings.length}`,
   ].join('\n');
 }

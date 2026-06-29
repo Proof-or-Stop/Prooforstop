@@ -89,7 +89,7 @@ function assertCanonicalShape(story: CanonicalStory): void {
   assert.equal(story.schemaVersion, 'canonical-story-v0');
   assert.equal(story.storyId, 'B-test');
   assert.equal(story.lifecycle.localDone, true);
-  assert.equal(story.lifecycle.productionDone, false, 'local DONE does not become production DONE without verified receipt artifacts');
+  assert.equal(story.lifecycle.productionDone, false, 'local DONE does not establish release readiness without verified receipt artifacts');
   assert.equal(story.authority.tier, 'local-evidence');
   assert.deepEqual(story.authority.receiptRefs, ['diagnostic-receipt-ref', 'local-receipt-ref']);
   assert.match(story.authority.canonicalStoryDigest ?? '', /^sha256:/);

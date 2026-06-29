@@ -37,7 +37,6 @@ export const READ_ONLY_COMMANDS: ReadonlySet<string> = new Set([
   'conduit_status',
   'conduit_explain',
   'story_export',
-  'story_authority_resolve',
   'observability_snapshot',
   'handoff_create',
   'handoff_inspect',

@@ -1,0 +1,150 @@
+{
+  "findings": [
+    {
+      "id": "B-da34:F-001",
+      "desc": "Active user-facing handoff/autopilot/prompt text still exposes retired Authority completion vocabulary after the retirement contract says active surfaces must use local assurance/admissibility wording. `packages/main/src/core/lattice-handoff.ts:1324-1325`, `:1349-1350`, and `:1370-1371` print `productionDone` / `receiptVerified` in normal command output; `packages/main/src/core/lattice-autopilot.ts:1747` still tells users `productionDone=false`; `packages/main/src/core/prompt-registry.ts:110-112` still frames handoff boundaries around `production completion claims`. This violates `docs/requirements/decisions/authority-server-vocabulary-retirement.md:11-25` and leaves active docs/help-facing text outside the local assurance/admissibility vocabulary.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-29T17:46:02.120Z",
+      "reviewRound": "2026-06-29T17:43:53.439Z",
+      "reviewRunId": "B-da34:RR-004",
+      "_hash": "732c6a0fe9c0d288fee044e1001d18465a23960c430bf6a9d4f326bf978123dd",
+      "files": [
+        "packages/main/src/core/lattice-handoff.ts",
+        "packages/main/src/core/lattice-autopilot.ts",
+        "packages/main/src/core/prompt-registry.ts",
+        "docs/requirements/decisions/authority-server-vocabulary-retirement.md"
+      ],
+      "signatureTag": "missing|ts|active-user-facing",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 848905a45. Handoff receipt/worktree/dispatch text now emits admissibilityStatus, assuranceLevel, and evidenceScope instead of retired completion fields; lattice-autopilot manual-review nextAction uses local evidenceScope wording; prompt-registry now says receipt-bundle admissibility, local assurance acceptance, and release-admissibility. Evidence commands passed: npm --prefix packages/main run build; node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js; npm run test:process-fact-contract; node packages/main/dist/tasks/command-catalog-smoke.js; node packages/main/dist/tasks/proof-admissibility-smoke.js; node packages/main/dist/tasks/receipt-bundle-contract-smoke.js; lattice scope_contract_check storyId=B-da34.",
+      "resolvedAt": "2026-06-29T17:55:10.348Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-da34:F-002",
+      "desc": "Scanner whitelist is too broad for the promised hard retired-Authority gate. Evidence/sourceRefs: packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts:104-112 returns true before matching banned terms, including a blanket exemption for every packages/main/src/tasks/*.ts except the guard itself. That conflicts with docs/requirements/decisions/authority-server-vocabulary-retirement.md:80-81 and :87-96, which allow smoke tests to contain banned vocabulary only as scanner positive controls or inside explicit legacy quarantine and require the guard to prove whitelisted legacy files are explicit and narrow. As written, reintroduced Authority Server/authorityDone/productionDone vocabulary or server-backed Authority smoke code in active task files would remain invisible to validation, so M4/M5 are scope-shrunk rather than no-discount completed.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-29T17:47:12.249Z",
+      "reviewRound": "2026-06-29T17:43:53.439Z",
+      "reviewRunId": "B-da34:RR-005",
+      "_hash": "de1837b578e0bd3dd4a167fa674254349c6dbf9539935ade099e603ee26b71b0",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "docs/requirements/decisions/authority-server-vocabulary-retirement.md"
+      ],
+      "signatureTag": "adversarial|ts|scanner-whitelist-broad",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 848905a45. retired-authority-vocabulary-guard-smoke no longer blanket-exempts packages/main/src/tasks/*.ts. It uses explicitLegacyTaskQuarantineFiles for named legacy or positive-control smoke files, so unlisted active task files are scanned and will fail on retired Authority vocabulary. Evidence commands passed: npm --prefix packages/main run build; node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js; npm run test:process-fact-contract; node packages/main/dist/tasks/command-catalog-smoke.js; lattice scope_contract_check storyId=B-da34.",
+      "resolvedAt": "2026-06-29T17:55:15.421Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-da34:F-003",
+      "desc": "CHK-004:adversarial is not truly covered. The intent says the scanner must fail if active runtime paths import quarantined server-backed Authority modules, but retired-authority-vocabulary-guard-smoke only scans banned vocabulary tokens and MAIN_TOOLS command names. Its retired story resolver rule matches story_authority_resolve only, and assertCommandCatalog only proves the command is absent from MAIN_TOOLS/aliases; it does not reject import specifiers such as ./handlers/story-authority-resolve.js or createStoryAuthorityResolveHandlers in active runtime files. Source refs: packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts:33, packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts:190, docs/requirements/decisions/authority-server-vocabulary-retirement.md:80.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-29T17:47:38.748Z",
+      "reviewRound": "2026-06-29T17:43:53.439Z",
+      "reviewRunId": "B-da34:RR-003",
+      "_hash": "a0f07fb089cd753b395edb9755f661d2c4fb14c02f10522832600144c6e9ad2f",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "docs/requirements/decisions/authority-server-vocabulary-retirement.md"
+      ],
+      "signatureTag": "missing|ts|adversarial-truly-covered",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 848905a45. retired-authority-vocabulary-guard-smoke now extracts static import, dynamic import, and require specifiers from active runtime source files and rejects retired story-authority-resolve or story-authority-resolver module specifiers, including relative imports resolving to quarantined server-backed resolver files. Positive controls prove both handler and core resolver imports are caught. Evidence commands passed: npm --prefix packages/main run build; node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js; npm run test:process-fact-contract; node packages/main/dist/tasks/command-catalog-smoke.js; lattice scope_contract_check storyId=B-da34.",
+      "resolvedAt": "2026-06-29T17:55:21.299Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-da34:F-004",
+      "desc": "Active text renderers still expose retired completion fields after the Authority vocabulary removal. The migration contract bans productionDone and requires local assurance/admissibilityStatus/assuranceLevel/evidenceScope on active user-facing code (docs/requirements/decisions/authority-server-vocabulary-retirement.md:13). However handoff_receipt_submit, handoff_worktree_create, and host_dispatch text output still render productionDone and receiptVerified (packages/main/src/core/lattice-handoff.ts:1324, packages/main/src/core/lattice-handoff.ts:1349, packages/main/src/core/lattice-handoff.ts:1370), and autopilot_policy_check still renders authorityChanged/receiptVerified/productionDone (packages/main/src/core/autopilot-policy.ts:739). The retired vocabulary guard misses these leaks because lineIsQuarantined exempts any line shaped like a legacy field projection, including template-string output lines (packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts:116). Evidence commands: npm --prefix packages/main run build PASS; npm --prefix packages/main run test:retired-authority-server-semantics PASS despite the active output leaks; node scripts/verify-process-fact-contract.mjs PASS.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-29T17:48:03.328Z",
+      "reviewRound": "2026-06-29T17:43:53.439Z",
+      "reviewRunId": "B-da34:RR-006",
+      "_hash": "f0d2099db3f941692fc599eef4a4ae40897245c5820c4fe42ae41876a29b0bd2",
+      "files": [
+        "packages/main/src/core/lattice-handoff.ts",
+        "packages/main/src/core/autopilot-policy.ts",
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "docs/requirements/decisions/authority-server-vocabulary-retirement.md"
+      ],
+      "signatureTag": "missing|ts|active-text-renderers",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 848905a45. renderHandoffReceiptSubmissionText, renderHandoffWorktreeProjectionText, renderHostDispatchProjectionText, and renderAutopilotPolicyCheckText no longer render productionDone, receiptVerified, or authorityChanged field lines. They render admissibilityStatus, assuranceLevel, and evidenceScope local-assurance phrasing instead. Focused rg for retired renderer strings in the touched files returned no matches. Evidence commands passed: npm --prefix packages/main run build; node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js; npm run test:process-fact-contract; node packages/main/dist/tasks/command-catalog-smoke.js; node packages/main/dist/tasks/proof-admissibility-smoke.js; node packages/main/dist/tasks/receipt-bundle-contract-smoke.js; lattice scope_contract_check storyId=B-da34.",
+      "resolvedAt": "2026-06-29T17:55:27.571Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-da34:F-005",
+      "desc": "Scanner whitelist is still too broad at line level, so the hard retired-Authority gate can miss active renderer regressions even after the current visible leaks were removed. Source refs: packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts:137-154 makes lineIsQuarantined return true for any line in any non-quarantined active file containing field-shaped retired names such as productionDone:, authorityDone:, fullAuthorityDone:, receiptVerified:, or authorityChanged:. scanText then skips that line before applying bannedActiveRules at packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts:214-224. That exemption is not tied to an explicit legacy file, compatibility reader block, or positive-control context, and it is the same shape that let active text-renderer output leaks hide in F-004. Current build/help/guard pass, but M5 requires a hard scanner that fails active core code/docs outside explicit legacy quarantine; this implementation would still allow a future active output line like lines.push(`productionDone: ${result.productionDone}`) to pass validation.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-29T17:58:28.642Z",
+      "reviewRound": "2026-06-29T17:54:51.740Z",
+      "reviewRunId": "B-da34:RR-007",
+      "_hash": "39707b02f6510d5410b3a3e86a9af6c47ff72f534570e7ae76e7c4de19ba51b5",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "docs/requirements/decisions/authority-server-vocabulary-retirement.md"
+      ],
+      "signatureTag": "adversarial|ts|scanner-line-quarantine-bypass",
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed in commit dd4a560fb. retired-authority-vocabulary-guard-smoke now catches retired completion framing phrases and replaces the global field-shaped line bypass with explicit structuralLegacyFieldQuarantineFiles plus rendered-field detection; active renderer positive controls prove productionDone:, authorityDone:, and fullAuthorityDone: output lines are scanned and rejected outside quarantine. Evidence passed: npm --prefix packages/main run build; node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js; npm run test:process-fact-contract; node packages/main/dist/tasks/command-catalog-smoke.js; lattice scope_contract_check storyId=B-da34.",
+      "resolvedAt": "2026-06-29T18:12:45.097Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-da34:F-006",
+      "desc": "Active docs/user-facing text still carries retired production/Authority completion framing after the fix. README.md:189-190 says autopilot does not claim production authority instead of release readiness / local assurance. packages/main/src/handlers/delivery-context-pack.ts:171-176 throws user-facing text saying it does not claim Authority/production completion. packages/main/src/handlers/plan-skeleton.ts:174-176 emits a planner constraint saying it must not claim Authority completion. packages/main/src/core/canonical-story.ts:165-168 and packages/main/src/core/capabilities.ts:139 still describe production completion / production DONE in active JSON-facing reason/description text. This violates docs/requirements/decisions/authority-server-vocabulary-retirement.md:23-41, which requires active surfaces to explain local assurance/admissibility/evidence scope rather than old completion framing. The retired-vocabulary guard passes because it keys on exact banned tokens, so this residue needs a wording fix or guard coverage expansion.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-29T17:58:59.657Z",
+      "reviewRound": "2026-06-29T17:54:51.740Z",
+      "reviewRunId": "B-da34:RR-008",
+      "_hash": "1cf3b43e32dc33a950011e3ee973cd6726d5eafa299e229586c1940c55098b69",
+      "files": [
+        "README.md",
+        "packages/main/src/handlers/delivery-context-pack.ts",
+        "packages/main/src/handlers/plan-skeleton.ts",
+        "packages/main/src/core/canonical-story.ts",
+        "packages/main/src/core/capabilities.ts",
+        "docs/requirements/decisions/authority-server-vocabulary-retirement.md"
+      ],
+      "signatureTag": "missing|md|active-docs-user",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit dd4a560fb. Active README, delivery_context_pack, plan_skeleton, canonical-story degradation text, capability descriptions, done_prepare, dispatch, proof-admissibility, and generated init asset text now use local assurance, admissibility, evidence scope, and release-readiness wording instead of retired production or Authority completion framing. The scanner now catches production authority, Authority completion, production completion, and production DONE on active surfaces outside explicit legacy quarantine. Evidence passed: npm --prefix packages/main run build; node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js; npm run test:process-fact-contract; node packages/main/dist/tasks/command-catalog-smoke.js; lattice scope_contract_check storyId=B-da34.",
+      "resolvedAt": "2026-06-29T18:12:51.672Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

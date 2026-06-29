@@ -162,8 +162,8 @@ function localAssuranceDegradation(productionDone: boolean): CanonicalStory['deg
     capability: 'local-proof-admissibility',
     severity: 'block',
     visible: true,
-    reason: 'Current local assurance does not establish production completion; rely on proof-admissibility, receipt-bundle, and review quorum evidence for local gates.',
-    fallback: 'Keep completion at local evidence and do not claim production DONE.',
+    reason: 'Current local assurance does not establish release readiness; rely on proof-admissibility, receipt-bundle, and review quorum evidence for local gates.',
+    fallback: 'Keep evidenceScope at local evidence until release-readiness evidence is admissible.',
     authorityImpact: 'blocks-production-done',
     recovery: 'Record fresh local proof-admissibility, receipt-bundle, and review quorum evidence for the current story/head/material tuple.',
   }];

@@ -34,7 +34,7 @@ import type { JobPlan, PlannedStep, PlannerStoreLike } from './planner.js';
  * - enforcement only runs when the JobPlan actually carries a `worktreePolicy`
  *   block. Legacy / synthetic plans without one keep their prior behavior. Real
  *   plans always carry one (`buildJobPlan` emits it and `assertJobPolicyConsistency`
- *   rejects a plan that omits it), so this never weakens a production authority run;
+ *   rejects a plan that omits it), so this never weakens a release-readiness run;
  * - the module is pure + deterministic with an injectable `GitRunner`, so smokes
  *   never have to shell out to a real git unless they want to.
  */

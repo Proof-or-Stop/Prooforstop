@@ -8,22 +8,20 @@
  *   Read-only adapter that assembles the data shape future Proofbound
  *   observability UI surfaces need without parsing `session_brief`/`status`
  *   Markdown and without reading backing story JSON directly. It consumes the
- *   `story_authority_resolve` CHK-001 contract row-by-row, then opens a fresh
- *   `StoryStore` rooted at each row's `authoritativeCwd` and projects through
- *   `buildCanonicalStory` so worktree-authoritative stories aren't read from a
- *   stale main mirror. All authority fields stay conservative
- *   (`productionDone=false` / `receiptVerified=false` / `authorityChanged=false`):
- *   the snapshot is L0 host-neutral observation, never a production claim.
+ *   local assurance story projection row-by-row, then opens a fresh `StoryStore`
+ *   rooted at each row's `activeCwd` and projects through `buildCanonicalStory`
+ *   so active worktree stories aren't read from a stale main mirror. The
+ *   snapshot is L0 host-neutral observation, never release readiness evidence.
  * @changes
  *   - [CHK-002] Add validator-required changes metadata for the observability snapshot adapter task header.
  */
 
 import {
-  STORY_AUTHORITY_RESOLVE_SCHEMA_VERSION,
-  resolveStoryAuthority,
-  type StoryAuthorityResolveResult,
-  type StoryAuthorityRow,
-} from './story-authority-resolver.js';
+  LOCAL_ASSURANCE_STORY_PROJECTION_SCHEMA_VERSION,
+  resolveLocalAssuranceStories,
+  type LocalAssuranceStoryProjection,
+  type LocalAssuranceStoryRow,
+} from './local-assurance-story-projection.js';
 import {
   buildCanonicalStory,
   type CanonicalStory,
@@ -45,17 +43,17 @@ export interface ObservabilityAuthorityLadder {
   legacyRecord: ObservabilityLadderBucket;
   localEvidence: ObservabilityLadderBucket;
   inFlight: ObservabilityLadderBucket;
-  productionDoneGap: number;
+  localAssuranceGap: number;
 }
 
 export interface ObservabilityStoryBoardEntry {
   storyId: string;
   title: string;
-  authority: StoryAuthorityRow['authority'];
-  authoritativeCwd: string;
+  stateSource: LocalAssuranceStoryRow['stateSource'];
+  activeCwd: string;
   worktreePath: string | null;
-  mirrorPhase: StoryAuthorityRow['mirrorPhase'];
-  authoritativePhase: StoryAuthorityRow['authoritativePhase'];
+  mirrorPhase: LocalAssuranceStoryRow['mirrorPhase'];
+  activePhase: LocalAssuranceStoryRow['activePhase'];
   tier: ObservabilityAuthorityTier;
   canonicalStoryDigest: string | null;
   evidenceCount: number;
@@ -63,26 +61,26 @@ export interface ObservabilityStoryBoardEntry {
   receiptRefCount: number;
   topAuthorityImpact: ObservabilityAuthorityImpact | null;
   localDone: boolean;
-  productionDone: false;
+  releaseReady: false;
 }
 
 export interface ObservabilityCapabilityRow {
   storyId: string;
-  receiptVerifyAvailable: false;
-  productionDoneBlocked: true;
+  receiptBundleVerificationAvailable: false;
+  localAssuranceRequired: true;
   fallback: string;
 }
 
 export interface ObservabilityRecoveryEntry {
   storyId: string;
-  authoritativeCwd: string;
+  activeCwd: string;
   recoveryPoints: Array<{ id: string; kind: string; path: string }>;
   resumeCommand: string;
 }
 
 export interface ObservabilityParallelEntry {
   storyId: string;
-  authoritativePhase: StoryAuthorityRow['authoritativePhase'];
+  activePhase: LocalAssuranceStoryRow['activePhase'];
   lane: 'mainline' | 'supporting' | 'exploratory' | null;
   parallelSafe: 'yes' | 'no' | 'plan_only' | null;
   worktreePath: string | null;
@@ -91,9 +89,9 @@ export interface ObservabilityParallelEntry {
 }
 
 export interface ObservabilityAuthorityBoundary {
-  productionDone: false;
-  receiptVerified: false;
-  authorityChanged: false;
+  admissibilityStatus: 'local-only';
+  assuranceLevel: 'local-observation';
+  evidenceScope: 'read-only-observability';
   notes: string[];
 }
 
@@ -109,9 +107,9 @@ export interface LatticeObservabilitySnapshot {
   schemaVersion: typeof OBSERVABILITY_SNAPSHOT_SCHEMA_VERSION;
   readOnly: true;
   generatedAt: string;
-  resolverSchemaVersion: typeof STORY_AUTHORITY_RESOLVE_SCHEMA_VERSION;
-  resolver: StoryAuthorityResolveResult;
-  authority: ObservabilityAuthorityBoundary;
+  projectionSchemaVersion: typeof LOCAL_ASSURANCE_STORY_PROJECTION_SCHEMA_VERSION;
+  projection: LocalAssuranceStoryProjection;
+  localAssurance: ObservabilityAuthorityBoundary;
   sections: ObservabilitySnapshotSections;
   warnings: string[];
 }
@@ -121,11 +119,10 @@ export interface ObservabilitySnapshotOptions {
   activeOnly?: boolean;
   now?: string;
   /**
-   * Pre-built resolver result. Tests / dashboards that already hold a
-   * `story_authority_resolve` projection can pass it here to skip a redundant
-   * resolver pass.
+   * Pre-built projection. Tests / dashboards that already hold a local
+   * assurance story projection can pass it here to skip a redundant pass.
    */
-  resolver?: StoryAuthorityResolveResult;
+  projection?: LocalAssuranceStoryProjection;
   /**
    * Override how the adapter opens a `StoryStore` for a row's authoritative
    * cwd. Defaults to `new StoryStore(cwd)`. Tests inject this to avoid
@@ -153,7 +150,7 @@ function emptyLadder(): ObservabilityAuthorityLadder {
     legacyRecord: { count: 0, storyIds: [] },
     localEvidence: { count: 0, storyIds: [] },
     inFlight: { count: 0, storyIds: [] },
-    productionDoneGap: 0,
+    localAssuranceGap: 0,
   };
 }
 
@@ -206,8 +203,8 @@ function recoveryPointsFor(story: CanonicalStory): Array<{ id: string; kind: str
   return out;
 }
 
-function resumeCommandFor(row: StoryAuthorityRow): string {
-  return `cd ${row.authoritativeCwd} && lattice story_export --storyId=${row.storyId} --format=json`;
+function resumeCommandFor(row: LocalAssuranceStoryRow): string {
+  return `cd ${row.activeCwd} && lattice story_export --storyId=${row.storyId} --format=json`;
 }
 
 function asLane(value: unknown): ObservabilityParallelEntry['lane'] {
@@ -226,7 +223,7 @@ function asStringArray(value: unknown): string[] {
 }
 
 interface PerRowProjection {
-  row: StoryAuthorityRow;
+  row: LocalAssuranceStoryRow;
   canonical: CanonicalStory | null;
   storeWarning: string | null;
   storyMeta: {
@@ -238,16 +235,16 @@ interface PerRowProjection {
 }
 
 function projectRow(
-  row: StoryAuthorityRow,
+  row: LocalAssuranceStoryRow,
   storeFactory: (cwd: string) => StoryStore,
   warnings: string[],
 ): PerRowProjection {
   let store: StoryStore;
   try {
-    store = storeFactory(row.authoritativeCwd);
+    store = storeFactory(row.activeCwd);
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
-    const warning = `unable to open StoryStore for ${row.storyId} at ${row.authoritativeCwd}: ${message}`;
+    const warning = `unable to open StoryStore for ${row.storyId} at ${row.activeCwd}: ${message}`;
     warnings.push(warning);
     return {
       row,
@@ -259,10 +256,10 @@ function projectRow(
 
   let canonical: CanonicalStory | null = null;
   try {
-    canonical = buildCanonicalStory(store, row.authoritativeCwd, row.storyId).story;
+    canonical = buildCanonicalStory(store, row.activeCwd, row.storyId).story;
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
-    warnings.push(`unable to export canonical story ${row.storyId} from ${row.authoritativeCwd}: ${message}`);
+    warnings.push(`unable to export canonical story ${row.storyId} from ${row.activeCwd}: ${message}`);
   }
 
   let storyMeta: PerRowProjection['storyMeta'] = { lane: null, parallelSafe: null, depends: [], blockingFor: [] };
@@ -276,22 +273,22 @@ function projectRow(
     };
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
-    warnings.push(`unable to read story info ${row.storyId} from ${row.authoritativeCwd}: ${message}`);
+    warnings.push(`unable to read story info ${row.storyId} from ${row.activeCwd}: ${message}`);
   }
 
   return { row, canonical, storeWarning: null, storyMeta };
 }
 
-function authorityBoundary(productionDoneGap: number): ObservabilityAuthorityBoundary {
+function authorityBoundary(localAssuranceGap: number): ObservabilityAuthorityBoundary {
   return {
-    productionDone: false,
-    receiptVerified: false,
-    authorityChanged: false,
+    admissibilityStatus: 'local-only',
+    assuranceLevel: 'local-observation',
+    evidenceScope: 'read-only-observability',
     notes: [
-      'Observability snapshot is a host-neutral L0 read-only projection; it never claims production DONE, verifies receipts, or mutates authority state.',
-      productionDoneGap > 0
-        ? `localDone↔productionDone gap: ${productionDoneGap} stories carry local evidence only; receipt-backed verification is still required.`
-        : 'No localDone stories detected this snapshot; receipt-backed verification still required for any future production claim.',
+      'Observability snapshot is a host-neutral L0 read-only projection; it never signs gate evidence or widens local assurance.',
+      localAssuranceGap > 0
+        ? `local assurance gap: ${localAssuranceGap} stories carry local completion evidence that still needs ordinary gate review.`
+        : 'No local completion stories detected this snapshot; use proof-admissibility, receipt-bundle, and review quorum evidence for release readiness.',
     ],
   };
 }
@@ -303,7 +300,7 @@ export function buildObservabilitySnapshot(
 ): LatticeObservabilitySnapshot {
   const warnings: string[] = [];
   const storeFactory = options.storeFactory ?? defaultStoreFactory;
-  const resolver = options.resolver ?? resolveStoryAuthority(rootStore, projectRoot, {
+  const localProjection = options.projection ?? resolveLocalAssuranceStories(rootStore, projectRoot, {
     storyIds: options.storyIds,
     activeOnly: options.activeOnly,
     now: options.now,
@@ -315,28 +312,28 @@ export function buildObservabilitySnapshot(
   const recovery: ObservabilityRecoveryEntry[] = [];
   const parallel: ObservabilityParallelEntry[] = [];
 
-  for (const row of resolver.stories) {
+  for (const row of localProjection.stories) {
     const projection = projectRow(row, storeFactory, warnings);
     const canonical = projection.canonical;
     const tier: ObservabilityAuthorityTier = canonical?.authority.tier ?? 'local-evidence';
     pushLadder(ladder, tier, row.storyId);
 
-    if (!NON_ACTIVE_PHASES.has(row.authoritativePhase)) {
+    if (!NON_ACTIVE_PHASES.has(row.activePhase)) {
       ladder.inFlight.count += 1;
       ladder.inFlight.storyIds.push(row.storyId);
     }
-    if (canonical?.lifecycle.localDone && !canonical.lifecycle.productionDone) {
-      ladder.productionDoneGap += 1;
+    if (canonical?.lifecycle.localDone) {
+      ladder.localAssuranceGap += 1;
     }
 
     storyBoard.push({
       storyId: row.storyId,
       title: row.title,
-      authority: row.authority,
-      authoritativeCwd: row.authoritativeCwd,
+      stateSource: row.stateSource,
+      activeCwd: row.activeCwd,
       worktreePath: row.worktreePath,
       mirrorPhase: row.mirrorPhase,
-      authoritativePhase: row.authoritativePhase,
+      activePhase: row.activePhase,
       tier,
       canonicalStoryDigest: canonical?.authority.canonicalStoryDigest ?? null,
       evidenceCount: safeNumber(canonical?.evidence),
@@ -344,26 +341,26 @@ export function buildObservabilitySnapshot(
       receiptRefCount: safeNumber(canonical?.authority.receiptRefs),
       topAuthorityImpact: canonical ? topAuthorityImpact(canonical) : null,
       localDone: Boolean(canonical?.lifecycle.localDone),
-      productionDone: false,
+      releaseReady: false,
     });
 
     capabilityMatrix.push({
       storyId: row.storyId,
-      receiptVerifyAvailable: false,
-      productionDoneBlocked: true,
-      fallback: 'Keep tier at local-evidence until a receipt-backed authority flow lands (B-2522).',
+      receiptBundleVerificationAvailable: false,
+      localAssuranceRequired: true,
+      fallback: 'Use proof-admissibility, receipt-bundle, and local review quorum before treating evidence as release-ready.',
     });
 
     recovery.push({
       storyId: row.storyId,
-      authoritativeCwd: row.authoritativeCwd,
+      activeCwd: row.activeCwd,
       recoveryPoints: canonical ? recoveryPointsFor(canonical) : [],
       resumeCommand: resumeCommandFor(row),
     });
 
     parallel.push({
       storyId: row.storyId,
-      authoritativePhase: row.authoritativePhase,
+      activePhase: row.activePhase,
       lane: projection.storyMeta.lane,
       parallelSafe: projection.storyMeta.parallelSafe,
       worktreePath: row.worktreePath,
@@ -385,9 +382,9 @@ export function buildObservabilitySnapshot(
     schemaVersion: OBSERVABILITY_SNAPSHOT_SCHEMA_VERSION,
     readOnly: true,
     generatedAt: options.now ?? new Date().toISOString(),
-    resolverSchemaVersion: STORY_AUTHORITY_RESOLVE_SCHEMA_VERSION,
-    resolver,
-    authority: authorityBoundary(ladder.productionDoneGap),
+    projectionSchemaVersion: LOCAL_ASSURANCE_STORY_PROJECTION_SCHEMA_VERSION,
+    projection: localProjection,
+    localAssurance: authorityBoundary(ladder.localAssuranceGap),
     sections: {
       authorityLadder: ladder,
       storyBoard,

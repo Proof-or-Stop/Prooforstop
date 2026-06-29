@@ -87,6 +87,8 @@ const legacyTestAutoProcessFactClaimPatterns = [
 const legacyTestAutoNegatedProcessFactPattern = /(?:不会|不写|不再|不能|并不|does\s+not|doesn't|do\s+not|not|never|without|no\s+longer).{0,90}(?:bug|test-?evidence|test evidence|verificationEvidence|测试证据)/i;
 const commandPolicyStatuses = new Set(['supported', 'rootOnly', 'legacy', 'retired', 'maintenance', 'gateEvidence']);
 const processFactRegistryPath = 'packages/main/src/core/process-fact-registry.ts';
+const localAssuranceBoundaryPattern = /local (?:assurance|admissibility|workflow evidence|host verdict|quorum|review escalation|review assurance|validation|DONE-required-validation)|proof-admissibility|receipt-bundle|quorum|admissibility/i;
+const noReleaseOrRemoteCompletionBoundaryPattern = /retired remote-completion fields|remote completion|remote-completion|release readiness|release approval|remote publish readiness/i;
 const processFactRegistryKinds = new Set([
   'command',
   'runtime-behavior',
@@ -486,6 +488,17 @@ function warn(message) {
 
 function assert(condition, message) {
   if (!condition) fail(message);
+}
+
+function assertLocalAssuranceNoReleaseBoundary(text, messagePrefix) {
+  assert(
+    localAssuranceBoundaryPattern.test(text),
+    `${messagePrefix} must name the local assurance/admissibility boundary`,
+  );
+  assert(
+    noReleaseOrRemoteCompletionBoundaryPattern.test(text),
+    `${messagePrefix} must preserve the no-release/no-remote-completion boundary`,
+  );
 }
 
 function read(relPath) {
@@ -2057,10 +2070,7 @@ function assertDoneClosureCommandContract(cliToolNameSet, registry, levelRegistr
         /without writing lifecycle artifacts|without mutating/i.test(policy.reason),
         `${commandPolicyPath}: ${commandName} policy must state the read-only/no lifecycle mutation boundary`,
       );
-      assert(
-        /receipt|Authority|authorityDone|productionDone/i.test(policy.reason),
-        `${commandPolicyPath}: ${commandName} policy must state the Authority receipt/no-overclaim boundary`,
-      );
+      assertLocalAssuranceNoReleaseBoundary(policy.reason, `${commandPolicyPath}: ${commandName} policy`);
     }
 
     const levelEntry = levelRegistry.get(commandName);
@@ -2100,7 +2110,7 @@ function assertDoneRequiredValidationCommandContract(cliToolNameSet, registry, l
     assert(/done-required-evidence\.json/.test(policy.reason), `${commandPolicyPath}: ${commandName} policy must name done-required-evidence.json`);
     assert(/Missing policy is advisory\/non-blocking|advisory\/non-blocking/i.test(policy.reason), `${commandPolicyPath}: ${commandName} policy must keep missing config advisory/non-blocking`);
     assert(/malformed opted-in policy.*fail/i.test(policy.reason), `${commandPolicyPath}: ${commandName} policy must keep malformed opted-in config fail-closed`);
-    assert(/never claims Authority receipt completion.*productionDone.*release approval/i.test(policy.reason), `${commandPolicyPath}: ${commandName} policy must keep no-Authority/no-release boundary`);
+    assertLocalAssuranceNoReleaseBoundary(policy.reason, `${commandPolicyPath}: ${commandName} policy`);
   }
 
   const levelEntry = levelRegistry.get(commandName);
@@ -2172,7 +2182,7 @@ function assertDecisionDocQuorumCommandContract(cliToolNameSet, registry, levelR
       assert(policyBlockHasOwnershipClass(policy, 'readOnly'), `${commandPolicyPath}: ${commandName} must stay readOnly`);
       assert(/without mutating|read-only/i.test(policy.reason), `${commandPolicyPath}: ${commandName} policy must state the read-only boundary`);
       assert(/classification-only|do not by themselves require DONE quorum|review_escalation_status/i.test(policy.reason), `${commandPolicyPath}: ${commandName} policy must state decision-doc edits are diagnostic/classification only`);
-      assert(/Authority receipt|authorityDone|fullAuthorityDone|productionDone/i.test(policy.reason), `${commandPolicyPath}: ${commandName} policy must state the Authority/no-overclaim boundary`);
+      assertLocalAssuranceNoReleaseBoundary(policy.reason, `${commandPolicyPath}: ${commandName} policy`);
     }
 
     const levelEntry = levelRegistry.get(commandName);
@@ -2207,7 +2217,7 @@ function assertDecisionDocQuorumCommandContract(cliToolNameSet, registry, levelR
     assert(statusPolicy.destructiveRisk === 'none', `${commandPolicyPath}: ${statusCommand} destructiveRisk must stay none`);
     assert(policyBlockHasOwnershipClass(statusPolicy, 'readOnly'), `${commandPolicyPath}: ${statusCommand} must stay readOnly`);
     assert(/first-round verified reviewer findings|explicitlyConfiguredHighRiskPolicyRequires3x2|3x2|degraded 3x1/i.test(statusPolicy.reason), `${commandPolicyPath}: ${statusCommand} must describe the trigger/quorum policy`);
-    assert(/Authority receipt|authorityDone|fullAuthorityDone|productionDone/i.test(statusPolicy.reason), `${commandPolicyPath}: ${statusCommand} policy must preserve no-overclaim boundary`);
+    assertLocalAssuranceNoReleaseBoundary(statusPolicy.reason, `${commandPolicyPath}: ${statusCommand} policy`);
   }
   const statusLevel = levelRegistry.get(statusCommand);
   assert(statusLevel, `${processFactLevelRegistryPath}: ${statusCommand} missing level entry`);
@@ -2237,7 +2247,7 @@ function assertDecisionDocQuorumCommandContract(cliToolNameSet, registry, levelR
     for (const token of ['explicitlyConfiguredHighRiskPolicyRequires3x2', 'policyVersion', 'sourcePolicyRef', 'rolloutStage', 'head/material', 'degraded fallback']) {
       assert(new RegExp(token, 'i').test(policyCommandPolicy.reason), `${commandPolicyPath}: ${policyCommand} policy must name ${token}`);
     }
-    assert(/Authority receipt|authorityDone|fullAuthorityDone|productionDone/i.test(policyCommandPolicy.reason), `${commandPolicyPath}: ${policyCommand} must preserve no-overclaim boundary`);
+    assertLocalAssuranceNoReleaseBoundary(policyCommandPolicy.reason, `${commandPolicyPath}: ${policyCommand} policy`);
   }
   const policyLevel = levelRegistry.get(policyCommand);
   assert(policyLevel, `${processFactLevelRegistryPath}: ${policyCommand} missing level entry`);
@@ -2269,7 +2279,7 @@ function assertDecisionDocQuorumCommandContract(cliToolNameSet, registry, levelR
     assert(/storyFilesHash/i.test(fallbackPolicy.reason), `${commandPolicyPath}: ${fallbackCommand} must describe storyFilesHash binding`);
     assert(/review escalation DONE gate/i.test(fallbackPolicy.reason), `${commandPolicyPath}: ${fallbackCommand} policy must name the local review escalation DONE gate`);
     assert(/review assurance floor DONE gate/i.test(fallbackPolicy.reason), `${commandPolicyPath}: ${fallbackCommand} policy must name the review assurance floor DONE gate`);
-    assert(/Authority receipt|authorityDone|fullAuthorityDone|productionDone/i.test(fallbackPolicy.reason), `${commandPolicyPath}: ${fallbackCommand} must preserve no-overclaim boundary`);
+    assertLocalAssuranceNoReleaseBoundary(fallbackPolicy.reason, `${commandPolicyPath}: ${fallbackCommand} policy`);
   }
   const fallbackLevel = levelRegistry.get(fallbackCommand);
   assert(fallbackLevel, `${processFactLevelRegistryPath}: ${fallbackCommand} missing level entry`);
@@ -2302,7 +2312,7 @@ function assertDecisionDocQuorumCommandContract(cliToolNameSet, registry, levelR
     assert(/storyFilesHash/i.test(policy.reason), `${commandPolicyPath}: ${commandName} policy must name storyFilesHash binding`);
     assert(/review escalation DONE gate/i.test(policy.reason), `${commandPolicyPath}: ${commandName} policy must name the local review escalation DONE gate`);
     assert(/review assurance floor DONE gate/i.test(policy.reason), `${commandPolicyPath}: ${commandName} policy must name the review assurance floor DONE gate`);
-    assert(/Authority receipt|authorityDone|fullAuthorityDone|productionDone/i.test(policy.reason), `${commandPolicyPath}: ${commandName} policy must preserve the Authority no-overclaim boundary`);
+    assertLocalAssuranceNoReleaseBoundary(policy.reason, `${commandPolicyPath}: ${commandName} policy`);
   }
 
   const levelEntry = levelRegistry.get(commandName);
@@ -2343,7 +2353,7 @@ function assertDecisionDocQuorumCommandContract(cliToolNameSet, registry, levelR
     assert(/autopilot_review_submit/i.test(quorumPolicy.reason), `${commandPolicyPath}: ${quorumCommand} policy must state it reuses the autopilot_review_submit local path`);
     assert(/review escalation DONE gate/i.test(quorumPolicy.reason), `${commandPolicyPath}: ${quorumCommand} policy must name the local review escalation DONE gate`);
     assert(/review assurance floor DONE gate/i.test(quorumPolicy.reason), `${commandPolicyPath}: ${quorumCommand} policy must name the review assurance floor DONE gate`);
-    assert(/Authority receipt|authorityDone|fullAuthorityDone|productionDone/i.test(quorumPolicy.reason), `${commandPolicyPath}: ${quorumCommand} policy must preserve the Authority no-overclaim boundary`);
+    assertLocalAssuranceNoReleaseBoundary(quorumPolicy.reason, `${commandPolicyPath}: ${quorumCommand} policy`);
   }
 
   const quorumLevelEntry = levelRegistry.get(quorumCommand);
@@ -2399,9 +2409,9 @@ function assertDecisionDocQuorumCommandContract(cliToolNameSet, registry, levelR
     'explicitlyConfiguredHighRiskPolicyRequires3x2',
     'review_escalation_policy',
     'degradedFallbackAllowed',
-    'authorityDone: false',
-    'fullAuthorityDone: false',
-    'productionDone: false',
+    'assuranceLevel',
+    'admissibilityStatus',
+    'evidenceScope: local-review-escalation',
   ]) {
     assert(evaluatorText.includes(token), `packages/main/src/core/review-escalation.ts: required explicit high-risk policy token missing: ${token}`);
   }
@@ -2423,7 +2433,7 @@ function assertReviewAssuranceFloorContract(registry, levelRegistry) {
     assert(levelEntry.level === 'L4', `${processFactLevelRegistryPath}: ${runtimeName} must stay L4`);
     assert(levelEntry.owner === 'core/review-assurance-floor', `${processFactLevelRegistryPath}: ${runtimeName} owner drifted`);
     assert(levelEntry.gateConsumer === 'storyMachine.canFinish DONE review assurance floor gate', `${processFactLevelRegistryPath}: ${runtimeName} gateConsumer drifted`);
-    for (const token of ['material code diffs', '3x1', '3x2', 'high-risk', 'authorityDone', 'productionDone']) {
+    for (const token of ['material code diffs', '3x1', '3x2', 'high-risk', 'local evidence', 'release readiness']) {
       assert(new RegExp(token, 'i').test(levelEntry.rationale), `${processFactLevelRegistryPath}: ${runtimeName} rationale must name ${token}`);
     }
   }
@@ -2446,9 +2456,7 @@ function assertReviewAssuranceFloorContract(registry, levelRegistry) {
     'REVIEW_ASSURANCE_FLOOR_FAILURE_REQUIRED_ROUNDS = 3',
     'REVIEW_ASSURANCE_FLOOR_HIGH_RISK_HOSTS_PER_ROUND = 2',
     'three-round-two-hosts-or-degraded-single-host',
-    'authorityDone: false',
-    'fullAuthorityDone: false',
-    'productionDone: false',
+    'assuranceLevel',
     'markdown documentation',
     'evaluateHostVerdictRounds',
     'review_escalation_fallback',
@@ -2472,8 +2480,7 @@ function assertReviewAssuranceFloorContract(registry, levelRegistry) {
     'failure signals require sticky 3x1 local rounds',
     'high-risk lifecycle gate work requires 3x2 or explicit degraded fallback',
     'wrapper-root machine DONE guard uses resolved gitCwd',
-    'authorityDone',
-    'productionDone',
+    'assuranceLevel',
   ]) {
     assert(smokeText.includes(token), `packages/main/src/tasks/review-assurance-floor-smoke.ts: required smoke assertion text missing: ${token}`);
   }
@@ -2603,7 +2610,7 @@ function assertDecisionDocPromotionCommandContract(cliToolNameSet, registry, lev
     assert(proposalPolicy.destructiveRisk === 'metadata-write', `${commandPolicyPath}: decision_doc_proposal destructiveRisk must stay metadata-write`);
     assert(policyBlockHasOwnershipClass(proposalPolicy, 'storyScopedMutating'), `${commandPolicyPath}: decision_doc_proposal must stay storyScopedMutating`);
     assert(/digest-bound|proposal/i.test(proposalPolicy.reason), `${commandPolicyPath}: decision_doc_proposal policy must name the digest-bound proposal boundary`);
-    assert(/proof-admissibility|receipt-bundle|quorum|productionDone/i.test(proposalPolicy.reason), `${commandPolicyPath}: decision_doc_proposal policy must preserve the local proof/no-overclaim boundary`);
+    assertLocalAssuranceNoReleaseBoundary(proposalPolicy.reason, `${commandPolicyPath}: decision_doc_proposal policy`);
   }
   const proposalLevel = levelRegistry.get('decision_doc_proposal');
   if (proposalLevel) {
@@ -2631,7 +2638,7 @@ function assertDecisionDocPromotionCommandContract(cliToolNameSet, registry, lev
     assert(previewPolicy.destructiveRisk === 'none', `${commandPolicyPath}: decision_doc_preview destructiveRisk must stay none`);
     assert(policyBlockHasOwnershipClass(previewPolicy, 'readOnly'), `${commandPolicyPath}: decision_doc_preview must stay readOnly`);
     assert(/read-only|writes no files|metadata|process events/i.test(previewPolicy.reason), `${commandPolicyPath}: decision_doc_preview policy must state the read-only/no-mutation boundary`);
-    assert(/proof-admissibility|receipt-bundle|quorum|authorityDone|fullAuthorityDone|productionDone/i.test(previewPolicy.reason), `${commandPolicyPath}: decision_doc_preview policy must preserve the local proof/no-overclaim boundary`);
+    assertLocalAssuranceNoReleaseBoundary(previewPolicy.reason, `${commandPolicyPath}: decision_doc_preview policy`);
   }
   const previewLevel = levelRegistry.get('decision_doc_preview');
   if (previewLevel) {
@@ -2658,7 +2665,7 @@ function assertDecisionDocPromotionCommandContract(cliToolNameSet, registry, lev
     assert(savePolicy.destructiveRisk === 'metadata-write', `${commandPolicyPath}: decision_doc_save destructiveRisk must stay metadata-write`);
     assert(policyBlockHasOwnershipClass(savePolicy, 'storyScopedMutating'), `${commandPolicyPath}: decision_doc_save must stay storyScopedMutating`);
     assert(/docs\/requirements\/decisions\/<slug>\.md|decision-doc quorum DONE gate|fresh proposal/i.test(savePolicy.reason), `${commandPolicyPath}: decision_doc_save policy must name canonical path, freshness, and quorum gate`);
-    assert(/proof-admissibility|receipt-bundle|quorum|authorityDone|fullAuthorityDone|productionDone/i.test(savePolicy.reason), `${commandPolicyPath}: decision_doc_save policy must preserve the local proof/no-overclaim boundary`);
+    assertLocalAssuranceNoReleaseBoundary(savePolicy.reason, `${commandPolicyPath}: decision_doc_save policy`);
   }
   const saveLevel = levelRegistry.get('decision_doc_save');
   if (saveLevel) {
@@ -2700,8 +2707,8 @@ function assertDecisionDocPromotionCommandContract(cliToolNameSet, registry, lev
     'renderDecisionDocMarkdown',
     'writeFileSync(targetAbs',
     'authorityBoundary',
-    'not local proof-admissibility, receipt-bundle, quorum, or productionDone completion',
-    'does not create proof-admissibility, receipt-bundle, quorum, authorityDone, fullAuthorityDone, or productionDone',
+    'not local proof-admissibility, receipt-bundle, quorum, or release readiness',
+    'does not create proof-admissibility, receipt-bundle, quorum, retired remote-completion fields, or release readiness',
   ]) {
     assert(handlerText.includes(token), `packages/main/src/handlers/decision-doc-promotion.ts: missing decision-doc promotion contract token ${token}`);
   }
@@ -3385,7 +3392,7 @@ async function assertLifecycleArtifactScopePolicy() {
     'Wave 1 shipped behavior',
     'scope.out_of_scope:src/other.ts',
     'scope.lifecycle_artifact:B-scope:summary.json',
-    'Authority/Layer 4/customer key work remains out of scope for B-997b',
+    'Local-assurance Layer 4/customer key work remains out of scope for B-997b',
   ];
   for (const marker of requiredRoadmapMarkers) {
     if (!roadmapDocText.includes(marker)) {

@@ -613,7 +613,7 @@ export function checkAutopilotPolicy(
   const status: AutopilotPolicyStatus = degradations.length > 0 ? 'supervised' : 'authorized';
   const authorized = status === 'authorized';
   const nextAction = authorized
-    ? `Policy "${policyName}" is authorized for bounded ${normalizedPolicy.mode} autopilot execution. Handlers must still preserve authorityChanged=false, receiptVerified=false, productionDone=false and enforce merge/DONE gates separately.`
+    ? `Policy "${policyName}" is authorized for bounded ${normalizedPolicy.mode} autopilot execution. Handlers must still keep release authority with local lifecycle gates and enforce merge/DONE gates separately.`
     : `Policy "${policyName}" is supervised-only. Choose a conservative local mode before unattended autopilot execution.`;
 
   return {
@@ -655,7 +655,7 @@ function authorityBoundary(): AutopilotPolicyAuthorityBoundary {
     receiptVerified: false,
     productionDone: false,
     mainMergeAuthority: false,
-    note: 'Autopilot policy checks authorize bounded local behavior only; they do not verify production receipts, perform main merges, advance DONE, or certify production completion.',
+    note: 'Autopilot policy checks authorize bounded local behavior only; they do not establish receipt-bundle admissibility, perform main merges, advance DONE, or certify release readiness.',
   };
 }
 
@@ -736,9 +736,9 @@ export function renderAutopilotPolicyCheckText(result: AutopilotPolicyCheckResul
     `mode: ${result.mode}`,
     `authorized: ${result.authorized}`,
     `status: ${result.status}`,
-    `authorityChanged: ${result.authorityChanged}`,
-    `receiptVerified: ${result.receiptVerified}`,
-    `productionDone: ${result.productionDone}`,
+    'admissibilityStatus: local-autopilot-policy-check',
+    'assuranceLevel: local',
+    'evidenceScope: autopilot-policy',
     `localAssuranceRequired: ${result.authorityGate.localAssuranceRequired}`,
     `localAssuranceAcceptedForPolicy: ${result.authorityGate.localAssuranceAcceptedForPolicy}`,
     `mainMergeAuthority: ${result.authorityBoundary.mainMergeAuthority}`,

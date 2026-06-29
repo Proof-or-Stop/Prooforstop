@@ -30,8 +30,8 @@ import type { ChecklistData } from '../core/types.js';
  * All four flag combinations behave correctly. The command NEVER advances phase,
  * launches reviewers, claims Authority, writes verificationEvidence / delivery
  * checks, or ACCEPTS a metadata-only waiver (it may at most surface the waiver
- * path — only the delivery reviewer accepts it). authorityDone/productionDone are
- * hardcoded false.
+ * path — only the delivery reviewer accepts it). It never widens local
+ * assurance or release readiness.
  *
  * The V1 live-smoke readiness row + liveSmokeTranscriptRef artifact are CONSUMED
  * from buildStoryReadinessReport (the same reader lifecycle_check/evidence_plan
@@ -148,7 +148,7 @@ function assertBoundary(args: LiveSmokeTranscriptArgs): void {
   if (rejected.length === 0) return;
   throw new Error(
     `live_smoke_transcript refuses unsupported side effects: ${rejected.join(' and ')}. ` +
-    'live_smoke_transcript never advances a phase, launches reviewers, claims Authority completion, ' +
+    'live_smoke_transcript never advances a phase, launches reviewers, claims release readiness, ' +
     'writes verificationEvidence or delivery checks, or accepts a metadata-only waiver: no story facts were read. ' +
     'Command capture is the explicit --capture="<command>" opt-in (it runs ONLY that one command); persistence is ' +
     'the explicit --write opt-in (ownership/scope gated). Neither implies the other.',
@@ -393,10 +393,10 @@ export function renderLiveSmokeTranscriptReport(report: LiveSmokeTranscriptRepor
     lines.push('', 'Hint: re-run with --write to persist the captured expected-vs-actual transcript.');
   }
 
-  lines.push('', 'Claims:');
-  lines.push(`  authorityDone: ${report.claims.authorityDone}`);
-  lines.push(`  fullAuthorityDone: ${report.claims.fullAuthorityDone}`);
-  lines.push(`  productionDone: ${report.claims.productionDone}`);
+  lines.push('', 'Local assurance:');
+  lines.push('  admissibilityStatus: transcript-context');
+  lines.push('  assuranceLevel: local');
+  lines.push('  evidenceScope: live-smoke-output');
   return lines.join('\n');
 }
 

@@ -69,6 +69,14 @@ export interface ReviewerEvidenceState {
   advisories?: ReviewRunIssue[];
 }
 
+const SUPERSEDED_PASS_ISSUE_CODES = new Set<ReviewRunIssueCode>([
+  'stale_run',
+  'stale_run_hash',
+  'missing_scope_binding',
+  'stale_scope_binding',
+  'scope_binding_tampered',
+]);
+
 export function isReviewRunLane(value: string): value is ReviewRunLane {
   return (REVIEW_RUN_LANES as readonly string[]).includes(value);
 }
@@ -935,7 +943,7 @@ export function collectReviewerEvidenceState(
       .map((evidence) => evidence.id),
   );
   const invalid = rawInvalid.filter((issue) => {
-    if (issue.code !== 'stale_run' && issue.code !== 'stale_run_hash') return true;
+    if (!SUPERSEDED_PASS_ISSUE_CODES.has(issue.code)) return true;
     if (!agentsWithCurrentValidEvidence.has(issue.agent)) return true;
     if (issue.kind === 'pass') return false;
     if (issue.kind === 'finding' && terminalReviewerFindingIds.has(issue.evidenceId)) return false;

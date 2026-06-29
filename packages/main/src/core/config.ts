@@ -165,7 +165,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
   '*': [
     'session_brief', // read-only recovery entrypoint; must work in every phase
     'next',          // read-only single next action, shares session_brief authority rules
-    'done_closure',  // read-only DONE closure projection; local readiness only, no Authority claim
+    'done_closure',  // read-only DONE closure projection; local readiness only
     'lifecycle_check', // read-only proof-or-stop readiness projection; no command execution or evidence writes
     'global_control_status', 'runtime_closure_status', 'admissibility_waterline', 'queue_governance_status', // B-eb18: read-only global lifecycle control plane projections
     'queue_exception_set', // B-eb18: guarded project-level queue exception writer; preserve-only, does not grant readiness
@@ -200,10 +200,10 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'grill_get',     // 全局：读取 PLAN grill planning context；不会写证据
     'summary_set',   // 全局：DONE 前强制落总结，lattice short-path story 也需要
     'verification_evidence_add', 'verification_evidence_batch_add', 'verification_evidence_refresh_stale', // verification evidence is metadata, allowed across phases for reviewer/test handoff
-    'verification_context_pack_create', 'verification_context_pack_expand', // read-only verifier context packets for authority-backed runs
+    'verification_context_pack_create', 'verification_context_pack_expand', // read-only verifier context packets
     'recover_evidence', // B-a2f1 CHK-003: single-shot stale-evidence recovery, safe in any phase (refuses on non-metadata dirt)
     'artifact_declare', // B-cf60: per-story declared product artifact registration, safe in any phase
-    'repro_*', 'spike_*', 'red_green_relation_*', 'regression_matrix_review_set', 'story_create_from_repro', // B-0aa1: candidate-only repro-first intake commands; evidence-candidate scope only, never DONE/Authority/production proof
+    'repro_*', 'spike_*', 'red_green_relation_*', 'regression_matrix_review_set', 'story_create_from_repro', // B-0aa1: candidate-only repro-first intake commands; evidence-candidate scope only, never DONE or release proof
     'capsule_*',   // B-42c0: story handoff projection commands; evidence remains authoritative elsewhere
     'scope_contract_show', 'scope_contract_check', // B-be27: read/check scope contract; mutating commands are phase-scoped below
     'scope_diff_pack', // B-6bfd CHK-002: read-only mechanical diff context pack, useful for verifier context in any phase
@@ -227,7 +227,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'capability_list', // B-f26a M2: read-only host capability diagnostics for cross-host degradation
     'capability_probe', // B-cd31 CHK-002: productized single-host capability diagnostics
     'agent_prompt', // B-097f CHK-002: read-only host-neutral agent prompt endpoint; resolves role body from package registry in any phase
-    'baseline_run', 'baseline_suite', 'baseline_suite_report', 'capability_claim_evaluate', 'capability_claim_formal_evaluate', // B-92e2/B-ce79: baseline artifact/report commands; formal claim still does not mutate lifecycle or production authority
+    'baseline_run', 'baseline_suite', 'baseline_suite_report', 'capability_claim_evaluate', 'capability_claim_formal_evaluate', // B-92e2/B-ce79: baseline artifact/report commands; formal claim still does not mutate lifecycle or release readiness
     'memory_benchmark_*', // B-d4dd/B-2a63: virtual benchmark + real-data export harnesses are read-only in all phases
     'host_*', // Proofbound CLI 0.3.6: host list/probe/install guidance; dry-run/read-only diagnostics only
     'host_runtime_*', // B-106b/B-d674: dispatch runtime readiness probes for fake/codex/claude-code/antigravity
@@ -238,7 +238,6 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'baseline_run', 'baseline_suite', 'baseline_suite_report', // Proofbound baseline execution and suite reporting; writes baseline artifacts only
     'conduit_*', // Proofbound CLI 0.3.6: conduit status/explain; no runner provisioning or authority mutation
     'story_export', // B-cd31 CHK-003: Canonical Story v0 export surface
-    'story_authority_resolve', // B-381e: read-only authority/worktree resolver for observability adapters
     'observability_snapshot', // B-381e: read-only host-neutral observability adapter dry-run
     'handoff_create', 'handoff_inspect', // B-cd31 CHK-004: Proofbound cross-host handoff pack surface
     'handoff_accept', 'handoff_resume', // B-cd31 CHK-005: handoff accept/resume projections without authority mutation

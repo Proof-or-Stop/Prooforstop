@@ -172,7 +172,7 @@ function derivePlanSkeleton(story: StoryInfo, report: StoryReadinessReport): Pla
   const touchpoints = extractPathTouchpoints(story.description || '');
   const readinessFact = readinessSummary(report);
   const constraints = [
-    'plan_skeleton must not advance phase, launch reviewers, run validation commands, write evidence or summaries, refresh hashes, or claim Authority completion.',
+    'plan_skeleton must not advance phase, launch reviewers, run validation commands, write evidence or summaries, refresh hashes, or widen local assurance or release readiness.',
     '--write may persist only through the existing understanding_set and checklist_add handler paths.',
   ];
 
@@ -345,10 +345,10 @@ export function renderPlanSkeletonReport(report: PlanSkeletonReport): string {
   if (report.write.commandsUsed.length > 0) {
     lines.push(`  commandsUsed: ${report.write.commandsUsed.join(', ')}`);
   }
-  lines.push('', 'Claims:');
-  lines.push(`  authorityDone: ${report.claims.authorityDone}`);
-  lines.push(`  fullAuthorityDone: ${report.claims.fullAuthorityDone}`);
-  lines.push(`  productionDone: ${report.claims.productionDone}`);
+  lines.push('', 'Local assurance:');
+  lines.push('  admissibilityStatus: read-only-plan-preview');
+  lines.push('  assuranceLevel: local');
+  lines.push('  evidenceScope: planning-context');
   return lines.join('\n');
 }
 

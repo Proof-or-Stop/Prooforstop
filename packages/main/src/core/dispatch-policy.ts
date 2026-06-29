@@ -271,7 +271,7 @@ function validatePolicyArgs(args: CreateDispatchPolicyArgs): { errors: string[];
 
   const allowProductionDone = args.allowProductionDone ?? false;
   if (allowProductionDone === true) {
-    errors.push('allowProductionDone must be false; productionDone cannot be claimed by unattended execution');
+    errors.push('allowProductionDone must be false; release readiness cannot be claimed by unattended execution');
   } else {
     normalized.allowProductionDone = false;
   }
@@ -399,7 +399,7 @@ export function checkDispatchPolicy(root: string, policy: string | DispatchPolic
   const degradations: string[] = [];
 
   if (policyRecord.allowAutoMerge === true) reasons.push('allowAutoMerge must be false; auto-merge is never permitted');
-  if (policyRecord.allowProductionDone === true) reasons.push('allowProductionDone must be false; productionDone cannot be claimed by unattended execution');
+  if (policyRecord.allowProductionDone === true) reasons.push('allowProductionDone must be false; release readiness cannot be claimed by unattended execution');
   if (policyRecord.requireReceipt === false) reasons.push('requireReceipt must be true; unattended use without a receipt is unsafe');
   if (policyRecord.requireReview === false) reasons.push('requireReview must be true; unattended use without review is unsafe');
   if (policyRecord.allowRealHostSubprocess === true) {
@@ -562,9 +562,9 @@ export function renderDispatchPolicyCheckText(result: DispatchPolicyCheckResult)
     `policy: ${result.policy}`,
     `authorized: ${result.authorized}`,
     `status: ${result.status}`,
-    `authorityChanged: ${result.authorityChanged}`,
-    `receiptVerified: ${result.receiptVerified}`,
-    `productionDone: ${result.productionDone}`,
+    'admissibilityStatus: dispatch-policy-check',
+    `receiptBundleVerified: ${result.receiptVerified}`,
+    'evidenceScope: dispatch-policy',
     `nextAction: ${result.nextAction}`,
   ];
   if (result.reasons.length > 0) {

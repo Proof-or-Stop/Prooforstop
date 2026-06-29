@@ -230,7 +230,7 @@ function renderConfigDoctorText(result: ReturnType<typeof buildConfigDoctor>): s
     `status: ${result.status}`,
     `migration: cliFirst=${result.migration.cliFirst}; macAppRequired=${result.migration.macAppRequired}; macAppRole=${result.migration.macAppRole}; activeCommand=lattice`,
     `versions: root=${result.versions.root ?? 'unreadable'}; main=${result.versions.main ?? 'unreadable'}; expected=${result.versions.expected}`,
-    `authority: productionDone=${result.authority.productionDone}; receiptVerified=${result.authority.receiptVerified}`,
+    `localAssurance: admissibilityStatus=local-only; receiptBundleVerified=${result.authority.receiptVerified}`,
     '',
     'checks:',
     ...result.checks.map(check => `  - ${check.id}: ${check.ok ? 'pass' : 'warn'} — ${check.detail}`),
@@ -462,7 +462,7 @@ export function buildConduitStatus(
     ],
     warnings: [
       'The CLI conduit coordinates diagnostics and handoff projections only.',
-      'It does not provision a new model runner, sign envelopes, verify receipts, or grant production authority.',
+      'It does not provision a new model runner, sign envelopes, verify receipts, or grant release readiness.',
     ],
   };
 }
@@ -478,9 +478,7 @@ function renderConduitStatusText(result: ReturnType<typeof buildConduitStatus>):
     `evidenceScope: ${result.evidenceScope}`,
     `runnerProvisioned: ${result.runnerProvisioned}`,
     `modelRunnerCreated: ${result.modelRunnerCreated}`,
-    `productionDone: ${result.productionDone}`,
-    `receiptVerified: ${result.receiptVerified}`,
-    `authorityChanged: ${result.authorityChanged}`,
+    `receiptBundleVerified: ${result.receiptVerified}`,
   ];
   if (result.readinessWarnings.length > 0) {
     lines.push('', 'readinessWarnings:');

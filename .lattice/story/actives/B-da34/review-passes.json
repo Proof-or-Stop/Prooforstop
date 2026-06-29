@@ -1,0 +1,103 @@
+{
+  "passes": [
+    {
+      "id": "B-da34:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS after F-001..F-004 fixes. Verified npm --prefix packages/main run build; node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js (positive controls, help/catalog scan, active source/process-fact scan, retired story resolver import/specifier rejection); node scripts/verify-process-fact-contract.mjs; node packages/main/dist/tasks/story-authority-resolve-smoke.js; node packages/main/dist/tasks/retired-authority-server-semantics-smoke.js.",
+      "createdAt": "2026-06-29T17:58:08.239Z",
+      "reviewRound": "2026-06-29T17:54:51.740Z",
+      "reviewRunId": "B-da34:RR-010",
+      "_hash": "5258136df9c9d1fdaadef2528cef914886ec29a5b41010770a01e95ab0ac6d00"
+    },
+    {
+      "id": "B-da34:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Quality review pass after F-001..F-004 fixes. Verified compiled CLI help/rendered active command surfaces no longer expose retired Authority Server fields via retired-authority-vocabulary guard and manual help probe. npm --prefix packages/main run build passed. Focused command catalog, observability, resolver quarantine, and process-fact contract checks passed. Non-blocking: git diff --check reports three blank-line-at-EOF whitespace warnings only.",
+      "createdAt": "2026-06-29T17:59:42.341Z",
+      "reviewRound": "2026-06-29T17:54:51.740Z",
+      "reviewRunId": "B-da34:RR-011",
+      "_hash": "d81494bd5542de96b729bb6e7fc5e6fd5cd50d611f16cb59eb6dc19b1fe825e9"
+    },
+    {
+      "id": "B-da34:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: npm --prefix packages/main run build; node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js verified scanner positive controls, generated help/catalog scan, and retired import/specifier rejection; npm run test:process-fact-contract verified process-fact contract.",
+      "createdAt": "2026-06-29T18:16:20.229Z",
+      "reviewRound": "2026-06-29T18:12:21.282Z",
+      "reviewRunId": "B-da34:RR-014",
+      "_hash": "f2af2f3fdb8711e6da450c9cb0c8acc7b9f8031b2b955bd148ba69b489541e66"
+    },
+    {
+      "id": "B-da34:RP-004",
+      "agent": "lattice-review-docs",
+      "note": "PASS: F-001/F-006 fixed. Active README/guide/prompt/handoff/autopilot/delivery-context/plan/canonical/capability text uses local assurance, admissibilityStatus, assuranceLevel, evidenceScope, and release-readiness wording. Focused rg found no remaining production authority/Authority completion/production completion/productionDone=false/receiptVerified=false/authorityChanged=false phrases in the named active surfaces. Build, retired-vocabulary guard, process-fact contract, and command-catalog smoke passed; legacy/internal compatibility fields remain quarantined by the guard.",
+      "createdAt": "2026-06-29T18:17:03.738Z",
+      "reviewRound": "2026-06-29T18:12:21.282Z",
+      "reviewRunId": "B-da34:RR-016",
+      "_hash": "28d0d83fbf66019fbcebce36d74b549cde90826f0c90b585bf1b332c4254dfdd"
+    },
+    {
+      "id": "B-da34:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Concept pass for final fixed B-da34. Verified F-002 and F-005 are resolved with strong fixed evidence; scanner now narrows task quarantine, blocks rendered legacy field lines outside structural quarantine, and includes positive controls for active renderer fields plus retired resolver imports. M1-M5 remain fully covered: checklist is 5/5 done and each milestone has 3/3 passing verification evidence. Commands passed: npm --prefix packages/main run build; node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js; npm run test:process-fact-contract; node packages/main/dist/tasks/command-catalog-smoke.js; lattice scope_contract_check storyId=B-da34.",
+      "createdAt": "2026-06-29T18:17:37.771Z",
+      "reviewRound": "2026-06-29T18:12:21.282Z",
+      "reviewRunId": "B-da34:RR-017",
+      "_hash": "302f6af03f0a9caf25d64c0982e08a3199e147982e884109e28ab8e6f964d071"
+    },
+    {
+      "id": "B-da34:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "No blocking quality findings. Build and focused smokes passed before the fresh binding; only Lattice review/scope metadata changed afterward. F-004 remains resolved: active handoff/autopilot renderers no longer print productionDone/receiptVerified/authorityChanged labels, and the retired-vocabulary guard catches active renderer regressions. git diff --check reports only trailing blank EOF cleanup in three changed files, classified non-blocking.",
+      "createdAt": "2026-06-29T18:17:54.525Z",
+      "reviewRound": "2026-06-29T18:12:21.282Z",
+      "reviewRunId": "B-da34:RR-018",
+      "_hash": "6e9fa36ed1e06efbb243957f47a1ea479a29f9bf3dee59a4665947f95a29be91"
+    },
+    {
+      "id": "B-da34:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "Fresh test-coverage pass after final scanner/docs fixes. Verified build, retired Authority vocabulary guard, process fact contract, command catalog, proof admissibility, and receipt bundle contract. M1-M5 each have 3/3 must intents covered by passing verification evidence; all findings are resolved.",
+      "createdAt": "2026-06-29T18:19:36.216Z",
+      "reviewRound": "2026-06-29T18:12:21.282Z",
+      "reviewRunId": "B-da34:RR-019",
+      "_hash": "c543bbaf9a31739664a93140edf45a6e223eb46c993bc8d91268dcde9d065adf"
+    },
+    {
+      "id": "B-da34:RP-008",
+      "agent": "lattice-review-concept",
+      "note": "Fresh concept pass after scoped review-pass supersession fix. Concept contract remains the same: physical Authority vocabulary retirement, active local assurance wording, no retired command surface, and no weakening of reviewer finding semantics. Verified build, retired vocabulary guard, process-fact contract, command catalog, proof admissibility, receipt bundle, and flow stability.",
+      "createdAt": "2026-06-29T18:24:17.806Z",
+      "reviewRound": "2026-06-29T18:12:21.282Z",
+      "reviewRunId": "B-da34:RR-020",
+      "_hash": "084718966b823ef4151e31ec1cb88d425d39f96a4f474c7cd57b5ca37fe43acb"
+    },
+    {
+      "id": "B-da34:RP-009",
+      "agent": "lattice-review-quality",
+      "note": "Fresh quality pass after scoped review-pass supersession fix. Code change is limited to review-run supersession filtering; open findings remain blocking while stale pass receipts in the same lane are superseded by newer valid pass receipts. Verified build, retired vocabulary guard, process-fact contract, command catalog, proof admissibility, receipt bundle, and flow stability.",
+      "createdAt": "2026-06-29T18:24:28.373Z",
+      "reviewRound": "2026-06-29T18:12:21.282Z",
+      "reviewRunId": "B-da34:RR-021",
+      "_hash": "2a924b62bafde6f2c2510f04fb114b86ecdb2265cf8d75511c0f22c037ea9928"
+    },
+    {
+      "id": "B-da34:RP-010",
+      "agent": "lattice-review-test-coverage",
+      "note": "Fresh test-coverage pass after scoped review-pass supersession fix. Coverage evidence includes build, retired Authority vocabulary guard, process-fact contract, command catalog, proof admissibility, receipt bundle contract, and flow-stability smoke proving stale scoped review passes are superseded without hiding findings.",
+      "createdAt": "2026-06-29T18:24:40.911Z",
+      "reviewRound": "2026-06-29T18:12:21.282Z",
+      "reviewRunId": "B-da34:RR-022",
+      "_hash": "4a2ee4b371a9fef3cf327b0721ae866f492fe4257262cb30887f69e6c163020c"
+    },
+    {
+      "id": "B-da34:RP-011",
+      "agent": "lattice-review-docs",
+      "note": "Fresh docs pass after scoped review-pass supersession fix. Documentation still matches the five-milestone retirement contract: migration contract present, active user-facing wording uses local assurance/admissibility vocabulary, command surface cleanup documented, server-backed Authority surfaces quarantined/removed, scanner gate documented and validated.",
+      "createdAt": "2026-06-29T18:24:51.381Z",
+      "reviewRound": "2026-06-29T18:12:21.282Z",
+      "reviewRunId": "B-da34:RR-023",
+      "_hash": "7a405aaef755a73d053fc22b84566c53119f792abc49717e17818d0350671710"
+    }
+  ]
+}

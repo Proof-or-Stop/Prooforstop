@@ -105,10 +105,10 @@ normalization, signing, validation, and gate consumption.
 - Local Lattice evidence can be proof-admissible when it carries current
   gate-consumed evidence, local review quorum assurance, and signed/offline
   receipt-bundle evidence where required.
-- Do not claim \`receiptVerified\`, \`productionDone\`, \`authorityDone\`, or
-  \`fullAuthorityDone\` from local tests, prompt text, or story metadata alone.
+- Do not claim receipt-bundle admissibility, local assurance acceptance, or
+  release readiness from local tests, prompt text, or story metadata alone.
 - Handoff packs are bounded overflow execution. Story ownership, merge
-  control, DONE control, receipt-bundle submission, and production completion
+  control, DONE control, receipt-bundle submission, and release-admissibility
   claims remain with the local lifecycle gates.
 
 ## Debugging Contract

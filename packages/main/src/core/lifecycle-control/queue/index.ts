@@ -3,7 +3,7 @@ import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync, appendFil
 import { dirname, join } from 'node:path';
 
 import { currentStoryFilesHash } from '../../evidence-freshness.js';
-import { resolveStoryAuthority } from '../../story-authority-resolver.js';
+import { resolveLocalAssuranceStories } from '../../local-assurance-story-projection.js';
 import type { StoryStore } from '../../store.js';
 import type { StoryInfo } from '../../types.js';
 import { getRepoRoot, resolveWorktreePath } from '../../worktree-runtime.js';
@@ -312,8 +312,8 @@ export function projectQueueGovernance(
   const staleWorktreeMs = options.staleWorktreeMs ?? 7 * 24 * 60 * 60 * 1000;
   const mainRepoRoot = getRepoRoot(root);
   const exceptions = explicitExceptionByStory(root);
-  const authority = resolveStoryAuthority(store, root, { activeOnly: true, now });
-  const authorityById = new Map(authority.stories.map((row) => [row.storyId, row]));
+  const localProjection = resolveLocalAssuranceStories(store, root, { activeOnly: true, now });
+  const localProjectionById = new Map(localProjection.stories.map((row) => [row.storyId, row]));
   const activeStories = store.listStoryIds()
     .map((storyId) => {
       try { return store.readStory(storyId); } catch { return null; }
@@ -350,7 +350,7 @@ export function projectQueueGovernance(
   }
 
   const rows = activeStories.map((story) => {
-    const authorityRow = authorityById.get(story.storyId);
+    const projectionRow = localProjectionById.get(story.storyId);
     const explicit = exceptions.get(story.storyId);
     const supersededTarget = supersededBy(story);
     if (malformedExperiment(story)) {
@@ -358,7 +358,7 @@ export function projectQueueGovernance(
         story,
         classification: 'cleanup-required',
         reason: 'malformed Tier-C experiment title does not match the durable exception rule',
-        authoritativeCwd: authorityRow?.authoritativeCwd,
+        authoritativeCwd: projectionRow?.activeCwd,
         cleanupPolicy: 'cleanup-required',
       });
     }
@@ -367,11 +367,11 @@ export function projectQueueGovernance(
         story,
         classification: 'superseded',
         reason: `story is explicitly superseded by ${supersededTarget}`,
-        authoritativeCwd: authorityRow?.authoritativeCwd,
+        authoritativeCwd: projectionRow?.activeCwd,
         cleanupPolicy: 'cleanup-required',
       });
     }
-    if (authorityRow?.authority === 'worktree') {
+    if (projectionRow?.stateSource === 'worktree') {
       const stale = worktreeIsStale(story, root, staleWorktreeMs, Number.isFinite(nowMs) ? nowMs : Date.now());
       return queueRow({
         story,
@@ -381,7 +381,7 @@ export function projectQueueGovernance(
           : explicit
             ? 'authoritative worktree exists; experiment exception metadata is preserved'
             : 'authoritative worktree exists',
-        authoritativeCwd: authorityRow.authoritativeCwd,
+        authoritativeCwd: projectionRow.activeCwd,
         exception: explicit,
       });
     }
@@ -390,7 +390,7 @@ export function projectQueueGovernance(
         story,
         classification: 'duplicate-candidate',
         reason: 'non-experiment duplicate candidate; choose canonical/superseded disposition through story flow',
-        authoritativeCwd: authorityRow?.authoritativeCwd,
+        authoritativeCwd: projectionRow?.activeCwd,
         cleanupPolicy: 'review-required',
       });
     }
@@ -399,7 +399,7 @@ export function projectQueueGovernance(
         story,
         classification: 'experiment-batch-exception',
         reason: 'experiment exception preserves provider-execution receipt verification evidence',
-        authoritativeCwd: authorityRow?.authoritativeCwd,
+        authoritativeCwd: projectionRow?.activeCwd,
         exception: explicit,
       });
     }
@@ -408,14 +408,14 @@ export function projectQueueGovernance(
         story,
         classification: 'main-init',
         reason: 'story is waiting in main before active worktree execution',
-        authoritativeCwd: authorityRow?.authoritativeCwd,
+        authoritativeCwd: projectionRow?.activeCwd,
       });
     }
     return queueRow({
       story,
       classification: 'ready',
       reason: 'ordinary active story queue row',
-      authoritativeCwd: authorityRow?.authoritativeCwd,
+      authoritativeCwd: projectionRow?.activeCwd,
     });
   });
 

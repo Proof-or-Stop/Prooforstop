@@ -101,7 +101,6 @@ import { createLatticeParallelWaveHandlers } from './handlers/lattice-parallel-w
 import { createLatticeBaselineHandlers } from './handlers/lattice-baseline.js';
 import { createLatticeCliHandlers } from './handlers/lattice-cli.js';
 import { createRolloutCheckHandlers } from './handlers/rollout-check.js';
-import { createStoryAuthorityResolveHandlers } from './handlers/story-authority-resolve.js';
 import { createObservabilitySnapshotHandlers } from './handlers/observability-snapshot.js';
 import { createPrewriteGuardHandlers } from './handlers/prewrite-guard.js';
 import { createReleaseHandlers } from './handlers/release.js';
@@ -366,7 +365,6 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   registry.registerBatch(createBaselineSuiteHandlers(ctx));
   registry.registerBatch(createRolloutCheckHandlers(ctx));
   registry.registerBatch(createStoryExportHandlers(ctx));
-  registry.registerBatch(createStoryAuthorityResolveHandlers(ctx));
   registry.registerBatch(createObservabilitySnapshotHandlers(ctx));
   registry.registerBatch(createLatticeHandoffHandlers(ctx));
   registry.registerBatch(createLatticeDispatchHandlers(ctx));

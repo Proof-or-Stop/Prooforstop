@@ -1,27 +1,5 @@
-/**
- * @task B-381e
- * @checklist CHK-001
- * @title machine-readable story authority resolver core
- * @type feature
- * @priority high
- * @description
- *   Resolves the host-neutral authority surface for each active story so UI /
- *   adapter consumers do not have to parse `session_brief` / `status` Markdown
- *   or read backing JSON directly. For every active story it returns the
- *   `authority` (main vs worktree), the `mirrorPhase` recorded in the main
- *   repo, the `authoritativePhase` resolved from the worktree-side StoryStore
- *   when a linked worktree exists, the `authoritativeCwd` adapters should run
- *   subsequent `lattice story_export --format=json` calls from, and the
- *   `worktreePath` link (or null when none exists). Conservative authority
- *   fields (`productionDone` / `receiptVerified` / `authorityChanged`) are
- *   hardcoded `false`: this resolver is L0 read-only and never promotes a
- *   local host result into a production receipt — that path stays gated on
- *   B-2522.
- * @changes
- *   - [CHK-001] Add validator-required changes metadata for the story authority resolver task header.
- */
-
 import { existsSync } from 'node:fs';
+
 import { StoryStore } from './store.js';
 import type { StoryInfo, StoryPhase } from './types.js';
 import {
@@ -31,34 +9,31 @@ import {
   resolveWorktreePath,
 } from './worktree-runtime.js';
 
-export const STORY_AUTHORITY_RESOLVE_SCHEMA_VERSION = 'lattice.story_authority_resolve.v1';
+export const LOCAL_ASSURANCE_STORY_PROJECTION_SCHEMA_VERSION = 'lattice.local_assurance_story_projection.v1';
 
-export type StoryAuthority = 'main' | 'worktree';
+export type StoryStateSource = 'main' | 'worktree';
 
-export interface StoryAuthorityRow {
+export interface LocalAssuranceStoryRow {
   storyId: string;
   title: string;
-  authority: StoryAuthority;
+  stateSource: StoryStateSource;
   mirrorPhase: StoryPhase;
-  authoritativePhase: StoryPhase;
-  authoritativeCwd: string;
+  activePhase: StoryPhase;
+  activeCwd: string;
   worktreePath: string | null;
 }
 
-export interface StoryAuthorityResolveResult {
-  schemaVersion: typeof STORY_AUTHORITY_RESOLVE_SCHEMA_VERSION;
+export interface LocalAssuranceStoryProjection {
+  schemaVersion: typeof LOCAL_ASSURANCE_STORY_PROJECTION_SCHEMA_VERSION;
   readOnly: true;
-  productionDone: false;
-  receiptVerified: false;
-  authorityChanged: false;
   generatedAt: string;
   repoRoot: string;
-  stories: StoryAuthorityRow[];
+  stories: LocalAssuranceStoryRow[];
 }
 
 const TERMINAL_PHASES = new Set<StoryPhase>(['DONE', 'DISCARDED']);
 
-export interface ResolveOptions {
+export interface ResolveLocalAssuranceStoriesOptions {
   /** When true (default), only non-terminal stories are returned. */
   activeOnly?: boolean;
   /** Restrict resolution to specific story ids. */
@@ -67,20 +42,11 @@ export interface ResolveOptions {
   now?: string;
 }
 
-/**
- * Resolve the host-neutral authority view across the active story set.
- *
- * Read-only: never mutates StoryStore data, never spawns runners, never POSTs
- * authority evidence. Worktree state is discovered via `git worktree list` and
- * the per-worktree StoryStore — backing JSON files are NOT read directly by
- * adapters; consumers should drive subsequent reads through the documented L0
- * CLI surface.
- */
-export function resolveStoryAuthority(
+export function resolveLocalAssuranceStories(
   rootStore: StoryStore,
   projectRoot: string,
-  options: ResolveOptions = {},
-): StoryAuthorityResolveResult {
+  options: ResolveLocalAssuranceStoriesOptions = {},
+): LocalAssuranceStoryProjection {
   const repoRoot = getRepoRoot(projectRoot);
   const activeOnly = options.activeOnly !== false;
   const linkedByStoryId = collectLinkedStoryWorktrees(repoRoot);
@@ -89,7 +55,7 @@ export function resolveStoryAuthority(
     ? options.storyIds
     : rootStore.listStoryIds();
 
-  const rows: StoryAuthorityRow[] = [];
+  const rows: LocalAssuranceStoryRow[] = [];
   for (const id of allIds) {
     let mainStory: StoryInfo;
     try {
@@ -105,11 +71,8 @@ export function resolveStoryAuthority(
   rows.sort((a, b) => a.storyId.localeCompare(b.storyId));
 
   return {
-    schemaVersion: STORY_AUTHORITY_RESOLVE_SCHEMA_VERSION,
+    schemaVersion: LOCAL_ASSURANCE_STORY_PROJECTION_SCHEMA_VERSION,
     readOnly: true,
-    productionDone: false,
-    receiptVerified: false,
-    authorityChanged: false,
     generatedAt: options.now ?? new Date().toISOString(),
     repoRoot,
     stories: rows,
@@ -121,7 +84,7 @@ function buildRow(
   mainStory: StoryInfo,
   linkedPath: string | null,
   repoRoot: string,
-): StoryAuthorityRow {
+): LocalAssuranceStoryRow {
   const mirrorPhase = mainStory.phase;
   const recordedAbs = resolveWorktreePath(repoRoot, mainStory.worktree?.path ?? null);
   const recordedForeign = mainStory.worktree?.path
@@ -132,23 +95,23 @@ function buildRow(
   const worktreePath = linkedPath
     ?? (recordedExists ? recordedAbs : null);
 
-  let authority: StoryAuthority = 'main';
-  let authoritativePhase: StoryPhase = mirrorPhase;
-  let authoritativeCwd = repoRoot;
+  let stateSource: StoryStateSource = 'main';
+  let activePhase: StoryPhase = mirrorPhase;
+  let activeCwd = repoRoot;
 
   if (worktreePath) {
-    authority = 'worktree';
-    authoritativeCwd = worktreePath;
-    authoritativePhase = readWorktreePhase(storyId, worktreePath, mirrorPhase);
+    stateSource = 'worktree';
+    activeCwd = worktreePath;
+    activePhase = readWorktreePhase(storyId, worktreePath, mirrorPhase);
   }
 
   return {
     storyId,
     title: mainStory.title,
-    authority,
+    stateSource,
     mirrorPhase,
-    authoritativePhase,
-    authoritativeCwd,
+    activePhase,
+    activeCwd,
     worktreePath,
   };
 }

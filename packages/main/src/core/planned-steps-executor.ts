@@ -721,7 +721,7 @@ function executeRedevelopmentOperation(root: string, op: string, step: PlannedSt
  * Aggregate the redevelopment evidence fields from executed steps. `doneEligible`
  * is intentionally strict: verified target parity AND zero open gaps AND no
  * unavailable adapter. The projection never satisfies it, mirroring how a
- * projected standard run keeps localDone/authorityDone false.
+ * projected standard run keeps local completion and release readiness unset.
  */
 function buildRedevelopmentSummary(jobPlan: JobPlan, steps: PlannedStepExecution[]): RedevelopmentExecutionSummary | undefined {
   if (jobPlan.developmentWorkflow !== 'source_aligned_redevelopment') return undefined;

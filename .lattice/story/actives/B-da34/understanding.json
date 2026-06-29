@@ -1,0 +1,35 @@
+{
+  "task": "Complete the no-discount five-milestone physical removal/quarantine of Authority Server vocabulary, command surfaces, server-backed code/tests, and add hard scanner guard.",
+  "outcome": "After this story, running `lattice help` and the new retired-Authority scanner shows only local assurance/admissibility language on active surfaces, no active Authority Server / authorityDone / fullAuthorityDone / productionDone / LATTICE_AUTHORITY_* usage outside explicit legacy whitelist, and Proofbound CLI still builds and validates as versioned local CLI.",
+  "facts": [
+    "B-576e only retired active Authority Server semantics and did not physically remove or quarantine all Authority code/tests/wording.",
+    "The user explicitly requested five milestones with no discount until DONE.",
+    "Current scans still find Authority Server and productionDone wording in README/docs/help/core/handler/task files.",
+    "Local quorum_submit, proof-admissibility, receipt-bundle, delivery-check, and local lifecycle gates must remain supported."
+  ],
+  "constraints": [
+    "Do not shrink scope from five milestones to active-semantics retirement.",
+    "Do not remove local admissibility/quorum/receipt-bundle/delivery-check features.",
+    "Do not edit paper/experiments/unrelated active stories.",
+    "No remote push or destructive git reset/clean.",
+    "Final validation must include a hard scanner or smoke for retired Authority vocabulary."
+  ],
+  "unknowns": [
+    "Exact set of legacy files that should be allowed in whitelist versus deleted/quarantined needs to be determined by scanning imports and command registry references."
+  ],
+  "touchpoints": [
+    "README.md",
+    "docs/guide.md",
+    "docs/requirements/decisions",
+    ".claude/agents",
+    ".lattice-codex/agents",
+    "packages/main/templates/agents",
+    "packages/main/src/cli",
+    "packages/main/src/core",
+    "packages/main/src/handlers",
+    "packages/main/src/tasks",
+    "scripts",
+    "lattice.config.json"
+  ],
+  "timestamp": "2026-06-29T17:03:29.518Z"
+}
