@@ -90,9 +90,9 @@
       "id": "CHK-002",
       "title": "M2 clean user-facing Authority wording",
       "context": "Update README, guide/docs, agent prompts/templates, CLI help/catalog text, DONE/user-facing output language so active surfaces no longer say Authority Server or productionDone-style no-overclaim wording; use local assurance/admissibility/evidence scope terms instead.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-29T17:43:02.413Z",
       "relatedDocs": [
         "README.md",
         "docs/guide.md",
@@ -136,7 +136,44 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "file": "README.md",
+          "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+          "result": "pass",
+          "note": "Active README/docs/prompts/templates/help surfaces pass the retired-vocabulary guard with local assurance/admissibility wording.",
+          "headHash": "fb83a57fd74520da9fea1068e5d15739bfd5f6ce",
+          "materialHash": "a2c3495831e5b0059e6532f20f5414aff5dd12fecaac023244718033ccf1d0d8",
+          "storyFilesHash": "740a187b34737cdaf4fb43054a84dda9959c78a9ce4032202579a1b2d1edb357",
+          "timestamp": "2026-06-29T17:43:03.256Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+          "result": "pass",
+          "note": "Legacy/migration contexts are permitted only through explicit scanner whitelist; active guidance is blocked if it leaks retired vocabulary.",
+          "headHash": "fb83a57fd74520da9fea1068e5d15739bfd5f6ce",
+          "materialHash": "a2c3495831e5b0059e6532f20f5414aff5dd12fecaac023244718033ccf1d0d8",
+          "storyFilesHash": "740a187b34737cdaf4fb43054a84dda9959c78a9ce4032202579a1b2d1edb357",
+          "timestamp": "2026-06-29T17:43:04.117Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js help | node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+          "result": "pass",
+          "note": "The scanner includes generated help/catalog content, so old wording cannot hide in command descriptions.",
+          "headHash": "fb83a57fd74520da9fea1068e5d15739bfd5f6ce",
+          "materialHash": "a2c3495831e5b0059e6532f20f5414aff5dd12fecaac023244718033ccf1d0d8",
+          "storyFilesHash": "740a187b34737cdaf4fb43054a84dda9959c78a9ce4032202579a1b2d1edb357",
+          "timestamp": "2026-06-29T17:43:04.940Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -300,6 +337,15 @@
       "from": "in_progress",
       "to": "done",
       "reason": "M1 contract added and scanner-backed evidence passed."
+    },
+    {
+      "timestamp": "2026-06-29T17:43:02.413Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "M2 user-facing wording cleaned and scanner-verified."
     }
   ]
 }
