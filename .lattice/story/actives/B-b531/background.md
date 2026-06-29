@@ -8,7 +8,7 @@ The repro review is red-reviewed and classified as target-bug, so this story sta
 
 ## Solution Tradeoffs
 
-Using story_create_from_repro keeps the normal story lifecycle intact while adding a pre-story binding artifact. It avoids pretending candidate evidence is verificationEvidence, DONE evidence, Authority proof, or production proof.
+Using story_create_from_repro keeps the normal story lifecycle intact while adding a pre-story binding artifact. It avoids pretending candidate evidence is verificationEvidence, DONE evidence, retired external proof, or production proof.
 
 ## Conversational Texture
 

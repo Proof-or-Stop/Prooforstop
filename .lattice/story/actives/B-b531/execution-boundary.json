@@ -1,0 +1,54 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-b531",
+  "allowedCommands": [
+    "git *",
+    "lattice *",
+    "node packages/main/dist/tasks/*",
+    "npm --prefix packages/main run build",
+    "npm test -- *",
+    "rg *",
+    "sed *"
+  ],
+  "allowedTools": [
+    "codex-cli",
+    "git",
+    "lattice-cli",
+    "node",
+    "npm",
+    "rg"
+  ],
+  "allowedPaths": [
+    ".lattice/story/actives/B-b531",
+    "bin",
+    "docs/requirements/decisions",
+    "package-lock.json",
+    "package.json",
+    "packages/main/package-lock.json",
+    "packages/main/package.json",
+    "packages/main/src/core",
+    "packages/main/src/handlers",
+    "packages/main/src/tasks"
+  ],
+  "excludedCommands": [
+    "git checkout -- *",
+    "git clean -fd *",
+    "git push *",
+    "git reset --hard *",
+    "omx *",
+    "rm -rf *"
+  ],
+  "excludedTools": [
+    "omx"
+  ],
+  "excludedPaths": [
+    ".omx",
+    "docs/story",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "codex-cli",
+  "confirmationNote": "Execution is scoped to the post-DONE closure/status projection bug. Preserve TEST->DONE strict gate behavior and avoid direct story JSON edits; story metadata only through lattice commands.",
+  "createdAt": "2026-06-29T18:59:51.672Z",
+  "updatedAt": "2026-06-29T18:59:51.672Z",
+  "_hash": "8b190a32683261242b0b79010fadefe8f5d5e095ed0f39dba2f11b91ccf4797b"
+}
