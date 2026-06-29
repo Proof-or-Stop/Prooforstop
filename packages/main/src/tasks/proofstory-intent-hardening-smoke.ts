@@ -130,6 +130,9 @@ try {
     computeIntentRequestHash(sourceText, ['REQ-001']),
     'requestHash is derived from sourceText and stable keyRequirementIds',
   );
+  const storedSnapshot = jsonRun(root, 'original_intent_snapshot_get', { storyId });
+  assert.equal(storedSnapshot.requestHash, snapshot.requestHash, 'original_intent_snapshot_get reads the stored snapshot');
+  assert.equal(storedSnapshot.acceptanceClaim, snapshot.acceptanceClaim, 'snapshot get preserves the acceptance claim');
   const immutable = run(root, 'original_intent_snapshot_set', {
     storyId,
     sourceText: `${sourceText}\nchanged`,
@@ -158,6 +161,23 @@ try {
   });
   const ledger = jsonRun(root, 'milestone_ledger_set', { storyId, milestones });
   assert.equal(ledger.milestones.length, 5, 'five milestone rows are machine-countable');
+  const appendedLedger = jsonRun(root, 'milestone_ledger_add', {
+    storyId,
+    milestone: {
+      id: 'M6',
+      sourceRequirementId: 'REQ-001',
+      claim: 'Milestone add appends a sixth row',
+      doneMeans: 'milestone_ledger_get returns the appended row',
+      requiredEvidence: ['verificationIntent'],
+      checklistRefs: ['CHK-001'],
+      verificationIntentRefs: ['CHK-001:happy:0'],
+      status: 'covered',
+    },
+  });
+  assert.equal(appendedLedger.milestones.length, 6, 'milestone_ledger_add appends a row');
+  const storedLedger = jsonRun(root, 'milestone_ledger_get', { storyId });
+  assert.equal(storedLedger.milestones.length, 6, 'milestone_ledger_get reads set plus appended rows');
+  assert.ok(storedLedger.milestones.some((row: any) => row.id === 'M6'), 'stored ledger includes appended milestone');
 
   coverage = jsonRun(root, 'intent_coverage_check', { storyId, dryRun: true });
   assert.equal(coverage.missingMilestoneCoverage.length, 0, 'covered ledger rows clear milestone coverage gaps');
