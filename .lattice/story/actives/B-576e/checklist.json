@@ -234,9 +234,9 @@
           "packages/main/src/tasks/retired-authority-server-semantics-smoke.ts"
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-29T01:04:55.661Z",
       "relatedDocs": [
         "docs/evidence/evidence-platform-architecture.md",
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
@@ -261,7 +261,20 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/retired-authority-server-semantics-smoke.js",
+          "result": "pass",
+          "note": "Added retired Authority Server semantics guard with negative self-check for reintroduced active command/alias/server-receipt wording.",
+          "headHash": "0d72cf72530c3571e977aa6b2301cae7a56289b4",
+          "materialHash": "f3f14650d7fde940592eb514b2733ec03a19db99186f12565538a8a8b44aa2cc",
+          "storyFilesHash": "fe187328ca35303232c34b0b2fb8b1d48d740ea431cb80d64bd06c966e36f942",
+          "timestamp": "2026-06-29T01:04:56.583Z"
+        }
+      ]
     },
     {
       "id": "CHK-006",
