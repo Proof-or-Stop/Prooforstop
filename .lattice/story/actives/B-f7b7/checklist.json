@@ -293,7 +293,43 @@
       "userSees": "Risk-triggered stories can require red evidence while ordinary new features remain lightweight.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/cli/command-catalog.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "red_evidence_create/get records failing-before evidence for triggered bug, regression, behavior-change, security/auth/session, and benchmark claims.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Docs-only and ordinary new-feature stories are not forced to provide red evidence by default.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A passing green test is not accepted as red evidence unless the artifact proves a failing-before observation.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-008",
