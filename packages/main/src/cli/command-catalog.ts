@@ -65,6 +65,26 @@ const READ_ONLY_STATUS_UNSUPPORTED_FLAGS = {
   refresh: z.never().optional().describe('Not a flag; status commands refresh nothing. Passing --refresh is rejected by CLI validation.'),
 } satisfies Record<string, z.ZodType>;
 
+const proofStoryMilestoneSchema = z.object({
+  id: z.string().min(1).describe('Stable milestone id, for example M1.'),
+  sourceRequirementId: z.string().min(1).describe('Original intent key requirement id this milestone derives from.'),
+  claim: z.string().min(1).describe('Milestone claim.'),
+  doneMeans: z.string().min(1).describe('Observable completion rule.'),
+  requiredEvidence: z.array(z.string()).optional().describe('Evidence kinds expected for this milestone.'),
+  checklistRefs: z.array(z.string()).optional().describe('Checklist item ids that deliver this milestone.'),
+  verificationIntentRefs: z.array(z.string()).optional().describe('Verification intent refs covering this milestone.'),
+  status: z.enum(['planned', 'covered', 'done', 'not_applicable']).optional().describe('Milestone coverage status.'),
+});
+
+const proofStoryAcceptanceBindingSchema = z.object({
+  id: z.string().min(1).describe('Stable acceptance binding id.'),
+  acceptanceClaim: z.string().min(1).optional().describe('Acceptance claim this binding covers; defaults to the original intent snapshot claim by convention.'),
+  checklistRefs: z.array(z.string()).optional().describe('Checklist item ids bound to this acceptance claim.'),
+  verificationIntentRefs: z.array(z.string()).optional().describe('Verification intent refs bound to this acceptance claim.'),
+  milestoneIds: z.array(z.string()).optional().describe('Milestone ids bound to this acceptance claim.'),
+  note: z.string().optional().describe('Reviewer-visible note.'),
+});
+
 /** CLI tool definitions bundled with main. */
 export const MAIN_TOOLS: ToolDef[] = [
   // Story
@@ -1988,6 +2008,65 @@ Behavior:
     protectedFiles: z.array(z.string()).optional().describe('Files that must not change'),
     explicitExcludes: z.array(z.string()).optional().describe('Files explicitly out of scope'),
     scopeChangeReason: z.string().optional().describe('Reason recorded on the generated contract'),
+  }},
+  // B-7287 M0-M2: ProofStory progressive intent hardening MVP.
+  { name: 'original_intent_snapshot_set', description: 'Persist the immutable Intent MVP source snapshot for a story', schema: {
+    storyId: z.string().describe('Story ID'),
+    sourceText: z.string().min(1).describe('Original user request text.'),
+    normalizedOutcome: z.string().min(1).describe('Observable outcome expected by the user.'),
+    acceptanceClaim: z.string().min(1).describe('Single claim that proves the normalized outcome.'),
+    keyRequirementIds: z.array(z.string().min(1)).optional().describe('Stable requirement ids included in requestHash; defaults to REQ-001.'),
+    json: z.boolean().optional().describe('Output structured JSON.'),
+  }},
+  { name: 'original_intent_snapshot_get', description: 'Read the story original intent snapshot', schema: {
+    storyId: z.string().describe('Story ID'),
+    json: z.boolean().optional().describe('Output structured JSON.'),
+  }},
+  { name: 'milestone_ledger_set', description: 'Replace the story milestone ledger for multi-deliverable intent', schema: {
+    storyId: z.string().describe('Story ID'),
+    milestones: z.array(proofStoryMilestoneSchema).describe('Machine-countable milestone rows.'),
+    json: z.boolean().optional().describe('Output structured JSON.'),
+  }},
+  { name: 'milestone_ledger_add', description: 'Append one milestone row to the story milestone ledger', schema: {
+    storyId: z.string().describe('Story ID'),
+    milestone: proofStoryMilestoneSchema.optional().describe('Milestone row to append.'),
+    id: z.string().optional().describe('Stable milestone id when not passing milestone.'),
+    sourceRequirementId: z.string().optional().describe('Source requirement id when not passing milestone.'),
+    claim: z.string().optional().describe('Milestone claim when not passing milestone.'),
+    doneMeans: z.string().optional().describe('Observable completion rule when not passing milestone.'),
+    requiredEvidence: z.array(z.string()).optional().describe('Evidence kinds expected for this milestone.'),
+    checklistRefs: z.array(z.string()).optional().describe('Checklist item ids that deliver this milestone.'),
+    verificationIntentRefs: z.array(z.string()).optional().describe('Verification intent refs covering this milestone.'),
+    status: z.enum(['planned', 'covered', 'done', 'not_applicable']).optional().describe('Milestone coverage status.'),
+    json: z.boolean().optional().describe('Output structured JSON.'),
+  }},
+  { name: 'milestone_ledger_get', description: 'Read the story milestone ledger', schema: {
+    storyId: z.string().describe('Story ID'),
+    json: z.boolean().optional().describe('Output structured JSON.'),
+  }},
+  { name: 'proofstory_contract_set', description: 'Persist the minimal ProofStory diagnostic envelope (no gate enforcement)', schema: {
+    storyId: z.string().describe('Story ID'),
+    acceptanceBindings: z.array(proofStoryAcceptanceBindingSchema).optional().describe('Minimal acceptance-to-checklist/verificationIntent bindings for diagnostics.'),
+    note: z.string().optional().describe('Diagnostic envelope note.'),
+    json: z.boolean().optional().describe('Output structured JSON.'),
+  }},
+  { name: 'proofstory_contract_get', description: 'Read the minimal ProofStory diagnostic envelope', schema: {
+    storyId: z.string().describe('Story ID'),
+    json: z.boolean().optional().describe('Output structured JSON.'),
+  }},
+  { name: 'intent_collision_get', description: 'Read-only diagnostic view of any existing intent collision artifact', schema: {
+    storyId: z.string().describe('Story ID'),
+    json: z.boolean().optional().describe('Output structured JSON.'),
+  }},
+  { name: 'intent_coverage_check', description: 'Dry-run ProofStory intent coverage diagnostics; writes nothing', schema: {
+    storyId: z.string().describe('Story ID'),
+    dryRun: z.boolean().describe('Must be true in M0-M2; this command writes nothing.'),
+    json: z.boolean().optional().describe('Output structured JSON.'),
+  }},
+  { name: 'proofstory_gate_check', description: 'Dry-run ProofStory gate diagnostics; not wired to story_advance', schema: {
+    storyId: z.string().describe('Story ID'),
+    dryRun: z.boolean().describe('Must be true in M0-M2; this command writes nothing and enforces nothing.'),
+    json: z.boolean().optional().describe('Output structured JSON.'),
   }},
   { name: 'guard_session_start', description: 'Start (or restart) a Proofbound-managed scope-guard session projection for a story', schema: {
     storyId: z.string().describe('Story ID'),

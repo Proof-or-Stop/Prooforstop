@@ -85,6 +85,7 @@ import { createVerificationContextPackHandlers } from './handlers/verification-c
 import { createCapsuleHandlers } from './handlers/capsule.js';
 import { createScopeAntiExpansionHandlers } from './handlers/scope-anti-expansion.js';
 import { createScopeContractHandlers } from './handlers/scope-contract.js';
+import { createProofStoryHandlers } from './handlers/proofstory.js';
 import { createGuardSessionHandlers } from './handlers/guard-session.js';
 import { createDevMemoryHandlers } from './handlers/dev-memory.js';
 import { createReproIntakeHandlers } from './handlers/repro-intake.js';
@@ -323,6 +324,9 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
 
   // B-be27: scope contract — scope_contract_set/show/check/acknowledge
   registry.registerBatch(createScopeContractHandlers(ctx));
+
+  // B-7287 M0-M2: ProofStory progressive intent hardening diagnostics only.
+  registry.registerBatch(createProofStoryHandlers(ctx));
 
   // B-6bfd CHK-004: guard session projection — guard_session_start/status/check
   registry.registerBatch(createGuardSessionHandlers(ctx));

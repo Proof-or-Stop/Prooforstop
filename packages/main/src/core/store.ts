@@ -9,7 +9,8 @@ import type {
   DeclaredArtifactsData, ScopeContractData, GuardSessionData, ReviewLoopRecord,
   ScopeBoundaryData, ExecutionBoundaryData, ScopeFreezeCheckData, DoneRequiredEvidenceData,
   ScopeExtensionProposalData, ScopeExtensionDecisionData, ScopeDiscardDigestData,
-  DecisionDocProposalFile,
+  DecisionDocProposalFile, OriginalIntentSnapshotData, MilestoneLedgerData,
+  ProofStoryContractData, IntentCollisionData,
 } from './types.js';
 import { REVIEW_LOOP_FILENAME } from './review-loop.js';
 import { CAPSULE_DIR_NAME, type StoryCapsuleData, type StoryCapsuleRunData } from './story-capsule.js';
@@ -646,6 +647,56 @@ export class StoryStore {
 
   writeScopeContract(storyId: string, data: ScopeContractData): void {
     this.writeJson(storyId, 'scope-contract.json', data);
+  }
+
+  // ── ProofStory intent hardening diagnostic artifacts (B-7287 M0-M2) ──
+
+  readOriginalIntentSnapshot(storyId: string): OriginalIntentSnapshotData | null {
+    try {
+      return this.readJson<OriginalIntentSnapshotData>(storyId, 'original-intent-snapshot.json');
+    } catch (e) {
+      if (e instanceof StoryArtifactMissingError) return null;
+      throw e;
+    }
+  }
+
+  writeOriginalIntentSnapshot(storyId: string, data: OriginalIntentSnapshotData): void {
+    this.writeJson(storyId, 'original-intent-snapshot.json', data);
+  }
+
+  readMilestoneLedger(storyId: string): MilestoneLedgerData | null {
+    try {
+      return this.readJson<MilestoneLedgerData>(storyId, 'milestone-ledger.json');
+    } catch (e) {
+      if (e instanceof StoryArtifactMissingError) return null;
+      throw e;
+    }
+  }
+
+  writeMilestoneLedger(storyId: string, data: MilestoneLedgerData): void {
+    this.writeJson(storyId, 'milestone-ledger.json', data);
+  }
+
+  readProofStoryContract(storyId: string): ProofStoryContractData | null {
+    try {
+      return this.readJson<ProofStoryContractData>(storyId, 'proofstory.json');
+    } catch (e) {
+      if (e instanceof StoryArtifactMissingError) return null;
+      throw e;
+    }
+  }
+
+  writeProofStoryContract(storyId: string, data: ProofStoryContractData): void {
+    this.writeJson(storyId, 'proofstory.json', data);
+  }
+
+  readIntentCollision(storyId: string): IntentCollisionData | null {
+    try {
+      return this.readJson<IntentCollisionData>(storyId, 'intent-collision.json');
+    } catch (e) {
+      if (e instanceof StoryArtifactMissingError) return null;
+      throw e;
+    }
   }
 
   // ── Guard Session (B-6bfd CHK-004: scope-guard projection, NOT a write authority) ──
