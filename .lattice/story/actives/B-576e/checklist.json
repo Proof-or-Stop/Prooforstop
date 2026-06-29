@@ -496,6 +496,17 @@
           "materialHash": "e22df0e49e952b799e14ea39d336dbd2200df2dbe8d2db1df445a0d5ae4b4ced",
           "storyFilesHash": "dbd8abe0b9889944c73880362619217cf659e4d29c9f010ac7427f137752be74",
           "timestamp": "2026-06-29T01:03:49.123Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/cli.js --version",
+          "result": "pass",
+          "note": "CLI reports Proofbound CLI 0.3.106 after runtime behavior changes and version-file updates.",
+          "headHash": "93c4499f5b677d08fa2aae1d503f9decb74600e4",
+          "materialHash": "610d953adcd6dae8ec4af50dcadc186594f4d7c265d5c982db95f8863e0a8ce7",
+          "storyFilesHash": "41d2e25f8c8979249dcd99e7bf334d1ee24feba5d655bb726433d77c5c46651c",
+          "timestamp": "2026-06-29T01:47:42.138Z"
         }
       ]
     }
