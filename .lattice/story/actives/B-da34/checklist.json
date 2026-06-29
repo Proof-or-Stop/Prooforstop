@@ -207,7 +207,47 @@
       "context": "Add a hard scanner/smoke that fails if active core code or active docs contain Authority Server, authorityDone, fullAuthorityDone, productionDone, or LATTICE_AUTHORITY_* outside explicit legacy/migration whitelist. This scanner must be part of validation so DONE cannot pass with drift.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "relatedDocs": [
+        "docs/requirements/decisions/authority-server-vocabulary-retirement.md",
+        "lattice.config.json"
+      ],
+      "userSees": "User sees the retired-Authority scanner pass in validation and fail closed for active banned vocabulary outside the legacy whitelist.",
+      "files": {
+        "modify": [
+          "lattice.config.json",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "create": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The retired-Authority scanner passes current active docs/code/help/catalog and is included in configured validation.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Legacy whitelist/migration docs are permitted only by explicit path/section rules and remain visible in scanner output.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Positive-control samples for Authority Server, authorityDone, fullAuthorityDone, productionDone, LATTICE_AUTHORITY_*, and active authority_* command exposure are rejected.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
