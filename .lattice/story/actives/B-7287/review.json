@@ -57,6 +57,24 @@
         }
       ],
       "_hash": "71c0ce29ac3dbe0e416a2354940fa627125bf6b63416d3b19c8293d0aca58813"
+    },
+    {
+      "timestamp": "2026-06-29T18:00:52.465Z",
+      "issueCount": 2,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 checklist items; please check for missing combined scenarios (e.g., what happens when Add original intent snapshot and milestone ledger commands + Add minimal ProofStory diagnostic envelope storage are performed simultaneously?)"
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-7287 is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "a328d1d57248defb9393c8de8187c8252da811be273c5499d6407c2b3f628923"
     }
   ]
 }
