@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-29T02:17:55.724Z",
       "reviewRunId": "B-576e:RR-011",
       "_hash": "effe904f6a70a893f09cdfb03d8e45bf7e42c8b3daff458ecd6b8d675dd8016d"
+    },
+    {
+      "id": "B-576e:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "PASS: Targeted concept review of lattice.config.json after 5b88c0f13. Routine validation no longer invokes retired authority-client-smoke or authority-completion-smoke; lattice.config.json:12-13 now runs retired-authority-server-semantics-smoke and capability-list-smoke. The retired semantics smoke rejects active Authority Server commands, receipt wording, and positive productionDone/authorityDone claims. Capability-list smoke asserts proofAdmissibility=local-only, receiptBundleVerification=signed-offline-local, reviewQuorum=local, and local-assurance-required receipt-verify degradations. Existing validation still includes receipt-bundle-contract-smoke and gate-strength-contract-smoke for offline/tamper-evident local assurance. Targeted smokes passed.",
+      "createdAt": "2026-06-29T02:20:23.869Z",
+      "reviewRound": "2026-06-29T02:17:55.724Z",
+      "reviewRunId": "B-576e:RR-013",
+      "_hash": "eb917ff93ec4ed1757a7a5e6d25e3de843b0d7995afa358648601447e5793b6f"
     }
   ]
 }
