@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-29T02:05:03.593Z",
       "reviewRunId": "B-576e:RR-008",
       "_hash": "f5cac250ffc51544165593ad34487979c86ca762cd999af401cd728990c85eba"
+    },
+    {
+      "id": "B-576e:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "ROUND 2 targeted re-review for B-576e:F-001: PASS. Verified built worktree runtime no longer exports Authority Server receipt/server production completion semantics. Evidence: npm --prefix packages/main run build; node packages/main/dist/tasks/retired-authority-server-semantics-smoke.js; node packages/main/dist/tasks/proof-admissibility-smoke.js; node packages/main/dist/tasks/receipt-bundle-contract-smoke.js; node packages/main/dist/tasks/command-catalog-smoke.js; node packages/main/dist/cli.js help/authority_status checks; module summaries for buildCapabilityList, buildLatticeHostList, buildAutopilotRun/buildAutopilotStatus. Capabilities now report productionDoneRequiresReceipt=false, proofAdmissibility=local-only, receiptBundleVerification=signed-offline-local, reviewQuorum=local; server receipt-verify is unavailable/retired; host authority projection keeps productionDone=false and receiptVerified=false; autopilot mode normalizes to local with authorityRequired=false, receiptRequired=false, receipt.verified=false, authorityDone/fullAuthorityDone/multiHostVerified=false, and next action points to proof admissibility, receipt-bundle validation, and quorum_submit. Built CLI help no longer lists retired authority_* commands and authority_status is unknown. Remaining matches are negative/fail-closed or legacy/out-of-core classifiers, not active production completion exports.",
+      "createdAt": "2026-06-29T02:08:58.296Z",
+      "reviewRound": "2026-06-29T02:05:03.593Z",
+      "reviewRunId": "B-576e:RR-009",
+      "_hash": "2ca36e5fd28719b35174df241d1a60e2088d079384790fe7d748c9c24ce74d7c"
     }
   ]
 }
