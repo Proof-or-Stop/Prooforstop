@@ -163,7 +163,7 @@
         "docs/evidence/evidence-platform-architecture.md",
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
       ],
-      "userSees": "User sees build and local proof smokes pass after server-backed Authority client/runner/receipt-gate code and smokes are deleted or quarantined.",
+      "userSees": "User sees: `authority quarantine scan: PASS server-backed runtime imports=0; local proof smokes=PASS`.",
       "files": {
         "modify": [
           "packages/main/src/core",
