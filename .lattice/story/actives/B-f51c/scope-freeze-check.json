@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-f51c",
+  "checkedAt": "2026-06-29T21:02:10.693Z",
+  "mode": "maintenance",
+  "status": "pass",
+  "scopeBoundaryHash": "0735ac2cd0db22951a3929fc16ef06718ba297d69132323071fff935ecb4c431",
+  "executionBoundaryHash": "1b8b1c9b5b2c57cb9bf82308dee714ab2e515a242945d5e1cb1a6355b0e5684a",
+  "freshnessHash": "89abe269dc3a2fa1734cca15d8761d12b5cc52c16ebf98053b585b31fa08a9d9",
+  "effectiveExcludedKeywords": [
+    "Create scheduler, unattended, or autopilot orchestration code.",
+    "Implement CLI commands or runtime gates.",
+    "Modify package sources, tests, dist output, prompts outside the target decision document, or .omx artifacts."
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Create scheduler, unattended, or autopilot orchestration code.",
+      "source": "scopeBoundary.excluded",
+      "text": "Create scheduler, unattended, or autopilot orchestration code.",
+      "excluded": true
+    },
+    {
+      "keyword": "Implement CLI commands or runtime gates.",
+      "source": "scopeBoundary.excluded",
+      "text": "Implement CLI commands or runtime gates.",
+      "excluded": true
+    },
+    {
+      "keyword": "Modify package sources, tests, dist output, prompts outside the target decision document, or .omx artifacts.",
+      "source": "scopeBoundary.excluded",
+      "text": "Modify package sources, tests, dist output, prompts outside the target decision document, or .omx artifacts.",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "d0007d0c8d33b1e2c65fc61caf0a7c3b34edb2ac1ac515ebef9db142246b59a9"
+}
