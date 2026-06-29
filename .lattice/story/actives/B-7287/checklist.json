@@ -570,9 +570,9 @@
         "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md#Milestones"
       ],
       "userSees": "User sees \"M0 Documentation: [done]; M1 Intent artifacts: [done]; M2 Dry-run diagnostics: [done]\" only after those rows are verified.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-29T18:20:34.553Z",
-      "endTime": null,
+      "endTime": "2026-06-29T18:20:42.246Z",
       "files": {
         "modify": [
           ".lattice/story/actives/B-7287/checklist.json"
@@ -602,7 +602,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "command": "final response in current Codex turn",
+          "result": "pass",
+          "note": "Final response includes a M0-M2 milestone completion table with checkmarks only for verified completed rows.",
+          "headHash": "3e6ea76c1a70ea8ee860ccce9900091207643e7e",
+          "materialHash": "e5bb97e65caacfbde791b927f1553d731dd9cc2304dd2d3cec5c09a65ce7f0c1",
+          "storyFilesHash": "31e1979864c72376492fb87f2b9d68f97f10cc2bf031b689b4641f62a3c620f2",
+          "timestamp": "2026-06-29T18:20:42.519Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "manual_transcript",
+          "command": "final response in current Codex turn",
+          "result": "pass",
+          "note": "All rows marked complete are backed by committed implementation and final HEAD verification; no unverified rows are marked complete.",
+          "headHash": "3e6ea76c1a70ea8ee860ccce9900091207643e7e",
+          "materialHash": "e5bb97e65caacfbde791b927f1553d731dd9cc2304dd2d3cec5c09a65ce7f0c1",
+          "storyFilesHash": "31e1979864c72376492fb87f2b9d68f97f10cc2bf031b689b4641f62a3c620f2",
+          "timestamp": "2026-06-29T18:20:42.774Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "final response in current Codex turn",
+          "result": "pass",
+          "note": "Final response explicitly states M3-M9, red/spike authoring, DONE equivalence enforcement, REVIEW completeness lane, and risk-adaptive enforce are not completed in this M0-M2 batch.",
+          "headHash": "3e6ea76c1a70ea8ee860ccce9900091207643e7e",
+          "materialHash": "e5bb97e65caacfbde791b927f1553d731dd9cc2304dd2d3cec5c09a65ce7f0c1",
+          "storyFilesHash": "31e1979864c72376492fb87f2b9d68f97f10cc2bf031b689b4641f62a3c620f2",
+          "timestamp": "2026-06-29T18:20:43.054Z"
+        }
+      ]
     }
   ]
 }
