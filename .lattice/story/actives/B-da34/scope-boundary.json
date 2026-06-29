@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-da34",
+  "mode": "maintenance",
+  "allowed": [
+    ".claude/agents, .lattice-codex/agents, packages/main/templates/agents prompt assets",
+    ".lattice/story/actives/B-da34 story metadata and evidence",
+    "docs/requirements/decisions migration/retirement document for Authority vocabulary",
+    "package/version/build files if CLI behavior changes",
+    "packages/main/src/cli command catalog/help/schemas and lattice.config.json validation command surface",
+    "packages/main/src/core, packages/main/src/handlers, packages/main/src/tasks server-backed authority code/test removal or quarantine",
+    "README.md and active docs/guide user-facing Proofbound wording",
+    "scripts validation scanners and process-fact contract updates"
+  ],
+  "excluded": [
+    "experiments recovery/paper datasets",
+    "paper or manuscript content",
+    "remote push/release publishing",
+    "unrelated active stories or Tier-C experiment stories",
+    "unrelated provider migration work"
+  ],
+  "confirmedBy": "codex-main",
+  "confirmationNote": "User explicitly requested all five milestones with no discount until DONE: vocabulary freeze, user-facing cleanup, command surface cleanup, code/test removal, and final hard scanner guard. Scope shrinkage to active-semantics retirement is not allowed.",
+  "createdAt": "2026-06-29T17:02:17.173Z",
+  "updatedAt": "2026-06-29T17:02:17.173Z",
+  "_hash": "b6ac08501cc29073cc40ecc8959fc60c2e8d4717a237e6f48f408554ef3eabd8"
+}

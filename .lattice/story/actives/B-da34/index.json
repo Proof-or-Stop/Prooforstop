@@ -4,7 +4,7 @@
   "title": "Physical removal of Authority Server vocabulary and code surfaces",
   "description": "Original user intent: complete all five milestones without discount until DONE. M1 Vocabulary freeze. M2 User-facing cleanup. M3 Command surface cleanup. M4 Code/test removal. M5 Final guard.",
   "type": "refactor",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "riskSignals": [
     {
@@ -24,6 +24,20 @@
       "user": "Harmonygo",
       "sessionId": "sess-b18a39eca7a7951f",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-29T17:02:53.950Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-b18a39eca7a7951f",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-da34",
+    "branch": "story/B-da34",
+    "createdAt": "2026-06-29T17:02:53.323Z"
+  }
 }

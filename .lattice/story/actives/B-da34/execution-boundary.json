@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-da34",
+  "allowedCommands": [
+    "git add *",
+    "git commit *",
+    "git diff*",
+    "git log*",
+    "git status*",
+    "lattice *",
+    "node packages/main/dist/cli.js *",
+    "node packages/main/dist/tasks/*",
+    "npm --prefix packages/main run build",
+    "npm run test:process-fact-contract",
+    "rg *",
+    "tsc *"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "codex",
+    "git",
+    "lattice",
+    "node",
+    "npm",
+    "rg"
+  ],
+  "allowedPaths": [
+    ".claude/agents",
+    ".lattice-codex/agents",
+    ".lattice/story/actives/B-da34",
+    "docs/guide.md",
+    "docs/requirements/decisions",
+    "lattice.config.json",
+    "package.json",
+    "packages/main/package-lock.json",
+    "packages/main/package.json",
+    "packages/main/src",
+    "packages/main/src/cli",
+    "packages/main/src/core",
+    "packages/main/src/handlers",
+    "packages/main/src/tasks",
+    "packages/main/templates/agents",
+    "README.md",
+    "scripts"
+  ],
+  "excludedCommands": [
+    "git checkout -- *",
+    "git clean -fd*",
+    "git push*",
+    "git reset --hard*",
+    "omx *",
+    "rm -rf *"
+  ],
+  "excludedTools": [
+    "omx"
+  ],
+  "excludedPaths": [
+    ".omx",
+    "experiments/recovery-runner",
+    "paper"
+  ],
+  "confirmedBy": "codex-main",
+  "confirmationNote": "Execution boundary for no-discount five-milestone Authority physical removal. No remote publish and no destructive reset/clean. All validation stays local.",
+  "createdAt": "2026-06-29T17:02:32.804Z",
+  "updatedAt": "2026-06-29T17:02:32.804Z",
+  "_hash": "1f1fcab94a86def9f995fc39f93bf5514dcc0e9b2d048e38e6e8101a6c017a51"
+}
