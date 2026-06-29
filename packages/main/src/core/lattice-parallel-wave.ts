@@ -1125,7 +1125,7 @@ function authorityBoundary(hosts: ParallelWaveHostCandidate[]): ParallelWaveAuth
       'Parallel Wave is collection-level scheduling and recovery guidance only; it does not mutate story authority, verify receipts, or satisfy DONE.',
       blockedHosts.length > 0
         ? `Local assurance remains incomplete for hosts without available receipt-bundle verification (${blockedHosts.join(', ')}).`
-        : 'Receipt-bundle-capable hosts still need proof admissibility and local review quorum before any integration; no productionDone claim is made.',
+        : 'Receipt-bundle-capable hosts still need proof admissibility and local review quorum before any integration; no release readiness claim is made.',
     ],
   };
 }
@@ -1263,7 +1263,7 @@ export function buildParallelPlan(wave: LatticeParallelWave): LatticeParallelPla
       blockedStories.length > 0
         ? `Resolve active dependencies or explicit blockers before DEV: ${blockedStories.join(', ')}.`
         : 'No dependency-blocked stories in this wave.',
-      'Rerun normal Proofbound validation and require verified receipts before claiming productionDone.',
+      'Rerun normal Proofbound validation and require verified receipts before claiming release readiness.',
     ],
   };
 }

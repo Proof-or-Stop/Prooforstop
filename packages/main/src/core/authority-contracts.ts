@@ -464,7 +464,9 @@ export function prepareEvidenceEnvelopeForSigning(
 // describe the request/response shapes for POSTing an EvidenceEnvelopeContract
 // to the cross-repo Python authority server (verification-context-pack.md is the
 // shared truth source). Kept intentionally minimal: only the single + batch
-// evidence submission shapes that authority-client.ts needs.
+// Legacy quarantine: these evidence submission shapes were originally used by
+// the retired server-backed client path. Active consumers use the shared
+// contract types for local verifier context and receipt-bundle metadata only.
 // ===========================================================================
 
 // ===========================================================================
@@ -695,7 +697,7 @@ export function isAuthorityBatchFullyAccepted(
 // ===========================================================================
 // Legacy/out-of-core run-event upload contract — POST /v1/runs/{runId}/events
 //
-// Mirrors the provider-events envelope shape (authority-runner-contracts.ts) but
+// Legacy quarantine: mirrors the old provider-events envelope shape, but
 // for the executor's command / validation / repair / summary / completion events.
 // Kept self-contained here (an allowed file) rather than extending the runner
 // header so the executor evidence/gate loop has one typed surface to import.

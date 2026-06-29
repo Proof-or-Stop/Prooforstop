@@ -34,7 +34,7 @@
  * review-runs.json / review-passes.json / findings.json or any evidence, NEVER
  * advances phase / launches reviewers / claims Authority / signs delivery. There
  * is NO --write/--launch/--run flag (pure read-only, mirroring P3 evidence_plan).
- * authorityDone / productionDone are hardcoded false. The orchestrator spawns the
+ * retired completion fields are hardcoded false. The orchestrator spawns the
  * reviewer subagents from this plan; a CLI cannot spawn them.
  */
 
@@ -140,7 +140,7 @@ function wantsJson(args: ReviewerBatchArgs): boolean {
 /**
  * Fail closed BEFORE any store read. reviewer_batch is a strictly read-only PLAN
  * producer: it launches no reviewer, runs no command, writes no evidence /
- * metadata, advances no phase, and never claims Authority completion. Any flag
+ * metadata, advances no phase, and never claims release readiness. Any flag
  * that would imply launching a reviewer, running a command, writing evidence,
  * advancing the lifecycle, or claiming Authority is rejected up front. There is
  * NO --write/--launch/--run path (the orchestrator spawns reviewer subagents
@@ -250,9 +250,10 @@ export function renderReviewerBatchReport(report: ReviewerBatchReport): string {
     }
   }
 
-  lines.push('', 'Claims:');
-  lines.push(`  authorityDone: ${report.claims.authorityDone}`);
-  lines.push(`  productionDone: ${report.claims.productionDone}`);
+  lines.push('', 'Local assurance:');
+  lines.push('  admissibilityStatus: reviewer-launch-preview');
+  lines.push('  assuranceLevel: local');
+  lines.push('  evidenceScope: review-readiness');
   return lines.join('\n');
 }
 

@@ -280,10 +280,10 @@ export function renderEvidenceRefreshReport(
     lines.push('', 'apply: not requested (dry preview). Re-run with --apply to perform ONE refresh pass.');
   }
 
-  lines.push('', 'Claims:');
-  lines.push(`  authorityDone: ${report.claims.authorityDone}`);
-  lines.push(`  fullAuthorityDone: ${report.claims.fullAuthorityDone}`);
-  lines.push(`  productionDone: ${report.claims.productionDone}`);
+  lines.push('', 'Local assurance:');
+  lines.push('  admissibilityStatus: refresh-preview');
+  lines.push('  assuranceLevel: local');
+  lines.push('  evidenceScope: verification-evidence');
   return lines.join('\n');
 }
 

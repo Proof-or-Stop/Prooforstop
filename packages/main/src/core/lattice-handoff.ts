@@ -7,8 +7,8 @@ import { loadConfig } from './config.js';
 import { changedFilesBetween, checkEvidenceFreshnessForGit, currentGitHead } from './evidence-freshness.js';
 import { resolveProjectGitCwd } from './story-signed-workspace-resolution.js';
 import { buildLatticeHostStatus, type LatticeHostStatus } from './lattice-hosts.js';
+import { resolveLocalAssuranceStories, type LocalAssuranceStoryRow } from './local-assurance-story-projection.js';
 import { phaseRank } from './phase-flow.js';
-import { resolveStoryAuthority, type StoryAuthorityRow } from './story-authority-resolver.js';
 import type { StoryStore } from './store.js';
 import {
   buildHandoffAdmissibilitySummary,
@@ -443,7 +443,7 @@ function buildAuthorityBoundary(summary?: string): HandoffAuthorityBoundary {
     noProductionDoneClaim: true,
     summary: normalizedSummary,
     notes: [
-      'Hosts execute bounded tasks only; they do not become production authority.',
+      'Hosts execute bounded tasks only; they do not become release readiness.',
       'Do not auto-merge, auto-trust, or submit authority evidence from overflow output.',
       'Manual review in the owning Proofbound worktree remains required before merge or DONE.',
     ],
@@ -506,7 +506,7 @@ function defaultExecutionInstructions(input: HandoffPackHashInput): string[] {
     input.deniedPaths && input.deniedPaths.length > 0
       ? `Do not edit these paths: ${input.deniedPaths.join(', ')}.`
       : 'Treat all non-listed files as denied by default.',
-    'Do not auto-merge, auto-trust, submit evidence, verify receipts, or claim productionDone.',
+    'Do not auto-merge, auto-trust, submit evidence, verify receipts, or claim release readiness.',
     'Return a local diagnostic receipt so the main agent can review scope, freshness, and merge manually.',
   ];
   return normalizeOrderedStrings(instructions);
@@ -563,7 +563,7 @@ function normalizeHandoffPack(value: HandoffPack): HandoffPack {
 }
 
 /**
- * Pure projection: given a resolved story-authority row, return a
+ * Pure projection: given a resolved local story row, return a
  * PhaseAuthorityWarning when a linked worktree holds a phase that differs from
  * the main-mirror phase, otherwise undefined. No I/O, no git, fully testable.
  */
@@ -579,8 +579,8 @@ export function buildPhaseAuthorityWarning(row: {
   const ahead = authoritativeRank >= 0 && mirrorRank >= 0 && authoritativeRank > mirrorRank;
   const relation: PhaseAuthorityWarning['relation'] = ahead ? 'ahead' : 'divergent';
   const message = ahead
-    ? `Authoritative worktree phase ${row.authoritativePhase} is ahead of the packed mirror phase ${row.mirrorPhase}. This pack reflects the lagging main-branch mirror (baseSha is main HEAD), so the resuming host is pointed at the stale phase. Review the live worktree before resuming.`
-    : `Authoritative worktree phase ${row.authoritativePhase} diverges from the packed mirror phase ${row.mirrorPhase}. This pack reflects the main-branch mirror; review the live worktree before resuming.`;
+    ? `Active worktree phase ${row.authoritativePhase} is ahead of the packed mirror phase ${row.mirrorPhase}. This pack reflects the lagging main-branch mirror (baseSha is main HEAD), so the resuming host is pointed at the stale phase. Review the live worktree before resuming.`
+    : `Active worktree phase ${row.authoritativePhase} diverges from the packed mirror phase ${row.mirrorPhase}. This pack reflects the main-branch mirror; review the live worktree before resuming.`;
   return {
     kind: 'phase-authority',
     mirrorPhase: row.mirrorPhase,
@@ -592,8 +592,8 @@ export function buildPhaseAuthorityWarning(row: {
 }
 
 /**
- * Resolve the phase-authority warning for a story without ever failing pack
- * creation: any resolver error (no git, detached store, etc.) yields no
+ * Resolve the phase warning for a story without ever failing pack creation:
+ * any projection error (no git, detached store, etc.) yields no
  * warning rather than an exception.
  */
 function resolvePhaseAuthorityWarning(
@@ -602,10 +602,14 @@ function resolvePhaseAuthorityWarning(
   storyId: string,
 ): PhaseAuthorityWarning | undefined {
   try {
-    const resolved = resolveStoryAuthority(store, root, { storyIds: [storyId], activeOnly: false });
-    const row: StoryAuthorityRow | undefined = resolved.stories.find(r => r.storyId === storyId);
+    const resolved = resolveLocalAssuranceStories(store, root, { storyIds: [storyId], activeOnly: false });
+    const row: LocalAssuranceStoryRow | undefined = resolved.stories.find(r => r.storyId === storyId);
     if (!row) return undefined;
-    return buildPhaseAuthorityWarning(row);
+    return buildPhaseAuthorityWarning({
+      mirrorPhase: row.mirrorPhase,
+      authoritativePhase: row.activePhase,
+      worktreePath: row.worktreePath,
+    });
   } catch {
     return undefined;
   }
@@ -877,7 +881,7 @@ export function buildHandoffResumeProjection(
       `Resume ${storyId} from recovery point ${recoveryPoint.id} at phase ${recoveryPoint.phase}.`,
       'Keep the overflow host inside the bounded path/objective scope carried by the pack.',
       'Rerun target-host validation before recording new verification evidence.',
-      'Require main-agent review plus a verified receipt path before any productionDone claim.',
+      'Require main-agent review plus a verified receipt path before any release readiness claim.',
     ],
     evidenceRefresh: {
       performed: false,
@@ -1221,7 +1225,7 @@ export function buildHostDispatchProjection(
     warnings: [
       ...hostStatus.warnings,
       ...(planned
-        ? ['Supervised dispatch never auto-trusts output, auto-merges diffs, submits evidence, verifies receipts, or claims productionDone.']
+        ? ['Supervised dispatch never auto-trusts output, auto-merges diffs, submits evidence, verifies receipts, or claims release readiness.']
         : []),
     ],
     admissibilitySummary: pack.admissibilitySummary,
@@ -1254,9 +1258,11 @@ export function renderHandoffInspectionText(inspection: HandoffInspection): stri
     `evidenceRefs: ${inspection.evidenceRefs.length}`,
     `capabilityDeltas: ${inspection.capabilityDeltaCount}`,
     `blockingDegradations: ${inspection.blockingDegradationCount}`,
-    `productionDone: ${inspection.productionDone}`,
+    'admissibilityStatus: handoff-inspection',
+    'assuranceLevel: local',
+    'evidenceScope: handoff-context',
     `receiptRefs: ${inspection.receiptRefs.length}`,
-    `handoffCanManufactureProductionDone: ${inspection.authority.handoffCanManufactureProductionDone}`,
+    `handoffCanWidenLocalAssurance: ${inspection.authority.handoffCanManufactureProductionDone}`,
     `recoveryPoint: ${inspection.recoveryPoint.id}`,
     ...(inspection.phaseAuthorityWarning
       ? [`⚠ phaseAuthority (${inspection.phaseAuthorityWarning.relation}): ${inspection.phaseAuthorityWarning.message}`]
@@ -1276,8 +1282,9 @@ export function renderHandoffAcceptText(projection: HandoffAcceptProjection): st
     `acceptedByHost: ${projection.acceptedByHost}`,
     `phase: ${projection.recoveryPoint.phase}`,
     `evidenceRefs: ${projection.evidenceRefs.length}`,
-    `authorityChanged: ${projection.authorityChanged}`,
-    `productionDone: ${projection.productionDone}`,
+    'admissibilityStatus: handoff-accepted-local',
+    'assuranceLevel: local',
+    'evidenceScope: handoff-context',
     `receiptRefs: ${projection.receiptRefs.length}`,
     `recoveryPoint: ${projection.recoveryPoint.id}`,
   ].join('\n');
@@ -1295,8 +1302,9 @@ export function renderHandoffResumeText(projection: HandoffResumeProjection): st
     `resumeHost: ${projection.resumeHost}`,
     `phase: ${projection.recoveryPoint.phase}`,
     `evidenceRefs: ${projection.evidenceRefs.length}`,
-    `authorityChanged: ${projection.authorityChanged}`,
-    `productionDone: ${projection.productionDone}`,
+    'admissibilityStatus: handoff-resume',
+    'assuranceLevel: local',
+    'evidenceScope: handoff-context',
     `receiptRefs: ${projection.receiptRefs.length}`,
     `recoveryPoint: ${projection.recoveryPoint.id}`,
     `nextActions: ${projection.nextActions.length}`,

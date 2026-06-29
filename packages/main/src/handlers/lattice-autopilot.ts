@@ -174,9 +174,9 @@ function renderFallback(title: string, result: unknown): string {
   if (mode) lines.push(`mode: ${mode}`);
   const status = readStringFact(result, 'status');
   if (status) lines.push(`status: ${status}`);
-  lines.push(`authorityChanged: ${readBooleanFact(result, 'authorityChanged')}`);
-  lines.push(`receiptVerified: ${readBooleanFact(result, 'receiptVerified')}`);
-  lines.push(`productionDone: ${readBooleanFact(result, 'productionDone')}`);
+  lines.push('admissibilityStatus: local-autopilot-diagnostic');
+  lines.push(`receiptBundleVerified: ${readBooleanFact(result, 'receiptVerified')}`);
+  lines.push('evidenceScope: autopilot-metadata');
   const nextAction = readStringFact(result, 'nextAction');
   if (nextAction) lines.push(`nextAction: ${nextAction}`);
   return lines.join('\n');

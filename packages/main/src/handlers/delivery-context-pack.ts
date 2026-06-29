@@ -35,7 +35,7 @@ import type { ChecklistData } from '../core/types.js';
  * and NEVER accepts or rejects a metadata-only waiver (those are the delivery
  * reviewer's exclusive job). It NEVER runs a command (runCommands=false), advances
  * phase, launches reviewers, claims Authority, or writes verificationEvidence.
- * authorityDone/fullAuthorityDone/productionDone are hardcoded false.
+ * retired completion fields are hardcoded false.
  */
 
 const READINESS_TARGET = 'DONE' as const;
@@ -427,11 +427,11 @@ export function renderDeliveryContextPackReport(report: DeliveryContextPackRepor
     lines.push('', 'Hint: pass --write to persist this pack to <storyDir>/evidence/delivery-context-pack.json (ownership/scope gated). This command never signs the delivery check.');
   }
 
-  lines.push('', 'Claims:');
+  lines.push('', 'Local assurance:');
   lines.push(`  isSigner: ${report.isSigner}`);
-  lines.push(`  authorityDone: ${report.claims.authorityDone}`);
-  lines.push(`  fullAuthorityDone: ${report.claims.fullAuthorityDone}`);
-  lines.push(`  productionDone: ${report.claims.productionDone}`);
+  lines.push('  admissibilityStatus: delivery-context');
+  lines.push('  assuranceLevel: local');
+  lines.push('  evidenceScope: delivery-review-input');
   return lines.join('\n');
 }
 

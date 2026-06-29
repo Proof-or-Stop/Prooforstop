@@ -11,7 +11,7 @@
  *   resolution across absent, matching, stale, full-asset, and debug-override
  *   cases.
  *   This smoke only covers prompt asset resolution and the local
- *   Non-authority boundary; it does not claim any Authority Server completion.
+ *   Local-assurance boundary; it does not claim release completion.
  * @changes
  *   - Keep the anchor on prompt asset resolution only and remove the false
  *     `requirementsDir` coverage claim.

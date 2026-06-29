@@ -63,8 +63,9 @@ local evidence only.
 
 ## Host Overflow
 
-Proofbound Host Overflow is manual-first; Proofbound keeps story/scope/receipt
-authority; Claude Code is an execution host, not a production authority.
+Proofbound Host Overflow is manual-first; Proofbound keeps story, scope,
+receipt review, and merge responsibility; Claude Code is an execution host, not
+a release-readiness oracle.
 
 Use the overflow surfaces like this:
 
@@ -89,13 +90,13 @@ The contract is conservative by design:
   projected isolated worktree when scaffold creation succeeds, or returns
   `failed` with a diagnostic `nextAction` when `git worktree add` cannot create
   that scaffold. It never auto-drives the external host, verifies receipts, or
-  claims `productionDone=true`.
+  upgrades the result beyond local assurance.
 - `overflow_auto` is a guarded wrapper around dispatch selection. By default it
   is suggest-only. It only materializes a dispatch when **both**
   `approve=true` and `start=true` are present; either flag by itself stays in
   suggest-only mode with an explicit warning.
-- Local receipts remain diagnostic-only. Even on `accepted-local`,
-  `receiptVerified=false` and `productionDone=false` remain.
+- Local receipts remain diagnostic-only. Even on `accepted-local`, they do not
+  become admissible gate evidence without the matching local assurance records.
 
 ### Unattended dispatch: `dispatch_auto` (policy-authorized)
 
@@ -121,7 +122,7 @@ lattice dispatch_policy_create --policy=nightly-safe \
   --network=none --commandAllowlist='node -e "process.exit(0)"' \
   --allowRealHostSubprocess=false \
   --requireReceipt=true --requireReview=true \
-  --allowAutoMerge=false --allowProductionDone=false
+  --allowAutoMerge=false
 
 lattice dispatch_policy_check --policy=nightly-safe --format=json
 
@@ -144,7 +145,7 @@ lattice dispatch_cancel --dispatchId=D-B-xxxx-1234 --format=json
 # 6. Review transcripts, diffs, receipts, and runner evidence
 lattice dispatch_review --dispatchId=D-B-xxxx-1234 --format=json
 
-# 7. Merge manually — dispatch completion is NOT production authority
+# 7. Merge manually — dispatch completion is not release readiness
 lattice dispatch_merge_plan --dispatchId=D-B-xxxx-1234 --format=json
 ```
 
@@ -163,7 +164,7 @@ If you are currently using `overflow_auto` and want unattended workers, migrate
 to `dispatch_auto` with an explicit policy. The `overflow_auto` `nextAction`
 field will point you to `dispatch_auto` as the policy-authorized path.
 
-**Unattended mode remains user-authorized and authority-safe:**
+**Unattended mode remains user-authorized and local-assurance-safe:**
 
 - `host_runtime_probe.unattendedSafe` is intentionally conservative and remains
   `false`; `dispatch_auto` is the component that combines policy authorization,
@@ -172,11 +173,11 @@ field will point you to `dispatch_auto` as the policy-authorized path.
   starting work. Real subprocess launch in v1.0.1 is Claude Code only and
   requires `allowRealHostSubprocess=true`.
 - Worker output is evidence only. `dispatch_review` surfaces transcripts, diffs,
-  receipts, and runner metadata as **evidence candidates**, not as gate authority.
+  receipts, and runner metadata as **evidence candidates**, not as gate proof.
 - `dispatch_merge_plan` is always `manualOnly=true` — dispatch completion never
-  auto-merges, auto-DONEs, or claims `productionDone=true`.
-- All authority fields remain fixed: `productionDone=false`,
-  `receiptVerified=false`, `authorityChanged=false`.
+  auto-merges, auto-DONEs, or widens local assurance.
+- Dispatch outputs remain diagnostic until local proof-admissibility,
+  receipt-bundle, and review-quorum evidence are present.
 
 ### Local Autopilot And Proof Admissibility
 
@@ -201,7 +202,7 @@ lattice dispatch_policy_create --policy=fake-dispatch \
   --maxParallel=2 --maxRuntimeMinutes=10 --maxBudgetUSD=5 \
   --network=none --commandAllowlist='node -e "process.exit(0)"' \
   --requireReceipt=true --requireReview=true \
-  --allowAutoMerge=false --allowProductionDone=false
+  --allowAutoMerge=false
 
 lattice autopilot policy create --policy=fake \
   --dispatchPolicy=fake-dispatch \
@@ -234,14 +235,14 @@ before any worker is started.
 Host-native delegation is execution-only. A delegated Claude Code, Antigravity,
 Codex, or fake host receives a bounded pack/prompt shape and returns transcript,
 changed-file, command, and local diagnostic receipt data for review. Those local
-diagnostic receipts do not imply `receiptVerified=true` or `productionDone=true`.
+diagnostic receipts do not establish local gate admissibility by themselves.
 Local proof admissibility comes from fresh, scoped, gate-consumed evidence and
 local quorum/review records, not from an active receipt server.
 
 Merge and conflict handling stay outside autopilot. `autopilot_review` may
 surface a manual merge plan, changed files, conflicts, or resume guidance, but it
-must not run `git merge`, clean up the story worktree, advance DONE, or claim
-`productionDone=true`. If a bounded local autopilot run hits a conflict, stale
+must not run `git merge`, clean up the story worktree, advance DONE, or widen
+local assurance. If a bounded local autopilot run hits a conflict, stale
 base, denied path, missing evidence, or exhausted bound, it stops and reports the
 manual next action.
 
@@ -250,8 +251,8 @@ Architecture and non-goals:
 
 ### Local Proof Admissibility
 
-Authority Server modes and server-backed receipt commands are retired from the
-active Proofbound CLI. The active vocabulary is:
+Server-backed authority modes and receipt commands are retired from the active
+Proofbound CLI. The active vocabulary is:
 
 - `admissibilityStatus`
 - `assuranceLevel`
@@ -290,8 +291,8 @@ Mode contract:
 `autopilot_run` is dry-run by default. A default invocation only returns a plan
 and is treated as read-only by the command policy. Passing `--dryRun=false` may
 append a story-scoped `autopilot_projection` process event, but that event is
-not lifecycle gate evidence, does not execute providers, and cannot claim
-`productionDone`.
+not lifecycle gate evidence, does not execute providers, and cannot widen local
+assurance.
 
 `autopilot_execute` is the true bounded executor loop. It requires `--storyId`
 for non-dry-run execution, runs only argv-mapped Proofbound commands, appends a

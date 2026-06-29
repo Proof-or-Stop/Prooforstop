@@ -804,7 +804,7 @@ export function probeHostRuntime(host: string): HostRuntimeProbe {
       limitations: [
         'Deterministic local test harness only.',
         'Produces local diagnostic receipts only.',
-        'Never verifies receipts, changes authority, or claims productionDone.',
+        'Never verifies receipts, changes authority, or claims release readiness.',
       ],
       warnings: [],
       nextAction: 'Ready for deterministic local dispatch_prepare/dispatch_run coverage in an isolated overflow worktree.',

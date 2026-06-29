@@ -998,7 +998,7 @@ function buildDelegationContract(mode: AutopilotMode): AutopilotDelegationContra
     receipt: {
       expectation: mode === 'authority-verified' // legacy retired mode.
         ? 'Authority-verified mode is retired; local autopilot requires local proof-admissibility and review quorum evidence before any integration discussion.'
-        : 'A host local receipt is diagnostic only and must be reviewed manually; it cannot claim productionDone or replace DONE authority.',
+        : 'A host local receipt is diagnostic only and must be reviewed manually; it cannot claim release readiness or replace DONE authority.',
     },
     transcript: {
       expectation: 'The host-native runner must provide a transcript path and the transcript must exist before the run can leave needs_receipt.',
@@ -1124,7 +1124,7 @@ function classifyLocalAssuranceEvidenceCandidate(candidate: unknown, required: b
       source: 'local-admissibility',
       receiptRef: shape.receiptRef,
       missing: [],
-      nextAction: 'Local admissibility evidence is present. Continue to manual review; this autopilot still will not auto-merge, auto-DONE, or claim productionDone.',
+      nextAction: 'Local admissibility evidence is present. Continue to manual review; this autopilot still will not auto-merge, auto-DONE, or claim release readiness.',
     };
   }
 
@@ -2054,9 +2054,9 @@ export function renderAutopilotRunText(record: AutopilotRunRecord): string {
     `status: ${record.status}`,
     ...(record.dispatchId ? [`dispatchId: ${record.dispatchId}`] : []),
     ...(record.stopReason ? [`stopReason: ${record.stopReason}`] : []),
-    `authorityChanged: false`,
-    `receiptVerified: false`,
-    `productionDone: false`,
+    'admissibilityStatus: autopilot-run-record',
+    'assuranceLevel: local',
+    'evidenceScope: autopilot-run-metadata',
     `localAssuranceRequired: ${record.authority.localAssuranceRequired}`,
     `localAssuranceVerified: ${record.authority.localAssuranceVerified}`,
     `nextAction: ${record.nextAction}`,

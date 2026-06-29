@@ -256,9 +256,10 @@ export function renderEvidencePlanReport(report: EvidencePlanReport): string {
   bucketSection('refresh-only', report.buckets.refreshOnly);
   bucketSection('fresh', report.buckets.fresh);
 
-  lines.push('', 'Claims:');
-  lines.push(`  authorityDone: ${report.claims.authorityDone}`);
-  lines.push(`  productionDone: ${report.claims.productionDone}`);
+  lines.push('', 'Local assurance:');
+  lines.push('  admissibilityStatus: read-only-evidence-plan');
+  lines.push('  assuranceLevel: local');
+  lines.push('  evidenceScope: verification-planning');
   return lines.join('\n');
 }
 

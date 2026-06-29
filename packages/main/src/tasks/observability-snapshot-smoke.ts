@@ -7,12 +7,12 @@
  * @priority high
  * @description
  *   Focused smoke for the host-neutral observability snapshot adapter. Drives
- *   `buildObservabilitySnapshot` directly with a stub resolver result so the
+ *   `buildObservabilitySnapshot` directly with a stub local projection so the
  *   smoke does not depend on real linked worktrees, then exercises the
  *   `observability_snapshot` handler to confirm the same JSON contract is
- *   surfaced. Asserts schema version, read-only authority boundary, presence
+ *   surfaced. Asserts schema version, read-only local assurance boundary, presence
  *   of every section, and that the adapter routes per-row reads through the
- *   resolver's `authoritativeCwd` instead of the repo root.
+ *   projection row's active cwd instead of the repo root.
  * @changes
  *   - [CHK-001] Use validator-accepted task type metadata for the observability snapshot smoke.
  *   - [CHK-002] Add validator-required changes metadata for convergence checking.
@@ -30,9 +30,9 @@ import {
 import { resetConfigCache } from '../core/config.js';
 import { StoryStore } from '../core/store.js';
 import {
-  STORY_AUTHORITY_RESOLVE_SCHEMA_VERSION,
-  type StoryAuthorityResolveResult,
-} from '../core/story-authority-resolver.js';
+  LOCAL_ASSURANCE_STORY_PROJECTION_SCHEMA_VERSION,
+  type LocalAssuranceStoryProjection,
+} from '../core/local-assurance-story-projection.js';
 import type {
   ChecklistData,
   StoryInfo,
@@ -133,56 +133,51 @@ function seedDoneStory(store: StoryStore): void {
   store.writeReview('B-done', { reviews: [] });
 }
 
-function makeResolverResult(): StoryAuthorityResolveResult {
+function makeProjectionResult(): LocalAssuranceStoryProjection {
   return {
-    schemaVersion: STORY_AUTHORITY_RESOLVE_SCHEMA_VERSION,
+    schemaVersion: LOCAL_ASSURANCE_STORY_PROJECTION_SCHEMA_VERSION,
     readOnly: true,
-    productionDone: false,
-    receiptVerified: false,
-    authorityChanged: false,
     generatedAt: NOW,
     repoRoot: '/tmp/observability-smoke-repo',
     stories: [
       {
         storyId: 'B-active',
         title: 'Active observability snapshot story',
-        authority: 'worktree',
+        stateSource: 'worktree',
         mirrorPhase: 'INIT_CHECK',
-        authoritativePhase: 'DEV',
-        authoritativeCwd: '/tmp/observability-smoke-worktree/B-active',
+        activePhase: 'DEV',
+        activeCwd: '/tmp/observability-smoke-worktree/B-active',
         worktreePath: '/tmp/observability-smoke-worktree/B-active',
       },
       {
         storyId: 'B-done',
         title: 'Locally-DONE observability story',
-        authority: 'main',
+        stateSource: 'main',
         mirrorPhase: 'DONE',
-        authoritativePhase: 'DONE',
-        authoritativeCwd: '/tmp/observability-smoke-repo',
+        activePhase: 'DONE',
+        activeCwd: '/tmp/observability-smoke-repo',
         worktreePath: null,
       },
     ],
   };
 }
 
-function assertReadOnlyAuthority(snapshot: LatticeObservabilitySnapshot): void {
+function assertReadOnlyLocalAssurance(snapshot: LatticeObservabilitySnapshot): void {
   assert.equal(snapshot.schemaVersion, OBSERVABILITY_SNAPSHOT_SCHEMA_VERSION);
   assert.equal(snapshot.schemaVersion, 'lattice.observability_snapshot.v1');
   assert.equal(snapshot.readOnly, true);
-  assert.equal(snapshot.authority.productionDone, false);
-  assert.equal(snapshot.authority.receiptVerified, false);
-  assert.equal(snapshot.authority.authorityChanged, false);
-  assert.equal(snapshot.resolverSchemaVersion, STORY_AUTHORITY_RESOLVE_SCHEMA_VERSION);
-  assert.equal(snapshot.resolver.productionDone, false);
-  assert.equal(snapshot.resolver.receiptVerified, false);
-  assert.equal(snapshot.resolver.authorityChanged, false);
+  assert.equal(snapshot.localAssurance.admissibilityStatus, 'local-only');
+  assert.equal(snapshot.localAssurance.assuranceLevel, 'local-observation');
+  assert.equal(snapshot.localAssurance.evidenceScope, 'read-only-observability');
+  assert.equal(snapshot.projectionSchemaVersion, LOCAL_ASSURANCE_STORY_PROJECTION_SCHEMA_VERSION);
+  assert.equal(snapshot.projection.readOnly, true);
   for (const row of snapshot.sections.storyBoard) {
-    assert.equal(row.productionDone, false, `storyBoard row ${row.storyId} must report productionDone=false`);
+    assert.equal(row.releaseReady, false, `storyBoard row ${row.storyId} must remain read-only local observation`);
     assert.notEqual(row.tier, 'legacy-receipt', `storyBoard row ${row.storyId} must not claim legacy-receipt without verified evidence`);
   }
   for (const row of snapshot.sections.capabilityMatrix) {
-    assert.equal(row.receiptVerifyAvailable, false);
-    assert.equal(row.productionDoneBlocked, true);
+    assert.equal(row.receiptBundleVerificationAvailable, false);
+    assert.equal(row.localAssuranceRequired, true);
   }
 }
 
@@ -207,33 +202,33 @@ try {
   seedActiveStory(store);
   seedDoneStory(store);
 
-  const resolverResult = makeResolverResult();
+  const projectionResult = makeProjectionResult();
 
   // Worker B never spins up a real linked worktree in this smoke. Inject a
-  // resolver result that points each row at the same temp project root via a
+  // projection result that points each row at the same temp project root via a
   // storeFactory override, and capture which cwds the adapter opens so we can
-  // prove the snapshot routes per-row reads through `authoritativeCwd`.
+  // prove the snapshot routes per-row reads through each row's active cwd.
   const openedCwds: string[] = [];
   const storeFactory = (cwd: string): StoryStore => {
     openedCwds.push(cwd);
     // For the smoke we reuse the same temp project root; the assertion below
-    // only proves the adapter asked for the resolver's cwd, not that it read
+    // only proves the adapter asked for the projection cwd, not that it read
     // a real worktree (M1 scope).
     return store;
   };
 
   const snapshot = buildObservabilitySnapshot(store, root, {
-    resolver: resolverResult,
+    projection: projectionResult,
     storeFactory,
     now: NOW,
   });
 
-  assertReadOnlyAuthority(snapshot);
+  assertReadOnlyLocalAssurance(snapshot);
   assertSectionsShape(snapshot);
-  assert.equal(snapshot.sections.storyBoard.length, 2, 'injected resolver yields two storyBoard rows');
+  assert.equal(snapshot.sections.storyBoard.length, 2, 'injected projection yields two storyBoard rows');
 
   assert.equal(snapshot.generatedAt, NOW);
-  assert.equal(snapshot.resolver, resolverResult, 'snapshot embeds the resolver result it consumed');
+  assert.equal(snapshot.projection, projectionResult, 'snapshot embeds the projection result it consumed');
 
   const ladder = snapshot.sections.authorityLadder;
   assert.equal(ladder.legacyReceipt.count, 0, 'no story carries verified receipt evidence');
@@ -242,69 +237,69 @@ try {
   assert.deepEqual(ladder.localEvidence.storyIds, ['B-active', 'B-done']);
   assert.equal(ladder.inFlight.count, 1, 'only the active story counts as in-flight');
   assert.deepEqual(ladder.inFlight.storyIds, ['B-active']);
-  assert.equal(ladder.productionDoneGap, 1, 'locally-DONE story exposes the productionDone gap');
+  assert.equal(ladder.localAssuranceGap, 1, 'locally-DONE story exposes the local assurance gap');
 
   // Per-row adapter behavior: the storeFactory must be called for each row's
-  // authoritativeCwd, and storyBoard entries must mirror the resolver fields.
+  // active cwd, and storyBoard entries must mirror the projection fields.
   assert.deepEqual(
     openedCwds.sort(),
     ['/tmp/observability-smoke-repo', '/tmp/observability-smoke-worktree/B-active'].sort(),
-    'adapter opens StoryStore for every resolver row using its authoritativeCwd',
+    'adapter opens StoryStore for every projection row using its active cwd',
   );
   const activeEntry = snapshot.sections.storyBoard.find(row => row.storyId === 'B-active');
   assert.ok(activeEntry, 'B-active storyBoard entry');
-  assert.equal(activeEntry.authority, 'worktree');
-  assert.equal(activeEntry.authoritativePhase, 'DEV');
+  assert.equal(activeEntry.stateSource, 'worktree');
+  assert.equal(activeEntry.activePhase, 'DEV');
   assert.equal(activeEntry.mirrorPhase, 'INIT_CHECK');
-  assert.equal(activeEntry.authoritativeCwd, '/tmp/observability-smoke-worktree/B-active');
+  assert.equal(activeEntry.activeCwd, '/tmp/observability-smoke-worktree/B-active');
   assert.equal(activeEntry.worktreePath, '/tmp/observability-smoke-worktree/B-active');
   assert.equal(activeEntry.tier, 'local-evidence');
   assert.equal(activeEntry.localDone, false);
-  assert.equal(activeEntry.productionDone, false);
+  assert.equal(activeEntry.releaseReady, false);
   assert.ok(activeEntry.canonicalStoryDigest?.startsWith('sha256:'), 'canonical digest propagated into snapshot');
 
   const doneEntry = snapshot.sections.storyBoard.find(row => row.storyId === 'B-done');
   assert.ok(doneEntry, 'B-done storyBoard entry');
-  assert.equal(doneEntry.authority, 'main');
-  assert.equal(doneEntry.authoritativeCwd, '/tmp/observability-smoke-repo');
+  assert.equal(doneEntry.stateSource, 'main');
+  assert.equal(doneEntry.activeCwd, '/tmp/observability-smoke-repo');
   assert.equal(doneEntry.localDone, true);
-  assert.equal(doneEntry.productionDone, false, 'local DONE never escalates to production DONE');
+  assert.equal(doneEntry.releaseReady, false, 'local DONE remains read-only local observation');
   assert.equal(doneEntry.tier, 'local-evidence');
 
-  // Recovery + parallel sections preserve the resolver's per-row routing.
+  // Recovery + parallel sections preserve the projection's per-row routing.
   const activeRecovery = snapshot.sections.recovery.find(row => row.storyId === 'B-active');
   assert.ok(activeRecovery, 'recovery entry for active story');
-  assert.equal(activeRecovery.authoritativeCwd, '/tmp/observability-smoke-worktree/B-active');
+  assert.equal(activeRecovery.activeCwd, '/tmp/observability-smoke-worktree/B-active');
   assert.ok(/^cd \/tmp\/observability-smoke-worktree\/B-active/.test(activeRecovery.resumeCommand), 'resume command embeds authoritative cwd');
   assert.ok(activeRecovery.resumeCommand.includes('lattice story_export --storyId=B-active --format=json'), 'resume command targets story_export JSON surface');
   assert.ok(activeRecovery.recoveryPoints.some(point => point.id === 'B-active:story-store'), 'recoveryPoints projected from canonical lineage');
 
   const activeParallel = snapshot.sections.parallel.find(row => row.storyId === 'B-active');
   assert.ok(activeParallel, 'parallel entry for active story');
-  assert.equal(activeParallel.authoritativePhase, 'DEV');
+  assert.equal(activeParallel.activePhase, 'DEV');
   assert.equal(activeParallel.lane, 'mainline');
   assert.equal(activeParallel.parallelSafe, 'yes');
   assert.deepEqual(activeParallel.depends, ['B-shared']);
   assert.deepEqual(activeParallel.blockingFor, ['B-followup']);
   assert.equal(activeParallel.worktreePath, '/tmp/observability-smoke-worktree/B-active');
 
-  // Edge: when no resolver result is injected, the adapter calls the real
-  // resolver. With no stories in the seeded repo's `.lattice/story/actives`
-  // matching active filter, the resolver still returns the seeded stories
+  // Edge: when no projection result is injected, the adapter calls the real
+  // projection. With no stories in the seeded repo's `.lattice/story/actives`
+  // matching active filter, the projection still returns the seeded stories
   // (DEV/DONE phases). Confirm the adapter resolves without crashing.
   const liveSnapshot = buildObservabilitySnapshot(store, root, {
     activeOnly: true,
     storeFactory: (_cwd) => store,
     now: NOW,
   });
-  assertReadOnlyAuthority(liveSnapshot);
-  assert.ok(liveSnapshot.sections.storyBoard.length >= 1, 'live resolver pass returns at least the active story');
+  assertReadOnlyLocalAssurance(liveSnapshot);
+  assert.ok(liveSnapshot.sections.storyBoard.length >= 1, 'live projection pass returns at least the active story');
 
-  // Adversarial: a malicious caller cannot force productionDone via the
-  // snapshot — the type system forbids it and the runtime literal stays false.
-  assert.equal(snapshot.authority.productionDone, false);
-  assert.equal(snapshot.authority.receiptVerified, false);
-  assert.equal(snapshot.authority.authorityChanged, false);
+  // Adversarial: a malicious caller cannot widen local assurance via the
+  // snapshot — the type system fixes it to read-only local observation.
+  assert.equal(snapshot.localAssurance.admissibilityStatus, 'local-only');
+  assert.equal(snapshot.localAssurance.assuranceLevel, 'local-observation');
+  assert.equal(snapshot.localAssurance.evidenceScope, 'read-only-observability');
 
   // Handler shape: ensure the registered handler surfaces the same JSON.
   // The handler defaults to activeOnly=true; the seed includes one active and
@@ -314,15 +309,15 @@ try {
   const ctx: HandlerContext = { store, root, scanRoot: join(root, 'packages', 'main') };
   const handlers = createObservabilitySnapshotHandlers(ctx);
   const handlerResult = handlers.observability_snapshot({ format: 'json', activeOnly: false }) as LatticeObservabilitySnapshot;
-  assertReadOnlyAuthority(handlerResult);
+  assertReadOnlyLocalAssurance(handlerResult);
   assertSectionsShape(handlerResult);
   assert.equal(handlerResult.sections.storyBoard.length, 2, 'handler with activeOnly:false surfaces both seeded stories');
 
   const textResult = handlers.observability_snapshot({}) as string;
   assert.match(textResult, /Proofbound observability snapshot \(lattice\.observability_snapshot\.v1\)/);
-  assert.match(textResult, /productionDone: false/);
-  assert.match(textResult, /receiptVerified: false/);
-  assert.match(textResult, /authorityChanged: false/);
+  assert.match(textResult, /admissibilityStatus: local-only/);
+  assert.match(textResult, /assuranceLevel: local-observation/);
+  assert.match(textResult, /evidenceScope: read-only-observability/);
 
   // No-overwrite output behavior mirrors story_export.
   const outputPath = join(root, 'observability-snapshot.json');

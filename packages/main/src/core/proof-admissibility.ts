@@ -237,7 +237,7 @@ export const PROOF_SURFACE_REGISTRY = [
     allowedClaims: [
       { claim: 'done-readiness', consumers: ['REVIEW', 'TEST', 'DONE'], productionDoneEligible: false },
     ],
-    producerBoundaryNote: 'Local delivery/final report evidence can support review discussion but is not production authority.',
+    producerBoundaryNote: 'Local delivery/final report evidence can support review discussion but is not release readiness.',
     remediation: DIAGNOSTIC_REMEDIATION,
   },
   {
@@ -281,7 +281,7 @@ export const PROOF_SURFACE_REGISTRY = [
        * @priority high
        * @description
        *   Legacy authority receipt refs may be classified as out-of-core compatibility input.
-       *   The local proof-admissibility core must not convert that legacy evidence into a local productionDone claim.
+       *   The local proof-admissibility core must not convert that legacy evidence into a local release readiness claim.
        * @changes
        *   - [CHK-002] Set legacy-authority-receipt-ref production-completion productionDoneEligible=false for local CLI proof.
        */

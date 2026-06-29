@@ -48,14 +48,16 @@ import {
   verificationIntentTypeSchema,
 } from './command-schemas.js';
 
+const HIDDEN_LOCAL_ASSURANCE_REFUSAL = '@help-hidden local-assurance refusal sentinel';
+
 const READ_ONLY_STATUS_UNSUPPORTED_FLAGS = {
   runCommands: z.never().optional().describe('Not a flag; status commands are read-only. Passing --runCommands is rejected by CLI validation.'),
   writeEvidence: z.never().optional().describe('Not a flag; status commands write no evidence. Passing --writeEvidence is rejected by CLI validation.'),
   advancePhase: z.never().optional().describe('Not a flag; status commands never advance phase. Passing --advancePhase is rejected by CLI validation.'),
   launchReviewers: z.never().optional().describe('Not a flag; status commands launch no reviewers. Passing --launchReviewers is rejected by CLI validation.'),
-  authorityDone: z.never().optional().describe('Not a flag; local status commands cannot claim authorityDone. Passing --authorityDone is rejected by CLI validation.'),
-  fullAuthorityDone: z.never().optional().describe('Not a flag; local status commands cannot claim fullAuthorityDone. Passing --fullAuthorityDone is rejected by CLI validation.'),
-  productionDone: z.never().optional().describe('Not a flag; local status commands cannot claim productionDone. Passing --productionDone is rejected by CLI validation.'),
+  authorityDone: z.never().optional().describe(HIDDEN_LOCAL_ASSURANCE_REFUSAL),
+  fullAuthorityDone: z.never().optional().describe(HIDDEN_LOCAL_ASSURANCE_REFUSAL),
+  productionDone: z.never().optional().describe(HIDDEN_LOCAL_ASSURANCE_REFUSAL),
   write: z.never().optional().describe('Not a flag; status commands are read-only. Passing --write is rejected by CLI validation.'),
   apply: z.never().optional().describe('Not a flag; status commands apply nothing. Passing --apply is rejected by CLI validation.'),
   execute: z.never().optional().describe('Not a flag; status commands execute nothing. Passing --execute is rejected by CLI validation.'),
@@ -672,7 +674,7 @@ Behavior:
   { name: 'next', description: 'Output only the most reliable next step (reuses session_brief phase judgment)', schema: {
     concise: z.boolean().optional().describe('Concise mode (default: true).'),
   }},
-  { name: 'done_closure', description: 'Project local DONE closure readiness from the DONE oracle without mutating lifecycle or claiming Authority completion. Alias: lattice done closure', schema: {
+  { name: 'done_closure', description: 'Project local DONE closure readiness from the DONE oracle without mutating lifecycle or widening local assurance. Alias: lattice done closure', schema: {
     storyId: z.string().describe('Story ID'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
     json: z.boolean().optional().describe('Shortcut for --format=json'),
@@ -692,7 +694,7 @@ Behavior:
     json: z.boolean().optional().describe('Shortcut for --format=json.'),
     ...READ_ONLY_STATUS_UNSUPPORTED_FLAGS,
   }},
-  { name: 'runtime_closure_status', description: 'Read-only runtime closure projection from authority, readiness, freshness, and shipped lock state.', schema: {
+  { name: 'runtime_closure_status', description: 'Read-only runtime closure projection from local assurance, readiness, freshness, and shipped lock state.', schema: {
     storyIds: z.array(z.string()).optional().describe('Optional story IDs to include.'),
     activeOnly: z.boolean().optional().describe('Only include non-terminal stories (default true).'),
     currentValidationStoryId: z.string().optional().describe('Test/diagnostic hint to render a validation lock as self-reentry.'),
@@ -734,9 +736,9 @@ Behavior:
     writeEvidence: z.boolean().optional().describe('Unsupported; true fails closed before reading story facts.'),
     advancePhase: z.boolean().optional().describe('Unsupported; true fails closed.'),
     launchReviewers: z.boolean().optional().describe('Unsupported; true fails closed.'),
-    authorityDone: z.boolean().optional().describe('Unsupported; true fails closed.'),
-    fullAuthorityDone: z.boolean().optional().describe('Unsupported; true fails closed.'),
-    productionDone: z.boolean().optional().describe('Unsupported; true fails closed.'),
+    authorityDone: z.never().optional().describe(HIDDEN_LOCAL_ASSURANCE_REFUSAL),
+    fullAuthorityDone: z.never().optional().describe(HIDDEN_LOCAL_ASSURANCE_REFUSAL),
+    productionDone: z.never().optional().describe(HIDDEN_LOCAL_ASSURANCE_REFUSAL),
     write: z.boolean().optional().describe('Unsupported; evidence_plan is read-only (refresh is the P4 layer). true fails closed.'),
     refresh: z.boolean().optional().describe('Unsupported; evidence_plan is read-only (refresh is the P4 layer). true fails closed.'),
     execute: z.boolean().optional().describe('Unsupported; evidence_plan is read-only. true fails closed.'),
@@ -749,9 +751,9 @@ Behavior:
     writeEvidence: z.boolean().optional().describe('Unsupported; true fails closed before reading story facts.'),
     advancePhase: z.boolean().optional().describe('Unsupported; true fails closed.'),
     launchReviewers: z.boolean().optional().describe('Unsupported; true fails closed.'),
-    authorityDone: z.boolean().optional().describe('Unsupported; true fails closed.'),
-    fullAuthorityDone: z.boolean().optional().describe('Unsupported; true fails closed.'),
-    productionDone: z.boolean().optional().describe('Unsupported; true fails closed.'),
+    authorityDone: z.never().optional().describe(HIDDEN_LOCAL_ASSURANCE_REFUSAL),
+    fullAuthorityDone: z.never().optional().describe(HIDDEN_LOCAL_ASSURANCE_REFUSAL),
+    productionDone: z.never().optional().describe(HIDDEN_LOCAL_ASSURANCE_REFUSAL),
     // write/apply/execute are NOT real flags: each is declared as `z.never()` so the
     // no-such-flag contract is enforced — the only valid value is ABSENCE. Passing
     // --write/--apply/--execute is a hard CLI validation FAILURE (the command never
@@ -773,14 +775,14 @@ Behavior:
     writeEvidence: z.boolean().optional().describe('Unsupported; true fails closed before reading story facts.'),
     advancePhase: z.boolean().optional().describe('Unsupported; true fails closed.'),
     launchReviewers: z.boolean().optional().describe('Unsupported; reviewer_batch never launches a reviewer. true fails closed.'),
-    authorityDone: z.boolean().optional().describe('Unsupported; true fails closed.'),
-    fullAuthorityDone: z.boolean().optional().describe('Unsupported; true fails closed.'),
-    productionDone: z.boolean().optional().describe('Unsupported; true fails closed.'),
+    authorityDone: z.never().optional().describe(HIDDEN_LOCAL_ASSURANCE_REFUSAL),
+    fullAuthorityDone: z.never().optional().describe(HIDDEN_LOCAL_ASSURANCE_REFUSAL),
+    productionDone: z.never().optional().describe(HIDDEN_LOCAL_ASSURANCE_REFUSAL),
     write: z.boolean().optional().describe('Unsupported; reviewer_batch is read-only (the orchestrator spawns reviewers from the plan). true fails closed.'),
     launch: z.boolean().optional().describe('Unsupported; reviewer_batch is read-only and launches no reviewer. true fails closed.'),
     run: z.boolean().optional().describe('Unsupported; reviewer_batch is read-only and runs no command. true fails closed.'),
   }},
-  { name: 'evidence_refresh', description: 'Opt-in one-pass refresh-only orchestrator: default is a read-only dry preview of the refresh-only evidence bucket; --apply performs AT MOST ONE re-stamp pass via verification_evidence_refresh_stale and reclassifies (refreshed / rerun_required / hard_stale). Never runs a verification command, advances phase, launches reviewers, or claims Authority.', schema: {
+  { name: 'evidence_refresh', description: 'Opt-in one-pass refresh-only orchestrator: default is a read-only dry preview of the refresh-only evidence bucket; --apply performs AT MOST ONE re-stamp pass via verification_evidence_refresh_stale and reclassifies (refreshed / rerun_required / hard_stale). Never runs a verification command, advances phase, launches reviewers, or widens local assurance.', schema: {
     storyId: z.string().describe('Story ID'),
     apply: z.boolean().optional().describe('Perform AT MOST ONE refresh pass via verification_evidence_refresh_stale, then reclassify. Default false = read-only dry preview. --apply is ownership/scope gated.'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text).'),
@@ -788,13 +790,13 @@ Behavior:
     runCommands: z.boolean().optional().describe('Unsupported; evidence_refresh never runs a verification command. true fails closed.'),
     advancePhase: z.boolean().optional().describe('Unsupported; true fails closed.'),
     launchReviewers: z.boolean().optional().describe('Unsupported; true fails closed.'),
-    authorityDone: z.boolean().optional().describe('Unsupported; true fails closed.'),
-    fullAuthorityDone: z.boolean().optional().describe('Unsupported; true fails closed.'),
-    productionDone: z.boolean().optional().describe('Unsupported; true fails closed.'),
+    authorityDone: z.never().optional().describe(HIDDEN_LOCAL_ASSURANCE_REFUSAL),
+    fullAuthorityDone: z.never().optional().describe(HIDDEN_LOCAL_ASSURANCE_REFUSAL),
+    productionDone: z.never().optional().describe(HIDDEN_LOCAL_ASSURANCE_REFUSAL),
   }},
   // Lifecycle Readiness P8 (CAPSTONE): lifecycle_orchestrate — read-only top-level
   // lifecycle orchestration that composes the prior read-only layers into one view.
-  { name: 'lifecycle_orchestrate', description: 'Read-only top-level lifecycle orchestration CAPSTONE (P8): composes the prior read-only layers (V1 StoryReadinessReport + P2-P7) into ONE consolidated, PHASE-AWARE view for a story. It builds the V1 readiness report for the phase-appropriate target and composes only the phase-relevant prior layers via their READ-ONLY DEFAULT path (PLAN→plan_skeleton; verification intents present→evidence_plan + evidence_refresh DRY preview; REVIEW→reviewer_batch; TEST/approaching delivery→live_smoke_transcript STATUS + delivery_context_pack default summary), consolidates blockers + next actions across the composed view, and EMITS the next story_advance command as a PRINTED string (executed:false — NEVER executed). It runs no command, writes no evidence/metadata/artifact, launches no reviewer, advances no phase, and never claims Authority/production. There is NO --write/--apply/--execute flag.', schema: {
+  { name: 'lifecycle_orchestrate', description: 'Read-only top-level lifecycle orchestration CAPSTONE (P8): composes the prior read-only layers (V1 StoryReadinessReport + P2-P7) into ONE consolidated, PHASE-AWARE view for a story. It builds the V1 readiness report for the phase-appropriate target and composes only the phase-relevant prior layers via their READ-ONLY DEFAULT path (PLAN→plan_skeleton; verification intents present→evidence_plan + evidence_refresh DRY preview; REVIEW→reviewer_batch; TEST/approaching delivery→live_smoke_transcript STATUS + delivery_context_pack default summary), consolidates blockers + next actions across the composed view, and EMITS the next story_advance command as a PRINTED string (executed:false — NEVER executed). It runs no command, writes no evidence/metadata/artifact, launches no reviewer, advances no phase, and never widens local assurance. There is NO --write/--apply/--execute flag.', schema: {
     storyId: z.string().describe('Story ID'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text).'),
     json: z.boolean().optional().describe('Shortcut for --format=json.'),
@@ -802,9 +804,9 @@ Behavior:
     writeEvidence: z.boolean().optional().describe('Unsupported; lifecycle_orchestrate writes no evidence. true fails closed before reading story facts.'),
     advancePhase: z.boolean().optional().describe('Unsupported; the story_advance handoff is a PRINTED string, never executed. true fails closed.'),
     launchReviewers: z.boolean().optional().describe('Unsupported; lifecycle_orchestrate launches no reviewer. true fails closed.'),
-    authorityDone: z.boolean().optional().describe('Unsupported; true fails closed.'),
-    fullAuthorityDone: z.boolean().optional().describe('Unsupported; true fails closed.'),
-    productionDone: z.boolean().optional().describe('Unsupported; true fails closed.'),
+    authorityDone: z.never().optional().describe(HIDDEN_LOCAL_ASSURANCE_REFUSAL),
+    fullAuthorityDone: z.never().optional().describe(HIDDEN_LOCAL_ASSURANCE_REFUSAL),
+    productionDone: z.never().optional().describe(HIDDEN_LOCAL_ASSURANCE_REFUSAL),
     // write/apply/capture/launch/run/execute are NOT real flags: each is declared as
     // `z.never()` so the no-such-flag contract is enforced — the only valid value is
     // ABSENCE. Passing --write/--apply/--execute (or --capture/--launch/--run) is a
@@ -820,7 +822,7 @@ Behavior:
     run: z.never().optional().describe('Not a flag; lifecycle_orchestrate runs nothing. Passing --run is rejected by CLI validation.'),
     execute: z.never().optional().describe('Not a flag; lifecycle_orchestrate is read-only. Passing --execute is rejected by CLI validation.'),
   }},
-  { name: 'live_smoke_transcript', description: 'Explicit live-smoke transcript producer: default is read-only status (expected userSees output, current transcript artifact status, V1 live-smoke readiness row). --capture="<command>" runs ONLY that one provided command (runCommands) and records the actual transcript; --write persists the expected-vs-actual artifact (writeEvidence, ownership/scope gated). --capture and --write are independent. Never advances phase, launches reviewers, claims Authority, writes verificationEvidence/delivery checks, or accepts a metadata-only waiver.', schema: {
+  { name: 'live_smoke_transcript', description: 'Explicit live-smoke transcript producer: default is read-only status (expected userSees output, current transcript artifact status, V1 live-smoke readiness row). --capture="<command>" runs ONLY that one provided command (runCommands) and records the actual transcript; --write persists the expected-vs-actual artifact (writeEvidence, ownership/scope gated). --capture and --write are independent. Never advances phase, launches reviewers, widens local assurance, writes verificationEvidence/delivery checks, or accepts a metadata-only waiver.', schema: {
     storyId: z.string().describe('Story ID'),
     capture: z.string().optional().describe('Opt-in command capture: run ONLY this one explicitly-provided command (spawnSync, bounded timeout) and record stdout/stderr/exit as the actual transcript. Never derives or appends a command. Capture alone persists nothing.'),
     write: z.boolean().optional().describe('Opt-in artifact writer: persist the expected-vs-actual transcript to <storyDir>/evidence/live-smoke-transcript.json. Ownership/scope gated. Write alone runs no command. Independent of --capture.'),
@@ -829,11 +831,11 @@ Behavior:
     runCommands: z.boolean().optional().describe('Unsupported as a bare flag; command capture is the explicit --capture="<command>" opt-in. true fails closed.'),
     advancePhase: z.boolean().optional().describe('Unsupported; true fails closed.'),
     launchReviewers: z.boolean().optional().describe('Unsupported; true fails closed.'),
-    authorityDone: z.boolean().optional().describe('Unsupported; true fails closed.'),
-    fullAuthorityDone: z.boolean().optional().describe('Unsupported; true fails closed.'),
-    productionDone: z.boolean().optional().describe('Unsupported; true fails closed.'),
+    authorityDone: z.never().optional().describe(HIDDEN_LOCAL_ASSURANCE_REFUSAL),
+    fullAuthorityDone: z.never().optional().describe(HIDDEN_LOCAL_ASSURANCE_REFUSAL),
+    productionDone: z.never().optional().describe(HIDDEN_LOCAL_ASSURANCE_REFUSAL),
   }},
-  { name: 'delivery_context_pack', description: 'Delivery-review CONTEXT PRODUCER (P6), NOT a delivery signer: default is read-only — gather and print the structured delivery context pack (delivery-scoped git diff vs main, docs-promises from plan.md + checklist userSees, real-machine test refs, validation + review-round state, and the delivery-check + metadata-waiver status CONSUMED from the V1 StoryReadinessReport deliveryCheckRef). --write persists the same pack to <storyDir>/evidence/delivery-context-pack.json (ownership/scope gated, atomic). It NEVER writes delivery-check.json / calls delivery_check_set, accepts a metadata-only waiver, runs a command, advances phase, launches reviewers, writes verificationEvidence, or claims Authority/production.', schema: {
+  { name: 'delivery_context_pack', description: 'Delivery-review CONTEXT PRODUCER (P6), NOT a delivery signer: default is read-only — gather and print the structured delivery context pack (delivery-scoped git diff vs main, docs-promises from plan.md + checklist userSees, real-machine test refs, validation + review-round state, and the delivery-check + metadata-waiver status CONSUMED from the V1 StoryReadinessReport deliveryCheckRef). --write persists the same pack to <storyDir>/evidence/delivery-context-pack.json (ownership/scope gated, atomic). It NEVER writes delivery-check.json / calls delivery_check_set, accepts a metadata-only waiver, runs a command, advances phase, launches reviewers, writes verificationEvidence, or widens local assurance.', schema: {
     storyId: z.string().describe('Story ID'),
     write: z.boolean().optional().describe('Opt-in artifact writer: persist the structured delivery context pack to <storyDir>/evidence/delivery-context-pack.json (atomic). Ownership/scope gated. Never writes delivery-check.json or signs the delivery check.'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text).'),
@@ -842,9 +844,9 @@ Behavior:
     writeEvidence: z.boolean().optional().describe('Unsupported as a bare flag; persistence is the explicit --write opt-in. true fails closed.'),
     advancePhase: z.boolean().optional().describe('Unsupported; true fails closed.'),
     launchReviewers: z.boolean().optional().describe('Unsupported; true fails closed.'),
-    authorityDone: z.boolean().optional().describe('Unsupported; true fails closed.'),
-    fullAuthorityDone: z.boolean().optional().describe('Unsupported; true fails closed.'),
-    productionDone: z.boolean().optional().describe('Unsupported; true fails closed.'),
+    authorityDone: z.never().optional().describe(HIDDEN_LOCAL_ASSURANCE_REFUSAL),
+    fullAuthorityDone: z.never().optional().describe(HIDDEN_LOCAL_ASSURANCE_REFUSAL),
+    productionDone: z.never().optional().describe(HIDDEN_LOCAL_ASSURANCE_REFUSAL),
   }},
   { name: 'plan_skeleton', description: 'Suggest or write a PLAN skeleton from story text plus StoryReadinessReport; default is read-only and never advances lifecycle or writes evidence.', schema: {
     storyId: z.string().describe('Story ID'),
@@ -855,9 +857,9 @@ Behavior:
     writeEvidence: z.boolean().optional().describe('Unsupported; true fails closed.'),
     advancePhase: z.boolean().optional().describe('Unsupported; true fails closed.'),
     launchReviewers: z.boolean().optional().describe('Unsupported; true fails closed.'),
-    authorityDone: z.boolean().optional().describe('Unsupported; true fails closed.'),
-    fullAuthorityDone: z.boolean().optional().describe('Unsupported; true fails closed.'),
-    productionDone: z.boolean().optional().describe('Unsupported; true fails closed.'),
+    authorityDone: z.never().optional().describe(HIDDEN_LOCAL_ASSURANCE_REFUSAL),
+    fullAuthorityDone: z.never().optional().describe(HIDDEN_LOCAL_ASSURANCE_REFUSAL),
+    productionDone: z.never().optional().describe(HIDDEN_LOCAL_ASSURANCE_REFUSAL),
   }},
   { name: 'done_prepare', description: 'Conservative pre-DONE readiness assistant; never advances DONE or mutates version files. Alias: lattice done prepare', schema: {
     storyId: z.string().describe('Story ID'),
@@ -880,7 +882,7 @@ Behavior:
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
     json: z.boolean().optional().describe('Shortcut for --format=json'),
   }},
-  { name: 'review_escalation_status', description: 'Read-only REVIEW escalation status for DONE; reports ordinary, full 3x2, or degraded 3x1 assurance without Authority completion. Alias: lattice review escalation status', schema: {
+  { name: 'review_escalation_status', description: 'Read-only REVIEW escalation status for DONE; reports ordinary, full 3x2, or degraded 3x1 local assurance. Alias: lattice review escalation status', schema: {
     storyId: z.string().describe('Story ID'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
     json: z.boolean().optional().describe('Shortcut for --format=json'),
@@ -1016,7 +1018,7 @@ Behavior:
   { name: 'host_list', description: 'List Proofbound host profiles, visible degradations, and migration authority boundaries (text/json). Alias: lattice host list', schema: {
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
   }},
-  { name: 'host_probe', description: 'Probe one Proofbound host profile without claiming production authority (text/json). Alias: lattice host probe', schema: {
+  { name: 'host_probe', description: 'Probe one Proofbound host profile without claiming release readiness (text/json). Alias: lattice host probe', schema: {
     host: z.string().describe('Host profile id, for example codex, claude-code, local-runner, browser, server, desktop-app'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
   }},
@@ -1089,13 +1091,13 @@ Behavior:
     requiredReviewWaves: z.number().int().positive().optional().describe('Local required review waves; floored to 3'),
     staleVerdicts: z.number().int().nonnegative().optional().describe('Local stale verdict count'),
     failingIndependentHosts: z.number().int().nonnegative().optional().describe('Local failing independent host count'),
-    serverBackedVerdictsAccepted: z.boolean().optional().describe('Retired compatibility input; local quorum verdicts are active'),
+    serverBackedVerdictsAccepted: z.boolean().optional().describe('@help-hidden legacy baseline compatibility'),
     localReviewCertified: z.boolean().optional().describe('Non-authority local independent review result'),
     localReviewEvidenceRefs: z.union([z.array(z.string()), z.string()]).optional().describe('Non-authority local independent review evidence refs, array or comma-separated'),
     requiredIndependentHosts: z.number().int().positive().optional().describe('Non-authority required independent local host count'),
     independentHosts: z.number().int().nonnegative().optional().describe('Non-authority observed independent local host count'),
     passingIndependentHosts: z.number().int().nonnegative().optional().describe('Non-authority passing independent local host count'),
-    authorityServerContact: z.boolean().optional().describe('Whether a non-authority run contacted Authority'),
+    authorityServerContact: z.boolean().optional().describe('@help-hidden legacy baseline compatibility'),
     retryCount: z.number().int().nonnegative().optional().describe('Retry count'),
     repairCount: z.number().int().nonnegative().optional().describe('Repair count'),
     blockedReason: z.string().optional().describe('Specific blocked reason for EXPECTED_BLOCK scenarios'),
@@ -1122,7 +1124,7 @@ Behavior:
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
     json: z.boolean().optional().describe('Shortcut for --format=json'),
   }},
-  { name: 'conduit_status', description: 'Report Proofbound conduit status and enforce readiness diagnostics without provisioning a runner or production authority. Alias: lattice conduit status', schema: {
+  { name: 'conduit_status', description: 'Report Proofbound conduit status and enforce readiness diagnostics without provisioning a runner or widening local assurance. Alias: lattice conduit status', schema: {
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
     json: z.boolean().optional().describe('Shortcut for --format=json'),
   }},
@@ -1130,17 +1132,12 @@ Behavior:
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
     json: z.boolean().optional().describe('Shortcut for --format=json'),
   }},
-  { name: 'story_export', description: 'Export a Proofbound Story as Canonical Story v0 without claiming production authority', schema: {
+  { name: 'story_export', description: 'Export a Proofbound Story as Canonical Story v0 without claiming release readiness', schema: {
     storyId: z.string().describe('Story ID to export'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
     output: z.string().optional().describe('Optional file path for canonical-story JSON'),
   }},
-  { name: 'story_authority_resolve', description: 'Resolve host-neutral story authority (main vs worktree) for every active story without parsing session_brief/status Markdown or promoting local DONE. Alias: lattice story authority resolve', schema: {
-    storyIds: z.array(z.string()).optional().describe('Restrict resolution to specific story ids'),
-    activeOnly: z.boolean().optional().describe('Default true; pass false to include DONE/DISCARDED stories'),
-    format: z.enum(['text', 'json']).optional().describe('Output format (default json for machine consumers)'),
-  }},
-  { name: 'observability_snapshot', description: 'Build a host-neutral Proofbound observability snapshot (authority ladder, story board, capability matrix, recovery, parallel) from story_authority_resolve without claiming production authority. Alias: lattice observability snapshot', schema: {
+  { name: 'observability_snapshot', description: 'Build a host-neutral Proofbound observability snapshot (assurance ladder, story board, capability matrix, recovery, parallel) without widening local assurance. Alias: lattice observability snapshot', schema: {
     storyIds: z.array(z.string()).optional().describe('Restrict snapshot to specific story ids'),
     activeOnly: z.boolean().optional().describe('Default true; pass false to include DONE/DISCARDED stories'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
@@ -1159,7 +1156,7 @@ Behavior:
     successCriteria: z.union([z.string(), z.array(z.string())]).optional().describe('Optional success criteria for the overflow worker'),
     baseSha: z.string().optional().describe('Optional explicit base SHA; defaults to current HEAD'),
     packId: z.string().optional().describe('Optional explicit pack id; defaults to HP-<digest>'),
-    authorityBoundary: z.string().optional().describe('Optional authority-boundary summary carried into the pack'),
+    authorityBoundary: z.string().optional().describe('Optional local responsibility boundary summary carried into the pack'),
     executionInstructions: z.union([z.string(), z.array(z.string())]).optional().describe('Optional execution instructions for the overflow worker'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
     json: z.boolean().optional().describe('Shortcut for --format=json'),
@@ -1216,7 +1213,7 @@ Behavior:
     successCriteria: z.union([z.string(), z.array(z.string())]).optional().describe('Optional success criteria'),
     baseSha: z.string().optional().describe('Optional explicit base SHA'),
     packId: z.string().optional().describe('Optional explicit pack id'),
-    authorityBoundary: z.string().optional().describe('Optional authority-boundary summary'),
+    authorityBoundary: z.string().optional().describe('Optional local responsibility boundary summary'),
     executionInstructions: z.union([z.string(), z.array(z.string())]).optional().describe('Optional execution instructions'),
     parallel: z.number().optional().describe('Optional parallel fake worker count'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
@@ -1236,7 +1233,7 @@ Behavior:
     successCriteria: z.union([z.string(), z.array(z.string())]).optional().describe('Optional success criteria'),
     baseSha: z.string().optional().describe('Optional explicit base SHA'),
     packId: z.string().optional().describe('Optional explicit pack id'),
-    authorityBoundary: z.string().optional().describe('Optional authority-boundary summary'),
+    authorityBoundary: z.string().optional().describe('Optional local responsibility boundary summary'),
     executionInstructions: z.union([z.string(), z.array(z.string())]).optional().describe('Optional execution instructions'),
     parallel: z.number().optional().describe('Optional parallel fake worker count'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
@@ -1256,7 +1253,7 @@ Behavior:
     successCriteria: z.union([z.string(), z.array(z.string())]).optional().describe('Optional success criteria'),
     baseSha: z.string().optional().describe('Optional explicit base SHA'),
     packId: z.string().optional().describe('Optional explicit pack id'),
-    authorityBoundary: z.string().optional().describe('Optional authority-boundary summary'),
+    authorityBoundary: z.string().optional().describe('Optional local responsibility boundary summary'),
     executionInstructions: z.union([z.string(), z.array(z.string())]).optional().describe('Optional execution instructions'),
     parallel: z.number().optional().describe('Optional parallel fake worker count'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
@@ -1276,7 +1273,7 @@ Behavior:
     successCriteria: z.union([z.string(), z.array(z.string())]).optional().describe('Optional success criteria'),
     baseSha: z.string().optional().describe('Optional explicit base SHA'),
     packId: z.string().optional().describe('Optional explicit pack id'),
-    authorityBoundary: z.string().optional().describe('Optional authority-boundary summary'),
+    authorityBoundary: z.string().optional().describe('Optional local responsibility boundary summary'),
     executionInstructions: z.union([z.string(), z.array(z.string())]).optional().describe('Optional execution instructions'),
     parallel: z.number().optional().describe('Optional parallel fake worker count'),
     approve: z.boolean().optional().describe('Visible approval gate to start instead of suggest-only'),
@@ -1350,7 +1347,7 @@ Behavior:
     requireReview: z.boolean().optional().describe('Require manual review; must be true'),
     allowRealHostSubprocess: z.boolean().optional().describe('Explicit opt-in for real-host subprocess launch; defaults false and currently supports claude-code only'),
     allowAutoMerge: z.boolean().optional().describe('Allow auto-merge; must be false'),
-    allowProductionDone: z.boolean().optional().describe('Allow productionDone; must be false'),
+    allowProductionDone: z.boolean().optional().describe('@help-hidden legacy local-assurance refusal sentinel'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),
     json: z.boolean().optional().describe('Shortcut for --format=json'),
     output: z.string().optional().describe('Optional file path for policy JSON; refuses to overwrite'),
@@ -1380,7 +1377,7 @@ Behavior:
     successCriteria: z.union([z.array(z.string()), z.string()]).optional().describe('Acceptance criteria for this dispatch'),
     baseSha: z.string().optional().describe('Git base SHA for evidence freshness'),
     packId: z.string().optional().describe('Optional pack id override'),
-    authorityBoundary: z.string().optional().describe('Authority boundary statement'),
+    authorityBoundary: z.string().optional().describe('Local responsibility boundary statement'),
     executionInstructions: z.union([z.array(z.string()), z.string()]).optional().describe('Instructions for the worker'),
     parallel: z.number().optional().describe('Worker count (capped at policy maxParallel)'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text)'),

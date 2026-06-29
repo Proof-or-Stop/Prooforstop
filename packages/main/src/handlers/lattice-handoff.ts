@@ -572,7 +572,9 @@ export function createLatticeHandoffHandlers(ctx: HandlerContext): Record<string
         `deniedPaths: ${pack.deniedPaths.length}`,
         `requiredCommands: ${pack.requiredCommands.length}`,
         `successCriteria: ${pack.successCriteria.length}`,
-        `productionDone: ${pack.productionDone}`,
+        'admissibilityStatus: handoff-pack',
+        'assuranceLevel: local',
+        'evidenceScope: handoff-context',
         `receiptRefs: ${pack.receiptRefs.length}`,
         `recoveryPoint: ${pack.recoveryPoint.id}`,
         ...(pack.phaseAuthorityWarning

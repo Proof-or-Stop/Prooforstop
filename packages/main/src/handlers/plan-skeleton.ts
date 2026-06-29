@@ -345,10 +345,10 @@ export function renderPlanSkeletonReport(report: PlanSkeletonReport): string {
   if (report.write.commandsUsed.length > 0) {
     lines.push(`  commandsUsed: ${report.write.commandsUsed.join(', ')}`);
   }
-  lines.push('', 'Claims:');
-  lines.push(`  authorityDone: ${report.claims.authorityDone}`);
-  lines.push(`  fullAuthorityDone: ${report.claims.fullAuthorityDone}`);
-  lines.push(`  productionDone: ${report.claims.productionDone}`);
+  lines.push('', 'Local assurance:');
+  lines.push('  admissibilityStatus: read-only-plan-preview');
+  lines.push('  assuranceLevel: local');
+  lines.push('  evidenceScope: planning-context');
   return lines.join('\n');
 }
 

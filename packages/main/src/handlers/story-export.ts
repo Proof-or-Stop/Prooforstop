@@ -21,8 +21,8 @@ export function createStoryExportHandlers(ctx: HandlerContext): Record<string, (
       if (args.format === 'json') return result.story;
 
       const receiptNote = result.story.authority.receiptRefs.length > 0
-        ? `${result.story.authority.receiptRefs.length} unverified receipt ref(s); productionDone=false`
-        : 'no verified server receipt refs; productionDone=false';
+        ? `${result.story.authority.receiptRefs.length} unverified receipt ref(s); local assurance only`
+        : 'no signed/offline receipt bundle refs; local assurance only';
       const warningNote = result.warnings.length > 0
         ? `; degradations=${result.story.degradations.length}`
         : '';
@@ -32,8 +32,10 @@ export function createStoryExportHandlers(ctx: HandlerContext): Record<string, (
         `storyId: ${result.story.storyId}`,
         `phase: ${result.story.lifecycle.phase}`,
         `localDone: ${result.story.lifecycle.localDone}`,
-        `productionDone: ${result.story.lifecycle.productionDone}`,
-        `authority: ${receiptNote}${warningNote}`,
+        `admissibilityStatus: canonical-story-export`,
+        `assuranceLevel: local`,
+        `evidenceScope: story-export`,
+        `localAssurance: ${receiptNote}${warningNote}`,
         `evidence: ${result.story.evidence.length}`,
         `reviews: ${result.story.reviews.length}`,
         outputNote.trimEnd(),

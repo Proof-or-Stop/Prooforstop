@@ -365,9 +365,10 @@ export function renderLifecycleOrchestrateReport(report: LifecycleOrchestrateRep
 
   lines.push('', `Next handoff (printed, NOT executed): ${report.handoff.command ?? '<terminal phase — nothing to advance to>'}`);
 
-  lines.push('', 'Claims:');
-  lines.push(`  authorityDone: ${report.claims.authorityDone}`);
-  lines.push(`  productionDone: ${report.claims.productionDone}`);
+  lines.push('', 'Local assurance:');
+  lines.push('  admissibilityStatus: orchestration-preview');
+  lines.push('  assuranceLevel: local');
+  lines.push('  evidenceScope: lifecycle-readiness');
   return lines.join('\n');
 }
 
