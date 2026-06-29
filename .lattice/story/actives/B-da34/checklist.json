@@ -53,7 +53,51 @@
       "context": "Update README, guide/docs, agent prompts/templates, CLI help/catalog text, DONE/user-facing output language so active surfaces no longer say Authority Server or productionDone-style no-overclaim wording; use local assurance/admissibility/evidence scope terms instead.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "relatedDocs": [
+        "README.md",
+        "docs/guide.md",
+        "docs/requirements/decisions/authority-server-vocabulary-retirement.md"
+      ],
+      "userSees": "User sees README, guide, prompts, and CLI help describe local assurance/admissibility without active Authority Server or productionDone wording.",
+      "files": {
+        "modify": [
+          "README.md",
+          "docs/guide.md",
+          ".claude/agents",
+          ".lattice-codex/agents",
+          "packages/main/templates/agents",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Active user-facing docs, prompts, and help output use local assurance/admissibility vocabulary.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Explicit retired legacy docs may keep historical terms only inside whitelist context and must not appear as active guidance.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Generated `lattice help` output is scanned so old wording cannot hide in command descriptions.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
