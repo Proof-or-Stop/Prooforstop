@@ -507,6 +507,17 @@
           "materialHash": "610d953adcd6dae8ec4af50dcadc186594f4d7c265d5c982db95f8863e0a8ce7",
           "storyFilesHash": "41d2e25f8c8979249dcd99e7bf334d1ee24feba5d655bb726433d77c5c46651c",
           "timestamp": "2026-06-29T01:47:42.138Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/retired-authority-server-semantics-smoke.js && node packages/main/dist/tasks/proof-admissibility-smoke.js && node packages/main/dist/tasks/receipt-bundle-contract-smoke.js",
+          "result": "pass",
+          "note": "Routine build and local evidence smokes pass without depending on Authority Server receipt semantics.",
+          "headHash": "59433d6def2d9b69c55f8dd7d31cd257f69dd4e7",
+          "materialHash": "610d953adcd6dae8ec4af50dcadc186594f4d7c265d5c982db95f8863e0a8ce7",
+          "storyFilesHash": "41d2e25f8c8979249dcd99e7bf334d1ee24feba5d655bb726433d77c5c46651c",
+          "timestamp": "2026-06-29T01:47:43.557Z"
         }
       ]
     }
