@@ -8,9 +8,9 @@
         "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md"
       ],
       "userSees": "The ProofStory plan shows the corrected lifecycle where ledger sizing comes before checklist, intent_coverage_check comes after checklist/verificationIntent/acceptance binding, and DONE evidence remains in delivery/equivalence checks.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-29T23:43:36.887Z",
-      "endTime": null,
+      "endTime": "2026-06-29T23:44:04.153Z",
       "files": {
         "modify": [
           "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md"
@@ -42,7 +42,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "command": "node scripts/check-proofstory-doc-order.mjs (inline equivalent)",
+          "result": "pass",
+          "note": "The docs check asserted the corrected lifecycle order, the five-rule wording, and the pre-DEV intentCoverageCheck boundary in docs/requirements/decisions/proofstory-intent-collision-execution-plan.md.",
+          "headHash": "ba5604fc3f1edb6333b9cd98ee255a95fa2c3d27",
+          "materialHash": "3239c634ff61aa167a17a8f0d2bdb8f0b1ad6c627d971a7c599ffb3c24615049",
+          "storyFilesHash": "1cf1fee46d0658cd93341865ac638cda6568b56841e968f256b6322d574602cf",
+          "timestamp": "2026-06-29T23:44:04.356Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "command": "node scripts/check-proofstory-doc-order.mjs (inline equivalent)",
+          "result": "pass",
+          "note": "The decision document keeps milestone ledgers candidate before accepted intent interpretation and only consumes confirmed ledgers for later gate checks.",
+          "headHash": "ba5604fc3f1edb6333b9cd98ee255a95fa2c3d27",
+          "materialHash": "3239c634ff61aa167a17a8f0d2bdb8f0b1ad6c627d971a7c599ffb3c24615049",
+          "storyFilesHash": "1cf1fee46d0658cd93341865ac638cda6568b56841e968f256b6322d574602cf",
+          "timestamp": "2026-06-29T23:44:04.519Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "command": "node scripts/check-proofstory-doc-order.mjs (inline equivalent)",
+          "result": "pass",
+          "note": "The document explicitly says intentCoverageCheck is pre-DEV and must not require verificationEvidence or delivery-check evidence.",
+          "headHash": "ba5604fc3f1edb6333b9cd98ee255a95fa2c3d27",
+          "materialHash": "3239c634ff61aa167a17a8f0d2bdb8f0b1ad6c627d971a7c599ffb3c24615049",
+          "storyFilesHash": "1cf1fee46d0658cd93341865ac638cda6568b56841e968f256b6322d574602cf",
+          "timestamp": "2026-06-29T23:44:04.663Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
