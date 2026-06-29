@@ -1,0 +1,120 @@
+{
+  "storyId": "B-576e",
+  "checkedAt": "2026-06-29T00:38:46.269Z",
+  "features": [
+    {
+      "feature": "Authority Server retirement replaces active CLI vocabulary with admissibilityStatus, assuranceLevel, evidenceScope, local gate-consumed evidence, local signed/offline bundle evidence, and local review quorum.",
+      "covered_by": "CHK-001, CHK-004, CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description;decisions:proof-admissibility-hardening-execution-plan.md;docs/evidence/evidence-platform-architecture.md"
+    },
+    {
+      "feature": "Authority production receipts, productionDone, authorityDone, and fullAuthorityDone must not be presented as local CLI completion states.",
+      "covered_by": "CHK-001, CHK-002, CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description;decisions:proof-admissibility-hardening-execution-plan.md"
+    },
+    {
+      "feature": "User-facing docs and host prompts stop warning that local evidence is non-authority unless an Authority Server receipt exists and instead explain local admissibility.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Server-backed authority command and alias surface is removed while local proof, admissibility, and quorum commands remain.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Server-backed Authority handlers, core modules, tasks, env URL/mode paths, and receipt paths are removed or quarantined while receipt-bundle, proof-admissibility, and quorum behavior remain.",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description;decisions:proof-admissibility-hardening-execution-plan.md"
+    },
+    {
+      "feature": "Regression guard fails if active docs, prompts, command catalog, aliases, config, or registry reintroduce Authority Server product semantics outside a legacy or retirement allowlist.",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Build, targeted smokes, lattice validate, and CLI patch version bump prove the cleanup before DONE.",
+      "covered_by": "CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Authority live integration decision doc still defines active authority mode job loop, native gate_decision receipt verification, authorityDone/fullAuthorityDone final JSON, and LATTICE_AUTHORITY runtime expectations.",
+      "covered_by": null,
+      "status": "gap",
+      "excluded_by": null,
+      "source": "decisions:lattice-authority-live-integration.md"
+    },
+    {
+      "feature": "Authority customer API key decision doc still defines LATTICE_AUTHORITY_URL, project/server key, customer API key, actor key, runner/session env, and production mutating API authorization.",
+      "covered_by": null,
+      "status": "gap",
+      "excluded_by": null,
+      "source": "decisions:lattice-authority-customer-api-key-access.md"
+    },
+    {
+      "feature": "Authority receipt contract and receipt-gate execution docs still define server-signed gate_decision receipts as lifecycle gate or authorityDone inputs.",
+      "covered_by": null,
+      "status": "gap",
+      "excluded_by": null,
+      "source": "decisions:lattice-authority-receipt-contract.md;decisions:authority-session-receipt-gate-execution.md"
+    },
+    {
+      "feature": "CLI Authority client receipt-ref decision doc still defines authority_status and authority_receipt_verify as production receipt/ref surfaces including productionDone language.",
+      "covered_by": null,
+      "status": "gap",
+      "excluded_by": null,
+      "source": "decisions:lattice-cli-authority-client-receipt-ref.md"
+    },
+    {
+      "feature": "Authority runner session and evidence envelope doc still requires Authority URL, actor key, runner id/session id, and Authority Server evidence submission path.",
+      "covered_by": null,
+      "status": "gap",
+      "excluded_by": null,
+      "source": "decisions:authority-runner-session-evidence-envelope.md"
+    },
+    {
+      "feature": "Generated/live E2E Authority plans still define authority job create/status/verdict paths and authorityDone/fullAuthorityDone as target states.",
+      "covered_by": null,
+      "status": "gap",
+      "excluded_by": null,
+      "source": "decisions:lattice-authority-m1-m16-generated-proof-and-live-e2e.md;decisions:lattice-unattended-completion-plan.md"
+    }
+  ],
+  "summary": {
+    "total": 13,
+    "covered": 7,
+    "excluded": 0,
+    "gaps": 6,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "0e88a07024599b48d2ece73d0787a5913fda3a7d04971f7725616414ffe1971b",
+  "openQuestions": [
+    {
+      "id": "OQ-001",
+      "q": "Does Authority Server retirement require marking or deleting all Authority decision-source docs as legacy/out-of-core, or may server Authority docs remain active external-adapter/future compatibility specs while the CLI removes local semantics?",
+      "evidence": "B-576e background says Authority Server is unnecessary and should be fully removed from Proofbound design and CLI semantics, while proof-admissibility keeps external Authority adapter/future compatibility language and multiple Authority decision docs keep active authority mode and authorityDone/fullAuthorityDone requirements.",
+      "sourcePointers": [
+        ".lattice/story/actives/B-576e/background.md:1",
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md:193",
+        "docs/requirements/decisions/lattice-authority-live-integration.md:4042",
+        "docs/requirements/decisions/lattice-authority-customer-api-key-access.md:59"
+      ]
+    }
+  ]
+}
