@@ -263,6 +263,17 @@
           "materialHash": "610d953adcd6dae8ec4af50dcadc186594f4d7c265d5c982db95f8863e0a8ce7",
           "storyFilesHash": "41d2e25f8c8979249dcd99e7bf334d1ee24feba5d655bb726433d77c5c46651c",
           "timestamp": "2026-06-29T01:47:32.520Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/retired-authority-server-semantics-smoke.js && node packages/main/dist/tasks/command-catalog-smoke.js",
+          "result": "pass",
+          "note": "Retired nested aliases and flat authority_* command names are absent from MAIN_TOOLS and rejected by the guard negative self-check.",
+          "headHash": "addfa1d806c339f56547795133777fbc7e437ef6",
+          "materialHash": "610d953adcd6dae8ec4af50dcadc186594f4d7c265d5c982db95f8863e0a8ce7",
+          "storyFilesHash": "41d2e25f8c8979249dcd99e7bf334d1ee24feba5d655bb726433d77c5c46651c",
+          "timestamp": "2026-06-29T01:47:34.054Z"
         }
       ]
     },
