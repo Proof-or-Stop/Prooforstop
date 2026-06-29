@@ -1,0 +1,23 @@
+{
+  "storyId": "B-b531",
+  "name": "post-done-closure-snapshot-drift",
+  "title": "Fix post-DONE closure snapshot material projection",
+  "description": "For DONE stories, read-only closure/status diagnostics must report the historical DONE closure from the DONE snapshot instead of re-blocking the story against later current main material. Preserve strict current-material checks for TEST→DONE, but make post-DONE current-material revalidation explicit/advisory rather than the default blocking projection. Red repro: B-da34 is phase DONE yet done_closure reports canAttemptDone:false and stale delivery/review-escalation blockers after later main material drift.",
+  "type": "bug",
+  "phase": "INIT",
+  "priority": "high",
+  "createdAt": "2026-06-29T18:59:09.179Z",
+  "startedAt": "2026-06-29T18:59:09.179Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-29T18:59:09.180Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-b18a39eca7a7951f",
+      "agent": "main"
+    }
+  ]
+}
