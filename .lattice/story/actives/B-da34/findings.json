@@ -124,7 +124,7 @@
       "desc": "Active docs/user-facing text still carries retired production/Authority completion framing after the fix. README.md:189-190 says autopilot does not claim production authority instead of release readiness / local assurance. packages/main/src/handlers/delivery-context-pack.ts:171-176 throws user-facing text saying it does not claim Authority/production completion. packages/main/src/handlers/plan-skeleton.ts:174-176 emits a planner constraint saying it must not claim Authority completion. packages/main/src/core/canonical-story.ts:165-168 and packages/main/src/core/capabilities.ts:139 still describe production completion / production DONE in active JSON-facing reason/description text. This violates docs/requirements/decisions/authority-server-vocabulary-retirement.md:23-41, which requires active surfaces to explain local assurance/admissibility/evidence scope rather than old completion framing. The retired-vocabulary guard passes because it keys on exact banned tokens, so this residue needs a wording fix or guard coverage expansion.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-06-29T17:58:59.657Z",
@@ -140,7 +140,11 @@
         "docs/requirements/decisions/authority-server-vocabulary-retirement.md"
       ],
       "signatureTag": "missing|md|active-docs-user",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit dd4a560fb. Active README, delivery_context_pack, plan_skeleton, canonical-story degradation text, capability descriptions, done_prepare, dispatch, proof-admissibility, and generated init asset text now use local assurance, admissibility, evidence scope, and release-readiness wording instead of retired production or Authority completion framing. The scanner now catches production authority, Authority completion, production completion, and production DONE on active surfaces outside explicit legacy quarantine. Evidence passed: npm --prefix packages/main run build; node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js; npm run test:process-fact-contract; node packages/main/dist/tasks/command-catalog-smoke.js; lattice scope_contract_check storyId=B-da34.",
+      "resolvedAt": "2026-06-29T18:12:51.672Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
