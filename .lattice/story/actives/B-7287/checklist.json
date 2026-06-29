@@ -130,7 +130,61 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/command-schemas.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts"
+        ],
+        "create": [
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "intent_coverage_check --dryRun reports selected hardening level, trigger reasons, uncovered milestones, and missing acceptance bindings without writing lifecycle state.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "proofstory_gate_check --dryRun reports would-block diagnostics for missing MVP artifacts and triggered milestone/collision requirements without enforcing DEV admission.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A clear single-outcome standard feature is classified as Intent MVP and does not require intent collision or milestone ledger by default.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "A request with explicit count or all milestones triggers milestone intent diagnostics.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Isolated keyword wording such as complete this small typo fix does not trigger milestone ledger by itself.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
