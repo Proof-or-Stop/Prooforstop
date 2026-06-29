@@ -10,7 +10,39 @@
       "userSees": "The ProofStory plan shows the corrected lifecycle where ledger sizing comes before checklist, intent_coverage_check comes after checklist/verificationIntent/acceptance binding, and DONE evidence remains in delivery/equivalence checks.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The decision document states the corrected lifecycle order and uses five progressive model rules consistently.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The document distinguishes candidate milestone ledgers from confirmed ledgers before gate consumption.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The document does not imply intent_coverage_check can fully pass before checklist, verificationIntent, and acceptance binding exist.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

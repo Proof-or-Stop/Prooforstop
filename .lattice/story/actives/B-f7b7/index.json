@@ -4,7 +4,7 @@
   "title": "Implement ProofStory M0-M9 progressive intent hardening lifecycle",
   "description": "Implement the full ProofStory M0-M9 plan from docs/requirements/decisions/proofstory-intent-collision-execution-plan.md. Existing M0-M2 dry-run commands are present, but the remaining intent collision, contract/gate, scope shrinkage, red evidence, spike evidence, REVIEW completeness, DONE intent equivalence, and risk-adaptive enforcement surfaces must be completed coherently without introducing a second lifecycle state machine or automatic parallel child-story execution.",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "PLAN",
   "priority": "high",
   "keywords": [
     "proofstory",
@@ -46,6 +46,15 @@
       "branch": "main",
       "user": "Harmonygo",
       "sessionId": "sess-c0ae2b2c5e1fbc7a",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-29T23:25:22.928Z",
+      "branch": "story/B-f7b7",
+      "user": "Harmonygo",
+      "sessionId": "sess-bd5612ecd6100f4e",
       "agent": "main"
     }
   ],

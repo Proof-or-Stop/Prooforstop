@@ -1,0 +1,38 @@
+{
+  "task": "Implement the complete ProofStory M0-M9 progressive intent hardening lifecycle for the Proofbound CLI.",
+  "outcome": "After this story reaches DONE, the user can run ProofStory commands such as original_intent_snapshot_set, milestone_ledger_set, intent_collision_set, proofstory_gate_check, red_evidence_create, spike_start, and done_intent_equivalence_check, and see English diagnostics that prove intent coverage is captured, oversized ledgers are flagged before DEV, risk-triggered evidence is required only when appropriate, and enforcement can run in observe, warn, or enforce mode.",
+  "facts": [
+    "Existing implementation only covers an M0-M2 MVP diagnostic surface in packages/main/src/core/proofstory.ts and packages/main/src/handlers/proofstory.ts.",
+    "The approved design keeps the Story container but treats the ProofStory gate as the true DEV entry for triggered work.",
+    "Milestone ledgers are intent coverage artifacts, not execution plans; oversized ledgers must produce slice-plan diagnostics instead of automatic child-story creation.",
+    "intent_coverage_check must run after checklist, verificationIntent, and acceptance binding exist; early ledger checks are only confirmation and sizing diagnostics.",
+    "The rollout must stay progressive: observe and warn by default, enforce only when policy or explicit mode requires it.",
+    "Existing lifecycle entry points are transition-orchestrator.ts, core/machine.ts canStartDevGuard/canPassReviewGuard/canFinishGuard, and phase-gates.ts preflight helpers; ProofStory can integrate there without a second state machine."
+  ],
+  "constraints": [
+    "Do not use or touch .omx.",
+    "Do not create a second lifecycle state machine; integrate with existing Lattice gates and diagnostics.",
+    "Keep ordinary single-outcome stories lightweight with an Intent MVP.",
+    "Do not make red evidence or spike evidence mandatory for every story.",
+    "All new user-facing command text, docs, and code comments for this feature must be in English.",
+    "Do not implement automatic child story scheduling in this story; only emit slicing diagnostics."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+    "packages/main/src/core/proofstory.ts",
+    "packages/main/src/handlers/proofstory.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/core/store.ts",
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/handlers/phase-gates.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+    "packages/main/tests"
+  ],
+  "timestamp": "2026-06-29T23:26:29.322Z"
+}

@@ -1,0 +1,68 @@
+{
+  "principles": [
+    "Protect the user original intent before DEV starts.",
+    "Use progressive hardening so small tasks stay lightweight.",
+    "Make gate-consumed facts mechanical artifacts, not prompt-only prose.",
+    "Integrate with the existing lifecycle machine instead of adding a second state machine."
+  ],
+  "drivers": [
+    "The current ProofStory implementation stops at M0-M2 diagnostics.",
+    "The user explicitly requested M0-M9 implemented through DONE.",
+    "The design requires candidate ledgers, accepted intent interpretation, coverage after checklist/verificationIntent, risk-triggered red/spike evidence, review completeness, and observe/warn/enforce rollout."
+  ],
+  "options": [
+    {
+      "name": "A: extend existing ProofStory modules and lifecycle gates",
+      "pros": [
+        "Reuses the existing command, store, process fact, and story_advance architecture.",
+        "Keeps one lifecycle source of truth.",
+        "Allows M0-M9 to be tested in one smoke path."
+      ],
+      "cons": [
+        "Requires careful updates across several registries and gate surfaces.",
+        "Must preserve backward compatibility for existing stories."
+      ]
+    },
+    {
+      "name": "B: create a separate ProofStory lifecycle engine",
+      "pros": [
+        "Could isolate ProofStory concepts behind a new orchestrator.",
+        "Might look cleaner in isolation."
+      ],
+      "cons": [
+        "Creates a second state machine, which the design explicitly rejects.",
+        "Risks divergence from story_advance, REVIEW, TEST, and DONE gates.",
+        "Would make existing Lattice evidence harder to audit."
+      ]
+    }
+  ],
+  "chosen": "A: extend existing ProofStory modules and lifecycle gates",
+  "rationale": "Choose A because ProofStory artifacts need to be gate-consumed by the existing Story lifecycle. Extending the existing modules preserves the current lifecycle authority while adding progressive intent hardening, diagnostics, and enforce-mode checks where the current gates already make decisions.",
+  "preMortem": [
+    {
+      "scenario": "Gate enforcement blocks ordinary low-risk stories and slows one-line development.",
+      "trigger": "ProofStory diagnostics treat every missing optional artifact as enforce-blocking.",
+      "consequence": "Users experience ProofStory as process overhead instead of intent protection.",
+      "mitigation": "Keep Intent MVP universal but make milestone ledgers, intent collision, red evidence, and spike evidence risk-triggered; support observe and warn modes."
+    },
+    {
+      "scenario": "intent_coverage_check passes too early and misses checklist or verificationIntent gaps.",
+      "trigger": "Coverage check runs before checklist, verificationIntent, and acceptance binding are available.",
+      "consequence": "A story can enter DEV with a ledger that looks covered but is not actually bound to executable verification.",
+      "mitigation": "Document and implement early ledger confirmation separately; place pre-DEV intent_coverage_check after checklist, verificationIntent, and acceptance binding."
+    },
+    {
+      "scenario": "Oversized ledgers become giant single stories or accidental automatic child-story creation.",
+      "trigger": "The implementation treats milestone count as execution granularity or auto-schedules child stories inside the gate.",
+      "consequence": "Context, review, and DONE equivalence become unreliable for 30-100 milestone requests.",
+      "mitigation": "Emit too_broad and slice-plan diagnostics only; leave automatic scheduler/autopilot story creation to a separate future story."
+    },
+    {
+      "scenario": "New artifacts are prompt-only and not visible to process registries or gates.",
+      "trigger": "Commands write JSON but command policy/process fact registry are not updated.",
+      "consequence": "Reviewers and gates cannot prove which facts are advisory versus gate evidence.",
+      "mitigation": "Update command catalog, command policy, process fact levels/registry, config phase allowlists, and smoke tests together."
+    }
+  ],
+  "timestamp": "2026-06-29T23:26:43.170Z"
+}
