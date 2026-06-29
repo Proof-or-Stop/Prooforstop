@@ -85,6 +85,29 @@ const activeServerProductPatterns = [
   /\bNon-authority unless an Authority Server\b/i,
 ] as const;
 
+const positiveAuthorityClaimPatterns = [
+  { pattern: /\bproductionDone\s*[:=]\s*true\b/i, label: 'productionDone=true' },
+  { pattern: /\breceiptVerified\s*[:=]\s*true\b/i, label: 'receiptVerified=true' },
+  { pattern: /\bauthorityDone\s*[:=]\s*true\b/i, label: 'authorityDone=true' },
+  { pattern: /\bfullAuthorityDone\s*[:=]\s*true\b/i, label: 'fullAuthorityDone=true' },
+  {
+    pattern: /\b(?:sets?|marks?|reports?|claims?|unlocks?|promotes?|establishes|grants|satisfies)\b\s+[^.\n]{0,100}\b(?:productionDone|receiptVerified|authorityDone|fullAuthorityDone)\b/i,
+    label: 'active-positive-completion-claim',
+  },
+  {
+    pattern: /\b(?:productionDone|receiptVerified|authorityDone|fullAuthorityDone)\b[^.\n]{0,100}\b(?:is|are|becomes?|turns?|reports?|marks?)\s+(?:true|verified|complete|available|unlocked|satisfied)\b/i,
+    label: 'completion-flag-positive-prose',
+  },
+  {
+    pattern: /\bproduction completion\b[^.\n]{0,100}\brequires\b[^.\n]{0,80}\bverified\s+(?:authority\s+)?receipt\b/i,
+    label: 'production-completion-requires-receipt',
+  },
+  {
+    pattern: /\bverif(?:y|ies)\s+authority receipts?\b[^.\n]{0,100}\bcompletion claims?\b/i,
+    label: 'authority-receipt-verifies-completion',
+  },
+] as const;
+
 const activeFiles = [
   'README.md',
   'docs/guide.md',
@@ -119,10 +142,15 @@ const sourceScanAllowlist = new Set([
   'packages/main/src/core/authority-contracts.ts',
   'packages/main/src/core/authority-signing.ts',
   'packages/main/src/core/baseline.ts',
+  'packages/main/src/core/baseline-contracts.ts',
   'packages/main/src/core/baseline-suite-report.ts',
   'packages/main/src/core/usage-ledger/authority-evidence.ts',
   'packages/main/src/core/usage-ledger/record.ts',
+  'packages/main/src/tasks/baseline-contracts-smoke.ts',
+  'packages/main/src/tasks/baseline-suite-report-smoke.ts',
+  'packages/main/src/tasks/baseline-suite-smoke.ts',
   'packages/main/src/tasks/lattice-baseline-smoke.ts',
+  'packages/main/src/tasks/usage-ledger-authority-smoke.ts',
 ]);
 
 const retiredDecisionDocs = [
@@ -194,7 +222,12 @@ function activePatterns(): PatternRule[] {
     label: String(pattern),
     allowRetiredLine: true,
   }));
-  return [...commandPatterns, ...aliasPatterns, ...productPatterns];
+  const positiveClaimPatterns = positiveAuthorityClaimPatterns.map(({ pattern, label }) => ({
+    pattern,
+    label,
+    allowRetiredLine: true,
+  }));
+  return [...commandPatterns, ...aliasPatterns, ...productPatterns, ...positiveClaimPatterns];
 }
 
 function lineIsRetirementMarker(line: string): boolean {
@@ -202,14 +235,21 @@ function lineIsRetirementMarker(line: string): boolean {
 }
 
 function lineIsNegativeBoundary(line: string): boolean {
-  return /\b(does not|do not|must not|cannot|can not|never|without|no longer|not required|not verified|not claim|not satisfy|false|delete|refusal)\b/i.test(line);
+  return /\b(does not|do not|must not|cannot|can not|never|without|no longer|not required|not verified|not claim|not satisfy|false|delete|refusal|refuse|refused|reject|rejected|invalid|bad|forged|tamper|lying|fail|fails|failed|throw|throws|diagnostic-only|local-only)\b/i.test(line)
+    || /\bnot\b[^.\n]{0,120}\b(?:claim|set|mark|report|unlock|promote|satisfy|change|create|replace)\b/i.test(line);
+}
+
+function contextForLine(lines: string[], index: number): string {
+  return lines.slice(Math.max(0, index - 10), Math.min(lines.length, index + 4)).join(' ');
 }
 
 function scanText(file: string, text: string, patterns: PatternRule[], allowRetiredLines: boolean): Violation[] {
   const violations: Violation[] = [];
-  text.split(/\r?\n/).forEach((line, index) => {
+  const lines = text.split(/\r?\n/);
+  lines.forEach((line, index) => {
+    const context = contextForLine(lines, index);
     for (const { pattern, label, allowRetiredLine } of patterns) {
-      if (allowRetiredLines && allowRetiredLine && (lineIsRetirementMarker(line) || lineIsNegativeBoundary(line))) continue;
+      if (allowRetiredLines && allowRetiredLine && (lineIsRetirementMarker(context) || lineIsNegativeBoundary(context))) continue;
       if (pattern.test(line)) {
         violations.push({ file, line: index + 1, pattern: label, text: line.trim() });
       }
@@ -225,6 +265,12 @@ function assertScannerRejectsReintroduction(): void {
     'Use an Authority Server receipt before local evidence is admissible.',
     'missing_authority_receipt: provide a verified server AuthorityReceipt.',
     'authority_receipt_unverified: fullAuthorityDone requires a verified receipt.',
+    'productionDone=true',
+    'receiptVerified: true',
+    'authorityDone = true',
+    'fullAuthorityDone: true',
+    'Production completion requires a verified authority receipt.',
+    'Server verification marks receiptVerified true after accepting an Authority receipt.',
   ].join('\n');
   const violations = scanText('<negative-self-check>', virtual, activePatterns(), false);
   assert.ok(
@@ -246,6 +292,30 @@ function assertScannerRejectsReintroduction(): void {
   assert.ok(
     violations.some(v => /fullAuthorityDone requires/i.test(v.text)),
     'negative self-check rejects retired fullAuthorityDone requirement wording',
+  );
+  assert.ok(
+    violations.some(v => v.pattern === 'productionDone=true'),
+    'negative self-check rejects productionDone=true',
+  );
+  assert.ok(
+    violations.some(v => v.pattern === 'receiptVerified=true'),
+    'negative self-check rejects receiptVerified=true',
+  );
+  assert.ok(
+    violations.some(v => v.pattern === 'authorityDone=true'),
+    'negative self-check rejects authorityDone=true',
+  );
+  assert.ok(
+    violations.some(v => v.pattern === 'fullAuthorityDone=true'),
+    'negative self-check rejects fullAuthorityDone=true',
+  );
+  assert.ok(
+    violations.some(v => v.pattern === 'production-completion-requires-receipt'),
+    'negative self-check rejects prose production completion receipt requirement',
+  );
+  assert.ok(
+    violations.some(v => v.pattern === 'active-positive-completion-claim'),
+    'negative self-check rejects prose receiptVerified completion claim',
   );
 }
 

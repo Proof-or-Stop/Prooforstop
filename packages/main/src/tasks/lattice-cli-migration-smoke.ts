@@ -181,7 +181,7 @@ assert.equal(
 );
 assert.equal(
   degradationByCategory(desktopFromList.degradations, 'receipt-verify').authorityImpact,
-  'blocks-production-done',
+  'local-assurance-required',
   'desktop-app receipt verification blocks productionDone in Proofbound projection',
 );
 
@@ -196,7 +196,7 @@ assert.equal(hostProbeAlias.receiptVerified, false);
 for (const [category, authorityImpact] of [
   ['browser-automation', 'verification-evidence-limited'],
   ['evidence-submit', 'evidence-local-only'],
-  ['receipt-verify', 'blocks-production-done'],
+  ['receipt-verify', 'local-assurance-required'],
 ] as const) {
   assert.equal(capabilityByCategory(hostProbeAlias.probe.profile, category).status, 'conditional', `codex ${category} remains visible conditional`);
   const degradation = degradationByCategory(hostProbeAlias.probe.degradations, category);
@@ -220,7 +220,7 @@ for (const category of ['file-edit', 'test-execution', 'evidence-submit', 'recei
   assert.equal(degradationByCategory(desktopProbe.probe.degradations, category).visible, true, `desktop-app probe ${category} degradation is visible`);
 }
 assert.equal(capabilityByCategory(desktopProbe.probe.profile, 'artifact-display').status, 'available', 'desktop-app probe keeps artifact display available');
-assert.equal(degradationByCategory(desktopProbe.probe.degradations, 'receipt-verify').authorityImpact, 'blocks-production-done');
+assert.equal(degradationByCategory(desktopProbe.probe.degradations, 'receipt-verify').authorityImpact, 'local-assurance-required');
 assertNoProductionOverclaim(desktopProbe, 'desktop-app host probe');
 
 const install = runJson<any>(['host_install', '--host=desktop-app', '--format=json']);

@@ -512,7 +512,7 @@ export function createDecisionDocPromotionHandlers(ctx: HandlerContext) {
         `proposalId: ${proposal.id}`,
         `proposalDigest: ${proposalDigest}`,
         `renderedDocDigest: ${renderedDocDigest}`,
-        'authorityBoundary: local workflow evidence only; not Authority receipt completion, authorityDone, fullAuthorityDone, or productionDone',
+        'authorityBoundary: local workflow evidence only; does not create proof-admissibility, receipt-bundle, quorum, authorityDone, fullAuthorityDone, or productionDone',
       ].join('\n');
     },
   };

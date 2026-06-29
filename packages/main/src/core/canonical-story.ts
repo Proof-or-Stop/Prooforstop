@@ -37,7 +37,7 @@ export interface CanonicalStory {
     visible: true;
     reason: string;
     fallback: string;
-    authorityImpact: 'none' | 'evidence-local-only' | 'verification-evidence-limited' | 'blocks-production-done';
+    authorityImpact: 'none' | 'evidence-local-only' | 'verification-evidence-limited' | 'local-assurance-required' | 'blocks-production-done';
     recovery?: string;
   }>;
   lineage: Record<string, unknown>;

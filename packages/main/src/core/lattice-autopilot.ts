@@ -1819,13 +1819,13 @@ export function autopilotRun(store: StoryStore, root: string, args: AutopilotRun
       }, index, { dispatchId, note: stopDetails });
     }
 
-    const nextAction = 'Authority receipt gate passed, but autopilot v1 remains manual-review only. Inspect mergeDecision and perform any integration outside autopilot.';
+    const nextAction = 'Local admissibility and review gates passed, but autopilot v1 remains manual-review only. Inspect mergeDecision and perform any integration outside autopilot.';
     const ended = markIterationEnded(iteration, 'manual_review_ready', nextAction);
     return finalizeWithCheckpoint(record, {
       status: 'manual_review_ready',
       iterations: [...record.iterations.slice(0, -1), { ...ended, dispatchId, warnings }],
       nextAction,
-      events: [...record.events, event('manual_review_ready', 'authority receipt gate passed; autopilot stopped before manual integration', { dispatchId })],
+      events: [...record.events, event('manual_review_ready', 'local admissibility and review gates passed; autopilot stopped before manual integration', { dispatchId })],
     }, index, { dispatchId, note: 'manual_review_ready' });
   }
 

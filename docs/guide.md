@@ -55,7 +55,7 @@ lattice rollout_check --projects "$(pwd)" --json
 
 Authority Server modes and server-backed receipt commands are retired from the active Proofbound CLI. Active evidence vocabulary is `admissibilityStatus`, `assuranceLevel`, `evidenceScope`, gate-consumed local evidence, signed/offline receipt bundles, and local review quorum assurance.
 
-### Autopilot modes: local / shadow / authority
+### Autopilot Mode: Local Only
 
 `lattice autopilot` is the local unattended-development control surface.
 
@@ -124,7 +124,7 @@ lattice planner run --workflow=source-aligned-redevelopment \
 
 Boundaries:
 
-- It is a development workflow, not a new interaction mode; it runs under one of `autonomous` / `interview` / `decision-gated`, and under either `local` or `authority`.
+- It is a development workflow, not a new interaction mode; it runs in local mode and uses `--interactionMode=autonomous|interview|decision-gated` for human interaction policy.
 - The source codebase is read-only input; target files are written only through the story worktree and normal lifecycle gates. The workflow is language-pair agnostic (e.g. `typescript -> rust`, `swift -> kotlin`).
 - It preserves license/attribution notices and excludes secrets, `.git`, caches, and build outputs from prompts/output/evidence. It produces evidence-backed alignment, not a promise of perfect semantic equivalence; in-scope details that cannot be verified are recorded as explicit gaps. This is a current-pass capability still converging against its fixtures, not part of the already-shipped baseline.
 

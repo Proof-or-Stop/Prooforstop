@@ -128,7 +128,6 @@ const requiredProcessFactSemantics = {
   decision_doc_save: ['artifact', 'schema-contract', 'execution-evidence', 'gate-evidence'],
   review_escalation_policy_set: ['schema-contract', 'gate-evidence'],
   review_escalation_fallback_set: ['schema-contract', 'gate-evidence'],
-  authority_receipt_verify: ['gate-evidence'],
   story_create_from_repro: ['artifact', 'schema-contract', 'workspace-binding', 'gate-evidence'],
 };
 const requiredReviewerLanes = [
@@ -166,7 +165,6 @@ const requiredArtifactFacts = [
   { name: 'artifact:eval-evidence.json', path: 'eval-evidence.json', signed: false },
   { name: 'artifact:process-events.jsonl', path: 'process-events.jsonl', signed: false },
   { name: 'artifact:decision-doc-proposals.json', path: 'decision-doc-proposals.json', signed: false },
-  { name: 'artifact:authority-receipt-refs.json', path: 'authority-receipt-refs.json', signed: false },
   { name: 'artifact:story-evidence-binding', path: 'story-evidence-binding', signed: false },
 ];
 const requiredReviewLoopL4Commands = [
@@ -2563,7 +2561,7 @@ function assertDecisionDocPromotionCommandContract(cliToolNameSet, registry, lev
     assert(proposalPolicy.destructiveRisk === 'metadata-write', `${commandPolicyPath}: decision_doc_proposal destructiveRisk must stay metadata-write`);
     assert(policyBlockHasOwnershipClass(proposalPolicy, 'storyScopedMutating'), `${commandPolicyPath}: decision_doc_proposal must stay storyScopedMutating`);
     assert(/digest-bound|proposal/i.test(proposalPolicy.reason), `${commandPolicyPath}: decision_doc_proposal policy must name the digest-bound proposal boundary`);
-    assert(/Authority|receipt|productionDone/i.test(proposalPolicy.reason), `${commandPolicyPath}: decision_doc_proposal policy must preserve the Authority/no-overclaim boundary`);
+    assert(/proof-admissibility|receipt-bundle|quorum|productionDone/i.test(proposalPolicy.reason), `${commandPolicyPath}: decision_doc_proposal policy must preserve the local proof/no-overclaim boundary`);
   }
   const proposalLevel = levelRegistry.get('decision_doc_proposal');
   if (proposalLevel) {
@@ -2591,7 +2589,7 @@ function assertDecisionDocPromotionCommandContract(cliToolNameSet, registry, lev
     assert(previewPolicy.destructiveRisk === 'none', `${commandPolicyPath}: decision_doc_preview destructiveRisk must stay none`);
     assert(policyBlockHasOwnershipClass(previewPolicy, 'readOnly'), `${commandPolicyPath}: decision_doc_preview must stay readOnly`);
     assert(/read-only|writes no files|metadata|process events/i.test(previewPolicy.reason), `${commandPolicyPath}: decision_doc_preview policy must state the read-only/no-mutation boundary`);
-    assert(/Authority|authorityDone|fullAuthorityDone|productionDone/i.test(previewPolicy.reason), `${commandPolicyPath}: decision_doc_preview policy must preserve the Authority/no-overclaim boundary`);
+    assert(/proof-admissibility|receipt-bundle|quorum|authorityDone|fullAuthorityDone|productionDone/i.test(previewPolicy.reason), `${commandPolicyPath}: decision_doc_preview policy must preserve the local proof/no-overclaim boundary`);
   }
   const previewLevel = levelRegistry.get('decision_doc_preview');
   if (previewLevel) {
@@ -2618,7 +2616,7 @@ function assertDecisionDocPromotionCommandContract(cliToolNameSet, registry, lev
     assert(savePolicy.destructiveRisk === 'metadata-write', `${commandPolicyPath}: decision_doc_save destructiveRisk must stay metadata-write`);
     assert(policyBlockHasOwnershipClass(savePolicy, 'storyScopedMutating'), `${commandPolicyPath}: decision_doc_save must stay storyScopedMutating`);
     assert(/docs\/requirements\/decisions\/<slug>\.md|decision-doc quorum DONE gate|fresh proposal/i.test(savePolicy.reason), `${commandPolicyPath}: decision_doc_save policy must name canonical path, freshness, and quorum gate`);
-    assert(/Authority receipt|authorityDone|fullAuthorityDone|productionDone/i.test(savePolicy.reason), `${commandPolicyPath}: decision_doc_save policy must preserve the Authority/no-overclaim boundary`);
+    assert(/proof-admissibility|receipt-bundle|quorum|authorityDone|fullAuthorityDone|productionDone/i.test(savePolicy.reason), `${commandPolicyPath}: decision_doc_save policy must preserve the local proof/no-overclaim boundary`);
   }
   const saveLevel = levelRegistry.get('decision_doc_save');
   if (saveLevel) {
@@ -2660,8 +2658,8 @@ function assertDecisionDocPromotionCommandContract(cliToolNameSet, registry, lev
     'renderDecisionDocMarkdown',
     'writeFileSync(targetAbs',
     'authorityBoundary',
-    'not Authority Server receipt completion',
-    'does not set authorityDone, fullAuthorityDone, or productionDone',
+    'not local proof-admissibility, receipt-bundle, quorum, or productionDone completion',
+    'does not create proof-admissibility, receipt-bundle, quorum, authorityDone, fullAuthorityDone, or productionDone',
   ]) {
     assert(handlerText.includes(token), `packages/main/src/handlers/decision-doc-promotion.ts: missing decision-doc promotion contract token ${token}`);
   }

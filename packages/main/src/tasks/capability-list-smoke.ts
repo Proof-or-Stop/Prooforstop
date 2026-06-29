@@ -36,6 +36,7 @@ const AUTHORITY_IMPACTS: readonly AuthorityImpact[] = [
   'none',
   'evidence-local-only',
   'verification-evidence-limited',
+  'local-assurance-required',
   'blocks-production-done',
 ];
 const DEGRADATION_SEVERITIES: readonly DegradationSeverity[] = ['info', 'warn', 'block'];
@@ -91,10 +92,13 @@ assert.equal(
   'unknown/fallback marks optional browser automation unavailable',
 );
 
-// Handoff / capability discovery cannot manufacture productionDone without a receipt.
-assert.equal(list.authorityRules.productionDoneRequiresReceipt, true);
+// Handoff / capability discovery cannot manufacture productionDone from local receipt bundles.
+assert.equal(list.authorityRules.productionDoneRequiresReceipt, false);
 assert.equal(list.authorityRules.receiptCapability, 'receipt-verify');
 assert.equal(list.authorityRules.handoffCanManufactureProductionDone, false);
+assert.equal(list.authorityRules.proofAdmissibility, 'local-only');
+assert.equal(list.authorityRules.receiptBundleVerification, 'signed-offline-local');
+assert.equal(list.authorityRules.reviewQuorum, 'local');
 assert.equal((list as unknown as Record<string, unknown>).productionDone, undefined);
 for (const host of list.hosts) {
   assert.equal((host as unknown as Record<string, unknown>).productionDone, undefined, `${host.id} has no productionDone field`);
@@ -104,10 +108,10 @@ for (const host of list.hosts) {
     const degradation = host.degradations.find(d => d.capability === 'receipt-verify');
     assert.equal(
       degradation?.authorityImpact,
-      'blocks-production-done',
-      `${host.id} cannot claim productionDone without receipt verification`,
+      'local-assurance-required',
+      `${host.id} cannot claim productionDone from local receipt-bundle verification`,
     );
-    assert.equal(degradation?.severity, 'block', `${host.id} receipt verification degradation blocks productionDone`);
+    assert.equal(degradation?.severity, 'block', `${host.id} receipt-bundle verification degradation requires local assurance`);
   }
 }
 
@@ -118,7 +122,7 @@ assert.ok(list.categories.some(c => c.id === 'prewrite-guard'), 'prewrite-guard 
 const text = renderCapabilityListText(list);
 assert.match(text, /Proofbound capability profiles/);
 assert.match(text, /unknown\/fallback/);
-assert.match(text, /authorityImpact=blocks-production-done/);
+assert.match(text, /authorityImpact=local-assurance-required/);
 assert.doesNotMatch(text, /fatal=/);
 
 // Productized single-host probe is a diagnostic projection of the same registry.
@@ -126,7 +130,7 @@ const codexProbe = buildCapabilityProbe('codex');
 assert.equal(codexProbe.schemaVersion, 'lattice.capability_probe.v1');
 assert.equal(codexProbe.host, 'codex');
 assert.equal(codexProbe.diagnosticOnly, true);
-assert.equal(codexProbe.authorityRules.productionDoneRequiresReceipt, true);
+assert.equal(codexProbe.authorityRules.productionDoneRequiresReceipt, false);
 assert.equal(codexProbe.degradations.every(d => d.visible === true), true);
 assert.equal((codexProbe as unknown as Record<string, unknown>).productionDone, undefined);
 const fallbackProbe = buildCapabilityProbe('not-a-real-host');
@@ -194,7 +198,7 @@ assert.ok(MAIN_TOOLS.some(tool => tool.name === 'capability_probe'), 'MAIN_TOOLS
     const parsedProbe = JSON.parse(probeStdout) as typeof codexProbe;
     assert.equal(parsedProbe.host, 'browser');
     assert.equal(parsedProbe.profile.capabilities.find(c => c.category === 'shell/pty')?.status, 'unavailable');
-    assert.equal(parsedProbe.degradations.find(d => d.capability === 'receipt-verify')?.authorityImpact, 'blocks-production-done');
+    assert.equal(parsedProbe.degradations.find(d => d.capability === 'receipt-verify')?.authorityImpact, 'local-assurance-required');
     const agyProbeStdout = execFileSync(process.execPath, [cliPath, '--root', root, 'capability_probe', '--host=agy', '--format=json'], {
       cwd: root,
       encoding: 'utf8',
