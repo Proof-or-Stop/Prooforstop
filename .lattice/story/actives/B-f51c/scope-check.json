@@ -1,0 +1,59 @@
+{
+  "storyId": "B-f51c",
+  "checkedAt": "2026-06-29T21:06:06.220Z",
+  "features": [
+    {
+      "feature": "Modify only docs/requirements/decisions/proofstory-intent-collision-execution-plan.md for the ProofStory clarification",
+      "covered_by": "CHK-001 files.modify names only docs/requirements/decisions/proofstory-intent-collision-execution-plan.md; scope-boundary allowed entry permits editing that same decision document; understanding constraints identify this as a docs-only change.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": ".lattice/story/actives/B-f51c/scope-boundary.json; .lattice/story/actives/B-f51c/understanding.json; CHK-001"
+    },
+    {
+      "feature": "Fix the progressive model rule-count mismatch so five listed rules are described as five rules",
+      "covered_by": "background.md identifies the four/five mismatch as the document correctness issue; CHK-001 happy verification intent requires the document to say five rules and list five rules; current document has the mismatch at docs/requirements/decisions/proofstory-intent-collision-execution-plan.md:96.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": ".lattice/story/actives/B-f51c/background.md; CHK-001; docs/requirements/decisions/proofstory-intent-collision-execution-plan.md:96"
+    },
+    {
+      "feature": "Clarify that pre-collision milestone ledgers are candidate ledgers and become gate-consumed only after accepted intent interpretation",
+      "covered_by": "CHK-001 context and userSees specify the candidate-to-confirmed ledger wording; understanding outcome requires the same candidate ledger boundary.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "CHK-001; .lattice/story/actives/B-f51c/understanding.json"
+    },
+    {
+      "feature": "Clarify oversized ledgers require slicing without implying mandatory automatic parallel child-story execution",
+      "covered_by": "CHK-001 edge and adversarial verification intents require no implication of mandatory parallel execution and keep Scheduler/Unattended/Autopilot outside MVP scope; scope-boundary allows only decision-doc wording for scheduler/autopilot boundary; existing plan already says a too-broad ledger is a proof-stop signal, not an automatic scheduler.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "CHK-001; .lattice/story/actives/B-f51c/scope-boundary.json; docs/requirements/decisions/proofstory-intent-collision-execution-plan.md:403"
+    },
+    {
+      "feature": "Create scheduler, unattended, or autopilot orchestration code",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "scope-boundary excludes scheduler, unattended, and autopilot orchestration code; understanding constraints exclude runtime CLI, gate, scheduler, unattended, autopilot, test, dist, and .omx changes.",
+      "source": ".lattice/story/actives/B-f51c/scope-boundary.json; .lattice/story/actives/B-f51c/understanding.json"
+    },
+    {
+      "feature": "Implement CLI commands, runtime gates, package sources, tests, dist output, prompts outside the target decision document, or .omx artifacts",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "scope-boundary excludes CLI/runtime gates, package sources, tests, dist, prompts outside the target decision document, and .omx artifacts; execution-boundary excludedPaths include .omx, packages/main/dist, packages/main/src, and packages/main/tests.",
+      "source": ".lattice/story/actives/B-f51c/scope-boundary.json; .lattice/story/actives/B-f51c/execution-boundary.json"
+    }
+  ],
+  "summary": {
+    "total": 6,
+    "covered": 4,
+    "excluded": 2,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "8b9dd92fa1d46dd0190472bd0d151dd7c3ce6278fa7b5b922394058e24c012bb",
+  "openQuestions": []
+}
