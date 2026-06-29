@@ -155,7 +155,51 @@
       "context": "Delete or isolate server-backed authority client/runner/receipt-gate modules and corresponding smoke tasks. Preserve local quorum_submit, proof-admissibility, receipt-bundle, delivery-check, and local lifecycle gates.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "relatedDocs": [
+        "docs/requirements/decisions/authority-server-vocabulary-retirement.md",
+        "docs/evidence/evidence-platform-architecture.md",
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+      ],
+      "userSees": "User sees build and local proof smokes pass after server-backed Authority client/runner/receipt-gate code and smokes are deleted or quarantined.",
+      "files": {
+        "modify": [
+          "packages/main/src/core",
+          "packages/main/src/handlers",
+          "packages/main/src/tasks",
+          "packages/main/src/registry.ts",
+          "packages/main/src/cli-engine.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/proof-admissibility-smoke.ts",
+          "packages/main/src/tasks/receipt-bundle-contract-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Server-backed Authority modules/smokes are absent from active runtime imports or explicitly quarantined, while local proof features still pass.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Shared helpers/types needed by local quorum/admissibility/receipt-bundle are preserved or renamed without breaking build.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Scanner fails if active runtime paths import quarantined server-backed Authority modules.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
