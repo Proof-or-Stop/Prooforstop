@@ -1,0 +1,58 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-7287",
+  "allowedCommands": [
+    "git add",
+    "git commit",
+    "git diff",
+    "git diff --check",
+    "git status",
+    "node bin/lattice.js *",
+    "node scripts/verify-command-catalog*.mjs",
+    "node scripts/verify-orphan-surface.mjs",
+    "node scripts/verify-process-fact-contract.mjs",
+    "npm --prefix packages/main run build",
+    "npm --prefix packages/main test *"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "exec_command",
+    "multi_agent_v1"
+  ],
+  "allowedPaths": [
+    ".lattice/story/actives/B-7287",
+    "docs/requirements",
+    "package-lock.json",
+    "package.json",
+    "packages/main/package.json",
+    "packages/main/src",
+    "packages/main/tests",
+    "scripts"
+  ],
+  "excludedCommands": [
+    "git checkout -- *",
+    "git clean *",
+    "git push *",
+    "git reset --hard *",
+    "node bin/lattice.js done_intent_equivalence_check *",
+    "node bin/lattice.js red_evidence_create *",
+    "node bin/lattice.js release_approve_push *",
+    "node bin/lattice.js spike_promote *",
+    "npm publish *",
+    "omx *"
+  ],
+  "excludedTools": [
+    "omx"
+  ],
+  "excludedPaths": [
+    ".omx",
+    "docs/story",
+    "packages/main/tests/fixtures",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "M0-M2 MVP implementation only: CLI source, focused tests/scripts, docs alignment, and B-7287 Lattice metadata. No release, push, full enforce, red evidence, spike, or DONE equivalence enforcement.",
+  "createdAt": "2026-06-29T17:51:51.465Z",
+  "updatedAt": "2026-06-29T17:51:51.465Z",
+  "_hash": "59907c6a4894949834fa18c256b1f1a94954e24ee742454f18719e211e71cb40"
+}

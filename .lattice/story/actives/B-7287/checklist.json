@@ -1,0 +1,61 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add original intent snapshot and milestone ledger commands",
+      "context": "Implement original_intent_snapshot_set/get and milestone_ledger_set/add/get as PLAN-oriented process artifacts. The minimum Intent MVP payload is sourceText, normalizedOutcome, and acceptanceClaim. Milestone ledger should be optional and triggered by multi-deliverable structural or semantic signals.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md#M1-Original-Intent-Snapshot-And-Milestone-Ledger"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Add minimal ProofStory diagnostic envelope storage",
+      "context": "Implement proofstory_contract_set/get only as the MVP storage envelope needed by M2 dry-run diagnostics and progressive intent hardening classification. This is not full M4 gate integration, not enforce mode, and not a claim that the complete ProofStory Contract And Gate milestone is done.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md#M2-Read-Only-Diagnostics",
+        "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md#ProofStory-Contract-Schema"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Add dry-run intent coverage and ProofStory gate diagnostics",
+      "context": "Implement intent_coverage_check --dryRun and proofstory_gate_check --dryRun. They should report missing artifacts, selected hardening level, trigger reasons, and would-block diagnostics without enforcing DEV admission.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md#M2-Read-Only-Diagnostics"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Validate commands, process-fact registration, and docs alignment",
+      "context": "Add focused tests and process-fact coverage for the new commands/artifacts. Run build and targeted validation, but do not enable global enforce behavior.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md#Storage-And-Process-Facts"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Report M0-M2 milestone completion table",
+      "context": "Maintain a user-visible milestone table for this story and mark each M0-M2 row complete only after the corresponding code/docs/tests are actually implemented and verified. This satisfies the user request to see every milestone checked off when developed.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md#Milestones"
+      ],
+      "userSees": "A final milestone table showing M0, M1, and M2 with checkmarks only for completed and verified rows.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

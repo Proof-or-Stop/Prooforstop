@@ -1,0 +1,28 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-7287",
+  "mode": "feature",
+  "allowed": [
+    "Focused process-fact/command registration and tests for the MVP commands",
+    "Internal progressive intent hardening classification derived by dry-run checks",
+    "M0 documentation and terminology freeze already committed as local docs baseline",
+    "M1 original_intent_snapshot_set/get and milestone_ledger_set/add/get",
+    "M2 intent_coverage_check --dryRun and proofstory_gate_check --dryRun diagnostics",
+    "Minimal proofstory_contract_set/get diagnostic envelope needed by dry-run checks",
+    "User-visible M0-M2 milestone completion table in final report"
+  ],
+  "excluded": [
+    "complete REVIEW completeness lane",
+    "done_intent_equivalence_check blocking enforcement",
+    "full M4 ProofStory gate integration beyond dry-run diagnostics",
+    "global enforce mode for all stories",
+    "M5-M9 implementation",
+    "red_evidence_create or red evidence enforcement",
+    "spike_start, spike_promote, or spike enforcement"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "User approved development on 2026-06-29 and explicitly limited the first implementation batch to M0-M2 with observe/warn/dry-run behavior, not full ProofStory enforcement.",
+  "createdAt": "2026-06-29T17:51:29.856Z",
+  "updatedAt": "2026-06-29T17:51:29.856Z",
+  "_hash": "e2f47fe584db995babd7ab550e7d75103ba3a46b7f97fdb42b950a39dfd3eabd"
+}

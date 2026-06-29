@@ -1,6 +1,6 @@
 # Source of Truth Navigation
 
-> 70 files
+> 71 files
 
 ## evidence
 
@@ -51,6 +51,7 @@
 - [Lifecycle Artifact Scope Policy](decisions/lifecycle-artifact-scope.md)
 - [Lifecycle Gate Receipt Consumption](decisions/lifecycle-gate-receipt-consumption.md)
 - [Project Vision and Positioning](decisions/project-vision.md)
+- [ProofStory Intent-Collision Execution Plan](decisions/proofstory-intent-collision-execution-plan.md)
 - [Resolve gap_analyze Three High Gaps Execution Plan](decisions/resolve-gap-analyze-three-high-gaps-execution-plan.md)
 - [Review Assurance Floor Execution Plan](decisions/review-assurance-floor-execution-plan.md)
 - [Review Run Start Signed Workspace Resolution Execution Plan](decisions/review-run-start-signed-workspace-resolution-execution-plan.md)
