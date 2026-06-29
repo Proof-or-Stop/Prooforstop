@@ -15,12 +15,13 @@ raw request
   -> story draft or story container
   -> progressive intent hardening classification
   -> original intent snapshot
-  -> milestone ledger when the request has multiple required outcomes
+  -> candidate milestone ledger when the request has multiple required outcomes
+  -> intent understanding
+  -> intent collision
+  -> confirmed milestone ledger and coverage check
   -> ledger sizing check
        -> small enough: continue inside this story
        -> too broad: stop before DEV and require a slice plan or child stories
-  -> intent understanding
-  -> intent collision
   -> verificationIntent
   -> ProofStory contract
   -> red evidence and spike when required
@@ -93,7 +94,7 @@ turning intent validation into ceremony.
 | ProofStory Intent | Bug fix, regression fix, behavior change, security/auth/session change, lifecycle gate, benchmark claim, or unclear ownership | Acceptance contract, verificationIntent binding, risk policy, and red/spike policy when triggered |
 | DONE Intent Equivalence | Any story entering DONE gets a lightweight check; milestone, shrinkage, or high-assurance stories get a strict gate | Actual delivery compared with the original snapshot and required milestone ledger, if one exists |
 
-This progressive model has four rules:
+This progressive model has five rules:
 
 - do not require a milestone ledger for ordinary single-outcome tasks;
 - do not require red evidence or spike evidence unless the risk policy triggers
@@ -327,6 +328,11 @@ plan. It is an intent-coverage contract. Every checklist item that implements
 part of a multi-milestone request must reference one or more ledger items. A
 ledger item without checklist coverage is an intent coverage gap.
 
+The milestone ledger may be created as a candidate ledger before intent
+collision, but it becomes gate-consumed only after the accepted intent
+interpretation confirms it. This keeps an early, wrong decomposition from
+turning into the contract that later gates DEV or DONE.
+
 Milestone count does not determine story count. A request can legitimately have
 30 to 100 user-visible deliverables, but a single Story should not carry that
 entire execution burden, and the system should not automatically create one
@@ -388,7 +394,13 @@ signals:
 - suggested slicing groups based on related milestones, modules, risk, and
   dependencies;
 - no automatic child Story creation;
+- no mandatory parallel child-story execution;
 - no automatic parent DONE orchestration.
+
+Slicing is required for oversized ledgers; parallel execution is optional and
+must be dependency-safe, resource-aware, and bounded by a concurrency cap.
+Automatic parallel child-story dispatch belongs to a dedicated Scheduler,
+Unattended, or Autopilot development story, not to the ProofStory M0-M2 MVP.
 
 The initial MVP therefore keeps the command surface small:
 
@@ -1309,7 +1321,9 @@ one-line request
   -> story container
   -> progressive intent hardening
   -> original intent snapshot
-  -> milestone ledger when triggered
+  -> candidate milestone ledger when triggered
+  -> accepted intent interpretation
+  -> confirmed milestone ledger and coverage check
   -> ledger sizing and story slicing when needed
   -> intent-collided ProofStory
   -> evidence-bounded DEV
