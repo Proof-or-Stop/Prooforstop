@@ -1,0 +1,20 @@
+{
+  "task": "Update the ProofStory execution plan so large intent ledgers are sized and sliced before development.",
+  "outcome": "The final response tells the user: Ledger sizing and story slicing are now documented; M1-M9 are adjusted so oversized ledgers stop before DEV with slice-plan diagnostics, while runtime implementation stays deferred.",
+  "facts": [
+    "B-7287 completed M0-M2 with diagnostic-only ProofStory commands.",
+    "The user raised the one-line development risk of 30 to 100 milestone requests.",
+    "Milestone ledgers should represent user intent coverage, not development execution units."
+  ],
+  "constraints": [
+    "Docs must be English for open-source use.",
+    "This story is docs-only and must not implement CLI/runtime behavior.",
+    "Do not use omx or .omx.",
+    "Do not turn every milestone into a child story or checklist item."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md"
+  ],
+  "timestamp": "2026-06-29T19:01:41.767Z"
+}

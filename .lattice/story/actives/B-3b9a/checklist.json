@@ -9,7 +9,42 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The document states that a milestone ledger is an intent-coverage ledger, not an execution plan, and adds ledger sizing/story slicing policy with thresholds.",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "The M1-M9 plan is updated so oversized ledgers first produce dry-run too-broad/slice-plan diagnostics before any future parent-child orchestration implementation.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The document avoids requiring all milestones to become stories and avoids requiring all stories to run full ProofStory.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The document clearly says this docs story does not implement CLI/runtime parent-child orchestration and defers that to later stories.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
