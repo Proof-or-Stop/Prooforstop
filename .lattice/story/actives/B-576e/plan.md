@@ -10,10 +10,12 @@ Plan:
 1. Update source-of-truth evidence docs to name the active vocabulary: admissibilityStatus, assuranceLevel, evidenceScope, local gate-consumed evidence, local signed/offline bundle evidence, and local review quorum.
 2. Mark Authority Server production receipts and Authority production completion fields as retired/out-of-core rather than future local CLI goals.
 3. Keep legacy references only when clearly marked as historical/retired.
+4. Mark every authority-specific decision-source document in this story as retired/legacy reference or superseded by local proof admissibility; no active external-adapter/future Authority Server implementation baseline remains.
 
 Verification:
 - Scan docs for active Authority Server guidance and productionDone/fullAuthorityDone/authorityDone local-state claims.
 - Confirm replacement vocabulary is present.
+- Confirm authority-specific decision docs are not presented as active implementation baselines.
 
 Rollback:
 - Revert only doc vocabulary changes if the implementation proves too broad; do not re-enable server command surface without a new decision.
