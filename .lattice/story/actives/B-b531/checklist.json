@@ -64,7 +64,22 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/post-done-closure-snapshot-smoke.ts",
+          "command": "node packages/main/dist/tasks/post-done-closure-snapshot-smoke.js",
+          "result": "pass",
+          "note": "Smoke constructs a DONE story, commits unrelated material drift, and asserts done_closure has zero blocking rows with historicalSnapshot material preserved.",
+          "headHash": "0c84b2ac6d3bc98c61d7beb7f7c377478866cc32",
+          "materialHash": "a20af37d646634c538dabb7eb3bf41b516ae6b105caecb7ec540a4ccdd0e3330",
+          "storyFilesHash": "491440a574d6ffdab64fb45eb1852e259c20545e521a3d1c4bbf7a4db9cd8cf4",
+          "timestamp": "2026-06-29T19:11:18.612Z"
+        }
+      ]
     }
   ],
   "auditLog": [
