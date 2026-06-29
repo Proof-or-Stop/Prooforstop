@@ -252,6 +252,17 @@
           "materialHash": "f3f14650d7fde940592eb514b2733ec03a19db99186f12565538a8a8b44aa2cc",
           "storyFilesHash": "fe187328ca35303232c34b0b2fb8b1d48d740ea431cb80d64bd06c966e36f942",
           "timestamp": "2026-06-29T01:05:43.358Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/command-catalog-smoke.js && node packages/main/dist/tasks/proof-admissibility-smoke.js",
+          "result": "pass",
+          "note": "Command catalog still passes with 257 commands and proof-admissibility smoke passes, showing local assurance/admissibility surfaces remain registered.",
+          "headHash": "3afee7a24bf3c0148ac9ec5164729dc19621c591",
+          "materialHash": "610d953adcd6dae8ec4af50dcadc186594f4d7c265d5c982db95f8863e0a8ce7",
+          "storyFilesHash": "41d2e25f8c8979249dcd99e7bf334d1ee24feba5d655bb726433d77c5c46651c",
+          "timestamp": "2026-06-29T01:47:32.520Z"
         }
       ]
     },
