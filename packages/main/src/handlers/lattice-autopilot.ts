@@ -137,8 +137,7 @@ function normalizeRunArgs(args: Record<string, unknown>): Record<string, unknown
 
 function normalizePolicyArgs(args: Record<string, unknown>): Record<string, unknown> {
   const rest = stripFormatArgs(args);
-  delete rest.requireServerAuthorityReceipt;
-  delete rest.requireServerReceipt;
+  delete rest.requireLocalAssurance;
   return rest;
 }
 

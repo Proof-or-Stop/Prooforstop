@@ -48,16 +48,28 @@ const retiredAliasPatterns = [
 
 const activeServerProductPatterns = [
   /\bAuthority Server receipt\b/i,
+  /\bserver AuthorityReceipt\b/i,
   /\bAuthority Server\b/i,
   /\bAuthority-Verified\b/i,
   /\bAuthority modes\b/i,
   /\bPython authority\b/i,
+  /\bAuthority gate consumption\b/i,
   /\bLATTICE_AUTHORITY_/,
   /\brequireServerReceipt\b/,
   /\brequireServerAuthorityReceipt\b/,
   /\bserverAuthorityReceipt\b/,
   /\bverifiedAuthorityReceipt\b/,
   /\bauthorityReceiptGate\b/,
+  /\bmissing_authority_receipt\b/,
+  /\bfullAuthorityDone requires\b/,
+  /\bauthority_receipt_not_verified\b/,
+  /\bauthority_receipt_unverified\b/,
+  /\bauthority_receipt\b/,
+  /\bserverReceipt\b/,
+  /\bserver-receipt\b/,
+  /\bserverRecord\b/,
+  /\bserver-record\b/,
+  /\bAuthorityReceipt\b/,
   /\bAuthorityClient\b/,
   /\bAuthorityMode\b/,
   /\bAuthoritySubmit/i,
@@ -103,19 +115,13 @@ const activeDirs = [
 const sourceScanAllowlist = new Set([
   'packages/main/src/tasks/retired-authority-server-semantics-smoke.ts',
   'packages/main/src/tasks/command-catalog-smoke.ts',
-  'packages/main/src/tasks/proof-admissibility-smoke.ts',
-  'packages/main/src/core/proof-admissibility.ts',
-  'packages/main/src/core/proof-admissibility-handoff.ts',
   'packages/main/src/core/receipt-bundle.ts',
   'packages/main/src/core/authority-contracts.ts',
   'packages/main/src/core/authority-signing.ts',
-  'packages/main/src/core/autopilot-policy.ts',
-  'packages/main/src/core/lattice-autopilot.ts',
   'packages/main/src/core/baseline.ts',
   'packages/main/src/core/baseline-suite-report.ts',
   'packages/main/src/core/usage-ledger/authority-evidence.ts',
   'packages/main/src/core/usage-ledger/record.ts',
-  'packages/main/src/cli/command-schemas.ts',
   'packages/main/src/tasks/lattice-baseline-smoke.ts',
 ]);
 
@@ -217,6 +223,8 @@ function assertScannerRejectsReintroduction(): void {
     'lattice authority status --format=json',
     'authority_status must be wired into MAIN_TOOLS',
     'Use an Authority Server receipt before local evidence is admissible.',
+    'missing_authority_receipt: provide a verified server AuthorityReceipt.',
+    'authority_receipt_unverified: fullAuthorityDone requires a verified receipt.',
   ].join('\n');
   const violations = scanText('<negative-self-check>', virtual, activePatterns(), false);
   assert.ok(
@@ -230,6 +238,14 @@ function assertScannerRejectsReintroduction(): void {
   assert.ok(
     violations.some(v => /Authority Server receipt/i.test(v.text)),
     'negative self-check rejects active server receipt wording',
+  );
+  assert.ok(
+    violations.some(v => /missing_authority_receipt/i.test(v.text)),
+    'negative self-check rejects retired missing_authority_receipt status',
+  );
+  assert.ok(
+    violations.some(v => /fullAuthorityDone requires/i.test(v.text)),
+    'negative self-check rejects retired fullAuthorityDone requirement wording',
   );
 }
 

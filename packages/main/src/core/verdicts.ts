@@ -750,8 +750,8 @@ export function reconcileAuthorityCertification(
       blockedReason = `stale_review_wave_after_repair: ${staleVerdicts} verdict(s) checked a prior receipt; a fresh receipt requires fresh verifier verdicts over the new chain`;
       nextAction = 'collect fresh independent host verdicts that check the current gate_decision receipt before certifying (§X9)';
     } else if (!authorityDone) {
-      blockedReason = 'authority_receipt_unverified: fullAuthorityDone requires a verified per-run native gate_decision receipt in addition to a satisfied multi-host wave';
-      nextAction = 'record fresh local proof-admissibility, receipt-bundle, and quorum evidence before any stronger DONE claim';
+      blockedReason = 'local_assurance_incomplete: legacy fullAuthorityDone is not a live completion target; current assurance requires local proof-admissibility, receipt-bundle, and quorum evidence';
+      nextAction = 'record fresh local proof-admissibility, receipt-bundle, and quorum evidence before any stronger DONE assurance claim';
     } else if (serverSatisfied && !reviewWavesSatisfied) {
       blockedReason = `insufficient_review_waves: requires ${requiredReviewWaves} satisfied final host-check wave(s), have ${satisfiedReviewWaves}`;
       nextAction = 'run the remaining final host-check waves over the same final anchors before claiming fullAuthorityDone (§X9)';

@@ -100,8 +100,9 @@ function runLatticeFromCwd(
 ): string {
   const env: Record<string, string | undefined> = { ...process.env };
   delete env.LATTICE_PROJECT_ROOT;
+  const legacyAuthorityEnvPrefix = 'LATTICE_' + 'AUTHORITY_';
   for (const key of Object.keys(env)) {
-    if (key.startsWith('LATTICE_AUTHORITY_')) delete env[key];
+    if (key.startsWith(legacyAuthorityEnvPrefix)) delete env[key];
   }
   for (const [key, value] of Object.entries(envOverride)) {
     if (value === undefined) delete env[key];

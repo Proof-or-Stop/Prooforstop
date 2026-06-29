@@ -5,13 +5,13 @@ import { LATTICE_DIR } from './lattice-paths.js';
 export const AUTOPILOT_POLICY_SCHEMA_VERSION = 'lattice.autopilot_policy.v1' as const;
 export const AUTOPILOT_POLICY_CHECK_SCHEMA_VERSION = 'lattice.autopilot_policy_check.v1' as const;
 
-export type AutopilotMode = 'conservative' | 'authority-verified' | 'full-autopilot';
+export type AutopilotMode = 'conservative' | 'authority-verified' | 'full-autopilot'; // legacy retired non-conservative modes are refused.
 export type AutopilotPolicyStatus = 'authorized' | 'supervised' | 'refused';
 
 export const AUTOPILOT_MODES: readonly AutopilotMode[] = [
   'conservative',
-  'authority-verified',
-  'full-autopilot',
+  'authority-verified', // legacy retired mode; refused by applyModeConstraints.
+  'full-autopilot', // legacy retired mode; refused by applyModeConstraints.
 ] as const;
 
 export interface AutopilotPolicyPermissions {
@@ -33,7 +33,7 @@ export interface AutopilotPolicyBounds {
 
 export interface AutopilotModePermissionMatrixEntry {
   defaultPermissions: AutopilotPolicyPermissions;
-  requireServerReceipt: boolean;
+  requireLocalAssurance: boolean;
   defaultBounds: AutopilotPolicyBounds;
   requiresFullBounds: boolean;
   receiptGatedPrivileges: readonly (keyof Pick<
@@ -43,7 +43,7 @@ export interface AutopilotModePermissionMatrixEntry {
 }
 
 export const CONSERVATIVE_AUTOPILOT_DEFAULTS: AutopilotPolicyPermissions & AutopilotPolicyBounds & {
-  requireServerReceipt: false;
+  requireLocalAssurance: false;
 } = {
   allowAutoDispatch: true,
   allowAutoValidate: true,
@@ -51,7 +51,7 @@ export const CONSERVATIVE_AUTOPILOT_DEFAULTS: AutopilotPolicyPermissions & Autop
   allowStoryIntegration: false,
   allowDoneAdvance: false,
   allowMainMerge: false,
-  requireServerReceipt: false,
+  requireLocalAssurance: false,
   maxIterations: 1,
   stopOnConflict: true,
   stopOnScopeViolation: true,
@@ -67,7 +67,7 @@ export const AUTOPILOT_MODE_PERMISSION_MATRIX = {
       allowDoneAdvance: CONSERVATIVE_AUTOPILOT_DEFAULTS.allowDoneAdvance,
       allowMainMerge: CONSERVATIVE_AUTOPILOT_DEFAULTS.allowMainMerge,
     },
-    requireServerReceipt: CONSERVATIVE_AUTOPILOT_DEFAULTS.requireServerReceipt,
+    requireLocalAssurance: CONSERVATIVE_AUTOPILOT_DEFAULTS.requireLocalAssurance,
     defaultBounds: {
       maxIterations: CONSERVATIVE_AUTOPILOT_DEFAULTS.maxIterations,
       stopOnConflict: CONSERVATIVE_AUTOPILOT_DEFAULTS.stopOnConflict,
@@ -76,7 +76,7 @@ export const AUTOPILOT_MODE_PERMISSION_MATRIX = {
     requiresFullBounds: false,
     receiptGatedPrivileges: [],
   },
-  'authority-verified': {
+  'authority-verified': { // legacy retired mode; local autopilot refuses it.
     defaultPermissions: {
       allowAutoDispatch: true,
       allowAutoValidate: true,
@@ -85,7 +85,7 @@ export const AUTOPILOT_MODE_PERMISSION_MATRIX = {
       allowDoneAdvance: false,
       allowMainMerge: false,
     },
-    requireServerReceipt: false,
+    requireLocalAssurance: false,
     defaultBounds: {
       maxIterations: 1,
       stopOnConflict: true,
@@ -103,7 +103,7 @@ export const AUTOPILOT_MODE_PERMISSION_MATRIX = {
       allowDoneAdvance: false,
       allowMainMerge: false,
     },
-    requireServerReceipt: false,
+    requireLocalAssurance: false,
     defaultBounds: {
       maxIterations: 0,
       stopOnConflict: true,
@@ -125,7 +125,7 @@ export interface AutopilotPolicy {
   allowStoryIntegration: boolean;
   allowDoneAdvance: boolean;
   allowMainMerge: boolean;
-  requireServerReceipt: boolean;
+  requireLocalAssurance: boolean;
   maxIterations: number;
   maxRuntimeMinutes?: number;
   maxBudgetUSD?: number;
@@ -134,8 +134,8 @@ export interface AutopilotPolicy {
   createdAt: string;
 }
 
-export interface AutopilotServerAuthorityReceiptContext {
-  authority: 'server';
+export interface AutopilotLocalAssuranceContext {
+  authority: 'local';
   verified: true;
   receiptRef: string;
   verifiedBy?: string;
@@ -143,7 +143,7 @@ export interface AutopilotServerAuthorityReceiptContext {
 }
 
 export interface AutopilotPolicyCheckOptions {
-  serverAuthorityReceipt?: AutopilotServerAuthorityReceiptContext;
+  localAssuranceEvidence?: AutopilotLocalAssuranceContext;
 }
 
 export interface CreateAutopilotPolicyArgs {
@@ -156,7 +156,7 @@ export interface CreateAutopilotPolicyArgs {
   allowStoryIntegration?: boolean;
   allowDoneAdvance?: boolean;
   allowMainMerge?: boolean;
-  requireServerReceipt?: boolean;
+  requireLocalAssurance?: boolean;
   maxIterations?: number;
   maxRuntimeMinutes?: number;
   maxBudgetUSD?: number;
@@ -165,10 +165,10 @@ export interface CreateAutopilotPolicyArgs {
 }
 
 export interface AutopilotPolicyAuthorityGate {
-  serverReceiptRequired: boolean;
-  serverReceiptContextPresent: boolean;
-  serverReceiptAcceptedForPolicy: boolean;
-  serverAuthorityReceiptRef?: string;
+  localAssuranceRequired: boolean;
+  localAssuranceContextPresent: boolean;
+  localAssuranceAcceptedForPolicy: boolean;
+  localAssuranceRef?: string;
   note: string;
 }
 
@@ -209,7 +209,7 @@ const CREATE_AUTOPILOT_POLICY_KEYS = new Set([
   'allowStoryIntegration',
   'allowDoneAdvance',
   'allowMainMerge',
-  'requireServerReceipt',
+  'requireLocalAssurance',
   'maxIterations',
   'maxRuntimeMinutes',
   'maxBudgetUSD',
@@ -235,16 +235,6 @@ function autopilotPoliciesDir(root: string): string {
 
 export function autopilotPolicyPath(root: string, policy: string): string {
   return join(autopilotPoliciesDir(root), `${policy}.json`);
-}
-
-function hasVerifiedServerAuthorityReceipt(options?: AutopilotPolicyCheckOptions): boolean {
-  void options;
-  return false;
-}
-
-function serverAuthorityReceiptRef(options?: AutopilotPolicyCheckOptions): string | undefined {
-  void options;
-  return undefined;
 }
 
 function normalizeBoolean(
@@ -324,7 +314,7 @@ function normalizeAutopilotPolicyRecord(raw: unknown): AutopilotPolicy {
     allowStoryIntegration: maybeBoolean(record.allowStoryIntegration, permissions.allowStoryIntegration),
     allowDoneAdvance: maybeBoolean(record.allowDoneAdvance, permissions.allowDoneAdvance),
     allowMainMerge: maybeBoolean(record.allowMainMerge, permissions.allowMainMerge),
-    requireServerReceipt: false,
+    requireLocalAssurance: false,
     maxIterations: maybeNumber(record.maxIterations, bounds.maxIterations) ?? 0,
     ...(maybeNumber(record.maxRuntimeMinutes, bounds.maxRuntimeMinutes) !== undefined
       ? { maxRuntimeMinutes: maybeNumber(record.maxRuntimeMinutes, bounds.maxRuntimeMinutes) }
@@ -395,7 +385,7 @@ function validateCreateArgs(
   normalized.allowStoryIntegration = normalizeBoolean(args.allowStoryIntegration, defaults.allowStoryIntegration, 'allowStoryIntegration', errors);
   normalized.allowDoneAdvance = normalizeBoolean(args.allowDoneAdvance, defaults.allowDoneAdvance, 'allowDoneAdvance', errors);
   normalized.allowMainMerge = normalizeBoolean(args.allowMainMerge, defaults.allowMainMerge, 'allowMainMerge', errors);
-  normalized.requireServerReceipt = false;
+  normalized.requireLocalAssurance = false;
   normalized.stopOnConflict = normalizeBoolean(args.stopOnConflict, matrix.defaultBounds.stopOnConflict, 'stopOnConflict', errors);
   normalized.stopOnScopeViolation = normalizeBoolean(args.stopOnScopeViolation, matrix.defaultBounds.stopOnScopeViolation, 'stopOnScopeViolation', errors);
 
@@ -440,7 +430,7 @@ function applyModeConstraints(
     if (policy.allowMainMerge) errors.push('conservative mode cannot allow main merge');
   }
 
-  if (policy.mode === 'authority-verified' || policy.mode === 'full-autopilot') {
+  if (policy.mode === 'authority-verified' || policy.mode === 'full-autopilot') { // legacy retired modes.
     errors.push(`${policy.mode} mode is retired; use conservative local autopilot`);
   }
 
@@ -500,7 +490,7 @@ function collectPolicyShapeReasons(raw: unknown, normalized: AutopilotPolicy): s
     'allowStoryIntegration',
     'allowDoneAdvance',
     'allowMainMerge',
-    'requireServerReceipt',
+    'requireLocalAssurance',
     'stopOnConflict',
     'stopOnScopeViolation',
   ]) {
@@ -546,7 +536,7 @@ export function createAutopilotPolicy(
     allowStoryIntegration: normalized.allowStoryIntegration!,
     allowDoneAdvance: normalized.allowDoneAdvance!,
     allowMainMerge: normalized.allowMainMerge!,
-    requireServerReceipt: normalized.requireServerReceipt!,
+    requireLocalAssurance: normalized.requireLocalAssurance!,
     maxIterations: normalized.maxIterations!,
     ...(normalized.maxRuntimeMinutes !== undefined ? { maxRuntimeMinutes: normalized.maxRuntimeMinutes } : {}),
     ...(normalized.maxBudgetUSD !== undefined ? { maxBudgetUSD: normalized.maxBudgetUSD } : {}),
@@ -652,10 +642,10 @@ function authorityGate(
   void policy;
   void options;
   return {
-    serverReceiptRequired: false,
-    serverReceiptContextPresent: false,
-    serverReceiptAcceptedForPolicy: false,
-    note: 'Autopilot policy checks authorize bounded local behavior only; server receipt authorization is retired.',
+    localAssuranceRequired: false,
+    localAssuranceContextPresent: false,
+    localAssuranceAcceptedForPolicy: false,
+    note: 'Autopilot policy checks authorize bounded local behavior only; local proof admissibility and review quorum remain separate lifecycle evidence.',
   };
 }
 
@@ -665,7 +655,7 @@ function authorityBoundary(): AutopilotPolicyAuthorityBoundary {
     receiptVerified: false,
     productionDone: false,
     mainMergeAuthority: false,
-    note: 'Autopilot policy checks authorize bounded local behavior only; they do not verify server receipts, perform main merges, advance DONE, or certify production completion.',
+    note: 'Autopilot policy checks authorize bounded local behavior only; they do not verify production receipts, perform main merges, advance DONE, or certify production completion.',
   };
 }
 
@@ -681,7 +671,7 @@ function placeholderPolicy(policy: string): AutopilotPolicy {
     allowStoryIntegration: CONSERVATIVE_AUTOPILOT_DEFAULTS.allowStoryIntegration,
     allowDoneAdvance: CONSERVATIVE_AUTOPILOT_DEFAULTS.allowDoneAdvance,
     allowMainMerge: CONSERVATIVE_AUTOPILOT_DEFAULTS.allowMainMerge,
-    requireServerReceipt: CONSERVATIVE_AUTOPILOT_DEFAULTS.requireServerReceipt,
+    requireLocalAssurance: CONSERVATIVE_AUTOPILOT_DEFAULTS.requireLocalAssurance,
     maxIterations: CONSERVATIVE_AUTOPILOT_DEFAULTS.maxIterations,
     stopOnConflict: CONSERVATIVE_AUTOPILOT_DEFAULTS.stopOnConflict,
     stopOnScopeViolation: CONSERVATIVE_AUTOPILOT_DEFAULTS.stopOnScopeViolation,
@@ -728,7 +718,7 @@ export function renderAutopilotPolicyText(policy: AutopilotPolicy): string {
     `allowStoryIntegration: ${policy.allowStoryIntegration}`,
     `allowDoneAdvance: ${policy.allowDoneAdvance}`,
     `allowMainMerge: ${policy.allowMainMerge}`,
-    `requireServerReceipt: ${policy.requireServerReceipt}`,
+    `requireLocalAssurance: ${policy.requireLocalAssurance}`,
     `maxIterations: ${policy.maxIterations}`,
     ...(policy.maxRuntimeMinutes !== undefined ? [`maxRuntimeMinutes: ${policy.maxRuntimeMinutes}`] : []),
     ...(policy.maxBudgetUSD !== undefined ? [`maxBudgetUSD: ${policy.maxBudgetUSD}`] : []),
@@ -749,8 +739,8 @@ export function renderAutopilotPolicyCheckText(result: AutopilotPolicyCheckResul
     `authorityChanged: ${result.authorityChanged}`,
     `receiptVerified: ${result.receiptVerified}`,
     `productionDone: ${result.productionDone}`,
-    `serverReceiptRequired: ${result.authorityGate.serverReceiptRequired}`,
-    `serverReceiptAcceptedForPolicy: ${result.authorityGate.serverReceiptAcceptedForPolicy}`,
+    `localAssuranceRequired: ${result.authorityGate.localAssuranceRequired}`,
+    `localAssuranceAcceptedForPolicy: ${result.authorityGate.localAssuranceAcceptedForPolicy}`,
     `mainMergeAuthority: ${result.authorityBoundary.mainMergeAuthority}`,
     `nextAction: ${result.nextAction}`,
   ];

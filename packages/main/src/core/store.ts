@@ -24,7 +24,7 @@ type JsonCandidate<T> = {
   data: T;
 };
 
-type LegacyAuthorityReceiptRefDocument = Record<string, unknown>;
+type LegacyReceiptRefDocument = Record<string, unknown>;
 
 class StoryArtifactMissingError extends Error {
   constructor(message: string) {
@@ -683,18 +683,18 @@ export class StoryStore {
     this.writeJson(storyId, 'declared-artifacts.json', data);
   }
 
-  // ── Legacy Authority receipt refs (retired server projection; read-only compatibility) ──
+  // ── Legacy legacy receipt refs (retired server projection; read-only compatibility) ──
 
-  readAuthorityReceiptRefs(storyId: string): LegacyAuthorityReceiptRefDocument | null {
+  readLegacyReceiptRefs(storyId: string): LegacyReceiptRefDocument | null {
     try {
-      return this.readJson<LegacyAuthorityReceiptRefDocument>(storyId, 'authority-receipt-refs.json');
+      return this.readJson<LegacyReceiptRefDocument>(storyId, 'authority-receipt-refs.json');
     } catch (e) {
       if (e instanceof StoryArtifactMissingError) return null;
       throw e;
     }
   }
 
-  writeAuthorityReceiptRefs(storyId: string, data: LegacyAuthorityReceiptRefDocument): void {
+  writeLegacyReceiptRefs(storyId: string, data: LegacyReceiptRefDocument): void {
     this.writeJson(storyId, 'authority-receipt-refs.json', data);
   }
 

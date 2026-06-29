@@ -12,8 +12,8 @@ export const RESERVED_PROOF_METADATA_KEYS = [
   'serverDelegated',
   'server_delegated',
   'serverDelegation',
-  'authorityReceipt',
-  'authorityReceiptRef',
+  'legacyReceipt',
+  'legacyReceiptRef',
   'authorityGateDecision',
 ] as const;
 

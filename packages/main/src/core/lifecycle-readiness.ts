@@ -691,8 +691,8 @@ function buildDoneRows(store: StoryStore, storyId: string, root: string, gitCwd:
     sourceRef: null,
     owner: 'authority',
     category: 'external',
-    code: 'authority_receipt_not_verified_by_v1',
-    reason: 'V1 is local read-only readiness only and does not verify Authority, fullAuthority, production, or deployment receipts',
+    code: 'legacy_authority_receipt_ignored_by_v1',
+    reason: 'V1 is local read-only readiness only; legacy authority receipt refs are ignored and current assurance comes from local proof-admissibility, receipt-bundle, and review quorum evidence',
     blocking: false,
   }));
   return rows;

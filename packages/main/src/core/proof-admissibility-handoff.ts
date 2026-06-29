@@ -54,13 +54,13 @@ export function buildHandoffAdmissibilitySummary(args: {
       },
     }),
     ...admissibleProofRef.map(ref => buildProofAdmissibilityDiagnostic({
-      artifactKind: 'authority-receipt-ref',
+      artifactKind: 'legacy-authority-receipt-ref',
       artifactId: ref,
       consumer: 'HANDOFF',
       claim: 'production-completion',
       mode,
       checks: {
-        schemaVersion: 'lattice.authority_receipt_refs.v1',
+        schemaVersion: 'lattice.legacy_authority_receipt_refs.v1',
         strictShapeValid: true,
         semanticDigestValid: true,
         signatureOrReceiptBindingValid: false,

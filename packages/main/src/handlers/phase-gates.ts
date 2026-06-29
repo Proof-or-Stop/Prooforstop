@@ -393,7 +393,7 @@ export function runPlanToDevScopeAdvice(ctx: HandlerContext, storyId: string): s
   );
 }
 
-export function runAuthorityReceiptTransitionGate(
+export function runLegacyReceiptTransitionGate(
   _ctx: HandlerContext,
   _storyId: string,
   _targetPhase: Extract<StoryPhase, 'TEST' | 'DONE'>,

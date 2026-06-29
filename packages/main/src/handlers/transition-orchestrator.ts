@@ -55,7 +55,7 @@ import {
   resolveGuardFailure,
   runScopeTransitionGate,
   runPlanToDevScopeAdvice,
-  runAuthorityReceiptTransitionGate,
+  runLegacyReceiptTransitionGate,
   runReviewToTestPreflightGate,
   runValidateGate,
 } from './phase-gates.js';
@@ -408,7 +408,7 @@ async function runStoryTransitionInner(
     // B-6974: gate no longer stops the actor; the orchestrator's finally does.
     if (args.phase === 'TEST') {
       await runValidateGate(ctx, args.storyId, actor);
-      guardGateReport += runAuthorityReceiptTransitionGate(ctx, args.storyId, 'TEST');
+      guardGateReport += runLegacyReceiptTransitionGate(ctx, args.storyId, 'TEST');
     }
 
     // TEST→DONE: block A (done-oracle gate + F-020 stray-file dry-run +
@@ -424,7 +424,7 @@ async function runStoryTransitionInner(
       // re-resolve, preMortem #4) so the DONE-oracle git-status probe runs in
       // the real gitRoot on wrapper-root layouts instead of the bare ctx.root.
       doneRenderedChecklist = await runDonePreMergeGate(args.storyId, store, ctx.root, actor, doneGitCwd);
-      guardGateReport += runAuthorityReceiptTransitionGate(ctx, args.storyId, 'DONE');
+      guardGateReport += runLegacyReceiptTransitionGate(ctx, args.storyId, 'DONE');
     }
 
     // B-0e53: pre-merge mainSha re-check. This point is AFTER the slow

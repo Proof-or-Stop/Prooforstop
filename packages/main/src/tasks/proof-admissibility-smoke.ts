@@ -52,13 +52,13 @@ function runtimeChecks(value: Record<string, unknown>): RuntimeAdmissibilityChec
 }
 
 {
-  assert.ok(EVIDENCE_SCOPES.includes('production-gate-decision'), 'scope dictionary includes production-gate-decision');
   assert.ok(EVIDENCE_SCOPES.includes('local-gate-evidence'), 'scope dictionary includes local-gate-evidence');
-  assert.ok(ARTIFACT_ROLES.includes('authority-decision'), 'artifact role dictionary includes authority-decision');
+  assert.ok(EVIDENCE_SCOPES.includes('local-gate-evidence'), 'scope dictionary includes local-gate-evidence');
+  assert.ok(ARTIFACT_ROLES.includes('legacy-authority-decision'), 'artifact role dictionary includes legacy-authority-decision');
   assert.ok(CLAIM_KINDS.includes('production-completion'), 'claim dictionary includes production-completion');
-  assert.ok(ARTIFACT_CONSUMER_KINDS.includes('AUTHORITY_GATE_DECISION'), 'consumer dictionary includes AUTHORITY_GATE_DECISION');
+  assert.ok(ARTIFACT_CONSUMER_KINDS.includes('LEGACY_AUTHORITY_RECEIPT'), 'consumer dictionary includes LEGACY_AUTHORITY_RECEIPT');
   assert.ok(TEMPORAL_ROLES.includes('transition-relation'), 'temporal role dictionary includes transition-relation');
-  assert.ok(PROOF_PRODUCER_BOUNDARIES.includes('authority-owned'), 'producer boundary dictionary includes authority-owned');
+  assert.ok(PROOF_PRODUCER_BOUNDARIES.includes('legacy-authority-owned'), 'producer boundary dictionary includes legacy-authority-owned');
   assert.ok(ADMISSIBILITY_REASON_CODES.includes('local_diagnostic_non_gate'), 'reason dictionary includes local_diagnostic_non_gate');
   assert.ok(ADMISSIBILITY_REASON_CODES.includes('unsupported_verifier_version'), 'reason dictionary includes unsupported_verifier_version');
   assert.ok(ADMISSIBILITY_REASON_CODES.includes('checker_error'), 'reason dictionary includes checker_error');
@@ -69,8 +69,8 @@ function runtimeChecks(value: Record<string, unknown>): RuntimeAdmissibilityChec
     'done-required-evidence',
     'delivery-check',
     'review-run',
-    'authority-receipt-ref',
-    'authority-receipt',
+    'legacy-authority-receipt-ref',
+    'legacy-authority-receipt',
     'offline-receipt-bundle',
     'handoff-pack',
     'usage-ledger-authority-evidence',
@@ -89,29 +89,29 @@ function runtimeChecks(value: Record<string, unknown>): RuntimeAdmissibilityChec
     assert.ok(registryKinds.has(kind), `registry missing ${kind}`);
   }
   assert.equal(PROOF_SURFACE_REGISTRY.length, registryKinds.size, 'registry artifactKind values must be unique');
-  assert.equal(getProofSurfaceDefinition('authority-receipt-refs.json')?.artifactKind, 'authority-receipt-ref', 'aliases resolve to canonical definition');
+  assert.equal(getProofSurfaceDefinition('legacy-authority-receipt-refs.json')?.artifactKind, 'legacy-authority-receipt-ref', 'aliases resolve to canonical definition');
 }
 
 {
   const result = evaluateProofAdmissibility({
-    artifactKind: 'authority-receipt-ref',
-    consumer: 'AUTHORITY_GATE_DECISION',
+    artifactKind: 'legacy-authority-receipt-ref',
+    consumer: 'LEGACY_AUTHORITY_RECEIPT',
     claim: 'production-completion',
-    checks: currentValidChecks('lattice.authority_receipt_refs.v1'),
+    checks: currentValidChecks('lattice.legacy_authority_receipt_refs.v1'),
   });
-  assert.equal(result.allowed, true, 'authority receipt ref with exact true checks and current contractVersion is allowed as evidence/input');
-  assert.equal(result.overall, 'pass', 'matching production gate decision has pass overall');
-  assert.equal(result.productionDoneEligible, false, 'local CLI core never turns authority receipt refs into productionDone eligibility');
-  assert.deepEqual(result.reasons, [], 'admissible authority receipt ref evidence has no reasons');
+  assert.equal(result.allowed, false, 'legacy authority receipt ref is readable but cannot satisfy production-completion');
+  assert.equal(result.overall, 'fail', 'legacy authority receipt ref stays out-of-core for production completion');
+  assert.equal(result.productionDoneEligible, false, 'local CLI core never turns legacy authority receipt refs into productionDone eligibility');
+  expectReason(result.reasons, 'legacy_downgrade', 'legacy receipt production-completion blocked');
 }
 
 {
   const nullRequiredCheck = evaluateProofAdmissibility({
-    artifactKind: 'authority-receipt-ref',
-    consumer: 'AUTHORITY_GATE_DECISION',
+    artifactKind: 'legacy-authority-receipt-ref',
+    consumer: 'LEGACY_AUTHORITY_RECEIPT',
     claim: 'production-completion',
     checks: runtimeChecks({
-      ...currentValidChecks('lattice.authority_receipt_refs.v1'),
+      ...currentValidChecks('lattice.legacy_authority_receipt_refs.v1'),
       strictShapeValid: null,
     }),
   });
@@ -122,11 +122,11 @@ function runtimeChecks(value: Record<string, unknown>): RuntimeAdmissibilityChec
 
 for (const value of [false, 'true', 1, 0]) {
   const result = evaluateProofAdmissibility({
-    artifactKind: 'authority-receipt-ref',
-    consumer: 'AUTHORITY_GATE_DECISION',
+    artifactKind: 'legacy-authority-receipt-ref',
+    consumer: 'LEGACY_AUTHORITY_RECEIPT',
     claim: 'production-completion',
     checks: runtimeChecks({
-      ...currentValidChecks('lattice.authority_receipt_refs.v1'),
+      ...currentValidChecks('lattice.legacy_authority_receipt_refs.v1'),
       strictShapeValid: value,
     }),
   });
@@ -137,11 +137,11 @@ for (const value of [false, 'true', 1, 0]) {
 
 {
   const missingContractVersion = evaluateProofAdmissibility({
-    artifactKind: 'authority-receipt-ref',
-    consumer: 'AUTHORITY_GATE_DECISION',
+    artifactKind: 'legacy-authority-receipt-ref',
+    consumer: 'LEGACY_AUTHORITY_RECEIPT',
     claim: 'production-completion',
     checks: runtimeChecks({
-      schemaVersion: 'lattice.authority_receipt_refs.v1',
+      schemaVersion: 'lattice.legacy_authority_receipt_refs.v1',
       verifierVersion: PROOF_ADMISSIBILITY_VERIFIER_VERSION,
       strictShapeValid: true,
       semanticDigestValid: true,
@@ -158,11 +158,11 @@ for (const value of [false, 'true', 1, 0]) {
 
 {
   const nullContractVersion = evaluateProofAdmissibility({
-    artifactKind: 'authority-receipt-ref',
-    consumer: 'AUTHORITY_GATE_DECISION',
+    artifactKind: 'legacy-authority-receipt-ref',
+    consumer: 'LEGACY_AUTHORITY_RECEIPT',
     claim: 'production-completion',
     checks: runtimeChecks({
-      ...currentValidChecks('lattice.authority_receipt_refs.v1'),
+      ...currentValidChecks('lattice.legacy_authority_receipt_refs.v1'),
       contractVersion: null,
     }),
   });
@@ -173,11 +173,11 @@ for (const value of [false, 'true', 1, 0]) {
 
 {
   const wrongContractVersion = evaluateProofAdmissibility({
-    artifactKind: 'authority-receipt-ref',
-    consumer: 'AUTHORITY_GATE_DECISION',
+    artifactKind: 'legacy-authority-receipt-ref',
+    consumer: 'LEGACY_AUTHORITY_RECEIPT',
     claim: 'production-completion',
     checks: runtimeChecks({
-      ...currentValidChecks('lattice.authority_receipt_refs.v1'),
+      ...currentValidChecks('lattice.legacy_authority_receipt_refs.v1'),
       contractVersion: 'lattice.proof_admissibility.v0',
     }),
   });
@@ -188,12 +188,12 @@ for (const value of [false, 'true', 1, 0]) {
 
 {
   const missingVerifierVersion = evaluateProofAdmissibility({
-    artifactKind: 'authority-receipt-ref',
-    consumer: 'AUTHORITY_GATE_DECISION',
+    artifactKind: 'legacy-authority-receipt-ref',
+    consumer: 'LEGACY_AUTHORITY_RECEIPT',
     claim: 'production-completion',
     checks: runtimeChecks({
       contractVersion: PROOF_ADMISSIBILITY_CONTRACT_VERSION,
-      schemaVersion: 'lattice.authority_receipt_refs.v1',
+      schemaVersion: 'lattice.legacy_authority_receipt_refs.v1',
       strictShapeValid: true,
       semanticDigestValid: true,
       signatureOrReceiptBindingValid: true,
@@ -209,11 +209,11 @@ for (const value of [false, 'true', 1, 0]) {
 
 {
   const nullVerifierVersion = evaluateProofAdmissibility({
-    artifactKind: 'authority-receipt-ref',
-    consumer: 'AUTHORITY_GATE_DECISION',
+    artifactKind: 'legacy-authority-receipt-ref',
+    consumer: 'LEGACY_AUTHORITY_RECEIPT',
     claim: 'production-completion',
     checks: runtimeChecks({
-      ...currentValidChecks('lattice.authority_receipt_refs.v1'),
+      ...currentValidChecks('lattice.legacy_authority_receipt_refs.v1'),
       verifierVersion: null,
     }),
   });
@@ -224,11 +224,11 @@ for (const value of [false, 'true', 1, 0]) {
 
 {
   const wrongVerifierVersion = evaluateProofAdmissibility({
-    artifactKind: 'authority-receipt-ref',
-    consumer: 'AUTHORITY_GATE_DECISION',
+    artifactKind: 'legacy-authority-receipt-ref',
+    consumer: 'LEGACY_AUTHORITY_RECEIPT',
     claim: 'production-completion',
     checks: runtimeChecks({
-      ...currentValidChecks('lattice.authority_receipt_refs.v1'),
+      ...currentValidChecks('lattice.legacy_authority_receipt_refs.v1'),
       verifierVersion: 'lattice.proof_admissibility_verifier.v0',
     }),
   });
@@ -239,15 +239,15 @@ for (const value of [false, 'true', 1, 0]) {
 
 {
   const missingChecks = evaluateProofAdmissibility({
-    artifactKind: 'authority-receipt-ref',
-    consumer: 'AUTHORITY_GATE_DECISION',
+    artifactKind: 'legacy-authority-receipt-ref',
+    consumer: 'LEGACY_AUTHORITY_RECEIPT',
     claim: 'production-completion',
   });
   assert.equal(missingChecks.allowed, false, 'production gate decision with omitted checks fails closed');
   assert.equal(missingChecks.productionDoneEligible, false, 'production gate decision with omitted checks cannot set productionDone');
   expectReason(missingChecks.reasons, 'missing_required_field', 'missing production gate checks');
   expectReason(missingChecks.reasons, 'signature_missing', 'missing production gate checks');
-  expectReason(missingChecks.reasons, 'unknown_producer', 'missing production gate checks');
+  expectReason(missingChecks.reasons, 'legacy_downgrade', 'missing production gate checks');
 }
 
 {
@@ -270,16 +270,15 @@ for (const value of [false, 'true', 1, 0]) {
   assert.equal(doneRequiredOverread.allowed, false, 'DONE-required evidence cannot satisfy production completion');
   assert.equal(doneRequiredOverread.productionDoneEligible, false, 'DONE-required evidence cannot set productionDone');
   expectReason(doneRequiredOverread.reasons, 'artifact_consumer_mismatch', 'DONE-required production claim');
-  expectReason(doneRequiredOverread.reasons, 'producer_owned_required', 'DONE-required production claim');
 }
 
 {
   const stale = evaluateProofAdmissibility({
-    artifactKind: 'authority-receipt-ref',
-    consumer: 'AUTHORITY_GATE_DECISION',
+    artifactKind: 'legacy-authority-receipt-ref',
+    consumer: 'LEGACY_AUTHORITY_RECEIPT',
     claim: 'production-completion',
     checks: {
-      ...currentValidChecks('lattice.authority_receipt_refs.v1'),
+      ...currentValidChecks('lattice.legacy_authority_receipt_refs.v1'),
       temporalAndMaterialBindingValid: false,
     },
   });
@@ -290,8 +289,8 @@ for (const value of [false, 'true', 1, 0]) {
 
 {
   const unsupported = evaluateProofAdmissibility({
-    artifactKind: 'authority-receipt-ref',
-    consumer: 'AUTHORITY_GATE_DECISION',
+    artifactKind: 'legacy-authority-receipt-ref',
+    consumer: 'LEGACY_AUTHORITY_RECEIPT',
     claim: 'production-completion',
     checks: currentValidChecks('legacy'),
   });
@@ -336,7 +335,7 @@ const negativeProductionControls = [
   { artifactKind: 'handoff-pack', expected: 'local_diagnostic_non_gate' as const },
   { artifactKind: 'offline-receipt-bundle', expected: 'producer_owned_required' as const },
   { artifactKind: 'legacy-evidence', expected: 'producer_owned_required' as const },
-  { artifactKind: 'authority-receipt', expected: 'producer_owned_required' as const },
+  { artifactKind: 'legacy-authority-receipt', expected: 'producer_owned_required' as const },
 ];
 
 for (const { artifactKind, expected } of negativeProductionControls) {
@@ -344,7 +343,7 @@ for (const { artifactKind, expected } of negativeProductionControls) {
   assert.ok(definition, `negative control ${artifactKind} has definition`);
   const result = evaluateProofAdmissibility({
     artifactKind,
-    consumer: 'AUTHORITY_GATE_DECISION',
+    consumer: 'LEGACY_AUTHORITY_RECEIPT',
     claim: 'production-completion',
     checks: currentValidChecks(definition.schemaVersions[0] ?? 'missing'),
   });

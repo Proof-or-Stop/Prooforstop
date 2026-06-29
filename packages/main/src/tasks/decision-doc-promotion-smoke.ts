@@ -123,7 +123,7 @@ function baseProposal(slug: string, overrides: Partial<Record<string, unknown>> 
     scope: 'Applies to the smoke test project decision-doc promotion path and its canonical decisions directory.',
     nonGoals: [
       'Do not write outside the canonical decisions directory',
-      'Do not claim Authority Server receipt completion',
+      'Do not claim production completion from legacy out-of-core receipt artifacts',
     ],
     chosenApproach: 'Use a story-local proposal artifact, preview it read-only, then save it with explicit confirmation.',
     alternatives: [

@@ -162,18 +162,10 @@ export const reviewLoopNextActionSchema = z.object({
 export const stringOrStringArraySchema = z.union([z.string(), z.array(z.string())]);
 export const autopilotModeSchema = z.enum([
   'conservative',
-  'authority-verified',
-  'authority_verified',
-  'full-autopilot',
-  'full_autopilot',
-]);
-export const serverAuthorityReceiptSchema = z.union([
-  z.string(),
-  z.object({
-    authority: z.string().optional(),
-    verified: z.boolean().optional(),
-    receiptRef: z.string().optional(),
-  }).passthrough(),
+  'authority-verified', // legacy retired alias; handler refuses it.
+  'authority_verified', // legacy retired alias; handler refuses it.
+  'full-autopilot', // legacy retired alias; handler refuses it.
+  'full_autopilot', // legacy retired alias; handler refuses it.
 ]);
 
 export const reviewEscalationFallbackEligibilitySchema = z.enum([
@@ -227,4 +219,3 @@ export function hasAnyNonEmptyStringArray(value: unknown, fields: string[]): boo
   const record = value as Record<string, unknown>;
   return fields.some(field => hasNonEmptyStringArray(record[field]));
 }
-

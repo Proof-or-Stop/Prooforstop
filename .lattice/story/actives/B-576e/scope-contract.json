@@ -59,7 +59,24 @@
   "protectedFiles": [],
   "explicitExcludes": [],
   "scopeChangeReason": "DEV review found retired command names in cli-engine generated comment mirror and active server Authority gate/receipt paths; include cli-engine for complete command-surface cleanup.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "lattice-implementer",
+      "reason": "Remove the stale server Authority receipt schema and mark retired autopilot aliases so the expanded B-576e guard can enforce active command-schema semantics.",
+      "timestamp": "2026-06-29T01:42:33.716Z",
+      "paths": [
+        "packages/main/src/cli/command-schemas.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/cli/command-schemas.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "5d3d7bd68691998340a95c59adeefa15e45e7288",
+      "materialHash": "0e66160dcc9a4cf148e155510d835e3ff5f176c642574b9e93a3fc976a3795c7"
+    }
+  ],
   "createdAt": "2026-06-29T00:42:19.157Z",
-  "updatedAt": "2026-06-29T01:09:56.237Z"
+  "updatedAt": "2026-06-29T01:42:33.716Z"
 }

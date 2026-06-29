@@ -272,7 +272,7 @@ function assertNoAuthorityCompletionClaims(label: string, value: unknown): void 
 
 function assertLocalReviewEvidenceDoesNotClaimAuthority(root: string, storyId: string, outputs: string[]): void {
   const store = new StoryStore(root);
-  assert.equal(store.readAuthorityReceiptRefs(storyId), null, 'local review_run_start/review_pass_set must not persist Authority receipt refs');
+  assert.equal(store.readLegacyReceiptRefs(storyId), null, 'local review_run_start/review_pass_set must not persist legacy receipt refs');
   assert.equal(
     existsSync(store.storyFilePath(storyId, 'authority-receipt-refs.json')),
     false,

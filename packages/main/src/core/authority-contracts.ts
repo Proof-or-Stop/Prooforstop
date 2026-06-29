@@ -693,14 +693,14 @@ export function isAuthorityBatchFullyAccepted(
 }
 
 // ===========================================================================
-// Run-event upload contract — POST /v1/runs/{runId}/events
+// Legacy/out-of-core run-event upload contract — POST /v1/runs/{runId}/events
 //
 // Mirrors the provider-events envelope shape (authority-runner-contracts.ts) but
 // for the executor's command / validation / repair / summary / completion events.
 // Kept self-contained here (an allowed file) rather than extending the runner
 // header so the executor evidence/gate loop has one typed surface to import.
-// The CLI never mints a receipt — a run-events ack is consumed exactly like the
-// provider-events ack (AuthorityReceipt | {} passthrough on the client side).
+// The CLI never mints a receipt. This compatibility shape is legacy-readable
+// only and is not an active local gate or production-completion path.
 // ===========================================================================
 
 /** A single executor run event (command / validation / repair / summary / completion). */
@@ -787,11 +787,11 @@ export function buildAuthorityRunEventsEnvelope(
 }
 
 // ===========================================================================
-// Gate-evaluation contract — POST /v1/gates/evaluate (B6 / B15)
+// Legacy/out-of-core gate-evaluation contract — POST /v1/gates/evaluate (B6 / B15)
 //
-// The CLI builds a gate input from canonical story state + evidence refs, posts
-// it, and consumes a native gate_decision receipt. It NEVER mints a receipt: the
-// response is verified by lattice-authority-native.verifyLatticeAuthorityReceipt.
+// The CLI no longer posts this contract as an active runtime path. Legacy
+// consumers may still read the shape, but local assurance is proof-admissibility,
+// receipt-bundle anti-tamper evidence, and review quorum.
 // `gateInputDigest` is the X5 gate idempotency key.
 // ===========================================================================
 

@@ -128,15 +128,14 @@ Boundaries:
 - The source codebase is read-only input; target files are written only through the story worktree and normal lifecycle gates. The workflow is language-pair agnostic (e.g. `typescript -> rust`, `swift -> kotlin`).
 - It preserves license/attribution notices and excludes secrets, `.git`, caches, and build outputs from prompts/output/evidence. It produces evidence-backed alignment, not a promise of perfect semantic equivalence; in-scope details that cannot be verified are recorded as explicit gaps. This is a current-pass capability still converging against its fixtures, not part of the already-shipped baseline.
 
-### CHK-002 enforce matrix smoke
+### Legacy enforce matrix smoke
 
-`npm run test:authority-enforce-matrix` verifies the following five cells through a pure in-process matrix:
+This legacy matrix is retained only as historical migration context; it is not an active runtime baseline. Current Proofbound assurance uses local proof-admissibility, receipt-bundle anti-tamper checks, and local review quorum evidence.
 
-- **local/off stays free/local** — `loadAuthoritySettings({})` returns `mode: off`; `classifyCliAuthoritySubmission('off', …)` returns `local-only`, with no network access.
-- **shadow is warning-only** — when the server fails, `proceed=true` + a stderr `[warning]`, with no exception thrown and no blocking of the local write.
-- **enforce fake receipt can be classified as L2+ only after receipt verification** — an ordinary CLI submission is always `thin-client-transport-accepted`; only when a fully-bound envelope + a signed `AuthorityReceipt` is passed into `classifyReceiptBackedEvidence` and signature-verified does it reach `receipt-backed-l2-plus`.
-- **enforce missing server fails closed for the runner/submission path** — `createAuthoritySubmitter(enforce, no baseURL).submitSingle(…)` returns `proceed=false`, with no network access.
-- **parallel_report is always non-authoritative** — `buildParallelReport(wave)` always has `authority.productionDone=false`, `authority.authorityChanged=false`, and an empty `authority.receiptRefs`.
+- Local proof evidence remains local and does not require a remote receipt.
+- Legacy shadow/enforce transport behavior is out-of-core and superseded by local admissibility gates.
+- Legacy remote receipt classifications must not be used to claim current production completion.
+- `parallel_report` remains non-production evidence unless admitted by local gate evidence and review quorum.
 
 ## Host Overflow
 

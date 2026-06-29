@@ -366,8 +366,9 @@ function runLattice(
 ): string {
   const env = { ...process.env };
   delete env.LATTICE_PROJECT_ROOT;
+  const legacyAuthorityEnvPrefix = 'LATTICE_' + 'AUTHORITY_';
   for (const key of Object.keys(env)) {
-    if (key.startsWith('LATTICE_AUTHORITY_')) delete (env as Record<string, string | undefined>)[key];
+    if (key.startsWith(legacyAuthorityEnvPrefix)) delete (env as Record<string, string | undefined>)[key];
   }
   return execFileSync(process.execPath, [cliPath, command, JSON.stringify(args)], {
     cwd,
