@@ -9,8 +9,8 @@
   "validate": {
     "commands": [
       { "command": "npm", "args": ["--prefix", "packages/main", "run", "build"], "timeoutMs": 290000, "focus": ["fast"] },
-      "node packages/main/dist/tasks/authority-client-smoke.js",
-      "node packages/main/dist/tasks/authority-completion-smoke.js",
+      "node packages/main/dist/tasks/retired-authority-server-semantics-smoke.js",
+      "node packages/main/dist/tasks/capability-list-smoke.js",
       { "command": "node", "args": ["packages/main/dist/tasks/review-pass-discard-smoke.js"], "timeoutMs": 180000 },
       { "command": "node", "args": ["packages/main/dist/tasks/init-window-data-loss-smoke.js"], "timeoutMs": 180000 },
       { "command": "node", "args": ["packages/main/dist/tasks/validate-command-timeout-smoke.js"], "focus": ["fast"] },
