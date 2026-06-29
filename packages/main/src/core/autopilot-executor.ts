@@ -449,7 +449,7 @@ export function executeAutopilot(options: ExecuteAutopilotOptions): AutopilotExe
   } else if (dryRun) {
     nextActions.add('Remove --dryRun to execute the planned local Proofbound commands.');
     if (multiHostRequired) {
-      nextActions.add(`This run targets DONE with multi-host certification: real execution stays blocked until ${requiredHostVerdictCount} independent host verdicts certify the run (lattice autopilot review submit / lattice authority verdict submit).`);
+      nextActions.add(`This run targets DONE with multi-host certification: real execution stays blocked until ${requiredHostVerdictCount} independent host verdicts certify the run (lattice autopilot review submit / lattice quorum_submit).`);
     }
   } else if (!plan.story.storyId) {
     status = 'fail';
@@ -504,7 +504,7 @@ export function executeAutopilot(options: ExecuteAutopilotOptions): AutopilotExe
   } else if (multiHostRequired && !multiHostSatisfied) {
     status = 'fail';
     stopReason = 'multi-host-verdicts-required';
-    nextActions.add(`Autopilot execute cannot self-certify multi-host DONE. Collect ${requiredHostVerdictCount} independent host verdicts via lattice autopilot review submit (local) or lattice authority verdict submit (authority), then advance DONE once multiHostVerified is true.`);
+    nextActions.add(`Autopilot execute cannot self-certify multi-host DONE. Collect ${requiredHostVerdictCount} independent host verdicts via lattice autopilot review submit and lattice quorum_submit, then advance DONE once local quorum evidence is present.`);
   } else {
     const steps = plan.plannedSteps.slice(0, maxSteps);
     if (plan.plannedSteps.length > maxSteps) {

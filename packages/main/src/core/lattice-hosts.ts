@@ -420,13 +420,13 @@ function installStepsForHost(host: string): { summary: string; steps: string[]; 
   }
   if (normalized === 'server') {
     return {
-      summary: 'Server is the authority/orchestration profile. It is not a workspace editing host.',
+      summary: 'Server Authority is retired/out-of-core for the active Proofbound CLI. It is not a workspace editing host.',
       steps: [
-        'Configure the external authority server outside this CLI migration.',
-        'Use lattice authority status to confirm the CLI sees local authority settings.',
-        'Do not treat server reachability or transport acceptance as receipt verification.',
+        'Use local proof admissibility, signed/offline receipt bundles, and local review quorum for active CLI assurance.',
+        'Treat any old Authority Server materials as legacy reference only.',
+        'Do not treat server reachability or transport acceptance as local proof admissibility.',
       ],
-      commands: ['node bin/lattice.js authority_status --format=json'],
+      commands: ['node bin/lattice.js conduit_status --format=json'],
       warnings: commonWarnings,
     };
   }

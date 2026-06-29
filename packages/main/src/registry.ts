@@ -86,7 +86,6 @@ import { createCapsuleHandlers } from './handlers/capsule.js';
 import { createScopeAntiExpansionHandlers } from './handlers/scope-anti-expansion.js';
 import { createScopeContractHandlers } from './handlers/scope-contract.js';
 import { createGuardSessionHandlers } from './handlers/guard-session.js';
-import { createAuthorityEnforceHandlers } from './handlers/authority-enforce.js';
 import { createDevMemoryHandlers } from './handlers/dev-memory.js';
 import { createReproIntakeHandlers } from './handlers/repro-intake.js';
 import { createMemoryBenchmarkHandlers } from './handlers/memory-benchmark.js';
@@ -327,10 +326,6 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
 
   // B-6bfd CHK-004: guard session projection — guard_session_start/status/check
   registry.registerBatch(createGuardSessionHandlers(ctx));
-
-  // B-ea92 M1: authority_enforce_policy — read-only policy discovery command stub.
-  // Never submits evidence, claims jobs, registers actor keys, or verifies receipts.
-  registry.registerBatch(createAuthorityEnforceHandlers(ctx));
 
   // B-ad2c: dev_memory_* — lightweight experience capture outside Proofbound story gates.
   // Non-authoritative: entries cannot satisfy Proofbound DONE gate evidence.

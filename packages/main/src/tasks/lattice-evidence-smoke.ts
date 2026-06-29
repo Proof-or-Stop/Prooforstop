@@ -73,12 +73,12 @@ function seedStory(store: StoryStore, headHash: string, materialHash: string): v
     },
   };
   const failedProofEvidence: VerificationEvidence = {
-    intentRef: 'CHK-006:authority-proof-fail:custom',
+    intentRef: 'CHK-006:local-admissibility-fail:custom',
     kind: 'manual_transcript',
-    command: 'lattice authority_status --json --storyId=B-12f3',
+    command: 'lattice conduit_status --json --storyId=B-12f3',
     result: 'fail',
     verdict: 'blocked_classified',
-    note: 'Authority proof remains blocked: receiptVerified=false, authorityDone=false, and no gate_decision receipt exists.',
+    note: 'Local admissibility proof remains blocked until gate evidence is fresh and scoped.',
     headHash,
     materialHash,
     storyFilesHash,

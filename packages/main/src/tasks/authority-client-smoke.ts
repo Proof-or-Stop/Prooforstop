@@ -3140,7 +3140,7 @@ function authorityJobPlan(): JobPlan {
       requiredServerKeyId: null,
     },
     jobCreateRequestEnvelope: {
-      kind: 'authority_job_create',
+      kind: 'retired_server_job_create',
       projectId: 'project-1',
       storyId: 'B-auth',
       plannerRunId: 'prun-auth-1',

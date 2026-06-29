@@ -1,5 +1,7 @@
 # Authority Receipt Gate End-to-End Plan
 
+> **Retired legacy note:** Authority Server and server-backed receipt semantics in this document are retired/out-of-core for the active Proofbound CLI. Current implementation baselines are local proof admissibility (`admissibilityStatus`, `assuranceLevel`, `evidenceScope`), gate-consumed local evidence, signed/offline receipt bundles, and local review quorum assurance. Do not use this document as active Authority Server implementation guidance.
+
 > Status: execution plan with current server and CLI/gate baseline noted.
 > Scope: cross-repo Authority Server + Runner + Proofbound CLI + lifecycle gates.
 > Trigger: current local Proofbound has receipt verification and gate-consumption

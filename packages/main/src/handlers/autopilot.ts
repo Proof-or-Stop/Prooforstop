@@ -11,9 +11,6 @@ import {
   type AutopilotExecuteArgs,
   type AutopilotExecuteResult,
 } from '../core/autopilot-executor.js';
-import {
-  executeAutopilotLive,
-} from '../core/authority-job-loop-live.js';
 
 function wantsJson(args: { format?: string; json?: boolean } | undefined): boolean {
   return args?.format === 'json' || args?.json === true;
@@ -252,21 +249,6 @@ export function createAutopilotHandlers(ctx: HandlerContext) {
         return wantsJson(args) ? result : renderExecute(result);
       };
 
-      // The live `--mode=authority` (no --jobFile) loop is async (network claim +
-      // lease lifecycle); every other path stays synchronous and byte-identical.
-      if (
-        args.mode === 'authority' &&
-        args.dryRun !== true &&
-        !(typeof args.jobFile === 'string' && args.jobFile.length > 0)
-      ) {
-        return executeAutopilotLive({
-          store: ctx.store,
-          root: ctx.root,
-          args,
-          runner: ctx.autopilotCommandRunner,
-        }).then(finish);
-      }
-
       return finish(executeAutopilot({
         store: ctx.store,
         root: ctx.root,
@@ -278,21 +260,18 @@ export function createAutopilotHandlers(ctx: HandlerContext) {
     autopilot_doctor(args: { format?: 'text' | 'json'; json?: boolean } = {}) {
       const status = buildAutopilotStatus(process.env, { cwd: ctx.root });
       const local = buildAutopilotRun(ctx.store, { mode: 'local', dryRun: true }, process.env, { cwd: ctx.root });
-      const authority = buildAutopilotRun(ctx.store, { mode: 'authority', until: 'DONE', dryRun: true }, process.env, { cwd: ctx.root });
       const result = {
         schemaVersion: 'lattice.autopilot_doctor.v1' as const,
         ok: local.status !== 'fail',
         local,
-        authority,
         status,
-        note: 'Doctor confirms local autopilot stays available even when authority mode is not ready.',
+        note: 'Doctor confirms local autopilot stays available; server Authority modes are retired from active runtime.',
       };
       if (wantsJson(args)) return result;
       return [
         `Proofbound autopilot doctor (${result.schemaVersion})`,
         `ok: ${result.ok}`,
         `localStatus: ${local.status}`,
-        `authorityStatus: ${authority.status}`,
         `authorityReady: ${status.authorityReady}`,
         '',
         result.note,

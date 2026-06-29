@@ -36,7 +36,7 @@ function resolveSignedWorkspaceRoot(workspace: ResolvedReviewWorkspace, storyId:
       `metadataRoot: ${workspace.metadataRoot}\n` +
       `signedWorkspaceRoot: unresolved\n` +
       `Reason: ${workspace.unresolvedReason || 'requires_git_signed_workspace_but_no_binding'}\n` +
-      'No reviewer run was created. Local host output is localNonAuthorityAudit only; no Authority Server receipt was produced.',
+      'No reviewer run was created. Local host output is diagnostic only and no local proof-admissibility evidence was produced.',
     );
   }
   return signedWorkspaceRoot;

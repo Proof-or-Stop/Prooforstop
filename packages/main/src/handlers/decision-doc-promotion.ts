@@ -504,7 +504,7 @@ export function createDecisionDocPromotionHandlers(ctx: HandlerContext) {
         headHash,
         materialHash,
         mode: args.mode,
-        authorityBoundary: 'local workflow evidence only; not Authority Server receipt completion; does not set authorityDone, fullAuthorityDone, or productionDone',
+        authorityBoundary: 'local workflow evidence only; not local proof-admissibility, receipt-bundle, quorum, or productionDone completion',
       });
 
       return [

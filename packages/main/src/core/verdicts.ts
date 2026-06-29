@@ -752,7 +752,7 @@ export function reconcileAuthorityCertification(
       nextAction = 'collect fresh independent host verdicts that check the current gate_decision receipt before certifying (§X9)';
     } else if (!authorityDone) {
       blockedReason = 'authority_receipt_unverified: fullAuthorityDone requires a verified per-run native gate_decision receipt in addition to a satisfied multi-host wave';
-      nextAction = 'verify the per-run gate_decision receipt (lattice authority receipt verify) before claiming fullAuthorityDone';
+      nextAction = 'record fresh local proof-admissibility, receipt-bundle, and quorum evidence before any stronger DONE claim';
     } else if (serverSatisfied && !reviewWavesSatisfied) {
       blockedReason = `insufficient_review_waves: requires ${requiredReviewWaves} satisfied final host-check wave(s), have ${satisfiedReviewWaves}`;
       nextAction = 'run the remaining final host-check waves over the same final anchors before claiming fullAuthorityDone (§X9)';

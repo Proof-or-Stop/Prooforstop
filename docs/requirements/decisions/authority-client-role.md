@@ -1,5 +1,7 @@
 # Proofbound CLI Authority Client Role (PD-1 / PD-2 Decisions)
 
+> **Retired legacy note:** Authority Server and server-backed receipt semantics in this document are retired/out-of-core for the active Proofbound CLI. Current implementation baselines are local proof admissibility (`admissibilityStatus`, `assuranceLevel`, `evidenceScope`), gate-consumed local evidence, signed/offline receipt bundles, and local review quorum assurance. Do not use this document as active Authority Server implementation guidance.
+
 > **Status**: PD-1 decision recorded — 2026-05-25; PD-2 boundary recorded — 2026-05-27
 > **Stories**: B-4bd4 (PD-1, decision-only; no production code changed), B-7e38 (PD-2, docs + smoke tests only)
 > **Derivation**: `.lattice/story/actives/B-4bd4/evidence/authority-client-role-decision.md`

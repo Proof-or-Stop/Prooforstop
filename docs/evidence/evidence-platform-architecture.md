@@ -5,11 +5,17 @@ B-0985 proof-admissibility classification MVP.
 Date: 2026-06-24.
 Scope: shared local evidence platform for Proofbound CLI.
 
+Current vocabulary: active Proofbound CLI/runtime evidence is expressed with
+`admissibilityStatus`, `assuranceLevel`, `evidenceScope`, gate-consumed local
+evidence, local signed/offline receipt bundles, and local review quorum
+assurance. Authority Server and server-backed receipt semantics are retired
+from the active core path and appear only as legacy/out-of-core references.
+
 This document defines the evidence storage boundary used by Repro-First intake.
 The B-0aa1 slice implements the artifact storage and repro intake portions only.
 B-0985 adds a shared proof-admissibility classification helper.
-It does not implement Authority quorum, production gate consumption,
-ledger waterlines, or hard Proof Admissibility enforcement.
+It does not implement retired server Authority quorum, production gate
+consumption, ledger waterlines, or hard Proof Admissibility enforcement.
 
 ## Architecture Rule
 
@@ -17,7 +23,7 @@ Evidence-looking data must go through a shared evidence service instead of each
 handler writing proof files directly.
 
 ```text
-CLI / REVIEW / TEST / DONE / Authority
+CLI / REVIEW / TEST / DONE / Local assurance
                     |
                     v
              EvidenceRuntime
@@ -39,7 +45,7 @@ This slice separates concerns:
 
 - evidence storage and lookup
 - admissibility classification
-- gate enforcement and Authority semantics
+- gate enforcement and local assurance semantics
 
 Later slices can consume these interfaces for gates.
 

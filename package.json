@@ -1,6 +1,6 @@
 {
   "name": "lattice",
-  "version": "0.3.105",
+  "version": "0.3.106",
   "description": "",
   "main": "index.js",
   "directories": {
@@ -44,7 +44,6 @@
     "test:experience-hint-worktree-cache": "node packages/main/dist/tasks/experience-hint-worktree-cache-smoke.js",
     "test:done-merge-experience-refresh": "node packages/main/dist/tasks/done-merge-experience-refresh-smoke.js",
     "test:experience-coverage-gap": "node packages/main/dist/tasks/experience-coverage-gap-smoke.js",
-    "test:authority-enforce-matrix": "npm --prefix packages/main run test:authority-enforce-matrix",
     "test:storydir-inside-gitroot-smoke": "npm --prefix packages/main run test:storydir-inside-gitroot-smoke",
     "test:storydir-inside-gitroot-suite": "npm --prefix packages/main run test:storydir-inside-gitroot-suite",
     "test:smokes-full": "npm run test:storydir-inside-gitroot-suite && npm run test:all",

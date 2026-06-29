@@ -8,14 +8,20 @@
 > Scope: Proofbound CLI evidence, receipt, handoff, and gate-consumption boundaries.
 > Architecture baseline: `docs/evidence/evidence-platform-architecture.md`.
 
+> **Current vocabulary:** Active Proofbound CLI/runtime proof language is
+> `admissibilityStatus`, `assuranceLevel`, `evidenceScope`, gate-consumed local
+> evidence, local signed/offline receipt bundles, and local review quorum
+> assurance. Authority Server and server-backed receipt semantics are retired
+> from the active core path; older sections that mention them are legacy context
+> only and are superseded by local proof admissibility.
+
 This plan migrates existing proof-looking surfaces onto the shared Evidence
 Runtime architecture. It must not create a separate Proof Admissibility manager,
 storage root, ledger format, or gate-specific proof implementation.
 
 B-0985 implements the first classification-only slice: the inventory, canonical
 enum vocabulary, proof surface registry, and evaluator. It does not hard-fail
-gates, change Authority Server behavior, or create storage outside
-`.lattice/evidence/`.
+gates or create storage outside `.lattice/evidence/`.
 
 ## Table of Contents
 

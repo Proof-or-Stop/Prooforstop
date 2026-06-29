@@ -38,8 +38,8 @@ import { LATTICE_DIR } from './lattice-paths.js';
 export const PLANNER_INTERACTION_MODES = ['autonomous', 'interview', 'decision-gated'] as const;
 export type PlannerInteractionMode = typeof PLANNER_INTERACTION_MODES[number];
 
-export const PLANNER_RUN_MODES = ['local', 'authority'] as const;
-export type PlannerRunMode = typeof PLANNER_RUN_MODES[number];
+export const PLANNER_RUN_MODES = ['local'] as const;
+export type PlannerRunMode = 'local' | 'authority';
 
 export const PLANNER_UNTIL_PHASES = ['PLAN', 'DEV', 'REVIEW', 'TEST', 'DONE'] as const;
 export type PlannerUntilPhase = typeof PLANNER_UNTIL_PHASES[number];
@@ -430,7 +430,7 @@ export interface JobPlan {
     mode: 'authority';
   };
   jobCreateRequestEnvelope?: {
-    kind: 'authority_job_create';
+    kind: 'retired_server_job_create';
     projectId: string;
     storyId: string;
     plannerRunId: string;
@@ -585,7 +585,7 @@ function normalizeInteractionMode(value: unknown): PlannerInteractionMode {
 }
 
 function normalizeRunMode(value: unknown): PlannerRunMode {
-  return PLANNER_RUN_MODES.includes(value as PlannerRunMode) ? value as PlannerRunMode : 'local';
+  return value === 'local' ? 'local' : 'local';
 }
 
 function normalizeUntil(value: unknown): PlannerUntilPhase {
@@ -1360,7 +1360,7 @@ export function buildJobPlan(
       mode: 'authority' as const,
     };
     const envelope = {
-      kind: 'authority_job_create' as const,
+      kind: 'retired_server_job_create' as const,
       projectId,
       storyId,
       plannerRunId: draft.plannerRunId,

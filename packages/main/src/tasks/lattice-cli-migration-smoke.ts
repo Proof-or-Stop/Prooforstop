@@ -24,7 +24,6 @@ const COMMANDS = [
   'host_install',
   'lattice_config_doctor',
   'rollout_check',
-  'authority_status',
   'conduit_status',
   'conduit_explain',
   'handoff_create',
@@ -261,22 +260,6 @@ for (const probe of rollout.projects[0].probes) {
 assert.equal(rollout.safety.forbiddenArgs.includes('--apply'), true);
 assert.match(rollout.safety.note, /never runs apply, upgrade, repair, fix/i);
 assertNoProductionOverclaim(rollout, 'lattice rollout check');
-
-const authority = runJson<any>(['lattice', 'authority', 'status', '--format=json'], {
-  LATTICE_AUTHORITY_MODE: '',
-  LATTICE_AUTHORITY_URL: '',
-  LATTICE_AUTHORITY_TIMEOUT_MS: '',
-});
-assert.equal(authority.schemaVersion, 'lattice.authority_status.v1');
-assert.equal(authority.baseURLConfigured, false);
-assert.equal(authority.baseURL, null);
-assert.equal(authority.status, 'not-configured');
-assert.equal(authority.serverReachability, 'not-probed');
-assert.equal(authority.receiptVerified, false);
-assert.equal(authority.productionDone, false);
-assert.equal(authority.canClaimProductionDone, false);
-assert.match(authority.note, /no new receipt is verified/i);
-assertNoProductionOverclaim(authority, 'lattice authority status');
 
 const conduit = runJson<any>(['conduit_status', '--format=json']);
 assert.equal(conduit.schemaVersion, 'lattice.conduit_status.v1');

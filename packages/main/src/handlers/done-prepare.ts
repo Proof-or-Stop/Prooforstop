@@ -922,7 +922,7 @@ async function runDonePrepare(ctx: HandlerContext, rawArgs: DonePrepareArgs): Pr
       blockedAt: 'doneClosure',
       reason,
       currentBinding,
-      next: authorityBlocked ? `lattice authority_receipt_verify '{"storyId":"${storyId}"}'` : nextForDoneClosureBlock(storyId, runbook),
+      next: authorityBlocked ? `refresh local proof admissibility / receipt-bundle / quorum evidence for ${storyId}` : nextForDoneClosureBlock(storyId, runbook),
       commands: commandsForDoneClosureBlock(storyId, runbook, currentBinding),
       steps,
     });

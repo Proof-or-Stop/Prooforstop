@@ -155,7 +155,7 @@ function jobPlan(over: Partial<JobPlan> = {}): JobPlan {
     jobPlanDigest: 'jpd',
     status: 'planned',
     jobCreateRequestEnvelope: {
-      kind: 'authority_job_create',
+      kind: 'retired_server_job_create',
       projectId: 'project-1',
       storyId: 'B-auth',
       plannerRunId: 'prun-1',

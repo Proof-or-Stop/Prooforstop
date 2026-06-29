@@ -490,7 +490,7 @@ export function runAuthorityReceiptTransitionGate(
         receiptId: consumed.ref?.receiptId,
         reason: consumed.reason,
       })}\n\n` +
-      `→ Run authority_receipt_verify with a production gate_decision proof for story=${storyId} gate=${targetPhase}, then retry story_advance --phase=${targetPhase}.`,
+      `→ Refresh local proof admissibility evidence for story=${storyId} gate=${targetPhase}; use receipt-bundle validation or quorum_submit when offline anti-tamper or local review quorum assurance is required, then retry story_advance --phase=${targetPhase}.`,
     );
   }
   ctx.store.writeAuthorityReceiptRefs(storyId, consumed.document);
