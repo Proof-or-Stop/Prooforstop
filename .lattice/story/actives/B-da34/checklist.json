@@ -357,9 +357,9 @@
       "id": "CHK-005",
       "title": "M5 add hard retired-Authority scanner gate",
       "context": "Add a hard scanner/smoke that fails if active core code or active docs contain Authority Server, authorityDone, fullAuthorityDone, productionDone, or LATTICE_AUTHORITY_* outside explicit legacy/migration whitelist. This scanner must be part of validation so DONE cannot pass with drift.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-29T17:43:38.053Z",
       "relatedDocs": [
         "docs/requirements/decisions/authority-server-vocabulary-retirement.md",
         "lattice.config.json"
@@ -400,7 +400,45 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+          "result": "pass",
+          "note": "Hard retired-vocabulary scanner passes current active code/docs/help/catalog and is included in validation config.",
+          "headHash": "2d6eeff416aea578c458eef7c3ac0d1434ebdb9b",
+          "materialHash": "a2c3495831e5b0059e6532f20f5414aff5dd12fecaac023244718033ccf1d0d8",
+          "storyFilesHash": "740a187b34737cdaf4fb43054a84dda9959c78a9ce4032202579a1b2d1edb357",
+          "timestamp": "2026-06-29T17:43:39.351Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+          "result": "pass",
+          "note": "Scanner reports explicit whitelist behavior for migration/legacy contexts while blocking active surfaces.",
+          "headHash": "2d6eeff416aea578c458eef7c3ac0d1434ebdb9b",
+          "materialHash": "a2c3495831e5b0059e6532f20f5414aff5dd12fecaac023244718033ccf1d0d8",
+          "storyFilesHash": "740a187b34737cdaf4fb43054a84dda9959c78a9ce4032202579a1b2d1edb357",
+          "timestamp": "2026-06-29T17:43:40.207Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+          "result": "pass",
+          "note": "Positive controls for retired terms and active authority_* exposure are rejected by the scanner.",
+          "headHash": "2d6eeff416aea578c458eef7c3ac0d1434ebdb9b",
+          "materialHash": "a2c3495831e5b0059e6532f20f5414aff5dd12fecaac023244718033ccf1d0d8",
+          "storyFilesHash": "740a187b34737cdaf4fb43054a84dda9959c78a9ce4032202579a1b2d1edb357",
+          "timestamp": "2026-06-29T17:43:41.005Z"
+        }
+      ]
     }
   ],
   "auditLog": [
@@ -439,6 +477,15 @@
       "from": "pending",
       "to": "done",
       "reason": "M4 server-backed surfaces removed/quarantined while local proof smokes pass."
+    },
+    {
+      "timestamp": "2026-06-29T17:43:38.053Z",
+      "phase": "DEV",
+      "itemId": "CHK-005",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "M5 hard scanner gate added to validation and passes with positive controls."
     }
   ]
 }
