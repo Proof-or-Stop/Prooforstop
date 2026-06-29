@@ -133,6 +133,36 @@ try {
   const storedSnapshot = jsonRun(root, 'original_intent_snapshot_get', { storyId });
   assert.equal(storedSnapshot.requestHash, snapshot.requestHash, 'original_intent_snapshot_get reads the stored snapshot');
   assert.equal(storedSnapshot.acceptanceClaim, snapshot.acceptanceClaim, 'snapshot get preserves the acceptance claim');
+  assert.match(
+    run(root, 'original_intent_snapshot_set', {
+      storyId,
+      sourceText: '',
+      normalizedOutcome: 'Outcome is present.',
+      acceptanceClaim: 'Acceptance is present.',
+    }, true),
+    /sourceText/i,
+    'sourceText is required for the Intent MVP',
+  );
+  assert.match(
+    run(root, 'original_intent_snapshot_set', {
+      storyId,
+      sourceText: 'Source text is present.',
+      normalizedOutcome: '',
+      acceptanceClaim: 'Acceptance is present.',
+    }, true),
+    /normalizedOutcome/i,
+    'normalizedOutcome is required for the Intent MVP',
+  );
+  assert.match(
+    run(root, 'original_intent_snapshot_set', {
+      storyId,
+      sourceText: 'Source text is present.',
+      normalizedOutcome: 'Outcome is present.',
+      acceptanceClaim: '',
+    }, true),
+    /acceptanceClaim/i,
+    'acceptanceClaim is required for the Intent MVP',
+  );
   const immutable = run(root, 'original_intent_snapshot_set', {
     storyId,
     sourceText: `${sourceText}\nchanged`,
@@ -178,6 +208,26 @@ try {
   const storedLedger = jsonRun(root, 'milestone_ledger_get', { storyId });
   assert.equal(storedLedger.milestones.length, 6, 'milestone_ledger_get reads set plus appended rows');
   assert.ok(storedLedger.milestones.some((row: any) => row.id === 'M6'), 'stored ledger includes appended milestone');
+  assert.match(
+    run(root, 'milestone_ledger_set', { storyId, milestones: 'not-an-array' }, true),
+    /map|array|milestones/i,
+    'non-array milestone payloads fail before writing a malformed ledger',
+  );
+  assert.match(
+    run(root, 'milestone_ledger_add', {
+      storyId,
+      milestone: {
+        id: 'BAD-REF',
+        sourceRequirementId: 'REQ-001',
+        claim: 'Bad refs are rejected',
+        doneMeans: 'Invalid refs do not corrupt the ledger',
+        checklistRefs: [42],
+        verificationIntentRefs: ['CHK-001:happy:0'],
+      },
+    }, true),
+    /checklistRefs/i,
+    'malformed milestone refs fail before corrupting the artifact',
+  );
 
   coverage = jsonRun(root, 'intent_coverage_check', { storyId, dryRun: true });
   assert.equal(coverage.missingMilestoneCoverage.length, 0, 'covered ledger rows clear milestone coverage gaps');
@@ -237,6 +287,30 @@ try {
   assert.equal(lightGate.hardeningLevel, 'intent_mvp', 'clear low-risk feature keeps Intent MVP classification');
   assert.equal(lightGate.missingIntentCollision.length, 0, 'clear low-risk feature does not require intent collision');
   assert.equal(lightGate.missingRedEvidence.length, 0, 'clear new feature does not require red evidence by default');
+
+  const typoStoryId = 'B-typo';
+  const typoStory: StoryInfo = {
+    storyId: typoStoryId,
+    name: 'small-typo',
+    title: 'Complete this small typo fix',
+    description: 'Complete this small typo fix.',
+    type: 'chore',
+    phase: 'PLAN',
+    priority: 'medium',
+    createdAt: new Date().toISOString(),
+    startedAt: new Date().toISOString(),
+    endedAt: null,
+    events: [],
+  };
+  store.writeStory(typoStoryId, typoStory);
+  store.writeChecklist(typoStoryId, { items: [] });
+  const typoGate = jsonRun(root, 'proofstory_gate_check', { storyId: typoStoryId, dryRun: true });
+  assert.equal(
+    typoGate.triggerReasons.some((reason: any) => reason.code === 'structural_milestone_intent'),
+    false,
+    'isolated complete wording does not trigger milestone ledger by itself',
+  );
+  assert.equal(typoGate.missingMilestoneCoverage.length, 0, 'isolated complete wording has no milestone coverage gap');
 
   console.log('ProofStory intent hardening smoke passed');
 } finally {
