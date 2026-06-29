@@ -1,0 +1,59 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-3b9a",
+  "allowedCommands": [
+    "git add*",
+    "git commit*",
+    "git diff*",
+    "git log*",
+    "git status*",
+    "node bin/lattice.js checklist_*",
+    "node bin/lattice.js decision_*",
+    "node bin/lattice.js delivery_check_set*",
+    "node bin/lattice.js done_required_validate*",
+    "node bin/lattice.js finding_*",
+    "node bin/lattice.js review_*",
+    "node bin/lattice.js session_brief*",
+    "node bin/lattice.js story_*",
+    "node bin/lattice.js story_review*",
+    "node bin/lattice.js summary_*",
+    "node bin/lattice.js understanding_*",
+    "node bin/lattice.js validate*",
+    "node scripts/verify-process-fact-contract.mjs",
+    "rg *",
+    "sed *"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "exec_command",
+    "multi_agent"
+  ],
+  "allowedPaths": [
+    ".lattice/story/actives/B-3b9a/**",
+    "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+    "docs/requirements/NAV.md"
+  ],
+  "excludedCommands": [
+    "* .omx*",
+    "node bin/lattice.js done_intent_equivalence_check*",
+    "node bin/lattice.js red_evidence_create*",
+    "node bin/lattice.js spike_promote*",
+    "npm --prefix packages/main run build",
+    "npm test",
+    "omx*"
+  ],
+  "excludedTools": [
+    "omx"
+  ],
+  "excludedPaths": [
+    ".omx/**",
+    "packages/main/dist/**",
+    "packages/main/src/**",
+    "tests/**"
+  ],
+  "confirmedBy": "codex-main",
+  "confirmationNote": "Docs-only execution boundary for ledger sizing and story slicing plan update; implementation is deferred to later stories.",
+  "createdAt": "2026-06-29T18:59:56.758Z",
+  "updatedAt": "2026-06-29T18:59:56.758Z",
+  "_hash": "9474a2615067715612f6752131a6b6f8c72b7d67efac1dc76820e35434bd8a2c"
+}
