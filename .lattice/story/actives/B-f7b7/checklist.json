@@ -1,0 +1,124 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "M0 freeze ProofStory vocabulary and lifecycle documentation",
+      "context": "Apply the approved intent_coverage_check ordering fix and ensure docs state candidate ledger, confirmed ledger, pre-DEV coverage, and no second lifecycle state machine.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md"
+      ],
+      "userSees": "The ProofStory plan shows the corrected lifecycle where ledger sizing comes before checklist, intent_coverage_check comes after checklist/verificationIntent/acceptance binding, and DONE evidence remains in delivery/equivalence checks.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "M1 implement original intent and confirmed milestone ledger artifacts",
+      "context": "Extend existing snapshot/ledger artifacts so ledgers distinguish candidate versus confirmed state and can bind to accepted intent interpretation without making candidate ledgers gate evidence.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md"
+      ],
+      "userSees": "ProofStory commands can store original intent snapshots and milestone ledgers with candidate/confirmed semantics and stable hashes.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "M2 implement dry-run hardening and ledger sizing diagnostics",
+      "context": "Keep observe/warn behavior for dry-run diagnostics, including hardening classification, ledger sizing, too_broad/slice_required diagnostics, and no automatic child-story creation.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md"
+      ],
+      "userSees": "proofstory_gate_check --dryRun reports missing artifacts, hardening triggers, ledger size, thresholds, too_broad, and suggested slicing without mutating lifecycle state.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "M3 implement intent collision artifact commands",
+      "context": "Add structured intent_collision_set/get semantics so accepted intent interpretation can confirm ledgers and collision-required stories can be diagnosed or blocked by later gates.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md"
+      ],
+      "userSees": "A story can record accepted, revise_intent, human_gate, or stop intent collision outcomes and bind confirmed ledgers to accepted interpretation.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "M4 implement ProofStory contract and pre-DEV gate enforcement",
+      "context": "Implement acceptance contract bindings and proofstory gate enforcement/warn modes using existing lifecycle gates, without adding a second state machine.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md"
+      ],
+      "userSees": "Triggered stories get would-block diagnostics and enforce-mode can block DEV when required ProofStory artifacts are missing or inconsistent.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-006",
+      "title": "M5 implement scope shrinkage and DONE intent equivalence",
+      "context": "Add scope shrinkage decisions and DONE intent equivalence checks so delivered output cannot be narrower than original intent without explicit confirmation.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md"
+      ],
+      "userSees": "DONE checks can compare original intent, confirmed ledger, delivery-check evidence, and any explicit shrinkage decision.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-007",
+      "title": "M6 implement red evidence artifacts and policy triggers",
+      "context": "Add red_evidence commands and diagnostics for bug/regression/security/behavior-change/benchmark claims, keeping docs-only and normal new features exempt by default.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md"
+      ],
+      "userSees": "Risk-triggered stories can require red evidence while ordinary new features remain lightweight.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-008",
+      "title": "M7 implement spike evidence artifacts and policy triggers",
+      "context": "Add spike commands and unresolved-spike diagnostics for unclear code paths, investigation wording, and high-assurance uncertainty.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md"
+      ],
+      "userSees": "Spike evidence can be recorded, resolved, discarded, or promoted without being mistaken for passing verificationEvidence.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-009",
+      "title": "M8 implement REVIEW completeness critic integration",
+      "context": "Ensure REVIEW can detect incomplete ProofStory coverage and stale or missing review completeness evidence for triggered stories.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md"
+      ],
+      "userSees": "Reviewers see ProofStory completeness gaps and cannot accidentally pass a story whose checklist misses confirmed user intent.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-010",
+      "title": "M9 implement risk-adaptive enforcement rollout",
+      "context": "Wire observe/warn/enforce modes so high-assurance and oversized-ledger cases can enforce gates while low-risk stories stay light.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md"
+      ],
+      "userSees": "ProofStory enforcement is progressive: Intent MVP stays small, triggered paths harden, and policy-controlled enforce mode blocks only when the document says it should.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

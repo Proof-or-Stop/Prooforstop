@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-f7b7",
+  "mode": "feature",
+  "allowed": [
+    "Carry forward the already-approved documentation correction that places intent_coverage_check after checklist, verificationIntent, and acceptance binding.",
+    "Implement ProofStory M0-M9 runtime commands, typed artifacts, diagnostics, enforcement hooks, tests, and documentation updates in proofbound.",
+    "Update command catalog, command policy, process fact registry, types, store ports, handlers, core logic, validation smoke tests, and related requirement docs as needed."
+  ],
+  "excluded": [
+    "Do not create a second lifecycle state machine outside the existing Story lifecycle.",
+    "Do not create or use .omx artifacts.",
+    "Do not implement automatic child-story creation or scheduler/autopilot parallel dispatch.",
+    "Do not modify unrelated provider-execution receipt stories.",
+    "Do not push to remote repositories or release publish."
+  ],
+  "confirmedBy": "codex",
+  "confirmationNote": "User explicitly requested M0-M9 development to DONE after approving the document direction.",
+  "createdAt": "2026-06-29T23:22:27.616Z",
+  "updatedAt": "2026-06-29T23:22:27.616Z",
+  "_hash": "8c5257cd75707446188214838d0c5438d7852b2edfe32d1d42ab2ad036811bf1"
+}

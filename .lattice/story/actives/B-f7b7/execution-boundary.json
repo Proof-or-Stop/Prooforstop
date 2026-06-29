@@ -1,0 +1,40 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-f7b7",
+  "allowedCommands": [
+    "git *",
+    "node bin/lattice.js *",
+    "npm --prefix packages/main run build",
+    "npm --prefix packages/main run test:*",
+    "npm test",
+    "rg *",
+    "sed *",
+    "shasum *"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "shell",
+    "subagents"
+  ],
+  "allowedPaths": [
+    ".lattice/story/actives",
+    "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+    "package-lock.json",
+    "package.json",
+    "packages/main/dist",
+    "packages/main/src",
+    "packages/main/tests"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".omx",
+    "docs/story",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "codex",
+  "confirmationNote": "Implementation story may edit runtime, tests, docs, and Lattice metadata only; no .omx and no remote push.",
+  "createdAt": "2026-06-29T23:22:27.616Z",
+  "updatedAt": "2026-06-29T23:22:27.616Z",
+  "_hash": "3158d15939c84c5d30dd340672ace232ad47d46a7a589b5170119c32dd8c6d1c"
+}

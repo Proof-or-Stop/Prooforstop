@@ -1,0 +1,43 @@
+{
+  "storyId": "B-f7b7",
+  "name": "proofstory-m0-m9-implementation",
+  "title": "Implement ProofStory M0-M9 progressive intent hardening lifecycle",
+  "description": "Implement the full ProofStory M0-M9 plan from docs/requirements/decisions/proofstory-intent-collision-execution-plan.md. Existing M0-M2 dry-run commands are present, but the remaining intent collision, contract/gate, scope shrinkage, red evidence, spike evidence, REVIEW completeness, DONE intent equivalence, and risk-adaptive enforcement surfaces must be completed coherently without introducing a second lifecycle state machine or automatic parallel child-story execution.",
+  "type": "feature",
+  "phase": "INIT",
+  "priority": "high",
+  "keywords": [
+    "proofstory",
+    "intent",
+    "milestone-ledger",
+    "lifecycle-gate",
+    "review",
+    "done-equivalence",
+    "red-evidence",
+    "spike"
+  ],
+  "riskSignals": [
+    {
+      "category": "Security/Credentials",
+      "matched": "security"
+    },
+    {
+      "category": "State Machine/Gate",
+      "matched": "state machine"
+    }
+  ],
+  "createdAt": "2026-06-29T23:22:27.616Z",
+  "startedAt": "2026-06-29T23:22:27.616Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-29T23:22:27.644Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-c0ae2b2c5e1fbc7a",
+      "agent": "main"
+    }
+  ]
+}
