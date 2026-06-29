@@ -1,0 +1,30 @@
+{
+  "storyId": "B-f7b7",
+  "mode": "enforce",
+  "allowedModify": [
+    "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/core/store.ts",
+    "packages/main/src/core/proofstory.ts",
+    "packages/main/src/handlers/proofstory.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/handlers/phase-gates.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+    "packages/main/tests"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-29T23:42:51.461Z",
+  "updatedAt": "2026-06-29T23:42:51.461Z"
+}
