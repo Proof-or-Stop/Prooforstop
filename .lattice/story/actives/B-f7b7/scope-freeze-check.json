@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-f7b7",
+  "checkedAt": "2026-06-29T23:24:25.375Z",
+  "mode": "feature",
+  "status": "pass",
+  "scopeBoundaryHash": "8c5257cd75707446188214838d0c5438d7852b2edfe32d1d42ab2ad036811bf1",
+  "executionBoundaryHash": "3158d15939c84c5d30dd340672ace232ad47d46a7a589b5170119c32dd8c6d1c",
+  "freshnessHash": "01b7dc1059be2d754ff16617316cc2540dc21fa54144fe4884859a65e0a081d1",
+  "effectiveExcludedKeywords": [
+    "Do not create a second lifecycle state machine outside the existing Story lifecycle.",
+    "Do not create or use .omx artifacts.",
+    "Do not implement automatic child-story creation or scheduler/autopilot parallel dispatch.",
+    "Do not modify unrelated provider-execution receipt stories.",
+    "Do not push to remote repositories or release publish."
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Do not create a second lifecycle state machine outside the existing Story lifecycle.",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not create a second lifecycle state machine outside the existing Story lifecycle.",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not create or use .omx artifacts.",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not create or use .omx artifacts.",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not implement automatic child-story creation or scheduler/autopilot parallel dispatch.",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not implement automatic child-story creation or scheduler/autopilot parallel dispatch.",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not modify unrelated provider-execution receipt stories.",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not modify unrelated provider-execution receipt stories.",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not push to remote repositories or release publish.",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not push to remote repositories or release publish.",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "9700af5543f8de7aa78e079415bee90cf9e07511286619c25bd67f86e2e98a4f"
+}
