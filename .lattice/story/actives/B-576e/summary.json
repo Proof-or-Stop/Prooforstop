@@ -1,0 +1,56 @@
+{
+  "storyId": "B-576e",
+  "changes": "Retired active Authority Server semantics from CLI commands, runtime projections, docs/prompts, validation config, and added retired-semantics regression guard.",
+  "usage": "Use Proofbound local assurance commands such as capability_list, quorum_submit, proof-admissibility smokes, receipt-bundle checks, and lattice validate; retired authority_* server commands are no longer active.",
+  "expectedOutcome": "Users see Proofbound CLI 0.3.106 with local admissibility/assurance wording and no active server-backed Authority command or productionDone claim path.",
+  "actualTranscript": "node packages/main/dist/cli.js --version returned Proofbound CLI 0.3.106; retired Authority Server semantics smoke passed; capability-list smoke passed; lattice validate --story=B-576e --json returned allPass true.",
+  "outcomeDiff": "No user-value difference: observed runtime behavior matches the local-only Authority Server retirement expectation.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Known limitation: explicitly marked legacy/retirement decision documents may still mention Authority Server as historical context; active runtime/docs/prompts are guarded.",
+  "pitfalls": "Review found four high blockers in round 1 plus a TEST validate-config residue; fixes required refreshed review rounds, local session id binding, scope acknowledgement for process-fact contract, and replacing retired validate smokes.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 269059
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 6452
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 541646
+    },
+    "DEV": {
+      "count": 3,
+      "durationMs": 4997252
+    },
+    "REVIEW": {
+      "count": 3,
+      "durationMs": 1084159
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 477449
+    }
+  },
+  "totalDurationMs": 7376116,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-29T02:31:25.019Z",
+  "updatedAt": "2026-06-29T02:31:25.019Z"
+}
