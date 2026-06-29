@@ -189,9 +189,9 @@
         "create": [],
         "test": []
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-29T01:05:28.935Z",
       "relatedDocs": [
         "docs/evidence/evidence-platform-architecture.md",
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
@@ -216,7 +216,20 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proof-admissibility-smoke.js && node packages/main/dist/tasks/receipt-bundle-contract-smoke.js",
+          "result": "pass",
+          "note": "Server-backed Authority handler/tasks were deleted or quarantined from active runtime while proof-admissibility and receipt-bundle behavior still pass.",
+          "headHash": "fa2a3fdf23ea84dfac792e53c03ddfe7f257e33a",
+          "materialHash": "f3f14650d7fde940592eb514b2733ec03a19db99186f12565538a8a8b44aa2cc",
+          "storyFilesHash": "fe187328ca35303232c34b0b2fb8b1d48d740ea431cb80d64bd06c966e36f942",
+          "timestamp": "2026-06-29T01:05:29.993Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
