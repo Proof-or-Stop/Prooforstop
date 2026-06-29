@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-29T18:12:21.282Z",
       "reviewRunId": "B-da34:RR-016",
       "_hash": "28d0d83fbf66019fbcebce36d74b549cde90826f0c90b585bf1b332c4254dfdd"
+    },
+    {
+      "id": "B-da34:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Concept pass for final fixed B-da34. Verified F-002 and F-005 are resolved with strong fixed evidence; scanner now narrows task quarantine, blocks rendered legacy field lines outside structural quarantine, and includes positive controls for active renderer fields plus retired resolver imports. M1-M5 remain fully covered: checklist is 5/5 done and each milestone has 3/3 passing verification evidence. Commands passed: npm --prefix packages/main run build; node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js; npm run test:process-fact-contract; node packages/main/dist/tasks/command-catalog-smoke.js; lattice scope_contract_check storyId=B-da34.",
+      "createdAt": "2026-06-29T18:17:37.771Z",
+      "reviewRound": "2026-06-29T18:12:21.282Z",
+      "reviewRunId": "B-da34:RR-017",
+      "_hash": "302f6af03f0a9caf25d64c0982e08a3199e147982e884109e28ab8e6f964d071"
     }
   ]
 }
