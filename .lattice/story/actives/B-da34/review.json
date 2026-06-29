@@ -157,6 +157,84 @@
         }
       ],
       "_hash": "03915f2cc6b7e5371c4e11f1cf5eab0d87e3b76fc5270c0b55255f844fb6be3a"
+    },
+    {
+      "timestamp": "2026-06-29T17:06:11.820Z",
+      "issueCount": 13,
+      "blockerCount": 4,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-004",
+          "message": "CHK-004 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-005",
+          "message": "CHK-005 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 checklist items; please check for missing combined scenarios (e.g., what happens when M1 freeze Authority vocabulary migration contract + M2 clean user-facing Authority wording are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 1 high-risk signal(s): Data Migration/Destructive. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run lattice story_review_dismiss '{\"storyId\":\"B-da34\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 1 undigested unknowns: Exact set of legacy files that should be allowed in whitelist versus deleted/quarantined needs to be determined by scanning imports and command registry references."
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: docs/requirements/decisions is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: packages/main/src/cli is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        },
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: scripts is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        },
+        {
+          "type": "missing_scope_check",
+          "severity": "blocker",
+          "message": "missing_scope_check: scope-check.json is missing PLAN gate evidence. `scope_check_save` already exists; a lattice-review-scope-plan / scope-plan reviewer must persist the result through `scope_check_save`. The implementation/main agent must not self-sign this evidence or manually edit story metadata. Local CLI guidance is not remote completion and must not be presented as receipt verification or production/full completion."
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-da34 is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "f8e5cec51b7ba207c6b1060dcd35067e3355b0f31bef59e5917e62c1cbc75370"
     }
   ]
 }
