@@ -1,0 +1,31 @@
+{
+  "storyId": "B-b531",
+  "checkedAt": "2026-06-29T19:19:32.166Z",
+  "headHash": "2f3c971ef83a03ff7bd778fc0c8919dfc846b1a8",
+  "materialHash": "a20af37d646634c538dabb7eb3bf41b516ae6b105caecb7ec540a4ccdd0e3330",
+  "storyFilesHash": "491440a574d6ffdab64fb45eb1852e259c20545e521a3d1c4bbf7a4db9cd8cf4",
+  "reviewRound": "2026-06-29T19:11:36.363Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "story.userSees",
+      "promise": "DONE stories report historical closure snapshots instead of blocking on later current-material drift; unfinished TEST stories remain strict.",
+      "status": "verified",
+      "verifiedBy": "live_smoke_transcript + post-done-closure-snapshot-smoke + lattice validate",
+      "evidence": "live_smoke_transcript captured B-da34 done_closure with DONE oracle rows 15 and 0 blocking; post-done-closure-snapshot smoke passed; full lattice validate PASS."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "lattice live_smoke_transcript captured node packages/main/dist/cli.js done_closure {storyId:B-da34}; output shows projection: historical DONE snapshot, local-admissible, and DONE oracle rows: 15 (0 blocking). npm --prefix packages/main run build, post-done-closure-snapshot-smoke, review-escalation-freshness-root-smoke, done-required-validation-smoke, lattice-cli-migration-smoke, and full lattice validate all passed."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery review confirms the user-visible post-DONE closure/status behavior, strict unfinished-story behavior, and full validation evidence are present."
+  },
+  "_hash": "b89409d5fc27197d00c92c756573e05ff6ee7f48a30364b5bfd106446ab17937"
+}
