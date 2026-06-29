@@ -1,0 +1,44 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "M1 freeze Authority vocabulary migration contract",
+      "context": "Create a source-of-truth migration/retirement document that defines banned active vocabulary, replacement local assurance/admissibility terms, and explicit legacy whitelist rules. Verification must prove the contract exists and is referenced by the scanner.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "M2 clean user-facing Authority wording",
+      "context": "Update README, guide/docs, agent prompts/templates, CLI help/catalog text, DONE/user-facing output language so active surfaces no longer say Authority Server or productionDone-style no-overclaim wording; use local assurance/admissibility/evidence scope terms instead.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "M3 remove Authority command surface from active CLI",
+      "context": "Remove authority_* active commands from help/catalog/config and hide/delete legacy compatibility surfaces. Verification must inspect CLI help/catalog/config, not just source text.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "M4 remove or quarantine server-backed Authority code and smokes",
+      "context": "Delete or isolate server-backed authority client/runner/receipt-gate modules and corresponding smoke tasks. Preserve local quorum_submit, proof-admissibility, receipt-bundle, delivery-check, and local lifecycle gates.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "M5 add hard retired-Authority scanner gate",
+      "context": "Add a hard scanner/smoke that fails if active core code or active docs contain Authority Server, authorityDone, fullAuthorityDone, productionDone, or LATTICE_AUTHORITY_* outside explicit legacy/migration whitelist. This scanner must be part of validation so DONE cannot pass with drift.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
