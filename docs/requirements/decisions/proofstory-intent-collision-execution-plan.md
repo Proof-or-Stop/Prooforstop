@@ -92,7 +92,7 @@ turning intent validation into ceremony.
 | Ledger Sizing | Milestone ledger exceeds the single-story capacity threshold | Too-broad diagnostic, suggested slicing groups, and a slice plan before DEV |
 | Collision Intent | Ambiguous, consequential, high-risk, scope-changing, or user-impactful interpretation | Intent collision with `pass`, `revise_intent`, `human_gate`, or `stop` |
 | ProofStory Intent | Bug fix, regression fix, behavior change, security/auth/session change, lifecycle gate, benchmark claim, or unclear ownership | Acceptance contract, verificationIntent binding, risk policy, and red/spike policy when triggered |
-| DONE Intent Equivalence | Any story entering DONE gets a lightweight check; milestone, shrinkage, or high-assurance stories get a strict gate | Actual delivery compared with the original snapshot and required milestone ledger, if one exists |
+| DONE Intent Equivalence | Any story entering DONE gets a lightweight check; milestone, shrinkage, or high-assurance stories get a strict gate | Actual delivery compared with the original snapshot and required confirmed milestone ledger, if one exists |
 
 This progressive model has five rules:
 
@@ -174,17 +174,19 @@ story_create or story_draft
        -> classify progressive intent hardening level
        -> original_intent_snapshot_set
        -> milestone_ledger_set when the request contains multiple deliverables
-       -> ledger sizing check
-            -> if small enough: continue
-            -> if too broad: produce slice-plan diagnostics and stop before DEV
+          (candidate only; not gate-consumed yet)
        -> understanding_set
        -> intent_collision_set
+       -> confirm milestone ledger against the accepted intent interpretation
+       -> intent_coverage_check
+       -> ledger sizing check on the confirmed milestone ledger
+            -> if small enough: continue
+            -> if too broad: produce slice-plan diagnostics and stop before DEV
        -> decision_set when required
        -> checklist + verificationIntent
        -> proofstory_contract_set
        -> red_evidence_* when required
        -> spike_* when required
-       -> intent_coverage_check
        -> proofstory_gate_check
        -> story_review
   -> DEV
@@ -243,8 +245,9 @@ clear triggers rather than by default ceremony.
 | Mechanism | Solves |
 |---|---|
 | `originalIntentSnapshot` | Freezes the user's original words and key requirements so later agents do not rely on memory |
-| `milestoneLedger` | Turns requests such as "all five milestones are DONE" into a countable delivery table |
-| `intentCoverageCheck` | Checks that checklist items and verificationIntent entries cover every milestone |
+| `milestoneLedger` | Turns requests such as "all five milestones are DONE" into a countable delivery table; it is candidate data until accepted intent interpretation confirms it |
+| `confirmedMilestoneLedger` | The gate-consumed milestone ledger after intent interpretation confirms that the decomposition matches the original request |
+| `intentCoverageCheck` | Checks that checklist items and verificationIntent entries cover every required confirmed milestone |
 | `scopeShrinkageGuard` | Prevents silently narrowing "fully remove X" into "retire main-path X semantics" |
 | DONE intent equivalence gate | Checks that the actual completed result is equivalent to the original intent, not only checklist-done |
 
@@ -451,7 +454,7 @@ Parent DONE requires:
 
 ```text
 originalIntentSnapshot.keyRequirements
-  -> milestoneLedger.milestones
+  -> confirmedMilestoneLedger.milestones
   -> checklist.items
   -> verificationIntent
   -> verificationEvidence
@@ -518,7 +521,7 @@ The gate should fail when:
     "triggers": ["multiple_deliverables", "explicit_done"],
     "requiredArtifacts": [
       "originalIntentSnapshot",
-      "milestoneLedger",
+      "confirmedMilestoneLedger",
       "intentCoverageCheck"
     ],
     "mode": "warn"
@@ -531,6 +534,10 @@ The gate should fail when:
   },
   "milestoneLedger": {
     "required": true,
+    "state": "confirmed",
+    "candidateBeforeIntentCollision": true,
+    "confirmedByIntentInterpretation": "accepted",
+    "confirmedByIntentCollisionId": "IC-001",
     "parentLedgerId": "PL-001",
     "milestones": [
       {
@@ -853,10 +860,10 @@ The gate must require:
 
 - progressive intent hardening classification;
 - original intent snapshot;
-- milestone ledger for multi-deliverable requests;
-- ledger sizing result for milestone ledgers;
 - `understanding_set`;
 - intent collision result when hardening policy requires collision;
+- confirmed milestone ledger for multi-deliverable requests;
+- ledger sizing result for confirmed milestone ledgers;
 - acceptance contract;
 - intent coverage check;
 - verificationIntent bindings;
@@ -882,11 +889,14 @@ Block DEV when:
 
 - no original intent snapshot exists;
 - required artifacts for the selected progressive hardening level are missing;
-- a multi-deliverable request has no milestone ledger;
-- a milestone ledger exceeds the hard split threshold and has no slice plan;
+- a multi-deliverable request has no confirmed milestone ledger;
+- a candidate milestone ledger is present but no accepted intent interpretation
+  confirms it;
+- a confirmed milestone ledger exceeds the hard split threshold and has no slice
+  plan;
 - no accepted intent collision result exists when collision is required;
 - acceptance criteria are not executable or inspectable;
-- checklist items do not cover required milestone ledger items;
+- checklist items do not cover required confirmed milestone ledger items;
 - required red evidence is missing;
 - required spike evidence is missing or unresolved;
 - scope is too broad;
