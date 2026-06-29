@@ -39,6 +39,26 @@
       ],
       "signatureTag": "missing|md|active-docs-still",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-576e:F-003",
+      "desc": "Quality blocker: npm run test:process-fact-contract fails after Authority Server retirement. The implementation removed authority_receipt_verify and artifact:authority-receipt-refs.json from packages/main/src/core/process-fact-registry.ts, but scripts/verify-process-fact-contract.mjs still requires both at lines 131 and 169 and still requires the old decision-doc Authority boundary tokens at lines 2663-2664. The current decision_doc_save authorityBoundary wording at packages/main/src/handlers/decision-doc-promotion.ts:507 no longer satisfies that contract, so the repo root process-fact contract test fails. Synchronize the verifier with the retired Authority semantics or restore an equivalent registered fact if it remains gate-consumed before this can pass REVIEW.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-29T01:50:46.070Z",
+      "reviewRound": "2026-06-29T01:48:03.992Z",
+      "reviewRunId": "B-576e:RR-004",
+      "_hash": "5a58a5aafc67ac314e7dec9f905354328e5332d35277e9b793cfe99d75566fdf",
+      "files": [
+        "scripts/verify-process-fact-contract.mjs",
+        "packages/main/src/core/process-fact-registry.ts",
+        "packages/main/src/handlers/decision-doc-promotion.ts"
+      ],
+      "signatureTag": "missing|mjs|quality-blocker-test",
+      "signatureTagSource": "auto"
     }
   ]
 }
