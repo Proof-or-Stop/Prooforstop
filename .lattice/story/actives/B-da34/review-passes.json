@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-29T17:54:51.740Z",
       "reviewRunId": "B-da34:RR-010",
       "_hash": "5258136df9c9d1fdaadef2528cef914886ec29a5b41010770a01e95ab0ac6d00"
+    },
+    {
+      "id": "B-da34:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Quality review pass after F-001..F-004 fixes. Verified compiled CLI help/rendered active command surfaces no longer expose retired Authority Server fields via retired-authority-vocabulary guard and manual help probe. npm --prefix packages/main run build passed. Focused command catalog, observability, resolver quarantine, and process-fact contract checks passed. Non-blocking: git diff --check reports three blank-line-at-EOF whitespace warnings only.",
+      "createdAt": "2026-06-29T17:59:42.341Z",
+      "reviewRound": "2026-06-29T17:54:51.740Z",
+      "reviewRunId": "B-da34:RR-011",
+      "_hash": "d81494bd5542de96b729bb6e7fc5e6fd5cd50d611f16cb59eb6dc19b1fe825e9"
     }
   ]
 }
