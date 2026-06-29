@@ -1,0 +1,25 @@
+{
+  "findings": [
+    {
+      "id": "B-da34:F-001",
+      "desc": "Active user-facing handoff/autopilot/prompt text still exposes retired Authority completion vocabulary after the retirement contract says active surfaces must use local assurance/admissibility wording. `packages/main/src/core/lattice-handoff.ts:1324-1325`, `:1349-1350`, and `:1370-1371` print `productionDone` / `receiptVerified` in normal command output; `packages/main/src/core/lattice-autopilot.ts:1747` still tells users `productionDone=false`; `packages/main/src/core/prompt-registry.ts:110-112` still frames handoff boundaries around `production completion claims`. This violates `docs/requirements/decisions/authority-server-vocabulary-retirement.md:11-25` and leaves active docs/help-facing text outside the local assurance/admissibility vocabulary.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-29T17:46:02.120Z",
+      "reviewRound": "2026-06-29T17:43:53.439Z",
+      "reviewRunId": "B-da34:RR-004",
+      "_hash": "732c6a0fe9c0d288fee044e1001d18465a23960c430bf6a9d4f326bf978123dd",
+      "files": [
+        "packages/main/src/core/lattice-handoff.ts",
+        "packages/main/src/core/lattice-autopilot.ts",
+        "packages/main/src/core/prompt-registry.ts",
+        "docs/requirements/decisions/authority-server-vocabulary-retirement.md"
+      ],
+      "signatureTag": "missing|ts|active-user-facing",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
