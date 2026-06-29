@@ -1,0 +1,68 @@
+{
+  "storyId": "B-da34",
+  "checkedAt": "2026-06-29T18:34:53.756Z",
+  "headHash": "f11d069bd6f60f739790c24bea8a5a3e3d29bc92",
+  "materialHash": "bb8fefe03c640783974ab2bf680d133c597971c6642ccec7b4ce1ae4099e6771",
+  "storyFilesHash": "8569c274b01e6c396943048ba902d3695a2a1b05c4feda2067e6dc841714bd9e",
+  "reviewRound": "2026-06-29T18:12:21.282Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/authority-server-vocabulary-retirement.md",
+      "promise": "Five-milestone retirement contract freezes banned active Authority Server vocabulary, replacement local-assurance wording, explicit legacy whitelist, and scanner enforcement rules.",
+      "status": "verified",
+      "verifiedBy": "delivery review: migration doc present plus retired-authority-vocabulary-guard-smoke",
+      "evidence": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js PASS; scope_contract_check PASS"
+    },
+    {
+      "docPath": "README.md",
+      "promise": "Active README user guidance no longer exposes retired Authority Server / production completion wording.",
+      "status": "verified",
+      "verifiedBy": "focused active README/docs scan",
+      "evidence": "README/docs retired Authority wording scan PASS: no hits in README.md or docs/guide.md"
+    },
+    {
+      "docPath": "docs/guide.md",
+      "promise": "Active guide wording uses local assurance/admissibility/release-readiness vocabulary rather than retired Authority completion framing.",
+      "status": "verified",
+      "verifiedBy": "focused active README/docs scan",
+      "evidence": "README/docs retired Authority wording scan PASS: no hits in README.md or docs/guide.md"
+    },
+    {
+      "docPath": "lattice.config.json",
+      "promise": "Retired Authority vocabulary scanner is included in configured validation so future leaks are gate-checked.",
+      "status": "verified",
+      "verifiedBy": "TEST validation snapshot and direct guard run",
+      "evidence": "Latest TEST validate PASS includes retired-authority-vocabulary-guard-smoke; direct guard run PASS"
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "M1 contract verified: migration doc exists and scanner/scope contract passed. Commands: node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js PASS; node packages/main/dist/cli.js scope_contract_check --storyId=B-da34 PASS."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "M2 user-facing cleanup verified: CLI help/user-facing scan PASS and README/docs focused scan PASS; retired Authority wording no longer appears in active README/docs/help surfaces checked."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "M3 active command surface verified: node packages/main/dist/tasks/command-catalog-smoke.js PASS with 256 commands; CLI help/user-facing scan PASS for active authority wording."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "M4 server-backed surface removal/quarantine verified: node packages/main/dist/tasks/story-authority-resolve-smoke.js PASS; node packages/main/dist/tasks/proof-admissibility-smoke.js PASS; node packages/main/dist/tasks/receipt-bundle-contract-smoke.js PASS."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "M5 hard scanner gate verified: npm --prefix packages/main run build PASS; retired-authority-vocabulary-guard-smoke PASS; npm run test:process-fact-contract PASS; TEST validate snapshot PASS with 15/15 verification intents covered."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery review accepts B-da34 against the five-milestone intent: all checklist items are done, TEST validation is PASS, active README/docs/help surfaces are clean, scanner and command-catalog checks pass, and all reviewer findings are resolved. Remaining DONE blockers are process gates outside delivery acceptance: review escalation/quorum, summary, and stale DONE-required refresh."
+  },
+  "_hash": "3a44a98ac931b79d6a4502c85e03fcfff2461f1cd5f544bb02a7aa4648a89ddb"
+}
