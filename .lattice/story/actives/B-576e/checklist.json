@@ -280,9 +280,9 @@
           "packages/main/src/tasks/receipt-bundle-contract-smoke.ts"
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-29T01:03:48.161Z",
       "relatedDocs": [
         "docs/evidence/evidence-platform-architecture.md",
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
@@ -307,7 +307,20 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build; node packages/main/dist/tasks/retired-authority-server-semantics-smoke.js; node packages/main/dist/tasks/proof-admissibility-smoke.js; node packages/main/dist/tasks/receipt-bundle-contract-smoke.js; node packages/main/dist/cli.js --version",
+          "result": "pass",
+          "note": "Build, retirement guard, proof-admissibility smoke, receipt-bundle smoke, and CLI version 0.3.106 passed.",
+          "headHash": "b4f0d44a06c9ac4f12efb8f09cfd0e2753e26dbc",
+          "materialHash": "e22df0e49e952b799e14ea39d336dbd2200df2dbe8d2db1df445a0d5ae4b4ced",
+          "storyFilesHash": "dbd8abe0b9889944c73880362619217cf659e4d29c9f010ac7427f137752be74",
+          "timestamp": "2026-06-29T01:03:49.123Z"
+        }
+      ]
     }
   ]
 }
