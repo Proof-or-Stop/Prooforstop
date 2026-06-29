@@ -1,0 +1,31 @@
+{
+  "passes": [
+    {
+      "id": "B-b531:RP-001",
+      "agent": "lattice-review-quality",
+      "note": "Quality review passed: diff is scoped to post-DONE read-only projection, keeps TEST/DONE gate strictness separate, build and snapshot smoke passed.",
+      "createdAt": "2026-06-29T19:13:43.138Z",
+      "reviewRound": "2026-06-29T19:11:36.363Z",
+      "reviewRunId": "B-b531:RR-001",
+      "_hash": "ebf6318c86dc1074c052f2cf2f8f94a2ede1893ffaf7e748c47bd54d07374896"
+    },
+    {
+      "id": "B-b531:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Concept review passed: DONE history now uses the completed delivery/test snapshot for read-only closure/status while unfinished phases still use current material.",
+      "createdAt": "2026-06-29T19:13:43.525Z",
+      "reviewRound": "2026-06-29T19:11:36.363Z",
+      "reviewRunId": "B-b531:RR-002",
+      "_hash": "93036f03931c4c94b8d970b0dc83c25a487a82bcc016f747ec130129a8e6106c"
+    },
+    {
+      "id": "B-b531:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage review passed: new smoke covers DONE drift, review_escalation_status historical projection, and TEST-phase stale evidence strictness; adjacent smokes also pass.",
+      "createdAt": "2026-06-29T19:13:43.932Z",
+      "reviewRound": "2026-06-29T19:11:36.363Z",
+      "reviewRunId": "B-b531:RR-003",
+      "_hash": "654a0da54c6ada1257b7d29542f423443de89769f39ec79ccf6de99b16963f95"
+    }
+  ]
+}

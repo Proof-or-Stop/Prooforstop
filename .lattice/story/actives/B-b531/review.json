@@ -1,0 +1,45 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-06-29T19:02:26.928Z",
+      "issueCount": 4,
+      "blockerCount": 3,
+      "issues": [
+        {
+          "type": "touchpoint_uncovered",
+          "severity": "blocker",
+          "message": "touchpoint_uncovered: packages/main/src/tasks/flow-stability-smoke.ts is not covered by the files field of any checklist item (please add this path to the corresponding item's files.modify/create/test or explicitly exclude it via excludes)"
+        },
+        {
+          "type": "missing_plan_md",
+          "severity": "blocker",
+          "message": "High-risk stories must have plan.md (execution plan). Write it following the plan.md template in CLAUDE.md, one section per CHK-xxx"
+        },
+        {
+          "type": "missing_scope_check",
+          "severity": "blocker",
+          "message": "missing_scope_check: scope-check.json is missing PLAN gate evidence. `scope_check_save` already exists; a lattice-review-scope-plan / scope-plan reviewer must persist the result through `scope_check_save`. The implementation/main agent must not self-sign this evidence or manually edit story metadata. Local CLI guidance is not remote completion and must not be presented as receipt verification or production/full completion."
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-b531 is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "e4a5e2d166f0c728b7fa3fd6e888e2b92f0b9c73e67a184e702b944b9cce0b54"
+    },
+    {
+      "timestamp": "2026-06-29T19:03:16.758Z",
+      "issueCount": 1,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-b531 is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "fe07b50547e67c3afd6efa1a7bdb498be9e2fd6a29cdb69c10fea9b77858688d"
+    }
+  ]
+}

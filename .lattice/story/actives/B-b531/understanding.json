@@ -1,0 +1,26 @@
+{
+  "task": "Fix the post-DONE read-only closure/status projection so completed stories are not re-blocked by later main material drift.",
+  "outcome": "When the user runs `lattice done_closure {\"storyId\":\"B-da34\"}` or `lattice review_escalation_status {\"storyId\":\"B-da34\"}` after later main changes, the terminal reports the DONE story against its historical completion snapshot instead of asking the user to redo stale delivery/review work. Current-material revalidation remains separate/advisory and does not rewrite the historical DONE result.",
+  "facts": [
+    "Red repro rp-mqzkvjqx-nb3bnj confirmed B-da34 is phase DONE but done_closure reports 3 blocking stale rows after current material drift.",
+    "Spike sr-mqzkzykz-hcmwgn found done_closure maps buildDoneChecklist rows into blockers even for phase DONE.",
+    "TEST->DONE gate must remain strict and continue to reject stale/tampered evidence before completion.",
+    "done-oracle already validates test-evidence for DONE using the recorded evidence snapshot; delivery-check and review-escalation still use current material in read-only projections.",
+    "review_escalation_status is also a read-only diagnostic; for DONE stories its default should align with historical closure instead of current-material revalidation."
+  ],
+  "constraints": [
+    "Do not weaken TEST->DONE machine guard or DONE oracle behavior for stories still in TEST.",
+    "Do not mutate B-da34 historical evidence as the fix.",
+    "Do not reintroduce retired server-backed completion semantics.",
+    "Use Repro-First binding evidence and add a durable smoke regression."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/handlers/done-closure.ts",
+    "packages/main/src/core/done-oracle.ts",
+    "packages/main/src/handlers/review-escalation.ts",
+    "packages/main/src/core/review-escalation.ts",
+    "packages/main/src/tasks/flow-stability-smoke.ts"
+  ],
+  "timestamp": "2026-06-29T19:01:38.892Z"
+}

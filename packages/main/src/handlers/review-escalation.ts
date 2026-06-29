@@ -10,6 +10,7 @@ import {
   evaluateReviewEscalation,
   formatReviewEscalationReport,
   isReviewEscalationFallbackEligibility,
+  resolveCompletedReviewEscalationSnapshot,
   type ReviewEscalationFallbackEligibility,
 } from '../core/review-escalation.js';
 
@@ -63,13 +64,28 @@ export function createReviewEscalationHandlers(ctx: HandlerContext) {
   return {
     review_escalation_status(args: ReviewEscalationStatusArgs) {
       const gitCwd = resolveGitCwd({ store: ctx.store, storyId: args.storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
+      const completedSnapshot = resolveCompletedReviewEscalationSnapshot({
+        storyId: args.storyId,
+        store: ctx.store,
+      });
       const report = evaluateReviewEscalation({
         projectRoot: ctx.root,
         gitCwd,
         storyId: args.storyId,
         store: ctx.store,
+        ...(completedSnapshot ? { materialHash: completedSnapshot.materialHash } : {}),
+        ...(completedSnapshot?.storyFilesHash ? { storyFilesHash: completedSnapshot.storyFilesHash } : {}),
       });
-      return wantsJson(args) ? report : formatReviewEscalationReport(report);
+      const projectedReport = completedSnapshot
+        ? {
+            ...report,
+            advisories: [
+              ...(report.advisories ?? []),
+              `DONE historical snapshot from ${completedSnapshot.source}; current-material revalidation is not the default post-DONE status`,
+            ],
+          }
+        : report;
+      return wantsJson(args) ? projectedReport : formatReviewEscalationReport(projectedReport);
     },
 
     review_escalation_policy_set(args: ReviewEscalationPolicySetArgs) {
