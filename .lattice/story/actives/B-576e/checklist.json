@@ -346,6 +346,17 @@
           "materialHash": "610d953adcd6dae8ec4af50dcadc186594f4d7c265d5c982db95f8863e0a8ce7",
           "storyFilesHash": "41d2e25f8c8979249dcd99e7bf334d1ee24feba5d655bb726433d77c5c46651c",
           "timestamp": "2026-06-29T01:47:35.707Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/retired-authority-server-semantics-smoke.js",
+          "result": "pass",
+          "note": "Guard scans active runtime surfaces for LATTICE_AUTHORITY_* and server receipt/gate-decision compatibility shims; current HEAD passes.",
+          "headHash": "ce4f9da92762f04c586e978693e62d308bf2fba3",
+          "materialHash": "610d953adcd6dae8ec4af50dcadc186594f4d7c265d5c982db95f8863e0a8ce7",
+          "storyFilesHash": "41d2e25f8c8979249dcd99e7bf334d1ee24feba5d655bb726433d77c5c46651c",
+          "timestamp": "2026-06-29T01:47:37.246Z"
         }
       ]
     },
