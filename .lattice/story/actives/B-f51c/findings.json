@@ -29,6 +29,21 @@
       "_hash": "99568ffad783fbf0b2597c4948362c141d8435e57c892ecd6a04db76d703cbee",
       "signatureTag": "missing|unknown|docs-requirements-decisions",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-f51c:F-003",
+      "desc": "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md:176 The Normal Story Path still runs milestone_ledger_set and ledger sizing before understanding_set and intent_collision_set, which contradicts the new candidate-ledger/confirmed-ledger lifecycle and can make a pre-collision candidate ledger look gate-consumed. severity: high",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-29T21:12:26.275Z",
+      "reviewRound": "2026-06-29T21:08:16.899Z",
+      "reviewRunId": "B-f51c:RR-004",
+      "_hash": "421d1494020f9c56245841ac9c46a980d1072bae8322273f5eb0244bc9b5403c",
+      "signatureTag": "missing|unknown|docs-requirements-decisions",
+      "signatureTagSource": "auto"
     }
   ]
 }
