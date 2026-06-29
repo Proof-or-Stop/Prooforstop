@@ -1,0 +1,18 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-f51c",
+  "mode": "maintenance",
+  "allowed": [
+    "Edit docs/requirements/decisions/proofstory-intent-collision-execution-plan.md to fix the rule count, candidate/confirmed ledger wording, and scheduler/autopilot boundary."
+  ],
+  "excluded": [
+    "Create scheduler, unattended, or autopilot orchestration code.",
+    "Implement CLI commands or runtime gates.",
+    "Modify package sources, tests, dist output, prompts outside the target decision document, or .omx artifacts."
+  ],
+  "confirmedBy": "codex",
+  "confirmationNote": "User asked to modify the document now and agreed Scheduler/Unattended/Autopilot should be a separate development story.",
+  "createdAt": "2026-06-29T21:00:53.574Z",
+  "updatedAt": "2026-06-29T21:00:53.574Z",
+  "_hash": "0735ac2cd0db22951a3929fc16ef06718ba297d69132323071fff935ecb4c431"
+}

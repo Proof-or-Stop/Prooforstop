@@ -1,0 +1,47 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Clarify candidate ledgers and scheduler boundary in the ProofStory plan",
+      "context": "Fix four/five rule mismatch; make candidate milestone ledger gate-consumed only after accepted intent interpretation; state slicing is required for oversized ledgers but automatic parallel execution is optional and belongs to Scheduler/Unattended/Autopilot work.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md"
+      ],
+      "userSees": "The decision document clearly distinguishes candidate versus confirmed milestone ledgers and says oversized ledgers require slicing before DEV, while automatic parallel child-story execution remains a later scheduler/autopilot capability.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The document says the progressive model has five rules and lists five rules.",
+            "type": "docs"
+          },
+          {
+            "desc": "The lifecycle text treats milestone ledgers before intent collision as candidate ledgers and only gate-consumes them after accepted intent interpretation.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The document does not imply child stories must run in parallel when many milestones exist.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The document keeps Scheduler/Unattended/Autopilot automatic parallel execution out of the MVP implementation scope.",
+            "type": "docs"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
