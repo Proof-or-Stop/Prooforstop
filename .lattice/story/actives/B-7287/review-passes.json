@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-29T18:30:32.014Z",
       "reviewRunId": "B-7287:RR-006",
       "_hash": "14ff352c7af726e83b9596f068914f8970fa6a242f6e972718fd02e04add676b"
+    },
+    {
+      "id": "B-7287:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Targeted re-review of 64bb2c35c found no verified quality blocker. packages/main/src/core/proofstory.ts narrows typo-trigger false positives to explicit behavior/scope signals, packages/main/src/tasks/proofstory-intent-hardening-smoke.ts asserts the small typo example stays intent_mvp with no collision/red-evidence/scope diagnostics, and npm --prefix packages/main run test:proofstory-intent-hardening-smoke passed. ProofStory gate remains dry-run diagnostic only; no lifecycle enforcement was added.",
+      "createdAt": "2026-06-29T18:33:22.353Z",
+      "reviewRound": "2026-06-29T18:30:32.014Z",
+      "reviewRunId": "B-7287:RR-007",
+      "_hash": "192cb54e8f783f7b5022fbe07d6dcf48c69e97e43eadccc9793431941b18b894"
     }
   ]
 }
