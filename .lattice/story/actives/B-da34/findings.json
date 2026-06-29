@@ -114,6 +114,29 @@
       ],
       "signatureTag": "adversarial|ts|scanner-line-quarantine-bypass",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-da34:F-006",
+      "desc": "Active docs/user-facing text still carries retired production/Authority completion framing after the fix. README.md:189-190 says autopilot does not claim production authority instead of release readiness / local assurance. packages/main/src/handlers/delivery-context-pack.ts:171-176 throws user-facing text saying it does not claim Authority/production completion. packages/main/src/handlers/plan-skeleton.ts:174-176 emits a planner constraint saying it must not claim Authority completion. packages/main/src/core/canonical-story.ts:165-168 and packages/main/src/core/capabilities.ts:139 still describe production completion / production DONE in active JSON-facing reason/description text. This violates docs/requirements/decisions/authority-server-vocabulary-retirement.md:23-41, which requires active surfaces to explain local assurance/admissibility/evidence scope rather than old completion framing. The retired-vocabulary guard passes because it keys on exact banned tokens, so this residue needs a wording fix or guard coverage expansion.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-29T17:58:59.657Z",
+      "reviewRound": "2026-06-29T17:54:51.740Z",
+      "reviewRunId": "B-da34:RR-008",
+      "_hash": "1cf3b43e32dc33a950011e3ee973cd6726d5eafa299e229586c1940c55098b69",
+      "files": [
+        "README.md",
+        "packages/main/src/handlers/delivery-context-pack.ts",
+        "packages/main/src/handlers/plan-skeleton.ts",
+        "packages/main/src/core/canonical-story.ts",
+        "packages/main/src/core/capabilities.ts",
+        "docs/requirements/decisions/authority-server-vocabulary-retirement.md"
+      ],
+      "signatureTag": "missing|md|active-docs-user",
+      "signatureTagSource": "auto"
     }
   ]
 }
