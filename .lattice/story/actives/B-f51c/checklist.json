@@ -41,29 +41,29 @@
       },
       "status": "done",
       "startTime": "2026-06-29T21:07:31.497Z",
-      "endTime": "2026-06-29T21:07:53.938Z",
+      "endTime": "2026-06-29T21:14:48.512Z",
       "verificationEvidence": [
         {
           "intentRef": "CHK-001:happy:0",
           "kind": "docs_check",
           "command": "rg -n \"This progressive model has five rules\" docs/requirements/decisions/proofstory-intent-collision-execution-plan.md && ! rg -n \"This progressive model has four rules\" docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
           "result": "pass",
-          "note": "The document now says the progressive model has five rules and the old four-rules sentence is absent.",
-          "headHash": "b72e40cc04c65dac97d1853772612a47b13f5c4f",
-          "materialHash": "1d71a789eda6db7add056e624f81c751a1f39541549bda9367e5301bdcc636fa",
-          "storyFilesHash": "76d35f570c82b998c040568d0d962fdb3fdeea8513aecc5ff005d24be9bafcd0",
-          "timestamp": "2026-06-29T21:07:54.211Z"
+          "note": "The document says the progressive model has five rules and the old four-rules sentence is absent.",
+          "headHash": "59212509fc7aa1ed5c0e481300fc9ccbf885ff14",
+          "materialHash": "42af579e2aef075b752c7bd59aa93a4fa73730abd62067b994d010a1b67f8daf",
+          "storyFilesHash": "4ef41afe4335a4c3824957226471dfeed3fa120b3067a8951047157adc6bfacf",
+          "timestamp": "2026-06-29T21:14:48.814Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
           "kind": "docs_check",
-          "command": "rg -n \"candidate milestone ledger|confirmed milestone ledger|gate-consumed only after the accepted intent\" docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+          "command": "rg -n \"candidate only; not gate-consumed yet|confirm milestone ledger against the accepted intent interpretation|confirmedMilestoneLedger|confirmedByIntentInterpretation|a candidate milestone ledger is present\" docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
           "result": "pass",
-          "note": "The lifecycle and ledger sections now distinguish candidate ledgers from confirmed gate-consumed ledgers.",
-          "headHash": "b72e40cc04c65dac97d1853772612a47b13f5c4f",
-          "materialHash": "1d71a789eda6db7add056e624f81c751a1f39541549bda9367e5301bdcc636fa",
-          "storyFilesHash": "76d35f570c82b998c040568d0d962fdb3fdeea8513aecc5ff005d24be9bafcd0",
-          "timestamp": "2026-06-29T21:07:54.467Z"
+          "note": "Normal Story Path, schema, and gate blocking conditions now require candidate ledgers to be confirmed by accepted intent interpretation before gate consumption.",
+          "headHash": "59212509fc7aa1ed5c0e481300fc9ccbf885ff14",
+          "materialHash": "42af579e2aef075b752c7bd59aa93a4fa73730abd62067b994d010a1b67f8daf",
+          "storyFilesHash": "4ef41afe4335a4c3824957226471dfeed3fa120b3067a8951047157adc6bfacf",
+          "timestamp": "2026-06-29T21:14:49.062Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -71,10 +71,10 @@
           "command": "rg -n \"no mandatory parallel child-story execution|parallel execution is optional\" docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
           "result": "pass",
           "note": "The document explicitly avoids making many milestone slices force parallel child-story execution.",
-          "headHash": "b72e40cc04c65dac97d1853772612a47b13f5c4f",
-          "materialHash": "1d71a789eda6db7add056e624f81c751a1f39541549bda9367e5301bdcc636fa",
-          "storyFilesHash": "76d35f570c82b998c040568d0d962fdb3fdeea8513aecc5ff005d24be9bafcd0",
-          "timestamp": "2026-06-29T21:07:54.750Z"
+          "headHash": "59212509fc7aa1ed5c0e481300fc9ccbf885ff14",
+          "materialHash": "42af579e2aef075b752c7bd59aa93a4fa73730abd62067b994d010a1b67f8daf",
+          "storyFilesHash": "4ef41afe4335a4c3824957226471dfeed3fa120b3067a8951047157adc6bfacf",
+          "timestamp": "2026-06-29T21:14:49.278Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -82,21 +82,21 @@
           "command": "rg -n \"Automatic parallel child-story dispatch belongs to a dedicated Scheduler,|Unattended, or Autopilot development story\" docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
           "result": "pass",
           "note": "The MVP boundary keeps scheduler/unattended/autopilot automatic parallel execution out of the ProofStory M0-M2 scope.",
-          "headHash": "b72e40cc04c65dac97d1853772612a47b13f5c4f",
-          "materialHash": "1d71a789eda6db7add056e624f81c751a1f39541549bda9367e5301bdcc636fa",
-          "storyFilesHash": "76d35f570c82b998c040568d0d962fdb3fdeea8513aecc5ff005d24be9bafcd0",
-          "timestamp": "2026-06-29T21:07:55.012Z"
+          "headHash": "59212509fc7aa1ed5c0e481300fc9ccbf885ff14",
+          "materialHash": "42af579e2aef075b752c7bd59aa93a4fa73730abd62067b994d010a1b67f8daf",
+          "storyFilesHash": "4ef41afe4335a4c3824957226471dfeed3fa120b3067a8951047157adc6bfacf",
+          "timestamp": "2026-06-29T21:14:49.496Z"
         },
         {
-          "intentRef": "CHK-001:adversarial:0",
+          "intentRef": "CHK-001:happy:1",
           "kind": "docs_check",
           "command": "git diff --check && ! rg -n \"[\\p{Han}]\" docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
           "result": "pass",
           "note": "Whitespace is clean and the edited open-source document remains English-only.",
-          "headHash": "b72e40cc04c65dac97d1853772612a47b13f5c4f",
-          "materialHash": "1d71a789eda6db7add056e624f81c751a1f39541549bda9367e5301bdcc636fa",
-          "storyFilesHash": "76d35f570c82b998c040568d0d962fdb3fdeea8513aecc5ff005d24be9bafcd0",
-          "timestamp": "2026-06-29T21:07:55.259Z"
+          "headHash": "59212509fc7aa1ed5c0e481300fc9ccbf885ff14",
+          "materialHash": "42af579e2aef075b752c7bd59aa93a4fa73730abd62067b994d010a1b67f8daf",
+          "storyFilesHash": "4ef41afe4335a4c3824957226471dfeed3fa120b3067a8951047157adc6bfacf",
+          "timestamp": "2026-06-29T21:14:49.750Z"
         }
       ]
     }
