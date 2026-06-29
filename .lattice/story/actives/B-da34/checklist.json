@@ -105,7 +105,49 @@
       "context": "Remove authority_* active commands from help/catalog/config and hide/delete legacy compatibility surfaces. Verification must inspect CLI help/catalog/config, not just source text.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "relatedDocs": [
+        "docs/requirements/decisions/authority-server-vocabulary-retirement.md",
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+      ],
+      "userSees": "User sees no active authority_* command group or server-backed Authority command in CLI help/catalog/config; local assurance commands remain visible.",
+      "files": {
+        "modify": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/command-schemas.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/core/command-policy.ts",
+          "lattice.config.json"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/command-catalog-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "CLI help/catalog/config expose local assurance commands but no active authority_* server-backed command surface.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Any compatibility alias is hidden legacy/quarantined and absent from normal help/catalog output.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A scanner positive-control catches active authority_* command exposure if reintroduced.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
