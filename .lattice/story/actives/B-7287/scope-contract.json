@@ -27,7 +27,34 @@
   "protectedFiles": [],
   "explicitExcludes": [],
   "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "These paths are required for the M0-M2 ProofStory MVP: the story uses the new diagnostic artifacts as real samples and package.json adds the focused smoke script.",
+      "timestamp": "2026-06-29T18:21:25.767Z",
+      "paths": [
+        ".lattice/story/actives/B-7287/original-intent-snapshot.json",
+        ".lattice/story/actives/B-7287/milestone-ledger.json",
+        ".lattice/story/actives/B-7287/proofstory.json",
+        "packages/main/package.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-7287/original-intent-snapshot.json",
+        ".lattice/story/actives/B-7287/milestone-ledger.json",
+        ".lattice/story/actives/B-7287/proofstory.json",
+        "packages/main/package.json"
+      ],
+      "affectedPathCount": 4,
+      "phase": "DEV",
+      "headHash": "da317b42bd1dfde4ca159d9c46d865a416eac2b5",
+      "materialHash": "e5bb97e65caacfbde791b927f1553d731dd9cc2304dd2d3cec5c09a65ce7f0c1",
+      "anchors": [
+        "proofstory.diagnostic_artifacts",
+        "proofstory.smoke_script"
+      ]
+    }
+  ],
   "createdAt": "2026-06-29T18:20:52.286Z",
-  "updatedAt": "2026-06-29T18:20:52.286Z"
+  "updatedAt": "2026-06-29T18:21:25.767Z"
 }
