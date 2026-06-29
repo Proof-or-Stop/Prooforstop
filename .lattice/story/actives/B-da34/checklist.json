@@ -55,10 +55,10 @@
           "command": "rg -n \"banned active|replacement|legacy whitelist|retired authority vocabulary\" docs/requirements/decisions/authority-server-vocabulary-retirement.md",
           "result": "pass",
           "note": "Migration contract exists and defines banned active vocabulary, replacement local assurance terms, and explicit legacy whitelist rules.",
-          "headHash": "8892270bf34f8453fcaa2d546c882cef10fb69a4",
-          "materialHash": "a2c3495831e5b0059e6532f20f5414aff5dd12fecaac023244718033ccf1d0d8",
-          "storyFilesHash": "740a187b34737cdaf4fb43054a84dda9959c78a9ce4032202579a1b2d1edb357",
-          "timestamp": "2026-06-29T17:42:53.031Z"
+          "headHash": "00af8f8e4c1d8ef778a793fcd02db4e90720fcdb",
+          "materialHash": "d8ec43ba25e8248c8493aeeb5d888f64e79c679421e9dc94eed7b2de03de23d4",
+          "storyFilesHash": "8569c274b01e6c396943048ba902d3695a2a1b05c4feda2067e6dc841714bd9e",
+          "timestamp": "2026-06-29T18:28:13.388Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -67,10 +67,10 @@
           "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
           "result": "pass",
           "note": "Scanner passes with explicit whitelist semantics, proving legacy context is allowed only through scanner policy.",
-          "headHash": "8892270bf34f8453fcaa2d546c882cef10fb69a4",
-          "materialHash": "a2c3495831e5b0059e6532f20f5414aff5dd12fecaac023244718033ccf1d0d8",
-          "storyFilesHash": "740a187b34737cdaf4fb43054a84dda9959c78a9ce4032202579a1b2d1edb357",
-          "timestamp": "2026-06-29T17:42:53.874Z"
+          "headHash": "00af8f8e4c1d8ef778a793fcd02db4e90720fcdb",
+          "materialHash": "d8ec43ba25e8248c8493aeeb5d888f64e79c679421e9dc94eed7b2de03de23d4",
+          "storyFilesHash": "8569c274b01e6c396943048ba902d3695a2a1b05c4feda2067e6dc841714bd9e",
+          "timestamp": "2026-06-29T18:28:13.388Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -79,10 +79,10 @@
           "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
           "result": "pass",
           "note": "Scanner references/enforces the retirement contract, so the contract is not prose-only.",
-          "headHash": "8892270bf34f8453fcaa2d546c882cef10fb69a4",
-          "materialHash": "a2c3495831e5b0059e6532f20f5414aff5dd12fecaac023244718033ccf1d0d8",
-          "storyFilesHash": "740a187b34737cdaf4fb43054a84dda9959c78a9ce4032202579a1b2d1edb357",
-          "timestamp": "2026-06-29T17:42:54.742Z"
+          "headHash": "00af8f8e4c1d8ef778a793fcd02db4e90720fcdb",
+          "materialHash": "d8ec43ba25e8248c8493aeeb5d888f64e79c679421e9dc94eed7b2de03de23d4",
+          "storyFilesHash": "8569c274b01e6c396943048ba902d3695a2a1b05c4feda2067e6dc841714bd9e",
+          "timestamp": "2026-06-29T18:28:13.388Z"
         }
       ]
     },
@@ -145,10 +145,10 @@
           "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
           "result": "pass",
           "note": "Active README/docs/prompts/templates/help surfaces pass the retired-vocabulary guard with local assurance/admissibility wording.",
-          "headHash": "fb83a57fd74520da9fea1068e5d15739bfd5f6ce",
-          "materialHash": "a2c3495831e5b0059e6532f20f5414aff5dd12fecaac023244718033ccf1d0d8",
-          "storyFilesHash": "740a187b34737cdaf4fb43054a84dda9959c78a9ce4032202579a1b2d1edb357",
-          "timestamp": "2026-06-29T17:43:03.256Z"
+          "headHash": "00af8f8e4c1d8ef778a793fcd02db4e90720fcdb",
+          "materialHash": "d8ec43ba25e8248c8493aeeb5d888f64e79c679421e9dc94eed7b2de03de23d4",
+          "storyFilesHash": "8569c274b01e6c396943048ba902d3695a2a1b05c4feda2067e6dc841714bd9e",
+          "timestamp": "2026-06-29T18:28:13.388Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -157,10 +157,10 @@
           "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
           "result": "pass",
           "note": "Legacy/migration contexts are permitted only through explicit scanner whitelist; active guidance is blocked if it leaks retired vocabulary.",
-          "headHash": "fb83a57fd74520da9fea1068e5d15739bfd5f6ce",
-          "materialHash": "a2c3495831e5b0059e6532f20f5414aff5dd12fecaac023244718033ccf1d0d8",
-          "storyFilesHash": "740a187b34737cdaf4fb43054a84dda9959c78a9ce4032202579a1b2d1edb357",
-          "timestamp": "2026-06-29T17:43:04.117Z"
+          "headHash": "00af8f8e4c1d8ef778a793fcd02db4e90720fcdb",
+          "materialHash": "d8ec43ba25e8248c8493aeeb5d888f64e79c679421e9dc94eed7b2de03de23d4",
+          "storyFilesHash": "8569c274b01e6c396943048ba902d3695a2a1b05c4feda2067e6dc841714bd9e",
+          "timestamp": "2026-06-29T18:28:13.388Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -168,10 +168,10 @@
           "command": "node packages/main/dist/cli.js help | node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
           "result": "pass",
           "note": "The scanner includes generated help/catalog content, so old wording cannot hide in command descriptions.",
-          "headHash": "fb83a57fd74520da9fea1068e5d15739bfd5f6ce",
-          "materialHash": "a2c3495831e5b0059e6532f20f5414aff5dd12fecaac023244718033ccf1d0d8",
-          "storyFilesHash": "740a187b34737cdaf4fb43054a84dda9959c78a9ce4032202579a1b2d1edb357",
-          "timestamp": "2026-06-29T17:43:04.940Z"
+          "headHash": "00af8f8e4c1d8ef778a793fcd02db4e90720fcdb",
+          "materialHash": "d8ec43ba25e8248c8493aeeb5d888f64e79c679421e9dc94eed7b2de03de23d4",
+          "storyFilesHash": "8569c274b01e6c396943048ba902d3695a2a1b05c4feda2067e6dc841714bd9e",
+          "timestamp": "2026-06-29T18:28:13.388Z"
         }
       ]
     },
@@ -233,10 +233,10 @@
           "command": "node packages/main/dist/tasks/command-catalog-smoke.js",
           "result": "pass",
           "note": "Command catalog smoke passed with 256 commands after active command surface cleanup.",
-          "headHash": "84e64b32cdb0eb45ff23bfc072655f9ddda820ce",
-          "materialHash": "a2c3495831e5b0059e6532f20f5414aff5dd12fecaac023244718033ccf1d0d8",
-          "storyFilesHash": "740a187b34737cdaf4fb43054a84dda9959c78a9ce4032202579a1b2d1edb357",
-          "timestamp": "2026-06-29T17:43:15.123Z"
+          "headHash": "00af8f8e4c1d8ef778a793fcd02db4e90720fcdb",
+          "materialHash": "d8ec43ba25e8248c8493aeeb5d888f64e79c679421e9dc94eed7b2de03de23d4",
+          "storyFilesHash": "8569c274b01e6c396943048ba902d3695a2a1b05c4feda2067e6dc841714bd9e",
+          "timestamp": "2026-06-29T18:28:13.388Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -245,10 +245,10 @@
           "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
           "result": "pass",
           "note": "Normal help/catalog output passes scanner; retained compatibility is not exposed as active retired vocabulary.",
-          "headHash": "84e64b32cdb0eb45ff23bfc072655f9ddda820ce",
-          "materialHash": "a2c3495831e5b0059e6532f20f5414aff5dd12fecaac023244718033ccf1d0d8",
-          "storyFilesHash": "740a187b34737cdaf4fb43054a84dda9959c78a9ce4032202579a1b2d1edb357",
-          "timestamp": "2026-06-29T17:43:15.972Z"
+          "headHash": "00af8f8e4c1d8ef778a793fcd02db4e90720fcdb",
+          "materialHash": "d8ec43ba25e8248c8493aeeb5d888f64e79c679421e9dc94eed7b2de03de23d4",
+          "storyFilesHash": "8569c274b01e6c396943048ba902d3695a2a1b05c4feda2067e6dc841714bd9e",
+          "timestamp": "2026-06-29T18:28:13.388Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -257,10 +257,10 @@
           "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
           "result": "pass",
           "note": "Scanner positive controls reject active retired command exposure including authority_* patterns.",
-          "headHash": "84e64b32cdb0eb45ff23bfc072655f9ddda820ce",
-          "materialHash": "a2c3495831e5b0059e6532f20f5414aff5dd12fecaac023244718033ccf1d0d8",
-          "storyFilesHash": "740a187b34737cdaf4fb43054a84dda9959c78a9ce4032202579a1b2d1edb357",
-          "timestamp": "2026-06-29T17:43:16.833Z"
+          "headHash": "00af8f8e4c1d8ef778a793fcd02db4e90720fcdb",
+          "materialHash": "d8ec43ba25e8248c8493aeeb5d888f64e79c679421e9dc94eed7b2de03de23d4",
+          "storyFilesHash": "8569c274b01e6c396943048ba902d3695a2a1b05c4feda2067e6dc841714bd9e",
+          "timestamp": "2026-06-29T18:28:13.388Z"
         }
       ]
     },
@@ -323,10 +323,10 @@
           "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
           "result": "pass",
           "note": "Active runtime paths pass server-backed retired vocabulary/quarantine scanner while local proof features remain available.",
-          "headHash": "1ef09dd0dda11720500d4dd1dc1c9c7599ed7bd1",
-          "materialHash": "a2c3495831e5b0059e6532f20f5414aff5dd12fecaac023244718033ccf1d0d8",
-          "storyFilesHash": "740a187b34737cdaf4fb43054a84dda9959c78a9ce4032202579a1b2d1edb357",
-          "timestamp": "2026-06-29T17:43:27.067Z"
+          "headHash": "00af8f8e4c1d8ef778a793fcd02db4e90720fcdb",
+          "materialHash": "d8ec43ba25e8248c8493aeeb5d888f64e79c679421e9dc94eed7b2de03de23d4",
+          "storyFilesHash": "8569c274b01e6c396943048ba902d3695a2a1b05c4feda2067e6dc841714bd9e",
+          "timestamp": "2026-06-29T18:28:13.388Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -334,10 +334,10 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proof-admissibility-smoke.js && node packages/main/dist/tasks/receipt-bundle-contract-smoke.js",
           "result": "pass",
           "note": "Build, proof-admissibility, and receipt-bundle smokes passed, proving shared local assurance helpers were preserved.",
-          "headHash": "1ef09dd0dda11720500d4dd1dc1c9c7599ed7bd1",
-          "materialHash": "a2c3495831e5b0059e6532f20f5414aff5dd12fecaac023244718033ccf1d0d8",
-          "storyFilesHash": "740a187b34737cdaf4fb43054a84dda9959c78a9ce4032202579a1b2d1edb357",
-          "timestamp": "2026-06-29T17:43:28.054Z"
+          "headHash": "00af8f8e4c1d8ef778a793fcd02db4e90720fcdb",
+          "materialHash": "d8ec43ba25e8248c8493aeeb5d888f64e79c679421e9dc94eed7b2de03de23d4",
+          "storyFilesHash": "8569c274b01e6c396943048ba902d3695a2a1b05c4feda2067e6dc841714bd9e",
+          "timestamp": "2026-06-29T18:28:13.388Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -346,10 +346,10 @@
           "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
           "result": "pass",
           "note": "Scanner fails closed for active runtime imports or strings that reintroduce quarantined server-backed retired vocabulary.",
-          "headHash": "1ef09dd0dda11720500d4dd1dc1c9c7599ed7bd1",
-          "materialHash": "a2c3495831e5b0059e6532f20f5414aff5dd12fecaac023244718033ccf1d0d8",
-          "storyFilesHash": "740a187b34737cdaf4fb43054a84dda9959c78a9ce4032202579a1b2d1edb357",
-          "timestamp": "2026-06-29T17:43:28.907Z"
+          "headHash": "00af8f8e4c1d8ef778a793fcd02db4e90720fcdb",
+          "materialHash": "d8ec43ba25e8248c8493aeeb5d888f64e79c679421e9dc94eed7b2de03de23d4",
+          "storyFilesHash": "8569c274b01e6c396943048ba902d3695a2a1b05c4feda2067e6dc841714bd9e",
+          "timestamp": "2026-06-29T18:28:13.388Z"
         }
       ]
     },
@@ -409,10 +409,10 @@
           "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
           "result": "pass",
           "note": "Hard retired-vocabulary scanner passes current active code/docs/help/catalog and is included in validation config.",
-          "headHash": "2d6eeff416aea578c458eef7c3ac0d1434ebdb9b",
-          "materialHash": "a2c3495831e5b0059e6532f20f5414aff5dd12fecaac023244718033ccf1d0d8",
-          "storyFilesHash": "740a187b34737cdaf4fb43054a84dda9959c78a9ce4032202579a1b2d1edb357",
-          "timestamp": "2026-06-29T17:43:39.351Z"
+          "headHash": "00af8f8e4c1d8ef778a793fcd02db4e90720fcdb",
+          "materialHash": "d8ec43ba25e8248c8493aeeb5d888f64e79c679421e9dc94eed7b2de03de23d4",
+          "storyFilesHash": "8569c274b01e6c396943048ba902d3695a2a1b05c4feda2067e6dc841714bd9e",
+          "timestamp": "2026-06-29T18:28:13.388Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -421,10 +421,10 @@
           "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
           "result": "pass",
           "note": "Scanner reports explicit whitelist behavior for migration/legacy contexts while blocking active surfaces.",
-          "headHash": "2d6eeff416aea578c458eef7c3ac0d1434ebdb9b",
-          "materialHash": "a2c3495831e5b0059e6532f20f5414aff5dd12fecaac023244718033ccf1d0d8",
-          "storyFilesHash": "740a187b34737cdaf4fb43054a84dda9959c78a9ce4032202579a1b2d1edb357",
-          "timestamp": "2026-06-29T17:43:40.207Z"
+          "headHash": "00af8f8e4c1d8ef778a793fcd02db4e90720fcdb",
+          "materialHash": "d8ec43ba25e8248c8493aeeb5d888f64e79c679421e9dc94eed7b2de03de23d4",
+          "storyFilesHash": "8569c274b01e6c396943048ba902d3695a2a1b05c4feda2067e6dc841714bd9e",
+          "timestamp": "2026-06-29T18:28:13.388Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -433,10 +433,10 @@
           "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
           "result": "pass",
           "note": "Positive controls for retired terms and active authority_* exposure are rejected by the scanner.",
-          "headHash": "2d6eeff416aea578c458eef7c3ac0d1434ebdb9b",
-          "materialHash": "a2c3495831e5b0059e6532f20f5414aff5dd12fecaac023244718033ccf1d0d8",
-          "storyFilesHash": "740a187b34737cdaf4fb43054a84dda9959c78a9ce4032202579a1b2d1edb357",
-          "timestamp": "2026-06-29T17:43:41.005Z"
+          "headHash": "00af8f8e4c1d8ef778a793fcd02db4e90720fcdb",
+          "materialHash": "d8ec43ba25e8248c8493aeeb5d888f64e79c679421e9dc94eed7b2de03de23d4",
+          "storyFilesHash": "8569c274b01e6c396943048ba902d3695a2a1b05c4feda2067e6dc841714bd9e",
+          "timestamp": "2026-06-29T18:28:13.388Z"
         }
       ]
     }
