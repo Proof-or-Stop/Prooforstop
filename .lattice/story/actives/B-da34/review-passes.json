@@ -71,6 +71,15 @@
       "reviewRound": "2026-06-29T18:12:21.282Z",
       "reviewRunId": "B-da34:RR-020",
       "_hash": "084718966b823ef4151e31ec1cb88d425d39f96a4f474c7cd57b5ca37fe43acb"
+    },
+    {
+      "id": "B-da34:RP-009",
+      "agent": "lattice-review-quality",
+      "note": "Fresh quality pass after scoped review-pass supersession fix. Code change is limited to review-run supersession filtering; open findings remain blocking while stale pass receipts in the same lane are superseded by newer valid pass receipts. Verified build, retired vocabulary guard, process-fact contract, command catalog, proof admissibility, receipt bundle, and flow stability.",
+      "createdAt": "2026-06-29T18:24:28.373Z",
+      "reviewRound": "2026-06-29T18:12:21.282Z",
+      "reviewRunId": "B-da34:RR-021",
+      "_hash": "2a924b62bafde6f2c2510f04fb114b86ecdb2265cf8d75511c0f22c037ea9928"
     }
   ]
 }
