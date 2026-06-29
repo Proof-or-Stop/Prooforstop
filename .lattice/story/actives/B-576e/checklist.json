@@ -178,6 +178,17 @@
           "materialHash": "610d953adcd6dae8ec4af50dcadc186594f4d7c265d5c982db95f8863e0a8ce7",
           "storyFilesHash": "41d2e25f8c8979249dcd99e7bf334d1ee24feba5d655bb726433d77c5c46651c",
           "timestamp": "2026-06-29T01:47:29.312Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "command": "node packages/main/dist/tasks/retired-authority-server-semantics-smoke.js",
+          "result": "pass",
+          "note": "Active prompt assets are scanned for Authority Server, receiptVerified, productionDone, authorityDone, and fullAuthorityDone claim wording; smoke passed on current HEAD.",
+          "headHash": "200f5da80dbcf46bced9edac0f8364aa15fb09e6",
+          "materialHash": "610d953adcd6dae8ec4af50dcadc186594f4d7c265d5c982db95f8863e0a8ce7",
+          "storyFilesHash": "41d2e25f8c8979249dcd99e7bf334d1ee24feba5d655bb726433d77c5c46651c",
+          "timestamp": "2026-06-29T01:47:30.944Z"
         }
       ]
     },
