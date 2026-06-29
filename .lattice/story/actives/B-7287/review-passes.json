@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-29T18:30:32.014Z",
       "reviewRunId": "B-7287:RR-005",
       "_hash": "1930e7b0a4c94d7ab2e95e7287657fd7d7a341cc4b0712681c5cc4478636f095"
+    },
+    {
+      "id": "B-7287:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "Targeted F-001 test-coverage re-review passed: packages/main/src/tasks/proofstory-intent-hardening-smoke.ts asserts \"Complete this small typo fix\" stays hardeningLevel intent_mvp, has no collision/red/scope diagnostic gaps, and positive red-evidence signal stories still produce missing_red_evidence. Verified compiled dist contains those assertions and npm --prefix packages/main run test:proofstory-intent-hardening-smoke passed.",
+      "createdAt": "2026-06-29T18:32:53.961Z",
+      "reviewRound": "2026-06-29T18:30:32.014Z",
+      "reviewRunId": "B-7287:RR-006",
+      "_hash": "14ff352c7af726e83b9596f068914f8970fa6a242f6e972718fd02e04add676b"
     }
   ]
 }
