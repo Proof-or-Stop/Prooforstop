@@ -1,0 +1,78 @@
+{
+  "principles": [
+    "User intent is the contract; five milestones must remain countable through DONE.",
+    "Active Proofbound surfaces must use local assurance/admissibility vocabulary, not Authority Server vocabulary.",
+    "Legacy compatibility may exist only behind explicit quarantine/whitelist and must not leak into active help/docs/gates.",
+    "Scanner evidence must be stronger than prose claims."
+  ],
+  "drivers": [
+    "Prevent another DONE overclaim where a narrowed story passes while the original milestones remain incomplete.",
+    "Remove confusing Authority Server semantics from the active CLI product surface.",
+    "Keep local quorum/admissibility/receipt-bundle capabilities intact."
+  ],
+  "options": [
+    {
+      "name": "A: hard physical removal plus explicit legacy quarantine and scanner",
+      "pros": [
+        "Matches the user no-discount request",
+        "Creates machine-verifiable proof for all five milestones",
+        "Keeps necessary local evidence features while removing server-backed surfaces"
+      ],
+      "cons": [
+        "Larger diff",
+        "May require careful import cleanup and legacy doc whitelist"
+      ]
+    },
+    {
+      "name": "B: only update user-facing wording and keep code/tests as-is",
+      "pros": [
+        "Smaller and faster"
+      ],
+      "cons": [
+        "Repeats B-576e narrowing failure",
+        "Does not complete M4/M5",
+        "Would leave active code/test drift"
+      ]
+    },
+    {
+      "name": "C: delete every file containing authority words with no quarantine",
+      "pros": [
+        "Aggressive cleanup and simpler word scan"
+      ],
+      "cons": [
+        "High regression risk",
+        "Could remove local features or historical docs that still need explicit retired context",
+        "Likely breaks build/tests"
+      ]
+    }
+  ],
+  "chosen": "A: hard physical removal plus explicit legacy quarantine and scanner",
+  "rationale": "Choose A because the user explicitly asked for five milestones without discount until DONE. The implementation must remove or quarantine server-backed Authority surfaces while preserving local proof features, and a hard scanner is needed so completion is mechanically checkable.",
+  "preMortem": [
+    {
+      "scenario": "The story again narrows to wording-only cleanup",
+      "trigger": "Checklist items are marked done using prose evidence instead of scanner/build/help outputs",
+      "consequence": "DONE passes but M4/M5 remain incomplete",
+      "mitigation": "Each checklist item must cite concrete commands, including retired-Authority scanner, command catalog/help inspection, build, and validate."
+    },
+    {
+      "scenario": "Physical deletion breaks local proof features",
+      "trigger": "Authority-named legacy modules share types or helpers with local quorum/admissibility paths",
+      "consequence": "Build or validation fails, or local assurance commands regress",
+      "mitigation": "Trace imports before deletion, quarantine only server-backed surfaces, and preserve local quorum_submit/proof-admissibility/receipt-bundle/delivery-check tests."
+    },
+    {
+      "scenario": "Scanner blocks legitimate legacy history forever",
+      "trigger": "No whitelist distinction between active docs/code and retired migration appendices",
+      "consequence": "Useful historical context becomes impossible to keep and validation becomes noisy",
+      "mitigation": "Define explicit whitelist paths/sections and require all other active surfaces to pass hard scanner."
+    },
+    {
+      "scenario": "CLI help still leaks old vocabulary",
+      "trigger": "Command descriptions or process-fact policy reasons are not covered by scanner inputs",
+      "consequence": "User still sees Authority wording despite code cleanup",
+      "mitigation": "Scanner must include generated help/catalog text and docs/prompts, not just source files."
+    }
+  ],
+  "timestamp": "2026-06-29T17:03:43.205Z"
+}

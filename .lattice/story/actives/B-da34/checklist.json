@@ -6,7 +6,46 @@
       "context": "Create a source-of-truth migration/retirement document that defines banned active vocabulary, replacement local assurance/admissibility terms, and explicit legacy whitelist rules. Verification must prove the contract exists and is referenced by the scanner.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "relatedDocs": [
+        "docs/requirements/decisions/authority-server-vocabulary-retirement.md",
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+      ],
+      "userSees": "User sees the migration contract and scanner policy name the banned active Authority vocabulary and replacement local assurance/admissibility terms.",
+      "files": {
+        "modify": [
+          "docs/requirements/NAV.md"
+        ],
+        "create": [
+          "docs/requirements/decisions/authority-server-vocabulary-retirement.md"
+        ],
+        "test": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Migration contract exists and defines banned active terms plus replacement local assurance/admissibility vocabulary.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Contract distinguishes active surfaces from explicit legacy whitelist so historical docs can exist without weakening the active scanner.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A scanner or smoke must reference the contract so the document is not prose-only and cannot be bypassed at DONE.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
