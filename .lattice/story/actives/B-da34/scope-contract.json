@@ -1,0 +1,41 @@
+{
+  "storyId": "B-da34",
+  "mode": "enforce",
+  "allowedModify": [
+    "docs/requirements/decisions",
+    "docs/requirements/NAV.md",
+    "README.md",
+    "docs/guide.md",
+    ".claude/agents",
+    ".lattice-codex/agents",
+    "packages/main/templates/agents",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/cli",
+    "packages/main/src/cli/command-schemas.ts",
+    "packages/main/src/registry.ts",
+    "lattice.config.json",
+    "packages/main/src/core",
+    "packages/main/src/handlers",
+    "packages/main/src/tasks",
+    "packages/main/src/cli-engine.ts",
+    "scripts",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "allowedCreate": [
+    "docs/requirements/decisions/authority-server-vocabulary-retirement.md",
+    "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+    "packages/main/src/tasks/command-catalog-smoke.ts",
+    "packages/main/src/tasks/proof-admissibility-smoke.ts",
+    "packages/main/src/tasks/receipt-bundle-contract-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-29T17:08:42.311Z",
+  "updatedAt": "2026-06-29T17:08:42.311Z"
+}
