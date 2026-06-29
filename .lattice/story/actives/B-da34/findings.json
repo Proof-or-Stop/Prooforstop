@@ -39,6 +39,25 @@
       ],
       "signatureTag": "adversarial|ts|scanner-whitelist-broad",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-da34:F-003",
+      "desc": "CHK-004:adversarial is not truly covered. The intent says the scanner must fail if active runtime paths import quarantined server-backed Authority modules, but retired-authority-vocabulary-guard-smoke only scans banned vocabulary tokens and MAIN_TOOLS command names. Its retired story resolver rule matches story_authority_resolve only, and assertCommandCatalog only proves the command is absent from MAIN_TOOLS/aliases; it does not reject import specifiers such as ./handlers/story-authority-resolve.js or createStoryAuthorityResolveHandlers in active runtime files. Source refs: packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts:33, packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts:190, docs/requirements/decisions/authority-server-vocabulary-retirement.md:80.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-29T17:47:38.748Z",
+      "reviewRound": "2026-06-29T17:43:53.439Z",
+      "reviewRunId": "B-da34:RR-003",
+      "_hash": "a0f07fb089cd753b395edb9755f661d2c4fb14c02f10522832600144c6e9ad2f",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "docs/requirements/decisions/authority-server-vocabulary-retirement.md"
+      ],
+      "signatureTag": "missing|ts|adversarial-truly-covered",
+      "signatureTagSource": "auto"
     }
   ]
 }
