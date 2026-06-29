@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "Implement fix for reproduced failure",
       "context": "Probe: rp-mqzkvjqx-nb3bnj, Review: rr-mqzkzc8e-q4mz2k",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-29T19:03:36.196Z",
-      "endTime": null,
+      "endTime": "2026-06-29T19:11:26.170Z",
       "relatedDocs": [
         "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
         "docs/requirements/decisions/story-files-hash-material-drift.md",
@@ -143,6 +143,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Starting DEV implementation for post-DONE closure snapshot projection."
+    },
+    {
+      "timestamp": "2026-06-29T19:11:26.170Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Implementation committed and verification evidence covers all five intents."
     }
   ]
 }
