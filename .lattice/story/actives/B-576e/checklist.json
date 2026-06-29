@@ -149,8 +149,12 @@
       "files": {
         "modify": [
           "packages/main/src/handlers/**",
+          "packages/main/src/handlers/authority-enforce.ts",
+          "packages/main/src/handlers/verdict.ts",
           "packages/main/src/core/**",
+          "packages/main/src/core/authority-*.ts",
           "packages/main/src/tasks/**",
+          "packages/main/src/tasks/authority-*.ts",
           "packages/main/package.json",
           "lattice.config.json"
         ],
@@ -163,7 +167,28 @@
       "relatedDocs": [
         "docs/evidence/evidence-platform-architecture.md",
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
-      ]
+      ],
+      "userSees": "Buildable CLI no longer imports server-backed Authority implementation paths while local receipt-bundle and proof-admissibility smokes still pass.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Server-backed Authority handler/core/task paths are removed from active imports and package scripts.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "receipt-bundle, proof-admissibility, quorum_submit, and local review assurance tests still build and pass.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No compatibility shim keeps contacting LATTICE_AUTHORITY_URL or consuming server gate_decision receipts as active behavior.",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
