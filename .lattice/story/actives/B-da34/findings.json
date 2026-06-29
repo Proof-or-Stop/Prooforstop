@@ -53,7 +53,7 @@
       "desc": "CHK-004:adversarial is not truly covered. The intent says the scanner must fail if active runtime paths import quarantined server-backed Authority modules, but retired-authority-vocabulary-guard-smoke only scans banned vocabulary tokens and MAIN_TOOLS command names. Its retired story resolver rule matches story_authority_resolve only, and assertCommandCatalog only proves the command is absent from MAIN_TOOLS/aliases; it does not reject import specifiers such as ./handlers/story-authority-resolve.js or createStoryAuthorityResolveHandlers in active runtime files. Source refs: packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts:33, packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts:190, docs/requirements/decisions/authority-server-vocabulary-retirement.md:80.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-29T17:47:38.748Z",
@@ -65,7 +65,11 @@
         "docs/requirements/decisions/authority-server-vocabulary-retirement.md"
       ],
       "signatureTag": "missing|ts|adversarial-truly-covered",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 848905a45. retired-authority-vocabulary-guard-smoke now extracts static import, dynamic import, and require specifiers from active runtime source files and rejects retired story-authority-resolve or story-authority-resolver module specifiers, including relative imports resolving to quarantined server-backed resolver files. Positive controls prove both handler and core resolver imports are caught. Evidence commands passed: npm --prefix packages/main run build; node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js; npm run test:process-fact-contract; node packages/main/dist/tasks/command-catalog-smoke.js; lattice scope_contract_check storyId=B-da34.",
+      "resolvedAt": "2026-06-29T17:55:21.299Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-da34:F-004",
