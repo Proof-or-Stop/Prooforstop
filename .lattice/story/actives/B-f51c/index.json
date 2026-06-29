@@ -4,7 +4,7 @@
   "title": "Clarify candidate milestone ledgers and scheduler boundary in ProofStory plan",
   "description": "The ProofStory execution plan needs two precision edits before M0-M2 implementation: fix the progressive rule count, and clarify that milestone ledgers can be drafted before intent collision but become gate-consumed only after accepted intent interpretation. It should also state that slicing is required for oversized ledgers while automatic parallel child-story execution belongs to a later Scheduler/Unattended/Autopilot story.",
   "type": "chore",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "low",
   "keywords": [
     "proofstory",
@@ -70,6 +70,15 @@
       "user": "Harmonygo",
       "sessionId": "sess-db71cb7e85a9b58a",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-29T21:14:59.277Z",
+      "branch": "story/B-f51c",
+      "user": "Harmonygo",
+      "sessionId": "sess-db71cb7e85a9b58a",
+      "agent": "main"
     }
   ],
   "worktree": {
@@ -77,5 +86,5 @@
     "branch": "story/B-f51c",
     "createdAt": "2026-06-29T21:02:14.207Z"
   },
-  "currentReviewRound": "2026-06-29T21:08:16.899Z"
+  "currentReviewRound": "2026-06-29T21:14:59.277Z"
 }
