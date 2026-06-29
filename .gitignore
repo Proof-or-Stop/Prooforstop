@@ -76,3 +76,12 @@ packages/main/coverage/
 
 # tsc incremental build cache (regenerated; never tracked)
 *.tsbuildinfo
+
+# Local scratch / generated output (never tracked)
+tmp/
+output/
+
+# recovery-runner experiment artifacts (large run logs, kept local-only)
+experiments/recovery-runner/powered/
+experiments/recovery-runner/ablation-run-records.jsonl.exclusions.jsonl
+experiments/recovery-runner/analysis-out.*
