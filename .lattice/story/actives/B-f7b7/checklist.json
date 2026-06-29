@@ -437,7 +437,50 @@
       "userSees": "ProofStory enforcement is progressive: Intent MVP stays small, triggered paths harden, and policy-controlled enforce mode blocks only when the document says it should.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/handlers/phase-gates.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Risk-adaptive observe, warn, and enforce modes are available and documented in command output and policy metadata.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "High-assurance and oversized-ledger cases can enforce while low-risk Intent MVP stories remain lightweight.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Policy-controlled enforcement never treats advisory observe/warn diagnostics as successful hard evidence.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
