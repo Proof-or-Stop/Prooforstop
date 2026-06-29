@@ -52,8 +52,11 @@
           "README.md",
           "docs/guide.md",
           "packages/main/templates/agents/**",
+          "packages/main/templates/agents/*.md",
           ".lattice-codex/agents/**",
+          ".lattice-codex/agents/*.md",
           ".claude/agents/**",
+          ".claude/agents/*.md",
           "CLAUDE.md",
           "AGENTS.md"
         ],
@@ -68,7 +71,28 @@
         "docs/guide.md",
         "docs/evidence/evidence-platform-architecture.md",
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
-      ]
+      ],
+      "userSees": "Host prompts and generated templates describe local proof admissibility instead of warning about Authority Server claims.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Agent templates and generated Codex/Claude prompt copies use local admissibility/assurance wording.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Regeneration source templates are updated, not only generated copies.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Authority Server, receiptVerified, productionDone, authorityDone, and fullAuthorityDone warning blocks do not remain in active prompt assets.",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
