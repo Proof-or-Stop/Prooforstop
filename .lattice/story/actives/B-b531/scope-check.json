@@ -1,0 +1,45 @@
+{
+  "storyId": "B-b531",
+  "checkedAt": "2026-06-29T19:03:09.500Z",
+  "features": [
+    {
+      "feature": "Historical DONE closure projection uses recorded completion snapshot for DONE stories",
+      "covered_by": "CHK-001:happy:0 and CHK-001:edge:1",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "red repro rp-mqzkvjqx-nb3bnj + plan.md"
+    },
+    {
+      "feature": "review_escalation_status default aligns with historical DONE status",
+      "covered_by": "CHK-001:happy:1",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "understanding + decision option A"
+    },
+    {
+      "feature": "TEST->DONE stale evidence gates remain strict",
+      "covered_by": "CHK-001:edge:0 and CHK-001:adversarial:0",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan preMortem"
+    },
+    {
+      "feature": "Historical evidence migration or manual B-da34 refresh",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "scope-boundary excludedScope and plan non-goals",
+      "source": "scope boundary"
+    }
+  ],
+  "summary": {
+    "total": 4,
+    "covered": 3,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "de5810e3a4176b3881865f6cfe8b840731c78cbd6926068553d1ec7ab40c9d94",
+  "openQuestions": []
+}

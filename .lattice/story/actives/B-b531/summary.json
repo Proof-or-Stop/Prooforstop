@@ -1,0 +1,56 @@
+{
+  "storyId": "B-b531",
+  "changes": "Fixed post-DONE read-only closure/status projections so completed stories use the DONE-time delivery/test snapshot for review escalation and DONE closure; added a regression smoke and bumped Proofbound CLI to 0.3.110.",
+  "usage": "Run lattice done_closure {\"storyId\":\"<DONE story>\"} or lattice review_escalation_status {\"storyId\":\"<DONE story>\"}; completed stories now report historical snapshot context by default.",
+  "expectedOutcome": "A DONE story with later current-material drift remains historically closed with zero reopened blocking rows, while TEST-phase stories still block stale evidence before DONE.",
+  "actualTranscript": "Live transcript captured B-da34 done_closure: projection historical DONE snapshot from delivery-check.json, local-admissible assurance, DONE oracle rows 15 with 0 blocking. Full lattice validate and DONE-required validation passed.",
+  "outcomeDiff": "No mismatch: historical DONE projection is restored and unfinished-story strictness remains covered by smoke tests.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "none - fully covered by focused smoke, live B-da34 transcript, full validate, DONE-required validation, delivery check, and local 3x2 quorum.",
+  "pitfalls": "Main pitfall was avoiding a broad stale-evidence bypass: the fix only projects current-material revalidation failures for already DONE stories, and the smoke keeps TEST-phase stale evidence strict.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 106252
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 11687
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 141012
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 488232
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 243770
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 240707
+    }
+  },
+  "totalDurationMs": 1231661,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-29T19:19:40.840Z",
+  "updatedAt": "2026-06-29T19:19:40.840Z"
+}

@@ -4,9 +4,154 @@
       "id": "CHK-001",
       "title": "Implement fix for reproduced failure",
       "context": "Probe: rp-mqzkvjqx-nb3bnj, Review: rr-mqzkzc8e-q4mz2k",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-29T19:03:36.196Z",
+      "endTime": "2026-06-29T19:11:26.170Z",
+      "relatedDocs": [
+        "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+        "docs/requirements/decisions/story-files-hash-material-drift.md",
+        "docs/requirements/decisions/repro-first-story-intake-experiment.md",
+        "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+      ],
+      "userSees": "`lattice done_closure` and `lattice review_escalation_status` for a DONE story report historical DONE closure instead of blocking on later main material drift; TEST-phase stories still show stale/missing evidence blockers before DONE.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/done-closure.ts",
+          "packages/main/src/handlers/review-escalation.ts",
+          "packages/main/src/core/done-oracle.ts",
+          "packages/main/src/core/review-escalation.ts",
+          "packages/main/src/core/lattice-brand.ts",
+          "packages/main/package.json",
+          "package.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/post-done-closure-snapshot-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/post-done-closure-snapshot-smoke.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A DONE story with valid historical completion evidence remains historically closed after unrelated current material drift; done_closure does not show blocking stale delivery/review escalation rows by default.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "review_escalation_status for the same DONE story uses the historical completion snapshot by default and reports satisfied local review assurance instead of stale current-material verdicts.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A TEST-phase story still fails stale/missing delivery or review escalation evidence before DONE; the fix does not weaken pre-DONE gates.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Current-material revalidation information is explicit/advisory for DONE stories and does not overwrite historical closure semantics.",
+            "type": "logic",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A tampered or story-owned drift case must not be silently accepted as historical closure for an unfinished story.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/post-done-closure-snapshot-smoke.ts",
+          "command": "node packages/main/dist/tasks/post-done-closure-snapshot-smoke.js",
+          "result": "pass",
+          "note": "Smoke constructs a DONE story, commits unrelated material drift, and asserts done_closure has zero blocking rows with historicalSnapshot material preserved.",
+          "headHash": "0c84b2ac6d3bc98c61d7beb7f7c377478866cc32",
+          "materialHash": "a20af37d646634c538dabb7eb3bf41b516ae6b105caecb7ec540a4ccdd0e3330",
+          "storyFilesHash": "491440a574d6ffdab64fb45eb1852e259c20545e521a3d1c4bbf7a4db9cd8cf4",
+          "timestamp": "2026-06-29T19:11:18.612Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/post-done-closure-snapshot-smoke.ts",
+          "command": "node packages/main/dist/tasks/post-done-closure-snapshot-smoke.js; node packages/main/dist/cli.js review_escalation_status {\"storyId\":\"B-da34\"}",
+          "result": "pass",
+          "note": "Smoke and live B-da34 check show review_escalation_status reports ok=true/full-3x2 using the historical materialHash instead of current stale material.",
+          "headHash": "8b9e9022ecad06eb143cb25b4a5211d93f50e979",
+          "materialHash": "a20af37d646634c538dabb7eb3bf41b516ae6b105caecb7ec540a4ccdd0e3330",
+          "storyFilesHash": "491440a574d6ffdab64fb45eb1852e259c20545e521a3d1c4bbf7a4db9cd8cf4",
+          "timestamp": "2026-06-29T19:11:19.265Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/post-done-closure-snapshot-smoke.ts",
+          "command": "node packages/main/dist/tasks/post-done-closure-snapshot-smoke.js",
+          "result": "pass",
+          "note": "Smoke flips the synthetic DONE story back to TEST after material drift and asserts stale current-material evidence still blocks before DONE.",
+          "headHash": "1fae04417e0decf6ae3d45f34a0defcec79d575a",
+          "materialHash": "a20af37d646634c538dabb7eb3bf41b516ae6b105caecb7ec540a4ccdd0e3330",
+          "storyFilesHash": "491440a574d6ffdab64fb45eb1852e259c20545e521a3d1c4bbf7a4db9cd8cf4",
+          "timestamp": "2026-06-29T19:11:19.896Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "manual_transcript",
+          "verdict": "success",
+          "file": "packages/main/src/handlers/done-closure.ts",
+          "command": "node packages/main/dist/cli.js done_closure {\"storyId\":\"B-da34\"}",
+          "result": "pass",
+          "note": "Live B-da34 transcript labels projection as historical DONE snapshot and downgrades current-material revalidation to advisory/non-blocking rows.",
+          "headHash": "1b61ec2fc37e4667e5a9ddd50bae11fd44fda275",
+          "materialHash": "a20af37d646634c538dabb7eb3bf41b516ae6b105caecb7ec540a4ccdd0e3330",
+          "storyFilesHash": "491440a574d6ffdab64fb45eb1852e259c20545e521a3d1c4bbf7a4db9cd8cf4",
+          "timestamp": "2026-06-29T19:11:20.516Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/post-done-closure-snapshot-smoke.ts",
+          "command": "node packages/main/dist/tasks/post-done-closure-snapshot-smoke.js",
+          "result": "pass",
+          "note": "Smoke proves only phase DONE receives historical projection; unfinished TEST phase remains strict under stale evidence.",
+          "headHash": "0c150a95542c4e08119c7c144a60a5fe7c022834",
+          "materialHash": "a20af37d646634c538dabb7eb3bf41b516ae6b105caecb7ec540a4ccdd0e3330",
+          "storyFilesHash": "491440a574d6ffdab64fb45eb1852e259c20545e521a3d1c4bbf7a4db9cd8cf4",
+          "timestamp": "2026-06-29T19:11:21.118Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-29T19:03:36.196Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Starting DEV implementation for post-DONE closure snapshot projection."
+    },
+    {
+      "timestamp": "2026-06-29T19:11:26.170Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Implementation committed and verification evidence covers all five intents."
     }
   ]
 }
