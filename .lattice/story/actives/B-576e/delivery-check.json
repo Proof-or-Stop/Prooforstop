@@ -1,0 +1,67 @@
+{
+  "storyId": "B-576e",
+  "checkedAt": "2026-06-29T02:30:03.937Z",
+  "headHash": "b474ec8c44ca5b2f1606e83ea1ee4d61f26b33bf",
+  "materialHash": "e0958dbe397d9caa3e88525e3e5cf826bb2a59c096bf2705a2ae067b5424ca0b",
+  "storyFilesHash": "a48e43e55a7cdb7a78b4c3919f485d2e4cd2dc9362a3a308a5894d25fbb8a619",
+  "reviewRound": "2026-06-29T02:17:55.724Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "README.md",
+      "promise": "Authority Server modes and server-backed receipt commands are retired from the active Proofbound CLI path while local proof admissibility vocabulary remains.",
+      "status": "verified",
+      "verifiedBy": "diff scan plus retired-authority-server-semantics smoke",
+      "evidence": "README Local Proof Admissibility section states the retirement and active vocabulary; node packages/main/dist/tasks/retired-authority-server-semantics-smoke.js passed."
+    },
+    {
+      "docPath": "docs/guide.md",
+      "promise": "The guide presents local proof/admissibility, signed/offline receipt bundles, and local review quorum as the active assurance path.",
+      "status": "verified",
+      "verifiedBy": "rg plus focused smokes",
+      "evidence": "docs/guide.md Local Proof Admissibility section names admissibilityStatus, assuranceLevel, evidenceScope, signed/offline receipt bundles, and local review quorum; proof-admissibility, receipt-bundle, and quorum-submit smokes passed."
+    },
+    {
+      "docPath": "agent prompts and templates",
+      "promise": "Generated Claude/Codex prompt copies and source templates describe local admissibility boundaries instead of Authority Server completion claims.",
+      "status": "verified",
+      "verifiedBy": "retired-authority-server-semantics smoke",
+      "evidence": "retired-authority-server-semantics smoke scans packages/main/templates/agents plus .claude and .lattice-codex prompt copies and passed."
+    },
+    {
+      "docPath": "CLI command surface and validation config",
+      "promise": "Server-backed authority commands and aliases are absent from the active worktree CLI/runtime/config; validation runs the retirement guard instead of old Authority smokes.",
+      "status": "verified",
+      "verifiedBy": "node bin/lattice.js help, negative command probes, and lattice.config.json diff",
+      "evidence": "node bin/lattice.js help has no Authority command group; authority_status, authority_receipt_verify, and authority_job_create return Unknown command; lattice.config.json replaced authority-client/completion smokes with retired-authority-server-semantics and capability-list smokes."
+    },
+    {
+      "docPath": "package.json and packages/main/package.json",
+      "promise": "The shipped worktree CLI version is 0.3.106.",
+      "status": "verified",
+      "verifiedBy": "package read plus local CLI invocation",
+      "evidence": "root package.json and packages/main/package.json are 0.3.106; node bin/lattice.js --version reports Proofbound CLI 0.3.106."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "B-576e-delivery-retirement",
+      "transcript": "node bin/lattice.js --version => Proofbound CLI 0.3.106; node bin/lattice.js help has no Authority section; authority_status, authority_receipt_verify, and authority_job_create return Unknown command; node packages/main/dist/tasks/retired-authority-server-semantics-smoke.js => retired Authority Server semantics smoke PASS."
+    },
+    {
+      "featureId": "B-576e-delivery-local-assurance",
+      "transcript": "node bin/lattice.js admissibility_waterline --help and node bin/lattice.js quorum_submit --help remain available at Proofbound CLI 0.3.106; node packages/main/dist/tasks/proof-admissibility-smoke.js passed; receipt-bundle-contract-smoke passed; quorum-submit-smoke passed."
+    },
+    {
+      "featureId": "B-576e-delivery-test-transcript",
+      "transcript": ".lattice/story/actives/B-576e/evidence/transcript-diff.md exists with 35 lines. lattice validate --story=B-576e --json passed with allPass:true and provider lattice-verifier-configured-commands after 31 configured validation commands."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery scan accepted: active worktree CLI/runtime/docs/prompts/validation config retire Authority Server semantics, local proof/admissibility/offline receipt/local quorum remain, worktree CLI version is 0.3.106, TEST transcript exists, and routine lattice validate --story=B-576e --json passed."
+  },
+  "_hash": "875ceb8a0b7176345ec9f418ad0c2f07f9383ee9aaed44ce5a199323b123db33"
+}
