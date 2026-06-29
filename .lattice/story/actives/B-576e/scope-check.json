@@ -110,11 +110,15 @@
       "q": "Does Authority Server retirement require marking or deleting all Authority decision-source docs as legacy/out-of-core, or may server Authority docs remain active external-adapter/future compatibility specs while the CLI removes local semantics?",
       "evidence": "B-576e background says Authority Server is unnecessary and should be fully removed from Proofbound design and CLI semantics, while proof-admissibility keeps external Authority adapter/future compatibility language and multiple Authority decision docs keep active authority mode and authorityDone/fullAuthorityDone requirements.",
       "sourcePointers": [
-        ".lattice/story/actives/B-576e/background.md:1",
-        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md:193",
-        "docs/requirements/decisions/lattice-authority-live-integration.md:4042",
-        "docs/requirements/decisions/lattice-authority-customer-api-key-access.md:59"
-      ]
+        "CHK-001",
+        "CHK-002",
+        "CHK-003",
+        "CHK-004",
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+        "docs/evidence/evidence-platform-architecture.md"
+      ],
+      "resolution": "Authority Server retirement requires all authority-specific decision-source docs to be marked retired/legacy/out-of-core or otherwise removed from active implementation guidance. They may remain as historical reference only when their headers clearly say they are superseded by local proof admissibility and must not be used to implement active CLI/server receipt behavior. No active external-adapter/future Authority Server compatibility spec remains in this story scope.",
+      "resolvedAt": "2026-06-29T00:39:19.647Z"
     }
   ]
 }
