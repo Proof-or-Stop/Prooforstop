@@ -178,12 +178,14 @@ story_create or story_draft
        -> understanding_set
        -> intent_collision_set
        -> confirm milestone ledger against the accepted intent interpretation
-       -> intent_coverage_check
        -> ledger sizing check on the confirmed milestone ledger
             -> if small enough: continue
             -> if too broad: produce slice-plan diagnostics and stop before DEV
        -> decision_set when required
        -> checklist + verificationIntent
+       -> acceptance_contract_set
+       -> acceptance_evidence_bind
+       -> intent_coverage_check
        -> proofstory_contract_set
        -> red_evidence_* when required
        -> spike_* when required
@@ -456,16 +458,22 @@ Parent DONE requires:
 originalIntentSnapshot.keyRequirements
   -> confirmedMilestoneLedger.milestones
   -> checklist.items
+  -> acceptanceContract.criteria
   -> verificationIntent
-  -> verificationEvidence
-  -> delivery-check docsPromises / realMachineTests
 ```
 
-Coverage must be checked at two points:
+`intentCoverageCheck` is a pre-DEV coverage check. It must not require
+`verificationEvidence` or delivery-check evidence, because those are produced
+later in DEV/TEST/DONE. Evidence freshness belongs to TEST validation, and
+delivery equivalence belongs to the DONE delivery-check / intent-equivalence
+gate.
 
-- before DEV, to prevent implementation of an incomplete contract;
-- before DONE, to prevent checklist completion from being mistaken for original
-  intent completion.
+Coverage-related gates still exist at two points:
+
+- before DEV, `intentCoverageCheck` prevents implementation of an incomplete
+  contract;
+- before DONE, the delivery-check / intent-equivalence gate prevents checklist
+  completion from being mistaken for original intent completion.
 
 ### Scope Shrinkage Guard
 
@@ -865,8 +873,8 @@ The gate must require:
 - confirmed milestone ledger for multi-deliverable requests;
 - ledger sizing result for confirmed milestone ledgers;
 - acceptance contract;
-- intent coverage check;
 - verificationIntent bindings;
+- intent coverage check;
 - scope contract;
 - risk classification;
 - minimality check;
