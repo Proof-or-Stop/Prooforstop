@@ -214,10 +214,11 @@
         "docs/requirements/decisions/authority-server-vocabulary-retirement.md",
         "lattice.config.json"
       ],
-      "userSees": "User sees the retired-Authority scanner pass in validation and fail closed for active banned vocabulary outside the legacy whitelist.",
+      "userSees": "User sees: `retired-authority-vocabulary-guard smoke passed: active matches=0, positive controls rejected=6`.",
       "files": {
         "modify": [
           "lattice.config.json",
+          "scripts",
           "scripts/verify-process-fact-contract.mjs"
         ],
         "create": [
