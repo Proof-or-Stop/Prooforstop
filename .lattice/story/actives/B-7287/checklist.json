@@ -259,7 +259,37 @@
       "userSees": "A final milestone table showing M0, M1, and M2 with checkmarks only for completed and verified rows.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          ".lattice/story/actives/B-7287/checklist.json"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Final response includes a M0-M2 milestone table with checkmarks only for verified completed rows.",
+            "type": "manual",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "If a milestone is not actually implemented or verified, the final table does not mark it complete.",
+            "type": "manual",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The final table does not imply M3-M9, red/spike, DONE enforcement, or full M4 gate work is complete.",
+            "type": "manual",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
