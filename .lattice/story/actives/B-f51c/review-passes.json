@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-29T21:14:59.277Z",
       "reviewRunId": "B-f51c:RR-007",
       "_hash": "b91868a9d6b2d8c4202162945921cd311a6f06efdb10b0233d120d018f663ce6"
+    },
+    {
+      "id": "B-f51c:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "reviewed CHK-001: verificationEvidence covers all docs intents after the confirmed-ledger fix. Rechecked the evidence against the decision doc: five-rule wording is present and four-rule wording absent; candidate ledgers are explicitly not gate-consumed before accepted intent interpretation; confirmedMilestoneLedger / confirmedByIntentInterpretation / blocking-condition anchors are present; oversized-ledger slicing is required while automatic parallel Scheduler/Unattended/Autopilot execution remains out of MVP scope. No test-coverage blocker found.",
+      "createdAt": "2026-06-29T21:17:40.971Z",
+      "reviewRound": "2026-06-29T21:14:59.277Z",
+      "reviewRunId": "B-f51c:RR-008",
+      "_hash": "b036407dad250d1eee7d3adc335ca19b16c267352ff4c3b274bbd195303e544c"
     }
   ]
 }
