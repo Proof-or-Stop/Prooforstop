@@ -140,9 +140,9 @@
         "create": [],
         "test": []
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-29T01:05:42.418Z",
       "relatedDocs": [
         "docs/evidence/evidence-platform-architecture.md",
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
@@ -168,7 +168,20 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/command-catalog-smoke.js && node packages/main/dist/tasks/retired-authority-server-semantics-smoke.js",
+          "result": "pass",
+          "note": "Retired server-backed Authority commands and nested aliases are removed from active command catalog/registry/policies and guarded from reintroduction.",
+          "headHash": "89ce61cab050f2c12fef4805a58a9c22c4bfb327",
+          "materialHash": "f3f14650d7fde940592eb514b2733ec03a19db99186f12565538a8a8b44aa2cc",
+          "storyFilesHash": "fe187328ca35303232c34b0b2fb8b1d48d740ea431cb80d64bd06c966e36f942",
+          "timestamp": "2026-06-29T01:05:43.358Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
