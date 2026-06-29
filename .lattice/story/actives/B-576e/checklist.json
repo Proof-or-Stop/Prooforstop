@@ -212,7 +212,28 @@
       "relatedDocs": [
         "docs/evidence/evidence-platform-architecture.md",
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
-      ]
+      ],
+      "userSees": "retired-authority-server-semantics smoke passes and reports that retired Authority Server semantics are absent from active surfaces.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The new guard scans command catalog, aliases, docs, prompts, and templates for retired Authority Server product semantics.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The guard allows explicit legacy/retirement documentation if clearly marked and does not block local proof-admissibility or receipt-bundle wording.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A reintroduced server-backed authority command, env-mode guidance, or productionDone claim surface would fail the smoke.",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-006",
