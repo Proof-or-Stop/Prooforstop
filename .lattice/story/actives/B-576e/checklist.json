@@ -335,6 +335,17 @@
           "materialHash": "f3f14650d7fde940592eb514b2733ec03a19db99186f12565538a8a8b44aa2cc",
           "storyFilesHash": "fe187328ca35303232c34b0b2fb8b1d48d740ea431cb80d64bd06c966e36f942",
           "timestamp": "2026-06-29T01:05:29.993Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proof-admissibility-smoke.js && node packages/main/dist/tasks/receipt-bundle-contract-smoke.js",
+          "result": "pass",
+          "note": "Build, proof-admissibility smoke, and receipt-bundle contract smoke pass after deleting/quarantining server-backed Authority paths.",
+          "headHash": "58c6a675a2a2dc2e0866634fdaf6e8d104383067",
+          "materialHash": "610d953adcd6dae8ec4af50dcadc186594f4d7c265d5c982db95f8863e0a8ce7",
+          "storyFilesHash": "41d2e25f8c8979249dcd99e7bf334d1ee24feba5d655bb726433d77c5c46651c",
+          "timestamp": "2026-06-29T01:47:35.707Z"
         }
       ]
     },
