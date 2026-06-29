@@ -92,7 +92,7 @@ function wantsApply(args: EvidenceRefreshArgs): boolean {
 /**
  * Fail closed BEFORE any store read. evidence_refresh is a refresh-only
  * orchestrator: it NEVER runs a verification command, advances the lifecycle,
- * launches reviewers, or claims Authority completion. --apply is the ONE
+ * launches reviewers, or widens local assurance. --apply is the ONE
  * sanctioned write path (a single re-stamp pass via the existing
  * verification_evidence_refresh_stale writer) and is therefore NOT rejected
  * here — it is ownership/scope-gated by the CLI ownership gate instead.

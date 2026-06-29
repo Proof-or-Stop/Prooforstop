@@ -186,8 +186,8 @@ keeps the same Host Overflow boundary: hosts may execute bounded work, but
 Proofbound keeps story/scope/review responsibility. Active assurance vocabulary
 is `admissibilityStatus`, `assuranceLevel`, and `evidenceScope`, backed by local
 gate evidence, signed/offline receipt bundles, and local review quorum.
-Autopilot completion does not auto-merge, auto-DONE, or claim production
-authority.
+Autopilot output does not auto-merge, auto-DONE, or widen release readiness
+beyond local assurance.
 
 Autopilot uses two policies: a dispatch policy for host/path/command execution,
 and an autopilot policy for local mode permissions. The autopilot policy stores

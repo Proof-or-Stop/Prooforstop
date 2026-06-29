@@ -587,7 +587,7 @@ function renderPass(args: {
     '',
     'Local assurance:',
     '  localDoneReady: true',
-    '  productionDone: false',
+    '  releaseReadiness: not-established',
     `  admissibilityStatus: ${args.runbook.localAssurance.admissibilityStatus}`,
     `  assuranceLevel: ${args.runbook.localAssurance.assuranceLevel}`,
     `  evidenceScope: ${args.runbook.localAssurance.evidenceScope}`,

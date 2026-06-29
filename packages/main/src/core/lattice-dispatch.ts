@@ -874,13 +874,13 @@ export function probeHostRuntime(host: string): HostRuntimeProbe {
       ? [
         normalized === 'gemini'
           ? 'Gemini is deprecated legacy compatibility; current third-host runtime flows use antigravity/agy.'
-          : 'A local receipt is still diagnostic-only and leaves productionDone=false.',
-        ...(normalized === 'gemini' ? ['A local receipt is still diagnostic-only and leaves productionDone=false.'] : []),
+          : 'A local receipt is still diagnostic-only and leaves release readiness unestablished.',
+        ...(normalized === 'gemini' ? ['A local receipt is still diagnostic-only and leaves release readiness unestablished.'] : []),
       ]
       : [
         'Real-host execution is scaffolded only in this milestone.',
         'No external host is auto-driven by Proofbound dispatch_run.',
-        'A local receipt is still diagnostic-only and leaves productionDone=false.',
+        'A local receipt is still diagnostic-only and leaves release readiness unestablished.',
       ],
     warnings,
     nextAction: available
@@ -1695,7 +1695,7 @@ function createClaudeCodeReceipt(opts: {
       : `Claude Code dispatch ${opts.record.dispatchId} completed but needs diagnostic review before acceptance.`,
     limitations: [
       'Claude Code subprocess receipt is local diagnostic evidence only.',
-      'receiptVerified=false, authorityChanged=false, productionDone=false.',
+      'Local diagnostic receipt only; release readiness remains unestablished.',
       ...opts.diagnosticWarnings,
     ],
   };
@@ -1740,7 +1740,7 @@ function createFakeReceipt(
       : `Fake dispatch ${record.dispatchId} produced a deterministic local diff for review.`,
     limitations: [
       'Local fake runtime receipt only.',
-      'receiptVerified=false, authorityChanged=false, productionDone=false.',
+      'Local fake runtime receipt only; release readiness remains unestablished.',
       ...warnings,
     ],
   };
@@ -2818,7 +2818,7 @@ export function createDispatchReceipt(root: string, dispatchId: string): Dispatc
     summary: `Dispatch ${dispatchId} draft receipt generated from git-derived collect data.`,
     limitations: [
       ...collection.limitations,
-      'Draft receipt only: receiptVerified=false, authorityChanged=false, productionDone=false.',
+      'Draft receipt only; release readiness remains unestablished.',
     ],
   };
   writeJson(resolve(root, record.receiptFile), receipt);

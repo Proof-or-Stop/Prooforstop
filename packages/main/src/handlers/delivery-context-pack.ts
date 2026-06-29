@@ -34,8 +34,8 @@ import type { ChecklistData } from '../core/types.js';
  * delivery-check.json, NEVER calls the delivery-check setter / delivery_check_set,
  * and NEVER accepts or rejects a metadata-only waiver (those are the delivery
  * reviewer's exclusive job). It NEVER runs a command (runCommands=false), advances
- * phase, launches reviewers, claims Authority, or writes verificationEvidence.
- * retired completion fields are hardcoded false.
+ * phase, launches reviewers, widens release readiness, or writes verificationEvidence.
+ * legacy compatibility claim fields are hardcoded false.
  */
 
 const READINESS_TARGET = 'DONE' as const;
@@ -156,7 +156,7 @@ function wantsWrite(args: DeliveryContextPackArgs): boolean {
  * bare runCommands/writeEvidence flag is rejected here: this command never runs a
  * command, and persistence is the explicit --write opt-in, never a raw
  * writeEvidence=true. As a context PRODUCER it can never become a delivery signer,
- * so advancePhase/launchReviewers/authority/production are all refused.
+ * so advancePhase/launchReviewers/release-readiness widening are all refused.
  */
 function assertBoundary(args: DeliveryContextPackArgs): void {
   const rejected: string[] = [];
@@ -172,7 +172,7 @@ function assertBoundary(args: DeliveryContextPackArgs): void {
     `delivery_context_pack refuses unsupported side effects: ${rejected.join(' and ')}. ` +
     'delivery_context_pack is a delivery-review context PRODUCER, NOT a delivery signer: it never runs a command, ' +
     'writes delivery-check.json / calls delivery_check_set, accepts or rejects a metadata-only waiver, advances a phase, ' +
-    'launches reviewers, writes verificationEvidence, or claims Authority/production completion: no story facts were read. ' +
+    'launches reviewers, writes verificationEvidence, or widens local assurance or release readiness: no story facts were read. ' +
     'Persisting the structured pack is the explicit --write opt-in (ownership/scope gated).',
   );
 }

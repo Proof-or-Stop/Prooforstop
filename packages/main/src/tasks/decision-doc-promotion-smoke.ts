@@ -92,7 +92,7 @@ function seedDecision(): DecisionData {
     principles: [
       'Promote only durable decisions',
       'Keep save separate from preview',
-      'Keep local workflow evidence separate from authority completion',
+      'Keep local workflow evidence separate from release readiness',
     ],
     drivers: ['The decision needs to be discoverable after the story closes'],
     options: [
@@ -123,7 +123,7 @@ function baseProposal(slug: string, overrides: Partial<Record<string, unknown>> 
     scope: 'Applies to the smoke test project decision-doc promotion path and its canonical decisions directory.',
     nonGoals: [
       'Do not write outside the canonical decisions directory',
-      'Do not claim production completion from legacy out-of-core receipt artifacts',
+      'Do not claim release readiness from legacy out-of-core receipt artifacts',
     ],
     chosenApproach: 'Use a story-local proposal artifact, preview it read-only, then save it with explicit confirmation.',
     alternatives: [

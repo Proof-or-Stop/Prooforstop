@@ -35,6 +35,10 @@ const bannedActiveRules: PatternRule[] = [
   { label: 'authorityDone', pattern: /\bauthorityDone\b/ },
   { label: 'fullAuthorityDone', pattern: /\bfullAuthorityDone\b/ },
   { label: 'productionDone', pattern: /\bproductionDone\b/ },
+  { label: 'production authority', pattern: /\bproduction\s+authority\b/i },
+  { label: 'Authority completion', pattern: /\bAuthority\s+completion\b/i },
+  { label: 'production completion', pattern: /\bproduction\s+completion\b/i },
+  { label: 'production DONE', pattern: /\bproduction\s+DONE\b/i },
   { label: 'LATTICE_AUTHORITY_*', pattern: /\bLATTICE_AUTHORITY_[A-Z0-9_]*\b/ },
   { label: 'active authority_* command', pattern: /\bauthority_[a-z][a-z0-9_]*\b/ },
   { label: 'retired story resolver command', pattern: /\bstory_authority_resolve\b/ },
@@ -62,26 +66,48 @@ const activeTextDirs = [
 
 const explicitLegacyTaskQuarantineFiles = new Set([
   'packages/main/src/tasks/baseline-contracts-smoke.ts',
+  'packages/main/src/tasks/baseline-local-certification-smoke.ts',
   'packages/main/src/tasks/baseline-suite-report-smoke.ts',
+  'packages/main/src/tasks/baseline-suite-smoke.ts',
+  'packages/main/src/tasks/budget-meter-smoke.ts',
+  'packages/main/src/tasks/canonical-story-export-smoke.ts',
   'packages/main/src/tasks/capability-list-smoke.ts',
+  'packages/main/src/tasks/cli-json-stdout-contract-smoke.ts',
   'packages/main/src/tasks/command-catalog-smoke.ts',
   'packages/main/src/tasks/delivery-context-pack-smoke.ts',
   'packages/main/src/tasks/dispatch-run-smoke.ts',
   'packages/main/src/tasks/evidence-plan-smoke.ts',
   'packages/main/src/tasks/evidence-refresh-smoke.ts',
+  'packages/main/src/tasks/field-regression-cli-smoke.ts',
   'packages/main/src/tasks/flow-stability-smoke.ts',
+  'packages/main/src/tasks/host-overflow-smoke.ts',
   'packages/main/src/tasks/init-preflight-smoke.ts',
   'packages/main/src/tasks/lattice-baseline-smoke.ts',
   'packages/main/src/tasks/lattice-cli-migration-smoke.ts',
+  'packages/main/src/tasks/lattice-evidence-smoke.ts',
+  'packages/main/src/tasks/lattice-handoff-smoke.ts',
   'packages/main/src/tasks/lattice-parallel-wave-smoke.ts',
+  'packages/main/src/tasks/lifecycle-check-smoke.ts',
   'packages/main/src/tasks/lifecycle-orchestrate-smoke.ts',
   'packages/main/src/tasks/live-smoke-transcript-smoke.ts',
+  'packages/main/src/tasks/plan-skeleton-smoke.ts',
+  'packages/main/src/tasks/prompt-registry-smoke.ts',
+  'packages/main/src/tasks/prompt-token-cost-smoke.ts',
+  'packages/main/src/tasks/proof-admissibility-smoke.ts',
+  'packages/main/src/tasks/provider-claude-smoke.ts',
+  'packages/main/src/tasks/provider-codex-smoke.ts',
+  'packages/main/src/tasks/quorum-submit-smoke.ts',
   'packages/main/src/tasks/repair-retry-integration-smoke.ts',
+  'packages/main/src/tasks/repair-retry-loop-smoke.ts',
   'packages/main/src/tasks/review-assurance-floor-smoke.ts',
+  'packages/main/src/tasks/review-escalation-freshness-root-smoke.ts',
+  'packages/main/src/tasks/review-escalation-smoke.ts',
+  'packages/main/src/tasks/review-loop-smoke.ts',
   'packages/main/src/tasks/reviewer-batch-smoke.ts',
   'packages/main/src/tasks/runtime-owned-agent-assets-smoke.ts',
   'packages/main/src/tasks/story-review-ergonomics-smoke.ts',
   'packages/main/src/tasks/unattended-dispatch-smoke.ts',
+  'packages/main/src/tasks/worktree-policy-smoke.ts',
 ]);
 
 const legacyQuarantineFiles = new Set([
@@ -108,8 +134,90 @@ const retiredServerBackedModuleFiles = new Set([
   'packages/main/src/core/story-authority-resolver.ts',
 ]);
 
+const structuralLegacyFieldQuarantineFiles = new Set([
+  'packages/main/src/cli/command-catalog.ts',
+  'packages/main/src/core/autopilot.ts',
+  'packages/main/src/core/autopilot-executor.ts',
+  'packages/main/src/core/autopilot-policy.ts',
+  'packages/main/src/core/canonical-story.ts',
+  'packages/main/src/core/capabilities.ts',
+  'packages/main/src/core/command-policy.ts',
+  'packages/main/src/core/dispatch-policy.ts',
+  'packages/main/src/core/dispatch-runner.ts',
+  'packages/main/src/core/lattice-autopilot.ts',
+  'packages/main/src/core/lattice-dispatch.ts',
+  'packages/main/src/core/lattice-evidence.ts',
+  'packages/main/src/core/lattice-handoff.ts',
+  'packages/main/src/core/lattice-hosts.ts',
+  'packages/main/src/core/lattice-parallel-wave.ts',
+  'packages/main/src/core/lifecycle-readiness.ts',
+  'packages/main/src/core/planned-steps-executor.ts',
+  'packages/main/src/core/proof-admissibility.ts',
+  'packages/main/src/core/proof-admissibility-handoff.ts',
+  'packages/main/src/core/proof-admissibility-legacy.ts',
+  'packages/main/src/core/proof-admissibility-metadata.ts',
+  'packages/main/src/core/repair-retry-loop.ts',
+  'packages/main/src/core/review-assurance-floor.ts',
+  'packages/main/src/core/review-escalation.ts',
+  'packages/main/src/core/usage-ledger/assemble.ts',
+  'packages/main/src/core/usage-ledger/authority-evidence.ts',
+  'packages/main/src/core/usage-ledger/dispatch-usage.ts',
+  'packages/main/src/core/usage-ledger/estimate.ts',
+  'packages/main/src/core/usage-ledger/record.ts',
+  'packages/main/src/handlers/autopilot.ts',
+  'packages/main/src/handlers/baseline.ts',
+  'packages/main/src/handlers/delivery-context-pack.ts',
+  'packages/main/src/handlers/evidence-plan.ts',
+  'packages/main/src/handlers/evidence-refresh.ts',
+  'packages/main/src/handlers/init-preflight.ts',
+  'packages/main/src/handlers/lattice-autopilot.ts',
+  'packages/main/src/handlers/lattice-cli.ts',
+  'packages/main/src/handlers/lifecycle-control.ts',
+  'packages/main/src/handlers/lifecycle-orchestrate.ts',
+  'packages/main/src/handlers/live-smoke-transcript.ts',
+  'packages/main/src/handlers/plan-skeleton.ts',
+  'packages/main/src/handlers/planner.ts',
+  'packages/main/src/handlers/quorum-submit.ts',
+  'packages/main/src/handlers/review-escalation.ts',
+  'packages/main/src/handlers/reviewer-batch.ts',
+]);
+
+const legacyFieldNames = [
+  'authorityDone',
+  'fullAuthorityDone',
+  'productionDone',
+  'receiptVerified',
+  'authorityChanged',
+  'productionDoneEligible',
+  'productionDoneProviders',
+] as const;
+
+const legacyFieldAlternation = legacyFieldNames.join('|');
+const renderedLegacyFieldPattern = new RegExp(String.raw`['"\`][^'"\`]*\b(?:${legacyFieldAlternation})\s*:`);
+const quotedLegacyFieldLinePattern = new RegExp(String.raw`^\s*['"\`](?:${legacyFieldAlternation})['"\`],?\s*$`);
+const bareLegacyFieldLinePattern = new RegExp(String.raw`^\s*(?:${legacyFieldAlternation}),?\s*$`);
+const fieldShapePattern = new RegExp(String.raw`\b(?:${legacyFieldAlternation})\??\s*:`);
+const propertyDeclarationPattern = new RegExp(String.raw`^\s*(?:readonly\s+)?(?:${legacyFieldAlternation})\??\s*:`);
+const propertyAssignmentPattern = new RegExp(String.raw`^\s*(?:const|let|var)?\s*(?:${legacyFieldAlternation})\b\s*=`);
+const objectMemberPattern = new RegExp(String.raw`\b(?:args|result|record|report|summary|authority|input|policy|policyRecord|value)\.(?:${legacyFieldAlternation})\b`);
+const bracketMemberPattern = new RegExp(String.raw`\[['"\`](?:${legacyFieldAlternation})['"\`]\]`);
+const callArgumentPattern = new RegExp(String.raw`\b(?:productionDone|authorityDone|fullAuthorityDone)\b[),]`);
+
 function fileIsExplicitLegacyQuarantine(file: string): boolean {
   return legacyQuarantineFiles.has(file) || explicitLegacyTaskQuarantineFiles.has(file);
+}
+
+function lineIsStructuralLegacyFieldQuarantine(file: string, line: string): boolean {
+  if (!structuralLegacyFieldQuarantineFiles.has(file)) return false;
+  if (renderedLegacyFieldPattern.test(line)) return false;
+  return quotedLegacyFieldLinePattern.test(line)
+    || bareLegacyFieldLinePattern.test(line)
+    || fieldShapePattern.test(line)
+    || propertyDeclarationPattern.test(line)
+    || propertyAssignmentPattern.test(line)
+    || objectMemberPattern.test(line)
+    || bracketMemberPattern.test(line)
+    || callArgumentPattern.test(line);
 }
 
 function readRel(path: string): string {
@@ -143,14 +251,7 @@ function lineIsQuarantined(file: string, line: string): boolean {
   if (file.includes('/dist/')) return true;
   if (/^\s*\*.*(?:legacy|retired|compatibility|quarantine)/i.test(line)) return true;
   if (/\brejected\.push\(['"`](authorityDone|fullAuthorityDone|productionDone)=true['"`]\)/.test(line)) return true;
-  if (/^\s*['"`](authorityDone|fullAuthorityDone|productionDone|receiptVerified|authorityChanged|productionDoneEligible|productionDoneProviders)['"`],?\s*$/.test(line)) return true;
-  if (/^\s*(authorityDone|fullAuthorityDone|productionDone|receiptVerified|authorityChanged|productionDoneEligible|productionDoneProviders),?\s*$/.test(line)) return true;
-  if (/\b(authorityDone|fullAuthorityDone|productionDone|receiptVerified|authorityChanged|productionDoneEligible|productionDoneProviders)\??:/.test(line)) return true;
-  if (/\b(authorityDone|fullAuthorityDone|productionDone|receiptVerified|authorityChanged|productionDoneEligible|productionDoneProviders)\b\s*=/.test(line)) return true;
-  if (/\.(authorityDone|fullAuthorityDone|productionDone|receiptVerified|authorityChanged|productionDoneEligible|productionDoneProviders)\b/.test(line)) return true;
-  if (/\b(args|result|record|report|summary|authority|input|policy|policyRecord|value)\.(authorityDone|fullAuthorityDone|productionDone|receiptVerified|authorityChanged|productionDoneEligible|productionDoneProviders)\b/.test(line)) return true;
-  if (/\['(authorityDone|fullAuthorityDone|productionDone|receiptVerified|authorityChanged|productionDoneEligible|productionDoneProviders)'\]/.test(line)) return true;
-  if (/\b(productionDone|authorityDone|fullAuthorityDone)\b[),]/.test(line)) return true;
+  if (lineIsStructuralLegacyFieldQuarantine(file, line)) return true;
   return false;
 }
 
@@ -231,6 +332,10 @@ function assertPositiveControls(): void {
     'authorityDone',
     'fullAuthorityDone',
     'productionDone',
+    'production authority',
+    'Authority completion',
+    'production completion',
+    'production DONE',
     'LATTICE_AUTHORITY_URL',
     'authority_status',
   ];
@@ -239,6 +344,19 @@ function assertPositiveControls(): void {
     assert.ok(
       violations.some(v => v.text.includes(control) || (control === 'LATTICE_AUTHORITY_URL' && v.label === 'LATTICE_AUTHORITY_*')),
       `positive control must catch ${control}`,
+    );
+  }
+
+  const activeRendererControls = [
+    'lines.push(`productionDone: ${result.productionDone}`);',
+    "lines.push('authorityDone: false');",
+    "lines.push('fullAuthorityDone: false');",
+  ];
+  const rendererViolations = scanText('packages/main/src/core/active-renderer.ts', activeRendererControls.join('\n'));
+  for (const control of ['productionDone:', 'authorityDone:', 'fullAuthorityDone:']) {
+    assert.ok(
+      rendererViolations.some(v => v.text.includes(control)),
+      `active renderer positive control must catch ${control}`,
     );
   }
 }

@@ -136,7 +136,7 @@ const CATEGORY_DESCRIPTIONS: Record<CapabilityCategory, CapabilityDescription> =
     id: 'receipt-verify',
     label: 'Receipt bundle verify',
     optional: true,
-    description: 'Verify signed/offline receipt bundles as local proof-admissibility input; never promotes production completion.',
+    description: 'Verify signed/offline receipt bundles as local proof-admissibility input; never widens release readiness by itself.',
   },
   'multimodal-research': {
     id: 'multimodal-research',

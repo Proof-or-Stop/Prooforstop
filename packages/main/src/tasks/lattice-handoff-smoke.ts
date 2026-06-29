@@ -153,7 +153,7 @@ function assertResumeProjection(projection: HandoffResumeProjection): void {
   assert.equal(projection.recoveryPoint.storyId, 'B-handoff', 'resume preserves recovery point');
   assert.ok(projection.lineage, 'resume preserves canonical lineage');
   assert.equal(projection.evidenceRefresh.performed, false, 'resume does not refresh evidence');
-  assert.ok(projection.nextActions.some(action => /verified receipt/.test(action)), 'resume keeps production authority guidance visible');
+  assert.ok(projection.nextActions.some(action => /verified receipt/.test(action)), 'resume keeps release-readiness guidance visible');
 }
 
 const root = mkdtempSync(join(tmpdir(), 'lattice-handoff-'));

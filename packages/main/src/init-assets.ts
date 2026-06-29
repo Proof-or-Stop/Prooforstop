@@ -266,7 +266,7 @@ This repository uses registry-backed Codex prompts:
 - \`.lattice-codex/lattice.json\` records \`promptMode=registry\` and the package prompt registry hash.
 - \`.lattice-codex/agents\` prompt copies are not required for Proofbound adapter verification in this mode.
 - Legacy full-mode repositories may still materialize \`.lattice-codex/agents\`; both modes remain supported.
-- This is adapter hygiene only. It does not replace validation evidence, receipts, or production authority.
+- This is adapter hygiene only. It does not replace validation evidence, receipts, or release-readiness assurance.
 `;
 
 export type CodexAdapterBrand = 'lattice';

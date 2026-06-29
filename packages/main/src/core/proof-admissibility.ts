@@ -276,7 +276,7 @@ export const PROOF_SURFACE_REGISTRY = [
       /**
        * @task B-91f3
        * @checklist CHK-001, CHK-002
-       * @title Legacy authority receipt refs remain readable evidence, not local production completion
+       * @title Legacy authority receipt refs remain readable evidence, not local release readiness
        * @type feature
        * @priority high
        * @description
@@ -288,7 +288,7 @@ export const PROOF_SURFACE_REGISTRY = [
       { claim: 'production-completion', consumers: ['LEGACY_AUTHORITY_RECEIPT', 'TEST', 'DONE'], productionDoneEligible: false },
       { claim: 'done-readiness', consumers: ['TEST', 'DONE'], productionDoneEligible: false },
     ],
-    producerBoundaryNote: 'Legacy out-of-core receipt refs are compatibility input only; local core does not claim production completion from them.',
+    producerBoundaryNote: 'Legacy out-of-core receipt refs are compatibility input only; local core does not claim release readiness from them.',
     remediation: PRODUCTION_GATE_REMEDIATION,
   },
   {

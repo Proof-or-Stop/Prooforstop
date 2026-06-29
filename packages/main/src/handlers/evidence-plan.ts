@@ -85,7 +85,7 @@ function wantsJson(args: EvidencePlanArgs): boolean {
  * planner: it runs no commands and writes no evidence/metadata (the actual
  * refresh is the separate P4 layer). Any flag that would imply running a
  * command, writing evidence, advancing the lifecycle, launching reviewers, or
- * claiming Authority completion is rejected up front. There is NO
+ * widening local assurance is rejected up front. There is NO
  * --write/--refresh/--execute path.
  */
 function assertBoundary(args: EvidencePlanArgs): void {

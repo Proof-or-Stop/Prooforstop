@@ -1144,7 +1144,7 @@ Behavior:
     json: z.boolean().optional().describe('Shortcut for --format=json'),
     output: z.string().optional().describe('Optional file path for snapshot JSON; refuses to overwrite'),
   }},
-  { name: 'handoff_create', description: 'Create a Proofbound handoff pack from one host to another without manufacturing production DONE. Alias: lattice handoff create', schema: {
+  { name: 'handoff_create', description: 'Create a Proofbound handoff pack from one host to another without manufacturing release readiness. Alias: lattice handoff create', schema: {
     storyId: z.string().describe('Story ID to include in the handoff pack'),
     fromHost: z.string().describe('Source host profile id'),
     toHost: z.string().describe('Target host profile id'),

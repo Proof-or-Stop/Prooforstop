@@ -172,7 +172,7 @@ function derivePlanSkeleton(story: StoryInfo, report: StoryReadinessReport): Pla
   const touchpoints = extractPathTouchpoints(story.description || '');
   const readinessFact = readinessSummary(report);
   const constraints = [
-    'plan_skeleton must not advance phase, launch reviewers, run validation commands, write evidence or summaries, refresh hashes, or claim Authority completion.',
+    'plan_skeleton must not advance phase, launch reviewers, run validation commands, write evidence or summaries, refresh hashes, or widen local assurance or release readiness.',
     '--write may persist only through the existing understanding_set and checklist_add handler paths.',
   ];
 

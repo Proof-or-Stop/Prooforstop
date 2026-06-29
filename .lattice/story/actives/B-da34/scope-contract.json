@@ -19,6 +19,7 @@
     "packages/main/src/handlers",
     "packages/main/src/tasks",
     "packages/main/src/cli-engine.ts",
+    "packages/main/src/init-assets.ts",
     "scripts",
     "scripts/verify-process-fact-contract.mjs"
   ],
@@ -34,8 +35,25 @@
   ],
   "protectedFiles": [],
   "explicitExcludes": [],
-  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
-  "acknowledgements": [],
+  "scopeChangeReason": "F-006 guard expansion exposed active generated Codex README wording in packages/main/src/init-assets.ts, so this path is included for the same retired vocabulary cleanup.",
+  "acknowledgements": [
+    {
+      "actor": "lattice-implementer",
+      "reason": "Expanded retired vocabulary scanner found active generated Codex README phrasing in init assets; this wording fix is necessary for F-006 active-surface guard coverage.",
+      "timestamp": "2026-06-29T18:09:43.828Z",
+      "paths": [
+        "packages/main/src/init-assets.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/init-assets.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "b034a7430d9dc3216bdf8f7437c3233e184838fb",
+      "materialHash": "d02a02ac434958ef9e38e4ac257799c126b31f4aedd94e7bc7f067ca7c533941"
+    }
+  ],
   "createdAt": "2026-06-29T17:08:42.311Z",
-  "updatedAt": "2026-06-29T17:08:42.311Z"
+  "updatedAt": "2026-06-29T18:10:11.272Z"
 }
