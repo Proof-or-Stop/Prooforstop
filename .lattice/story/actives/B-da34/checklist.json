@@ -111,9 +111,10 @@
         "docs/requirements/decisions/authority-server-vocabulary-retirement.md",
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
       ],
-      "userSees": "User sees no active authority_* command group or server-backed Authority command in CLI help/catalog/config; local assurance commands remain visible.",
+      "userSees": "User sees: `command surface scan: PASS active authority_* commands=0`.",
       "files": {
         "modify": [
+          "packages/main/src/cli",
           "packages/main/src/cli/command-catalog.ts",
           "packages/main/src/cli/command-schemas.ts",
           "packages/main/src/registry.ts",
