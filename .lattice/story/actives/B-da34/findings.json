@@ -76,7 +76,7 @@
       "desc": "Active text renderers still expose retired completion fields after the Authority vocabulary removal. The migration contract bans productionDone and requires local assurance/admissibilityStatus/assuranceLevel/evidenceScope on active user-facing code (docs/requirements/decisions/authority-server-vocabulary-retirement.md:13). However handoff_receipt_submit, handoff_worktree_create, and host_dispatch text output still render productionDone and receiptVerified (packages/main/src/core/lattice-handoff.ts:1324, packages/main/src/core/lattice-handoff.ts:1349, packages/main/src/core/lattice-handoff.ts:1370), and autopilot_policy_check still renders authorityChanged/receiptVerified/productionDone (packages/main/src/core/autopilot-policy.ts:739). The retired vocabulary guard misses these leaks because lineIsQuarantined exempts any line shaped like a legacy field projection, including template-string output lines (packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts:116). Evidence commands: npm --prefix packages/main run build PASS; npm --prefix packages/main run test:retired-authority-server-semantics PASS despite the active output leaks; node scripts/verify-process-fact-contract.mjs PASS.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-29T17:48:03.328Z",
@@ -90,7 +90,11 @@
         "docs/requirements/decisions/authority-server-vocabulary-retirement.md"
       ],
       "signatureTag": "missing|ts|active-text-renderers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 848905a45. renderHandoffReceiptSubmissionText, renderHandoffWorktreeProjectionText, renderHostDispatchProjectionText, and renderAutopilotPolicyCheckText no longer render productionDone, receiptVerified, or authorityChanged field lines. They render admissibilityStatus, assuranceLevel, and evidenceScope local-assurance phrasing instead. Focused rg for retired renderer strings in the touched files returned no matches. Evidence commands passed: npm --prefix packages/main run build; node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js; npm run test:process-fact-contract; node packages/main/dist/tasks/command-catalog-smoke.js; node packages/main/dist/tasks/proof-admissibility-smoke.js; node packages/main/dist/tasks/receipt-bundle-contract-smoke.js; lattice scope_contract_check storyId=B-da34.",
+      "resolvedAt": "2026-06-29T17:55:27.571Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
