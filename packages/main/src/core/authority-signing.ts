@@ -1,16 +1,17 @@
-// Authority signing primitives (B-1123 milestones 1-2).
+// Local signed/offline receipt-bundle primitives (B-1123 milestones 1-2).
 //
 // Pure helpers for deterministic canonical JSON digests + Ed25519 sign/verify
-// over those canonical bytes. Used by the runner contracts module
-// (authority-runner-contracts.ts) and the smoke harness.
+// over those canonical bytes. The retired server runner/client path is
+// quarantined; active callers use these helpers for local receipt bundles,
+// local quorum digests, and other offline signatures.
 //
 // Scope: byte-stable serialization + Ed25519 only. No network, no fs.
 //
-// Trust boundary (authority-client-role.md §PD-2):
+// Trust boundary:
 //   - Adding these primitives does NOT promote ordinary local/shadow workflow
 //     submissions to receipt-backed L2+. Signature-presence is necessary but
 //     not sufficient for L2+ classification (see authority-boundary.ts).
-//   - The classifier in authority-boundary.ts is the single mechanical truth
+//   - The proof-admissibility classifier is the single mechanical truth
 //     source for "is this submission L2+?"; signing helpers here only make the
 //     envelopeSignature requirement *expressible*, not satisfied.
 //
@@ -39,7 +40,7 @@ export interface Ed25519KeyPair {
 /**
  * Return the canonical JSON bytes for `value`.
  *
- * Determinism guarantees (proven by authority-runner-contracts-smoke):
+ * Determinism guarantees (covered by local receipt-bundle/quorum smokes):
  *  - Two objects with the same key/value pairs in any insertion order produce
  *    byte-identical output.
  *  - undefined fields are omitted (consistent with canonicalJson()).

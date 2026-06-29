@@ -237,7 +237,7 @@ export const PROOF_SURFACE_REGISTRY = [
     allowedClaims: [
       { claim: 'done-readiness', consumers: ['REVIEW', 'TEST', 'DONE'], productionDoneEligible: false },
     ],
-    producerBoundaryNote: 'Local delivery/final report evidence can support review discussion but is not production authority.',
+    producerBoundaryNote: 'Local delivery/final report evidence can support review discussion but is not release readiness.',
     remediation: DIAGNOSTIC_REMEDIATION,
   },
   {
@@ -276,19 +276,19 @@ export const PROOF_SURFACE_REGISTRY = [
       /**
        * @task B-91f3
        * @checklist CHK-001, CHK-002
-       * @title Legacy authority receipt refs remain readable evidence, not local production completion
+       * @title Legacy authority receipt refs remain readable evidence, not local release readiness
        * @type feature
        * @priority high
        * @description
        *   Legacy authority receipt refs may be classified as out-of-core compatibility input.
-       *   The local proof-admissibility core must not convert that legacy evidence into a local productionDone claim.
+       *   The local proof-admissibility core must not convert that legacy evidence into a local release readiness claim.
        * @changes
        *   - [CHK-002] Set legacy-authority-receipt-ref production-completion productionDoneEligible=false for local CLI proof.
        */
       { claim: 'production-completion', consumers: ['LEGACY_AUTHORITY_RECEIPT', 'TEST', 'DONE'], productionDoneEligible: false },
       { claim: 'done-readiness', consumers: ['TEST', 'DONE'], productionDoneEligible: false },
     ],
-    producerBoundaryNote: 'Legacy out-of-core receipt refs are compatibility input only; local core does not claim production completion from them.',
+    producerBoundaryNote: 'Legacy out-of-core receipt refs are compatibility input only; local core does not claim release readiness from them.',
     remediation: PRODUCTION_GATE_REMEDIATION,
   },
   {
@@ -344,7 +344,7 @@ export const PROOF_SURFACE_REGISTRY = [
       { claim: 'handoff-context', consumers: ['HANDOFF', 'PLAN', 'REVIEW'], productionDoneEligible: false },
       { claim: 'diagnostic-status', consumers: ['HANDOFF', 'PLAN', 'REVIEW'], productionDoneEligible: false },
     ],
-    producerBoundaryNote: 'Handoff output transfers context and candidate evidence; it never sets productionDone.',
+    producerBoundaryNote: 'Handoff output transfers context and candidate evidence; it never sets release readiness.',
     remediation: DIAGNOSTIC_REMEDIATION,
   },
   {

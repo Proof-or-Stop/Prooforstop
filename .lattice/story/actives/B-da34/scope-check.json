@@ -1,0 +1,66 @@
+{
+  "storyId": "B-da34",
+  "checkedAt": "2026-06-29T17:07:03.063Z",
+  "features": [
+    {
+      "feature": "M1 vocabulary freeze migration contract",
+      "covered_by": "CHK-001; plan.md CHK-001; verificationIntent CHK-001 happy/edge/adversarial; relatedDocs authority-server-vocabulary-retirement.md and proof-admissibility-hardening-execution-plan.md",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "story description M1 Vocabulary freeze"
+    },
+    {
+      "feature": "M2 user-facing Authority wording cleanup",
+      "covered_by": "CHK-002; plan.md CHK-002; verificationIntent requires docs/prompts/templates/help output scan including lattice help",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "story description M2 User-facing cleanup"
+    },
+    {
+      "feature": "M3 Authority command surface cleanup",
+      "covered_by": "CHK-003; plan.md CHK-003; verificationIntent requires CLI help/catalog/config inspection and positive-control active authority_* exposure check",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "story description M3 Command surface cleanup"
+    },
+    {
+      "feature": "M4 server-backed Authority code and smoke removal or quarantine",
+      "covered_by": "CHK-004; plan.md CHK-004; verificationIntent requires active runtime import/quarantine scanner plus build/local proof smokes while preserving quorum_submit, proof-admissibility, receipt-bundle, delivery-check, and local lifecycle gates",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "story description M4 Code/test removal"
+    },
+    {
+      "feature": "M5 hard retired-Authority scanner gate",
+      "covered_by": "CHK-005; plan.md CHK-005; verificationIntent requires validation-config inclusion plus positive controls for Authority Server, authorityDone, fullAuthorityDone, productionDone, LATTICE_AUTHORITY_*, and active authority_* exposure",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "story description M5 Final guard"
+    },
+    {
+      "feature": "No-discount anti-shrink boundary: must not collapse to active-semantics retirement",
+      "covered_by": "background_get trigger/key insights/conversational texture; understanding constraints; decision option A selected over wording-only option B; plan.md Original intent sentence",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "user request and PLAN artifacts"
+    },
+    {
+      "feature": "INIT scope boundary and execution boundary readiness",
+      "covered_by": "init_preflight --storyId=B-da34 reports PASS for scope-boundary and PASS for execution-boundary with gate READY",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "INIT boundary artifacts via init_preflight"
+    }
+  ],
+  "summary": {
+    "total": 7,
+    "covered": 7,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "b6b3162ce8376ee8b9de5ab63338e7517fe498c7b422519db5481fd2f59f5b11",
+  "openQuestions": []
+}

@@ -55,6 +55,10 @@ function getDesc(t: ZodType): string {
   return (t as any).description || '';
 }
 
+function isHiddenHelpEntry(t: ZodType): boolean {
+  return getDesc(t).includes('@help-hidden');
+}
+
 function unwrapOptional(t: ZodType): ZodType {
   return t instanceof ZodOptional ? (t as any)._def.innerType : t;
 }
@@ -165,7 +169,7 @@ export function printToolHelp(tool: ToolDef, options: HelpOutputOptions) {
     out('');
   }
 
-  const entries = Object.entries(tool.schema);
+  const entries = Object.entries(tool.schema).filter(([, type]) => !isHiddenHelpEntry(type));
   if (entries.length === 0) {
     out('  No arguments\n');
     out(`  Usage: ${brand.primaryBin} ${tool.name}`);

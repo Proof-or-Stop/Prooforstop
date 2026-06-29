@@ -54,7 +54,7 @@ export const AUTOPILOT_STOP_REASONS = [
 ] as const;
 
 export type AutopilotMode = 'conservative' | 'authority-verified' | 'full-autopilot'; // legacy retired non-conservative modes are refused.
-type AutopilotModeAssertion = AutopilotMode | 'authority_verified' | 'full_autopilot';
+type AutopilotModeAssertion = AutopilotMode;
 export type AutopilotStatus =
   | 'created'
   | 'running'
@@ -370,8 +370,8 @@ function normalizeList(value: string[] | string | undefined): string[] | undefin
 
 function normalizeMode(mode: AutopilotModeAssertion | undefined): AutopilotMode {
   if (mode === undefined || mode === 'conservative') return 'conservative';
-  if (mode === 'authority-verified' || mode === 'authority_verified') return 'authority-verified'; // legacy retired mode assertion.
-  if (mode === 'full-autopilot' || mode === 'full_autopilot') return 'full-autopilot';
+  if (mode === 'authority-verified') return 'authority-verified'; // legacy retired mode assertion.
+  if (mode === 'full-autopilot') return 'full-autopilot';
   throw new Error(`autopilot_run: unknown mode "${String(mode)}"; expected conservative; legacy retired aliases authority-verified/full-autopilot are refused by policy`);
 }
 
@@ -998,7 +998,7 @@ function buildDelegationContract(mode: AutopilotMode): AutopilotDelegationContra
     receipt: {
       expectation: mode === 'authority-verified' // legacy retired mode.
         ? 'Authority-verified mode is retired; local autopilot requires local proof-admissibility and review quorum evidence before any integration discussion.'
-        : 'A host local receipt is diagnostic only and must be reviewed manually; it cannot claim productionDone or replace DONE authority.',
+        : 'A host local receipt is diagnostic only and must be reviewed manually; it cannot claim release readiness or replace DONE authority.',
     },
     transcript: {
       expectation: 'The host-native runner must provide a transcript path and the transcript must exist before the run can leave needs_receipt.',
@@ -1124,7 +1124,7 @@ function classifyLocalAssuranceEvidenceCandidate(candidate: unknown, required: b
       source: 'local-admissibility',
       receiptRef: shape.receiptRef,
       missing: [],
-      nextAction: 'Local admissibility evidence is present. Continue to manual review; this autopilot still will not auto-merge, auto-DONE, or claim productionDone.',
+      nextAction: 'Local admissibility evidence is present. Continue to manual review; this autopilot still will not auto-merge, auto-DONE, or claim release readiness.',
     };
   }
 
@@ -1744,7 +1744,7 @@ export function autopilotRun(store: StoryStore, root: string, args: AutopilotRun
     }
 
     if (mode === 'conservative') {
-      const nextAction = 'Manual review ready. Inspect dispatch_review and dispatch_merge_plan output; merge remains manual-only and productionDone=false.';
+      const nextAction = 'Manual review ready. Inspect dispatch_review and dispatch_merge_plan output; merge remains manual-only and evidenceScope stays local-review.';
       const ended = markIterationEnded(iteration, 'manual_review_ready', nextAction);
       return finalizeWithCheckpoint(record, {
         status: 'manual_review_ready',
@@ -2054,9 +2054,9 @@ export function renderAutopilotRunText(record: AutopilotRunRecord): string {
     `status: ${record.status}`,
     ...(record.dispatchId ? [`dispatchId: ${record.dispatchId}`] : []),
     ...(record.stopReason ? [`stopReason: ${record.stopReason}`] : []),
-    `authorityChanged: false`,
-    `receiptVerified: false`,
-    `productionDone: false`,
+    'admissibilityStatus: autopilot-run-record',
+    'assuranceLevel: local',
+    'evidenceScope: autopilot-run-metadata',
     `localAssuranceRequired: ${record.authority.localAssuranceRequired}`,
     `localAssuranceVerified: ${record.authority.localAssuranceVerified}`,
     `nextAction: ${record.nextAction}`,

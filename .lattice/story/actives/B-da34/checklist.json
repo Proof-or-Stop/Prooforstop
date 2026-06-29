@@ -4,41 +4,488 @@
       "id": "CHK-001",
       "title": "M1 freeze Authority vocabulary migration contract",
       "context": "Create a source-of-truth migration/retirement document that defines banned active vocabulary, replacement local assurance/admissibility terms, and explicit legacy whitelist rules. Verification must prove the contract exists and is referenced by the scanner.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-29T17:09:44.390Z",
+      "endTime": "2026-06-29T17:42:52.118Z",
+      "relatedDocs": [
+        "docs/requirements/decisions/authority-server-vocabulary-retirement.md",
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+      ],
+      "userSees": "User sees: `retired authority vocabulary contract: PASS (banned=5, replacements=6, whitelist=explicit)`.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions",
+          "docs/requirements/NAV.md"
+        ],
+        "create": [
+          "docs/requirements/decisions/authority-server-vocabulary-retirement.md"
+        ],
+        "test": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Migration contract exists and defines banned active terms plus replacement local assurance/admissibility vocabulary.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Contract distinguishes active surfaces from explicit legacy whitelist so historical docs can exist without weakening the active scanner.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A scanner or smoke must reference the contract so the document is not prose-only and cannot be bypassed at DONE.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/authority-server-vocabulary-retirement.md",
+          "command": "rg -n \"banned active|replacement|legacy whitelist|retired authority vocabulary\" docs/requirements/decisions/authority-server-vocabulary-retirement.md",
+          "result": "pass",
+          "note": "Migration contract exists and defines banned active vocabulary, replacement local assurance terms, and explicit legacy whitelist rules.",
+          "headHash": "00af8f8e4c1d8ef778a793fcd02db4e90720fcdb",
+          "materialHash": "d8ec43ba25e8248c8493aeeb5d888f64e79c679421e9dc94eed7b2de03de23d4",
+          "storyFilesHash": "8569c274b01e6c396943048ba902d3695a2a1b05c4feda2067e6dc841714bd9e",
+          "timestamp": "2026-06-29T18:28:13.388Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/authority-server-vocabulary-retirement.md",
+          "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+          "result": "pass",
+          "note": "Scanner passes with explicit whitelist semantics, proving legacy context is allowed only through scanner policy.",
+          "headHash": "00af8f8e4c1d8ef778a793fcd02db4e90720fcdb",
+          "materialHash": "d8ec43ba25e8248c8493aeeb5d888f64e79c679421e9dc94eed7b2de03de23d4",
+          "storyFilesHash": "8569c274b01e6c396943048ba902d3695a2a1b05c4feda2067e6dc841714bd9e",
+          "timestamp": "2026-06-29T18:28:13.388Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+          "result": "pass",
+          "note": "Scanner references/enforces the retirement contract, so the contract is not prose-only.",
+          "headHash": "00af8f8e4c1d8ef778a793fcd02db4e90720fcdb",
+          "materialHash": "d8ec43ba25e8248c8493aeeb5d888f64e79c679421e9dc94eed7b2de03de23d4",
+          "storyFilesHash": "8569c274b01e6c396943048ba902d3695a2a1b05c4feda2067e6dc841714bd9e",
+          "timestamp": "2026-06-29T18:28:13.388Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "M2 clean user-facing Authority wording",
       "context": "Update README, guide/docs, agent prompts/templates, CLI help/catalog text, DONE/user-facing output language so active surfaces no longer say Authority Server or productionDone-style no-overclaim wording; use local assurance/admissibility/evidence scope terms instead.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-29T17:43:02.413Z",
+      "relatedDocs": [
+        "README.md",
+        "docs/guide.md",
+        "docs/requirements/decisions/authority-server-vocabulary-retirement.md"
+      ],
+      "userSees": "User sees: `retired authority vocabulary scan: PASS active user-facing surfaces use local assurance terms`.",
+      "files": {
+        "modify": [
+          "README.md",
+          "docs/guide.md",
+          ".claude/agents",
+          ".lattice-codex/agents",
+          "packages/main/templates/agents",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Active user-facing docs, prompts, and help output use local assurance/admissibility vocabulary.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Explicit retired legacy docs may keep historical terms only inside whitelist context and must not appear as active guidance.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Generated `lattice help` output is scanned so old wording cannot hide in command descriptions.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "file": "README.md",
+          "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+          "result": "pass",
+          "note": "Active README/docs/prompts/templates/help surfaces pass the retired-vocabulary guard with local assurance/admissibility wording.",
+          "headHash": "00af8f8e4c1d8ef778a793fcd02db4e90720fcdb",
+          "materialHash": "d8ec43ba25e8248c8493aeeb5d888f64e79c679421e9dc94eed7b2de03de23d4",
+          "storyFilesHash": "8569c274b01e6c396943048ba902d3695a2a1b05c4feda2067e6dc841714bd9e",
+          "timestamp": "2026-06-29T18:28:13.388Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+          "result": "pass",
+          "note": "Legacy/migration contexts are permitted only through explicit scanner whitelist; active guidance is blocked if it leaks retired vocabulary.",
+          "headHash": "00af8f8e4c1d8ef778a793fcd02db4e90720fcdb",
+          "materialHash": "d8ec43ba25e8248c8493aeeb5d888f64e79c679421e9dc94eed7b2de03de23d4",
+          "storyFilesHash": "8569c274b01e6c396943048ba902d3695a2a1b05c4feda2067e6dc841714bd9e",
+          "timestamp": "2026-06-29T18:28:13.388Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js help | node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+          "result": "pass",
+          "note": "The scanner includes generated help/catalog content, so old wording cannot hide in command descriptions.",
+          "headHash": "00af8f8e4c1d8ef778a793fcd02db4e90720fcdb",
+          "materialHash": "d8ec43ba25e8248c8493aeeb5d888f64e79c679421e9dc94eed7b2de03de23d4",
+          "storyFilesHash": "8569c274b01e6c396943048ba902d3695a2a1b05c4feda2067e6dc841714bd9e",
+          "timestamp": "2026-06-29T18:28:13.388Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
       "title": "M3 remove Authority command surface from active CLI",
       "context": "Remove authority_* active commands from help/catalog/config and hide/delete legacy compatibility surfaces. Verification must inspect CLI help/catalog/config, not just source text.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-29T17:43:14.208Z",
+      "relatedDocs": [
+        "docs/requirements/decisions/authority-server-vocabulary-retirement.md",
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+      ],
+      "userSees": "User sees: `command surface scan: PASS active authority_* commands=0`.",
+      "files": {
+        "modify": [
+          "packages/main/src/cli",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/command-schemas.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/core/command-policy.ts",
+          "lattice.config.json"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/command-catalog-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "CLI help/catalog/config expose local assurance commands but no active authority_* server-backed command surface.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Any compatibility alias is hidden legacy/quarantined and absent from normal help/catalog output.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A scanner positive-control catches active authority_* command exposure if reintroduced.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/command-catalog-smoke.ts",
+          "command": "node packages/main/dist/tasks/command-catalog-smoke.js",
+          "result": "pass",
+          "note": "Command catalog smoke passed with 256 commands after active command surface cleanup.",
+          "headHash": "00af8f8e4c1d8ef778a793fcd02db4e90720fcdb",
+          "materialHash": "d8ec43ba25e8248c8493aeeb5d888f64e79c679421e9dc94eed7b2de03de23d4",
+          "storyFilesHash": "8569c274b01e6c396943048ba902d3695a2a1b05c4feda2067e6dc841714bd9e",
+          "timestamp": "2026-06-29T18:28:13.388Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+          "result": "pass",
+          "note": "Normal help/catalog output passes scanner; retained compatibility is not exposed as active retired vocabulary.",
+          "headHash": "00af8f8e4c1d8ef778a793fcd02db4e90720fcdb",
+          "materialHash": "d8ec43ba25e8248c8493aeeb5d888f64e79c679421e9dc94eed7b2de03de23d4",
+          "storyFilesHash": "8569c274b01e6c396943048ba902d3695a2a1b05c4feda2067e6dc841714bd9e",
+          "timestamp": "2026-06-29T18:28:13.388Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+          "result": "pass",
+          "note": "Scanner positive controls reject active retired command exposure including authority_* patterns.",
+          "headHash": "00af8f8e4c1d8ef778a793fcd02db4e90720fcdb",
+          "materialHash": "d8ec43ba25e8248c8493aeeb5d888f64e79c679421e9dc94eed7b2de03de23d4",
+          "storyFilesHash": "8569c274b01e6c396943048ba902d3695a2a1b05c4feda2067e6dc841714bd9e",
+          "timestamp": "2026-06-29T18:28:13.388Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
       "title": "M4 remove or quarantine server-backed Authority code and smokes",
       "context": "Delete or isolate server-backed authority client/runner/receipt-gate modules and corresponding smoke tasks. Preserve local quorum_submit, proof-admissibility, receipt-bundle, delivery-check, and local lifecycle gates.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-29T17:43:26.189Z",
+      "relatedDocs": [
+        "docs/requirements/decisions/authority-server-vocabulary-retirement.md",
+        "docs/evidence/evidence-platform-architecture.md",
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+      ],
+      "userSees": "User sees: `authority quarantine scan: PASS server-backed runtime imports=0; local proof smokes=PASS`.",
+      "files": {
+        "modify": [
+          "packages/main/src/core",
+          "packages/main/src/handlers",
+          "packages/main/src/tasks",
+          "packages/main/src/registry.ts",
+          "packages/main/src/cli-engine.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/proof-admissibility-smoke.ts",
+          "packages/main/src/tasks/receipt-bundle-contract-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Server-backed Authority modules/smokes are absent from active runtime imports or explicitly quarantined, while local proof features still pass.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Shared helpers/types needed by local quorum/admissibility/receipt-bundle are preserved or renamed without breaking build.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Scanner fails if active runtime paths import quarantined server-backed Authority modules.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+          "result": "pass",
+          "note": "Active runtime paths pass server-backed retired vocabulary/quarantine scanner while local proof features remain available.",
+          "headHash": "00af8f8e4c1d8ef778a793fcd02db4e90720fcdb",
+          "materialHash": "d8ec43ba25e8248c8493aeeb5d888f64e79c679421e9dc94eed7b2de03de23d4",
+          "storyFilesHash": "8569c274b01e6c396943048ba902d3695a2a1b05c4feda2067e6dc841714bd9e",
+          "timestamp": "2026-06-29T18:28:13.388Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proof-admissibility-smoke.js && node packages/main/dist/tasks/receipt-bundle-contract-smoke.js",
+          "result": "pass",
+          "note": "Build, proof-admissibility, and receipt-bundle smokes passed, proving shared local assurance helpers were preserved.",
+          "headHash": "00af8f8e4c1d8ef778a793fcd02db4e90720fcdb",
+          "materialHash": "d8ec43ba25e8248c8493aeeb5d888f64e79c679421e9dc94eed7b2de03de23d4",
+          "storyFilesHash": "8569c274b01e6c396943048ba902d3695a2a1b05c4feda2067e6dc841714bd9e",
+          "timestamp": "2026-06-29T18:28:13.388Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+          "result": "pass",
+          "note": "Scanner fails closed for active runtime imports or strings that reintroduce quarantined server-backed retired vocabulary.",
+          "headHash": "00af8f8e4c1d8ef778a793fcd02db4e90720fcdb",
+          "materialHash": "d8ec43ba25e8248c8493aeeb5d888f64e79c679421e9dc94eed7b2de03de23d4",
+          "storyFilesHash": "8569c274b01e6c396943048ba902d3695a2a1b05c4feda2067e6dc841714bd9e",
+          "timestamp": "2026-06-29T18:28:13.388Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
       "title": "M5 add hard retired-Authority scanner gate",
       "context": "Add a hard scanner/smoke that fails if active core code or active docs contain Authority Server, authorityDone, fullAuthorityDone, productionDone, or LATTICE_AUTHORITY_* outside explicit legacy/migration whitelist. This scanner must be part of validation so DONE cannot pass with drift.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-29T17:43:38.053Z",
+      "relatedDocs": [
+        "docs/requirements/decisions/authority-server-vocabulary-retirement.md",
+        "lattice.config.json"
+      ],
+      "userSees": "User sees: `retired-authority-vocabulary-guard smoke passed: active matches=0, positive controls rejected=6`.",
+      "files": {
+        "modify": [
+          "lattice.config.json",
+          "scripts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "create": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The retired-Authority scanner passes current active docs/code/help/catalog and is included in configured validation.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Legacy whitelist/migration docs are permitted only by explicit path/section rules and remain visible in scanner output.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Positive-control samples for Authority Server, authorityDone, fullAuthorityDone, productionDone, LATTICE_AUTHORITY_*, and active authority_* command exposure are rejected.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+          "result": "pass",
+          "note": "Hard retired-vocabulary scanner passes current active code/docs/help/catalog and is included in validation config.",
+          "headHash": "00af8f8e4c1d8ef778a793fcd02db4e90720fcdb",
+          "materialHash": "d8ec43ba25e8248c8493aeeb5d888f64e79c679421e9dc94eed7b2de03de23d4",
+          "storyFilesHash": "8569c274b01e6c396943048ba902d3695a2a1b05c4feda2067e6dc841714bd9e",
+          "timestamp": "2026-06-29T18:28:13.388Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+          "result": "pass",
+          "note": "Scanner reports explicit whitelist behavior for migration/legacy contexts while blocking active surfaces.",
+          "headHash": "00af8f8e4c1d8ef778a793fcd02db4e90720fcdb",
+          "materialHash": "d8ec43ba25e8248c8493aeeb5d888f64e79c679421e9dc94eed7b2de03de23d4",
+          "storyFilesHash": "8569c274b01e6c396943048ba902d3695a2a1b05c4feda2067e6dc841714bd9e",
+          "timestamp": "2026-06-29T18:28:13.388Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+          "result": "pass",
+          "note": "Positive controls for retired terms and active authority_* exposure are rejected by the scanner.",
+          "headHash": "00af8f8e4c1d8ef778a793fcd02db4e90720fcdb",
+          "materialHash": "d8ec43ba25e8248c8493aeeb5d888f64e79c679421e9dc94eed7b2de03de23d4",
+          "storyFilesHash": "8569c274b01e6c396943048ba902d3695a2a1b05c4feda2067e6dc841714bd9e",
+          "timestamp": "2026-06-29T18:28:13.388Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-29T17:42:52.118Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "M1 contract added and scanner-backed evidence passed."
+    },
+    {
+      "timestamp": "2026-06-29T17:43:02.413Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "M2 user-facing wording cleaned and scanner-verified."
+    },
+    {
+      "timestamp": "2026-06-29T17:43:14.208Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "M3 active command surface cleaned and catalog/scanner verified."
+    },
+    {
+      "timestamp": "2026-06-29T17:43:26.189Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "M4 server-backed surfaces removed/quarantined while local proof smokes pass."
+    },
+    {
+      "timestamp": "2026-06-29T17:43:38.053Z",
+      "phase": "DEV",
+      "itemId": "CHK-005",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "M5 hard scanner gate added to validation and passes with positive controls."
     }
   ]
 }

@@ -959,9 +959,9 @@ export function renderStoryReadinessReport(report: StoryReadinessReport): string
       lines.push(`  - ${action.kind} owner=${action.owner}: ${detail}`);
     }
   }
-  lines.push('', 'Claims:');
-  lines.push(`  authorityDone: ${report.claims.authorityDone}`);
-  lines.push(`  fullAuthorityDone: ${report.claims.fullAuthorityDone}`);
-  lines.push(`  productionDone: ${report.claims.productionDone}`);
+  lines.push('', 'Local assurance:');
+  lines.push('  admissibilityStatus: readiness-report');
+  lines.push('  assuranceLevel: local');
+  lines.push('  evidenceScope: lifecycle-gate-diagnostics');
   return lines.join('\n');
 }

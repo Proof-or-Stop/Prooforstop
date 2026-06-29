@@ -73,7 +73,6 @@ export const NESTED_SPACE_ALIASES: Record<string, string> = {
   'done prepare': 'done_prepare',
   'conduit status': 'conduit_status',
   'conduit explain': 'conduit_explain',
-  'story authority resolve': 'story_authority_resolve',
   'observability snapshot': 'observability_snapshot',
 };
 

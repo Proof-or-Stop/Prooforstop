@@ -260,8 +260,8 @@ function refreshGuidance(storyId: string, refs: LatticeEvidenceRef[]): LatticeEv
     authorityChanged: false,
     recommendedCommands,
     guidance: staleRefs.length > 0
-      ? `Rerun stale evidence for ${storyId}${recommendedCommands.length > 0 ? `: ${recommendedCommands.join(' && ')}` : ''}. Then record fresh verification evidence through the normal Proofbound evidence commands. This manifest/inspection does not refresh hashes, submit evidence, verify receipts, or grant production authority.`
-      : `No evidence refresh is suggested for ${storyId}. This manifest/inspection remains advisory and does not grant production authority.`,
+      ? `Rerun stale evidence for ${storyId}${recommendedCommands.length > 0 ? `: ${recommendedCommands.join(' && ')}` : ''}. Then record fresh verification evidence through the normal Proofbound evidence commands. This manifest/inspection does not refresh hashes, submit evidence, verify receipts, or grant release readiness.`
+      : `No evidence refresh is suggested for ${storyId}. This manifest/inspection remains advisory and does not grant release readiness.`,
   };
 }
 
@@ -273,7 +273,7 @@ function authorityBoundary(receiptRefs: string[]): LatticeEvidenceAuthorityBound
     receiptRefs: uniqueStrings(receiptRefs),
     receiptRefsVerified: false,
     notes: [
-      'Receipt refs are unverified local or diagnostic refs only; they do not change authority tier or productionDone.',
+      'Receipt refs are unverified local or diagnostic refs only; they do not widen local assurance or release readiness.',
     ],
   };
 }
@@ -393,8 +393,9 @@ export function renderEvidenceManifestText(manifest: EvidenceManifest): string {
     `receiptRefs: ${manifest.authority.receiptRefs.length} unverified`,
     `redactionApplied: ${manifest.redaction.applied}`,
     `secretsRedacted: ${manifest.redaction.secretsRedacted}`,
-    `authorityChanged: ${manifest.authority.authorityChanged}`,
-    `productionDone: ${manifest.authority.productionDone}`,
+    'admissibilityStatus: evidence-manifest',
+    'assuranceLevel: local',
+    'evidenceScope: portable-evidence',
   ].join('\n');
 }
 
@@ -412,7 +413,8 @@ export function renderEvidenceInspectionText(inspection: EvidenceInspection): st
     `receiptRefs: ${inspection.authority.receiptRefs.length} unverified`,
     `redactionApplied: ${inspection.redaction.applied}`,
     `secretsRedacted: ${inspection.redaction.secretsRedacted}`,
-    `authorityChanged: ${inspection.authority.authorityChanged}`,
-    `productionDone: ${inspection.authority.productionDone}`,
+    'admissibilityStatus: evidence-inspection',
+    'assuranceLevel: local',
+    'evidenceScope: portable-evidence',
   ].join('\n');
 }

@@ -195,7 +195,7 @@ function assertPack(pack: HandoffPack, head: string): void {
   assert.deepEqual(pack.allowedPaths, ['packages/main/src/core/worker.ts']);
   assert.deepEqual(pack.deniedPaths, ['README.md']);
   assert.deepEqual(pack.requiredCommands, ['npm --prefix packages/main run build']);
-  assert.deepEqual(pack.successCriteria, ['Do not claim production authority']);
+  assert.deepEqual(pack.successCriteria, ['Do not claim release readiness']);
   assert.equal(pack.authorityBoundary.noAutoTrust, true);
   assert.equal(pack.authorityBoundary.noAutoMerge, true);
   assert.ok(pack.executionInstructions.some(step => /Do not auto-merge/i.test(step)));
@@ -232,7 +232,7 @@ try {
     allowedPaths: ['packages/main/src/core/worker.ts'],
     deniedPaths: ['README.md'],
     requiredCommands: ['npm --prefix packages/main run build'],
-    successCriteria: ['Do not claim production authority'],
+    successCriteria: ['Do not claim release readiness'],
   });
   assertPack(pack, head);
 

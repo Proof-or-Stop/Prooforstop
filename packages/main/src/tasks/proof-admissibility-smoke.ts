@@ -100,7 +100,7 @@ function runtimeChecks(value: Record<string, unknown>): RuntimeAdmissibilityChec
     checks: currentValidChecks('lattice.legacy_authority_receipt_refs.v1'),
   });
   assert.equal(result.allowed, false, 'legacy authority receipt ref is readable but cannot satisfy production-completion');
-  assert.equal(result.overall, 'fail', 'legacy authority receipt ref stays out-of-core for production completion');
+  assert.equal(result.overall, 'fail', 'legacy authority receipt ref stays out-of-core for release readiness');
   assert.equal(result.productionDoneEligible, false, 'local CLI core never turns legacy authority receipt refs into productionDone eligibility');
   expectReason(result.reasons, 'legacy_downgrade', 'legacy receipt production-completion blocked');
 }
@@ -267,7 +267,7 @@ for (const value of [false, 'true', 1, 0]) {
     claim: 'production-completion',
     checks: currentValidChecks('lattice.done_required_evidence.v1'),
   });
-  assert.equal(doneRequiredOverread.allowed, false, 'DONE-required evidence cannot satisfy production completion');
+  assert.equal(doneRequiredOverread.allowed, false, 'DONE-required evidence cannot satisfy release readiness');
   assert.equal(doneRequiredOverread.productionDoneEligible, false, 'DONE-required evidence cannot set productionDone');
   expectReason(doneRequiredOverread.reasons, 'artifact_consumer_mismatch', 'DONE-required production claim');
 }
@@ -325,7 +325,7 @@ for (const value of [false, 'true', 1, 0]) {
     claim: 'production-completion',
     checks: currentValidChecks('lattice.review_run.v1'),
   });
-  assert.equal(overread.allowed, false, 'local review quorum cannot satisfy production completion');
+  assert.equal(overread.allowed, false, 'local review quorum cannot satisfy release readiness');
   expectReason(overread.reasons, 'artifact_consumer_mismatch', 'local quorum overread');
   expectReason(overread.reasons, 'producer_owned_required', 'local quorum production claim');
 }

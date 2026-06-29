@@ -108,7 +108,7 @@ function createFixture(): { root: string; store: StoryStore; ctx: HandlerContext
     storyId: STORY_ID,
     mode: 'feature',
     allowed: ['plan skeleton smoke coverage'],
-    excluded: ['out of scope production authority'],
+    excluded: ['out of scope release readiness'],
     confirmedBy: 'plan-skeleton-smoke',
     confirmationNote: 'Synthetic user-confirmed boundary for checklist_add coverage.',
     now: NOW,

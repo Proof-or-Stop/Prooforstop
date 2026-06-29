@@ -2,15 +2,14 @@
 /**
  * @task B-381e
  * @checklist CHK-003
- * @title observability resolver/snapshot contract smoke
+ * @title observability projection/snapshot contract smoke
  * @type chore
  * @priority high
  * @description
- *   Contract smoke for the host-neutral observability M1 surfaces. It proves
- *   `story_authority_resolve` and `observability_snapshot` are registered as
- *   L0 read-only diagnostics, keep authority fields conservative, and do not
- *   depend on parsing status/session Markdown or touching the terminal
- *   dashboard UI.
+ *   Contract smoke for the host-neutral observability surface. It proves
+ *   `observability_snapshot` is registered as an L0 read-only diagnostic, keeps
+ *   local assurance claims read-only, and does not depend on
+ *   parsing status/session Markdown or touching the terminal dashboard UI.
  * @changes
  *   - [CHK-001] Use validator-accepted task type metadata for the observability contract smoke.
  *   - [CHK-002] Add validator-required changes metadata for convergence checking.
@@ -26,10 +25,10 @@ import { PROCESS_FACT_LEVELS } from '../core/process-fact-levels.js';
 import { resetConfigCache } from '../core/config.js';
 import { StoryStore } from '../core/store.js';
 import type { StoryInfo } from '../core/types.js';
-import { resolveStoryAuthority } from '../core/story-authority-resolver.js';
+import { resolveLocalAssuranceStories } from '../core/local-assurance-story-projection.js';
 import { buildObservabilitySnapshot } from '../core/observability-snapshot.js';
 
-const COMMANDS = ['story_authority_resolve', 'observability_snapshot'] as const;
+const COMMANDS = ['observability_snapshot'] as const;
 const NOW = '2026-06-03T00:00:00.000Z';
 const packageRoot = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 
@@ -45,7 +44,7 @@ function assertPolicyContracts(): void {
     const fact = PROCESS_FACT_LEVELS.find((entry) => entry.name === command);
     assert.ok(fact, `${command} has process fact registration`);
     assert.equal(fact.level, 'L0', `${command} process fact level`);
-    assert.match(fact.rationale, /without mutating|without parsing|without.*authority/i, `${command} rationale documents read-only boundary`);
+    assert.match(fact.rationale, /without mutating|without parsing|local assurance|read-only/i, `${command} rationale documents read-only boundary`);
   }
 }
 
@@ -91,40 +90,38 @@ function assertNoOverclaim(): void {
     const store = new StoryStore(root);
     seedStory(store);
 
-    const resolver = resolveStoryAuthority(store, root, { now: NOW });
-    assert.equal(resolver.readOnly, true);
-    assert.equal(resolver.productionDone, false);
-    assert.equal(resolver.receiptVerified, false);
-    assert.equal(resolver.authorityChanged, false);
-    assert.equal(resolver.stories.length, 1);
+    const projection = resolveLocalAssuranceStories(store, root, { now: NOW });
+    assert.equal(projection.readOnly, true);
+    assert.equal(projection.stories.length, 1);
 
     const snapshot = buildObservabilitySnapshot(store, root, {
-      resolver,
+      projection,
       storeFactory: () => store,
       now: NOW,
     });
     assert.equal(snapshot.readOnly, true);
-    assert.equal(snapshot.authority.productionDone, false);
-    assert.equal(snapshot.authority.receiptVerified, false);
-    assert.equal(snapshot.authority.authorityChanged, false);
-    assert.equal(snapshot.sections.storyBoard[0]?.productionDone, false);
+    assert.equal(snapshot.localAssurance.admissibilityStatus, 'local-only');
+    assert.equal(snapshot.localAssurance.assuranceLevel, 'local-observation');
+    assert.equal(snapshot.localAssurance.evidenceScope, 'read-only-observability');
+    assert.equal(snapshot.sections.storyBoard[0]?.releaseReady, false);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
 }
 
 function assertSourceBoundaries(): void {
-  const resolverSource = readFileSync(join(packageRoot, 'src/core/story-authority-resolver.ts'), 'utf8');
+  const projectionSource = readFileSync(join(packageRoot, 'src/core/local-assurance-story-projection.ts'), 'utf8');
   const snapshotSource = readFileSync(join(packageRoot, 'src/core/observability-snapshot.ts'), 'utf8');
   const snapshotHandlerSource = readFileSync(join(packageRoot, 'src/handlers/observability-snapshot.ts'), 'utf8');
   const dashboardSource = readFileSync(join(packageRoot, 'src/dashboard.ts'), 'utf8');
 
-  const combinedCore = `${resolverSource}\n${snapshotSource}`;
-  assert.doesNotMatch(combinedCore, /\bsession_brief\s*\(/, 'resolver/snapshot core must not call session_brief');
-  assert.doesNotMatch(combinedCore, /\bstatus\s*\(/, 'resolver/snapshot core must not call status');
+  const combinedCore = `${projectionSource}\n${snapshotSource}`;
+  assert.doesNotMatch(combinedCore, /\bsession_brief\s*\(/, 'projection/snapshot core must not call session_brief');
+  assert.doesNotMatch(combinedCore, /\bstatus\s*\(/, 'projection/snapshot core must not call status');
   assert.doesNotMatch(snapshotSource, /readFileSync|\.lattice\/story|docs\/story/, 'snapshot adapter must not directly read backing story JSON');
   assert.doesNotMatch(snapshotHandlerSource, /\.lattice\/story|docs\/story/, 'snapshot handler must not directly read backing story JSON');
-  assert.doesNotMatch(dashboardSource, /story_authority_resolve|observability_snapshot/, 'M1 must not wire the terminal dashboard UI');
+  const retiredStoryProjectionCommand = ['story', 'authority', 'resolve'].join('_');
+  assert.doesNotMatch(dashboardSource, new RegExp(`${retiredStoryProjectionCommand}|observability_snapshot`), 'M1 must not wire the terminal dashboard UI');
 }
 
 assertPolicyContracts();

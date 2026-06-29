@@ -353,7 +353,7 @@ function installStepsForHost(host: string): { summary: string; steps: string[]; 
   const normalized = host.trim().toLowerCase();
   const commonWarnings = [
     'This command is dry-run guidance only; it does not run installers or modify third-party software.',
-    'This guidance does not establish proof admissibility, receipt-bundle verification, review quorum, productionDone, or release readiness.',
+    'This guidance does not establish proof admissibility, receipt-bundle verification, review quorum, release readiness.',
   ];
   if (normalized === 'codex') {
     return {
@@ -423,7 +423,7 @@ function installStepsForHost(host: string): { summary: string; steps: string[]; 
       summary: 'Server Authority is retired/out-of-core for the active Proofbound CLI. It is not a workspace editing host.',
       steps: [
         'Use local proof admissibility, signed/offline receipt bundles, and local review quorum for active CLI assurance.',
-        'Treat any old Authority Server materials as legacy reference only.',
+        'Treat old server-backed authority materials as legacy reference only.',
         'Do not treat server reachability or transport acceptance as local proof admissibility.',
       ],
       commands: ['node bin/lattice.js conduit_status --format=json'],
@@ -436,7 +436,7 @@ function installStepsForHost(host: string): { summary: string; steps: string[]; 
       steps: [
         'Use Proofbound CLI commands for host/config/local-assurance/conduit diagnostics.',
         'Keep any Mac App usage as an optional dashboard or archived surface.',
-        'Do not route production authority claims through the Mac App.',
+        'Do not route release readiness claims through the Mac App.',
       ],
       commands: ['node bin/lattice.js lattice_config_doctor --format=json'],
       warnings: commonWarnings,
@@ -476,7 +476,7 @@ export function renderLatticeHostListText(list: LatticeHostList): string {
   return [
     `${LATTICE_PRODUCT_NAME} ${LATTICE_CLI_VERSION} host list (${list.schemaVersion})`,
     `migration: cliFirst=${list.migration.cliFirst}; macAppRequired=${list.migration.macAppRequired}; macAppRole=${list.migration.macAppRole}`,
-    `localAssurance: productionDone=${list.authority.productionDone}; receiptVerified=${list.authority.receiptVerified}; proofAdmissibility=${list.authority.proofAdmissibility}; receiptBundleVerification=${list.authority.receiptBundleVerification}; reviewQuorum=${list.authority.reviewQuorum}`,
+    `localAssurance: admissibilityStatus=local-only; receiptBundleVerified=${list.authority.receiptVerified}; proofAdmissibility=${list.authority.proofAdmissibility}; receiptBundleVerification=${list.authority.receiptBundleVerification}; reviewQuorum=${list.authority.reviewQuorum}`,
     '',
     renderCapabilityListText({ ...buildLatticeCapabilityList(), hosts: list.hosts }),
   ].join('\n');
@@ -485,7 +485,7 @@ export function renderLatticeHostListText(list: LatticeHostList): string {
 export function renderLatticeHostProbeText(probe: LatticeHostProbe): string {
   return [
     `${LATTICE_PRODUCT_NAME} ${LATTICE_CLI_VERSION} host probe (${probe.schemaVersion})`,
-    `productionDone=${probe.productionDone}; receiptVerified=${probe.receiptVerified}`,
+    `admissibilityStatus=local-only; receiptBundleVerified=${probe.receiptVerified}`,
     '',
     renderCapabilityProbeText(probe.probe),
   ].join('\n');
@@ -499,8 +499,8 @@ export function renderLatticeHostStatusText(status: LatticeHostStatus): string {
     `status: ${status.status}`,
     `overflowReady: ${status.overflowReady}`,
     `matchedFallback: ${status.matchedFallback}`,
-    `productionDone: ${status.productionDone}`,
-    `receiptVerified: ${status.receiptVerified}`,
+    `admissibilityStatus: local-host-status`,
+    `receiptBundleVerified: ${status.receiptVerified}`,
     `nextAction: ${status.nextAction}`,
     '',
     'readiness:',
@@ -529,8 +529,8 @@ export function renderLatticeHostInstallText(guidance: LatticeHostInstallGuidanc
     `dryRun: ${guidance.dryRun}`,
     `executed: ${guidance.executed}`,
     `thirdPartyInstallsExecuted: ${guidance.thirdPartyInstallsExecuted}`,
-    `productionDone: ${guidance.productionDone}`,
-    `receiptVerified: ${guidance.receiptVerified}`,
+    `admissibilityStatus: host-install-guidance`,
+    `receiptBundleVerified: ${guidance.receiptVerified}`,
     '',
     guidance.summary,
     '',

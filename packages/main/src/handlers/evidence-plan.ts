@@ -85,7 +85,7 @@ function wantsJson(args: EvidencePlanArgs): boolean {
  * planner: it runs no commands and writes no evidence/metadata (the actual
  * refresh is the separate P4 layer). Any flag that would imply running a
  * command, writing evidence, advancing the lifecycle, launching reviewers, or
- * claiming Authority completion is rejected up front. There is NO
+ * widening local assurance is rejected up front. There is NO
  * --write/--refresh/--execute path.
  */
 function assertBoundary(args: EvidencePlanArgs): void {
@@ -256,9 +256,10 @@ export function renderEvidencePlanReport(report: EvidencePlanReport): string {
   bucketSection('refresh-only', report.buckets.refreshOnly);
   bucketSection('fresh', report.buckets.fresh);
 
-  lines.push('', 'Claims:');
-  lines.push(`  authorityDone: ${report.claims.authorityDone}`);
-  lines.push(`  productionDone: ${report.claims.productionDone}`);
+  lines.push('', 'Local assurance:');
+  lines.push('  admissibilityStatus: read-only-evidence-plan');
+  lines.push('  assuranceLevel: local');
+  lines.push('  evidenceScope: verification-planning');
   return lines.join('\n');
 }
 

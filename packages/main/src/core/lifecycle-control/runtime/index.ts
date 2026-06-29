@@ -1,10 +1,10 @@
 import { existsSync, statSync } from 'node:fs';
 
 import { buildStoryReadinessReport, type LifecycleReadinessTarget } from '../../lifecycle-readiness.js';
+import { resolveLocalAssuranceStories } from '../../local-assurance-story-projection.js';
 import { mainWriteLockPath, MAIN_WRITE_LOCK_STALE_MS } from '../../main-write-lock.js';
 import { readMkdirLockHolder } from '../../mkdir-lock.js';
 import { getSessionId, readOwnerLease, STALE_LEASE_THRESHOLD_MS, isLeaseStale } from '../../story-owner-lease.js';
-import { resolveStoryAuthority } from '../../story-authority-resolver.js';
 import type { StoryStore } from '../../store.js';
 import type { StoryPhase } from '../../types.js';
 import { getRepoRoot } from '../../worktree-runtime.js';
@@ -222,32 +222,32 @@ export function projectRuntimeClosure(
 ): RuntimeClosureReport {
   const now = options.now ?? new Date().toISOString();
   const nowMs = Date.parse(now);
-  const authority = resolveStoryAuthority(store, root, {
+  const localProjection = resolveLocalAssuranceStories(store, root, {
     activeOnly: options.activeOnly,
     storyIds: options.storyIds ? [...options.storyIds] : undefined,
     now,
   });
-  const rows: RuntimeClosureRow[] = authority.stories.map((story) => {
+  const rows: RuntimeClosureRow[] = localProjection.stories.map((story) => {
     const blockingItems: LifecycleControlIssue[] = [];
     const advisoryItems: LifecycleControlIssue[] = [];
-    const mirrorDrift = story.mirrorPhase !== story.authoritativePhase;
+    const mirrorDrift = story.mirrorPhase !== story.activePhase;
     if (mirrorDrift) {
       advisoryItems.push({
         check: 'phaseCoherence',
-        reason: `main mirror phase ${story.mirrorPhase} differs from authoritative phase ${story.authoritativePhase}`,
-        remediation: `run subsequent story-scoped commands from ${story.authoritativeCwd}`,
-        source: 'story_authority_resolve',
+        reason: `main mirror phase ${story.mirrorPhase} differs from active worktree phase ${story.activePhase}`,
+        remediation: `run subsequent story-scoped commands from ${story.activeCwd}`,
+        source: 'local_assurance_story_projection',
       });
     }
 
-    let nextSafeAction = story.authority === 'worktree' ? `cd ${story.authoritativeCwd}` : undefined;
+    let nextSafeAction = story.stateSource === 'worktree' ? `cd ${story.activeCwd}` : undefined;
     try {
       const readiness = buildStoryReadinessReport({
         storyId: story.storyId,
-        target: targetForPhase(story.authoritativePhase),
+        target: targetForPhase(story.activePhase),
         store,
         root,
-        gitCwd: story.authoritativeCwd,
+        gitCwd: story.activeCwd,
       });
       for (const row of readiness.readiness) {
         const issue: LifecycleControlIssue = {
@@ -294,9 +294,9 @@ export function projectRuntimeClosure(
       lane: 'runtime',
       storyId: story.storyId,
       status: statusFromIssues(blockingItems, advisoryItems),
-      authority: story.authority,
-      authoritativeCwd: story.authoritativeCwd,
-      phase: story.authoritativePhase,
+      authority: story.stateSource,
+      authoritativeCwd: story.activeCwd,
+      phase: story.activePhase,
       mirrorPhase: story.mirrorPhase,
       source: 'runtime-projection',
       nextSafeAction,

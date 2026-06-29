@@ -29,7 +29,7 @@ const CONSUMER_CLAUSES: Record<ArtifactConsumerKind, readonly string[]> = {
   DONE: ['C1 TEST evidence', 'C3 delivery check', 'C5 summary', 'C7 review escalation', 'C8 done-required policy', 'C10 freshness', 'C11 no production overclaim'],
   DONE_REQUIRED: ['C1 local gate evidence', 'C3 command policy', 'C5 material hash', 'C7 story files hash', 'C8 receipt identity', 'C10 command set hash', 'C11 no local diagnostic'],
   HANDOFF: ['C1 context refs separated', 'C2 proof refs classified'],
-  LEGACY_AUTHORITY_RECEIPT: ['C1 legacy compatibility input only', 'C2 no local production completion'],
+  LEGACY_AUTHORITY_RECEIPT: ['C1 legacy compatibility input only', 'C2 no local release readiness'],
 };
 
 function firstSupportedSurface(consumer: ArtifactConsumerKind): { artifactKind: string; claim: ClaimKind } {

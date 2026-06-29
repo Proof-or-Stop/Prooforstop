@@ -53,7 +53,7 @@ lattice rollout_check --projects "$(pwd)" --json
 
 ### Local Proof Admissibility
 
-Authority Server modes and server-backed receipt commands are retired from the active Proofbound CLI. Active evidence vocabulary is `admissibilityStatus`, `assuranceLevel`, `evidenceScope`, gate-consumed local evidence, signed/offline receipt bundles, and local review quorum assurance.
+Server-backed authority modes and receipt commands are retired from the active Proofbound CLI. Active evidence vocabulary is `admissibilityStatus`, `assuranceLevel`, `evidenceScope`, gate-consumed local evidence, signed/offline receipt bundles, and local review quorum assurance.
 
 ### Autopilot Mode: Local Only
 
@@ -69,7 +69,7 @@ lattice autopilot execute --mode=local --storyId=B-xxxx --until=TEST --maxSteps=
 - `local` is the only active mode.
 - `autopilot_run` is dry-run by default. Only `--dryRun=false` records an
   `autopilot_projection` process event, and that projection is not gate
-  evidence or production authority.
+  evidence or release readiness.
 - `autopilot_execute` is the true bounded executor loop. Non-dry-run execution
   requires `--storyId`, runs only argv-mapped Proofbound commands, records a
   non-authoritative `autopilot_execution` event, and only invokes Claude Code
@@ -134,12 +134,12 @@ This legacy matrix is retained only as historical migration context; it is not a
 
 - Local proof evidence remains local and does not require a remote receipt.
 - Legacy shadow/enforce transport behavior is out-of-core and superseded by local admissibility gates.
-- Legacy remote receipt classifications must not be used to claim current production completion.
+- Legacy remote receipt classifications must not be used as current release evidence.
 - `parallel_report` remains non-production evidence unless admitted by local gate evidence and review quorum.
 
 ## Host Overflow
 
-Proofbound Host Overflow is a **manual-first** bounded overflow process: Proofbound holds story / scope / receipt / merge authority, and Claude Code is only an execution host, not a production authority.
+Proofbound Host Overflow is a **manual-first** bounded overflow process: Proofbound holds story, scope, receipt review, and merge responsibility, and Claude Code is only an execution host, not a release-readiness oracle.
 
 Recommended order:
 
@@ -156,14 +156,14 @@ Key boundaries:
 - `host_status` only reports overflow readiness; it does not grant authority.
 - `handoff_create` produces a bounded pack containing `packId`, `packHash`, `baseSha`, `allowedPaths`, `deniedPaths`, required commands, and execution instructions.
 - `handoff_worktree_create` only projects worktree/branch/cleanup guidance; it does not automatically create, merge, clean up, or trust results.
-- `host_dispatch` only returns `planned|unavailable` and `nextAction`; it does not auto-trust, submit evidence, verify receipts, or claim `productionDone`.
-- `handoff_receipt_submit` only accepts a local diagnostic receipt; even on `accepted-local`, it still keeps `receiptVerified=false` and `productionDone=false`.
+- `host_dispatch` only returns `planned|unavailable` and `nextAction`; it does not auto-trust, submit evidence, verify receipts, or widen local assurance.
+- `handoff_receipt_submit` only accepts a local diagnostic receipt; even on `accepted-local`, it remains diagnostic until matching local assurance evidence exists.
 
 The later `dispatch_plan` / `dispatch_prepare` / `dispatch_run` must also obey the same boundary:
 
 - They may only perform supervised, visible automation. The operator must be able to see the target host, the plan, the receipt, the status, and the review/merge guidance.
 - If the target host lacks the corresponding CLI/runtime, the result must degrade to `unavailable` or a diagnostic `nextAction`; it must not silently switch to another host or skip silently.
-- Even a fake/local receipt may not auto-merge, may not verify an authority receipt, and may not change `productionDone` to `true`.
+- Even a fake/local receipt may not auto-merge, may not verify a receipt bundle, and may not widen local assurance.
 
 For the detailed architecture, see [`requirements/decisions/host-overflow.md`](requirements/decisions/host-overflow.md).
 
@@ -215,7 +215,7 @@ lattice dispatch_policy_create --policy=my-policy \
   --maxParallel=2 --maxRuntimeMinutes=30 --maxBudgetUSD=5.0 \
   --network=none --commandAllowlist='node -e "process.exit(0)"' \
   --requireReceipt=true --requireReview=true \
-  --allowAutoMerge=false --allowProductionDone=false
+  --allowAutoMerge=false
 
 # 2. Verify policy authorization
 lattice dispatch_policy_check --policy=my-policy --format=json
@@ -236,11 +236,11 @@ lattice dispatch_cancel --dispatchId=D-xxxx --format=json
 # 7. Manual review: transcript / diff / receipt / runner evidence
 lattice dispatch_review --dispatchId=D-xxxx --format=json
 
-# 8. Manual merge (dispatch completion ≠ production authority)
+# 8. Manual merge (dispatch completion is not release readiness)
 lattice dispatch_merge_plan --dispatchId=D-xxxx --format=json
 ```
 
-**Unattended mode remains user-authorized and authority-safe:**
+**Unattended mode remains user-authorized and local-assurance-safe:**
 
 - `dispatch_auto` **refuses** (explicitly, without pretending to execute) in the following cases:
   - the `policy` argument is missing
@@ -248,9 +248,10 @@ lattice dispatch_merge_plan --dispatchId=D-xxxx --format=json
   - the host is unavailable (`status=unavailable`) or `unattendedSafe=false`
   - the host is not in the policy's `allowedHosts` list
   - the policy's `maxParallel` limit is exceeded
-- Worker output is only an evidence candidate; it does not constitute gate authority.
+- Worker output is only an evidence candidate; it does not constitute gate proof.
 - `dispatch_merge_plan` is always `manualOnly=true`; it never auto-merges or auto-DONEs.
-- All authority fields are fixed to `false`: `productionDone=false`, `receiptVerified=false`, `authorityChanged=false`.
+- Dispatch output remains diagnostic until proof-admissibility, receipt-bundle,
+  and review-quorum evidence make it locally admissible.
 
 ## Combining Code and Documentation
 

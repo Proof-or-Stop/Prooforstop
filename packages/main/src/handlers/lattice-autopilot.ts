@@ -141,7 +141,7 @@ function normalizePolicyArgs(args: Record<string, unknown>): Record<string, unkn
   return rest;
 }
 
-function readBooleanFact(result: unknown, key: 'authorityChanged' | 'receiptVerified' | 'productionDone'): boolean {
+function readBooleanFact(result: unknown, key: 'authorityChanged' | 'receiptVerified'): boolean {
   if (result && typeof result === 'object') {
     const top = (result as Record<string, unknown>)[key];
     if (typeof top === 'boolean') return top;
@@ -174,9 +174,9 @@ function renderFallback(title: string, result: unknown): string {
   if (mode) lines.push(`mode: ${mode}`);
   const status = readStringFact(result, 'status');
   if (status) lines.push(`status: ${status}`);
-  lines.push(`authorityChanged: ${readBooleanFact(result, 'authorityChanged')}`);
-  lines.push(`receiptVerified: ${readBooleanFact(result, 'receiptVerified')}`);
-  lines.push(`productionDone: ${readBooleanFact(result, 'productionDone')}`);
+  lines.push('admissibilityStatus: local-autopilot-diagnostic');
+  lines.push(`receiptBundleAdmissibility: ${readBooleanFact(result, 'receiptVerified') ? 'admissible' : 'not-established'}`);
+  lines.push('evidenceScope: autopilot-metadata');
   const nextAction = readStringFact(result, 'nextAction');
   if (nextAction) lines.push(`nextAction: ${nextAction}`);
   return lines.join('\n');

@@ -12,7 +12,7 @@
 //   and the bundle's materialHash matches the current tree" — it is NOT the
 //   Authority Tier-C strong proof (which requires an independent Authority
 //   server's receipt over a 2-host quorum). Authority integration is DEFERRED.
-//   Do not claim receiptVerified / productionDone / authorityDone from a
+//   Do not claim receipt-bundle verification or retired completion fields from a
 //   local-key bundle. See authority-boundary.ts for the L2+ classifier.
 //
 // Crypto reuse: this module does NOT reimplement any crypto. It reuses

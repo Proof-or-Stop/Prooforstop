@@ -40,7 +40,7 @@ expectation, and next required action.
 
 The product/material deliverable of B-b5c0 was only this document repair. The
 B-997b wave is deliberately narrower than the whole roadmap: it ships M1-M3
-scope boundary behavior and keeps Authority/Layer 4/customer key work out of
+scope boundary behavior and keeps local-assurance Layer 4/customer key work out of
 scope. Any `.lattice/story/actives/<storyId>/*` lifecycle metadata is
 story-scoped provenance produced by the Proofbound workflow, not proof of later
 roadmap milestones.
@@ -324,10 +324,10 @@ B-997b ships the hard-scope slice only:
   when a verified pre-tool hook exists, `wrapped-preapply` only in a dispatch
   pre-apply context, and `watcher-fallback` otherwise.
 
-Authority/Layer 4/customer key work remains out of scope for B-997b. Production
-receipts, server authority, baseline unlock suites, renderer/scheduler changes,
-customerKeyRef behavior, and unrelated app/runtime work remain in M4-M12 or
-separate follow-up stories.
+Local-assurance Layer 4/customer key work remains out of scope for B-997b.
+Remote receipts, retired server-backed proof, baseline unlock suites,
+renderer/scheduler changes, customerKeyRef behavior, and unrelated app/runtime
+work remain in M4-M12 or separate follow-up stories.
 
 ### M1. Canonical Scope Boundary Model
 

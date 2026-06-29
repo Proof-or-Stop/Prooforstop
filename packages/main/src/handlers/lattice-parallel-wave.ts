@@ -37,6 +37,15 @@ function countSummary(summary: { storyCount: number; candidateCount: number; pla
   return `stories: ${summary.storyCount}; parallelDev=${summary.candidateCount}; planOnly=${summary.planOnlyCount}; blocked=${summary.blockedCount}`;
 }
 
+function localAssuranceLines(scope: string, receiptRefs: number): string[] {
+  return [
+    `admissibilityStatus: ${scope}`,
+    'assuranceLevel: local',
+    'evidenceScope: parallel-wave',
+    `receiptRefs: ${receiptRefs}`,
+  ];
+}
+
 function waveFromArgs(ctx: HandlerContext, args: {
   file?: string;
   storyIds?: string[];
@@ -73,9 +82,7 @@ function renderParallelWaveText(wave: LatticeParallelWave): string {
     `hosts: ${wave.hostCandidates.map(host => host.host).join(', ') || '(none)'}`,
     `evidenceRefs: ${wave.evidenceRefs.length}`,
     `mergeOrder: ${wave.mergeOrder.map(entry => entry.storyId).join(' -> ') || '(none)'}`,
-    `authorityChanged: ${wave.authority.authorityChanged}`,
-    `productionDone: ${wave.authority.productionDone}`,
-    `receiptRefs: ${wave.authority.receiptRefs.length}`,
+    ...localAssuranceLines('parallel-wave', wave.authority.receiptRefs.length),
   ].join('\n');
 }
 
@@ -87,9 +94,7 @@ function renderParallelDispatchText(dispatch: LatticeParallelDispatch): string {
     `dispatchable: ${dispatch.dispatchEntries.filter(entry => entry.dispatchable).map(entry => entry.storyId).join(', ') || '(none)'}`,
     `blocked: ${dispatch.dispatchEntries.filter(entry => !entry.dispatchable).map(entry => entry.storyId).join(', ') || '(none)'}`,
     `experienceRefs: ${dispatch.dispatchEntries.reduce((count, entry) => Math.max(count, entry.experienceRefs.length), 0)}`,
-    `authorityChanged: ${dispatch.authority.authorityChanged}`,
-    `productionDone: ${dispatch.authority.productionDone}`,
-    `receiptRefs: ${dispatch.authority.receiptRefs.length}`,
+    ...localAssuranceLines('parallel-dispatch', dispatch.authority.receiptRefs.length),
   ].join('\n');
 }
 
@@ -103,9 +108,7 @@ function renderParallelStatusText(status: LatticeParallelStatus): string {
     `blockedStories: ${status.blocked.map(entry => entry.storyId).join(', ') || '(none)'}`,
     `readyGuidance: ${status.mergeGuidance.ready.length}`,
     `blockedGuidance: ${status.mergeGuidance.blocked.length}`,
-    `authorityChanged: ${status.authority.authorityChanged}`,
-    `productionDone: ${status.authority.productionDone}`,
-    `receiptRefs: ${status.authority.receiptRefs.length}`,
+    ...localAssuranceLines('parallel-status', status.authority.receiptRefs.length),
   ].join('\n');
 }
 
@@ -118,9 +121,7 @@ function renderParallelMergeQueueText(queue: LatticeParallelMergeQueue): string 
     `blocked: ${queue.blocked.map(entry => entry.storyId).join(', ') || '(none)'}`,
     `readyGuidance: ${queue.mergeGuidance.ready.length}`,
     `blockedGuidance: ${queue.mergeGuidance.blocked.length}`,
-    `authorityChanged: ${queue.authority.authorityChanged}`,
-    `productionDone: ${queue.authority.productionDone}`,
-    `receiptRefs: ${queue.authority.receiptRefs.length}`,
+    ...localAssuranceLines('parallel-merge-queue', queue.authority.receiptRefs.length),
   ].join('\n');
 }
 
@@ -137,9 +138,7 @@ function renderParallelReportText(report: LatticeParallelReport): string {
     `evidenceRefs: ${report.evidenceSummary.topLevelRefs.length}`,
     `readyGuidance: ${report.mergeGuidance.ready.length}`,
     `blockedGuidance: ${report.mergeGuidance.blocked.length}`,
-    `authorityChanged: ${report.authority.authorityChanged}`,
-    `productionDone: ${report.authority.productionDone}`,
-    `receiptRefs: ${report.authority.receiptRefs.length}`,
+    ...localAssuranceLines('parallel-report', report.authority.receiptRefs.length),
   ].join('\n');
 }
 
@@ -151,9 +150,7 @@ function renderParallelWaveInspectionText(inspection: LatticeParallelWaveInspect
     `hosts: ${inspection.inspection.hostCandidateCount}`,
     `blockingDegradations: ${inspection.inspection.blockingDegradationCount}`,
     `mergeOrder: ${inspection.mergeOrder.map(entry => entry.storyId).join(' -> ') || '(none)'}`,
-    `authorityChanged: ${inspection.authority.authorityChanged}`,
-    `productionDone: ${inspection.authority.productionDone}`,
-    `receiptRefs: ${inspection.authority.receiptRefs.length}`,
+    ...localAssuranceLines('parallel-inspection', inspection.authority.receiptRefs.length),
   ].join('\n');
 }
 
@@ -166,9 +163,7 @@ function renderParallelPlanText(plan: LatticeParallelPlan): string {
     `planOnlyStories: ${plan.planOnlyStories.join(', ') || '(none)'}`,
     `blockedStories: ${plan.blockedStories.join(', ') || '(none)'}`,
     `mergeOrder: ${plan.mergeOrder.map(entry => entry.storyId).join(' -> ') || '(none)'}`,
-    `authorityChanged: ${plan.authority.authorityChanged}`,
-    `productionDone: ${plan.authority.productionDone}`,
-    `receiptRefs: ${plan.authority.receiptRefs.length}`,
+    ...localAssuranceLines('parallel-plan', plan.authority.receiptRefs.length),
   ].join('\n');
 }
 

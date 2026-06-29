@@ -187,9 +187,9 @@ function formatResult(result: QuorumSubmitResult): string {
     `promptDigestB: ${result.promptDigests.hostB}`,
     `reviewerPasses: ${result.reviewerPasses.length}/${result.requiredReviewerLanes.length} lanes current`,
     `voluntaryLocalRounds: ${result.reviewEscalationStatus.voluntaryLocalRounds.validRoundCount}/${result.reviewEscalationStatus.voluntaryLocalRounds.requiredRounds} rounds x ${result.reviewEscalationStatus.voluntaryLocalRounds.requiredPassingHostsPerRound} hosts (complete=${result.reviewEscalationStatus.voluntaryLocalRounds.complete})`,
-    `authorityDone: ${result.authorityDone}`,
-    `fullAuthorityDone: ${result.fullAuthorityDone}`,
-    `productionDone: ${result.productionDone}`,
+    'admissibilityStatus: local-quorum-recorded',
+    `assuranceLevel: ${result.reviewEscalationStatus.assuranceLevel}`,
+    'evidenceScope: local-review-quorum',
   ].join('\n');
 }
 
