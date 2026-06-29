@@ -95,6 +95,25 @@
       "resolvedAt": "2026-06-29T17:55:27.571Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-da34:F-005",
+      "desc": "Scanner whitelist is still too broad at line level, so the hard retired-Authority gate can miss active renderer regressions even after the current visible leaks were removed. Source refs: packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts:137-154 makes lineIsQuarantined return true for any line in any non-quarantined active file containing field-shaped retired names such as productionDone:, authorityDone:, fullAuthorityDone:, receiptVerified:, or authorityChanged:. scanText then skips that line before applying bannedActiveRules at packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts:214-224. That exemption is not tied to an explicit legacy file, compatibility reader block, or positive-control context, and it is the same shape that let active text-renderer output leaks hide in F-004. Current build/help/guard pass, but M5 requires a hard scanner that fails active core code/docs outside explicit legacy quarantine; this implementation would still allow a future active output line like lines.push(`productionDone: ${result.productionDone}`) to pass validation.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-29T17:58:28.642Z",
+      "reviewRound": "2026-06-29T17:54:51.740Z",
+      "reviewRunId": "B-da34:RR-007",
+      "_hash": "39707b02f6510d5410b3a3e86a9af6c47ff72f534570e7ae76e7c4de19ba51b5",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "docs/requirements/decisions/authority-server-vocabulary-retirement.md"
+      ],
+      "signatureTag": "adversarial|ts|scanner-line-quarantine-bypass",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
