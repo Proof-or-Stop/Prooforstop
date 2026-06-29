@@ -11,9 +11,10 @@
         "docs/requirements/decisions/authority-server-vocabulary-retirement.md",
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
       ],
-      "userSees": "User sees the migration contract and scanner policy name the banned active Authority vocabulary and replacement local assurance/admissibility terms.",
+      "userSees": "User sees: `retired authority vocabulary contract: PASS (banned=5, replacements=6, whitelist=explicit)`.",
       "files": {
         "modify": [
+          "docs/requirements/decisions",
           "docs/requirements/NAV.md"
         ],
         "create": [
