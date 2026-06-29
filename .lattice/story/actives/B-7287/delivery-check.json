@@ -1,0 +1,83 @@
+{
+  "storyId": "B-7287",
+  "checkedAt": "2026-06-29T18:53:17.350Z",
+  "headHash": "7f02cf00f0ddea136e9b2561f4e3399a84216439",
+  "materialHash": "7a620456e03192205d55c16147344b365f6df6cfed3ee1b6c24b820aa82ee6dd",
+  "storyFilesHash": "5327af0f79912a577704463ac42a0bf03b59680b70410f52abd5c0208619e5ff",
+  "reviewRound": "2026-06-29T18:30:32.014Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+      "promise": "M0 documents terminology and the Progressive Intent Hardening vocabulary, with intent validation starting from a minimum useful contract and hardening only when triggers require it.",
+      "status": "verified",
+      "verifiedBy": "sed docs plan M0 section plus delivery_context_pack",
+      "evidence": "Plan M0 lists vocabulary/docs deliverables and acceptance; delivery context reports docs promise for M0 complete."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+      "promise": "M1 provides original_intent_snapshot_set/get, milestone_ledger_set/add/get, immutable request hash/key requirement ids, and checklist-to-ledger diagnostics.",
+      "status": "verified",
+      "verifiedBy": "CLI get commands plus milestone ledger diagnostic",
+      "evidence": "original_intent_snapshot_get returned sourceText, normalizedOutcome, acceptanceClaim, requestHash, and keyRequirementIds; milestone_ledger_get returned covered M0/M1/M2/REPORT rows."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+      "promise": "M2 is read-only diagnostics: proofstory_gate_check --dryRun, intent_collision_get, proofstory_contract_get, intent_coverage_check --dryRun, selected hardening level, trigger reasons, and would-block artifacts.",
+      "status": "verified",
+      "verifiedBy": "CLI dry-run diagnostics",
+      "evidence": "proofstory_gate_check --dryRun and intent_coverage_check --dryRun returned high_assurance trigger reasons, no missing MVP/milestone/acceptance coverage, and warn-only missing collision/spike diagnostics."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+      "promise": "Initial rollout is observe/warn by default and M3-M9 enforcement/artifact layers are not part of the M0-M2 batch.",
+      "status": "verified",
+      "verifiedBy": "plan sections, contract output, process-fact validation, intent_collision_get",
+      "evidence": "Plan lists M3-M9 separately; proofstory_contract_get returned diagnosticOnly true; intent_collision_get says intent_collision_set is intentionally unavailable; process-fact validation passed diagnostic-only checks."
+    },
+    {
+      "docPath": "docs/requirements/NAV.md",
+      "promise": "NAV links the ProofStory Intent-Collision Execution Plan as the requirements/decision source.",
+      "status": "verified",
+      "verifiedBy": "rg docs/requirements/NAV.md",
+      "evidence": "rg found docs/requirements/NAV.md linking decisions/proofstory-intent-collision-execution-plan.md."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "original_intent_snapshot_get returned the stored M0-M2 sourceText, normalizedOutcome, acceptanceClaim, keyRequirementIds, and requestHash; milestone_ledger_get returned covered milestone rows M0, M1A, M1B, M1C, M2A, M2B, M2C, and REPORT."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "proofstory_contract_get returned diagnosticOnly true, hardeningLevel high_assurance, trigger reasons, acceptance bindings for M0/M1/M2/REPORT, and warn diagnostic gaps for missing intent collision and spike evidence."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "proofstory_gate_check --dryRun --json returned wouldBlockFutureDevAdmission true only as future dry-run diagnostics; intent_coverage_check --dryRun --json returned wouldBlockFutureDevAdmission false for current coverage, with no missing MVP artifacts, milestone coverage, or acceptance bindings."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "intent_collision_get --json returned status not_configured, diagnosticOnly true, and stated intent_collision_set is intentionally unavailable in M0-M2."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Fresh node bin/lattice.js validate --story=B-7287 --json passed all 31 configured commands, including npm --prefix packages/main run build and the configured smoke suite; prior evidence also records npm --prefix packages/main run test:proofstory-intent-hardening-smoke, node scripts/verify-process-fact-contract.mjs, and node scripts/verify-orphan-surface.mjs as pass."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "DONE-required validation was present in session_brief as PASS at 2026-06-29T18:46:47.781Z with 2 required commands, covering build plus root full test suite."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "summary_get reports accepted outcome: M0-M2 commands and docs were added, diagnostics remain observe/warn only, and M3-M9 are intentionally not implemented."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery review verified the M0-M2 docs promises against local docs, CLI artifacts, dry-run diagnostics, milestone ledger coverage, summary, and fresh validation. Missing intent collision and spike evidence are expected warn-only diagnostics for this M0-M2 batch, not current delivery blockers. No code was edited during this review."
+  },
+  "_hash": "bf8b9139ebfdfdb92a7ac18ab6a496d3cb53f0bc2824f8ed169d0738613be062"
+}

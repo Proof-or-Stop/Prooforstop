@@ -1,0 +1,56 @@
+{
+  "storyId": "B-7287",
+  "changes": "Added ProofStory M0-M2 progressive intent hardening CLI commands and docs: original intent snapshots, milestone ledger, diagnostic contract, dry-run coverage/gate checks, process-fact registration, smoke coverage, and no-enforce safeguards.",
+  "usage": "Use node bin/lattice.js original_intent_snapshot_set/get, milestone_ledger_set/add/get, proofstory_contract_set/get, intent_coverage_check --dryRun, and proofstory_gate_check --dryRun.",
+  "expectedOutcome": "Users can freeze raw intent, count milestones when triggered, inspect progressive hardening diagnostics, and see warn-only would-block output before DEV without enforcing M3-M9 behavior.",
+  "actualTranscript": "Build passed, focused ProofStory smoke passed, process fact and orphan checks passed, lattice validate passed 31 commands, and DONE-required validation passed build plus root full test suite.",
+  "outcomeDiff": "No functional difference from the M0-M2 expectation; diagnostics remain observe/warn only and M3-M9 are intentionally not implemented.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "M3-M9 are not implemented: no intent_collision_set authoring, red evidence creation, spike promotion, DONE intent equivalence enforcement, REVIEW completeness lane, or risk-adaptive enforce.",
+  "pitfalls": "After merging main, material/story hash drift required rerunning evidence and re-submitting the degraded 3x1 review floor; one reviewer finding on typo false positives was fixed and resolved.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 268605
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 33802
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 495955
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 1534270
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 592960
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 801877
+    }
+  },
+  "totalDurationMs": 3727469,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-29T18:49:47.135Z",
+  "updatedAt": "2026-06-29T18:49:47.135Z"
+}

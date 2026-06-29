@@ -1760,6 +1760,107 @@ export interface ReviewRunWorkspaceBinding {
   bindingHash: string;
 }
 
+// ── ProofStory progressive intent hardening (B-7287 M0-M2 diagnostic MVP) ──
+
+export type ProofStoryHardeningLevel = 'intent_mvp' | 'standard' | 'high_assurance';
+
+export interface OriginalIntentSnapshotData {
+  schemaVersion: 'proofstory.original_intent_snapshot.v1';
+  storyId: string;
+  sourceText: string;
+  normalizedOutcome: string;
+  acceptanceClaim: string;
+  /** Stable requirement ids that participate in requestHash. */
+  keyRequirementIds: string[];
+  /** sha256 over sourceText + sorted keyRequirementIds. Immutable after first set. */
+  requestHash: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type MilestoneStatus = 'planned' | 'covered' | 'done' | 'not_applicable';
+
+export interface MilestoneLedgerItem {
+  id: string;
+  sourceRequirementId: string;
+  claim: string;
+  doneMeans: string;
+  requiredEvidence: string[];
+  checklistRefs: string[];
+  verificationIntentRefs: string[];
+  status: MilestoneStatus;
+}
+
+export interface MilestoneLedgerData {
+  schemaVersion: 'proofstory.milestone_ledger.v1';
+  storyId: string;
+  milestones: MilestoneLedgerItem[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ProofStoryTriggerReason {
+  code: string;
+  message: string;
+  requires?: 'milestone-ledger' | 'intent-collision' | 'red-evidence' | 'spike-evidence' | 'scope-clarification' | 'high-assurance';
+}
+
+export interface ProofStoryAcceptanceBinding {
+  id: string;
+  acceptanceClaim?: string;
+  checklistRefs: string[];
+  verificationIntentRefs: string[];
+  milestoneIds: string[];
+  note?: string;
+}
+
+export interface ProofStoryDiagnosticGap {
+  code: string;
+  severity: 'info' | 'warn';
+  artifact: string;
+  message: string;
+  triggeredBy?: string[];
+}
+
+export interface ProofStoryContractData {
+  schemaVersion: 'proofstory.contract.v1';
+  storyId: string;
+  diagnosticOnly: true;
+  hardeningLevel: ProofStoryHardeningLevel;
+  triggerReasons: ProofStoryTriggerReason[];
+  originalIntentRequestHash?: string;
+  acceptanceBindings: ProofStoryAcceptanceBinding[];
+  diagnosticGaps: ProofStoryDiagnosticGap[];
+  note?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface IntentCollisionData {
+  storyId?: string;
+  status?: string;
+  decision?: string;
+  resolution?: string;
+  [key: string]: unknown;
+}
+
+export interface ProofStoryDiagnosticReport {
+  schemaVersion: 'proofstory.diagnostic_report.v1';
+  storyId: string;
+  dryRun: true;
+  hardeningLevel: ProofStoryHardeningLevel;
+  triggerReasons: ProofStoryTriggerReason[];
+  missingMvpArtifacts: ProofStoryDiagnosticGap[];
+  missingMilestoneCoverage: ProofStoryDiagnosticGap[];
+  missingAcceptanceBindings: ProofStoryDiagnosticGap[];
+  missingIntentCollision: ProofStoryDiagnosticGap[];
+  missingRedEvidence: ProofStoryDiagnosticGap[];
+  missingSpikeEvidence: ProofStoryDiagnosticGap[];
+  scopeAmbiguity: ProofStoryDiagnosticGap[];
+  gaps: ProofStoryDiagnosticGap[];
+  wouldBlockFutureDevAdmission: boolean;
+}
+
 // ── Review Reflection Loop (B-7a34) ──
 
 export type ReviewLoopDecision =

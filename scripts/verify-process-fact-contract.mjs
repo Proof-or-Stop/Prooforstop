@@ -131,6 +131,12 @@ const requiredProcessFactSemantics = {
   review_escalation_policy_set: ['schema-contract', 'gate-evidence'],
   review_escalation_fallback_set: ['schema-contract', 'gate-evidence'],
   story_create_from_repro: ['artifact', 'schema-contract', 'workspace-binding', 'gate-evidence'],
+  original_intent_snapshot_set: ['schema-contract'],
+  milestone_ledger_set: ['schema-contract'],
+  milestone_ledger_add: ['schema-contract'],
+  proofstory_contract_set: ['schema-contract', 'verification-policy'],
+  intent_coverage_check: ['schema-contract', 'verification-policy'],
+  proofstory_gate_check: ['schema-contract', 'verification-policy'],
 };
 const requiredReviewerLanes = [
   'lattice-review-story-init',
@@ -168,6 +174,9 @@ const requiredArtifactFacts = [
   { name: 'artifact:process-events.jsonl', path: 'process-events.jsonl', signed: false },
   { name: 'artifact:decision-doc-proposals.json', path: 'decision-doc-proposals.json', signed: false },
   { name: 'artifact:story-evidence-binding', path: 'story-evidence-binding', signed: false },
+  { name: 'artifact:original-intent-snapshot.json', path: 'original-intent-snapshot.json', signed: false },
+  { name: 'artifact:milestone-ledger.json', path: 'milestone-ledger.json', signed: false },
+  { name: 'artifact:proofstory.json', path: 'proofstory.json', signed: false },
 ];
 const requiredReviewLoopL4Commands = [
   'review_loop_start',
@@ -507,6 +516,39 @@ function listMarkdown(dir) {
     .filter(name => name.endsWith('.md'))
     .sort()
     .map(name => `${dir}/${name}`);
+}
+
+function assertProofStoryMvpDiagnosticOnlyBoundary() {
+  const catalogText = read('packages/main/src/cli/command-catalog.ts');
+  const registryText = read('packages/main/src/registry.ts');
+  const handlerText = read('packages/main/src/handlers/proofstory.ts');
+  const coreText = read('packages/main/src/core/proofstory.ts');
+  const storyAdvanceText = read('packages/main/src/handlers/story-advance.ts');
+  const phaseGatesText = read('packages/main/src/handlers/phase-gates.ts');
+
+  for (const commandName of [
+    'original_intent_snapshot_set',
+    'original_intent_snapshot_get',
+    'milestone_ledger_set',
+    'milestone_ledger_add',
+    'milestone_ledger_get',
+    'proofstory_contract_set',
+    'proofstory_contract_get',
+    'intent_collision_get',
+    'intent_coverage_check',
+    'proofstory_gate_check',
+  ]) {
+    assert(catalogText.includes(`name: '${commandName}'`), `CLI schema: ProofStory MVP command missing from MAIN_TOOLS: ${commandName}`);
+  }
+  assert(!catalogText.includes("name: 'intent_collision_set'"), 'CLI schema: intent_collision_set must not exist in M0-M2');
+  assert(!registryText.includes('intent_collision_set'), 'registry: intent_collision_set must not be registered in M0-M2');
+  assert(handlerText.includes('pass dryRun:true'), 'handlers/proofstory.ts: dry-run checks must reject non-dry-run execution');
+  assert(coreText.includes('computeIntentRequestHash'), 'core/proofstory.ts: requestHash helper must remain explicit');
+  assert(coreText.includes('sourceText') && coreText.includes('keyRequirementIds'), 'core/proofstory.ts: requestHash must be derived from sourceText and keyRequirementIds');
+  assert(!storyAdvanceText.includes('proofstory_gate_check'), 'story-advance.ts: proofstory_gate_check must not be wired into lifecycle gates in M0-M2');
+  assert(!storyAdvanceText.includes('../core/proofstory') && !storyAdvanceText.includes('./proofstory'), 'story-advance.ts: must not import ProofStory core/handler in M0-M2');
+  assert(!phaseGatesText.includes('proofstory_gate_check'), 'phase-gates.ts: proofstory_gate_check must remain diagnostic-only in M0-M2');
+  assert(!phaseGatesText.includes('../core/proofstory'), 'phase-gates.ts: must not import ProofStory core in M0-M2');
 }
 
 function isReviewerPrompt(relPath, text) {
@@ -4289,6 +4331,7 @@ assertActiveLifecycleDocGuidance();
 assertReviewRoundIsoDocs();
 assertEvidenceBoundaryDocs();
 assertPromptEvidenceBoundaries(promptMap);
+assertProofStoryMvpDiagnosticOnlyBoundary();
 assertProcessFactCommandInventory();
 await assertLifecycleArtifactScopePolicy();
 printProcessFactLevelRegistrySummary();

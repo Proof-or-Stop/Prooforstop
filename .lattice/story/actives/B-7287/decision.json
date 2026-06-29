@@ -1,0 +1,59 @@
+{
+  "principles": [
+    "Keep the first implementation slice mechanically useful but non-blocking by default.",
+    "Register every new command and artifact in the real CLI/process-fact surfaces instead of relying on docs or prompt text.",
+    "Preserve progressive hardening: start from Intent MVP and add diagnostics only when triggers require them."
+  ],
+  "drivers": [
+    "User approved development but explicitly asked not to keep adding concepts.",
+    "M0-M2 must not accidentally implement or enforce M5-M9 behavior.",
+    "Existing Lattice gates require command policy, lifecycle phase allowlists, handler registration, and process-fact contract alignment.",
+    "Tests must prove dry-run diagnostics report would-block gaps without changing lifecycle state."
+  ],
+  "options": [
+    {
+      "name": "A: dedicated ProofStory MVP handler and core helper",
+      "pros": [
+        "Keeps new artifact schemas and diagnostics isolated from unrelated handlers.",
+        "Makes orphan-surface and process-fact registration straightforward.",
+        "Allows later M3-M9 work to extend the same bounded module."
+      ],
+      "cons": [
+        "Adds a small new handler/core module pair instead of extending an existing planning handler."
+      ]
+    },
+    {
+      "name": "B: fold all MVP commands into understanding or story handlers",
+      "pros": [
+        "Fewer files in the short term.",
+        "Can reuse existing store and story validation patterns directly."
+      ],
+      "cons": [
+        "Mixes intent artifact semantics into unrelated handlers and makes future ProofStory growth harder to audit."
+      ]
+    }
+  ],
+  "chosen": "A: dedicated ProofStory MVP handler and core helper",
+  "rationale": "Choose a dedicated ProofStory MVP handler/core helper because the new commands form a coherent process-fact surface. This keeps M0-M2 isolated, makes registration and tests explicit, and avoids silently turning understanding_set into a generic ProofStory container.",
+  "preMortem": [
+    {
+      "scenario": "Dry-run diagnostics accidentally become an enforce gate for ordinary stories.",
+      "trigger": "proofstory_gate_check is wired into story_advance or lifecycle guards during the MVP story.",
+      "consequence": "Small tasks get blocked by incomplete ProofStory artifacts, violating the observe/warn rollout principle.",
+      "mitigation": "Keep proofstory_gate_check read-only/dry-run only in this story; do not call it from machine.ts or story_advance gates."
+    },
+    {
+      "scenario": "Milestone ledger triggers from isolated keywords and creates false positives.",
+      "trigger": "Classification treats any word like complete or DONE as multi-deliverable intent without structure or semantic signal.",
+      "consequence": "A small request such as a typo fix receives unnecessary milestone diagnostics.",
+      "mitigation": "Implement classification with structural/semantic triggers: explicit counts, numbered lists, all milestones/items, subsystem removal, end-to-end behavior, or provided ledger items."
+    },
+    {
+      "scenario": "Process-fact registration drifts from handler/schema registration.",
+      "trigger": "New commands are added to handlers and CLI schemas but omitted from command policy, phase allowlist, catalog, or process-fact levels.",
+      "consequence": "CLI help, lifecycle permission, and contract verification disagree, causing hard-to-debug gate failures.",
+      "mitigation": "Update command policy, config phase tools, command catalog/schema, registry, process-fact levels/registry, and add a focused smoke test plus process-fact/orphan-surface verification."
+    }
+  ],
+  "timestamp": "2026-06-29T17:53:30.884Z"
+}

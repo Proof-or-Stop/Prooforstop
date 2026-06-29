@@ -1,0 +1,29 @@
+{
+  "findings": [
+    {
+      "id": "B-7287:F-001",
+      "desc": "Progressive intent hardening over-warns for the documented small typo example: the regex treats 'fix' as behaviorChange and 'complete' as scope ambiguity, so 'Complete this small typo fix' becomes standard with missing intent collision/red evidence/scope gaps even though the requirements doc calls it a single-outcome Intent MVP task. This is diagnostic-only today, but it will create false positives before warn/enforce rollout.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-29T18:24:53.600Z",
+      "reviewRound": "2026-06-29T18:21:38.108Z",
+      "reviewRunId": "B-7287:RR-003",
+      "_hash": "f961d7dd91479df802e7a4408504d31011125ca1b6f84c30d33a73d8dddb1758",
+      "files": [
+        "packages/main/src/core/proofstory.ts:294",
+        "packages/main/src/core/proofstory.ts:315",
+        "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts:307",
+        "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md:239"
+      ],
+      "signatureTag": "edge|ts:294|progressive-intent-hardening",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commit 64bb2c35c: typo intent wording no longer triggers behaviorChange, red evidence, standard collision, or scope ambiguity; smoke now asserts Complete this small typo fix stays intent_mvp with no missing collision/red/scope gaps. Verified with build, proofstory smoke, process-fact contract, orphan-surface, and git diff --check.",
+      "resolvedAt": "2026-06-29T18:30:45.237Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

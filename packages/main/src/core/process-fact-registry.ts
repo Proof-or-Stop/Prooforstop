@@ -128,6 +128,12 @@ export const PROCESS_FACT_REQUIRED_SEMANTICS = {
   review_escalation_policy_set: ['schema-contract', 'gate-evidence'],
   review_escalation_fallback_set: ['schema-contract', 'gate-evidence'],
   story_create_from_repro: ['artifact', 'schema-contract', 'workspace-binding', 'gate-evidence'],
+  original_intent_snapshot_set: ['schema-contract'],
+  milestone_ledger_set: ['schema-contract'],
+  milestone_ledger_add: ['schema-contract'],
+  proofstory_contract_set: ['schema-contract', 'verification-policy'],
+  intent_coverage_check: ['schema-contract', 'verification-policy'],
+  proofstory_gate_check: ['schema-contract', 'verification-policy'],
 } as const satisfies Record<string, readonly ProcessFactSemantic[]>;
 
 export const PROCESS_FACT_RUNTIME_SEMANTICS = {
@@ -202,6 +208,34 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     signed: false,
     producerCommand: 'artifact_declare',
     consumerGate: 'dirty-worktree classifier and DONE declared artifact gate',
+  },
+  original_intent_snapshot_set: {
+    name: 'original-intent-snapshot.json',
+    path: 'original-intent-snapshot.json',
+    signed: false,
+    producerCommand: 'original_intent_snapshot_set',
+    consumerGate: 'proofstory_gate_check --dryRun diagnostics only; not a lifecycle gate',
+  },
+  milestone_ledger_set: {
+    name: 'milestone-ledger.json',
+    path: 'milestone-ledger.json',
+    signed: false,
+    producerCommand: 'milestone_ledger_set',
+    consumerGate: 'intent_coverage_check/proofstory_gate_check --dryRun diagnostics only; not lifecycle gates',
+  },
+  milestone_ledger_add: {
+    name: 'milestone-ledger.json',
+    path: 'milestone-ledger.json',
+    signed: false,
+    producerCommand: 'milestone_ledger_add',
+    consumerGate: 'intent_coverage_check/proofstory_gate_check --dryRun diagnostics only; not lifecycle gates',
+  },
+  proofstory_contract_set: {
+    name: 'proofstory.json',
+    path: 'proofstory.json',
+    signed: false,
+    producerCommand: 'proofstory_contract_set',
+    consumerGate: 'proofstory_gate_check --dryRun diagnostics only; not a lifecycle gate',
   },
   review_run_start: {
     name: 'review-runs.json',
@@ -616,6 +650,13 @@ function artifactFactSemantics(artifact: ProcessFactArtifactRef): ProcessFactSem
   if (artifact.path === 'scope-discard-digest.json') semantics.push('supersession-policy');
   if (artifact.path === 'decision-doc-proposals.json') semantics.push('schema-contract', 'execution-evidence');
   if (artifact.path === 'story-evidence-binding') semantics.push('schema-contract', 'workspace-binding');
+  if (
+    artifact.path === 'original-intent-snapshot.json'
+    || artifact.path === 'milestone-ledger.json'
+    || artifact.path === 'proofstory.json'
+  ) {
+    semantics.push('schema-contract');
+  }
   return semantics;
 }
 
@@ -778,6 +819,36 @@ export const PROCESS_FACT_ARTIFACTS = [
     consumerGate: 'story_review scope-check gate',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.scope_check_save,
     rationale: 'Scope-check signature is consumed by PLAN review.',
+  },
+  {
+    name: 'artifact:original-intent-snapshot.json',
+    kind: 'artifact',
+    semantics: ['artifact', 'schema-contract'],
+    level: 'L1',
+    producer: 'handlers/proofstory',
+    consumerGate: 'proofstory_gate_check --dryRun diagnostics only; not a lifecycle gate',
+    artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.original_intent_snapshot_set,
+    rationale: 'Original intent snapshot freezes sourceText/keyRequirementIds into an immutable requestHash for progressive intent diagnostics.',
+  },
+  {
+    name: 'artifact:milestone-ledger.json',
+    kind: 'artifact',
+    semantics: ['artifact', 'schema-contract'],
+    level: 'L1',
+    producer: 'handlers/proofstory',
+    consumerGate: 'intent_coverage_check/proofstory_gate_check --dryRun diagnostics only; not lifecycle gates',
+    artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.milestone_ledger_set,
+    rationale: 'Milestone ledger makes multi-deliverable intent countable for dry-run coverage diagnostics without M4 enforcement.',
+  },
+  {
+    name: 'artifact:proofstory.json',
+    kind: 'artifact',
+    semantics: ['artifact', 'schema-contract', 'verification-policy'],
+    level: 'L1',
+    producer: 'handlers/proofstory',
+    consumerGate: 'proofstory_gate_check --dryRun diagnostics only; not a lifecycle gate',
+    artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.proofstory_contract_set,
+    rationale: 'Minimal ProofStory diagnostic envelope stores hardening level, trigger reasons, acceptance bindings, and diagnostic gaps without story_advance wiring.',
   },
   {
     name: 'artifact:delivery-check.json',

@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-7287",
+  "sourceText": "Implement Progressive Intent Hardening M0-M2 only. Freeze terminology, add original_intent_snapshot_set/get, milestone_ledger_set/add/get, proofstory_contract_set/get, intent_coverage_check --dryRun, proofstory_gate_check --dryRun, and internal classification. Default observe/warn, do not enforce lifecycle gates, red evidence, spike promotion, DONE equivalence, or REVIEW completeness in this first batch. Provide a milestone completion table.",
+  "normalizedOutcome": "ProofStory M0-M2 can freeze user intent, count triggered milestones, store a diagnostic contract, and report dry-run DEV-readiness gaps without lifecycle enforcement.",
+  "acceptanceClaim": "The new commands work through Lattice CLI, dry-run diagnostics report missing artifacts and triggered hardening gaps, process facts mark these artifacts diagnostic-only, and tests prove ordinary low-risk features remain Intent MVP.",
+  "keyRequirementIds": [
+    "REQ-M0",
+    "REQ-M1",
+    "REQ-M2",
+    "REQ-NO-ENFORCE"
+  ],
+  "requestHash": "sha256:2e14a4899562425cbaa205cf3a0ae0222be43c62bbc1faff1363ee6c212cabec",
+  "createdAt": "2026-06-29T18:14:51.228Z",
+  "updatedAt": "2026-06-29T18:14:51.228Z"
+}

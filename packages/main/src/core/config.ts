@@ -207,6 +207,8 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'capsule_*',   // B-42c0: story handoff projection commands; evidence remains authoritative elsewhere
     'scope_contract_show', 'scope_contract_check', // B-be27: read/check scope contract; mutating commands are phase-scoped below
     'scope_diff_pack', // B-6bfd CHK-002: read-only mechanical diff context pack, useful for verifier context in any phase
+    'original_intent_snapshot_get', 'milestone_ledger_get', 'proofstory_contract_get',
+    'intent_collision_get', 'intent_coverage_check', 'proofstory_gate_check', // B-7287: ProofStory M0-M2 read-only/dry-run diagnostics; no lifecycle gate wiring
     'guard_session_status', // B-6bfd CHK-004: read-only guard session projection
     'guard_session_check', // B-6bfd CHK-004: NOT read-only — refreshes/writes guard-session.json + appends a guard_session_check process event, so it is an owner-gated storyScopedMutating write (see command-policy.ts); listed here because the check itself is allowed in every phase, while guard_session_start is phase-scoped below
     'prewrite_guard_check', // B-6bfd CHK-005: read-only pre-write scope gate for Claude Code PreToolUse hooks; called by the hook in any phase, writes nothing
@@ -267,6 +269,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'scope_boundary_set', 'execution_boundary_set',
     'scope_freeze_check',
     'scope_extension_proposal', 'scope_extension_decide',
+    'original_intent_snapshot_set',
   ],
   INIT_CHECK: [
     // story_advance 内部会代调 dev_start 创建 worktree，无需独立白名单
@@ -287,6 +290,9 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'scope_question_resolve', // B-ed3e CHK-003: 主 agent 消解 OQ
     'scope_contract_set',
     'scope_contract_init_from_plan', // B-6bfd CHK-006: seed scope contract from PLAN checklist files
+    'original_intent_snapshot_set',
+    'milestone_ledger_set', 'milestone_ledger_add',
+    'proofstory_contract_set',
   ],
   DEV: [
     'dev_start', // B-804c CHK-002 / B-da89: explicit worktree recovery entry; reconcile config with command-policy + worktree handler 4-phase set (DEV still in the pre-REVIEW bootstrap window)
@@ -302,6 +308,9 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'finding_cluster',  // B-8bb5: DEV 中已有 finding 时，允许先聚簇再派发修复
     'scope_contract_set', 'scope_contract_acknowledge',
     'scope_contract_init_from_plan', // B-6bfd CHK-006: seed scope contract from PLAN checklist files
+    'original_intent_snapshot_set',
+    'milestone_ledger_set', 'milestone_ledger_add',
+    'proofstory_contract_set',
     'guard_session_start', // B-6bfd CHK-004: start scope-guard session during implementation
   ],
   REVIEW: [
