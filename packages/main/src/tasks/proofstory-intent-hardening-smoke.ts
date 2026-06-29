@@ -288,6 +288,70 @@ try {
   assert.equal(lightGate.missingIntentCollision.length, 0, 'clear low-risk feature does not require intent collision');
   assert.equal(lightGate.missingRedEvidence.length, 0, 'clear new feature does not require red evidence by default');
 
+  const redSignalStories: StoryInfo[] = [
+    {
+      storyId: 'B-bug-signal',
+      name: 'bug-signal',
+      title: 'Fix login bug',
+      description: 'Fix a confirmed login bug.',
+      type: 'bug',
+      phase: 'PLAN',
+      priority: 'medium',
+      createdAt: new Date().toISOString(),
+      startedAt: new Date().toISOString(),
+      endedAt: null,
+      events: [],
+    },
+    {
+      storyId: 'B-auth-signal',
+      name: 'auth-signal',
+      title: 'Update auth session handling',
+      description: 'Update auth session handling.',
+      type: 'chore',
+      phase: 'PLAN',
+      priority: 'medium',
+      createdAt: new Date().toISOString(),
+      startedAt: new Date().toISOString(),
+      endedAt: null,
+      events: [],
+    },
+    {
+      storyId: 'B-behavior-signal',
+      name: 'behavior-signal',
+      title: 'Change retry behavior',
+      description: 'Change retry behavior for transient failures.',
+      type: 'feature',
+      phase: 'PLAN',
+      priority: 'medium',
+      createdAt: new Date().toISOString(),
+      startedAt: new Date().toISOString(),
+      endedAt: null,
+      events: [],
+    },
+    {
+      storyId: 'B-benchmark-signal',
+      name: 'benchmark-signal',
+      title: 'Add benchmark claim',
+      description: 'Add benchmark claim for throughput.',
+      type: 'feature',
+      phase: 'PLAN',
+      priority: 'medium',
+      createdAt: new Date().toISOString(),
+      startedAt: new Date().toISOString(),
+      endedAt: null,
+      events: [],
+    },
+  ];
+  for (const redSignalStory of redSignalStories) {
+    store.writeStory(redSignalStory.storyId, redSignalStory);
+    store.writeChecklist(redSignalStory.storyId, { items: [] });
+    const redSignalGate = jsonRun(root, 'proofstory_gate_check', { storyId: redSignalStory.storyId, dryRun: true });
+    assert.ok(
+      redSignalGate.missingRedEvidence.some((gap: any) => gap.code === 'missing_red_evidence'),
+      `${redSignalStory.name} still triggers red evidence diagnostics`,
+    );
+  }
+
   const typoStoryId = 'B-typo';
   const typoStory: StoryInfo = {
     storyId: typoStoryId,
@@ -305,12 +369,31 @@ try {
   store.writeStory(typoStoryId, typoStory);
   store.writeChecklist(typoStoryId, { items: [] });
   const typoGate = jsonRun(root, 'proofstory_gate_check', { storyId: typoStoryId, dryRun: true });
+  assert.equal(typoGate.hardeningLevel, 'intent_mvp', 'documented small typo example stays Intent MVP');
   assert.equal(
     typoGate.triggerReasons.some((reason: any) => reason.code === 'structural_milestone_intent'),
     false,
     'isolated complete wording does not trigger milestone ledger by itself',
   );
   assert.equal(typoGate.missingMilestoneCoverage.length, 0, 'isolated complete wording has no milestone coverage gap');
+  assert.equal(
+    typoGate.triggerReasons.some((reason: any) => reason.code === 'collision_required_standard'),
+    false,
+    'isolated typo fix wording does not trigger standard collision intent',
+  );
+  assert.equal(
+    typoGate.triggerReasons.some((reason: any) => reason.code === 'red_evidence_required'),
+    false,
+    'isolated typo fix wording does not trigger red evidence',
+  );
+  assert.equal(
+    typoGate.triggerReasons.some((reason: any) => reason.code === 'scope_ambiguity'),
+    false,
+    'isolated complete wording does not trigger scope ambiguity',
+  );
+  assert.equal(typoGate.missingIntentCollision.length, 0, 'documented typo example has no collision diagnostic gap');
+  assert.equal(typoGate.missingRedEvidence.length, 0, 'documented typo example has no red evidence diagnostic gap');
+  assert.equal(typoGate.scopeAmbiguity.length, 0, 'documented typo example has no scope ambiguity diagnostic gap');
 
   console.log('ProofStory intent hardening smoke passed');
 } finally {

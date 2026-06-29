@@ -242,6 +242,21 @@ function countStructuralRows(text: string): number {
     .length;
 }
 
+function hasBehaviorChangeSignal(input: ProofStoryDiagnosticInput, text: string): boolean {
+  const explicitBehaviorChange = /\b(?:behavior change|behaviour change|behavior-changing|behaviour-changing)\b/i.test(text)
+    || /\b(?:change(?:s|d|ing)?|alter(?:s|ed|ing)?)\b[^\n.]{0,80}\bbehaviou?r\b/i.test(text);
+  return input.story.type === 'bug'
+    || /\b(?:bug|defect|regression|broken|failing|failures?)\b/i.test(text)
+    || explicitBehaviorChange;
+}
+
+function hasScopeAmbiguitySignal(text: string): boolean {
+  const broadScope = /\b(?:all|every|remaining|fully|entire|end-to-end|e2e|scope)\b/i.test(text);
+  const explicitScopeChange = /\b(?:remove|removal|retire|retirement|replace|replacement)\b/i.test(text);
+  const completeScopeClaim = /\bcomplete(?:ly)?\b(?=[\s\S]{0,80}\b(?:all|every|remaining|subsystem|removal|retirement|replacement|migration|end-to-end|e2e)\b)/i.test(text);
+  return broadScope || explicitScopeChange || completeScopeClaim;
+}
+
 function pushTrigger(
   triggers: ProofStoryTriggerReason[],
   code: string,
@@ -291,8 +306,7 @@ function classifyTriggers(input: ProofStoryDiagnosticInput): { hardeningLevel: P
 
   const ambiguity = /\b(?:ambiguous|ambiguity|unclear|unknown|maybe|or\b|choose|decision|scope|multi-path|interpretation)\b/i.test(text);
   const userImpact = /\b(?:user|ui|browser|cli|command|observable|behavior|behaviour|workflow|product)\b/i.test(text);
-  const behaviorChange = input.story.type === 'bug'
-    || /\b(?:bug|fix|regression|broken|failing|behavior change|behaviour change|change behavior|change behaviour)\b/i.test(text);
+  const behaviorChange = hasBehaviorChangeSignal(input, text);
   if (ambiguity || userImpact || behaviorChange || hasMultiDeliverable) {
     pushTrigger(
       triggers,
@@ -312,7 +326,7 @@ function classifyTriggers(input: ProofStoryDiagnosticInput): { hardeningLevel: P
     pushTrigger(triggers, 'spike_evidence_required', 'Unclear code path or explicit investigation wording should have spike evidence.', 'spike-evidence');
   }
 
-  const scopeAmbiguous = /\b(?:all|complete|completely|fully|entire|end-to-end|e2e|remove|retire|replace|scope)\b/i.test(text);
+  const scopeAmbiguous = hasScopeAmbiguitySignal(text);
   if (scopeAmbiguous) {
     pushTrigger(triggers, 'scope_ambiguity', 'Broad or absolute scope wording should have scope clarification before future enforcement.', 'scope-clarification');
   }
