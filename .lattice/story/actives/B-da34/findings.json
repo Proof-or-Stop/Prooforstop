@@ -5,7 +5,7 @@
       "desc": "Active user-facing handoff/autopilot/prompt text still exposes retired Authority completion vocabulary after the retirement contract says active surfaces must use local assurance/admissibility wording. `packages/main/src/core/lattice-handoff.ts:1324-1325`, `:1349-1350`, and `:1370-1371` print `productionDone` / `receiptVerified` in normal command output; `packages/main/src/core/lattice-autopilot.ts:1747` still tells users `productionDone=false`; `packages/main/src/core/prompt-registry.ts:110-112` still frames handoff boundaries around `production completion claims`. This violates `docs/requirements/decisions/authority-server-vocabulary-retirement.md:11-25` and leaves active docs/help-facing text outside the local assurance/admissibility vocabulary.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-06-29T17:46:02.120Z",
@@ -19,7 +19,11 @@
         "docs/requirements/decisions/authority-server-vocabulary-retirement.md"
       ],
       "signatureTag": "missing|ts|active-user-facing",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in commit 848905a45. Handoff receipt/worktree/dispatch text now emits admissibilityStatus, assuranceLevel, and evidenceScope instead of retired completion fields; lattice-autopilot manual-review nextAction uses local evidenceScope wording; prompt-registry now says receipt-bundle admissibility, local assurance acceptance, and release-admissibility. Evidence commands passed: npm --prefix packages/main run build; node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js; npm run test:process-fact-contract; node packages/main/dist/tasks/command-catalog-smoke.js; node packages/main/dist/tasks/proof-admissibility-smoke.js; node packages/main/dist/tasks/receipt-bundle-contract-smoke.js; lattice scope_contract_check storyId=B-da34.",
+      "resolvedAt": "2026-06-29T17:55:10.348Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-da34:F-002",
