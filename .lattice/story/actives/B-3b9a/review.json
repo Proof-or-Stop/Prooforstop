@@ -23,6 +23,25 @@
         }
       ],
       "_hash": "825c4a9006a564b7769c3971b5642054cffec6b7f367b9377514f6b99c406ded"
+    },
+    {
+      "timestamp": "2026-06-29T19:03:39.053Z",
+      "issueCount": 2,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-3b9a is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "047f7bea242309b88e7bd1efcddf299f323c7a9f86f9eab9b20eb04cd37abcd1"
     }
   ]
 }
