@@ -34,7 +34,7 @@
       "verificationIntent": {
         "happy": [
           {
-            "desc": "original_intent_snapshot_set stores sourceText, normalizedOutcome, and acceptanceClaim; original_intent_snapshot_get reads the same artifact back.",
+            "desc": "original_intent_snapshot_set stores sourceText, normalizedOutcome, acceptanceClaim, immutable requestHash, and keyRequirementIds; original_intent_snapshot_get reads the same artifact back.",
             "type": "cli",
             "priority": "must"
           },
@@ -59,6 +59,11 @@
         "adversarial": [
           {
             "desc": "Malformed milestone refs or non-array milestone payloads fail before corrupting the artifact.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Changing sourceText produces a different requestHash, preserving immutable source-request identity.",
             "type": "logic",
             "priority": "must"
           }
