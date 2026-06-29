@@ -6,16 +6,17 @@ Implement only the M0-M2 MVP for progressive intent hardening. This plan deliber
 
 ## CHK-001
 
-Add original intent snapshot and milestone ledger commands. Implement the minimal Intent MVP artifact with sourceText, normalizedOutcome, and acceptanceClaim. Add milestone ledger set/add/get storage with validation for milestone arrays and references. Store artifacts through StoryStore helpers only.
+Add original intent snapshot and milestone ledger commands. Implement the minimal Intent MVP artifact with sourceText, normalizedOutcome, and acceptanceClaim. Persist an immutable requestHash derived from sourceText and stable keyRequirementIds derived from the accepted requirements. Add milestone ledger set/add/get storage with validation for milestone arrays and references. Store artifacts through StoryStore helpers only.
 
 Implementation notes:
 - Create a dedicated ProofStory MVP core helper for validation and hardening classification.
 - Add store methods for original-intent-snapshot.json and milestone-ledger.json.
 - Add CLI handler methods for original_intent_snapshot_set/get and milestone_ledger_set/add/get.
 - Keep milestone ledger optional unless structural or semantic triggers exist.
+- Preserve source identity: changing sourceText changes requestHash; generated requirement ids stay stable for the saved snapshot.
 
 Verification:
-- Smoke command stores and reads an Intent MVP snapshot.
+- Smoke command stores and reads an Intent MVP snapshot including requestHash and keyRequirementIds.
 - Smoke command stores and appends milestone rows.
 - Invalid MVP payload and malformed milestones fail before writing corrupt artifacts.
 
@@ -35,18 +36,20 @@ Verification:
 
 ## CHK-003
 
-Add dry-run diagnostics for intent coverage and ProofStory gate readiness.
+Add read-only and dry-run diagnostics for intent collision, intent coverage, and ProofStory gate readiness.
 
 Implementation notes:
+- intent_collision_get is read-only: it reads an existing collision artifact if one exists, or returns an empty diagnostic. It does not implement M3 collision authoring.
 - intent_coverage_check --dryRun reads snapshot, milestone ledger, checklist, and contract, then reports coverage gaps.
-- proofstory_gate_check --dryRun reports hardening classification, trigger reasons, missing artifacts, and would-block issues.
-- Both commands must be read-only unless a future story explicitly adds write/enforce behavior.
+- proofstory_gate_check --dryRun reports hardening classification, trigger reasons, missing MVP artifacts, missing intent collision when triggered, missing red evidence, missing spike evidence, scope ambiguity, and would-block issues.
+- These commands must not enforce DEV admission, advance lifecycle, write red/spike/DONE artifacts, or create a full M4 gate.
 
 Verification:
 - Single-outcome request remains Intent MVP with no milestone ledger requirement.
 - Explicit count/all-milestones request triggers milestone intent diagnostics.
 - Isolated wording such as complete this small typo fix does not trigger milestone intent.
 - Missing required MVP artifacts produce would-block diagnostics but do not advance or block lifecycle.
+- Red/spike/scope ambiguity appear only as diagnostic gap types when triggered.
 
 ## CHK-004
 

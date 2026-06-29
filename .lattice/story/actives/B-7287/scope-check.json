@@ -1,122 +1,94 @@
 {
   "storyId": "B-7287",
-  "checkedAt": "2026-06-29T17:57:38.020Z",
+  "checkedAt": "2026-06-29T18:00:24.814Z",
   "features": [
     {
-      "feature": "M0 documentation, vocabulary, and progressive hardening framing",
-      "covered_by": "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md#M0-Documentation-And-Vocabulary; CHK-004; CHK-005",
+      "feature": "M1 original intent snapshot includes immutable requestHash and stable keyRequirementIds from accepted requirements",
+      "covered_by": "CHK-001 plan + CHK-001 verificationIntent happy/adversarial",
       "status": "covered",
-      "excluded_by": "",
-      "source": "M0 acceptance says docs must describe progressive hardening, milestone coverage, separate critics, and no replacement for REVIEW/TEST/DONE."
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md#M1-Original-Intent-Snapshot-And-Milestone-Ledger"
     },
     {
-      "feature": "M1 original_intent_snapshot_set/get with Intent MVP payload",
-      "covered_by": "CHK-001 verificationIntent happy stores sourceText, normalizedOutcome, acceptanceClaim and reads it back",
+      "feature": "M1 milestone ledger set/add/get and checklist-to-ledger reference diagnostics are in scope",
+      "covered_by": "CHK-001 plan + CHK-003 intent_coverage_check dry-run diagnostics",
       "status": "covered",
-      "excluded_by": "",
-      "source": "M1 plus Original Intent Snapshot MVP schema."
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md#M1-Original-Intent-Snapshot-And-Milestone-Ledger"
     },
     {
-      "feature": "M1 milestone_ledger_set/add/get with optional milestone intent triggering",
-      "covered_by": "CHK-001 milestone_ledger_set/add/get; CHK-001 edge says single-outcome stories do not require a ledger",
+      "feature": "M2 intent_collision_get is read-only and does not implement M3 collision authoring",
+      "covered_by": "CHK-003 implementation notes + CHK-003 happy verificationIntent",
       "status": "covered",
-      "excluded_by": "",
-      "source": "M1 acceptance requires optional ledger for multi-deliverable scope and no keyword-only milestone trigger."
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md#M2-Read-Only-Diagnostics"
     },
     {
-      "feature": "M1 immutable source request hash and key requirement ids",
-      "covered_by": "",
-      "status": "gap",
-      "excluded_by": "",
-      "source": "M1 deliverables explicitly include immutable source request hash and key requirement ids, but CHK-001 only names sourceText, normalizedOutcome, and acceptanceClaim."
-    },
-    {
-      "feature": "M1 checklist-to-ledger reference diagnostics",
-      "covered_by": "CHK-003 intent_coverage_check --dryRun reports uncovered milestones and missing acceptance bindings",
+      "feature": "M2 proofstory_gate_check --dryRun reports missing red evidence, missing spike evidence, and scope ambiguity as diagnostic gap types",
+      "covered_by": "CHK-003 implementation notes + CHK-003 happy/adversarial verificationIntent",
       "status": "covered",
-      "excluded_by": "",
-      "source": "M1 deliverables require checklist-to-ledger reference diagnostics."
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md#M2-Read-Only-Diagnostics"
     },
     {
-      "feature": "M2 dry-run intent coverage and ProofStory gate diagnostics",
-      "covered_by": "CHK-003 intent_coverage_check --dryRun; CHK-003 proofstory_gate_check --dryRun",
+      "feature": "M2 intent_coverage_check --dryRun reports hardening level, trigger reasons, milestone coverage gaps, and missing acceptance bindings without lifecycle writes",
+      "covered_by": "CHK-003 implementation notes + CHK-003 happy verificationIntent",
       "status": "covered",
-      "excluded_by": "",
-      "source": "M2 deliverables include proofstory_gate_check --dryRun and intent_coverage_check --dryRun."
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md#M2-Read-Only-Diagnostics"
     },
     {
-      "feature": "M2 proofstory contract read surface and minimal diagnostic envelope storage",
-      "covered_by": "CHK-002 proofstory_contract_set/get scoped to MVP diagnostic envelope only",
+      "feature": "M0-M2 MVP remains observe/warn/dry-run only and does not claim full ProofStory enforcement",
+      "covered_by": "Scope section + CHK-002/CHK-003/CHK-004/CHK-005 non-enforcement verificationIntent",
       "status": "covered",
-      "excluded_by": "CHK-002 adversarial says no story_advance enforcement or full M4 gate integration",
-      "source": "M2 names proofstory_contract_get; command-family text allows hardening level to be stored in proofstory_contract_set without a standalone hardening command."
+      "excluded_by": null,
+      "source": "plan_get:B-7287#Scope"
     },
     {
-      "feature": "M2 intent_collision_get read command",
-      "covered_by": "",
-      "status": "gap",
-      "excluded_by": "",
-      "source": "M2 deliverables list intent_collision_get, but no checklist item plans or verifies that command."
-    },
-    {
-      "feature": "M2 diagnostic breadth for missing red evidence, missing spike evidence, and scope ambiguity",
-      "covered_by": "",
-      "status": "gap",
-      "excluded_by": "",
-      "source": "M2 deliverables require diagnostics for missing red evidence, missing spike evidence, and scope ambiguity; CHK-003 verifies milestone/collision/acceptance diagnostics but does not name these outputs."
-    },
-    {
-      "feature": "M3 intent collision mutation artifact and signed/hash-bound collision evidence",
-      "covered_by": "",
+      "feature": "M3 intent_collision_set / signed intent-collision authoring",
+      "covered_by": null,
       "status": "excluded",
-      "excluded_by": "understanding facts exclude M3-M9; CHK-003 only reports missing collision requirements in dry-run diagnostics",
-      "source": "M3 starts with intent_collision_set and signed/hash-bound intent-collision artifact."
+      "excluded_by": "CHK-003 explicitly limits this story to read-only intent_collision_get without M3 authoring",
+      "source": "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md#M3-Intent-Collision-Artifact"
     },
     {
-      "feature": "M4 full ProofStory Contract and Gate enforcement",
-      "covered_by": "",
+      "feature": "Full M4 ProofStory gate integration and DEV admission enforcement",
+      "covered_by": null,
       "status": "excluded",
-      "excluded_by": "CHK-002 limits proofstory_contract_set/get to MVP diagnostic envelope; CHK-004 says do not enable global enforce behavior",
-      "source": "M4 includes acceptance_contract_set, acceptance_evidence_bind, non-dry-run gate checks, and PLAN to DEV gate integration."
+      "excluded_by": "CHK-002/CHK-003/CHK-004 explicitly keep proofstory_gate_check dry-run/non-enforcing in this story",
+      "source": "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md#M4-ProofStory-Contract-And-Gate"
     },
     {
-      "feature": "M5 scope shrinkage guard and DONE intent equivalence",
-      "covered_by": "",
+      "feature": "M5 DONE intent equivalence and scope-shrinkage enforcement",
+      "covered_by": null,
       "status": "excluded",
-      "excluded_by": "understanding facts exclude DONE equivalence enforcement; CHK-005 adversarial says final table must not imply DONE enforcement",
-      "source": "M5 starts scope_shrinkage_decision_set and done_intent_equivalence_check."
+      "excluded_by": "Story description and CHK-004/CHK-005 exclude red/spike/DONE enforce and future milestones",
+      "source": "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md#M5-Scope-Shrinkage-Guard-And-DONE-Intent-Equivalence"
     },
     {
-      "feature": "M6/M7 red evidence and spike evidence command implementation or enforcement",
-      "covered_by": "",
+      "feature": "M6 red evidence create/validate authoring or enforcement",
+      "covered_by": null,
       "status": "excluded",
-      "excluded_by": "understanding facts exclude red/spike behavior; CHK-004 adversarial forbids red/spike enforce behavior",
-      "source": "M6 and M7 implement red_evidence_* and spike_* commands plus enforce-mode blocking."
+      "excluded_by": "CHK-003 requires dry-run missing-red diagnostics only; CHK-004 forbids adding red enforcement behavior",
+      "source": "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md#M6-Red-Evidence"
     },
     {
-      "feature": "M8/M9 REVIEW completeness critic and risk-adaptive enforcement rollout",
-      "covered_by": "",
+      "feature": "M7 spike_start/result/discard/promote authoring or enforcement",
+      "covered_by": null,
       "status": "excluded",
-      "excluded_by": "understanding facts exclude REVIEW completeness lane and global enforce mode; CHK-005 adversarial excludes M3-M9 completion claims",
-      "source": "M8 and M9 cover completeness critic integration and warn/enforce rollout flags."
-    },
-    {
-      "feature": "Global lifecycle enforcement or story_advance blocking",
-      "covered_by": "",
-      "status": "excluded",
-      "excluded_by": "CHK-003 says diagnostics do not enforce DEV admission; decision preMortem says do not wire proofstory_gate_check into machine.ts or story_advance gates",
-      "source": "Migration strategy reserves enforce mode for later rollout."
+      "excluded_by": "CHK-003 requires dry-run missing-spike diagnostics only; CHK-004 forbids adding spike enforcement behavior",
+      "source": "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md#M7-Spike-Evidence"
     }
   ],
   "summary": {
-    "total": 15,
+    "total": 11,
     "covered": 6,
-    "excluded": 6,
-    "gaps": 3,
+    "excluded": 5,
+    "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
   "reviewRound": "",
-  "_hash": "e43a2eae1d8980a84f0014311f67b62672ed1e50cc9dc4eff13e97f758c78fe4",
+  "_hash": "ce07e4aab2c3f03210e8d74b9ec9ef8ee8335853c02c02a2048c9843ca212a29",
   "openQuestions": []
 }
