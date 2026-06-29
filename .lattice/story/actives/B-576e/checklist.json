@@ -1,0 +1,106 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Freeze replacement vocabulary for Authority Server retirement",
+      "context": "Document canonical replacements: admissibilityStatus, assuranceLevel, evidenceScope, gate-consumed local evidence; define forbidden Authority Server terms.",
+      "files": {
+        "modify": [
+          "docs/**"
+        ],
+        "create": [],
+        "test": []
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Clean user-facing docs and host prompts",
+      "context": "Replace Authority Server/production receipt/no-Authority phrasing in README/docs/.lattice-codex/.claude with local admissibility wording.",
+      "files": {
+        "modify": [
+          "docs/**",
+          ".lattice-codex/agents/**",
+          ".claude/agents/**",
+          "README.md",
+          "CLAUDE.md",
+          "AGENTS.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Remove server-backed Authority command surface",
+      "context": "Remove authority_* server commands and config allowlist entries; preserve unrelated local proof/admissibility commands.",
+      "files": {
+        "modify": [
+          "packages/main/src/**",
+          "packages/main/package.json",
+          "lattice.config.json"
+        ],
+        "create": [],
+        "test": []
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Delete or quarantine server-backed Authority implementation paths",
+      "context": "Remove dead imports and server-backed modules/tests while preserving local receipt-bundle/quorum/admissibility logic.",
+      "files": {
+        "modify": [
+          "packages/main/src/**",
+          "packages/main/package.json"
+        ],
+        "create": [],
+        "test": []
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Add regression guard for retired Authority Server semantics",
+      "context": "Add scanner/smoke that fails on reintroduced Authority Server command/product semantics outside explicit legacy/changelog/retirement allowlist.",
+      "files": {
+        "modify": [
+          "packages/main/src/**",
+          "packages/main/package.json"
+        ],
+        "create": [],
+        "test": []
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-006",
+      "title": "Validate, bump version, and finish story",
+      "context": "Run build, targeted smokes, retired-term guard, lattice validate/DONE gates, then patch version if runtime behavior changed.",
+      "files": {
+        "modify": [
+          "packages/main/package.json",
+          "package.json"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/**"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-576e",
+  "allowedCommands": [
+    "git *",
+    "lattice *",
+    "node packages/main/dist/tasks/*.js",
+    "npm --prefix packages/main run build",
+    "rg *"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "shell"
+  ],
+  "allowedPaths": [
+    ".claude/agents/**",
+    ".lattice-codex/agents/**",
+    "AGENTS.md",
+    "CLAUDE.md",
+    "docs/**",
+    "lattice.config.json",
+    "package.json",
+    "packages/main/package-lock.json",
+    "packages/main/package.json",
+    "packages/main/src/**",
+    "README.md"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".omx/**",
+    "docs/story/**",
+    "tests/fixtures/**"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "Implementation is restricted to Authority Server retirement and verification surfaces.",
+  "createdAt": "2026-06-29T00:28:28.903Z",
+  "updatedAt": "2026-06-29T00:28:28.903Z",
+  "_hash": "6e4d66d40bc55a30a466e802bcb39e2b123b44c84f31569b28393df587593baf"
+}

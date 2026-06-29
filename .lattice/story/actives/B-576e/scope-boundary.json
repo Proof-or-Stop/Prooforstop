@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-576e",
+  "mode": "maintenance",
+  "allowed": [
+    ".claude/agents/**",
+    ".lattice-codex/agents/**",
+    "AGENTS.md",
+    "CLAUDE.md",
+    "docs/**",
+    "lattice.config.json",
+    "package.json",
+    "packages/main/package-lock.json",
+    "packages/main/package.json",
+    "packages/main/src/**",
+    "README.md"
+  ],
+  "excluded": [
+    ".omx/**",
+    "docs/story/**",
+    "local proof-admissibility contract semantics",
+    "local quorum/review evidence semantics",
+    "offline local receipt-bundle anti-tamper semantics",
+    "tests/fixtures/**"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "User explicitly approved removing Authority Server functionality and semantics while preserving local CLI evidence/admissibility concepts.",
+  "createdAt": "2026-06-29T00:28:28.903Z",
+  "updatedAt": "2026-06-29T00:28:28.903Z",
+  "_hash": "fd268863a5637ed5c948ce726ffd43d71d58d9dcd8c32836e14778369bc99281"
+}
