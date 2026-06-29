@@ -7,8 +7,8 @@
       "relatedDocs": [
         "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-29T19:06:25.839Z",
       "endTime": null,
       "files": {
         "modify": [
@@ -46,6 +46,17 @@
         ]
       },
       "userSees": "The final response says: Ledger sizing and story slicing are documented; oversized ledgers now stop before DEV with slice-plan diagnostics, and runtime implementation is deferred."
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-29T19:06:25.839Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start docs-only edit after PLAN gate passed"
     }
   ]
 }
