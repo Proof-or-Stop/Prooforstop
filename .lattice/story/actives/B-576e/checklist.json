@@ -258,7 +258,28 @@
       "relatedDocs": [
         "docs/evidence/evidence-platform-architecture.md",
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
-      ]
+      ],
+      "userSees": "Build, retired-term guard, proof-admissibility smoke, receipt-bundle smoke, lattice validate, and the new CLI version all pass before DONE.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Build and targeted smokes pass after Authority Server retirement.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Version files are bumped only after runtime behavior changes are merged locally.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "lattice validate/DONE gates do not rely on Authority Server receipt semantics after cleanup.",
+            "type": "cli"
+          }
+        ]
+      }
     }
   ]
 }
