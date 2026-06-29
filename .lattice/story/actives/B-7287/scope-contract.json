@@ -1,0 +1,33 @@
+{
+  "storyId": "B-7287",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/store.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/cli/command-schemas.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    ".lattice/story/actives/B-7287/checklist.json"
+  ],
+  "allowedCreate": [
+    "packages/main/src/handlers/proofstory.ts",
+    "packages/main/src/core/proofstory.ts",
+    "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "scripts/verify-orphan-surface.mjs"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-29T18:20:52.286Z",
+  "updatedAt": "2026-06-29T18:20:52.286Z"
+}
