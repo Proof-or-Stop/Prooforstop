@@ -1,0 +1,52 @@
+{
+  "storyId": "B-f51c",
+  "checkedAt": "2026-06-29T21:30:57.874Z",
+  "headHash": "10bd6e0f32a04a983feb46a52f266a3a58beccc9",
+  "materialHash": "42af579e2aef075b752c7bd59aa93a4fa73730abd62067b994d010a1b67f8daf",
+  "storyFilesHash": "4ef41afe4335a4c3824957226471dfeed3fa120b3067a8951047157adc6bfacf",
+  "reviewRound": "2026-06-29T21:14:59.277Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+      "promise": "The progressive model says it has five rules and lists five rules, with the old four-rules wording absent.",
+      "status": "verified",
+      "verifiedBy": "rg plus direct line inspection",
+      "evidence": "rg showed `This progressive model has five rules:` at line 97 followed by five bullet rules through line 109; `rg -n \"This progressive model has four rules\"` returned no matches."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+      "promise": "A milestone ledger created before intent collision is candidate data only and becomes gate-consumed only after accepted intent interpretation confirms it.",
+      "status": "verified",
+      "verifiedBy": "rg plus diff inspection",
+      "evidence": "Lines 334-337 state the milestone ledger may be candidate before intent collision and becomes gate-consumed only after accepted intent interpretation confirms it; the diff also changes lifecycle/gate wording to confirmed milestone ledger and confirmedMilestoneLedger."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+      "promise": "Oversized milestone ledgers require slicing before DEV, but many milestones do not imply mandatory parallel child-story execution.",
+      "status": "verified",
+      "verifiedBy": "rg plus direct line inspection",
+      "evidence": "Lines 105-106 say oversized ledgers must be sliced before DEV; line 400 says no mandatory parallel child-story execution; lines 403-404 say parallel execution is optional and dependency-safe/resource-aware."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+      "promise": "Automatic parallel child-story dispatch is outside the ProofStory M0-M2 MVP and belongs to Scheduler, Unattended, or Autopilot work.",
+      "status": "verified",
+      "verifiedBy": "rg plus direct line inspection",
+      "evidence": "Lines 405-406 state automatic parallel child-story dispatch belongs to a dedicated Scheduler, Unattended, or Autopilot development story, not ProofStory M0-M2 MVP."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "lattice validate --story=B-f51c completed successfully after 207.8s: npm --prefix packages/main run build plus 30 configured smoke/task commands passed; verification intent coverage was 4/4 covered with 0 required missing. Additional local checks passed: git diff --check; rg found the five-rule wording and no four-rule wording; rg found no CJK characters in the edited open-source document."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Docs-only delivery matches CHK-001 user-visible promises: five-rule wording is corrected, candidate ledger confirmation is explicit before gate consumption, and scheduler/unattended/autopilot automatic parallel dispatch remains out of MVP scope. No delivery blocker found."
+  },
+  "_hash": "8fc0dd4f3b29b8ddcf7eebfe45469cc005317519f1d64a20264467c43e617453"
+}

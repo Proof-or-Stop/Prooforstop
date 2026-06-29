@@ -1,0 +1,41 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-06-29T21:03:56.226Z",
+      "issueCount": 3,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "missing_scope_check",
+          "severity": "blocker",
+          "message": "missing_scope_check: scope-check.json is missing PLAN gate evidence. `scope_check_save` already exists; a lattice-review-scope-plan / scope-plan reviewer must persist the result through `scope_check_save`. The implementation/main agent must not self-sign this evidence or manually edit story metadata. Local CLI guidance is not remote completion and must not be presented as receipt verification or production/full completion."
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-f51c is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "2cc41122de5a53c51aed519cf69cd967c738650834a089e24c1d44685a665e73"
+    },
+    {
+      "timestamp": "2026-06-29T21:06:32.618Z",
+      "issueCount": 1,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-f51c is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "b697dc13e7044a6e9e318f3785028545d701cdd9783435c2baed3243a76cbc6b"
+    }
+  ]
+}

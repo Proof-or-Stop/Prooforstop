@@ -1,0 +1,19 @@
+{
+  "task": "Clarify the ProofStory plan so candidate milestone ledgers are not gate-consumed before accepted intent interpretation and automatic parallel execution remains outside the MVP.",
+  "outcome": "User-visible result: the document says \"This progressive model has five rules\", describes candidate milestone ledgers becoming confirmed gate-consumed contracts only after accepted intent interpretation, and states that oversized ledgers require slicing while automatic parallel execution belongs to a later Scheduler/Unattended/Autopilot story.",
+  "facts": [
+    "B-3b9a already added Ledger Sizing and Story Slicing to the ProofStory plan.",
+    "The current document says the progressive model has four rules but lists five bullets.",
+    "The user agreed automatic parallel story execution should be handled by a dedicated Scheduler/Unattended/Autopilot development story."
+  ],
+  "constraints": [
+    "English-only open-source documentation.",
+    "Docs-only change to docs/requirements/decisions/proofstory-intent-collision-execution-plan.md.",
+    "No runtime CLI, gate, scheduler, unattended, autopilot, test, dist, or .omx changes."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md"
+  ],
+  "timestamp": "2026-06-29T21:03:51.719Z"
+}

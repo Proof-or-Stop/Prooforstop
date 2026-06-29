@@ -1,0 +1,61 @@
+{
+  "findings": [
+    {
+      "id": "B-f51c:F-001",
+      "desc": "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md:176 WHY: The Normal Story Path still places milestone_ledger_set and ledger sizing before understanding_set / intent_collision_set, while the updated decision text says pre-collision ledgers are only candidate ledgers and become gate-consumed after accepted intent interpretation. This leaves the plan internally inconsistent about when the ledger becomes gate-consumed. Severity: medium.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-29T21:10:20.361Z",
+      "reviewRound": "2026-06-29T21:08:16.899Z",
+      "reviewRunId": "B-f51c:RR-002",
+      "_hash": "2b8e7de9c2d11afd356c779e80e5bd9d995c7cee1dcbfbf0f66cf2a4fac3f042",
+      "signatureTag": "missing|unknown|docs-requirements-decisions",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Normal Story Path now marks milestone_ledger_set as candidate only, moves understanding_set and intent_collision_set before confirmation, then runs intent_coverage_check and ledger sizing on the confirmed milestone ledger. Verified by rg for candidate-only, accepted interpretation confirmation, and confirmed ledger sizing.",
+      "resolvedAt": "2026-06-29T21:15:06.896Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-f51c:F-002",
+      "desc": "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md:519 defines milestone_intent.requiredArtifacts as milestoneLedger plus intentCoverageCheck without an accepted-interpretation or confirmed-ledger binding, while docs/requirements/decisions/proofstory-intent-collision-execution-plan.md:856 makes the ProofStory gate consume a generic milestone ledger and only requires intent collision when separately triggered. That leaves a candidate ledger able to become gate input without the confirmation boundary promised at docs/requirements/decisions/proofstory-intent-collision-execution-plan.md:331. Severity: high.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-29T21:11:02.167Z",
+      "reviewRound": "2026-06-29T21:08:16.899Z",
+      "reviewRunId": "B-f51c:RR-003",
+      "_hash": "99568ffad783fbf0b2597c4948362c141d8435e57c892ecd6a04db76d703cbee",
+      "signatureTag": "missing|unknown|docs-requirements-decisions",
+      "signatureTagSource": "auto",
+      "resolvedReason": "ProofStory schema now requires confirmedMilestoneLedger, milestoneLedger carries state=confirmed plus confirmedByIntentInterpretation and confirmedByIntentCollisionId, and gate required inputs/blocking conditions require confirmed milestone ledgers rather than generic candidate ledgers.",
+      "resolvedAt": "2026-06-29T21:15:12.102Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-f51c:F-003",
+      "desc": "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md:176 The Normal Story Path still runs milestone_ledger_set and ledger sizing before understanding_set and intent_collision_set, which contradicts the new candidate-ledger/confirmed-ledger lifecycle and can make a pre-collision candidate ledger look gate-consumed. severity: high",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-29T21:12:26.275Z",
+      "reviewRound": "2026-06-29T21:08:16.899Z",
+      "reviewRunId": "B-f51c:RR-004",
+      "_hash": "421d1494020f9c56245841ac9c46a980d1072bae8322273f5eb0244bc9b5403c",
+      "signatureTag": "missing|unknown|docs-requirements-decisions",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Normal Story Path no longer runs ledger sizing before understanding/collision; it confirms the ledger against accepted intent interpretation before coverage and sizing. Verified by rg on Normal Story Path and confirmed milestone ledger lines.",
+      "resolvedAt": "2026-06-29T21:15:17.402Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

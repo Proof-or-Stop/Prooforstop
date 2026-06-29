@@ -1,0 +1,49 @@
+{
+  "passes": [
+    {
+      "id": "B-f51c:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "reviewed CHK-001: verificationEvidence has passing docs_check coverage for CHK-001:happy:0, CHK-001:happy:1, CHK-001:edge:0, and CHK-001:adversarial:0; independently checked doc lines 97-109, 331-334, and 397-403 and found no test-coverage blocker.",
+      "createdAt": "2026-06-29T21:10:42.935Z",
+      "reviewRound": "2026-06-29T21:08:16.899Z",
+      "reviewRunId": "B-f51c:RR-001",
+      "_hash": "9fba4b9de3ea0cae122657059bfa82a21b72c4c2c77fdf66bb8afde3a9eb4885"
+    },
+    {
+      "id": "B-f51c:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "reviewed CHK-001 and resolved B-f51c:F-002: checked the five-rule wording, candidate-ledger lifecycle, confirmedMilestoneLedger schema reference, confirmedByIntentInterpretation field, ProofStory gate required inputs/blocking conditions, and scheduler/autopilot boundary; found no blocker.",
+      "createdAt": "2026-06-29T21:17:12.476Z",
+      "reviewRound": "2026-06-29T21:14:59.277Z",
+      "reviewRunId": "B-f51c:RR-005",
+      "_hash": "cf959688ec6fe483623def6950840913dc7da9d811c770181c70491bb26af658"
+    },
+    {
+      "id": "B-f51c:RP-003",
+      "agent": "lattice-review-docs",
+      "note": "reviewed CHK-001: checked resolved B-f51c:F-003, Normal Story Path ordering, Markdown coherence, and Scheduler/Unattended/Autopilot boundary; found no blocker.",
+      "createdAt": "2026-06-29T21:17:16.585Z",
+      "reviewRound": "2026-06-29T21:14:59.277Z",
+      "reviewRunId": "B-f51c:RR-006",
+      "_hash": "99f4ad499ac8952ce01b2ab703cb85deb67e493327df80dcbf826a5d423c1463"
+    },
+    {
+      "id": "B-f51c:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "reviewed CHK-001 and resolved B-f51c:F-001: Normal Story Path now creates the milestone ledger as candidate only, runs understanding_set and intent_collision_set before confirming it, then checks coverage and ledger sizing on the confirmed ledger; five-rule wording and Scheduler/Unattended/Autopilot parallel-execution boundary are consistent. No quality blocker found.",
+      "createdAt": "2026-06-29T21:17:28.232Z",
+      "reviewRound": "2026-06-29T21:14:59.277Z",
+      "reviewRunId": "B-f51c:RR-007",
+      "_hash": "b91868a9d6b2d8c4202162945921cd311a6f06efdb10b0233d120d018f663ce6"
+    },
+    {
+      "id": "B-f51c:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "reviewed CHK-001: verificationEvidence covers all docs intents after the confirmed-ledger fix. Rechecked the evidence against the decision doc: five-rule wording is present and four-rule wording absent; candidate ledgers are explicitly not gate-consumed before accepted intent interpretation; confirmedMilestoneLedger / confirmedByIntentInterpretation / blocking-condition anchors are present; oversized-ledger slicing is required while automatic parallel Scheduler/Unattended/Autopilot execution remains out of MVP scope. No test-coverage blocker found.",
+      "createdAt": "2026-06-29T21:17:40.971Z",
+      "reviewRound": "2026-06-29T21:14:59.277Z",
+      "reviewRunId": "B-f51c:RR-008",
+      "_hash": "b036407dad250d1eee7d3adc335ca19b16c267352ff4c3b274bbd195303e544c"
+    }
+  ]
+}

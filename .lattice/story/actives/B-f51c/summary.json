@@ -1,0 +1,55 @@
+{
+  "storyId": "B-f51c",
+  "changes": "Updated the ProofStory intent-collision plan to fix the five-rule count, treat pre-collision milestone ledgers as candidate-only, require confirmedMilestoneLedger before gate consumption, and defer automatic parallel child-story dispatch to Scheduler/Unattended/Autopilot work.",
+  "usage": "Use this document as the source of truth for the next M0-M2 implementation story: implement dry-run diagnostics around candidate ledgers, confirmed ledger coverage, ledger sizing, and too-broad slicing without adding automatic parallel execution.",
+  "expectedOutcome": "The user expects the document to say five rules, prevent candidate ledgers from becoming gate evidence before accepted intent interpretation, and avoid forcing parallel child-story execution when many milestones exist.",
+  "actualTranscript": "rg confirms the document contains \"This progressive model has five rules\", \"candidate only; not gate-consumed yet\", \"confirmedMilestoneLedger\", \"confirmedByIntentInterpretation\", \"no mandatory parallel child-story execution\", and the Scheduler/Unattended/Autopilot deferral wording. validate passed all 31 configured commands.",
+  "outcomeDiff": "No remaining user-value diff for this docs-only story. The requested wording and the reviewer-requested schema/gate consistency fixes are present. Runtime scheduler/autopilot implementation remains intentionally deferred.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Docs-only change. This does not implement ProofStory M0-M2 commands, scheduler orchestration, unattended execution, autopilot parallel dispatch, or runtime gate enforcement.",
+  "pitfalls": "Initial review found that changing only the top lifecycle left Normal Story Path and schema/gate sections inconsistent; the final version fixes those downstream sections too.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 81786
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 76898
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 185805
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 218977
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 655510
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 717642
+    }
+  },
+  "totalDurationMs": 1936648,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-29T21:33:10.222Z",
+  "updatedAt": "2026-06-29T21:33:10.222Z"
+}
