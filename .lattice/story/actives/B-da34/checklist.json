@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "M1 freeze Authority vocabulary migration contract",
       "context": "Create a source-of-truth migration/retirement document that defines banned active vocabulary, replacement local assurance/admissibility terms, and explicit legacy whitelist rules. Verification must prove the contract exists and is referenced by the scanner.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-29T17:09:44.390Z",
-      "endTime": null,
+      "endTime": "2026-06-29T17:42:52.118Z",
       "relatedDocs": [
         "docs/requirements/decisions/authority-server-vocabulary-retirement.md",
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
@@ -46,7 +46,45 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/authority-server-vocabulary-retirement.md",
+          "command": "rg -n \"banned active|replacement|legacy whitelist|retired authority vocabulary\" docs/requirements/decisions/authority-server-vocabulary-retirement.md",
+          "result": "pass",
+          "note": "Migration contract exists and defines banned active vocabulary, replacement local assurance terms, and explicit legacy whitelist rules.",
+          "headHash": "8892270bf34f8453fcaa2d546c882cef10fb69a4",
+          "materialHash": "a2c3495831e5b0059e6532f20f5414aff5dd12fecaac023244718033ccf1d0d8",
+          "storyFilesHash": "740a187b34737cdaf4fb43054a84dda9959c78a9ce4032202579a1b2d1edb357",
+          "timestamp": "2026-06-29T17:42:53.031Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/authority-server-vocabulary-retirement.md",
+          "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+          "result": "pass",
+          "note": "Scanner passes with explicit whitelist semantics, proving legacy context is allowed only through scanner policy.",
+          "headHash": "8892270bf34f8453fcaa2d546c882cef10fb69a4",
+          "materialHash": "a2c3495831e5b0059e6532f20f5414aff5dd12fecaac023244718033ccf1d0d8",
+          "storyFilesHash": "740a187b34737cdaf4fb43054a84dda9959c78a9ce4032202579a1b2d1edb357",
+          "timestamp": "2026-06-29T17:42:53.874Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "command": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+          "result": "pass",
+          "note": "Scanner references/enforces the retirement contract, so the contract is not prose-only.",
+          "headHash": "8892270bf34f8453fcaa2d546c882cef10fb69a4",
+          "materialHash": "a2c3495831e5b0059e6532f20f5414aff5dd12fecaac023244718033ccf1d0d8",
+          "storyFilesHash": "740a187b34737cdaf4fb43054a84dda9959c78a9ce4032202579a1b2d1edb357",
+          "timestamp": "2026-06-29T17:42:54.742Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -251,6 +289,17 @@
           }
         ]
       }
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-29T17:42:52.118Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "M1 contract added and scanner-backed evidence passed."
     }
   ]
 }
