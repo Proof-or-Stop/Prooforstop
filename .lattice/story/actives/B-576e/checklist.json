@@ -104,9 +104,9 @@
         "create": [],
         "test": []
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-29T01:06:02.816Z",
       "relatedDocs": [
         "README.md",
         "docs/guide.md",
@@ -133,7 +133,20 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/retired-authority-server-semantics-smoke.js",
+          "result": "pass",
+          "note": "README, docs/guide, agent templates, Codex prompt copies, and Claude prompt copies no longer advertise active Authority Server receipt dependency.",
+          "headHash": "9b79f267d15687755be7e19352972497bed6b489",
+          "materialHash": "f3f14650d7fde940592eb514b2733ec03a19db99186f12565538a8a8b44aa2cc",
+          "storyFilesHash": "fe187328ca35303232c34b0b2fb8b1d48d740ea431cb80d64bd06c966e36f942",
+          "timestamp": "2026-06-29T01:06:03.760Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
