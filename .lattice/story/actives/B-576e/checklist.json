@@ -27,9 +27,9 @@
         "create": [],
         "test": []
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-29T00:43:03.570Z",
-      "endTime": null,
+      "endTime": "2026-06-29T01:05:50.782Z",
       "relatedDocs": [
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
         "docs/evidence/evidence-platform-architecture.md",
@@ -69,7 +69,20 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/retired-authority-server-semantics-smoke.js",
+          "result": "pass",
+          "note": "Replacement vocabulary is enforced on active docs/runtime surfaces: admissibilityStatus, assuranceLevel, evidenceScope, local gate evidence, signed/offline receipt bundles, and local review quorum.",
+          "headHash": "bc2639dc20773697fe955062ef54bb655970f45b",
+          "materialHash": "f3f14650d7fde940592eb514b2733ec03a19db99186f12565538a8a8b44aa2cc",
+          "storyFilesHash": "fe187328ca35303232c34b0b2fb8b1d48d740ea431cb80d64bd06c966e36f942",
+          "timestamp": "2026-06-29T01:05:51.708Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
