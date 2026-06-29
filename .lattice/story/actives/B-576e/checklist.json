@@ -104,6 +104,7 @@
           "packages/main/src/cli/alias-normalizer.ts",
           "packages/main/src/cli/activity-policy.ts",
           "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
           "packages/main/src/registry.ts",
           "packages/main/package.json",
           "lattice.config.json"
@@ -118,7 +119,28 @@
         "docs/evidence/evidence-platform-architecture.md",
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
         "docs/guide.md"
-      ]
+      ],
+      "userSees": "lattice help no longer lists server-backed authority_status, authority receipt, authority job, or authority verdict commands.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Server-backed authority_* commands and aliases are removed from help, command catalog, activity policy, config, and registry registration.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Local proof/admissibility/quorum commands remain registered and documented as local assurance paths.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Alias forms like lattice authority status or lattice authority receipt verify are rejected or absent, not silently routed to obsolete handlers.",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
