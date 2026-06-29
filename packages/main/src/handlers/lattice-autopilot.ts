@@ -141,7 +141,7 @@ function normalizePolicyArgs(args: Record<string, unknown>): Record<string, unkn
   return rest;
 }
 
-function readBooleanFact(result: unknown, key: 'authorityChanged' | 'receiptVerified' | 'productionDone'): boolean {
+function readBooleanFact(result: unknown, key: 'authorityChanged' | 'receiptVerified'): boolean {
   if (result && typeof result === 'object') {
     const top = (result as Record<string, unknown>)[key];
     if (typeof top === 'boolean') return top;

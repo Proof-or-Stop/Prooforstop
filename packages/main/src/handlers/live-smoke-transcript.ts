@@ -30,8 +30,8 @@ import type { ChecklistData } from '../core/types.js';
  * All four flag combinations behave correctly. The command NEVER advances phase,
  * launches reviewers, claims Authority, writes verificationEvidence / delivery
  * checks, or ACCEPTS a metadata-only waiver (it may at most surface the waiver
- * path — only the delivery reviewer accepts it). authorityDone/productionDone are
- * hardcoded false.
+ * path — only the delivery reviewer accepts it). It never widens local
+ * assurance or release readiness.
  *
  * The V1 live-smoke readiness row + liveSmokeTranscriptRef artifact are CONSUMED
  * from buildStoryReadinessReport (the same reader lifecycle_check/evidence_plan

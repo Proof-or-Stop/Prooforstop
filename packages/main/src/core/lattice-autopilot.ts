@@ -54,7 +54,7 @@ export const AUTOPILOT_STOP_REASONS = [
 ] as const;
 
 export type AutopilotMode = 'conservative' | 'authority-verified' | 'full-autopilot'; // legacy retired non-conservative modes are refused.
-type AutopilotModeAssertion = AutopilotMode | 'authority_verified' | 'full_autopilot';
+type AutopilotModeAssertion = AutopilotMode;
 export type AutopilotStatus =
   | 'created'
   | 'running'
@@ -370,8 +370,8 @@ function normalizeList(value: string[] | string | undefined): string[] | undefin
 
 function normalizeMode(mode: AutopilotModeAssertion | undefined): AutopilotMode {
   if (mode === undefined || mode === 'conservative') return 'conservative';
-  if (mode === 'authority-verified' || mode === 'authority_verified') return 'authority-verified'; // legacy retired mode assertion.
-  if (mode === 'full-autopilot' || mode === 'full_autopilot') return 'full-autopilot';
+  if (mode === 'authority-verified') return 'authority-verified'; // legacy retired mode assertion.
+  if (mode === 'full-autopilot') return 'full-autopilot';
   throw new Error(`autopilot_run: unknown mode "${String(mode)}"; expected conservative; legacy retired aliases authority-verified/full-autopilot are refused by policy`);
 }
 

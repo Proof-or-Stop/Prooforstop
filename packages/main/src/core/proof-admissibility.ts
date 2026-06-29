@@ -344,7 +344,7 @@ export const PROOF_SURFACE_REGISTRY = [
       { claim: 'handoff-context', consumers: ['HANDOFF', 'PLAN', 'REVIEW'], productionDoneEligible: false },
       { claim: 'diagnostic-status', consumers: ['HANDOFF', 'PLAN', 'REVIEW'], productionDoneEligible: false },
     ],
-    producerBoundaryNote: 'Handoff output transfers context and candidate evidence; it never sets productionDone.',
+    producerBoundaryNote: 'Handoff output transfers context and candidate evidence; it never sets release readiness.',
     remediation: DIAGNOSTIC_REMEDIATION,
   },
   {

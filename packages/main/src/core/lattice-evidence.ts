@@ -273,7 +273,7 @@ function authorityBoundary(receiptRefs: string[]): LatticeEvidenceAuthorityBound
     receiptRefs: uniqueStrings(receiptRefs),
     receiptRefsVerified: false,
     notes: [
-      'Receipt refs are unverified local or diagnostic refs only; they do not change authority tier or productionDone.',
+      'Receipt refs are unverified local or diagnostic refs only; they do not widen local assurance or release readiness.',
     ],
   };
 }
