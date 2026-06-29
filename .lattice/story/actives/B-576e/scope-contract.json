@@ -76,8 +76,29 @@
       "phase": "DEV",
       "headHash": "5d3d7bd68691998340a95c59adeefa15e45e7288",
       "materialHash": "0e66160dcc9a4cf148e155510d835e3ff5f176c642574b9e93a3fc976a3795c7"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Required to resolve B-576e:F-003: process-fact contract verifier still required retired Authority receipt facts after the runtime registry removed them.",
+      "timestamp": "2026-06-29T02:04:39.076Z",
+      "paths": [
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "a707bbeb362e1960f623a5f8dae516fce3a0420e",
+      "materialHash": "236cd309450ac9eef81d355a00be959917a7250ca88e687670e8032266d47f7a",
+      "anchors": [
+        "B_576e_F_003",
+        "process_fact_contract",
+        "Authority_Server_retirement"
+      ]
     }
   ],
   "createdAt": "2026-06-29T00:42:19.157Z",
-  "updatedAt": "2026-06-29T01:44:03.329Z"
+  "updatedAt": "2026-06-29T02:04:39.076Z"
 }
