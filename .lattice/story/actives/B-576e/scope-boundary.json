@@ -13,6 +13,7 @@
     "packages/main/package-lock.json",
     "packages/main/package.json",
     "packages/main/src/**",
+    "packages/main/templates/agents/**",
     "README.md"
   ],
   "excluded": [
@@ -23,9 +24,9 @@
     "offline local receipt-bundle anti-tamper semantics",
     "tests/fixtures/**"
   ],
-  "confirmedBy": "story_create",
-  "confirmationNote": "User explicitly approved removing Authority Server functionality and semantics while preserving local CLI evidence/admissibility concepts.",
-  "createdAt": "2026-06-29T00:28:28.903Z",
-  "updatedAt": "2026-06-29T00:28:28.903Z",
-  "_hash": "fd268863a5637ed5c948ce726ffd43d71d58d9dcd8c32836e14778369bc99281"
+  "confirmedBy": "main-agent",
+  "confirmationNote": "Updated after INIT review: generated agent templates are in scope so regenerated host prompts cannot reintroduce retired Authority Server semantics.",
+  "createdAt": "2026-06-29T00:31:02.967Z",
+  "updatedAt": "2026-06-29T00:31:02.967Z",
+  "_hash": "fa13e83e68b1debd135b143ed0f47e716b20044d2abc0b16ab433161303ba944"
 }

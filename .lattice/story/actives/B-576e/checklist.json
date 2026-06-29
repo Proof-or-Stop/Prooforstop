@@ -6,14 +6,21 @@
       "context": "Document canonical replacements: admissibilityStatus, assuranceLevel, evidenceScope, gate-consumed local evidence; define forbidden Authority Server terms.",
       "files": {
         "modify": [
-          "docs/**"
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/evidence/evidence-platform-architecture.md",
+          "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md"
         ],
         "create": [],
         "test": []
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+        "docs/evidence/evidence-platform-architecture.md",
+        "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md"
+      ]
     },
     {
       "id": "CHK-002",
@@ -21,10 +28,11 @@
       "context": "Replace Authority Server/production receipt/no-Authority phrasing in README/docs/.lattice-codex/.claude with local admissibility wording.",
       "files": {
         "modify": [
-          "docs/**",
+          "README.md",
+          "docs/guide.md",
+          "packages/main/templates/agents/**",
           ".lattice-codex/agents/**",
           ".claude/agents/**",
-          "README.md",
           "CLAUDE.md",
           "AGENTS.md"
         ],
@@ -33,7 +41,13 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "relatedDocs": [
+        "README.md",
+        "docs/guide.md",
+        "docs/evidence/evidence-platform-architecture.md",
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+      ]
     },
     {
       "id": "CHK-003",
@@ -41,7 +55,11 @@
       "context": "Remove authority_* server commands and config allowlist entries; preserve unrelated local proof/admissibility commands.",
       "files": {
         "modify": [
-          "packages/main/src/**",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/alias-normalizer.ts",
+          "packages/main/src/cli/activity-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/registry.ts",
           "packages/main/package.json",
           "lattice.config.json"
         ],
@@ -50,7 +68,12 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "relatedDocs": [
+        "docs/evidence/evidence-platform-architecture.md",
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+        "docs/guide.md"
+      ]
     },
     {
       "id": "CHK-004",
@@ -58,15 +81,22 @@
       "context": "Remove dead imports and server-backed modules/tests while preserving local receipt-bundle/quorum/admissibility logic.",
       "files": {
         "modify": [
-          "packages/main/src/**",
-          "packages/main/package.json"
+          "packages/main/src/handlers/**",
+          "packages/main/src/core/**",
+          "packages/main/src/tasks/**",
+          "packages/main/package.json",
+          "lattice.config.json"
         ],
         "create": [],
         "test": []
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "relatedDocs": [
+        "docs/evidence/evidence-platform-architecture.md",
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+      ]
     },
     {
       "id": "CHK-005",
@@ -74,15 +104,23 @@
       "context": "Add scanner/smoke that fails on reintroduced Authority Server command/product semantics outside explicit legacy/changelog/retirement allowlist.",
       "files": {
         "modify": [
-          "packages/main/src/**",
+          "packages/main/src/tasks/**",
           "packages/main/package.json"
         ],
-        "create": [],
-        "test": []
+        "create": [
+          "packages/main/src/tasks/retired-authority-server-semantics-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/retired-authority-server-semantics-smoke.ts"
+        ]
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "relatedDocs": [
+        "docs/evidence/evidence-platform-architecture.md",
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+      ]
     },
     {
       "id": "CHK-006",
@@ -91,16 +129,23 @@
       "files": {
         "modify": [
           "packages/main/package.json",
+          "packages/main/package-lock.json",
           "package.json"
         ],
         "create": [],
         "test": [
-          "packages/main/src/tasks/**"
+          "packages/main/src/tasks/retired-authority-server-semantics-smoke.ts",
+          "packages/main/src/tasks/proof-admissibility-smoke.ts",
+          "packages/main/src/tasks/receipt-bundle-contract-smoke.ts"
         ]
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "relatedDocs": [
+        "docs/evidence/evidence-platform-architecture.md",
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+      ]
     }
   ]
 }

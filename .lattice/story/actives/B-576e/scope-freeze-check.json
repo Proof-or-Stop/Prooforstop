@@ -1,0 +1,59 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-576e",
+  "checkedAt": "2026-06-29T00:32:52.901Z",
+  "mode": "maintenance",
+  "status": "pass",
+  "scopeBoundaryHash": "fa13e83e68b1debd135b143ed0f47e716b20044d2abc0b16ab433161303ba944",
+  "executionBoundaryHash": "453500f4bbf56121ae427057f2489a6199190a3f2e47ca361fb6cef6e4743012",
+  "freshnessHash": "b7181a4ad270b0b8165279a9333c7df10286f59c14c6539e0eaff439f76daf43",
+  "effectiveExcludedKeywords": [
+    ".omx/**",
+    "docs/story/**",
+    "local proof-admissibility contract semantics",
+    "local quorum/review evidence semantics",
+    "offline local receipt-bundle anti-tamper semantics",
+    "tests/fixtures/**"
+  ],
+  "keywordHits": [
+    {
+      "keyword": ".omx/**",
+      "source": "scopeBoundary.excluded",
+      "text": ".omx/**",
+      "excluded": true
+    },
+    {
+      "keyword": "docs/story/**",
+      "source": "scopeBoundary.excluded",
+      "text": "docs/story/**",
+      "excluded": true
+    },
+    {
+      "keyword": "local proof-admissibility contract semantics",
+      "source": "scopeBoundary.excluded",
+      "text": "local proof-admissibility contract semantics",
+      "excluded": true
+    },
+    {
+      "keyword": "local quorum/review evidence semantics",
+      "source": "scopeBoundary.excluded",
+      "text": "local quorum/review evidence semantics",
+      "excluded": true
+    },
+    {
+      "keyword": "offline local receipt-bundle anti-tamper semantics",
+      "source": "scopeBoundary.excluded",
+      "text": "offline local receipt-bundle anti-tamper semantics",
+      "excluded": true
+    },
+    {
+      "keyword": "tests/fixtures/**",
+      "source": "scopeBoundary.excluded",
+      "text": "tests/fixtures/**",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "6bd0cd738f9e26f4db756a4e3b3404f033fb25ca70ab14aaaeb81c06228e6366"
+}

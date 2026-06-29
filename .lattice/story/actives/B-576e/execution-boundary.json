@@ -23,6 +23,7 @@
     "packages/main/package-lock.json",
     "packages/main/package.json",
     "packages/main/src/**",
+    "packages/main/templates/agents/**",
     "README.md"
   ],
   "excludedCommands": [],
@@ -32,9 +33,9 @@
     "docs/story/**",
     "tests/fixtures/**"
   ],
-  "confirmedBy": "story_create",
-  "confirmationNote": "Implementation is restricted to Authority Server retirement and verification surfaces.",
-  "createdAt": "2026-06-29T00:28:28.903Z",
-  "updatedAt": "2026-06-29T00:28:28.903Z",
-  "_hash": "6e4d66d40bc55a30a466e802bcb39e2b123b44c84f31569b28393df587593baf"
+  "confirmedBy": "main-agent",
+  "confirmationNote": "Updated after INIT review to include generated agent templates and retired-term guard verification paths.",
+  "createdAt": "2026-06-29T00:32:49.150Z",
+  "updatedAt": "2026-06-29T00:32:49.150Z",
+  "_hash": "453500f4bbf56121ae427057f2489a6199190a3f2e47ca361fb6cef6e4743012"
 }
