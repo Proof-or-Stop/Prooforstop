@@ -77,10 +77,10 @@
           "command": "node packages/main/dist/tasks/retired-authority-server-semantics-smoke.js",
           "result": "pass",
           "note": "Replacement vocabulary is enforced on active docs/runtime surfaces: admissibilityStatus, assuranceLevel, evidenceScope, local gate evidence, signed/offline receipt bundles, and local review quorum.",
-          "headHash": "8fa4fba528050a8064dab9150df14a9b5b1dbc0f",
-          "materialHash": "236cd309450ac9eef81d355a00be959917a7250ca88e687670e8032266d47f7a",
-          "storyFilesHash": "9f4a931f3a85af54984468393d3ece09ab902d0357f3f608ddd27790bbaa8598",
-          "timestamp": "2026-06-29T02:06:02.081Z"
+          "headHash": "935c8d152af07df0de352cbb25984e9b9eaa7da6",
+          "materialHash": "e0958dbe397d9caa3e88525e3e5cf826bb2a59c096bf2705a2ae067b5424ca0b",
+          "storyFilesHash": "a48e43e55a7cdb7a78b4c3919f485d2e4cd2dc9362a3a308a5894d25fbb8a619",
+          "timestamp": "2026-06-29T02:17:49.216Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -88,10 +88,10 @@
           "command": "node packages/main/dist/tasks/retired-authority-server-semantics-smoke.js",
           "result": "pass",
           "note": "Retired decision-doc allowlist is checked near the top for retired/legacy/out-of-core/superseded markers, so legacy Authority Server docs are not active implementation guidance.",
-          "headHash": "8fa4fba528050a8064dab9150df14a9b5b1dbc0f",
-          "materialHash": "236cd309450ac9eef81d355a00be959917a7250ca88e687670e8032266d47f7a",
-          "storyFilesHash": "9f4a931f3a85af54984468393d3ece09ab902d0357f3f608ddd27790bbaa8598",
-          "timestamp": "2026-06-29T02:06:02.081Z"
+          "headHash": "935c8d152af07df0de352cbb25984e9b9eaa7da6",
+          "materialHash": "e0958dbe397d9caa3e88525e3e5cf826bb2a59c096bf2705a2ae067b5424ca0b",
+          "storyFilesHash": "a48e43e55a7cdb7a78b4c3919f485d2e4cd2dc9362a3a308a5894d25fbb8a619",
+          "timestamp": "2026-06-29T02:17:49.216Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -99,10 +99,10 @@
           "command": "node packages/main/dist/tasks/retired-authority-server-semantics-smoke.js",
           "result": "pass",
           "note": "Guard rejects active productionDone/fullAuthorityDone/authorityDone server-receipt claim surfaces; docs now frame local admissibility/status instead of attainable local Authority completion.",
-          "headHash": "8fa4fba528050a8064dab9150df14a9b5b1dbc0f",
-          "materialHash": "236cd309450ac9eef81d355a00be959917a7250ca88e687670e8032266d47f7a",
-          "storyFilesHash": "9f4a931f3a85af54984468393d3ece09ab902d0357f3f608ddd27790bbaa8598",
-          "timestamp": "2026-06-29T02:06:02.081Z"
+          "headHash": "935c8d152af07df0de352cbb25984e9b9eaa7da6",
+          "materialHash": "e0958dbe397d9caa3e88525e3e5cf826bb2a59c096bf2705a2ae067b5424ca0b",
+          "storyFilesHash": "a48e43e55a7cdb7a78b4c3919f485d2e4cd2dc9362a3a308a5894d25fbb8a619",
+          "timestamp": "2026-06-29T02:17:49.216Z"
         }
       ]
     },
@@ -163,10 +163,10 @@
           "command": "node packages/main/dist/tasks/retired-authority-server-semantics-smoke.js",
           "result": "pass",
           "note": "README, docs/guide, agent templates, Codex prompt copies, and Claude prompt copies no longer advertise active Authority Server receipt dependency.",
-          "headHash": "8fa4fba528050a8064dab9150df14a9b5b1dbc0f",
-          "materialHash": "236cd309450ac9eef81d355a00be959917a7250ca88e687670e8032266d47f7a",
-          "storyFilesHash": "9f4a931f3a85af54984468393d3ece09ab902d0357f3f608ddd27790bbaa8598",
-          "timestamp": "2026-06-29T02:06:02.081Z"
+          "headHash": "935c8d152af07df0de352cbb25984e9b9eaa7da6",
+          "materialHash": "e0958dbe397d9caa3e88525e3e5cf826bb2a59c096bf2705a2ae067b5424ca0b",
+          "storyFilesHash": "a48e43e55a7cdb7a78b4c3919f485d2e4cd2dc9362a3a308a5894d25fbb8a619",
+          "timestamp": "2026-06-29T02:17:49.216Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -174,10 +174,10 @@
           "command": "node packages/main/dist/tasks/retired-authority-server-semantics-smoke.js",
           "result": "pass",
           "note": "Guard scans packages/main/templates/agents plus generated .lattice-codex/.claude prompt copies, proving source templates were updated as well as generated assets.",
-          "headHash": "8fa4fba528050a8064dab9150df14a9b5b1dbc0f",
-          "materialHash": "236cd309450ac9eef81d355a00be959917a7250ca88e687670e8032266d47f7a",
-          "storyFilesHash": "9f4a931f3a85af54984468393d3ece09ab902d0357f3f608ddd27790bbaa8598",
-          "timestamp": "2026-06-29T02:06:02.081Z"
+          "headHash": "935c8d152af07df0de352cbb25984e9b9eaa7da6",
+          "materialHash": "e0958dbe397d9caa3e88525e3e5cf826bb2a59c096bf2705a2ae067b5424ca0b",
+          "storyFilesHash": "a48e43e55a7cdb7a78b4c3919f485d2e4cd2dc9362a3a308a5894d25fbb8a619",
+          "timestamp": "2026-06-29T02:17:49.216Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -185,10 +185,10 @@
           "command": "node packages/main/dist/tasks/retired-authority-server-semantics-smoke.js",
           "result": "pass",
           "note": "Active prompt assets are scanned for Authority Server, receiptVerified, productionDone, authorityDone, and fullAuthorityDone claim wording; smoke passed on current HEAD.",
-          "headHash": "8fa4fba528050a8064dab9150df14a9b5b1dbc0f",
-          "materialHash": "236cd309450ac9eef81d355a00be959917a7250ca88e687670e8032266d47f7a",
-          "storyFilesHash": "9f4a931f3a85af54984468393d3ece09ab902d0357f3f608ddd27790bbaa8598",
-          "timestamp": "2026-06-29T02:06:02.081Z"
+          "headHash": "935c8d152af07df0de352cbb25984e9b9eaa7da6",
+          "materialHash": "e0958dbe397d9caa3e88525e3e5cf826bb2a59c096bf2705a2ae067b5424ca0b",
+          "storyFilesHash": "a48e43e55a7cdb7a78b4c3919f485d2e4cd2dc9362a3a308a5894d25fbb8a619",
+          "timestamp": "2026-06-29T02:17:49.216Z"
         }
       ]
     },
@@ -248,10 +248,10 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/command-catalog-smoke.js && node packages/main/dist/tasks/retired-authority-server-semantics-smoke.js",
           "result": "pass",
           "note": "Retired server-backed Authority commands and nested aliases are removed from active command catalog/registry/policies and guarded from reintroduction.",
-          "headHash": "8fa4fba528050a8064dab9150df14a9b5b1dbc0f",
-          "materialHash": "236cd309450ac9eef81d355a00be959917a7250ca88e687670e8032266d47f7a",
-          "storyFilesHash": "9f4a931f3a85af54984468393d3ece09ab902d0357f3f608ddd27790bbaa8598",
-          "timestamp": "2026-06-29T02:06:02.081Z"
+          "headHash": "935c8d152af07df0de352cbb25984e9b9eaa7da6",
+          "materialHash": "e0958dbe397d9caa3e88525e3e5cf826bb2a59c096bf2705a2ae067b5424ca0b",
+          "storyFilesHash": "a48e43e55a7cdb7a78b4c3919f485d2e4cd2dc9362a3a308a5894d25fbb8a619",
+          "timestamp": "2026-06-29T02:17:49.216Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -259,10 +259,10 @@
           "command": "node packages/main/dist/tasks/command-catalog-smoke.js && node packages/main/dist/tasks/proof-admissibility-smoke.js",
           "result": "pass",
           "note": "Command catalog still passes with 257 commands and proof-admissibility smoke passes, showing local assurance/admissibility surfaces remain registered.",
-          "headHash": "8fa4fba528050a8064dab9150df14a9b5b1dbc0f",
-          "materialHash": "236cd309450ac9eef81d355a00be959917a7250ca88e687670e8032266d47f7a",
-          "storyFilesHash": "9f4a931f3a85af54984468393d3ece09ab902d0357f3f608ddd27790bbaa8598",
-          "timestamp": "2026-06-29T02:06:02.081Z"
+          "headHash": "935c8d152af07df0de352cbb25984e9b9eaa7da6",
+          "materialHash": "e0958dbe397d9caa3e88525e3e5cf826bb2a59c096bf2705a2ae067b5424ca0b",
+          "storyFilesHash": "a48e43e55a7cdb7a78b4c3919f485d2e4cd2dc9362a3a308a5894d25fbb8a619",
+          "timestamp": "2026-06-29T02:17:49.216Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -270,10 +270,10 @@
           "command": "node packages/main/dist/tasks/retired-authority-server-semantics-smoke.js && node packages/main/dist/tasks/command-catalog-smoke.js",
           "result": "pass",
           "note": "Retired nested aliases and flat authority_* command names are absent from MAIN_TOOLS and rejected by the guard negative self-check.",
-          "headHash": "8fa4fba528050a8064dab9150df14a9b5b1dbc0f",
-          "materialHash": "236cd309450ac9eef81d355a00be959917a7250ca88e687670e8032266d47f7a",
-          "storyFilesHash": "9f4a931f3a85af54984468393d3ece09ab902d0357f3f608ddd27790bbaa8598",
-          "timestamp": "2026-06-29T02:06:02.081Z"
+          "headHash": "935c8d152af07df0de352cbb25984e9b9eaa7da6",
+          "materialHash": "e0958dbe397d9caa3e88525e3e5cf826bb2a59c096bf2705a2ae067b5424ca0b",
+          "storyFilesHash": "a48e43e55a7cdb7a78b4c3919f485d2e4cd2dc9362a3a308a5894d25fbb8a619",
+          "timestamp": "2026-06-29T02:17:49.216Z"
         }
       ]
     },
@@ -331,10 +331,10 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proof-admissibility-smoke.js && node packages/main/dist/tasks/receipt-bundle-contract-smoke.js",
           "result": "pass",
           "note": "Server-backed Authority handler/tasks were deleted or quarantined from active runtime while proof-admissibility and receipt-bundle behavior still pass.",
-          "headHash": "8fa4fba528050a8064dab9150df14a9b5b1dbc0f",
-          "materialHash": "236cd309450ac9eef81d355a00be959917a7250ca88e687670e8032266d47f7a",
-          "storyFilesHash": "9f4a931f3a85af54984468393d3ece09ab902d0357f3f608ddd27790bbaa8598",
-          "timestamp": "2026-06-29T02:06:02.081Z"
+          "headHash": "935c8d152af07df0de352cbb25984e9b9eaa7da6",
+          "materialHash": "e0958dbe397d9caa3e88525e3e5cf826bb2a59c096bf2705a2ae067b5424ca0b",
+          "storyFilesHash": "a48e43e55a7cdb7a78b4c3919f485d2e4cd2dc9362a3a308a5894d25fbb8a619",
+          "timestamp": "2026-06-29T02:17:49.216Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -342,10 +342,10 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proof-admissibility-smoke.js && node packages/main/dist/tasks/receipt-bundle-contract-smoke.js",
           "result": "pass",
           "note": "Build, proof-admissibility smoke, and receipt-bundle contract smoke pass after deleting/quarantining server-backed Authority paths.",
-          "headHash": "8fa4fba528050a8064dab9150df14a9b5b1dbc0f",
-          "materialHash": "236cd309450ac9eef81d355a00be959917a7250ca88e687670e8032266d47f7a",
-          "storyFilesHash": "9f4a931f3a85af54984468393d3ece09ab902d0357f3f608ddd27790bbaa8598",
-          "timestamp": "2026-06-29T02:06:02.081Z"
+          "headHash": "935c8d152af07df0de352cbb25984e9b9eaa7da6",
+          "materialHash": "e0958dbe397d9caa3e88525e3e5cf826bb2a59c096bf2705a2ae067b5424ca0b",
+          "storyFilesHash": "a48e43e55a7cdb7a78b4c3919f485d2e4cd2dc9362a3a308a5894d25fbb8a619",
+          "timestamp": "2026-06-29T02:17:49.216Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -353,10 +353,10 @@
           "command": "node packages/main/dist/tasks/retired-authority-server-semantics-smoke.js",
           "result": "pass",
           "note": "Guard scans active runtime surfaces for LATTICE_AUTHORITY_* and server receipt/gate-decision compatibility shims; current HEAD passes.",
-          "headHash": "8fa4fba528050a8064dab9150df14a9b5b1dbc0f",
-          "materialHash": "236cd309450ac9eef81d355a00be959917a7250ca88e687670e8032266d47f7a",
-          "storyFilesHash": "9f4a931f3a85af54984468393d3ece09ab902d0357f3f608ddd27790bbaa8598",
-          "timestamp": "2026-06-29T02:06:02.081Z"
+          "headHash": "935c8d152af07df0de352cbb25984e9b9eaa7da6",
+          "materialHash": "e0958dbe397d9caa3e88525e3e5cf826bb2a59c096bf2705a2ae067b5424ca0b",
+          "storyFilesHash": "a48e43e55a7cdb7a78b4c3919f485d2e4cd2dc9362a3a308a5894d25fbb8a619",
+          "timestamp": "2026-06-29T02:17:49.216Z"
         }
       ]
     },
@@ -411,10 +411,10 @@
           "command": "node packages/main/dist/tasks/retired-authority-server-semantics-smoke.js",
           "result": "pass",
           "note": "Added retired Authority Server semantics guard with negative self-check for reintroduced active command/alias/server-receipt wording.",
-          "headHash": "8fa4fba528050a8064dab9150df14a9b5b1dbc0f",
-          "materialHash": "236cd309450ac9eef81d355a00be959917a7250ca88e687670e8032266d47f7a",
-          "storyFilesHash": "9f4a931f3a85af54984468393d3ece09ab902d0357f3f608ddd27790bbaa8598",
-          "timestamp": "2026-06-29T02:06:02.081Z"
+          "headHash": "935c8d152af07df0de352cbb25984e9b9eaa7da6",
+          "materialHash": "e0958dbe397d9caa3e88525e3e5cf826bb2a59c096bf2705a2ae067b5424ca0b",
+          "storyFilesHash": "a48e43e55a7cdb7a78b4c3919f485d2e4cd2dc9362a3a308a5894d25fbb8a619",
+          "timestamp": "2026-06-29T02:17:49.216Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -422,10 +422,10 @@
           "command": "node packages/main/dist/tasks/retired-authority-server-semantics-smoke.js",
           "result": "pass",
           "note": "Guard explicitly allows legacy/retirement wording only when marked retired/legacy/out-of-core/superseded and allowlists local receipt-bundle/admissibility helper files.",
-          "headHash": "8fa4fba528050a8064dab9150df14a9b5b1dbc0f",
-          "materialHash": "236cd309450ac9eef81d355a00be959917a7250ca88e687670e8032266d47f7a",
-          "storyFilesHash": "9f4a931f3a85af54984468393d3ece09ab902d0357f3f608ddd27790bbaa8598",
-          "timestamp": "2026-06-29T02:06:02.081Z"
+          "headHash": "935c8d152af07df0de352cbb25984e9b9eaa7da6",
+          "materialHash": "e0958dbe397d9caa3e88525e3e5cf826bb2a59c096bf2705a2ae067b5424ca0b",
+          "storyFilesHash": "a48e43e55a7cdb7a78b4c3919f485d2e4cd2dc9362a3a308a5894d25fbb8a619",
+          "timestamp": "2026-06-29T02:17:49.216Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -433,10 +433,10 @@
           "command": "node packages/main/dist/tasks/retired-authority-server-semantics-smoke.js",
           "result": "pass",
           "note": "Negative self-check proves reintroduced server-backed Authority command, env-mode guidance, missing_authority_receipt, or fullAuthorityDone requirement wording would fail the smoke.",
-          "headHash": "8fa4fba528050a8064dab9150df14a9b5b1dbc0f",
-          "materialHash": "236cd309450ac9eef81d355a00be959917a7250ca88e687670e8032266d47f7a",
-          "storyFilesHash": "9f4a931f3a85af54984468393d3ece09ab902d0357f3f608ddd27790bbaa8598",
-          "timestamp": "2026-06-29T02:06:02.081Z"
+          "headHash": "935c8d152af07df0de352cbb25984e9b9eaa7da6",
+          "materialHash": "e0958dbe397d9caa3e88525e3e5cf826bb2a59c096bf2705a2ae067b5424ca0b",
+          "storyFilesHash": "a48e43e55a7cdb7a78b4c3919f485d2e4cd2dc9362a3a308a5894d25fbb8a619",
+          "timestamp": "2026-06-29T02:17:49.216Z"
         }
       ]
     },
@@ -492,10 +492,10 @@
           "command": "npm --prefix packages/main run build; node packages/main/dist/tasks/retired-authority-server-semantics-smoke.js; node packages/main/dist/tasks/proof-admissibility-smoke.js; node packages/main/dist/tasks/receipt-bundle-contract-smoke.js; node packages/main/dist/cli.js --version",
           "result": "pass",
           "note": "Build, retirement guard, proof-admissibility smoke, receipt-bundle smoke, and CLI version 0.3.106 passed.",
-          "headHash": "8fa4fba528050a8064dab9150df14a9b5b1dbc0f",
-          "materialHash": "236cd309450ac9eef81d355a00be959917a7250ca88e687670e8032266d47f7a",
-          "storyFilesHash": "9f4a931f3a85af54984468393d3ece09ab902d0357f3f608ddd27790bbaa8598",
-          "timestamp": "2026-06-29T02:06:02.081Z"
+          "headHash": "935c8d152af07df0de352cbb25984e9b9eaa7da6",
+          "materialHash": "e0958dbe397d9caa3e88525e3e5cf826bb2a59c096bf2705a2ae067b5424ca0b",
+          "storyFilesHash": "a48e43e55a7cdb7a78b4c3919f485d2e4cd2dc9362a3a308a5894d25fbb8a619",
+          "timestamp": "2026-06-29T02:17:49.216Z"
         },
         {
           "intentRef": "CHK-006:edge:0",
@@ -503,10 +503,10 @@
           "command": "node packages/main/dist/cli.js --version",
           "result": "pass",
           "note": "CLI reports Proofbound CLI 0.3.106 after runtime behavior changes and version-file updates.",
-          "headHash": "8fa4fba528050a8064dab9150df14a9b5b1dbc0f",
-          "materialHash": "236cd309450ac9eef81d355a00be959917a7250ca88e687670e8032266d47f7a",
-          "storyFilesHash": "9f4a931f3a85af54984468393d3ece09ab902d0357f3f608ddd27790bbaa8598",
-          "timestamp": "2026-06-29T02:06:02.082Z"
+          "headHash": "935c8d152af07df0de352cbb25984e9b9eaa7da6",
+          "materialHash": "e0958dbe397d9caa3e88525e3e5cf826bb2a59c096bf2705a2ae067b5424ca0b",
+          "storyFilesHash": "a48e43e55a7cdb7a78b4c3919f485d2e4cd2dc9362a3a308a5894d25fbb8a619",
+          "timestamp": "2026-06-29T02:17:49.216Z"
         },
         {
           "intentRef": "CHK-006:adversarial:0",
@@ -514,10 +514,10 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/retired-authority-server-semantics-smoke.js && node packages/main/dist/tasks/proof-admissibility-smoke.js && node packages/main/dist/tasks/receipt-bundle-contract-smoke.js",
           "result": "pass",
           "note": "Routine build and local evidence smokes pass without depending on Authority Server receipt semantics.",
-          "headHash": "8fa4fba528050a8064dab9150df14a9b5b1dbc0f",
-          "materialHash": "236cd309450ac9eef81d355a00be959917a7250ca88e687670e8032266d47f7a",
-          "storyFilesHash": "9f4a931f3a85af54984468393d3ece09ab902d0357f3f608ddd27790bbaa8598",
-          "timestamp": "2026-06-29T02:06:02.082Z"
+          "headHash": "935c8d152af07df0de352cbb25984e9b9eaa7da6",
+          "materialHash": "e0958dbe397d9caa3e88525e3e5cf826bb2a59c096bf2705a2ae067b5424ca0b",
+          "storyFilesHash": "a48e43e55a7cdb7a78b4c3919f485d2e4cd2dc9362a3a308a5894d25fbb8a619",
+          "timestamp": "2026-06-29T02:17:49.216Z"
         }
       ]
     }
