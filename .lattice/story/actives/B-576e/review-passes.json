@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-576e:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "Targeted re-review for B-576e:F-004: source and built retired-authority-server-semantics smoke now include explicit positive-claim checks for productionDone=true, receiptVerified=true, authorityDone=true, fullAuthorityDone=true plus prose positive completion claims. Ran npm --prefix packages/main run test:retired-authority-server-semantics and it passed, confirming the active scan rejects positive Authority completion claims while permitting negative, retired, local admissibility wording.",
+      "createdAt": "2026-06-29T02:08:03.631Z",
+      "reviewRound": "2026-06-29T02:05:03.593Z",
+      "reviewRunId": "B-576e:RR-006",
+      "_hash": "ced0544d9ffd2ab4712c61bd886d9364632f033bbfe2d238869ecf9fea393878"
+    }
+  ]
+}
