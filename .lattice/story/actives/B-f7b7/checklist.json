@@ -102,7 +102,41 @@
       "userSees": "proofstory_gate_check --dryRun reports missing artifacts, hardening triggers, ledger size, thresholds, too_broad, and suggested slicing without mutating lifecycle state.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/cli/command-catalog.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "proofstory_gate_check --dryRun reports hardening level, triggers, ledger size, thresholds, and missing artifacts without changing lifecycle state.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A ledger above the story-size threshold produces too_broad and slice-plan diagnostics before DEV.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The diagnostic does not auto-create child stories or scheduler work when the ledger is oversized.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
