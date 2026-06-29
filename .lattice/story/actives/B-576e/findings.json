@@ -1,0 +1,26 @@
+{
+  "findings": [
+    {
+      "id": "B-576e:F-001",
+      "desc": "Active host/capability runtime still exports Authority receipt/server completion semantics after Authority Server retirement. packages/main/src/core/capabilities.ts:63-66 hard-codes authorityRules.productionDoneRequiresReceipt=true and receiptCapability=\"receipt-verify\"; capabilities.ts:125-135 describes submitting signed evidence to an external authority service and verifying an authority receipt before production completion; capabilities.ts:338-350 keeps a Server profile with receipt verification available. packages/main/src/core/lattice-hosts.ts:354-357 tells users production completion still requires a verified authority receipt, and lattice-autopilot.ts:1828 records \"authority receipt gate passed\". Runtime confirmation: node --input-type=module import of buildCapabilityList() reports productionDoneRequiresReceipt=true and server.receiptVerify.status=\"available\". This leaves an active CLI/runtime product model where Authority-style receipt verification is still the productionDone path, contradicting B-576e replacement semantics of local proof admissibility, signed/offline receipt bundles, and local review quorum.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-29T01:50:23.099Z",
+      "reviewRound": "2026-06-29T01:48:03.992Z",
+      "reviewRunId": "B-576e:RR-002",
+      "_hash": "43f8c25f2957d60759dfa5e0af62965593a705157851860122be90259b1235ac",
+      "files": [
+        "packages/main/src/core/capabilities.ts",
+        "packages/main/src/core/lattice-hosts.ts",
+        "packages/main/src/core/lattice-autopilot.ts",
+        "docs/requirements/decisions/project-vision.md",
+        "docs/requirements/decisions/host-neutral-observability-console.md"
+      ],
+      "signatureTag": "spec-boundary|ts|active-host-capability",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
