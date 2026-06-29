@@ -426,6 +426,17 @@
           "materialHash": "610d953adcd6dae8ec4af50dcadc186594f4d7c265d5c982db95f8863e0a8ce7",
           "storyFilesHash": "41d2e25f8c8979249dcd99e7bf334d1ee24feba5d655bb726433d77c5c46651c",
           "timestamp": "2026-06-29T01:47:38.984Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/retired-authority-server-semantics-smoke.js",
+          "result": "pass",
+          "note": "Negative self-check proves reintroduced server-backed Authority command, env-mode guidance, missing_authority_receipt, or fullAuthorityDone requirement wording would fail the smoke.",
+          "headHash": "f4d7296b3dc74396636197d05fd3895ea045b661",
+          "materialHash": "610d953adcd6dae8ec4af50dcadc186594f4d7c265d5c982db95f8863e0a8ce7",
+          "storyFilesHash": "41d2e25f8c8979249dcd99e7bf334d1ee24feba5d655bb726433d77c5c46651c",
+          "timestamp": "2026-06-29T01:47:40.657Z"
         }
       ]
     },
