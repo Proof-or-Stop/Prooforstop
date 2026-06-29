@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-b531",
+  "mode": "correctness_fix",
+  "allowed": [
+    "package/version files required for CLI patch bump",
+    "packages/main/src/core/done-oracle.ts historical DONE projection option only if needed",
+    "packages/main/src/handlers/done-closure.ts read-only DONE closure projection",
+    "packages/main/src/handlers/review-escalation.ts or core/review-escalation.ts read-only status projection only if needed",
+    "packages/main/src/tasks/* smoke/regression test for post-DONE material drift"
+  ],
+  "excluded": [
+    "Do not change unrelated active stories",
+    "Do not migrate all legacy evidence",
+    "Do not refresh or mutate historical B-da34 evidence as the fix",
+    "Do not reintroduce retired server-backed completion semantics",
+    "Do not weaken TEST->DONE gate strictness"
+  ],
+  "confirmedBy": "codex-cli",
+  "confirmationNote": "User requested a story to fix the post-DONE closure flow issue using red test and spike; red repro rp-mqzkvjqx-nb3bnj and spike sr-mqzkzykz-hcmwgn confirmed the target bug.",
+  "createdAt": "2026-06-29T19:00:04.012Z",
+  "updatedAt": "2026-06-29T19:00:04.012Z",
+  "_hash": "935e9e6fa8d0b2721939759cbdc44ffed296a1115a7d256ee54b179e69a4865d"
+}

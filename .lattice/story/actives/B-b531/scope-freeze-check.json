@@ -1,0 +1,56 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-b531",
+  "checkedAt": "2026-06-29T19:00:39.191Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "935e9e6fa8d0b2721939759cbdc44ffed296a1115a7d256ee54b179e69a4865d",
+  "executionBoundaryHash": "8b190a32683261242b0b79010fadefe8f5d5e095ed0f39dba2f11b91ccf4797b",
+  "freshnessHash": "9e7efaca591b6de752cb6736999ee9456dc54d200621b8d22be917b759cf6267",
+  "effectiveExcludedKeywords": [
+    "Authority",
+    "customerKeyRef",
+    "Do not change unrelated active stories",
+    "Do not migrate all legacy evidence",
+    "Do not refresh or mutate historical B-da34 evidence as the fix",
+    "Do not reintroduce retired server-backed completion semantics",
+    "Do not weaken TEST->DONE gate strictness",
+    "Layer4",
+    "repair UX"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Do not change unrelated active stories",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not change unrelated active stories",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not migrate all legacy evidence",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not migrate all legacy evidence",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not refresh or mutate historical B-da34 evidence as the fix",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not refresh or mutate historical B-da34 evidence as the fix",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not reintroduce retired server-backed completion semantics",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not reintroduce retired server-backed completion semantics",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not weaken TEST->DONE gate strictness",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not weaken TEST->DONE gate strictness",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "c166bd14003efa349a68564f7797eaff19e60fa6c44c8b2c06a2c17479abc04d"
+}
