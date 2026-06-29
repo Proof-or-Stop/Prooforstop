@@ -308,6 +308,34 @@
         }
       ],
       "_hash": "af91789e030a17cff2c622791be464d980a0bc02d408c3e38340232388265c60"
+    },
+    {
+      "timestamp": "2026-06-29T17:08:10.652Z",
+      "issueCount": 4,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 checklist items; please check for missing combined scenarios (e.g., what happens when M1 freeze Authority vocabulary migration contract + M2 clean user-facing Authority wording are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 1 high-risk signal(s): Data Migration/Destructive. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run lattice story_review_dismiss '{\"storyId\":\"B-da34\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 1 undigested unknowns: Exact set of legacy files that should be allowed in whitelist versus deleted/quarantined needs to be determined by scanning imports and command registry references."
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-da34 is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "259befd8f716b542a7419f42624ee01142e34a6d2aa1a685c928f34412ffba40"
     }
   ]
 }
