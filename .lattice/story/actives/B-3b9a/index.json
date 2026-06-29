@@ -4,7 +4,7 @@
   "title": "Document ProofStory ledger sizing and story slicing policy",
   "description": "Update the ProofStory intent-collision execution plan so large one-line requests can keep a large intent ledger without forcing one giant story or one story per milestone. The document should clarify that the milestone ledger is an intent coverage ledger, not execution granularity, and that oversized ledgers should produce slice-plan diagnostics before DEV.",
   "type": "chore",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "medium",
   "keywords": [
     "proofstory",
@@ -14,7 +14,7 @@
   ],
   "createdAt": "2026-06-29T18:58:43.103Z",
   "startedAt": "2026-06-29T18:58:43.103Z",
-  "endedAt": null,
+  "endedAt": "2026-06-29T20:43:14.846Z",
   "events": [
     {
       "phase": "INIT",
@@ -69,12 +69,16 @@
       "user": "Harmonygo",
       "sessionId": "sess-f14dc49f74886d15",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-29T20:43:14.846Z",
+      "branch": "story/B-3b9a",
+      "user": "Harmonygo",
+      "sessionId": "sess-e903e3309a5b7985",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-3b9a",
-    "branch": "story/B-3b9a",
-    "createdAt": "2026-06-29T19:00:23.170Z"
-  },
   "currentReviewRound": "2026-06-29T19:07:29.988Z"
 }
