@@ -14,6 +14,21 @@
       "_hash": "2b8e7de9c2d11afd356c779e80e5bd9d995c7cee1dcbfbf0f66cf2a4fac3f042",
       "signatureTag": "missing|unknown|docs-requirements-decisions",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-f51c:F-002",
+      "desc": "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md:519 defines milestone_intent.requiredArtifacts as milestoneLedger plus intentCoverageCheck without an accepted-interpretation or confirmed-ledger binding, while docs/requirements/decisions/proofstory-intent-collision-execution-plan.md:856 makes the ProofStory gate consume a generic milestone ledger and only requires intent collision when separately triggered. That leaves a candidate ledger able to become gate input without the confirmation boundary promised at docs/requirements/decisions/proofstory-intent-collision-execution-plan.md:331. Severity: high.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-29T21:11:02.167Z",
+      "reviewRound": "2026-06-29T21:08:16.899Z",
+      "reviewRunId": "B-f51c:RR-003",
+      "_hash": "99568ffad783fbf0b2597c4948362c141d8435e57c892ecd6a04db76d703cbee",
+      "signatureTag": "missing|unknown|docs-requirements-decisions",
+      "signatureTagSource": "auto"
     }
   ]
 }
