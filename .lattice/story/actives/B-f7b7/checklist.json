@@ -54,7 +54,43 @@
       "userSees": "ProofStory commands can store original intent snapshots and milestone ledgers with candidate/confirmed semantics and stable hashes.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/cli/command-catalog.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "original_intent_snapshot_set/get and milestone_ledger_set/add/get persist stable English artifacts with candidate and confirmed ledger semantics.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A candidate ledger is reported as not gate-consumed until accepted intent interpretation confirms it.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Changing the frozen original sourceText or key requirement ids is rejected instead of silently replacing the intent snapshot.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
