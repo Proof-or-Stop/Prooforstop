@@ -59,6 +59,26 @@
       ],
       "signatureTag": "missing|mjs|quality-blocker-test",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-576e:F-004",
+      "desc": "Coverage blocker: CHK-005 promises the retired Authority Server guard would fail on a reintroduced productionDone claim surface, but the retirement smoke only patterns server/AuthorityReceipt/env-mode terms plus `fullAuthorityDone requires` (packages/main/src/tasks/retired-authority-server-semantics-smoke.ts:49, :64) and its negative self-check only exercises `fullAuthorityDone requires`, not positive `productionDone=true`, `receiptVerified=true`, `authorityDone=true`, or `fullAuthorityDone=true` claim surfaces (packages/main/src/tasks/retired-authority-server-semantics-smoke.ts:221). The command-catalog smoke covers retired command names (packages/main/src/tasks/command-catalog-smoke.ts:93) and proof-admissibility smoke covers evaluator productionDoneEligible=false for selected artifacts (packages/main/src/tasks/proof-admissibility-smoke.ts:95), but neither scans active docs/prompts/source claim text. A future active line such as `this local path sets productionDone=true` without Authority Server wording would not be caught by the recorded smokes, so the adversarial verification intent is undercovered.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-29T01:52:18.022Z",
+      "reviewRound": "2026-06-29T01:48:03.992Z",
+      "reviewRunId": "B-576e:RR-005",
+      "_hash": "29f860f0f56c89b73ce1732fc28eb2a69bc34a950bdf98d1425ba918b71f7e1a",
+      "files": [
+        "packages/main/src/tasks/retired-authority-server-semantics-smoke.ts",
+        "packages/main/src/tasks/proof-admissibility-smoke.ts",
+        "packages/main/src/tasks/command-catalog-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|coverage-blocker-promises",
+      "signatureTagSource": "auto"
     }
   ]
 }
