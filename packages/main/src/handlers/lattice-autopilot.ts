@@ -175,7 +175,7 @@ function renderFallback(title: string, result: unknown): string {
   const status = readStringFact(result, 'status');
   if (status) lines.push(`status: ${status}`);
   lines.push('admissibilityStatus: local-autopilot-diagnostic');
-  lines.push(`receiptBundleVerified: ${readBooleanFact(result, 'receiptVerified')}`);
+  lines.push(`receiptBundleAdmissibility: ${readBooleanFact(result, 'receiptVerified') ? 'admissible' : 'not-established'}`);
   lines.push('evidenceScope: autopilot-metadata');
   const nextAction = readStringFact(result, 'nextAction');
   if (nextAction) lines.push(`nextAction: ${nextAction}`);

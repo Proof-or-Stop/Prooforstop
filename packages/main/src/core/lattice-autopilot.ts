@@ -1744,7 +1744,7 @@ export function autopilotRun(store: StoryStore, root: string, args: AutopilotRun
     }
 
     if (mode === 'conservative') {
-      const nextAction = 'Manual review ready. Inspect dispatch_review and dispatch_merge_plan output; merge remains manual-only and productionDone=false.';
+      const nextAction = 'Manual review ready. Inspect dispatch_review and dispatch_merge_plan output; merge remains manual-only and evidenceScope stays local-review.';
       const ended = markIterationEnded(iteration, 'manual_review_ready', nextAction);
       return finalizeWithCheckpoint(record, {
         status: 'manual_review_ready',

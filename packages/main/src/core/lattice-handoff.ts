@@ -1321,8 +1321,9 @@ export function renderHandoffReceiptSubmissionText(result: HandoffReceiptSubmiss
     `status: ${result.status}`,
     `scopeStatus: ${result.scopeStatus}`,
     `freshness: ${result.freshness}`,
-    `productionDone: ${result.productionDone}`,
-    `receiptVerified: ${result.receiptVerified}`,
+    `admissibilityStatus: ${result.admissibilitySummary.blocked ? 'local-handoff-blocked' : 'local-handoff-recorded'}`,
+    'assuranceLevel: local',
+    'evidenceScope: handoff-receipt-submission',
     `nextAction: ${result.nextAction}`,
   ];
   if (result.warnings.length > 0) {
@@ -1346,8 +1347,9 @@ export function renderHandoffWorktreeProjectionText(result: HandoffWorktreeProje
     `createCommand: ${result.createCommand}`,
     `cleanupCommand: ${result.cleanupCommand}`,
     `reviewCommand: ${result.reviewCommand}`,
-    `productionDone: ${result.productionDone}`,
-    `receiptVerified: ${result.receiptVerified}`,
+    'admissibilityStatus: handoff-worktree-projection',
+    'assuranceLevel: local',
+    'evidenceScope: handoff-worktree-instructions',
     `nextAction: ${result.nextAction}`,
   ];
   if (result.warnings.length > 0) {
@@ -1367,8 +1369,9 @@ export function renderHostDispatchProjectionText(result: HostDispatchProjection)
     `status: ${result.status}`,
     `mode: ${result.mode}`,
     `overflowReady: ${result.overflowReady}`,
-    `productionDone: ${result.productionDone}`,
-    `receiptVerified: ${result.receiptVerified}`,
+    `admissibilityStatus: ${result.admissibilitySummary.blocked ? 'host-dispatch-blocked' : 'host-dispatch-local-only'}`,
+    'assuranceLevel: local',
+    'evidenceScope: host-dispatch-handoff',
     `nextAction: ${result.nextAction}`,
     `worktreePath: ${result.worktree.worktreePath}`,
     `branch: ${result.worktree.branch}`,

@@ -60,6 +60,30 @@ const activeTextDirs = [
   'packages/main/templates/agents',
 ] as const;
 
+const explicitLegacyTaskQuarantineFiles = new Set([
+  'packages/main/src/tasks/baseline-contracts-smoke.ts',
+  'packages/main/src/tasks/baseline-suite-report-smoke.ts',
+  'packages/main/src/tasks/capability-list-smoke.ts',
+  'packages/main/src/tasks/command-catalog-smoke.ts',
+  'packages/main/src/tasks/delivery-context-pack-smoke.ts',
+  'packages/main/src/tasks/dispatch-run-smoke.ts',
+  'packages/main/src/tasks/evidence-plan-smoke.ts',
+  'packages/main/src/tasks/evidence-refresh-smoke.ts',
+  'packages/main/src/tasks/flow-stability-smoke.ts',
+  'packages/main/src/tasks/init-preflight-smoke.ts',
+  'packages/main/src/tasks/lattice-baseline-smoke.ts',
+  'packages/main/src/tasks/lattice-cli-migration-smoke.ts',
+  'packages/main/src/tasks/lattice-parallel-wave-smoke.ts',
+  'packages/main/src/tasks/lifecycle-orchestrate-smoke.ts',
+  'packages/main/src/tasks/live-smoke-transcript-smoke.ts',
+  'packages/main/src/tasks/repair-retry-integration-smoke.ts',
+  'packages/main/src/tasks/review-assurance-floor-smoke.ts',
+  'packages/main/src/tasks/reviewer-batch-smoke.ts',
+  'packages/main/src/tasks/runtime-owned-agent-assets-smoke.ts',
+  'packages/main/src/tasks/story-review-ergonomics-smoke.ts',
+  'packages/main/src/tasks/unattended-dispatch-smoke.ts',
+]);
+
 const legacyQuarantineFiles = new Set([
   CONTRACT_PATH,
   'packages/main/src/core/authority-contracts.ts',
@@ -78,6 +102,15 @@ const legacyQuarantineFiles = new Set([
   'packages/main/src/core/observability-snapshot.ts',
   'packages/main/src/handlers/observability-snapshot.ts',
 ]);
+
+const retiredServerBackedModuleFiles = new Set([
+  'packages/main/src/handlers/story-authority-resolve.ts',
+  'packages/main/src/core/story-authority-resolver.ts',
+]);
+
+function fileIsExplicitLegacyQuarantine(file: string): boolean {
+  return legacyQuarantineFiles.has(file) || explicitLegacyTaskQuarantineFiles.has(file);
+}
 
 function readRel(path: string): string {
   return readFileSync(join(repoRoot, path), 'utf8');
@@ -103,12 +136,11 @@ function listFiles(dir: string, extensions: readonly string[]): string[] {
 
 function lineIsQuarantined(file: string, line: string): boolean {
   if (file === '<positive-control>') return false;
-  if (legacyQuarantineFiles.has(file)) return true;
+  if (fileIsExplicitLegacyQuarantine(file)) return true;
   if (line.includes('@help-hidden')) return true;
   if (line.includes('HIDDEN_LOCAL_ASSURANCE_REFUSAL')) return true;
   if (/legacy .*compatibility|retired compatibility|legacy quarantine|legacy retired|retired .*alias/i.test(line)) return true;
   if (file.includes('/dist/')) return true;
-  if (/^packages\/main\/src\/tasks\/(?!retired-authority-vocabulary-guard-smoke\.ts$).*\.ts$/.test(file)) return true;
   if (/^\s*\*.*(?:legacy|retired|compatibility|quarantine)/i.test(line)) return true;
   if (/\brejected\.push\(['"`](authorityDone|fullAuthorityDone|productionDone)=true['"`]\)/.test(line)) return true;
   if (/^\s*['"`](authorityDone|fullAuthorityDone|productionDone|receiptVerified|authorityChanged|productionDoneEligible|productionDoneProviders)['"`],?\s*$/.test(line)) return true;
@@ -120,6 +152,63 @@ function lineIsQuarantined(file: string, line: string): boolean {
   if (/\['(authorityDone|fullAuthorityDone|productionDone|receiptVerified|authorityChanged|productionDoneEligible|productionDoneProviders)'\]/.test(line)) return true;
   if (/\b(productionDone|authorityDone|fullAuthorityDone)\b[),]/.test(line)) return true;
   return false;
+}
+
+function lineNumberAt(text: string, index: number): number {
+  return text.slice(0, index).split(/\r?\n/).length;
+}
+
+function extractImportSpecifiers(text: string): Array<{ specifier: string; index: number }> {
+  const specifiers: Array<{ specifier: string; index: number }> = [];
+  const patterns = [
+    /\bfrom\s*['"]([^'"]+)['"]/g,
+    /\bimport\s*\(\s*['"]([^'"]+)['"]\s*\)/g,
+    /\brequire\s*\(\s*['"]([^'"]+)['"]\s*\)/g,
+  ];
+  for (const pattern of patterns) {
+    let match: RegExpExecArray | null;
+    while ((match = pattern.exec(text)) !== null) {
+      specifiers.push({ specifier: match[1], index: match.index });
+    }
+  }
+  return specifiers;
+}
+
+function normalizeModulePath(path: string): string {
+  return path.replace(/\.(?:cjs|mjs|js|ts)$/, '');
+}
+
+function retiredModuleMatch(file: string, specifier: string): string | undefined {
+  if (/\bstory-authority-resolv(?:e|er)\b/.test(specifier)) return 'retired story resolver module';
+  if (!specifier.startsWith('.')) return undefined;
+  const target = normalizeModulePath(join(dirname(file), specifier).replace(/\\/g, '/'));
+  for (const retiredFile of retiredServerBackedModuleFiles) {
+    if (target === normalizeModulePath(retiredFile)) return 'retired quarantined module specifier';
+  }
+  return undefined;
+}
+
+function shouldScanImports(file: string): boolean {
+  return /^packages\/main\/src\/.*\.(?:cjs|js|ts)$/.test(file)
+    && !file.includes('/dist/')
+    && !fileIsExplicitLegacyQuarantine(file);
+}
+
+function scanImportSpecifiers(file: string, text: string): Violation[] {
+  if (!shouldScanImports(file)) return [];
+  const violations: Violation[] = [];
+  for (const { specifier, index } of extractImportSpecifiers(text)) {
+    const label = retiredModuleMatch(file, specifier);
+    if (label) {
+      violations.push({
+        file,
+        line: lineNumberAt(text, index),
+        label,
+        text: specifier,
+      });
+    }
+  }
+  return violations;
 }
 
 function scanText(file: string, text: string, rules = bannedActiveRules): Violation[] {
@@ -152,6 +241,22 @@ function assertPositiveControls(): void {
       `positive control must catch ${control}`,
     );
   }
+}
+
+function assertImportSpecifierPositiveControls(): void {
+  const controlFile = 'packages/main/src/core/active-runtime.ts';
+  const violations = scanImportSpecifiers(controlFile, [
+    "import { run } from '../handlers/story-authority-resolve.js';",
+    "await import('./story-authority-resolver.js');",
+  ].join('\n'));
+  assert.ok(
+    violations.some(v => v.text === '../handlers/story-authority-resolve.js'),
+    'import guard must catch the retired story-authority-resolve handler',
+  );
+  assert.ok(
+    violations.some(v => v.text === './story-authority-resolver.js'),
+    'import guard must catch the retired story-authority-resolver core module',
+  );
 }
 
 function assertContract(): void {
@@ -258,6 +363,7 @@ function assertGeneratedHelp(): Violation[] {
 
 const violations: Violation[] = [];
 assertPositiveControls();
+assertImportSpecifierPositiveControls();
 assertContract();
 violations.push(...assertCommandCatalog());
 
@@ -268,7 +374,9 @@ const activeFiles = [
 
 for (const file of activeFiles) {
   if (!existsSync(join(repoRoot, file))) continue;
-  violations.push(...scanText(file, readRel(file)));
+  const text = readRel(file);
+  violations.push(...scanText(file, text));
+  violations.push(...scanImportSpecifiers(file, text));
 }
 
 violations.push(...assertGeneratedHelp());
