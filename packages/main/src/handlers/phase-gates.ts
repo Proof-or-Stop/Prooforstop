@@ -34,11 +34,6 @@ import { getStateName, getGuardFailureReason } from '../core/machine.js';
 import { resolveLocalCodexVerifyCommand } from '../core/codex-adapter-checks.js';
 import { checkEvidenceFreshnessForGit, currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { reportHealthIssue } from '../core/health.js';
-import { loadAuthoritySettings } from '../core/authority-mode.js';
-import {
-  DEFAULT_AUTHORITY_RECEIPT_MAX_VERIFIED_AGE_MS,
-  consumeAuthorityGateReceiptDocument,
-} from '../core/authority-gate-receipts.js';
 import { loadConfig } from '../core/config.js';
 import { resolveWorkflowPolicy } from '../core/workflow-policy.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
@@ -398,109 +393,12 @@ export function runPlanToDevScopeAdvice(ctx: HandlerContext, storyId: string): s
   );
 }
 
-function renderAuthorityReceiptGateLine(args: {
-  status: 'PASS' | 'BLOCKED' | 'WARN';
-  mode: string;
-  storyId: string;
-  targetPhase: string;
-  reason?: string;
-  receiptId?: string;
-}): string {
-  const label = args.targetPhase === 'DONE' ? 'Authority DONE gate' : 'Authority gate consumption';
-  const base = `${label}: ${args.status} strongEvidenceConsumed=${args.status === 'PASS' ? 'true' : 'false'} story=${args.storyId} gate=${args.targetPhase}`;
-  const receipt = args.receiptId ? ` receiptId=${args.receiptId}` : '';
-  const reason = args.reason ? ` reason=${args.reason}` : '';
-  return `${base}${receipt} mode=${args.mode}${reason}`;
-}
-
-/**
- * TEST/DONE Authority receipt consumption gate.
- *
- * off    — no-op, preserving local default behavior.
- * shadow — visible diagnostics, never blocks or writes strongEvidenceConsumed.
- * enforce — consumes a verified production gate_decision ref or blocks.
- */
-export function runAuthorityReceiptTransitionGate(
-  ctx: HandlerContext,
-  storyId: string,
-  targetPhase: Extract<StoryPhase, 'TEST' | 'DONE'>,
+export function runLegacyReceiptTransitionGate(
+  _ctx: HandlerContext,
+  _storyId: string,
+  _targetPhase: Extract<StoryPhase, 'TEST' | 'DONE'>,
 ): string {
-  const settings = ctx.authoritySettings ?? loadAuthoritySettings(process.env);
-  if (settings.mode === 'off') return '';
-  // B-6666 CHK-002: resolve the git invocation cwd at THIS caller boundary
-  // (wrapper-root aware) so the authority-receipt TEST/DONE freshness probes run
-  // git from the real gitRoot, not a bare metadataRoot. resolveGitCwd falls back
-  // to ctx.root for plain repos (projectRoot==gitCwd, byte-identical) and never
-  // throws.
-  const gitCwd = resolveGitCwd({ store: ctx.store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
-  const headHash = currentGitHead(gitCwd);
-  // B-6666 F-001 (REVIEW fix): pass ctx.root as metadataRoot so the
-  // storyDir-aware metadata exclusion loads lattice.config.json from the
-  // metadataRoot (custom storyDir), not the resolved gitCwd. Wrapper-root layouts
-  // differ; plain repos pass root==gitCwd so behavior is byte-identical.
-  const materialHash = currentMaterialHash(gitCwd, 'HEAD', ctx.root);
-  if (!headHash || !materialHash) {
-    const reason = !headHash ? 'authority_receipt_head_mismatch' : 'authority_receipt_stale_material';
-    const line = renderAuthorityReceiptGateLine({
-      status: settings.mode === 'enforce' ? 'BLOCKED' : 'WARN',
-      mode: settings.mode,
-      storyId,
-      targetPhase,
-      reason,
-    });
-    if (settings.mode === 'enforce') {
-      throw new Error(`Cannot enter ${targetPhase}: ${line}`);
-    }
-    return `\n\n${line}`;
-  }
-  const story = ctx.store.readStory(storyId);
-  const policy = resolveWorkflowPolicy(loadConfig(ctx.root), story);
-  const consumedAt = new Date().toISOString();
-  const consumed = consumeAuthorityGateReceiptDocument(
-    ctx.store.readAuthorityReceiptRefs(storyId) ?? undefined,
-    {
-      storyId,
-      targetPhase,
-      headHash,
-      materialHash,
-      now: consumedAt,
-      maxVerifiedAgeMs: DEFAULT_AUTHORITY_RECEIPT_MAX_VERIFIED_AGE_MS,
-      acceptablePolicyModes: [policy.profile],
-      acceptableAuthorityModes: ['enforce'],
-    },
-    consumedAt,
-  );
-  if (settings.mode === 'shadow') {
-    return `\n\n${renderAuthorityReceiptGateLine({
-      status: 'WARN',
-      mode: settings.mode,
-      storyId,
-      targetPhase,
-      receiptId: consumed.ref?.receiptId,
-      reason: consumed.consumed ? 'shadow_mode_no_strong_evidence' : consumed.reason,
-    })}`;
-  }
-  if (!consumed.consumed || !consumed.document) {
-    throw new Error(
-      `Cannot enter ${targetPhase}: ${renderAuthorityReceiptGateLine({
-        status: 'BLOCKED',
-        mode: settings.mode,
-        storyId,
-        targetPhase,
-        receiptId: consumed.ref?.receiptId,
-        reason: consumed.reason,
-      })}\n\n` +
-      `→ Run authority_receipt_verify with a production gate_decision proof for story=${storyId} gate=${targetPhase}, then retry story_advance --phase=${targetPhase}.`,
-    );
-  }
-  ctx.store.writeAuthorityReceiptRefs(storyId, consumed.document);
-  return `\n\n${renderAuthorityReceiptGateLine({
-    status: 'PASS',
-    mode: settings.mode,
-    storyId,
-    targetPhase,
-    receiptId: consumed.ref?.receiptId,
-  })}`;
+  return '';
 }
 
 function canonicalCoverageSnapshotFromReport(coverage: any): string | null {

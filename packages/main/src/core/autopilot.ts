@@ -1,14 +1,8 @@
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
 import type { StoryStore } from './store.js';
 import type { StoryInfo, StoryPhase } from './types.js';
-import { parseAuthorityReceipt as parseLegacyAuthorityReceipt, verifyAuthorityReceipt as verifyLegacyAuthorityReceipt } from './authority-runner-contracts.js';
-import type { AuthorityReceipt as LegacyAuthorityReceipt } from './authority-runner-contracts.js';
-import { verifyLatticeAuthorityReceipt } from './lattice-authority-native.js';
-import { buildAuthorityEnforceRunnerPlan, buildAuthorityStatus } from '../handlers/lattice-cli.js';
 
-export const AUTOPILOT_MODES = ['local', 'shadow', 'authority'] as const;
-export type AutopilotMode = typeof AUTOPILOT_MODES[number];
+export const AUTOPILOT_MODES = ['local'] as const;
+export type AutopilotMode = 'local' | 'shadow' | 'authority';
 
 export const AUTOPILOT_UNTIL_PHASES = ['PLAN', 'DEV', 'REVIEW', 'TEST', 'DONE'] as const;
 export type AutopilotUntilPhase = typeof AUTOPILOT_UNTIL_PHASES[number];
@@ -22,8 +16,6 @@ export interface AutopilotArgs {
   once?: boolean;
   dryRun?: boolean;
   maxSteps?: number;
-  authorityURL?: string;
-  authorityTimeoutMS?: number;
   receiptFile?: string;
   authorityPublicKey?: string;
   receiptSubjectId?: string;
@@ -136,7 +128,7 @@ export interface AutopilotStatusResult {
 }
 
 function isAutopilotMode(value: unknown): value is AutopilotMode {
-  return typeof value === 'string' && (AUTOPILOT_MODES as readonly string[]).includes(value);
+  return value === 'local';
 }
 
 function isUntilPhase(value: unknown): value is AutopilotUntilPhase {
@@ -186,147 +178,14 @@ function tryReadStory(store: StoryStore, storyId?: string): StoryInfo | null {
 }
 
 function receiptProjection(
-  args: AutopilotArgs,
-  expected: {
-    nativeGateDecisionRequired?: boolean;
-    storyId?: string;
-  } = {},
+  _args: AutopilotArgs,
 ): AutopilotReceiptProjection {
-  if (!args.receiptFile && !args.authorityPublicKey && !args.serverPublicKey) {
-    return {
-      provided: false,
-      verified: false,
-      native: false,
-      reason: 'no authority receipt provided',
-    };
-  }
-  const wantsNative = Boolean(
-    args.serverPublicKey ||
-      args.receiptKind ||
-      args.receiptProjectId ||
-      args.receiptStoryId ||
-      args.serverKeyId ||
-      args.expectedDecisionDigest ||
-      expected.nativeGateDecisionRequired,
-  );
-  if (wantsNative) {
-    if (!args.receiptFile || !args.serverPublicKey) {
-      return {
-        provided: true,
-        verified: false,
-        native: true,
-        format: 'lattice-authority',
-        reason: 'receiptFile and serverPublicKey are required to verify a native Proofbound Authority receipt',
-      };
-    }
-    try {
-      const receiptPath = resolve(process.cwd(), args.receiptFile);
-      const parsed = JSON.parse(readFileSync(receiptPath, 'utf8')) as unknown;
-      const expectedKind = args.receiptKind ?? (expected.nativeGateDecisionRequired ? 'gate_decision' : undefined);
-      const verification = verifyLatticeAuthorityReceipt(parsed, {
-        serverPublicKey: args.serverPublicKey,
-        serverPublicKeyEncoding: args.serverPublicKeyEncoding ?? 'auto',
-        expectedKind,
-        expectedProjectId: args.receiptProjectId,
-        expectedStoryId: args.receiptStoryId ?? (expected.nativeGateDecisionRequired ? expected.storyId : undefined),
-        expectedServerKeyId: args.serverKeyId,
-        expectedDecisionDigest: args.expectedDecisionDigest,
-        maxAgeMs: args.receiptMaxAgeMs ?? numericEnv(process.env.LATTICE_AUTHORITY_RECEIPT_MAX_AGE_MS, 600_000),
-        clockSkewMs: args.receiptClockSkewMs ?? numericEnv(process.env.LATTICE_AUTHORITY_RECEIPT_CLOCK_SKEW_MS, 300_000),
-      });
-      let verified = verification.verified;
-      let reason = verification.reason;
-      if (verified && expectedKind === 'gate_decision' && !verification.receipt.decisionDigest) {
-        verified = false;
-        reason = 'native gate_decision receipt must include decisionDigest';
-      }
-      return {
-        provided: true,
-        verified,
-        native: true,
-        format: 'lattice-authority',
-        receiptId: verification.receipt.receiptId,
-        kind: verification.receipt.kind,
-        projectId: verification.receipt.projectId,
-        storyId: verification.receipt.storyId,
-        serverKeyId: verification.receipt.serverKeyId,
-        decisionDigest: verification.receipt.decisionDigest,
-        expectedKind,
-        expectedProjectId: args.receiptProjectId,
-        expectedStoryId: args.receiptStoryId ?? (expected.nativeGateDecisionRequired ? expected.storyId : undefined),
-        expectedServerKeyId: args.serverKeyId,
-        expectedDecisionDigest: args.expectedDecisionDigest,
-        authorityActorId: verification.receipt.actorId,
-        reason,
-      };
-    } catch (error: any) {
-      return {
-        provided: true,
-        verified: false,
-        native: true,
-        format: 'lattice-authority',
-        reason: `native Proofbound Authority receipt verification failed: ${error?.message || String(error)}`,
-      };
-    }
-  }
-
-  if (!args.receiptFile || !args.authorityPublicKey) {
-    return {
-      provided: true,
-      verified: false,
-      native: false,
-      format: 'legacy-subject',
-      reason: 'both receiptFile and authorityPublicKey are required to verify an authority receipt',
-    };
-  }
-  try {
-    const receiptPath = resolve(process.cwd(), args.receiptFile);
-    const parsed = JSON.parse(readFileSync(receiptPath, 'utf8')) as unknown;
-    const receipt: LegacyAuthorityReceipt = parseLegacyAuthorityReceipt(parsed);
-    const signatureVerified = verifyLegacyAuthorityReceipt(receipt, args.authorityPublicKey);
-    const expectedSubjectId = args.receiptSubjectId;
-    const expectedSubjectKind = args.receiptSubjectKind;
-    const hasSubjectBinding = Boolean(expectedSubjectId && expectedSubjectKind);
-    const subjectMatches = hasSubjectBinding &&
-      receipt.subjectId === expectedSubjectId &&
-      receipt.subjectKind === expectedSubjectKind;
-    const verified = signatureVerified && subjectMatches;
-    let reason = 'authority receipt signature and subject binding verified';
-    if (!signatureVerified) {
-      reason = 'authority receipt signature verification failed';
-    } else if (!hasSubjectBinding) {
-      reason = 'receiptSubjectId and receiptSubjectKind are required to bind an authority receipt to this autopilot run';
-    } else if (!subjectMatches) {
-      reason = 'authority receipt subject binding mismatch';
-    }
-    return {
-      provided: true,
-      verified,
-      native: false,
-      format: 'legacy-subject',
-      receiptId: receipt.receiptId,
-      subjectId: receipt.subjectId,
-      subjectKind: receipt.subjectKind,
-      expectedSubjectId,
-      expectedSubjectKind,
-      authorityActorId: receipt.authorityActorId,
-      reason,
-    };
-  } catch (error: any) {
-    return {
-      provided: true,
-      verified: false,
-      native: false,
-      format: 'legacy-subject',
-      reason: `authority receipt verification failed: ${error?.message || String(error)}`,
-    };
-  }
-}
-
-function numericEnv(value: string | undefined, fallback: number): number {
-  if (typeof value !== 'string' || value.trim() === '') return fallback;
-  const parsed = Number(value);
-  return Number.isFinite(parsed) && parsed >= 0 ? parsed : fallback;
+  return {
+    provided: false,
+    verified: false,
+    native: false,
+    reason: 'server Authority receipts are retired from active autopilot; use local receipt-bundle validation for offline anti-tamper assurance',
+  };
 }
 
 function localSteps(storyId: string | undefined, targetPhase: AutopilotUntilPhase): AutopilotStep[] {
@@ -401,74 +260,15 @@ export function buildAutopilotRun(
   const dryRun = args.dryRun !== false;
   const once = args.once !== false;
   const story = tryReadStory(store, args.storyId);
-  const nativeGateDecisionRequired = mode === 'authority' && targetPhase === 'DONE';
-  const receipt = receiptProjection(args, { nativeGateDecisionRequired, storyId: args.storyId });
-  const authorityStatus = buildAuthorityStatus({
-    authorityMode: mode === 'local' ? 'off' : mode === 'shadow' ? 'shadow' : 'enforce',
-    authorityURL: args.authorityURL,
-    authorityTimeoutMS: args.authorityTimeoutMS,
-  }, env, { cwd: options.cwd });
-  const runner = mode === 'authority'
-    ? buildAuthorityEnforceRunnerPlan({
-        once,
-        dryRun: true,
-        authorityMode: 'enforce',
-        authorityURL: args.authorityURL,
-        authorityTimeoutMS: args.authorityTimeoutMS,
-      }, env, { cwd: options.cwd })
-    : null;
-  const receiptRequired = mode === 'authority' && targetPhase === 'DONE';
-  const authorityDone = Boolean(
-    mode === 'authority' &&
-      targetPhase === 'DONE' &&
-      story?.phase === 'DONE' &&
-      receipt.verified &&
-      receipt.native,
-  );
-  const authorityWarnings = mode === 'authority'
-    ? (runner?.readinessWarnings ?? [])
-    : mode === 'shadow'
-      ? authorityStatus.readinessWarnings
-      : [];
+  const receipt = receiptProjection(args);
+  const receiptRequired = false;
+  const authorityDone = false;
+  const authorityWarnings: string[] = [];
   const nextActions = new Set<string>();
-  for (const action of mode === 'authority' ? (runner?.nextActions ?? []) : authorityStatus.nextActions) {
-    nextActions.add(action);
-  }
   if (!args.storyId) nextActions.add('Pass --storyId=B-xxx to bind autopilot to a concrete Story.');
-  if (receiptRequired && (!receipt.verified || !receipt.native)) {
-    nextActions.add('Provide --receiptFile=<path> and --serverPublicKey=<hex> after Proofbound Authority signs a native gate_decision receipt.');
-    nextActions.add('Bind the signed receipt with --receiptKind=gate_decision plus --receiptProjectId/--receiptStoryId/--serverKeyId/--expectedDecisionDigest when those values are known.');
-  }
+  nextActions.add('Use proof admissibility, receipt-bundle validation, and quorum_submit for local assurance.');
   const plannedSteps = localSteps(args.storyId, targetPhase);
-  if (mode === 'authority') {
-    plannedSteps.unshift(
-      {
-        id: 'authority-policy',
-        command: 'lattice authority enforce policy --json',
-        purpose: 'Discover Python authority policy before claiming or executing jobs.',
-        mutates: false,
-        authorityRequired: true,
-      },
-      {
-        id: 'authority-runner',
-        command: 'lattice authority enforce runner --dry-run --json',
-        purpose: 'Project register/heartbeat/claim readiness for the authority-backed runner.',
-        mutates: false,
-        authorityRequired: true,
-      },
-    );
-  } else if (mode === 'shadow') {
-    plannedSteps.unshift({
-      id: 'authority-status-shadow',
-      command: 'LATTICE_AUTHORITY_MODE=shadow lattice authority status --json',
-      purpose: 'Observe authority readiness without blocking local workflow.',
-      mutates: false,
-      authorityRequired: false,
-    });
-  }
   let status: AutopilotStatus = 'pass';
-  if (mode === 'shadow' && authorityWarnings.length > 0) status = 'warn';
-  if (mode === 'authority' && (authorityWarnings.length > 0 || (receiptRequired && (!receipt.verified || !receipt.native)))) status = 'fail';
   return {
     schemaVersion: 'lattice.autopilot_run.v1',
     mode,
@@ -488,41 +288,36 @@ export function buildAutopilotRun(
     fullAuthorityDone: false,
     multiHostVerified: false,
     multiHostPolicy: multiHostPolicyProjection(args),
-    authorityRequired: mode === 'authority',
+    authorityRequired: false,
     receiptRequired,
     receipt,
     authority: {
-      mode: mode === 'local' ? 'off' : mode === 'shadow' ? 'shadow' : 'enforce',
-      status: mode === 'authority' ? (runner?.status ?? 'fail') : authorityStatus.status,
+      mode: 'off',
+      status: 'retired',
       readinessWarnings: authorityWarnings,
-      nextActions: mode === 'authority' ? (runner?.nextActions ?? []) : authorityStatus.nextActions,
-      runnerPlannedSteps: runner?.plannedSteps ?? [],
+      nextActions: [],
+      runnerPlannedSteps: [],
       runnerSpawned: false,
-      providerEvents: runner?.providerEvents.length ?? 0,
+      providerEvents: 0,
     },
     plannedSteps,
     executedSteps: dryRun ? [] : plannedSteps.slice(0, maxSteps).filter(step => !step.authorityRequired),
     nextActions: [...nextActions],
-    note: mode === 'authority'
-      ? 'Authority autopilot is fail-closed: local checks can run, but DONE requires a verified native Proofbound Authority gate_decision receipt.'
-      : mode === 'shadow'
-        ? 'Shadow autopilot preserves local execution while surfacing Python authority readiness warnings.'
-        : 'Local autopilot is pure local Proofbound workflow; it never requires Python authority.',
+    note: 'Local autopilot is pure local Proofbound workflow; server Authority modes are retired from active runtime.',
   };
 }
 
 export function buildAutopilotStatus(
-  env: Record<string, string | undefined> = process.env,
-  options: { cwd?: string } = {},
+  _env: Record<string, string | undefined> = process.env,
+  _options: { cwd?: string } = {},
 ): AutopilotStatusResult {
-  const authority = buildAuthorityStatus({ authorityMode: 'enforce' }, env, { cwd: options.cwd });
   return {
     schemaVersion: 'lattice.autopilot_status.v1',
     localAvailable: true,
     modes: AUTOPILOT_MODES,
     defaultMode: 'local',
-    authorityModeEnv: env.LATTICE_AUTHORITY_MODE || 'off',
-    authorityReady: authority.readinessWarnings.length === 0 && authority.authorityUrlConfigured && authority.actorKeyConfigured && authority.runnerConfigured,
+    authorityModeEnv: 'retired',
+    authorityReady: false,
     localWorkflowUsable: true,
     localReviewCertified: false,
     authorityDone: false,
@@ -531,8 +326,6 @@ export function buildAutopilotStatus(
     multiHostPolicy: multiHostPolicyProjection({}),
     receiptVerified: false,
     productionDone: false,
-    nextActions: authority.readinessWarnings.length > 0
-      ? authority.nextActions
-      : ['Use lattice autopilot run for projection, or lattice autopilot execute --mode=local --storyId=B-xxx for bounded local execution. Authority DONE also requires a signed native gate_decision receipt.'],
+    nextActions: ['Use lattice autopilot run for projection, or lattice autopilot execute --mode=local --storyId=B-xxx for bounded local execution.'],
   };
 }

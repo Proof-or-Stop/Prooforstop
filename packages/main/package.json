@@ -7,7 +7,7 @@
     "type": "git",
     "directory": "packages/main"
   },
-  "version": "0.3.105",
+  "version": "0.3.106",
   "description": "通用项目开发框架 — AI-driven Story 工作流 CLI",
   "type": "module",
   "main": "dist/index.js",
@@ -58,8 +58,6 @@
     "test:main-write-lock-coverage": "node dist/tasks/main-write-lock-coverage.js",
     "test:command-ownership-contract": "node dist/tasks/command-ownership-contract.js",
     "test:unattended-dispatch-smoke": "node dist/tasks/unattended-dispatch-smoke.js",
-    "test:authority-enforce-matrix": "node dist/tasks/authority-enforce-matrix-smoke.js",
-    "test:authority-receipt-proof-auth": "node dist/tasks/authority-receipt-proof-auth-smoke.js",
     "test:autopilot-resume-smoke": "node dist/tasks/autopilot-resume-smoke.js",
     "test:autopilot-v2-reliability-smoke": "node dist/tasks/autopilot-v2-reliability-smoke.js",
     "test:evidence-quality-contract": "node ../../scripts/verify-evidence-quality.mjs",
@@ -75,6 +73,7 @@
     "test:repro-evidence-binding-dev-gate": "node dist/tasks/repro-evidence-binding-dev-gate-smoke.js",
     "test:proof-admissibility": "node dist/tasks/proof-admissibility-smoke.js",
     "test:proof-admissibility-hardening": "node dist/tasks/proof-admissibility-hardening-smoke.js",
+    "test:retired-authority-server-semantics": "node dist/tasks/retired-authority-server-semantics-smoke.js",
     "test:source-structure-convergence": "node dist/tasks/source-structure-convergence-smoke.js",
     "usage-ledger-report": "node dist/tasks/usage-ledger-report.js"
   },

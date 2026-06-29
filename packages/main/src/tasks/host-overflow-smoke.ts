@@ -154,9 +154,12 @@ function buildSemanticEditingProbe(): CapabilityProbe {
     matchedFallback: false,
     diagnosticOnly: true,
     authorityRules: {
-      productionDoneRequiresReceipt: true,
+      productionDoneRequiresReceipt: false,
       receiptCapability: 'receipt-verify',
       handoffCanManufactureProductionDone: false,
+      proofAdmissibility: 'local-only',
+      receiptBundleVerification: 'signed-offline-local',
+      reviewQuorum: 'local',
     },
     profile: {
       id: 'semantic-editor',

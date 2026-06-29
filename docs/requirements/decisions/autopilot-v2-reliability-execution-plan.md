@@ -1,5 +1,7 @@
 # Autopilot v2 — Unattended Long-Horizon Reliability (Execution Plan)
 
+> **Authority Server retirement note:** Any server-backed Authority mode, receipt, or job language in this document is legacy/out-of-core. Active autopilot assurance is local proof admissibility, local gate evidence, signed/offline receipt bundles, and local review quorum.
+
 **Status:** IMPLEMENTED for B-320f normal-channel DEV. M1 checkpoint/resume was already present;
 B-320f adds M2 health-aware pause/resume semantics, M3 adaptive throttle state, M4 claim/lease/
 fencing safety semantics, a host-neutral baseline export, and a dedicated reliability smoke.

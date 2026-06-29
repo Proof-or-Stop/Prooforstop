@@ -42,7 +42,7 @@ function fallbackText(report: unknown): string {
     `applicable: ${String(applicable)}`,
     `materialDigest: ${materialDigest}`,
     'doneRequirement: classification-only; review_escalation_status decides whether DONE requires escalation',
-    'authorityBoundary: local quorum evidence only; not Authority Server receipt completion',
+    'authorityBoundary: local quorum evidence only; not local proof-admissibility or productionDone completion',
   ].join('\n');
 }
 

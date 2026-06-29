@@ -462,13 +462,6 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     producerCommand: 'review_escalation_fallback_set',
     consumerGate: 'storyMachine.canFinish DONE review escalation gate and storyMachine.canFinish DONE review assurance floor gate',
   },
-  authority_receipt_verify: {
-    name: 'authority-receipt-refs.json',
-    path: 'authority-receipt-refs.json',
-    signed: false,
-    producerCommand: 'authority_receipt_verify',
-    consumerGate: 'TEST/DONE Authority gate_decision receipt consumption predicate',
-  },
   story_create_from_repro: {
     name: 'story-evidence-binding',
     path: 'story-evidence-binding',
@@ -905,16 +898,6 @@ export const PROCESS_FACT_ARTIFACTS = [
     consumerGate: 'Codex adapter REVIEW and DONE evidence gate',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.verify_codex,
     rationale: 'Codex adapter verification evidence is recorded in process events and consumed by adapter gates.',
-  },
-  {
-    name: 'artifact:authority-receipt-refs.json',
-    kind: 'artifact',
-    semantics: ['artifact', 'gate-evidence'],
-    level: 'L4',
-    producer: 'core/authority-gate-receipts',
-    consumerGate: 'TEST/DONE Authority gate_decision receipt consumption predicate',
-    artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.authority_receipt_verify,
-    rationale: 'Verified production gate_decision receipt refs derive strongEvidenceConsumed and production authority facts only after local gate-context rechecks.',
   },
   {
     name: 'artifact:story-evidence-binding',

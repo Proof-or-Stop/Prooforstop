@@ -304,7 +304,7 @@ try {
     assert.match(formatted, new RegExp(`Re-submit local host verdicts over materialHash=${materialHash}`));
     assert.match(formatted, /lattice autopilot_review_submit/);
     assert.match(formatted, /Do not bypass stale material checks/);
-    assert.doesNotMatch(formatted, /Authority Server receipt|remote proof|productionDone/);
+    assert.doesNotMatch(formatted, /remote receipt server|remote proof|productionDone/);
   });
 
   check('stale recovery output truncates ignored verdict details', () => {

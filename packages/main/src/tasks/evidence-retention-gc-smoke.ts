@@ -48,7 +48,7 @@ function testRedaction(): void {
     'db_password=hunter2supersecretvalue',
     'MULTI_WORD_SECRET=alpha beta gamma',
     'api-key=plainsecretvalue',
-    'LATTICE_AUTHORITY_ACTOR_KEY=0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
+    'PROOFBOUND_TEST_ACTOR_KEY=0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
     '{"apiKey":"sk-abcdefghijklmnopqrstuvwxyz0123456789","ok":true}',
     'Set-Cookie: session=deadbeefcafebabe; HttpOnly',
     'short auth Basic abc',

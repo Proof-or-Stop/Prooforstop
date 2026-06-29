@@ -45,12 +45,6 @@ import { checkEvidenceFreshnessForGit, currentMaterialHash, currentStoryFilesHas
 import { syncClusterResolves } from '../core/cluster-sync.js';
 import { resolveGitCwd, resolveProjectGitCwd, evaluateStoryDirConfigInsideGitRoot } from '../core/story-signed-workspace-resolution.js';
 import { resolveVerificationIntentPolicy, resolveWorkflowPolicy } from '../core/workflow-policy.js';
-import { loadAuthoritySettings } from '../core/authority-mode.js';
-import {
-  DEFAULT_AUTHORITY_RECEIPT_MAX_VERIFIED_AGE_MS,
-  consumeAuthorityGateReceiptDocument,
-  type AuthorityGateReceiptDocumentConsumption,
-} from '../core/authority-gate-receipts.js';
 import type { ChecklistData, VerificationEvidence } from '../core/types.js';
 
 const STATUS_FALLBACK_TIMEOUT_MS = 10_000;
@@ -424,8 +418,6 @@ function collectStoryFilesHashAdvisories(cl: ChecklistData, gitCwd: string, meta
 function decorateStoryVerification(ctx: HandlerContext, storyId: string, result: any): any {
   let coverage;
   let verificationPolicy;
-  let authorityGateConsumption;
-  let authorityGateLine = '';
   let legacyHints: Array<{ itemId: string; lane: string; intentRef: string }> = [];
   try {
     const story = ctx.store.readStory(storyId);
@@ -443,8 +435,6 @@ function decorateStoryVerification(ctx: HandlerContext, storyId: string, result:
       (headHash, evidence) => evidenceFreshness(gitCwd, ctx.root, headHash, evidence).fresh,
       { deferredGateEvidence: 'missing', evidenceQualityProfile: effectivePolicy.profile },
     );
-    authorityGateConsumption = evaluateValidationAuthorityGate(ctx, storyId, effectivePolicy.profile, result);
-    authorityGateLine = authorityGateConsumption?.line ?? '';
   } catch {
     return result;
   }
@@ -452,145 +442,24 @@ function decorateStoryVerification(ctx: HandlerContext, storyId: string, result:
   const details = Array.isArray(result.details) ? [...result.details] : [];
   details.push(...rendered.split('\n'));
   details.push(...collectStoryFilesHashAdvisories(ctx.store.readChecklist(storyId), resolveGitCwd({ store: ctx.store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root }), ctx.root));
-  if (authorityGateLine) details.push(authorityGateLine);
   // B-4e06 CHK-002: surface legacy evidence-without-intent as an informational
   // hint naming the repair command. Additive only — never alters coverage math
   // or allPass, so the hint can never become a pass condition.
   for (const h of legacyHints) {
     details.push(`Legacy evidence without intent: ${h.itemId} ${h.lane} has verificationEvidence (${h.intentRef}) but no verificationIntent.${h.lane} — run \`lattice ${VERIFICATION_INTENT_REPAIR_COMMAND}\` to backfill the intent (this is a schema repair, NOT a coverage pass).`);
   }
-  const authorityBlocks = authorityGateConsumption?.blocks === true;
-  const allPass = Boolean(result.allPass) && coverage.missingRequired === 0 && !authorityBlocks;
+  const allPass = Boolean(result.allPass) && coverage.missingRequired === 0;
   return {
     ...result,
     status: allPass ? (result.status === 'warn' ? 'warn' : 'pass') : 'fail',
     allPass,
-    summary: authorityBlocks
-      ? `${result.summary || 'Validation'}; Authority gate consumption blocked: ${authorityGateConsumption?.reason ?? 'authority_receipt_missing'}`
-      : coverage.missingRequired > 0
+    summary: coverage.missingRequired > 0
       ? `${result.summary || 'Validation'}; verification coverage missing ${coverage.missingRequired} required intent(s)`
       : result.summary,
     details,
     verificationPolicy,
     verificationCoverage: coverage,
     ...(legacyHints.length > 0 ? { legacyEvidenceWithoutIntent: legacyHints } : {}),
-    ...(authorityGateConsumption ? { authorityGateConsumption: authorityGateConsumption.json } : {}),
-  };
-}
-
-function renderAuthorityGateLine(args: {
-  status: 'PASS' | 'BLOCKED' | 'WARN' | 'SKIP';
-  mode: string;
-  storyId: string;
-  targetPhase: string;
-  reason?: string;
-  receiptId?: string;
-}): string {
-  const base = `Authority gate consumption: ${args.status} strongEvidenceConsumed=${args.status === 'PASS' ? 'true' : 'false'} story=${args.storyId} gate=${args.targetPhase}`;
-  const receipt = args.receiptId ? ` receiptId=${args.receiptId}` : '';
-  const reason = args.reason ? ` reason=${args.reason}` : '';
-  return `${base}${receipt} mode=${args.mode}${reason}`;
-}
-
-function evaluateValidationAuthorityGate(
-  ctx: HandlerContext,
-  storyId: string,
-  policyMode: string,
-  result: any,
-): {
-  blocks: boolean;
-  reason?: string;
-  line: string;
-  json: Record<string, unknown>;
-} | undefined {
-  const settings = ctx.authoritySettings ?? loadAuthoritySettings(process.env);
-  if (settings.mode === 'off') return undefined;
-  const targetPhase = 'TEST';
-  const gitCwd = resolveGitCwd({ store: ctx.store, storyId, metadataRoot: ctx.root, projectRoot: ctx.root });
-  const headHash = currentHead(gitCwd);
-  const materialHash = currentMaterialHash(ctx.root);
-  const baseAllPass = Boolean(result.allPass ?? result.status === 'pass');
-  if (!headHash || !materialHash) {
-    const reason = !headHash ? 'authority_receipt_head_mismatch' : 'authority_receipt_stale_material';
-    return {
-      blocks: settings.mode === 'enforce' && baseAllPass,
-      reason,
-      line: renderAuthorityGateLine({ status: settings.mode === 'enforce' ? 'BLOCKED' : 'WARN', mode: settings.mode, storyId, targetPhase, reason }),
-      json: { mode: settings.mode, targetPhase, consumed: false, strongEvidenceConsumed: false, reason },
-    };
-  }
-  const document = ctx.store.readAuthorityReceiptRefs(storyId) ?? undefined;
-  const consumedAt = new Date().toISOString();
-  const consumed = consumeAuthorityGateReceiptDocument(
-    document,
-    {
-      storyId,
-      targetPhase,
-      headHash,
-      materialHash,
-      now: consumedAt,
-      maxVerifiedAgeMs: DEFAULT_AUTHORITY_RECEIPT_MAX_VERIFIED_AGE_MS,
-      acceptablePolicyModes: [policyMode],
-      acceptableAuthorityModes: ['enforce'],
-    },
-    consumedAt,
-  );
-  if (settings.mode === 'enforce' && baseAllPass && consumed.consumed && consumed.document) {
-    ctx.store.writeAuthorityReceiptRefs(storyId, consumed.document);
-  }
-  if (settings.mode === 'shadow') {
-    return {
-      blocks: false,
-      reason: consumed.consumed ? undefined : consumed.reason,
-      line: renderAuthorityGateLine({
-        status: 'WARN',
-        mode: settings.mode,
-        storyId,
-        targetPhase,
-        reason: consumed.consumed ? 'shadow_mode_no_strong_evidence' : consumed.reason,
-        receiptId: consumed.ref?.receiptId,
-      }),
-      json: authorityGateJson(settings.mode, targetPhase, consumed, false),
-    };
-  }
-  if (!baseAllPass) {
-    return {
-      blocks: false,
-      reason: 'local_validation_not_pass',
-      line: renderAuthorityGateLine({ status: 'SKIP', mode: settings.mode, storyId, targetPhase, reason: 'local_validation_not_pass', receiptId: consumed.ref?.receiptId }),
-      json: authorityGateJson(settings.mode, targetPhase, consumed, false, 'local_validation_not_pass'),
-    };
-  }
-  return {
-    blocks: !consumed.consumed,
-    reason: consumed.consumed ? undefined : consumed.reason,
-    line: renderAuthorityGateLine({
-      status: consumed.consumed ? 'PASS' : 'BLOCKED',
-      mode: settings.mode,
-      storyId,
-      targetPhase,
-      reason: consumed.consumed ? undefined : consumed.reason,
-      receiptId: consumed.ref?.receiptId,
-    }),
-    json: authorityGateJson(settings.mode, targetPhase, consumed, consumed.consumed),
-  };
-}
-
-function authorityGateJson(
-  mode: string,
-  targetPhase: string,
-  consumed: AuthorityGateReceiptDocumentConsumption,
-  strongEvidenceConsumed: boolean,
-  overrideReason?: string,
-): Record<string, unknown> {
-  return {
-    mode,
-    targetPhase,
-    consumed: consumed.consumed && strongEvidenceConsumed,
-    strongEvidenceConsumed,
-    receiptId: consumed.ref?.receiptId,
-    reason: overrideReason ?? consumed.reason,
-    fact: strongEvidenceConsumed ? consumed.fact : undefined,
   };
 }
 

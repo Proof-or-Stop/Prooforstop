@@ -11,9 +11,6 @@ import {
   type AutopilotExecuteArgs,
   type AutopilotExecuteResult,
 } from '../core/autopilot-executor.js';
-import {
-  executeAutopilotLive,
-} from '../core/authority-job-loop-live.js';
 
 function wantsJson(args: { format?: string; json?: boolean } | undefined): boolean {
   return args?.format === 'json' || args?.json === true;
@@ -104,42 +101,6 @@ function renderExecute(result: AutopilotExecuteResult): string {
     'plannedSteps:',
     ...result.plannedSteps.map(step => `  - ${step.id}: ${step.command}`),
   ];
-  if (result.authorityJobLoop) {
-    const loop = result.authorityJobLoop;
-    lines.push(
-      '',
-      'authorityJobLoop:',
-      `  claimStatus: ${loop.claimStatus}`,
-      `  claimedJobId: ${loop.claimedJobId ?? 'none'}`,
-      `  disposition: ${loop.disposition}`,
-      `  releaseReason: ${loop.releaseReason ?? 'n/a'}`,
-      `  releaseOutcome: ${loop.releaseOutcome ?? 'n/a'}`,
-      `  leaseHealth: ${loop.leaseHealth ?? 'n/a'}`,
-      `  receiptRequired: ${loop.receiptRequired}`,
-      `  receiptVerified: ${loop.receiptVerified}`,
-      `  executedStepCount: ${loop.executedStepCount}`,
-      `  evidenceRefs: ${loop.evidenceRefs.length === 0 ? 'none' : loop.evidenceRefs.join(', ')}`,
-      ...(loop.failClosedReason ? [`  failClosedReason: ${loop.failClosedReason}`] : []),
-      'networkEvents:',
-      ...loop.networkEvents.map(evt => `    - ${evt.step}: ${evt.ok ? 'ok' : 'fail'}${evt.status ? ` (${evt.status})` : ''}${evt.message ? ` ${evt.message}` : ''}`),
-    );
-  }
-  if (result.claimedJobExecution) {
-    const consume = result.claimedJobExecution;
-    lines.push(
-      '',
-      'claimedJobExecution:',
-      `  jobId: ${consume.jobId}`,
-      `  disposition: ${consume.disposition}`,
-      `  releaseReason: ${consume.releaseReason}`,
-      `  receiptRequired: ${consume.receiptRequired}`,
-      `  authorityDone: ${consume.authorityDone}`,
-      `  executionStatus: ${consume.execution?.status ?? 'n/a'}`,
-      ...(consume.execution
-        ? consume.execution.steps.map(step => `    - ${step.stepId} (${step.type}): ${step.status}${step.reason ? ` [${step.reason}]` : ''}`)
-        : []),
-    );
-  }
   if (result.executedSteps.length > 0) {
     lines.push(
       '',
@@ -233,11 +194,6 @@ export function createAutopilotHandlers(ctx: HandlerContext) {
               authorityActorId: result.receipt.authorityActorId,
               claudeRepairEnabled: result.repair.enabled,
               repairAttempts: result.repair.attempts.length,
-              claimedJobId: result.claimedJobExecution?.jobId ?? null,
-              claimedJobDisposition: result.claimedJobExecution?.disposition ?? null,
-              authorityJobLoopClaimStatus: result.authorityJobLoop?.claimStatus ?? null,
-              authorityJobLoopDisposition: result.authorityJobLoop?.disposition ?? null,
-              authorityJobLoopReleaseOutcome: result.authorityJobLoop?.releaseOutcome ?? null,
               plannedSteps: result.plannedSteps.map(step => step.id),
               executedSteps: result.executedSteps.map(step => ({
                 id: step.id,
@@ -252,21 +208,6 @@ export function createAutopilotHandlers(ctx: HandlerContext) {
         return wantsJson(args) ? result : renderExecute(result);
       };
 
-      // The live `--mode=authority` (no --jobFile) loop is async (network claim +
-      // lease lifecycle); every other path stays synchronous and byte-identical.
-      if (
-        args.mode === 'authority' &&
-        args.dryRun !== true &&
-        !(typeof args.jobFile === 'string' && args.jobFile.length > 0)
-      ) {
-        return executeAutopilotLive({
-          store: ctx.store,
-          root: ctx.root,
-          args,
-          runner: ctx.autopilotCommandRunner,
-        }).then(finish);
-      }
-
       return finish(executeAutopilot({
         store: ctx.store,
         root: ctx.root,
@@ -278,21 +219,18 @@ export function createAutopilotHandlers(ctx: HandlerContext) {
     autopilot_doctor(args: { format?: 'text' | 'json'; json?: boolean } = {}) {
       const status = buildAutopilotStatus(process.env, { cwd: ctx.root });
       const local = buildAutopilotRun(ctx.store, { mode: 'local', dryRun: true }, process.env, { cwd: ctx.root });
-      const authority = buildAutopilotRun(ctx.store, { mode: 'authority', until: 'DONE', dryRun: true }, process.env, { cwd: ctx.root });
       const result = {
         schemaVersion: 'lattice.autopilot_doctor.v1' as const,
         ok: local.status !== 'fail',
         local,
-        authority,
         status,
-        note: 'Doctor confirms local autopilot stays available even when authority mode is not ready.',
+        note: 'Doctor confirms local autopilot stays available; server Authority modes are retired from active runtime.',
       };
       if (wantsJson(args)) return result;
       return [
         `Proofbound autopilot doctor (${result.schemaVersion})`,
         `ok: ${result.ok}`,
         `localStatus: ${local.status}`,
-        `authorityStatus: ${authority.status}`,
         `authorityReady: ${status.authorityReady}`,
         '',
         result.note,

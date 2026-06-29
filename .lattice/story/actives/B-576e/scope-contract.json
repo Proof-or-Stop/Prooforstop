@@ -1,0 +1,104 @@
+{
+  "storyId": "B-576e",
+  "mode": "enforce",
+  "allowedModify": [
+    "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+    "docs/evidence/evidence-platform-architecture.md",
+    "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+    "docs/requirements/decisions/lattice-authority-receipt-contract.md",
+    "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+    "docs/requirements/decisions/authority-session-receipt-gate-execution.md",
+    "docs/requirements/decisions/lattice-authority-remote-evidence-bundle.md",
+    "docs/requirements/decisions/lattice-authority-customer-api-key-access.md",
+    "docs/requirements/decisions/lattice-cli-authority-client-receipt-ref.md",
+    "docs/requirements/decisions/authority-client-role.md",
+    "docs/requirements/decisions/authority-receipt-cross-repo-live-smoke.md",
+    "docs/requirements/decisions/authority-done-material-overlap-audit-cli-fix.md",
+    "docs/requirements/decisions/lattice-authority-m1-m16-generated-proof-and-live-e2e.md",
+    "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+    "docs/requirements/decisions/unlock-layer4-production-safety-suite.md",
+    "docs/requirements/decisions/lattice-authority-live-integration.md",
+    "docs/requirements/decisions/authority-runner-session-evidence-envelope.md",
+    "README.md",
+    "docs/guide.md",
+    "packages/main/templates/agents/**",
+    "packages/main/templates/agents/*.md",
+    ".lattice-codex/agents/**",
+    ".lattice-codex/agents/*.md",
+    ".claude/agents/**",
+    ".claude/agents/*.md",
+    "CLAUDE.md",
+    "AGENTS.md",
+    "packages/main/src/cli-engine.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/cli/command-schemas.ts",
+    "packages/main/src/cli/alias-normalizer.ts",
+    "packages/main/src/cli/activity-policy.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/package.json",
+    "lattice.config.json",
+    "packages/main/src/handlers/**",
+    "packages/main/src/handlers/authority-enforce.ts",
+    "packages/main/src/handlers/verdict.ts",
+    "packages/main/src/core/**",
+    "packages/main/src/core/authority-*.ts",
+    "packages/main/src/tasks/**",
+    "packages/main/src/tasks/authority-*.ts",
+    "packages/main/package-lock.json",
+    "package.json"
+  ],
+  "allowedCreate": [
+    "packages/main/src/tasks/retired-authority-server-semantics-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/retired-authority-server-semantics-smoke.ts",
+    "packages/main/src/tasks/proof-admissibility-smoke.ts",
+    "packages/main/src/tasks/receipt-bundle-contract-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Include command-schemas.ts because retired server receipt schema removal is part of command-surface cleanup.",
+  "acknowledgements": [
+    {
+      "actor": "lattice-implementer",
+      "reason": "Remove the stale server Authority receipt schema and mark retired autopilot aliases so the expanded B-576e guard can enforce active command-schema semantics.",
+      "timestamp": "2026-06-29T01:42:33.716Z",
+      "paths": [
+        "packages/main/src/cli/command-schemas.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/cli/command-schemas.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "5d3d7bd68691998340a95c59adeefa15e45e7288",
+      "materialHash": "0e66160dcc9a4cf148e155510d835e3ff5f176c642574b9e93a3fc976a3795c7"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Required to resolve B-576e:F-003: process-fact contract verifier still required retired Authority receipt facts after the runtime registry removed them.",
+      "timestamp": "2026-06-29T02:04:39.076Z",
+      "paths": [
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "a707bbeb362e1960f623a5f8dae516fce3a0420e",
+      "materialHash": "236cd309450ac9eef81d355a00be959917a7250ca88e687670e8032266d47f7a",
+      "anchors": [
+        "B_576e_F_003",
+        "process_fact_contract",
+        "Authority_Server_retirement"
+      ]
+    }
+  ],
+  "createdAt": "2026-06-29T00:42:19.157Z",
+  "updatedAt": "2026-06-29T02:04:39.076Z"
+}

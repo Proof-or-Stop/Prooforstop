@@ -95,7 +95,7 @@ function assertCanonicalShape(story: CanonicalStory): void {
   assert.match(story.authority.canonicalStoryDigest ?? '', /^sha256:/);
   assert.match(story.authority.gateInputDigest ?? '', /^sha256:/);
   assert.ok(story.evidence.some(e => e.id === 'CHK-001:happy:0'), 'verification evidence is exported');
-  assert.ok(story.degradations.some(d => d.id === 'missing-server-receipt' && d.authorityImpact === 'blocks-production-done'), 'missing receipt is visible degradation');
+  assert.ok(story.degradations.some(d => d.id === 'local-assurance-incomplete' && d.authorityImpact === 'blocks-production-done'), 'local assurance gap is visible degradation');
   assert.equal((story as unknown as Record<string, unknown>).hostProfile, undefined, 'canonical story does not leak host-private profile fields');
 }
 

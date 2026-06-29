@@ -51,76 +51,22 @@ lattice rollout_check --projects "$(pwd)" --json
 
 `rollout_check` is a read-only cross-project inspection: it reads Git state, managed asset state, runtime footprint, and story/transcript scope readiness, and outputs each project's `status` and `nextAction`. It never runs `check --apply`, `check --upgrade`, repair/fix, third-party installers, evidence submission, or receipt verification. The main repo can be PASS; external projects, old wrappers, or non-git projects are interpreted as WARN/FAIL with a next step, rather than forcing the user to run doctor/check one by one and guess at the cause.
 
-### Authority modes: off / shadow / enforce
+### Local Proof Admissibility
 
-`LATTICE_AUTHORITY_MODE` controls whether the CLI interacts with the Python authority. **None of the three modes block the local Story workflow**: local lifecycle gates (`story_advance`, `verification_evidence_add`, DONE) do not read server receipts, so `authority_status` always reports `localWorkflowUsable: true`; missing enforce prerequisites only feed `readinessWarnings` / `nextActions` and never become a global blocker.
+Authority Server modes and server-backed receipt commands are retired from the active Proofbound CLI. Active evidence vocabulary is `admissibilityStatus`, `assuranceLevel`, `evidenceScope`, gate-consumed local evidence, signed/offline receipt bundles, and local review quorum assurance.
 
-| Mode | When to use | CLI behavior | Production authority? |
-|------|----------|----------|------------------------|
-| `off` (default) | Normal local Proofbound story development, **free and purely local**. | No network requests at all; local evidence and DONE gate behavior are unchanged. | No: `productionDone=false`, `receiptVerified=false`. |
-| `shadow` | You want to observe the Python authority's responses while keeping local behavior. | Best-effort observational POST; on failure, only a stderr warning, with no effect on the local write. | No: the transport's `accepted: true` is `thin-client-transport-accepted`, not a signed receipt. |
-| `enforce` | Isolated headless runner / Authority job path, which **requires** a Python authority server + customer API key + a registered actor key + runner identity + project id + pinned server key. | `authority enforce runner --dry-run` projects readiness; `--live` signs the native envelope, registers/heartbeats the runner, optionally reads `/v1/runners/{runnerId}/jobs/stream` as a `jobs.available` notification hint, and then always uses the signed claim endpoint for jobs. Authority job execution consumes typed `plannedSteps[]`, uploads evidence, requests server `gate_decision`, verifies the native receipt, and then completes or releases the lease according to policy. | Only a signature-verified native `gate_decision` receipt can support per-run `authorityDone`; `fullAuthorityDone` also requires final multi-host certification. Runner heartbeat, jobs-stream hints, and claim alone are not production authority. |
+### Autopilot Mode: Local Only
 
-For ordinary developer handoff, consume the operator/server-provided files as a pair: `lattice_authority_trust.env` plus the referenced `lattice_staging-client.env`. Keep them together in the target workspace so any relative client-file path resolves. Advanced/live runner handoff may provide the `lattice_senior_*` pair, but ordinary developers should not need senior files or live runner variables. `LATTICE_AUTHORITY_PROJECT_ID` and `LATTICE_AUTHORITY_GATE_ACTOR_*` are only needed once you switch to the live runner / receipt / gate-consumption flow.
-
-Inspect the authority surface the local CLI sees:
-
-```bash
-# Default off: no env needed
-lattice authority status --json
-
-# With shadow / enforce missing prerequisites you will see readinessWarnings + nextActions
-LATTICE_AUTHORITY_MODE=shadow lattice authority status --json
-LATTICE_AUTHORITY_MODE=enforce lattice authority status --json
-
-# The Conduit view mirrors the same readiness fields
-lattice conduit status --json
-lattice conduit explain --json
-```
-
-`authority status --json` field reference:
-
-- `mode` — `off` | `shadow` | `enforce`
-- `localWorkflowUsable: true` — the local story workflow is never blocked by authority
-- `authorityUrlConfigured` — whether `LATTICE_AUTHORITY_URL` is set
-- `customerApiKeyConfigured` — whether `LATTICE_AUTHORITY_CUSTOMER_API_KEY` / `_PATH` is set
-- `customerApiKeySource` — `env` | `path` | `authority_md` | `missing`
-- `customerApiKeyValid` — unknown until a live probe; presence alone does not imply validity
-- `actorKeyConfigured` — whether `LATTICE_AUTHORITY_ACTOR_KEY` / `_PATH` is set
-- `actorKeyRegistered` — whether the actor public key is registered with the Authority server
-- `serverPublicKeyPinned` — whether the receipt server public key is pinned/verified
-- `runnerConfigured` — whether `LATTICE_AUTHORITY_RUNNER_ID` is set
-- `readinessWarnings: string[]` — only populated when shadow/enforce is configured but prerequisites are missing
-- `nextActions: string[]` — the corresponding env / command suggestions
-- `productionDone: false`, `receiptVerified: false`, `canClaimProductionDone: false`
-
-**Important boundary**: this local JSON or text output is **not** authority evidence. Only an `AuthorityReceipt` issued by the Python authority and signature-verified by the runner / client counts as signed production authority. Even with `LATTICE_AUTHORITY_URL`, `LATTICE_AUTHORITY_ACTOR_KEY`, and `LATTICE_AUTHORITY_RUNNER_ID` all set, `productionDone` stays `false` until a signed native Proofbound Authority `gate_decision` receipt is signature-verified. A `jobs_stream` network event is only a queue notification hint; empty snapshots, old servers, HTTP errors, malformed SSE, and timeouts fall back to the existing signed claim. Full `fullAuthorityDone` additionally requires final multi-host certification. For the PD-1 / PD-2 trust boundary, see [`requirements/decisions/authority-client-role.md`](requirements/decisions/authority-client-role.md).
-
-### Autopilot modes: local / shadow / authority
-
-`lattice autopilot` is the unattended-development control surface. It keeps the
-local workflow available by default and only uses Python authority in the
-explicit authority mode.
+`lattice autopilot` is the local unattended-development control surface.
 
 ```bash
 lattice autopilot status --json
 lattice autopilot doctor --json
 lattice autopilot run --mode=local --storyId=B-xxxx --until=TEST --json
 lattice autopilot execute --mode=local --storyId=B-xxxx --until=TEST --maxSteps=20 --json
-lattice autopilot run --mode=authority --storyId=B-xxxx --until=DONE \
-  --receiptFile=receipt.json --serverPublicKey="$SERVER_PUBLIC_KEY_HEX" \
-  --receiptKind=gate_decision --receiptProjectId="$PROJECT_ID" \
-  --receiptStoryId=B-xxxx --serverKeyId="$SERVER_KEY_ID" \
-  --expectedDecisionDigest="$DECISION_DIGEST" --json
 ```
 
-- `local` is the default and never requires Python authority.
-- `shadow` reports authority readiness warnings without blocking local work.
-- `authority` fail-closes on missing Python authority readiness; `DONE` also
-  requires a signed native `gate_decision` receipt, server public key, and
-  explicit project/story/server-key/decision binding before reporting
-  `status: pass`. Legacy `subjectId` / `subjectKind` receipts do not satisfy
-  native authority DONE.
+- `local` is the only active mode.
 - `autopilot_run` is dry-run by default. Only `--dryRun=false` records an
   `autopilot_projection` process event, and that projection is not gate
   evidence or production authority.
@@ -139,28 +85,22 @@ lattice planner review --draftFile=draft.json --json
 lattice planner status --runId=<plannerRun> --json
 lattice planner source-manifest --sourceRepo=<path> --json
 lattice planner run --request="<one sentence>" --mode=local --until=DONE --json
-lattice planner run --request="<one sentence>" --mode=authority --until=DONE --json
 ```
 
 Boundaries:
 
 - `planner draft` / `review` / `status` / `source-manifest` are read-only; `planner create-story` / `create-job` write state only through Proofbound commands.
 - Interaction mode is `--interactionMode=autonomous|interview|decision-gated` (default `autonomous`); a paused run resumes with `planner answer` / `planner decision submit` / `planner resume`.
-- `planner run` strings together draft → review → Story → job/local plan → executor, but DONE is still bound by the same gates as autopilot: `local` reaches at most local certified completion, and authority DONE still requires a signature-verified native `gate_decision` receipt. The planner is still converging against its fixtures, so treat it as the planning entry point, not a guarantee of unattended DONE.
+- `planner run` strings together draft → review → Story → local plan → executor, but DONE is still bound by the same local gates as autopilot. Treat it as the planning entry point, not a guarantee of unattended DONE.
 
 ### Multi-host verdicts and run status
 
-Release certification can require independent host verdicts. There are two verdict paths, and they are deliberately not interchangeable:
+Release certification can require independent local host verdicts:
 
 ```bash
-# Authority (server-backed) path
-lattice authority verdict submit --jobId=<job> --runId=<run> --verdictFile=<verdict.json> --json
-lattice authority verdict list   --jobId=<job> --json
-lattice authority job status      --jobId=<job> --json
-
-# Local (non-authority) path
 lattice autopilot review submit --storyId=<story> --runId=<run> --verdictFile=<verdict.json> --json
 lattice autopilot review status --storyId=<story> --runId=<run> --json
+lattice quorum_submit '{"storyId":"B-xxxx","hostA":"codex","hostB":"claude"}'
 
 # Read-only resolution of a planned step's worktree / phase
 lattice story resolve --storyId=<story> --json
@@ -168,8 +108,8 @@ lattice story resolve --storyId=<story> --json
 
 Boundaries:
 
-- `authority verdict submit` is the Authority path; `autopilot review submit` is the local path. The local path only records verifier verdicts into local run state keyed by `storyId` / `runId`, and never creates an Authority receipt or sets Authority DONE flags.
-- `authority verdict list` / `authority job status` / `story resolve` are all read-only. `authority job status` summarizes host-verdict status without minting or replacing a native receipt; until the real Authority criteria are met, `multiHostVerified` / `fullAuthorityDone` stay `false`.
+- `autopilot review submit/status` records local verifier verdicts keyed by `storyId` / `runId`.
+- `quorum_submit` bulk-records local 3x2 quorum evidence only after current reviewer pass evidence exists for every required review lane.
 
 ### Source-Aligned Redevelopment Workflow
 
@@ -184,19 +124,18 @@ lattice planner run --workflow=source-aligned-redevelopment \
 
 Boundaries:
 
-- It is a development workflow, not a new interaction mode; it runs under one of `autonomous` / `interview` / `decision-gated`, and under either `local` or `authority`.
+- It is a development workflow, not a new interaction mode; it runs in local mode and uses `--interactionMode=autonomous|interview|decision-gated` for human interaction policy.
 - The source codebase is read-only input; target files are written only through the story worktree and normal lifecycle gates. The workflow is language-pair agnostic (e.g. `typescript -> rust`, `swift -> kotlin`).
 - It preserves license/attribution notices and excludes secrets, `.git`, caches, and build outputs from prompts/output/evidence. It produces evidence-backed alignment, not a promise of perfect semantic equivalence; in-scope details that cannot be verified are recorded as explicit gaps. This is a current-pass capability still converging against its fixtures, not part of the already-shipped baseline.
 
-### CHK-002 enforce matrix smoke
+### Legacy enforce matrix smoke
 
-`npm run test:authority-enforce-matrix` verifies the following five cells through a pure in-process matrix:
+This legacy matrix is retained only as historical migration context; it is not an active runtime baseline. Current Proofbound assurance uses local proof-admissibility, receipt-bundle anti-tamper checks, and local review quorum evidence.
 
-- **local/off stays free/local** — `loadAuthoritySettings({})` returns `mode: off`; `classifyCliAuthoritySubmission('off', …)` returns `local-only`, with no network access.
-- **shadow is warning-only** — when the server fails, `proceed=true` + a stderr `[warning]`, with no exception thrown and no blocking of the local write.
-- **enforce fake receipt can be classified as L2+ only after receipt verification** — an ordinary CLI submission is always `thin-client-transport-accepted`; only when a fully-bound envelope + a signed `AuthorityReceipt` is passed into `classifyReceiptBackedEvidence` and signature-verified does it reach `receipt-backed-l2-plus`.
-- **enforce missing server fails closed for the runner/submission path** — `createAuthoritySubmitter(enforce, no baseURL).submitSingle(…)` returns `proceed=false`, with no network access.
-- **parallel_report is always non-authoritative** — `buildParallelReport(wave)` always has `authority.productionDone=false`, `authority.authorityChanged=false`, and an empty `authority.receiptRefs`.
+- Local proof evidence remains local and does not require a remote receipt.
+- Legacy shadow/enforce transport behavior is out-of-core and superseded by local admissibility gates.
+- Legacy remote receipt classifications must not be used to claim current production completion.
+- `parallel_report` remains non-production evidence unless admitted by local gate evidence and review quorum.
 
 ## Host Overflow
 

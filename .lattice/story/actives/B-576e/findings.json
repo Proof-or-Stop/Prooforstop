@@ -1,0 +1,100 @@
+{
+  "findings": [
+    {
+      "id": "B-576e:F-001",
+      "desc": "Active host/capability runtime still exports Authority receipt/server completion semantics after Authority Server retirement. packages/main/src/core/capabilities.ts:63-66 hard-codes authorityRules.productionDoneRequiresReceipt=true and receiptCapability=\"receipt-verify\"; capabilities.ts:125-135 describes submitting signed evidence to an external authority service and verifying an authority receipt before production completion; capabilities.ts:338-350 keeps a Server profile with receipt verification available. packages/main/src/core/lattice-hosts.ts:354-357 tells users production completion still requires a verified authority receipt, and lattice-autopilot.ts:1828 records \"authority receipt gate passed\". Runtime confirmation: node --input-type=module import of buildCapabilityList() reports productionDoneRequiresReceipt=true and server.receiptVerify.status=\"available\". This leaves an active CLI/runtime product model where Authority-style receipt verification is still the productionDone path, contradicting B-576e replacement semantics of local proof admissibility, signed/offline receipt bundles, and local review quorum.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-29T01:50:23.099Z",
+      "reviewRound": "2026-06-29T01:48:03.992Z",
+      "reviewRunId": "B-576e:RR-002",
+      "_hash": "43f8c25f2957d60759dfa5e0af62965593a705157851860122be90259b1235ac",
+      "files": [
+        "packages/main/src/core/capabilities.ts",
+        "packages/main/src/core/lattice-hosts.ts",
+        "packages/main/src/core/lattice-autopilot.ts",
+        "docs/requirements/decisions/project-vision.md",
+        "docs/requirements/decisions/host-neutral-observability-console.md"
+      ],
+      "signatureTag": "spec-boundary|ts|active-host-capability",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by a707bbeb3: capability and host projections now describe local proof admissibility, offline receipt bundles, and local review quorum instead of Authority Server receipt production completion. Verified with npm build and retired-authority-server-semantics smoke.",
+      "resolvedAt": "2026-06-29T02:05:34.544Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-576e:F-002",
+      "desc": "Active docs still expose retired Authority/autopilot mode guidance: docs/guide.md:58 titles the current Autopilot section as `local / shadow / authority` even though line 69 says local is the only active mode, and docs/guide.md:127 says source-aligned redevelopment runs under either `local` or `authority`. This leaves residual Authority mode wording in active user-facing guidance instead of removing it or marking it legacy/out-of-core/superseded, so users can still infer an active authority path after this retirement story.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-29T01:50:33.375Z",
+      "reviewRound": "2026-06-29T01:48:03.992Z",
+      "reviewRunId": "B-576e:RR-003",
+      "_hash": "adbd01b6396eb1e86b2fbf61462682e9de8df37f2ffc55ae3764ee9d2e056760",
+      "files": [
+        "docs/guide.md"
+      ],
+      "signatureTag": "missing|md|active-docs-still",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by a707bbeb3: docs/guide.md now labels Autopilot as Local Only and source-aligned redevelopment as local mode with interactionMode policy, removing active authority mode wording. Verified by retired-authority-server-semantics smoke.",
+      "resolvedAt": "2026-06-29T02:05:34.961Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-576e:F-003",
+      "desc": "Quality blocker: npm run test:process-fact-contract fails after Authority Server retirement. The implementation removed authority_receipt_verify and artifact:authority-receipt-refs.json from packages/main/src/core/process-fact-registry.ts, but scripts/verify-process-fact-contract.mjs still requires both at lines 131 and 169 and still requires the old decision-doc Authority boundary tokens at lines 2663-2664. The current decision_doc_save authorityBoundary wording at packages/main/src/handlers/decision-doc-promotion.ts:507 no longer satisfies that contract, so the repo root process-fact contract test fails. Synchronize the verifier with the retired Authority semantics or restore an equivalent registered fact if it remains gate-consumed before this can pass REVIEW.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-29T01:50:46.070Z",
+      "reviewRound": "2026-06-29T01:48:03.992Z",
+      "reviewRunId": "B-576e:RR-004",
+      "_hash": "5a58a5aafc67ac314e7dec9f905354328e5332d35277e9b793cfe99d75566fdf",
+      "files": [
+        "scripts/verify-process-fact-contract.mjs",
+        "packages/main/src/core/process-fact-registry.ts",
+        "packages/main/src/handlers/decision-doc-promotion.ts"
+      ],
+      "signatureTag": "missing|mjs|quality-blocker-test",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by a707bbeb3 plus scope acknowledgement 9065031b4: scripts/verify-process-fact-contract.mjs no longer requires retired authority_receipt_verify or authority-receipt-refs facts and decision-doc promotion wording matches local semantics. Verified by npm run test:process-fact-contract.",
+      "resolvedAt": "2026-06-29T02:05:35.352Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-576e:F-004",
+      "desc": "Coverage blocker: CHK-005 promises the retired Authority Server guard would fail on a reintroduced productionDone claim surface, but the retirement smoke only patterns server/AuthorityReceipt/env-mode terms plus `fullAuthorityDone requires` (packages/main/src/tasks/retired-authority-server-semantics-smoke.ts:49, :64) and its negative self-check only exercises `fullAuthorityDone requires`, not positive `productionDone=true`, `receiptVerified=true`, `authorityDone=true`, or `fullAuthorityDone=true` claim surfaces (packages/main/src/tasks/retired-authority-server-semantics-smoke.ts:221). The command-catalog smoke covers retired command names (packages/main/src/tasks/command-catalog-smoke.ts:93) and proof-admissibility smoke covers evaluator productionDoneEligible=false for selected artifacts (packages/main/src/tasks/proof-admissibility-smoke.ts:95), but neither scans active docs/prompts/source claim text. A future active line such as `this local path sets productionDone=true` without Authority Server wording would not be caught by the recorded smokes, so the adversarial verification intent is undercovered.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-29T01:52:18.022Z",
+      "reviewRound": "2026-06-29T01:48:03.992Z",
+      "reviewRunId": "B-576e:RR-005",
+      "_hash": "29f860f0f56c89b73ce1732fc28eb2a69bc34a950bdf98d1425ba918b71f7e1a",
+      "files": [
+        "packages/main/src/tasks/retired-authority-server-semantics-smoke.ts",
+        "packages/main/src/tasks/proof-admissibility-smoke.ts",
+        "packages/main/src/tasks/command-catalog-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|coverage-blocker-promises",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by a707bbeb3: retired-authority-server-semantics smoke now rejects positive local claim surfaces such as productionDone=true, receiptVerified=true, authorityDone=true, and fullAuthorityDone=true unless clearly negative or retired. Verified by the strengthened smoke self-check.",
+      "resolvedAt": "2026-06-29T02:05:35.742Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

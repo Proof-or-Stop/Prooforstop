@@ -39,7 +39,7 @@ function renderText(snapshot: LatticeObservabilitySnapshot): string {
     `generatedAt: ${snapshot.generatedAt}`,
     `readOnly: ${snapshot.readOnly}`,
     `stories: ${snapshot.sections.storyBoard.length}`,
-    `authorityLadder: receipt=${ladder.serverReceipt.count} record=${ladder.serverRecord.count} localEvidence=${ladder.localEvidence.count} inFlight=${ladder.inFlight.count}`,
+    `authorityLadder: receipt=${ladder.legacyReceipt.count} record=${ladder.legacyRecord.count} localEvidence=${ladder.localEvidence.count} inFlight=${ladder.inFlight.count}`,
     `productionDoneGap: ${ladder.productionDoneGap}`,
     `capabilityMatrix: ${snapshot.sections.capabilityMatrix.length}`,
     `recoveryEntries: ${snapshot.sections.recovery.length}`,

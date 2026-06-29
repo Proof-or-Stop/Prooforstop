@@ -36,7 +36,7 @@ export interface ParallelWaveDegradation {
   visible: true;
   reason: string;
   fallback: string;
-  authorityImpact: 'none' | 'evidence-local-only' | 'verification-evidence-limited' | 'blocks-production-done';
+  authorityImpact: 'none' | 'evidence-local-only' | 'verification-evidence-limited' | 'local-assurance-required' | 'blocks-production-done';
   recovery?: string;
 }
 
@@ -957,7 +957,7 @@ function hostCandidate(host: string): ParallelWaveHostCandidate {
       info: degradations.filter(d => d.severity === 'info').length,
       warn: degradations.filter(d => d.severity === 'warn').length,
       block: degradations.filter(d => d.severity === 'block').length,
-      blocksProductionDone: degradations.filter(d => d.authorityImpact === 'blocks-production-done').length,
+      blocksProductionDone: degradations.filter(d => d.authorityImpact === 'blocks-production-done' || d.authorityImpact === 'local-assurance-required').length,
     },
     degradations,
   };
@@ -1116,7 +1116,7 @@ function mergeOrder(storyRefs: ParallelWaveStoryRef[]): ParallelWaveMergeOrderEn
 function authorityBoundary(hosts: ParallelWaveHostCandidate[]): ParallelWaveAuthorityBoundary {
   const blockedHosts = hosts
     .filter(host => host.capability.productionDoneBlocked)
-    .map(host => `${host.host}:receipt-verify=${host.capability.receiptVerifyStatus}`);
+    .map(host => `${host.host}:receipt-bundle=${host.capability.receiptVerifyStatus}`);
   return {
     productionDone: false,
     authorityChanged: false,
@@ -1124,8 +1124,8 @@ function authorityBoundary(hosts: ParallelWaveHostCandidate[]): ParallelWaveAuth
     notes: [
       'Parallel Wave is collection-level scheduling and recovery guidance only; it does not mutate story authority, verify receipts, or satisfy DONE.',
       blockedHosts.length > 0
-        ? `Production authority remains blocked for hosts without available receipt verification (${blockedHosts.join(', ')}).`
-        : 'Receipt-capable hosts still need a separate verified authority receipt before any productionDone claim.',
+        ? `Local assurance remains incomplete for hosts without available receipt-bundle verification (${blockedHosts.join(', ')}).`
+        : 'Receipt-bundle-capable hosts still need proof admissibility and local review quorum before any integration; no productionDone claim is made.',
     ],
   };
 }

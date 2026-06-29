@@ -102,7 +102,7 @@ function assertMissingScopeCheckGuidanceIsActionable(): void {
     assert.match(issue.message, /lattice-review-scope-plan \/ scope-plan reviewer/);
     assert.match(issue.message, /implementation\/main agent must not self-sign/);
     assert.match(issue.message, /manually edit story metadata/);
-    assert.match(issue.message, /not Authority Server completion/);
+    assert.match(issue.message, /not remote completion/);
     assert.doesNotMatch(issue.message, /self-sign.*scope_check_save/i);
     assert.doesNotMatch(issue.message, /scope_contract_check/i);
     assert.doesNotMatch(issue.message, /receiptVerified|authorityDone|productionDone|fullAuthorityDone/);

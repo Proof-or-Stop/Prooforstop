@@ -41,8 +41,8 @@ export interface ObservabilityLadderBucket {
 }
 
 export interface ObservabilityAuthorityLadder {
-  serverReceipt: ObservabilityLadderBucket;
-  serverRecord: ObservabilityLadderBucket;
+  legacyReceipt: ObservabilityLadderBucket;
+  legacyRecord: ObservabilityLadderBucket;
   localEvidence: ObservabilityLadderBucket;
   inFlight: ObservabilityLadderBucket;
   productionDoneGap: number;
@@ -149,8 +149,8 @@ function defaultStoreFactory(cwd: string): StoryStore {
 
 function emptyLadder(): ObservabilityAuthorityLadder {
   return {
-    serverReceipt: { count: 0, storyIds: [] },
-    serverRecord: { count: 0, storyIds: [] },
+    legacyReceipt: { count: 0, storyIds: [] },
+    legacyRecord: { count: 0, storyIds: [] },
     localEvidence: { count: 0, storyIds: [] },
     inFlight: { count: 0, storyIds: [] },
     productionDoneGap: 0,
@@ -162,14 +162,14 @@ function pushLadder(
   tier: ObservabilityAuthorityTier,
   storyId: string,
 ): void {
-  if (tier === 'server-receipt') {
-    ladder.serverReceipt.count += 1;
-    ladder.serverReceipt.storyIds.push(storyId);
+  if (tier === 'legacy-receipt') {
+    ladder.legacyReceipt.count += 1;
+    ladder.legacyReceipt.storyIds.push(storyId);
     return;
   }
-  if (tier === 'server-record') {
-    ladder.serverRecord.count += 1;
-    ladder.serverRecord.storyIds.push(storyId);
+  if (tier === 'legacy-record') {
+    ladder.legacyRecord.count += 1;
+    ladder.legacyRecord.storyIds.push(storyId);
     return;
   }
   ladder.localEvidence.count += 1;
@@ -372,8 +372,8 @@ export function buildObservabilitySnapshot(
     });
   }
 
-  ladder.serverReceipt.storyIds.sort();
-  ladder.serverRecord.storyIds.sort();
+  ladder.legacyReceipt.storyIds.sort();
+  ladder.legacyRecord.storyIds.sort();
   ladder.localEvidence.storyIds.sort();
   ladder.inFlight.storyIds.sort();
   storyBoard.sort((a, b) => a.storyId.localeCompare(b.storyId));

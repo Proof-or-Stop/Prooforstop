@@ -1,0 +1,108 @@
+{
+  "storyId": "B-576e",
+  "checkedAt": "2026-06-29T00:41:31.482Z",
+  "features": [
+    {
+      "feature": "Authority Server retirement replaces active CLI vocabulary with admissibilityStatus, assuranceLevel, evidenceScope, local gate-consumed evidence, local signed/offline bundle evidence, and local review quorum.",
+      "covered_by": "CHK-001, CHK-004, CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description;decisions:proof-admissibility-hardening-execution-plan.md;docs/evidence/evidence-platform-architecture.md"
+    },
+    {
+      "feature": "Authority production receipts, productionDone, authorityDone, and fullAuthorityDone must not be presented as local CLI completion states.",
+      "covered_by": "CHK-001, CHK-002, CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description;decisions:proof-admissibility-hardening-execution-plan.md"
+    },
+    {
+      "feature": "User-facing docs and host prompts stop warning that local evidence is non-authority unless an Authority Server receipt exists and instead explain local admissibility.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Server-backed authority command and alias surface is removed while local proof, admissibility, and quorum commands remain.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Server-backed Authority handlers, core modules, tasks, env URL/mode paths, and receipt paths are removed or quarantined while receipt-bundle, proof-admissibility, and quorum behavior remain.",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description;decisions:proof-admissibility-hardening-execution-plan.md"
+    },
+    {
+      "feature": "Regression guard fails if active docs, prompts, command catalog, aliases, config, or registry reintroduce Authority Server product semantics outside a legacy or retirement allowlist.",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Build, targeted smokes, lattice validate, and CLI patch version bump prove the cleanup before DONE.",
+      "covered_by": "CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Authority live integration decision doc active authority mode job loop, native gate_decision receipt verification, authorityDone/fullAuthorityDone final JSON, and LATTICE_AUTHORITY runtime expectations must be retired/legacy/out-of-core rather than active implementation guidance.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:lattice-authority-live-integration.md"
+    },
+    {
+      "feature": "Authority customer API key decision doc LATTICE_AUTHORITY_URL, project/server key, customer API key, actor key, runner/session env, and production mutating API authorization must be retired/legacy/out-of-core rather than active implementation guidance.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:lattice-authority-customer-api-key-access.md"
+    },
+    {
+      "feature": "Authority receipt contract and receipt-gate execution docs server-signed gate_decision receipts as lifecycle gate or authorityDone inputs must be retired/legacy/out-of-core rather than active implementation guidance.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:lattice-authority-receipt-contract.md;decisions:authority-session-receipt-gate-execution.md;decisions:authority-receipt-gate-integration-execution-plan.md"
+    },
+    {
+      "feature": "CLI Authority client receipt-ref decision doc authority_status and authority_receipt_verify production receipt/ref surfaces including productionDone language must be retired/legacy/out-of-core rather than active implementation guidance.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:lattice-cli-authority-client-receipt-ref.md;decisions:authority-client-role.md"
+    },
+    {
+      "feature": "Authority runner session and evidence envelope doc Authority URL, actor key, runner id/session id, and Authority Server evidence submission path must be retired/legacy/out-of-core rather than active implementation guidance.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:authority-runner-session-evidence-envelope.md"
+    },
+    {
+      "feature": "Generated/live E2E Authority plans authority job create/status/verdict paths and authorityDone/fullAuthorityDone target states must be retired/legacy/out-of-core rather than active implementation guidance.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:lattice-authority-m1-m16-generated-proof-and-live-e2e.md;decisions:lattice-authority-remote-evidence-bundle.md;decisions:authority-receipt-cross-repo-live-smoke.md;decisions:authority-done-material-overlap-audit-cli-fix.md;decisions:lifecycle-gate-receipt-consumption.md;decisions:unlock-layer4-production-safety-suite.md"
+    }
+  ],
+  "summary": {
+    "total": 13,
+    "covered": 13,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "52c0b99f6429eaafb99fcdd4f12b38ab97f8079b2c15f967e968057fd0a4e575",
+  "openQuestions": []
+}

@@ -2785,8 +2785,8 @@ function assertDoneClosureProjectionSeparatesAuthority(): void {
     assert.equal(byId.get('delivery-check')?.status, 'fail', 'missing delivery-check must be projected as blocking');
     assert.equal(byId.get('story-summary')?.status, 'fail', 'missing summary must be projected as blocking');
     assert.equal(runbook.localNonAuthorityAudit.status, 'blocked');
-    assert.equal(runbook.authorityServerPath.receiptVerified, false);
-    assert.equal(runbook.authorityServerPath.mayClaimAuthorityDone, false);
+    assert.equal(runbook.localAssurance.admissibilityStatus, 'blocked');
+    assert.equal(runbook.localAssurance.assuranceLevel, 'local');
     assert.equal(JSON.stringify(runbook).includes('"authorityDone":true'), false);
     assert.equal(JSON.stringify(runbook).includes('"productionDone":true'), false);
     assert.equal(JSON.stringify(runbook).includes('"fullAuthorityDone":true'), false);

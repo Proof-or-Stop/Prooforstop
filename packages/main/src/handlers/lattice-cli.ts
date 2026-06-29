@@ -1,20 +1,6 @@
 import { existsSync, readFileSync, readdirSync, realpathSync, writeFileSync } from 'fs';
 import { isAbsolute, join, relative, resolve as resolvePath, sep } from 'path';
 import type { HandlerContext } from './context.js';
-import { type AuthorityConfig, type AuthoritySettings } from '../core/authority-mode.js';
-import {
-  loadAuthorityConfig,
-  resolveAuthorityCustomerApiKey,
-  type AuthorityConfigLoadOptions,
-} from '../core/authority-client.js';
-import {
-  AUTHORITY_RUNNER_PLANNED_STEPS,
-  readActorPrivateKeyFromPath,
-  runLatticeAuthorityControlPlaneOnce,
-  type AuthorityRunnerPlan,
-} from '../core/authority-runner.js';
-import type { LatticeAuthorityKeyEncoding } from '../core/lattice-authority-native.js';
-import { verifyLatticeAuthorityReceipt } from '../core/lattice-authority-native.js';
 import {
   LATTICE_CLI_VERSION,
   LATTICE_PRODUCT_NAME,
@@ -32,324 +18,20 @@ import {
   type LatticeFormat,
 } from '../core/lattice-hosts.js';
 import {
-  DEFAULT_AUTHORITY_RECEIPT_MAX_VERIFIED_AGE_MS,
-  eligibleAuthorityGateReceiptDocument,
-  type AuthorityGateDecisionReceiptRef,
-  type AuthorityReceiptRefDocument,
-} from '../core/authority-gate-receipts.js';
-import { normalizeAuthorityGatePhase, type AuthorityGatePhase } from '../core/authority-gate-receipt-verifier.js';
-import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
-import {
   LATTICE_CONFIG_FILENAME,
   loadConfig,
   pickProjectConfigPath,
   resetConfigCache,
 } from '../core/config.js';
 import { gitProbe } from '../core/git-probe.js';
-import { resolveWorkflowPolicy } from '../core/workflow-policy.js';
 
 type FormatArgs = { format?: LatticeFormat; json?: boolean };
 
-type AuthorityEnforceRunnerArgs = {
-  once?: boolean;
-  dryRun?: boolean;
-  live?: boolean;
-  authorityMode?: string;
-  authorityURL?: string;
-  authorityTimeoutMS?: number;
-  storyId?: string;
-};
-
-type AuthorityEnforceRunnerOptions = AuthorityConfigLoadOptions & {
-  fetchImpl?: typeof fetch;
-};
-
-const AUTHORITY_DISCLAIMER =
-  'Receipt-aware status only: existing receipt refs may be reported, no new receipt is verified, no evidence is submitted, and productionDone remains false.';
-
-const LOCAL_WORKFLOW_NOTE =
-  'Local workflow (story_advance / verification_evidence_add / DONE gate) does not depend on remote authority; if you are consuming operator/server-provided Authority handoff files, keep lattice_authority_trust.env and its referenced lattice_staging-client.env together in the target workspace so local paths resolve. Missing live runner fields like PROJECT_ID or GATE_ACTOR_* are expected until you switch to authority enforce runner --live. Missing enforce prerequisites are readiness warnings, not global blockers.';
+const LOCAL_ASSURANCE_NOTE =
+  'Local Proofbound assurance uses proof admissibility, gate-consumed local evidence, signed/offline receipt bundles, and local review quorum. Retired server Authority modes are not active CLI runtime paths.';
 
 function wantsJson(args: FormatArgs | undefined): boolean {
   return args?.format === 'json' || args?.json === true;
-}
-
-/**
- * Read presence-only env var indicators for enforce-runner prerequisites.
- *
- * These are pure diagnostics: the CLI never claims, generates, signs, or
- * verifies anything based on these env vars under PD-1 / PD-2. Their presence
- * just lets users sanity-check their env wiring; their absence becomes a
- * readiness warning when authority mode is shadow / enforce.
- *
- * No new behavior is gated on these env vars and they do NOT promote
- * productionDone / receiptVerified / canClaimProductionDone away from `false`.
- */
-function readEnforceEnv(env: Record<string, string | undefined>): {
-  actorKeyConfigured: boolean;
-  runnerConfigured: boolean;
-  sessionConfigured: boolean;
-} {
-  const present = (key: string): boolean => typeof envValue(env, key) === 'string';
-  return {
-    actorKeyConfigured:
-      present('ACTOR_KEY') || present('ACTOR_KEY_PATH'),
-    runnerConfigured: present('RUNNER_ID'),
-    sessionConfigured: present('SESSION_ID'),
-  };
-}
-
-function envValue(env: Record<string, string | undefined>, suffix: string): string | undefined {
-  const canonical = env[`LATTICE_AUTHORITY_${suffix}`];
-  if (typeof canonical === 'string' && canonical.trim().length > 0) return canonical.trim();
-  return undefined;
-}
-
-interface AuthorityReadiness {
-  /** Always true: local story / phase / DONE gates do not consume server receipts. */
-  localWorkflowUsable: true;
-  /** Top-level mode alias, matching `authorityMode`. */
-  mode: AuthoritySettings['mode'];
-  authorityUrlConfigured: boolean;
-  actorKeyConfigured: boolean;
-  runnerConfigured: boolean;
-  sessionConfigured: boolean;
-  /**
-   * Actionable warnings when shadow / enforce is configured but prerequisites
-   * are missing. Empty in `off` mode (user opted out of authority altogether).
-   */
-  readinessWarnings: string[];
-  /** Suggested commands / env to address each readiness warning. */
-  nextActions: string[];
-}
-
-interface AuthorityStatusArgs extends FormatArgs {
-  authorityMode?: string;
-  authorityURL?: string;
-  authorityTimeoutMS?: number;
-  storyId?: string;
-  targetPhase?: AuthorityGatePhase | string;
-  phase?: AuthorityGatePhase | string;
-  headHash?: string;
-  materialHash?: string;
-  policyMode?: string;
-  now?: string;
-}
-
-interface AuthorityStatusRuntime extends AuthorityConfigLoadOptions {
-  root?: string;
-  store?: HandlerContext['store'];
-}
-
-interface AuthorityReceiptStatus {
-  storyId?: string;
-  targetPhase?: AuthorityGatePhase;
-  headHash?: string;
-  materialHash?: string;
-  policyMode?: string;
-  latestReceiptId?: string;
-  latestDecisionDigest?: string;
-  statusReceiptId?: string;
-  statusDecisionDigest?: string;
-  receiptVerified: boolean;
-  receiptEligible: boolean;
-  receiptConsumed: boolean;
-  eligibilityReason?: string;
-  contextAvailable: boolean;
-}
-
-function buildAuthorityReadiness(
-  settings: AuthoritySettings,
-  env: Record<string, string | undefined>,
-  resolved: {
-    authorityUrlConfigured?: boolean;
-    actorKeyConfigured?: boolean;
-    customerApiKeyConfigured?: boolean;
-    runnerConfigured?: boolean;
-    sessionConfigured?: boolean;
-    runnerProviderValid?: boolean;
-    runnerProviderInvalidValue?: string;
-  } = {},
-): AuthorityReadiness {
-  const enforce = readEnforceEnv(env);
-  const authorityUrlConfigured =
-    resolved.authorityUrlConfigured ??
-    (typeof settings.baseURL === 'string' && settings.baseURL.length > 0);
-  const actorKeyConfigured = resolved.actorKeyConfigured ?? enforce.actorKeyConfigured;
-  const customerApiKeyConfigured = resolved.customerApiKeyConfigured === true;
-  const runnerConfigured = resolved.runnerConfigured ?? enforce.runnerConfigured;
-  const sessionConfigured = resolved.sessionConfigured ?? enforce.sessionConfigured;
-  const runnerProviderValid = resolved.runnerProviderValid !== false;
-  const warnings: string[] = [];
-  const actions: string[] = [];
-
-  if (settings.mode !== 'off' && !runnerProviderValid) {
-    warnings.push(
-      `${settings.mode} mode set but LATTICE_AUTHORITY_RUNNER_PROVIDER could not be resolved (${resolved.runnerProviderInvalidValue ?? 'unset'}); provide a non-empty provider declaration or unset it to use codex`,
-    );
-    actions.push('export LATTICE_AUTHORITY_RUNNER_PROVIDER=<provider-declaration>');
-  }
-
-  if (settings.mode === 'shadow') {
-    if (!authorityUrlConfigured) {
-      warnings.push(
-        'shadow mode set but LATTICE_AUTHORITY_URL is empty; observational POSTs will be skipped',
-      );
-      actions.push('export LATTICE_AUTHORITY_URL=https://<authority-host>');
-    }
-  } else if (settings.mode === 'enforce') {
-    if (!authorityUrlConfigured) {
-      warnings.push(
-        'enforce mode set but LATTICE_AUTHORITY_URL is empty; runner / policy discovery cannot reach the Proofbound Authority server',
-      );
-      actions.push('export LATTICE_AUTHORITY_URL=https://<authority-host>');
-    }
-    if (!customerApiKeyConfigured) {
-      warnings.push(
-        'enforce mode set but no LATTICE_AUTHORITY_CUSTOMER_API_KEY / LATTICE_AUTHORITY_CUSTOMER_API_KEY_PATH detected; mutating Authority calls would be unauthorized',
-      );
-      actions.push(
-        'configure a customer API key via LATTICE_AUTHORITY_CUSTOMER_API_KEY_PATH=<path>',
-      );
-    }
-    if (!actorKeyConfigured) {
-      warnings.push(
-        'enforce mode set but no LATTICE_AUTHORITY_ACTOR_KEY / LATTICE_AUTHORITY_ACTOR_KEY_PATH detected; live runner submissions would be unsigned and rejected',
-      );
-      actions.push(
-        'configure an actor private key via LATTICE_AUTHORITY_ACTOR_KEY_PATH=<path>',
-      );
-    }
-    if (!runnerConfigured) {
-      warnings.push(
-        'enforce mode set but LATTICE_AUTHORITY_RUNNER_ID is empty; runner identity binding would be missing',
-      );
-      actions.push('export LATTICE_AUTHORITY_RUNNER_ID=<runner-id>');
-    }
-  }
-
-  return {
-    localWorkflowUsable: true,
-    mode: settings.mode,
-    authorityUrlConfigured,
-    actorKeyConfigured,
-    runnerConfigured,
-    sessionConfigured,
-    readinessWarnings: warnings,
-    nextActions: actions,
-  };
-}
-
-function latestReceiptRef(document: AuthorityReceiptRefDocument | null | undefined): AuthorityGateDecisionReceiptRef | undefined {
-  const refs = document?.refs ?? [];
-  if (refs.length === 0) return undefined;
-  return [...refs].sort((left, right) => {
-    const leftTime = Date.parse(left.verifiedAt ?? '');
-    const rightTime = Date.parse(right.verifiedAt ?? '');
-    const normalizedLeft = Number.isFinite(leftTime) ? leftTime : 0;
-    const normalizedRight = Number.isFinite(rightTime) ? rightTime : 0;
-    return normalizedRight - normalizedLeft;
-  })[0];
-}
-
-function isVerifiedProductionGateReceipt(ref: AuthorityGateDecisionReceiptRef | undefined): ref is AuthorityGateDecisionReceiptRef {
-  return ref?.classification === 'production-gate-decision'
-    && ref.receiptKind === 'gate_decision'
-    && ref.status !== 'stale'
-    && ref.status !== 'revoked'
-    && ref.status !== 'superseded';
-}
-
-function latestVerifiedProductionReceiptRef(document: AuthorityReceiptRefDocument | null | undefined): AuthorityGateDecisionReceiptRef | undefined {
-  const refs = document?.refs ?? [];
-  return latestReceiptRef({
-    schemaVersion: 'lattice.authority_receipt_refs.v1',
-    storyId: document?.storyId ?? '',
-    updatedAt: document?.updatedAt ?? '',
-    refs: refs.filter(isVerifiedProductionGateReceipt),
-  });
-}
-
-function matchingConsumption(
-  ref: AuthorityGateDecisionReceiptRef | undefined,
-  args: { storyId?: string; targetPhase?: AuthorityGatePhase; headHash?: string; materialHash?: string },
-): boolean {
-  if (!ref || !args.storyId || !args.targetPhase || !args.headHash || !args.materialHash || !ref.decisionDigest) return false;
-  return (ref.consumptionEvents ?? []).some((event) => (
-    event.storyId === args.storyId
-    && event.targetPhase === args.targetPhase
-    && event.headHash === args.headHash
-    && event.materialHash === args.materialHash
-    && event.decisionDigest === ref.decisionDigest
-  ));
-}
-
-function resolveStatusPolicyMode(
-  args: AuthorityStatusArgs,
-  runtime: AuthorityStatusRuntime | undefined,
-  storyId: string | undefined,
-): string | undefined {
-  if (args.policyMode) return args.policyMode;
-  if (!runtime?.root || !runtime.store || !storyId) return undefined;
-  try {
-    return resolveWorkflowPolicy(loadConfig(runtime.root), runtime.store.readStory(storyId)).profile;
-  } catch {
-    return undefined;
-  }
-}
-
-function buildAuthorityReceiptStatus(
-  args: AuthorityStatusArgs,
-  runtime?: AuthorityStatusRuntime,
-): AuthorityReceiptStatus {
-  const storyId = args.storyId?.trim() || undefined;
-  const targetPhase = normalizeAuthorityGatePhase(args.targetPhase ?? args.phase);
-  const headHash = args.headHash ?? (runtime?.root ? currentGitHead(runtime.root) : undefined);
-  const materialHash = args.materialHash ?? (runtime?.root ? currentMaterialHash(runtime.root) : undefined);
-  const policyMode = resolveStatusPolicyMode(args, runtime, storyId);
-  const document = storyId && runtime?.store ? runtime.store.readAuthorityReceiptRefs(storyId) : undefined;
-  const latest = latestReceiptRef(document);
-  const contextAvailable = Boolean(storyId && targetPhase && headHash && materialHash);
-  let eligibleRef: AuthorityGateDecisionReceiptRef | undefined;
-  let receiptEligible = false;
-  let eligibilityReason: string | undefined;
-  if (contextAvailable) {
-    const eligibility = eligibleAuthorityGateReceiptDocument(document ?? undefined, {
-      storyId: storyId!,
-      targetPhase: targetPhase!,
-      headHash: headHash!,
-      materialHash: materialHash!,
-      now: args.now ?? new Date().toISOString(),
-      maxVerifiedAgeMs: DEFAULT_AUTHORITY_RECEIPT_MAX_VERIFIED_AGE_MS,
-      acceptablePolicyModes: policyMode ? [policyMode] : undefined,
-      acceptableAuthorityModes: ['enforce'],
-    });
-    receiptEligible = eligibility.eligible;
-    eligibilityReason = eligibility.reason;
-    if (eligibility.eligible) eligibleRef = eligibility.ref;
-  }
-  const verifiedRef = eligibleRef ?? latestVerifiedProductionReceiptRef(document);
-  const statusRef = eligibleRef ?? verifiedRef ?? latest;
-  const receiptVerified = Boolean(verifiedRef);
-  if (!contextAvailable && !receiptVerified) {
-    eligibilityReason = 'authority_receipt_missing';
-  }
-  return {
-    storyId,
-    targetPhase,
-    headHash,
-    materialHash,
-    policyMode,
-    latestReceiptId: latest?.receiptId,
-    latestDecisionDigest: latest?.decisionDigest,
-    statusReceiptId: statusRef?.receiptId,
-    statusDecisionDigest: statusRef?.decisionDigest,
-    receiptVerified,
-    receiptEligible,
-    receiptConsumed: matchingConsumption(statusRef, { storyId, targetPhase, headHash, materialHash }),
-    eligibilityReason,
-    contextAvailable,
-  };
 }
 
 function readPackageVersion(path: string): string | null {
@@ -537,7 +219,7 @@ function buildConfigDoctor(ctx: HandlerContext) {
     authority: {
       productionDone: false as const,
       receiptVerified: false as const,
-      note: AUTHORITY_DISCLAIMER,
+      note: LOCAL_ASSURANCE_NOTE,
     },
   };
 }
@@ -742,441 +424,8 @@ function renderConfigRepairText(result: ReturnType<typeof buildConfigRepair>): s
   return lines.join('\n');
 }
 
-export function buildAuthorityStatus(
-  args: AuthorityStatusArgs = {},
-  env: Record<string, string | undefined> = process.env,
-  runtime: AuthorityStatusRuntime = {},
-) {
-  // Full config (authority.md + localhost default + production-inert verdict).
-  // Readiness is based on the same resolved config that live authority execution
-  // uses, so authority.md/default URL behavior does not drift from runner behavior.
-  const config = loadAuthorityConfig(env, args, runtime);
-  const customerKey = config.mode === 'off'
-    ? { source: 'none' as const }
-    : resolveAuthorityCustomerApiKey(env, runtime);
-  const actorKeyConfigured =
-    readEnforceEnv(env).actorKeyConfigured ||
-    typeof config.keyMaterial.actorKey === 'string' ||
-    typeof config.keyMaterial.actorKeyPath === 'string';
-  const readiness = buildAuthorityReadiness(config, env, {
-    authorityUrlConfigured: typeof config.baseURL === 'string' && config.baseURL.length > 0,
-    actorKeyConfigured,
-    customerApiKeyConfigured: typeof customerKey.value === 'string' && customerKey.value.length > 0,
-    runnerConfigured: typeof config.runnerId === 'string' && config.runnerId.length > 0,
-    sessionConfigured: typeof config.sessionId === 'string' && config.sessionId.length > 0,
-    runnerProviderValid: config.runnerProviderValid,
-    runnerProviderInvalidValue: config.runnerProviderInvalidValue,
-  });
-  const baseURLConfigured = readiness.authorityUrlConfigured;
-  const receiptStatus = buildAuthorityReceiptStatus(args, runtime);
-  const authorityReady = config.mode !== 'off'
-    && baseURLConfigured
-    && readiness.readinessWarnings.length === 0;
-  return {
-    schemaVersion: 'lattice.authority_status.v1' as const,
-    product: { name: LATTICE_PRODUCT_NAME, version: LATTICE_CLI_VERSION },
-    authorityMode: config.mode,
-    /** Alias of `authorityMode`; convenience for `mode:"off"` JSON consumers. */
-    mode: readiness.mode,
-    baseURLConfigured,
-    baseURL: config.baseURL ?? null,
-    timeoutMS: config.timeoutMS,
-    // Resolved-config diagnostics (precedence + production-inert flag/reason):
-    resolvedBaseURL: config.baseURL ?? null,
-    urlSource: config.urlSource,
-    defaultUrlApplied: config.defaultUrlApplied,
-    authorityMdLoaded: config.authorityMdLoaded,
-    authorityTrustEnvLoaded: config.authorityTrustEnvLoaded,
-    testKeyProfile: config.keyMaterial.testKeyProfile ?? null,
-    /** True when default / local-test material makes this config production-inert. */
-    productionInert: config.productionInert,
-    productionInertReasons: config.productionInertReasons,
-    runnerProvider: config.runnerProvider ?? null,
-    runnerProviderSource: config.runnerProviderSource,
-    runnerProviderRaw: config.runnerProviderRaw ?? null,
-    runnerProviderInvalidValue: config.runnerProviderInvalidValue ?? null,
-    runnerProviderValid: config.runnerProviderValid,
-    runnerId: config.runnerId ?? null,
-    runnerIdSource: config.runnerIdSource,
-    sessionId: config.sessionId ?? null,
-    sessionIdSource: config.sessionIdSource,
-    serverReachability: 'not-probed' as const,
-    authorityReady,
-    receiptVerified: receiptStatus.receiptVerified,
-    receiptEligible: receiptStatus.receiptEligible,
-    receiptConsumed: receiptStatus.receiptConsumed,
-    productionDone: false as const,
-    canClaimProductionDone: false as const,
-    status: receiptStatus.receiptConsumed
-      ? 'receipt-consumed-no-production-claim' as const
-      : receiptStatus.receiptEligible
-        ? 'verified-receipt-eligible' as const
-        : receiptStatus.receiptVerified
-          ? 'verified-receipt-not-eligible' as const
-          : baseURLConfigured
-            ? 'configured-no-verified-receipt' as const
-            : 'not-configured' as const,
-    receiptStatus,
-    // Readiness diagnostics (B-b710 / Milestones 3-4):
-    //   - localWorkflowUsable is always true; local lifecycle gates do not consume
-    //     server receipts (PD-1 / PD-2 thin-client client role).
-    //   - readinessWarnings / nextActions are surfaced when shadow / enforce is
-    //     configured but prerequisites are missing — they are NOT global blockers
-    //     and the local CLI workflow keeps working.
-    localWorkflowUsable: readiness.localWorkflowUsable,
-    authorityUrlConfigured: readiness.authorityUrlConfigured,
-    customerApiKeyConfigured: typeof customerKey.value === 'string' && customerKey.value.length > 0,
-    customerApiKeySource: customerKey.source === 'none' ? 'missing' as const : customerKey.source,
-    customerApiKeyValid: 'unknown' as const,
-    actorKeyConfigured,
-    actorKeyRegistered: 'unknown' as const,
-    serverPublicKeyPinned: typeof config.keyMaterial.serverPublicKey === 'string' && config.keyMaterial.serverPublicKey.length > 0,
-    runnerConfigured: readiness.runnerConfigured,
-    sessionConfigured: readiness.sessionConfigured,
-    productionAuthorityUsable: false as const,
-    readinessWarnings: readiness.readinessWarnings,
-    nextActions: readiness.nextActions,
-    localWorkflowNote: LOCAL_WORKFLOW_NOTE,
-    note: AUTHORITY_DISCLAIMER,
-  };
-}
-
-function renderAuthorityStatusText(result: ReturnType<typeof buildAuthorityStatus>): string {
-  const lines = [
-    `${formatLatticeProductLine()} authority status (${result.schemaVersion})`,
-    `status: ${result.status}`,
-    `mode: ${result.mode}`,
-    `authorityMode: ${result.authorityMode}`,
-    `localWorkflowUsable: ${result.localWorkflowUsable}`,
-    `authorityUrlConfigured: ${result.authorityUrlConfigured}`,
-    `customerApiKeyConfigured: ${result.customerApiKeyConfigured}`,
-    `customerApiKeySource: ${result.customerApiKeySource}`,
-    `customerApiKeyValid: ${result.customerApiKeyValid}`,
-    `actorKeyConfigured: ${result.actorKeyConfigured}`,
-    `actorKeyRegistered: ${result.actorKeyRegistered}`,
-    `serverPublicKeyPinned: ${result.serverPublicKeyPinned}`,
-    `runnerProvider: ${result.runnerProvider ?? '(none)'}`,
-    `runnerProviderSource: ${result.runnerProviderSource}`,
-    `runnerProviderValid: ${result.runnerProviderValid}`,
-    `runnerConfigured: ${result.runnerConfigured}`,
-    `runnerIdSource: ${result.runnerIdSource}`,
-    `sessionConfigured: ${result.sessionConfigured}`,
-    `sessionIdSource: ${result.sessionIdSource}`,
-    `serverReachability: ${result.serverReachability}`,
-    `authorityReady: ${result.authorityReady}`,
-    `receiptVerified: ${result.receiptVerified}`,
-    `receiptEligible: ${result.receiptEligible}`,
-    `receiptConsumed: ${result.receiptConsumed}`,
-    `productionDone: ${result.productionDone}`,
-    `canClaimProductionDone: ${result.canClaimProductionDone}`,
-    `urlSource: ${result.urlSource}${result.defaultUrlApplied ? ` (${result.resolvedBaseURL})` : ''}`,
-    `productionInert: ${result.productionInert}${result.productionInert ? ` (${result.productionInertReasons.join(', ')})` : ''}`,
-  ];
-  if (result.receiptStatus.storyId || result.receiptStatus.latestReceiptId) {
-    lines.push(
-      `receiptStoryId: ${result.receiptStatus.storyId ?? '(none)'}`,
-      `receiptTargetPhase: ${result.receiptStatus.targetPhase ?? '(none)'}`,
-      `latestReceiptId: ${result.receiptStatus.latestReceiptId ?? '(none)'}`,
-      `latestDecisionDigest: ${result.receiptStatus.latestDecisionDigest ?? '(none)'}`,
-      `statusReceiptId: ${result.receiptStatus.statusReceiptId ?? '(none)'}`,
-      `statusDecisionDigest: ${result.receiptStatus.statusDecisionDigest ?? '(none)'}`,
-      `receiptEligibilityReason: ${result.receiptStatus.eligibilityReason ?? '(none)'}`,
-    );
-  }
-  if (result.readinessWarnings.length > 0) {
-    lines.push('', 'readinessWarnings:');
-    for (const w of result.readinessWarnings) lines.push(`  - ${w}`);
-  }
-  if (result.nextActions.length > 0) {
-    lines.push('', 'nextActions:');
-    for (const a of result.nextActions) lines.push(`  - ${a}`);
-  }
-  lines.push('', result.localWorkflowNote);
-  lines.push('', result.note);
-  return lines.join('\n');
-}
-
-export function buildAuthorityEnforceRunnerPlan(
-  args: AuthorityEnforceRunnerArgs = {},
-  env: Record<string, string | undefined> = process.env,
-  options: AuthorityConfigLoadOptions = {},
-): AuthorityRunnerPlan {
-  const settings = loadAuthorityConfig(env, { ...args, authorityMode: args.authorityMode ?? 'enforce' }, options);
-  const customerKey = resolveAuthorityCustomerApiKey(env, options);
-  const actorKeyConfigured =
-    readEnforceEnv(env).actorKeyConfigured ||
-    typeof settings.keyMaterial.actorKey === 'string' ||
-    typeof settings.keyMaterial.actorKeyPath === 'string';
-  const readiness = buildAuthorityReadiness({ ...settings, mode: 'enforce' }, env, {
-    authorityUrlConfigured: typeof settings.baseURL === 'string' && settings.baseURL.length > 0,
-    actorKeyConfigured,
-    customerApiKeyConfigured: typeof customerKey.value === 'string' && customerKey.value.length > 0,
-    runnerConfigured: typeof settings.runnerId === 'string' && settings.runnerId.length > 0,
-    sessionConfigured: typeof settings.sessionId === 'string' && settings.sessionId.length > 0,
-    runnerProviderValid: settings.runnerProviderValid,
-    runnerProviderInvalidValue: settings.runnerProviderInvalidValue,
-  });
-  const missing = [...readiness.readinessWarnings];
-  const actions = [...readiness.nextActions];
-  if (args.live === true && !settings.projectId) {
-    missing.push(
-      'live enforce runner requires LATTICE_AUTHORITY_PROJECT_ID so runner registration is bound to a project',
-    );
-    actions.push('export LATTICE_AUTHORITY_PROJECT_ID=<project-id>');
-  }
-  return {
-    schemaVersion: 'lattice.authority_enforce_runner.v1',
-    mode: 'enforce',
-    once: args.once !== false,
-    dryRun: args.dryRun === true,
-    live: args.live === true,
-    plannedSteps: [...AUTHORITY_RUNNER_PLANNED_STEPS],
-    spawned: false,
-    providerEvents: [],
-    runnerProvider: settings.runnerProvider ?? null,
-    runnerProviderSource: settings.runnerProviderSource,
-    runnerProviderRaw: settings.runnerProviderRaw ?? null,
-    runnerProviderInvalidValue: settings.runnerProviderInvalidValue ?? null,
-    runnerProviderValid: settings.runnerProviderValid,
-    runnerId: settings.runnerId ?? null,
-    runnerIdSource: settings.runnerIdSource,
-    sessionId: settings.sessionId ?? null,
-    sessionIdSource: settings.sessionIdSource,
-    localWorkflowUsable: true,
-    status: missing.length === 0 ? 'pass' : 'fail',
-    readinessWarnings: missing,
-    nextActions: actions,
-    note: args.dryRun === true
-      ? 'Dry-run only: planned runner register/heartbeat/claim steps; no network mutation and no provider execution.'
-      : args.live === true
-        ? 'Live control-plane smoke: register runner, heartbeat, claim at most one job, and release it without provider execution.'
-        : 'Runner execution stays local unless --live is provided; no provider execution occurs in this command.',
-  };
-}
-
-function readLiveRunnerOptions(
-  settings: AuthorityConfig,
-  args: Pick<AuthorityEnforceRunnerArgs, 'once' | 'storyId'>,
-  env: Record<string, string | undefined>,
-  options: AuthorityEnforceRunnerOptions = {},
-) {
-  const actorKeyPath = envValue(env, 'ACTOR_KEY_PATH');
-  const actorPrivateKey = envValue(env, 'ACTOR_KEY') ??
-    (actorKeyPath ? readActorPrivateKeyFromPath(resolvePath(options.cwd ?? process.cwd(), actorKeyPath)) : undefined) ??
-    settings.keyMaterial.actorKey ??
-    (settings.keyMaterial.actorKeyPath ? readActorPrivateKeyFromPath(resolvePath(options.cwd ?? process.cwd(), settings.keyMaterial.actorKeyPath)) : undefined);
-  if (!settings.baseURL) throw new Error('LATTICE_AUTHORITY_URL is required for live runner mode');
-  if (!actorPrivateKey) throw new Error('LATTICE_AUTHORITY_ACTOR_KEY or LATTICE_AUTHORITY_ACTOR_KEY_PATH is required for live runner mode');
-  const runnerId = settings.runnerId;
-  if (!runnerId) throw new Error('LATTICE_AUTHORITY_RUNNER_ID is required for live runner mode');
-  const sessionId = settings.sessionId;
-  if (!sessionId) throw new Error('LATTICE_AUTHORITY_SESSION_ID could not be resolved for live runner mode');
-  const runnerProvider = settings.runnerProvider;
-  if (!settings.runnerProviderValid || !runnerProvider) {
-    throw new Error(`LATTICE_AUTHORITY_RUNNER_PROVIDER could not be resolved: ${settings.runnerProviderInvalidValue ?? '(empty)'}`);
-  }
-  const projectId = settings.projectId;
-  if (!projectId) throw new Error('LATTICE_AUTHORITY_PROJECT_ID is required for live runner mode');
-  const keyEncoding = (envValue(env, 'ACTOR_KEY_ENCODING') ?? settings.keyMaterial.actorKeyEncoding ?? 'auto') as LatticeAuthorityKeyEncoding;
-  const customerApiKey = resolveAuthorityCustomerApiKey(env, options).value;
-  if (!customerApiKey) throw new Error('LATTICE_AUTHORITY_CUSTOMER_API_KEY or LATTICE_AUTHORITY_CUSTOMER_API_KEY_PATH is required for live runner mode');
-  return {
-    baseURL: settings.baseURL,
-    timeoutMS: settings.timeoutMS,
-    actorId: envValue(env, 'ACTOR_ID') ?? settings.keyMaterial.actorId ?? runnerId,
-    role: envValue(env, 'ACTOR_ROLE') ?? settings.keyMaterial.actorRole ?? 'runner',
-    actorKeyId: envValue(env, 'ACTOR_KEY_ID') ?? settings.keyMaterial.actorKeyId ?? 'default',
-    actorPrivateKey,
-    actorPrivateKeyEncoding: keyEncoding,
-    runnerId,
-    sessionId,
-    runnerProvider,
-    projectId,
-    ...(args.storyId ? { storyId: args.storyId } : {}),
-    customerApiKey,
-    bootstrapToken: envValue(env, 'BOOTSTRAP_TOKEN'),
-    once: args.once !== false,
-    ...(options.fetchImpl ? { fetchImpl: options.fetchImpl } : {}),
-  };
-}
-
-export async function runAuthorityEnforceRunner(
-  args: AuthorityEnforceRunnerArgs = {},
-  env: Record<string, string | undefined> = process.env,
-  options: AuthorityEnforceRunnerOptions = {},
-): Promise<AuthorityRunnerPlan> {
-  const plan = buildAuthorityEnforceRunnerPlan(args, env, options);
-  if (args.live !== true || args.dryRun === true) return plan;
-  if (plan.status === 'fail') {
-    return {
-      ...plan,
-      dryRun: false,
-      live: true,
-      note: 'Live runner was not started because required Proofbound Authority configuration is missing.',
-    };
-  }
-  const settings = loadAuthorityConfig(env, { ...args, authorityMode: args.authorityMode ?? 'enforce' }, options);
-  try {
-    const live = await runLatticeAuthorityControlPlaneOnce(readLiveRunnerOptions(settings, args, env, options));
-    return {
-      ...plan,
-      dryRun: false,
-      live: true,
-      status: live.status,
-      networkEvents: live.networkEvents,
-      claimedJobId: live.claimedJobId,
-      releasedJobId: live.releasedJobId,
-      releaseReason: live.releaseReason,
-      note: live.note,
-    };
-  } catch (error: any) {
-    return {
-      ...plan,
-      dryRun: false,
-      live: true,
-      status: 'fail',
-      networkEvents: [],
-      claimedJobId: null,
-      releasedJobId: null,
-      readinessWarnings: [...plan.readinessWarnings, error?.message || String(error)],
-      note: 'Live runner failed before the first authority request.',
-    };
-  }
-}
-
-function renderAuthorityEnforceRunnerText(result: AuthorityRunnerPlan): string {
-  const lines = [
-    `${formatLatticeProductLine()} authority enforce runner (${result.schemaVersion})`,
-    `status: ${result.status}`,
-    `mode: ${result.mode}`,
-    `once: ${result.once}`,
-    `dryRun: ${result.dryRun}`,
-    `live: ${result.live === true}`,
-    `spawned: ${result.spawned}`,
-    `providerEvents: ${result.providerEvents.length}`,
-    `runnerProvider: ${result.runnerProvider ?? '(none)'}`,
-    `runnerProviderSource: ${result.runnerProviderSource ?? '(unknown)'}`,
-    `runnerProviderValid: ${result.runnerProviderValid !== false}`,
-    `runnerId: ${result.runnerId ?? '(none)'}`,
-    `runnerIdSource: ${result.runnerIdSource ?? '(unknown)'}`,
-    `sessionId: ${result.sessionId ?? '(none)'}`,
-    `sessionIdSource: ${result.sessionIdSource ?? '(unknown)'}`,
-    'plannedSteps:',
-    ...result.plannedSteps.map(step => `  - ${step}`),
-  ];
-  if (result.readinessWarnings.length > 0) {
-    lines.push('', 'readinessWarnings:', ...result.readinessWarnings.map(w => `  - ${w}`));
-  }
-  if (result.nextActions.length > 0) {
-    lines.push('', 'nextActions:', ...result.nextActions.map(a => `  - ${a}`));
-  }
-  if (result.networkEvents && result.networkEvents.length > 0) {
-    lines.push('', 'networkEvents:', ...result.networkEvents.map(event => `  - ${event.step}: ${event.ok ? 'pass' : 'fail'}${event.status ? ` status=${event.status}` : ''}${event.message ? ` ${event.message}` : ''}`));
-  }
-  lines.push('', result.note);
-  return lines.join('\n');
-}
-
-export function buildAuthorityReceiptVerify(
-  args: {
-    receiptFile?: string;
-    serverPublicKey?: string;
-    serverPublicKeyEncoding?: LatticeAuthorityKeyEncoding;
-    receiptKind?: string;
-    receiptProjectId?: string;
-    receiptStoryId?: string;
-    serverKeyId?: string;
-    expectedDecisionDigest?: string;
-    receiptMaxAgeMs?: number;
-    receiptClockSkewMs?: number;
-  },
-) {
-  if (!args.receiptFile || !args.serverPublicKey) {
-    return {
-      schemaVersion: 'lattice.authority_receipt_verify.v1' as const,
-      ok: false,
-      status: 'fail' as const,
-      verified: false,
-      reason: 'receiptFile and serverPublicKey are required',
-    };
-  }
-  try {
-    const receipt = JSON.parse(readFileSync(args.receiptFile, 'utf8')) as unknown;
-    const result = verifyLatticeAuthorityReceipt(receipt, {
-      serverPublicKey: args.serverPublicKey,
-      serverPublicKeyEncoding: args.serverPublicKeyEncoding ?? 'auto',
-      expectedKind: args.receiptKind,
-      expectedProjectId: args.receiptProjectId,
-      expectedStoryId: args.receiptStoryId,
-      expectedServerKeyId: args.serverKeyId,
-      expectedDecisionDigest: args.expectedDecisionDigest,
-      maxAgeMs: args.receiptMaxAgeMs ?? numericEnv(process.env.LATTICE_AUTHORITY_RECEIPT_MAX_AGE_MS, 600_000),
-      clockSkewMs: args.receiptClockSkewMs ?? numericEnv(process.env.LATTICE_AUTHORITY_RECEIPT_CLOCK_SKEW_MS, 300_000),
-    });
-    return {
-      schemaVersion: 'lattice.authority_receipt_verify.v1' as const,
-      ok: result.verified,
-      status: result.verified ? 'pass' as const : 'fail' as const,
-      verified: result.verified,
-      receiptId: result.receipt.receiptId,
-      kind: result.receipt.kind,
-      projectId: result.receipt.projectId,
-      storyId: result.receipt.storyId ?? null,
-      serverKeyId: result.receipt.serverKeyId,
-      decisionDigest: result.receipt.decisionDigest ?? null,
-      reason: result.reason,
-    };
-  } catch (error: any) {
-    return {
-      schemaVersion: 'lattice.authority_receipt_verify.v1' as const,
-      ok: false,
-      status: 'fail' as const,
-      verified: false,
-      reason: error?.message || String(error),
-    };
-  }
-}
-
-function numericEnv(value: string | undefined, fallback: number): number {
-  if (typeof value !== 'string' || value.trim() === '') return fallback;
-  const parsed = Number(value);
-  return Number.isFinite(parsed) && parsed >= 0 ? parsed : fallback;
-}
-
-function renderAuthorityReceiptVerifyText(result: ReturnType<typeof buildAuthorityReceiptVerify>): string {
-  return [
-    `${formatLatticeProductLine()} authority receipt verify (${result.schemaVersion})`,
-    `status: ${result.status}`,
-    `verified: ${result.verified}`,
-    'receiptId' in result ? `receiptId: ${result.receiptId}` : null,
-    'kind' in result ? `kind: ${result.kind}` : null,
-    'serverKeyId' in result ? `serverKeyId: ${result.serverKeyId}` : null,
-    '',
-    result.reason,
-  ].filter((line): line is string => typeof line === 'string').join('\n');
-}
-
 export function buildConduitStatus(
-  env: Record<string, string | undefined> = process.env,
-  options: AuthorityConfigLoadOptions = {},
 ) {
-  const settings = loadAuthorityConfig(env, {}, options);
-  const customerKey = settings.mode === 'off'
-    ? { source: 'none' as const }
-    : resolveAuthorityCustomerApiKey(env, options);
-  const actorKeyConfigured =
-    readEnforceEnv(env).actorKeyConfigured ||
-    typeof settings.keyMaterial.actorKey === 'string' ||
-    typeof settings.keyMaterial.actorKeyPath === 'string';
-  const readiness = buildAuthorityReadiness(settings, env, {
-    authorityUrlConfigured: typeof settings.baseURL === 'string' && settings.baseURL.length > 0,
-    actorKeyConfigured,
-    customerApiKeyConfigured: typeof customerKey.value === 'string' && customerKey.value.length > 0,
-    runnerConfigured: typeof settings.runnerId === 'string' && settings.runnerId.length > 0,
-    sessionConfigured: typeof settings.sessionId === 'string' && settings.sessionId.length > 0,
-    runnerProviderValid: settings.runnerProviderValid,
-    runnerProviderInvalidValue: settings.runnerProviderInvalidValue,
-  });
   return {
     schemaVersion: 'lattice.conduit_status.v1' as const,
     product: { name: LATTICE_PRODUCT_NAME, version: LATTICE_CLI_VERSION },
@@ -1187,28 +436,19 @@ export function buildConduitStatus(
     productionDone: false as const,
     receiptVerified: false as const,
     authorityChanged: false as const,
-    // Readiness mirror (B-b710): same diagnostic surface as authority_status so
-    // dashboards / agents can read either command and get a consistent picture.
-    localWorkflowUsable: readiness.localWorkflowUsable,
-    mode: readiness.mode,
-    authorityUrlConfigured: readiness.authorityUrlConfigured,
-    actorKeyConfigured: readiness.actorKeyConfigured,
-    runnerProvider: settings.runnerProvider ?? null,
-    runnerProviderSource: settings.runnerProviderSource,
-    runnerProviderValid: settings.runnerProviderValid,
-    runnerProviderInvalidValue: settings.runnerProviderInvalidValue ?? null,
-    runnerConfigured: readiness.runnerConfigured,
-    sessionConfigured: readiness.sessionConfigured,
-    readinessWarnings: readiness.readinessWarnings,
-    nextActions: readiness.nextActions,
-    localWorkflowNote: LOCAL_WORKFLOW_NOTE,
+    localWorkflowUsable: true as const,
+    admissibilityStatus: 'local-admissible' as const,
+    assuranceLevel: 'local' as const,
+    evidenceScope: 'local-gate-evidence' as const,
+    readinessWarnings: [] as string[],
+    nextActions: ['Use story lifecycle commands, proof admissibility checks, receipt-bundle validation, and quorum_submit for local assurance.'],
+    localWorkflowNote: LOCAL_ASSURANCE_NOTE,
     supportedSurfaces: [
       'host_list',
       'host_probe',
       'host_status',
       'host_install',
       'lattice_config_doctor',
-      'authority_status',
       'handoff_create',
       'handoff_accept',
       'handoff_resume',
@@ -1232,11 +472,10 @@ function renderConduitStatusText(result: ReturnType<typeof buildConduitStatus>):
     `${formatLatticeProductLine()} conduit status (${result.schemaVersion})`,
     `conduitAvailable: ${result.conduitAvailable}`,
     `conduitRole: ${result.conduitRole}`,
-    `mode: ${result.mode}`,
     `localWorkflowUsable: ${result.localWorkflowUsable}`,
-    `authorityUrlConfigured: ${result.authorityUrlConfigured}`,
-    `actorKeyConfigured: ${result.actorKeyConfigured}`,
-    `runnerConfigured: ${result.runnerConfigured}`,
+    `admissibilityStatus: ${result.admissibilityStatus}`,
+    `assuranceLevel: ${result.assuranceLevel}`,
+    `evidenceScope: ${result.evidenceScope}`,
     `runnerProvisioned: ${result.runnerProvisioned}`,
     `modelRunnerCreated: ${result.modelRunnerCreated}`,
     `productionDone: ${result.productionDone}`,
@@ -1264,18 +503,15 @@ function renderConduitStatusText(result: ReturnType<typeof buildConduitStatus>):
   return lines.join('\n');
 }
 
-function buildConduitExplain(
-  env: Record<string, string | undefined> = process.env,
-  options: AuthorityConfigLoadOptions = {},
-) {
+function buildConduitExplain() {
   return {
-    ...buildConduitStatus(env, options),
+    ...buildConduitStatus(),
     schemaVersion: 'lattice.conduit_explain.v1' as const,
     explanation: [
       'Proofbound CLI 0.3.6 replaces Mac App provider/config dashboard dependencies with CLI-first diagnostics.',
       'The conduit is a coordination surface for host capability reports, config migration checks, handoff packs, evidence freshness manifests, and parallel wave plans.',
-      'It is intentionally not a model runner or receipt authority. Production completion remains false until an explicit receipt-backed authority path verifies a signed receipt.',
-      'Authority modes: off = default local-only workflow (no network); shadow = observational POST when LATTICE_AUTHORITY_URL is reachable; enforce = Authority job path (requires Proofbound Authority server + customer API key + actor key + runner identity + project id + pinned server key; jobs execute typed plannedSteps, upload evidence, request gate_decision, and verify native receipts).',
+      'It is intentionally not a model runner or receipt authority. Completion assurance is local: proof admissibility, signed/offline receipt bundles, and local review quorum remain the supported paths.',
+      'Retired server Authority modes are no longer active Proofbound CLI runtime concepts. Use local Proofbound workflow commands and local assurance artifacts instead.',
     ],
   };
 }
@@ -1315,20 +551,12 @@ export function createLatticeCliHandlers(ctx: HandlerContext) {
       const result = buildConfigRepair(ctx, args);
       return wantsJson(args) ? result : renderConfigRepairText(result);
     },
-    authority_status(args: AuthorityStatusArgs = {}) {
-      const result = buildAuthorityStatus(args, process.env, { cwd: ctx.root, root: ctx.root, store: ctx.store });
-      return wantsJson(args) ? result : renderAuthorityStatusText(result);
-    },
-    async authority_enforce_runner(args: AuthorityEnforceRunnerArgs & { format?: LatticeFormat; json?: boolean } = {}) {
-      const result = await runAuthorityEnforceRunner(args, process.env, { cwd: ctx.root });
-      return wantsJson(args) ? result : renderAuthorityEnforceRunnerText(result);
-    },
     conduit_status(args: FormatArgs = {}) {
-      const result = buildConduitStatus(process.env, { cwd: ctx.root });
+      const result = buildConduitStatus();
       return wantsJson(args) ? result : renderConduitStatusText(result);
     },
     conduit_explain(args: FormatArgs = {}) {
-      const result = buildConduitExplain(process.env, { cwd: ctx.root });
+      const result = buildConduitExplain();
       return wantsJson(args) ? result : renderConduitExplainText(result);
     },
   };

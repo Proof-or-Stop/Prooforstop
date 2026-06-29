@@ -80,8 +80,8 @@ for (const command of [
   'admissibility_waterline',
   'queue_governance_status',
   'queue_exception_set',
-  'authority_receipt_verify',
-  'authority_job_create',
+  'conduit_status',
+  'quorum_submit',
   'host_runtime_list',
   'host_runtime_probe',
   'dispatch_policy_create',
@@ -90,16 +90,19 @@ for (const command of [
   findTool(command);
 }
 
-assert.equal(
-  schemaAccepts('authority_job_create', 'provider', 'codex-cli'),
-  true,
-  'authority_job_create.provider must accept host-neutral custom provider declarations',
-);
-assert.equal(
-  schemaAccepts('authority_job_create', 'provider', 'antigravity'),
-  true,
-  'authority_job_create.provider must accept antigravity as a host-neutral declaration',
-);
+for (const retiredCommand of [
+  'authority_status',
+  'authority_enforce_policy',
+  'authority_receipt_verify',
+  'authority_enforce_runner',
+  'authority_receipt_fetch',
+  'authority_verdict_submit',
+  'authority_job_create',
+  'authority_verdict_list',
+  'authority_job_status',
+] as const) {
+  assert.equal(toolByName.has(retiredCommand), false, `${retiredCommand} must remain retired from MAIN_TOOLS`);
+}
 
 const currentHostText = [
   findTool('host_runtime_list').description,
@@ -142,8 +145,8 @@ const commandHelpExpectations: Array<{ args: string[]; includes: string[] }> = [
     includes: ['Proofbound CLI', 'lattice validate', '--story', '--json'],
   },
   {
-    args: ['authority_receipt_verify', '--help'],
-    includes: ['Proofbound CLI', 'lattice authority_receipt_verify', '--storyId', '--proofFile'],
+    args: ['conduit_status', '--help'],
+    includes: ['Proofbound CLI', 'lattice conduit_status', '--format'],
   },
 ];
 

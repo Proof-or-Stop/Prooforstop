@@ -16,8 +16,7 @@ export const EVIDENCE_SCOPES = [
   'local-key-single-host',
   'local-gate-evidence',
   'local-review-quorum',
-  'authority-receipt',
-  'production-gate-decision',
+  'legacy-authority-receipt',
 ] as const;
 export type EvidenceScope = typeof EVIDENCE_SCOPES[number];
 
@@ -39,7 +38,7 @@ export const ARTIFACT_ROLES = [
   'red-green-relation',
   'handoff-context',
   'local-diagnostic',
-  'authority-decision',
+  'legacy-authority-decision',
 ] as const;
 export type ArtifactRole = typeof ARTIFACT_ROLES[number];
 
@@ -63,7 +62,7 @@ export const ARTIFACT_CONSUMER_KINDS = [
   'TEST',
   'DONE',
   'HANDOFF',
-  'AUTHORITY_GATE_DECISION',
+  'LEGACY_AUTHORITY_RECEIPT',
   'DONE_REQUIRED',
 ] as const;
 export type ArtifactConsumerKind = typeof ARTIFACT_CONSUMER_KINDS[number];
@@ -71,7 +70,7 @@ export type ArtifactConsumerKind = typeof ARTIFACT_CONSUMER_KINDS[number];
 export const PROOF_PRODUCER_BOUNDARIES = [
   'caller-writable',
   'local-runtime-owned',
-  'authority-owned',
+  'legacy-authority-owned',
   'trusted-reviewer-owned',
   'legacy-unknown',
 ] as const;
@@ -197,10 +196,10 @@ const CANDIDATE_REMEDIATION =
   'Promote through story-bound verification evidence and a matching gate policy; candidate artifacts stay intake/planning evidence.';
 const DIAGNOSTIC_REMEDIATION =
   'Use this only as diagnostic context; obtain a trusted current-state proof from the matching producer before claiming completion.';
-const AUTHORITY_RECEIPT_REMEDIATION =
-  'Consume the verified receipt through the matching Authority gate decision policy before claiming production completion.';
+const LEGACY_RECEIPT_REMEDIATION =
+  'Treat legacy receipt evidence as out-of-core compatibility input; use local proof-admissibility, receipt-bundle, and quorum evidence for current assurance.';
 const PRODUCTION_GATE_REMEDIATION =
-  'Re-run the matching production gate verifier for the current story/head/material tuple and target consumer.';
+  'Re-run the matching local gate verifier for the current story/head/material tuple and target consumer.';
 
 export const PROOF_SURFACE_REGISTRY = [
   {
@@ -261,54 +260,54 @@ export const PROOF_SURFACE_REGISTRY = [
     remediation: 'Start a fresh signed review run for the current round/material and consume it only in REVIEW.',
   },
   {
-    artifactKind: 'authority-receipt-ref',
-    aliases: ['authority-receipt-refs.json'],
-    scope: 'production-gate-decision',
-    artifactRole: 'authority-decision',
+    artifactKind: 'legacy-authority-receipt-ref',
+    aliases: ['legacy-authority-receipt-refs.json'],
+    scope: 'legacy-authority-receipt',
+    artifactRole: 'legacy-authority-decision',
     temporalRole: 'current-state',
-    producerBoundary: 'authority-owned',
-    schemaVersions: ['lattice.authority_receipt_refs.v1'],
+    producerBoundary: 'legacy-authority-owned',
+    schemaVersions: ['lattice.legacy_authority_receipt_refs.v1'],
     strictShapeRequired: true,
     semanticDigestRequired: true,
     signatureOrReceiptBindingRequired: true,
     temporalAndMaterialBindingRequired: true,
-    allowedConsumers: ['AUTHORITY_GATE_DECISION', 'TEST', 'DONE'],
+    allowedConsumers: ['LEGACY_AUTHORITY_RECEIPT', 'TEST', 'DONE'],
     allowedClaims: [
       /**
        * @task B-91f3
        * @checklist CHK-001, CHK-002
-       * @title Authority receipt refs remain admissible evidence, not local production completion
+       * @title Legacy authority receipt refs remain readable evidence, not local production completion
        * @type feature
        * @priority high
        * @description
-       *   Authority receipt refs may be consumed as compatible evidence/input by Authority-facing adapters.
-       *   The local proof-admissibility core must not convert that evidence into a local productionDone claim.
+       *   Legacy authority receipt refs may be classified as out-of-core compatibility input.
+       *   The local proof-admissibility core must not convert that legacy evidence into a local productionDone claim.
        * @changes
-       *   - [CHK-002] Set authority-receipt-ref production-completion productionDoneEligible=false for local CLI proof.
+       *   - [CHK-002] Set legacy-authority-receipt-ref production-completion productionDoneEligible=false for local CLI proof.
        */
-      { claim: 'production-completion', consumers: ['AUTHORITY_GATE_DECISION', 'TEST', 'DONE'], productionDoneEligible: false },
+      { claim: 'production-completion', consumers: ['LEGACY_AUTHORITY_RECEIPT', 'TEST', 'DONE'], productionDoneEligible: false },
       { claim: 'done-readiness', consumers: ['TEST', 'DONE'], productionDoneEligible: false },
     ],
-    producerBoundaryNote: 'Verified Authority gate_decision receipt ref is compatible evidence/input; local core does not claim production completion.',
+    producerBoundaryNote: 'Legacy out-of-core receipt refs are compatibility input only; local core does not claim production completion from them.',
     remediation: PRODUCTION_GATE_REMEDIATION,
   },
   {
-    artifactKind: 'authority-receipt',
-    scope: 'authority-receipt',
-    artifactRole: 'authority-decision',
+    artifactKind: 'legacy-authority-receipt',
+    scope: 'legacy-authority-receipt',
+    artifactRole: 'legacy-authority-decision',
     temporalRole: 'current-state',
-    producerBoundary: 'authority-owned',
-    schemaVersions: ['lattice.authority_receipt.v1'],
+    producerBoundary: 'legacy-authority-owned',
+    schemaVersions: ['lattice.legacy_authority_receipt.v1'],
     strictShapeRequired: true,
     semanticDigestRequired: true,
     signatureOrReceiptBindingRequired: true,
     temporalAndMaterialBindingRequired: true,
-    allowedConsumers: ['AUTHORITY_GATE_DECISION'],
+    allowedConsumers: ['LEGACY_AUTHORITY_RECEIPT'],
     allowedClaims: [
-      { claim: 'diagnostic-status', consumers: ['AUTHORITY_GATE_DECISION'], productionDoneEligible: false },
+      { claim: 'diagnostic-status', consumers: ['LEGACY_AUTHORITY_RECEIPT'], productionDoneEligible: false },
     ],
-    producerBoundaryNote: 'A verified receipt is evidence input. It is not the gate-consumed decision ref by itself.',
-    remediation: AUTHORITY_RECEIPT_REMEDIATION,
+    producerBoundaryNote: 'A legacy out-of-core receipt is diagnostic compatibility input only; active local gates ignore it.',
+    remediation: LEGACY_RECEIPT_REMEDIATION,
   },
   {
     artifactKind: 'offline-receipt-bundle',
@@ -748,7 +747,7 @@ export function evaluateProofAdmissibility(input: EvaluateProofAdmissibilityInpu
     );
   }
 
-  if (input.claim === 'production-completion' && definition.scope !== 'production-gate-decision') {
+  if (input.claim === 'production-completion' && definition.scope !== 'local-gate-evidence') {
     addReason(
       reasons,
       remediation,
@@ -762,7 +761,7 @@ export function evaluateProofAdmissibility(input: EvaluateProofAdmissibilityInpu
 
   const allowed = Boolean(policy) && reasons.length === 0;
   const overall: AdmissibilityOverall = allowed ? 'pass' : 'fail';
-  const productionDoneEligible = allowed && Boolean(policy?.productionDoneEligible) && definition.scope === 'production-gate-decision';
+  const productionDoneEligible = allowed && Boolean(policy?.productionDoneEligible) && definition.scope === 'local-gate-evidence';
 
   return {
     artifactKind: definition.artifactKind,

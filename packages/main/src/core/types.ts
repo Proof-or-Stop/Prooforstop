@@ -995,7 +995,7 @@ export type ProcessEventType =
   | 'host_verdict'
   | 'review_escalation_policy'
   | 'review_escalation_fallback'
-  | 'authority_receipt'
+  | 'legacy_authority_receipt'
   | 'decision_doc_proposal'
   | 'decision_doc_save'
   | 'auxiliary_worktree_cleanup'

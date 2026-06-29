@@ -34,7 +34,7 @@
  *
  *   Coverage:
  *     happy:  validate --json stdout → JSON.parse direct
- *     happy:  authority_status --format=json stdout → JSON.parse direct
+ *     happy:  conduit_status --format=json stdout → JSON.parse direct
  *     happy:  text-mode validate keeps a human-oriented focused summary
  *     edge:   validate --json stdout contains no human hint markers
  *     adversarial: stdout has exactly one JSON document (no trailing decoration)
@@ -131,31 +131,23 @@ function assertNoHumanHint(stdout: string, label: string): void {
 }
 
 // ── A known-good --format=json command remains direct-parseable ────────────
-// authority_status was already direct-parseable; locking that in here makes
+// conduit_status is a local admissibility surface; locking that in here makes
 // any future regression to the shared output pipeline fail loudly even on
 // commands that never had a hint to begin with.
 {
-  const stdout = runCli(['authority_status', '--format=json'], {
-    LATTICE_AUTHORITY_MODE: '',
-    LATTICE_AUTHORITY_URL: '',
-    LATTICE_AUTHORITY_TIMEOUT_MS: '',
-  });
+  const stdout = runCli(['conduit_status', '--format=json']);
   const parsed = JSON.parse(stdout) as Record<string, unknown>;
-  assert.equal(parsed.schemaVersion, 'lattice.authority_status.v1');
+  assert.equal(parsed.schemaVersion, 'lattice.conduit_status.v1');
   assert.equal(parsed.productionDone, false);
-  assertNoHumanHint(stdout, 'authority_status --format=json');
+  assertNoHumanHint(stdout, 'conduit_status --format=json');
 }
 
 // ── A known-good --json shortcut also remains direct-parseable ─────────────
 {
-  const stdout = runCli(['authority_status', '--json'], {
-    LATTICE_AUTHORITY_MODE: '',
-    LATTICE_AUTHORITY_URL: '',
-    LATTICE_AUTHORITY_TIMEOUT_MS: '',
-  });
+  const stdout = runCli(['conduit_status', '--json']);
   const parsed = JSON.parse(stdout) as Record<string, unknown>;
-  assert.equal(parsed.schemaVersion, 'lattice.authority_status.v1');
-  assertNoHumanHint(stdout, 'authority_status --json');
+  assert.equal(parsed.schemaVersion, 'lattice.conduit_status.v1');
+  assertNoHumanHint(stdout, 'conduit_status --json');
 }
 
 // ── A broader Proofbound host JSON surface command remains direct-parseable ───

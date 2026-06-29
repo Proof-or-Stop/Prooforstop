@@ -1,5 +1,7 @@
 # Proofbound CLI Authority Client and Receipt Ref
 
+> **Retired legacy note:** Authority Server and server-backed receipt semantics in this document are retired/out-of-core for the active Proofbound CLI. Current implementation baselines are local proof admissibility (`admissibilityStatus`, `assuranceLevel`, `evidenceScope`), gate-consumed local evidence, signed/offline receipt bundles, and local review quorum assurance. Do not use this document as active Authority Server implementation guidance.
+
 > Status: execution subdocument for
 > [Authority Receipt Gate End-to-End Plan](authority-session-receipt-gate-execution.md).
 > Owner: Orchestrate / Proofbound CLI.

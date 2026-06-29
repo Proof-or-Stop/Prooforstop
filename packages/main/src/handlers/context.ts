@@ -31,30 +31,10 @@ export interface HandlerContext {
   log?: (msg: string) => void;
   /** Lazily retrieve all registered tool names (injected by tools.ts to avoid circular dependencies) */
   getAllToolNames?: () => Set<string>;
-  /**
-   * B-94a6: authority submission injection point. Production leaves these unset and
-   * the verification evidence handlers resolve settings from env (off by default,
-   * zero network). Tests inject `authoritySettings` + `authoritySubmitter` to drive
-   * shadow / enforce / failure paths without a real network.
-   */
-  authoritySettings?: import('../core/authority-mode.js').AuthoritySettings;
-  authoritySubmitter?: import('../core/authority-submit.js').AuthoritySubmitter;
   /** Test seam for autopilot executor command execution. Production uses the built-in argv runner. */
   autopilotCommandRunner?: import('../core/autopilot-executor.js').AutopilotCommandRunner;
   /** Test seam for DONE / done_recover post-merge package build execution. Production uses npm. */
   doneMainBuildRunner?: import('./done-effects.js').DoneMainBuildRunner;
-  /**
-   * Authority gate evaluator resolution options for `planner run --mode=authority
-   * --until=DONE`. Production leaves this unset, so `resolveAuthorityGateEvaluator`
-   * reads `process.env` + the real fetch and stays fail-closed (no server config ->
-   * no evaluator -> the executor blocks with authority_gate_decision_receipt_required).
-   * The M15 Natural-Language-To-DONE E2E injects `{ env, fetchImpl, now }` so the full
-   * NL -> Story -> job -> provider -> validate -> evidence -> gate -> verified-receipt
-   * -> authorityDone loop runs deterministically without a live Authority server.
-   * Injecting it never relaxes the gate: a stub that does not return a verified native
-   * gate_decision receipt still blocks exactly as production does.
-   */
-  authorityGateOptions?: import('../core/authority-client.js').AuthorityGateEvaluatorOptions;
 }
 
 const PHASE_TO_EVENT: Record<string, string> = { ...PHASE_EVENT_BY_TARGET };

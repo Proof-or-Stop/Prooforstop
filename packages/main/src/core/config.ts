@@ -221,11 +221,6 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'story_draft_discard',
     'draft_check_set',      // B-9975 CHK-002: draft check 全阶段可用
     'draft_issue_resolve',
-    'authority_enforce_policy', // B-ea92 M1: read-only authority policy discovery, no side-effects
-    'authority_enforce_runner', // Proofbound Authority control-plane runner; --live still avoids provider execution
-    'authority_receipt_verify', // B-eca1 CHK-002: verifies production Authority gate_decision proof and writes authority-receipt-refs.json only after production classification
-    'authority_receipt_fetch', 'authority_job_create', // Explicit Proofbound Authority control-plane/artifact bridge; never mint native receipts
-    'authority_verdict_submit', 'authority_verdict_list', 'authority_job_status', // Proofbound Authority multi-host verdict/status surfaces; never mint native receipts
     'planner_*', 'story_resolve', // Natural-language planner and plannedStep context resolution surfaces
     'capability_list', // B-f26a M2: read-only host capability diagnostics for cross-host degradation
     'capability_probe', // B-cd31 CHK-002: productized single-host capability diagnostics
@@ -239,7 +234,6 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'codex_doctor',          // Codex adapter diagnostics (read-only); does not write process-event evidence
     'rollout_check', // Proofbound CLI 0.3.6: read-only cross-project rollout diagnostics
     'baseline_run', 'baseline_suite', 'baseline_suite_report', // Proofbound baseline execution and suite reporting; writes baseline artifacts only
-    'authority_status', // Proofbound CLI 0.3.6: receipt-aware status only; no evidence submission
     'conduit_*', // Proofbound CLI 0.3.6: conduit status/explain; no runner provisioning or authority mutation
     'story_export', // B-cd31 CHK-003: Canonical Story v0 export surface
     'story_authority_resolve', // B-381e: read-only authority/worktree resolver for observability adapters

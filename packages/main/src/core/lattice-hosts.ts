@@ -55,7 +55,7 @@ export interface LatticeHostStatus {
     test: CapabilityStatus;
     worktree: CapabilityStatus;
     review: CapabilityStatus;
-    receipt: 'local-only' | 'receipt-capable';
+    receipt: 'local-only' | 'receipt-bundle-capable';
   };
   limits: string[];
   warnings: string[];
@@ -80,7 +80,7 @@ export interface LatticeHostInstallGuidance {
 const PRODUCT = { name: LATTICE_PRODUCT_NAME, version: LATTICE_CLI_VERSION } as const;
 
 const LATTICE_DESKTOP_APP_SUMMARY =
-  'Optional dashboard/archive surface for displaying artifacts, collecting visible approval, and browsing historical handoff context; Proofbound CLI commands remain the editing, test, authority, and receipt surfaces.';
+  'Optional dashboard/archive surface for displaying artifacts, collecting visible approval, and browsing historical handoff context; Proofbound CLI commands remain the editing, test, local-assurance, and receipt-bundle surfaces.';
 
 type LatticeDesktopCapabilityDemotion = {
   status: Exclude<CapabilityStatus, 'available'>;
@@ -129,17 +129,17 @@ const LATTICE_DESKTOP_APP_DEMOTIONS: Partial<Record<CapabilityCategory, LatticeD
   },
   'evidence-submit': {
     status: 'unavailable',
-    note: 'Unavailable in Proofbound CLI 0.3.8; the desktop app is not an authority evidence submission surface.',
+    note: 'Unavailable in Proofbound CLI 0.3.8; the desktop app is not a lifecycle evidence recording surface.',
     authorityImpact: 'evidence-local-only',
-    reason: 'The desktop app projection cannot submit authority evidence.',
-    fallback: 'Keep evidence local until submitted through an explicit authority-capable client.',
+    reason: 'The desktop app projection cannot record local lifecycle evidence.',
+    fallback: 'Keep evidence local until a Proofbound lifecycle command records it.',
   },
   'receipt-verify': {
     status: 'unavailable',
-    note: 'Unavailable in Proofbound CLI 0.3.8; the desktop app cannot verify authority receipts.',
-    authorityImpact: 'blocks-production-done',
-    reason: 'The desktop app projection cannot verify authority receipts or unlock productionDone.',
-    fallback: 'Require a verified receipt from an authority-capable verifier before productionDone.',
+    note: 'Unavailable in Proofbound CLI 0.3.8; the desktop app cannot verify local receipt bundles.',
+    authorityImpact: 'local-assurance-required',
+    reason: 'The desktop app projection cannot verify signed/offline receipt bundles.',
+    fallback: 'Use local verifier tooling plus review quorum before integration.',
   },
   'multimodal-research': {
     status: 'unavailable',
@@ -151,7 +151,7 @@ const LATTICE_DESKTOP_APP_DEMOTIONS: Partial<Record<CapabilityCategory, LatticeD
 };
 
 function severityForAuthorityImpact(authorityImpact: AuthorityImpact): DegradationSeverity {
-  if (authorityImpact === 'blocks-production-done') return 'block';
+  if (authorityImpact === 'blocks-production-done' || authorityImpact === 'local-assurance-required') return 'block';
   if (authorityImpact === 'none') return 'info';
   return 'warn';
 }
@@ -259,7 +259,7 @@ function readinessLimitsForProbe(probe: CapabilityProbe): string[] {
     .map((degradation) => `${degradation.capability}=${degradation.authorityImpact}`);
   return limits.length > 0
     ? limits
-    : ['overflow execution remains local-only until a separate authority-capable path verifies receipts'];
+    : ['overflow execution remains local-only until proof admissibility, receipt-bundle verification, and review quorum are recorded'];
 }
 
 function nextActionForStatus(
@@ -278,7 +278,7 @@ function nextActionForStatus(
       return 'Keep the desktop app as an optional dashboard/archive surface; choose an editing host with file-edit, shell/pty, test-execution, and approval support for overflow execution.';
     }
     if (probe.host === 'server') {
-      return 'Keep server responsibilities on authority/orchestration; choose a local editing host for overflow execution.';
+      return 'Server Authority is retired/out-of-core for the active CLI; choose a local editing host for overflow execution.';
     }
     return 'Run lattice host list --format=json, then choose a host whose profile exposes file-edit, shell/pty, test-execution, and approval support.';
   }
@@ -335,7 +335,7 @@ export function buildLatticeHostStatusFromProbe(probe: CapabilityProbe): Lattice
       test,
       worktree,
       review,
-      receipt: receiptCapability === 'available' ? 'receipt-capable' : 'local-only',
+      receipt: receiptCapability === 'available' ? 'receipt-bundle-capable' : 'local-only',
     },
     limits: readinessLimitsForProbe(probe),
     warnings: readinessWarningsForProbe(probe),
@@ -353,15 +353,15 @@ function installStepsForHost(host: string): { summary: string; steps: string[]; 
   const normalized = host.trim().toLowerCase();
   const commonWarnings = [
     'This command is dry-run guidance only; it does not run installers or modify third-party software.',
-    'Production completion still requires a verified authority receipt; this guidance never verifies one.',
+    'This guidance does not establish proof admissibility, receipt-bundle verification, review quorum, productionDone, or release readiness.',
   ];
   if (normalized === 'codex') {
     return {
       summary: 'Codex is an editing host. Use the Proofbound CLI inside the existing Codex workspace session.',
       steps: [
         'Build the repo-local Proofbound CLI before using worktree-local status or gate commands.',
-        'Use lattice host probe --host=codex to inspect optional browser, evidence-submit, and receipt-verify degradations.',
-        'Keep authority evidence local unless an explicit authority URL and receipt verifier are configured.',
+        'Use lattice host probe --host=codex to inspect optional browser, evidence-submit, and receipt-bundle degradations.',
+        'Keep assurance local: use proof admissibility, signed/offline receipt bundles, and local review quorum before integration.',
       ],
       commands: ['npm --prefix packages/main run build', 'node bin/lattice.js host_probe --host=codex --format=json'],
       warnings: commonWarnings,
@@ -400,7 +400,7 @@ function installStepsForHost(host: string): { summary: string; steps: string[]; 
       steps: [
         'Ensure Node.js and project-native test dependencies are installed by the operator.',
         'Run project build and smoke commands from the local runner when the editing host delegates verification.',
-        'Submit or verify authority receipts only through an explicitly configured authority-capable path.',
+        'Run local receipt-bundle verification only through Proofbound local verifier tooling; do not submit Authority receipts.',
       ],
       commands: ['npm --prefix packages/main run build', 'npm run test:legacy -- lattice-cli-migration'],
       warnings: commonWarnings,
@@ -412,7 +412,7 @@ function installStepsForHost(host: string): { summary: string; steps: string[]; 
       steps: [
         'Use a browser-capable connector or host to inspect pages and capture visual evidence.',
         'Pair browser evidence with an editing or runner host for shell/test execution.',
-        'Keep screenshots as evidence refs until an authority-capable client submits and verifies receipts.',
+        'Keep screenshots as local evidence refs for manual review and lifecycle evidence recording.',
       ],
       commands: ['node bin/lattice.js host_probe --host=browser --format=json'],
       warnings: commonWarnings,
@@ -420,13 +420,13 @@ function installStepsForHost(host: string): { summary: string; steps: string[]; 
   }
   if (normalized === 'server') {
     return {
-      summary: 'Server is the authority/orchestration profile. It is not a workspace editing host.',
+      summary: 'Server Authority is retired/out-of-core for the active Proofbound CLI. It is not a workspace editing host.',
       steps: [
-        'Configure the external authority server outside this CLI migration.',
-        'Use lattice authority status to confirm the CLI sees local authority settings.',
-        'Do not treat server reachability or transport acceptance as receipt verification.',
+        'Use local proof admissibility, signed/offline receipt bundles, and local review quorum for active CLI assurance.',
+        'Treat any old Authority Server materials as legacy reference only.',
+        'Do not treat server reachability or transport acceptance as local proof admissibility.',
       ],
-      commands: ['node bin/lattice.js authority_status --format=json'],
+      commands: ['node bin/lattice.js conduit_status --format=json'],
       warnings: commonWarnings,
     };
   }
@@ -434,9 +434,9 @@ function installStepsForHost(host: string): { summary: string; steps: string[]; 
     return {
       summary: 'The Mac App is optional dashboard/archive surface only for this migration.',
       steps: [
-        'Use Proofbound CLI commands for host/config/authority/conduit diagnostics.',
+        'Use Proofbound CLI commands for host/config/local-assurance/conduit diagnostics.',
         'Keep any Mac App usage as an optional dashboard or archived surface.',
-        'Do not route production authority claims through the Mac App unless a future receipt-backed runner path is implemented.',
+        'Do not route production authority claims through the Mac App.',
       ],
       commands: ['node bin/lattice.js lattice_config_doctor --format=json'],
       warnings: commonWarnings,
@@ -447,7 +447,7 @@ function installStepsForHost(host: string): { summary: string; steps: string[]; 
     steps: [
       'Run host_list to see supported profiles.',
       'Run host_probe with the requested host to inspect fallback degradations.',
-      'Delegate edits, tests, and receipts to known capable hosts.',
+      'Delegate edits, tests, local evidence recording, and receipt-bundle checks to known capable hosts.',
     ],
     commands: ['node bin/lattice.js host_list --format=json'],
     warnings: commonWarnings,
@@ -476,7 +476,7 @@ export function renderLatticeHostListText(list: LatticeHostList): string {
   return [
     `${LATTICE_PRODUCT_NAME} ${LATTICE_CLI_VERSION} host list (${list.schemaVersion})`,
     `migration: cliFirst=${list.migration.cliFirst}; macAppRequired=${list.migration.macAppRequired}; macAppRole=${list.migration.macAppRole}`,
-    `authority: productionDone=${list.authority.productionDone}; receiptVerified=${list.authority.receiptVerified}; productionDoneRequiresReceipt=${list.authority.productionDoneRequiresReceipt}`,
+    `localAssurance: productionDone=${list.authority.productionDone}; receiptVerified=${list.authority.receiptVerified}; proofAdmissibility=${list.authority.proofAdmissibility}; receiptBundleVerification=${list.authority.receiptBundleVerification}; reviewQuorum=${list.authority.reviewQuorum}`,
     '',
     renderCapabilityListText({ ...buildLatticeCapabilityList(), hosts: list.hosts }),
   ].join('\n');

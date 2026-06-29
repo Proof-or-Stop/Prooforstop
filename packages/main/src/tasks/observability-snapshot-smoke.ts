@@ -178,7 +178,7 @@ function assertReadOnlyAuthority(snapshot: LatticeObservabilitySnapshot): void {
   assert.equal(snapshot.resolver.authorityChanged, false);
   for (const row of snapshot.sections.storyBoard) {
     assert.equal(row.productionDone, false, `storyBoard row ${row.storyId} must report productionDone=false`);
-    assert.notEqual(row.tier, 'server-receipt', `storyBoard row ${row.storyId} must not claim server-receipt without verified evidence`);
+    assert.notEqual(row.tier, 'legacy-receipt', `storyBoard row ${row.storyId} must not claim legacy-receipt without verified evidence`);
   }
   for (const row of snapshot.sections.capabilityMatrix) {
     assert.equal(row.receiptVerifyAvailable, false);
@@ -236,8 +236,8 @@ try {
   assert.equal(snapshot.resolver, resolverResult, 'snapshot embeds the resolver result it consumed');
 
   const ladder = snapshot.sections.authorityLadder;
-  assert.equal(ladder.serverReceipt.count, 0, 'no story carries verified receipt evidence');
-  assert.deepEqual(ladder.serverReceipt.storyIds, []);
+  assert.equal(ladder.legacyReceipt.count, 0, 'no story carries verified receipt evidence');
+  assert.deepEqual(ladder.legacyReceipt.storyIds, []);
   assert.equal(ladder.localEvidence.count, 2, 'both seeded stories land in local-evidence');
   assert.deepEqual(ladder.localEvidence.storyIds, ['B-active', 'B-done']);
   assert.equal(ladder.inFlight.count, 1, 'only the active story counts as in-flight');

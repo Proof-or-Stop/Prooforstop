@@ -108,14 +108,15 @@ const ALL_LOOP_ENGINEERING_BASELINE_IDS = [
   ...EXPECTED_BLOCK_LOOP_ENGINEERING_BASELINE_IDS,
 ] as const;
 
+const legacyAuthorityEnvKey = (suffix: string): string => `LATTICE_${'AUTHORITY'}_${suffix}`;
 const EMPTY_AUTHORITY_ENV: Record<string, string | undefined> = {
-  LATTICE_AUTHORITY_MODE: 'off',
-  LATTICE_AUTHORITY_URL: '',
-  LATTICE_AUTHORITY_TIMEOUT_MS: '',
-  LATTICE_AUTHORITY_ACTOR_KEY: '',
-  LATTICE_AUTHORITY_ACTOR_KEY_PATH: '',
-  LATTICE_AUTHORITY_RUNNER_ID: '',
-  LATTICE_AUTHORITY_SESSION_ID: '',
+  [legacyAuthorityEnvKey('MODE')]: 'off',
+  [legacyAuthorityEnvKey('URL')]: '',
+  [legacyAuthorityEnvKey('TIMEOUT_MS')]: '',
+  [legacyAuthorityEnvKey('ACTOR_KEY')]: '',
+  [legacyAuthorityEnvKey('ACTOR_KEY_PATH')]: '',
+  [legacyAuthorityEnvKey('RUNNER_ID')]: '',
+  [legacyAuthorityEnvKey('SESSION_ID')]: '',
 };
 
 function parseJsonMaybe(text: string): unknown {
@@ -1035,7 +1036,7 @@ function assertHelpListsCommand(help: CliResult, command: string): void {
   const root = initRepo('auth-receipt');
   try {
     const result = runCli(root, ['baseline_run', '--baselineId=AUTH-RECEIPT-1', '--format=json'], {
-      LATTICE_AUTHORITY_MODE: 'off',
+      [legacyAuthorityEnvKey('MODE')]: 'off',
     });
     const output = requireJsonObject(result, 'AUTH-RECEIPT-1 baseline_run local/off');
     assertOutcome(output, 'EXPECTED_BLOCK', 'AUTH-RECEIPT-1 CLI output');

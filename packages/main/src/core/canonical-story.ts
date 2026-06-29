@@ -24,7 +24,7 @@ export interface CanonicalStory {
   evidence: Array<Record<string, unknown>>;
   reviews: Array<Record<string, unknown>>;
   authority: {
-    tier: 'local-evidence' | 'server-record' | 'server-receipt';
+    tier: 'local-evidence' | 'legacy-record' | 'legacy-receipt';
     receiptRefs: string[];
     canonicalStoryDigest?: string;
     gateInputDigest?: string;
@@ -37,7 +37,7 @@ export interface CanonicalStory {
     visible: true;
     reason: string;
     fallback: string;
-    authorityImpact: 'none' | 'evidence-local-only' | 'verification-evidence-limited' | 'blocks-production-done';
+    authorityImpact: 'none' | 'evidence-local-only' | 'verification-evidence-limited' | 'local-assurance-required' | 'blocks-production-done';
     recovery?: string;
   }>;
   lineage: Record<string, unknown>;
@@ -136,7 +136,7 @@ export function collectReceiptRefs(...values: unknown[]): string[] {
   const visit = (value: unknown, keyHint = ''): void => {
     if (!value) return;
     if (typeof value === 'string') {
-      if (/authorityReceipt|serverReceipt|receiptRef/i.test(keyHint)) refs.add(value);
+      if (/legacyReceipt|receiptRef/i.test(keyHint)) refs.add(value);
       return;
     }
     if (Array.isArray(value)) {
@@ -145,7 +145,7 @@ export function collectReceiptRefs(...values: unknown[]): string[] {
     }
     if (typeof value !== 'object') return;
     for (const [key, child] of Object.entries(value as Record<string, unknown>)) {
-      if (/^(authorityReceiptRefs?|serverReceiptRefs?|receiptRefs?)$/i.test(key)) {
+      if (/^(legacyReceiptRefs?|receiptRefs?)$/i.test(key)) {
         visit(child, key);
       }
     }
@@ -154,18 +154,18 @@ export function collectReceiptRefs(...values: unknown[]): string[] {
   return [...refs].sort();
 }
 
-function missingReceiptDegradation(verifiedReceiptRefs: string[]): CanonicalStory['degradations'][number][] {
-  if (verifiedReceiptRefs.length > 0) return [];
+function localAssuranceDegradation(productionDone: boolean): CanonicalStory['degradations'][number][] {
+  if (productionDone) return [];
   return [{
-    id: 'missing-server-receipt',
-    host: 'authority-server',
-    capability: 'receipt-verify',
+    id: 'local-assurance-incomplete',
+    host: 'lattice-cli',
+    capability: 'local-proof-admissibility',
     severity: 'block',
     visible: true,
-    reason: 'No verified server receipt artifact is present in the exported Story. Local receipt refs are preserved as diagnostic refs only.',
+    reason: 'Current local assurance does not establish production completion; rely on proof-admissibility, receipt-bundle, and review quorum evidence for local gates.',
     fallback: 'Keep completion at local evidence and do not claim production DONE.',
     authorityImpact: 'blocks-production-done',
-    recovery: 'Run a receipt-backed authority flow and export again after the receipt is verified.',
+    recovery: 'Record fresh local proof-admissibility, receipt-bundle, and review quorum evidence for the current story/head/material tuple.',
   }];
 }
 
@@ -200,9 +200,8 @@ export function buildCanonicalStory(store: StoryStore, root: string, storyId: st
 
   const reviews = reviewProjection(review, reviewRuns, reviewPasses, findings, deliveryCheck);
   const receiptRefs = collectReceiptRefs(evidence, reviews, deliveryCheck, testEvidence);
-  const verifiedReceiptRefs: string[] = [];
-  const productionDone = verifiedReceiptRefs.length > 0;
-  const authorityTier: CanonicalStory['authority']['tier'] = productionDone ? 'server-receipt' : 'local-evidence';
+  const productionDone = false;
+  const authorityTier: CanonicalStory['authority']['tier'] = 'local-evidence';
   const canonical: CanonicalStory = {
     schemaVersion: 'canonical-story-v0',
     storyId,
@@ -220,7 +219,7 @@ export function buildCanonicalStory(store: StoryStore, root: string, storyId: st
       receiptRefs,
     },
     degradations: [
-      ...missingReceiptDegradation(verifiedReceiptRefs),
+      ...localAssuranceDegradation(productionDone),
       ...missingArtifactDegradations(warnings),
     ],
     lineage: {

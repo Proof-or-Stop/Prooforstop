@@ -1,0 +1,76 @@
+{
+  "passes": [
+    {
+      "id": "B-576e:RP-001",
+      "agent": "lattice-review-test-coverage",
+      "note": "Targeted re-review for B-576e:F-004: source and built retired-authority-server-semantics smoke now include explicit positive-claim checks for productionDone=true, receiptVerified=true, authorityDone=true, fullAuthorityDone=true plus prose positive completion claims. Ran npm --prefix packages/main run test:retired-authority-server-semantics and it passed, confirming the active scan rejects positive Authority completion claims while permitting negative, retired, local admissibility wording.",
+      "createdAt": "2026-06-29T02:08:03.631Z",
+      "reviewRound": "2026-06-29T02:05:03.593Z",
+      "reviewRunId": "B-576e:RR-006",
+      "_hash": "ced0544d9ffd2ab4712c61bd886d9364632f033bbfe2d238869ecf9fea393878"
+    },
+    {
+      "id": "B-576e:RP-002",
+      "agent": "lattice-review-docs",
+      "note": "ROUND 2 targeted docs re-review for B-576e:F-002 passed. docs/guide.md now states Authority Server modes and server-backed receipt commands are retired, labels Autopilot Mode as Local Only, uses only --mode=local in examples, and frames source-aligned redevelopment as local mode plus interactionMode policy. Active README/docs grep found no local / shadow / authority, mode=authority, --mode=authority, or under-either-authority guidance; retired-authority-server-semantics smoke passed.",
+      "createdAt": "2026-06-29T02:08:10.857Z",
+      "reviewRound": "2026-06-29T02:05:03.593Z",
+      "reviewRunId": "B-576e:RR-007",
+      "_hash": "9fa16a014a272cda2ec46eaace0a4c374897afa6d7866fb86208f6104ac47e1e"
+    },
+    {
+      "id": "B-576e:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "ROUND 2 targeted quality re-review for B-576e:F-003 passed. Verified scripts/verify-process-fact-contract.mjs is synchronized with retired Authority Server semantics: no required authority_receipt_verify or artifact:authority-receipt-refs fact remains, decision_doc_save boundary checks expect local proof/no-overclaim wording, npm run test:process-fact-contract passed, npm run build passed, command catalog smoke passed with 257 commands, retired Authority Server semantics smoke passed, local dist help omits retired Authority command names, and local dist reports Proofbound CLI 0.3.106. No blocking quality finding remains.",
+      "createdAt": "2026-06-29T02:08:38.659Z",
+      "reviewRound": "2026-06-29T02:05:03.593Z",
+      "reviewRunId": "B-576e:RR-008",
+      "_hash": "f5cac250ffc51544165593ad34487979c86ca762cd999af401cd728990c85eba"
+    },
+    {
+      "id": "B-576e:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "ROUND 2 targeted re-review for B-576e:F-001: PASS. Verified built worktree runtime no longer exports Authority Server receipt/server production completion semantics. Evidence: npm --prefix packages/main run build; node packages/main/dist/tasks/retired-authority-server-semantics-smoke.js; node packages/main/dist/tasks/proof-admissibility-smoke.js; node packages/main/dist/tasks/receipt-bundle-contract-smoke.js; node packages/main/dist/tasks/command-catalog-smoke.js; node packages/main/dist/cli.js help/authority_status checks; module summaries for buildCapabilityList, buildLatticeHostList, buildAutopilotRun/buildAutopilotStatus. Capabilities now report productionDoneRequiresReceipt=false, proofAdmissibility=local-only, receiptBundleVerification=signed-offline-local, reviewQuorum=local; server receipt-verify is unavailable/retired; host authority projection keeps productionDone=false and receiptVerified=false; autopilot mode normalizes to local with authorityRequired=false, receiptRequired=false, receipt.verified=false, authorityDone/fullAuthorityDone/multiHostVerified=false, and next action points to proof admissibility, receipt-bundle validation, and quorum_submit. Built CLI help no longer lists retired authority_* commands and authority_status is unknown. Remaining matches are negative/fail-closed or legacy/out-of-core classifiers, not active production completion exports.",
+      "createdAt": "2026-06-29T02:08:58.296Z",
+      "reviewRound": "2026-06-29T02:05:03.593Z",
+      "reviewRunId": "B-576e:RR-009",
+      "_hash": "2ca36e5fd28719b35174df241d1a60e2088d079384790fe7d748c9c24ce74d7c"
+    },
+    {
+      "id": "B-576e:RP-005",
+      "agent": "lattice-review-docs",
+      "note": "ROUND 3 docs lane pass. Targeted review of post-5b88c0f13 lattice.config.json validation change: server-backed Authority smokes were replaced by retired-authority-server-semantics and capability-list smokes, with no later lattice.config.json diff. Active docs still describe retired/local-only semantics: README.md:253, docs/guide.md:56, docs/requirements/decisions/orchestrate-retirement.md:53. No docs-facing regression found.",
+      "createdAt": "2026-06-29T02:19:55.842Z",
+      "reviewRound": "2026-06-29T02:17:55.724Z",
+      "reviewRunId": "B-576e:RR-011",
+      "_hash": "effe904f6a70a893f09cdfb03d8e45bf7e42c8b3daff458ecd6b8d675dd8016d"
+    },
+    {
+      "id": "B-576e:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "PASS: Targeted concept review of lattice.config.json after 5b88c0f13. Routine validation no longer invokes retired authority-client-smoke or authority-completion-smoke; lattice.config.json:12-13 now runs retired-authority-server-semantics-smoke and capability-list-smoke. The retired semantics smoke rejects active Authority Server commands, receipt wording, and positive productionDone/authorityDone claims. Capability-list smoke asserts proofAdmissibility=local-only, receiptBundleVerification=signed-offline-local, reviewQuorum=local, and local-assurance-required receipt-verify degradations. Existing validation still includes receipt-bundle-contract-smoke and gate-strength-contract-smoke for offline/tamper-evident local assurance. Targeted smokes passed.",
+      "createdAt": "2026-06-29T02:20:23.869Z",
+      "reviewRound": "2026-06-29T02:17:55.724Z",
+      "reviewRunId": "B-576e:RR-013",
+      "_hash": "eb917ff93ec4ed1757a7a5e6d25e3de843b0d7995afa358648601447e5793b6f"
+    },
+    {
+      "id": "B-576e:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "ROUND 3 targeted TEST coverage review passed. Checked commit 5b88c0f13: lattice.config.json removes authority-client-smoke and authority-completion-smoke from routine validate and includes retired-authority-server-semantics-smoke plus capability-list-smoke. Focused validation passed: node packages/main/dist/tasks/retired-authority-server-semantics-smoke.js; node packages/main/dist/tasks/capability-list-smoke.js.",
+      "createdAt": "2026-06-29T02:20:27.276Z",
+      "reviewRound": "2026-06-29T02:17:55.724Z",
+      "reviewRunId": "B-576e:RR-012",
+      "_hash": "3ed0c5ca8c5ac72a02a187bc97ea20091cd9dc1d738baaf1bc7a6b0d9318ffa8"
+    },
+    {
+      "id": "B-576e:RP-008",
+      "agent": "lattice-review-quality",
+      "note": "Quality review round 3 targeted lattice.config.json validation config after 5b88c0f13: authority-client-smoke.js and authority-completion-smoke.js are absent; retired-authority-server-semantics-smoke.js and capability-list-smoke.js are present and pass; npm --prefix packages/main run build passed; lattice validate --story=B-576e --json exited 0 with status pass and allPass true.",
+      "createdAt": "2026-06-29T02:22:17.930Z",
+      "reviewRound": "2026-06-29T02:17:55.724Z",
+      "reviewRunId": "B-576e:RR-015",
+      "_hash": "113817e529431fe8114e4123fa76471489ff8d9fdb787b21c185d6f0daca90ff"
+    }
+  ]
+}

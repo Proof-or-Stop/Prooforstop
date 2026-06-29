@@ -16,11 +16,7 @@ import {
   type PlannerRunRecord,
 } from '../core/planner.js';
 import { executePlannedSteps } from '../core/planned-steps-executor.js';
-import { resolveAuthorityGateEvaluator } from '../core/authority-client.js';
-import { evaluateAuthorityCompletion } from '../core/authority-completion.js';
-import { buildGateEvidenceRefResolver } from '../core/evidence-uploader.js';
 import { canonicalDigest } from '../core/authority-signing.js';
-import { buildNoOverlapMaterialOverlapAuditDefault } from '../core/authority-contracts.js';
 import { LATTICE_DIR } from '../core/lattice-paths.js';
 
 /**
@@ -366,48 +362,27 @@ export function createPlannerHandlers(ctx: HandlerContext) {
           ? jobPlan
           : renderLines('Proofbound planner run', { plannerRunId: draft.plannerRunId, storyId: storyResult.storyId, status: jobPlan.status ?? 'planned' });
       }
-      // Resolve the authority gate BEFORE executing. For authority/DONE jobs this
-      // performs the live append-evidence -> evaluate-gate -> verify-receipt loop
-      // and returns a synchronous evaluator; when authority mode/url/server-key are
-      // unconfigured it returns no evaluator and the executor fails closed at the
-      // gate. Local/non-DONE jobs resolve to no evaluator with zero network.
-      const materialOverlapAudit =
-        ctx.authorityGateOptions?.materialOverlapAudit ?? buildNoOverlapMaterialOverlapAuditDefault();
-      const authorityGate = await resolveAuthorityGateEvaluator(
-        jobPlan as ReturnType<typeof buildJobPlan>,
-        {
-          ...(ctx.authorityGateOptions ?? {}),
-          cwd: ctx.authorityGateOptions?.cwd ?? ctx.root,
-          materialOverlapAudit,
-        },
-      );
       const execution = executePlannedSteps({
         root: ctx.root,
         store: ctx.store,
         jobPlan: jobPlan as ReturnType<typeof buildJobPlan>,
         maxSteps: args.maxExecuteSteps,
-        authorityGate: authorityGate.evaluator,
-        ...(authorityGate.evaluator ? { gateEvidenceRefResolver: buildGateEvidenceRefResolver(jobPlan as ReturnType<typeof buildJobPlan>) } : {}),
-        materialOverlapAudit,
       });
-      // The single fail-closed completion gate. authorityDone/fullAuthorityDone are
-      // derived ONLY from the executor's verified native gate_decision receipt plus
-      // (for authority/DONE) the required multi-host reconciliation; planner run
-      // performs no multi-host wave, so fullAuthorityDone stays false until that
-      // reconciliation is supplied. Local mode and authority/non-DONE never project
-      // any authority DONE flag.
-      let finalPhase: string | null = null;
-      try {
-        finalPhase = ctx.store.readStory(storyResult.storyId).phase ?? null;
-      } catch {
-        finalPhase = null;
-      }
-      const completion = evaluateAuthorityCompletion({
-        jobPlan: jobPlan as ReturnType<typeof buildJobPlan>,
-        execution,
-        ...(authorityGate.decision ? { gateDecision: authorityGate.decision } : {}),
-        finalPhase,
-      });
+      const completed = execution.status === 'done';
+      const completion = {
+        schemaVersion: 'lattice.local_planner_completion.v1' as const,
+        completed,
+        localDoneReady: completed,
+        authorityDone: false,
+        fullAuthorityDone: false,
+        receiptVerified: false,
+        blockingReasons: completed ? [] : [execution.stopReason ?? 'planner_execution_incomplete'],
+        receiptRefs: [],
+        hostVerdictRefs: [],
+        nextAction: completed
+          ? 'Use local proof admissibility, receipt-bundle validation, and quorum evidence before lifecycle advancement.'
+          : 'Inspect failed planned step output, repair locally, and rerun planner/autopilot.',
+      };
       let finalRecord: PlannerRunRecord;
       try {
         finalRecord = readPlannerRun(ctx.root, draft.plannerRunId);
@@ -435,7 +410,7 @@ export function createPlannerHandlers(ctx: HandlerContext) {
       };
       return wantsJson(args)
         ? result
-        : renderLines('Proofbound planner run', { plannerRunId: draft.plannerRunId, storyId: storyResult.storyId, status: plannerRunStatus, stopReason: execution.stopReason, completed: completion.completed, authorityDone: completion.authorityDone, fullAuthorityDone: completion.fullAuthorityDone, nextAction: completion.nextAction });
+        : renderLines('Proofbound planner run', { plannerRunId: draft.plannerRunId, storyId: storyResult.storyId, status: plannerRunStatus, stopReason: execution.stopReason, completed: completion.completed, localDoneReady: completion.localDoneReady, nextAction: completion.nextAction });
     },
 
     planner_source_manifest(args: { sourceRepo: string; includedPaths?: string[] | string; excludedPaths?: string[] | string } & JsonArgs) {

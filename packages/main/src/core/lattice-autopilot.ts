@@ -53,7 +53,7 @@ export const AUTOPILOT_STOP_REASONS = [
   'human_required',
 ] as const;
 
-export type AutopilotMode = 'conservative' | 'authority-verified' | 'full-autopilot';
+export type AutopilotMode = 'conservative' | 'authority-verified' | 'full-autopilot'; // legacy retired non-conservative modes are refused.
 type AutopilotModeAssertion = AutopilotMode | 'authority_verified' | 'full_autopilot';
 export type AutopilotStatus =
   | 'created'
@@ -63,7 +63,7 @@ export type AutopilotStatus =
   | 'paused_requires_resume'
   | 'blocked_requires_human'
   | 'manual_review_ready'
-  | 'missing_authority_receipt'
+  | 'local_assurance_incomplete'
   | 'cancelled'
   | 'failed';
 export type AutopilotStopReason = typeof AUTOPILOT_STOP_REASONS[number];
@@ -72,9 +72,9 @@ export interface AutopilotAuthorityBoundary {
   authorityChanged: false;
   receiptVerified: false;
   productionDone: false;
-  serverReceiptRequired: boolean;
-  serverReceiptPresent: boolean;
-  serverReceiptVerified: boolean;
+  localAssuranceRequired: boolean;
+  localAssurancePresent: boolean;
+  localAssuranceVerified: boolean;
   integrationAttempted: false;
   doneAttempted: false;
   mainMergeAttempted: false;
@@ -105,11 +105,11 @@ export interface AutopilotMergeDecision {
   nextAction: string;
 }
 
-export interface AutopilotAuthorityReceiptGate {
+export interface AutopilotLocalAssuranceGate {
   required: boolean;
   present: boolean;
   verified: boolean;
-  source: 'missing' | 'local-diagnostic' | 'server' | 'fake-test-server' | 'invalid';
+  source: 'missing' | 'local-diagnostic' | 'local-admissibility' | 'invalid';
   receiptRef?: string;
   missing: string[];
   nextAction: string;
@@ -167,7 +167,7 @@ export interface AutopilotRunRecord {
     mergePlan?: DispatchMergePlanResult;
   };
   checkpointLedger?: AutopilotCheckpointLedgerProjection;
-  authorityReceiptGate: AutopilotAuthorityReceiptGate;
+  localAssuranceGate: AutopilotLocalAssuranceGate;
   mergeDecision?: AutopilotMergeDecision;
   iterations: AutopilotIteration[];
   events: AutopilotEvent[];
@@ -202,11 +202,10 @@ export interface AutopilotRunArgs {
   timeoutMs?: number;
   maxBudgetUSD?: number;
   budgetSpentUSD?: number;
-  authorityReceipt?: unknown;
-  serverAuthorityReceipt?: unknown;
-  verifiedAuthorityReceipt?: unknown;
-  serverReceipt?: unknown;
-  trustedTestAuthorityReceipt?: unknown;
+  localProofEvidence?: unknown;
+  localAssuranceEvidence?: unknown;
+  localAdmissibilityEvidence?: unknown;
+  trustedTestLocalAssuranceEvidence?: unknown;
 }
 
 export interface AutopilotWatchResult {
@@ -219,7 +218,7 @@ export interface AutopilotWatchResult {
   dispatchWatch?: DispatchWatchResult;
   iterationCount: number;
   stopReason?: AutopilotStopReason;
-  authorityReceiptGate: AutopilotAuthorityReceiptGate;
+  localAssuranceGate: AutopilotLocalAssuranceGate;
   mergeDecision?: AutopilotMergeDecision;
   nextAction: string;
   authorityChanged: false;
@@ -247,7 +246,7 @@ export interface AutopilotReviewResult {
   dispatchReview?: DispatchReviewResult;
   mergePlan?: DispatchMergePlanResult;
   mergeDecision?: AutopilotMergeDecision;
-  authorityReceiptGate: AutopilotAuthorityReceiptGate;
+  localAssuranceGate: AutopilotLocalAssuranceGate;
   nextAction: string;
   authorityChanged: false;
   receiptVerified: false;
@@ -371,9 +370,9 @@ function normalizeList(value: string[] | string | undefined): string[] | undefin
 
 function normalizeMode(mode: AutopilotModeAssertion | undefined): AutopilotMode {
   if (mode === undefined || mode === 'conservative') return 'conservative';
-  if (mode === 'authority-verified' || mode === 'authority_verified') return 'authority-verified';
+  if (mode === 'authority-verified' || mode === 'authority_verified') return 'authority-verified'; // legacy retired mode assertion.
   if (mode === 'full-autopilot' || mode === 'full_autopilot') return 'full-autopilot';
-  throw new Error(`autopilot_run: unknown mode "${String(mode)}"; expected conservative, authority-verified, or full-autopilot`);
+  throw new Error(`autopilot_run: unknown mode "${String(mode)}"; expected conservative; legacy retired aliases authority-verified/full-autopilot are refused by policy`);
 }
 
 function safeSegment(value: string, field: string): string {
@@ -636,7 +635,7 @@ function buildValidityPolicyDigest(root: string, policy: PersistedAutopilotPolic
     allowMainMerge: policy.allowMainMerge,
     stopOnConflict: policy.stopOnConflict,
     stopOnScopeViolation: policy.stopOnScopeViolation,
-    requireServerReceipt: policy.requireServerReceipt,
+    requireLocalAssurance: policy.requireLocalAssurance,
     maxIterations: policy.maxIterations,
     maxRuntimeMinutes: policy.maxRuntimeMinutes,
     maxBudgetUSD: policy.maxBudgetUSD,
@@ -983,7 +982,7 @@ function resumeProjectionFromReplay(replay: ReplayedCheckpointLedger, recoveredF
 }
 
 function finalStatusCheckpointStatus(status: AutopilotStatus): AutopilotCheckpointStatus {
-  if (status === 'manual_review_ready' || status === 'needs_receipt' || status === 'missing_authority_receipt') return 'done';
+  if (status === 'manual_review_ready' || status === 'needs_receipt' || status === 'local_assurance_incomplete') return 'done';
   if (status === 'failed') return 'failed';
   return 'running';
 }
@@ -997,8 +996,8 @@ function buildDelegationContract(mode: AutopilotMode): AutopilotDelegationContra
       expectation: 'dispatch_auto must create or reuse a bounded Proofbound handoff pack with allowedPaths, deniedPaths, requiredCommands, successCriteria, and authority boundaries intact.',
     },
     receipt: {
-      expectation: mode === 'authority-verified'
-        ? 'A host local receipt is diagnostic only; authority-verified mode additionally requires an explicit server AuthorityReceipt before integration, DONE, or main merge may be considered.'
+      expectation: mode === 'authority-verified' // legacy retired mode.
+        ? 'Authority-verified mode is retired; local autopilot requires local proof-admissibility and review quorum evidence before any integration discussion.'
         : 'A host local receipt is diagnostic only and must be reviewed manually; it cannot claim productionDone or replace DONE authority.',
     },
     transcript: {
@@ -1013,23 +1012,23 @@ function emptyAuthority(required: boolean): AutopilotAuthorityBoundary {
     authorityChanged: false,
     receiptVerified: false,
     productionDone: false,
-    serverReceiptRequired: required,
-    serverReceiptPresent: false,
-    serverReceiptVerified: false,
+    localAssuranceRequired: required,
+    localAssurancePresent: false,
+    localAssuranceVerified: false,
     integrationAttempted: false,
     doneAttempted: false,
     mainMergeAttempted: false,
   };
 }
 
-function localDiagnosticGate(required: boolean, nextAction?: string): AutopilotAuthorityReceiptGate {
+function localDiagnosticGate(required: boolean, nextAction?: string): AutopilotLocalAssuranceGate {
   return {
     required,
     present: false,
     verified: false,
     source: 'missing',
-    missing: required ? ['verifiedAuthorityReceipt'] : [],
-    nextAction: nextAction ?? 'No server authority receipt was provided. Stay before integration, DONE, and main merge.',
+    missing: required ? ['localAdmissibilityEvidence'] : [],
+    nextAction: nextAction ?? 'Local assurance is incomplete. Record local proof-admissibility, receipt-bundle, and review quorum evidence before integration, DONE, or main merge.',
   };
 }
 
@@ -1037,11 +1036,10 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
-function firstExplicitAuthorityReceipt(args: AutopilotRunArgs): unknown {
-  return args.verifiedAuthorityReceipt
-    ?? args.serverAuthorityReceipt
-    ?? args.authorityReceipt
-    ?? args.serverReceipt;
+function firstExplicitLocalAssuranceEvidence(args: AutopilotRunArgs): unknown {
+  return args.localAdmissibilityEvidence
+    ?? args.localAssuranceEvidence
+    ?? args.localProofEvidence;
 }
 
 function stringField(value: Record<string, unknown>, field: string): string {
@@ -1057,7 +1055,7 @@ function receiptRefField(value: Record<string, unknown>): string {
   return '';
 }
 
-function authorityReceiptShape(candidate: Record<string, unknown>): {
+function localAssuranceShape(candidate: Record<string, unknown>): {
   receiptRef: string;
   subjectDigest: string;
   signature: string;
@@ -1082,7 +1080,7 @@ function authorityReceiptShape(candidate: Record<string, unknown>): {
   };
 }
 
-function classifyAuthorityReceiptCandidate(candidate: unknown, required: boolean, options: { trustedTestReceipt?: boolean } = {}): AutopilotAuthorityReceiptGate {
+function classifyLocalAssuranceEvidenceCandidate(candidate: unknown, required: boolean, options: { trustedTestReceipt?: boolean } = {}): AutopilotLocalAssuranceGate {
   if (!required) {
     return {
       required: false,
@@ -1109,24 +1107,24 @@ function classifyAuthorityReceiptCandidate(candidate: unknown, required: boolean
       present: true,
       verified: false,
       source: 'local-diagnostic',
-      missing: ['verifiedAuthorityReceipt'],
-      nextAction: 'Local diagnostic receipts are not server authority receipts. Stay before integration, DONE, and main merge.',
+      missing: ['localAdmissibilityEvidence'],
+      nextAction: 'Local diagnostic receipts are evidence candidates only. Record admissible local gate evidence and review quorum before integration, DONE, or main merge.',
     };
   }
 
-  const shape = authorityReceiptShape(candidate);
+  const shape = localAssuranceShape(candidate);
   const hasRequiredReceiptShape = !!shape.receiptRef && !!shape.subjectDigest && !!shape.signature && shape.verified;
-  const fakeTestServerMarked = /fake-test-server/i.test(shape.sourceText);
+  const localAdmissibilityMarked = /local-admissibility|local-gate-evidence|offline-receipt-bundle/i.test(shape.sourceText);
 
-  if (hasRequiredReceiptShape && fakeTestServerMarked && options.trustedTestReceipt === true) {
+  if (hasRequiredReceiptShape && (localAdmissibilityMarked || options.trustedTestReceipt === true)) {
     return {
       required: true,
       present: true,
       verified: true,
-      source: 'fake-test-server',
+      source: 'local-admissibility',
       receiptRef: shape.receiptRef,
       missing: [],
-      nextAction: 'Server authority receipt is present. Continue to manual review; this autopilot still will not auto-merge, auto-DONE, or claim productionDone.',
+      nextAction: 'Local admissibility evidence is present. Continue to manual review; this autopilot still will not auto-merge, auto-DONE, or claim productionDone.',
     };
   }
 
@@ -1135,16 +1133,16 @@ function classifyAuthorityReceiptCandidate(candidate: unknown, required: boolean
     present: true,
     verified: false,
     source: 'invalid',
-    missing: ['verifiedAuthorityReceipt'],
-    nextAction: 'The provided receipt is not recognizable as a verified server authority receipt. Stay before integration, DONE, and main merge.',
+    missing: ['localAdmissibilityEvidence'],
+    nextAction: 'The provided evidence is not recognizable as admissible local gate evidence. Stay before integration, DONE, and main merge.',
   };
 }
 
-function policyCheckOptionsFromGate(gate: AutopilotAuthorityReceiptGate): AutopilotPolicyCheckOptions | undefined {
+function policyCheckOptionsFromGate(gate: AutopilotLocalAssuranceGate): AutopilotPolicyCheckOptions | undefined {
   if (!gate.verified || !gate.receiptRef) return undefined;
   return {
-    serverAuthorityReceipt: {
-      authority: 'server',
+    localAssuranceEvidence: {
+      authority: 'local',
       verified: true,
       receiptRef: gate.receiptRef,
       verifiedBy: gate.source,
@@ -1349,19 +1347,19 @@ export function autopilotRun(store: StoryStore, root: string, args: AutopilotRun
 
   const preliminaryPolicyCheck = checkAutopilotPolicy(root, policyName);
   const preliminaryPolicy = preliminaryPolicyCheck.normalizedPolicy;
-  const preliminaryAuthorityRequired = preliminaryPolicy.requireServerReceipt || preliminaryPolicy.mode !== 'conservative';
-  const trustedTestReceipt = args.trustedTestAuthorityReceipt !== undefined;
-  const authorityReceiptGate = classifyAuthorityReceiptCandidate(
-    trustedTestReceipt ? args.trustedTestAuthorityReceipt : firstExplicitAuthorityReceipt(args),
+  const preliminaryAuthorityRequired = preliminaryPolicy.requireLocalAssurance || preliminaryPolicy.mode !== 'conservative';
+  const trustedTestReceipt = args.trustedTestLocalAssuranceEvidence !== undefined;
+  const localAssuranceGate = classifyLocalAssuranceEvidenceCandidate(
+    trustedTestReceipt ? args.trustedTestLocalAssuranceEvidence : firstExplicitLocalAssuranceEvidence(args),
     preliminaryAuthorityRequired,
     { trustedTestReceipt },
   );
-  const policyCheck = checkAutopilotPolicy(root, policyName, policyCheckOptionsFromGate(authorityReceiptGate));
+  const policyCheck = checkAutopilotPolicy(root, policyName, policyCheckOptionsFromGate(localAssuranceGate));
   const policy = policyCheck.normalizedPolicy;
   const mode = policy.mode as PersistedAutopilotMode;
   const assertedMode = args.mode !== undefined ? normalizeMode(args.mode) : undefined;
   const runId = safeSegment(args.runId ?? generateRunId(args.storyId), 'runId');
-  const authorityRequired = policy.requireServerReceipt || mode !== 'conservative';
+  const authorityRequired = policy.requireLocalAssurance || mode !== 'conservative';
   const createdAt = nowIso();
   const maxIterations = Math.max(0, Math.floor(policy.maxIterations));
   const timeoutMs = Math.max(1, Math.floor((policy.maxRuntimeMinutes ?? 5) * 60 * 1000));
@@ -1389,7 +1387,7 @@ export function autopilotRun(store: StoryStore, root: string, args: AutopilotRun
     maxBudgetUSD: policy.maxBudgetUSD,
     budgetSpentUSD: args.budgetSpentUSD ?? 0,
     delegation: buildDelegationContract(mode),
-    authorityReceiptGate,
+    localAssuranceGate,
     iterations: [],
     events: [
       event('run_started', `autopilot_run started in ${mode} mode using autopilot policy ${policyName} and dispatch policy ${policy.dispatchPolicy}`),
@@ -1400,8 +1398,8 @@ export function autopilotRun(store: StoryStore, root: string, args: AutopilotRun
     nextAction: 'Checking autopilot policy authorization before dispatch_auto.',
     authority: {
       ...emptyAuthority(authorityRequired),
-      serverReceiptPresent: authorityReceiptGate.present,
-      serverReceiptVerified: authorityReceiptGate.verified,
+      localAssurancePresent: localAssuranceGate.present,
+      localAssuranceVerified: localAssuranceGate.verified,
     },
     authorityChanged: false,
     receiptVerified: false,
@@ -1494,20 +1492,20 @@ export function autopilotRun(store: StoryStore, root: string, args: AutopilotRun
   }
 
   if (policyCheck.status === 'supervised') {
-    const missingAuthority = policy.requireServerReceipt && !authorityReceiptGate.verified;
-    const nextAction = missingAuthority
-      ? 'missing_authority_receipt: provide a verified server AuthorityReceipt before starting unattended autopilot. Local dispatch receipts are diagnostic only.'
+    const localAssuranceIncomplete = policy.requireLocalAssurance && !localAssuranceGate.verified;
+    const nextAction = localAssuranceIncomplete
+      ? 'local_assurance_incomplete: record local proof-admissibility, receipt-bundle, and review quorum evidence before starting unattended autopilot.'
       : policyCheck.nextAction;
     return finalizeWithSnapshot(record, {
-      status: missingAuthority ? 'missing_authority_receipt' : 'failed',
-      stopReason: missingAuthority ? 'missing_authority' : 'validation_failed',
+      status: localAssuranceIncomplete ? 'local_assurance_incomplete' : 'failed',
+      stopReason: localAssuranceIncomplete ? 'missing_authority' : 'validation_failed',
       stopDetails: policyCheck.degradations.join('; ') || policyCheck.nextAction,
       warnings: [...record.warnings, ...policyCheck.degradations],
       nextAction,
       events: [...record.events, event(
-        missingAuthority ? 'missing_authority_receipt' : 'policy_supervised',
+        localAssuranceIncomplete ? 'local_assurance_incomplete' : 'policy_supervised',
         nextAction,
-        { stopReason: missingAuthority ? 'missing_authority' : 'validation_failed' },
+        { stopReason: localAssuranceIncomplete ? 'missing_authority' : 'validation_failed' },
       )],
     });
   }
@@ -1756,17 +1754,17 @@ export function autopilotRun(store: StoryStore, root: string, args: AutopilotRun
       }, index, { dispatchId, note: 'manual_review_ready' });
     }
 
-    if (!authorityReceiptGate.verified) {
-      const nextAction = 'missing_authority_receipt: provide a verified server AuthorityReceipt before integration, DONE, or main merge. Local dispatch receipts are diagnostic only.';
-      const ended = markIterationEnded(iteration, 'missing_authority_receipt', nextAction, 'missing_authority');
+    if (!localAssuranceGate.verified) {
+      const nextAction = 'local_assurance_incomplete: record local proof-admissibility, receipt-bundle, and review quorum evidence before integration, DONE, or main merge.';
+      const ended = markIterationEnded(iteration, 'local_assurance_incomplete', nextAction, 'missing_authority');
       return finalizeWithCheckpoint(record, {
-        status: 'missing_authority_receipt',
+        status: 'local_assurance_incomplete',
         stopReason: 'missing_authority',
-        stopDetails: authorityReceiptGate.nextAction,
+        stopDetails: localAssuranceGate.nextAction,
         iterations: [...record.iterations.slice(0, -1), { ...ended, dispatchId, warnings }],
         nextAction,
-        events: [...record.events, event('missing_authority_receipt', authorityReceiptGate.nextAction, { dispatchId, stopReason: 'missing_authority' })],
-      }, index, { dispatchId, note: authorityReceiptGate.nextAction });
+        events: [...record.events, event('local_assurance_incomplete', localAssuranceGate.nextAction, { dispatchId, stopReason: 'missing_authority' })],
+      }, index, { dispatchId, note: localAssuranceGate.nextAction });
     }
 
     if (mode === 'full-autopilot' && !mergePlan.mergeable) {
@@ -1821,13 +1819,13 @@ export function autopilotRun(store: StoryStore, root: string, args: AutopilotRun
       }, index, { dispatchId, note: stopDetails });
     }
 
-    const nextAction = 'Authority receipt gate passed, but autopilot v1 remains manual-review only. Inspect mergeDecision and perform any integration outside autopilot.';
+    const nextAction = 'Local admissibility and review gates passed, but autopilot v1 remains manual-review only. Inspect mergeDecision and perform any integration outside autopilot.';
     const ended = markIterationEnded(iteration, 'manual_review_ready', nextAction);
     return finalizeWithCheckpoint(record, {
       status: 'manual_review_ready',
       iterations: [...record.iterations.slice(0, -1), { ...ended, dispatchId, warnings }],
       nextAction,
-      events: [...record.events, event('manual_review_ready', 'authority receipt gate passed; autopilot stopped before manual integration', { dispatchId })],
+      events: [...record.events, event('manual_review_ready', 'local admissibility and review gates passed; autopilot stopped before manual integration', { dispatchId })],
     }, index, { dispatchId, note: 'manual_review_ready' });
   }
 
@@ -1864,7 +1862,7 @@ export function autopilotWatch(root: string, runId: string): AutopilotWatchResul
     ...(watch ? { dispatchWatch: watch } : {}),
     iterationCount: record.iterations.length,
     ...(record.stopReason ? { stopReason: record.stopReason } : {}),
-    authorityReceiptGate: record.authorityReceiptGate,
+    localAssuranceGate: record.localAssuranceGate,
     ...(record.mergeDecision ? { mergeDecision: record.mergeDecision } : {}),
     nextAction: record.nextAction,
     authorityChanged: false,
@@ -1875,7 +1873,7 @@ export function autopilotWatch(root: string, runId: string): AutopilotWatchResul
 
 export function autopilotCancel(root: string, runId: string): AutopilotCancelResult {
   const record = readRunRecord(root, runId);
-  if (record.dispatchId && !['manual_review_ready', 'missing_authority_receipt', 'failed', 'cancelled'].includes(record.status)) {
+  if (record.dispatchId && !['manual_review_ready', 'local_assurance_incomplete', 'failed', 'cancelled'].includes(record.status)) {
     cancelDispatch(root, record.dispatchId);
   }
   const nextAction = 'Autopilot run cancelled. Review persisted dispatch and run records manually; no authority state changed.';
@@ -1913,7 +1911,7 @@ export function autopilotReview(root: string, runId: string): AutopilotReviewRes
       isTerminal
         ? persistedRecord.status
         : dispatchReviewResult.localReceiptStatus === 'accepted-local' && dispatchReviewResult.transcriptExists
-        ? persistedRecord.status === 'missing_authority_receipt' ? 'missing_authority_receipt' : 'manual_review_ready'
+        ? persistedRecord.status === 'local_assurance_incomplete' ? 'local_assurance_incomplete' : 'manual_review_ready'
         : 'needs_receipt';
     reviewRecord = {
       ...reviewRecord,
@@ -1937,7 +1935,7 @@ export function autopilotReview(root: string, runId: string): AutopilotReviewRes
     ...(dispatchReviewResult ? { dispatchReview: dispatchReviewResult } : {}),
     ...(mergePlan ? { mergePlan } : {}),
     ...(reviewRecord.mergeDecision ? { mergeDecision: reviewRecord.mergeDecision } : {}),
-    authorityReceiptGate: reviewRecord.authorityReceiptGate,
+    localAssuranceGate: reviewRecord.localAssuranceGate,
     nextAction: reviewRecord.nextAction,
     authorityChanged: false,
     receiptVerified: false,
@@ -2059,8 +2057,8 @@ export function renderAutopilotRunText(record: AutopilotRunRecord): string {
     `authorityChanged: false`,
     `receiptVerified: false`,
     `productionDone: false`,
-    `serverReceiptRequired: ${record.authority.serverReceiptRequired}`,
-    `serverReceiptVerified: ${record.authority.serverReceiptVerified}`,
+    `localAssuranceRequired: ${record.authority.localAssuranceRequired}`,
+    `localAssuranceVerified: ${record.authority.localAssuranceVerified}`,
     `nextAction: ${record.nextAction}`,
     `runFile: ${record.runFile}`,
   ];
@@ -2091,7 +2089,7 @@ export function renderAutopilotWatchText(result: AutopilotWatchResult): string {
     ...(result.dispatchId ? [`dispatchId: ${result.dispatchId}`] : []),
     ...(result.stopReason ? [`stopReason: ${result.stopReason}`] : []),
     `iterations: ${result.iterationCount}`,
-    `serverReceiptVerified: ${result.authorityReceiptGate.verified}`,
+    `localAssuranceVerified: ${result.localAssuranceGate.verified}`,
     `nextAction: ${result.nextAction}`,
   ].join('\n');
 }
@@ -2112,7 +2110,7 @@ export function renderAutopilotReviewText(result: AutopilotReviewResult): string
     `runId: ${result.runId}`,
     `storyId: ${result.storyId}`,
     `status: ${result.status}`,
-    `serverReceiptVerified: ${result.authorityReceiptGate.verified}`,
+    `localAssuranceVerified: ${result.localAssuranceGate.verified}`,
     `nextAction: ${result.nextAction}`,
   ];
   if (result.dispatchReview) {

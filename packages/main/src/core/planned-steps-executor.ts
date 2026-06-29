@@ -34,10 +34,6 @@ import type {
   ProviderExecResult,
 } from '../providers/types.js';
 import {
-  computeGateInputDigest,
-  type MaterialOverlapAuditContract,
-} from './authority-contracts.js';
-import {
   normalizeRepairRetryPolicy,
   runRepairRetryLoop,
   type RepairProviderOutcome,
@@ -173,45 +169,6 @@ export interface RedevelopmentExecutionSummary {
   doneEligible: boolean;
 }
 
-/**
- * Gate input the executor hands to an injected authority gate evaluator. Mirrors
- * the B15 gate-input subset the deterministic executor can produce from local
- * state. The evaluator is a synchronous port: any async authority call (evaluate +
- * receipt verify) must already be resolved by the caller, so the executor itself
- * stays deterministic and never bypasses the Proofbound lifecycle gate boundary.
- */
-export interface AuthorityGateInput {
-  projectId: string;
-  storyId: string;
-  targetPhase: string;
-  until: JobPlan['until'];
-  plannerRunId: string;
-  jobId?: string;
-  plannedStepsDigest: string;
-  evidenceRefs: string[];
-  gateInputDigest: string;
-  materialOverlapAudit?: MaterialOverlapAuditContract;
-}
-
-/**
- * Outcome of an authority gate evaluation. `receiptVerified` MUST come from a real
- * verified native gate_decision receipt — the executor never mints one and treats
- * `receiptVerified=false` as fail-closed regardless of `decision`.
- */
-export interface AuthorityGateOutcome {
-  receiptVerified: boolean;
-  decision?: 'approve' | 'reject' | 'blocked';
-  receiptId?: string;
-  decisionDigest?: string;
-  /** X5 gate input digest certified by the verified native gate_decision receipt flow. */
-  gateInputDigest?: string;
-  /** Native receipt inputDigest, useful for server-envelope binding diagnostics. */
-  receiptInputDigest?: string;
-  reason: string;
-}
-
-export type AuthorityGateEvaluator = (input: AuthorityGateInput) => AuthorityGateOutcome;
-
 export interface ExecutePlannedStepsOptions {
   root: string;
   store: PlannerStoreLike;
@@ -223,35 +180,13 @@ export interface ExecutePlannedStepsOptions {
   /** Injectable bounded provider executor (tests stub this; default spawns real CLIs). */
   providerExecutor?: BoundedProviderExecutor;
   /**
-   * Explicit authority gate evaluator. Supplied ONLY when explicit test/live
-   * authority config is configured. When absent, an authority `gate.evaluate` for
-   * `until=DONE` fails closed with `authority_gate_decision_receipt_required` — the
-   * executor never contacts a default server and never mints a receipt.
-   */
-  authorityGate?: AuthorityGateEvaluator;
-  /**
    * Optional synchronous per-step hook (M8 evidence streaming seam). Invoked once
    * per executed step, in execution order, immediately after the step's record is
    * produced. It MUST NOT perform network I/O — the executor stays deterministic
    * and synchronous, so async evidence upload runs over the returned `steps[]`
-   * (see `core/evidence-uploader.ts`). Local mode uses this hook to capture
-   * per-step evidence as the loop runs; authority mode streams the same records
-   * to Proofbound Authority afterward. The hook never influences step results.
+   * (see `core/evidence-uploader.ts`). The hook never influences step results.
    */
   evidenceRecorder?: (step: PlannedStepExecution, index: number) => void;
-  /**
-   * Optional resolver mapping an executed step to the DURABLE evidence ref its
-   * uploaded record carries (its content-addressed evidence id), supplied ONLY when
-   * a live evidence upload is configured. When present, the authority gate input
-   * (and the terminal stop.summary) reference these durable, uploaded refs from the
-   * actual executed steps instead of the static pre-execution `evidenceBinding`
-   * strings (§B4 / §B15). Omit it to keep the deterministic static behavior — local
-   * / no-network runs never need it. The resolver is pure and never performs I/O.
-   * See `buildGateEvidenceRefResolver` in `core/evidence-uploader.ts`.
-   */
-  gateEvidenceRefResolver?: (step: PlannedStepExecution) => string;
-  /** Optional computed DONE material-overlap audit to bind into the authority gate input. */
-  materialOverlapAudit?: MaterialOverlapAuditContract;
   /**
    * Reduce-only budget override (X6 + §B9): CLI safety limits may only TIGHTEN the
    * JobPlan's `budgetPolicy`, never expand it. Each `<= 0` field means "no override
@@ -283,48 +218,9 @@ function operation(step: PlannedStep): string {
   return typeof op === 'string' ? op : step.type;
 }
 
-function resolveProjectId(jobPlan: JobPlan): string {
-  return jobPlan.jobCreateRequestEnvelope?.projectId
-    ?? jobPlan.jobCreateRequest?.projectId
-    ?? 'local-project';
-}
-
 function plannedStepsDigestOf(jobPlan: JobPlan): string {
   return jobPlan.localRunPlan?.plannedStepsDigest
-    ?? jobPlan.jobCreateRequestEnvelope?.plannedStepsDigest
     ?? digest(jobPlan.plannedSteps);
-}
-
-/**
- * Build the B15 gate-input subset from local job state + the evidence produced so
- * far. `gateInputDigest` (the X5 gate idempotency key) is derived from the input
- * minus the digest field itself, so it is stable and self-referential.
- */
-export function buildAuthorityGateInput(
-  jobPlan: JobPlan,
-  priorSteps: PlannedStepExecution[],
-  gateEvidenceRefResolver?: (step: PlannedStepExecution) => string,
-  projectIdOverride?: string,
-  materialOverlapAudit?: MaterialOverlapAuditContract,
-): AuthorityGateInput {
-  // When a live evidence upload is configured the gate certifies the DURABLE,
-  // uploaded evidence refs from the actual executed steps; otherwise it falls back
-  // to the static pre-execution evidenceBinding (deterministic default).
-  const evidenceRefs = gateEvidenceRefResolver
-    ? priorSteps.map(gateEvidenceRefResolver)
-    : priorSteps.map(item => item.evidenceBinding);
-  const base = {
-    projectId: projectIdOverride ?? resolveProjectId(jobPlan),
-    storyId: jobPlan.storyId,
-    targetPhase: jobPlan.until,
-    until: jobPlan.until,
-    plannerRunId: jobPlan.plannerRunId,
-    ...(jobPlan.jobCreateRequest ? { jobId: jobPlan.jobPlanDigest } : {}),
-    plannedStepsDigest: plannedStepsDigestOf(jobPlan),
-    evidenceRefs,
-    ...(materialOverlapAudit ? { materialOverlapAudit } : {}),
-  };
-  return { ...base, gateInputDigest: computeGateInputDigest(base) };
 }
 
 // --- Provider policy + bounded execution -------------------------------------
@@ -872,9 +768,6 @@ function executeOneStep(
   priorSteps: PlannedStepExecution[],
   now: () => Date,
   providerCtx: ProviderExecContext,
-  authorityGate: AuthorityGateEvaluator | undefined,
-  gateEvidenceRefResolver?: (step: PlannedStepExecution) => string,
-  materialOverlapAudit?: MaterialOverlapAuditContract,
 ): PlannedStepExecution {
   const startedAt = now().toISOString();
   const op = operation(step);
@@ -965,60 +858,12 @@ function executeOneStep(
     if (failed) {
       return block('prior_step_failed', { failedStepId: failed.stepId, failedStatus: failed.status });
     }
-    if (jobPlan.mode === 'authority' && jobPlan.until === 'DONE') {
-      // Fail closed unless explicit test/live authority config supplied an evaluator.
-      // The executor NEVER contacts a default server and NEVER mints a receipt.
-      if (!authorityGate) {
-        return block('authority_gate_decision_receipt_required', {
-          receiptRequired: true,
-          note: 'authority DONE requires server gate_decision receipt issuance and verification',
-        });
-      }
-      const gateInput = buildAuthorityGateInput(jobPlan, priorSteps, gateEvidenceRefResolver, undefined, materialOverlapAudit);
-      let outcome: AuthorityGateOutcome;
-      try {
-        outcome = authorityGate(gateInput);
-      } catch (error) {
-        return block('authority_gate_evaluation_error', {
-          gateInputDigest: gateInput.gateInputDigest,
-          error: error instanceof Error ? error.message : String(error),
-        });
-      }
-      const outcomeGateInputDigest = typeof outcome.gateInputDigest === 'string' ? outcome.gateInputDigest.trim() : '';
-      const gateInputMatches = outcomeGateInputDigest.length > 0 && outcomeGateInputDigest === gateInput.gateInputDigest;
-      // The ONLY pass path: a verified native gate_decision receipt on an approve,
-      // bound to the exact gate input the executor built from the executed steps.
-      if (outcome.receiptVerified && outcome.decision === 'approve' && gateInputMatches) {
-        return pass({
-          gate: 'authority-gate-decision-verified',
-          decision: outcome.decision,
-          receiptVerified: true,
-          receiptId: outcome.receiptId,
-          decisionDigest: outcome.decisionDigest,
-          gateInputDigest: gateInput.gateInputDigest,
-        });
-      }
-      const reason = outcome.receiptVerified && outcome.decision === 'approve' && !gateInputMatches
-        ? 'authority_gate_receipt_input_digest_mismatch'
-        : outcome.decision === 'reject'
-        ? 'authority_gate_decision_rejected'
-        : outcome.decision === 'blocked'
-          ? 'authority_gate_decision_blocked'
-          : !outcome.receiptVerified
-            ? 'authority_gate_receipt_unverified'
-            : 'authority_gate_decision_not_approved';
-      return block(reason, {
-        decision: outcome.decision ?? null,
-        receiptVerified: outcome.receiptVerified,
-        receiptId: outcome.receiptId,
-        receiptGateInputDigest: outcome.gateInputDigest ?? null,
-        detail: outcome.reason,
-        gateInputDigest: gateInput.gateInputDigest,
-      });
-    }
     return pass({
-      gate: jobPlan.mode === 'local' ? 'local-planned-step-gate' : 'authority-non-done-gate',
-      receiptRequired: jobPlan.mode === 'authority' && jobPlan.until === 'DONE',
+      gate: 'local-planned-step-gate',
+      admissibilityStatus: 'local-admissible',
+      assuranceLevel: 'local',
+      evidenceScope: 'local-gate-evidence',
+      receiptRequired: false,
     });
   }
 
@@ -1026,11 +871,7 @@ function executeOneStep(
     const failed = priorSteps.find(item => item.status !== 'passed');
     return pass({
       priorFailure: failed ? { stepId: failed.stepId, status: failed.status, reason: failed.reason } : null,
-      // Terminal summary references the same durable, uploaded evidence refs the gate
-      // certified when live upload is configured; static evidenceBinding otherwise.
-      evidenceRefs: gateEvidenceRefResolver
-        ? priorSteps.map(gateEvidenceRefResolver)
-        : priorSteps.map(item => item.evidenceBinding),
+      evidenceRefs: priorSteps.map(item => item.evidenceBinding),
     });
   }
 
@@ -1122,9 +963,6 @@ export function executePlannedSteps(options: ExecutePlannedStepsOptions): Planne
       steps,
       now,
       providerCtx,
-      options.authorityGate,
-      options.gateEvidenceRefResolver,
-      options.materialOverlapAudit,
     );
     if (enforceStep && result.status === 'passed' && gitStatusBefore) {
       // Postflight (§B2): capture the after-status as git evidence on the passing step,
@@ -1152,8 +990,7 @@ export function executePlannedSteps(options: ExecutePlannedStepsOptions): Planne
     // is owned by `repair-retry-loop.ts` (bounded by retryPolicy/stopPolicy), so the
     // executor never runs an ad hoc retry. Repair is STRICTLY scoped to validation
     // failures: gate.evaluate / receipt / provider failures never enter it, so a
-    // receipt failure can never be "repaired" into DONE — it stops/releases per
-    // policy (requirement B17: receipt verification failure stops, never DONE).
+    // local gate failure can never be "repaired" into DONE — it stops per policy.
     const repairLoop = maybeRunValidateRepairLoop({
       step,
       initialResult: result,
@@ -1220,34 +1057,16 @@ export function executePlannedSteps(options: ExecutePlannedStepsOptions): Planne
     finalStoryPhase = null;
   }
   const localDone = status === 'done' && options.jobPlan.mode === 'local' && options.jobPlan.until === 'DONE' && finalStoryPhase === 'DONE';
-  // receiptVerified is true ONLY when the authority gate step passed on a verified
-  // native gate_decision receipt — never minted client-side. Per-run authorityDone
-  // is that verified receipt plus a completed run; fullAuthorityDone / multiHostVerified
-  // remain the executor's responsibility-free zone (owned by the multi-host phase).
-  const verifiedGateStep = steps.find(
-    step => step.type === 'gate.evaluate' && step.status === 'passed' && step.summary.receiptVerified === true,
-  );
-  const receiptVerified = verifiedGateStep !== undefined;
-  const authorityDone = receiptVerified
-    && options.jobPlan.mode === 'authority'
-    && options.jobPlan.until === 'DONE'
-    && status === 'done';
+  const receiptVerified = false;
+  const authorityDone = false;
   const nextActions = new Set<string>();
   if (status !== 'done') {
     if (worktreeStopSummary && (WORKTREE_STOP_REASONS as readonly string[]).includes(stopReason)) {
       nextActions.add(worktreeStopSummary.nextAction);
-    } else if (stopReason === 'authority_gate_decision_receipt_required') {
-      nextActions.add('Run with a Proofbound Authority server that can evaluate gates and issue a native gate_decision receipt.');
-    } else if (stopReason === 'authority_gate_decision_rejected' || stopReason === 'authority_gate_decision_blocked' || stopReason === 'authority_gate_decision_not_approved') {
-      nextActions.add('Proofbound Authority did not approve the gate; resolve the decision reason and rerun, or stop — authority DONE is not available.');
-    } else if (stopReason === 'authority_gate_receipt_unverified') {
-      nextActions.add('The returned native gate_decision receipt failed verification; do not claim authority DONE. Check server key, decisionDigest, and freshness.');
-    } else if (stopReason === 'authority_gate_evaluation_error') {
-      nextActions.add('The authority gate evaluation errored before a verified receipt; authority DONE is fail-closed until the gate call succeeds and the receipt verifies.');
     } else if (stopReason === 'disabled') {
       nextActions.add('Enable the provider in providerPolicy.allowedProviders before requesting real provider execution.');
     } else if (stopReason === 'provider_unavailable') {
-      nextActions.add('Install and authenticate the exact provider CLI requested by the job providerPolicy on this host, or reissue the Authority job for a provider this runner advertises; unattended mode will not switch providers automatically.');
+      nextActions.add('Install and authenticate the exact provider CLI requested by the job providerPolicy on this host; unattended mode will not switch providers automatically.');
     } else if (stopReason === 'credential_unavailable') {
       nextActions.add('Configure provider credentials via providerPolicy.credentialsEnvAllowlist or secretRefs; unattended mode will not prompt for secrets.');
     } else if (stopReason === 'noninteractive_auth_unavailable') {
@@ -1475,7 +1294,7 @@ function maybeRunValidateRepairLoop(deps: ValidateRepairLoopDeps): ValidateRepai
       // Revalidate by re-executing the SAME validate.run step (repair never bypasses
       // validation). validate.run is deterministic over coverageMap, so a structural
       // validation failure stays failing — bounded to a blocked stop, never a loop.
-      const record = executeOneStep(root, store, jobPlan, step, [], now, providerCtx, undefined);
+      const record = executeOneStep(root, store, jobPlan, step, [], now, providerCtx);
       recordStep(asAttemptRecord(record, `${step.stepId}#validate-attempt-${iteration}`));
       lastValidationDigest = record.evidenceDigest;
       return { passed: record.status === 'passed', digest: record.evidenceDigest };

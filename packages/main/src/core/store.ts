@@ -13,7 +13,6 @@ import type {
 } from './types.js';
 import { REVIEW_LOOP_FILENAME } from './review-loop.js';
 import { CAPSULE_DIR_NAME, type StoryCapsuleData, type StoryCapsuleRunData } from './story-capsule.js';
-import type { AuthorityReceiptRefDocument } from './authority-gate-receipts.js';
 import type { ClusterData } from './cluster-types.js';
 import { appendProcessEvent as appendProcessEventFn, readProcessEvents as readProcessEventsFn } from './process-events.js';
 import { loadConfig } from './config.js';
@@ -24,6 +23,8 @@ type JsonCandidate<T> = {
   filePath: string;
   data: T;
 };
+
+type LegacyReceiptRefDocument = Record<string, unknown>;
 
 class StoryArtifactMissingError extends Error {
   constructor(message: string) {
@@ -682,18 +683,18 @@ export class StoryStore {
     this.writeJson(storyId, 'declared-artifacts.json', data);
   }
 
-  // ── Authority receipt refs (L4 gate evidence projection) ──
+  // ── Legacy legacy receipt refs (retired server projection; read-only compatibility) ──
 
-  readAuthorityReceiptRefs(storyId: string): AuthorityReceiptRefDocument | null {
+  readLegacyReceiptRefs(storyId: string): LegacyReceiptRefDocument | null {
     try {
-      return this.readJson<AuthorityReceiptRefDocument>(storyId, 'authority-receipt-refs.json');
+      return this.readJson<LegacyReceiptRefDocument>(storyId, 'authority-receipt-refs.json');
     } catch (e) {
       if (e instanceof StoryArtifactMissingError) return null;
       throw e;
     }
   }
 
-  writeAuthorityReceiptRefs(storyId: string, data: AuthorityReceiptRefDocument): void {
+  writeLegacyReceiptRefs(storyId: string, data: LegacyReceiptRefDocument): void {
     this.writeJson(storyId, 'authority-receipt-refs.json', data);
   }
 

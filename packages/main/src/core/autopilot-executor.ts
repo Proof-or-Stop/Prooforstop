@@ -1,7 +1,6 @@
 import { execFileSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, join } from 'node:path';
 import type { StoryStore } from './store.js';
 import {
   buildAutopilotRun,
@@ -11,17 +10,6 @@ import {
   type AutopilotStatus,
   type AutopilotStep,
 } from './autopilot.js';
-import {
-  consumeClaimedAuthorityJob,
-  parseClaimedAuthorityJob,
-  type ClaimedAuthorityJob,
-  type ConsumeClaimedAuthorityJobResult,
-} from './authority-runner.js';
-import type { AuthorityGateDecision } from './authority-client.js';
-import type { MaterialOverlapAuditContract } from './authority-contracts.js';
-import type { AuthorityGateEvaluator } from './planned-steps-executor.js';
-import type { AuthorityCompletionVerdict, AuthorityReceiptRef } from './authority-completion.js';
-import type { AuthorityJobLoopTrace } from './authority-job-loop-live.js';
 
 export type AutopilotExecuteStepStatus = 'passed' | 'failed' | 'skipped';
 
@@ -72,14 +60,6 @@ export interface AutopilotExecuteArgs extends AutopilotArgs {
   maxReviewWaves?: number;
   requireMultiHost?: boolean;
   requiredHostVerdictCount?: number;
-  /**
-   * Path to a claimed Authority job JSON file carrying a typed plannedSteps[]
-   * payload. When supplied, the executor consumes that job through the shared
-   * plannedSteps executor instead of synthesizing local argv steps. This is the
-   * CLI/live entry point for the in-process `claimedJob` seam; identity and
-   * receipt gating are identical. Ignored when `options.claimedJob` is set.
-   */
-  jobFile?: string;
 }
 
 export interface AutopilotExecuteResult {
@@ -105,18 +85,12 @@ export interface AutopilotExecuteResult {
   authority: AutopilotRunResult['authority'];
   plannedSteps: AutopilotStep[];
   executedSteps: AutopilotExecutedStep[];
-  claimedJobExecution: ConsumeClaimedAuthorityJobResult | null;
-  /**
-   * The fail-closed authority completion verdict, present only when a claimed
-   * Authority job ran through the shared plannedSteps executor. Local / dry-run /
-   * argv-synthesis paths have no plannedSteps completion gate and leave it null;
-   * they never project an authority DONE flag.
-   */
-  completion: AuthorityCompletionVerdict | null;
+  claimedJobExecution: null;
+  completion: null;
   /** Machine-readable reasons the job did NOT fully complete (empty when completed or n/a). */
   blockingReasons: string[];
-  /** Native gate_decision receipt handles surfaced by the completion verdict. */
-  receiptRefs: AuthorityReceiptRef[];
+  /** Local/offline receipt-bundle refs are not produced by this executor. */
+  receiptRefs: [];
   /** Independent multi-host verdict refs surfaced by the completion verdict. */
   hostVerdictRefs: string[];
   /** The single recommended next action (completion verdict, or first nextActions entry). */
@@ -131,14 +105,7 @@ export interface AutopilotExecuteResult {
   stopReason: string;
   nextActions: string[];
   note: string;
-  /**
-   * Live Stage B authority job-loop runtime trace. Present ONLY on the live
-   * `--mode=authority` (no --jobFile) path that registers/heartbeats/claims a
-   * queued job over the network and drives its lease to a terminal state. All
-   * other paths (local / shadow / dry-run / in-process claimedJob / --jobFile)
-   * leave it null.
-   */
-  authorityJobLoop?: AuthorityJobLoopTrace | null;
+  authorityJobLoop?: null;
 }
 
 export interface ExecuteAutopilotOptions {
@@ -148,28 +115,6 @@ export interface ExecuteAutopilotOptions {
   env?: Record<string, string | undefined>;
   runner?: AutopilotCommandRunner;
   now?: () => Date;
-  /**
-   * A claimed Authority job carrying typed plannedSteps[]. When supplied, the
-   * executor consumes it through the shared plannedSteps executor instead of
-   * synthesizing local argv steps. Authority DONE stays gated by a verified
-   * native receipt; this path never mints one.
-   */
-  claimedJob?: ClaimedAuthorityJob;
-  /**
-   * Optional live gate evaluator for claimed authority jobs. This is resolved
-   * before the synchronous executor path runs, so --jobFile/non-live callers keep
-   * the existing fail-closed behavior unless they explicitly inject it.
-   */
-  claimedJobAuthorityGate?: AuthorityGateEvaluator;
-  claimedJobGateDecision?: AuthorityGateDecision;
-  /** Material-overlap audit paired with claimedJobAuthorityGate for the signed DONE gate request. */
-  claimedJobMaterialOverlapAudit?: MaterialOverlapAuditContract;
-  /**
-   * Injected fetch for the live authority job loop (tests inject a fake server).
-   * Threaded only into the live `--mode=authority` loop; unused on every other
-   * path. Defaults to the global fetch.
-   */
-  fetchImpl?: typeof fetch;
 }
 
 const DEFAULT_MAX_EXECUTE_STEPS = 20;
@@ -180,28 +125,6 @@ const MAX_REVIEW_WAVES_HARD_CAP = 10;
 const DEFAULT_COMMAND_TIMEOUT_MS = 120_000;
 const DEFAULT_CLAUDE_TIMEOUT_MS = 300_000;
 const OUTPUT_EXCERPT_LIMIT = 2_000;
-
-function projectCompletionReceipt(
-  base: AutopilotReceiptProjection,
-  completion: AuthorityCompletionVerdict | null,
-): AutopilotReceiptProjection {
-  if (!completion) return base;
-  const ref = completion.receiptRefs[0];
-  if (!ref && !completion.receiptId && !completion.decisionDigest) return base;
-  return {
-    ...base,
-    provided: true,
-    verified: completion.receiptVerified,
-    native: true,
-    format: 'lattice-authority',
-    reason: completion.receiptVerified
-      ? 'verified gate_decision receipt from the Authority completion gate'
-      : completion.blockingReasons[0] ?? base.reason,
-    ...(ref?.receiptId || completion.receiptId ? { receiptId: ref?.receiptId || completion.receiptId } : {}),
-    kind: 'gate_decision',
-    ...(ref?.decisionDigest || completion.decisionDigest ? { decisionDigest: ref?.decisionDigest || completion.decisionDigest } : {}),
-  };
-}
 
 function defaultRunner(request: AutopilotCommandRequest): AutopilotCommandResult {
   try {
@@ -253,15 +176,6 @@ function commandForStep(root: string, step: AutopilotStep, plan: AutopilotRunRes
   });
 
   switch (step.id) {
-    case 'authority-status-shadow':
-      return {
-        ...latticeArgs(['authority', 'status', '--json']),
-        env: { LATTICE_AUTHORITY_MODE: 'shadow' },
-      };
-    case 'authority-policy':
-      return latticeArgs(['authority', 'enforce', 'policy', '--json']);
-    case 'authority-runner':
-      return latticeArgs(['authority', 'enforce', 'runner', '--dry-run', '--json']);
     case 'session-brief':
       return latticeArgs(['session_brief']);
     case 'docs':
@@ -342,34 +256,6 @@ function runClaudeRepair(
   };
 }
 
-type LoadClaimedJobResult =
-  | { ok: true; job: ClaimedAuthorityJob }
-  | { ok: false; reason: string };
-
-// Load and validate a claimed Authority job from a JSON file. Fail-closed: any
-// read, parse, or shape problem returns a reason instead of a job, so the
-// executor refuses to run rather than synthesize local argv steps from a bad
-// job. Deep plannedSteps[] validation stays in consumeClaimedAuthorityJob.
-function loadClaimedAuthorityJobFile(jobFile: string): LoadClaimedJobResult {
-  let raw: string;
-  try {
-    raw = readFileSync(resolve(process.cwd(), jobFile), 'utf8');
-  } catch (error: any) {
-    return { ok: false, reason: `cannot read claimed job file ${jobFile}: ${error?.message || error}` };
-  }
-  let parsed: unknown;
-  try {
-    parsed = JSON.parse(raw);
-  } catch (error: any) {
-    return { ok: false, reason: `claimed job file ${jobFile} is not valid JSON: ${error?.message || error}` };
-  }
-  const coerced = parseClaimedAuthorityJob(parsed);
-  if (!coerced.ok) {
-    return { ok: false, reason: `claimed job file ${jobFile} is invalid: ${coerced.reason}` };
-  }
-  return { ok: true, job: coerced.job };
-}
-
 function skippedStep(step: AutopilotStep, reason: string, now: () => Date): AutopilotExecutedStep {
   const timestamp = now().toISOString();
   return {
@@ -421,35 +307,13 @@ export function executeAutopilot(options: ExecuteAutopilotOptions): AutopilotExe
   let stopReason = dryRun ? 'dry-run' : 'completed';
   let authorityDone = plan.authorityDone;
   let fullAuthorityDone = plan.fullAuthorityDone;
-  let claimedJobExecution: ConsumeClaimedAuthorityJobResult | null = null;
-  let completion: AuthorityCompletionVerdict | null = null;
+  let claimedJobExecution: null = null;
+  let completion: null = null;
   let receipt = plan.receipt;
-
-  // Resolve a claimed Authority job. An in-process job (options.claimedJob) wins
-  // for tests/programmatic callers; otherwise --jobFile is the CLI/live entry
-  // point. A bad --jobFile fails closed before any execution.
-  let claimedJob: ClaimedAuthorityJob | undefined = options.claimedJob;
-  let claimedJobFileError: string | null = null;
-  if (!claimedJob && typeof args.jobFile === 'string' && args.jobFile.length > 0) {
-    const loaded = loadClaimedAuthorityJobFile(args.jobFile);
-    if (loaded.ok) {
-      claimedJob = loaded.job;
-    } else {
-      claimedJobFileError = loaded.reason;
-    }
-  }
-
-  if (claimedJobFileError) {
-    // A claimed job file was requested but could not be loaded/validated. Refuse
-    // to fall back to local argv synthesis; fail closed with a clear reason.
-    status = 'fail';
-    stopReason = 'claimed-job-file-invalid';
-    nextActions.add(claimedJobFileError);
-    nextActions.add('Reissue a valid claimed Authority job file (typed plannedSteps[]) before running lattice autopilot execute --jobFile.');
-  } else if (dryRun) {
+  if (dryRun) {
     nextActions.add('Remove --dryRun to execute the planned local Proofbound commands.');
     if (multiHostRequired) {
-      nextActions.add(`This run targets DONE with multi-host certification: real execution stays blocked until ${requiredHostVerdictCount} independent host verdicts certify the run (lattice autopilot review submit / lattice authority verdict submit).`);
+      nextActions.add(`This run targets DONE with multi-host certification: real execution stays blocked until ${requiredHostVerdictCount} independent host verdicts certify the run (lattice autopilot review submit / lattice quorum_submit).`);
     }
   } else if (!plan.story.storyId) {
     status = 'fail';
@@ -459,52 +323,14 @@ export function executeAutopilot(options: ExecuteAutopilotOptions): AutopilotExe
     status = 'fail';
     stopReason = 'story-not-found';
     nextActions.add(`Create or restore Story ${plan.story.storyId} before running lattice autopilot execute.`);
-  } else if (claimedJob) {
-    // A claimed Authority job was supplied (in-process or via --jobFile): consume
-    // its typed plannedSteps[] through the shared plannedSteps executor instead of
-    // synthesizing local argv steps. Identity must line up with the CLI-bound run,
-    // and authority DONE stays gated by a verified native receipt (no client-side
-    // minting).
-    const job = claimedJob;
-    if (job.storyId !== plan.story.storyId) {
-      status = 'fail';
-      stopReason = 'claimed-job-story-mismatch';
-      nextActions.add(`Claimed job storyId ${job.storyId} does not match --storyId=${plan.story.storyId}; refusing to execute a mismatched job.`);
-    } else if (job.mode !== plan.mode) {
-      status = 'fail';
-      stopReason = 'claimed-job-mode-mismatch';
-      nextActions.add(`Claimed job mode ${job.mode} does not match --mode=${plan.mode}; refusing to execute a mismatched job.`);
-    } else {
-      const consume = consumeClaimedAuthorityJob({
-        root: options.root,
-        store: options.store,
-        job,
-        receiptVerified: plan.receipt.verified && plan.receipt.native,
-        maxSteps,
-        now,
-        ...(options.claimedJobAuthorityGate ? { authorityGate: options.claimedJobAuthorityGate } : {}),
-        ...(options.claimedJobGateDecision ? { gateDecision: options.claimedJobGateDecision } : {}),
-        ...(options.claimedJobMaterialOverlapAudit ? { materialOverlapAudit: options.claimedJobMaterialOverlapAudit } : {}),
-      });
-      claimedJobExecution = consume;
-      completion = consume.completion;
-      authorityDone = consume.authorityDone;
-      fullAuthorityDone = consume.fullAuthorityDone;
-      receipt = projectCompletionReceipt(plan.receipt, completion);
-      stopReason = `authority-job-${consume.disposition}`;
-      status = consume.disposition === 'completed'
-        ? (plan.status === 'fail' ? 'warn' : 'pass')
-        : 'fail';
-      for (const action of consume.nextActions) nextActions.add(action);
-    }
   } else if (plan.mode === 'authority' && plan.status === 'fail') {
     status = 'fail';
-    stopReason = 'authority-not-ready';
-    nextActions.add('Use --mode=local for local execution, or provide authority readiness and a verified DONE receipt before authority execution.');
+    stopReason = 'remote-runner-retired';
+    nextActions.add('Use --mode=local; remote runner execution is retired from the active Proofbound runtime.');
   } else if (multiHostRequired && !multiHostSatisfied) {
     status = 'fail';
     stopReason = 'multi-host-verdicts-required';
-    nextActions.add(`Autopilot execute cannot self-certify multi-host DONE. Collect ${requiredHostVerdictCount} independent host verdicts via lattice autopilot review submit (local) or lattice authority verdict submit (authority), then advance DONE once multiHostVerified is true.`);
+    nextActions.add(`Autopilot execute cannot self-certify multi-host DONE. Collect ${requiredHostVerdictCount} independent host verdicts via lattice autopilot review submit and lattice quorum_submit, then advance DONE once local quorum evidence is present.`);
   } else {
     const steps = plan.plannedSteps.slice(0, maxSteps);
     if (plan.plannedSteps.length > maxSteps) {
@@ -583,10 +409,10 @@ export function executeAutopilot(options: ExecuteAutopilotOptions): AutopilotExe
     executedSteps,
     claimedJobExecution,
     completion,
-    blockingReasons: completion?.blockingReasons ?? [],
-    receiptRefs: completion?.receiptRefs ?? [],
-    hostVerdictRefs: completion?.hostVerdictRefs ?? [],
-    nextAction: completion?.nextAction ?? [...nextActions][0] ?? stopReason,
+    blockingReasons: [],
+    receiptRefs: [],
+    hostVerdictRefs: [],
+    nextAction: [...nextActions][0] ?? stopReason,
     repair: {
       enabled: args.allowClaudeRepair === true,
       command: args.claudeCommand || 'claude',
@@ -596,10 +422,6 @@ export function executeAutopilot(options: ExecuteAutopilotOptions): AutopilotExe
     },
     stopReason,
     nextActions: [...nextActions],
-    note: plan.mode === 'authority'
-      ? 'Authority execute is fail-closed: local mode remains available, and authority DONE still requires a verified Python authority receipt.'
-      : plan.mode === 'shadow'
-        ? 'Shadow execute runs local Proofbound steps while surfacing authority readiness warnings.'
-        : 'Local execute runs only local Proofbound commands and does not require Python authority.',
+    note: 'Local execute runs only local Proofbound commands and does not contact or require a remote receipt server.',
   };
 }

@@ -100,16 +100,16 @@ normalization, signing, validation, and gate consumption.
   tests, closing self-check, waivers, and signed delivery artifacts are consumed
   by DONE gates, not by ordinary prose.
 
-## Authority And Handoff Boundaries
+## Local Admissibility And Handoff Boundaries
 
-- Local Lattice evidence is Non-authority unless an Authority Server receipt is
-  actually submitted and verified by the authority flow.
+- Local Lattice evidence can be proof-admissible when it carries current
+  gate-consumed evidence, local review quorum assurance, and signed/offline
+  receipt-bundle evidence where required.
 - Do not claim \`receiptVerified\`, \`productionDone\`, \`authorityDone\`, or
   \`fullAuthorityDone\` from local tests, prompt text, or story metadata alone.
 - Handoff packs are bounded overflow execution. Story ownership, merge
-  authority, DONE authority, receipt submission, and production completion
-  claims remain with the original authority boundary unless explicitly changed
-  by the approved authority mechanism.
+  control, DONE control, receipt-bundle submission, and production completion
+  claims remain with the local lifecycle gates.
 
 ## Debugging Contract
 
