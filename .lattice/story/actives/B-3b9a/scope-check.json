@@ -1,0 +1,73 @@
+{
+  "storyId": "B-3b9a",
+  "checkedAt": "2026-06-29T19:03:30.256Z",
+  "features": [
+    {
+      "feature": "Docs-only update to docs/requirements/decisions/proofstory-intent-collision-execution-plan.md documenting ProofStory ledger sizing and story slicing policy",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Clarify that milestone ledger is an intent-coverage ledger, not an execution plan",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Add thresholds/policy that oversized ledgers stop before DEV with dry-run too-broad or slice-plan diagnostics",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Update lifecycle, schema, milestones, verification matrix, and non-goals in the decision doc to reflect ledger sizing and slicing policy",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "CLI/runtime implementation for ledger sizing or story slicing",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicit user scope exclusion: CLI/runtime implementation is out of scope for B-3b9a",
+      "source": "description"
+    },
+    {
+      "feature": "Lifecycle gate implementation for ProofStory ledger sizing/story slicing",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicit user scope exclusion: lifecycle gate implementation is out of scope for B-3b9a",
+      "source": "description"
+    },
+    {
+      "feature": "Parent-child orchestration implementation",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicit user scope exclusion: parent-child orchestration is out of scope for B-3b9a",
+      "source": "description"
+    },
+    {
+      "feature": "Red, spike, or DONE equivalence implementation",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicit user scope exclusion: red/spike/DONE equivalence implementation is out of scope for B-3b9a",
+      "source": "description"
+    }
+  ],
+  "summary": {
+    "total": 8,
+    "covered": 4,
+    "excluded": 4,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "cd8518c1b849d8b89aaa2eec87f76e03184128b505e2d9b963cb9c951e5e20bc",
+  "openQuestions": []
+}

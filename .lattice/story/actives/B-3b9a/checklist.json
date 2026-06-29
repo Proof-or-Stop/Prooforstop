@@ -7,9 +7,115 @@
       "relatedDocs": [
         "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-29T19:06:25.839Z",
+      "endTime": "2026-06-29T19:06:55.694Z",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The document states that a milestone ledger is an intent-coverage ledger, not an execution plan, and adds ledger sizing/story slicing policy with thresholds.",
+            "type": "docs",
+            "priority": "must"
+          },
+          {
+            "desc": "The M1-M9 plan is updated so oversized ledgers first produce dry-run too-broad/slice-plan diagnostics before any future parent-child orchestration implementation.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The document avoids requiring all milestones to become stories and avoids requiring all stories to run full ProofStory.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The document clearly says this docs story does not implement CLI/runtime parent-child orchestration and defers that to later stories.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "The final response says: Ledger sizing and story slicing are documented; oversized ledgers now stop before DEV with slice-plan diagnostics, and runtime implementation is deferred.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+          "command": "rg -n \"milestone ledger is not.*execution|Ledger Sizing And Story Slicing\" docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+          "result": "pass",
+          "note": "The document now states that the milestone ledger is not an execution plan and includes the Ledger Sizing And Story Slicing section with thresholds.",
+          "headHash": "24dba144da72bb337650577fe9782e3e834b61f3",
+          "materialHash": "4c0fc12b63a58d9da333a355a35d031a482042022517e6c4f4c82e9efd3bcbc2",
+          "storyFilesHash": "5ee61b2370a4bb3ddb555bab83332b8ecc31d5210bf76f809a5bc9bc87bbb99a",
+          "timestamp": "2026-06-29T19:06:55.846Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+          "command": "rg -n \"proofstory_gate_check --dryRun|too_broad|slice_required\" docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+          "result": "pass",
+          "note": "The M1-M9 plan now routes oversized ledgers through dry-run too_broad and slice_required diagnostics before future enforcement or orchestration.",
+          "headHash": "24dba144da72bb337650577fe9782e3e834b61f3",
+          "materialHash": "4c0fc12b63a58d9da333a355a35d031a482042022517e6c4f4c82e9efd3bcbc2",
+          "storyFilesHash": "5ee61b2370a4bb3ddb555bab83332b8ecc31d5210bf76f809a5bc9bc87bbb99a",
+          "timestamp": "2026-06-29T19:06:55.966Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+          "command": "rg -n \"Do not treat milestone count as story count|Do not turn a parent ledger into one giant checklist|Do not automatically create child Stories\" docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+          "result": "pass",
+          "note": "The non-goals now prevent milestone count from becoming story count, giant checklist scope, or automatic child Story creation.",
+          "headHash": "24dba144da72bb337650577fe9782e3e834b61f3",
+          "materialHash": "4c0fc12b63a58d9da333a355a35d031a482042022517e6c4f4c82e9efd3bcbc2",
+          "storyFilesHash": "5ee61b2370a4bb3ddb555bab83332b8ecc31d5210bf76f809a5bc9bc87bbb99a",
+          "timestamp": "2026-06-29T19:06:56.085Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+          "command": "rg -n \"Future parent-child orchestration|deliberately future artifacts|MVP should also not add a standalone slicing command\" docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+          "result": "pass",
+          "note": "The document explicitly defers parent-child orchestration and slicing commands to future stories rather than implementing them in this docs story.",
+          "headHash": "24dba144da72bb337650577fe9782e3e834b61f3",
+          "materialHash": "4c0fc12b63a58d9da333a355a35d031a482042022517e6c4f4c82e9efd3bcbc2",
+          "storyFilesHash": "5ee61b2370a4bb3ddb555bab83332b8ecc31d5210bf76f809a5bc9bc87bbb99a",
+          "timestamp": "2026-06-29T19:06:56.205Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-29T19:06:25.839Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start docs-only edit after PLAN gate passed"
+    },
+    {
+      "timestamp": "2026-06-29T19:06:55.694Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Docs updated and committed with ledger sizing/story slicing policy"
     }
   ]
 }

@@ -1,2 +1,13 @@
 {"type":"dispatch","storyId":"B-3b9a","phase":"INIT","source":"lattice dispatch","targetKind":"init-review","agentType":"lattice-review-story-init","timestamp":"2026-06-29T18:59:00.019Z"}
 {"type":"dispatch","storyId":"B-3b9a","phase":"INIT","source":"lattice dispatch","targetKind":"init-review","agentType":"product-reviewer","timestamp":"2026-06-29T18:59:03.917Z"}
+{"type":"plan_reviewed","round":1,"blockerCount":1,"issueCount":3,"timestamp":"2026-06-29T19:02:03.084Z"}
+{"type":"plan_reviewed","round":2,"blockerCount":0,"issueCount":2,"timestamp":"2026-06-29T19:03:39.054Z"}
+{"type":"dispatch","checklistId":"CHK-001","timestamp":"2026-06-29T19:06:25.840Z"}
+{"type":"subagent_result","checklistId":"CHK-001","success":true,"timestamp":"2026-06-29T19:06:56.206Z"}
+{"type":"review_pass","storyId":"B-3b9a","command":"review_pass_set","role":"reviewer","agent":"lattice-review-concept","result":"pass","reviewPassId":"B-3b9a:RP-001","timestamp":"2026-06-29T19:08:28.548Z"}
+{"type":"review_pass","storyId":"B-3b9a","command":"review_pass_set","role":"reviewer","agent":"lattice-review-test-coverage","result":"pass","reviewPassId":"B-3b9a:RP-002","timestamp":"2026-06-29T19:08:32.711Z"}
+{"type":"review_pass","storyId":"B-3b9a","command":"review_pass_set","role":"reviewer","agent":"lattice-review-quality","result":"pass","reviewPassId":"B-3b9a:RP-003","timestamp":"2026-06-29T19:08:47.288Z"}
+{"type":"review_pass","storyId":"B-3b9a","command":"review_pass_set","role":"reviewer","agent":"lattice-review-docs","result":"pass","reviewPassId":"B-3b9a:RP-004","timestamp":"2026-06-29T19:09:13.458Z"}
+{"type":"dirty_gate_audit","storyId":"B-3b9a","gate":"done-gate","category":"lattice_metadata_changes","pathCount":1,"paths":[".lattice/story/actives/B-3b9a/test-evidence.json"],"reason":"lattice-owned story metadata; auto-committed by B-3506 helper","timestamp":"2026-06-29T20:38:56.214Z"}
+{"type":"dirty_gate_audit","storyId":"B-3b9a","gate":"done-gate","category":"lattice_metadata_changes","pathCount":2,"paths":[".lattice/story/actives/B-3b9a/process-events.jsonl",".lattice/story/actives/B-3b9a/test-evidence.json"],"reason":"lattice-owned story metadata; auto-committed by B-3506 helper","timestamp":"2026-06-29T20:41:10.420Z"}
+{"type":"dirty_gate_audit","storyId":"B-3b9a","gate":"done-gate","category":"lattice_metadata_changes","pathCount":3,"paths":[".lattice/story/actives/B-3b9a/done-required-evidence.json",".lattice/story/actives/B-3b9a/process-events.jsonl",".lattice/story/actives/B-3b9a/test-evidence.json"],"reason":"lattice-owned story metadata; auto-committed by B-3506 helper","timestamp":"2026-06-29T20:43:02.262Z"}

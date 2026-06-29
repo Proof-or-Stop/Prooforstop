@@ -1,0 +1,75 @@
+{
+  "storyId": "B-3b9a",
+  "checkedAt": "2026-06-29T19:26:19.351Z",
+  "headHash": "bbf5d015bc5d69536d7cf66b1a105ff868c55097",
+  "materialHash": "4c0fc12b63a58d9da333a355a35d031a482042022517e6c4f4c82e9efd3bcbc2",
+  "storyFilesHash": "5ee61b2370a4bb3ddb555bab83332b8ecc31d5210bf76f809a5bc9bc87bbb99a",
+  "reviewRound": "2026-06-29T19:07:29.988Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+      "promise": "Milestone ledger is an intent-coverage contract, not an execution plan.",
+      "status": "verified",
+      "verifiedBy": "rg",
+      "evidence": "rg found the policy at lines 325-328: milestone ledger is not an execution plan and is an intent-coverage contract."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+      "promise": "Ledger sizing/story slicing policy defines thresholds and avoids both giant stories and one-story-per-milestone execution.",
+      "status": "verified",
+      "verifiedBy": "rg + manual review",
+      "evidence": "Lines 330-390 define milestone count not story count, 1-5/6-12/13-20/>20/>100 thresholds, too_broad diagnostics, suggested slicing groups, and no automatic child Story creation."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+      "promise": "Dry-run diagnostics include too_broad and slice_required before future enforcement/orchestration.",
+      "status": "verified",
+      "verifiedBy": "rg",
+      "evidence": "rg found proofstory_gate_check --dryRun, too_broad, slice_required, ledger size, configured thresholds, and suggested slicing group promises."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+      "promise": "Non-goals prevent treating milestone count as story count, turning parent ledgers into giant checklists, or automatically creating child Stories.",
+      "status": "verified",
+      "verifiedBy": "rg",
+      "evidence": "Non-Goals lines include Do not treat milestone count as story count; Do not turn a parent ledger into one giant checklist; Do not automatically create child Stories before a slice-plan policy exists."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+      "promise": "Future parent-child runtime artifacts and slicing commands are deferred; this story does not implement CLI slicing commands, parent-child orchestration, or enforcement.",
+      "status": "verified",
+      "verifiedBy": "rg + manual review",
+      "evidence": "Lines around Future parent-child orchestration say slice-plan.json and parent-ledger-rollup.json are future artifacts, and the MVP should not add a standalone slicing command; diagnostics precede durable orchestration."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "docs grep evidence PASS: rg found required promises for intent-coverage ledger, thresholds, too_broad, slice_required, no automatic child Story creation, future artifacts, giant checklist, and 30-100 child story non-goals."
+    },
+    {
+      "featureId": "CHK-001",
+      "transcript": "git diff --check PASS: no whitespace/error output."
+    },
+    {
+      "featureId": "CHK-001",
+      "transcript": "no CJK check PASS: rg -n -P \"[\\p{Han}\\p{Hiragana}\\p{Katakana}\\p{Hangul}]\" docs/requirements/decisions/proofstory-intent-collision-execution-plan.md produced no matches."
+    },
+    {
+      "featureId": "CHK-001",
+      "transcript": "node bin/lattice.js validate --story=B-3b9a --json PASS: provider lattice-verifier-configured-commands status pass, allPass true, 31 configured commands passed, verification coverage 4/4 covered."
+    },
+    {
+      "featureId": "CHK-001",
+      "transcript": "node bin/lattice.js done_required_validate --storyId=B-3b9a --json PASS: status PASS; build and root full test suite receipts passed; materialHash 4c0fc12b63a58d9da333a355a35d031a482042022517e6c4f4c82e9efd3bcbc2."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery satisfied for docs-only B-3b9a: promised ledger sizing/story slicing policy is documented, non-goals prevent accidental implementation promises, and validation/DONE-required evidence is passing."
+  },
+  "_hash": "932e5ce6d1dd9b21ded6d85e11a23590c9fb48dfbc26d6f7f5edb3ff263e906c"
+}

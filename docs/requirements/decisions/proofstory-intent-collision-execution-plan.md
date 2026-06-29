@@ -16,6 +16,9 @@ raw request
   -> progressive intent hardening classification
   -> original intent snapshot
   -> milestone ledger when the request has multiple required outcomes
+  -> ledger sizing check
+       -> small enough: continue inside this story
+       -> too broad: stop before DEV and require a slice plan or child stories
   -> intent understanding
   -> intent collision
   -> verificationIntent
@@ -53,6 +56,7 @@ This is not a blind retry loop. The loop target is determined by the proof gap:
 |---|---|---|
 | Original intent unclear | ProofStory / DEV | intent understanding and intent collision |
 | Milestone ledger incomplete | DEV / DONE | original intent snapshot and milestone ledger |
+| Milestone ledger too broad for one story | DEV | ledger sizing and story slicing |
 | Checklist does not cover milestones | DEV / DONE | checklist and verificationIntent authoring |
 | Scope narrowed without confirmation | DEV / DONE | scope shrinkage decision and user confirmation |
 | Red evidence missing | DEV | red evidence |
@@ -84,6 +88,7 @@ turning intent validation into ceremony.
 |---|---|---|
 | Intent MVP | Default for every story | Source text, normalized expected outcome, and one acceptance claim |
 | Milestone Intent | Multiple deliverables, numbered list, explicit count, "all milestones", "all remaining items", complete subsystem removal, end-to-end product behavior, or explicit multi-part DONE request | Milestone ledger and checklist-to-ledger coverage |
+| Ledger Sizing | Milestone ledger exceeds the single-story capacity threshold | Too-broad diagnostic, suggested slicing groups, and a slice plan before DEV |
 | Collision Intent | Ambiguous, consequential, high-risk, scope-changing, or user-impactful interpretation | Intent collision with `pass`, `revise_intent`, `human_gate`, or `stop` |
 | ProofStory Intent | Bug fix, regression fix, behavior change, security/auth/session change, lifecycle gate, benchmark claim, or unclear ownership | Acceptance contract, verificationIntent binding, risk policy, and red/spike policy when triggered |
 | DONE Intent Equivalence | Any story entering DONE gets a lightweight check; milestone, shrinkage, or high-assurance stories get a strict gate | Actual delivery compared with the original snapshot and required milestone ledger, if one exists |
@@ -96,6 +101,8 @@ This progressive model has four rules:
 - do not trigger milestone intent from keywords alone; require a structural or
   semantic signal such as an explicit count, a list, a subsystem removal claim,
   or an end-to-end product behavior claim;
+- do not treat milestone count as execution granularity; large ledgers are
+  allowed as intent ledgers, but oversized ledgers must be sliced before DEV;
 - do not allow DONE when the delivered outcome is narrower than the frozen
   original intent unless the user explicitly confirmed a scope-shrinkage
   decision.
@@ -166,6 +173,9 @@ story_create or story_draft
        -> classify progressive intent hardening level
        -> original_intent_snapshot_set
        -> milestone_ledger_set when the request contains multiple deliverables
+       -> ledger sizing check
+            -> if small enough: continue
+            -> if too broad: produce slice-plan diagnostics and stop before DEV
        -> understanding_set
        -> intent_collision_set
        -> decision_set when required
@@ -192,6 +202,7 @@ to implement. The Story container gives the system a durable place for:
 - raw request text;
 - original intent snapshot;
 - milestone ledger;
+- ledger sizing and slice-plan diagnostics;
 - user-visible outcome;
 - intent questions and answers;
 - risk signals;
@@ -311,10 +322,116 @@ into a milestone ledger before checklist finalization.
 }
 ```
 
-The milestone ledger is not a planning convenience. It is a gate-consumed
-contract. Every checklist item that implements part of a multi-milestone
-request must reference one or more ledger items. A ledger item without checklist
-coverage is an intent coverage gap.
+The milestone ledger is not a planning convenience and it is not an execution
+plan. It is an intent-coverage contract. Every checklist item that implements
+part of a multi-milestone request must reference one or more ledger items. A
+ledger item without checklist coverage is an intent coverage gap.
+
+Milestone count does not determine story count. A request can legitimately have
+30 to 100 user-visible deliverables, but a single Story should not carry that
+entire execution burden, and the system should not automatically create one
+Story per milestone. The ledger preserves the user's promises; slicing controls
+the development granularity.
+
+### Ledger Sizing And Story Slicing
+
+Ledger sizing is the rule that prevents a one-line request from turning into one
+giant unreviewable Story. It is also the rule that prevents the opposite failure:
+turning every milestone into its own tiny Story and overwhelming scheduling,
+review, integration, and state management.
+
+```text
+User Request / Epic
+  -> Story container
+  -> Intent ledger: 5-100 user promises or deliverables
+  -> Slice plan: 3-20 executable work stories when the ledger is too broad
+  -> Child ProofStories: each covers a bounded subset of ledger rows
+  -> Evidence per child story
+  -> Parent ledger coverage roll-up
+  -> Parent DONE equivalence
+```
+
+The object model has three intent levels:
+
+| Object | Purpose | Typical count |
+|---|---|---:|
+| Intent requirement | Captures a user-level requirement or capability group | 1-20 |
+| Milestone / deliverable | Captures a countable user-visible promise | 5-100 |
+| Acceptance criterion | Captures executable evidence expectations | multiple per Story |
+
+The implementation model has separate execution levels:
+
+| Object | Purpose | Typical count |
+|---|---|---:|
+| Parent Story / Epic | Owns the original request, full ledger, slice plan, and final equivalence | 1 |
+| Work Story / Slice | Implements a coherent subset of ledger rows | 3-20 for a large request |
+| Checklist item | Local work and verification tasks inside one Story | 3-30 |
+| Evidence | Tests, transcripts, receipts, screenshots, review passes, delivery checks | multiple |
+
+The default sizing policy should be:
+
+| Ledger size | Treatment |
+|---:|---|
+| 1-5 milestones | One Story can usually carry the work |
+| 6-12 milestones | One Story may continue, but diagnostics should warn about size |
+| 13-20 milestones | Recommend slicing into smaller work stories |
+| More than 20 milestones | Stop before DEV in enforce mode; require a slice plan or child stories |
+| More than 100 open parent ledger items | Treat as Epic / Project scope, not as a single Story |
+
+This policy is intentionally diagnostic-first. The first implementation should
+not build a complete Epic runtime. It should add only the smallest useful
+signals:
+
+- milestone count;
+- coverage count;
+- `too_broad` diagnostic when the ledger exceeds the configured threshold;
+- suggested slicing groups based on related milestones, modules, risk, and
+  dependencies;
+- no automatic child Story creation;
+- no automatic parent DONE orchestration.
+
+The initial MVP therefore keeps the command surface small:
+
+```text
+proofstory_gate_check --dryRun
+  -> reports ledgerSize
+  -> reports maxMilestonesPerStory and hardSplitThreshold
+  -> reports too_broad when applicable
+  -> reports suggestedSlicingGroups
+```
+
+Future parent-child orchestration can add a durable slice plan after the
+diagnostics prove useful. Until then, a too-broad ledger is a proof-stop signal,
+not an automatic scheduler.
+
+### Parent Story And Child Story Responsibilities
+
+When a request exceeds the single-story threshold, the parent Story owns intent
+and equivalence rather than implementation:
+
+- original intent snapshot;
+- complete intent ledger;
+- slice plan;
+- global dependencies and sequencing constraints;
+- scope shrinkage decisions;
+- final DONE intent equivalence.
+
+A child Story owns execution:
+
+- a bounded subset of ledger rows;
+- a local ProofStory contract;
+- DEV / REVIEW / TEST / DONE;
+- evidence for its assigned ledger rows;
+- coverage roll-up back to the parent ledger.
+
+Parent DONE requires:
+
+- every required child Story is DONE;
+- every required ledger item is covered by fresh child evidence or a confirmed
+  shrinkage decision;
+- no unconfirmed scope shrinkage remains;
+- the parent delivery check verifies the whole ledger, not only the last child
+  Story.
 
 ### Intent Coverage Check
 
@@ -402,14 +519,32 @@ The gate should fail when:
   },
   "milestoneLedger": {
     "required": true,
+    "parentLedgerId": "PL-001",
     "milestones": [
       {
         "id": "M1",
         "sourceRequirementId": "REQ-001",
         "claim": "first required milestone",
+        "assignedStory": "B-child",
         "checklistRefs": ["CHK-001"],
         "verificationIntentRefs": ["CHK-001:happy:0"],
         "status": "covered"
+      }
+    ]
+  },
+  "ledgerSizing": {
+    "milestoneCount": 18,
+    "maxMilestonesPerStory": 10,
+    "softWarningThreshold": 12,
+    "hardSplitThreshold": 20,
+    "status": "slice_recommended",
+    "diagnosticOnly": true,
+    "suggestedSlicingGroups": [
+      {
+        "id": "SLICE-001",
+        "milestoneRefs": ["M1", "M2", "M3"],
+        "basis": ["module:upload", "dependency:storage"],
+        "suggestedStoryTitle": "Implement upload-related milestones"
       }
     ]
   },
@@ -707,6 +842,7 @@ The gate must require:
 - progressive intent hardening classification;
 - original intent snapshot;
 - milestone ledger for multi-deliverable requests;
+- ledger sizing result for milestone ledgers;
 - `understanding_set`;
 - intent collision result when hardening policy requires collision;
 - acceptance contract;
@@ -725,6 +861,7 @@ The gate must require:
 | `admit_dev` | Contract is sufficient | `story_advance -> DEV` may proceed |
 | `revise_proofstory` | Contract is incomplete or inconsistent | Stay in PLAN |
 | `human_gate` | User decision required | Stay in PLAN |
+| `slice_required` | Ledger is too broad for one executable Story | Stay in PLAN and create a slice plan or child stories |
 | `stop` | Work should not proceed | Discard or park story |
 
 ### Blocking Conditions
@@ -734,6 +871,7 @@ Block DEV when:
 - no original intent snapshot exists;
 - required artifacts for the selected progressive hardening level are missing;
 - a multi-deliverable request has no milestone ledger;
+- a milestone ledger exceeds the hard split threshold and has no slice plan;
 - no accepted intent collision result exists when collision is required;
 - acceptance criteria are not executable or inspectable;
 - checklist items do not cover required milestone ledger items;
@@ -762,6 +900,9 @@ The existing REVIEW reviewer lanes continue to own the ledger evidence through
 `review_run_start`, `finding_add`, and `review_pass_set`. The completeness critic
 may be implemented first as an orchestration role that records confirmed
 findings through an existing real reviewer lane, then later as a dedicated lane.
+For sliced work, REVIEW checks the local child Story evidence and the child's
+assigned ledger rows. It does not re-review every parent ledger row unless the
+child claims to cover it.
 
 ## Risk-Adaptive Assurance
 
@@ -827,6 +968,12 @@ be derived by `proofstory_gate_check --dryRun`, stored in
 implementation needs an explicit command, it should be introduced only after the
 observe/warn rollout proves the extra surface is useful.
 
+The MVP should also not add a standalone slicing command. Ledger sizing should
+be reported first through `proofstory_gate_check --dryRun` and
+`intent_coverage_check --dryRun`. Future commands such as `slice_plan_set` or
+parent-child orchestration should be added only after diagnostics show that
+manual slice planning is not enough.
+
 ### Existing Commands To Reuse
 
 ```text
@@ -864,6 +1011,17 @@ New gate-consumed artifacts:
 .lattice/story/actives/<storyId>/minimality-check.json
 ```
 
+Future parent-child orchestration may add:
+
+```text
+.lattice/story/actives/<storyId>/slice-plan.json
+.lattice/story/actives/<storyId>/parent-ledger-rollup.json
+```
+
+Those files are deliberately future artifacts. The M0-M2 and first enforcement
+MVP should report ledger sizing through dry-run diagnostics before adding a
+durable parent-child orchestration surface.
+
 Every artifact consumed by a phase gate must be registered as a process fact and
 covered by the process-fact contract tests. Prompt-only rules are not enough.
 
@@ -887,6 +1045,8 @@ Deliver:
   Check", "Scope Shrinkage Guard", "Progressive Intent Hardening", "Intent
   MVP", "Red Evidence", "Spike Evidence", "ProofStory Gate";
 - updated guide text explaining that ProofStory is pre-DEV, not pre-intent.
+- ledger sizing vocabulary: "intent ledger", "work slice", "parent Story /
+  Epic", and "child Story".
 
 Acceptance:
 
@@ -895,6 +1055,8 @@ Acceptance:
 - docs state that isolated keywords are not enough to create milestone intent;
 - docs state that intent collision comes before red/spike;
 - docs state that milestone coverage protects multi-deliverable user intent;
+- docs state that a milestone ledger is an intent-coverage ledger, not an
+  execution plan;
 - docs state that REVIEW critic and intent critic are separate;
 - docs do not claim ProofStory replaces REVIEW, TEST, or DONE evidence.
 
@@ -906,7 +1068,9 @@ Deliver:
 - `milestone_ledger_set`;
 - `milestone_ledger_add`;
 - immutable source request hash and key requirement ids;
-- checklist-to-ledger reference diagnostics.
+- checklist-to-ledger reference diagnostics;
+- optional parent ledger and assigned Story fields that do not force one
+  milestone to become one Story.
 
 Acceptance:
 
@@ -916,6 +1080,8 @@ Acceptance:
   has a structural multi-deliverable signal;
 - a request with five milestones produces five machine-countable ledger rows;
 - a checklist item can reference the milestone rows it delivers;
+- a milestone row can remain unassigned, assigned to the current Story, or
+  later assigned to a child Story without changing the user's intent ledger;
 - a missing milestone reference is reported before DEV.
 
 ### M2: Read-Only Diagnostics
@@ -930,12 +1096,16 @@ Deliver:
   missing milestone coverage, missing red evidence, missing spike evidence, and
   scope ambiguity;
 - diagnostics that report the selected hardening level, trigger reasons, and
-  would-block artifacts.
+  would-block artifacts;
+- diagnostics that report ledger size, configured thresholds, `too_broad`, and
+  suggested slicing groups when a ledger exceeds single-story capacity.
 
 Acceptance:
 
 - existing stories are not blocked;
-- dry-run output explains exactly what would block a future DEV admission.
+- dry-run output explains exactly what would block a future DEV admission;
+- a 30-100 item ledger produces sizing diagnostics instead of being converted
+  into one giant checklist or 30-100 child stories.
 
 ### M3: Intent Collision Artifact
 
@@ -961,6 +1131,7 @@ Deliver:
 - `acceptance_evidence_bind`;
 - `intent_coverage_check`;
 - `proofstory_gate_check`;
+- ledger sizing checks for `too_broad` and `slice_required`;
 - PLAN -> DEV gate integration behind warn mode first.
 
 Acceptance:
@@ -968,6 +1139,8 @@ Acceptance:
 - hardening level controls which artifacts are required;
 - missing acceptance contract blocks in enforce mode;
 - missing milestone coverage blocks in enforce mode;
+- oversized ledgers block DEV in enforce mode unless a slice plan or child-story
+  assignment exists;
 - verificationIntent without acceptance binding is reported;
 - scope contract and minimality check are included in the gate result.
 
@@ -978,7 +1151,9 @@ Deliver:
 - `scope_shrinkage_decision_set`;
 - `done_intent_equivalence_check`;
 - TEST/DONE pre-check rows for milestone coverage and unconfirmed shrinkage;
-- delivery-check integration that verifies docs promises against milestone rows.
+- delivery-check integration that verifies docs promises against milestone rows;
+- parent ledger roll-up checks for child-story coverage, after slice-plan
+  artifacts exist.
 
 Acceptance:
 
@@ -986,6 +1161,8 @@ Acceptance:
 - ordinary single-outcome DONE uses lightweight summary-to-snapshot equivalence;
 - milestone, shrinkage, and high-assurance DONE use strict equivalence gating;
 - a story cannot reach DONE when any required milestone lacks evidence;
+- a parent Story cannot reach DONE while required child Stories or ledger rows
+  remain uncovered;
 - DONE summary cannot claim a narrower result than the original snapshot unless
   a shrinkage decision is confirmed.
 
@@ -1002,6 +1179,7 @@ Acceptance:
 
 - bug-fix stories without required red evidence cannot enter DEV in enforce mode;
 - docs-only stories are not forced to create red evidence;
+- red evidence is required by risk/behavior claim, not by milestone count alone;
 - red evidence for the wrong acceptance criterion is rejected.
 
 ### M7: Spike Evidence
@@ -1018,6 +1196,8 @@ Acceptance:
 
 - unresolved required spike blocks DEV in enforce mode;
 - spike code cannot be silently carried into implementation;
+- spike evidence is required by uncertainty and risk, not by every milestone in
+  a parent ledger;
 - promoted spike findings update scope and are auditable.
 
 ### M8: REVIEW Completeness Critic Integration
@@ -1033,6 +1213,8 @@ Acceptance:
 
 - critic-confirmed findings reopen REVIEW;
 - refuted critic findings are not written as blocking findings;
+- sliced child Stories are reviewed against their assigned ledger rows, not
+  against every parent ledger item;
 - reviewer evidence remains bound to reviewRunId and fresh material hash.
 
 ### M9: Risk-Adaptive Enforcement
@@ -1041,6 +1223,7 @@ Deliver:
 
 - fast / standard / high-assurance policy;
 - per-story assurance level;
+- ledger sizing thresholds and enforce-mode behavior;
 - config flags for warn/enforce rollout.
 
 Acceptance:
@@ -1049,6 +1232,8 @@ Acceptance:
 - standard stories require intent collision only when ambiguity, user impact,
   behavior change, or multi-path interpretation triggers it;
 - standard bug/regression/behavior-change stories still require red evidence;
+- oversized ledgers require slice-plan enforcement before DEV, but do not force
+  full ProofStory overhead onto every milestone;
 - high-assurance stories require intent collision, red evidence, spike,
   stronger REVIEW critic, and applicable escalation policy.
 
@@ -1062,6 +1247,9 @@ Acceptance:
 | Standard feature with clear single interpretation | Intent collision is not required by default |
 | Request says "five milestones DONE" but ledger has four rows | DEV blocked |
 | Ledger has five rows but checklist covers only four | DEV blocked |
+| Ledger has 18 rows with no slice plan | Dry-run reports `slice_recommended`; enforce mode blocks DEV only after M4/M9 |
+| Ledger has 40 rows with no slice plan | Dry-run reports `too_broad` and suggested slicing groups; enforce mode requires slice plan before DEV |
+| Ledger has 40 rows | System must not create 40 child Stories automatically |
 | Collision is required but unresolved | DEV blocked |
 | Intent collision passes but no acceptance contract | DEV blocked |
 | Bug fix has acceptance contract but no red evidence | DEV blocked |
@@ -1091,8 +1279,8 @@ security, payment, migration, and destructive operations.
 Progressive hardening should roll out in the same order:
 
 1. observe selected hardening level and missing artifacts;
-2. warn when a story would need milestone, collision, red, spike, or DONE
-   equivalence proof;
+2. warn when a story would need milestone, slicing, collision, red, spike, or
+   DONE equivalence proof;
 3. enforce only the triggered layer, not the full ProofStory surface for every
    story.
 
@@ -1101,6 +1289,9 @@ Progressive hardening should roll out in the same order:
 - Do not move REVIEW critic before DEV.
 - Do not force every story into the full hardening path.
 - Do not require milestone ledgers for ordinary single-outcome tasks.
+- Do not treat milestone count as story count.
+- Do not turn a parent ledger into one giant checklist.
+- Do not automatically create child Stories before a slice-plan policy exists.
 - Do not make red evidence mandatory for all stories.
 - Do not let spike evidence count as passing verificationEvidence.
 - Do not let natural-language grill notes satisfy a gate by themselves.
@@ -1119,6 +1310,7 @@ one-line request
   -> progressive intent hardening
   -> original intent snapshot
   -> milestone ledger when triggered
+  -> ledger sizing and story slicing when needed
   -> intent-collided ProofStory
   -> evidence-bounded DEV
   -> critic-reviewed implementation

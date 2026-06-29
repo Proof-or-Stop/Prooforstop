@@ -1,0 +1,40 @@
+{
+  "passes": [
+    {
+      "id": "B-3b9a:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept fidelity pass: document separates intent ledger from work slices, parent/child story responsibilities, sizing thresholds, and deferred implementation.",
+      "createdAt": "2026-06-29T19:08:28.548Z",
+      "reviewRound": "2026-06-29T19:07:29.988Z",
+      "reviewRunId": "B-3b9a:RR-003",
+      "_hash": "ff01f7efe651cb423feb4e3b1455c77a6cdbc1a9ad1f47decab1331a5d1026a1"
+    },
+    {
+      "id": "B-3b9a:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: CHK-001 docs verification evidence covers happy:0 happy:1 edge:0 adversarial:0; no missing docs-only evidence found.",
+      "createdAt": "2026-06-29T19:08:32.711Z",
+      "reviewRound": "2026-06-29T19:07:29.988Z",
+      "reviewRunId": "B-3b9a:RR-002",
+      "_hash": "a43385c6798a23a4e400965798978c230f78def44929353793fda2e766238f5f"
+    },
+    {
+      "id": "B-3b9a:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Quality review passed: document additions are English-only, internally consistent on ledger sizing thresholds, diagnostic-first in scope, and avoid promising automatic parent-child orchestration.",
+      "createdAt": "2026-06-29T19:08:47.288Z",
+      "reviewRound": "2026-06-29T19:07:29.988Z",
+      "reviewRunId": "B-3b9a:RR-005",
+      "_hash": "e309fffda0338eb0ba6981e00bfd95cbe03012ce7f2089d77a4f7dbd7a32f75e"
+    },
+    {
+      "id": "B-3b9a:RP-004",
+      "agent": "lattice-review-docs",
+      "note": "Docs lane pass: structure is coherent, terminology is consistent, no NAV change required, English-only scan passed, and future implementation boundaries are explicit.",
+      "createdAt": "2026-06-29T19:09:13.457Z",
+      "reviewRound": "2026-06-29T19:07:29.988Z",
+      "reviewRunId": "B-3b9a:RR-006",
+      "_hash": "28b564d7ccc02b72338d6b05af51199d5d7586190726d0f0e73177f15cae7502"
+    }
+  ]
+}
