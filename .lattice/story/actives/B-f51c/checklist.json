@@ -7,7 +7,7 @@
       "relatedDocs": [
         "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md"
       ],
-      "userSees": "The decision document clearly distinguishes candidate versus confirmed milestone ledgers and says oversized ledgers require slicing before DEV, while automatic parallel child-story execution remains a later scheduler/autopilot capability.",
+      "userSees": "The user sees this exact document wording: \"This progressive model has five rules:\" and \"The milestone ledger may be created as a candidate ledger before intent collision, but it becomes gate-consumed only after the accepted intent interpretation confirms it.\" The same document also says automatic parallel child-story execution is optional and belongs to a later Scheduler/Unattended/Autopilot story.",
       "files": {
         "modify": [
           "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md"
