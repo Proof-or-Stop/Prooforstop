@@ -223,6 +223,15 @@ export interface BuildDoneChecklistOptions {
    * repos (projectRoot==gitCwd) and read-only projections stay byte-identical.
    */
   gitCwd?: string;
+  /**
+   * Read-only post-DONE projections may need to explain the story against the
+   * material snapshot that actually reached DONE. TEST->DONE gates must not set
+   * this option; they continue to evaluate current material strictly.
+   */
+  completedSnapshot?: {
+    materialHash: string;
+    storyFilesHash?: string | null;
+  };
 }
 
 function doneCheckRow(row: Omit<DoneCheckRow, 'blocking'> & { blocking?: boolean }): DoneCheckRow {
@@ -775,6 +784,8 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
       gitCwd,
       storyId,
       store,
+      ...(options.completedSnapshot?.materialHash ? { materialHash: options.completedSnapshot.materialHash } : {}),
+      ...(options.completedSnapshot?.storyFilesHash ? { storyFilesHash: options.completedSnapshot.storyFilesHash } : {}),
     });
     const escalationBaseDetail = escalation.required
       ? `${escalation.assuranceLevel}; first-round problems ${escalation.trigger.countableProblems.length}/${escalation.trigger.requiredProblemCount}`

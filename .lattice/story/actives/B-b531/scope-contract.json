@@ -1,0 +1,25 @@
+{
+  "storyId": "B-b531",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/handlers/done-closure.ts",
+    "packages/main/src/handlers/review-escalation.ts",
+    "packages/main/src/core/done-oracle.ts",
+    "packages/main/src/core/review-escalation.ts",
+    "packages/main/package.json",
+    "package.json"
+  ],
+  "allowedCreate": [
+    "packages/main/src/tasks/post-done-closure-snapshot-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/post-done-closure-snapshot-smoke.ts",
+    "packages/main/src/tasks/flow-stability-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-29T19:09:29.314Z",
+  "updatedAt": "2026-06-29T19:09:29.314Z"
+}

@@ -111,6 +111,12 @@ export interface ReviewEscalationVoluntaryLocalRounds {
   ignoredVerdicts: IgnoredHostVerdict[];
 }
 
+export interface CompletedReviewEscalationSnapshot {
+  materialHash: string;
+  storyFilesHash: string | null;
+  source: 'delivery-check.json' | 'test-evidence.json';
+}
+
 export interface ReviewEscalationReport {
   schemaVersion: 'lattice.review_escalation_status.v1';
   ok: boolean;
@@ -162,6 +168,29 @@ export interface EvaluateReviewEscalationArgs {
   processEvents?: ProcessEvent[];
   materialHash?: string;
   storyFilesHash?: string;
+}
+
+export function resolveCompletedReviewEscalationSnapshot(args: {
+  storyId: string;
+  store: Pick<StoryStore, 'readStory' | 'readTestEvidence' | 'readDeliveryCheck'>;
+}): CompletedReviewEscalationSnapshot | null {
+  const story = args.store.readStory(args.storyId);
+  if (story.phase !== 'DONE') return null;
+  const deliveryCheck = args.store.readDeliveryCheck(args.storyId);
+  if (deliveryCheck?.materialHash) {
+    return {
+      materialHash: deliveryCheck.materialHash,
+      storyFilesHash: deliveryCheck.storyFilesHash ?? null,
+      source: 'delivery-check.json',
+    };
+  }
+  const testEvidence = args.store.readTestEvidence(args.storyId);
+  if (!testEvidence?.materialHash) return null;
+  return {
+    materialHash: testEvidence.materialHash,
+    storyFilesHash: testEvidence.storyFilesHash ?? null,
+    source: 'test-evidence.json',
+  };
 }
 
 function normalizeString(value: unknown): string {

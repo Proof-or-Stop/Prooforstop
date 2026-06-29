@@ -1,5 +1,9 @@
 import type { DoneCheckRow } from '../core/done-oracle.js';
 import { buildDoneChecklist } from '../core/done-oracle.js';
+import {
+  resolveCompletedReviewEscalationSnapshot,
+  type CompletedReviewEscalationSnapshot,
+} from '../core/review-escalation.js';
 import type { StoryInfo } from '../core/types.js';
 import type { HandlerContext } from './context.js';
 
@@ -7,6 +11,12 @@ type DoneClosureStatus = 'notRequired' | 'required' | 'passed' | 'blocked';
 type AssuranceImpact = 'none' | 'localEvidence';
 type DoneClosureFormatArgs = { format?: 'text' | 'json'; json?: boolean };
 const DONE_PREPARE_BLOCKER_IDS = new Set(['evidence-freshness', 'done-required-validation', 'branch-synced-main']);
+const POST_DONE_CURRENT_REVALIDATION_ROW_IDS = new Set([
+  'done-required-validation',
+  'delivery-check',
+  'review-escalation',
+  'review-assurance-floor',
+]);
 
 export interface DoneClosureBlocker {
   id: string;
@@ -37,6 +47,7 @@ export interface DoneClosureRunbook {
     receiptBundleRequired: boolean;
     quorumRequired: boolean;
   };
+  historicalSnapshot?: CompletedReviewEscalationSnapshot;
   readOnly: true;
   note: 'local DONE readiness is based on proof admissibility, receipt-bundle checks, and local quorum evidence';
 }
@@ -101,6 +112,44 @@ function toBlocker(storyId: string, row: DoneCheckRow): DoneClosureBlocker {
   };
 }
 
+function isCurrentMaterialRevalidationFailure(row: DoneCheckRow): boolean {
+  if (!POST_DONE_CURRENT_REVALIDATION_ROW_IDS.has(row.id)) return false;
+  if (row.status !== 'fail' || !row.blocking) return false;
+  const text = `${row.detail ?? ''}\n${row.hint ?? ''}`.toLowerCase();
+  if (
+    text.includes('missing materialhash') ||
+    text.includes('missing-materialhash') ||
+    text.includes('missing storyfileshash') ||
+    text.includes('missing-storyfileshash') ||
+    text.includes('missing delivery-check') ||
+    text.includes('_hash mismatch') ||
+    text.includes('tampered')
+  ) {
+    return false;
+  }
+  return (
+    text.includes('stale') ||
+    text.includes('drift') ||
+    text.includes('materialdigest') ||
+    text.includes('receipt-cwd-mismatch') ||
+    text.includes('current material')
+  );
+}
+
+function projectHistoricalDoneRow(row: DoneCheckRow): DoneCheckRow {
+  if (!isCurrentMaterialRevalidationFailure(row)) return row;
+  return {
+    ...row,
+    status: 'warn',
+    blocking: false,
+    detail: `historical DONE closure preserved; current-material revalidation advisory: ${row.detail ?? row.label}`,
+    hint: [
+      'This story is already DONE. Historical closure is evaluated against the DONE snapshot.',
+      row.hint ? `Current-material revalidation guidance: ${row.hint}` : '',
+    ].filter(Boolean).join('\n'),
+  };
+}
+
 function localAuditStatus(phase: StoryInfo['phase'], blockingRows: DoneClosureBlocker[]): DoneClosureStatus {
   if (phase === 'DONE') return 'notRequired';
   if (blockingRows.length > 0) return 'blocked';
@@ -110,7 +159,22 @@ function localAuditStatus(phase: StoryInfo['phase'], blockingRows: DoneClosureBl
 
 export function buildDoneClosureRunbook(ctx: HandlerContext, storyId: string): DoneClosureRunbook {
   const story = ctx.store.readStory(storyId);
-  const rows = buildDoneChecklist(storyId, ctx.store, ctx.root, { auditWriter: null });
+  const historicalSnapshot = resolveCompletedReviewEscalationSnapshot({
+    storyId,
+    store: ctx.store,
+  });
+  const rawRows = buildDoneChecklist(storyId, ctx.store, ctx.root, {
+    auditWriter: null,
+    ...(historicalSnapshot ? {
+      completedSnapshot: {
+        materialHash: historicalSnapshot.materialHash,
+        storyFilesHash: historicalSnapshot.storyFilesHash,
+      },
+    } : {}),
+  });
+  const rows = story.phase === 'DONE'
+    ? rawRows.map(projectHistoricalDoneRow)
+    : rawRows;
   const blockers = rows.map((row) => toBlocker(storyId, row));
   const blockingRows = blockers.filter((row) => row.blocking && row.status === 'fail');
   const evidenceRefs = [...new Set(rows
@@ -136,6 +200,7 @@ export function buildDoneClosureRunbook(ctx: HandlerContext, storyId: string): D
       receiptBundleRequired: false,
       quorumRequired: false,
     },
+    ...(story.phase === 'DONE' && historicalSnapshot ? { historicalSnapshot } : {}),
     readOnly: true,
     note: 'local DONE readiness is based on proof admissibility, receipt-bundle checks, and local quorum evidence',
   };
@@ -149,6 +214,11 @@ function renderDoneClosure(runbook: DoneClosureRunbook): string {
     `phase: ${runbook.phase}`,
     `canAttemptDone: ${runbook.canAttemptDone}`,
     `readOnly: ${runbook.readOnly}`,
+    ...(runbook.historicalSnapshot ? [
+      `projection: historical DONE snapshot (${runbook.historicalSnapshot.source})`,
+      `snapshotMaterialHash: ${runbook.historicalSnapshot.materialHash}`,
+      `snapshotStoryFilesHash: ${runbook.historicalSnapshot.storyFilesHash ?? '<missing>'}`,
+    ] : []),
     runbook.note,
     '',
     `localAssuranceAudit: ${runbook.localNonAuthorityAudit.status}`,
