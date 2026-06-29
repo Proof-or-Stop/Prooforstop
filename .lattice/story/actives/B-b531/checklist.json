@@ -4,8 +4,8 @@
       "id": "CHK-001",
       "title": "Implement fix for reproduced failure",
       "context": "Probe: rp-mqzkvjqx-nb3bnj, Review: rr-mqzkzc8e-q4mz2k",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-29T19:03:36.196Z",
       "endTime": null,
       "relatedDocs": [
         "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
@@ -64,6 +64,17 @@
           }
         ]
       }
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-29T19:03:36.196Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Starting DEV implementation for post-DONE closure snapshot projection."
     }
   ]
 }
