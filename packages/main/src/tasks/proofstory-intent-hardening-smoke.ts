@@ -197,6 +197,27 @@ try {
   const phaseAfter = store.readStory(storyId).phase;
   assert.equal(phaseAfter, 'PLAN', 'dry-run ProofStory diagnostics do not advance lifecycle phase');
 
+  const lightStoryId = 'B-light';
+  const lightStory: StoryInfo = {
+    storyId: lightStoryId,
+    name: 'label-normalizer',
+    title: 'Add label normalizer',
+    description: 'Provide a small internal helper for formatting labels.',
+    type: 'feature',
+    phase: 'PLAN',
+    priority: 'medium',
+    createdAt: new Date().toISOString(),
+    startedAt: new Date().toISOString(),
+    endedAt: null,
+    events: [],
+  };
+  store.writeStory(lightStoryId, lightStory);
+  store.writeChecklist(lightStoryId, { items: [] });
+  const lightGate = jsonRun(root, 'proofstory_gate_check', { storyId: lightStoryId, dryRun: true });
+  assert.equal(lightGate.hardeningLevel, 'intent_mvp', 'clear low-risk feature keeps Intent MVP classification');
+  assert.equal(lightGate.missingIntentCollision.length, 0, 'clear low-risk feature does not require intent collision');
+  assert.equal(lightGate.missingRedEvidence.length, 0, 'clear new feature does not require red evidence by default');
+
   console.log('ProofStory intent hardening smoke passed');
 } finally {
   rmSync(root, { recursive: true, force: true });

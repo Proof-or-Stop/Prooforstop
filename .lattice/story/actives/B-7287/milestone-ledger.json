@@ -1,0 +1,152 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-7287",
+  "milestones": [
+    {
+      "id": "M0",
+      "sourceRequirementId": "REQ-M0",
+      "claim": "Documentation and terminology freeze describe the M0-M2 MVP and phase boundaries in English.",
+      "doneMeans": "Execution plan and NAV updates are committed before implementation.",
+      "requiredEvidence": [
+        "docs",
+        "commit"
+      ],
+      "checklistRefs": [
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [
+        "CHK-004:happy:0"
+      ],
+      "status": "covered"
+    },
+    {
+      "id": "M1A",
+      "sourceRequirementId": "REQ-M1",
+      "claim": "Original intent snapshot commands can set/get immutable source intent with requestHash and keyRequirementIds.",
+      "doneMeans": "CLI smoke proves set/get and immutability behavior.",
+      "requiredEvidence": [
+        "cli_smoke",
+        "build"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0"
+      ],
+      "status": "covered"
+    },
+    {
+      "id": "M1B",
+      "sourceRequirementId": "REQ-M1",
+      "claim": "Milestone ledger commands can set/add/get countable milestone rows with checklist and verificationIntent coverage refs.",
+      "doneMeans": "CLI smoke proves ledger set/add/get and coverage diagnostics consume ledger rows.",
+      "requiredEvidence": [
+        "cli_smoke",
+        "coverage_check"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:1",
+        "CHK-001:edge:1"
+      ],
+      "status": "covered"
+    },
+    {
+      "id": "M1C",
+      "sourceRequirementId": "REQ-M1",
+      "claim": "Minimal ProofStory contract commands store diagnostic-only acceptance bindings.",
+      "doneMeans": "CLI smoke proves proofstory_contract_set/get and contract remains diagnostic-only.",
+      "requiredEvidence": [
+        "cli_smoke",
+        "process_fact_contract"
+      ],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:adversarial:0"
+      ],
+      "status": "covered"
+    },
+    {
+      "id": "M2A",
+      "sourceRequirementId": "REQ-M2",
+      "claim": "intent_coverage_check --dryRun reports milestone and acceptance coverage gaps without mutating lifecycle phase.",
+      "doneMeans": "CLI smoke proves dryRun requirement, diagnostics, and unchanged phase.",
+      "requiredEvidence": [
+        "cli_smoke"
+      ],
+      "checklistRefs": [
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-003:happy:0",
+        "CHK-003:edge:0"
+      ],
+      "status": "covered"
+    },
+    {
+      "id": "M2B",
+      "sourceRequirementId": "REQ-M2",
+      "claim": "proofstory_gate_check --dryRun derives progressive hardening classification and would-block diagnostics without enforce mode.",
+      "doneMeans": "Smoke proves high-assurance triggers and clear low-risk feature stays intent_mvp.",
+      "requiredEvidence": [
+        "cli_smoke",
+        "process_fact_contract"
+      ],
+      "checklistRefs": [
+        "CHK-003",
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [
+        "CHK-003:happy:1",
+        "CHK-003:happy:2",
+        "CHK-004:adversarial:0"
+      ],
+      "status": "covered"
+    },
+    {
+      "id": "M2C",
+      "sourceRequirementId": "REQ-NO-ENFORCE",
+      "claim": "No red evidence creation, spike promotion, DONE equivalence enforcement, REVIEW completeness lane, or global lifecycle enforcement ships in M0-M2.",
+      "doneMeans": "Process fact contract and smoke prove diagnostic-only commands and absent intent_collision_set.",
+      "requiredEvidence": [
+        "process_fact_contract",
+        "orphan_surface",
+        "cli_smoke"
+      ],
+      "checklistRefs": [
+        "CHK-003",
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [
+        "CHK-003:adversarial:0",
+        "CHK-004:edge:0"
+      ],
+      "status": "covered"
+    },
+    {
+      "id": "REPORT",
+      "sourceRequirementId": "REQ-M2",
+      "claim": "Final response reports every first-batch milestone with checked completion status.",
+      "doneMeans": "Final response includes the requested milestone completion table.",
+      "requiredEvidence": [
+        "final_response"
+      ],
+      "checklistRefs": [
+        "CHK-005"
+      ],
+      "verificationIntentRefs": [
+        "CHK-005:happy:0"
+      ],
+      "status": "covered"
+    }
+  ],
+  "createdAt": "2026-06-29T18:15:04.933Z",
+  "updatedAt": "2026-06-29T18:15:04.933Z"
+}

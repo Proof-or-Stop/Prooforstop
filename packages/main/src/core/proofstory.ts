@@ -292,7 +292,6 @@ function classifyTriggers(input: ProofStoryDiagnosticInput): { hardeningLevel: P
   const ambiguity = /\b(?:ambiguous|ambiguity|unclear|unknown|maybe|or\b|choose|decision|scope|multi-path|interpretation)\b/i.test(text);
   const userImpact = /\b(?:user|ui|browser|cli|command|observable|behavior|behaviour|workflow|product)\b/i.test(text);
   const behaviorChange = input.story.type === 'bug'
-    || input.story.type === 'feature'
     || /\b(?:bug|fix|regression|broken|failing|behavior change|behaviour change|change behavior|change behaviour)\b/i.test(text);
   if (ambiguity || userImpact || behaviorChange || hasMultiDeliverable) {
     pushTrigger(
@@ -302,8 +301,10 @@ function classifyTriggers(input: ProofStoryDiagnosticInput): { hardeningLevel: P
       'intent-collision',
     );
   }
-  if (behaviorChange) {
-    pushTrigger(triggers, 'red_evidence_required', 'Bug, regression, feature, or behavior-change work should have red evidence.', 'red-evidence');
+  const redEvidenceRisk = behaviorChange
+    || /\b(?:auth|authentication|authorization|session|security|credential|token|password|benchmark|performance claim)\b/i.test(text);
+  if (redEvidenceRisk) {
+    pushTrigger(triggers, 'red_evidence_required', 'Bug, regression, security/auth/session, benchmark, or explicit behavior-change work should have red evidence.', 'red-evidence');
   }
 
   const codePathUnclear = /\b(?:code path (?:is )?unclear|root cause (?:is )?unclear|unknown code path|spike|investigate|explore|prototype)\b/i.test(text);
