@@ -101,7 +101,7 @@
       "desc": "Scanner whitelist is still too broad at line level, so the hard retired-Authority gate can miss active renderer regressions even after the current visible leaks were removed. Source refs: packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts:137-154 makes lineIsQuarantined return true for any line in any non-quarantined active file containing field-shaped retired names such as productionDone:, authorityDone:, fullAuthorityDone:, receiptVerified:, or authorityChanged:. scanText then skips that line before applying bannedActiveRules at packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts:214-224. That exemption is not tied to an explicit legacy file, compatibility reader block, or positive-control context, and it is the same shape that let active text-renderer output leaks hide in F-004. Current build/help/guard pass, but M5 requires a hard scanner that fails active core code/docs outside explicit legacy quarantine; this implementation would still allow a future active output line like lines.push(`productionDone: ${result.productionDone}`) to pass validation.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-06-29T17:58:28.642Z",
@@ -113,7 +113,11 @@
         "docs/requirements/decisions/authority-server-vocabulary-retirement.md"
       ],
       "signatureTag": "adversarial|ts|scanner-line-quarantine-bypass",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed in commit dd4a560fb. retired-authority-vocabulary-guard-smoke now catches retired completion framing phrases and replaces the global field-shaped line bypass with explicit structuralLegacyFieldQuarantineFiles plus rendered-field detection; active renderer positive controls prove productionDone:, authorityDone:, and fullAuthorityDone: output lines are scanned and rejected outside quarantine. Evidence passed: npm --prefix packages/main run build; node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js; npm run test:process-fact-contract; node packages/main/dist/tasks/command-catalog-smoke.js; lattice scope_contract_check storyId=B-da34.",
+      "resolvedAt": "2026-06-29T18:12:45.097Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-da34:F-006",
