@@ -162,12 +162,17 @@
       "verificationIntent": {
         "happy": [
           {
+            "desc": "intent_collision_get reads an existing collision artifact or returns an empty diagnostic without implementing M3 authoring.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
             "desc": "intent_coverage_check --dryRun reports selected hardening level, trigger reasons, uncovered milestones, and missing acceptance bindings without writing lifecycle state.",
             "type": "cli",
             "priority": "must"
           },
           {
-            "desc": "proofstory_gate_check --dryRun reports would-block diagnostics for missing MVP artifacts and triggered milestone/collision requirements without enforcing DEV admission.",
+            "desc": "proofstory_gate_check --dryRun reports would-block diagnostics for missing MVP artifacts, missing intent collision when triggered, missing red evidence, missing spike evidence, and scope ambiguity without enforcing DEV admission.",
             "type": "cli",
             "priority": "must"
           }
@@ -187,6 +192,11 @@
         "adversarial": [
           {
             "desc": "Isolated keyword wording such as complete this small typo fix does not trigger milestone ledger by itself.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Dry-run diagnostics mention red/spike/scope ambiguity as diagnostic gaps only and do not create red, spike, DONE, or enforce artifacts.",
             "type": "logic",
             "priority": "must"
           }
