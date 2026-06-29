@@ -1,0 +1,35 @@
+{
+  "task": "Implement the M0-M2 MVP for progressive intent hardening without enabling enforce behavior.",
+  "outcome": "The user can run original_intent_snapshot_set/get, milestone_ledger_set/add/get, intent_coverage_check --dryRun, proofstory_contract_set/get, and proofstory_gate_check --dryRun, then see a final M0-M2 milestone table with verified checkmarks.",
+  "facts": [
+    "M0 execution plan is committed in docs/requirements/decisions/proofstory-intent-collision-execution-plan.md.",
+    "The user explicitly limited this first batch to M0-M2 observe/warn/dry-run behavior.",
+    "proofstory_contract_set/get is scoped to a minimal diagnostic envelope for M2 dry-run diagnostics, not full M4 gate enforcement.",
+    "Story B-7287 scope and execution boundaries exclude red evidence, spike promotion, DONE equivalence enforcement, REVIEW completeness lane, and global enforce mode."
+  ],
+  "constraints": [
+    "Do not run omx or use .omx.",
+    "Do not directly read or write docs/story or tests/fixtures; use Lattice commands for story state.",
+    "New gate-consumed process facts need command policy and process-fact registration, not prompt-only rules.",
+    "Default behavior must be observe/warn/dry-run and must not block DEV globally.",
+    "MVP Intent payload must stay lightweight: sourceText, normalizedOutcome, acceptanceClaim."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/handlers/proofstory.ts",
+    "packages/main/src/core/proofstory.ts",
+    "packages/main/src/core/store.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/cli/command-schemas.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "scripts/verify-orphan-surface.mjs",
+    "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+  ],
+  "timestamp": "2026-06-29T17:53:17.323Z"
+}

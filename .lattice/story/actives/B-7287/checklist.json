@@ -9,7 +9,61 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/cli/command-schemas.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts"
+        ],
+        "create": [
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "original_intent_snapshot_set stores sourceText, normalizedOutcome, and acceptanceClaim; original_intent_snapshot_get reads the same artifact back.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "milestone_ledger_set stores a ledger and milestone_ledger_add appends a new milestone; milestone_ledger_get returns all rows.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Intent MVP set rejects missing sourceText, normalizedOutcome, or acceptanceClaim.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Milestone ledger is optional for a single-outcome story and diagnostics do not require it unless triggers or provided milestones exist.",
+            "type": "logic",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Malformed milestone refs or non-array milestone payloads fail before corrupting the artifact.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
