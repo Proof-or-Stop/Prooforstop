@@ -6,7 +6,63 @@
       "context": "Probe: rp-mqzkvjqx-nb3bnj, Review: rr-mqzkzc8e-q4mz2k",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "relatedDocs": [
+        "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+        "docs/requirements/decisions/story-files-hash-material-drift.md",
+        "docs/requirements/decisions/repro-first-story-intake-experiment.md",
+        "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+      ],
+      "userSees": "`lattice done_closure` and `lattice review_escalation_status` for a DONE story report historical DONE closure instead of blocking on later main material drift; TEST-phase stories still show stale/missing evidence blockers before DONE.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/done-closure.ts",
+          "packages/main/src/handlers/review-escalation.ts",
+          "packages/main/src/core/done-oracle.ts",
+          "packages/main/src/core/review-escalation.ts",
+          "packages/main/package.json",
+          "package.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/post-done-closure-snapshot-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/post-done-closure-snapshot-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A DONE story with valid historical completion evidence remains historically closed after unrelated current material drift; done_closure does not show blocking stale delivery/review escalation rows by default.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "review_escalation_status for the same DONE story uses the historical completion snapshot by default and reports satisfied local review assurance instead of stale current-material verdicts.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A TEST-phase story still fails stale/missing delivery or review escalation evidence before DONE; the fix does not weaken pre-DONE gates.",
+            "type": "logic",
+            "priority": "must"
+          },
+          {
+            "desc": "Current-material revalidation information is explicit/advisory for DONE stories and does not overwrite historical closure semantics.",
+            "type": "logic",
+            "priority": "should"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A tampered or story-owned drift case must not be silently accepted as historical closure for an unfinished story.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }

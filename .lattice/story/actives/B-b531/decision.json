@@ -1,0 +1,67 @@
+{
+  "principles": [
+    "Historical DONE status must be stable after later unrelated main changes.",
+    "Pre-DONE gates must remain strict and fail closed on stale/tampered evidence.",
+    "Read-only diagnostics should distinguish historical closure from current-material revalidation."
+  ],
+  "drivers": [
+    "B-da34 red repro shows completed work being misreported as blocked.",
+    "The fix must be narrow enough to avoid weakening TEST->DONE.",
+    "Future hosts need status output that does not tell them to redo already completed work."
+  ],
+  "options": [
+    {
+      "name": "A: DONE-phase historical snapshot projection",
+      "pros": [
+        "Matches the user-facing failure exactly",
+        "Preserves strict TEST->DONE gates",
+        "Can be covered by a focused smoke using material drift after completion"
+      ],
+      "cons": [
+        "Needs careful labeling so current-material revalidation is not confused with historical closure"
+      ]
+    },
+    {
+      "name": "B: Refresh B-da34 or stale historical evidence",
+      "pros": [
+        "Would make the current example look green quickly"
+      ],
+      "cons": [
+        "Does not fix the systemic bug",
+        "Mutates history instead of fixing projection semantics"
+      ]
+    },
+    {
+      "name": "C: Downgrade all material freshness failures to advisory",
+      "pros": [
+        "Simple implementation"
+      ],
+      "cons": [
+        "Weakens TEST->DONE correctness and could allow stale evidence before completion"
+      ]
+    }
+  ],
+  "chosen": "A: DONE-phase historical snapshot projection",
+  "rationale": "Option A fixes the read-only post-DONE projection bug while preserving strict pre-DONE gates. It lets DONE stories be interpreted against the snapshot that actually completed them, and keeps current-material revalidation as separate/advisory rather than the default blocker.",
+  "preMortem": [
+    {
+      "scenario": "The fix accidentally weakens TEST->DONE stale evidence checks.",
+      "trigger": "A TEST-phase fixture with stale delivery-check passes DONE unexpectedly.",
+      "consequence": "Proofbound could complete stories with stale evidence.",
+      "mitigation": "Add assertions that TEST-phase closure/gate behavior remains blocking for stale or missing evidence."
+    },
+    {
+      "scenario": "review_escalation_status and done_closure disagree for DONE stories.",
+      "trigger": "done_closure passes historical status but review_escalation_status still reports stale current material as blocking.",
+      "consequence": "Future hosts still think completed work needs redo.",
+      "mitigation": "Cover both commands/projections in the regression smoke."
+    },
+    {
+      "scenario": "Historical DONE projection hides meaningful current-material drift.",
+      "trigger": "A user wants to know whether a DONE story still validates against current main.",
+      "consequence": "Diagnostics become less transparent.",
+      "mitigation": "Label historical closure explicitly and keep current-material revalidation advisory/separate."
+    }
+  ],
+  "timestamp": "2026-06-29T19:01:52.550Z"
+}
