@@ -77,10 +77,10 @@
           "command": "npm --prefix packages/main run test:proofstory-intent-hardening-smoke",
           "result": "pass",
           "note": "Smoke covers original_intent_snapshot_set/get, requestHash derivation, keyRequirementIds, and persisted acceptanceClaim.",
-          "headHash": "5b15513cf27e97dc0377476353f739c0e322485c",
-          "materialHash": "40396a96159934fcdf70ca45f549a9cbdf1aa7012b692cce9387ce18d6819755",
-          "storyFilesHash": "c60b660d9c72b20c4ce34e875e351349646dccf8052b455adc141a1113b8e378",
-          "timestamp": "2026-06-29T18:30:54.464Z"
+          "headHash": "04331757f90e5ad9ca5d7aa65893ea958c17e410",
+          "materialHash": "7a620456e03192205d55c16147344b365f6df6cfed3ee1b6c24b820aa82ee6dd",
+          "storyFilesHash": "5327af0f79912a577704463ac42a0bf03b59680b70410f52abd5c0208619e5ff",
+          "timestamp": "2026-06-29T18:44:02.336Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
@@ -88,10 +88,10 @@
           "command": "npm --prefix packages/main run test:proofstory-intent-hardening-smoke",
           "result": "pass",
           "note": "Smoke covers milestone_ledger_set, milestone_ledger_add, and milestone_ledger_get returning set plus appended rows.",
-          "headHash": "5b15513cf27e97dc0377476353f739c0e322485c",
-          "materialHash": "40396a96159934fcdf70ca45f549a9cbdf1aa7012b692cce9387ce18d6819755",
-          "storyFilesHash": "c60b660d9c72b20c4ce34e875e351349646dccf8052b455adc141a1113b8e378",
-          "timestamp": "2026-06-29T18:30:54.464Z"
+          "headHash": "04331757f90e5ad9ca5d7aa65893ea958c17e410",
+          "materialHash": "7a620456e03192205d55c16147344b365f6df6cfed3ee1b6c24b820aa82ee6dd",
+          "storyFilesHash": "5327af0f79912a577704463ac42a0bf03b59680b70410f52abd5c0208619e5ff",
+          "timestamp": "2026-06-29T18:44:02.336Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -99,10 +99,10 @@
           "command": "npm --prefix packages/main run test:proofstory-intent-hardening-smoke",
           "result": "pass",
           "note": "Smoke rejects missing sourceText, normalizedOutcome, and acceptanceClaim before storing an Intent MVP artifact.",
-          "headHash": "5b15513cf27e97dc0377476353f739c0e322485c",
-          "materialHash": "40396a96159934fcdf70ca45f549a9cbdf1aa7012b692cce9387ce18d6819755",
-          "storyFilesHash": "c60b660d9c72b20c4ce34e875e351349646dccf8052b455adc141a1113b8e378",
-          "timestamp": "2026-06-29T18:30:54.464Z"
+          "headHash": "04331757f90e5ad9ca5d7aa65893ea958c17e410",
+          "materialHash": "7a620456e03192205d55c16147344b365f6df6cfed3ee1b6c24b820aa82ee6dd",
+          "storyFilesHash": "5327af0f79912a577704463ac42a0bf03b59680b70410f52abd5c0208619e5ff",
+          "timestamp": "2026-06-29T18:44:02.336Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
@@ -110,10 +110,10 @@
           "command": "npm --prefix packages/main run test:proofstory-intent-hardening-smoke",
           "result": "pass",
           "note": "Smoke proves a clear low-risk feature stays intent_mvp and isolated complete wording does not create milestone coverage gaps.",
-          "headHash": "5b15513cf27e97dc0377476353f739c0e322485c",
-          "materialHash": "40396a96159934fcdf70ca45f549a9cbdf1aa7012b692cce9387ce18d6819755",
-          "storyFilesHash": "c60b660d9c72b20c4ce34e875e351349646dccf8052b455adc141a1113b8e378",
-          "timestamp": "2026-06-29T18:30:54.464Z"
+          "headHash": "04331757f90e5ad9ca5d7aa65893ea958c17e410",
+          "materialHash": "7a620456e03192205d55c16147344b365f6df6cfed3ee1b6c24b820aa82ee6dd",
+          "storyFilesHash": "5327af0f79912a577704463ac42a0bf03b59680b70410f52abd5c0208619e5ff",
+          "timestamp": "2026-06-29T18:44:02.336Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -121,10 +121,10 @@
           "command": "npm --prefix packages/main run test:proofstory-intent-hardening-smoke",
           "result": "pass",
           "note": "Smoke rejects non-array milestone payloads and malformed checklistRefs before corrupting the ledger artifact.",
-          "headHash": "5b15513cf27e97dc0377476353f739c0e322485c",
-          "materialHash": "40396a96159934fcdf70ca45f549a9cbdf1aa7012b692cce9387ce18d6819755",
-          "storyFilesHash": "c60b660d9c72b20c4ce34e875e351349646dccf8052b455adc141a1113b8e378",
-          "timestamp": "2026-06-29T18:30:54.464Z"
+          "headHash": "04331757f90e5ad9ca5d7aa65893ea958c17e410",
+          "materialHash": "7a620456e03192205d55c16147344b365f6df6cfed3ee1b6c24b820aa82ee6dd",
+          "storyFilesHash": "5327af0f79912a577704463ac42a0bf03b59680b70410f52abd5c0208619e5ff",
+          "timestamp": "2026-06-29T18:44:02.336Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
@@ -132,10 +132,10 @@
           "command": "npm --prefix packages/main run test:proofstory-intent-hardening-smoke",
           "result": "pass",
           "note": "Smoke attempts changed sourceText and verifies immutable requestHash protection.",
-          "headHash": "5b15513cf27e97dc0377476353f739c0e322485c",
-          "materialHash": "40396a96159934fcdf70ca45f549a9cbdf1aa7012b692cce9387ce18d6819755",
-          "storyFilesHash": "c60b660d9c72b20c4ce34e875e351349646dccf8052b455adc141a1113b8e378",
-          "timestamp": "2026-06-29T18:30:54.464Z"
+          "headHash": "04331757f90e5ad9ca5d7aa65893ea958c17e410",
+          "materialHash": "7a620456e03192205d55c16147344b365f6df6cfed3ee1b6c24b820aa82ee6dd",
+          "storyFilesHash": "5327af0f79912a577704463ac42a0bf03b59680b70410f52abd5c0208619e5ff",
+          "timestamp": "2026-06-29T18:44:02.336Z"
         },
         {
           "intentRef": "CHK-001:happy:0",
@@ -224,10 +224,10 @@
           "command": "npm --prefix packages/main run test:proofstory-intent-hardening-smoke",
           "result": "pass",
           "note": "Smoke covers proofstory_contract_set storing a diagnostic-only contract and proofstory_contract_get reading it back.",
-          "headHash": "5b15513cf27e97dc0377476353f739c0e322485c",
-          "materialHash": "40396a96159934fcdf70ca45f549a9cbdf1aa7012b692cce9387ce18d6819755",
-          "storyFilesHash": "c60b660d9c72b20c4ce34e875e351349646dccf8052b455adc141a1113b8e378",
-          "timestamp": "2026-06-29T18:30:54.464Z"
+          "headHash": "04331757f90e5ad9ca5d7aa65893ea958c17e410",
+          "materialHash": "7a620456e03192205d55c16147344b365f6df6cfed3ee1b6c24b820aa82ee6dd",
+          "storyFilesHash": "5327af0f79912a577704463ac42a0bf03b59680b70410f52abd5c0208619e5ff",
+          "timestamp": "2026-06-29T18:44:02.336Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -235,10 +235,10 @@
           "command": "npm --prefix packages/main run test:proofstory-intent-hardening-smoke",
           "result": "pass",
           "note": "Smoke verifies hardening classification is derived through proofstory_gate_check/proofstory_contract_set without adding a standalone hardening command.",
-          "headHash": "5b15513cf27e97dc0377476353f739c0e322485c",
-          "materialHash": "40396a96159934fcdf70ca45f549a9cbdf1aa7012b692cce9387ce18d6819755",
-          "storyFilesHash": "c60b660d9c72b20c4ce34e875e351349646dccf8052b455adc141a1113b8e378",
-          "timestamp": "2026-06-29T18:30:54.464Z"
+          "headHash": "04331757f90e5ad9ca5d7aa65893ea958c17e410",
+          "materialHash": "7a620456e03192205d55c16147344b365f6df6cfed3ee1b6c24b820aa82ee6dd",
+          "storyFilesHash": "5327af0f79912a577704463ac42a0bf03b59680b70410f52abd5c0208619e5ff",
+          "timestamp": "2026-06-29T18:44:02.336Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -246,10 +246,10 @@
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Process fact contract registers proofstory.json as L1 diagnostic-only and verifies ProofStory diagnostics are not imported by lifecycle gates.",
-          "headHash": "5b15513cf27e97dc0377476353f739c0e322485c",
-          "materialHash": "40396a96159934fcdf70ca45f549a9cbdf1aa7012b692cce9387ce18d6819755",
-          "storyFilesHash": "c60b660d9c72b20c4ce34e875e351349646dccf8052b455adc141a1113b8e378",
-          "timestamp": "2026-06-29T18:30:54.464Z"
+          "headHash": "04331757f90e5ad9ca5d7aa65893ea958c17e410",
+          "materialHash": "7a620456e03192205d55c16147344b365f6df6cfed3ee1b6c24b820aa82ee6dd",
+          "storyFilesHash": "5327af0f79912a577704463ac42a0bf03b59680b70410f52abd5c0208619e5ff",
+          "timestamp": "2026-06-29T18:44:02.336Z"
         },
         {
           "intentRef": "CHK-002:happy:0",
@@ -346,10 +346,10 @@
           "command": "node bin/lattice.js intent_collision_get --storyId=B-7287 --json",
           "result": "pass",
           "note": "Actual B-7287 command returned diagnosticOnly not_configured and explicitly states intent_collision_set is not available in M0-M2.",
-          "headHash": "5b15513cf27e97dc0377476353f739c0e322485c",
-          "materialHash": "40396a96159934fcdf70ca45f549a9cbdf1aa7012b692cce9387ce18d6819755",
-          "storyFilesHash": "c60b660d9c72b20c4ce34e875e351349646dccf8052b455adc141a1113b8e378",
-          "timestamp": "2026-06-29T18:30:54.464Z"
+          "headHash": "04331757f90e5ad9ca5d7aa65893ea958c17e410",
+          "materialHash": "7a620456e03192205d55c16147344b365f6df6cfed3ee1b6c24b820aa82ee6dd",
+          "storyFilesHash": "5327af0f79912a577704463ac42a0bf03b59680b70410f52abd5c0208619e5ff",
+          "timestamp": "2026-06-29T18:44:02.336Z"
         },
         {
           "intentRef": "CHK-003:happy:1",
@@ -357,10 +357,10 @@
           "command": "node bin/lattice.js intent_coverage_check --storyId=B-7287 --dryRun --json",
           "result": "pass",
           "note": "Actual B-7287 dry-run reported hardeningLevel high_assurance and no milestone or acceptance coverage gaps; lifecycle state stayed DEV.",
-          "headHash": "5b15513cf27e97dc0377476353f739c0e322485c",
-          "materialHash": "40396a96159934fcdf70ca45f549a9cbdf1aa7012b692cce9387ce18d6819755",
-          "storyFilesHash": "c60b660d9c72b20c4ce34e875e351349646dccf8052b455adc141a1113b8e378",
-          "timestamp": "2026-06-29T18:30:54.464Z"
+          "headHash": "04331757f90e5ad9ca5d7aa65893ea958c17e410",
+          "materialHash": "7a620456e03192205d55c16147344b365f6df6cfed3ee1b6c24b820aa82ee6dd",
+          "storyFilesHash": "5327af0f79912a577704463ac42a0bf03b59680b70410f52abd5c0208619e5ff",
+          "timestamp": "2026-06-29T18:44:02.336Z"
         },
         {
           "intentRef": "CHK-003:happy:2",
@@ -368,10 +368,10 @@
           "command": "node bin/lattice.js proofstory_gate_check --storyId=B-7287 --dryRun --json",
           "result": "pass",
           "note": "Actual B-7287 gate dry-run reported wouldBlockFutureDevAdmission and warn-only missing intent collision/spike diagnostics without enforcing DEV admission.",
-          "headHash": "5b15513cf27e97dc0377476353f739c0e322485c",
-          "materialHash": "40396a96159934fcdf70ca45f549a9cbdf1aa7012b692cce9387ce18d6819755",
-          "storyFilesHash": "c60b660d9c72b20c4ce34e875e351349646dccf8052b455adc141a1113b8e378",
-          "timestamp": "2026-06-29T18:30:54.464Z"
+          "headHash": "04331757f90e5ad9ca5d7aa65893ea958c17e410",
+          "materialHash": "7a620456e03192205d55c16147344b365f6df6cfed3ee1b6c24b820aa82ee6dd",
+          "storyFilesHash": "5327af0f79912a577704463ac42a0bf03b59680b70410f52abd5c0208619e5ff",
+          "timestamp": "2026-06-29T18:44:02.336Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -379,10 +379,10 @@
           "command": "npm --prefix packages/main run test:proofstory-intent-hardening-smoke",
           "result": "pass",
           "note": "Smoke proves a clear low-risk feature keeps hardeningLevel intent_mvp and has no missing intent collision or red evidence.",
-          "headHash": "5b15513cf27e97dc0377476353f739c0e322485c",
-          "materialHash": "40396a96159934fcdf70ca45f549a9cbdf1aa7012b692cce9387ce18d6819755",
-          "storyFilesHash": "c60b660d9c72b20c4ce34e875e351349646dccf8052b455adc141a1113b8e378",
-          "timestamp": "2026-06-29T18:30:54.464Z"
+          "headHash": "04331757f90e5ad9ca5d7aa65893ea958c17e410",
+          "materialHash": "7a620456e03192205d55c16147344b365f6df6cfed3ee1b6c24b820aa82ee6dd",
+          "storyFilesHash": "5327af0f79912a577704463ac42a0bf03b59680b70410f52abd5c0208619e5ff",
+          "timestamp": "2026-06-29T18:44:02.336Z"
         },
         {
           "intentRef": "CHK-003:edge:1",
@@ -390,10 +390,10 @@
           "command": "npm --prefix packages/main run test:proofstory-intent-hardening-smoke",
           "result": "pass",
           "note": "Smoke proves explicit all five milestones triggers structural_milestone_intent and milestone coverage diagnostics.",
-          "headHash": "5b15513cf27e97dc0377476353f739c0e322485c",
-          "materialHash": "40396a96159934fcdf70ca45f549a9cbdf1aa7012b692cce9387ce18d6819755",
-          "storyFilesHash": "c60b660d9c72b20c4ce34e875e351349646dccf8052b455adc141a1113b8e378",
-          "timestamp": "2026-06-29T18:30:54.464Z"
+          "headHash": "04331757f90e5ad9ca5d7aa65893ea958c17e410",
+          "materialHash": "7a620456e03192205d55c16147344b365f6df6cfed3ee1b6c24b820aa82ee6dd",
+          "storyFilesHash": "5327af0f79912a577704463ac42a0bf03b59680b70410f52abd5c0208619e5ff",
+          "timestamp": "2026-06-29T18:44:02.336Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -401,10 +401,10 @@
           "command": "npm --prefix packages/main run test:proofstory-intent-hardening-smoke",
           "result": "pass",
           "note": "Smoke proves isolated complete wording in a small typo story does not trigger structural milestone intent or milestone coverage gaps.",
-          "headHash": "5b15513cf27e97dc0377476353f739c0e322485c",
-          "materialHash": "40396a96159934fcdf70ca45f549a9cbdf1aa7012b692cce9387ce18d6819755",
-          "storyFilesHash": "c60b660d9c72b20c4ce34e875e351349646dccf8052b455adc141a1113b8e378",
-          "timestamp": "2026-06-29T18:30:54.464Z"
+          "headHash": "04331757f90e5ad9ca5d7aa65893ea958c17e410",
+          "materialHash": "7a620456e03192205d55c16147344b365f6df6cfed3ee1b6c24b820aa82ee6dd",
+          "storyFilesHash": "5327af0f79912a577704463ac42a0bf03b59680b70410f52abd5c0208619e5ff",
+          "timestamp": "2026-06-29T18:44:02.336Z"
         },
         {
           "intentRef": "CHK-003:adversarial:1",
@@ -412,10 +412,10 @@
           "command": "npm --prefix packages/main run test:proofstory-intent-hardening-smoke",
           "result": "pass",
           "note": "Smoke covers red, spike, and scope ambiguity as diagnostic gaps only, verifies proofstory_gate_check requires dryRun:true, and verifies dry-run checks do not advance phase.",
-          "headHash": "5b15513cf27e97dc0377476353f739c0e322485c",
-          "materialHash": "40396a96159934fcdf70ca45f549a9cbdf1aa7012b692cce9387ce18d6819755",
-          "storyFilesHash": "c60b660d9c72b20c4ce34e875e351349646dccf8052b455adc141a1113b8e378",
-          "timestamp": "2026-06-29T18:30:54.464Z"
+          "headHash": "04331757f90e5ad9ca5d7aa65893ea958c17e410",
+          "materialHash": "7a620456e03192205d55c16147344b365f6df6cfed3ee1b6c24b820aa82ee6dd",
+          "storyFilesHash": "5327af0f79912a577704463ac42a0bf03b59680b70410f52abd5c0208619e5ff",
+          "timestamp": "2026-06-29T18:44:02.336Z"
         }
       ]
     },
@@ -489,10 +489,10 @@
           "command": "node scripts/verify-orphan-surface.mjs",
           "result": "pass",
           "note": "Orphan-surface check passed with 103 handler factories registered, 267 catalog commands checked, and retired surfaces absent; new commands are wired through registry/catalog.",
-          "headHash": "5b15513cf27e97dc0377476353f739c0e322485c",
-          "materialHash": "40396a96159934fcdf70ca45f549a9cbdf1aa7012b692cce9387ce18d6819755",
-          "storyFilesHash": "c60b660d9c72b20c4ce34e875e351349646dccf8052b455adc141a1113b8e378",
-          "timestamp": "2026-06-29T18:30:54.464Z"
+          "headHash": "04331757f90e5ad9ca5d7aa65893ea958c17e410",
+          "materialHash": "7a620456e03192205d55c16147344b365f6df6cfed3ee1b6c24b820aa82ee6dd",
+          "storyFilesHash": "5327af0f79912a577704463ac42a0bf03b59680b70410f52abd5c0208619e5ff",
+          "timestamp": "2026-06-29T18:44:02.336Z"
         },
         {
           "intentRef": "CHK-004:happy:0",
@@ -511,10 +511,10 @@
           "command": "npm --prefix packages/main run build",
           "result": "pass",
           "note": "TypeScript build completed successfully on final HEAD.",
-          "headHash": "5b15513cf27e97dc0377476353f739c0e322485c",
-          "materialHash": "40396a96159934fcdf70ca45f549a9cbdf1aa7012b692cce9387ce18d6819755",
-          "storyFilesHash": "c60b660d9c72b20c4ce34e875e351349646dccf8052b455adc141a1113b8e378",
-          "timestamp": "2026-06-29T18:30:54.464Z"
+          "headHash": "04331757f90e5ad9ca5d7aa65893ea958c17e410",
+          "materialHash": "7a620456e03192205d55c16147344b365f6df6cfed3ee1b6c24b820aa82ee6dd",
+          "storyFilesHash": "5327af0f79912a577704463ac42a0bf03b59680b70410f52abd5c0208619e5ff",
+          "timestamp": "2026-06-29T18:44:02.336Z"
         },
         {
           "intentRef": "CHK-004:happy:1",
@@ -533,10 +533,10 @@
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Verifier includes process-fact contract checks for diagnostic-only ProofStory artifacts and command registration drift.",
-          "headHash": "5b15513cf27e97dc0377476353f739c0e322485c",
-          "materialHash": "40396a96159934fcdf70ca45f549a9cbdf1aa7012b692cce9387ce18d6819755",
-          "storyFilesHash": "c60b660d9c72b20c4ce34e875e351349646dccf8052b455adc141a1113b8e378",
-          "timestamp": "2026-06-29T18:30:54.464Z"
+          "headHash": "04331757f90e5ad9ca5d7aa65893ea958c17e410",
+          "materialHash": "7a620456e03192205d55c16147344b365f6df6cfed3ee1b6c24b820aa82ee6dd",
+          "storyFilesHash": "5327af0f79912a577704463ac42a0bf03b59680b70410f52abd5c0208619e5ff",
+          "timestamp": "2026-06-29T18:44:02.336Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -544,10 +544,10 @@
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Verifier confirms story_advance and phase-gates do not import/consume ProofStory gate/core and intent_collision_set remains absent.",
-          "headHash": "5b15513cf27e97dc0377476353f739c0e322485c",
-          "materialHash": "40396a96159934fcdf70ca45f549a9cbdf1aa7012b692cce9387ce18d6819755",
-          "storyFilesHash": "c60b660d9c72b20c4ce34e875e351349646dccf8052b455adc141a1113b8e378",
-          "timestamp": "2026-06-29T18:30:54.464Z"
+          "headHash": "04331757f90e5ad9ca5d7aa65893ea958c17e410",
+          "materialHash": "7a620456e03192205d55c16147344b365f6df6cfed3ee1b6c24b820aa82ee6dd",
+          "storyFilesHash": "5327af0f79912a577704463ac42a0bf03b59680b70410f52abd5c0208619e5ff",
+          "timestamp": "2026-06-29T18:44:02.336Z"
         },
         {
           "intentRef": "CHK-004:happy:1",
@@ -610,10 +610,10 @@
           "command": "final response in current Codex turn",
           "result": "pass",
           "note": "Final response includes a M0-M2 milestone completion table with checkmarks only for verified completed rows.",
-          "headHash": "5b15513cf27e97dc0377476353f739c0e322485c",
-          "materialHash": "40396a96159934fcdf70ca45f549a9cbdf1aa7012b692cce9387ce18d6819755",
-          "storyFilesHash": "c60b660d9c72b20c4ce34e875e351349646dccf8052b455adc141a1113b8e378",
-          "timestamp": "2026-06-29T18:30:54.464Z"
+          "headHash": "04331757f90e5ad9ca5d7aa65893ea958c17e410",
+          "materialHash": "7a620456e03192205d55c16147344b365f6df6cfed3ee1b6c24b820aa82ee6dd",
+          "storyFilesHash": "5327af0f79912a577704463ac42a0bf03b59680b70410f52abd5c0208619e5ff",
+          "timestamp": "2026-06-29T18:44:02.336Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -621,10 +621,10 @@
           "command": "final response in current Codex turn",
           "result": "pass",
           "note": "All rows marked complete are backed by committed implementation and final HEAD verification; no unverified rows are marked complete.",
-          "headHash": "5b15513cf27e97dc0377476353f739c0e322485c",
-          "materialHash": "40396a96159934fcdf70ca45f549a9cbdf1aa7012b692cce9387ce18d6819755",
-          "storyFilesHash": "c60b660d9c72b20c4ce34e875e351349646dccf8052b455adc141a1113b8e378",
-          "timestamp": "2026-06-29T18:30:54.464Z"
+          "headHash": "04331757f90e5ad9ca5d7aa65893ea958c17e410",
+          "materialHash": "7a620456e03192205d55c16147344b365f6df6cfed3ee1b6c24b820aa82ee6dd",
+          "storyFilesHash": "5327af0f79912a577704463ac42a0bf03b59680b70410f52abd5c0208619e5ff",
+          "timestamp": "2026-06-29T18:44:02.336Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -632,10 +632,10 @@
           "command": "final response in current Codex turn",
           "result": "pass",
           "note": "Final response explicitly states M3-M9, red/spike authoring, DONE equivalence enforcement, REVIEW completeness lane, and risk-adaptive enforce are not completed in this M0-M2 batch.",
-          "headHash": "5b15513cf27e97dc0377476353f739c0e322485c",
-          "materialHash": "40396a96159934fcdf70ca45f549a9cbdf1aa7012b692cce9387ce18d6819755",
-          "storyFilesHash": "c60b660d9c72b20c4ce34e875e351349646dccf8052b455adc141a1113b8e378",
-          "timestamp": "2026-06-29T18:30:54.464Z"
+          "headHash": "04331757f90e5ad9ca5d7aa65893ea958c17e410",
+          "materialHash": "7a620456e03192205d55c16147344b365f6df6cfed3ee1b6c24b820aa82ee6dd",
+          "storyFilesHash": "5327af0f79912a577704463ac42a0bf03b59680b70410f52abd5c0208619e5ff",
+          "timestamp": "2026-06-29T18:44:02.336Z"
         }
       ]
     }
