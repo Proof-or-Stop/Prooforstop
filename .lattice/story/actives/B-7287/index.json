@@ -4,7 +4,7 @@
   "title": "Implement ProofStory progressive intent hardening M0-M2",
   "description": "Implement the first MVP slice from docs/requirements/decisions/proofstory-intent-collision-execution-plan.md: original intent snapshot, milestone ledger, minimal ProofStory diagnostic envelope storage, dry-run proofstory gate diagnostics, dry-run intent coverage diagnostics, and internal progressive intent hardening classification. The contract storage in this story is only the minimum envelope needed for M2 dry-run diagnostics; it does not claim full M4 gate integration or enforcement. Do not implement red/spike/DONE enforcement or REVIEW completeness lane in this story.",
   "type": "feature",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "high",
   "createdAt": "2026-06-29T17:47:39.666Z",
   "startedAt": "2026-06-29T17:47:39.666Z",
@@ -63,6 +63,15 @@
       "user": "Harmonygo",
       "sessionId": "sess-5ce38f9f0ed8cdb9",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-29T18:30:32.014Z",
+      "branch": "story/B-7287",
+      "user": "Harmonygo",
+      "sessionId": "sess-5ce38f9f0ed8cdb9",
+      "agent": "main"
     }
   ],
   "worktree": {
@@ -70,5 +79,5 @@
     "branch": "story/B-7287",
     "createdAt": "2026-06-29T17:52:07.658Z"
   },
-  "currentReviewRound": "2026-06-29T18:21:38.108Z"
+  "currentReviewRound": "2026-06-29T18:30:32.014Z"
 }
