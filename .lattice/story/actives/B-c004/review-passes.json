@@ -134,6 +134,15 @@
       "reviewRound": "2026-06-30T17:23:09.482Z",
       "reviewRunId": "B-c004:RR-022",
       "_hash": "806494460c408b8aa110803634af8da67de66f74ae169711f627dae33e6fa630"
+    },
+    {
+      "id": "B-c004:RP-016",
+      "agent": "lattice-review-docs",
+      "note": "Targeted re-review after 78cf7d560: no docs blocker. The proof admissibility plan no longer actively requires storing ledger streams under .lattice/evidence, REVIEW inspecting concrete ledger rows, or counts derived from ledger rows as current local CLI obligations. The remaining ledger-row language is retired Appendix C / future-integration or broader reference context; closure audit and summary both state append-only ledger storage is retired/non-goal. Verified with npm --prefix packages/main run test:proof-admissibility-hardening.",
+      "createdAt": "2026-06-30T17:40:25.276Z",
+      "reviewRound": "2026-06-30T17:38:48.220Z",
+      "reviewRunId": "B-c004:RR-031",
+      "_hash": "c490564123583dfc3b500de8b7b5c55ac1f50ee46e8f055cb416bab8b66d0550"
     }
   ]
 }
