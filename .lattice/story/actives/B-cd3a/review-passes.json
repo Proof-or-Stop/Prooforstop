@@ -71,6 +71,15 @@
       "reviewRound": "2026-06-30T11:06:51.293Z",
       "reviewRunId": "B-cd3a:RR-019",
       "_hash": "9086a6ce4d7b4aa60d4f7365b21689d0657fcad816c8bc3d25aaecc3463786bd"
+    },
+    {
+      "id": "B-cd3a:RP-009",
+      "agent": "lattice-review-docs",
+      "note": "docs review passed: global-lifecycle-control-plane lines 151-173 and 292-335 keep control-plane status read-only/diagnostic-only and productionDoneEligible=false; proof-admissibility-hardening lines 28-50, 209-224, 781-796, and 886-924 cover local-review-quorum, storyFilesHash/freshness, configured REVIEW enforcement, and no authority/production overclaim. Late commit db4bc74f0 changes review-escalation binding and quorum smoke only, so no doc update is required for the narrow proof-binding fix.",
+      "createdAt": "2026-06-30T11:16:38.238Z",
+      "reviewRound": "2026-06-30T11:06:51.293Z",
+      "reviewRunId": "B-cd3a:RR-020",
+      "_hash": "11f80a87d86325ccc073d434622a00f954bd7b62817870e5fc5498a1ec893f16"
     }
   ]
 }
