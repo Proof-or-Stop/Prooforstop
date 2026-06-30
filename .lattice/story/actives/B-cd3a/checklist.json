@@ -304,6 +304,26 @@
           "lattice done_intent_equivalence_check --storyId=B-cd3a --mode=enforce --json",
           "lattice done_required_validate --storyId=B-cd3a --json"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run the final ProofStory gate bundle and prove proofstory_gate_check, intent_coverage_check, proofstory_review_completeness_check, done_intent_equivalence_check, delivery check, done-required validation, and review assurance all pass for B-cd3a.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Verify intent coverage and DONE equivalence explicitly map the seven milestone refs CHK-001 through CHK-007 to delivery evidence, including review completeness and either 3x2 review assurance or the documented explicit 3x1 allowance.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Fail final delivery if any milestone lacks verification evidence, review assurance is incomplete, DONE-required validation is stale, delivery summary overclaims equivalence, or ProofStory anti-shrinkage gates allow reduced scope versus the original intent snapshot.",
+            "type": "cli"
+          }
+        ]
       }
     }
   ]
