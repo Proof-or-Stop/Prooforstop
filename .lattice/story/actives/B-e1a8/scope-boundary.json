@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-e1a8",
+  "mode": "feature",
+  "allowed": [
+    "Enable project-level proofStory gate modes in lattice.config.json",
+    "Record required ProofStory/Lattice metadata for B-e1a8",
+    "Run verification commands for build, ProofStory smoke, process fact contract, and gate diagnostics"
+  ],
+  "excluded": [
+    "Do not change ProofStory implementation code",
+    "Do not create or edit child stories for existing active stories",
+    "Do not use omx or any .omx artifact"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User agreed to the rollout after audit showed ProofStory implementation is complete but global config is still observe.",
+  "createdAt": "2026-06-30T08:39:22.608Z",
+  "updatedAt": "2026-06-30T08:39:22.608Z",
+  "_hash": "108d044740aa47dfcbade623c122e49b199aaf95e90199fe4a61ce4752c74bc5"
+}

@@ -1,0 +1,36 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-e1a8",
+  "allowedCommands": [
+    "git *",
+    "lattice *",
+    "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js",
+    "node scripts/verify-process-fact-contract.mjs",
+    "npm --prefix packages/main run build"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "multi_agent reviewer tools",
+    "shell"
+  ],
+  "allowedPaths": [
+    "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+    "lattice.config.json",
+    "packages/main/package.json",
+    "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+  ],
+  "excludedCommands": [
+    "omx *"
+  ],
+  "excludedTools": [
+    "omx"
+  ],
+  "excludedPaths": [
+    ".omx"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Rollout is config plus metadata/verification only; implementation code changes are out of scope unless a gate bug is discovered and confirmed separately.",
+  "createdAt": "2026-06-30T08:39:22.661Z",
+  "updatedAt": "2026-06-30T08:39:22.661Z",
+  "_hash": "602fd480534f46aee90e3ae24f14a96fdc30247d872082c7f7bbea9649af81c5"
+}
