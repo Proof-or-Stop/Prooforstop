@@ -1,0 +1,112 @@
+{
+  "storyId": "B-c004",
+  "generatedFor": "delivery-review",
+  "diff": {
+    "changedFiles": [
+      ".lattice/story/actives/B-c004/checklist.json",
+      ".lattice/story/actives/B-c004/decision.json",
+      ".lattice/story/actives/B-c004/findings.json",
+      ".lattice/story/actives/B-c004/index.json",
+      ".lattice/story/actives/B-c004/intent-collision.json",
+      ".lattice/story/actives/B-c004/milestone-ledger.json",
+      ".lattice/story/actives/B-c004/original-intent-snapshot.json",
+      ".lattice/story/actives/B-c004/plan.md",
+      ".lattice/story/actives/B-c004/process-events.jsonl",
+      ".lattice/story/actives/B-c004/process-metrics.json",
+      ".lattice/story/actives/B-c004/proofstory.json",
+      ".lattice/story/actives/B-c004/review-passes.json",
+      ".lattice/story/actives/B-c004/review-runs.json",
+      ".lattice/story/actives/B-c004/review.json",
+      ".lattice/story/actives/B-c004/scope-check.json",
+      ".lattice/story/actives/B-c004/scope-contract.json",
+      ".lattice/story/actives/B-c004/slice-plan.json",
+      ".lattice/story/actives/B-c004/test-evidence.json",
+      ".lattice/story/actives/B-c004/understanding.json",
+      "docs/requirements/decisions/authority-server-vocabulary-retirement.md",
+      "docs/requirements/decisions/control-plane-proof-capability-closure-audit.md",
+      "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+      "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+      "packages/main/src/core/lifecycle-control/consumption/index.ts",
+      "packages/main/src/core/lifecycle-control/control-status.ts",
+      "packages/main/src/core/lifecycle-control/dashboard/index.ts",
+      "packages/main/src/core/proof-admissibility.ts",
+      "packages/main/src/tasks/lifecycle-control-smoke.ts",
+      "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts",
+      "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+    ],
+    "summary": " .lattice/story/actives/B-c004/checklist.json       | 609 ++++++++++++++-\n .lattice/story/actives/B-c004/decision.json        |  80 ++\n .lattice/story/actives/B-c004/findings.json        |  27 +\n .lattice/story/actives/B-c004/index.json           |  59 +-\n .../story/actives/B-c004/intent-collision.json     |  14 +\n .../story/actives/B-c004/milestone-ledger.json     | 151 ++++\n .../actives/B-c004/original-intent-snapshot.json   |  19 +\n .lattice/story/actives/B-c004/plan.md              | 136 ++++\n .lattice/story/actives/B-c004/process-events.jsonl |  27 +\n .lattice/story/actives/B-c004/process-metrics.json | 359 +++++++++\n .lattice/story/actives/B-c004/proofstory.json      | 218 ++++++\n .lattice/story/actives/B-c004/review-passes.json   |  67 ++\n .lattice/story/actives/B-c004/review-runs.json     | 832 +++++++++++++++++++++\n .lattice/story/actives/B-c004/review.json          | 154 ++++\n .lattice/story/actives/B-c004/scope-check.json     |  66 ++\n .lattice/story/actives/B-c004/scope-contract.json  |  72 ++\n .lattice/story/actives/B-c004/slice-plan.json      |  35 +\n .lattice/story/actives/B-c004/test-evidence.json   | 455 +++++++++++\n .lattice/story/actives/B-c004/understanding.json   |  40 +\n .../authority-server-vocabulary-retirement.md      |   5 +\n ...control-plane-proof-capability-closure-audit.md |  27 +\n ...lobal-lifecycle-control-plane-execution-plan.md |  10 +-\n ...proof-admissibility-hardening-execution-plan.md |  50 +-\n .../core/lifecycle-control/consumption/index.ts    |   2 +-\n .../src/core/lifecycle-control/control-status.ts   |  11 +-\n .../src/core/lifecycle-control/dashboard/index.ts  |   3 +-\n packages/main/src/core/proof-admissibility.ts      |   4 +-\n packages/main/src/tasks/lifecycle-control-smoke.ts | 104 ++-\n .../tasks/proof-admissibility-hardening-smoke.ts   |  92 ++-\n .../retired-authority-vocabulary-guard-smoke.ts    |  17 +\n 30 files changed, 3674 insertions(+), 71 deletions(-)"
+  },
+  "docsPromises": [
+    {
+      "source": "userSees",
+      "promise": "The final status table shows CHK-001/M1 with a committed seven-row audit and no omitted capability rows."
+    },
+    {
+      "source": "userSees",
+      "promise": "The final status table shows CHK-002/M2 as Authority Server active backlog retired, with guard evidence proving it stays retired."
+    },
+    {
+      "source": "userSees",
+      "promise": "The final status table shows CHK-003/M3 as Tier-C cleanup policy resolved, with valid experiment evidence preserved and spoofed rows still cleanup-required."
+    },
+    {
+      "source": "userSees",
+      "promise": "The final status table shows CHK-004/M4 as append-only admissibility ledger resolved by implementation or explicit non-goal retirement with tests."
+    },
+    {
+      "source": "userSees",
+      "promise": "The final status table shows CHK-005/M5 as queue cleanup enforcement guarded, with Tier-C exceptions preserved."
+    },
+    {
+      "source": "userSees",
+      "promise": "The final status table shows CHK-006/M6 as runtime closure enforcement verified in warn/enforce modes with rollback documented."
+    },
+    {
+      "source": "userSees",
+      "promise": "The final status table shows CHK-007/M7 as CommandSpec and project waterline coverage resolved, with no diagnostic waterline overclaim."
+    }
+  ],
+  "realMachineTests": {
+    "transcriptDiff": false,
+    "testFiles": [
+      "packages/main/src/tasks/lifecycle-control-smoke.ts",
+      "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts",
+      "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+    ],
+    "evidenceCommands": [
+      "node bin/lattice.js intent_coverage_check --storyId=B-c004 --dryRun --mode=warn --json",
+      "node bin/lattice.js proofstory_gate_check --storyId=B-c004 --dryRun --mode=warn --json",
+      "node packages/main/dist/tasks/lifecycle-control-smoke.js",
+      "node packages/main/dist/tasks/proof-admissibility-hardening-smoke.js",
+      "npm --prefix packages/main run build && node packages/main/dist/tasks/lifecycle-control-smoke.js",
+      "npm --prefix packages/main run build && node packages/main/dist/tasks/lifecycle-control-smoke.js && node packages/main/dist/tasks/proof-admissibility-hardening-smoke.js",
+      "npm --prefix packages/main run build && node packages/main/dist/tasks/proof-admissibility-hardening-smoke.js",
+      "npm --prefix packages/main run build && node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+      "rg -n \"Authority Server conformance|Authority production|server-backed production receipt parity\" docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+      "rg -n \"Authority Server|Authority production\" docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+      "rg -n \"Tier-C cleanup\" docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md packages/main/src/core/lifecycle-control/control-status.ts"
+    ]
+  },
+  "validation": {
+    "source": "test-evidence.json",
+    "result": "PASS",
+    "timestamp": "2026-06-30T15:43:48.857Z",
+    "headHash": "540da2832b57b03e8f8e25696b7f87153110e276",
+    "materialHash": "2fa51c4143e666f4591f42f748ef6a0f534f3086276ca69a74e10b844585080f",
+    "storyFilesHash": "2132324a9e9ac698371b973669b567db96fdc83ecde35c6e531a5a83543c5f6e"
+  },
+  "reviewRound": "2026-06-30T15:34:30.850Z",
+  "deliveryCheck": {
+    "status": "missing",
+    "ref": null
+  },
+  "waiver": {
+    "status": "none"
+  },
+  "isSigner": false,
+  "claims": {
+    "authorityDone": false,
+    "fullAuthorityDone": false,
+    "productionDone": false
+  }
+}

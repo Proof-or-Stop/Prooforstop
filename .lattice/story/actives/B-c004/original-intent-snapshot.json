@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-c004",
+  "sourceText": "The user asked Codex to start execution now and continue until all seven remaining capabilities are fully executed, completed, and DONE. The seven rows must first be verified for need or existing coverage, red/diagnostic tests should be written before changes, and Authority Server capability must stay removed/retired.",
+  "normalizedOutcome": "All seven remaining capability rows are mechanically resolved: each row is implemented with tests and evidence, already-covered with proof, or explicitly retired as a non-goal; B-c004 reaches DONE with validation and intent-equivalence evidence.",
+  "acceptanceClaim": "B-c004 can present a seven-row completion table where every row has a concrete evidence reference, no row is silently partial, Authority Server backlog is retired/legacy-only, and Lattice validation/DONE gates pass.",
+  "keyRequirementIds": [
+    "REQ-001",
+    "REQ-002",
+    "REQ-003",
+    "REQ-004",
+    "REQ-005",
+    "REQ-006",
+    "REQ-007"
+  ],
+  "requestHash": "sha256:4b5fb89a6900d24a5b038e235e8eb2df09e2d2500f020d9a1192c6d1399a5ca6",
+  "createdAt": "2026-06-30T15:00:59.812Z",
+  "updatedAt": "2026-06-30T15:00:59.812Z"
+}

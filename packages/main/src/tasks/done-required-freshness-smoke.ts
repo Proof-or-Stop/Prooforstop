@@ -8,6 +8,7 @@ import { join } from 'node:path';
 import {
   DONE_REQUIRED_EVIDENCE_SCHEMA,
   DONE_REQUIRED_EVIDENCE_VERSION,
+  buildDoneRequiredCommandSpecEnvelope,
   evaluateDoneRequiredEvidence,
   resolveDoneRequiredPolicy,
 } from '../core/done-required-validation.js';
@@ -101,13 +102,21 @@ function hashes(root: string): { headHash: string; materialHash: string; storyFi
 
 function writeDoneEvidence(root: string, store: StoryStore): DoneRequiredEvidenceData {
   const policy = resolveDoneRequiredPolicy(root);
+  const [requiredCommand] = policy.commands;
+  assert.ok(requiredCommand, 'freshness smoke requires one DONE-required command');
   const h = hashes(root);
   const now = new Date().toISOString();
-  const receipt: DoneRequiredCommandReceipt = {
-    label: 'required pass',
+  const executedCommand = {
     command: 'node',
     args: ['-e', 'process.exit(0)'],
     cwd: root,
+  };
+  const receipt: DoneRequiredCommandReceipt = {
+    label: requiredCommand.label,
+    command: executedCommand.command,
+    args: executedCommand.args,
+    commandSpec: buildDoneRequiredCommandSpecEnvelope(root, requiredCommand, executedCommand),
+    cwd: executedCommand.cwd,
     status: 'PASS',
     exitCode: 0,
     durationMs: 1,

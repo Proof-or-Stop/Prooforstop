@@ -1,0 +1,193 @@
+{
+  "passes": [
+    {
+      "id": "B-c004:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept review pass: confirmed ledger M1-M7 map one-to-one to CHK-001..CHK-007; M4 append-only ledger and Authority Server/runtime conformance are explicit retired/non-goals; M7 is bounded to DONE_REQUIRED CommandSpec missing-vs-mismatch plus diagnostic project waterline no-data handling, not global adoption. Verified with story/checklist/ProofStory reads, code/doc diffs, build, lifecycle/proof/retired-authority smokes.",
+      "createdAt": "2026-06-30T15:29:03.410Z",
+      "reviewRound": "2026-06-30T15:26:25.801Z",
+      "reviewRunId": "B-c004:RR-001",
+      "_hash": "857cfd2376eef7c95ca766667cb760ed4d52f3a018b70563cae435942eb7c613"
+    },
+    {
+      "id": "B-c004:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "Reviewed CHK-001..CHK-007 verificationIntent to verificationEvidence coverage, inspected changed smoke assertions and material diffs, ran build plus lifecycle-control/proof-admissibility/retired-authority smokes; no blocking test-coverage gaps found.",
+      "createdAt": "2026-06-30T15:29:47.818Z",
+      "reviewRound": "2026-06-30T15:26:25.801Z",
+      "reviewRunId": "B-c004:RR-003",
+      "_hash": "8c2d086c433f7f5ef53d179976b1319519535f22a02cf33106b0092a444d56a5"
+    },
+    {
+      "id": "B-c004:RP-003",
+      "agent": "lattice-review-docs",
+      "note": "Docs review found no blockers: changed decision docs are English/open-source friendly, Authority Server active backlog wording is retired while legacy compatibility remains bounded, capability audit rows do not overclaim partial/unavailable/future state, and focused retired-vocabulary/lifecycle/proof smokes pass.",
+      "createdAt": "2026-06-30T15:30:01.635Z",
+      "reviewRound": "2026-06-30T15:26:25.801Z",
+      "reviewRunId": "B-c004:RR-006",
+      "_hash": "8e311f0fe1c21e3c1654defdec5446d1d6fbdfdcca4a7207e7e526e0db9c9a93"
+    },
+    {
+      "id": "B-c004:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Concept re-review pass: F-001 path-resolution fix is narrow and verified in repo-root and packages/main cwd modes; closure audit still binds exactly M1-M7, no M8 expansion; retired/non-goal rows for append-only ledger, Tier-C automated cleanup, and authority/server-backed production semantics remain explicit; no intent shrinkage found.",
+      "createdAt": "2026-06-30T15:37:29.403Z",
+      "reviewRound": "2026-06-30T15:34:30.850Z",
+      "reviewRunId": "B-c004:RR-009",
+      "_hash": "4e75354f920905e169f9a257c59f5e37b3dc9ad45b16590b5e585e70f44f7ce3"
+    },
+    {
+      "id": "B-c004:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Re-reviewed resolved B-c004:F-001 and final quality scope. Build passed; proof hardening npm script passed; lifecycle and proof smokes pass from repo root and packages/main cwd. No remaining blocker found.",
+      "createdAt": "2026-06-30T15:37:47.340Z",
+      "reviewRound": "2026-06-30T15:34:30.850Z",
+      "reviewRunId": "B-c004:RR-010",
+      "_hash": "e17ec2760fe40a7b4caa9082a6be234b773333f2d5b8d35ee41e7a91842f6370"
+    },
+    {
+      "id": "B-c004:RP-006",
+      "agent": "lattice-review-docs",
+      "note": "Docs re-review passed at HEAD aefe28a. Reviewed authority-server-vocabulary-retirement.md, control-plane-proof-capability-closure-audit.md, global-lifecycle-control-plane-execution-plan.md, and proof-admissibility-hardening-execution-plan. Confirmed English-only reviewed docs, retired/non-goal wording remains explicit, Authority Server active backlog wording is not returned, and closure audit table covers exactly M1-M7 once. Targeted current-source smokes passed: npx tsx packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts; npx tsx packages/main/src/tasks/lifecycle-control-smoke.ts; npx tsx packages/main/src/tasks/proof-admissibility-hardening-smoke.ts.",
+      "createdAt": "2026-06-30T15:37:51.448Z",
+      "reviewRound": "2026-06-30T15:34:30.850Z",
+      "reviewRunId": "B-c004:RR-012",
+      "_hash": "9a58dbadf997d0ae33cf0e3d2dcb40b7c366950ba63b375d58413ede116db210"
+    },
+    {
+      "id": "B-c004:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "Re-reviewed B-c004 coverage after F-001 fix at HEAD aefe28a54. Checklist coverage is 7/7 done with each CHK-001..CHK-007 carrying happy/edge/adversarial must intents and three passing evidence entries. F-001 is resolved with strong evidence; package-cwd smokes pass via cd packages/main && node dist/tasks/lifecycle-control-smoke.js, node dist/tasks/proof-admissibility-hardening-smoke.js, and npm run test:lifecycle-check-smoke && npm run test:proof-admissibility-hardening. ProofStory/intent dry-run gates pass with no blocking gaps; validate --lint without story passes. Story-scoped validate --lint was owner-gated in this non-owner session, so I did not force takeover. No new test-coverage blocker found.",
+      "createdAt": "2026-06-30T15:38:18.318Z",
+      "reviewRound": "2026-06-30T15:34:30.850Z",
+      "reviewRunId": "B-c004:RR-011",
+      "_hash": "f94a91283fc8229068e5ac3bc1d580c0087a750d6f550939b4cb358e7cb3c9f9"
+    },
+    {
+      "id": "B-c004:RP-008",
+      "agent": "lattice-review-quality",
+      "note": "Round 3 targeted quality re-review passed: git diff vs main inspected, scope_contract_check has only acknowledged warnings, delivery context/check evidence is present, and post-prior-review deltas are story metadata/scope acknowledgement only with no material implementation changes.",
+      "createdAt": "2026-06-30T16:03:13.418Z",
+      "reviewRound": "2026-06-30T16:01:30.955Z",
+      "reviewRunId": "B-c004:RR-013",
+      "_hash": "95c13128f6534cbede4f632b80a1161c5662d6c2b1ec4e9dc8c9d30c9bb98bcb"
+    },
+    {
+      "id": "B-c004:RP-009",
+      "agent": "lattice-review-concept",
+      "note": "PASS concept review: DONE_REQUIRED CommandSpec envelope is generated from the executed policy command, revalidated against command/args/cwd/shell/env/timeout plus digest, and feeds proof admissibility as missing vs mismatch semantics. Missing/mismatched CommandSpec blocks high-risk DONE_REQUIRED enforce mode; generated evidence remains admissible. Retired Authority Server vocabulary remains quarantined by guard and no active Authority Server runtime/path is reintroduced.",
+      "createdAt": "2026-06-30T16:24:37.472Z",
+      "reviewRound": "2026-06-30T16:21:42.765Z",
+      "reviewRunId": "B-c004:RR-014",
+      "_hash": "e33c879f4a0f477759cc13530cac8c60534b7838f96fbad64c7bace9c23e1d96"
+    },
+    {
+      "id": "B-c004:RP-010",
+      "agent": "lattice-review-docs",
+      "note": "Docs review pass: closure audit M7 claim matches implemented CommandSpec missing-vs-mismatch diagnostics and project no-data waterline unknown rollup; retired Authority Server vocabulary remains confined to the retirement contract/positive controls or non-active legacy context. Focused build and smokes passed.",
+      "createdAt": "2026-06-30T16:24:49.811Z",
+      "reviewRound": "2026-06-30T16:21:42.765Z",
+      "reviewRunId": "B-c004:RR-017",
+      "_hash": "325449e637f2a862272bd819ede398b5a853f88a889cbbd489a1d4b8c5a31916"
+    },
+    {
+      "id": "B-c004:RP-011",
+      "agent": "lattice-review-quality",
+      "note": "PASS quality review: CommandSpec envelope is typed, digest-bound, consumed by DONE_REQUIRED evaluation, and covered by targeted smokes. Current done-required evidence is stale for material/storyFilesHash and cannot satisfy DONE as-is; a fresh generated artifact can satisfy the local DONE-required pre-check without production/full-authority overclaiming.",
+      "createdAt": "2026-06-30T16:25:04.503Z",
+      "reviewRound": "2026-06-30T16:21:42.765Z",
+      "reviewRunId": "B-c004:RR-019",
+      "_hash": "843423a5a2199ac03795b7bf3a0f0d9757cba794312b3426f9b3646ff15c1488"
+    },
+    {
+      "id": "B-c004:RP-012",
+      "agent": "lattice-review-test-coverage",
+      "note": "Targeted re-review for resolved B-c004:F-002: packages/main/src/tasks/done-required-freshness-smoke.ts now writes receipt.commandSpec via buildDoneRequiredCommandSpecEnvelope, which emits lattice.command-spec.v1 plus digest over command/args/cwd/shell/env/timeoutMs. Requested commands passed: npm --prefix packages/main run build; npm --prefix packages/main run test:done-required-freshness-smoke; npm --prefix packages/main run test:done-required-validation-smoke; npm --prefix packages/main run test:proof-admissibility-hardening. No blocking test-coverage finding remains for F-002.",
+      "createdAt": "2026-06-30T16:59:13.861Z",
+      "reviewRound": "2026-06-30T16:57:08.829Z",
+      "reviewRunId": "B-c004:RR-020",
+      "_hash": "f308704d26ecccb8ce0c6349f0c53b0448e9a0f8e00d436bad5fe071b2612e5c"
+    },
+    {
+      "id": "B-c004:RP-013",
+      "agent": "lattice-review-concept",
+      "note": "Concept review PASS after F-002 fix. Reviewed diff vs main for B-c004 M1-M7 closure: closure audit freezes seven rows; Authority Server active-future backlog is retired; Tier-C and queue cleanup are bounded as preservation/visibility rather than deletion; append-only admissibility ledger is explicitly retired as local CLI non-goal while diagnostic waterline stays non-authoritative; runtime enforce rollout is config-bounded with rollback to warn; DONE_REQUIRED CommandSpec envelopes now bind generated receipts and F-002 freshness smoke synthetic receipts; project waterline no-data rolls up unknown, not green. Summary de-overclaims review assurance by deferring to Lattice artifacts. Fresh validation/test evidence and delivery context/check are present. No conceptual blocker found; DONE assurance floor remains a separate gate concern, not a concept finding.",
+      "createdAt": "2026-06-30T17:25:55.445Z",
+      "reviewRound": "2026-06-30T17:23:09.482Z",
+      "reviewRunId": "B-c004:RR-023",
+      "_hash": "6592519d7a62c44e8fe87263f5b5cdb4bdd65b0a04cc0ca267e5ec7cf202a811"
+    },
+    {
+      "id": "B-c004:RP-014",
+      "agent": "lattice-review-quality",
+      "note": "PASS after resolving stale summary overclaim: reviewed current diff vs main for code quality, proof-admissibility and DONE_REQUIRED CommandSpec correctness, and summary de-overclaim. Build and focused smokes passed: npm --prefix packages/main run build; npm --prefix packages/main run test:done-required-validation-smoke; npm --prefix packages/main run test:done-required-freshness-smoke; npm --prefix packages/main run test:proof-admissibility-hardening; node packages/main/dist/tasks/lifecycle-control-smoke.js; node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js. Read-only lifecycle checks now show validation, DONE_REQUIRED, delivery-check, story-summary, and user-value-summary pass; review-assurance-floor remains a separate DONE-readiness requirement, not a summary overclaim.",
+      "createdAt": "2026-06-30T17:28:00.757Z",
+      "reviewRound": "2026-06-30T17:23:09.482Z",
+      "reviewRunId": "B-c004:RR-027",
+      "_hash": "37d6818b4d208f1c7344a5a6c21ebda85e1f55a5e4f9fb53ce4a75d2c0cfdd94"
+    },
+    {
+      "id": "B-c004:RP-015",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: coverage review after F-002 fix found no blocker. Verified DONE_REQUIRED CommandSpec generation and tamper/missing handling via done-required-validation-smoke; freshness via done-required-freshness-smoke, done-required-head-drift-proof, and fresh lattice validate; Authority Server regression guard via retired-authority-vocabulary-guard-smoke and validate command[1]; delivery_check_freshness smoke covers F-002 waiver re-sign and storyFilesHash freshness; delivery_context_pack confirms delivery-check present for seven docs promises; summary_get avoids hard-coded review-assurance overclaim.",
+      "createdAt": "2026-06-30T17:30:02.446Z",
+      "reviewRound": "2026-06-30T17:23:09.482Z",
+      "reviewRunId": "B-c004:RR-022",
+      "_hash": "806494460c408b8aa110803634af8da67de66f74ae169711f627dae33e6fa630"
+    },
+    {
+      "id": "B-c004:RP-016",
+      "agent": "lattice-review-docs",
+      "note": "Targeted re-review after 78cf7d560: no docs blocker. The proof admissibility plan no longer actively requires storing ledger streams under .lattice/evidence, REVIEW inspecting concrete ledger rows, or counts derived from ledger rows as current local CLI obligations. The remaining ledger-row language is retired Appendix C / future-integration or broader reference context; closure audit and summary both state append-only ledger storage is retired/non-goal. Verified with npm --prefix packages/main run test:proof-admissibility-hardening.",
+      "createdAt": "2026-06-30T17:40:25.276Z",
+      "reviewRound": "2026-06-30T17:38:48.220Z",
+      "reviewRunId": "B-c004:RR-031",
+      "_hash": "c490564123583dfc3b500de8b7b5c55ac1f50ee46e8f055cb416bab8b66d0550"
+    },
+    {
+      "id": "B-c004:RP-017",
+      "agent": "lattice-review-quality",
+      "note": "Final quality re-review after ac66dd3a and F-005/F-006/F-007 resolution found no blocker. Reviewed ac66dd3a patch and metadata-only follow-up commits; npm --prefix packages/main run build, npm --prefix packages/main run test:proof-admissibility-hardening, and npm --prefix packages/main run test:proof-admissibility all passed.",
+      "createdAt": "2026-06-30T17:47:48.570Z",
+      "reviewRound": "2026-06-30T17:45:48.241Z",
+      "reviewRunId": "B-c004:RR-032",
+      "_hash": "fed40dd761398a7ad301f9f1390c7c128a530762470915e83f306ecfd752c8a0"
+    },
+    {
+      "id": "B-c004:RP-018",
+      "agent": "lattice-review-concept",
+      "note": "Concept re-review after ac66dd3a: no blocker. Resolved F-005/F-006/F-007 are coherent: active docs retire local CLI durable admissibility ledger storage as a non-goal, Appendix G now uses artifact-specific verifier output plus diagnostic waterline instead of ledger writes, and DONE_REQUIRED CommandSpec semantics remain fail-closed for missing/mismatched command specs. Verified with npm --prefix packages/main run build; npm --prefix packages/main run test:proof-admissibility-hardening; npm --prefix packages/main run test:proof-admissibility; npm --prefix packages/main run test:done-required-validation-smoke.",
+      "createdAt": "2026-06-30T17:48:08.342Z",
+      "reviewRound": "2026-06-30T17:45:48.241Z",
+      "reviewRunId": "B-c004:RR-035",
+      "_hash": "24fc0d8300d295a42cd40b83de364b993f855e910febae46cee7579944dfa0e2"
+    },
+    {
+      "id": "B-c004:RP-019",
+      "agent": "lattice-review-test-coverage",
+      "note": "Final re-review after ac66dd3a and resolved F-005/F-006/F-007: verified active ledger-obligation guard in proof-admissibility-hardening smoke, DONE_REQUIRED generated CommandSpec positive fixture in done-required-validation smoke, and passing build/proof-admissibility smokes. No test-coverage blocker found.",
+      "createdAt": "2026-06-30T17:48:12.914Z",
+      "reviewRound": "2026-06-30T17:45:48.241Z",
+      "reviewRunId": "B-c004:RR-034",
+      "_hash": "3a10d051dee72ef50eba8b6dfa57455ed4acca5bdd0a6b984ea48496e67b6615"
+    },
+    {
+      "id": "B-c004:RP-020",
+      "agent": "lattice-review-docs",
+      "note": "PASS final docs re-review after ac66dd3a and resolved F-005/F-006/F-007. Verified proof-admissibility-hardening plan no longer carries an active local CLI evidence-ledger write-path obligation: Appendix G now uses artifact-specific verifier output; ArtifactObservedEvent, AdmissibilityEvaluationRow, concrete ledger rows, ledger-row-derived counts, and ledger streams remain only in retired Appendix C / future-integration reference context or explicitly retired/non-goal prose. Summary is consistent with live readiness: it does not claim review-assurance/DONE completion and defers final DONE readiness to current Lattice gates. Fresh verification commands passed: npm --prefix packages/main run build; npm --prefix packages/main run test:proof-admissibility-hardening; npm --prefix packages/main run test:proof-admissibility.",
+      "createdAt": "2026-06-30T17:48:25.619Z",
+      "reviewRound": "2026-06-30T17:45:48.241Z",
+      "reviewRunId": "B-c004:RR-033",
+      "_hash": "b24b0960d5c0272417769de4cfdbae5d04fb9cf7b0a6017bf0907d35530d53fe"
+    },
+    {
+      "id": "B-c004:RP-021",
+      "agent": "lattice-review-quality",
+      "note": "Round 9 metadata-only quality re-review PASS: inspected parent-ledger-rollup.json and the new scope-contract acknowledgement. The acknowledgement covers only .lattice/story/actives/B-c004/parent-ledger-rollup.json as story-scoped DONE intent equivalence / parent ledger rollup evidence for M1-M7, and git diff b9f5f71ed..HEAD outside .lattice/story/actives/B-c004/** is empty, so no implementation behavior changed.",
+      "createdAt": "2026-06-30T18:06:31.971Z",
+      "reviewRound": "2026-06-30T18:04:16.539Z",
+      "reviewRunId": "B-c004:RR-036",
+      "_hash": "4e6c24b58ab5bd2ed29f5622c6b4f17e215e420d1598839e605da96b714f4d6b"
+    }
+  ]
+}

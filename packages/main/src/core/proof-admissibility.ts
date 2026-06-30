@@ -699,7 +699,9 @@ export function evaluateProofAdmissibility(input: EvaluateProofAdmissibilityInpu
   if (checks.gatePhaseMatches === false) {
     addReason(reasons, remediation, 'gate_phase_mismatch', 'Evaluate only proof bound to the requested lifecycle gate phase.');
   }
-  if (checks.commandSpecDigestValid === false) {
+  if (input.consumer === 'DONE_REQUIRED' && checks.commandSpecDigestValid == null) {
+    addReason(reasons, remediation, 'command_spec_missing', 'Attach the structured CommandSpec envelope before command-backed DONE_REQUIRED evidence can be admissible.');
+  } else if (checks.commandSpecDigestValid === false) {
     addReason(reasons, remediation, 'command_spec_digest_mismatch', 'Regenerate proof from the exact command specification consumed by this policy.');
   }
   if (checks.redGreenCommandsMatch === false) {

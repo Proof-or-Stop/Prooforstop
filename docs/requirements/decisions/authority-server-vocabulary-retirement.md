@@ -95,3 +95,8 @@ The guard must prove all of the following:
   assurance vocabulary;
 - whitelisted legacy files are explicit and narrow.
 
+For B-c004, the guard also scans the control-plane and proof-admissibility
+execution plans for retired active-future backlog phrases. Those plans may
+describe external adapter boundaries, but they must not ask future work to
+rebuild server-backed authority runtime, conformance, or production receipt
+parity.

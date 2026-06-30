@@ -11,7 +11,7 @@
 > **Current vocabulary:** Active Proofbound CLI/runtime proof language is
 > `admissibilityStatus`, `assuranceLevel`, `evidenceScope`, gate-consumed local
 > evidence, local signed/offline receipt bundles, and local review quorum
-> assurance. Authority Server and server-backed receipt semantics are retired
+> assurance. Server-backed authority runtime and receipt semantics are retired
 > from the active core path; older sections that mention them are legacy context
 > only and are superseded by local proof admissibility.
 
@@ -28,7 +28,7 @@ gates or create storage outside `.lattice/evidence/`.
 This table freezes the current capability audit for the proof-admissibility
 slice. It is the status contract for this document: implemented means present in
 source and covered by a focused smoke or registry check; partial means the local
-CLI side exists but broader ledger, cross-runtime, or Authority production
+CLI side exists but broader ledger, cross-runtime, or external production
 semantics are not complete; future means intentionally outside the local CLI
 core; missing means described by the plan but not currently implemented.
 
@@ -45,8 +45,8 @@ core; missing means described by the plan but not currently implemented.
 | Authority-facing proof consumer | Partial | `authority-receipt-ref` / `AUTHORITY_GATE_DECISION` registry entries; hardening smoke | A matching Authority-facing gate decision can be admissible evidence input with `productionDoneEligible=false`; external Authority adapter production projection is future work. Plain receipts and legacy refs cannot replace the gate decision. |
 | Legacy classification | Implemented for read-time local CLI diagnostics | `packages/main/src/core/proof-admissibility-legacy.ts`; hardening smoke | Legacy evidence is audit-readable only and cannot satisfy new strong proof gates. |
 | Admissibility waterline | Implemented as read-only diagnostic projection | `packages/main/src/core/lifecycle-control/consumption/index.ts`; `lattice admissibility_waterline --storyId=<id> --format=json` | Waterline counts and statuses cannot satisfy DONE, cannot mutate evidence, and cannot set `productionDone`. |
-| Append-only admissibility ledger under `.lattice/evidence/` | Missing / future | Appendix C schema only | Current local CLI implementation evaluates directly and renders a diagnostic waterline; durable ledger rows remain a future integration. |
-| Cross-runtime / Authority Server conformance suite | Future | Appendix A C12; Appendix B Authority rows | Local CLI smokes cover the current contract. Server-backed production receipt parity is outside this slice. |
+| Append-only admissibility ledger under `.lattice/evidence/` | Retired/non-goal for the local CLI | Appendix C reference schema only; `proof-admissibility-hardening-smoke.ts` ledger-retirement assertion | Current local CLI implementation evaluates directly and renders a diagnostic waterline; it does not claim durable ledger rows or expose a ledger writer. |
+| Cross-runtime conformance suite | Retired/non-goal for the local CLI | Appendix A C12; Appendix B compatibility rows | Local CLI smokes cover the current contract. Server-backed runtime parity is not an active backlog row in this plan. |
 | 3 rounds x 2 host review evidence for rollout stories | Process requirement, not code capability | REVIEW / DONE evidence lanes for the story | This document records the requirement; lifecycle reviewers must supply the actual evidence over final material. |
 
 ## Table of Contents
@@ -126,7 +126,7 @@ Non-goals:
 - proving that a host intended to deceive;
 - deleting external Authority adapters or historical receipt readers;
 - making checker failures silently pass a proof gate;
-- turning local diagnostics into Authority production evidence.
+- turning local diagnostics into external production evidence.
 
 Checker-failure rule:
 
@@ -142,7 +142,9 @@ Implementation boundary:
 - Use the shared `EvidenceRuntime` facade.
 - Register proof surfaces through `ProofSurfaceDefinition`.
 - Evaluate gate claims through `ProofClaimPolicy`.
-- Store artifacts and ledger streams under `.lattice/evidence/`.
+- Store artifact-specific verifier output under the runtime evidence paths used
+  by each artifact type; durable ledger streams are retired local CLI non-goals
+  and remain only Appendix C / future-integration reference material.
 - Keep existing strong verifiers, but connect them through adapters instead of
   rewriting them in the first migration slice.
 
@@ -153,7 +155,7 @@ Proof Admissibility owns proof decision logic:
 - scope / claim / consumer policy;
 - producer boundary and temporal/material binding decisions;
 - verifier adapter resolution;
-- `AdmissibilityEvaluationRow`;
+- artifact-specific admissibility evaluation results;
 - `AdmissibilityWaterline`;
 - proof-consumption enforcement in M7.
 
@@ -223,8 +225,8 @@ are separate dimensions and must be evaluated together.
 An authority receipt is evidence. It is not a production claim by itself. The
 local CLI core must not turn any receipt ref into `productionDone = true`.
 The local CLI proof vocabulary is `admissibilityStatus`, `assuranceLevel`, and
-`evidenceScope`; Authority production receipts are external adapter/future
-compatibility evidence, not local core completion claims.
+`evidenceScope`; external production receipts are adapter compatibility
+evidence, not local core completion claims.
 External Authority adapters may project production completion only when their
 own matching gate policy verifies the decision and records that projection
 outside the local proof-admissibility core.
@@ -365,7 +367,7 @@ B-0985 status: complete for M1 classification. The shared module is
 `packages/main/src/core/evidence/admissibility/*` (compat entrypoint in
 `packages/main/src/core/proof-admissibility.ts`); the focused smoke command is
 `npm --prefix packages/main run test:proof-admissibility`. Gate enforcement and
-Authority Server integration remain non-goals for this story.
+server-backed authority integration remain non-goals for this story.
 
 ### M2 - Reserved Proof-Key And Server-Owned Metadata Contract
 
@@ -620,7 +622,7 @@ local/diagnostic handoff proof refs, handoff command-level policy propagation,
 legacy downgrade behavior, checker-error warning-only recovery, and enforce-mode
 blocking for inadmissible configured high-risk consumers. This remains local CLI
 enforcement: it does not implement append-only ledger storage or external
-Authority production completion.
+production completion.
 
 B-91f3 clarification: the local CLI core keeps `productionDoneEligible=false`
 for Authority receipt refs. External Authority adapters may still verify and
@@ -762,7 +764,7 @@ This program is complete when:
 ## 12. Non-Goals
 
 - Do not delete historical evidence.
-- Do not make ordinary local development require the Authority Server.
+- Do not make ordinary local development require a server-backed authority runtime.
 - Do not turn local-key receipt bundles into Authority receipts.
 - Do not infer host intent from spoofable proof surfaces.
 - Do not silently promote handoff output to DONE or `productionDone`.
@@ -773,27 +775,27 @@ Review date: 2026-06-23.
 
 Post-B-0405 note: the rows below are no longer the pre-implementation gap list.
 They describe the CLI hardening delivered by B-0405 and the remaining future
-work that is intentionally outside this story, especially Authority Server
-production receipt conformance and broader contract unification.
+work that is intentionally outside this story, especially retired
+server-backed receipt conformance and broader contract unification.
 
 ### A.1 Contract clauses
 
 | Clause | Contract requirement | B-0405 CLI status | Implemented examples | Remaining future work |
 |---|---|---|---|---|
-| C1: Single scope classifier | Every proof-looking artifact must classify into exactly one canonical `EvidenceScope` defined in Appendix E before any consumer interprets it | Implemented for CLI proof-surface classification and gate diagnostics | `proof-admissibility.ts` defines registered surfaces and claim policies; `authority-boundary.ts`, `lattice-handoff.ts`, and process fact registry outputs map local/shadow/diagnostic/receipt-backed scopes without allowing `productionDone` overclaim | Continue converging older per-surface wording and future Authority Server integrations onto the same enum/reason-code vocabulary |
-| C2: Producer ownership | Proof fields must be produced by the owning authority, not by caller-writable metadata | Implemented for B-0405 CLI metadata surfaces | `proof-admissibility-metadata.ts` reserves proof keys and sanitizes runner registration, job spec, and provider event metadata while preserving ordinary caller metadata | Authority Server production-owned metadata remains a sibling/server concern, not completed by this story |
+| C1: Single scope classifier | Every proof-looking artifact must classify into exactly one canonical `EvidenceScope` defined in Appendix E before any consumer interprets it | Implemented for CLI proof-surface classification and gate diagnostics | `proof-admissibility.ts` defines registered surfaces and claim policies; `authority-boundary.ts`, `lattice-handoff.ts`, and process fact registry outputs map local/shadow/diagnostic/receipt-backed scopes without allowing `productionDone` overclaim | Continue converging older per-surface wording and future external-adapter integrations onto the same enum/reason-code vocabulary |
+| C2: Producer ownership | Proof fields must be produced by the owning authority, not by caller-writable metadata | Implemented for B-0405 CLI metadata surfaces | `proof-admissibility-metadata.ts` reserves proof keys and sanitizes runner registration, job spec, and provider event metadata while preserving ordinary caller metadata | External production-owned metadata remains an adapter concern, not completed by this story |
 | C3: Supported schema version | Strong proof artifacts must carry an accepted schema/version and reject unsupported versions | Implemented for the CLI hardening slice and preserved on existing strong verifiers | `done-required-validation.ts`, `receipt-bundle.ts`, `authority-gate-receipt-verifier.ts`, and handoff receipts keep explicit schema/version checks; legacy read paths downgrade old shapes instead of promoting them | Keep future schema additions registered in the shared contract before gate consumption |
-| C4: Strict shape before trust | Strong proof verification must reject null, wrong type, missing field, and unexpected proof keys before interpreting signed fields | Implemented for strong CLI proof paths covered by B-0405 | `proof-admissibility-binding.ts` and the hardening smoke cover null, extra key, removed required field, wrong type, and signature-like tamper cases; diagnostic/passthrough output remains explicitly diagnostic | Continue marking intentionally passthrough diagnostics as non-strong proof; do not treat this as Authority Server production receipt coverage |
+| C4: Strict shape before trust | Strong proof verification must reject null, wrong type, missing field, and unexpected proof keys before interpreting signed fields | Implemented for strong CLI proof paths covered by B-0405 | `proof-admissibility-binding.ts` and the hardening smoke cover null, extra key, removed required field, wrong type, and signature-like tamper cases; diagnostic/passthrough output remains explicitly diagnostic | Continue marking intentionally passthrough diagnostics as non-strong proof; do not treat this as external production receipt coverage |
 | C5: Semantic digest coverage | Every gate-consumed semantic field must be included in the digest/signature subject | Implemented for B-0405 CLI semantic binding coverage | Versioned binding helpers cover reason, verdict, story/head/material, consumer, and signature-like subjects in the adversarial smoke matrix | Extend the same pattern when new gate-consumed semantic fields or server-side receipt subjects are introduced |
 | C6: Signature / receipt binding | A signature or receipt must bind to the actual subject, trusted key, story, and gate context | Implemented for existing CLI key paths and registered diagnostics | `authority-receipt-classification.ts`, `authority-gate-receipt-verifier.ts`, `review-run.ts`, and `receipt-bundle.ts` keep subject/key/story/gate checks; B-0405 routes diagnostics through the shared claim policy layer | Future signed/receipt-like artifacts must be registered before they are consumed as proof |
-| C7: Temporal and material binding | Proof must declare whether it is historical-baseline, current-state, or transition-relation, and validate the correct hash/material rule for that role | Implemented for current-state CLI gates and the B-0405 adversarial stale/transition checks | `review-run.ts`, `done-required-validation.ts`, and proof-admissibility tests cover head/material/story freshness plus red/green relation and command mismatch diagnostics | Broader historical migration and Authority Server receipt timelines remain future integration work |
+| C7: Temporal and material binding | Proof must declare whether it is historical-baseline, current-state, or transition-relation, and validate the correct hash/material rule for that role | Implemented for current-state CLI gates and the B-0405 adversarial stale/transition checks | `review-run.ts`, `done-required-validation.ts`, and proof-admissibility tests cover head/material/story freshness plus red/green relation and command mismatch diagnostics | Broader historical migration and external receipt timelines remain future integration work |
 | C8: Artifact consumer matching | Proof must be consumed only by the consumer it was produced for, including non-gate consumers such as story intake | Implemented for B-0405 gate-facing CLI diagnostics and high-risk enforce consumers | Claim policies and process fact registry entries bind target consumers/lanes/phases; hardening smoke covers wrong story and wrong target phase | Keep new consumers registered in `ProofClaimPolicy` and the process-fact contract before use |
 | C9: Non-authority cannot overclaim | Local/shadow/diagnostic/worker output must not set `receiptVerified`, `authorityDone`, `fullAuthorityDone`, or `productionDone` | Implemented and unchanged by B-0405 | `authority-boundary.ts`, `lattice-handoff.ts`, `usage-ledger/authority-evidence.ts`, `process-fact-levels.ts`, and docs preserve local/diagnostic boundaries and keep `productionDone=false` without a matching verified gate receipt | Keep this boundary for all future handoff, local quorum, and Authority-adjacent output |
 | C10: Legacy scope | Historical evidence missing the current contract must remain readable but not strong-admissible | Implemented as read-time CLI dry-run diagnostics | `proof-admissibility-legacy.ts` classifies `legacy-observed`, `legacy-local-only`, and `legacy-unknown-producer`; legacy artifacts remain readable and are not promoted to strong proof | Add repair commands only where upgrade is mechanically provable; leave non-upgradable history audit-only |
 | C11: Stable reason codes | Rejections must have machine-readable reason codes and remediation hints | Implemented for B-0405 diagnostics and adversarial assertions | `proof-admissibility.ts` / `proof-admissibility-gates.ts` emit scope, reason, remediation, and blocking/advisory state; tests assert specific reason codes for tamper and policy failures | Continue reducing older free-text reasons when touching legacy surfaces |
-| C12: Cross-runtime vectors | CLI and Authority Server must run the same tamper/shape/stale/semantic fixtures | Implemented for CLI regression vectors only | `proof-admissibility-smoke.ts` and `proof-admissibility-hardening-smoke.ts` exercise the CLI matrix, including reserved keys, stale hashes, semantic tamper, handoff overclaim, and enforce blocking | Authority Server conformance/shared fixture execution is explicitly future work and does not imply `productionDone` |
+| C12: Cross-runtime vectors | CLI and any external adapter should share tamper/shape/stale/semantic fixtures before that adapter claims production completion | Implemented for CLI regression vectors only | `proof-admissibility-smoke.ts` and `proof-admissibility-hardening-smoke.ts` exercise the CLI matrix, including reserved keys, stale hashes, semantic tamper, handoff overclaim, and enforce blocking | External conformance/shared fixture execution is retired from this local CLI plan and does not imply `productionDone` |
 | C13: Handoff artifact class split | Handoff must distinguish context, evidence candidate, diagnostic receipt, and admissible proof ref | Implemented for CLI handoff projections | `lattice-handoff.ts` summaries separate `context`, `evidenceCandidate`, `diagnosticReceipt`, and `admissibleProofRef`, with receipt/authority/production booleans held false unless a matching gate consumes verified proof | Keep future host surfaces rendering these classes before any completion claim |
-| C14: Privacy-safe reproducible command envelope | Command-backed evidence must record structured command specs, bootstrap/environment digests, and bounded redacted output without leaking raw prompts/secrets | Implemented for B-0405 CLI proof-admissibility command diagnostics and existing usage-ledger privacy surfaces | `usage-ledger/authority-evidence.ts` remains fail-safe and privacy preserving; hardening diagnostics cover command-spec digest, bootstrap noise, redacted output, and red/green command mismatch classes | Broaden shared command-envelope adoption as additional repro, DONE-required, review, and Authority-bound receipts are migrated |
+| C14: Privacy-safe reproducible command envelope | Command-backed evidence must record structured command specs, bootstrap/environment digests, and bounded redacted output without leaking raw prompts/secrets | Implemented for local CLI command-backed proof diagnostics and existing usage-ledger privacy surfaces | `proof-admissibility.ts` distinguishes `command_spec_missing` from `command_spec_digest_mismatch`; `usage-ledger/authority-evidence.ts` remains fail-safe and privacy preserving; hardening diagnostics cover bootstrap noise, redacted output, and red/green command mismatch classes | Broaden shared command-envelope adoption as additional repro, review, and external-adapter receipts are migrated |
 
 ### A.2 New Proof-Looking Artifact Intake Template
 
@@ -864,12 +866,12 @@ override plus dirty-before and dirty-after evidence.
 ### B.1 Modules that must obey the contract
 
 Post-B-0405 note: this table reports the implemented CLI state after B-0405.
-Remaining unification or Authority Server production receipt work is called out
+Remaining unification or external production receipt work is called out
 separately and must not be read as delivered by this story.
 
 | Module / surface | Artifact kind | Current admissibility role | Must obey clauses | B-0405 CLI status / remaining work |
 |---|---|---|---|---|
-| `packages/main/src/core/authority-gate-receipt-verifier.ts` | Authority `gate_decision` proof | `production-gate-decision` candidate | C1, C3-C8, C11, C12 | Strong CLI verifier path is strict-shape and claim-policy aware; Authority Server production receipt execution remains out of B-0405 scope |
+| `packages/main/src/core/authority-gate-receipt-verifier.ts` | External `gate_decision` proof | `production-gate-decision` candidate | C1, C3-C8, C11, C12 | Strong CLI verifier path is strict-shape and claim-policy aware; external production receipt execution remains out of B-0405 scope |
 | `packages/main/src/core/authority-receipt-classification.ts` | Evidence-envelope receipt | `authority-receipt` candidate | C1, C3, C5, C6, C11, C12 | Subject binding remains strong and is represented in shared diagnostics; future work is cross-runtime fixture parity |
 | `packages/main/src/core/authority-boundary.ts` | Local/shadow authority submission | `local-diagnostic` classifier | C1, C9, C11 | Anti-overclaim classification feeds the shared scope boundary; local/shadow output still cannot set Authority completion or `productionDone` |
 | `packages/main/src/core/receipt-bundle.ts` | Offline local signed bundle | `local-key-single-host` | C1, C3-C7, C9, C11, C12 | Strict-shape/signature/freshness behavior remains strong and explicitly non-Authority |
@@ -881,7 +883,7 @@ separately and must not be read as delivered by this story.
 | `packages/main/src/handlers/repro-intake.ts` | Repro-first CLI commands and handlers | candidate-only command surfaces | C1, C8, C11 | CLI command surface remains underscore names; artifact kinds are canonicalized to hyphenated registry values before evaluator projection |
 | `packages/main/src/core/usage-ledger/authority-evidence.ts` | Usage evidence envelope + receipt gate | Privacy-preserving evidence candidate | C1, C5, C6, C9, C11, C14 | Local privacy and fail-safe receipt handling remain strong; future work is broader shared command-envelope adoption |
 | `packages/main/src/core/gate-strength.ts` and `gate-strength` tasks | Gate-strength result digest | Local methodology proof | C3-C5, C11, C12 | B-7b6e semantic-binding lesson is represented in the B-0405 adversarial matrix for reason/verdict tamper |
-| `packages/main/src/handlers/authority-enforce.ts` | Authority receipt verify/fetch/write path | Producer of receipt refs | C1, C3-C9, C11, C12 | CLI receipt-ref handling is diagnostic/enforce aware; Authority Server production receipt behavior remains a future/server-side responsibility |
+| `packages/main/src/handlers/authority-enforce.ts` | External receipt verify/fetch/write compatibility path | Producer of receipt refs | C1, C3-C9, C11, C12 | CLI receipt-ref handling is diagnostic/enforce aware; production receipt behavior remains an external adapter responsibility |
 | `packages/main/src/handlers/lattice-handoff.ts` | Handoff CLI surface | Handoff context/diagnostic surface | C1, C9, C13 | Handoff output renders scope/class labels so hosts cannot read local transfer output as completion proof |
 | `packages/main/src/handlers/verdict*` / `quorum-submit` | Local or Authority host verdicts | Local quorum or Authority verdict candidate | C1, C6-C9, C11 | Local review quorum remains distinct from Authority receipt completion; proof diagnostics preserve that boundary |
 | `packages/main/src/core/evidence-freshness.ts` | Freshness primitive | Shared supporting check | C7, C11 | Hash freshness remains central; reason-code vocabulary is aligned for B-0405 proof diagnostics and should be reused by future consumers |
@@ -924,7 +926,13 @@ Pre-story repro/spike artifacts are a special case of this same rule:
 - Bootstrap or environment failures must stay candidate diagnostics; they cannot
   be upgraded to proof of a product bug.
 
-## Appendix C: Evidence Admissibility Ledger Schema
+## Appendix C: Retired Evidence Admissibility Ledger Reference
+
+B-c004 resolves the append-only admissibility ledger as a retired/non-goal for
+the local CLI. The schema below is retained only as design reference for a
+separate future integration; the current local CLI does not write durable
+admissibility ledger rows, and `admissibility_waterline` must not claim a ledger
+path, ledger rows, or release authority.
 
 Source-of-truth hierarchy:
 
@@ -1173,11 +1181,15 @@ Minimum implementation:
 - `status=red` blocks high-risk advancement only when the row matches the
   current blocking scope.
 - Recompute on story DONE and at least every 24 hours.
-- A story entering REVIEW should inspect the waterline first, then inspect the
-  concrete ledger rows that explain the waterline.
+- A story entering REVIEW should inspect the diagnostic waterline first, then
+  inspect the artifact-specific verifier outputs and top reasons that explain
+  the waterline.
 
-All counts are derived from ledger rows and clause arrays. Counts are rendered
-for operator convenience, not accepted as an independent source of truth.
+For the current local CLI, counts are derived from artifact-specific verifier
+outputs and clause arrays. Counts are rendered for operator convenience, not
+accepted as an independent source of truth. Durable ledger-row derivation is
+retired Appendix C / future-integration reference material, not an active local
+CLI obligation.
 
 Suggested thresholds, tunable by environment:
 
@@ -1474,9 +1486,9 @@ Conclusions:
   wired into the contract" failures.
 - It will not eliminate every future issue because new hosts, surfaces, and data
   models will continue to appear. It changes the failure from scattered latent
-  risk into a traceable ledger gap.
-- Future fixes should usually be faster: add a ledger row and reason code before
-  rebuilding a bespoke proof chain.
+  risk into a traceable artifact-specific verifier gap.
+- Future fixes should usually be faster: add verifier output and reason codes
+  before rebuilding a bespoke proof chain.
 
 Suggested follow-up metric:
 
@@ -1498,19 +1510,22 @@ surface does not leave the same bug class open in another surface.
     for the artifact.
   - New artifacts must declare `producer`, `scope`, `ArtifactConsumerKind`,
     `ArtifactRole`, `ClaimKind`, `claimSubject`, and reason codes.
-- Step 2: evidence ledger write path
-  - Producers append only `ArtifactObservedEvent`; they do not write
-    admissibility conclusions.
-  - Evaluators append `AdmissibilityEvaluationRow`.
-  - Consumers use the latest applicable evaluation, or rerun the shared
-    admissibility evaluator before gate entry.
+- Step 2: artifact-specific verifier output path
+  - Producers write only the artifact-specific runtime evidence their surface
+    already owns; they do not write admissibility conclusions.
+  - Verifiers emit the artifact-specific proof-admissibility result consumed by
+    the shared evaluator.
+  - Consumers use the current verifier output for the artifact and rerun the
+    shared admissibility evaluator before gate entry when the runtime evidence
+    path is missing or stale.
 - Step 3: consistency threshold check
   - Generate the current consumer waterline through `lattice
     admissibility_waterline` or an equivalent entry point.
-  - `AUTHORITY_GATE_DECISION` / `DONE_REQUIRED` `failRows > 0` blocks only when
-    it matches the current story, consumer, contract version, hash/temporal
-    binding, active policy, and latest non-superseded evaluation. Historical
-    failures remain visible but do not block unrelated stories.
+  - `AUTHORITY_GATE_DECISION` / `DONE_REQUIRED` blocking diagnostics apply only
+    when they match the current story, consumer, contract version,
+    hash/temporal binding, active policy, and current verifier output.
+    Historical or unrelated diagnostics remain visible but do not block
+    unrelated stories.
 - Step 4: hash tuple check
   - Record the current `materialHash`, `headHash`, and `storyFilesHash`.
   - Check that stale counts are explained by a legitimate rerun or update path.

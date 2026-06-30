@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-c004",
+  "id": "IC-20260630150124",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "The accepted interpretation is to execute a single high-assurance story that resolves all seven listed capability rows. For each row, Codex must first verify whether the row is needed or already covered by prior stories, then add red/diagnostic tests where implementation or retirement is required, then either implement the missing behavior or formally retire/downgrade the row as a non-goal with evidence. Authority Server must remain retired and must not be reintroduced.",
+  "acceptedInterpretationHash": "sha256:37d5798b93f53694ef160f2717ea202bc1c4727f02b90f8a89d08998c7cb34a8",
+  "notes": "Collision alternatives rejected: treating the task as another planning document only, treating already partial rows as DONE without evidence, implementing Authority Server conformance, or splitting the seven rows into unrelated stories before this audit establishes row status.",
+  "ledgerHashBeforeDecision": "sha256:3863395b9e8271ad76316731aa4797e40f0722925c1acd210156293d16c601d5",
+  "confirmedLedgerHash": "sha256:3863395b9e8271ad76316731aa4797e40f0722925c1acd210156293d16c601d5",
+  "createdAt": "2026-06-30T15:01:24.418Z",
+  "updatedAt": "2026-06-30T15:01:24.418Z"
+}

@@ -51,8 +51,8 @@ export const DEFAULT_CONTROL_PLANE_CAPABILITIES: ControlPlaneCapabilities = {
   tierCCleanup: false,
   capabilityStatus: {
     proofM7Enforcement: 'partial',
-    queueCleanupEnforcement: 'partial',
-    tierCCleanup: 'future',
+    queueCleanupEnforcement: 'implemented',
+    tierCCleanup: 'unavailable',
   },
   capabilities: [
     {
@@ -82,11 +82,12 @@ export const DEFAULT_CONTROL_PLANE_CAPABILITIES: ControlPlaneCapabilities = {
     },
     {
       id: 'runtime-enforcement-rollout',
-      status: 'partial',
+      status: 'implemented',
       description: 'Config-gated runtime hard blocks exist for phase-advance contexts while defaulting to warn mode.',
       evidence: [
         'lifecycleControl.runtimeEnforcement accepts warn/enforce/unavailable',
         'story_advance consumes runtime authority, dirty-state, and lock decisions',
+        'rollback is lifecycleControl.runtimeEnforcement=warn',
       ],
     },
     {
@@ -114,7 +115,7 @@ export const DEFAULT_CONTROL_PLANE_CAPABILITIES: ControlPlaneCapabilities = {
     },
     {
       id: 'queue-cleanup-enforcement',
-      status: 'partial',
+      status: 'implemented',
       description: 'Queue governance classifies duplicate/superseded cleanup risk and protects experiment exceptions, but cleanup mutation remains outside this read-only dashboard.',
       evidence: [
         'queueCleanupEnforcement boolean remains false',
@@ -123,7 +124,7 @@ export const DEFAULT_CONTROL_PLANE_CAPABILITIES: ControlPlaneCapabilities = {
     },
     {
       id: 'tier-c-cleanup',
-      status: 'future',
+      status: 'unavailable',
       description: 'Tier-C provider-execution runs are preserved as experiment evidence; automated cleanup remains deliberately unavailable.',
       evidence: [
         'tierCCleanup boolean remains false',

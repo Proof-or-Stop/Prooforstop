@@ -5,6 +5,7 @@ export type {
   ValidationPlan,
   ValidationResult,
   ValidationStatus,
+  DoneRequiredCommandSpecEnvelope,
   DoneRequiredCommandReceipt,
   DoneRequiredEvidenceData,
   DoneRequiredEvidenceStatus,

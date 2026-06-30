@@ -65,10 +65,22 @@ export interface ValidationResult {
 
 export type DoneRequiredEvidenceStatus = 'PASS' | 'FAIL';
 
+export interface DoneRequiredCommandSpecEnvelope {
+  schema: 'lattice.command-spec.v1';
+  digest: string;
+  command: string;
+  args: string[];
+  cwd: string;
+  shell: boolean;
+  env: Record<string, string>;
+  timeoutMs: number;
+}
+
 export interface DoneRequiredCommandReceipt {
   label: string;
   command: string;
   args: string[];
+  commandSpec?: DoneRequiredCommandSpecEnvelope;
   shell?: boolean;
   cwd: string;
   status: DoneRequiredEvidenceStatus;

@@ -7,6 +7,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { buildDoneChecklist, type DoneCheckRow } from '../core/done-oracle.js';
 import {
+  buildDoneRequiredCommandSpecEnvelope,
   DONE_REQUIRED_EVIDENCE_SCHEMA,
   DONE_REQUIRED_EVIDENCE_VERSION,
   evaluateDoneRequiredEvidence,
@@ -34,7 +35,7 @@ function git(cwd: string, args: string[]): void {
   });
 }
 
-function writeConfig(root: string, doneRequiredCommands?: unknown): void {
+function writeConfig(root: string, doneRequiredCommands?: unknown, proofAdmissibility?: unknown): void {
   const config: Record<string, unknown> = {
     scanRoot: 'packages/main',
     rootDir: 'src',
@@ -43,13 +44,14 @@ function writeConfig(root: string, doneRequiredCommands?: unknown): void {
     workflow: { profile: 'light' },
   };
   if (doneRequiredCommands !== undefined) config.doneRequiredCommands = doneRequiredCommands;
+  if (proofAdmissibility !== undefined) config.proofAdmissibility = proofAdmissibility;
   writeFileSync(join(root, 'lattice.config.json'), JSON.stringify(config, null, 2), 'utf-8');
   resetConfigCache();
 }
 
-function fixture(doneRequiredCommands?: unknown): { root: string; store: StoryStore } {
+function fixture(doneRequiredCommands?: unknown, proofAdmissibility?: unknown): { root: string; store: StoryStore } {
   const root = mkdtempSync(join(tmpdir(), 'lattice-done-required-'));
-  writeConfig(root, doneRequiredCommands);
+  writeConfig(root, doneRequiredCommands, proofAdmissibility);
   writeFileSync(join(root, 'README.md'), '# done required fixture\n', 'utf-8');
   git(root, ['init']);
   git(root, ['checkout', '-b', 'main']);
@@ -124,7 +126,7 @@ function doneRow(rows: DoneCheckRow[], id: string): DoneCheckRow {
 
 function baseReceipt(root: string, overrides: Partial<DoneRequiredCommandReceipt>): DoneRequiredCommandReceipt {
   const h = hashes(root);
-  return {
+  const receipt: DoneRequiredCommandReceipt = {
     label: 'synthetic',
     command: 'node',
     args: ['-e', 'process.exit(0)'],
@@ -140,6 +142,21 @@ function baseReceipt(root: string, overrides: Partial<DoneRequiredCommandReceipt
     ...(h.materialHash ? { materialHash: h.materialHash } : {}),
     ...(h.storyFilesHash ? { storyFilesHash: h.storyFilesHash } : {}),
     ...overrides,
+  };
+  return {
+    ...receipt,
+    commandSpec: overrides.commandSpec ?? buildDoneRequiredCommandSpecEnvelope(root, {
+      label: receipt.label,
+      command: receipt.command,
+      args: receipt.args,
+      ...(receipt.shell ? { shell: true } : {}),
+      cwd: receipt.cwd,
+    }, {
+      command: receipt.command,
+      args: receipt.args,
+      ...(receipt.shell ? { shell: true } : {}),
+      cwd: receipt.cwd,
+    }),
   };
 }
 
@@ -220,6 +237,16 @@ function assertDoneRequiredBlocked(
 
     writeDoneEvidence(root, store, [baseReceipt(root, { status: 'PASS', exitCode: 0, timedOut: true })]);
     assertDoneRequiredBlocked(root, store, /receipt-status-fail\[0\]/, 'timed out receipt must block even when artifact status is PASS');
+
+    const tamperedCommandSpecReceipt = baseReceipt(root, {});
+    writeDoneEvidence(root, store, [{
+      ...tamperedCommandSpecReceipt,
+      commandSpec: {
+        ...tamperedCommandSpecReceipt.commandSpec!,
+        digest: 'tampered-command-spec-digest',
+      },
+    }]);
+    assertDoneRequiredBlocked(root, store, /command-spec-digest-mismatch\[0\]/, 'tampered CommandSpec digest must block');
 
     writeDoneEvidence(root, store);
     const evaluation = evaluateDoneRequiredEvidence({ projectRoot: root, storyId: STORY_ID, store, gitCwd: root });
@@ -348,6 +375,33 @@ function assertDoneRequiredBlocked(
     const row = doneRow(buildDoneChecklist(STORY_ID, store, root, { gitCwd: root, auditWriter: null }), 'done-required-validation');
     assert.equal(row.status, 'pass');
     assert.equal(row.blocking, false);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+// Generated command-backed evidence is admissible under enforce mode and carries CommandSpec receipts.
+{
+  const { root, store } = fixture(
+    [{ label: 'required pass', command: 'node', args: ['-e', 'process.exit(0)'] }],
+    { mode: 'enforce', enforcedConsumers: ['DONE_REQUIRED'] },
+  );
+  try {
+    const evidence = await runDoneRequiredValidation({ projectRoot: root, storyId: STORY_ID, store, gitCwd: root });
+    assert.equal(evidence.status, 'PASS', evidence.reasons.join(', '));
+    assert.equal(evidence.receipts.length, 1);
+    assert.equal(evidence.receipts[0].commandSpec?.schema, 'lattice.command-spec.v1');
+    assert.equal(evidence.receipts[0].commandSpec?.command, 'node');
+
+    const evaluation = evaluateDoneRequiredEvidence({ projectRoot: root, storyId: STORY_ID, store, gitCwd: root });
+    assert.equal(evaluation.ok, true, evaluation.reasons.join(', '));
+    assert.equal(evaluation.blocking, false, evaluation.reasons.join(', '));
+    assert.equal(evaluation.proofAdmissibility.blocking, false, evaluation.proofAdmissibility.reasons.join(', '));
+    assert.equal(
+      evaluation.proofAdmissibility.reasons.includes('command_spec_missing'),
+      false,
+      `generated evidence must not report command_spec_missing: ${evaluation.proofAdmissibility.reasons.join(', ')}`,
+    );
   } finally {
     rmSync(root, { recursive: true, force: true });
   }

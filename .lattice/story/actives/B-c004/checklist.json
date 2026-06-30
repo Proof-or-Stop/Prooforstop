@@ -9,9 +9,85 @@
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
         "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-30T15:08:36.287Z",
+      "endTime": "2026-06-30T15:10:48.578Z",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+        ],
+        "create": [
+          "docs/requirements/decisions/control-plane-proof-capability-closure-audit.md"
+        ],
+        "test": [
+          "packages/main/src/tasks/lifecycle-control-smoke.ts",
+          "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-001:happy:0",
+            "desc": "Audit maps all seven requested capability rows to an explicit resolution state before any row is marked done.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-001:edge:0",
+            "desc": "Audit distinguishes already-covered, partial, missing, implemented, and retired/non-goal instead of collapsing partial rows into done.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-001:adversarial:0",
+            "desc": "No capability row can be omitted from the audit while B-c004 still claims full completion.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "The final status table shows CHK-001/M1 with a committed seven-row audit and no omitted capability rows.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/control-plane-proof-capability-closure-audit.md",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/lifecycle-control-smoke.js && node packages/main/dist/tasks/proof-admissibility-hardening-smoke.js",
+          "result": "pass",
+          "note": "Commit ce8605770 adds the M1-M7 closure audit and smoke guards that require M1-M7 exactly once with evidence targets.",
+          "headHash": "c23ef00d93b78f0b51d626565de62b2f4e791a4c",
+          "materialHash": "8964f191cf47ff48a5cf1351426825f0a934844909f76d8430aca3c9a7a763d7",
+          "storyFilesHash": "973364c33ed33194a83705793d6623164b0fc2a8de23a4f33f6d37db6f187cba",
+          "timestamp": "2026-06-30T17:51:15.890Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js intent_coverage_check --storyId=B-c004 --dryRun --mode=warn --json",
+          "result": "pass",
+          "note": "Dry-run intent coverage returned status pass with all seven milestone rows covered.",
+          "headHash": "c23ef00d93b78f0b51d626565de62b2f4e791a4c",
+          "materialHash": "8964f191cf47ff48a5cf1351426825f0a934844909f76d8430aca3c9a7a763d7",
+          "storyFilesHash": "973364c33ed33194a83705793d6623164b0fc2a8de23a4f33f6d37db6f187cba",
+          "timestamp": "2026-06-30T17:51:15.890Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js proofstory_gate_check --storyId=B-c004 --dryRun --mode=warn --json",
+          "result": "pass",
+          "note": "Dry-run ProofStory gate returned status pass and did not report missing milestone coverage.",
+          "headHash": "c23ef00d93b78f0b51d626565de62b2f4e791a4c",
+          "materialHash": "8964f191cf47ff48a5cf1351426825f0a934844909f76d8430aca3c9a7a763d7",
+          "storyFilesHash": "973364c33ed33194a83705793d6623164b0fc2a8de23a4f33f6d37db6f187cba",
+          "timestamp": "2026-06-30T17:51:15.890Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -19,67 +95,544 @@
       "context": "Authority Server conformance is no longer an active capability. Update active docs/tests so Authority Server language is legacy/retired compatibility only, not future work or remaining capability.",
       "relatedDocs": [
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
-        "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md"
+        "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+        "docs/requirements/decisions/authority-server-vocabulary-retirement.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-30T15:10:54.245Z",
+      "endTime": "2026-06-30T15:13:30.387Z",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/authority-server-vocabulary-retirement.md",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-002:happy:0",
+            "desc": "Active Authority Server future backlog language is removed or rewritten as retired legacy compatibility.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-002:edge:0",
+            "desc": "Canonical local/shadow consumer names that still include compatibility vocabulary are explicitly bounded and not described as server production readiness.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-002:adversarial:0",
+            "desc": "A guard fails if the two referenced decision docs reintroduce Authority Server conformance as active future work.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "The final status table shows CHK-002/M2 as Authority Server active backlog retired, with guard evidence proving it stays retired.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+          "result": "pass",
+          "note": "Commit 349ef2b11 retires active server-backed authority future backlog wording and extends the retired-vocabulary guard to scan the two plan docs.",
+          "headHash": "c23ef00d93b78f0b51d626565de62b2f4e791a4c",
+          "materialHash": "8964f191cf47ff48a5cf1351426825f0a934844909f76d8430aca3c9a7a763d7",
+          "storyFilesHash": "973364c33ed33194a83705793d6623164b0fc2a8de23a4f33f6d37db6f187cba",
+          "timestamp": "2026-06-30T17:51:15.890Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "command": "rg -n \"Authority Server conformance|Authority production|server-backed production receipt parity\" docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "result": "pass",
+          "note": "The required active-future backlog phrase search returned no matches.",
+          "headHash": "c23ef00d93b78f0b51d626565de62b2f4e791a4c",
+          "materialHash": "8964f191cf47ff48a5cf1351426825f0a934844909f76d8430aca3c9a7a763d7",
+          "storyFilesHash": "973364c33ed33194a83705793d6623164b0fc2a8de23a4f33f6d37db6f187cba",
+          "timestamp": "2026-06-30T17:51:15.890Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/authority-server-vocabulary-retirement.md",
+          "command": "rg -n \"Authority Server|Authority production\" docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "result": "pass",
+          "note": "The two active plan docs no longer use retired Authority Server or Authority production wording; compatibility enum names remain outside this targeted active-future check.",
+          "headHash": "c23ef00d93b78f0b51d626565de62b2f4e791a4c",
+          "materialHash": "8964f191cf47ff48a5cf1351426825f0a934844909f76d8430aca3c9a7a763d7",
+          "storyFilesHash": "973364c33ed33194a83705793d6623164b0fc2a8de23a4f33f6d37db6f187cba",
+          "timestamp": "2026-06-30T17:51:15.890Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
       "title": "Resolve Tier-C cleanup policy",
       "context": "Determine whether automated Tier-C cleanup is needed. If not, retire it as a non-goal with tests proving valid Tier-C experiments are preserved and malformed Tier-C-like rows remain cleanup-required.",
       "relatedDocs": [
-        "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md#CP-5B-Queue-Governance-Guard"
+        "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-30T15:13:41.118Z",
+      "endTime": "2026-06-30T15:14:29.181Z",
+      "files": {
+        "modify": [
+          "packages/main/src/core/lifecycle-control/control-status.ts",
+          "packages/main/src/core/lifecycle-control/queue/index.ts",
+          "packages/main/src/tasks/lifecycle-control-smoke.ts",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/lifecycle-control-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-003:happy:0",
+            "desc": "Tier-C cleanup policy is explicitly implemented or explicitly retired as a non-goal with current control-plane status aligned.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-003:edge:0",
+            "desc": "Valid Tier-C experiment batches remain preserved and are not classified as ordinary duplicates to delete.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-003:adversarial:0",
+            "desc": "Malformed Tier-C-like rows remain cleanup-required and cannot hide behind the experiment exception.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "The final status table shows CHK-003/M3 as Tier-C cleanup policy resolved, with valid experiment evidence preserved and spoofed rows still cleanup-required.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/lifecycle-control-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/lifecycle-control-smoke.js",
+          "result": "pass",
+          "note": "Commit 2450bad81 preserves valid Tier-C experiment rows as experiment-batch-exception with cleanupPolicy=preserve.",
+          "headHash": "c23ef00d93b78f0b51d626565de62b2f4e791a4c",
+          "materialHash": "8964f191cf47ff48a5cf1351426825f0a934844909f76d8430aca3c9a7a763d7",
+          "storyFilesHash": "973364c33ed33194a83705793d6623164b0fc2a8de23a4f33f6d37db6f187cba",
+          "timestamp": "2026-06-30T17:51:15.890Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/lifecycle-control-smoke.ts",
+          "command": "node packages/main/dist/tasks/lifecycle-control-smoke.js",
+          "result": "pass",
+          "note": "The smoke asserts malformed Tier-C-like rows remain cleanup-required with cleanupPolicy=cleanup-required.",
+          "headHash": "c23ef00d93b78f0b51d626565de62b2f4e791a4c",
+          "materialHash": "8964f191cf47ff48a5cf1351426825f0a934844909f76d8430aca3c9a7a763d7",
+          "storyFilesHash": "973364c33ed33194a83705793d6623164b0fc2a8de23a4f33f6d37db6f187cba",
+          "timestamp": "2026-06-30T17:51:15.890Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "command": "rg -n \"Tier-C cleanup\" docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md packages/main/src/core/lifecycle-control/control-status.ts",
+          "result": "pass",
+          "note": "The capability row now reports automated Tier-C cleanup as unavailable/retired non-goal, not unfinished automation.",
+          "headHash": "c23ef00d93b78f0b51d626565de62b2f4e791a4c",
+          "materialHash": "8964f191cf47ff48a5cf1351426825f0a934844909f76d8430aca3c9a7a763d7",
+          "storyFilesHash": "973364c33ed33194a83705793d6623164b0fc2a8de23a4f33f6d37db6f187cba",
+          "timestamp": "2026-06-30T17:51:15.890Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
       "title": "Resolve append-only admissibility ledger capability",
       "context": "Verify whether evaluator plus waterline is sufficient. If durable ledger remains required, implement it; otherwise formally downgrade to non-goal with tests preventing accidental claims of ledger completion.",
       "relatedDocs": [
-        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md#Appendix-C-Evidence-Admissibility-Ledger-Schema"
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+        "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-30T15:14:40.330Z",
+      "endTime": "2026-06-30T15:16:34.478Z",
+      "files": {
+        "modify": [
+          "packages/main/src/core/evidence/admissibility/index.ts",
+          "packages/main/src/core/lifecycle-control/consumption/index.ts",
+          "packages/main/src/core/proof-admissibility.ts",
+          "packages/main/src/core/proof-admissibility-gates.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-004:happy:0",
+            "desc": "Append-only admissibility ledger is either implemented under .lattice/evidence with durable tests or formally retired/downgraded while waterline remains diagnostic-only.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-004:edge:0",
+            "desc": "Diagnostic waterline output cannot be mistaken for append-only durable ledger storage or DONE evidence.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-004:adversarial:0",
+            "desc": "A proof consumer cannot mutate or overwrite prior admissibility rows if a ledger is implemented, or cannot claim ledger support if it is retired.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "The final status table shows CHK-004/M4 as append-only admissibility ledger resolved by implementation or explicit non-goal retirement with tests.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proof-admissibility-hardening-smoke.js",
+          "result": "pass",
+          "note": "Commit 490383f9e formalizes append-only admissibility ledger storage as retired/non-goal for the local CLI and tests the boundary.",
+          "headHash": "c23ef00d93b78f0b51d626565de62b2f4e791a4c",
+          "materialHash": "8964f191cf47ff48a5cf1351426825f0a934844909f76d8430aca3c9a7a763d7",
+          "storyFilesHash": "973364c33ed33194a83705793d6623164b0fc2a8de23a4f33f6d37db6f187cba",
+          "timestamp": "2026-06-30T17:51:15.890Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts",
+          "command": "node packages/main/dist/tasks/proof-admissibility-hardening-smoke.js",
+          "result": "pass",
+          "note": "The smoke asserts no ledger writer export is exposed by the compatibility entrypoint.",
+          "headHash": "c23ef00d93b78f0b51d626565de62b2f4e791a4c",
+          "materialHash": "8964f191cf47ff48a5cf1351426825f0a934844909f76d8430aca3c9a7a763d7",
+          "storyFilesHash": "973364c33ed33194a83705793d6623164b0fc2a8de23a4f33f6d37db6f187cba",
+          "timestamp": "2026-06-30T17:51:15.890Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts",
+          "command": "node packages/main/dist/tasks/proof-admissibility-hardening-smoke.js",
+          "result": "pass",
+          "note": "The smoke asserts diagnostic waterline output has no ledgerPath or ledgerRows and cannot become release authority.",
+          "headHash": "c23ef00d93b78f0b51d626565de62b2f4e791a4c",
+          "materialHash": "8964f191cf47ff48a5cf1351426825f0a934844909f76d8430aca3c9a7a763d7",
+          "storyFilesHash": "973364c33ed33194a83705793d6623164b0fc2a8de23a4f33f6d37db6f187cba",
+          "timestamp": "2026-06-30T17:51:15.890Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
       "title": "Complete queue cleanup enforcement guard",
       "context": "Add or verify hard guards for duplicate/superseded cleanup mutation paths while preserving experiment exceptions and surfacing malformed cleanup-required rows.",
       "relatedDocs": [
-        "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md#CP-5B-Queue-Governance-Guard"
+        "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-30T15:16:48.611Z",
+      "endTime": "2026-06-30T15:17:47.231Z",
+      "files": {
+        "modify": [
+          "packages/main/src/core/lifecycle-control/queue/index.ts",
+          "packages/main/src/core/lifecycle-control/control-status.ts",
+          "packages/main/src/tasks/lifecycle-control-smoke.ts",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/lifecycle-control-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-005:happy:0",
+            "desc": "Queue cleanup enforcement guard blocks or classifies duplicate/superseded/cleanup-required mutation paths according to policy.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-005:edge:0",
+            "desc": "Tier-C experiment exceptions remain preserved and do not get deleted by ordinary duplicate cleanup behavior.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-005:adversarial:0",
+            "desc": "Cleanup-required rows cannot be marked preserved merely by spoofing a Tier-C-like title or metadata fragment.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "The final status table shows CHK-005/M5 as queue cleanup enforcement guarded, with Tier-C exceptions preserved.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/lifecycle-control-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/lifecycle-control-smoke.js",
+          "result": "pass",
+          "note": "Commit 91cd09401 tests duplicate-candidate and superseded cleanup guard classification while keeping cleanup mutation out of the dashboard.",
+          "headHash": "c23ef00d93b78f0b51d626565de62b2f4e791a4c",
+          "materialHash": "8964f191cf47ff48a5cf1351426825f0a934844909f76d8430aca3c9a7a763d7",
+          "storyFilesHash": "973364c33ed33194a83705793d6623164b0fc2a8de23a4f33f6d37db6f187cba",
+          "timestamp": "2026-06-30T17:51:15.890Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/lifecycle-control-smoke.ts",
+          "command": "node packages/main/dist/tasks/lifecycle-control-smoke.js",
+          "result": "pass",
+          "note": "The smoke asserts Tier-C experiment rows keep cleanupPolicy=preserve and are not converted into duplicate cleanup candidates.",
+          "headHash": "c23ef00d93b78f0b51d626565de62b2f4e791a4c",
+          "materialHash": "8964f191cf47ff48a5cf1351426825f0a934844909f76d8430aca3c9a7a763d7",
+          "storyFilesHash": "973364c33ed33194a83705793d6623164b0fc2a8de23a4f33f6d37db6f187cba",
+          "timestamp": "2026-06-30T17:51:15.890Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/lifecycle-control-smoke.ts",
+          "command": "node packages/main/dist/tasks/lifecycle-control-smoke.js",
+          "result": "pass",
+          "note": "The smoke asserts malformed Tier-C-like rows remain visible in cleanupRequired for operator action.",
+          "headHash": "c23ef00d93b78f0b51d626565de62b2f4e791a4c",
+          "materialHash": "8964f191cf47ff48a5cf1351426825f0a934844909f76d8430aca3c9a7a763d7",
+          "storyFilesHash": "973364c33ed33194a83705793d6623164b0fc2a8de23a4f33f6d37db6f187cba",
+          "timestamp": "2026-06-30T17:51:15.890Z"
+        }
+      ]
     },
     {
       "id": "CHK-006",
       "title": "Complete runtime closure enforce rollout",
       "context": "Move configured runtime enforcement from partial/warn-only to a verified enforce rollout where appropriate, with rollback documented as lifecycleControl.runtimeEnforcement=warn and tests for wrong cwd, stale lock, dirty tree, and worktree authority drift.",
       "relatedDocs": [
-        "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md#CP-5A-Runtime-Enforcement-Rollout"
+        "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+        "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-30T15:17:54.142Z",
+      "endTime": "2026-06-30T15:18:56.378Z",
+      "files": {
+        "modify": [
+          "packages/main/src/core/lifecycle-control/runtime/index.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/lifecycle-control-smoke.ts",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/lifecycle-control-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-006:happy:0",
+            "desc": "Runtime closure enforcement behavior is verified in warn and enforce modes, with rollback path documented.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-006:edge:0",
+            "desc": "Global status does not overclaim default hard enforcement when config is still warn.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-006:adversarial:0",
+            "desc": "Unsafe runtime closure findings block lifecycle transition when enforce mode is configured.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "The final status table shows CHK-006/M6 as runtime closure enforcement verified in warn/enforce modes with rollback documented.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/lifecycle-control-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/lifecycle-control-smoke.js",
+          "result": "pass",
+          "note": "Commit 5cc141fdc marks runtime closure enforcement rollout implemented and tests enforce-mode unsafe cwd/main mirror/stale lock blocking.",
+          "headHash": "c23ef00d93b78f0b51d626565de62b2f4e791a4c",
+          "materialHash": "8964f191cf47ff48a5cf1351426825f0a934844909f76d8430aca3c9a7a763d7",
+          "storyFilesHash": "973364c33ed33194a83705793d6623164b0fc2a8de23a4f33f6d37db6f187cba",
+          "timestamp": "2026-06-30T17:51:15.890Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/lifecycle-control-smoke.ts",
+          "command": "node packages/main/dist/tasks/lifecycle-control-smoke.js",
+          "result": "pass",
+          "note": "Warn mode remains diagnostic for material dirty tree findings and reports rollback to lifecycleControl.runtimeEnforcement=warn.",
+          "headHash": "c23ef00d93b78f0b51d626565de62b2f4e791a4c",
+          "materialHash": "8964f191cf47ff48a5cf1351426825f0a934844909f76d8430aca3c9a7a763d7",
+          "storyFilesHash": "973364c33ed33194a83705793d6623164b0fc2a8de23a4f33f6d37db6f187cba",
+          "timestamp": "2026-06-30T17:51:15.890Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/lifecycle-control-smoke.ts",
+          "command": "node packages/main/dist/tasks/lifecycle-control-smoke.js",
+          "result": "pass",
+          "note": "Unavailable mode surfaces wrong authoritative cwd diagnostics without blocking, preserving the documented emergency diagnostic bound.",
+          "headHash": "c23ef00d93b78f0b51d626565de62b2f4e791a4c",
+          "materialHash": "8964f191cf47ff48a5cf1351426825f0a934844909f76d8430aca3c9a7a763d7",
+          "storyFilesHash": "973364c33ed33194a83705793d6623164b0fc2a8de23a4f33f6d37db6f187cba",
+          "timestamp": "2026-06-30T17:51:15.890Z"
+        }
+      ]
     },
     {
       "id": "CHK-007",
       "title": "Complete CommandSpec envelope and project waterline coverage",
       "context": "Audit command-backed evidence surfaces, migrate missing gate-consumed command evidence to structured CommandSpec where needed, and complete project-level consumption waterline rollup without making the waterline proof authority.",
       "relatedDocs": [
-        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md#Appendix-D-Admissibility-Waterline-Schema",
-        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md#Appendix-G-Unified-Close-Checklist"
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+        "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-30T15:19:03.522Z",
+      "endTime": "2026-06-30T15:20:55.783Z",
+      "files": {
+        "modify": [
+          "packages/main/src/core/evidence/types.ts",
+          "packages/main/src/core/repro-intake.ts",
+          "packages/main/src/core/lifecycle-control/consumption/index.ts",
+          "packages/main/src/core/lifecycle-control/dashboard/index.ts",
+          "packages/main/src/core/proof-admissibility.ts",
+          "packages/main/src/core/proof-admissibility-gates.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts",
+          "packages/main/src/tasks/lifecycle-control-smoke.ts",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts",
+          "packages/main/src/tasks/lifecycle-control-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-007:happy:0",
+            "desc": "Gate-consumed command evidence surfaces have CommandSpec envelope coverage or explicit non-goal notes, and project-level consumption waterline rollup reports real aggregate state.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-007:edge:0",
+            "desc": "Project waterline with no story rows is distinguished from passing green status.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-007:adversarial:0",
+            "desc": "A receipt-like command evidence row without a CommandSpec envelope cannot be treated as strong proof for high-risk consumers.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      },
+      "userSees": "The final status table shows CHK-007/M7 as CommandSpec and project waterline coverage resolved, with no diagnostic waterline overclaim.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-007:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proof-admissibility-hardening-smoke.js",
+          "result": "pass",
+          "note": "Commit d949ee4e9 distinguishes missing CommandSpec from mismatched CommandSpec digest for DONE_REQUIRED command-backed proof.",
+          "headHash": "c23ef00d93b78f0b51d626565de62b2f4e791a4c",
+          "materialHash": "8964f191cf47ff48a5cf1351426825f0a934844909f76d8430aca3c9a7a763d7",
+          "storyFilesHash": "973364c33ed33194a83705793d6623164b0fc2a8de23a4f33f6d37db6f187cba",
+          "timestamp": "2026-06-30T17:51:15.890Z"
+        },
+        {
+          "intentRef": "CHK-007:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/lifecycle-control-smoke.ts",
+          "command": "node packages/main/dist/tasks/lifecycle-control-smoke.js",
+          "result": "pass",
+          "note": "Project-level consumption rollup with no story rows reports unknown/no-data rather than green/pass.",
+          "headHash": "c23ef00d93b78f0b51d626565de62b2f4e791a4c",
+          "materialHash": "8964f191cf47ff48a5cf1351426825f0a934844909f76d8430aca3c9a7a763d7",
+          "storyFilesHash": "973364c33ed33194a83705793d6623164b0fc2a8de23a4f33f6d37db6f187cba",
+          "timestamp": "2026-06-30T17:51:15.890Z"
+        },
+        {
+          "intentRef": "CHK-007:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts",
+          "command": "node packages/main/dist/tasks/proof-admissibility-hardening-smoke.js",
+          "result": "pass",
+          "note": "Enforce mode blocks DONE_REQUIRED proof when CommandSpec is missing or mismatched, preserving high-risk command-backed evidence bounds.",
+          "headHash": "c23ef00d93b78f0b51d626565de62b2f4e791a4c",
+          "materialHash": "8964f191cf47ff48a5cf1351426825f0a934844909f76d8430aca3c9a7a763d7",
+          "storyFilesHash": "973364c33ed33194a83705793d6623164b0fc2a8de23a4f33f6d37db6f187cba",
+          "timestamp": "2026-06-30T17:51:15.890Z"
+        }
+      ]
     }
   ]
 }

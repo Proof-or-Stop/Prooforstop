@@ -1,0 +1,183 @@
+{
+  "storyId": "B-c004",
+  "mode": "enforce",
+  "allowedModify": [
+    "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+    "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+    "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+    "packages/main/src/core/lifecycle-control/control-status.ts",
+    "packages/main/src/core/lifecycle-control/queue/index.ts",
+    "packages/main/src/tasks/lifecycle-control-smoke.ts",
+    "packages/main/src/core/evidence/admissibility/index.ts",
+    "packages/main/src/core/lifecycle-control/consumption/index.ts",
+    "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts",
+    "packages/main/src/core/lifecycle-control/runtime/index.ts",
+    "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/core/evidence/types.ts",
+    "packages/main/src/core/repro-intake.ts",
+    "packages/main/src/core/lifecycle-control/dashboard/index.ts"
+  ],
+  "allowedCreate": [
+    "docs/requirements/decisions/control-plane-proof-capability-closure-audit.md"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/lifecycle-control-smoke.ts",
+    "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts",
+    "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+  ],
+  "protectedFiles": [
+    "docs/story/**",
+    "tests/fixtures/**",
+    ".omx/**"
+  ],
+  "explicitExcludes": [
+    "Authority Server runtime implementation",
+    "GitHub push or package publish",
+    "automatic parent-child story orchestration",
+    "unrelated docs outside the two referenced decision docs and explicit audit artifact"
+  ],
+  "scopeChangeReason": "Initialize enforce-mode scope contract from B-c004 PLAN checklist files after ProofStory reported scope ambiguity.",
+  "acknowledgements": [
+    {
+      "actor": "codex",
+      "reason": "These paths are necessary for the accepted B-c004 scope: five are CLI-written ProofStory intent/ledger/contract/slice artifacts required by the DEV gate, and the two repo files were added to checklist file coverage after the initial scope contract to retire Authority backlog language and bound proof-admissibility overclaim semantics.",
+      "timestamp": "2026-06-30T15:22:54.920Z",
+      "paths": [
+        ".lattice/story/actives/B-c004/intent-collision.json",
+        ".lattice/story/actives/B-c004/milestone-ledger.json",
+        ".lattice/story/actives/B-c004/original-intent-snapshot.json",
+        ".lattice/story/actives/B-c004/proofstory.json",
+        ".lattice/story/actives/B-c004/slice-plan.json",
+        "docs/requirements/decisions/authority-server-vocabulary-retirement.md",
+        "packages/main/src/core/proof-admissibility.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-c004/intent-collision.json",
+        ".lattice/story/actives/B-c004/milestone-ledger.json",
+        ".lattice/story/actives/B-c004/original-intent-snapshot.json",
+        ".lattice/story/actives/B-c004/proofstory.json",
+        ".lattice/story/actives/B-c004/slice-plan.json",
+        "docs/requirements/decisions/authority-server-vocabulary-retirement.md",
+        "packages/main/src/core/proof-admissibility.ts"
+      ],
+      "affectedPathCount": 7,
+      "phase": "DEV",
+      "headHash": "5caecc05a17c3de32e8cc619eca7974d22898889",
+      "materialHash": "18307d34100d4f524ed0e1de936e70acbd5e3e1ff1411c552816877b22696798"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Delivery reviewer generated this context pack as required delivery-check evidence for DONE; it is story-scoped lifecycle evidence, not an implementation scope expansion.",
+      "timestamp": "2026-06-30T16:01:06.393Z",
+      "paths": [
+        ".lattice/story/actives/B-c004/evidence/delivery-context-pack.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-c004/evidence/delivery-context-pack.json"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "035633905d8237a6d855942b81243cda942fb6d7",
+      "materialHash": "2fa51c4143e666f4591f42f748ef6a0f534f3086276ca69a74e10b844585080f",
+      "anchors": [
+        "delivery_check",
+        "done_gate",
+        "lattice_review_delivery"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "These files are required to close CHK-007: DONE_REQUIRED CommandSpec envelope evidence must be generated, typed, evaluated, and covered by the done-required validation smoke test.",
+      "timestamp": "2026-06-30T16:20:55.856Z",
+      "paths": [
+        "packages/main/src/core/done-required-validation.ts",
+        "packages/main/src/core/types.ts",
+        "packages/main/src/core/validation-types.ts",
+        "packages/main/src/tasks/done-required-validation-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/done-required-validation.ts",
+        "packages/main/src/core/types.ts",
+        "packages/main/src/core/validation-types.ts",
+        "packages/main/src/tasks/done-required-validation-smoke.ts"
+      ],
+      "affectedPathCount": 4,
+      "phase": "DEV",
+      "headHash": "4d072ba49f7e0a24bface29326db41dd587c2ebf",
+      "materialHash": "000a12c53645f4145f1450245739600e0cc428c76cc7e2eccefbc5913a222b9b",
+      "anchors": [
+        "CHK_007",
+        "done_required_command_spec",
+        "proof_admissibility"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "This smoke test is required to close F-002: stale/freshness DONE_REQUIRED receipts must include the same CommandSpec envelope required by the new proof-admissibility evaluator.",
+      "timestamp": "2026-06-30T16:57:06.494Z",
+      "paths": [
+        "packages/main/src/tasks/done-required-freshness-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/done-required-freshness-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "7677d7398970732ea642515299ea6d0eec15ab26",
+      "materialHash": "4f637b1c083c85fbc5726ebb14ba2b0d43ecf8fe450f18a0d47deafb87bc8a57",
+      "anchors": [
+        "F_002",
+        "done_required_freshness",
+        "command_spec"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Required to resolve B-c004:F-007 by updating the base proof-admissibility smoke so DONE_REQUIRED positive fixtures include the now-required CommandSpec digest validity; this keeps the proof-admissibility baseline aligned with the CommandSpec hardening delivered by this story.",
+      "timestamp": "2026-06-30T17:45:41.582Z",
+      "paths": [
+        "packages/main/src/tasks/proof-admissibility-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/proof-admissibility-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "ac66dd3a54abaa786dbf46f45ec61f86b2eeb0c6",
+      "materialHash": "8964f191cf47ff48a5cf1351426825f0a934844909f76d8430aca3c9a7a763d7",
+      "anchors": [
+        "B_c004_F_007",
+        "DONE_REQUIRED_CommandSpec_admissibility",
+        "proof_admissibility_base_smoke"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Parent ledger rollup is required story-scoped DONE intent equivalence evidence showing B-c004 child delivery covers M1 through M7 before DONE.",
+      "timestamp": "2026-06-30T18:04:02.376Z",
+      "paths": [
+        ".lattice/story/actives/B-c004/parent-ledger-rollup.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-c004/parent-ledger-rollup.json"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "b9f5f71edd427a4cd0a526383686c7f10c1b956e",
+      "materialHash": "1013543ab1e1e6fdc29f90b011d77215fe9ffe182146883342a744769bf61ec0",
+      "anchors": [
+        "DONE_intent_equivalence",
+        "parent_ledger_rollup",
+        "M1_M7_coverage"
+      ]
+    }
+  ],
+  "createdAt": "2026-06-30T15:05:17.820Z",
+  "updatedAt": "2026-06-30T18:04:02.376Z"
+}

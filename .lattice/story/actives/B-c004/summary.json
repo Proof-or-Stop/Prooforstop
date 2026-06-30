@@ -1,0 +1,56 @@
+{
+  "storyId": "B-c004",
+  "changes": "Closed the seven remaining capability gaps by adding the capability closure audit, retiring active Authority Server backlog language, implementing Tier-C preservation policy, retiring append-only admissibility ledger as a non-goal, hardening queue/runtime control-plane status, adding DONE_REQUIRED CommandSpec envelope evidence, and correcting project-level consumption waterline behavior.",
+  "usage": "Run npm --prefix packages/main run build, npm --prefix packages/main run test:done-required-validation-smoke, npm --prefix packages/main run test:done-required-freshness-smoke, npm --prefix packages/main run test:proof-admissibility-hardening, node packages/main/dist/tasks/lifecycle-control-smoke.js, and node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js; inspect the closure audit for the delivered capability matrix.",
+  "expectedOutcome": "The user should see all seven requested capability gaps either implemented or formally retired with evidence, Authority Server conformance removed from the active backlog, and final DONE readiness determined by the current Lattice gates: fresh validation, delivery check, DONE-required evidence, review-assurance quorum or approved fallback, and intent-equivalence diagnostics.",
+  "actualTranscript": "Observed evidence: build passed; lifecycle-control smoke passed; proof-admissibility hardening smoke passed; retired authority vocabulary guard passed; done-required validation and freshness smokes passed; full TEST validation passed; delivery reviewer verified seven docs promises and eight real-machine test records. Review assurance is not asserted by this summary; it must be satisfied by fresh Lattice quorum or approved fallback evidence for the current material.",
+  "outcomeDiff": "No functional delivery difference remains. Review-assurance status is intentionally not hard-coded here; the DONE gate must read the fresh quorum or approved fallback artifact for the current material.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "none - fully covered for the seven requested capability closures; automatic Tier-C deletion and append-only ledger storage are explicitly retired or non-goals rather than hidden backlog.",
+  "pitfalls": "Formal validate can be quiet for several minutes. The CommandSpec fix also required updating synthetic freshness receipts; otherwise DONE-required evidence passed execution but failed proof admissibility. Do not claim review-assurance completion in summary text before the current-material quorum or approved fallback evidence is accepted by the DONE gate.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 184452
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 38618
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 488670
+    },
+    "DEV": {
+      "count": 6,
+      "durationMs": 1839132
+    },
+    "REVIEW": {
+      "count": 6,
+      "durationMs": 3683814
+    },
+    "TEST": {
+      "count": 3,
+      "durationMs": 2846446
+    }
+  },
+  "totalDurationMs": 9081133,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-30T16:04:52.392Z",
+  "updatedAt": "2026-06-30T17:27:13.577Z"
+}

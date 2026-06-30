@@ -3,12 +3,14 @@ import { isAbsolute, resolve } from 'node:path';
 import { loadConfig, type LatticeConfig } from './config.js';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from './evidence-freshness.js';
 import type { StoryStore } from './store.js';
-import { formatValidationCommand, runValidationCommand } from './validation-executor.js';
+import { formatValidationCommand, resolveCommandTimeoutMs, runValidationCommand } from './validation-executor.js';
 import type {
+  DoneRequiredCommandSpecEnvelope,
   DoneRequiredCommandReceipt,
   DoneRequiredEvidenceData,
   DoneRequiredEvidenceStatus,
   ValidationCommand,
+  ValidationCommandResult,
 } from './validation-types.js';
 import {
   buildProofAdmissibilityDiagnostic,
@@ -20,6 +22,7 @@ import {
 export const DONE_REQUIRED_EVIDENCE_FILE = 'done-required-evidence.json';
 export const DONE_REQUIRED_EVIDENCE_SCHEMA = 'lattice.done-required-evidence' as const;
 export const DONE_REQUIRED_EVIDENCE_VERSION = 1 as const;
+export const DONE_REQUIRED_COMMAND_SPEC_SCHEMA = 'lattice.command-spec.v1' as const;
 
 const SHELL_META_RE = /[;&|<>$()`]/;
 const OUTPUT_TAIL_CHARS = 4000;
@@ -110,6 +113,46 @@ function stableStringify(value: unknown): string {
 
 function sha256(value: string): string {
   return createHash('sha256').update(value).digest('hex');
+}
+
+function sortedStringRecord(value?: Record<string, string>): Record<string, string> {
+  if (!value) return {};
+  return Object.fromEntries(Object.entries(value).sort(([a], [b]) => a.localeCompare(b)));
+}
+
+function commandSpecDigestPayload(spec: Omit<DoneRequiredCommandSpecEnvelope, 'schema' | 'digest'>): string {
+  return stableStringify({
+    command: spec.command,
+    args: spec.args,
+    cwd: spec.cwd,
+    shell: spec.shell,
+    env: sortedStringRecord(spec.env),
+    timeoutMs: spec.timeoutMs,
+  });
+}
+
+function commandSpecDigest(spec: Omit<DoneRequiredCommandSpecEnvelope, 'schema' | 'digest'>): string {
+  return sha256(commandSpecDigestPayload(spec));
+}
+
+export function buildDoneRequiredCommandSpecEnvelope(
+  projectRoot: string,
+  command: ValidationCommand,
+  executed?: Pick<ValidationCommandResult, 'command' | 'args' | 'shell' | 'cwd'>,
+): DoneRequiredCommandSpecEnvelope {
+  const spec = {
+    command: executed?.command ?? command.command,
+    args: [...(executed?.args ?? command.args)],
+    cwd: normalizedCommandCwd(projectRoot, executed?.cwd ?? command.cwd),
+    shell: executed ? executed.shell === true : command.shell === true,
+    env: sortedStringRecord(command.env),
+    timeoutMs: resolveCommandTimeoutMs(command),
+  };
+  return {
+    schema: DONE_REQUIRED_COMMAND_SPEC_SCHEMA,
+    digest: commandSpecDigest(spec),
+    ...spec,
+  };
 }
 
 function commandFromString(label: string, value: string): DoneRequiredCommand | null {
@@ -320,6 +363,72 @@ function sameStringArray(a: readonly string[], b: readonly string[]): boolean {
   return a.length === b.length && a.every((value, index) => value === b[index]);
 }
 
+function sameStringRecord(a: Record<string, string>, b: Record<string, string>): boolean {
+  const aEntries = Object.entries(a).sort(([left], [right]) => left.localeCompare(right));
+  const bEntries = Object.entries(b).sort(([left], [right]) => left.localeCompare(right));
+  return aEntries.length === bEntries.length && aEntries.every(([key, value], index) => {
+    const [otherKey, otherValue] = bEntries[index];
+    return key === otherKey && value === otherValue;
+  });
+}
+
+export function validateCommandSpecDigestCoverage(
+  evidence: Pick<DoneRequiredEvidenceData, 'receipts'>,
+  projectRoot: string,
+  commands: ValidationCommand[],
+): { valid?: boolean; reasons: string[] } {
+  const reasons: string[] = [];
+  const receipts = Array.isArray(evidence.receipts) ? evidence.receipts : [];
+  let missing = false;
+  let mismatch = false;
+
+  for (let i = 0; i < commands.length; i++) {
+    const command = commands[i];
+    const receipt = receipts[i];
+    if (!receipt) {
+      missing = true;
+      reasons.push(`command-spec-missing[${i}]: missing receipt for ${formatValidationCommand(command)}`);
+      continue;
+    }
+
+    const commandSpec = receipt.commandSpec;
+    if (!commandSpec || typeof commandSpec !== 'object') {
+      missing = true;
+      reasons.push(`command-spec-missing[${i}]: ${receipt.label}`);
+      continue;
+    }
+
+    const expected = buildDoneRequiredCommandSpecEnvelope(projectRoot, command, {
+      command: receipt.command,
+      args: Array.isArray(receipt.args) ? receipt.args : [],
+      ...(receipt.shell ? { shell: true } : {}),
+      cwd: receipt.cwd,
+    });
+
+    const fieldsMatch =
+      commandSpec.schema === DONE_REQUIRED_COMMAND_SPEC_SCHEMA &&
+      commandSpec.command === expected.command &&
+      Array.isArray(commandSpec.args) &&
+      sameStringArray(commandSpec.args, expected.args) &&
+      commandSpec.cwd === expected.cwd &&
+      commandSpec.shell === expected.shell &&
+      commandSpec.timeoutMs === expected.timeoutMs &&
+      Boolean(commandSpec.env) &&
+      !Array.isArray(commandSpec.env) &&
+      sameStringRecord(commandSpec.env, expected.env);
+    const digestMatches = commandSpec.digest === expected.digest;
+    if (!fieldsMatch || !digestMatches) {
+      mismatch = true;
+      reasons.push(`command-spec-digest-mismatch[${i}]: ${receipt.label}`);
+    }
+  }
+
+  return {
+    valid: missing ? undefined : !mismatch,
+    reasons,
+  };
+}
+
 export function validateRequiredReceiptCoverage(
   evidence: Pick<DoneRequiredEvidenceData, 'receipts'>,
   projectRoot: string,
@@ -429,6 +538,7 @@ export async function runDoneRequiredValidation(args: {
         label: result.label,
         command: result.command,
         args: result.args,
+        commandSpec: buildDoneRequiredCommandSpecEnvelope(args.projectRoot, command, result),
         ...(result.shell ? { shell: true } : {}),
         cwd: result.cwd ?? commandCwd(args.projectRoot, command.cwd),
         status,
@@ -486,7 +596,11 @@ export function evaluateDoneRequiredEvidence(args: {
 }): DoneRequiredGateEvaluation {
   const policy = resolveDoneRequiredPolicy(args.projectRoot);
   const proofPolicy = resolveProofAdmissibilityPolicy(args.projectRoot);
-  const doneRequiredDiagnostic = (evidence: DoneRequiredEvidenceData | null, ok: boolean): ProofAdmissibilityDiagnostic => buildProofAdmissibilityDiagnostic({
+  const doneRequiredDiagnostic = (
+    evidence: DoneRequiredEvidenceData | null,
+    ok: boolean,
+    commandSpecDigestValid?: boolean,
+  ): ProofAdmissibilityDiagnostic => buildProofAdmissibilityDiagnostic({
     artifactKind: 'done-required-evidence',
     artifactId: DONE_REQUIRED_EVIDENCE_FILE,
     consumer: 'DONE_REQUIRED',
@@ -501,6 +615,7 @@ export function evaluateDoneRequiredEvidence(args: {
       temporalAndMaterialBindingValid: ok,
       subjectMatches: evidence ? evidence.storyId === args.storyId : false,
       producerBoundaryTrusted: Boolean(evidence),
+      commandSpecDigestValid,
     },
   });
   const withProofBlock = (
@@ -572,6 +687,8 @@ export function evaluateDoneRequiredEvidence(args: {
   if (evidence.policyHash !== policy.policyHash) reasons.push('policy-drift');
   if (evidence.commandSetHash !== policy.commandSetHash) reasons.push('command-set-drift');
   reasons.push(...validateRequiredReceiptCoverage(evidence, args.projectRoot, policy.commands));
+  const commandSpecDigestCoverage = validateCommandSpecDigestCoverage(evidence, args.projectRoot, policy.commands);
+  reasons.push(...commandSpecDigestCoverage.reasons);
 
   const currentMaterial = currentMaterialHash(args.gitCwd, 'HEAD', args.projectRoot);
   const currentStoryFiles = currentStoryFilesHash(args.gitCwd, 'HEAD', args.projectRoot);
@@ -601,7 +718,7 @@ export function evaluateDoneRequiredEvidence(args: {
       reasons: uniqueReasons,
       policy,
       evidence,
-      proofAdmissibility: doneRequiredDiagnostic(evidence, false),
+      proofAdmissibility: doneRequiredDiagnostic(evidence, false, commandSpecDigestCoverage.valid),
     });
   }
 
@@ -614,7 +731,7 @@ export function evaluateDoneRequiredEvidence(args: {
     reasons: [],
     policy,
     evidence,
-    proofAdmissibility: doneRequiredDiagnostic(evidence, true),
+    proofAdmissibility: doneRequiredDiagnostic(evidence, true, commandSpecDigestCoverage.valid),
   });
 }
 

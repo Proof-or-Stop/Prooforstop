@@ -163,13 +163,13 @@ safety booleans.
 |---|---|---|---|
 | Read-only global status projection | implemented | `global_control_status`, `runtime_closure_status`, `admissibility_waterline`, and `queue_governance_status` are registered read-only commands in `command-policy.ts` and handlers reject write-like flags before reading facts. | Does not mutate story state, evidence, queue exceptions, receipts, or authority. |
 | Runtime closure projection | implemented | `packages/main/src/core/lifecycle-control/runtime/index.ts` projects local assurance, lifecycle readiness rows, owner lease, main-write lock, and validation lock state. | Does not define a second lifecycle state machine or proof policy. |
-| Runtime closure enforcement rollout | partial | `story_advance` evaluates runtime authority, dirty state, and lock state through `evaluateRuntimeEnforcement`; config is `lifecycleControl.runtimeEnforcement=warn|enforce|unavailable`. | Default warn mode is not a hard lifecycle gate. Rollback is `lifecycleControl.runtimeEnforcement=warn`. |
+| Runtime closure enforcement rollout | implemented | `story_advance` evaluates runtime authority, dirty state, and lock state through `evaluateRuntimeEnforcement`; config is `lifecycleControl.runtimeEnforcement=warn|enforce|unavailable`. | Default warn mode is diagnostic, enforce mode blocks unsafe runtime closure findings, unavailable mode does not block, and rollback is `lifecycleControl.runtimeEnforcement=warn`. |
 | Proof Admissibility waterline | partial | `admissibility_waterline` consumes public Proof Admissibility diagnostics and renders consumer rows with `diagnosticOnly=true` and `productionDoneEligible=false`. | Does not satisfy DONE, DONE_REQUIRED, Authority, or production claims. |
 | Proof M7 enforcement | partial | Proof-facing diagnostics and some warn/enforce modes exist in Proof Admissibility. The control-plane capability row reports this as partial while the compatibility boolean `proofM7Enforcement=false`. | The control plane does not implement Proof M7 hard blocking. |
 | Queue classification | implemented | `queue_governance_status` classifies active worktree, stale worktree, main init, experiment exception, duplicate candidate, superseded, and cleanup-required rows. | Classification alone never discards a story or grants readiness. |
 | Queue exception registry | implemented | `queue_exception_set` writes preserve-only experiment exceptions under the main-write lock with actor, reason, timestamp, hash binding, and audit event. | Exceptions affect duplicate-cleanup pressure only. |
-| Queue cleanup enforcement | partial | Duplicate/superseded/cleanup-required risk is projected and exception writes are guarded; cleanup mutations remain outside this dashboard. Compatibility boolean `queueCleanupEnforcement=false`. | Does not perform or authorize cleanup by itself. |
-| Tier-C cleanup | future | Tier-C provider-execution receipt verification runs are preserved and grouped as experiment evidence; malformed Tier-C-like rows stay cleanup-required. Compatibility boolean `tierCCleanup=false`. | No automated Tier-C cleanup is available or implied. |
+| Queue cleanup enforcement | implemented | Duplicate/superseded/cleanup-required risk is projected and exception writes are guarded; cleanup mutations remain outside this dashboard. Compatibility boolean `queueCleanupEnforcement=false`. | Does not perform, authorize, or hide cleanup by itself; it keeps cleanup pressure visible for operator action. |
+| Tier-C cleanup | unavailable | Tier-C provider-execution receipt verification runs are preserved and grouped as experiment evidence; malformed Tier-C-like rows stay cleanup-required. Compatibility boolean `tierCCleanup=false`. | Automated Tier-C cleanup is retired as a non-goal; preservation and malformed-row visibility are the implemented policy. |
 | External production done | unavailable | No external production adapter is part of the control plane. | Local CLI evidence cannot mint `productionDone`. |
 
 ## 2. Why This Is Needed
@@ -612,7 +612,9 @@ Definition of done:
 - a host can see which consumer is weak and why;
 - `candidate` / `diagnostic` / `legacy` evidence cannot satisfy DONE;
 - `authority-receipt` still cannot become local `productionDone`;
-- current-state stale rows do not block unrelated stories.
+- current-state stale rows do not block unrelated stories;
+- project-level no-data consumption rollups report unknown/no-data instead of
+  green/pass.
 
 ### CP-3 - Queue Governance And Exceptions
 

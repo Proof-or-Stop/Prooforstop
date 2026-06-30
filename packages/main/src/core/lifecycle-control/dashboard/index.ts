@@ -58,9 +58,10 @@ export interface GlobalControlStatusReport {
 }
 
 function rollup(statuses: readonly ControlPlaneStatusLevel[]): ControlPlaneStatusLevel {
+  if (statuses.length === 0) return 'unknown';
   if (statuses.includes('red')) return 'red';
   if (statuses.some((status) => status === 'yellow' || status === 'unknown')) return 'yellow';
-  if (statuses.length === 0 || statuses.every((status) => status === 'na')) return 'na';
+  if (statuses.every((status) => status === 'na')) return 'na';
   return 'green';
 }
 

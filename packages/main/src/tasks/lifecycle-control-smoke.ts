@@ -2,7 +2,7 @@
 
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 
@@ -19,6 +19,21 @@ import type { ChecklistData, StoryInfo } from '../core/types.js';
 
 const NOW = '2026-06-30T00:00:00.000Z';
 const TIER_C_BATCH_ID = 'tier-c-provider-execution-receipt-verification';
+const CLOSURE_AUDIT_PATH = 'docs/requirements/decisions/control-plane-proof-capability-closure-audit.md';
+
+function resolveRepoRoot(start = process.cwd()): string {
+  let current = start;
+  while (true) {
+    if (existsSync(join(current, CLOSURE_AUDIT_PATH))) {
+      return current;
+    }
+    const parent = dirname(current);
+    if (parent === current) {
+      throw new Error(`Unable to locate repo root containing ${CLOSURE_AUDIT_PATH} from ${start}`);
+    }
+    current = parent;
+  }
+}
 
 function git(cwd: string, args: string[]): string {
   return execFileSync('git', args, {
@@ -108,17 +123,31 @@ function createFixture(): { root: string; store: StoryStore } {
   return { root, store };
 }
 
+function assertClosureAuditContract(): void {
+  const audit = readFileSync(join(resolveRepoRoot(), CLOSURE_AUDIT_PATH), 'utf8');
+  for (const milestone of ['M1', 'M2', 'M3', 'M4', 'M5', 'M6', 'M7']) {
+    const matches = audit.match(new RegExp(`\\| ${milestone} \\|`, 'g')) ?? [];
+    assert.equal(matches.length, 1, `${CLOSURE_AUDIT_PATH} must list ${milestone} exactly once`);
+  }
+  for (const checklistId of ['CHK-001', 'CHK-002', 'CHK-003', 'CHK-004', 'CHK-005', 'CHK-006', 'CHK-007']) {
+    assert.ok(audit.includes(`| ${checklistId} |`), `${CLOSURE_AUDIT_PATH} must bind ${checklistId}`);
+  }
+  assert.match(audit, /\| M4 \| CHK-004 \| Append-only admissibility ledger \| retired\/non-goal \|/);
+  assert.match(audit, /\| M7 \| CHK-007 \| CommandSpec envelope and project waterline coverage \| implemented \|/);
+  assert.ok(!audit.includes('| M8 |'), `${CLOSURE_AUDIT_PATH} must not expand B-c004 beyond M1-M7`);
+}
+
 function assertCapabilityStatuses(): void {
   const caps = DEFAULT_CONTROL_PLANE_CAPABILITIES;
   assert.equal(caps.proofM7Enforcement, false, 'control plane must not claim Proof M7 enforcement');
   assert.equal(caps.queueCleanupEnforcement, false, 'control plane must not claim cleanup enforcement');
   assert.equal(caps.tierCCleanup, false, 'control plane must not claim Tier-C cleanup automation');
   assert.equal(caps.capabilityStatus.proofM7Enforcement, 'partial');
-  assert.equal(caps.capabilityStatus.queueCleanupEnforcement, 'partial');
-  assert.equal(caps.capabilityStatus.tierCCleanup, 'future');
+  assert.equal(caps.capabilityStatus.queueCleanupEnforcement, 'implemented');
+  assert.equal(caps.capabilityStatus.tierCCleanup, 'unavailable');
   assert.equal(caps.capabilities.find(row => row.id === 'proof-m7-enforcement')?.status, 'partial');
-  assert.equal(caps.capabilities.find(row => row.id === 'queue-cleanup-enforcement')?.status, 'partial');
-  assert.equal(caps.capabilities.find(row => row.id === 'tier-c-cleanup')?.status, 'future');
+  assert.equal(caps.capabilities.find(row => row.id === 'queue-cleanup-enforcement')?.status, 'implemented');
+  assert.equal(caps.capabilities.find(row => row.id === 'tier-c-cleanup')?.status, 'unavailable');
   assert.equal(isReadOnlyControlPlane(caps), true, 'richer statuses must preserve read-only/no-enforcement booleans');
 }
 
@@ -145,6 +174,38 @@ function assertTierCQueueGovernance(root: string, store: StoryStore): void {
   assert.deepEqual(queue.experimentBatches[0]?.storyIds, ['B-tier-a', 'B-tier-b']);
 }
 
+function assertQueueCleanupGuard(root: string, store: StoryStore): void {
+  store.writeStory('B-dup-a', story('B-dup-a', 'Duplicate cleanup guard shared title'));
+  store.writeChecklist('B-dup-a', checklist());
+  store.writeStory('B-dup-b', story('B-dup-b', 'Duplicate cleanup guard shared title'));
+  store.writeChecklist('B-dup-b', checklist());
+
+  const superseded = story('B-superseded', 'Superseded cleanup guard row') as StoryInfo & {
+    lifecycleControl: { queue: { supersededBy: string } };
+  };
+  superseded.lifecycleControl = { queue: { supersededBy: 'B-dup-a' } };
+  store.writeStory('B-superseded', superseded);
+  store.writeChecklist('B-superseded', checklist());
+
+  const queue = projectQueueGovernance(store, root, { expanded: true, now: NOW });
+  const duplicate = queue.rows.find(row => row.storyId === 'B-dup-b');
+  assert.equal(duplicate?.classification, 'duplicate-candidate');
+  assert.equal(duplicate?.cleanupPolicy, 'review-required');
+  assert.match(duplicate?.reason ?? '', /choose canonical\/superseded disposition/);
+
+  const supersededRow = queue.rows.find(row => row.storyId === 'B-superseded');
+  assert.equal(supersededRow?.classification, 'superseded');
+  assert.equal(supersededRow?.cleanupPolicy, 'cleanup-required');
+  assert.match(supersededRow?.reason ?? '', /B-dup-a/);
+
+  const tier = queue.rows.find(row => row.storyId === 'B-tier-a');
+  assert.equal(tier?.classification, 'experiment-batch-exception');
+  assert.equal(tier?.cleanupPolicy, 'preserve');
+  assert.equal(queue.summary.duplicateCandidate, 1);
+  assert.equal(queue.summary.superseded, 1);
+  assert.ok(queue.cleanupRequired.some(row => row.storyId === 'B-tier-malformed'), 'malformed Tier-C-like row stays visible to cleanup operators');
+}
+
 function assertDashboardDoesNotWaiveLifecycle(root: string, store: StoryStore): void {
   const report = buildGlobalControlStatus(store, root, {
     storyIds: ['B-tier-a'],
@@ -158,6 +219,21 @@ function assertDashboardDoesNotWaiveLifecycle(root: string, store: StoryStore): 
   assert.equal(row?.queue.cleanupPolicy, 'preserve');
   assert.equal(row?.readyForNextSafeAction, false, 'queue exception cannot grant lifecycle readiness');
   assert.notEqual(row?.runtime.status, 'green', 'pending checklist keeps runtime/readiness non-green');
+}
+
+function assertProjectWaterlineNoDataIsNotGreen(): void {
+  const { root, store } = createFixture();
+  for (const storyId of store.listStoryIds()) {
+    store.writeStory(storyId, { ...store.readStory(storyId), phase: 'DONE' });
+  }
+  const report = buildGlobalControlStatus(store, root, {
+    storyIds: [],
+    expanded: true,
+    now: NOW,
+  });
+  assert.equal(report.stories.length, 0);
+  assert.equal(report.project.consumptionAggregate, 'unknown', 'no story consumption rows are unknown/no-data, not green');
+  assert.notEqual(report.project.overall, 'green', 'project rollup must not promote no-data waterline to green');
 }
 
 function assertRuntimeEnforcementDecisions(): void {
@@ -201,6 +277,21 @@ function assertRuntimeEnforcementDecisions(): void {
   });
   assert.equal(warnDirty.blocked, false);
   assert.equal(warnDirty.reason, 'material_dirty_tree');
+  assert.equal(warnDirty.rollback, 'set lifecycleControl.runtimeEnforcement=warn');
+
+  const unavailableWrongCwd = evaluateRuntimeEnforcement({
+    mode: 'unavailable',
+    operation: 'phase-advance',
+    currentCwd: '/repo/main',
+    authoritativeCwd: '/repo/.worktrees/B-life',
+    authority: 'worktree',
+    dirtyState: 'clean',
+    validationLock: 'free',
+    mainWriteLock: 'free',
+  });
+  assert.equal(unavailableWrongCwd.blocked, false);
+  assert.equal(unavailableWrongCwd.reason, 'wrong_authoritative_cwd');
+  assert.equal(unavailableWrongCwd.advisory[0]?.remediation, 'set lifecycleControl.runtimeEnforcement=warn to roll back enforcement while diagnosing');
 
   const staleLock = evaluateRuntimeEnforcement({
     mode: 'enforce',
@@ -216,10 +307,13 @@ function assertRuntimeEnforcementDecisions(): void {
   assert.equal(staleLock.reason, 'stale_active_lock');
 }
 
+assertClosureAuditContract();
 assertCapabilityStatuses();
 const { root, store } = createFixture();
 assertTierCQueueGovernance(root, store);
+assertQueueCleanupGuard(root, store);
 assertDashboardDoesNotWaiveLifecycle(root, store);
+assertProjectWaterlineNoDataIsNotGreen();
 assertRuntimeEnforcementDecisions();
 
 console.log('lifecycle-control-smoke passed');

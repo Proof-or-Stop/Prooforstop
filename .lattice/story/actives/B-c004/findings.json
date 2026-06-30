@@ -1,0 +1,163 @@
+{
+  "findings": [
+    {
+      "id": "B-c004:F-001",
+      "desc": "Verified cwd-dependent smoke regression: the new closure-audit assertions read docs/requirements/decisions/control-plane-proof-capability-closure-audit.md via join(process.cwd(), CLOSURE_AUDIT_PATH). Standard package execution changes cwd to packages/main, so npm --prefix packages/main run test:proof-admissibility-hardening fails with ENOENT at packages/main/docs/requirements/decisions/control-plane-proof-capability-closure-audit.md. Running node packages/main/dist/tasks/proof-admissibility-hardening-smoke.js from repo root passes, and running node dist/tasks/lifecycle-control-smoke.js from packages/main fails the same way. Anchor the audit path to the repo root/module location or make the smoke resolve both supported cwd modes.",
+      "severity": "high",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-30T15:31:32.807Z",
+      "reviewRound": "2026-06-30T15:26:25.801Z",
+      "reviewRunId": "B-c004:RR-008",
+      "_hash": "df8a348ae3fc778d45d882a0911c47fe2947ba1b1bfbb48d310e2a0d9feef863",
+      "files": [
+        "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts",
+        "packages/main/src/tasks/lifecycle-control-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|verified-dependent-smoke",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Resolved closure-audit smoke path resolution by walking upward from cwd until docs/requirements/decisions/control-plane-proof-capability-closure-audit.md is found. Verified with npm --prefix packages/main run build; npm --prefix packages/main run test:proof-admissibility-hardening; cd packages/main && node dist/tasks/lifecycle-control-smoke.js; cd repo root && node packages/main/dist/tasks/lifecycle-control-smoke.js; cd repo root && node packages/main/dist/tasks/proof-admissibility-hardening-smoke.js.",
+      "resolvedAt": "2026-06-30T15:34:44.431Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c004:F-002",
+      "desc": "DONE-required stale/freshness smoke still writes synthetic command receipts without commandSpec, so the new CommandSpec evaluator turns the intended metadata-only freshness PASS into command-spec-missing[0]. This leaves stale/mismatch coverage inconsistent with the generated DONE_REQUIRED CommandSpec envelope and currently fails npm --prefix packages/main run test:done-required-freshness-smoke after build.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-30T16:25:24.269Z",
+      "reviewRound": "2026-06-30T16:21:42.765Z",
+      "reviewRunId": "B-c004:RR-018",
+      "_hash": "eb0ed0a8b040009c63befde8bd52a73ce38d3638a1e084c480beac249c6b0ea7",
+      "files": [
+        "packages/main/src/tasks/done-required-freshness-smoke.ts",
+        "packages/main/src/core/done-required-validation.ts"
+      ],
+      "signatureTag": "missing|ts|required-stale-freshness",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed done-required-freshness-smoke synthetic receipts to include the DONE_REQUIRED CommandSpec envelope/digest shape. Verified with npm --prefix packages/main run build, npm --prefix packages/main run test:done-required-freshness-smoke, npm --prefix packages/main run test:done-required-validation-smoke, and npm --prefix packages/main run test:proof-admissibility-hardening.",
+      "resolvedAt": "2026-06-30T16:57:29.536Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c004:F-003",
+      "desc": "Verified stale review-assurance overclaim remains in the story summary after the F-002 fix. `lattice summary_get {\"storyId\":\"B-c004\"}` reports expectedOutcome that the user should see DONE gates satisfied by fresh validation, delivery, review assurance, and intent-equivalence diagnostics, but `lattice done_closure {\"storyId\":\"B-c004\"}` reports canAttemptDone=false with a blocking review-assurance-floor row: missing material code paths 12, local rounds 0/3, stale host verdicts ignored, and next action to re-submit local host verdicts over the current materialHash. This contradicts the requested summary de-overclaim/no stale review-assurance overclaim requirement; the summary should state that validation/delivery are fresh while review-assurance floor remains to be satisfied by fresh quorum/fallback evidence, or omit the DONE-gates-satisfied claim until the DONE oracle passes.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-30T17:26:17.086Z",
+      "reviewRound": "2026-06-30T17:23:09.482Z",
+      "reviewRunId": "B-c004:RR-024",
+      "_hash": "3127271ba962e130d05ef65dd858721eeebee6aeef5ea9bce7a822a8ae8122bb",
+      "files": [
+        ".lattice/story/actives/B-c004/summary.json"
+      ],
+      "signatureTag": "doc-promise-undelivered|summary|review-assurance-overclaim",
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Resolved the summary overclaim by updating expectedOutcome, actualTranscript, outcomeDiff, and pitfalls so review assurance is no longer asserted by summary text before the DONE oracle accepts fresh current-material quorum or approved fallback evidence. Evidence: summary_set auto-commit e56c87b; summary now says final DONE readiness is determined by current Lattice gates and review assurance must be satisfied by fresh quorum or approved fallback.",
+      "resolvedAt": "2026-06-30T17:27:21.866Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c004:F-004",
+      "desc": "Quality review concurs with open blocker B-c004:F-003: the summary still overclaims DONE-gate satisfaction after F-002. lattice summary_get reports expectedOutcome that DONE gates are satisfied by fresh validation, delivery, review assurance, and intent-equivalence diagnostics, while lattice done_closure and lifecycle_check --target=DONE report canAttemptDone/localReady false because review-assurance-floor/current review evidence remain missing for current material. This violates the requested absence of stale summary overclaim; summary should say validation, DONE_REQUIRED, and delivery are fresh while review assurance remains pending, or omit the DONE-gates-satisfied claim until the DONE oracle passes.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-30T17:27:16.542Z",
+      "reviewRound": "2026-06-30T17:23:09.482Z",
+      "reviewRunId": "B-c004:RR-026",
+      "_hash": "b8b870351f13dc2acad854a73f707e65760eb8a0a82e7ebf5d5da4a2f8340ab4",
+      "files": [
+        ".lattice/story/actives/B-c004/summary.json"
+      ],
+      "signatureTag": "doc-promise-undelivered-summary-review-assurance-overclaim",
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Resolved by the concurrent summary_set fix at e56c87b9a and verified after the quality finding: lattice summary_get now says review assurance is not asserted by summary text and must be satisfied by fresh quorum or approved fallback evidence; lattice lifecycle_check --storyId=B-c004 --target=DONE --json reports story-summary and user-value-summary PASS while keeping review-assurance-floor separately blocked. The summary overclaim concern no longer holds.",
+      "resolvedAt": "2026-06-30T17:27:47.768Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c004:F-005",
+      "desc": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md:145 retires durable ledger streams as local CLI non-goals, but the active Appendix G close checklist at docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md:1513 still requires an evidence ledger write path where producers append ArtifactObservedEvent and evaluators append AdmissibilityEvaluationRow. This leaves an active operator-facing ledger obligation outside retired Appendix C, and packages/main/src/tasks/proof-admissibility-hardening-smoke.ts:121 only excludes Appendix C plus a narrow phrase set, so the regression is not mechanically covered.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-30T17:40:11.085Z",
+      "reviewRound": "2026-06-30T17:38:48.220Z",
+      "reviewRunId": "B-c004:RR-028",
+      "_hash": "0165d967de1660dbc42fa070b30eb6e098a4d02de5086e678c8cd5246faaa64d",
+      "files": [
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+        "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts"
+      ],
+      "signatureTag": "spec-boundary|md|docs-requirements-decisions",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed the active Appendix G contradiction by replacing the local CLI evidence ledger write-path obligation with artifact-specific verifier output plus diagnostic waterline steps, and broadened proof-admissibility-hardening-smoke to reject active ledger write-path terms outside retired/future-reference context. Evidence: commit ac66dd3a; npm --prefix packages/main run build; npm --prefix packages/main run test:proof-admissibility-hardening; npm --prefix packages/main run test:proof-admissibility all passed.",
+      "resolvedAt": "2026-06-30T17:45:59.922Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c004:F-006",
+      "desc": "Concept re-review after 78cf7d560 found an active-doc contradiction in the local CLI ledger-retirement boundary. The plan now correctly says artifact-specific verifier output is stored under artifact runtime evidence paths and durable ledger streams are retired local CLI non-goals (docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md:145) and Appendix C says the current local CLI does not write durable admissibility ledger rows or let admissibility_waterline claim ledger rows/release authority (line 931). However Appendix G remains an active \"Unified Close Checklist\" for high-risk proof-path stories and still requires \"Step 2: evidence ledger write path\", including producers appending ArtifactObservedEvent and evaluators appending AdmissibilityEvaluationRow (line 1513). That reintroduces an active durable-ledger write obligation outside retired Appendix C/future-reference context, so B-c004 does not yet coherently retire local CLI durable admissibility ledger storage while keeping diagnostic waterline plus artifact-specific verifier output. The smoke partly guards the new boundary but misses this active Appendix G obligation because assertHardeningPlanHasNoActiveLedgerObligations only strips Appendix C and checks narrower phrases, not the active \"evidence ledger write path\" checklist wording.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-30T17:40:25.354Z",
+      "reviewRound": "2026-06-30T17:38:48.220Z",
+      "reviewRunId": "B-c004:RR-029",
+      "_hash": "9166b6d29d50f391e1b329ab7cb3e810973aaa10de30e8a4c9c28f8f5db133a3",
+      "files": [
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+        "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts"
+      ],
+      "signatureTag": "spec-boundary|md|concept-review-78cf7d560",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed the concept contradiction by making Appendix G match the B-c004 boundary: current local CLI proof admissibility uses artifact-specific verifier output and diagnostic waterline; durable admissibility ledger rows remain retired/future-reference only. The smoke guard now rejects active ArtifactObservedEvent, AdmissibilityEvaluationRow, evidence ledger write path, ledger rows, and ledger streams outside retired reference context. Evidence: commit ac66dd3a; build, proof-admissibility-hardening smoke, and proof-admissibility smoke passed.",
+      "resolvedAt": "2026-06-30T17:46:06.056Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c004:F-007",
+      "desc": "Targeted proof-admissibility smoke is red after 78cf7d560: `npm --prefix packages/main run test:proof-admissibility` exits 1 at packages/main/dist/tasks/proof-admissibility-smoke.js:252 / source packages/main/src/tasks/proof-admissibility-smoke.ts:292, where valid DONE_REQUIRED done-readiness evidence is expected to be allowed but evaluateProofAdmissibility returns allowed=false. Build and proof-admissibility-hardening smoke pass, including the new retired ledger obligation guard, but the requested proof-admissibility smoke/build condition is not fully satisfied until the base smoke is green or this command is explicitly removed from the targeted acceptance boundary.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-30T17:40:32.365Z",
+      "reviewRound": "2026-06-30T17:38:48.220Z",
+      "reviewRunId": "B-c004:RR-030",
+      "_hash": "6294c5073ea4327fe0eb13ea625d36fae2b3d63d7f62f80d2c046058009cb100",
+      "files": [
+        "packages/main/src/tasks/proof-admissibility-smoke.ts",
+        "packages/main/src/core/proof-admissibility.ts"
+      ],
+      "signatureTag": "missing|ts|targeted-proof-admissibility",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed the base proof-admissibility smoke fixture so valid DONE_REQUIRED done-readiness evidence includes commandSpecDigestValid:true, preserving the core fail-closed CommandSpec policy instead of loosening evaluateProofAdmissibility. Evidence: commit ac66dd3a; npm --prefix packages/main run build; npm --prefix packages/main run test:proof-admissibility-hardening; npm --prefix packages/main run test:proof-admissibility all passed.",
+      "resolvedAt": "2026-06-30T17:46:14.200Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

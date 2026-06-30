@@ -32,7 +32,7 @@ function expectReason(
 }
 
 function currentValidChecks(schemaVersion: string) {
-  return {
+  const checks = {
     contractVersion: PROOF_ADMISSIBILITY_CONTRACT_VERSION,
     verifierVersion: PROOF_ADMISSIBILITY_VERIFIER_VERSION,
     schemaVersion,
@@ -43,6 +43,13 @@ function currentValidChecks(schemaVersion: string) {
     subjectMatches: true,
     producerBoundaryTrusted: true,
   };
+  if (schemaVersion === 'lattice.done_required_evidence.v1') {
+    return {
+      ...checks,
+      commandSpecDigestValid: true,
+    };
+  }
+  return checks;
 }
 
 type RuntimeAdmissibilityChecks = Parameters<typeof evaluateProofAdmissibility>[0]['checks'];

@@ -6,8 +6,8 @@
  */
 
 import assert from 'node:assert/strict';
-import { mkdtempSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { existsSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
 import { tmpdir } from 'node:os';
 import {
   PROOF_ADMISSIBILITY_CONTRACT_VERSION,
@@ -25,6 +25,8 @@ import {
   verifyProofBindingDigest,
   PROOF_BINDING_SCHEMA_VERSION,
 } from '../core/proof-admissibility-binding.js';
+import * as admissibilityCompat from '../core/evidence/admissibility/index.js';
+import { projectAdmissibilityWaterline } from '../core/lifecycle-control/consumption/index.js';
 import { buildHandoffAdmissibilitySummary } from '../core/proof-admissibility-handoff.js';
 import {
   type HandoffAcceptProjection,
@@ -48,6 +50,125 @@ const enforceHighRisk: ProofAdmissibilityPolicy = {
   mode: 'enforce',
   enforcedConsumers: ['DONE_REQUIRED', 'REVIEW', 'HANDOFF', 'AUTHORITY_GATE_DECISION'],
 };
+const CLOSURE_AUDIT_PATH = 'docs/requirements/decisions/control-plane-proof-capability-closure-audit.md';
+const HARDENING_PLAN_PATH = 'docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md';
+
+function resolveRepoRoot(start = process.cwd()): string {
+  let current = start;
+  while (true) {
+    if (existsSync(join(current, CLOSURE_AUDIT_PATH))) {
+      return current;
+    }
+    const parent = dirname(current);
+    if (parent === current) {
+      throw new Error(`Unable to locate repo root containing ${CLOSURE_AUDIT_PATH} from ${start}`);
+    }
+    current = parent;
+  }
+}
+
+function assertClosureAuditContract(): void {
+  const audit = readFileSync(join(resolveRepoRoot(), CLOSURE_AUDIT_PATH), 'utf8');
+  for (const milestone of ['M1', 'M2', 'M3', 'M4', 'M5', 'M6', 'M7']) {
+    const matches = audit.match(new RegExp(`\\| ${milestone} \\|`, 'g')) ?? [];
+    assert.equal(matches.length, 1, `${CLOSURE_AUDIT_PATH} must list ${milestone} exactly once`);
+  }
+  assert.match(audit, /\| M4 \| CHK-004 \| Append-only admissibility ledger \| retired\/non-goal \|/);
+  assert.match(audit, /\| M7 \| CHK-007 \| CommandSpec envelope and project waterline coverage \| implemented \|/);
+}
+
+function assertAppendOnlyLedgerRetired(): void {
+  const compatExports = admissibilityCompat as Record<string, unknown>;
+  for (const exportName of ['writeAdmissibilityLedgerRow', 'appendAdmissibilityLedgerRow', 'readAdmissibilityLedger']) {
+    assert.equal(exportName in compatExports, false, `local CLI must not expose ${exportName} while append-only ledger is retired`);
+  }
+
+  const root = mkdtempSync(join(tmpdir(), 'proof-admissibility-ledger-retired-'));
+  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
+    scanRoot: 'packages/main',
+    rootDir: 'src',
+    storyDir: '.lattice/story/actives',
+    requirementsDir: 'docs/requirements',
+    storyPrefix: 'B',
+    flows: { defaults: {}, patterns: [] },
+    proofAdmissibility: { mode: 'warn' },
+  }, null, 2));
+  resetConfigCache();
+  const report = projectAdmissibilityWaterline(new StoryStore(root), root, {
+    consumers: ['DONE_REQUIRED'],
+    now: '2026-06-30T00:00:00.000Z',
+  });
+  assert.equal(report.readOnly, true, 'waterline is read-only while ledger storage is retired');
+  assert.equal(report.diagnosticOnly, true, 'waterline is diagnostic-only while ledger storage is retired');
+  assert.equal((report as unknown as Record<string, unknown>).ledgerPath, undefined, 'waterline must not claim a durable ledger path');
+  assert.equal((report as unknown as Record<string, unknown>).ledgerRows, undefined, 'waterline must not claim durable ledger rows');
+  assert.equal(report.rows[0]?.diagnosticOnly, true, 'consumer rows stay diagnostic-only');
+  assert.equal(report.rows[0]?.productionDoneEligible, false, 'consumer rows cannot become release authority through ledger wording');
+  assert.ok(report.rows[0]?.topReasons.includes('command_spec_missing'), 'missing DONE_REQUIRED evidence reports missing CommandSpec rather than digest mismatch');
+}
+
+function assertHardeningPlanHasNoActiveLedgerObligations(): void {
+  const plan = readFileSync(join(resolveRepoRoot(), HARDENING_PLAN_PATH), 'utf8');
+  assert.match(plan, /durable ledger streams are retired local CLI non-goals/);
+  assert.match(plan, /Durable ledger-row derivation is\s+retired Appendix C \/ future-integration reference material/);
+
+  const activePlanText = plan
+    .replace(
+      /## Appendix C: Retired Evidence Admissibility Ledger Reference[\s\S]*?(?=\n## Appendix D:)/,
+      '\n## Appendix C retired reference omitted from active-obligation smoke\n',
+    );
+  const retiredContext = 'Appendix C is the only retired ledger-row reference context in this smoke';
+  const activeParagraphs = activePlanText
+    .split(/\n{2,}/)
+    .filter(paragraph => !/\b(?:retired|non-goals?|future[- ]integration|future|reference material|integration story)\b/i.test(paragraph));
+  const forbiddenActivePhrases = [
+    {
+      label: 'evidence ledger write path',
+      pattern: /\bevidence ledger write path\b/i,
+    },
+    {
+      label: 'ArtifactObservedEvent active obligation',
+      pattern: /\bArtifactObservedEvent\b/,
+    },
+    {
+      label: 'AdmissibilityEvaluationRow active obligation',
+      pattern: /\bAdmissibilityEvaluationRow\b/,
+    },
+    {
+      label: 'ledger stream storage obligation',
+      pattern: /\bledger streams?\b/i,
+    },
+    {
+      label: 'review-time concrete ledger row obligation',
+      pattern: /\b(?:inspect|review)\b[\s\S]{0,100}\b(?:concrete\s+)?ledger rows?\b/i,
+    },
+    {
+      label: 'ledger-row count source obligation',
+      pattern: /\bcounts?\b[\s\S]{0,80}\bderived from ledger rows?\b/i,
+    },
+    {
+      label: 'ledger-row repair obligation',
+      pattern: /\badd\s+a\s+ledger row\b/i,
+    },
+    {
+      label: 'active ledger row obligation',
+      pattern: /\bledger rows?\b/i,
+    },
+  ];
+  for (const { label, pattern } of forbiddenActivePhrases) {
+    for (const paragraph of activeParagraphs) {
+      assert.equal(
+        pattern.test(paragraph),
+        false,
+        `${HARDENING_PLAN_PATH} must not reintroduce active ${label}; ${retiredContext}`,
+      );
+    }
+  }
+}
+
+assertClosureAuditContract();
+assertAppendOnlyLedgerRetired();
+assertHardeningPlanHasNoActiveLedgerObligations();
 
 function currentValidChecks(schemaVersion: string) {
   return {
@@ -354,6 +475,34 @@ function assertBlockedHandoffSummary(value: { admissibilitySummary: { blocked: b
   assert.equal(checkerError.overall, 'error', 'checker failures report overall=error');
   assert.equal(checkerError.blocking, false, 'checker errors are warning-only workflow recovery, not proof-open');
   assert.ok(checkerError.reasons.includes('checker_error'), 'checker_error reason is preserved');
+}
+
+{
+  const missingCommandSpec = buildProofAdmissibilityDiagnostic({
+    artifactKind: 'done-required-evidence',
+    consumer: 'DONE_REQUIRED',
+    claim: 'done-readiness',
+    policy: enforceHighRisk,
+    checks: {
+      ...currentValidChecks('lattice.done_required_evidence.v1'),
+      commandSpecDigestValid: undefined,
+    },
+  });
+  assert.equal(missingCommandSpec.blocking, true, 'enforce mode blocks command-backed DONE_REQUIRED evidence without CommandSpec');
+  assert.ok(missingCommandSpec.reasons.includes('command_spec_missing'), 'missing CommandSpec reports command_spec_missing');
+
+  const mismatchedCommandSpec = buildProofAdmissibilityDiagnostic({
+    artifactKind: 'done-required-evidence',
+    consumer: 'DONE_REQUIRED',
+    claim: 'done-readiness',
+    policy: enforceHighRisk,
+    checks: {
+      ...currentValidChecks('lattice.done_required_evidence.v1'),
+      commandSpecDigestValid: false,
+    },
+  });
+  assert.equal(mismatchedCommandSpec.blocking, true, 'enforce mode blocks mismatched CommandSpec digests');
+  assert.ok(mismatchedCommandSpec.reasons.includes('command_spec_digest_mismatch'), 'mismatched CommandSpec reports command_spec_digest_mismatch');
 }
 
 {

@@ -1,0 +1,66 @@
+{
+  "storyId": "B-c004",
+  "checkedAt": "2026-06-30T15:05:48.422Z",
+  "features": [
+    {
+      "feature": "M1 seven-capability ledger and coverage audit",
+      "covered_by": "CHK-001, AB-M1, slice-audit-vocabulary",
+      "status": "covered",
+      "excluded_by": "none",
+      "source": "B-c004 original intent snapshot and milestone ledger"
+    },
+    {
+      "feature": "M2 retire active Authority Server future backlog language",
+      "covered_by": "CHK-002, AB-M2, slice-audit-vocabulary",
+      "status": "covered",
+      "excluded_by": "Authority Server runtime implementation",
+      "source": "User explicitly removed Authority Server capability"
+    },
+    {
+      "feature": "M3 resolve Tier-C cleanup policy",
+      "covered_by": "CHK-003, AB-M3, slice-control-plane-cleanup-runtime",
+      "status": "covered",
+      "excluded_by": "none",
+      "source": "global lifecycle control-plane document"
+    },
+    {
+      "feature": "M4 resolve append-only admissibility ledger capability",
+      "covered_by": "CHK-004, AB-M4, slice-proof-admissibility-waterline",
+      "status": "covered",
+      "excluded_by": "none",
+      "source": "proof admissibility hardening document"
+    },
+    {
+      "feature": "M5 complete queue cleanup enforcement guard",
+      "covered_by": "CHK-005, AB-M5, slice-control-plane-cleanup-runtime",
+      "status": "covered",
+      "excluded_by": "none",
+      "source": "global lifecycle control-plane document"
+    },
+    {
+      "feature": "M6 complete runtime closure enforce rollout",
+      "covered_by": "CHK-006, AB-M6, slice-control-plane-cleanup-runtime",
+      "status": "covered",
+      "excluded_by": "none",
+      "source": "global lifecycle control-plane document"
+    },
+    {
+      "feature": "M7 complete CommandSpec envelope and project waterline coverage",
+      "covered_by": "CHK-007, AB-M7, slice-proof-admissibility-waterline",
+      "status": "covered",
+      "excluded_by": "none",
+      "source": "proof admissibility and control-plane documents"
+    }
+  ],
+  "summary": {
+    "total": 7,
+    "covered": 7,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "013a216e534e9b7ab8dc29323fd4d246e55c21dca2cbc3023482ec6adf986935",
+  "openQuestions": []
+}
