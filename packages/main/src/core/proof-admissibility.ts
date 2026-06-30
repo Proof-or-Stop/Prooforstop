@@ -16,6 +16,8 @@ export const EVIDENCE_SCOPES = [
   'local-key-single-host',
   'local-gate-evidence',
   'local-review-quorum',
+  'authority-receipt',
+  'production-gate-decision',
   'legacy-authority-receipt',
 ] as const;
 export type EvidenceScope = typeof EVIDENCE_SCOPES[number];
@@ -38,6 +40,7 @@ export const ARTIFACT_ROLES = [
   'red-green-relation',
   'handoff-context',
   'local-diagnostic',
+  'authority-decision',
   'legacy-authority-decision',
 ] as const;
 export type ArtifactRole = typeof ARTIFACT_ROLES[number];
@@ -62,6 +65,7 @@ export const ARTIFACT_CONSUMER_KINDS = [
   'TEST',
   'DONE',
   'HANDOFF',
+  'AUTHORITY_GATE_DECISION',
   'LEGACY_AUTHORITY_RECEIPT',
   'DONE_REQUIRED',
 ] as const;
@@ -70,6 +74,7 @@ export type ArtifactConsumerKind = typeof ARTIFACT_CONSUMER_KINDS[number];
 export const PROOF_PRODUCER_BOUNDARIES = [
   'caller-writable',
   'local-runtime-owned',
+  'authority-owned',
   'legacy-authority-owned',
   'trusted-reviewer-owned',
   'legacy-unknown',
@@ -200,6 +205,8 @@ const LEGACY_RECEIPT_REMEDIATION =
   'Treat legacy receipt evidence as out-of-core compatibility input; use local proof-admissibility, receipt-bundle, and quorum evidence for current assurance.';
 const PRODUCTION_GATE_REMEDIATION =
   'Re-run the matching local gate verifier for the current story/head/material tuple and target consumer.';
+const AUTHORITY_ADAPTER_REMEDIATION =
+  'Verify the Authority-facing gate decision with the external adapter policy for the exact story/head/material tuple; local CLI core records evidence scope but never mints productionDone.';
 
 export const PROOF_SURFACE_REGISTRY = [
   {
@@ -258,6 +265,43 @@ export const PROOF_SURFACE_REGISTRY = [
     ],
     producerBoundaryNote: 'Reviewer-owned lane evidence may satisfy local review escalation only.',
     remediation: 'Start a fresh signed review run for the current round/material and consume it only in REVIEW.',
+  },
+  {
+    artifactKind: 'authority-receipt-ref',
+    aliases: ['authority-gate-decision', 'gate_decision', 'authority-receipt-refs.json'],
+    scope: 'production-gate-decision',
+    artifactRole: 'authority-decision',
+    temporalRole: 'current-state',
+    producerBoundary: 'authority-owned',
+    schemaVersions: ['lattice.authority_gate_decision.v1'],
+    strictShapeRequired: true,
+    semanticDigestRequired: true,
+    signatureOrReceiptBindingRequired: true,
+    temporalAndMaterialBindingRequired: true,
+    allowedConsumers: ['AUTHORITY_GATE_DECISION'],
+    allowedClaims: [
+      { claim: 'production-completion', consumers: ['AUTHORITY_GATE_DECISION'], productionDoneEligible: false },
+    ],
+    producerBoundaryNote: 'Authority-facing gate decision refs are external adapter evidence inputs; the local CLI core does not convert them into productionDone.',
+    remediation: AUTHORITY_ADAPTER_REMEDIATION,
+  },
+  {
+    artifactKind: 'authority-receipt',
+    scope: 'authority-receipt',
+    artifactRole: 'authority-decision',
+    temporalRole: 'current-state',
+    producerBoundary: 'authority-owned',
+    schemaVersions: ['lattice.authority_receipt.v1'],
+    strictShapeRequired: true,
+    semanticDigestRequired: true,
+    signatureOrReceiptBindingRequired: true,
+    temporalAndMaterialBindingRequired: true,
+    allowedConsumers: ['AUTHORITY_GATE_DECISION'],
+    allowedClaims: [
+      { claim: 'diagnostic-status', consumers: ['AUTHORITY_GATE_DECISION'], productionDoneEligible: false },
+    ],
+    producerBoundaryNote: 'Authority receipts are evidence inputs. A production-completion claim requires a matching Authority gate decision policy.',
+    remediation: AUTHORITY_ADAPTER_REMEDIATION,
   },
   {
     artifactKind: 'legacy-authority-receipt-ref',
@@ -747,7 +791,11 @@ export function evaluateProofAdmissibility(input: EvaluateProofAdmissibilityInpu
     );
   }
 
-  if (input.claim === 'production-completion' && definition.scope !== 'local-gate-evidence') {
+  if (
+    input.claim === 'production-completion'
+    && definition.scope !== 'local-gate-evidence'
+    && definition.scope !== 'production-gate-decision'
+  ) {
     addReason(
       reasons,
       remediation,

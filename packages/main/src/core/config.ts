@@ -43,6 +43,8 @@ export interface DoneRequiredCommandConfig {
 
 export interface ProofAdmissibilityConfig {
   mode?: 'warn' | 'enforce';
+  enforcedConsumers?: Array<'DONE_REQUIRED' | 'REVIEW' | 'HANDOFF' | 'AUTHORITY_GATE_DECISION'>;
+  highRiskConsumers?: Array<'DONE_REQUIRED' | 'REVIEW' | 'HANDOFF' | 'AUTHORITY_GATE_DECISION'>;
 }
 
 export interface ReproFirstPreflightConfig {

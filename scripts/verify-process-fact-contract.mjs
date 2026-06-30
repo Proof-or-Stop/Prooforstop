@@ -148,6 +148,9 @@ const requiredProcessFactSemantics = {
   done_intent_equivalence_check: ['schema-contract', 'verification-policy'],
   proofstory_review_completeness_check: ['schema-contract', 'verification-policy'],
 };
+const requiredRuntimeFactSemantics = {
+  'runtime:proof_admissibility_gate_diagnostic': ['runtime-behavior', 'schema-contract', 'freshness-policy', 'gate-evidence'],
+};
 const requiredReviewerLanes = [
   'lattice-review-story-init',
   'product-reviewer',
@@ -3308,6 +3311,16 @@ function assertProcessFactRegistryContract(cliToolNames, policyEntries, configTe
     assert(
       expectedSemantics.every((semantic) => entry.semantics.includes(semantic)),
       `${processFactRegistryPath}: required semantic fact missing for command=${commandName} expected=[${expectedSemantics.join(', ')}] got=[${entry.semantics.join(', ')}]`,
+    );
+  }
+
+  for (const [factName, expectedSemantics] of Object.entries(requiredRuntimeFactSemantics)) {
+    const entry = registry.get(factName);
+    assert(entry, `${processFactRegistryPath}: required runtime process fact missing from PROCESS_FACT_REGISTRY: ${factName}`);
+    if (!entry) continue;
+    assert(
+      expectedSemantics.every((semantic) => entry.semantics.includes(semantic)),
+      `${processFactRegistryPath}: required runtime semantic fact missing for name=${factName} expected=[${expectedSemantics.join(', ')}] got=[${entry.semantics.join(', ')}]`,
     );
   }
 

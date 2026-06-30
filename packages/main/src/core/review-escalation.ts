@@ -27,7 +27,7 @@ import type { StoryStore } from './store.js';
 import {
   buildProofAdmissibilityDiagnostic,
   proofAdmissibilityBlockingReason,
-  resolveProofAdmissibilityMode,
+  resolveProofAdmissibilityPolicy,
   type ProofAdmissibilityDiagnostic,
 } from './proof-admissibility-gates.js';
 
@@ -485,12 +485,13 @@ export function evaluateReviewEscalation(args: EvaluateReviewEscalationArgs): Re
     ? eventsWithStoryFilesHashDowngrade(events, materialHash, storyFilesHash, advisories)
     : events;
   const voluntaryLocalRounds = evaluateVoluntaryLocalRounds(effectiveEvents, materialHash);
+  const proofPolicy = resolveProofAdmissibilityPolicy(args.projectRoot);
   const proofAdmissibility = buildProofAdmissibilityDiagnostic({
     artifactKind: 'review-run',
     artifactId: args.storyId ? `${args.storyId}:review-escalation` : 'review-escalation',
     consumer: 'REVIEW',
     claim: 'review-pass',
-    mode: resolveProofAdmissibilityMode(args.projectRoot),
+    policy: proofPolicy,
     checks: {
       schemaVersion: 'lattice.review_run.v1',
       strictShapeValid: true,

@@ -53,11 +53,15 @@ function runtimeChecks(value: Record<string, unknown>): RuntimeAdmissibilityChec
 
 {
   assert.ok(EVIDENCE_SCOPES.includes('local-gate-evidence'), 'scope dictionary includes local-gate-evidence');
-  assert.ok(EVIDENCE_SCOPES.includes('local-gate-evidence'), 'scope dictionary includes local-gate-evidence');
+  assert.ok(EVIDENCE_SCOPES.includes('authority-receipt'), 'scope dictionary includes authority-receipt');
+  assert.ok(EVIDENCE_SCOPES.includes('production-gate-decision'), 'scope dictionary includes production-gate-decision');
+  assert.ok(ARTIFACT_ROLES.includes('authority-decision'), 'artifact role dictionary includes authority-decision');
   assert.ok(ARTIFACT_ROLES.includes('legacy-authority-decision'), 'artifact role dictionary includes legacy-authority-decision');
   assert.ok(CLAIM_KINDS.includes('production-completion'), 'claim dictionary includes production-completion');
+  assert.ok(ARTIFACT_CONSUMER_KINDS.includes('AUTHORITY_GATE_DECISION'), 'consumer dictionary includes AUTHORITY_GATE_DECISION');
   assert.ok(ARTIFACT_CONSUMER_KINDS.includes('LEGACY_AUTHORITY_RECEIPT'), 'consumer dictionary includes LEGACY_AUTHORITY_RECEIPT');
   assert.ok(TEMPORAL_ROLES.includes('transition-relation'), 'temporal role dictionary includes transition-relation');
+  assert.ok(PROOF_PRODUCER_BOUNDARIES.includes('authority-owned'), 'producer boundary dictionary includes authority-owned');
   assert.ok(PROOF_PRODUCER_BOUNDARIES.includes('legacy-authority-owned'), 'producer boundary dictionary includes legacy-authority-owned');
   assert.ok(ADMISSIBILITY_REASON_CODES.includes('local_diagnostic_non_gate'), 'reason dictionary includes local_diagnostic_non_gate');
   assert.ok(ADMISSIBILITY_REASON_CODES.includes('unsupported_verifier_version'), 'reason dictionary includes unsupported_verifier_version');
@@ -69,6 +73,8 @@ function runtimeChecks(value: Record<string, unknown>): RuntimeAdmissibilityChec
     'done-required-evidence',
     'delivery-check',
     'review-run',
+    'authority-receipt-ref',
+    'authority-receipt',
     'legacy-authority-receipt-ref',
     'legacy-authority-receipt',
     'offline-receipt-bundle',
@@ -89,7 +95,33 @@ function runtimeChecks(value: Record<string, unknown>): RuntimeAdmissibilityChec
     assert.ok(registryKinds.has(kind), `registry missing ${kind}`);
   }
   assert.equal(PROOF_SURFACE_REGISTRY.length, registryKinds.size, 'registry artifactKind values must be unique');
+  assert.equal(getProofSurfaceDefinition('authority-gate-decision')?.artifactKind, 'authority-receipt-ref', 'Authority-facing aliases resolve to canonical definition');
   assert.equal(getProofSurfaceDefinition('legacy-authority-receipt-refs.json')?.artifactKind, 'legacy-authority-receipt-ref', 'aliases resolve to canonical definition');
+}
+
+{
+  const result = evaluateProofAdmissibility({
+    artifactKind: 'authority-receipt-ref',
+    consumer: 'AUTHORITY_GATE_DECISION',
+    claim: 'production-completion',
+    checks: currentValidChecks('lattice.authority_gate_decision.v1'),
+  });
+  assert.equal(result.allowed, true, 'Authority-facing gate decision refs can be admissible evidence for the matching adapter consumer');
+  assert.equal(result.scope, 'production-gate-decision', 'Authority-facing gate decision refs use production-gate-decision scope');
+  assert.equal(result.productionDoneEligible, false, 'local CLI core never mints productionDone from Authority-facing refs');
+}
+
+{
+  const receiptOnly = evaluateProofAdmissibility({
+    artifactKind: 'authority-receipt',
+    consumer: 'AUTHORITY_GATE_DECISION',
+    claim: 'production-completion',
+    checks: currentValidChecks('lattice.authority_receipt.v1'),
+  });
+  assert.equal(receiptOnly.allowed, false, 'plain Authority receipts cannot satisfy production-completion without gate-decision policy');
+  assert.equal(receiptOnly.productionDoneEligible, false, 'plain Authority receipts cannot set productionDone');
+  expectReason(receiptOnly.reasons, 'artifact_consumer_mismatch', 'plain receipt production-completion mismatch');
+  expectReason(receiptOnly.reasons, 'producer_owned_required', 'plain receipt production-completion boundary');
 }
 
 {

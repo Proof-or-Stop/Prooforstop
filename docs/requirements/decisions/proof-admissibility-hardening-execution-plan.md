@@ -23,6 +23,32 @@ B-0985 implements the first classification-only slice: the inventory, canonical
 enum vocabulary, proof surface registry, and evaluator. It does not hard-fail
 gates or create storage outside `.lattice/evidence/`.
 
+## B-cd3a Capability Audit Freeze
+
+This table freezes the current capability audit for the proof-admissibility
+slice. It is the status contract for this document: implemented means present in
+source and covered by a focused smoke or registry check; partial means the local
+CLI side exists but broader ledger, cross-runtime, or Authority production
+semantics are not complete; future means intentionally outside the local CLI
+core; missing means described by the plan but not currently implemented.
+
+| Capability | Status | Source / evidence | Boundary |
+|---|---|---|---|
+| M0/M1 proof surface registry and shared evaluator | Implemented | `packages/main/src/core/proof-admissibility.ts`; `npm --prefix packages/main run test:proof-admissibility` | Classification is shared and fail-closed for unknown proof-looking surfaces. |
+| Standard vocabulary for scope / role / claim / consumer / reason | Implemented | `proof-admissibility.ts`; Appendix E; command catalog `admissibility_waterline` consumer schema | `AUTHORITY_GATE_DECISION` is canonical; legacy receipt rows remain compatibility-only. |
+| Reserved caller-writable proof-key sanitizer | Implemented | `packages/main/src/core/proof-admissibility-metadata.ts`; hardening smoke | Caller metadata may preserve ordinary keys, but reserved proof-looking keys are stripped or rejected. |
+| Versioned strict-shape and semantic digest binding | Implemented | `packages/main/src/core/proof-admissibility-binding.ts`; hardening smoke reason/verdict/null tamper cases | Digest binding covers local CLI proof payload semantics; future artifacts must add their own registered payloads before gate consumption. |
+| Gate-facing diagnostics and process-fact registration | Implemented | `packages/main/src/core/proof-admissibility-gates.ts`; `process-fact-levels.ts`; `process-fact-registry.ts`; `scripts/verify-process-fact-contract.mjs` | Diagnostics report scope/reason/remediation. The registry fact is gate-consumed; the waterline remains read-only. |
+| DONE_REQUIRED hard-fail rollout | Implemented for configured local CLI high-risk consumer | `done-required-validation.ts`; `lattice.config.json` `proofAdmissibility.enforcedConsumers`; hardening smoke | Blocks inadmissible DONE-required evidence in enforce mode; does not claim production completion. |
+| REVIEW review-assurance / quorum hard-fail rollout | Implemented for configured high-risk REVIEW consumer | `review-assurance-floor.ts`; `review-escalation.ts`; hardening smoke | REVIEW proof diagnostics can block high-risk review-assurance/quorum paths; local host verdicts remain non-authority. |
+| HANDOFF proof-ref hard-fail capability | Partial | `proof-admissibility-handoff.ts`; hardening smoke | Helper blocks inadmissible proof refs when passed enforce policy. Existing handoff command projections remain local/diagnostic and must pass the project policy into the helper before this is end-to-end for every handoff path. |
+| Authority-facing proof consumer | Partial | `authority-receipt-ref` / `AUTHORITY_GATE_DECISION` registry entries; hardening smoke | A matching Authority-facing gate decision can be admissible evidence input with `productionDoneEligible=false`; external Authority adapter production projection is future work. Plain receipts and legacy refs cannot replace the gate decision. |
+| Legacy classification | Implemented for read-time local CLI diagnostics | `packages/main/src/core/proof-admissibility-legacy.ts`; hardening smoke | Legacy evidence is audit-readable only and cannot satisfy new strong proof gates. |
+| Admissibility waterline | Implemented as read-only diagnostic projection | `packages/main/src/core/lifecycle-control/consumption/index.ts`; `lattice admissibility_waterline --storyId=<id> --format=json` | Waterline counts and statuses cannot satisfy DONE, cannot mutate evidence, and cannot set `productionDone`. |
+| Append-only admissibility ledger under `.lattice/evidence/` | Missing / future | Appendix C schema only | Current local CLI implementation evaluates directly and renders a diagnostic waterline; durable ledger rows remain a future integration. |
+| Cross-runtime / Authority Server conformance suite | Future | Appendix A C12; Appendix B Authority rows | Local CLI smokes cover the current contract. Server-backed production receipt parity is outside this slice. |
+| 3 rounds x 2 host review evidence for rollout stories | Process requirement, not code capability | REVIEW / DONE evidence lanes for the story | This document records the requirement; lifecycle reviewers must supply the actual evidence over final material. |
+
 ## Table of Contents
 
 - 1. Problem
@@ -583,11 +609,17 @@ Exit criteria:
   rollback, grandfather/audit-only treatment, and checker-error handling are
   explicit.
 
-B-0405 status: implemented as config-resolved `proofAdmissibility.mode =
-warn|enforce` helper with warn default. The adversarial hardening smoke covers
-reserved-key injection, delegated metadata spoofing, stale/wrong-shape proof
-diagnostics, local/diagnostic handoff receipts, legacy downgrade behavior, and
-enforce-mode blocking for inadmissible high-risk consumers.
+B-0405 / B-cd3a status: B-0405 introduced config-resolved
+`proofAdmissibility.mode = warn|enforce` with warn default and shared
+diagnostics. B-cd3a closes the local CLI M7 rollout for explicitly configured
+high-risk consumers by adding `proofAdmissibility.enforcedConsumers` and setting
+this project to enforce `DONE_REQUIRED`, `REVIEW`, `HANDOFF`, and
+`AUTHORITY_GATE_DECISION`. The adversarial hardening smoke covers reserved-key
+injection, stale/wrong-shape proof diagnostics, semantic tamper,
+local/diagnostic handoff proof refs, legacy downgrade behavior, checker-error
+warning-only recovery, and enforce-mode blocking for inadmissible configured
+high-risk consumers. This remains local CLI enforcement: it does not implement
+append-only ledger storage or external Authority production completion.
 
 B-91f3 clarification: the local CLI core keeps `productionDoneEligible=false`
 for Authority receipt refs. External Authority adapters may still verify and
@@ -1211,6 +1243,8 @@ use canonical values.
 | `red_green_relation_evaluate` | `red-green-relation-evaluation` |
 | `regression_matrix_review_set` | `regression-matrix-review` |
 | `validate` / DEV / TEST evidence writers | `current-verification-evidence` |
+| Authority-facing adapter gate decision refs | `authority-receipt-ref` |
+| Legacy Authority receipt compatibility refs | `legacy-authority-receipt-ref` |
 
 Projection rule:
 
@@ -1222,6 +1256,8 @@ Compatibility aliases, read-only:
 
 - `AUTHORITY_GATE` -> `AUTHORITY_GATE_DECISION`
 - `LOCAL_REVIEW_QUORUM` -> `REVIEW`
+- `LEGACY_AUTHORITY_RECEIPT` remains readable as compatibility-only diagnostic
+  input and must not be used for new strong proof consumers.
 - `gate` -> `consumer`
 
 #### ArtifactRole
@@ -1263,6 +1299,11 @@ Compatibility aliases, read-only:
 - `authority-receipt`
 - `production-gate-decision`
 
+Read-only compatibility scope:
+
+- `legacy-authority-receipt` is accepted only for legacy receipt compatibility
+  rows and must not be emitted for new strong proof surfaces.
+
 #### ProofProducerBoundary
 
 - `caller-writable`
@@ -1270,6 +1311,11 @@ Compatibility aliases, read-only:
 - `authority-owned`
 - `trusted-reviewer-owned`
 - `legacy-unknown`
+
+Read-only compatibility producer boundary:
+
+- `legacy-authority-owned` is accepted only for legacy receipt compatibility
+  rows and must not be emitted for new strong proof surfaces.
 
 #### Local CLI proof vocabulary
 

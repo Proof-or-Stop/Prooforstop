@@ -13,7 +13,7 @@ import type {
 import {
   buildProofAdmissibilityDiagnostic,
   proofAdmissibilityBlockingReason,
-  resolveProofAdmissibilityMode,
+  resolveProofAdmissibilityPolicy,
   type ProofAdmissibilityDiagnostic,
 } from './proof-admissibility-gates.js';
 
@@ -485,13 +485,13 @@ export function evaluateDoneRequiredEvidence(args: {
   gitCwd: string;
 }): DoneRequiredGateEvaluation {
   const policy = resolveDoneRequiredPolicy(args.projectRoot);
-  const proofMode = resolveProofAdmissibilityMode(args.projectRoot);
+  const proofPolicy = resolveProofAdmissibilityPolicy(args.projectRoot);
   const doneRequiredDiagnostic = (evidence: DoneRequiredEvidenceData | null, ok: boolean): ProofAdmissibilityDiagnostic => buildProofAdmissibilityDiagnostic({
     artifactKind: 'done-required-evidence',
     artifactId: DONE_REQUIRED_EVIDENCE_FILE,
     consumer: 'DONE_REQUIRED',
     claim: 'done-readiness',
-    mode: proofMode,
+    policy: proofPolicy,
     checks: {
       schemaVersion: evidence?.schema === DONE_REQUIRED_EVIDENCE_SCHEMA && evidence?.version === DONE_REQUIRED_EVIDENCE_VERSION
         ? 'lattice.done_required_evidence.v1'

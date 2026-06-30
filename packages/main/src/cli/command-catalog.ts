@@ -745,7 +745,7 @@ Behavior:
   }},
   { name: 'admissibility_waterline', description: 'Diagnostic-only Proof Admissibility consumer waterline; never grants lifecycle readiness or production eligibility.', schema: {
     storyId: z.string().optional().describe('Optional story ID for story-scoped evidence probes.'),
-    consumers: z.array(z.enum(['STORY_INTAKE', 'PLAN', 'REVIEW', 'TEST', 'DONE', 'HANDOFF', 'AUTHORITY_GATE_DECISION', 'DONE_REQUIRED'])).optional().describe('Optional consumers to render.'),
+    consumers: z.array(z.enum(['STORY_INTAKE', 'PLAN', 'REVIEW', 'TEST', 'DONE', 'HANDOFF', 'AUTHORITY_GATE_DECISION', 'LEGACY_AUTHORITY_RECEIPT', 'DONE_REQUIRED'])).optional().describe('Optional consumers to render.'),
     format: z.enum(['text', 'json']).optional().describe('Output format (default text).'),
     json: z.boolean().optional().describe('Shortcut for --format=json.'),
     ...READ_ONLY_STATUS_UNSUPPORTED_FLAGS,
