@@ -19,7 +19,30 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "captureEvidenceHashSnapshot returns one coherent headHash/materialHash/storyFilesHash binding for the same git cwd and metadata root",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "the snapshot records material dirty state so dirty material worktree changes cannot be silently reused",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "the contract exposes no persistent cache and no mtime or file-count based freshness shortcut",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

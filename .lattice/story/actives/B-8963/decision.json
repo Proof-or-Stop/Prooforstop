@@ -1,0 +1,72 @@
+{
+  "principles": [
+    "Preserve exact hash-bound evidence semantics.",
+    "Reuse only command-local bindings, never global mutable cache state.",
+    "Fail closed for real material drift and expose advisory-only reductions explicitly.",
+    "Keep the change narrow to DONE and review assurance correctness paths."
+  ],
+  "drivers": [
+    "Repeated whole-tree material/story hash recomputation causes workflow cost and risk during DONE/review gates.",
+    "Proofbound must remain host-neutral and consumer-neutral; Codex or Claude adapters cannot own workflow evidence.",
+    "The implementation must prove stale evidence is still rejected under HEAD, material, and story-owned drift."
+  ],
+  "options": [
+    {
+      "name": "A: command-local hash snapshot contract",
+      "pros": [
+        "Removes duplicate recomputation within a single gate path without retaining state across commands.",
+        "Can thread existing materialHash/storyFilesHash args into review escalation and assurance consumers.",
+        "Keeps stale detection tied to current git state and material dirty checks."
+      ],
+      "cons": [
+        "Requires touching several consumers to pass the snapshot consistently.",
+        "Does not solve all possible performance costs across separate CLI invocations."
+      ]
+    },
+    {
+      "name": "B: global persistent materialHash cache",
+      "pros": [
+        "Could reduce repeated recomputation across many commands.",
+        "May offer larger speedups for large repositories."
+      ],
+      "cons": [
+        "Creates cache invalidation risk around git state, metadata roots, and material exclusions.",
+        "Would be optimization-first and outside the approved M1 scope."
+      ]
+    },
+    {
+      "name": "C: no code change, document the pattern only",
+      "pros": [
+        "Lowest implementation risk.",
+        "Avoids touching gate-sensitive code."
+      ],
+      "cons": [
+        "Does not fix the real repeated recomputation path.",
+        "Leaves DONE/review assurance inconsistency in place."
+      ]
+    }
+  ],
+  "chosen": "A: command-local hash snapshot contract",
+  "rationale": "Choose the narrow command-local snapshot because it addresses the real DONE/review gate pain without introducing a persistent cache or weakening stale evidence checks.",
+  "preMortem": [
+    {
+      "scenario": "Snapshot masks real file drift",
+      "trigger": "A material file changes after capture but before a consumer evaluates freshness",
+      "consequence": "A stale review or DONE evidence record could be accepted",
+      "mitigation": "Snapshot reuse must require same HEAD and no material dirty files; tests must prove dirty/story drift is rejected."
+    },
+    {
+      "scenario": "Optimization spreads beyond scope",
+      "trigger": "Implementation starts caching across commands or adding recovery-runner/parallel changes",
+      "consequence": "Story becomes an arbitrary optimization bundle",
+      "mitigation": "Scope boundary excludes global cache, fault injection, streaming rewrite, and parallel execution; review enforces touched files."
+    },
+    {
+      "scenario": "Review assurance and escalation drift",
+      "trigger": "One consumer uses supplied snapshot while another recomputes independently",
+      "consequence": "DONE diagnostics disagree and users chase stale commands",
+      "mitigation": "Thread the same binding into DONE oracle review escalation and review assurance floor, and add smoke coverage."
+    }
+  ],
+  "timestamp": "2026-06-30T22:10:20.937Z"
+}
