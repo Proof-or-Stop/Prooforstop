@@ -34,7 +34,21 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/core/lifecycle-control/global-control-service.ts",
+          "packages/main/src/core/lifecycle-control/control-status.ts",
+          "packages/main/src/core/lifecycle-control/dashboard/index.ts",
+          "packages/main/src/handlers/lifecycle-control.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/lifecycle-orchestrate-smoke.ts",
+          "node packages/main/dist/tasks/lifecycle-orchestrate-smoke.js",
+          "lattice global_control_status --format=json"
+        ]
+      }
     },
     {
       "id": "CHK-003",
