@@ -46,7 +46,7 @@
       "desc": "packages/main/src/tasks/proof-admissibility-smoke.ts:102 still asserts Authority-facing gate decision refs with lattice.authority_gate_decision.v1, and line 119 still uses lattice.authority_receipt.v1, while packages/main/src/core/proof-admissibility.ts:276 and :294 now register lattice.external_gate_decision.v1 / lattice.external_receipt.v1. Repro: node packages/main/dist/tasks/proof-admissibility-smoke.js exits 1 with AssertionError: Authority-facing gate decision refs can be admissible evidence for the matching adapter consumer. This leaves the schema-version rename inconsistent and breaks the existing proof-admissibility smoke contract.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-30T10:45:33.633Z",
@@ -58,7 +58,11 @@
         "packages/main/src/core/proof-admissibility.ts"
       ],
       "signatureTag": "spec-boundary|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by d15cea37b: proof-admissibility smoke now uses lattice.external_gate_decision.v1 and lattice.external_receipt.v1 to match PROOF_SURFACE_REGISTRY. Verified with npm --prefix packages/main run build, node packages/main/dist/tasks/proof-admissibility-smoke.js, node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js, and npm --prefix packages/main run test:proof-admissibility-hardening.",
+      "resolvedAt": "2026-06-30T10:48:51.997Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
