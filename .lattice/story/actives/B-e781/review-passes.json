@@ -98,6 +98,15 @@
       "reviewRound": "2026-06-30T23:23:38.353Z",
       "reviewRunId": "B-e781:RR-017",
       "_hash": "5ee04a69740f1c245d03e3cc6b416261fec9a7dd428cc1bcc616f030e9075b5a"
+    },
+    {
+      "id": "B-e781:RP-012",
+      "agent": "lattice-review-concept",
+      "note": "Concept review round 4 clean: 78b39657e aligns review-assurance-floor proof admissibility with existing review-escalation semantics by treating explicit degraded fallback plus 3 fresh single-host rounds as a valid REVIEW binding while preserving normal full 3x2 as preferred assurance. Verified with npm --prefix packages/main run build and node packages/main/dist/tasks/review-assurance-floor-smoke.js.",
+      "createdAt": "2026-06-30T23:27:01.073Z",
+      "reviewRound": "2026-06-30T23:23:38.353Z",
+      "reviewRunId": "B-e781:RR-015",
+      "_hash": "694d755a58ab8281e34921a605f571f2bc34fa5c28d1fa2d1ee9ac9a5787dfaa"
     }
   ]
 }
