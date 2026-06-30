@@ -8,9 +8,9 @@
         "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-30T09:44:36.057Z",
-      "endTime": null,
+      "endTime": "2026-06-30T09:58:00.049Z",
       "files": {
         "modify": [
           "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
@@ -48,35 +48,35 @@
         {
           "intentRef": "CHK-001:happy:0",
           "kind": "docs_check",
-          "file": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "file": "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
           "result": "pass",
-          "note": "Added B-cd3a Capability Audit Freeze table classifying proof-admissibility capabilities as implemented, partial, future, or missing with source/status evidence.",
-          "headHash": "1f08533d58936b1b8bc77a1961fd2b5b17404c82",
-          "materialHash": "b7599c64da8e0a364d15c18ecddf304666fcd268ea53dfbb34fd99367a3673c8",
-          "storyFilesHash": "5b859a93b17b3a20a391f7c28592cfb6f2db76a41b88e89f4c6a1d3f649c291f",
-          "timestamp": "2026-06-30T09:55:45.764Z"
+          "note": "Frozen capability audit table classifies lifecycle-control capabilities as implemented, partial, future, or unavailable/missing with source/status evidence.",
+          "headHash": "13c0bb2fe955ff486cd627107f68a9a03049442e",
+          "materialHash": "52fd19edbdb3ec0136c54356cb68ee93a28cb79461d05f02499b0d3ecb8edf5f",
+          "storyFilesHash": "ba9a71e879859c6a71fbc7ecedab3d8176ed409ce790cff7d6b956652d215d16",
+          "timestamp": "2026-06-30T09:58:00.679Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
           "kind": "manual_transcript",
-          "command": "node bin/lattice.js admissibility_waterline --storyId=B-cd3a --format=json",
+          "command": "node bin/lattice.js global_control_status --storyIds=B-cd3a --format=json",
           "result": "pass",
-          "note": "Current-worktree waterline remains diagnostic-only and shows proof-admissibility consumer status without overclaiming enforcement gaps or productionDone.",
-          "headHash": "1f08533d58936b1b8bc77a1961fd2b5b17404c82",
-          "materialHash": "b7599c64da8e0a364d15c18ecddf304666fcd268ea53dfbb34fd99367a3673c8",
-          "storyFilesHash": "5b859a93b17b3a20a391f7c28592cfb6f2db76a41b88e89f4c6a1d3f649c291f",
-          "timestamp": "2026-06-30T09:55:46.433Z"
+          "note": "Capability status reports proofM7Enforcement=partial, queueCleanupEnforcement=partial, tierCCleanup=future while legacy booleans remain false.",
+          "headHash": "13c0bb2fe955ff486cd627107f68a9a03049442e",
+          "materialHash": "52fd19edbdb3ec0136c54356cb68ee93a28cb79461d05f02499b0d3ecb8edf5f",
+          "storyFilesHash": "ba9a71e879859c6a71fbc7ecedab3d8176ed409ce790cff7d6b956652d215d16",
+          "timestamp": "2026-06-30T09:58:01.325Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
-          "kind": "docs_check",
-          "file": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/lifecycle-control-smoke.js",
           "result": "pass",
-          "note": "Audit explicitly marks append-only ledger and external Authority production completion as missing/future instead of treating command existence or zero exit as implementation proof.",
-          "headHash": "1f08533d58936b1b8bc77a1961fd2b5b17404c82",
-          "materialHash": "b7599c64da8e0a364d15c18ecddf304666fcd268ea53dfbb34fd99367a3673c8",
-          "storyFilesHash": "5b859a93b17b3a20a391f7c28592cfb6f2db76a41b88e89f4c6a1d3f649c291f",
-          "timestamp": "2026-06-30T09:55:46.956Z"
+          "note": "Smoke asserts command existence is insufficient: capability rows carry statuses/evidence and enforcement booleans stay false.",
+          "headHash": "13c0bb2fe955ff486cd627107f68a9a03049442e",
+          "materialHash": "52fd19edbdb3ec0136c54356cb68ee93a28cb79461d05f02499b0d3ecb8edf5f",
+          "storyFilesHash": "ba9a71e879859c6a71fbc7ecedab3d8176ed409ce790cff7d6b956652d215d16",
+          "timestamp": "2026-06-30T09:58:02.504Z"
         }
       ]
     },
