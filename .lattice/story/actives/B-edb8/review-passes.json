@@ -1,0 +1,76 @@
+{
+  "passes": [
+    {
+      "id": "B-edb8:RP-001",
+      "agent": "lattice-review-docs",
+      "note": "Docs/touchpoint review pass: related roadmap docs remain conservative (B-9fc5 plan-only; strengthening M4-M12 follow-up), generated B-edb8 plan/proofstory scope M1-M8 to parent-roadmap totality only, command catalog/process-fact registry/verifier include parent_roadmap_status, parent_roadmap_evaluate, and runtime:parent_roadmap_totality_claim_consumer; process-fact verifier passed and worktree-local core CLI samples enforce no-full-roadmap-claim for partial/migration rows.",
+      "createdAt": "2026-06-30T14:04:03.497Z",
+      "reviewRound": "2026-06-30T14:00:09.085Z",
+      "reviewRunId": "B-edb8:RR-004",
+      "_hash": "8716349a9d7ad11fa220a662db45320667f38932ae14528f7d17fd1a352c45ec"
+    },
+    {
+      "id": "B-edb8:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "RR-006 targeted re-review after 7457ea190: inspected parent-roadmap-totality.ts, handlers/parent-roadmap.ts, command catalog, registry, command-policy, process-fact registry. F-001 fail-open contradiction fixed by match-level negation and contradictory overclaim checks; F-002 enforce mode fixed by handler throwing when claim or proofstoryBinding is blocking. Verified build, claim-consumer, cli, evaluator smokes, direct enforce overclaim exit code 1, unrelated storyId exit code 1, and process-fact contract. No remaining quality blockers.",
+      "createdAt": "2026-06-30T14:17:36.358Z",
+      "reviewRound": "2026-06-30T14:13:15.559Z",
+      "reviewRunId": "B-edb8:RR-006",
+      "_hash": "eb9d4e69755ef7095e593e3604cff6179a76fe23ccd907e0b7f0b4d446243ab8"
+    },
+    {
+      "id": "B-edb8:RP-003",
+      "agent": "lattice-review-test-coverage",
+      "note": "Targeted F-005 round-2 re-review after 7457ea190: npm build passed; parent-roadmap-totality-smoke all/evaluator/claim-consumer/cli/migration passed; proofstory-intent-hardening-smoke and process-fact contract passed; direct negative controls confirmed missing closureEvidence stays open with evidenceState=missing and missing_closure_evidence, shrunken requiredRowIds produce invalid missing_required_row rows, blocked/invalid/stale/open/migration classes are distinct, contradictory enforce overclaim exits 1, and unrelated storyId exits 1. No remaining test-coverage blocker.",
+      "createdAt": "2026-06-30T14:17:54.639Z",
+      "reviewRound": "2026-06-30T14:13:15.559Z",
+      "reviewRunId": "B-edb8:RR-007",
+      "_hash": "346bcf959d687428f0c440c78edbb4e076cbcdf1cf1635c9e27e073d76ac4b00"
+    },
+    {
+      "id": "B-edb8:RP-004",
+      "agent": "lattice-review-docs",
+      "note": "Docs re-review pass for 7457ea190 at current head 9d25a64: material docs/root docs are unchanged in main...HEAD; parent-roadmap plan remains plan-only and says B-9fc5 does not claim M4-M12 runtime completion; strengthening roadmap still says M4-M12 are follow-up/child-story-needed. Generated B-edb8 plan forbids Authority Server productionDone fullAuthorityDone server-backed semantics and forbids M4-M12 completion claims without row evidence. Command catalog/process-fact registry/verifier match worktree-local runtime: node scripts/verify-process-fact-contract.mjs passed, git diff --check passed, node packages/main/dist/cli.js parent_roadmap_status help exposes read-only unsupported write flags, claim-consumer and cli smokes passed, partial wording passes enforce mode, explicit all M4-M12 full-roadmap overclaim fails enforce mode, and migration evaluate reports M4-M12 open with no-full-roadmap-claim. Global lattice is an older fallback install for this worktree; local core CLI is the current-worktree runtime evidence path.",
+      "createdAt": "2026-06-30T14:19:10.501Z",
+      "reviewRound": "2026-06-30T14:13:15.559Z",
+      "reviewRunId": "B-edb8:RR-009",
+      "_hash": "ec15e7f438a34d334579176e10bbdc31cbe71a6e28c66943e07c1c590e00ae70"
+    },
+    {
+      "id": "B-edb8:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "PASS: F-006 closure verified. External proofstoryContract acceptanceBindings.milestoneIds now feeds requiredRowIds during evaluateParentRoadmapLedger/evaluateParentRoadmapProofStoryBinding, so a shrunken M4-only ledger plus external M4-M12 inventory becomes invalid_parent_rollup and blocks full-roadmap wording in enforce mode. Verified by build, parent-roadmap-totality-smoke --case=proofstory-binding, full parent-roadmap-totality-smoke, proofstory-intent-hardening-smoke, and process fact contract.",
+      "createdAt": "2026-06-30T14:31:30.816Z",
+      "reviewRound": "2026-06-30T14:29:03.493Z",
+      "reviewRunId": "B-edb8:RR-010",
+      "_hash": "67aaa7ba15bbc3f9883ddc610c2b8ec587d468e57905aaa08aa79797a0e9a4c3"
+    },
+    {
+      "id": "B-edb8:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "PASS: Quality review after F-006. Handler/core split remains narrow, external inventory extraction is deterministic/unique, enforce-mode failure is retained, and the worktree builds cleanly. Verified npm --prefix packages/main run build plus full parent-roadmap smoke and process-fact contract.",
+      "createdAt": "2026-06-30T14:31:39.202Z",
+      "reviewRound": "2026-06-30T14:29:03.493Z",
+      "reviewRunId": "B-edb8:RR-011",
+      "_hash": "5a419f25e7f711b83f69384f173a11efe9c2fdbd8d21b1351ef1f84892b30e0f"
+    },
+    {
+      "id": "B-edb8:RP-007",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: Test coverage now includes the external proofstoryContract inventory negative control: M4-only ledger + external M4-M12 contract fails in warn/enforce paths and CLI enforce exits nonzero. Verified parent-roadmap-totality-smoke --case=proofstory-binding, full parent-roadmap-totality-smoke, proofstory-intent-hardening-smoke, and process fact contract.",
+      "createdAt": "2026-06-30T14:31:46.458Z",
+      "reviewRound": "2026-06-30T14:29:03.493Z",
+      "reviewRunId": "B-edb8:RR-012",
+      "_hash": "3dc51354009c64a8a0900b9fe7874669ccffa18edb2740cead21bb0cddf8b0b8"
+    },
+    {
+      "id": "B-edb8:RP-008",
+      "agent": "lattice-review-docs",
+      "note": "PASS: Documentation intent remains aligned after F-006. The execution plan describes original intent snapshot, milestone ledger, ProofStory contract, parent rollup, and DONE intent equivalence as the governing contract; implementation now matches that contract by binding external proofstoryContract inventory into the evaluator. No active docs claim server-backed completion or full roadmap completion without closed rows.",
+      "createdAt": "2026-06-30T14:31:55.074Z",
+      "reviewRound": "2026-06-30T14:29:03.493Z",
+      "reviewRunId": "B-edb8:RR-013",
+      "_hash": "e14f8f40b4647e340ba6e5c262b6e4e240515cc127b65adc217c3e4a43974015"
+    }
+  ]
+}

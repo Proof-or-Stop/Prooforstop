@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "proofstory.parent_ledger_rollup.v1",
+  "storyId": "B-edb8",
+  "ledgerHash": "sha256:5dffb71582574820fcb3f40e68a21b1dee57db0aa8924dcc69c20a1a72ed929d",
+  "slicePlanHash": "sha256:4597d95b8779cd888daa3817bfafe4fa233d7fd77fe33f625a5638666918d3c1",
+  "children": [
+    {
+      "storyId": "B-edb8",
+      "milestoneIds": [
+        "M1",
+        "M2",
+        "M3",
+        "M4",
+        "M5",
+        "M6",
+        "M7",
+        "M8"
+      ],
+      "status": "done",
+      "evidenceRefs": [
+        "checklist.json",
+        "test-evidence.json",
+        "done-required-evidence.json",
+        "review-passes.json",
+        "delivery-check.json",
+        "process-events.jsonl",
+        "summary.json"
+      ]
+    }
+  ],
+  "rollupHash": "sha256:4e930bbf1f2d0eedd714e5e07bd8b5c04bd83c9b148c55abe7f05d5d9996a3d3",
+  "createdAt": "2026-06-30T13:34:04.908Z",
+  "updatedAt": "2026-06-30T14:45:47.462Z"
+}

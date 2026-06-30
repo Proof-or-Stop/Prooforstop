@@ -1,0 +1,63 @@
+{
+  "storyId": "B-edb8",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/parent-roadmap-totality.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/handlers/parent-roadmap.ts",
+    "packages/main/src/handlers/summary.ts",
+    "packages/main/src/core/done-oracle.ts",
+    "packages/main/src/core/proofstory.ts",
+    "packages/main/src/handlers/proofstory.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/tasks/parent-roadmap-totality-smoke.ts",
+    "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+    "package.json",
+    "package-lock.json",
+    "packages/main/package.json",
+    "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+    "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+    "scripts/verify-process-fact-contract.mjs",
+    ".lattice/story/actives/B-edb8/**"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/parent-roadmap-totality.ts",
+    "packages/main/src/handlers/parent-roadmap.ts",
+    "packages/main/src/tasks/parent-roadmap-totality-smoke.ts",
+    ".lattice/story/actives/B-edb8/**"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/parent-roadmap-totality-smoke.ts",
+    "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+  ],
+  "protectedFiles": [
+    "docs/story/**",
+    "tests/fixtures/**",
+    "paper/**",
+    "proofbound-Paper/**"
+  ],
+  "explicitExcludes": [
+    ".omx/**",
+    "docs/story/**",
+    "tests/fixtures/**",
+    "paper/**",
+    "proofbound-Paper/**",
+    "packages/main/src/core/authority-server*",
+    "packages/main/src/handlers/authority-server*"
+  ],
+  "scopeChangeReason": "Add command-policy.ts to the explicit allowed modify set because parent_roadmap_status and parent_roadmap_evaluate require command policy registration; no unrelated scope is added.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-30T13:34:21.143Z",
+  "updatedAt": "2026-06-30T13:54:35.797Z",
+  "protectedAnchors": [
+    "no_authority_server_semantics",
+    "m1_red_repro_first",
+    "no_full_roadmap_claim_with_open_children",
+    "partial_parent_done_boundary"
+  ]
+}

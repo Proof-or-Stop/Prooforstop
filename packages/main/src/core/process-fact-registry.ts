@@ -146,6 +146,8 @@ export const PROCESS_FACT_REQUIRED_SEMANTICS = {
   proofstory_gate_check: ['schema-contract', 'verification-policy'],
   done_intent_equivalence_check: ['schema-contract', 'verification-policy'],
   proofstory_review_completeness_check: ['schema-contract', 'verification-policy'],
+  parent_roadmap_status: ['schema-contract', 'verification-policy'],
+  parent_roadmap_evaluate: ['schema-contract', 'verification-policy'],
 } as const satisfies Record<string, readonly ProcessFactSemantic[]>;
 
 export const PROCESS_FACT_RUNTIME_SEMANTICS = {
@@ -155,6 +157,7 @@ export const PROCESS_FACT_RUNTIME_SEMANTICS = {
   'runtime:story_files_hash_freshness_gate': ['runtime-behavior', 'freshness-policy', 'workspace-binding', 'verification-evidence', 'review-run', 'host-verdict', 'gate-evidence'],
   'runtime:repro_first_story_intake_preflight': ['runtime-behavior', 'schema-contract', 'workspace-binding', 'gate-evidence'],
   'runtime:proof_admissibility_gate_diagnostic': ['runtime-behavior', 'schema-contract', 'freshness-policy', 'gate-evidence'],
+  'runtime:parent_roadmap_totality_claim_consumer': ['runtime-behavior', 'schema-contract', 'verification-policy', 'gate-evidence'],
 } as const satisfies Record<string, readonly ProcessFactSemantic[]>;
 
 export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifactRef> = {

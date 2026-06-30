@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-edb8",
+  "records": [
+    {
+      "id": "RED-B-EDB8-PARENT-OVERCLAIM",
+      "trigger": "Parent roadmap can sound complete while child rows remain child-story-needed",
+      "acceptanceTargetRef": "ACCEPT-B-EDB8-PARENT-TOTALITY",
+      "baselineHeadHash": "227ff264e6062a10e87cd12be19b94de595d9506",
+      "baselineMaterialHash": "62dfc9ac5cabbf5cd41d4f5d200a0b688543c77a410d730ffd88c5faf7cbafaa",
+      "observedFailure": "Current runtime has no ParentRoadmapLedger/ParentRollupResult evaluator and no CLI/summary consumer that can mechanically classify B-43de-shaped parent governance as partial_parent_done with allRowsClosed=false. Therefore a parent story DONE can still be communicated as if the broader roadmap were complete.",
+      "failingCommand": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js --expected-red=parent-overclaim",
+      "expectedGreenCommand": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js",
+      "greenRelation": {
+        "targetRef": "ACCEPT-B-EDB8-PARENT-TOTALITY",
+        "relation": "regression_to_green",
+        "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js"
+      },
+      "note": "M1 requires this failing/negative smoke before runtime implementation proceeds.",
+      "createdAt": "2026-06-30T13:33:42.020Z"
+    },
+    {
+      "id": "RED-B-EDB8-M1-TEST-FIRST",
+      "trigger": "Implementation story must start with red/repro tests, not runtime code",
+      "acceptanceTargetRef": "CHK-001:happy:0",
+      "baselineHeadHash": "227ff264e6062a10e87cd12be19b94de595d9506",
+      "baselineMaterialHash": "62dfc9ac5cabbf5cd41d4f5d200a0b688543c77a410d730ffd88c5faf7cbafaa",
+      "observedFailure": "Before B-edb8 implementation, there is no parent-roadmap-totality smoke test that proves allRowsClosed=false, partial_parent_done, child-story-needed blocking, invalid deferral, and summary overclaim behavior. Without that test-first artifact, runtime code could be implemented without proving the current failure.",
+      "failingCommand": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js --expected-red=test-first",
+      "expectedGreenCommand": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js",
+      "greenRelation": {
+        "targetRef": "CHK-001:happy:0",
+        "relation": "same_acceptance",
+        "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js"
+      },
+      "note": "This red evidence binds the user clarification that M1 is tests first.",
+      "createdAt": "2026-06-30T13:33:53.687Z"
+    }
+  ],
+  "createdAt": "2026-06-30T13:33:42.020Z",
+  "updatedAt": "2026-06-30T13:33:53.687Z"
+}

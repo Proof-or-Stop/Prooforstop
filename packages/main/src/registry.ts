@@ -86,6 +86,7 @@ import { createCapsuleHandlers } from './handlers/capsule.js';
 import { createScopeAntiExpansionHandlers } from './handlers/scope-anti-expansion.js';
 import { createScopeContractHandlers } from './handlers/scope-contract.js';
 import { createProofStoryHandlers } from './handlers/proofstory.js';
+import { createParentRoadmapHandlers } from './handlers/parent-roadmap.js';
 import { createGuardSessionHandlers } from './handlers/guard-session.js';
 import { createDevMemoryHandlers } from './handlers/dev-memory.js';
 import { createReproIntakeHandlers } from './handlers/repro-intake.js';
@@ -326,6 +327,7 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
 
   // B-7287 M0-M2: ProofStory progressive intent hardening diagnostics only.
   registry.registerBatch(createProofStoryHandlers(ctx));
+  registry.registerBatch(createParentRoadmapHandlers(ctx));
 
   // B-6bfd CHK-004: guard session projection — guard_session_start/status/check
   registry.registerBatch(createGuardSessionHandlers(ctx));

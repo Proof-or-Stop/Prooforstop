@@ -1,0 +1,146 @@
+{
+  "findings": [
+    {
+      "id": "B-edb8:F-001",
+      "desc": "Fail-open overclaim detector: hasFullRoadmapClaim returns false immediately when the text contains roadmap not complete before checking later explicit full-roadmap claims (packages/main/src/core/parent-roadmap-totality.ts:548-558). Repro command: node packages/main/dist/cli.js parent_roadmap_status {case:partial,summaryText:Parent governance complete; roadmap is not complete. Remaining child-story-needed rows: M5. Full roadmap complete: all M4-M12 rows are done.,mode:enforce,json:true}. Observed claim.allowed=true, blocking=false, proofstoryBinding.status=pass even though rollup.allRowsClosed=false and openRows=M4,M5. This violates the parent roadmap gate contract that enforce-mode summary and handoff consumers must block explicit full-roadmap wording unless all rows are closed.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-30T14:02:29.535Z",
+      "reviewRound": "2026-06-30T14:00:09.085Z",
+      "reviewRunId": "B-edb8:RR-002",
+      "_hash": "fe0d4481111097a2f72dae19b36eb2293828a756a5c4a4a929bcf5614e613dba",
+      "files": [
+        "packages/main/src/core/parent-roadmap-totality.ts",
+        "packages/main/src/handlers/parent-roadmap.ts"
+      ],
+      "signatureTag": "adversarial|ts|fail-open-overclaim",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 7457ea190: full-roadmap detection no longer short-circuits on roadmap-not-complete wording. Verified contradictory overclaim exits 1 with parent_roadmap_status mode=enforce; parent-roadmap-totality-smoke --case=claim-consumer passes.",
+      "resolvedAt": "2026-06-30T14:14:13.227Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-edb8:F-002",
+      "desc": "Enforce-mode parent-roadmap commands do not fail closed when the evaluator reports a blocking overclaim. Repro command: node packages/main/dist/cli.js parent_roadmap_status {case:partial,summaryText:Full roadmap complete: all rows are done.,mode:enforce,json:true}. The process exited with code 0 while the JSON contained claim.blocking=true and proofstoryBinding.blocking=true/status=fail. Existing ProofStory diagnostics use enforceOrRender to throw when mode=enforce and blocking is true (packages/main/src/handlers/proofstory.ts:53-55,529-553), but parent_roadmap_status/evaluate simply stringify or render the result (packages/main/src/handlers/parent-roadmap.ts:64-78). This means automation can treat a blocking parent-roadmap overclaim as a successful command.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-30T14:03:07.702Z",
+      "reviewRound": "2026-06-30T14:00:09.085Z",
+      "reviewRunId": "B-edb8:RR-002",
+      "_hash": "796ebd63982ba6d78548df6c18e2e15c8e469865ed26ed4ccf9e18bc24e1989c",
+      "files": [
+        "packages/main/src/handlers/parent-roadmap.ts",
+        "packages/main/src/handlers/proofstory.ts"
+      ],
+      "signatureTag": "missing|ts|enforce-mode-parent",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 7457ea190: parent_roadmap_status/evaluate throw in mode=enforce when claim or proofstory binding is blocking. Verified overclaim command exits 1 and smoke --case=cli passes.",
+      "resolvedAt": "2026-06-30T14:14:13.722Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-edb8:F-003",
+      "desc": "Parent-roadmap totality can still be proven against a shrunken caller-supplied ledger instead of the original B-5082 milestone inventory. B-9fc5 requires ProofStory controls such as originalIntentSnapshot/milestoneLedger/slicePlan to keep the child-row inventory from shrinking (docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md:168-190), but evaluateParentRoadmapLedger derives allRowsClosed solely from ledger.rows (packages/main/src/core/parent-roadmap-totality.ts:511-528) and evaluateParentRoadmapProofStoryBinding only requires a snapshot plus some acceptanceBindings, without proving those bindings cover every parent row or the original milestone ledger (packages/main/src/core/parent-roadmap-totality.ts:615-645). A ledger that omits M5-M12 but closes its supplied rows can therefore receive full_roadmap_complete/full-roadmap-claim, which defeats the intent-totality gate boundary.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-30T14:03:33.913Z",
+      "reviewRound": "2026-06-30T14:00:09.085Z",
+      "reviewRunId": "B-edb8:RR-001",
+      "_hash": "9473e84c3bfa33e2fbf74745c3a5146799fb93330b72c9ee3e3b0b8527792fa7",
+      "files": [
+        "packages/main/src/core/parent-roadmap-totality.ts",
+        "packages/main/src/tasks/parent-roadmap-totality-smoke.ts",
+        "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md"
+      ],
+      "signatureTag": "adversarial|ts|parent-roadmap-totality",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 7457ea190: requiredRowIds plus proofstoryContract milestoneIds bind expected row inventory; missing required rows produce invalid missing_required_row results and no full-roadmap claim. Verified by parent-roadmap-totality-smoke --case=evaluator and full smoke.",
+      "resolvedAt": "2026-06-30T14:14:14.159Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-edb8:F-004",
+      "desc": "The summary overclaim detector lets contradictory wording bypass the full-roadmap guard when the same text also says the roadmap is not complete. hasFullRoadmapClaim returns false as soon as it sees roadmap-not-complete wording (packages/main/src/core/parent-roadmap-totality.ts:548-558), before checking whether the text also contains explicit full-roadmap-complete wording. That means text like \"Full roadmap complete; roadmap not complete. Remaining child-story-needed rows: M5\" is not classified as a full-roadmap claim, despite the B-9fc5 contract requiring any full-completion wording to be invalid unless allRowsClosed=true (docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md:20-24,53-55). The smoke only covers clean overclaim and clean partial wording, not the contradictory combined case (packages/main/src/tasks/parent-roadmap-totality-smoke.ts:382-397).",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-30T14:03:43.856Z",
+      "reviewRound": "2026-06-30T14:00:09.085Z",
+      "reviewRunId": "B-edb8:RR-001",
+      "_hash": "9f3a203c9b442def55ae310b032ea6a75803ab3aac3f103c6f0439d385496805",
+      "files": [
+        "packages/main/src/core/parent-roadmap-totality.ts",
+        "packages/main/src/tasks/parent-roadmap-totality-smoke.ts",
+        "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md"
+      ],
+      "signatureTag": "adversarial|ts|summary-overclaim-detector",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 7457ea190 with sentence-aware negation/disclaimer handling plus contradictory wording smoke. Verified parent_roadmap_status contradictory text exits 1 in enforce mode.",
+      "resolvedAt": "2026-06-30T14:14:14.591Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-edb8:F-005",
+      "desc": "Verification coverage claims missing-row coverage, but parent-roadmap-totality-smoke has no dedicated missing closure-evidence negative control. The smoke CaseName list has no missing case; runEvaluator asserts partial/open, blocked, invalid deferral, and stale rows, but never evaluates a closed-by-implementation or closed-by-existing-evidence row with closureEvidence: [] nor asserts evidenceState=missing, reasonCodes includes missing_closure_evidence, or the attach-closure-evidence next action. Current runtime has that branch, so a regression in missing closure-evidence handling could pass the smoke and recorded CHK-003/CHK-008 evidence even though the plan contract requires missing evidence to prevent full-roadmap claims. Source refs: packages/main/src/tasks/parent-roadmap-totality-smoke.ts:26, packages/main/src/tasks/parent-roadmap-totality-smoke.ts:358, packages/main/src/tasks/parent-roadmap-totality-smoke.ts:364, packages/main/src/tasks/parent-roadmap-totality-smoke.ts:376, packages/main/src/core/parent-roadmap-totality.ts:419, docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md:48, docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md:279.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-30T14:03:51.954Z",
+      "reviewRound": "2026-06-30T14:00:09.085Z",
+      "reviewRunId": "B-edb8:RR-003",
+      "_hash": "d3043d930d46cbc4e6a2ba8b43e77a219d41cdbe51fc20c15ca362e6bdf444d8",
+      "files": [
+        "packages/main/src/tasks/parent-roadmap-totality-smoke.ts",
+        "packages/main/src/core/parent-roadmap-totality.ts",
+        "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md"
+      ],
+      "signatureTag": "missing|ts|verification-coverage-claims",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 7457ea190: smoke now includes closed row with empty closureEvidence and asserts evidenceState=missing, missing_closure_evidence, allRowsClosed=false, and attach evidence next action. Verified by parent-roadmap-totality-smoke --case=evaluator and full smoke.",
+      "resolvedAt": "2026-06-30T14:14:25.879Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-edb8:F-006",
+      "desc": "External ProofStory inventory is not bound into the rollup, so the shrunken-ledger full-completion path remains open through the binding API. `requiredInventoryRowIds` only reads `ledger.requiredRowIds` and `ledger.proofstoryContract` (packages/main/src/core/parent-roadmap-totality.ts:469-473), while `evaluateParentRoadmapProofStoryBinding` accepts `args.proofstoryContract` but computes or consumes `rollup` from the ledger alone (packages/main/src/core/parent-roadmap-totality.ts:695-708) and only checks that external acceptanceBindings exist (packages/main/src/core/parent-roadmap-totality.ts:717-724). Repro: run a one-row ledger with only M4 closed and pass an external proofstoryContract whose acceptanceBindings.milestoneIds are M4-M12 to evaluateParentRoadmapProofStoryBinding in enforce mode with summaryText `Full roadmap complete.`; observed rollup.summaryClass=full_roadmap_complete, claimType=full-roadmap-claim, allRowsClosed=true, rowIds=[M4], and binding.status=pass/blocking=false. The CLI handler also synthesizes proofstoryContract milestoneIds from `rollup.rowResults` (packages/main/src/handlers/parent-roadmap.ts:48-57), so it mirrors any already-shrunken ledger instead of binding to the original milestone inventory. This violates the B-5082 boundary that milestoneLedger/proofstoryContract supply the child-row inventory that must not shrink, and F-003 is only fixed when the inventory is embedded in the ledger, not when supplied by the ProofStory binding surface.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-30T14:17:56.243Z",
+      "reviewRound": "2026-06-30T14:13:15.559Z",
+      "reviewRunId": "B-edb8:RR-005",
+      "_hash": "93123f93e0a3c8001f839df9b5bfdb600287389c95c548d33c1a7212fde0f893",
+      "files": [
+        "packages/main/src/core/parent-roadmap-totality.ts",
+        "packages/main/src/handlers/parent-roadmap.ts",
+        "packages/main/src/tasks/parent-roadmap-totality-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|external-proofstory-inventory",
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed in fdf20358dc39868a5db1b73580ce11fa2f843a18: external proofstoryContract acceptanceBindings.milestoneIds now bind into requiredRowIds for rollup and ProofStory binding evaluation; handler propagates external inventory instead of mirroring a shrunken ledger. Verified by npm --prefix packages/main run build, parent-roadmap-totality-smoke --case=proofstory-binding, full parent-roadmap-totality-smoke, proofstory-intent-hardening-smoke, and verify-process-fact-contract.mjs.",
+      "resolvedAt": "2026-06-30T14:31:16.277Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

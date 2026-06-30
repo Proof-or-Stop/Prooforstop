@@ -1,0 +1,168 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-edb8",
+  "state": "confirmed",
+  "ledgerHash": "sha256:5dffb71582574820fcb3f40e68a21b1dee57db0aa8924dcc69c20a1a72ed929d",
+  "milestones": [
+    {
+      "id": "M1",
+      "sourceRequirementId": "REQ-M1-RED-REPRO-FIRST",
+      "claim": "Red/Repro tests exist before runtime implementation and prove the parent-roadmap overclaim failure class.",
+      "doneMeans": "A committed smoke/negative matrix fails or would fail on the pre-implementation behavior and names all open-child-row overclaim cases.",
+      "requiredEvidence": [
+        "red-test",
+        "negative-control",
+        "smoke"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M2",
+      "sourceRequirementId": "REQ-M2-STATE-MODEL",
+      "claim": "ParentRoadmapLedger state model and vocabulary are canonical and strict.",
+      "doneMeans": "Schema/types validate accepted statuses, reject malformed rows, and round-trip ledger data without losing evidence bindings.",
+      "requiredEvidence": [
+        "type-test",
+        "schema-test"
+      ],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M3",
+      "sourceRequirementId": "REQ-M3-ROLLUP-EVALUATOR",
+      "claim": "ParentRollupResult evaluator computes allRowsClosed, summaryClass, claimType, row reasons, and next actions.",
+      "doneMeans": "Pure evaluator tests cover full, partial, blocked, invalid, stale, and child-story-needed paths deterministically.",
+      "requiredEvidence": [
+        "logic-test",
+        "smoke"
+      ],
+      "checklistRefs": [
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-003:happy:0",
+        "CHK-003:edge:0",
+        "CHK-003:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M4",
+      "sourceRequirementId": "REQ-M4-CLAIM-CONSUMER",
+      "claim": "Claim consumer prevents full-roadmap wording when the rollup does not allow it.",
+      "doneMeans": "Summary/DONE-style claim tests block full roadmap wording for no-full-roadmap-claim and permit partial_parent_done wording.",
+      "requiredEvidence": [
+        "logic-test",
+        "summary-guard-test"
+      ],
+      "checklistRefs": [
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [
+        "CHK-004:happy:0",
+        "CHK-004:edge:0",
+        "CHK-004:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M5",
+      "sourceRequirementId": "REQ-M5-B5082-BINDING",
+      "claim": "Parent totality is bound to B-5082 ProofStory controls without weakening local-intent gates.",
+      "doneMeans": "ProofStory integration tests show originalIntentSnapshot, milestoneLedger, slicePlan, parent rollup, intentCollision, redEvidence, and done_intent_equivalence_check remain consistent.",
+      "requiredEvidence": [
+        "proofstory-test",
+        "contract-check"
+      ],
+      "checklistRefs": [
+        "CHK-005"
+      ],
+      "verificationIntentRefs": [
+        "CHK-005:happy:0",
+        "CHK-005:edge:0",
+        "CHK-005:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M6",
+      "sourceRequirementId": "REQ-M6-CLI-LIFECYCLE",
+      "claim": "CLI/lifecycle surfaces expose parent roadmap totality status and next actions.",
+      "doneMeans": "CLI smoke shows full, partial, blocked, and invalid states, with enforce/warn-compatible behavior and no effect on unrelated stories.",
+      "requiredEvidence": [
+        "cli-smoke",
+        "lifecycle-smoke"
+      ],
+      "checklistRefs": [
+        "CHK-006"
+      ],
+      "verificationIntentRefs": [
+        "CHK-006:happy:0",
+        "CHK-006:edge:0",
+        "CHK-006:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M7",
+      "sourceRequirementId": "REQ-M7-MIGRATION-ROLLOUT",
+      "claim": "Migration/rollout diagnostics classify historical parent roadmaps without force-closing them.",
+      "doneMeans": "Migration smoke reports B-43de-like historical ledgers as partial or migration-needed, preserves evidence, and supports warn/enforce rollout semantics.",
+      "requiredEvidence": [
+        "migration-smoke",
+        "rollout-smoke"
+      ],
+      "checklistRefs": [
+        "CHK-007"
+      ],
+      "verificationIntentRefs": [
+        "CHK-007:happy:0",
+        "CHK-007:edge:0",
+        "CHK-007:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M8",
+      "sourceRequirementId": "REQ-M8-CERTIFICATION",
+      "claim": "Cross-track certification proves no overclaim across full, partial, blocked, invalid, stale, migration, and summary paths.",
+      "doneMeans": "Certification matrix passes and final claim boundary states exactly what the gate proves and does not prove.",
+      "requiredEvidence": [
+        "certification-matrix",
+        "negative-control"
+      ],
+      "checklistRefs": [
+        "CHK-008"
+      ],
+      "verificationIntentRefs": [
+        "CHK-008:happy:0",
+        "CHK-008:edge:0",
+        "CHK-008:adversarial:0"
+      ],
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-06-30T13:30:06.210Z",
+  "updatedAt": "2026-06-30T13:33:21.730Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-B-EDB8-FULL-TOTALITY",
+    "acceptedInterpretationHash": "sha256:374137629796580ced15899090cd1bf0a8defc9abf6ba87047f54c217e5d56d1",
+    "acceptedAt": "2026-06-30T13:33:21.730Z"
+  }
+}

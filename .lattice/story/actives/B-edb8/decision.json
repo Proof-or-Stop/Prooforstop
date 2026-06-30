@@ -1,0 +1,76 @@
+{
+  "principles": [
+    "Test-first before runtime implementation",
+    "Parent governance DONE is not full roadmap completion",
+    "Layer on B-5082 rather than replacing ProofStory",
+    "Local CLI assurance only; no server-backed Authority semantics"
+  ],
+  "drivers": [
+    "The user asked to implement the B-9fc5 plan until DONE",
+    "M1 must be Red/Repro before full implementation",
+    "The product needs an operator-visible parent roadmap state",
+    "The existing parent_ledger_rollup model is too narrow for allRowsClosed and claim boundaries"
+  ],
+  "options": [
+    {
+      "name": "A: Add parent-roadmap totality module plus CLI/status and summary claim guard",
+      "pros": [
+        "Keeps semantics isolated and testable",
+        "Can satisfy all M1-M8 in one end-to-end story",
+        "Avoids rewriting the existing ProofStory child coverage model"
+      ],
+      "cons": [
+        "Adds a new local concept and command surface that must be registered and documented"
+      ]
+    },
+    {
+      "name": "B: Extend existing parent_ledger_rollup_set in ProofStory only",
+      "pros": [
+        "Reuses existing command names and storage path"
+      ],
+      "cons": [
+        "Mixes child coverage rollup with full roadmap completion semantics",
+        "Risks breaking existing B-5082 gates and older ProofStory records"
+      ]
+    },
+    {
+      "name": "C: Only enforce summary wording without new model",
+      "pros": [
+        "Smallest runtime change"
+      ],
+      "cons": [
+        "Cannot prove allRowsClosed or row-level closure reasons",
+        "Would repeat the prior prose-over-evidence problem"
+      ]
+    }
+  ],
+  "chosen": "A: Add parent-roadmap totality module plus CLI/status and summary claim guard",
+  "rationale": "A provides a pure evaluator, explicit state vocabulary, CLI projection, and claim consumer while keeping B-5082 local-intent gates intact. It also lets M1 red tests prove the exact overclaim failure before runtime changes.",
+  "preMortem": [
+    {
+      "scenario": "Runtime work starts before red tests",
+      "trigger": "A code module lands before a failing/negative parent-roadmap smoke exists",
+      "consequence": "The story repeats the process failure the user called out",
+      "mitigation": "Make CHK-001 the first implementation item and commit the red/negative smoke before state/evaluator implementation."
+    },
+    {
+      "scenario": "Partial parent DONE is blocked entirely",
+      "trigger": "The claim consumer treats allRowsClosed=false as lifecycle failure instead of wording/claim boundary",
+      "consequence": "Valid governance stories cannot close even when they honestly say partial_parent_done",
+      "mitigation": "Model claimType separately: partial_parent_done is allowed, full-roadmap wording is blocked."
+    },
+    {
+      "scenario": "Existing ProofStory gates regress",
+      "trigger": "Parent-roadmap semantics are merged into parent_ledger_rollup_set incompatibly",
+      "consequence": "B-5082 local-intent hardening breaks or old records become unreadable",
+      "mitigation": "Use a separate parent-roadmap totality module and compatibility projection; only add integrations through stable adapters."
+    },
+    {
+      "scenario": "Historical roadmaps are silently marked complete",
+      "trigger": "Migration defaults missing rows to closed or not_applicable",
+      "consequence": "The exact overclaim bug returns for old parent stories",
+      "mitigation": "Default unknown historical parent rows to migration-needed or partial, never full complete without evidence."
+    }
+  ],
+  "timestamp": "2026-06-30T13:28:46.423Z"
+}

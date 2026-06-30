@@ -147,9 +147,12 @@ const requiredProcessFactSemantics = {
   proofstory_gate_check: ['schema-contract', 'verification-policy'],
   done_intent_equivalence_check: ['schema-contract', 'verification-policy'],
   proofstory_review_completeness_check: ['schema-contract', 'verification-policy'],
+  parent_roadmap_status: ['schema-contract', 'verification-policy'],
+  parent_roadmap_evaluate: ['schema-contract', 'verification-policy'],
 };
 const requiredRuntimeFactSemantics = {
   'runtime:proof_admissibility_gate_diagnostic': ['runtime-behavior', 'schema-contract', 'freshness-policy', 'gate-evidence'],
+  'runtime:parent_roadmap_totality_claim_consumer': ['runtime-behavior', 'schema-contract', 'verification-policy', 'gate-evidence'],
 };
 const requiredReviewerLanes = [
   'lattice-review-story-init',
@@ -3862,6 +3865,79 @@ function assertParentRoadmapIntentTotalityPlan() {
   }
 }
 
+function assertParentRoadmapTotalityRuntime() {
+  const corePath = 'packages/main/src/core/parent-roadmap-totality.ts';
+  const handlerPath = 'packages/main/src/handlers/parent-roadmap.ts';
+  const smokePath = 'packages/main/src/tasks/parent-roadmap-totality-smoke.ts';
+  const catalogText = read('packages/main/src/cli/command-catalog.ts');
+  const registryText = read('packages/main/src/registry.ts');
+  const configText = read('packages/main/src/core/config.ts');
+  const policyText = read('packages/main/src/core/command-policy.ts');
+  const levelText = read('packages/main/src/core/process-fact-levels.ts');
+  const registryFactText = read('packages/main/src/core/process-fact-registry.ts');
+
+  for (const relPath of [corePath, handlerPath, smokePath]) {
+    if (!existsSync(join(root, relPath))) fail(`parent roadmap runtime file missing: ${relPath}`);
+  }
+
+  const coreText = read(corePath);
+  const handlerText = read(handlerPath);
+  const smokeText = read(smokePath);
+  for (const marker of [
+    'PARENT_ROADMAP_LEDGER_SCHEMA_VERSION',
+    'PARENT_ROLLUP_SCHEMA_VERSION',
+    'parent-governed',
+    'child-story-needed',
+    'child-story-active',
+    'closed-by-implementation',
+    'closed-by-existing-evidence',
+    'deferred-with-human-approval',
+    'not-applicable',
+    'invalid_parent_rollup',
+    'stale_parent_rollup',
+    'migration_needed',
+    'evaluateParentRoadmapLedger',
+    'evaluateParentRoadmapClaim',
+    'evaluateParentRoadmapProofStoryBinding',
+    'parent_roadmap_summary_overclaim',
+    'runtime implementation',
+    'B-43de',
+  ]) {
+    if (!coreText.includes(marker)) fail(`${corePath}: missing parent roadmap runtime marker "${marker}"`);
+  }
+  assert(
+    coreText.includes('ledger.parentLedgerRollup') && coreText.includes('allRowsClosed') && coreText.includes('claimType'),
+    `${corePath}: evaluator must visibly ignore caller-provided parentLedgerRollup allRowsClosed/claimType overrides`,
+  );
+  assert(
+    !/AUTHORITY_GATE_DECISION|fullAuthorityDone|productionDone/.test(coreText),
+    `${corePath}: parent-roadmap totality must remain local and avoid server-backed completion semantics`,
+  );
+  for (const commandName of ['parent_roadmap_status', 'parent_roadmap_evaluate']) {
+    assert(catalogText.includes(`name: '${commandName}'`), `CLI schema: parent roadmap command missing from MAIN_TOOLS: ${commandName}`);
+    assert(configText.includes(commandName), `config phase tools: parent roadmap command missing from global allow list: ${commandName}`);
+    assert(policyText.includes(`${commandName}: { status: 'supported'`) && policyText.includes('readOnly'), `command-policy: ${commandName} must be supported/readOnly`);
+    assert(levelText.includes(`name: '${commandName}'`) && levelText.includes('parent-roadmap-read'), `process-fact-levels: ${commandName} must be registered as parent-roadmap-read`);
+    assert(registryFactText.includes(`${commandName}: ['schema-contract', 'verification-policy']`), `process-fact-registry: ${commandName} must carry schema/verification semantics`);
+  }
+  assert(registryText.includes('createParentRoadmapHandlers'), 'registry.ts: parent-roadmap handlers must be registered');
+  assert(handlerText.includes('buildParentRoadmapSampleCase') && handlerText.includes('summaryText'), `${handlerPath}: handler must expose sample cases and claim wording checks`);
+  assert(levelText.includes('runtime:parent_roadmap_totality_claim_consumer'), 'process-fact-levels: parent roadmap runtime claim consumer fact missing');
+  assert(registryFactText.includes('runtime:parent_roadmap_totality_claim_consumer'), 'process-fact-registry: parent roadmap runtime claim consumer semantics missing');
+  for (const marker of [
+    '--expected-red=parent-overclaim',
+    '--expected-red=test-first',
+    '--case=state-model',
+    '--case=evaluator',
+    '--case=claim-consumer',
+    '--case=proofstory-binding',
+    '--case=cli',
+    '--case=migration',
+  ]) {
+    if (!smokeText.includes(marker)) fail(`${smokePath}: missing smoke mode marker "${marker}"`);
+  }
+}
+
 function assertProcessFactCommandInventory() {
   const cliText = read('packages/main/src/cli/command-catalog.ts');
   const configText = read('packages/main/src/core/config.ts');
@@ -4544,6 +4620,7 @@ assertProcessFactCommandInventory();
 await assertLifecycleArtifactScopePolicy();
 assertStrengtheningRoadmapGovernanceLedger();
 assertParentRoadmapIntentTotalityPlan();
+assertParentRoadmapTotalityRuntime();
 printProcessFactLevelRegistrySummary();
 
 console.log(`Prompt drift scan: ${reviewerPromptCount} reviewer prompt files checked`);
