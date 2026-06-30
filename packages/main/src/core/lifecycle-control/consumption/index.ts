@@ -114,7 +114,7 @@ export function projectAdmissibilityWaterline(
         subjectMatches: Boolean(options.storyId),
         storyMatches: Boolean(options.storyId),
         gatePhaseMatches: true,
-        commandSpecDigestValid: present || consumer !== 'DONE_REQUIRED',
+        commandSpecDigestValid: consumer === 'DONE_REQUIRED' ? (present ? true : undefined) : true,
         hashTupleFresh: present,
         producerBoundaryTrusted: present,
       },

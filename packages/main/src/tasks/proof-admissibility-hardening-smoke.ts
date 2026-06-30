@@ -89,6 +89,7 @@ function assertAppendOnlyLedgerRetired(): void {
   assert.equal((report as unknown as Record<string, unknown>).ledgerRows, undefined, 'waterline must not claim durable ledger rows');
   assert.equal(report.rows[0]?.diagnosticOnly, true, 'consumer rows stay diagnostic-only');
   assert.equal(report.rows[0]?.productionDoneEligible, false, 'consumer rows cannot become release authority through ledger wording');
+  assert.ok(report.rows[0]?.topReasons.includes('command_spec_missing'), 'missing DONE_REQUIRED evidence reports missing CommandSpec rather than digest mismatch');
 }
 
 assertClosureAuditContract();
