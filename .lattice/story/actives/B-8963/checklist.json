@@ -87,7 +87,30 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "focused smoke coverage proves unchanged-state snapshot reuse passes",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "focused smoke coverage proves story-owned file drift changes storyFilesHash and blocks stale evidence",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "focused smoke coverage proves dirty material worktree state prevents unsafe snapshot reuse",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
