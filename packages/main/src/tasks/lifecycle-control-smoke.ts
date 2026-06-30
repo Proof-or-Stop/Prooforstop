@@ -248,6 +248,21 @@ function assertRuntimeEnforcementDecisions(): void {
   });
   assert.equal(warnDirty.blocked, false);
   assert.equal(warnDirty.reason, 'material_dirty_tree');
+  assert.equal(warnDirty.rollback, 'set lifecycleControl.runtimeEnforcement=warn');
+
+  const unavailableWrongCwd = evaluateRuntimeEnforcement({
+    mode: 'unavailable',
+    operation: 'phase-advance',
+    currentCwd: '/repo/main',
+    authoritativeCwd: '/repo/.worktrees/B-life',
+    authority: 'worktree',
+    dirtyState: 'clean',
+    validationLock: 'free',
+    mainWriteLock: 'free',
+  });
+  assert.equal(unavailableWrongCwd.blocked, false);
+  assert.equal(unavailableWrongCwd.reason, 'wrong_authoritative_cwd');
+  assert.equal(unavailableWrongCwd.advisory[0]?.remediation, 'set lifecycleControl.runtimeEnforcement=warn to roll back enforcement while diagnosing');
 
   const staleLock = evaluateRuntimeEnforcement({
     mode: 'enforce',

@@ -82,11 +82,12 @@ export const DEFAULT_CONTROL_PLANE_CAPABILITIES: ControlPlaneCapabilities = {
     },
     {
       id: 'runtime-enforcement-rollout',
-      status: 'partial',
+      status: 'implemented',
       description: 'Config-gated runtime hard blocks exist for phase-advance contexts while defaulting to warn mode.',
       evidence: [
         'lifecycleControl.runtimeEnforcement accepts warn/enforce/unavailable',
         'story_advance consumes runtime authority, dirty-state, and lock decisions',
+        'rollback is lifecycleControl.runtimeEnforcement=warn',
       ],
     },
     {
