@@ -138,7 +138,39 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "The user sees summary text classified as partial parent done unless the rollup allows a full roadmap completion claim.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/parent-roadmap-totality.ts",
+          "packages/main/src/handlers/summary.ts",
+          "packages/main/src/core/done-oracle.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/parent-roadmap-totality-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Claim consumer allows full-roadmap wording only when ParentRollupResult claimType is full-roadmap-claim.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "partial_parent_done summary wording is allowed and lists open child rows / next actions.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Summary text equivalent to roadmap complete is blocked when the rollup requires no-full-roadmap-claim.",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
