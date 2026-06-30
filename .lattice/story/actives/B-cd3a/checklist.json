@@ -167,7 +167,24 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          ".lattice/story/actives/B-cd3a/proofstory.json",
+          ".lattice/story/actives/B-cd3a/milestone-ledger.json",
+          ".lattice/story/actives/B-cd3a/original-intent-snapshot.json",
+          ".lattice/story/actives/B-cd3a/intent-collision.json",
+          ".lattice/story/actives/B-cd3a/summary.json"
+        ],
+        "create": [],
+        "test": [
+          "lattice proofstory_gate_check --storyId=B-cd3a --mode=enforce --json",
+          "lattice intent_coverage_check --storyId=B-cd3a --mode=enforce --json",
+          "lattice proofstory_review_completeness_check --storyId=B-cd3a --mode=enforce --json",
+          "lattice done_intent_equivalence_check --storyId=B-cd3a --mode=enforce --json",
+          "lattice done_required_validate --storyId=B-cd3a --json"
+        ]
+      }
     }
   ]
 }
