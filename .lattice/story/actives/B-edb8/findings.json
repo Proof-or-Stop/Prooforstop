@@ -75,7 +75,7 @@
       "desc": "The summary overclaim detector lets contradictory wording bypass the full-roadmap guard when the same text also says the roadmap is not complete. hasFullRoadmapClaim returns false as soon as it sees roadmap-not-complete wording (packages/main/src/core/parent-roadmap-totality.ts:548-558), before checking whether the text also contains explicit full-roadmap-complete wording. That means text like \"Full roadmap complete; roadmap not complete. Remaining child-story-needed rows: M5\" is not classified as a full-roadmap claim, despite the B-9fc5 contract requiring any full-completion wording to be invalid unless allRowsClosed=true (docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md:20-24,53-55). The smoke only covers clean overclaim and clean partial wording, not the contradictory combined case (packages/main/src/tasks/parent-roadmap-totality-smoke.ts:382-397).",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-06-30T14:03:43.856Z",
@@ -88,7 +88,11 @@
         "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md"
       ],
       "signatureTag": "adversarial|ts|summary-overclaim-detector",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 7457ea190 with sentence-aware negation/disclaimer handling plus contradictory wording smoke. Verified parent_roadmap_status contradictory text exits 1 in enforce mode.",
+      "resolvedAt": "2026-06-30T14:14:14.591Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-edb8:F-005",
