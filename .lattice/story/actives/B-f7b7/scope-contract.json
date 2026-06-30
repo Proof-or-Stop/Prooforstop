@@ -24,7 +24,29 @@
   "protectedFiles": [],
   "explicitExcludes": [],
   "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "ProofStory adds new gate-consumed process facts and artifact classifications, so the process fact contract verifier must be updated with the registry changes.",
+      "timestamp": "2026-06-30T00:01:31.641Z",
+      "paths": [
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "26a754e4727bdbed439c02cc7868e8bc33898062",
+      "materialHash": "647cee8a847ce790aa13657e95ffaf1ae9c659c484228a357a54e12afaf2acd9",
+      "anchors": [
+        "process_fact_registry",
+        "ProofStory.command_policy",
+        "M9.risk_adaptive_enforcement_rollout"
+      ]
+    }
+  ],
   "createdAt": "2026-06-29T23:42:51.461Z",
-  "updatedAt": "2026-06-29T23:42:51.461Z"
+  "updatedAt": "2026-06-30T00:01:31.641Z"
 }
