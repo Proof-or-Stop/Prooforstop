@@ -306,7 +306,48 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/baseline-suite-smoke.ts",
+          "command": "node packages/main/dist/tasks/baseline-suite-smoke.js && node packages/main/dist/tasks/baseline-suite-report-smoke.js && node bin/lattice.js parent_roadmap_status --storyId=B-43de --json",
+          "result": "pass",
+          "note": "M7 Baseline suite formalization is closed by its focused smoke/verifier and B-43de parent roadmap status reports the row closed with evidence refs.",
+          "headHash": "d4754b1a8cc1f24e1ca0337c03b31113f1f4e1ab",
+          "materialHash": "81c7b5e01a115d0499f73048d52663bc8ed5a4e437b150e6c5c735fe943a667b",
+          "storyFilesHash": "0e7ac09a037d29963e87db96cb7da2b0a55700ec2ebc4a20b8b2f9830234c383",
+          "timestamp": "2026-06-30T22:29:40.173Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/parent-roadmap-totality-smoke.ts",
+          "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js",
+          "result": "pass",
+          "note": "M7 cannot be closed by prose alone: parent-roadmap-totality-smoke requires row closureEvidence, claimBoundary, and legacy migration/open negative-control behavior.",
+          "headHash": "d4754b1a8cc1f24e1ca0337c03b31113f1f4e1ab",
+          "materialHash": "81c7b5e01a115d0499f73048d52663bc8ed5a4e437b150e6c5c735fe943a667b",
+          "storyFilesHash": "0e7ac09a037d29963e87db96cb7da2b0a55700ec2ebc4a20b8b2f9830234c383",
+          "timestamp": "2026-06-30T22:29:40.173Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js && ! rg -n \"M4-M12 remain follow-up|M4-M12 remain|remain follow-up milestones\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "result": "pass",
+          "note": "M7 preserves claim boundaries: parent-roadmap-totality-smoke checks retired Authority overclaim patterns, and docs grep confirms the old follow-up wording is absent.",
+          "headHash": "d4754b1a8cc1f24e1ca0337c03b31113f1f4e1ab",
+          "materialHash": "81c7b5e01a115d0499f73048d52663bc8ed5a4e437b150e6c5c735fe943a667b",
+          "storyFilesHash": "0e7ac09a037d29963e87db96cb7da2b0a55700ec2ebc4a20b8b2f9830234c383",
+          "timestamp": "2026-06-30T22:29:40.173Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
