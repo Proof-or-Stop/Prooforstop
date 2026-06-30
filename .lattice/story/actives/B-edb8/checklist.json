@@ -1,0 +1,96 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "M1 Red/Repro tests before full implementation",
+      "context": "Write failing/negative tests first for parent DONE with open child rows, allRowsClosed=false, partial_parent_done allowed-but-not-complete, child-story-needed blocking full-roadmap claims, stale child evidence, missing child story, invalid deferred-with-human-approval, summary overclaim, and the B-43de regression shape. Do this before runtime implementation changes.",
+      "relatedDocs": [
+        "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "M2 State model and vocabulary",
+      "context": "Implement canonical ParentRoadmapLedger row statuses, claim types, summary classes, strict validation, and round-trip persistence shape without breaking existing ProofStory records.",
+      "relatedDocs": [
+        "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+        "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "M3 Parent rollup evaluator",
+      "context": "Implement a deterministic side-effect-free evaluator that computes ParentRollupResult, allRowsClosed, row-level reasons, stale/invalid/open classifications, and next actions.",
+      "relatedDocs": [
+        "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "M4 Claim consumer and summary guard",
+      "context": "Make summary/DONE-style claim wording consume ParentRollupResult so partial_parent_done cannot be described as full roadmap completion and full-roadmap wording requires allRowsClosed true.",
+      "relatedDocs": [
+        "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "M5 B-5082 ProofStory binding",
+      "context": "Bind parent-roadmap totality to originalIntentSnapshot, milestoneLedger, slicePlan, parent rollup, intentCollision, redEvidence, proofstoryContract, and done_intent_equivalence_check without weakening existing B-5082 gates.",
+      "relatedDocs": [
+        "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+        "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-006",
+      "title": "M6 CLI and lifecycle integration",
+      "context": "Expose parent roadmap totality through CLI and lifecycle/status surfaces in shadow/warn/enforce-compatible form. Operators need one command to see partial/full/blocked/invalid state and next actions.",
+      "relatedDocs": [
+        "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-007",
+      "title": "M7 Migration rollout and repair",
+      "context": "Add migration diagnostics or repair/runbook behavior for existing parent roadmap candidates such as B-43de without force-classifying historical stories as complete. Preserve evidence and rollout state.",
+      "relatedDocs": [
+        "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+        "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-008",
+      "title": "M8 Cross-track certification",
+      "context": "Add certification matrix proving full, partial, blocked, invalid, stale, migration, and summary paths; certify no overclaim when child rows are open and document remaining limits.",
+      "relatedDocs": [
+        "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
