@@ -98,7 +98,40 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Project dev-memory contains current Proofbound/Lattice superseding lessons for old Koala reviewer, delivery, CLI, and preflight lessons.",
+      "files": {
+        "modify": [
+          ".lattice/dev-memory/experience.jsonl"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/dev-memory-supersession-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "New superseding memories exist for legacy Koala reviewer/delivery/CLI/preflight lessons and cite the superseded dev-memory ids.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Superseding memories preserve legacy evidenceRefs by reference instead of duplicating or rewriting old historical entries.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "New memories must say Proofbound/Lattice and not introduce fresh active Koala guidance.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
