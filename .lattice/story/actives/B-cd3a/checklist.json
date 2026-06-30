@@ -249,9 +249,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md#CP-5A-Runtime-Enforcement-Rollout"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-30T09:44:49.670Z",
-      "endTime": null,
+      "endTime": "2026-06-30T09:58:30.512Z",
       "files": {
         "modify": [
           "packages/main/src/core/lifecycle-control/runtime/index.ts",
@@ -289,7 +289,42 @@
           }
         ]
       },
-      "userSees": "User sees runtime closure diagnostics identify configured hard-block status and rollback/config state for unsafe lifecycle operations."
+      "userSees": "User sees runtime closure diagnostics identify configured hard-block status and rollback/config state for unsafe lifecycle operations.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/lifecycle-control-smoke.js",
+          "result": "pass",
+          "note": "Smoke proves enforce mode blocks wrong authoritative cwd, direct main mirror/worktree authority drift, stale active locks, and treats dirty phase-advance state as material when configured.",
+          "headHash": "5306f34ac2ce03f2bebcb1a1f278514197c93c1a",
+          "materialHash": "52fd19edbdb3ec0136c54356cb68ee93a28cb79461d05f02499b0d3ecb8edf5f",
+          "storyFilesHash": "ba9a71e879859c6a71fbc7ecedab3d8176ed409ce790cff7d6b956652d215d16",
+          "timestamp": "2026-06-30T09:58:31.140Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "result": "pass",
+          "note": "Runtime enforcement rollout documents lifecycleControl.runtimeEnforcement warn/enforce/unavailable modes, observable status, and rollback to warn mode.",
+          "headHash": "5306f34ac2ce03f2bebcb1a1f278514197c93c1a",
+          "materialHash": "52fd19edbdb3ec0136c54356cb68ee93a28cb79461d05f02499b0d3ecb8edf5f",
+          "storyFilesHash": "ba9a71e879859c6a71fbc7ecedab3d8176ed409ce790cff7d6b956652d215d16",
+          "timestamp": "2026-06-30T09:58:31.793Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js runtime_closure_status --storyId=B-cd3a --format=json && node packages/main/dist/tasks/lifecycle-control-smoke.js",
+          "result": "pass",
+          "note": "Story-scoped runtime_closure_status is observable for B-cd3a, and smoke rejects unsafe enforce-mode closure cases instead of leaving them advisory-only.",
+          "headHash": "5306f34ac2ce03f2bebcb1a1f278514197c93c1a",
+          "materialHash": "52fd19edbdb3ec0136c54356cb68ee93a28cb79461d05f02499b0d3ecb8edf5f",
+          "storyFilesHash": "ba9a71e879859c6a71fbc7ecedab3d8176ed409ce790cff7d6b956652d215d16",
+          "timestamp": "2026-06-30T09:58:32.438Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
