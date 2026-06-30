@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-9fc5",
+  "records": [
+    {
+      "id": "RED-B-9FC5-PARENT-TOTALITY",
+      "trigger": "B-43de could be correctly DONE as a parent ledger while the broader M4-M12 roadmap remained incomplete, and B-9fc5 ProofStory gate currently blocks future DEV admission until red/repro evidence and totality controls are specified.",
+      "acceptanceTargetRef": "REQ-RED-REPRO-FIRST",
+      "baselineHeadHash": "bc5c68acf3534e12f010a0295ae6693e2e9254ac",
+      "baselineMaterialHash": "7e73bfe0dfa82d70eb4e99f2ea96dfe56fd977fbb3e9478d1827b8d9f8e78682",
+      "observedFailure": "Before this execution-plan story is complete, proofstory_gate_check reports missing_red_evidence plus parent rollup and acceptance binding gaps; the project lacks a documented test-first path for parent roadmap overclaim prevention.",
+      "failingCommand": "lattice proofstory_gate_check {\"storyId\":\"B-9fc5\",\"mode\":\"enforce\",\"json\":true}",
+      "expectedGreenCommand": "rg -n \"M1. Red/Repro|allRowsClosed=false|partial_parent_done|no full-roadmap claim\" docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md && lattice proofstory_gate_check {\"storyId\":\"B-9fc5\",\"mode\":\"enforce\",\"json\":true}",
+      "greenRelation": {
+        "targetRef": "REQ-RED-REPRO-FIRST",
+        "relation": "same_acceptance",
+        "command": "rg -n \"M1. Red/Repro|allRowsClosed=false|partial_parent_done|no full-roadmap claim\" docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md && lattice proofstory_gate_check {\"storyId\":\"B-9fc5\",\"mode\":\"enforce\",\"json\":true}"
+      },
+      "note": "This is planning-story red evidence: the observed red state is the currently missing test-first parent-totality contract, not a runtime code bug fix in this story.",
+      "createdAt": "2026-06-30T12:50:14.372Z"
+    },
+    {
+      "id": "RED-B-9FC5-ACCEPTANCE-BINDING",
+      "trigger": "Parent roadmap user intent totality gap: a local story can complete a parent ledger while the broader completion claim remains false unless acceptance is bound to all child closure rows.",
+      "acceptanceTargetRef": "ACCEPT-B-9FC5-TOTALITY-PLAN",
+      "baselineHeadHash": "bc5c68acf3534e12f010a0295ae6693e2e9254ac",
+      "baselineMaterialHash": "7e73bfe0dfa82d70eb4e99f2ea96dfe56fd977fbb3e9478d1827b8d9f8e78682",
+      "observedFailure": "B-43de DONE correctly completed S0 parent governance, but the broader M4-M12 roadmap still had M5-M12 child-story-needed rows. Without a parent-totality gate, a final answer can overstate completion even when the story-local gate is valid.",
+      "failingCommand": "lattice story_get {\"storyId\":\"B-43de\",\"slim\":true,\"fields\":[\"story\",\"checklist\"]} && rg -n \"child-story-needed|does not claim M5-M12 runtime implementation\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+      "expectedGreenCommand": "rg -n \"M1. Red/Repro|allRowsClosed=false|partial_parent_done|no full-roadmap claim\" docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md && lattice proofstory_gate_check {\"storyId\":\"B-9fc5\",\"mode\":\"enforce\",\"json\":true}",
+      "greenRelation": {
+        "targetRef": "ACCEPT-B-9FC5-TOTALITY-PLAN",
+        "relation": "same_acceptance",
+        "command": "rg -n \"M1. Red/Repro|allRowsClosed=false|partial_parent_done|no full-roadmap claim\" docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md && lattice proofstory_gate_check {\"storyId\":\"B-9fc5\",\"mode\":\"enforce\",\"json\":true}"
+      },
+      "note": "This red evidence binds the observed parent overclaim risk to the ProofStory acceptance binding for this plan.",
+      "createdAt": "2026-06-30T12:52:29.080Z"
+    }
+  ],
+  "createdAt": "2026-06-30T12:50:14.372Z",
+  "updatedAt": "2026-06-30T12:52:29.080Z"
+}

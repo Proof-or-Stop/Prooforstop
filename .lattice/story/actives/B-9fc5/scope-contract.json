@@ -1,0 +1,62 @@
+{
+  "storyId": "B-9fc5",
+  "mode": "enforce",
+  "allowedModify": [
+    "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+    "scripts/verify-process-fact-contract.mjs",
+    ".lattice/story/actives/B-9fc5/**"
+  ],
+  "allowedCreate": [
+    "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+    ".lattice/story/actives/B-9fc5/**"
+  ],
+  "allowedTest": [],
+  "protectedFiles": [
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/handlers/story-advance.ts",
+    "packages/main/src/core/proofstory.ts",
+    "packages/main/src/handlers/proofstory.ts"
+  ],
+  "explicitExcludes": [
+    "packages/main/src/**",
+    "packages/main/tests/**",
+    "docs/story/**",
+    "tests/fixtures/**",
+    "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
+  ],
+  "scopeChangeReason": "Allow this story own B-5082 ProofStory metadata while keeping runtime lifecycle/DONE implementation out of scope.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-30T12:51:22.525Z",
+  "updatedAt": "2026-06-30T12:55:35.203Z",
+  "fileRules": [
+    {
+      "path": "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+      "allowedChangeKinds": [
+        "add",
+        "modify"
+      ],
+      "intentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0",
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0",
+        "CHK-003:happy:0",
+        "CHK-003:edge:0",
+        "CHK-003:adversarial:0",
+        "CHK-004:happy:0",
+        "CHK-004:edge:0",
+        "CHK-004:adversarial:0",
+        "CHK-005:happy:0",
+        "CHK-005:edge:0",
+        "CHK-005:adversarial:0"
+      ]
+    }
+  ],
+  "protectedAnchors": [
+    "runtime_implementation_excluded",
+    "m1_red_repro_first",
+    "no_full_roadmap_claim_with_open_children"
+  ]
+}

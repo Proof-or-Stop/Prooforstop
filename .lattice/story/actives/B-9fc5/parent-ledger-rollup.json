@@ -1,0 +1,33 @@
+{
+  "schemaVersion": "proofstory.parent_ledger_rollup.v1",
+  "storyId": "B-9fc5",
+  "ledgerHash": "sha256:30baeda960c4af2021dd91d42e7383f94c761c1afaadb0e11ed6fc314cf7dc46",
+  "slicePlanHash": "sha256:d529d309614adaeb58daa61bf654bdd045aa6394740179ef05eea8c1c656d3f4",
+  "children": [
+    {
+      "storyId": "B-9fc5",
+      "milestoneIds": [
+        "M1",
+        "M2",
+        "M3",
+        "M4",
+        "M5",
+        "M6",
+        "M7",
+        "M8"
+      ],
+      "status": "covered",
+      "evidenceRefs": [
+        "original_intent_snapshot:REQ-RED-REPRO-FIRST",
+        "milestone_ledger:sha256:30baeda960c4af2021dd91d42e7383f94c761c1afaadb0e11ed6fc314cf7dc46",
+        "slice_plan:sha256:d529d309614adaeb58daa61bf654bdd045aa6394740179ef05eea8c1c656d3f4",
+        "intent_collision:IC-B-9FC5-PLAN-NOT-RUNTIME",
+        "red_evidence:RED-B-9FC5-PARENT-TOTALITY",
+        "proofstory_contract:ACCEPT-B-9FC5-TOTALITY-PLAN"
+      ]
+    }
+  ],
+  "rollupHash": "sha256:6a04cb6367c555ec4eaa15570ff52c5da1323aa51718be0c9375e0e4c0933b31",
+  "createdAt": "2026-06-30T12:50:51.537Z",
+  "updatedAt": "2026-06-30T12:50:51.537Z"
+}
