@@ -40,6 +40,27 @@
       ],
       "signatureTag": "adversarial|ts|proofstory-enforcement-covered",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-f7b7:F-003",
+      "desc": "The ProofStory execution plan command/artifact inventory does not match the implemented CLI surface. The doc lists current New Commands that are not registered or implemented, including intent_collision_start/record/resolve, acceptance_contract_set/acceptance_criterion_add/acceptance_evidence_bind, red_evidence_validate, minimality_check_set/minimality_alternative_record, risk_classify, and assurance_level_set (docs/requirements/decisions/proofstory-intent-collision-execution-plan.md:950-993), while the catalog exposes the implemented ProofStory commands without those names and adds proofstory_review_completeness_check instead (packages/main/src/cli/command-catalog.ts:2026-2156). The Storage section also calls intent-coverage-check.json, done-intent-equivalence.json, acceptance-contract.json, and minimality-check.json new gate-consumed artifacts (docs/requirements/decisions/proofstory-intent-collision-execution-plan.md:1026-1042), but the store only persists original-intent-snapshot.json, milestone-ledger.json, proofstory.json, intent-collision.json, scope-shrinkage-decision.json, red-evidence.json, and spike.json (packages/main/src/core/store.ts:655-743), and the coverage/equivalence/check handlers are read-only diagnostics (packages/main/src/handlers/proofstory.ts:391-420). This leaves the requirements doc as a misleading operator/spec source for command names and gate evidence.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-30T00:04:49.443Z",
+      "reviewRound": "2026-06-30T00:01:49.378Z",
+      "reviewRunId": "B-f7b7:RR-004",
+      "_hash": "262155bc2d44ec94545eb4093fbe648bf9ff47dba37dcd15b9713dfbfae738a0",
+      "files": [
+        "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+        "packages/main/src/cli/command-catalog.ts",
+        "packages/main/src/handlers/proofstory.ts",
+        "packages/main/src/core/store.ts"
+      ],
+      "signatureTag": "doc-code-drift|md|proofstory-execution-plan",
+      "signatureTagSource": "auto"
     }
   ]
 }
