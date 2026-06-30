@@ -1,8 +1,8 @@
 /**
  * Parent-roadmap intent-totality evaluator.
  *
- * This is a strict local model. It does not call or emulate an Authority
- * service, and it never trusts caller-provided rollup conclusions.
+ * This is a strict local model. It does not call or emulate any server-backed
+ * completion service, and it never trusts caller-provided rollup conclusions.
  */
 
 export const PARENT_ROADMAP_LEDGER_SCHEMA_VERSION = 'parent_roadmap.ledger.v1';

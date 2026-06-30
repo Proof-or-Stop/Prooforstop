@@ -3910,8 +3910,8 @@ function assertParentRoadmapTotalityRuntime() {
     `${corePath}: evaluator must visibly ignore caller-provided parentLedgerRollup allRowsClosed/claimType overrides`,
   );
   assert(
-    coreText.includes('No Authority') || !/Authority Server|AUTHORITY_GATE_DECISION|fullAuthorityDone|productionDone/.test(coreText),
-    `${corePath}: parent-roadmap totality must remain local and avoid Authority Server completion semantics`,
+    !/AUTHORITY_GATE_DECISION|fullAuthorityDone|productionDone/.test(coreText),
+    `${corePath}: parent-roadmap totality must remain local and avoid server-backed completion semantics`,
   );
   for (const commandName of ['parent_roadmap_status', 'parent_roadmap_evaluate']) {
     assert(catalogText.includes(`name: '${commandName}'`), `CLI schema: parent roadmap command missing from MAIN_TOOLS: ${commandName}`);
