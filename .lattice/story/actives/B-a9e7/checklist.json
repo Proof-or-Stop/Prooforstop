@@ -53,7 +53,41 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "dev_memory_preflight/search/list shows current Proofbound/Lattice superseding guidance before legacy Koala entries and annotates superseded ids.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/dev-memory.ts",
+          "packages/main/src/handlers/dev-memory.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/dev-memory-supersession-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Entries with tags like supersedes-<id> or evidenceRefs like dev-memory:<id> rank ahead of superseded entries in search/preflight.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "List output remains newest-first while still annotating superseded legacy entries when a superseding entry exists.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A legacy Koala entry must not be presented as active guidance when a current Proofbound/Lattice superseding entry is present.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
