@@ -206,9 +206,23 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-30T10:02:50.256Z",
-      "endTime": null
+      "endTime": "2026-06-30T10:02:58.822Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "command": "rg -n \"B-43de governs|child-story-needed|Tier-C\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "result": "pass",
+          "note": "Roadmap now includes visible governance/handoff status: B-43de parent governance, M5-M12 child-story-needed rows, and the existing roadmap preserves Tier-C duplicate experimental stories as a documented exception while targeting non-experiment duplicates for cleanup.",
+          "headHash": "6b41e1cfcb0332e35c170d5d290edb91a0449c46",
+          "materialHash": "ee027bc0b99b5bc1b2f6e97d353abf7febe412ac723d51aa4238273920941810",
+          "storyFilesHash": "66d4ed0e3277a7244e11cb712d29c049e262b315a9ff3ea49a8ae6b1a3311c6b",
+          "timestamp": "2026-06-30T10:02:59.129Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
@@ -320,6 +334,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Recording final roadmap governance handoff table evidence."
+    },
+    {
+      "timestamp": "2026-06-30T10:02:58.822Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Roadmap governance and handoff table are visible in the document."
     }
   ]
 }
