@@ -234,7 +234,7 @@ function assertProductionCallSitesThreadEvidenceHashSnapshot(): void {
     /const evidenceHashSnapshot = tryCaptureEvidenceHashSnapshot\(\{ gitCwd: ctx\.root, metadataRoot: ctx\.root, ref: 'HEAD' \}\);[\s\S]*buildDoneChecklist\(storyId, ctx\.store, ctx\.root, \{[\s\S]*evidenceHashSnapshot,[\s\S]*\}\)/,
     'session_brief DONE pre-check should pass a command-local evidenceHashSnapshot',
   );
-  console.log('production DONE/session/lifecycle call sites thread evidenceHashSnapshot');
+  console.log('lifecycle DONE/session/lifecycle call sites thread evidenceHashSnapshot');
 }
 
 assertProductionCallSitesThreadEvidenceHashSnapshot();
