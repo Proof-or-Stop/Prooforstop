@@ -3530,7 +3530,7 @@ async function assertLifecycleArtifactScopePolicy() {
     'evidence/live-smoke-transcript.json',
     'does not weaken product source scope enforcement',
     'arbitrary',
-    'M1-M3 wave complete; M4-M12 remain follow-up milestones',
+    'B-e781 closes the B-43de M4-M12 parent roadmap rows with local machine evidence',
     'scope.lifecycle_artifact:B-scope:summary.json',
     'scope.runtime_artifact:',
     'scope.out_of_scope:',
@@ -3554,7 +3554,7 @@ async function assertLifecycleArtifactScopePolicy() {
     }
   }
   const requiredGuardMarkers = [
-    'M1-M3 wave complete; M4-M12 remain follow-up milestones',
+    'B-e781 closure status: the B-43de M4-M12 parent roadmap rows are closed by',
     'acknowledged expansion remains warn',
     'native-pretool',
     'wrapped-preapply',

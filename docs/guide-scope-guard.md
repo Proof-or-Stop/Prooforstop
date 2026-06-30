@@ -5,12 +5,13 @@ agent dispatched to implement a checklist item stays within its declared scope
 contract. Starting a guard session tells Proofbound which runtime host is running
 the agent so it can choose the right protection strategy.
 
-B-997b wave 1 status: M1-M3 wave complete; M4-M12 remain follow-up milestones.
-The shipped behavior is limited to canonical scope rows, lifecycle/runtime
-artifact classification, truthful guard capability labels, and acknowledgement
-visibility. Authority, Layer 4, production receipts, baseline unlocks,
-customer-key behavior, renderer/scheduler work, and unrelated runtime features
-remain follow-up work.
+B-e781 closure status: the B-43de M4-M12 parent roadmap rows are closed by
+local machine evidence and row-level claim boundaries. The B-997b wave 1 guard
+behavior remains limited to canonical scope rows, lifecycle/runtime artifact
+classification, truthful guard capability labels, and acknowledgement
+visibility. Retired Authority Server production/runtime conformance remains a
+non-goal; local evidence rows must not imply production receipts or a broader
+capability unlock.
 
 - **`native-pretool` (pre-tool blocking)** — a host with a verified pre-tool
   hook can reject a forbidden write before the file is modified.
