@@ -331,7 +331,42 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "rollout-check smoke passes, roadmap guidance is updated, and parent_roadmap_status shows M11 closed.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "packages/main/src/core/parent-roadmap-totality.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/rollout-check-smoke.ts",
+          "packages/main/src/commands/rollout-check.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Rollout migration and operator guidance closes only when rollout diagnostics and operator guidance are updated without broadening enforcement claims.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "M11 must not be closed by documentation text alone; parent-roadmap machine status must carry evidence refs.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "M11 must preserve claim boundaries, especially retired Authority Server semantics and read-only/advisory surfaces.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-009",
