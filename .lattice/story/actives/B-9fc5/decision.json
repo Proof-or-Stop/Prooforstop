@@ -1,0 +1,68 @@
+{
+  "principles": [
+    "Test-first proof before full gate implementation",
+    "Do not let parent governance DONE imply child runtime completion",
+    "Keep B-5082 controls as the governance substrate rather than replacing them",
+    "Separate planning story from runtime implementation story"
+  ],
+  "drivers": [
+    "User explicitly asked for a detailed execution plan first",
+    "The first milestone must be red/repro tests before full story execution",
+    "The prior B-43de outcome showed story-local DONE can be correct while broader user intent remains open"
+  ],
+  "options": [
+    {
+      "name": "A: Plan-first with red/repro milestone as M1",
+      "pros": [
+        "Matches the user request for an execution plan",
+        "Makes the missing test cases explicit before runtime implementation",
+        "Can be governed by B-5082 without overclaiming implementation"
+      ],
+      "cons": [
+        "Does not immediately fix the runtime gap"
+      ]
+    },
+    {
+      "name": "B: Implement runtime gate immediately",
+      "pros": [
+        "Would start closing the actual product gap now"
+      ],
+      "cons": [
+        "Skips the requested plan and test-first milestone",
+        "Risks another scope mismatch if parent/child semantics are not specified first"
+      ]
+    },
+    {
+      "name": "C: Only update B-43de summary wording",
+      "pros": [
+        "Smallest change"
+      ],
+      "cons": [
+        "Does not create a reusable gate, test plan, or cross-story totality contract"
+      ]
+    }
+  ],
+  "chosen": "A: Plan-first with red/repro milestone as M1",
+  "rationale": "The user asked for a detailed plan and clarified that red/repro tests must be the first milestone; implementation should follow only after the contract is explicit.",
+  "preMortem": [
+    {
+      "scenario": "The plan says test-first but later implementation skips the red tests",
+      "trigger": "M1 lacks concrete failing test names or expected failures",
+      "consequence": "The same parent-DONE overclaim can recur",
+      "mitigation": "Require M1 to name exact negative controls and expected failing assertions before any runtime gate implementation"
+    },
+    {
+      "scenario": "The plan repeats B-43de by creating only another parent ledger",
+      "trigger": "Milestones stop at documentation or parent rows",
+      "consequence": "User still cannot know when the whole roadmap is actually complete",
+      "mitigation": "Require implementation milestones for evaluator, CLI/DONE consumer, summary claim language, migration, rollout, and certification"
+    },
+    {
+      "scenario": "The gate blocks legitimate parent governance stories",
+      "trigger": "allRowsClosed is required for every parent story DONE rather than only for full-completion claims",
+      "consequence": "Planning and governance stories become impossible to close",
+      "mitigation": "Use claim-sensitive outcomes: parent governance can DONE as partial_parent_done, but cannot claim full roadmap completion"
+    }
+  ],
+  "timestamp": "2026-06-30T12:47:54.930Z"
+}

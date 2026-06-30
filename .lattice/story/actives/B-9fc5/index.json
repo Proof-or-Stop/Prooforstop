@@ -4,7 +4,7 @@
   "title": "Plan parent roadmap completion and user intent totality gate",
   "description": "Write an execution plan for a parent-roadmap completion gate and user-intent totality gate. The plan must explain why B-5082 protected the scoped B-43de story but did not prove all child milestones complete, define the missing cross-story gate, list the milestones required to implement it, and specify how B-5082 ProofStory artifacts will govern the work without claiming runtime completion prematurely.",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "PLAN",
   "priority": "high",
   "riskSignals": [
     {
@@ -36,6 +36,15 @@
       "branch": "main",
       "user": "Harmonygo",
       "sessionId": "sess-55cb4184be97f673",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-30T12:47:15.335Z",
+      "branch": "story/B-9fc5",
+      "user": "Harmonygo",
+      "sessionId": "sess-dfac8dd10a7a399b",
       "agent": "main"
     }
   ],

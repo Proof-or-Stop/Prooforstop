@@ -1,0 +1,164 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-9fc5",
+  "state": "candidate",
+  "ledgerHash": "sha256:30baeda960c4af2021dd91d42e7383f94c761c1afaadb0e11ed6fc314cf7dc46",
+  "milestones": [
+    {
+      "id": "M1",
+      "sourceRequirementId": "REQ-RED-REPRO-FIRST",
+      "claim": "Red/Repro tests and negative controls are specified before runtime implementation begins.",
+      "doneMeans": "The plan names failing tests for parent DONE overclaim, allRowsClosed=false, child-story-needed rows, partial_parent_done summary, and stale parent rollup.",
+      "requiredEvidence": [
+        "plan-section",
+        "test-list",
+        "negative-controls"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0"
+      ],
+      "assignedStory": "B-9fc5",
+      "status": "planned"
+    },
+    {
+      "id": "M2",
+      "sourceRequirementId": "REQ-PARENT-TOTALITY-GATE",
+      "claim": "Parent-child completion contract and status vocabulary are defined.",
+      "doneMeans": "The plan defines completed, superseded, deferred-with-human-approval, child-story-active, child-story-needed, and partial_parent_done semantics.",
+      "requiredEvidence": [
+        "plan-section",
+        "state-table"
+      ],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0"
+      ],
+      "assignedStory": "B-9fc5",
+      "status": "planned"
+    },
+    {
+      "id": "M3",
+      "sourceRequirementId": "REQ-PARENT-TOTALITY-GATE",
+      "claim": "Evaluator and data model milestones are specified.",
+      "doneMeans": "The plan specifies ParentRoadmapLedger, ParentRollupResult, allRowsClosed, claimType, and child row evidence bindings.",
+      "requiredEvidence": [
+        "plan-section",
+        "data-model"
+      ],
+      "checklistRefs": [
+        "CHK-002",
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:edge:0",
+        "CHK-003:happy:0"
+      ],
+      "assignedStory": "B-9fc5",
+      "status": "planned"
+    },
+    {
+      "id": "M4",
+      "sourceRequirementId": "REQ-CLAIM-BOUNDARY",
+      "claim": "Claim-language and summary/DONE behavior milestones are specified.",
+      "doneMeans": "The plan says full-roadmap claims require allRowsClosed=true, while parent governance can close only as partial_parent_done.",
+      "requiredEvidence": [
+        "plan-section",
+        "claim-boundary-table"
+      ],
+      "checklistRefs": [
+        "CHK-002",
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:adversarial:0",
+        "CHK-003:edge:0"
+      ],
+      "assignedStory": "B-9fc5",
+      "status": "planned"
+    },
+    {
+      "id": "M5",
+      "sourceRequirementId": "REQ-B5082-CONTROLS",
+      "claim": "B-5082 ProofStory binding milestones are specified.",
+      "doneMeans": "The plan requires originalIntentSnapshot, milestoneLedger, parent rollup, slice plan, and DONE intent equivalence for the implementation story.",
+      "requiredEvidence": [
+        "plan-section",
+        "proofstory-binding"
+      ],
+      "checklistRefs": [
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [
+        "CHK-004:happy:0",
+        "CHK-004:edge:0"
+      ],
+      "assignedStory": "B-9fc5",
+      "status": "planned"
+    },
+    {
+      "id": "M6",
+      "sourceRequirementId": "REQ-MILESTONE-PLAN",
+      "claim": "CLI/gate integration milestones are specified.",
+      "doneMeans": "The plan names where story_create/story_advance/summary/DONE/convergence checks will consume parent totality results.",
+      "requiredEvidence": [
+        "plan-section",
+        "integration-table"
+      ],
+      "checklistRefs": [
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-003:adversarial:0"
+      ],
+      "assignedStory": "B-9fc5",
+      "status": "planned"
+    },
+    {
+      "id": "M7",
+      "sourceRequirementId": "REQ-MILESTONE-PLAN",
+      "claim": "Migration and rollout milestones are specified.",
+      "doneMeans": "The plan includes warn/enforce rollout, legacy parent ledgers, repair commands, and human-approved deferral behavior.",
+      "requiredEvidence": [
+        "plan-section",
+        "rollout-table"
+      ],
+      "checklistRefs": [
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-003:edge:0"
+      ],
+      "assignedStory": "B-9fc5",
+      "status": "planned"
+    },
+    {
+      "id": "M8",
+      "sourceRequirementId": "REQ-MILESTONE-PLAN",
+      "claim": "Certification milestones are specified.",
+      "doneMeans": "The plan defines final certification checks proving no parent roadmap can claim full completion with open child rows.",
+      "requiredEvidence": [
+        "plan-section",
+        "certification-checks"
+      ],
+      "checklistRefs": [
+        "CHK-005"
+      ],
+      "verificationIntentRefs": [
+        "CHK-005:happy:0",
+        "CHK-005:edge:0",
+        "CHK-005:adversarial:0"
+      ],
+      "assignedStory": "B-9fc5",
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-06-30T12:48:23.879Z",
+  "updatedAt": "2026-06-30T12:48:23.879Z"
+}

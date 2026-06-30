@@ -9,7 +9,27 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Plan milestone M1 lists red/repro tests before any runtime implementation story starts.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "M1 red tests include allRowsClosed=false, child-story-needed, and partial_parent_done cases, not only a vague testing note.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Plan fails review if the first milestone can be interpreted as optional tests after implementation rather than required failing tests before implementation.",
+            "type": "docs"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

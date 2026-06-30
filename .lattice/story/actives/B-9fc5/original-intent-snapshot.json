@@ -1,0 +1,17 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-9fc5",
+  "sourceText": "User asked to write a detailed execution plan for Parent Roadmap Completion Gate / User Intent Totality Gate, including how many milestones are required, and clarified that the first milestone must be writing test cases / Red-Repro before executing the full story.",
+  "normalizedOutcome": "A plan document exists that starts with Red/Repro test-first milestone and then lists the full implementation milestones for preventing parent-roadmap completion overclaims.",
+  "acceptanceClaim": "The plan names the B-43de/B-5082 failure mode, makes Red/Repro tests milestone M1, defines parent-child completion rules, and lists all implementation milestones needed before a full roadmap completion claim is allowed.",
+  "keyRequirementIds": [
+    "REQ-B5082-CONTROLS",
+    "REQ-CLAIM-BOUNDARY",
+    "REQ-MILESTONE-PLAN",
+    "REQ-PARENT-TOTALITY-GATE",
+    "REQ-RED-REPRO-FIRST"
+  ],
+  "requestHash": "sha256:3f5ae1a16d33c15aac2f13449d9c4a7d4483da7c9a6cd8f189b6a84f92d1a317",
+  "createdAt": "2026-06-30T12:48:04.565Z",
+  "updatedAt": "2026-06-30T12:48:04.565Z"
+}
