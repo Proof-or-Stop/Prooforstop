@@ -76,8 +76,28 @@
       "anchors": [
         "B_e781_M4_M12_parent_roadmap_closure_route"
       ]
+    },
+    {
+      "actor": "codex",
+      "reason": "Review findings F-001 and F-002 require these documentation and CLI help wording updates to align B-e781 closure claims with local evidence boundaries.",
+      "timestamp": "2026-06-30T22:42:59.437Z",
+      "paths": [
+        "docs/guide-scope-guard.md",
+        "docs/requirements/decisions/lifecycle-artifact-scope.md",
+        "packages/main/src/cli/command-catalog.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "docs/guide-scope-guard.md",
+        "docs/requirements/decisions/lifecycle-artifact-scope.md",
+        "packages/main/src/cli/command-catalog.ts"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "804f7d06204c4a7eadb313174abc314b51397674",
+      "materialHash": "1f580a6117be491b1c8ac3560b2fa3ad668d980303d608a6fb03711988bcd67b"
     }
   ],
   "createdAt": "2026-06-30T22:12:27.772Z",
-  "updatedAt": "2026-06-30T22:30:31.434Z"
+  "updatedAt": "2026-06-30T22:42:59.437Z"
 }
