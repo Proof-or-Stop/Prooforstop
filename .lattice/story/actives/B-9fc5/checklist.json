@@ -205,9 +205,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-30T13:01:19.576Z",
       "verificationIntent": {
         "happy": [
           {
@@ -227,7 +227,42 @@
             "type": "docs"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "docs_check",
+          "command": "rg -n \"originalIntentSnapshot|milestoneLedger|parentLedgerRollup|slicePlan|intentCollision|done_intent_equivalence_check\" docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+          "result": "pass",
+          "note": "Plan requires the B-5082 ProofStory artifacts for the later implementation story.",
+          "headHash": "47108d84de260da4c0cd6e9f92e0a98eb01e463f",
+          "materialHash": "62dfc9ac5cabbf5cd41d4f5d200a0b688543c77a410d730ffd88c5faf7cbafaa",
+          "storyFilesHash": "d627a1648f7a40f8420c4d4abd616722922a106475de27ef4c3b18f41a2e1b29",
+          "timestamp": "2026-06-30T13:01:19.689Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "docs_check",
+          "command": "rg -n \"story-local|parent-child totality|B-5082 as the local-intent substrate\" docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+          "result": "pass",
+          "note": "Plan explains B-5082 is story-local and needs the parent-child totality layer.",
+          "headHash": "47108d84de260da4c0cd6e9f92e0a98eb01e463f",
+          "materialHash": "62dfc9ac5cabbf5cd41d4f5d200a0b688543c77a410d730ffd88c5faf7cbafaa",
+          "storyFilesHash": "d627a1648f7a40f8420c4d4abd616722922a106475de27ef4c3b18f41a2e1b29",
+          "timestamp": "2026-06-30T13:01:19.836Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "lattice intent_coverage_check {storyId:B-9fc5,mode:enforce,json:true}",
+          "result": "pass",
+          "note": "ProofStory diagnostics show no missing parent rollup, no missing red evidence, no missing intent collision, and no milestone coverage gaps.",
+          "headHash": "47108d84de260da4c0cd6e9f92e0a98eb01e463f",
+          "materialHash": "62dfc9ac5cabbf5cd41d4f5d200a0b688543c77a410d730ffd88c5faf7cbafaa",
+          "storyFilesHash": "d627a1648f7a40f8420c4d4abd616722922a106475de27ef4c3b18f41a2e1b29",
+          "timestamp": "2026-06-30T13:01:19.986Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
