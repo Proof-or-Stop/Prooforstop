@@ -51,7 +51,7 @@
       "desc": "Verified stale review-assurance overclaim remains in the story summary after the F-002 fix. `lattice summary_get {\"storyId\":\"B-c004\"}` reports expectedOutcome that the user should see DONE gates satisfied by fresh validation, delivery, review assurance, and intent-equivalence diagnostics, but `lattice done_closure {\"storyId\":\"B-c004\"}` reports canAttemptDone=false with a blocking review-assurance-floor row: missing material code paths 12, local rounds 0/3, stale host verdicts ignored, and next action to re-submit local host verdicts over the current materialHash. This contradicts the requested summary de-overclaim/no stale review-assurance overclaim requirement; the summary should state that validation/delivery are fresh while review-assurance floor remains to be satisfied by fresh quorum/fallback evidence, or omit the DONE-gates-satisfied claim until the DONE oracle passes.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-06-30T17:26:17.086Z",
@@ -62,7 +62,11 @@
         ".lattice/story/actives/B-c004/summary.json"
       ],
       "signatureTag": "doc-promise-undelivered|summary|review-assurance-overclaim",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Resolved the summary overclaim by updating expectedOutcome, actualTranscript, outcomeDiff, and pitfalls so review assurance is no longer asserted by summary text before the DONE oracle accepts fresh current-material quorum or approved fallback evidence. Evidence: summary_set auto-commit e56c87b; summary now says final DONE readiness is determined by current Lattice gates and review assurance must be satisfied by fresh quorum or approved fallback.",
+      "resolvedAt": "2026-06-30T17:27:21.866Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-c004:F-004",
