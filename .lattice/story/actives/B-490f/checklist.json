@@ -110,7 +110,43 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees final verification evidence showing all three documents contain ✅ completion tables and retain non-overclaim boundaries.",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "packages/main/src/tasks/parent-roadmap-totality-smoke.ts",
+          "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Targeted rg checks find ✅ completion/status tables in all three documents.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Existing parent-roadmap and proof/process-fact verification commands still pass after doc edits.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Targeted checks still find partial/future/retired/unavailable/non-hard-gate boundary language after the ✅ rows are added.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
