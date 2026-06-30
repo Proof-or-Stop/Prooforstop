@@ -1,0 +1,47 @@
+{
+  "schemaVersion": "proofstory.slice_plan.v1",
+  "storyId": "B-cd3a",
+  "ledgerHash": "sha256:e26402c9935177d4588930da7d065efe68e211d68d60882c2b14324c0d24b716",
+  "slices": [
+    {
+      "id": "SLICE-1-AUDIT-STATUS",
+      "milestoneIds": [
+        "M1",
+        "M2"
+      ],
+      "reason": "Audit classification and Global Control Plane status reporting are the diagnostic/status foundation before implementation enforcement."
+    },
+    {
+      "id": "SLICE-2-QUEUE",
+      "milestoneIds": [
+        "M3",
+        "M5"
+      ],
+      "reason": "Tier-C experiment exceptions and queue governance mutation guard share queue classification and preservation semantics."
+    },
+    {
+      "id": "SLICE-3-RUNTIME",
+      "milestoneIds": [
+        "M4"
+      ],
+      "reason": "Runtime closure hard-block rollout is high-risk lifecycle behavior and should be independently reviewable."
+    },
+    {
+      "id": "SLICE-4-PROOF-ADMISSIBILITY",
+      "milestoneIds": [
+        "M6"
+      ],
+      "reason": "Proof Admissibility high-risk consumer enforcement touches proof boundaries and must stay separate from runtime and queue work."
+    },
+    {
+      "id": "SLICE-5-FINAL-VALIDATION",
+      "milestoneIds": [
+        "M7"
+      ],
+      "reason": "Final ProofStory/lifecycle verification validates all previous slices and should remain a closure slice rather than implementation work."
+    }
+  ],
+  "planHash": "sha256:c091a3b1e57c02d6562ab996dcfbed3c329ea5a8d52c9434b7d22c66a46f284a",
+  "createdAt": "2026-06-30T09:38:30.398Z",
+  "updatedAt": "2026-06-30T09:38:30.398Z"
+}
