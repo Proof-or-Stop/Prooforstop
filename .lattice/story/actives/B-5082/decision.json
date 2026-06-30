@@ -1,0 +1,74 @@
+{
+  "principles": [
+    "Every completed item must be mechanically traceable to the document commitment it closes.",
+    "Finish the full ProofStory commitments inside the existing Lattice lifecycle rather than adding a second lifecycle.",
+    "Prefer compact gate-consumed artifacts over an autopilot scheduler or automatic child-story creation.",
+    "Keep risk-adaptive rollout semantics: simple stories stay light, enforce mode becomes mechanically meaningful."
+  ],
+  "drivers": [
+    "User explicitly requested complete M0-M9 closure with per-item document cross-check before each completion mark.",
+    "The previous B-f7b7 story was DONE as MVP but left full-document commitments incomplete.",
+    "Future open-source users need English prompts/docs and mechanically auditable behavior."
+  ],
+  "options": [
+    {
+      "name": "A: Implement compact artifacts and gate semantics now",
+      "pros": [
+        "Closes the concrete document gaps without overbuilding orchestration",
+        "Keeps the existing Lattice lifecycle and review gates authoritative",
+        "Allows smoke and process-fact tests to prove the behavior"
+      ],
+      "cons": [
+        "Requires touching several core files, handlers, prompts, and smoke tests in one story"
+      ]
+    },
+    {
+      "name": "B: Only update docs to clarify future scope",
+      "pros": [
+        "Smaller change and lower immediate risk"
+      ],
+      "cons": [
+        "Would not satisfy the user request to develop until fully complete",
+        "Would leave promised behavior unimplemented"
+      ]
+    },
+    {
+      "name": "C: Build a full scheduler and automatic child-story system now",
+      "pros": [
+        "Could eventually support large epics end to end"
+      ],
+      "cons": [
+        "Too large for this follow-up and risks creating a second lifecycle/state machine"
+      ]
+    }
+  ],
+  "chosen": "A: Implement compact artifacts and gate semantics now",
+  "rationale": "Choose compact implementation because it closes the audited M0-M9 gaps while preserving the existing lifecycle. Slice-plan and parent-rollup artifacts are enough for gate-consumed proof; automatic scheduling can remain a separate future capability.",
+  "preMortem": [
+    {
+      "scenario": "Scope expands into a full scheduler",
+      "trigger": "Implementing slice-plan starts auto-creating child stories or parallel workers",
+      "consequence": "The story becomes too broad and risks a second lifecycle",
+      "mitigation": "Implement only slice-plan and roll-up artifacts plus diagnostics; no automatic child story creation."
+    },
+    {
+      "scenario": "Checklist item is marked done without document proof",
+      "trigger": "A developer relies on memory or smoke coverage only",
+      "consequence": "User requirement is violated and the audit becomes untrustworthy",
+      "mitigation": "Before every checklist_update done, record document line evidence, implementation evidence, and verification evidence in the completion note."
+    },
+    {
+      "scenario": "Prompt-only rules drift from gate behavior",
+      "trigger": "Reviewer prompts mention ProofStory but no process-fact or smoke test covers it",
+      "consequence": "Future agents trust text that gates do not enforce",
+      "mitigation": "Update process-fact contract and smoke coverage for every gate-consumed behavior."
+    },
+    {
+      "scenario": "Enforce mode breaks low-risk stories",
+      "trigger": "DONE equivalence or red/spike checks require heavy artifacts for simple single-outcome work",
+      "consequence": "ProofStory becomes too expensive for normal development",
+      "mitigation": "Implement lightweight single-outcome DONE equivalence and keep red/spike/collision trigger-based."
+    }
+  ],
+  "timestamp": "2026-06-30T01:07:45.773Z"
+}

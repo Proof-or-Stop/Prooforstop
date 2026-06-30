@@ -1,0 +1,38 @@
+{
+  "task": "Finish the remaining ProofStory M0-M9 commitments that were found incomplete after B-f7b7 DONE audit.",
+  "outcome": "User sees every remaining ProofStory completion item marked ✅ only after a document cross-check, code evidence, and verification evidence have been recorded; final output says B-5082 is DONE and ProofStory M0-M9 document commitments are fully implemented.",
+  "facts": [
+    "B-f7b7 implemented the ProofStory MVP and reached DONE, but post-DONE audit found incomplete full-document commitments.",
+    "The source of truth is docs/requirements/decisions/proofstory-intent-collision-execution-plan.md.",
+    "User explicitly requires each completion item to be checked against the document before being marked complete.",
+    "Existing ProofStory commands, diagnostics, and smoke test live in packages/main/src/core/proofstory.ts, packages/main/src/handlers/proofstory.ts, and packages/main/src/tasks/proofstory-intent-hardening-smoke.ts."
+  ],
+  "constraints": [
+    "Do not use omx or .omx.",
+    "Use Lattice lifecycle and do not directly mutate story metadata.",
+    "Before marking any checklist item done, cite the document commitment plus implementation and verification evidence.",
+    "Keep ProofStory inside the existing lifecycle rather than creating a parallel state machine.",
+    "Preserve observe/warn/enforce rollout semantics unless a story explicitly selects enforce."
+  ],
+  "unknowns": [
+    "Whether all parent/child roll-up semantics can be implemented compactly in one follow-up without overbuilding a scheduler.",
+    "Whether active reviewer prompt updates should touch all reviewer prompts or only the relevant concept/quality/test/docs/delivery lanes."
+  ],
+  "touchpoints": [
+    "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+    "packages/main/src/core/proofstory.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/core/store.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/handlers/proofstory.ts",
+    "packages/main/src/handlers/phase-gates.ts",
+    "packages/main/src/handlers/story-review.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    ".lattice-codex/agents/",
+    ".claude/agents/"
+  ],
+  "timestamp": "2026-06-30T01:07:32.231Z"
+}
