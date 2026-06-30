@@ -48,10 +48,10 @@
           "command": "lattice proofstory_gate_check {\"storyId\":\"B-43de\",\"mode\":\"enforce\",\"json\":true}",
           "result": "pass",
           "note": "ProofStory enforce gate passed with original intent snapshot, confirmed milestone ledger, parent rollup, slice plan, and no gaps; anchors roadmap parent intent to B-43de.",
-          "headHash": "8b83e27cebfca7e0ff835ea71a9115c7d685b283",
-          "materialHash": "ee027bc0b99b5bc1b2f6e97d353abf7febe412ac723d51aa4238273920941810",
-          "storyFilesHash": "66d4ed0e3277a7244e11cb712d29c049e262b315a9ff3ea49a8ae6b1a3311c6b",
-          "timestamp": "2026-06-30T10:02:11.613Z"
+          "headHash": "d92f02cbebb7d02c78690445b591725530e4fc58",
+          "materialHash": "d59d677fba13f18a889d5897a0d72ab6829a3a5938a8af70703805563d67f235",
+          "storyFilesHash": "9005e0fbcf8749e9c01b0037c5949c517a20f01b37688a174de6fa8e822312dd",
+          "timestamp": "2026-06-30T10:07:04.089Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -129,10 +129,10 @@
           "command": "rg -n \"ProofStory Governance Ledger|B-43de governs M4-M12|child-story-needed\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
           "result": "pass",
           "note": "Roadmap document now has a B-43de parent governance section and explicit M4-M12 child-story-needed map; ProofStory gate also confirmed ledger, parent rollup, and slice-plan coverage.",
-          "headHash": "3edfc45b3cfc6ffc8e2ae0f5385a99febb055af4",
-          "materialHash": "ee027bc0b99b5bc1b2f6e97d353abf7febe412ac723d51aa4238273920941810",
-          "storyFilesHash": "66d4ed0e3277a7244e11cb712d29c049e262b315a9ff3ea49a8ae6b1a3311c6b",
-          "timestamp": "2026-06-30T10:02:27.826Z"
+          "headHash": "d92f02cbebb7d02c78690445b591725530e4fc58",
+          "materialHash": "d59d677fba13f18a889d5897a0d72ab6829a3a5938a8af70703805563d67f235",
+          "storyFilesHash": "9005e0fbcf8749e9c01b0037c5949c517a20f01b37688a174de6fa8e822312dd",
+          "timestamp": "2026-06-30T10:07:04.089Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -208,10 +208,10 @@
           "command": "bash -o pipefail -c 'node scripts/verify-process-fact-contract.mjs | tail -n 25'",
           "result": "pass",
           "note": "Process fact contract verifier now checks roadmap governance markers and completed successfully with Process fact contract verified.",
-          "headHash": "1f9d23e446780f703f543bda70c00b8594868f89",
-          "materialHash": "ee027bc0b99b5bc1b2f6e97d353abf7febe412ac723d51aa4238273920941810",
-          "storyFilesHash": "66d4ed0e3277a7244e11cb712d29c049e262b315a9ff3ea49a8ae6b1a3311c6b",
-          "timestamp": "2026-06-30T10:02:42.019Z"
+          "headHash": "d92f02cbebb7d02c78690445b591725530e4fc58",
+          "materialHash": "d59d677fba13f18a889d5897a0d72ab6829a3a5938a8af70703805563d67f235",
+          "storyFilesHash": "9005e0fbcf8749e9c01b0037c5949c517a20f01b37688a174de6fa8e822312dd",
+          "timestamp": "2026-06-30T10:07:04.089Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -288,10 +288,10 @@
           "command": "rg -n \"B-43de governs|child-story-needed|Tier-C\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
           "result": "pass",
           "note": "Roadmap now includes visible governance/handoff status: B-43de parent governance, M5-M12 child-story-needed rows, and the existing roadmap preserves Tier-C duplicate experimental stories as a documented exception while targeting non-experiment duplicates for cleanup.",
-          "headHash": "6b41e1cfcb0332e35c170d5d290edb91a0449c46",
-          "materialHash": "ee027bc0b99b5bc1b2f6e97d353abf7febe412ac723d51aa4238273920941810",
-          "storyFilesHash": "66d4ed0e3277a7244e11cb712d29c049e262b315a9ff3ea49a8ae6b1a3311c6b",
-          "timestamp": "2026-06-30T10:02:59.129Z"
+          "headHash": "d92f02cbebb7d02c78690445b591725530e4fc58",
+          "materialHash": "d59d677fba13f18a889d5897a0d72ab6829a3a5938a8af70703805563d67f235",
+          "storyFilesHash": "9005e0fbcf8749e9c01b0037c5949c517a20f01b37688a174de6fa8e822312dd",
+          "timestamp": "2026-06-30T10:07:04.089Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -371,10 +371,10 @@
           "command": "npm --prefix packages/main run build",
           "result": "pass",
           "note": "TypeScript build passed for the changed verifier script and package sources.",
-          "headHash": "2da7a45e63821faf008659ee9953c305f64d019b",
-          "materialHash": "ee027bc0b99b5bc1b2f6e97d353abf7febe412ac723d51aa4238273920941810",
-          "storyFilesHash": "66d4ed0e3277a7244e11cb712d29c049e262b315a9ff3ea49a8ae6b1a3311c6b",
-          "timestamp": "2026-06-30T10:03:19.098Z"
+          "headHash": "d92f02cbebb7d02c78690445b591725530e4fc58",
+          "materialHash": "d59d677fba13f18a889d5897a0d72ab6829a3a5938a8af70703805563d67f235",
+          "storyFilesHash": "9005e0fbcf8749e9c01b0037c5949c517a20f01b37688a174de6fa8e822312dd",
+          "timestamp": "2026-06-30T10:07:04.089Z"
         },
         {
           "intentRef": "CHK-005:happy:1",
@@ -394,10 +394,10 @@
           "command": "bash -o pipefail -c 'node scripts/verify-process-fact-contract.mjs | tail -n 25'",
           "result": "pass",
           "note": "Process fact contract verifier passed and includes the B-43de roadmap governance marker checks.",
-          "headHash": "2da7a45e63821faf008659ee9953c305f64d019b",
-          "materialHash": "ee027bc0b99b5bc1b2f6e97d353abf7febe412ac723d51aa4238273920941810",
-          "storyFilesHash": "66d4ed0e3277a7244e11cb712d29c049e262b315a9ff3ea49a8ae6b1a3311c6b",
-          "timestamp": "2026-06-30T10:03:19.654Z"
+          "headHash": "d92f02cbebb7d02c78690445b591725530e4fc58",
+          "materialHash": "d59d677fba13f18a889d5897a0d72ab6829a3a5938a8af70703805563d67f235",
+          "storyFilesHash": "9005e0fbcf8749e9c01b0037c5949c517a20f01b37688a174de6fa8e822312dd",
+          "timestamp": "2026-06-30T10:07:04.089Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -405,10 +405,10 @@
           "command": "lattice proofstory_gate_check {\"storyId\":\"B-43de\",\"mode\":\"enforce\",\"json\":true}",
           "result": "pass",
           "note": "B-5082 ProofStory enforce gate passed: no missing coverage, no oversized-ledger gap, no parent-rollup gap.",
-          "headHash": "2da7a45e63821faf008659ee9953c305f64d019b",
-          "materialHash": "ee027bc0b99b5bc1b2f6e97d353abf7febe412ac723d51aa4238273920941810",
-          "storyFilesHash": "66d4ed0e3277a7244e11cb712d29c049e262b315a9ff3ea49a8ae6b1a3311c6b",
-          "timestamp": "2026-06-30T10:03:19.905Z"
+          "headHash": "d92f02cbebb7d02c78690445b591725530e4fc58",
+          "materialHash": "d59d677fba13f18a889d5897a0d72ab6829a3a5938a8af70703805563d67f235",
+          "storyFilesHash": "9005e0fbcf8749e9c01b0037c5949c517a20f01b37688a174de6fa8e822312dd",
+          "timestamp": "2026-06-30T10:07:04.089Z"
         },
         {
           "intentRef": "CHK-005:adversarial:1",
