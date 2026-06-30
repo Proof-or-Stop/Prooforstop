@@ -268,9 +268,9 @@
       "id": "CHK-005",
       "title": "Verify the plan document and contract markers",
       "context": "Run documentation marker checks and ProofStory diagnostics proving the plan names the failure, milestones, rollout, and completion boundary.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-30T13:01:28.687Z",
       "verificationIntent": {
         "happy": [
           {
@@ -290,7 +290,42 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "command": "rg -n \"M1\\. Red/Repro|allRowsClosed=false|partial_parent_done|no full-roadmap claim|ParentRoadmapLedger|ParentRollupResult|child-story-needed|deferred-with-human-approval|B-5082\" docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+          "result": "pass",
+          "note": "Required document marker sweep passed for failure, red tests, milestones, rollout, and completion boundary.",
+          "headHash": "163fa6d7dc0d3938ef4972ea41b7d358e57e5267",
+          "materialHash": "62dfc9ac5cabbf5cd41d4f5d200a0b688543c77a410d730ffd88c5faf7cbafaa",
+          "storyFilesHash": "d627a1648f7a40f8420c4d4abd616722922a106475de27ef4c3b18f41a2e1b29",
+          "timestamp": "2026-06-30T13:01:28.809Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "manual_transcript",
+          "command": "lattice proofstory_gate_check {storyId:B-9fc5,mode:enforce,json:true}",
+          "result": "pass",
+          "note": "ProofStory diagnostics pass with no missing milestone coverage, red evidence, parent rollup, or oversized ledger gap.",
+          "headHash": "163fa6d7dc0d3938ef4972ea41b7d358e57e5267",
+          "materialHash": "62dfc9ac5cabbf5cd41d4f5d200a0b688543c77a410d730ffd88c5faf7cbafaa",
+          "storyFilesHash": "d627a1648f7a40f8420c4d4abd616722922a106475de27ef4c3b18f41a2e1b29",
+          "timestamp": "2026-06-30T13:01:28.915Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Static verifier now checks the new plan markers, including M1 Red/Repro and no full-roadmap claim with open children.",
+          "headHash": "163fa6d7dc0d3938ef4972ea41b7d358e57e5267",
+          "materialHash": "62dfc9ac5cabbf5cd41d4f5d200a0b688543c77a410d730ffd88c5faf7cbafaa",
+          "storyFilesHash": "d627a1648f7a40f8420c4d4abd616722922a106475de27ef4c3b18f41a2e1b29",
+          "timestamp": "2026-06-30T13:01:29.027Z"
+        }
+      ]
     }
   ]
 }
