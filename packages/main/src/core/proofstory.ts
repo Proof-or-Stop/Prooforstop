@@ -1271,7 +1271,10 @@ export function evaluateDoneIntentEquivalence(
   const hasMilestonePath = triggerCodes(triggerReasons, 'milestone-ledger').length > 0
     || (input.milestoneLedger?.milestones.length ?? 0) > 0
     || !!input.slicePlan;
-  const equivalenceMode: DoneIntentEquivalenceReport['equivalenceMode'] = hasMilestonePath
+  const hasConfirmedScopeShrinkage = input.scopeShrinkageDecision?.decision === 'confirmed'
+    && input.scopeShrinkageDecision.userConfirmed === true;
+  const hasStrictEquivalencePath = hasMilestonePath || hasConfirmedScopeShrinkage;
+  const equivalenceMode: DoneIntentEquivalenceReport['equivalenceMode'] = hasStrictEquivalencePath
     ? 'strict_milestone'
     : 'lightweight_single_outcome';
   const gaps: ProofStoryDiagnosticGap[] = [];

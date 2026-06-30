@@ -672,6 +672,51 @@ try {
   const highSingleOutcomeDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: highSingleOutcomeStoryId, mode: 'enforce' });
   assert.equal(highSingleOutcomeDone.equivalenceMode, 'lightweight_single_outcome', 'high-assurance single-outcome DONE uses lightweight path without milestone evidence');
   assert.equal(highSingleOutcomeDone.status, 'pass', 'high-assurance single-outcome DONE passes without a confirmed ledger when no milestone path exists');
+  const highSingleOutcomeShrinkStoryId = 'B-high-single-outcome-shrink';
+  const highSingleOutcomeShrinkNow = new Date().toISOString();
+  const highSingleOutcomeShrinkStory: StoryInfo = {
+    storyId: highSingleOutcomeShrinkStoryId,
+    name: 'proof-gate-label-shrink',
+    title: 'Harden proof gate label with confirmed shrinkage',
+    description: 'Harden one proof gate label and defer the optional tooltip after explicit user confirmation.',
+    type: 'feature',
+    phase: 'TEST',
+    priority: 'high',
+    createdAt: highSingleOutcomeShrinkNow,
+    startedAt: highSingleOutcomeShrinkNow,
+    endedAt: null,
+    events: [],
+  };
+  store.writeStory(highSingleOutcomeShrinkStoryId, highSingleOutcomeShrinkStory);
+  store.writeChecklist(highSingleOutcomeShrinkStoryId, { items: [] });
+  jsonRun(root, 'original_intent_snapshot_set', {
+    storyId: highSingleOutcomeShrinkStoryId,
+    sourceText: 'Harden one proof gate label and add an optional tooltip.',
+    normalizedOutcome: 'One proof gate label is hardened; the optional tooltip is explicitly deferred.',
+    acceptanceClaim: 'The summary shows the accepted proof gate label outcome and confirmed tooltip deferral.',
+  });
+  const highSingleOutcomeShrink = jsonRun(root, 'scope_shrinkage_decision_set', {
+    storyId: highSingleOutcomeShrinkStoryId,
+    decision: 'confirmed',
+    userConfirmed: true,
+    removedMilestoneIds: ['OUTCOME-tooltip'],
+    reason: 'The user explicitly confirmed the optional tooltip is out of scope for this delivery.',
+    approvedBy: 'proofstory-smoke',
+  });
+  assert.equal(highSingleOutcomeShrink.userConfirmed, true, 'single-outcome shrinkage records explicit user confirmation');
+  store.writeSummary(highSingleOutcomeShrinkStoryId, makeSummary(highSingleOutcomeShrinkStoryId, {
+    changes: 'Updated the proof gate label; optional tooltip deferred by confirmed scope shrinkage.',
+    actualTranscript: 'The accepted proof gate label outcome is visible.',
+    outcomeDiff: 'Optional tooltip excluded by explicit user-confirmed scope shrinkage.',
+  }));
+  const highSingleOutcomeShrinkDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: highSingleOutcomeShrinkStoryId, mode: 'enforce' });
+  assert.equal(highSingleOutcomeShrinkDone.equivalenceMode, 'strict_milestone', 'confirmed single-outcome shrinkage selects strict DONE equivalence without a ledger or slice');
+  assert.equal(highSingleOutcomeShrinkDone.status, 'pass', 'confirmed single-outcome shrinkage passes strict DONE equivalence with explicit user confirmation');
+  assert.equal(
+    highSingleOutcomeShrinkDone.gaps.some((gap: any) => gap.code === 'missing_confirmed_milestone_ledger'),
+    false,
+    'confirmed single-outcome shrinkage does not invent a milestone-ledger requirement',
+  );
   store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
     acceptanceVerdict: 'partial',
     outcomeDiff: 'Partial narrower delivery; remaining cases deferred.',

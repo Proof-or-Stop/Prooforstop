@@ -971,7 +971,7 @@ Not every story should pay the same cost.
 |---|---|---|---|---|---|
 | Fast | docs-only, copy, low-risk small edits | Intent MVP | usually no | usually no | baseline REVIEW or none by policy |
 | Standard | normal bug, feature, small refactor | Intent MVP plus triggered collision when ambiguity, user impact, behavior change, or multi-path interpretation exists | required when bug/regression/behavior-change | required when code path unclear | baseline REVIEW |
-| High-assurance | auth, security, payment, migration, lifecycle gates, proof gates | independent intent collision required | required | required | completeness critic + escalation policy |
+| High-assurance | auth, security, payment, migration, lifecycle gates, proof gates | independent intent collision required | required when the red-evidence policy triggers | required when the spike policy triggers | completeness critic + applicable escalation policy |
 
 High-assurance stories should also be eligible for existing 3x2 / degraded 3x1
 review escalation when the review-escalation policy triggers.
