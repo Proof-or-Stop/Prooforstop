@@ -1,0 +1,22 @@
+{
+  "findings": [
+    {
+      "id": "B-5082:F-001",
+      "desc": "doc-code-drift: proofstory slicing surface is internally inconsistent. docs/requirements/decisions/proofstory-intent-collision-execution-plan.md lines 419-431 still say the initial MVP only reports proofstory_gate_check --dryRun and that durable slice plans are future parent-child orchestration, but lines 967-1080 list slice_plan_set, parent_ledger_rollup_set, slice-plan.json, and parent-ledger-rollup.json as implemented MVP artifacts. Align the earlier slicing section with the bounded implemented slicing surface while preserving the no-auto-child-story claim.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-30T01:35:16.051Z",
+      "reviewRound": "2026-06-30T01:32:36.585Z",
+      "reviewRunId": "B-5082:RR-003",
+      "_hash": "e62733a7ee1fb7d6df539e9d1165f243ac2753dac9b5c5e71a71e707d10c71f6",
+      "files": [
+        "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md"
+      ],
+      "signatureTag": "missing|md|code-drift-proofstory",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
