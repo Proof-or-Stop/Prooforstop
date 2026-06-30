@@ -8,6 +8,15 @@
       "reviewRound": "2026-06-30T10:39:22.035Z",
       "reviewRunId": "B-cd3a:RR-007",
       "_hash": "94bc16a0e5b8490d5811f99530135625162747d16cf1567b6552a28113e2cbb6"
+    },
+    {
+      "id": "B-cd3a:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "PASS: reviewed d15cea37b proof-admissibility-smoke.ts external schema update only. Diff swaps retired authority_* schema strings to registry-backed lattice.external_gate_decision.v1 and lattice.external_receipt.v1 while preserving allow/deny and productionDone=false assertions. intent_coverage_check and done_intent_equivalence_check pass with no shrinkage; compiled proof-admissibility smoke passes.",
+      "createdAt": "2026-06-30T10:54:47.260Z",
+      "reviewRound": "2026-06-30T10:48:39.905Z",
+      "reviewRunId": "B-cd3a:RR-015",
+      "_hash": "00c8bcddb82a4b02c1079a52db43ec8ba0562687fa0fab2ddca6ed8cdf537d48"
     }
   ]
 }
