@@ -1,0 +1,56 @@
+{
+  "storyId": "B-f7b7",
+  "changes": "Implemented ProofStory M0-M9 progressive intent hardening: intent snapshot and milestone ledger commands, intent collision, ProofStory contract and gate diagnostics, scope shrinkage with userConfirmed, red and spike evidence, review completeness, DONE intent equivalence, risk-adaptive observe/warn/enforce modes, process-fact L4 registration, docs alignment, and smoke coverage.",
+  "usage": "Use lattice original_intent_snapshot_set, milestone_ledger_set/add, intent_collision_set, proofstory_contract_set, intent_coverage_check, proofstory_gate_check, red_evidence_create, spike_start/result/discard/promote, proofstory_review_completeness_check, and done_intent_equivalence_check during the normal Story lifecycle.",
+  "expectedOutcome": "The user expects ProofStory to freeze intent, prevent milestone shrinkage, require triggered red/spike/collision evidence, keep small stories lightweight, and block or warn through existing Lattice gates without creating a second lifecycle.",
+  "actualTranscript": "Real-machine live smoke ran: node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js; exitCode 0; stdout: ProofStory intent hardening smoke passed. DONE-required validation also passed npm build and root npm test.",
+  "outcomeDiff": "No user-visible difference from expected behavior; the observed transcript matched the expected ProofStory smoke pass and full validation passed.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "none - fully covered by build, focused ProofStory smoke, process-fact contract, configured validate commands, root npm test, and reviewer lanes",
+  "pitfalls": "Initial review found ten issues across shrinkage confirmation, artifact inventory, pre-DEV policy, L4 registry, failed evidence semantics, and lifecycle re-entry coverage; all were fixed and re-reviewed before TEST.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 127953
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 47331
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 1030712
+    },
+    "DEV": {
+      "count": 3,
+      "durationMs": 2331421
+    },
+    "REVIEW": {
+      "count": 3,
+      "durationMs": 942015
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 142279
+    }
+  },
+  "totalDurationMs": 4621739,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-30T00:39:29.356Z",
+  "updatedAt": "2026-06-30T00:39:29.356Z"
+}
