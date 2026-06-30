@@ -400,9 +400,9 @@
         "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-30T13:58:57.695Z",
       "userSees": "The user runs a CLI status command and sees parent roadmap totality state plus next actions.",
       "files": {
         "modify": [
@@ -439,7 +439,42 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js --case=cli",
+          "result": "pass",
+          "note": "CLI smoke verifies parent_roadmap_status and parent_roadmap_evaluate expose full, partial, and migration states from provided ledgers or explicit cases.",
+          "headHash": "2f4952d7612ac457a8523a3fa23ab419e71eb690",
+          "materialHash": "6271fc0625ed3905d2ec1e7fe95d4bf88cea05ead26427d7f57ba510b2d5460f",
+          "storyFilesHash": "1857852913c25f0da7da9c0dafbf9efc9106f01aca0406a61656dac590c6271b",
+          "timestamp": "2026-06-30T13:58:57.906Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js parent_roadmap_status {\"case\":\"migration\"}",
+          "result": "pass",
+          "note": "CLI text lists migration_needed, no-full-roadmap-claim, open child rows M4-M12, and next actions.",
+          "headHash": "2f4952d7612ac457a8523a3fa23ab419e71eb690",
+          "materialHash": "6271fc0625ed3905d2ec1e7fe95d4bf88cea05ead26427d7f57ba510b2d5460f",
+          "storyFilesHash": "1857852913c25f0da7da9c0dafbf9efc9106f01aca0406a61656dac590c6271b",
+          "timestamp": "2026-06-30T13:58:58.101Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js --case=cli",
+          "result": "pass",
+          "note": "CLI case includes B-unrelated negative control; unknown storyId fails with no parent roadmap ledger instead of being auto-classified.",
+          "headHash": "2f4952d7612ac457a8523a3fa23ab419e71eb690",
+          "materialHash": "6271fc0625ed3905d2ec1e7fe95d4bf88cea05ead26427d7f57ba510b2d5460f",
+          "storyFilesHash": "1857852913c25f0da7da9c0dafbf9efc9106f01aca0406a61656dac590c6271b",
+          "timestamp": "2026-06-30T13:58:58.298Z"
+        }
+      ]
     },
     {
       "id": "CHK-007",
