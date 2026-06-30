@@ -1,0 +1,48 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-8963",
+  "state": "confirmed",
+  "ledgerHash": "sha256:35b9f3919838a1c073f4136ca5a8551deb82cb186b9c092dca02a8563809a32a",
+  "milestones": [
+    {
+      "id": "M1",
+      "sourceRequirementId": "REQ-M1-HASH-SNAPSHOT",
+      "claim": "Command-local hash snapshot reuse is implemented for DONE and review gate paths without weakening stale evidence checks.",
+      "doneMeans": "CHK-001 through CHK-004 are implemented, verified, and documented in B-8963.",
+      "requiredEvidence": [
+        "logic_test",
+        "docs_check",
+        "lattice_validate"
+      ],
+      "checklistRefs": [
+        "CHK-001",
+        "CHK-002",
+        "CHK-003",
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0",
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0",
+        "CHK-003:happy:0",
+        "CHK-003:edge:0",
+        "CHK-003:adversarial:0",
+        "CHK-004:happy:0",
+        "CHK-004:edge:0",
+        "CHK-004:adversarial:0"
+      ],
+      "assignedStory": "B-8963",
+      "status": "covered"
+    }
+  ],
+  "createdAt": "2026-06-30T22:15:28.936Z",
+  "updatedAt": "2026-06-30T22:16:18.673Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260630221427",
+    "acceptedInterpretationHash": "sha256:817d228c7a7e571fdcf5a39a6074be0b74f577c99ea0bbc4e8ab4dc1e685769d",
+    "acceptedAt": "2026-06-30T22:16:18.673Z"
+  }
+}

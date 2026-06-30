@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-8963",
+  "id": "IC-20260630221427",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "B-8963 delivers only M1: command-local evidence hash snapshot reuse for DONE and review gates. Parameterized fault injection is a separate follow-up story and is intentionally not represented as a B-8963 milestone row.",
+  "acceptedInterpretationHash": "sha256:817d228c7a7e571fdcf5a39a6074be0b74f577c99ea0bbc4e8ab4dc1e685769d",
+  "notes": "Confirmed the current M1-only milestone ledger hash after removing the planned M2 row that lacked B-8963 checklist/verification coverage.",
+  "ledgerHashBeforeDecision": "sha256:35b9f3919838a1c073f4136ca5a8551deb82cb186b9c092dca02a8563809a32a",
+  "confirmedLedgerHash": "sha256:35b9f3919838a1c073f4136ca5a8551deb82cb186b9c092dca02a8563809a32a",
+  "createdAt": "2026-06-30T22:14:27.093Z",
+  "updatedAt": "2026-06-30T22:16:18.672Z"
+}

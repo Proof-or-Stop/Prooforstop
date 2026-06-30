@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-8963",
+  "sourceText": "User approved two milestones from the DNAcoder transfer analysis: first execute a small story for hash snapshot reuse / syndrome preflight for DONE and review gates; second keep parameterized fault injection for recovery-runner as a separate follow-up story. The user also required no arbitrary optimization, only real correctness/workflow issues, and consistency with Proofbound host-neutral evidence philosophy.",
+  "normalizedOutcome": "B-8963 delivers only the M1 command-local hash snapshot reuse path for DONE and review gates, preserving exact hash-bound evidence and rejecting stale material/story drift.",
+  "acceptanceClaim": "The story is accepted when focused smoke/build/validate evidence shows a command-local snapshot can be reused in DONE/review paths without accepting stale evidence after HEAD, material dirty, or story-owned file drift.",
+  "keyRequirementIds": [
+    "REQ-M1-HASH-SNAPSHOT",
+    "REQ-NO-GLOBAL-CACHE",
+    "REQ-STALE-FAIL-CLOSED"
+  ],
+  "requestHash": "sha256:ad2a1f6f208a1434a3a24d2641343c263906695e17cb28aa894049bf4a5b9c5b",
+  "createdAt": "2026-06-30T22:14:14.848Z",
+  "updatedAt": "2026-06-30T22:14:14.848Z"
+}
