@@ -119,8 +119,24 @@
       "phase": "DEV",
       "headHash": "d545e99fe99d9ed495b467c5cf4236a1cf70d160",
       "materialHash": "5868d66026c8c12c86ceccf0a7d8d0307a8ef029327451330e3f9b128366f845"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Validation exposed retired authority vocabulary guard failure in proof-admissibility hardening. Updating this smoke test is necessary to keep structural legacy field quarantines explicit while preventing active production/authority vocabulary from reappearing.",
+      "timestamp": "2026-06-30T10:39:11.422Z",
+      "paths": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "f1e591cefdb3f2b7088a7a824397ba39e5f27762",
+      "materialHash": "29f205eb286c4634e4429956a1d9f358cb1204dc921e6ff2f73e2c23c1217db2"
     }
   ],
   "createdAt": "2026-06-30T09:38:36.338Z",
-  "updatedAt": "2026-06-30T10:21:59.650Z"
+  "updatedAt": "2026-06-30T10:39:11.422Z"
 }
