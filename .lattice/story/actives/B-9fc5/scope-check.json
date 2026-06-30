@@ -1,0 +1,66 @@
+{
+  "storyId": "B-9fc5",
+  "checkedAt": "2026-06-30T12:56:40.623Z",
+  "features": [
+    {
+      "feature": "Create/update docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+      "covered_by": "scope-contract allowedModify/allowedCreate; plan.md CHK-001..CHK-005; understanding touchpoint",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "scope-contract.json + plan.md"
+    },
+    {
+      "feature": "Optional marker verifier update in scripts/verify-process-fact-contract.mjs",
+      "covered_by": "scope-contract allowedModify; CHK-005 optional marker verifier wording; understanding touchpoint",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "scope-contract.json + plan.md"
+    },
+    {
+      "feature": "CLI-written B-5082 ProofStory metadata for B-9fc5: original-intent-snapshot, milestone-ledger, slice-plan, intent-collision, proofstory contract, red evidence, parent-ledger-rollup",
+      "covered_by": "scope-contract allows .lattice/story/actives/B-9fc5/**; scope_contract_check reports semantic pass; current changed files include B-9fc5 ProofStory metadata artifacts",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "scope_contract_check + git status"
+    },
+    {
+      "feature": "Runtime lifecycle/DONE gate implementation in packages/main/src/**",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "scope-contract explicitExcludes packages/main/src/**; protectedFiles include lifecycle/proofstory runtime files; decision chose plan-first instead of runtime implementation",
+      "source": "scope-contract.json + decision.json"
+    },
+    {
+      "feature": "Claiming M4-M12 runtime implementation complete",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "scope-boundary/scope-freeze text forbids claiming M4-M12 runtime milestones complete; decision preserves parent governance vs child runtime completion; understanding says M5-M12 remain child-story-needed/not runtime-complete",
+      "source": "scope-boundary.json + understanding.json + decision.json"
+    },
+    {
+      "feature": "Changing B-43de state or changing legacy roadmap completion status",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "scope-boundary/scope-freeze forbids modifying B-43de DONE state or child story statuses; scope-contract excludes lattice-strengthening-roadmap-execution-plan.md; decision rejects only updating B-43de summary wording as the chosen approach",
+      "source": "scope-boundary.json + scope-contract.json + decision.json"
+    },
+    {
+      "feature": "Any active server-backed Authority Server dependency",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "scope-boundary/scope-freeze forbids reintroducing server-backed Authority Server semantics as an active design dependency; no server-backed dependency is part of allowedModify/allowedCreate",
+      "source": "scope-boundary.json + scope-contract.json"
+    }
+  ],
+  "summary": {
+    "total": 7,
+    "covered": 3,
+    "excluded": 4,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "70e424bccc296a341aa5a75ce2f56844dd39f4693f0d31d0fe65ed397589ac98",
+  "openQuestions": []
+}

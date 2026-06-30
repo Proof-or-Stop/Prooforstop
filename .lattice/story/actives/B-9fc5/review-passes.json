@@ -1,0 +1,40 @@
+{
+  "passes": [
+    {
+      "id": "B-9fc5:RP-001",
+      "agent": "lattice-review-docs",
+      "note": "Docs review no blockers: new parent-roadmap intent-totality plan is clear, preserves the old strengthening roadmap as non-edited context, contains the required marker phrases, and explicitly bounds B-9fc5 as plan-only with no runtime/DONE gate or M4-M12 completion claim.",
+      "createdAt": "2026-06-30T13:03:49.644Z",
+      "reviewRound": "2026-06-30T13:01:43.838Z",
+      "reviewRunId": "B-9fc5:RR-004",
+      "_hash": "5a1e27ec2823fdc62357f1db32586c7160e1ee5dfb512b635caf2210a11870f0"
+    },
+    {
+      "id": "B-9fc5:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "No blocker: reviewed document structure, M1-M8 milestone completeness, B-5082 binding, verifier marker hook in scripts/verify-process-fact-contract.mjs, and main...HEAD scope boundaries; the plan is executable, plan-only, and does not overclaim runtime/DONE gate completion.",
+      "createdAt": "2026-06-30T13:04:11.885Z",
+      "reviewRound": "2026-06-30T13:01:43.838Z",
+      "reviewRunId": "B-9fc5:RR-002",
+      "_hash": "66dcd2f6bc2a1bdee4beff72ea440be75248395fc6564edf3df59f2359f16f70"
+    },
+    {
+      "id": "B-9fc5:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "No concept blockers: plan identifies the gap as cross-story parent-child intent totality; B-5082 is scoped as local ProofStory foundation, not full-roadmap proof; M1 red/repro precedes runtime implementation; open child rows require no-full-roadmap-claim.",
+      "createdAt": "2026-06-30T13:04:22.800Z",
+      "reviewRound": "2026-06-30T13:01:43.838Z",
+      "reviewRunId": "B-9fc5:RR-001",
+      "_hash": "a854b66f5b983ff556405ced7ec5087590476da9c08f44607b63712a44a2a8f3"
+    },
+    {
+      "id": "B-9fc5:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "No blocker: all 15 verificationIntent refs have matching passing evidence; M1 names concrete red/repro and negative controls before runtime implementation; marker, process-fact, ProofStory, DONE-equivalence, and scope checks pass; no runtime package or test files changed.",
+      "createdAt": "2026-06-30T13:04:26.695Z",
+      "reviewRound": "2026-06-30T13:01:43.838Z",
+      "reviewRunId": "B-9fc5:RR-003",
+      "_hash": "5bbef2a3eb580f6812cb3be4c376b46bd2fb5d36b402eced21c290830aeba4b3"
+    }
+  ]
+}

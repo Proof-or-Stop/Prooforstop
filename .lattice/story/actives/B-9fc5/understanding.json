@@ -1,0 +1,23 @@
+{
+  "task": "Write an execution plan for a parent-roadmap completion and user-intent-totality gate, with red/repro tests as the first milestone.",
+  "outcome": "The user sees a document that starts with Red/Repro tests, then lists the milestones to implement a gate that prevents parent roadmap DONE from sounding complete while child rows remain open.",
+  "facts": [
+    "B-43de is DONE and completed only the parent governance ledger for M4-M12.",
+    "The roadmap document explicitly marks M5-M12 as child-story-needed and not runtime-complete in B-43de.",
+    "B-5082 protects story-local intent via original intent snapshot, milestone ledger, parent rollup, slice plan, and DONE equivalence, but it does not by itself prove a broader parent roadmap is fully complete.",
+    "The user clarified that the first milestone must be writing test cases before executing the full implementation story."
+  ],
+  "constraints": [
+    "This story writes the execution plan only; it must not implement runtime lifecycle/DONE gate behavior.",
+    "The plan must preserve the distinction between parent governance complete and child runtime milestones complete.",
+    "The first implementation milestone must be Red/Repro test-first, including negative controls for allRowsClosed=false and child-story-needed overclaim.",
+    "The plan must say how B-5082 ProofStory artifacts govern later implementation without allowing scope shrinkage."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+    "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "timestamp": "2026-06-30T12:47:39.298Z"
+}

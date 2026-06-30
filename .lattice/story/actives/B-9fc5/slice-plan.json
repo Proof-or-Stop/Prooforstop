@@ -1,0 +1,46 @@
+{
+  "schemaVersion": "proofstory.slice_plan.v1",
+  "storyId": "B-9fc5",
+  "ledgerHash": "sha256:30baeda960c4af2021dd91d42e7383f94c761c1afaadb0e11ed6fc314cf7dc46",
+  "slices": [
+    {
+      "id": "slice-red-contract",
+      "milestoneIds": [
+        "M1",
+        "M2"
+      ],
+      "reason": "Start with failing tests and the parent-child completion vocabulary before any implementation design can claim correctness.",
+      "assignedStory": "B-9fc5"
+    },
+    {
+      "id": "slice-evaluator-claim",
+      "milestoneIds": [
+        "M3",
+        "M4"
+      ],
+      "reason": "Define evaluator/data model and claim-language behavior together because full-completion claims consume allRowsClosed and partial_parent_done state.",
+      "assignedStory": "B-9fc5"
+    },
+    {
+      "id": "slice-proofstory-integration",
+      "milestoneIds": [
+        "M5",
+        "M6"
+      ],
+      "reason": "Bind B-5082 controls to the concrete CLI/DONE/convergence consumers so the gate is not documentation-only.",
+      "assignedStory": "B-9fc5"
+    },
+    {
+      "id": "slice-rollout-certification",
+      "milestoneIds": [
+        "M7",
+        "M8"
+      ],
+      "reason": "Rollout, migration, repair, and certification are final because they depend on the evaluator and consumers being specified first.",
+      "assignedStory": "B-9fc5"
+    }
+  ],
+  "planHash": "sha256:d529d309614adaeb58daa61bf654bdd045aa6394740179ef05eea8c1c656d3f4",
+  "createdAt": "2026-06-30T12:48:39.833Z",
+  "updatedAt": "2026-06-30T12:48:39.833Z"
+}

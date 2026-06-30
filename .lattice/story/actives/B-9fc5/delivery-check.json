@@ -1,0 +1,68 @@
+{
+  "storyId": "B-9fc5",
+  "checkedAt": "2026-06-30T13:11:45.267Z",
+  "headHash": "cebcbcf6c7b13345c9835b6306f2b9d4b8078932",
+  "materialHash": "62dfc9ac5cabbf5cd41d4f5d200a0b688543c77a410d730ffd88c5faf7cbafaa",
+  "storyFilesHash": "d627a1648f7a40f8420c4d4abd616722922a106475de27ef4c3b18f41a2e1b29",
+  "reviewRound": "2026-06-30T13:01:43.838Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+      "promise": "Plan starts the later implementation sequence with M1 Red/Repro first, before runtime implementation work.",
+      "status": "verified",
+      "verifiedBy": "manual read, rg marker sweep, transcript-diff, and TEST evidence",
+      "evidence": "Plan section M1. Red/Repro Test Cases Before Full Implementation appears before M2-M8 and says the next implementation story must start there; transcript-diff records the same; CHK-001 validation evidence is covered."
+    },
+    {
+      "docPath": "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+      "promise": "Contract distinguishes partial_parent_done parent governance from full roadmap completion and requires allRowsClosed for full completion.",
+      "status": "verified",
+      "verifiedBy": "manual read, rg marker sweep, transcript-diff, and TEST evidence",
+      "evidence": "Target Contract and ParentRollupResult sections state parent governance may finish as partial_parent_done, full roadmap completion requires allRowsClosed true, and allRowsClosed=false requires no full-roadmap claim; CHK-002 validation evidence is covered."
+    },
+    {
+      "docPath": "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+      "promise": "Plan binds later implementation to B-5082 ProofStory controls.",
+      "status": "verified",
+      "verifiedBy": "manual read, rg marker sweep, transcript-diff, and TEST evidence",
+      "evidence": "B-5082 Binding and M5 require originalIntentSnapshot, milestoneLedger, parentLedgerRollup, slicePlan, intentCollision, proofstoryContract, and done_intent_equivalence_check; CHK-004 validation evidence is covered."
+    },
+    {
+      "docPath": "scripts/verify-process-fact-contract.mjs",
+      "promise": "Verifier script checks required parent-roadmap plan markers.",
+      "status": "verified",
+      "verifiedBy": "git diff inspection and direct node verifier run",
+      "evidence": "Diff adds assertParentRoadmapIntentTotalityPlan with required markers M1. Red/Repro, allRowsClosed=false, partial_parent_done, no full-roadmap claim, ParentRoadmapLedger, ParentRollupResult, child-story-needed, deferred-with-human-approval, and B-5082; node scripts/verify-process-fact-contract.mjs passed."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "transcript-diff shows the expected plan starts with M1 Red/Repro and concrete red/repro negative controls; test-evidence covers CHK-001 happy and edge via rg marker checks and adversarial via proofstory_gate_check; lattice validate PASS at 2026-06-30T13:08:53.446Z with verification coverage 15/15."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "transcript-diff records allRowsClosed=false, partial_parent_done, and no full-roadmap claim as matched actual behavior; test-evidence covers CHK-002 happy, edge, and adversarial via rg checks for ParentRoadmapLedger, ParentRollupResult, parent governance versus full roadmap completion, child-story-needed, and deferred-with-human-approval; lattice validate PASS with missingRequired 0."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "test-evidence covers CHK-003 with rg checks for milestones M1 through M8, migration rollout repair, warn enforce behavior, and concrete gate consumers including story_create, story_advance, summary, DONE, and convergence; lattice validate PASS with Project validation commands passed."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "transcript-diff states later implementation must use B-5082 controls and cannot shrink the original parent intent; test-evidence covers CHK-004 with rg checks for originalIntentSnapshot, milestoneLedger, parentLedgerRollup, slicePlan, intentCollision, done_intent_equivalence_check plus intent_coverage_check pass; lattice validate PASS with coverage 15/15."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "test-evidence covers CHK-005 with marker sweep, proofstory_gate_check, and node scripts/verify-process-fact-contract.mjs; I also ran node scripts/verify-process-fact-contract.mjs directly and it passed, confirming the verifier checks the required plan markers."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery review found the plan-only scope honest, the four documentation promises delivered, edge and adversarial checklist lanes covered, transcript-diff matched expected versus actual, and validation evidence PASS with 15 of 15 required intents covered."
+  },
+  "_hash": "6b18e92a276992eeaf03b87c523528f645e8da49f506b6556ab4b5e561026092"
+}

@@ -7,9 +7,64 @@
       "relatedDocs": [
         "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-30T13:00:48.943Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Plan milestone M1 lists red/repro tests before any runtime implementation story starts.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "M1 red tests include allRowsClosed=false, child-story-needed, and partial_parent_done cases, not only a vague testing note.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Plan fails review if the first milestone can be interpreted as optional tests after implementation rather than required failing tests before implementation.",
+            "type": "docs"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "command": "rg -n \"M1\\\\. Red/Repro|Red/Repro Test Cases Before Full Implementation\" docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+          "result": "pass",
+          "note": "Plan milestone M1 is explicitly Red/Repro and appears before full implementation milestones.",
+          "headHash": "a9c8b65411fae2b77fb338f864a584e4e1a58e9c",
+          "materialHash": "62dfc9ac5cabbf5cd41d4f5d200a0b688543c77a410d730ffd88c5faf7cbafaa",
+          "storyFilesHash": "d627a1648f7a40f8420c4d4abd616722922a106475de27ef4c3b18f41a2e1b29",
+          "timestamp": "2026-06-30T13:00:49.078Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "command": "rg -n \"allRowsClosed=false|child-story-needed|partial_parent_done|B-43de regression fixture|summary overclaim\" docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+          "result": "pass",
+          "note": "M1 names concrete negative controls, including allRowsClosed=false, child-story-needed, partial_parent_done, B-43de regression fixture, and summary overclaim.",
+          "headHash": "a9c8b65411fae2b77fb338f864a584e4e1a58e9c",
+          "materialHash": "62dfc9ac5cabbf5cd41d4f5d200a0b688543c77a410d730ffd88c5faf7cbafaa",
+          "storyFilesHash": "d627a1648f7a40f8420c4d4abd616722922a106475de27ef4c3b18f41a2e1b29",
+          "timestamp": "2026-06-30T13:00:49.187Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "lattice proofstory_gate_check {storyId:B-9fc5,mode:enforce,json:true}",
+          "result": "pass",
+          "note": "ProofStory gate passes with required red evidence and confirmed ledger, so tests are bound before the later implementation story.",
+          "headHash": "a9c8b65411fae2b77fb338f864a584e4e1a58e9c",
+          "materialHash": "62dfc9ac5cabbf5cd41d4f5d200a0b688543c77a410d730ffd88c5faf7cbafaa",
+          "storyFilesHash": "d627a1648f7a40f8420c4d4abd616722922a106475de27ef4c3b18f41a2e1b29",
+          "timestamp": "2026-06-30T13:00:49.362Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -18,9 +73,64 @@
       "relatedDocs": [
         "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-30T13:00:57.773Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Plan defines parent-child completion states and the ParentRoadmapLedger/ParentRollupResult data model.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Plan distinguishes parent governance completion from full roadmap completion using claimType and allRowsClosed.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Plan rejects full-roadmap completion claims when any child row remains child-story-needed, child-story-active, or deferred without human approval.",
+            "type": "docs"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "command": "rg -n \"ParentRoadmapLedger|ParentRollupResult|status vocabulary|claimType\" docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+          "result": "pass",
+          "note": "Plan defines the parent-child ledger, rollup result, status vocabulary, and claimType model.",
+          "headHash": "67e2012765680a0f7ae7a5494cf8998a994fee95",
+          "materialHash": "62dfc9ac5cabbf5cd41d4f5d200a0b688543c77a410d730ffd88c5faf7cbafaa",
+          "storyFilesHash": "d627a1648f7a40f8420c4d4abd616722922a106475de27ef4c3b18f41a2e1b29",
+          "timestamp": "2026-06-30T13:00:57.899Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "command": "rg -n \"parent governance|full roadmap completion|partial_parent_done|allRowsClosed=false\" docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+          "result": "pass",
+          "note": "Plan distinguishes parent governance completion from full roadmap completion using partial_parent_done and allRowsClosed=false semantics.",
+          "headHash": "67e2012765680a0f7ae7a5494cf8998a994fee95",
+          "materialHash": "62dfc9ac5cabbf5cd41d4f5d200a0b688543c77a410d730ffd88c5faf7cbafaa",
+          "storyFilesHash": "d627a1648f7a40f8420c4d4abd616722922a106475de27ef4c3b18f41a2e1b29",
+          "timestamp": "2026-06-30T13:00:58.005Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "command": "rg -n \"child-story-needed|child-story-active|deferred-with-human-approval|no full-roadmap claim\" docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+          "result": "pass",
+          "note": "Plan rejects full-roadmap claims when child rows are needed, active, blocked, stale, or improperly deferred.",
+          "headHash": "67e2012765680a0f7ae7a5494cf8998a994fee95",
+          "materialHash": "62dfc9ac5cabbf5cd41d4f5d200a0b688543c77a410d730ffd88c5faf7cbafaa",
+          "storyFilesHash": "d627a1648f7a40f8420c4d4abd616722922a106475de27ef4c3b18f41a2e1b29",
+          "timestamp": "2026-06-30T13:00:58.110Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -29,9 +139,64 @@
       "relatedDocs": [
         "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-30T13:01:09.372Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Plan lists implementation milestones from red tests through evaluator, CLI/DONE integration, rollout, and certification.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Plan includes migration and rollout behavior for legacy parent ledgers, repair, warn/enforce, and human-approved deferral.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Plan names concrete gate consumers such as story_create/story_advance/summary/DONE/convergence so the design is not prose-only.",
+            "type": "docs"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "command": "rg -n \"M1\\. Red/Repro|M2\\. State Model|M3\\. Parent Rollup Evaluator|M4\\. Claim Consumer|M8\\. Cross-Track Certification\" docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+          "result": "pass",
+          "note": "Plan lists milestones from red tests through evaluator, lifecycle claim consumer, rollout, and certification.",
+          "headHash": "1e55e1f380201eaa4a8988d09faaad7b373b660d",
+          "materialHash": "62dfc9ac5cabbf5cd41d4f5d200a0b688543c77a410d730ffd88c5faf7cbafaa",
+          "storyFilesHash": "d627a1648f7a40f8420c4d4abd616722922a106475de27ef4c3b18f41a2e1b29",
+          "timestamp": "2026-06-30T13:01:09.523Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "command": "rg -n \"Migration / Rollout / Repair|legacy|warn|enforce|deferred-with-human-approval\" docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+          "result": "pass",
+          "note": "Plan includes rollout and migration behavior for legacy ledgers, repair, warn/enforce, and human-approved deferral.",
+          "headHash": "1e55e1f380201eaa4a8988d09faaad7b373b660d",
+          "materialHash": "62dfc9ac5cabbf5cd41d4f5d200a0b688543c77a410d730ffd88c5faf7cbafaa",
+          "storyFilesHash": "d627a1648f7a40f8420c4d4abd616722922a106475de27ef4c3b18f41a2e1b29",
+          "timestamp": "2026-06-30T13:01:09.702Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "command": "rg -n \"story_create|story_advance|summary|DONE|convergence|gate consumer\" docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+          "result": "pass",
+          "note": "Plan names concrete gate consumers so the design is not prose-only.",
+          "headHash": "1e55e1f380201eaa4a8988d09faaad7b373b660d",
+          "materialHash": "62dfc9ac5cabbf5cd41d4f5d200a0b688543c77a410d730ffd88c5faf7cbafaa",
+          "storyFilesHash": "d627a1648f7a40f8420c4d4abd616722922a106475de27ef4c3b18f41a2e1b29",
+          "timestamp": "2026-06-30T13:01:09.829Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -40,17 +205,127 @@
       "relatedDocs": [
         "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-30T13:01:19.576Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Plan requires originalIntentSnapshot, milestoneLedger, parent rollup, slice plan, intent collision, and DONE intent equivalence for the later implementation story.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Plan explains that B-5082 is story-local and must be extended with parent/child totality rather than treated as already sufficient.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Plan fails if it allows a child-story-needed row to be hidden by a narrower story-local acceptance claim.",
+            "type": "docs"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "docs_check",
+          "command": "rg -n \"originalIntentSnapshot|milestoneLedger|parentLedgerRollup|slicePlan|intentCollision|done_intent_equivalence_check\" docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+          "result": "pass",
+          "note": "Plan requires the B-5082 ProofStory artifacts for the later implementation story.",
+          "headHash": "47108d84de260da4c0cd6e9f92e0a98eb01e463f",
+          "materialHash": "62dfc9ac5cabbf5cd41d4f5d200a0b688543c77a410d730ffd88c5faf7cbafaa",
+          "storyFilesHash": "d627a1648f7a40f8420c4d4abd616722922a106475de27ef4c3b18f41a2e1b29",
+          "timestamp": "2026-06-30T13:01:19.689Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "docs_check",
+          "command": "rg -n \"story-local|parent-child totality|B-5082 as the local-intent substrate\" docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+          "result": "pass",
+          "note": "Plan explains B-5082 is story-local and needs the parent-child totality layer.",
+          "headHash": "47108d84de260da4c0cd6e9f92e0a98eb01e463f",
+          "materialHash": "62dfc9ac5cabbf5cd41d4f5d200a0b688543c77a410d730ffd88c5faf7cbafaa",
+          "storyFilesHash": "d627a1648f7a40f8420c4d4abd616722922a106475de27ef4c3b18f41a2e1b29",
+          "timestamp": "2026-06-30T13:01:19.836Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "lattice intent_coverage_check {storyId:B-9fc5,mode:enforce,json:true}",
+          "result": "pass",
+          "note": "ProofStory diagnostics show no missing parent rollup, no missing red evidence, no missing intent collision, and no milestone coverage gaps.",
+          "headHash": "47108d84de260da4c0cd6e9f92e0a98eb01e463f",
+          "materialHash": "62dfc9ac5cabbf5cd41d4f5d200a0b688543c77a410d730ffd88c5faf7cbafaa",
+          "storyFilesHash": "d627a1648f7a40f8420c4d4abd616722922a106475de27ef4c3b18f41a2e1b29",
+          "timestamp": "2026-06-30T13:01:19.986Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
       "title": "Verify the plan document and contract markers",
       "context": "Run documentation marker checks and ProofStory diagnostics proving the plan names the failure, milestones, rollout, and completion boundary.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-30T13:01:28.687Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Document marker checks prove the plan contains required sections for failure, red tests, milestones, rollout, and completion boundary.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "ProofStory diagnostics pass with no missing milestone coverage, no missing parent rollup, and no oversized ledger gap.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "DONE intent equivalence for this planning story cannot pass if the plan omits Red/Repro as the first milestone or omits the no-full-claim-with-open-children rule.",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "command": "rg -n \"M1\\. Red/Repro|allRowsClosed=false|partial_parent_done|no full-roadmap claim|ParentRoadmapLedger|ParentRollupResult|child-story-needed|deferred-with-human-approval|B-5082\" docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+          "result": "pass",
+          "note": "Required document marker sweep passed for failure, red tests, milestones, rollout, and completion boundary.",
+          "headHash": "163fa6d7dc0d3938ef4972ea41b7d358e57e5267",
+          "materialHash": "62dfc9ac5cabbf5cd41d4f5d200a0b688543c77a410d730ffd88c5faf7cbafaa",
+          "storyFilesHash": "d627a1648f7a40f8420c4d4abd616722922a106475de27ef4c3b18f41a2e1b29",
+          "timestamp": "2026-06-30T13:01:28.809Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "manual_transcript",
+          "command": "lattice proofstory_gate_check {storyId:B-9fc5,mode:enforce,json:true}",
+          "result": "pass",
+          "note": "ProofStory diagnostics pass with no missing milestone coverage, red evidence, parent rollup, or oversized ledger gap.",
+          "headHash": "163fa6d7dc0d3938ef4972ea41b7d358e57e5267",
+          "materialHash": "62dfc9ac5cabbf5cd41d4f5d200a0b688543c77a410d730ffd88c5faf7cbafaa",
+          "storyFilesHash": "d627a1648f7a40f8420c4d4abd616722922a106475de27ef4c3b18f41a2e1b29",
+          "timestamp": "2026-06-30T13:01:28.915Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Static verifier now checks the new plan markers, including M1 Red/Repro and no full-roadmap claim with open children.",
+          "headHash": "163fa6d7dc0d3938ef4972ea41b7d358e57e5267",
+          "materialHash": "62dfc9ac5cabbf5cd41d4f5d200a0b688543c77a410d730ffd88c5faf7cbafaa",
+          "storyFilesHash": "d627a1648f7a40f8420c4d4abd616722922a106475de27ef4c3b18f41a2e1b29",
+          "timestamp": "2026-06-30T13:01:29.027Z"
+        }
+      ]
     }
   ]
 }

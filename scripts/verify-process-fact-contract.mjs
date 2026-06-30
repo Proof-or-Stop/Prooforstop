@@ -3836,6 +3836,32 @@ function assertStrengtheningRoadmapGovernanceLedger() {
   }
 }
 
+function assertParentRoadmapIntentTotalityPlan() {
+  const planDocPath = 'docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md';
+  if (!existsSync(join(root, planDocPath))) {
+    fail(`parent roadmap intent-totality plan missing: ${planDocPath}`);
+    return;
+  }
+
+  const planDocText = read(planDocPath);
+  const requiredPlanMarkers = [
+    'M1. Red/Repro',
+    'allRowsClosed=false',
+    'partial_parent_done',
+    'no full-roadmap claim',
+    'ParentRoadmapLedger',
+    'ParentRollupResult',
+    'child-story-needed',
+    'deferred-with-human-approval',
+    'B-5082',
+  ];
+  for (const marker of requiredPlanMarkers) {
+    if (!planDocText.includes(marker)) {
+      fail(`${planDocPath}: missing parent roadmap intent-totality marker "${marker}"`);
+    }
+  }
+}
+
 function assertProcessFactCommandInventory() {
   const cliText = read('packages/main/src/cli/command-catalog.ts');
   const configText = read('packages/main/src/core/config.ts');
@@ -4517,6 +4543,7 @@ assertProofStoryGateConsumedFacts();
 assertProcessFactCommandInventory();
 await assertLifecycleArtifactScopePolicy();
 assertStrengtheningRoadmapGovernanceLedger();
+assertParentRoadmapIntentTotalityPlan();
 printProcessFactLevelRegistrySummary();
 
 console.log(`Prompt drift scan: ${reviewerPromptCount} reviewer prompt files checked`);
