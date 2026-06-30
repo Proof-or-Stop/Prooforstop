@@ -111,6 +111,26 @@
           "lattice queue_governance_status --format=json",
           "packages/main/src/tasks/lifecycle-orchestrate-smoke.ts"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run queue_governance_status and verify Tier-C provider-execution receipt verification stories are grouped as experiment-batch-exception instead of ordinary duplicate-candidate records.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Verify malformed or incomplete Tier-C experiment records remain cleanup-required and are reported separately from valid experiment-batch-exception groups.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Prove the experiment exception does not waive lifecycle readiness by checking lifecycle/control status still reports readiness blockers when malformed records or other required gates remain unresolved.",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
