@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-c004",
+  "checkedAt": "2026-06-30T14:58:51.573Z",
+  "mode": "feature",
+  "status": "pass",
+  "scopeBoundaryHash": "bc6e2a33a82860d3a66ca76b5902c1783b9b99a82fe0ad94a59e8474fcdb51e7",
+  "executionBoundaryHash": "7529293413c55ef82350d9160fecde2f34f82269767f8251eef5c7125c62430f",
+  "freshnessHash": "eb99b04ef00aa26489e61cd844ac3f53618aa2e6447349a3409459c6f8d913b4",
+  "effectiveExcludedKeywords": [
+    "Do not implement automatic parent-child story orchestration beyond the current story scope.",
+    "Do not mutate or remove existing Tier-C experiment evidence unless a guard explicitly classifies it as invalid and the story evidence proves that behavior.",
+    "Do not push to GitHub or create a remote PR unless explicitly requested.",
+    "Do not reintroduce Authority Server conformance, Authority production dependencies, or a new Authority Server runtime.",
+    "Do not rewrite unrelated docs or refactor unrelated runtime modules."
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Do not implement automatic parent-child story orchestration beyond the current story scope.",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not implement automatic parent-child story orchestration beyond the current story scope.",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not mutate or remove existing Tier-C experiment evidence unless a guard explicitly classifies it as invalid and the story evidence proves that behavior.",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not mutate or remove existing Tier-C experiment evidence unless a guard explicitly classifies it as invalid and the story evidence proves that behavior.",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not push to GitHub or create a remote PR unless explicitly requested.",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not push to GitHub or create a remote PR unless explicitly requested.",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not reintroduce Authority Server conformance, Authority production dependencies, or a new Authority Server runtime.",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not reintroduce Authority Server conformance, Authority production dependencies, or a new Authority Server runtime.",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not rewrite unrelated docs or refactor unrelated runtime modules.",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not rewrite unrelated docs or refactor unrelated runtime modules.",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "bb391552a39a50119563e6137a840198be71409a46635a81307afe8998471ed2"
+}
