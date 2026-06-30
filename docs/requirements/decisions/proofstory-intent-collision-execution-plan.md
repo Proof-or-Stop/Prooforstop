@@ -92,7 +92,7 @@ turning intent validation into ceremony.
 | Ledger Sizing | Milestone ledger exceeds the single-story capacity threshold | Too-broad diagnostic, suggested slicing groups, and a slice plan before DEV |
 | Collision Intent | Ambiguous, consequential, high-risk, scope-changing, or user-impactful interpretation | Intent collision with `pass`, `revise_intent`, `human_gate`, or `stop` |
 | ProofStory Intent | Bug fix, regression fix, behavior change, security/auth/session change, lifecycle gate, benchmark claim, or unclear ownership | Acceptance contract, verificationIntent binding, risk policy, and red/spike policy when triggered |
-| DONE Intent Equivalence | Any story entering DONE gets a lightweight check; milestone, shrinkage, or high-assurance stories get a strict gate | Actual delivery compared with the original snapshot and required confirmed milestone ledger, if one exists |
+| DONE Intent Equivalence | Any story entering DONE gets a lightweight check; milestone, slice, or shrinkage paths get a strict gate | Actual delivery compared with the original snapshot and required confirmed milestone ledger, if one exists |
 
 This progressive model has five rules:
 
@@ -517,9 +517,11 @@ Reviewer or agent judgment is not enough to shrink the user's stated intent.
 
 DONE requires more than checklist completion, but the check must remain
 proportional. Every story gets a lightweight equivalence check that verifies the
-summary covers the original snapshot. Stories with milestone ledgers, scope
-shrinkage, or high-assurance classification get a strict equivalence gate that
-compares the actual delivered result against the frozen original intent:
+summary covers the original snapshot. Stories on milestone, slice, or confirmed
+scope-shrinkage paths get a strict equivalence gate that compares the actual
+delivered result against the frozen original intent. High-assurance
+single-outcome stories stay on the lightweight DONE check unless one of those
+strict-gate paths is also present:
 
 ```text
 actual delivery is DONE
@@ -1228,7 +1230,7 @@ Acceptance:
 
 - narrowing a requirement requires explicit user confirmation;
 - ordinary single-outcome DONE uses lightweight summary-to-snapshot equivalence;
-- milestone, shrinkage, and high-assurance DONE use strict equivalence gating;
+- milestone, slice, and shrinkage DONE paths use strict equivalence gating;
 - a story cannot reach DONE when any required milestone lacks evidence;
 - a parent Story cannot reach DONE while required child Stories or ledger rows
   remain uncovered;
@@ -1309,8 +1311,9 @@ Acceptance:
 - standard bug/regression/behavior-change stories still require red evidence;
 - oversized ledgers require slice-plan enforcement before DEV, but do not force
   full ProofStory overhead onto every milestone;
-- high-assurance stories require intent collision, red evidence, spike,
-  stronger REVIEW critic, and applicable escalation policy.
+- high-assurance stories require intent collision, stronger REVIEW critic, and
+  applicable escalation policy; red evidence and spike are required only when
+  their corresponding red/spike policy triggers apply.
 
 ## Verification Matrix
 
