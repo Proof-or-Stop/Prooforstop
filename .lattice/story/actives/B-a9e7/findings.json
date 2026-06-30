@@ -23,6 +23,27 @@
       "resolvedAt": "2026-06-30T16:18:45.989Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-a9e7:F-002",
+      "desc": "Verified blocker: current project/global dev-memory retrieval does not consistently rank current Proofbound/Lattice superseding entries ahead of old Koala entries, despite docs/requirements/decisions/dev-memory.md:68 and :73 requiring search/preflight to surface current guidance first. Repro: `lattice dev_memory_search --query=\"koala cli\" --global --limit=10 --json` returns old global Koala entry 2de5d6b before current project entry 148297b, and `lattice dev_memory_preflight --query=\"koala cli\" --maxEntries=10 --json` does the same. `lattice dev_memory_search --query=\"koala reviewer\" --global --limit=10 --json` also puts old a6832a1/c948c85 ahead of current 34e97f9. The new project memories cite/supersede the old ids and remain non-authoritative (.lattice/dev-memory/experience.jsonl:1-5), so historical retention and authority status are fine; the conceptual failure is the live cross-scope ranking/proof. The expanded smoke mostly verifies synthetic fixtures plus actual project entries exist/cite legacy ids (packages/main/src/tasks/dev-memory-supersession-smoke.ts:367-411), leaving the real project+global ranking gap uncovered.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-30T16:21:20.817Z",
+      "reviewRound": "2026-06-30T16:18:32.080Z",
+      "reviewRunId": "B-a9e7:RR-007",
+      "_hash": "23e5cb1d4d952e45cd019bf1626cae6b29238bbc7c72ff3316bc2994eaa903ff",
+      "files": [
+        "packages/main/src/core/dev-memory.ts",
+        "packages/main/src/tasks/dev-memory-supersession-smoke.ts",
+        "docs/requirements/decisions/dev-memory.md",
+        ".lattice/dev-memory/experience.jsonl"
+      ],
+      "signatureTag": "missing|ts|verified-blocker-current",
+      "signatureTagSource": "auto"
     }
   ]
 }
