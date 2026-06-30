@@ -4,7 +4,7 @@
   "title": "Govern lattice-strengthening roadmap M4-M12 with a ProofStory parent ledger",
   "description": "Use the B-5082 ProofStory capabilities to turn docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md M4-M12 into a machine-auditable parent ledger so later implementation stories cannot shrink roadmap scope or claim DONE without explicit child coverage, slice plans, or user-approved scope decisions.",
   "type": "feature",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "keywords": [
     "strengthening-roadmap",
@@ -24,6 +24,20 @@
       "user": "Harmonygo",
       "sessionId": "sess-c1592222a4fdb073",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-30T09:45:37.582Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-c1592222a4fdb073",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-43de",
+    "branch": "story/B-43de",
+    "createdAt": "2026-06-30T09:45:34.446Z"
+  }
 }
