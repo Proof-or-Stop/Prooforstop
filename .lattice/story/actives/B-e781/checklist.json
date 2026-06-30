@@ -7,8 +7,8 @@
       "relatedDocs": [
         "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-30T22:29:32.271Z",
       "endTime": null,
       "userSees": "\"M4\" row shows \"closed\": true and \"node scripts/verify-process-fact-contract.mjs\" is listed as evidence.",
       "files": {
@@ -415,6 +415,17 @@
           }
         ]
       }
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-30T22:29:32.271Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start M4 final evidence recording after implementation commit."
     }
   ]
 }
