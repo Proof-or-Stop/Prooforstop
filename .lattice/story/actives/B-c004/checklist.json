@@ -11,7 +11,46 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+        ],
+        "create": [
+          "docs/requirements/decisions/control-plane-proof-capability-closure-audit.md"
+        ],
+        "test": [
+          "packages/main/src/tasks/lifecycle-control-smoke.ts",
+          "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-001:happy:0",
+            "desc": "Audit maps all seven requested capability rows to an explicit resolution state before any row is marked done.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-001:edge:0",
+            "desc": "Audit distinguishes already-covered, partial, missing, implemented, and retired/non-goal instead of collapsing partial rows into done.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-001:adversarial:0",
+            "desc": "No capability row can be omitted from the audit while B-c004 still claims full completion.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

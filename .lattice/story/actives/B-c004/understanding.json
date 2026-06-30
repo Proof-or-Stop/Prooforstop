@@ -1,0 +1,40 @@
+{
+  "task": "Complete the seven remaining control-plane and proof capability rows by verifying current coverage, writing red or diagnostic tests first, then implementing, documenting, or formally retiring each row.",
+  "outcome": "When the user asks for the final status, the terminal report shows all seven capability rows as resolved with checkmarks or explicit retired/non-goal evidence, B-c004 reaches DONE, validation passes, and no active Authority Server backlog remains.",
+  "facts": [
+    "The user identified seven remaining rows after comparing global lifecycle control-plane and proof admissibility hardening documents.",
+    "B-5082/B-edb8 added intent-totality and ProofStory-style gates, but it did not automatically close all older control-plane/proof-admissibility roadmap rows.",
+    "Authority Server capability has been removed/retired by user decision; this story may clean legacy vocabulary but must not restore server conformance as an active requirement.",
+    "Current documents still describe Tier-C cleanup, queue cleanup enforcement, runtime enforcement rollout, append-only admissibility ledger, CommandSpec adoption, and project-level waterline rollup with partial/future status.",
+    "The story must start with coverage audit and red/diagnostic tests before runtime mutations."
+  ],
+  "constraints": [
+    "All new code, docs, CLI output, tests, and evidence must be in English.",
+    "No OMX commands or .omx paths may be used.",
+    "Do not directly edit docs/story or tests/fixtures; use Lattice commands for story artifacts.",
+    "Do not push to GitHub or publish packages.",
+    "Large-scope rows may be formally retired as non-goals only when the evidence and docs say so explicitly; silent shrinkage is not allowed.",
+    "Preserve valid Tier-C experiment evidence unless a guard proves a row is invalid."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+    "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+    "docs/requirements/decisions/authority-server-vocabulary-retirement.md",
+    "packages/main/src/core/lifecycle-control/control-status.ts",
+    "packages/main/src/core/lifecycle-control/dashboard/index.ts",
+    "packages/main/src/core/lifecycle-control/queue/index.ts",
+    "packages/main/src/core/lifecycle-control/runtime/index.ts",
+    "packages/main/src/core/lifecycle-control/consumption/index.ts",
+    "packages/main/src/core/evidence/admissibility/index.ts",
+    "packages/main/src/core/evidence/types.ts",
+    "packages/main/src/core/proof-admissibility.ts",
+    "packages/main/src/core/proof-admissibility-gates.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/tasks/lifecycle-control-smoke.ts",
+    "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts",
+    "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+  ],
+  "timestamp": "2026-06-30T15:00:53.049Z"
+}

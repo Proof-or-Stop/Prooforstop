@@ -1,0 +1,151 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-c004",
+  "state": "confirmed",
+  "ledgerHash": "sha256:3863395b9e8271ad76316731aa4797e40f0722925c1acd210156293d16c601d5",
+  "milestones": [
+    {
+      "id": "M1",
+      "sourceRequirementId": "REQ-001",
+      "claim": "Seven-capability ledger and coverage audit is frozen before implementation.",
+      "doneMeans": "A committed audit artifact or command evidence maps each of the seven rows to implemented, partial, missing, already-covered, or retired/non-goal status before runtime changes are claimed done.",
+      "requiredEvidence": [
+        "audit",
+        "diagnostic_test"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M2",
+      "sourceRequirementId": "REQ-002",
+      "claim": "Active Authority Server future backlog language is retired.",
+      "doneMeans": "The referenced documents and guards no longer describe Authority Server conformance or production server receipt parity as active future work; remaining names are explicitly legacy compatibility or local/shadow consumer terminology.",
+      "requiredEvidence": [
+        "docs_check",
+        "smoke_test"
+      ],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M3",
+      "sourceRequirementId": "REQ-003",
+      "claim": "Tier-C cleanup policy is resolved without destroying valid experiment evidence.",
+      "doneMeans": "The code and docs either implement the needed Tier-C cleanup behavior or formally retire automatic cleanup while preserving valid Tier-C experiment batches and identifying invalid rows as cleanup-required.",
+      "requiredEvidence": [
+        "logic_test",
+        "docs_check"
+      ],
+      "checklistRefs": [
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-003:happy:0",
+        "CHK-003:edge:0",
+        "CHK-003:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M4",
+      "sourceRequirementId": "REQ-004",
+      "claim": "Append-only admissibility ledger capability is resolved.",
+      "doneMeans": "A durable append-only admissibility ledger under .lattice/evidence exists with tests, or the documents and guards explicitly downgrade it to a non-goal while preserving diagnostic waterline semantics.",
+      "requiredEvidence": [
+        "red_test",
+        "logic_test",
+        "docs_check"
+      ],
+      "checklistRefs": [
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [
+        "CHK-004:happy:0",
+        "CHK-004:edge:0",
+        "CHK-004:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M5",
+      "sourceRequirementId": "REQ-005",
+      "claim": "Queue cleanup enforcement guard is completed.",
+      "doneMeans": "Duplicate/superseded/cleanup-required queue mutation behavior is guarded by tests and implementation while valid Tier-C experiment exceptions remain preserved.",
+      "requiredEvidence": [
+        "red_test",
+        "logic_test"
+      ],
+      "checklistRefs": [
+        "CHK-005"
+      ],
+      "verificationIntentRefs": [
+        "CHK-005:happy:0",
+        "CHK-005:edge:0",
+        "CHK-005:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M6",
+      "sourceRequirementId": "REQ-006",
+      "claim": "Runtime closure enforcement rollout is completed or explicitly bounded.",
+      "doneMeans": "The current runtime closure enforcement state is verified; enforce mode blocks unsafe lifecycle transitions when configured, docs/config accurately describe rollout and rollback, and no claim says default warn mode is globally enforced unless it is actually configured.",
+      "requiredEvidence": [
+        "logic_test",
+        "integration_test",
+        "docs_check"
+      ],
+      "checklistRefs": [
+        "CHK-006"
+      ],
+      "verificationIntentRefs": [
+        "CHK-006:happy:0",
+        "CHK-006:edge:0",
+        "CHK-006:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M7",
+      "sourceRequirementId": "REQ-007",
+      "claim": "CommandSpec envelope and project waterline coverage are completed.",
+      "doneMeans": "Remaining gate-consumed command evidence surfaces and project-level consumption waterline rollup are covered by tests and docs, or any intentionally deferred surface is listed as non-goal with evidence.",
+      "requiredEvidence": [
+        "red_test",
+        "logic_test",
+        "docs_check"
+      ],
+      "checklistRefs": [
+        "CHK-007"
+      ],
+      "verificationIntentRefs": [
+        "CHK-007:happy:0",
+        "CHK-007:edge:0",
+        "CHK-007:adversarial:0"
+      ],
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-06-30T15:01:15.303Z",
+  "updatedAt": "2026-06-30T15:01:24.418Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260630150124",
+    "acceptedInterpretationHash": "sha256:37d5798b93f53694ef160f2717ea202bc1c4727f02b90f8a89d08998c7cb34a8",
+    "acceptedAt": "2026-06-30T15:01:24.418Z"
+  }
+}
