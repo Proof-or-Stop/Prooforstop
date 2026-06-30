@@ -142,6 +142,27 @@
       ],
       "signatureTag": "cleanup|ts|help-text-proofstory",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-f7b7:F-008",
+      "desc": "The updated Storage and Process Facts section now matches the implemented MVP artifact inventory, but the earlier Artifact Model section still says the ProofStory layer should write one canonical structured artifact, proofstory.json (docs/requirements/decisions/proofstory-intent-collision-execution-plan.md:223-231). The implementation and process-fact contract deliberately use a split set of durable ProofStory gate artifacts: the store writes original-intent-snapshot.json, milestone-ledger.json, proofstory.json, intent-collision.json, scope-shrinkage-decision.json, red-evidence.json, and spike.json (packages/main/src/core/store.ts:655-743), and the process-fact contract asserts those seven artifacts (scripts/verify-process-fact-contract.mjs:645-653). Leaving the earlier one-artifact model in the same decision doc can mislead operators into treating proofstory.json as the only durable ProofStory artifact even though the CLI/store and later doc inventory require the split artifact model.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-30T00:22:18.155Z",
+      "reviewRound": "2026-06-30T00:19:36.495Z",
+      "reviewRunId": "B-f7b7:RR-008",
+      "_hash": "fc0fe5912a6a19346ef1f1f331fa7fe260578b74cbfc4198994791bf2e85a6e4",
+      "files": [
+        "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+        "packages/main/src/core/store.ts",
+        "packages/main/src/core/process-fact-registry.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "signatureTag": "doc-code-drift|md|proofstory-artifact-model",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
