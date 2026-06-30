@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-30T14:13:15.559Z",
       "reviewRunId": "B-edb8:RR-009",
       "_hash": "ec15e7f438a34d334579176e10bbdc31cbe71a6e28c66943e07c1c590e00ae70"
+    },
+    {
+      "id": "B-edb8:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "PASS: F-006 closure verified. External proofstoryContract acceptanceBindings.milestoneIds now feeds requiredRowIds during evaluateParentRoadmapLedger/evaluateParentRoadmapProofStoryBinding, so a shrunken M4-only ledger plus external M4-M12 inventory becomes invalid_parent_rollup and blocks full-roadmap wording in enforce mode. Verified by build, parent-roadmap-totality-smoke --case=proofstory-binding, full parent-roadmap-totality-smoke, proofstory-intent-hardening-smoke, and process fact contract.",
+      "createdAt": "2026-06-30T14:31:30.816Z",
+      "reviewRound": "2026-06-30T14:29:03.493Z",
+      "reviewRunId": "B-edb8:RR-010",
+      "_hash": "67aaa7ba15bbc3f9883ddc610c2b8ec587d468e57905aaa08aa79797a0e9a4c3"
     }
   ]
 }
