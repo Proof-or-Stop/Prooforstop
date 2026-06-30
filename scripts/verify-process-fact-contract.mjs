@@ -3793,6 +3793,33 @@ async function assertLifecycleArtifactScopePolicy() {
   }
 }
 
+function assertStrengtheningRoadmapGovernanceLedger() {
+  const roadmapDocPath = 'docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md';
+  if (!existsSync(join(root, roadmapDocPath))) {
+    fail(`B-43de roadmap governance doc missing: ${roadmapDocPath}`);
+    return;
+  }
+
+  const roadmapDocText = read(roadmapDocPath);
+  const requiredGovernanceMarkers = [
+    'ProofStory Governance Ledger / M4-M12 Child Story Map',
+    'B-43de governs M4-M12 as parent rows',
+    'does not claim M5-M12 runtime implementation',
+    'B-5082 / B-e1a8',
+    'B-cd3a',
+    '`child-story-needed`',
+    '`packages/main/src/core/process-fact-registry.ts`',
+    '`packages/main/src/core/process-fact-levels.ts`',
+    '`node scripts/verify-process-fact-contract.mjs`',
+    'static verifier for process-fact contract drift',
+  ];
+  for (const marker of requiredGovernanceMarkers) {
+    if (!roadmapDocText.includes(marker)) {
+      fail(`${roadmapDocPath}: missing B-43de governance marker "${marker}"`);
+    }
+  }
+}
+
 function assertProcessFactCommandInventory() {
   const cliText = read('packages/main/src/cli/command-catalog.ts');
   const configText = read('packages/main/src/core/config.ts');
@@ -4473,6 +4500,7 @@ assertProofStoryProgressiveBoundary();
 assertProofStoryGateConsumedFacts();
 assertProcessFactCommandInventory();
 await assertLifecycleArtifactScopePolicy();
+assertStrengtheningRoadmapGovernanceLedger();
 printProcessFactLevelRegistrySummary();
 
 console.log(`Prompt drift scan: ${reviewerPromptCount} reviewer prompt files checked`);
