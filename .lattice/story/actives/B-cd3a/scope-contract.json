@@ -103,8 +103,24 @@
       "phase": "DEV",
       "headHash": "2edf1a330d4c1b991661b1974ac0bf768f1dd431",
       "materialHash": "5868d66026c8c12c86ceccf0a7d8d0307a8ef029327451330e3f9b128366f845"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Parent ledger roll-up is required ProofStory DONE-equivalence evidence for the accepted slice plan; it proves the single parent story internal slices cover all seven frozen milestones M1-M7 without shrinkage.",
+      "timestamp": "2026-06-30T10:21:59.650Z",
+      "paths": [
+        ".lattice/story/actives/B-cd3a/parent-ledger-rollup.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-cd3a/parent-ledger-rollup.json"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "d545e99fe99d9ed495b467c5cf4236a1cf70d160",
+      "materialHash": "5868d66026c8c12c86ceccf0a7d8d0307a8ef029327451330e3f9b128366f845"
     }
   ],
   "createdAt": "2026-06-30T09:38:36.338Z",
-  "updatedAt": "2026-06-30T10:16:49.301Z"
+  "updatedAt": "2026-06-30T10:21:59.650Z"
 }
