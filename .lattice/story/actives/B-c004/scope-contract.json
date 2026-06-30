@@ -155,8 +155,29 @@
         "DONE_REQUIRED_CommandSpec_admissibility",
         "proof_admissibility_base_smoke"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Parent ledger rollup is required story-scoped DONE intent equivalence evidence showing B-c004 child delivery covers M1 through M7 before DONE.",
+      "timestamp": "2026-06-30T18:04:02.376Z",
+      "paths": [
+        ".lattice/story/actives/B-c004/parent-ledger-rollup.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-c004/parent-ledger-rollup.json"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "b9f5f71edd427a4cd0a526383686c7f10c1b956e",
+      "materialHash": "1013543ab1e1e6fdc29f90b011d77215fe9ffe182146883342a744769bf61ec0",
+      "anchors": [
+        "DONE_intent_equivalence",
+        "parent_ledger_rollup",
+        "M1_M7_coverage"
+      ]
     }
   ],
   "createdAt": "2026-06-30T15:05:17.820Z",
-  "updatedAt": "2026-06-30T17:45:41.582Z"
+  "updatedAt": "2026-06-30T18:04:02.376Z"
 }
