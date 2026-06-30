@@ -20,6 +20,26 @@
       ],
       "signatureTag": "doc-code-drift|md|scope-shrinkage-confirmation",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-f7b7:F-002",
+      "desc": "M4/M9 ProofStory DEV enforcement is not covered on rollback/re-entry and appears bypassable. packages/main/src/core/config.ts:53 documents devGateMode as covering PLAN/INIT_CHECK/REVIEW rollback DEV admission, but packages/main/src/core/machine.ts:579 implements canReenterDevGuard with only the parallelDevEntryBlock check and no proofStoryDevGateFailure call. The guard-failure path likewise skips ProofStory for rollback because packages/main/src/core/machine.ts:982 only evaluates proofStoryDevGateFailure when !isRollbackDoor. The current smoke verifies direct proofstory_gate_check enforce failure at packages/main/src/tasks/proofstory-intent-hardening-smoke.ts:279 and that diagnostics do not advance phase at packages/main/src/tasks/proofstory-intent-hardening-smoke.ts:335, but it never exercises story_advance DEV from REVIEW/TEST under proofStory.devGateMode=enforce. A story can therefore pass the smoke/build/process-fact evidence while the lifecycle policy gate is absent on a documented DEV entry path.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-30T00:04:46.469Z",
+      "reviewRound": "2026-06-30T00:01:49.378Z",
+      "reviewRunId": "B-f7b7:RR-003",
+      "_hash": "47d69dedc31e5ed06582c8c7aba9c01294af799e28a51ee0c6acd6c82d1c3145",
+      "files": [
+        "packages/main/src/core/config.ts",
+        "packages/main/src/core/machine.ts",
+        "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|proofstory-enforcement-covered",
+      "signatureTagSource": "auto"
     }
   ]
 }
