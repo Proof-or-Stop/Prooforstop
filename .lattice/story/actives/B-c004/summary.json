@@ -1,10 +1,10 @@
 {
   "storyId": "B-c004",
-  "changes": "Closed the seven remaining capability gaps by adding the capability closure audit, retiring active Authority Server backlog language, implementing Tier-C preservation policy, retiring append-only admissibility ledger as a non-goal, hardening queue/runtime control-plane status, adding DONE_REQUIRED CommandSpec missing diagnostics, and correcting project-level consumption waterline behavior.",
-  "usage": "Run node packages/main/dist/tasks/lifecycle-control-smoke.js, node packages/main/dist/tasks/proof-admissibility-hardening-smoke.js, and node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js after npm --prefix packages/main run build; inspect global_control_status, admissibility diagnostics, and the closure audit document for the delivered capability matrix.",
-  "expectedOutcome": "The user should see all seven requested capability gaps either implemented or formally retired with evidence, Authority Server conformance removed from the active backlog, and DONE gates satisfied by delivery, review assurance, validation, and intent-equivalence evidence.",
-  "actualTranscript": "Observed build and smoke evidence: npm --prefix packages/main run build passed; lifecycle-control-smoke passed; proof-admissibility hardening smoke passed; retired authority vocabulary guard PASS; REVIEW to TEST preflight all pass; delivery reviewer wrote delivery-check.json with seven docs promises checked; review assurance floor reports full-3x2 with three local rounds.",
-  "outcomeDiff": "No functional delivery difference remains; the only residual scope rows are acknowledged lifecycle-evidence warnings for story-scoped gate artifacts, not implementation scope drift.",
+  "changes": "Closed the seven remaining capability gaps by adding the capability closure audit, retiring active Authority Server backlog language, implementing Tier-C preservation policy, retiring append-only admissibility ledger as a non-goal, hardening queue/runtime control-plane status, adding DONE_REQUIRED CommandSpec envelope evidence, and correcting project-level consumption waterline behavior.",
+  "usage": "Run npm --prefix packages/main run build, npm --prefix packages/main run test:done-required-validation-smoke, npm --prefix packages/main run test:done-required-freshness-smoke, npm --prefix packages/main run test:proof-admissibility-hardening, node packages/main/dist/tasks/lifecycle-control-smoke.js, and node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js; inspect the closure audit for the delivered capability matrix.",
+  "expectedOutcome": "The user should see all seven requested capability gaps either implemented or formally retired with evidence, Authority Server conformance removed from the active backlog, and DONE gates satisfied by fresh validation, delivery, review assurance, and intent-equivalence diagnostics.",
+  "actualTranscript": "Observed evidence: build passed; lifecycle-control smoke passed; proof-admissibility hardening smoke passed; retired authority vocabulary guard passed; done-required validation and freshness smokes passed; full TEST validation passed; delivery reviewer verified seven docs promises and eight real-machine test records; final review assurance is recorded by the Lattice review/quorum artifacts rather than asserted by this summary.",
+  "outcomeDiff": "No functional delivery difference remains. Review-assurance status is intentionally not hard-coded here; the DONE gate must read the fresh quorum artifact for the current material.",
   "acceptanceVerdict": "accepted",
   "outcomeKind": "success",
   "realMachineCoverage": {
@@ -12,7 +12,7 @@
     "skipped": []
   },
   "limitations": "none - fully covered for the seven requested capability closures; automatic Tier-C deletion and append-only ledger storage are explicitly retired or non-goals rather than hidden backlog.",
-  "pitfalls": "Formal validate can be quiet long enough to hit the CLI no-output timeout, so the reliable path was REVIEW-to-TEST preflight validation plus focused smoke commands and delivery reviewer evidence. Delivery context pack needed an explicit scope acknowledgement because it is story-scoped gate evidence.",
+  "pitfalls": "Formal validate can be quiet for several minutes. The CommandSpec fix also required updating synthetic freshness receipts; otherwise DONE-required evidence passed execution but failed proof admissibility.",
   "phaseStats": {
     "INIT": {
       "count": 1,
@@ -27,19 +27,19 @@
       "durationMs": 488670
     },
     "DEV": {
-      "count": 3,
-      "durationMs": 1286804
+      "count": 5,
+      "durationMs": 1838135
     },
     "REVIEW": {
-      "count": 3,
-      "durationMs": 1080028
+      "count": 5,
+      "durationMs": 3439719
     },
     "TEST": {
-      "count": 2,
-      "durationMs": 1061374
+      "count": 3,
+      "durationMs": 2835981
     }
   },
-  "totalDurationMs": 4139947,
+  "totalDurationMs": 8825576,
   "fixtureStats": {
     "totalRuns": 0,
     "totalCases": 0,
@@ -52,5 +52,5 @@
     "open": 0
   },
   "createdAt": "2026-06-30T16:04:52.392Z",
-  "updatedAt": "2026-06-30T16:04:52.392Z"
+  "updatedAt": "2026-06-30T17:22:58.020Z"
 }
