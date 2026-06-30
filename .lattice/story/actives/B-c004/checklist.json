@@ -171,6 +171,9 @@
         "modify": [
           "packages/main/src/core/evidence/admissibility/index.ts",
           "packages/main/src/core/lifecycle-control/consumption/index.ts",
+          "packages/main/src/core/proof-admissibility.ts",
+          "packages/main/src/core/proof-admissibility-gates.ts",
+          "packages/main/src/core/config.ts",
           "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts",
           "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
         ],
@@ -204,7 +207,8 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "userSees": "The final status table shows CHK-004/M4 as append-only admissibility ledger resolved by implementation or explicit non-goal retirement with tests."
     },
     {
       "id": "CHK-005",
