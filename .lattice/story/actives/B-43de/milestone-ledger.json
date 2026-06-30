@@ -1,0 +1,217 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-43de",
+  "state": "confirmed",
+  "ledgerHash": "sha256:89c6b77c2b35d3ba108e7c838cfea8b20f75e49171b221058a97550b58971d36",
+  "milestones": [
+    {
+      "id": "M4",
+      "sourceRequirementId": "ROADMAP-M4",
+      "claim": "Process Fact Registry Coverage is governed as the prerequisite for later strengthening milestones and has an explicit verification surface.",
+      "doneMeans": "The roadmap names M4 as the first child implementation surface and process-fact verification proves existing ProofStory governance facts are registered.",
+      "requiredEvidence": [
+        "process_fact_check",
+        "docs_check",
+        "proofstory_gate"
+      ],
+      "checklistRefs": [
+        "CHK-002",
+        "CHK-003",
+        "CHK-004",
+        "CHK-005"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-003:happy:0",
+        "CHK-004:happy:0",
+        "CHK-005:happy:0"
+      ],
+      "assignedStory": "B-43de",
+      "status": "planned"
+    },
+    {
+      "id": "M5",
+      "sourceRequirementId": "ROADMAP-M5",
+      "claim": "Verification Context Pack and Evidence Envelope work is preserved as a child implementation milestone and cannot be implied by M4 completion.",
+      "doneMeans": "The roadmap governance table records M5 as child-story-needed with expected evidence envelope/context-pack validation commands.",
+      "requiredEvidence": [
+        "docs_check",
+        "proofstory_gate"
+      ],
+      "checklistRefs": [
+        "CHK-002",
+        "CHK-004",
+        "CHK-005"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-004:happy:0",
+        "CHK-005:edge:0"
+      ],
+      "assignedStory": "B-43de",
+      "status": "planned"
+    },
+    {
+      "id": "M6",
+      "sourceRequirementId": "ROADMAP-M6",
+      "claim": "Gate Oracle, Freshness, and Negative-Control Matrix work remains explicitly visible and ordered after M5.",
+      "doneMeans": "The roadmap governance table records M6 as child-story-needed and preserves the negative-control matrix requirement without treating parent governance as matrix completion.",
+      "requiredEvidence": [
+        "docs_check",
+        "proofstory_gate"
+      ],
+      "checklistRefs": [
+        "CHK-002",
+        "CHK-004",
+        "CHK-005"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:edge:0",
+        "CHK-004:adversarial:0",
+        "CHK-005:edge:0"
+      ],
+      "assignedStory": "B-43de",
+      "status": "planned"
+    },
+    {
+      "id": "M7",
+      "sourceRequirementId": "ROADMAP-M7",
+      "claim": "Baseline Suite Formalization remains an explicit future child milestone with false-DONE and claim-boundary math preserved.",
+      "doneMeans": "The governance table marks M7 as child-story-needed and documents that no parent DONE claim may count baseline superiority without a baseline child story.",
+      "requiredEvidence": [
+        "docs_check",
+        "proofstory_gate"
+      ],
+      "checklistRefs": [
+        "CHK-002",
+        "CHK-004",
+        "CHK-005"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:adversarial:0",
+        "CHK-004:adversarial:0",
+        "CHK-005:edge:0"
+      ],
+      "assignedStory": "B-43de",
+      "status": "planned"
+    },
+    {
+      "id": "M8",
+      "sourceRequirementId": "ROADMAP-M8",
+      "claim": "Host identity, review-run, and 3x2 quorum strengthening remains explicit and ordered after evidence shape and gate oracle work.",
+      "doneMeans": "The governance table records M8 as child-story-needed and prevents local review assurance from being overclaimed as completed 3x2 hardening.",
+      "requiredEvidence": [
+        "docs_check",
+        "proofstory_gate"
+      ],
+      "checklistRefs": [
+        "CHK-002",
+        "CHK-004",
+        "CHK-005"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:edge:0",
+        "CHK-004:edge:0",
+        "CHK-005:edge:0"
+      ],
+      "assignedStory": "B-43de",
+      "status": "planned"
+    },
+    {
+      "id": "M9",
+      "sourceRequirementId": "ROADMAP-M9",
+      "claim": "Preflight Command Center work remains visible and depends on canonical oracle rows rather than renderer-specific rules.",
+      "doneMeans": "The governance table marks M9 as child-story-needed and states that session/status/next renderers must consume canonical rows when implemented.",
+      "requiredEvidence": [
+        "docs_check",
+        "proofstory_gate"
+      ],
+      "checklistRefs": [
+        "CHK-002",
+        "CHK-004",
+        "CHK-005"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-004:happy:0",
+        "CHK-005:edge:0"
+      ],
+      "assignedStory": "B-43de",
+      "status": "planned"
+    },
+    {
+      "id": "M10",
+      "sourceRequirementId": "ROADMAP-M10",
+      "claim": "Parallel Collaboration Scheduling remains a child milestone and cannot bypass owner lease, hotspot, or gate evidence boundaries.",
+      "doneMeans": "The governance table marks M10 as child-story-needed and records scheduling output as advisory until the M10 implementation story proves otherwise.",
+      "requiredEvidence": [
+        "docs_check",
+        "proofstory_gate"
+      ],
+      "checklistRefs": [
+        "CHK-002",
+        "CHK-004",
+        "CHK-005"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:adversarial:0",
+        "CHK-004:edge:0",
+        "CHK-005:adversarial:0"
+      ],
+      "assignedStory": "B-43de",
+      "status": "planned"
+    },
+    {
+      "id": "M11",
+      "sourceRequirementId": "ROADMAP-M11",
+      "claim": "Rollout, migration, compatibility, and operator guidance are preserved as a staged child milestone and cannot silently change claim boundaries.",
+      "doneMeans": "The governance table records M11 as ongoing/finalized-after-M10 and preserves legacy-readable and bypass-boundary requirements for child implementation.",
+      "requiredEvidence": [
+        "docs_check",
+        "proofstory_gate"
+      ],
+      "checklistRefs": [
+        "CHK-002",
+        "CHK-004",
+        "CHK-005"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:edge:0",
+        "CHK-004:happy:0",
+        "CHK-005:edge:0"
+      ],
+      "assignedStory": "B-43de",
+      "status": "planned"
+    },
+    {
+      "id": "M12",
+      "sourceRequirementId": "ROADMAP-M12",
+      "claim": "Cross-Track Certification remains last and cannot be claimed until M1-M11 material rows are complete or explicitly assigned.",
+      "doneMeans": "The governance table marks M12 as final certification and the ProofStory parent ledger keeps it visible even when earlier slices are done.",
+      "requiredEvidence": [
+        "docs_check",
+        "proofstory_gate",
+        "done_equivalence"
+      ],
+      "checklistRefs": [
+        "CHK-002",
+        "CHK-004",
+        "CHK-005"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:adversarial:0",
+        "CHK-004:adversarial:0",
+        "CHK-005:happy:0"
+      ],
+      "assignedStory": "B-43de",
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-06-30T09:47:35.184Z",
+  "updatedAt": "2026-06-30T09:48:01.735Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-B-43de-ROADMAP-GOVERNANCE",
+    "acceptedInterpretationHash": "sha256:1ef904d55d5135a6b3b46477d968f8f262b98f8ff445f312cff12b320baf241b",
+    "acceptedAt": "2026-06-30T09:48:01.735Z"
+  }
+}

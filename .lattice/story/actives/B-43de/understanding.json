@@ -1,0 +1,22 @@
+{
+  "task": "Govern the strengthening roadmap M4-M12 work with a ProofStory parent ledger so future implementation stories cannot shrink scope or overclaim DONE.",
+  "outcome": "When the user asks for roadmap status, the terminal can show B-43de ProofStory gate checks passing and the roadmap document visibly lists M4-M12 as governed rows with child-story status instead of vague prose.",
+  "facts": [
+    "The roadmap document states B-997b completed M1-M3 and M4-M12 remain follow-up milestones.",
+    "B-5082 and B-e1a8 made ProofStory original intent, milestone ledger, contract, review completeness, and DONE equivalence checks available in enforce mode.",
+    "B-cd3a is an active but narrower control-plane/proof-admissibility gap closure story, not the global strengthening roadmap parent ledger.",
+    "The process fact contract verifier already verifies ProofStory commands and the M1-M3 roadmap markers."
+  ],
+  "constraints": [
+    "Do not implement all M5-M12 runtime milestones in this parent story.",
+    "Do not touch .omx or directly edit docs/story or tests/fixtures.",
+    "Use Lattice CLI commands for story-scoped ProofStory artifacts.",
+    "Keep unfinished child milestone status explicit; no prose-only overclaiming."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "timestamp": "2026-06-30T09:52:33.671Z"
+}

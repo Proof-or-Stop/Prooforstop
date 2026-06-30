@@ -1,0 +1,82 @@
+{
+  "storyId": "B-43de",
+  "checkedAt": "2026-06-30T10:29:46.321Z",
+  "headHash": "76a065011f864561a1c2f33745ae325d0f1467f3",
+  "materialHash": "d59d677fba13f18a889d5897a0d72ab6829a3a5938a8af70703805563d67f235",
+  "storyFilesHash": "9005e0fbcf8749e9c01b0037c5949c517a20f01b37688a174de6fa8e822312dd",
+  "reviewRound": "2026-06-30T10:06:49.544Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+      "promise": "B-43de is the ProofStory governance parent for M4-M12 and records a visible parent ledger rather than claiming a runtime implementation wave.",
+      "status": "verified",
+      "verifiedBy": "reverse-scan of roadmap doc plus milestone_ledger_get and parent_ledger_rollup_get",
+      "evidence": "Roadmap lines 33-37 and 124-152 state B-43de governs M4-M12 as parent rows, not runtime implementation; milestone_ledger_get returned M4-M12; parent_ledger_rollup_get covers M4-M12 in three slices."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+      "promise": "M4-M12 remain explicit child-story handoffs, with M5-M12 marked child-story-needed and not silently removed from parent scope.",
+      "status": "verified",
+      "verifiedBy": "rg and ProofStory ledger readers",
+      "evidence": "Child-story status map lines 144-152 marks M5-M12 child-story-needed and Not runtime-complete in B-43de; slice_plan_get and parent_ledger_rollup_get keep M4-M12 covered rather than shrunk."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+      "promise": "Tier-C provider-execution receipt verification stories are an intentional duplicate experiment corpus exception, while duplicate cleanup applies only to non-experiment overlap.",
+      "status": "verified",
+      "verifiedBy": "rg reverse-scan",
+      "evidence": "Roadmap lines 166-169 preserve the Tier-C provider-execution receipt verification experiment corpus and limit duplicate cleanup to non-experiment active stories without cohort, parent-row mapping, or child-story handoff."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+      "promise": "B-43de does not overclaim M5-M12 runtime-complete status or downstream runtime gates, baselines, quorum logic, preflight UI, scheduling, rollout, or certification.",
+      "status": "verified",
+      "verifiedBy": "rg reverse-scan for runtime-complete and completion language",
+      "evidence": "The only M5-M12 completion language found is negative-boundary language: line 37 says no M5-M12 runtime implementation complete claim, line 136 says B-43de does not implement downstream runtime surfaces, and lines 145-152 say Not runtime-complete in B-43de."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+      "promise": "M4 register-before-use governance remains a prerequisite before any M5-M12 child story consumes new gate facts.",
+      "status": "verified",
+      "verifiedBy": "M4 section reverse-scan and verifier marker check",
+      "evidence": "Roadmap M4 section lines 579-641 requires process-fact registry, process-fact levels, verify-process-fact-contract, register-before-use, and child-story verifier output before consuming new gate facts."
+    },
+    {
+      "docPath": "scripts/verify-process-fact-contract.mjs",
+      "promise": "Verifier marker check protects the B-43de roadmap governance promises mechanically.",
+      "status": "verified",
+      "verifiedBy": "source reverse-scan plus node scripts/verify-process-fact-contract.mjs",
+      "evidence": "assertStrengtheningRoadmapGovernanceLedger requires markers for the governance ledger, B-43de parent rows, no M5-M12 runtime implementation claim, B-5082/B-e1a8, B-cd3a, child-story-needed, process fact registry/levels, verifier command, Tier-C experiment corpus, and non-experiment duplicate cleanup; node scripts/verify-process-fact-contract.mjs exited PASS."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "PASS. ProofStory enforce gate and doc checks confirm the original intent snapshot ties B-43de to the M4-M12 strengthening roadmap, separates B-43de parent governance from B-cd3a gap closure, and rejects any claim that all M4-M12 features are implemented by this parent story."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "PASS. milestone_ledger_get returned configured M4-M12 ledger rows; proofstory_gate_check passed with milestoneCount=9, thresholdState=too_broad, oversizedClearedBy=slice_plan, and no missing parent rollup; parent_ledger_rollup_get covers M4-M12 across three slices."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "PASS. node scripts/verify-process-fact-contract.mjs exited with Process fact contract verified; the verifier now requires B-43de roadmap governance markers, process-fact registry/levels paths, verifier command text, and the M4 static-verifier contract-drift marker."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "PASS. Roadmap rg checks found B-43de governs, child-story-needed, Tier-C exception, B-cd3a separation, and Not runtime-complete in B-43de markers; git diff --check produced no whitespace errors."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "PASS. lattice validate --story=B-43de --json passed at 2026-06-30T10:28:59.956Z after 31 configured commands; lattice done_required_validate --storyId=B-43de --json passed at 2026-06-30T10:25:19.783Z with packages/main build and root npm test; process-fact verifier passed; lifecycle_check reports validation, done-required, required lanes, reviewer quorum, review escalation, and full-3x2 review assurance floor all pass."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery reverse-scan found no blocker: roadmap parent ledger, M4-M12 child-story handoff, Tier-C duplicate experiment exception, no M5-M12 runtime-complete overclaim, verifier marker check, validation, done-required validation, process-fact verifier, and reviewer/quorum evidence are all confirmed. This signature is only delivery assurance and does not claim M5-M12 runtime completion."
+  },
+  "_hash": "d235d1e87d6940ed903d1e89972cc129a9b9b47f4978f1abe814939216905d50"
+}
