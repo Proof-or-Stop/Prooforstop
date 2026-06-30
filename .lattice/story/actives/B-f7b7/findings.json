@@ -176,7 +176,7 @@
       "desc": "The updated Storage and Process Facts section now matches the implemented MVP artifact inventory, but the earlier Artifact Model section still says the ProofStory layer should write one canonical structured artifact, proofstory.json (docs/requirements/decisions/proofstory-intent-collision-execution-plan.md:223-231). The implementation and process-fact contract deliberately use a split set of durable ProofStory gate artifacts: the store writes original-intent-snapshot.json, milestone-ledger.json, proofstory.json, intent-collision.json, scope-shrinkage-decision.json, red-evidence.json, and spike.json (packages/main/src/core/store.ts:655-743), and the process-fact contract asserts those seven artifacts (scripts/verify-process-fact-contract.mjs:645-653). Leaving the earlier one-artifact model in the same decision doc can mislead operators into treating proofstory.json as the only durable ProofStory artifact even though the CLI/store and later doc inventory require the split artifact model.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-06-30T00:22:18.155Z",
@@ -190,7 +190,11 @@
         "scripts/verify-process-fact-contract.mjs"
       ],
       "signatureTag": "doc-code-drift|md|proofstory-artifact-model",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed the artifact model paragraph: proofstory.json is now documented as the contract envelope, with split gate-consumed artifacts for snapshot, ledger, collision, scope shrinkage, red evidence, and spike; diagnostics remain read-only command output. Verified by docs review and build/smoke/process-fact contract.",
+      "resolvedAt": "2026-06-30T00:31:51.956Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f7b7:F-009",
