@@ -4,7 +4,7 @@
   "title": "Physically remove legacy brand terms from dev-memory",
   "description": "Physically clean dev-memory so old Koala/koala/.koala memories, tags, and active project memory text are removed instead of kept as legacy-readable supersession rows. User clarified there is no need for legacy-koala tags or historical compatibility because only the user consumes this memory.",
   "type": "chore",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "keywords": [
     "dev-memory",
@@ -25,6 +25,20 @@
       "user": "Harmonygo",
       "sessionId": "sess-aa63dba156fc5176",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-30T21:59:34.469Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-aa63dba156fc5176",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-0888",
+    "branch": "story/B-0888",
+    "createdAt": "2026-06-30T21:59:33.500Z"
+  }
 }

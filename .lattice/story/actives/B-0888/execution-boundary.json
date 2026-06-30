@@ -1,0 +1,51 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-0888",
+  "allowedCommands": [
+    "git add",
+    "git commit",
+    "git diff",
+    "git status",
+    "lattice checklist_*",
+    "lattice delivery_check_set",
+    "lattice dev_memory_*",
+    "lattice done_required_validate",
+    "lattice scope_*",
+    "lattice story_*",
+    "lattice summary_set",
+    "lattice validate",
+    "node packages/main/dist/tasks/dev-memory-supersession-smoke.js",
+    "npm --prefix packages/main run build",
+    "npm run test:lattice-residue",
+    "npm test",
+    "rg"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    ".lattice/dev-memory/experience.jsonl",
+    ".lattice/story/actives/B-0888",
+    "docs/requirements/decisions/dev-memory.md",
+    "package.json",
+    "packages/main/package.json",
+    "packages/main/src/core/lattice-brand.ts",
+    "packages/main/src/tasks/dev-memory-supersession-smoke.ts"
+  ],
+  "excludedCommands": [
+    "git checkout --",
+    "git clean -fd",
+    "git reset --hard",
+    "omx",
+    "rm -rf"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".omx",
+    "docs/story",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "Global dev-memory JSONL may live outside the repo; only remove rows containing old brand terms and preserve unrelated current memories.",
+  "createdAt": "2026-06-30T21:57:43.061Z",
+  "updatedAt": "2026-06-30T21:57:43.061Z",
+  "_hash": "bac6f94fcdd022d2fafc055dc71fb086eee54b962ef9c591fd07c05f81893ced"
+}

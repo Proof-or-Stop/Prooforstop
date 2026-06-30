@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-0888",
+  "mode": "maintenance",
+  "allowed": [
+    "documentation or summary metadata only if required by lifecycle gates",
+    "global dev-memory JSONL rows containing old brand terms",
+    "packages/main/src/tasks/dev-memory-supersession-smoke.ts cleanup assertions",
+    "tracked project dev-memory file .lattice/dev-memory/experience.jsonl"
+  ],
+  "excluded": [
+    "change host policy memory content except preserving existing current policy rows",
+    "change non-dev-memory docs",
+    "delete unrelated global memories without old brand terms",
+    "modify historical story evidence directories",
+    "rename runtime product surfaces"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "User requested physical cleanup of old brand memory terms, specifically no legacy-koala-* tags and no compatibility retention because only the user consumes this memory.",
+  "createdAt": "2026-06-30T21:57:27.356Z",
+  "updatedAt": "2026-06-30T21:57:27.356Z",
+  "_hash": "d38fe95bd28fbd5f804872c08bd29bcfaefd6cdb798d3ffb773e317c75aedb74"
+}
