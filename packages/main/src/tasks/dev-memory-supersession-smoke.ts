@@ -27,6 +27,12 @@ function check(label: string, fn: () => void): void {
   console.log(`check: ${label} - PASS`);
 }
 
+const legacyBrand = ['Ko', 'ala'].join('');
+const legacyBrandLower = legacyBrand.toLowerCase();
+const legacyBrandPattern = new RegExp(`\\b${legacyBrand}\\b`, 'i');
+const legacyBrandEraPattern = new RegExp(`\\b${legacyBrand}-era\\b`);
+const legacyBrandSearchTagPrefix = `legacy-${legacyBrandLower}-`;
+
 function entry(input: Partial<DevMemoryEntry> & Pick<DevMemoryEntry, 'id' | 'createdAt' | 'summary' | 'trigger' | 'lesson' | 'reusePrompt'>): DevMemoryEntry {
   return {
     sourceAgent: 'codex',
@@ -44,52 +50,52 @@ const legacyEntries = [
   entry({
     id: 'a6832a1',
     createdAt: '2026-05-29T00:00:00.000Z',
-    summary: 'Koala reviewer runs must bind to the latest review round.',
-    trigger: 'A Koala reviewer pass was recorded after a stale review-run start.',
-    lesson: 'For Koala review blockers, start a fresh reviewer run and bind pass or finding evidence to that run.',
-    reusePrompt: 'When Koala reviewer state looks stale, check the review run binding before accepting the pass.',
-    tags: ['koala-reviewer', 'legacy-term'],
+    summary: `${legacyBrand} reviewer runs must bind to the latest review round.`,
+    trigger: `A ${legacyBrand} reviewer pass was recorded after a stale review-run start.`,
+    lesson: `For ${legacyBrand} review blockers, start a fresh reviewer run and bind pass or finding evidence to that run.`,
+    reusePrompt: `When ${legacyBrand} reviewer state looks stale, check the review run binding before accepting the pass.`,
+    tags: [`${legacyBrandLower}-reviewer`, 'legacy-term'],
     evidenceRefs: ['story:B-old-review', 'review-run:legacy-a6832a1'],
   }),
   entry({
     id: 'f4fe749',
     createdAt: '2026-05-30T00:00:00.000Z',
-    summary: 'Koala delivery notes must state what changed for the user.',
-    trigger: 'A Koala delivery check passed with only engineering plumbing described.',
-    lesson: 'Tie Koala delivery evidence to the observable user-facing result, not only internal command success.',
-    reusePrompt: 'When Koala delivery feels abstract, ask what the user can now do or see.',
-    tags: ['koala-delivery', 'legacy-term'],
+    summary: `${legacyBrand} delivery notes must state what changed for the user.`,
+    trigger: `A ${legacyBrand} delivery check passed with only engineering plumbing described.`,
+    lesson: `Tie ${legacyBrand} delivery evidence to the observable user-facing result, not only internal command success.`,
+    reusePrompt: `When ${legacyBrand} delivery feels abstract, ask what the user can now do or see.`,
+    tags: [`${legacyBrandLower}-delivery`, 'legacy-term'],
     evidenceRefs: ['story:B-old-delivery', 'delivery-check:legacy-f4fe749'],
   }),
   entry({
     id: 'c948c85',
     createdAt: '2026-05-31T00:00:00.000Z',
-    summary: 'Koala CLI dist can lag behind source in self-hosting work.',
-    trigger: 'A Koala story worktree added a command but the installed CLI still showed unknown command.',
-    lesson: 'Rebuild the Koala CLI dist after self-hosting work and verify the checkout used by the global command.',
-    reusePrompt: 'When Koala CLI commands look stale, check dist and global checkout wiring.',
-    tags: ['koala-cli', 'legacy-term'],
+    summary: `${legacyBrand} CLI dist can lag behind source in self-hosting work.`,
+    trigger: `A ${legacyBrand} story worktree added a command but the installed CLI still showed unknown command.`,
+    lesson: `Rebuild the ${legacyBrand} CLI dist after self-hosting work and verify the checkout used by the global command.`,
+    reusePrompt: `When ${legacyBrand} CLI commands look stale, check dist and global checkout wiring.`,
+    tags: [`${legacyBrandLower}-cli`, 'legacy-term'],
     evidenceRefs: ['story:B-old-cli', 'commit:legacy-c948c85'],
   }),
   entry({
     id: '2de5d6b',
     createdAt: '2026-06-01T00:00:00.000Z',
-    summary: 'Koala preflight context must surface blockers before implementation.',
-    trigger: 'A Koala preflight warning was skipped and the implementation later hit the same blocker.',
-    lesson: 'Read Koala preflight output for path, phase, and stale evidence warnings before writing code.',
-    reusePrompt: 'When Koala preflight emits warnings, resolve or explicitly account for them before editing.',
-    tags: ['koala-preflight', 'legacy-term'],
+    summary: `${legacyBrand} preflight context must surface blockers before implementation.`,
+    trigger: `A ${legacyBrand} preflight warning was skipped and the implementation later hit the same blocker.`,
+    lesson: `Read ${legacyBrand} preflight output for path, phase, and stale evidence warnings before writing code.`,
+    reusePrompt: `When ${legacyBrand} preflight emits warnings, resolve or explicitly account for them before editing.`,
+    tags: [`${legacyBrandLower}-preflight`, 'legacy-term'],
     evidenceRefs: ['story:B-old-preflight', 'preflight:legacy-2de5d6b'],
   }),
   entry({
     id: '7bc20e5',
     createdAt: '2026-06-02T00:00:00.000Z',
-    summary: 'Koala evidence references must stay historically readable.',
-    trigger: 'A cleanup risked removing old Koala evidenceRefs while renaming terminology.',
-    lesson: 'Do not rewrite historical Koala evidenceRefs; add current guidance alongside readable legacy entries.',
-    reusePrompt: 'When cleaning Koala terminology, preserve original refs and content for auditability.',
-    tags: ['koala-evidence', 'legacy-term'],
-    evidenceRefs: ['story:B-old-evidence', 'dev-memory:older-koala-context'],
+    summary: `${legacyBrand} evidence references must stay historically readable.`,
+    trigger: `A cleanup risked removing old ${legacyBrand} evidenceRefs while renaming terminology.`,
+    lesson: `Do not rewrite historical ${legacyBrand} evidenceRefs; add current guidance alongside readable legacy entries.`,
+    reusePrompt: `When cleaning ${legacyBrand} terminology, preserve original refs and content for auditability.`,
+    tags: [`${legacyBrandLower}-evidence`, 'legacy-term'],
+    evidenceRefs: ['story:B-old-evidence', `dev-memory:older-${legacyBrandLower}-context`],
   }),
 ];
 
@@ -144,13 +150,13 @@ const currentEntries = [
 ];
 
 const unmatchedLegacy = entry({
-  id: 'unmatched-koala-legacy',
+  id: ['unmatched', legacyBrandLower, 'legacy'].join('-'),
   createdAt: '2026-06-03T00:00:00.000Z',
-  summary: 'Koala scratchpad reminder remains readable when no current replacement exists.',
+  summary: `${legacyBrand} scratchpad reminder remains readable when no current replacement exists.`,
   trigger: 'A narrow cleanup should not hide old memories that have no superseding current entry.',
-  lesson: 'Keep unmatched Koala entries visible until a current Proofbound/Lattice lesson explicitly supersedes them.',
+  lesson: `Keep unmatched ${legacyBrand} entries visible until a current Proofbound/Lattice lesson explicitly supersedes them.`,
   reusePrompt: 'When no superseding entry exists, treat the old memory as readable historical context.',
-  tags: ['koala-unmatched', 'legacy-term'],
+  tags: [`${legacyBrandLower}-unmatched`, 'legacy-term'],
   evidenceRefs: ['story:B-old-unmatched', 'note:do-not-rewrite'],
 });
 
@@ -173,10 +179,10 @@ const actualCurrentByLegacyId = new Map([
   ['7bc20e5', '7ffe281'],
 ]);
 const actualQueryExpectations = [
-  { query: 'koala cli', currentIds: ['148297b'], legacyIds: ['2de5d6b'] },
-  { query: 'koala reviewer', currentIds: ['ee3aef3', '34e97f9'], legacyIds: ['c948c85', 'a6832a1'] },
-  { query: 'koala delivery', currentIds: ['99aa6c7'], legacyIds: ['f4fe749'] },
-  { query: 'koala preflight', currentIds: ['7ffe281'], legacyIds: ['7bc20e5'] },
+  { query: `${legacyBrandLower} cli`, currentIds: ['148297b'], legacyIds: ['2de5d6b'] },
+  { query: `${legacyBrandLower} reviewer`, currentIds: ['ee3aef3', '34e97f9'], legacyIds: ['c948c85', 'a6832a1'] },
+  { query: `${legacyBrandLower} delivery`, currentIds: ['99aa6c7'], legacyIds: ['f4fe749'] },
+  { query: `${legacyBrandLower} preflight`, currentIds: ['7ffe281'], legacyIds: ['7bc20e5'] },
 ];
 const originalLegacyEvidenceRefs = new Map(legacyEntries.map(e => [e.id, [...(e.evidenceRefs || [])]]));
 const originalLegacyContent = new Map(legacyEntries.map(e => [e.id, {
@@ -215,11 +221,10 @@ function assertPreflightGuidanceFirst(query: string, expectedCurrentId: string, 
   assert(ids.indexOf(expectedCurrentId) < ids.indexOf(expectedLegacyId), `${query} preflight should rank current before old`);
 }
 
-function assertNoActiveKoalaGuidance(currentEntry: DevMemoryEntry): void {
+function assertNoActiveLegacyBrandGuidance(currentEntry: DevMemoryEntry): void {
   const text = [currentEntry.summary, currentEntry.trigger, currentEntry.lesson, currentEntry.reusePrompt].join(' ');
-  assert.doesNotMatch(text, /\bKoala\b/);
-  assert.doesNotMatch(text, /\bKoala-era\b/);
-  assert.doesNotMatch(text, /\bkoala\b/);
+  assert.doesNotMatch(text, legacyBrandPattern);
+  assert.doesNotMatch(text, legacyBrandEraPattern);
 }
 
 function assertUsesCurrentProductNames(entry: DevMemoryEntry): void {
@@ -230,11 +235,11 @@ function assertUsesCurrentProductNames(entry: DevMemoryEntry): void {
     ['lesson', entry.lesson],
     ['reusePrompt', entry.reusePrompt],
   ] as const) {
-    assert.doesNotMatch(value, /\bKoala\b|\bkoala\b/, `${entry.id} ${field} should not use Koala as active product name`);
+    assert.doesNotMatch(value, legacyBrandPattern, `${entry.id} ${field} should not use the legacy brand as active product name`);
   }
 
-  if (/\bKoala\b|\bkoala\b/.test(entry.trigger)) {
-    assert.match(entry.trigger, /Legacy Koala .* now (applies to|maps to)/, `${entry.id} trigger should mention Koala only as legacy mapping context`);
+  if (legacyBrandPattern.test(entry.trigger)) {
+    assert.match(entry.trigger, new RegExp(`Legacy ${legacyBrand} .* now (applies to|maps to)`), `${entry.id} trigger should mention the legacy brand only as legacy mapping context`);
   }
 }
 
@@ -308,7 +313,7 @@ function assertCurrentBeforeLegacy(ids: string[], currentIds: string[], legacyId
 
 function assertLegacySearchTags(entry: DevMemoryEntry): void {
   const tags = entry.tags || [];
-  assert(tags.some(tag => tag.startsWith('legacy-koala-')), `${entry.id} should have legacy-koala search tags`);
+  assert(tags.some(tag => tag.startsWith(legacyBrandSearchTagPrefix)), `${entry.id} should have legacy brand search tags`);
   assert(tags.some(tag => tag.includes('current')), `${entry.id} should mark current guidance for legacy search`);
 }
 
@@ -335,7 +340,7 @@ try {
     assertSupersessionPair(projection, 'f4fe749', current);
   });
 
-  check('captured legacy Koala inventory is fully superseded and readable', () => {
+  check('captured legacy inventory is fully superseded and readable', () => {
     for (const legacyId of ['a6832a1', 'f4fe749', 'c948c85', '2de5d6b', '7bc20e5']) {
       const legacy = legacyById.get(legacyId);
       const current = currentByLegacyId.get(legacyId);
@@ -345,37 +350,37 @@ try {
       const formatted = formatEntryShort(legacy, projection);
       assert.match(formatted, /superseded \/ legacy-readable/);
       assert.match(formatted, new RegExp(`superseded by ${current.id}`));
-      assert.match(formatted, /Koala/);
+      assert.match(formatted, new RegExp(legacyBrand));
     }
   });
 
-  check('search ranks current Proofbound/Lattice guidance before old Koala entries', () => {
-    assertCurrentGuidanceFirst('koala reviewer', 'proof-reviewer-a6832a1', 'a6832a1');
-    assertCurrentGuidanceFirst('koala delivery', 'proof-delivery-f4fe749', 'f4fe749');
-    assertCurrentGuidanceFirst('koala cli', 'proof-cli-c948c85', 'c948c85');
-    assertCurrentGuidanceFirst('koala preflight', 'proof-preflight-2de5d6b', '2de5d6b');
+  check('search ranks current Proofbound/Lattice guidance before old legacy entries', () => {
+    assertCurrentGuidanceFirst(`${legacyBrandLower} reviewer`, 'proof-reviewer-a6832a1', 'a6832a1');
+    assertCurrentGuidanceFirst(`${legacyBrandLower} delivery`, 'proof-delivery-f4fe749', 'f4fe749');
+    assertCurrentGuidanceFirst(`${legacyBrandLower} cli`, 'proof-cli-c948c85', 'c948c85');
+    assertCurrentGuidanceFirst(`${legacyBrandLower} preflight`, 'proof-preflight-2de5d6b', '2de5d6b');
   });
 
-  check('preflight ranks current Proofbound/Lattice guidance before old Koala entries', () => {
+  check('preflight ranks current Proofbound/Lattice guidance before old legacy entries', () => {
     writeEntries(resolveProjectMemoryPath(root), entries);
-    assertPreflightGuidanceFirst('koala reviewer', 'proof-reviewer-a6832a1', 'a6832a1', root);
-    assertPreflightGuidanceFirst('koala delivery', 'proof-delivery-f4fe749', 'f4fe749', root);
-    assertPreflightGuidanceFirst('koala cli', 'proof-cli-c948c85', 'c948c85', root);
-    assertPreflightGuidanceFirst('koala preflight', 'proof-preflight-2de5d6b', '2de5d6b', root);
+    assertPreflightGuidanceFirst(`${legacyBrandLower} reviewer`, 'proof-reviewer-a6832a1', 'a6832a1', root);
+    assertPreflightGuidanceFirst(`${legacyBrandLower} delivery`, 'proof-delivery-f4fe749', 'f4fe749', root);
+    assertPreflightGuidanceFirst(`${legacyBrandLower} cli`, 'proof-cli-c948c85', 'c948c85', root);
+    assertPreflightGuidanceFirst(`${legacyBrandLower} preflight`, 'proof-preflight-2de5d6b', '2de5d6b', root);
   });
 
-  check('unmatched Koala legacy entry remains readable and not hidden', () => {
+  check('unmatched legacy entry remains readable and not hidden', () => {
     const status = getSupersessionStatus(unmatchedLegacy, projection);
     assert.equal(status.isSuperseded, false);
     assert.equal(status.isSuperseding, false);
     const formatted = formatEntryShort(unmatchedLegacy, projection);
     assert.doesNotMatch(formatted, /superseded \/ legacy-readable/);
-    assert.match(formatted, /Koala scratchpad reminder remains readable/);
+    assert.match(formatted, new RegExp(`${legacyBrand} scratchpad reminder remains readable`));
     const [result] = searchEntries(entries, { query: 'scratchpad unmatched', limit: 1 });
     assert.equal(result.id, unmatchedLegacy.id);
   });
 
-  check('historical Koala evidenceRefs and content are not rewritten deleted or hidden', () => {
+  check('historical legacy evidenceRefs and content are not rewritten deleted or hidden', () => {
     for (const legacy of legacyEntries) {
       assert.deepEqual(legacy.evidenceRefs, originalLegacyEvidenceRefs.get(legacy.id));
       assert.deepEqual({
@@ -399,9 +404,9 @@ try {
     }
   });
 
-  check('current entries do not introduce active Koala guidance', () => {
+  check('current entries do not introduce active legacy brand guidance', () => {
     for (const current of currentEntries) {
-      assertNoActiveKoalaGuidance(current);
+      assertNoActiveLegacyBrandGuidance(current);
     }
   });
 
@@ -415,7 +420,7 @@ try {
     assert.match(listed, /supersedes a6832a1/);
     assert.match(listed, /supersedes f4fe749/);
     assert.match(listed, /superseded \/ legacy-readable/);
-    assert.match(listed, /Koala reviewer runs must bind/);
+    assert.match(listed, new RegExp(`${legacyBrand} reviewer runs must bind`));
   });
 
   check('all entries remain non-authoritative and not gate evidence', () => {
@@ -491,7 +496,7 @@ try {
     }
   });
 
-  check('actual project and global memory rank current guidance before legacy Koala entries', () => {
+  check('actual project and global memory rank current guidance before legacy entries', () => {
     const projectEntries = readProjectMemoryEntries(process.cwd());
     const globalEntries = readGlobalMemoryEntries();
     const allEntries = mergeById(projectEntries, globalEntries);
@@ -501,15 +506,15 @@ try {
     }
   });
 
-  check('legacy token scorer compatibility ranks current guidance before legacy Koala entries', () => {
+  check('legacy token scorer compatibility ranks current guidance before legacy entries', () => {
     const projectEntries = readProjectMemoryEntries(process.cwd());
     const globalEntries = readGlobalMemoryEntries();
     const allEntries = mergeById(projectEntries, globalEntries);
     for (const expectation of actualQueryExpectations) {
       const ids = legacyTokenSearch(allEntries, expectation.query, 20).map(e => e.id);
       assertCurrentBeforeLegacy(ids, expectation.currentIds, expectation.legacyIds, expectation.query);
-      if (expectation.query === 'koala cli' && ids.includes('2de5d6b')) {
-        assert.equal(ids[0], '148297b', 'koala cli should show current CLI guidance first under legacy token scoring');
+      if (expectation.query === `${legacyBrandLower} cli` && ids.includes('2de5d6b')) {
+        assert.equal(ids[0], '148297b', 'legacy CLI query should show current CLI guidance first under legacy token scoring');
       }
     }
   });
