@@ -1,6 +1,6 @@
 {
   "storyId": "B-43de",
-  "checkedAt": "2026-06-30T09:50:58.134Z",
+  "checkedAt": "2026-06-30T09:54:09.510Z",
   "features": [
     {
       "feature": "Allowed material edit: strengthening roadmap execution plan",
@@ -24,6 +24,13 @@
       "source": "lattice original_intent_snapshot_get, milestone_ledger_get, proofstory_contract_get, parent_ledger_rollup_get"
     },
     {
+      "feature": "B-43de ProofStory lifecycle artifacts needed by the plan are accepted by the active scope gate",
+      "covered_by": "scope_contract allowedModify exact story-scoped ProofStory artifact paths: intent-collision.json, milestone-ledger.json, original-intent-snapshot.json, parent-ledger-rollup.json, proofstory.json, slice-plan.json; scope_contract_check passes with 0 unacknowledged violations",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "lattice scope_contract_show --storyId=B-43de; lattice scope_contract_check {\"storyId\":\"B-43de\"}"
+    },
+    {
       "feature": "Implementing all M5-M12 runtime features in this parent story",
       "covered_by": "",
       "status": "excluded",
@@ -41,40 +48,19 @@
       "feature": "Reintroducing server-backed proof terminology as an active claim",
       "covered_by": "",
       "status": "excluded",
-      "excluded_by": "scope_contract explicitExcludes Reintroducing server-backed proof terminology; roadmap doc says retired server-backed proof remains out of scope",
+      "excluded_by": "scope_contract explicitExcludes Reintroducing server-backed proof terminology as an active claim; roadmap doc says retired server-backed proof remains out of scope",
       "source": "lattice scope_contract_show, roadmap doc"
-    },
-    {
-      "feature": "B-43de ProofStory lifecycle artifacts needed by the plan are accepted by the active scope gate",
-      "covered_by": "",
-      "status": "gap",
-      "excluded_by": "",
-      "source": "lattice scope_contract_check reports OUT_OF_SCOPE for intent-collision, milestone-ledger, original-intent-snapshot, parent-ledger-rollup, proofstory, and slice-plan JSON"
     }
   ],
   "summary": {
     "total": 7,
-    "covered": 3,
+    "covered": 4,
     "excluded": 3,
-    "gaps": 1,
+    "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
   "reviewRound": "",
-  "_hash": "dbd3f2b0586689a9f20ac9d74a8bb7de44c6263ff2924ce505e8852aecbc6225",
-  "openQuestions": [
-    {
-      "id": "OQ-001",
-      "q": "The product scope is bounded to the roadmap doc plus optional verifier marker checks, but the current scope_contract_check fails on B-43de ProofStory lifecycle artifacts. Should those story-scoped ProofStory artifacts be added to the lifecycle artifact registry or scope contract, acknowledged as intentional provenance, or reverted until the contract permits them?",
-      "evidence": "scope_contract_check --storyId=B-43de reports six unacknowledged OUT_OF_SCOPE violations for B-43de intent-collision, milestone-ledger, original-intent-snapshot, parent-ledger-rollup, proofstory, and slice-plan JSON; the plan and ProofStory contract require those artifacts for parent governance.",
-      "sourcePointers": [
-        "CHK-001",
-        "CHK-002",
-        "CHK-005",
-        "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md#Non-Goals"
-      ],
-      "resolution": "Resolved: B-43de product scope stays limited to the roadmap document plus an optional process-fact verifier marker. ProofStory lifecycle artifacts under .lattice/story/actives/B-43de are allowed only as CLI-generated gate evidence for this story, not as product/runtime implementation scope.",
-      "resolvedAt": "2026-06-30T09:52:33.633Z"
-    }
-  ]
+  "_hash": "7df072f171adc9b6025e1d643b66ab1ba6f244febb053e789086a5c8bed8d905",
+  "openQuestions": []
 }
