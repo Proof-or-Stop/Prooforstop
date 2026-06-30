@@ -45,7 +45,7 @@ core; missing means described by the plan but not currently implemented.
 | Authority-facing proof consumer | Partial | `authority-receipt-ref` / `AUTHORITY_GATE_DECISION` registry entries; hardening smoke | A matching Authority-facing gate decision can be admissible evidence input with `productionDoneEligible=false`; external Authority adapter production projection is future work. Plain receipts and legacy refs cannot replace the gate decision. |
 | Legacy classification | Implemented for read-time local CLI diagnostics | `packages/main/src/core/proof-admissibility-legacy.ts`; hardening smoke | Legacy evidence is audit-readable only and cannot satisfy new strong proof gates. |
 | Admissibility waterline | Implemented as read-only diagnostic projection | `packages/main/src/core/lifecycle-control/consumption/index.ts`; `lattice admissibility_waterline --storyId=<id> --format=json` | Waterline counts and statuses cannot satisfy DONE, cannot mutate evidence, and cannot set `productionDone`. |
-| Append-only admissibility ledger under `.lattice/evidence/` | Missing / future | Appendix C schema only | Current local CLI implementation evaluates directly and renders a diagnostic waterline; durable ledger rows remain a future integration. |
+| Append-only admissibility ledger under `.lattice/evidence/` | Retired/non-goal for the local CLI | Appendix C reference schema only; `proof-admissibility-hardening-smoke.ts` ledger-retirement assertion | Current local CLI implementation evaluates directly and renders a diagnostic waterline; it does not claim durable ledger rows or expose a ledger writer. |
 | Cross-runtime conformance suite | Retired/non-goal for the local CLI | Appendix A C12; Appendix B compatibility rows | Local CLI smokes cover the current contract. Server-backed runtime parity is not an active backlog row in this plan. |
 | 3 rounds x 2 host review evidence for rollout stories | Process requirement, not code capability | REVIEW / DONE evidence lanes for the story | This document records the requirement; lifecycle reviewers must supply the actual evidence over final material. |
 
@@ -924,7 +924,13 @@ Pre-story repro/spike artifacts are a special case of this same rule:
 - Bootstrap or environment failures must stay candidate diagnostics; they cannot
   be upgraded to proof of a product bug.
 
-## Appendix C: Evidence Admissibility Ledger Schema
+## Appendix C: Retired Evidence Admissibility Ledger Reference
+
+B-c004 resolves the append-only admissibility ledger as a retired/non-goal for
+the local CLI. The schema below is retained only as design reference for a
+separate future integration; the current local CLI does not write durable
+admissibility ledger rows, and `admissibility_waterline` must not claim a ledger
+path, ledger rows, or release authority.
 
 Source-of-truth hierarchy:
 

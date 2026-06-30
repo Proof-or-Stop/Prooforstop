@@ -25,6 +25,8 @@ import {
   verifyProofBindingDigest,
   PROOF_BINDING_SCHEMA_VERSION,
 } from '../core/proof-admissibility-binding.js';
+import * as admissibilityCompat from '../core/evidence/admissibility/index.js';
+import { projectAdmissibilityWaterline } from '../core/lifecycle-control/consumption/index.js';
 import { buildHandoffAdmissibilitySummary } from '../core/proof-admissibility-handoff.js';
 import {
   type HandoffAcceptProjection,
@@ -60,7 +62,37 @@ function assertClosureAuditContract(): void {
   assert.match(audit, /\| M7 \| CHK-007 \| CommandSpec envelope and project waterline coverage \| missing-to-implement \|/);
 }
 
+function assertAppendOnlyLedgerRetired(): void {
+  const compatExports = admissibilityCompat as Record<string, unknown>;
+  for (const exportName of ['writeAdmissibilityLedgerRow', 'appendAdmissibilityLedgerRow', 'readAdmissibilityLedger']) {
+    assert.equal(exportName in compatExports, false, `local CLI must not expose ${exportName} while append-only ledger is retired`);
+  }
+
+  const root = mkdtempSync(join(tmpdir(), 'proof-admissibility-ledger-retired-'));
+  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
+    scanRoot: 'packages/main',
+    rootDir: 'src',
+    storyDir: '.lattice/story/actives',
+    requirementsDir: 'docs/requirements',
+    storyPrefix: 'B',
+    flows: { defaults: {}, patterns: [] },
+    proofAdmissibility: { mode: 'warn' },
+  }, null, 2));
+  resetConfigCache();
+  const report = projectAdmissibilityWaterline(new StoryStore(root), root, {
+    consumers: ['DONE_REQUIRED'],
+    now: '2026-06-30T00:00:00.000Z',
+  });
+  assert.equal(report.readOnly, true, 'waterline is read-only while ledger storage is retired');
+  assert.equal(report.diagnosticOnly, true, 'waterline is diagnostic-only while ledger storage is retired');
+  assert.equal((report as unknown as Record<string, unknown>).ledgerPath, undefined, 'waterline must not claim a durable ledger path');
+  assert.equal((report as unknown as Record<string, unknown>).ledgerRows, undefined, 'waterline must not claim durable ledger rows');
+  assert.equal(report.rows[0]?.diagnosticOnly, true, 'consumer rows stay diagnostic-only');
+  assert.equal(report.rows[0]?.productionDoneEligible, false, 'consumer rows cannot become release authority through ledger wording');
+}
+
 assertClosureAuditContract();
+assertAppendOnlyLedgerRetired();
 
 function currentValidChecks(schemaVersion: string) {
   return {
