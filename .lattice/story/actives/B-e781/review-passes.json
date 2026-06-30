@@ -125,6 +125,15 @@
       "reviewRound": "2026-06-30T23:31:22.419Z",
       "reviewRunId": "B-e781:RR-021",
       "_hash": "4e07364593a492a1069d2cd105bf4f1c810262d32574e98a6dfceaa258afe67f"
+    },
+    {
+      "id": "B-e781:RP-015",
+      "agent": "lattice-review-concept",
+      "note": "Concept pass round 5: targeted review of ebddbc1e7 plus F-003 resolution metadata. The added enforce-mode negative assertions preserve the degraded 3x1 fallback design: missing fallback, stale fallback/material, and invalid fallback shape all remain inadmissible with proofAdmissibility.blocking=true, allowed=false, mode=enforce, enforcedConsumer=true, and proof_admissibility_blocked, while the valid explicit degraded-single-host fallback with three single-host rounds remains accepted and still does not claim authorityDone/fullAuthorityDone/productionDone. Evidence: git show ebddbc1e7 -- packages/main/src/tasks/review-assurance-floor-smoke.ts; node bin/lattice.js finding_list {storyId:B-e781}; node bin/lattice.js review_incremental_context --storyId=B-e781 --role=concept --json; node packages/main/dist/tasks/review-assurance-floor-smoke.js passed 10 checks.",
+      "createdAt": "2026-06-30T23:33:32.008Z",
+      "reviewRound": "2026-06-30T23:31:22.419Z",
+      "reviewRunId": "B-e781:RR-018",
+      "_hash": "eb74063f006fd17b56d2e7a0845096bdf6f649f650b37091a63c5b9fc4f838f4"
     }
   ]
 }
