@@ -98,6 +98,15 @@
       "reviewRound": "2026-06-30T23:01:58.642Z",
       "reviewRunId": "B-8963:RR-013",
       "_hash": "ae964ebd5d3d5e47496a9394ed6f0e8f81492213d2d79954b2a52698f47f84f1"
+    },
+    {
+      "id": "B-8963:RP-012",
+      "agent": "lattice-review-docs",
+      "note": "Targeted docs/vocabulary REVIEW round 4 after main merge passed. Reviewed the only changed non-story markdown file, docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md, especially the added M1 command-local syndrome preflight section. The wording matches the implemented evidenceHashSnapshot/checkEvidenceHashSnapshotReuse behavior, preserves command-local/non-persistent boundaries, and avoids Authority/production/ledger overclaim. git diff --check plus proof-admissibility hardening and retired authority vocabulary guards passed.",
+      "createdAt": "2026-06-30T23:38:37.851Z",
+      "reviewRound": "2026-06-30T23:36:28.271Z",
+      "reviewRunId": "B-8963:RR-018",
+      "_hash": "06ce660540ae0568a570e73fd14a4444158a976d96a3dec9fcdd596ce602bd29"
     }
   ]
 }
