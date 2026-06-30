@@ -86,7 +86,40 @@
       "context": "Replace supersession/legacy-readable expectations with zero old-brand memory checks across project/global list/search while keeping current host-policy memories intact.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees the dev-memory smoke prove zero old-brand memory hits instead of legacy-readable supersession.",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/dev-memory-supersession-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/dev-memory-supersession-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "dev-memory-supersession smoke asserts zero old-brand hits in project and global memory outputs.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The smoke still proves current host-policy memories and current Proofbound/Lattice lessons remain available.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The smoke fails if legacy-koala tags, Koala prose, koala commands, or .koala evidence refs are reintroduced.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
