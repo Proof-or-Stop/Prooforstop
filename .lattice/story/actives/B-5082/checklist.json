@@ -1,0 +1,68 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add ProofStory guidance to active reviewer prompts and story_review advisory rendering",
+      "context": "Covers M0/M3/M8 gaps: active prompts must name ProofStory review responsibilities, and story_review should show ProofStory advisory diagnostics before DEV.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Add ledger assignment fields for parent and child story slicing",
+      "context": "Covers M1 gap: milestone ledger rows need optional parent ledger / assigned story fields without forcing one milestone to become one story.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Implement slice-plan artifact and oversized ledger exception semantics",
+      "context": "Covers M4/M9 gaps: oversized ledgers need an auditable slice plan or child-story assignment path before DEV in enforce mode.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Implement parent ledger roll-up checks for child-story coverage",
+      "context": "Covers M5 gap: parent stories must be able to verify child stories and ledger rows before DONE once slice plans exist.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Implement lightweight single-outcome DONE equivalence",
+      "context": "Covers M5 gap: ordinary single-outcome stories should compare summary/delivery against the original snapshot instead of requiring a confirmed milestone ledger.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-006",
+      "title": "Bind red evidence to baseline head/material and green relation",
+      "context": "Covers M6 gap: red evidence must carry baseline freshness and the transition relation to current green evidence.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-007",
+      "title": "Add spike disposable-code policy checks",
+      "context": "Covers M7 gap: spike evidence must not silently carry disposable code into implementation; promotion remains explicit and auditable.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-008",
+      "title": "Close risk-adaptive high-assurance review policy behavior",
+      "context": "Covers M8/M9 gap: high-assurance ProofStory must expose stronger review/completeness policy diagnostics while keeping existing reviewer evidence fresh and reviewRunId-bound.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
