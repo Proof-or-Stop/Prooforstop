@@ -64,6 +64,18 @@ const activeTextDirs = [
   'packages/main/templates/agents',
 ] as const;
 
+const retiredFutureBacklogPlanFiles = [
+  'docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md',
+  'docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md',
+] as const;
+
+const retiredFutureBacklogRules: PatternRule[] = [
+  { label: 'active Authority Server future backlog', pattern: /\bAuthority Server\b/ },
+  { label: 'active Authority production future backlog', pattern: /\bAuthority production\b/ },
+  { label: 'active server-backed receipt parity backlog', pattern: /\bserver-backed production receipt parity\b/ },
+  { label: 'active Authority conformance backlog', pattern: /\bAuthority Server conformance\b/ },
+];
+
 const explicitLegacyTaskQuarantineFiles = new Set([
   'packages/main/src/tasks/baseline-contracts-smoke.ts',
   'packages/main/src/tasks/baseline-local-certification-smoke.ts',
@@ -496,6 +508,11 @@ for (const file of activeFiles) {
   const text = readRel(file);
   violations.push(...scanText(file, text));
   violations.push(...scanImportSpecifiers(file, text));
+}
+
+for (const file of retiredFutureBacklogPlanFiles) {
+  if (!existsSync(join(repoRoot, file))) continue;
+  violations.push(...scanText(file, readRel(file), retiredFutureBacklogRules));
 }
 
 violations.push(...assertGeneratedHelp());
