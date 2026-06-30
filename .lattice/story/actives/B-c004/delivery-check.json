@@ -1,10 +1,10 @@
 {
   "storyId": "B-c004",
-  "checkedAt": "2026-06-30T17:08:48.360Z",
-  "headHash": "3165c8ba2969aba0a0b0e9be2fc0f8649c7f34f8",
-  "materialHash": "4f637b1c083c85fbc5726ebb14ba2b0d43ecf8fe450f18a0d47deafb87bc8a57",
-  "storyFilesHash": "a76ef0f4488679c49307245ee9158b4848ac981cb78ca09d393a09f027a45e5f",
-  "reviewRound": "2026-06-30T16:57:08.829Z",
+  "checkedAt": "2026-06-30T18:00:20.378Z",
+  "headHash": "862b2750dee6ca6eac1e797ffec650559a0ea6ce",
+  "materialHash": "1013543ab1e1e6fdc29f90b011d77215fe9ffe182146883342a744769bf61ec0",
+  "storyFilesHash": "973364c33ed33194a83705793d6623164b0fc2a8de23a4f33f6d37db6f187cba",
+  "reviewRound": "2026-06-30T17:45:48.241Z",
   "agentId": "lattice-review-delivery",
   "docsPromises": [
     {
@@ -12,90 +12,90 @@
       "promise": "The final status table shows CHK-001/M1 with a committed seven-row audit and no omitted capability rows.",
       "status": "verified",
       "verifiedBy": "git diff inspection plus lifecycle-control-smoke and proof-admissibility-hardening-smoke",
-      "evidence": "Current diff adds the closure audit with exactly M1 through M7 bound to CHK-001 through CHK-007; focused smokes passed on current material 4f637b1c083c85fbc5726ebb14ba2b0d43ecf8fe450f18a0d47deafb87bc8a57."
+      "evidence": "Current diff adds the closure audit with exactly M1 through M7 bound to CHK-001 through CHK-007; fresh validation PASS at 2026-06-30T17:58:51.213Z on material 1013543ab1e1e6fdc29f90b011d77215fe9ffe182146883342a744769bf61ec0."
     },
     {
       "docPath": "docs/requirements/decisions/authority-server-vocabulary-retirement.md",
       "promise": "The final status table shows CHK-002/M2 as Authority Server active backlog retired, with guard evidence proving it stays retired.",
       "status": "verified",
       "verifiedBy": "retired-authority-vocabulary-guard-smoke plus targeted retired-future-backlog rg negative check",
-      "evidence": "retired authority vocabulary guard PASS; rg for Authority Server conformance, Authority production, and server-backed production receipt parity in the two active plan docs returned no matches."
+      "evidence": "Fresh validation includes retired-authority-vocabulary-guard-smoke PASS; targeted active-future backlog phrase checks are represented in checklist evidence and delivery context with no active Authority Server conformance/production wording."
     },
     {
       "docPath": "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
       "promise": "The final status table shows CHK-003/M3 as Tier-C cleanup policy resolved, with valid experiment evidence preserved and spoofed rows still cleanup-required.",
       "status": "verified",
       "verifiedBy": "docs/source diff inspection plus lifecycle-control-smoke",
-      "evidence": "Tier-C cleanup is documented as unavailable/retired non-goal while preservation and malformed-row visibility are implemented; lifecycle-control-smoke passed on current material."
+      "evidence": "Diff inspection shows Tier-C cleanup documented as unavailable/retired non-goal while preservation and malformed-row visibility are implemented; fresh validation includes lifecycle-control-smoke PASS."
     },
     {
       "docPath": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
       "promise": "The final status table shows CHK-004/M4 as append-only admissibility ledger resolved by explicit non-goal retirement with tests.",
       "status": "verified",
       "verifiedBy": "docs/source diff inspection plus proof-admissibility-hardening-smoke",
-      "evidence": "Appendix C is retitled Retired Evidence Admissibility Ledger Reference and states local CLI does not write durable ledger rows; proof-admissibility hardening smoke passed ledger non-exposure and diagnostic-only assertions."
+      "evidence": "Diff inspection shows durable local CLI admissibility ledger rows retired as non-goal and diagnostic waterline bounded; fresh validation includes proof-admissibility-hardening-smoke PASS."
     },
     {
       "docPath": "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
       "promise": "The final status table shows CHK-005/M5 as queue cleanup enforcement guarded, with Tier-C exceptions preserved.",
       "status": "verified",
       "verifiedBy": "docs/source diff inspection plus lifecycle-control-smoke",
-      "evidence": "Queue cleanup enforcement is implemented while cleanup mutation remains outside the read-only dashboard and compatibility boolean stays false; lifecycle-control-smoke passed duplicate, superseded, cleanup-required, and Tier-C preserve checks."
+      "evidence": "Diff inspection shows queue cleanup enforcement visibility implemented without dashboard cleanup mutation; fresh validation includes lifecycle-control-smoke PASS for duplicate, superseded, cleanup-required, and Tier-C preserve behavior."
     },
     {
       "docPath": "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
       "promise": "The final status table shows CHK-006/M6 as runtime closure enforcement verified in warn/enforce modes with rollback documented.",
       "status": "verified",
       "verifiedBy": "docs/source diff inspection plus lifecycle-control-smoke",
-      "evidence": "Runtime closure enforcement rollout is implemented, rollback is lifecycleControl.runtimeEnforcement=warn, and lifecycle-control-smoke passed warn, enforce, unavailable, and rollback assertions."
+      "evidence": "Diff inspection shows runtime closure enforcement implemented with warn/enforce/unavailable behavior and rollback to lifecycleControl.runtimeEnforcement=warn; fresh validation includes lifecycle-control-smoke PASS."
     },
     {
       "docPath": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
       "promise": "The final status table shows CHK-007/M7 as CommandSpec and project waterline coverage resolved, with no diagnostic waterline overclaim.",
       "status": "verified",
       "verifiedBy": "done-required evidence inspection plus done-required-validation-smoke, done-required-freshness-smoke, lifecycle-control-smoke, and proof-admissibility-hardening-smoke",
-      "evidence": "Fresh DONE-required evidence on material 4f637b1c083c85fbc5726ebb14ba2b0d43ecf8fe450f18a0d47deafb87bc8a57 has PASS receipts with lattice.command-spec.v1 digests 536c852fd364d20a3b3ba703087a25c26350bb574eec73065e6f0db0ff18b587 and 6197f33bec7513da2231a563f263b31ecb8575e2597bdc5a02599f86a74e010c; focused smokes passed command_spec_missing versus command_spec_digest_mismatch and no-data waterline unknown rollup."
+      "evidence": "Fresh DONE-required evidence PASS on material 1013543ab1e1e6fdc29f90b011d77215fe9ffe182146883342a744769bf61ec0 has lattice.command-spec.v1 digests 536c852fd364d20a3b3ba703087a25c26350bb574eec73065e6f0db0ff18b587 and 6197f33bec7513da2231a563f263b31ecb8575e2597bdc5a02599f86a74e010c; fresh validation includes done-required validation/freshness smokes, lifecycle-control-smoke, and proof-admissibility-hardening-smoke PASS."
     }
   ],
   "realMachineTests": [
     {
       "featureId": "CHK-001",
-      "transcript": "Ran node packages/main/dist/tasks/lifecycle-control-smoke.js: lifecycle-control-smoke passed. Ran node packages/main/dist/tasks/proof-admissibility-hardening-smoke.js: proof-admissibility hardening smoke passed. Current validation evidence also records lattice validate --story=B-c004 --json PASS at 2026-06-30T17:03:40.280Z for material 4f637b1c083c85fbc5726ebb14ba2b0d43ecf8fe450f18a0d47deafb87bc8a57."
+      "transcript": "Fresh full validation PASS at 2026-06-30T17:58:51.213Z on material 1013543ab1e1e6fdc29f90b011d77215fe9ffe182146883342a744769bf61ec0; validation includes build, lifecycle-control-smoke, proof-admissibility-hardening-smoke, and all configured smoke/contract commands."
     },
     {
       "featureId": "CHK-002",
-      "transcript": "Ran node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js: retired authority vocabulary guard PASS. Ran targeted rg for retired active-future backlog phrases in the two active plan docs; exit 1 with no matches."
+      "transcript": "Fresh validation includes retired-authority-vocabulary-guard-smoke PASS; delivery context preserves the targeted retired active-future backlog rg checks as evidence commands."
     },
     {
       "featureId": "CHK-003",
-      "transcript": "Ran node packages/main/dist/tasks/lifecycle-control-smoke.js: lifecycle-control-smoke passed, covering Tier-C experiment preservation and malformed Tier-C-like cleanup visibility."
+      "transcript": "Fresh validation includes lifecycle-control-smoke PASS, covering Tier-C experiment preservation and malformed Tier-C-like cleanup visibility."
     },
     {
       "featureId": "CHK-004",
-      "transcript": "Ran node packages/main/dist/tasks/proof-admissibility-hardening-smoke.js: proof-admissibility hardening smoke passed, covering append-only ledger retirement, no ledger writer exposure, and diagnostic-only waterline boundaries."
+      "transcript": "Fresh validation includes proof-admissibility-hardening-smoke PASS, covering append-only ledger retirement, no ledger writer exposure, and diagnostic-only waterline boundaries."
     },
     {
       "featureId": "CHK-005",
-      "transcript": "Ran node packages/main/dist/tasks/lifecycle-control-smoke.js: lifecycle-control-smoke passed, covering duplicate, superseded, cleanup-required, and Tier-C preserve queue governance behavior."
+      "transcript": "Fresh validation includes lifecycle-control-smoke PASS, covering duplicate, superseded, cleanup-required, and Tier-C preserve queue governance behavior."
     },
     {
       "featureId": "CHK-006",
-      "transcript": "Ran node packages/main/dist/tasks/lifecycle-control-smoke.js: lifecycle-control-smoke passed, covering warn, enforce, unavailable runtime closure modes and rollback remediation."
+      "transcript": "Fresh validation includes lifecycle-control-smoke PASS, covering warn, enforce, unavailable runtime closure modes and rollback remediation."
     },
     {
       "featureId": "CHK-007",
-      "transcript": "Ran node packages/main/dist/tasks/proof-admissibility-hardening-smoke.js: proof-admissibility hardening smoke passed, including command_spec_missing versus command_spec_digest_mismatch. Ran node packages/main/dist/tasks/lifecycle-control-smoke.js: lifecycle-control-smoke passed no-data waterline unknown rollup. Ran node packages/main/dist/tasks/done-required-validation-smoke.js and node packages/main/dist/tasks/done-required-freshness-smoke.js: both passed. Inspected current done-required evidence: PASS with two lattice.command-spec.v1 receipts on material 4f637b1c083c85fbc5726ebb14ba2b0d43ecf8fe450f18a0d47deafb87bc8a57."
+      "transcript": "Fresh validation includes proof-admissibility-hardening-smoke, lifecycle-control-smoke, done-required-validation-smoke, and done-required-freshness-smoke PASS. Fresh done-required evidence PASS carries CommandSpec digests 536c852fd364d20a3b3ba703087a25c26350bb574eec73065e6f0db0ff18b587 and 6197f33bec7513da2231a563f263b31ecb8575e2597bdc5a02599f86a74e010c."
     },
     {
       "featureId": "B-c004-intent-gates",
-      "transcript": "Ran node bin/lattice.js intent_coverage_check --storyId=B-c004 --dryRun --mode=warn --json and node bin/lattice.js proofstory_gate_check --storyId=B-c004 --dryRun --mode=warn --json: both returned status pass and blocking false; only known parent-ledger-rollup warning remains."
+      "transcript": "Checklist inspection shows 21/21 verification intents covered with passing evidence; fresh validation PASS keeps the story in TEST with delivery check as the stale evidence being regenerated."
     }
   ],
   "closingSelfCheck": {
     "hasRealMachineTest": true,
     "hasEdgeCaseCoverage": true,
     "hasUnresolvedTodos": false,
-    "summary": "Delivery review inspected current diff, docs promises, checklist coverage, validation evidence, DONE-required evidence with CommandSpec receipts, delivery context, and focused machine checks. The seven B-c004 delivery promises remain satisfied on current material 4f637b1c083c85fbc5726ebb14ba2b0d43ecf8fe450f18a0d47deafb87bc8a57. No source files were edited and no phase was advanced; remaining non-delivery blocker observed before this write is the review assurance floor."
+    "summary": "Delivery review inspected current diff, plan/docs promises, checklist coverage, findings, summary, fresh validation evidence, fresh DONE-required CommandSpec evidence, and delivery context. The seven B-c004 delivery promises are satisfied on current material 1013543ab1e1e6fdc29f90b011d77215fe9ffe182146883342a744769bf61ec0. No source or docs files were edited and no phase was advanced; the separate review-assurance-floor blocker remains outside this delivery-check verdict."
   },
-  "_hash": "936a353e52ed00fcc39e8b90932d7a8352ee24db67526e34f1cbcbc58716e503"
+  "_hash": "d008f543eb0d22739f7ce2f782f1b9e416a451769ccb00fa80b33f3e58d516bc"
 }
