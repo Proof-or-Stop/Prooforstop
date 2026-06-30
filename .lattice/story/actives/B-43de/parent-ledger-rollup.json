@@ -1,0 +1,50 @@
+{
+  "schemaVersion": "proofstory.parent_ledger_rollup.v1",
+  "storyId": "B-43de",
+  "ledgerHash": "sha256:89c6b77c2b35d3ba108e7c838cfea8b20f75e49171b221058a97550b58971d36",
+  "slicePlanHash": "sha256:df5ebbbbe905502c5d95ad9812e5e814ccc87d0e4666bf6150d159d972f11fe5",
+  "children": [
+    {
+      "storyId": "B-43de",
+      "milestoneIds": [
+        "M4",
+        "M5",
+        "M6"
+      ],
+      "status": "covered",
+      "evidenceRefs": [
+        "B-43de:CHK-002:parent-ledger-governance",
+        "B-43de:CHK-003:m4-registry-surface"
+      ]
+    },
+    {
+      "storyId": "B-43de",
+      "milestoneIds": [
+        "M7",
+        "M8",
+        "M9"
+      ],
+      "status": "covered",
+      "evidenceRefs": [
+        "B-43de:CHK-004:roadmap-status-table",
+        "B-43de:CHK-005:proofstory-final-checks"
+      ]
+    },
+    {
+      "storyId": "B-43de",
+      "milestoneIds": [
+        "M10",
+        "M11",
+        "M12"
+      ],
+      "status": "covered",
+      "evidenceRefs": [
+        "B-43de:CHK-004:child-story-map",
+        "B-43de:CHK-005:done-equivalence-boundary"
+      ]
+    }
+  ],
+  "rollupHash": "sha256:ef17ef3692a29697de499e844ce25b5a55a94b8d0421fcdf40ea217a13abdafa",
+  "createdAt": "2026-06-30T09:48:01.413Z",
+  "updatedAt": "2026-06-30T09:48:01.413Z"
+}

@@ -1,0 +1,38 @@
+{
+  "storyId": "B-43de",
+  "mode": "enforce",
+  "allowedModify": [
+    "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+    "scripts/verify-process-fact-contract.mjs",
+    ".lattice/story/actives/B-43de/intent-collision.json",
+    ".lattice/story/actives/B-43de/milestone-ledger.json",
+    ".lattice/story/actives/B-43de/original-intent-snapshot.json",
+    ".lattice/story/actives/B-43de/parent-ledger-rollup.json",
+    ".lattice/story/actives/B-43de/proofstory.json",
+    ".lattice/story/actives/B-43de/slice-plan.json"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "node scripts/verify-process-fact-contract.mjs",
+    "lattice proofstory_gate_check --storyId=B-43de --mode=enforce --json",
+    "lattice intent_coverage_check --storyId=B-43de --mode=enforce --json",
+    "lattice done_intent_equivalence_check --storyId=B-43de --mode=enforce --json",
+    "lattice scope_contract_check --storyId=B-43de",
+    "lattice story_review --storyId=B-43de",
+    "lattice validate --story=B-43de"
+  ],
+  "protectedFiles": [
+    "lattice.config.json",
+    "packages/main/src/core/proofstory.ts",
+    "packages/main/src/handlers/proofstory.ts"
+  ],
+  "explicitExcludes": [
+    "Implementing M5-M12 runtime behavior in this parent story",
+    "Changing B-cd3a metadata",
+    "Reintroducing server-backed proof terminology as an active claim"
+  ],
+  "scopeChangeReason": "Make ProofStory lifecycle metadata explicit because the scope gate requires exact story-scoped artifact paths; product material scope remains the roadmap doc plus optional process-fact verifier marker.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-30T09:48:19.355Z",
+  "updatedAt": "2026-06-30T09:53:15.372Z"
+}

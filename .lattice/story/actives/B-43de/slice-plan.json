@@ -1,0 +1,40 @@
+{
+  "schemaVersion": "proofstory.slice_plan.v1",
+  "storyId": "B-43de",
+  "ledgerHash": "sha256:89c6b77c2b35d3ba108e7c838cfea8b20f75e49171b221058a97550b58971d36",
+  "slices": [
+    {
+      "id": "slice-registry-evidence",
+      "milestoneIds": [
+        "M4",
+        "M5",
+        "M6"
+      ],
+      "reason": "Registry, evidence envelope, and gate oracle foundations must be governed together because later milestones consume these proof surfaces.",
+      "assignedStory": "B-43de"
+    },
+    {
+      "id": "slice-claims-review-preflight",
+      "milestoneIds": [
+        "M7",
+        "M8",
+        "M9"
+      ],
+      "reason": "Baseline claims, host quorum, and preflight rendering depend on the same claim-boundary and review-assurance vocabulary.",
+      "assignedStory": "B-43de"
+    },
+    {
+      "id": "slice-scale-rollout-certification",
+      "milestoneIds": [
+        "M10",
+        "M11",
+        "M12"
+      ],
+      "reason": "Parallel scheduling, rollout, and cross-track certification are scale-out/finalization milestones and must remain visible as later child implementation work.",
+      "assignedStory": "B-43de"
+    }
+  ],
+  "planHash": "sha256:df5ebbbbe905502c5d95ad9812e5e814ccc87d0e4666bf6150d159d972f11fe5",
+  "createdAt": "2026-06-30T09:47:48.922Z",
+  "updatedAt": "2026-06-30T09:47:48.922Z"
+}

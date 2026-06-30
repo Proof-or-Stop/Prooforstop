@@ -1,0 +1,31 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-43de",
+  "allowedCommands": [
+    "git diff --check",
+    "git status --short",
+    "lattice *",
+    "node scripts/verify-process-fact-contract.mjs",
+    "npm --prefix packages/main run build",
+    "rg *"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+    "lattice.config.json",
+    "packages/main/src",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".omx",
+    "docs/story",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "Use Lattice CLI for story metadata; do not directly edit docs/story or tests/fixtures.",
+  "createdAt": "2026-06-30T09:43:16.225Z",
+  "updatedAt": "2026-06-30T09:43:16.225Z",
+  "_hash": "fefbe83255141b4a7fa0e8d62ff1ed95a6e193c362186860df2cb8c93ecbde85"
+}

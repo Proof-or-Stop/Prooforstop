@@ -4,6 +4,7 @@ Date: 2026-06-19
 Origin story: B-8b07
 Audit repair story: B-b5c0
 Wave 1 implementation story: B-997b
+ProofStory governance story: B-43de
 Status: M1-M3 wave complete; M4-M12 remain follow-up milestones
 
 ## Status And Purpose
@@ -28,6 +29,12 @@ explicit acknowledgement visibility. M4-M12 remain follow-up milestones; this
 document still schedules those later controls so future implementation stories
 can be scoped, reviewed, validated, and accepted without rediscovering the same
 policy choices in every branch.
+
+B-43de is the ProofStory governance parent for the remaining roadmap, not a
+runtime implementation wave. It freezes M4-M12 as parent ledger rows, maps each
+unfinished milestone to child-story ownership, and uses the existing ProofStory
+gate work from B-5082 / B-e1a8 to prevent scope shrinkage. It does not claim
+M5-M12 runtime implementation complete.
 
 The desired product outcome is:
 
@@ -113,6 +120,54 @@ Current baseline classification after the B-997b M1-M3 wave:
 | Authority receipt contract and lifecycle receipt consumption | `partial` + `harden-existing` | `lattice-authority-receipt-contract.md`; `lifecycle-gate-receipt-consumption.md` | Preserve current receipt subject/proof and TEST/DONE consumption baseline. Future work hardens policy, state-version, actor/runner/session, and lifecycle consumer checks; it does not let local evidence set Authority completion. |
 | Baseline suites and production capability claims | `planned` | `lattice-baseline-two-host-multi-agent-execution-plan.md`; unlock-suite docs | Treat baseline reports and production claims as future proof targets only. This document and B-b5c0 produce no baseline PASS, `authorityDone`, `fullAuthorityDone`, `productionDone`, or `receiptVerified`. |
 | Cross-track certification package | `planned` | This roadmap plus lower-level contracts above | M12 is final certification after implementation milestones land; B-b5c0 only names validation expectations. |
+
+## ProofStory Governance Ledger / M4-M12 Child Story Map
+
+B-43de governs M4-M12 as parent rows. Its deliverable is a visible governance
+ledger and child-story map, plus marker-level contract protection in the current
+process-fact verifier. B-43de does not claim M5-M12 runtime implementation
+complete, and a DONE result for B-43de means the parent ledger is explicit, not
+that the downstream milestone implementations are shipped.
+
+ProofStory relationship map:
+
+| Story | Relationship to this roadmap | Runtime claim boundary |
+|---|---|---|
+| B-43de | Parent governance story for M4-M12. It records the remaining milestones as ProofStory parent rows, names child-story-needed handoffs, and keeps the roadmap from shrinking to only the currently convenient slice. | Governance and documentation only, with optional verifier marker checks. It does not implement M5-M12 runtime gates, evidence packs, baselines, quorum logic, preflight UI, scheduling, rollout, or certification. |
+| B-5082 / B-e1a8 | Completed ProofStory infrastructure/enforcement foundation. B-5082 completed the remaining ProofStory document commitments; B-e1a8 enabled ProofStory gates in enforce mode. B-43de uses those mechanisms to preserve M4-M12 parent intent. | These stories make parent-ledger governance enforceable, but they do not complete the strengthening roadmap runtime milestones themselves. |
+| B-cd3a | Separate control-plane and proof-admissibility gap-closure story. It may consume ProofStory validation and may overlap some concepts, but it is not the B-43de parent ledger and is not a substitute for M4-M12 completion. | B-cd3a can close its own scoped gaps only. Its result cannot mark the global M4-M12 roadmap complete unless a child story explicitly maps and proves the relevant parent row. |
+
+Child-story status map:
+
+| Parent row | Roadmap surface | B-43de status | Child-story handoff |
+|---|---|---|---|
+| M4 | Process fact registry coverage | `parent-governed` + `partial` | B-5082/B-e1a8 provide ProofStory governance mechanics and current verifier coverage. Every new gate-consumed fact introduced by M4-M12 still needs a child implementation story that registers the fact before any gate consumes it. |
+| M5 | Verification context pack and evidence envelope standardization | `child-story-needed` | Future child story defines context-pack/envelope schema, digest binding, reviewer consumption, and stale/missing evidence behavior. Not runtime-complete in B-43de. |
+| M6 | Gate oracle, freshness, and negative-control matrix | `child-story-needed` | Future child story creates shared oracle rows and expected-block matrix with positive/negative controls. Not runtime-complete in B-43de. |
+| M7 | Baseline suite formalization | `child-story-needed` | Future child story defines baseline artifacts, outcome math, false-DONE accounting, and claim boundaries. Not runtime-complete in B-43de. |
+| M8 | Host identity, review-run, and 3x2 quorum strengthening | `child-story-needed` | Future child story implements policy-versioned host/verdict/quorum predicates and degraded fallback handling. Not runtime-complete in B-43de. |
+| M9 | Preflight command center | `child-story-needed` | Future child story renders canonical gate/preflight rows without inventing renderer-only rules. Not runtime-complete in B-43de. |
+| M10 | Parallel collaboration scheduling | `child-story-needed` | Future child story integrates advisory scheduling with owner leases, dependencies, hotspots, and read-only reviewer mode. Not runtime-complete in B-43de. |
+| M11 | Rollout, migration, and operator guidance | `child-story-needed` | Future child story ships staged rollout, dry-run repair prerequisites, runbooks, and compatibility policy. Not runtime-complete in B-43de. |
+| M12 | Cross-track certification and handoff | `child-story-needed` | Future child story runs final certification after M4-M11 material implementations land. Not runtime-complete in B-43de. |
+
+Next implementation order:
+
+1. M4 child work must land first for any newly introduced gate-consumed fact.
+2. M5 and M6 should define evidence shape and expected-block behavior before
+   M7 baselines or M8 quorum hardening rely on them.
+3. M9/M10 should render or schedule only registered facts and advisory rows
+   produced by earlier milestones.
+4. M11 stages rollout and migration only after the target blocker class has a
+   child-story implementation and dry-run path.
+5. M12 is last and reruns if any material child-story fix lands after final
+   certification evidence.
+
+Duplicate-story governance note: Tier-C provider-execution receipt verification
+stories are an intentional experiment corpus and are not cleanup targets for
+this roadmap. Duplicate cleanup applies to non-experiment active stories whose
+scope overlaps without a declared experiment cohort, parent-row mapping, or
+child-story handoff.
 
 ## Non-Goals
 
@@ -521,9 +576,18 @@ DONE criteria:
 Track: mechanical verification and evidence chain
 
 Follow-up status: M4 starts the post-wave-1 roadmap and is not part of B-997b.
+B-43de governs the M4 parent row and records the child-story prerequisite; it
+does not mark all future M4 runtime registry work complete.
 
 Purpose: ensure every gate-consumed fact has a typed registry entry and a
 contract verifier, so prompt wording cannot drift away from runtime behavior.
+Before any M5-M12 child story lets a new fact affect phase advancement, review,
+TEST, DONE, evidence freshness, or audit, that fact must be registered in
+`packages/main/src/core/process-fact-registry.ts` and
+`packages/main/src/core/process-fact-levels.ts`, with command policy and prompt
+guidance updated as applicable. The child story must run
+`node scripts/verify-process-fact-contract.mjs`; that script is the current
+static verifier for process-fact contract drift.
 
 Deliverables:
 
@@ -532,6 +596,9 @@ Deliverables:
   definitions, artifact semantics, and required semantic facts.
 - Static verifier updates that fail with specific messages for missing registry
   entries, mismatched levels, or unregistered gate artifacts.
+- A "register before use" rule: child stories may not introduce, rely on, or
+  render a gate-consumed fact as authoritative until the process fact registry
+  and `node scripts/verify-process-fact-contract.mjs` cover it.
 - Clear boundary between process facts, runtime environment facts, and runtime
   artifact paths.
 
@@ -540,6 +607,8 @@ Gate placement:
 - Build/test preflight for any implementation story touching gates, handlers,
   reviewer lanes, validation, receipts, or lifecycle artifacts.
 - REVIEW must inspect registry and verifier diffs for process-framework work.
+- PLAN/DEV for M5-M12 child stories must treat unregistered gate facts as a
+  blocker, not as documentation debt.
 
 Required tests:
 
@@ -569,6 +638,8 @@ DONE criteria:
   contract coverage.
 - Registry failure messages point at the missing or mismatched fact directly.
 - No gate relies on free-form text such as "checked" or "looks good".
+- Downstream M5-M12 child stories record verifier output before consuming any
+  new gate fact in lifecycle, review, validation, receipt, or DONE logic.
 
 ### M5. Verification Context Pack And Evidence Envelope Standardization
 

@@ -1,0 +1,66 @@
+{
+  "storyId": "B-43de",
+  "checkedAt": "2026-06-30T09:54:09.510Z",
+  "features": [
+    {
+      "feature": "Allowed material edit: strengthening roadmap execution plan",
+      "covered_by": "CHK-001, CHK-002, CHK-004, CHK-005; scope_contract allowedModify docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md; roadmap doc Milestone Table M4-M12",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "lattice checklist_get, lattice scope_contract_show, roadmap doc"
+    },
+    {
+      "feature": "Optional material edit: process-fact contract verifier marker checks only",
+      "covered_by": "CHK-003; scope_contract allowedModify scripts/verify-process-fact-contract.mjs; allowedTest node scripts/verify-process-fact-contract.mjs",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "lattice checklist_get, lattice scope_contract_show"
+    },
+    {
+      "feature": "Parent governance ledger for M4-M12 without runtime completion claim",
+      "covered_by": "original_intent_snapshot acceptanceClaim; milestone_ledger M4-M12 rows; proofstory acceptance binding ACCEPT-ROADMAP-GOVERNANCE; parent_ledger_rollup",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "lattice original_intent_snapshot_get, milestone_ledger_get, proofstory_contract_get, parent_ledger_rollup_get"
+    },
+    {
+      "feature": "B-43de ProofStory lifecycle artifacts needed by the plan are accepted by the active scope gate",
+      "covered_by": "scope_contract allowedModify exact story-scoped ProofStory artifact paths: intent-collision.json, milestone-ledger.json, original-intent-snapshot.json, parent-ledger-rollup.json, proofstory.json, slice-plan.json; scope_contract_check passes with 0 unacknowledged violations",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "lattice scope_contract_show --storyId=B-43de; lattice scope_contract_check {\"storyId\":\"B-43de\"}"
+    },
+    {
+      "feature": "Implementing all M5-M12 runtime features in this parent story",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "scope_contract explicitExcludes Implementing M5-M12 runtime behavior in this parent story; CHK-001 adversarial intent; CHK-004 adversarial intent; CHK-005 edge intent; roadmap doc status M4-M12 remain follow-up milestones",
+      "source": "lattice scope_contract_show, lattice checklist_get, roadmap doc"
+    },
+    {
+      "feature": "Mutating B-cd3a metadata",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "scope_contract explicitExcludes Changing B-cd3a metadata",
+      "source": "lattice scope_contract_show"
+    },
+    {
+      "feature": "Reintroducing server-backed proof terminology as an active claim",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "scope_contract explicitExcludes Reintroducing server-backed proof terminology as an active claim; roadmap doc says retired server-backed proof remains out of scope",
+      "source": "lattice scope_contract_show, roadmap doc"
+    }
+  ],
+  "summary": {
+    "total": 7,
+    "covered": 4,
+    "excluded": 3,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "7df072f171adc9b6025e1d643b66ab1ba6f244febb053e789086a5c8bed8d905",
+  "openQuestions": []
+}
