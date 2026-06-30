@@ -319,9 +319,9 @@
       "id": "CHK-006",
       "title": "Bind red evidence to baseline head/material and green relation",
       "context": "Covers M6 gap: red evidence must carry baseline freshness and the transition relation to current green evidence.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-30T01:13:34.820Z",
-      "endTime": null,
+      "endTime": "2026-06-30T01:26:25.032Z",
       "relatedDocs": [
         "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md#M6-Red-Evidence"
       ],
@@ -361,7 +361,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js && node scripts/verify-process-fact-contract.mjs && git diff --check",
+          "result": "pass",
+          "note": "Doc: proofstory-intent-collision-execution-plan.md M6 lines 1226-1241. Impl: types.ts RedEvidenceRecord adds acceptanceTargetRef, baselineHeadHash, baselineMaterialHash, greenRelation; handlers/proofstory.ts captures baseline hashes; proofstory.ts redEvidenceRecordSatisfied rejects wrong target and stale green relation. Smoke: wrong-target and stale red rows remain diagnostic; target-bound row clears missing_red_evidence.",
+          "headHash": "fa73d416fa2afa59d37e067e018fed8a174446c3",
+          "materialHash": "5d97b7951e9c3d8e03969199578c7c1c13adef7c61914d53c9fa10b699ada482",
+          "storyFilesHash": "d66783474c814f8b35728b71ac3278123384b0e3b640ea1414ab6a5b9bc7d334",
+          "timestamp": "2026-06-30T01:26:25.438Z"
+        }
+      ]
     },
     {
       "id": "CHK-007",
