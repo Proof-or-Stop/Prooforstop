@@ -9,7 +9,40 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees a Parent Roadmap status table where implemented rows are marked ✅ and read-only/non-hard-gate boundaries remain explicit.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/parent-roadmap-totality-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The Parent Roadmap document no longer presents the whole plan as plan-only; it contains a current implementation status table with ✅ rows for implemented local CLI/read-only behavior.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The table explicitly says parent_roadmap_status/evaluate remain read-only diagnostics and not global lifecycle hard gates.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The document does not claim all roadmap rows or M4-M12 runtime work are complete merely because parent governance/read-only checks exist.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

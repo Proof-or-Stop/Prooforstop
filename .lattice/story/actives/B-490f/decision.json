@@ -1,0 +1,71 @@
+{
+  "principles": [
+    "Truth-first status tables must describe implemented evidence, not desired future capability.",
+    "Completed local CLI behavior may be marked with ✅ only when source or smoke evidence exists.",
+    "Partial, unavailable, retired, future, and read-only diagnostic boundaries must remain explicit.",
+    "Document cleanup must not create or imply new lifecycle, production, or external proof authority."
+  ],
+  "drivers": [
+    "Three documents currently mix implemented rows with partial/future/non-goal rows.",
+    "The user needs accurate tables to decide which future work to prioritize.",
+    "This high-risk process documentation touches lifecycle/proof vocabulary and must avoid overclaiming."
+  ],
+  "options": [
+    {
+      "name": "A: Minimal status-table correction only",
+      "pros": [
+        "Fixes the real stale/ambiguous document problem",
+        "Keeps scope to the three approved documents",
+        "Avoids arbitrary runtime or gate implementation"
+      ],
+      "cons": [
+        "Does not add new hard automation",
+        "Some future work remains explicitly open"
+      ]
+    },
+    {
+      "name": "B: Implement all partial/future runtime capabilities now",
+      "pros": [
+        "Could reduce future manual follow-up if every future row were truly desired"
+      ],
+      "cons": [
+        "Violates the no arbitrary optimization rule",
+        "Would re-open retired/non-goal rows such as ledger or server-backed proof",
+        "Much higher blast radius than the user asked for"
+      ]
+    },
+    {
+      "name": "C: Leave documents unchanged and only explain in chat",
+      "pros": [
+        "Fastest short-term response"
+      ],
+      "cons": [
+        "Does not fix the stale plan-only and ambiguous status tables",
+        "Future agents would keep rediscovering the same inconsistency"
+      ]
+    }
+  ],
+  "chosen": "A: Minimal status-table correction only",
+  "rationale": "Choose the narrow document correctness fix because the real issue is stale or ambiguous status representation, not missing runtime automation.",
+  "preMortem": [
+    {
+      "scenario": "The table marks a partial capability as fully complete",
+      "trigger": "Using ✅ without boundary text for diagnostic-only or unavailable rows",
+      "consequence": "Future agents or users overclaim hard gate or production behavior",
+      "mitigation": "Use ✅ only for implemented rows and keep ⚠️/🚫 rows explicit"
+    },
+    {
+      "scenario": "The patch reintroduces server-backed receipt proof language after retirement",
+      "trigger": "Copying old Authority-facing wording without retirement note",
+      "consequence": "Document contradicts the current product direction",
+      "mitigation": "Use external/retired boundary wording and keep local CLI non-authority claims separate"
+    },
+    {
+      "scenario": "The work becomes a code feature instead of docs cleanup",
+      "trigger": "Trying to implement partial/future rows while editing the documents",
+      "consequence": "Scope expands and risk increases unnecessarily",
+      "mitigation": "Keep code read-only for verification; open a new story for any real code correctness gap"
+    }
+  ],
+  "timestamp": "2026-06-30T22:23:42.988Z"
+}
