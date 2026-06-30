@@ -17,6 +17,15 @@
       "reviewRound": "2026-06-30T01:40:20.802Z",
       "reviewRunId": "B-5082:RR-012",
       "_hash": "ed43ae4ff583f7ba3621521a75b551a6bdc31f49e88188403194116bace05917"
+    },
+    {
+      "id": "B-5082:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Post-fix quality review passed: core redEvidenceRecordSatisfied now requires observed failure, expected target, baseline head/material, failingCommand or failureReceiptHash, and current same-target green command/hash relation; equal green/baseline hashes are rejected when provided. Handler/types/catalog/command-policy expose the new proof boundary. Verified node scripts/verify-process-fact-contract.mjs and npm --prefix packages/main run test:proofstory-intent-hardening-smoke.",
+      "createdAt": "2026-06-30T01:45:07.272Z",
+      "reviewRound": "2026-06-30T01:40:20.802Z",
+      "reviewRunId": "B-5082:RR-008",
+      "_hash": "988460c73ae2f79ef6b0ffb15cf34730b9afde7b18b3f4dbe6f9a9049681ae77"
     }
   ]
 }
