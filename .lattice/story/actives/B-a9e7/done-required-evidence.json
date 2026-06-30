@@ -1,0 +1,58 @@
+{
+  "schema": "lattice.done-required-evidence",
+  "version": 1,
+  "storyId": "B-a9e7",
+  "status": "FAIL",
+  "startedAt": "2026-06-30T17:29:22.417Z",
+  "endedAt": "2026-06-30T17:29:29.925Z",
+  "durationMs": 7508,
+  "headHash": "bd886cb7f18bef3ae8d3a15e3ae3e7356d69c3cc",
+  "materialHash": "fec12d3410950af0112dafd478a628a4bac500043a6bb0b34ea7abeb44dac2b9",
+  "storyFilesHash": "7e11a09d9ed5c0b7f0efdc1f44017bd4aa7edc70774d25249d4d6a0d3e034690",
+  "policyHash": "1f72cd38f6c94ed8e6fb8946919ac028e73770eb129ea0db75474982a61542dc",
+  "commandSetHash": "a69129533543ffdeb071da3c66fd0b8a884d1ce93d136c87df6120b3cac9dd35",
+  "receipts": [
+    {
+      "label": "packages/main build",
+      "command": "npm",
+      "args": [
+        "--prefix",
+        "packages/main",
+        "run",
+        "build"
+      ],
+      "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-a9e7",
+      "status": "PASS",
+      "exitCode": 0,
+      "durationMs": 6566,
+      "outputDigest": "5f668d89d00356a536755b3477928472ae9dda5ef4f5bc2834659e456a0ad40e",
+      "outputTail": "\n> @lattice/core@0.3.115 build\n> tsc\n\n",
+      "startedAt": "2026-06-30T17:29:22.417Z",
+      "endedAt": "2026-06-30T17:29:28.983Z",
+      "headHash": "bd886cb7f18bef3ae8d3a15e3ae3e7356d69c3cc",
+      "materialHash": "fec12d3410950af0112dafd478a628a4bac500043a6bb0b34ea7abeb44dac2b9",
+      "storyFilesHash": "7e11a09d9ed5c0b7f0efdc1f44017bd4aa7edc70774d25249d4d6a0d3e034690"
+    },
+    {
+      "label": "root full test suite",
+      "command": "npm",
+      "args": [
+        "test"
+      ],
+      "cwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-a9e7",
+      "status": "FAIL",
+      "exitCode": 1,
+      "durationMs": 659,
+      "outputDigest": "3104b2bac3f331bec8ea3a9a67049e568a9fcc2dc0feab932ce252d95f58389c",
+      "outputTail": " ['99aa6c7'], legacyIds: ['f4fe749'] },\n  packages/main/src/tasks/dev-memory-supersession-smoke.ts:179: { query: 'koala preflight', currentIds: ['7ffe281'], legacyIds: ['7bc20e5'] },\n  packages/main/src/tasks/dev-memory-supersession-smoke.ts:218: function assertNoActiveKoalaGuidance(currentEntry: DevMemoryEntry): void {\n  packages/main/src/tasks/dev-memory-supersession-smoke.ts:220: assert.doesNotMatch(text, /\\bKoala\\b/);\n  packages/main/src/tasks/dev-memory-supersession-smoke.ts:221: assert.doesNotMatch(text, /\\bKoala-era\\b/);\n  packages/main/src/tasks/dev-memory-supersession-smoke.ts:222: assert.doesNotMatch(text, /\\bkoala\\b/);\n  packages/main/src/tasks/dev-memory-supersession-smoke.ts:233: assert.doesNotMatch(value, /\\bKoala\\b|\\bkoala\\b/, `${entry.id} ${field} should not use Koala as active product name`);\n  packages/main/src/tasks/dev-memory-supersession-smoke.ts:236: if (/\\bKoala\\b|\\bkoala\\b/.test(entry.trigger)) {\n  packages/main/src/tasks/dev-memory-supersession-smoke.ts:237: assert.match(entry.trigger, /Legacy Koala .* now (applies to|maps to)/, `${entry.id} trigger should mention Koala only as legacy mapping context`);\n  packages/main/src/tasks/dev-memory-supersession-smoke.ts:311: assert(tags.some(tag => tag.startsWith('legacy-koala-')), `${entry.id} should have legacy-koala search tags`);\n  packages/main/src/tasks/dev-memory-supersession-smoke.ts:338: check('captured legacy Koala inventory is fully superseded and readable', () => {\n  packages/main/src/tasks/dev-memory-supersession-smoke.ts:348: assert.match(formatted, /Koala/);\n  packages/main/src/tasks/dev-memory-supersession-smoke.ts:352: check('search ranks current Proofbound/Lattice guidance before old Koala entries', () => {\n  packages/main/src/tasks/dev-memory-supersession-smoke.ts:353: assertCurrentGuidanceFirst('koala reviewer', 'proof-reviewer-a6832a1', 'a6832a1');\n  packages/main/src/tasks/dev-memory-supersession-smoke.ts:354: assertCurrentGuidanceFirst('koala delivery', 'proof-delivery-f4fe749', 'f4fe749');\n  packages/main/src/tasks/dev-memory-supersession-smoke.ts:355: assertCurrentGuidanceFirst('koala cli', 'proof-cli-c948c85', 'c948c85');\n  packages/main/src/tasks/dev-memory-supersession-smoke.ts:356: assertCurrentGuidanceFirst('koala preflight', 'proof-preflight-2de5d6b', '2de5d6b');\n  packages/main/src/tasks/dev-memory-supersession-smoke.ts:359: check('preflight ranks current Proofbound/Lattice guidance before old Koala entries', () => {\n  packages/main/src/tasks/dev-memory-supersession-smoke.ts:361: assertPreflightGuidanceFirst('koala reviewer', 'proof-reviewer-a6832a1', 'a6832a1', root);\n  packages/main/src/tasks/dev-memory-supersession-smoke.ts:362: assertPreflightGuidanceFirst('koala delivery', 'proof-delivery-f4fe749', 'f4fe749', root);\n  packages/main/src/tasks/dev-memory-supersession-smoke.ts:363: assertPreflightGuidanceFirst('koala cli', 'proof-cli-c948c85', 'c948c85', root);\n  packages/main/src/tasks/dev-memory-supersession-smoke.ts:364: assertPreflightGuidanceFirst('koala preflight', 'proof-preflight-2de5d6b', '2de5d6b', root);\n  packages/main/src/tasks/dev-memory-supersession-smoke.ts:367: check('unmatched Koala legacy entry remains readable and not hidden', () => {\n  packages/main/src/tasks/dev-memory-supersession-smoke.ts:373: assert.match(formatted, /Koala scratchpad reminder remains readable/);\n  packages/main/src/tasks/dev-memory-supersession-smoke.ts:378: check('historical Koala evidenceRefs and content are not rewritten deleted or hidden', () => {\n  packages/main/src/tasks/dev-memory-supersession-smoke.ts:402: check('current entries do not introduce active Koala guidance', () => {\n  packages/main/src/tasks/dev-memory-supersession-smoke.ts:404: assertNoActiveKoalaGuidance(current);\n  packages/main/src/tasks/dev-memory-supersession-smoke.ts:418: assert.match(listed, /Koala reviewer runs must bind/);\n  packages/main/src/tasks/dev-memory-supersession-smoke.ts:494: check('actual project and global memory rank cur\n...[truncated 546 chars]",
+      "startedAt": "2026-06-30T17:29:29.132Z",
+      "endedAt": "2026-06-30T17:29:29.791Z",
+      "headHash": "bd886cb7f18bef3ae8d3a15e3ae3e7356d69c3cc",
+      "materialHash": "fec12d3410950af0112dafd478a628a4bac500043a6bb0b34ea7abeb44dac2b9",
+      "storyFilesHash": "7e11a09d9ed5c0b7f0efdc1f44017bd4aa7edc70774d25249d4d6a0d3e034690"
+    }
+  ],
+  "reasons": [
+    "command-failed: FAIL root full test suite: npm test exitCode=1"
+  ]
+}
