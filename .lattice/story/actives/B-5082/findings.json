@@ -76,7 +76,7 @@
       "desc": "Post-fix doc-code drift: the implementation correctly removed high_assurance as a standalone milestone-path/DONE-equivalence trigger in packages/main/src/core/proofstory.ts:1271-1276, and the smoke now proves a high-assurance single-outcome story uses lightweight_single_outcome at packages/main/src/tasks/proofstory-intent-hardening-smoke.ts:670-674. However the M0-M9 source text still preserves the old conceptual rule in docs/requirements/decisions/proofstory-intent-collision-execution-plan.md:95, docs/requirements/decisions/proofstory-intent-collision-execution-plan.md:519-522, and docs/requirements/decisions/proofstory-intent-collision-execution-plan.md:1229-1232 by saying high-assurance DONE uses strict equivalence gating. That conflicts with the resolved B-5082:F-002 model and M9 lines 1306-1313, where high-assurance adds collision/red/spike/review/escalation pressure without forcing a milestone ledger for a single-outcome story. The doc should say strict milestone DONE is triggered by milestone/slice/shrinkage paths, while high-assurance single-outcome remains lightweight unless one of those paths is present.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-06-30T01:44:13.000Z",
@@ -89,7 +89,11 @@
         "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
       ],
       "signatureTag": "doc-code-drift|proofstory-high-assurance-done-equivalence",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Updated ProofStory execution plan to state strict DONE equivalence is triggered by milestone, slice, or scope-shrinkage paths; high-assurance single-outcome stories remain on lightweight DONE unless one of those paths is present. Verified with git diff --check, node scripts/verify-process-fact-contract.mjs, and grep for old high-assurance strict-DONE wording.",
+      "resolvedAt": "2026-06-30T01:47:18.102Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5082:F-005",
