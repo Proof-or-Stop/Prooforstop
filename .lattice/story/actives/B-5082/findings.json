@@ -117,6 +117,24 @@
       "resolvedAt": "2026-06-30T01:46:59.021Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-5082:F-006",
+      "desc": "docs policy overclaim: docs/requirements/decisions/proofstory-intent-collision-execution-plan.md Risk-Adaptive Assurance table still says High-assurance red evidence is required and spike is required, which conflicts with the later M9 trigger-based policy that red evidence and spike apply only when their corresponding policy triggers apply.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-30T01:50:39.783Z",
+      "reviewRound": "2026-06-30T01:46:45.321Z",
+      "reviewRunId": "B-5082:RR-017",
+      "_hash": "0fd61eb21b4d449c2044f8b54263e945439d9c67763de355eecbb40330fd10bc",
+      "files": [
+        "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md"
+      ],
+      "signatureTag": "missing|md|docs-policy-overclaim",
+      "signatureTagSource": "auto"
     }
   ]
 }
