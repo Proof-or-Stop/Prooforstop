@@ -1,0 +1,21 @@
+{
+  "storyId": "B-e1a8",
+  "mode": "enforce",
+  "allowedModify": [
+    "lattice.config.json"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/handlers/phase-gates.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-30T08:47:42.619Z",
+  "updatedAt": "2026-06-30T08:47:42.619Z"
+}

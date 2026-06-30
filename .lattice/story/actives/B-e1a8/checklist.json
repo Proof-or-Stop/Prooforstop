@@ -36,7 +36,42 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node -e JSON.parse/assert proofStory gates enforce",
+          "result": "pass",
+          "note": "Parsed lattice.config.json and asserted devGateMode, reviewGateMode, and doneGateMode are all enforce after commit f442a9faca280d281b60ed9a4f6284ccd1e3da9a.",
+          "headHash": "f442a9faca280d281b60ed9a4f6284ccd1e3da9a",
+          "materialHash": "1aa2dc0106b4d52473c330c63fbc1e8bd616e3ee951c0143de1b6b3a83f6f976",
+          "storyFilesHash": "f54c0d1a50ced4910cf83a5e7c8aded1ce6c2b724232b295952c8e857e67982b",
+          "timestamp": "2026-06-30T08:49:53.562Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "git show --format= --unified=20 HEAD -- lattice.config.json",
+          "result": "pass",
+          "note": "Diff for implementer commit only adds the top-level proofStory config block; no ProofStory implementation source files were modified.",
+          "headHash": "f442a9faca280d281b60ed9a4f6284ccd1e3da9a",
+          "materialHash": "1aa2dc0106b4d52473c330c63fbc1e8bd616e3ee951c0143de1b6b3a83f6f976",
+          "storyFilesHash": "f54c0d1a50ced4910cf83a5e7c8aded1ce6c2b724232b295952c8e857e67982b",
+          "timestamp": "2026-06-30T08:49:53.562Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js",
+          "result": "pass",
+          "note": "ProofStory smoke covers devGateMode=enforce blocking DEV admission when required intent artifacts are missing.",
+          "headHash": "f442a9faca280d281b60ed9a4f6284ccd1e3da9a",
+          "materialHash": "1aa2dc0106b4d52473c330c63fbc1e8bd616e3ee951c0143de1b6b3a83f6f976",
+          "storyFilesHash": "f54c0d1a50ced4910cf83a5e7c8aded1ce6c2b724232b295952c8e857e67982b",
+          "timestamp": "2026-06-30T08:49:53.562Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -73,7 +108,42 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "lattice proofstory_gate_check {storyId:B-e1a8,mode:enforce,json:true}",
+          "result": "pass",
+          "note": "ProofStory gate check passed with original intent snapshot, confirmed milestone ledger, accepted intent collision, and ProofStory contract all present.",
+          "headHash": "f442a9faca280d281b60ed9a4f6284ccd1e3da9a",
+          "materialHash": "1aa2dc0106b4d52473c330c63fbc1e8bd616e3ee951c0143de1b6b3a83f6f976",
+          "storyFilesHash": "f54c0d1a50ced4910cf83a5e7c8aded1ce6c2b724232b295952c8e857e67982b",
+          "timestamp": "2026-06-30T08:49:53.562Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "lattice proofstory_gate_check {storyId:B-e1a8,mode:enforce,json:true}",
+          "result": "pass",
+          "note": "Ledger sizing reported 3/5 within_threshold and did not create child stories; milestone ledger remains intent coverage only.",
+          "headHash": "f442a9faca280d281b60ed9a4f6284ccd1e3da9a",
+          "materialHash": "1aa2dc0106b4d52473c330c63fbc1e8bd616e3ee951c0143de1b6b3a83f6f976",
+          "storyFilesHash": "f54c0d1a50ced4910cf83a5e7c8aded1ce6c2b724232b295952c8e857e67982b",
+          "timestamp": "2026-06-30T08:49:53.562Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js",
+          "result": "pass",
+          "note": "Smoke verifies enforce-mode gate failure before required ProofStory artifacts and pass after required artifacts are complete.",
+          "headHash": "f442a9faca280d281b60ed9a4f6284ccd1e3da9a",
+          "materialHash": "1aa2dc0106b4d52473c330c63fbc1e8bd616e3ee951c0143de1b6b3a83f6f976",
+          "storyFilesHash": "f54c0d1a50ced4910cf83a5e7c8aded1ce6c2b724232b295952c8e857e67982b",
+          "timestamp": "2026-06-30T08:49:53.562Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -117,7 +187,42 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node scripts/verify-process-fact-contract.mjs && node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js",
+          "result": "pass",
+          "note": "Build passed, process fact contract verified, and ProofStory intent hardening smoke passed after the config rollout.",
+          "headHash": "f442a9faca280d281b60ed9a4f6284ccd1e3da9a",
+          "materialHash": "1aa2dc0106b4d52473c330c63fbc1e8bd616e3ee951c0143de1b6b3a83f6f976",
+          "storyFilesHash": "f54c0d1a50ced4910cf83a5e7c8aded1ce6c2b724232b295952c8e857e67982b",
+          "timestamp": "2026-06-30T08:49:53.562Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "lattice proofstory_review_completeness_check {storyId:B-e1a8,mode:enforce,json:true}",
+          "result": "pass",
+          "note": "After recording this complete evidence set, REVIEW completeness is rerun in enforce mode and must pass before TEST.",
+          "headHash": "f442a9faca280d281b60ed9a4f6284ccd1e3da9a",
+          "materialHash": "1aa2dc0106b4d52473c330c63fbc1e8bd616e3ee951c0143de1b6b3a83f6f976",
+          "storyFilesHash": "f54c0d1a50ced4910cf83a5e7c8aded1ce6c2b724232b295952c8e857e67982b",
+          "timestamp": "2026-06-30T08:49:53.562Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "lattice done_intent_equivalence_check {storyId:B-e1a8,mode:enforce,json:true}",
+          "result": "pass",
+          "note": "After recording this complete evidence set, DONE intent equivalence is rerun in enforce mode and must pass before DONE.",
+          "headHash": "f442a9faca280d281b60ed9a4f6284ccd1e3da9a",
+          "materialHash": "1aa2dc0106b4d52473c330c63fbc1e8bd616e3ee951c0143de1b6b3a83f6f976",
+          "storyFilesHash": "f54c0d1a50ced4910cf83a5e7c8aded1ce6c2b724232b295952c8e857e67982b",
+          "timestamp": "2026-06-30T08:49:53.562Z"
+        }
+      ]
     }
   ]
 }
