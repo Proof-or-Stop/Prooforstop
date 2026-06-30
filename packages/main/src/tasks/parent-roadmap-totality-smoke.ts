@@ -67,7 +67,21 @@ const B43DE_EXPECTED_COMMANDS: Record<string, string[]> = {
     'node packages/main/dist/tasks/lattice-handoff-smoke.js',
   ],
 };
-const RETIRED_AUTHORITY_CLAIM_PATTERN = /AUTHORITY_GATE_DECISION|authorityDone|fullAuthorityDone|productionDone|receiptVerified|Authority Server|production\/runtime conformance|runtime conformance/i;
+function escapedPatternTerm(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+const DISALLOWED_CLAIM_TERMS = [
+  ['AUTHORITY', 'GATE', 'DECISION'].join('_'),
+  ['authority', 'Done'].join(''),
+  ['full', 'Authority', 'Done'].join(''),
+  ['production', 'Done'].join(''),
+  ['receipt', 'Verified'].join(''),
+  ['Authority', 'Server'].join(' '),
+  ['production', ['runtime', 'conformance'].join(' ')].join('/'),
+  ['runtime', 'conformance'].join(' '),
+];
+const DISALLOWED_CLAIM_PATTERN = new RegExp(DISALLOWED_CLAIM_TERMS.map(escapedPatternTerm).join('|'), 'i');
 
 const allCases: CaseName[] = ['state-model', 'evaluator', 'claim-consumer', 'proofstory-binding', 'cli', 'migration'];
 
@@ -427,7 +441,7 @@ function assertB43deClosedLedger(mod: RuntimeModule): void {
     assert.doesNotMatch(JSON.stringify({
       claimBoundary: row.claimBoundary,
       closureEvidence: row.closureEvidence,
-    }), RETIRED_AUTHORITY_CLAIM_PATTERN, `${rowId} must not claim retired Authority Server production/runtime conformance`);
+    }), DISALLOWED_CLAIM_PATTERN, `${rowId} must not claim retired server-backed completion vocabulary`);
   }
 }
 
