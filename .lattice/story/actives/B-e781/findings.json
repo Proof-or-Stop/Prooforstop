@@ -5,7 +5,7 @@
       "desc": "Docs lane blocker: linked roadmap/operator docs still contain stale pre-B-e781 wording that says M4-M12 remain follow-up/current future work. The main roadmap now shows B-e781 closure and parent_roadmap_status confirms all M4-M12 rows closed with command-backed local evidence, but docs/guide-scope-guard.md:8 says `M4-M12 remain follow-up milestones`, docs/guide-scope-guard.md:13 says unrelated runtime features `remain follow-up work`, and docs/requirements/decisions/lifecycle-artifact-scope.md:27 repeats `M4-M12 remain follow-up milestones`. Update these docs to reflect B-e781 closure with evidence commands/claim boundaries while keeping Authority Server conformance retired/non-goal.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-06-30T22:36:29.118Z",
@@ -19,7 +19,11 @@
         "docs/requirements/decisions/authority-server-vocabulary-retirement.md"
       ],
       "signatureTag": "missing|md|docs-lane-blocker",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Updated docs/guide-scope-guard.md and docs/requirements/decisions/lifecycle-artifact-scope.md to reflect B-e781 closure with local machine evidence and row-level claim boundaries while preserving retired Authority Server production/runtime conformance as a non-goal. Evidence passed: npm --prefix packages/main run build; node scripts/verify-process-fact-contract.mjs; node packages/main/dist/tasks/parent-roadmap-totality-smoke.js; node bin/lattice.js parent_roadmap_status --storyId=B-43de --json; node bin/lattice.js parent_roadmap_status --case=migration --json; negated rg stale wording check; git diff --check.",
+      "resolvedAt": "2026-06-30T22:43:30.338Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-e781:F-002",
