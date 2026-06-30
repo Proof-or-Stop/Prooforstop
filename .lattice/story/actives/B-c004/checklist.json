@@ -544,9 +544,9 @@
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
         "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-30T15:19:03.522Z",
-      "endTime": null,
+      "endTime": "2026-06-30T15:20:55.783Z",
       "files": {
         "modify": [
           "packages/main/src/core/evidence/types.ts",
@@ -594,7 +594,45 @@
           }
         ]
       },
-      "userSees": "The final status table shows CHK-007/M7 as CommandSpec and project waterline coverage resolved, with no diagnostic waterline overclaim."
+      "userSees": "The final status table shows CHK-007/M7 as CommandSpec and project waterline coverage resolved, with no diagnostic waterline overclaim.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-007:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proof-admissibility-hardening-smoke.js",
+          "result": "pass",
+          "note": "Commit d949ee4e9 distinguishes missing CommandSpec from mismatched CommandSpec digest for DONE_REQUIRED command-backed proof.",
+          "headHash": "d949ee4e97d22ea4fd825bce77df851f92ec8b03",
+          "materialHash": "18307d34100d4f524ed0e1de936e70acbd5e3e1ff1411c552816877b22696798",
+          "storyFilesHash": "e114e8fa636ad0052051659ab69a0652932cd7c49dae4a4db91286ad4c611c96",
+          "timestamp": "2026-06-30T15:20:56.074Z"
+        },
+        {
+          "intentRef": "CHK-007:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/lifecycle-control-smoke.ts",
+          "command": "node packages/main/dist/tasks/lifecycle-control-smoke.js",
+          "result": "pass",
+          "note": "Project-level consumption rollup with no story rows reports unknown/no-data rather than green/pass.",
+          "headHash": "d949ee4e97d22ea4fd825bce77df851f92ec8b03",
+          "materialHash": "18307d34100d4f524ed0e1de936e70acbd5e3e1ff1411c552816877b22696798",
+          "storyFilesHash": "e114e8fa636ad0052051659ab69a0652932cd7c49dae4a4db91286ad4c611c96",
+          "timestamp": "2026-06-30T15:20:56.289Z"
+        },
+        {
+          "intentRef": "CHK-007:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts",
+          "command": "node packages/main/dist/tasks/proof-admissibility-hardening-smoke.js",
+          "result": "pass",
+          "note": "Enforce mode blocks DONE_REQUIRED proof when CommandSpec is missing or mismatched, preserving high-risk command-backed evidence bounds.",
+          "headHash": "d949ee4e97d22ea4fd825bce77df851f92ec8b03",
+          "materialHash": "18307d34100d4f524ed0e1de936e70acbd5e3e1ff1411c552816877b22696798",
+          "storyFilesHash": "e114e8fa636ad0052051659ab69a0652932cd7c49dae4a4db91286ad4c611c96",
+          "timestamp": "2026-06-30T15:20:56.489Z"
+        }
+      ]
     }
   ]
 }
