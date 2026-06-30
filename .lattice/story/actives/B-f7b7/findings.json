@@ -5,7 +5,7 @@
       "desc": "Scope-shrinkage confirmation is not mechanically aligned with the decision doc. The doc requires a scope-shrinkage decision with userConfirmed:true and says reviewer/agent judgment is not enough (docs/requirements/decisions/proofstory-intent-collision-execution-plan.md:480-496), but the shipped command/data model only records decision, removedMilestoneIds, reason, and approvedBy, with approvedBy documented as human or agent and no userConfirmed field (packages/main/src/cli/command-catalog.ts:2071-2077; packages/main/src/core/types.ts:1889-1895). DONE equivalence then treats any decision=confirmed as accepted shrinkage and skips those milestones (packages/main/src/core/proofstory.ts:986-988,1010-1012). This lets an agent-authored shrinkage artifact satisfy DONE intent equivalence for a narrower outcome, contrary to the documented user-confirmation gate.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-06-30T00:04:36.117Z",
@@ -19,7 +19,11 @@
         "packages/main/src/core/types.ts"
       ],
       "signatureTag": "doc-code-drift|md|scope-shrinkage-confirmation",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by adding userConfirmed to scope_shrinkage_decision_set schema/types and requiring userConfirmed:true for confirmed shrinkage; DONE equivalence now consumes shrinkage only when decision=confirmed and userConfirmed=true. Verified by build, ProofStory smoke, and process-fact contract.",
+      "resolvedAt": "2026-06-30T00:31:35.296Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f7b7:F-002",
