@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-30T00:30:27.039Z",
       "reviewRunId": "B-f7b7:RR-012",
       "_hash": "58a9d5f6a794997dd6b699c4f588dc8d7ed3f93a5600506c84da26d9dff7c49c"
+    },
+    {
+      "id": "B-f7b7:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Quality review pass for F-009 fixes: evidenceCoversIntent no longer treats verdict labels as proof, result=fail with verdict=success or failed waiver remains uncovered for REVIEW/DONE, deferred_gate_evidence never covers, permanent waivers only cover when not failed, and process-fact contract asserts ProofStory L4 gate-consumed command/artifact policy. Verified with npm --prefix packages/main run build, node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js, and node scripts/verify-process-fact-contract.mjs.",
+      "createdAt": "2026-06-30T00:34:28.772Z",
+      "reviewRound": "2026-06-30T00:30:27.039Z",
+      "reviewRunId": "B-f7b7:RR-010",
+      "_hash": "bcaf32acabb44b4eb5d1b47f5360c03fa1faf4ef969bdef0d1a9a123aabf81fb"
     }
   ]
 }
