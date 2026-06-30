@@ -45,6 +45,10 @@ function writeConfig(root: string): void {
     storyDir: '.lattice/story/actives',
     requirementsDir: 'docs/requirements',
     workflow: { profile: 'balanced' },
+    proofAdmissibility: {
+      mode: 'enforce',
+      enforcedConsumers: ['REVIEW'],
+    },
   }, null, 2) + '\n');
   resetConfigCache();
 }
@@ -229,6 +233,36 @@ try {
 
     const materialHash = currentMaterialHash(root);
     assert.ok(materialHash, 'current material hash exists');
+    store.appendProcessEvent(STORY_ID, {
+      type: 'review_escalation_policy',
+      storyId: STORY_ID,
+      command: 'quorum-submit-smoke',
+      timestamp: '2026-06-22T10:10:00.000Z',
+      policyId: `${STORY_ID}:POL-quorum-smoke`,
+      predicate: 'explicitlyConfiguredHighRiskPolicyRequires3x2',
+      requires3x2: true,
+      policyVersion: 'quorum-submit-smoke.v1',
+      riskClass: 'process-fact',
+      sourcePolicyRef: 'packages/main/src/tasks/quorum-submit-smoke.ts',
+      rolloutStage: 'enforced',
+      degradedFallbackAllowed: true,
+      issuer: 'quorum-submit-smoke',
+      issuedAt: '2026-06-22T10:10:00.000Z',
+      headHash: git(root, ['rev-parse', 'HEAD']),
+      materialHash,
+      authorityDone: false,
+      fullAuthorityDone: false,
+      productionDone: false,
+    });
+    const status = registry.get('review_escalation_status');
+    assert.ok(status, 'review_escalation_status handler is registered');
+    const escalation = status({ storyId: STORY_ID, json: true }) as any;
+    assert.equal(escalation.required, true);
+    assert.equal(escalation.ok, true);
+    assert.equal(escalation.assuranceLevel, 'full-3x2');
+    assert.equal(escalation.proofAdmissibility.allowed, true);
+    assert.equal(escalation.proofAdmissibility.overall, 'pass');
+
     const assurance = evaluateReviewAssuranceFloor({
       projectRoot: root,
       storyId: STORY_ID,
