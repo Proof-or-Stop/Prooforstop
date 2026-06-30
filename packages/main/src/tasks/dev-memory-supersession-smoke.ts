@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 
 import assert from 'node:assert/strict';
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 
 import {
   formatEntryShort,
@@ -11,6 +13,7 @@ import {
   resolveProjectMemoryPath,
   searchEntries,
   type DevMemoryEntry,
+  writeEntries,
 } from '../core/dev-memory.js';
 
 let passed = 0;
@@ -26,7 +29,38 @@ const retiredMemoryIds = ['7bc20e5', '2de5d6b', 'c948c85', 'f4fe749', 'a6832a1']
 
 const projectCurrentIds = ['34e97f9', '99aa6c7', 'ee3aef3', '148297b', '7ffe281'];
 const projectHostPolicyIds = ['d6f173d', '9bd6b5a'];
-const globalCurrentIds = ['a4d08a8', '9890b83'];
+const globalFixtureIds = ['globtx1', 'globst1'];
+
+const globalFixtureEntries: DevMemoryEntry[] = [
+  {
+    id: 'globtx1',
+    createdAt: '2026-06-30T00:00:00.000Z',
+    sourceAgent: 'lattice-smoke-global',
+    category: 'workflow',
+    scope: 'global',
+    summary: 'Global host taxonomy stays available as advisory memory.',
+    trigger: 'physical cleanup smoke fixture',
+    lesson: 'Keep current Proofbound host taxonomy memory without retired brand references.',
+    reusePrompt: 'Use current Proofbound host taxonomy memory as advisory context only.',
+    tags: ['proofbound', 'lattice', 'host-policy'],
+    gateEvidence: false,
+    authority: 'non_authoritative',
+  },
+  {
+    id: 'globst1',
+    createdAt: '2026-06-30T00:00:01.000Z',
+    sourceAgent: 'lattice-smoke-global',
+    category: 'tool-quirk',
+    scope: 'global',
+    summary: 'Global stale-doc lessons stay searchable as advisory memory.',
+    trigger: 'physical cleanup smoke fixture',
+    lesson: 'Keep current Lattice stale-doc lessons available without retired brand references.',
+    reusePrompt: 'Use current Lattice stale-doc lessons as advisory context only.',
+    tags: ['proofbound', 'lattice', 'stale-doc'],
+    gateEvidence: false,
+    authority: 'non_authoritative',
+  },
+];
 
 function readRawMemoryFile(filePath: string): string {
   assert.equal(existsSync(filePath), true, `${filePath} should exist`);
@@ -69,6 +103,28 @@ function assertNonAuthoritative(label: string, entry: DevMemoryEntry): void {
   assert.equal(entry.authority, 'non_authoritative', `${label} ${entry.id} should remain non-authoritative`);
 }
 
+function createGlobalMemoryFixture(): { dir: string; restore: () => void } {
+  const originalGlobalMemoryDir = process.env.LATTICE_GLOBAL_MEMORY_DIR;
+  const fixtureParent = originalGlobalMemoryDir || tmpdir();
+  mkdirSync(fixtureParent, { recursive: true });
+
+  const dir = mkdtempSync(join(fixtureParent, 'lattice-global-memory-smoke-'));
+  process.env.LATTICE_GLOBAL_MEMORY_DIR = dir;
+  writeEntries(resolveGlobalMemoryPath(), globalFixtureEntries);
+
+  return {
+    dir,
+    restore: () => {
+      if (originalGlobalMemoryDir === undefined) {
+        delete process.env.LATTICE_GLOBAL_MEMORY_DIR;
+      } else {
+        process.env.LATTICE_GLOBAL_MEMORY_DIR = originalGlobalMemoryDir;
+      }
+      rmSync(dir, { recursive: true, force: true });
+    },
+  };
+}
+
 function assertCurrentProjectMemory(entry: DevMemoryEntry): void {
   const guidance = [entry.summary, entry.trigger, entry.lesson, entry.reusePrompt].join(' ');
   assert.match(guidance, /Proofbound|Lattice/, `${entry.id} should use current product names`);
@@ -84,12 +140,23 @@ function assertHostPolicyMemory(entry: DevMemoryEntry): void {
   assertNonAuthoritative('project host policy', entry);
 }
 
+function assertCurrentGlobalMemory(entry: DevMemoryEntry): void {
+  assert.equal(entry.scope, 'global', `${entry.id} should be a global memory row`);
+  assert.match(entryJson(entry), /Proofbound|Lattice/, `${entry.id} should use current product names`);
+  assert(entry.tags?.some(tag => tag === 'proofbound' || tag.includes('proofbound')), `${entry.id} should keep Proofbound tags`);
+  assert(entry.tags?.some(tag => tag === 'lattice' || tag.includes('lattice')), `${entry.id} should keep Lattice tags`);
+  assertNonAuthoritative('global', entry);
+}
+
 function assertSearchFinds(entries: DevMemoryEntry[], query: string, expectedIds: string[]): void {
   const ids = searchEntries(entries, { query, limit: 20 }).map(entry => entry.id);
   for (const id of expectedIds) {
     assert(ids.includes(id), `${query} should find ${id}; got ${ids.join(',')}`);
   }
 }
+
+const globalFixture = createGlobalMemoryFixture();
+process.on('exit', globalFixture.restore);
 
 const projectPath = resolveProjectMemoryPath(process.cwd());
 const globalPath = resolveGlobalMemoryPath();
@@ -135,13 +202,13 @@ check('host policy memories are preserved', () => {
   }
 });
 
-check('current global memories are preserved', () => {
-  assertEntriesPresent('global memory', globalEntries, globalCurrentIds);
+check('current global fixture memories are preserved', () => {
+  assertEntriesPresent('global memory fixture', globalEntries, globalFixtureIds);
   const globalById = entriesById(globalEntries);
-  for (const id of globalCurrentIds) {
+  for (const id of globalFixtureIds) {
     const entry = globalById.get(id);
     assert(entry);
-    assertNonAuthoritative('global', entry);
+    assertCurrentGlobalMemory(entry);
   }
 });
 
@@ -154,6 +221,12 @@ check('current memory search still finds project guidance', () => {
 
 check('host policy search still finds preserved rows', () => {
   assertSearchFinds(projectEntries, 'host policy codex claude agy fallback', projectHostPolicyIds);
+});
+
+check('global memory search stays current and clean', () => {
+  assertSearchFinds(globalEntries, 'host taxonomy advisory', ['globtx1']);
+  assertSearchFinds(globalEntries, 'stale-doc lessons', ['globst1']);
+  assert.deepEqual(searchEntries(globalEntries, { query: retiredBrand, limit: 20 }).map(entry => entry.id), []);
 });
 
 console.log(`dev-memory physical cleanup smoke passed (${passed} checks)`);
