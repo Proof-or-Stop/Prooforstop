@@ -1,0 +1,219 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Freeze the strengthening roadmap parent intent",
+      "context": "Capture the original intent for M4-M12: global roadmap governance, not one-off B-cd3a gap closure. The parent story must explicitly state that later child stories cover M4-M12 without scope shrinkage.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
+      ],
+      "userSees": "User sees a ProofStory original intent snapshot tying this story to the M4-M12 strengthening roadmap.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
+        ],
+        "create": [],
+        "test": [
+          "lattice original_intent_snapshot_get --storyId=<storyId>",
+          "lattice proofstory_gate_check --storyId=<storyId> --mode=enforce --json"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The story has an original intent snapshot that names lattice-strengthening-roadmap M4-M12 and says B-5082 gates are used to prevent roadmap scope shrinkage.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The snapshot distinguishes this roadmap parent ledger from B-cd3a, which covers global-control-plane and proof-admissibility gaps rather than the whole strengthening roadmap.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Reject any final claim that says all M4-M12 features are implemented by this parent story; this story only governs and slices the roadmap unless child evidence is attached.",
+            "type": "docs"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Create the M4-M12 milestone ledger and slice plan",
+      "context": "Use B-5082 milestone ledger and slice behavior to list M4 through M12, dependencies, expected child-story ownership, and verification commands. Oversized ledger must be cleared by slice plan rather than silently reducing milestones.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md#Milestone-Table"
+      ],
+      "userSees": "User sees M4-M12 as explicit ProofStory ledger rows with child-story ownership or planned slices.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
+        ],
+        "create": [],
+        "test": [
+          "lattice milestone_ledger_get --storyId=<storyId>",
+          "lattice proofstory_gate_check --storyId=<storyId> --mode=enforce --json",
+          "lattice done_intent_equivalence_check --storyId=<storyId> --mode=enforce --json"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The milestone ledger contains M4 through M12 with required evidence, checklist refs, and child-story or slice ownership semantics.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Because M4-M12 is oversized, a slice plan or parent roll-up must be present rather than letting the ledger shrink to fit the threshold.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Fail if a missing M7, M10, or M12 row can still allow a DONE-equivalent parent result without explicit shrinkage approval.",
+            "type": "cli"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Bind M4 process-fact registry closure as the first child implementation surface",
+      "context": "M4 is the prerequisite for later gate facts. This item verifies existing process-fact registry coverage and records which M4 subwork is already covered by B-5082 and B-e1a8 versus which remains child work.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md#M4-Process-Fact-Registry-Coverage"
+      ],
+      "userSees": "User sees which process-fact registry controls are already verified and which M4 rows still need child stories.",
+      "files": {
+        "modify": [
+          "scripts/verify-process-fact-contract.mjs",
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
+        ],
+        "create": [],
+        "test": [
+          "node scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "verify-process-fact-contract passes and explicitly covers ProofStory roadmap governance facts such as original_intent_snapshot, milestone_ledger, parent_ledger_rollup, and DONE intent equivalence.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The M4 status must not overclaim all process-fact work complete if later M5-M12 introduce new gate facts.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Fail if process-fact verification can pass while the roadmap no longer states M4 is a prerequisite for new gate-consumed facts.",
+            "type": "cli"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Publish final roadmap governance status and handoff table",
+      "context": "Update the roadmap with a concise table showing S0 and M4 status, child-story mapping, and the next milestone order. The table must make unfinished M5-M12 visible rather than burying them in prose.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md#Implementation-Order"
+      ],
+      "userSees": "User sees a clear roadmap governance table: done, partial, child-story-needed, or future for M4-M12.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
+        ],
+        "create": [],
+        "test": [
+          "rg -n \"ProofStory Governance Ledger|M4-M12 Child Story Map|M12\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "git diff --check"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The roadmap includes a visible ProofStory governance table with M4-M12 status and next child-story responsibilities.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The table preserves Tier-C experiment exceptions and active B-cd3a work as separate from global roadmap completion.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Fail if the table implies M5-M12 are done without child-story evidence or explicit future status.",
+            "type": "docs"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Verify ProofStory gates and roadmap contract before DONE",
+      "context": "Run ProofStory gate, intent coverage, review completeness, DONE equivalence, process-fact contract, and routine validation so this parent story proves B-5082 governance rather than just describing it.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
+      ],
+      "userSees": "User sees ProofStory gate and DONE equivalence checks pass for the roadmap governance story.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
+        ],
+        "create": [],
+        "test": [
+          "lattice proofstory_gate_check --storyId=<storyId> --mode=enforce --json",
+          "lattice intent_coverage_check --storyId=<storyId> --mode=enforce --json",
+          "lattice proofstory_review_completeness_check --storyId=<storyId> --mode=enforce --json",
+          "lattice done_intent_equivalence_check --storyId=<storyId> --mode=enforce --json",
+          "node scripts/verify-process-fact-contract.mjs",
+          "lattice validate --story=<storyId>"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "All listed ProofStory and contract checks pass for the parent governance story before DONE.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "If child stories are not complete, DONE equivalence may only pass by explicitly marking rows as parent-governed, future, or assigned, not by pretending implementation is done.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Fail if DONE equivalence ignores an uncovered milestone row or accepts prose-only evidence for a gate-consumed roadmap fact.",
+            "type": "cli"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

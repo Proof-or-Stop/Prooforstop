@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-43de",
+  "mode": "feature",
+  "allowed": [
+    "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+    "ProofStory metadata artifacts for this story",
+    "scripts/verify-process-fact-contract.mjs if a marker-level contract check is needed"
+  ],
+  "excluded": [
+    "Changing retired server-backed proof semantics",
+    "Implementing all M5-M12 runtime features in this story",
+    "Mutating other active stories such as B-cd3a except by read-only reference"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "User approved starting implementation of the global strengthening roadmap using B-5082 capabilities; scope is limited to parent-ledger governance and first registry/control proof surface.",
+  "createdAt": "2026-06-30T09:43:16.225Z",
+  "updatedAt": "2026-06-30T09:43:16.225Z",
+  "_hash": "3abc1829ce5e54a140b14d4e40948ef1f157a2881f6f4e2c176a45ddbcf0d6ce"
+}
