@@ -166,9 +166,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/dev-memory.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-30T16:02:39.351Z",
       "userSees": "Project dev-memory contains current Proofbound/Lattice superseding lessons for old Koala reviewer, delivery, CLI, and preflight lessons.",
       "files": {
         "modify": [
@@ -201,7 +201,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "lattice dev_memory_capture (five sequential captures for B-a9e7)",
+          "result": "pass",
+          "note": "Captured project memories 34e97f9, 99aa6c7, ee3aef3, 148297b, and 7ffe281 for legacy ids a6832a1, f4fe749, c948c85, 2de5d6b, and 7bc20e5.",
+          "headHash": "1563cacc0aebd49aea520493aa55c7f95b78eb8f",
+          "materialHash": "5b5b767ebfad3072e082aec91c5249d42356f22e084171ba50d5634f2a355e38",
+          "storyFilesHash": "74383895302999b622d1fb2f542b709405595a61e3fea51458c05281f9405b76",
+          "timestamp": "2026-06-30T16:02:39.700Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js dev_memory_list --scope=project --limit=5",
+          "result": "pass",
+          "note": "Each new entry preserves the legacy evidence by reference with Refs dev-memory:<legacy-id> rather than duplicating or editing old rows.",
+          "headHash": "1563cacc0aebd49aea520493aa55c7f95b78eb8f",
+          "materialHash": "5b5b767ebfad3072e082aec91c5249d42356f22e084171ba50d5634f2a355e38",
+          "storyFilesHash": "74383895302999b622d1fb2f542b709405595a61e3fea51458c05281f9405b76",
+          "timestamp": "2026-06-30T16:02:40.067Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js dev_memory_search --query=koala --global",
+          "result": "pass",
+          "note": "Current entries use active Proofbound/Lattice wording and only mention Koala as legacy mapping context; output marks old Koala rows as superseded / legacy-readable.",
+          "headHash": "1563cacc0aebd49aea520493aa55c7f95b78eb8f",
+          "materialHash": "5b5b767ebfad3072e082aec91c5249d42356f22e084171ba50d5634f2a355e38",
+          "storyFilesHash": "74383895302999b622d1fb2f542b709405595a61e3fea51458c05281f9405b76",
+          "timestamp": "2026-06-30T16:02:40.489Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
