@@ -134,6 +134,15 @@
       "reviewRound": "2026-06-30T23:31:22.419Z",
       "reviewRunId": "B-e781:RR-018",
       "_hash": "eb74063f006fd17b56d2e7a0845096bdf6f649f650b37091a63c5b9fc4f838f4"
+    },
+    {
+      "id": "B-e781:RP-016",
+      "agent": "lattice-review-quality",
+      "note": "Targeted quality review of ebddbc1e7 and F-003 resolution metadata. Reviewed packages/main/src/tasks/review-assurance-floor-smoke.ts helper and enforce-mode negative assertions for missing fallback, stale fallback/material, and invalid fallback shape. No production logic changes found; ebddbc1e7 changes only packages/main/src/tasks/review-assurance-floor-smoke.ts, and e4030e1c9 only resolves F-003 metadata/process metrics. Helper asserts proofAdmissibility.blocking=true, allowed=false, mode=enforce, enforcedConsumer=true, and proof_admissibility_blocked; case assertions are tied to evaluator contract diagnostics rather than broad or misleading ok=false checks. Evidence: npm --prefix packages/main run build PASS; node packages/main/dist/tasks/review-assurance-floor-smoke.js PASS (10 checks); node scripts/verify-process-fact-contract.mjs PASS; git diff --check ebddbc1e7^ ebddbc1e7 PASS.",
+      "createdAt": "2026-06-30T23:33:44.096Z",
+      "reviewRound": "2026-06-30T23:31:22.419Z",
+      "reviewRunId": "B-e781:RR-020",
+      "_hash": "0e2af5a48c82110d5ddcd9ade7f56faa88363cd791df75e595d24082298223d5"
     }
   ]
 }
