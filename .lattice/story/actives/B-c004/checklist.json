@@ -328,6 +328,10 @@
           "packages/main/src/core/repro-intake.ts",
           "packages/main/src/core/lifecycle-control/consumption/index.ts",
           "packages/main/src/core/lifecycle-control/dashboard/index.ts",
+          "packages/main/src/core/proof-admissibility.ts",
+          "packages/main/src/core/proof-admissibility-gates.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/cli/command-catalog.ts",
           "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts",
           "packages/main/src/tasks/lifecycle-control-smoke.ts",
           "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
@@ -364,7 +368,8 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "userSees": "The final status table shows CHK-007/M7 as CommandSpec and project waterline coverage resolved, with no diagnostic waterline overclaim."
     }
   ]
 }
