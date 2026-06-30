@@ -1,33 +1,37 @@
 /**
- * ProofStory handlers — M0-M2 progressive intent hardening diagnostics.
+ * ProofStory handlers.
  *
- * These handlers persist the MVP artifacts and expose dry-run diagnostics only.
- * They are not wired into story_advance or lifecycle gates.
+ * These commands persist story-scoped intent-hardening artifacts and expose
+ * observe/warn/enforce diagnostics. Enforcement is opt-in by command mode or
+ * project policy; this file does not create a parallel lifecycle machine.
  */
 
-import { existsSync } from 'node:fs';
 import type { HandlerContext } from './context.js';
-import type { ChecklistData } from '../core/types.js';
+import type { ChecklistData, ProofStoryGateMode } from '../core/types.js';
 import {
   addMilestoneToLedger,
+  appendRedEvidence,
+  buildIntentCollision,
   buildMilestoneLedger,
   buildOriginalIntentSnapshot,
   buildProofStoryContract,
+  buildScopeShrinkageDecision,
+  confirmMilestoneLedger,
+  evaluateDoneIntentEquivalence,
   evaluateProofStoryDiagnostics,
+  evaluateReviewCompleteness,
   renderProofStoryDiagnosticReport,
+  setSpikeResult,
+  setSpikeStatus,
+  startSpike,
   type ProofStoryDiagnosticInput,
 } from '../core/proofstory.js';
 
 type JsonFlag = { json?: boolean };
+type ModeFlag = { mode?: ProofStoryGateMode; dryRun?: boolean };
 
 function emptyChecklist(): ChecklistData {
   return { items: [] };
-}
-
-function requireDryRun(commandName: string, dryRun?: boolean): void {
-  if (dryRun !== true) {
-    throw new Error(`${commandName} is diagnostic-only in M0-M2; pass dryRun:true`);
-  }
 }
 
 function stringify(data: unknown, pretty = true): string {
@@ -37,6 +41,17 @@ function stringify(data: unknown, pretty = true): string {
 function renderStored(kind: string, data: unknown, args: JsonFlag): string {
   if (args.json) return stringify(data);
   return `${kind}: configured\n${stringify(data)}`;
+}
+
+function resolveMode(args: ModeFlag): ProofStoryGateMode {
+  return args.mode ?? 'observe';
+}
+
+function enforceOrRender(report: { blocking: boolean; mode: ProofStoryGateMode }, text: string): string {
+  if (report.mode === 'enforce' && report.blocking) {
+    throw new Error(text);
+  }
+  return text;
 }
 
 export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (...args: any[]) => any> {
@@ -53,22 +68,24 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
   function diagnosticInput(storyId: string): ProofStoryDiagnosticInput {
     const story = store.readStory(storyId);
     const checklist = readChecklistSafe(storyId);
-    const originalIntentSnapshot = store.readOriginalIntentSnapshot(storyId);
-    const milestoneLedger = store.readMilestoneLedger(storyId);
-    const proofStoryContract = store.readProofStoryContract(storyId);
-    const intentCollision = store.readIntentCollision(storyId);
-    const scopeContract = store.readScopeContract(storyId);
     return {
       story,
       checklist,
-      originalIntentSnapshot,
-      milestoneLedger,
-      proofStoryContract,
-      intentCollision,
-      scopeContract,
-      redEvidencePresent: existsSync(store.storyFilePath(storyId, 'red-evidence.json')),
-      spikeEvidencePresent: existsSync(store.storyFilePath(storyId, 'spike.json')),
+      originalIntentSnapshot: store.readOriginalIntentSnapshot(storyId),
+      milestoneLedger: store.readMilestoneLedger(storyId),
+      proofStoryContract: store.readProofStoryContract(storyId),
+      intentCollision: store.readIntentCollision(storyId),
+      scopeContract: store.readScopeContract(storyId),
+      scopeShrinkageDecision: store.readScopeShrinkageDecision(storyId),
+      redEvidence: store.readRedEvidence(storyId),
+      spikeEvidence: store.readProofStorySpikes(storyId),
     };
+  }
+
+  function renderGateReport(storyId: string, args: JsonFlag & ModeFlag): string {
+    const report = evaluateProofStoryDiagnostics(diagnosticInput(storyId), resolveMode(args));
+    if (args.json) return enforceOrRender(report, stringify(report));
+    return enforceOrRender(report, renderProofStoryDiagnosticReport(report));
   }
 
   return {
@@ -108,16 +125,23 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
       return renderStored('Original intent snapshot', snapshot, args);
     },
 
-    milestone_ledger_set(args: { storyId: string; milestones: unknown[]; json?: boolean }): string {
+    milestone_ledger_set(args: { storyId: string; milestones: unknown[]; state?: 'candidate' | 'confirmed'; json?: boolean }): string {
       if (!args.storyId) throw new Error('storyId is required');
       store.readStory(args.storyId);
       const existing = store.readMilestoneLedger(args.storyId);
-      const ledger = buildMilestoneLedger({ storyId: args.storyId, milestones: args.milestones ?? [], existing });
+      const ledger = buildMilestoneLedger({
+        storyId: args.storyId,
+        milestones: args.milestones ?? [],
+        existing,
+        state: args.state,
+      });
       store.writeMilestoneLedger(args.storyId, ledger);
       if (args.json) return stringify(ledger);
       return [
         'Milestone ledger: configured',
         `Story: ${ledger.storyId}`,
+        `State: ${ledger.state ?? 'candidate'}`,
+        `Ledger hash: ${ledger.ledgerHash}`,
         `Milestones: ${ledger.milestones.length}`,
         ...ledger.milestones.map((milestone) => `  - ${milestone.id}: ${milestone.claim}`),
       ].join('\n');
@@ -152,7 +176,7 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
       const ledger = addMilestoneToLedger(args.storyId, rawMilestone, existing);
       store.writeMilestoneLedger(args.storyId, ledger);
       if (args.json) return stringify(ledger);
-      return `Milestone ledger: added ${ledger.milestones.at(-1)?.id ?? '(unknown)'}\nMilestones: ${ledger.milestones.length}`;
+      return `Milestone ledger: added ${ledger.milestones.at(-1)?.id ?? '(unknown)'}\nState: ${ledger.state ?? 'candidate'}\nMilestones: ${ledger.milestones.length}`;
     },
 
     milestone_ledger_get(args: { storyId: string; json?: boolean }): string {
@@ -167,6 +191,47 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
         return args.json ? stringify(result) : `Milestone ledger: not configured\nStory: ${args.storyId}`;
       }
       return renderStored('Milestone ledger', ledger, args);
+    },
+
+    intent_collision_set(args: {
+      storyId: string;
+      decision: 'pass' | 'revise_intent' | 'human_gate' | 'stop';
+      acceptedInterpretation?: string;
+      notes?: string;
+      id?: string;
+      json?: boolean;
+    }): string {
+      if (!args.storyId) throw new Error('storyId is required');
+      store.readStory(args.storyId);
+      const existing = store.readIntentCollision(args.storyId);
+      const ledger = store.readMilestoneLedger(args.storyId);
+      const collision = buildIntentCollision(args, existing, ledger);
+      store.writeIntentCollision(args.storyId, collision);
+      const confirmed = confirmMilestoneLedger(args.storyId, ledger, collision);
+      if (confirmed && confirmed !== ledger) store.writeMilestoneLedger(args.storyId, confirmed);
+      const result = { collision, confirmedLedger: confirmed?.state === 'confirmed' ? confirmed : null };
+      if (args.json) return stringify(result);
+      return [
+        'Intent collision: configured',
+        `Story: ${collision.storyId}`,
+        `Decision: ${collision.decision}`,
+        `Status: ${collision.status}`,
+        confirmed?.state === 'confirmed' ? `Confirmed ledger hash: ${confirmed.ledgerHash}` : 'Confirmed ledger hash: none',
+      ].join('\n');
+    },
+
+    intent_collision_get(args: { storyId: string; json?: boolean }): string {
+      if (!args.storyId) throw new Error('storyId is required');
+      const collision = store.readIntentCollision(args.storyId);
+      if (!collision) {
+        const result = {
+          storyId: args.storyId,
+          status: 'not_configured',
+          message: 'No intent collision artifact. Run intent_collision_set.',
+        };
+        return args.json ? stringify(result) : `Intent collision: not configured\nStory: ${args.storyId}`;
+      }
+      return renderStored('Intent collision', collision, args);
     },
 
     proofstory_contract_set(args: {
@@ -187,8 +252,9 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
           milestoneLedger: state.milestoneLedger,
           intentCollision: state.intentCollision,
           scopeContract: state.scopeContract,
-          redEvidencePresent: state.redEvidencePresent,
-          spikeEvidencePresent: state.spikeEvidencePresent,
+          scopeShrinkageDecision: state.scopeShrinkageDecision,
+          redEvidence: state.redEvidence,
+          spikeEvidence: state.spikeEvidence,
         },
         existing,
       );
@@ -196,9 +262,9 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
       if (args.json) return stringify(contract);
       return [
         'ProofStory contract: configured',
-        'Mode: diagnostic-only',
         `Story: ${contract.storyId}`,
         `Hardening level: ${contract.hardeningLevel}`,
+        `Acceptance bindings: ${contract.acceptanceBindings.length}`,
         `Diagnostic gaps: ${contract.diagnosticGaps.length}`,
       ].join('\n');
     },
@@ -210,55 +276,184 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
         const result = {
           storyId: args.storyId,
           status: 'not_configured',
-          message: 'No ProofStory diagnostic envelope. Run proofstory_contract_set to persist one.',
+          message: 'No ProofStory contract. Run proofstory_contract_set.',
         };
         return args.json ? stringify(result) : `ProofStory contract: not configured\nStory: ${args.storyId}`;
       }
       return renderStored('ProofStory contract', contract, args);
     },
 
-    intent_collision_get(args: { storyId: string; json?: boolean }): string {
+    scope_shrinkage_decision_set(args: {
+      storyId: string;
+      decision: 'confirmed' | 'rejected';
+      userConfirmed?: boolean;
+      removedMilestoneIds?: string[];
+      reason: string;
+      approvedBy: string;
+      json?: boolean;
+    }): string {
       if (!args.storyId) throw new Error('storyId is required');
-      const collision = store.readIntentCollision(args.storyId);
-      if (!collision) {
-        const result = {
-          storyId: args.storyId,
-          status: 'not_configured',
-          diagnosticOnly: true,
-          message: 'No intent collision artifact. M0-M2 implements read-only diagnostics only; intent_collision_set is intentionally not available.',
-        };
-        return args.json ? stringify(result) : `Intent collision: not configured\nStory: ${args.storyId}\nM0-M2 read-only diagnostic only.`;
-      }
-      return renderStored('Intent collision', collision, args);
+      store.readStory(args.storyId);
+      const decision = buildScopeShrinkageDecision(args, store.readScopeShrinkageDecision(args.storyId));
+      store.writeScopeShrinkageDecision(args.storyId, decision);
+      if (args.json) return stringify(decision);
+      return [
+        `Scope shrinkage decision: ${decision.decision}`,
+        `User confirmed: ${decision.userConfirmed ? 'yes' : 'no'}`,
+        `Removed milestones: ${decision.removedMilestoneIds.join(', ') || 'none'}`,
+      ].join('\n');
     },
 
-    intent_coverage_check(args: { storyId: string; dryRun?: boolean; json?: boolean }): string {
+    scope_shrinkage_decision_get(args: { storyId: string; json?: boolean }): string {
       if (!args.storyId) throw new Error('storyId is required');
-      requireDryRun('intent_coverage_check', args.dryRun);
-      const report = evaluateProofStoryDiagnostics(diagnosticInput(args.storyId));
+      const decision = store.readScopeShrinkageDecision(args.storyId);
+      if (!decision) {
+        const result = { storyId: args.storyId, status: 'not_configured', message: 'No scope shrinkage decision.' };
+        return args.json ? stringify(result) : `Scope shrinkage decision: not configured\nStory: ${args.storyId}`;
+      }
+      return renderStored('Scope shrinkage decision', decision, args);
+    },
+
+    red_evidence_create(args: {
+      storyId: string;
+      trigger: string;
+      observedFailure: string;
+      failingCommand?: string;
+      expectedGreenCommand?: string;
+      note?: string;
+      id?: string;
+      json?: boolean;
+    }): string {
+      if (!args.storyId) throw new Error('storyId is required');
+      store.readStory(args.storyId);
+      const evidence = appendRedEvidence(args, store.readRedEvidence(args.storyId));
+      store.writeRedEvidence(args.storyId, evidence);
+      if (args.json) return stringify(evidence);
+      return `Red evidence: recorded\nRecords: ${evidence.records.length}`;
+    },
+
+    red_evidence_get(args: { storyId: string; json?: boolean }): string {
+      if (!args.storyId) throw new Error('storyId is required');
+      const evidence = store.readRedEvidence(args.storyId);
+      if (!evidence) {
+        const result = { storyId: args.storyId, status: 'not_configured', message: 'No red evidence.' };
+        return args.json ? stringify(result) : `Red evidence: not configured\nStory: ${args.storyId}`;
+      }
+      return renderStored('Red evidence', evidence, args);
+    },
+
+    spike_start(args: { storyId: string; id?: string; question: string; note?: string; json?: boolean }): string {
+      if (!args.storyId) throw new Error('storyId is required');
+      store.readStory(args.storyId);
+      const spikes = startSpike(args, store.readProofStorySpikes(args.storyId));
+      store.writeProofStorySpikes(args.storyId, spikes);
+      if (args.json) return stringify(spikes);
+      return `Spike: started ${spikes.spikes.at(-1)?.id ?? '(unknown)'}\nActive spikes: ${spikes.spikes.filter(s => s.status === 'active').length}`;
+    },
+
+    spike_result_set(args: { storyId: string; id: string; result: string; note?: string; json?: boolean }): string {
+      if (!args.storyId) throw new Error('storyId is required');
+      const spikes = setSpikeResult(args, store.readProofStorySpikes(args.storyId));
+      store.writeProofStorySpikes(args.storyId, spikes);
+      if (args.json) return stringify(spikes);
+      return `Spike: resolved ${args.id}`;
+    },
+
+    spike_result(args: { storyId: string; id: string; result: string; note?: string; json?: boolean }): string {
+      if (!args.storyId) throw new Error('storyId is required');
+      const spikes = setSpikeResult(args, store.readProofStorySpikes(args.storyId));
+      store.writeProofStorySpikes(args.storyId, spikes);
+      if (args.json) return stringify(spikes);
+      return `Spike: resolved ${args.id}`;
+    },
+
+    spike_discard(args: { storyId: string; id: string; note?: string; json?: boolean }): string {
+      if (!args.storyId) throw new Error('storyId is required');
+      const spikes = setSpikeStatus(args, store.readProofStorySpikes(args.storyId), 'discarded');
+      store.writeProofStorySpikes(args.storyId, spikes);
+      if (args.json) return stringify(spikes);
+      return `Spike: discarded ${args.id}`;
+    },
+
+    spike_promote(args: { storyId: string; id: string; promotedAs?: 'red_evidence' | 'verification_evidence' | 'scope_decision' | 'implementation_note'; note?: string; json?: boolean }): string {
+      if (!args.storyId) throw new Error('storyId is required');
+      const spikes = setSpikeStatus(args, store.readProofStorySpikes(args.storyId), 'promoted');
+      store.writeProofStorySpikes(args.storyId, spikes);
+      if (args.json) return stringify(spikes);
+      return `Spike: promoted ${args.id}\nPromotion is audit metadata only; create red or verification evidence separately.`;
+    },
+
+    spike_get(args: { storyId: string; json?: boolean }): string {
+      if (!args.storyId) throw new Error('storyId is required');
+      const spikes = store.readProofStorySpikes(args.storyId);
+      if (!spikes) {
+        const result = { storyId: args.storyId, status: 'not_configured', message: 'No spike evidence.' };
+        return args.json ? stringify(result) : `Spike evidence: not configured\nStory: ${args.storyId}`;
+      }
+      return renderStored('Spike evidence', spikes, args);
+    },
+
+    intent_coverage_check(args: { storyId: string; dryRun?: boolean; mode?: ProofStoryGateMode; json?: boolean }): string {
+      if (!args.storyId) throw new Error('storyId is required');
+      const report = evaluateProofStoryDiagnostics(diagnosticInput(args.storyId), resolveMode(args));
+      const coverageGaps = [
+        ...report.missingMvpArtifacts,
+        ...report.missingMilestoneCoverage,
+        ...report.missingConfirmedLedger,
+        ...report.missingAcceptanceBindings,
+      ];
+      const coverageBlocking = report.mode === 'enforce' && coverageGaps.length > 0;
+      const coverageStatus: 'pass' | 'warn' | 'fail' = coverageBlocking ? 'fail' : coverageGaps.length > 0 ? 'warn' : 'pass';
       const coverageReport = {
         ...report,
-        gaps: [
-          ...report.missingMvpArtifacts,
-          ...report.missingMilestoneCoverage,
-          ...report.missingAcceptanceBindings,
-        ],
-        wouldBlockFutureDevAdmission: [
-          ...report.missingMvpArtifacts,
-          ...report.missingMilestoneCoverage,
-          ...report.missingAcceptanceBindings,
-        ].length > 0,
+        status: coverageStatus,
+        blocking: coverageBlocking,
+        gaps: coverageGaps,
+        wouldBlockFutureDevAdmission: coverageGaps.length > 0,
       };
-      if (args.json) return stringify(coverageReport);
-      return renderProofStoryDiagnosticReport(coverageReport);
+      if (args.json) return enforceOrRender(coverageReport, stringify(coverageReport));
+      return enforceOrRender(coverageReport, renderProofStoryDiagnosticReport(coverageReport));
     },
 
-    proofstory_gate_check(args: { storyId: string; dryRun?: boolean; json?: boolean }): string {
+    proofstory_gate_check(args: { storyId: string; dryRun?: boolean; mode?: ProofStoryGateMode; json?: boolean }): string {
       if (!args.storyId) throw new Error('storyId is required');
-      requireDryRun('proofstory_gate_check', args.dryRun);
-      const report = evaluateProofStoryDiagnostics(diagnosticInput(args.storyId));
-      if (args.json) return stringify(report);
-      return renderProofStoryDiagnosticReport(report);
+      return renderGateReport(args.storyId, args);
+    },
+
+    done_intent_equivalence_check(args: { storyId: string; mode?: ProofStoryGateMode; json?: boolean }): string {
+      if (!args.storyId) throw new Error('storyId is required');
+      const report = evaluateDoneIntentEquivalence(diagnosticInput(args.storyId), resolveMode(args));
+      if (args.json) return enforceOrRender(report, stringify(report));
+      return enforceOrRender(
+        report,
+        [
+          `DONE intent equivalence for ${report.storyId}`,
+          `Mode: ${report.mode}`,
+          `Status: ${report.status}`,
+          `Blocking: ${report.blocking ? 'yes' : 'no'}`,
+          `Uncovered required milestones: ${report.uncoveredRequiredMilestoneIds.join(', ') || 'none'}`,
+          `Accepted shrinkage milestones: ${report.acceptedShrinkageMilestoneIds.join(', ') || 'none'}`,
+          `Gaps: ${report.gaps.length}`,
+          ...report.gaps.map((gap) => `  - ${gap.code}: ${gap.message}`),
+        ].join('\n'),
+      );
+    },
+
+    proofstory_review_completeness_check(args: { storyId: string; mode?: ProofStoryGateMode; json?: boolean }): string {
+      if (!args.storyId) throw new Error('storyId is required');
+      const report = evaluateReviewCompleteness(diagnosticInput(args.storyId), resolveMode(args));
+      if (args.json) return enforceOrRender(report, stringify(report));
+      return enforceOrRender(
+        report,
+        [
+          `ProofStory REVIEW completeness for ${report.storyId}`,
+          `Mode: ${report.mode}`,
+          `Status: ${report.status}`,
+          `Blocking: ${report.blocking ? 'yes' : 'no'}`,
+          `Gaps: ${report.gaps.length}`,
+          ...report.gaps.map((gap) => `  - ${gap.code}: ${gap.message}`),
+        ].join('\n'),
+      );
     },
   };
 }

@@ -1,0 +1,49 @@
+{
+  "passes": [
+    {
+      "id": "B-f7b7:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept review pass for current HEAD a2b1695. Verified ProofStory remains a pre-DEV contract layer: writer commands are phase-limited to INIT/PLAN except explicit scope shrinkage, DEV admission including rollback uses the existing story machine ProofStory gate, REVIEW/DONE use existing preflight gates, diagnostics remain read-only observe/warn/enforce surfaces, no second lifecycle state machine or child-story scheduler is introduced, and prior concept blocker F-004 appears addressed in command policy plus phase tools.",
+      "createdAt": "2026-06-30T00:22:05.833Z",
+      "reviewRound": "2026-06-30T00:19:36.495Z",
+      "reviewRunId": "B-f7b7:RR-006",
+      "_hash": "df1efb23de7328a724e1f8837e0aa35719ba89dcb3271d18c245e68bce9a1fa6"
+    },
+    {
+      "id": "B-f7b7:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "F-010/F-009 coverage verified: the smoke asserts proofStory.devGateMode=enforce blocks PLAN->DEV and REVIEW/TEST->DEV via machine helper, guard reason, and story_advance; it also asserts failed result with success verdict, failed waiver, and deferred waiver do not satisfy REVIEW/DONE coverage. Ran node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js and node scripts/verify-process-fact-contract.mjs; both passed.",
+      "createdAt": "2026-06-30T00:33:46.472Z",
+      "reviewRound": "2026-06-30T00:30:27.039Z",
+      "reviewRunId": "B-f7b7:RR-011",
+      "_hash": "837b764ee4b0792db1c1a9a2e4e7c7a496e43c40cabd81bdde1a80bbc01ef1f2"
+    },
+    {
+      "id": "B-f7b7:RP-003",
+      "agent": "lattice-review-docs",
+      "note": "Docs review after F-001/F-003/F-008 fixes: artifact model documents split ProofStory artifacts with proofstory.json as contract envelope; implemented command inventory matches catalog/handler; read-only diagnostics are command output only; userConfirmed:true shrinkage semantics are documented and match core/catalog policy. No blocking docs findings.",
+      "createdAt": "2026-06-30T00:34:12.780Z",
+      "reviewRound": "2026-06-30T00:30:27.039Z",
+      "reviewRunId": "B-f7b7:RR-013",
+      "_hash": "8a85651c791763a5069b2d4bbef0f062e040d608e5665b6709e6e359651c9ec1"
+    },
+    {
+      "id": "B-f7b7:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Concept review passed: ProofStory remains a pre-DEV contract layer integrated through existing story-machine DEV guards and REVIEW/DONE phase gates, with diagnostics staying read-only and no second lifecycle state machine found. F-008 split artifact docs, F-009 evidence result/pass semantics, and F-010 devGateMode lifecycle coverage were inspected and validated via smoke/process-fact checks.",
+      "createdAt": "2026-06-30T00:34:27.675Z",
+      "reviewRound": "2026-06-30T00:30:27.039Z",
+      "reviewRunId": "B-f7b7:RR-012",
+      "_hash": "58a9d5f6a794997dd6b699c4f588dc8d7ed3f93a5600506c84da26d9dff7c49c"
+    },
+    {
+      "id": "B-f7b7:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Quality review pass for F-009 fixes: evidenceCoversIntent no longer treats verdict labels as proof, result=fail with verdict=success or failed waiver remains uncovered for REVIEW/DONE, deferred_gate_evidence never covers, permanent waivers only cover when not failed, and process-fact contract asserts ProofStory L4 gate-consumed command/artifact policy. Verified with npm --prefix packages/main run build, node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js, and node scripts/verify-process-fact-contract.mjs.",
+      "createdAt": "2026-06-30T00:34:28.772Z",
+      "reviewRound": "2026-06-30T00:30:27.039Z",
+      "reviewRunId": "B-f7b7:RR-010",
+      "_hash": "bcaf32acabb44b4eb5d1b47f5360c03fa1faf4ef969bdef0d1a9a123aabf81fb"
+    }
+  ]
+}

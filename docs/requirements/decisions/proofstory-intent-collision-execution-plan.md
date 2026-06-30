@@ -178,15 +178,15 @@ story_create or story_draft
        -> understanding_set
        -> intent_collision_set
        -> confirm milestone ledger against the accepted intent interpretation
-       -> intent_coverage_check
        -> ledger sizing check on the confirmed milestone ledger
             -> if small enough: continue
             -> if too broad: produce slice-plan diagnostics and stop before DEV
        -> decision_set when required
        -> checklist + verificationIntent
-       -> proofstory_contract_set
        -> red_evidence_* when required
        -> spike_* when required
+       -> proofstory_contract_set with acceptanceBindings
+       -> intent_coverage_check
        -> proofstory_gate_check
        -> story_review
   -> DEV
@@ -222,14 +222,23 @@ ProofStory gate passed -> DEV may start
 
 ## Artifact Model
 
-The ProofStory layer should write one canonical structured artifact:
+`proofstory.json` is the ProofStory contract envelope: it stores durable
+acceptance bindings and contract metadata, not the entire ProofStory state. The
+MVP persists split gate-consumed artifacts alongside that envelope:
 
 ```text
 .lattice/story/actives/<storyId>/proofstory.json
+.lattice/story/actives/<storyId>/original-intent-snapshot.json
+.lattice/story/actives/<storyId>/milestone-ledger.json
+.lattice/story/actives/<storyId>/intent-collision.json
+.lattice/story/actives/<storyId>/scope-shrinkage-decision.json
+.lattice/story/actives/<storyId>/red-evidence.json
+.lattice/story/actives/<storyId>/spike.json
 ```
 
-The artifact must be written only by CLI handlers. Direct file editing is not a
-valid path.
+Read-only diagnostics such as coverage, gate, review-completeness, and DONE
+intent-equivalence checks remain command output in the MVP. Durable artifacts
+must be written only by CLI handlers. Direct file editing is not a valid path.
 
 ### Intent Fidelity Layer
 
@@ -456,16 +465,22 @@ Parent DONE requires:
 originalIntentSnapshot.keyRequirements
   -> confirmedMilestoneLedger.milestones
   -> checklist.items
+  -> acceptanceContract.criteria
   -> verificationIntent
-  -> verificationEvidence
-  -> delivery-check docsPromises / realMachineTests
 ```
 
-Coverage must be checked at two points:
+`intentCoverageCheck` is a pre-DEV coverage check. It must not require
+`verificationEvidence` or delivery-check evidence, because those are produced
+later in DEV/TEST/DONE. Evidence freshness belongs to TEST validation, and
+delivery equivalence belongs to the DONE delivery-check / intent-equivalence
+gate.
 
-- before DEV, to prevent implementation of an incomplete contract;
-- before DONE, to prevent checklist completion from being mistaken for original
-  intent completion.
+Coverage-related gates still exist at two points:
+
+- before DEV, `intentCoverageCheck` prevents implementation of an incomplete
+  contract;
+- before DONE, the delivery-check / intent-equivalence gate prevents checklist
+  completion from being mistaken for original intent completion.
 
 ### Scope Shrinkage Guard
 
@@ -727,7 +742,7 @@ The intent critic must attempt to falsify the current interpretation:
 | `human_gate` | User clarification is required | Block DEV |
 | `stop` | Request is not justified or should not be implemented | Block DEV |
 
-### Command Proposal
+### Full-Form Command Proposal
 
 ```text
 intent_collision_start
@@ -737,10 +752,11 @@ intent_collision_set
 intent_collision_get
 ```
 
-MVP may reuse the existing `grill_*` planning commands as the conversation
-container, but the gate-consumed collision result should be a separate signed
-artifact. `grill.json` remains planning context; `intent-collision.json` is the
-gate artifact.
+The MVP implements the collapsed `intent_collision_set` / `intent_collision_get`
+surface only. The `start` / `record` / `resolve` split remains a future command
+proposal for richer multi-turn collision sessions. The gate-consumed collision
+result is the separate `intent-collision.json` artifact; planning conversation
+containers remain context only.
 
 ## VerificationIntent Placement
 
@@ -850,6 +866,11 @@ spike_promote
 spike_get
 ```
 
+The MVP implements this spike command family directly. Spike promotion remains
+audit metadata only; promoted spike output still needs explicit red evidence,
+verification evidence, scope decision, or implementation evidence before it can
+satisfy a downstream gate.
+
 ## ProofStory Gate
 
 The ProofStory gate is the hard boundary before DEV.
@@ -865,8 +886,8 @@ The gate must require:
 - confirmed milestone ledger for multi-deliverable requests;
 - ledger sizing result for confirmed milestone ledgers;
 - acceptance contract;
-- intent coverage check;
 - verificationIntent bindings;
+- intent coverage check;
 - scope contract;
 - risk classification;
 - minimality check;
@@ -941,7 +962,7 @@ review escalation when the review-escalation policy triggers.
 
 ## Command Family
 
-### New Commands
+### Implemented MVP Commands
 
 ```text
 original_intent_snapshot_set
@@ -954,9 +975,6 @@ scope_shrinkage_decision_set
 scope_shrinkage_decision_get
 done_intent_equivalence_check
 
-intent_collision_start
-intent_collision_record
-intent_collision_resolve
 intent_collision_set
 intent_collision_get
 
@@ -964,24 +982,17 @@ proofstory_contract_set
 proofstory_contract_get
 proofstory_gate_check
 
-acceptance_contract_set
-acceptance_criterion_add
-acceptance_evidence_bind
-
 red_evidence_create
-red_evidence_validate
 red_evidence_get
 
 spike_start
 spike_result_set
+spike_result
 spike_discard
 spike_promote
 spike_get
 
-minimality_check_set
-minimality_alternative_record
-risk_classify
-assurance_level_set
+proofstory_review_completeness_check
 ```
 
 The MVP should not add a standalone hardening command. The hardening level can
@@ -995,6 +1006,26 @@ be reported first through `proofstory_gate_check --dryRun` and
 `intent_coverage_check --dryRun`. Future commands such as `slice_plan_set` or
 parent-child orchestration should be added only after diagnostics show that
 manual slice planning is not enough.
+
+The MVP also avoids standalone acceptance-contract, risk, assurance, and
+minimality commands. Acceptance criteria and binding are represented by
+`proofstory_contract_set.acceptanceBindings`; risk and hardening are derived by
+diagnostics and configuration. Future command proposals that are not implemented
+by this MVP include:
+
+```text
+intent_collision_start
+intent_collision_record
+intent_collision_resolve
+acceptance_contract_set
+acceptance_criterion_add
+acceptance_evidence_bind
+red_evidence_validate
+minimality_check_set
+minimality_alternative_record
+risk_classify
+assurance_level_set
+```
 
 ### Existing Commands To Reuse
 
@@ -1017,21 +1048,23 @@ delivery_check_set
 
 ## Storage And Process Facts
 
-New gate-consumed artifacts:
+Implemented MVP gate-consumed artifacts:
 
 ```text
 .lattice/story/actives/<storyId>/intent-collision.json
 .lattice/story/actives/<storyId>/proofstory.json
 .lattice/story/actives/<storyId>/original-intent-snapshot.json
 .lattice/story/actives/<storyId>/milestone-ledger.json
-.lattice/story/actives/<storyId>/intent-coverage-check.json
 .lattice/story/actives/<storyId>/scope-shrinkage-decision.json
-.lattice/story/actives/<storyId>/done-intent-equivalence.json
 .lattice/story/actives/<storyId>/red-evidence.json
 .lattice/story/actives/<storyId>/spike.json
-.lattice/story/actives/<storyId>/acceptance-contract.json
-.lattice/story/actives/<storyId>/minimality-check.json
 ```
+
+Read-only diagnostics such as `intent_coverage_check`,
+`proofstory_gate_check`, `done_intent_equivalence_check`, and
+`proofstory_review_completeness_check` do not create durable gate artifacts in
+the MVP. Their results are command output; durable acceptance binding lives in
+`proofstory.json`.
 
 Future parent-child orchestration may add:
 
@@ -1149,8 +1182,8 @@ Acceptance:
 Deliver:
 
 - `proofstory_contract_set`;
-- `acceptance_contract_set`;
-- `acceptance_evidence_bind`;
+- `proofstory_contract_set.acceptanceBindings` as the MVP acceptance contract
+  and verification binding surface;
 - `intent_coverage_check`;
 - `proofstory_gate_check`;
 - ledger sizing checks for `too_broad` and `slice_required`;
@@ -1193,7 +1226,7 @@ Acceptance:
 Deliver:
 
 - `red_evidence_create`;
-- `red_evidence_validate`;
+- red-evidence validation through ProofStory diagnostics and gate checks;
 - baseline head/material binding;
 - transition relation to current green evidence.
 
@@ -1227,8 +1260,10 @@ Acceptance:
 Deliver:
 
 - documented REVIEW critic orchestration in active prompts;
-- optional `lattice-review-completeness` lane or MVP provenance through existing
-  real reviewer lanes;
+- `proofstory_review_completeness_check` as the MVP read-only completeness
+  diagnostic;
+- future optional `lattice-review-completeness` lane or current provenance
+  through existing real reviewer lanes;
 - gate behavior for critic-confirmed findings.
 
 Acceptance:

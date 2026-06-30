@@ -1,0 +1,102 @@
+{
+  "storyId": "B-f7b7",
+  "checkedAt": "2026-06-30T00:42:52.635Z",
+  "headHash": "8c9a4c1a0de1b3b5e0b034bb595fa8559b6cfaeb",
+  "materialHash": "9b61e4e64514273a42ee11e1d58386c6a21a8bfe8d472680cbde740cf6320177",
+  "storyFilesHash": "014ac7228a700dffc18c08875a6c393aaf679dc88e1b9d397257883f44fa0584",
+  "reviewRound": "2026-06-30T00:30:27.039Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+      "promise": "M0: ProofStory lifecycle documentation keeps ledger sizing before checklist, intent_coverage_check after checklist/verificationIntent/acceptance binding, and DONE evidence in delivery/equivalence checks.",
+      "status": "verified",
+      "verifiedBy": "decision-doc review plus smoke/test evidence",
+      "evidence": "Decision doc lines 174-190 and M0/M2 sections 1093-1150 describe the corrected order; test-evidence.json lines 66-67 records the doc-order equivalent PASS; summary_get records M0-M9 docs alignment."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+      "promise": "M1: ProofStory stores immutable original intent snapshots and candidate/confirmed milestone ledgers with stable request hashes.",
+      "status": "verified",
+      "verifiedBy": "CLI/schema/handler/store review plus focused smoke",
+      "evidence": "command-catalog.ts lines 2014-2045 exposes original_intent_snapshot and milestone_ledger commands; handlers/proofstory.ts lines 92-182 persists and reads them; types.ts lines 1769-1813 defines the schemas; smoke lines 186-276 exercises persistence, immutability, candidate ledger, append, and get; test-evidence.json lines 86-128 PASS."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+      "promise": "M2: proofstory_gate_check and intent_coverage_check are read-only diagnostics for missing artifacts, triggers, ledger sizing, thresholds, too_broad, and suggested slicing.",
+      "status": "verified",
+      "verifiedBy": "CLI/handler/core review plus focused smoke",
+      "evidence": "command-catalog.ts lines 2136-2146 marks both checks as diagnostics; handlers/proofstory.ts lines 396-421 renders without writing; core/proofstory.ts lines 588-747 classifies triggers, missing artifacts, and ledger sizing; smoke lines 164-186, 318-345 cover observe/enforce diagnostics; test-evidence.json lines 146-188 PASS."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+      "promise": "M3: Intent collision artifacts support accepted, revise_intent, human_gate, and stop outcomes and bind confirmed ledgers only to accepted interpretation.",
+      "status": "verified",
+      "verifiedBy": "CLI/handler/core review plus focused smoke",
+      "evidence": "command-catalog.ts lines 2059-2067 exposes intent_collision_set/get; handlers/proofstory.ts lines 196-230 persists decisions; core/proofstory.ts contains confirmMilestoneLedger and non-pass collision gap semantics; smoke lines 327-340 exercises revise then pass; test-evidence.json lines 206-248 PASS."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+      "promise": "M4: Triggered stories get would-block diagnostics and enforce-mode DEV admission can block when required ProofStory artifacts are missing or inconsistent, without creating a second lifecycle.",
+      "status": "verified",
+      "verifiedBy": "machine/gate policy review plus focused smoke",
+      "evidence": "config.ts lines 52-53 defines devGateMode; machine.ts lines 148-154, 513, 561, 586, and 990 wire proofStoryDevGateFailure into existing DEV entry/re-entry guards; command-policy.ts lines 356-378 keeps writers/readers in policy; smoke lines 94-120 and 344-345 verifies machine helper plus story_advance DEV blocking; test-evidence.json lines 266-308 PASS."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+      "promise": "M5: Scope shrinkage requires explicit user confirmation, and DONE intent equivalence compares original intent, confirmed ledger, delivery evidence, and shrinkage decisions.",
+      "status": "verified",
+      "verifiedBy": "CLI/schema/core/phase-gate review plus focused smoke",
+      "evidence": "command-catalog.ts lines 2071-2080 and handlers/proofstory.ts lines 286-307 expose scope_shrinkage_decision_set/get with userConfirmed; phase-gates.ts lines 460-474 wires DONE equivalence; smoke lines 379-449 covers missing coverage, failed/deferred evidence rejection, userConfirmed requirement, and equivalence; finding F-001 resolved as fixed; test-evidence.json lines 326-368 PASS."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+      "promise": "M6: Risk-triggered stories can require red evidence while ordinary new features and docs-only stories stay lightweight; green tests cannot substitute for pre-fix red evidence.",
+      "status": "verified",
+      "verifiedBy": "CLI/handler/core review plus focused smoke",
+      "evidence": "command-catalog.ts lines 2084-2094 exposes red_evidence_create/get; handlers/proofstory.ts lines 317-335 persists red evidence; core/proofstory.ts lines 461 and 739 classify red-evidence triggers/gaps; smoke lines 354-361 and 541-543 cover pre-fix failure and trigger diagnostics; test-evidence.json lines 386-428 PASS."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+      "promise": "M7: Spike evidence can be recorded, resolved, discarded, or promoted while remaining investigation evidence, not automatic verificationEvidence or red evidence.",
+      "status": "verified",
+      "verifiedBy": "CLI/handler/core review plus focused smoke",
+      "evidence": "command-catalog.ts lines 2098-2132 exposes spike_start/result/discard/promote/get; handlers/proofstory.ts lines 345-388 persists spike states; core/proofstory.ts lines 548 and 747 classify active/unresolved spike evidence; smoke lines 347-352 covers active then resolved spike; test-evidence.json lines 446-488 PASS."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+      "promise": "M8: REVIEW completeness critic surfaces confirmed-ledger and acceptance-binding gaps so reviewers cannot accidentally pass missing user intent coverage.",
+      "status": "verified",
+      "verifiedBy": "handler/phase-gate/reviewer evidence review",
+      "evidence": "command-catalog.ts lines 2153-2156 exposes proofstory_review_completeness_check; handlers/proofstory.ts lines 442-449 renders REVIEW completeness; phase-gates.ts lines 292-306 wires REVIEW diagnostics; core/proofstory.ts lines 1049-1074 checks bound refs and passing evidence; reviewer_batch shows concept, quality, test-coverage, docs current-pass with no scope changes; test-evidence.json lines 506-548 PASS."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+      "promise": "M9: Enforcement is progressive: Intent MVP remains lightweight, triggered paths harden, and observe/warn/enforce modes block only when policy says so.",
+      "status": "verified",
+      "verifiedBy": "policy/registry/core/smoke review",
+      "evidence": "Decision doc lines 1277-1341 defines rollout modes; config.ts lines 52-53 defines ProofStory mode config; command-policy.ts lines 356-378 scopes ProofStory writers/readers; process-fact-levels.ts lines 283-305 and process-fact-registry.ts lines 898-959 classify gate-consumed facts; smoke lines 479-578 covers low-risk and trigger behavior; test-evidence.json lines 566-608 PASS."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "focused-proofstory-smoke",
+      "transcript": "Live smoke transcript exists at .lattice/story/actives/B-f7b7/evidence/live-smoke-transcript.json and is fresh: command node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js, exitCode 0, stdout ProofStory intent hardening smoke passed. Smoke source packages/main/src/tasks/proofstory-intent-hardening-smoke.ts covers M0-M9, edge/adversarial paths, DEV gate re-entry, userConfirmed shrinkage, failed-result verdict rejection, deferred_gate_evidence rejection, red evidence, and spike evidence."
+    },
+    {
+      "featureId": "configured-validate-test-evidence",
+      "transcript": "TEST validation evidence exists at .lattice/story/actives/B-f7b7/test-evidence.json: command lattice validate --story=B-f7b7 --json, result PASS at 2026-06-30T00:37:06.031Z, provider lattice-verifier-configured-commands, allPass true, materialHash 9b61e4e64514273a42ee11e1d58386c6a21a8bfe8d472680cbde740cf6320177, storyFilesHash 014ac7228a700dffc18c08875a6c393aaf679dc88e1b9d397257883f44fa0584. lifecycle_check and done_closure both read this as validation PASS and 30/30 verification intents covered."
+    },
+    {
+      "featureId": "done-required-root-suite",
+      "transcript": "DONE-required evidence exists at .lattice/story/actives/B-f7b7/done-required-evidence.json with status PASS, endedAt 2026-06-30T00:39:12.111Z. Receipts show packages/main build: npm --prefix packages/main run build PASS exitCode 0, and root full test suite: npm test PASS exitCode 0. done_closure reports DONE-required validation PASS with 2 required commands."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery review verified ProofStory M0-M9 docs/code/test promises against the decision doc, story summary, focused smoke transcript, TEST validation, and DONE-required root suite evidence. Edge/adversarial coverage includes userConfirmed scope shrinkage, failed-result verdict rejection, deferred_gate_evidence rejection, red/spike trigger behavior, and PLAN/REVIEW/TEST DEV gate blocking. No unresolved TODO/FIXME markers were found in the changed ProofStory surface. Advisory scope warning for scripts/verify-process-fact-contract.mjs is acknowledged as non-blocking because the process-fact contract passed and the file is verification support for the declared process-fact changes. Ordinary reviewer lanes concept, quality, test-coverage, and docs are current-pass with no scope changes; separate review escalation/assurance-floor quorum remains a pre-DONE blocker outside this delivery check."
+  },
+  "_hash": "42ce64ceaf080dcfc20adca867569fdf81d4144f789628df0d566fd69a247537"
+}

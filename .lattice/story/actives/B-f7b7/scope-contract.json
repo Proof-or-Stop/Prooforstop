@@ -1,0 +1,52 @@
+{
+  "storyId": "B-f7b7",
+  "mode": "enforce",
+  "allowedModify": [
+    "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/core/store.ts",
+    "packages/main/src/core/proofstory.ts",
+    "packages/main/src/handlers/proofstory.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/handlers/phase-gates.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+    "packages/main/tests"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "ProofStory adds new gate-consumed process facts and artifact classifications, so the process fact contract verifier must be updated with the registry changes.",
+      "timestamp": "2026-06-30T00:01:31.641Z",
+      "paths": [
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "26a754e4727bdbed439c02cc7868e8bc33898062",
+      "materialHash": "647cee8a847ce790aa13657e95ffaf1ae9c659c484228a357a54e12afaf2acd9",
+      "anchors": [
+        "process_fact_registry",
+        "ProofStory.command_policy",
+        "M9.risk_adaptive_enforcement_rollout"
+      ]
+    }
+  ],
+  "createdAt": "2026-06-29T23:42:51.461Z",
+  "updatedAt": "2026-06-30T00:01:31.641Z"
+}

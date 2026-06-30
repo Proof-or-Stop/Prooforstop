@@ -41,6 +41,11 @@ import {
   evaluateStoryEvidenceBindingGate,
   formatStoryEvidenceBindingGateFailure,
 } from './repro-evidence-binding-gate.js';
+import {
+  evaluateProofStoryDiagnostics,
+  renderProofStoryDiagnosticReport,
+  type ProofStoryDiagnosticInput,
+} from './proofstory.js';
 
 /**
  * Resolve effective blocking severities with round decay.
@@ -117,6 +122,36 @@ function projectScopeFreezeChecklist(store: StoryStore, storyId: string): ScopeF
   } catch {
     return [];
   }
+}
+
+function proofStoryDiagnosticInput(store: StoryStore, storyId: string): ProofStoryDiagnosticInput {
+  let checklist;
+  try {
+    checklist = store.readChecklist(storyId);
+  } catch {
+    checklist = { items: [] };
+  }
+  return {
+    story: store.readStory(storyId),
+    checklist,
+    originalIntentSnapshot: store.readOriginalIntentSnapshot(storyId),
+    milestoneLedger: store.readMilestoneLedger(storyId),
+    proofStoryContract: store.readProofStoryContract(storyId),
+    intentCollision: store.readIntentCollision(storyId),
+    scopeContract: store.readScopeContract(storyId),
+    scopeShrinkageDecision: store.readScopeShrinkageDecision(storyId),
+    redEvidence: store.readRedEvidence(storyId),
+    spikeEvidence: store.readProofStorySpikes(storyId),
+  };
+}
+
+function proofStoryDevGateFailure(store: StoryStore, projectRoot: string | undefined, storyId: string): string | null {
+  if (!projectRoot) return null;
+  const mode = loadConfig(projectRoot).proofStory?.devGateMode ?? 'observe';
+  if (mode !== 'enforce') return null;
+  const report = evaluateProofStoryDiagnostics(proofStoryDiagnosticInput(store, storyId), 'enforce');
+  if (!report.blocking) return null;
+  return `Cannot enter DEV: ProofStory DEV gate is enforce and required intent artifacts are incomplete.\n${renderProofStoryDiagnosticReport(report)}`;
 }
 
 function firstHardScopeIssue(check: ScopeFreezeCheckData): ScopeFreezeIssue | null {
@@ -475,6 +510,7 @@ export function canStartDevGuard(context: StoryMachineContext): boolean {
     const story = context.store.readStory(context.storyId);
     const policy = resolveWorkflowPolicy(config, story);
     if (evaluateStoryEvidenceBindingGate(context.projectRoot, context.store, context.storyId).blocking) return false;
+    if (proofStoryDevGateFailure(context.store, context.projectRoot, context.storyId)) return false;
     // F-001: ONLY the review-record checks are gated on requireStoryReview. The parallel
     // sub-check below must run on EVERY door into DEV (it used to be skipped when review was
     // not required, which made the hard block bypassable). The early `return true` is gone.
@@ -522,6 +558,7 @@ export function canSkipPlanGuard(context: StoryMachineContext): boolean {
     const cl = context.store.readChecklist(context.storyId);
     if (cl.items.length > policy.quickPath.maxChecklistItems) return false;
     if (evaluateStoryEvidenceBindingGate(context.projectRoot, context.store, context.storyId).blocking) return false;
+    if (proofStoryDevGateFailure(context.store, context.projectRoot, context.storyId)) return false;
     // F-003: the INIT_CHECK→DEV express channel is ALSO a door into DEV, so it must enforce the
     // SAME parallel hard-block (otherwise an express story bypasses the gate). Shared FAIL-OPEN
     // wrapper: a gate/config infra error must never strand the express channel.
@@ -535,15 +572,18 @@ export function canSkipPlanGuard(context: StoryMachineContext): boolean {
 /**
  * F-006: the ROLLBACK doors REVIEW→DEV and TEST→DEV ("rework" via story_advance DEV). These are
  * NOT subject to the review/express gates (a rollback must not re-demand a clean review), but they
- * ARE doors into DEV, so they must enforce the SAME parallel hard-block under mode='block'.
+ * ARE doors into DEV, so they must enforce the SAME ProofStory DEV admission gate and parallel
+ * hard-block used by PLAN/INIT_CHECK DEV entry.
  * Returns true to ALLOW re-entry, false to refuse. FAIL-OPEN: any infra error → allow (a rollback
- * must never be stranded by a gate/config error), via parallelDevEntryBlock + the outer catch.
+ * must never be stranded by a gate/config error), via proofStoryDevGateFailure,
+ * parallelDevEntryBlock, and the outer catch.
  */
 export function canReenterDevGuard(context: StoryMachineContext): boolean {
   try {
     const config = loadConfig(context.projectRoot);
     const story = context.store.readStory(context.storyId);
     const policy = resolveWorkflowPolicy(config, story);
+    if (proofStoryDevGateFailure(context.store, context.projectRoot, context.storyId)) return false;
     return parallelDevEntryBlock(context.store, context.projectRoot, story, policy.profile) === null;
   } catch {
     return true; // FAIL-OPEN: an infra error must never block a rollback into DEV (spec §4.8)
@@ -947,6 +987,8 @@ export function getGuardFailureReason(
       const reproGateFailure = formatStoryEvidenceBindingGateFailure('DEV', storyId, reproGate);
       if (reproGateFailure) return reproGateFailure;
     }
+    const proofStoryFailure = proofStoryDevGateFailure(store, projectRoot, storyId);
+    if (proofStoryFailure) return proofStoryFailure;
 
     // Normal PLAN → DEV path: requires story_review to pass (unless policy does not require it).
     // Skipped entirely for an express-channel story AND for a rollback door (review does not apply
