@@ -531,9 +531,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-30T22:29:46.544Z",
-      "endTime": null,
+      "endTime": "2026-06-30T22:29:49.006Z",
       "userSees": "\"M10\" row shows \"closed\": true and \"lattice-parallel-wave-smoke\" is listed as evidence.",
       "files": {
         "modify": [
@@ -821,6 +821,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Start M10 final evidence recording after implementation commit."
+    },
+    {
+      "timestamp": "2026-06-30T22:29:49.006Z",
+      "phase": "DEV",
+      "itemId": "CHK-007",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "M10 completed after evidence-backed roadmap closure verification."
     }
   ]
 }
