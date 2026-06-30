@@ -1,0 +1,80 @@
+{
+  "principles": [
+    "Resolve every user-requested capability row explicitly; no silent partial completion.",
+    "Prefer mechanical tests and gate evidence over prose claims.",
+    "Retire removed capabilities plainly instead of preserving misleading future backlog.",
+    "Keep diagnostic surfaces diagnostic unless code and config enforce them.",
+    "Preserve experiment evidence unless a guard proves it is invalid."
+  ],
+  "drivers": [
+    "Seven capability rows span docs, gates, status projections, and proof admissibility semantics.",
+    "Authority Server has been removed and must not be restored as an active system.",
+    "B-c004 should validate whether B-5082-style intent totality prevents milestone shrinkage."
+  ],
+  "options": [
+    {
+      "name": "A: Audit-first closure with red/diagnostic tests, then implement or retire each row",
+      "pros": [
+        "Directly matches the user request to verify need or prior coverage before implementation",
+        "Creates evidence for each of the seven rows",
+        "Allows removed capabilities to be retired without pretending they are implemented"
+      ],
+      "cons": [
+        "Requires more PLAN and evidence work than a narrow code patch",
+        "May determine that some rows should be non-goals rather than new runtime features"
+      ]
+    },
+    {
+      "name": "B: Implement all seven rows as runtime features immediately",
+      "pros": [
+        "Looks decisive and code-heavy",
+        "Could close some partial rows quickly"
+      ],
+      "cons": [
+        "Risks reintroducing Authority Server or overbuilding future/non-goal rows",
+        "Does not prove existing coverage before mutation",
+        "Could preserve the original failure mode where checklist completion diverges from user intent"
+      ]
+    },
+    {
+      "name": "C: Documentation-only cleanup",
+      "pros": [
+        "Fast and low implementation risk",
+        "Can clarify retired language quickly"
+      ],
+      "cons": [
+        "Would not satisfy rows that need tests or runtime enforcement",
+        "Would not verify queue/runtime/CommandSpec/waterline behavior mechanically"
+      ]
+    }
+  ],
+  "chosen": "A: Audit-first closure with red/diagnostic tests, then implement or retire each row",
+  "rationale": "Option A is the only option that preserves the seven-row user intent while avoiding both silent shrinkage and unnecessary restoration of retired Authority Server work.",
+  "preMortem": [
+    {
+      "scenario": "A row is marked done because docs say partial/future rather than because behavior is resolved.",
+      "trigger": "Checklist status is updated before red/diagnostic evidence exists.",
+      "consequence": "The story repeats the M0-M9 failure pattern and leaves hidden partial capabilities.",
+      "mitigation": "Do not mark any checklist item done until it has row-specific test or docs evidence and is bound to verificationIntent."
+    },
+    {
+      "scenario": "Authority Server vocabulary cleanup accidentally removes valid legacy compatibility constants or reintroduces server requirements.",
+      "trigger": "A broad search-and-replace changes code enums or docs without considering consumer compatibility.",
+      "consequence": "Existing proof admissibility tests break or docs again imply a removed server capability.",
+      "mitigation": "Use targeted wording: legacy/local/shadow compatibility remains, active Authority Server conformance is retired."
+    },
+    {
+      "scenario": "Runtime enforcement is globally claimed but config remains warn or unsafe to enforce by default.",
+      "trigger": "Status/docs are updated without checking enforce-mode behavior.",
+      "consequence": "Users believe DEV/DONE gates are hard-blocking when they are only diagnostic.",
+      "mitigation": "Test warn and enforce paths separately, and document rollback/default status precisely."
+    },
+    {
+      "scenario": "Tier-C cleanup deletes or misclassifies experiment evidence.",
+      "trigger": "Duplicate cleanup logic ignores Tier-C experiment exceptions.",
+      "consequence": "Evidence from provider-execution experiments is lost or misreported.",
+      "mitigation": "Keep valid Tier-C experiment rows preserved and only classify malformed/spoofed rows as cleanup-required."
+    }
+  ],
+  "timestamp": "2026-06-30T15:04:40.542Z"
+}

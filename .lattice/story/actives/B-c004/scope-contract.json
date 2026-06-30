@@ -1,0 +1,43 @@
+{
+  "storyId": "B-c004",
+  "mode": "enforce",
+  "allowedModify": [
+    "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+    "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+    "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+    "packages/main/src/core/lifecycle-control/control-status.ts",
+    "packages/main/src/core/lifecycle-control/queue/index.ts",
+    "packages/main/src/tasks/lifecycle-control-smoke.ts",
+    "packages/main/src/core/evidence/admissibility/index.ts",
+    "packages/main/src/core/lifecycle-control/consumption/index.ts",
+    "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts",
+    "packages/main/src/core/lifecycle-control/runtime/index.ts",
+    "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/main/src/core/evidence/types.ts",
+    "packages/main/src/core/repro-intake.ts",
+    "packages/main/src/core/lifecycle-control/dashboard/index.ts"
+  ],
+  "allowedCreate": [
+    "docs/requirements/decisions/control-plane-proof-capability-closure-audit.md"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/lifecycle-control-smoke.ts",
+    "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts",
+    "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+  ],
+  "protectedFiles": [
+    "docs/story/**",
+    "tests/fixtures/**",
+    ".omx/**"
+  ],
+  "explicitExcludes": [
+    "Authority Server runtime implementation",
+    "GitHub push or package publish",
+    "automatic parent-child story orchestration",
+    "unrelated docs outside the two referenced decision docs and explicit audit artifact"
+  ],
+  "scopeChangeReason": "Initialize enforce-mode scope contract from B-c004 PLAN checklist files after ProofStory reported scope ambiguity.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-30T15:05:17.820Z",
+  "updatedAt": "2026-06-30T15:05:17.820Z"
+}

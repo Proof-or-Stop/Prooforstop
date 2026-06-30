@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "proofstory.slice_plan.v1",
+  "storyId": "B-c004",
+  "ledgerHash": "sha256:3863395b9e8271ad76316731aa4797e40f0722925c1acd210156293d16c601d5",
+  "slices": [
+    {
+      "id": "slice-audit-vocabulary",
+      "milestoneIds": [
+        "M1",
+        "M2"
+      ],
+      "reason": "Audit closure and Authority Server vocabulary retirement are docs/guard-focused prerequisites for interpreting the remaining runtime rows."
+    },
+    {
+      "id": "slice-control-plane-cleanup-runtime",
+      "milestoneIds": [
+        "M3",
+        "M5",
+        "M6"
+      ],
+      "reason": "Tier-C cleanup policy, queue cleanup enforcement, and runtime closure enforcement are the lifecycle-control-plane behavior rows and share lifecycle-control tests."
+    },
+    {
+      "id": "slice-proof-admissibility-waterline",
+      "milestoneIds": [
+        "M4",
+        "M7"
+      ],
+      "reason": "Append-only admissibility ledger, CommandSpec envelope adoption, and project consumption waterline are proof-admissibility and consumer-waterline rows."
+    }
+  ],
+  "planHash": "sha256:8ae70e61f2cc7b7466c5414ec2ea3b1676c7ea96d0807effa3be785f858db73d",
+  "createdAt": "2026-06-30T15:05:17.453Z",
+  "updatedAt": "2026-06-30T15:05:17.453Z"
+}
