@@ -152,6 +152,15 @@
       "reviewRound": "2026-06-30T17:45:48.241Z",
       "reviewRunId": "B-c004:RR-032",
       "_hash": "fed40dd761398a7ad301f9f1390c7c128a530762470915e83f306ecfd752c8a0"
+    },
+    {
+      "id": "B-c004:RP-018",
+      "agent": "lattice-review-concept",
+      "note": "Concept re-review after ac66dd3a: no blocker. Resolved F-005/F-006/F-007 are coherent: active docs retire local CLI durable admissibility ledger storage as a non-goal, Appendix G now uses artifact-specific verifier output plus diagnostic waterline instead of ledger writes, and DONE_REQUIRED CommandSpec semantics remain fail-closed for missing/mismatched command specs. Verified with npm --prefix packages/main run build; npm --prefix packages/main run test:proof-admissibility-hardening; npm --prefix packages/main run test:proof-admissibility; npm --prefix packages/main run test:done-required-validation-smoke.",
+      "createdAt": "2026-06-30T17:48:08.342Z",
+      "reviewRound": "2026-06-30T17:45:48.241Z",
+      "reviewRunId": "B-c004:RR-035",
+      "_hash": "24fc0d8300d295a42cd40b83de364b993f855e910febae46cee7579944dfa0e2"
     }
   ]
 }
