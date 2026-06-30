@@ -1,0 +1,25 @@
+{
+  "findings": [
+    {
+      "id": "B-f7b7:F-001",
+      "desc": "Scope-shrinkage confirmation is not mechanically aligned with the decision doc. The doc requires a scope-shrinkage decision with userConfirmed:true and says reviewer/agent judgment is not enough (docs/requirements/decisions/proofstory-intent-collision-execution-plan.md:480-496), but the shipped command/data model only records decision, removedMilestoneIds, reason, and approvedBy, with approvedBy documented as human or agent and no userConfirmed field (packages/main/src/cli/command-catalog.ts:2071-2077; packages/main/src/core/types.ts:1889-1895). DONE equivalence then treats any decision=confirmed as accepted shrinkage and skips those milestones (packages/main/src/core/proofstory.ts:986-988,1010-1012). This lets an agent-authored shrinkage artifact satisfy DONE intent equivalence for a narrower outcome, contrary to the documented user-confirmation gate.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-30T00:04:36.117Z",
+      "reviewRound": "2026-06-30T00:01:49.378Z",
+      "reviewRunId": "B-f7b7:RR-004",
+      "_hash": "ed2fd480c80031aa47b4a8c55329204ba0f1963212e08174c3e5cf851504b572",
+      "files": [
+        "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+        "packages/main/src/cli/command-catalog.ts",
+        "packages/main/src/core/proofstory.ts",
+        "packages/main/src/core/types.ts"
+      ],
+      "signatureTag": "doc-code-drift|md|scope-shrinkage-confirmation",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
