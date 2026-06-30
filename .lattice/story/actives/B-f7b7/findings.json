@@ -163,6 +163,27 @@
       ],
       "signatureTag": "doc-code-drift|md|proofstory-artifact-model",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-f7b7:F-009",
+      "desc": "ProofStory REVIEW/DONE gates still let verdict override a failed result. The shared verification schema states that verdict does not override the result pass/fail gate (packages/main/src/cli/command-schemas.ts:70), and buildVerificationCoverage marks result=fail as failed before coverage (packages/main/src/core/verification.ts:116-125). But ProofStory evidenceCoversIntent returns true for row.verdict=success or waived even when row.result=fail (packages/main/src/core/proofstory.ts:522-530), and both evaluateDoneIntentEquivalence and evaluateReviewCompleteness consume that helper (packages/main/src/core/proofstory.ts:1022 and :1072). I verified this against current HEAD with a node --input-type=module probe importing packages/main/dist/core/proofstory.js: a checklist row with kind=logic_test, result=fail, verdict=success made done_intent_equivalence and review_completeness both return status=pass in enforce mode. The targeted smoke only covers deferred_gate_evidence and therefore does not lock the broader pass/fail verdict semantics. This lets failed evidence satisfy ProofStory gate-consumed facts.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-30T00:22:34.207Z",
+      "reviewRound": "2026-06-30T00:19:36.495Z",
+      "reviewRunId": "B-f7b7:RR-009",
+      "_hash": "920d19a1ac74175a179f3d9328f591ed8bc7248bafa1b4ac388a5ad569d4e32b",
+      "files": [
+        "packages/main/src/core/proofstory.ts",
+        "packages/main/src/core/verification.ts",
+        "packages/main/src/cli/command-schemas.ts",
+        "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|proofstory-failed-verdict-overrides",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
