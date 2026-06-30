@@ -227,7 +227,44 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "The user runs a CLI status command and sees parent roadmap totality state plus next actions.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/parent-roadmap.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/process-fact-levels.ts"
+        ],
+        "create": [
+          "packages/main/src/handlers/parent-roadmap.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/parent-roadmap-totality-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "CLI exposes parent roadmap totality status for full, partial, blocked, and invalid ledgers.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Lifecycle/status projection lists child-story-needed rows and works in warn/shadow/enforce-compatible modes.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Unrelated single-story work is not blocked or classified as a parent roadmap by accident.",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-007",
