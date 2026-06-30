@@ -382,7 +382,7 @@
       "context": "Covers M7 gap: spike evidence must not silently carry disposable code into implementation; promotion remains explicit and auditable.",
       "status": "done",
       "startTime": "2026-06-30T01:13:35.697Z",
-      "endTime": "2026-06-30T01:26:33.638Z",
+      "endTime": "2026-06-30T01:28:19.809Z",
       "relatedDocs": [
         "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md#M7-Spike-Evidence"
       ],
@@ -429,11 +429,11 @@
           "kind": "logic_test",
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js && node scripts/verify-process-fact-contract.mjs && git diff --check",
           "result": "pass",
-          "note": "Doc: proofstory-intent-collision-execution-plan.md M7 lines 1243-1260. Impl: types.ts ProofStorySpikeRecord disposableCodePaths; command-catalog/handlers expose spike_start disposableCodePaths; proofstory.ts disposableSpikeGaps emits active_disposable_spike_code until discarded/promoted and keeps spike separate from red/verification evidence. Smoke: resolved disposable spike still blocks until spike_promote.",
-          "headHash": "f48e3ad27deefe2d338623c3c68d25fbe8e9bbf0",
+          "note": "Doc: proofstory-intent-collision-execution-plan.md M7 lines 1243-1261 require spike_start/result/discard/promote and disposable-code checks. Impl: core/proofstory.ts disposableSpikeGaps emits active_disposable_spike_code until discarded/promoted and keeps spike evidence separate from red/verification evidence; handlers/proofstory.ts spike_promote says promotion is audit metadata only; command-catalog.ts exposes disposableCodePaths/promotedAs. Verification: build, ProofStory smoke, process-fact contract, and diff check passed; smoke covers resolved disposable spike still blocking until spike_promote and wrong/stale red evidence still not satisfied by spike evidence.",
+          "headHash": "db50c2f04f8baa4c23902c4599f33172db0ee4e0",
           "materialHash": "5d97b7951e9c3d8e03969199578c7c1c13adef7c61914d53c9fa10b699ada482",
           "storyFilesHash": "d66783474c814f8b35728b71ac3278123384b0e3b640ea1414ab6a5b9bc7d334",
-          "timestamp": "2026-06-30T01:26:34.112Z"
+          "timestamp": "2026-06-30T01:28:20.184Z"
         }
       ]
     },
