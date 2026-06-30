@@ -58,8 +58,8 @@
       "id": "CHK-002",
       "title": "Add ledger assignment fields for parent and child story slicing",
       "context": "Covers M1 gap: milestone ledger rows need optional parent ledger / assigned story fields without forcing one milestone to become one story.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-30T01:13:32.016Z",
       "endTime": null,
       "relatedDocs": [
         "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md#M1-Original-Intent-Snapshot-And-Milestone-Ledger"
@@ -402,6 +402,15 @@
       "timestamp": "2026-06-30T01:13:31.356Z",
       "phase": "DEV",
       "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "DEV: lattice-implementer is implementing this item; completion still requires document cross-check, code evidence, and verification evidence."
+    },
+    {
+      "timestamp": "2026-06-30T01:13:32.016Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
       "action": "update",
       "from": "pending",
       "to": "in_progress",
