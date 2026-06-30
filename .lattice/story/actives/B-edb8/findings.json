@@ -51,7 +51,7 @@
       "desc": "Parent-roadmap totality can still be proven against a shrunken caller-supplied ledger instead of the original B-5082 milestone inventory. B-9fc5 requires ProofStory controls such as originalIntentSnapshot/milestoneLedger/slicePlan to keep the child-row inventory from shrinking (docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md:168-190), but evaluateParentRoadmapLedger derives allRowsClosed solely from ledger.rows (packages/main/src/core/parent-roadmap-totality.ts:511-528) and evaluateParentRoadmapProofStoryBinding only requires a snapshot plus some acceptanceBindings, without proving those bindings cover every parent row or the original milestone ledger (packages/main/src/core/parent-roadmap-totality.ts:615-645). A ledger that omits M5-M12 but closes its supplied rows can therefore receive full_roadmap_complete/full-roadmap-claim, which defeats the intent-totality gate boundary.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-06-30T14:03:33.913Z",
@@ -64,7 +64,11 @@
         "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md"
       ],
       "signatureTag": "adversarial|ts|parent-roadmap-totality",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 7457ea190: requiredRowIds plus proofstoryContract milestoneIds bind expected row inventory; missing required rows produce invalid missing_required_row results and no full-roadmap claim. Verified by parent-roadmap-totality-smoke --case=evaluator and full smoke.",
+      "resolvedAt": "2026-06-30T14:14:14.159Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-edb8:F-004",
