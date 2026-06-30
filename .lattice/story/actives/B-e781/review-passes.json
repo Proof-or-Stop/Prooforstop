@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-30T22:43:18.109Z",
       "reviewRunId": "B-e781:RR-009",
       "_hash": "47cd393b30beb491bd964575a1f554fe82e2d6ef7fc6d342f54c35038322af5f"
+    },
+    {
+      "id": "B-e781:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Concept re-review pass after F-001/F-002 fixes. Evidence: parent_roadmap_status storyId=B-43de returns full_roadmap_complete, allRowsClosed=true, no open rows, and fresh closed M4-M12 rows with command-backed evidence; parent_roadmap_status case=migration returns migration_needed with M4-M12 open and no-full-roadmap-claim, and enforce-mode full-roadmap wording fails closed; ProofStory original intent, contract, milestone ledger, parent rollup, intent_coverage_check, proofstory_review_completeness_check, and done_intent_equivalence_check bind the user request to M4-M12 with no uncovered required milestones; roadmap docs and CLI schema now describe B-e781 closure plus case=migration negative control while preserving retired Authority Server production/runtime conformance as non-goal; parent-roadmap-totality-smoke, verify-process-fact-contract, git diff --check, and stale wording rg check passed. No concept blockers found.",
+      "createdAt": "2026-06-30T22:48:37.852Z",
+      "reviewRound": "2026-06-30T22:43:18.109Z",
+      "reviewRunId": "B-e781:RR-008",
+      "_hash": "0ef275e234ed42955d378d00bf97be3aec87c83bf43d7a03f0cab68d0452cdce"
     }
   ]
 }
