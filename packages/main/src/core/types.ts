@@ -1790,6 +1790,10 @@ export interface MilestoneLedgerItem {
   requiredEvidence: string[];
   checklistRefs: string[];
   verificationIntentRefs: string[];
+  /** Optional parent ledger row when this item is a slice of a larger parent intent ledger. */
+  parentLedgerId?: string;
+  /** Optional child story responsible for delivering this row; advisory until roll-up/DONE checks consume it. */
+  assignedStory?: string;
   status: MilestoneStatus;
 }
 
@@ -1846,11 +1850,47 @@ export interface ProofStoryLedgerSizing {
   milestoneCount: number;
   threshold: number;
   thresholdState: 'within_threshold' | 'too_broad' | 'slice_required';
+  oversizedClearedBy?: 'slice_plan' | 'child_assignment';
   suggestedSlices: Array<{
     id: string;
     milestoneIds: string[];
     reason: string;
   }>;
+}
+
+export interface ProofStorySlicePlanSlice {
+  id: string;
+  milestoneIds: string[];
+  reason: string;
+  assignedStory?: string;
+}
+
+export interface ProofStorySlicePlanData {
+  schemaVersion: 'proofstory.slice_plan.v1';
+  storyId: string;
+  ledgerHash: string;
+  slices: ProofStorySlicePlanSlice[];
+  planHash: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ProofStoryParentLedgerRollupChild {
+  storyId: string;
+  milestoneIds: string[];
+  status: 'planned' | 'covered' | 'done';
+  evidenceRefs: string[];
+}
+
+export interface ProofStoryParentLedgerRollupData {
+  schemaVersion: 'proofstory.parent_ledger_rollup.v1';
+  storyId: string;
+  ledgerHash: string;
+  slicePlanHash?: string;
+  children: ProofStoryParentLedgerRollupChild[];
+  rollupHash: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface ProofStoryContractData {
@@ -1900,9 +1940,20 @@ export interface ScopeShrinkageDecisionData {
 export interface RedEvidenceRecord {
   id: string;
   trigger: string;
+  /** Acceptance, verificationIntent, milestone, or request hash target this red proof addresses. */
+  acceptanceTargetRef: string;
+  baselineHeadHash: string;
+  baselineMaterialHash: string;
   failingCommand?: string;
   observedFailure: string;
   expectedGreenCommand?: string;
+  greenRelation: {
+    targetRef: string;
+    relation: 'same_acceptance' | 'regression_to_green' | 'replacement';
+    command?: string;
+    greenHeadHash?: string;
+    greenMaterialHash?: string;
+  };
   note?: string;
   createdAt: string;
 }
@@ -1922,6 +1973,7 @@ export interface ProofStorySpikeRecord {
   question: string;
   status: ProofStorySpikeStatus;
   result?: string;
+  disposableCodePaths?: string[];
   promotedAs?: 'red_evidence' | 'verification_evidence' | 'scope_decision' | 'implementation_note';
   note?: string;
   createdAt: string;
@@ -1956,6 +2008,7 @@ export interface ProofStoryDiagnosticReport {
   missingSpikeEvidence: ProofStoryDiagnosticGap[];
   scopeAmbiguity: ProofStoryDiagnosticGap[];
   oversizedLedger: ProofStoryDiagnosticGap[];
+  missingParentRollup: ProofStoryDiagnosticGap[];
   gaps: ProofStoryDiagnosticGap[];
   wouldBlockFutureDevAdmission: boolean;
 }
@@ -1968,6 +2021,7 @@ export interface DoneIntentEquivalenceReport {
   blocking: boolean;
   checkedAt: string;
   confirmedLedgerHash?: string;
+  equivalenceMode: 'lightweight_single_outcome' | 'strict_milestone';
   acceptedShrinkageMilestoneIds: string[];
   uncoveredRequiredMilestoneIds: string[];
   gaps: ProofStoryDiagnosticGap[];

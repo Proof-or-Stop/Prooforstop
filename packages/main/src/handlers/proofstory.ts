@@ -14,8 +14,10 @@ import {
   buildIntentCollision,
   buildMilestoneLedger,
   buildOriginalIntentSnapshot,
+  buildParentLedgerRollup,
   buildProofStoryContract,
   buildScopeShrinkageDecision,
+  buildSlicePlan,
   confirmMilestoneLedger,
   evaluateDoneIntentEquivalence,
   evaluateProofStoryDiagnostics,
@@ -26,6 +28,7 @@ import {
   startSpike,
   type ProofStoryDiagnosticInput,
 } from '../core/proofstory.js';
+import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
 
 type JsonFlag = { json?: boolean };
 type ModeFlag = { mode?: ProofStoryGateMode; dryRun?: boolean };
@@ -73,12 +76,15 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
       checklist,
       originalIntentSnapshot: store.readOriginalIntentSnapshot(storyId),
       milestoneLedger: store.readMilestoneLedger(storyId),
+      slicePlan: store.readProofStorySlicePlan(storyId),
+      parentLedgerRollup: store.readProofStoryParentLedgerRollup(storyId),
       proofStoryContract: store.readProofStoryContract(storyId),
       intentCollision: store.readIntentCollision(storyId),
       scopeContract: store.readScopeContract(storyId),
       scopeShrinkageDecision: store.readScopeShrinkageDecision(storyId),
       redEvidence: store.readRedEvidence(storyId),
       spikeEvidence: store.readProofStorySpikes(storyId),
+      summary: store.readSummary(storyId),
     };
   }
 
@@ -157,6 +163,8 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
       requiredEvidence?: string[];
       checklistRefs?: string[];
       verificationIntentRefs?: string[];
+      parentLedgerId?: string;
+      assignedStory?: string;
       status?: string;
       json?: boolean;
     }): string {
@@ -171,6 +179,8 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
         requiredEvidence: args.requiredEvidence,
         checklistRefs: args.checklistRefs,
         verificationIntentRefs: args.verificationIntentRefs,
+        parentLedgerId: args.parentLedgerId,
+        assignedStory: args.assignedStory,
         status: args.status,
       };
       const ledger = addMilestoneToLedger(args.storyId, rawMilestone, existing);
@@ -191,6 +201,78 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
         return args.json ? stringify(result) : `Milestone ledger: not configured\nStory: ${args.storyId}`;
       }
       return renderStored('Milestone ledger', ledger, args);
+    },
+
+    slice_plan_set(args: { storyId: string; slices: unknown[]; json?: boolean }): string {
+      if (!args.storyId) throw new Error('storyId is required');
+      store.readStory(args.storyId);
+      const plan = buildSlicePlan({
+        storyId: args.storyId,
+        ledger: store.readMilestoneLedger(args.storyId),
+        slices: args.slices ?? [],
+        existing: store.readProofStorySlicePlan(args.storyId),
+      });
+      store.writeProofStorySlicePlan(args.storyId, plan);
+      if (args.json) return stringify(plan);
+      return [
+        'Slice plan: configured',
+        `Story: ${plan.storyId}`,
+        `Ledger hash: ${plan.ledgerHash}`,
+        `Plan hash: ${plan.planHash}`,
+        `Slices: ${plan.slices.length}`,
+        ...plan.slices.map((slice) => `  - ${slice.id}: ${slice.milestoneIds.join(', ')}${slice.assignedStory ? ` -> ${slice.assignedStory}` : ''}`),
+        'No child stories were created automatically.',
+      ].join('\n');
+    },
+
+    slice_plan_get(args: { storyId: string; json?: boolean }): string {
+      if (!args.storyId) throw new Error('storyId is required');
+      const plan = store.readProofStorySlicePlan(args.storyId);
+      if (!plan) {
+        const result = {
+          storyId: args.storyId,
+          status: 'not_configured',
+          message: 'No slice plan. It is optional unless the milestone ledger exceeds the single-story threshold.',
+        };
+        return args.json ? stringify(result) : `Slice plan: not configured\nStory: ${args.storyId}`;
+      }
+      return renderStored('Slice plan', plan, args);
+    },
+
+    parent_ledger_rollup_set(args: { storyId: string; children: unknown[]; json?: boolean }): string {
+      if (!args.storyId) throw new Error('storyId is required');
+      store.readStory(args.storyId);
+      const rollup = buildParentLedgerRollup({
+        storyId: args.storyId,
+        ledger: store.readMilestoneLedger(args.storyId),
+        slicePlan: store.readProofStorySlicePlan(args.storyId),
+        children: args.children ?? [],
+        existing: store.readProofStoryParentLedgerRollup(args.storyId),
+      });
+      store.writeProofStoryParentLedgerRollup(args.storyId, rollup);
+      if (args.json) return stringify(rollup);
+      return [
+        'Parent ledger roll-up: configured',
+        `Story: ${rollup.storyId}`,
+        `Ledger hash: ${rollup.ledgerHash}`,
+        `Slice plan hash: ${rollup.slicePlanHash ?? 'none'}`,
+        `Children: ${rollup.children.length}`,
+        ...rollup.children.map((child) => `  - ${child.storyId} [${child.status}]: ${child.milestoneIds.join(', ')}`),
+      ].join('\n');
+    },
+
+    parent_ledger_rollup_get(args: { storyId: string; json?: boolean }): string {
+      if (!args.storyId) throw new Error('storyId is required');
+      const rollup = store.readProofStoryParentLedgerRollup(args.storyId);
+      if (!rollup) {
+        const result = {
+          storyId: args.storyId,
+          status: 'not_configured',
+          message: 'No parent ledger roll-up. It is optional unless a slice plan exists and DONE equivalence needs child coverage.',
+        };
+        return args.json ? stringify(result) : `Parent ledger roll-up: not configured\nStory: ${args.storyId}`;
+      }
+      return renderStored('Parent ledger roll-up', rollup, args);
     },
 
     intent_collision_set(args: {
@@ -250,11 +332,14 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
           checklist: state.checklist,
           originalIntentSnapshot: state.originalIntentSnapshot,
           milestoneLedger: state.milestoneLedger,
+          slicePlan: state.slicePlan,
+          parentLedgerRollup: state.parentLedgerRollup,
           intentCollision: state.intentCollision,
           scopeContract: state.scopeContract,
           scopeShrinkageDecision: state.scopeShrinkageDecision,
           redEvidence: state.redEvidence,
           spikeEvidence: state.spikeEvidence,
+          summary: state.summary,
         },
         existing,
       );
@@ -317,19 +402,39 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
     red_evidence_create(args: {
       storyId: string;
       trigger: string;
+      acceptanceTargetRef?: string;
+      baselineHeadHash?: string;
+      baselineMaterialHash?: string;
       observedFailure: string;
       failingCommand?: string;
       expectedGreenCommand?: string;
+      greenTargetRef?: string;
+      greenRelation?: 'same_acceptance' | 'regression_to_green' | 'replacement';
+      greenHeadHash?: string;
+      greenMaterialHash?: string;
       note?: string;
       id?: string;
       json?: boolean;
     }): string {
       if (!args.storyId) throw new Error('storyId is required');
       store.readStory(args.storyId);
-      const evidence = appendRedEvidence(args, store.readRedEvidence(args.storyId));
+      const baselineHeadHash = args.baselineHeadHash ?? currentGitHead(ctx.root);
+      const baselineMaterialHash = args.baselineMaterialHash ?? currentMaterialHash(ctx.root, 'HEAD', ctx.root);
+      const evidence = appendRedEvidence({
+        ...args,
+        baselineHeadHash,
+        baselineMaterialHash,
+      }, store.readRedEvidence(args.storyId));
       store.writeRedEvidence(args.storyId, evidence);
       if (args.json) return stringify(evidence);
-      return `Red evidence: recorded\nRecords: ${evidence.records.length}`;
+      const latest = evidence.records.at(-1);
+      return [
+        'Red evidence: recorded',
+        `Records: ${evidence.records.length}`,
+        `Target: ${latest?.acceptanceTargetRef ?? 'unknown'}`,
+        `Baseline head: ${latest?.baselineHeadHash ?? 'unknown'}`,
+        `Baseline material: ${latest?.baselineMaterialHash ?? 'unknown'}`,
+      ].join('\n');
     },
 
     red_evidence_get(args: { storyId: string; json?: boolean }): string {
@@ -342,7 +447,7 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
       return renderStored('Red evidence', evidence, args);
     },
 
-    spike_start(args: { storyId: string; id?: string; question: string; note?: string; json?: boolean }): string {
+    spike_start(args: { storyId: string; id?: string; question: string; disposableCodePaths?: string[]; note?: string; json?: boolean }): string {
       if (!args.storyId) throw new Error('storyId is required');
       store.readStory(args.storyId);
       const spikes = startSpike(args, store.readProofStorySpikes(args.storyId));
@@ -429,6 +534,7 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
         [
           `DONE intent equivalence for ${report.storyId}`,
           `Mode: ${report.mode}`,
+          `Equivalence mode: ${report.equivalenceMode}`,
           `Status: ${report.status}`,
           `Blocking: ${report.blocking ? 'yes' : 'no'}`,
           `Uncovered required milestones: ${report.uncoveredRequiredMilestoneIds.join(', ') || 'none'}`,

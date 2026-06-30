@@ -217,7 +217,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'capsule_*',   // B-42c0: story handoff projection commands; evidence remains authoritative elsewhere
     'scope_contract_show', 'scope_contract_check', // B-be27: read/check scope contract; mutating commands are phase-scoped below
     'scope_diff_pack', // B-6bfd CHK-002: read-only mechanical diff context pack, useful for verifier context in any phase
-    'original_intent_snapshot_get', 'milestone_ledger_get', 'proofstory_contract_get',
+    'original_intent_snapshot_get', 'milestone_ledger_get', 'slice_plan_get', 'parent_ledger_rollup_get', 'proofstory_contract_get',
     'intent_collision_get', 'scope_shrinkage_decision_get', 'red_evidence_get', 'spike_get',
     'intent_coverage_check', 'proofstory_gate_check', 'done_intent_equivalence_check', 'proofstory_review_completeness_check', // ProofStory read-only diagnostics; enforce mode exits nonzero but writes no evidence
     'guard_session_status', // B-6bfd CHK-004: read-only guard session projection
@@ -303,6 +303,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'scope_contract_init_from_plan', // B-6bfd CHK-006: seed scope contract from PLAN checklist files
     'original_intent_snapshot_set',
     'milestone_ledger_set', 'milestone_ledger_add',
+    'slice_plan_set', 'parent_ledger_rollup_set',
     'proofstory_contract_set',
     'intent_collision_set',
     'scope_shrinkage_decision_set',
@@ -324,6 +325,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'scope_contract_set', 'scope_contract_acknowledge',
     'scope_contract_init_from_plan', // B-6bfd CHK-006: seed scope contract from PLAN checklist files
     'scope_shrinkage_decision_set',
+    'parent_ledger_rollup_set',
     'guard_session_start', // B-6bfd CHK-004: start scope-guard session during implementation
   ],
   REVIEW: [
@@ -341,6 +343,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'story_advance',
     'scope_contract_acknowledge',
     'scope_shrinkage_decision_set',
+    'parent_ledger_rollup_set',
     'verification_intent_repair', // B-4e06: audited legacy intent backfill
     'guard_session_start', // B-6bfd CHK-004: start scope-guard session during review
   ],
@@ -353,6 +356,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'review_escalation_policy_set',
     'review_escalation_fallback_set',
     'scope_shrinkage_decision_set',
+    'parent_ledger_rollup_set',
     'story_advance',
   ],
   DONE: [

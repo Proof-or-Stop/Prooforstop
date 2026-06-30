@@ -11,7 +11,7 @@ import type {
   ScopeExtensionProposalData, ScopeExtensionDecisionData, ScopeDiscardDigestData,
   DecisionDocProposalFile, OriginalIntentSnapshotData, MilestoneLedgerData,
   ProofStoryContractData, IntentCollisionData, ScopeShrinkageDecisionData,
-  RedEvidenceData, ProofStorySpikeData,
+  RedEvidenceData, ProofStorySpikeData, ProofStorySlicePlanData, ProofStoryParentLedgerRollupData,
 } from './types.js';
 import { REVIEW_LOOP_FILENAME } from './review-loop.js';
 import { CAPSULE_DIR_NAME, type StoryCapsuleData, type StoryCapsuleRunData } from './story-capsule.js';
@@ -676,6 +676,32 @@ export class StoryStore {
 
   writeMilestoneLedger(storyId: string, data: MilestoneLedgerData): void {
     this.writeJson(storyId, 'milestone-ledger.json', data);
+  }
+
+  readProofStorySlicePlan(storyId: string): ProofStorySlicePlanData | null {
+    try {
+      return this.readJson<ProofStorySlicePlanData>(storyId, 'slice-plan.json');
+    } catch (e) {
+      if (e instanceof StoryArtifactMissingError) return null;
+      throw e;
+    }
+  }
+
+  writeProofStorySlicePlan(storyId: string, data: ProofStorySlicePlanData): void {
+    this.writeJson(storyId, 'slice-plan.json', data);
+  }
+
+  readProofStoryParentLedgerRollup(storyId: string): ProofStoryParentLedgerRollupData | null {
+    try {
+      return this.readJson<ProofStoryParentLedgerRollupData>(storyId, 'parent-ledger-rollup.json');
+    } catch (e) {
+      if (e instanceof StoryArtifactMissingError) return null;
+      throw e;
+    }
+  }
+
+  writeProofStoryParentLedgerRollup(storyId: string, data: ProofStoryParentLedgerRollupData): void {
+    this.writeJson(storyId, 'parent-ledger-rollup.json', data);
   }
 
   readProofStoryContract(storyId: string): ProofStoryContractData | null {

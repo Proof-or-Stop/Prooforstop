@@ -186,6 +186,8 @@ const requiredArtifactFacts = [
   { name: 'artifact:story-evidence-binding', path: 'story-evidence-binding', signed: false },
   { name: 'artifact:original-intent-snapshot.json', path: 'original-intent-snapshot.json', signed: false },
   { name: 'artifact:milestone-ledger.json', path: 'milestone-ledger.json', signed: false },
+  { name: 'artifact:slice-plan.json', path: 'slice-plan.json', signed: false },
+  { name: 'artifact:parent-ledger-rollup.json', path: 'parent-ledger-rollup.json', signed: false },
   { name: 'artifact:proofstory.json', path: 'proofstory.json', signed: false },
   { name: 'artifact:intent-collision.json', path: 'intent-collision.json', signed: false },
   { name: 'artifact:scope-shrinkage-decision.json', path: 'scope-shrinkage-decision.json', signed: false },
@@ -548,6 +550,10 @@ function assertProofStoryProgressiveBoundary() {
     'milestone_ledger_set',
     'milestone_ledger_add',
     'milestone_ledger_get',
+    'slice_plan_set',
+    'slice_plan_get',
+    'parent_ledger_rollup_set',
+    'parent_ledger_rollup_get',
     'proofstory_contract_set',
     'proofstory_contract_get',
     'intent_collision_set',
@@ -573,7 +579,12 @@ function assertProofStoryProgressiveBoundary() {
   assert(coreText.includes('computeIntentRequestHash'), 'core/proofstory.ts: requestHash helper must remain explicit');
   assert(coreText.includes('sourceText') && coreText.includes('keyRequirementIds'), 'core/proofstory.ts: requestHash must be derived from sourceText and keyRequirementIds');
   assert(coreText.includes('candidate') && coreText.includes('confirmed'), 'core/proofstory.ts: milestone ledger must distinguish candidate and confirmed state');
+  assert(catalogText.includes('parentLedgerId') && catalogText.includes('assignedStory'), 'CLI schema: milestone ledger rows must expose optional parent/assigned-story fields');
+  assert(coreText.includes('parentLedgerId') && coreText.includes('assignedStory'), 'core/proofstory.ts: milestone rows must preserve optional parent/assigned-story fields');
   assert(coreText.includes('confirmMilestoneLedger'), 'core/proofstory.ts: intent collision pass must be able to confirm a ledger');
+  assert(coreText.includes('slicePlanCoversCurrentLedger') && coreText.includes('oversizedClearedBy'), 'core/proofstory.ts: oversized ledger exception must require a current complete slice plan or child assignment');
+  assert(coreText.includes('parentRollupCoversSlicePlan') && coreText.includes('parent-ledger-rollup.json'), 'core/proofstory.ts: DONE equivalence must consume parent ledger roll-up when slice plans exist');
+  assert(coreText.includes('lightweight_single_outcome') && coreText.includes('strict_milestone'), 'core/proofstory.ts: DONE equivalence must distinguish lightweight single-outcome and strict milestone paths');
   assert(catalogText.includes('userConfirmed') && handlerText.includes('userConfirmed'), 'ProofStory scope shrinkage command must expose userConfirmed');
   assert(coreText.includes('args.userConfirmed !== true'), 'core/proofstory.ts: confirmed scope shrinkage must require userConfirmed:true');
   assert(coreText.includes('decision.userConfirmed === true'), 'core/proofstory.ts: DONE equivalence must only consume user-confirmed shrinkage');
@@ -581,6 +592,11 @@ function assertProofStoryProgressiveBoundary() {
   assert(coreText.includes("row.result === 'pass'"), 'core/proofstory.ts: ProofStory evidence coverage must require result=pass for ordinary evidence rows');
   assert(coreText.includes("row.waiverType === 'permanent'") && coreText.includes("row.result !== 'fail'"), 'core/proofstory.ts: ProofStory evidence coverage must allow only non-failed permanent waivers');
   assert(!coreText.includes("row.verdict === 'success'") && !coreText.includes("row.verdict === 'waived'"), 'core/proofstory.ts: ProofStory evidence coverage must not treat verdict labels as pass evidence');
+  assert(catalogText.includes('acceptanceTargetRef') && catalogText.includes('baselineHeadHash') && catalogText.includes('baselineMaterialHash'), 'CLI schema: red evidence must bind target and baseline head/material');
+  assert(coreText.includes('greenRelation.targetRef !== record.acceptanceTargetRef'), 'core/proofstory.ts: wrong-target red evidence must not satisfy diagnostics');
+  assert(coreText.includes('active_disposable_spike_code') && coreText.includes('disposableCodePaths'), 'core/proofstory.ts: active disposable spike code must be a ProofStory diagnostic');
+  assert(handlerText.includes('slice_plan_set') && handlerText.includes('parent_ledger_rollup_set'), 'handlers/proofstory.ts: slice plan and parent roll-up writers must be implemented');
+  assert(read('packages/main/src/handlers/story-review.ts').includes('ProofStory advisory diagnostics') || read('packages/main/src/handlers/story-review.ts').includes('ProofStory Diagnostics'), 'story-review.ts: story_review must surface ProofStory advisory diagnostics');
   assert(!storyAdvanceText.includes('../core/proofstory') && !storyAdvanceText.includes('./proofstory'), 'story-advance.ts: ProofStory must not be wired through the thin story_advance handler');
   assert(machineText.includes('proofStoryDevGateFailure') && machineText.includes('devGateMode'), 'machine.ts: ProofStory DEV admission must go through the existing story machine guard and explicit policy mode');
   assert(machineText.includes('if (proofStoryDevGateFailure(context.store, context.projectRoot, context.storyId)) return false;'), 'machine.ts: REVIEW/TEST to DEV re-entry must enforce ProofStory devGateMode=enforce');
@@ -589,6 +605,7 @@ function assertProofStoryProgressiveBoundary() {
   for (const commandName of [
     'milestone_ledger_set',
     'milestone_ledger_add',
+    'slice_plan_set',
     'proofstory_contract_set',
     'intent_collision_set',
     'red_evidence_create',
@@ -612,6 +629,8 @@ function assertProofStoryProgressiveBoundary() {
   const shrinkagePolicy = commandPolicyEntries.get('scope_shrinkage_decision_set');
   assert(shrinkagePolicy?.allowedPhases.includes('DEV') && shrinkagePolicy?.allowedPhases.includes('REVIEW') && shrinkagePolicy?.allowedPhases.includes('TEST'), `${commandPolicyPath}: scope_shrinkage_decision_set remains the documented post-DEV ProofStory writer`);
   assert(/userConfirmed:true/.test(shrinkagePolicy?.reason || ''), `${commandPolicyPath}: scope_shrinkage_decision_set policy must document the userConfirmed:true post-DEV safety condition`);
+  const rollupPolicy = commandPolicyEntries.get('parent_ledger_rollup_set');
+  assert(rollupPolicy?.allowedPhases.includes('TEST'), `${commandPolicyPath}: parent_ledger_rollup_set must be refreshable before DONE`);
 }
 
 function assertProofStoryGateConsumedFacts() {
@@ -621,6 +640,8 @@ function assertProofStoryGateConsumedFacts() {
     'original_intent_snapshot_set',
     'milestone_ledger_set',
     'milestone_ledger_add',
+    'slice_plan_set',
+    'parent_ledger_rollup_set',
     'proofstory_contract_set',
     'intent_collision_set',
     'scope_shrinkage_decision_set',
@@ -636,7 +657,7 @@ function assertProofStoryGateConsumedFacts() {
     assert(levelEntry, `${processFactLevelRegistryPath}: ProofStory gate command missing from PROCESS_FACT_LEVELS: ${commandName}`);
     if (!levelEntry) continue;
     assert(levelEntry.level === 'L4', `${processFactLevelRegistryPath}: ${commandName} must stay L4`);
-    assert(/ProofStory DEV admission/.test(levelEntry.gateConsumer || ''), `${processFactLevelRegistryPath}: ${commandName} must name ProofStory gate consumer`);
+    assert(/ProofStory/.test(levelEntry.gateConsumer || ''), `${processFactLevelRegistryPath}: ${commandName} must name ProofStory gate consumer`);
 
     const registryEntry = registry.get(commandName);
     assert(registryEntry, `${processFactRegistryPath}: ProofStory gate command missing from registry: ${commandName}`);
@@ -648,6 +669,8 @@ function assertProofStoryGateConsumedFacts() {
   for (const artifactName of [
     'artifact:original-intent-snapshot.json',
     'artifact:milestone-ledger.json',
+    'artifact:slice-plan.json',
+    'artifact:parent-ledger-rollup.json',
     'artifact:proofstory.json',
     'artifact:intent-collision.json',
     'artifact:scope-shrinkage-decision.json',
@@ -659,7 +682,7 @@ function assertProofStoryGateConsumedFacts() {
     if (!artifactEntry) continue;
     assert(artifactEntry.level === 'L4', `${processFactRegistryPath}: ${artifactName} must stay L4`);
     assert(artifactEntry.semantics.includes('gate-evidence'), `${processFactRegistryPath}: ${artifactName} must include gate-evidence semantics`);
-    assert(/ProofStory DEV admission/.test(artifactEntry.consumerGate || ''), `${processFactRegistryPath}: ${artifactName} must name ProofStory gate consumer`);
+    assert(/ProofStory/.test(artifactEntry.consumerGate || ''), `${processFactRegistryPath}: ${artifactName} must name ProofStory gate consumer`);
   }
 }
 

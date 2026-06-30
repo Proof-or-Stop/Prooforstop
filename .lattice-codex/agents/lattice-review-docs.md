@@ -85,6 +85,13 @@ normalization, signing, validation, and gate consumption.
   tests, closing self-check, waivers, and signed delivery artifacts are consumed
   by DONE gates, not by ordinary prose.
 
+## ProofStory Review Responsibilities
+
+- Audit ProofStory obligations when the story involves ambiguity, behavior change, high assurance, milestone scope, red evidence, spike evidence, or DONE equivalence.
+- Check that ProofStory claims are backed by CLI-written artifacts such as `original-intent-snapshot.json`, `milestone-ledger.json`, `slice-plan.json`, `parent-ledger-rollup.json`, `proofstory.json`, `intent-collision.json`, `red-evidence.json`, `spike.json`, and `scope-shrinkage-decision.json`.
+- Prompt text, local narration, and reviewer prose are not gate evidence. If a ProofStory fact affects DEV, REVIEW, TEST, or DONE, the corresponding CLI handler/gate must enforce it mechanically.
+- Oversized ledger slices and child-story roll-ups are audit evidence only; reviewers must not assume child stories were auto-created.
+
 ## Local Admissibility And Handoff Boundaries
 
 - Local Proofbound evidence can be admissible when it is fresh, scoped, and gate-consumed through `admissibilityStatus`, `assuranceLevel`, and `evidenceScope`.

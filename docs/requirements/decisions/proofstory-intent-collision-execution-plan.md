@@ -230,6 +230,8 @@ MVP persists split gate-consumed artifacts alongside that envelope:
 .lattice/story/actives/<storyId>/proofstory.json
 .lattice/story/actives/<storyId>/original-intent-snapshot.json
 .lattice/story/actives/<storyId>/milestone-ledger.json
+.lattice/story/actives/<storyId>/slice-plan.json
+.lattice/story/actives/<storyId>/parent-ledger-rollup.json
 .lattice/story/actives/<storyId>/intent-collision.json
 .lattice/story/actives/<storyId>/scope-shrinkage-decision.json
 .lattice/story/actives/<storyId>/red-evidence.json
@@ -970,6 +972,10 @@ original_intent_snapshot_get
 milestone_ledger_set
 milestone_ledger_add
 milestone_ledger_get
+slice_plan_set
+slice_plan_get
+parent_ledger_rollup_set
+parent_ledger_rollup_get
 intent_coverage_check
 scope_shrinkage_decision_set
 scope_shrinkage_decision_get
@@ -1001,11 +1007,12 @@ be derived by `proofstory_gate_check --dryRun`, stored in
 implementation needs an explicit command, it should be introduced only after the
 observe/warn rollout proves the extra surface is useful.
 
-The MVP should also not add a standalone slicing command. Ledger sizing should
-be reported first through `proofstory_gate_check --dryRun` and
-`intent_coverage_check --dryRun`. Future commands such as `slice_plan_set` or
-parent-child orchestration should be added only after diagnostics show that
-manual slice planning is not enough.
+The MVP includes a bounded slicing surface but still does not create child
+Stories automatically. Ledger sizing is reported through
+`proofstory_gate_check --dryRun` and `intent_coverage_check --dryRun`; when a
+ledger is oversized, `slice_plan_set` can bind a complete slice plan to the
+current ledger hash, and `parent_ledger_rollup_set` can later bind child-story
+coverage for DONE equivalence.
 
 The MVP also avoids standalone acceptance-contract, risk, assurance, and
 minimality commands. Acceptance criteria and binding are represented by
@@ -1055,6 +1062,8 @@ Implemented MVP gate-consumed artifacts:
 .lattice/story/actives/<storyId>/proofstory.json
 .lattice/story/actives/<storyId>/original-intent-snapshot.json
 .lattice/story/actives/<storyId>/milestone-ledger.json
+.lattice/story/actives/<storyId>/slice-plan.json
+.lattice/story/actives/<storyId>/parent-ledger-rollup.json
 .lattice/story/actives/<storyId>/scope-shrinkage-decision.json
 .lattice/story/actives/<storyId>/red-evidence.json
 .lattice/story/actives/<storyId>/spike.json
@@ -1066,16 +1075,9 @@ Read-only diagnostics such as `intent_coverage_check`,
 the MVP. Their results are command output; durable acceptance binding lives in
 `proofstory.json`.
 
-Future parent-child orchestration may add:
-
-```text
-.lattice/story/actives/<storyId>/slice-plan.json
-.lattice/story/actives/<storyId>/parent-ledger-rollup.json
-```
-
-Those files are deliberately future artifacts. The M0-M2 and first enforcement
-MVP should report ledger sizing through dry-run diagnostics before adding a
-durable parent-child orchestration surface.
+`slice-plan.json` and `parent-ledger-rollup.json` are durable ProofStory
+artifacts, not schedulers. They record human/agent slice decisions and
+child-story coverage; they never create child Stories automatically.
 
 Every artifact consumed by a phase gate must be registered as a process fact and
 covered by the process-fact contract tests. Prompt-only rules are not enough.
@@ -1228,14 +1230,15 @@ Deliver:
 - `red_evidence_create`;
 - red-evidence validation through ProofStory diagnostics and gate checks;
 - baseline head/material binding;
-- transition relation to current green evidence.
+- transition relation to current green evidence and target acceptance ref.
 
 Acceptance:
 
 - bug-fix stories without required red evidence cannot enter DEV in enforce mode;
 - docs-only stories are not forced to create red evidence;
 - red evidence is required by risk/behavior claim, not by milestone count alone;
-- red evidence for the wrong acceptance criterion is rejected.
+- red evidence for the wrong acceptance criterion or stale green relation is
+  rejected.
 
 ### M7: Spike Evidence
 
@@ -1251,6 +1254,8 @@ Acceptance:
 
 - unresolved required spike blocks DEV in enforce mode;
 - spike code cannot be silently carried into implementation;
+- active disposable spike code paths block enforce mode until discarded or
+  explicitly promoted;
 - spike evidence is required by uncertainty and risk, not by every milestone in
   a parent ledger;
 - promoted spike findings update scope and are auditable.

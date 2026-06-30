@@ -15,7 +15,7 @@ import {
   getGuardFailureReason,
 } from '../core/machine.js';
 import { StoryStore } from '../core/store.js';
-import type { ChecklistData, StoryInfo, StoryPhase } from '../core/types.js';
+import type { ChecklistData, StoryInfo, StoryPhase, StorySummaryData } from '../core/types.js';
 import { computeIntentRequestHash } from '../core/proofstory.js';
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -106,6 +106,25 @@ function assertDevAdmissionBlocked(root: string, store: StoryStore, storyId: str
   assert.equal(store.readStory(storyId).phase, currentPhase, `${currentPhase}->DEV block leaves phase unchanged`);
 }
 
+function makeSummary(storyId: string, overrides: Partial<StorySummaryData> = {}): StorySummaryData {
+  const now = new Date().toISOString();
+  return {
+    storyId,
+    changes: 'Delivered the requested outcome.',
+    usage: 'Run the relevant lattice command.',
+    expectedOutcome: 'The original request is satisfied.',
+    actualTranscript: 'The requested outcome is present.',
+    outcomeDiff: 'No difference.',
+    acceptanceVerdict: 'accepted',
+    realMachineCoverage: { ran: [], skipped: [] },
+    limitations: 'None for smoke.',
+    pitfalls: 'Smoke fixture.',
+    createdAt: now,
+    updatedAt: now,
+    ...overrides,
+  };
+}
+
 const root = mkdtempSync(join(tmpdir(), 'lattice-proofstory-'));
 try {
   git(root, ['init', '-b', 'main']);
@@ -167,6 +186,16 @@ try {
   let gate = jsonRun(root, 'proofstory_gate_check', { storyId, mode: 'observe' });
   assert.equal(gate.hardeningLevel, 'high_assurance', 'high-risk regression selects high assurance');
   assert.ok(gate.missingMvpArtifacts.some((gap: any) => gap.code === 'missing_original_intent_snapshot'), 'missing snapshot is reported');
+  const planReview = JSON.parse(run(root, 'story_review', { storyId }));
+  assert.ok(
+    planReview.issues.some((issue: any) => issue.type === 'proofstory_advisory' && /missing_original_intent_snapshot/.test(issue.message)),
+    'story_review surfaces ProofStory advisory diagnostics before DEV',
+  );
+  assert.match(
+    planReview._reviewPrompt,
+    /ProofStory Diagnostics \(advisory only\)[\s\S]*prompt text[\s\S]*do not satisfy gates/i,
+    'story_review prompt explains ProofStory guidance without claiming prompt-only evidence satisfies gates',
+  );
   assertDevAdmissionBlocked(root, store, storyId, 'PLAN');
   for (const phase of ['REVIEW', 'TEST'] as const) {
     const reentryStoryId = `B-proofstory-${phase.toLowerCase()}-reentry`;
@@ -266,10 +295,14 @@ try {
       requiredEvidence: ['verificationIntent'],
       checklistRefs: ['CHK-001'],
       verificationIntentRefs: ['CHK-001:edge:0'],
+      parentLedgerId: 'PARENT-M6',
+      assignedStory: 'B-child-m6',
       status: 'covered',
     },
   });
   assert.equal(appendedLedger.milestones.length, 6, 'milestone_ledger_add appends a row');
+  assert.equal(appendedLedger.milestones.at(-1).parentLedgerId, 'PARENT-M6', 'milestone rows preserve optional parent ledger fields');
+  assert.equal(appendedLedger.milestones.at(-1).assignedStory, 'B-child-m6', 'milestone rows preserve optional assigned story fields');
   assert.equal(appendedLedger.state, 'candidate', 'direct ledger writes stay candidate until accepted intent collision');
   assert.equal(appendedLedger.ledgerHash.startsWith('sha256:'), true, 'ledger has a stable hash');
   const storedLedger = jsonRun(root, 'milestone_ledger_get', { storyId });
@@ -295,11 +328,46 @@ try {
     /checklistRefs/i,
     'malformed milestone refs fail before corrupting the artifact',
   );
+  assert.match(
+    run(root, 'milestone_ledger_add', {
+      storyId,
+      milestone: {
+        id: 'BAD-STORY',
+        sourceRequirementId: 'REQ-001',
+        claim: 'Bad assigned story is rejected',
+        doneMeans: 'Invalid assignedStory does not corrupt the ledger',
+        checklistRefs: ['CHK-001'],
+        verificationIntentRefs: ['CHK-001:happy:0'],
+        assignedStory: 'child-without-prefix',
+      },
+    }, true),
+    /assignedStory/i,
+    'invalid assignedStory fields fail before corrupting the artifact',
+  );
 
   coverage = jsonRun(root, 'intent_coverage_check', { storyId, mode: 'observe' });
   assert.equal(coverage.missingMilestoneCoverage.length, 0, 'covered ledger rows clear milestone coverage gaps');
   assert.equal(coverage.missingAcceptanceBindings.length, 1, 'acceptance binding remains separate from milestone coverage');
   assert.equal(coverage.ledgerSizing.thresholdState, 'too_broad', 'six high-assurance milestones produce sizing diagnostics');
+  assert.match(
+    run(root, 'slice_plan_set', {
+      storyId,
+      slices: [{ id: 'slice-incomplete', milestoneIds: ['M1'], reason: 'Incomplete slice should fail.' }],
+    }, true),
+    /missing|cover every ledger milestone/i,
+    'incomplete slice plan cannot bypass oversized ledger diagnostics',
+  );
+  const slicePlan = jsonRun(root, 'slice_plan_set', {
+    storyId,
+    slices: [
+      { id: 'slice-1', milestoneIds: ['M1', 'M2', 'M3'], reason: 'First bounded implementation slice.', assignedStory: 'B-child-1' },
+      { id: 'slice-2', milestoneIds: ['M4', 'M5', 'M6'], reason: 'Second bounded implementation slice.', assignedStory: 'B-child-2' },
+    ],
+  });
+  assert.equal(slicePlan.slices.length, 2, 'slice_plan_set persists a complete oversized ledger exception');
+  coverage = jsonRun(root, 'intent_coverage_check', { storyId, mode: 'observe' });
+  assert.equal(coverage.ledgerSizing.oversizedClearedBy, 'slice_plan', 'complete slice plan clears oversized ledger blocking semantics');
+  assert.equal(coverage.oversizedLedger.length, 0, 'complete slice plan removes oversized ledger gaps');
 
   const contract = jsonRun(root, 'proofstory_contract_set', {
     storyId,
@@ -344,21 +412,57 @@ try {
   const enforceFailure = run(root, 'proofstory_gate_check', { storyId, mode: 'enforce' }, true);
   assert.match(enforceFailure, /missing_red_evidence|missing_spike_evidence|scope_ambiguity/i, 'enforce mode exits nonzero when required artifacts are missing');
 
-  const spikeStarted = jsonRun(root, 'spike_start', { storyId, id: 'SPIKE-A', question: 'Which auth gate path owns the regression?' });
+  const spikeStarted = jsonRun(root, 'spike_start', {
+    storyId,
+    id: 'SPIKE-A',
+    question: 'Which auth gate path owns the regression?',
+    disposableCodePaths: ['packages/main/src/tmp-spike.ts'],
+  });
   assert.equal(spikeStarted.spikes[0].status, 'active', 'spike_start records active investigation evidence');
   gate = jsonRun(root, 'proofstory_gate_check', { storyId, mode: 'observe' });
   assert.ok(gate.missingSpikeEvidence.some((gap: any) => gap.code === 'unresolved_spike_evidence'), 'active spike remains diagnostic');
   const spikeResolved = jsonRun(root, 'spike_result_set', { storyId, id: 'SPIKE-A', result: 'The existing lifecycle gate path owns the regression.' });
   assert.equal(spikeResolved.spikes[0].status, 'resolved', 'spike_result_set resolves investigation evidence');
+  gate = jsonRun(root, 'proofstory_gate_check', { storyId, mode: 'observe' });
+  assert.ok(gate.missingSpikeEvidence.some((gap: any) => gap.code === 'active_disposable_spike_code'), 'resolved disposable spike code remains blocking until discarded or promoted');
+  const spikePromoted = jsonRun(root, 'spike_promote', { storyId, id: 'SPIKE-A', promotedAs: 'implementation_note', note: 'Disposable path was explicitly reviewed and promoted.' });
+  assert.equal(spikePromoted.spikes[0].status, 'promoted', 'spike_promote explicitly clears disposable spike policy');
 
-  const redEvidence = jsonRun(root, 'red_evidence_create', {
+  const wrongRedEvidence = jsonRun(root, 'red_evidence_create', {
     storyId,
     trigger: 'auth lifecycle gate regression',
+    acceptanceTargetRef: 'WRONG-TARGET',
     observedFailure: 'Before the fix, the auth gate accepts an invalid transition.',
     failingCommand: 'npm test -- auth-gate-red',
     expectedGreenCommand: 'npm test -- auth-gate-green',
   });
-  assert.equal(redEvidence.records.length, 1, 'red_evidence_create records a pre-fix failure');
+  assert.equal(wrongRedEvidence.records.length, 1, 'wrong-target red evidence can be recorded for audit');
+  gate = jsonRun(root, 'proofstory_gate_check', { storyId, mode: 'observe' });
+  assert.ok(gate.missingRedEvidence.some((gap: any) => gap.code === 'missing_red_evidence'), 'wrong-target red evidence does not satisfy diagnostics');
+  const staleRedEvidence = jsonRun(root, 'red_evidence_create', {
+    storyId,
+    trigger: 'auth lifecycle gate regression',
+    acceptanceTargetRef: 'ACCEPT-001',
+    observedFailure: 'Before the fix, the auth gate accepts an invalid transition.',
+    failingCommand: 'npm test -- auth-gate-red',
+    expectedGreenCommand: 'npm test -- auth-gate-green',
+    greenHeadHash: wrongRedEvidence.records[0].baselineHeadHash,
+    greenMaterialHash: wrongRedEvidence.records[0].baselineMaterialHash,
+  });
+  assert.equal(staleRedEvidence.records.length, 2, 'stale red evidence can be recorded for audit');
+  gate = jsonRun(root, 'proofstory_gate_check', { storyId, mode: 'observe' });
+  assert.ok(gate.missingRedEvidence.some((gap: any) => gap.code === 'missing_red_evidence'), 'stale red evidence does not satisfy diagnostics');
+  const redEvidence = jsonRun(root, 'red_evidence_create', {
+    storyId,
+    trigger: 'auth lifecycle gate regression',
+    acceptanceTargetRef: 'ACCEPT-001',
+    observedFailure: 'Before the fix, the auth gate accepts an invalid transition.',
+    failingCommand: 'npm test -- auth-gate-red',
+    expectedGreenCommand: 'npm test -- auth-gate-green',
+    greenHeadHash: 'green-head-after-fix',
+    greenMaterialHash: 'green-material-after-fix',
+  });
+  assert.equal(redEvidence.records.length, 3, 'red_evidence_create records auditable red evidence rows including the valid target-bound row');
 
   const storedContract = jsonRun(root, 'proofstory_contract_get', { storyId });
   assert.equal(storedContract.schemaVersion, 'proofstory.contract.v1', 'proofstory_contract_get reads the stored envelope');
@@ -377,7 +481,26 @@ try {
   }));
   store.writeChecklist(storyId, checklistWithEvidence);
   let doneEquivalence = jsonRun(root, 'done_intent_equivalence_check', { storyId, mode: 'observe' });
+  assert.equal(doneEquivalence.equivalenceMode, 'strict_milestone', 'slice-plan stories use strict DONE equivalence');
   assert.deepEqual(doneEquivalence.uncoveredRequiredMilestoneIds, ['M6'], 'DONE equivalence reports uncovered required milestones');
+  assert.ok(
+    doneEquivalence.gaps.some((gap: any) => gap.code === 'missing_parent_ledger_rollup'),
+    'slice-plan DONE equivalence requires parent child-story coverage roll-up',
+  );
+  const rollup = jsonRun(root, 'parent_ledger_rollup_set', {
+    storyId,
+    children: [
+      { storyId: 'B-child-1', milestoneIds: ['M1', 'M2', 'M3'], status: 'covered', evidenceRefs: ['B-child-1:summary'] },
+      { storyId: 'B-child-2', milestoneIds: ['M4', 'M5', 'M6'], status: 'done', evidenceRefs: ['B-child-2:summary'] },
+    ],
+  });
+  assert.equal(rollup.children.length, 2, 'parent_ledger_rollup_set records child-story coverage');
+  doneEquivalence = jsonRun(root, 'done_intent_equivalence_check', { storyId, mode: 'observe' });
+  assert.equal(
+    doneEquivalence.gaps.some((gap: any) => gap.code === 'missing_parent_ledger_rollup'),
+    false,
+    'complete parent roll-up clears child-story coverage gap',
+  );
   const checklistWithFailedSuccessVerdict = store.readChecklist(storyId);
   checklistWithFailedSuccessVerdict.items[0].verificationEvidence = [
     ...(checklistWithFailedSuccessVerdict.items[0].verificationEvidence ?? []),
@@ -480,6 +603,29 @@ try {
   assert.equal(lightGate.hardeningLevel, 'intent_mvp', 'clear low-risk feature keeps Intent MVP classification');
   assert.equal(lightGate.missingIntentCollision.length, 0, 'clear low-risk feature does not require intent collision');
   assert.equal(lightGate.missingRedEvidence.length, 0, 'clear new feature does not require red evidence by default');
+  jsonRun(root, 'original_intent_snapshot_set', {
+    storyId: lightStoryId,
+    sourceText: 'Provide a small internal helper for formatting labels.',
+    normalizedOutcome: 'Labels are formatted consistently.',
+    acceptanceClaim: 'The label normalizer formats a representative input.',
+  });
+  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+    changes: 'Added label normalization.',
+    actualTranscript: 'Representative label normalized successfully.',
+    outcomeDiff: 'No difference from the original request.',
+  }));
+  const lightDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'enforce' });
+  assert.equal(lightDone.equivalenceMode, 'lightweight_single_outcome', 'single-outcome DONE equivalence uses lightweight path');
+  assert.equal(lightDone.status, 'pass', 'single-outcome DONE equivalence passes without a confirmed ledger');
+  store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
+    acceptanceVerdict: 'partial',
+    outcomeDiff: 'Partial narrower delivery; remaining cases deferred.',
+  }));
+  const narrowLightDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'observe' });
+  assert.ok(
+    narrowLightDone.gaps.some((gap: any) => gap.code === 'done_summary_not_accepted' || gap.code === 'unconfirmed_single_outcome_shrinkage'),
+    'narrow single-outcome DONE claims require confirmed shrinkage instead of passing silently',
+  );
 
   const redSignalStories: StoryInfo[] = [
     {

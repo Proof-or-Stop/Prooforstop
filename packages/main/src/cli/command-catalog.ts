@@ -75,7 +75,23 @@ const proofStoryMilestoneSchema = z.object({
   requiredEvidence: z.array(z.string()).optional().describe('Evidence kinds expected for this milestone.'),
   checklistRefs: z.array(z.string()).optional().describe('Checklist item ids that deliver this milestone.'),
   verificationIntentRefs: z.array(z.string()).optional().describe('Verification intent refs covering this milestone.'),
+  parentLedgerId: z.string().min(1).optional().describe('Optional parent ledger row this milestone slices from.'),
+  assignedStory: z.string().regex(/^B-[A-Za-z0-9][A-Za-z0-9._-]*$/).optional().describe('Optional child story assigned to deliver this row.'),
   status: z.enum(['planned', 'covered', 'done', 'not_applicable']).optional().describe('Milestone coverage status.'),
+});
+
+const proofStorySliceSchema = z.object({
+  id: z.string().min(1).describe('Stable slice id, for example slice-1.'),
+  milestoneIds: z.array(z.string().min(1)).min(1).describe('Milestone ids covered by this slice.'),
+  reason: z.string().min(1).describe('Why these milestones belong together.'),
+  assignedStory: z.string().regex(/^B-[A-Za-z0-9][A-Za-z0-9._-]*$/).optional().describe('Optional child story assigned to this slice.'),
+});
+
+const proofStoryRollupChildSchema = z.object({
+  storyId: z.string().regex(/^B-[A-Za-z0-9][A-Za-z0-9._-]*$/).describe('Child story id.'),
+  milestoneIds: z.array(z.string().min(1)).min(1).describe('Parent milestone ids covered by this child.'),
+  status: z.enum(['planned', 'covered', 'done']).describe('Child coverage status. DONE equivalence consumes covered/done only.'),
+  evidenceRefs: z.array(z.string().min(1)).optional().describe('Evidence refs proving child coverage.'),
 });
 
 const proofStoryAcceptanceBindingSchema = z.object({
@@ -90,6 +106,7 @@ const proofStoryAcceptanceBindingSchema = z.object({
 const proofStoryGateModeSchema = z.enum(['observe', 'warn', 'enforce']);
 const proofStoryIntentCollisionDecisionSchema = z.enum(['pass', 'revise_intent', 'human_gate', 'stop']);
 const proofStorySpikePromotionSchema = z.enum(['red_evidence', 'verification_evidence', 'scope_decision', 'implementation_note']);
+const proofStoryGreenRelationSchema = z.enum(['same_acceptance', 'regression_to_green', 'replacement']);
 
 /** CLI tool definitions bundled with main. */
 export const MAIN_TOOLS: ToolDef[] = [
@@ -2039,10 +2056,30 @@ Behavior:
     requiredEvidence: z.array(z.string()).optional().describe('Evidence kinds expected for this milestone.'),
     checklistRefs: z.array(z.string()).optional().describe('Checklist item ids that deliver this milestone.'),
     verificationIntentRefs: z.array(z.string()).optional().describe('Verification intent refs covering this milestone.'),
+    parentLedgerId: z.string().optional().describe('Optional parent ledger row this milestone slices from.'),
+    assignedStory: z.string().regex(/^B-[A-Za-z0-9][A-Za-z0-9._-]*$/).optional().describe('Optional child story assigned to deliver this row.'),
     status: z.enum(['planned', 'covered', 'done', 'not_applicable']).optional().describe('Milestone coverage status.'),
     json: z.boolean().optional().describe('Output structured JSON.'),
   }},
   { name: 'milestone_ledger_get', description: 'Read the story milestone ledger', schema: {
+    storyId: z.string().describe('Story ID'),
+    json: z.boolean().optional().describe('Output structured JSON.'),
+  }},
+  { name: 'slice_plan_set', description: 'Persist a ProofStory slice plan for an oversized milestone ledger', schema: {
+    storyId: z.string().describe('Story ID'),
+    slices: z.array(proofStorySliceSchema).min(1).describe('Complete slices covering every current milestone ledger row.'),
+    json: z.boolean().optional().describe('Output structured JSON.'),
+  }},
+  { name: 'slice_plan_get', description: 'Read the ProofStory slice plan', schema: {
+    storyId: z.string().describe('Story ID'),
+    json: z.boolean().optional().describe('Output structured JSON.'),
+  }},
+  { name: 'parent_ledger_rollup_set', description: 'Persist parent ledger roll-up coverage for slice-plan child stories', schema: {
+    storyId: z.string().describe('Story ID'),
+    children: z.array(proofStoryRollupChildSchema).describe('Child story coverage rows.'),
+    json: z.boolean().optional().describe('Output structured JSON.'),
+  }},
+  { name: 'parent_ledger_rollup_get', description: 'Read the ProofStory parent ledger roll-up', schema: {
     storyId: z.string().describe('Story ID'),
     json: z.boolean().optional().describe('Output structured JSON.'),
   }},
@@ -2084,9 +2121,16 @@ Behavior:
   { name: 'red_evidence_create', description: 'Record ProofStory red evidence for a triggered pre-fix failure', schema: {
     storyId: z.string().describe('Story ID'),
     trigger: z.string().min(1).describe('Trigger or claim this red evidence addresses.'),
+    acceptanceTargetRef: z.string().min(1).describe('Acceptance, verificationIntent, milestone, or request hash target this red proof addresses.'),
+    baselineHeadHash: z.string().min(1).optional().describe('Pre-fix git HEAD; defaults to current HEAD.'),
+    baselineMaterialHash: z.string().min(1).optional().describe('Pre-fix material hash; defaults to current material hash.'),
     observedFailure: z.string().min(1).describe('Observed failing behavior before the fix.'),
     failingCommand: z.string().optional().describe('Command that demonstrates the red state.'),
     expectedGreenCommand: z.string().optional().describe('Separate command expected to pass after the fix.'),
+    greenTargetRef: z.string().min(1).optional().describe('Green evidence target; defaults to acceptanceTargetRef and must match for gate satisfaction.'),
+    greenRelation: proofStoryGreenRelationSchema.optional().describe('Relationship from red failure to green target.'),
+    greenHeadHash: z.string().min(1).optional().describe('Optional green HEAD hash; must differ from baseline when provided.'),
+    greenMaterialHash: z.string().min(1).optional().describe('Optional green material hash; must differ from baseline when provided.'),
     note: z.string().optional().describe('Audit note.'),
     id: z.string().optional().describe('Stable red evidence id; generated when omitted.'),
     json: z.boolean().optional().describe('Output structured JSON.'),
@@ -2099,6 +2143,7 @@ Behavior:
     storyId: z.string().describe('Story ID'),
     id: z.string().optional().describe('Stable spike id; generated when omitted.'),
     question: z.string().min(1).describe('Question the spike is investigating.'),
+    disposableCodePaths: z.array(z.string().min(1)).optional().describe('Disposable spike-only code paths that must be discarded or explicitly promoted.'),
     note: z.string().optional().describe('Audit note.'),
     json: z.boolean().optional().describe('Output structured JSON.'),
   }},

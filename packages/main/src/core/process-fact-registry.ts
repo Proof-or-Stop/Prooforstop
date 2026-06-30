@@ -131,6 +131,8 @@ export const PROCESS_FACT_REQUIRED_SEMANTICS = {
   original_intent_snapshot_set: ['schema-contract', 'gate-evidence'],
   milestone_ledger_set: ['schema-contract', 'verification-policy', 'gate-evidence'],
   milestone_ledger_add: ['schema-contract', 'verification-policy', 'gate-evidence'],
+  slice_plan_set: ['schema-contract', 'verification-policy', 'gate-evidence'],
+  parent_ledger_rollup_set: ['schema-contract', 'verification-policy', 'gate-evidence'],
   proofstory_contract_set: ['schema-contract', 'verification-policy', 'gate-evidence'],
   intent_collision_set: ['schema-contract', 'verification-policy', 'gate-evidence'],
   scope_shrinkage_decision_set: ['schema-contract', 'verification-policy', 'gate-evidence'],
@@ -239,6 +241,20 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     signed: false,
     producerCommand: 'milestone_ledger_add',
     consumerGate: 'ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates',
+  },
+  slice_plan_set: {
+    name: 'slice-plan.json',
+    path: 'slice-plan.json',
+    signed: false,
+    producerCommand: 'slice_plan_set',
+    consumerGate: 'ProofStory DEV admission and DONE intent-equivalence gates',
+  },
+  parent_ledger_rollup_set: {
+    name: 'parent-ledger-rollup.json',
+    path: 'parent-ledger-rollup.json',
+    signed: false,
+    producerCommand: 'parent_ledger_rollup_set',
+    consumerGate: 'ProofStory DONE intent-equivalence gate',
   },
   proofstory_contract_set: {
     name: 'proofstory.json',
@@ -719,6 +735,8 @@ function artifactFactSemantics(artifact: ProcessFactArtifactRef): ProcessFactSem
   if (
     artifact.path === 'original-intent-snapshot.json'
     || artifact.path === 'milestone-ledger.json'
+    || artifact.path === 'slice-plan.json'
+    || artifact.path === 'parent-ledger-rollup.json'
     || artifact.path === 'proofstory.json'
     || artifact.path === 'intent-collision.json'
     || artifact.path === 'scope-shrinkage-decision.json'
@@ -911,6 +929,26 @@ export const PROCESS_FACT_ARTIFACTS = [
     rationale: 'Milestone ledger makes multi-deliverable intent countable; candidate rows guide diagnostics and confirmed rows can be gate-consumed.',
   },
   {
+    name: 'artifact:slice-plan.json',
+    kind: 'artifact',
+    semantics: ['artifact', 'schema-contract', 'verification-policy', 'gate-evidence'],
+    level: 'L4',
+    producer: 'handlers/proofstory',
+    consumerGate: 'ProofStory DEV admission and DONE intent-equivalence gates',
+    artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.slice_plan_set,
+    rationale: 'Slice plans bind oversized ledger exceptions to the current ledger hash and complete milestone coverage without auto-creating child stories.',
+  },
+  {
+    name: 'artifact:parent-ledger-rollup.json',
+    kind: 'artifact',
+    semantics: ['artifact', 'schema-contract', 'verification-policy', 'gate-evidence'],
+    level: 'L4',
+    producer: 'handlers/proofstory',
+    consumerGate: 'ProofStory DONE intent-equivalence gate',
+    artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.parent_ledger_rollup_set,
+    rationale: 'Parent ledger roll-up records child-story coverage for slice-plan DONE equivalence.',
+  },
+  {
     name: 'artifact:proofstory.json',
     kind: 'artifact',
     semantics: ['artifact', 'schema-contract', 'verification-policy', 'gate-evidence'],
@@ -948,7 +986,7 @@ export const PROCESS_FACT_ARTIFACTS = [
     producer: 'handlers/proofstory',
     consumerGate: 'ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.red_evidence_create,
-    rationale: 'Red evidence records pre-fix failures and remains distinct from green verificationEvidence.',
+    rationale: 'Red evidence records pre-fix failures bound to baseline head/material and a green relation target; it remains distinct from green verificationEvidence.',
   },
   {
     name: 'artifact:spike.json',
@@ -958,7 +996,7 @@ export const PROCESS_FACT_ARTIFACTS = [
     producer: 'handlers/proofstory',
     consumerGate: 'ProofStory DEV admission, REVIEW completeness, and DONE intent-equivalence gates',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.spike_start,
-    rationale: 'Spike evidence records investigation state and never satisfies red or verification evidence unless separately promoted by explicit commands.',
+    rationale: 'Spike evidence records investigation state and disposable code policy; it never satisfies red or verification evidence unless separately promoted by explicit commands.',
   },
   {
     name: 'artifact:delivery-check.json',
