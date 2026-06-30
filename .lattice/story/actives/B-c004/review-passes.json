@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-30T15:34:30.850Z",
       "reviewRunId": "B-c004:RR-010",
       "_hash": "e17ec2760fe40a7b4caa9082a6be234b773333f2d5b8d35ee41e7a91842f6370"
+    },
+    {
+      "id": "B-c004:RP-006",
+      "agent": "lattice-review-docs",
+      "note": "Docs re-review passed at HEAD aefe28a. Reviewed authority-server-vocabulary-retirement.md, control-plane-proof-capability-closure-audit.md, global-lifecycle-control-plane-execution-plan.md, and proof-admissibility-hardening-execution-plan. Confirmed English-only reviewed docs, retired/non-goal wording remains explicit, Authority Server active backlog wording is not returned, and closure audit table covers exactly M1-M7 once. Targeted current-source smokes passed: npx tsx packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts; npx tsx packages/main/src/tasks/lifecycle-control-smoke.ts; npx tsx packages/main/src/tasks/proof-admissibility-hardening-smoke.ts.",
+      "createdAt": "2026-06-30T15:37:51.448Z",
+      "reviewRound": "2026-06-30T15:34:30.850Z",
+      "reviewRunId": "B-c004:RR-012",
+      "_hash": "9a58dbadf997d0ae33cf0e3d2dcb40b7c366950ba63b375d58413ede116db210"
     }
   ]
 }
