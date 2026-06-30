@@ -141,7 +141,7 @@
       "desc": "Targeted proof-admissibility smoke is red after 78cf7d560: `npm --prefix packages/main run test:proof-admissibility` exits 1 at packages/main/dist/tasks/proof-admissibility-smoke.js:252 / source packages/main/src/tasks/proof-admissibility-smoke.ts:292, where valid DONE_REQUIRED done-readiness evidence is expected to be allowed but evaluateProofAdmissibility returns allowed=false. Build and proof-admissibility-hardening smoke pass, including the new retired ledger obligation guard, but the requested proof-admissibility smoke/build condition is not fully satisfied until the base smoke is green or this command is explicitly removed from the targeted acceptance boundary.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-30T17:40:32.365Z",
@@ -153,7 +153,11 @@
         "packages/main/src/core/proof-admissibility.ts"
       ],
       "signatureTag": "missing|ts|targeted-proof-admissibility",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed the base proof-admissibility smoke fixture so valid DONE_REQUIRED done-readiness evidence includes commandSpecDigestValid:true, preserving the core fail-closed CommandSpec policy instead of loosening evaluateProofAdmissibility. Evidence: commit ac66dd3a; npm --prefix packages/main run build; npm --prefix packages/main run test:proof-admissibility-hardening; npm --prefix packages/main run test:proof-admissibility all passed.",
+      "resolvedAt": "2026-06-30T17:46:14.200Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
