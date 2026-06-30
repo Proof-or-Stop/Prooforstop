@@ -165,9 +165,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-30T13:57:39.695Z",
       "userSees": "The user sees parent roadmap rollup output that says full, partial, blocked, or invalid with row-level next actions.",
       "files": {
         "modify": [
@@ -197,7 +197,42 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js --case=evaluator",
+          "result": "pass",
+          "note": "Evaluator returns allRowsClosed=true and full-roadmap-claim only for full fresh row evidence.",
+          "headHash": "5e458abb1d9964060cd0e5e87918e50819d89f8b",
+          "materialHash": "dc1f3d527d5e212e1b41a4345bba75d08cce6a9356a301b5b60eb4ef04336878",
+          "storyFilesHash": "65336d8a9a4378cd29245f90817deff460ee2a0f572b8a97fe0c7dc2138f39d0",
+          "timestamp": "2026-06-30T13:57:39.938Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js --case=evaluator",
+          "result": "pass",
+          "note": "Open, stale, blocked, missing, and invalid rows produce allRowsClosed=false with row-level reasons and next actions.",
+          "headHash": "5e458abb1d9964060cd0e5e87918e50819d89f8b",
+          "materialHash": "dc1f3d527d5e212e1b41a4345bba75d08cce6a9356a301b5b60eb4ef04336878",
+          "storyFilesHash": "65336d8a9a4378cd29245f90817deff460ee2a0f572b8a97fe0c7dc2138f39d0",
+          "timestamp": "2026-06-30T13:57:40.148Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js --case=evaluator",
+          "result": "pass",
+          "note": "Caller-provided parentLedgerRollup allRowsClosed=true and full-roadmap-claim are ignored; row facts recompute the rollup.",
+          "headHash": "5e458abb1d9964060cd0e5e87918e50819d89f8b",
+          "materialHash": "dc1f3d527d5e212e1b41a4345bba75d08cce6a9356a301b5b60eb4ef04336878",
+          "storyFilesHash": "65336d8a9a4378cd29245f90817deff460ee2a0f572b8a97fe0c7dc2138f39d0",
+          "timestamp": "2026-06-30T13:57:40.365Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
