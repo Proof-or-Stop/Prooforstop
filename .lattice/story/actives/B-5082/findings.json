@@ -37,6 +37,27 @@
       ],
       "signatureTag": "edge|ts|high-assurance-equivalence",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5082:F-003",
+      "desc": "red_evidence_create can satisfy the ProofStory red-evidence gate without command or green/current evidence: command-catalog.ts makes failingCommand/expectedGreenCommand/greenHeadHash/greenMaterialHash optional, handlers/proofstory.ts auto-fills baseline hashes from the current tree, and proofstory.ts redEvidenceRecordSatisfied returns true once observedFailure, target, baseline hashes, and a same-target greenRelation exist. For a bug/regression story in proofStory.devGateMode=enforce, a natural-language observedFailure row with no failing command, no receipt/transcript, and no green hash/command can clear missing_red_evidence even though the requirement says valid red evidence must include command, baseline, expected/observed-before result, intent mapping, and receipt/digest. This weakens an L4 gate-evidence producer consumed by DEV/REVIEW/DONE ProofStory gates.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-30T01:36:18.052Z",
+      "reviewRound": "2026-06-30T01:32:36.585Z",
+      "reviewRunId": "B-5082:RR-007",
+      "_hash": "42e2a206b5daa1c45060ec31ce0c2b90abb8fa0dc024184cbb7dcc3d305ac223",
+      "files": [
+        "packages/main/src/core/proofstory.ts",
+        "packages/main/src/handlers/proofstory.ts",
+        "packages/main/src/cli/command-catalog.ts",
+        "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md"
+      ],
+      "signatureTag": "missing|ts|evidence-create-satisfy",
+      "signatureTagSource": "auto"
     }
   ]
 }
