@@ -142,7 +142,9 @@ Implementation boundary:
 - Use the shared `EvidenceRuntime` facade.
 - Register proof surfaces through `ProofSurfaceDefinition`.
 - Evaluate gate claims through `ProofClaimPolicy`.
-- Store artifacts and ledger streams under `.lattice/evidence/`.
+- Store artifact-specific verifier output under the runtime evidence paths used
+  by each artifact type; durable ledger streams are retired local CLI non-goals
+  and remain only Appendix C / future-integration reference material.
 - Keep existing strong verifiers, but connect them through adapters instead of
   rewriting them in the first migration slice.
 
@@ -1179,11 +1181,15 @@ Minimum implementation:
 - `status=red` blocks high-risk advancement only when the row matches the
   current blocking scope.
 - Recompute on story DONE and at least every 24 hours.
-- A story entering REVIEW should inspect the waterline first, then inspect the
-  concrete ledger rows that explain the waterline.
+- A story entering REVIEW should inspect the diagnostic waterline first, then
+  inspect the artifact-specific verifier outputs and top reasons that explain
+  the waterline.
 
-All counts are derived from ledger rows and clause arrays. Counts are rendered
-for operator convenience, not accepted as an independent source of truth.
+For the current local CLI, counts are derived from artifact-specific verifier
+outputs and clause arrays. Counts are rendered for operator convenience, not
+accepted as an independent source of truth. Durable ledger-row derivation is
+retired Appendix C / future-integration reference material, not an active local
+CLI obligation.
 
 Suggested thresholds, tunable by environment:
 
@@ -1480,9 +1486,9 @@ Conclusions:
   wired into the contract" failures.
 - It will not eliminate every future issue because new hosts, surfaces, and data
   models will continue to appear. It changes the failure from scattered latent
-  risk into a traceable ledger gap.
-- Future fixes should usually be faster: add a ledger row and reason code before
-  rebuilding a bespoke proof chain.
+  risk into a traceable artifact-specific verifier gap.
+- Future fixes should usually be faster: add verifier output and reason codes
+  before rebuilding a bespoke proof chain.
 
 Suggested follow-up metric:
 

@@ -51,6 +51,7 @@ const enforceHighRisk: ProofAdmissibilityPolicy = {
   enforcedConsumers: ['DONE_REQUIRED', 'REVIEW', 'HANDOFF', 'AUTHORITY_GATE_DECISION'],
 };
 const CLOSURE_AUDIT_PATH = 'docs/requirements/decisions/control-plane-proof-capability-closure-audit.md';
+const HARDENING_PLAN_PATH = 'docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md';
 
 function resolveRepoRoot(start = process.cwd()): string {
   let current = start;
@@ -106,8 +107,47 @@ function assertAppendOnlyLedgerRetired(): void {
   assert.ok(report.rows[0]?.topReasons.includes('command_spec_missing'), 'missing DONE_REQUIRED evidence reports missing CommandSpec rather than digest mismatch');
 }
 
+function assertHardeningPlanHasNoActiveLedgerObligations(): void {
+  const plan = readFileSync(join(resolveRepoRoot(), HARDENING_PLAN_PATH), 'utf8');
+  assert.match(plan, /durable ledger streams are retired local CLI non-goals/);
+  assert.match(plan, /Durable ledger-row derivation is\s+retired Appendix C \/ future-integration reference material/);
+
+  const activePlanText = plan
+    .replace(
+      /## Appendix C: Retired Evidence Admissibility Ledger Reference[\s\S]*?(?=\n## Appendix D:)/,
+      '\n## Appendix C retired reference omitted from active-obligation smoke\n',
+    );
+  const retiredContext = 'Appendix C is the only retired ledger-row reference context in this smoke';
+  const forbiddenActivePhrases = [
+    {
+      label: 'ledger stream storage obligation',
+      pattern: /\bStore\b[\s\S]{0,120}\bledger streams?\b[\s\S]{0,80}`?\.lattice\/evidence\/`?/i,
+    },
+    {
+      label: 'review-time concrete ledger row obligation',
+      pattern: /\b(?:inspect|review)\b[\s\S]{0,100}\b(?:concrete\s+)?ledger rows?\b/i,
+    },
+    {
+      label: 'ledger-row count source obligation',
+      pattern: /\bcounts?\b[\s\S]{0,80}\bderived from ledger rows?\b/i,
+    },
+    {
+      label: 'ledger-row repair obligation',
+      pattern: /\badd\s+a\s+ledger row\b/i,
+    },
+  ];
+  for (const { label, pattern } of forbiddenActivePhrases) {
+    assert.equal(
+      pattern.test(activePlanText),
+      false,
+      `${HARDENING_PLAN_PATH} must not reintroduce active ${label}; ${retiredContext}`,
+    );
+  }
+}
+
 assertClosureAuditContract();
 assertAppendOnlyLedgerRetired();
+assertHardeningPlanHasNoActiveLedgerObligations();
 
 function currentValidChecks(schemaVersion: string) {
   return {
