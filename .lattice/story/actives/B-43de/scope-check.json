@@ -68,11 +68,13 @@
       "q": "The product scope is bounded to the roadmap doc plus optional verifier marker checks, but the current scope_contract_check fails on B-43de ProofStory lifecycle artifacts. Should those story-scoped ProofStory artifacts be added to the lifecycle artifact registry or scope contract, acknowledged as intentional provenance, or reverted until the contract permits them?",
       "evidence": "scope_contract_check --storyId=B-43de reports six unacknowledged OUT_OF_SCOPE violations for B-43de intent-collision, milestone-ledger, original-intent-snapshot, parent-ledger-rollup, proofstory, and slice-plan JSON; the plan and ProofStory contract require those artifacts for parent governance.",
       "sourcePointers": [
-        "lattice scope_contract_check --storyId=B-43de",
-        "lattice scope_contract_show --storyId=B-43de",
-        "lattice proofstory_contract_get --storyId=B-43de",
-        "lattice milestone_ledger_get --storyId=B-43de"
-      ]
+        "CHK-001",
+        "CHK-002",
+        "CHK-005",
+        "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md#Non-Goals"
+      ],
+      "resolution": "Resolved: B-43de product scope stays limited to the roadmap document plus an optional process-fact verifier marker. ProofStory lifecycle artifacts under .lattice/story/actives/B-43de are allowed only as CLI-generated gate evidence for this story, not as product/runtime implementation scope.",
+      "resolvedAt": "2026-06-30T09:52:33.633Z"
     }
   ]
 }
