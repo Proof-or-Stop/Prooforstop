@@ -97,7 +97,40 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees Global Control Plane implemented rows marked ✅ while partial and unavailable rows remain visibly partial/unavailable.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The Global Lifecycle Control Plane document has a concise completion table marking implemented control-plane rows with ✅.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Proof M7 enforcement, admissibility waterline, and Tier-C cleanup remain labeled partial or unavailable as appropriate.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The document does not claim the control plane implements Proof M7 hard blocking, automated Tier-C cleanup, or local productionDone minting.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
