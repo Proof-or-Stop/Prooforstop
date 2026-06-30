@@ -68,7 +68,30 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "DONE oracle/review escalation/review assurance paths reuse a supplied command-local material/story binding instead of recomputing independently",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "if no reusable binding is supplied, consumers retain existing recomputation and stale-check behavior",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "a stale supplied binding is not accepted after HEAD or material dirty state changes",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
