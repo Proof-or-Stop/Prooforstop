@@ -34,6 +34,7 @@ export type {
 
 const TERMINAL_PHASES = new Set(['DONE', 'DISCARDED', 'META']);
 const MIGRATION_TITLE_PREFIX = 'Tier-C provider-execution receipt verification';
+const TIER_C_EXPERIMENT_BATCH_ID = 'tier-c-provider-execution-receipt-verification';
 type QueueExceptionSource = QueueExceptionRecord['source'];
 type QueueExceptionInputSource = QueueExceptionSource | 'tier-c-prefix';
 
@@ -263,6 +264,30 @@ function titleInferredExperiment(story: StoryInfo): boolean {
   return story.title.startsWith(MIGRATION_TITLE_PREFIX);
 }
 
+function migrationTitlePrefixException(story: StoryInfo, root: string, now: string): QueueExceptionRecord | null {
+  if (!titleInferredExperiment(story)) return null;
+  const storyIds = [story.storyId];
+  return {
+    exceptionId: exceptionId({
+      experimentBatchId: TIER_C_EXPERIMENT_BATCH_ID,
+      storyIds,
+      reason: 'Tier-C migration title-prefix discovery.',
+      source: 'migration-title-prefix',
+    }),
+    policyVersion: 'proofbound.queue_exception.v1',
+    class: 'experiment-batch-exception',
+    experimentBatchId: TIER_C_EXPERIMENT_BATCH_ID,
+    storyIds,
+    source: 'migration-title-prefix',
+    storyFilesHash: storyFilesHashFor(root, storyIds),
+    dashboardMode: 'collapsed',
+    cleanupPolicy: 'preserve',
+    actor: 'queue-governance-migration',
+    reason: 'Tier-C provider-execution receipt verification title-prefix migration preserves each run as experiment evidence.',
+    createdAt: now,
+  };
+}
+
 function malformedExperiment(story: StoryInfo): boolean {
   return /tier-c/i.test(story.title) && !titleInferredExperiment(story);
 }
@@ -297,6 +322,7 @@ function queueRow(args: {
     ...(args.exception ? {
       experimentBatchId: args.exception.experimentBatchId,
       exceptionId: args.exception.exceptionId,
+      exceptionSource: args.exception.source,
       cleanupPolicy: args.exception.cleanupPolicy,
     } : args.cleanupPolicy ? { cleanupPolicy: args.cleanupPolicy } : {}),
   };
@@ -323,7 +349,12 @@ export function projectQueueGovernance(
   for (const story of activeStories) {
     if (exceptions.has(story.storyId)) continue;
     const durable = durableExperimentException(story, mainRepoRoot, now);
-    if (durable) exceptions.set(story.storyId, durable);
+    if (durable) {
+      exceptions.set(story.storyId, durable);
+      continue;
+    }
+    const migrated = migrationTitlePrefixException(story, mainRepoRoot, now);
+    if (migrated) exceptions.set(story.storyId, migrated);
   }
 
   const duplicateGroups = new Map<string, StoryInfo[]>();
@@ -398,7 +429,9 @@ export function projectQueueGovernance(
       return queueRow({
         story,
         classification: 'experiment-batch-exception',
-        reason: 'experiment exception preserves provider-execution receipt verification evidence',
+        reason: explicit.source === 'migration-title-prefix'
+          ? 'Tier-C migration title-prefix exception preserves provider-execution receipt verification evidence; lifecycle readiness is unchanged'
+          : 'experiment exception preserves provider-execution receipt verification evidence; lifecycle readiness is unchanged',
         authoritativeCwd: projectionRow?.activeCwd,
         exception: explicit,
       });

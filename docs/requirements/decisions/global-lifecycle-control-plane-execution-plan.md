@@ -1,6 +1,6 @@
 # Global Lifecycle Control Plane Execution Plan
 
-> Status: proposed execution baseline.
+> Status: implemented/partial/future capability audit frozen for B-cd3a.
 > Date: 2026-06-25.
 > Scope: top-level Proofbound lifecycle management across runtime closure,
 > evidence consumption closure, and queue governance.
@@ -147,6 +147,30 @@ interface ControlPlaneCapabilities {
   enforcementMode: "unavailable" | "warn" | "enforce";
 }
 ```
+
+### Frozen Capability Audit
+
+B-cd3a freezes the control-plane capability vocabulary to four machine status
+words: `implemented`, `partial`, `unavailable`, and `future`. Human audit prose
+may say "missing" for a capability that has no runtime implementation; the
+machine-readable projection renders that state as `unavailable`. Compatibility booleans
+such as `proofM7Enforcement`, `queueCleanupEnforcement`, and `tierCCleanup`
+remain `false` unless that capability can itself grant the named production
+behavior. The richer status rows explain partial rollout without changing those
+safety booleans.
+
+| Capability | Status | Source / evidence | What it does not claim |
+|---|---|---|---|
+| Read-only global status projection | implemented | `global_control_status`, `runtime_closure_status`, `admissibility_waterline`, and `queue_governance_status` are registered read-only commands in `command-policy.ts` and handlers reject write-like flags before reading facts. | Does not mutate story state, evidence, queue exceptions, receipts, or authority. |
+| Runtime closure projection | implemented | `packages/main/src/core/lifecycle-control/runtime/index.ts` projects local assurance, lifecycle readiness rows, owner lease, main-write lock, and validation lock state. | Does not define a second lifecycle state machine or proof policy. |
+| Runtime closure enforcement rollout | partial | `story_advance` evaluates runtime authority, dirty state, and lock state through `evaluateRuntimeEnforcement`; config is `lifecycleControl.runtimeEnforcement=warn|enforce|unavailable`. | Default warn mode is not a hard lifecycle gate. Rollback is `lifecycleControl.runtimeEnforcement=warn`. |
+| Proof Admissibility waterline | partial | `admissibility_waterline` consumes public Proof Admissibility diagnostics and renders consumer rows with `diagnosticOnly=true` and `productionDoneEligible=false`. | Does not satisfy DONE, DONE_REQUIRED, Authority, or production claims. |
+| Proof M7 enforcement | partial | Proof-facing diagnostics and some warn/enforce modes exist in Proof Admissibility. The control-plane capability row reports this as partial while the compatibility boolean `proofM7Enforcement=false`. | The control plane does not implement Proof M7 hard blocking. |
+| Queue classification | implemented | `queue_governance_status` classifies active worktree, stale worktree, main init, experiment exception, duplicate candidate, superseded, and cleanup-required rows. | Classification alone never discards a story or grants readiness. |
+| Queue exception registry | implemented | `queue_exception_set` writes preserve-only experiment exceptions under the main-write lock with actor, reason, timestamp, hash binding, and audit event. | Exceptions affect duplicate-cleanup pressure only. |
+| Queue cleanup enforcement | partial | Duplicate/superseded/cleanup-required risk is projected and exception writes are guarded; cleanup mutations remain outside this dashboard. Compatibility boolean `queueCleanupEnforcement=false`. | Does not perform or authorize cleanup by itself. |
+| Tier-C cleanup | future | Tier-C provider-execution receipt verification runs are preserved and grouped as experiment evidence; malformed Tier-C-like rows stay cleanup-required. Compatibility boolean `tierCCleanup=false`. | No automated Tier-C cleanup is available or implied. |
+| External production done | unavailable | No external production adapter is part of the control plane. | Local CLI evidence cannot mint `productionDone`. |
 
 ## 2. Why This Is Needed
 
@@ -357,6 +381,11 @@ Policy:
    hides malformed records, impossible lifecycle state, stale worktree blockers,
    or `cleanup-required` findings. Cleanup of an experiment story still requires
    an explicit human-readable reason and evidence-preserving audit trail.
+7. B-cd3a treats the exact Tier-C title prefix as a migration-source experiment
+   exception in the read-only queue projector so existing provider-execution
+   receipt runs are grouped immediately. The row source remains
+   `migration-title-prefix`; durable registry or story metadata may replace it
+   later. This migration source still does not waive lifecycle readiness.
 
 Non-experiment duplicates still require cleanup. A story is a duplicate cleanup
 candidate when:
@@ -685,6 +714,22 @@ Definition of done:
 - unsafe runtime operations are blocked;
 - normal development remains usable;
 - rollback command/config is documented and tested.
+
+Runtime enforcement rollout config:
+
+```json
+{
+  "lifecycleControl": {
+    "runtimeEnforcement": "warn"
+  }
+}
+```
+
+`warn` is the default rollout mode. Set `enforce` only after the same
+story/head/material/runtime-policy tuple has been observed in warn mode. Set
+`unavailable` only for emergency diagnostics where the runtime enforcement
+projector itself is unavailable. The named rollback from enforce mode is to set
+`lifecycleControl.runtimeEnforcement` back to `warn`.
 
 ### CP-5B - Queue Governance Guard
 

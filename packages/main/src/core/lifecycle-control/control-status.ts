@@ -4,17 +4,23 @@ export const CONTROL_PLANE_CAPABILITY_IDS = [
   'project-lane-statuses',
   'queue-classification',
   'runtime-closure-projection',
+  'runtime-enforcement-rollout',
   'admissibility-waterline',
+  'proof-m7-enforcement',
   'queue-exception-registry',
+  'queue-cleanup-enforcement',
+  'tier-c-cleanup',
   'structural-migration-plan',
 ] as const;
 
 export type ControlPlaneCapabilityId = typeof CONTROL_PLANE_CAPABILITY_IDS[number];
+export type ControlPlaneCapabilityStatus = 'implemented' | 'partial' | 'unavailable' | 'future';
 
 export interface ControlPlaneCapability {
   readonly id: ControlPlaneCapabilityId;
-  readonly status: 'available' | 'planned';
+  readonly status: ControlPlaneCapabilityStatus;
   readonly description: string;
+  readonly evidence?: readonly string[];
 }
 
 export interface ControlPlaneCapabilities {
@@ -26,6 +32,11 @@ export interface ControlPlaneCapabilities {
   readonly proofM7Enforcement: false;
   readonly queueCleanupEnforcement: false;
   readonly tierCCleanup: false;
+  readonly capabilityStatus: {
+    readonly proofM7Enforcement: ControlPlaneCapabilityStatus;
+    readonly queueCleanupEnforcement: ControlPlaneCapabilityStatus;
+    readonly tierCCleanup: ControlPlaneCapabilityStatus;
+  };
   readonly capabilities: readonly ControlPlaneCapability[];
 }
 
@@ -38,45 +49,90 @@ export const DEFAULT_CONTROL_PLANE_CAPABILITIES: ControlPlaneCapabilities = {
   proofM7Enforcement: false,
   queueCleanupEnforcement: false,
   tierCCleanup: false,
+  capabilityStatus: {
+    proofM7Enforcement: 'partial',
+    queueCleanupEnforcement: 'partial',
+    tierCCleanup: 'future',
+  },
   capabilities: [
     {
       id: 'read-only-status-projection',
-      status: 'available',
+      status: 'implemented',
       description: 'Expose lifecycle-control status shapes without mutating gates.',
     },
     {
       id: 'story-lane-statuses',
-      status: 'available',
+      status: 'implemented',
       description: 'Represent story-scoped lifecycle lanes as read-only projection data.',
     },
     {
       id: 'project-lane-statuses',
-      status: 'available',
+      status: 'implemented',
       description: 'Represent project-level control-plane status as read-only projection data.',
     },
     {
       id: 'queue-classification',
-      status: 'available',
+      status: 'implemented',
       description: 'Classify queues for visibility without cleanup enforcement.',
     },
     {
       id: 'runtime-closure-projection',
-      status: 'available',
+      status: 'implemented',
       description: 'Project runtime closure from existing authority, readiness, lock, and freshness surfaces.',
     },
     {
+      id: 'runtime-enforcement-rollout',
+      status: 'partial',
+      description: 'Config-gated runtime hard blocks exist for phase-advance contexts while defaulting to warn mode.',
+      evidence: [
+        'lifecycleControl.runtimeEnforcement accepts warn/enforce/unavailable',
+        'story_advance consumes runtime authority, dirty-state, and lock decisions',
+      ],
+    },
+    {
       id: 'admissibility-waterline',
-      status: 'available',
+      status: 'partial',
       description: 'Render diagnostic-only Proof Admissibility consumer waterlines without granting readiness.',
+      evidence: [
+        'control plane consumes Proof Admissibility diagnostics',
+        'waterline is diagnostic-only and cannot satisfy DONE',
+      ],
+    },
+    {
+      id: 'proof-m7-enforcement',
+      status: 'partial',
+      description: 'Proof M7 enforcement remains owned by Proof Admissibility; the control plane only reports its diagnostic/warn/enforce posture.',
+      evidence: [
+        'proofM7Enforcement boolean remains false in control-plane capabilities',
+        'admissibility_waterline reports missing clauses but never mutates gate evidence',
+      ],
     },
     {
       id: 'queue-exception-registry',
-      status: 'available',
+      status: 'implemented',
       description: 'Persist explicit experiment-batch queue exceptions with audit fields and preserve cleanup policy.',
     },
     {
+      id: 'queue-cleanup-enforcement',
+      status: 'partial',
+      description: 'Queue governance classifies duplicate/superseded cleanup risk and protects experiment exceptions, but cleanup mutation remains outside this read-only dashboard.',
+      evidence: [
+        'queueCleanupEnforcement boolean remains false',
+        'duplicate and cleanup-required rows are surfaced as queue pressure only',
+      ],
+    },
+    {
+      id: 'tier-c-cleanup',
+      status: 'future',
+      description: 'Tier-C provider-execution runs are preserved as experiment evidence; automated cleanup remains deliberately unavailable.',
+      evidence: [
+        'tierCCleanup boolean remains false',
+        'experiment-batch-exception never grants lifecycle readiness',
+      ],
+    },
+    {
       id: 'structural-migration-plan',
-      status: 'available',
+      status: 'implemented',
       description: 'Keep the six-milestone structural migration plan in source.',
     },
   ],
@@ -275,6 +331,7 @@ export interface QueueGovernanceRow {
   readonly authoritativeCwd?: string;
   readonly experimentBatchId?: string;
   readonly exceptionId?: string;
+  readonly exceptionSource?: QueueExceptionRecord['source'];
   readonly cleanupPolicy?: 'preserve' | 'review-required' | 'cleanup-required';
 }
 

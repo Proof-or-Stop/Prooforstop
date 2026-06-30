@@ -22,6 +22,7 @@ export { buildProjectControlStatus, buildStoryControlStatus, isReadOnlyControlPl
 const VALIDATION_LOCK_STALE_MS = 120000;
 
 export interface RuntimeClosureOptions {
+  readonly storyId?: string;
   readonly storyIds?: readonly string[];
   readonly activeOnly?: boolean;
   readonly now?: string;
@@ -224,7 +225,7 @@ export function projectRuntimeClosure(
   const nowMs = Date.parse(now);
   const localProjection = resolveLocalAssuranceStories(store, root, {
     activeOnly: options.activeOnly,
-    storyIds: options.storyIds ? [...options.storyIds] : undefined,
+    storyIds: options.storyId ? [options.storyId] : options.storyIds ? [...options.storyIds] : undefined,
     now,
   });
   const rows: RuntimeClosureRow[] = localProjection.stories.map((story) => {

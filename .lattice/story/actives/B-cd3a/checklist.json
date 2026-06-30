@@ -43,7 +43,42 @@
           }
         ]
       },
-      "userSees": "User sees a documented capability audit table that classifies each frozen DoD capability as implemented, partial, future, or missing with evidence references."
+      "userSees": "User sees a documented capability audit table that classifies each frozen DoD capability as implemented, partial, future, or missing with evidence references.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "result": "pass",
+          "note": "Added B-cd3a Capability Audit Freeze table classifying proof-admissibility capabilities as implemented, partial, future, or missing with source/status evidence.",
+          "headHash": "1f08533d58936b1b8bc77a1961fd2b5b17404c82",
+          "materialHash": "b7599c64da8e0a364d15c18ecddf304666fcd268ea53dfbb34fd99367a3673c8",
+          "storyFilesHash": "5b859a93b17b3a20a391f7c28592cfb6f2db76a41b88e89f4c6a1d3f649c291f",
+          "timestamp": "2026-06-30T09:55:45.764Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js admissibility_waterline --storyId=B-cd3a --format=json",
+          "result": "pass",
+          "note": "Current-worktree waterline remains diagnostic-only and shows proof-admissibility consumer status without overclaiming enforcement gaps or productionDone.",
+          "headHash": "1f08533d58936b1b8bc77a1961fd2b5b17404c82",
+          "materialHash": "b7599c64da8e0a364d15c18ecddf304666fcd268ea53dfbb34fd99367a3673c8",
+          "storyFilesHash": "5b859a93b17b3a20a391f7c28592cfb6f2db76a41b88e89f4c6a1d3f649c291f",
+          "timestamp": "2026-06-30T09:55:46.433Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "result": "pass",
+          "note": "Audit explicitly marks append-only ledger and external Authority production completion as missing/future instead of treating command existence or zero exit as implementation proof.",
+          "headHash": "1f08533d58936b1b8bc77a1961fd2b5b17404c82",
+          "materialHash": "b7599c64da8e0a364d15c18ecddf304666fcd268ea53dfbb34fd99367a3673c8",
+          "storyFilesHash": "5b859a93b17b3a20a391f7c28592cfb6f2db76a41b88e89f4c6a1d3f649c291f",
+          "timestamp": "2026-06-30T09:55:46.956Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",

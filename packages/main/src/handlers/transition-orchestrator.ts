@@ -43,7 +43,7 @@ import { execFileSync } from 'child_process';
 import type { HandlerContext } from './context.js';
 import { collectContext, PHASE_TO_EVENT, assertCwdInWorktree } from './context.js';
 import { createStoryActor, getStateName, canSendStoryEventWithoutSnapshotCan } from '../core/machine.js';
-import type { StoryPhase } from '../core/types.js';
+import type { StoryInfo, StoryPhase } from '../core/types.js';
 import { checkMetaStoryAdvanceGuard } from '../core/audit-meta-store.js';
 import { renderSummaryForHint } from './summary.js';
 import { collectBaselineRisk, renderBaselineRiskLines } from '../core/baseline-risk.js';
@@ -51,6 +51,19 @@ import { currentGitHead } from '../core/evidence-freshness.js';
 import { findStaleEvidence, renderEvidenceStaleHint } from '../core/evidence-stale-hint.js';
 import { checkMainDivergence } from '../core/done-oracle.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
+import { loadConfig } from '../core/config.js';
+import {
+  evaluateRuntimeEnforcement,
+  projectRuntimeClosure,
+  type RuntimeDirtyState,
+  type RuntimeEnforcementMode,
+} from '../core/lifecycle-control/runtime/index.js';
+import {
+  classifyGitStatusRows,
+  classifierOptionsForCheck,
+  isBlockingDirty,
+  readGitStatusLines,
+} from '../core/dirty-worktree-gate.js';
 import {
   resolveGuardFailure,
   runScopeTransitionGate,
@@ -177,6 +190,98 @@ export function assertStoryTransitionReachedTarget(
   }
 }
 
+function normalizeRuntimeEnforcementMode(value: unknown): RuntimeEnforcementMode {
+  return value === 'enforce' || value === 'unavailable' || value === 'warn' ? value : 'warn';
+}
+
+function runtimeDirtyStateForPhaseAdvance(
+  ctx: HandlerContext,
+  storyId: string,
+  gitCwd: string,
+): { state: RuntimeDirtyState; statusError?: string; detail?: string } {
+  const status = readGitStatusLines(gitCwd);
+  if (!status.ok) {
+    return {
+      state: 'material',
+      statusError: status.error,
+      detail: `git status could not be read from authoritative cwd ${gitCwd}: ${status.error}`,
+    };
+  }
+  if (status.lines.length === 0) return { state: 'clean' };
+
+  const config = loadConfig(ctx.root);
+  const classification = classifyGitStatusRows(
+    status.lines,
+    classifierOptionsForCheck(config, storyId, ctx.store, ctx.root),
+  );
+  const blocked = isBlockingDirty(classification);
+  if (blocked.blocked) {
+    return {
+      state: 'material',
+      detail: `blocking dirty categories ${blocked.blockingCategories.join(', ')}: ${blocked.blockingPaths.slice(0, 5).join(', ')}`,
+    };
+  }
+  return {
+    state: 'metadata-only',
+    detail: 'only Proofbound metadata/runtime/declared-artifact dirty state was detected',
+  };
+}
+
+function runRuntimeEnforcementPreflight(
+  ctx: HandlerContext,
+  story: StoryInfo,
+  targetPhase: StoryPhase,
+): string {
+  const mode = normalizeRuntimeEnforcementMode(loadConfig(ctx.root).lifecycleControl?.runtimeEnforcement);
+  if (mode === 'unavailable') return '';
+
+  const report = projectRuntimeClosure(ctx.store, ctx.root, {
+    storyId: story.storyId,
+    activeOnly: false,
+  });
+  const runtimeRow = report.stories.find((row) => row.storyId === story.storyId);
+  if (!runtimeRow) return '';
+
+  const dirty = runtimeDirtyStateForPhaseAdvance(ctx, story.storyId, runtimeRow.authoritativeCwd);
+  const decision = evaluateRuntimeEnforcement({
+    mode,
+    operation: targetPhase === 'DONE' ? 'shared-main-write' : 'phase-advance',
+    currentCwd: process.cwd(),
+    authoritativeCwd: runtimeRow.authoritativeCwd,
+    authority: runtimeRow.authority,
+    dirtyState: dirty.state,
+    validationLock: runtimeRow.locks.validationLock,
+    mainWriteLock: runtimeRow.locks.mainWriteLock,
+  });
+  const details = [
+    `mode=${decision.mode}`,
+    `operation=${decision.operation}`,
+    `reason=${decision.reason}`,
+    `dirtyState=${decision.dirtyState}`,
+    `authoritativeCwd=${runtimeRow.authoritativeCwd}`,
+    `rollback=${decision.rollback}`,
+    `proofAdmissibilityEvaluated=${decision.proofAdmissibilityEvaluated}`,
+    dirty.detail ? `detail=${dirty.detail}` : '',
+  ].filter(Boolean);
+  if (dirty.statusError && mode === 'enforce') {
+    throw new Error(
+      `Cannot enter ${targetPhase}: runtime closure preflight could not inspect dirty state [runtime_dirty_status_unreadable]\n` +
+      `  - ${dirty.statusError}\n` +
+      `  - ${details.join('; ')}\n\n` +
+      `-> Roll back with lifecycleControl.runtimeEnforcement=warn while diagnosing, then rerun story_advance.`,
+    );
+  }
+  if (decision.blocked) {
+    throw new Error(
+      `Cannot enter ${targetPhase}: runtime closure enforcement blocked phase advance [${decision.reason}]\n` +
+      `  - ${details.join('; ')}\n\n` +
+      `-> Resolve the runtime blocker or set lifecycleControl.runtimeEnforcement=warn to roll back enforcement while diagnosing.`,
+    );
+  }
+  if (decision.reason === 'none' && dirty.state === 'clean') return '';
+  return `\nRuntime closure preflight: ${details.join('; ')}`;
+}
+
 /**
  * B-0e53: read main's commit sha in `gitCwd`, or undefined if unreadable.
  *
@@ -260,6 +365,7 @@ async function runStoryTransitionInner(
 
     const story = store.readStory(args.storyId);
     const oldPhase: string = story.phase as string;
+    const runtimeGateReport = runRuntimeEnforcementPreflight(ctx, story, args.phase);
 
     // CWD gate: PLAN/DEV/TEST phases must execute inside the worktree
     const CWD_GATED: StoryPhase[] = ['PLAN', 'DEV', 'REVIEW', 'TEST'];
@@ -383,7 +489,7 @@ async function runStoryTransitionInner(
     }
 
     let scopeGateReport = '';
-    let guardGateReport = '';
+    let guardGateReport = runtimeGateReport;
     if (args.phase === 'REVIEW' || args.phase === 'TEST' || args.phase === 'DONE') {
       scopeGateReport = runScopeTransitionGate(ctx, args.storyId, args.phase);
       // B-6bfd CHK-004: guard session projection gate — blocks on recorded

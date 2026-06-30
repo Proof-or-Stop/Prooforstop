@@ -736,6 +736,7 @@ Behavior:
     ...READ_ONLY_STATUS_UNSUPPORTED_FLAGS,
   }},
   { name: 'runtime_closure_status', description: 'Read-only runtime closure projection from local assurance, readiness, freshness, and shipped lock state.', schema: {
+    storyId: z.string().optional().describe('Optional single story ID to include. Alias for storyIds=[storyId].'),
     storyIds: z.array(z.string()).optional().describe('Optional story IDs to include.'),
     activeOnly: z.boolean().optional().describe('Only include non-terminal stories (default true).'),
     currentValidationStoryId: z.string().optional().describe('Test/diagnostic hint to render a validation lock as self-reentry.'),
