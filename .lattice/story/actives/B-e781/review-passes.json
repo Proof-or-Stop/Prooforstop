@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-30T22:43:18.109Z",
       "reviewRunId": "B-e781:RR-008",
       "_hash": "0ef275e234ed42955d378d00bf97be3aec87c83bf43d7a03f0cab68d0452cdce"
+    },
+    {
+      "id": "B-e781:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS after F-001/F-002 fixes. M4-M12 each have 1 happy/1 edge/1 adversarial must verificationIntent and 3 passing verificationEvidence entries; evidence_inspect reports status=fresh with no staleRefs at current materialHash 1f580a6117be491b1c8ac3560b2fa3ad668d980303d608a6fb03711988bcd67b. npm --prefix packages/main run build passed. Reran process-fact verifier and all row smokes: parent-roadmap-totality, verification-context-pack, lifecycle-orchestrate, review-escalation, baseline-suite, baseline-suite-report, reviewer-quorum, quorum-submit, lattice-parallel-wave, rollout-check, lattice-handoff. parent_roadmap_status storyId=B-43de reports all M4-M12 closed/fresh; case=migration remains allRowsClosed=false with migration_needed; docs grep confirms B-e781 closure markers and old follow-up wording absent; ProofStory REVIEW completeness passes.",
+      "createdAt": "2026-06-30T22:49:03.982Z",
+      "reviewRound": "2026-06-30T22:43:18.109Z",
+      "reviewRunId": "B-e781:RR-007",
+      "_hash": "2aee20a57e92a857beaedba421c86675cb5b352b2b4809a257bda77bbddb56ff"
     }
   ]
 }
