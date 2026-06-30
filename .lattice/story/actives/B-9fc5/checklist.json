@@ -7,9 +7,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-30T13:00:48.943Z",
       "verificationIntent": {
         "happy": [
           {
@@ -29,7 +29,42 @@
             "type": "docs"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "command": "rg -n \"M1\\\\. Red/Repro|Red/Repro Test Cases Before Full Implementation\" docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+          "result": "pass",
+          "note": "Plan milestone M1 is explicitly Red/Repro and appears before full implementation milestones.",
+          "headHash": "a9c8b65411fae2b77fb338f864a584e4e1a58e9c",
+          "materialHash": "62dfc9ac5cabbf5cd41d4f5d200a0b688543c77a410d730ffd88c5faf7cbafaa",
+          "storyFilesHash": "d627a1648f7a40f8420c4d4abd616722922a106475de27ef4c3b18f41a2e1b29",
+          "timestamp": "2026-06-30T13:00:49.078Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "command": "rg -n \"allRowsClosed=false|child-story-needed|partial_parent_done|B-43de regression fixture|summary overclaim\" docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+          "result": "pass",
+          "note": "M1 names concrete negative controls, including allRowsClosed=false, child-story-needed, partial_parent_done, B-43de regression fixture, and summary overclaim.",
+          "headHash": "a9c8b65411fae2b77fb338f864a584e4e1a58e9c",
+          "materialHash": "62dfc9ac5cabbf5cd41d4f5d200a0b688543c77a410d730ffd88c5faf7cbafaa",
+          "storyFilesHash": "d627a1648f7a40f8420c4d4abd616722922a106475de27ef4c3b18f41a2e1b29",
+          "timestamp": "2026-06-30T13:00:49.187Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "lattice proofstory_gate_check {storyId:B-9fc5,mode:enforce,json:true}",
+          "result": "pass",
+          "note": "ProofStory gate passes with required red evidence and confirmed ledger, so tests are bound before the later implementation story.",
+          "headHash": "a9c8b65411fae2b77fb338f864a584e4e1a58e9c",
+          "materialHash": "62dfc9ac5cabbf5cd41d4f5d200a0b688543c77a410d730ffd88c5faf7cbafaa",
+          "storyFilesHash": "d627a1648f7a40f8420c4d4abd616722922a106475de27ef4c3b18f41a2e1b29",
+          "timestamp": "2026-06-30T13:00:49.362Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
