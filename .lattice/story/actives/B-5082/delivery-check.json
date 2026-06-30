@@ -1,0 +1,142 @@
+{
+  "storyId": "B-5082",
+  "checkedAt": "2026-06-30T02:10:49.721Z",
+  "headHash": "4359526a8b665abf3d5152b74ab3214cca7bbea7",
+  "materialHash": "ba56fd4bbad5952851b54ea361726a9f1106dfba1b1d89cf047fa7e7d54537ec",
+  "storyFilesHash": "ef3faf336122fd614bcdd6604df2178922a3e020cb26796977d2e29fecc5fd7f",
+  "reviewRound": "2026-06-30T01:54:22.594Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+      "promise": "M0 documentation and vocabulary: ProofStory is pre-DEV intent hardening, starts from a minimum useful contract, separates intent critic from REVIEW critic, and does not replace TEST/DONE evidence.",
+      "status": "verified",
+      "verifiedBy": "manual reverse scan plus prompt/doc diff",
+      "evidence": "Plan M0 lines 1109-1132; active reviewer prompts changed for ProofStory guidance; process fact contract PASS confirms prompt/registry contract."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+      "promise": "M1 original intent snapshot and milestone ledger: CLI supports original_intent_snapshot_set, milestone_ledger_set/add/get, source request hash, checklist/verification refs, and optional parentLedgerId/assignedStory without forcing one milestone per story.",
+      "status": "verified",
+      "verifiedBy": "code inspection and proofstory smoke",
+      "evidence": "command-catalog/proofstory handlers expose snapshot and ledger commands; core/proofstory preserves parentLedgerId and assignedStory; smoke verifies five/six ledger rows, append, unassigned rows, and invalid assignedStory rejection."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+      "promise": "M2 read-only diagnostics: proofstory_gate_check and intent coverage diagnostics report hardening level, triggered gaps, ledger sizing, too_broad/slice_required, and suggested slices without blocking existing stories in observe mode.",
+      "status": "verified",
+      "verifiedBy": "proofstory smoke and handler inspection",
+      "evidence": "proofstory_gate_check is read-only; smoke verifies observe mode, hardening level, missing artifacts, too_broad sizing diagnostics, and suggested slice behavior."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+      "promise": "M3 intent collision artifact: intent_collision_set/get records pass/revise decisions, confirms candidate ledger only on pass, remains PLAN-scoped gate evidence, and non-pass collision does not clear required collision diagnostics.",
+      "status": "verified",
+      "verifiedBy": "proofstory smoke and command policy scan",
+      "evidence": "Smoke records revise_intent then pass, checks accepted collision clears the gap and confirms ledger; command policy/process registry mark intent_collision_set as gate evidence."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+      "promise": "M4 ProofStory contract and gate: proofstory_contract_set, intent_coverage_check, proofstory_gate_check, ledger sizing, acceptance bindings, and DEV gate integration are implemented behind warn/enforce configuration.",
+      "status": "verified",
+      "verifiedBy": "code inspection, smoke, process contract",
+      "evidence": "handlers/proofstory.ts implements contract/gate commands; core/proofstory evaluates missing MVP/acceptance/milestone/red/spike/scope/oversized gaps; scripts/verify-process-fact-contract.mjs PASS confirms gate facts."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+      "promise": "M5 scope shrinkage guard and DONE equivalence: ordinary single-outcome stories use lightweight summary-to-snapshot equivalence; milestone, slice, or confirmed shrinkage paths use strict equivalence; parent roll-up checks child coverage after slice plans.",
+      "status": "verified",
+      "verifiedBy": "code inspection and proofstory smoke",
+      "evidence": "evaluateDoneIntentEquivalence selects strict_milestone for milestone/slice/confirmed shrinkage; smoke verifies lightweight single outcome, missing child roll-up gap, complete roll-up clearing, and confirmed shrinkage strict path."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+      "promise": "M6 red evidence: red_evidence_create records baseline head/material, target acceptance ref, command-or-receipt red proof, and current green relation; wrong target, stale hashes, missing red proof, or missing green proof do not satisfy triggered diagnostics.",
+      "status": "verified",
+      "verifiedBy": "code inspection and proofstory smoke",
+      "evidence": "redEvidenceRecordSatisfied requires expected target, observed failure, baseline hashes, failingCommand or failureReceiptHash, and expected green command/hash relation; smoke covers wrong target, stale, missing red proof, missing green proof, and valid row."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+      "promise": "M7 spike evidence: spike_start/result/discard/promote records disposable-code paths, keeps spike evidence separate from red/verification evidence, and blocks active disposable spike code until discarded or explicitly promoted.",
+      "status": "verified",
+      "verifiedBy": "code inspection and proofstory smoke",
+      "evidence": "core/proofstory disposableSpikeGaps emits active_disposable_spike_code; smoke verifies active/resolved disposable spike remains diagnostic until spike_promote and does not substitute for red evidence."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+      "promise": "M8 REVIEW completeness critic integration: reviewer prompts/docs include ProofStory review duties, review completeness diagnostics exist, findings reopen REVIEW, and reviewer evidence remains bound to reviewRunId/material freshness.",
+      "status": "verified",
+      "verifiedBy": "prompt diff, finding list, escalation status, process contract",
+      "evidence": "lattice-review-* prompts changed; proofstory_review_completeness_check registered; findings B-5082:F-001 through F-007 were resolved through reviewer lanes; review_escalation_status ok via explicit degraded fallback."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+      "promise": "M9 risk-adaptive enforcement: fast/standard/high-assurance policies, thresholds, warn/enforce rollout, low-risk restraint, high-assurance stronger review, and trigger-based red/spike evidence are implemented.",
+      "status": "verified",
+      "verifiedBy": "docs reverse scan, code inspection, proofstory smoke",
+      "evidence": "Risk-Adaptive Assurance table states red/spike are required only when their policies trigger; smoke verifies docs-only fast path avoids overhead, standard triggers are selective, high-assurance review pressure applies, and high-assurance single-outcome does not force milestone ledger."
+    },
+    {
+      "docPath": ".claude/agents/lattice-review-*.md and .lattice-codex/agents/lattice-review-*.md",
+      "promise": "Reviewer prompt/docs promise: active reviewer prompts include ProofStory commitments so reviewers inspect intent collision, docs drift, red/spike policy, and verification completeness.",
+      "status": "verified",
+      "verifiedBy": "git diff and process fact contract",
+      "evidence": "Prompt files for concept, docs, quality, and test-coverage changed in both Claude and Codex adapter locations; Process fact contract PASS scanned 33 reviewer prompt files."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+      "promise": "Risk-adaptive red/spike policy: high-assurance requires stronger review and applicable escalation, but red evidence and spike evidence are required only when their corresponding trigger policies apply.",
+      "status": "verified",
+      "verifiedBy": "docs reverse scan plus smoke",
+      "evidence": "Plan risk table and M9 acceptance use trigger-based red/spike wording; resolved findings F-005/F-006 removed overclaims; smoke covers low-risk docs-only restraint and high-assurance behavior."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+      "promise": "Shrinkage strict DONE: confirmed scope shrinkage selects strict DONE equivalence while high-assurance single-outcome without milestone/slice/shrinkage stays lightweight.",
+      "status": "verified",
+      "verifiedBy": "code inspection and smoke",
+      "evidence": "core/proofstory.ts uses hasStrictEquivalencePath = milestone path or confirmed scope shrinkage; smoke verifies highSingleOutcomeDone lightweight pass and highSingleOutcomeShrinkDone strict_milestone pass without inventing a missing ledger requirement."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+      "promise": "No-auto-child-story slicing: oversized ledgers produce diagnostics and durable slice/roll-up artifacts, but slice_plan_set does not automatically create child stories.",
+      "status": "verified",
+      "verifiedBy": "handler inspection and smoke",
+      "evidence": "slice_plan_set output says no child stories were created automatically; docs say slice artifacts are proof records, not schedulers; smoke verifies suggested slices and complete slice plan clearing without child auto-creation."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "build",
+      "transcript": "npm --prefix packages/main run build -> PASS (@lattice/core@0.3.112 tsc)."
+    },
+    {
+      "featureId": "proofstory-smoke",
+      "transcript": "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js -> ProofStory intent hardening smoke passed."
+    },
+    {
+      "featureId": "process-fact-contract",
+      "transcript": "node scripts/verify-process-fact-contract.mjs -> Process fact contract verified; registry includes ProofStory commands/artifacts and reviewer prompt scan."
+    },
+    {
+      "featureId": "full-validate",
+      "transcript": "node bin/lattice.js validate --story=B-5082 --json -> status pass, allPass true, configured validate.commands[0..30] PASS."
+    },
+    {
+      "featureId": "done-required-validation",
+      "transcript": "node bin/lattice.js done_required_validate --storyId=B-5082 -> DONE-required validation PASS; packages/main build PASS; root full test suite PASS."
+    },
+    {
+      "featureId": "transcript-diff",
+      "transcript": "Inspected .lattice/story/actives/B-5082/evidence/transcript-diff.md; expected M0-M9 user outcome matches actual transcript, with build, smoke, process contract, diff check, validate, reviewer pass/resolved finding evidence, and edge/adversarial coverage noted."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Real-machine tests are present for build, focused ProofStory smoke, process-fact contract, full validation, DONE-required validation, and transcript-diff evidence. Edge/adversarial coverage is present across all 24 verificationIntent refs. No unresolved TODOs or open findings remain; B-5082 own ProofStory DONE equivalence warning is advisory here and the delivery check explicitly verifies the M0-M9 docs promises from the user perspective."
+  },
+  "_hash": "b8783470bb955418b2372f8fcf6d6fa104b39f5131c46c45ba5af7096e9c95eb"
+}
