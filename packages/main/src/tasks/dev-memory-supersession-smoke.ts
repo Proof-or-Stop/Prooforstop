@@ -156,4 +156,4 @@ check('host policy search still finds preserved rows', () => {
   assertSearchFinds(projectEntries, 'host policy codex claude agy fallback', projectHostPolicyIds);
 });
 
-console.log(`dev-memory supersession smoke passed (${passed} checks)`);
+console.log(`dev-memory physical cleanup smoke passed (${passed} checks)`);
