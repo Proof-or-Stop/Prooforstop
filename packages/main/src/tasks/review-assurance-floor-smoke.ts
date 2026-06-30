@@ -7,6 +7,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { signDeliveryCheck } from '../core/delivery-check-hash.js';
 import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
+import { resetConfigCache } from '../core/config.js';
 import {
   canFinishGuard,
   getGuardFailureReason,
@@ -360,6 +361,14 @@ try {
   });
 
   check('high-risk lifecycle gate work requires 3x2 or explicit degraded fallback', () => {
+    write(root, 'lattice.config.json', JSON.stringify({
+      proofAdmissibility: {
+        mode: 'enforce',
+        enforcedConsumers: ['REVIEW'],
+      },
+    }, null, 2));
+    resetConfigCache();
+
     const oneRound = evaluateReviewAssuranceFloor({
       projectRoot: root,
       story: story({
@@ -407,6 +416,8 @@ try {
     assert.equal(degraded.localRounds.ok, false);
     assert.equal(degraded.degradedFallback.ok, true);
     assert.equal(degraded.localRounds.requiredPassingHostsPerRound, REVIEW_ASSURANCE_FLOOR_HIGH_RISK_HOSTS_PER_ROUND);
+    assert.equal(degraded.proofAdmissibility.allowed, true);
+    assert.equal(degraded.proofAdmissibility.blocking, false);
     assert.equal(degraded.authorityDone, false);
     assert.equal(degraded.fullAuthorityDone, false);
     assert.equal(degraded.productionDone, false);

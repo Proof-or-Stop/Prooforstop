@@ -583,7 +583,7 @@ export function evaluateReviewAssuranceFloor(args: EvaluateReviewAssuranceFloorA
       schemaVersion: 'lattice.review_run.v1',
       strictShapeValid: true,
       semanticDigestValid: ok,
-      signatureOrReceiptBindingValid: fullOk,
+      signatureOrReceiptBindingValid: fullOk || degradedOk,
       temporalAndMaterialBindingValid: ok,
       subjectMatches: true,
       producerBoundaryTrusted: true,
