@@ -44,7 +44,36 @@
       "context": "Before relying on the new global gate, create original intent snapshot, confirmed milestone ledger, intent collision pass, acceptance bindings, and any needed scope/spike evidence for this story itself.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "relatedDocs": [
+        "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md#M1-Original-Intent-Snapshot-And-Milestone-Ledger",
+        "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md#M4-ProofStory-Contract-And-Gate"
+      ],
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "original_intent_snapshot_set, intent_collision_set, proofstory_contract_set, and confirmed milestone ledger artifacts exist for B-e1a8 before DEV enforcement is relied on.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The milestone ledger remains an intent coverage artifact and does not create child stories automatically.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "proofstory_gate_check mode=enforce fails before the required self-proof artifacts exist and passes after they are complete.",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
