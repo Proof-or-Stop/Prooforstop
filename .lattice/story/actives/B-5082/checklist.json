@@ -71,9 +71,9 @@
       "id": "CHK-002",
       "title": "Add ledger assignment fields for parent and child story slicing",
       "context": "Covers M1 gap: milestone ledger rows need optional parent ledger / assigned story fields without forcing one milestone to become one story.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-30T01:13:32.016Z",
-      "endTime": null,
+      "endTime": "2026-06-30T01:25:56.004Z",
       "relatedDocs": [
         "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md#M1-Original-Intent-Snapshot-And-Milestone-Ledger"
       ],
@@ -113,7 +113,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js && node scripts/verify-process-fact-contract.mjs && git diff --check",
+          "result": "pass",
+          "note": "Doc: proofstory-intent-collision-execution-plan.md M1 lines 1120-1147. Impl: types.ts MilestoneLedgerItem parentLedgerId/assignedStory; proofstory.ts normalizeMilestone validates optional parent/assignedStory; handlers/proofstory.ts milestone_ledger_add preserves fields; command-catalog.ts schema rejects invalid assignedStory. Smoke: proofstory-intent-hardening-smoke.ts validates persistence and invalid assignedStory failure.",
+          "headHash": "59454cb834664067574caec5ce8f9b5daf34cfd8",
+          "materialHash": "5d97b7951e9c3d8e03969199578c7c1c13adef7c61914d53c9fa10b699ada482",
+          "storyFilesHash": "d66783474c814f8b35728b71ac3278123384b0e3b640ea1414ab6a5b9bc7d334",
+          "timestamp": "2026-06-30T01:25:56.423Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
