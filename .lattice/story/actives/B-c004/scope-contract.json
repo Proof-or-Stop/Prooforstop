@@ -134,8 +134,29 @@
         "done_required_freshness",
         "command_spec"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Required to resolve B-c004:F-007 by updating the base proof-admissibility smoke so DONE_REQUIRED positive fixtures include the now-required CommandSpec digest validity; this keeps the proof-admissibility baseline aligned with the CommandSpec hardening delivered by this story.",
+      "timestamp": "2026-06-30T17:45:41.582Z",
+      "paths": [
+        "packages/main/src/tasks/proof-admissibility-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/proof-admissibility-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "ac66dd3a54abaa786dbf46f45ec61f86b2eeb0c6",
+      "materialHash": "8964f191cf47ff48a5cf1351426825f0a934844909f76d8430aca3c9a7a763d7",
+      "anchors": [
+        "B_c004_F_007",
+        "DONE_REQUIRED_CommandSpec_admissibility",
+        "proof_admissibility_base_smoke"
+      ]
     }
   ],
   "createdAt": "2026-06-30T15:05:17.820Z",
-  "updatedAt": "2026-06-30T16:57:06.494Z"
+  "updatedAt": "2026-06-30T17:45:41.582Z"
 }
