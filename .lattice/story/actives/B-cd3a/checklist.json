@@ -22,6 +22,26 @@
           "lattice admissibility_waterline --storyId=B-cd3a --format=json",
           "lattice queue_governance_status --format=json"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run a local document/capability audit that classifies each frozen DoD capability as implemented, partial, future, or missing, and confirm the output cites the relevant docs and source/status evidence for every classification instead of collapsing partial/future/missing into one bucket.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Verify partially implemented capabilities remain marked partial when status commands expose some but not all required enforcement evidence, especially proofM7Enforcement, queueCleanupEnforcement, and tierCCleanup.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Reject an audit that treats command existence or zero exit status alone as implementation proof; evidence must include capability state, enforcement/readiness status, and source or doc references for the claim.",
+            "type": "docs"
+          }
+        ]
       }
     },
     {
