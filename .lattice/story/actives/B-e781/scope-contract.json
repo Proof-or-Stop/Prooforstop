@@ -96,8 +96,32 @@
       "phase": "DEV",
       "headHash": "804f7d06204c4a7eadb313174abc314b51397674",
       "materialHash": "1f580a6117be491b1c8ac3560b2fa3ad668d980303d608a6fb03711988bcd67b"
+    },
+    {
+      "actor": "codex-main",
+      "reason": "Required to close the M4-M12 self-validation loop: review escalation accepts an approved degraded 3x1 fallback, so the review assurance floor must admit that explicit fallback under proof admissibility enforce mode and the smoke must prove it.",
+      "timestamp": "2026-06-30T23:23:23.216Z",
+      "paths": [
+        "packages/main/src/core/review-assurance-floor.ts",
+        "packages/main/src/tasks/review-assurance-floor-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/review-assurance-floor.ts",
+        "packages/main/src/tasks/review-assurance-floor-smoke.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "3a6658dde8d4171b8a9c04a86c877c321c0bf886",
+      "materialHash": "0b93f5ce084fd2626de5fdab2fe3d755a31a1fb2d58ffc527dc2ea2e1bef7489",
+      "anchors": [
+        "M11",
+        "M12",
+        "review_assurance_floor",
+        "degraded_3x1_fallback"
+      ]
     }
   ],
   "createdAt": "2026-06-30T22:12:27.772Z",
-  "updatedAt": "2026-06-30T22:42:59.437Z"
+  "updatedAt": "2026-06-30T23:23:23.216Z"
 }
