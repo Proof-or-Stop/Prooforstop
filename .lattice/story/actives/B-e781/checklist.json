@@ -444,9 +444,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-30T22:29:44.243Z",
-      "endTime": null,
+      "endTime": "2026-06-30T22:29:45.854Z",
       "userSees": "\"M9\" row shows \"closed\": true and \"lifecycle-orchestrate-smoke\" is listed as evidence.",
       "files": {
         "modify": [
@@ -762,6 +762,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Start M9 final evidence recording after implementation commit."
+    },
+    {
+      "timestamp": "2026-06-30T22:29:45.854Z",
+      "phase": "DEV",
+      "itemId": "CHK-006",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "M9 completed after evidence-backed roadmap closure verification."
     }
   ]
 }
