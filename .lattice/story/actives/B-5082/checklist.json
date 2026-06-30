@@ -207,8 +207,8 @@
       "id": "CHK-005",
       "title": "Implement lightweight single-outcome DONE equivalence",
       "context": "Covers M5 gap: ordinary single-outcome stories should compare summary/delivery against the original snapshot instead of requiring a confirmed milestone ledger.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-30T01:13:34.103Z",
       "endTime": null,
       "relatedDocs": [
         "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md#M5-Scope-Shrinkage-Guard-And-DONE-Intent-Equivalence"
@@ -429,6 +429,15 @@
       "timestamp": "2026-06-30T01:13:33.450Z",
       "phase": "DEV",
       "itemId": "CHK-004",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "DEV: lattice-implementer is implementing this item; completion still requires document cross-check, code evidence, and verification evidence."
+    },
+    {
+      "timestamp": "2026-06-30T01:13:34.103Z",
+      "phase": "DEV",
+      "itemId": "CHK-005",
       "action": "update",
       "from": "pending",
       "to": "in_progress",
