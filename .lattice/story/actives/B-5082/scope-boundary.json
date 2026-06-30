@@ -1,0 +1,40 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-5082",
+  "mode": "feature",
+  "allowed": [
+    ".claude/agents/*.md",
+    ".lattice-codex/agents/*.md",
+    "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+    "package-lock.json",
+    "package.json",
+    "packages/main/package.json",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/delivery-check-hash.ts",
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/proofstory.ts",
+    "packages/main/src/core/store.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/handlers/delivery-check.ts",
+    "packages/main/src/handlers/phase-gates.ts",
+    "packages/main/src/handlers/proofstory.ts",
+    "packages/main/src/handlers/story-review.ts",
+    "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "excluded": [
+    ".omx directories or legacy OMX material",
+    "provider integrations unrelated to ProofStory",
+    "remote authority or release behavior",
+    "UI/frontend work",
+    "unrelated active stories"
+  ],
+  "confirmedBy": "codex",
+  "confirmationNote": "User asked to finish every remaining ProofStory M0-M9 document commitment, with per-item document cross-check before completion.",
+  "createdAt": "2026-06-30T01:06:22.512Z",
+  "updatedAt": "2026-06-30T01:06:22.512Z",
+  "_hash": "990e475eb26b5c76238e0c9a513142564cbb358173ae09ca94e495336de46ac3"
+}

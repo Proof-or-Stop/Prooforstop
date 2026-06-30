@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-5082",
+  "allowedCommands": [
+    "git add*",
+    "git commit*",
+    "git diff*",
+    "git log*",
+    "git status*",
+    "ls *",
+    "nl *",
+    "node bin/lattice.js *",
+    "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js",
+    "node scripts/verify-process-fact-contract.mjs",
+    "npm --prefix packages/main run build",
+    "npm test",
+    "rg *",
+    "sed *"
+  ],
+  "allowedTools": [
+    "functions.apply_patch",
+    "functions.exec_command",
+    "multi_agent_v1.close_agent",
+    "multi_agent_v1.send_input",
+    "multi_agent_v1.spawn_agent",
+    "multi_agent_v1.wait_agent"
+  ],
+  "allowedPaths": [
+    ".claude/agents",
+    ".lattice-codex/agents",
+    "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+    "package-lock.json",
+    "package.json",
+    "packages/main/package.json",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/delivery-check-hash.ts",
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/proofstory.ts",
+    "packages/main/src/core/store.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/handlers/delivery-check.ts",
+    "packages/main/src/handlers/phase-gates.ts",
+    "packages/main/src/handlers/proofstory.ts",
+    "packages/main/src/handlers/story-review.ts",
+    "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "excludedCommands": [
+    "omx",
+    "omx *"
+  ],
+  "excludedTools": [
+    "omx"
+  ],
+  "excludedPaths": [
+    ".omx",
+    "**/.omx/**"
+  ],
+  "confirmedBy": "codex",
+  "confirmationNote": "Per-item completion requires document commitment, implementation evidence, and verification/gate evidence before checklist_update done.",
+  "createdAt": "2026-06-30T01:06:30.691Z",
+  "updatedAt": "2026-06-30T01:06:30.691Z",
+  "_hash": "be1fd14879d5692b9fa0c8489ad40cc00f756be2d9209916c7940aacaa3a6822"
+}

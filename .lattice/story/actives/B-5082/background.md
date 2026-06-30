@@ -9,3 +9,4 @@ The follow-up should finish these missing commitments through existing Lattice l
 
 ## Conversational Texture
 The user wants an explicit checklist where each unfinished item is completed and marked done. The implementation should therefore be milestone-shaped, auditable, and evidence-backed, with each completed milestone reported clearly.
+- User explicitly requires every completion mark to be preceded by a document cross-check. For each checklist item, before calling checklist_update status=done or showing ✅, record the relevant document commitment, implementation evidence, and verification/gate evidence.
