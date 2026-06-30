@@ -122,6 +122,26 @@
       ],
       "signatureTag": "edge|ts|proofstory-review-coverage",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-f7b7:F-007",
+      "desc": "The CLI help text for proofstory_contract_set/get still describes the artifact as a minimal diagnostic envelope with no gate enforcement (packages/main/src/cli/command-catalog.ts:2049-2055), but the runtime now writes diagnosticOnly:false in packages/main/src/core/proofstory.ts:820-829 and the command policy says the contract is consumed by diagnostics and opt-in enforcement at packages/main/src/core/command-policy.ts:361. Operators reading lattice help will be told the contract has no gate role even though review/DONE/dev opt-in policies can consume it. Update the command descriptions and field descriptions to match the new gate-consumable semantics.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-30T00:06:11.703Z",
+      "reviewRound": "2026-06-30T00:01:49.378Z",
+      "reviewRunId": "B-f7b7:RR-005",
+      "_hash": "8351ea1921a06459235a440bafe12b56e83fe8736e325db7621538186dfae032",
+      "files": [
+        "packages/main/src/cli/command-catalog.ts",
+        "packages/main/src/core/proofstory.ts",
+        "packages/main/src/core/command-policy.ts"
+      ],
+      "signatureTag": "cleanup|ts|help-text-proofstory",
+      "signatureTagSource": "auto"
     }
   ]
 }
