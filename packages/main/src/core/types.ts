@@ -1945,6 +1945,7 @@ export interface RedEvidenceRecord {
   baselineHeadHash: string;
   baselineMaterialHash: string;
   failingCommand?: string;
+  failureReceiptHash?: string;
   observedFailure: string;
   expectedGreenCommand?: string;
   greenRelation: {

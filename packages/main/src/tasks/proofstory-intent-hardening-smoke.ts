@@ -452,6 +452,28 @@ try {
   assert.equal(staleRedEvidence.records.length, 2, 'stale red evidence can be recorded for audit');
   gate = jsonRun(root, 'proofstory_gate_check', { storyId, mode: 'observe' });
   assert.ok(gate.missingRedEvidence.some((gap: any) => gap.code === 'missing_red_evidence'), 'stale red evidence does not satisfy diagnostics');
+  const redWithoutFailureProof = jsonRun(root, 'red_evidence_create', {
+    storyId,
+    trigger: 'auth lifecycle gate regression',
+    acceptanceTargetRef: 'ACCEPT-001',
+    observedFailure: 'Before the fix, the auth gate accepts an invalid transition.',
+    expectedGreenCommand: 'npm test -- auth-gate-green',
+    greenHeadHash: 'green-head-after-fix-no-red-proof',
+    greenMaterialHash: 'green-material-after-fix-no-red-proof',
+  });
+  assert.equal(redWithoutFailureProof.records.length, 3, 'red evidence without command or receipt can be recorded for audit');
+  gate = jsonRun(root, 'proofstory_gate_check', { storyId, mode: 'observe' });
+  assert.ok(gate.missingRedEvidence.some((gap: any) => gap.code === 'missing_red_evidence'), 'red evidence without command or receipt does not satisfy diagnostics');
+  const redWithoutGreenProof = jsonRun(root, 'red_evidence_create', {
+    storyId,
+    trigger: 'auth lifecycle gate regression',
+    acceptanceTargetRef: 'ACCEPT-001',
+    observedFailure: 'Before the fix, the auth gate accepts an invalid transition.',
+    failingCommand: 'npm test -- auth-gate-red',
+  });
+  assert.equal(redWithoutGreenProof.records.length, 4, 'red evidence without green proof can be recorded for audit');
+  gate = jsonRun(root, 'proofstory_gate_check', { storyId, mode: 'observe' });
+  assert.ok(gate.missingRedEvidence.some((gap: any) => gap.code === 'missing_red_evidence'), 'red evidence without expected green command or green hashes does not satisfy diagnostics');
   const redEvidence = jsonRun(root, 'red_evidence_create', {
     storyId,
     trigger: 'auth lifecycle gate regression',
@@ -462,7 +484,7 @@ try {
     greenHeadHash: 'green-head-after-fix',
     greenMaterialHash: 'green-material-after-fix',
   });
-  assert.equal(redEvidence.records.length, 3, 'red_evidence_create records auditable red evidence rows including the valid target-bound row');
+  assert.equal(redEvidence.records.length, 5, 'red_evidence_create records auditable red evidence rows including the valid target-bound row');
 
   const storedContract = jsonRun(root, 'proofstory_contract_get', { storyId });
   assert.equal(storedContract.schemaVersion, 'proofstory.contract.v1', 'proofstory_contract_get reads the stored envelope');
@@ -617,6 +639,39 @@ try {
   const lightDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: lightStoryId, mode: 'enforce' });
   assert.equal(lightDone.equivalenceMode, 'lightweight_single_outcome', 'single-outcome DONE equivalence uses lightweight path');
   assert.equal(lightDone.status, 'pass', 'single-outcome DONE equivalence passes without a confirmed ledger');
+  const highSingleOutcomeStoryId = 'B-high-single-outcome';
+  const highSingleOutcomeNow = new Date().toISOString();
+  const highSingleOutcomeStory: StoryInfo = {
+    storyId: highSingleOutcomeStoryId,
+    name: 'proof-gate-label',
+    title: 'Harden proof gate label',
+    description: 'Harden one proof gate label so operators see the accepted outcome clearly.',
+    type: 'feature',
+    phase: 'TEST',
+    priority: 'high',
+    createdAt: highSingleOutcomeNow,
+    startedAt: highSingleOutcomeNow,
+    endedAt: null,
+    events: [],
+  };
+  store.writeStory(highSingleOutcomeStoryId, highSingleOutcomeStory);
+  store.writeChecklist(highSingleOutcomeStoryId, { items: [] });
+  jsonRun(root, 'original_intent_snapshot_set', {
+    storyId: highSingleOutcomeStoryId,
+    sourceText: 'Harden one proof gate label so operators see the accepted outcome clearly.',
+    normalizedOutcome: 'One proof gate label clearly reports the accepted outcome.',
+    acceptanceClaim: 'The summary shows the accepted proof gate label outcome.',
+  });
+  store.writeSummary(highSingleOutcomeStoryId, makeSummary(highSingleOutcomeStoryId, {
+    changes: 'Updated the proof gate label.',
+    actualTranscript: 'The accepted proof gate label outcome is visible.',
+    outcomeDiff: 'No difference from the original request.',
+  }));
+  const highSingleOutcomeGate = jsonRun(root, 'proofstory_gate_check', { storyId: highSingleOutcomeStoryId, mode: 'observe' });
+  assert.equal(highSingleOutcomeGate.hardeningLevel, 'high_assurance', 'high-risk wording still selects high-assurance hardening');
+  const highSingleOutcomeDone = jsonRun(root, 'done_intent_equivalence_check', { storyId: highSingleOutcomeStoryId, mode: 'enforce' });
+  assert.equal(highSingleOutcomeDone.equivalenceMode, 'lightweight_single_outcome', 'high-assurance single-outcome DONE uses lightweight path without milestone evidence');
+  assert.equal(highSingleOutcomeDone.status, 'pass', 'high-assurance single-outcome DONE passes without a confirmed ledger when no milestone path exists');
   store.writeSummary(lightStoryId, makeSummary(lightStoryId, {
     acceptanceVerdict: 'partial',
     outcomeDiff: 'Partial narrower delivery; remaining cases deferred.',

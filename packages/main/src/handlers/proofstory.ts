@@ -407,6 +407,7 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
       baselineMaterialHash?: string;
       observedFailure: string;
       failingCommand?: string;
+      failureReceiptHash?: string;
       expectedGreenCommand?: string;
       greenTargetRef?: string;
       greenRelation?: 'same_acceptance' | 'regression_to_green' | 'replacement';

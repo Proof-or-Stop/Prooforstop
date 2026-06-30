@@ -416,7 +416,8 @@ must be dependency-safe, resource-aware, and bounded by a concurrency cap.
 Automatic parallel child-story dispatch belongs to a dedicated Scheduler,
 Unattended, or Autopilot development story, not to the ProofStory M0-M2 MVP.
 
-The initial MVP therefore keeps the command surface small:
+The bounded MVP therefore keeps the scheduler surface small while persisting the
+proof artifacts needed to make an oversized ledger auditable:
 
 ```text
 proofstory_gate_check --dryRun
@@ -424,11 +425,19 @@ proofstory_gate_check --dryRun
   -> reports maxMilestonesPerStory and hardSplitThreshold
   -> reports too_broad when applicable
   -> reports suggestedSlicingGroups
+
+slice_plan_set
+  -> persists slice-plan.json against the current milestone-ledger hash
+
+parent_ledger_rollup_set
+  -> persists parent-ledger-rollup.json child coverage for the slice plan
 ```
 
-Future parent-child orchestration can add a durable slice plan after the
-diagnostics prove useful. Until then, a too-broad ledger is a proof-stop signal,
-not an automatic scheduler.
+Those durable slice artifacts are bounded proof records, not an automatic
+scheduler. A too-broad ledger remains a proof-stop signal until a complete slice
+plan and, when child stories are used, a parent roll-up prove coverage. Automatic
+child-story creation and parent DONE orchestration remain future Scheduler,
+Unattended, or Autopilot work.
 
 ### Parent Story And Child Story Responsibilities
 
@@ -816,11 +825,14 @@ Red evidence is not required by default for:
 Valid red evidence must include:
 
 - command;
+- or a comparable reproducible failure receipt/transcript digest;
 - baseline head or material snapshot;
 - expected-before result;
 - observed-before result;
 - reason this red maps to the accepted intent;
-- receipt or transcript digest.
+- target acceptance reference;
+- current green relation through an expected green command and/or green
+  head/material that differs from the baseline where hashes are present.
 
 ### Invalid Red Evidence
 
@@ -1237,8 +1249,9 @@ Acceptance:
 - bug-fix stories without required red evidence cannot enter DEV in enforce mode;
 - docs-only stories are not forced to create red evidence;
 - red evidence is required by risk/behavior claim, not by milestone count alone;
-- red evidence for the wrong acceptance criterion or stale green relation is
-  rejected.
+- red evidence for the wrong acceptance criterion, missing command/receipt proof,
+  missing current green relation, or stale green hashes is rejected;
+- docs-only stories are not forced to create red evidence by this stricter gate.
 
 ### M7: Spike Evidence
 

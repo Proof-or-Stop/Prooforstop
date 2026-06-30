@@ -593,6 +593,9 @@ function assertProofStoryProgressiveBoundary() {
   assert(coreText.includes("row.waiverType === 'permanent'") && coreText.includes("row.result !== 'fail'"), 'core/proofstory.ts: ProofStory evidence coverage must allow only non-failed permanent waivers');
   assert(!coreText.includes("row.verdict === 'success'") && !coreText.includes("row.verdict === 'waived'"), 'core/proofstory.ts: ProofStory evidence coverage must not treat verdict labels as pass evidence');
   assert(catalogText.includes('acceptanceTargetRef') && catalogText.includes('baselineHeadHash') && catalogText.includes('baselineMaterialHash'), 'CLI schema: red evidence must bind target and baseline head/material');
+  assert(catalogText.includes('failureReceiptHash') && catalogText.includes('gate satisfaction requires this or failureReceiptHash'), 'CLI schema: red evidence must expose command-or-receipt proof boundary');
+  assert(coreText.includes('!record.failingCommand && !record.failureReceiptHash'), 'core/proofstory.ts: red evidence satisfaction must require a failing command or receipt hash');
+  assert(coreText.includes('!record.expectedGreenCommand && !record.greenRelation.command && !record.greenRelation.greenHeadHash && !record.greenRelation.greenMaterialHash'), 'core/proofstory.ts: red evidence satisfaction must require current green command or hash proof');
   assert(coreText.includes('greenRelation.targetRef !== record.acceptanceTargetRef'), 'core/proofstory.ts: wrong-target red evidence must not satisfy diagnostics');
   assert(coreText.includes('active_disposable_spike_code') && coreText.includes('disposableCodePaths'), 'core/proofstory.ts: active disposable spike code must be a ProofStory diagnostic');
   assert(handlerText.includes('slice_plan_set') && handlerText.includes('parent_ledger_rollup_set'), 'handlers/proofstory.ts: slice plan and parent roll-up writers must be implemented');

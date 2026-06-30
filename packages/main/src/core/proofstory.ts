@@ -135,6 +135,7 @@ export interface AppendRedEvidenceArgs {
   baselineMaterialHash?: string;
   observedFailure: string;
   failingCommand?: string;
+  failureReceiptHash?: string;
   expectedGreenCommand?: string;
   greenTargetRef?: string;
   greenRelation?: 'same_acceptance' | 'regression_to_green' | 'replacement';
@@ -710,10 +711,12 @@ function expectedRedTargets(input: ProofStoryDiagnosticInput): Set<string> {
 
 function redEvidenceRecordSatisfied(record: RedEvidenceRecord, expectedTargets: Set<string>): boolean {
   if (record.observedFailure.trim().length === 0) return false;
+  if (!record.failingCommand && !record.failureReceiptHash) return false;
   if (!record.acceptanceTargetRef || !expectedTargets.has(record.acceptanceTargetRef)) return false;
   if (!record.baselineHeadHash || !record.baselineMaterialHash) return false;
   if (!record.greenRelation || record.greenRelation.targetRef !== record.acceptanceTargetRef) return false;
   if (!VALID_GREEN_RELATIONS.has(record.greenRelation.relation)) return false;
+  if (!record.expectedGreenCommand && !record.greenRelation.command && !record.greenRelation.greenHeadHash && !record.greenRelation.greenMaterialHash) return false;
   if (record.greenRelation.greenHeadHash && record.greenRelation.greenHeadHash === record.baselineHeadHash) return false;
   if (record.greenRelation.greenMaterialHash && record.greenRelation.greenMaterialHash === record.baselineMaterialHash) return false;
   return true;
@@ -1161,6 +1164,7 @@ export function appendRedEvidence(
     baselineMaterialHash: requireNonEmptyString(args.baselineMaterialHash, 'baselineMaterialHash'),
     observedFailure: requireNonEmptyString(args.observedFailure, 'observedFailure'),
     failingCommand: optionalNonEmptyString(args.failingCommand, 'failingCommand'),
+    failureReceiptHash: optionalNonEmptyString(args.failureReceiptHash, 'failureReceiptHash'),
     expectedGreenCommand: optionalNonEmptyString(args.expectedGreenCommand, 'expectedGreenCommand'),
     greenRelation: {
       targetRef: requireNonEmptyString(args.greenTargetRef ?? acceptanceTargetRef, 'greenTargetRef'),
@@ -1266,8 +1270,7 @@ export function evaluateDoneIntentEquivalence(
   const { hardeningLevel, triggerReasons } = classifyTriggers(input);
   const hasMilestonePath = triggerCodes(triggerReasons, 'milestone-ledger').length > 0
     || (input.milestoneLedger?.milestones.length ?? 0) > 0
-    || !!input.slicePlan
-    || hardeningLevel === 'high_assurance';
+    || !!input.slicePlan;
   const equivalenceMode: DoneIntentEquivalenceReport['equivalenceMode'] = hasMilestonePath
     ? 'strict_milestone'
     : 'lightweight_single_outcome';
