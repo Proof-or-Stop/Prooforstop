@@ -184,6 +184,26 @@
       ],
       "signatureTag": "adversarial|ts|proofstory-failed-verdict-overrides",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-f7b7:F-010",
+      "desc": "Current HEAD still lacks executable coverage for ProofStory devGateMode=enforce DEV admission paths. The implementation now calls proofStoryDevGateFailure from canStartDevGuard and canReenterDevGuard (packages/main/src/core/machine.ts:506-514 and :581-587), but the dedicated ProofStory smoke never configures proofStory.devGateMode and never invokes story_advance, canStartDevGuard, canSkipPlanGuard, or canReenterDevGuard. Verified by rg -n --glob \"!**/.omx/**\" \"devGateMode|story_advance|ProofStory DEV gate|canReenterDevGuard|canStartDevGuard\" packages/main/src/tasks/proofstory-intent-hardening-smoke.ts returning no matches. The smoke only drives proofstory_gate_check enforce directly (packages/main/src/tasks/proofstory-intent-hardening-smoke.ts:279-280) and checks diagnostics do not advance phase (packages/main/src/tasks/proofstory-intent-hardening-smoke.ts:362-363). The userConfirmed shrinkage and deferred_gate_evidence cases are present in that smoke (packages/main/src/tasks/proofstory-intent-hardening-smoke.ts:316-352), and process-fact assertions exist, but the lifecycle assertion is source-text only (scripts/verify-process-fact-contract.mjs:582-583). Therefore node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js and node scripts/verify-process-fact-contract.mjs pass without proving PLAN->DEV or REVIEW/TEST->DEV rollback/re-entry block under proofStory.devGateMode=enforce. Add an executable smoke or machine test that seeds missing ProofStory artifacts under devGateMode=enforce and asserts PLAN->DEV plus REVIEW->DEV and TEST->DEV are refused with the ProofStory gate message.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-30T00:23:06.696Z",
+      "reviewRound": "2026-06-30T00:19:36.495Z",
+      "reviewRunId": "B-f7b7:RR-007",
+      "_hash": "590a09776eefe6da8b78b16786f4ffa9017caf55fd24c1e1c21fd62f81240720",
+      "files": [
+        "packages/main/src/core/machine.ts",
+        "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "signatureTag": "adversarial|ts|proofstory-dev-gate-lifecycle-coverage",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
