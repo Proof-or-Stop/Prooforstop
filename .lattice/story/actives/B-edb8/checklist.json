@@ -319,7 +319,40 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "The user sees a certification matrix showing full, partial, blocked, invalid, stale, migration, and summary paths all covered.",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/parent-roadmap-totality-smoke.ts",
+          "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/parent-roadmap-totality-smoke.ts",
+          "node scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Certification matrix includes full, partial, blocked, invalid, stale, migration, and summary paths with passing evidence.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Certification records final claim boundary and remaining limits without overclaiming full M4-M12 roadmap work.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Negative controls prove full-roadmap wording is impossible when child rows are open, stale, blocked, missing, or invalid.",
+            "type": "cli"
+          }
+        ]
+      }
     }
   ]
 }
