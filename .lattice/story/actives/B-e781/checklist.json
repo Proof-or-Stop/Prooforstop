@@ -45,7 +45,48 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "node scripts/verify-process-fact-contract.mjs && node bin/lattice.js parent_roadmap_status --storyId=B-43de --json",
+          "result": "pass",
+          "note": "M4 Process fact registry coverage is closed by its focused smoke/verifier and B-43de parent roadmap status reports the row closed with evidence refs.",
+          "headHash": "37c66e4573b446b5e31a5a566ebc230f8b880151",
+          "materialHash": "81c7b5e01a115d0499f73048d52663bc8ed5a4e437b150e6c5c735fe943a667b",
+          "storyFilesHash": "0e7ac09a037d29963e87db96cb7da2b0a55700ec2ebc4a20b8b2f9830234c383",
+          "timestamp": "2026-06-30T22:29:33.569Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/parent-roadmap-totality-smoke.ts",
+          "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js",
+          "result": "pass",
+          "note": "M4 cannot be closed by prose alone: parent-roadmap-totality-smoke requires row closureEvidence, claimBoundary, and legacy migration/open negative-control behavior.",
+          "headHash": "37c66e4573b446b5e31a5a566ebc230f8b880151",
+          "materialHash": "81c7b5e01a115d0499f73048d52663bc8ed5a4e437b150e6c5c735fe943a667b",
+          "storyFilesHash": "0e7ac09a037d29963e87db96cb7da2b0a55700ec2ebc4a20b8b2f9830234c383",
+          "timestamp": "2026-06-30T22:29:33.569Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js && ! rg -n \"M4-M12 remain follow-up|M4-M12 remain|remain follow-up milestones\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "result": "pass",
+          "note": "M4 preserves claim boundaries: parent-roadmap-totality-smoke checks retired Authority overclaim patterns, and docs grep confirms the old follow-up wording is absent.",
+          "headHash": "37c66e4573b446b5e31a5a566ebc230f8b880151",
+          "materialHash": "81c7b5e01a115d0499f73048d52663bc8ed5a4e437b150e6c5c735fe943a667b",
+          "storyFilesHash": "0e7ac09a037d29963e87db96cb7da2b0a55700ec2ebc4a20b8b2f9830234c383",
+          "timestamp": "2026-06-30T22:29:33.569Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
