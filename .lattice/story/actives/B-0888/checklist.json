@@ -156,9 +156,9 @@
       "id": "CHK-003",
       "title": "Update dev-memory smoke to assert physical cleanup",
       "context": "Replace supersession/legacy-readable expectations with zero old-brand memory checks across project/global list/search while keeping current host-policy memories intact.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-30T22:17:50.905Z",
       "userSees": "User sees the dev-memory smoke prove zero old-brand memory hits instead of legacy-readable supersession.",
       "files": {
         "modify": [
@@ -191,7 +191,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/dev-memory-supersession-smoke.js",
+          "result": "pass",
+          "note": "Smoke reports dev-memory physical cleanup smoke passed (8 checks), proving zero old-brand hits in project/global memory outputs.",
+          "headHash": "c7fe4631ec84d30d012eed990f9d42eee171a008",
+          "materialHash": "9c4774806a3892f582374dba0907a49264c3325403026a8b1f2b132d126c8666",
+          "storyFilesHash": "81400a0b7d8a2f8e65a882c673128ebc1b4bb3f50307cbd43cb1a04987d157e6",
+          "timestamp": "2026-06-30T22:17:51.098Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/dev-memory-supersession-smoke.js",
+          "result": "pass",
+          "note": "Smoke verifies current project memory guidance and host-policy rows remain searchable and non-authoritative.",
+          "headHash": "c7fe4631ec84d30d012eed990f9d42eee171a008",
+          "materialHash": "9c4774806a3892f582374dba0907a49264c3325403026a8b1f2b132d126c8666",
+          "storyFilesHash": "81400a0b7d8a2f8e65a882c673128ebc1b4bb3f50307cbd43cb1a04987d157e6",
+          "timestamp": "2026-06-30T22:17:51.268Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "rg -n -i \"koala|\\\\.koala|legacy-koala\" .lattice/dev-memory /Users/jek/.lattice/dev-memory/experience.jsonl packages/main/src/tasks/dev-memory-supersession-smoke.ts || true",
+          "result": "pass",
+          "note": "No output: retired-brand prose, tags, command refs, and evidence refs are not present in the cleaned memory files or smoke source.",
+          "headHash": "c7fe4631ec84d30d012eed990f9d42eee171a008",
+          "materialHash": "9c4774806a3892f582374dba0907a49264c3325403026a8b1f2b132d126c8666",
+          "storyFilesHash": "81400a0b7d8a2f8e65a882c673128ebc1b4bb3f50307cbd43cb1a04987d157e6",
+          "timestamp": "2026-06-30T22:17:51.444Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
