@@ -9,7 +9,42 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "node scripts/verify-process-fact-contract.mjs and parent_roadmap_status show M4 closed with evidence refs.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "packages/main/src/core/parent-roadmap-totality.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/process-fact-levels.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Process fact registry coverage closes only when the process fact contract verifier and parent roadmap status both prove registry coverage for the strengthened gate facts.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "M4 must not be closed by documentation text alone; parent-roadmap machine status must carry evidence refs.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "M4 must preserve claim boundaries, especially retired Authority Server semantics and read-only/advisory surfaces.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
