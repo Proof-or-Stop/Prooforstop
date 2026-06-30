@@ -53,6 +53,15 @@
       "reviewRound": "2026-06-30T22:42:01.277Z",
       "reviewRunId": "B-8963:RR-010",
       "_hash": "9f7d855da8b98a9a7dc95193ed9ff9d0cfc72bae2dd1d9482bf42783d970c06a"
+    },
+    {
+      "id": "B-8963:RP-007",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed evidence-freshness.ts, done-oracle.ts, lifecycle-readiness.ts, phase-gates.ts, session.ts, and verification-freshness-smoke.ts after F-001. Wrapper-root routing, dirty snapshot rejection/fallback, DONE snapshot reuse, and session/lifecycle call sites look correct. Verified with npm --prefix packages/main run build, npm --prefix packages/main run test:done-oracle-wrapper-root, npm --prefix packages/main run test:review-escalation-freshness-root, and node packages/main/dist/tasks/verification-freshness-smoke.js.",
+      "createdAt": "2026-06-30T22:47:30.510Z",
+      "reviewRound": "2026-06-30T22:42:01.277Z",
+      "reviewRunId": "B-8963:RR-009",
+      "_hash": "e5e067baafa0b10704ee0fdb802e75d3b97f5bdfd24fd08cfb19ddc3404172fc"
     }
   ]
 }
