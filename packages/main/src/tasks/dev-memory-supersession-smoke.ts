@@ -10,6 +10,7 @@ import {
   buildSupersessionProjection,
   formatEntryShort,
   getSupersessionStatus,
+  readProjectMemoryEntries,
   resolveProjectMemoryPath,
   searchEntries,
   writeEntries,
@@ -161,6 +162,15 @@ const currentByLegacyId = new Map([
   ['2de5d6b', currentEntries[3]],
   ['7bc20e5', currentEntries[4]],
 ]);
+const knownLegacyIds = ['a6832a1', 'f4fe749', 'c948c85', '2de5d6b', '7bc20e5'];
+const actualCurrentIds = ['34e97f9', '99aa6c7', 'ee3aef3', '148297b', '7ffe281'];
+const actualCurrentByLegacyId = new Map([
+  ['a6832a1', '34e97f9'],
+  ['f4fe749', '99aa6c7'],
+  ['c948c85', 'ee3aef3'],
+  ['2de5d6b', '148297b'],
+  ['7bc20e5', '7ffe281'],
+]);
 const originalLegacyEvidenceRefs = new Map(legacyEntries.map(e => [e.id, [...(e.evidenceRefs || [])]]));
 const originalLegacyContent = new Map(legacyEntries.map(e => [e.id, {
   summary: e.summary,
@@ -203,6 +213,29 @@ function assertNoActiveKoalaGuidance(currentEntry: DevMemoryEntry): void {
   assert.doesNotMatch(text, /\bKoala\b/);
   assert.doesNotMatch(text, /\bKoala-era\b/);
   assert.doesNotMatch(text, /\bkoala\b/);
+}
+
+function assertUsesCurrentProductNames(entry: DevMemoryEntry): void {
+  const activeGuidance = [entry.summary, entry.lesson, entry.reusePrompt].join(' ');
+  assert.match(activeGuidance, /Proofbound|Lattice/, `${entry.id} active guidance should use current product names`);
+  for (const [field, value] of [
+    ['summary', entry.summary],
+    ['lesson', entry.lesson],
+    ['reusePrompt', entry.reusePrompt],
+  ] as const) {
+    assert.doesNotMatch(value, /\bKoala\b|\bkoala\b/, `${entry.id} ${field} should not use Koala as active product name`);
+  }
+
+  if (/\bKoala\b|\bkoala\b/.test(entry.trigger)) {
+    assert.match(entry.trigger, /Legacy Koala .* now (applies to|maps to)/, `${entry.id} trigger should mention Koala only as legacy mapping context`);
+  }
+}
+
+function supersedesLegacyId(entry: DevMemoryEntry, legacyId: string): boolean {
+  return Boolean(
+    entry.tags?.includes(`supersedes-${legacyId}`)
+    || entry.evidenceRefs?.includes(`dev-memory:${legacyId}`),
+  );
 }
 
 const previousEnv = process.env.LATTICE_GLOBAL_MEMORY_DIR;
@@ -328,6 +361,58 @@ try {
       assert.equal(current.gateEvidence, false);
       assert.equal(legacy.authority, 'non_authoritative');
       assert.equal(current.authority, 'non_authoritative');
+    }
+  });
+
+  check('actual project memory contains the five B-a9e7 superseding entries', () => {
+    const projectEntries = readProjectMemoryEntries(process.cwd());
+    const actualEntriesById = new Map(projectEntries.map(e => [e.id, e]));
+    for (const currentId of actualCurrentIds) {
+      assert(actualEntriesById.has(currentId), `missing actual project memory entry ${currentId}`);
+    }
+  });
+
+  check('actual project memory entries cite the known legacy ids and remain non-authoritative', () => {
+    const projectEntries = readProjectMemoryEntries(process.cwd());
+    const actualEntriesById = new Map(projectEntries.map(e => [e.id, e]));
+    for (const legacyId of knownLegacyIds) {
+      const currentId = actualCurrentByLegacyId.get(legacyId);
+      assert(currentId);
+      const actual = actualEntriesById.get(currentId);
+      assert(actual, `missing actual project memory entry ${currentId}`);
+      assert.equal(supersedesLegacyId(actual, legacyId), true, `${currentId} should cite or supersede ${legacyId}`);
+      assert.equal(actual.gateEvidence, false);
+      assert.equal(actual.authority, 'non_authoritative');
+    }
+  });
+
+  check('actual project memory current guidance uses Proofbound Lattice names', () => {
+    const projectEntries = readProjectMemoryEntries(process.cwd());
+    const actualEntriesById = new Map(projectEntries.map(e => [e.id, e]));
+    for (const currentId of actualCurrentIds) {
+      const actual = actualEntriesById.get(currentId);
+      assert(actual, `missing actual project memory entry ${currentId}`);
+      assertUsesCurrentProductNames(actual);
+    }
+  });
+
+  check('actual project memory supersedes realistic legacy inventory', () => {
+    const projectEntries = readProjectMemoryEntries(process.cwd());
+    const actualCurrentEntries = actualCurrentIds.map(id => {
+      const found = projectEntries.find(e => e.id === id);
+      assert(found, `missing actual project memory entry ${id}`);
+      return found;
+    });
+    const actualProjection = buildSupersessionProjection([...legacyEntries, ...actualCurrentEntries]);
+    for (const legacyId of knownLegacyIds) {
+      const currentId = actualCurrentByLegacyId.get(legacyId);
+      assert(currentId);
+      const legacyStatus = getSupersessionStatus(legacyId, actualProjection);
+      const currentStatus = getSupersessionStatus(currentId, actualProjection);
+      assert.equal(legacyStatus.isSuperseded, true, `${legacyId} should be superseded by actual project memory`);
+      assert.deepEqual(legacyStatus.supersededBy, [currentId]);
+      assert.equal(currentStatus.isSuperseding, true, `${currentId} should supersede actual legacy id`);
+      assert.deepEqual(currentStatus.supersedes, [legacyId]);
     }
   });
 } finally {
