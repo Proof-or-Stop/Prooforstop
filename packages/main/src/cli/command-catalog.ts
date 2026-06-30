@@ -2215,8 +2215,8 @@ Behavior:
     json: z.boolean().optional().describe('Output structured JSON.'),
   }},
   { name: 'parent_roadmap_status', description: 'Read-only parent-roadmap totality status from a provided ledger or built-in sample case', schema: {
-    case: parentRoadmapCaseSchema.optional().describe('Built-in sample case to evaluate, including migration/B-43de diagnostics.'),
-    storyId: z.string().optional().describe('Optional parent story id; B-43de maps to the migration diagnostic sample when no ledger is supplied.'),
+    case: parentRoadmapCaseSchema.optional().describe('Built-in sample case to evaluate; case=migration remains the explicit legacy negative diagnostic sample.'),
+    storyId: z.string().optional().describe('Optional parent story id; storyId=B-43de maps to the closed B-e781 evidence-backed parent roadmap ledger when no ledger is supplied.'),
     ledger: z.any().optional().describe('ParentRoadmapLedger object to evaluate. Caller-provided rollup conclusions are ignored.'),
     proofstoryContract: proofStoryContractEnvelopeSchema.optional().describe('External ProofStory contract inventory whose acceptance milestoneIds must bind into proofstoryBinding evaluation.'),
     summaryText: z.string().optional().describe('Optional summary/handoff wording to check for full-roadmap overclaims.'),
@@ -2228,8 +2228,8 @@ Behavior:
     ...READ_ONLY_STATUS_UNSUPPORTED_FLAGS,
   }},
   { name: 'parent_roadmap_evaluate', description: 'Evaluate a parent-roadmap ledger and optional claim text without writing story metadata', schema: {
-    case: parentRoadmapCaseSchema.optional().describe('Built-in sample case to evaluate, including migration/B-43de diagnostics.'),
-    storyId: z.string().optional().describe('Optional parent story id; B-43de maps to the migration diagnostic sample when no ledger is supplied.'),
+    case: parentRoadmapCaseSchema.optional().describe('Built-in sample case to evaluate; case=migration remains the explicit legacy negative diagnostic sample.'),
+    storyId: z.string().optional().describe('Optional parent story id; storyId=B-43de maps to the closed B-e781 evidence-backed parent roadmap ledger when no ledger is supplied.'),
     ledger: z.any().optional().describe('ParentRoadmapLedger object to evaluate. Caller-provided rollup conclusions are ignored.'),
     proofstoryContract: proofStoryContractEnvelopeSchema.optional().describe('External ProofStory contract inventory whose acceptance milestoneIds must bind into proofstoryBinding evaluation.'),
     summaryText: z.string().optional().describe('Optional summary/handoff wording to check for full-roadmap overclaims.'),

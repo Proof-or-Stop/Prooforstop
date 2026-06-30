@@ -1,0 +1,72 @@
+{
+  "principles": [
+    "Close only what is backed by runnable evidence.",
+    "Preserve the parent roadmap intent instead of replacing it with a narrower checklist.",
+    "Keep Authority Server semantics retired and out of future runtime claims.",
+    "Prefer small focused hardening over new parallel state machines."
+  ],
+  "drivers": [
+    "B-43de parent roadmap rows M4-M12 are currently open.",
+    "The user explicitly wants all M4-M12 completed, not reclassified as future work.",
+    "Several implementation surfaces already exist and must be audited before adding new code."
+  ],
+  "options": [
+    {
+      "name": "A: close rows through evidence-backed registry and focused missing hardening",
+      "pros": [
+        "Uses existing implemented surfaces where already present",
+        "Adds only missing verification needed for the parent roadmap rollup",
+        "Produces a machine-verifiable done state for B-43de"
+      ],
+      "cons": [
+        "Requires careful per-row evidence mapping",
+        "May need focused doc and smoke updates across several modules"
+      ]
+    },
+    {
+      "name": "B: create separate child stories for each remaining roadmap row",
+      "pros": [
+        "Smaller individual story scope",
+        "Could isolate review per milestone"
+      ],
+      "cons": [
+        "Slower and risks leaving the parent roadmap partially open again",
+        "Does not satisfy the current user request to finish M4-M12 now"
+      ]
+    },
+    {
+      "name": "C: update documentation status only",
+      "pros": [
+        "Fastest change",
+        "Low code churn"
+      ],
+      "cons": [
+        "Would repeat the original failure mode by claiming DONE without machine evidence",
+        "Would not make parent_roadmap_status close M4-M12"
+      ]
+    }
+  ],
+  "chosen": "A: close rows through evidence-backed registry and focused missing hardening",
+  "rationale": "Option A directly satisfies the user request by closing each roadmap row only when existing or newly added machine evidence proves it, while avoiding a second roadmap state machine.",
+  "preMortem": [
+    {
+      "scenario": "A row is marked closed by prose only.",
+      "trigger": "The document is edited without updating parent roadmap machine rows or smoke tests.",
+      "consequence": "The same milestone-shrinkage bug reappears.",
+      "mitigation": "Require parent_roadmap_status and parent-roadmap-totality smoke evidence before marking checklist items done."
+    },
+    {
+      "scenario": "Existing commands are counted as coverage even though they are diagnostic-only.",
+      "trigger": "Evidence mapping ignores command claim boundaries.",
+      "consequence": "The roadmap overclaims enforcement capability.",
+      "mitigation": "Use row notes that distinguish runtime hard gates from read-only/advisory capabilities and only claim what tests prove."
+    },
+    {
+      "scenario": "Authority Server wording is accidentally restored as future work.",
+      "trigger": "Old roadmap sections are edited mechanically.",
+      "consequence": "Retired architecture semantics leak back into the backlog.",
+      "mitigation": "Keep Authority-facing rows retired/legacy-only and run vocabulary/doc checks while updating the roadmap."
+    }
+  ],
+  "timestamp": "2026-06-30T22:09:34.612Z"
+}

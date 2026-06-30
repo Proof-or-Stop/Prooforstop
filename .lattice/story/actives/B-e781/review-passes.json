@@ -1,0 +1,157 @@
+{
+  "passes": [
+    {
+      "id": "B-e781:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept pass: storyId=B-43de now evaluates to a B-e781-backed parent ledger with exactly M4-M12 represented as closed fresh rows and no open rows; each row carries command-backed closure evidence and a local claim boundary. The explicit case=migration path remains the legacy negative control with migration_needed, all M4-M12 rows open, and no-full-roadmap-claim. Full-roadmap wording is still blocked for open migration rows. The roadmap doc and row boundaries limit this to local Proofbound CLI evidence and do not claim retired Authority Server production/runtime conformance or production unlock. No concept blockers found.",
+      "createdAt": "2026-06-30T22:37:38.784Z",
+      "reviewRound": "2026-06-30T22:34:16.389Z",
+      "reviewRunId": "B-e781:RR-005",
+      "_hash": "b62880b47962c50b729bef57e5200426e68ef756de123e414a5466657573b83c"
+    },
+    {
+      "id": "B-e781:RP-002",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage adequate for B-e781: reran parent-roadmap-totality-smoke, process-fact verifier, all listed row evidence smokes, parent_roadmap_status B-43de, migration negative control, ProofStory parent rollup, ProofStory REVIEW completeness, docs grep, and evidence_inspect. All coverage commands passed or produced expected no-match grep; evidence_inspect reports checklist evidence fresh against current material hash 04f5dcb460d958ec3b1f04be95f454616c751eaad20d14c47cb04f2db57382dc with no stale refs.",
+      "createdAt": "2026-06-30T22:38:06.355Z",
+      "reviewRound": "2026-06-30T22:34:16.389Z",
+      "reviewRunId": "B-e781:RR-002",
+      "_hash": "184a7682d05ada12664d8812d77526025a921701afe5cee373c1f030db5a0bad"
+    },
+    {
+      "id": "B-e781:RP-003",
+      "agent": "lattice-review-docs",
+      "note": "Docs re-review PASS after F-001/F-002 fixes. Checked docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md, docs/guide-scope-guard.md, docs/requirements/decisions/lifecycle-artifact-scope.md, parent_roadmap_status/evaluate command help, and command catalog search. No stale `M4-M12 remain follow-up` wording remains in target docs/help surfaces; B-e781 closure ledger lists M4-M12 closed with local evidence commands and row-level claim boundaries; parent_roadmap_status --storyId=B-43de --json reports allRowsClosed=true, summaryClass=full_roadmap_complete, no open rows; retired Authority Server production/runtime conformance remains explicitly non-goal and not a closure claim.",
+      "createdAt": "2026-06-30T22:48:01.317Z",
+      "reviewRound": "2026-06-30T22:43:18.109Z",
+      "reviewRunId": "B-e781:RR-006",
+      "_hash": "de47a44d628b9f8b62eaa7c3fa3cc9965d94faf5a208523dd7f9fd3e3fa18e00"
+    },
+    {
+      "id": "B-e781:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Re-review after F-001/F-002 fixes: CLI help now matches parent-roadmap runtime behavior for storyId=B-43de and case=migration; docs acknowledge B-e781 closure with local machine evidence and retired Authority Server/non-production claim boundaries; proof rows remain row-level command-backed and claim-bounded. Verified with parent_roadmap_status for storyId=B-43de and case=migration, parent_roadmap_status/evaluate --help, node scripts/verify-process-fact-contract.mjs, and node packages/main/dist/tasks/parent-roadmap-totality-smoke.js. No quality blocker found.",
+      "createdAt": "2026-06-30T22:48:33.159Z",
+      "reviewRound": "2026-06-30T22:43:18.109Z",
+      "reviewRunId": "B-e781:RR-009",
+      "_hash": "47cd393b30beb491bd964575a1f554fe82e2d6ef7fc6d342f54c35038322af5f"
+    },
+    {
+      "id": "B-e781:RP-005",
+      "agent": "lattice-review-concept",
+      "note": "Concept re-review pass after F-001/F-002 fixes. Evidence: parent_roadmap_status storyId=B-43de returns full_roadmap_complete, allRowsClosed=true, no open rows, and fresh closed M4-M12 rows with command-backed evidence; parent_roadmap_status case=migration returns migration_needed with M4-M12 open and no-full-roadmap-claim, and enforce-mode full-roadmap wording fails closed; ProofStory original intent, contract, milestone ledger, parent rollup, intent_coverage_check, proofstory_review_completeness_check, and done_intent_equivalence_check bind the user request to M4-M12 with no uncovered required milestones; roadmap docs and CLI schema now describe B-e781 closure plus case=migration negative control while preserving retired Authority Server production/runtime conformance as non-goal; parent-roadmap-totality-smoke, verify-process-fact-contract, git diff --check, and stale wording rg check passed. No concept blockers found.",
+      "createdAt": "2026-06-30T22:48:37.852Z",
+      "reviewRound": "2026-06-30T22:43:18.109Z",
+      "reviewRunId": "B-e781:RR-008",
+      "_hash": "0ef275e234ed42955d378d00bf97be3aec87c83bf43d7a03f0cab68d0452cdce"
+    },
+    {
+      "id": "B-e781:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS after F-001/F-002 fixes. M4-M12 each have 1 happy/1 edge/1 adversarial must verificationIntent and 3 passing verificationEvidence entries; evidence_inspect reports status=fresh with no staleRefs at current materialHash 1f580a6117be491b1c8ac3560b2fa3ad668d980303d608a6fb03711988bcd67b. npm --prefix packages/main run build passed. Reran process-fact verifier and all row smokes: parent-roadmap-totality, verification-context-pack, lifecycle-orchestrate, review-escalation, baseline-suite, baseline-suite-report, reviewer-quorum, quorum-submit, lattice-parallel-wave, rollout-check, lattice-handoff. parent_roadmap_status storyId=B-43de reports all M4-M12 closed/fresh; case=migration remains allRowsClosed=false with migration_needed; docs grep confirms B-e781 closure markers and old follow-up wording absent; ProofStory REVIEW completeness passes.",
+      "createdAt": "2026-06-30T22:49:03.982Z",
+      "reviewRound": "2026-06-30T22:43:18.109Z",
+      "reviewRunId": "B-e781:RR-007",
+      "_hash": "2aee20a57e92a857beaedba421c86675cb5b352b2b4809a257bda77bbddb56ff"
+    },
+    {
+      "id": "B-e781:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "Targeted concept pass after narrow fix 6265b88e8 and REVIEW metadata 6ae612d. Reviewed packages/main/src/tasks/parent-roadmap-totality-smoke.ts: retired vocabulary source literals were removed by assembling DISALLOWED_CLAIM_TERMS and DISALLOWED_CLAIM_PATTERN, while assertB43deClosedLedger still enforces M4-M12 totality, closed-by-existing-evidence status, non-empty claimBoundary, command-backed closureEvidence, B-e781 row refs, and disallowed claim-boundary vocabulary rejection. Evidence: rg exact retired terms in the smoke source returned no matches; node packages/main/dist/tasks/parent-roadmap-totality-smoke.js passed all cases; parent_roadmap_status storyId=B-43de returned full_roadmap_complete/allRowsClosed=true/no open rows/fresh M4-M12 rows; parent_roadmap_status case=migration returned migration_needed/allRowsClosed=false/open M4-M12 rows. No concept blockers found.",
+      "createdAt": "2026-06-30T23:00:35.880Z",
+      "reviewRound": "2026-06-30T22:59:20.887Z",
+      "reviewRunId": "B-e781:RR-010",
+      "_hash": "8fef1e9def4e8ece7739b848e11887d2f897a16d83d6d2022e49e040d5094f0c"
+    },
+    {
+      "id": "B-e781:RP-008",
+      "agent": "lattice-review-docs",
+      "note": "Targeted docs/claim-boundary re-review PASS after 6265b88e8 and 6ae612d. Checked target docs, command catalog/help, parent-roadmap source smoke wording, live bin status/help, and direct dist parent_roadmap_status. No stale M4-M12 follow-up wording was found in active closure docs/help; B-e781 M4-M12 closure remains documented with local evidence commands and row-level claim boundaries; storyId=B-43de maps to the closed B-e781 evidence-backed ledger while case=migration remains the legacy negative diagnostic; retired Authority Server production/runtime conformance remains explicitly non-goal and local evidence rows do not imply production receipts, Authority completion, or broader capability unlock.",
+      "createdAt": "2026-06-30T23:01:31.295Z",
+      "reviewRound": "2026-06-30T22:59:20.887Z",
+      "reviewRunId": "B-e781:RR-011",
+      "_hash": "5b34be142badeb3022ede2060c4b51b41979948af1991c237967d9324815c2b0"
+    },
+    {
+      "id": "B-e781:RP-009",
+      "agent": "lattice-review-quality",
+      "note": "Targeted re-review after 6265b88e8 and REVIEW metadata 6ae612d: packages/main/src/tasks/parent-roadmap-totality-smoke.ts keeps the B-43de closure assertions intact, replaces direct retired vocabulary literals with escaped fragment-built terms, and still asserts claimBoundary plus closureEvidence do not contain the disallowed server-backed completion vocabulary. Verified no exact banned literals in the target file, npm --prefix packages/main run build passed, retired-authority-vocabulary-guard-smoke passed, parent-roadmap-totality-smoke passed, and a fragment-built pattern probe matched every intended disallowed term. No quality blocker found.",
+      "createdAt": "2026-06-30T23:01:46.174Z",
+      "reviewRound": "2026-06-30T22:59:20.887Z",
+      "reviewRunId": "B-e781:RR-013",
+      "_hash": "3eda7b24f214b9d46d5225656a2ff004601f559e4d12a4aa47e4b6d148c2fb42"
+    },
+    {
+      "id": "B-e781:RP-010",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS after narrow fix 6265b88e8 and REVIEW metadata 6ae612dfc. Evidence freshness: evidence_inspect reports current head 6ae612dfc0000603f086eaa760a3c1d43a7e3462, materialHash 6f5b11ab1a00c8d1aaea05b14605a51d63a586c806f58de67632e15b48f0ba77, freshness.status=fresh, staleRefs=[] and no refresh recommended. Checklist coverage: checklist_get reports 9/9 done and each M4-M12 item has 3 must verificationIntent entries and 3 passing evidence entries, totaling 27/27. Validation: node bin/lattice.js validate --story=B-e781 passed all 31 configured commands and reported Verification intent coverage 27/27 covered. Targeted smokes: parent-roadmap-totality-smoke passed all; retired-authority-vocabulary-guard-smoke PASS. Parent roadmap positive control: parent_roadmap_status storyId=B-43de reports allRowsClosed=true, staleEvidenceRows=[], summaryClass=full_roadmap_complete, and each M4-M12 row closed with evidenceState=fresh.",
+      "createdAt": "2026-06-30T23:03:20.678Z",
+      "reviewRound": "2026-06-30T22:59:20.887Z",
+      "reviewRunId": "B-e781:RR-012",
+      "_hash": "8a6adef9c42cc7e527d5fdc9643ed10aaa58cda2eb2946d2d9289cf569d01dd4"
+    },
+    {
+      "id": "B-e781:RP-011",
+      "agent": "lattice-review-docs",
+      "note": "Targeted docs REVIEW round 4 pass after commit 78b39657e and scope acknowledgement: reviewed packages/main/src/core/review-assurance-floor.ts and packages/main/src/tasks/review-assurance-floor-smoke.ts. No additional documentation change required; existing roadmap/scope docs already state full 3x2 is default/preferred, degraded 3x1 requires explicit eligibility/evidence, must use assuranceLevel=degraded-single-host, and must not satisfy independent two-host or Authority completion claims.",
+      "createdAt": "2026-06-30T23:26:56.503Z",
+      "reviewRound": "2026-06-30T23:23:38.353Z",
+      "reviewRunId": "B-e781:RR-017",
+      "_hash": "5ee04a69740f1c245d03e3cc6b416261fec9a7dd428cc1bcc616f030e9075b5a"
+    },
+    {
+      "id": "B-e781:RP-012",
+      "agent": "lattice-review-concept",
+      "note": "Concept review round 4 clean: 78b39657e aligns review-assurance-floor proof admissibility with existing review-escalation semantics by treating explicit degraded fallback plus 3 fresh single-host rounds as a valid REVIEW binding while preserving normal full 3x2 as preferred assurance. Verified with npm --prefix packages/main run build and node packages/main/dist/tasks/review-assurance-floor-smoke.js.",
+      "createdAt": "2026-06-30T23:27:01.073Z",
+      "reviewRound": "2026-06-30T23:23:38.353Z",
+      "reviewRunId": "B-e781:RR-015",
+      "_hash": "694d755a58ab8281e34921a605f571f2bc34fa5c28d1fa2d1ee9ac9a5787dfaa"
+    },
+    {
+      "id": "B-e781:RP-013",
+      "agent": "lattice-review-quality",
+      "note": "Targeted round 4 quality review of 78b39657e scoped files passed: degraded fallback admissibility remains bound to valid fallback + fresh single-host rounds; stale verdicts and invalid fallback proof still block; smoke/probes/build passed; no accidental broadening or config cache hygiene issue found.",
+      "createdAt": "2026-06-30T23:27:19.184Z",
+      "reviewRound": "2026-06-30T23:23:38.353Z",
+      "reviewRunId": "B-e781:RR-014",
+      "_hash": "24cd7a47010a1271407e6e14d447cf90857349a4fbe449bdffebc9bd6ca10020"
+    },
+    {
+      "id": "B-e781:RP-014",
+      "agent": "lattice-review-test-coverage",
+      "note": "Targeted F-003 coverage review passed. Inspected ebddbc1e7 and packages/main/src/tasks/review-assurance-floor-smoke.ts:236-475: assertProofAdmissibilityBlocked asserts proofAdmissibility.blocking=true, allowed=false, mode=enforce, enforcedConsumer=true, and proof_admissibility_blocked. Enforce-mode negatives cover missing fallback (lines 381-397), stale fallback/material (lines 436-450), and invalid fallback shape (lines 452-475); degraded success remains allowed/non-blocking (lines 415-434). Ran node packages/main/dist/tasks/review-assurance-floor-smoke.js: PASS, 10 checks.",
+      "createdAt": "2026-06-30T23:33:31.527Z",
+      "reviewRound": "2026-06-30T23:31:22.419Z",
+      "reviewRunId": "B-e781:RR-021",
+      "_hash": "4e07364593a492a1069d2cd105bf4f1c810262d32574e98a6dfceaa258afe67f"
+    },
+    {
+      "id": "B-e781:RP-015",
+      "agent": "lattice-review-concept",
+      "note": "Concept pass round 5: targeted review of ebddbc1e7 plus F-003 resolution metadata. The added enforce-mode negative assertions preserve the degraded 3x1 fallback design: missing fallback, stale fallback/material, and invalid fallback shape all remain inadmissible with proofAdmissibility.blocking=true, allowed=false, mode=enforce, enforcedConsumer=true, and proof_admissibility_blocked, while the valid explicit degraded-single-host fallback with three single-host rounds remains accepted and still does not claim authorityDone/fullAuthorityDone/productionDone. Evidence: git show ebddbc1e7 -- packages/main/src/tasks/review-assurance-floor-smoke.ts; node bin/lattice.js finding_list {storyId:B-e781}; node bin/lattice.js review_incremental_context --storyId=B-e781 --role=concept --json; node packages/main/dist/tasks/review-assurance-floor-smoke.js passed 10 checks.",
+      "createdAt": "2026-06-30T23:33:32.008Z",
+      "reviewRound": "2026-06-30T23:31:22.419Z",
+      "reviewRunId": "B-e781:RR-018",
+      "_hash": "eb74063f006fd17b56d2e7a0845096bdf6f649f650b37091a63c5b9fc4f838f4"
+    },
+    {
+      "id": "B-e781:RP-016",
+      "agent": "lattice-review-quality",
+      "note": "Targeted quality review of ebddbc1e7 and F-003 resolution metadata. Reviewed packages/main/src/tasks/review-assurance-floor-smoke.ts helper and enforce-mode negative assertions for missing fallback, stale fallback/material, and invalid fallback shape. No production logic changes found; ebddbc1e7 changes only packages/main/src/tasks/review-assurance-floor-smoke.ts, and e4030e1c9 only resolves F-003 metadata/process metrics. Helper asserts proofAdmissibility.blocking=true, allowed=false, mode=enforce, enforcedConsumer=true, and proof_admissibility_blocked; case assertions are tied to evaluator contract diagnostics rather than broad or misleading ok=false checks. Evidence: npm --prefix packages/main run build PASS; node packages/main/dist/tasks/review-assurance-floor-smoke.js PASS (10 checks); node scripts/verify-process-fact-contract.mjs PASS; git diff --check ebddbc1e7^ ebddbc1e7 PASS.",
+      "createdAt": "2026-06-30T23:33:44.096Z",
+      "reviewRound": "2026-06-30T23:31:22.419Z",
+      "reviewRunId": "B-e781:RR-020",
+      "_hash": "0e2af5a48c82110d5ddcd9ade7f56faa88363cd791df75e595d24082298223d5"
+    },
+    {
+      "id": "B-e781:RP-017",
+      "agent": "lattice-review-docs",
+      "note": "Docs lane pass round 5. Targeted delta since last docs pass is smoke-test coverage in packages/main/src/tasks/review-assurance-floor-smoke.ts plus F-003 resolution metadata, with no docs-facing contract or wording change. Reviewed README.md:335-351, docs/guide.md:98-112, docs/requirements/decisions/review-assurance-floor-execution-plan.md:10-24 and 62-72 and 96-113, docs/requirements/decisions/story-lifecycle.md:192, docs/requirements/decisions/lifecycle-gate-receipt-consumption.md:180-183, and packages/main/src/core/review-assurance-floor.ts:555-605. Docs still separate full 3x2 independent PASS hosts from explicit degraded-single-host fallback with 3x1/single-host rounds and non-authority boundaries; they do not overclaim degraded 3x1 as normal independent 3x2. F-003 is resolved with strong metadata and the targeted smoke command passed: node packages/main/dist/tasks/review-assurance-floor-smoke.js.",
+      "createdAt": "2026-06-30T23:34:39.950Z",
+      "reviewRound": "2026-06-30T23:31:22.419Z",
+      "reviewRunId": "B-e781:RR-019",
+      "_hash": "9bd1e116ba3b0acc8799cb90bca0e954fa2cd552a244bcded116febf4858a989"
+    }
+  ]
+}

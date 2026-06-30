@@ -23,12 +23,13 @@ This document fixes the policy in one place: lifecycle artifacts are a
 **narrow, filename-aware, story-scoped, current-state classifier**. It is not
 a substitute for evidence receipts and it does not weaken product source scope enforcement.
 
-B-997b wave 1 adds the operator-facing row contract on top of this policy:
-M1-M3 wave complete; M4-M12 remain follow-up milestones. The shipped scope
-behavior covers canonical changed-file rows, lifecycle/runtime artifact
-classification, guard projection, and acknowledgement visibility only. It does
-not claim Authority receipts, Layer 4 production proof, customer key behavior,
-baseline unlocks, renderer/scheduler work, or unrelated runtime features.
+B-e781 closes the B-43de M4-M12 parent roadmap rows with local machine evidence
+and row-level claim boundaries. The B-997b shipped scope behavior still covers
+canonical changed-file rows, lifecycle/runtime artifact classification, guard
+projection, and acknowledgement visibility. It does not claim retired Authority
+Server production/runtime conformance, Authority receipts, Layer 4 production
+proof, customer key behavior, baseline unlocks, renderer/scheduler work, or
+unrelated runtime features.
 
 ## The three classifier outputs
 

@@ -7,21 +7,173 @@
       "relatedDocs": [
         "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-30T22:29:32.271Z",
+      "endTime": "2026-06-30T22:29:34.569Z",
+      "userSees": "\"M4\" row shows \"closed\": true and \"node scripts/verify-process-fact-contract.mjs\" is listed as evidence.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "packages/main/src/core/parent-roadmap-totality.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Process fact registry coverage closes only when the process fact contract verifier and parent roadmap status both prove registry coverage for the strengthened gate facts.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "M4 must not be closed by documentation text alone; parent-roadmap machine status must carry evidence refs.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "M4 must preserve claim boundaries, especially retired Authority Server semantics and read-only/advisory surfaces.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "node scripts/verify-process-fact-contract.mjs && node bin/lattice.js parent_roadmap_status --storyId=B-43de --json",
+          "result": "pass",
+          "note": "M4 Process fact registry coverage is closed by its focused smoke/verifier and B-43de parent roadmap status reports the row closed with evidence refs.",
+          "headHash": "fcc117cab3e070c80273ceea39aaad3467453e19",
+          "materialHash": "2ed69e15b6a729fd679ffee7a7437cd1f315ea6ed0ff1937fe6685b54a222571",
+          "storyFilesHash": "333c85ff432f3c5f4763653d0ee56ed3e7ad49210ded5d49a725c5ad025f377a",
+          "timestamp": "2026-06-30T23:38:14.527Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/parent-roadmap-totality-smoke.ts",
+          "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js",
+          "result": "pass",
+          "note": "M4 cannot be closed by prose alone: parent-roadmap-totality-smoke requires row closureEvidence, claimBoundary, and legacy migration/open negative-control behavior.",
+          "headHash": "fcc117cab3e070c80273ceea39aaad3467453e19",
+          "materialHash": "2ed69e15b6a729fd679ffee7a7437cd1f315ea6ed0ff1937fe6685b54a222571",
+          "storyFilesHash": "333c85ff432f3c5f4763653d0ee56ed3e7ad49210ded5d49a725c5ad025f377a",
+          "timestamp": "2026-06-30T23:38:14.527Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js && ! rg -n \"M4-M12 remain follow-up|M4-M12 remain|remain follow-up milestones\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "result": "pass",
+          "note": "M4 preserves claim boundaries: parent-roadmap-totality-smoke checks retired Authority overclaim patterns, and docs grep confirms the old follow-up wording is absent.",
+          "headHash": "fcc117cab3e070c80273ceea39aaad3467453e19",
+          "materialHash": "2ed69e15b6a729fd679ffee7a7437cd1f315ea6ed0ff1937fe6685b54a222571",
+          "storyFilesHash": "333c85ff432f3c5f4763653d0ee56ed3e7ad49210ded5d49a725c5ad025f377a",
+          "timestamp": "2026-06-30T23:38:14.527Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "Close M5 verification context pack and evidence envelope standardization",
       "context": "Verify context pack and evidence manifest/envelope behavior covers changed refs, digests, expansion, stale/missing cases, and reviewer/validator consumption boundaries.",
       "relatedDocs": [
-        "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
-        "docs/requirements/decisions/verification-context-pack.md"
+        "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-30T22:29:35.220Z",
+      "endTime": "2026-06-30T22:29:36.724Z",
+      "userSees": "\"M5\" row shows \"closed\": true and \"verification-context-pack-smoke\" is listed as evidence.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "packages/main/src/core/parent-roadmap-totality.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/verification-context-pack-smoke.ts",
+          "packages/main/src/core/verification-context-pack.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Verification context pack and evidence envelope standardization closes only when context pack create/expand evidence is runnable and bound to the roadmap row.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "M5 must not be closed by documentation text alone; parent-roadmap machine status must carry evidence refs.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "M5 must preserve claim boundaries, especially retired Authority Server semantics and read-only/advisory surfaces.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/verification-context-pack-smoke.ts",
+          "command": "node packages/main/dist/tasks/verification-context-pack-smoke.js && node bin/lattice.js parent_roadmap_status --storyId=B-43de --json",
+          "result": "pass",
+          "note": "M5 Verification context pack and evidence envelope standardization is closed by its focused smoke/verifier and B-43de parent roadmap status reports the row closed with evidence refs.",
+          "headHash": "fcc117cab3e070c80273ceea39aaad3467453e19",
+          "materialHash": "2ed69e15b6a729fd679ffee7a7437cd1f315ea6ed0ff1937fe6685b54a222571",
+          "storyFilesHash": "333c85ff432f3c5f4763653d0ee56ed3e7ad49210ded5d49a725c5ad025f377a",
+          "timestamp": "2026-06-30T23:38:14.527Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/parent-roadmap-totality-smoke.ts",
+          "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js",
+          "result": "pass",
+          "note": "M5 cannot be closed by prose alone: parent-roadmap-totality-smoke requires row closureEvidence, claimBoundary, and legacy migration/open negative-control behavior.",
+          "headHash": "fcc117cab3e070c80273ceea39aaad3467453e19",
+          "materialHash": "2ed69e15b6a729fd679ffee7a7437cd1f315ea6ed0ff1937fe6685b54a222571",
+          "storyFilesHash": "333c85ff432f3c5f4763653d0ee56ed3e7ad49210ded5d49a725c5ad025f377a",
+          "timestamp": "2026-06-30T23:38:14.527Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js && ! rg -n \"M4-M12 remain follow-up|M4-M12 remain|remain follow-up milestones\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "result": "pass",
+          "note": "M5 preserves claim boundaries: parent-roadmap-totality-smoke checks retired Authority overclaim patterns, and docs grep confirms the old follow-up wording is absent.",
+          "headHash": "fcc117cab3e070c80273ceea39aaad3467453e19",
+          "materialHash": "2ed69e15b6a729fd679ffee7a7437cd1f315ea6ed0ff1937fe6685b54a222571",
+          "storyFilesHash": "333c85ff432f3c5f4763653d0ee56ed3e7ad49210ded5d49a725c5ad025f377a",
+          "timestamp": "2026-06-30T23:38:14.527Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -30,9 +182,85 @@
       "relatedDocs": [
         "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-30T22:29:37.406Z",
+      "endTime": "2026-06-30T22:29:38.831Z",
+      "userSees": "\"M6\" row shows \"closed\": true and freshness or expected-block smoke evidence is listed.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "packages/main/src/core/parent-roadmap-totality.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/core/parent-roadmap-totality.ts",
+          "packages/main/src/tasks/parent-roadmap-totality-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Gate oracle freshness and negative-control matrix closes only when expected block/freshness evidence is represented without Authority Server resurrection.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "M6 must not be closed by documentation text alone; parent-roadmap machine status must carry evidence refs.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "M6 must preserve claim boundaries, especially retired Authority Server semantics and read-only/advisory surfaces.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/lifecycle-orchestrate-smoke.ts",
+          "command": "node packages/main/dist/tasks/lifecycle-orchestrate-smoke.js && node packages/main/dist/tasks/review-escalation-smoke.js && node bin/lattice.js parent_roadmap_status --storyId=B-43de --json",
+          "result": "pass",
+          "note": "M6 Gate oracle freshness and negative-control matrix is closed by its focused smoke/verifier and B-43de parent roadmap status reports the row closed with evidence refs.",
+          "headHash": "fcc117cab3e070c80273ceea39aaad3467453e19",
+          "materialHash": "2ed69e15b6a729fd679ffee7a7437cd1f315ea6ed0ff1937fe6685b54a222571",
+          "storyFilesHash": "333c85ff432f3c5f4763653d0ee56ed3e7ad49210ded5d49a725c5ad025f377a",
+          "timestamp": "2026-06-30T23:38:14.527Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/parent-roadmap-totality-smoke.ts",
+          "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js",
+          "result": "pass",
+          "note": "M6 cannot be closed by prose alone: parent-roadmap-totality-smoke requires row closureEvidence, claimBoundary, and legacy migration/open negative-control behavior.",
+          "headHash": "fcc117cab3e070c80273ceea39aaad3467453e19",
+          "materialHash": "2ed69e15b6a729fd679ffee7a7437cd1f315ea6ed0ff1937fe6685b54a222571",
+          "storyFilesHash": "333c85ff432f3c5f4763653d0ee56ed3e7ad49210ded5d49a725c5ad025f377a",
+          "timestamp": "2026-06-30T23:38:14.527Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js && ! rg -n \"M4-M12 remain follow-up|M4-M12 remain|remain follow-up milestones\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "result": "pass",
+          "note": "M6 preserves claim boundaries: parent-roadmap-totality-smoke checks retired Authority overclaim patterns, and docs grep confirms the old follow-up wording is absent.",
+          "headHash": "fcc117cab3e070c80273ceea39aaad3467453e19",
+          "materialHash": "2ed69e15b6a729fd679ffee7a7437cd1f315ea6ed0ff1937fe6685b54a222571",
+          "storyFilesHash": "333c85ff432f3c5f4763653d0ee56ed3e7ad49210ded5d49a725c5ad025f377a",
+          "timestamp": "2026-06-30T23:38:14.527Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -41,21 +269,173 @@
       "relatedDocs": [
         "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-30T22:29:39.478Z",
+      "endTime": "2026-06-30T22:29:40.770Z",
+      "userSees": "\"M7\" row shows \"closed\": true and \"baseline-suite-smoke\" plus \"baseline-suite-report-smoke\" are listed.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "packages/main/src/core/parent-roadmap-totality.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/baseline-suite-smoke.ts",
+          "packages/main/src/tasks/baseline-suite-report-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Baseline suite formalization closes only when baseline suite and report smokes prove the current report math and claim boundary.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "M7 must not be closed by documentation text alone; parent-roadmap machine status must carry evidence refs.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "M7 must preserve claim boundaries, especially retired Authority Server semantics and read-only/advisory surfaces.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/baseline-suite-smoke.ts",
+          "command": "node packages/main/dist/tasks/baseline-suite-smoke.js && node packages/main/dist/tasks/baseline-suite-report-smoke.js && node bin/lattice.js parent_roadmap_status --storyId=B-43de --json",
+          "result": "pass",
+          "note": "M7 Baseline suite formalization is closed by its focused smoke/verifier and B-43de parent roadmap status reports the row closed with evidence refs.",
+          "headHash": "fcc117cab3e070c80273ceea39aaad3467453e19",
+          "materialHash": "2ed69e15b6a729fd679ffee7a7437cd1f315ea6ed0ff1937fe6685b54a222571",
+          "storyFilesHash": "333c85ff432f3c5f4763653d0ee56ed3e7ad49210ded5d49a725c5ad025f377a",
+          "timestamp": "2026-06-30T23:38:14.527Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/parent-roadmap-totality-smoke.ts",
+          "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js",
+          "result": "pass",
+          "note": "M7 cannot be closed by prose alone: parent-roadmap-totality-smoke requires row closureEvidence, claimBoundary, and legacy migration/open negative-control behavior.",
+          "headHash": "fcc117cab3e070c80273ceea39aaad3467453e19",
+          "materialHash": "2ed69e15b6a729fd679ffee7a7437cd1f315ea6ed0ff1937fe6685b54a222571",
+          "storyFilesHash": "333c85ff432f3c5f4763653d0ee56ed3e7ad49210ded5d49a725c5ad025f377a",
+          "timestamp": "2026-06-30T23:38:14.527Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js && ! rg -n \"M4-M12 remain follow-up|M4-M12 remain|remain follow-up milestones\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "result": "pass",
+          "note": "M7 preserves claim boundaries: parent-roadmap-totality-smoke checks retired Authority overclaim patterns, and docs grep confirms the old follow-up wording is absent.",
+          "headHash": "fcc117cab3e070c80273ceea39aaad3467453e19",
+          "materialHash": "2ed69e15b6a729fd679ffee7a7437cd1f315ea6ed0ff1937fe6685b54a222571",
+          "storyFilesHash": "333c85ff432f3c5f4763653d0ee56ed3e7ad49210ded5d49a725c5ad025f377a",
+          "timestamp": "2026-06-30T23:38:14.527Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
       "title": "Close M8 host identity review-run and 3x2 quorum strengthening",
       "context": "Verify host/session/key/material/validation binding, 3x2 and degraded 3x1 behavior, ignored verdict reasons, and review escalation DONE consumption.",
       "relatedDocs": [
-        "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
-        "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-30T22:29:41.531Z",
+      "endTime": "2026-06-30T22:29:43.379Z",
+      "userSees": "\"M8\" row shows \"closed\": true and review escalation/quorum smoke evidence is listed.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "packages/main/src/core/parent-roadmap-totality.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/review-escalation-smoke.ts",
+          "packages/main/src/tasks/reviewer-quorum-smoke.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Host identity, review-run, and 3x2 quorum strengthening closes only when quorum and review escalation smokes prove counted and ignored host verdict behavior.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "M8 must not be closed by documentation text alone; parent-roadmap machine status must carry evidence refs.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "M8 must preserve claim boundaries, especially retired Authority Server semantics and read-only/advisory surfaces.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/reviewer-quorum-smoke.ts",
+          "command": "node packages/main/dist/tasks/reviewer-quorum-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/review-escalation-smoke.js && node bin/lattice.js parent_roadmap_status --storyId=B-43de --json",
+          "result": "pass",
+          "note": "M8 Host identity review-run and quorum strengthening is closed by its focused smoke/verifier and B-43de parent roadmap status reports the row closed with evidence refs.",
+          "headHash": "fcc117cab3e070c80273ceea39aaad3467453e19",
+          "materialHash": "2ed69e15b6a729fd679ffee7a7437cd1f315ea6ed0ff1937fe6685b54a222571",
+          "storyFilesHash": "333c85ff432f3c5f4763653d0ee56ed3e7ad49210ded5d49a725c5ad025f377a",
+          "timestamp": "2026-06-30T23:38:14.527Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/parent-roadmap-totality-smoke.ts",
+          "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js",
+          "result": "pass",
+          "note": "M8 cannot be closed by prose alone: parent-roadmap-totality-smoke requires row closureEvidence, claimBoundary, and legacy migration/open negative-control behavior.",
+          "headHash": "fcc117cab3e070c80273ceea39aaad3467453e19",
+          "materialHash": "2ed69e15b6a729fd679ffee7a7437cd1f315ea6ed0ff1937fe6685b54a222571",
+          "storyFilesHash": "333c85ff432f3c5f4763653d0ee56ed3e7ad49210ded5d49a725c5ad025f377a",
+          "timestamp": "2026-06-30T23:38:14.527Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js && ! rg -n \"M4-M12 remain follow-up|M4-M12 remain|remain follow-up milestones\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "result": "pass",
+          "note": "M8 preserves claim boundaries: parent-roadmap-totality-smoke checks retired Authority overclaim patterns, and docs grep confirms the old follow-up wording is absent.",
+          "headHash": "fcc117cab3e070c80273ceea39aaad3467453e19",
+          "materialHash": "2ed69e15b6a729fd679ffee7a7437cd1f315ea6ed0ff1937fe6685b54a222571",
+          "storyFilesHash": "333c85ff432f3c5f4763653d0ee56ed3e7ad49210ded5d49a725c5ad025f377a",
+          "timestamp": "2026-06-30T23:38:14.527Z"
+        }
+      ]
     },
     {
       "id": "CHK-006",
@@ -64,9 +444,85 @@
       "relatedDocs": [
         "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-30T22:29:44.243Z",
+      "endTime": "2026-06-30T22:29:45.854Z",
+      "userSees": "\"M9\" row shows \"closed\": true and \"lifecycle-orchestrate-smoke\" is listed as evidence.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "packages/main/src/core/parent-roadmap-totality.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/lifecycle-orchestrate-smoke.ts",
+          "packages/main/src/core/lifecycle-orchestrate.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Preflight command center closes only when lifecycle orchestration renders canonical gate/preflight rows without creating renderer-only rules.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "M9 must not be closed by documentation text alone; parent-roadmap machine status must carry evidence refs.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "M9 must preserve claim boundaries, especially retired Authority Server semantics and read-only/advisory surfaces.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/lifecycle-orchestrate-smoke.ts",
+          "command": "node packages/main/dist/tasks/lifecycle-orchestrate-smoke.js && node bin/lattice.js parent_roadmap_status --storyId=B-43de --json",
+          "result": "pass",
+          "note": "M9 Preflight command center is closed by its focused smoke/verifier and B-43de parent roadmap status reports the row closed with evidence refs.",
+          "headHash": "fcc117cab3e070c80273ceea39aaad3467453e19",
+          "materialHash": "2ed69e15b6a729fd679ffee7a7437cd1f315ea6ed0ff1937fe6685b54a222571",
+          "storyFilesHash": "333c85ff432f3c5f4763653d0ee56ed3e7ad49210ded5d49a725c5ad025f377a",
+          "timestamp": "2026-06-30T23:38:14.527Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/parent-roadmap-totality-smoke.ts",
+          "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js",
+          "result": "pass",
+          "note": "M9 cannot be closed by prose alone: parent-roadmap-totality-smoke requires row closureEvidence, claimBoundary, and legacy migration/open negative-control behavior.",
+          "headHash": "fcc117cab3e070c80273ceea39aaad3467453e19",
+          "materialHash": "2ed69e15b6a729fd679ffee7a7437cd1f315ea6ed0ff1937fe6685b54a222571",
+          "storyFilesHash": "333c85ff432f3c5f4763653d0ee56ed3e7ad49210ded5d49a725c5ad025f377a",
+          "timestamp": "2026-06-30T23:38:14.527Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js && ! rg -n \"M4-M12 remain follow-up|M4-M12 remain|remain follow-up milestones\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "result": "pass",
+          "note": "M9 preserves claim boundaries: parent-roadmap-totality-smoke checks retired Authority overclaim patterns, and docs grep confirms the old follow-up wording is absent.",
+          "headHash": "fcc117cab3e070c80273ceea39aaad3467453e19",
+          "materialHash": "2ed69e15b6a729fd679ffee7a7437cd1f315ea6ed0ff1937fe6685b54a222571",
+          "storyFilesHash": "333c85ff432f3c5f4763653d0ee56ed3e7ad49210ded5d49a725c5ad025f377a",
+          "timestamp": "2026-06-30T23:38:14.527Z"
+        }
+      ]
     },
     {
       "id": "CHK-007",
@@ -75,9 +531,85 @@
       "relatedDocs": [
         "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-30T22:29:46.544Z",
+      "endTime": "2026-06-30T22:29:49.006Z",
+      "userSees": "\"M10\" row shows \"closed\": true and \"lattice-parallel-wave-smoke\" is listed as evidence.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "packages/main/src/core/parent-roadmap-totality.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/lattice-parallel-wave-smoke.ts",
+          "packages/main/src/core/lattice-parallel-wave.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Parallel collaboration scheduling closes only when parallel wave scheduling stays advisory and integrates with existing owner/review boundaries.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "M10 must not be closed by documentation text alone; parent-roadmap machine status must carry evidence refs.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "M10 must preserve claim boundaries, especially retired Authority Server semantics and read-only/advisory surfaces.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-007:happy:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/lattice-parallel-wave-smoke.ts",
+          "command": "node packages/main/dist/tasks/lattice-parallel-wave-smoke.js && node bin/lattice.js parent_roadmap_status --storyId=B-43de --json",
+          "result": "pass",
+          "note": "M10 Parallel collaboration scheduling is closed by its focused smoke/verifier and B-43de parent roadmap status reports the row closed with evidence refs.",
+          "headHash": "fcc117cab3e070c80273ceea39aaad3467453e19",
+          "materialHash": "2ed69e15b6a729fd679ffee7a7437cd1f315ea6ed0ff1937fe6685b54a222571",
+          "storyFilesHash": "333c85ff432f3c5f4763653d0ee56ed3e7ad49210ded5d49a725c5ad025f377a",
+          "timestamp": "2026-06-30T23:38:14.527Z"
+        },
+        {
+          "intentRef": "CHK-007:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/parent-roadmap-totality-smoke.ts",
+          "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js",
+          "result": "pass",
+          "note": "M10 cannot be closed by prose alone: parent-roadmap-totality-smoke requires row closureEvidence, claimBoundary, and legacy migration/open negative-control behavior.",
+          "headHash": "fcc117cab3e070c80273ceea39aaad3467453e19",
+          "materialHash": "2ed69e15b6a729fd679ffee7a7437cd1f315ea6ed0ff1937fe6685b54a222571",
+          "storyFilesHash": "333c85ff432f3c5f4763653d0ee56ed3e7ad49210ded5d49a725c5ad025f377a",
+          "timestamp": "2026-06-30T23:38:14.527Z"
+        },
+        {
+          "intentRef": "CHK-007:adversarial:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js && ! rg -n \"M4-M12 remain follow-up|M4-M12 remain|remain follow-up milestones\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "result": "pass",
+          "note": "M10 preserves claim boundaries: parent-roadmap-totality-smoke checks retired Authority overclaim patterns, and docs grep confirms the old follow-up wording is absent.",
+          "headHash": "fcc117cab3e070c80273ceea39aaad3467453e19",
+          "materialHash": "2ed69e15b6a729fd679ffee7a7437cd1f315ea6ed0ff1937fe6685b54a222571",
+          "storyFilesHash": "333c85ff432f3c5f4763653d0ee56ed3e7ad49210ded5d49a725c5ad025f377a",
+          "timestamp": "2026-06-30T23:38:14.527Z"
+        }
+      ]
     },
     {
       "id": "CHK-008",
@@ -86,9 +618,85 @@
       "relatedDocs": [
         "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-30T22:29:49.941Z",
+      "endTime": "2026-06-30T22:29:51.421Z",
+      "userSees": "\"M11\" row shows \"closed\": true and \"rollout-check-smoke\" plus roadmap guidance refs are listed.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "packages/main/src/core/parent-roadmap-totality.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/rollout-check-smoke.ts",
+          "packages/main/src/handlers/rollout-check.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Rollout migration and operator guidance closes only when rollout diagnostics and operator guidance are updated without broadening enforcement claims.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "M11 must not be closed by documentation text alone; parent-roadmap machine status must carry evidence refs.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "M11 must preserve claim boundaries, especially retired Authority Server semantics and read-only/advisory surfaces.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-008:happy:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/rollout-check-smoke.ts",
+          "command": "node packages/main/dist/tasks/rollout-check-smoke.js && node bin/lattice.js parent_roadmap_status --storyId=B-43de --json",
+          "result": "pass",
+          "note": "M11 Rollout migration and operator guidance is closed by its focused smoke/verifier and B-43de parent roadmap status reports the row closed with evidence refs.",
+          "headHash": "fcc117cab3e070c80273ceea39aaad3467453e19",
+          "materialHash": "2ed69e15b6a729fd679ffee7a7437cd1f315ea6ed0ff1937fe6685b54a222571",
+          "storyFilesHash": "333c85ff432f3c5f4763653d0ee56ed3e7ad49210ded5d49a725c5ad025f377a",
+          "timestamp": "2026-06-30T23:38:14.527Z"
+        },
+        {
+          "intentRef": "CHK-008:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/parent-roadmap-totality-smoke.ts",
+          "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js",
+          "result": "pass",
+          "note": "M11 cannot be closed by prose alone: parent-roadmap-totality-smoke requires row closureEvidence, claimBoundary, and legacy migration/open negative-control behavior.",
+          "headHash": "fcc117cab3e070c80273ceea39aaad3467453e19",
+          "materialHash": "2ed69e15b6a729fd679ffee7a7437cd1f315ea6ed0ff1937fe6685b54a222571",
+          "storyFilesHash": "333c85ff432f3c5f4763653d0ee56ed3e7ad49210ded5d49a725c5ad025f377a",
+          "timestamp": "2026-06-30T23:38:14.527Z"
+        },
+        {
+          "intentRef": "CHK-008:adversarial:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js && ! rg -n \"M4-M12 remain follow-up|M4-M12 remain|remain follow-up milestones\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "result": "pass",
+          "note": "M11 preserves claim boundaries: parent-roadmap-totality-smoke checks retired Authority overclaim patterns, and docs grep confirms the old follow-up wording is absent.",
+          "headHash": "fcc117cab3e070c80273ceea39aaad3467453e19",
+          "materialHash": "2ed69e15b6a729fd679ffee7a7437cd1f315ea6ed0ff1937fe6685b54a222571",
+          "storyFilesHash": "333c85ff432f3c5f4763653d0ee56ed3e7ad49210ded5d49a725c5ad025f377a",
+          "timestamp": "2026-06-30T23:38:14.527Z"
+        }
+      ]
     },
     {
       "id": "CHK-009",
@@ -97,9 +705,249 @@
       "relatedDocs": [
         "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-30T22:29:51.983Z",
+      "endTime": "2026-06-30T22:29:53.224Z",
+      "userSees": "\"M12\" row shows \"closed\": true and \"parent-roadmap-totality-smoke\" plus \"lattice-handoff-smoke\" are listed.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "packages/main/src/core/parent-roadmap-totality.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/lattice-handoff-smoke.ts",
+          "packages/main/src/tasks/parent-roadmap-totality-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Cross-track certification and handoff closes only after M4-M11 are closed and final handoff plus totality smokes prove the rollup.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "M12 must not be closed by documentation text alone; parent-roadmap machine status must carry evidence refs.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "M12 must preserve claim boundaries, especially retired Authority Server semantics and read-only/advisory surfaces.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-009:happy:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/parent-roadmap-totality-smoke.ts",
+          "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js && node packages/main/dist/tasks/lattice-handoff-smoke.js && node bin/lattice.js parent_roadmap_status --storyId=B-43de --json",
+          "result": "pass",
+          "note": "M12 Cross-track certification and handoff package is closed by its focused smoke/verifier and B-43de parent roadmap status reports the row closed with evidence refs.",
+          "headHash": "fcc117cab3e070c80273ceea39aaad3467453e19",
+          "materialHash": "2ed69e15b6a729fd679ffee7a7437cd1f315ea6ed0ff1937fe6685b54a222571",
+          "storyFilesHash": "333c85ff432f3c5f4763653d0ee56ed3e7ad49210ded5d49a725c5ad025f377a",
+          "timestamp": "2026-06-30T23:38:14.527Z"
+        },
+        {
+          "intentRef": "CHK-009:edge:0",
+          "kind": "logic_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/parent-roadmap-totality-smoke.ts",
+          "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js",
+          "result": "pass",
+          "note": "M12 cannot be closed by prose alone: parent-roadmap-totality-smoke requires row closureEvidence, claimBoundary, and legacy migration/open negative-control behavior.",
+          "headHash": "fcc117cab3e070c80273ceea39aaad3467453e19",
+          "materialHash": "2ed69e15b6a729fd679ffee7a7437cd1f315ea6ed0ff1937fe6685b54a222571",
+          "storyFilesHash": "333c85ff432f3c5f4763653d0ee56ed3e7ad49210ded5d49a725c5ad025f377a",
+          "timestamp": "2026-06-30T23:38:14.527Z"
+        },
+        {
+          "intentRef": "CHK-009:adversarial:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js && ! rg -n \"M4-M12 remain follow-up|M4-M12 remain|remain follow-up milestones\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "result": "pass",
+          "note": "M12 preserves claim boundaries: parent-roadmap-totality-smoke checks retired Authority overclaim patterns, and docs grep confirms the old follow-up wording is absent.",
+          "headHash": "fcc117cab3e070c80273ceea39aaad3467453e19",
+          "materialHash": "2ed69e15b6a729fd679ffee7a7437cd1f315ea6ed0ff1937fe6685b54a222571",
+          "storyFilesHash": "333c85ff432f3c5f4763653d0ee56ed3e7ad49210ded5d49a725c5ad025f377a",
+          "timestamp": "2026-06-30T23:38:14.527Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-30T22:29:32.271Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start M4 final evidence recording after implementation commit."
+    },
+    {
+      "timestamp": "2026-06-30T22:29:34.569Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "M4 completed after evidence-backed roadmap closure verification."
+    },
+    {
+      "timestamp": "2026-06-30T22:29:35.220Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start M5 final evidence recording after implementation commit."
+    },
+    {
+      "timestamp": "2026-06-30T22:29:36.724Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "M5 completed after evidence-backed roadmap closure verification."
+    },
+    {
+      "timestamp": "2026-06-30T22:29:37.406Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start M6 final evidence recording after implementation commit."
+    },
+    {
+      "timestamp": "2026-06-30T22:29:38.831Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "M6 completed after evidence-backed roadmap closure verification."
+    },
+    {
+      "timestamp": "2026-06-30T22:29:39.478Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start M7 final evidence recording after implementation commit."
+    },
+    {
+      "timestamp": "2026-06-30T22:29:40.770Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "M7 completed after evidence-backed roadmap closure verification."
+    },
+    {
+      "timestamp": "2026-06-30T22:29:41.531Z",
+      "phase": "DEV",
+      "itemId": "CHK-005",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start M8 final evidence recording after implementation commit."
+    },
+    {
+      "timestamp": "2026-06-30T22:29:43.379Z",
+      "phase": "DEV",
+      "itemId": "CHK-005",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "M8 completed after evidence-backed roadmap closure verification."
+    },
+    {
+      "timestamp": "2026-06-30T22:29:44.243Z",
+      "phase": "DEV",
+      "itemId": "CHK-006",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start M9 final evidence recording after implementation commit."
+    },
+    {
+      "timestamp": "2026-06-30T22:29:45.854Z",
+      "phase": "DEV",
+      "itemId": "CHK-006",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "M9 completed after evidence-backed roadmap closure verification."
+    },
+    {
+      "timestamp": "2026-06-30T22:29:46.544Z",
+      "phase": "DEV",
+      "itemId": "CHK-007",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start M10 final evidence recording after implementation commit."
+    },
+    {
+      "timestamp": "2026-06-30T22:29:49.006Z",
+      "phase": "DEV",
+      "itemId": "CHK-007",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "M10 completed after evidence-backed roadmap closure verification."
+    },
+    {
+      "timestamp": "2026-06-30T22:29:49.941Z",
+      "phase": "DEV",
+      "itemId": "CHK-008",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start M11 final evidence recording after implementation commit."
+    },
+    {
+      "timestamp": "2026-06-30T22:29:51.421Z",
+      "phase": "DEV",
+      "itemId": "CHK-008",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "M11 completed after evidence-backed roadmap closure verification."
+    },
+    {
+      "timestamp": "2026-06-30T22:29:51.983Z",
+      "phase": "DEV",
+      "itemId": "CHK-009",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start M12 final evidence recording after implementation commit."
+    },
+    {
+      "timestamp": "2026-06-30T22:29:53.224Z",
+      "phase": "DEV",
+      "itemId": "CHK-009",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "M12 completed after evidence-backed roadmap closure verification."
     }
   ]
 }
