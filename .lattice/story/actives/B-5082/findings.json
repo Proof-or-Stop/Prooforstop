@@ -17,6 +17,26 @@
       ],
       "signatureTag": "missing|md|code-drift-proofstory",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5082:F-002",
+      "desc": "High-assurance DONE equivalence currently treats high_assurance itself as a milestone path: packages/main/src/core/proofstory.ts:1267-1270 includes hardeningLevel === high_assurance in hasMilestonePath, and packages/main/src/core/proofstory.ts:1321-1328 then fails missing_confirmed_milestone_ledger when no confirmed ledger exists. That violates the progressive model in docs/requirements/decisions/proofstory-intent-collision-execution-plan.md:90-95, where the confirmed milestone ledger is only required if one exists, and M9 at docs/requirements/decisions/proofstory-intent-collision-execution-plan.md:1293-1300 lists high-assurance requirements as intent collision/red/spike/review escalation, not a milestone ledger. The smoke coverage only proves low-risk single-outcome lightweight DONE at packages/main/src/tasks/proofstory-intent-hardening-smoke.ts:617-619, so a single-outcome high-assurance story can be incorrectly blocked at DONE for missing milestone-ledger.json even though milestone intent was never triggered.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-30T01:35:40.310Z",
+      "reviewRound": "2026-06-30T01:32:36.585Z",
+      "reviewRunId": "B-5082:RR-001",
+      "_hash": "4d59ea96256e778768d448438c0125d10c4943d21d1b623f5ac4f2ad3006e557",
+      "files": [
+        "packages/main/src/core/proofstory.ts",
+        "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+        "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|high-assurance-equivalence",
+      "signatureTagSource": "auto"
     }
   ]
 }
