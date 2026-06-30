@@ -107,8 +107,9 @@
         "modify": [],
         "create": [],
         "test": [
-          "packages/main/src/tasks/*hash*smoke.ts",
-          "packages/main/src/tasks/*freshness*smoke.ts"
+          "packages/main/src/tasks/verification-freshness-smoke.ts",
+          "packages/main/src/tasks/review-escalation-smoke.ts",
+          "packages/main/src/tasks/delivery-check-freshness-smoke.ts"
         ]
       },
       "status": "pending",
@@ -136,7 +137,8 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "userSees": "The focused smoke proves unchanged snapshots are reusable while dirty material state and story-owned drift are rejected."
     },
     {
       "id": "CHK-004",
