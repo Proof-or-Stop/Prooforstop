@@ -4,7 +4,7 @@
   "title": "Implement parent roadmap intent-totality gate",
   "description": "Implement the B-9fc5 parent roadmap intent-totality gate end-to-end. Start with Red/Repro tests before runtime changes, then implement the state model, rollup evaluator, claim consumer, ProofStory binding, CLI/lifecycle projection, migration/rollout, and certification so parent governance DONE cannot be mistaken for full roadmap completion while child rows remain open.",
   "type": "feature",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "high",
   "riskSignals": [
     {
@@ -87,6 +87,15 @@
       "user": "Harmonygo",
       "sessionId": "sess-8452175a63511bd8",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-30T14:29:03.493Z",
+      "branch": "story/B-edb8",
+      "user": "Harmonygo",
+      "sessionId": "sess-8452175a63511bd8",
+      "agent": "main"
     }
   ],
   "worktree": {
@@ -94,5 +103,5 @@
     "branch": "story/B-edb8",
     "createdAt": "2026-06-30T13:27:53.423Z"
   },
-  "currentReviewRound": "2026-06-30T14:13:15.559Z"
+  "currentReviewRound": "2026-06-30T14:29:03.493Z"
 }
