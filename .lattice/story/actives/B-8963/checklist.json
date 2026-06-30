@@ -14,7 +14,7 @@
         ],
         "create": [],
         "test": [
-          "packages/main/src/tasks/*hash*smoke.ts"
+          "packages/main/src/tasks/verification-freshness-smoke.ts"
         ]
       },
       "status": "pending",
@@ -42,7 +42,8 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "userSees": "Proofbound exposes a command-local evidence hash snapshot contract that reports one coherent current HEAD/material/story-files binding without creating any persistent cache."
     },
     {
       "id": "CHK-002",
