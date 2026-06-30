@@ -73,9 +73,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-30T13:00:57.773Z",
       "verificationIntent": {
         "happy": [
           {
@@ -95,7 +95,42 @@
             "type": "docs"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "command": "rg -n \"ParentRoadmapLedger|ParentRollupResult|status vocabulary|claimType\" docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+          "result": "pass",
+          "note": "Plan defines the parent-child ledger, rollup result, status vocabulary, and claimType model.",
+          "headHash": "67e2012765680a0f7ae7a5494cf8998a994fee95",
+          "materialHash": "62dfc9ac5cabbf5cd41d4f5d200a0b688543c77a410d730ffd88c5faf7cbafaa",
+          "storyFilesHash": "d627a1648f7a40f8420c4d4abd616722922a106475de27ef4c3b18f41a2e1b29",
+          "timestamp": "2026-06-30T13:00:57.899Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "command": "rg -n \"parent governance|full roadmap completion|partial_parent_done|allRowsClosed=false\" docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+          "result": "pass",
+          "note": "Plan distinguishes parent governance completion from full roadmap completion using partial_parent_done and allRowsClosed=false semantics.",
+          "headHash": "67e2012765680a0f7ae7a5494cf8998a994fee95",
+          "materialHash": "62dfc9ac5cabbf5cd41d4f5d200a0b688543c77a410d730ffd88c5faf7cbafaa",
+          "storyFilesHash": "d627a1648f7a40f8420c4d4abd616722922a106475de27ef4c3b18f41a2e1b29",
+          "timestamp": "2026-06-30T13:00:58.005Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "command": "rg -n \"child-story-needed|child-story-active|deferred-with-human-approval|no full-roadmap claim\" docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+          "result": "pass",
+          "note": "Plan rejects full-roadmap claims when child rows are needed, active, blocked, stale, or improperly deferred.",
+          "headHash": "67e2012765680a0f7ae7a5494cf8998a994fee95",
+          "materialHash": "62dfc9ac5cabbf5cd41d4f5d200a0b688543c77a410d730ffd88c5faf7cbafaa",
+          "storyFilesHash": "d627a1648f7a40f8420c4d4abd616722922a106475de27ef4c3b18f41a2e1b29",
+          "timestamp": "2026-06-30T13:00:58.110Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
