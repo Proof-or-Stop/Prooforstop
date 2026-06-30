@@ -255,6 +255,26 @@
           "scripts/verify-process-fact-contract.mjs",
           "lattice admissibility_waterline --storyId=B-cd3a --format=json"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run proof admissibility smoke and waterline checks to prove high-risk consumers enforce M7 admissibility for DONE_REQUIRED, review assurance, handoff proof refs, and Authority-facing proof consumers.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Verify diagnostic waterline output remains read-only while configured high-risk consumer gates hard-fail inadmissible proof, with process fact registry entries updated for any gate-consumed semantics.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Fail if local CLI core reports productionDone true, or if any high-risk consumer accepts stale, legacy, unbound, or otherwise inadmissible proof after M7 enforcement is configured.",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
