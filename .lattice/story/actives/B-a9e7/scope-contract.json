@@ -1,0 +1,22 @@
+{
+  "storyId": "B-a9e7",
+  "mode": "enforce",
+  "allowedModify": [
+    "docs/requirements/decisions/dev-memory.md",
+    "packages/main/src/core/dev-memory.ts",
+    "packages/main/src/handlers/dev-memory.ts",
+    ".lattice/dev-memory/experience.jsonl"
+  ],
+  "allowedCreate": [
+    "packages/main/src/tasks/dev-memory-supersession-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/dev-memory-supersession-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-30T15:48:14.965Z",
+  "updatedAt": "2026-06-30T15:48:14.965Z"
+}
