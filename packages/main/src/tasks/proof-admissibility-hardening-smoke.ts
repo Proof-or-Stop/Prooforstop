@@ -106,7 +106,7 @@ function seedHandoffStory(store: StoryStore): void {
 }
 
 function assertBlockedHandoffSummary(value: { admissibilitySummary: { blocked: boolean; reasons: string[]; diagnostics: Array<{ mode: string }> }; productionDone: false }): void {
-  assert.equal(value.productionDone, false, 'local handoff command output never claims productionDone');
+  assert.equal(value.productionDone, false, 'local handoff command output never claims release readiness');
   assert.equal(value.admissibilitySummary.blocked, true, 'project enforce policy blocks inadmissible HANDOFF proof refs');
   assert.ok(value.admissibilitySummary.reasons.some(reason => reason.includes('proof_admissibility_blocked')), 'blocked HANDOFF reason is surfaced');
   assert.ok(value.admissibilitySummary.diagnostics.some(diagnostic => diagnostic.mode === 'enforce'), 'HANDOFF diagnostic uses project enforce mode');
@@ -179,7 +179,7 @@ function assertBlockedHandoffSummary(value: { admissibilitySummary: { blocked: b
     consumer: 'AUTHORITY_GATE_DECISION',
     claim: 'production-completion',
     policy: enforceHighRisk,
-    checks: currentValidChecks('lattice.authority_gate_decision.v1'),
+    checks: currentValidChecks('lattice.external_gate_decision.v1'),
   });
   assert.equal(authorityPass.allowed, true, 'Authority-facing gate decision can be admissible evidence for its matching consumer');
   assert.equal(authorityPass.blocking, false, 'valid Authority-facing gate decision does not block');
@@ -191,7 +191,7 @@ function assertBlockedHandoffSummary(value: { admissibilitySummary: { blocked: b
     claim: 'production-completion',
     policy: enforceHighRisk,
     checks: {
-      ...currentValidChecks('lattice.authority_gate_decision.v1'),
+      ...currentValidChecks('lattice.external_gate_decision.v1'),
       temporalAndMaterialBindingValid: false,
     },
   });
@@ -203,7 +203,7 @@ function assertBlockedHandoffSummary(value: { admissibilitySummary: { blocked: b
     consumer: 'AUTHORITY_GATE_DECISION',
     claim: 'production-completion',
     policy: enforceHighRisk,
-    checks: currentValidChecks('lattice.authority_receipt.v1'),
+    checks: currentValidChecks('lattice.external_receipt.v1'),
   });
   assert.equal(plainReceipt.blocking, true, 'plain Authority receipt cannot replace a gate decision in enforce mode');
   assert.ok(plainReceipt.reasons.includes('artifact_consumer_mismatch'), 'plain receipt exposes consumer mismatch');
@@ -216,9 +216,9 @@ function assertBlockedHandoffSummary(value: { admissibilitySummary: { blocked: b
     admissibleProofRefs: ['local-diagnostic-ref'],
     policy: enforceHighRisk,
   });
-  assert.equal(summary.productionDone, false, 'handoff summary never sets productionDone');
-  assert.equal(summary.authorityDone, false, 'handoff summary never sets authorityDone');
-  assert.equal(summary.fullAuthorityDone, false, 'handoff summary never sets fullAuthorityDone');
+  assert.equal(summary.productionDone, false, 'handoff summary never sets retired release flags');
+  assert.equal(summary.authorityDone, false, 'handoff summary never sets retired adapter flags');
+  assert.equal(summary.fullAuthorityDone, false, 'handoff summary never sets retired aggregate flags');
   assert.equal(summary.receiptVerified, false, 'handoff summary does not verify receipts');
   assert.equal(summary.blocked, true, 'configured enforce mode blocks inadmissible handoff proof refs');
   assert.match(summary.reasons.join('\n'), /proof_admissibility_blocked/, 'handoff block reason is surfaced');
@@ -262,8 +262,8 @@ function assertBlockedHandoffSummary(value: { admissibilitySummary: { blocked: b
     json: true,
   }) as HandoffPack;
   assertBlockedHandoffSummary(pack);
-  assert.equal((pack as unknown as Record<string, unknown>).authorityDone, undefined, 'handoff pack does not claim authorityDone');
-  assert.equal((pack as unknown as Record<string, unknown>).fullAuthorityDone, undefined, 'handoff pack does not claim fullAuthorityDone');
+  assert.equal((pack as unknown as Record<string, unknown>).authorityDone, undefined, 'handoff pack does not claim retired adapter flags');
+  assert.equal((pack as unknown as Record<string, unknown>).fullAuthorityDone, undefined, 'handoff pack does not claim retired aggregate flags');
 
   const legacyWarnSummary = buildHandoffAdmissibilitySummary({
     fromHost: pack.fromHost,

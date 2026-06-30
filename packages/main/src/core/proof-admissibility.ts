@@ -206,7 +206,7 @@ const LEGACY_RECEIPT_REMEDIATION =
 const PRODUCTION_GATE_REMEDIATION =
   'Re-run the matching local gate verifier for the current story/head/material tuple and target consumer.';
 const AUTHORITY_ADAPTER_REMEDIATION =
-  'Verify the Authority-facing gate decision with the external adapter policy for the exact story/head/material tuple; local CLI core records evidence scope but never mints productionDone.';
+  'Verify the external gate decision with the adapter policy for the exact story/head/material tuple; local CLI core records evidence scope but never mints release readiness.';
 
 export const PROOF_SURFACE_REGISTRY = [
   {
@@ -273,7 +273,7 @@ export const PROOF_SURFACE_REGISTRY = [
     artifactRole: 'authority-decision',
     temporalRole: 'current-state',
     producerBoundary: 'authority-owned',
-    schemaVersions: ['lattice.authority_gate_decision.v1'],
+    schemaVersions: ['lattice.external_gate_decision.v1'],
     strictShapeRequired: true,
     semanticDigestRequired: true,
     signatureOrReceiptBindingRequired: true,
@@ -282,7 +282,7 @@ export const PROOF_SURFACE_REGISTRY = [
     allowedClaims: [
       { claim: 'production-completion', consumers: ['AUTHORITY_GATE_DECISION'], productionDoneEligible: false },
     ],
-    producerBoundaryNote: 'Authority-facing gate decision refs are external adapter evidence inputs; the local CLI core does not convert them into productionDone.',
+    producerBoundaryNote: 'External gate decision refs are adapter evidence inputs; the local CLI core does not convert them into release readiness.',
     remediation: AUTHORITY_ADAPTER_REMEDIATION,
   },
   {
@@ -291,7 +291,7 @@ export const PROOF_SURFACE_REGISTRY = [
     artifactRole: 'authority-decision',
     temporalRole: 'current-state',
     producerBoundary: 'authority-owned',
-    schemaVersions: ['lattice.authority_receipt.v1'],
+    schemaVersions: ['lattice.external_receipt.v1'],
     strictShapeRequired: true,
     semanticDigestRequired: true,
     signatureOrReceiptBindingRequired: true,

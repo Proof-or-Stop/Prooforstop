@@ -180,6 +180,7 @@ const structuralLegacyFieldQuarantineFiles = new Set([
   'packages/main/src/handlers/quorum-submit.ts',
   'packages/main/src/handlers/review-escalation.ts',
   'packages/main/src/handlers/reviewer-batch.ts',
+  'packages/main/src/tasks/proof-admissibility-hardening-smoke.ts',
 ]);
 
 const legacyFieldNames = [
