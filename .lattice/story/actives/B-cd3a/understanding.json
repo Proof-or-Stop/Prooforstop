@@ -1,0 +1,37 @@
+{
+  "task": "Close the remaining Global Lifecycle Control Plane and Proof Admissibility document DoD gaps without shrinking the seven milestone intent.",
+  "outcome": "User-visible completion transcript: global_control_status shows proofM7Enforcement=true, queueCleanupEnforcement=true, and tierCCleanup=true or explicitly documented not_applicable with user-approved shrinkage; queue_governance_status groups Tier-C experiment stories as experiment-batch-exception while malformed entries remain cleanup-required; admissibility_waterline and lifecycle gates show high-risk consumers are enforce-ready; ProofStory checks report 7/7 milestones covered.",
+  "facts": [
+    "B-5082 implemented ProofStory anti-shrinkage mechanics but did not implement all Global Control Plane or Proof Admissibility document DoD items.",
+    "B-e1a8 enabled proofStory devGateMode, reviewGateMode, and doneGateMode in enforce mode.",
+    "global_control_status currently reports proofM7Enforcement=false, queueCleanupEnforcement=false, tierCCleanup=false.",
+    "queue_governance_status currently reports 22 duplicate candidates and 0 experiment batch exceptions.",
+    "admissibility_waterline is present but diagnosticOnly and currently reports fail/stale/legacy rows."
+  ],
+  "constraints": [
+    "Do not use or touch .omx.",
+    "Do not create a second lifecycle state machine; lifecycle gates remain authoritative.",
+    "Do not claim Authority Server productionDone from local CLI evidence.",
+    "Do not delete Tier-C experiment evidence while implementing queue governance.",
+    "Use ProofStory gates to prove milestone coverage before DEV and DONE.",
+    "Use English for code, docs, artifacts, and user-facing repository text."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+    "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+    "lattice.config.json",
+    "packages/main/src/core/lifecycle-control",
+    "packages/main/src/handlers/lifecycle-control.ts",
+    "packages/main/src/core/evidence/admissibility",
+    "packages/main/src/core/proof-admissibility.ts",
+    "packages/main/src/core/proof-admissibility-gates.ts",
+    "packages/main/src/core/proof-admissibility-legacy.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/tasks",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "timestamp": "2026-06-30T09:33:59.627Z"
+}

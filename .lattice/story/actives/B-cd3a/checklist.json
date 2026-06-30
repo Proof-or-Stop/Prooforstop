@@ -10,7 +10,19 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+        ],
+        "create": [],
+        "test": [
+          "lattice global_control_status --format=json",
+          "lattice admissibility_waterline --storyId=B-cd3a --format=json",
+          "lattice queue_governance_status --format=json"
+        ]
+      }
     },
     {
       "id": "CHK-002",
