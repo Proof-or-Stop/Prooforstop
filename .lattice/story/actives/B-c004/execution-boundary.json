@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-c004",
+  "allowedCommands": [
+    "git add *",
+    "git commit *",
+    "git diff *",
+    "git log *",
+    "git merge main",
+    "git merge-base *",
+    "git rev-parse *",
+    "git status *",
+    "node bin/lattice.js *",
+    "node packages/main/dist/cli.js *",
+    "node packages/main/dist/tasks/*",
+    "node packages/main/src/tasks/*",
+    "node scripts/*",
+    "npm --prefix packages/main run build",
+    "npm --prefix packages/main run test *",
+    "npm --prefix packages/main test *",
+    "rg *"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "codex",
+    "git",
+    "lattice-cli",
+    "node",
+    "npm",
+    "rg"
+  ],
+  "allowedPaths": [
+    "AGENTS.md",
+    "CLAUDE.md",
+    "docs/requirements",
+    "docs/requirements/decisions",
+    "lattice.config.json",
+    "package-lock.json",
+    "package.json",
+    "packages/main/package-lock.json",
+    "packages/main/package.json",
+    "packages/main/src",
+    "packages/main/tests",
+    "scripts"
+  ],
+  "excludedCommands": [
+    "git checkout -- *",
+    "git clean -fd *",
+    "git push *",
+    "git reset --hard *",
+    "npm publish *",
+    "omx",
+    "omx *",
+    "rm -rf *"
+  ],
+  "excludedTools": [
+    "oh-my-codex",
+    "omx"
+  ],
+  "excludedPaths": [
+    ".omx",
+    "docs/story",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "codex",
+  "confirmationNote": "Execution must first audit existing coverage for the seven rows, then add red/diagnostic tests for uncovered rows, then implement or formally retire each capability, then run build/test/Lattice gate evidence before DONE. Authority Server must remain retired/legacy only.",
+  "createdAt": "2026-06-30T14:58:37.263Z",
+  "updatedAt": "2026-06-30T14:58:37.263Z",
+  "_hash": "7529293413c55ef82350d9160fecde2f34f82269767f8251eef5c7125c62430f"
+}
