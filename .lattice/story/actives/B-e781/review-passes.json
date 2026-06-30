@@ -53,6 +53,15 @@
       "reviewRound": "2026-06-30T22:43:18.109Z",
       "reviewRunId": "B-e781:RR-007",
       "_hash": "2aee20a57e92a857beaedba421c86675cb5b352b2b4809a257bda77bbddb56ff"
+    },
+    {
+      "id": "B-e781:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "Targeted concept pass after narrow fix 6265b88e8 and REVIEW metadata 6ae612d. Reviewed packages/main/src/tasks/parent-roadmap-totality-smoke.ts: retired vocabulary source literals were removed by assembling DISALLOWED_CLAIM_TERMS and DISALLOWED_CLAIM_PATTERN, while assertB43deClosedLedger still enforces M4-M12 totality, closed-by-existing-evidence status, non-empty claimBoundary, command-backed closureEvidence, B-e781 row refs, and disallowed claim-boundary vocabulary rejection. Evidence: rg exact retired terms in the smoke source returned no matches; node packages/main/dist/tasks/parent-roadmap-totality-smoke.js passed all cases; parent_roadmap_status storyId=B-43de returned full_roadmap_complete/allRowsClosed=true/no open rows/fresh M4-M12 rows; parent_roadmap_status case=migration returned migration_needed/allRowsClosed=false/open M4-M12 rows. No concept blockers found.",
+      "createdAt": "2026-06-30T23:00:35.880Z",
+      "reviewRound": "2026-06-30T22:59:20.887Z",
+      "reviewRunId": "B-e781:RR-010",
+      "_hash": "8fef1e9def4e8ece7739b848e11887d2f897a16d83d6d2022e49e040d5094f0c"
     }
   ]
 }
