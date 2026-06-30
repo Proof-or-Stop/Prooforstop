@@ -1,0 +1,26 @@
+{
+  "findings": [
+    {
+      "id": "B-8963:F-001",
+      "desc": "Test-coverage blocker: snapshot reuse is verified only through a direct test-only buildDoneChecklist call with evidenceHashSnapshot. rg shows no production DONE/session/lifecycle gate call site supplies evidenceHashSnapshot, so the real gates still call buildDoneChecklist without the command-local snapshot and can keep recomputing/falling back while the new smokes pass. This leaves actual unchanged snapshot reuse across DONE/review gates unproven, though dirty material rejection, story-owned drift, no-snapshot fallback, and docs boundary are covered by focused smokes.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-30T22:33:52.304Z",
+      "reviewRound": "2026-06-30T22:30:00.663Z",
+      "reviewRunId": "B-8963:RR-005",
+      "_hash": "6393fff79bb3a0450169951d3f2e4b4fcd556a8fe4dfe03ee690aa688a375083",
+      "files": [
+        "packages/main/src/core/done-oracle.ts",
+        "packages/main/src/tasks/verification-freshness-smoke.ts",
+        "packages/main/src/handlers/phase-gates.ts",
+        "packages/main/src/core/lifecycle-readiness.ts",
+        "packages/main/src/handlers/session.ts"
+      ],
+      "signatureTag": "missing|ts|test-coverage-blocker",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
