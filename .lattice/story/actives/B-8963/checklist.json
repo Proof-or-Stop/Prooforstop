@@ -104,9 +104,9 @@
           "packages/main/src/tasks/verification-freshness-smoke.ts"
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-30T22:25:37.285Z",
       "verificationIntent": {
         "happy": [
           {
@@ -130,7 +130,42 @@
           }
         ]
       },
-      "userSees": "User sees \"DONE currentBinding reused: materialHash=<hash> storyFilesHash=<hash>\" in the focused smoke output."
+      "userSees": "User sees \"DONE currentBinding reused: materialHash=<hash> storyFilesHash=<hash>\" in the focused smoke output.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/verification-freshness-smoke.js",
+          "result": "pass",
+          "note": "Smoke built a DONE checklist with a reusable supplied EvidenceHashSnapshot and printed DONE currentBinding reused: materialHash=<hash> storyFilesHash=<hash>.",
+          "headHash": "c383e4bb6ef1c7a1cee8e96c4bdbb762e8dd53a8",
+          "materialHash": "5c42e50374c5c59ef976fb5a70f51e4b74487c651f908acaa9113d87d88f196d",
+          "storyFilesHash": "fb87c9dd9ea3d246a293da1ad6341bd28392cab67463a3068f231da9c8eb830c",
+          "timestamp": "2026-06-30T22:25:37.483Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:review-escalation-freshness-root",
+          "result": "pass",
+          "note": "Existing DONE/review escalation freshness-root smoke passed without supplying the new snapshot option, preserving fallback behavior.",
+          "headHash": "c383e4bb6ef1c7a1cee8e96c4bdbb762e8dd53a8",
+          "materialHash": "5c42e50374c5c59ef976fb5a70f51e4b74487c651f908acaa9113d87d88f196d",
+          "storyFilesHash": "fb87c9dd9ea3d246a293da1ad6341bd28392cab67463a3068f231da9c8eb830c",
+          "timestamp": "2026-06-30T22:25:37.665Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/verification-freshness-smoke.js",
+          "result": "pass",
+          "note": "Smoke changed a material file after capture and checkEvidenceHashSnapshotReuse rejected the stale supplied snapshot instead of accepting it as current.",
+          "headHash": "c383e4bb6ef1c7a1cee8e96c4bdbb762e8dd53a8",
+          "materialHash": "5c42e50374c5c59ef976fb5a70f51e4b74487c651f908acaa9113d87d88f196d",
+          "storyFilesHash": "fb87c9dd9ea3d246a293da1ad6341bd28392cab67463a3068f231da9c8eb830c",
+          "timestamp": "2026-06-30T22:25:37.841Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
