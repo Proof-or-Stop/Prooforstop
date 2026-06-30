@@ -4,7 +4,7 @@
   "title": "Implement ProofStory M0-M9 progressive intent hardening lifecycle",
   "description": "Implement the full ProofStory M0-M9 plan from docs/requirements/decisions/proofstory-intent-collision-execution-plan.md. Existing M0-M2 dry-run commands are present, but the remaining intent collision, contract/gate, scope shrinkage, red evidence, spike evidence, REVIEW completeness, DONE intent equivalence, and risk-adaptive enforcement surfaces must be completed coherently without introducing a second lifecycle state machine or automatic parallel child-story execution.",
   "type": "feature",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "keywords": [
     "proofstory",
@@ -28,7 +28,7 @@
   ],
   "createdAt": "2026-06-29T23:22:27.616Z",
   "startedAt": "2026-06-29T23:22:27.616Z",
-  "endedAt": null,
+  "endedAt": "2026-06-30T00:45:27.948Z",
   "events": [
     {
       "phase": "INIT",
@@ -119,12 +119,16 @@
       "user": "Harmonygo",
       "sessionId": "sess-a09e44f9dfa2abfb",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-30T00:45:27.948Z",
+      "branch": "story/B-f7b7",
+      "user": "Harmonygo",
+      "sessionId": "sess-a09e44f9dfa2abfb",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-f7b7",
-    "branch": "story/B-f7b7",
-    "createdAt": "2026-06-29T23:24:34.335Z"
-  },
   "currentReviewRound": "2026-06-30T00:30:27.039Z"
 }
