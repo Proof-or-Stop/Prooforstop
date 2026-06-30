@@ -123,7 +123,7 @@
       "desc": "docs policy overclaim: docs/requirements/decisions/proofstory-intent-collision-execution-plan.md Risk-Adaptive Assurance table still says High-assurance red evidence is required and spike is required, which conflicts with the later M9 trigger-based policy that red evidence and spike apply only when their corresponding policy triggers apply.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-06-30T01:50:39.783Z",
@@ -134,7 +134,11 @@
         "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md"
       ],
       "signatureTag": "missing|md|docs-policy-overclaim",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Updated the Risk-Adaptive Assurance table so high-assurance always requires independent intent collision, stronger REVIEW critic, and applicable escalation, while red evidence and spike are required only when their corresponding red/spike policy triggers apply. Verified with npm --prefix packages/main run build, node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js, node scripts/verify-process-fact-contract.mjs, and git diff --check.",
+      "resolvedAt": "2026-06-30T01:54:33.781Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5082:F-007",
