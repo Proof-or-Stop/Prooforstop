@@ -35,7 +35,7 @@ import { buildDoneChecklist, type DoneCheckRow } from '../core/done-oracle.js';
 import { isBlockingOracleRow } from '../core/oracle-row.js';
 import { buildMainSyncReadiness, renderMainSyncReadinessAdvisory } from '../core/lifecycle-readiness.js';
 import { findStaleEvidence, renderEvidenceStaleHint } from '../core/evidence-stale-hint.js';
-import { currentGitHead } from '../core/evidence-freshness.js';
+import { currentGitHead, tryCaptureEvidenceHashSnapshot } from '../core/evidence-freshness.js';
 import { getSessionId, summarizeOwnerLease, type OwnerLeaseView } from '../core/story-owner-lease.js';
 import { renderCapsuleBrief, validateCapsuleRefs } from '../core/story-capsule.js';
 import { buildScopeProtectionSummary, renderScopeProtectionSummary } from '../core/review-scope-binding.js';
@@ -1298,7 +1298,11 @@ export function createSessionHandlers(ctx: HandlerContext) {
       let donePrecheck: DonePrecheckSummary | null = null;
       if (story.phase === 'TEST') {
         try {
-          const rows = buildDoneChecklist(storyId, ctx.store, ctx.root);
+          const evidenceHashSnapshot = tryCaptureEvidenceHashSnapshot({ gitCwd: ctx.root, metadataRoot: ctx.root, ref: 'HEAD' });
+          const rows = buildDoneChecklist(storyId, ctx.store, ctx.root, {
+            gitCwd: ctx.root,
+            evidenceHashSnapshot,
+          });
           donePrecheck = summarizeDonePrecheck(rows);
           lines.push('');
           lines.push('## DONE pre-check');

@@ -32,7 +32,7 @@ import type { ChecklistData, StoryPhase, ReviewLoopIteration, ScopeCheckResult, 
 import { listActiveLoops, deriveLatestLoopRecord } from '../core/review-loop.js';
 import { getStateName, getGuardFailureReason } from '../core/machine.js';
 import { resolveLocalCodexVerifyCommand } from '../core/codex-adapter-checks.js';
-import { checkEvidenceFreshnessForGit, currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
+import { checkEvidenceFreshnessForGit, currentGitHead, currentMaterialHash, currentStoryFilesHash, tryCaptureEvidenceHashSnapshot } from '../core/evidence-freshness.js';
 import { reportHealthIssue } from '../core/health.js';
 import { loadConfig } from '../core/config.js';
 import { resolveWorkflowPolicy } from '../core/workflow-policy.js';
@@ -765,7 +765,8 @@ export function runDoneOracleGate(
   // behavior is byte-identical.
   gitCwd: string = root,
 ): string {
-  const checkRows: DoneCheckRow[] = buildDoneChecklist(storyId, store, root, { gitCwd });
+  const evidenceHashSnapshot = tryCaptureEvidenceHashSnapshot({ gitCwd, metadataRoot: root, ref: 'HEAD' });
+  const checkRows: DoneCheckRow[] = buildDoneChecklist(storyId, store, root, { gitCwd, evidenceHashSnapshot });
   const rendered = renderDoneChecklist(storyId, checkRows);
   const failed = checkRows.filter(r => r.status === 'fail');
 

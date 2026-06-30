@@ -196,6 +196,14 @@ export function captureEvidenceHashSnapshot(args: EvidenceHashSnapshotCaptureArg
   };
 }
 
+export function tryCaptureEvidenceHashSnapshot(args: EvidenceHashSnapshotCaptureArgs): EvidenceHashSnapshot | undefined {
+  try {
+    return captureEvidenceHashSnapshot(args);
+  } catch {
+    return undefined;
+  }
+}
+
 export function checkEvidenceHashSnapshotReuse(
   snapshot: EvidenceHashSnapshot | undefined,
   args: EvidenceHashSnapshotCaptureArgs,

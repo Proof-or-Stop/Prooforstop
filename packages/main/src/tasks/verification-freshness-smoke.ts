@@ -2,9 +2,10 @@
 
 import { strict as assert } from 'node:assert';
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import {
   captureEvidenceHashSnapshot,
   checkEvidenceFreshnessForGit,
@@ -205,6 +206,38 @@ function assertEvidenceHashSnapshotReusePreflight(): void {
 }
 
 assertEvidenceHashSnapshotReusePreflight();
+
+function assertProductionCallSitesThreadEvidenceHashSnapshot(): void {
+  const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
+  const source = (path: string) => readFileSync(join(packageRoot, 'src', path), 'utf8');
+  const phaseGates = source('handlers/phase-gates.ts');
+  const lifecycleReadiness = source('core/lifecycle-readiness.ts');
+  const session = source('handlers/session.ts');
+
+  assert.match(
+    phaseGates,
+    /const evidenceHashSnapshot = tryCaptureEvidenceHashSnapshot\(\{ gitCwd, metadataRoot: root, ref: 'HEAD' \}\);[\s\S]*buildDoneChecklist\(storyId, store, root, \{ gitCwd, evidenceHashSnapshot \}\)/,
+    'runDoneOracleGate should capture and pass a command-local evidenceHashSnapshot',
+  );
+  assert.match(
+    lifecycleReadiness,
+    /const evidenceHashSnapshot = tryCaptureEvidenceHashSnapshot\(\{ gitCwd, metadataRoot: root, ref: 'HEAD' \}\);[\s\S]*buildDoneRows\(store, storyId, root, gitCwd, evidenceHashSnapshot\)/,
+    'buildStoryReadinessReport should capture once and pass the snapshot to DONE rows',
+  );
+  assert.match(
+    lifecycleReadiness,
+    /buildDoneChecklist\(storyId, store, root, \{[\s\S]*evidenceHashSnapshot,[\s\S]*\}\)/,
+    'buildDoneRows should forward evidenceHashSnapshot to buildDoneChecklist',
+  );
+  assert.match(
+    session,
+    /const evidenceHashSnapshot = tryCaptureEvidenceHashSnapshot\(\{ gitCwd: ctx\.root, metadataRoot: ctx\.root, ref: 'HEAD' \}\);[\s\S]*buildDoneChecklist\(storyId, ctx\.store, ctx\.root, \{[\s\S]*evidenceHashSnapshot,[\s\S]*\}\)/,
+    'session_brief DONE pre-check should pass a command-local evidenceHashSnapshot',
+  );
+  console.log('production DONE/session/lifecycle call sites thread evidenceHashSnapshot');
+}
+
+assertProductionCallSitesThreadEvidenceHashSnapshot();
 
 const metadataOnly = [
   '.lattice/story/actives/B-smoke/checklist.json',
