@@ -1,0 +1,23 @@
+{
+  "findings": [
+    {
+      "id": "B-c004:F-001",
+      "desc": "Verified cwd-dependent smoke regression: the new closure-audit assertions read docs/requirements/decisions/control-plane-proof-capability-closure-audit.md via join(process.cwd(), CLOSURE_AUDIT_PATH). Standard package execution changes cwd to packages/main, so npm --prefix packages/main run test:proof-admissibility-hardening fails with ENOENT at packages/main/docs/requirements/decisions/control-plane-proof-capability-closure-audit.md. Running node packages/main/dist/tasks/proof-admissibility-hardening-smoke.js from repo root passes, and running node dist/tasks/lifecycle-control-smoke.js from packages/main fails the same way. Anchor the audit path to the repo root/module location or make the smoke resolve both supported cwd modes.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-30T15:31:32.807Z",
+      "reviewRound": "2026-06-30T15:26:25.801Z",
+      "reviewRunId": "B-c004:RR-008",
+      "_hash": "df8a348ae3fc778d45d882a0911c47fe2947ba1b1bfbb48d310e2a0d9feef863",
+      "files": [
+        "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts",
+        "packages/main/src/tasks/lifecycle-control-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|verified-dependent-smoke",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
