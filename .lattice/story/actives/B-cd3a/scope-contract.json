@@ -67,7 +67,44 @@
     "packages/main/src/handlers/providers"
   ],
   "scopeChangeReason": "Add slice-plan artifact as required ProofStory evidence for oversized milestone-ledger slicing before DEV admission.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Implementation discovered these files are direct gate-consumer paths for the frozen milestones: proof-admissibility policy config, DONE_REQUIRED enforcement, HANDOFF proof-ref propagation, lifecycle-control consumption waterline, review assurance/escalation consumers, transition runtime hard-blocks, and focused smoke coverage. The scope remains within the accepted B-cd3a control-plane/proof-admissibility intent and does not add unrelated product work.",
+      "timestamp": "2026-06-30T10:16:49.301Z",
+      "paths": [
+        "packages/main/src/core/config.ts",
+        "packages/main/src/core/done-required-validation.ts",
+        "packages/main/src/core/lattice-handoff.ts",
+        "packages/main/src/core/lifecycle-control/consumption/index.ts",
+        "packages/main/src/core/proof-admissibility-handoff.ts",
+        "packages/main/src/core/review-assurance-floor.ts",
+        "packages/main/src/core/review-escalation.ts",
+        "packages/main/src/handlers/lattice-handoff.ts",
+        "packages/main/src/handlers/transition-orchestrator.ts",
+        "packages/main/src/tasks/lifecycle-control-smoke.ts",
+        "packages/main/src/tasks/lattice-handoff-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/config.ts",
+        "packages/main/src/core/done-required-validation.ts",
+        "packages/main/src/core/lattice-handoff.ts",
+        "packages/main/src/core/lifecycle-control/consumption/index.ts",
+        "packages/main/src/core/proof-admissibility-handoff.ts",
+        "packages/main/src/core/review-assurance-floor.ts",
+        "packages/main/src/core/review-escalation.ts",
+        "packages/main/src/handlers/lattice-handoff.ts",
+        "packages/main/src/handlers/transition-orchestrator.ts",
+        "packages/main/src/tasks/lifecycle-control-smoke.ts",
+        "packages/main/src/tasks/lattice-handoff-smoke.ts"
+      ],
+      "affectedPathCount": 11,
+      "phase": "DEV",
+      "headHash": "2edf1a330d4c1b991661b1974ac0bf768f1dd431",
+      "materialHash": "5868d66026c8c12c86ceccf0a7d8d0307a8ef029327451330e3f9b128366f845"
+    }
+  ],
   "createdAt": "2026-06-30T09:38:36.338Z",
-  "updatedAt": "2026-06-30T09:40:07.252Z"
+  "updatedAt": "2026-06-30T10:16:49.301Z"
 }
