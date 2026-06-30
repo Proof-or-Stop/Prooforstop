@@ -158,7 +158,7 @@
       "context": "Replace supersession/legacy-readable expectations with zero old-brand memory checks across project/global list/search while keeping current host-policy memories intact.",
       "status": "done",
       "startTime": null,
-      "endTime": "2026-06-30T22:17:50.905Z",
+      "endTime": "2026-06-30T22:27:21.068Z",
       "userSees": "User sees the dev-memory smoke prove zero old-brand memory hits instead of legacy-readable supersession.",
       "files": {
         "modify": [
@@ -198,22 +198,22 @@
           "kind": "manual_transcript",
           "command": "node packages/main/dist/tasks/dev-memory-supersession-smoke.js",
           "result": "pass",
-          "note": "Smoke reports dev-memory physical cleanup smoke passed (8 checks), proving zero old-brand hits in project/global memory outputs.",
-          "headHash": "c7fe4631ec84d30d012eed990f9d42eee171a008",
-          "materialHash": "9c4774806a3892f582374dba0907a49264c3325403026a8b1f2b132d126c8666",
-          "storyFilesHash": "81400a0b7d8a2f8e65a882c673128ebc1b4bb3f50307cbd43cb1a04987d157e6",
-          "timestamp": "2026-06-30T22:17:51.098Z"
+          "note": "Hermetic smoke reports dev-memory physical cleanup smoke passed (9 checks), proving zero old-brand hits in project and fixture global memory outputs.",
+          "headHash": "d32870e504030be2c9d35f44e88b95632f755bd8",
+          "materialHash": "823bd49a615a3a66e2937be4d50c8ca0992f84d0b8ad607792e44df0ee525ccc",
+          "storyFilesHash": "01c63a05e64648d526a76ef686a094d29af8dd202174a2be94cdb23cb3f8c84d",
+          "timestamp": "2026-06-30T22:27:21.229Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
           "kind": "manual_transcript",
-          "command": "node packages/main/dist/tasks/dev-memory-supersession-smoke.js",
+          "command": "env LATTICE_GLOBAL_MEMORY_DIR=$(mktemp -d) node packages/main/dist/tasks/dev-memory-supersession-smoke.js",
           "result": "pass",
-          "note": "Smoke verifies current project memory guidance and host-policy rows remain searchable and non-authoritative.",
-          "headHash": "c7fe4631ec84d30d012eed990f9d42eee171a008",
-          "materialHash": "9c4774806a3892f582374dba0907a49264c3325403026a8b1f2b132d126c8666",
-          "storyFilesHash": "81400a0b7d8a2f8e65a882c673128ebc1b4bb3f50307cbd43cb1a04987d157e6",
-          "timestamp": "2026-06-30T22:17:51.268Z"
+          "note": "Quality reviewer repro is fixed: smoke seeds a temporary global memory fixture and passes with an empty external global-memory directory.",
+          "headHash": "d32870e504030be2c9d35f44e88b95632f755bd8",
+          "materialHash": "823bd49a615a3a66e2937be4d50c8ca0992f84d0b8ad607792e44df0ee525ccc",
+          "storyFilesHash": "01c63a05e64648d526a76ef686a094d29af8dd202174a2be94cdb23cb3f8c84d",
+          "timestamp": "2026-06-30T22:27:21.367Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -221,10 +221,10 @@
           "command": "rg -n -i \"koala|\\\\.koala|legacy-koala\" .lattice/dev-memory /Users/jek/.lattice/dev-memory/experience.jsonl packages/main/src/tasks/dev-memory-supersession-smoke.ts || true",
           "result": "pass",
           "note": "No output: retired-brand prose, tags, command refs, and evidence refs are not present in the cleaned memory files or smoke source.",
-          "headHash": "c7fe4631ec84d30d012eed990f9d42eee171a008",
-          "materialHash": "9c4774806a3892f582374dba0907a49264c3325403026a8b1f2b132d126c8666",
-          "storyFilesHash": "81400a0b7d8a2f8e65a882c673128ebc1b4bb3f50307cbd43cb1a04987d157e6",
-          "timestamp": "2026-06-30T22:17:51.444Z"
+          "headHash": "d32870e504030be2c9d35f44e88b95632f755bd8",
+          "materialHash": "823bd49a615a3a66e2937be4d50c8ca0992f84d0b8ad607792e44df0ee525ccc",
+          "storyFilesHash": "01c63a05e64648d526a76ef686a094d29af8dd202174a2be94cdb23cb3f8c84d",
+          "timestamp": "2026-06-30T22:27:21.504Z"
         }
       ]
     },
