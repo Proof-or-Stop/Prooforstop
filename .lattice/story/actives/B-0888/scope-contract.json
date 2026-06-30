@@ -1,0 +1,33 @@
+{
+  "storyId": "B-0888",
+  "mode": "enforce",
+  "allowedModify": [
+    ".lattice/dev-memory/experience.jsonl",
+    "packages/main/src/tasks/dev-memory-supersession-smoke.ts"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/dev-memory-supersession-smoke.ts"
+  ],
+  "protectedFiles": [
+    "package.json",
+    "packages/main/package.json",
+    "package-lock.json",
+    "packages/main/src/core/lattice-brand.ts",
+    "README.md",
+    "CLAUDE.md",
+    "AGENTS.md"
+  ],
+  "explicitExcludes": [
+    "runtime rename",
+    "product/CLI branding changes",
+    "historical story evidence cleanup",
+    "unrelated docs",
+    "unrelated global memories without old-brand terms",
+    "legacy labels/tags preservation"
+  ],
+  "scopeChangeReason": "Close PLAN scope ambiguity after reviewer flagged execution-boundary wording; repo writes are limited to project dev-memory and the cleanup smoke, while the global dev-memory file is covered by CHK-002 evidence rather than repo-relative scope_contract paths.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-30T22:07:09.465Z",
+  "updatedAt": "2026-06-30T22:07:09.465Z"
+}

@@ -1,79 +1,66 @@
 {
   "storyId": "B-0888",
-  "checkedAt": "2026-06-30T22:04:19.803Z",
+  "checkedAt": "2026-06-30T22:07:51.239Z",
   "features": [
     {
-      "feature": "Project .lattice/dev-memory/experience.jsonl old-brand prose, tag, and evidence-ref cleanup",
-      "covered_by": "CHK-001; CHK-004; plan.md CHK-001/CHK-004; scope-boundary.allowed tracked project dev-memory file; original-intent-snapshot acceptanceClaim",
+      "feature": "Project dev-memory physical cleanup",
+      "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": "",
-      "source": "checklist, plan.md, scope-boundary, original-intent-snapshot"
+      "source": "checklist.files.modify .lattice/dev-memory/experience.jsonl"
     },
     {
-      "feature": "Global /Users/jek/.lattice/dev-memory/experience.jsonl removal of rows containing Koala/koala/.koala/legacy-koala only",
-      "covered_by": "CHK-002; plan.md CHK-002; scope-boundary.allowed global dev-memory JSONL rows containing old brand terms; execution-boundary confirmationNote permits global dev-memory outside repo only for old-brand rows",
+      "feature": "Global dev-memory physical cleanup",
+      "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": "",
-      "source": "checklist, plan.md, scope-boundary, execution-boundary"
+      "source": "CHK-002 files.modify /Users/jek/.lattice/dev-memory/experience.jsonl and verificationIntent happy/adversarial"
     },
     {
-      "feature": "packages/main/src/tasks/dev-memory-supersession-smoke.ts asserts physical cleanup and preservation of current memories",
-      "covered_by": "CHK-003; CHK-004; plan.md CHK-003/CHK-004; scope-boundary.allowed smoke cleanup assertions",
+      "feature": "Cleanup smoke enforces zero old-brand memory terms",
+      "covered_by": "CHK-003 + CHK-004",
       "status": "covered",
       "excluded_by": "",
-      "source": "checklist, plan.md, scope-boundary"
+      "source": "packages/main/src/tasks/dev-memory-supersession-smoke.ts"
     },
     {
-      "feature": "Runtime/product brand rename or product-surface migration",
+      "feature": "Runtime build/residue/memory scan verification",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "CHK-004 verificationIntent"
+    },
+    {
+      "feature": "Runtime rename or CLI branding changes",
       "covered_by": "",
       "status": "excluded",
-      "excluded_by": "scope-boundary.excluded rename runtime product surfaces; user expected excluded runtime rename; plan/checklist target memory data and smoke only",
-      "source": "scope-boundary, user intent, plan.md"
+      "excluded_by": "scope_contract explicitExcludes",
+      "source": "not part of physical dev-memory cleanup"
+    },
+    {
+      "feature": "Version bump or package metadata edits",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "scope_contract protectedFiles",
+      "source": "metadata-only memory cleanup does not change runtime behavior"
     },
     {
       "feature": "Historical story evidence cleanup",
       "covered_by": "",
       "status": "excluded",
-      "excluded_by": "scope-boundary.excluded modify historical story evidence directories; execution-boundary.excludedPaths docs/story; user expected excluded historical story evidence cleanup",
-      "source": "scope-boundary, execution-boundary, user intent"
-    },
-    {
-      "feature": "Unrelated docs and non-dev-memory documentation changes",
-      "covered_by": "",
-      "status": "excluded",
-      "excluded_by": "scope-boundary.excluded change non-dev-memory docs; user expected excluded unrelated docs",
-      "source": "scope-boundary, user intent"
-    },
-    {
-      "feature": "Unrelated global memories and current host-policy memory content changes",
-      "covered_by": "",
-      "status": "excluded",
-      "excluded_by": "scope-boundary.excluded delete unrelated global memories without old brand terms; scope-boundary.excluded change host policy memory content except preserving existing current policy rows; plan.md CHK-001/CHK-002 preserve host-policy and unrelated current memories",
-      "source": "scope-boundary, plan.md"
-    },
-    {
-      "feature": "Execution boundary exact write allowance for global dev-memory file",
-      "covered_by": "CHK-002 and scope-boundary.allowed global dev-memory rows cover the intent",
-      "status": "gap",
-      "excluded_by": "",
-      "source": "execution-boundary.allowedPaths omits /Users/jek/.lattice/dev-memory/experience.jsonl; only confirmationNote mentions global dev-memory outside the repo"
-    },
-    {
-      "feature": "Execution boundary excludes runtime/package business files from implementation",
-      "covered_by": "",
-      "status": "drift",
-      "excluded_by": "scope-boundary.excluded runtime product surfaces; user instruction do not edit business files",
-      "source": "execution-boundary.allowedPaths includes package.json, packages/main/package.json, and packages/main/src/core/lattice-brand.ts, which are outside the physical dev-memory cleanup scope"
+      "excluded_by": "scope_contract explicitExcludes",
+      "source": "do not rewrite prior audit evidence"
     }
   ],
   "summary": {
-    "total": 9,
-    "covered": 3,
-    "excluded": 4,
-    "gaps": 1,
+    "total": 7,
+    "covered": 4,
+    "excluded": 3,
+    "gaps": 0,
     "orphanSuspect": 0,
-    "drift": 1
+    "drift": 0
   },
   "reviewRound": "",
-  "_hash": "cdcfe8a9d9014c4c6e232b6e083d9501f9d046dd57046ce78cf31c202c081786"
+  "_hash": "ca9bd0c588b57dba7bd05647348de007444ca557099758f7b617e379dc01ba11",
+  "openQuestions": []
 }
