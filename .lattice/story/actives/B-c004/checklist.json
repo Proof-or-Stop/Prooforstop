@@ -455,9 +455,9 @@
         "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
         "docs/requirements/decisions/story-lifecycle.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-30T15:17:54.142Z",
-      "endTime": null,
+      "endTime": "2026-06-30T15:18:56.378Z",
       "files": {
         "modify": [
           "packages/main/src/core/lifecycle-control/runtime/index.ts",
@@ -496,7 +496,45 @@
           }
         ]
       },
-      "userSees": "The final status table shows CHK-006/M6 as runtime closure enforcement verified in warn/enforce modes with rollback documented."
+      "userSees": "The final status table shows CHK-006/M6 as runtime closure enforcement verified in warn/enforce modes with rollback documented.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/lifecycle-control-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/lifecycle-control-smoke.js",
+          "result": "pass",
+          "note": "Commit 5cc141fdc marks runtime closure enforcement rollout implemented and tests enforce-mode unsafe cwd/main mirror/stale lock blocking.",
+          "headHash": "5cc141fdcd4156e475887e1201ed0b18d493d3a6",
+          "materialHash": "0dfdaf061071e28da4e99f226790e21771e21a8ee76744ed80bf4ac67eac93db",
+          "storyFilesHash": "248135070c9f2e6c6c1f596c8f4b6e088fd62033d114cab0230571698fc360f9",
+          "timestamp": "2026-06-30T15:18:56.587Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/lifecycle-control-smoke.ts",
+          "command": "node packages/main/dist/tasks/lifecycle-control-smoke.js",
+          "result": "pass",
+          "note": "Warn mode remains diagnostic for material dirty tree findings and reports rollback to lifecycleControl.runtimeEnforcement=warn.",
+          "headHash": "5cc141fdcd4156e475887e1201ed0b18d493d3a6",
+          "materialHash": "0dfdaf061071e28da4e99f226790e21771e21a8ee76744ed80bf4ac67eac93db",
+          "storyFilesHash": "248135070c9f2e6c6c1f596c8f4b6e088fd62033d114cab0230571698fc360f9",
+          "timestamp": "2026-06-30T15:18:56.772Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/lifecycle-control-smoke.ts",
+          "command": "node packages/main/dist/tasks/lifecycle-control-smoke.js",
+          "result": "pass",
+          "note": "Unavailable mode surfaces wrong authoritative cwd diagnostics without blocking, preserving the documented emergency diagnostic bound.",
+          "headHash": "5cc141fdcd4156e475887e1201ed0b18d493d3a6",
+          "materialHash": "0dfdaf061071e28da4e99f226790e21771e21a8ee76744ed80bf4ac67eac93db",
+          "storyFilesHash": "248135070c9f2e6c6c1f596c8f4b6e088fd62033d114cab0230571698fc360f9",
+          "timestamp": "2026-06-30T15:18:56.961Z"
+        }
+      ]
     },
     {
       "id": "CHK-007",
