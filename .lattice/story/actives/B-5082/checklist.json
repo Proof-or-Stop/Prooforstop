@@ -259,9 +259,9 @@
       "id": "CHK-005",
       "title": "Implement lightweight single-outcome DONE equivalence",
       "context": "Covers M5 gap: ordinary single-outcome stories should compare summary/delivery against the original snapshot instead of requiring a confirmed milestone ledger.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-30T01:13:34.103Z",
-      "endTime": null,
+      "endTime": "2026-06-30T01:26:17.695Z",
       "relatedDocs": [
         "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md#M5-Scope-Shrinkage-Guard-And-DONE-Intent-Equivalence"
       ],
@@ -300,7 +300,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js && node scripts/verify-process-fact-contract.mjs && git diff --check",
+          "result": "pass",
+          "note": "Doc: proofstory-intent-collision-execution-plan.md M5 lines 1204-1223. Impl: proofstory.ts evaluateDoneIntentEquivalence emits lightweight_single_outcome vs strict_milestone, consumes summary, and blocks narrow/partial claims; handlers/proofstory.ts renders equivalence mode; machine/phase-gates pass summary. Smoke: low-risk single outcome passes without confirmed ledger and partial/narrow summary reports shrinkage gap.",
+          "headHash": "1285de4935cba9cba7410ad6e5b139b5e70aa367",
+          "materialHash": "5d97b7951e9c3d8e03969199578c7c1c13adef7c61914d53c9fa10b699ada482",
+          "storyFilesHash": "d66783474c814f8b35728b71ac3278123384b0e3b640ea1414ab6a5b9bc7d334",
+          "timestamp": "2026-06-30T01:26:18.074Z"
+        }
+      ]
     },
     {
       "id": "CHK-006",
