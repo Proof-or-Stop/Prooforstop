@@ -73,7 +73,7 @@
       "desc": "Quality review concurs with open blocker B-c004:F-003: the summary still overclaims DONE-gate satisfaction after F-002. lattice summary_get reports expectedOutcome that DONE gates are satisfied by fresh validation, delivery, review assurance, and intent-equivalence diagnostics, while lattice done_closure and lifecycle_check --target=DONE report canAttemptDone/localReady false because review-assurance-floor/current review evidence remain missing for current material. This violates the requested absence of stale summary overclaim; summary should say validation, DONE_REQUIRED, and delivery are fresh while review assurance remains pending, or omit the DONE-gates-satisfied claim until the DONE oracle passes.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-30T17:27:16.542Z",
@@ -84,7 +84,11 @@
         ".lattice/story/actives/B-c004/summary.json"
       ],
       "signatureTag": "doc-promise-undelivered-summary-review-assurance-overclaim",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Resolved by the concurrent summary_set fix at e56c87b9a and verified after the quality finding: lattice summary_get now says review assurance is not asserted by summary text and must be satisfied by fresh quorum or approved fallback evidence; lattice lifecycle_check --storyId=B-c004 --target=DONE --json reports story-summary and user-value-summary PASS while keeping review-assurance-floor separately blocked. The summary overclaim concern no longer holds.",
+      "resolvedAt": "2026-06-30T17:27:47.768Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
