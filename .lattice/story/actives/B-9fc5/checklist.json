@@ -102,7 +102,27 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Plan requires originalIntentSnapshot, milestoneLedger, parent rollup, slice plan, intent collision, and DONE intent equivalence for the later implementation story.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Plan explains that B-5082 is story-local and must be extended with parent/child totality rather than treated as already sufficient.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Plan fails if it allows a child-story-needed row to be hidden by a narrower story-local acceptance claim.",
+            "type": "docs"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
