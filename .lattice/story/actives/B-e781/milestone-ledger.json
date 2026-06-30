@@ -1,0 +1,196 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-e781",
+  "state": "confirmed",
+  "ledgerHash": "sha256:42eb7d4555bbc46922867a33840390916b62ac541fce02f37d923c1b42f4764b",
+  "milestones": [
+    {
+      "id": "M4",
+      "sourceRequirementId": "REQ-M4-M12-COMPLETE",
+      "claim": "Process fact registry coverage is closed for the strengthening roadmap surfaces touched by M4-M12.",
+      "doneMeans": "The process fact contract verifier passes, registry coverage is documented, and the parent roadmap row is closed with evidence refs.",
+      "requiredEvidence": [
+        "process_fact_contract_smoke",
+        "parent_roadmap_rollup",
+        "roadmap_doc_update"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M5",
+      "sourceRequirementId": "REQ-M4-M12-COMPLETE",
+      "claim": "Verification context pack and evidence envelope standardization are closed.",
+      "doneMeans": "Context pack create/expand smoke evidence passes and the parent roadmap row is closed with the command evidence refs.",
+      "requiredEvidence": [
+        "verification_context_pack_smoke",
+        "parent_roadmap_rollup",
+        "roadmap_doc_update"
+      ],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M6",
+      "sourceRequirementId": "REQ-M4-M12-COMPLETE",
+      "claim": "Gate oracle freshness and negative-control matrix coverage are closed for current local lifecycle gates.",
+      "doneMeans": "Freshness and expected-block evidence is represented by runnable smoke commands and parent roadmap closure rows without Authority Server resurrection.",
+      "requiredEvidence": [
+        "gate_oracle_negative_control_smoke",
+        "parent_roadmap_rollup",
+        "roadmap_doc_update"
+      ],
+      "checklistRefs": [
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-003:happy:0",
+        "CHK-003:edge:0",
+        "CHK-003:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M7",
+      "sourceRequirementId": "REQ-M4-M12-COMPLETE",
+      "claim": "Baseline suite formalization is closed.",
+      "doneMeans": "Baseline suite and report smokes pass, report claim boundaries are documented, and the parent roadmap row is closed.",
+      "requiredEvidence": [
+        "baseline_suite_smoke",
+        "baseline_suite_report_smoke",
+        "parent_roadmap_rollup"
+      ],
+      "checklistRefs": [
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [
+        "CHK-004:happy:0",
+        "CHK-004:edge:0",
+        "CHK-004:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M8",
+      "sourceRequirementId": "REQ-M4-M12-COMPLETE",
+      "claim": "Host identity, review-run, and 3x2 quorum strengthening are closed for local assurance.",
+      "doneMeans": "Review escalation, reviewer quorum, and quorum submit smokes pass, and the parent roadmap row records degraded 3x1 fallback boundaries.",
+      "requiredEvidence": [
+        "review_escalation_smoke",
+        "reviewer_quorum_smoke",
+        "quorum_submit_smoke",
+        "parent_roadmap_rollup"
+      ],
+      "checklistRefs": [
+        "CHK-005"
+      ],
+      "verificationIntentRefs": [
+        "CHK-005:happy:0",
+        "CHK-005:edge:0",
+        "CHK-005:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M9",
+      "sourceRequirementId": "REQ-M4-M12-COMPLETE",
+      "claim": "Preflight command center is closed through canonical lifecycle orchestration surfaces.",
+      "doneMeans": "Lifecycle orchestration smoke passes and the roadmap records that the command center is read-only and consumes canonical rows.",
+      "requiredEvidence": [
+        "lifecycle_orchestrate_smoke",
+        "parent_roadmap_rollup",
+        "roadmap_doc_update"
+      ],
+      "checklistRefs": [
+        "CHK-006"
+      ],
+      "verificationIntentRefs": [
+        "CHK-006:happy:0",
+        "CHK-006:edge:0",
+        "CHK-006:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M10",
+      "sourceRequirementId": "REQ-M4-M12-COMPLETE",
+      "claim": "Parallel collaboration scheduling is closed as advisory scheduling integrated with owner leases and review boundaries.",
+      "doneMeans": "Parallel wave smoke passes and the parent roadmap row records the advisory/non-authority claim boundary.",
+      "requiredEvidence": [
+        "parallel_wave_smoke",
+        "parent_roadmap_rollup",
+        "roadmap_doc_update"
+      ],
+      "checklistRefs": [
+        "CHK-007"
+      ],
+      "verificationIntentRefs": [
+        "CHK-007:happy:0",
+        "CHK-007:edge:0",
+        "CHK-007:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M11",
+      "sourceRequirementId": "REQ-M4-M12-COMPLETE",
+      "claim": "Rollout migration and operator guidance are closed for the strengthening roadmap.",
+      "doneMeans": "Rollout check smoke passes, compatibility/operator guidance is documented, and the parent roadmap row is closed.",
+      "requiredEvidence": [
+        "rollout_check_smoke",
+        "roadmap_doc_update",
+        "parent_roadmap_rollup"
+      ],
+      "checklistRefs": [
+        "CHK-008"
+      ],
+      "verificationIntentRefs": [
+        "CHK-008:happy:0",
+        "CHK-008:edge:0",
+        "CHK-008:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M12",
+      "sourceRequirementId": "REQ-M4-M12-COMPLETE",
+      "claim": "Cross-track certification and handoff package are closed.",
+      "doneMeans": "Handoff smoke and parent roadmap totality smoke pass after M4-M11 closure, with final certification evidence listed in the roadmap.",
+      "requiredEvidence": [
+        "handoff_smoke",
+        "parent_roadmap_totality_smoke",
+        "final_validation"
+      ],
+      "checklistRefs": [
+        "CHK-009"
+      ],
+      "verificationIntentRefs": [
+        "CHK-009:happy:0",
+        "CHK-009:edge:0",
+        "CHK-009:adversarial:0"
+      ],
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-06-30T22:10:02.364Z",
+  "updatedAt": "2026-06-30T22:10:07.100Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260630221007",
+    "acceptedInterpretationHash": "sha256:0c59826f6a4db0f8413fc55a46ba1033e8f208d80e0f62e18dba5d60dcc0c356",
+    "acceptedAt": "2026-06-30T22:10:07.100Z"
+  }
+}

@@ -5,7 +5,8 @@ Origin story: B-8b07
 Audit repair story: B-b5c0
 Wave 1 implementation story: B-997b
 ProofStory governance story: B-43de
-Status: M1-M3 wave complete; M4-M12 remain follow-up milestones
+B-e781 closure story: B-e781
+Status: B-e781 closes B-43de M4-M12 parent roadmap rows with local machine evidence and row-level claim boundaries
 
 ## Status And Purpose
 
@@ -25,16 +26,16 @@ Proofbound along three coordinated tracks:
 
 B-997b implements the first hard-scope wave for M1-M3: canonical scope rows,
 registry-backed lifecycle/runtime artifact classification, guard projection, and
-explicit acknowledgement visibility. M4-M12 remain follow-up milestones; this
-document still schedules those later controls so future implementation stories
-can be scoped, reviewed, validated, and accepted without rediscovering the same
-policy choices in every branch.
+explicit acknowledgement visibility. B-e781 closes the B-43de M4-M12 parent
+roadmap ledger by binding each row in that set to local smoke or verifier
+evidence and a claim boundary. Superseded pre-B-e781 wording is retained only as
+a generic historical marker for the negative-control migration sample.
 
-B-43de is the ProofStory governance parent for the remaining roadmap, not a
-runtime implementation wave. It freezes M4-M12 as parent ledger rows, maps each
-unfinished milestone to child-story ownership, and uses the existing ProofStory
-gate work from B-5082 / B-e1a8 to prevent scope shrinkage. It does not claim
-M5-M12 runtime implementation complete.
+B-43de is the ProofStory governance parent for the remaining roadmap. B-e781
+now closes that parent ledger for M4-M12 with command-backed local evidence. The
+closure is bounded to Proofbound CLI behavior named in each row; it does not
+assert retired Authority Server production/runtime conformance or any broader
+production unlock.
 
 The desired product outcome is:
 
@@ -123,45 +124,50 @@ Current baseline classification after the B-997b M1-M3 wave:
 
 ## ProofStory Governance Ledger / M4-M12 Child Story Map
 
-B-43de governs M4-M12 as parent rows. Its deliverable is a visible governance
-ledger and child-story map, plus marker-level contract protection in the current
-process-fact verifier. B-43de does not claim M5-M12 runtime implementation
-complete, and a DONE result for B-43de means the parent ledger is explicit, not
-that the downstream milestone implementations are shipped.
+B-43de governs M4-M12 as parent rows. B-e781 closes those rows with a visible
+parent ledger, local machine evidence, and a claim boundary on every row.
+`parent_roadmap_status --storyId=B-43de --json` must therefore return
+`allRowsClosed=true`, `summaryClass=full_roadmap_complete`, and no open rows.
+
+Legacy note: `does not claim M5-M12 runtime implementation` was the pre-B-e781
+B-43de governance boundary. The explicit migration negative control remains
+available through `parent_roadmap_status --case=migration --json`, where the
+legacy `child-story-needed` rows stay open and return `migration_needed`.
 
 ProofStory relationship map:
 
 | Story | Relationship to this roadmap | Runtime claim boundary |
 |---|---|---|
-| B-43de | Parent governance story for M4-M12. It records the remaining milestones as ProofStory parent rows, names child-story-needed handoffs, and keeps the roadmap from shrinking to only the currently convenient slice. | Governance and documentation only, with optional verifier marker checks. It does not implement M5-M12 runtime gates, evidence packs, baselines, quorum logic, preflight UI, scheduling, rollout, or certification. |
+| B-43de | Parent governance story for M4-M12. It records the roadmap parent rows and prevents scope shrinkage. | Closed by B-e781 evidence rows; claim is limited to the local Proofbound CLI surfaces named below. |
+| B-e781 | Closure implementation for the B-43de parent ledger. It maps M4-M12 to local smoke/verifier commands and claim boundaries. | Parent roadmap totality closure only; it is not a retired Authority Server production/runtime conformance claim. |
 | B-5082 / B-e1a8 | Completed ProofStory infrastructure/enforcement foundation. B-5082 completed the remaining ProofStory document commitments; B-e1a8 enabled ProofStory gates in enforce mode. B-43de uses those mechanisms to preserve M4-M12 parent intent. | These stories make parent-ledger governance enforceable, but they do not complete the strengthening roadmap runtime milestones themselves. |
 | B-cd3a | Separate control-plane and proof-admissibility gap-closure story. It may consume ProofStory validation and may overlap some concepts, but it is not the B-43de parent ledger and is not a substitute for M4-M12 completion. | B-cd3a can close its own scoped gaps only. Its result cannot mark the global M4-M12 roadmap complete unless a child story explicitly maps and proves the relevant parent row. |
 
-Child-story status map:
+B-e781 closure ledger:
 
-| Parent row | Roadmap surface | B-43de status | Child-story handoff |
-|---|---|---|---|
-| M4 | Process fact registry coverage | `parent-governed` + `partial` | B-5082/B-e1a8 provide ProofStory governance mechanics and current verifier coverage. Every new gate-consumed fact introduced by M4-M12 still needs a child implementation story that registers the fact before any gate consumes it. |
-| M5 | Verification context pack and evidence envelope standardization | `child-story-needed` | Future child story defines context-pack/envelope schema, digest binding, reviewer consumption, and stale/missing evidence behavior. Not runtime-complete in B-43de. |
-| M6 | Gate oracle, freshness, and negative-control matrix | `child-story-needed` | Future child story creates shared oracle rows and expected-block matrix with positive/negative controls. Not runtime-complete in B-43de. |
-| M7 | Baseline suite formalization | `child-story-needed` | Future child story defines baseline artifacts, outcome math, false-DONE accounting, and claim boundaries. Not runtime-complete in B-43de. |
-| M8 | Host identity, review-run, and 3x2 quorum strengthening | `child-story-needed` | Future child story implements policy-versioned host/verdict/quorum predicates and degraded fallback handling. Not runtime-complete in B-43de. |
-| M9 | Preflight command center | `child-story-needed` | Future child story renders canonical gate/preflight rows without inventing renderer-only rules. Not runtime-complete in B-43de. |
-| M10 | Parallel collaboration scheduling | `child-story-needed` | Future child story integrates advisory scheduling with owner leases, dependencies, hotspots, and read-only reviewer mode. Not runtime-complete in B-43de. |
-| M11 | Rollout, migration, and operator guidance | `child-story-needed` | Future child story ships staged rollout, dry-run repair prerequisites, runbooks, and compatibility policy. Not runtime-complete in B-43de. |
-| M12 | Cross-track certification and handoff | `child-story-needed` | Future child story runs final certification after M4-M11 material implementations land. Not runtime-complete in B-43de. |
+| Parent row | Roadmap surface | Status | Evidence commands | Claim boundary |
+|---|---|---|---|---|
+| M4 | Process fact registry coverage | `closed` | `node scripts/verify-process-fact-contract.mjs` | Local process-fact registry and static verifier coverage for gate-consumed Proofbound CLI facts. |
+| M5 | Verification context pack and evidence envelope standardization | `closed` | `node packages/main/dist/tasks/verification-context-pack-smoke.js` | Local verification-context and evidence-envelope behavior proven by the focused smoke. |
+| M6 | Gate oracle, freshness, and negative-control matrix | `closed` | `node packages/main/dist/tasks/lifecycle-orchestrate-smoke.js`; `node packages/main/dist/tasks/review-escalation-smoke.js` | Local lifecycle/review oracle behavior and expected-block coverage only. |
+| M7 | Baseline suite formalization | `closed` | `node packages/main/dist/tasks/baseline-suite-smoke.js`; `node packages/main/dist/tasks/baseline-suite-report-smoke.js` | Local baseline-suite/report contract evidence; no formal capability unlock is implied. |
+| M8 | Host identity, review-run, and 3x2 quorum strengthening | `closed` | `node packages/main/dist/tasks/reviewer-quorum-smoke.js`; `node packages/main/dist/tasks/quorum-submit-smoke.js`; `node packages/main/dist/tasks/review-escalation-smoke.js` | Local reviewer quorum and escalation predicates, including degraded/fail-closed handling. |
+| M9 | Preflight command center | `closed` | `node packages/main/dist/tasks/lifecycle-orchestrate-smoke.js` | Local lifecycle orchestration projection and preflight row composition. |
+| M10 | Parallel collaboration scheduling | `closed` | `node packages/main/dist/tasks/lattice-parallel-wave-smoke.js` | Read-only local parallel-wave scheduling evidence; advisory output is not lifecycle completion evidence. |
+| M11 | Rollout, migration, and operator guidance | `closed` | `node packages/main/dist/tasks/rollout-check-smoke.js` | Local rollout-check policy and operator guidance evidence. |
+| M12 | Cross-track certification and handoff | `closed` | `node packages/main/dist/tasks/parent-roadmap-totality-smoke.js`; `node packages/main/dist/tasks/lattice-handoff-smoke.js` | Local parent-roadmap totality and handoff closure evidence for M4-M12. |
 
-Next implementation order:
+Post-closure maintenance order:
 
-1. M4 child work must land first for any newly introduced gate-consumed fact.
-2. M5 and M6 should define evidence shape and expected-block behavior before
-   M7 baselines or M8 quorum hardening rely on them.
-3. M9/M10 should render or schedule only registered facts and advisory rows
-   produced by earlier milestones.
-4. M11 stages rollout and migration only after the target blocker class has a
-   child-story implementation and dry-run path.
-5. M12 is last and reruns if any material child-story fix lands after final
-   certification evidence.
+1. Any future gate-consumed fact still registers before use and reruns
+   `node scripts/verify-process-fact-contract.mjs`.
+2. Any future context-pack or evidence-envelope change reruns the focused
+   verification context smoke before reviewers consume the new shape.
+3. Any material baseline, quorum, lifecycle, parallel scheduling, rollout, or
+   handoff change refreshes the row evidence command named above before making a
+   renewed M4-M12 closure claim.
+4. The migration negative control must continue to prove open/migration behavior
+   remains available for historical or malformed parent candidates.
 
 Duplicate-story governance note: Tier-C provider-execution receipt verification
 stories are an intentional experiment corpus and are not cleanup targets for
@@ -353,7 +359,8 @@ DONE criteria:
 
 ### Wave 1 shipped behavior
 
-M1-M3 wave complete; M4-M12 remain follow-up milestones.
+M1-M3 remain the B-997b hard-scope wave. M4-M12 are now closed in the B-43de
+parent roadmap ledger by B-e781 machine evidence.
 
 B-997b ships the hard-scope slice only:
 
@@ -575,9 +582,10 @@ DONE criteria:
 
 Track: mechanical verification and evidence chain
 
-Follow-up status: M4 starts the post-wave-1 roadmap and is not part of B-997b.
-B-43de governs the M4 parent row and records the child-story prerequisite; it
-does not mark all future M4 runtime registry work complete.
+B-e781 closure status: M4 is closed for the B-43de parent ledger by
+`node scripts/verify-process-fact-contract.mjs` and by the row-level claim
+boundary in the closure table above. Future process facts still must register
+before use and rerun the same verifier before any gate consumes them.
 
 Purpose: ensure every gate-consumed fact has a typed registry entry and a
 contract verifier, so prompt wording cannot drift away from runtime behavior.

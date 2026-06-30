@@ -1,0 +1,41 @@
+{
+  "schemaVersion": "proofstory.parent_ledger_rollup.v1",
+  "storyId": "B-e781",
+  "ledgerHash": "sha256:42eb7d4555bbc46922867a33840390916b62ac541fce02f37d923c1b42f4764b",
+  "slicePlanHash": "sha256:8d59b55e272c26cddfff160e67fa878c1f7bfea79f06b8f51a065d27d1623d5b",
+  "children": [
+    {
+      "storyId": "B-e781",
+      "milestoneIds": [
+        "M4",
+        "M5",
+        "M6",
+        "M7",
+        "M8",
+        "M9",
+        "M10",
+        "M11",
+        "M12"
+      ],
+      "status": "done",
+      "evidenceRefs": [
+        "node scripts/verify-process-fact-contract.mjs",
+        "node packages/main/dist/tasks/verification-context-pack-smoke.js",
+        "node packages/main/dist/tasks/lifecycle-orchestrate-smoke.js",
+        "node packages/main/dist/tasks/review-escalation-smoke.js",
+        "node packages/main/dist/tasks/baseline-suite-smoke.js",
+        "node packages/main/dist/tasks/baseline-suite-report-smoke.js",
+        "node packages/main/dist/tasks/reviewer-quorum-smoke.js",
+        "node packages/main/dist/tasks/quorum-submit-smoke.js",
+        "node packages/main/dist/tasks/lattice-parallel-wave-smoke.js",
+        "node packages/main/dist/tasks/rollout-check-smoke.js",
+        "node packages/main/dist/tasks/lattice-handoff-smoke.js",
+        "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js",
+        "node bin/lattice.js parent_roadmap_status --storyId=B-43de --json"
+      ]
+    }
+  ],
+  "rollupHash": "sha256:74a06b0178d9bafa2e4d752663cc953a5be3ef9f5bc5f40fb230c4314e527625",
+  "createdAt": "2026-06-30T22:28:42.592Z",
+  "updatedAt": "2026-06-30T22:28:42.592Z"
+}

@@ -1,0 +1,75 @@
+{
+  "findings": [
+    {
+      "id": "B-e781:F-001",
+      "desc": "Docs lane blocker: linked roadmap/operator docs still contain stale pre-B-e781 wording that says M4-M12 remain follow-up/current future work. The main roadmap now shows B-e781 closure and parent_roadmap_status confirms all M4-M12 rows closed with command-backed local evidence, but docs/guide-scope-guard.md:8 says `M4-M12 remain follow-up milestones`, docs/guide-scope-guard.md:13 says unrelated runtime features `remain follow-up work`, and docs/requirements/decisions/lifecycle-artifact-scope.md:27 repeats `M4-M12 remain follow-up milestones`. Update these docs to reflect B-e781 closure with evidence commands/claim boundaries while keeping Authority Server conformance retired/non-goal.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-30T22:36:29.118Z",
+      "reviewRound": "2026-06-30T22:34:16.389Z",
+      "reviewRunId": "B-e781:RR-004",
+      "_hash": "08193cb21d44b9417714f3a8b5e7c8f87924318ba56ef536c84e53867502fcba",
+      "files": [
+        "docs/guide-scope-guard.md",
+        "docs/requirements/decisions/lifecycle-artifact-scope.md",
+        "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+        "docs/requirements/decisions/authority-server-vocabulary-retirement.md"
+      ],
+      "signatureTag": "missing|md|docs-lane-blocker",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Updated docs/guide-scope-guard.md and docs/requirements/decisions/lifecycle-artifact-scope.md to reflect B-e781 closure with local machine evidence and row-level claim boundaries while preserving retired Authority Server production/runtime conformance as a non-goal. Evidence passed: npm --prefix packages/main run build; node scripts/verify-process-fact-contract.mjs; node packages/main/dist/tasks/parent-roadmap-totality-smoke.js; node bin/lattice.js parent_roadmap_status --storyId=B-43de --json; node bin/lattice.js parent_roadmap_status --case=migration --json; negated rg stale wording check; git diff --check.",
+      "resolvedAt": "2026-06-30T22:43:30.338Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-e781:F-002",
+      "desc": "packages/main/src/cli/command-catalog.ts:2219 and packages/main/src/cli/command-catalog.ts:2232 still describe storyId B-43de as mapping to the migration diagnostic sample, but packages/main/src/handlers/parent-roadmap.ts:33 now routes B-43de to buildParentRoadmapSampleCase(\"b-43de\"). Runtime check with node bin/lattice.js parent_roadmap_status storyId=B-43de returns full_roadmap_complete, while case=migration remains migration_needed. The stale help/schema wording undermines the scope acknowledgement and claim-boundary update by telling operators the old behavior.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-30T22:36:47.483Z",
+      "reviewRound": "2026-06-30T22:34:16.389Z",
+      "reviewRunId": "B-e781:RR-001",
+      "_hash": "ee1a74402bfd387e33f54a6a40744451b8dae45bd8d1f1e456e78388d799e18a",
+      "files": [
+        "packages/main/src/cli/command-catalog.ts",
+        "packages/main/src/handlers/parent-roadmap.ts"
+      ],
+      "signatureTag": "doc-code-drift|ts|packages-main-command",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Updated parent_roadmap_status and parent_roadmap_evaluate schema descriptions in packages/main/src/cli/command-catalog.ts: storyId=B-43de now documents the closed B-e781 evidence-backed parent roadmap ledger, while case=migration remains the explicit legacy negative diagnostic sample. Evidence passed: npm --prefix packages/main run build; node scripts/verify-process-fact-contract.mjs; node packages/main/dist/tasks/parent-roadmap-totality-smoke.js; node bin/lattice.js parent_roadmap_status --storyId=B-43de --json; node bin/lattice.js parent_roadmap_status --case=migration --json; negated rg stale wording check; git diff --check.",
+      "resolvedAt": "2026-06-30T22:43:38.707Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-e781:F-003",
+      "desc": "packages/main/src/tasks/review-assurance-floor-smoke.ts:363 sets proofAdmissibility enforce and proves the degraded 3x1 success path at lines 404-420, but the negative cases still rely on broader ok=false checks or a separate non-enforce storyFilesHash smoke. Missing fallback/evidence, stale fallback/material, and invalid fallback shape are not asserted under enforce with proofAdmissibility.blocking/proof_admissibility_blocked, so a regression in the proof-admissibility enforce contract could pass the current smokes while the required invalid/stale/missing evidence blocking remains unproven. Add enforce-mode negative assertions for missing fallback, stale fallback/material, and invalid fallback shape.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-30T23:27:50.446Z",
+      "reviewRound": "2026-06-30T23:23:38.353Z",
+      "reviewRunId": "B-e781:RR-016",
+      "_hash": "15f5f33d950265152648744aa9d7814663352ac8530773c19c257e55022c691d",
+      "files": [
+        "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+        "packages/main/src/core/review-assurance-floor.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-tasks",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by ebddbc1e7: added enforce-mode proof admissibility negative assertions in review-assurance-floor-smoke.ts for missing fallback, stale fallback/material, and invalid fallback shape. Each negative path now asserts proofAdmissibility.blocking=true, allowed=false, enforce consumer active, and proof_admissibility_blocked in reasons; existing degraded 3x1 success remains asserted. Evidence passed: npm --prefix packages/main run build; node packages/main/dist/tasks/review-assurance-floor-smoke.js; node packages/main/dist/tasks/review-assurance-floor-storyfileshash-smoke.js; node scripts/verify-process-fact-contract.mjs; git diff --check.",
+      "resolvedAt": "2026-06-30T23:31:35.763Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

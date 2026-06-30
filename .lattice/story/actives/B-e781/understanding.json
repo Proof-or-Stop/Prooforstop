@@ -1,0 +1,28 @@
+{
+  "task": "Complete the remaining M4-M12 rows in the lattice strengthening roadmap without shrinking the parent roadmap intent.",
+  "outcome": "After the story is DONE, running parent_roadmap_status for B-43de reports M4-M12 closed with machine evidence refs, and the roadmap document no longer says M4-M12 remain follow-up implementation milestones.",
+  "facts": [
+    "The user asked to finish all M4-M12 milestones and mark each complete only after evidence.",
+    "B-43de currently governs the parent roadmap rows for M4-M12.",
+    "The roadmap document currently states M1-M3 wave complete and M4-M12 remain follow-up milestones.",
+    "Existing CLI surfaces already include process fact verification, verification context packs, baseline suite/report, review escalation/quorum, lifecycle orchestration, parallel wave, rollout, and handoff commands.",
+    "Authority Server conformance must stay retired and must not be resurrected."
+  ],
+  "constraints": [
+    "Use the Lattice story lifecycle and B-e781 worktree.",
+    "Do not touch omx or .omx.",
+    "Do not mutate unrelated active stories.",
+    "Every closed milestone needs machine-verifiable evidence and parent-roadmap rollup proof.",
+    "Docs and code comments added by this story must be English."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+    "packages/main/src/core/parent-roadmap-totality.ts",
+    "packages/main/src/tasks/parent-roadmap-totality-smoke.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "timestamp": "2026-06-30T22:09:20.013Z"
+}

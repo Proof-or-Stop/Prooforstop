@@ -7,6 +7,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { signDeliveryCheck } from '../core/delivery-check-hash.js';
 import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
+import { resetConfigCache } from '../core/config.js';
 import {
   canFinishGuard,
   getGuardFailureReason,
@@ -18,6 +19,7 @@ import {
   REVIEW_ASSURANCE_FLOOR_HIGH_RISK_REQUIRED_ROUNDS,
   evaluateReviewAssuranceFloor,
   formatReviewAssuranceFloorFailure,
+  type ReviewAssuranceFloorReport,
 } from '../core/review-assurance-floor.js';
 import type { BugData, Finding, ProcessEvent, StoryInfo } from '../core/types.js';
 
@@ -231,6 +233,14 @@ function check(name: string, fn: () => void): void {
   console.log(`  ✓ ${name}`);
 }
 
+function assertProofAdmissibilityBlocked(report: ReviewAssuranceFloorReport): void {
+  assert.equal(report.proofAdmissibility.blocking, true);
+  assert.equal(report.proofAdmissibility.allowed, false);
+  assert.equal(report.proofAdmissibility.mode, 'enforce');
+  assert.equal(report.proofAdmissibility.enforcedConsumer, true);
+  assert.match(report.reasons.join('\n'), /proof_admissibility_blocked/);
+}
+
 const root = makeRepo();
 try {
   const materialHash = currentMaterialHash(root);
@@ -360,6 +370,14 @@ try {
   });
 
   check('high-risk lifecycle gate work requires 3x2 or explicit degraded fallback', () => {
+    write(root, 'lattice.config.json', JSON.stringify({
+      proofAdmissibility: {
+        mode: 'enforce',
+        enforcedConsumers: ['REVIEW'],
+      },
+    }, null, 2));
+    resetConfigCache();
+
     const oneRound = evaluateReviewAssuranceFloor({
       projectRoot: root,
       story: story({
@@ -375,6 +393,8 @@ try {
     assert.equal(oneRound.localRounds.requiredRounds, REVIEW_ASSURANCE_FLOOR_HIGH_RISK_REQUIRED_ROUNDS);
     assert.equal(oneRound.localRounds.requiredPassingHostsPerRound, REVIEW_ASSURANCE_FLOOR_HIGH_RISK_HOSTS_PER_ROUND);
     assert.match(oneRound.reasons.join('\n'), /3 rounds x 2 independent PASS hosts/);
+    assert.match(oneRound.reasons.join('\n'), /no review_escalation_fallback record found/);
+    assertProofAdmissibilityBlocked(oneRound);
 
     const full = evaluateReviewAssuranceFloor({
       projectRoot: root,
@@ -407,9 +427,52 @@ try {
     assert.equal(degraded.localRounds.ok, false);
     assert.equal(degraded.degradedFallback.ok, true);
     assert.equal(degraded.localRounds.requiredPassingHostsPerRound, REVIEW_ASSURANCE_FLOOR_HIGH_RISK_HOSTS_PER_ROUND);
+    assert.equal(degraded.proofAdmissibility.allowed, true);
+    assert.equal(degraded.proofAdmissibility.blocking, false);
     assert.equal(degraded.authorityDone, false);
     assert.equal(degraded.fullAuthorityDone, false);
     assert.equal(degraded.productionDone, false);
+
+    const staleFallback = evaluateReviewAssuranceFloor({
+      projectRoot: root,
+      story: story({
+        priority: 'high',
+        riskSignals: [{ category: 'state machine/gate', matched: 'gate' }],
+      }),
+      changedFiles: ['packages/main/src/core/machine.ts'],
+      processEvents: [...singleHostRounds(materialHash), fallback('stale-material')],
+      materialHash,
+    });
+    assert.equal(staleFallback.ok, false);
+    assert.equal(staleFallback.degradedFallback.ok, false);
+    assert.equal(staleFallback.degradedFallback.record?.valid, false);
+    assert.match(staleFallback.reasons.join('\n'), /fallback invalid: materialHash is stale/);
+    assertProofAdmissibilityBlocked(staleFallback);
+
+    const invalidFallbackShape = evaluateReviewAssuranceFloor({
+      projectRoot: root,
+      story: story({
+        priority: 'high',
+        riskSignals: [{ category: 'state machine/gate', matched: 'gate' }],
+      }),
+      changedFiles: ['packages/main/src/core/machine.ts'],
+      processEvents: [
+        ...singleHostRounds(materialHash),
+        fallback(materialHash, {
+          eligibility: 'not-a-valid-eligibility',
+          evidenceRefs: [],
+          assuranceLevel: 'local-one-round',
+        }),
+      ],
+      materialHash,
+    });
+    assert.equal(invalidFallbackShape.ok, false);
+    assert.equal(invalidFallbackShape.degradedFallback.ok, false);
+    assert.equal(invalidFallbackShape.degradedFallback.record?.valid, false);
+    assert.match(invalidFallbackShape.reasons.join('\n'), /fallback invalid: eligibility must be one of/);
+    assert.match(invalidFallbackShape.reasons.join('\n'), /fallback invalid: fallback requires evidenceRefs or approvalRef/);
+    assert.match(invalidFallbackShape.reasons.join('\n'), /fallback invalid: assuranceLevel must be degraded-single-host/);
+    assertProofAdmissibilityBlocked(invalidFallbackShape);
   });
 
   check('forged local Authority completion fields remain non-authority', () => {

@@ -1,0 +1,33 @@
+{
+  "schemaVersion": "proofstory.slice_plan.v1",
+  "storyId": "B-e781",
+  "ledgerHash": "sha256:42eb7d4555bbc46922867a33840390916b62ac541fce02f37d923c1b42f4764b",
+  "slices": [
+    {
+      "id": "slice-1",
+      "milestoneIds": [
+        "M4",
+        "M5",
+        "M6",
+        "M7",
+        "M8"
+      ],
+      "reason": "Registry, context, oracle, baseline, and quorum rows form the evidence-core implementation slice and stay within the high-assurance threshold.",
+      "assignedStory": "B-e781"
+    },
+    {
+      "id": "slice-2",
+      "milestoneIds": [
+        "M9",
+        "M10",
+        "M11",
+        "M12"
+      ],
+      "reason": "Preflight, scheduling, rollout, and final certification rows form the operator/certification slice and stay within the high-assurance threshold.",
+      "assignedStory": "B-e781"
+    }
+  ],
+  "planHash": "sha256:8d59b55e272c26cddfff160e67fa878c1f7bfea79f06b8f51a065d27d1623d5b",
+  "createdAt": "2026-06-30T22:12:34.100Z",
+  "updatedAt": "2026-06-30T22:12:34.100Z"
+}

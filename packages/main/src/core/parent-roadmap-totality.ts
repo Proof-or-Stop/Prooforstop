@@ -173,6 +173,131 @@ const CLOSED_STATUSES = new Set<ParentRoadmapRowStatus>([
   'deferred-with-human-approval',
   'not-applicable',
 ]);
+const B43DE_M4_M12_ROW_IDS = Array.from({ length: 9 }, (_, index) => `M${index + 4}`);
+const B43DE_CLOSED_ROW_DATA: Array<{
+  rowId: string;
+  title: string;
+  intentText: string;
+  commands: string[];
+  materialRefs: string[];
+  claimBoundary: string;
+}> = [
+  {
+    rowId: 'M4',
+    title: 'Process fact registry coverage',
+    intentText: 'Every roadmap gate-consumed process fact is covered by the registry contract verifier before it can be consumed by lifecycle gates.',
+    commands: ['node scripts/verify-process-fact-contract.mjs'],
+    materialRefs: [
+      'packages/main/src/core/process-fact-registry.ts',
+      'packages/main/src/core/process-fact-levels.ts',
+      'scripts/verify-process-fact-contract.mjs',
+    ],
+    claimBoundary: 'Local process-fact registry and static verifier coverage for gate-consumed Proofbound CLI facts.',
+  },
+  {
+    rowId: 'M5',
+    title: 'Verification context pack and evidence envelope standardization',
+    intentText: 'Context packs and evidence envelopes bind reviewer and validator evidence to required refs, commands, and digest-backed material context.',
+    commands: ['node packages/main/dist/tasks/verification-context-pack-smoke.js'],
+    materialRefs: [
+      'docs/requirements/decisions/verification-context-pack.md',
+      'packages/main/src/tasks/verification-context-pack-smoke.ts',
+    ],
+    claimBoundary: 'Local verification-context and evidence-envelope behavior proven by the focused smoke.',
+  },
+  {
+    rowId: 'M6',
+    title: 'Gate oracle, freshness, and negative-control matrix',
+    intentText: 'Lifecycle and review gate paths expose explicit positive and negative-control outcomes instead of trusting prose conclusions.',
+    commands: [
+      'node packages/main/dist/tasks/lifecycle-orchestrate-smoke.js',
+      'node packages/main/dist/tasks/review-escalation-smoke.js',
+    ],
+    materialRefs: [
+      'packages/main/src/tasks/lifecycle-orchestrate-smoke.ts',
+      'packages/main/src/tasks/review-escalation-smoke.ts',
+    ],
+    claimBoundary: 'Local lifecycle/review oracle behavior and expected-block coverage only.',
+  },
+  {
+    rowId: 'M7',
+    title: 'Baseline suite formalization',
+    intentText: 'Baseline suites and reports carry structured outcome math, minimum evidence checks, and false-DONE protections.',
+    commands: [
+      'node packages/main/dist/tasks/baseline-suite-smoke.js',
+      'node packages/main/dist/tasks/baseline-suite-report-smoke.js',
+    ],
+    materialRefs: [
+      'packages/main/src/tasks/baseline-suite-smoke.ts',
+      'packages/main/src/tasks/baseline-suite-report-smoke.ts',
+    ],
+    claimBoundary: 'Local baseline-suite/report contract evidence; no formal capability unlock is implied.',
+  },
+  {
+    rowId: 'M8',
+    title: 'Host identity, review-run, and quorum strengthening',
+    intentText: 'Reviewer quorum, signed review submission, and review escalation predicates bind host/verdict evidence before high-assurance claims.',
+    commands: [
+      'node packages/main/dist/tasks/reviewer-quorum-smoke.js',
+      'node packages/main/dist/tasks/quorum-submit-smoke.js',
+      'node packages/main/dist/tasks/review-escalation-smoke.js',
+    ],
+    materialRefs: [
+      'packages/main/src/tasks/reviewer-quorum-smoke.ts',
+      'packages/main/src/tasks/quorum-submit-smoke.ts',
+      'packages/main/src/tasks/review-escalation-smoke.ts',
+    ],
+    claimBoundary: 'Local reviewer quorum and escalation predicates, including degraded/fail-closed handling.',
+  },
+  {
+    rowId: 'M9',
+    title: 'Preflight command center',
+    intentText: 'Lifecycle orchestration renders canonical preflight/gate rows from registered facts without inventing renderer-only rules.',
+    commands: ['node packages/main/dist/tasks/lifecycle-orchestrate-smoke.js'],
+    materialRefs: [
+      'packages/main/src/tasks/lifecycle-orchestrate-smoke.ts',
+      'packages/main/src/handlers/lifecycle-orchestrate.ts',
+    ],
+    claimBoundary: 'Local lifecycle orchestration projection and preflight row composition.',
+  },
+  {
+    rowId: 'M10',
+    title: 'Parallel collaboration scheduling',
+    intentText: 'Parallel-wave planning remains read-only/advisory while exposing owner-lease, dependency, hotspot, and merge-queue scheduling facts.',
+    commands: ['node packages/main/dist/tasks/lattice-parallel-wave-smoke.js'],
+    materialRefs: [
+      'docs/requirements/decisions/lattice-parallel-wave.md',
+      'packages/main/src/tasks/lattice-parallel-wave-smoke.ts',
+    ],
+    claimBoundary: 'Read-only local parallel-wave scheduling evidence; advisory output is not lifecycle completion evidence.',
+  },
+  {
+    rowId: 'M11',
+    title: 'Rollout, migration, and operator guidance',
+    intentText: 'Rollout checks expose staged policy, compatibility, and operator remediation rows for strengthening controls.',
+    commands: ['node packages/main/dist/tasks/rollout-check-smoke.js'],
+    materialRefs: [
+      'packages/main/src/core/rollout-check.ts',
+      'packages/main/src/tasks/rollout-check-smoke.ts',
+    ],
+    claimBoundary: 'Local rollout-check policy and operator guidance evidence.',
+  },
+  {
+    rowId: 'M12',
+    title: 'Cross-track certification and handoff',
+    intentText: 'The parent roadmap rollup and handoff evidence prove every M4-M12 row is represented, closed, and bounded.',
+    commands: [
+      'node packages/main/dist/tasks/parent-roadmap-totality-smoke.js',
+      'node packages/main/dist/tasks/lattice-handoff-smoke.js',
+    ],
+    materialRefs: [
+      'packages/main/src/tasks/parent-roadmap-totality-smoke.ts',
+      'packages/main/src/tasks/lattice-handoff-smoke.ts',
+      'docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md',
+    ],
+    claimBoundary: 'Local parent-roadmap totality and handoff closure evidence for M4-M12.',
+  },
+];
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return !!value && typeof value === 'object' && !Array.isArray(value);
@@ -787,7 +912,41 @@ function baseSample(name: string, rows: unknown[]): ParentRoadmapLedger {
   });
 }
 
+function b43deClosedSample(): ParentRoadmapLedger {
+  const rows = B43DE_CLOSED_ROW_DATA.map((row) => ({
+    rowId: row.rowId,
+    title: row.title,
+    intentText: row.intentText,
+    status: 'closed-by-existing-evidence',
+    childStoryId: 'B-e781',
+    closureEvidence: row.commands.map((command, index) => ({
+      kind: index === 0 ? 'smoke_or_verifier' : 'supporting_smoke',
+      ref: `B-e781:${row.rowId}:${command.replace(/^node\s+/, '')}`,
+      result: 'pass',
+      command,
+      artifactRef: command,
+      observedAt: '2026-06-30T00:00:00.000Z',
+    })),
+    materialRefs: row.materialRefs,
+    updatedAt: '2026-06-30T00:00:00.000Z',
+    claimBoundary: row.claimBoundary,
+  }));
+  return parseParentRoadmapLedger({
+    schemaVersion: PARENT_ROADMAP_LEDGER_SCHEMA_VERSION,
+    ledgerId: 'PR-B-43de-B-e781-closed',
+    parentStoryId: 'B-43de',
+    originalIntentSnapshot: 'B-43de parent roadmap M4-M12 closure requires every row to be represented, closed, evidence-backed, and claim-bounded.',
+    sourceRefs: ['docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md#ProofStory-Governance-Ledger-M4-M12-Child-Story-Map'],
+    createdByStoryId: 'B-43de',
+    updatedByStoryIds: ['B-43de', 'B-e781'],
+    requiredRowIds: B43DE_M4_M12_ROW_IDS,
+    proofstoryContract: { acceptanceBindings: [{ id: 'b-43de-m4-m12-closure', milestoneIds: B43DE_M4_M12_ROW_IDS }] },
+    rows,
+  });
+}
+
 export function buildParentRoadmapSampleCase(name: string): ParentRoadmapLedger {
+  if (name === 'b-43de') return b43deClosedSample();
   if (name === 'full') {
     return baseSample('full', [
       {
@@ -837,7 +996,7 @@ export function buildParentRoadmapSampleCase(name: string): ParentRoadmapLedger 
       },
     ]);
   }
-  if (name === 'migration' || name === 'b-43de') {
+  if (name === 'migration') {
     return baseSample('migration', [
       { rowId: 'M4', title: 'Partial M4', intentText: 'M4 is partial in the historical parent candidate.', status: 'parent-governed' },
       ...Array.from({ length: 8 }, (_, index) => {
