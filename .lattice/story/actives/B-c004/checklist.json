@@ -58,11 +58,49 @@
       "context": "Authority Server conformance is no longer an active capability. Update active docs/tests so Authority Server language is legacy/retired compatibility only, not future work or remaining capability.",
       "relatedDocs": [
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
-        "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md"
+        "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+        "docs/requirements/decisions/authority-server-vocabulary-retirement.md"
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-002:happy:0",
+            "desc": "Active Authority Server future backlog language is removed or rewritten as retired legacy compatibility.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-002:edge:0",
+            "desc": "Canonical local/shadow consumer names that still include compatibility vocabulary are explicitly bounded and not described as server production readiness.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-002:adversarial:0",
+            "desc": "A guard fails if the two referenced decision docs reintroduce Authority Server conformance as active future work.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
