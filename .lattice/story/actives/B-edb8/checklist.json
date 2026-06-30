@@ -484,9 +484,9 @@
         "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
         "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-30T13:59:09.318Z",
       "userSees": "The user sees historical parent roadmap candidates reported as migration-needed or partial, never silently complete.",
       "files": {
         "modify": [
@@ -518,7 +518,42 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-007:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js --case=migration",
+          "result": "pass",
+          "note": "Migration smoke classifies B-43de-shaped historical ledger as migration_needed with open M5-M12 rows and no-full-roadmap-claim.",
+          "headHash": "a21e43d6f491eb25489421d6b779755757c3b9c0",
+          "materialHash": "6271fc0625ed3905d2ec1e7fe95d4bf88cea05ead26427d7f57ba510b2d5460f",
+          "storyFilesHash": "1857852913c25f0da7da9c0dafbf9efc9106f01aca0406a61656dac590c6271b",
+          "timestamp": "2026-06-30T13:59:09.583Z"
+        },
+        {
+          "intentRef": "CHK-007:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js parent_roadmap_status {\"case\":\"migration\"}",
+          "result": "pass",
+          "note": "Legacy/migration status remains readable and prints open rows plus repair action rather than force-classifying full completion.",
+          "headHash": "a21e43d6f491eb25489421d6b779755757c3b9c0",
+          "materialHash": "6271fc0625ed3905d2ec1e7fe95d4bf88cea05ead26427d7f57ba510b2d5460f",
+          "storyFilesHash": "1857852913c25f0da7da9c0dafbf9efc9106f01aca0406a61656dac590c6271b",
+          "timestamp": "2026-06-30T13:59:09.851Z"
+        },
+        {
+          "intentRef": "CHK-007:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js --case=evaluator",
+          "result": "pass",
+          "note": "Invalid deferred-with-human-approval without complete human evidence is invalid_parent_rollup and cannot close a row.",
+          "headHash": "a21e43d6f491eb25489421d6b779755757c3b9c0",
+          "materialHash": "6271fc0625ed3905d2ec1e7fe95d4bf88cea05ead26427d7f57ba510b2d5460f",
+          "storyFilesHash": "1857852913c25f0da7da9c0dafbf9efc9106f01aca0406a61656dac590c6271b",
+          "timestamp": "2026-06-30T13:59:10.071Z"
+        }
+      ]
     },
     {
       "id": "CHK-008",
