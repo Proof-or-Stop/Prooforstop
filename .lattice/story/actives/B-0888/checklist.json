@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "Remove project dev-memory legacy brand text and tags",
       "context": "Tracked .lattice/dev-memory/experience.jsonl should contain current Proofbound/Lattice lessons only; remove legacy-koala/koala-* tags and Legacy Koala prose while preserving the useful current lessons.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-30T22:17:33.206Z",
       "userSees": "User sees no Koala/koala/.koala hits when scanning project dev-memory after cleanup.",
       "files": {
         "modify": [
@@ -39,7 +39,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "rg -n -i \"koala|\\\\.koala|legacy-koala\" .lattice/dev-memory packages/main/src/tasks/dev-memory-supersession-smoke.ts || true",
+          "result": "pass",
+          "note": "No output: tracked project dev-memory and smoke source contain zero retired-brand matches.",
+          "headHash": "28b8c04cc64ed22bc2442b468c3787b35d5556ff",
+          "materialHash": "9c4774806a3892f582374dba0907a49264c3325403026a8b1f2b132d126c8666",
+          "storyFilesHash": "81400a0b7d8a2f8e65a882c673128ebc1b4bb3f50307cbd43cb1a04987d157e6",
+          "timestamp": "2026-06-30T22:17:33.418Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/dev-memory-supersession-smoke.js",
+          "result": "pass",
+          "note": "Smoke preserves project memory rows 34e97f9, 99aa6c7, ee3aef3, 148297b, 7ffe281 plus host-policy rows d6f173d, 9bd6b5a.",
+          "headHash": "28b8c04cc64ed22bc2442b468c3787b35d5556ff",
+          "materialHash": "9c4774806a3892f582374dba0907a49264c3325403026a8b1f2b132d126c8666",
+          "storyFilesHash": "81400a0b7d8a2f8e65a882c673128ebc1b4bb3f50307cbd43cb1a04987d157e6",
+          "timestamp": "2026-06-30T22:17:33.580Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/dev-memory-supersession-smoke.js",
+          "result": "pass",
+          "note": "Smoke checks parsed project entries, tags, formatted output, and raw file content for zero retired-brand text.",
+          "headHash": "28b8c04cc64ed22bc2442b468c3787b35d5556ff",
+          "materialHash": "9c4774806a3892f582374dba0907a49264c3325403026a8b1f2b132d126c8666",
+          "storyFilesHash": "81400a0b7d8a2f8e65a882c673128ebc1b4bb3f50307cbd43cb1a04987d157e6",
+          "timestamp": "2026-06-30T22:17:33.746Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
