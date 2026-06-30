@@ -28,7 +28,7 @@
       "desc": "DONE-required stale/freshness smoke still writes synthetic command receipts without commandSpec, so the new CommandSpec evaluator turns the intended metadata-only freshness PASS into command-spec-missing[0]. This leaves stale/mismatch coverage inconsistent with the generated DONE_REQUIRED CommandSpec envelope and currently fails npm --prefix packages/main run test:done-required-freshness-smoke after build.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-30T16:25:24.269Z",
@@ -40,7 +40,11 @@
         "packages/main/src/core/done-required-validation.ts"
       ],
       "signatureTag": "missing|ts|required-stale-freshness",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed done-required-freshness-smoke synthetic receipts to include the DONE_REQUIRED CommandSpec envelope/digest shape. Verified with npm --prefix packages/main run build, npm --prefix packages/main run test:done-required-freshness-smoke, npm --prefix packages/main run test:done-required-validation-smoke, and npm --prefix packages/main run test:proof-admissibility-hardening.",
+      "resolvedAt": "2026-06-30T16:57:29.536Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
