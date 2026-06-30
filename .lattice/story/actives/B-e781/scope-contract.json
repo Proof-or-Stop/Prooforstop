@@ -1,0 +1,63 @@
+{
+  "storyId": "B-e781",
+  "mode": "enforce",
+  "allowedModify": [
+    "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+    "packages/main/src/core/parent-roadmap-totality.ts",
+    "packages/main/src/tasks/parent-roadmap-totality-smoke.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "package.json",
+    "package-lock.json",
+    "packages/main/package.json",
+    ".lattice/story/actives/B-e781/checklist.json",
+    ".lattice/story/actives/B-e781/decision.json",
+    ".lattice/story/actives/B-e781/index.json",
+    ".lattice/story/actives/B-e781/intent-collision.json",
+    ".lattice/story/actives/B-e781/milestone-ledger.json",
+    ".lattice/story/actives/B-e781/original-intent-snapshot.json",
+    ".lattice/story/actives/B-e781/proofstory.json",
+    ".lattice/story/actives/B-e781/scope-contract.json",
+    ".lattice/story/actives/B-e781/slice-plan.json",
+    ".lattice/story/actives/B-e781/understanding.json",
+    ".lattice/story/actives/B-e781/process-events.jsonl"
+  ],
+  "allowedCreate": [
+    "packages/main/src/tasks/*strengthening*smoke.ts",
+    "packages/main/src/tasks/*roadmap*smoke.ts",
+    ".lattice/story/actives/B-e781/parent-ledger-rollup.json",
+    ".lattice/story/actives/B-e781/evidence/**"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/parent-roadmap-totality-smoke.ts",
+    "packages/main/src/tasks/verification-context-pack-smoke.ts",
+    "packages/main/src/tasks/baseline-suite-smoke.ts",
+    "packages/main/src/tasks/baseline-suite-report-smoke.ts",
+    "packages/main/src/tasks/review-escalation-smoke.ts",
+    "packages/main/src/tasks/reviewer-quorum-smoke.ts",
+    "packages/main/src/tasks/quorum-submit-smoke.ts",
+    "packages/main/src/tasks/lifecycle-orchestrate-smoke.ts",
+    "packages/main/src/tasks/lattice-parallel-wave-smoke.ts",
+    "packages/main/src/tasks/rollout-check-smoke.ts",
+    "packages/main/src/tasks/lattice-handoff-smoke.ts"
+  ],
+  "protectedFiles": [
+    ".omx",
+    ".omx/**",
+    ".lattice/story/actives/B-0888/**",
+    ".lattice/story/actives/B-4387/**",
+    ".lattice/story/actives/B-fbb6/**",
+    ".lattice/story/actives/B-8963/**"
+  ],
+  "explicitExcludes": [
+    "Authority Server production/runtime resurrection",
+    "Unrelated active story metadata",
+    "Remote push or publish workflows",
+    "OMX artifacts"
+  ],
+  "scopeChangeReason": "Use exact B-e781 ProofStory artifact paths because scope classifier does not treat the previous wildcard as matching these gate evidence files.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-30T22:12:27.772Z",
+  "updatedAt": "2026-06-30T22:13:22.741Z"
+}
