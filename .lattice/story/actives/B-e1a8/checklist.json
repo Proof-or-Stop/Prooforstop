@@ -6,7 +6,37 @@
       "context": "Add the top-level proofStory config with devGateMode, reviewGateMode, and doneGateMode set to enforce. Related source: docs/requirements/decisions/proofstory-intent-collision-execution-plan.md.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "relatedDocs": [
+        "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md#M9-Risk-Adaptive-Enforcement"
+      ],
+      "files": {
+        "modify": [
+          "lattice.config.json"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "lattice.config.json contains proofStory.devGateMode, proofStory.reviewGateMode, and proofStory.doneGateMode set to enforce.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The config change is scoped to project policy and does not modify ProofStory implementation code.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A missing ProofStory artifact would make DEV admission fail when devGateMode is enforce.",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
