@@ -4,11 +4,11 @@
   "title": "Dev-memory legacy Koala terminology supersession cleanup",
   "description": "Clean up dev-memory legacy Koala terminology without rewriting historical evidence: scan project/global dev-memory, add superseding Proofbound/Lattice memories for legacy Koala entries, and make dev-memory preflight prefer superseding entries over superseded legacy entries.",
   "type": "chore",
-  "phase": "TEST",
+  "phase": "DONE",
   "priority": "high",
   "createdAt": "2026-06-30T15:39:16.088Z",
   "startedAt": "2026-06-30T15:39:16.088Z",
-  "endedAt": null,
+  "endedAt": "2026-06-30T17:40:54.083Z",
   "events": [
     {
       "phase": "INIT",
@@ -153,12 +153,16 @@
       "user": "Harmonygo",
       "sessionId": "sess-648de0e12124a22c",
       "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-30T17:40:54.083Z",
+      "branch": "story/B-a9e7",
+      "user": "Harmonygo",
+      "sessionId": "sess-648de0e12124a22c",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-a9e7",
-    "branch": "story/B-a9e7",
-    "createdAt": "2026-06-30T15:41:52.561Z"
-  },
   "currentReviewRound": "2026-06-30T17:33:36.600Z"
 }
