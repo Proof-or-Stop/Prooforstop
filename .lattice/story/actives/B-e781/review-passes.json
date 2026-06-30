@@ -116,6 +116,15 @@
       "reviewRound": "2026-06-30T23:23:38.353Z",
       "reviewRunId": "B-e781:RR-014",
       "_hash": "24cd7a47010a1271407e6e14d447cf90857349a4fbe449bdffebc9bd6ca10020"
+    },
+    {
+      "id": "B-e781:RP-014",
+      "agent": "lattice-review-test-coverage",
+      "note": "Targeted F-003 coverage review passed. Inspected ebddbc1e7 and packages/main/src/tasks/review-assurance-floor-smoke.ts:236-475: assertProofAdmissibilityBlocked asserts proofAdmissibility.blocking=true, allowed=false, mode=enforce, enforcedConsumer=true, and proof_admissibility_blocked. Enforce-mode negatives cover missing fallback (lines 381-397), stale fallback/material (lines 436-450), and invalid fallback shape (lines 452-475); degraded success remains allowed/non-blocking (lines 415-434). Ran node packages/main/dist/tasks/review-assurance-floor-smoke.js: PASS, 10 checks.",
+      "createdAt": "2026-06-30T23:33:31.527Z",
+      "reviewRound": "2026-06-30T23:31:22.419Z",
+      "reviewRunId": "B-e781:RR-021",
+      "_hash": "4e07364593a492a1069d2cd105bf4f1c810262d32574e98a6dfceaa258afe67f"
     }
   ]
 }
