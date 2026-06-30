@@ -80,6 +80,15 @@
       "reviewRound": "2026-06-30T17:00:51.690Z",
       "reviewRunId": "B-a9e7:RR-013",
       "_hash": "dc35455114340e6a2f489b7352e47ffd6b9a5526da9a63ca8a1f0a7a73dc61b6"
+    },
+    {
+      "id": "B-a9e7:RP-010",
+      "agent": "lattice-review-concept",
+      "note": "F-002 genuinely fixed. Fresh live probes show koala cli search/preflight return current Proofbound/Lattice project guidance 148297b before old global 2de5d6b while preserving the old row; spot checks for koala reviewer, koala delivery, and koala preflight also rank current B-a9e7 project rows before legacy global rows. .lattice/dev-memory/experience.jsonl contains five current project supersession rows with gateEvidence=false and authority=non_authoritative, and packages/main/src/tasks/dev-memory-supersession-smoke.ts now covers actual project+global current-before-legacy ranking, legacy token scorer compatibility, preserved legacy content/refs, and non-authoritative semantics. node packages/main/dist/tasks/dev-memory-supersession-smoke.js passed 18 checks.",
+      "createdAt": "2026-06-30T17:03:59.857Z",
+      "reviewRound": "2026-06-30T17:00:51.690Z",
+      "reviewRunId": "B-a9e7:RR-012",
+      "_hash": "39cf492dd4b4d22c574764e0d3da4c848526b6ff7278a0731625c9032a99719b"
     }
   ]
 }
