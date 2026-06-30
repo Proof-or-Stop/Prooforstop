@@ -98,9 +98,9 @@
         "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
         "docs/requirements/decisions/authority-server-vocabulary-retirement.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-30T15:10:54.245Z",
-      "endTime": null,
+      "endTime": "2026-06-30T15:13:30.387Z",
       "files": {
         "modify": [
           "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
@@ -139,7 +139,44 @@
           }
         ]
       },
-      "userSees": "The final status table shows CHK-002/M2 as Authority Server active backlog retired, with guard evidence proving it stays retired."
+      "userSees": "The final status table shows CHK-002/M2 as Authority Server active backlog retired, with guard evidence proving it stays retired.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+          "result": "pass",
+          "note": "Commit 349ef2b11 retires active server-backed authority future backlog wording and extends the retired-vocabulary guard to scan the two plan docs.",
+          "headHash": "349ef2b11fb0c85373f6fce07face14c148ecdbf",
+          "materialHash": "dc0fd660db5154302aa838370085c5655c9ac6ee5bffa67662fa6716cb137216",
+          "storyFilesHash": "106583a3a70c484779b717df7b87bebbe2be43d8444dd62c9a39d8927704e935",
+          "timestamp": "2026-06-30T15:13:30.557Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "command": "rg -n \"Authority Server conformance|Authority production|server-backed production receipt parity\" docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "result": "pass",
+          "note": "The required active-future backlog phrase search returned no matches.",
+          "headHash": "349ef2b11fb0c85373f6fce07face14c148ecdbf",
+          "materialHash": "dc0fd660db5154302aa838370085c5655c9ac6ee5bffa67662fa6716cb137216",
+          "storyFilesHash": "106583a3a70c484779b717df7b87bebbe2be43d8444dd62c9a39d8927704e935",
+          "timestamp": "2026-06-30T15:13:30.720Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/authority-server-vocabulary-retirement.md",
+          "command": "rg -n \"Authority Server|Authority production\" docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "result": "pass",
+          "note": "The two active plan docs no longer use retired Authority Server or Authority production wording; compatibility enum names remain outside this targeted active-future check.",
+          "headHash": "349ef2b11fb0c85373f6fce07face14c148ecdbf",
+          "materialHash": "dc0fd660db5154302aa838370085c5655c9ac6ee5bffa67662fa6716cb137216",
+          "storyFilesHash": "106583a3a70c484779b717df7b87bebbe2be43d8444dd62c9a39d8927704e935",
+          "timestamp": "2026-06-30T15:13:30.884Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
