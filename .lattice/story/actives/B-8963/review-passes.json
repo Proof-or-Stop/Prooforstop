@@ -62,6 +62,15 @@
       "reviewRound": "2026-06-30T22:42:01.277Z",
       "reviewRunId": "B-8963:RR-009",
       "_hash": "e5e067baafa0b10704ee0fdb802e75d3b97f5bdfd24fd08cfb19ddc3404172fc"
+    },
+    {
+      "id": "B-8963:RP-008",
+      "agent": "lattice-review-concept",
+      "note": "PASS: reviewed final delta after prior concept pass; packages/main/src/tasks/verification-freshness-smoke.ts only changes active vocabulary in a console log. Verified final material preserves host-neutral command-local snapshot semantics: evidenceHashSnapshot is captured at command boundaries with gitCwd/metadataRoot/ref, reused only after same cwd/root/ref/head plus clean material preflight, and DONE/session/lifecycle call sites thread the snapshot without persisting it. Ran node packages/main/dist/tasks/verification-freshness-smoke.js PASS.",
+      "createdAt": "2026-06-30T23:05:24.045Z",
+      "reviewRound": "2026-06-30T23:01:58.642Z",
+      "reviewRunId": "B-8963:RR-012",
+      "_hash": "d665b3ca3c14000e39eb71561b385715f077ec85669aecbfd4e3d859193d6508"
     }
   ]
 }
