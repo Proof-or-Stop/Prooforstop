@@ -163,6 +163,12 @@ Next implementation order:
 5. M12 is last and reruns if any material child-story fix lands after final
    certification evidence.
 
+Duplicate-story governance note: Tier-C provider-execution receipt verification
+stories are an intentional experiment corpus and are not cleanup targets for
+this roadmap. Duplicate cleanup applies to non-experiment active stories whose
+scope overlaps without a declared experiment cohort, parent-row mapping, or
+child-story handoff.
+
 ## Non-Goals
 
 This roadmap story does not:

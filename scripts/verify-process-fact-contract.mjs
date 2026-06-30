@@ -3812,6 +3812,9 @@ function assertStrengtheningRoadmapGovernanceLedger() {
     '`packages/main/src/core/process-fact-levels.ts`',
     '`node scripts/verify-process-fact-contract.mjs`',
     'static verifier for process-fact contract drift',
+    'Tier-C provider-execution receipt verification',
+    'intentional experiment corpus',
+    'Duplicate cleanup applies to non-experiment active stories',
   ];
   for (const marker of requiredGovernanceMarkers) {
     if (!roadmapDocText.includes(marker)) {
