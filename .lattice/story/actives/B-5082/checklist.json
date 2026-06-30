@@ -196,9 +196,9 @@
       "id": "CHK-004",
       "title": "Implement parent ledger roll-up checks for child-story coverage",
       "context": "Covers M5 gap: parent stories must be able to verify child stories and ledger rows before DONE once slice plans exist.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-30T01:13:33.450Z",
-      "endTime": null,
+      "endTime": "2026-06-30T01:26:10.211Z",
       "relatedDocs": [
         "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md#M5-Scope-Shrinkage-Guard-And-DONE-Intent-Equivalence"
       ],
@@ -240,7 +240,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js && node scripts/verify-process-fact-contract.mjs && git diff --check",
+          "result": "pass",
+          "note": "Doc: proofstory-intent-collision-execution-plan.md M5 lines 1204-1223. Impl: types/store/proofstory add parent-ledger-rollup artifact; handlers/proofstory.ts parent_ledger_rollup_set/get; proofstory.ts parentRollupCoversSlicePlan consumed by DONE equivalence; phase-gates/machine read artifact. Smoke: missing roll-up creates DONE gap; complete child roll-up clears it.",
+          "headHash": "81d4b629e7f8991bd2ae184882d6df281fd6e198",
+          "materialHash": "5d97b7951e9c3d8e03969199578c7c1c13adef7c61914d53c9fa10b699ada482",
+          "storyFilesHash": "d66783474c814f8b35728b71ac3278123384b0e3b640ea1414ab6a5b9bc7d334",
+          "timestamp": "2026-06-30T01:26:10.651Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
