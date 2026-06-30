@@ -27,7 +27,30 @@
     "legacy labels/tags preservation"
   ],
   "scopeChangeReason": "Close PLAN scope ambiguity after reviewer flagged execution-boundary wording; repo writes are limited to project dev-memory and the cleanup smoke, while the global dev-memory file is covered by CHK-002 evidence rather than repo-relative scope_contract paths.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "These files are command-generated ProofStory intent artifacts required by the enforced DEV gate: original intent snapshot, milestone ledger, accepted intent collision, and proofstory acceptance binding. They do not widen business scope beyond dev-memory cleanup.",
+      "timestamp": "2026-06-30T22:18:37.450Z",
+      "paths": [
+        ".lattice/story/actives/B-0888/intent-collision.json",
+        ".lattice/story/actives/B-0888/milestone-ledger.json",
+        ".lattice/story/actives/B-0888/original-intent-snapshot.json",
+        ".lattice/story/actives/B-0888/proofstory.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-0888/intent-collision.json",
+        ".lattice/story/actives/B-0888/milestone-ledger.json",
+        ".lattice/story/actives/B-0888/original-intent-snapshot.json",
+        ".lattice/story/actives/B-0888/proofstory.json"
+      ],
+      "affectedPathCount": 4,
+      "phase": "DEV",
+      "headHash": "91fb6f5d81b5c6e08eaa3f2a257a488f453857b1",
+      "materialHash": "9c4774806a3892f582374dba0907a49264c3325403026a8b1f2b132d126c8666"
+    }
+  ],
   "createdAt": "2026-06-30T22:07:09.465Z",
-  "updatedAt": "2026-06-30T22:07:09.465Z"
+  "updatedAt": "2026-06-30T22:18:37.451Z"
 }
