@@ -81,6 +81,27 @@
       ],
       "signatureTag": "missing|ts|proofstory-specified-contract",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-f7b7:F-005",
+      "desc": "ProofStory gate-consumed artifacts are misclassified in the process-fact contract. packages/main/src/core/process-fact-levels.ts:35-42 defines L3 as durable artifacts not directly consumed by lifecycle gates and L4 as lifecycle gate consumed facts, but the new ProofStory writer commands remain L3/L2 at packages/main/src/core/process-fact-levels.ts:283-296 even though their own rationales say they are consumed by opt-in enforcement. Runtime does consume these artifacts in lifecycle gates: DEV admission reads them through proofStoryDevGateFailure in packages/main/src/core/machine.ts:148-154 and REVIEW/DONE gates read them in packages/main/src/handlers/phase-gates.ts:292-309 and :460-477. The artifact registry also marks milestone-ledger/proofstory/intent-collision/scope-shrinkage/red-evidence as L3 while assigning consumerGate text at packages/main/src/core/process-fact-registry.ts:904-950. This violates the registry definition and makes audit/doctor consumers under-report the new ProofStory gate evidence instead of treating it as L4 with explicit gateConsumer coverage.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-30T00:05:53.168Z",
+      "reviewRound": "2026-06-30T00:01:49.378Z",
+      "reviewRunId": "B-f7b7:RR-005",
+      "_hash": "df22830b70256cee3818e599e70d349101d15cd81743aa6d3c8f55bae52b3169",
+      "files": [
+        "packages/main/src/core/process-fact-levels.ts",
+        "packages/main/src/core/process-fact-registry.ts",
+        "packages/main/src/core/machine.ts",
+        "packages/main/src/handlers/phase-gates.ts"
+      ],
+      "signatureTag": "missing|ts|proofstory-gate-consumed",
+      "signatureTagSource": "auto"
     }
   ]
 }
