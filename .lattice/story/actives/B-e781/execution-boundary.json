@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-e781",
+  "allowedCommands": [
+    "git diff *",
+    "git log *",
+    "git status --short",
+    "node bin/lattice.js *",
+    "node packages/main/dist/tasks/*.js",
+    "node scripts/verify-process-fact-contract.mjs",
+    "npm --prefix packages/main run build",
+    "npm test",
+    "rg *"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "lattice-cli",
+    "multi-agent-reviewers",
+    "shell"
+  ],
+  "allowedPaths": [
+    ".lattice/story/actives/B-e781",
+    "docs/requirements/decisions",
+    "lattice.config.json",
+    "package-lock.json",
+    "package.json",
+    "packages/main/dist",
+    "packages/main/package.json",
+    "packages/main/src",
+    "scripts"
+  ],
+  "excludedCommands": [
+    "git checkout -- *",
+    "git clean *",
+    "git push *",
+    "git reset --hard *",
+    "omx *"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".lattice/story/actives/B-0888",
+    ".lattice/story/actives/B-4387",
+    ".lattice/story/actives/B-b49f",
+    ".lattice/story/actives/B-fbb6",
+    ".omx"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Execution is limited to B-e781 roadmap closure and verification. Existing unrelated active stories must not be mutated.",
+  "createdAt": "2026-06-30T22:06:40.585Z",
+  "updatedAt": "2026-06-30T22:06:40.585Z",
+  "_hash": "d8525ace385154e9a131c575045cf0c53e50f5529f1282ba05974b8d5179089f"
+}
