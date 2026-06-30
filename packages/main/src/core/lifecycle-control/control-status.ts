@@ -52,7 +52,7 @@ export const DEFAULT_CONTROL_PLANE_CAPABILITIES: ControlPlaneCapabilities = {
   capabilityStatus: {
     proofM7Enforcement: 'partial',
     queueCleanupEnforcement: 'partial',
-    tierCCleanup: 'future',
+    tierCCleanup: 'unavailable',
   },
   capabilities: [
     {
@@ -123,7 +123,7 @@ export const DEFAULT_CONTROL_PLANE_CAPABILITIES: ControlPlaneCapabilities = {
     },
     {
       id: 'tier-c-cleanup',
-      status: 'future',
+      status: 'unavailable',
       description: 'Tier-C provider-execution runs are preserved as experiment evidence; automated cleanup remains deliberately unavailable.',
       evidence: [
         'tierCCleanup boolean remains false',

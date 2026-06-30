@@ -130,10 +130,10 @@ function assertCapabilityStatuses(): void {
   assert.equal(caps.tierCCleanup, false, 'control plane must not claim Tier-C cleanup automation');
   assert.equal(caps.capabilityStatus.proofM7Enforcement, 'partial');
   assert.equal(caps.capabilityStatus.queueCleanupEnforcement, 'partial');
-  assert.equal(caps.capabilityStatus.tierCCleanup, 'future');
+  assert.equal(caps.capabilityStatus.tierCCleanup, 'unavailable');
   assert.equal(caps.capabilities.find(row => row.id === 'proof-m7-enforcement')?.status, 'partial');
   assert.equal(caps.capabilities.find(row => row.id === 'queue-cleanup-enforcement')?.status, 'partial');
-  assert.equal(caps.capabilities.find(row => row.id === 'tier-c-cleanup')?.status, 'future');
+  assert.equal(caps.capabilities.find(row => row.id === 'tier-c-cleanup')?.status, 'unavailable');
   assert.equal(isReadOnlyControlPlane(caps), true, 'richer statuses must preserve read-only/no-enforcement booleans');
 }
 

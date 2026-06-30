@@ -169,7 +169,7 @@ safety booleans.
 | Queue classification | implemented | `queue_governance_status` classifies active worktree, stale worktree, main init, experiment exception, duplicate candidate, superseded, and cleanup-required rows. | Classification alone never discards a story or grants readiness. |
 | Queue exception registry | implemented | `queue_exception_set` writes preserve-only experiment exceptions under the main-write lock with actor, reason, timestamp, hash binding, and audit event. | Exceptions affect duplicate-cleanup pressure only. |
 | Queue cleanup enforcement | partial | Duplicate/superseded/cleanup-required risk is projected and exception writes are guarded; cleanup mutations remain outside this dashboard. Compatibility boolean `queueCleanupEnforcement=false`. | Does not perform or authorize cleanup by itself. |
-| Tier-C cleanup | future | Tier-C provider-execution receipt verification runs are preserved and grouped as experiment evidence; malformed Tier-C-like rows stay cleanup-required. Compatibility boolean `tierCCleanup=false`. | No automated Tier-C cleanup is available or implied. |
+| Tier-C cleanup | unavailable | Tier-C provider-execution receipt verification runs are preserved and grouped as experiment evidence; malformed Tier-C-like rows stay cleanup-required. Compatibility boolean `tierCCleanup=false`. | Automated Tier-C cleanup is retired as a non-goal; preservation and malformed-row visibility are the implemented policy. |
 | External production done | unavailable | No external production adapter is part of the control plane. | Local CLI evidence cannot mint `productionDone`. |
 
 ## 2. Why This Is Needed
