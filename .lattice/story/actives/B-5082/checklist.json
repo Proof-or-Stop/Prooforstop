@@ -59,7 +59,47 @@
       "context": "Covers M1 gap: milestone ledger rows need optional parent ledger / assigned story fields without forcing one milestone to become one story.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "relatedDocs": [
+        "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md#M1-Original-Intent-Snapshot-And-Milestone-Ledger"
+      ],
+      "userSees": "User sees milestone ledger rows expose optional parent/assigned-story fields without auto-splitting the story.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/cli/command-catalog.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "milestone_ledger_set/add accept optional parentLedgerId and assignedStory fields and preserve them in get output",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "milestones without assignedStory remain valid and do not force one milestone to become one story",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "invalid parent/assigned-story fields fail validation before corrupting milestone-ledger.json",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
