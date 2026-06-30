@@ -1,0 +1,48 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Inventory legacy Koala dev-memory entries and define supersession mapping",
+      "context": "Scan project/global dev-memory for Koala/.koala/koala-* terms. Preserve old entries as historical evidence, but define a machine-readable supersession mapping to Proofbound/Lattice terminology.",
+      "relatedDocs": [
+        "docs/requirements/decisions/dev-memory.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Implement dev-memory supersession priority for preflight/search/list consumers",
+      "context": "Entries tagged supersedes-<id> or referencing dev-memory:<id> should cause the superseding entry to rank ahead of legacy entries; legacy entries should remain readable but show superseded metadata so hosts do not treat old Koala terms as active guidance.",
+      "relatedDocs": [
+        "docs/requirements/decisions/dev-memory.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Capture current Proofbound/Lattice superseding memories for legacy Koala lessons",
+      "context": "Add project/global memory entries that map legacy Koala reviewer/delivery/CLI lessons to current Proofbound/Lattice naming. Do not mutate old evidence refs.",
+      "relatedDocs": [
+        "docs/requirements/decisions/dev-memory.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Add smoke coverage for superseded dev-memory ordering and legacy terminology mapping",
+      "context": "A test should prove superseding entries rank before superseded legacy entries and that legacy Koala memories remain readable but are marked as superseded.",
+      "relatedDocs": [
+        "docs/requirements/decisions/dev-memory.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
