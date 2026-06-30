@@ -208,7 +208,46 @@
       "context": "Covers M5 gap: ordinary single-outcome stories should compare summary/delivery against the original snapshot instead of requiring a confirmed milestone ledger.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "relatedDocs": [
+        "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md#M5-Scope-Shrinkage-Guard-And-DONE-Intent-Equivalence"
+      ],
+      "userSees": "User sees ordinary single-outcome DONE equivalence pass through a lightweight snapshot-to-summary check without needing a milestone ledger.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/phase-gates.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "single-outcome story with original snapshot and delivery summary passes lightweight DONE equivalence without confirmed ledger",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "milestone or high-assurance story still uses strict ledger-based DONE equivalence",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "DONE summary that is narrower than the snapshot remains blocked unless user-confirmed shrinkage exists",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-006",
