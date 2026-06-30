@@ -61,6 +61,26 @@
       ],
       "signatureTag": "doc-code-drift|md|proofstory-execution-plan",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-f7b7:F-004",
+      "desc": "ProofStory is specified as a pre-DEV contract layer: M3 requires PLAN-only mutation policy for intent_collision_set, M4/M6/M7 require the gate/red/spike artifacts to block before DEV in enforce mode, and the gate outputs say incomplete ProofStory work should stay in PLAN. The implementation registers the core ProofStory artifact writers as story-scoped gate evidence but allows them in DEV in both command-policy and DEFAULT_PHASE_TOOLS: original_intent_snapshot_set, milestone_ledger_set/add, proofstory_contract_set, intent_collision_set, red_evidence_create, and spike_* can all be written after implementation has started. That lets agents backfill or revise the intent/collision/contract/red/spike record during DEV instead of proving it before DEV, weakening the M0-M9 conceptual boundary even though the diagnostics themselves are pure and do not create a second lifecycle state machine. Narrow these pre-DEV artifact writers to INIT/PLAN as appropriate, leaving only explicit scope-shrinkage/DONE-time decisions in later phases, and update phase allowlist plus command policy together. Source refs: packages/main/src/core/command-policy.ts:356, :358, :361, :363, :367, :369; packages/main/src/core/config.ts:304, :325; docs/requirements/decisions/proofstory-intent-collision-execution-plan.md:1144, :1165, :1210, :1227.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-30T00:05:08.699Z",
+      "reviewRound": "2026-06-30T00:01:49.378Z",
+      "reviewRunId": "B-f7b7:RR-001",
+      "_hash": "ea4057e1d951de88ae4c9b54169e525231448c12d71523b205d1567b20dff502",
+      "files": [
+        "packages/main/src/core/command-policy.ts",
+        "packages/main/src/core/config.ts",
+        "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md"
+      ],
+      "signatureTag": "missing|ts|proofstory-specified-contract",
+      "signatureTagSource": "auto"
     }
   ]
 }
