@@ -58,6 +58,7 @@
       "endTime": null,
       "files": {
         "modify": [
+          "packages/main/src/core/lifecycle-control",
           "packages/main/src/core/lifecycle-control/global-control-service.ts",
           "packages/main/src/core/lifecycle-control/control-status.ts",
           "packages/main/src/core/lifecycle-control/dashboard/index.ts",
@@ -89,7 +90,8 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "userSees": "User sees global_control_status report lifecycle-control capability states without overclaiming runtime hard-block, queue guard, or proof admissibility rollout completion."
     },
     {
       "id": "CHK-003",
