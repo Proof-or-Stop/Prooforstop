@@ -54,7 +54,39 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "The user sees strict parent roadmap statuses and claim types accepted or rejected predictably by the smoke tests.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/types.ts"
+        ],
+        "create": [
+          "packages/main/src/core/parent-roadmap-totality.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/parent-roadmap-totality-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "ParentRoadmapLedger, row statuses, summary classes, and claim types are exported and valid ledgers round-trip through validation.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Unknown statuses, invalid deferrals, and missing required closure evidence are rejected or classified invalid rather than silently closed.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A child-story-needed row remains valid data but never contributes to full roadmap closure.",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
