@@ -618,9 +618,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-30T22:29:49.941Z",
-      "endTime": null,
+      "endTime": "2026-06-30T22:29:51.421Z",
       "userSees": "\"M11\" row shows \"closed\": true and \"rollout-check-smoke\" plus roadmap guidance refs are listed.",
       "files": {
         "modify": [
@@ -880,6 +880,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Start M11 final evidence recording after implementation commit."
+    },
+    {
+      "timestamp": "2026-06-30T22:29:51.421Z",
+      "phase": "DEV",
+      "itemId": "CHK-008",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "M11 completed after evidence-backed roadmap closure verification."
     }
   ]
 }
