@@ -158,6 +158,26 @@
           "node packages/main/dist/tasks/lifecycle-check-smoke.js",
           "lattice runtime_closure_status --storyId=B-cd3a --format=json"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run runtime closure checks and smoke tasks to prove configured hard-blocks prevent unsafe operations for wrong authoritative cwd, stale active locks, dirty phase-advance state, and worktree authority drift.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Verify rollback or config disablement is documented and observable, so each hard-block can be traced to its configured rollout state without masking read-only diagnostics.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Fail if any unsafe closure case is only reported as advisory/read-only after rollout is configured, or if worktree authority drift can proceed without an explicit blocking result and reviewable rollback path.",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
