@@ -155,7 +155,7 @@ Proof Admissibility owns proof decision logic:
 - scope / claim / consumer policy;
 - producer boundary and temporal/material binding decisions;
 - verifier adapter resolution;
-- `AdmissibilityEvaluationRow`;
+- artifact-specific admissibility evaluation results;
 - `AdmissibilityWaterline`;
 - proof-consumption enforcement in M7.
 
@@ -1510,19 +1510,22 @@ surface does not leave the same bug class open in another surface.
     for the artifact.
   - New artifacts must declare `producer`, `scope`, `ArtifactConsumerKind`,
     `ArtifactRole`, `ClaimKind`, `claimSubject`, and reason codes.
-- Step 2: evidence ledger write path
-  - Producers append only `ArtifactObservedEvent`; they do not write
-    admissibility conclusions.
-  - Evaluators append `AdmissibilityEvaluationRow`.
-  - Consumers use the latest applicable evaluation, or rerun the shared
-    admissibility evaluator before gate entry.
+- Step 2: artifact-specific verifier output path
+  - Producers write only the artifact-specific runtime evidence their surface
+    already owns; they do not write admissibility conclusions.
+  - Verifiers emit the artifact-specific proof-admissibility result consumed by
+    the shared evaluator.
+  - Consumers use the current verifier output for the artifact and rerun the
+    shared admissibility evaluator before gate entry when the runtime evidence
+    path is missing or stale.
 - Step 3: consistency threshold check
   - Generate the current consumer waterline through `lattice
     admissibility_waterline` or an equivalent entry point.
-  - `AUTHORITY_GATE_DECISION` / `DONE_REQUIRED` `failRows > 0` blocks only when
-    it matches the current story, consumer, contract version, hash/temporal
-    binding, active policy, and latest non-superseded evaluation. Historical
-    failures remain visible but do not block unrelated stories.
+  - `AUTHORITY_GATE_DECISION` / `DONE_REQUIRED` blocking diagnostics apply only
+    when they match the current story, consumer, contract version,
+    hash/temporal binding, active policy, and current verifier output.
+    Historical or unrelated diagnostics remain visible but do not block
+    unrelated stories.
 - Step 4: hash tuple check
   - Record the current `materialHash`, `headHash`, and `storyFilesHash`.
   - Check that stale counts are explained by a legitimate rerun or update path.

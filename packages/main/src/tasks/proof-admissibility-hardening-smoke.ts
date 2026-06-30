@@ -118,10 +118,25 @@ function assertHardeningPlanHasNoActiveLedgerObligations(): void {
       '\n## Appendix C retired reference omitted from active-obligation smoke\n',
     );
   const retiredContext = 'Appendix C is the only retired ledger-row reference context in this smoke';
+  const activeParagraphs = activePlanText
+    .split(/\n{2,}/)
+    .filter(paragraph => !/\b(?:retired|non-goals?|future[- ]integration|future|reference material|integration story)\b/i.test(paragraph));
   const forbiddenActivePhrases = [
     {
+      label: 'evidence ledger write path',
+      pattern: /\bevidence ledger write path\b/i,
+    },
+    {
+      label: 'ArtifactObservedEvent active obligation',
+      pattern: /\bArtifactObservedEvent\b/,
+    },
+    {
+      label: 'AdmissibilityEvaluationRow active obligation',
+      pattern: /\bAdmissibilityEvaluationRow\b/,
+    },
+    {
       label: 'ledger stream storage obligation',
-      pattern: /\bStore\b[\s\S]{0,120}\bledger streams?\b[\s\S]{0,80}`?\.lattice\/evidence\/`?/i,
+      pattern: /\bledger streams?\b/i,
     },
     {
       label: 'review-time concrete ledger row obligation',
@@ -135,13 +150,19 @@ function assertHardeningPlanHasNoActiveLedgerObligations(): void {
       label: 'ledger-row repair obligation',
       pattern: /\badd\s+a\s+ledger row\b/i,
     },
+    {
+      label: 'active ledger row obligation',
+      pattern: /\bledger rows?\b/i,
+    },
   ];
   for (const { label, pattern } of forbiddenActivePhrases) {
-    assert.equal(
-      pattern.test(activePlanText),
-      false,
-      `${HARDENING_PLAN_PATH} must not reintroduce active ${label}; ${retiredContext}`,
-    );
+    for (const paragraph of activeParagraphs) {
+      assert.equal(
+        pattern.test(paragraph),
+        false,
+        `${HARDENING_PLAN_PATH} must not reintroduce active ${label}; ${retiredContext}`,
+      );
+    }
   }
 }
 
