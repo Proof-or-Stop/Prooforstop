@@ -27,7 +27,7 @@
       "desc": "High-assurance DONE equivalence currently treats high_assurance itself as a milestone path: packages/main/src/core/proofstory.ts:1267-1270 includes hardeningLevel === high_assurance in hasMilestonePath, and packages/main/src/core/proofstory.ts:1321-1328 then fails missing_confirmed_milestone_ledger when no confirmed ledger exists. That violates the progressive model in docs/requirements/decisions/proofstory-intent-collision-execution-plan.md:90-95, where the confirmed milestone ledger is only required if one exists, and M9 at docs/requirements/decisions/proofstory-intent-collision-execution-plan.md:1293-1300 lists high-assurance requirements as intent collision/red/spike/review escalation, not a milestone ledger. The smoke coverage only proves low-risk single-outcome lightweight DONE at packages/main/src/tasks/proofstory-intent-hardening-smoke.ts:617-619, so a single-outcome high-assurance story can be incorrectly blocked at DONE for missing milestone-ledger.json even though milestone intent was never triggered.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-06-30T01:35:40.310Z",
@@ -40,7 +40,11 @@
         "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
       ],
       "signatureTag": "edge|ts|high-assurance-equivalence",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Removed high_assurance as a standalone milestone-path trigger in evaluateDoneIntentEquivalence. Added smoke coverage proving a high-assurance single-outcome story without milestone ledger/slice/shrinkage uses lightweight_single_outcome and passes DONE equivalence with original snapshot plus accepted summary. Verified with npm --prefix packages/main run build, proofstory-intent-hardening-smoke, verify-process-fact-contract, and git diff --check.",
+      "resolvedAt": "2026-06-30T01:40:39.847Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5082:F-003",
