@@ -128,7 +128,7 @@
       "desc": "ProofStory REVIEW/DONE coverage treats deferred gate waivers as completed evidence. The shared verification schema says verdict does not override pass/fail and waiverType=deferred_gate_evidence is temporary evidence that later validate must replace (packages/main/src/cli/command-schemas.ts:70-71); the main verification engine preserves that distinction by marking such rows deferred before normal waiver/covered handling (packages/main/src/core/verification.ts:94-117). ProofStory collapses all waiver rows into success in packages/main/src/core/proofstory.ts:521-527, and both DONE equivalence and REVIEW completeness consume that helper at packages/main/src/core/proofstory.ts:1013-1015 and :1063-1069. As a result proofstory_review_completeness_check --mode=enforce and done_intent_equivalence_check --mode=enforce can report pass for an intent that only has temporary deferred_gate_evidence, drifting from the verification engine semantics and making the standalone ProofStory gate reports too optimistic.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-30T00:06:01.187Z",
@@ -141,7 +141,11 @@
         "packages/main/src/cli/command-schemas.ts"
       ],
       "signatureTag": "edge|ts|proofstory-review-coverage",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by changing ProofStory evidence coverage so deferred_gate_evidence never covers, ordinary evidence requires result=pass, and permanent waivers cover only when not failed. Smoke now covers result=fail with verdict success, failed waiver, and deferred waiver. Verified by build, ProofStory smoke, and process-fact contract.",
+      "resolvedAt": "2026-06-30T00:31:50.730Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-f7b7:F-007",
