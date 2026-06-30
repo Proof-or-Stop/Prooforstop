@@ -1,0 +1,31 @@
+{
+  "storyId": "B-e1a8",
+  "checkedAt": "2026-06-30T09:08:53.502Z",
+  "headHash": "4516481b0465b3e6b7dba2a12a90ba548c5ad46b",
+  "materialHash": "1aa2dc0106b4d52473c330c63fbc1e8bd616e3ee951c0143de1b6b3a83f6f976",
+  "storyFilesHash": "f54c0d1a50ced4910cf83a5e7c8aded1ce6c2b724232b295952c8e857e67982b",
+  "reviewRound": "2026-06-30T08:52:07.328Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "PASS. Inspected lattice.config.json in the story worktree. The file contains a top-level proofStory block with devGateMode=\"enforce\", reviewGateMode=\"enforce\", and doneGateMode=\"enforce\". This confirms the user-visible project policy rollout is present and scoped to lattice.config.json."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "PASS. Ran env LATTICE_SESSION_ID=proofstory-enforce-rollout lattice proofstory_gate_check --storyId=B-e1a8 --mode=enforce --json. The diagnostic returned status=pass, blocking=false, hardeningLevel=high_assurance, ledgerState=confirmed, milestoneCount=3 within_threshold, and no missing MVP artifacts, milestone coverage, confirmed ledger, acceptance bindings, intent collision, red evidence, spike evidence, parent rollup, or gaps."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "PASS. Ran env LATTICE_SESSION_ID=proofstory-enforce-rollout lattice proofstory_review_completeness_check --storyId=B-e1a8 --mode=enforce --json and env LATTICE_SESSION_ID=proofstory-enforce-rollout lattice done_intent_equivalence_check --storyId=B-e1a8 --mode=enforce --json. Review completeness returned status=pass, blocking=false, gaps=[]. DONE intent equivalence returned status=pass, blocking=false, equivalenceMode=strict_milestone, acceptedShrinkageMilestoneIds=[], uncoveredRequiredMilestoneIds=[], gaps=[]. session_brief also showed the latest routine validation result as PASS at 2026-06-30T09:05:50.198Z and checklist 3/3 done."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery review independently verified the enforce-mode config, ProofStory gate diagnostic, review completeness diagnostic, and DONE intent equivalence diagnostic on the real story worktree. Edge/adversarial coverage is represented by enforce-mode missing-artifact/gap checks and strict milestone equivalence checks. No unresolved TODOs or external documentation promises were found for this delivery."
+  },
+  "_hash": "d310fa8b2502c2f5fa8093818cd600e95cb3847cd1c8c04edb31ed185bcf6378"
+}

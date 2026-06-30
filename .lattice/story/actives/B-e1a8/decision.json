@@ -1,0 +1,71 @@
+{
+  "principles": [
+    "No DEV before ProofStory gate when enforcement is configured.",
+    "No DONE before intent equivalence gate when enforcement is configured.",
+    "Rollout must be config-only unless verification reveals a real gate bug."
+  ],
+  "drivers": [
+    "The ProofStory implementation is complete but project config still defaults to observe.",
+    "Future stories should not bypass the M0-M9 safeguards.",
+    "Existing active stories need a clear enforce signal instead of silent diagnostics."
+  ],
+  "options": [
+    {
+      "name": "A: Enable all ProofStory gates in enforce mode now",
+      "pros": [
+        "Matches the user-approved rule immediately.",
+        "Makes future bypasses mechanically visible.",
+        "Uses already implemented config hooks."
+      ],
+      "cons": [
+        "Older active stories may need to add ProofStory artifacts before advancing.",
+        "The rollout story itself must carry complete self-proof evidence."
+      ]
+    },
+    {
+      "name": "B: Keep warn mode first",
+      "pros": [
+        "Lower chance of blocking old stories.",
+        "Allows more observation data before enforcement."
+      ],
+      "cons": [
+        "Does not satisfy the user-approved strong gate rule.",
+        "Leaves checklist-DONE versus intent-DONE drift possible."
+      ]
+    },
+    {
+      "name": "C: Enforce only DEV gate first",
+      "pros": [
+        "Reduces immediate DONE/REVIEW friction.",
+        "Still protects new implementation entry."
+      ],
+      "cons": [
+        "REVIEW completeness and DONE equivalence would remain bypassable.",
+        "Does not implement the full No DEV / No DONE rule."
+      ]
+    }
+  ],
+  "chosen": "A: Enable all ProofStory gates in enforce mode now",
+  "rationale": "Choose full enforcement because the user explicitly agreed to activate the completed mechanism, and the implementation plus smoke tests already support enforce behavior for DEV, REVIEW, and DONE gates.",
+  "preMortem": [
+    {
+      "scenario": "Existing active stories are blocked when advancing because they predate ProofStory artifacts.",
+      "trigger": "A legacy story tries to enter DEV, TEST, or DONE without snapshot, collision, contract, or coverage evidence.",
+      "consequence": "The user sees friction after the rollout.",
+      "mitigation": "Make the final response explicit that old active stories must add required ProofStory artifacts on next transition; do not silently downgrade enforce."
+    },
+    {
+      "scenario": "The rollout story blocks itself after config is enabled.",
+      "trigger": "reviewGateMode or doneGateMode enforce sees missing acceptance bindings or milestone evidence for B-e1a8.",
+      "consequence": "The story cannot reach DONE and enforcement remains half-applied.",
+      "mitigation": "Create self-proof artifacts and passing verification evidence before transitioning REVIEW/TEST/DONE."
+    },
+    {
+      "scenario": "Config-only rollout overclaims code behavior without verification.",
+      "trigger": "Build or ProofStory smoke is skipped after changing lattice.config.json.",
+      "consequence": "The enforcement setting could be committed without machine proof.",
+      "mitigation": "Run build, process fact contract verification, ProofStory smoke, and explicit gate diagnostics before DONE."
+    }
+  ],
+  "timestamp": "2026-06-30T08:42:22.929Z"
+}

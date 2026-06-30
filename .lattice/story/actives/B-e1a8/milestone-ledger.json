@@ -1,0 +1,78 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-e1a8",
+  "state": "confirmed",
+  "ledgerHash": "sha256:bd59328e10884204213326a863984720115fe5f28c8eb2a354a7cc082c4c5884",
+  "milestones": [
+    {
+      "id": "M1",
+      "sourceRequirementId": "REQ-DEV-GATE",
+      "claim": "DEV admission uses ProofStory enforce mode.",
+      "doneMeans": "lattice.config.json sets proofStory.devGateMode to enforce and ProofStory DEV gate diagnostics pass for this rollout story.",
+      "requiredEvidence": [
+        "config_diff",
+        "proofstory_gate_check"
+      ],
+      "checklistRefs": [
+        "CHK-001",
+        "CHK-002",
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-002:adversarial:0",
+        "CHK-003:happy:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M2",
+      "sourceRequirementId": "REQ-REVIEW-GATE",
+      "claim": "REVIEW completeness uses ProofStory enforce mode.",
+      "doneMeans": "lattice.config.json sets proofStory.reviewGateMode to enforce and proofstory_review_completeness_check mode=enforce passes for this rollout story.",
+      "requiredEvidence": [
+        "config_diff",
+        "review_completeness_check"
+      ],
+      "checklistRefs": [
+        "CHK-001",
+        "CHK-002",
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-002:happy:0",
+        "CHK-003:edge:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M3",
+      "sourceRequirementId": "REQ-DONE-GATE",
+      "claim": "DONE intent equivalence uses ProofStory enforce mode.",
+      "doneMeans": "lattice.config.json sets proofStory.doneGateMode to enforce and done_intent_equivalence_check mode=enforce passes for this rollout story.",
+      "requiredEvidence": [
+        "config_diff",
+        "done_equivalence_check"
+      ],
+      "checklistRefs": [
+        "CHK-001",
+        "CHK-002",
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-002:happy:0",
+        "CHK-003:adversarial:0"
+      ],
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-06-30T08:42:55.248Z",
+  "updatedAt": "2026-06-30T08:43:04.116Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260630084304",
+    "acceptedInterpretationHash": "sha256:17d38f4c9078a34c6748c052d51770d30322cb6ca11d987407d675cdae8dca31",
+    "acceptedAt": "2026-06-30T08:43:04.116Z"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-e1a8",
+  "id": "IC-20260630084304",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "The accepted intent is a config rollout, not a code rewrite: set proofStory.devGateMode, proofStory.reviewGateMode, and proofStory.doneGateMode to enforce, then prove the rollout story itself satisfies ProofStory diagnostics, REVIEW completeness, DONE equivalence, build, process fact contract, and smoke verification. Existing active stories are not retrofitted in this story; they will be required to satisfy gates on future transitions.",
+  "acceptedInterpretationHash": "sha256:17d38f4c9078a34c6748c052d51770d30322cb6ca11d987407d675cdae8dca31",
+  "notes": "Intent collision resolved: enforce all three configured gates now; no scope shrinkage and no implementation code changes unless verification exposes a separate bug.",
+  "ledgerHashBeforeDecision": "sha256:bd59328e10884204213326a863984720115fe5f28c8eb2a354a7cc082c4c5884",
+  "confirmedLedgerHash": "sha256:bd59328e10884204213326a863984720115fe5f28c8eb2a354a7cc082c4c5884",
+  "createdAt": "2026-06-30T08:43:04.115Z",
+  "updatedAt": "2026-06-30T08:43:04.115Z"
+}

@@ -4,7 +4,7 @@
   "title": "Enable ProofStory gates in enforce mode",
   "description": "Roll out ProofStory enforcement globally by setting proofStory.devGateMode, proofStory.reviewGateMode, and proofStory.doneGateMode to enforce. The story must also prove its own original intent, milestone coverage, intent collision, ProofStory contract, REVIEW completeness, and DONE intent equivalence so the new gates are not bypassed.",
   "type": "feature",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "high",
   "riskSignals": [
     {
@@ -14,7 +14,7 @@
   ],
   "createdAt": "2026-06-30T08:38:15.898Z",
   "startedAt": "2026-06-30T08:38:15.898Z",
-  "endedAt": null,
+  "endedAt": "2026-06-30T09:17:01.450Z",
   "events": [
     {
       "phase": "INIT",
@@ -33,11 +33,52 @@
       "user": "Harmonygo",
       "sessionId": "proofstory-enforce-rollout",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-06-30T08:40:27.519Z",
+      "branch": "story/B-e1a8",
+      "user": "Harmonygo",
+      "sessionId": "proofstory-enforce-rollout",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-06-30T08:46:15.908Z",
+      "branch": "story/B-e1a8",
+      "user": "Harmonygo",
+      "sessionId": "proofstory-enforce-rollout",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-06-30T08:52:07.328Z",
+      "branch": "story/B-e1a8",
+      "user": "Harmonygo",
+      "sessionId": "proofstory-enforce-rollout",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-30T09:02:13.492Z",
+      "branch": "story/B-e1a8",
+      "user": "Harmonygo",
+      "sessionId": "proofstory-enforce-rollout",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-06-30T09:17:01.450Z",
+      "branch": "story/B-e1a8",
+      "user": "Harmonygo",
+      "sessionId": "proofstory-enforce-rollout",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-e1a8",
-    "branch": "story/B-e1a8",
-    "createdAt": "2026-06-30T08:40:17.180Z"
-  }
+  "currentReviewRound": "2026-06-30T08:52:07.328Z"
 }

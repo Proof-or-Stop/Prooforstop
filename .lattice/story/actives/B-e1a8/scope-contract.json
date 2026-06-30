@@ -1,0 +1,48 @@
+{
+  "storyId": "B-e1a8",
+  "mode": "enforce",
+  "allowedModify": [
+    "lattice.config.json"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/handlers/phase-gates.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "These ProofStory metadata artifacts are required self-proof evidence for the rollout story and do not expand implementation scope beyond the lattice.config.json policy change.",
+      "timestamp": "2026-06-30T08:50:48.921Z",
+      "paths": [
+        ".lattice/story/actives/B-e1a8/intent-collision.json",
+        ".lattice/story/actives/B-e1a8/milestone-ledger.json",
+        ".lattice/story/actives/B-e1a8/original-intent-snapshot.json",
+        ".lattice/story/actives/B-e1a8/proofstory.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-e1a8/intent-collision.json",
+        ".lattice/story/actives/B-e1a8/milestone-ledger.json",
+        ".lattice/story/actives/B-e1a8/original-intent-snapshot.json",
+        ".lattice/story/actives/B-e1a8/proofstory.json"
+      ],
+      "affectedPathCount": 4,
+      "phase": "DEV",
+      "headHash": "8eefc597660c9684b152249e27bfea668635c3e2",
+      "materialHash": "1aa2dc0106b4d52473c330c63fbc1e8bd616e3ee951c0143de1b6b3a83f6f976",
+      "anchors": [
+        "proofstory_self_evidence",
+        "config_only_rollout"
+      ]
+    }
+  ],
+  "createdAt": "2026-06-30T08:47:42.619Z",
+  "updatedAt": "2026-06-30T08:50:48.921Z"
+}

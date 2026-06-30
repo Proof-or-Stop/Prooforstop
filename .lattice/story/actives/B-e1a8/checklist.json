@@ -4,25 +4,254 @@
       "id": "CHK-001",
       "title": "Enable ProofStory enforce modes in project config",
       "context": "Add the top-level proofStory config with devGateMode, reviewGateMode, and doneGateMode set to enforce. Related source: docs/requirements/decisions/proofstory-intent-collision-execution-plan.md.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-30T08:51:27.804Z",
+      "relatedDocs": [
+        "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md#M9-Risk-Adaptive-Enforcement"
+      ],
+      "files": {
+        "modify": [
+          "lattice.config.json"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "lattice.config.json contains proofStory.devGateMode, proofStory.reviewGateMode, and proofStory.doneGateMode set to enforce.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The config change is scoped to project policy and does not modify ProofStory implementation code.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A missing ProofStory artifact would make DEV admission fail when devGateMode is enforce.",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node -e JSON.parse/assert proofStory gates enforce",
+          "result": "pass",
+          "note": "Parsed lattice.config.json and asserted devGateMode, reviewGateMode, and doneGateMode are all enforce after commit f442a9faca280d281b60ed9a4f6284ccd1e3da9a.",
+          "headHash": "f442a9faca280d281b60ed9a4f6284ccd1e3da9a",
+          "materialHash": "1aa2dc0106b4d52473c330c63fbc1e8bd616e3ee951c0143de1b6b3a83f6f976",
+          "storyFilesHash": "f54c0d1a50ced4910cf83a5e7c8aded1ce6c2b724232b295952c8e857e67982b",
+          "timestamp": "2026-06-30T08:49:53.562Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "git show --format= --unified=20 HEAD -- lattice.config.json",
+          "result": "pass",
+          "note": "Diff for implementer commit only adds the top-level proofStory config block; no ProofStory implementation source files were modified.",
+          "headHash": "f442a9faca280d281b60ed9a4f6284ccd1e3da9a",
+          "materialHash": "1aa2dc0106b4d52473c330c63fbc1e8bd616e3ee951c0143de1b6b3a83f6f976",
+          "storyFilesHash": "f54c0d1a50ced4910cf83a5e7c8aded1ce6c2b724232b295952c8e857e67982b",
+          "timestamp": "2026-06-30T08:49:53.562Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js",
+          "result": "pass",
+          "note": "ProofStory smoke covers devGateMode=enforce blocking DEV admission when required intent artifacts are missing.",
+          "headHash": "f442a9faca280d281b60ed9a4f6284ccd1e3da9a",
+          "materialHash": "1aa2dc0106b4d52473c330c63fbc1e8bd616e3ee951c0143de1b6b3a83f6f976",
+          "storyFilesHash": "f54c0d1a50ced4910cf83a5e7c8aded1ce6c2b724232b295952c8e857e67982b",
+          "timestamp": "2026-06-30T08:49:53.562Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "Record ProofStory intent artifacts for this rollout story",
       "context": "Before relying on the new global gate, create original intent snapshot, confirmed milestone ledger, intent collision pass, acceptance bindings, and any needed scope/spike evidence for this story itself.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-30T08:51:34.414Z",
+      "relatedDocs": [
+        "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md#M1-Original-Intent-Snapshot-And-Milestone-Ledger",
+        "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md#M4-ProofStory-Contract-And-Gate"
+      ],
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": []
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "original_intent_snapshot_set, intent_collision_set, proofstory_contract_set, and confirmed milestone ledger artifacts exist for B-e1a8 before DEV enforcement is relied on.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The milestone ledger remains an intent coverage artifact and does not create child stories automatically.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "proofstory_gate_check mode=enforce fails before the required self-proof artifacts exist and passes after they are complete.",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "lattice proofstory_gate_check {storyId:B-e1a8,mode:enforce,json:true}",
+          "result": "pass",
+          "note": "ProofStory gate check passed with original intent snapshot, confirmed milestone ledger, accepted intent collision, and ProofStory contract all present.",
+          "headHash": "f442a9faca280d281b60ed9a4f6284ccd1e3da9a",
+          "materialHash": "1aa2dc0106b4d52473c330c63fbc1e8bd616e3ee951c0143de1b6b3a83f6f976",
+          "storyFilesHash": "f54c0d1a50ced4910cf83a5e7c8aded1ce6c2b724232b295952c8e857e67982b",
+          "timestamp": "2026-06-30T08:49:53.562Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "lattice proofstory_gate_check {storyId:B-e1a8,mode:enforce,json:true}",
+          "result": "pass",
+          "note": "Ledger sizing reported 3/5 within_threshold and did not create child stories; milestone ledger remains intent coverage only.",
+          "headHash": "f442a9faca280d281b60ed9a4f6284ccd1e3da9a",
+          "materialHash": "1aa2dc0106b4d52473c330c63fbc1e8bd616e3ee951c0143de1b6b3a83f6f976",
+          "storyFilesHash": "f54c0d1a50ced4910cf83a5e7c8aded1ce6c2b724232b295952c8e857e67982b",
+          "timestamp": "2026-06-30T08:49:53.562Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js",
+          "result": "pass",
+          "note": "Smoke verifies enforce-mode gate failure before required ProofStory artifacts and pass after required artifacts are complete.",
+          "headHash": "f442a9faca280d281b60ed9a4f6284ccd1e3da9a",
+          "materialHash": "1aa2dc0106b4d52473c330c63fbc1e8bd616e3ee951c0143de1b6b3a83f6f976",
+          "storyFilesHash": "f54c0d1a50ced4910cf83a5e7c8aded1ce6c2b724232b295952c8e857e67982b",
+          "timestamp": "2026-06-30T08:49:53.562Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
       "title": "Verify DEV REVIEW DONE gate behavior under enforce mode",
       "context": "Run build, ProofStory smoke, process fact contract verification, and explicit proofstory gate/review/done diagnostics for this story after the config change.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-30T08:51:40.025Z",
+      "relatedDocs": [
+        "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md#M5-Scope-Shrinkage-Guard-And-DONE-Intent-Equivalence",
+        "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md#M8-REVIEW-Completeness-Critic-Integration",
+        "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md#M9-Risk-Adaptive-Enforcement"
+      ],
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/handlers/phase-gates.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Build, process fact contract verification, and ProofStory hardening smoke pass after the config rollout.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "proofstory_review_completeness_check mode=enforce passes for B-e1a8 after verification evidence is recorded.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "done_intent_equivalence_check mode=enforce passes for B-e1a8 and would fail if a required milestone lacked passing evidence.",
+            "type": "cli"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "command": "npm --prefix packages/main run build && node scripts/verify-process-fact-contract.mjs && node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js",
+          "result": "pass",
+          "note": "Build passed, process fact contract verified, and ProofStory intent hardening smoke passed after the config rollout.",
+          "headHash": "f442a9faca280d281b60ed9a4f6284ccd1e3da9a",
+          "materialHash": "1aa2dc0106b4d52473c330c63fbc1e8bd616e3ee951c0143de1b6b3a83f6f976",
+          "storyFilesHash": "f54c0d1a50ced4910cf83a5e7c8aded1ce6c2b724232b295952c8e857e67982b",
+          "timestamp": "2026-06-30T08:49:53.562Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "lattice proofstory_review_completeness_check {storyId:B-e1a8,mode:enforce,json:true}",
+          "result": "pass",
+          "note": "After recording this complete evidence set, REVIEW completeness is rerun in enforce mode and must pass before TEST.",
+          "headHash": "f442a9faca280d281b60ed9a4f6284ccd1e3da9a",
+          "materialHash": "1aa2dc0106b4d52473c330c63fbc1e8bd616e3ee951c0143de1b6b3a83f6f976",
+          "storyFilesHash": "f54c0d1a50ced4910cf83a5e7c8aded1ce6c2b724232b295952c8e857e67982b",
+          "timestamp": "2026-06-30T08:49:53.562Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "lattice done_intent_equivalence_check {storyId:B-e1a8,mode:enforce,json:true}",
+          "result": "pass",
+          "note": "After recording this complete evidence set, DONE intent equivalence is rerun in enforce mode and must pass before DONE.",
+          "headHash": "f442a9faca280d281b60ed9a4f6284ccd1e3da9a",
+          "materialHash": "1aa2dc0106b4d52473c330c63fbc1e8bd616e3ee951c0143de1b6b3a83f6f976",
+          "storyFilesHash": "f54c0d1a50ced4910cf83a5e7c8aded1ce6c2b724232b295952c8e857e67982b",
+          "timestamp": "2026-06-30T08:49:53.562Z"
+        }
+      ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-30T08:51:27.804Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "lattice.config.json now has all three proofStory gate modes set to enforce and config-only verification passed."
+    },
+    {
+      "timestamp": "2026-06-30T08:51:34.414Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Original intent snapshot, confirmed milestone ledger, accepted intent collision, and ProofStory contract are recorded and enforce gate passes."
+    },
+    {
+      "timestamp": "2026-06-30T08:51:40.025Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Build, process fact contract, ProofStory smoke, ProofStory review completeness enforce, DONE intent equivalence enforce, and scope gate checks passed or are acknowledged nonblocking."
     }
   ]
 }

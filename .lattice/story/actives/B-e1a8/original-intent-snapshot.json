@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-e1a8",
+  "sourceText": "User agreed to roll out ProofStory enforcement after audit found implementation complete but global config still observe. Required outcomes: 1. devGateMode is enforce so DEV cannot start without ProofStory gate satisfaction. 2. reviewGateMode is enforce so REVIEW completeness is checked before TEST. 3. doneGateMode is enforce so DONE intent equivalence is checked before DONE.",
+  "normalizedOutcome": "Future Lattice stories are mechanically blocked at DEV, REVIEW-to-TEST, or DONE when the applicable ProofStory evidence is missing.",
+  "acceptanceClaim": "lattice.config.json contains proofStory.devGateMode, proofStory.reviewGateMode, and proofStory.doneGateMode set to enforce; B-e1a8 passes ProofStory gate, review completeness, DONE equivalence, build, process fact contract, and ProofStory smoke verification.",
+  "keyRequirementIds": [
+    "REQ-DEV-GATE",
+    "REQ-DONE-GATE",
+    "REQ-REVIEW-GATE"
+  ],
+  "requestHash": "sha256:a19c8fe1a34617dcdef1795eac3166b62462f83bd574af85f55fc3b6cebbb6ba",
+  "createdAt": "2026-06-30T08:42:32.609Z",
+  "updatedAt": "2026-06-30T08:42:32.609Z"
+}

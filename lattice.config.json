@@ -6,6 +6,11 @@
   "fixturesDir": "packages/main/tests/fixtures",
   "storyDir": ".lattice/story/actives",
   "requirementsDir": "docs/requirements",
+  "proofStory": {
+    "devGateMode": "enforce",
+    "reviewGateMode": "enforce",
+    "doneGateMode": "enforce"
+  },
   "validate": {
     "commands": [
       { "command": "npm", "args": ["--prefix", "packages/main", "run", "build"], "timeoutMs": 290000, "focus": ["fast"] },

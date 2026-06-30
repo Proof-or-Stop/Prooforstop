@@ -1,0 +1,40 @@
+{
+  "passes": [
+    {
+      "id": "B-e1a8:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "reviewed CHK-001/CHK-002/CHK-003: config diff sets all ProofStory gate modes to enforce; original intent, milestone ledger, accepted collision, ProofStory contract, and enforce diagnostics align with the rollout concept and found no blocker.",
+      "createdAt": "2026-06-30T08:54:41.600Z",
+      "reviewRound": "2026-06-30T08:52:07.328Z",
+      "reviewRunId": "B-e1a8:RR-001",
+      "_hash": "a8d0a14cb18e15a3425ccd1c381ba969e517b45a5bc89638bdcac6c887877cd9"
+    },
+    {
+      "id": "B-e1a8:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "reviewed CHK-001 through CHK-003: config diff sets all ProofStory gate modes to enforce; ProofStory original intent, collision, contract, enforce gate, REVIEW completeness, DONE equivalence, evidence freshness, scope contract, and config consumers were checked with no quality blocker.",
+      "createdAt": "2026-06-30T08:55:51.151Z",
+      "reviewRound": "2026-06-30T08:52:07.328Z",
+      "reviewRunId": "B-e1a8:RR-005",
+      "_hash": "9126a2ae340ec98d7acb6380160c8c3df1686aa55e916887f0ee854fbc01d27f"
+    },
+    {
+      "id": "B-e1a8:RP-003",
+      "agent": "lattice-review-docs",
+      "note": "reviewed CHK-001 and story docs lane: checked lattice.config.json:9 proofStory enforce block, related ProofStory plan sections M4/M5/M8/M9 in docs/requirements/decisions/proofstory-intent-collision-execution-plan.md, gate consumers in packages/main/src/core/machine.ts and packages/main/src/handlers/phase-gates.ts, and main...HEAD config diff; proofstory_gate_check, proofstory_review_completeness_check, and done_intent_equivalence_check all pass in enforce mode with no docs/config blockers.",
+      "createdAt": "2026-06-30T08:56:57.714Z",
+      "reviewRound": "2026-06-30T08:52:07.328Z",
+      "reviewRunId": "B-e1a8:RR-007",
+      "_hash": "7c04dee80f228e62fb99676d2593ba7214dea34b54b2a14a60dc3989a71c8330"
+    },
+    {
+      "id": "B-e1a8:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "reviewed CHK-001/CHK-002/CHK-003: verified proofStory enforce config, ProofStory self-proof artifacts, acceptance bindings for all nine verificationIntent refs, enforce diagnostics, build, process fact contract, and ProofStory hardening smoke; found no test-coverage blocker.",
+      "createdAt": "2026-06-30T08:57:17.686Z",
+      "reviewRound": "2026-06-30T08:52:07.328Z",
+      "reviewRunId": "B-e1a8:RR-003",
+      "_hash": "1d2b72ef989f82baeeae59d5bc6294bf540933ff3b6a0690622a415656c7a748"
+    }
+  ]
+}
