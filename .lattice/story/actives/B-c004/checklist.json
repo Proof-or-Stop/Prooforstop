@@ -60,10 +60,10 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/lifecycle-control-smoke.js && node packages/main/dist/tasks/proof-admissibility-hardening-smoke.js",
           "result": "pass",
           "note": "Commit ce8605770 adds the M1-M7 closure audit and smoke guards that require M1-M7 exactly once with evidence targets.",
-          "headHash": "4d072ba49f7e0a24bface29326db41dd587c2ebf",
-          "materialHash": "000a12c53645f4145f1450245739600e0cc428c76cc7e2eccefbc5913a222b9b",
-          "storyFilesHash": "d0e21a334f57682ae84e81c233fbd71719fc75ddeb4102f94633584d340acd4b",
-          "timestamp": "2026-06-30T16:21:20.161Z"
+          "headHash": "ef7d6291d5986c963b99c539c60e1f63044d2a2b",
+          "materialHash": "4f637b1c083c85fbc5726ebb14ba2b0d43ecf8fe450f18a0d47deafb87bc8a57",
+          "storyFilesHash": "a76ef0f4488679c49307245ee9158b4848ac981cb78ca09d393a09f027a45e5f",
+          "timestamp": "2026-06-30T16:57:59.067Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -71,10 +71,10 @@
           "command": "node bin/lattice.js intent_coverage_check --storyId=B-c004 --dryRun --mode=warn --json",
           "result": "pass",
           "note": "Dry-run intent coverage returned status pass with all seven milestone rows covered.",
-          "headHash": "4d072ba49f7e0a24bface29326db41dd587c2ebf",
-          "materialHash": "000a12c53645f4145f1450245739600e0cc428c76cc7e2eccefbc5913a222b9b",
-          "storyFilesHash": "d0e21a334f57682ae84e81c233fbd71719fc75ddeb4102f94633584d340acd4b",
-          "timestamp": "2026-06-30T16:21:20.161Z"
+          "headHash": "ef7d6291d5986c963b99c539c60e1f63044d2a2b",
+          "materialHash": "4f637b1c083c85fbc5726ebb14ba2b0d43ecf8fe450f18a0d47deafb87bc8a57",
+          "storyFilesHash": "a76ef0f4488679c49307245ee9158b4848ac981cb78ca09d393a09f027a45e5f",
+          "timestamp": "2026-06-30T16:57:59.067Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -82,10 +82,10 @@
           "command": "node bin/lattice.js proofstory_gate_check --storyId=B-c004 --dryRun --mode=warn --json",
           "result": "pass",
           "note": "Dry-run ProofStory gate returned status pass and did not report missing milestone coverage.",
-          "headHash": "4d072ba49f7e0a24bface29326db41dd587c2ebf",
-          "materialHash": "000a12c53645f4145f1450245739600e0cc428c76cc7e2eccefbc5913a222b9b",
-          "storyFilesHash": "d0e21a334f57682ae84e81c233fbd71719fc75ddeb4102f94633584d340acd4b",
-          "timestamp": "2026-06-30T16:21:20.161Z"
+          "headHash": "ef7d6291d5986c963b99c539c60e1f63044d2a2b",
+          "materialHash": "4f637b1c083c85fbc5726ebb14ba2b0d43ecf8fe450f18a0d47deafb87bc8a57",
+          "storyFilesHash": "a76ef0f4488679c49307245ee9158b4848ac981cb78ca09d393a09f027a45e5f",
+          "timestamp": "2026-06-30T16:57:59.067Z"
         }
       ]
     },
@@ -148,10 +148,10 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
           "result": "pass",
           "note": "Commit 349ef2b11 retires active server-backed authority future backlog wording and extends the retired-vocabulary guard to scan the two plan docs.",
-          "headHash": "4d072ba49f7e0a24bface29326db41dd587c2ebf",
-          "materialHash": "000a12c53645f4145f1450245739600e0cc428c76cc7e2eccefbc5913a222b9b",
-          "storyFilesHash": "d0e21a334f57682ae84e81c233fbd71719fc75ddeb4102f94633584d340acd4b",
-          "timestamp": "2026-06-30T16:21:20.162Z"
+          "headHash": "ef7d6291d5986c963b99c539c60e1f63044d2a2b",
+          "materialHash": "4f637b1c083c85fbc5726ebb14ba2b0d43ecf8fe450f18a0d47deafb87bc8a57",
+          "storyFilesHash": "a76ef0f4488679c49307245ee9158b4848ac981cb78ca09d393a09f027a45e5f",
+          "timestamp": "2026-06-30T16:57:59.067Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -159,10 +159,10 @@
           "command": "rg -n \"Authority Server conformance|Authority production|server-backed production receipt parity\" docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
           "result": "pass",
           "note": "The required active-future backlog phrase search returned no matches.",
-          "headHash": "4d072ba49f7e0a24bface29326db41dd587c2ebf",
-          "materialHash": "000a12c53645f4145f1450245739600e0cc428c76cc7e2eccefbc5913a222b9b",
-          "storyFilesHash": "d0e21a334f57682ae84e81c233fbd71719fc75ddeb4102f94633584d340acd4b",
-          "timestamp": "2026-06-30T16:21:20.162Z"
+          "headHash": "ef7d6291d5986c963b99c539c60e1f63044d2a2b",
+          "materialHash": "4f637b1c083c85fbc5726ebb14ba2b0d43ecf8fe450f18a0d47deafb87bc8a57",
+          "storyFilesHash": "a76ef0f4488679c49307245ee9158b4848ac981cb78ca09d393a09f027a45e5f",
+          "timestamp": "2026-06-30T16:57:59.067Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -171,10 +171,10 @@
           "command": "rg -n \"Authority Server|Authority production\" docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
           "result": "pass",
           "note": "The two active plan docs no longer use retired Authority Server or Authority production wording; compatibility enum names remain outside this targeted active-future check.",
-          "headHash": "4d072ba49f7e0a24bface29326db41dd587c2ebf",
-          "materialHash": "000a12c53645f4145f1450245739600e0cc428c76cc7e2eccefbc5913a222b9b",
-          "storyFilesHash": "d0e21a334f57682ae84e81c233fbd71719fc75ddeb4102f94633584d340acd4b",
-          "timestamp": "2026-06-30T16:21:20.162Z"
+          "headHash": "ef7d6291d5986c963b99c539c60e1f63044d2a2b",
+          "materialHash": "4f637b1c083c85fbc5726ebb14ba2b0d43ecf8fe450f18a0d47deafb87bc8a57",
+          "storyFilesHash": "a76ef0f4488679c49307245ee9158b4848ac981cb78ca09d393a09f027a45e5f",
+          "timestamp": "2026-06-30T16:57:59.067Z"
         }
       ]
     },
@@ -236,10 +236,10 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/lifecycle-control-smoke.js",
           "result": "pass",
           "note": "Commit 2450bad81 preserves valid Tier-C experiment rows as experiment-batch-exception with cleanupPolicy=preserve.",
-          "headHash": "4d072ba49f7e0a24bface29326db41dd587c2ebf",
-          "materialHash": "000a12c53645f4145f1450245739600e0cc428c76cc7e2eccefbc5913a222b9b",
-          "storyFilesHash": "d0e21a334f57682ae84e81c233fbd71719fc75ddeb4102f94633584d340acd4b",
-          "timestamp": "2026-06-30T16:21:20.162Z"
+          "headHash": "ef7d6291d5986c963b99c539c60e1f63044d2a2b",
+          "materialHash": "4f637b1c083c85fbc5726ebb14ba2b0d43ecf8fe450f18a0d47deafb87bc8a57",
+          "storyFilesHash": "a76ef0f4488679c49307245ee9158b4848ac981cb78ca09d393a09f027a45e5f",
+          "timestamp": "2026-06-30T16:57:59.067Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -248,10 +248,10 @@
           "command": "node packages/main/dist/tasks/lifecycle-control-smoke.js",
           "result": "pass",
           "note": "The smoke asserts malformed Tier-C-like rows remain cleanup-required with cleanupPolicy=cleanup-required.",
-          "headHash": "4d072ba49f7e0a24bface29326db41dd587c2ebf",
-          "materialHash": "000a12c53645f4145f1450245739600e0cc428c76cc7e2eccefbc5913a222b9b",
-          "storyFilesHash": "d0e21a334f57682ae84e81c233fbd71719fc75ddeb4102f94633584d340acd4b",
-          "timestamp": "2026-06-30T16:21:20.162Z"
+          "headHash": "ef7d6291d5986c963b99c539c60e1f63044d2a2b",
+          "materialHash": "4f637b1c083c85fbc5726ebb14ba2b0d43ecf8fe450f18a0d47deafb87bc8a57",
+          "storyFilesHash": "a76ef0f4488679c49307245ee9158b4848ac981cb78ca09d393a09f027a45e5f",
+          "timestamp": "2026-06-30T16:57:59.067Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -260,10 +260,10 @@
           "command": "rg -n \"Tier-C cleanup\" docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md packages/main/src/core/lifecycle-control/control-status.ts",
           "result": "pass",
           "note": "The capability row now reports automated Tier-C cleanup as unavailable/retired non-goal, not unfinished automation.",
-          "headHash": "4d072ba49f7e0a24bface29326db41dd587c2ebf",
-          "materialHash": "000a12c53645f4145f1450245739600e0cc428c76cc7e2eccefbc5913a222b9b",
-          "storyFilesHash": "d0e21a334f57682ae84e81c233fbd71719fc75ddeb4102f94633584d340acd4b",
-          "timestamp": "2026-06-30T16:21:20.162Z"
+          "headHash": "ef7d6291d5986c963b99c539c60e1f63044d2a2b",
+          "materialHash": "4f637b1c083c85fbc5726ebb14ba2b0d43ecf8fe450f18a0d47deafb87bc8a57",
+          "storyFilesHash": "a76ef0f4488679c49307245ee9158b4848ac981cb78ca09d393a09f027a45e5f",
+          "timestamp": "2026-06-30T16:57:59.067Z"
         }
       ]
     },
@@ -328,10 +328,10 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proof-admissibility-hardening-smoke.js",
           "result": "pass",
           "note": "Commit 490383f9e formalizes append-only admissibility ledger storage as retired/non-goal for the local CLI and tests the boundary.",
-          "headHash": "4d072ba49f7e0a24bface29326db41dd587c2ebf",
-          "materialHash": "000a12c53645f4145f1450245739600e0cc428c76cc7e2eccefbc5913a222b9b",
-          "storyFilesHash": "d0e21a334f57682ae84e81c233fbd71719fc75ddeb4102f94633584d340acd4b",
-          "timestamp": "2026-06-30T16:21:20.162Z"
+          "headHash": "ef7d6291d5986c963b99c539c60e1f63044d2a2b",
+          "materialHash": "4f637b1c083c85fbc5726ebb14ba2b0d43ecf8fe450f18a0d47deafb87bc8a57",
+          "storyFilesHash": "a76ef0f4488679c49307245ee9158b4848ac981cb78ca09d393a09f027a45e5f",
+          "timestamp": "2026-06-30T16:57:59.067Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -340,10 +340,10 @@
           "command": "node packages/main/dist/tasks/proof-admissibility-hardening-smoke.js",
           "result": "pass",
           "note": "The smoke asserts no ledger writer export is exposed by the compatibility entrypoint.",
-          "headHash": "4d072ba49f7e0a24bface29326db41dd587c2ebf",
-          "materialHash": "000a12c53645f4145f1450245739600e0cc428c76cc7e2eccefbc5913a222b9b",
-          "storyFilesHash": "d0e21a334f57682ae84e81c233fbd71719fc75ddeb4102f94633584d340acd4b",
-          "timestamp": "2026-06-30T16:21:20.162Z"
+          "headHash": "ef7d6291d5986c963b99c539c60e1f63044d2a2b",
+          "materialHash": "4f637b1c083c85fbc5726ebb14ba2b0d43ecf8fe450f18a0d47deafb87bc8a57",
+          "storyFilesHash": "a76ef0f4488679c49307245ee9158b4848ac981cb78ca09d393a09f027a45e5f",
+          "timestamp": "2026-06-30T16:57:59.067Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -352,10 +352,10 @@
           "command": "node packages/main/dist/tasks/proof-admissibility-hardening-smoke.js",
           "result": "pass",
           "note": "The smoke asserts diagnostic waterline output has no ledgerPath or ledgerRows and cannot become release authority.",
-          "headHash": "4d072ba49f7e0a24bface29326db41dd587c2ebf",
-          "materialHash": "000a12c53645f4145f1450245739600e0cc428c76cc7e2eccefbc5913a222b9b",
-          "storyFilesHash": "d0e21a334f57682ae84e81c233fbd71719fc75ddeb4102f94633584d340acd4b",
-          "timestamp": "2026-06-30T16:21:20.162Z"
+          "headHash": "ef7d6291d5986c963b99c539c60e1f63044d2a2b",
+          "materialHash": "4f637b1c083c85fbc5726ebb14ba2b0d43ecf8fe450f18a0d47deafb87bc8a57",
+          "storyFilesHash": "a76ef0f4488679c49307245ee9158b4848ac981cb78ca09d393a09f027a45e5f",
+          "timestamp": "2026-06-30T16:57:59.067Z"
         }
       ]
     },
@@ -416,10 +416,10 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/lifecycle-control-smoke.js",
           "result": "pass",
           "note": "Commit 91cd09401 tests duplicate-candidate and superseded cleanup guard classification while keeping cleanup mutation out of the dashboard.",
-          "headHash": "4d072ba49f7e0a24bface29326db41dd587c2ebf",
-          "materialHash": "000a12c53645f4145f1450245739600e0cc428c76cc7e2eccefbc5913a222b9b",
-          "storyFilesHash": "d0e21a334f57682ae84e81c233fbd71719fc75ddeb4102f94633584d340acd4b",
-          "timestamp": "2026-06-30T16:21:20.162Z"
+          "headHash": "ef7d6291d5986c963b99c539c60e1f63044d2a2b",
+          "materialHash": "4f637b1c083c85fbc5726ebb14ba2b0d43ecf8fe450f18a0d47deafb87bc8a57",
+          "storyFilesHash": "a76ef0f4488679c49307245ee9158b4848ac981cb78ca09d393a09f027a45e5f",
+          "timestamp": "2026-06-30T16:57:59.067Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -428,10 +428,10 @@
           "command": "node packages/main/dist/tasks/lifecycle-control-smoke.js",
           "result": "pass",
           "note": "The smoke asserts Tier-C experiment rows keep cleanupPolicy=preserve and are not converted into duplicate cleanup candidates.",
-          "headHash": "4d072ba49f7e0a24bface29326db41dd587c2ebf",
-          "materialHash": "000a12c53645f4145f1450245739600e0cc428c76cc7e2eccefbc5913a222b9b",
-          "storyFilesHash": "d0e21a334f57682ae84e81c233fbd71719fc75ddeb4102f94633584d340acd4b",
-          "timestamp": "2026-06-30T16:21:20.162Z"
+          "headHash": "ef7d6291d5986c963b99c539c60e1f63044d2a2b",
+          "materialHash": "4f637b1c083c85fbc5726ebb14ba2b0d43ecf8fe450f18a0d47deafb87bc8a57",
+          "storyFilesHash": "a76ef0f4488679c49307245ee9158b4848ac981cb78ca09d393a09f027a45e5f",
+          "timestamp": "2026-06-30T16:57:59.067Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -440,10 +440,10 @@
           "command": "node packages/main/dist/tasks/lifecycle-control-smoke.js",
           "result": "pass",
           "note": "The smoke asserts malformed Tier-C-like rows remain visible in cleanupRequired for operator action.",
-          "headHash": "4d072ba49f7e0a24bface29326db41dd587c2ebf",
-          "materialHash": "000a12c53645f4145f1450245739600e0cc428c76cc7e2eccefbc5913a222b9b",
-          "storyFilesHash": "d0e21a334f57682ae84e81c233fbd71719fc75ddeb4102f94633584d340acd4b",
-          "timestamp": "2026-06-30T16:21:20.162Z"
+          "headHash": "ef7d6291d5986c963b99c539c60e1f63044d2a2b",
+          "materialHash": "4f637b1c083c85fbc5726ebb14ba2b0d43ecf8fe450f18a0d47deafb87bc8a57",
+          "storyFilesHash": "a76ef0f4488679c49307245ee9158b4848ac981cb78ca09d393a09f027a45e5f",
+          "timestamp": "2026-06-30T16:57:59.067Z"
         }
       ]
     },
@@ -505,10 +505,10 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/lifecycle-control-smoke.js",
           "result": "pass",
           "note": "Commit 5cc141fdc marks runtime closure enforcement rollout implemented and tests enforce-mode unsafe cwd/main mirror/stale lock blocking.",
-          "headHash": "4d072ba49f7e0a24bface29326db41dd587c2ebf",
-          "materialHash": "000a12c53645f4145f1450245739600e0cc428c76cc7e2eccefbc5913a222b9b",
-          "storyFilesHash": "d0e21a334f57682ae84e81c233fbd71719fc75ddeb4102f94633584d340acd4b",
-          "timestamp": "2026-06-30T16:21:20.162Z"
+          "headHash": "ef7d6291d5986c963b99c539c60e1f63044d2a2b",
+          "materialHash": "4f637b1c083c85fbc5726ebb14ba2b0d43ecf8fe450f18a0d47deafb87bc8a57",
+          "storyFilesHash": "a76ef0f4488679c49307245ee9158b4848ac981cb78ca09d393a09f027a45e5f",
+          "timestamp": "2026-06-30T16:57:59.067Z"
         },
         {
           "intentRef": "CHK-006:edge:0",
@@ -517,10 +517,10 @@
           "command": "node packages/main/dist/tasks/lifecycle-control-smoke.js",
           "result": "pass",
           "note": "Warn mode remains diagnostic for material dirty tree findings and reports rollback to lifecycleControl.runtimeEnforcement=warn.",
-          "headHash": "4d072ba49f7e0a24bface29326db41dd587c2ebf",
-          "materialHash": "000a12c53645f4145f1450245739600e0cc428c76cc7e2eccefbc5913a222b9b",
-          "storyFilesHash": "d0e21a334f57682ae84e81c233fbd71719fc75ddeb4102f94633584d340acd4b",
-          "timestamp": "2026-06-30T16:21:20.162Z"
+          "headHash": "ef7d6291d5986c963b99c539c60e1f63044d2a2b",
+          "materialHash": "4f637b1c083c85fbc5726ebb14ba2b0d43ecf8fe450f18a0d47deafb87bc8a57",
+          "storyFilesHash": "a76ef0f4488679c49307245ee9158b4848ac981cb78ca09d393a09f027a45e5f",
+          "timestamp": "2026-06-30T16:57:59.067Z"
         },
         {
           "intentRef": "CHK-006:adversarial:0",
@@ -529,10 +529,10 @@
           "command": "node packages/main/dist/tasks/lifecycle-control-smoke.js",
           "result": "pass",
           "note": "Unavailable mode surfaces wrong authoritative cwd diagnostics without blocking, preserving the documented emergency diagnostic bound.",
-          "headHash": "4d072ba49f7e0a24bface29326db41dd587c2ebf",
-          "materialHash": "000a12c53645f4145f1450245739600e0cc428c76cc7e2eccefbc5913a222b9b",
-          "storyFilesHash": "d0e21a334f57682ae84e81c233fbd71719fc75ddeb4102f94633584d340acd4b",
-          "timestamp": "2026-06-30T16:21:20.162Z"
+          "headHash": "ef7d6291d5986c963b99c539c60e1f63044d2a2b",
+          "materialHash": "4f637b1c083c85fbc5726ebb14ba2b0d43ecf8fe450f18a0d47deafb87bc8a57",
+          "storyFilesHash": "a76ef0f4488679c49307245ee9158b4848ac981cb78ca09d393a09f027a45e5f",
+          "timestamp": "2026-06-30T16:57:59.067Z"
         }
       ]
     },
@@ -603,10 +603,10 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proof-admissibility-hardening-smoke.js",
           "result": "pass",
           "note": "Commit d949ee4e9 distinguishes missing CommandSpec from mismatched CommandSpec digest for DONE_REQUIRED command-backed proof.",
-          "headHash": "4d072ba49f7e0a24bface29326db41dd587c2ebf",
-          "materialHash": "000a12c53645f4145f1450245739600e0cc428c76cc7e2eccefbc5913a222b9b",
-          "storyFilesHash": "d0e21a334f57682ae84e81c233fbd71719fc75ddeb4102f94633584d340acd4b",
-          "timestamp": "2026-06-30T16:21:20.162Z"
+          "headHash": "ef7d6291d5986c963b99c539c60e1f63044d2a2b",
+          "materialHash": "4f637b1c083c85fbc5726ebb14ba2b0d43ecf8fe450f18a0d47deafb87bc8a57",
+          "storyFilesHash": "a76ef0f4488679c49307245ee9158b4848ac981cb78ca09d393a09f027a45e5f",
+          "timestamp": "2026-06-30T16:57:59.067Z"
         },
         {
           "intentRef": "CHK-007:edge:0",
@@ -615,10 +615,10 @@
           "command": "node packages/main/dist/tasks/lifecycle-control-smoke.js",
           "result": "pass",
           "note": "Project-level consumption rollup with no story rows reports unknown/no-data rather than green/pass.",
-          "headHash": "4d072ba49f7e0a24bface29326db41dd587c2ebf",
-          "materialHash": "000a12c53645f4145f1450245739600e0cc428c76cc7e2eccefbc5913a222b9b",
-          "storyFilesHash": "d0e21a334f57682ae84e81c233fbd71719fc75ddeb4102f94633584d340acd4b",
-          "timestamp": "2026-06-30T16:21:20.162Z"
+          "headHash": "ef7d6291d5986c963b99c539c60e1f63044d2a2b",
+          "materialHash": "4f637b1c083c85fbc5726ebb14ba2b0d43ecf8fe450f18a0d47deafb87bc8a57",
+          "storyFilesHash": "a76ef0f4488679c49307245ee9158b4848ac981cb78ca09d393a09f027a45e5f",
+          "timestamp": "2026-06-30T16:57:59.067Z"
         },
         {
           "intentRef": "CHK-007:adversarial:0",
@@ -627,10 +627,10 @@
           "command": "node packages/main/dist/tasks/proof-admissibility-hardening-smoke.js",
           "result": "pass",
           "note": "Enforce mode blocks DONE_REQUIRED proof when CommandSpec is missing or mismatched, preserving high-risk command-backed evidence bounds.",
-          "headHash": "4d072ba49f7e0a24bface29326db41dd587c2ebf",
-          "materialHash": "000a12c53645f4145f1450245739600e0cc428c76cc7e2eccefbc5913a222b9b",
-          "storyFilesHash": "d0e21a334f57682ae84e81c233fbd71719fc75ddeb4102f94633584d340acd4b",
-          "timestamp": "2026-06-30T16:21:20.162Z"
+          "headHash": "ef7d6291d5986c963b99c539c60e1f63044d2a2b",
+          "materialHash": "4f637b1c083c85fbc5726ebb14ba2b0d43ecf8fe450f18a0d47deafb87bc8a57",
+          "storyFilesHash": "a76ef0f4488679c49307245ee9158b4848ac981cb78ca09d393a09f027a45e5f",
+          "timestamp": "2026-06-30T16:57:59.067Z"
         }
       ]
     }
