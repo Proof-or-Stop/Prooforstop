@@ -441,9 +441,9 @@
       "id": "CHK-008",
       "title": "Close risk-adaptive high-assurance review policy behavior",
       "context": "Covers M8/M9 gap: high-assurance ProofStory must expose stronger review/completeness policy diagnostics while keeping existing reviewer evidence fresh and reviewRunId-bound.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-30T01:13:36.359Z",
-      "endTime": null,
+      "endTime": "2026-06-30T01:28:26.933Z",
       "relatedDocs": [
         "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md#M9-Risk-Adaptive-Enforcement"
       ],
@@ -485,7 +485,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-008:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js && node scripts/verify-process-fact-contract.mjs && git diff --check",
+          "result": "pass",
+          "note": "Doc: proofstory-intent-collision-execution-plan.md M8/M9 lines 1263-1300 require review completeness diagnostics, reviewRunId/freshness preservation, risk-adaptive levels, low-risk docs-only restraint, and high-assurance collision/red/spike/stronger REVIEW behavior. Impl: core/proofstory.ts classifyTriggers selects high_assurance for high-risk/gate work while low-risk remains intent_mvp; evaluateReviewCompleteness adds collision/red/spike/scope/oversized gaps only for high_assurance and requires passing verification evidence for bound refs; phase-gates.ts runs ProofStory REVIEW completeness before REVIEW->TEST when reviewGateMode is warn/enforce; config.ts exposes reviewGateMode. Verification: build, ProofStory smoke, process-fact contract, and diff check passed; smoke covers high-assurance review completeness failure/pass and lightweight single-outcome path, while contract asserts docs-only markdown is not overblocked and review assurance tokens remain registered.",
+          "headHash": "aad0766440e6fd2cf57f23f61e659db9ae38ef5d",
+          "materialHash": "5d97b7951e9c3d8e03969199578c7c1c13adef7c61914d53c9fa10b699ada482",
+          "storyFilesHash": "d66783474c814f8b35728b71ac3278123384b0e3b640ea1414ab6a5b9bc7d334",
+          "timestamp": "2026-06-30T01:28:27.323Z"
+        }
+      ]
     }
   ],
   "auditLog": [
