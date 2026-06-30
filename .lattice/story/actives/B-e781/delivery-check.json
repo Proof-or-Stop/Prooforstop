@@ -1,86 +1,133 @@
 {
   "storyId": "B-e781",
-  "checkedAt": "2026-06-30T23:12:32.313Z",
-  "headHash": "a54f17ecf63c35bbfa043b6ef22cb3f9aa2f01f8",
-  "materialHash": "6f5b11ab1a00c8d1aaea05b14605a51d63a586c806f58de67632e15b48f0ba77",
-  "storyFilesHash": "3401a697b41a29a0c1e8fb006985161dbaa56e3fbd0209e236946cd314198c5a",
-  "reviewRound": "2026-06-30T22:59:20.887Z",
+  "checkedAt": "2026-06-30T23:51:31.264Z",
+  "headHash": "0dea5a0cdb44e1045b1aff11e42ab4b980d50a68",
+  "materialHash": "1a58594abdbdd9193009c9d939e06f321fbd685e3d246923a47845bd7460096e",
+  "storyFilesHash": "333c85ff432f3c5f4763653d0ee56ed3e7ad49210ded5d49a725c5ad025f377a",
+  "reviewRound": "2026-06-30T23:31:22.419Z",
   "agentId": "lattice-review-delivery",
   "docsPromises": [
     {
-      "docPath": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
-      "promise": "B-e781 closes the B-43de M4-M12 parent ledger with local machine evidence, row status, and claim boundaries rather than prose only.",
+      "docPath": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md#status",
+      "promise": "B-e781 closes B-43de M4-M12 parent roadmap rows with local machine evidence and row-level claim boundaries.",
       "status": "verified",
-      "verifiedBy": "manual diff inspection plus parent_roadmap_status plus focused smokes",
-      "evidence": "Closure ledger lists M4-M12 as closed with commands and claim boundaries; B-43de status returned allRowsClosed true, summaryClass full_roadmap_complete, openRows empty; totality smoke passed."
+      "verifiedBy": "git diff + parent_roadmap_status --storyId=B-43de --json",
+      "evidence": "Roadmap status changed to the B-e781 closure statement; parent_roadmap_status for B-43de reports allRowsClosed=true, summaryClass=full_roadmap_complete, openRows=[]."
     },
     {
-      "docPath": "docs/guide-scope-guard.md",
-      "promise": "The scope guard guide no longer presents M4-M12 as future roadmap work and keeps B-997b guard behavior scoped to its shipped surfaces.",
+      "docPath": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md#M4",
+      "promise": "M4 row is closed and lists node scripts/verify-process-fact-contract.mjs as evidence.",
       "status": "verified",
-      "verifiedBy": "manual inspection plus rg",
-      "evidence": "Top section names B-e781 closure, local evidence, row-level boundaries, and says local evidence must not imply broader unlocks; old future-work wording was not present."
+      "verifiedBy": "roadmap grep + process fact verifier + parent roadmap status",
+      "evidence": "Roadmap row M4 is closed with node scripts/verify-process-fact-contract.mjs; verifier output ended Process fact contract verified; B-43de rollup row M4 is closed/fresh."
     },
     {
-      "docPath": "docs/requirements/decisions/lifecycle-artifact-scope.md",
-      "promise": "The lifecycle artifact policy no longer treats M4-M12 as unfinished and preserves the boundary between story metadata, evidence receipts, and product source scope.",
+      "docPath": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md#M5",
+      "promise": "M5 row is closed and lists verification-context-pack-smoke evidence.",
       "status": "verified",
-      "verifiedBy": "manual inspection plus rg",
-      "evidence": "Top policy section names B-e781 closure and explicitly says lifecycle artifacts are not evidence receipts or product source scope weakening."
+      "verifiedBy": "roadmap grep + smoke + parent roadmap status",
+      "evidence": "Roadmap row M5 is closed with node packages/main/dist/tasks/verification-context-pack-smoke.js; focused smoke printed verification context pack smoke passed; B-43de rollup row M5 is closed/fresh."
     },
     {
-      "docPath": "packages/main/src/cli/command-catalog.ts",
-      "promise": "parent_roadmap_status help matches runtime behavior for B-43de and keeps migration as an explicit negative diagnostic case.",
+      "docPath": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md#M6",
+      "promise": "M6 row is closed and lists lifecycle-orchestrate plus review-escalation freshness or expected-block smoke evidence.",
       "status": "verified",
-      "verifiedBy": "help output plus live CLI",
-      "evidence": "Help says storyId B-43de maps to the closed B-e781 ledger and case=migration remains the legacy negative sample; live commands matched both."
+      "verifiedBy": "roadmap grep + smokes + parent roadmap status",
+      "evidence": "Roadmap row M6 is closed with lifecycle-orchestrate and review-escalation smokes; both smokes passed; B-43de rollup row M6 is closed/fresh."
     },
     {
-      "docPath": "packages/main/src/tasks/parent-roadmap-totality-smoke.ts",
-      "promise": "Roadmap totality checks require row evidence, claim boundaries, closed B-43de output, and an open migration negative control.",
+      "docPath": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md#M7",
+      "promise": "M7 row is closed and lists baseline-suite-smoke plus baseline-suite-report-smoke evidence.",
       "status": "verified",
-      "verifiedBy": "focused smoke",
-      "evidence": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js passed."
+      "verifiedBy": "roadmap grep + smokes + parent roadmap status",
+      "evidence": "Roadmap row M7 is closed with baseline suite and report smokes; both smokes passed; B-43de rollup row M7 is closed/fresh."
     },
     {
-      "docPath": ".lattice/story/actives/B-e781/evidence/transcript-diff.md",
-      "promise": "User-visible transcript records expected and actual outcomes for positive, negative, validation, and claim-boundary checks.",
+      "docPath": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md#M8",
+      "promise": "M8 row is closed and lists reviewer quorum, quorum submit, and review escalation smoke evidence.",
       "status": "verified",
-      "verifiedBy": "manual inspection",
-      "evidence": "Transcript lists expected outcomes and actual command summaries with 9 closed rows for B-43de, migration_needed for migration, and validation pass."
+      "verifiedBy": "roadmap grep + smokes + parent roadmap status",
+      "evidence": "Roadmap row M8 is closed with reviewer-quorum, quorum-submit, and review-escalation smokes; all focused smokes passed; B-43de rollup row M8 is closed/fresh."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md#M9",
+      "promise": "M9 row is closed and lists lifecycle-orchestrate-smoke evidence.",
+      "status": "verified",
+      "verifiedBy": "roadmap grep + smoke + parent roadmap status",
+      "evidence": "Roadmap row M9 is closed with lifecycle-orchestrate-smoke; focused smoke passed; B-43de rollup row M9 is closed/fresh."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md#M10",
+      "promise": "M10 row is closed and lists lattice-parallel-wave-smoke evidence while keeping parallel output advisory.",
+      "status": "verified",
+      "verifiedBy": "roadmap grep + smoke + parent roadmap status",
+      "evidence": "Roadmap row M10 is closed with lattice-parallel-wave-smoke; focused smoke passed; B-43de rollup row M10 is closed/fresh and claim boundary is read-only/advisory."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md#M11",
+      "promise": "M11 row is closed and lists rollout-check-smoke evidence plus migration/operator guidance boundaries.",
+      "status": "verified",
+      "verifiedBy": "roadmap grep + smoke + parent roadmap status",
+      "evidence": "Roadmap row M11 is closed with rollout-check-smoke; focused smoke passed; B-43de rollup row M11 is closed/fresh."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md#M12",
+      "promise": "M12 row is closed and lists parent-roadmap-totality-smoke plus lattice-handoff-smoke evidence.",
+      "status": "verified",
+      "verifiedBy": "roadmap grep + smokes + parent roadmap status",
+      "evidence": "Roadmap row M12 is closed with parent-roadmap-totality and lattice-handoff smokes; both smokes passed; B-43de rollup row M12 is closed/fresh."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md#claim-boundary-and-migration-negative-control",
+      "promise": "The B-e781 closure does not overclaim retired Authority Server conformance, and the legacy migration negative control remains migration_needed.",
+      "status": "verified",
+      "verifiedBy": "parent_roadmap_status --case=migration --json + parent-roadmap-totality-smoke + roadmap grep",
+      "evidence": "Migration case reports allRowsClosed=false and summaryClass=migration_needed with M4-M12 open; parent-roadmap-totality-smoke passed its disallowed claim-boundary checks; roadmap text says B-e781 is not retired Authority Server production/runtime conformance."
     }
   ],
   "realMachineTests": [
     {
-      "featureId": "B-e781:parent-roadmap-positive",
-      "transcript": "node bin/lattice.js parent_roadmap_status --storyId=B-43de --json exited 0; rollup allRowsClosed=true, summaryClass=full_roadmap_complete, openRows=[], staleEvidenceRows=[], and rows M4-M12 closed with evidence refs."
+      "featureId": "CHK-001",
+      "transcript": "M4 process fact registry coverage: ran node scripts/verify-process-fact-contract.mjs and it ended Process fact contract verified; parent_roadmap_status B-43de reports M4 closed/fresh; validate PASS."
     },
     {
-      "featureId": "B-e781:parent-roadmap-negative",
-      "transcript": "node bin/lattice.js parent_roadmap_status --case=migration --json exited 0; rollup allRowsClosed=false, summaryClass=migration_needed, openRows=M4-M12, and claimType=no-full-roadmap-claim."
+      "featureId": "CHK-002",
+      "transcript": "M5 verification context pack and evidence envelope: ran node packages/main/dist/tasks/verification-context-pack-smoke.js and it printed verification context pack smoke passed; parent_roadmap_status B-43de reports M5 closed/fresh; validate PASS."
     },
     {
-      "featureId": "B-e781:totality-smoke",
-      "transcript": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js exited 0 with parent-roadmap totality smoke passed all."
+      "featureId": "CHK-003",
+      "transcript": "M6 gate oracle freshness and negative controls: ran lifecycle-orchestrate-smoke and review-escalation-smoke; both passed; parent-roadmap-totality-smoke passed migration and disallowed-claim checks; migration case remains migration_needed."
     },
     {
-      "featureId": "B-e781:vocabulary-boundary-smoke",
-      "transcript": "node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js exited 0 with vocabulary guard PASS."
+      "featureId": "CHK-004",
+      "transcript": "M7 baseline suite formalization: ran baseline-suite-smoke and baseline-suite-report-smoke; both passed; parent_roadmap_status B-43de reports M7 closed/fresh."
     },
     {
-      "featureId": "B-e781:routine-validate",
-      "transcript": "node bin/lattice.js validate --story=B-e781 --json exited 0; status=pass, allPass=true, summary=Project validation commands passed, 31 configured commands ran."
+      "featureId": "CHK-005",
+      "transcript": "M8 host identity review-run and quorum strengthening: ran reviewer-quorum-smoke, quorum-submit-smoke, and review-escalation-smoke; all passed; quorum-submit smoke confirms authorityDone/fullAuthorityDone/productionDone are never set."
     },
     {
-      "featureId": "B-e781:diff-hygiene",
-      "transcript": "git diff --check exited 0 with no output."
+      "featureId": "CHK-006",
+      "transcript": "M9 preflight command center: ran lifecycle-orchestrate-smoke and it passed; parent_roadmap_status B-43de reports M9 closed/fresh."
+    },
+    {
+      "featureId": "CHK-007",
+      "transcript": "M10 parallel collaboration scheduling: ran lattice-parallel-wave-smoke and it passed; B-43de row M10 is closed with read-only/advisory claim boundary."
+    },
+    {
+      "featureId": "CHK-008",
+      "transcript": "M11 rollout migration and operator guidance: ran rollout-check-smoke and it passed; parent_roadmap_status --case=migration still reports summaryClass=migration_needed and allRowsClosed=false."
+    },
+    {
+      "featureId": "CHK-009",
+      "transcript": "M12 cross-track certification and handoff: ran parent-roadmap-totality-smoke and lattice-handoff-smoke; both passed; parent_roadmap_status B-43de reports allRowsClosed=true, summaryClass=full_roadmap_complete, openRows=[]."
     }
   ],
   "closingSelfCheck": {
     "hasRealMachineTest": true,
     "hasEdgeCaseCoverage": true,
     "hasUnresolvedTodos": false,
-    "summary": "Delivery reviewer verified doc promises, live positive and negative status paths, focused smokes, and routine validation. B-e781 is signed as local parent-ledger closure for B-43de M4-M12 only; broader external conformance and formal unlock claims remain out of scope."
+    "summary": "Delivery review verified 11/11 documentation promises and 9/9 feature rows against source diff, focused smokes, parent-roadmap status, fresh validate PASS, and fresh DONE-required PASS. B-43de is full_roadmap_complete for M4-M12, the migration negative control remains migration_needed, and the closure remains bounded to local Proofbound CLI evidence rather than retired Authority Server conformance."
   },
-  "_hash": "d82c61e809980bf4b3a8a8cc97137d19bf880b908fce2991e7ed1203dace478c"
+  "_hash": "15528658879ddfc887dcd52b0bb0072580ea7a1e323a22c98a51e9704b8ac7ce"
 }
