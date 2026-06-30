@@ -143,6 +143,15 @@
       "reviewRound": "2026-06-30T23:31:22.419Z",
       "reviewRunId": "B-e781:RR-020",
       "_hash": "0e2af5a48c82110d5ddcd9ade7f56faa88363cd791df75e595d24082298223d5"
+    },
+    {
+      "id": "B-e781:RP-017",
+      "agent": "lattice-review-docs",
+      "note": "Docs lane pass round 5. Targeted delta since last docs pass is smoke-test coverage in packages/main/src/tasks/review-assurance-floor-smoke.ts plus F-003 resolution metadata, with no docs-facing contract or wording change. Reviewed README.md:335-351, docs/guide.md:98-112, docs/requirements/decisions/review-assurance-floor-execution-plan.md:10-24 and 62-72 and 96-113, docs/requirements/decisions/story-lifecycle.md:192, docs/requirements/decisions/lifecycle-gate-receipt-consumption.md:180-183, and packages/main/src/core/review-assurance-floor.ts:555-605. Docs still separate full 3x2 independent PASS hosts from explicit degraded-single-host fallback with 3x1/single-host rounds and non-authority boundaries; they do not overclaim degraded 3x1 as normal independent 3x2. F-003 is resolved with strong metadata and the targeted smoke command passed: node packages/main/dist/tasks/review-assurance-floor-smoke.js.",
+      "createdAt": "2026-06-30T23:34:39.950Z",
+      "reviewRound": "2026-06-30T23:31:22.419Z",
+      "reviewRunId": "B-e781:RR-019",
+      "_hash": "9bd1e116ba3b0acc8799cb90bca0e954fa2cd552a244bcded116febf4858a989"
     }
   ]
 }
