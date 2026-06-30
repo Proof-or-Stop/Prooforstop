@@ -1,0 +1,68 @@
+{
+  "storyId": "B-edb8",
+  "checkedAt": "2026-06-30T14:44:04.406Z",
+  "headHash": "5def617b8ac9a4f6b0e1ad2596aca44651b7509f",
+  "materialHash": "00982e6a7f0d73308967e4bdc0547ff4258e3d7237b169b10e19dfc8d0e65abd",
+  "storyFilesHash": "fe720b01a16d6b74bb26cf6deb76e88a7bb1174730541cbcf9f019fe15586ba4",
+  "reviewRound": "2026-06-30T14:29:03.493Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+      "promise": "Parent governance DONE and full roadmap completion are separate outcomes; open, stale, invalid, blocked, or child-story-needed rows must yield no-full-roadmap-claim and block full-roadmap wording.",
+      "status": "verified",
+      "verifiedBy": "Reverse diff/source scan plus parent-roadmap smoke and built CLI status/enforce probes.",
+      "evidence": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js passed all cases. Built CLI partial sample returned summaryClass=partial_parent_done, claimType=no-full-roadmap-claim, openRows=M4,M5. Built CLI enforce probe against Full roadmap complete wording exited 1 with parent_roadmap_summary_overclaim."
+    },
+    {
+      "docPath": "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+      "promise": "M1-M8 implementation scope is covered: red/repro first, state model, evaluator, claim consumer, B-5082 ProofStory binding, CLI/lifecycle diagnostics, migration/repair, and cross-track certification.",
+      "status": "verified",
+      "verifiedBy": "lattice checklist_get, lattice validate, and parent-roadmap smoke matrix.",
+      "evidence": "Checklist is 8/8 done with 24/24 verification intents covered. Parent-roadmap smoke covers state-model, evaluator, claim-consumer, proofstory-binding, cli, and migration paths, including negative controls for overclaim prevention."
+    },
+    {
+      "docPath": "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+      "promise": "The implementation must not claim M4-M12 runtime completion or rely on server-backed completion semantics; it must keep historical parent candidates honest as partial or migration-needed.",
+      "status": "verified",
+      "verifiedBy": "Source/verifier scan plus migration smoke.",
+      "evidence": "Core evaluator is local and recomputes rollups from row facts. Process-fact verifier checks absence of Authority/production completion markers in parent-roadmap runtime. Migration smoke returns migration_needed and no-full-roadmap-claim for B-43de-shaped rows."
+    },
+    {
+      "docPath": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md#M4-process-fact-registry",
+      "promise": "New gate-consumed or lifecycle-relevant command facts must be registered in command policy, process-fact levels, process-fact registry, and static verifier before use.",
+      "status": "verified",
+      "verifiedBy": "Reverse diff/source scan and node scripts/verify-process-fact-contract.mjs.",
+      "evidence": "Diff adds parent_roadmap_status and parent_roadmap_evaluate to command catalog, command policy, DEFAULT_PHASE_TOOLS, main registry, process-fact levels, and required semantics. It adds runtime:parent_roadmap_totality_claim_consumer to process-fact levels and registry. Process fact contract verifier passed and lists these entries."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "B-edb8:TEST-validate",
+      "transcript": "lattice validate --story=B-edb8 PASS after 108.4s. All 31 configured validation commands passed, including npm --prefix packages/main run build and the configured smoke suite. Verification intent coverage: 24/24 covered, 0 required missing."
+    },
+    {
+      "featureId": "B-edb8:DONE-required-validation",
+      "transcript": "lattice done_required_validate --storyId=B-edb8 PASS after 49809ms. Required commands passed: packages/main build via npm --prefix packages/main run build, and root full test suite via npm test."
+    },
+    {
+      "featureId": "B-edb8:parent-roadmap-smoke-and-status",
+      "transcript": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js -> parent-roadmap totality smoke passed (all). Built CLI parent_roadmap_status partial sample returned partial_parent_done/no-full-roadmap-claim with open rows M4,M5. Built CLI enforce probe for Full roadmap complete wording exited 1 with parent_roadmap_summary_overclaim."
+    },
+    {
+      "featureId": "B-edb8:process-fact-contract",
+      "transcript": "node scripts/verify-process-fact-contract.mjs -> Process fact contract verified. Registry output includes parent_roadmap_status, parent_roadmap_evaluate, and runtime:parent_roadmap_totality_claim_consumer."
+    },
+    {
+      "featureId": "B-edb8:3x2-quorum-status",
+      "transcript": "lattice review_escalation_status {storyId:B-edb8} -> ok=true, assuranceLevel=full-3x2, admissibilityStatus=local-review-satisfied, fullQuorum=3/3 rounds x 2 hosts, voluntaryLocalRounds=3/3 rounds x 2 hosts complete."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Reverse diff/stat and source scan covered the parent-roadmap evaluator, handler, CLI catalog, command policy, phase tool allow list, process-fact levels/registry, main registry, smoke task, and process-fact verifier. Real-machine tests cover TEST validation, DONE-required validation, parent-roadmap positive and negative controls, process-fact contract drift, and full 3x2 quorum. No unresolved TODO/FIXME/XXX markers were found in changed runtime surfaces. Non-blocking note: the preinstalled global lattice shim in this shell did not yet expose parent_roadmap_status, while the built package CLI did; the normal post-merge version/install path should refresh that shim."
+  },
+  "_hash": "b4dc8fad33bb18b452cc18d2aa02b7dde99219e027daf2e3d089dd81fafe69b7"
+}
