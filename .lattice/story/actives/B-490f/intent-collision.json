@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-490f",
+  "id": "IC-20260630222658",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "This story is a docs correctness closure only: update status/completion tables in three named decision documents, mark implemented rows with ✅, and preserve explicit boundaries for partial, unavailable, retired, future, read-only diagnostic, and non-goal rows. It does not implement runtime hard gates, production completion, server-backed receipt proof, append-only ledger storage, or Tier-C automated cleanup.",
+  "acceptedInterpretationHash": "sha256:1a774194d021a314f1ecc286a91a5ff4b88b00022f2fbac876f586752c8af2e1",
+  "notes": "No intent collision remains: the user asked to resolve document-status gaps, not to build all future/partial capabilities.",
+  "createdAt": "2026-06-30T22:26:58.051Z",
+  "updatedAt": "2026-06-30T22:26:58.051Z"
+}

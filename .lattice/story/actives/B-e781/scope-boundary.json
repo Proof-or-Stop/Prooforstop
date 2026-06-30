@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-e781",
+  "mode": "feature",
+  "allowed": [
+    "Add or update focused smoke tests for M4-M12 closure",
+    "Close lattice-strengthening-roadmap M4-M12 parent rows with machine evidence",
+    "Modify docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md and focused requirement docs when needed",
+    "Modify packages/main/src core/handlers/tasks directly related to process facts, verification context, oracle/freshness, baseline, quorum, preflight, parallel scheduling, rollout, and handoff certification",
+    "Write Lattice story artifacts for B-e781 only"
+  ],
+  "excluded": [
+    "Do not alter unrelated active story artifacts such as B-b49f, B-0888, B-4387, or B-fbb6",
+    "Do not mark roadmap rows closed without machine evidence and parent-roadmap rollup proof",
+    "Do not push to remote or publish packages",
+    "Do not resurrect Authority Server runtime or production semantics",
+    "Do not use or touch .omx or omx"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User explicitly requested completing all M4-M12 roadmap rows and marking each done only after completion evidence.",
+  "createdAt": "2026-06-30T22:06:40.004Z",
+  "updatedAt": "2026-06-30T22:06:40.004Z",
+  "_hash": "4831b2a7b4a5025a3007df551e944295dbb16dc0ac4997200197e60d8b09e9f3"
+}

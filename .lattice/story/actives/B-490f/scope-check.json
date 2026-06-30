@@ -1,0 +1,80 @@
+{
+  "storyId": "B-490f",
+  "checkedAt": "2026-06-30T22:25:42.282Z",
+  "features": [
+    {
+      "feature": "CHK-001 Parent Roadmap status-table docs correction: replace stale plan-only wording with current implemented/read-only boundary while preserving no full-roadmap overclaim.",
+      "covered_by": "CHK-001 plus CHK-004 verification; allowed file docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md.",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "Checklist CHK-001/CHK-004; parent roadmap doc lines 3, 28-31, 559, 593 keep plan-only/non-runtime/non-full-completion context."
+    },
+    {
+      "feature": "CHK-002 Proof Admissibility status-table docs correction: mark local CLI hardening as implemented while keeping external receipt/runtime parity boundaries retired or future.",
+      "covered_by": "CHK-002 plus CHK-004 verification; allowed file docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md.",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "Checklist CHK-002/CHK-004; proof admissibility doc lines 38-49, 776-798, 931-935, 1188-1191, 1335-1337."
+    },
+    {
+      "feature": "CHK-003 Global Lifecycle Control Plane status-table docs correction: mark implemented control-plane rows while leaving Proof M7, waterline, Tier-C, and production completion rows partial or unavailable.",
+      "covered_by": "CHK-003 plus CHK-004 verification; allowed file docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md.",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "Checklist CHK-003/CHK-004; global control-plane doc lines 151-173, 334, 692-766, 772-775."
+    },
+    {
+      "feature": "CHK-004 Cross-document docs verification: prove all three decision docs have completion/status tables and retain no-overclaim boundary language.",
+      "covered_by": "CHK-004 targeted rg/docs verification over the same three allowed decision docs and existing smoke/contract commands only as verification references.",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "Checklist CHK-004 verificationIntent happy/edge/adversarial."
+    },
+    {
+      "feature": "Runtime code changes or package implementation changes beyond docs-only correctness cleanup.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "User scope boundary and understanding constraints: allowed files are only the three decision docs; code paths are context/test refs, not edit targets.",
+      "source": "Understanding constraints and touchpoints; checklist files.modify lists only the three decision docs."
+    },
+    {
+      "feature": "New hard gate implementation or global lifecycle/DONE hard-gate expansion.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "User scope boundary; parent roadmap non-goals and control-plane docs say read-only/status or owned elsewhere, not new hard automation for this story.",
+      "source": "Parent doc lines 28-31; global control-plane doc lines 167-168 and 757-766."
+    },
+    {
+      "feature": "Server-backed receipt proof or external production receipt proof reintroduction.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "User scope boundary; proof admissibility docs keep server-backed/external production receipt behavior retired, future, or outside local CLI completion.",
+      "source": "Proof admissibility doc lines 13-20, 45, 119-120, 767-770, 874, 1335-1337."
+    },
+    {
+      "feature": "Append-only admissibility ledger implementation.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "User scope boundary; Appendix C is retained as retired/future reference only and current local CLI must not claim durable ledger rows or a ledger writer.",
+      "source": "Proof admissibility doc lines 48, 931-935, 1188-1191."
+    },
+    {
+      "feature": "Tier-C automated cleanup implementation.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "User scope boundary; global control-plane doc marks Tier-C cleanup unavailable and automated cleanup retired/non-goal while preserving experiment evidence visibility.",
+      "source": "Global control-plane doc lines 172, 355-374, 744, 870-871."
+    }
+  ],
+  "summary": {
+    "total": 9,
+    "covered": 4,
+    "excluded": 5,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "34560ee8337c162e19ca05f5ea2cc73053bb8ca23cedd9313d3225ddda8d77d0",
+  "openQuestions": []
+}

@@ -1,0 +1,29 @@
+{
+  "task": "Correct three roadmap/proof/control-plane execution-plan documents so their milestone tables match current local CLI implementation boundaries.",
+  "outcome": "User opens the three named documents and sees completed milestone rows marked with ✅, while partial, unavailable, retired, future, and read-only diagnostic rows remain clearly labeled without claiming new hard automation.",
+  "facts": [
+    "Parent Roadmap runtime evaluator and read-only commands exist in packages/main/src/core/parent-roadmap-totality.ts and handlers/parent-roadmap.ts.",
+    "proof-admissibility-hardening-execution-plan.md already states local CLI hardening is implemented while external adapter and retired ledger work are not local CLI completion claims.",
+    "global-lifecycle-control-plane-execution-plan.md already labels proofM7Enforcement and admissibility-waterline as partial and tierCCleanup as unavailable.",
+    "User requested priority order: Parent Roadmap first, then Proof Admissibility, then Global Control Plane, until DONE."
+  ],
+  "constraints": [
+    "Do not optimize for optimization.",
+    "Do not optimize arbitrarily.",
+    "Only fix real correctness issues.",
+    "Follow consistency of logic.",
+    "Do not implement new runtime hard gates or reintroduce server-backed receipt proof.",
+    "Edit only the three scoped decision documents unless a new real correctness issue is separately approved."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+    "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+    "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+    "packages/main/src/core/parent-roadmap-totality.ts",
+    "packages/main/src/handlers/parent-roadmap.ts",
+    "packages/main/src/core/proof-admissibility.ts",
+    "packages/main/src/core/lifecycle-control"
+  ],
+  "timestamp": "2026-06-30T22:23:28.866Z"
+}

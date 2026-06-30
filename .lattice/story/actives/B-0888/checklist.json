@@ -4,33 +4,306 @@
       "id": "CHK-001",
       "title": "Remove project dev-memory legacy brand text and tags",
       "context": "Tracked .lattice/dev-memory/experience.jsonl should contain current Proofbound/Lattice lessons only; remove legacy-koala/koala-* tags and Legacy Koala prose while preserving the useful current lessons.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-30T22:17:33.206Z",
+      "userSees": "User sees no Koala/koala/.koala hits when scanning project dev-memory after cleanup.",
+      "files": {
+        "modify": [
+          ".lattice/dev-memory/experience.jsonl"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/dev-memory-supersession-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Tracked project dev-memory contains current Proofbound/Lattice entries without Koala/koala/.koala text or legacy-koala/koala-* tags.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Current host-policy memories d6f173d and 9bd6b5a remain present after cleanup.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No project dev-memory entry can keep old brand text hidden in tags, trigger, reusePrompt, or evidenceRefs.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "rg -n -i \"koala|\\\\.koala|legacy-koala\" .lattice/dev-memory packages/main/src/tasks/dev-memory-supersession-smoke.ts || true",
+          "result": "pass",
+          "note": "No output: tracked project dev-memory and smoke source contain zero retired-brand matches.",
+          "headHash": "01cbe1d14338d3f7bd2d3b97fedc0121fb9e9217",
+          "materialHash": "823bd49a615a3a66e2937be4d50c8ca0992f84d0b8ad607792e44df0ee525ccc",
+          "storyFilesHash": "01c63a05e64648d526a76ef686a094d29af8dd202174a2be94cdb23cb3f8c84d",
+          "timestamp": "2026-06-30T22:33:59.916Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/dev-memory-supersession-smoke.js",
+          "result": "pass",
+          "note": "Smoke preserves project memory rows 34e97f9, 99aa6c7, ee3aef3, 148297b, 7ffe281 plus host-policy rows d6f173d, 9bd6b5a.",
+          "headHash": "01cbe1d14338d3f7bd2d3b97fedc0121fb9e9217",
+          "materialHash": "823bd49a615a3a66e2937be4d50c8ca0992f84d0b8ad607792e44df0ee525ccc",
+          "storyFilesHash": "01c63a05e64648d526a76ef686a094d29af8dd202174a2be94cdb23cb3f8c84d",
+          "timestamp": "2026-06-30T22:33:59.916Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/dev-memory-supersession-smoke.js",
+          "result": "pass",
+          "note": "Smoke checks parsed project entries, tags, formatted output, and raw file content for zero retired-brand text.",
+          "headHash": "01cbe1d14338d3f7bd2d3b97fedc0121fb9e9217",
+          "materialHash": "823bd49a615a3a66e2937be4d50c8ca0992f84d0b8ad607792e44df0ee525ccc",
+          "storyFilesHash": "01c63a05e64648d526a76ef686a094d29af8dd202174a2be94cdb23cb3f8c84d",
+          "timestamp": "2026-06-30T22:33:59.916Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "Remove global old legacy memory rows",
       "context": "Locate the global dev-memory JSONL store and remove old rows containing Koala/koala/.koala content or refs so global search no longer surfaces old memory.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-30T22:17:41.887Z",
+      "userSees": "User sees global dev-memory search/list no longer returning old Koala memory rows.",
+      "files": {
+        "modify": [
+          "/Users/jek/.lattice/dev-memory/experience.jsonl"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/dev-memory-supersession-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Global dev-memory rows containing Koala/koala/.koala are removed from ~/.lattice/dev-memory/experience.jsonl.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Unrelated global memories such as host taxonomy and stale-doc lessons remain present.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A global search for koala does not surface preserved old memory rows or .koala evidence refs.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "rg -n -i \"koala|\\\\.koala|legacy-koala\" /Users/jek/.lattice/dev-memory/experience.jsonl || true",
+          "result": "pass",
+          "note": "No output: global dev-memory file contains zero retired-brand matches after deleting old rows.",
+          "headHash": "01cbe1d14338d3f7bd2d3b97fedc0121fb9e9217",
+          "materialHash": "823bd49a615a3a66e2937be4d50c8ca0992f84d0b8ad607792e44df0ee525ccc",
+          "storyFilesHash": "01c63a05e64648d526a76ef686a094d29af8dd202174a2be94cdb23cb3f8c84d",
+          "timestamp": "2026-06-30T22:33:59.916Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "lattice dev_memory_list --scope=global --limit=20",
+          "result": "pass",
+          "note": "Global list preserves current unrelated rows a4d08a8 and 9890b83, with total global entries now 2.",
+          "headHash": "01cbe1d14338d3f7bd2d3b97fedc0121fb9e9217",
+          "materialHash": "823bd49a615a3a66e2937be4d50c8ca0992f84d0b8ad607792e44df0ee525ccc",
+          "storyFilesHash": "01c63a05e64648d526a76ef686a094d29af8dd202174a2be94cdb23cb3f8c84d",
+          "timestamp": "2026-06-30T22:33:59.916Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "lattice dev_memory_search --query=koala --global --limit=20",
+          "result": "pass",
+          "note": "Command returned: No dev-memory experience entries found for query: koala.",
+          "headHash": "01cbe1d14338d3f7bd2d3b97fedc0121fb9e9217",
+          "materialHash": "823bd49a615a3a66e2937be4d50c8ca0992f84d0b8ad607792e44df0ee525ccc",
+          "storyFilesHash": "01c63a05e64648d526a76ef686a094d29af8dd202174a2be94cdb23cb3f8c84d",
+          "timestamp": "2026-06-30T22:33:59.916Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
       "title": "Update dev-memory smoke to assert physical cleanup",
       "context": "Replace supersession/legacy-readable expectations with zero old-brand memory checks across project/global list/search while keeping current host-policy memories intact.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-30T22:27:21.068Z",
+      "userSees": "User sees the dev-memory smoke prove zero old-brand memory hits instead of legacy-readable supersession.",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/dev-memory-supersession-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/dev-memory-supersession-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "dev-memory-supersession smoke asserts zero old-brand hits in project and global memory outputs.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The smoke still proves current host-policy memories and current Proofbound/Lattice lessons remain available.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The smoke fails if legacy-koala tags, Koala prose, koala commands, or .koala evidence refs are reintroduced.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/dev-memory-supersession-smoke.js",
+          "result": "pass",
+          "note": "Hermetic smoke reports dev-memory physical cleanup smoke passed (9 checks), proving zero old-brand hits in project and fixture global memory outputs.",
+          "headHash": "d32870e504030be2c9d35f44e88b95632f755bd8",
+          "materialHash": "823bd49a615a3a66e2937be4d50c8ca0992f84d0b8ad607792e44df0ee525ccc",
+          "storyFilesHash": "01c63a05e64648d526a76ef686a094d29af8dd202174a2be94cdb23cb3f8c84d",
+          "timestamp": "2026-06-30T22:27:21.229Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "env LATTICE_GLOBAL_MEMORY_DIR=$(mktemp -d) node packages/main/dist/tasks/dev-memory-supersession-smoke.js",
+          "result": "pass",
+          "note": "Quality reviewer repro is fixed: smoke seeds a temporary global memory fixture and passes with an empty external global-memory directory.",
+          "headHash": "d32870e504030be2c9d35f44e88b95632f755bd8",
+          "materialHash": "823bd49a615a3a66e2937be4d50c8ca0992f84d0b8ad607792e44df0ee525ccc",
+          "storyFilesHash": "01c63a05e64648d526a76ef686a094d29af8dd202174a2be94cdb23cb3f8c84d",
+          "timestamp": "2026-06-30T22:27:21.367Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "rg -n -i \"koala|\\\\.koala|legacy-koala\" .lattice/dev-memory /Users/jek/.lattice/dev-memory/experience.jsonl packages/main/src/tasks/dev-memory-supersession-smoke.ts || true",
+          "result": "pass",
+          "note": "No output: retired-brand prose, tags, command refs, and evidence refs are not present in the cleaned memory files or smoke source.",
+          "headHash": "d32870e504030be2c9d35f44e88b95632f755bd8",
+          "materialHash": "823bd49a615a3a66e2937be4d50c8ca0992f84d0b8ad607792e44df0ee525ccc",
+          "storyFilesHash": "01c63a05e64648d526a76ef686a094d29af8dd202174a2be94cdb23cb3f8c84d",
+          "timestamp": "2026-06-30T22:27:21.504Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
       "title": "Verify memory cleanup and runtime tests",
       "context": "Run rg old-brand checks, dev_memory_search/list checks, packages/main build, dev-memory smoke, residue scanner, and root npm test if practical.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-06-30T22:27:22.021Z",
+      "userSees": "User sees build, smoke, residue, and memory scans pass after physical cleanup.",
+      "files": {
+        "modify": [
+          ".lattice/dev-memory/experience.jsonl",
+          "packages/main/src/tasks/dev-memory-supersession-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/dev-memory-supersession-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm --prefix packages/main run build and node packages/main/dist/tasks/dev-memory-supersession-smoke.js pass.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "npm run test:lattice-residue passes after cleanup and no product runtime residue is introduced.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "rg Koala|koala|.koala over project dev-memory plus global dev-memory returns no old-brand hits after cleanup.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/dev-memory-supersession-smoke.js && env LATTICE_GLOBAL_MEMORY_DIR=$(mktemp -d) node packages/main/dist/tasks/dev-memory-supersession-smoke.js",
+          "result": "pass",
+          "note": "Build passed, normal smoke passed, and empty-global hermetic smoke passed with 9 checks.",
+          "headHash": "3250f72e4ab5b037e189d2272cae93cb491aa36a",
+          "materialHash": "823bd49a615a3a66e2937be4d50c8ca0992f84d0b8ad607792e44df0ee525ccc",
+          "storyFilesHash": "01c63a05e64648d526a76ef686a094d29af8dd202174a2be94cdb23cb3f8c84d",
+          "timestamp": "2026-06-30T22:27:22.182Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "command": "npm run test:lattice-residue",
+          "result": "pass",
+          "note": "Residue scanner passed: PASS lattice-residue: 0 brand residue in product runtime source.",
+          "headHash": "3250f72e4ab5b037e189d2272cae93cb491aa36a",
+          "materialHash": "823bd49a615a3a66e2937be4d50c8ca0992f84d0b8ad607792e44df0ee525ccc",
+          "storyFilesHash": "01c63a05e64648d526a76ef686a094d29af8dd202174a2be94cdb23cb3f8c84d",
+          "timestamp": "2026-06-30T22:27:22.337Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "rg -n -i \"koala|\\\\.koala|legacy-koala\" .lattice/dev-memory /Users/jek/.lattice/dev-memory/experience.jsonl packages/main/src/tasks/dev-memory-supersession-smoke.ts || true",
+          "result": "pass",
+          "note": "No output: project dev-memory, global dev-memory, and smoke source have zero retired-brand hits.",
+          "headHash": "3250f72e4ab5b037e189d2272cae93cb491aa36a",
+          "materialHash": "823bd49a615a3a66e2937be4d50c8ca0992f84d0b8ad607792e44df0ee525ccc",
+          "storyFilesHash": "01c63a05e64648d526a76ef686a094d29af8dd202174a2be94cdb23cb3f8c84d",
+          "timestamp": "2026-06-30T22:27:22.509Z"
+        }
+      ]
     }
   ]
 }

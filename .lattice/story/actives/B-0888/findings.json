@@ -1,0 +1,28 @@
+{
+  "findings": [
+    {
+      "id": "B-0888:F-001",
+      "desc": "packages/main/src/tasks/dev-memory-supersession-smoke.ts:94 reads the real global dev-memory path and lines 138-145 require machine-specific global rows a4d08a8/9890b83. Because packages/main/src/tasks/run-all-smokes.ts auto-discovers *-smoke tasks and package.json exposes test:all/test:coverage through that runner, the committed smoke is no longer hermetic. Repro: env LATTICE_GLOBAL_MEMORY_DIR=$(mktemp -d) node packages/main/dist/tasks/dev-memory-supersession-smoke.js fails with AssertionError: <tmp>/experience.jsonl should exist. This blocks quality because routine smoke validation can fail on a clean machine or different global memory state even though the product code is fine.",
+      "severity": "high",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-30T22:21:28.996Z",
+      "reviewRound": "2026-06-30T22:18:44.283Z",
+      "reviewRunId": "B-0888:RR-003",
+      "_hash": "23878308fee46eaad7cac295e976f7c848c9411cec8cf544e052a3c81403edbe",
+      "files": [
+        "packages/main/src/tasks/dev-memory-supersession-smoke.ts",
+        "packages/main/src/tasks/run-all-smokes.ts",
+        "package.json"
+      ],
+      "signatureTag": "edge|ts|packages-main-tasks",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by d32870e50: dev-memory-supersession-smoke now seeds a temporary global memory fixture through LATTICE_GLOBAL_MEMORY_DIR and no longer reads real ~/.lattice rows. Verified with npm --prefix packages/main run build; node packages/main/dist/tasks/dev-memory-supersession-smoke.js; env LATTICE_GLOBAL_MEMORY_DIR=$(mktemp -d) node packages/main/dist/tasks/dev-memory-supersession-smoke.js; npm run test:lattice-residue.",
+      "resolvedAt": "2026-06-30T22:27:54.296Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}
