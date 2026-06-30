@@ -113,8 +113,29 @@
         "done_required_command_spec",
         "proof_admissibility"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "This smoke test is required to close F-002: stale/freshness DONE_REQUIRED receipts must include the same CommandSpec envelope required by the new proof-admissibility evaluator.",
+      "timestamp": "2026-06-30T16:57:06.494Z",
+      "paths": [
+        "packages/main/src/tasks/done-required-freshness-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/done-required-freshness-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "7677d7398970732ea642515299ea6d0eec15ab26",
+      "materialHash": "4f637b1c083c85fbc5726ebb14ba2b0d43ecf8fe450f18a0d47deafb87bc8a57",
+      "anchors": [
+        "F_002",
+        "done_required_freshness",
+        "command_spec"
+      ]
     }
   ],
   "createdAt": "2026-06-30T15:05:17.820Z",
-  "updatedAt": "2026-06-30T16:20:55.856Z"
+  "updatedAt": "2026-06-30T16:57:06.494Z"
 }
