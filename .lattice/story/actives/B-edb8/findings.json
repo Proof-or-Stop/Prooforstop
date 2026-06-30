@@ -123,7 +123,7 @@
       "desc": "External ProofStory inventory is not bound into the rollup, so the shrunken-ledger full-completion path remains open through the binding API. `requiredInventoryRowIds` only reads `ledger.requiredRowIds` and `ledger.proofstoryContract` (packages/main/src/core/parent-roadmap-totality.ts:469-473), while `evaluateParentRoadmapProofStoryBinding` accepts `args.proofstoryContract` but computes or consumes `rollup` from the ledger alone (packages/main/src/core/parent-roadmap-totality.ts:695-708) and only checks that external acceptanceBindings exist (packages/main/src/core/parent-roadmap-totality.ts:717-724). Repro: run a one-row ledger with only M4 closed and pass an external proofstoryContract whose acceptanceBindings.milestoneIds are M4-M12 to evaluateParentRoadmapProofStoryBinding in enforce mode with summaryText `Full roadmap complete.`; observed rollup.summaryClass=full_roadmap_complete, claimType=full-roadmap-claim, allRowsClosed=true, rowIds=[M4], and binding.status=pass/blocking=false. The CLI handler also synthesizes proofstoryContract milestoneIds from `rollup.rowResults` (packages/main/src/handlers/parent-roadmap.ts:48-57), so it mirrors any already-shrunken ledger instead of binding to the original milestone inventory. This violates the B-5082 boundary that milestoneLedger/proofstoryContract supply the child-row inventory that must not shrink, and F-003 is only fixed when the inventory is embedded in the ledger, not when supplied by the ProofStory binding surface.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-06-30T14:17:56.243Z",
@@ -136,7 +136,11 @@
         "packages/main/src/tasks/parent-roadmap-totality-smoke.ts"
       ],
       "signatureTag": "adversarial|ts|external-proofstory-inventory",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed in fdf20358dc39868a5db1b73580ce11fa2f843a18: external proofstoryContract acceptanceBindings.milestoneIds now bind into requiredRowIds for rollup and ProofStory binding evaluation; handler propagates external inventory instead of mirroring a shrunken ledger. Verified by npm --prefix packages/main run build, parent-roadmap-totality-smoke --case=proofstory-binding, full parent-roadmap-totality-smoke, proofstory-intent-hardening-smoke, and verify-process-fact-contract.mjs.",
+      "resolvedAt": "2026-06-30T14:31:16.277Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
