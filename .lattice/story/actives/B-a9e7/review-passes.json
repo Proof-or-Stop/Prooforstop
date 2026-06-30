@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-30T16:18:32.080Z",
       "reviewRunId": "B-a9e7:RR-009",
       "_hash": "3ce3f5397e2b2cc725c544ac3ac4d6ae45ba78f9a18ba65bf82e496145aa6434"
+    },
+    {
+      "id": "B-a9e7:RP-005",
+      "agent": "lattice-review-docs",
+      "note": "Docs review round 2 after smoke expansion: PASS. Reviewed docs/requirements/decisions/dev-memory.md, packages/main/src/core/dev-memory.ts, packages/main/src/handlers/dev-memory.ts, packages/main/src/tasks/dev-memory-supersession-smoke.ts, and .lattice/dev-memory/experience.jsonl. Verified docs state append-only supersession, legacy Koala entries remain readable, current Proofbound/Lattice guidance is preferred by current worktree search/preflight behavior, and all dev-memory entries remain gateEvidence=false/authority=non_authoritative. Ran node packages/main/dist/tasks/dev-memory-supersession-smoke.js: 16 checks passed; also checked worktree CLI node packages/main/dist/cli.js dev_memory_search/preflight for koala terms. No blocker.",
+      "createdAt": "2026-06-30T16:22:09.354Z",
+      "reviewRound": "2026-06-30T16:18:32.080Z",
+      "reviewRunId": "B-a9e7:RR-010",
+      "_hash": "30d539a23f8c93fde9dd8da98129089837d70c2139ed5cd0c6702b47e4cd841e"
     }
   ]
 }
