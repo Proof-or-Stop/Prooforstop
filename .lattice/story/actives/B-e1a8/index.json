@@ -4,7 +4,7 @@
   "title": "Enable ProofStory gates in enforce mode",
   "description": "Roll out ProofStory enforcement globally by setting proofStory.devGateMode, proofStory.reviewGateMode, and proofStory.doneGateMode to enforce. The story must also prove its own original intent, milestone coverage, intent collision, ProofStory contract, REVIEW completeness, and DONE intent equivalence so the new gates are not bypassed.",
   "type": "feature",
-  "phase": "REVIEW",
+  "phase": "TEST",
   "priority": "high",
   "riskSignals": [
     {
@@ -56,6 +56,15 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-06-30T08:52:07.328Z",
+      "branch": "story/B-e1a8",
+      "user": "Harmonygo",
+      "sessionId": "proofstory-enforce-rollout",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-06-30T09:02:13.492Z",
       "branch": "story/B-e1a8",
       "user": "Harmonygo",
       "sessionId": "proofstory-enforce-rollout",
