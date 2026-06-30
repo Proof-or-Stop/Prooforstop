@@ -556,7 +556,42 @@
           }
         ]
       },
-      "userSees": "User sees final ProofStory, review completeness, DONE intent equivalence, and done-required checks pass with all seven milestones covered."
+      "userSees": "User sees final ProofStory, review completeness, DONE intent equivalence, and done-required checks pass with all seven milestones covered.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-007:happy:0",
+          "kind": "manual_transcript",
+          "command": "lattice proofstory_gate_check --storyId=B-cd3a --mode=enforce --json && lattice intent_coverage_check --storyId=B-cd3a --mode=enforce --json && lattice done_required_validate --storyId=B-cd3a --json",
+          "result": "pass",
+          "note": "Final gate input bundle passed: ProofStory DEV gate and intent coverage reported status=pass with no blocking gaps, and done_required_validate produced PASS evidence after running packages/main build plus the root npm test suite.",
+          "headHash": "94d19085554ee72b8f2698c1e186f9adf15e2578",
+          "materialHash": "5868d66026c8c12c86ceccf0a7d8d0307a8ef029327451330e3f9b128366f845",
+          "storyFilesHash": "56399f5a8894f87e00796fca14e38e5824e0280dcda56fbe7b1b7261f6b8788e",
+          "timestamp": "2026-06-30T10:21:40.434Z"
+        },
+        {
+          "intentRef": "CHK-007:edge:0",
+          "kind": "manual_transcript",
+          "command": "lattice parent_ledger_rollup_set --storyId=B-cd3a --children=<B-cd3a covers M1-M7 done> --json",
+          "result": "pass",
+          "note": "Parent ledger roll-up was persisted for the internal slice plan: B-cd3a covers all seven required milestones M1-M7 with CHK-001 through CHK-006 verification evidence plus final ProofStory and done-required evidence refs; no shrinkage decision was used.",
+          "headHash": "94d19085554ee72b8f2698c1e186f9adf15e2578",
+          "materialHash": "5868d66026c8c12c86ceccf0a7d8d0307a8ef029327451330e3f9b128366f845",
+          "storyFilesHash": "56399f5a8894f87e00796fca14e38e5824e0280dcda56fbe7b1b7261f6b8788e",
+          "timestamp": "2026-06-30T10:21:41.073Z"
+        },
+        {
+          "intentRef": "CHK-007:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "lattice proofstory_review_completeness_check --storyId=B-cd3a --mode=enforce --json && lattice done_intent_equivalence_check --storyId=B-cd3a --mode=enforce --json",
+          "result": "pass",
+          "note": "Adversarial final gate path is covered by first observing enforced gates block missing CHK-007/M7 evidence, then adding CHK-007 evidence and parent roll-up before rerunning the gates; any remaining missing milestone or missing evidence would keep these gates blocking.",
+          "headHash": "94d19085554ee72b8f2698c1e186f9adf15e2578",
+          "materialHash": "5868d66026c8c12c86ceccf0a7d8d0307a8ef029327451330e3f9b128366f845",
+          "storyFilesHash": "56399f5a8894f87e00796fca14e38e5824e0280dcda56fbe7b1b7261f6b8788e",
+          "timestamp": "2026-06-30T10:21:41.703Z"
+        }
+      ]
     }
   ]
 }
