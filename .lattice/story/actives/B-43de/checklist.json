@@ -133,6 +133,17 @@
           "materialHash": "ee027bc0b99b5bc1b2f6e97d353abf7febe412ac723d51aa4238273920941810",
           "storyFilesHash": "66d4ed0e3277a7244e11cb712d29c049e262b315a9ff3ea49a8ae6b1a3311c6b",
           "timestamp": "2026-06-30T10:02:27.826Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "lattice proofstory_gate_check {\"storyId\":\"B-43de\",\"mode\":\"enforce\",\"json\":true}",
+          "result": "pass",
+          "note": "ProofStory enforce report shows milestoneCount=9, thresholdState=too_broad, oversizedClearedBy=slice_plan, and missingParentRollup=[], proving oversized M4-M12 governance uses slice/rollup rather than shrinking.",
+          "headHash": "062d8eb1f1835b3822340dc17e14486a05e10506",
+          "materialHash": "d59d677fba13f18a889d5897a0d72ab6829a3a5938a8af70703805563d67f235",
+          "storyFilesHash": "9005e0fbcf8749e9c01b0037c5949c517a20f01b37688a174de6fa8e822312dd",
+          "timestamp": "2026-06-30T10:05:40.034Z"
         }
       ]
     },
