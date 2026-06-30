@@ -139,9 +139,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-30T13:01:09.372Z",
       "verificationIntent": {
         "happy": [
           {
@@ -161,7 +161,42 @@
             "type": "docs"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "command": "rg -n \"M1\\. Red/Repro|M2\\. State Model|M3\\. Parent Rollup Evaluator|M4\\. Claim Consumer|M8\\. Cross-Track Certification\" docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+          "result": "pass",
+          "note": "Plan lists milestones from red tests through evaluator, lifecycle claim consumer, rollout, and certification.",
+          "headHash": "1e55e1f380201eaa4a8988d09faaad7b373b660d",
+          "materialHash": "62dfc9ac5cabbf5cd41d4f5d200a0b688543c77a410d730ffd88c5faf7cbafaa",
+          "storyFilesHash": "d627a1648f7a40f8420c4d4abd616722922a106475de27ef4c3b18f41a2e1b29",
+          "timestamp": "2026-06-30T13:01:09.523Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "command": "rg -n \"Migration / Rollout / Repair|legacy|warn|enforce|deferred-with-human-approval\" docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+          "result": "pass",
+          "note": "Plan includes rollout and migration behavior for legacy ledgers, repair, warn/enforce, and human-approved deferral.",
+          "headHash": "1e55e1f380201eaa4a8988d09faaad7b373b660d",
+          "materialHash": "62dfc9ac5cabbf5cd41d4f5d200a0b688543c77a410d730ffd88c5faf7cbafaa",
+          "storyFilesHash": "d627a1648f7a40f8420c4d4abd616722922a106475de27ef4c3b18f41a2e1b29",
+          "timestamp": "2026-06-30T13:01:09.702Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "command": "rg -n \"story_create|story_advance|summary|DONE|convergence|gate consumer\" docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+          "result": "pass",
+          "note": "Plan names concrete gate consumers so the design is not prose-only.",
+          "headHash": "1e55e1f380201eaa4a8988d09faaad7b373b660d",
+          "materialHash": "62dfc9ac5cabbf5cd41d4f5d200a0b688543c77a410d730ffd88c5faf7cbafaa",
+          "storyFilesHash": "d627a1648f7a40f8420c4d4abd616722922a106475de27ef4c3b18f41a2e1b29",
+          "timestamp": "2026-06-30T13:01:09.829Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
