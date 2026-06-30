@@ -5,7 +5,7 @@
       "desc": "Concept blocker: CHK-003 promises Tier-C provider-execution receipt verification stories are grouped as experiment-batch-exception and preserved as evidence, but live lattice queue_governance_status --format=json at 2026-06-30T10:24:09Z reports experimentBatches=[] and summary.experimentBatchException=0 while 22 Tier-C provider-execution receipt verification stories are classified as duplicate-candidate with cleanupPolicy=review-required. That shrinks the promised exception policy and makes queue governance treat preserved experiment evidence as ordinary duplicates.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-06-30T10:24:45.018Z",
@@ -16,7 +16,11 @@
         "\"'[packages/main/src/core/lifecycle-control/queue/index.ts,packages/main/src/core/lifecycle-control/global-control-service.ts,packages/main/src/handlers/lifecycle-control.ts]'\""
       ],
       "signatureTag": "missing|ts]'\"|concept-blocker-promises",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 8cbec2935 and verified at REVIEW head cd992cd: npm --prefix packages/main run build passed, node packages/main/dist/tasks/lifecycle-control-smoke.js passed, and node packages/main/dist/cli.js queue_governance_status --format=json reports experimentBatchException=23, duplicateCandidate=0, batch=tier-c-provider-execution-receipt-verification.",
+      "resolvedAt": "2026-06-30T10:32:44.016Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-cd3a:F-002",
