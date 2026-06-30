@@ -37,7 +37,36 @@
     "unrelated docs outside the two referenced decision docs and explicit audit artifact"
   ],
   "scopeChangeReason": "Initialize enforce-mode scope contract from B-c004 PLAN checklist files after ProofStory reported scope ambiguity.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "codex",
+      "reason": "These paths are necessary for the accepted B-c004 scope: five are CLI-written ProofStory intent/ledger/contract/slice artifacts required by the DEV gate, and the two repo files were added to checklist file coverage after the initial scope contract to retire Authority backlog language and bound proof-admissibility overclaim semantics.",
+      "timestamp": "2026-06-30T15:22:54.920Z",
+      "paths": [
+        ".lattice/story/actives/B-c004/intent-collision.json",
+        ".lattice/story/actives/B-c004/milestone-ledger.json",
+        ".lattice/story/actives/B-c004/original-intent-snapshot.json",
+        ".lattice/story/actives/B-c004/proofstory.json",
+        ".lattice/story/actives/B-c004/slice-plan.json",
+        "docs/requirements/decisions/authority-server-vocabulary-retirement.md",
+        "packages/main/src/core/proof-admissibility.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-c004/intent-collision.json",
+        ".lattice/story/actives/B-c004/milestone-ledger.json",
+        ".lattice/story/actives/B-c004/original-intent-snapshot.json",
+        ".lattice/story/actives/B-c004/proofstory.json",
+        ".lattice/story/actives/B-c004/slice-plan.json",
+        "docs/requirements/decisions/authority-server-vocabulary-retirement.md",
+        "packages/main/src/core/proof-admissibility.ts"
+      ],
+      "affectedPathCount": 7,
+      "phase": "DEV",
+      "headHash": "5caecc05a17c3de32e8cc619eca7974d22898889",
+      "materialHash": "18307d34100d4f524ed0e1de936e70acbd5e3e1ff1411c552816877b22696798"
+    }
+  ],
   "createdAt": "2026-06-30T15:05:17.820Z",
-  "updatedAt": "2026-06-30T15:05:17.820Z"
+  "updatedAt": "2026-06-30T15:22:54.920Z"
 }
