@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "Enable ProofStory enforce modes in project config",
       "context": "Add the top-level proofStory config with devGateMode, reviewGateMode, and doneGateMode set to enforce. Related source: docs/requirements/decisions/proofstory-intent-collision-execution-plan.md.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-30T08:51:27.804Z",
       "relatedDocs": [
         "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md#M9-Risk-Adaptive-Enforcement"
       ],
@@ -223,6 +223,17 @@
           "timestamp": "2026-06-30T08:49:53.562Z"
         }
       ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-30T08:51:27.804Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "lattice.config.json now has all three proofStory gate modes set to enforce and config-only verification passed."
     }
   ]
 }
