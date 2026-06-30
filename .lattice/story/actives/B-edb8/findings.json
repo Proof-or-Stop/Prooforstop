@@ -28,7 +28,7 @@
       "desc": "Enforce-mode parent-roadmap commands do not fail closed when the evaluator reports a blocking overclaim. Repro command: node packages/main/dist/cli.js parent_roadmap_status {case:partial,summaryText:Full roadmap complete: all rows are done.,mode:enforce,json:true}. The process exited with code 0 while the JSON contained claim.blocking=true and proofstoryBinding.blocking=true/status=fail. Existing ProofStory diagnostics use enforceOrRender to throw when mode=enforce and blocking is true (packages/main/src/handlers/proofstory.ts:53-55,529-553), but parent_roadmap_status/evaluate simply stringify or render the result (packages/main/src/handlers/parent-roadmap.ts:64-78). This means automation can treat a blocking parent-roadmap overclaim as a successful command.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-30T14:03:07.702Z",
@@ -40,7 +40,11 @@
         "packages/main/src/handlers/proofstory.ts"
       ],
       "signatureTag": "missing|ts|enforce-mode-parent",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 7457ea190: parent_roadmap_status/evaluate throw in mode=enforce when claim or proofstory binding is blocking. Verified overclaim command exits 1 and smoke --case=cli passes.",
+      "resolvedAt": "2026-06-30T14:14:13.722Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-edb8:F-003",
