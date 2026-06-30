@@ -135,8 +135,24 @@
       "phase": "DEV",
       "headHash": "f1e591cefdb3f2b7088a7a824397ba39e5f27762",
       "materialHash": "29f205eb286c4634e4429956a1d9f358cb1204dc921e6ff2f73e2c23c1217db2"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Late REVIEW-to-DEV fix exposed that review escalation 3x2 proof-admissibility failed after valid quorum. Updating quorum-submit smoke is necessary regression coverage for the accepted B-cd3a review escalation and proof-admissibility DONE gate scope.",
+      "timestamp": "2026-06-30T11:06:34.314Z",
+      "paths": [
+        "packages/main/src/tasks/quorum-submit-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/quorum-submit-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "db4bc74f0cbd0f1de3e1c80d2c8d117030d35b64",
+      "materialHash": "12644c67bc1ac7c2d003b92b906d6068ad16bbc1f512bec7c0ce24f8e68484df"
     }
   ],
   "createdAt": "2026-06-30T09:38:36.338Z",
-  "updatedAt": "2026-06-30T10:39:11.422Z"
+  "updatedAt": "2026-06-30T11:06:34.314Z"
 }
