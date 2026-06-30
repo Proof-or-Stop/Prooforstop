@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "proofstory.parent_ledger_rollup.v1",
+  "storyId": "B-c004",
+  "ledgerHash": "sha256:3863395b9e8271ad76316731aa4797e40f0722925c1acd210156293d16c601d5",
+  "slicePlanHash": "sha256:8ae70e61f2cc7b7466c5414ec2ea3b1676c7ea96d0807effa3be785f858db73d",
+  "children": [
+    {
+      "storyId": "B-c004",
+      "milestoneIds": [
+        "M1",
+        "M2",
+        "M3",
+        "M4",
+        "M5",
+        "M6",
+        "M7"
+      ],
+      "status": "done",
+      "evidenceRefs": [
+        "test-evidence.json:PASS@2026-06-30T17:58:51.213Z",
+        "test-evidence.json:verificationCoverage:21/21",
+        "done-required-evidence.json:PASS@2026-06-30T17:59:44.144Z",
+        "delivery-check.json:PASS:d008f543eb0d22739f7ce2f782f1b9e416a451769ccb00fa80b33f3e58d516bc",
+        "process-events.jsonl:quorum_submit:B-c004-q-r1..r3:full-3x2",
+        "findings.json:F-001..F-007:resolved",
+        "docs/requirements/decisions/control-plane-proof-capability-closure-audit.md",
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+      ]
+    }
+  ],
+  "rollupHash": "sha256:e48928b6cf58d9d0a3632eee6fe9e80688ec5290212fc563b392168d09d43bd7",
+  "createdAt": "2026-06-30T18:02:16.505Z",
+  "updatedAt": "2026-06-30T18:02:16.505Z"
+}
