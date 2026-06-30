@@ -53,7 +53,7 @@
       "desc": "packages/main/src/tasks/review-assurance-floor-smoke.ts:363 sets proofAdmissibility enforce and proves the degraded 3x1 success path at lines 404-420, but the negative cases still rely on broader ok=false checks or a separate non-enforce storyFilesHash smoke. Missing fallback/evidence, stale fallback/material, and invalid fallback shape are not asserted under enforce with proofAdmissibility.blocking/proof_admissibility_blocked, so a regression in the proof-admissibility enforce contract could pass the current smokes while the required invalid/stale/missing evidence blocking remains unproven. Add enforce-mode negative assertions for missing fallback, stale fallback/material, and invalid fallback shape.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-30T23:27:50.446Z",
@@ -65,7 +65,11 @@
         "packages/main/src/core/review-assurance-floor.ts"
       ],
       "signatureTag": "missing|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by ebddbc1e7: added enforce-mode proof admissibility negative assertions in review-assurance-floor-smoke.ts for missing fallback, stale fallback/material, and invalid fallback shape. Each negative path now asserts proofAdmissibility.blocking=true, allowed=false, enforce consumer active, and proof_admissibility_blocked in reasons; existing degraded 3x1 success remains asserted. Evidence passed: npm --prefix packages/main run build; node packages/main/dist/tasks/review-assurance-floor-smoke.js; node packages/main/dist/tasks/review-assurance-floor-storyfileshash-smoke.js; node scripts/verify-process-fact-contract.mjs; git diff --check.",
+      "resolvedAt": "2026-06-30T23:31:35.763Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
