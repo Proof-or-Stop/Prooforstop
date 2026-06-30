@@ -47,7 +47,38 @@
       "context": "Locate the global dev-memory JSONL store and remove old rows containing Koala/koala/.koala content or refs so global search no longer surfaces old memory.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees global dev-memory search/list no longer returning old Koala memory rows.",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/dev-memory-supersession-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Global dev-memory rows containing Koala/koala/.koala are removed from ~/.lattice/dev-memory/experience.jsonl.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Unrelated global memories such as host taxonomy and stale-doc lessons remain present.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A global search for koala does not surface preserved old memory rows or .koala evidence refs.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
