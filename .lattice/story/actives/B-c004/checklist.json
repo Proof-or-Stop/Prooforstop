@@ -275,9 +275,9 @@
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
         "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-30T15:14:40.330Z",
-      "endTime": null,
+      "endTime": "2026-06-30T15:16:34.478Z",
       "files": {
         "modify": [
           "packages/main/src/core/evidence/admissibility/index.ts",
@@ -319,7 +319,45 @@
           }
         ]
       },
-      "userSees": "The final status table shows CHK-004/M4 as append-only admissibility ledger resolved by implementation or explicit non-goal retirement with tests."
+      "userSees": "The final status table shows CHK-004/M4 as append-only admissibility ledger resolved by implementation or explicit non-goal retirement with tests.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proof-admissibility-hardening-smoke.js",
+          "result": "pass",
+          "note": "Commit 490383f9e formalizes append-only admissibility ledger storage as retired/non-goal for the local CLI and tests the boundary.",
+          "headHash": "490383f9ea59b4730d84da9c49185a3063059c78",
+          "materialHash": "299e7158d48e41aed3418a449f7adffcb8d904933607b0660d1fe53785fe04ab",
+          "storyFilesHash": "2943a78d8ad19bfdcb8f038415594a1cc1fcce21437c3de5aa667231155b9397",
+          "timestamp": "2026-06-30T15:16:34.693Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts",
+          "command": "node packages/main/dist/tasks/proof-admissibility-hardening-smoke.js",
+          "result": "pass",
+          "note": "The smoke asserts no ledger writer export is exposed by the compatibility entrypoint.",
+          "headHash": "490383f9ea59b4730d84da9c49185a3063059c78",
+          "materialHash": "299e7158d48e41aed3418a449f7adffcb8d904933607b0660d1fe53785fe04ab",
+          "storyFilesHash": "2943a78d8ad19bfdcb8f038415594a1cc1fcce21437c3de5aa667231155b9397",
+          "timestamp": "2026-06-30T15:16:34.866Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts",
+          "command": "node packages/main/dist/tasks/proof-admissibility-hardening-smoke.js",
+          "result": "pass",
+          "note": "The smoke asserts diagnostic waterline output has no ledgerPath or ledgerRows and cannot become release authority.",
+          "headHash": "490383f9ea59b4730d84da9c49185a3063059c78",
+          "materialHash": "299e7158d48e41aed3418a449f7adffcb8d904933607b0660d1fe53785fe04ab",
+          "storyFilesHash": "2943a78d8ad19bfdcb8f038415594a1cc1fcce21437c3de5aa667231155b9397",
+          "timestamp": "2026-06-30T15:16:35.041Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
