@@ -269,8 +269,8 @@
       "relatedDocs": [
         "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-30T22:29:39.478Z",
       "endTime": null,
       "userSees": "\"M7\" row shows \"closed\": true and \"baseline-suite-smoke\" plus \"baseline-suite-report-smoke\" are listed.",
       "files": {
@@ -594,6 +594,15 @@
       "from": "in_progress",
       "to": "done",
       "reason": "M6 completed after evidence-backed roadmap closure verification."
+    },
+    {
+      "timestamp": "2026-06-30T22:29:39.478Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Start M7 final evidence recording after implementation commit."
     }
   ]
 }
