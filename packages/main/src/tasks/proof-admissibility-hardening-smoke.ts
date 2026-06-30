@@ -19,6 +19,7 @@ import {
   resolveProofAdmissibilityPolicy,
   type ProofAdmissibilityPolicy,
 } from '../core/proof-admissibility-gates.js';
+import { resetConfigCache } from '../core/config.js';
 import {
   buildProofBindingDigestPayload,
   verifyProofBindingDigest,
@@ -26,10 +27,22 @@ import {
 } from '../core/proof-admissibility-binding.js';
 import { buildHandoffAdmissibilitySummary } from '../core/proof-admissibility-handoff.js';
 import {
+  type HandoffAcceptProjection,
+  type HandoffInspection,
+  type HandoffPack,
+  type HandoffReceipt,
+  type HandoffReceiptSubmission,
+  type HandoffResumeProjection,
+} from '../core/lattice-handoff.js';
+import {
   assertNoReservedProofMetadata,
   sanitizeCallerProofMetadata,
 } from '../core/proof-admissibility-metadata.js';
 import { classifyLegacyProofEvidence } from '../core/proof-admissibility-legacy.js';
+import { StoryStore } from '../core/store.js';
+import type { ChecklistData, StoryInfo } from '../core/types.js';
+import type { HandlerContext } from '../handlers/context.js';
+import { createMainRegistry } from '../registry.js';
 
 const enforceHighRisk: ProofAdmissibilityPolicy = {
   mode: 'enforce',
@@ -54,6 +67,51 @@ function currentValidChecks(schemaVersion: string) {
   };
 }
 
+function seedHandoffStory(store: StoryStore): void {
+  const now = '2026-06-30T00:00:00.000Z';
+  const story: StoryInfo = {
+    storyId: 'B-handoff-policy',
+    name: 'handoff-policy-smoke',
+    title: 'Handoff policy smoke',
+    description: 'Smoke story for command-level handoff proof admissibility.',
+    type: 'feature',
+    phase: 'DEV',
+    priority: 'high',
+    createdAt: now,
+    startedAt: now,
+    endedAt: null,
+    events: [{ phase: 'DEV', action: 'advance', timestamp: now, branch: 'story/B-handoff-policy' }],
+  };
+  const checklist: ChecklistData = {
+    items: [
+      {
+        id: 'CHK-001',
+        title: 'Carry handoff policy',
+        status: 'done',
+        startTime: now,
+        endTime: now,
+        verificationEvidence: [{
+          intentRef: 'CHK-001:happy:0',
+          kind: 'logic_test',
+          command: 'node dist/tasks/proof-admissibility-hardening-smoke.js',
+          result: 'pass',
+          note: 'Seed evidence for handoff command policy smoke.',
+          timestamp: now,
+        }],
+      },
+    ],
+  };
+  store.writeStory('B-handoff-policy', story);
+  store.writeChecklist('B-handoff-policy', checklist);
+}
+
+function assertBlockedHandoffSummary(value: { admissibilitySummary: { blocked: boolean; reasons: string[]; diagnostics: Array<{ mode: string }> }; productionDone: false }): void {
+  assert.equal(value.productionDone, false, 'local handoff command output never claims productionDone');
+  assert.equal(value.admissibilitySummary.blocked, true, 'project enforce policy blocks inadmissible HANDOFF proof refs');
+  assert.ok(value.admissibilitySummary.reasons.some(reason => reason.includes('proof_admissibility_blocked')), 'blocked HANDOFF reason is surfaced');
+  assert.ok(value.admissibilitySummary.diagnostics.some(diagnostic => diagnostic.mode === 'enforce'), 'HANDOFF diagnostic uses project enforce mode');
+}
+
 {
   const root = mkdtempSync(join(tmpdir(), 'proof-admissibility-policy-'));
   writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
@@ -69,6 +127,7 @@ function currentValidChecks(schemaVersion: string) {
       enforcedConsumers: ['DONE_REQUIRED', 'AUTHORITY_GATE_DECISION'],
     },
   }, null, 2));
+  resetConfigCache();
   const policy = resolveProofAdmissibilityPolicy(root);
   assert.equal(policy.mode, 'enforce', 'config resolves enforce mode');
   assert.deepEqual(policy.enforcedConsumers, ['DONE_REQUIRED', 'AUTHORITY_GATE_DECISION'], 'config resolves explicit enforced consumers');
@@ -163,6 +222,110 @@ function currentValidChecks(schemaVersion: string) {
   assert.equal(summary.receiptVerified, false, 'handoff summary does not verify receipts');
   assert.equal(summary.blocked, true, 'configured enforce mode blocks inadmissible handoff proof refs');
   assert.match(summary.reasons.join('\n'), /proof_admissibility_blocked/, 'handoff block reason is surfaced');
+}
+
+{
+  const root = mkdtempSync(join(tmpdir(), 'proof-admissibility-handoff-command-'));
+  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
+    scanRoot: 'packages/main',
+    rootDir: 'src',
+    storyDir: '.lattice/story/actives',
+    requirementsDir: 'docs/requirements',
+    storyPrefix: 'B',
+    flows: { defaults: {}, patterns: [] },
+    proofAdmissibility: {
+      mode: 'enforce',
+      enforcedConsumers: ['HANDOFF'],
+    },
+  }, null, 2));
+  resetConfigCache();
+  const store = new StoryStore(root);
+  seedHandoffStory(store);
+  const ctx: HandlerContext = { store, root, scanRoot: join(root, 'packages/main') };
+  const registry = createMainRegistry(ctx);
+  const handoffProofRef = 'local-diagnostic-handoff-ref';
+
+  const createText = registry.get('handoff_create')!({
+    storyId: 'B-handoff-policy',
+    fromHost: 'codex',
+    toHost: 'claude-code',
+    admissibleProofRefs: handoffProofRef,
+  }) as string;
+  assert.match(createText, /admissibilityBlocked: true/, 'handoff_create text surfaces blocked status');
+  assert.match(createText, /proof_admissibility_blocked/, 'handoff_create text surfaces block reason');
+
+  const pack = registry.get('handoff_create')!({
+    storyId: 'B-handoff-policy',
+    fromHost: 'codex',
+    toHost: 'claude-code',
+    admissibleProofRefs: handoffProofRef,
+    json: true,
+  }) as HandoffPack;
+  assertBlockedHandoffSummary(pack);
+  assert.equal((pack as unknown as Record<string, unknown>).authorityDone, undefined, 'handoff pack does not claim authorityDone');
+  assert.equal((pack as unknown as Record<string, unknown>).fullAuthorityDone, undefined, 'handoff pack does not claim fullAuthorityDone');
+
+  const legacyWarnSummary = buildHandoffAdmissibilitySummary({
+    fromHost: pack.fromHost,
+    toHost: pack.toHost,
+    evidenceRefs: pack.evidenceRefs,
+    admissibleProofRefs: [handoffProofRef],
+    mode: 'warn',
+  });
+  const packPath = join(root, 'legacy-warn-handoff-pack.json');
+  writeFileSync(packPath, JSON.stringify({
+    ...pack,
+    admissibleProofRefs: [],
+    admissibilitySummary: legacyWarnSummary,
+  }, null, 2));
+
+  const inspection = registry.get('handoff_inspect')!({ file: packPath, json: true }) as HandoffInspection;
+  assertBlockedHandoffSummary(inspection);
+  assert.deepEqual(inspection.admissibilitySummary.admissibleProofRef, [handoffProofRef], 'handoff_inspect preserves explicit proof refs from legacy summary');
+
+  const accept = registry.get('handoff_accept')!({ file: packPath, json: true }) as HandoffAcceptProjection;
+  assertBlockedHandoffSummary(accept);
+  const acceptPath = join(root, 'legacy-warn-handoff-accept.json');
+  writeFileSync(acceptPath, JSON.stringify({
+    ...accept,
+    admissibleProofRefs: [],
+    admissibilitySummary: legacyWarnSummary,
+  }, null, 2));
+
+  const resume = registry.get('handoff_resume')!({ file: acceptPath, json: true }) as HandoffResumeProjection;
+  assertBlockedHandoffSummary(resume);
+
+  const receipt: HandoffReceipt = {
+    schemaVersion: 'lattice.handoff_receipt.v1',
+    storyId: pack.storyId,
+    host: 'fake',
+    packId: pack.packId,
+    packHash: pack.packHash,
+    fromHost: pack.fromHost,
+    toHost: pack.toHost,
+    allowedPaths: pack.allowedPaths,
+    deniedPaths: pack.deniedPaths,
+    requiredCommands: pack.requiredCommands,
+    successCriteria: pack.successCriteria,
+    authorityBoundary: pack.authorityBoundary,
+    executionInstructions: pack.executionInstructions,
+    headSha: 'missing-head',
+    changedFiles: ['packages/main/src/core/lattice-handoff.ts'],
+    commands: ['npm --prefix packages/main run build'],
+    verdict: 'warn',
+    limitations: ['synthetic command-level smoke receipt'],
+    admissibleProofRefs: [],
+    admissibilitySummary: legacyWarnSummary,
+  };
+  const receiptPath = join(root, 'legacy-warn-handoff-receipt.json');
+  writeFileSync(receiptPath, JSON.stringify(receipt, null, 2));
+
+  const receiptText = registry.get('handoff_receipt_submit')!({ file: receiptPath, admissibleProofRefs: handoffProofRef }) as string;
+  assert.match(receiptText, /admissibilityBlocked: true/, 'handoff_receipt_submit text surfaces blocked status');
+  assert.match(receiptText, /proof_admissibility_blocked/, 'handoff_receipt_submit text surfaces block reason');
+  const receiptSubmission = registry.get('handoff_receipt_submit')!({ file: receiptPath, admissibleProofRefs: handoffProofRef, json: true }) as HandoffReceiptSubmission;
+  assertBlockedHandoffSummary(receiptSubmission);
+  assert.equal(receiptSubmission.receiptVerified, false, 'handoff receipt submission does not verify receipts');
 }
 
 {

@@ -16,6 +16,7 @@ import {
   readHandoffAcceptProjection,
   readHandoffPack,
   readHandoffReceipt,
+  renderHandoffAdmissibilityLines,
   renderHandoffAcceptText,
   renderHandoffInspectionText,
   renderHandoffReceiptSubmissionText,
@@ -23,9 +24,11 @@ import {
   renderHandoffWorktreeProjectionText,
   renderHostDispatchProjectionText,
   submitHandoffReceipt,
+  type HandoffAdmissibilityOptions,
   type HandoffAcceptProjection,
   type HandoffPack,
 } from '../core/lattice-handoff.js';
+import { resolveProofAdmissibilityPolicy, type ProofAdmissibilityPolicy } from '../core/proof-admissibility-gates.js';
 import { createDevMemoryHandlers } from './dev-memory.js';
 import { createGapHandlers } from './gap.js';
 import { createLearningValidateHandlers } from './learning-validate.js';
@@ -46,6 +49,16 @@ function normalizeList(value: unknown): string[] | undefined {
   if (Array.isArray(value)) return value.filter((item): item is string => typeof item === 'string' && item.trim().length > 0);
   if (typeof value === 'string' && value.trim().length > 0) return [value.trim()];
   return undefined;
+}
+
+function normalizeListOrEmpty(value: unknown): string[] {
+  return normalizeList(value) ?? [];
+}
+
+function handoffAdmissibilityOptions(policy: ProofAdmissibilityPolicy, admissibleProofRefs?: string[]): HandoffAdmissibilityOptions {
+  return admissibleProofRefs && admissibleProofRefs.length > 0
+    ? { policy, admissibleProofRefs }
+    : { policy };
 }
 
 function safeJsonParse(raw: string): unknown | undefined {
@@ -508,10 +521,10 @@ function buildPrefetchBundle(ctx: HandlerContext, pack: HandoffPack, requestedHo
   return { preflight, prefetchManifest };
 }
 
-function readResumeSource(file: string): HandoffPack | HandoffAcceptProjection {
+function readResumeSource(file: string, options: HandoffAdmissibilityOptions): HandoffPack | HandoffAcceptProjection {
   const schemaVersion = (JSON.parse(readFileSync(file, 'utf8')) as { schemaVersion?: unknown }).schemaVersion;
-  if (schemaVersion === 'handoff-pack-v0') return readHandoffPack(file);
-  if (schemaVersion === 'lattice.handoff_accept.v1') return readHandoffAcceptProjection(file);
+  if (schemaVersion === 'handoff-pack-v0') return readHandoffPack(file, options);
+  if (schemaVersion === 'lattice.handoff_accept.v1') return readHandoffAcceptProjection(file, options);
   throw new Error(`handoff_resume expected handoff-pack-v0 or lattice.handoff_accept.v1, got ${String(schemaVersion)}`);
 }
 
@@ -535,10 +548,13 @@ export function createLatticeHandoffHandlers(ctx: HandlerContext): Record<string
       packId?: string;
       authorityBoundary?: string;
       executionInstructions?: string[] | string;
+      admissibleProofRefs?: string[] | string;
       format?: 'text' | 'json';
       json?: boolean;
       output?: string;
     }) {
+      const policy = resolveProofAdmissibilityPolicy(ctx.root);
+      const admissibleProofRefs = normalizeListOrEmpty(args.admissibleProofRefs);
       const pack = createHandoffPack(ctx.store, ctx.root, {
         storyId: args.storyId,
         fromHost: args.fromHost,
@@ -553,6 +569,8 @@ export function createLatticeHandoffHandlers(ctx: HandlerContext): Record<string
         packId: args.packId,
         authorityBoundary: args.authorityBoundary,
         executionInstructions: normalizeList(args.executionInstructions),
+        admissibleProofRefs,
+        policy,
       });
       if (args.output) {
         const outputPath = resolve(process.cwd(), args.output);
@@ -572,6 +590,7 @@ export function createLatticeHandoffHandlers(ctx: HandlerContext): Record<string
         `deniedPaths: ${pack.deniedPaths.length}`,
         `requiredCommands: ${pack.requiredCommands.length}`,
         `successCriteria: ${pack.successCriteria.length}`,
+        ...renderHandoffAdmissibilityLines(pack.admissibilitySummary),
         'admissibilityStatus: handoff-pack',
         'assuranceLevel: local',
         'evidenceScope: handoff-context',
@@ -583,8 +602,9 @@ export function createLatticeHandoffHandlers(ctx: HandlerContext): Record<string
         outputNote.trimEnd(),
       ].filter(Boolean).join('\n');
     },
-    handoff_inspect(args: { file: string } & FormatArgs) {
-      const pack = readHandoffPack(resolve(process.cwd(), args.file));
+    handoff_inspect(args: { file: string; admissibleProofRefs?: string[] | string } & FormatArgs) {
+      const policy = resolveProofAdmissibilityPolicy(ctx.root);
+      const pack = readHandoffPack(resolve(process.cwd(), args.file), handoffAdmissibilityOptions(policy, normalizeList(args.admissibleProofRefs)));
       const inspection = inspectHandoffPack(pack);
       if (wantsJson(args)) return inspection;
       return renderHandoffInspectionText(inspection);
@@ -592,12 +612,16 @@ export function createLatticeHandoffHandlers(ctx: HandlerContext): Record<string
     handoff_accept(args: {
       file: string;
       acceptedByHost?: string;
+      admissibleProofRefs?: string[] | string;
       format?: 'text' | 'json';
       json?: boolean;
       output?: string;
     }) {
-      const pack = readHandoffPack(resolve(process.cwd(), args.file));
-      const projection = buildHandoffAcceptProjection(pack, { acceptedByHost: args.acceptedByHost });
+      const policy = resolveProofAdmissibilityPolicy(ctx.root);
+      const admissibleProofRefs = normalizeList(args.admissibleProofRefs);
+      const options = handoffAdmissibilityOptions(policy, admissibleProofRefs);
+      const pack = readHandoffPack(resolve(process.cwd(), args.file), options);
+      const projection = buildHandoffAcceptProjection(pack, { acceptedByHost: args.acceptedByHost, ...options });
       if (args.output) {
         const outputPath = resolve(process.cwd(), args.output);
         writeJsonNoOverwrite(outputPath, projection);
@@ -609,12 +633,16 @@ export function createLatticeHandoffHandlers(ctx: HandlerContext): Record<string
     handoff_resume(args: {
       file: string;
       resumeHost?: string;
+      admissibleProofRefs?: string[] | string;
       format?: 'text' | 'json';
       json?: boolean;
       output?: string;
     }) {
-      const source = readResumeSource(resolve(process.cwd(), args.file));
-      const projection = buildHandoffResumeProjection(source, { resumeHost: args.resumeHost });
+      const policy = resolveProofAdmissibilityPolicy(ctx.root);
+      const admissibleProofRefs = normalizeList(args.admissibleProofRefs);
+      const options = handoffAdmissibilityOptions(policy, admissibleProofRefs);
+      const source = readResumeSource(resolve(process.cwd(), args.file), options);
+      const projection = buildHandoffResumeProjection(source, { resumeHost: args.resumeHost, ...options });
       if (args.output) {
         const outputPath = resolve(process.cwd(), args.output);
         writeJsonNoOverwrite(outputPath, projection);
@@ -625,12 +653,16 @@ export function createLatticeHandoffHandlers(ctx: HandlerContext): Record<string
     },
     handoff_receipt_submit(args: {
       file: string;
+      admissibleProofRefs?: string[] | string;
       format?: 'text' | 'json';
       json?: boolean;
       output?: string;
     }) {
-      const receipt = readHandoffReceipt(resolve(process.cwd(), args.file));
-      const result = submitHandoffReceipt(ctx.root, receipt);
+      const policy = resolveProofAdmissibilityPolicy(ctx.root);
+      const admissibleProofRefs = normalizeList(args.admissibleProofRefs);
+      const options = handoffAdmissibilityOptions(policy, admissibleProofRefs);
+      const receipt = readHandoffReceipt(resolve(process.cwd(), args.file), options);
+      const result = submitHandoffReceipt(ctx.root, receipt, options);
       if (args.output) {
         const outputPath = resolve(process.cwd(), args.output);
         writeJsonNoOverwrite(outputPath, result);
@@ -645,7 +677,7 @@ export function createLatticeHandoffHandlers(ctx: HandlerContext): Record<string
       json?: boolean;
       output?: string;
     }) {
-      const pack = readHandoffPack(resolve(process.cwd(), args.file));
+      const pack = readHandoffPack(resolve(process.cwd(), args.file), handoffAdmissibilityOptions(resolveProofAdmissibilityPolicy(ctx.root)));
       const result = buildHandoffWorktreeProjection(pack);
       if (args.output) {
         const outputPath = resolve(process.cwd(), args.output);
@@ -659,11 +691,13 @@ export function createLatticeHandoffHandlers(ctx: HandlerContext): Record<string
       host: string;
       file: string;
       mode?: 'supervised';
+      admissibleProofRefs?: string[] | string;
       format?: 'text' | 'json';
       json?: boolean;
       output?: string;
     }) {
-      const pack = readHandoffPack(resolve(process.cwd(), args.file));
+      const policy = resolveProofAdmissibilityPolicy(ctx.root);
+      const pack = readHandoffPack(resolve(process.cwd(), args.file), handoffAdmissibilityOptions(policy, normalizeList(args.admissibleProofRefs)));
       const { preflight, prefetchManifest } = buildPrefetchBundle(ctx, pack, args.host);
       const result = buildHostDispatchProjection(pack, {
         host: args.host,
