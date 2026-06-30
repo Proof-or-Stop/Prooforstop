@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-cd3a",
+  "mode": "feature",
+  "allowed": [
+    "Add or update focused smoke tests and process-fact registry checks for changed gate behavior",
+    "Audit and close documented Global Lifecycle Control Plane DoD gaps in docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+    "Audit and close documented Proof Admissibility hardening DoD gaps in docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+    "Modify lifecycle-control runtime, consumption, dashboard, and queue governance code when required",
+    "Modify proof-admissibility registry, gate diagnostics, waterline, and high-risk enforcement wiring when required",
+    "Update lattice.config.json only for explicit rollout/configuration of lifecycle-control or proof-admissibility modes",
+    "Use ProofStory artifacts to freeze intent, track seven milestone ledger rows, and prevent scope shrinkage"
+  ],
+  "excluded": [
+    "Do not auto-discard or delete active Tier-C experiment evidence while implementing queue governance",
+    "Do not claim Authority Server production completion or set productionDone from local CLI evidence",
+    "Do not migrate unrelated providers, host runtimes, UI, or product features outside control-plane/proof-admissibility closure",
+    "Do not push to remote or create release artifacts",
+    "Do not use, read, write, or create .omx paths or artifacts"
+  ],
+  "confirmedBy": "codex-main",
+  "confirmationNote": "User approved starting a new milestone-based story on 2026-06-30 to close remaining Global Control Plane and Proof Admissibility gaps and explicitly validate the B-5082 ProofStory anti-shrinkage gates.",
+  "createdAt": "2026-06-30T09:29:31.084Z",
+  "updatedAt": "2026-06-30T09:29:31.084Z",
+  "_hash": "7203ced84fb6944c4043749815e64b99c43f6b4170b54ddef75aced95714355f"
+}

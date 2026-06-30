@@ -1,0 +1,64 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-cd3a",
+  "allowedCommands": [
+    "git diff*",
+    "git log*",
+    "git show*",
+    "git status*",
+    "lattice *",
+    "node packages/main/dist/tasks/*.js",
+    "node scripts/verify-process-fact-contract.mjs",
+    "npm --prefix packages/main run build",
+    "npm --prefix packages/main run test:*",
+    "npm test",
+    "rg *",
+    "sed *"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "multi_agent_v1",
+    "shell"
+  ],
+  "allowedPaths": [
+    "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+    "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+    "lattice.config.json",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/evidence/admissibility",
+    "packages/main/src/core/lifecycle-control",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/proof-admissibility-binding.ts",
+    "packages/main/src/core/proof-admissibility-gates.ts",
+    "packages/main/src/core/proof-admissibility-legacy.ts",
+    "packages/main/src/core/proof-admissibility-metadata.ts",
+    "packages/main/src/core/proof-admissibility.ts",
+    "packages/main/src/handlers/lifecycle-control.ts",
+    "packages/main/src/tasks",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "excludedCommands": [
+    "git checkout --*",
+    "git push*",
+    "git reset --hard*",
+    "lattice release_approve_push*",
+    "omx*",
+    "rm -rf *"
+  ],
+  "excludedTools": [
+    "omx"
+  ],
+  "excludedPaths": [
+    ".omx",
+    ".omx/",
+    "docs/story",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "codex-main",
+  "confirmationNote": "Execution is limited to Lattice lifecycle commands, local build/test/smoke verification, and scoped source/doc/config paths needed for control-plane and proof-admissibility closure. No remote push or OMX usage.",
+  "createdAt": "2026-06-30T09:29:41.083Z",
+  "updatedAt": "2026-06-30T09:29:41.083Z",
+  "_hash": "b323cc7f60240c9b07396d49c0cbdb006da2cb09db07b4c38b8229d7c11abb33"
+}

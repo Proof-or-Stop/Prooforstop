@@ -4,7 +4,7 @@
   "title": "Close control-plane and proof-admissibility DoD gaps with ProofStory validation",
   "description": "Create a parent lifecycle story to audit and close the remaining Global Lifecycle Control Plane and Proof Admissibility hardening gaps that were not fully completed by prior MVP/partial stories. The story must use the newly enforced ProofStory gates to prove that document milestones are not reduced to command-existence checks, and must explicitly classify implemented, partial, future, and missing capabilities before any DEV work starts.",
   "type": "feature",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "riskSignals": [
     {
@@ -24,6 +24,20 @@
       "user": "Harmonygo",
       "sessionId": "sess-c1592222a4fdb073",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-06-30T09:32:56.800Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-c1592222a4fdb073",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-cd3a",
+    "branch": "story/B-cd3a",
+    "createdAt": "2026-06-30T09:32:55.857Z"
+  }
 }

@@ -14,8 +14,8 @@
     },
     {
       "id": "CHK-002",
-      "title": "Close Global Control Plane status and enforcement gaps",
-      "context": "Address gaps exposed by global_control_status: proofM7Enforcement=false, queueCleanupEnforcement=false, tierCCleanup=false, and any CP-5A/CP-5B status/reporting mismatch. Do not create a second lifecycle state machine.",
+      "title": "Reconcile Global Control Plane status reporting with documented gaps",
+      "context": "Narrow this item to reporting/status reconciliation only: global_control_status and related projections must accurately expose implemented, partial, unavailable, and future capabilities, including proofM7Enforcement, queueCleanupEnforcement, and tierCCleanup. Runtime hard-block rollout, queue mutation guard, and proof admissibility enforcement remain owned by CHK-004, CHK-005, and CHK-006.",
       "relatedDocs": [
         "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md#CP-5A-Runtime-Enforcement-Rollout",
         "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md#CP-5B-Queue-Governance-Guard"
