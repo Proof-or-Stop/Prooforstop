@@ -239,7 +239,42 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "lifecycle-orchestrate smoke passes and parent_roadmap_status shows M9 closed.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "packages/main/src/core/parent-roadmap-totality.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/lifecycle-orchestrate-smoke.ts",
+          "packages/main/src/core/lifecycle-orchestrate.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Preflight command center closes only when lifecycle orchestration renders canonical gate/preflight rows without creating renderer-only rules.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "M9 must not be closed by documentation text alone; parent-roadmap machine status must carry evidence refs.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "M9 must preserve claim boundaries, especially retired Authority Server semantics and read-only/advisory surfaces.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-007",
