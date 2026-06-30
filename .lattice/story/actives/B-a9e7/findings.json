@@ -29,7 +29,7 @@
       "desc": "Verified blocker: current project/global dev-memory retrieval does not consistently rank current Proofbound/Lattice superseding entries ahead of old Koala entries, despite docs/requirements/decisions/dev-memory.md:68 and :73 requiring search/preflight to surface current guidance first. Repro: `lattice dev_memory_search --query=\"koala cli\" --global --limit=10 --json` returns old global Koala entry 2de5d6b before current project entry 148297b, and `lattice dev_memory_preflight --query=\"koala cli\" --maxEntries=10 --json` does the same. `lattice dev_memory_search --query=\"koala reviewer\" --global --limit=10 --json` also puts old a6832a1/c948c85 ahead of current 34e97f9. The new project memories cite/supersede the old ids and remain non-authoritative (.lattice/dev-memory/experience.jsonl:1-5), so historical retention and authority status are fine; the conceptual failure is the live cross-scope ranking/proof. The expanded smoke mostly verifies synthetic fixtures plus actual project entries exist/cite legacy ids (packages/main/src/tasks/dev-memory-supersession-smoke.ts:367-411), leaving the real project+global ranking gap uncovered.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-06-30T16:21:20.817Z",
@@ -43,7 +43,11 @@
         ".lattice/dev-memory/experience.jsonl"
       ],
       "signatureTag": "missing|ts|verified-blocker-current",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed live project+global ranking by adding explicit legacy-search tags to the five current B-a9e7 Proofbound/Lattice memory rows without editing old global rows, and expanded dev-memory-supersession-smoke to 18 checks covering actual project+global current-before-legacy ranking plus legacy token-scorer compatibility. Verified with npm --prefix packages/main run build, node packages/main/dist/tasks/dev-memory-supersession-smoke.js, lattice dev_memory_search --query=\"koala cli\" --global --limit=10 --json, lattice dev_memory_preflight --query=\"koala cli\" --maxEntries=10 --json, and spot checks for koala reviewer/delivery/preflight.",
+      "resolvedAt": "2026-06-30T17:01:10.108Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
