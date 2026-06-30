@@ -177,9 +177,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-30T22:39:08.146Z",
-      "endTime": null,
+      "endTime": "2026-06-30T22:39:45.992Z",
       "userSees": "User sees Global Control Plane implemented rows marked ✅ while partial and unavailable rows remain visibly partial/unavailable.",
       "files": {
         "modify": [
@@ -212,7 +212,48 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "command": "rg -n \"implemented ✅\" docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "result": "pass",
+          "note": "Global Control Plane completed status rows are marked with ✅ in the capability and split tables.",
+          "headHash": "671c059e04479ad2835c6370f1822ea5f9d223d1",
+          "materialHash": "99f64178c220986888e681b09e55d74e0d33aa960e70f6ca1849b6a30953bdfd",
+          "storyFilesHash": "b1e1bbbaac052c1d5f1344084a82344c412e6a1ae00f69cb8139cfe34f1c5909",
+          "timestamp": "2026-06-30T22:39:46.227Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "command": "rg -n \"partial|unavailable\" docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "result": "pass",
+          "note": "Proof M7 enforcement, admissibility waterline, and Tier-C cleanup remain explicitly partial or unavailable.",
+          "headHash": "671c059e04479ad2835c6370f1822ea5f9d223d1",
+          "materialHash": "99f64178c220986888e681b09e55d74e0d33aa960e70f6ca1849b6a30953bdfd",
+          "storyFilesHash": "b1e1bbbaac052c1d5f1344084a82344c412e6a1ae00f69cb8139cfe34f1c5909",
+          "timestamp": "2026-06-30T22:39:46.400Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "command": "rg -n \"Proof M7 hard blocking|Tier-C cleanup is retired|cannot mint\" docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "result": "pass",
+          "note": "The document avoids Proof M7 hard-blocking, Tier-C automation, and productionDone overclaim from the control plane.",
+          "headHash": "671c059e04479ad2835c6370f1822ea5f9d223d1",
+          "materialHash": "99f64178c220986888e681b09e55d74e0d33aa960e70f6ca1849b6a30953bdfd",
+          "storyFilesHash": "b1e1bbbaac052c1d5f1344084a82344c412e6a1ae00f69cb8139cfe34f1c5909",
+          "timestamp": "2026-06-30T22:39:46.588Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
