@@ -334,9 +334,9 @@
         "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md"
       ],
       "userSees": "Triggered stories get would-block diagnostics and enforce-mode can block DEV when required ProofStory artifacts are missing or inconsistent.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-30T00:00:49.263Z",
-      "endTime": null,
+      "endTime": "2026-06-30T00:00:49.881Z",
       "files": {
         "modify": [
           "packages/main/src/core/proofstory.ts",
@@ -372,7 +372,42 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "The smoke covered proofstory_contract_set/get and gate check modes. Build passed, the ProofStory M0-M9 smoke passed, and the process fact contract verified the new ProofStory commands/artifacts/gate facts.",
+          "headHash": "fc1ec6c680de1383182bc9fbc29429d760cd286c",
+          "materialHash": "647cee8a847ce790aa13657e95ffaf1ae9c659c484228a357a54e12afaf2acd9",
+          "storyFilesHash": "49020740e97a2ac7ec1ca5bd907f84d483c4c6f82f933ca5e7843408cf7cb70a",
+          "timestamp": "2026-06-30T00:00:50.149Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Build and smoke covered enforce-mode blocking behavior for missing ProofStory artifacts. Build passed, the ProofStory M0-M9 smoke passed, and the process fact contract verified the new ProofStory commands/artifacts/gate facts.",
+          "headHash": "fc1ec6c680de1383182bc9fbc29429d760cd286c",
+          "materialHash": "647cee8a847ce790aa13657e95ffaf1ae9c659c484228a357a54e12afaf2acd9",
+          "storyFilesHash": "49020740e97a2ac7ec1ca5bd907f84d483c4c6f82f933ca5e7843408cf7cb70a",
+          "timestamp": "2026-06-30T00:00:50.446Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "The implementation wires ProofStory into existing machine/phase gates and does not replace story_review. Build passed, the ProofStory M0-M9 smoke passed, and the process fact contract verified the new ProofStory commands/artifacts/gate facts.",
+          "headHash": "fc1ec6c680de1383182bc9fbc29429d760cd286c",
+          "materialHash": "647cee8a847ce790aa13657e95ffaf1ae9c659c484228a357a54e12afaf2acd9",
+          "storyFilesHash": "49020740e97a2ac7ec1ca5bd907f84d483c4c6f82f933ca5e7843408cf7cb70a",
+          "timestamp": "2026-06-30T00:00:50.738Z"
+        }
+      ]
     },
     {
       "id": "CHK-006",
