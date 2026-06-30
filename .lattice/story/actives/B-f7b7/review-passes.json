@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-f7b7:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept review pass for current HEAD a2b1695. Verified ProofStory remains a pre-DEV contract layer: writer commands are phase-limited to INIT/PLAN except explicit scope shrinkage, DEV admission including rollback uses the existing story machine ProofStory gate, REVIEW/DONE use existing preflight gates, diagnostics remain read-only observe/warn/enforce surfaces, no second lifecycle state machine or child-story scheduler is introduced, and prior concept blocker F-004 appears addressed in command policy plus phase tools.",
+      "createdAt": "2026-06-30T00:22:05.833Z",
+      "reviewRound": "2026-06-30T00:19:36.495Z",
+      "reviewRunId": "B-f7b7:RR-006",
+      "_hash": "df1efb23de7328a724e1f8837e0aa35719ba89dcb3271d18c245e68bce9a1fa6"
+    }
+  ]
+}
