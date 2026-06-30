@@ -127,7 +127,41 @@
       "context": "Run rg old-brand checks, dev_memory_search/list checks, packages/main build, dev-memory smoke, residue scanner, and root npm test if practical.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees build, smoke, residue, and memory scans pass after physical cleanup.",
+      "files": {
+        "modify": [
+          ".lattice/dev-memory/experience.jsonl",
+          "packages/main/src/tasks/dev-memory-supersession-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/dev-memory-supersession-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm --prefix packages/main run build and node packages/main/dist/tasks/dev-memory-supersession-smoke.js pass.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "npm run test:lattice-residue passes after cleanup and no product runtime residue is introduced.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "rg Koala|koala|.koala over project dev-memory plus global dev-memory returns no old-brand hits after cleanup.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
