@@ -92,9 +92,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-30T22:38:46.031Z",
-      "endTime": null,
+      "endTime": "2026-06-30T22:38:58.815Z",
       "userSees": "User sees Proof Admissibility local CLI hardening rows marked ✅ and retired/future external proof boundaries kept out of completion claims.",
       "files": {
         "modify": [
@@ -127,7 +127,48 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "command": "rg -n \"✅ Implemented|Implemented .* ✅\" docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "result": "pass",
+          "note": "Proof Admissibility completed local CLI hardening rows are marked with ✅ in status and compatibility tables.",
+          "headHash": "671c059e04479ad2835c6370f1822ea5f9d223d1",
+          "materialHash": "99f64178c220986888e681b09e55d74e0d33aa960e70f6ca1849b6a30953bdfd",
+          "storyFilesHash": "b1e1bbbaac052c1d5f1344084a82344c412e6a1ae00f69cb8139cfe34f1c5909",
+          "timestamp": "2026-06-30T22:38:59.017Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "command": "rg -n \"Retired/non-goal|retired local CLI non-goals|future-integration reference material\" docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "result": "pass",
+          "note": "Append-only ledger and cross-runtime/external parity remain retired, non-goal, or future integration rather than missing local CLI work.",
+          "headHash": "671c059e04479ad2835c6370f1822ea5f9d223d1",
+          "materialHash": "99f64178c220986888e681b09e55d74e0d33aa960e70f6ca1849b6a30953bdfd",
+          "storyFilesHash": "b1e1bbbaac052c1d5f1344084a82344c412e6a1ae00f69cb8139cfe34f1c5909",
+          "timestamp": "2026-06-30T22:38:59.185Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "command": "rg -n \"productionDone=false|productionDoneEligible=false|production completion\" docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "result": "pass",
+          "note": "The document preserves the local CLI non-production boundary and does not claim external/server-backed production completion from local evidence.",
+          "headHash": "671c059e04479ad2835c6370f1822ea5f9d223d1",
+          "materialHash": "99f64178c220986888e681b09e55d74e0d33aa960e70f6ca1849b6a30953bdfd",
+          "storyFilesHash": "b1e1bbbaac052c1d5f1344084a82344c412e6a1ae00f69cb8139cfe34f1c5909",
+          "timestamp": "2026-06-30T22:38:59.355Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
