@@ -7,9 +7,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-30T22:38:05.525Z",
-      "endTime": null,
+      "endTime": "2026-06-30T22:38:22.256Z",
       "userSees": "User sees a Parent Roadmap status table where implemented rows are marked ✅ and read-only/non-hard-gate boundaries remain explicit.",
       "files": {
         "modify": [
@@ -42,7 +42,48 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+          "command": "rg -n \"Status: implemented local read-only|✅ Implemented\" docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+          "result": "pass",
+          "note": "Parent Roadmap now has a current implementation status table with completed local read-only/evaluator rows marked with ✅.",
+          "headHash": "671c059e04479ad2835c6370f1822ea5f9d223d1",
+          "materialHash": "99f64178c220986888e681b09e55d74e0d33aa960e70f6ca1849b6a30953bdfd",
+          "storyFilesHash": "b1e1bbbaac052c1d5f1344084a82344c412e6a1ae00f69cb8139cfe34f1c5909",
+          "timestamp": "2026-06-30T22:38:22.414Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+          "command": "rg -n \"read-only diagnostic|not a global lifecycle hard gate\" docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+          "result": "pass",
+          "note": "The document explicitly preserves read-only diagnostic scope and denies global lifecycle hard-gate overclaim.",
+          "headHash": "671c059e04479ad2835c6370f1822ea5f9d223d1",
+          "materialHash": "99f64178c220986888e681b09e55d74e0d33aa960e70f6ca1849b6a30953bdfd",
+          "storyFilesHash": "b1e1bbbaac052c1d5f1344084a82344c412e6a1ae00f69cb8139cfe34f1c5909",
+          "timestamp": "2026-06-30T22:38:22.559Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+          "command": "rg -n \"does not claim M4-M12 runtime completion|does not claim the original M4-M12\" docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+          "result": "pass",
+          "note": "The completion boundary does not claim all M4-M12 runtime roadmap work is complete.",
+          "headHash": "671c059e04479ad2835c6370f1822ea5f9d223d1",
+          "materialHash": "99f64178c220986888e681b09e55d74e0d33aa960e70f6ca1849b6a30953bdfd",
+          "storyFilesHash": "b1e1bbbaac052c1d5f1344084a82344c412e6a1ae00f69cb8139cfe34f1c5909",
+          "timestamp": "2026-06-30T22:38:22.746Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
