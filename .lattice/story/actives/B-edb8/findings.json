@@ -1,0 +1,23 @@
+{
+  "findings": [
+    {
+      "id": "B-edb8:F-001",
+      "desc": "Fail-open overclaim detector: hasFullRoadmapClaim returns false immediately when the text contains roadmap not complete before checking later explicit full-roadmap claims (packages/main/src/core/parent-roadmap-totality.ts:548-558). Repro command: node packages/main/dist/cli.js parent_roadmap_status {case:partial,summaryText:Parent governance complete; roadmap is not complete. Remaining child-story-needed rows: M5. Full roadmap complete: all M4-M12 rows are done.,mode:enforce,json:true}. Observed claim.allowed=true, blocking=false, proofstoryBinding.status=pass even though rollup.allRowsClosed=false and openRows=M4,M5. This violates the parent roadmap gate contract that enforce-mode summary and handoff consumers must block explicit full-roadmap wording unless all rows are closed.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-30T14:02:29.535Z",
+      "reviewRound": "2026-06-30T14:00:09.085Z",
+      "reviewRunId": "B-edb8:RR-002",
+      "_hash": "fe0d4481111097a2f72dae19b36eb2293828a756a5c4a4a929bcf5614e613dba",
+      "files": [
+        "packages/main/src/core/parent-roadmap-totality.ts",
+        "packages/main/src/handlers/parent-roadmap.ts"
+      ],
+      "signatureTag": "adversarial|ts|fail-open-overclaim",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
