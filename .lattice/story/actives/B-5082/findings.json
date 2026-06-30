@@ -96,7 +96,7 @@
       "desc": "doc-code-drift: docs/requirements/decisions/proofstory-intent-collision-execution-plan.md:1312-1313 says high-assurance stories require intent collision, red evidence, spike, stronger REVIEW critic, and applicable escalation policy. That overclaims red/spike requirements: the same doc says red/spike are trigger-based at lines 99-101 and 1249-1269, and packages/main/src/core/proofstory.ts:831-832/972-990 only emits missing_red_evidence or missing_spike_evidence when redTriggers/spikeTriggers are present. High-assurance itself only pushes high-assurance/collision triggers in packages/main/src/core/proofstory.ts:596-604, so a high-assurance story without behavior-change/security red risk or unclear-code-path spike risk is not mechanically required to provide red/spike evidence. Align M9 wording to say high-assurance requires those artifacts only when the corresponding red/spike policy triggers apply, while preserving stronger REVIEW completeness.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-docs",
       "createdAt": "2026-06-30T01:45:03.343Z",
@@ -108,7 +108,11 @@
         "packages/main/src/core/proofstory.ts"
       ],
       "signatureTag": "doc-code-drift-red-spike-high-assurance",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Updated M9 acceptance wording so high-assurance still requires intent collision, stronger REVIEW critic, and applicable escalation, while red evidence and spike are required only when their respective policy triggers apply. Verified with git diff --check, node scripts/verify-process-fact-contract.mjs, and grep for red/spike overclaims.",
+      "resolvedAt": "2026-06-30T01:46:59.021Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
