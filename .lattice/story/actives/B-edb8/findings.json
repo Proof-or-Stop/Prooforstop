@@ -99,7 +99,7 @@
       "desc": "Verification coverage claims missing-row coverage, but parent-roadmap-totality-smoke has no dedicated missing closure-evidence negative control. The smoke CaseName list has no missing case; runEvaluator asserts partial/open, blocked, invalid deferral, and stale rows, but never evaluates a closed-by-implementation or closed-by-existing-evidence row with closureEvidence: [] nor asserts evidenceState=missing, reasonCodes includes missing_closure_evidence, or the attach-closure-evidence next action. Current runtime has that branch, so a regression in missing closure-evidence handling could pass the smoke and recorded CHK-003/CHK-008 evidence even though the plan contract requires missing evidence to prevent full-roadmap claims. Source refs: packages/main/src/tasks/parent-roadmap-totality-smoke.ts:26, packages/main/src/tasks/parent-roadmap-totality-smoke.ts:358, packages/main/src/tasks/parent-roadmap-totality-smoke.ts:364, packages/main/src/tasks/parent-roadmap-totality-smoke.ts:376, packages/main/src/core/parent-roadmap-totality.ts:419, docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md:48, docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md:279.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-30T14:03:51.954Z",
@@ -112,7 +112,11 @@
         "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md"
       ],
       "signatureTag": "missing|ts|verification-coverage-claims",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 7457ea190: smoke now includes closed row with empty closureEvidence and asserts evidenceState=missing, missing_closure_evidence, allRowsClosed=false, and attach evidence next action. Verified by parent-roadmap-totality-smoke --case=evaluator and full smoke.",
+      "resolvedAt": "2026-06-30T14:14:25.879Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
