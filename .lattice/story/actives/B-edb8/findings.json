@@ -117,6 +117,26 @@
       "resolvedAt": "2026-06-30T14:14:25.879Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-edb8:F-006",
+      "desc": "External ProofStory inventory is not bound into the rollup, so the shrunken-ledger full-completion path remains open through the binding API. `requiredInventoryRowIds` only reads `ledger.requiredRowIds` and `ledger.proofstoryContract` (packages/main/src/core/parent-roadmap-totality.ts:469-473), while `evaluateParentRoadmapProofStoryBinding` accepts `args.proofstoryContract` but computes or consumes `rollup` from the ledger alone (packages/main/src/core/parent-roadmap-totality.ts:695-708) and only checks that external acceptanceBindings exist (packages/main/src/core/parent-roadmap-totality.ts:717-724). Repro: run a one-row ledger with only M4 closed and pass an external proofstoryContract whose acceptanceBindings.milestoneIds are M4-M12 to evaluateParentRoadmapProofStoryBinding in enforce mode with summaryText `Full roadmap complete.`; observed rollup.summaryClass=full_roadmap_complete, claimType=full-roadmap-claim, allRowsClosed=true, rowIds=[M4], and binding.status=pass/blocking=false. The CLI handler also synthesizes proofstoryContract milestoneIds from `rollup.rowResults` (packages/main/src/handlers/parent-roadmap.ts:48-57), so it mirrors any already-shrunken ledger instead of binding to the original milestone inventory. This violates the B-5082 boundary that milestoneLedger/proofstoryContract supply the child-row inventory that must not shrink, and F-003 is only fixed when the inventory is embedded in the ledger, not when supplied by the ProofStory binding surface.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-30T14:17:56.243Z",
+      "reviewRound": "2026-06-30T14:13:15.559Z",
+      "reviewRunId": "B-edb8:RR-005",
+      "_hash": "93123f93e0a3c8001f839df9b5bfdb600287389c95c548d33c1a7212fde0f893",
+      "files": [
+        "packages/main/src/core/parent-roadmap-totality.ts",
+        "packages/main/src/handlers/parent-roadmap.ts",
+        "packages/main/src/tasks/parent-roadmap-totality-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|external-proofstory-inventory",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
