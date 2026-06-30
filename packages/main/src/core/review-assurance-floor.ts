@@ -16,7 +16,7 @@ import type { StoryStore } from './store.js';
 import {
   buildProofAdmissibilityDiagnostic,
   proofAdmissibilityBlockingReason,
-  resolveProofAdmissibilityMode,
+  resolveProofAdmissibilityPolicy,
   type ProofAdmissibilityDiagnostic,
 } from './proof-admissibility-gates.js';
 
@@ -572,12 +572,13 @@ export function evaluateReviewAssuranceFloor(args: EvaluateReviewAssuranceFloorA
   // downgrade pass and the degraded fallback record so the storyFilesHash
   // drift-acceptance signal is never swallowed (mirrors review-escalation).
   const advisories = [...downgradeAdvisories, ...(fallback?.advisories ?? [])];
+  const proofPolicy = resolveProofAdmissibilityPolicy(args.projectRoot);
   const proofAdmissibility = buildProofAdmissibilityDiagnostic({
     artifactKind: 'review-run',
     artifactId: storyId ? `${storyId}:review-assurance-floor` : 'review-assurance-floor',
     consumer: 'REVIEW',
     claim: 'review-pass',
-    mode: resolveProofAdmissibilityMode(args.projectRoot),
+    policy: proofPolicy,
     checks: {
       schemaVersion: 'lattice.review_run.v1',
       strictShapeValid: true,

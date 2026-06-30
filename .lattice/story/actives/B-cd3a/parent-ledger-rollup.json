@@ -1,0 +1,47 @@
+{
+  "schemaVersion": "proofstory.parent_ledger_rollup.v1",
+  "storyId": "B-cd3a",
+  "ledgerHash": "sha256:e26402c9935177d4588930da7d065efe68e211d68d60882c2b14324c0d24b716",
+  "slicePlanHash": "sha256:c091a3b1e57c02d6562ab996dcfbed3c329ea5a8d52c9434b7d22c66a46f284a",
+  "children": [
+    {
+      "storyId": "B-cd3a",
+      "milestoneIds": [
+        "M1",
+        "M2",
+        "M3",
+        "M4",
+        "M5",
+        "M6",
+        "M7"
+      ],
+      "status": "done",
+      "evidenceRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0",
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0",
+        "CHK-003:happy:0",
+        "CHK-003:edge:0",
+        "CHK-003:adversarial:0",
+        "CHK-004:happy:0",
+        "CHK-004:edge:0",
+        "CHK-004:adversarial:0",
+        "CHK-005:happy:0",
+        "CHK-005:edge:0",
+        "CHK-005:adversarial:0",
+        "CHK-006:happy:0",
+        "CHK-006:edge:0",
+        "CHK-006:adversarial:0",
+        "lattice proofstory_gate_check --storyId=B-cd3a --mode=enforce --json",
+        "lattice intent_coverage_check --storyId=B-cd3a --mode=enforce --json",
+        "lattice done_required_validate --storyId=B-cd3a --json"
+      ]
+    }
+  ],
+  "rollupHash": "sha256:c9f2b377d3d91ec81a7bc52c4154d7bd9ecddc49adbe74f1b95a2516e7e48fa0",
+  "createdAt": "2026-06-30T10:19:25.409Z",
+  "updatedAt": "2026-06-30T10:19:25.409Z"
+}

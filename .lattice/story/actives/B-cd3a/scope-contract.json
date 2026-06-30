@@ -1,0 +1,158 @@
+{
+  "storyId": "B-cd3a",
+  "mode": "enforce",
+  "allowedModify": [
+    "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+    "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+    "packages/main/src/core/lifecycle-control/global-control-service.ts",
+    "packages/main/src/core/lifecycle-control/control-status.ts",
+    "packages/main/src/core/lifecycle-control/dashboard/index.ts",
+    "packages/main/src/handlers/lifecycle-control.ts",
+    "packages/main/src/core/lifecycle-control/queue/index.ts",
+    "packages/main/src/core/lifecycle-control/runtime/index.ts",
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/handlers/phase-gates.ts",
+    "lattice.config.json",
+    "packages/main/src/core/main-write-lock.ts",
+    "packages/main/src/core/story-owner-lease.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/evidence/admissibility/index.ts",
+    "packages/main/src/core/proof-admissibility.ts",
+    "packages/main/src/core/proof-admissibility-gates.ts",
+    "packages/main/src/core/proof-admissibility-binding.ts",
+    "packages/main/src/core/proof-admissibility-legacy.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    ".lattice/story/actives/B-cd3a/proofstory.json",
+    ".lattice/story/actives/B-cd3a/milestone-ledger.json",
+    ".lattice/story/actives/B-cd3a/original-intent-snapshot.json",
+    ".lattice/story/actives/B-cd3a/intent-collision.json",
+    ".lattice/story/actives/B-cd3a/slice-plan.json",
+    ".lattice/story/actives/B-cd3a/summary.json"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "lattice global_control_status --format=json",
+    "lattice admissibility_waterline --storyId=B-cd3a --format=json",
+    "lattice queue_governance_status --format=json",
+    "packages/main/src/tasks/lifecycle-orchestrate-smoke.ts",
+    "node packages/main/dist/tasks/lifecycle-orchestrate-smoke.js",
+    "packages/main/src/tasks/lifecycle-check-smoke.ts",
+    "packages/main/src/tasks/story-authority-resolve-smoke.ts",
+    "node packages/main/dist/tasks/lifecycle-check-smoke.js",
+    "lattice runtime_closure_status --storyId=B-cd3a --format=json",
+    "packages/main/src/tasks/proof-admissibility-smoke.ts",
+    "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "lattice proofstory_gate_check --storyId=B-cd3a --mode=enforce --json",
+    "lattice intent_coverage_check --storyId=B-cd3a --mode=enforce --json",
+    "lattice proofstory_review_completeness_check --storyId=B-cd3a --mode=enforce --json",
+    "lattice done_intent_equivalence_check --storyId=B-cd3a --mode=enforce --json",
+    "lattice done_required_validate --storyId=B-cd3a --json"
+  ],
+  "protectedFiles": [
+    "AGENTS.md",
+    "CLAUDE.md",
+    "package.json",
+    "package-lock.json"
+  ],
+  "explicitExcludes": [
+    ".omx",
+    ".omx/",
+    "docs/story",
+    "tests/fixtures",
+    "experiments/tier-c-proof",
+    "packages/main/src/core/providers",
+    "packages/main/src/handlers/providers"
+  ],
+  "scopeChangeReason": "Add slice-plan artifact as required ProofStory evidence for oversized milestone-ledger slicing before DEV admission.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Implementation discovered these files are direct gate-consumer paths for the frozen milestones: proof-admissibility policy config, DONE_REQUIRED enforcement, HANDOFF proof-ref propagation, lifecycle-control consumption waterline, review assurance/escalation consumers, transition runtime hard-blocks, and focused smoke coverage. The scope remains within the accepted B-cd3a control-plane/proof-admissibility intent and does not add unrelated product work.",
+      "timestamp": "2026-06-30T10:16:49.301Z",
+      "paths": [
+        "packages/main/src/core/config.ts",
+        "packages/main/src/core/done-required-validation.ts",
+        "packages/main/src/core/lattice-handoff.ts",
+        "packages/main/src/core/lifecycle-control/consumption/index.ts",
+        "packages/main/src/core/proof-admissibility-handoff.ts",
+        "packages/main/src/core/review-assurance-floor.ts",
+        "packages/main/src/core/review-escalation.ts",
+        "packages/main/src/handlers/lattice-handoff.ts",
+        "packages/main/src/handlers/transition-orchestrator.ts",
+        "packages/main/src/tasks/lifecycle-control-smoke.ts",
+        "packages/main/src/tasks/lattice-handoff-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/config.ts",
+        "packages/main/src/core/done-required-validation.ts",
+        "packages/main/src/core/lattice-handoff.ts",
+        "packages/main/src/core/lifecycle-control/consumption/index.ts",
+        "packages/main/src/core/proof-admissibility-handoff.ts",
+        "packages/main/src/core/review-assurance-floor.ts",
+        "packages/main/src/core/review-escalation.ts",
+        "packages/main/src/handlers/lattice-handoff.ts",
+        "packages/main/src/handlers/transition-orchestrator.ts",
+        "packages/main/src/tasks/lifecycle-control-smoke.ts",
+        "packages/main/src/tasks/lattice-handoff-smoke.ts"
+      ],
+      "affectedPathCount": 11,
+      "phase": "DEV",
+      "headHash": "2edf1a330d4c1b991661b1974ac0bf768f1dd431",
+      "materialHash": "5868d66026c8c12c86ceccf0a7d8d0307a8ef029327451330e3f9b128366f845"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Parent ledger roll-up is required ProofStory DONE-equivalence evidence for the accepted slice plan; it proves the single parent story internal slices cover all seven frozen milestones M1-M7 without shrinkage.",
+      "timestamp": "2026-06-30T10:21:59.650Z",
+      "paths": [
+        ".lattice/story/actives/B-cd3a/parent-ledger-rollup.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-cd3a/parent-ledger-rollup.json"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "d545e99fe99d9ed495b467c5cf4236a1cf70d160",
+      "materialHash": "5868d66026c8c12c86ceccf0a7d8d0307a8ef029327451330e3f9b128366f845"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Validation exposed retired authority vocabulary guard failure in proof-admissibility hardening. Updating this smoke test is necessary to keep structural legacy field quarantines explicit while preventing active production/authority vocabulary from reappearing.",
+      "timestamp": "2026-06-30T10:39:11.422Z",
+      "paths": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "f1e591cefdb3f2b7088a7a824397ba39e5f27762",
+      "materialHash": "29f205eb286c4634e4429956a1d9f358cb1204dc921e6ff2f73e2c23c1217db2"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Late REVIEW-to-DEV fix exposed that review escalation 3x2 proof-admissibility failed after valid quorum. Updating quorum-submit smoke is necessary regression coverage for the accepted B-cd3a review escalation and proof-admissibility DONE gate scope.",
+      "timestamp": "2026-06-30T11:06:34.314Z",
+      "paths": [
+        "packages/main/src/tasks/quorum-submit-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/quorum-submit-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "db4bc74f0cbd0f1de3e1c80d2c8d117030d35b64",
+      "materialHash": "12644c67bc1ac7c2d003b92b906d6068ad16bbc1f512bec7c0ce24f8e68484df"
+    }
+  ],
+  "createdAt": "2026-06-30T09:38:36.338Z",
+  "updatedAt": "2026-06-30T11:06:34.314Z"
+}

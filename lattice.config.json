@@ -11,6 +11,15 @@
     "reviewGateMode": "enforce",
     "doneGateMode": "enforce"
   },
+  "proofAdmissibility": {
+    "mode": "enforce",
+    "enforcedConsumers": [
+      "DONE_REQUIRED",
+      "REVIEW",
+      "HANDOFF",
+      "AUTHORITY_GATE_DECISION"
+    ]
+  },
   "validate": {
     "commands": [
       { "command": "npm", "args": ["--prefix", "packages/main", "run", "build"], "timeoutMs": 290000, "focus": ["fast"] },

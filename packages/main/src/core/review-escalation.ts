@@ -27,7 +27,7 @@ import type { StoryStore } from './store.js';
 import {
   buildProofAdmissibilityDiagnostic,
   proofAdmissibilityBlockingReason,
-  resolveProofAdmissibilityMode,
+  resolveProofAdmissibilityPolicy,
   type ProofAdmissibilityDiagnostic,
 } from './proof-admissibility-gates.js';
 
@@ -485,23 +485,24 @@ export function evaluateReviewEscalation(args: EvaluateReviewEscalationArgs): Re
     ? eventsWithStoryFilesHashDowngrade(events, materialHash, storyFilesHash, advisories)
     : events;
   const voluntaryLocalRounds = evaluateVoluntaryLocalRounds(effectiveEvents, materialHash);
-  const proofAdmissibility = buildProofAdmissibilityDiagnostic({
+  const proofPolicy = resolveProofAdmissibilityPolicy(args.projectRoot);
+  const reviewEscalationProof = (bindingValid: boolean) => buildProofAdmissibilityDiagnostic({
     artifactKind: 'review-run',
     artifactId: args.storyId ? `${args.storyId}:review-escalation` : 'review-escalation',
     consumer: 'REVIEW',
     claim: 'review-pass',
-    mode: resolveProofAdmissibilityMode(args.projectRoot),
+    policy: proofPolicy,
     checks: {
       schemaVersion: 'lattice.review_run.v1',
       strictShapeValid: true,
       semanticDigestValid: Boolean(materialHash),
-      signatureOrReceiptBindingValid: false,
+      signatureOrReceiptBindingValid: bindingValid,
       temporalAndMaterialBindingValid: Boolean(materialHash),
       subjectMatches: true,
       producerBoundaryTrusted: true,
     },
   });
-  const proofBlockReason = proofAdmissibilityBlockingReason(proofAdmissibility);
+  const inactiveProofAdmissibility = reviewEscalationProof(false);
   const trigger = {
     firstReviewRound,
     requiredProblemCount: REVIEW_ESCALATION_TRIGGER_PROBLEM_COUNT,
@@ -535,7 +536,7 @@ export function evaluateReviewEscalation(args: EvaluateReviewEscalationArgs): Re
       authorityDone: false,
       fullAuthorityDone: false,
       productionDone: false,
-      proofAdmissibility,
+      proofAdmissibility: inactiveProofAdmissibility,
       reasons: [],
     };
   }
@@ -566,7 +567,7 @@ export function evaluateReviewEscalation(args: EvaluateReviewEscalationArgs): Re
       authorityDone: false,
       fullAuthorityDone: false,
       productionDone: false,
-      proofAdmissibility,
+      proofAdmissibility: inactiveProofAdmissibility,
       reasons,
     };
   }
@@ -579,6 +580,8 @@ export function evaluateReviewEscalation(args: EvaluateReviewEscalationArgs): Re
   const explicitPolicyDisallowsDegraded = explicitHighRiskPolicy.validPolicy?.degradedFallbackAllowed === false;
   const degradedOk = !explicitPolicyDisallowsDegraded && fallback?.valid === true && degradedRoundsOk;
   if (fallback?.advisories?.length) advisories.push(...fallback.advisories.map(reason => `fallback advisory: ${reason}`));
+  const proofAdmissibility = reviewEscalationProof(fullOk || degradedOk);
+  const proofBlockReason = proofAdmissibilityBlockingReason(proofAdmissibility);
 
   if (!fullOk && !degradedOk) {
     reasons.push(

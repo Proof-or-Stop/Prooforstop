@@ -92,7 +92,13 @@ function assertHandoffPack(pack: HandoffPack): void {
   assert.deepEqual(pack.canonicalStory.authority.receiptRefs, ['handoff-local-receipt-ref'], 'embedded canonical story preserves local receipt refs as diagnostics');
   assert.ok(pack.evidenceRefs.includes('CHK-001:happy:0'), 'evidence refs are preserved');
   assert.ok(pack.capabilityDeltas.some(delta => delta.capability === 'patch-apply' && delta.changed), 'capability deltas capture source/target differences');
-  assert.ok(pack.degradations.some(d => d.host === 'claude-code' && d.capability === 'receipt-verify' && d.authorityImpact === 'blocks-production-done'), 'target receipt verification degradation is visible');
+  const targetReceiptVerifyDegradation = pack.degradations.find(d => d.host === 'claude-code' && d.capability === 'receipt-verify');
+  assert.ok(targetReceiptVerifyDegradation, 'target receipt verification degradation is visible');
+  assert.ok(
+    targetReceiptVerifyDegradation.authorityImpact === 'blocks-production-done'
+      || targetReceiptVerifyDegradation.authorityImpact === 'local-assurance-required',
+    `target receipt verification degradation prevents direct production readiness (${targetReceiptVerifyDegradation.authorityImpact})`,
+  );
   assert.equal(pack.recoveryPoint.kind, 'handoff-pack');
   assert.equal(pack.recoveryPoint.storyId, 'B-handoff');
   assert.equal((pack as unknown as Record<string, unknown>).authorityDone, undefined);

@@ -1,0 +1,79 @@
+{
+  "principles": [
+    "Document intent must be frozen before implementation.",
+    "Command existence is not enough; document DoD must be covered by evidence.",
+    "Control-plane reporting must not replace authoritative lifecycle gates.",
+    "Proof admissibility enforcement must not overclaim production authority.",
+    "Queue governance must preserve experiment evidence."
+  ],
+  "drivers": [
+    "High-risk gate and proof-consumption code can block normal development if enforced too broadly.",
+    "The two execution-plan documents contain partial/future status that must be separated from delivered commitments.",
+    "B-5082 ProofStory gates are now enforce-mode and should be used to validate this story before DEV and DONE."
+  ],
+  "options": [
+    {
+      "name": "A: Parent ledger with staged implementation slices",
+      "pros": [
+        "Preserves the full seven-milestone user intent ledger",
+        "Lets ProofStory gates detect missing coverage before DEV and DONE",
+        "Allows child stories if any milestone exceeds safe story size"
+      ],
+      "cons": [
+        "Requires more PLAN evidence before code work starts",
+        "May split implementation into follow-up child stories"
+      ]
+    },
+    {
+      "name": "B: Single monolithic implementation story",
+      "pros": [
+        "Fewer story containers initially",
+        "Potentially faster if the gaps are small"
+      ],
+      "cons": [
+        "Repeats the earlier risk of marking document milestones done while only partially implemented",
+        "Harder to review runtime, queue, and proof enforcement independently"
+      ]
+    },
+    {
+      "name": "C: Audit-only story with no implementation",
+      "pros": [
+        "Lowest immediate code risk",
+        "Useful if all gaps are intentionally future work"
+      ],
+      "cons": [
+        "Does not close the user-requested missing capability gaps",
+        "Would not validate B-5082 through real DEV/REVIEW/DONE gates"
+      ]
+    }
+  ],
+  "chosen": "A: Parent ledger with staged implementation slices",
+  "rationale": "Choose the parent ledger with staged implementation slices because it best tests the B-5082 anti-shrinkage gates while still keeping high-risk enforcement work reviewable and reversible.",
+  "preMortem": [
+    {
+      "scenario": "The story declares DONE after making commands exist but not matching document DoD.",
+      "trigger": "Checklist items are treated as implementation tasks instead of milestone coverage claims.",
+      "consequence": "The same partial-milestone failure recurs.",
+      "mitigation": "Require milestone ledger, intent coverage, ProofStory contract, and DONE intent equivalence before closure."
+    },
+    {
+      "scenario": "Runtime or proof enforcement breaks normal stories.",
+      "trigger": "Hard-block logic is enabled before warn-mode evidence and rollback configuration exist.",
+      "consequence": "Developers cannot advance unrelated stories or diagnose failures.",
+      "mitigation": "Stage enforcement with explicit config, warn-mode diagnostics, rollback notes, and focused smoke tests."
+    },
+    {
+      "scenario": "Tier-C experiment stories are deleted or hidden as ordinary duplicates.",
+      "trigger": "Queue governance treats repeated experiment titles as cleanup targets without exception membership.",
+      "consequence": "Experiment evidence is lost or operators lose trust in the dashboard.",
+      "mitigation": "Register durable experiment-batch exceptions and keep malformed records visible as cleanup-required."
+    },
+    {
+      "scenario": "Local proof evidence is over-read as production authority.",
+      "trigger": "Proof admissibility rollout confuses local gate evidence or handoff diagnostics with productionDone.",
+      "consequence": "The system makes a stronger claim than its proof boundary supports.",
+      "mitigation": "Keep productionDone false in local CLI core and assert the boundary in tests and docs."
+    }
+  ],
+  "timestamp": "2026-06-30T09:34:13.639Z"
+}

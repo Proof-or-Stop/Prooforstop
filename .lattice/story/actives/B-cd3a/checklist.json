@@ -8,9 +8,77 @@
         "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-30T09:44:36.057Z",
+      "endTime": "2026-06-30T09:58:00.049Z",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+        ],
+        "create": [],
+        "test": [
+          "lattice global_control_status --format=json",
+          "lattice admissibility_waterline --storyId=B-cd3a --format=json",
+          "lattice queue_governance_status --format=json"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run a local document/capability audit that classifies each frozen DoD capability as implemented, partial, future, or missing, and confirm the output cites the relevant docs and source/status evidence for every classification instead of collapsing partial/future/missing into one bucket.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Verify partially implemented capabilities remain marked partial when status commands expose some but not all required enforcement evidence, especially proofM7Enforcement, queueCleanupEnforcement, and tierCCleanup.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Reject an audit that treats command existence or zero exit status alone as implementation proof; evidence must include capability state, enforcement/readiness status, and source or doc references for the claim.",
+            "type": "docs"
+          }
+        ]
+      },
+      "userSees": "User sees a documented capability audit table that classifies each frozen DoD capability as implemented, partial, future, or missing with evidence references.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "result": "pass",
+          "note": "Frozen capability audit table classifies lifecycle-control capabilities as implemented, partial, future, or unavailable/missing with source/status evidence.",
+          "headHash": "55770f8270e4ee20bbd71c022aa1572b6d17f4d8",
+          "materialHash": "5718700e1bb3f0f8ed4f802f6544df009732e610006523fb3b55ab693d0b0c44",
+          "storyFilesHash": "aa9251dadea50133bf0711d0600c55bbdc72bdd47eeeb0f2aaa22031a1f98099",
+          "timestamp": "2026-06-30T11:26:19.176Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js global_control_status --storyIds=B-cd3a --format=json",
+          "result": "pass",
+          "note": "Capability status reports proofM7Enforcement=partial, queueCleanupEnforcement=partial, tierCCleanup=future while legacy booleans remain false.",
+          "headHash": "55770f8270e4ee20bbd71c022aa1572b6d17f4d8",
+          "materialHash": "5718700e1bb3f0f8ed4f802f6544df009732e610006523fb3b55ab693d0b0c44",
+          "storyFilesHash": "aa9251dadea50133bf0711d0600c55bbdc72bdd47eeeb0f2aaa22031a1f98099",
+          "timestamp": "2026-06-30T11:26:19.176Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/lifecycle-control-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts command existence is insufficient: capability rows carry statuses/evidence and enforcement booleans stay false.",
+          "headHash": "55770f8270e4ee20bbd71c022aa1572b6d17f4d8",
+          "materialHash": "5718700e1bb3f0f8ed4f802f6544df009732e610006523fb3b55ab693d0b0c44",
+          "storyFilesHash": "aa9251dadea50133bf0711d0600c55bbdc72bdd47eeeb0f2aaa22031a1f98099",
+          "timestamp": "2026-06-30T11:26:19.176Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -20,9 +88,80 @@
         "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md#CP-5A-Runtime-Enforcement-Rollout",
         "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md#CP-5B-Queue-Governance-Guard"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-30T09:44:40.265Z",
+      "endTime": "2026-06-30T09:58:10.630Z",
+      "files": {
+        "modify": [
+          "packages/main/src/core/lifecycle-control",
+          "packages/main/src/core/lifecycle-control/global-control-service.ts",
+          "packages/main/src/core/lifecycle-control/control-status.ts",
+          "packages/main/src/core/lifecycle-control/dashboard/index.ts",
+          "packages/main/src/handlers/lifecycle-control.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/lifecycle-orchestrate-smoke.ts",
+          "node packages/main/dist/tasks/lifecycle-orchestrate-smoke.js",
+          "lattice global_control_status --format=json"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run global_control_status as JSON and verify status reporting names the documented control-plane capabilities with accurate implemented, partial, unavailable, or future states, including proofM7Enforcement, queueCleanupEnforcement, and tierCCleanup.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Confirm status reporting stays reconciliation-only: proofM7Enforcement, queueCleanupEnforcement, and tierCCleanup may show partial or unavailable without implying CHK-004 hard-blocks, CHK-005 queue mutation guard, or CHK-006 admissibility enforcement have been completed.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Fail the item if global_control_status overclaims future or unavailable capabilities as enabled, or if dashboard/projection output hides documented gaps that remain open in the frozen DoD audit.",
+            "type": "cli"
+          }
+        ]
+      },
+      "userSees": "User sees global_control_status report lifecycle-control capability states without overclaiming runtime hard-block, queue guard, or proof admissibility rollout completion.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js global_control_status --storyIds=B-cd3a --format=json",
+          "result": "pass",
+          "note": "global_control_status exposes implemented/partial/future capability rows and capabilityStatus fields for proofM7Enforcement, queueCleanupEnforcement, and tierCCleanup.",
+          "headHash": "55770f8270e4ee20bbd71c022aa1572b6d17f4d8",
+          "materialHash": "5718700e1bb3f0f8ed4f802f6544df009732e610006523fb3b55ab693d0b0c44",
+          "storyFilesHash": "aa9251dadea50133bf0711d0600c55bbdc72bdd47eeeb0f2aaa22031a1f98099",
+          "timestamp": "2026-06-30T11:26:19.176Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/lifecycle-control-smoke.js",
+          "result": "pass",
+          "note": "Smoke proves status reconciliation remains reporting-only: proofM7Enforcement, queueCleanupEnforcement, and tierCCleanup booleans are not enabled by projection.",
+          "headHash": "55770f8270e4ee20bbd71c022aa1572b6d17f4d8",
+          "materialHash": "5718700e1bb3f0f8ed4f802f6544df009732e610006523fb3b55ab693d0b0c44",
+          "storyFilesHash": "aa9251dadea50133bf0711d0600c55bbdc72bdd47eeeb0f2aaa22031a1f98099",
+          "timestamp": "2026-06-30T11:26:19.176Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js global_control_status --storyIds=B-cd3a --format=json",
+          "result": "pass",
+          "note": "Output keeps future/unavailable work visible instead of hiding documented gaps or overclaiming runtime/proof/queue implementation.",
+          "headHash": "55770f8270e4ee20bbd71c022aa1572b6d17f4d8",
+          "materialHash": "5718700e1bb3f0f8ed4f802f6544df009732e610006523fb3b55ab693d0b0c44",
+          "storyFilesHash": "aa9251dadea50133bf0711d0600c55bbdc72bdd47eeeb0f2aaa22031a1f98099",
+          "timestamp": "2026-06-30T11:26:19.176Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -31,9 +170,77 @@
       "relatedDocs": [
         "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md#Story-Exception-Policy"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-30T09:44:44.982Z",
+      "endTime": "2026-06-30T09:58:19.560Z",
+      "files": {
+        "modify": [
+          "packages/main/src/core/lifecycle-control/queue/index.ts",
+          "packages/main/src/core/lifecycle-control/global-control-service.ts",
+          "packages/main/src/handlers/lifecycle-control.ts"
+        ],
+        "create": [],
+        "test": [
+          "lattice queue_governance_status --format=json",
+          "packages/main/src/tasks/lifecycle-orchestrate-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run queue_governance_status and verify Tier-C provider-execution receipt verification stories are grouped as experiment-batch-exception instead of ordinary duplicate-candidate records.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Verify malformed or incomplete Tier-C experiment records remain cleanup-required and are reported separately from valid experiment-batch-exception groups.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Prove the experiment exception does not waive lifecycle readiness by checking lifecycle/control status still reports readiness blockers when malformed records or other required gates remain unresolved.",
+            "type": "cli"
+          }
+        ]
+      },
+      "userSees": "User sees queue_governance_status group valid Tier-C experiment stories as experiment-batch-exception while malformed experiment records remain cleanup-required.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js queue_governance_status --format=json",
+          "result": "pass",
+          "note": "queue_governance_status groups 23 Tier-C provider-execution receipt verification stories as experiment-batch-exception with migration-title-prefix source.",
+          "headHash": "55770f8270e4ee20bbd71c022aa1572b6d17f4d8",
+          "materialHash": "5718700e1bb3f0f8ed4f802f6544df009732e610006523fb3b55ab693d0b0c44",
+          "storyFilesHash": "aa9251dadea50133bf0711d0600c55bbdc72bdd47eeeb0f2aaa22031a1f98099",
+          "timestamp": "2026-06-30T11:26:19.176Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js queue_governance_status --format=json",
+          "result": "pass",
+          "note": "Malformed Tier-C records B-cb7e and B-dbdc remain cleanup-required and separate from the preserved experiment batch.",
+          "headHash": "55770f8270e4ee20bbd71c022aa1572b6d17f4d8",
+          "materialHash": "5718700e1bb3f0f8ed4f802f6544df009732e610006523fb3b55ab693d0b0c44",
+          "storyFilesHash": "aa9251dadea50133bf0711d0600c55bbdc72bdd47eeeb0f2aaa22031a1f98099",
+          "timestamp": "2026-06-30T11:26:19.176Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/lifecycle-control-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts experiment-batch exceptions preserve evidence only and do not waive lifecycle readiness or set readyForNextSafeAction.",
+          "headHash": "55770f8270e4ee20bbd71c022aa1572b6d17f4d8",
+          "materialHash": "5718700e1bb3f0f8ed4f802f6544df009732e610006523fb3b55ab693d0b0c44",
+          "storyFilesHash": "aa9251dadea50133bf0711d0600c55bbdc72bdd47eeeb0f2aaa22031a1f98099",
+          "timestamp": "2026-06-30T11:26:19.176Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -42,9 +249,82 @@
       "relatedDocs": [
         "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md#CP-5A-Runtime-Enforcement-Rollout"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-30T09:44:49.670Z",
+      "endTime": "2026-06-30T09:58:30.512Z",
+      "files": {
+        "modify": [
+          "packages/main/src/core/lifecycle-control/runtime/index.ts",
+          "packages/main/src/core/lifecycle-control/control-status.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "lattice.config.json"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks",
+          "packages/main/src/tasks/lifecycle-check-smoke.ts",
+          "packages/main/src/tasks/story-authority-resolve-smoke.ts",
+          "node packages/main/dist/tasks/lifecycle-check-smoke.js",
+          "lattice runtime_closure_status --storyId=B-cd3a --format=json"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run runtime closure checks and smoke tasks to prove configured hard-blocks prevent unsafe operations for wrong authoritative cwd, stale active locks, dirty phase-advance state, and worktree authority drift.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Verify rollback or config disablement is documented and observable, so each hard-block can be traced to its configured rollout state without masking read-only diagnostics.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Fail if any unsafe closure case is only reported as advisory/read-only after rollout is configured, or if worktree authority drift can proceed without an explicit blocking result and reviewable rollback path.",
+            "type": "cli"
+          }
+        ]
+      },
+      "userSees": "User sees runtime closure diagnostics identify configured hard-block status and rollback/config state for unsafe lifecycle operations.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/lifecycle-control-smoke.js",
+          "result": "pass",
+          "note": "Smoke proves enforce mode blocks wrong authoritative cwd, direct main mirror/worktree authority drift, stale active locks, and treats dirty phase-advance state as material when configured.",
+          "headHash": "55770f8270e4ee20bbd71c022aa1572b6d17f4d8",
+          "materialHash": "5718700e1bb3f0f8ed4f802f6544df009732e610006523fb3b55ab693d0b0c44",
+          "storyFilesHash": "aa9251dadea50133bf0711d0600c55bbdc72bdd47eeeb0f2aaa22031a1f98099",
+          "timestamp": "2026-06-30T11:26:19.176Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "result": "pass",
+          "note": "Runtime enforcement rollout documents lifecycleControl.runtimeEnforcement warn/enforce/unavailable modes, observable status, and rollback to warn mode.",
+          "headHash": "55770f8270e4ee20bbd71c022aa1572b6d17f4d8",
+          "materialHash": "5718700e1bb3f0f8ed4f802f6544df009732e610006523fb3b55ab693d0b0c44",
+          "storyFilesHash": "aa9251dadea50133bf0711d0600c55bbdc72bdd47eeeb0f2aaa22031a1f98099",
+          "timestamp": "2026-06-30T11:26:19.176Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js runtime_closure_status --storyId=B-cd3a --format=json && node packages/main/dist/tasks/lifecycle-control-smoke.js",
+          "result": "pass",
+          "note": "Story-scoped runtime_closure_status is observable for B-cd3a, and smoke rejects unsafe enforce-mode closure cases instead of leaving them advisory-only.",
+          "headHash": "55770f8270e4ee20bbd71c022aa1572b6d17f4d8",
+          "materialHash": "5718700e1bb3f0f8ed4f802f6544df009732e610006523fb3b55ab693d0b0c44",
+          "storyFilesHash": "aa9251dadea50133bf0711d0600c55bbdc72bdd47eeeb0f2aaa22031a1f98099",
+          "timestamp": "2026-06-30T11:26:19.176Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
@@ -53,9 +333,91 @@
       "relatedDocs": [
         "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md#CP-5B-Queue-Governance-Guard"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-30T09:44:55.037Z",
+      "endTime": "2026-06-30T10:01:35.365Z",
+      "files": {
+        "modify": [
+          "packages/main/src/core/lifecycle-control/queue/index.ts",
+          "packages/main/src/core/main-write-lock.ts",
+          "packages/main/src/core/story-owner-lease.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/handlers/lifecycle-control.ts"
+        ],
+        "create": [],
+        "test": [
+          "lattice queue_governance_status --format=json",
+          "packages/main/src/tasks/lifecycle-orchestrate-smoke.ts",
+          "node packages/main/dist/tasks/lifecycle-orchestrate-smoke.js"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run queue governance status and lifecycle orchestration smoke to prove duplicate or superseded queue mutations require reviewable mutation evidence before they can change queue state.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Verify valid experiment batches and their evidence are preserved when the guard reports duplicate, superseded, or malformed records, and that malformed experiment records remain visible for cleanup.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Fail if the mutation guard destroys experiment evidence, silently rewrites duplicate or superseded records, or treats queue governance success as lifecycle completion readiness.",
+            "type": "cli"
+          }
+        ]
+      },
+      "userSees": "User sees queue governance report duplicate or superseded mutation risks without deleting experiment evidence or claiming lifecycle completion.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js queue_governance_status --format=json",
+          "result": "pass",
+          "note": "Queue governance reports duplicateCandidate=0 for preserved Tier-C experiment stories while still surfacing active worktrees and cleanup-required rows for review.",
+          "headHash": "55770f8270e4ee20bbd71c022aa1572b6d17f4d8",
+          "materialHash": "5718700e1bb3f0f8ed4f802f6544df009732e610006523fb3b55ab693d0b0c44",
+          "storyFilesHash": "aa9251dadea50133bf0711d0600c55bbdc72bdd47eeeb0f2aaa22031a1f98099",
+          "timestamp": "2026-06-30T11:26:19.176Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js queue_governance_status --format=json",
+          "result": "pass",
+          "note": "Valid experiment batches keep cleanupPolicy=preserve and malformed experiment records remain visible as cleanup-required without deleting evidence.",
+          "headHash": "55770f8270e4ee20bbd71c022aa1572b6d17f4d8",
+          "materialHash": "5718700e1bb3f0f8ed4f802f6544df009732e610006523fb3b55ab693d0b0c44",
+          "storyFilesHash": "aa9251dadea50133bf0711d0600c55bbdc72bdd47eeeb0f2aaa22031a1f98099",
+          "timestamp": "2026-06-30T11:26:19.176Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/lifecycle-control-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts queue exception success cannot grant readyForNextSafeAction or lifecycle completion readiness.",
+          "headHash": "55770f8270e4ee20bbd71c022aa1572b6d17f4d8",
+          "materialHash": "5718700e1bb3f0f8ed4f802f6544df009732e610006523fb3b55ab693d0b0c44",
+          "storyFilesHash": "aa9251dadea50133bf0711d0600c55bbdc72bdd47eeeb0f2aaa22031a1f98099",
+          "timestamp": "2026-06-30T11:26:19.176Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/lifecycle-registry-contract.js && node packages/main/dist/tasks/flow-stability-smoke.js",
+          "result": "pass",
+          "note": "Supplemental policy guard evidence: DEFAULT_PHASE_TOOLS no longer grants PLAN-only ProofStory spike mutators through broad spike_*; registry contract and flow-stability smoke pass.",
+          "headHash": "5cf7db48cdc59491531755e075aa7ba5dc561ab5",
+          "materialHash": "ef1adf75c22738828b2a8f66f4035afd5d790d56c07d6e1d47f588557a36cacc",
+          "storyFilesHash": "13868d711a41b4316dc3479fc9902de7cfa8f859d2f9b903d93b9529b4ad56a7",
+          "timestamp": "2026-06-30T10:01:38.613Z"
+        }
+      ]
     },
     {
       "id": "CHK-006",
@@ -64,9 +426,86 @@
       "relatedDocs": [
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md#M7-Hard-Fail-Rollout-And-Adversarial-Regression-Suite"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-30T09:45:00.286Z",
+      "endTime": "2026-06-30T10:13:13.036Z",
+      "files": {
+        "modify": [
+          "lattice.config.json",
+          "packages/main/src/core/evidence/admissibility",
+          "packages/main/src/core/evidence/admissibility/index.ts",
+          "packages/main/src/core/proof-admissibility.ts",
+          "packages/main/src/core/proof-admissibility-gates.ts",
+          "packages/main/src/core/proof-admissibility-binding.ts",
+          "packages/main/src/core/proof-admissibility-legacy.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/cli/command-catalog.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/proof-admissibility-smoke.ts",
+          "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "lattice admissibility_waterline --storyId=B-cd3a --format=json"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run proof admissibility smoke and waterline checks to prove high-risk consumers enforce M7 admissibility for DONE_REQUIRED, review assurance, handoff proof refs, and Authority-facing proof consumers.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Verify diagnostic waterline output remains read-only while configured high-risk consumer gates hard-fail inadmissible proof, with process fact registry entries updated for any gate-consumed semantics.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Fail if local CLI core reports productionDone true, or if any high-risk consumer accepts stale, legacy, unbound, or otherwise inadmissible proof after M7 enforcement is configured.",
+            "type": "cli"
+          }
+        ]
+      },
+      "userSees": "User sees high-risk proof consumers reject stale, legacy, unbound, or inadmissible proof while local CLI output does not claim productionDone.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && npm --prefix packages/main run test:proof-admissibility-hardening",
+          "result": "pass",
+          "note": "Build passes and hardening smoke now covers command-level HANDOFF policy propagation for create/read/accept/resume/receipt-submit with explicit admissibleProofRefs and project enforce mode.",
+          "headHash": "55770f8270e4ee20bbd71c022aa1572b6d17f4d8",
+          "materialHash": "5718700e1bb3f0f8ed4f802f6544df009732e610006523fb3b55ab693d0b0c44",
+          "storyFilesHash": "aa9251dadea50133bf0711d0600c55bbdc72bdd47eeeb0f2aaa22031a1f98099",
+          "timestamp": "2026-06-30T11:26:19.176Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run test:command-catalog-smoke && npm run test:process-fact-contract",
+          "result": "pass",
+          "note": "Command catalog exposes admissibleProofRefs on handoff command paths and process-fact contract remains consistent; diagnostic waterline/read-only process facts are unchanged.",
+          "headHash": "55770f8270e4ee20bbd71c022aa1572b6d17f4d8",
+          "materialHash": "5718700e1bb3f0f8ed4f802f6544df009732e610006523fb3b55ab693d0b0c44",
+          "storyFilesHash": "aa9251dadea50133bf0711d0600c55bbdc72bdd47eeeb0f2aaa22031a1f98099",
+          "timestamp": "2026-06-30T11:26:19.176Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:proof-admissibility-hardening",
+          "result": "pass",
+          "note": "Smoke proves legacy warn-mode handoff packs/accept projections/receipts are reclassified under project HANDOFF enforce mode, blocked reasons surface in text/JSON, and local CLI outputs keep productionDone/authorityDone/fullAuthorityDone unclaimed.",
+          "headHash": "55770f8270e4ee20bbd71c022aa1572b6d17f4d8",
+          "materialHash": "5718700e1bb3f0f8ed4f802f6544df009732e610006523fb3b55ab693d0b0c44",
+          "storyFilesHash": "aa9251dadea50133bf0711d0600c55bbdc72bdd47eeeb0f2aaa22031a1f98099",
+          "timestamp": "2026-06-30T11:26:19.176Z"
+        }
+      ]
     },
     {
       "id": "CHK-007",
@@ -76,9 +515,83 @@
         "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md#Definition-Of-Done",
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md#Definition-Of-Done"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-06-30T10:21:27.519Z",
+      "endTime": "2026-06-30T10:22:19.882Z",
+      "files": {
+        "modify": [
+          ".lattice/story/actives/B-cd3a/proofstory.json",
+          ".lattice/story/actives/B-cd3a/milestone-ledger.json",
+          ".lattice/story/actives/B-cd3a/original-intent-snapshot.json",
+          ".lattice/story/actives/B-cd3a/intent-collision.json",
+          ".lattice/story/actives/B-cd3a/slice-plan.json",
+          ".lattice/story/actives/B-cd3a/summary.json"
+        ],
+        "create": [],
+        "test": [
+          "lattice proofstory_gate_check --storyId=B-cd3a --mode=enforce --json",
+          "lattice intent_coverage_check --storyId=B-cd3a --mode=enforce --json",
+          "lattice proofstory_review_completeness_check --storyId=B-cd3a --mode=enforce --json",
+          "lattice done_intent_equivalence_check --storyId=B-cd3a --mode=enforce --json",
+          "lattice done_required_validate --storyId=B-cd3a --json"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run the final ProofStory gate bundle and prove proofstory_gate_check, intent_coverage_check, proofstory_review_completeness_check, done_intent_equivalence_check, delivery check, done-required validation, and review assurance all pass for B-cd3a.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Verify intent coverage and DONE equivalence explicitly map the seven milestone refs CHK-001 through CHK-007 to delivery evidence, including review completeness and either 3x2 review assurance or the documented explicit 3x1 allowance.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Fail final delivery if any milestone lacks verification evidence, review assurance is incomplete, DONE-required validation is stale, delivery summary overclaims equivalence, or ProofStory anti-shrinkage gates allow reduced scope versus the original intent snapshot.",
+            "type": "cli"
+          }
+        ]
+      },
+      "userSees": "User sees final ProofStory, review completeness, DONE intent equivalence, and done-required checks pass with all seven milestones covered.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-007:happy:0",
+          "kind": "manual_transcript",
+          "command": "lattice proofstory_gate_check --storyId=B-cd3a --mode=enforce --json && lattice intent_coverage_check --storyId=B-cd3a --mode=enforce --json && lattice done_required_validate --storyId=B-cd3a --json",
+          "result": "pass",
+          "note": "Final gate input bundle passed: ProofStory DEV gate and intent coverage reported status=pass with no blocking gaps, and done_required_validate produced PASS evidence after running packages/main build plus the root npm test suite.",
+          "headHash": "55770f8270e4ee20bbd71c022aa1572b6d17f4d8",
+          "materialHash": "5718700e1bb3f0f8ed4f802f6544df009732e610006523fb3b55ab693d0b0c44",
+          "storyFilesHash": "aa9251dadea50133bf0711d0600c55bbdc72bdd47eeeb0f2aaa22031a1f98099",
+          "timestamp": "2026-06-30T11:26:19.176Z"
+        },
+        {
+          "intentRef": "CHK-007:edge:0",
+          "kind": "manual_transcript",
+          "command": "lattice parent_ledger_rollup_set --storyId=B-cd3a --children=<B-cd3a covers M1-M7 done> --json",
+          "result": "pass",
+          "note": "Parent ledger roll-up was persisted for the internal slice plan: B-cd3a covers all seven required milestones M1-M7 with CHK-001 through CHK-006 verification evidence plus final ProofStory and done-required evidence refs; no shrinkage decision was used.",
+          "headHash": "55770f8270e4ee20bbd71c022aa1572b6d17f4d8",
+          "materialHash": "5718700e1bb3f0f8ed4f802f6544df009732e610006523fb3b55ab693d0b0c44",
+          "storyFilesHash": "aa9251dadea50133bf0711d0600c55bbdc72bdd47eeeb0f2aaa22031a1f98099",
+          "timestamp": "2026-06-30T11:26:19.176Z"
+        },
+        {
+          "intentRef": "CHK-007:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "lattice proofstory_review_completeness_check --storyId=B-cd3a --mode=enforce --json && lattice done_intent_equivalence_check --storyId=B-cd3a --mode=enforce --json",
+          "result": "pass",
+          "note": "Adversarial final gate path is covered by first observing enforced gates block missing CHK-007/M7 evidence, then adding CHK-007 evidence and parent roll-up before rerunning the gates; any remaining missing milestone or missing evidence would keep these gates blocking.",
+          "headHash": "55770f8270e4ee20bbd71c022aa1572b6d17f4d8",
+          "materialHash": "5718700e1bb3f0f8ed4f802f6544df009732e610006523fb3b55ab693d0b0c44",
+          "storyFilesHash": "aa9251dadea50133bf0711d0600c55bbdc72bdd47eeeb0f2aaa22031a1f98099",
+          "timestamp": "2026-06-30T11:26:19.176Z"
+        }
+      ]
     }
   ]
 }

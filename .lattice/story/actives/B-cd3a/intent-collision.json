@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-cd3a",
+  "id": "IC-B-cd3a-001",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "Accepted interpretation: this story must preserve all seven milestone ledger rows. It may implement them in this parent story or split oversized work into child stories, but it may not declare DONE by merely proving commands exist. Any unavailable, future, or intentionally out-of-scope capability must be recorded as explicit classification evidence, and any reduction from the seven agreed milestones requires a scope-shrinkage decision approved by the user.",
+  "acceptedInterpretationHash": "sha256:f49d6f6fe74a6b388823aa933688c07b3b847745675cdeb7626ef76b15ea8543",
+  "notes": "Intent collision separates REVIEW critic from intent critic: this story tests whether B-5082 prevents document DoD shrinkage for Global Control Plane and Proof Admissibility gaps.",
+  "ledgerHashBeforeDecision": "sha256:e26402c9935177d4588930da7d065efe68e211d68d60882c2b14324c0d24b716",
+  "confirmedLedgerHash": "sha256:e26402c9935177d4588930da7d065efe68e211d68d60882c2b14324c0d24b716",
+  "createdAt": "2026-06-30T09:34:49.680Z",
+  "updatedAt": "2026-06-30T09:34:49.680Z"
+}

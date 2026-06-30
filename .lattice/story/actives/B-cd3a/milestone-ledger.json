@@ -1,0 +1,155 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-cd3a",
+  "state": "confirmed",
+  "ledgerHash": "sha256:e26402c9935177d4588930da7d065efe68e211d68d60882c2b14324c0d24b716",
+  "milestones": [
+    {
+      "id": "M1",
+      "sourceRequirementId": "REQ-AUDIT-CONTRACT",
+      "claim": "The two execution-plan documents are audited against current CLI/source behavior and every capability is classified as implemented, partial, future, missing, or intentionally out of scope.",
+      "doneMeans": "A committed audit artifact or plan section lists the document commitments and current evidence, and CHK-001 verification evidence proves the classification is mechanically checked.",
+      "requiredEvidence": [
+        "docs_check",
+        "manual_transcript",
+        "logic_test"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M2",
+      "sourceRequirementId": "REQ-GLOBAL-STATUS",
+      "claim": "Global Control Plane status reporting accurately exposes implemented, partial, unavailable, and future capabilities without treating command existence as full DoD completion.",
+      "doneMeans": "global_control_status or focused diagnostics show the status of proofM7Enforcement, queueCleanupEnforcement, tierCCleanup, runtime, consumption, readiness, and queue lanes with document-aligned semantics.",
+      "requiredEvidence": [
+        "logic_test",
+        "manual_transcript"
+      ],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M3",
+      "sourceRequirementId": "REQ-TIERC-EXCEPTION",
+      "claim": "Tier-C provider-execution receipt verification stories are represented as durable experiment-batch exceptions rather than ordinary duplicate cleanup targets, while malformed entries remain visible.",
+      "doneMeans": "queue_governance_status groups matching Tier-C stories as experiment-batch-exception and leaves malformed/nonmatching records as cleanup-required; no lifecycle readiness is waived.",
+      "requiredEvidence": [
+        "logic_test",
+        "manual_transcript"
+      ],
+      "checklistRefs": [
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-003:happy:0",
+        "CHK-003:edge:0",
+        "CHK-003:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M4",
+      "sourceRequirementId": "REQ-RUNTIME-ENFORCEMENT",
+      "claim": "Runtime closure hard-block rollout exists for safe high-risk operations such as wrong authoritative cwd, stale locks, dirty phase advances, and worktree authority drift.",
+      "doneMeans": "Runtime enforcement is configured, documented, and tested with rollback behavior; read-only status remains available and does not replace lifecycle truth.",
+      "requiredEvidence": [
+        "logic_test",
+        "integration_test",
+        "docs_check"
+      ],
+      "checklistRefs": [
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [
+        "CHK-004:happy:0",
+        "CHK-004:edge:0",
+        "CHK-004:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M5",
+      "sourceRequirementId": "REQ-QUEUE-GUARD",
+      "claim": "Queue governance guard blocks accidental duplicate/superseded mutations without destroying experiment evidence or granting lifecycle completion.",
+      "doneMeans": "Queue mutation paths are guarded by explicit policy/lock/evidence, experiment exceptions remain preserved, and malformed experiment records stay visible for cleanup.",
+      "requiredEvidence": [
+        "logic_test",
+        "integration_test",
+        "manual_transcript"
+      ],
+      "checklistRefs": [
+        "CHK-005"
+      ],
+      "verificationIntentRefs": [
+        "CHK-005:happy:0",
+        "CHK-005:edge:0",
+        "CHK-005:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M6",
+      "sourceRequirementId": "REQ-PROOF-ENFORCEMENT",
+      "claim": "Proof Admissibility enforcement is rolled out for high-risk consumers without overclaiming Authority Server production completion.",
+      "doneMeans": "Configured high-risk proof consumers enforce admissibility or explicitly report unavailable/future status with user-approved shrinkage; DONE_REQUIRED, review assurance, handoff proof refs, and Authority-facing consumers have focused coverage.",
+      "requiredEvidence": [
+        "logic_test",
+        "integration_test",
+        "process_fact_check"
+      ],
+      "checklistRefs": [
+        "CHK-006"
+      ],
+      "verificationIntentRefs": [
+        "CHK-006:happy:0",
+        "CHK-006:edge:0",
+        "CHK-006:adversarial:0"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "M7",
+      "sourceRequirementId": "REQ-FINAL-PROOFSTORY-VALIDATION",
+      "claim": "The story validates B-5082 by passing ProofStory gate, intent coverage, REVIEW completeness, DONE intent equivalence, delivery, done-required validation, and review assurance over the final material.",
+      "doneMeans": "Final closure evidence shows all seven milestones covered or explicitly sliced/shrunk with approval, and all required ProofStory/lifecycle gates pass before DONE.",
+      "requiredEvidence": [
+        "proofstory_gate",
+        "intent_coverage",
+        "done_equivalence",
+        "delivery_check",
+        "done_required_validation"
+      ],
+      "checklistRefs": [
+        "CHK-007"
+      ],
+      "verificationIntentRefs": [
+        "CHK-007:happy:0",
+        "CHK-007:edge:0",
+        "CHK-007:adversarial:0"
+      ],
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-06-30T09:34:42.689Z",
+  "updatedAt": "2026-06-30T09:34:49.681Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-B-cd3a-001",
+    "acceptedInterpretationHash": "sha256:f49d6f6fe74a6b388823aa933688c07b3b847745675cdeb7626ef76b15ea8543",
+    "acceptedAt": "2026-06-30T09:34:49.681Z"
+  }
+}

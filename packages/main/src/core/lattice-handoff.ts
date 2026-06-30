@@ -14,6 +14,7 @@ import {
   buildHandoffAdmissibilitySummary,
   type HandoffAdmissibilitySummary,
 } from './proof-admissibility-handoff.js';
+import type { ProofAdmissibilityPolicy } from './proof-admissibility-gates.js';
 
 /**
  * Diagnostic warning attached to a handoff pack when the story's authoritative
@@ -84,6 +85,7 @@ export interface HandoffPack extends HandoffPackHashInput {
   executionInstructions: string[];
   canonicalStory: CanonicalStory;
   evidenceRefs: string[];
+  admissibleProofRefs: string[];
   capabilityDeltas: HandoffCapabilityDelta[];
   degradations: CanonicalStory['degradations'];
   recoveryPoint: {
@@ -123,6 +125,7 @@ export interface HandoffInspection {
   requiredCommands: string[];
   successCriteria: string[];
   evidenceRefs: string[];
+  admissibleProofRefs: string[];
   capabilityDeltaCount: number;
   blockingDegradationCount: number;
   productionDone: false;
@@ -165,6 +168,7 @@ export interface HandoffAcceptProjection {
   toHost: string;
   acceptedByHost: string;
   evidenceRefs: string[];
+  admissibleProofRefs: string[];
   lineage: CanonicalStory['lineage'];
   authorityBoundary: HandoffAuthorityBoundary;
   admissibilitySummary: HandoffAdmissibilitySummary;
@@ -202,6 +206,7 @@ export interface HandoffResumeProjection {
   toHost: string;
   resumeHost: string;
   evidenceRefs: string[];
+  admissibleProofRefs: string[];
   lineage: CanonicalStory['lineage'];
   authorityBoundary: HandoffAuthorityBoundary;
   admissibilitySummary: HandoffAdmissibilitySummary;
@@ -241,6 +246,7 @@ export interface HandoffReceipt {
   verdict: 'pass' | 'warn' | 'fail';
   summary?: string;
   limitations: string[];
+  admissibleProofRefs?: string[];
   admissibilitySummary?: HandoffAdmissibilitySummary;
 }
 
@@ -261,6 +267,7 @@ export interface HandoffReceiptSubmission {
   productionDone: false;
   nextAction: string;
   warnings: string[];
+  admissibleProofRefs: string[];
   admissibilitySummary: HandoffAdmissibilitySummary;
   validations: {
     packId: 'pass' | 'fail';
@@ -275,6 +282,11 @@ export interface HandoffReceiptSubmission {
   commands: string[];
   limitations: string[];
 }
+
+type NormalizedHandoffReceipt = HandoffReceipt & {
+  admissibleProofRefs: string[];
+  admissibilitySummary: HandoffAdmissibilitySummary;
+};
 
 export interface HandoffWorktreeProjection {
   schemaVersion: 'lattice.handoff_worktree_create.v1';
@@ -359,6 +371,11 @@ export interface HostDispatchProjection {
   prefetchManifest: HostDispatchPrefetchManifest;
 }
 
+export interface HandoffAdmissibilityOptions {
+  policy?: ProofAdmissibilityPolicy;
+  admissibleProofRefs?: readonly string[];
+}
+
 function stringValue(value: unknown): string | undefined {
   return typeof value === 'string' && value.trim().length > 0 ? value.trim() : undefined;
 }
@@ -383,6 +400,41 @@ function normalizeOrderedStrings(values: unknown): string[] {
     normalized.push(trimmed);
   }
   return normalized;
+}
+
+function normalizeMergedStrings(...values: unknown[]): string[] {
+  const merged: unknown[] = [];
+  for (const value of values) {
+    if (Array.isArray(value)) {
+      merged.push(...value);
+    } else if (typeof value === 'string') {
+      merged.push(value);
+    }
+  }
+  return normalizeOrderedStrings(merged);
+}
+
+function buildHandoffSummary(args: {
+  fromHost: string;
+  toHost: string;
+  evidenceRefs?: readonly string[];
+  receiptRefs?: readonly string[];
+  admissibleProofRefs?: readonly string[];
+  existingSummary?: HandoffAdmissibilitySummary;
+}, options: HandoffAdmissibilityOptions = {}): HandoffAdmissibilitySummary {
+  const admissibleProofRefs = normalizeMergedStrings(
+    args.admissibleProofRefs,
+    args.existingSummary?.admissibleProofRef,
+    options.admissibleProofRefs,
+  );
+  return buildHandoffAdmissibilitySummary({
+    fromHost: args.fromHost,
+    toHost: args.toHost,
+    evidenceRefs: args.evidenceRefs,
+    receiptRefs: args.receiptRefs,
+    admissibleProofRefs,
+    ...(options.policy ? { policy: options.policy } : {}),
+  });
 }
 
 function evidenceRefs(canonicalStory: CanonicalStory): string[] {
@@ -524,8 +576,13 @@ function buildDefaultPackId(input: Pick<HandoffPackHashInput, 'storyId' | 'fromH
   return `HP-${digest.slice(0, 12)}`;
 }
 
-function normalizeHandoffPack(value: HandoffPack): HandoffPack {
+function normalizeHandoffPack(value: HandoffPack, options: HandoffAdmissibilityOptions = {}): HandoffPack {
   const authorityBoundary = buildAuthorityBoundary(value.authorityBoundary?.summary);
+  const admissibleProofRefs = normalizeMergedStrings(
+    value.admissibleProofRefs,
+    value.admissibilitySummary?.admissibleProofRef,
+    options.admissibleProofRefs,
+  );
   const base: HandoffPack = {
     ...value,
     fromHost: buildCapabilityProbe(value.fromHost).host,
@@ -540,6 +597,7 @@ function normalizeHandoffPack(value: HandoffPack): HandoffPack {
     successCriteria: normalizeOrderedStrings(value.successCriteria),
     authorityBoundary,
     executionInstructions: normalizeOrderedStrings(value.executionInstructions),
+    admissibleProofRefs,
     productionDone: false,
     receiptRefs: [],
   };
@@ -553,12 +611,14 @@ function normalizeHandoffPack(value: HandoffPack): HandoffPack {
   return {
     ...normalized,
     packHash: normalizeOptionalString(value.packHash) ?? computeHandoffPackHash(normalized),
-    admissibilitySummary: value.admissibilitySummary ?? buildHandoffAdmissibilitySummary({
+    admissibilitySummary: buildHandoffSummary({
       fromHost: normalized.fromHost,
       toHost: normalized.toHost,
       evidenceRefs: normalized.evidenceRefs,
       receiptRefs: normalized.receiptRefs,
-    }),
+      admissibleProofRefs: normalized.admissibleProofRefs,
+      existingSummary: value.admissibilitySummary,
+    }, options),
   };
 }
 
@@ -632,6 +692,8 @@ export function createHandoffPack(
     packId?: string;
     authorityBoundary?: string;
     executionInstructions?: string[];
+    admissibleProofRefs?: string[];
+    policy?: ProofAdmissibilityPolicy;
   },
 ): HandoffPack {
   const canonical = buildCanonicalStory(store, root, args.storyId).story;
@@ -648,11 +710,15 @@ export function createHandoffPack(
   const objective = normalizeOptionalString(args.objective);
   const authorityBoundary = buildAuthorityBoundary(args.authorityBoundary);
   const phaseAuthorityWarning = resolvePhaseAuthorityWarning(store, root, args.storyId);
-  const admissibilitySummary = buildHandoffAdmissibilitySummary({
+  const admissibleProofRefs = normalizeOrderedStrings(args.admissibleProofRefs);
+  const admissibilitySummary = buildHandoffSummary({
     fromHost: sourceHost,
     toHost: targetProbe.host,
     evidenceRefs: refs,
     receiptRefs: [],
+    admissibleProofRefs,
+  }, {
+    ...(args.policy ? { policy: args.policy } : {}),
   });
   const partial: HandoffPack = {
     schemaVersion: 'handoff-pack-v0',
@@ -679,6 +745,7 @@ export function createHandoffPack(
     executionInstructions: normalizeOrderedStrings(args.executionInstructions),
     canonicalStory: localAuthorityOnlyCanonicalStory(canonical),
     evidenceRefs: refs,
+    admissibleProofRefs,
     capabilityDeltas: deltas,
     degradations,
     recoveryPoint: {
@@ -696,14 +763,14 @@ export function createHandoffPack(
     productionDone: false,
     receiptRefs: [],
   };
-  const normalized = normalizeHandoffPack(partial);
+  const normalized = normalizeHandoffPack(partial, { ...(args.policy ? { policy: args.policy } : {}) });
   return {
     ...normalized,
     packHash: computeHandoffPackHash(normalized),
   };
 }
 
-export function readHandoffPack(file: string): HandoffPack {
+export function readHandoffPack(file: string, options: HandoffAdmissibilityOptions = {}): HandoffPack {
   const parsed = JSON.parse(readFileSync(file, 'utf8')) as HandoffPack;
   if (parsed.schemaVersion !== 'handoff-pack-v0') {
     throw new Error(`handoff_inspect expected schemaVersion handoff-pack-v0, got ${String((parsed as { schemaVersion?: unknown }).schemaVersion)}`);
@@ -711,23 +778,31 @@ export function readHandoffPack(file: string): HandoffPack {
   return normalizeHandoffPack({
     ...parsed,
     canonicalStory: localAuthorityOnlyCanonicalStory(parsed.canonicalStory),
-  });
+  }, options);
 }
 
-export function readHandoffAcceptProjection(file: string): HandoffAcceptProjection {
+export function readHandoffAcceptProjection(file: string, options: HandoffAdmissibilityOptions = {}): HandoffAcceptProjection {
   const parsed = JSON.parse(readFileSync(file, 'utf8')) as HandoffAcceptProjection;
   if (parsed.schemaVersion !== 'lattice.handoff_accept.v1') {
     throw new Error(`handoff_resume expected schemaVersion lattice.handoff_accept.v1, got ${String((parsed as { schemaVersion?: unknown }).schemaVersion)}`);
   }
+  const admissibleProofRefs = normalizeMergedStrings(
+    parsed.admissibleProofRefs,
+    parsed.admissibilitySummary?.admissibleProofRef,
+    options.admissibleProofRefs,
+  );
   return {
     ...parsed,
     authorityBoundary: buildAuthorityBoundary(parsed.authorityBoundary?.summary),
-    admissibilitySummary: parsed.admissibilitySummary ?? buildHandoffAdmissibilitySummary({
+    admissibleProofRefs,
+    admissibilitySummary: buildHandoffSummary({
       fromHost: parsed.fromHost,
       toHost: parsed.toHost,
       evidenceRefs: parsed.evidenceRefs,
       receiptRefs: parsed.receiptRefs,
-    }),
+      admissibleProofRefs,
+      existingSummary: parsed.admissibilitySummary,
+    }, options),
     authorityChanged: false,
     productionDone: false,
     receiptRefs: [],
@@ -760,6 +835,7 @@ export function inspectHandoffPack(pack: HandoffPack): HandoffInspection {
     requiredCommands: pack.requiredCommands,
     successCriteria: pack.successCriteria,
     evidenceRefs: pack.evidenceRefs,
+    admissibleProofRefs: pack.admissibleProofRefs,
     capabilityDeltaCount: pack.capabilityDeltas.length,
     blockingDegradationCount: pack.degradations.filter(d => d.severity === 'block').length,
     productionDone: false,
@@ -785,9 +861,22 @@ function handoffEvidenceRefreshGuidance(): string {
 
 export function buildHandoffAcceptProjection(
   pack: HandoffPack,
-  args: { acceptedByHost?: string } = {},
+  args: { acceptedByHost?: string } & HandoffAdmissibilityOptions = {},
 ): HandoffAcceptProjection {
   const acceptedByHost = args.acceptedByHost ? buildCapabilityProbe(args.acceptedByHost).host : pack.toHost;
+  const admissibleProofRefs = normalizeMergedStrings(
+    pack.admissibleProofRefs,
+    pack.admissibilitySummary.admissibleProofRef,
+    args.admissibleProofRefs,
+  );
+  const admissibilitySummary = buildHandoffSummary({
+    fromHost: pack.fromHost,
+    toHost: pack.toHost,
+    evidenceRefs: pack.evidenceRefs,
+    receiptRefs: pack.receiptRefs,
+    admissibleProofRefs,
+    existingSummary: pack.admissibilitySummary,
+  }, args);
   const processEvent = {
     type: 'handoff_accepted' as const,
     action: 'accept' as const,
@@ -813,9 +902,10 @@ export function buildHandoffAcceptProjection(
     toHost: pack.toHost,
     acceptedByHost,
     evidenceRefs: pack.evidenceRefs,
+    admissibleProofRefs,
     lineage: pack.canonicalStory.lineage,
     authorityBoundary: pack.authorityBoundary,
-    admissibilitySummary: pack.admissibilitySummary,
+    admissibilitySummary,
     recoveryPoint: pack.recoveryPoint,
     authorityChanged: false,
     productionDone: false,
@@ -829,13 +919,18 @@ export function buildHandoffAcceptProjection(
 
 export function buildHandoffResumeProjection(
   source: HandoffPack | HandoffAcceptProjection,
-  args: { resumeHost?: string } = {},
+  args: { resumeHost?: string } & HandoffAdmissibilityOptions = {},
 ): HandoffResumeProjection {
   const isAccept = source.schemaVersion === 'lattice.handoff_accept.v1';
   const storyId = source.storyId;
   const fromHost = source.fromHost;
   const toHost = source.toHost;
   const evidenceRefs = source.evidenceRefs;
+  const admissibleProofRefs = normalizeMergedStrings(
+    source.admissibleProofRefs,
+    source.admissibilitySummary.admissibleProofRef,
+    args.admissibleProofRefs,
+  );
   const lineage = isAccept ? source.lineage : source.canonicalStory.lineage;
   const recoveryPoint = source.recoveryPoint;
   const resumeHost = args.resumeHost
@@ -856,9 +951,14 @@ export function buildHandoffResumeProjection(
     receiptRefs: [] as [],
   };
   const authorityBoundary = isAccept ? source.authorityBoundary : source.authorityBoundary;
-  const admissibilitySummary = isAccept
-    ? source.admissibilitySummary
-    : source.admissibilitySummary;
+  const admissibilitySummary = buildHandoffSummary({
+    fromHost,
+    toHost,
+    evidenceRefs,
+    receiptRefs: source.receiptRefs,
+    admissibleProofRefs,
+    existingSummary: source.admissibilitySummary,
+  }, args);
   return {
     schemaVersion: 'lattice.handoff_resume.v1',
     processEvent,
@@ -870,6 +970,7 @@ export function buildHandoffResumeProjection(
     toHost,
     resumeHost,
     evidenceRefs,
+    admissibleProofRefs,
     lineage,
     authorityBoundary,
     admissibilitySummary,
@@ -943,13 +1044,19 @@ function mergeScopeStatuses(...statuses: HandoffScopeStatus[]): HandoffScopeStat
   return 'pass';
 }
 
-function normalizeHandoffReceipt(value: HandoffReceipt): HandoffReceipt {
+function normalizeHandoffReceipt(value: HandoffReceipt, options: HandoffAdmissibilityOptions = {}): NormalizedHandoffReceipt {
+  const admissibleProofRefs = normalizeMergedStrings(
+    value.admissibleProofRefs,
+    value.admissibilitySummary?.admissibleProofRef,
+    options.admissibleProofRefs,
+  );
+  const packId = normalizeOptionalString(value.packId) ?? buildDefaultPackId(value);
   return {
     ...value,
     host: normalizeReceiptHost(value.host),
     fromHost: buildCapabilityProbe(value.fromHost).host,
     toHost: buildCapabilityProbe(value.toHost).host,
-    packId: normalizeOptionalString(value.packId) ?? buildDefaultPackId(value),
+    packId,
     packHash: normalizeOptionalString(value.packHash) ?? computeHandoffPackHash(value),
     ...(normalizeOptionalString(value.baseSha) ? { baseSha: normalizeOptionalString(value.baseSha) } : {}),
     ...(normalizeOptionalString(value.role) ? { role: normalizeOptionalString(value.role) } : {}),
@@ -964,12 +1071,15 @@ function normalizeHandoffReceipt(value: HandoffReceipt): HandoffReceipt {
     changedFiles: normalizeOrderedStrings(value.changedFiles),
     commands: normalizeOrderedStrings(value.commands),
     limitations: normalizeOrderedStrings(value.limitations),
-    admissibilitySummary: value.admissibilitySummary ?? buildHandoffAdmissibilitySummary({
+    admissibleProofRefs,
+    admissibilitySummary: buildHandoffSummary({
       fromHost: value.fromHost,
       toHost: value.toHost,
       evidenceRefs: [],
-      receiptRefs: [value.packId],
-    }),
+      receiptRefs: [packId],
+      admissibleProofRefs,
+      existingSummary: value.admissibilitySummary,
+    }, options),
     ...(normalizeOptionalString(value.summary) ? { summary: normalizeOptionalString(value.summary) } : {}),
   };
 }
@@ -1047,16 +1157,16 @@ function validateReceiptHeadCommit(
   };
 }
 
-export function readHandoffReceipt(file: string): HandoffReceipt {
+export function readHandoffReceipt(file: string, options: HandoffAdmissibilityOptions = {}): HandoffReceipt {
   const parsed = JSON.parse(readFileSync(file, 'utf8')) as HandoffReceipt;
   if (parsed.schemaVersion !== 'lattice.handoff_receipt.v1') {
     throw new Error(`handoff_receipt_submit expected schemaVersion lattice.handoff_receipt.v1, got ${String((parsed as { schemaVersion?: unknown }).schemaVersion)}`);
   }
-  return normalizeHandoffReceipt(parsed);
+  return normalizeHandoffReceipt(parsed, options);
 }
 
-export function submitHandoffReceipt(root: string, receipt: HandoffReceipt): HandoffReceiptSubmission {
-  const normalized = normalizeHandoffReceipt(receipt);
+export function submitHandoffReceipt(root: string, receipt: HandoffReceipt, options: HandoffAdmissibilityOptions = {}): HandoffReceiptSubmission {
+  const normalized = normalizeHandoffReceipt(receipt, options);
   // B-75f0 CHK-002: this entrypoint has a storyId (normalized.storyId) but NO
   // StoryStore in scope, so the id-keyed resolveGitCwd is not usable here (never
   // fabricate a store). Use the id-independent project-level resolver instead: on
@@ -1125,12 +1235,8 @@ export function submitHandoffReceipt(root: string, receipt: HandoffReceipt): Han
       ? 'Receipt accepted as local diagnostic evidence only. Review the overflow diff in an isolated worktree and merge manually if it passes local review.'
       : 'Receipt is diagnostic only. Recreate the pack or overflow worktree if scope/freshness drifted, then review and resubmit a corrected local receipt.',
     warnings,
-    admissibilitySummary: normalized.admissibilitySummary ?? buildHandoffAdmissibilitySummary({
-      fromHost: normalized.fromHost,
-      toHost: normalized.toHost,
-      evidenceRefs: [],
-      receiptRefs: [normalized.packId],
-    }),
+    admissibleProofRefs: normalized.admissibleProofRefs ?? [],
+    admissibilitySummary: normalized.admissibilitySummary,
     validations: {
       packId: packIdPass ? 'pass' : 'fail',
       packHash: packHashPass ? 'pass' : 'fail',
@@ -1242,6 +1348,19 @@ export function buildHostDispatchProjection(
   };
 }
 
+export function renderHandoffAdmissibilityLines(summary: HandoffAdmissibilitySummary): string[] {
+  const lines = [
+    `admissibleProofRefs: ${summary.admissibleProofRef.length}`,
+    `admissibilityBlocked: ${summary.blocked}`,
+    `admissibilityMode: ${summary.diagnostics[0]?.mode ?? 'warn'}`,
+  ];
+  if (summary.reasons.length > 0) {
+    lines.push('admissibilityReasons:');
+    lines.push(...summary.reasons.map(reason => `  - ${reason}`));
+  }
+  return lines;
+}
+
 export function renderHandoffInspectionText(inspection: HandoffInspection): string {
   return [
     `Handoff inspect (${inspection.schemaVersion})`,
@@ -1256,6 +1375,7 @@ export function renderHandoffInspectionText(inspection: HandoffInspection): stri
     `requiredCommands: ${inspection.requiredCommands.length}`,
     `successCriteria: ${inspection.successCriteria.length}`,
     `evidenceRefs: ${inspection.evidenceRefs.length}`,
+    ...renderHandoffAdmissibilityLines(inspection.admissibilitySummary),
     `capabilityDeltas: ${inspection.capabilityDeltaCount}`,
     `blockingDegradations: ${inspection.blockingDegradationCount}`,
     'admissibilityStatus: handoff-inspection',
@@ -1282,6 +1402,7 @@ export function renderHandoffAcceptText(projection: HandoffAcceptProjection): st
     `acceptedByHost: ${projection.acceptedByHost}`,
     `phase: ${projection.recoveryPoint.phase}`,
     `evidenceRefs: ${projection.evidenceRefs.length}`,
+    ...renderHandoffAdmissibilityLines(projection.admissibilitySummary),
     'admissibilityStatus: handoff-accepted-local',
     'assuranceLevel: local',
     'evidenceScope: handoff-context',
@@ -1302,6 +1423,7 @@ export function renderHandoffResumeText(projection: HandoffResumeProjection): st
     `resumeHost: ${projection.resumeHost}`,
     `phase: ${projection.recoveryPoint.phase}`,
     `evidenceRefs: ${projection.evidenceRefs.length}`,
+    ...renderHandoffAdmissibilityLines(projection.admissibilitySummary),
     'admissibilityStatus: handoff-resume',
     'assuranceLevel: local',
     'evidenceScope: handoff-context',
@@ -1321,6 +1443,7 @@ export function renderHandoffReceiptSubmissionText(result: HandoffReceiptSubmiss
     `status: ${result.status}`,
     `scopeStatus: ${result.scopeStatus}`,
     `freshness: ${result.freshness}`,
+    ...renderHandoffAdmissibilityLines(result.admissibilitySummary),
     `admissibilityStatus: ${result.admissibilitySummary.blocked ? 'local-handoff-blocked' : 'local-handoff-recorded'}`,
     'assuranceLevel: local',
     'evidenceScope: handoff-receipt-submission',
@@ -1369,6 +1492,7 @@ export function renderHostDispatchProjectionText(result: HostDispatchProjection)
     `status: ${result.status}`,
     `mode: ${result.mode}`,
     `overflowReady: ${result.overflowReady}`,
+    ...renderHandoffAdmissibilityLines(result.admissibilitySummary),
     `admissibilityStatus: ${result.admissibilitySummary.blocked ? 'host-dispatch-blocked' : 'host-dispatch-local-only'}`,
     'assuranceLevel: local',
     'evidenceScope: host-dispatch-handoff',

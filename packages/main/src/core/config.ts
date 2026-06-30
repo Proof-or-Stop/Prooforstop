@@ -43,6 +43,8 @@ export interface DoneRequiredCommandConfig {
 
 export interface ProofAdmissibilityConfig {
   mode?: 'warn' | 'enforce';
+  enforcedConsumers?: Array<'DONE_REQUIRED' | 'REVIEW' | 'HANDOFF' | 'AUTHORITY_GATE_DECISION'>;
+  highRiskConsumers?: Array<'DONE_REQUIRED' | 'REVIEW' | 'HANDOFF' | 'AUTHORITY_GATE_DECISION'>;
 }
 
 export interface ReproFirstPreflightConfig {
@@ -213,7 +215,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'verification_context_pack_create', 'verification_context_pack_expand', // read-only verifier context packets
     'recover_evidence', // B-a2f1 CHK-003: single-shot stale-evidence recovery, safe in any phase (refuses on non-metadata dirt)
     'artifact_declare', // B-cf60: per-story declared product artifact registration, safe in any phase
-    'repro_*', 'spike_*', 'red_green_relation_*', 'regression_matrix_review_set', 'story_create_from_repro', // B-0aa1: candidate-only repro-first intake commands; evidence-candidate scope only, never DONE or release proof
+    'repro_*', 'spike_record', 'spike_review_set', 'red_green_relation_*', 'regression_matrix_review_set', 'story_create_from_repro', // B-0aa1: candidate-only repro-first intake commands; evidence-candidate scope only, never DONE or release proof
     'capsule_*',   // B-42c0: story handoff projection commands; evidence remains authoritative elsewhere
     'scope_contract_show', 'scope_contract_check', // B-be27: read/check scope contract; mutating commands are phase-scoped below
     'scope_diff_pack', // B-6bfd CHK-002: read-only mechanical diff context pack, useful for verifier context in any phase

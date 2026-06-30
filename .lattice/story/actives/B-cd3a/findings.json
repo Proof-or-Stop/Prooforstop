@@ -1,0 +1,68 @@
+{
+  "findings": [
+    {
+      "id": "B-cd3a:F-001",
+      "desc": "Concept blocker: CHK-003 promises Tier-C provider-execution receipt verification stories are grouped as experiment-batch-exception and preserved as evidence, but live lattice queue_governance_status --format=json at 2026-06-30T10:24:09Z reports experimentBatches=[] and summary.experimentBatchException=0 while 22 Tier-C provider-execution receipt verification stories are classified as duplicate-candidate with cleanupPolicy=review-required. That shrinks the promised exception policy and makes queue governance treat preserved experiment evidence as ordinary duplicates.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-30T10:24:45.018Z",
+      "reviewRound": "2026-06-30T10:22:39.017Z",
+      "reviewRunId": "B-cd3a:RR-001",
+      "_hash": "23f97b356a952f0f6d920b66424139f178a40f36a9db3fff04cfa5f6d674db1e",
+      "files": [
+        "\"'[packages/main/src/core/lifecycle-control/queue/index.ts,packages/main/src/core/lifecycle-control/global-control-service.ts,packages/main/src/handlers/lifecycle-control.ts]'\""
+      ],
+      "signatureTag": "missing|ts]'\"|concept-blocker-promises",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by 8cbec2935 and verified at REVIEW head cd992cd: npm --prefix packages/main run build passed, node packages/main/dist/tasks/lifecycle-control-smoke.js passed, and node packages/main/dist/cli.js queue_governance_status --format=json reports experimentBatchException=23, duplicateCandidate=0, batch=tier-c-provider-execution-receipt-verification.",
+      "resolvedAt": "2026-06-30T10:32:44.016Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-cd3a:F-002",
+      "desc": "Fresh final validation evidence is missing at the current review head. review_run_start bound lattice-review-test-coverage B-cd3a:RR-003 to head ec296d3, while CHK-007 records done_required_validate/root-test evidence at head 94d19085554ee72b8f2698c1e186f9adf15e2578 and lattice session_brief reports 19 stale verification intents after ec296d3. Because B-cd3a explicitly relies on done-required validation, root tests, and current-head proof admissibility for final delivery, test coverage should not pass until stale verification evidence and DONE-required validation are refreshed for the current HEAD/material hash.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-30T10:26:01.347Z",
+      "reviewRound": "2026-06-30T10:22:39.017Z",
+      "reviewRunId": "B-cd3a:RR-003",
+      "_hash": "7e35c4901ce94759dd860a10e6e97cd3d4d7c63a21e94912b5e904e4cd3a9891",
+      "signatureTag": "missing|unknown|fresh-final-validation",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Resolved with fresh current-head evidence: verification_evidence_refresh_stale refreshed B-cd3a evidence, validate --story=B-cd3a --json passed all 31 configured commands including retired-authority-vocabulary-guard-smoke, and done_required_validate --storyId=B-cd3a --json passed packages/main build plus root full test suite at head 106a2c059 with materialHash 29f205e. A follow-up verification_evidence_refresh_stale reported no stale verification evidence.",
+      "resolvedAt": "2026-06-30T10:43:06.439Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-cd3a:F-003",
+      "desc": "packages/main/src/tasks/proof-admissibility-smoke.ts:102 still asserts Authority-facing gate decision refs with lattice.authority_gate_decision.v1, and line 119 still uses lattice.authority_receipt.v1, while packages/main/src/core/proof-admissibility.ts:276 and :294 now register lattice.external_gate_decision.v1 / lattice.external_receipt.v1. Repro: node packages/main/dist/tasks/proof-admissibility-smoke.js exits 1 with AssertionError: Authority-facing gate decision refs can be admissible evidence for the matching adapter consumer. This leaves the schema-version rename inconsistent and breaks the existing proof-admissibility smoke contract.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-30T10:45:33.633Z",
+      "reviewRound": "2026-06-30T10:39:22.035Z",
+      "reviewRunId": "B-cd3a:RR-010",
+      "_hash": "6699486257083416a1ac60fa69ca39b5ae991ef373f7dfcc3fd2be34fdac4c2f",
+      "files": [
+        "packages/main/src/tasks/proof-admissibility-smoke.ts",
+        "packages/main/src/core/proof-admissibility.ts"
+      ],
+      "signatureTag": "spec-boundary|ts|packages-main-tasks",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by d15cea37b: proof-admissibility smoke now uses lattice.external_gate_decision.v1 and lattice.external_receipt.v1 to match PROOF_SURFACE_REGISTRY. Verified with npm --prefix packages/main run build, node packages/main/dist/tasks/proof-admissibility-smoke.js, node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js, and npm --prefix packages/main run test:proof-admissibility-hardening.",
+      "resolvedAt": "2026-06-30T10:48:51.997Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+{
+  "storyId": "B-cd3a",
+  "checkedAt": "2026-06-30T09:43:22.712Z",
+  "features": [
+    {
+      "feature": "Document capability audit contract for the two decision docs",
+      "covered_by": "CHK-001; files: global-lifecycle-control-plane-execution-plan.md, proof-admissibility-hardening-execution-plan.md; tests: global_control_status, admissibility_waterline, queue_governance_status; scope contract enforce.",
+      "status": "covered",
+      "excluded_by": "n/a",
+      "source": "checklist_get, scope_contract_show"
+    },
+    {
+      "feature": "Global lifecycle-control status reporting/reconciliation",
+      "covered_by": "CHK-002; files: lifecycle-control/global-control-service.ts, control-status.ts, dashboard/index.ts, handlers/lifecycle-control.ts; tests: lifecycle-orchestrate-smoke and global_control_status; scope contract enforce.",
+      "status": "covered",
+      "excluded_by": "n/a",
+      "source": "checklist_get, scope_contract_show"
+    },
+    {
+      "feature": "Tier-C queue experiment exception grouping",
+      "covered_by": "CHK-003; files: lifecycle-control/queue/index.ts, global-control-service.ts, handlers/lifecycle-control.ts; tests: queue_governance_status and lifecycle-orchestrate-smoke; scope contract enforce.",
+      "status": "covered",
+      "excluded_by": "experiments/tier-c-proof, packages/main/src/core/providers, packages/main/src/handlers/providers are explicitly excluded from mutation.",
+      "source": "checklist_get, scope_contract_show"
+    },
+    {
+      "feature": "Runtime closure hard-block rollout",
+      "covered_by": "CHK-004; files: lifecycle-control/runtime/index.ts, control-status.ts, core/machine.ts, handlers/phase-gates.ts, lattice.config.json; tests: lifecycle-check-smoke, story-authority-resolve-smoke, runtime_closure_status; scope contract enforce.",
+      "status": "covered",
+      "excluded_by": "n/a",
+      "source": "checklist_get, scope_contract_show"
+    },
+    {
+      "feature": "Queue governance mutation guard while preserving experiment evidence",
+      "covered_by": "CHK-005; files: lifecycle-control/queue/index.ts, main-write-lock.ts, story-owner-lease.ts, command-policy.ts, handlers/lifecycle-control.ts; tests: queue_governance_status and lifecycle-orchestrate-smoke; scope contract enforce.",
+      "status": "covered",
+      "excluded_by": "experiments/tier-c-proof is explicitly excluded from mutation to preserve experiment evidence.",
+      "source": "checklist_get, scope_contract_show"
+    },
+    {
+      "feature": "Proof admissibility enforcement for high-risk consumers",
+      "covered_by": "CHK-006; files: lattice.config.json, evidence/admissibility/index.ts, proof-admissibility*.ts, process-fact-registry.ts, process-fact-levels.ts, command-catalog.ts; tests: proof-admissibility smoke tasks, verify-process-fact-contract.mjs, admissibility_waterline; scope contract enforce.",
+      "status": "covered",
+      "excluded_by": "n/a",
+      "source": "checklist_get, scope_contract_show"
+    },
+    {
+      "feature": "Final ProofStory/DONE equivalence validation artifacts",
+      "covered_by": "CHK-007; files: proofstory.json, milestone-ledger.json, original-intent-snapshot.json, intent-collision.json, slice-plan.json, summary.json; tests: proofstory_gate_check, intent_coverage_check, proofstory_review_completeness_check, done_intent_equivalence_check, done_required_validate; proofstory and intent coverage checks pass in enforce mode.",
+      "status": "covered",
+      "excluded_by": "n/a",
+      "source": "checklist_get, scope_contract_show, proofstory_gate_check, intent_coverage_check"
+    }
+  ],
+  "summary": {
+    "total": 7,
+    "covered": 7,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "cab7467292d65cf0d2c3c638cd648101de574f1d9ed6ad07a523ef8424c99fee",
+  "openQuestions": []
+}

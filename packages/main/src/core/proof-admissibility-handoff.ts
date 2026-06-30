@@ -1,8 +1,11 @@
 import {
+  DEFAULT_PROOF_ADMISSIBILITY_ENFORCED_CONSUMERS,
   buildProofAdmissibilityDiagnostic,
   proofAdmissibilityBlockingReason,
   type ProofAdmissibilityDiagnostic,
+  type ProofAdmissibilityEnforcedConsumer,
   type ProofAdmissibilityMode,
+  type ProofAdmissibilityPolicy,
 } from './proof-admissibility-gates.js';
 
 export interface HandoffAdmissibilitySummary {
@@ -33,18 +36,24 @@ export function buildHandoffAdmissibilitySummary(args: {
   admissibleProofRefs?: readonly string[];
   quorumIdentity?: string;
   mode?: ProofAdmissibilityMode;
+  enforcedConsumers?: readonly ProofAdmissibilityEnforcedConsumer[];
+  policy?: ProofAdmissibilityPolicy;
 }): HandoffAdmissibilitySummary {
   const evidenceCandidate = [...new Set(args.evidenceRefs ?? [])].sort();
   const diagnosticReceipt = [...new Set(args.receiptRefs ?? [])].sort();
   const admissibleProofRef = [...new Set(args.admissibleProofRefs ?? [])].sort();
   const mode = args.mode ?? 'warn';
+  const policy = args.policy ?? {
+    mode,
+    enforcedConsumers: args.enforcedConsumers ?? DEFAULT_PROOF_ADMISSIBILITY_ENFORCED_CONSUMERS,
+  };
   const diagnostics = [
     buildProofAdmissibilityDiagnostic({
       artifactKind: 'handoff-pack',
       artifactId: `${args.fromHost}->${args.toHost}`,
       consumer: 'HANDOFF',
       claim: 'diagnostic-status',
-      mode,
+      policy,
       checks: {
         schemaVersion: 'lattice.handoff.v1',
         strictShapeValid: true,
@@ -58,7 +67,7 @@ export function buildHandoffAdmissibilitySummary(args: {
       artifactId: ref,
       consumer: 'HANDOFF',
       claim: 'production-completion',
-      mode,
+      policy,
       checks: {
         schemaVersion: 'lattice.legacy_authority_receipt_refs.v1',
         strictShapeValid: true,

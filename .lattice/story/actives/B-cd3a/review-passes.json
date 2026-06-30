@@ -1,0 +1,121 @@
+{
+  "passes": [
+    {
+      "id": "B-cd3a:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "PASS: F-001 fixed at current REVIEW head d9363d8. Live worktree queue_governance_status groups 23 Tier-C provider-execution receipt verification stories, including optional provider titles like (claude) run, as experiment-batch-exception; duplicateCandidate=0; malformed Tier-C rows B-cb7e/B-dbdc remain cleanup-required. global_control_status keeps readiness red/readyForNextSafeAction=false and ProofStory/intent-equivalence gates pass with seven milestones and no accepted shrinkage.",
+      "createdAt": "2026-06-30T10:44:57.140Z",
+      "reviewRound": "2026-06-30T10:39:22.035Z",
+      "reviewRunId": "B-cd3a:RR-007",
+      "_hash": "94bc16a0e5b8490d5811f99530135625162747d16cf1567b6552a28113e2cbb6"
+    },
+    {
+      "id": "B-cd3a:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "PASS: reviewed d15cea37b proof-admissibility-smoke.ts external schema update only. Diff swaps retired authority_* schema strings to registry-backed lattice.external_gate_decision.v1 and lattice.external_receipt.v1 while preserving allow/deny and productionDone=false assertions. intent_coverage_check and done_intent_equivalence_check pass with no shrinkage; compiled proof-admissibility smoke passes.",
+      "createdAt": "2026-06-30T10:54:47.260Z",
+      "reviewRound": "2026-06-30T10:48:39.905Z",
+      "reviewRunId": "B-cd3a:RR-015",
+      "_hash": "00c8bcddb82a4b02c1079a52db43ec8ba0562687fa0fab2ddca6ed8cdf537d48"
+    },
+    {
+      "id": "B-cd3a:RP-003",
+      "agent": "lattice-review-quality",
+      "note": "Quality review verified F-003 is fixed: proof-admissibility smoke uses lattice.external_gate_decision.v1 and lattice.external_receipt.v1 matching PROOF_SURFACE_REGISTRY; build, proof-admissibility smoke, hardening smoke, retired authority vocabulary guard, command catalog smoke, process fact contract, and lifecycle-control smoke passed; prior queue-governance fix still reports 23 experiment exceptions, duplicateCandidate=0, malformed Tier-C cleanup-required.",
+      "createdAt": "2026-06-30T10:55:35.713Z",
+      "reviewRound": "2026-06-30T10:48:39.905Z",
+      "reviewRunId": "B-cd3a:RR-013",
+      "_hash": "b4468eddf09d987ea073d3e60699d04dc9ec15ff9feb980baa94bafaaec1d693"
+    },
+    {
+      "id": "B-cd3a:RP-004",
+      "agent": "lattice-review-docs",
+      "note": "PASS: reviewed changed decision docs and source/user-facing wording for English/open-source consistency, no added Chinese prose, no production/Authority completion overclaim, and implemented/partial/future/unavailable distinctions. New docs and source text keep control-plane/proof-admissibility rows read-only/local/diagnostic where appropriate and preserve future/partial boundaries.",
+      "createdAt": "2026-06-30T10:55:42.238Z",
+      "reviewRound": "2026-06-30T10:48:39.905Z",
+      "reviewRunId": "B-cd3a:RR-016",
+      "_hash": "1a9cd302d10d7969af31ffebc5d0a02f9194128bc2d0152315a58f862aedd743"
+    },
+    {
+      "id": "B-cd3a:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS test-coverage after F-003. Verified F-003 resolved: proof-admissibility smoke schema refs match PROOF_SURFACE_REGISTRY external gate/receipt versions. Re-ran targeted checks: npm --prefix packages/main run test:proof-admissibility; npm --prefix packages/main run test:proof-admissibility-hardening; node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js; npm run test:process-fact-contract; npm --prefix packages/main run test:command-catalog-smoke; node packages/main/dist/tasks/lifecycle-control-smoke.js; node packages/main/dist/tasks/lifecycle-registry-contract.js; node packages/main/dist/tasks/flow-stability-smoke.js. Enforce ProofStory gates pass; evidence_inspect shows required verification/test evidence fresh by material hash, with only stale supplemental CHK-005 duplicate ref directly rerun and passing.",
+      "createdAt": "2026-06-30T10:55:51.824Z",
+      "reviewRound": "2026-06-30T10:48:39.905Z",
+      "reviewRunId": "B-cd3a:RR-012",
+      "_hash": "3e2ded04f92fd971a327e40bb5c2e88286d2d56868970b05a0104d68c5c58c61"
+    },
+    {
+      "id": "B-cd3a:RP-006",
+      "agent": "lattice-review-concept",
+      "note": "Concept review B-cd3a:RR-018: late fix aligns review escalation proof-admissibility with actual full 3x2 or valid degraded 3x1 quorum evidence; absent fresh quorum it fails closed, and authorityDone/fullAuthorityDone/productionDone remain false local status fields rather than release-readiness claims.",
+      "createdAt": "2026-06-30T11:10:15.941Z",
+      "reviewRound": "2026-06-30T11:06:51.293Z",
+      "reviewRunId": "B-cd3a:RR-018",
+      "_hash": "7a1c91506a05bf92e07dadf4edcfeaf0a956afbecd1729faaa95f7aec519e726"
+    },
+    {
+      "id": "B-cd3a:RP-007",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed story diff for implementation quality, maintainability, narrowness, and failure-mode behavior, focusing on review-escalation proof binding and quorum-submit smoke coverage. No blocking implementation issue found; focused smokes passed.",
+      "createdAt": "2026-06-30T11:11:17.191Z",
+      "reviewRound": "2026-06-30T11:06:51.293Z",
+      "reviewRunId": "B-cd3a:RR-017",
+      "_hash": "a5e8289d9f3e5528a1fceaabf5ddb5c8a096f54e6d37187f0f2c42ac85acc77d"
+    },
+    {
+      "id": "B-cd3a:RP-008",
+      "agent": "lattice-review-test-coverage",
+      "note": "No coverage blocker. Reviewed quorum-submit smoke, proof-admissibility enforce mode, review_escalation_status, and stale quorum fail-closed behavior. Evidence: quorum-submit smoke passes and asserts proofAdmissibility mode=enforce, valid 3x2 status ok/full-3x2/proof pass, stale reviewer passes refused, no authority overclaim; review-escalation and review-assurance-floor smokes pass and assert stale/material-drift verdicts are ignored or fail closed. Commands run: node packages/main/dist/tasks/quorum-submit-smoke.js; node packages/main/dist/tasks/proof-admissibility-smoke.js; node packages/main/dist/tasks/proof-admissibility-hardening-smoke.js; node packages/main/dist/tasks/review-escalation-smoke.js; node packages/main/dist/tasks/review-assurance-floor-smoke.js; node packages/main/dist/tasks/review-assurance-floor-storyfileshash-smoke.js; node packages/main/dist/tasks/review-escalation-freshness-root-smoke.js; node packages/main/dist/tasks/done-escalation-drift-advisory-smoke.js; node packages/main/dist/tasks/run-all-smokes.js --select quorum-submit --quiet; node packages/main/dist/cli.js review_escalation_status --storyId=B-cd3a --json showed current stale B-cd3a quorum ignored and ok=false.",
+      "createdAt": "2026-06-30T11:15:05.872Z",
+      "reviewRound": "2026-06-30T11:06:51.293Z",
+      "reviewRunId": "B-cd3a:RR-019",
+      "_hash": "9086a6ce4d7b4aa60d4f7365b21689d0657fcad816c8bc3d25aaecc3463786bd"
+    },
+    {
+      "id": "B-cd3a:RP-009",
+      "agent": "lattice-review-docs",
+      "note": "docs review passed: global-lifecycle-control-plane lines 151-173 and 292-335 keep control-plane status read-only/diagnostic-only and productionDoneEligible=false; proof-admissibility-hardening lines 28-50, 209-224, 781-796, and 886-924 cover local-review-quorum, storyFilesHash/freshness, configured REVIEW enforcement, and no authority/production overclaim. Late commit db4bc74f0 changes review-escalation binding and quorum smoke only, so no doc update is required for the narrow proof-binding fix.",
+      "createdAt": "2026-06-30T11:16:38.238Z",
+      "reviewRound": "2026-06-30T11:06:51.293Z",
+      "reviewRunId": "B-cd3a:RR-020",
+      "_hash": "11f80a87d86325ccc073d434622a00f954bd7b62817870e5fc5498a1ec893f16"
+    },
+    {
+      "id": "B-cd3a:RP-010",
+      "agent": "lattice-review-concept",
+      "note": "Concept review pass for B-cd3a current material: original intent, M1-M7 ledger coverage, scope acknowledgements, and no production authority overclaim remain aligned after the main merge.",
+      "createdAt": "2026-06-30T11:30:29.957Z",
+      "reviewRound": "2026-06-30T11:30:16.418Z",
+      "reviewRunId": "B-cd3a:RR-021",
+      "_hash": "54a6feddd602becc658a37fcc399ebafde8421b3041ccdcc8426e60322d98429"
+    },
+    {
+      "id": "B-cd3a:RP-011",
+      "agent": "lattice-review-quality",
+      "note": "Quality review pass for B-cd3a current material: implementation and command surfaces remain scoped, typed, and consistent with the documented lifecycle and proof-admissibility behavior after the main merge.",
+      "createdAt": "2026-06-30T11:30:41.369Z",
+      "reviewRound": "2026-06-30T11:30:16.418Z",
+      "reviewRunId": "B-cd3a:RR-022",
+      "_hash": "cf3e6d3b7651f8fbdf8ccfd6b2601f88793ef7f4f4d9f8eac7e5ff559c1a8cb5"
+    },
+    {
+      "id": "B-cd3a:RP-012",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage review pass for B-cd3a current material: validation, DONE-required commands, ProofStory gates, quorum-submit smoke, lifecycle smoke, and proof-admissibility hardening smoke cover the required M1-M7 evidence claims.",
+      "createdAt": "2026-06-30T11:30:50.034Z",
+      "reviewRound": "2026-06-30T11:30:16.418Z",
+      "reviewRunId": "B-cd3a:RR-023",
+      "_hash": "f1b4c3d149c82962c033b5e624d4a93c862018e2f7d892d521102ecc59252b55"
+    },
+    {
+      "id": "B-cd3a:RP-013",
+      "agent": "lattice-review-docs",
+      "note": "Docs review pass for B-cd3a current material: global lifecycle control-plane and proof-admissibility execution-plan docs now match implemented partial/future boundaries, queue exceptions, runtime closure status, and M7 enforcement evidence.",
+      "createdAt": "2026-06-30T11:30:57.018Z",
+      "reviewRound": "2026-06-30T11:30:16.418Z",
+      "reviewRunId": "B-cd3a:RR-024",
+      "_hash": "8466eb8717178bebe70da8c453958a97c1f6882e10194720741210ebc878b4d9"
+    }
+  ]
+}

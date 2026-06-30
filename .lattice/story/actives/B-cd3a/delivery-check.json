@@ -1,0 +1,71 @@
+{
+  "storyId": "B-cd3a",
+  "checkedAt": "2026-06-30T11:35:46.156Z",
+  "headHash": "faf78a86f05989437329e5cdc0fae7e4581f4f36",
+  "materialHash": "5718700e1bb3f0f8ed4f802f6544df009732e610006523fb3b55ab693d0b0c44",
+  "storyFilesHash": "aa9251dadea50133bf0711d0600c55bbdc72bdd47eeeb0f2aaa22031a1f98099",
+  "reviewRound": "2026-06-30T11:30:16.418Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+      "promise": "Capability audit/status projection classifies implemented, partial, future, and missing control-plane capabilities accurately without productionDone overclaim.",
+      "status": "verified",
+      "verifiedBy": "global_control_status plus lifecycle-control-smoke",
+      "evidence": "global_control_status reports proofM7Enforcement=partial, queueCleanupEnforcement=partial, tierCCleanup=future; lifecycle-control-smoke passes and legacy production/authority booleans remain false."
+    },
+    {
+      "docPath": "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md#CP-5B-Queue-Governance-Guard",
+      "promise": "Tier-C provider-execution receipt verification stories are preserved as experiment-batch-exception while malformed records remain cleanup-required.",
+      "status": "verified",
+      "verifiedBy": "queue_governance_status real-machine transcript",
+      "evidence": "queue_governance_status summary: experimentBatchException=23, duplicateCandidate=0, cleanupRequired=2; transcript-diff.md and live-smoke-transcript.json recorded."
+    },
+    {
+      "docPath": "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md#CP-5A-Runtime-Enforcement-Rollout",
+      "promise": "Runtime closure and rollback status stay observable, local, and read-only unless configured hard blocks are explicitly enabled.",
+      "status": "verified",
+      "verifiedBy": "runtime_closure_status plus lifecycle-control-smoke",
+      "evidence": "runtime_closure_status is observable for B-cd3a and lifecycle-control-smoke passes enforce/warn/rollback assertions."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md#M7-Hard-Fail-Rollout-And-Adversarial-Regression-Suite",
+      "promise": "High-risk proof consumers enforce M7 admissibility and local CLI status never mints production or authority completion.",
+      "status": "verified",
+      "verifiedBy": "proof-admissibility hardening smoke and done-required validation",
+      "evidence": "npm --prefix packages/main run test:proof-admissibility-hardening passed; done_required_validate passed packages/main build and root full test suite; quorum-submit smoke proves no authorityDone/fullAuthorityDone/productionDone."
+    },
+    {
+      "docPath": "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md#Definition-Of-Done",
+      "promise": "DONE requires ProofStory, review completeness, intent equivalence, delivery, done-required validation, and review assurance evidence.",
+      "status": "verified",
+      "verifiedBy": "ProofStory gates plus 3x2 quorum",
+      "evidence": "proofstory_gate_check, intent_coverage_check, proofstory_review_completeness_check, done_intent_equivalence_check, validate, done_required_validate, and review_escalation_status all pass for current material."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-003",
+      "transcript": "queue_governance_status --format=json returned experimentBatchException=23, duplicateCandidate=0, cleanupRequired=2; transcript-diff.md records no expected-vs-actual difference."
+    },
+    {
+      "featureId": "CHK-007",
+      "transcript": "validate --story=B-cd3a --json passed all 31 configured commands and verification coverage remains 21/21."
+    },
+    {
+      "featureId": "CHK-007",
+      "transcript": "done_required_validate --storyId=B-cd3a --json passed packages/main build and root full test suite for materialHash 5718700e1bb3f0f8ed4f802f6544df009732e610006523fb3b55ab693d0b0c44."
+    },
+    {
+      "featureId": "CHK-007",
+      "transcript": "review_escalation_status after quorum_submit reports fullQuorum.ok=true, assuranceLevel=full-3x2, proofAdmissibility overall=pass, and authorityDone/fullAuthorityDone/productionDone=false."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "PASS: B-cd3a closes the documented local control-plane and proof-admissibility DoD gaps with current validation, delivery transcript, full 3x2 local review assurance, and no production authority overclaim."
+  },
+  "_hash": "0acb8433f07df755aaa309df249a311e8cdafc57dc3623c6fb9e1ec1be8bc321"
+}
