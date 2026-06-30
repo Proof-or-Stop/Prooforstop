@@ -1,0 +1,61 @@
+{
+  "storyId": "B-490f",
+  "checkedAt": "2026-06-30T23:00:55.431Z",
+  "headHash": "a0bd5c9678a8110565f260f72d42402ae887a24f",
+  "materialHash": "af40c329a9114ad86bac49696a404ec903831096b9c8f8d9b8520d932f1c9937",
+  "storyFilesHash": "b1e1bbbaac052c1d5f1344084a82344c412e6a1ae00f69cb8139cfe34f1c5909",
+  "reviewRound": "2026-06-30T22:40:47.369Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+      "promise": "Current Parent Roadmap status tables mark completed local read-only diagnostic and evaluator rows with checkmarks while preserving partial or future migration, rollout, cross-track, M4-M12, read-only, non-hard-gate, and non-production boundaries after the main merge.",
+      "status": "verified",
+      "verifiedBy": "current HEAD git diff main...HEAD, targeted rg scan, Lattice checklist/session evidence",
+      "evidence": "At current HEAD, parent-roadmap smoke, ledger vocabulary, rollup evaluator, claim consumer, ProofStory binding, read-only CLI commands, and process-fact checks remain marked Implemented with checkmarks. Migration and cross-track certification remain Partial / future, and the text explicitly says no global lifecycle hard gate, no M4-M12 completion claim, and no server-backed or production completion proof."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+      "promise": "Proof Admissibility status tables mark completed local CLI hardening rows with checkmarks while preserving retired, non-goal, future, partial, external parity, append-only ledger, Authority, server-backed, and productionDone boundaries after the main merge.",
+      "status": "verified",
+      "verifiedBy": "current HEAD git diff main...HEAD, targeted rg scan, Lattice checklist/session evidence",
+      "evidence": "At current HEAD, the capability audit and Appendix B rows keep checkmarks for local CLI implemented surfaces. Authority-facing proof consumer remains Partial; append-only ledger and cross-runtime conformance remain Retired/non-goal; waterline stays read-only; productionDone remains false or external-adapter-only."
+    },
+    {
+      "docPath": "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+      "promise": "Global Lifecycle Control Plane status tables mark implemented control-plane rows with checkmarks while preserving partial and unavailable boundaries for Proof M7, admissibility waterline, Tier-C cleanup, external production done, and no Authority or server overclaim after the main merge.",
+      "status": "verified",
+      "verifiedBy": "current HEAD git diff main...HEAD, targeted rg scan, Lattice checklist/session evidence",
+      "evidence": "At current HEAD, read-only global projection, runtime closure projection, runtime closure enforcement rollout, queue classification, queue exception registry, queue cleanup enforcement, and dashboard rows remain checkmarked. Proof Admissibility waterline and Proof M7 remain partial; Tier-C cleanup and external production done remain unavailable; local CLI evidence cannot mint productionDone."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "PASS evidence reviewed at current HEAD after main merge: targeted docs scan found Parent Roadmap implemented checkmarked rows plus read-only diagnostic, not global lifecycle hard gate, no M4-M12 completion, and no server-backed or production proof boundaries."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "PASS evidence reviewed at current HEAD after main merge: targeted docs scan found Proof Admissibility implemented checkmarked local CLI rows plus retired/non-goal/future integration, Authority-facing partial, server-backed external parity, and productionDone boundaries."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "PASS evidence reviewed at current HEAD after main merge: targeted docs scan found Global Lifecycle Control Plane checkmarked implemented rows plus partial Proof M7/admissibility waterline, unavailable Tier-C cleanup/external production done, and no productionDone minting boundaries."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "PASS evidence reviewed at current HEAD after main merge: Lattice checklist shows all 12 verification intents covered with passing evidence, session_brief reports evidence freshness matching current entity file state, and recorded real-machine checks include npm --prefix packages/main run build PASS, parent-roadmap smoke PASS, proof-admissibility smoke PASS, process-fact contract PASS, and docs/check rg PASS."
+    },
+    {
+      "featureId": "DONE-required validation",
+      "transcript": "PASS evidence reviewed at current HEAD after main merge: session_brief reports DONE-required validation PASS at 2026-06-30T22:59:32.993Z with 2 required commands and DONE pre-check otherwise passing; user-provided context states npm test PASS via done_required_validate."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Re-attested delivery after the main merge at current HEAD. I reviewed Lattice session state, checklist coverage, the current branch diff against main, and targeted scans across all three scoped documents. The user-visible docs-only outcome still holds: completed rows are checkmarked, edge boundaries remain explicit, and no Authority/server/productionDone overclaim was found. No unresolved TODO or delivery blocker remains for this scoped attestation."
+  },
+  "_hash": "f811e9558438057450443a9dc5668d92be07c3f7cc45885611971d17bb91f6ab"
+}
