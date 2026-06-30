@@ -1,0 +1,101 @@
+{
+  "storyId": "B-e781",
+  "checkedAt": "2026-06-30T22:17:20.314Z",
+  "features": [
+    {
+      "feature": "M4 registry coverage",
+      "covered_by": "CHK-001 plus plan.md CHK-001 cover M4 process fact registry coverage; roadmap M4 requires registry entries, process-fact levels, static verifier, and register-before-use; scope contract allows registry/verifier and parent roadmap files.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist_get CHK-001; plan_get CHK-001; roadmap M4; scope_contract_show"
+    },
+    {
+      "feature": "M5 context pack/envelope",
+      "covered_by": "CHK-002 plus plan.md CHK-002 cover verification context pack and evidence envelope standardization; roadmap M5 requires digest-backed context packs, evidence envelope fields, stale/missing behavior, and reviewer/validator consumption boundaries.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist_get CHK-002; plan_get CHK-002; roadmap M5"
+    },
+    {
+      "feature": "M6 oracle/freshness matrix",
+      "covered_by": "CHK-003 plus plan.md CHK-003 cover lifecycle freshness, expected-block coverage, parent-roadmap-totality smoke, and M6 parent row closure; roadmap M6 requires canonical oracle rows, freshness metadata, expected-block negative controls, and renderer/gate parity.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist_get CHK-003; plan_get CHK-003; roadmap M6"
+    },
+    {
+      "feature": "M7 baseline suite",
+      "covered_by": "CHK-004 plus plan.md CHK-004 cover baseline_run, baseline_suite, report math, false-DONE accounting, claim boundaries, baseline-suite-smoke, and baseline-suite-report-smoke evidence; roadmap M7 requires baseline taxonomy, outcome enums, report math, false-DONE handling, and claim boundaries.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist_get CHK-004; plan_get CHK-004; roadmap M7"
+    },
+    {
+      "feature": "M8 host quorum",
+      "covered_by": "CHK-005 plus plan.md CHK-005 cover host/session/key/material/validation binding, 3x2 and degraded 3x1 behavior, ignored verdict reasons, review escalation, reviewer quorum, and quorum submit smoke evidence; roadmap M8 requires host independence predicates, review-run binding, quorum/degraded fallback policy, and ignored stale/duplicate/missing-signature cases.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist_get CHK-005; plan_get CHK-005; roadmap M8"
+    },
+    {
+      "feature": "M9 preflight command center",
+      "covered_by": "CHK-006 plus plan.md CHK-006 cover lifecycle_orchestrate/session/status surfaces consuming canonical readiness rows, rendering next actions without mutating evidence, lifecycle-orchestrate-smoke evidence, and read-only command boundaries; roadmap M9 requires shared preflight projection, phase-aware next action, owner-lease rendering, and advisory/blocking separation.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist_get CHK-006; plan_get CHK-006; roadmap M9"
+    },
+    {
+      "feature": "M10 parallel scheduling",
+      "covered_by": "CHK-007 plus plan.md CHK-007 cover parallel wave/decomposition/dispatch policy/owner lease/hotspot/dependency/read-only scheduling boundaries, lattice-parallel-wave-smoke evidence, and advisory non-authoritative scheduling language; roadmap M10 requires parallel wave integration, dispatch recommendations without auto-spawning, merge queue guidance, and read-only reviewer mode.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist_get CHK-007; plan_get CHK-007; roadmap M10"
+    },
+    {
+      "feature": "M11 rollout/operator guidance",
+      "covered_by": "CHK-008 plus plan.md CHK-008 cover rollout_check, compatibility policy, repair/runbook guidance, in-flight story treatment, rollout-check-smoke evidence, operator guidance updates, stale follow-up wording removal, and M11 parent row closure; roadmap M11 requires rollout stages, compatibility policy, false-positive de-escalation, operator runbooks, dry-run prerequisites, and bounded emergency bypass.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist_get CHK-008; plan_get CHK-008; roadmap M11"
+    },
+    {
+      "feature": "M12 certification/handoff",
+      "covered_by": "CHK-009 plus plan.md CHK-009 cover final cross-track certification composing M4-M11 evidence, handoff/evidence manifests, quorum, claim boundary, lattice-handoff-smoke, and parent-roadmap-totality-smoke; roadmap M12 requires cross-track scenario matrix, final handoff package, user-value transcript, and final claim boundary.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist_get CHK-009; plan_get CHK-009; roadmap M12"
+    },
+    {
+      "feature": "OMX exclusion",
+      "covered_by": "understanding constraints and plan boundaries say not to touch omx or .omx; scope contract protects .omx and .omx/** and explicitly excludes OMX artifacts.",
+      "status": "covered",
+      "excluded_by": "scope_contract_show protectedFiles .omx and .omx/**; explicitExcludes OMX artifacts",
+      "source": "understanding_get; plan_get Boundaries; scope_contract_show"
+    },
+    {
+      "feature": "Authority Server retirement",
+      "covered_by": "understanding facts say Authority Server conformance must stay retired and not be resurrected; decision principles/preMortem preserve retired Authority Server semantics; plan boundaries prohibit Authority Server production/runtime resurrection; checklist adversarial lanes preserve retired Authority Server semantics and read-only/advisory surfaces.",
+      "status": "covered",
+      "excluded_by": "scope_contract_show explicitExcludes Authority Server production/runtime resurrection",
+      "source": "understanding_get; decision_get; checklist_get adversarial lanes; plan_get Boundaries; scope_contract_show"
+    },
+    {
+      "feature": "unrelated story exclusion",
+      "covered_by": "understanding constraints and plan boundaries say not to mutate unrelated active stories; scope contract protects listed unrelated active story metadata paths and explicitly excludes unrelated active story metadata.",
+      "status": "covered",
+      "excluded_by": "scope_contract_show protectedFiles for unrelated active stories; explicitExcludes Unrelated active story metadata",
+      "source": "understanding_get; plan_get Boundaries; scope_contract_show"
+    }
+  ],
+  "summary": {
+    "total": 12,
+    "covered": 12,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "a36cfb806a44d39452f91947c1407e96a2b4fcbdb73046753116c69a8679e3cd",
+  "openQuestions": []
+}
