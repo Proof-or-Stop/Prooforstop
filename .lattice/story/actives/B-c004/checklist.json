@@ -69,6 +69,7 @@
         "modify": [
           "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
           "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/authority-server-vocabulary-retirement.md",
           "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
         ],
         "create": [],
@@ -101,7 +102,8 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "userSees": "The final status table shows CHK-002/M2 as Authority Server active backlog retired, with guard evidence proving it stays retired."
     },
     {
       "id": "CHK-003",
