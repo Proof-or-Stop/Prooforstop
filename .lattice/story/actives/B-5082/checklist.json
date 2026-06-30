@@ -254,8 +254,8 @@
       "id": "CHK-006",
       "title": "Bind red evidence to baseline head/material and green relation",
       "context": "Covers M6 gap: red evidence must carry baseline freshness and the transition relation to current green evidence.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-30T01:13:34.820Z",
       "endTime": null,
       "relatedDocs": [
         "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md#M6-Red-Evidence"
@@ -438,6 +438,15 @@
       "timestamp": "2026-06-30T01:13:34.103Z",
       "phase": "DEV",
       "itemId": "CHK-005",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "DEV: lattice-implementer is implementing this item; completion still requires document cross-check, code evidence, and verification evidence."
+    },
+    {
+      "timestamp": "2026-06-30T01:13:34.820Z",
+      "phase": "DEV",
+      "itemId": "CHK-006",
       "action": "update",
       "from": "pending",
       "to": "in_progress",
