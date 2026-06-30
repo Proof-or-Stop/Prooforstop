@@ -59,7 +59,19 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/core/lifecycle-control/queue/index.ts",
+          "packages/main/src/core/lifecycle-control/global-control-service.ts",
+          "packages/main/src/handlers/lifecycle-control.ts"
+        ],
+        "create": [],
+        "test": [
+          "lattice queue_governance_status --format=json",
+          "packages/main/src/tasks/lifecycle-orchestrate-smoke.ts"
+        ]
+      }
     },
     {
       "id": "CHK-004",
