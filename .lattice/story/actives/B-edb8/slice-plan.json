@@ -1,0 +1,32 @@
+{
+  "schemaVersion": "proofstory.slice_plan.v1",
+  "storyId": "B-edb8",
+  "ledgerHash": "sha256:5dffb71582574820fcb3f40e68a21b1dee57db0aa8924dcc69c20a1a72ed929d",
+  "slices": [
+    {
+      "id": "slice-red-model-evaluator-claim",
+      "milestoneIds": [
+        "M1",
+        "M2",
+        "M3",
+        "M4"
+      ],
+      "reason": "Red tests, state model, evaluator, and claim consumer form the core behavior loop for preventing overclaim.",
+      "assignedStory": "B-edb8"
+    },
+    {
+      "id": "slice-binding-cli-rollout-cert",
+      "milestoneIds": [
+        "M5",
+        "M6",
+        "M7",
+        "M8"
+      ],
+      "reason": "ProofStory binding, CLI/lifecycle projection, migration rollout, and certification close the cross-story governance surface.",
+      "assignedStory": "B-edb8"
+    }
+  ],
+  "planHash": "sha256:4597d95b8779cd888daa3817bfafe4fa233d7fd77fe33f625a5638666918d3c1",
+  "createdAt": "2026-06-30T13:32:58.952Z",
+  "updatedAt": "2026-06-30T13:32:58.952Z"
+}

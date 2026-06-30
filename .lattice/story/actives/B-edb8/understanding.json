@@ -5,7 +5,8 @@
     "B-9fc5 created the plan-only execution baseline and verifier markers.",
     "Existing ProofStory parent_ledger_rollup_set only tracks child coverage statuses planned/covered/done and does not model allRowsClosed, partial_parent_done, or no-full-roadmap-claim.",
     "The user explicitly required the first milestone to be Red/Repro tests before complete story implementation.",
-    "Authority Server semantics are retired/out-of-core and must not be revived."
+    "Authority Server semantics are retired/out-of-core and must not be revived.",
+    "Decision A selected a separate parent-roadmap totality module plus CLI/status and summary claim guard."
   ],
   "constraints": [
     "M1 Red/Repro tests must land before runtime implementation changes.",
@@ -13,23 +14,23 @@
     "Do not claim lattice-strengthening-roadmap M4-M12 runtime work is complete unless implemented and certified here.",
     "All story metadata must be written through lattice commands; do not manually edit docs/story or tests/fixtures JSON."
   ],
-  "unknowns": [
-    "Exact CLI command name for the parent roadmap status surface will be selected during PLAN after checking local command naming patterns.",
-    "Whether summary_set itself or DONE precheck should enforce the claim consumer in the first implementation slice needs design choice."
-  ],
+  "unknowns": [],
   "touchpoints": [
     "packages/main/src/core/parent-roadmap-totality.ts",
     "packages/main/src/handlers/parent-roadmap.ts",
     "packages/main/src/cli/command-catalog.ts",
     "packages/main/src/registry.ts",
     "packages/main/src/core/config.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/process-fact-levels.ts",
     "packages/main/src/core/proofstory.ts",
     "packages/main/src/handlers/proofstory.ts",
     "packages/main/src/core/done-oracle.ts",
     "packages/main/src/handlers/summary.ts",
     "packages/main/src/tasks/parent-roadmap-totality-smoke.ts",
     "scripts/verify-process-fact-contract.mjs",
-    "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md"
+    "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+    "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
   ],
-  "timestamp": "2026-06-30T13:28:27.133Z"
+  "timestamp": "2026-06-30T13:32:50.048Z"
 }

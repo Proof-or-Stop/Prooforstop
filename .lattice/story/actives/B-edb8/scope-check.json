@@ -1,0 +1,101 @@
+{
+  "storyId": "B-edb8",
+  "checkedAt": "2026-06-30T13:39:34.580Z",
+  "features": [
+    {
+      "feature": "M1 Red/Repro test-first",
+      "covered_by": "CHK-001 verificationIntent; plan.md CHK-001 expected-red parent-overclaim and test-first commands; milestone M1 red-test/negative-control/smoke; scope anchor m1_red_repro_first",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist_get; plan_get; milestone_ledger_get; scope_contract_show"
+    },
+    {
+      "feature": "M2 model/vocabulary",
+      "covered_by": "CHK-002 ParentRoadmapLedger row statuses claim types summary classes; plan.md CHK-002 strict validation and round-trip model; milestone M2 type-test/schema-test; allowed files include core/types.ts and core/parent-roadmap-totality.ts",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist_get; plan_get; milestone_ledger_get; scope_contract_show"
+    },
+    {
+      "feature": "M3 evaluator",
+      "covered_by": "CHK-003 deterministic side-effect-free ParentRollupResult evaluator; plan.md CHK-003 allRowsClosed row reasons buckets next actions summaryClass claimType; milestone M3 logic-test/smoke",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist_get; plan_get; milestone_ledger_get"
+    },
+    {
+      "feature": "M4 claim consumer/summary guard",
+      "covered_by": "CHK-004 summary/DONE-style wording consumes ParentRollupResult; plan.md CHK-004 blocks full-roadmap wording unless allRowsClosed and full-roadmap-claim; allowed files include handlers/summary.ts and core/done-oracle.ts; milestone M4 summary-guard-test",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist_get; plan_get; milestone_ledger_get; scope_contract_show"
+    },
+    {
+      "feature": "M5 ProofStory binding",
+      "covered_by": "CHK-005 binds originalIntentSnapshot milestoneLedger slicePlan parent rollup intentCollision redEvidence proofstoryContract done_intent_equivalence_check; proofstory contract acceptance binding covers CHK-001 through CHK-008 and M1 through M8; intent collision accepted full M1-M8 interpretation; scope allows proofstory and process fact contract integration files",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist_get; proofstory_contract_get; intent_collision_get; scope_contract_show"
+    },
+    {
+      "feature": "M6 CLI/status",
+      "covered_by": "CHK-006 CLI/status surface for full partial blocked invalid ledgers; plan.md CHK-006 local CLI/status surface and unrelated single-story exclusion; allowed files include handlers/parent-roadmap.ts cli/command-catalog.ts registry.ts config.ts process fact registries",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist_get; plan_get; scope_contract_show"
+    },
+    {
+      "feature": "M7 migration diagnostics",
+      "covered_by": "CHK-007 migration diagnostics for B-43de-shaped historical candidates without force-classifying complete; plan.md CHK-007 defaults legacy unknowns to partial or migration-needed; milestone M7 migration-smoke/rollout-smoke",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist_get; plan_get; milestone_ledger_get"
+    },
+    {
+      "feature": "M8 certification",
+      "covered_by": "CHK-008 cross-track certification matrix full partial blocked invalid stale migration summary negative controls; plan.md CHK-008 build smoke ProofStory process-fact validate and done_required_validate commands; milestone M8 certification-matrix/negative-control",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist_get; plan_get; milestone_ledger_get"
+    },
+    {
+      "feature": "Exclusion: Authority Server semantics",
+      "covered_by": "plan.md non-goal says do not revive Authority Server or server-backed completion semantics; understanding says Authority Server semantics are retired/out-of-core; scope excludes authority-server core and handler paths; protected anchor no_authority_server_semantics",
+      "status": "excluded",
+      "excluded_by": "scope explicitExcludes packages/main/src/core/authority-server* and packages/main/src/handlers/authority-server*; plan.md Non-goals",
+      "source": "plan_get; understanding_get; scope_contract_show"
+    },
+    {
+      "feature": "Exclusion: paper assets",
+      "covered_by": "scope protects and excludes paper/** and proofbound-Paper/**",
+      "status": "excluded",
+      "excluded_by": "scope_contract_show protectedFiles and explicitExcludes",
+      "source": "scope_contract_show"
+    },
+    {
+      "feature": "Exclusion: unrelated stories",
+      "covered_by": "scope enforce allowlist limits story metadata to .lattice/story/actives/B-edb8/**; scope_contract_check passed with changed files only for B-edb8 metadata",
+      "status": "excluded",
+      "excluded_by": "scope_contract_show allowedCreate/allowedModify B-edb8 story path only; scope_contract_check pass",
+      "source": "scope_contract_show; scope_contract_check"
+    },
+    {
+      "feature": "Exclusion: docs/story manual edits",
+      "covered_by": "scope protects and excludes docs/story/**; understanding requires story metadata through lattice commands",
+      "status": "excluded",
+      "excluded_by": "scope_contract_show protectedFiles and explicitExcludes docs/story/**; understanding_get constraints",
+      "source": "scope_contract_show; understanding_get"
+    }
+  ],
+  "summary": {
+    "total": 12,
+    "covered": 8,
+    "excluded": 4,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "73026134c1fe66497d1ebd4dc95c42496880438e7de34e1f64eb97c4dc006e85",
+  "openQuestions": []
+}
