@@ -241,9 +241,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-30T13:57:49.353Z",
       "userSees": "The user sees summary text classified as partial parent done unless the rollup allows a full roadmap completion claim.",
       "files": {
         "modify": [
@@ -275,7 +275,42 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js --case=claim-consumer",
+          "result": "pass",
+          "note": "Claim consumer allows full-roadmap wording only when rollup claimType is full-roadmap-claim.",
+          "headHash": "10ea2cb0f05c87c869574fcddf61b724da718a8a",
+          "materialHash": "dc1f3d527d5e212e1b41a4345bba75d08cce6a9356a301b5b60eb4ef04336878",
+          "storyFilesHash": "65336d8a9a4378cd29245f90817deff460ee2a0f572b8a97fe0c7dc2138f39d0",
+          "timestamp": "2026-06-30T13:57:49.608Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js --case=claim-consumer",
+          "result": "pass",
+          "note": "Honest parent governance complete; roadmap not complete wording is allowed for partial_parent_done with open rows.",
+          "headHash": "10ea2cb0f05c87c869574fcddf61b724da718a8a",
+          "materialHash": "dc1f3d527d5e212e1b41a4345bba75d08cce6a9356a301b5b60eb4ef04336878",
+          "storyFilesHash": "65336d8a9a4378cd29245f90817deff460ee2a0f572b8a97fe0c7dc2138f39d0",
+          "timestamp": "2026-06-30T13:57:49.861Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/cli.js parent_roadmap_status {\"case\":\"partial\",\"summaryText\":\"Full roadmap complete; all M4-M12 rows are done.\",\"mode\":\"enforce\"}",
+          "result": "pass",
+          "note": "CLI output reports Claim wording allowed: no for explicit full-roadmap overclaim while rows M4 and M5 remain open.",
+          "headHash": "10ea2cb0f05c87c869574fcddf61b724da718a8a",
+          "materialHash": "dc1f3d527d5e212e1b41a4345bba75d08cce6a9356a301b5b60eb4ef04336878",
+          "storyFilesHash": "65336d8a9a4378cd29245f90817deff460ee2a0f572b8a97fe0c7dc2138f39d0",
+          "timestamp": "2026-06-30T13:57:50.083Z"
+        }
+      ]
     },
     {
       "id": "CHK-005",
