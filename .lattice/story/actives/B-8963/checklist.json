@@ -260,9 +260,9 @@
         "create": [],
         "test": []
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-30T22:26:09.858Z",
       "verificationIntent": {
         "happy": [
           {
@@ -286,7 +286,42 @@
           }
         ]
       },
-      "userSees": "User sees \"syndrome preflight is command-local only; no persistent cache\" in the documentation check output."
+      "userSees": "User sees \"syndrome preflight is command-local only; no persistent cache\" in the documentation check output.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "docs_check",
+          "command": "rg -n \"M1 command-local syndrome preflight|mtime|file-count|fountain|erasure\" docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "result": "pass",
+          "note": "Doc grep found the new M1 command-local syndrome preflight subsection.",
+          "headHash": "dbe1482a9a1a0633ac315afc22340adbde2c830d",
+          "materialHash": "5c42e50374c5c59ef976fb5a70f51e4b74487c651f908acaa9113d87d88f196d",
+          "storyFilesHash": "fb87c9dd9ea3d246a293da1ad6341bd28392cab67463a3068f231da9c8eb830c",
+          "timestamp": "2026-06-30T22:26:10.055Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "docs_check",
+          "command": "rg -n \"M1 command-local syndrome preflight|mtime|file-count|fountain|erasure\" docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "result": "pass",
+          "note": "Doc grep found the subsection line saying no persistent cache and no mtime or file-count freshness keys.",
+          "headHash": "dbe1482a9a1a0633ac315afc22340adbde2c830d",
+          "materialHash": "5c42e50374c5c59ef976fb5a70f51e4b74487c651f908acaa9113d87d88f196d",
+          "storyFilesHash": "fb87c9dd9ea3d246a293da1ad6341bd28392cab67463a3068f231da9c8eb830c",
+          "timestamp": "2026-06-30T22:26:10.227Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "docs_check",
+          "command": "rg -n \"M1 command-local syndrome preflight|mtime|file-count|fountain|erasure\" docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "result": "pass",
+          "note": "Doc grep found the explicit fountain/erasure-code evidence recovery non-goal.",
+          "headHash": "dbe1482a9a1a0633ac315afc22340adbde2c830d",
+          "materialHash": "5c42e50374c5c59ef976fb5a70f51e4b74487c651f908acaa9113d87d88f196d",
+          "storyFilesHash": "fb87c9dd9ea3d246a293da1ad6341bd28392cab67463a3068f231da9c8eb830c",
+          "timestamp": "2026-06-30T22:26:10.402Z"
+        }
+      ]
     }
   ]
 }
