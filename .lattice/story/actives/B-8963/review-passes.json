@@ -89,6 +89,15 @@
       "reviewRound": "2026-06-30T23:01:58.642Z",
       "reviewRunId": "B-8963:RR-015",
       "_hash": "b3e646253c07b8fdba54af75814fe6645a3074d552e4f900fc2d17add0992cad"
+    },
+    {
+      "id": "B-8963:RP-011",
+      "agent": "lattice-review-quality",
+      "note": "Final quality pass on HEAD 3ac8f9a. Checked active-vocabulary smoke delta, command-local evidenceHashSnapshot threading through lifecycle/DONE/session call sites, stale snapshot rejection, and no snapshot threading regression. Targeted verification-freshness smoke passed; TypeScript noEmit compile passed.",
+      "createdAt": "2026-06-30T23:07:03.733Z",
+      "reviewRound": "2026-06-30T23:01:58.642Z",
+      "reviewRunId": "B-8963:RR-013",
+      "_hash": "ae964ebd5d3d5e47496a9394ed6f0e8f81492213d2d79954b2a52698f47f84f1"
     }
   ]
 }
