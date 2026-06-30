@@ -183,9 +183,9 @@
           "packages/main/src/tasks/delivery-check-freshness-smoke.ts"
         ]
       },
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-30T22:26:01.466Z",
       "verificationIntent": {
         "happy": [
           {
@@ -209,7 +209,42 @@
           }
         ]
       },
-      "userSees": "User sees \"stale supplied snapshot rejected after dirty material drift\" in the focused smoke output."
+      "userSees": "User sees \"stale supplied snapshot rejected after dirty material drift\" in the focused smoke output.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/verification-freshness-smoke.js",
+          "result": "pass",
+          "note": "Focused smoke asserted unchanged-state snapshot reuse succeeds and printed captureEvidenceHashSnapshot: reusable=true, materialDirty=false.",
+          "headHash": "6d065f07d28b3d3d617836d09bb1399388647732",
+          "materialHash": "5c42e50374c5c59ef976fb5a70f51e4b74487c651f908acaa9113d87d88f196d",
+          "storyFilesHash": "fb87c9dd9ea3d246a293da1ad6341bd28392cab67463a3068f231da9c8eb830c",
+          "timestamp": "2026-06-30T22:26:01.663Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/delivery-check-freshness-smoke.js",
+          "result": "pass",
+          "note": "Delivery-check freshness smoke passed its story-owned change after delivery-check is stale across DONE consumers case.",
+          "headHash": "6d065f07d28b3d3d617836d09bb1399388647732",
+          "materialHash": "5c42e50374c5c59ef976fb5a70f51e4b74487c651f908acaa9113d87d88f196d",
+          "storyFilesHash": "fb87c9dd9ea3d246a293da1ad6341bd28392cab67463a3068f231da9c8eb830c",
+          "timestamp": "2026-06-30T22:26:01.842Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/verification-freshness-smoke.js",
+          "result": "pass",
+          "note": "Focused smoke printed stale supplied snapshot rejected after dirty material drift and asserted reusable=false/materialDirty=true.",
+          "headHash": "6d065f07d28b3d3d617836d09bb1399388647732",
+          "materialHash": "5c42e50374c5c59ef976fb5a70f51e4b74487c651f908acaa9113d87d88f196d",
+          "storyFilesHash": "fb87c9dd9ea3d246a293da1ad6341bd28392cab67463a3068f231da9c8eb830c",
+          "timestamp": "2026-06-30T22:26:02.020Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
