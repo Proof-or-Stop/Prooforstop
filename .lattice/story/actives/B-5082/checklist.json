@@ -60,10 +60,10 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js && node scripts/verify-process-fact-contract.mjs && git diff --check",
           "result": "pass",
           "note": "Doc: proofstory-intent-collision-execution-plan.md M8 lines 1263-1279. Prompts: .lattice-codex/agents/lattice-review-concept.md:88 and mirrored active Claude/Codex reviewer prompts. Impl: handlers/story-review.ts ProofStory advisory rows/prompt section; contract verifier asserts story_review support. Smoke: proofstory-intent-hardening-smoke.ts:192 validates advisory diagnostics and prompt-only non-evidence wording.",
-          "headHash": "54660afa93a888ceceeefa4a7d1bae16ad7ab38c",
-          "materialHash": "597535ab2f4f017ca4b9414c11739ef148c7b5886fcec8835cb94c8439282203",
-          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-          "timestamp": "2026-06-30T01:25:26.404Z"
+          "headHash": "5848ba6f5d798658583240d7a0f3be2dd3b2b652",
+          "materialHash": "5d97b7951e9c3d8e03969199578c7c1c13adef7c61914d53c9fa10b699ada482",
+          "storyFilesHash": "d66783474c814f8b35728b71ac3278123384b0e3b640ea1414ab6a5b9bc7d334",
+          "timestamp": "2026-06-30T01:29:10.680Z"
         }
       ]
     },
