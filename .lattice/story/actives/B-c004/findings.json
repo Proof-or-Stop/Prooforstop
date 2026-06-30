@@ -89,6 +89,25 @@
       "resolvedAt": "2026-06-30T17:27:47.768Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c004:F-005",
+      "desc": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md:145 retires durable ledger streams as local CLI non-goals, but the active Appendix G close checklist at docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md:1513 still requires an evidence ledger write path where producers append ArtifactObservedEvent and evaluators append AdmissibilityEvaluationRow. This leaves an active operator-facing ledger obligation outside retired Appendix C, and packages/main/src/tasks/proof-admissibility-hardening-smoke.ts:121 only excludes Appendix C plus a narrow phrase set, so the regression is not mechanically covered.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-30T17:40:11.085Z",
+      "reviewRound": "2026-06-30T17:38:48.220Z",
+      "reviewRunId": "B-c004:RR-028",
+      "_hash": "0165d967de1660dbc42fa070b30eb6e098a4d02de5086e678c8cd5246faaa64d",
+      "files": [
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+        "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts"
+      ],
+      "signatureTag": "spec-boundary|md|docs-requirements-decisions",
+      "signatureTagSource": "auto"
     }
   ]
 }
