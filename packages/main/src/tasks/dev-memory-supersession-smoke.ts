@@ -10,6 +10,7 @@ import {
   buildSupersessionProjection,
   formatEntryShort,
   getSupersessionStatus,
+  readGlobalMemoryEntries,
   readProjectMemoryEntries,
   resolveProjectMemoryPath,
   searchEntries,
@@ -171,6 +172,12 @@ const actualCurrentByLegacyId = new Map([
   ['2de5d6b', '148297b'],
   ['7bc20e5', '7ffe281'],
 ]);
+const actualQueryExpectations = [
+  { query: 'koala cli', currentIds: ['148297b'], legacyIds: ['2de5d6b'] },
+  { query: 'koala reviewer', currentIds: ['ee3aef3', '34e97f9'], legacyIds: ['c948c85', 'a6832a1'] },
+  { query: 'koala delivery', currentIds: ['99aa6c7'], legacyIds: ['f4fe749'] },
+  { query: 'koala preflight', currentIds: ['7ffe281'], legacyIds: ['7bc20e5'] },
+];
 const originalLegacyEvidenceRefs = new Map(legacyEntries.map(e => [e.id, [...(e.evidenceRefs || [])]]));
 const originalLegacyContent = new Map(legacyEntries.map(e => [e.id, {
   summary: e.summary,
@@ -236,6 +243,73 @@ function supersedesLegacyId(entry: DevMemoryEntry, legacyId: string): boolean {
     entry.tags?.includes(`supersedes-${legacyId}`)
     || entry.evidenceRefs?.includes(`dev-memory:${legacyId}`),
   );
+}
+
+function mergeById(...groups: DevMemoryEntry[][]): DevMemoryEntry[] {
+  const seen = new Set<string>();
+  const merged: DevMemoryEntry[] = [];
+  for (const group of groups) {
+    for (const entry of group) {
+      if (seen.has(entry.id)) continue;
+      seen.add(entry.id);
+      merged.push(entry);
+    }
+  }
+  return merged;
+}
+
+function buildLegacySearchText(entry: DevMemoryEntry): string {
+  return [
+    entry.summary,
+    entry.trigger,
+    entry.lesson,
+    entry.reusePrompt,
+    ...(entry.tags || []),
+    entry.category,
+    entry.sourceStoryId || '',
+    ...(entry.evidenceRefs || []),
+  ].join(' ').toLowerCase();
+}
+
+function legacyEscapeRegex(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function legacyTokenScore(entry: DevMemoryEntry, query: string): number {
+  const text = buildLegacySearchText(entry);
+  return query.trim().toLowerCase().split(/\s+/).filter(Boolean).reduce((score, token) => {
+    const hits = (text.match(new RegExp(legacyEscapeRegex(token), 'gi')) || []).length;
+    return score + hits * 10;
+  }, 0);
+}
+
+function legacyTokenSearch(entries: DevMemoryEntry[], query: string, limit = 10): DevMemoryEntry[] {
+  return entries
+    .map(entry => ({ entry, score: legacyTokenScore(entry, query) }))
+    .filter(({ score }) => score > 0)
+    .sort((a, b) => b.score - a.score || b.entry.createdAt.localeCompare(a.entry.createdAt))
+    .slice(0, limit)
+    .map(result => result.entry);
+}
+
+function assertCurrentBeforeLegacy(ids: string[], currentIds: string[], legacyIds: string[], query: string): void {
+  const presentCurrent = currentIds.filter(id => ids.includes(id));
+  const presentLegacy = legacyIds.filter(id => ids.includes(id));
+  if (presentLegacy.length === 0) return;
+  assert(presentCurrent.length > 0, `${query} should include current guidance when legacy rows are present`);
+  const firstCurrent = Math.min(...presentCurrent.map(id => ids.indexOf(id)));
+  for (const legacyId of presentLegacy) {
+    assert(
+      firstCurrent < ids.indexOf(legacyId),
+      `${query} should rank current ${presentCurrent.join(',')} before legacy ${legacyId}; got ${ids.join(',')}`,
+    );
+  }
+}
+
+function assertLegacySearchTags(entry: DevMemoryEntry): void {
+  const tags = entry.tags || [];
+  assert(tags.some(tag => tag.startsWith('legacy-koala-')), `${entry.id} should have legacy-koala search tags`);
+  assert(tags.some(tag => tag.includes('current')), `${entry.id} should mark current guidance for legacy search`);
 }
 
 const previousEnv = process.env.LATTICE_GLOBAL_MEMORY_DIR;
@@ -393,6 +467,7 @@ try {
       const actual = actualEntriesById.get(currentId);
       assert(actual, `missing actual project memory entry ${currentId}`);
       assertUsesCurrentProductNames(actual);
+      assertLegacySearchTags(actual);
     }
   });
 
@@ -413,6 +488,29 @@ try {
       assert.deepEqual(legacyStatus.supersededBy, [currentId]);
       assert.equal(currentStatus.isSuperseding, true, `${currentId} should supersede actual legacy id`);
       assert.deepEqual(currentStatus.supersedes, [legacyId]);
+    }
+  });
+
+  check('actual project and global memory rank current guidance before legacy Koala entries', () => {
+    const projectEntries = readProjectMemoryEntries(process.cwd());
+    const globalEntries = readGlobalMemoryEntries();
+    const allEntries = mergeById(projectEntries, globalEntries);
+    for (const expectation of actualQueryExpectations) {
+      const ids = searchEntries(allEntries, { query: expectation.query, limit: 20 }).map(e => e.id);
+      assertCurrentBeforeLegacy(ids, expectation.currentIds, expectation.legacyIds, expectation.query);
+    }
+  });
+
+  check('legacy token scorer compatibility ranks current guidance before legacy Koala entries', () => {
+    const projectEntries = readProjectMemoryEntries(process.cwd());
+    const globalEntries = readGlobalMemoryEntries();
+    const allEntries = mergeById(projectEntries, globalEntries);
+    for (const expectation of actualQueryExpectations) {
+      const ids = legacyTokenSearch(allEntries, expectation.query, 20).map(e => e.id);
+      assertCurrentBeforeLegacy(ids, expectation.currentIds, expectation.legacyIds, expectation.query);
+      if (expectation.query === 'koala cli' && ids.includes('2de5d6b')) {
+        assert.equal(ids[0], '148297b', 'koala cli should show current CLI guidance first under legacy token scoring');
+      }
     }
   });
 } finally {
