@@ -2,6 +2,7 @@
   "storyId": "B-5082",
   "mode": "enforce",
   "allowedModify": [
+    "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
     "packages/main/src/handlers/story-review.ts",
     ".lattice-codex/agents/lattice-review-concept.md",
     ".lattice-codex/agents/lattice-review-quality.md",
@@ -19,6 +20,7 @@
     "packages/main/src/core/process-fact-levels.ts",
     "packages/main/src/core/process-fact-registry.ts",
     "packages/main/src/handlers/phase-gates.ts",
+    "packages/main/src/core/machine.ts",
     "packages/main/src/core/config.ts",
     "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
     "scripts/verify-process-fact-contract.mjs"
@@ -33,5 +35,5 @@
   "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
   "acknowledgements": [],
   "createdAt": "2026-06-30T01:09:22.643Z",
-  "updatedAt": "2026-06-30T01:09:22.643Z"
+  "updatedAt": "2026-06-30T01:10:35.489Z"
 }
