@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-30T22:42:01.277Z",
       "reviewRunId": "B-8963:RR-008",
       "_hash": "38aa4c4c7f7fec1a79db65a4e966081357c664134e59a1935eb5bad2fbfe6e63"
+    },
+    {
+      "id": "B-8963:RP-005",
+      "agent": "lattice-review-docs",
+      "note": "PASS docs review after F-001 fix. Reviewed proof-admissibility execution-plan M1 command-local syndrome preflight against current code. Doc lines 372-387 match implementation: command-local in-memory snapshot only; exact gitCwd/metadataRoot/ref/head/material/storyFiles/dirty binding; reuse preflight gates same roots/ref/HEAD and no material dirty files; fallback captures fresh binding. Negative scans found no persistent cache/artifact writes, no mtime/file-count proof, no fountain/erasure recovery, and no recovery-runner/parallel/M2 drift in this change. Production call sites in phase-gates, lifecycle-readiness, and session thread the snapshot in the way described, so no docs adjustment beyond the existing subsection is required.",
+      "createdAt": "2026-06-30T22:46:51.877Z",
+      "reviewRound": "2026-06-30T22:42:01.277Z",
+      "reviewRunId": "B-8963:RR-011",
+      "_hash": "0fa2813bbcecc8f5771d047fa5d9eb4d11573b43a2ad80a3b0f8e5777f1bc8ca"
     }
   ]
 }
