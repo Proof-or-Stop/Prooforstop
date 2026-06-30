@@ -5,7 +5,7 @@
       "desc": "Test-coverage blocker: snapshot reuse is verified only through a direct test-only buildDoneChecklist call with evidenceHashSnapshot. rg shows no production DONE/session/lifecycle gate call site supplies evidenceHashSnapshot, so the real gates still call buildDoneChecklist without the command-local snapshot and can keep recomputing/falling back while the new smokes pass. This leaves actual unchanged snapshot reuse across DONE/review gates unproven, though dirty material rejection, story-owned drift, no-snapshot fallback, and docs boundary are covered by focused smokes.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-test-coverage",
       "createdAt": "2026-06-30T22:33:52.304Z",
@@ -20,7 +20,11 @@
         "packages/main/src/handlers/session.ts"
       ],
       "signatureTag": "missing|ts|test-coverage-blocker",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by threading a command-local EvidenceHashSnapshot through runDoneOracleGate, buildStoryReadinessReport/buildDoneRows, and session_brief DONE pre-check, with buildDoneChecklist fallback preserved when no reusable snapshot is available. Evidence: npm --prefix packages/main run build; node packages/main/dist/tasks/verification-freshness-smoke.js; npm --prefix packages/main run test:review-escalation-freshness-root; node packages/main/dist/tasks/delivery-check-freshness-smoke.js; git diff --check.",
+      "resolvedAt": "2026-06-30T22:42:11.809Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
