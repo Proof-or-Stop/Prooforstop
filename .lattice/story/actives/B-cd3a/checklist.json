@@ -109,7 +109,22 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/core/lifecycle-control/queue/index.ts",
+          "packages/main/src/core/main-write-lock.ts",
+          "packages/main/src/core/story-owner-lease.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/handlers/lifecycle-control.ts"
+        ],
+        "create": [],
+        "test": [
+          "lattice queue_governance_status --format=json",
+          "packages/main/src/tasks/lifecycle-orchestrate-smoke.ts",
+          "node packages/main/dist/tasks/lifecycle-orchestrate-smoke.js"
+        ]
+      }
     },
     {
       "id": "CHK-006",
