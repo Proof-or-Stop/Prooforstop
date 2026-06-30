@@ -88,9 +88,9 @@
         "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md#CP-5A-Runtime-Enforcement-Rollout",
         "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md#CP-5B-Queue-Governance-Guard"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-30T09:44:40.265Z",
-      "endTime": null,
+      "endTime": "2026-06-30T09:58:10.630Z",
       "files": {
         "modify": [
           "packages/main/src/core/lifecycle-control",
@@ -126,7 +126,42 @@
           }
         ]
       },
-      "userSees": "User sees global_control_status report lifecycle-control capability states without overclaiming runtime hard-block, queue guard, or proof admissibility rollout completion."
+      "userSees": "User sees global_control_status report lifecycle-control capability states without overclaiming runtime hard-block, queue guard, or proof admissibility rollout completion.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js global_control_status --storyIds=B-cd3a --format=json",
+          "result": "pass",
+          "note": "global_control_status exposes implemented/partial/future capability rows and capabilityStatus fields for proofM7Enforcement, queueCleanupEnforcement, and tierCCleanup.",
+          "headHash": "aab4aec570160e675e964aa317a7a4af0541627d",
+          "materialHash": "52fd19edbdb3ec0136c54356cb68ee93a28cb79461d05f02499b0d3ecb8edf5f",
+          "storyFilesHash": "ba9a71e879859c6a71fbc7ecedab3d8176ed409ce790cff7d6b956652d215d16",
+          "timestamp": "2026-06-30T09:58:11.372Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/lifecycle-control-smoke.js",
+          "result": "pass",
+          "note": "Smoke proves status reconciliation remains reporting-only: proofM7Enforcement, queueCleanupEnforcement, and tierCCleanup booleans are not enabled by projection.",
+          "headHash": "aab4aec570160e675e964aa317a7a4af0541627d",
+          "materialHash": "52fd19edbdb3ec0136c54356cb68ee93a28cb79461d05f02499b0d3ecb8edf5f",
+          "storyFilesHash": "ba9a71e879859c6a71fbc7ecedab3d8176ed409ce790cff7d6b956652d215d16",
+          "timestamp": "2026-06-30T09:58:11.979Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js global_control_status --storyIds=B-cd3a --format=json",
+          "result": "pass",
+          "note": "Output keeps future/unavailable work visible instead of hiding documented gaps or overclaiming runtime/proof/queue implementation.",
+          "headHash": "aab4aec570160e675e964aa317a7a4af0541627d",
+          "materialHash": "52fd19edbdb3ec0136c54356cb68ee93a28cb79461d05f02499b0d3ecb8edf5f",
+          "storyFilesHash": "ba9a71e879859c6a71fbc7ecedab3d8176ed409ce790cff7d6b956652d215d16",
+          "timestamp": "2026-06-30T09:58:12.624Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
