@@ -5,7 +5,7 @@
       "desc": "Verified cwd-dependent smoke regression: the new closure-audit assertions read docs/requirements/decisions/control-plane-proof-capability-closure-audit.md via join(process.cwd(), CLOSURE_AUDIT_PATH). Standard package execution changes cwd to packages/main, so npm --prefix packages/main run test:proof-admissibility-hardening fails with ENOENT at packages/main/docs/requirements/decisions/control-plane-proof-capability-closure-audit.md. Running node packages/main/dist/tasks/proof-admissibility-hardening-smoke.js from repo root passes, and running node dist/tasks/lifecycle-control-smoke.js from packages/main fails the same way. Anchor the audit path to the repo root/module location or make the smoke resolve both supported cwd modes.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-30T15:31:32.807Z",
@@ -17,7 +17,11 @@
         "packages/main/src/tasks/lifecycle-control-smoke.ts"
       ],
       "signatureTag": "edge|ts|verified-dependent-smoke",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Resolved closure-audit smoke path resolution by walking upward from cwd until docs/requirements/decisions/control-plane-proof-capability-closure-audit.md is found. Verified with npm --prefix packages/main run build; npm --prefix packages/main run test:proof-admissibility-hardening; cd packages/main && node dist/tasks/lifecycle-control-smoke.js; cd repo root && node packages/main/dist/tasks/lifecycle-control-smoke.js; cd repo root && node packages/main/dist/tasks/proof-admissibility-hardening-smoke.js.",
+      "resolvedAt": "2026-06-30T15:34:44.431Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
