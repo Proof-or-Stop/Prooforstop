@@ -27,9 +27,9 @@ Proofbound along three coordinated tracks:
 B-997b implements the first hard-scope wave for M1-M3: canonical scope rows,
 registry-backed lifecycle/runtime artifact classification, guard projection, and
 explicit acknowledgement visibility. B-e781 closes the B-43de M4-M12 parent
-roadmap ledger by binding each remaining row to local smoke or verifier evidence
-and a claim boundary. Legacy status text, `M1-M3 wave complete; M4-M12 remain follow-up milestones`, is retained only as a superseded historical marker and as
-the negative-control migration sample.
+roadmap ledger by binding each row in that set to local smoke or verifier
+evidence and a claim boundary. Superseded pre-B-e781 wording is retained only as
+a generic historical marker for the negative-control migration sample.
 
 B-43de is the ProofStory governance parent for the remaining roadmap. B-e781
 now closes that parent ledger for M4-M12 with command-backed local evidence. The
