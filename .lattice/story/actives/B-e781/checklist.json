@@ -189,12 +189,46 @@
       "title": "Close M8 host identity review-run and 3x2 quorum strengthening",
       "context": "Verify host/session/key/material/validation binding, 3x2 and degraded 3x1 behavior, ignored verdict reasons, and review escalation DONE consumption.",
       "relatedDocs": [
-        "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
-        "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+        "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "review-escalation, reviewer-quorum, and quorum-submit smokes pass and parent_roadmap_status shows M8 closed.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "packages/main/src/core/parent-roadmap-totality.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/review-escalation-smoke.ts",
+          "packages/main/src/tasks/reviewer-quorum-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Host identity, review-run, and 3x2 quorum strengthening closes only when quorum and review escalation smokes prove counted and ignored host verdict behavior.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "M8 must not be closed by documentation text alone; parent-roadmap machine status must carry evidence refs.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "M8 must preserve claim boundaries, especially retired Authority Server semantics and read-only/advisory surfaces.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-006",
