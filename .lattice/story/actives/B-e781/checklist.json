@@ -95,9 +95,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-30T22:29:35.220Z",
-      "endTime": null,
+      "endTime": "2026-06-30T22:29:36.724Z",
       "userSees": "\"M5\" row shows \"closed\": true and \"verification-context-pack-smoke\" is listed as evidence.",
       "files": {
         "modify": [
@@ -526,6 +526,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Start M5 final evidence recording after implementation commit."
+    },
+    {
+      "timestamp": "2026-06-30T22:29:36.724Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "M5 completed after evidence-backed roadmap closure verification."
     }
   ]
 }
