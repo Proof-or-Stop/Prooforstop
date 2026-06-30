@@ -1,0 +1,85 @@
+{
+  "storyId": "B-a9e7",
+  "generatedFor": "delivery-review",
+  "diff": {
+    "changedFiles": [
+      ".lattice/dev-memory/experience.jsonl",
+      ".lattice/story/actives/B-a9e7/checklist.json",
+      ".lattice/story/actives/B-a9e7/decision.json",
+      ".lattice/story/actives/B-a9e7/findings.json",
+      ".lattice/story/actives/B-a9e7/index.json",
+      ".lattice/story/actives/B-a9e7/intent-collision.json",
+      ".lattice/story/actives/B-a9e7/original-intent-snapshot.json",
+      ".lattice/story/actives/B-a9e7/plan.md",
+      ".lattice/story/actives/B-a9e7/process-events.jsonl",
+      ".lattice/story/actives/B-a9e7/process-metrics.json",
+      ".lattice/story/actives/B-a9e7/proofstory.json",
+      ".lattice/story/actives/B-a9e7/review-passes.json",
+      ".lattice/story/actives/B-a9e7/review-runs.json",
+      ".lattice/story/actives/B-a9e7/review.json",
+      ".lattice/story/actives/B-a9e7/scope-check.json",
+      ".lattice/story/actives/B-a9e7/scope-contract.json",
+      ".lattice/story/actives/B-a9e7/test-evidence.json",
+      ".lattice/story/actives/B-a9e7/understanding.json",
+      "docs/requirements/decisions/dev-memory.md",
+      "packages/main/src/core/dev-memory.ts",
+      "packages/main/src/handlers/dev-memory.ts",
+      "packages/main/src/tasks/dev-memory-supersession-smoke.ts"
+    ],
+    "summary": " .lattice/dev-memory/experience.jsonl               |   5 +\n .lattice/story/actives/B-a9e7/checklist.json       | 306 +++++++++-\n .lattice/story/actives/B-a9e7/decision.json        |  70 +++\n .lattice/story/actives/B-a9e7/findings.json        |  53 ++\n .lattice/story/actives/B-a9e7/index.json           |  77 ++-\n .../story/actives/B-a9e7/intent-collision.json     |  12 +\n .../actives/B-a9e7/original-intent-snapshot.json   |  15 +\n .lattice/story/actives/B-a9e7/plan.md              |  61 ++\n .lattice/story/actives/B-a9e7/process-events.jsonl |  19 +\n .lattice/story/actives/B-a9e7/process-metrics.json | 359 +++++++++++\n .lattice/story/actives/B-a9e7/proofstory.json      |  56 ++\n .lattice/story/actives/B-a9e7/review-passes.json   |  94 +++\n .lattice/story/actives/B-a9e7/review-runs.json     | 676 +++++++++++++++++++++\n .lattice/story/actives/B-a9e7/review.json          | 200 ++++++\n .lattice/story/actives/B-a9e7/scope-check.json     |  44 ++\n .lattice/story/actives/B-a9e7/scope-contract.json  |  43 ++\n .lattice/story/actives/B-a9e7/test-evidence.json   | 257 ++++++++\n .lattice/story/actives/B-a9e7/understanding.json   |  27 +\n docs/requirements/decisions/dev-memory.md          |  24 +\n packages/main/src/core/dev-memory.ts               | 179 +++++-\n packages/main/src/handlers/dev-memory.ts           |  22 +-\n .../src/tasks/dev-memory-supersession-smoke.ts     | 525 ++++++++++++++++\n 22 files changed, 3099 insertions(+), 25 deletions(-)"
+  },
+  "docsPromises": [
+    {
+      "source": "userSees",
+      "promise": "dev_memory_search/list output identifies legacy Koala memory ids and shows which current Proofbound/Lattice memory supersedes them."
+    },
+    {
+      "source": "userSees",
+      "promise": "dev_memory_preflight/search/list shows current Proofbound/Lattice superseding guidance before legacy Koala entries and annotates superseded ids."
+    },
+    {
+      "source": "userSees",
+      "promise": "Project dev-memory contains current Proofbound/Lattice superseding lessons for old Koala reviewer, delivery, CLI, and preflight lessons."
+    },
+    {
+      "source": "userSees",
+      "promise": "Running dev-memory supersession smoke prints that superseded legacy Koala entries remain readable while current Proofbound/Lattice entries are preferred."
+    }
+  ],
+  "realMachineTests": {
+    "transcriptDiff": false,
+    "testFiles": [
+      "packages/main/src/tasks/dev-memory-supersession-smoke.ts"
+    ],
+    "evidenceCommands": [
+      "git show --stat --oneline 64d12ae29",
+      "lattice dev_memory_capture (five sequential captures for B-a9e7)",
+      "node packages/main/dist/cli.js dev_memory_list --scope=project --limit=5",
+      "node packages/main/dist/cli.js dev_memory_search --query=koala --global",
+      "node packages/main/dist/tasks/dev-memory-supersession-smoke.js",
+      "npm --prefix packages/main run build"
+    ]
+  },
+  "validation": {
+    "source": "test-evidence.json",
+    "result": "PASS",
+    "timestamp": "2026-06-30T17:16:25.748Z",
+    "headHash": "602a14127dfb3e6a7eea65639bf42a7f878a6905",
+    "materialHash": "fec12d3410950af0112dafd478a628a4bac500043a6bb0b34ea7abeb44dac2b9",
+    "storyFilesHash": "7e11a09d9ed5c0b7f0efdc1f44017bd4aa7edc70774d25249d4d6a0d3e034690"
+  },
+  "reviewRound": "2026-06-30T17:00:51.690Z",
+  "deliveryCheck": {
+    "status": "missing",
+    "ref": null
+  },
+  "waiver": {
+    "status": "none"
+  },
+  "isSigner": false,
+  "claims": {
+    "authorityDone": false,
+    "fullAuthorityDone": false,
+    "productionDone": false
+  }
+}
