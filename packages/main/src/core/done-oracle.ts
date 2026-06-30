@@ -32,7 +32,13 @@ import {
 } from './dirty-worktree.js';
 import { defaultAuditWriter, evaluateDirtyGate, type AuditWriter, type DirtyGateName, type EvaluateDirtyGateResult } from './dirty-gate-policy.js';
 import { readGitStatusLines, classifierOptionsForCheck } from './dirty-worktree-gate.js';
-import { checkEvidenceFreshnessForGit, currentMaterialHash } from './evidence-freshness.js';
+import {
+  captureEvidenceHashSnapshot,
+  checkEvidenceFreshnessForGit,
+  checkEvidenceHashSnapshotReuse,
+  currentMaterialHash,
+  type EvidenceHashSnapshot,
+} from './evidence-freshness.js';
 import { evaluateDeliveryCheckFreshness } from './delivery-check-hash.js';
 import {
   summarizeCodexEvidence,
@@ -232,6 +238,13 @@ export interface BuildDoneChecklistOptions {
     materialHash: string;
     storyFilesHash?: string | null;
   };
+  /**
+   * Command-local, in-memory current binding captured by the caller. The DONE
+   * oracle accepts it only after a cheap syndrome preflight (same git cwd/ref/
+   * metadata root, same HEAD, and no material dirty files); otherwise it falls
+   * back to capturing a fresh binding for this build.
+   */
+  evidenceHashSnapshot?: EvidenceHashSnapshot;
 }
 
 function doneCheckRow(row: Omit<DoneCheckRow, 'blocking'> & { blocking?: boolean }): DoneCheckRow {
@@ -260,6 +273,14 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
   // read-only projections stay byte-identical. `root` is still used for all
   // config/store/audit reads — ONLY git invocation cwd changes.
   const gitCwd = options.gitCwd ?? root;
+  const suppliedSnapshotReuse = options.evidenceHashSnapshot
+    ? checkEvidenceHashSnapshotReuse(options.evidenceHashSnapshot, { gitCwd, metadataRoot: root, ref: 'HEAD' })
+    : null;
+  const currentBinding = suppliedSnapshotReuse?.reusable
+    ? options.evidenceHashSnapshot!
+    : captureEvidenceHashSnapshot({ gitCwd, metadataRoot: root, ref: 'HEAD' });
+  const currentBindingMaterialHash = options.completedSnapshot?.materialHash ?? currentBinding.materialHash;
+  const currentBindingStoryFilesHash = options.completedSnapshot?.storyFilesHash ?? currentBinding.storyFilesHash;
 
   // Resolve workflow policy for policy-aware gates
   const config = loadConfig(root);
@@ -784,8 +805,8 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
       gitCwd,
       storyId,
       store,
-      ...(options.completedSnapshot?.materialHash ? { materialHash: options.completedSnapshot.materialHash } : {}),
-      ...(options.completedSnapshot?.storyFilesHash ? { storyFilesHash: options.completedSnapshot.storyFilesHash } : {}),
+      ...(currentBindingMaterialHash ? { materialHash: currentBindingMaterialHash } : {}),
+      ...(currentBindingStoryFilesHash ? { storyFilesHash: currentBindingStoryFilesHash } : {}),
     });
     const escalationBaseDetail = escalation.required
       ? `${escalation.assuranceLevel}; first-round problems ${escalation.trigger.countableProblems.length}/${escalation.trigger.requiredProblemCount}`
@@ -821,6 +842,8 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
       gitCwd,
       storyId,
       store,
+      ...(currentBindingMaterialHash ? { materialHash: currentBindingMaterialHash } : {}),
+      ...(currentBindingStoryFilesHash ? { storyFilesHash: currentBindingStoryFilesHash } : {}),
     });
     const floorBaseDetail = floor.required
       ? `${floor.assuranceLevel}; material code paths ${floor.materialCodePaths.length}; local rounds ${floor.localRounds.validRounds.length}/${floor.localRounds.requiredRounds}`

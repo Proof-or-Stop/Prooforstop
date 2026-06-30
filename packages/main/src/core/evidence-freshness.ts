@@ -1,5 +1,6 @@
 import { execFileSync } from 'child_process';
 import { createHash } from 'crypto';
+import { resolve as resolvePath } from 'path';
 import { isMaterialExcludedRuntimeArtifactPath } from './runtime-artifact-registry.js';
 import { loadConfig } from './config.js';
 import { LATTICE_STORY_DIR, LEGACY_DOCS_STORY_DIR } from './lattice-paths.js';
@@ -27,6 +28,32 @@ export type EvidenceFreshness = {
   changedFiles: string[];
   materialFiles: string[];
 };
+
+export interface EvidenceHashSnapshot {
+  schemaVersion: 'lattice.evidence_hash_snapshot.v1';
+  headHash?: string;
+  materialHash?: string;
+  storyFilesHash?: string;
+  gitCwd: string;
+  metadataRoot: string;
+  ref: string;
+  capturedAt: string;
+  materialDirtyFiles: string[];
+}
+
+export interface EvidenceHashSnapshotCaptureArgs {
+  gitCwd: string;
+  metadataRoot?: string;
+  ref?: string;
+}
+
+export interface EvidenceHashSnapshotReuseCheck {
+  reusable: boolean;
+  materialDirty: boolean;
+  materialDirtyFiles: string[];
+  reasons: string[];
+  currentHead?: string;
+}
 
 function headMatches(a: string, b: string): boolean {
   return a === b || a.startsWith(b) || b.startsWith(a);
@@ -96,6 +123,126 @@ export function currentGitHead(gitCwd: string): string | undefined {
   } catch {
     return undefined;
   }
+}
+
+function gitCommitAtRef(gitCwd: string, ref: string): string | undefined {
+  try {
+    return execFileSync('git', ['rev-parse', ref], {
+      cwd: gitCwd,
+      ...GIT_EXEC_OPTS,
+    }).trim();
+  } catch {
+    return undefined;
+  }
+}
+
+function normalizeSnapshotRoot(path: string): string {
+  return resolvePath(path);
+}
+
+function parseGitStatusPath(rawPath: string): string {
+  const trimmed = rawPath.trim();
+  if (trimmed.length >= 2 && trimmed.startsWith('"') && trimmed.endsWith('"')) {
+    return trimmed.slice(1, -1);
+  }
+  return trimmed;
+}
+
+function readMaterialDirtyFiles(gitCwd: string, metadataRoot: string): { files: string[]; error?: string } {
+  try {
+    const raw = execFileSync('git', ['status', '--porcelain', '--untracked-files=all'], {
+      cwd: gitCwd,
+      ...GIT_EXEC_OPTS,
+    }).trim();
+    if (!raw) return { files: [] };
+    const dirty = new Set<string>();
+    for (const line of raw.split('\n')) {
+      if (line.length < 4) continue;
+      const pathText = line.slice(3);
+      const paths = pathText.includes(' -> ')
+        ? pathText.split(' -> ').map(parseGitStatusPath)
+        : [parseGitStatusPath(pathText)];
+      for (const path of paths) {
+        if (path && !isMaterialExcludedPath(path, metadataRoot)) dirty.add(path);
+      }
+    }
+    return { files: [...dirty].sort() };
+  } catch (err) {
+    return {
+      files: ['<git-status-unavailable>'],
+      error: err instanceof Error ? err.message : String(err),
+    };
+  }
+}
+
+export function captureEvidenceHashSnapshot(args: EvidenceHashSnapshotCaptureArgs): EvidenceHashSnapshot {
+  const gitCwd = normalizeSnapshotRoot(args.gitCwd);
+  const metadataRoot = normalizeSnapshotRoot(args.metadataRoot ?? args.gitCwd);
+  const ref = args.ref ?? 'HEAD';
+  const dirty = readMaterialDirtyFiles(gitCwd, metadataRoot);
+  const headHash = gitCommitAtRef(gitCwd, ref);
+  const materialHash = currentMaterialHash(gitCwd, ref, metadataRoot);
+  const storyFilesHash = currentStoryFilesHash(gitCwd, ref, metadataRoot);
+  return {
+    schemaVersion: 'lattice.evidence_hash_snapshot.v1',
+    ...(headHash ? { headHash } : {}),
+    ...(materialHash ? { materialHash } : {}),
+    ...(storyFilesHash ? { storyFilesHash } : {}),
+    gitCwd,
+    metadataRoot,
+    ref,
+    capturedAt: new Date().toISOString(),
+    materialDirtyFiles: dirty.files,
+  };
+}
+
+export function checkEvidenceHashSnapshotReuse(
+  snapshot: EvidenceHashSnapshot | undefined,
+  args: EvidenceHashSnapshotCaptureArgs,
+): EvidenceHashSnapshotReuseCheck {
+  const gitCwd = normalizeSnapshotRoot(args.gitCwd);
+  const metadataRoot = normalizeSnapshotRoot(args.metadataRoot ?? args.gitCwd);
+  const ref = args.ref ?? 'HEAD';
+  const reasons: string[] = [];
+  if (!snapshot) {
+    return {
+      reusable: false,
+      materialDirty: false,
+      materialDirtyFiles: [],
+      reasons: ['missing evidence hash snapshot'],
+    };
+  }
+
+  if (snapshot.schemaVersion !== 'lattice.evidence_hash_snapshot.v1') {
+    reasons.push('snapshot schemaVersion is not supported');
+  }
+  if (snapshot.gitCwd !== gitCwd) reasons.push('snapshot gitCwd does not match current git cwd');
+  if (snapshot.metadataRoot !== metadataRoot) reasons.push('snapshot metadataRoot does not match current metadata root');
+  if (snapshot.ref !== ref) reasons.push('snapshot ref does not match current ref');
+  if (!snapshot.materialHash) reasons.push('snapshot is missing materialHash');
+  if (!snapshot.storyFilesHash) reasons.push('snapshot is missing storyFilesHash');
+
+  const currentHead = currentGitHead(gitCwd);
+  if (!currentHead) {
+    reasons.push('current HEAD is unavailable');
+  } else if (!snapshot.headHash) {
+    reasons.push('snapshot is missing headHash');
+  } else if (!headMatches(snapshot.headHash, currentHead)) {
+    reasons.push('snapshot headHash does not match current HEAD');
+  }
+
+  const currentDirty = readMaterialDirtyFiles(gitCwd, metadataRoot);
+  if (currentDirty.error) reasons.push('current material dirty files could not be inspected');
+  if (snapshot.materialDirtyFiles.length > 0) reasons.push('snapshot captured material dirty files');
+  if (currentDirty.files.length > 0) reasons.push('current material dirty files are present');
+  const materialDirtyFiles = [...new Set([...snapshot.materialDirtyFiles, ...currentDirty.files])].sort();
+  return {
+    reusable: reasons.length === 0,
+    materialDirty: materialDirtyFiles.length > 0,
+    materialDirtyFiles,
+    reasons,
+    ...(currentHead ? { currentHead } : {}),
+  };
 }
 
 // B-6666 CHK-002: gitCwd is the resolved git invocation cwd (wrapper-root
