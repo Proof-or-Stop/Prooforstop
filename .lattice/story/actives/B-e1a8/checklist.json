@@ -84,14 +84,18 @@
       "endTime": null,
       "relatedDocs": [
         "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md#M5-Scope-Shrinkage-Guard-And-DONE-Intent-Equivalence",
-        "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md#M8-REVIEW-Completeness-Critic-Integration"
+        "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md#M8-REVIEW-Completeness-Critic-Integration",
+        "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md#M9-Risk-Adaptive-Enforcement"
       ],
       "files": {
         "modify": [],
         "create": [],
         "test": [
           "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
-          "scripts/verify-process-fact-contract.mjs"
+          "scripts/verify-process-fact-contract.mjs",
+          "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/handlers/phase-gates.ts"
         ]
       },
       "verificationIntent": {
