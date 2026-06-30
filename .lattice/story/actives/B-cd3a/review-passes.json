@@ -35,6 +35,15 @@
       "reviewRound": "2026-06-30T10:48:39.905Z",
       "reviewRunId": "B-cd3a:RR-016",
       "_hash": "1a9cd302d10d7969af31ffebc5d0a02f9194128bc2d0152315a58f862aedd743"
+    },
+    {
+      "id": "B-cd3a:RP-005",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS test-coverage after F-003. Verified F-003 resolved: proof-admissibility smoke schema refs match PROOF_SURFACE_REGISTRY external gate/receipt versions. Re-ran targeted checks: npm --prefix packages/main run test:proof-admissibility; npm --prefix packages/main run test:proof-admissibility-hardening; node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js; npm run test:process-fact-contract; npm --prefix packages/main run test:command-catalog-smoke; node packages/main/dist/tasks/lifecycle-control-smoke.js; node packages/main/dist/tasks/lifecycle-registry-contract.js; node packages/main/dist/tasks/flow-stability-smoke.js. Enforce ProofStory gates pass; evidence_inspect shows required verification/test evidence fresh by material hash, with only stale supplemental CHK-005 duplicate ref directly rerun and passing.",
+      "createdAt": "2026-06-30T10:55:51.824Z",
+      "reviewRound": "2026-06-30T10:48:39.905Z",
+      "reviewRunId": "B-cd3a:RR-012",
+      "_hash": "3e2ded04f92fd971a327e40bb5c2e88286d2d56868970b05a0104d68c5c58c61"
     }
   ]
 }
