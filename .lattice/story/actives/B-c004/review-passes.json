@@ -170,6 +170,15 @@
       "reviewRound": "2026-06-30T17:45:48.241Z",
       "reviewRunId": "B-c004:RR-034",
       "_hash": "3a10d051dee72ef50eba8b6dfa57455ed4acca5bdd0a6b984ea48496e67b6615"
+    },
+    {
+      "id": "B-c004:RP-020",
+      "agent": "lattice-review-docs",
+      "note": "PASS final docs re-review after ac66dd3a and resolved F-005/F-006/F-007. Verified proof-admissibility-hardening plan no longer carries an active local CLI evidence-ledger write-path obligation: Appendix G now uses artifact-specific verifier output; ArtifactObservedEvent, AdmissibilityEvaluationRow, concrete ledger rows, ledger-row-derived counts, and ledger streams remain only in retired Appendix C / future-integration reference context or explicitly retired/non-goal prose. Summary is consistent with live readiness: it does not claim review-assurance/DONE completion and defers final DONE readiness to current Lattice gates. Fresh verification commands passed: npm --prefix packages/main run build; npm --prefix packages/main run test:proof-admissibility-hardening; npm --prefix packages/main run test:proof-admissibility.",
+      "createdAt": "2026-06-30T17:48:25.619Z",
+      "reviewRound": "2026-06-30T17:45:48.241Z",
+      "reviewRunId": "B-c004:RR-033",
+      "_hash": "b24b0960d5c0272417769de4cfdbae5d04fb9cf7b0a6017bf0907d35530d53fe"
     }
   ]
 }
