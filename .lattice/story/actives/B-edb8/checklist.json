@@ -7,9 +7,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-30T13:40:53.169Z",
-      "endTime": null,
+      "endTime": "2026-06-30T13:57:02.858Z",
       "userSees": "The user sees a failing/negative parent-roadmap totality smoke listed and then turned green before runtime implementation proceeds.",
       "files": {
         "modify": [
@@ -42,7 +42,42 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "git log --oneline --reverse cf25e3385..bd7700150 && git show --name-only --format=%s eec0fe75e",
+          "result": "pass",
+          "note": "Shows the red/repro smoke commit eec0fe75e landed before runtime commit bd7700150 and only added parent-roadmap-totality-smoke.ts.",
+          "headHash": "976fde5aad48725d61f9ad8656aad52382ba1a83",
+          "materialHash": "dc1f3d527d5e212e1b41a4345bba75d08cce6a9356a301b5b60eb4ef04336878",
+          "storyFilesHash": "65336d8a9a4378cd29245f90817deff460ee2a0f572b8a97fe0c7dc2138f39d0",
+          "timestamp": "2026-06-30T13:57:03.137Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js",
+          "result": "pass",
+          "note": "Full smoke covers allRowsClosed=false, partial_parent_done, child-story-needed, stale, blocked, invalid deferral, summary overclaim, and B-43de-shaped migration paths.",
+          "headHash": "976fde5aad48725d61f9ad8656aad52382ba1a83",
+          "materialHash": "dc1f3d527d5e212e1b41a4345bba75d08cce6a9356a301b5b60eb4ef04336878",
+          "storyFilesHash": "65336d8a9a4378cd29245f90817deff460ee2a0f572b8a97fe0c7dc2138f39d0",
+          "timestamp": "2026-06-30T13:57:03.347Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js --case=evaluator && node packages/main/dist/tasks/parent-roadmap-totality-smoke.js --case=claim-consumer",
+          "result": "pass",
+          "note": "Negative controls prove caller-provided full rollup overrides are ignored and full-roadmap wording is blocked while child rows are open.",
+          "headHash": "976fde5aad48725d61f9ad8656aad52382ba1a83",
+          "materialHash": "dc1f3d527d5e212e1b41a4345bba75d08cce6a9356a301b5b60eb4ef04336878",
+          "storyFilesHash": "65336d8a9a4378cd29245f90817deff460ee2a0f572b8a97fe0c7dc2138f39d0",
+          "timestamp": "2026-06-30T13:57:03.558Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
