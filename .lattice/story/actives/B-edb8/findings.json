@@ -5,7 +5,7 @@
       "desc": "Fail-open overclaim detector: hasFullRoadmapClaim returns false immediately when the text contains roadmap not complete before checking later explicit full-roadmap claims (packages/main/src/core/parent-roadmap-totality.ts:548-558). Repro command: node packages/main/dist/cli.js parent_roadmap_status {case:partial,summaryText:Parent governance complete; roadmap is not complete. Remaining child-story-needed rows: M5. Full roadmap complete: all M4-M12 rows are done.,mode:enforce,json:true}. Observed claim.allowed=true, blocking=false, proofstoryBinding.status=pass even though rollup.allRowsClosed=false and openRows=M4,M5. This violates the parent roadmap gate contract that enforce-mode summary and handoff consumers must block explicit full-roadmap wording unless all rows are closed.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-quality",
       "createdAt": "2026-06-30T14:02:29.535Z",
@@ -17,7 +17,11 @@
         "packages/main/src/handlers/parent-roadmap.ts"
       ],
       "signatureTag": "adversarial|ts|fail-open-overclaim",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 7457ea190: full-roadmap detection no longer short-circuits on roadmap-not-complete wording. Verified contradictory overclaim exits 1 with parent_roadmap_status mode=enforce; parent-roadmap-totality-smoke --case=claim-consumer passes.",
+      "resolvedAt": "2026-06-30T14:14:13.227Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-edb8:F-002",
