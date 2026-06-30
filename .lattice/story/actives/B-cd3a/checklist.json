@@ -1,0 +1,84 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Freeze the document intent and capability audit contract",
+      "context": "Compare global-lifecycle-control-plane-execution-plan.md and proof-admissibility-hardening-execution-plan.md against current CLI/source behavior. Produce a machine-checkable distinction between implemented, partial, future, and missing capabilities before development.",
+      "relatedDocs": [
+        "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Close Global Control Plane status and enforcement gaps",
+      "context": "Address gaps exposed by global_control_status: proofM7Enforcement=false, queueCleanupEnforcement=false, tierCCleanup=false, and any CP-5A/CP-5B status/reporting mismatch. Do not create a second lifecycle state machine.",
+      "relatedDocs": [
+        "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md#CP-5A-Runtime-Enforcement-Rollout",
+        "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md#CP-5B-Queue-Governance-Guard"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Register and verify Tier-C queue experiment exceptions",
+      "context": "Make Tier-C provider-execution receipt verification stories group as experiment-batch-exception instead of ordinary duplicate-candidate while malformed entries remain cleanup-required. Exceptions must not waive lifecycle readiness.",
+      "relatedDocs": [
+        "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md#Story-Exception-Policy"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Implement runtime closure hard-block rollout where safe",
+      "context": "Move runtime closure from read-only projection to configured hard-blocks for unsafe operations such as wrong authoritative cwd, stale active locks, dirty phase-advance state, and worktree authority drift, with rollback/config documented.",
+      "relatedDocs": [
+        "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md#CP-5A-Runtime-Enforcement-Rollout"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Implement queue governance guard without destroying experiment evidence",
+      "context": "Guard accidental duplicate/superseded mutations while preserving experiment batches and making malformed experiment records visible. Queue governance must not grant lifecycle completion.",
+      "relatedDocs": [
+        "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md#CP-5B-Queue-Governance-Guard"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-006",
+      "title": "Roll out proof admissibility enforcement for high-risk consumers",
+      "context": "Close the Proof Admissibility M7 gap for configured high-risk consumers: DONE_REQUIRED, review assurance, handoff proof refs, and Authority-facing proof consumers. Keep diagnostic waterline read-only and do not overclaim productionDone.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md#M7-Hard-Fail-Rollout-And-Adversarial-Regression-Suite"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-007",
+      "title": "Verify final delivery through ProofStory gates and document equivalence",
+      "context": "Use proofstory_gate_check, intent_coverage_check, proofstory_review_completeness_check, done_intent_equivalence_check, delivery check, done-required validation, and 3x2 or explicit 3x1 review assurance to prove the final delivery covers the frozen document intent.",
+      "relatedDocs": [
+        "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md#Definition-Of-Done",
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md#Definition-Of-Done"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
