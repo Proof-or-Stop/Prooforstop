@@ -1,0 +1,44 @@
+{
+  "storyId": "B-e1a8",
+  "checkedAt": "2026-06-30T08:45:42.121Z",
+  "features": [
+    {
+      "feature": "Config mutation scope is limited to lattice.config.json",
+      "covered_by": "CHK-001 files.modify includes lattice.config.json; plan_get CHK-001 says modify only lattice.config.json by adding top-level proofStory enforce modes.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "story_get/checklist_get/plan_get"
+    },
+    {
+      "feature": "ProofStory self-artifacts are metadata and verification evidence, not implementation source changes",
+      "covered_by": "CHK-002 files.modify/create/test are empty; plan_get CHK-002 records original intent, milestone ledger, collision decision, and ProofStory contract as self-contained artifacts.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "story_get/checklist_get/plan_get"
+    },
+    {
+      "feature": "Implementation source files are read/test verification touchpoints only",
+      "covered_by": "CHK-003 files.test lists machine.ts, phase-gates.ts, hardening smoke, process fact verifier, and the ProofStory decision doc; understanding_get says do not change ProofStory implementation code unless a gate bug is discovered; plan_get rollback says implementation defects should become a separate bug story instead of widening this rollout.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "story_get/checklist_get/understanding_get/plan_get"
+    },
+    {
+      "feature": "Verification scope covers DEV REVIEW DONE enforce behavior without expanding implementation scope",
+      "covered_by": "CHK-003 verificationIntent requires build, process fact contract verification, ProofStory hardening smoke, proofstory_gate_check, proofstory_review_completeness_check, and done_intent_equivalence_check; plan_get CHK-003 requires passing verificationEvidence for every verificationIntent ref before REVIEW/TEST/DONE.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist_get/plan_get"
+    }
+  ],
+  "summary": {
+    "total": 4,
+    "covered": 4,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "5c77cad7abf6b26e624898c0c794abc350d00c79af643bdf58e74ae8758c37bd"
+}
