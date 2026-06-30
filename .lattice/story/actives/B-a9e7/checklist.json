@@ -245,9 +245,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/dev-memory.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-30T16:02:49.252Z",
       "userSees": "Running dev-memory supersession smoke prints that superseded legacy Koala entries remain readable while current Proofbound/Lattice entries are preferred.",
       "files": {
         "modify": [
@@ -284,7 +284,53 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/dev-memory-supersession-smoke.js",
+          "result": "pass",
+          "note": "Smoke passed search/preflight ordering and visible supersession metadata checks.",
+          "headHash": "cd6393a1a56c9c6316244f3b16a708335d2cec82",
+          "materialHash": "5b5b767ebfad3072e082aec91c5249d42356f22e084171ba50d5634f2a355e38",
+          "storyFilesHash": "74383895302999b622d1fb2f542b709405595a61e3fea51458c05281f9405b76",
+          "timestamp": "2026-06-30T16:02:49.616Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/dev-memory-supersession-smoke.js",
+          "result": "pass",
+          "note": "Smoke passed legacy-readable formatting check, proving superseded Koala entries remain readable rather than disappearing.",
+          "headHash": "cd6393a1a56c9c6316244f3b16a708335d2cec82",
+          "materialHash": "5b5b767ebfad3072e082aec91c5249d42356f22e084171ba50d5634f2a355e38",
+          "storyFilesHash": "74383895302999b622d1fb2f542b709405595a61e3fea51458c05281f9405b76",
+          "timestamp": "2026-06-30T16:02:50.030Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/dev-memory-supersession-smoke.js",
+          "result": "pass",
+          "note": "Smoke passed gateEvidence=false and authority=non_authoritative invariants after supersession projection.",
+          "headHash": "cd6393a1a56c9c6316244f3b16a708335d2cec82",
+          "materialHash": "5b5b767ebfad3072e082aec91c5249d42356f22e084171ba50d5634f2a355e38",
+          "storyFilesHash": "74383895302999b622d1fb2f542b709405595a61e3fea51458c05281f9405b76",
+          "timestamp": "2026-06-30T16:02:50.374Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "TypeScript build completed successfully before running the compiled smoke task.",
+          "headHash": "cd6393a1a56c9c6316244f3b16a708335d2cec82",
+          "materialHash": "5b5b767ebfad3072e082aec91c5249d42356f22e084171ba50d5634f2a355e38",
+          "storyFilesHash": "74383895302999b622d1fb2f542b709405595a61e3fea51458c05281f9405b76",
+          "timestamp": "2026-06-30T16:02:50.721Z"
+        }
+      ]
     }
   ]
 }
