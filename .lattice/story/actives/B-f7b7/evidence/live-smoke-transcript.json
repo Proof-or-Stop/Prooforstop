@@ -1,0 +1,20 @@
+{
+  "storyId": "B-f7b7",
+  "expected": "The ProofStory plan shows the corrected lifecycle where ledger sizing comes before checklist, intent_coverage_check comes after checklist/verificationIntent/acceptance binding, and DONE evidence remains in delivery/equivalence checks.",
+  "actual": {
+    "command": "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js",
+    "exitCode": 0,
+    "stdout": "ProofStory intent hardening smoke passed\n"
+  },
+  "mode": {
+    "runCommands": true,
+    "writeEvidence": true
+  },
+  "capturedAtIso": "2026-06-30T00:38:16.930Z",
+  "claims": {
+    "authorityDone": false,
+    "productionDone": false
+  },
+  "headHash": "4445df1ef09efed74cb8530661c51f496a7bd91c",
+  "materialHash": "9b61e4e64514273a42ee11e1d58386c6a21a8bfe8d472680cbde740cf6320177"
+}
