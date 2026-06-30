@@ -1,0 +1,13 @@
+{
+  "passes": [
+    {
+      "id": "B-a9e7:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept pass: inspected dev-memory supersession projection and worktree CLI output. Current Proofbound/Lattice project memories cite legacy Koala ids with supersedes-* tags and dev-memory:* refs; worktree search/preflight rank current entries before superseded global Koala entries, keep legacy entries readable with legacy-readable annotations, and print gateEvidence=false/authority=non_authoritative. dev_memory_list remains scoped but annotates visible supersession status and does not promote dev-memory into gate evidence.",
+      "createdAt": "2026-06-30T16:07:04.164Z",
+      "reviewRound": "2026-06-30T16:04:28.880Z",
+      "reviewRunId": "B-a9e7:RR-001",
+      "_hash": "2fcd1584e9ec92f102869c5a4a098379ec4acb135e983312a7743dce31acc9e3"
+    }
+  ]
+}
