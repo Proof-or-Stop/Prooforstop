@@ -63,6 +63,24 @@
       ],
       "signatureTag": "doc-promise-undelivered|summary|review-assurance-overclaim",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-c004:F-004",
+      "desc": "Quality review concurs with open blocker B-c004:F-003: the summary still overclaims DONE-gate satisfaction after F-002. lattice summary_get reports expectedOutcome that DONE gates are satisfied by fresh validation, delivery, review assurance, and intent-equivalence diagnostics, while lattice done_closure and lifecycle_check --target=DONE report canAttemptDone/localReady false because review-assurance-floor/current review evidence remain missing for current material. This violates the requested absence of stale summary overclaim; summary should say validation, DONE_REQUIRED, and delivery are fresh while review assurance remains pending, or omit the DONE-gates-satisfied claim until the DONE oracle passes.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-30T17:27:16.542Z",
+      "reviewRound": "2026-06-30T17:23:09.482Z",
+      "reviewRunId": "B-c004:RR-026",
+      "_hash": "b8b870351f13dc2acad854a73f707e65760eb8a0a82e7ebf5d5da4a2f8340ab4",
+      "files": [
+        ".lattice/story/actives/B-c004/summary.json"
+      ],
+      "signatureTag": "doc-promise-undelivered-summary-review-assurance-overclaim",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
