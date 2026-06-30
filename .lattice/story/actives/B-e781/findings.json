@@ -1,0 +1,25 @@
+{
+  "findings": [
+    {
+      "id": "B-e781:F-001",
+      "desc": "Docs lane blocker: linked roadmap/operator docs still contain stale pre-B-e781 wording that says M4-M12 remain follow-up/current future work. The main roadmap now shows B-e781 closure and parent_roadmap_status confirms all M4-M12 rows closed with command-backed local evidence, but docs/guide-scope-guard.md:8 says `M4-M12 remain follow-up milestones`, docs/guide-scope-guard.md:13 says unrelated runtime features `remain follow-up work`, and docs/requirements/decisions/lifecycle-artifact-scope.md:27 repeats `M4-M12 remain follow-up milestones`. Update these docs to reflect B-e781 closure with evidence commands/claim boundaries while keeping Authority Server conformance retired/non-goal.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-30T22:36:29.118Z",
+      "reviewRound": "2026-06-30T22:34:16.389Z",
+      "reviewRunId": "B-e781:RR-004",
+      "_hash": "08193cb21d44b9417714f3a8b5e7c8f87924318ba56ef536c84e53867502fcba",
+      "files": [
+        "docs/guide-scope-guard.md",
+        "docs/requirements/decisions/lifecycle-artifact-scope.md",
+        "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+        "docs/requirements/decisions/authority-server-vocabulary-retirement.md"
+      ],
+      "signatureTag": "missing|md|docs-lane-blocker",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
