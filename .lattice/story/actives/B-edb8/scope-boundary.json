@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-edb8",
+  "mode": "feature",
+  "allowed": [
+    "Add CLI/lifecycle/status/summary claim consumer behavior for parent-roadmap totality.",
+    "Add migration/rollout diagnostics for parent-roadmap candidates such as B-43de.",
+    "Add Red/Repro and certification smoke tests before full runtime implementation.",
+    "Bind parent-roadmap totality to existing ProofStory controls without weakening B-5082 gates.",
+    "Implement ParentRoadmapLedger / ParentRollupResult model and evaluator for local CLI/runtime use.",
+    "Update process-fact/command catalog/version/docs as needed for these surfaces."
+  ],
+  "excluded": [
+    "Do not claim lattice-strengthening-roadmap M4-M12 runtime work is completed by this story unless implemented and certified here.",
+    "Do not edit paper assets or proofbound-Paper outputs.",
+    "Do not manually edit docs/story or tests/fixtures JSON files.",
+    "Do not mutate unrelated active stories or Tier-C experiment backlog.",
+    "Do not push remote branches or perform destructive git reset/checkout cleanups.",
+    "Do not revive server-backed Authority Server semantics or productionDone/fullAuthorityDone claims."
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User explicitly asked to start concrete implementation from the B-9fc5 plan until DONE, with the first milestone being test cases before the complete story implementation.",
+  "createdAt": "2026-06-30T13:27:09.166Z",
+  "updatedAt": "2026-06-30T13:27:09.166Z",
+  "_hash": "45ec62ebd176a72126cabd7d642754fef9c9776a233d968666ea35f58262375a"
+}

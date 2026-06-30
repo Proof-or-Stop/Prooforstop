@@ -1,0 +1,59 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-edb8",
+  "allowedCommands": [
+    "git diff*",
+    "git log*",
+    "git status*",
+    "lattice *",
+    "node packages/main/dist/tasks/*",
+    "node scripts/verify-process-fact-contract.mjs",
+    "npm --prefix packages/main run build",
+    "npm test",
+    "rg*",
+    "sed*"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "exec_command",
+    "multi_agent"
+  ],
+  "allowedPaths": [
+    ".lattice/story/actives/B-edb8/",
+    "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+    "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+    "package-lock.json",
+    "package.json",
+    "packages/main/package.json",
+    "packages/main/src/cli/",
+    "packages/main/src/core/",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/handlers/",
+    "packages/main/src/registry.ts",
+    "packages/main/src/tasks/",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "excludedCommands": [
+    "git checkout --*",
+    "git clean -fd*",
+    "git push*",
+    "git reset --hard*",
+    "omx*",
+    "rm -rf *"
+  ],
+  "excludedTools": [
+    "omx"
+  ],
+  "excludedPaths": [
+    ".omx/",
+    "docs/story/",
+    "paper/",
+    "proofbound-Paper/",
+    "tests/fixtures/"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "High-risk implementation story; M1 red/repro tests must be written before runtime implementation changes. All story metadata must be written through lattice commands.",
+  "createdAt": "2026-06-30T13:27:34.078Z",
+  "updatedAt": "2026-06-30T13:27:34.078Z",
+  "_hash": "12a225d48fa6f39ee4f22d08dab642248ac45c9fcd3c1a6870fc16b9bbe9f81a"
+}
