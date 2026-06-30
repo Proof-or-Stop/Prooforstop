@@ -266,9 +266,67 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-30T10:03:05.833Z",
-      "endTime": null
+      "endTime": "2026-06-30T10:03:18.740Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "TypeScript build passed for the changed verifier script and package sources.",
+          "headHash": "2da7a45e63821faf008659ee9953c305f64d019b",
+          "materialHash": "ee027bc0b99b5bc1b2f6e97d353abf7febe412ac723d51aa4238273920941810",
+          "storyFilesHash": "66d4ed0e3277a7244e11cb712d29c049e262b315a9ff3ea49a8ae6b1a3311c6b",
+          "timestamp": "2026-06-30T10:03:19.098Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:1",
+          "kind": "logic_test",
+          "command": "git diff --check",
+          "result": "pass",
+          "note": "Whitespace/diff sanity check passed with no output.",
+          "headHash": "2da7a45e63821faf008659ee9953c305f64d019b",
+          "materialHash": "ee027bc0b99b5bc1b2f6e97d353abf7febe412ac723d51aa4238273920941810",
+          "storyFilesHash": "66d4ed0e3277a7244e11cb712d29c049e262b315a9ff3ea49a8ae6b1a3311c6b",
+          "timestamp": "2026-06-30T10:03:19.372Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "logic_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "bash -o pipefail -c 'node scripts/verify-process-fact-contract.mjs | tail -n 25'",
+          "result": "pass",
+          "note": "Process fact contract verifier passed and includes the B-43de roadmap governance marker checks.",
+          "headHash": "2da7a45e63821faf008659ee9953c305f64d019b",
+          "materialHash": "ee027bc0b99b5bc1b2f6e97d353abf7febe412ac723d51aa4238273920941810",
+          "storyFilesHash": "66d4ed0e3277a7244e11cb712d29c049e262b315a9ff3ea49a8ae6b1a3311c6b",
+          "timestamp": "2026-06-30T10:03:19.654Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "lattice proofstory_gate_check {\"storyId\":\"B-43de\",\"mode\":\"enforce\",\"json\":true}",
+          "result": "pass",
+          "note": "B-5082 ProofStory enforce gate passed: no missing coverage, no oversized-ledger gap, no parent-rollup gap.",
+          "headHash": "2da7a45e63821faf008659ee9953c305f64d019b",
+          "materialHash": "ee027bc0b99b5bc1b2f6e97d353abf7febe412ac723d51aa4238273920941810",
+          "storyFilesHash": "66d4ed0e3277a7244e11cb712d29c049e262b315a9ff3ea49a8ae6b1a3311c6b",
+          "timestamp": "2026-06-30T10:03:19.905Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:1",
+          "kind": "manual_transcript",
+          "command": "lattice intent_coverage_check {\"storyId\":\"B-43de\",\"mode\":\"enforce\",\"json\":true} && lattice scope_contract_check {\"storyId\":\"B-43de\"}",
+          "result": "pass",
+          "note": "Intent coverage enforce check and scope contract check both passed, proving the parent story scope did not shrink or leak outside its allowed files.",
+          "headHash": "2da7a45e63821faf008659ee9953c305f64d019b",
+          "materialHash": "ee027bc0b99b5bc1b2f6e97d353abf7febe412ac723d51aa4238273920941810",
+          "storyFilesHash": "66d4ed0e3277a7244e11cb712d29c049e262b315a9ff3ea49a8ae6b1a3311c6b",
+          "timestamp": "2026-06-30T10:03:20.162Z"
+        }
+      ]
     }
   ],
   "auditLog": [
@@ -352,6 +410,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Recording final verification command matrix."
+    },
+    {
+      "timestamp": "2026-06-30T10:03:18.740Z",
+      "phase": "DEV",
+      "itemId": "CHK-005",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Final verification matrix passed."
     }
   ]
 }
