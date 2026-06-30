@@ -292,6 +292,18 @@
           "materialHash": "ee027bc0b99b5bc1b2f6e97d353abf7febe412ac723d51aa4238273920941810",
           "storyFilesHash": "66d4ed0e3277a7244e11cb712d29c049e262b315a9ff3ea49a8ae6b1a3311c6b",
           "timestamp": "2026-06-30T10:02:59.129Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "command": "rg -n \"Tier-C provider-execution receipt verification|Duplicate cleanup applies to non-experiment|B-cd3a\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "result": "pass",
+          "note": "Roadmap now preserves Tier-C provider-execution receipt verification stories as an intentional experiment corpus, limits duplicate cleanup to non-experiment overlap, and keeps B-cd3a separate from global roadmap completion.",
+          "headHash": "23f4fe8df5c6cd84f6a998f109b6a509efbde3e5",
+          "materialHash": "d59d677fba13f18a889d5897a0d72ab6829a3a5938a8af70703805563d67f235",
+          "storyFilesHash": "9005e0fbcf8749e9c01b0037c5949c517a20f01b37688a174de6fa8e822312dd",
+          "timestamp": "2026-06-30T10:06:04.819Z"
         }
       ]
     },
