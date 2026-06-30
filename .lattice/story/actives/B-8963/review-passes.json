@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-30T22:30:00.663Z",
       "reviewRunId": "B-8963:RR-007",
       "_hash": "608875d7b334c2acb7aeeec9cea5f45683ddd117a406be31f3423d4d4096ee9d"
+    },
+    {
+      "id": "B-8963:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "Concept review pass after F-001 fix. Inspected current HEAD with focus on 918d569a7 and 24a8b451b: evidence hash snapshot remains command-local and in-memory; reuse is preflight-bound to gitCwd, metadataRoot, ref, current HEAD, and no material dirty files; no global cache or durable runtime artifact was introduced; DONE/readiness/session call sites thread the snapshot rather than adding arbitrary optimization; M2/server authority remains out of scope; existing stale evidence checks continue to fail closed.",
+      "createdAt": "2026-06-30T22:46:04.534Z",
+      "reviewRound": "2026-06-30T22:42:01.277Z",
+      "reviewRunId": "B-8963:RR-008",
+      "_hash": "38aa4c4c7f7fec1a79db65a4e966081357c664134e59a1935eb5bad2fbfe6e63"
     }
   ]
 }
