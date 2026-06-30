@@ -45,6 +45,24 @@
       "resolvedAt": "2026-06-30T16:57:29.536Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-c004:F-003",
+      "desc": "Verified stale review-assurance overclaim remains in the story summary after the F-002 fix. `lattice summary_get {\"storyId\":\"B-c004\"}` reports expectedOutcome that the user should see DONE gates satisfied by fresh validation, delivery, review assurance, and intent-equivalence diagnostics, but `lattice done_closure {\"storyId\":\"B-c004\"}` reports canAttemptDone=false with a blocking review-assurance-floor row: missing material code paths 12, local rounds 0/3, stale host verdicts ignored, and next action to re-submit local host verdicts over the current materialHash. This contradicts the requested summary de-overclaim/no stale review-assurance overclaim requirement; the summary should state that validation/delivery are fresh while review-assurance floor remains to be satisfied by fresh quorum/fallback evidence, or omit the DONE-gates-satisfied claim until the DONE oracle passes.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-docs",
+      "createdAt": "2026-06-30T17:26:17.086Z",
+      "reviewRound": "2026-06-30T17:23:09.482Z",
+      "reviewRunId": "B-c004:RR-024",
+      "_hash": "3127271ba962e130d05ef65dd858721eeebee6aeef5ea9bce7a822a8ae8122bb",
+      "files": [
+        ".lattice/story/actives/B-c004/summary.json"
+      ],
+      "signatureTag": "doc-promise-undelivered|summary|review-assurance-overclaim",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
