@@ -391,20 +391,20 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
     intent_coverage_check(args: { storyId: string; dryRun?: boolean; mode?: ProofStoryGateMode; json?: boolean }): string {
       if (!args.storyId) throw new Error('storyId is required');
       const report = evaluateProofStoryDiagnostics(diagnosticInput(args.storyId), resolveMode(args));
+      const coverageGaps = [
+        ...report.missingMvpArtifacts,
+        ...report.missingMilestoneCoverage,
+        ...report.missingConfirmedLedger,
+        ...report.missingAcceptanceBindings,
+      ];
+      const coverageBlocking = report.mode === 'enforce' && coverageGaps.length > 0;
+      const coverageStatus: 'pass' | 'warn' | 'fail' = coverageBlocking ? 'fail' : coverageGaps.length > 0 ? 'warn' : 'pass';
       const coverageReport = {
         ...report,
-        gaps: [
-          ...report.missingMvpArtifacts,
-          ...report.missingMilestoneCoverage,
-          ...report.missingConfirmedLedger,
-          ...report.missingAcceptanceBindings,
-        ],
-        wouldBlockFutureDevAdmission: [
-          ...report.missingMvpArtifacts,
-          ...report.missingMilestoneCoverage,
-          ...report.missingConfirmedLedger,
-          ...report.missingAcceptanceBindings,
-        ].length > 0,
+        status: coverageStatus,
+        blocking: coverageBlocking,
+        gaps: coverageGaps,
+        wouldBlockFutureDevAdmission: coverageGaps.length > 0,
       };
       if (args.json) return enforceOrRender(coverageReport, stringify(coverageReport));
       return enforceOrRender(coverageReport, renderProofStoryDiagnosticReport(coverageReport));
