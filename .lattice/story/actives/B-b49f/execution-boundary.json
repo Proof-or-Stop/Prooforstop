@@ -1,0 +1,44 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-b49f",
+  "allowedCommands": [
+    "lattice aux_doc_list",
+    "lattice checklist_*",
+    "lattice session_brief",
+    "lattice story_*",
+    "lattice story_review",
+    "lattice validate",
+    "node packages/main/dist/tasks/*",
+    "npm --prefix packages/main run build",
+    "npm --prefix packages/main run test:*"
+  ],
+  "allowedTools": [
+    "claude-cli",
+    "codex-cli",
+    "lattice-cli",
+    "shell"
+  ],
+  "allowedPaths": [
+    "docs/requirements/decisions",
+    "packages/main/src/core",
+    "packages/main/src/handlers",
+    "packages/main/src/tasks",
+    "packages/main/tests",
+    "scripts"
+  ],
+  "excludedCommands": [
+    "git clean -fd",
+    "git push",
+    "git reset --hard",
+    "npm publish"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    "experiments/recovery-runner/powered"
+  ],
+  "confirmedBy": "codex",
+  "confirmationNote": "M1 can edit core freshness and lifecycle gate code plus focused smoke and docs only; no remote publishing or powered campaign mutation.",
+  "createdAt": "2026-06-30T22:04:25.688Z",
+  "updatedAt": "2026-06-30T22:04:25.688Z",
+  "_hash": "07e0f172be180138cf28798d52bc98b29a488124710d83dd1b17766b0f132b48"
+}
