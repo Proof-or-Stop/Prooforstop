@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-30T22:43:18.109Z",
       "reviewRunId": "B-e781:RR-006",
       "_hash": "de47a44d628b9f8b62eaa7c3fa3cc9965d94faf5a208523dd7f9fd3e3fa18e00"
+    },
+    {
+      "id": "B-e781:RP-004",
+      "agent": "lattice-review-quality",
+      "note": "Re-review after F-001/F-002 fixes: CLI help now matches parent-roadmap runtime behavior for storyId=B-43de and case=migration; docs acknowledge B-e781 closure with local machine evidence and retired Authority Server/non-production claim boundaries; proof rows remain row-level command-backed and claim-bounded. Verified with parent_roadmap_status for storyId=B-43de and case=migration, parent_roadmap_status/evaluate --help, node scripts/verify-process-fact-contract.mjs, and node packages/main/dist/tasks/parent-roadmap-totality-smoke.js. No quality blocker found.",
+      "createdAt": "2026-06-30T22:48:33.159Z",
+      "reviewRound": "2026-06-30T22:43:18.109Z",
+      "reviewRunId": "B-e781:RR-009",
+      "_hash": "47cd393b30beb491bd964575a1f554fe82e2d6ef7fc6d342f54c35038322af5f"
     }
   ]
 }
