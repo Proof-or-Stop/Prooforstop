@@ -195,7 +195,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "review-escalation, reviewer-quorum, and quorum-submit smokes pass and parent_roadmap_status shows M8 closed.",
+      "userSees": "\"M8\" row shows \"closed\": true and review escalation/quorum smoke evidence is listed.",
       "files": {
         "modify": [
           "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
@@ -204,7 +204,8 @@
         "create": [],
         "test": [
           "packages/main/src/tasks/review-escalation-smoke.ts",
-          "packages/main/src/tasks/reviewer-quorum-smoke.ts"
+          "packages/main/src/tasks/reviewer-quorum-smoke.ts",
+          "packages/main/src/tasks/quorum-submit-smoke.ts"
         ]
       },
       "verificationIntent": {
