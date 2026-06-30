@@ -30,7 +30,7 @@ function resolveLedger(args: ParentRoadmapEvalArgs): unknown {
   if (args.ledger) return args.ledger;
   if (args.case) return buildParentRoadmapSampleCase(args.case);
   if (args.storyId) {
-    if (args.storyId === 'B-43de') return buildParentRoadmapSampleCase('migration');
+    if (args.storyId === 'B-43de') return buildParentRoadmapSampleCase('b-43de');
     throw new Error(`No parent roadmap ledger is registered for storyId ${args.storyId}. Pass a ledger or explicit case to evaluate parent-roadmap semantics.`);
   }
   return buildParentRoadmapSampleCase('migration');

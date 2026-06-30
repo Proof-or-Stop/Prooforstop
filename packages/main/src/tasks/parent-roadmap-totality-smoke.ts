@@ -43,6 +43,31 @@ const sessionEnv = {
   LATTICE_AGENT: 'parent-roadmap-totality-smoke',
 };
 const M4_M12_ROW_IDS = Array.from({ length: 9 }, (_, index) => `M${index + 4}`);
+const B43DE_EXPECTED_COMMANDS: Record<string, string[]> = {
+  M4: ['node scripts/verify-process-fact-contract.mjs'],
+  M5: ['node packages/main/dist/tasks/verification-context-pack-smoke.js'],
+  M6: [
+    'node packages/main/dist/tasks/lifecycle-orchestrate-smoke.js',
+    'node packages/main/dist/tasks/review-escalation-smoke.js',
+  ],
+  M7: [
+    'node packages/main/dist/tasks/baseline-suite-smoke.js',
+    'node packages/main/dist/tasks/baseline-suite-report-smoke.js',
+  ],
+  M8: [
+    'node packages/main/dist/tasks/reviewer-quorum-smoke.js',
+    'node packages/main/dist/tasks/quorum-submit-smoke.js',
+    'node packages/main/dist/tasks/review-escalation-smoke.js',
+  ],
+  M9: ['node packages/main/dist/tasks/lifecycle-orchestrate-smoke.js'],
+  M10: ['node packages/main/dist/tasks/lattice-parallel-wave-smoke.js'],
+  M11: ['node packages/main/dist/tasks/rollout-check-smoke.js'],
+  M12: [
+    'node packages/main/dist/tasks/parent-roadmap-totality-smoke.js',
+    'node packages/main/dist/tasks/lattice-handoff-smoke.js',
+  ],
+};
+const RETIRED_AUTHORITY_CLAIM_PATTERN = /AUTHORITY_GATE_DECISION|authorityDone|fullAuthorityDone|productionDone|receiptVerified|Authority Server|production\/runtime conformance|runtime conformance/i;
 
 const allCases: CaseName[] = ['state-model', 'evaluator', 'claim-consumer', 'proofstory-binding', 'cli', 'migration'];
 
@@ -373,6 +398,39 @@ function migrationLedger(): Record<string, unknown> {
   });
 }
 
+function assertB43deClosedLedger(mod: RuntimeModule): void {
+  const ledger = mod.buildParentRoadmapSampleCase('b-43de') as any;
+  const rollup = mod.evaluateParentRoadmapLedger(ledger);
+  assert.equal(rollup.parentStoryId, 'B-43de');
+  assert.equal(rollup.allRowsClosed, true, 'B-43de M4-M12 ledger is fully closed');
+  assert.equal(rollup.summaryClass, 'full_roadmap_complete');
+  assert.equal(rollup.claimType, 'full-roadmap-claim');
+  assert.deepEqual(rollup.openRows, []);
+  assert.deepEqual(rollup.migrationRows, []);
+  assert.deepEqual(M4_M12_ROW_IDS.filter((rowId) => !rollup.rowResults.some((row: any) => row.rowId === rowId && row.closed)), []);
+
+  for (const rowId of M4_M12_ROW_IDS) {
+    const row = ledger.rows.find((candidate: any) => candidate.rowId === rowId);
+    assert.ok(row, `${rowId} exists in the B-43de closure ledger`);
+    assert.equal(row.status, 'closed-by-existing-evidence', `${rowId} is closed by evidence`);
+    assert.ok(Array.isArray(row.closureEvidence) && row.closureEvidence.length > 0, `${rowId} has closureEvidence`);
+    assert.equal(typeof row.claimBoundary, 'string', `${rowId} has claimBoundary`);
+    assert.ok(row.claimBoundary.trim().length > 0, `${rowId} claimBoundary is non-empty`);
+    const commands = row.closureEvidence.map((entry: any) => entry.command).filter(Boolean);
+    for (const command of B43DE_EXPECTED_COMMANDS[rowId]) {
+      assert.ok(commands.includes(command), `${rowId} closureEvidence includes command ref ${command}`);
+    }
+    for (const entry of row.closureEvidence) {
+      assert.equal(entry.result, 'pass', `${rowId} evidence result is pass`);
+      assert.ok(typeof entry.ref === 'string' && entry.ref.includes(`B-e781:${rowId}:`), `${rowId} evidence ref binds B-e781 and row id`);
+    }
+    assert.doesNotMatch(JSON.stringify({
+      claimBoundary: row.claimBoundary,
+      closureEvidence: row.closureEvidence,
+    }), RETIRED_AUTHORITY_CLAIM_PATTERN, `${rowId} must not claim retired Authority Server production/runtime conformance`);
+  }
+}
+
 async function expectedRedParentOverclaim(): Promise<void> {
   const loaded = await tryLoadRuntime();
   if (!loaded.ok) {
@@ -427,6 +485,8 @@ async function runStateModel(mod: RuntimeModule): Promise<void> {
 }
 
 async function runEvaluator(mod: RuntimeModule): Promise<void> {
+  assertB43deClosedLedger(mod);
+
   const partial = mod.evaluateParentRoadmapLedger(partialLedger());
   assert.equal(partial.allRowsClosed, false, 'caller-provided allRowsClosed=true is ignored');
   assert.equal(partial.claimType, 'no-full-roadmap-claim', 'caller-provided full-roadmap claimType is ignored');
@@ -634,8 +694,27 @@ async function runCliCase(mod: RuntimeModule): Promise<void> {
     assert.match(externalContractFailure, /parent-roadmap enforce failed/i, 'external ProofStory inventory must fail closed in enforce mode');
     assert.match(externalContractFailure, /parent_roadmap_summary_overclaim|Invalid rows: M5|M5/i);
 
+    const legacyMigration = JSON.parse(runCli(root, 'parent_roadmap_status', { case: 'migration', json: true }));
+    assert.equal(legacyMigration.rollup.summaryClass, 'migration_needed');
+    assert.equal(legacyMigration.rollup.allRowsClosed, false);
+    assert.ok(legacyMigration.rollup.openRows.includes('M5'), 'explicit legacy migration sample remains open');
+
     const sample = mod.evaluateParentRoadmapLedger(mod.buildParentRoadmapSampleCase('migration'));
     assert.equal(sample.summaryClass, 'migration_needed');
+
+    const b43deCase = JSON.parse(runCli(root, 'parent_roadmap_status', { case: 'b-43de', json: true }));
+    assert.equal(b43deCase.rollup.summaryClass, 'full_roadmap_complete');
+    assert.equal(b43deCase.rollup.allRowsClosed, true);
+    assert.deepEqual(b43deCase.rollup.openRows, []);
+
+    const b43deStoryStatus = JSON.parse(runCli(root, 'parent_roadmap_status', { storyId: 'B-43de', json: true }));
+    assert.equal(b43deStoryStatus.rollup.parentStoryId, 'B-43de');
+    assert.equal(b43deStoryStatus.rollup.summaryClass, 'full_roadmap_complete');
+    assert.equal(b43deStoryStatus.rollup.allRowsClosed, true);
+    assert.deepEqual(b43deStoryStatus.rollup.openRows, []);
+    for (const rowId of M4_M12_ROW_IDS) {
+      assert.ok(b43deStoryStatus.rollup.rowResults.some((row: any) => row.rowId === rowId && row.closed), `storyId B-43de closes ${rowId}`);
+    }
 
     const unrelated = runCli(root, 'parent_roadmap_status', { storyId: 'B-unrelated', json: true }, true);
     assert.match(
@@ -662,6 +741,11 @@ async function runMigration(mod: RuntimeModule): Promise<void> {
     mode: 'enforce',
   });
   assert.equal(claim.allowed, false, 'historical migration candidate is never full');
+
+  const migrationSample = mod.evaluateParentRoadmapLedger(mod.buildParentRoadmapSampleCase('migration'));
+  assert.equal(migrationSample.summaryClass, 'migration_needed');
+  assert.equal(migrationSample.allRowsClosed, false);
+  assert.ok(migrationSample.openRows.includes('M5'), 'explicit migration sample keeps M5 open');
 }
 
 async function runNormal(): Promise<void> {
