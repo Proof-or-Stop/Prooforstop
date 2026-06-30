@@ -1,0 +1,29 @@
+{
+  "storyId": "B-e1a8",
+  "name": "proofstory-enforce-rollout",
+  "title": "Enable ProofStory gates in enforce mode",
+  "description": "Roll out ProofStory enforcement globally by setting proofStory.devGateMode, proofStory.reviewGateMode, and proofStory.doneGateMode to enforce. The story must also prove its own original intent, milestone coverage, intent collision, ProofStory contract, REVIEW completeness, and DONE intent equivalence so the new gates are not bypassed.",
+  "type": "feature",
+  "phase": "INIT",
+  "priority": "high",
+  "riskSignals": [
+    {
+      "category": "State Machine/Gate",
+      "matched": "DONE gate"
+    }
+  ],
+  "createdAt": "2026-06-30T08:38:15.898Z",
+  "startedAt": "2026-06-30T08:38:15.898Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-06-30T08:38:15.899Z",
+      "branch": "main",
+      "user": "Harmonygo",
+      "sessionId": "sess-c1592222a4fdb073",
+      "agent": "main"
+    }
+  ]
+}

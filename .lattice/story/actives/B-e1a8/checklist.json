@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Enable ProofStory enforce modes in project config",
+      "context": "Add the top-level proofStory config with devGateMode, reviewGateMode, and doneGateMode set to enforce. Related source: docs/requirements/decisions/proofstory-intent-collision-execution-plan.md.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Record ProofStory intent artifacts for this rollout story",
+      "context": "Before relying on the new global gate, create original intent snapshot, confirmed milestone ledger, intent collision pass, acceptance bindings, and any needed scope/spike evidence for this story itself.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Verify DEV REVIEW DONE gate behavior under enforce mode",
+      "context": "Run build, ProofStory smoke, process fact contract verification, and explicit proofstory gate/review/done diagnostics for this story after the config change.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
