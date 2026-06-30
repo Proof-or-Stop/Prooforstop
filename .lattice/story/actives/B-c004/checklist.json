@@ -186,9 +186,9 @@
         "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-30T15:13:41.118Z",
-      "endTime": null,
+      "endTime": "2026-06-30T15:14:29.181Z",
       "files": {
         "modify": [
           "packages/main/src/core/lifecycle-control/control-status.ts",
@@ -227,7 +227,45 @@
           }
         ]
       },
-      "userSees": "The final status table shows CHK-003/M3 as Tier-C cleanup policy resolved, with valid experiment evidence preserved and spoofed rows still cleanup-required."
+      "userSees": "The final status table shows CHK-003/M3 as Tier-C cleanup policy resolved, with valid experiment evidence preserved and spoofed rows still cleanup-required.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/lifecycle-control-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/lifecycle-control-smoke.js",
+          "result": "pass",
+          "note": "Commit 2450bad81 preserves valid Tier-C experiment rows as experiment-batch-exception with cleanupPolicy=preserve.",
+          "headHash": "2450bad8165ea170de1b5b76dd4f8dd813bf0c6a",
+          "materialHash": "9000752f8d967e81c438de2a1cf9825ba171104b47f5c722a728792c25a020fa",
+          "storyFilesHash": "0e745316bc1f6a13eb6d3ebae9cd73dde45e33562a320ed513a2109c1811a400",
+          "timestamp": "2026-06-30T15:14:29.372Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/lifecycle-control-smoke.ts",
+          "command": "node packages/main/dist/tasks/lifecycle-control-smoke.js",
+          "result": "pass",
+          "note": "The smoke asserts malformed Tier-C-like rows remain cleanup-required with cleanupPolicy=cleanup-required.",
+          "headHash": "2450bad8165ea170de1b5b76dd4f8dd813bf0c6a",
+          "materialHash": "9000752f8d967e81c438de2a1cf9825ba171104b47f5c722a728792c25a020fa",
+          "storyFilesHash": "0e745316bc1f6a13eb6d3ebae9cd73dde45e33562a320ed513a2109c1811a400",
+          "timestamp": "2026-06-30T15:14:29.551Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "command": "rg -n \"Tier-C cleanup\" docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md packages/main/src/core/lifecycle-control/control-status.ts",
+          "result": "pass",
+          "note": "The capability row now reports automated Tier-C cleanup as unavailable/retired non-goal, not unfinished automation.",
+          "headHash": "2450bad8165ea170de1b5b76dd4f8dd813bf0c6a",
+          "materialHash": "9000752f8d967e81c438de2a1cf9825ba171104b47f5c722a728792c25a020fa",
+          "storyFilesHash": "0e745316bc1f6a13eb6d3ebae9cd73dde45e33562a320ed513a2109c1811a400",
+          "timestamp": "2026-06-30T15:14:29.725Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
