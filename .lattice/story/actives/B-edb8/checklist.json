@@ -50,10 +50,10 @@
           "command": "git log --oneline --reverse cf25e3385..bd7700150 && git show --name-only --format=%s eec0fe75e",
           "result": "pass",
           "note": "Shows the red/repro smoke commit eec0fe75e landed before runtime commit bd7700150 and only added parent-roadmap-totality-smoke.ts.",
-          "headHash": "04ed848a13e02b4992d1b9c01c3773521fb0d317",
-          "materialHash": "6271fc0625ed3905d2ec1e7fe95d4bf88cea05ead26427d7f57ba510b2d5460f",
-          "storyFilesHash": "1857852913c25f0da7da9c0dafbf9efc9106f01aca0406a61656dac590c6271b",
-          "timestamp": "2026-06-30T14:00:22.043Z"
+          "headHash": "8a9840fccb475afc81e06e30ff9c701da509bdbf",
+          "materialHash": "8bdca52ec8cfcbc37a0a0635b3deda1402c3c38256a7b3d73832cf337def8263",
+          "storyFilesHash": "158f5ecf2a9e6a136e791e3b1b1b3e26aff399aabf1e50c0c2586eecf6efab44",
+          "timestamp": "2026-06-30T14:13:33.339Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -61,10 +61,10 @@
           "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js",
           "result": "pass",
           "note": "Full smoke covers allRowsClosed=false, partial_parent_done, child-story-needed, stale, blocked, invalid deferral, summary overclaim, and B-43de-shaped migration paths.",
-          "headHash": "04ed848a13e02b4992d1b9c01c3773521fb0d317",
-          "materialHash": "6271fc0625ed3905d2ec1e7fe95d4bf88cea05ead26427d7f57ba510b2d5460f",
-          "storyFilesHash": "1857852913c25f0da7da9c0dafbf9efc9106f01aca0406a61656dac590c6271b",
-          "timestamp": "2026-06-30T14:00:22.043Z"
+          "headHash": "8a9840fccb475afc81e06e30ff9c701da509bdbf",
+          "materialHash": "8bdca52ec8cfcbc37a0a0635b3deda1402c3c38256a7b3d73832cf337def8263",
+          "storyFilesHash": "158f5ecf2a9e6a136e791e3b1b1b3e26aff399aabf1e50c0c2586eecf6efab44",
+          "timestamp": "2026-06-30T14:13:33.339Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -72,10 +72,10 @@
           "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js --case=evaluator && node packages/main/dist/tasks/parent-roadmap-totality-smoke.js --case=claim-consumer",
           "result": "pass",
           "note": "Negative controls prove caller-provided full rollup overrides are ignored and full-roadmap wording is blocked while child rows are open.",
-          "headHash": "04ed848a13e02b4992d1b9c01c3773521fb0d317",
-          "materialHash": "6271fc0625ed3905d2ec1e7fe95d4bf88cea05ead26427d7f57ba510b2d5460f",
-          "storyFilesHash": "1857852913c25f0da7da9c0dafbf9efc9106f01aca0406a61656dac590c6271b",
-          "timestamp": "2026-06-30T14:00:22.043Z"
+          "headHash": "8a9840fccb475afc81e06e30ff9c701da509bdbf",
+          "materialHash": "8bdca52ec8cfcbc37a0a0635b3deda1402c3c38256a7b3d73832cf337def8263",
+          "storyFilesHash": "158f5ecf2a9e6a136e791e3b1b1b3e26aff399aabf1e50c0c2586eecf6efab44",
+          "timestamp": "2026-06-30T14:13:33.339Z"
         }
       ]
     },
@@ -129,10 +129,10 @@
           "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js --case=state-model",
           "result": "pass",
           "note": "State-model case verifies exported schema versions, row statuses, summary classes, claim types, and full ledger closure.",
-          "headHash": "04ed848a13e02b4992d1b9c01c3773521fb0d317",
-          "materialHash": "6271fc0625ed3905d2ec1e7fe95d4bf88cea05ead26427d7f57ba510b2d5460f",
-          "storyFilesHash": "1857852913c25f0da7da9c0dafbf9efc9106f01aca0406a61656dac590c6271b",
-          "timestamp": "2026-06-30T14:00:22.043Z"
+          "headHash": "8a9840fccb475afc81e06e30ff9c701da509bdbf",
+          "materialHash": "8bdca52ec8cfcbc37a0a0635b3deda1402c3c38256a7b3d73832cf337def8263",
+          "storyFilesHash": "158f5ecf2a9e6a136e791e3b1b1b3e26aff399aabf1e50c0c2586eecf6efab44",
+          "timestamp": "2026-06-30T14:13:33.339Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -140,10 +140,10 @@
           "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js --case=state-model",
           "result": "pass",
           "note": "Unknown status is classified invalid_parent_rollup with invalidRows instead of being silently closed.",
-          "headHash": "04ed848a13e02b4992d1b9c01c3773521fb0d317",
-          "materialHash": "6271fc0625ed3905d2ec1e7fe95d4bf88cea05ead26427d7f57ba510b2d5460f",
-          "storyFilesHash": "1857852913c25f0da7da9c0dafbf9efc9106f01aca0406a61656dac590c6271b",
-          "timestamp": "2026-06-30T14:00:22.043Z"
+          "headHash": "8a9840fccb475afc81e06e30ff9c701da509bdbf",
+          "materialHash": "8bdca52ec8cfcbc37a0a0635b3deda1402c3c38256a7b3d73832cf337def8263",
+          "storyFilesHash": "158f5ecf2a9e6a136e791e3b1b1b3e26aff399aabf1e50c0c2586eecf6efab44",
+          "timestamp": "2026-06-30T14:13:33.339Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -151,10 +151,10 @@
           "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js --case=evaluator",
           "result": "pass",
           "note": "Child-story-needed rows remain valid data and still force no-full-roadmap-claim.",
-          "headHash": "04ed848a13e02b4992d1b9c01c3773521fb0d317",
-          "materialHash": "6271fc0625ed3905d2ec1e7fe95d4bf88cea05ead26427d7f57ba510b2d5460f",
-          "storyFilesHash": "1857852913c25f0da7da9c0dafbf9efc9106f01aca0406a61656dac590c6271b",
-          "timestamp": "2026-06-30T14:00:22.043Z"
+          "headHash": "8a9840fccb475afc81e06e30ff9c701da509bdbf",
+          "materialHash": "8bdca52ec8cfcbc37a0a0635b3deda1402c3c38256a7b3d73832cf337def8263",
+          "storyFilesHash": "158f5ecf2a9e6a136e791e3b1b1b3e26aff399aabf1e50c0c2586eecf6efab44",
+          "timestamp": "2026-06-30T14:13:33.339Z"
         }
       ]
     },
@@ -205,10 +205,10 @@
           "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js --case=evaluator",
           "result": "pass",
           "note": "Evaluator returns allRowsClosed=true and full-roadmap-claim only for full fresh row evidence.",
-          "headHash": "04ed848a13e02b4992d1b9c01c3773521fb0d317",
-          "materialHash": "6271fc0625ed3905d2ec1e7fe95d4bf88cea05ead26427d7f57ba510b2d5460f",
-          "storyFilesHash": "1857852913c25f0da7da9c0dafbf9efc9106f01aca0406a61656dac590c6271b",
-          "timestamp": "2026-06-30T14:00:22.043Z"
+          "headHash": "8a9840fccb475afc81e06e30ff9c701da509bdbf",
+          "materialHash": "8bdca52ec8cfcbc37a0a0635b3deda1402c3c38256a7b3d73832cf337def8263",
+          "storyFilesHash": "158f5ecf2a9e6a136e791e3b1b1b3e26aff399aabf1e50c0c2586eecf6efab44",
+          "timestamp": "2026-06-30T14:13:33.339Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -216,10 +216,10 @@
           "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js --case=evaluator",
           "result": "pass",
           "note": "Open, stale, blocked, missing, and invalid rows produce allRowsClosed=false with row-level reasons and next actions.",
-          "headHash": "04ed848a13e02b4992d1b9c01c3773521fb0d317",
-          "materialHash": "6271fc0625ed3905d2ec1e7fe95d4bf88cea05ead26427d7f57ba510b2d5460f",
-          "storyFilesHash": "1857852913c25f0da7da9c0dafbf9efc9106f01aca0406a61656dac590c6271b",
-          "timestamp": "2026-06-30T14:00:22.043Z"
+          "headHash": "8a9840fccb475afc81e06e30ff9c701da509bdbf",
+          "materialHash": "8bdca52ec8cfcbc37a0a0635b3deda1402c3c38256a7b3d73832cf337def8263",
+          "storyFilesHash": "158f5ecf2a9e6a136e791e3b1b1b3e26aff399aabf1e50c0c2586eecf6efab44",
+          "timestamp": "2026-06-30T14:13:33.339Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -227,10 +227,10 @@
           "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js --case=evaluator",
           "result": "pass",
           "note": "Caller-provided parentLedgerRollup allRowsClosed=true and full-roadmap-claim are ignored; row facts recompute the rollup.",
-          "headHash": "04ed848a13e02b4992d1b9c01c3773521fb0d317",
-          "materialHash": "6271fc0625ed3905d2ec1e7fe95d4bf88cea05ead26427d7f57ba510b2d5460f",
-          "storyFilesHash": "1857852913c25f0da7da9c0dafbf9efc9106f01aca0406a61656dac590c6271b",
-          "timestamp": "2026-06-30T14:00:22.043Z"
+          "headHash": "8a9840fccb475afc81e06e30ff9c701da509bdbf",
+          "materialHash": "8bdca52ec8cfcbc37a0a0635b3deda1402c3c38256a7b3d73832cf337def8263",
+          "storyFilesHash": "158f5ecf2a9e6a136e791e3b1b1b3e26aff399aabf1e50c0c2586eecf6efab44",
+          "timestamp": "2026-06-30T14:13:33.339Z"
         }
       ]
     },
@@ -283,10 +283,10 @@
           "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js --case=claim-consumer",
           "result": "pass",
           "note": "Claim consumer allows full-roadmap wording only when rollup claimType is full-roadmap-claim.",
-          "headHash": "04ed848a13e02b4992d1b9c01c3773521fb0d317",
-          "materialHash": "6271fc0625ed3905d2ec1e7fe95d4bf88cea05ead26427d7f57ba510b2d5460f",
-          "storyFilesHash": "1857852913c25f0da7da9c0dafbf9efc9106f01aca0406a61656dac590c6271b",
-          "timestamp": "2026-06-30T14:00:22.043Z"
+          "headHash": "8a9840fccb475afc81e06e30ff9c701da509bdbf",
+          "materialHash": "8bdca52ec8cfcbc37a0a0635b3deda1402c3c38256a7b3d73832cf337def8263",
+          "storyFilesHash": "158f5ecf2a9e6a136e791e3b1b1b3e26aff399aabf1e50c0c2586eecf6efab44",
+          "timestamp": "2026-06-30T14:13:33.339Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -294,10 +294,10 @@
           "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js --case=claim-consumer",
           "result": "pass",
           "note": "Honest parent governance complete; roadmap not complete wording is allowed for partial_parent_done with open rows.",
-          "headHash": "04ed848a13e02b4992d1b9c01c3773521fb0d317",
-          "materialHash": "6271fc0625ed3905d2ec1e7fe95d4bf88cea05ead26427d7f57ba510b2d5460f",
-          "storyFilesHash": "1857852913c25f0da7da9c0dafbf9efc9106f01aca0406a61656dac590c6271b",
-          "timestamp": "2026-06-30T14:00:22.043Z"
+          "headHash": "8a9840fccb475afc81e06e30ff9c701da509bdbf",
+          "materialHash": "8bdca52ec8cfcbc37a0a0635b3deda1402c3c38256a7b3d73832cf337def8263",
+          "storyFilesHash": "158f5ecf2a9e6a136e791e3b1b1b3e26aff399aabf1e50c0c2586eecf6efab44",
+          "timestamp": "2026-06-30T14:13:33.339Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -305,10 +305,10 @@
           "command": "node packages/main/dist/cli.js parent_roadmap_status {\"case\":\"partial\",\"summaryText\":\"Full roadmap complete; all M4-M12 rows are done.\",\"mode\":\"enforce\"}",
           "result": "pass",
           "note": "CLI output reports Claim wording allowed: no for explicit full-roadmap overclaim while rows M4 and M5 remain open.",
-          "headHash": "04ed848a13e02b4992d1b9c01c3773521fb0d317",
-          "materialHash": "6271fc0625ed3905d2ec1e7fe95d4bf88cea05ead26427d7f57ba510b2d5460f",
-          "storyFilesHash": "1857852913c25f0da7da9c0dafbf9efc9106f01aca0406a61656dac590c6271b",
-          "timestamp": "2026-06-30T14:00:22.043Z"
+          "headHash": "8a9840fccb475afc81e06e30ff9c701da509bdbf",
+          "materialHash": "8bdca52ec8cfcbc37a0a0635b3deda1402c3c38256a7b3d73832cf337def8263",
+          "storyFilesHash": "158f5ecf2a9e6a136e791e3b1b1b3e26aff399aabf1e50c0c2586eecf6efab44",
+          "timestamp": "2026-06-30T14:13:33.339Z"
         }
       ]
     },
@@ -363,10 +363,10 @@
           "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js --case=proofstory-binding",
           "result": "pass",
           "note": "Parent-roadmap binding consumes original intent snapshot, proofstory contract binding, row rollup, and summary wording to detect overclaim.",
-          "headHash": "cad0f4b99e755166408cee4f45321910579e090c",
-          "materialHash": "6271fc0625ed3905d2ec1e7fe95d4bf88cea05ead26427d7f57ba510b2d5460f",
-          "storyFilesHash": "1857852913c25f0da7da9c0dafbf9efc9106f01aca0406a61656dac590c6271b",
-          "timestamp": "2026-06-30T13:58:47.489Z"
+          "headHash": "8a9840fccb475afc81e06e30ff9c701da509bdbf",
+          "materialHash": "8bdca52ec8cfcbc37a0a0635b3deda1402c3c38256a7b3d73832cf337def8263",
+          "storyFilesHash": "158f5ecf2a9e6a136e791e3b1b1b3e26aff399aabf1e50c0c2586eecf6efab44",
+          "timestamp": "2026-06-30T14:13:33.339Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -374,10 +374,10 @@
           "command": "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js",
           "result": "pass",
           "note": "Existing B-5082 ProofStory local-intent gates still pass after adding the parent-roadmap totality module and commands.",
-          "headHash": "cad0f4b99e755166408cee4f45321910579e090c",
-          "materialHash": "6271fc0625ed3905d2ec1e7fe95d4bf88cea05ead26427d7f57ba510b2d5460f",
-          "storyFilesHash": "1857852913c25f0da7da9c0dafbf9efc9106f01aca0406a61656dac590c6271b",
-          "timestamp": "2026-06-30T13:58:47.715Z"
+          "headHash": "8a9840fccb475afc81e06e30ff9c701da509bdbf",
+          "materialHash": "8bdca52ec8cfcbc37a0a0635b3deda1402c3c38256a7b3d73832cf337def8263",
+          "storyFilesHash": "158f5ecf2a9e6a136e791e3b1b1b3e26aff399aabf1e50c0c2586eecf6efab44",
+          "timestamp": "2026-06-30T14:13:33.339Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -385,10 +385,10 @@
           "command": "node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Process-fact contract verifies parent-roadmap commands and runtime claim-consumer fact are registered, so child-story-needed rows cannot be hidden behind narrower prose claims.",
-          "headHash": "cad0f4b99e755166408cee4f45321910579e090c",
-          "materialHash": "6271fc0625ed3905d2ec1e7fe95d4bf88cea05ead26427d7f57ba510b2d5460f",
-          "storyFilesHash": "1857852913c25f0da7da9c0dafbf9efc9106f01aca0406a61656dac590c6271b",
-          "timestamp": "2026-06-30T13:58:47.923Z"
+          "headHash": "8a9840fccb475afc81e06e30ff9c701da509bdbf",
+          "materialHash": "8bdca52ec8cfcbc37a0a0635b3deda1402c3c38256a7b3d73832cf337def8263",
+          "storyFilesHash": "158f5ecf2a9e6a136e791e3b1b1b3e26aff399aabf1e50c0c2586eecf6efab44",
+          "timestamp": "2026-06-30T14:13:33.339Z"
         }
       ]
     },
@@ -447,10 +447,10 @@
           "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js --case=cli",
           "result": "pass",
           "note": "CLI smoke verifies parent_roadmap_status and parent_roadmap_evaluate expose full, partial, and migration states from provided ledgers or explicit cases.",
-          "headHash": "2f4952d7612ac457a8523a3fa23ab419e71eb690",
-          "materialHash": "6271fc0625ed3905d2ec1e7fe95d4bf88cea05ead26427d7f57ba510b2d5460f",
-          "storyFilesHash": "1857852913c25f0da7da9c0dafbf9efc9106f01aca0406a61656dac590c6271b",
-          "timestamp": "2026-06-30T13:58:57.906Z"
+          "headHash": "8a9840fccb475afc81e06e30ff9c701da509bdbf",
+          "materialHash": "8bdca52ec8cfcbc37a0a0635b3deda1402c3c38256a7b3d73832cf337def8263",
+          "storyFilesHash": "158f5ecf2a9e6a136e791e3b1b1b3e26aff399aabf1e50c0c2586eecf6efab44",
+          "timestamp": "2026-06-30T14:13:33.339Z"
         },
         {
           "intentRef": "CHK-006:edge:0",
@@ -458,10 +458,10 @@
           "command": "node packages/main/dist/cli.js parent_roadmap_status {\"case\":\"migration\"}",
           "result": "pass",
           "note": "CLI text lists migration_needed, no-full-roadmap-claim, open child rows M4-M12, and next actions.",
-          "headHash": "2f4952d7612ac457a8523a3fa23ab419e71eb690",
-          "materialHash": "6271fc0625ed3905d2ec1e7fe95d4bf88cea05ead26427d7f57ba510b2d5460f",
-          "storyFilesHash": "1857852913c25f0da7da9c0dafbf9efc9106f01aca0406a61656dac590c6271b",
-          "timestamp": "2026-06-30T13:58:58.101Z"
+          "headHash": "8a9840fccb475afc81e06e30ff9c701da509bdbf",
+          "materialHash": "8bdca52ec8cfcbc37a0a0635b3deda1402c3c38256a7b3d73832cf337def8263",
+          "storyFilesHash": "158f5ecf2a9e6a136e791e3b1b1b3e26aff399aabf1e50c0c2586eecf6efab44",
+          "timestamp": "2026-06-30T14:13:33.339Z"
         },
         {
           "intentRef": "CHK-006:adversarial:0",
@@ -469,10 +469,10 @@
           "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js --case=cli",
           "result": "pass",
           "note": "CLI case includes B-unrelated negative control; unknown storyId fails with no parent roadmap ledger instead of being auto-classified.",
-          "headHash": "2f4952d7612ac457a8523a3fa23ab419e71eb690",
-          "materialHash": "6271fc0625ed3905d2ec1e7fe95d4bf88cea05ead26427d7f57ba510b2d5460f",
-          "storyFilesHash": "1857852913c25f0da7da9c0dafbf9efc9106f01aca0406a61656dac590c6271b",
-          "timestamp": "2026-06-30T13:58:58.298Z"
+          "headHash": "8a9840fccb475afc81e06e30ff9c701da509bdbf",
+          "materialHash": "8bdca52ec8cfcbc37a0a0635b3deda1402c3c38256a7b3d73832cf337def8263",
+          "storyFilesHash": "158f5ecf2a9e6a136e791e3b1b1b3e26aff399aabf1e50c0c2586eecf6efab44",
+          "timestamp": "2026-06-30T14:13:33.339Z"
         }
       ]
     },
@@ -526,10 +526,10 @@
           "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js --case=migration",
           "result": "pass",
           "note": "Migration smoke classifies B-43de-shaped historical ledger as migration_needed with open M5-M12 rows and no-full-roadmap-claim.",
-          "headHash": "a21e43d6f491eb25489421d6b779755757c3b9c0",
-          "materialHash": "6271fc0625ed3905d2ec1e7fe95d4bf88cea05ead26427d7f57ba510b2d5460f",
-          "storyFilesHash": "1857852913c25f0da7da9c0dafbf9efc9106f01aca0406a61656dac590c6271b",
-          "timestamp": "2026-06-30T13:59:09.583Z"
+          "headHash": "8a9840fccb475afc81e06e30ff9c701da509bdbf",
+          "materialHash": "8bdca52ec8cfcbc37a0a0635b3deda1402c3c38256a7b3d73832cf337def8263",
+          "storyFilesHash": "158f5ecf2a9e6a136e791e3b1b1b3e26aff399aabf1e50c0c2586eecf6efab44",
+          "timestamp": "2026-06-30T14:13:33.339Z"
         },
         {
           "intentRef": "CHK-007:edge:0",
@@ -537,10 +537,10 @@
           "command": "node packages/main/dist/cli.js parent_roadmap_status {\"case\":\"migration\"}",
           "result": "pass",
           "note": "Legacy/migration status remains readable and prints open rows plus repair action rather than force-classifying full completion.",
-          "headHash": "a21e43d6f491eb25489421d6b779755757c3b9c0",
-          "materialHash": "6271fc0625ed3905d2ec1e7fe95d4bf88cea05ead26427d7f57ba510b2d5460f",
-          "storyFilesHash": "1857852913c25f0da7da9c0dafbf9efc9106f01aca0406a61656dac590c6271b",
-          "timestamp": "2026-06-30T13:59:09.851Z"
+          "headHash": "8a9840fccb475afc81e06e30ff9c701da509bdbf",
+          "materialHash": "8bdca52ec8cfcbc37a0a0635b3deda1402c3c38256a7b3d73832cf337def8263",
+          "storyFilesHash": "158f5ecf2a9e6a136e791e3b1b1b3e26aff399aabf1e50c0c2586eecf6efab44",
+          "timestamp": "2026-06-30T14:13:33.339Z"
         },
         {
           "intentRef": "CHK-007:adversarial:0",
@@ -548,10 +548,10 @@
           "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js --case=evaluator",
           "result": "pass",
           "note": "Invalid deferred-with-human-approval without complete human evidence is invalid_parent_rollup and cannot close a row.",
-          "headHash": "a21e43d6f491eb25489421d6b779755757c3b9c0",
-          "materialHash": "6271fc0625ed3905d2ec1e7fe95d4bf88cea05ead26427d7f57ba510b2d5460f",
-          "storyFilesHash": "1857852913c25f0da7da9c0dafbf9efc9106f01aca0406a61656dac590c6271b",
-          "timestamp": "2026-06-30T13:59:10.071Z"
+          "headHash": "8a9840fccb475afc81e06e30ff9c701da509bdbf",
+          "materialHash": "8bdca52ec8cfcbc37a0a0635b3deda1402c3c38256a7b3d73832cf337def8263",
+          "storyFilesHash": "158f5ecf2a9e6a136e791e3b1b1b3e26aff399aabf1e50c0c2586eecf6efab44",
+          "timestamp": "2026-06-30T14:13:33.339Z"
         }
       ]
     },
@@ -605,10 +605,10 @@
           "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/parent-roadmap-totality-smoke.js && node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js && node scripts/verify-process-fact-contract.mjs",
           "result": "pass",
           "note": "Certification commands pass on current HEAD and cover full, partial, blocked, invalid, stale, migration, summary, ProofStory, and process-fact paths.",
-          "headHash": "16b3a4dd83ef8326537a8fdbe93e6ee2f2e7fc07",
-          "materialHash": "6271fc0625ed3905d2ec1e7fe95d4bf88cea05ead26427d7f57ba510b2d5460f",
-          "storyFilesHash": "1857852913c25f0da7da9c0dafbf9efc9106f01aca0406a61656dac590c6271b",
-          "timestamp": "2026-06-30T13:59:52.559Z"
+          "headHash": "8a9840fccb475afc81e06e30ff9c701da509bdbf",
+          "materialHash": "8bdca52ec8cfcbc37a0a0635b3deda1402c3c38256a7b3d73832cf337def8263",
+          "storyFilesHash": "158f5ecf2a9e6a136e791e3b1b1b3e26aff399aabf1e50c0c2586eecf6efab44",
+          "timestamp": "2026-06-30T14:13:33.339Z"
         },
         {
           "intentRef": "CHK-008:edge:0",
@@ -616,10 +616,10 @@
           "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js --case=migration && node packages/main/dist/cli.js parent_roadmap_status {\"case\":\"migration\"}",
           "result": "pass",
           "note": "Final claim boundary is explicit: B-43de-shaped migration remains no-full-roadmap-claim with open rows M4-M12 and repair guidance.",
-          "headHash": "16b3a4dd83ef8326537a8fdbe93e6ee2f2e7fc07",
-          "materialHash": "6271fc0625ed3905d2ec1e7fe95d4bf88cea05ead26427d7f57ba510b2d5460f",
-          "storyFilesHash": "1857852913c25f0da7da9c0dafbf9efc9106f01aca0406a61656dac590c6271b",
-          "timestamp": "2026-06-30T13:59:52.752Z"
+          "headHash": "8a9840fccb475afc81e06e30ff9c701da509bdbf",
+          "materialHash": "8bdca52ec8cfcbc37a0a0635b3deda1402c3c38256a7b3d73832cf337def8263",
+          "storyFilesHash": "158f5ecf2a9e6a136e791e3b1b1b3e26aff399aabf1e50c0c2586eecf6efab44",
+          "timestamp": "2026-06-30T14:13:33.339Z"
         },
         {
           "intentRef": "CHK-008:adversarial:0",
@@ -627,10 +627,10 @@
           "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js --case=evaluator && node packages/main/dist/tasks/parent-roadmap-totality-smoke.js --case=claim-consumer && node packages/main/dist/tasks/parent-roadmap-totality-smoke.js --case=cli",
           "result": "pass",
           "note": "Negative controls prove full-roadmap wording is impossible when child rows are open, stale, blocked, missing, invalid, or an unrelated storyId has no parent ledger.",
-          "headHash": "16b3a4dd83ef8326537a8fdbe93e6ee2f2e7fc07",
-          "materialHash": "6271fc0625ed3905d2ec1e7fe95d4bf88cea05ead26427d7f57ba510b2d5460f",
-          "storyFilesHash": "1857852913c25f0da7da9c0dafbf9efc9106f01aca0406a61656dac590c6271b",
-          "timestamp": "2026-06-30T13:59:52.945Z"
+          "headHash": "8a9840fccb475afc81e06e30ff9c701da509bdbf",
+          "materialHash": "8bdca52ec8cfcbc37a0a0635b3deda1402c3c38256a7b3d73832cf337def8263",
+          "storyFilesHash": "158f5ecf2a9e6a136e791e3b1b1b3e26aff399aabf1e50c0c2586eecf6efab44",
+          "timestamp": "2026-06-30T14:13:33.339Z"
         }
       ]
     }
