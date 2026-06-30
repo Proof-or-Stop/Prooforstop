@@ -26,6 +26,15 @@
       "reviewRound": "2026-06-30T01:40:20.802Z",
       "reviewRunId": "B-5082:RR-008",
       "_hash": "988460c73ae2f79ef6b0ffb15cf34730b9afde7b18b3f4dbe6f9a9049681ae77"
+    },
+    {
+      "id": "B-5082:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "Confirmed 24/24 verificationIntent refs are present, result=pass, and fresh via evidence_inspect; reran npm --prefix packages/main run build, node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js, node scripts/verify-process-fact-contract.mjs, and git diff --check with all passing. proofstory_review_completeness_check reported observe-mode warnings only and Blocking: no.",
+      "createdAt": "2026-06-30T01:50:30.643Z",
+      "reviewRound": "2026-06-30T01:46:45.321Z",
+      "reviewRunId": "B-5082:RR-013",
+      "_hash": "ab048e68729e29216b654a6f14edffacade3d4f5da17ddff754bf539ce470de5"
     }
   ]
 }
