@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-490f",
+  "mode": "correctness_fix",
+  "allowed": [
+    "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+    "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+    "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+    "Lattice story metadata/evidence written only through lattice commands"
+  ],
+  "excluded": [
+    "append-only admissibility ledger implementation",
+    "Authority Server receipt-backed proof reintroduction",
+    "global productionDone or Authority completion claims",
+    "new lifecycle hard gate implementation",
+    "runtime code changes",
+    "Tier-C automated cleanup implementation"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "User approved solving the three audited document-status gaps in priority order until DONE; scope is limited to correcting stale/ambiguous requirement document status tables and marking completed rows with checkmarks without overclaiming runtime automation.",
+  "createdAt": "2026-06-30T22:20:28.033Z",
+  "updatedAt": "2026-06-30T22:20:28.033Z",
+  "_hash": "c830e5a37c0dad9d3cb5168a83384ea885766969ece949428fd9b3ffdc06fa64"
+}

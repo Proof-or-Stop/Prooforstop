@@ -1,0 +1,75 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-490f",
+  "checkedAt": "2026-06-30T22:21:44.575Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "c830e5a37c0dad9d3cb5168a83384ea885766969ece949428fd9b3ffdc06fa64",
+  "executionBoundaryHash": "7fa892beb7ace545c18d591e358c8602c9f644de86bec546cc702cc53aefc5d1",
+  "freshnessHash": "a3c5d562ef13d67d25e98177afd419dcf6c9dcc08c2f41e8276fd09c41bf5639",
+  "effectiveExcludedKeywords": [
+    "append-only admissibility ledger implementation",
+    "Authority",
+    "Authority Server receipt-backed proof reintroduction",
+    "customerKeyRef",
+    "global productionDone or Authority completion claims",
+    "Layer4",
+    "new lifecycle hard gate implementation",
+    "repair UX",
+    "runtime code changes",
+    "Tier-C automated cleanup implementation"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "append-only admissibility ledger implementation",
+      "source": "scopeBoundary.excluded",
+      "text": "append-only admissibility ledger implementation",
+      "excluded": true
+    },
+    {
+      "keyword": "Authority",
+      "source": "scopeBoundary.excluded",
+      "text": "Authority Server receipt-backed proof reintroduction",
+      "excluded": true
+    },
+    {
+      "keyword": "Authority",
+      "source": "scopeBoundary.excluded",
+      "text": "global productionDone or Authority completion claims",
+      "excluded": true
+    },
+    {
+      "keyword": "Authority Server receipt-backed proof reintroduction",
+      "source": "scopeBoundary.excluded",
+      "text": "Authority Server receipt-backed proof reintroduction",
+      "excluded": true
+    },
+    {
+      "keyword": "global productionDone or Authority completion claims",
+      "source": "scopeBoundary.excluded",
+      "text": "global productionDone or Authority completion claims",
+      "excluded": true
+    },
+    {
+      "keyword": "new lifecycle hard gate implementation",
+      "source": "scopeBoundary.excluded",
+      "text": "new lifecycle hard gate implementation",
+      "excluded": true
+    },
+    {
+      "keyword": "runtime code changes",
+      "source": "scopeBoundary.excluded",
+      "text": "runtime code changes",
+      "excluded": true
+    },
+    {
+      "keyword": "Tier-C automated cleanup implementation",
+      "source": "scopeBoundary.excluded",
+      "text": "Tier-C automated cleanup implementation",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "b900d381c50e6539ea2bd355484f181a8d90b29b7ae86091543603813de52ff1"
+}

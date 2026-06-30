@@ -1,0 +1,51 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-490f",
+  "allowedCommands": [
+    "git diff *",
+    "git status *",
+    "lattice *",
+    "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js",
+    "node packages/main/dist/tasks/proof-admissibility-hardening-smoke.js",
+    "node scripts/verify-process-fact-contract.mjs",
+    "npm --prefix packages/main run build",
+    "rg *",
+    "sed *"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "lattice-cli",
+    "shell-read"
+  ],
+  "allowedPaths": [
+    "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+    "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+    "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+    "package-lock.json",
+    "package.json",
+    "packages/main/dist/tasks",
+    "packages/main/package.json",
+    "packages/main/src",
+    "scripts"
+  ],
+  "excludedCommands": [
+    "git checkout -- *",
+    "git push *",
+    "git reset --hard *",
+    "omx *",
+    "rm -rf *"
+  ],
+  "excludedTools": [
+    "omx"
+  ],
+  "excludedPaths": [
+    ".omx",
+    "docs/story",
+    "packages/main/tests/fixtures"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Docs correctness closure only: edit the three allowed decision documents; source paths are allowed for read/verification references only unless a real correctness issue is found and separately approved by story scope.",
+  "createdAt": "2026-06-30T22:20:55.359Z",
+  "updatedAt": "2026-06-30T22:20:55.359Z",
+  "_hash": "7fa892beb7ace545c18d591e358c8602c9f644de86bec546cc702cc53aefc5d1"
+}
