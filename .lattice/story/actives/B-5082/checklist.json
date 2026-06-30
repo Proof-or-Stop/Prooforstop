@@ -302,8 +302,8 @@
       "id": "CHK-007",
       "title": "Add spike disposable-code policy checks",
       "context": "Covers M7 gap: spike evidence must not silently carry disposable code into implementation; promotion remains explicit and auditable.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-30T01:13:35.697Z",
       "endTime": null,
       "relatedDocs": [
         "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md#M7-Spike-Evidence"
@@ -447,6 +447,15 @@
       "timestamp": "2026-06-30T01:13:34.820Z",
       "phase": "DEV",
       "itemId": "CHK-006",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "DEV: lattice-implementer is implementing this item; completion still requires document cross-check, code evidence, and verification evidence."
+    },
+    {
+      "timestamp": "2026-06-30T01:13:35.697Z",
+      "phase": "DEV",
+      "itemId": "CHK-007",
       "action": "update",
       "from": "pending",
       "to": "in_progress",
