@@ -129,10 +129,10 @@ function assertCapabilityStatuses(): void {
   assert.equal(caps.queueCleanupEnforcement, false, 'control plane must not claim cleanup enforcement');
   assert.equal(caps.tierCCleanup, false, 'control plane must not claim Tier-C cleanup automation');
   assert.equal(caps.capabilityStatus.proofM7Enforcement, 'partial');
-  assert.equal(caps.capabilityStatus.queueCleanupEnforcement, 'partial');
+  assert.equal(caps.capabilityStatus.queueCleanupEnforcement, 'implemented');
   assert.equal(caps.capabilityStatus.tierCCleanup, 'unavailable');
   assert.equal(caps.capabilities.find(row => row.id === 'proof-m7-enforcement')?.status, 'partial');
-  assert.equal(caps.capabilities.find(row => row.id === 'queue-cleanup-enforcement')?.status, 'partial');
+  assert.equal(caps.capabilities.find(row => row.id === 'queue-cleanup-enforcement')?.status, 'implemented');
   assert.equal(caps.capabilities.find(row => row.id === 'tier-c-cleanup')?.status, 'unavailable');
   assert.equal(isReadOnlyControlPlane(caps), true, 'richer statuses must preserve read-only/no-enforcement booleans');
 }
@@ -158,6 +158,38 @@ function assertTierCQueueGovernance(root: string, store: StoryStore): void {
   assert.equal(queue.experimentBatches.length, 1);
   assert.equal(queue.experimentBatches[0]?.experimentBatchId, TIER_C_BATCH_ID);
   assert.deepEqual(queue.experimentBatches[0]?.storyIds, ['B-tier-a', 'B-tier-b']);
+}
+
+function assertQueueCleanupGuard(root: string, store: StoryStore): void {
+  store.writeStory('B-dup-a', story('B-dup-a', 'Duplicate cleanup guard shared title'));
+  store.writeChecklist('B-dup-a', checklist());
+  store.writeStory('B-dup-b', story('B-dup-b', 'Duplicate cleanup guard shared title'));
+  store.writeChecklist('B-dup-b', checklist());
+
+  const superseded = story('B-superseded', 'Superseded cleanup guard row') as StoryInfo & {
+    lifecycleControl: { queue: { supersededBy: string } };
+  };
+  superseded.lifecycleControl = { queue: { supersededBy: 'B-dup-a' } };
+  store.writeStory('B-superseded', superseded);
+  store.writeChecklist('B-superseded', checklist());
+
+  const queue = projectQueueGovernance(store, root, { expanded: true, now: NOW });
+  const duplicate = queue.rows.find(row => row.storyId === 'B-dup-b');
+  assert.equal(duplicate?.classification, 'duplicate-candidate');
+  assert.equal(duplicate?.cleanupPolicy, 'review-required');
+  assert.match(duplicate?.reason ?? '', /choose canonical\/superseded disposition/);
+
+  const supersededRow = queue.rows.find(row => row.storyId === 'B-superseded');
+  assert.equal(supersededRow?.classification, 'superseded');
+  assert.equal(supersededRow?.cleanupPolicy, 'cleanup-required');
+  assert.match(supersededRow?.reason ?? '', /B-dup-a/);
+
+  const tier = queue.rows.find(row => row.storyId === 'B-tier-a');
+  assert.equal(tier?.classification, 'experiment-batch-exception');
+  assert.equal(tier?.cleanupPolicy, 'preserve');
+  assert.equal(queue.summary.duplicateCandidate, 1);
+  assert.equal(queue.summary.superseded, 1);
+  assert.ok(queue.cleanupRequired.some(row => row.storyId === 'B-tier-malformed'), 'malformed Tier-C-like row stays visible to cleanup operators');
 }
 
 function assertDashboardDoesNotWaiveLifecycle(root: string, store: StoryStore): void {
@@ -235,6 +267,7 @@ assertClosureAuditContract();
 assertCapabilityStatuses();
 const { root, store } = createFixture();
 assertTierCQueueGovernance(root, store);
+assertQueueCleanupGuard(root, store);
 assertDashboardDoesNotWaiveLifecycle(root, store);
 assertRuntimeEnforcementDecisions();
 

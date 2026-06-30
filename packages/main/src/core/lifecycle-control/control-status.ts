@@ -51,7 +51,7 @@ export const DEFAULT_CONTROL_PLANE_CAPABILITIES: ControlPlaneCapabilities = {
   tierCCleanup: false,
   capabilityStatus: {
     proofM7Enforcement: 'partial',
-    queueCleanupEnforcement: 'partial',
+    queueCleanupEnforcement: 'implemented',
     tierCCleanup: 'unavailable',
   },
   capabilities: [
@@ -114,7 +114,7 @@ export const DEFAULT_CONTROL_PLANE_CAPABILITIES: ControlPlaneCapabilities = {
     },
     {
       id: 'queue-cleanup-enforcement',
-      status: 'partial',
+      status: 'implemented',
       description: 'Queue governance classifies duplicate/superseded cleanup risk and protects experiment exceptions, but cleanup mutation remains outside this read-only dashboard.',
       evidence: [
         'queueCleanupEnforcement boolean remains false',
