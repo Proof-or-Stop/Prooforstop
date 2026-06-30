@@ -116,6 +116,15 @@
       "reviewRound": "2026-06-30T17:23:09.482Z",
       "reviewRunId": "B-c004:RR-023",
       "_hash": "6592519d7a62c44e8fe87263f5b5cdb4bdd65b0a04cc0ca267e5ec7cf202a811"
+    },
+    {
+      "id": "B-c004:RP-014",
+      "agent": "lattice-review-quality",
+      "note": "PASS after resolving stale summary overclaim: reviewed current diff vs main for code quality, proof-admissibility and DONE_REQUIRED CommandSpec correctness, and summary de-overclaim. Build and focused smokes passed: npm --prefix packages/main run build; npm --prefix packages/main run test:done-required-validation-smoke; npm --prefix packages/main run test:done-required-freshness-smoke; npm --prefix packages/main run test:proof-admissibility-hardening; node packages/main/dist/tasks/lifecycle-control-smoke.js; node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js. Read-only lifecycle checks now show validation, DONE_REQUIRED, delivery-check, story-summary, and user-value-summary pass; review-assurance-floor remains a separate DONE-readiness requirement, not a summary overclaim.",
+      "createdAt": "2026-06-30T17:28:00.757Z",
+      "reviewRound": "2026-06-30T17:23:09.482Z",
+      "reviewRunId": "B-c004:RR-027",
+      "_hash": "37d6818b4d208f1c7344a5a6c21ebda85e1f55a5e4f9fb53ce4a75d2c0cfdd94"
     }
   ]
 }
