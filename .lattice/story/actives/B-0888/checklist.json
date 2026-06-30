@@ -234,7 +234,7 @@
       "context": "Run rg old-brand checks, dev_memory_search/list checks, packages/main build, dev-memory smoke, residue scanner, and root npm test if practical.",
       "status": "done",
       "startTime": null,
-      "endTime": "2026-06-30T22:18:04.268Z",
+      "endTime": "2026-06-30T22:27:22.021Z",
       "userSees": "User sees build, smoke, residue, and memory scans pass after physical cleanup.",
       "files": {
         "modify": [
@@ -273,13 +273,13 @@
         {
           "intentRef": "CHK-004:happy:0",
           "kind": "manual_transcript",
-          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/dev-memory-supersession-smoke.js",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/dev-memory-supersession-smoke.js && env LATTICE_GLOBAL_MEMORY_DIR=$(mktemp -d) node packages/main/dist/tasks/dev-memory-supersession-smoke.js",
           "result": "pass",
-          "note": "Build passed, then dev-memory physical cleanup smoke passed with 8 checks.",
-          "headHash": "40d04f8343354a4f409c0b761b99313bfdf9090d",
-          "materialHash": "9c4774806a3892f582374dba0907a49264c3325403026a8b1f2b132d126c8666",
-          "storyFilesHash": "81400a0b7d8a2f8e65a882c673128ebc1b4bb3f50307cbd43cb1a04987d157e6",
-          "timestamp": "2026-06-30T22:18:04.471Z"
+          "note": "Build passed, normal smoke passed, and empty-global hermetic smoke passed with 9 checks.",
+          "headHash": "3250f72e4ab5b037e189d2272cae93cb491aa36a",
+          "materialHash": "823bd49a615a3a66e2937be4d50c8ca0992f84d0b8ad607792e44df0ee525ccc",
+          "storyFilesHash": "01c63a05e64648d526a76ef686a094d29af8dd202174a2be94cdb23cb3f8c84d",
+          "timestamp": "2026-06-30T22:27:22.182Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -287,10 +287,10 @@
           "command": "npm run test:lattice-residue",
           "result": "pass",
           "note": "Residue scanner passed: PASS lattice-residue: 0 brand residue in product runtime source.",
-          "headHash": "40d04f8343354a4f409c0b761b99313bfdf9090d",
-          "materialHash": "9c4774806a3892f582374dba0907a49264c3325403026a8b1f2b132d126c8666",
-          "storyFilesHash": "81400a0b7d8a2f8e65a882c673128ebc1b4bb3f50307cbd43cb1a04987d157e6",
-          "timestamp": "2026-06-30T22:18:04.633Z"
+          "headHash": "3250f72e4ab5b037e189d2272cae93cb491aa36a",
+          "materialHash": "823bd49a615a3a66e2937be4d50c8ca0992f84d0b8ad607792e44df0ee525ccc",
+          "storyFilesHash": "01c63a05e64648d526a76ef686a094d29af8dd202174a2be94cdb23cb3f8c84d",
+          "timestamp": "2026-06-30T22:27:22.337Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -298,10 +298,10 @@
           "command": "rg -n -i \"koala|\\\\.koala|legacy-koala\" .lattice/dev-memory /Users/jek/.lattice/dev-memory/experience.jsonl packages/main/src/tasks/dev-memory-supersession-smoke.ts || true",
           "result": "pass",
           "note": "No output: project dev-memory, global dev-memory, and smoke source have zero retired-brand hits.",
-          "headHash": "40d04f8343354a4f409c0b761b99313bfdf9090d",
-          "materialHash": "9c4774806a3892f582374dba0907a49264c3325403026a8b1f2b132d126c8666",
-          "storyFilesHash": "81400a0b7d8a2f8e65a882c673128ebc1b4bb3f50307cbd43cb1a04987d157e6",
-          "timestamp": "2026-06-30T22:18:04.788Z"
+          "headHash": "3250f72e4ab5b037e189d2272cae93cb491aa36a",
+          "materialHash": "823bd49a615a3a66e2937be4d50c8ca0992f84d0b8ad607792e44df0ee525ccc",
+          "storyFilesHash": "01c63a05e64648d526a76ef686a094d29af8dd202174a2be94cdb23cb3f8c84d",
+          "timestamp": "2026-06-30T22:27:22.509Z"
         }
       ]
     }
