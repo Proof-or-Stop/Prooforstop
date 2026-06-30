@@ -53,7 +53,40 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees Proof Admissibility local CLI hardening rows marked ✅ and retired/future external proof boundaries kept out of completion claims.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The Proof Admissibility document has a status table marking completed local CLI hardening milestones with ✅.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Append-only ledger and cross-runtime/external parity are labeled retired, non-goal, or future rather than treated as missing local CLI work.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No row claims server-backed production completion or external proof authority from local CLI evidence.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
