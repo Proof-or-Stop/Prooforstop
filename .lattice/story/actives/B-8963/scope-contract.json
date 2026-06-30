@@ -27,7 +27,35 @@
     "autopilot parallel execution changes"
   ],
   "scopeChangeReason": "Initialize enforce scope from PLAN checklist after story_review found the own scope contract unreadable advisory.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "codex",
+      "reason": "These story-local ProofStory artifacts are required by the enforced DEV gate to bind the approved M1-only intent, milestone ledger, and acceptance mapping; they do not expand product code scope.",
+      "timestamp": "2026-06-30T22:28:43.648Z",
+      "paths": [
+        ".lattice/story/actives/B-8963/intent-collision.json",
+        ".lattice/story/actives/B-8963/milestone-ledger.json",
+        ".lattice/story/actives/B-8963/original-intent-snapshot.json",
+        ".lattice/story/actives/B-8963/proofstory.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-8963/intent-collision.json",
+        ".lattice/story/actives/B-8963/milestone-ledger.json",
+        ".lattice/story/actives/B-8963/original-intent-snapshot.json",
+        ".lattice/story/actives/B-8963/proofstory.json"
+      ],
+      "affectedPathCount": 4,
+      "phase": "DEV",
+      "headHash": "8ab5522f04f96ffc4e139149e7a31fa98c6fb8d6",
+      "materialHash": "5c42e50374c5c59ef976fb5a70f51e4b74487c651f908acaa9113d87d88f196d",
+      "anchors": [
+        "ProofStory.DEVGate",
+        "B8963.M1OnlyAcceptedInterpretation",
+        "EvidenceHashSnapshot.CommandLocalReuse"
+      ]
+    }
+  ],
   "createdAt": "2026-06-30T22:11:49.717Z",
-  "updatedAt": "2026-06-30T22:11:49.717Z"
+  "updatedAt": "2026-06-30T22:28:43.648Z"
 }
