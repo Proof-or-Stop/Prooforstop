@@ -82,7 +82,23 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "files": {
+        "modify": [
+          "packages/main/src/core/lifecycle-control/runtime/index.ts",
+          "packages/main/src/core/lifecycle-control/control-status.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "lattice.config.json"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/lifecycle-check-smoke.ts",
+          "packages/main/src/tasks/story-authority-resolve-smoke.ts",
+          "node packages/main/dist/tasks/lifecycle-check-smoke.js",
+          "lattice runtime_closure_status --storyId=B-cd3a --format=json"
+        ]
+      }
     },
     {
       "id": "CHK-005",
