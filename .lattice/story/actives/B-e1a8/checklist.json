@@ -77,9 +77,9 @@
       "id": "CHK-002",
       "title": "Record ProofStory intent artifacts for this rollout story",
       "context": "Before relying on the new global gate, create original intent snapshot, confirmed milestone ledger, intent collision pass, acceptance bindings, and any needed scope/spike evidence for this story itself.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-30T08:51:34.414Z",
       "relatedDocs": [
         "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md#M1-Original-Intent-Snapshot-And-Milestone-Ledger",
         "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md#M4-ProofStory-Contract-And-Gate"
@@ -234,6 +234,15 @@
       "from": "pending",
       "to": "done",
       "reason": "lattice.config.json now has all three proofStory gate modes set to enforce and config-only verification passed."
+    },
+    {
+      "timestamp": "2026-06-30T08:51:34.414Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Original intent snapshot, confirmed milestone ledger, accepted intent collision, and ProofStory contract are recorded and enforce gate passes."
     }
   ]
 }
