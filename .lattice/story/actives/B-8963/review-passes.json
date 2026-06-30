@@ -44,6 +44,15 @@
       "reviewRound": "2026-06-30T22:42:01.277Z",
       "reviewRunId": "B-8963:RR-011",
       "_hash": "0fa2813bbcecc8f5771d047fa5d9eb4d11573b43a2ad80a3b0f8e5777f1bc8ca"
+    },
+    {
+      "id": "B-8963:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: F-001 verified fixed. runDoneOracleGate captures and forwards a command-local evidenceHashSnapshot to buildDoneChecklist; buildStoryReadinessReport captures once and forwards it through DONE rows; session_brief DONE pre-check captures and passes the snapshot. buildDoneChecklist validates snapshot reuse and falls back safely when stale. Focused smoke passed: node packages/main/dist/tasks/verification-freshness-smoke.js.",
+      "createdAt": "2026-06-30T22:47:00.229Z",
+      "reviewRound": "2026-06-30T22:42:01.277Z",
+      "reviewRunId": "B-8963:RR-010",
+      "_hash": "9f7d855da8b98a9a7dc95193ed9ff9d0cfc72bae2dd1d9482bf42783d970c06a"
     }
   ]
 }
