@@ -132,9 +132,9 @@
       "id": "CHK-003",
       "title": "Implement slice-plan artifact and oversized ledger exception semantics",
       "context": "Covers M4/M9 gaps: oversized ledgers need an auditable slice plan or child-story assignment path before DEV in enforce mode.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-30T01:13:32.753Z",
-      "endTime": null,
+      "endTime": "2026-06-30T01:26:04.015Z",
       "relatedDocs": [
         "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md#M4-ProofStory-Contract-And-Gate"
       ],
@@ -177,7 +177,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js && node scripts/verify-process-fact-contract.mjs && git diff --check",
+          "result": "pass",
+          "note": "Doc: proofstory-intent-collision-execution-plan.md command/storage lines 975-1015 and M4 lines 1182-1201. Impl: types/store/proofstory add slice-plan artifact; handlers/proofstory.ts slice_plan_set/get; proofstory.ts slicePlanCoversCurrentLedger and oversizedClearedBy; config/command-policy/catalog/register process facts. Smoke: incomplete slice fails, complete slice clears oversizedLedger without child auto-creation.",
+          "headHash": "1d172ccb5d18e43c13950b03f2add31988844c4c",
+          "materialHash": "5d97b7951e9c3d8e03969199578c7c1c13adef7c61914d53c9fa10b699ada482",
+          "storyFilesHash": "d66783474c814f8b35728b71ac3278123384b0e3b640ea1414ab6a5b9bc7d334",
+          "timestamp": "2026-06-30T01:26:04.423Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
