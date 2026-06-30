@@ -1,0 +1,61 @@
+{
+  "storyId": "B-8963",
+  "checkedAt": "2026-06-30T23:16:31.841Z",
+  "headHash": "93190ff4d6ba57debd2220e1788706dd810d8014",
+  "materialHash": "30eced32bd5256815161adfd6d122505ed4824c9c64e4d5d9c905fcddefabb8a",
+  "storyFilesHash": "9f564017af88410f8650e4a55a2a91b73c0f10aefc816d5e1ec2740f153f0208",
+  "reviewRound": "2026-06-30T23:01:58.642Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+      "promise": "Current-state proof consumers may reuse an exact hash-bound command-local evidence hash snapshot only after same git cwd, metadata root, ref, current HEAD, and no material dirty files.",
+      "status": "verified",
+      "verifiedBy": "diff review plus node packages/main/dist/tasks/verification-freshness-smoke.js",
+      "evidence": "Smoke printed captureEvidenceHashSnapshot: reusable=true, materialDirty=false; DONE currentBinding reused; stale supplied snapshot rejected after dirty material drift."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+      "promise": "The syndrome preflight is command-local only, not a persistent cache, and does not use mtime or file-count freshness keys as proof.",
+      "status": "verified",
+      "verifiedBy": "rg and material diff review",
+      "evidence": "rg found the M1 command-local syndrome preflight section and the line saying no persistent cache, no mtime, and no file-count freshness keys."
+    },
+    {
+      "docPath": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+      "promise": "The optimization does not add fountain-code or erasure-code evidence recovery semantics.",
+      "status": "verified",
+      "verifiedBy": "rg and material diff review",
+      "evidence": "rg found the explicit fountain/erasure-code evidence recovery non-goal in the new documentation section."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "node packages/main/dist/tasks/verification-freshness-smoke.js passed and printed captureEvidenceHashSnapshot: reusable=true, materialDirty=false; it asserted one coherent headHash/materialHash/storyFilesHash binding for the same git cwd and metadata root."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "node packages/main/dist/tasks/verification-freshness-smoke.js passed and printed DONE currentBinding reused: materialHash=<hash> storyFilesHash=<hash>; npm --prefix packages/main run test:review-escalation-freshness-root also passed."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "node packages/main/dist/tasks/verification-freshness-smoke.js passed and printed stale supplied snapshot rejected after dirty material drift; node packages/main/dist/tasks/delivery-check-freshness-smoke.js passed story-owned drift stale checks across DONE consumers."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "rg -n \"M1 command-local syndrome preflight|mtime|file-count|fountain|erasure\" docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md returned the new section, no mtime/file-count proof keys, and no fountain/erasure recovery lines."
+    },
+    {
+      "featureId": "B-8963-TEST",
+      "transcript": "lattice validate --story=B-8963 --json passed with allPass=true after running npm --prefix packages/main run build plus 30 configured smoke/contract commands; verification coverage was 12/12 required intents covered."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery acceptable: reverse scan found the snapshot primitive, DONE/readiness/session threading, stale dirty-state rejection, and matching documentation. Real-machine validation and focused smoke commands passed; remaining DONE blockers are separate lifecycle/process gates, not a delivered-promise failure."
+  },
+  "_hash": "1c0fca36ad319ff2dc82a4ebde63d0872ebae0abbfa97350338b027610ca5955"
+}
