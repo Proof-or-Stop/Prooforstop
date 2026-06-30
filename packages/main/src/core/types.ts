@@ -1889,6 +1889,7 @@ export interface ScopeShrinkageDecisionData {
   schemaVersion: 'proofstory.scope_shrinkage_decision.v1';
   storyId: string;
   decision: 'confirmed' | 'rejected';
+  userConfirmed: boolean;
   removedMilestoneIds: string[];
   reason: string;
   approvedBy: string;

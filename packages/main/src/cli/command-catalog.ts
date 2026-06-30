@@ -2046,13 +2046,13 @@ Behavior:
     storyId: z.string().describe('Story ID'),
     json: z.boolean().optional().describe('Output structured JSON.'),
   }},
-  { name: 'proofstory_contract_set', description: 'Persist the minimal ProofStory diagnostic envelope (no gate enforcement)', schema: {
+  { name: 'proofstory_contract_set', description: 'Persist the ProofStory contract envelope consumed by opt-in gates', schema: {
     storyId: z.string().describe('Story ID'),
-    acceptanceBindings: z.array(proofStoryAcceptanceBindingSchema).optional().describe('Minimal acceptance-to-checklist/verificationIntent bindings for diagnostics.'),
-    note: z.string().optional().describe('Diagnostic envelope note.'),
+    acceptanceBindings: z.array(proofStoryAcceptanceBindingSchema).optional().describe('Acceptance-to-checklist/verificationIntent bindings consumed by diagnostics and opt-in gate enforcement.'),
+    note: z.string().optional().describe('Contract envelope note.'),
     json: z.boolean().optional().describe('Output structured JSON.'),
   }},
-  { name: 'proofstory_contract_get', description: 'Read the minimal ProofStory diagnostic envelope', schema: {
+  { name: 'proofstory_contract_get', description: 'Read the ProofStory contract envelope', schema: {
     storyId: z.string().describe('Story ID'),
     json: z.boolean().optional().describe('Output structured JSON.'),
   }},
@@ -2071,6 +2071,7 @@ Behavior:
   { name: 'scope_shrinkage_decision_set', description: 'Persist an explicit ProofStory scope-shrinkage decision', schema: {
     storyId: z.string().describe('Story ID'),
     decision: z.enum(['confirmed', 'rejected']).describe('Whether the shrinkage is accepted.'),
+    userConfirmed: z.boolean().optional().describe('Must be true when decision=confirmed; DONE equivalence ignores confirmed shrinkage without this explicit user confirmation.'),
     removedMilestoneIds: z.array(z.string().min(1)).optional().describe('Milestones explicitly removed from DONE equivalence when decision=confirmed.'),
     reason: z.string().min(1).describe('Audit reason for the shrinkage decision.'),
     approvedBy: z.string().min(1).describe('Human or agent approving the decision.'),

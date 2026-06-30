@@ -286,6 +286,7 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
     scope_shrinkage_decision_set(args: {
       storyId: string;
       decision: 'confirmed' | 'rejected';
+      userConfirmed?: boolean;
       removedMilestoneIds?: string[];
       reason: string;
       approvedBy: string;
@@ -296,7 +297,11 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
       const decision = buildScopeShrinkageDecision(args, store.readScopeShrinkageDecision(args.storyId));
       store.writeScopeShrinkageDecision(args.storyId, decision);
       if (args.json) return stringify(decision);
-      return `Scope shrinkage decision: ${decision.decision}\nRemoved milestones: ${decision.removedMilestoneIds.join(', ') || 'none'}`;
+      return [
+        `Scope shrinkage decision: ${decision.decision}`,
+        `User confirmed: ${decision.userConfirmed ? 'yes' : 'no'}`,
+        `Removed milestones: ${decision.removedMilestoneIds.join(', ') || 'none'}`,
+      ].join('\n');
     },
 
     scope_shrinkage_decision_get(args: { storyId: string; json?: boolean }): string {

@@ -138,11 +138,11 @@ const requiredProcessFactSemantics = {
   intent_collision_set: ['schema-contract', 'verification-policy', 'gate-evidence'],
   scope_shrinkage_decision_set: ['schema-contract', 'verification-policy', 'gate-evidence'],
   red_evidence_create: ['schema-contract', 'verification-policy', 'gate-evidence'],
-  spike_start: ['schema-contract', 'verification-policy'],
-  spike_result_set: ['schema-contract', 'verification-policy'],
-  spike_result: ['schema-contract', 'verification-policy'],
-  spike_discard: ['schema-contract', 'verification-policy'],
-  spike_promote: ['schema-contract', 'verification-policy'],
+  spike_start: ['schema-contract', 'verification-policy', 'gate-evidence'],
+  spike_result_set: ['schema-contract', 'verification-policy', 'gate-evidence'],
+  spike_result: ['schema-contract', 'verification-policy', 'gate-evidence'],
+  spike_discard: ['schema-contract', 'verification-policy', 'gate-evidence'],
+  spike_promote: ['schema-contract', 'verification-policy', 'gate-evidence'],
   intent_coverage_check: ['schema-contract', 'verification-policy'],
   proofstory_gate_check: ['schema-contract', 'verification-policy'],
   done_intent_equivalence_check: ['schema-contract', 'verification-policy'],
@@ -536,6 +536,8 @@ function assertProofStoryProgressiveBoundary() {
   const catalogText = read('packages/main/src/cli/command-catalog.ts');
   const handlerText = read('packages/main/src/handlers/proofstory.ts');
   const coreText = read('packages/main/src/core/proofstory.ts');
+  const configText = read('packages/main/src/core/config.ts');
+  const commandPolicyEntries = new Map(parseCommandPolicyEntries().map(entry => [entry.name, entry]));
   const storyAdvanceText = read('packages/main/src/handlers/story-advance.ts');
   const phaseGatesText = read('packages/main/src/handlers/phase-gates.ts');
   const machineText = read('packages/main/src/core/machine.ts');
@@ -572,9 +574,90 @@ function assertProofStoryProgressiveBoundary() {
   assert(coreText.includes('sourceText') && coreText.includes('keyRequirementIds'), 'core/proofstory.ts: requestHash must be derived from sourceText and keyRequirementIds');
   assert(coreText.includes('candidate') && coreText.includes('confirmed'), 'core/proofstory.ts: milestone ledger must distinguish candidate and confirmed state');
   assert(coreText.includes('confirmMilestoneLedger'), 'core/proofstory.ts: intent collision pass must be able to confirm a ledger');
+  assert(catalogText.includes('userConfirmed') && handlerText.includes('userConfirmed'), 'ProofStory scope shrinkage command must expose userConfirmed');
+  assert(coreText.includes('args.userConfirmed !== true'), 'core/proofstory.ts: confirmed scope shrinkage must require userConfirmed:true');
+  assert(coreText.includes('decision.userConfirmed === true'), 'core/proofstory.ts: DONE equivalence must only consume user-confirmed shrinkage');
+  assert(coreText.includes("waiverType !== 'deferred_gate_evidence'"), 'core/proofstory.ts: ProofStory evidence coverage must not count deferred_gate_evidence waivers');
   assert(!storyAdvanceText.includes('../core/proofstory') && !storyAdvanceText.includes('./proofstory'), 'story-advance.ts: ProofStory must not be wired through the thin story_advance handler');
   assert(machineText.includes('proofStoryDevGateFailure') && machineText.includes('devGateMode'), 'machine.ts: ProofStory DEV admission must go through the existing story machine guard and explicit policy mode');
+  assert(machineText.includes('if (proofStoryDevGateFailure(context.store, context.projectRoot, context.storyId)) return false;'), 'machine.ts: REVIEW/TEST to DEV re-entry must enforce ProofStory devGateMode=enforce');
   assert(phaseGatesText.includes('evaluateReviewCompleteness') && phaseGatesText.includes('evaluateDoneIntentEquivalence'), 'phase-gates.ts: REVIEW/DONE ProofStory diagnostics must be wired through existing phase gates');
+
+  for (const commandName of [
+    'milestone_ledger_set',
+    'milestone_ledger_add',
+    'proofstory_contract_set',
+    'intent_collision_set',
+    'red_evidence_create',
+    'spike_start',
+    'spike_result_set',
+    'spike_result',
+    'spike_discard',
+    'spike_promote',
+  ]) {
+    const policy = commandPolicyEntries.get(commandName);
+    assert(policy, `${commandPolicyPath}: ProofStory pre-DEV command missing policy: ${commandName}`);
+    if (!policy) continue;
+    assert(policy.allowedPhases.includes('PLAN'), `${commandPolicyPath}: ${commandName} must remain PLAN-authorable`);
+    assert(!policy.allowedPhases.includes('DEV'), `${commandPolicyPath}: ${commandName} must not be authorable in DEV`);
+    assert(commandAllowedByDefaultConfig(commandName, 'PLAN', configText), `packages/main/src/core/config.ts: ${commandName} must be allowed in PLAN`);
+    assert(!commandAllowedByDefaultConfig(commandName, 'DEV', configText), `packages/main/src/core/config.ts: ${commandName} must not be allowed in DEV`);
+  }
+  const snapshotPolicy = commandPolicyEntries.get('original_intent_snapshot_set');
+  assert(snapshotPolicy?.allowedPhases.includes('INIT') && snapshotPolicy?.allowedPhases.includes('PLAN'), `${commandPolicyPath}: original_intent_snapshot_set must be INIT/PLAN-authorable`);
+  assert(!snapshotPolicy?.allowedPhases.includes('DEV'), `${commandPolicyPath}: original_intent_snapshot_set must not be authorable in DEV`);
+  const shrinkagePolicy = commandPolicyEntries.get('scope_shrinkage_decision_set');
+  assert(shrinkagePolicy?.allowedPhases.includes('DEV') && shrinkagePolicy?.allowedPhases.includes('REVIEW') && shrinkagePolicy?.allowedPhases.includes('TEST'), `${commandPolicyPath}: scope_shrinkage_decision_set remains the documented post-DEV ProofStory writer`);
+  assert(/userConfirmed:true/.test(shrinkagePolicy?.reason || ''), `${commandPolicyPath}: scope_shrinkage_decision_set policy must document the userConfirmed:true post-DEV safety condition`);
+}
+
+function assertProofStoryGateConsumedFacts() {
+  const levelRegistry = new Map(parseProcessFactLevelRegistry().map(entry => [entry.name, entry]));
+  const registry = processFactRegistryMap();
+  const commands = [
+    'original_intent_snapshot_set',
+    'milestone_ledger_set',
+    'milestone_ledger_add',
+    'proofstory_contract_set',
+    'intent_collision_set',
+    'scope_shrinkage_decision_set',
+    'red_evidence_create',
+    'spike_start',
+    'spike_result_set',
+    'spike_result',
+    'spike_discard',
+    'spike_promote',
+  ];
+  for (const commandName of commands) {
+    const levelEntry = levelRegistry.get(commandName);
+    assert(levelEntry, `${processFactLevelRegistryPath}: ProofStory gate command missing from PROCESS_FACT_LEVELS: ${commandName}`);
+    if (!levelEntry) continue;
+    assert(levelEntry.level === 'L4', `${processFactLevelRegistryPath}: ${commandName} must stay L4`);
+    assert(/ProofStory DEV admission/.test(levelEntry.gateConsumer || ''), `${processFactLevelRegistryPath}: ${commandName} must name ProofStory gate consumer`);
+
+    const registryEntry = registry.get(commandName);
+    assert(registryEntry, `${processFactRegistryPath}: ProofStory gate command missing from registry: ${commandName}`);
+    if (!registryEntry) continue;
+    assert(registryEntry.level === 'L4', `${processFactRegistryPath}: ${commandName} registry level must stay L4`);
+    assert(registryEntry.semantics.includes('gate-evidence'), `${processFactRegistryPath}: ${commandName} must include gate-evidence semantics`);
+  }
+
+  for (const artifactName of [
+    'artifact:original-intent-snapshot.json',
+    'artifact:milestone-ledger.json',
+    'artifact:proofstory.json',
+    'artifact:intent-collision.json',
+    'artifact:scope-shrinkage-decision.json',
+    'artifact:red-evidence.json',
+    'artifact:spike.json',
+  ]) {
+    const artifactEntry = registry.get(artifactName);
+    assert(artifactEntry, `${processFactRegistryPath}: ProofStory gate artifact missing from registry: ${artifactName}`);
+    if (!artifactEntry) continue;
+    assert(artifactEntry.level === 'L4', `${processFactRegistryPath}: ${artifactName} must stay L4`);
+    assert(artifactEntry.semantics.includes('gate-evidence'), `${processFactRegistryPath}: ${artifactName} must include gate-evidence semantics`);
+    assert(/ProofStory DEV admission/.test(artifactEntry.consumerGate || ''), `${processFactRegistryPath}: ${artifactName} must name ProofStory gate consumer`);
+  }
 }
 
 function isReviewerPrompt(relPath, text) {
@@ -4358,6 +4441,7 @@ assertReviewRoundIsoDocs();
 assertEvidenceBoundaryDocs();
 assertPromptEvidenceBoundaries(promptMap);
 assertProofStoryProgressiveBoundary();
+assertProofStoryGateConsumedFacts();
 assertProcessFactCommandInventory();
 await assertLifecycleArtifactScopePolicy();
 printProcessFactLevelRegistrySummary();

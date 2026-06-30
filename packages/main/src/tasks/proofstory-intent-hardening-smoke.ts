@@ -313,14 +313,41 @@ try {
   store.writeChecklist(storyId, checklistWithEvidence);
   let doneEquivalence = jsonRun(root, 'done_intent_equivalence_check', { storyId, mode: 'observe' });
   assert.deepEqual(doneEquivalence.uncoveredRequiredMilestoneIds, ['M6'], 'DONE equivalence reports uncovered required milestones');
+  const checklistWithDeferredWaiver = store.readChecklist(storyId);
+  checklistWithDeferredWaiver.items[0].verificationEvidence = [
+    ...(checklistWithDeferredWaiver.items[0].verificationEvidence ?? []),
+    {
+      intentRef: 'CHK-001:edge:0',
+      kind: 'waiver',
+      waiverType: 'deferred_gate_evidence',
+      verdict: 'waived',
+      note: 'Temporary gate self-test waiver must not satisfy ProofStory DONE equivalence.',
+    },
+  ];
+  store.writeChecklist(storyId, checklistWithDeferredWaiver);
+  doneEquivalence = jsonRun(root, 'done_intent_equivalence_check', { storyId, mode: 'observe' });
+  assert.deepEqual(doneEquivalence.uncoveredRequiredMilestoneIds, ['M6'], 'deferred gate waiver does not satisfy ProofStory DONE equivalence');
+  assert.match(
+    run(root, 'scope_shrinkage_decision_set', {
+      storyId,
+      decision: 'confirmed',
+      removedMilestoneIds: ['M6'],
+      reason: 'Missing human confirmation should block confirmed shrinkage.',
+      approvedBy: 'proofstory-smoke',
+    }, true),
+    /userConfirmed:true/i,
+    'confirmed scope shrinkage requires explicit user confirmation',
+  );
   const shrinkage = jsonRun(root, 'scope_shrinkage_decision_set', {
     storyId,
     decision: 'confirmed',
+    userConfirmed: true,
     removedMilestoneIds: ['M6'],
     reason: 'M6 was explicitly removed from this delivery after accepted interpretation.',
     approvedBy: 'proofstory-smoke',
   });
   assert.equal(shrinkage.decision, 'confirmed', 'scope shrinkage decision is explicit and auditable');
+  assert.equal(shrinkage.userConfirmed, true, 'confirmed scope shrinkage records explicit user confirmation');
   doneEquivalence = jsonRun(root, 'done_intent_equivalence_check', { storyId, mode: 'enforce' });
   assert.equal(doneEquivalence.status, 'pass', 'confirmed shrinkage clears DONE equivalence without deleting the audit trail');
 

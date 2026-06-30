@@ -107,6 +107,7 @@ export interface BuildIntentCollisionArgs {
 export interface BuildScopeShrinkageDecisionArgs {
   storyId: string;
   decision: 'confirmed' | 'rejected';
+  userConfirmed?: boolean;
   removedMilestoneIds?: string[];
   reason: string;
   approvedBy: string;
@@ -520,10 +521,13 @@ function verificationEvidenceByRef(items: readonly ChecklistItem[]): Map<string,
 
 function evidenceCoversIntent(evidence: Map<string, VerificationEvidence[]>, ref: string): boolean {
   return (evidence.get(ref) ?? []).some((row) =>
-    row.result === 'pass'
-    || row.kind === 'waiver'
-    || row.verdict === 'success'
-    || row.verdict === 'waived'
+    row.waiverType !== 'deferred_gate_evidence'
+    && (
+      row.result === 'pass'
+      || row.kind === 'waiver'
+      || row.verdict === 'success'
+      || row.verdict === 'waived'
+    )
   );
 }
 
@@ -875,11 +879,15 @@ export function buildScopeShrinkageDecision(
   if (decision === 'confirmed' && removedMilestoneIds.length === 0) {
     throw new Error('removedMilestoneIds is required when decision is confirmed');
   }
+  if (decision === 'confirmed' && args.userConfirmed !== true) {
+    throw new Error('userConfirmed:true is required when decision is confirmed');
+  }
   const now = new Date().toISOString();
   return {
     schemaVersion: SCOPE_SHRINKAGE_DECISION_SCHEMA_VERSION,
     storyId: args.storyId,
     decision,
+    userConfirmed: args.userConfirmed === true,
     removedMilestoneIds,
     reason: requireNonEmptyString(args.reason, 'reason'),
     approvedBy: requireNonEmptyString(args.approvedBy, 'approvedBy'),
@@ -984,7 +992,7 @@ export function setSpikeStatus(
 }
 
 function confirmedShrinkageIds(decision: ScopeShrinkageDecisionData | null): Set<string> {
-  return new Set(decision?.decision === 'confirmed' ? decision.removedMilestoneIds : []);
+  return new Set(decision?.decision === 'confirmed' && decision.userConfirmed === true ? decision.removedMilestoneIds : []);
 }
 
 export function evaluateDoneIntentEquivalence(

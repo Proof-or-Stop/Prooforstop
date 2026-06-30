@@ -572,15 +572,18 @@ export function canSkipPlanGuard(context: StoryMachineContext): boolean {
 /**
  * F-006: the ROLLBACK doors REVIEW→DEV and TEST→DEV ("rework" via story_advance DEV). These are
  * NOT subject to the review/express gates (a rollback must not re-demand a clean review), but they
- * ARE doors into DEV, so they must enforce the SAME parallel hard-block under mode='block'.
+ * ARE doors into DEV, so they must enforce the SAME ProofStory DEV admission gate and parallel
+ * hard-block used by PLAN/INIT_CHECK DEV entry.
  * Returns true to ALLOW re-entry, false to refuse. FAIL-OPEN: any infra error → allow (a rollback
- * must never be stranded by a gate/config error), via parallelDevEntryBlock + the outer catch.
+ * must never be stranded by a gate/config error), via proofStoryDevGateFailure,
+ * parallelDevEntryBlock, and the outer catch.
  */
 export function canReenterDevGuard(context: StoryMachineContext): boolean {
   try {
     const config = loadConfig(context.projectRoot);
     const story = context.store.readStory(context.storyId);
     const policy = resolveWorkflowPolicy(config, story);
+    if (proofStoryDevGateFailure(context.store, context.projectRoot, context.storyId)) return false;
     return parallelDevEntryBlock(context.store, context.projectRoot, story, policy.profile) === null;
   } catch {
     return true; // FAIL-OPEN: an infra error must never block a rollback into DEV (spec §4.8)
@@ -983,9 +986,9 @@ export function getGuardFailureReason(
       const reproGate = evaluateStoryEvidenceBindingGate(projectRoot ?? process.cwd(), store, storyId);
       const reproGateFailure = formatStoryEvidenceBindingGateFailure('DEV', storyId, reproGate);
       if (reproGateFailure) return reproGateFailure;
-      const proofStoryFailure = proofStoryDevGateFailure(store, projectRoot, storyId);
-      if (proofStoryFailure) return proofStoryFailure;
     }
+    const proofStoryFailure = proofStoryDevGateFailure(store, projectRoot, storyId);
+    if (proofStoryFailure) return proofStoryFailure;
 
     // Normal PLAN → DEV path: requires story_review to pass (unless policy does not require it).
     // Skipped entirely for an express-channel story AND for a rollback door (review does not apply

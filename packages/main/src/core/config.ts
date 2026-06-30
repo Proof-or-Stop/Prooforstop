@@ -305,6 +305,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'milestone_ledger_set', 'milestone_ledger_add',
     'proofstory_contract_set',
     'intent_collision_set',
+    'scope_shrinkage_decision_set',
     'red_evidence_create',
     'spike_start', 'spike_result_set', 'spike_result', 'spike_discard', 'spike_promote',
   ],
@@ -322,13 +323,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'finding_cluster',  // B-8bb5: DEV 中已有 finding 时，允许先聚簇再派发修复
     'scope_contract_set', 'scope_contract_acknowledge',
     'scope_contract_init_from_plan', // B-6bfd CHK-006: seed scope contract from PLAN checklist files
-    'original_intent_snapshot_set',
-    'milestone_ledger_set', 'milestone_ledger_add',
-    'proofstory_contract_set',
-    'intent_collision_set',
     'scope_shrinkage_decision_set',
-    'red_evidence_create',
-    'spike_start', 'spike_result_set', 'spike_result', 'spike_discard', 'spike_promote',
     'guard_session_start', // B-6bfd CHK-004: start scope-guard session during implementation
   ],
   REVIEW: [
