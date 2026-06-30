@@ -77,6 +77,26 @@
       ],
       "signatureTag": "adversarial|ts|summary-overclaim-detector",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-edb8:F-005",
+      "desc": "Verification coverage claims missing-row coverage, but parent-roadmap-totality-smoke has no dedicated missing closure-evidence negative control. The smoke CaseName list has no missing case; runEvaluator asserts partial/open, blocked, invalid deferral, and stale rows, but never evaluates a closed-by-implementation or closed-by-existing-evidence row with closureEvidence: [] nor asserts evidenceState=missing, reasonCodes includes missing_closure_evidence, or the attach-closure-evidence next action. Current runtime has that branch, so a regression in missing closure-evidence handling could pass the smoke and recorded CHK-003/CHK-008 evidence even though the plan contract requires missing evidence to prevent full-roadmap claims. Source refs: packages/main/src/tasks/parent-roadmap-totality-smoke.ts:26, packages/main/src/tasks/parent-roadmap-totality-smoke.ts:358, packages/main/src/tasks/parent-roadmap-totality-smoke.ts:364, packages/main/src/tasks/parent-roadmap-totality-smoke.ts:376, packages/main/src/core/parent-roadmap-totality.ts:419, docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md:48, docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md:279.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-30T14:03:51.954Z",
+      "reviewRound": "2026-06-30T14:00:09.085Z",
+      "reviewRunId": "B-edb8:RR-003",
+      "_hash": "d3043d930d46cbc4e6a2ba8b43e77a219d41cdbe51fc20c15ca362e6bdf444d8",
+      "files": [
+        "packages/main/src/tasks/parent-roadmap-totality-smoke.ts",
+        "packages/main/src/core/parent-roadmap-totality.ts",
+        "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md"
+      ],
+      "signatureTag": "missing|ts|verification-coverage-claims",
+      "signatureTagSource": "auto"
     }
   ]
 }
