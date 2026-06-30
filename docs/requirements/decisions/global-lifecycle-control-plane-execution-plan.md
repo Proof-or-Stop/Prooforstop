@@ -1,6 +1,11 @@
 # Global Lifecycle Control Plane Execution Plan
 
-> Status: implemented/partial/future capability audit frozen for B-cd3a.
+> Status: implemented/partial/future capability audit frozen for B-cd3a and
+> refreshed for current local CLI boundaries. Read-only projection, runtime
+> closure, and queue-governance rows are implemented where marked ✅ below.
+> Proof M7 enforcement and the admissibility waterline remain partial/read-only
+> from the control-plane perspective; Tier-C automated cleanup and external
+> production done remain unavailable/non-goals.
 > Date: 2026-06-25.
 > Scope: top-level Proofbound lifecycle management across runtime closure,
 > evidence consumption closure, and queue governance.
@@ -161,14 +166,14 @@ safety booleans.
 
 | Capability | Status | Source / evidence | What it does not claim |
 |---|---|---|---|
-| Read-only global status projection | implemented | `global_control_status`, `runtime_closure_status`, `admissibility_waterline`, and `queue_governance_status` are registered read-only commands in `command-policy.ts` and handlers reject write-like flags before reading facts. | Does not mutate story state, evidence, queue exceptions, receipts, or authority. |
-| Runtime closure projection | implemented | `packages/main/src/core/lifecycle-control/runtime/index.ts` projects local assurance, lifecycle readiness rows, owner lease, main-write lock, and validation lock state. | Does not define a second lifecycle state machine or proof policy. |
-| Runtime closure enforcement rollout | implemented | `story_advance` evaluates runtime authority, dirty state, and lock state through `evaluateRuntimeEnforcement`; config is `lifecycleControl.runtimeEnforcement=warn|enforce|unavailable`. | Default warn mode is diagnostic, enforce mode blocks unsafe runtime closure findings, unavailable mode does not block, and rollback is `lifecycleControl.runtimeEnforcement=warn`. |
+| Read-only global status projection | ✅ implemented | `global_control_status`, `runtime_closure_status`, `admissibility_waterline`, and `queue_governance_status` are registered read-only commands in `command-policy.ts` and handlers reject write-like flags before reading facts. | Does not mutate story state, evidence, queue exceptions, receipts, or authority. |
+| Runtime closure projection | ✅ implemented | `packages/main/src/core/lifecycle-control/runtime/index.ts` projects local assurance, lifecycle readiness rows, owner lease, main-write lock, and validation lock state. | Does not define a second lifecycle state machine or proof policy. |
+| Runtime closure enforcement rollout | ✅ implemented | `story_advance` evaluates runtime authority, dirty state, and lock state through `evaluateRuntimeEnforcement`; config is `lifecycleControl.runtimeEnforcement=warn|enforce|unavailable`. | Default warn mode is diagnostic, enforce mode blocks unsafe runtime closure findings, unavailable mode does not block, and rollback is `lifecycleControl.runtimeEnforcement=warn`. |
 | Proof Admissibility waterline | partial | `admissibility_waterline` consumes public Proof Admissibility diagnostics and renders consumer rows with `diagnosticOnly=true` and `productionDoneEligible=false`. | Does not satisfy DONE, DONE_REQUIRED, Authority, or production claims. |
 | Proof M7 enforcement | partial | Proof-facing diagnostics and some warn/enforce modes exist in Proof Admissibility. The control-plane capability row reports this as partial while the compatibility boolean `proofM7Enforcement=false`. | The control plane does not implement Proof M7 hard blocking. |
-| Queue classification | implemented | `queue_governance_status` classifies active worktree, stale worktree, main init, experiment exception, duplicate candidate, superseded, and cleanup-required rows. | Classification alone never discards a story or grants readiness. |
-| Queue exception registry | implemented | `queue_exception_set` writes preserve-only experiment exceptions under the main-write lock with actor, reason, timestamp, hash binding, and audit event. | Exceptions affect duplicate-cleanup pressure only. |
-| Queue cleanup enforcement | implemented | Duplicate/superseded/cleanup-required risk is projected and exception writes are guarded; cleanup mutations remain outside this dashboard. Compatibility boolean `queueCleanupEnforcement=false`. | Does not perform, authorize, or hide cleanup by itself; it keeps cleanup pressure visible for operator action. |
+| Queue classification | ✅ implemented | `queue_governance_status` classifies active worktree, stale worktree, main init, experiment exception, duplicate candidate, superseded, and cleanup-required rows. | Classification alone never discards a story or grants readiness. |
+| Queue exception registry | ✅ implemented | `queue_exception_set` writes preserve-only experiment exceptions under the main-write lock with actor, reason, timestamp, hash binding, and audit event. | Exceptions affect duplicate-cleanup pressure only. |
+| Queue cleanup enforcement | ✅ implemented | Duplicate/superseded/cleanup-required risk is projected and exception writes are guarded; cleanup mutations remain outside this dashboard. Compatibility boolean `queueCleanupEnforcement=false`. | Does not perform, authorize, or hide cleanup by itself; it keeps cleanup pressure visible for operator action. |
 | Tier-C cleanup | unavailable | Tier-C provider-execution receipt verification runs are preserved and grouped as experiment evidence; malformed Tier-C-like rows stay cleanup-required. Compatibility boolean `tierCCleanup=false`. | Automated Tier-C cleanup is retired as a non-goal; preservation and malformed-row visibility are the implemented policy. |
 | External production done | unavailable | No external production adapter is part of the control plane. | Local CLI evidence cannot mint `productionDone`. |
 
@@ -193,9 +198,9 @@ Current capability split:
 | Proof-admissibility classification | implemented MVP | Proof Admissibility |
 | Verifier adapter coverage | partial / capability-detected | Proof Admissibility |
 | Evaluation ledger | specified; not assumed globally available | Proof Admissibility |
-| Admissibility waterline | specified; not assumed globally available | Proof Admissibility |
+| Admissibility waterline | partial read-only diagnostic projection; not proof of gate satisfaction | Proof Admissibility |
 | Proof hard-fail enforcement | warn/enforce diagnostics exist for some paths; global enforcement not assumed | Proof Admissibility |
-| Global runtime/queue dashboard | proposed here | Global Control Plane |
+| Global runtime/queue dashboard | ✅ implemented read-only projection | Global Control Plane |
 
 The remaining failures are not one missing helper. They are cross-layer
 coordination failures:
