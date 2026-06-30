@@ -224,6 +224,18 @@
           "materialHash": "d59d677fba13f18a889d5897a0d72ab6829a3a5938a8af70703805563d67f235",
           "storyFilesHash": "9005e0fbcf8749e9c01b0037c5949c517a20f01b37688a174de6fa8e822312dd",
           "timestamp": "2026-06-30T10:05:52.980Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "bash -o pipefail -c \"node scripts/verify-process-fact-contract.mjs | tail -n 25\"",
+          "result": "pass",
+          "note": "Process-fact verifier requires the roadmap markers for process-fact registry path, process-fact levels path, verifier command, and static verifier contract drift text, so the roadmap cannot drop M4 prerequisite markers unnoticed.",
+          "headHash": "e2b1860467c672b550ded12d967b71d8eba6465a",
+          "materialHash": "d59d677fba13f18a889d5897a0d72ab6829a3a5938a8af70703805563d67f235",
+          "storyFilesHash": "9005e0fbcf8749e9c01b0037c5949c517a20f01b37688a174de6fa8e822312dd",
+          "timestamp": "2026-06-30T10:05:58.692Z"
         }
       ]
     },
