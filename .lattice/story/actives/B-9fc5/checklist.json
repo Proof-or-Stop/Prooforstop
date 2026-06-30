@@ -40,7 +40,27 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Plan defines parent-child completion states and the ParentRoadmapLedger/ParentRollupResult data model.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Plan distinguishes parent governance completion from full roadmap completion using claimType and allRowsClosed.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Plan rejects full-roadmap completion claims when any child row remains child-story-needed, child-story-active, or deferred without human approval.",
+            "type": "docs"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-003",
