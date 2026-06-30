@@ -1,0 +1,81 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-8963",
+  "checkedAt": "2026-06-30T22:06:33.010Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "80dcebbca382b65eac4b44cecf61b82c30333b60345b86b72033b2ebd81c7bff",
+  "executionBoundaryHash": "d65919a1248e74145e0380768f2ec0e1269547c7f0f2b06a6beabe86f97cbba4",
+  "freshnessHash": "287006719cca5c4c223a4a1695e9b02868d8098adda1b07c575205f3dd0a3770",
+  "effectiveExcludedKeywords": [
+    "Authority",
+    "autopilot parallel execution changes",
+    "customerKeyRef",
+    "fountain-code or erasure-code evidence model",
+    "global persistent hash cache",
+    "Layer4",
+    "mtime or file-count based freshness keys",
+    "parameterized fault-injection harness",
+    "repair UX",
+    "streaming evidence-pack rewrite"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "autopilot parallel execution changes",
+      "source": "scopeBoundary.excluded",
+      "text": "autopilot parallel execution changes",
+      "excluded": true
+    },
+    {
+      "keyword": "fountain-code or erasure-code evidence model",
+      "source": "scopeBoundary.excluded",
+      "text": "fountain-code or erasure-code evidence model",
+      "excluded": true
+    },
+    {
+      "keyword": "global persistent hash cache",
+      "source": "scopeBoundary.excluded",
+      "text": "global persistent hash cache",
+      "excluded": true
+    },
+    {
+      "keyword": "mtime or file-count based freshness keys",
+      "source": "scopeBoundary.excluded",
+      "text": "mtime or file-count based freshness keys",
+      "excluded": true
+    },
+    {
+      "keyword": "parameterized fault-injection harness",
+      "source": "scopeBoundary.excluded",
+      "text": "parameterized fault-injection harness",
+      "excluded": true
+    },
+    {
+      "keyword": "streaming evidence-pack rewrite",
+      "source": "scopeBoundary.excluded",
+      "text": "streaming evidence-pack rewrite",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [
+    {
+      "digest": "dae40507442b74d64c3029147aac091b1ece93afaafa868e93a94a1eeb5eef64",
+      "overlapTerms": [
+        "## Conversational Texture The user explicitly asked to avoid arbitrary optimization and only fix real correctness or workflow issues. This story should therefore deliver measurable duplicate-work reduction while preserving the Proofbound host-neutral evidence model and stale-proof guarantees.",
+        "## Key Insights The useful idea is not fountain-code redundancy and not mtime-based caching. Proofbound evidence must remain exact and hash-bound, so the safe primitive is a command-local snapshot tied to HEAD plus worktree/index dirtiness and material-scope semantics.",
+        "## Solution Tradeoffs Keep the change narrow: reuse a captured hash binding inside a single command or gate run, then prove invalidation when git state changes. Avoid global cache, streaming rewrites, parallel execution changes, or research harness changes in this story.",
+        "## Trigger Event On 2026-06-30, the DNAcoder transfer analysis identified syndrome-style short-circuiting as the one optimization idea that maps to a real Proofbound pain point: repeated materialHash and storyFilesHash recomputation across DONE and review gates.",
+        "## Trigger Event On 2026-06-30, the DNAcoder transfer analysis identified syndrome-style short-circuiting as the one optimization idea that maps to a real Proofbound pain point: repeated materialHash and storyFilesHash recomputation across DONE and review gates. ## Key Insights The useful idea is not fountain-code redundancy and not mtime-based caching. Proofbound evidence must remain exact and hash-bound, so the safe primitive is a command-local snapshot tied to HEAD plus worktree/index dirtiness and material-scope semantics. ## Solution Tradeoffs Keep the change narrow: reuse a captured hash binding inside a single command or gate run, then prove invalidation when git state changes. Avoid global cache, streaming rewrites, parallel execution changes, or research harness changes in this story. ## Conversational Texture The user explicitly asked to avoid arbitrary optimization and only fix real correctness or workflow issues. This story should therefore deliver measurable duplicate-work reduction while preserving the Proofbound host-neutral evidence model and stale-proof guarantees.",
+        "Introduce a narrow command-local freshness snapshot so DONE and review assurance gates can reuse one authoritative HEAD/material/story-files binding within the same command execution. This is not a global cache and must not weaken stale-evidence detection; it only removes duplicate whole-tree hash recomputation after the binding has already been captured for the same git state.",
+        "Reuse command-local hash snapshots across DONE and review gates"
+      ],
+      "overlapRatio": 0.5384615384615384,
+      "previousStoryId": "B-b49f",
+      "previousReason": "Discarding half-initialized duplicate story shell: checklist artifact is missing, so checklist_add cannot proceed; recreating cleanly with forceNew for the approved M1 milestone.",
+      "previousDiscardedAt": "2026-06-30T22:05:20.942Z",
+      "mitigation": "The prior same-direction story B-b49f was discarded because its checklist artifact was missing and checklist_add could not operate; B-8963 recreates the same approved scope with a complete checklist, scope boundary, and execution boundary instead of reusing corrupted metadata."
+    }
+  ],
+  "issues": [],
+  "_hash": "604ad35db95728e63a5bd3e0bd6883ac0ca27d7ba8d4b7713c15336a8900ce66"
+}

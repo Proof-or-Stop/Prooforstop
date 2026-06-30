@@ -1,0 +1,50 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Update Parent Roadmap status from stale plan-only wording to current implemented/read-only boundary",
+      "context": "The document still says Status: plan-only for B-9fc5 even though parent_roadmap_status/evaluate, core evaluator, process-fact registration, and parent-roadmap-totality-smoke exist. Add a current status table, mark implemented rows with checkmarks, and preserve that commands are read-only diagnostics rather than global lifecycle hard gates.",
+      "relatedDocs": [
+        "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Update Proof Admissibility hardening status table for local CLI completion and retired external proof boundaries",
+      "context": "The plan already says local CLI hardening is mainly implemented while external adapter, append-only ledger, and cross-runtime parity are partial/future/retired. Add or refine a milestone table with checkmarks for completed local CLI rows and explicit non-goal/future rows, consistent with server-backed receipt proof retirement.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Update Global Lifecycle Control Plane status table for implemented, partial, and unavailable rows",
+      "context": "The document marks Proof M7 enforcement partial, admissibility waterline partial, and Tier-C cleanup unavailable. Add a concise completion table that marks implemented control-plane rows with checkmarks and keeps partial/unavailable rows honest without inventing runtime hard automation.",
+      "relatedDocs": [
+        "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Verify all three documents have completed rows marked and no full-completion overclaim",
+      "context": "Run targeted rg checks and relevant existing smokes for parent-roadmap/proof/process fact contracts as appropriate. Evidence should prove the tables exist, completed rows use checkmarks, and partial/future/non-goal boundaries remain explicit.",
+      "relatedDocs": [
+        "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+        "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

@@ -1,0 +1,105 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Close M4 process fact registry coverage",
+      "context": "Verify all gate-consumed facts introduced or relied on by M4-M12 are registered in process-fact-registry/process-fact-levels and covered by verify-process-fact-contract.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Close M5 verification context pack and evidence envelope standardization",
+      "context": "Verify context pack and evidence manifest/envelope behavior covers changed refs, digests, expansion, stale/missing cases, and reviewer/validator consumption boundaries.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+        "docs/requirements/decisions/verification-context-pack.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Close M6 gate oracle freshness and negative-control matrix",
+      "context": "Verify canonical DONE/readiness oracle rows, freshness handling, and expected-block negative controls for lifecycle and receipt paths.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Close M7 baseline suite formalization",
+      "context": "Verify baseline_run, baseline_suite, reports, outcome math, false-DONE accounting, and claim boundaries satisfy roadmap baseline requirements.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Close M8 host identity review-run and 3x2 quorum strengthening",
+      "context": "Verify host/session/key/material/validation binding, 3x2 and degraded 3x1 behavior, ignored verdict reasons, and review escalation DONE consumption.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+        "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-006",
+      "title": "Close M9 preflight command center",
+      "context": "Verify lifecycle_orchestrate/session/status surfaces consume canonical readiness rows and render next actions without mutating evidence or widening assurance.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-007",
+      "title": "Close M10 parallel collaboration scheduling",
+      "context": "Verify parallel wave, decomposition, dispatch policy, owner lease, hotspot/dependency and read-only scheduling boundaries satisfy roadmap scheduling requirements.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-008",
+      "title": "Close M11 rollout migration and operator guidance",
+      "context": "Verify rollout_check, compatibility policy, repair/runbook guidance, and in-flight story treatment are documented and tested for M4-M10 closure.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-009",
+      "title": "Close M12 cross-track certification and handoff package",
+      "context": "Verify final cross-track certification composes M4-M11 evidence, handoff/evidence manifests, quorum, and claim boundary without authority overclaim.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

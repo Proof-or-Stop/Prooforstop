@@ -1,0 +1,27 @@
+{
+  "storyId": "B-b49f",
+  "updatedAt": "2026-06-30T22:05:20.942Z",
+  "entries": [
+    {
+      "digest": "dae40507442b74d64c3029147aac091b1ece93afaafa868e93a94a1eeb5eef64",
+      "terms": [
+        "## Conversational Texture The user explicitly asked to avoid arbitrary optimization and only fix real correctness or workflow issues. This story should therefore deliver measurable duplicate-work reduction while preserving the Proofbound host-neutral evidence model and stale-proof guarantees.",
+        "## Key Insights The useful idea is not fountain-code redundancy and not mtime-based caching. Proofbound evidence must remain exact and hash-bound, so the safe primitive is a command-local snapshot tied to HEAD plus worktree/index dirtiness and material-scope semantics.",
+        "## Solution Tradeoffs Keep the change narrow: reuse a captured hash binding inside a single command or gate run, then prove invalidation when git state changes. Avoid global cache, streaming rewrites, parallel execution changes, or research harness changes in this story.",
+        "## Trigger Event On 2026-06-30, the DNAcoder transfer analysis identified syndrome-style short-circuiting as the one optimization idea that maps to a real Proofbound pain point: repeated materialHash and storyFilesHash recomputation across DONE and review gates.",
+        "## Trigger Event On 2026-06-30, the DNAcoder transfer analysis identified syndrome-style short-circuiting as the one optimization idea that maps to a real Proofbound pain point: repeated materialHash and storyFilesHash recomputation across DONE and review gates. ## Key Insights The useful idea is not fountain-code redundancy and not mtime-based caching. Proofbound evidence must remain exact and hash-bound, so the safe primitive is a command-local snapshot tied to HEAD plus worktree/index dirtiness and material-scope semantics. ## Solution Tradeoffs Keep the change narrow: reuse a captured hash binding inside a single command or gate run, then prove invalidation when git state changes. Avoid global cache, streaming rewrites, parallel execution changes, or research harness changes in this story. ## Conversational Texture The user explicitly asked to avoid arbitrary optimization and only fix real correctness or workflow issues. This story should therefore deliver measurable duplicate-work reduction while preserving the Proofbound host-neutral evidence model and stale-proof guarantees.",
+        "done-gate",
+        "evidence-freshness",
+        "Introduce a narrow command-local freshness snapshot so DONE and review assurance gates can reuse one authoritative HEAD/material/story-files binding within the same command execution. This is not a global cache and must not weaken stale-evidence detection; it only removes duplicate whole-tree hash recomputation after the binding has already been captured for the same git state.",
+        "materialHash",
+        "Reuse command-local hash snapshots across DONE and review gates",
+        "review-assurance",
+        "storyFilesHash",
+        "syndrome-preflight"
+      ],
+      "reason": "Discarding half-initialized duplicate story shell: checklist artifact is missing, so checklist_add cannot proceed; recreating cleanly with forceNew for the approved M1 milestone.",
+      "discardedAt": "2026-06-30T22:05:20.942Z",
+      "storyId": "B-b49f"
+    }
+  ]
+}

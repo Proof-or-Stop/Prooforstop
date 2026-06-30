@@ -1,0 +1,32 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-b49f",
+  "mode": "correctness_fix",
+  "allowed": [
+    "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+    "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+    "docs/requirements/decisions/story-files-hash-material-drift.md",
+    "packages/main/src/core/done-required-validation.ts",
+    "packages/main/src/core/evidence-freshness.ts",
+    "packages/main/src/handlers/delivery-check.ts",
+    "packages/main/src/handlers/done-prepare.ts",
+    "packages/main/src/handlers/phase-gates.ts",
+    "packages/main/src/handlers/quorum-submit.ts",
+    "packages/main/src/handlers/review-escalation.ts",
+    "packages/main/src/tasks/*freshness*smoke.ts",
+    "packages/main/src/tasks/*hash*smoke.ts"
+  ],
+  "excluded": [
+    "autopilot parallel execution changes",
+    "fountain-code or erasure-code evidence model",
+    "global persistent hash cache",
+    "mtime or file-count based freshness keys",
+    "parameterized fault-injection harness",
+    "streaming evidence-pack rewrite"
+  ],
+  "confirmedBy": "codex",
+  "confirmationNote": "User approved the two-story plan on 2026-06-30; M1 is limited to hash snapshot reuse and syndrome preflight for DONE and review gates.",
+  "createdAt": "2026-06-30T22:04:17.594Z",
+  "updatedAt": "2026-06-30T22:04:17.594Z",
+  "_hash": "3b7576af4a0938b8ade2dd5ce4adaa17c98c033cd452f3a045051a6353f37a5f"
+}
