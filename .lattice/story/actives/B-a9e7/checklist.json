@@ -50,10 +50,10 @@
           "command": "node packages/main/dist/cli.js dev_memory_search --query=koala --global",
           "result": "pass",
           "note": "Inventory found legacy Koala ids a6832a1, f4fe749, c948c85, 2de5d6b, and 7bc20e5 and mapped them to current Proofbound/Lattice superseding entries 34e97f9, 99aa6c7, ee3aef3, 148297b, and 7ffe281.",
-          "headHash": "64d12ae2940866ff366310febf968f87fc12a54b",
-          "materialHash": "5b5b767ebfad3072e082aec91c5249d42356f22e084171ba50d5634f2a355e38",
-          "storyFilesHash": "74383895302999b622d1fb2f542b709405595a61e3fea51458c05281f9405b76",
-          "timestamp": "2026-06-30T16:01:53.340Z"
+          "headHash": "3e1dfccc19e12e9f072ef3840640ee5553efdbce",
+          "materialHash": "fec12d3410950af0112dafd478a628a4bac500043a6bb0b34ea7abeb44dac2b9",
+          "storyFilesHash": "7e11a09d9ed5c0b7f0efdc1f44017bd4aa7edc70774d25249d4d6a0d3e034690",
+          "timestamp": "2026-06-30T17:12:45.106Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -61,10 +61,10 @@
           "command": "node packages/main/dist/tasks/dev-memory-supersession-smoke.js",
           "result": "pass",
           "note": "Smoke check legacy entry remains readable and visibly annotated as superseded / legacy-readable.",
-          "headHash": "64d12ae2940866ff366310febf968f87fc12a54b",
-          "materialHash": "5b5b767ebfad3072e082aec91c5249d42356f22e084171ba50d5634f2a355e38",
-          "storyFilesHash": "74383895302999b622d1fb2f542b709405595a61e3fea51458c05281f9405b76",
-          "timestamp": "2026-06-30T16:01:53.733Z"
+          "headHash": "3e1dfccc19e12e9f072ef3840640ee5553efdbce",
+          "materialHash": "fec12d3410950af0112dafd478a628a4bac500043a6bb0b34ea7abeb44dac2b9",
+          "storyFilesHash": "7e11a09d9ed5c0b7f0efdc1f44017bd4aa7edc70774d25249d4d6a0d3e034690",
+          "timestamp": "2026-06-30T17:12:45.106Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -72,10 +72,10 @@
           "command": "git show --stat --oneline 64d12ae29",
           "result": "pass",
           "note": "Commit adds only new project dev-memory rows plus source/docs/smoke changes; legacy global rows are not rewritten or deleted.",
-          "headHash": "64d12ae2940866ff366310febf968f87fc12a54b",
-          "materialHash": "5b5b767ebfad3072e082aec91c5249d42356f22e084171ba50d5634f2a355e38",
-          "storyFilesHash": "74383895302999b622d1fb2f542b709405595a61e3fea51458c05281f9405b76",
-          "timestamp": "2026-06-30T16:01:54.058Z"
+          "headHash": "3e1dfccc19e12e9f072ef3840640ee5553efdbce",
+          "materialHash": "fec12d3410950af0112dafd478a628a4bac500043a6bb0b34ea7abeb44dac2b9",
+          "storyFilesHash": "7e11a09d9ed5c0b7f0efdc1f44017bd4aa7edc70774d25249d4d6a0d3e034690",
+          "timestamp": "2026-06-30T17:12:45.106Z"
         }
       ]
     },
@@ -130,10 +130,10 @@
           "command": "node packages/main/dist/tasks/dev-memory-supersession-smoke.js",
           "result": "pass",
           "note": "Smoke proves tags supersedes-<id> and evidenceRefs dev-memory:<id> compute a projection and rank current entries before superseded legacy entries in search and preflight.",
-          "headHash": "af49376c300b9e0b69b6bcb671b85897dc35f1e3",
-          "materialHash": "5b5b767ebfad3072e082aec91c5249d42356f22e084171ba50d5634f2a355e38",
-          "storyFilesHash": "74383895302999b622d1fb2f542b709405595a61e3fea51458c05281f9405b76",
-          "timestamp": "2026-06-30T16:02:11.507Z"
+          "headHash": "3e1dfccc19e12e9f072ef3840640ee5553efdbce",
+          "materialHash": "fec12d3410950af0112dafd478a628a4bac500043a6bb0b34ea7abeb44dac2b9",
+          "storyFilesHash": "7e11a09d9ed5c0b7f0efdc1f44017bd4aa7edc70774d25249d4d6a0d3e034690",
+          "timestamp": "2026-06-30T17:12:45.106Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -141,10 +141,10 @@
           "command": "node packages/main/dist/cli.js dev_memory_list --scope=project --limit=5",
           "result": "pass",
           "note": "List remains newest-first for project entries while annotating each superseding status and preserving readable entry formatting.",
-          "headHash": "af49376c300b9e0b69b6bcb671b85897dc35f1e3",
-          "materialHash": "5b5b767ebfad3072e082aec91c5249d42356f22e084171ba50d5634f2a355e38",
-          "storyFilesHash": "74383895302999b622d1fb2f542b709405595a61e3fea51458c05281f9405b76",
-          "timestamp": "2026-06-30T16:02:11.884Z"
+          "headHash": "3e1dfccc19e12e9f072ef3840640ee5553efdbce",
+          "materialHash": "fec12d3410950af0112dafd478a628a4bac500043a6bb0b34ea7abeb44dac2b9",
+          "storyFilesHash": "7e11a09d9ed5c0b7f0efdc1f44017bd4aa7edc70774d25249d4d6a0d3e034690",
+          "timestamp": "2026-06-30T17:12:45.106Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -152,10 +152,10 @@
           "command": "node packages/main/dist/cli.js dev_memory_search --query=koala --global",
           "result": "pass",
           "note": "Search output shows current Proofbound/Lattice superseding entries before their legacy Koala counterparts and marks old entries superseded / legacy-readable.",
-          "headHash": "af49376c300b9e0b69b6bcb671b85897dc35f1e3",
-          "materialHash": "5b5b767ebfad3072e082aec91c5249d42356f22e084171ba50d5634f2a355e38",
-          "storyFilesHash": "74383895302999b622d1fb2f542b709405595a61e3fea51458c05281f9405b76",
-          "timestamp": "2026-06-30T16:02:12.243Z"
+          "headHash": "3e1dfccc19e12e9f072ef3840640ee5553efdbce",
+          "materialHash": "fec12d3410950af0112dafd478a628a4bac500043a6bb0b34ea7abeb44dac2b9",
+          "storyFilesHash": "7e11a09d9ed5c0b7f0efdc1f44017bd4aa7edc70774d25249d4d6a0d3e034690",
+          "timestamp": "2026-06-30T17:12:45.106Z"
         }
       ]
     },
@@ -209,10 +209,10 @@
           "command": "lattice dev_memory_capture (five sequential captures for B-a9e7)",
           "result": "pass",
           "note": "Captured project memories 34e97f9, 99aa6c7, ee3aef3, 148297b, and 7ffe281 for legacy ids a6832a1, f4fe749, c948c85, 2de5d6b, and 7bc20e5.",
-          "headHash": "1563cacc0aebd49aea520493aa55c7f95b78eb8f",
-          "materialHash": "5b5b767ebfad3072e082aec91c5249d42356f22e084171ba50d5634f2a355e38",
-          "storyFilesHash": "74383895302999b622d1fb2f542b709405595a61e3fea51458c05281f9405b76",
-          "timestamp": "2026-06-30T16:02:39.700Z"
+          "headHash": "3e1dfccc19e12e9f072ef3840640ee5553efdbce",
+          "materialHash": "fec12d3410950af0112dafd478a628a4bac500043a6bb0b34ea7abeb44dac2b9",
+          "storyFilesHash": "7e11a09d9ed5c0b7f0efdc1f44017bd4aa7edc70774d25249d4d6a0d3e034690",
+          "timestamp": "2026-06-30T17:12:45.106Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -220,10 +220,10 @@
           "command": "node packages/main/dist/cli.js dev_memory_list --scope=project --limit=5",
           "result": "pass",
           "note": "Each new entry preserves the legacy evidence by reference with Refs dev-memory:<legacy-id> rather than duplicating or editing old rows.",
-          "headHash": "1563cacc0aebd49aea520493aa55c7f95b78eb8f",
-          "materialHash": "5b5b767ebfad3072e082aec91c5249d42356f22e084171ba50d5634f2a355e38",
-          "storyFilesHash": "74383895302999b622d1fb2f542b709405595a61e3fea51458c05281f9405b76",
-          "timestamp": "2026-06-30T16:02:40.067Z"
+          "headHash": "3e1dfccc19e12e9f072ef3840640ee5553efdbce",
+          "materialHash": "fec12d3410950af0112dafd478a628a4bac500043a6bb0b34ea7abeb44dac2b9",
+          "storyFilesHash": "7e11a09d9ed5c0b7f0efdc1f44017bd4aa7edc70774d25249d4d6a0d3e034690",
+          "timestamp": "2026-06-30T17:12:45.106Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -231,10 +231,10 @@
           "command": "node packages/main/dist/cli.js dev_memory_search --query=koala --global",
           "result": "pass",
           "note": "Current entries use active Proofbound/Lattice wording and only mention Koala as legacy mapping context; output marks old Koala rows as superseded / legacy-readable.",
-          "headHash": "1563cacc0aebd49aea520493aa55c7f95b78eb8f",
-          "materialHash": "5b5b767ebfad3072e082aec91c5249d42356f22e084171ba50d5634f2a355e38",
-          "storyFilesHash": "74383895302999b622d1fb2f542b709405595a61e3fea51458c05281f9405b76",
-          "timestamp": "2026-06-30T16:02:40.489Z"
+          "headHash": "3e1dfccc19e12e9f072ef3840640ee5553efdbce",
+          "materialHash": "fec12d3410950af0112dafd478a628a4bac500043a6bb0b34ea7abeb44dac2b9",
+          "storyFilesHash": "7e11a09d9ed5c0b7f0efdc1f44017bd4aa7edc70774d25249d4d6a0d3e034690",
+          "timestamp": "2026-06-30T17:12:45.106Z"
         }
       ]
     },
@@ -292,10 +292,10 @@
           "command": "node packages/main/dist/tasks/dev-memory-supersession-smoke.js",
           "result": "pass",
           "note": "Smoke passed search/preflight ordering and visible supersession metadata checks.",
-          "headHash": "cd6393a1a56c9c6316244f3b16a708335d2cec82",
-          "materialHash": "5b5b767ebfad3072e082aec91c5249d42356f22e084171ba50d5634f2a355e38",
-          "storyFilesHash": "74383895302999b622d1fb2f542b709405595a61e3fea51458c05281f9405b76",
-          "timestamp": "2026-06-30T16:02:49.616Z"
+          "headHash": "3e1dfccc19e12e9f072ef3840640ee5553efdbce",
+          "materialHash": "fec12d3410950af0112dafd478a628a4bac500043a6bb0b34ea7abeb44dac2b9",
+          "storyFilesHash": "7e11a09d9ed5c0b7f0efdc1f44017bd4aa7edc70774d25249d4d6a0d3e034690",
+          "timestamp": "2026-06-30T17:12:45.106Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -303,10 +303,10 @@
           "command": "node packages/main/dist/tasks/dev-memory-supersession-smoke.js",
           "result": "pass",
           "note": "Smoke passed legacy-readable formatting check, proving superseded Koala entries remain readable rather than disappearing.",
-          "headHash": "cd6393a1a56c9c6316244f3b16a708335d2cec82",
-          "materialHash": "5b5b767ebfad3072e082aec91c5249d42356f22e084171ba50d5634f2a355e38",
-          "storyFilesHash": "74383895302999b622d1fb2f542b709405595a61e3fea51458c05281f9405b76",
-          "timestamp": "2026-06-30T16:02:50.030Z"
+          "headHash": "3e1dfccc19e12e9f072ef3840640ee5553efdbce",
+          "materialHash": "fec12d3410950af0112dafd478a628a4bac500043a6bb0b34ea7abeb44dac2b9",
+          "storyFilesHash": "7e11a09d9ed5c0b7f0efdc1f44017bd4aa7edc70774d25249d4d6a0d3e034690",
+          "timestamp": "2026-06-30T17:12:45.106Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -314,10 +314,10 @@
           "command": "node packages/main/dist/tasks/dev-memory-supersession-smoke.js",
           "result": "pass",
           "note": "Smoke passed gateEvidence=false and authority=non_authoritative invariants after supersession projection.",
-          "headHash": "cd6393a1a56c9c6316244f3b16a708335d2cec82",
-          "materialHash": "5b5b767ebfad3072e082aec91c5249d42356f22e084171ba50d5634f2a355e38",
-          "storyFilesHash": "74383895302999b622d1fb2f542b709405595a61e3fea51458c05281f9405b76",
-          "timestamp": "2026-06-30T16:02:50.374Z"
+          "headHash": "3e1dfccc19e12e9f072ef3840640ee5553efdbce",
+          "materialHash": "fec12d3410950af0112dafd478a628a4bac500043a6bb0b34ea7abeb44dac2b9",
+          "storyFilesHash": "7e11a09d9ed5c0b7f0efdc1f44017bd4aa7edc70774d25249d4d6a0d3e034690",
+          "timestamp": "2026-06-30T17:12:45.106Z"
         },
         {
           "intentRef": "CHK-004:happy:0",
