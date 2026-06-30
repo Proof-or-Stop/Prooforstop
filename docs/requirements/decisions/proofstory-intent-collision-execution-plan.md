@@ -222,14 +222,23 @@ ProofStory gate passed -> DEV may start
 
 ## Artifact Model
 
-The ProofStory layer should write one canonical structured artifact:
+`proofstory.json` is the ProofStory contract envelope: it stores durable
+acceptance bindings and contract metadata, not the entire ProofStory state. The
+MVP persists split gate-consumed artifacts alongside that envelope:
 
 ```text
 .lattice/story/actives/<storyId>/proofstory.json
+.lattice/story/actives/<storyId>/original-intent-snapshot.json
+.lattice/story/actives/<storyId>/milestone-ledger.json
+.lattice/story/actives/<storyId>/intent-collision.json
+.lattice/story/actives/<storyId>/scope-shrinkage-decision.json
+.lattice/story/actives/<storyId>/red-evidence.json
+.lattice/story/actives/<storyId>/spike.json
 ```
 
-The artifact must be written only by CLI handlers. Direct file editing is not a
-valid path.
+Read-only diagnostics such as coverage, gate, review-completeness, and DONE
+intent-equivalence checks remain command output in the MVP. Durable artifacts
+must be written only by CLI handlers. Direct file editing is not a valid path.
 
 ### Intent Fidelity Layer
 

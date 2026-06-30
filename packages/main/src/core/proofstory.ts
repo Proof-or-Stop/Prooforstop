@@ -520,15 +520,13 @@ function verificationEvidenceByRef(items: readonly ChecklistItem[]): Map<string,
 }
 
 function evidenceCoversIntent(evidence: Map<string, VerificationEvidence[]>, ref: string): boolean {
-  return (evidence.get(ref) ?? []).some((row) =>
-    row.waiverType !== 'deferred_gate_evidence'
-    && (
-      row.result === 'pass'
-      || row.kind === 'waiver'
-      || row.verdict === 'success'
-      || row.verdict === 'waived'
-    )
-  );
+  return (evidence.get(ref) ?? []).some((row) => {
+    if (row.waiverType === 'deferred_gate_evidence') return false;
+    if (row.result === 'pass') return true;
+    return row.kind === 'waiver'
+      && row.waiverType === 'permanent'
+      && row.result !== 'fail';
+  });
 }
 
 export function collisionAccepted(collision: IntentCollisionData | null): boolean {

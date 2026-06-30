@@ -9,8 +9,13 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { resetConfigCache } from '../core/config.js';
+import {
+  canSendStoryEventWithoutSnapshotCan,
+  getGuardFailureReason,
+} from '../core/machine.js';
 import { StoryStore } from '../core/store.js';
-import type { ChecklistData, StoryInfo } from '../core/types.js';
+import type { ChecklistData, StoryInfo, StoryPhase } from '../core/types.js';
 import { computeIntentRequestHash } from '../core/proofstory.js';
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -49,6 +54,58 @@ function jsonRun<T = any>(root: string, command: string, args: Record<string, un
   return JSON.parse(run(root, command, { ...args, json: true })) as T;
 }
 
+function writeLifecycleGateBlockedStory(store: StoryStore, storyId: string, phase: Extract<StoryPhase, 'REVIEW' | 'TEST'>): void {
+  const now = new Date().toISOString();
+  store.writeStory(storyId, {
+    storyId,
+    name: `${storyId.toLowerCase()}-proofstory-reentry`,
+    title: `${phase} ProofStory DEV re-entry smoke`,
+    description: 'Fix a lifecycle gate regression with unclear code path and missing ProofStory intent artifacts.',
+    type: 'bug',
+    phase,
+    priority: 'high',
+    riskSignals: [{ category: 'state machine/gate', matched: 'lifecycle gate' }],
+    createdAt: now,
+    startedAt: now,
+    endedAt: null,
+    events: [{ phase, action: 'advance', timestamp: now }],
+  });
+  store.writeChecklist(storyId, {
+    items: [{
+      id: 'CHK-001',
+      title: 'Repair lifecycle gate regression',
+      status: 'pending',
+      startTime: null,
+      endTime: null,
+      verificationIntent: {
+        happy: [{ desc: 'Regression is repaired', type: 'cli' }],
+        edge: [],
+        adversarial: [],
+      },
+    }],
+  });
+}
+
+function assertDevAdmissionBlocked(root: string, store: StoryStore, storyId: string, currentPhase: Extract<StoryPhase, 'PLAN' | 'REVIEW' | 'TEST'>): void {
+  assert.equal(store.readStory(storyId).phase, currentPhase, `${currentPhase}->DEV precondition`);
+  assert.equal(
+    canSendStoryEventWithoutSnapshotCan(storyId, store, currentPhase, 'START', root),
+    false,
+    `${currentPhase}->DEV machine helper blocks when proofStory.devGateMode=enforce and intent artifacts are incomplete`,
+  );
+  assert.match(
+    getGuardFailureReason(storyId, store, 'DEV', root) ?? '',
+    /ProofStory DEV gate is enforce|required intent artifacts are incomplete/,
+    `${currentPhase}->DEV guard reason names the ProofStory DEV gate`,
+  );
+  assert.match(
+    run(root, 'story_advance', { storyId, phase: 'DEV' }, true),
+    /ProofStory DEV gate is enforce|required intent artifacts are incomplete/,
+    `${currentPhase}->DEV lifecycle command blocks through story_advance`,
+  );
+  assert.equal(store.readStory(storyId).phase, currentPhase, `${currentPhase}->DEV block leaves phase unchanged`);
+}
+
 const root = mkdtempSync(join(tmpdir(), 'lattice-proofstory-'));
 try {
   git(root, ['init', '-b', 'main']);
@@ -60,7 +117,9 @@ try {
     storyDir: '.lattice/story/actives',
     requirementsDir: 'docs/requirements',
     storyPrefix: 'B',
+    proofStory: { devGateMode: 'enforce' },
   }, null, 2));
+  resetConfigCache();
   write(root, 'README.md', 'proofstory smoke\n');
   git(root, ['add', '.']);
   git(root, ['commit', '-m', 'init']);
@@ -108,6 +167,12 @@ try {
   let gate = jsonRun(root, 'proofstory_gate_check', { storyId, mode: 'observe' });
   assert.equal(gate.hardeningLevel, 'high_assurance', 'high-risk regression selects high assurance');
   assert.ok(gate.missingMvpArtifacts.some((gap: any) => gap.code === 'missing_original_intent_snapshot'), 'missing snapshot is reported');
+  assertDevAdmissionBlocked(root, store, storyId, 'PLAN');
+  for (const phase of ['REVIEW', 'TEST'] as const) {
+    const reentryStoryId = `B-proofstory-${phase.toLowerCase()}-reentry`;
+    writeLifecycleGateBlockedStory(store, reentryStoryId, phase);
+    assertDevAdmissionBlocked(root, store, reentryStoryId, phase);
+  }
 
   const sourceText = [
     'Fix the auth lifecycle gate regression; the code path is unclear.',
@@ -313,6 +378,39 @@ try {
   store.writeChecklist(storyId, checklistWithEvidence);
   let doneEquivalence = jsonRun(root, 'done_intent_equivalence_check', { storyId, mode: 'observe' });
   assert.deepEqual(doneEquivalence.uncoveredRequiredMilestoneIds, ['M6'], 'DONE equivalence reports uncovered required milestones');
+  const checklistWithFailedSuccessVerdict = store.readChecklist(storyId);
+  checklistWithFailedSuccessVerdict.items[0].verificationEvidence = [
+    ...(checklistWithFailedSuccessVerdict.items[0].verificationEvidence ?? []),
+    {
+      intentRef: 'CHK-001:edge:0',
+      kind: 'logic_test',
+      result: 'fail',
+      verdict: 'success',
+      note: 'A failed row with a success verdict label must not satisfy ProofStory coverage.',
+    },
+  ];
+  store.writeChecklist(storyId, checklistWithFailedSuccessVerdict);
+  doneEquivalence = jsonRun(root, 'done_intent_equivalence_check', { storyId, mode: 'observe' });
+  assert.deepEqual(doneEquivalence.uncoveredRequiredMilestoneIds, ['M6'], 'result=fail plus verdict=success does not satisfy ProofStory DONE equivalence');
+  const failedSuccessReviewCompleteness = jsonRun(root, 'proofstory_review_completeness_check', { storyId, mode: 'warn' });
+  assert.ok(
+    failedSuccessReviewCompleteness.gaps.some((gap: any) => /CHK-001:edge:0/.test(gap.message)),
+    'result=fail plus verdict=success does not satisfy ProofStory REVIEW completeness',
+  );
+  const checklistWithFailedWaiver = store.readChecklist(storyId);
+  checklistWithFailedWaiver.items[0].verificationEvidence = [
+    ...(checklistWithFailedWaiver.items[0].verificationEvidence ?? []).filter((row: any) => row.intentRef !== 'CHK-001:edge:0'),
+    {
+      intentRef: 'CHK-001:edge:0',
+      kind: 'waiver',
+      result: 'fail',
+      verdict: 'waived',
+      note: 'A failed waiver row must not satisfy ProofStory coverage.',
+    },
+  ];
+  store.writeChecklist(storyId, checklistWithFailedWaiver);
+  doneEquivalence = jsonRun(root, 'done_intent_equivalence_check', { storyId, mode: 'observe' });
+  assert.deepEqual(doneEquivalence.uncoveredRequiredMilestoneIds, ['M6'], 'result=fail plus waiver does not satisfy ProofStory DONE equivalence');
   const checklistWithDeferredWaiver = store.readChecklist(storyId);
   checklistWithDeferredWaiver.items[0].verificationEvidence = [
     ...(checklistWithDeferredWaiver.items[0].verificationEvidence ?? []),

@@ -577,7 +577,10 @@ function assertProofStoryProgressiveBoundary() {
   assert(catalogText.includes('userConfirmed') && handlerText.includes('userConfirmed'), 'ProofStory scope shrinkage command must expose userConfirmed');
   assert(coreText.includes('args.userConfirmed !== true'), 'core/proofstory.ts: confirmed scope shrinkage must require userConfirmed:true');
   assert(coreText.includes('decision.userConfirmed === true'), 'core/proofstory.ts: DONE equivalence must only consume user-confirmed shrinkage');
-  assert(coreText.includes("waiverType !== 'deferred_gate_evidence'"), 'core/proofstory.ts: ProofStory evidence coverage must not count deferred_gate_evidence waivers');
+  assert(coreText.includes("row.waiverType === 'deferred_gate_evidence'") && coreText.includes('return false;'), 'core/proofstory.ts: ProofStory evidence coverage must never count deferred_gate_evidence waivers');
+  assert(coreText.includes("row.result === 'pass'"), 'core/proofstory.ts: ProofStory evidence coverage must require result=pass for ordinary evidence rows');
+  assert(coreText.includes("row.waiverType === 'permanent'") && coreText.includes("row.result !== 'fail'"), 'core/proofstory.ts: ProofStory evidence coverage must allow only non-failed permanent waivers');
+  assert(!coreText.includes("row.verdict === 'success'") && !coreText.includes("row.verdict === 'waived'"), 'core/proofstory.ts: ProofStory evidence coverage must not treat verdict labels as pass evidence');
   assert(!storyAdvanceText.includes('../core/proofstory') && !storyAdvanceText.includes('./proofstory'), 'story-advance.ts: ProofStory must not be wired through the thin story_advance handler');
   assert(machineText.includes('proofStoryDevGateFailure') && machineText.includes('devGateMode'), 'machine.ts: ProofStory DEV admission must go through the existing story machine guard and explicit policy mode');
   assert(machineText.includes('if (proofStoryDevGateFailure(context.store, context.projectRoot, context.storyId)) return false;'), 'machine.ts: REVIEW/TEST to DEV re-entry must enforce ProofStory devGateMode=enforce');
