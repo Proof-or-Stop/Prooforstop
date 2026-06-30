@@ -127,6 +127,25 @@
       ],
       "signatureTag": "spec-boundary|md|concept-review-78cf7d560",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-c004:F-007",
+      "desc": "Targeted proof-admissibility smoke is red after 78cf7d560: `npm --prefix packages/main run test:proof-admissibility` exits 1 at packages/main/dist/tasks/proof-admissibility-smoke.js:252 / source packages/main/src/tasks/proof-admissibility-smoke.ts:292, where valid DONE_REQUIRED done-readiness evidence is expected to be allowed but evaluateProofAdmissibility returns allowed=false. Build and proof-admissibility-hardening smoke pass, including the new retired ledger obligation guard, but the requested proof-admissibility smoke/build condition is not fully satisfied until the base smoke is green or this command is explicitly removed from the targeted acceptance boundary.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-30T17:40:32.365Z",
+      "reviewRound": "2026-06-30T17:38:48.220Z",
+      "reviewRunId": "B-c004:RR-030",
+      "_hash": "6294c5073ea4327fe0eb13ea625d36fae2b3d63d7f62f80d2c046058009cb100",
+      "files": [
+        "packages/main/src/tasks/proof-admissibility-smoke.ts",
+        "packages/main/src/core/proof-admissibility.ts"
+      ],
+      "signatureTag": "missing|ts|targeted-proof-admissibility",
+      "signatureTagSource": "auto"
     }
   ]
 }
