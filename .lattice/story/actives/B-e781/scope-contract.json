@@ -57,7 +57,27 @@
     "OMX artifacts"
   ],
   "scopeChangeReason": "Use exact B-e781 ProofStory artifact paths because scope classifier does not treat the previous wildcard as matching these gate evidence files.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Required to route parent_roadmap_status --storyId=B-43de to the new evidence-backed B-e781 closure ledger while preserving --case=migration as the legacy negative control.",
+      "timestamp": "2026-06-30T22:30:31.434Z",
+      "paths": [
+        "packages/main/src/handlers/parent-roadmap.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/handlers/parent-roadmap.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "f26ede9681cd58a3445650fef06b6179b73f83b6",
+      "materialHash": "81c7b5e01a115d0499f73048d52663bc8ed5a4e437b150e6c5c735fe943a667b",
+      "anchors": [
+        "B_e781_M4_M12_parent_roadmap_closure_route"
+      ]
+    }
+  ],
   "createdAt": "2026-06-30T22:12:27.772Z",
-  "updatedAt": "2026-06-30T22:13:22.741Z"
+  "updatedAt": "2026-06-30T22:30:31.434Z"
 }
