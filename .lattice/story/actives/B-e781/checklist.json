@@ -147,7 +147,42 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "baseline-suite and baseline-suite-report smokes pass and parent_roadmap_status shows M7 closed.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "packages/main/src/core/parent-roadmap-totality.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/baseline-suite-smoke.ts",
+          "packages/main/src/tasks/baseline-suite-report-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Baseline suite formalization closes only when baseline suite and report smokes prove the current report math and claim boundary.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "M7 must not be closed by documentation text alone; parent-roadmap machine status must carry evidence refs.",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "M7 must preserve claim boundaries, especially retired Authority Server semantics and read-only/advisory surfaces.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-005",
