@@ -86,8 +86,35 @@
         "done_gate",
         "lattice_review_delivery"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "These files are required to close CHK-007: DONE_REQUIRED CommandSpec envelope evidence must be generated, typed, evaluated, and covered by the done-required validation smoke test.",
+      "timestamp": "2026-06-30T16:20:55.856Z",
+      "paths": [
+        "packages/main/src/core/done-required-validation.ts",
+        "packages/main/src/core/types.ts",
+        "packages/main/src/core/validation-types.ts",
+        "packages/main/src/tasks/done-required-validation-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/done-required-validation.ts",
+        "packages/main/src/core/types.ts",
+        "packages/main/src/core/validation-types.ts",
+        "packages/main/src/tasks/done-required-validation-smoke.ts"
+      ],
+      "affectedPathCount": 4,
+      "phase": "DEV",
+      "headHash": "4d072ba49f7e0a24bface29326db41dd587c2ebf",
+      "materialHash": "000a12c53645f4145f1450245739600e0cc428c76cc7e2eccefbc5913a222b9b",
+      "anchors": [
+        "CHK_007",
+        "done_required_command_spec",
+        "proof_admissibility"
+      ]
     }
   ],
   "createdAt": "2026-06-30T15:05:17.820Z",
-  "updatedAt": "2026-06-30T16:01:06.393Z"
+  "updatedAt": "2026-06-30T16:20:55.856Z"
 }
