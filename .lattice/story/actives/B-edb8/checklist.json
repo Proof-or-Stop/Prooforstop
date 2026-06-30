@@ -182,7 +182,40 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "The user sees ProofStory diagnostics show parent-totality is bound to the original intent and does not shrink open rows away.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/parent-roadmap-totality-smoke.ts",
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Parent totality consumes originalIntentSnapshot, milestoneLedger, slicePlan, parent rollup, intentCollision, redEvidence, proofstoryContract, and done_intent_equivalence_check.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Existing B-5082 local-intent ProofStory gates still pass and old records remain readable.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A parent or child story cannot hide child-story-needed rows behind a narrower local acceptance claim.",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-006",
