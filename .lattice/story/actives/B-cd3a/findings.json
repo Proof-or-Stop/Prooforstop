@@ -1,0 +1,22 @@
+{
+  "findings": [
+    {
+      "id": "B-cd3a:F-001",
+      "desc": "Concept blocker: CHK-003 promises Tier-C provider-execution receipt verification stories are grouped as experiment-batch-exception and preserved as evidence, but live lattice queue_governance_status --format=json at 2026-06-30T10:24:09Z reports experimentBatches=[] and summary.experimentBatchException=0 while 22 Tier-C provider-execution receipt verification stories are classified as duplicate-candidate with cleanupPolicy=review-required. That shrinks the promised exception policy and makes queue governance treat preserved experiment evidence as ordinary duplicates.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-30T10:24:45.018Z",
+      "reviewRound": "2026-06-30T10:22:39.017Z",
+      "reviewRunId": "B-cd3a:RR-001",
+      "_hash": "23f97b356a952f0f6d920b66424139f178a40f36a9db3fff04cfa5f6d674db1e",
+      "files": [
+        "\"'[packages/main/src/core/lifecycle-control/queue/index.ts,packages/main/src/core/lifecycle-control/global-control-service.ts,packages/main/src/handlers/lifecycle-control.ts]'\""
+      ],
+      "signatureTag": "missing|ts]'\"|concept-blocker-promises",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
