@@ -366,9 +366,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-30T15:16:48.611Z",
-      "endTime": null,
+      "endTime": "2026-06-30T15:17:47.231Z",
       "files": {
         "modify": [
           "packages/main/src/core/lifecycle-control/queue/index.ts",
@@ -407,7 +407,45 @@
           }
         ]
       },
-      "userSees": "The final status table shows CHK-005/M5 as queue cleanup enforcement guarded, with Tier-C exceptions preserved."
+      "userSees": "The final status table shows CHK-005/M5 as queue cleanup enforcement guarded, with Tier-C exceptions preserved.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/lifecycle-control-smoke.ts",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/lifecycle-control-smoke.js",
+          "result": "pass",
+          "note": "Commit 91cd09401 tests duplicate-candidate and superseded cleanup guard classification while keeping cleanup mutation out of the dashboard.",
+          "headHash": "91cd094019bae8c950157490cc33678a965dc621",
+          "materialHash": "a8db5ed17efd373201ed53570a866feb9551d208b7f2abf4f97bfe34f50e73ec",
+          "storyFilesHash": "bc8c22c8143a6ecb9fb37ad60efe09939e79a9cc444df5088fd1f6d6fde5743a",
+          "timestamp": "2026-06-30T15:17:47.436Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/lifecycle-control-smoke.ts",
+          "command": "node packages/main/dist/tasks/lifecycle-control-smoke.js",
+          "result": "pass",
+          "note": "The smoke asserts Tier-C experiment rows keep cleanupPolicy=preserve and are not converted into duplicate cleanup candidates.",
+          "headHash": "91cd094019bae8c950157490cc33678a965dc621",
+          "materialHash": "a8db5ed17efd373201ed53570a866feb9551d208b7f2abf4f97bfe34f50e73ec",
+          "storyFilesHash": "bc8c22c8143a6ecb9fb37ad60efe09939e79a9cc444df5088fd1f6d6fde5743a",
+          "timestamp": "2026-06-30T15:17:47.624Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/lifecycle-control-smoke.ts",
+          "command": "node packages/main/dist/tasks/lifecycle-control-smoke.js",
+          "result": "pass",
+          "note": "The smoke asserts malformed Tier-C-like rows remain visible in cleanupRequired for operator action.",
+          "headHash": "91cd094019bae8c950157490cc33678a965dc621",
+          "materialHash": "a8db5ed17efd373201ed53570a866feb9551d208b7f2abf4f97bfe34f50e73ec",
+          "storyFilesHash": "bc8c22c8143a6ecb9fb37ad60efe09939e79a9cc444df5088fd1f6d6fde5743a",
+          "timestamp": "2026-06-30T15:17:47.801Z"
+        }
+      ]
     },
     {
       "id": "CHK-006",
