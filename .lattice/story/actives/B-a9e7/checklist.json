@@ -142,7 +142,44 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Running dev-memory supersession smoke prints that superseded legacy Koala entries remain readable while current Proofbound/Lattice entries are preferred.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/dev-memory.ts",
+          "packages/main/src/handlers/dev-memory.ts",
+          "docs/requirements/decisions/dev-memory.md"
+        ],
+        "create": [
+          "packages/main/src/tasks/dev-memory-supersession-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/dev-memory-supersession-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Smoke proves superseding entries rank before superseded legacy entries and visible output includes superseded metadata.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Smoke proves legacy Koala entries remain readable as legacy-readable/superseded rather than disappearing.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Smoke proves dev-memory entries remain gateEvidence=false and authority=non_authoritative after supersession projection.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
