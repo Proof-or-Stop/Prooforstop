@@ -380,9 +380,9 @@
       "id": "CHK-007",
       "title": "Add spike disposable-code policy checks",
       "context": "Covers M7 gap: spike evidence must not silently carry disposable code into implementation; promotion remains explicit and auditable.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-30T01:13:35.697Z",
-      "endTime": null,
+      "endTime": "2026-06-30T01:26:33.638Z",
       "relatedDocs": [
         "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md#M7-Spike-Evidence"
       ],
@@ -422,7 +422,20 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-007:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js && node scripts/verify-process-fact-contract.mjs && git diff --check",
+          "result": "pass",
+          "note": "Doc: proofstory-intent-collision-execution-plan.md M7 lines 1243-1260. Impl: types.ts ProofStorySpikeRecord disposableCodePaths; command-catalog/handlers expose spike_start disposableCodePaths; proofstory.ts disposableSpikeGaps emits active_disposable_spike_code until discarded/promoted and keeps spike separate from red/verification evidence. Smoke: resolved disposable spike still blocks until spike_promote.",
+          "headHash": "f48e3ad27deefe2d338623c3c68d25fbe8e9bbf0",
+          "materialHash": "5d97b7951e9c3d8e03969199578c7c1c13adef7c61914d53c9fa10b699ada482",
+          "storyFilesHash": "d66783474c814f8b35728b71ac3278123384b0e3b640ea1414ab6a5b9bc7d334",
+          "timestamp": "2026-06-30T01:26:34.112Z"
+        }
+      ]
     },
     {
       "id": "CHK-008",
