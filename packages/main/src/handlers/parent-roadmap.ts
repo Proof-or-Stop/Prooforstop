@@ -61,10 +61,20 @@ function evaluate(args: ParentRoadmapEvalArgs) {
   return { ledger, rollup, claim, proofstoryBinding };
 }
 
+function enforceNoBlockingResult(result: ReturnType<typeof evaluate>): void {
+  const reasons = [
+    ...(result.claim?.blocking ? result.claim.reasons : []),
+    ...(result.proofstoryBinding?.blocking ? result.proofstoryBinding.gaps.map((gap) => `${gap.code}: ${gap.message}`) : []),
+  ];
+  if (reasons.length === 0) return;
+  throw new Error(`parent-roadmap enforce failed: ${reasons.join(' ')}`);
+}
+
 export function createParentRoadmapHandlers(_ctx: HandlerContext): Record<string, (...args: any[]) => any> {
   return {
     parent_roadmap_status(args: ParentRoadmapEvalArgs): string {
       const result = evaluate(args);
+      enforceNoBlockingResult(result);
       if (args.json) return stringify(result);
       return renderParentRoadmapStatus(result.rollup, result.claim);
     },
@@ -74,6 +84,7 @@ export function createParentRoadmapHandlers(_ctx: HandlerContext): Record<string
         throw new Error('parent_roadmap_evaluate requires ledger, case, or storyId');
       }
       const result = evaluate(args);
+      enforceNoBlockingResult(result);
       if (args.json) return stringify(result);
       return renderParentRoadmapStatus(result.rollup, result.claim);
     },

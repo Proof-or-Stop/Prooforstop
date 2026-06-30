@@ -42,6 +42,7 @@ const sessionEnv = {
   LATTICE_SESSION_ID: 'parent-roadmap-totality-smoke',
   LATTICE_AGENT: 'parent-roadmap-totality-smoke',
 };
+const M4_M12_ROW_IDS = Array.from({ length: 9 }, (_, index) => `M${index + 4}`);
 
 const allCases: CaseName[] = ['state-model', 'evaluator', 'claim-consumer', 'proofstory-binding', 'cli', 'migration'];
 
@@ -136,6 +137,8 @@ function baseLedger(overrides: Record<string, unknown> = {}): Record<string, unk
 function fullLedger(): Record<string, unknown> {
   return baseLedger({
     ledgerId: 'PR-full',
+    requiredRowIds: ['M1', 'M2', 'M3'],
+    proofstoryContract: { storyId: 'B-43de', contractRef: 'proofstory.json', acceptanceBindings: [{ id: 'full-roadmap', milestoneIds: ['M1', 'M2', 'M3'] }] },
     rows: [
       {
         rowId: 'M1',
@@ -190,6 +193,8 @@ function partialLedger(): Record<string, unknown> {
     parentStoryId: 'B-parent-partial',
     createdByStoryId: 'B-parent-partial',
     updatedByStoryIds: ['B-parent-partial'],
+    requiredRowIds: ['M4', 'M5'],
+    proofstoryContract: { storyId: 'B-parent-partial', contractRef: 'proofstory.json', acceptanceBindings: [{ id: 'partial-roadmap', milestoneIds: ['M4', 'M5'] }] },
     parentLedgerRollup: { allRowsClosed: true, claimType: 'full-roadmap-claim' },
     rows: [
       {
@@ -211,6 +216,46 @@ function partialLedger(): Record<string, unknown> {
         materialRefs: ['packages/main/src/handlers/parent-roadmap.ts'],
         updatedAt: '2026-06-30T00:00:00.000Z',
         claimBoundary: 'no full-roadmap claim',
+      },
+    ],
+  });
+}
+
+function shrunkenRequiredInventoryLedger(): Record<string, unknown> {
+  return baseLedger({
+    ledgerId: 'PR-shrunken-required',
+    parentStoryId: 'B-parent-shrunken',
+    createdByStoryId: 'B-parent-shrunken',
+    updatedByStoryIds: ['B-parent-shrunken'],
+    requiredRowIds: M4_M12_ROW_IDS,
+    proofstoryContract: { storyId: 'B-parent-shrunken', contractRef: 'proofstory.json', acceptanceBindings: [{ id: 'm4-m12-roadmap', milestoneIds: M4_M12_ROW_IDS }] },
+    rows: [
+      {
+        rowId: 'M4',
+        title: 'M4 closed implementation',
+        intentText: 'M4 is closed but the original M4-M12 inventory is larger.',
+        status: 'closed-by-implementation',
+        childStoryId: 'B-child-m4',
+        closureEvidence: [{ kind: 'logic_test', ref: 'm4-closed', result: 'pass' }],
+        materialRefs: ['packages/main/src/core/parent-roadmap-totality.ts'],
+      },
+    ],
+  });
+}
+
+function missingClosureEvidenceLedger(): Record<string, unknown> {
+  return baseLedger({
+    ledgerId: 'PR-missing-closure-evidence',
+    requiredRowIds: ['M9'],
+    rows: [
+      {
+        rowId: 'M9',
+        title: 'Closed row missing evidence',
+        intentText: 'A closed row must still attach closure evidence.',
+        status: 'closed-by-existing-evidence',
+        childStoryId: 'B-child-existing',
+        closureEvidence: [],
+        materialRefs: ['packages/main/src/core/parent-roadmap-totality.ts'],
       },
     ],
   });
@@ -286,6 +331,7 @@ function migrationLedger(): Record<string, unknown> {
     parentStoryId: 'B-43de',
     originalIntentSnapshot: 'Historical parent candidate: parent governance is DONE while M4 is partial and M5-M12 remain open.',
     migration: { sourceStoryId: 'B-43de', reason: 'B-43de-shaped historical parent candidate' },
+    requiredRowIds: M4_M12_ROW_IDS,
     rows: [
       { rowId: 'M4', title: 'Partial M4', intentText: 'M4 is only partially represented.', status: 'parent-governed', claimBoundary: 'partial parent governance' },
       ...Array.from({ length: 8 }, (_, index) => {
@@ -377,6 +423,20 @@ async function runEvaluator(mod: RuntimeModule): Promise<void> {
   assert.equal(stale.summaryClass, 'stale_parent_rollup');
   assert.deepEqual(stale.staleEvidenceRows, ['M8']);
   assert.equal(stale.allRowsClosed, false);
+
+  const shrunken = mod.evaluateParentRoadmapLedger(shrunkenRequiredInventoryLedger());
+  assert.notEqual(shrunken.summaryClass, 'full_roadmap_complete', 'required inventory shrinkage cannot return full roadmap completion');
+  assert.equal(shrunken.allRowsClosed, false);
+  assert.ok(shrunken.invalidRows.includes('M5'), 'missing required rows are reported as invalid');
+  assert.ok(shrunken.openRows.includes('M5'), 'missing required rows stay open');
+  assert.ok(shrunken.rowResults.some((row: any) => row.rowId === 'M5' && row.reasonCodes.includes('missing_required_row')));
+
+  const missingClosure = mod.evaluateParentRoadmapLedger(missingClosureEvidenceLedger());
+  assert.equal(missingClosure.allRowsClosed, false);
+  const missingClosureRow = missingClosure.rowResults.find((row: any) => row.rowId === 'M9');
+  assert.equal(missingClosureRow.evidenceState, 'missing');
+  assert.ok(missingClosureRow.reasonCodes.includes('missing_closure_evidence'));
+  assert.ok(missingClosureRow.nextActions.some((action: string) => /attach closure evidence/i.test(action)));
 }
 
 async function runClaimConsumer(mod: RuntimeModule): Promise<void> {
@@ -388,6 +448,34 @@ async function runClaimConsumer(mod: RuntimeModule): Promise<void> {
   });
   assert.equal(overclaim.allowed, false, 'summary overclaim is blocked');
   assert.match(overclaim.reasons.join('\n'), /no-full-roadmap|open row|M5/i);
+
+  const contradictory = mod.evaluateParentRoadmapClaim({
+    rollup: partial,
+    summaryText: 'Parent governance complete; roadmap not complete. Full roadmap complete: all M4-M12 rows are done.',
+    mode: 'enforce',
+  });
+  assert.equal(contradictory.allowed, false, 'later full-roadmap wording is blocked even after honest partial wording');
+
+  const disclaimer = mod.evaluateParentRoadmapClaim({
+    rollup: partial,
+    summaryText: 'No full-roadmap claim. Do not say the full roadmap is complete.',
+    mode: 'enforce',
+  });
+  assert.equal(disclaimer.allowed, true, 'explicit negated/disclaimer wording is not treated as a full-roadmap claim');
+
+  const disclaimerThenClaim = mod.evaluateParentRoadmapClaim({
+    rollup: partial,
+    summaryText: 'No full-roadmap claim. Full roadmap complete.',
+    mode: 'enforce',
+  });
+  assert.equal(disclaimerThenClaim.allowed, false, 'a later explicit full-roadmap claim still blocks after a disclaimer');
+
+  const disclaimerButClaim = mod.evaluateParentRoadmapClaim({
+    rollup: partial,
+    summaryText: 'No full-roadmap claim, but Full roadmap complete.',
+    mode: 'enforce',
+  });
+  assert.equal(disclaimerButClaim.allowed, false, 'a same-sentence contrasting full-roadmap claim still blocks after a disclaimer');
 
   const honestPartial = mod.evaluateParentRoadmapClaim({
     rollup: partial,
@@ -458,6 +546,15 @@ async function runCliCase(mod: RuntimeModule): Promise<void> {
     }));
     assert.equal(evaluated.rollup.summaryClass, 'full_roadmap_complete');
     assert.equal(evaluated.claim.allowed, true);
+
+    const enforceFailure = runCli(root, 'parent_roadmap_status', {
+      case: 'partial',
+      summaryText: 'Parent governance complete; roadmap not complete. Full roadmap complete: all M4-M12 rows are done.',
+      mode: 'enforce',
+      json: true,
+    }, true);
+    assert.match(enforceFailure, /parent-roadmap enforce failed/i, 'enforce mode must fail closed for full-roadmap overclaims');
+    assert.match(enforceFailure, /parent_roadmap_summary_overclaim|no-full-roadmap/i);
 
     const sample = mod.evaluateParentRoadmapLedger(mod.buildParentRoadmapSampleCase('migration'));
     assert.equal(sample.summaryClass, 'migration_needed');

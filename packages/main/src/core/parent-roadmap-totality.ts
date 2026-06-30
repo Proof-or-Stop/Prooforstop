@@ -88,6 +88,7 @@ export interface ParentRoadmapLedger {
   parentStoryId: string;
   originalIntentSnapshot: string;
   sourceRefs: string[];
+  requiredRowIds?: string[];
   rows: ParentRoadmapRow[];
   createdByStoryId: string;
   updatedByStoryIds: string[];
@@ -308,6 +309,7 @@ export function parseParentRoadmapLedger(raw: unknown): ParentRoadmapLedger {
     parentStoryId: requireTopString(raw, 'parentStoryId'),
     originalIntentSnapshot: requireTopString(raw, 'originalIntentSnapshot'),
     sourceRefs: stringArray(raw.sourceRefs, 'sourceRefs'),
+    requiredRowIds: stringArray(raw.requiredRowIds, 'requiredRowIds'),
     rows: [...rows, ...invalidRows],
     createdByStoryId: requireTopString(raw, 'createdByStoryId'),
     updatedByStoryIds: stringArray(raw.updatedByStoryIds, 'updatedByStoryIds'),
@@ -449,6 +451,49 @@ function unique(values: string[]): string[] {
   return [...new Set(values)];
 }
 
+function acceptanceBindingMilestoneIds(value: unknown): string[] {
+  const contract = optionalRecord(value);
+  const bindings = Array.isArray(contract?.acceptanceBindings) ? contract.acceptanceBindings : [];
+  const ids: string[] = [];
+  for (const binding of bindings) {
+    const obj = optionalRecord(binding);
+    if (!obj || !Array.isArray(obj.milestoneIds)) continue;
+    for (const id of obj.milestoneIds) {
+      const normalized = nonEmptyString(id);
+      if (normalized) ids.push(normalized);
+    }
+  }
+  return unique(ids);
+}
+
+function requiredInventoryRowIds(ledger: ParentRoadmapLedger): string[] {
+  return unique([
+    ...(ledger.requiredRowIds ?? []),
+    ...acceptanceBindingMilestoneIds(ledger.proofstoryContract),
+  ]);
+}
+
+function missingRequiredRowResult(rowId: string): ParentRowRollupResult {
+  return {
+    rowId,
+    title: rowId,
+    status: 'missing-required-row',
+    closed: false,
+    evidenceState: 'invalid',
+    reasonCodes: ['missing_required_row'],
+    reasons: [`${rowId} is declared in requiredRowIds/proofstoryContract inventory but missing from ledger.rows.`],
+    nextActions: [`Add ${rowId} to ledger.rows or record an explicit scope-shrinkage decision before claiming full roadmap completion.`],
+  };
+}
+
+function appendMissingRequiredRows(ledger: ParentRoadmapLedger, rowResults: ParentRowRollupResult[]): ParentRowRollupResult[] {
+  const presentRows = new Set(rowResults.map((row) => row.rowId));
+  const missingRows = requiredInventoryRowIds(ledger)
+    .filter((rowId) => !presentRows.has(rowId))
+    .map((rowId) => missingRequiredRowResult(rowId));
+  return missingRows.length > 0 ? [...rowResults, ...missingRows] : rowResults;
+}
+
 function isMigrationLedger(ledger: ParentRoadmapLedger, rowResults: readonly ParentRowRollupResult[]): boolean {
   if (ledger.migration) return true;
   if (ledger.schemaVersion && ledger.schemaVersion !== PARENT_ROADMAP_LEDGER_SCHEMA_VERSION) return true;
@@ -511,7 +556,7 @@ function summarize(
 export function evaluateParentRoadmapLedger(rawLedger: unknown, options: ParentRoadmapEvaluationOptions = {}): ParentRollupResult {
   const ledger = parseParentRoadmapLedger(rawLedger);
   // Caller-provided ledger.parentLedgerRollup allRowsClosed/claimType values are audit context only; row facts below recompute the rollup.
-  const rowResults = ledger.rows.map((row) => evaluateRow(row, options));
+  const rowResults = appendMissingRequiredRows(ledger, ledger.rows.map((row) => evaluateRow(row, options)));
   const openRows = rowResults.filter((row) => !row.closed).map((row) => row.rowId);
   const blockedRows = rowResults.filter((row) => row.reasonCodes.includes('blocked')).map((row) => row.rowId);
   const invalidRows = rowResults
@@ -547,15 +592,50 @@ function normalizedText(text: string): string {
 
 function hasFullRoadmapClaim(text: string): boolean {
   const normalized = normalizedText(text);
-  if (/\broadmap\s+(?:is\s+)?not\s+complete\b/i.test(normalized)) return false;
-  if (/\bno\s+full[- ]roadmap\s+claim\b/i.test(normalized)) return false;
-  return /\bfull\s+roadmap\s+(?:is\s+)?complete\b/i.test(normalized)
-    || /\bfull\b.{0,80}\broadmap\b/i.test(normalized)
-    || /\b(?:entire|whole)\s+roadmap\s+(?:is\s+)?(?:complete|done|finished)\b/i.test(normalized)
-    || /\broadmap\s+(?:is\s+)?(?:complete|done|finished)\b/i.test(normalized)
-    || /\ball\s+(?:parent\s+)?roadmap\s+rows\s+(?:are\s+)?(?:closed|complete|done)\b/i.test(normalized)
-    || /\ball\s+M\d+\s*[-–]\s*M\d+\s+(?:rows\s+|milestones\s+)?(?:are\s+)?(?:closed|complete|done|finished)\b/i.test(normalized)
-    || /\bM\d+\s*[-–]\s*M\d+\s+(?:are\s+)?(?:closed|complete|done|finished)\b/i.test(normalized);
+  const claimPatterns = [
+    /\bfull[- ]roadmap\s+(?:is\s+)?(?:complete|completed|done|finished)\b/ig,
+    /\bfull\b(?:\s+\S+){0,4}\s+roadmap\s+(?:is\s+)?(?:complete|completed|done|finished)\b/ig,
+    /\b(?:entire|whole)\s+roadmap\s+(?:is\s+)?(?:complete|completed|done|finished)\b/ig,
+    /\broadmap\s+(?:is\s+)?(?:complete|completed|done|finished)\b/ig,
+    /\b(?:complete|completed|done|finished)\b.{0,80}\bfull\b.{0,40}\broadmap\b/ig,
+    /\ball\s+(?:parent\s+)?roadmap\s+rows\s+(?:are\s+)?(?:closed|complete|completed|done|finished)\b/ig,
+    /\ball\s+M\d+\s*[-–]\s*M\d+\s+(?:rows\s+|milestones\s+)?(?:are\s+)?(?:closed|complete|completed|done|finished)\b/ig,
+    /\bM\d+\s*[-–]\s*M\d+\s+(?:are\s+)?(?:closed|complete|completed|done|finished)\b/ig,
+  ];
+  return claimPatterns.some((pattern) => hasPositiveClaimMatch(normalized, pattern));
+}
+
+function hasPositiveClaimMatch(text: string, pattern: RegExp): boolean {
+  pattern.lastIndex = 0;
+  for (const match of text.matchAll(pattern)) {
+    const index = match.index ?? 0;
+    const matched = match[0] ?? '';
+    if (!isNegatedFullRoadmapClaim(text, index, index + matched.length, matched)) return true;
+  }
+  return false;
+}
+
+function isNegatedFullRoadmapClaim(text: string, start: number, end: number, matched: string): boolean {
+  const sentenceStart = Math.max(text.lastIndexOf('.', start - 1), text.lastIndexOf('!', start - 1), text.lastIndexOf('?', start - 1), text.lastIndexOf(';', start - 1), text.lastIndexOf('\n', start - 1));
+  const sentenceEndCandidates = ['.', '!', '?', ';', '\n']
+    .map((separator) => text.indexOf(separator, end))
+    .filter((index) => index >= 0);
+  const sentenceEnd = sentenceEndCandidates.length ? Math.min(...sentenceEndCandidates) : text.length;
+  const sentence = text.slice(sentenceStart + 1, sentenceEnd);
+  const beforeInSentence = text.slice(sentenceStart + 1, start);
+  const noClaimMatch = /\bno\s+full[- ]roadmap\s+claim\b/i.exec(sentence);
+  const noClaimBeforeMatch = noClaimMatch && noClaimMatch.index < beforeInSentence.length;
+  const disclaimerToClaim = noClaimBeforeMatch
+    ? sentence.slice(noClaimMatch.index + noClaimMatch[0].length, beforeInSentence.length)
+    : '';
+  const notClaimMatch = /\b(?:not|never)\s+(?:a\s+)?(?:full[- ]roadmap\s+)?claim\b/i.exec(beforeInSentence);
+  const negationToClaim = notClaimMatch
+    ? beforeInSentence.slice(notClaimMatch.index + notClaimMatch[0].length)
+    : '';
+  return (noClaimBeforeMatch && !/\b(?:but|however|yet|though|nevertheless|then|later|also)\b/i.test(disclaimerToClaim))
+    || /\b(?:do\s+not|don't|never|cannot|can't|should\s+not|must\s+not)\s+(?:say|claim|state|assert)\b.{0,80}$/i.test(beforeInSentence)
+    || (!!notClaimMatch && !/\b(?:but|however|yet|though|nevertheless|then|later|also)\b/i.test(negationToClaim))
+    || /\b(?:roadmap|it)\s+(?:is\s+)?not\s+(?:complete|completed|done|finished)\b/i.test(matched);
 }
 
 function hasPartialParentDisclosure(text: string): boolean {
@@ -686,6 +766,7 @@ function baseSample(name: string, rows: unknown[]): ParentRoadmapLedger {
     sourceRefs: ['docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md'],
     createdByStoryId: name === 'migration' ? 'B-43de' : 'B-parent',
     updatedByStoryIds: [name === 'migration' ? 'B-43de' : 'B-parent'],
+    requiredRowIds: rows.map((row: any) => row.rowId).filter(Boolean),
     proofstoryContract: { acceptanceBindings: [{ id: 'parent-roadmap-sample', milestoneIds: rows.map((row: any) => row.rowId).filter(Boolean) }] },
     migration: name === 'migration' ? { sourceStoryId: 'B-43de', reason: 'historical B-43de-shaped parent candidate' } : undefined,
     rows,
