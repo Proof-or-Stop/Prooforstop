@@ -68,6 +68,26 @@
           "node packages/main/dist/tasks/lifecycle-orchestrate-smoke.js",
           "lattice global_control_status --format=json"
         ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run global_control_status as JSON and verify status reporting names the documented control-plane capabilities with accurate implemented, partial, unavailable, or future states, including proofM7Enforcement, queueCleanupEnforcement, and tierCCleanup.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Confirm status reporting stays reconciliation-only: proofM7Enforcement, queueCleanupEnforcement, and tierCCleanup may show partial or unavailable without implying CHK-004 hard-blocks, CHK-005 queue mutation guard, or CHK-006 admissibility enforcement have been completed.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Fail the item if global_control_status overclaims future or unavailable capabilities as enabled, or if dashboard/projection output hides documented gaps that remain open in the frozen DoD audit.",
+            "type": "cli"
+          }
+        ]
       }
     },
     {
