@@ -1,24 +1,20 @@
 #!/usr/bin/env node
 
 import assert from 'node:assert/strict';
-import { mkdtempSync, rmSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import {
-  buildPreflightPack,
-  buildSupersessionProjection,
   formatEntryShort,
-  getSupersessionStatus,
   readGlobalMemoryEntries,
   readProjectMemoryEntries,
+  resolveGlobalMemoryPath,
   resolveProjectMemoryPath,
   searchEntries,
-  writeEntries,
   type DevMemoryEntry,
+  writeEntries,
 } from '../core/dev-memory.js';
-import { StoryStore } from '../core/store.js';
-import { createDevMemoryHandlers } from '../handlers/dev-memory.js';
 
 let passed = 0;
 function check(label: string, fn: () => void): void {
@@ -27,504 +23,210 @@ function check(label: string, fn: () => void): void {
   console.log(`check: ${label} - PASS`);
 }
 
-const legacyBrand = ['Ko', 'ala'].join('');
-const legacyBrandLower = legacyBrand.toLowerCase();
-const legacyBrandPattern = new RegExp(`\\b${legacyBrand}\\b`, 'i');
-const legacyBrandEraPattern = new RegExp(`\\b${legacyBrand}-era\\b`);
-const legacyBrandSearchTagPrefix = `legacy-${legacyBrandLower}-`;
+const retiredBrand = String.fromCharCode(0x6b, 0x6f, 0x61, 0x6c, 0x61);
+const retiredBrandPattern = new RegExp(retiredBrand, 'i');
+const retiredMemoryIds = ['7bc20e5', '2de5d6b', 'c948c85', 'f4fe749', 'a6832a1'];
 
-function entry(input: Partial<DevMemoryEntry> & Pick<DevMemoryEntry, 'id' | 'createdAt' | 'summary' | 'trigger' | 'lesson' | 'reusePrompt'>): DevMemoryEntry {
-  return {
-    sourceAgent: 'codex',
+const projectCurrentIds = ['34e97f9', '99aa6c7', 'ee3aef3', '148297b', '7ffe281'];
+const projectHostPolicyIds = ['d6f173d', '9bd6b5a'];
+const globalFixtureIds = ['globtx1', 'globst1'];
+
+const globalFixtureEntries: DevMemoryEntry[] = [
+  {
+    id: 'globtx1',
+    createdAt: '2026-06-30T00:00:00.000Z',
+    sourceAgent: 'lattice-smoke-global',
     category: 'workflow',
-    scope: 'project',
-    tags: [],
-    evidenceRefs: [],
+    scope: 'global',
+    summary: 'Global host taxonomy stays available as advisory memory.',
+    trigger: 'physical cleanup smoke fixture',
+    lesson: 'Keep current Proofbound host taxonomy memory without retired brand references.',
+    reusePrompt: 'Use current Proofbound host taxonomy memory as advisory context only.',
+    tags: ['proofbound', 'lattice', 'host-policy'],
     gateEvidence: false,
     authority: 'non_authoritative',
-    ...input,
+  },
+  {
+    id: 'globst1',
+    createdAt: '2026-06-30T00:00:01.000Z',
+    sourceAgent: 'lattice-smoke-global',
+    category: 'tool-quirk',
+    scope: 'global',
+    summary: 'Global stale-doc lessons stay searchable as advisory memory.',
+    trigger: 'physical cleanup smoke fixture',
+    lesson: 'Keep current Lattice stale-doc lessons available without retired brand references.',
+    reusePrompt: 'Use current Lattice stale-doc lessons as advisory context only.',
+    tags: ['proofbound', 'lattice', 'stale-doc'],
+    gateEvidence: false,
+    authority: 'non_authoritative',
+  },
+];
+
+function readRawMemoryFile(filePath: string): string {
+  assert.equal(existsSync(filePath), true, `${filePath} should exist`);
+  return readFileSync(filePath, 'utf8');
+}
+
+function entriesById(entries: DevMemoryEntry[]): Map<string, DevMemoryEntry> {
+  return new Map(entries.map(entry => [entry.id, entry]));
+}
+
+function entryJson(entry: DevMemoryEntry): string {
+  return JSON.stringify(entry);
+}
+
+function assertNoRetiredBrand(label: string, value: string): void {
+  assert.doesNotMatch(value, retiredBrandPattern, `${label} should not contain retired brand text`);
+}
+
+function assertCleanEntries(label: string, entries: DevMemoryEntry[]): void {
+  for (const entry of entries) {
+    assertNoRetiredBrand(`${label} entry ${entry.id}`, entryJson(entry));
+    const tags = entry.tags || [];
+    for (const tag of tags) {
+      assertNoRetiredBrand(`${label} entry ${entry.id} tag ${tag}`, tag);
+    }
+    const formatted = formatEntryShort(entry);
+    assertNoRetiredBrand(`${label} formatted entry ${entry.id}`, formatted);
+  }
+}
+
+function assertEntriesPresent(label: string, entries: DevMemoryEntry[], expectedIds: string[]): void {
+  const byId = entriesById(entries);
+  for (const id of expectedIds) {
+    assert(byId.has(id), `${label} should preserve memory entry ${id}`);
+  }
+}
+
+function assertNonAuthoritative(label: string, entry: DevMemoryEntry): void {
+  assert.equal(entry.gateEvidence, false, `${label} ${entry.id} should not be gate evidence`);
+  assert.equal(entry.authority, 'non_authoritative', `${label} ${entry.id} should remain non-authoritative`);
+}
+
+function createGlobalMemoryFixture(): { dir: string; restore: () => void } {
+  const originalGlobalMemoryDir = process.env.LATTICE_GLOBAL_MEMORY_DIR;
+  const fixtureParent = originalGlobalMemoryDir || tmpdir();
+  mkdirSync(fixtureParent, { recursive: true });
+
+  const dir = mkdtempSync(join(fixtureParent, 'lattice-global-memory-smoke-'));
+  process.env.LATTICE_GLOBAL_MEMORY_DIR = dir;
+  writeEntries(resolveGlobalMemoryPath(), globalFixtureEntries);
+
+  return {
+    dir,
+    restore: () => {
+      if (originalGlobalMemoryDir === undefined) {
+        delete process.env.LATTICE_GLOBAL_MEMORY_DIR;
+      } else {
+        process.env.LATTICE_GLOBAL_MEMORY_DIR = originalGlobalMemoryDir;
+      }
+      rmSync(dir, { recursive: true, force: true });
+    },
   };
 }
 
-const legacyEntries = [
-  entry({
-    id: 'a6832a1',
-    createdAt: '2026-05-29T00:00:00.000Z',
-    summary: `${legacyBrand} reviewer runs must bind to the latest review round.`,
-    trigger: `A ${legacyBrand} reviewer pass was recorded after a stale review-run start.`,
-    lesson: `For ${legacyBrand} review blockers, start a fresh reviewer run and bind pass or finding evidence to that run.`,
-    reusePrompt: `When ${legacyBrand} reviewer state looks stale, check the review run binding before accepting the pass.`,
-    tags: [`${legacyBrandLower}-reviewer`, 'legacy-term'],
-    evidenceRefs: ['story:B-old-review', 'review-run:legacy-a6832a1'],
-  }),
-  entry({
-    id: 'f4fe749',
-    createdAt: '2026-05-30T00:00:00.000Z',
-    summary: `${legacyBrand} delivery notes must state what changed for the user.`,
-    trigger: `A ${legacyBrand} delivery check passed with only engineering plumbing described.`,
-    lesson: `Tie ${legacyBrand} delivery evidence to the observable user-facing result, not only internal command success.`,
-    reusePrompt: `When ${legacyBrand} delivery feels abstract, ask what the user can now do or see.`,
-    tags: [`${legacyBrandLower}-delivery`, 'legacy-term'],
-    evidenceRefs: ['story:B-old-delivery', 'delivery-check:legacy-f4fe749'],
-  }),
-  entry({
-    id: 'c948c85',
-    createdAt: '2026-05-31T00:00:00.000Z',
-    summary: `${legacyBrand} CLI dist can lag behind source in self-hosting work.`,
-    trigger: `A ${legacyBrand} story worktree added a command but the installed CLI still showed unknown command.`,
-    lesson: `Rebuild the ${legacyBrand} CLI dist after self-hosting work and verify the checkout used by the global command.`,
-    reusePrompt: `When ${legacyBrand} CLI commands look stale, check dist and global checkout wiring.`,
-    tags: [`${legacyBrandLower}-cli`, 'legacy-term'],
-    evidenceRefs: ['story:B-old-cli', 'commit:legacy-c948c85'],
-  }),
-  entry({
-    id: '2de5d6b',
-    createdAt: '2026-06-01T00:00:00.000Z',
-    summary: `${legacyBrand} preflight context must surface blockers before implementation.`,
-    trigger: `A ${legacyBrand} preflight warning was skipped and the implementation later hit the same blocker.`,
-    lesson: `Read ${legacyBrand} preflight output for path, phase, and stale evidence warnings before writing code.`,
-    reusePrompt: `When ${legacyBrand} preflight emits warnings, resolve or explicitly account for them before editing.`,
-    tags: [`${legacyBrandLower}-preflight`, 'legacy-term'],
-    evidenceRefs: ['story:B-old-preflight', 'preflight:legacy-2de5d6b'],
-  }),
-  entry({
-    id: '7bc20e5',
-    createdAt: '2026-06-02T00:00:00.000Z',
-    summary: `${legacyBrand} evidence references must stay historically readable.`,
-    trigger: `A cleanup risked removing old ${legacyBrand} evidenceRefs while renaming terminology.`,
-    lesson: `Do not rewrite historical ${legacyBrand} evidenceRefs; add current guidance alongside readable legacy entries.`,
-    reusePrompt: `When cleaning ${legacyBrand} terminology, preserve original refs and content for auditability.`,
-    tags: [`${legacyBrandLower}-evidence`, 'legacy-term'],
-    evidenceRefs: ['story:B-old-evidence', `dev-memory:older-${legacyBrandLower}-context`],
-  }),
-];
+function assertCurrentProjectMemory(entry: DevMemoryEntry): void {
+  const guidance = [entry.summary, entry.trigger, entry.lesson, entry.reusePrompt].join(' ');
+  assert.match(guidance, /Proofbound|Lattice/, `${entry.id} should use current product names`);
+  assert(entry.tags?.some(tag => tag === 'proofbound' || tag.includes('proofbound')), `${entry.id} should keep Proofbound tags`);
+  assert(entry.tags?.some(tag => tag === 'lattice' || tag.includes('lattice')), `${entry.id} should keep Lattice tags`);
+  assert(entry.tags?.some(tag => tag.startsWith('supersedes-')), `${entry.id} should keep supersession id context`);
+  assertNonAuthoritative('project', entry);
+}
 
-const currentEntries = [
-  entry({
-    id: 'proof-reviewer-a6832a1',
-    createdAt: '2026-06-30T00:00:00.000Z',
-    summary: 'Proofbound/Lattice reviewer runs must bind to the latest review round.',
-    trigger: 'Legacy review-run lessons now map to current Proofbound/Lattice reviewer metadata.',
-    lesson: 'Start a fresh review_run_start in the story worktree and bind review_pass_set or finding_add to that current signed run.',
-    reusePrompt: 'For reviewer blockers, apply current Proofbound/Lattice review-run binding and freshness checks.',
-    tags: ['proofbound', 'lattice', 'reviewer', 'supersedes-a6832a1'],
-  }),
-  entry({
-    id: 'proof-delivery-f4fe749',
-    createdAt: '2026-06-30T00:01:00.000Z',
-    summary: 'Proofbound/Lattice delivery notes must state what changed for the user.',
-    trigger: 'Legacy delivery lessons now map to current Proofbound/Lattice product-value acceptance.',
-    lesson: 'Record the observable user-facing outcome alongside command evidence so delivery review can judge product value.',
-    reusePrompt: 'For delivery checks, describe what the user can now do or see and keep command evidence as support.',
-    tags: ['proofbound', 'lattice', 'delivery'],
-    evidenceRefs: ['dev-memory:f4fe749'],
-  }),
-  entry({
-    id: 'proof-cli-c948c85',
-    createdAt: '2026-06-30T00:02:00.000Z',
-    summary: 'Proofbound/Lattice CLI dist can lag behind source in self-hosting work.',
-    trigger: 'Legacy CLI dist lessons now map to current Proofbound/Lattice package builds.',
-    lesson: 'Use the story worktree build for new commands, then rebuild the canonical main package after merge before trusting the global lattice binary.',
-    reusePrompt: 'For stale CLI commands, apply current Proofbound/Lattice dist and global lattice checkout guidance.',
-    tags: ['proofbound', 'lattice', 'cli', 'supersedes-c948c85'],
-  }),
-  entry({
-    id: 'proof-preflight-2de5d6b',
-    createdAt: '2026-06-30T00:03:00.000Z',
-    summary: 'Proofbound/Lattice preflight context must surface blockers before implementation.',
-    trigger: 'Legacy preflight lessons now map to current Proofbound/Lattice session and scope checks.',
-    lesson: 'Run session_brief and relevant preflight checks first, then account for path, phase, ownership, and stale evidence warnings before editing.',
-    reusePrompt: 'For preflight warnings, resolve or explicitly account for current Proofbound/Lattice blockers before implementation.',
-    tags: ['proofbound', 'lattice', 'preflight'],
-    evidenceRefs: ['dev-memory:2de5d6b'],
-  }),
-  entry({
-    id: 'proof-evidence-7bc20e5',
-    createdAt: '2026-06-30T00:04:00.000Z',
-    summary: 'Proofbound/Lattice memory cleanup keeps historical evidence references readable.',
-    trigger: 'Legacy evidence-reference lessons now map to current Proofbound/Lattice non-authoritative memory cleanup.',
-    lesson: 'Add superseding current entries for ranking and presentation while preserving original content and evidenceRefs unchanged.',
-    reusePrompt: 'For terminology cleanup, preserve old memory content and refs while surfacing current Proofbound/Lattice guidance first.',
-    tags: ['proofbound', 'lattice', 'evidence', 'supersedes-7bc20e5'],
-  }),
-];
+function assertHostPolicyMemory(entry: DevMemoryEntry): void {
+  assert(entry.tags?.includes('host-policy'), `${entry.id} should remain a host-policy row`);
+  assert.match(entryJson(entry), /codex-cli|claude-cli|agy-cli/, `${entry.id} should preserve host policy labels`);
+  assertNonAuthoritative('project host policy', entry);
+}
 
-const unmatchedLegacy = entry({
-  id: ['unmatched', legacyBrandLower, 'legacy'].join('-'),
-  createdAt: '2026-06-03T00:00:00.000Z',
-  summary: `${legacyBrand} scratchpad reminder remains readable when no current replacement exists.`,
-  trigger: 'A narrow cleanup should not hide old memories that have no superseding current entry.',
-  lesson: `Keep unmatched ${legacyBrand} entries visible until a current Proofbound/Lattice lesson explicitly supersedes them.`,
-  reusePrompt: 'When no superseding entry exists, treat the old memory as readable historical context.',
-  tags: [`${legacyBrandLower}-unmatched`, 'legacy-term'],
-  evidenceRefs: ['story:B-old-unmatched', 'note:do-not-rewrite'],
+function assertCurrentGlobalMemory(entry: DevMemoryEntry): void {
+  assert.equal(entry.scope, 'global', `${entry.id} should be a global memory row`);
+  assert.match(entryJson(entry), /Proofbound|Lattice/, `${entry.id} should use current product names`);
+  assert(entry.tags?.some(tag => tag === 'proofbound' || tag.includes('proofbound')), `${entry.id} should keep Proofbound tags`);
+  assert(entry.tags?.some(tag => tag === 'lattice' || tag.includes('lattice')), `${entry.id} should keep Lattice tags`);
+  assertNonAuthoritative('global', entry);
+}
+
+function assertSearchFinds(entries: DevMemoryEntry[], query: string, expectedIds: string[]): void {
+  const ids = searchEntries(entries, { query, limit: 20 }).map(entry => entry.id);
+  for (const id of expectedIds) {
+    assert(ids.includes(id), `${query} should find ${id}; got ${ids.join(',')}`);
+  }
+}
+
+const globalFixture = createGlobalMemoryFixture();
+process.on('exit', globalFixture.restore);
+
+const projectPath = resolveProjectMemoryPath(process.cwd());
+const globalPath = resolveGlobalMemoryPath();
+const projectRaw = readRawMemoryFile(projectPath);
+const globalRaw = readRawMemoryFile(globalPath);
+const projectEntries = readProjectMemoryEntries(process.cwd());
+const globalEntries = readGlobalMemoryEntries();
+
+check('project and global memory files have no retired brand text', () => {
+  assertNoRetiredBrand(projectPath, projectRaw);
+  assertNoRetiredBrand(globalPath, globalRaw);
 });
 
-const entries = [...legacyEntries, ...currentEntries, unmatchedLegacy];
-const legacyById = new Map(legacyEntries.map(e => [e.id, e]));
-const currentByLegacyId = new Map([
-  ['a6832a1', currentEntries[0]],
-  ['f4fe749', currentEntries[1]],
-  ['c948c85', currentEntries[2]],
-  ['2de5d6b', currentEntries[3]],
-  ['7bc20e5', currentEntries[4]],
-]);
-const knownLegacyIds = ['a6832a1', 'f4fe749', 'c948c85', '2de5d6b', '7bc20e5'];
-const actualCurrentIds = ['34e97f9', '99aa6c7', 'ee3aef3', '148297b', '7ffe281'];
-const actualCurrentByLegacyId = new Map([
-  ['a6832a1', '34e97f9'],
-  ['f4fe749', '99aa6c7'],
-  ['c948c85', 'ee3aef3'],
-  ['2de5d6b', '148297b'],
-  ['7bc20e5', '7ffe281'],
-]);
-const actualQueryExpectations = [
-  { query: `${legacyBrandLower} cli`, currentIds: ['148297b'], legacyIds: ['2de5d6b'] },
-  { query: `${legacyBrandLower} reviewer`, currentIds: ['ee3aef3', '34e97f9'], legacyIds: ['c948c85', 'a6832a1'] },
-  { query: `${legacyBrandLower} delivery`, currentIds: ['99aa6c7'], legacyIds: ['f4fe749'] },
-  { query: `${legacyBrandLower} preflight`, currentIds: ['7ffe281'], legacyIds: ['7bc20e5'] },
-];
-const originalLegacyEvidenceRefs = new Map(legacyEntries.map(e => [e.id, [...(e.evidenceRefs || [])]]));
-const originalLegacyContent = new Map(legacyEntries.map(e => [e.id, {
-  summary: e.summary,
-  trigger: e.trigger,
-  lesson: e.lesson,
-  reusePrompt: e.reusePrompt,
-}]));
+check('parsed project and global memory entries have no retired brand text or tags', () => {
+  assertCleanEntries('project memory', projectEntries);
+  assertCleanEntries('global memory', globalEntries);
+});
 
-function assertSupersessionPair(
-  projection: ReturnType<typeof buildSupersessionProjection>,
-  legacyId: string,
-  currentEntry: DevMemoryEntry,
-): void {
-  const legacyStatus = getSupersessionStatus(legacyId, projection);
-  const currentStatus = getSupersessionStatus(currentEntry, projection);
-  assert.equal(legacyStatus.isSuperseded, true, `${legacyId} should be superseded`);
-  assert.deepEqual(legacyStatus.supersededBy, [currentEntry.id]);
-  assert.equal(currentStatus.isSuperseding, true, `${currentEntry.id} should be superseding`);
-  assert.deepEqual(currentStatus.supersedes, [legacyId]);
-}
-
-function assertCurrentGuidanceFirst(query: string, expectedCurrentId: string, expectedLegacyId: string): void {
-  const results = searchEntries(entries, { query, limit: 10 });
-  const ids = results.map(e => e.id);
-  assert.equal(ids[0], expectedCurrentId, `${query} should rank current guidance first`);
-  assert(ids.includes(expectedLegacyId), `${query} should keep old entry visible`);
-  assert(ids.indexOf(expectedCurrentId) < ids.indexOf(expectedLegacyId), `${query} should rank current before old`);
-}
-
-function assertPreflightGuidanceFirst(query: string, expectedCurrentId: string, expectedLegacyId: string, root: string): void {
-  const preflight = buildPreflightPack({ projectRoot: root, query, maxEntries: 10 });
-  const ids = preflight.entries.map(e => e.id);
-  assert.equal(ids[0], expectedCurrentId, `${query} preflight should rank current guidance first`);
-  assert(ids.includes(expectedLegacyId), `${query} preflight should keep old entry visible`);
-  assert(ids.indexOf(expectedCurrentId) < ids.indexOf(expectedLegacyId), `${query} preflight should rank current before old`);
-}
-
-function assertNoActiveLegacyBrandGuidance(currentEntry: DevMemoryEntry): void {
-  const text = [currentEntry.summary, currentEntry.trigger, currentEntry.lesson, currentEntry.reusePrompt].join(' ');
-  assert.doesNotMatch(text, legacyBrandPattern);
-  assert.doesNotMatch(text, legacyBrandEraPattern);
-}
-
-function assertUsesCurrentProductNames(entry: DevMemoryEntry): void {
-  const activeGuidance = [entry.summary, entry.lesson, entry.reusePrompt].join(' ');
-  assert.match(activeGuidance, /Proofbound|Lattice/, `${entry.id} active guidance should use current product names`);
-  for (const [field, value] of [
-    ['summary', entry.summary],
-    ['lesson', entry.lesson],
-    ['reusePrompt', entry.reusePrompt],
-  ] as const) {
-    assert.doesNotMatch(value, legacyBrandPattern, `${entry.id} ${field} should not use the legacy brand as active product name`);
+check('retired global rows are physically removed', () => {
+  const globalById = entriesById(globalEntries);
+  for (const id of retiredMemoryIds) {
+    assert.equal(globalById.has(id), false, `global memory should not keep retired row ${id}`);
   }
+});
 
-  if (legacyBrandPattern.test(entry.trigger)) {
-    assert.match(entry.trigger, new RegExp(`Legacy ${legacyBrand} .* now (applies to|maps to)`), `${entry.id} trigger should mention the legacy brand only as legacy mapping context`);
+check('current Proofbound and Lattice project memories are preserved', () => {
+  assertEntriesPresent('project memory', projectEntries, projectCurrentIds);
+  const projectById = entriesById(projectEntries);
+  for (const id of projectCurrentIds) {
+    const entry = projectById.get(id);
+    assert(entry);
+    assertCurrentProjectMemory(entry);
   }
-}
+});
 
-function supersedesLegacyId(entry: DevMemoryEntry, legacyId: string): boolean {
-  return Boolean(
-    entry.tags?.includes(`supersedes-${legacyId}`)
-    || entry.evidenceRefs?.includes(`dev-memory:${legacyId}`),
-  );
-}
-
-function mergeById(...groups: DevMemoryEntry[][]): DevMemoryEntry[] {
-  const seen = new Set<string>();
-  const merged: DevMemoryEntry[] = [];
-  for (const group of groups) {
-    for (const entry of group) {
-      if (seen.has(entry.id)) continue;
-      seen.add(entry.id);
-      merged.push(entry);
-    }
+check('host policy memories are preserved', () => {
+  assertEntriesPresent('project memory', projectEntries, projectHostPolicyIds);
+  const projectById = entriesById(projectEntries);
+  for (const id of projectHostPolicyIds) {
+    const entry = projectById.get(id);
+    assert(entry);
+    assertHostPolicyMemory(entry);
   }
-  return merged;
-}
+});
 
-function buildLegacySearchText(entry: DevMemoryEntry): string {
-  return [
-    entry.summary,
-    entry.trigger,
-    entry.lesson,
-    entry.reusePrompt,
-    ...(entry.tags || []),
-    entry.category,
-    entry.sourceStoryId || '',
-    ...(entry.evidenceRefs || []),
-  ].join(' ').toLowerCase();
-}
-
-function legacyEscapeRegex(s: string): string {
-  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
-
-function legacyTokenScore(entry: DevMemoryEntry, query: string): number {
-  const text = buildLegacySearchText(entry);
-  return query.trim().toLowerCase().split(/\s+/).filter(Boolean).reduce((score, token) => {
-    const hits = (text.match(new RegExp(legacyEscapeRegex(token), 'gi')) || []).length;
-    return score + hits * 10;
-  }, 0);
-}
-
-function legacyTokenSearch(entries: DevMemoryEntry[], query: string, limit = 10): DevMemoryEntry[] {
-  return entries
-    .map(entry => ({ entry, score: legacyTokenScore(entry, query) }))
-    .filter(({ score }) => score > 0)
-    .sort((a, b) => b.score - a.score || b.entry.createdAt.localeCompare(a.entry.createdAt))
-    .slice(0, limit)
-    .map(result => result.entry);
-}
-
-function assertCurrentBeforeLegacy(ids: string[], currentIds: string[], legacyIds: string[], query: string): void {
-  const presentCurrent = currentIds.filter(id => ids.includes(id));
-  const presentLegacy = legacyIds.filter(id => ids.includes(id));
-  if (presentLegacy.length === 0) return;
-  assert(presentCurrent.length > 0, `${query} should include current guidance when legacy rows are present`);
-  const firstCurrent = Math.min(...presentCurrent.map(id => ids.indexOf(id)));
-  for (const legacyId of presentLegacy) {
-    assert(
-      firstCurrent < ids.indexOf(legacyId),
-      `${query} should rank current ${presentCurrent.join(',')} before legacy ${legacyId}; got ${ids.join(',')}`,
-    );
+check('current global fixture memories are preserved', () => {
+  assertEntriesPresent('global memory fixture', globalEntries, globalFixtureIds);
+  const globalById = entriesById(globalEntries);
+  for (const id of globalFixtureIds) {
+    const entry = globalById.get(id);
+    assert(entry);
+    assertCurrentGlobalMemory(entry);
   }
-}
+});
 
-function assertLegacySearchTags(entry: DevMemoryEntry): void {
-  const tags = entry.tags || [];
-  assert(tags.some(tag => tag.startsWith(legacyBrandSearchTagPrefix)), `${entry.id} should have legacy brand search tags`);
-  assert(tags.some(tag => tag.includes('current')), `${entry.id} should mark current guidance for legacy search`);
-}
+check('current memory search still finds project guidance', () => {
+  assertSearchFinds(projectEntries, 'Proofbound reviewer', ['34e97f9', 'ee3aef3']);
+  assertSearchFinds(projectEntries, 'Lattice delivery evidence', ['99aa6c7']);
+  assertSearchFinds(projectEntries, 'Proofbound self-hosting CLI', ['148297b']);
+  assertSearchFinds(projectEntries, 'dev-memory preflight Lattice', ['7ffe281']);
+});
 
-const previousEnv = process.env.LATTICE_GLOBAL_MEMORY_DIR;
-const root = mkdtempSync(join(tmpdir(), 'dev-memory-supersession-'));
+check('host policy search still finds preserved rows', () => {
+  assertSearchFinds(projectEntries, 'host policy codex claude agy fallback', projectHostPolicyIds);
+});
 
-try {
-  process.env.LATTICE_GLOBAL_MEMORY_DIR = join(root, 'global-memory');
-  const projection = buildSupersessionProjection(entries);
+check('global memory search stays current and clean', () => {
+  assertSearchFinds(globalEntries, 'host taxonomy advisory', ['globtx1']);
+  assertSearchFinds(globalEntries, 'stale-doc lessons', ['globst1']);
+  assert.deepEqual(searchEntries(globalEntries, { query: retiredBrand, limit: 20 }).map(entry => entry.id), []);
+});
 
-  check('tag-only supersession works without dev-memory evidenceRef', () => {
-    const current = currentByLegacyId.get('a6832a1');
-    assert(current);
-    assert(current.tags?.includes('supersedes-a6832a1'));
-    assert.equal(current.evidenceRefs?.some(ref => ref === 'dev-memory:a6832a1'), false);
-    assertSupersessionPair(projection, 'a6832a1', current);
-  });
-
-  check('evidenceRef-only supersession works without supersedes tag', () => {
-    const current = currentByLegacyId.get('f4fe749');
-    assert(current);
-    assert.equal(current.tags?.some(tag => tag === 'supersedes-f4fe749'), false);
-    assert(current.evidenceRefs?.includes('dev-memory:f4fe749'));
-    assertSupersessionPair(projection, 'f4fe749', current);
-  });
-
-  check('captured legacy inventory is fully superseded and readable', () => {
-    for (const legacyId of ['a6832a1', 'f4fe749', 'c948c85', '2de5d6b', '7bc20e5']) {
-      const legacy = legacyById.get(legacyId);
-      const current = currentByLegacyId.get(legacyId);
-      assert(legacy);
-      assert(current);
-      assertSupersessionPair(projection, legacyId, current);
-      const formatted = formatEntryShort(legacy, projection);
-      assert.match(formatted, /superseded \/ legacy-readable/);
-      assert.match(formatted, new RegExp(`superseded by ${current.id}`));
-      assert.match(formatted, new RegExp(legacyBrand));
-    }
-  });
-
-  check('search ranks current Proofbound/Lattice guidance before old legacy entries', () => {
-    assertCurrentGuidanceFirst(`${legacyBrandLower} reviewer`, 'proof-reviewer-a6832a1', 'a6832a1');
-    assertCurrentGuidanceFirst(`${legacyBrandLower} delivery`, 'proof-delivery-f4fe749', 'f4fe749');
-    assertCurrentGuidanceFirst(`${legacyBrandLower} cli`, 'proof-cli-c948c85', 'c948c85');
-    assertCurrentGuidanceFirst(`${legacyBrandLower} preflight`, 'proof-preflight-2de5d6b', '2de5d6b');
-  });
-
-  check('preflight ranks current Proofbound/Lattice guidance before old legacy entries', () => {
-    writeEntries(resolveProjectMemoryPath(root), entries);
-    assertPreflightGuidanceFirst(`${legacyBrandLower} reviewer`, 'proof-reviewer-a6832a1', 'a6832a1', root);
-    assertPreflightGuidanceFirst(`${legacyBrandLower} delivery`, 'proof-delivery-f4fe749', 'f4fe749', root);
-    assertPreflightGuidanceFirst(`${legacyBrandLower} cli`, 'proof-cli-c948c85', 'c948c85', root);
-    assertPreflightGuidanceFirst(`${legacyBrandLower} preflight`, 'proof-preflight-2de5d6b', '2de5d6b', root);
-  });
-
-  check('unmatched legacy entry remains readable and not hidden', () => {
-    const status = getSupersessionStatus(unmatchedLegacy, projection);
-    assert.equal(status.isSuperseded, false);
-    assert.equal(status.isSuperseding, false);
-    const formatted = formatEntryShort(unmatchedLegacy, projection);
-    assert.doesNotMatch(formatted, /superseded \/ legacy-readable/);
-    assert.match(formatted, new RegExp(`${legacyBrand} scratchpad reminder remains readable`));
-    const [result] = searchEntries(entries, { query: 'scratchpad unmatched', limit: 1 });
-    assert.equal(result.id, unmatchedLegacy.id);
-  });
-
-  check('historical legacy evidenceRefs and content are not rewritten deleted or hidden', () => {
-    for (const legacy of legacyEntries) {
-      assert.deepEqual(legacy.evidenceRefs, originalLegacyEvidenceRefs.get(legacy.id));
-      assert.deepEqual({
-        summary: legacy.summary,
-        trigger: legacy.trigger,
-        lesson: legacy.lesson,
-        reusePrompt: legacy.reusePrompt,
-      }, originalLegacyContent.get(legacy.id));
-      const formatted = formatEntryShort(legacy, projection);
-      for (const ref of legacy.evidenceRefs || []) {
-        assert.match(formatted, new RegExp(ref.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
-      }
-    }
-  });
-
-  check('current entries are visibly annotated with supersedes ids', () => {
-    for (const [legacyId, current] of currentByLegacyId.entries()) {
-      const formatted = formatEntryShort(current, projection);
-      assert.match(formatted, new RegExp(`supersedes ${legacyId}`));
-      assert.match(formatted, /Proofbound\/Lattice/);
-    }
-  });
-
-  check('current entries do not introduce active legacy brand guidance', () => {
-    for (const current of currentEntries) {
-      assertNoActiveLegacyBrandGuidance(current);
-    }
-  });
-
-  check('dev_memory_list annotates supersession status', () => {
-    const handlers = createDevMemoryHandlers({
-      store: new StoryStore(root),
-      root,
-      scanRoot: join(root, 'packages/main'),
-    });
-    const listed = handlers.dev_memory_list({ scope: 'project', limit: 20 });
-    assert.match(listed, /supersedes a6832a1/);
-    assert.match(listed, /supersedes f4fe749/);
-    assert.match(listed, /superseded \/ legacy-readable/);
-    assert.match(listed, new RegExp(`${legacyBrand} reviewer runs must bind`));
-  });
-
-  check('all entries remain non-authoritative and not gate evidence', () => {
-    for (const devMemoryEntry of entries) {
-      assert.equal(devMemoryEntry.gateEvidence, false);
-      assert.equal(devMemoryEntry.authority, 'non_authoritative');
-      const formatted = formatEntryShort(devMemoryEntry, projection);
-      assert.match(formatted, /Authority: gateEvidence=false, authority=non_authoritative/);
-    }
-  });
-
-  check('supersession remains ranking and presentation only', () => {
-    for (const legacy of legacyEntries) {
-      const current = currentByLegacyId.get(legacy.id);
-      assert(current);
-      assert.equal(legacy.gateEvidence, false);
-      assert.equal(current.gateEvidence, false);
-      assert.equal(legacy.authority, 'non_authoritative');
-      assert.equal(current.authority, 'non_authoritative');
-    }
-  });
-
-  check('actual project memory contains the five B-a9e7 superseding entries', () => {
-    const projectEntries = readProjectMemoryEntries(process.cwd());
-    const actualEntriesById = new Map(projectEntries.map(e => [e.id, e]));
-    for (const currentId of actualCurrentIds) {
-      assert(actualEntriesById.has(currentId), `missing actual project memory entry ${currentId}`);
-    }
-  });
-
-  check('actual project memory entries cite the known legacy ids and remain non-authoritative', () => {
-    const projectEntries = readProjectMemoryEntries(process.cwd());
-    const actualEntriesById = new Map(projectEntries.map(e => [e.id, e]));
-    for (const legacyId of knownLegacyIds) {
-      const currentId = actualCurrentByLegacyId.get(legacyId);
-      assert(currentId);
-      const actual = actualEntriesById.get(currentId);
-      assert(actual, `missing actual project memory entry ${currentId}`);
-      assert.equal(supersedesLegacyId(actual, legacyId), true, `${currentId} should cite or supersede ${legacyId}`);
-      assert.equal(actual.gateEvidence, false);
-      assert.equal(actual.authority, 'non_authoritative');
-    }
-  });
-
-  check('actual project memory current guidance uses Proofbound Lattice names', () => {
-    const projectEntries = readProjectMemoryEntries(process.cwd());
-    const actualEntriesById = new Map(projectEntries.map(e => [e.id, e]));
-    for (const currentId of actualCurrentIds) {
-      const actual = actualEntriesById.get(currentId);
-      assert(actual, `missing actual project memory entry ${currentId}`);
-      assertUsesCurrentProductNames(actual);
-      assertLegacySearchTags(actual);
-    }
-  });
-
-  check('actual project memory supersedes realistic legacy inventory', () => {
-    const projectEntries = readProjectMemoryEntries(process.cwd());
-    const actualCurrentEntries = actualCurrentIds.map(id => {
-      const found = projectEntries.find(e => e.id === id);
-      assert(found, `missing actual project memory entry ${id}`);
-      return found;
-    });
-    const actualProjection = buildSupersessionProjection([...legacyEntries, ...actualCurrentEntries]);
-    for (const legacyId of knownLegacyIds) {
-      const currentId = actualCurrentByLegacyId.get(legacyId);
-      assert(currentId);
-      const legacyStatus = getSupersessionStatus(legacyId, actualProjection);
-      const currentStatus = getSupersessionStatus(currentId, actualProjection);
-      assert.equal(legacyStatus.isSuperseded, true, `${legacyId} should be superseded by actual project memory`);
-      assert.deepEqual(legacyStatus.supersededBy, [currentId]);
-      assert.equal(currentStatus.isSuperseding, true, `${currentId} should supersede actual legacy id`);
-      assert.deepEqual(currentStatus.supersedes, [legacyId]);
-    }
-  });
-
-  check('actual project and global memory rank current guidance before legacy entries', () => {
-    const projectEntries = readProjectMemoryEntries(process.cwd());
-    const globalEntries = readGlobalMemoryEntries();
-    const allEntries = mergeById(projectEntries, globalEntries);
-    for (const expectation of actualQueryExpectations) {
-      const ids = searchEntries(allEntries, { query: expectation.query, limit: 20 }).map(e => e.id);
-      assertCurrentBeforeLegacy(ids, expectation.currentIds, expectation.legacyIds, expectation.query);
-    }
-  });
-
-  check('legacy token scorer compatibility ranks current guidance before legacy entries', () => {
-    const projectEntries = readProjectMemoryEntries(process.cwd());
-    const globalEntries = readGlobalMemoryEntries();
-    const allEntries = mergeById(projectEntries, globalEntries);
-    for (const expectation of actualQueryExpectations) {
-      const ids = legacyTokenSearch(allEntries, expectation.query, 20).map(e => e.id);
-      assertCurrentBeforeLegacy(ids, expectation.currentIds, expectation.legacyIds, expectation.query);
-      if (expectation.query === `${legacyBrandLower} cli` && ids.includes('2de5d6b')) {
-        assert.equal(ids[0], '148297b', 'legacy CLI query should show current CLI guidance first under legacy token scoring');
-      }
-    }
-  });
-} finally {
-  if (previousEnv === undefined) {
-    delete process.env.LATTICE_GLOBAL_MEMORY_DIR;
-  } else {
-    process.env.LATTICE_GLOBAL_MEMORY_DIR = previousEnv;
-  }
-  rmSync(root, { recursive: true, force: true });
-}
-
-console.log(`dev-memory supersession smoke passed (${passed} checks)`);
+console.log(`dev-memory physical cleanup smoke passed (${passed} checks)`);

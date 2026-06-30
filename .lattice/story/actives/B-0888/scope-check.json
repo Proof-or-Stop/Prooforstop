@@ -1,0 +1,66 @@
+{
+  "storyId": "B-0888",
+  "checkedAt": "2026-06-30T22:07:51.239Z",
+  "features": [
+    {
+      "feature": "Project dev-memory physical cleanup",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "checklist.files.modify .lattice/dev-memory/experience.jsonl"
+    },
+    {
+      "feature": "Global dev-memory physical cleanup",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "CHK-002 files.modify /Users/jek/.lattice/dev-memory/experience.jsonl and verificationIntent happy/adversarial"
+    },
+    {
+      "feature": "Cleanup smoke enforces zero old-brand memory terms",
+      "covered_by": "CHK-003 + CHK-004",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "packages/main/src/tasks/dev-memory-supersession-smoke.ts"
+    },
+    {
+      "feature": "Runtime build/residue/memory scan verification",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "CHK-004 verificationIntent"
+    },
+    {
+      "feature": "Runtime rename or CLI branding changes",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "scope_contract explicitExcludes",
+      "source": "not part of physical dev-memory cleanup"
+    },
+    {
+      "feature": "Version bump or package metadata edits",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "scope_contract protectedFiles",
+      "source": "metadata-only memory cleanup does not change runtime behavior"
+    },
+    {
+      "feature": "Historical story evidence cleanup",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "scope_contract explicitExcludes",
+      "source": "do not rewrite prior audit evidence"
+    }
+  ],
+  "summary": {
+    "total": 7,
+    "covered": 4,
+    "excluded": 3,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "ca9bd0c588b57dba7bd05647348de007444ca557099758f7b617e379dc01ba11",
+  "openQuestions": []
+}

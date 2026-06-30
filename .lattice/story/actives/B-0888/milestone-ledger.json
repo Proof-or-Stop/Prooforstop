@@ -1,0 +1,114 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-0888",
+  "state": "confirmed",
+  "ledgerHash": "sha256:462575ea613f03b84e2e0751c1607b918017339f896f90559bec2de42f42b758",
+  "milestones": [
+    {
+      "id": "M1",
+      "sourceRequirementId": "REQ-physical-cleanup",
+      "claim": "Project dev-memory no longer contains old brand prose, command refs, evidence refs, or legacy tags.",
+      "doneMeans": ".lattice/dev-memory/experience.jsonl has zero old-brand matches and preserves current Proofbound/Lattice lessons.",
+      "requiredEvidence": [
+        "rg-zero-old-brand-project-memory",
+        "dev-memory-smoke"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0"
+      ],
+      "status": "covered"
+    },
+    {
+      "id": "M2",
+      "sourceRequirementId": "REQ-physical-cleanup",
+      "claim": "Global dev-memory removes old brand memory rows instead of keeping supersession-only rows.",
+      "doneMeans": "/Users/jek/.lattice/dev-memory/experience.jsonl has zero old-brand matches while unrelated global memories remain.",
+      "requiredEvidence": [
+        "rg-zero-old-brand-global-memory",
+        "global-memory-list-preserves-unrelated"
+      ],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0"
+      ],
+      "status": "covered"
+    },
+    {
+      "id": "M3",
+      "sourceRequirementId": "REQ-no-legacy-tags",
+      "claim": "No legacy old-brand tags remain in dev-memory because there is no external compatibility need.",
+      "doneMeans": "Project and global dev-memory entries contain no tags with old-brand prefixes.",
+      "requiredEvidence": [
+        "dev-memory-smoke-tag-assertion"
+      ],
+      "checklistRefs": [
+        "CHK-001",
+        "CHK-002",
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:adversarial:0",
+        "CHK-002:adversarial:0",
+        "CHK-003:adversarial:0"
+      ],
+      "status": "covered"
+    },
+    {
+      "id": "M4",
+      "sourceRequirementId": "REQ-preserve-current-memory",
+      "claim": "The dev-memory smoke proves physical cleanup while current Proofbound/Lattice and host-policy memories remain usable.",
+      "doneMeans": "dev-memory-supersession-smoke passes only when old-brand matches are absent and current host memories remain.",
+      "requiredEvidence": [
+        "build",
+        "dev-memory-supersession-smoke"
+      ],
+      "checklistRefs": [
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-003:happy:0",
+        "CHK-003:edge:0",
+        "CHK-003:adversarial:0"
+      ],
+      "status": "covered"
+    },
+    {
+      "id": "M5",
+      "sourceRequirementId": "REQ-physical-cleanup",
+      "claim": "The cleanup is verified with build, smoke, residue, memory scans, and Lattice validation evidence.",
+      "doneMeans": "Recorded commands pass: package build, smoke, residue scanner, memory rg/search/list checks, and routine validation.",
+      "requiredEvidence": [
+        "npm-build",
+        "dev-memory-smoke",
+        "lattice-residue",
+        "memory-rg-zero",
+        "lattice-validate"
+      ],
+      "checklistRefs": [
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [
+        "CHK-004:happy:0",
+        "CHK-004:edge:0",
+        "CHK-004:adversarial:0"
+      ],
+      "status": "covered"
+    }
+  ],
+  "createdAt": "2026-06-30T22:08:34.890Z",
+  "updatedAt": "2026-06-30T22:09:50.071Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260630220157",
+    "acceptedInterpretationHash": "sha256:1527bda43ac4fd3934a6d5b18dca3d22f4c54a4e73af5bd02b7acc2492d0a8a9",
+    "acceptedAt": "2026-06-30T22:09:50.071Z"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "task": "Physically remove old Koala/koala/.koala terms from project and global dev-memory.",
+  "outcome": "After this story, running rg \"Koala|koala|\\\\.koala\" .lattice/dev-memory and searching global dev-memory for koala returns no old-brand memory guidance; current Proofbound/Lattice memories remain.",
+  "facts": [
+    "Current B-a9e7 supersession left old brand text in project tags/triggers and old global rows.",
+    "User explicitly requested physical cleanup and said no legacy-koala tags are needed.",
+    "Global dev-memory path is ~/.lattice/dev-memory/experience.jsonl."
+  ],
+  "constraints": [
+    "Do not use omx or .omx.",
+    "Do not delete unrelated global memories without old brand terms.",
+    "Preserve useful current Proofbound/Lattice and host-policy lessons.",
+    "Story modifications should stay inside declared scope."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    ".lattice/dev-memory/experience.jsonl",
+    "/Users/jek/.lattice/dev-memory/experience.jsonl",
+    "packages/main/src/tasks/dev-memory-supersession-smoke.ts"
+  ],
+  "timestamp": "2026-06-30T21:59:51.854Z"
+}
