@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-9fc5",
+  "mode": "feature",
+  "allowed": [
+    "Describe the cross-story parent-child completion contract, data model, milestones, rollout, and B-5082 ProofStory control usage.",
+    "Make the first implementation milestone test-first: red/repro failing tests and negative controls before full gate implementation.",
+    "Optionally add documentation markers or verification references needed to keep the plan machine-checkable.",
+    "Write a detailed execution plan document for Parent Roadmap Completion Gate / User Intent Totality Gate."
+  ],
+  "excluded": [
+    "Do not claim M4-M12 strengthening roadmap runtime milestones are completed by this planning story.",
+    "Do not implement runtime lifecycle, DONE, summary, or parent rollup gate behavior in this planning story.",
+    "Do not modify existing B-43de DONE state or child story statuses.",
+    "Do not reintroduce server-backed Authority Server semantics as an active design dependency."
+  ],
+  "confirmedBy": "codex-main",
+  "confirmationNote": "User requested a detailed execution plan first, including how many milestones are needed, and clarified that milestone 1 must be writing red/repro tests before executing the full story.",
+  "createdAt": "2026-06-30T12:46:07.798Z",
+  "updatedAt": "2026-06-30T12:46:07.798Z",
+  "_hash": "30dc3951c7538b99d7b3742849e4959e16a30bc0dba6435a8f886472ac0aa79e"
+}

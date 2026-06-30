@@ -2,8 +2,8 @@
   "items": [
     {
       "id": "CHK-001",
-      "title": "Define the failure and target contract",
-      "context": "Explain the B-43de lesson: story-local intent was protected, but parent user intent totality was not enforced. Define the target rule for parent claims and child milestone closure.",
+      "title": "Define red/repro test cases before full implementation",
+      "context": "First milestone: specify the failing tests and negative controls that must be written before the full parent-roadmap/user-intent-totality gate implementation story proceeds. The tests must prove the current bug: a parent story can be DONE while child milestones remain child-story-needed, and the system can still let the final answer sound complete. Include red tests for allRowsClosed=false, partial_parent_done summary classification, child-story-needed blocking full-completion claims, and parent rollup refusing all-complete when M4-M12 rows are open. Also define the target contract after the red tests fail.",
       "relatedDocs": [
         "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
       ],

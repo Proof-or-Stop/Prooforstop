@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-9fc5",
+  "allowedCommands": [
+    "git diff *",
+    "git status *",
+    "lattice done_intent_equivalence_check *",
+    "lattice intent_coverage_check *",
+    "lattice proofstory_gate_check *",
+    "lattice scope_contract_check *",
+    "lattice validate *",
+    "node scripts/verify-process-fact-contract.mjs",
+    "npm --prefix packages/main run build",
+    "rg *",
+    "sed *"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "git",
+    "lattice",
+    "node",
+    "npm",
+    "rg",
+    "sed"
+  ],
+  "allowedPaths": [
+    ".lattice/story/actives/B-9fc5/",
+    "docs/requirements/decisions/",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "excludedCommands": [
+    "git checkout -- *",
+    "git push *",
+    "git reset --hard *",
+    "rm -rf *"
+  ],
+  "excludedTools": [
+    "omx"
+  ],
+  "excludedPaths": [
+    ".omx/",
+    "docs/story/",
+    "packages/main/src/",
+    "packages/main/tests/",
+    "tests/fixtures/"
+  ],
+  "confirmedBy": "codex-main",
+  "confirmationNote": "Planning story only. It may create or update the parent-roadmap intent-totality execution plan and optional verifier markers, but must not implement runtime lifecycle gates or modify package runtime code.",
+  "createdAt": "2026-06-30T12:46:32.214Z",
+  "updatedAt": "2026-06-30T12:46:32.214Z",
+  "_hash": "7a512e815112aa265ced719d8dc681f94deff558ff885d8c1ce8bacef81f822b"
+}
