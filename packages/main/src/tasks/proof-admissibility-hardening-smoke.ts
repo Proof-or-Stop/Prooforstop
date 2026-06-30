@@ -59,7 +59,7 @@ function assertClosureAuditContract(): void {
     assert.equal(matches.length, 1, `${CLOSURE_AUDIT_PATH} must list ${milestone} exactly once`);
   }
   assert.match(audit, /\| M4 \| CHK-004 \| Append-only admissibility ledger \| retired\/non-goal \|/);
-  assert.match(audit, /\| M7 \| CHK-007 \| CommandSpec envelope and project waterline coverage \| missing-to-implement \|/);
+  assert.match(audit, /\| M7 \| CHK-007 \| CommandSpec envelope and project waterline coverage \| implemented \|/);
 }
 
 function assertAppendOnlyLedgerRetired(): void {
@@ -399,6 +399,34 @@ function assertBlockedHandoffSummary(value: { admissibilitySummary: { blocked: b
   assert.equal(checkerError.overall, 'error', 'checker failures report overall=error');
   assert.equal(checkerError.blocking, false, 'checker errors are warning-only workflow recovery, not proof-open');
   assert.ok(checkerError.reasons.includes('checker_error'), 'checker_error reason is preserved');
+}
+
+{
+  const missingCommandSpec = buildProofAdmissibilityDiagnostic({
+    artifactKind: 'done-required-evidence',
+    consumer: 'DONE_REQUIRED',
+    claim: 'done-readiness',
+    policy: enforceHighRisk,
+    checks: {
+      ...currentValidChecks('lattice.done_required_evidence.v1'),
+      commandSpecDigestValid: undefined,
+    },
+  });
+  assert.equal(missingCommandSpec.blocking, true, 'enforce mode blocks command-backed DONE_REQUIRED evidence without CommandSpec');
+  assert.ok(missingCommandSpec.reasons.includes('command_spec_missing'), 'missing CommandSpec reports command_spec_missing');
+
+  const mismatchedCommandSpec = buildProofAdmissibilityDiagnostic({
+    artifactKind: 'done-required-evidence',
+    consumer: 'DONE_REQUIRED',
+    claim: 'done-readiness',
+    policy: enforceHighRisk,
+    checks: {
+      ...currentValidChecks('lattice.done_required_evidence.v1'),
+      commandSpecDigestValid: false,
+    },
+  });
+  assert.equal(mismatchedCommandSpec.blocking, true, 'enforce mode blocks mismatched CommandSpec digests');
+  assert.ok(mismatchedCommandSpec.reasons.includes('command_spec_digest_mismatch'), 'mismatched CommandSpec reports command_spec_digest_mismatch');
 }
 
 {

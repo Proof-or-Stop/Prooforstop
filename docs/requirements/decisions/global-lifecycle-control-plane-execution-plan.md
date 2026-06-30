@@ -612,7 +612,9 @@ Definition of done:
 - a host can see which consumer is weak and why;
 - `candidate` / `diagnostic` / `legacy` evidence cannot satisfy DONE;
 - `authority-receipt` still cannot become local `productionDone`;
-- current-state stale rows do not block unrelated stories.
+- current-state stale rows do not block unrelated stories;
+- project-level no-data consumption rollups report unknown/no-data instead of
+  green/pass.
 
 ### CP-3 - Queue Governance And Exceptions
 

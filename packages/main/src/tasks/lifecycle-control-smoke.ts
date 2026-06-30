@@ -119,7 +119,7 @@ function assertClosureAuditContract(): void {
     assert.ok(audit.includes(`| ${checklistId} |`), `${CLOSURE_AUDIT_PATH} must bind ${checklistId}`);
   }
   assert.match(audit, /\| M4 \| CHK-004 \| Append-only admissibility ledger \| retired\/non-goal \|/);
-  assert.match(audit, /\| M7 \| CHK-007 \| CommandSpec envelope and project waterline coverage \| missing-to-implement \|/);
+  assert.match(audit, /\| M7 \| CHK-007 \| CommandSpec envelope and project waterline coverage \| implemented \|/);
   assert.ok(!audit.includes('| M8 |'), `${CLOSURE_AUDIT_PATH} must not expand B-c004 beyond M1-M7`);
 }
 
@@ -207,6 +207,21 @@ function assertDashboardDoesNotWaiveLifecycle(root: string, store: StoryStore): 
   assert.notEqual(row?.runtime.status, 'green', 'pending checklist keeps runtime/readiness non-green');
 }
 
+function assertProjectWaterlineNoDataIsNotGreen(): void {
+  const { root, store } = createFixture();
+  for (const storyId of store.listStoryIds()) {
+    store.writeStory(storyId, { ...store.readStory(storyId), phase: 'DONE' });
+  }
+  const report = buildGlobalControlStatus(store, root, {
+    storyIds: [],
+    expanded: true,
+    now: NOW,
+  });
+  assert.equal(report.stories.length, 0);
+  assert.equal(report.project.consumptionAggregate, 'unknown', 'no story consumption rows are unknown/no-data, not green');
+  assert.notEqual(report.project.overall, 'green', 'project rollup must not promote no-data waterline to green');
+}
+
 function assertRuntimeEnforcementDecisions(): void {
   const wrongCwd = evaluateRuntimeEnforcement({
     mode: 'enforce',
@@ -284,6 +299,7 @@ const { root, store } = createFixture();
 assertTierCQueueGovernance(root, store);
 assertQueueCleanupGuard(root, store);
 assertDashboardDoesNotWaiveLifecycle(root, store);
+assertProjectWaterlineNoDataIsNotGreen();
 assertRuntimeEnforcementDecisions();
 
 console.log('lifecycle-control-smoke passed');
