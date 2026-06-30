@@ -9,9 +9,9 @@
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
         "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-30T15:08:36.287Z",
-      "endTime": null,
+      "endTime": "2026-06-30T15:10:48.578Z",
       "files": {
         "modify": [
           "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
@@ -51,7 +51,43 @@
           }
         ]
       },
-      "userSees": "The final status table shows CHK-001/M1 with a committed seven-row audit and no omitted capability rows."
+      "userSees": "The final status table shows CHK-001/M1 with a committed seven-row audit and no omitted capability rows.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/control-plane-proof-capability-closure-audit.md",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/lifecycle-control-smoke.js && node packages/main/dist/tasks/proof-admissibility-hardening-smoke.js",
+          "result": "pass",
+          "note": "Commit ce8605770 adds the M1-M7 closure audit and smoke guards that require M1-M7 exactly once with evidence targets.",
+          "headHash": "ce86057703f91b91626a17e90239268a3bf665cb",
+          "materialHash": "5d65cc671d5ca0a555e0df3303c2bfc18d786a0e5d29c80e5781fa56f853b01b",
+          "storyFilesHash": "57695f7741afcc2c45688ece6b3f93aa877664024744afba24ae0d479af6582f",
+          "timestamp": "2026-06-30T15:10:48.742Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js intent_coverage_check --storyId=B-c004 --dryRun --mode=warn --json",
+          "result": "pass",
+          "note": "Dry-run intent coverage returned status pass with all seven milestone rows covered.",
+          "headHash": "ce86057703f91b91626a17e90239268a3bf665cb",
+          "materialHash": "5d65cc671d5ca0a555e0df3303c2bfc18d786a0e5d29c80e5781fa56f853b01b",
+          "storyFilesHash": "57695f7741afcc2c45688ece6b3f93aa877664024744afba24ae0d479af6582f",
+          "timestamp": "2026-06-30T15:10:48.885Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js proofstory_gate_check --storyId=B-c004 --dryRun --mode=warn --json",
+          "result": "pass",
+          "note": "Dry-run ProofStory gate returned status pass and did not report missing milestone coverage.",
+          "headHash": "ce86057703f91b91626a17e90239268a3bf665cb",
+          "materialHash": "5d65cc671d5ca0a555e0df3303c2bfc18d786a0e5d29c80e5781fa56f853b01b",
+          "storyFilesHash": "57695f7741afcc2c45688ece6b3f93aa877664024744afba24ae0d479af6582f",
+          "timestamp": "2026-06-30T15:10:49.023Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
