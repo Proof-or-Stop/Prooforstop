@@ -356,9 +356,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-30T22:29:41.531Z",
-      "endTime": null,
+      "endTime": "2026-06-30T22:29:43.379Z",
       "userSees": "\"M8\" row shows \"closed\": true and review escalation/quorum smoke evidence is listed.",
       "files": {
         "modify": [
@@ -703,6 +703,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Start M8 final evidence recording after implementation commit."
+    },
+    {
+      "timestamp": "2026-06-30T22:29:43.379Z",
+      "phase": "DEV",
+      "itemId": "CHK-005",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "M8 completed after evidence-backed roadmap closure verification."
     }
   ]
 }
