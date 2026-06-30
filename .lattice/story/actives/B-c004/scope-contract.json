@@ -65,8 +65,29 @@
       "phase": "DEV",
       "headHash": "5caecc05a17c3de32e8cc619eca7974d22898889",
       "materialHash": "18307d34100d4f524ed0e1de936e70acbd5e3e1ff1411c552816877b22696798"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Delivery reviewer generated this context pack as required delivery-check evidence for DONE; it is story-scoped lifecycle evidence, not an implementation scope expansion.",
+      "timestamp": "2026-06-30T16:01:06.393Z",
+      "paths": [
+        ".lattice/story/actives/B-c004/evidence/delivery-context-pack.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-c004/evidence/delivery-context-pack.json"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "035633905d8237a6d855942b81243cda942fb6d7",
+      "materialHash": "2fa51c4143e666f4591f42f748ef6a0f534f3086276ca69a74e10b844585080f",
+      "anchors": [
+        "delivery_check",
+        "done_gate",
+        "lattice_review_delivery"
+      ]
     }
   ],
   "createdAt": "2026-06-30T15:05:17.820Z",
-  "updatedAt": "2026-06-30T15:22:54.920Z"
+  "updatedAt": "2026-06-30T16:01:06.393Z"
 }
