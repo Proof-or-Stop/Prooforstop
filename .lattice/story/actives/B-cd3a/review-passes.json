@@ -62,6 +62,15 @@
       "reviewRound": "2026-06-30T11:06:51.293Z",
       "reviewRunId": "B-cd3a:RR-017",
       "_hash": "a5e8289d9f3e5528a1fceaabf5ddb5c8a096f54e6d37187f0f2c42ac85acc77d"
+    },
+    {
+      "id": "B-cd3a:RP-008",
+      "agent": "lattice-review-test-coverage",
+      "note": "No coverage blocker. Reviewed quorum-submit smoke, proof-admissibility enforce mode, review_escalation_status, and stale quorum fail-closed behavior. Evidence: quorum-submit smoke passes and asserts proofAdmissibility mode=enforce, valid 3x2 status ok/full-3x2/proof pass, stale reviewer passes refused, no authority overclaim; review-escalation and review-assurance-floor smokes pass and assert stale/material-drift verdicts are ignored or fail closed. Commands run: node packages/main/dist/tasks/quorum-submit-smoke.js; node packages/main/dist/tasks/proof-admissibility-smoke.js; node packages/main/dist/tasks/proof-admissibility-hardening-smoke.js; node packages/main/dist/tasks/review-escalation-smoke.js; node packages/main/dist/tasks/review-assurance-floor-smoke.js; node packages/main/dist/tasks/review-assurance-floor-storyfileshash-smoke.js; node packages/main/dist/tasks/review-escalation-freshness-root-smoke.js; node packages/main/dist/tasks/done-escalation-drift-advisory-smoke.js; node packages/main/dist/tasks/run-all-smokes.js --select quorum-submit --quiet; node packages/main/dist/cli.js review_escalation_status --storyId=B-cd3a --json showed current stale B-cd3a quorum ignored and ok=false.",
+      "createdAt": "2026-06-30T11:15:05.872Z",
+      "reviewRound": "2026-06-30T11:06:51.293Z",
+      "reviewRunId": "B-cd3a:RR-019",
+      "_hash": "9086a6ce4d7b4aa60d4f7365b21689d0657fcad816c8bc3d25aaecc3463786bd"
     }
   ]
 }
