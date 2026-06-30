@@ -1,0 +1,28 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-c004",
+  "mode": "feature",
+  "allowed": [
+    "Advance B-c004 through Lattice gates to DONE with validation, delivery evidence, and review evidence.",
+    "Audit the seven remaining control-plane/proof capability gaps against the current implementation and prior stories.",
+    "Broaden CommandSpec envelope adoption and project-level consumption waterline rollup where current code/docs show uncovered gate-consumed command evidence.",
+    "Clean up Authority Server vocabulary in the two referenced decision documents and code/config only as legacy compatibility, without restoring Authority Server as an active capability.",
+    "Complete queue cleanup enforcement guard while preserving valid Tier-C experiment exceptions.",
+    "Complete runtime closure enforcement rollout if current evidence shows enforce mode is still required and safe.",
+    "Resolve append-only proof admissibility ledger capability with evidence: implement the durable ledger or formally retire/downgrade it with guards.",
+    "Resolve Tier-C cleanup policy with evidence: implement the required behavior or retire it as a non-goal without breaking experiment preservation.",
+    "Write red or diagnostic tests before runtime changes for capabilities that still need implementation or formal retirement."
+  ],
+  "excluded": [
+    "Do not implement automatic parent-child story orchestration beyond the current story scope.",
+    "Do not mutate or remove existing Tier-C experiment evidence unless a guard explicitly classifies it as invalid and the story evidence proves that behavior.",
+    "Do not push to GitHub or create a remote PR unless explicitly requested.",
+    "Do not reintroduce Authority Server conformance, Authority production dependencies, or a new Authority Server runtime.",
+    "Do not rewrite unrelated docs or refactor unrelated runtime modules."
+  ],
+  "confirmedBy": "codex",
+  "confirmationNote": "User instructed to execute until all seven listed remaining capabilities are resolved DONE; prior conversation explicitly retired Authority Server capability and required validating whether each row is needed or already covered before implementation.",
+  "createdAt": "2026-06-30T14:58:18.747Z",
+  "updatedAt": "2026-06-30T14:58:18.747Z",
+  "_hash": "bc6e2a33a82860d3a66ca76b5902c1783b9b99a82fe0ad94a59e8474fcdb51e7"
+}
