@@ -334,7 +334,7 @@
       "status": "pending",
       "startTime": null,
       "endTime": null,
-      "userSees": "rollout-check smoke passes, roadmap guidance is updated, and parent_roadmap_status shows M11 closed.",
+      "userSees": "\"M11\" row shows \"closed\": true and \"rollout-check-smoke\" plus roadmap guidance refs are listed.",
       "files": {
         "modify": [
           "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
@@ -343,7 +343,7 @@
         "create": [],
         "test": [
           "packages/main/src/tasks/rollout-check-smoke.ts",
-          "packages/main/src/commands/rollout-check.ts"
+          "packages/main/src/handlers/rollout-check.ts"
         ]
       },
       "verificationIntent": {
