@@ -255,7 +255,47 @@
       "context": "Covers M6 gap: red evidence must carry baseline freshness and the transition relation to current green evidence.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "relatedDocs": [
+        "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md#M6-Red-Evidence"
+      ],
+      "userSees": "User sees red evidence records include baseline head/material binding and an explicit relation to current green evidence.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/cli/command-catalog.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "red_evidence_create stores baseline head/material and green relation fields and diagnostics consume them",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "docs-only stories still do not require red evidence",
+            "type": "logic",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "red evidence for the wrong acceptance criterion or stale baseline cannot satisfy triggered red evidence diagnostics",
+            "type": "logic",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-007",
