@@ -6,8 +6,8 @@
  */
 
 import assert from 'node:assert/strict';
-import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { existsSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
 import { tmpdir } from 'node:os';
 import {
   PROOF_ADMISSIBILITY_CONTRACT_VERSION,
@@ -52,8 +52,22 @@ const enforceHighRisk: ProofAdmissibilityPolicy = {
 };
 const CLOSURE_AUDIT_PATH = 'docs/requirements/decisions/control-plane-proof-capability-closure-audit.md';
 
+function resolveRepoRoot(start = process.cwd()): string {
+  let current = start;
+  while (true) {
+    if (existsSync(join(current, CLOSURE_AUDIT_PATH))) {
+      return current;
+    }
+    const parent = dirname(current);
+    if (parent === current) {
+      throw new Error(`Unable to locate repo root containing ${CLOSURE_AUDIT_PATH} from ${start}`);
+    }
+    current = parent;
+  }
+}
+
 function assertClosureAuditContract(): void {
-  const audit = readFileSync(join(process.cwd(), CLOSURE_AUDIT_PATH), 'utf8');
+  const audit = readFileSync(join(resolveRepoRoot(), CLOSURE_AUDIT_PATH), 'utf8');
   for (const milestone of ['M1', 'M2', 'M3', 'M4', 'M5', 'M6', 'M7']) {
     const matches = audit.match(new RegExp(`\\| ${milestone} \\|`, 'g')) ?? [];
     assert.equal(matches.length, 1, `${CLOSURE_AUDIT_PATH} must list ${milestone} exactly once`);
