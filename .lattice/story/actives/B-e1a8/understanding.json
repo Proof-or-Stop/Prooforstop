@@ -1,0 +1,24 @@
+{
+  "task": "Enable ProofStory gate enforcement for future stories.",
+  "outcome": "When the user or an agent runs future Lattice phase transitions, missing ProofStory DEV, REVIEW, or DONE evidence is rejected instead of only being reported as observe-mode diagnostics.",
+  "facts": [
+    "B-5082 completed the ProofStory M0-M9 implementation and version 0.3.113 is built.",
+    "The current repository lattice.config.json has no proofStory block, so dev/review/done gate modes default to observe.",
+    "core/machine.ts and handlers/phase-gates.ts already consume proofStory.devGateMode, reviewGateMode, and doneGateMode when configured."
+  ],
+  "constraints": [
+    "Do not change ProofStory implementation code unless a gate bug is discovered.",
+    "The rollout story must satisfy its own ProofStory gate artifacts before enforce mode is relied on.",
+    "Existing active stories may need to add artifacts on their next phase transition; this story should not silently retrofit them."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "lattice.config.json",
+    "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/handlers/phase-gates.ts",
+    "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "timestamp": "2026-06-30T08:42:08.297Z"
+}
