@@ -149,9 +149,9 @@
       "id": "CHK-003",
       "title": "Verify DEV REVIEW DONE gate behavior under enforce mode",
       "context": "Run build, ProofStory smoke, process fact contract verification, and explicit proofstory gate/review/done diagnostics for this story after the config change.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-30T08:51:40.025Z",
       "relatedDocs": [
         "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md#M5-Scope-Shrinkage-Guard-And-DONE-Intent-Equivalence",
         "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md#M8-REVIEW-Completeness-Critic-Integration",
@@ -243,6 +243,15 @@
       "from": "pending",
       "to": "done",
       "reason": "Original intent snapshot, confirmed milestone ledger, accepted intent collision, and ProofStory contract are recorded and enforce gate passes."
+    },
+    {
+      "timestamp": "2026-06-30T08:51:40.025Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "done",
+      "reason": "Build, process fact contract, ProofStory smoke, ProofStory review completeness enforce, DONE intent equivalence enforce, and scope gate checks passed or are acknowledged nonblocking."
     }
   ]
 }
