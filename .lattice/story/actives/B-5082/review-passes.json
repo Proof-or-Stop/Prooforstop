@@ -53,6 +53,15 @@
       "reviewRound": "2026-06-30T01:54:22.594Z",
       "reviewRunId": "B-5082:RR-019",
       "_hash": "8abdc245edfb6f570d662cec4528cdbca57963e1397a77f5bfb4794a90449e02"
+    },
+    {
+      "id": "B-5082:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "Concept pass: confirmed high-assurance alone stays lightweight DONE unless a milestone, slice, or confirmed shrinkage path is present; confirmed user scope shrinkage selects strict_milestone equivalence without inventing a milestone-ledger requirement; docs and implementation agree that red evidence and spike are required only when their policy triggers apply; M0-M9 remains coherent after the F-006/F-007 fixes. Verified npm --prefix packages/main run build, node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js, node scripts/verify-process-fact-contract.mjs, and git diff --check.",
+      "createdAt": "2026-06-30T01:58:00.074Z",
+      "reviewRound": "2026-06-30T01:54:22.594Z",
+      "reviewRunId": "B-5082:RR-018",
+      "_hash": "63c6df9de2457a8f3abd3c28a80b96188ea33cd39c89e84f38a00cba8a34873b"
     }
   ]
 }
