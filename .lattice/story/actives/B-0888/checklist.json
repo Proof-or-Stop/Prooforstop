@@ -47,10 +47,10 @@
           "command": "rg -n -i \"koala|\\\\.koala|legacy-koala\" .lattice/dev-memory packages/main/src/tasks/dev-memory-supersession-smoke.ts || true",
           "result": "pass",
           "note": "No output: tracked project dev-memory and smoke source contain zero retired-brand matches.",
-          "headHash": "28b8c04cc64ed22bc2442b468c3787b35d5556ff",
-          "materialHash": "9c4774806a3892f582374dba0907a49264c3325403026a8b1f2b132d126c8666",
-          "storyFilesHash": "81400a0b7d8a2f8e65a882c673128ebc1b4bb3f50307cbd43cb1a04987d157e6",
-          "timestamp": "2026-06-30T22:17:33.418Z"
+          "headHash": "01cbe1d14338d3f7bd2d3b97fedc0121fb9e9217",
+          "materialHash": "823bd49a615a3a66e2937be4d50c8ca0992f84d0b8ad607792e44df0ee525ccc",
+          "storyFilesHash": "01c63a05e64648d526a76ef686a094d29af8dd202174a2be94cdb23cb3f8c84d",
+          "timestamp": "2026-06-30T22:33:59.916Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -58,10 +58,10 @@
           "command": "node packages/main/dist/tasks/dev-memory-supersession-smoke.js",
           "result": "pass",
           "note": "Smoke preserves project memory rows 34e97f9, 99aa6c7, ee3aef3, 148297b, 7ffe281 plus host-policy rows d6f173d, 9bd6b5a.",
-          "headHash": "28b8c04cc64ed22bc2442b468c3787b35d5556ff",
-          "materialHash": "9c4774806a3892f582374dba0907a49264c3325403026a8b1f2b132d126c8666",
-          "storyFilesHash": "81400a0b7d8a2f8e65a882c673128ebc1b4bb3f50307cbd43cb1a04987d157e6",
-          "timestamp": "2026-06-30T22:17:33.580Z"
+          "headHash": "01cbe1d14338d3f7bd2d3b97fedc0121fb9e9217",
+          "materialHash": "823bd49a615a3a66e2937be4d50c8ca0992f84d0b8ad607792e44df0ee525ccc",
+          "storyFilesHash": "01c63a05e64648d526a76ef686a094d29af8dd202174a2be94cdb23cb3f8c84d",
+          "timestamp": "2026-06-30T22:33:59.916Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -69,10 +69,10 @@
           "command": "node packages/main/dist/tasks/dev-memory-supersession-smoke.js",
           "result": "pass",
           "note": "Smoke checks parsed project entries, tags, formatted output, and raw file content for zero retired-brand text.",
-          "headHash": "28b8c04cc64ed22bc2442b468c3787b35d5556ff",
-          "materialHash": "9c4774806a3892f582374dba0907a49264c3325403026a8b1f2b132d126c8666",
-          "storyFilesHash": "81400a0b7d8a2f8e65a882c673128ebc1b4bb3f50307cbd43cb1a04987d157e6",
-          "timestamp": "2026-06-30T22:17:33.746Z"
+          "headHash": "01cbe1d14338d3f7bd2d3b97fedc0121fb9e9217",
+          "materialHash": "823bd49a615a3a66e2937be4d50c8ca0992f84d0b8ad607792e44df0ee525ccc",
+          "storyFilesHash": "01c63a05e64648d526a76ef686a094d29af8dd202174a2be94cdb23cb3f8c84d",
+          "timestamp": "2026-06-30T22:33:59.916Z"
         }
       ]
     },
@@ -123,10 +123,10 @@
           "command": "rg -n -i \"koala|\\\\.koala|legacy-koala\" /Users/jek/.lattice/dev-memory/experience.jsonl || true",
           "result": "pass",
           "note": "No output: global dev-memory file contains zero retired-brand matches after deleting old rows.",
-          "headHash": "76b7024d38b0b4b93096fe69e1cee3ffe8d0b17c",
-          "materialHash": "9c4774806a3892f582374dba0907a49264c3325403026a8b1f2b132d126c8666",
-          "storyFilesHash": "81400a0b7d8a2f8e65a882c673128ebc1b4bb3f50307cbd43cb1a04987d157e6",
-          "timestamp": "2026-06-30T22:17:42.068Z"
+          "headHash": "01cbe1d14338d3f7bd2d3b97fedc0121fb9e9217",
+          "materialHash": "823bd49a615a3a66e2937be4d50c8ca0992f84d0b8ad607792e44df0ee525ccc",
+          "storyFilesHash": "01c63a05e64648d526a76ef686a094d29af8dd202174a2be94cdb23cb3f8c84d",
+          "timestamp": "2026-06-30T22:33:59.916Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -134,10 +134,10 @@
           "command": "lattice dev_memory_list --scope=global --limit=20",
           "result": "pass",
           "note": "Global list preserves current unrelated rows a4d08a8 and 9890b83, with total global entries now 2.",
-          "headHash": "76b7024d38b0b4b93096fe69e1cee3ffe8d0b17c",
-          "materialHash": "9c4774806a3892f582374dba0907a49264c3325403026a8b1f2b132d126c8666",
-          "storyFilesHash": "81400a0b7d8a2f8e65a882c673128ebc1b4bb3f50307cbd43cb1a04987d157e6",
-          "timestamp": "2026-06-30T22:17:42.291Z"
+          "headHash": "01cbe1d14338d3f7bd2d3b97fedc0121fb9e9217",
+          "materialHash": "823bd49a615a3a66e2937be4d50c8ca0992f84d0b8ad607792e44df0ee525ccc",
+          "storyFilesHash": "01c63a05e64648d526a76ef686a094d29af8dd202174a2be94cdb23cb3f8c84d",
+          "timestamp": "2026-06-30T22:33:59.916Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -145,10 +145,10 @@
           "command": "lattice dev_memory_search --query=koala --global --limit=20",
           "result": "pass",
           "note": "Command returned: No dev-memory experience entries found for query: koala.",
-          "headHash": "76b7024d38b0b4b93096fe69e1cee3ffe8d0b17c",
-          "materialHash": "9c4774806a3892f582374dba0907a49264c3325403026a8b1f2b132d126c8666",
-          "storyFilesHash": "81400a0b7d8a2f8e65a882c673128ebc1b4bb3f50307cbd43cb1a04987d157e6",
-          "timestamp": "2026-06-30T22:17:42.461Z"
+          "headHash": "01cbe1d14338d3f7bd2d3b97fedc0121fb9e9217",
+          "materialHash": "823bd49a615a3a66e2937be4d50c8ca0992f84d0b8ad607792e44df0ee525ccc",
+          "storyFilesHash": "01c63a05e64648d526a76ef686a094d29af8dd202174a2be94cdb23cb3f8c84d",
+          "timestamp": "2026-06-30T22:33:59.916Z"
         }
       ]
     },
