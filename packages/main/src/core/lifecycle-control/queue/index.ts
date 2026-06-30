@@ -33,7 +33,7 @@ export type {
 } from '../control-status.js';
 
 const TERMINAL_PHASES = new Set(['DONE', 'DISCARDED', 'META']);
-const MIGRATION_TITLE_PREFIX = 'Tier-C provider-execution receipt verification';
+const MIGRATION_TITLE_RUN_PATTERN = /^Tier-C provider-execution receipt verification(?: \([^)]+\))? run\b/;
 const TIER_C_EXPERIMENT_BATCH_ID = 'tier-c-provider-execution-receipt-verification';
 type QueueExceptionSource = QueueExceptionRecord['source'];
 type QueueExceptionInputSource = QueueExceptionSource | 'tier-c-prefix';
@@ -261,7 +261,7 @@ function durableExperimentException(story: StoryInfo, root: string, now: string)
 }
 
 function titleInferredExperiment(story: StoryInfo): boolean {
-  return story.title.startsWith(MIGRATION_TITLE_PREFIX);
+  return MIGRATION_TITLE_RUN_PATTERN.test(story.title);
 }
 
 function migrationTitlePrefixException(story: StoryInfo, root: string, now: string): QueueExceptionRecord | null {

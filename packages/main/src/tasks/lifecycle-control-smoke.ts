@@ -128,6 +128,7 @@ function assertTierCQueueGovernance(root: string, store: StoryStore): void {
   assert.equal(tierRows.length, 2);
   for (const row of tierRows) {
     assert.equal(row.classification, 'experiment-batch-exception');
+    assert.notEqual(row.classification, 'duplicate-candidate');
     assert.equal(row.experimentBatchId, TIER_C_BATCH_ID);
     assert.equal(row.exceptionSource, 'migration-title-prefix');
     assert.equal(row.cleanupPolicy, 'preserve');
@@ -137,6 +138,8 @@ function assertTierCQueueGovernance(root: string, store: StoryStore): void {
   assert.equal(malformed?.classification, 'cleanup-required');
   assert.equal(malformed?.cleanupPolicy, 'cleanup-required');
   assert.equal(queue.duplicateClusters.length, 0, 'Tier-C experiment rows must not become duplicate cleanup candidates');
+  assert.equal(queue.summary.experimentBatchException, 2);
+  assert.equal(queue.summary.duplicateCandidate, 0);
   assert.equal(queue.experimentBatches.length, 1);
   assert.equal(queue.experimentBatches[0]?.experimentBatchId, TIER_C_BATCH_ID);
   assert.deepEqual(queue.experimentBatches[0]?.storyIds, ['B-tier-a', 'B-tier-b']);
