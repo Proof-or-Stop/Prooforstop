@@ -145,7 +145,7 @@
       "desc": "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md:520 says milestone, slice, or confirmed scope-shrinkage paths get strict equivalence, but packages/main/src/core/proofstory.ts:1271 only selects strict_milestone for milestone triggers, an existing ledger, or slicePlan and omits scopeShrinkageDecision. A confirmed shrinkage decision without an accompanying ledger/slice therefore stays lightweight, so docs and implementation still disagree on the shrinkage strict-DONE trigger.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-06-30T01:50:42.753Z",
@@ -158,7 +158,11 @@
         "packages/main/src/tasks/proofstory-intent-hardening-smoke.ts"
       ],
       "signatureTag": "doc-code-drift|md|docs-requirements-decisions",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Updated evaluateDoneIntentEquivalence so a user-confirmed scope-shrinkage decision selects strict_milestone DONE equivalence even without a ledger or slice, while high-assurance single-outcome stories without shrinkage remain lightweight. Added proofstory-intent-hardening smoke coverage for both the preserved lightweight high-assurance case and a confirmed single-outcome shrinkage case that passes strict_milestone without inventing a milestone-ledger requirement. Verified with npm --prefix packages/main run build, node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js, node scripts/verify-process-fact-contract.mjs, and git diff --check.",
+      "resolvedAt": "2026-06-30T01:54:39.582Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
