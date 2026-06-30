@@ -1,0 +1,31 @@
+{
+  "storyId": "B-a9e7",
+  "checkedAt": "2026-06-30T17:40:37.318Z",
+  "headHash": "c4c404855cf1b503138b8f491544278d5dd4a464",
+  "materialHash": "1e70907cba4d9a104e9c92060adb475d42972791d26f2138f91e54cb40b80bc5",
+  "storyFilesHash": "999673d9d53c2e7cab8adf169e4b406e0a3de7dc6dab3d7c785f2d5ea7650c07",
+  "reviewRound": "2026-06-30T17:33:36.600Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/dev-memory.md",
+      "promise": "Append-only dev-memory supersession keeps legacy rows readable and non-authoritative while surfacing current Proofbound/Lattice guidance first.",
+      "status": "verified",
+      "verifiedBy": "smoke+live-cli+full-test",
+      "evidence": "dev-memory-supersession smoke PASS 18 checks; live dev_memory_search/preflight rank 148297b before 2de5d6b for koala cli; DONE-required validation PASS includes root npm test."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001..CHK-004",
+      "transcript": "lattice dev_memory_search --query=koala cli --global --limit=5 shows current Proofbound/Lattice entry 148297b first and preserved legacy 2de5d6b later; lattice dev_memory_preflight has the same current-before-legacy ordering; node packages/main/dist/tasks/dev-memory-supersession-smoke.js passes 18 checks; npm test passes."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery re-check passes after residue cleanup: current guidance ranks first, legacy rows remain readable for audit, source residue scanner is clean, and DONE-required root tests pass."
+  },
+  "_hash": "8f0ba400e7bb59c681a81e0d9f2460512de347fef5f16f66eeed2e9acaca67da"
+}

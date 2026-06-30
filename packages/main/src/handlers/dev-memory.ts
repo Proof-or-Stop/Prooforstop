@@ -15,6 +15,8 @@ import {
   searchEntries,
   findSimilar,
   buildPreflightPack,
+  buildSupersessionProjection,
+  attachSupersessionStatus,
   formatEntryShort,
   formatPreflightPack,
   resolveProjectMemoryPath,
@@ -97,7 +99,7 @@ export function createDevMemoryHandlers(ctx: HandlerContext) {
   // -------------------------------------------------------------------------
   function dev_memory_list(args: { scope?: ExperienceScope; limit?: number; json?: boolean }): string {
     const scope = args.scope || 'project';
-    let entries = (() => {
+    const allEntries = (() => {
       if (scope === 'global') {
         return readGlobalMemoryEntries();
       }
@@ -108,12 +110,13 @@ export function createDevMemoryHandlers(ctx: HandlerContext) {
       // For simplicity, read from project memory
       return readProjectMemoryEntries(root);
     })();
+    const projection = buildSupersessionProjection(allEntries);
     const limit = args.limit ?? 50;
     // Newest-first: reverse the full array, then take the first `limit` items
-    entries = entries.slice().reverse().slice(0, limit);
+    const entries = allEntries.slice().reverse().slice(0, limit);
 
     if (args.json) {
-      return JSON.stringify(entries, null, 2);
+      return JSON.stringify(entries.map(e => attachSupersessionStatus(e, projection)), null, 2);
     }
     if (entries.length === 0) {
       return `No dev-memory experience entries yet (scope: ${scope})`;
@@ -121,7 +124,7 @@ export function createDevMemoryHandlers(ctx: HandlerContext) {
     const lines = [`Dev-memory entries (scope: ${scope}, ${entries.length} total):`];
     for (const e of entries) {
       lines.push('');
-      lines.push(formatEntryShort(e));
+      lines.push(formatEntryShort(e, projection));
     }
     return lines.join('\n');
   }
@@ -153,14 +156,15 @@ export function createDevMemoryHandlers(ctx: HandlerContext) {
       limit: args.limit ?? 20,
     };
     const results = searchEntries(allEntries, opts);
-    if (args.json) return JSON.stringify(results, null, 2);
+    const projection = buildSupersessionProjection(allEntries);
+    if (args.json) return JSON.stringify(results.map(e => attachSupersessionStatus(e, projection)), null, 2);
     if (results.length === 0) {
       return `No dev-memory experience entries found for query: ${JSON.stringify(args.query ?? '')}`;
     }
     const lines = [`Dev-memory search results (${results.length} entries):`];
     for (const e of results) {
       lines.push('');
-      lines.push(formatEntryShort(e));
+      lines.push(formatEntryShort(e, projection));
     }
     return lines.join('\n');
   }
@@ -181,7 +185,11 @@ export function createDevMemoryHandlers(ctx: HandlerContext) {
       maxLines: args.maxLines,
     });
     if (args.json) {
-      return JSON.stringify({ entries: result.entries, lineCount: result.lineCount, truncated: result.truncated }, null, 2);
+      return JSON.stringify({
+        entries: result.entries.map(e => attachSupersessionStatus(e, result.supersessionProjection)),
+        lineCount: result.lineCount,
+        truncated: result.truncated,
+      }, null, 2);
     }
     return formatPreflightPack(result, args.query);
   }

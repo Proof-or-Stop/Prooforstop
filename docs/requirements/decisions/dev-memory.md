@@ -54,6 +54,30 @@ Required fields (validation enforced at write and read time):
 
 Optional fields: `tags`, `sourceStoryId`, `evidenceRefs`.
 
+### Supersession Projection
+
+Dev-memory entries are append-only. Legacy entries are not rewritten when product or project terminology changes. Instead, current entries can supersede older entries by using existing optional fields:
+
+- `tags`: include `supersedes-<id>`
+- `evidenceRefs`: include `dev-memory:<id>`
+
+The dev-memory reader computes supersession status from those fields at read time:
+
+- A current entry that cites older IDs is marked `supersedes <id>`.
+- An older entry cited by a current entry remains readable and is marked `superseded / legacy-readable`.
+- Search and preflight prefer the current superseding entry ahead of the superseded legacy entry when both are relevant.
+- List output keeps both entries visible, with their computed supersession status annotated.
+
+Supersession is a presentation and ranking projection only. It does not delete, edit, hide, or promote legacy entries, and it does not change their authority status.
+
+The legacy Koala lessons captured during B-ad2c remain readable as historical context. Current Proofbound/Lattice replacement memories should cite those legacy IDs through `dev-memory:<id>` evidence refs and/or `supersedes-<id>` tags so searches for old Koala terminology surface current Proofbound/Lattice guidance first.
+
+Supersession metadata is still **non-authoritative**:
+
+- `gateEvidence` remains **always `false`**.
+- `authority` remains **always `"non_authoritative"`**.
+- A superseding entry cannot satisfy delivery, review, test, receipt, DONE, or production authority gates.
+
 ### Categories
 
 - `failure-mode` — something that went wrong and how to avoid it

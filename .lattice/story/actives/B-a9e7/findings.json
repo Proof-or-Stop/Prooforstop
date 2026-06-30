@@ -1,0 +1,53 @@
+{
+  "findings": [
+    {
+      "id": "B-a9e7:F-001",
+      "desc": "dev-memory-supersession-smoke covers the core projection/display happy path, but it does not cover the full CHK-001..CHK-004 must intent matrix recorded for this story. The smoke seeds one synthetic legacy/current pair where the current entry contains both tags:[supersedes-legacy1] and evidenceRefs:[dev-memory:legacy1] (packages/main/src/tasks/dev-memory-supersession-smoke.ts:51-60), so a regression in either standalone supersession mechanism would still pass even though CHK-002:happy promises both tag and evidenceRef inputs. It also does not exercise CHK-001 happy actual global/project Koala inventory across the recorded legacy ids, CHK-001 edge unmatched legacy readability, CHK-001 adversarial no rewrite/delete of historical evidenceRefs, or CHK-003 happy/edge actual superseding memories for reviewer/delivery/CLI/preflight lessons. The assertions at packages/main/src/tasks/dev-memory-supersession-smoke.ts:82-129 do cover search/preflight ordering, visible superseded/supersedes annotations, legacy readability for a matched superseded row, non_authoritative/gateEvidence=false fixture fields, and one Proofbound/Lattice mapping, but the missing cases mean the smoke is not sufficient coverage for the stated CHK-001..CHK-004 happy/edge/adversarial verification intents.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-06-30T16:07:44.370Z",
+      "reviewRound": "2026-06-30T16:04:28.880Z",
+      "reviewRunId": "B-a9e7:RR-003",
+      "_hash": "eb8ea669a4ef32f28d8248683b5bca53b72e5cd8f81a55e90b6239f1643828b9",
+      "files": [
+        "packages/main/src/tasks/dev-memory-supersession-smoke.ts",
+        "packages/main/src/core/dev-memory.ts",
+        "docs/requirements/decisions/dev-memory.md"
+      ],
+      "signatureTag": "missing|ts|memory-supersession-smoke",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Expanded dev-memory-supersession-smoke from narrow single-pair fixture to a 16-check matrix covering tag-only supersession, evidenceRef-only supersession, five known legacy Koala ids, unmatched legacy readability, no rewrite/delete of historical evidenceRefs/content, search/preflight ordering, non-authoritative invariants, and actual committed B-a9e7 project memory entries. Verified with npm --prefix packages/main run build and node packages/main/dist/tasks/dev-memory-supersession-smoke.js.",
+      "resolvedAt": "2026-06-30T16:18:45.989Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-a9e7:F-002",
+      "desc": "Verified blocker: current project/global dev-memory retrieval does not consistently rank current Proofbound/Lattice superseding entries ahead of old Koala entries, despite docs/requirements/decisions/dev-memory.md:68 and :73 requiring search/preflight to surface current guidance first. Repro: `lattice dev_memory_search --query=\"koala cli\" --global --limit=10 --json` returns old global Koala entry 2de5d6b before current project entry 148297b, and `lattice dev_memory_preflight --query=\"koala cli\" --maxEntries=10 --json` does the same. `lattice dev_memory_search --query=\"koala reviewer\" --global --limit=10 --json` also puts old a6832a1/c948c85 ahead of current 34e97f9. The new project memories cite/supersede the old ids and remain non-authoritative (.lattice/dev-memory/experience.jsonl:1-5), so historical retention and authority status are fine; the conceptual failure is the live cross-scope ranking/proof. The expanded smoke mostly verifies synthetic fixtures plus actual project entries exist/cite legacy ids (packages/main/src/tasks/dev-memory-supersession-smoke.ts:367-411), leaving the real project+global ranking gap uncovered.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-concept",
+      "createdAt": "2026-06-30T16:21:20.817Z",
+      "reviewRound": "2026-06-30T16:18:32.080Z",
+      "reviewRunId": "B-a9e7:RR-007",
+      "_hash": "23e5cb1d4d952e45cd019bf1626cae6b29238bbc7c72ff3316bc2994eaa903ff",
+      "files": [
+        "packages/main/src/core/dev-memory.ts",
+        "packages/main/src/tasks/dev-memory-supersession-smoke.ts",
+        "docs/requirements/decisions/dev-memory.md",
+        ".lattice/dev-memory/experience.jsonl"
+      ],
+      "signatureTag": "missing|ts|verified-blocker-current",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed live project+global ranking by adding explicit legacy-search tags to the five current B-a9e7 Proofbound/Lattice memory rows without editing old global rows, and expanded dev-memory-supersession-smoke to 18 checks covering actual project+global current-before-legacy ranking plus legacy token-scorer compatibility. Verified with npm --prefix packages/main run build, node packages/main/dist/tasks/dev-memory-supersession-smoke.js, lattice dev_memory_search --query=\"koala cli\" --global --limit=10 --json, lattice dev_memory_preflight --query=\"koala cli\" --maxEntries=10 --json, and spot checks for koala reviewer/delivery/preflight.",
+      "resolvedAt": "2026-06-30T17:01:10.108Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    }
+  ]
+}

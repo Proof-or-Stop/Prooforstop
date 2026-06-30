@@ -78,6 +78,29 @@ export interface DevMemoryEntry {
   authority: 'non_authoritative';
 }
 
+export interface DevMemorySupersessionStatus {
+  supersedes: string[];
+  supersededBy: string[];
+  isSuperseding: boolean;
+  isSuperseded: boolean;
+}
+
+export type DevMemorySupersessionProjection = Map<string, DevMemorySupersessionStatus>;
+
+export interface DevMemoryEntryView extends DevMemoryEntry {
+  supersession: DevMemorySupersessionStatus;
+}
+
+const EMPTY_SUPERSESSION_STATUS: DevMemorySupersessionStatus = {
+  supersedes: [],
+  supersededBy: [],
+  isSuperseding: false,
+  isSuperseded: false,
+};
+
+const SUPERSEDES_TAG_PREFIX = 'supersedes-';
+const DEV_MEMORY_REF_PREFIX = 'dev-memory:';
+
 // ---------------------------------------------------------------------------
 // Schema validation
 // ---------------------------------------------------------------------------
@@ -261,6 +284,90 @@ export function writeEntries(filePath: string, entries: DevMemoryEntry[]): void 
 }
 
 // ---------------------------------------------------------------------------
+// Supersession projection
+// ---------------------------------------------------------------------------
+
+function uniqueValues(values: Iterable<string>): string[] {
+  return [...new Set([...values].filter(v => v.trim().length > 0))].sort();
+}
+
+export function getSupersededIds(entry: DevMemoryEntry): string[] {
+  const ids: string[] = [];
+  for (const tag of entry.tags || []) {
+    if (tag.startsWith(SUPERSEDES_TAG_PREFIX)) {
+      const id = tag.slice(SUPERSEDES_TAG_PREFIX.length).trim();
+      if (id.length > 0) ids.push(id);
+    }
+  }
+  for (const ref of entry.evidenceRefs || []) {
+    if (ref.startsWith(DEV_MEMORY_REF_PREFIX)) {
+      const id = ref.slice(DEV_MEMORY_REF_PREFIX.length).trim();
+      if (id.length > 0) ids.push(id);
+    }
+  }
+  return uniqueValues(ids);
+}
+
+export function buildSupersessionProjection(entries: DevMemoryEntry[]): DevMemorySupersessionProjection {
+  const projection: DevMemorySupersessionProjection = new Map();
+  const ensure = (id: string): DevMemorySupersessionStatus => {
+    const existing = projection.get(id);
+    if (existing) return existing;
+    const created: DevMemorySupersessionStatus = {
+      supersedes: [],
+      supersededBy: [],
+      isSuperseding: false,
+      isSuperseded: false,
+    };
+    projection.set(id, created);
+    return created;
+  };
+
+  for (const entry of entries) {
+    ensure(entry.id);
+  }
+
+  for (const entry of entries) {
+    const status = ensure(entry.id);
+    status.supersedes = uniqueValues([...status.supersedes, ...getSupersededIds(entry)]);
+    status.isSuperseding = status.supersedes.length > 0;
+    for (const supersededId of status.supersedes) {
+      const supersededStatus = ensure(supersededId);
+      supersededStatus.supersededBy = uniqueValues([...supersededStatus.supersededBy, entry.id]);
+      supersededStatus.isSuperseded = supersededStatus.supersededBy.length > 0;
+    }
+  }
+
+  return projection;
+}
+
+export function getSupersessionStatus(
+  entryOrId: DevMemoryEntry | string,
+  projection: DevMemorySupersessionProjection,
+): DevMemorySupersessionStatus {
+  const id = typeof entryOrId === 'string' ? entryOrId : entryOrId.id;
+  return projection.get(id) || EMPTY_SUPERSESSION_STATUS;
+}
+
+export function attachSupersessionStatus(
+  entry: DevMemoryEntry,
+  projection: DevMemorySupersessionProjection,
+): DevMemoryEntryView {
+  return {
+    ...entry,
+    supersession: getSupersessionStatus(entry, projection),
+  };
+}
+
+function directlySupersedes(
+  projection: DevMemorySupersessionProjection,
+  supersedingId: string,
+  supersededId: string,
+): boolean {
+  return getSupersessionStatus(supersedingId, projection).supersedes.includes(supersededId);
+}
+
+// ---------------------------------------------------------------------------
 // Entry creation
 // ---------------------------------------------------------------------------
 
@@ -359,11 +466,50 @@ function scoreEntry(entry: DevMemoryEntry, opts: SearchOptions): number {
   return score;
 }
 
+interface SupersessionAwareScore {
+  entry: DevMemoryEntry;
+  score: number;
+  baseScore: number;
+  inheritedScore: number;
+}
+
+function scoreEntryWithSupersession(
+  entry: DevMemoryEntry,
+  opts: SearchOptions,
+  byId: Map<string, DevMemoryEntry>,
+  projection: DevMemorySupersessionProjection,
+): SupersessionAwareScore {
+  const baseScore = scoreEntry(entry, opts);
+  let inheritedScore = 0;
+  const q = (opts.query || '').trim();
+
+  if (q.length > 0) {
+    for (const supersededId of getSupersessionStatus(entry, projection).supersedes) {
+      const superseded = byId.get(supersededId);
+      if (!superseded) continue;
+      inheritedScore = Math.max(inheritedScore, scoreEntry(superseded, { query: opts.query }));
+    }
+  }
+
+  const score = Math.max(baseScore, inheritedScore);
+  return { entry, score, baseScore, inheritedScore };
+}
+
 export function searchEntries(entries: DevMemoryEntry[], opts: SearchOptions): DevMemoryEntry[] {
+  const byId = new Map(entries.map(e => [e.id, e]));
+  const projection = buildSupersessionProjection(entries);
   const scored = entries
-    .map(e => ({ entry: e, score: scoreEntry(e, opts) }))
+    .map(e => scoreEntryWithSupersession(e, opts, byId, projection))
     .filter(({ score }) => !opts.query && !opts.category && !opts.agent && !opts.tags?.length ? true : score > 0)
-    .sort((a, b) => b.score - a.score || b.entry.createdAt.localeCompare(a.entry.createdAt));
+    .sort((a, b) => {
+      const aSupersedesB = directlySupersedes(projection, a.entry.id, b.entry.id);
+      const bSupersedesA = directlySupersedes(projection, b.entry.id, a.entry.id);
+      if (aSupersedesB !== bSupersedesA) return aSupersedesB ? -1 : 1;
+      return b.score - a.score
+        || b.inheritedScore - a.inheritedScore
+        || b.baseScore - a.baseScore
+        || b.entry.createdAt.localeCompare(a.entry.createdAt);
+    });
   const limit = opts.limit ?? 20;
   return scored.slice(0, limit).map(s => s.entry);
 }
@@ -401,6 +547,7 @@ export interface PreflightResult {
   entries: DevMemoryEntry[];
   lineCount: number;
   truncated: boolean;
+  supersessionProjection: DevMemorySupersessionProjection;
 }
 
 export function buildPreflightPack(opts: PreflightOptions): PreflightResult {
@@ -426,8 +573,8 @@ export function buildPreflightPack(opts: PreflightOptions): PreflightResult {
     ? searchEntries(allEntries, searchOpts)
     : allEntries.slice(-Math.min(opts.maxEntries ?? 5, allEntries.length)).reverse();
 
-  // Estimate line count: header(2) + per-entry(~4 lines) + footer(1)
-  const estimatedLines = 2 + relevant.length * 4 + 1;
+  // Estimate line count: header(2) + per-entry(~5 lines) + footer(1)
+  const estimatedLines = 2 + relevant.length * 5 + 1;
   const maxLines = opts.maxLines ?? 60;
   const truncated = estimatedLines > maxLines;
 
@@ -435,6 +582,7 @@ export function buildPreflightPack(opts: PreflightOptions): PreflightResult {
     entries: relevant,
     lineCount: estimatedLines,
     truncated,
+    supersessionProjection: buildSupersessionProjection(allEntries),
   };
 }
 
@@ -442,14 +590,31 @@ export function buildPreflightPack(opts: PreflightOptions): PreflightResult {
 // Formatting helpers
 // ---------------------------------------------------------------------------
 
-export function formatEntryShort(e: DevMemoryEntry): string {
+function formatSupersessionStatus(status: DevMemorySupersessionStatus): string | null {
+  const parts: string[] = [];
+  if (status.isSuperseding) parts.push(`supersedes ${status.supersedes.join(', ')}`);
+  if (status.isSuperseded) {
+    parts.push(`superseded / legacy-readable (superseded by ${status.supersededBy.join(', ')})`);
+  }
+  return parts.length > 0 ? parts.join('; ') : null;
+}
+
+export function formatEntryShort(
+  e: DevMemoryEntry,
+  projection?: DevMemorySupersessionProjection,
+): string {
   const tags = e.tags && e.tags.length > 0 ? ` [${e.tags.join(', ')}]` : '';
+  const status = projection ? formatSupersessionStatus(getSupersessionStatus(e, projection)) : null;
   const lines = [
     `[${e.id}] ${e.category} | ${e.scope} | agent: ${e.sourceAgent}${tags}`,
+  ];
+  if (status) lines.push(`  Status  : ${status}`);
+  lines.push(
     `  Summary : ${e.summary}`,
     `  Lesson  : ${e.lesson}`,
     `  Reuse   : ${e.reusePrompt}`,
-  ];
+    `  Authority: gateEvidence=false, authority=non_authoritative`,
+  );
   if (e.sourceStoryId) lines.push(`  Source  : ${e.sourceStoryId} (non_authoritative)`);
   if (e.evidenceRefs && e.evidenceRefs.length > 0) {
     lines.push(`  Refs    : ${e.evidenceRefs.join(', ')}`);
@@ -465,7 +630,7 @@ export function formatPreflightPack(result: PreflightResult, query?: string): st
   if (query) lines.push(`  query: "${query}"`);
   lines.push('');
   for (const e of result.entries) {
-    lines.push(formatEntryShort(e));
+    lines.push(formatEntryShort(e, result.supersessionProjection));
     lines.push('');
   }
   if (result.truncated) {

@@ -1,0 +1,56 @@
+{
+  "storyId": "B-a9e7",
+  "changes": "Added append-only dev-memory supersession projection and visible legacy-readable annotations; added five current Proofbound/Lattice project memories that supersede old legacy memory ids; expanded dev-memory supersession smoke to 18 checks; added legacy-search metadata so live global search and preflight rank current guidance before old rows without rewriting historical entries.",
+  "usage": "Run lattice dev_memory_search --query=\"koala cli\" --global --limit=5, lattice dev_memory_preflight --query=\"koala cli\" --maxEntries=5, or lattice dev_memory_list --scope=project --limit=10 to see current Proofbound/Lattice guidance before preserved legacy rows.",
+  "expectedOutcome": "A legacy-brand query such as koala cli should show the current Proofbound/Lattice memory 148297b before old memory 2de5d6b, while old evidence remains readable and non-authoritative.",
+  "actualTranscript": "Live transcript evidence shows dev_memory_search --query=\"koala cli\" returns 148297b first and preserves 2de5d6b later; dev-memory-supersession smoke passes 18 checks; DONE-required validation passes packages/main build and root npm test.",
+  "outcomeDiff": "No user-visible difference from expectation: current guidance ranks first, old rows remain readable, and source residue scanner is clean.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Legacy brand text still exists only as historical memory content, legacy query terms, and evidence refs needed for auditability; it is superseded and non-authoritative, not active product naming or gate evidence.",
+  "pitfalls": "Two blockers were found and fixed: initial smoke coverage was too synthetic, and live global search used legacy token scoring. A later DONE-required run exposed source residue in the smoke fixture; the worker fixed it by constructing legacy tokens dynamically while preserving assertions.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 158470
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 35846
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 314267
+    },
+    "DEV": {
+      "count": 5,
+      "durationMs": 3838564
+    },
+    "REVIEW": {
+      "count": 5,
+      "durationMs": 2028127
+    },
+    "TEST": {
+      "count": 3,
+      "durationMs": 885168
+    }
+  },
+  "totalDurationMs": 7260443,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-30T17:40:16.531Z",
+  "updatedAt": "2026-06-30T17:40:16.531Z"
+}

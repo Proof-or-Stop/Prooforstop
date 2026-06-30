@@ -1,0 +1,27 @@
+{
+  "task": "Clean up legacy Koala terminology in dev-memory through supersession rather than rewriting history.",
+  "outcome": "When the user runs dev_memory_preflight or dev_memory_search for Koala/reviewer/delivery lessons, the terminal shows current Proofbound/Lattice guidance first and marks old Koala entries as superseded/legacy-readable instead of active guidance.",
+  "facts": [
+    "Project dev-memory currently contains host-policy entries including 9bd6b5a superseding d6f173d.",
+    "Global dev-memory contains older entries with Koala terms such as koala-review-delivery, koala-review-*, .koala/story/done, and koala-cli.",
+    "Dev-memory entries are non-authoritative context and must not satisfy Proofbound gates.",
+    "Current core dev-memory search/list/preflight has no explicit supersession model; newest/search score controls order.",
+    "Decision resolved the representation question: supersession will be a computed projection over existing tags/evidenceRefs, not an in-place legacy rewrite."
+  ],
+  "constraints": [
+    "Do not rewrite historical global memory entries in place.",
+    "Do not delete legacy evidenceRefs.",
+    "Do not use .omx or omx.",
+    "Do not modify unrelated active stories such as B-c004, B-4387, or B-fbb6.",
+    "Keep old entries readable for audit but mark them superseded when a newer entry supersedes them."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/dev-memory.ts",
+    "packages/main/src/handlers/dev-memory.ts",
+    "packages/main/src/tasks/dev-memory-supersession-smoke.ts",
+    "docs/requirements/decisions/dev-memory.md",
+    ".lattice/dev-memory/experience.jsonl"
+  ],
+  "timestamp": "2026-06-30T15:44:48.741Z"
+}

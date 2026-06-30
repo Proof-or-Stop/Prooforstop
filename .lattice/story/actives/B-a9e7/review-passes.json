@@ -1,0 +1,139 @@
+{
+  "passes": [
+    {
+      "id": "B-a9e7:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Concept pass: inspected dev-memory supersession projection and worktree CLI output. Current Proofbound/Lattice project memories cite legacy Koala ids with supersedes-* tags and dev-memory:* refs; worktree search/preflight rank current entries before superseded global Koala entries, keep legacy entries readable with legacy-readable annotations, and print gateEvidence=false/authority=non_authoritative. dev_memory_list remains scoped but annotates visible supersession status and does not promote dev-memory into gate evidence.",
+      "createdAt": "2026-06-30T16:07:04.164Z",
+      "reviewRound": "2026-06-30T16:04:28.880Z",
+      "reviewRunId": "B-a9e7:RR-001",
+      "_hash": "2fcd1584e9ec92f102869c5a4a098379ec4acb135e983312a7743dce31acc9e3"
+    },
+    {
+      "id": "B-a9e7:RP-002",
+      "agent": "lattice-review-quality",
+      "note": "Quality review passed: reviewed packages/main/src/core/dev-memory.ts, packages/main/src/handlers/dev-memory.ts, docs/requirements/decisions/dev-memory.md, and packages/main/src/tasks/dev-memory-supersession-smoke.ts. Supersession projection is append-only/read-time, preserves non-authoritative dev-memory status, handler JSON/text outputs attach status without mutating entries, and smoke coverage exercises ordering, annotation, legacy terminology mapping, and authority invariants. Verified with npm --prefix packages/main exec tsc -- --noEmit -p packages/main/tsconfig.json and a temporary outDir run of dev-memory-supersession-smoke.js; both passed.",
+      "createdAt": "2026-06-30T16:07:47.174Z",
+      "reviewRound": "2026-06-30T16:04:28.880Z",
+      "reviewRunId": "B-a9e7:RR-002",
+      "_hash": "230eb306ee047f9c080642ceeaa0b12a1adb1b80de1de38affbe95ff1877d4fc"
+    },
+    {
+      "id": "B-a9e7:RP-003",
+      "agent": "lattice-review-docs",
+      "note": "Docs review passed: docs/requirements/decisions/dev-memory.md states supersession is advisory/non-authoritative, preserves historical legacy entries as readable context, and directs current Proofbound/Lattice replacement memories to supersede legacy Koala wording. Verified local user-facing behavior with node packages/main/dist/cli.js dev_memory_search/preflight/list and node packages/main/dist/tasks/dev-memory-supersession-smoke.js.",
+      "createdAt": "2026-06-30T16:08:25.924Z",
+      "reviewRound": "2026-06-30T16:04:28.880Z",
+      "reviewRunId": "B-a9e7:RR-006",
+      "_hash": "ec3da8ac3667d4abdd6138affb07175a0c675043c6777901247a66022f3e8e55"
+    },
+    {
+      "id": "B-a9e7:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "Re-reviewed resolved blocker B-a9e7:F-001 after smoke expansion. packages/main/src/tasks/dev-memory-supersession-smoke.ts now covers CHK-001..CHK-004 must intents for tag-only and evidenceRef-only supersession, all five legacy ids, unmatched legacy readability, no rewrite/delete of historical refs/content, search/preflight ordering, actual B-a9e7 project memories, and gateEvidence=false/non_authoritative invariants; compiled smoke passed with 16 checks.",
+      "createdAt": "2026-06-30T16:21:18.907Z",
+      "reviewRound": "2026-06-30T16:18:32.080Z",
+      "reviewRunId": "B-a9e7:RR-009",
+      "_hash": "3ce3f5397e2b2cc725c544ac3ac4d6ae45ba78f9a18ba65bf82e496145aa6434"
+    },
+    {
+      "id": "B-a9e7:RP-005",
+      "agent": "lattice-review-docs",
+      "note": "Docs review round 2 after smoke expansion: PASS. Reviewed docs/requirements/decisions/dev-memory.md, packages/main/src/core/dev-memory.ts, packages/main/src/handlers/dev-memory.ts, packages/main/src/tasks/dev-memory-supersession-smoke.ts, and .lattice/dev-memory/experience.jsonl. Verified docs state append-only supersession, legacy Koala entries remain readable, current Proofbound/Lattice guidance is preferred by current worktree search/preflight behavior, and all dev-memory entries remain gateEvidence=false/authority=non_authoritative. Ran node packages/main/dist/tasks/dev-memory-supersession-smoke.js: 16 checks passed; also checked worktree CLI node packages/main/dist/cli.js dev_memory_search/preflight for koala terms. No blocker.",
+      "createdAt": "2026-06-30T16:22:09.354Z",
+      "reviewRound": "2026-06-30T16:18:32.080Z",
+      "reviewRunId": "B-a9e7:RR-010",
+      "_hash": "30d539a23f8c93fde9dd8da98129089837d70c2139ed5cd0c6702b47e4cd841e"
+    },
+    {
+      "id": "B-a9e7:RP-006",
+      "agent": "lattice-review-quality",
+      "note": "Quality review round 2 after smoke expansion: reviewed dev-memory supersession implementation and changed smoke for type safety, deterministic behavior, and actual project-memory coverage. Build and compiled smoke passed; no blocking quality findings.",
+      "createdAt": "2026-06-30T16:22:24.169Z",
+      "reviewRound": "2026-06-30T16:18:32.080Z",
+      "reviewRunId": "B-a9e7:RR-008",
+      "_hash": "3f26e3de792187b6c5ee76235f8b1c70d0e1a5e15fb7393658bdbca5ab558d26"
+    },
+    {
+      "id": "B-a9e7:RP-007",
+      "agent": "lattice-review-docs",
+      "note": "Docs lane PASS: docs/requirements/decisions/dev-memory.md matches F-002 behavior. It documents append-only supersession, keeps legacy Koala memories readable, prefers current Proofbound/Lattice guidance in search/preflight/list projection, preserves dev-memory as non-authoritative context, and is consistent with legacy Koala search tokens being metadata for discovery rather than active product guidance.",
+      "createdAt": "2026-06-30T17:03:10.205Z",
+      "reviewRound": "2026-06-30T17:00:51.690Z",
+      "reviewRunId": "B-a9e7:RR-011",
+      "_hash": "baf894fd14cee76a251022e7bb52c2f93966802a5639114d1c9e782113e2e954"
+    },
+    {
+      "id": "B-a9e7:RP-008",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test coverage lane reviewed F-001/F-002 smoke coverage: tag and evidenceRef supersession, actual project memory entries, project plus global ranking, legacy token scorer compatibility, readable old rows, and non-authoritative invariants. node packages/main/dist/tasks/dev-memory-supersession-smoke.js passed 18 checks; no blocker found.",
+      "createdAt": "2026-06-30T17:03:16.889Z",
+      "reviewRound": "2026-06-30T17:00:51.690Z",
+      "reviewRunId": "B-a9e7:RR-014",
+      "_hash": "e8998f60c36903f38627aeb72bd8ea728594e56c14f9374e54974b649298bb33"
+    },
+    {
+      "id": "B-a9e7:RP-009",
+      "agent": "lattice-review-quality",
+      "note": "PASS: reviewed F-002 .lattice/dev-memory/experience.jsonl tag additions and packages/main/src/tasks/dev-memory-supersession-smoke.ts actual project/global plus legacy token scorer checks. npm --prefix packages/main run build and node packages/main/dist/tasks/dev-memory-supersession-smoke.js passed. No brittle active Koala guidance regression found.",
+      "createdAt": "2026-06-30T17:03:25.031Z",
+      "reviewRound": "2026-06-30T17:00:51.690Z",
+      "reviewRunId": "B-a9e7:RR-013",
+      "_hash": "dc35455114340e6a2f489b7352e47ffd6b9a5526da9a63ca8a1f0a7a73dc61b6"
+    },
+    {
+      "id": "B-a9e7:RP-010",
+      "agent": "lattice-review-concept",
+      "note": "F-002 genuinely fixed. Fresh live probes show koala cli search/preflight return current Proofbound/Lattice project guidance 148297b before old global 2de5d6b while preserving the old row; spot checks for koala reviewer, koala delivery, and koala preflight also rank current B-a9e7 project rows before legacy global rows. .lattice/dev-memory/experience.jsonl contains five current project supersession rows with gateEvidence=false and authority=non_authoritative, and packages/main/src/tasks/dev-memory-supersession-smoke.ts now covers actual project+global current-before-legacy ranking, legacy token scorer compatibility, preserved legacy content/refs, and non-authoritative semantics. node packages/main/dist/tasks/dev-memory-supersession-smoke.js passed 18 checks.",
+      "createdAt": "2026-06-30T17:03:59.857Z",
+      "reviewRound": "2026-06-30T17:00:51.690Z",
+      "reviewRunId": "B-a9e7:RR-012",
+      "_hash": "39cf492dd4b4d22c574764e0d3da4c848526b6ff7278a0731625c9032a99719b"
+    },
+    {
+      "id": "B-a9e7:RP-011",
+      "agent": "lattice-review-quality",
+      "note": "Targeted Round 4 re-review after scope acknowledgement: review_incremental_context for quality reports scopeChanged=false and changedFiles=(none) since prior PASS; the acknowledged delivery-context-pack path is story-owned delivery evidence metadata and does not change dev-memory behavior, tests, or public semantics. No blocking finding.",
+      "createdAt": "2026-06-30T17:29:06.532Z",
+      "reviewRound": "2026-06-30T17:28:36.224Z",
+      "reviewRunId": "B-a9e7:RR-015",
+      "_hash": "35171f57ff89b2e63eb4a57aa8a58e218e5a8b1a7d39c4617df5fd4b98f97151"
+    },
+    {
+      "id": "B-a9e7:RP-012",
+      "agent": "lattice-review-concept",
+      "note": "Concept re-review PASS: worker change keeps the concept intact. Legacy rows are still represented and readable, current Proofbound/Lattice entries still supersede and rank first, and the test no longer introduces active product-source legacy residue.",
+      "createdAt": "2026-06-30T17:34:12.832Z",
+      "reviewRound": "2026-06-30T17:33:36.600Z",
+      "reviewRunId": "B-a9e7:RR-016",
+      "_hash": "900c1f6f52ea0d48f0c7cbf256a0b5e93f75691d3d701542564ab0daecadbccc"
+    },
+    {
+      "id": "B-a9e7:RP-013",
+      "agent": "lattice-review-quality",
+      "note": "Quality re-review PASS: source change is limited to the smoke task, uses explicit local constants for dynamic legacy-token construction, keeps assertions readable, and avoids production behavior changes outside the intended test harness.",
+      "createdAt": "2026-06-30T17:34:26.737Z",
+      "reviewRound": "2026-06-30T17:33:36.600Z",
+      "reviewRunId": "B-a9e7:RR-017",
+      "_hash": "c761516658a472d58d32ff3207acd2f55c57a0bd3b74ccfb63c6cecd88447288"
+    },
+    {
+      "id": "B-a9e7:RP-014",
+      "agent": "lattice-review-test-coverage",
+      "note": "Test-coverage re-review PASS: worker reran build, dev-memory-supersession smoke, and lattice-residue; the smoke still reports 18 checks covering supersession, ranking, actual project/global memory, and non-authoritative behavior.",
+      "createdAt": "2026-06-30T17:34:33.783Z",
+      "reviewRound": "2026-06-30T17:33:36.600Z",
+      "reviewRunId": "B-a9e7:RR-018",
+      "_hash": "fa6cbc599ab7b06e41a37144340fce6148f810c9552bad2ff938934aebbbf6a4"
+    },
+    {
+      "id": "B-a9e7:RP-015",
+      "agent": "lattice-review-docs",
+      "note": "Docs re-review PASS: the Round 5 change is test-source residue cleanup only. Existing dev-memory doc still accurately describes append-only supersession, legacy readability, non-authoritative memory, and current guidance ranking; no doc promise changed.",
+      "createdAt": "2026-06-30T17:34:42.517Z",
+      "reviewRound": "2026-06-30T17:33:36.600Z",
+      "reviewRunId": "B-a9e7:RR-019",
+      "_hash": "f2a4b4980506242bdf60ffb1d80954d784f5363733ccb3bc1ae590ec36fdbd85"
+    }
+  ]
+}

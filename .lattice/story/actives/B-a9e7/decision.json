@@ -1,0 +1,70 @@
+{
+  "principles": [
+    "Preserve historical evidence rather than rewriting old memory text.",
+    "Make current Proofbound/Lattice guidance mechanically preferred in host preflight.",
+    "Keep dev-memory explicitly non-authoritative and outside gate evidence."
+  ],
+  "drivers": [
+    "Old Koala wording can mislead future hosts if surfaced as active guidance.",
+    "Users need a reviewable table/output showing which memories are current versus legacy.",
+    "Implementation should be small and avoid broad branding cleanup."
+  ],
+  "options": [
+    {
+      "name": "A: computed supersession projection over existing memory fields",
+      "pros": [
+        "No schema-breaking migration required",
+        "Old entries stay readable",
+        "Can rank superseding entries first and annotate superseded entries"
+      ],
+      "cons": [
+        "Requires careful parsing of tags/evidenceRefs",
+        "Old raw JSON still contains legacy wording"
+      ]
+    },
+    {
+      "name": "B: rewrite legacy memory entries in place",
+      "pros": [
+        "Raw memory text becomes clean immediately"
+      ],
+      "cons": [
+        "Destroys historical wording/evidence provenance",
+        "Harder to audit what actually happened",
+        "Risky for global memory shared across contexts"
+      ]
+    },
+    {
+      "name": "C: add only new superseding memories without code changes",
+      "pros": [
+        "Fast and low risk"
+      ],
+      "cons": [
+        "Preflight/search may still surface old Koala entries first",
+        "Does not solve the host-misleading behavior mechanically"
+      ]
+    }
+  ],
+  "chosen": "A: computed supersession projection over existing memory fields",
+  "rationale": "Option A gives the behavior the user wants without falsifying history: old Koala memories remain auditable, but current Proofbound/Lattice entries can rank first and mark legacy entries as superseded in visible outputs.",
+  "preMortem": [
+    {
+      "scenario": "A future host still follows a Koala memory as active guidance",
+      "trigger": "Preflight/search returns a legacy Koala entry before the superseding Proofbound entry",
+      "consequence": "Host uses stale names or wrong reviewer labels",
+      "mitigation": "Add supersession-aware ordering and visible superseded annotations with smoke coverage."
+    },
+    {
+      "scenario": "Cleanup rewrites or deletes historical evidence",
+      "trigger": "Implementation edits global JSONL old rows directly",
+      "consequence": "Audit trail is weakened and old evidenceRefs become misleading",
+      "mitigation": "Only append superseding entries and compute projection metadata at read/search/preflight time."
+    },
+    {
+      "scenario": "Supersession mechanism looks like gate evidence",
+      "trigger": "New fields or docs imply memory can satisfy DONE/review gates",
+      "consequence": "Dev-memory boundary is weakened",
+      "mitigation": "Keep authority non_authoritative, gateEvidence false, and document supersession as advisory context only."
+    }
+  ],
+  "timestamp": "2026-06-30T15:43:20.822Z"
+}
