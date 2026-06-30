@@ -6,7 +6,40 @@
       "context": "Tracked .lattice/dev-memory/experience.jsonl should contain current Proofbound/Lattice lessons only; remove legacy-koala/koala-* tags and Legacy Koala prose while preserving the useful current lessons.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "User sees no Koala/koala/.koala hits when scanning project dev-memory after cleanup.",
+      "files": {
+        "modify": [
+          ".lattice/dev-memory/experience.jsonl"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/dev-memory-supersession-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Tracked project dev-memory contains current Proofbound/Lattice entries without Koala/koala/.koala text or legacy-koala/koala-* tags.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Current host-policy memories d6f173d and 9bd6b5a remain present after cleanup.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No project dev-memory entry can keep old brand text hidden in tags, trigger, reusePrompt, or evidenceRefs.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",

@@ -1,0 +1,60 @@
+{
+  "principles": [
+    "Prefer physical cleanup because the user explicitly rejected legacy retention.",
+    "Preserve current useful lessons and unrelated host-policy memory.",
+    "Make cleanup measurable with zero old-brand memory hits."
+  ],
+  "drivers": [
+    "Repeated old-brand memory hits waste user time.",
+    "Only the user consumes this memory, so compatibility value is low.",
+    "Global and project memory both affect preflight/search results."
+  ],
+  "options": [
+    {
+      "name": "A: physical cleanup of project and global dev-memory",
+      "pros": [
+        "Matches user intent directly",
+        "Eliminates old-brand search noise",
+        "Simpler than supersession compatibility"
+      ],
+      "cons": [
+        "Removes historical memory rows from global dev-memory",
+        "Requires careful filtering to avoid deleting unrelated entries"
+      ]
+    },
+    {
+      "name": "B: keep supersession and hide old rows in UI",
+      "pros": [
+        "Preserves historical rows",
+        "Lower data deletion risk"
+      ],
+      "cons": [
+        "Still leaves old terms in storage",
+        "Does not satisfy user request for physical cleanup"
+      ]
+    }
+  ],
+  "chosen": "A: physical cleanup of project and global dev-memory",
+  "rationale": "Choose physical cleanup because the user explicitly said no legacy-koala tags or compatibility are needed, and the measurable goal is zero old-brand dev-memory hits.",
+  "preMortem": [
+    {
+      "scenario": "Deletes unrelated useful memory",
+      "trigger": "Filter matches broad words outside old brand terms",
+      "consequence": "Loss of unrelated host or workflow lessons",
+      "mitigation": "Filter only entries containing Koala, koala, .koala, or legacy-koala, and inspect IDs before write."
+    },
+    {
+      "scenario": "Project entries still contain old brand in tags",
+      "trigger": "Only old global rows are deleted",
+      "consequence": "Search still returns old-brand hits from current project rows",
+      "mitigation": "Rewrite project entries to current Proofbound/Lattice wording and remove legacy-koala/koala-* tags."
+    },
+    {
+      "scenario": "Smoke still expects legacy readability",
+      "trigger": "Test file not updated after policy change",
+      "consequence": "Future tests preserve old behavior and reintroduce tags",
+      "mitigation": "Update smoke to assert zero old-brand terms and current memory preservation."
+    }
+  ],
+  "timestamp": "2026-06-30T22:00:02.847Z"
+}
