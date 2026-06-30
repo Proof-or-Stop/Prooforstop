@@ -4,8 +4,8 @@
       "id": "CHK-001",
       "title": "Add ProofStory guidance to active reviewer prompts and story_review advisory rendering",
       "context": "Covers M0/M3/M8 gaps: active prompts must name ProofStory review responsibilities, and story_review should show ProofStory advisory diagnostics before DEV.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-30T01:13:31.356Z",
       "endTime": null,
       "relatedDocs": [
         "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md#M8-REVIEW-Completeness-Critic-Integration"
@@ -395,6 +395,17 @@
           }
         ]
       }
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-30T01:13:31.356Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "DEV: lattice-implementer is implementing this item; completion still requires document cross-check, code evidence, and verification evidence."
     }
   ]
 }
