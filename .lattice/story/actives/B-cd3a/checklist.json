@@ -333,9 +333,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md#CP-5B-Queue-Governance-Guard"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-30T09:44:55.037Z",
-      "endTime": null,
+      "endTime": "2026-06-30T09:58:40.053Z",
       "files": {
         "modify": [
           "packages/main/src/core/lifecycle-control/queue/index.ts",
@@ -371,7 +371,42 @@
           }
         ]
       },
-      "userSees": "User sees queue governance report duplicate or superseded mutation risks without deleting experiment evidence or claiming lifecycle completion."
+      "userSees": "User sees queue governance report duplicate or superseded mutation risks without deleting experiment evidence or claiming lifecycle completion.",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js queue_governance_status --format=json",
+          "result": "pass",
+          "note": "Queue governance reports duplicateCandidate=0 for preserved Tier-C experiment stories while still surfacing active worktrees and cleanup-required rows for review.",
+          "headHash": "77f0e113f0399db07115fa283b511d1be929a06c",
+          "materialHash": "52fd19edbdb3ec0136c54356cb68ee93a28cb79461d05f02499b0d3ecb8edf5f",
+          "storyFilesHash": "ba9a71e879859c6a71fbc7ecedab3d8176ed409ce790cff7d6b956652d215d16",
+          "timestamp": "2026-06-30T09:58:40.716Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "manual_transcript",
+          "command": "node bin/lattice.js queue_governance_status --format=json",
+          "result": "pass",
+          "note": "Valid experiment batches keep cleanupPolicy=preserve and malformed experiment records remain visible as cleanup-required without deleting evidence.",
+          "headHash": "77f0e113f0399db07115fa283b511d1be929a06c",
+          "materialHash": "52fd19edbdb3ec0136c54356cb68ee93a28cb79461d05f02499b0d3ecb8edf5f",
+          "storyFilesHash": "ba9a71e879859c6a71fbc7ecedab3d8176ed409ce790cff7d6b956652d215d16",
+          "timestamp": "2026-06-30T09:58:41.651Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/lifecycle-control-smoke.js",
+          "result": "pass",
+          "note": "Smoke asserts queue exception success cannot grant readyForNextSafeAction or lifecycle completion readiness.",
+          "headHash": "77f0e113f0399db07115fa283b511d1be929a06c",
+          "materialHash": "52fd19edbdb3ec0136c54356cb68ee93a28cb79461d05f02499b0d3ecb8edf5f",
+          "storyFilesHash": "ba9a71e879859c6a71fbc7ecedab3d8176ed409ce790cff7d6b956652d215d16",
+          "timestamp": "2026-06-30T09:58:42.851Z"
+        }
+      ]
     },
     {
       "id": "CHK-006",
