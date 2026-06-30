@@ -150,9 +150,23 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-30T10:02:33.762Z",
-      "endTime": null
+      "endTime": "2026-06-30T10:02:41.449Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "bash -o pipefail -c 'node scripts/verify-process-fact-contract.mjs | tail -n 25'",
+          "result": "pass",
+          "note": "Process fact contract verifier now checks roadmap governance markers and completed successfully with Process fact contract verified.",
+          "headHash": "1f9d23e446780f703f543bda70c00b8594868f89",
+          "materialHash": "ee027bc0b99b5bc1b2f6e97d353abf7febe412ac723d51aa4238273920941810",
+          "storyFilesHash": "66d4ed0e3277a7244e11cb712d29c049e262b315a9ff3ea49a8ae6b1a3311c6b",
+          "timestamp": "2026-06-30T10:02:42.019Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
@@ -288,6 +302,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Recording M4 process-fact registry closure evidence."
+    },
+    {
+      "timestamp": "2026-06-30T10:02:41.449Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "M4 verifier marker surface is implemented and passing."
     }
   ]
 }
