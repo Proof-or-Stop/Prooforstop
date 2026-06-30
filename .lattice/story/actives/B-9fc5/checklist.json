@@ -51,7 +51,27 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Plan lists implementation milestones from red tests through evaluator, CLI/DONE integration, rollout, and certification.",
+            "type": "docs"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Plan includes migration and rollout behavior for legacy parent ledgers, repair, warn/enforce, and human-approved deferral.",
+            "type": "docs"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Plan names concrete gate consumers such as story_create/story_advance/summary/DONE/convergence so the design is not prose-only.",
+            "type": "docs"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
