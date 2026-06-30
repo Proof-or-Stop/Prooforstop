@@ -320,9 +320,9 @@
         "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
         "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-30T13:58:47.218Z",
       "userSees": "The user sees ProofStory diagnostics show parent-totality is bound to the original intent and does not shrink open rows away.",
       "files": {
         "modify": [
@@ -355,7 +355,42 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js --case=proofstory-binding",
+          "result": "pass",
+          "note": "Parent-roadmap binding consumes original intent snapshot, proofstory contract binding, row rollup, and summary wording to detect overclaim.",
+          "headHash": "cad0f4b99e755166408cee4f45321910579e090c",
+          "materialHash": "6271fc0625ed3905d2ec1e7fe95d4bf88cea05ead26427d7f57ba510b2d5460f",
+          "storyFilesHash": "1857852913c25f0da7da9c0dafbf9efc9106f01aca0406a61656dac590c6271b",
+          "timestamp": "2026-06-30T13:58:47.489Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js",
+          "result": "pass",
+          "note": "Existing B-5082 ProofStory local-intent gates still pass after adding the parent-roadmap totality module and commands.",
+          "headHash": "cad0f4b99e755166408cee4f45321910579e090c",
+          "materialHash": "6271fc0625ed3905d2ec1e7fe95d4bf88cea05ead26427d7f57ba510b2d5460f",
+          "storyFilesHash": "1857852913c25f0da7da9c0dafbf9efc9106f01aca0406a61656dac590c6271b",
+          "timestamp": "2026-06-30T13:58:47.715Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Process-fact contract verifies parent-roadmap commands and runtime claim-consumer fact are registered, so child-story-needed rows cannot be hidden behind narrower prose claims.",
+          "headHash": "cad0f4b99e755166408cee4f45321910579e090c",
+          "materialHash": "6271fc0625ed3905d2ec1e7fe95d4bf88cea05ead26427d7f57ba510b2d5460f",
+          "storyFilesHash": "1857852913c25f0da7da9c0dafbf9efc9106f01aca0406a61656dac590c6271b",
+          "timestamp": "2026-06-30T13:58:47.923Z"
+        }
+      ]
     },
     {
       "id": "CHK-006",
