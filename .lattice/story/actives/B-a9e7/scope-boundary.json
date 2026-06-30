@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-a9e7",
+  "mode": "maintenance",
+  "allowed": [
+    ".lattice/dev-memory/experience.jsonl project memory entries created by this cleanup",
+    "docs/requirements/decisions/dev-memory.md supersession semantics",
+    "packages/main/src/cli/command-catalog.ts dev_memory docs if needed",
+    "packages/main/src/core/dev-memory.ts",
+    "packages/main/src/handlers/dev-memory.ts",
+    "packages/main/src/tasks/dev-memory* smoke coverage"
+  ],
+  "excluded": [
+    "Do not delete legacy evidenceRefs",
+    "Do not modify unrelated active stories such as B-c004, B-4387, or B-fbb6",
+    "Do not perform broad Proofbound branding cleanup outside dev-memory supersession",
+    "Do not rewrite historical global dev-memory entries in place",
+    "Do not treat dev-memory as gate evidence"
+  ],
+  "confirmedBy": "codex",
+  "confirmationNote": "User requested Dev-memory legacy Koala terminology supersession cleanup after reviewing memory table on 2026-06-30; keep historical evidence, add superseding current guidance, and make preflight prefer current entries.",
+  "createdAt": "2026-06-30T15:41:45.118Z",
+  "updatedAt": "2026-06-30T15:41:45.118Z",
+  "_hash": "1bcb4d317e44d281e184a0a2930e48960d209248748537be46410c174a4cdd08"
+}

@@ -1,0 +1,49 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-a9e7",
+  "allowedCommands": [
+    "git add *",
+    "git commit *",
+    "git diff *",
+    "git status *",
+    "lattice checklist_*",
+    "lattice dev_memory_*",
+    "lattice review_*",
+    "lattice story_*",
+    "lattice validate*",
+    "node packages/main/dist/tasks/dev-memory*",
+    "node scripts/verify-process-fact-contract.mjs",
+    "npm --prefix packages/main run build",
+    "rg *",
+    "sed *"
+  ],
+  "allowedTools": [],
+  "allowedPaths": [
+    ".lattice/dev-memory",
+    ".lattice/story/actives/B-a9e7",
+    "docs/requirements/decisions/dev-memory.md",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/dev-memory.ts",
+    "packages/main/src/handlers/dev-memory.ts",
+    "packages/main/src/tasks"
+  ],
+  "excludedCommands": [
+    "git checkout --",
+    "git clean -fd",
+    "git reset --hard",
+    "omx",
+    "rm -rf .lattice/dev-memory"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".lattice/story/actives/B-4387",
+    ".lattice/story/actives/B-c004",
+    ".lattice/story/actives/B-fbb6",
+    ".omx"
+  ],
+  "confirmedBy": "codex",
+  "confirmationNote": "Limit execution to dev-memory supersession cleanup and verification; preserve legacy history and avoid active story interference.",
+  "createdAt": "2026-06-30T15:41:45.548Z",
+  "updatedAt": "2026-06-30T15:41:45.548Z",
+  "_hash": "21dfb35b818c857492399976d5652088ebfa3838127e321bcd379088ebf6a157"
+}
