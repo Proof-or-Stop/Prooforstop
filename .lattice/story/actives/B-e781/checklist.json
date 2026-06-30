@@ -55,10 +55,10 @@
           "command": "node scripts/verify-process-fact-contract.mjs && node bin/lattice.js parent_roadmap_status --storyId=B-43de --json",
           "result": "pass",
           "note": "M4 Process fact registry coverage is closed by its focused smoke/verifier and B-43de parent roadmap status reports the row closed with evidence refs.",
-          "headHash": "78b39657e0ba9e82122ef3dc5030c757f3fb2e29",
-          "materialHash": "0b93f5ce084fd2626de5fdab2fe3d755a31a1fb2d58ffc527dc2ea2e1bef7489",
-          "storyFilesHash": "0e4b608069894c4849b96893473bfaec8fe46da4855a5a21d7fe41716103565b",
-          "timestamp": "2026-06-30T23:19:21.168Z"
+          "headHash": "fcc117cab3e070c80273ceea39aaad3467453e19",
+          "materialHash": "2ed69e15b6a729fd679ffee7a7437cd1f315ea6ed0ff1937fe6685b54a222571",
+          "storyFilesHash": "333c85ff432f3c5f4763653d0ee56ed3e7ad49210ded5d49a725c5ad025f377a",
+          "timestamp": "2026-06-30T23:38:14.527Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -68,10 +68,10 @@
           "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js",
           "result": "pass",
           "note": "M4 cannot be closed by prose alone: parent-roadmap-totality-smoke requires row closureEvidence, claimBoundary, and legacy migration/open negative-control behavior.",
-          "headHash": "78b39657e0ba9e82122ef3dc5030c757f3fb2e29",
-          "materialHash": "0b93f5ce084fd2626de5fdab2fe3d755a31a1fb2d58ffc527dc2ea2e1bef7489",
-          "storyFilesHash": "0e4b608069894c4849b96893473bfaec8fe46da4855a5a21d7fe41716103565b",
-          "timestamp": "2026-06-30T23:19:21.168Z"
+          "headHash": "fcc117cab3e070c80273ceea39aaad3467453e19",
+          "materialHash": "2ed69e15b6a729fd679ffee7a7437cd1f315ea6ed0ff1937fe6685b54a222571",
+          "storyFilesHash": "333c85ff432f3c5f4763653d0ee56ed3e7ad49210ded5d49a725c5ad025f377a",
+          "timestamp": "2026-06-30T23:38:14.527Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -81,10 +81,10 @@
           "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js && ! rg -n \"M4-M12 remain follow-up|M4-M12 remain|remain follow-up milestones\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
           "result": "pass",
           "note": "M4 preserves claim boundaries: parent-roadmap-totality-smoke checks retired Authority overclaim patterns, and docs grep confirms the old follow-up wording is absent.",
-          "headHash": "78b39657e0ba9e82122ef3dc5030c757f3fb2e29",
-          "materialHash": "0b93f5ce084fd2626de5fdab2fe3d755a31a1fb2d58ffc527dc2ea2e1bef7489",
-          "storyFilesHash": "0e4b608069894c4849b96893473bfaec8fe46da4855a5a21d7fe41716103565b",
-          "timestamp": "2026-06-30T23:19:21.168Z"
+          "headHash": "fcc117cab3e070c80273ceea39aaad3467453e19",
+          "materialHash": "2ed69e15b6a729fd679ffee7a7437cd1f315ea6ed0ff1937fe6685b54a222571",
+          "storyFilesHash": "333c85ff432f3c5f4763653d0ee56ed3e7ad49210ded5d49a725c5ad025f377a",
+          "timestamp": "2026-06-30T23:38:14.527Z"
         }
       ]
     },
@@ -142,10 +142,10 @@
           "command": "node packages/main/dist/tasks/verification-context-pack-smoke.js && node bin/lattice.js parent_roadmap_status --storyId=B-43de --json",
           "result": "pass",
           "note": "M5 Verification context pack and evidence envelope standardization is closed by its focused smoke/verifier and B-43de parent roadmap status reports the row closed with evidence refs.",
-          "headHash": "78b39657e0ba9e82122ef3dc5030c757f3fb2e29",
-          "materialHash": "0b93f5ce084fd2626de5fdab2fe3d755a31a1fb2d58ffc527dc2ea2e1bef7489",
-          "storyFilesHash": "0e4b608069894c4849b96893473bfaec8fe46da4855a5a21d7fe41716103565b",
-          "timestamp": "2026-06-30T23:19:21.168Z"
+          "headHash": "fcc117cab3e070c80273ceea39aaad3467453e19",
+          "materialHash": "2ed69e15b6a729fd679ffee7a7437cd1f315ea6ed0ff1937fe6685b54a222571",
+          "storyFilesHash": "333c85ff432f3c5f4763653d0ee56ed3e7ad49210ded5d49a725c5ad025f377a",
+          "timestamp": "2026-06-30T23:38:14.527Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -155,10 +155,10 @@
           "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js",
           "result": "pass",
           "note": "M5 cannot be closed by prose alone: parent-roadmap-totality-smoke requires row closureEvidence, claimBoundary, and legacy migration/open negative-control behavior.",
-          "headHash": "78b39657e0ba9e82122ef3dc5030c757f3fb2e29",
-          "materialHash": "0b93f5ce084fd2626de5fdab2fe3d755a31a1fb2d58ffc527dc2ea2e1bef7489",
-          "storyFilesHash": "0e4b608069894c4849b96893473bfaec8fe46da4855a5a21d7fe41716103565b",
-          "timestamp": "2026-06-30T23:19:21.168Z"
+          "headHash": "fcc117cab3e070c80273ceea39aaad3467453e19",
+          "materialHash": "2ed69e15b6a729fd679ffee7a7437cd1f315ea6ed0ff1937fe6685b54a222571",
+          "storyFilesHash": "333c85ff432f3c5f4763653d0ee56ed3e7ad49210ded5d49a725c5ad025f377a",
+          "timestamp": "2026-06-30T23:38:14.527Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -168,10 +168,10 @@
           "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js && ! rg -n \"M4-M12 remain follow-up|M4-M12 remain|remain follow-up milestones\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
           "result": "pass",
           "note": "M5 preserves claim boundaries: parent-roadmap-totality-smoke checks retired Authority overclaim patterns, and docs grep confirms the old follow-up wording is absent.",
-          "headHash": "78b39657e0ba9e82122ef3dc5030c757f3fb2e29",
-          "materialHash": "0b93f5ce084fd2626de5fdab2fe3d755a31a1fb2d58ffc527dc2ea2e1bef7489",
-          "storyFilesHash": "0e4b608069894c4849b96893473bfaec8fe46da4855a5a21d7fe41716103565b",
-          "timestamp": "2026-06-30T23:19:21.168Z"
+          "headHash": "fcc117cab3e070c80273ceea39aaad3467453e19",
+          "materialHash": "2ed69e15b6a729fd679ffee7a7437cd1f315ea6ed0ff1937fe6685b54a222571",
+          "storyFilesHash": "333c85ff432f3c5f4763653d0ee56ed3e7ad49210ded5d49a725c5ad025f377a",
+          "timestamp": "2026-06-30T23:38:14.527Z"
         }
       ]
     },
@@ -229,10 +229,10 @@
           "command": "node packages/main/dist/tasks/lifecycle-orchestrate-smoke.js && node packages/main/dist/tasks/review-escalation-smoke.js && node bin/lattice.js parent_roadmap_status --storyId=B-43de --json",
           "result": "pass",
           "note": "M6 Gate oracle freshness and negative-control matrix is closed by its focused smoke/verifier and B-43de parent roadmap status reports the row closed with evidence refs.",
-          "headHash": "78b39657e0ba9e82122ef3dc5030c757f3fb2e29",
-          "materialHash": "0b93f5ce084fd2626de5fdab2fe3d755a31a1fb2d58ffc527dc2ea2e1bef7489",
-          "storyFilesHash": "0e4b608069894c4849b96893473bfaec8fe46da4855a5a21d7fe41716103565b",
-          "timestamp": "2026-06-30T23:19:21.168Z"
+          "headHash": "fcc117cab3e070c80273ceea39aaad3467453e19",
+          "materialHash": "2ed69e15b6a729fd679ffee7a7437cd1f315ea6ed0ff1937fe6685b54a222571",
+          "storyFilesHash": "333c85ff432f3c5f4763653d0ee56ed3e7ad49210ded5d49a725c5ad025f377a",
+          "timestamp": "2026-06-30T23:38:14.527Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -242,10 +242,10 @@
           "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js",
           "result": "pass",
           "note": "M6 cannot be closed by prose alone: parent-roadmap-totality-smoke requires row closureEvidence, claimBoundary, and legacy migration/open negative-control behavior.",
-          "headHash": "78b39657e0ba9e82122ef3dc5030c757f3fb2e29",
-          "materialHash": "0b93f5ce084fd2626de5fdab2fe3d755a31a1fb2d58ffc527dc2ea2e1bef7489",
-          "storyFilesHash": "0e4b608069894c4849b96893473bfaec8fe46da4855a5a21d7fe41716103565b",
-          "timestamp": "2026-06-30T23:19:21.168Z"
+          "headHash": "fcc117cab3e070c80273ceea39aaad3467453e19",
+          "materialHash": "2ed69e15b6a729fd679ffee7a7437cd1f315ea6ed0ff1937fe6685b54a222571",
+          "storyFilesHash": "333c85ff432f3c5f4763653d0ee56ed3e7ad49210ded5d49a725c5ad025f377a",
+          "timestamp": "2026-06-30T23:38:14.527Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -255,10 +255,10 @@
           "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js && ! rg -n \"M4-M12 remain follow-up|M4-M12 remain|remain follow-up milestones\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
           "result": "pass",
           "note": "M6 preserves claim boundaries: parent-roadmap-totality-smoke checks retired Authority overclaim patterns, and docs grep confirms the old follow-up wording is absent.",
-          "headHash": "78b39657e0ba9e82122ef3dc5030c757f3fb2e29",
-          "materialHash": "0b93f5ce084fd2626de5fdab2fe3d755a31a1fb2d58ffc527dc2ea2e1bef7489",
-          "storyFilesHash": "0e4b608069894c4849b96893473bfaec8fe46da4855a5a21d7fe41716103565b",
-          "timestamp": "2026-06-30T23:19:21.168Z"
+          "headHash": "fcc117cab3e070c80273ceea39aaad3467453e19",
+          "materialHash": "2ed69e15b6a729fd679ffee7a7437cd1f315ea6ed0ff1937fe6685b54a222571",
+          "storyFilesHash": "333c85ff432f3c5f4763653d0ee56ed3e7ad49210ded5d49a725c5ad025f377a",
+          "timestamp": "2026-06-30T23:38:14.527Z"
         }
       ]
     },
@@ -316,10 +316,10 @@
           "command": "node packages/main/dist/tasks/baseline-suite-smoke.js && node packages/main/dist/tasks/baseline-suite-report-smoke.js && node bin/lattice.js parent_roadmap_status --storyId=B-43de --json",
           "result": "pass",
           "note": "M7 Baseline suite formalization is closed by its focused smoke/verifier and B-43de parent roadmap status reports the row closed with evidence refs.",
-          "headHash": "78b39657e0ba9e82122ef3dc5030c757f3fb2e29",
-          "materialHash": "0b93f5ce084fd2626de5fdab2fe3d755a31a1fb2d58ffc527dc2ea2e1bef7489",
-          "storyFilesHash": "0e4b608069894c4849b96893473bfaec8fe46da4855a5a21d7fe41716103565b",
-          "timestamp": "2026-06-30T23:19:21.168Z"
+          "headHash": "fcc117cab3e070c80273ceea39aaad3467453e19",
+          "materialHash": "2ed69e15b6a729fd679ffee7a7437cd1f315ea6ed0ff1937fe6685b54a222571",
+          "storyFilesHash": "333c85ff432f3c5f4763653d0ee56ed3e7ad49210ded5d49a725c5ad025f377a",
+          "timestamp": "2026-06-30T23:38:14.527Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -329,10 +329,10 @@
           "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js",
           "result": "pass",
           "note": "M7 cannot be closed by prose alone: parent-roadmap-totality-smoke requires row closureEvidence, claimBoundary, and legacy migration/open negative-control behavior.",
-          "headHash": "78b39657e0ba9e82122ef3dc5030c757f3fb2e29",
-          "materialHash": "0b93f5ce084fd2626de5fdab2fe3d755a31a1fb2d58ffc527dc2ea2e1bef7489",
-          "storyFilesHash": "0e4b608069894c4849b96893473bfaec8fe46da4855a5a21d7fe41716103565b",
-          "timestamp": "2026-06-30T23:19:21.168Z"
+          "headHash": "fcc117cab3e070c80273ceea39aaad3467453e19",
+          "materialHash": "2ed69e15b6a729fd679ffee7a7437cd1f315ea6ed0ff1937fe6685b54a222571",
+          "storyFilesHash": "333c85ff432f3c5f4763653d0ee56ed3e7ad49210ded5d49a725c5ad025f377a",
+          "timestamp": "2026-06-30T23:38:14.527Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -342,10 +342,10 @@
           "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js && ! rg -n \"M4-M12 remain follow-up|M4-M12 remain|remain follow-up milestones\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
           "result": "pass",
           "note": "M7 preserves claim boundaries: parent-roadmap-totality-smoke checks retired Authority overclaim patterns, and docs grep confirms the old follow-up wording is absent.",
-          "headHash": "78b39657e0ba9e82122ef3dc5030c757f3fb2e29",
-          "materialHash": "0b93f5ce084fd2626de5fdab2fe3d755a31a1fb2d58ffc527dc2ea2e1bef7489",
-          "storyFilesHash": "0e4b608069894c4849b96893473bfaec8fe46da4855a5a21d7fe41716103565b",
-          "timestamp": "2026-06-30T23:19:21.168Z"
+          "headHash": "fcc117cab3e070c80273ceea39aaad3467453e19",
+          "materialHash": "2ed69e15b6a729fd679ffee7a7437cd1f315ea6ed0ff1937fe6685b54a222571",
+          "storyFilesHash": "333c85ff432f3c5f4763653d0ee56ed3e7ad49210ded5d49a725c5ad025f377a",
+          "timestamp": "2026-06-30T23:38:14.527Z"
         }
       ]
     },
@@ -404,10 +404,10 @@
           "command": "node packages/main/dist/tasks/reviewer-quorum-smoke.js && node packages/main/dist/tasks/quorum-submit-smoke.js && node packages/main/dist/tasks/review-escalation-smoke.js && node bin/lattice.js parent_roadmap_status --storyId=B-43de --json",
           "result": "pass",
           "note": "M8 Host identity review-run and quorum strengthening is closed by its focused smoke/verifier and B-43de parent roadmap status reports the row closed with evidence refs.",
-          "headHash": "78b39657e0ba9e82122ef3dc5030c757f3fb2e29",
-          "materialHash": "0b93f5ce084fd2626de5fdab2fe3d755a31a1fb2d58ffc527dc2ea2e1bef7489",
-          "storyFilesHash": "0e4b608069894c4849b96893473bfaec8fe46da4855a5a21d7fe41716103565b",
-          "timestamp": "2026-06-30T23:19:21.168Z"
+          "headHash": "fcc117cab3e070c80273ceea39aaad3467453e19",
+          "materialHash": "2ed69e15b6a729fd679ffee7a7437cd1f315ea6ed0ff1937fe6685b54a222571",
+          "storyFilesHash": "333c85ff432f3c5f4763653d0ee56ed3e7ad49210ded5d49a725c5ad025f377a",
+          "timestamp": "2026-06-30T23:38:14.527Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
@@ -417,10 +417,10 @@
           "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js",
           "result": "pass",
           "note": "M8 cannot be closed by prose alone: parent-roadmap-totality-smoke requires row closureEvidence, claimBoundary, and legacy migration/open negative-control behavior.",
-          "headHash": "78b39657e0ba9e82122ef3dc5030c757f3fb2e29",
-          "materialHash": "0b93f5ce084fd2626de5fdab2fe3d755a31a1fb2d58ffc527dc2ea2e1bef7489",
-          "storyFilesHash": "0e4b608069894c4849b96893473bfaec8fe46da4855a5a21d7fe41716103565b",
-          "timestamp": "2026-06-30T23:19:21.168Z"
+          "headHash": "fcc117cab3e070c80273ceea39aaad3467453e19",
+          "materialHash": "2ed69e15b6a729fd679ffee7a7437cd1f315ea6ed0ff1937fe6685b54a222571",
+          "storyFilesHash": "333c85ff432f3c5f4763653d0ee56ed3e7ad49210ded5d49a725c5ad025f377a",
+          "timestamp": "2026-06-30T23:38:14.527Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
@@ -430,10 +430,10 @@
           "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js && ! rg -n \"M4-M12 remain follow-up|M4-M12 remain|remain follow-up milestones\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
           "result": "pass",
           "note": "M8 preserves claim boundaries: parent-roadmap-totality-smoke checks retired Authority overclaim patterns, and docs grep confirms the old follow-up wording is absent.",
-          "headHash": "78b39657e0ba9e82122ef3dc5030c757f3fb2e29",
-          "materialHash": "0b93f5ce084fd2626de5fdab2fe3d755a31a1fb2d58ffc527dc2ea2e1bef7489",
-          "storyFilesHash": "0e4b608069894c4849b96893473bfaec8fe46da4855a5a21d7fe41716103565b",
-          "timestamp": "2026-06-30T23:19:21.168Z"
+          "headHash": "fcc117cab3e070c80273ceea39aaad3467453e19",
+          "materialHash": "2ed69e15b6a729fd679ffee7a7437cd1f315ea6ed0ff1937fe6685b54a222571",
+          "storyFilesHash": "333c85ff432f3c5f4763653d0ee56ed3e7ad49210ded5d49a725c5ad025f377a",
+          "timestamp": "2026-06-30T23:38:14.527Z"
         }
       ]
     },
@@ -491,10 +491,10 @@
           "command": "node packages/main/dist/tasks/lifecycle-orchestrate-smoke.js && node bin/lattice.js parent_roadmap_status --storyId=B-43de --json",
           "result": "pass",
           "note": "M9 Preflight command center is closed by its focused smoke/verifier and B-43de parent roadmap status reports the row closed with evidence refs.",
-          "headHash": "78b39657e0ba9e82122ef3dc5030c757f3fb2e29",
-          "materialHash": "0b93f5ce084fd2626de5fdab2fe3d755a31a1fb2d58ffc527dc2ea2e1bef7489",
-          "storyFilesHash": "0e4b608069894c4849b96893473bfaec8fe46da4855a5a21d7fe41716103565b",
-          "timestamp": "2026-06-30T23:19:21.168Z"
+          "headHash": "fcc117cab3e070c80273ceea39aaad3467453e19",
+          "materialHash": "2ed69e15b6a729fd679ffee7a7437cd1f315ea6ed0ff1937fe6685b54a222571",
+          "storyFilesHash": "333c85ff432f3c5f4763653d0ee56ed3e7ad49210ded5d49a725c5ad025f377a",
+          "timestamp": "2026-06-30T23:38:14.527Z"
         },
         {
           "intentRef": "CHK-006:edge:0",
@@ -504,10 +504,10 @@
           "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js",
           "result": "pass",
           "note": "M9 cannot be closed by prose alone: parent-roadmap-totality-smoke requires row closureEvidence, claimBoundary, and legacy migration/open negative-control behavior.",
-          "headHash": "78b39657e0ba9e82122ef3dc5030c757f3fb2e29",
-          "materialHash": "0b93f5ce084fd2626de5fdab2fe3d755a31a1fb2d58ffc527dc2ea2e1bef7489",
-          "storyFilesHash": "0e4b608069894c4849b96893473bfaec8fe46da4855a5a21d7fe41716103565b",
-          "timestamp": "2026-06-30T23:19:21.168Z"
+          "headHash": "fcc117cab3e070c80273ceea39aaad3467453e19",
+          "materialHash": "2ed69e15b6a729fd679ffee7a7437cd1f315ea6ed0ff1937fe6685b54a222571",
+          "storyFilesHash": "333c85ff432f3c5f4763653d0ee56ed3e7ad49210ded5d49a725c5ad025f377a",
+          "timestamp": "2026-06-30T23:38:14.527Z"
         },
         {
           "intentRef": "CHK-006:adversarial:0",
@@ -517,10 +517,10 @@
           "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js && ! rg -n \"M4-M12 remain follow-up|M4-M12 remain|remain follow-up milestones\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
           "result": "pass",
           "note": "M9 preserves claim boundaries: parent-roadmap-totality-smoke checks retired Authority overclaim patterns, and docs grep confirms the old follow-up wording is absent.",
-          "headHash": "78b39657e0ba9e82122ef3dc5030c757f3fb2e29",
-          "materialHash": "0b93f5ce084fd2626de5fdab2fe3d755a31a1fb2d58ffc527dc2ea2e1bef7489",
-          "storyFilesHash": "0e4b608069894c4849b96893473bfaec8fe46da4855a5a21d7fe41716103565b",
-          "timestamp": "2026-06-30T23:19:21.168Z"
+          "headHash": "fcc117cab3e070c80273ceea39aaad3467453e19",
+          "materialHash": "2ed69e15b6a729fd679ffee7a7437cd1f315ea6ed0ff1937fe6685b54a222571",
+          "storyFilesHash": "333c85ff432f3c5f4763653d0ee56ed3e7ad49210ded5d49a725c5ad025f377a",
+          "timestamp": "2026-06-30T23:38:14.527Z"
         }
       ]
     },
@@ -578,10 +578,10 @@
           "command": "node packages/main/dist/tasks/lattice-parallel-wave-smoke.js && node bin/lattice.js parent_roadmap_status --storyId=B-43de --json",
           "result": "pass",
           "note": "M10 Parallel collaboration scheduling is closed by its focused smoke/verifier and B-43de parent roadmap status reports the row closed with evidence refs.",
-          "headHash": "78b39657e0ba9e82122ef3dc5030c757f3fb2e29",
-          "materialHash": "0b93f5ce084fd2626de5fdab2fe3d755a31a1fb2d58ffc527dc2ea2e1bef7489",
-          "storyFilesHash": "0e4b608069894c4849b96893473bfaec8fe46da4855a5a21d7fe41716103565b",
-          "timestamp": "2026-06-30T23:19:21.168Z"
+          "headHash": "fcc117cab3e070c80273ceea39aaad3467453e19",
+          "materialHash": "2ed69e15b6a729fd679ffee7a7437cd1f315ea6ed0ff1937fe6685b54a222571",
+          "storyFilesHash": "333c85ff432f3c5f4763653d0ee56ed3e7ad49210ded5d49a725c5ad025f377a",
+          "timestamp": "2026-06-30T23:38:14.527Z"
         },
         {
           "intentRef": "CHK-007:edge:0",
@@ -591,10 +591,10 @@
           "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js",
           "result": "pass",
           "note": "M10 cannot be closed by prose alone: parent-roadmap-totality-smoke requires row closureEvidence, claimBoundary, and legacy migration/open negative-control behavior.",
-          "headHash": "78b39657e0ba9e82122ef3dc5030c757f3fb2e29",
-          "materialHash": "0b93f5ce084fd2626de5fdab2fe3d755a31a1fb2d58ffc527dc2ea2e1bef7489",
-          "storyFilesHash": "0e4b608069894c4849b96893473bfaec8fe46da4855a5a21d7fe41716103565b",
-          "timestamp": "2026-06-30T23:19:21.168Z"
+          "headHash": "fcc117cab3e070c80273ceea39aaad3467453e19",
+          "materialHash": "2ed69e15b6a729fd679ffee7a7437cd1f315ea6ed0ff1937fe6685b54a222571",
+          "storyFilesHash": "333c85ff432f3c5f4763653d0ee56ed3e7ad49210ded5d49a725c5ad025f377a",
+          "timestamp": "2026-06-30T23:38:14.527Z"
         },
         {
           "intentRef": "CHK-007:adversarial:0",
@@ -604,10 +604,10 @@
           "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js && ! rg -n \"M4-M12 remain follow-up|M4-M12 remain|remain follow-up milestones\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
           "result": "pass",
           "note": "M10 preserves claim boundaries: parent-roadmap-totality-smoke checks retired Authority overclaim patterns, and docs grep confirms the old follow-up wording is absent.",
-          "headHash": "78b39657e0ba9e82122ef3dc5030c757f3fb2e29",
-          "materialHash": "0b93f5ce084fd2626de5fdab2fe3d755a31a1fb2d58ffc527dc2ea2e1bef7489",
-          "storyFilesHash": "0e4b608069894c4849b96893473bfaec8fe46da4855a5a21d7fe41716103565b",
-          "timestamp": "2026-06-30T23:19:21.168Z"
+          "headHash": "fcc117cab3e070c80273ceea39aaad3467453e19",
+          "materialHash": "2ed69e15b6a729fd679ffee7a7437cd1f315ea6ed0ff1937fe6685b54a222571",
+          "storyFilesHash": "333c85ff432f3c5f4763653d0ee56ed3e7ad49210ded5d49a725c5ad025f377a",
+          "timestamp": "2026-06-30T23:38:14.527Z"
         }
       ]
     },
@@ -665,10 +665,10 @@
           "command": "node packages/main/dist/tasks/rollout-check-smoke.js && node bin/lattice.js parent_roadmap_status --storyId=B-43de --json",
           "result": "pass",
           "note": "M11 Rollout migration and operator guidance is closed by its focused smoke/verifier and B-43de parent roadmap status reports the row closed with evidence refs.",
-          "headHash": "78b39657e0ba9e82122ef3dc5030c757f3fb2e29",
-          "materialHash": "0b93f5ce084fd2626de5fdab2fe3d755a31a1fb2d58ffc527dc2ea2e1bef7489",
-          "storyFilesHash": "0e4b608069894c4849b96893473bfaec8fe46da4855a5a21d7fe41716103565b",
-          "timestamp": "2026-06-30T23:19:21.168Z"
+          "headHash": "fcc117cab3e070c80273ceea39aaad3467453e19",
+          "materialHash": "2ed69e15b6a729fd679ffee7a7437cd1f315ea6ed0ff1937fe6685b54a222571",
+          "storyFilesHash": "333c85ff432f3c5f4763653d0ee56ed3e7ad49210ded5d49a725c5ad025f377a",
+          "timestamp": "2026-06-30T23:38:14.527Z"
         },
         {
           "intentRef": "CHK-008:edge:0",
@@ -678,10 +678,10 @@
           "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js",
           "result": "pass",
           "note": "M11 cannot be closed by prose alone: parent-roadmap-totality-smoke requires row closureEvidence, claimBoundary, and legacy migration/open negative-control behavior.",
-          "headHash": "78b39657e0ba9e82122ef3dc5030c757f3fb2e29",
-          "materialHash": "0b93f5ce084fd2626de5fdab2fe3d755a31a1fb2d58ffc527dc2ea2e1bef7489",
-          "storyFilesHash": "0e4b608069894c4849b96893473bfaec8fe46da4855a5a21d7fe41716103565b",
-          "timestamp": "2026-06-30T23:19:21.168Z"
+          "headHash": "fcc117cab3e070c80273ceea39aaad3467453e19",
+          "materialHash": "2ed69e15b6a729fd679ffee7a7437cd1f315ea6ed0ff1937fe6685b54a222571",
+          "storyFilesHash": "333c85ff432f3c5f4763653d0ee56ed3e7ad49210ded5d49a725c5ad025f377a",
+          "timestamp": "2026-06-30T23:38:14.527Z"
         },
         {
           "intentRef": "CHK-008:adversarial:0",
@@ -691,10 +691,10 @@
           "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js && ! rg -n \"M4-M12 remain follow-up|M4-M12 remain|remain follow-up milestones\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
           "result": "pass",
           "note": "M11 preserves claim boundaries: parent-roadmap-totality-smoke checks retired Authority overclaim patterns, and docs grep confirms the old follow-up wording is absent.",
-          "headHash": "78b39657e0ba9e82122ef3dc5030c757f3fb2e29",
-          "materialHash": "0b93f5ce084fd2626de5fdab2fe3d755a31a1fb2d58ffc527dc2ea2e1bef7489",
-          "storyFilesHash": "0e4b608069894c4849b96893473bfaec8fe46da4855a5a21d7fe41716103565b",
-          "timestamp": "2026-06-30T23:19:21.168Z"
+          "headHash": "fcc117cab3e070c80273ceea39aaad3467453e19",
+          "materialHash": "2ed69e15b6a729fd679ffee7a7437cd1f315ea6ed0ff1937fe6685b54a222571",
+          "storyFilesHash": "333c85ff432f3c5f4763653d0ee56ed3e7ad49210ded5d49a725c5ad025f377a",
+          "timestamp": "2026-06-30T23:38:14.527Z"
         }
       ]
     },
@@ -752,10 +752,10 @@
           "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js && node packages/main/dist/tasks/lattice-handoff-smoke.js && node bin/lattice.js parent_roadmap_status --storyId=B-43de --json",
           "result": "pass",
           "note": "M12 Cross-track certification and handoff package is closed by its focused smoke/verifier and B-43de parent roadmap status reports the row closed with evidence refs.",
-          "headHash": "78b39657e0ba9e82122ef3dc5030c757f3fb2e29",
-          "materialHash": "0b93f5ce084fd2626de5fdab2fe3d755a31a1fb2d58ffc527dc2ea2e1bef7489",
-          "storyFilesHash": "0e4b608069894c4849b96893473bfaec8fe46da4855a5a21d7fe41716103565b",
-          "timestamp": "2026-06-30T23:19:21.168Z"
+          "headHash": "fcc117cab3e070c80273ceea39aaad3467453e19",
+          "materialHash": "2ed69e15b6a729fd679ffee7a7437cd1f315ea6ed0ff1937fe6685b54a222571",
+          "storyFilesHash": "333c85ff432f3c5f4763653d0ee56ed3e7ad49210ded5d49a725c5ad025f377a",
+          "timestamp": "2026-06-30T23:38:14.527Z"
         },
         {
           "intentRef": "CHK-009:edge:0",
@@ -765,10 +765,10 @@
           "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js",
           "result": "pass",
           "note": "M12 cannot be closed by prose alone: parent-roadmap-totality-smoke requires row closureEvidence, claimBoundary, and legacy migration/open negative-control behavior.",
-          "headHash": "78b39657e0ba9e82122ef3dc5030c757f3fb2e29",
-          "materialHash": "0b93f5ce084fd2626de5fdab2fe3d755a31a1fb2d58ffc527dc2ea2e1bef7489",
-          "storyFilesHash": "0e4b608069894c4849b96893473bfaec8fe46da4855a5a21d7fe41716103565b",
-          "timestamp": "2026-06-30T23:19:21.168Z"
+          "headHash": "fcc117cab3e070c80273ceea39aaad3467453e19",
+          "materialHash": "2ed69e15b6a729fd679ffee7a7437cd1f315ea6ed0ff1937fe6685b54a222571",
+          "storyFilesHash": "333c85ff432f3c5f4763653d0ee56ed3e7ad49210ded5d49a725c5ad025f377a",
+          "timestamp": "2026-06-30T23:38:14.527Z"
         },
         {
           "intentRef": "CHK-009:adversarial:0",
@@ -778,10 +778,10 @@
           "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js && ! rg -n \"M4-M12 remain follow-up|M4-M12 remain|remain follow-up milestones\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
           "result": "pass",
           "note": "M12 preserves claim boundaries: parent-roadmap-totality-smoke checks retired Authority overclaim patterns, and docs grep confirms the old follow-up wording is absent.",
-          "headHash": "78b39657e0ba9e82122ef3dc5030c757f3fb2e29",
-          "materialHash": "0b93f5ce084fd2626de5fdab2fe3d755a31a1fb2d58ffc527dc2ea2e1bef7489",
-          "storyFilesHash": "0e4b608069894c4849b96893473bfaec8fe46da4855a5a21d7fe41716103565b",
-          "timestamp": "2026-06-30T23:19:21.168Z"
+          "headHash": "fcc117cab3e070c80273ceea39aaad3467453e19",
+          "materialHash": "2ed69e15b6a729fd679ffee7a7437cd1f315ea6ed0ff1937fe6685b54a222571",
+          "storyFilesHash": "333c85ff432f3c5f4763653d0ee56ed3e7ad49210ded5d49a725c5ad025f377a",
+          "timestamp": "2026-06-30T23:38:14.527Z"
         }
       ]
     }
