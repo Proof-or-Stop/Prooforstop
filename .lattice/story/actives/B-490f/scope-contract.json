@@ -1,0 +1,40 @@
+{
+  "storyId": "B-490f",
+  "mode": "enforce",
+  "allowedModify": [
+    "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+    "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+    "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/core/parent-roadmap-totality.ts",
+    "packages/main/src/handlers/parent-roadmap.ts",
+    "packages/main/src/core/proof-admissibility.ts",
+    "packages/main/src/core/lifecycle-control",
+    "packages/main/src/tasks/parent-roadmap-totality-smoke.ts",
+    "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "protectedFiles": [
+    "packages/main/src/core/parent-roadmap-totality.ts",
+    "packages/main/src/handlers/parent-roadmap.ts",
+    "packages/main/src/core/proof-admissibility.ts",
+    "packages/main/src/core/lifecycle-control",
+    "packages/main/src/tasks/parent-roadmap-totality-smoke.ts",
+    "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "explicitExcludes": [
+    "runtime code changes",
+    "new lifecycle hard gate implementation",
+    "server-backed receipt proof reintroduction",
+    "append-only admissibility ledger implementation",
+    "Tier-C automated cleanup implementation",
+    "productionDone or full completion claims from local CLI evidence"
+  ],
+  "scopeChangeReason": "Shrink broad status-closure request to three decision-document edits plus read-only source/test verification.",
+  "acknowledgements": [],
+  "createdAt": "2026-06-30T22:27:51.978Z",
+  "updatedAt": "2026-06-30T22:27:51.978Z"
+}
