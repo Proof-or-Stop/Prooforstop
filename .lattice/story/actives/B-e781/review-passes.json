@@ -80,6 +80,15 @@
       "reviewRound": "2026-06-30T22:59:20.887Z",
       "reviewRunId": "B-e781:RR-013",
       "_hash": "3eda7b24f214b9d46d5225656a2ff004601f559e4d12a4aa47e4b6d148c2fb42"
+    },
+    {
+      "id": "B-e781:RP-010",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS after narrow fix 6265b88e8 and REVIEW metadata 6ae612dfc. Evidence freshness: evidence_inspect reports current head 6ae612dfc0000603f086eaa760a3c1d43a7e3462, materialHash 6f5b11ab1a00c8d1aaea05b14605a51d63a586c806f58de67632e15b48f0ba77, freshness.status=fresh, staleRefs=[] and no refresh recommended. Checklist coverage: checklist_get reports 9/9 done and each M4-M12 item has 3 must verificationIntent entries and 3 passing evidence entries, totaling 27/27. Validation: node bin/lattice.js validate --story=B-e781 passed all 31 configured commands and reported Verification intent coverage 27/27 covered. Targeted smokes: parent-roadmap-totality-smoke passed all; retired-authority-vocabulary-guard-smoke PASS. Parent roadmap positive control: parent_roadmap_status storyId=B-43de reports allRowsClosed=true, staleEvidenceRows=[], summaryClass=full_roadmap_complete, and each M4-M12 row closed with evidenceState=fresh.",
+      "createdAt": "2026-06-30T23:03:20.678Z",
+      "reviewRound": "2026-06-30T22:59:20.887Z",
+      "reviewRunId": "B-e781:RR-012",
+      "_hash": "8a6adef9c42cc7e527d5fdc9643ed10aaa58cda2eb2946d2d9289cf569d01dd4"
     }
   ]
 }
