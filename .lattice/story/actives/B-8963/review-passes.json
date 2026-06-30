@@ -116,6 +116,15 @@
       "reviewRound": "2026-06-30T23:36:28.271Z",
       "reviewRunId": "B-8963:RR-016",
       "_hash": "2bc2d155453f479898e9e95fad8da6451e61d6f416903d5a9c80ab812f2f7381"
+    },
+    {
+      "id": "B-8963:RP-014",
+      "agent": "lattice-review-test-coverage",
+      "note": "PASS: F-001 remains fixed. Verified production call sites capture and pass evidenceHashSnapshot in runDoneOracleGate, buildStoryReadinessReport/buildDoneRows, and session_brief DONE pre-check. node packages/main/dist/tasks/verification-freshness-smoke.js passed before and after npm --prefix packages/main run build, and git diff --check passed.",
+      "createdAt": "2026-06-30T23:40:12.488Z",
+      "reviewRound": "2026-06-30T23:36:28.271Z",
+      "reviewRunId": "B-8963:RR-020",
+      "_hash": "383c14b412ad4d5201cbe9917d71c41a60f45a8a1beca5cbdb219b0a9833fdfb"
     }
   ]
 }
