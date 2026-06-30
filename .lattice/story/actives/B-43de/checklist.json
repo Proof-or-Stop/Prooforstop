@@ -304,6 +304,18 @@
           "materialHash": "d59d677fba13f18a889d5897a0d72ab6829a3a5938a8af70703805563d67f235",
           "storyFilesHash": "9005e0fbcf8749e9c01b0037c5949c517a20f01b37688a174de6fa8e822312dd",
           "timestamp": "2026-06-30T10:06:04.819Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "command": "rg -n \"child-story-needed|Not runtime-complete in B-43de|does not claim M5-M12 runtime implementation\" docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+          "result": "pass",
+          "note": "The handoff table repeatedly marks M5-M12 as child-story-needed and Not runtime-complete in B-43de, blocking an overclaim that parent governance means downstream runtime milestones are done.",
+          "headHash": "8d0a52b4c1be50dc0d63efca617ef49ae132f3ea",
+          "materialHash": "d59d677fba13f18a889d5897a0d72ab6829a3a5938a8af70703805563d67f235",
+          "storyFilesHash": "9005e0fbcf8749e9c01b0037c5949c517a20f01b37688a174de6fa8e822312dd",
+          "timestamp": "2026-06-30T10:06:11.191Z"
         }
       ]
     },
