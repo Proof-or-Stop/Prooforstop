@@ -97,7 +97,37 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "The user sees parent roadmap rollup output that says full, partial, blocked, or invalid with row-level next actions.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/parent-roadmap-totality.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/parent-roadmap-totality-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Evaluator returns allRowsClosed=true and full-roadmap-claim only when every row has valid closure evidence.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Open, stale, blocked, missing, and invalid rows produce allRowsClosed=false with row-level reasons and next actions.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No caller-provided allRowsClosed or claimType override can force a full roadmap claim against row facts.",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-004",
