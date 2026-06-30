@@ -1,0 +1,70 @@
+{
+  "principles": [
+    "Make roadmap coverage machine-countable before claiming completion.",
+    "Keep parent governance separate from child runtime implementation.",
+    "Use existing ProofStory gates before inventing new control surfaces.",
+    "Prefer explicit future or child-story status over ambiguous partial wording."
+  ],
+  "drivers": [
+    "B-5082 ProofStory gates are already available in enforce mode.",
+    "The roadmap has nine remaining milestones, which is too broad for one implementation story.",
+    "The user wants evidence that scope shrinkage cannot reappear."
+  ],
+  "options": [
+    {
+      "name": "A: Parent ledger first, child implementation later",
+      "pros": [
+        "Prevents scope shrinkage immediately",
+        "Keeps this story small enough to review",
+        "Uses B-5082 directly"
+      ],
+      "cons": [
+        "Does not finish all M5-M12 runtime work in one story"
+      ]
+    },
+    {
+      "name": "B: Implement all M4-M12 in one large story",
+      "pros": [
+        "Could produce a single final milestone claim"
+      ],
+      "cons": [
+        "Too broad for reliable review",
+        "High risk of another partial DONE claim",
+        "Conflicts with ProofStory oversized-ledger controls"
+      ]
+    },
+    {
+      "name": "C: Only update prose in the roadmap",
+      "pros": [
+        "Fast and low code risk"
+      ],
+      "cons": [
+        "Does not use B-5082 machine checks",
+        "Does not prevent future scope shrinkage"
+      ]
+    }
+  ],
+  "chosen": "A: Parent ledger first, child implementation later",
+  "rationale": "The chosen option directly addresses the user concern by making roadmap coverage auditable before splitting work into child stories, while avoiding a giant underverified implementation batch.",
+  "preMortem": [
+    {
+      "scenario": "The parent story is mistaken for full M4-M12 implementation.",
+      "trigger": "Final status wording says completed instead of governed or assigned.",
+      "consequence": "User again sees DONE while runtime work remains unfinished.",
+      "mitigation": "Use explicit child-story-needed and future statuses in the roadmap and ProofStory ledger."
+    },
+    {
+      "scenario": "The ledger is oversized and gets silently reduced.",
+      "trigger": "M7, M10, or M12 are removed to make gates pass.",
+      "consequence": "DONE equivalence no longer represents the original roadmap intent.",
+      "mitigation": "Keep M4-M12 as full ledger rows and clear size only through slice_plan_set or explicit child assignment."
+    },
+    {
+      "scenario": "B-cd3a and B-43de overlap and confuse ownership.",
+      "trigger": "Both stories claim the same proof-admissibility or control-plane work.",
+      "consequence": "Parallel hosts duplicate edits or disagree about completion.",
+      "mitigation": "B-43de references B-cd3a as narrower child-adjacent work and does not mutate B-cd3a metadata."
+    }
+  ],
+  "timestamp": "2026-06-30T09:46:31.217Z"
+}
