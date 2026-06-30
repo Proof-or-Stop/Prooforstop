@@ -104,8 +104,8 @@
           "packages/main/src/tasks/verification-freshness-smoke.ts"
         ]
       },
-      "status": "done",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-06-30T22:36:25.883Z",
       "endTime": "2026-06-30T22:25:37.285Z",
       "verificationIntent": {
         "happy": [
@@ -322,6 +322,18 @@
           "timestamp": "2026-06-30T22:26:10.402Z"
         }
       ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-06-30T22:36:25.883Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Reopen for B-8963:F-001: production DONE/session/lifecycle call sites must supply the command-local snapshot, not only tests.",
+      "agent": "codex"
     }
   ]
 }
