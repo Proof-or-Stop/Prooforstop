@@ -1,60 +1,31 @@
 {
   "storyId": "B-a9e7",
-  "checkedAt": "2026-06-30T17:25:21.150Z",
-  "headHash": "44cd9b68d6f41539b51e25a2a6c779cc0de97ed5",
-  "materialHash": "fec12d3410950af0112dafd478a628a4bac500043a6bb0b34ea7abeb44dac2b9",
-  "storyFilesHash": "7e11a09d9ed5c0b7f0efdc1f44017bd4aa7edc70774d25249d4d6a0d3e034690",
-  "reviewRound": "2026-06-30T17:00:51.690Z",
+  "checkedAt": "2026-06-30T17:40:37.318Z",
+  "headHash": "c4c404855cf1b503138b8f491544278d5dd4a464",
+  "materialHash": "1e70907cba4d9a104e9c92060adb475d42972791d26f2138f91e54cb40b80bc5",
+  "storyFilesHash": "999673d9d53c2e7cab8adf169e4b406e0a3de7dc6dab3d7c785f2d5ea7650c07",
+  "reviewRound": "2026-06-30T17:33:36.600Z",
   "agentId": "lattice-review-delivery",
   "docsPromises": [
     {
-      "docPath": ".lattice/story/actives/B-a9e7/evidence/delivery-context-pack.json",
-      "promise": "dev_memory_search/list output identifies legacy Koala memory ids and shows which current Proofbound/Lattice memory supersedes them.",
+      "docPath": "docs/requirements/decisions/dev-memory.md",
+      "promise": "Append-only dev-memory supersession keeps legacy rows readable and non-authoritative while surfacing current Proofbound/Lattice guidance first.",
       "status": "verified",
-      "verifiedBy": "live CLI search/list plus saved delivery transcript",
-      "evidence": "Saved transcript .lattice/story/actives/B-a9e7/evidence/live-smoke-transcript.json records lattice dev_memory_search --query='koala cli' --global --limit=5. Fresh rerun at HEAD 44cd9b68 returned current [148297b] with Refs dev-memory:2de5d6b before readable legacy [2de5d6b]; lattice dev_memory_list --scope=project --limit=10 showed current B-a9e7 entries with supersedes-* tags and legacy dev-memory refs."
-    },
-    {
-      "docPath": ".lattice/story/actives/B-a9e7/evidence/delivery-context-pack.json",
-      "promise": "dev_memory_preflight/search/list shows current Proofbound/Lattice superseding guidance before legacy Koala entries and annotates superseded ids.",
-      "status": "verified",
-      "verifiedBy": "live CLI preflight/search/list and supersession smoke",
-      "evidence": "lattice dev_memory_preflight --query='koala cli' --maxEntries=5 returned current [148297b] before legacy [2de5d6b]. Search did the same for koala cli. Project list includes supersedes-2de5d6b, supersedes-c948c85, supersedes-a6832a1, supersedes-f4fe749, and supersedes-7bc20e5 annotations. Smoke also passed search/preflight/list ordering checks."
-    },
-    {
-      "docPath": ".lattice/story/actives/B-a9e7/evidence/delivery-context-pack.json",
-      "promise": "Project dev-memory contains current Proofbound/Lattice superseding lessons for old Koala reviewer, delivery, CLI, and preflight lessons.",
-      "status": "verified",
-      "verifiedBy": "live CLI list/search",
-      "evidence": "lattice dev_memory_list --scope=project --limit=10 returned five B-a9e7 project entries: [148297b] CLI supersedes 2de5d6b, [ee3aef3] reviewer evidence supersedes c948c85, [34e97f9] reviewer/owner lane supersedes a6832a1, [99aa6c7] delivery supersedes f4fe749, and [7ffe281] preflight/dev-memory supersedes 7bc20e5."
-    },
-    {
-      "docPath": ".lattice/story/actives/B-a9e7/evidence/live-smoke-transcript.json",
-      "promise": "Running dev-memory supersession smoke prints that superseded legacy Koala entries remain readable while current Proofbound/Lattice entries are preferred.",
-      "status": "verified",
-      "verifiedBy": "live node smoke",
-      "evidence": "node packages/main/dist/tasks/dev-memory-supersession-smoke.js passed 18 checks, including captured legacy Koala inventory fully superseded and readable, search/preflight current-before-legacy ordering, unmatched legacy readable/not hidden, historical Koala refs not rewritten/deleted/hidden, list annotation, and non-authoritative/gate-evidence constraints."
+      "verifiedBy": "smoke+live-cli+full-test",
+      "evidence": "dev-memory-supersession smoke PASS 18 checks; live dev_memory_search/preflight rank 148297b before 2de5d6b for koala cli; DONE-required validation PASS includes root npm test."
     }
   ],
   "realMachineTests": [
     {
-      "featureId": "CHK-002",
-      "transcript": "Saved transcript: .lattice/story/actives/B-a9e7/evidence/live-smoke-transcript.json. Fresh current-HEAD commands: lattice dev_memory_search --query='koala cli' --global --limit=5 and lattice dev_memory_preflight --query='koala cli' --maxEntries=5 both exited 0 and showed current Proofbound/Lattice [148297b] before readable legacy Koala [2de5d6b]."
-    },
-    {
-      "featureId": "CHK-003",
-      "transcript": "Fresh current-HEAD command: lattice dev_memory_list --scope=project --limit=10 exited 0 and listed five B-a9e7 current project memories covering CLI, reviewer evidence, reviewer owner-lane behavior, delivery check, and preflight/dev-memory, each with supersedes-* tags and dev-memory refs to legacy ids."
-    },
-    {
-      "featureId": "CHK-004",
-      "transcript": "Fresh current-HEAD command: node packages/main/dist/tasks/dev-memory-supersession-smoke.js exited 0 and printed dev-memory supersession smoke passed (18 checks), including legacy remains readable, current guidance preferred, list annotations present, and supersession is ranking/presentation only."
+      "featureId": "CHK-001..CHK-004",
+      "transcript": "lattice dev_memory_search --query=koala cli --global --limit=5 shows current Proofbound/Lattice entry 148297b first and preserved legacy 2de5d6b later; lattice dev_memory_preflight has the same current-before-legacy ordering; node packages/main/dist/tasks/dev-memory-supersession-smoke.js passes 18 checks; npm test passes."
     }
   ],
   "closingSelfCheck": {
     "hasRealMachineTest": true,
     "hasEdgeCaseCoverage": true,
     "hasUnresolvedTodos": false,
-    "summary": "Delivery promises verified against saved delivery-context/live-smoke artifacts and fresh current-HEAD CLI smoke output. Legacy Koala dev-memory remains readable while current Proofbound/Lattice superseding memories are preferred and annotated."
+    "summary": "Delivery re-check passes after residue cleanup: current guidance ranks first, legacy rows remain readable for audit, source residue scanner is clean, and DONE-required root tests pass."
   },
-  "_hash": "a825d76b1ba8fcf73f179056a308a2c8ca72143ec7771d95975ec3eb044c1141"
+  "_hash": "8f0ba400e7bb59c681a81e0d9f2460512de347fef5f16f66eeed2e9acaca67da"
 }
