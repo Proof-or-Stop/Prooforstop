@@ -51,10 +51,10 @@
           "command": "node packages/main/dist/tasks/verification-freshness-smoke.js",
           "result": "pass",
           "note": "Smoke printed captureEvidenceHashSnapshot: reusable=true, materialDirty=false and asserted one headHash/materialHash/storyFilesHash binding for the same git cwd and metadata root.",
-          "headHash": "918d569a7e14e40cab462274a8a94587ac0f390f",
-          "materialHash": "5c42e50374c5c59ef976fb5a70f51e4b74487c651f908acaa9113d87d88f196d",
-          "storyFilesHash": "fb87c9dd9ea3d246a293da1ad6341bd28392cab67463a3068f231da9c8eb830c",
-          "timestamp": "2026-06-30T22:25:29.484Z"
+          "headHash": "dd4092abb677e3bfdf539957554e6de7b20f1637",
+          "materialHash": "4147dab2099db6f85ac69d7cdad422acde63d07d29cbc3d65a45768c3c1a1b30",
+          "storyFilesHash": "44861489f6cdb5a51dd6ad94afd91b88f4eeb4058bc8c865e9a6bf3e30e98272",
+          "timestamp": "2026-06-30T22:54:29.369Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -62,10 +62,10 @@
           "command": "node packages/main/dist/tasks/verification-freshness-smoke.js",
           "result": "pass",
           "note": "Smoke asserted clean snapshots have no material dirt and that dirty material worktree drift makes the old snapshot unsafe.",
-          "headHash": "918d569a7e14e40cab462274a8a94587ac0f390f",
-          "materialHash": "5c42e50374c5c59ef976fb5a70f51e4b74487c651f908acaa9113d87d88f196d",
-          "storyFilesHash": "fb87c9dd9ea3d246a293da1ad6341bd28392cab67463a3068f231da9c8eb830c",
-          "timestamp": "2026-06-30T22:25:29.671Z"
+          "headHash": "dd4092abb677e3bfdf539957554e6de7b20f1637",
+          "materialHash": "4147dab2099db6f85ac69d7cdad422acde63d07d29cbc3d65a45768c3c1a1b30",
+          "storyFilesHash": "44861489f6cdb5a51dd6ad94afd91b88f4eeb4058bc8c865e9a6bf3e30e98272",
+          "timestamp": "2026-06-30T22:54:29.369Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -73,10 +73,10 @@
           "command": "npm --prefix packages/main run build",
           "result": "pass",
           "note": "Build passed with an in-memory EvidenceHashSnapshot contract; implementation adds no persistent cache and no mtime/file-count proof shortcut.",
-          "headHash": "918d569a7e14e40cab462274a8a94587ac0f390f",
-          "materialHash": "5c42e50374c5c59ef976fb5a70f51e4b74487c651f908acaa9113d87d88f196d",
-          "storyFilesHash": "fb87c9dd9ea3d246a293da1ad6341bd28392cab67463a3068f231da9c8eb830c",
-          "timestamp": "2026-06-30T22:25:29.859Z"
+          "headHash": "dd4092abb677e3bfdf539957554e6de7b20f1637",
+          "materialHash": "4147dab2099db6f85ac69d7cdad422acde63d07d29cbc3d65a45768c3c1a1b30",
+          "storyFilesHash": "44861489f6cdb5a51dd6ad94afd91b88f4eeb4058bc8c865e9a6bf3e30e98272",
+          "timestamp": "2026-06-30T22:54:29.369Z"
         }
       ]
     },
@@ -217,10 +217,10 @@
           "command": "node packages/main/dist/tasks/verification-freshness-smoke.js",
           "result": "pass",
           "note": "Focused smoke asserted unchanged-state snapshot reuse succeeds and printed captureEvidenceHashSnapshot: reusable=true, materialDirty=false.",
-          "headHash": "6d065f07d28b3d3d617836d09bb1399388647732",
-          "materialHash": "5c42e50374c5c59ef976fb5a70f51e4b74487c651f908acaa9113d87d88f196d",
-          "storyFilesHash": "fb87c9dd9ea3d246a293da1ad6341bd28392cab67463a3068f231da9c8eb830c",
-          "timestamp": "2026-06-30T22:26:01.663Z"
+          "headHash": "dd4092abb677e3bfdf539957554e6de7b20f1637",
+          "materialHash": "4147dab2099db6f85ac69d7cdad422acde63d07d29cbc3d65a45768c3c1a1b30",
+          "storyFilesHash": "44861489f6cdb5a51dd6ad94afd91b88f4eeb4058bc8c865e9a6bf3e30e98272",
+          "timestamp": "2026-06-30T22:54:29.369Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -228,10 +228,10 @@
           "command": "node packages/main/dist/tasks/delivery-check-freshness-smoke.js",
           "result": "pass",
           "note": "Delivery-check freshness smoke passed its story-owned change after delivery-check is stale across DONE consumers case.",
-          "headHash": "6d065f07d28b3d3d617836d09bb1399388647732",
-          "materialHash": "5c42e50374c5c59ef976fb5a70f51e4b74487c651f908acaa9113d87d88f196d",
-          "storyFilesHash": "fb87c9dd9ea3d246a293da1ad6341bd28392cab67463a3068f231da9c8eb830c",
-          "timestamp": "2026-06-30T22:26:01.842Z"
+          "headHash": "dd4092abb677e3bfdf539957554e6de7b20f1637",
+          "materialHash": "4147dab2099db6f85ac69d7cdad422acde63d07d29cbc3d65a45768c3c1a1b30",
+          "storyFilesHash": "44861489f6cdb5a51dd6ad94afd91b88f4eeb4058bc8c865e9a6bf3e30e98272",
+          "timestamp": "2026-06-30T22:54:29.369Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -239,10 +239,10 @@
           "command": "node packages/main/dist/tasks/verification-freshness-smoke.js",
           "result": "pass",
           "note": "Focused smoke printed stale supplied snapshot rejected after dirty material drift and asserted reusable=false/materialDirty=true.",
-          "headHash": "6d065f07d28b3d3d617836d09bb1399388647732",
-          "materialHash": "5c42e50374c5c59ef976fb5a70f51e4b74487c651f908acaa9113d87d88f196d",
-          "storyFilesHash": "fb87c9dd9ea3d246a293da1ad6341bd28392cab67463a3068f231da9c8eb830c",
-          "timestamp": "2026-06-30T22:26:02.020Z"
+          "headHash": "dd4092abb677e3bfdf539957554e6de7b20f1637",
+          "materialHash": "4147dab2099db6f85ac69d7cdad422acde63d07d29cbc3d65a45768c3c1a1b30",
+          "storyFilesHash": "44861489f6cdb5a51dd6ad94afd91b88f4eeb4058bc8c865e9a6bf3e30e98272",
+          "timestamp": "2026-06-30T22:54:29.369Z"
         }
       ]
     },
@@ -294,10 +294,10 @@
           "command": "rg -n \"M1 command-local syndrome preflight|mtime|file-count|fountain|erasure\" docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
           "result": "pass",
           "note": "Doc grep found the new M1 command-local syndrome preflight subsection.",
-          "headHash": "dbe1482a9a1a0633ac315afc22340adbde2c830d",
-          "materialHash": "5c42e50374c5c59ef976fb5a70f51e4b74487c651f908acaa9113d87d88f196d",
-          "storyFilesHash": "fb87c9dd9ea3d246a293da1ad6341bd28392cab67463a3068f231da9c8eb830c",
-          "timestamp": "2026-06-30T22:26:10.055Z"
+          "headHash": "dd4092abb677e3bfdf539957554e6de7b20f1637",
+          "materialHash": "4147dab2099db6f85ac69d7cdad422acde63d07d29cbc3d65a45768c3c1a1b30",
+          "storyFilesHash": "44861489f6cdb5a51dd6ad94afd91b88f4eeb4058bc8c865e9a6bf3e30e98272",
+          "timestamp": "2026-06-30T22:54:29.369Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -305,10 +305,10 @@
           "command": "rg -n \"M1 command-local syndrome preflight|mtime|file-count|fountain|erasure\" docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
           "result": "pass",
           "note": "Doc grep found the subsection line saying no persistent cache and no mtime or file-count freshness keys.",
-          "headHash": "dbe1482a9a1a0633ac315afc22340adbde2c830d",
-          "materialHash": "5c42e50374c5c59ef976fb5a70f51e4b74487c651f908acaa9113d87d88f196d",
-          "storyFilesHash": "fb87c9dd9ea3d246a293da1ad6341bd28392cab67463a3068f231da9c8eb830c",
-          "timestamp": "2026-06-30T22:26:10.227Z"
+          "headHash": "dd4092abb677e3bfdf539957554e6de7b20f1637",
+          "materialHash": "4147dab2099db6f85ac69d7cdad422acde63d07d29cbc3d65a45768c3c1a1b30",
+          "storyFilesHash": "44861489f6cdb5a51dd6ad94afd91b88f4eeb4058bc8c865e9a6bf3e30e98272",
+          "timestamp": "2026-06-30T22:54:29.369Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -316,10 +316,10 @@
           "command": "rg -n \"M1 command-local syndrome preflight|mtime|file-count|fountain|erasure\" docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
           "result": "pass",
           "note": "Doc grep found the explicit fountain/erasure-code evidence recovery non-goal.",
-          "headHash": "dbe1482a9a1a0633ac315afc22340adbde2c830d",
-          "materialHash": "5c42e50374c5c59ef976fb5a70f51e4b74487c651f908acaa9113d87d88f196d",
-          "storyFilesHash": "fb87c9dd9ea3d246a293da1ad6341bd28392cab67463a3068f231da9c8eb830c",
-          "timestamp": "2026-06-30T22:26:10.402Z"
+          "headHash": "dd4092abb677e3bfdf539957554e6de7b20f1637",
+          "materialHash": "4147dab2099db6f85ac69d7cdad422acde63d07d29cbc3d65a45768c3c1a1b30",
+          "storyFilesHash": "44861489f6cdb5a51dd6ad94afd91b88f4eeb4058bc8c865e9a6bf3e30e98272",
+          "timestamp": "2026-06-30T22:54:29.369Z"
         }
       ]
     }
