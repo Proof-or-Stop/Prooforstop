@@ -98,6 +98,15 @@
       "reviewRound": "2026-06-30T16:21:42.765Z",
       "reviewRunId": "B-c004:RR-019",
       "_hash": "843423a5a2199ac03795b7bf3a0f0d9757cba794312b3426f9b3646ff15c1488"
+    },
+    {
+      "id": "B-c004:RP-012",
+      "agent": "lattice-review-test-coverage",
+      "note": "Targeted re-review for resolved B-c004:F-002: packages/main/src/tasks/done-required-freshness-smoke.ts now writes receipt.commandSpec via buildDoneRequiredCommandSpecEnvelope, which emits lattice.command-spec.v1 plus digest over command/args/cwd/shell/env/timeoutMs. Requested commands passed: npm --prefix packages/main run build; npm --prefix packages/main run test:done-required-freshness-smoke; npm --prefix packages/main run test:done-required-validation-smoke; npm --prefix packages/main run test:proof-admissibility-hardening. No blocking test-coverage finding remains for F-002.",
+      "createdAt": "2026-06-30T16:59:13.861Z",
+      "reviewRound": "2026-06-30T16:57:08.829Z",
+      "reviewRunId": "B-c004:RR-020",
+      "_hash": "f308704d26ecccb8ce0c6349f0c53b0448e9a0f8e00d436bad5fe071b2612e5c"
     }
   ]
 }
