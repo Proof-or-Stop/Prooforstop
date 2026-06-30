@@ -827,6 +827,75 @@
         "bindingHash": "11e8b1518a0eb0a8949630856bc9f443c0c737ee35cfce03d9e2721709909bc2"
       },
       "_hash": "359761b34934445bc0bbd05335afbbb6bc51e10cd8ba22a8bc47ae5efe5d94b4"
+    },
+    {
+      "reviewRunId": "B-c004:RR-013",
+      "storyId": "B-c004",
+      "agent": "lattice-review-quality",
+      "lane": "lattice-review-quality",
+      "reviewRound": "2026-06-30T16:01:30.955Z",
+      "startedAt": "2026-06-30T16:03:03.659Z",
+      "headHash": "6fb5b368b799d5f1940fec8497c2f09886e957b3",
+      "materialHash": "2fa51c4143e666f4591f42f748ef6a0f534f3086276ca69a74e10b844585080f",
+      "storyFilesHash": "2132324a9e9ac698371b973669b567db96fdc83ecde35c6e531a5a83543c5f6e",
+      "promptHash": "cac82ed0cd4ccca87eebd87e1379e83f716f7bd044f62984035bd875ff02a3df",
+      "scopeBinding": {
+        "scopeContractHash": "69836ec5e793adeed2f0813e78edf73ad7842588aacdfe7f962e660540afa6d0",
+        "diffPackHash": "0d8e3b7dd247ae43171178af9ea34b478af6d7e86d57f69d39e608b43dede881",
+        "reviewedChangedFiles": [
+          "docs/requirements/decisions/authority-server-vocabulary-retirement.md",
+          "docs/requirements/decisions/control-plane-proof-capability-closure-audit.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "packages/main/src/core/lifecycle-control/consumption/index.ts",
+          "packages/main/src/core/lifecycle-control/control-status.ts",
+          "packages/main/src/core/lifecycle-control/dashboard/index.ts",
+          "packages/main/src/core/proof-admissibility.ts",
+          "packages/main/src/tasks/lifecycle-control-smoke.ts",
+          "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "reviewedIntentRefs": [],
+        "reviewedHunkDigests": [
+          "0222f69310daf5c24c2ccec99e0cdfadb80881935d547e5fcbac29c120f9bc1f",
+          "340e7cb1d523364893dbced75fbc6783865d511a7747cd559981e91187bda6d0",
+          "4c5d337f44b6f7306d6357c7a6712ea1b9cae2e0305944d4aa42ddad19c53040",
+          "593f83090ee1ad4bf468abd59c7a5a15c62ddc3b001064892bd2d039efa294bf",
+          "6a07858dcaded82ad2d6237e446de79bfe2309b9d7f377316fbd8cc81f2e8932",
+          "6c1b6129087614f77c6e3b5af16d15d8ba2e0c52273e89d7f3d6e274a8b31d5a",
+          "7149eaab4e0433a9f79c1cac1c4e9a0f82e946ea4102f9e3feca9ffc21d4416d",
+          "8320e5fc56bea1f3ea83685d8d14be22cdfb7b9d0704d04e5a664e40c4e72aea",
+          "87622bc0e1398c70d2d520ebbabdb214ac5916474a7458ee3c9122b482a865ce",
+          "91e71f9c7c67472fffabd8d8300b1deb133622c657f9582eb487d0e744a084d7",
+          "b52c0f0ec56fbabb420b143101ca2a3799bc648e0a7aef7b42079f2ef4e9e471",
+          "b63cf49538ea8585f6447f785ecd61e65d8bcb1552baf414a093cb972408c65e",
+          "b82683aa4510fac81925b6d960c7adb250c0e445780b13e219d2276b178df931",
+          "c5170f3c19182721f7a5502368073b48ba0e8888b392d3494316191aea599cb2",
+          "ce127bffeff8b75461d22c2afe950de64793d332b2e8dc0087510b1017e9686f",
+          "d6e1f5e4432227b229165aad04114e5966406b3d94512acec98a49846dbd18d9",
+          "d7f775832f462c83a0a531aa95ff4a29d20e7d0d7af205c93f26fcab66708d3f",
+          "d95d8c2db015b001cd443606a87a061cafae69443679360b8bfc97b1a041a6fb",
+          "ddd51df66845ef954380de51179ef997e7af751d2ebcca449651d1871df139b1",
+          "e38497e6828c6dc6f3e05a1c8cf75c04c34a02a9a6f465ffecec407c5cdc0204",
+          "e7f2f517a16940cfda29c0527f1f30fca9b1fbff14a2b0399a1f9103e70f03d3",
+          "f1697010a3ed1adcd411b8c0a91eaa85c8abe4af51b70d93dc4b7525657b79f4",
+          "fb787ae7dc8bf3834b861187d5dcb71c53f6804b9bf0cfbb221579a30b1ab49d"
+        ],
+        "bindingHash": "2b8af83e1615124fa0f928e4e42112f7b2fca77b2f5c5fdf88194fefe37f65ed"
+      },
+      "workspaceBinding": {
+        "schemaVersion": "lattice.review_run_workspace_binding.v1",
+        "metadataRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c004",
+        "invocationCwd": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c004",
+        "repoRoot": "/Users/jek/Documents/Work/proofbound",
+        "signedWorkspaceRoot": "/Users/jek/Documents/Work/proofbound/.worktrees/B-c004",
+        "workspaceMode": "story-worktree",
+        "headHash": "6fb5b368b799d5f1940fec8497c2f09886e957b3",
+        "materialHash": "2fa51c4143e666f4591f42f748ef6a0f534f3086276ca69a74e10b844585080f",
+        "storyFilesHash": "2132324a9e9ac698371b973669b567db96fdc83ecde35c6e531a5a83543c5f6e",
+        "bindingHash": "7916c99463a30cdca4819f6b8ea15d6630e1fe1fffbe5b8e975a7280087a9224"
+      },
+      "_hash": "7125e5a915a1d24954e2b90da03c5934227fb1638a0663bbb390fb28fca0d6c9"
     }
   ]
 }
