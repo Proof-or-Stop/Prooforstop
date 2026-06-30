@@ -51,10 +51,10 @@
           "command": "node packages/main/dist/tasks/verification-freshness-smoke.js",
           "result": "pass",
           "note": "Smoke printed captureEvidenceHashSnapshot: reusable=true, materialDirty=false and asserted one headHash/materialHash/storyFilesHash binding for the same git cwd and metadata root.",
-          "headHash": "dd4092abb677e3bfdf539957554e6de7b20f1637",
-          "materialHash": "4147dab2099db6f85ac69d7cdad422acde63d07d29cbc3d65a45768c3c1a1b30",
-          "storyFilesHash": "44861489f6cdb5a51dd6ad94afd91b88f4eeb4058bc8c865e9a6bf3e30e98272",
-          "timestamp": "2026-06-30T22:54:29.369Z"
+          "headHash": "81142abe78522e08b743df2eaa329d5f88760e5d",
+          "materialHash": "30eced32bd5256815161adfd6d122505ed4824c9c64e4d5d9c905fcddefabb8a",
+          "storyFilesHash": "9f564017af88410f8650e4a55a2a91b73c0f10aefc816d5e1ec2740f153f0208",
+          "timestamp": "2026-06-30T22:57:41.784Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -62,10 +62,10 @@
           "command": "node packages/main/dist/tasks/verification-freshness-smoke.js",
           "result": "pass",
           "note": "Smoke asserted clean snapshots have no material dirt and that dirty material worktree drift makes the old snapshot unsafe.",
-          "headHash": "dd4092abb677e3bfdf539957554e6de7b20f1637",
-          "materialHash": "4147dab2099db6f85ac69d7cdad422acde63d07d29cbc3d65a45768c3c1a1b30",
-          "storyFilesHash": "44861489f6cdb5a51dd6ad94afd91b88f4eeb4058bc8c865e9a6bf3e30e98272",
-          "timestamp": "2026-06-30T22:54:29.369Z"
+          "headHash": "81142abe78522e08b743df2eaa329d5f88760e5d",
+          "materialHash": "30eced32bd5256815161adfd6d122505ed4824c9c64e4d5d9c905fcddefabb8a",
+          "storyFilesHash": "9f564017af88410f8650e4a55a2a91b73c0f10aefc816d5e1ec2740f153f0208",
+          "timestamp": "2026-06-30T22:57:41.784Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -73,10 +73,10 @@
           "command": "npm --prefix packages/main run build",
           "result": "pass",
           "note": "Build passed with an in-memory EvidenceHashSnapshot contract; implementation adds no persistent cache and no mtime/file-count proof shortcut.",
-          "headHash": "dd4092abb677e3bfdf539957554e6de7b20f1637",
-          "materialHash": "4147dab2099db6f85ac69d7cdad422acde63d07d29cbc3d65a45768c3c1a1b30",
-          "storyFilesHash": "44861489f6cdb5a51dd6ad94afd91b88f4eeb4058bc8c865e9a6bf3e30e98272",
-          "timestamp": "2026-06-30T22:54:29.369Z"
+          "headHash": "81142abe78522e08b743df2eaa329d5f88760e5d",
+          "materialHash": "30eced32bd5256815161adfd6d122505ed4824c9c64e4d5d9c905fcddefabb8a",
+          "storyFilesHash": "9f564017af88410f8650e4a55a2a91b73c0f10aefc816d5e1ec2740f153f0208",
+          "timestamp": "2026-06-30T22:57:41.784Z"
         }
       ]
     },
@@ -138,10 +138,10 @@
           "command": "node packages/main/dist/tasks/verification-freshness-smoke.js",
           "result": "pass",
           "note": "Freshness smoke now pairs the existing runtime reuse check with static production call-site assertions proving runDoneOracleGate, buildStoryReadinessReport/buildDoneRows, and session_brief DONE pre-check capture and pass evidenceHashSnapshot.",
-          "headHash": "24a8b451b0e5c6fe2616b84bbc588450eda0f2f5",
-          "materialHash": "4147dab2099db6f85ac69d7cdad422acde63d07d29cbc3d65a45768c3c1a1b30",
-          "storyFilesHash": "44861489f6cdb5a51dd6ad94afd91b88f4eeb4058bc8c865e9a6bf3e30e98272",
-          "timestamp": "2026-06-30T22:41:52.126Z"
+          "headHash": "81142abe78522e08b743df2eaa329d5f88760e5d",
+          "materialHash": "30eced32bd5256815161adfd6d122505ed4824c9c64e4d5d9c905fcddefabb8a",
+          "storyFilesHash": "9f564017af88410f8650e4a55a2a91b73c0f10aefc816d5e1ec2740f153f0208",
+          "timestamp": "2026-06-30T22:57:41.784Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -149,10 +149,10 @@
           "command": "npm --prefix packages/main run test:review-escalation-freshness-root",
           "result": "pass",
           "note": "Review-escalation freshness-root smoke passed after threading snapshots, confirming fallback/recomputation behavior remains valid where no supplied snapshot is available.",
-          "headHash": "24a8b451b0e5c6fe2616b84bbc588450eda0f2f5",
-          "materialHash": "4147dab2099db6f85ac69d7cdad422acde63d07d29cbc3d65a45768c3c1a1b30",
-          "storyFilesHash": "44861489f6cdb5a51dd6ad94afd91b88f4eeb4058bc8c865e9a6bf3e30e98272",
-          "timestamp": "2026-06-30T22:41:52.332Z"
+          "headHash": "81142abe78522e08b743df2eaa329d5f88760e5d",
+          "materialHash": "30eced32bd5256815161adfd6d122505ed4824c9c64e4d5d9c905fcddefabb8a",
+          "storyFilesHash": "9f564017af88410f8650e4a55a2a91b73c0f10aefc816d5e1ec2740f153f0208",
+          "timestamp": "2026-06-30T22:57:41.785Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -160,10 +160,10 @@
           "command": "node packages/main/dist/tasks/verification-freshness-smoke.js && node packages/main/dist/tasks/delivery-check-freshness-smoke.js",
           "result": "pass",
           "note": "Freshness smoke rejected a stale supplied snapshot after dirty material drift, and delivery-check freshness smoke still proves story-owned drift remains stale across DONE consumers.",
-          "headHash": "24a8b451b0e5c6fe2616b84bbc588450eda0f2f5",
-          "materialHash": "4147dab2099db6f85ac69d7cdad422acde63d07d29cbc3d65a45768c3c1a1b30",
-          "storyFilesHash": "44861489f6cdb5a51dd6ad94afd91b88f4eeb4058bc8c865e9a6bf3e30e98272",
-          "timestamp": "2026-06-30T22:41:52.532Z"
+          "headHash": "81142abe78522e08b743df2eaa329d5f88760e5d",
+          "materialHash": "30eced32bd5256815161adfd6d122505ed4824c9c64e4d5d9c905fcddefabb8a",
+          "storyFilesHash": "9f564017af88410f8650e4a55a2a91b73c0f10aefc816d5e1ec2740f153f0208",
+          "timestamp": "2026-06-30T22:57:41.785Z"
         }
       ]
     },
@@ -217,10 +217,10 @@
           "command": "node packages/main/dist/tasks/verification-freshness-smoke.js",
           "result": "pass",
           "note": "Focused smoke asserted unchanged-state snapshot reuse succeeds and printed captureEvidenceHashSnapshot: reusable=true, materialDirty=false.",
-          "headHash": "dd4092abb677e3bfdf539957554e6de7b20f1637",
-          "materialHash": "4147dab2099db6f85ac69d7cdad422acde63d07d29cbc3d65a45768c3c1a1b30",
-          "storyFilesHash": "44861489f6cdb5a51dd6ad94afd91b88f4eeb4058bc8c865e9a6bf3e30e98272",
-          "timestamp": "2026-06-30T22:54:29.369Z"
+          "headHash": "81142abe78522e08b743df2eaa329d5f88760e5d",
+          "materialHash": "30eced32bd5256815161adfd6d122505ed4824c9c64e4d5d9c905fcddefabb8a",
+          "storyFilesHash": "9f564017af88410f8650e4a55a2a91b73c0f10aefc816d5e1ec2740f153f0208",
+          "timestamp": "2026-06-30T22:57:41.785Z"
         },
         {
           "intentRef": "CHK-003:edge:0",
@@ -228,10 +228,10 @@
           "command": "node packages/main/dist/tasks/delivery-check-freshness-smoke.js",
           "result": "pass",
           "note": "Delivery-check freshness smoke passed its story-owned change after delivery-check is stale across DONE consumers case.",
-          "headHash": "dd4092abb677e3bfdf539957554e6de7b20f1637",
-          "materialHash": "4147dab2099db6f85ac69d7cdad422acde63d07d29cbc3d65a45768c3c1a1b30",
-          "storyFilesHash": "44861489f6cdb5a51dd6ad94afd91b88f4eeb4058bc8c865e9a6bf3e30e98272",
-          "timestamp": "2026-06-30T22:54:29.369Z"
+          "headHash": "81142abe78522e08b743df2eaa329d5f88760e5d",
+          "materialHash": "30eced32bd5256815161adfd6d122505ed4824c9c64e4d5d9c905fcddefabb8a",
+          "storyFilesHash": "9f564017af88410f8650e4a55a2a91b73c0f10aefc816d5e1ec2740f153f0208",
+          "timestamp": "2026-06-30T22:57:41.785Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -239,10 +239,10 @@
           "command": "node packages/main/dist/tasks/verification-freshness-smoke.js",
           "result": "pass",
           "note": "Focused smoke printed stale supplied snapshot rejected after dirty material drift and asserted reusable=false/materialDirty=true.",
-          "headHash": "dd4092abb677e3bfdf539957554e6de7b20f1637",
-          "materialHash": "4147dab2099db6f85ac69d7cdad422acde63d07d29cbc3d65a45768c3c1a1b30",
-          "storyFilesHash": "44861489f6cdb5a51dd6ad94afd91b88f4eeb4058bc8c865e9a6bf3e30e98272",
-          "timestamp": "2026-06-30T22:54:29.369Z"
+          "headHash": "81142abe78522e08b743df2eaa329d5f88760e5d",
+          "materialHash": "30eced32bd5256815161adfd6d122505ed4824c9c64e4d5d9c905fcddefabb8a",
+          "storyFilesHash": "9f564017af88410f8650e4a55a2a91b73c0f10aefc816d5e1ec2740f153f0208",
+          "timestamp": "2026-06-30T22:57:41.785Z"
         }
       ]
     },
@@ -294,10 +294,10 @@
           "command": "rg -n \"M1 command-local syndrome preflight|mtime|file-count|fountain|erasure\" docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
           "result": "pass",
           "note": "Doc grep found the new M1 command-local syndrome preflight subsection.",
-          "headHash": "dd4092abb677e3bfdf539957554e6de7b20f1637",
-          "materialHash": "4147dab2099db6f85ac69d7cdad422acde63d07d29cbc3d65a45768c3c1a1b30",
-          "storyFilesHash": "44861489f6cdb5a51dd6ad94afd91b88f4eeb4058bc8c865e9a6bf3e30e98272",
-          "timestamp": "2026-06-30T22:54:29.369Z"
+          "headHash": "81142abe78522e08b743df2eaa329d5f88760e5d",
+          "materialHash": "30eced32bd5256815161adfd6d122505ed4824c9c64e4d5d9c905fcddefabb8a",
+          "storyFilesHash": "9f564017af88410f8650e4a55a2a91b73c0f10aefc816d5e1ec2740f153f0208",
+          "timestamp": "2026-06-30T22:57:41.785Z"
         },
         {
           "intentRef": "CHK-004:edge:0",
@@ -305,10 +305,10 @@
           "command": "rg -n \"M1 command-local syndrome preflight|mtime|file-count|fountain|erasure\" docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
           "result": "pass",
           "note": "Doc grep found the subsection line saying no persistent cache and no mtime or file-count freshness keys.",
-          "headHash": "dd4092abb677e3bfdf539957554e6de7b20f1637",
-          "materialHash": "4147dab2099db6f85ac69d7cdad422acde63d07d29cbc3d65a45768c3c1a1b30",
-          "storyFilesHash": "44861489f6cdb5a51dd6ad94afd91b88f4eeb4058bc8c865e9a6bf3e30e98272",
-          "timestamp": "2026-06-30T22:54:29.369Z"
+          "headHash": "81142abe78522e08b743df2eaa329d5f88760e5d",
+          "materialHash": "30eced32bd5256815161adfd6d122505ed4824c9c64e4d5d9c905fcddefabb8a",
+          "storyFilesHash": "9f564017af88410f8650e4a55a2a91b73c0f10aefc816d5e1ec2740f153f0208",
+          "timestamp": "2026-06-30T22:57:41.785Z"
         },
         {
           "intentRef": "CHK-004:adversarial:0",
@@ -316,10 +316,10 @@
           "command": "rg -n \"M1 command-local syndrome preflight|mtime|file-count|fountain|erasure\" docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
           "result": "pass",
           "note": "Doc grep found the explicit fountain/erasure-code evidence recovery non-goal.",
-          "headHash": "dd4092abb677e3bfdf539957554e6de7b20f1637",
-          "materialHash": "4147dab2099db6f85ac69d7cdad422acde63d07d29cbc3d65a45768c3c1a1b30",
-          "storyFilesHash": "44861489f6cdb5a51dd6ad94afd91b88f4eeb4058bc8c865e9a6bf3e30e98272",
-          "timestamp": "2026-06-30T22:54:29.369Z"
+          "headHash": "81142abe78522e08b743df2eaa329d5f88760e5d",
+          "materialHash": "30eced32bd5256815161adfd6d122505ed4824c9c64e4d5d9c905fcddefabb8a",
+          "storyFilesHash": "9f564017af88410f8650e4a55a2a91b73c0f10aefc816d5e1ec2740f153f0208",
+          "timestamp": "2026-06-30T22:57:41.785Z"
         }
       ]
     }
