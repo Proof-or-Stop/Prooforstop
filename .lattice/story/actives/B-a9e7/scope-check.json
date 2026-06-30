@@ -1,0 +1,44 @@
+{
+  "storyId": "B-a9e7",
+  "checkedAt": "2026-06-30T15:45:46.909Z",
+  "features": [
+    {
+      "feature": "CHK-001 Inventory legacy Koala dev-memory entries and define supersession mapping",
+      "covered_by": "Plan CHK-001 inventories Koala/.koala/koala-* memory terms, preserves legacy rows, and defines supersession via supersedes-<id> tags plus dev-memory:<id> evidenceRefs.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan_get: CHK-001"
+    },
+    {
+      "feature": "CHK-002 Implement dev-memory supersession priority for preflight/search/list consumers",
+      "covered_by": "Plan CHK-002 adds computed supersession metadata in core dev-memory, ranks current superseding entries ahead of superseded legacy entries, and annotates search/list/preflight formatting.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan_get: CHK-002"
+    },
+    {
+      "feature": "CHK-003 Capture current Proofbound/Lattice superseding memories for legacy Koala lessons",
+      "covered_by": "Plan CHK-003 appends current Proofbound/Lattice project memories citing legacy ids, keeps old global entries untouched/readable, and requires search/preflight to prefer current entries.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan_get: CHK-003"
+    },
+    {
+      "feature": "CHK-004 Add smoke coverage for superseded dev-memory ordering and legacy terminology mapping",
+      "covered_by": "Plan CHK-004 seeds legacy Koala plus current Proofbound/Lattice entries and verifies supersession projection, ordering, formatting, and non-authoritative legacy flags.",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "plan_get: CHK-004"
+    }
+  ],
+  "summary": {
+    "total": 4,
+    "covered": 4,
+    "excluded": 0,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "ab7de4d3f99fdf47295cfc42fd4f62b4d5c2561316205ff17891ce30655177db"
+}
