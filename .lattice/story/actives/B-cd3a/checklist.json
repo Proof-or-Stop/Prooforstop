@@ -246,6 +246,7 @@
       "files": {
         "modify": [
           "lattice.config.json",
+          "packages/main/src/core/evidence/admissibility",
           "packages/main/src/core/evidence/admissibility/index.ts",
           "packages/main/src/core/proof-admissibility.ts",
           "packages/main/src/core/proof-admissibility-gates.ts",
@@ -282,7 +283,8 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "userSees": "User sees high-risk proof consumers reject stale, legacy, unbound, or inadmissible proof while local CLI output does not claim productionDone."
     },
     {
       "id": "CHK-007",
