@@ -2,7 +2,7 @@
 
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 
@@ -19,6 +19,7 @@ import type { ChecklistData, StoryInfo } from '../core/types.js';
 
 const NOW = '2026-06-30T00:00:00.000Z';
 const TIER_C_BATCH_ID = 'tier-c-provider-execution-receipt-verification';
+const CLOSURE_AUDIT_PATH = 'docs/requirements/decisions/control-plane-proof-capability-closure-audit.md';
 
 function git(cwd: string, args: string[]): string {
   return execFileSync('git', args, {
@@ -106,6 +107,20 @@ function createFixture(): { root: string; store: StoryStore } {
     store.writeChecklist(fixtureStory.storyId, checklist());
   }
   return { root, store };
+}
+
+function assertClosureAuditContract(): void {
+  const audit = readFileSync(join(process.cwd(), CLOSURE_AUDIT_PATH), 'utf8');
+  for (const milestone of ['M1', 'M2', 'M3', 'M4', 'M5', 'M6', 'M7']) {
+    const matches = audit.match(new RegExp(`\\| ${milestone} \\|`, 'g')) ?? [];
+    assert.equal(matches.length, 1, `${CLOSURE_AUDIT_PATH} must list ${milestone} exactly once`);
+  }
+  for (const checklistId of ['CHK-001', 'CHK-002', 'CHK-003', 'CHK-004', 'CHK-005', 'CHK-006', 'CHK-007']) {
+    assert.ok(audit.includes(`| ${checklistId} |`), `${CLOSURE_AUDIT_PATH} must bind ${checklistId}`);
+  }
+  assert.match(audit, /\| M4 \| CHK-004 \| Append-only admissibility ledger \| retired\/non-goal \|/);
+  assert.match(audit, /\| M7 \| CHK-007 \| CommandSpec envelope and project waterline coverage \| missing-to-implement \|/);
+  assert.ok(!audit.includes('| M8 |'), `${CLOSURE_AUDIT_PATH} must not expand B-c004 beyond M1-M7`);
 }
 
 function assertCapabilityStatuses(): void {
@@ -216,6 +231,7 @@ function assertRuntimeEnforcementDecisions(): void {
   assert.equal(staleLock.reason, 'stale_active_lock');
 }
 
+assertClosureAuditContract();
 assertCapabilityStatuses();
 const { root, store } = createFixture();
 assertTierCQueueGovernance(root, store);

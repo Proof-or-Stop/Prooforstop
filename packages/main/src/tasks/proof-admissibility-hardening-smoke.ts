@@ -6,7 +6,7 @@
  */
 
 import assert from 'node:assert/strict';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import {
@@ -48,6 +48,19 @@ const enforceHighRisk: ProofAdmissibilityPolicy = {
   mode: 'enforce',
   enforcedConsumers: ['DONE_REQUIRED', 'REVIEW', 'HANDOFF', 'AUTHORITY_GATE_DECISION'],
 };
+const CLOSURE_AUDIT_PATH = 'docs/requirements/decisions/control-plane-proof-capability-closure-audit.md';
+
+function assertClosureAuditContract(): void {
+  const audit = readFileSync(join(process.cwd(), CLOSURE_AUDIT_PATH), 'utf8');
+  for (const milestone of ['M1', 'M2', 'M3', 'M4', 'M5', 'M6', 'M7']) {
+    const matches = audit.match(new RegExp(`\\| ${milestone} \\|`, 'g')) ?? [];
+    assert.equal(matches.length, 1, `${CLOSURE_AUDIT_PATH} must list ${milestone} exactly once`);
+  }
+  assert.match(audit, /\| M4 \| CHK-004 \| Append-only admissibility ledger \| retired\/non-goal \|/);
+  assert.match(audit, /\| M7 \| CHK-007 \| CommandSpec envelope and project waterline coverage \| missing-to-implement \|/);
+}
+
+assertClosureAuditContract();
 
 function currentValidChecks(schemaVersion: string) {
   return {
