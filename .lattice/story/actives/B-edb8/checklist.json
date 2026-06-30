@@ -87,9 +87,9 @@
         "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
         "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-30T13:57:25.683Z",
       "userSees": "The user sees strict parent roadmap statuses and claim types accepted or rejected predictably by the smoke tests.",
       "files": {
         "modify": [
@@ -121,7 +121,42 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js --case=state-model",
+          "result": "pass",
+          "note": "State-model case verifies exported schema versions, row statuses, summary classes, claim types, and full ledger closure.",
+          "headHash": "112cc3f6e5941290e41f90aeea9a3d7d9f803e74",
+          "materialHash": "dc1f3d527d5e212e1b41a4345bba75d08cce6a9356a301b5b60eb4ef04336878",
+          "storyFilesHash": "65336d8a9a4378cd29245f90817deff460ee2a0f572b8a97fe0c7dc2138f39d0",
+          "timestamp": "2026-06-30T13:57:25.909Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js --case=state-model",
+          "result": "pass",
+          "note": "Unknown status is classified invalid_parent_rollup with invalidRows instead of being silently closed.",
+          "headHash": "112cc3f6e5941290e41f90aeea9a3d7d9f803e74",
+          "materialHash": "dc1f3d527d5e212e1b41a4345bba75d08cce6a9356a301b5b60eb4ef04336878",
+          "storyFilesHash": "65336d8a9a4378cd29245f90817deff460ee2a0f572b8a97fe0c7dc2138f39d0",
+          "timestamp": "2026-06-30T13:57:26.103Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js --case=evaluator",
+          "result": "pass",
+          "note": "Child-story-needed rows remain valid data and still force no-full-roadmap-claim.",
+          "headHash": "112cc3f6e5941290e41f90aeea9a3d7d9f803e74",
+          "materialHash": "dc1f3d527d5e212e1b41a4345bba75d08cce6a9356a301b5b60eb4ef04336878",
+          "storyFilesHash": "65336d8a9a4378cd29245f90817deff460ee2a0f572b8a97fe0c7dc2138f39d0",
+          "timestamp": "2026-06-30T13:57:26.301Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
