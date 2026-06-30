@@ -3542,7 +3542,7 @@ async function assertLifecycleArtifactScopePolicy() {
     }
   }
   const requiredRoadmapMarkers = [
-    'M1-M3 wave complete; M4-M12 remain follow-up milestones',
+    'Status: B-e781 closes B-43de M4-M12 parent roadmap rows with local machine evidence and row-level claim boundaries',
     'Wave 1 shipped behavior',
     'scope.out_of_scope:src/other.ts',
     'scope.lifecycle_artifact:B-scope:summary.json',
