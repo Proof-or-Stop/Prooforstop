@@ -157,6 +157,7 @@
         ],
         "create": [],
         "test": [
+          "packages/main/src/tasks",
           "packages/main/src/tasks/lifecycle-check-smoke.ts",
           "packages/main/src/tasks/story-authority-resolve-smoke.ts",
           "node packages/main/dist/tasks/lifecycle-check-smoke.js",
@@ -182,7 +183,8 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "userSees": "User sees runtime closure diagnostics identify configured hard-block status and rollback/config state for unsafe lifecycle operations."
     },
     {
       "id": "CHK-005",
