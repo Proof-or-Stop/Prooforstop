@@ -1,0 +1,64 @@
+{
+  "storyId": "B-0888",
+  "checkedAt": "2026-06-30T22:43:10.902Z",
+  "headHash": "d97e247979e606f5b5d85e6427e4053d04d2970c",
+  "materialHash": "823bd49a615a3a66e2937be4d50c8ca0992f84d0b8ad607792e44df0ee525ccc",
+  "storyFilesHash": "01c63a05e64648d526a76ef686a094d29af8dd202174a2be94cdb23cb3f8c84d",
+  "reviewRound": "2026-06-30T22:27:30.093Z",
+  "agentId": "lattice-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "delivery_context_pack:B-0888:userSees[0]",
+      "promise": "User sees no Koala/koala/.koala hits when scanning project dev-memory after cleanup.",
+      "status": "verified",
+      "verifiedBy": "live smoke transcript, rg project scan, project dev_memory_search, validate",
+      "evidence": "live_smoke_transcript status reports present(fresh); rg -n -i koala|\\.koala|legacy-koala over .lattice/dev-memory and smoke source returned no matches; lattice dev_memory_search --query=koala returned no entries; lattice validate passed."
+    },
+    {
+      "docPath": "delivery_context_pack:B-0888:userSees[1]",
+      "promise": "User sees global dev-memory search/list no longer returning old Koala memory rows.",
+      "status": "verified",
+      "verifiedBy": "global dev-memory list/search and rg scan",
+      "evidence": "lattice dev_memory_list --scope=global --limit=20 shows 2 current non-Koala entries; lattice dev_memory_search --query=koala --global --limit=20 returned no entries; rg over /Users/jek/.lattice/dev-memory/experience.jsonl returned no matches."
+    },
+    {
+      "docPath": "delivery_context_pack:B-0888:userSees[2]",
+      "promise": "User sees the dev-memory smoke prove zero old-brand memory hits instead of legacy-readable supersession.",
+      "status": "verified",
+      "verifiedBy": "smoke transcript summaries and validate coverage",
+      "evidence": "CHK-003 transcript summary records dev-memory physical cleanup smoke passed with zero old-brand hits in project and fixture global memory outputs, including adversarial reintroduction checks."
+    },
+    {
+      "docPath": "delivery_context_pack:B-0888:userSees[3]",
+      "promise": "User sees build, smoke, residue, and memory scans pass after physical cleanup.",
+      "status": "verified",
+      "verifiedBy": "routine validate and live scans",
+      "evidence": "lattice validate --story=B-0888 passed all 31 configured commands; CHK-004 evidence covers build, normal smoke, empty-global smoke, residue scan, and retired-brand rg scans."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Project memory cleanup transcript: rg over .lattice/dev-memory plus packages/main/src/tasks/dev-memory-supersession-smoke.ts produced no Koala/koala/.koala/legacy-koala matches; project dev_memory_search for koala returned no entries; project dev_memory_list still shows current Proofbound/Lattice and host-policy rows d6f173d and 9bd6b5a."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Global memory cleanup transcript: lattice dev_memory_list --scope=global --limit=20 shows only current non-Koala rows 9890b83 and a4d08a8; lattice dev_memory_search --query=koala --global --limit=20 returned no entries; rg over /Users/jek/.lattice/dev-memory/experience.jsonl produced no retired-brand matches."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Smoke transcript summary: dev-memory-supersession smoke proves zero old-brand hits in parsed project entries, tags, formatted output, raw memory files, and fixture global memory; hermetic run with LATTICE_GLOBAL_MEMORY_DIR=$(mktemp -d) also passed and preserves current host-policy memories."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Build and residue transcript summary: npm --prefix packages/main run build passed; node packages/main/dist/tasks/dev-memory-supersession-smoke.js passed; empty-global smoke passed; npm run test:lattice-residue passed; retired-brand rg scans over project and global memory returned no output."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Delivery promises are met by fresh live-smoke status, current project/global memory scans with no retired-brand hits, routine validation PASS with 12/12 verification coverage, and CHK-001..CHK-004 transcript summaries covering happy, edge, and adversarial cases."
+  },
+  "_hash": "97867f44dc00acb27e37a5191743c60a0cc731f5ac25ba26e4e09f8b35f7e27a"
+}

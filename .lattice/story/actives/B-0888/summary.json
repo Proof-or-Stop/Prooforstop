@@ -1,0 +1,56 @@
+{
+  "storyId": "B-0888",
+  "changes": "Physically cleaned project dev-memory old brand residue, deleted old global dev-memory rows, and updated the dev-memory cleanup smoke so it proves physical cleanup with a hermetic global-memory fixture.",
+  "usage": "Run lattice dev_memory_search --query=koala --global --limit=20 or inspect project/global dev-memory; old brand entries should no longer appear.",
+  "expectedOutcome": "Searching dev-memory for koala returns no old Koala/koala/.koala guidance, while current Proofbound/Lattice and host-policy memories remain available.",
+  "actualTranscript": "lattice dev_memory_search --query=koala --global --limit=20 returned: No dev-memory experience entries found for query: \"koala\". The cleanup smoke passed 9 checks and root DONE-required validation passed.",
+  "outcomeDiff": "No difference: expected no old-brand memory search results, and actual search returned no entries.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "No runtime CLI product behavior was changed; only dev-memory data and the cleanup smoke were changed. Historical story evidence was not rewritten.",
+  "pitfalls": "Quality review found the first smoke depended on real ~/.lattice global rows; fixed by seeding a temporary global-memory fixture and verifying the empty-global repro passes.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 178501
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 6068
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 628049
+    },
+    "DEV": {
+      "count": 3,
+      "durationMs": 832419
+    },
+    "REVIEW": {
+      "count": 3,
+      "durationMs": 999592
+    },
+    "TEST": {
+      "count": 2,
+      "durationMs": 617655
+    }
+  },
+  "totalDurationMs": 3262457,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-06-30T22:50:58.253Z",
+  "updatedAt": "2026-06-30T22:50:58.253Z"
+}

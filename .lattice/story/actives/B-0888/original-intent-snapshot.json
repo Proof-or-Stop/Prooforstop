@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-0888",
+  "sourceText": "User selected physical cleanup: 做物理清理吧，不然每次因为这个旧记忆浪费很多时间，都不需要有legacy-koala-* 标签，因为现在除了我没有其他人使用.",
+  "normalizedOutcome": "Project and global dev-memory no longer contain Koala/koala/.koala old-brand entries, tags, or evidence refs; current Proofbound/Lattice memories remain usable.",
+  "acceptanceClaim": "rg old-brand checks over project and global dev-memory return zero matches, and dev_memory_search/list no longer surfaces old-brand memory guidance.",
+  "keyRequirementIds": [
+    "REQ-no-legacy-tags",
+    "REQ-physical-cleanup",
+    "REQ-preserve-current-memory"
+  ],
+  "requestHash": "sha256:c0867e6bbb2d2c617045167e21515ab381d824bb161342247421d854c7d26137",
+  "createdAt": "2026-06-30T22:01:50.134Z",
+  "updatedAt": "2026-06-30T22:01:50.134Z"
+}

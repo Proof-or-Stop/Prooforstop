@@ -1,0 +1,392 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Update Parent Roadmap status from stale plan-only wording to current implemented/read-only boundary",
+      "context": "The document still says Status: plan-only for B-9fc5 even though parent_roadmap_status/evaluate, core evaluator, process-fact registration, and parent-roadmap-totality-smoke exist. Add a current status table, mark implemented rows with checkmarks, and preserve that commands are read-only diagnostics rather than global lifecycle hard gates.",
+      "relatedDocs": [
+        "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md"
+      ],
+      "status": "done",
+      "startTime": "2026-06-30T22:38:05.525Z",
+      "endTime": "2026-06-30T22:38:22.256Z",
+      "userSees": "User sees a Parent Roadmap status table where implemented rows are marked ✅ and read-only/non-hard-gate boundaries remain explicit.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/parent-roadmap-totality-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The Parent Roadmap document no longer presents the whole plan as plan-only; it contains a current implementation status table with ✅ rows for implemented local CLI/read-only behavior.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The table explicitly says parent_roadmap_status/evaluate remain read-only diagnostics and not global lifecycle hard gates.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The document does not claim all roadmap rows or M4-M12 runtime work are complete merely because parent governance/read-only checks exist.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+          "command": "rg -n \"Status: implemented local read-only|✅ Implemented\" docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+          "result": "pass",
+          "note": "Parent Roadmap now has a current implementation status table with completed local read-only/evaluator rows marked with ✅.",
+          "headHash": "671c059e04479ad2835c6370f1822ea5f9d223d1",
+          "materialHash": "99f64178c220986888e681b09e55d74e0d33aa960e70f6ca1849b6a30953bdfd",
+          "storyFilesHash": "b1e1bbbaac052c1d5f1344084a82344c412e6a1ae00f69cb8139cfe34f1c5909",
+          "timestamp": "2026-06-30T22:38:22.414Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+          "command": "rg -n \"read-only diagnostic|not a global lifecycle hard gate\" docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+          "result": "pass",
+          "note": "The document explicitly preserves read-only diagnostic scope and denies global lifecycle hard-gate overclaim.",
+          "headHash": "671c059e04479ad2835c6370f1822ea5f9d223d1",
+          "materialHash": "99f64178c220986888e681b09e55d74e0d33aa960e70f6ca1849b6a30953bdfd",
+          "storyFilesHash": "b1e1bbbaac052c1d5f1344084a82344c412e6a1ae00f69cb8139cfe34f1c5909",
+          "timestamp": "2026-06-30T22:38:22.559Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+          "command": "rg -n \"does not claim M4-M12 runtime completion|does not claim the original M4-M12\" docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+          "result": "pass",
+          "note": "The completion boundary does not claim all M4-M12 runtime roadmap work is complete.",
+          "headHash": "671c059e04479ad2835c6370f1822ea5f9d223d1",
+          "materialHash": "99f64178c220986888e681b09e55d74e0d33aa960e70f6ca1849b6a30953bdfd",
+          "storyFilesHash": "b1e1bbbaac052c1d5f1344084a82344c412e6a1ae00f69cb8139cfe34f1c5909",
+          "timestamp": "2026-06-30T22:38:22.746Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-002",
+      "title": "Update Proof Admissibility hardening status table for local CLI completion and retired external proof boundaries",
+      "context": "The plan already says local CLI hardening is mainly implemented while external adapter, append-only ledger, and cross-runtime parity are partial/future/retired. Add or refine a milestone table with checkmarks for completed local CLI rows and explicit non-goal/future rows, consistent with server-backed receipt proof retirement.",
+      "relatedDocs": [
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+      ],
+      "status": "done",
+      "startTime": "2026-06-30T22:38:46.031Z",
+      "endTime": "2026-06-30T22:38:58.815Z",
+      "userSees": "User sees Proof Admissibility local CLI hardening rows marked ✅ and retired/future external proof boundaries kept out of completion claims.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The Proof Admissibility document has a status table marking completed local CLI hardening milestones with ✅.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Append-only ledger and cross-runtime/external parity are labeled retired, non-goal, or future rather than treated as missing local CLI work.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "No row claims server-backed production completion or external proof authority from local CLI evidence.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "command": "rg -n \"✅ Implemented|Implemented .* ✅\" docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "result": "pass",
+          "note": "Proof Admissibility completed local CLI hardening rows are marked with ✅ in status and compatibility tables.",
+          "headHash": "671c059e04479ad2835c6370f1822ea5f9d223d1",
+          "materialHash": "99f64178c220986888e681b09e55d74e0d33aa960e70f6ca1849b6a30953bdfd",
+          "storyFilesHash": "b1e1bbbaac052c1d5f1344084a82344c412e6a1ae00f69cb8139cfe34f1c5909",
+          "timestamp": "2026-06-30T22:38:59.017Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "command": "rg -n \"Retired/non-goal|retired local CLI non-goals|future-integration reference material\" docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "result": "pass",
+          "note": "Append-only ledger and cross-runtime/external parity remain retired, non-goal, or future integration rather than missing local CLI work.",
+          "headHash": "671c059e04479ad2835c6370f1822ea5f9d223d1",
+          "materialHash": "99f64178c220986888e681b09e55d74e0d33aa960e70f6ca1849b6a30953bdfd",
+          "storyFilesHash": "b1e1bbbaac052c1d5f1344084a82344c412e6a1ae00f69cb8139cfe34f1c5909",
+          "timestamp": "2026-06-30T22:38:59.185Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "command": "rg -n \"productionDone=false|productionDoneEligible=false|production completion\" docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "result": "pass",
+          "note": "The document preserves the local CLI non-production boundary and does not claim external/server-backed production completion from local evidence.",
+          "headHash": "671c059e04479ad2835c6370f1822ea5f9d223d1",
+          "materialHash": "99f64178c220986888e681b09e55d74e0d33aa960e70f6ca1849b6a30953bdfd",
+          "storyFilesHash": "b1e1bbbaac052c1d5f1344084a82344c412e6a1ae00f69cb8139cfe34f1c5909",
+          "timestamp": "2026-06-30T22:38:59.355Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-003",
+      "title": "Update Global Lifecycle Control Plane status table for implemented, partial, and unavailable rows",
+      "context": "The document marks Proof M7 enforcement partial, admissibility waterline partial, and Tier-C cleanup unavailable. Add a concise completion table that marks implemented control-plane rows with checkmarks and keeps partial/unavailable rows honest without inventing runtime hard automation.",
+      "relatedDocs": [
+        "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md"
+      ],
+      "status": "done",
+      "startTime": "2026-06-30T22:39:08.146Z",
+      "endTime": "2026-06-30T22:39:45.992Z",
+      "userSees": "User sees Global Control Plane implemented rows marked ✅ while partial and unavailable rows remain visibly partial/unavailable.",
+      "files": {
+        "modify": [
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md"
+        ],
+        "create": [],
+        "test": [
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The Global Lifecycle Control Plane document has a concise completion table marking implemented control-plane rows with ✅.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Proof M7 enforcement, admissibility waterline, and Tier-C cleanup remain labeled partial or unavailable as appropriate.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The document does not claim the control plane implements Proof M7 hard blocking, automated Tier-C cleanup, or local productionDone minting.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "command": "rg -n \"implemented ✅\" docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "result": "pass",
+          "note": "Global Control Plane completed status rows are marked with ✅ in the capability and split tables.",
+          "headHash": "671c059e04479ad2835c6370f1822ea5f9d223d1",
+          "materialHash": "99f64178c220986888e681b09e55d74e0d33aa960e70f6ca1849b6a30953bdfd",
+          "storyFilesHash": "b1e1bbbaac052c1d5f1344084a82344c412e6a1ae00f69cb8139cfe34f1c5909",
+          "timestamp": "2026-06-30T22:39:46.227Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "command": "rg -n \"partial|unavailable\" docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "result": "pass",
+          "note": "Proof M7 enforcement, admissibility waterline, and Tier-C cleanup remain explicitly partial or unavailable.",
+          "headHash": "671c059e04479ad2835c6370f1822ea5f9d223d1",
+          "materialHash": "99f64178c220986888e681b09e55d74e0d33aa960e70f6ca1849b6a30953bdfd",
+          "storyFilesHash": "b1e1bbbaac052c1d5f1344084a82344c412e6a1ae00f69cb8139cfe34f1c5909",
+          "timestamp": "2026-06-30T22:39:46.400Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "command": "rg -n \"Proof M7 hard blocking|Tier-C cleanup is retired|cannot mint\" docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "result": "pass",
+          "note": "The document avoids Proof M7 hard-blocking, Tier-C automation, and productionDone overclaim from the control plane.",
+          "headHash": "671c059e04479ad2835c6370f1822ea5f9d223d1",
+          "materialHash": "99f64178c220986888e681b09e55d74e0d33aa960e70f6ca1849b6a30953bdfd",
+          "storyFilesHash": "b1e1bbbaac052c1d5f1344084a82344c412e6a1ae00f69cb8139cfe34f1c5909",
+          "timestamp": "2026-06-30T22:39:46.588Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-004",
+      "title": "Verify all three documents have completed rows marked and no full-completion overclaim",
+      "context": "Run targeted rg checks and relevant existing smokes for parent-roadmap/proof/process fact contracts as appropriate. Evidence should prove the tables exist, completed rows use checkmarks, and partial/future/non-goal boundaries remain explicit.",
+      "relatedDocs": [
+        "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+        "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+        "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md"
+      ],
+      "status": "done",
+      "startTime": "2026-06-30T22:40:04.001Z",
+      "endTime": "2026-06-30T22:40:24.189Z",
+      "userSees": "User sees final verification evidence showing all three documents contain ✅ completion tables and retain non-overclaim boundaries.",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "packages/main/src/core/parent-roadmap-totality.ts",
+          "packages/main/src/handlers/parent-roadmap.ts",
+          "packages/main/src/core/proof-admissibility.ts",
+          "packages/main/src/core/lifecycle-control",
+          "packages/main/src/tasks/parent-roadmap-totality-smoke.ts",
+          "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Targeted rg checks find ✅ completion/status tables in all three documents.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Existing parent-roadmap and proof/process-fact verification commands still pass after doc edits.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Targeted checks still find partial/future/retired/unavailable/non-hard-gate boundary language after the ✅ rows are added.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+          "command": "rg -n \"✅\" docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "result": "pass",
+          "note": "Targeted rg checks find ✅ completion/status rows in all three scoped documents.",
+          "headHash": "671c059e04479ad2835c6370f1822ea5f9d223d1",
+          "materialHash": "99f64178c220986888e681b09e55d74e0d33aa960e70f6ca1849b6a30953bdfd",
+          "storyFilesHash": "b1e1bbbaac052c1d5f1344084a82344c412e6a1ae00f69cb8139cfe34f1c5909",
+          "timestamp": "2026-06-30T22:40:24.385Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/package.json",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "TypeScript build passed after the docs/status-table changes.",
+          "headHash": "671c059e04479ad2835c6370f1822ea5f9d223d1",
+          "materialHash": "99f64178c220986888e681b09e55d74e0d33aa960e70f6ca1849b6a30953bdfd",
+          "storyFilesHash": "b1e1bbbaac052c1d5f1344084a82344c412e6a1ae00f69cb8139cfe34f1c5909",
+          "timestamp": "2026-06-30T22:40:24.785Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/parent-roadmap-totality-smoke.ts",
+          "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js",
+          "result": "pass",
+          "note": "Parent-roadmap totality smoke passed all local evaluator/claim-consumer cases.",
+          "headHash": "671c059e04479ad2835c6370f1822ea5f9d223d1",
+          "materialHash": "99f64178c220986888e681b09e55d74e0d33aa960e70f6ca1849b6a30953bdfd",
+          "storyFilesHash": "b1e1bbbaac052c1d5f1344084a82344c412e6a1ae00f69cb8139cfe34f1c5909",
+          "timestamp": "2026-06-30T22:40:25.103Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts",
+          "command": "node packages/main/dist/tasks/proof-admissibility-hardening-smoke.js",
+          "result": "pass",
+          "note": "Proof-admissibility hardening smoke passed local CLI hardening and retirement-boundary checks.",
+          "headHash": "671c059e04479ad2835c6370f1822ea5f9d223d1",
+          "materialHash": "99f64178c220986888e681b09e55d74e0d33aa960e70f6ca1849b6a30953bdfd",
+          "storyFilesHash": "b1e1bbbaac052c1d5f1344084a82344c412e6a1ae00f69cb8139cfe34f1c5909",
+          "timestamp": "2026-06-30T22:40:25.380Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Process-fact contract verification passed after the document updates.",
+          "headHash": "671c059e04479ad2835c6370f1822ea5f9d223d1",
+          "materialHash": "99f64178c220986888e681b09e55d74e0d33aa960e70f6ca1849b6a30953bdfd",
+          "storyFilesHash": "b1e1bbbaac052c1d5f1344084a82344c412e6a1ae00f69cb8139cfe34f1c5909",
+          "timestamp": "2026-06-30T22:40:25.603Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "command": "rg -n \"partial|unavailable|retired|non-goal|read-only|future|not a global lifecycle hard gate\" docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "result": "pass",
+          "note": "Boundary language remains present after adding ✅ rows: partial, unavailable, retired, non-goal, read-only, and future rows still exist where appropriate.",
+          "headHash": "671c059e04479ad2835c6370f1822ea5f9d223d1",
+          "materialHash": "99f64178c220986888e681b09e55d74e0d33aa960e70f6ca1849b6a30953bdfd",
+          "storyFilesHash": "b1e1bbbaac052c1d5f1344084a82344c412e6a1ae00f69cb8139cfe34f1c5909",
+          "timestamp": "2026-06-30T22:40:25.963Z"
+        }
+      ]
+    }
+  ]
+}
