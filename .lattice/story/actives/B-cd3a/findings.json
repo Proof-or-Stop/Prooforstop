@@ -40,6 +40,25 @@
       "resolvedAt": "2026-06-30T10:43:06.439Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-cd3a:F-003",
+      "desc": "packages/main/src/tasks/proof-admissibility-smoke.ts:102 still asserts Authority-facing gate decision refs with lattice.authority_gate_decision.v1, and line 119 still uses lattice.authority_receipt.v1, while packages/main/src/core/proof-admissibility.ts:276 and :294 now register lattice.external_gate_decision.v1 / lattice.external_receipt.v1. Repro: node packages/main/dist/tasks/proof-admissibility-smoke.js exits 1 with AssertionError: Authority-facing gate decision refs can be admissible evidence for the matching adapter consumer. This leaves the schema-version rename inconsistent and breaks the existing proof-admissibility smoke contract.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-06-30T10:45:33.633Z",
+      "reviewRound": "2026-06-30T10:39:22.035Z",
+      "reviewRunId": "B-cd3a:RR-010",
+      "_hash": "6699486257083416a1ac60fa69ca39b5ae991ef373f7dfcc3fd2be34fdac4c2f",
+      "files": [
+        "packages/main/src/tasks/proof-admissibility-smoke.ts",
+        "packages/main/src/core/proof-admissibility.ts"
+      ],
+      "signatureTag": "spec-boundary|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
