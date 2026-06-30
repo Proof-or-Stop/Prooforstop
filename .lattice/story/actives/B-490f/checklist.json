@@ -264,9 +264,9 @@
         "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
         "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-06-30T22:40:04.001Z",
-      "endTime": null,
+      "endTime": "2026-06-30T22:40:24.189Z",
       "userSees": "User sees final verification evidence showing all three documents contain ✅ completion tables and retain non-overclaim boundaries.",
       "files": {
         "modify": [],
@@ -306,7 +306,87 @@
             "priority": "must"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+          "command": "rg -n \"✅\" docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "result": "pass",
+          "note": "Targeted rg checks find ✅ completion/status rows in all three scoped documents.",
+          "headHash": "671c059e04479ad2835c6370f1822ea5f9d223d1",
+          "materialHash": "99f64178c220986888e681b09e55d74e0d33aa960e70f6ca1849b6a30953bdfd",
+          "storyFilesHash": "b1e1bbbaac052c1d5f1344084a82344c412e6a1ae00f69cb8139cfe34f1c5909",
+          "timestamp": "2026-06-30T22:40:24.385Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/package.json",
+          "command": "npm --prefix packages/main run build",
+          "result": "pass",
+          "note": "TypeScript build passed after the docs/status-table changes.",
+          "headHash": "671c059e04479ad2835c6370f1822ea5f9d223d1",
+          "materialHash": "99f64178c220986888e681b09e55d74e0d33aa960e70f6ca1849b6a30953bdfd",
+          "storyFilesHash": "b1e1bbbaac052c1d5f1344084a82344c412e6a1ae00f69cb8139cfe34f1c5909",
+          "timestamp": "2026-06-30T22:40:24.785Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/parent-roadmap-totality-smoke.ts",
+          "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js",
+          "result": "pass",
+          "note": "Parent-roadmap totality smoke passed all local evaluator/claim-consumer cases.",
+          "headHash": "671c059e04479ad2835c6370f1822ea5f9d223d1",
+          "materialHash": "99f64178c220986888e681b09e55d74e0d33aa960e70f6ca1849b6a30953bdfd",
+          "storyFilesHash": "b1e1bbbaac052c1d5f1344084a82344c412e6a1ae00f69cb8139cfe34f1c5909",
+          "timestamp": "2026-06-30T22:40:25.103Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts",
+          "command": "node packages/main/dist/tasks/proof-admissibility-hardening-smoke.js",
+          "result": "pass",
+          "note": "Proof-admissibility hardening smoke passed local CLI hardening and retirement-boundary checks.",
+          "headHash": "671c059e04479ad2835c6370f1822ea5f9d223d1",
+          "materialHash": "99f64178c220986888e681b09e55d74e0d33aa960e70f6ca1849b6a30953bdfd",
+          "storyFilesHash": "b1e1bbbaac052c1d5f1344084a82344c412e6a1ae00f69cb8139cfe34f1c5909",
+          "timestamp": "2026-06-30T22:40:25.380Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "integration_test",
+          "verdict": "success",
+          "file": "scripts/verify-process-fact-contract.mjs",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Process-fact contract verification passed after the document updates.",
+          "headHash": "671c059e04479ad2835c6370f1822ea5f9d223d1",
+          "materialHash": "99f64178c220986888e681b09e55d74e0d33aa960e70f6ca1849b6a30953bdfd",
+          "storyFilesHash": "b1e1bbbaac052c1d5f1344084a82344c412e6a1ae00f69cb8139cfe34f1c5909",
+          "timestamp": "2026-06-30T22:40:25.603Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "docs_check",
+          "verdict": "success",
+          "file": "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "command": "rg -n \"partial|unavailable|retired|non-goal|read-only|future|not a global lifecycle hard gate\" docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+          "result": "pass",
+          "note": "Boundary language remains present after adding ✅ rows: partial, unavailable, retired, non-goal, read-only, and future rows still exist where appropriate.",
+          "headHash": "671c059e04479ad2835c6370f1822ea5f9d223d1",
+          "materialHash": "99f64178c220986888e681b09e55d74e0d33aa960e70f6ca1849b6a30953bdfd",
+          "storyFilesHash": "b1e1bbbaac052c1d5f1344084a82344c412e6a1ae00f69cb8139cfe34f1c5909",
+          "timestamp": "2026-06-30T22:40:25.963Z"
+        }
+      ]
     }
   ]
 }
