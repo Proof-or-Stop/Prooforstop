@@ -104,11 +104,11 @@ function runtimeChecks(value: Record<string, unknown>): RuntimeAdmissibilityChec
     artifactKind: 'authority-receipt-ref',
     consumer: 'AUTHORITY_GATE_DECISION',
     claim: 'production-completion',
-    checks: currentValidChecks('lattice.authority_gate_decision.v1'),
+    checks: currentValidChecks('lattice.external_gate_decision.v1'),
   });
-  assert.equal(result.allowed, true, 'Authority-facing gate decision refs can be admissible evidence for the matching adapter consumer');
-  assert.equal(result.scope, 'production-gate-decision', 'Authority-facing gate decision refs use production-gate-decision scope');
-  assert.equal(result.productionDoneEligible, false, 'local CLI core never mints productionDone from Authority-facing refs');
+  assert.equal(result.allowed, true, 'external gate decision refs can be admissible evidence for the matching adapter consumer');
+  assert.equal(result.scope, 'production-gate-decision', 'external gate decision refs use production-gate-decision scope');
+  assert.equal(result.productionDoneEligible, false, 'local CLI core never mints productionDone from external gate refs');
 }
 
 {
@@ -116,10 +116,10 @@ function runtimeChecks(value: Record<string, unknown>): RuntimeAdmissibilityChec
     artifactKind: 'authority-receipt',
     consumer: 'AUTHORITY_GATE_DECISION',
     claim: 'production-completion',
-    checks: currentValidChecks('lattice.authority_receipt.v1'),
+    checks: currentValidChecks('lattice.external_receipt.v1'),
   });
-  assert.equal(receiptOnly.allowed, false, 'plain Authority receipts cannot satisfy production-completion without gate-decision policy');
-  assert.equal(receiptOnly.productionDoneEligible, false, 'plain Authority receipts cannot set productionDone');
+  assert.equal(receiptOnly.allowed, false, 'plain external receipts cannot satisfy production-completion without gate-decision policy');
+  assert.equal(receiptOnly.productionDoneEligible, false, 'plain external receipts cannot set productionDone');
   expectReason(receiptOnly.reasons, 'artifact_consumer_mismatch', 'plain receipt production-completion mismatch');
   expectReason(receiptOnly.reasons, 'producer_owned_required', 'plain receipt production-completion boundary');
 }
