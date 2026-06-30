@@ -335,7 +335,7 @@
       ],
       "status": "done",
       "startTime": "2026-06-30T09:44:55.037Z",
-      "endTime": "2026-06-30T09:58:40.053Z",
+      "endTime": "2026-06-30T10:01:07.785Z",
       "files": {
         "modify": [
           "packages/main/src/core/lifecycle-control/queue/index.ts",
@@ -374,37 +374,15 @@
       "userSees": "User sees queue governance report duplicate or superseded mutation risks without deleting experiment evidence or claiming lifecycle completion.",
       "verificationEvidence": [
         {
-          "intentRef": "CHK-005:happy:0",
-          "kind": "manual_transcript",
-          "command": "node bin/lattice.js queue_governance_status --format=json",
-          "result": "pass",
-          "note": "Queue governance reports duplicateCandidate=0 for preserved Tier-C experiment stories while still surfacing active worktrees and cleanup-required rows for review.",
-          "headHash": "77f0e113f0399db07115fa283b511d1be929a06c",
-          "materialHash": "52fd19edbdb3ec0136c54356cb68ee93a28cb79461d05f02499b0d3ecb8edf5f",
-          "storyFilesHash": "ba9a71e879859c6a71fbc7ecedab3d8176ed409ce790cff7d6b956652d215d16",
-          "timestamp": "2026-06-30T09:58:40.716Z"
-        },
-        {
-          "intentRef": "CHK-005:edge:0",
-          "kind": "manual_transcript",
-          "command": "node bin/lattice.js queue_governance_status --format=json",
-          "result": "pass",
-          "note": "Valid experiment batches keep cleanupPolicy=preserve and malformed experiment records remain visible as cleanup-required without deleting evidence.",
-          "headHash": "77f0e113f0399db07115fa283b511d1be929a06c",
-          "materialHash": "52fd19edbdb3ec0136c54356cb68ee93a28cb79461d05f02499b0d3ecb8edf5f",
-          "storyFilesHash": "ba9a71e879859c6a71fbc7ecedab3d8176ed409ce790cff7d6b956652d215d16",
-          "timestamp": "2026-06-30T09:58:41.651Z"
-        },
-        {
           "intentRef": "CHK-005:adversarial:0",
           "kind": "logic_test",
-          "command": "node packages/main/dist/tasks/lifecycle-control-smoke.js",
+          "command": "node packages/main/dist/tasks/lifecycle-registry-contract.js && node packages/main/dist/tasks/flow-stability-smoke.js",
           "result": "pass",
-          "note": "Smoke asserts queue exception success cannot grant readyForNextSafeAction or lifecycle completion readiness.",
-          "headHash": "77f0e113f0399db07115fa283b511d1be929a06c",
-          "materialHash": "52fd19edbdb3ec0136c54356cb68ee93a28cb79461d05f02499b0d3ecb8edf5f",
-          "storyFilesHash": "ba9a71e879859c6a71fbc7ecedab3d8176ed409ce790cff7d6b956652d215d16",
-          "timestamp": "2026-06-30T09:58:42.851Z"
+          "note": "Supplemental policy guard evidence: DEFAULT_PHASE_TOOLS no longer grants PLAN-only ProofStory spike mutators through the broad spike_* wildcard; registry contract and flow-stability smoke pass.",
+          "headHash": "45c6f89757ca6861b8c551724a6d0fe0b78b33ff",
+          "materialHash": "ef1adf75c22738828b2a8f66f4035afd5d790d56c07d6e1d47f588557a36cacc",
+          "storyFilesHash": "13868d711a41b4316dc3479fc9902de7cfa8f859d2f9b903d93b9529b4ad56a7",
+          "timestamp": "2026-06-30T10:01:09.325Z"
         }
       ]
     },
