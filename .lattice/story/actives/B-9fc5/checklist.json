@@ -130,7 +130,27 @@
       "context": "Run documentation marker checks and ProofStory diagnostics proving the plan names the failure, milestones, rollout, and completion boundary.",
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Document marker checks prove the plan contains required sections for failure, red tests, milestones, rollout, and completion boundary.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "ProofStory diagnostics pass with no missing milestone coverage, no missing parent rollup, and no oversized ledger gap.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "DONE intent equivalence for this planning story cannot pass if the plan omits Red/Repro as the first milestone or omits the no-full-claim-with-open-children rule.",
+            "type": "cli"
+          }
+        ]
+      }
     }
   ]
 }
