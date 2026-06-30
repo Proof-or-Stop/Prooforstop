@@ -118,7 +118,7 @@
       "desc": "Concept re-review after 78cf7d560 found an active-doc contradiction in the local CLI ledger-retirement boundary. The plan now correctly says artifact-specific verifier output is stored under artifact runtime evidence paths and durable ledger streams are retired local CLI non-goals (docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md:145) and Appendix C says the current local CLI does not write durable admissibility ledger rows or let admissibility_waterline claim ledger rows/release authority (line 931). However Appendix G remains an active \"Unified Close Checklist\" for high-risk proof-path stories and still requires \"Step 2: evidence ledger write path\", including producers appending ArtifactObservedEvent and evaluators appending AdmissibilityEvaluationRow (line 1513). That reintroduces an active durable-ledger write obligation outside retired Appendix C/future-reference context, so B-c004 does not yet coherently retire local CLI durable admissibility ledger storage while keeping diagnostic waterline plus artifact-specific verifier output. The smoke partly guards the new boundary but misses this active Appendix G obligation because assertHardeningPlanHasNoActiveLedgerObligations only strips Appendix C and checks narrower phrases, not the active \"evidence ledger write path\" checklist wording.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "lattice-review-concept",
       "createdAt": "2026-06-30T17:40:25.354Z",
@@ -130,7 +130,11 @@
         "packages/main/src/tasks/proof-admissibility-hardening-smoke.ts"
       ],
       "signatureTag": "spec-boundary|md|concept-review-78cf7d560",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed the concept contradiction by making Appendix G match the B-c004 boundary: current local CLI proof admissibility uses artifact-specific verifier output and diagnostic waterline; durable admissibility ledger rows remain retired/future-reference only. The smoke guard now rejects active ArtifactObservedEvent, AdmissibilityEvaluationRow, evidence ledger write path, ledger rows, and ledger streams outside retired reference context. Evidence: commit ac66dd3a; build, proof-admissibility-hardening smoke, and proof-admissibility smoke passed.",
+      "resolvedAt": "2026-06-30T17:46:06.056Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-c004:F-007",
