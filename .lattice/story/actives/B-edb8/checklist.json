@@ -562,9 +562,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md"
       ],
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null,
+      "endTime": "2026-06-30T13:59:52.306Z",
       "userSees": "The user sees a certification matrix showing full, partial, blocked, invalid, stale, migration, and summary paths all covered.",
       "files": {
         "modify": [
@@ -597,7 +597,42 @@
             "type": "cli"
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-008:happy:0",
+          "kind": "manual_transcript",
+          "command": "npm --prefix packages/main run build && node packages/main/dist/tasks/parent-roadmap-totality-smoke.js && node packages/main/dist/tasks/proofstory-intent-hardening-smoke.js && node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Certification commands pass on current HEAD and cover full, partial, blocked, invalid, stale, migration, summary, ProofStory, and process-fact paths.",
+          "headHash": "16b3a4dd83ef8326537a8fdbe93e6ee2f2e7fc07",
+          "materialHash": "6271fc0625ed3905d2ec1e7fe95d4bf88cea05ead26427d7f57ba510b2d5460f",
+          "storyFilesHash": "1857852913c25f0da7da9c0dafbf9efc9106f01aca0406a61656dac590c6271b",
+          "timestamp": "2026-06-30T13:59:52.559Z"
+        },
+        {
+          "intentRef": "CHK-008:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js --case=migration && node packages/main/dist/cli.js parent_roadmap_status {\"case\":\"migration\"}",
+          "result": "pass",
+          "note": "Final claim boundary is explicit: B-43de-shaped migration remains no-full-roadmap-claim with open rows M4-M12 and repair guidance.",
+          "headHash": "16b3a4dd83ef8326537a8fdbe93e6ee2f2e7fc07",
+          "materialHash": "6271fc0625ed3905d2ec1e7fe95d4bf88cea05ead26427d7f57ba510b2d5460f",
+          "storyFilesHash": "1857852913c25f0da7da9c0dafbf9efc9106f01aca0406a61656dac590c6271b",
+          "timestamp": "2026-06-30T13:59:52.752Z"
+        },
+        {
+          "intentRef": "CHK-008:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/parent-roadmap-totality-smoke.js --case=evaluator && node packages/main/dist/tasks/parent-roadmap-totality-smoke.js --case=claim-consumer && node packages/main/dist/tasks/parent-roadmap-totality-smoke.js --case=cli",
+          "result": "pass",
+          "note": "Negative controls prove full-roadmap wording is impossible when child rows are open, stale, blocked, missing, invalid, or an unrelated storyId has no parent ledger.",
+          "headHash": "16b3a4dd83ef8326537a8fdbe93e6ee2f2e7fc07",
+          "materialHash": "6271fc0625ed3905d2ec1e7fe95d4bf88cea05ead26427d7f57ba510b2d5460f",
+          "storyFilesHash": "1857852913c25f0da7da9c0dafbf9efc9106f01aca0406a61656dac590c6271b",
+          "timestamp": "2026-06-30T13:59:52.945Z"
+        }
+      ]
     }
   ]
 }
