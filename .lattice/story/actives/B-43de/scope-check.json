@@ -1,0 +1,78 @@
+{
+  "storyId": "B-43de",
+  "checkedAt": "2026-06-30T09:50:58.134Z",
+  "features": [
+    {
+      "feature": "Allowed material edit: strengthening roadmap execution plan",
+      "covered_by": "CHK-001, CHK-002, CHK-004, CHK-005; scope_contract allowedModify docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md; roadmap doc Milestone Table M4-M12",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "lattice checklist_get, lattice scope_contract_show, roadmap doc"
+    },
+    {
+      "feature": "Optional material edit: process-fact contract verifier marker checks only",
+      "covered_by": "CHK-003; scope_contract allowedModify scripts/verify-process-fact-contract.mjs; allowedTest node scripts/verify-process-fact-contract.mjs",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "lattice checklist_get, lattice scope_contract_show"
+    },
+    {
+      "feature": "Parent governance ledger for M4-M12 without runtime completion claim",
+      "covered_by": "original_intent_snapshot acceptanceClaim; milestone_ledger M4-M12 rows; proofstory acceptance binding ACCEPT-ROADMAP-GOVERNANCE; parent_ledger_rollup",
+      "status": "covered",
+      "excluded_by": "",
+      "source": "lattice original_intent_snapshot_get, milestone_ledger_get, proofstory_contract_get, parent_ledger_rollup_get"
+    },
+    {
+      "feature": "Implementing all M5-M12 runtime features in this parent story",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "scope_contract explicitExcludes Implementing M5-M12 runtime behavior in this parent story; CHK-001 adversarial intent; CHK-004 adversarial intent; CHK-005 edge intent; roadmap doc status M4-M12 remain follow-up milestones",
+      "source": "lattice scope_contract_show, lattice checklist_get, roadmap doc"
+    },
+    {
+      "feature": "Mutating B-cd3a metadata",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "scope_contract explicitExcludes Changing B-cd3a metadata",
+      "source": "lattice scope_contract_show"
+    },
+    {
+      "feature": "Reintroducing server-backed proof terminology as an active claim",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "scope_contract explicitExcludes Reintroducing server-backed proof terminology; roadmap doc says retired server-backed proof remains out of scope",
+      "source": "lattice scope_contract_show, roadmap doc"
+    },
+    {
+      "feature": "B-43de ProofStory lifecycle artifacts needed by the plan are accepted by the active scope gate",
+      "covered_by": "",
+      "status": "gap",
+      "excluded_by": "",
+      "source": "lattice scope_contract_check reports OUT_OF_SCOPE for intent-collision, milestone-ledger, original-intent-snapshot, parent-ledger-rollup, proofstory, and slice-plan JSON"
+    }
+  ],
+  "summary": {
+    "total": 7,
+    "covered": 3,
+    "excluded": 3,
+    "gaps": 1,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "dbd3f2b0586689a9f20ac9d74a8bb7de44c6263ff2924ce505e8852aecbc6225",
+  "openQuestions": [
+    {
+      "id": "OQ-001",
+      "q": "The product scope is bounded to the roadmap doc plus optional verifier marker checks, but the current scope_contract_check fails on B-43de ProofStory lifecycle artifacts. Should those story-scoped ProofStory artifacts be added to the lifecycle artifact registry or scope contract, acknowledged as intentional provenance, or reverted until the contract permits them?",
+      "evidence": "scope_contract_check --storyId=B-43de reports six unacknowledged OUT_OF_SCOPE violations for B-43de intent-collision, milestone-ledger, original-intent-snapshot, parent-ledger-rollup, proofstory, and slice-plan JSON; the plan and ProofStory contract require those artifacts for parent governance.",
+      "sourcePointers": [
+        "lattice scope_contract_check --storyId=B-43de",
+        "lattice scope_contract_show --storyId=B-43de",
+        "lattice proofstory_contract_get --storyId=B-43de",
+        "lattice milestone_ledger_get --storyId=B-43de"
+      ]
+    }
+  ]
+}
