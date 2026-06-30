@@ -107,6 +107,7 @@ const proofStoryGateModeSchema = z.enum(['observe', 'warn', 'enforce']);
 const proofStoryIntentCollisionDecisionSchema = z.enum(['pass', 'revise_intent', 'human_gate', 'stop']);
 const proofStorySpikePromotionSchema = z.enum(['red_evidence', 'verification_evidence', 'scope_decision', 'implementation_note']);
 const proofStoryGreenRelationSchema = z.enum(['same_acceptance', 'regression_to_green', 'replacement']);
+const parentRoadmapCaseSchema = z.enum(['full', 'partial', 'blocked', 'invalid', 'stale', 'migration', 'b-43de']);
 
 /** CLI tool definitions bundled with main. */
 export const MAIN_TOOLS: ToolDef[] = [
@@ -2207,6 +2208,30 @@ Behavior:
     storyId: z.string().describe('Story ID'),
     mode: proofStoryGateModeSchema.optional().describe('observe/warn/enforce diagnostic mode.'),
     json: z.boolean().optional().describe('Output structured JSON.'),
+  }},
+  { name: 'parent_roadmap_status', description: 'Read-only parent-roadmap totality status from a provided ledger or built-in sample case', schema: {
+    case: parentRoadmapCaseSchema.optional().describe('Built-in sample case to evaluate, including migration/B-43de diagnostics.'),
+    storyId: z.string().optional().describe('Optional parent story id; B-43de maps to the migration diagnostic sample when no ledger is supplied.'),
+    ledger: z.any().optional().describe('ParentRoadmapLedger object to evaluate. Caller-provided rollup conclusions are ignored.'),
+    summaryText: z.string().optional().describe('Optional summary/handoff wording to check for full-roadmap overclaims.'),
+    mode: proofStoryGateModeSchema.optional().describe('observe/warn/enforce diagnostic mode for claim wording.'),
+    currentHeadHash: z.string().optional().describe('Current HEAD hash for stale evidence checks.'),
+    currentMaterialHash: z.string().optional().describe('Current material hash for stale evidence checks.'),
+    currentStoryFilesHash: z.string().optional().describe('Current story-files hash for stale evidence checks.'),
+    json: z.boolean().optional().describe('Output structured JSON.'),
+    ...READ_ONLY_STATUS_UNSUPPORTED_FLAGS,
+  }},
+  { name: 'parent_roadmap_evaluate', description: 'Evaluate a parent-roadmap ledger and optional claim text without writing story metadata', schema: {
+    case: parentRoadmapCaseSchema.optional().describe('Built-in sample case to evaluate, including migration/B-43de diagnostics.'),
+    storyId: z.string().optional().describe('Optional parent story id; B-43de maps to the migration diagnostic sample when no ledger is supplied.'),
+    ledger: z.any().optional().describe('ParentRoadmapLedger object to evaluate. Caller-provided rollup conclusions are ignored.'),
+    summaryText: z.string().optional().describe('Optional summary/handoff wording to check for full-roadmap overclaims.'),
+    mode: proofStoryGateModeSchema.optional().describe('observe/warn/enforce diagnostic mode for claim wording.'),
+    currentHeadHash: z.string().optional().describe('Current HEAD hash for stale evidence checks.'),
+    currentMaterialHash: z.string().optional().describe('Current material hash for stale evidence checks.'),
+    currentStoryFilesHash: z.string().optional().describe('Current story-files hash for stale evidence checks.'),
+    json: z.boolean().optional().describe('Output structured JSON.'),
+    ...READ_ONLY_STATUS_UNSUPPORTED_FLAGS,
   }},
   { name: 'guard_session_start', description: 'Start (or restart) a Proofbound-managed scope-guard session projection for a story', schema: {
     storyId: z.string().describe('Story ID'),

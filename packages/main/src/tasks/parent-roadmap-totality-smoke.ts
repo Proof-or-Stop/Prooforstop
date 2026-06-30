@@ -4,6 +4,16 @@
  *
  * M1 deliberately lands before the runtime evaluator exists. Keep the runtime
  * import dynamic and computed so this file can build in the red/repro commit.
+ *
+ * Supported targeted modes:
+ * --expected-red=parent-overclaim
+ * --expected-red=test-first
+ * --case=state-model
+ * --case=evaluator
+ * --case=claim-consumer
+ * --case=proofstory-binding
+ * --case=cli
+ * --case=migration
  */
 
 import { strict as assert } from 'node:assert';
@@ -177,6 +187,9 @@ function fullLedger(): Record<string, unknown> {
 function partialLedger(): Record<string, unknown> {
   return baseLedger({
     ledgerId: 'PR-partial',
+    parentStoryId: 'B-parent-partial',
+    createdByStoryId: 'B-parent-partial',
+    updatedByStoryIds: ['B-parent-partial'],
     parentLedgerRollup: { allRowsClosed: true, claimType: 'full-roadmap-claim' },
     rows: [
       {
